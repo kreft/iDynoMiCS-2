@@ -1,6 +1,6 @@
 package agent.body;
 
-import utils.Vect;
+import utility.Vect;
 
 public class Point {
     static int UNIQUE_ID = 0;

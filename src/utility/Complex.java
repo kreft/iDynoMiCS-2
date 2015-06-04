@@ -6,7 +6,7 @@
  * CeCILL license under French law and abides by the rules of distribution of free software.  You can use, modify and/ or redistribute 
  * iDynoMiCS under the terms of the CeCILL license as circulated by CEA, CNRS and INRIA at the following URL  "http://www.cecill.info".
  */
-package utils;
+package utility;
 
 /**
  * \brief Class for storing complex numbers as two doubles representing real

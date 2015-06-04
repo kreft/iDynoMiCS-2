@@ -3,10 +3,10 @@ package agent;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import activities.*;
+import agent.activity.*;
 import agent.body.*;
 import spatialgrid.SoluteGrid;
-import utils.Vect;
+import utility.Vect;
 
 public class Agent
 {

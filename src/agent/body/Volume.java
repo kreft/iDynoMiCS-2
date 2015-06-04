@@ -1,6 +1,6 @@
 package agent.body;
 
-import utils.Vect;
+import utility.Vect;
 
 /**
  * \brief methods used in collision/attraction detection and response

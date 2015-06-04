@@ -1,4 +1,4 @@
-package activities;
+package agent.activity;
 
 import agent.Agent;
 import idynomics.Timer;

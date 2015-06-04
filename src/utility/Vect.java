@@ -1,4 +1,4 @@
-package utils;
+package utility;
 
 public final class Vect {
 	

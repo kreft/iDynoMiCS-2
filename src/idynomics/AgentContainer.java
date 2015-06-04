@@ -2,8 +2,8 @@ package idynomics;
 
 import java.util.LinkedList;
 
-import spatialRegistries.RTree;
-import spatialRegistries.spatialRegistry;
+import spatialregistry.RTree;
+import spatialregistry.spatialRegistry;
 import agent.Agent;
 
 public class AgentContainer

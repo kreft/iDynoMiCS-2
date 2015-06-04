@@ -10,7 +10,7 @@
  * the terms of the CeCILL license as circulated by CEA, CNRS and INRIA at the
  * following URL "http://www.cecill.info".
  */
-package utils;
+package utility;
 
 import java.text.DecimalFormat;
 import java.util.LinkedList;

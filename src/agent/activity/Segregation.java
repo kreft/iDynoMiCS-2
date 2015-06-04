@@ -1,7 +1,7 @@
-package activities;
+package agent.activity;
 
 import agent.Agent;
-import utils.ExtraMath;
+import utility.ExtraMath;
 
 /**
  * segregation should be called on cell division, does the daughter cell receive

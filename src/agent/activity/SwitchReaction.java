@@ -1,4 +1,4 @@
-package activities;
+package agent.activity;
 
 public class SwitchReaction extends Activity {
 
