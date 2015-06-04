@@ -13,6 +13,7 @@ public abstract class Mechanism
 	
 	protected Double _timeStepSize;
 	
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -70,7 +71,22 @@ public abstract class Mechanism
 	 * STEPPING
 	 ************************************************************************/
 	
-	public abstract void step(SoluteGrid[] solutes, AgentContainer agents);
+	public void step(SoluteGrid[] solutes, AgentContainer agents)
+	{
+		/*
+		 * This is where subclasses of Mechanism do their step. Note that
+		 * this._timeStepSize may change if an adaptive timestep is used.
+		 */
+		this.internalStep(solutes, agents);
+		/*
+		 * Increase the 
+		 */
+		this._timeForNextStep += this._timeStepSize;
+		
+	}
+	
+	protected abstract void internalStep(SoluteGrid[] solutes,
+											AgentContainer agents);
 	
 	/*************************************************************************
 	 * REPORTING

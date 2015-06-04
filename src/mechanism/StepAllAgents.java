@@ -6,17 +6,15 @@ import idynomics.AgentContainer;
 
 public class StepAllAgents extends Mechanism
 {
-	public StepAllAgents() {
-		// TODO Auto-generated constructor stub
+	public StepAllAgents()
+	{
+		
 	}
-
+	
 	@Override
-	public void step(SoluteGrid[] solutes, AgentContainer agents)
+	protected void internalStep(SoluteGrid[] solutes, AgentContainer agents)
 	{
 		for ( Agent agent : agents.getAllAgents() )
 			agent.step(this._timeStepSize, solutes);
-		// TODO Auto-generated method stub
-		this._timeForNextStep += this._timeStepSize;
 	}
-
 }

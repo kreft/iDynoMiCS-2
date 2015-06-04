@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import agent.activity.*;
 import agent.body.*;
+import agent.state.*;
 import spatialgrid.SoluteGrid;
 import utility.Vect;
 
@@ -27,6 +28,8 @@ public class Agent
 	 */
 	protected LinkedList<Activity> activities = null;
     
+	protected LinkedList<State> states = null;
+	
     /**
      * index of this species in the species library
      */
