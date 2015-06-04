@@ -1,4 +1,4 @@
-package util;
+package spatialRegistries;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -20,7 +20,7 @@ import java.util.Set;
  * @param <T>
  *          the type of entry to store in this RTree.
  */
-public class RTree<T>
+public class RTree<T> extends spatialRegistry<T>
 {
   public enum SeedPicker { LINEAR, QUADRATIC }
 
@@ -58,6 +58,16 @@ public class RTree<T>
     root = buildRoot(true);
   }
 
+  /**
+   * Creates a new RTree.
+   * 
+   * @param maxEntries
+   *          maximum number of entries per node
+   * @param minEntries
+   *          minimum number of entries per node (except for the root node)
+   * @param numDims
+   *          the number of dimensions of the RTree.
+   */
   public RTree(int maxEntries, int minEntries, int numDims)
   {
     this(maxEntries, minEntries, numDims, SeedPicker.LINEAR);

@@ -1,8 +1,8 @@
 package agent.body;
 
-import util.Vect;
+import utils.Vect;
 
-public class Point implements Cloneable {
+public class Point {
     static int UNIQUE_ID = 0;
     int uid = ++UNIQUE_ID;
 	private Double[] position;
@@ -16,6 +16,9 @@ public class Point implements Cloneable {
 		this.setForce(Vect.zeros(nDim));
 	}
 	
+	//FIXME: change this to set position random location lowerbound[] 
+	//upperbound[], currently domain represents a simple spawn box with sizes
+	// "domain", this needs to be a bit more specific
 	public Point(int nDim, double domain) 
 	{
 		this.setPosition(Vect.randomDirection(nDim,domain));
@@ -58,7 +61,9 @@ public class Point implements Cloneable {
 		return vSquare;
 	}
 	
-	float[] coord(Double radius) 
+	//TODO: switch from a float RTree to a Double RTree so we can consistantly 
+	// use Doubles in the model implementation.
+	public float[] coord(Double radius) 
 	{
 		float[] coord = new float[position.length];
 		for (int i = 0; i < position.length; i++) 
@@ -66,7 +71,7 @@ public class Point implements Cloneable {
 		return coord;
 	}
 	
-	float[] dimensions(Double radius) 
+	public float[] dimensions(Double radius) 
 	{
 		float[] dimensions = new float[position.length];
 		for (int i = 0; i < position.length; i++) 
@@ -74,7 +79,7 @@ public class Point implements Cloneable {
 		return dimensions;
 	}
 	
-	float[] upper(Double radius) 
+	public float[] upper(Double radius) 
 	{
 		float[] coord = new float[position.length];
 		for (int i = 0; i < position.length; i++) 
@@ -97,19 +102,19 @@ public class Point implements Cloneable {
 		this.position = position;
 	}
 
-	Double[] getForce() {
+	public Double[] getForce() {
 		return force;
 	}
 
-	void setForce(Double[] force) {
+	public void setForce(Double[] force) {
 		this.force = force;
 	}
 
-	Double[] getVelocity() {
+	public Double[] getVelocity() {
 		return velocity;
 	}
 
-	void setVelocity(Double[] velocity) {
+	public void setVelocity(Double[] velocity) {
 		this.velocity = velocity;
 	}
 

@@ -3,5 +3,7 @@
 /mechanism/
 /reaction/
 /spatialgrid/
-/test/
-/utility/
+/util/
+/activities/
+/spatialRegistries/
+/utils/

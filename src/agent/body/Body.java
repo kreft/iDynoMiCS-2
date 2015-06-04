@@ -16,20 +16,20 @@ public class Body {
     /**
      * Rest length of internal springs connecting the points.
      */
-	protected Double[] lengths		= null;
+	protected Double[] _lengths		= null;
 	
 	/**
 	 * Rest angles of torsion springs 
 	 */
-	protected Double[] angles		= null;
+	protected Double[] _angles		= null;
 	
 	/**
 	 * radius of the cell
 	 */
-	protected Double radius			= null;
+	protected Double _radius		= null;
 	
 	/**
-	 * 
+	 * FIXME: convert to switch-case rather than if else
 	 */
 	public int getMorphologyIndex()
 	{
@@ -41,10 +41,10 @@ public class Body {
 			return 2;					// rod body
 		else if (points.size() > 2)
 		{
-			if (angles == null)
-				return 3;					// bendable body / filaments
+			if (_angles == null)
+				return 3;				// bendable body / filaments
 			else
-				return 4;					// bend body type
+				return 4;				// bend body type
 		}
 		else
 			return -1;					// undefined body type
