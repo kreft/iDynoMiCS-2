@@ -1,12 +1,12 @@
 package agent;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
-import activities.Activity;
-import activities.Conjugation;
-import activities.SwitchReaction;
-import agent.body.Body;
+import activities.*;
+import agent.body.*;
 import spatialgrid.SoluteGrid;
+import utils.Vect;
 
 public class Agent
 {
@@ -20,8 +20,15 @@ public class Agent
     /*************************************************************************
 	 * General properties/variables
 	 ************************************************************************/
+    
+	/**
+	 * Activities represent the processes an agent can perform. For example
+	 * grow, divide, conjugate, die, etc.
+	 */
+	protected LinkedList<Activity> activities = null;
+    
     /**
-     * 
+     * index of this species in the species library
      */
 	protected Integer speciesIndex = null;
 
@@ -29,11 +36,6 @@ public class Agent
 	 * A list of all agent that are contained within this agent (plasmid, phage)
 	 */
 	protected LinkedList<Agent> internalAgents = null;
-	
-	/**
-	 * 
-	 */
-	protected LinkedList<Activity> activities = null;
 	
 	/**
 	 * Time at which this agent was created.
@@ -48,6 +50,7 @@ public class Agent
     /*************************************************************************
 	 * Body and location variables
 	 ************************************************************************/
+    
     /**
      * The agentBody represents the morphology, size and location of the agent
      * physical interactions work on the Points or vertices of the body
@@ -67,6 +70,7 @@ public class Agent
     /*************************************************************************
 	 * Episome variables
 	 ************************************************************************/
+    
     /**
      * copy number of plasmids or phages
      */
@@ -81,7 +85,22 @@ public class Agent
     /*************************************************************************
 	 * Active (reaction) variables
 	 ************************************************************************/
-        	
+
+	/**
+	 * Array of all the reactions this agent is involved in
+	 */
+	//public Reaction[] allReactions;
+	
+	/**
+	 * Array of the reactions that are active
+	 */
+	protected ArrayList<Integer> reactionActive;
+    
+	/**
+	 * Growth rate of this agent due to reactions
+	 */
+	protected Double[] growthRate;
+    
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -103,6 +122,11 @@ public class Agent
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
+	
+	public void addActivity(Activity newActivity)
+	{
+		activities.add(newActivity);
+	}
 
 	public boolean isRepressed() {
 		return _isRepressed;
@@ -132,6 +156,15 @@ public class Agent
 		this._copyNumber = copyNumber;
 	}
 
+	/**
+	 * 
+	 * @return the total mass of the agent (including all components)
+	 */
+	public Double getMass()
+	{
+		return Vect.sum(_mass);
+		
+	}
 
 
 	/*************************************************************************

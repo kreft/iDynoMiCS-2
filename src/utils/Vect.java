@@ -80,9 +80,21 @@ public final class Vect {
 	 * @return the sum of vector and second
 	 */
 	public static Double[] sum(Double[] vector, Double[] second) {
-		Double[] c = vector.clone();
+		Double[] c = copy(vector);
 		for(int i=0; i<c.length; i++) 
 			c[i] += second[i];
+		return c;
+	}
+	
+	/**
+	 * 
+	 * @param vector
+	 * @return the sum of all fields of the vector
+	 */
+	public static Double sum(Double[] vector) {
+		Double c = 0.0;
+		for(int i=0; i<vector.length; i++) 
+			c += vector[i];
 		return c;
 	}
 	
