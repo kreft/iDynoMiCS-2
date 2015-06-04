@@ -3,8 +3,6 @@ package idynomics;
 public class Simulator
 {
 	
-	
-	
 	public Simulator()
 	{
 		

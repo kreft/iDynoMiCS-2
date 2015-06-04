@@ -15,7 +15,7 @@ public class Compartment
 	/**
 	 * Number of spatial dimensions in this compartment.
 	 */
-	protected int _nDims;
+	private int _nDims;
 	
 	/**
 	 * 
@@ -49,6 +49,14 @@ public class Compartment
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	protected int getNumDims() {
+		return _nDims;
+	}
+
+
+	protected void setNumDims(int _nDims) {
+		this._nDims = _nDims;
+	}
 	
 	/*************************************************************************
 	 * STEPPING
@@ -67,7 +75,7 @@ public class Compartment
 			currentMech = _mechanisms.getFirst();
 		}
 	}
-	
+
 	protected static class MechanismComparator implements Comparator<Mechanism>
 	{
 		@Override
