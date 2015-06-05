@@ -6,7 +6,6 @@ import java.util.LinkedList;
 
 import agent.activity.*;
 import agent.body.*;
-import agent.state.*;
 import spatialgrid.SoluteGrid;
 import utility.Vect;
 
@@ -29,9 +28,11 @@ public class Agent
 	 */
 	protected LinkedList<Activity> activities = null;
 	
-	protected HashMap<String, Object> states = new HashMap();
+	/**
+	 * The states HashMap use used to store all non
+	 */
+	protected HashMap<String, Object> states = new HashMap<String, Object>();
     
-	protected LinkedList<State> states = null;
 	
     /**
      * index of this species in the species library
