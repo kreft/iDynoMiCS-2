@@ -3,6 +3,7 @@ package agent.body;
 import utility.Vect;
 
 /**
+ * FIXME: Bas - Think of a better name for this class..
  * \brief methods used in collision/attraction detection and response
  * 
  * Methods are based on closest point algorithms from:

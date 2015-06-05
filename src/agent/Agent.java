@@ -1,6 +1,7 @@
 package agent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import agent.activity.*;
@@ -27,6 +28,8 @@ public class Agent
 	 * grow, divide, conjugate, die, etc.
 	 */
 	protected LinkedList<Activity> activities = null;
+	
+	protected HashMap<String, Object> states = new HashMap();
     
 	protected LinkedList<State> states = null;
 	
@@ -97,12 +100,12 @@ public class Agent
 	/**
 	 * Array of the reactions that are active
 	 */
-	protected ArrayList<Integer> reactionActive;
+	protected ArrayList<Integer> reactionActive = null;
     
 	/**
 	 * Growth rate of this agent due to reactions
 	 */
-	protected Double[] growthRate;
+	protected Double[] growthRate = null;
     
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -126,8 +129,7 @@ public class Agent
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
-	public void addActivity(Activity newActivity)
-	{
+	public void addActivity(Activity newActivity) {
 		activities.add(newActivity);
 	}
 
@@ -167,6 +169,11 @@ public class Agent
 	{
 		return Vect.sum(_mass);
 		
+	}
+	
+	public void setState(String name, Object state)
+	{
+		states.put(name,state);
 	}
 
 
