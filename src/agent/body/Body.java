@@ -50,4 +50,76 @@ public class Body {
 			return -1;					// undefined body type
 		
 	}
+	
+	public float[] coord(Double radius) 
+	{
+		if(points.size() == 1)
+			return points.get(0).coord(radius);
+		float[] coord = new float[nDim()];
+		for (Point o: points) 
+		{
+			for (int i = 0; i < nDim(); i++) 
+			{
+				coord[i] = Math.min(coord[i], o.coord(radius)[i]);
+			}
+		}
+		return coord;
+	}
+	
+	public float[] coord(Double radius, double t) 
+	{
+		if(points.size() == 1)
+			return points.get(0).coord(radius);
+		float[] coord = new float[nDim()];
+		for (Point o: points) 
+		{
+			for (int i = 0; i < nDim(); i++) 
+			{
+				coord[i] = Math.min(coord[i], o.coord(radius)[i]) - (float) t;
+			}
+		}
+		return coord;
+	}
+	
+	public float[] upper(Double radius) 
+	{
+		float[] upper = new float[nDim()];
+		for (Point o: points) 
+		{
+			for (int i = 0; i < nDim(); i++) 
+			{
+				upper[i] = Math.max(upper[i], o.upper(radius)[i]);
+			}
+		}
+		return upper;
+	}
+	
+	public float[] dimensions(Double radius) 
+	{
+		if(points.size() == 1)
+			return points.get(0).dimensions(radius);
+		float[] coord 		= coord(radius);
+		float[] upper 		= upper(radius);
+		float[] dimensions	= new float[nDim()];
+		for (int i = 0; i < nDim(); i++)
+			dimensions[i] = upper[i] - coord[i];
+		return dimensions;
+	}
+	
+	public float[] dimensions(Double radius, double t) 
+	{
+		if(points.size() == 1)
+			return points.get(0).dimensions(radius);
+		float[] coord 		= coord(radius);
+		float[] upper 		= upper(radius);
+		float[] dimensions	= new float[nDim()];
+		for (int i = 0; i < nDim(); i++)
+			dimensions[i] = upper[i] - coord[i] + 2 * (float) t;
+		return dimensions;
+	}
+	
+	public int nDim() 
+	{
+		return points.get(0).nDim();
+	}
 }

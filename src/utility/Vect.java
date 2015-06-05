@@ -117,9 +117,22 @@ public final class Vect {
 	 * @return vector multiplied by scalar
 	 */
 	public static Double[] product(Double[] vector, double scalar) {
-		Double[] c = vector.clone();
+		Double[] c = copy(vector);
 		for (int i = 0; i < c.length; i++)
 			c[i] *= scalar;
+		return c;
+	}
+	
+	/**
+	 * 
+	 * @param vector
+	 * @param scalar
+	 * @return vector multiplied by scalar
+	 */
+	public static Double[] product(Double[] vector, Double[] second) {
+		Double[] c = copy(vector);
+		for (int i = 0; i < c.length; i++)
+			c[i] *= second[i];
 		return c;
 	}
 	

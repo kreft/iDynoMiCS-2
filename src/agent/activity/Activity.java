@@ -1,5 +1,7 @@
 package agent.activity;
 
+import agent.Agent;
+
 public abstract class Activity {
 	
 	/**
@@ -7,14 +9,9 @@ public abstract class Activity {
 	 */
 	protected String _name;
 	
+	public abstract boolean prerequisites(Agent agent);
 	
-	public Activity() 
-	{
-		
-	}
+	public abstract void execute(Agent agent);
 	
-	public void init()
-	{
-		
-	}
+	public abstract void execute(Agent agent, Agent secondActor);
 }

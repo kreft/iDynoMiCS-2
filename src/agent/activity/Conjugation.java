@@ -5,47 +5,37 @@ import idynomics.Timer;
 
 public class Conjugation extends Activity {
 	
-	// these parameters may be moved to the species parameters of the episome
-	protected Double _exchangeLag;
-	
-	protected Double _receptionLag;
-	
-	protected int _copyNumberThreshold;
-	
-	protected Agent _episome;
-
-	public boolean isTriggeredOnStep()
+	public boolean prerequisites(Agent episome)
 	{
-		if (_episome.isRepressed())
+		if ( (Boolean) episome.getState("isRepressed"))
 			return false;
-		if (_copyNumberThreshold < _episome.getCopyNumber())
-			return false;
-
-		if (Timer.getCurrentTime() - _episome.getLastExchange() < _exchangeLag)
+		if ( (Integer) episome.getState("copyNumberThreshold") <  // copyNumberThreshold may be stored as species parameter
+				(Integer) episome.getState("getCopyNumber"))
 			return false;
 
-		if (Timer.getCurrentTime() - _episome.getLastReception() < _receptionLag)
+		if (Timer.getCurrentTime() - 
+				(Double) episome.getState("getLastExchange") < 
+				(Double) episome.getState("exchangeLag")) // exchangeLag may be stored as species parameter
+			return false;
+
+		if (Timer.getCurrentTime() - 
+				(Double) episome.getState("getLastReception") < 
+				(Double) episome.getState("receptionLag")) // receptionLag  may be stored as species parameter
 			return false;		
 		return true;
 	}
-	
-	public boolean isTriggeredOnBirth()
+
+	public void execute(Agent episome)
 	{
-		return false;
+		if (prerequisites(episome))
+		{
+			
+		}
 	}
-	
-	public boolean isTriggeredOnDeath()
-	{
-		return false;
-	}
-	
-	public void doyourthing()
-	{
+
+	@Override
+	public void execute(Agent agent, Agent secondActor) {
+		// TODO Auto-generated method stub
 		
-	}
-	
-	public Conjugation(Agent agent) {
-		this._episome = agent;
-		// TODO Auto-generated constructor stub
 	}
 }

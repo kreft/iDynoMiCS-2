@@ -17,7 +17,7 @@ public class Idynomics
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.
 	*/
-	public static Double version_number = 1.2;
+	public static Double version_number = 2.0;
 	
 	/**
 	* \brief Main method used to start iDynoMiCS.
