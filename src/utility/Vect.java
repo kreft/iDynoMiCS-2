@@ -3,7 +3,6 @@ package utility;
 public final class Vect {
 	
 	/**
-	 * 
 	 * @param vector
 	 * @return Euclidean norm
 	 */
@@ -15,7 +14,6 @@ public final class Vect {
 	}
 	
 	/**
-	 * 
 	 * @param vector
 	 * @return Squared Euclidean norm
 	 */
@@ -27,7 +25,8 @@ public final class Vect {
 	}
 	
 	/**
-	 * 
+	 * \brief creates a new vector that represents a field by field subtraction 
+	 * of vector[field] - second[field]. Does not overwrite 'vector'.
 	 * @param vector
 	 * @param second
 	 * @return field by field subtraction vector[field] - second[field]
@@ -40,10 +39,10 @@ public final class Vect {
 	}
 	
 	/**
-	 * 
+	 * \brief divides every field of 'vector' by the euclidean norm of 'vector'.
+	 * Does not overwrite 'vector'
 	 * @param vector
 	 * @return normalized vector
-	 * 
 	 */
 	public static Double[] normalize(Double[] vector) {
 		Double[] c = copy(vector);
@@ -54,7 +53,8 @@ public final class Vect {
 	}
 	
 	/**
-	 * \brief adds second to vector
+	 * \brief adds the Double 'second' to every field of 'vector'. Overwrites
+	 * 'vector'
 	 * @param vector
 	 * @param second
 	 */
@@ -64,7 +64,8 @@ public final class Vect {
 	}
 	
 	/**
-	 * \brief adds second to vector
+	 * \brief field by field addition of vector[field] + second[field].
+	 * Overwrites 'vector'
 	 * @param vector
 	 * @param second
 	 */
@@ -74,20 +75,20 @@ public final class Vect {
 	}
 	
 	/**
-	 * 
+	 * \brief creates a new vector that represents a field by field addition of 
+	 * vector[field] + second[field]. Does not overwrite 'vector'
 	 * @param vector
 	 * @param second
 	 * @return the sum of vector and second
 	 */
 	public static Double[] sum(Double[] vector, Double[] second) {
 		Double[] c = copy(vector);
-		for(int i=0; i<c.length; i++) 
-			c[i] += second[i];
+		add(c,second);
 		return c;
 	}
 	
 	/**
-	 * 
+	 * \brief the sum of all fields in 'vector'.
 	 * @param vector
 	 * @return the sum of all fields of the vector
 	 */
@@ -100,31 +101,50 @@ public final class Vect {
 	
 	/**
 	 * \brief field by field addition of second to vector, even if second is of
-	 * different length!
+	 * different length! 
 	 * @param vector
 	 * @param second
 	 */
-	public static void addIffy(Double[] vector, Double[] second) {
-		int l = Math.min(vector.length, second.length);
+	public static Double[] addIffy(Double[] vector, Double[] second) {
+		Double[] c = copy(vector);
+		int l = Math.min(c.length, second.length);
 		for(int i=0; i<l; i++) 
-			vector[i] += second[i];
+			c[i] += second[i];
+		return c;
 	}
 	
 	/**
-	 * 
+	 * \brief multiplies all fields of 'vector' by 'scalar'. Does not overwrite
+	 * 'vector'
 	 * @param vector
 	 * @param scalar
 	 * @return vector multiplied by scalar
 	 */
 	public static Double[] product(Double[] vector, double scalar) {
-		Double[] c = vector.clone();
+		Double[] c = copy(vector);
 		for (int i = 0; i < c.length; i++)
 			c[i] *= scalar;
 		return c;
 	}
 	
 	/**
-	 * 
+	 * \brief creates a new vector that represents a field by field 
+	 * multiplication of vector[field] * second[field]. Does not overwrite 
+	 * 'vector'
+	 * @param vector
+	 * @param scalar
+	 * @return vector multiplied by scalar
+	 */
+	public static Double[] product(Double[] vector, Double[] second) {
+		Double[] c = copy(vector);
+		for (int i = 0; i < c.length; i++)
+			c[i] *= second[i];
+		return c;
+	}
+	
+	/**
+	 * \brief the dot product is the sum of a field by field multiplication of
+	 * 'vector' and 'second'
 	 * @param vector
 	 * @param second
 	 * @return the dot product of vector and second
@@ -137,7 +157,7 @@ public final class Vect {
 	}
 
 	/**
-	 * \brief replaces all fields of vector by 0.0
+	 * \brief replaces all fields of vector by 0.0.
 	 * @param vector
 	 */
 	public static void reset(Double[] vector) {
@@ -146,9 +166,10 @@ public final class Vect {
 	}
 	
 	/**
-	 * 
+	 * \brief creates a new vector of random numbers between -1.0 and 1.0 of 
+	 * length 'n'.
 	 * @param n
-	 * @return a vector of random numbers between -1.0 and 1.0 of length n
+	 * @return a vector of random numbers between -1.0 and 1.0 of length 'n'.
 	 */
 	public static Double[] randomDirection(int n) {
 		Double[] v = new Double[n];
@@ -158,7 +179,8 @@ public final class Vect {
 	}
 	
 	/**
-	 * 
+	 * \brief creates a new vector of random numbers between -1.0 and 1.0 of 
+	 * length 'n' scaled by 'scalar'.
 	 * @param n
 	 * @param scalar
 	 * @return vector of random numbers between -scalar and scalar of length n
@@ -171,7 +193,7 @@ public final class Vect {
 	}
 	
 	/**
-	 * 
+ 	 * \brief creates a new vector of zero's (0.0) of length 'n'.
 	 * @param n
 	 * @return vector of length n with 0.0 in each field
 	 */
@@ -183,7 +205,7 @@ public final class Vect {
 	}
 	
 	/**
-	 * 
+	 * \brief returns a new vector that is in oposite direction of 'vector'
 	 * @param vector
 	 * @return vector in oposing direction
 	 */
@@ -195,7 +217,7 @@ public final class Vect {
 	}
 	
 	/**
-	 * 
+	 * \brief creates a new field by field copy of 'vector'.
 	 * @param vector
 	 * @return a copy of vector
 	 */
@@ -207,20 +229,25 @@ public final class Vect {
 	}
 	
 	/**
+	 * \brief creates a new vector that represents a point between 'vector' and
+	 * 'second'. This point can by shifted by 'shift' and randomized by
+	 * 'randomfactor'. Used in rod-cell cell division. 
 	 * TODO: this is the quick and (very) dirty approach, clean-up
-	 * @param v0
-	 * @param v1
+	 * @param vector
+	 * @param second
 	 * @param shift
 	 * @param randomfactor
-	 * @return exact point between v0 and v1 shifted by shift randomized by
-	 * randomfactor
+	 * @return exact point between v0 and v1 shifted by 'shift' randomized by
+	 * 'randomfactor'.
 	 */
-	public static Double[] between(Double[] v0, Double[] v1, double shift, double randomfactor) {
-		Double[] h 		= minus(v0,v1);
+	public static Double[] between(Double[] vector, Double[] second, 
+			double shift, double randomfactor) 
+	{
+		Double[] h 		= minus(vector,second);
 		h 				= normalize(h);
 		double distance	= normE(h);
 		add(h,randomfactor*2*(Math.random()-0.5));
-		return minus(v0,product(h,(distance/2.0)+shift)); 
+		return minus(vector,product(h,(distance/2.0)+shift)); 
 	}
 
 }
