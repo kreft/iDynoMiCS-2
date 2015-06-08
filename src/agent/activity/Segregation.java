@@ -10,20 +10,14 @@ import utility.ExtraMath;
 
 public class Segregation extends Activity {
 	
-	public boolean prerequisites(Agent agent)
+	public boolean prerequisites(Agent[] agents)
 	{
 		return true;
 	}
 	
-	public void execute(Agent agent) {
-		// this is an interaction activity, thus we need two actors
+	public void execute(Agent[] agents, Double timestep) {
+
 	}
 
-	@Override
-	public void execute(Agent agent, Agent child) {
-		if (prerequisites(agent)) 
-		{
 
-		}
-	}
 }

@@ -15,6 +15,10 @@ public class StepAllAgents extends Mechanism
 	protected void internalStep(SoluteGrid[] solutes, AgentContainer agents)
 	{
 		for ( Agent agent : agents.getAllAgents() )
-			agent.step(this._timeStepSize, solutes);
+		{
+			agent.doActivity("grow", this._timeStepSize);
+			agent.doActivity("divide", null);
+			agent.doActivity("die", null);
+		}
 	}
 }

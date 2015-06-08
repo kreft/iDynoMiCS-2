@@ -34,10 +34,22 @@ public class Agent
 	 */
     protected HashMap<String, Activity> _activities = new HashMap<String, Activity>();
     
+    //FIXME: Bas - dilemma: so we prefer not giving everything all information
+    // that is available, however.. agents need to perform their activities we
+    // do not know what information is needed for those activities thus how do
+    // we do we ensure that the agents can perform all activities without giving
+    // them all available information? For now let them have all information 
+    // until we have a definite answer to this question.
+     
     /**
      * Used to search neighbors and store newly created agents
      */
-    AgentContainer _agentContainer;
+    AgentContainer _agents;
+    
+    /**
+     * Used for reaction speeds and growth
+     */
+    SoluteGrid _solutes;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -94,53 +106,10 @@ public class Agent
 	 */
 	public Double getVolume()
 	{
-		return Vect.sum(Vect.product( (Double[]) getState("mass"), 
-				(Double[]) getState("density")));
+		return Vect.dot( (Double[]) getState("mass"), 
+				(Double[]) getState("density"));
 	}
 	
-
-	/*************************************************************************
-	 * STEPPING
-	 ************************************************************************/
-	
-	/**
-	 * \brief do the activity if this activity is owned by the agent. Note that
-	 * the activity itself will check for the prerequisites. 
-	 * @param activity
-	 */
-	public void doActivity(String activity) 
-	{
-		try
-		{
-			_activities.get(activity).execute(this);
-		}
-		catch (Exception e) // null pointer exception?
-		{
-			System.out.println(e.toString());
-		}
-	}
-	
-	public void doActivity(String activity, Agent secondActor) 
-	{
-		try
-		{
-			_activities.get(activity).execute(this,secondActor);
-		}
-		catch (Exception e) // null pointer exception?
-		{
-			System.out.println(e.toString());
-		}
-	}
-	
-	public void step(Double timeStepSize, SoluteGrid[] solutes)
-	{
-		
-	}
-
-	public void registerBirth() {
-		_agentContainer.registerBirth(this);
-	}
-
 	/**
 	 * FIXME: this method may need some fine tuning in a later stage.
 	 * @return true if the agent has a located body.
@@ -153,10 +122,8 @@ public class Agent
 			return true;
 	}
 	
-	//////////// the bounding box of the agent ////////////
 	/**
-	 * 
-	 * @return
+	 * @return the lower corner of bounding box.
 	 */
 	public float[] getLower() 
 	{
@@ -164,31 +131,81 @@ public class Agent
 		return myBody.coord((Double) getState("radius"));
 	}
 	
-	public float[] getLower(double t) 
+	/**
+	 * @return the lower corner of bounding box with added margin.
+	 */
+	public float[] getLower(double margin) 
 	{
 		Body myBody = (Body) getState("Body");
-		return myBody.coord((Double) getState("radius"),t);
+		return myBody.coord((Double) getState("radius"),margin);
 	}
 	
-	public float[] getUpper() 
-	{
-		Body myBody = (Body) getState("Body");
-		return myBody.upper((Double) getState("radius"));
-	}
-	
+	/** 
+	 * @return the rib length of bounding box.
+	 */
 	public float[] getDim() 
 	{
 		Body myBody = (Body) getState("Body");
 		return myBody.dimensions((Double) getState("radius"));
 	}
 	
-	public float[] getDim(double t) 
+	/**
+	 * @return the rib length of bounding box with added margin.
+	 */
+	public float[] getDim(double margin) 
 	{
 		Body myBody = (Body) getState("Body");
-		return myBody.dimensions((Double) getState("radius"),t);
+		return myBody.dimensions((Double) getState("radius"),margin);
+	}
+
+	/*************************************************************************
+	 * STEPPING
+	 ************************************************************************/
+	
+	/**
+	 * \brief do time dependent activity.
+	 * @param activity
+	 * @param timestep
+	 */
+	public void doActivity(String activity, Double timestep) 
+	{
+		try
+		{
+			_activities.get(activity).execute(new Agent[]{this},timestep);
+		}
+		catch (Exception e) // null pointer exception?
+		{
+			System.out.println(e.toString());
+		}
 	}
 	
-
+	/**
+	 * \brief do time dependent multiple actor activity.
+	 * @param activity
+	 * @param timestep
+	 */
+	public void doActivity(String activity, Agent secondActor, Double timestep) 
+	{
+		try
+		{
+			_activities.get(activity).execute(new Agent[]{this,secondActor},timestep);
+		}
+		catch (Exception e) // null pointer exception?
+		{
+			System.out.println(e.toString());
+		}
+	}
+	
+	/*************************************************************************
+	 * general methods
+	 ************************************************************************/
+	
+	/**
+	 * \brief: Registers the birth of a new agent with the agentContainer.
+	 */
+	public void registerBirth() {
+		_agents.registerBirth(this);
+	}
 	
 	/*************************************************************************
 	 * REPORTING

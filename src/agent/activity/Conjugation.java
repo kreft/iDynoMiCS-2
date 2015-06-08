@@ -5,37 +5,36 @@ import idynomics.Timer;
 
 public class Conjugation extends Activity {
 	
-	public boolean prerequisites(Agent episome)
+	/*
+	 * 
+	 * 
+	 */
+	public boolean prerequisites(Agent[] agents)
 	{
-		if ( (Boolean) episome.getState("isRepressed"))
+		if ( (Boolean) agents[0].getState("isRepressed"))
 			return false;
-		if ( (Integer) episome.getState("copyNumberThreshold") <  // copyNumberThreshold may be stored as species parameter
-				(Integer) episome.getState("getCopyNumber"))
-			return false;
-
-		if (Timer.getCurrentTime() - 
-				(Double) episome.getState("getLastExchange") < 
-				(Double) episome.getState("exchangeLag")) // exchangeLag may be stored as species parameter
+		if ( (Integer) agents[0].getState("copyNumberThreshold") <  // copyNumberThreshold may be stored as species parameter
+				(Integer) agents[0].getState("getCopyNumber"))
 			return false;
 
 		if (Timer.getCurrentTime() - 
-				(Double) episome.getState("getLastReception") < 
-				(Double) episome.getState("receptionLag")) // receptionLag  may be stored as species parameter
+				(Double) agents[0].getState("getLastExchange") < 
+				(Double) agents[0].getState("exchangeLag")) // exchangeLag may be stored as species parameter
+			return false;
+
+		if (Timer.getCurrentTime() - 
+				(Double) agents[0].getState("getLastReception") < 
+				(Double) agents[0].getState("receptionLag")) // receptionLag  may be stored as species parameter
 			return false;		
 		return true;
 	}
 
-	public void execute(Agent episome)
+	public void execute(Agent[] agents, Double timestep)
 	{
-		if (prerequisites(episome))
+		if (prerequisites(agents))
 		{
 			
 		}
 	}
 
-	@Override
-	public void execute(Agent agent, Agent secondActor) {
-		// TODO Auto-generated method stub
-		
-	}
 }
