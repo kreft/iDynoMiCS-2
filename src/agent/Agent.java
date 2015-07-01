@@ -7,7 +7,7 @@ import agent.activity.*;
 import agent.body.*;
 import agent.state.*;
 import spatialgrid.SoluteGrid;
-import utility.Vect;
+import utility.Vector;
 
 public class Agent
 {
@@ -165,7 +165,7 @@ public class Agent
 	 */
 	public Double getMass()
 	{
-		return Vect.sum(_mass);
+		return Vector.sum(_mass);
 		
 	}
 

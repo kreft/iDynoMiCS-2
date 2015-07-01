@@ -3,6 +3,12 @@ package idynomics;
 public class Simulator
 {
 	
+	protected Compartment[] _compartments;
+	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
+	
 	public Simulator()
 	{
 		

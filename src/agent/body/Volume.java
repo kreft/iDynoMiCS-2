@@ -1,6 +1,6 @@
 package agent.body;
 
-import utility.Vect;
+import utility.Vector;
 
 /**
  * \brief methods used in collision/attraction detection and response
@@ -47,8 +47,8 @@ public final class Volume {
 	public static void neighbourInteraction(Point a, Point c, Double radii) 
 	{
 		Double[] force = interact(pointPoint(a.getPosition(), c.getPosition()), radii);
-		Vect.add(a.getForce(), force);
-		Vect.add(c.getForce(),Vect.inverse(force));
+		Vector.addTo(a.getForce(), force);
+		Vector.addTo(c.getForce(),Vector.reverseCopy(force));
 	}
 	
 	/**
@@ -68,9 +68,9 @@ public final class Volume {
 	{
 		Double[] force = interact(linesegPoint(a.getPosition(), b.getPosition(), 
 				c.getPosition()), radii);
-		Vect.add(a.getForce(), Vect.product(force,1.0-s));
-		Vect.add(b.getForce(), Vect.product(force,s));
-		Vect.add(c.getForce(), Vect.inverse(force));
+		Vector.addTo(a.getForce(), Vector.scaleCopy(force,1.0-s));
+		Vector.addTo(b.getForce(), Vector.scaleCopy(force,s));
+		Vector.addTo(c.getForce(), Vector.reverseCopy(force));
 	}
 	
 	/**
@@ -92,10 +92,10 @@ public final class Volume {
 	{
 		Double[] force = interact(linesegLineseg(a.getPosition(), b.getPosition(), 
 				c.getPosition(), d.getPosition()), radii);
-		Vect.add(a.getForce(), Vect.product(force,1.0-s));
-		Vect.add(b.getForce(), Vect.product(force,s));
-		Vect.add(c.getForce(), Vect.product(Vect.inverse(force),t));
-		Vect.add(d.getForce(), Vect.product(Vect.inverse(force),1.0-t));
+		Vector.addTo(a.getForce(), Vector.scaleCopy(force,1.0-s));
+		Vector.addTo(b.getForce(), Vector.scaleCopy(force,s));
+		Vector.addTo(c.getForce(), Vector.scaleCopy(Vector.reverseCopy(force),t));
+		Vector.addTo(d.getForce(), Vector.scaleCopy(Vector.reverseCopy(force),1.0-t));
 	}
 
 	/**
@@ -122,7 +122,7 @@ public final class Volume {
 		if (distance < 0.0) 
 		{
 			c = fPush * distance * distance;
-			return Vect.product(Vect.normalize(dP),c);
+			return Vector.scaleCopy(Vector.normalizeCopy(dP),c);
 		} 
 		
 		//attraction
@@ -138,9 +138,9 @@ public final class Volume {
 				c = fPull * - (p-distance) /
 						( 1.0 + Math.exp(6.0 - (36.0*distance) / p) );
 			}
-			return Vect.product(dP,c);
+			return Vector.scaleCopy(dP,c);
 		}
-		return Vect.zeros(dP.length);
+		return Vector.zeros(dP.length);
 	}
 	
 	/**
@@ -153,8 +153,8 @@ public final class Volume {
 	 */
 	public static Double pointPoint(Double[] p, Double[] q) 
 	{
-		dP = Vect.minus(p,q);
-		return Vect.normE(dP);
+		dP = Vector.minusCopy(p,q);
+		return Vector.normEuclid(dP);
 	}
 	
 	/**
@@ -172,10 +172,10 @@ public final class Volume {
 	 */
 	public static Double linesegPoint(Double[] p0, Double[] p1, Double[] q0) 
 	{
-		Double[] ab = Vect.minus(p1, p0);
-		s  = clamp(Vect.dot(Vect.minus(q0, p0),ab) / Vect.dot(ab,ab));
-		dP = Vect.minus(Vect.sum(p0, Vect.product(ab,s)), q0);
-		return Vect.normE(dP);
+		Double[] ab = Vector.minusCopy(p1, p0);
+		s  = clamp(Vector.dotProduct(Vector.minusCopy(q0, p0),ab) / Vector.dotProduct(ab,ab));
+		dP = Vector.minusCopy(Vector.addCopy(p0, Vector.scaleCopy(ab,s)), q0);
+		return Vector.normEuclid(dP);
 	}
 	
 	/**
@@ -195,14 +195,14 @@ public final class Volume {
 	private static Double linesegLineseg(Double[] p0, Double[] p1, Double[] q0, 
 			Double[] q1) 
 	{		
-		Double[] r  	= Vect.minus(p0, q0);
-		Double[] d1 	= Vect.minus(p1, p0);
-		Double[] d2 	= Vect.minus(q1, q0);
-		double a 		= Vect.dot(d1,d1);
-		double e 		= Vect.dot(d2,d2);
-		double f 		= Vect.dot(d2,r);
-		double c 		= Vect.dot(d1,r);
-		double b 		= Vect.dot(d1,d2);
+		Double[] r  	= Vector.minusCopy(p0, q0);
+		Double[] d1 	= Vector.minusCopy(p1, p0);
+		Double[] d2 	= Vector.minusCopy(q1, q0);
+		double a 		= Vector.dotProduct(d1,d1);
+		double e 		= Vector.dotProduct(d2,d2);
+		double f 		= Vector.dotProduct(d2,r);
+		double c 		= Vector.dotProduct(d1,r);
+		double b 		= Vector.dotProduct(d1,d2);
 		double denom 	= a*e-b*b;
 		
 		// s, t = 0.0 if segments are parallel.
@@ -220,10 +220,10 @@ public final class Volume {
 			s = clamp((b-c)/a);
 		}
 		
-		Double[] c1 = Vect.sum( p0, Vect.product(d1,s) );
-		Double[] c2 = Vect.sum( q0, Vect.product(d2,t) );
-		dP = Vect.minus(c1,c2);
-		return Vect.normE(dP);
+		Double[] c1 = Vector.addCopy( p0, Vector.scaleCopy(d1,s) );
+		Double[] c2 = Vector.addCopy( q0, Vector.scaleCopy(d2,t) );
+		dP = Vector.minusCopy(c1,c2);
+		return Vector.normEuclid(dP);
 	}
 
 	/**

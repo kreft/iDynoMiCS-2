@@ -3,13 +3,13 @@ package agent.body;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Body {
-    
+public class Body
+{
     /**
      * The 'body' of the agent is represented by sphere-swept volumes of a 
-     * collection of points connected by springs of length lengths. This results
-     * in a single sphere for coccoid-type agents or a tube for agents described
-     * by multiple points.
+     * collection of points connected by springs of length lengths. This
+     * results in a single sphere for coccoid-type agents or a tube for agents
+     * described by multiple points.
      */
     protected List<Point> points 	= new LinkedList<Point>();
 	
@@ -19,12 +19,12 @@ public class Body {
 	protected Double[] _lengths		= null;
 	
 	/**
-	 * Rest angles of torsion springs 
+	 * Rest angles of torsion springs.
 	 */
 	protected Double[] _angles		= null;
 	
 	/**
-	 * radius of the cell
+	 * Radius of the cell.
 	 */
 	protected Double _radius		= null;
 	
@@ -33,21 +33,26 @@ public class Body {
 	 */
 	public int getMorphologyIndex()
 	{
-		if (points.size() == 0)
-			return 0;					// no body
-		else if (points.size() == 1)
-			return 1;					// cocoid body
-		else if (points.size() == 2)
-			return 2;					// rod body
-		else if (points.size() > 2)
-		{
-			if (_angles == null)
-				return 3;				// bendable body / filaments
-			else
-				return 4;				// bend body type
-		}
+		/*
+		 * No body.
+		 */
+		if ( points.size() == 0 )
+			return 0;
+		/*
+		 * Spherical body.
+		 */
+		else if ( points.size() == 1 )
+			return 1;
+		/*
+		 * Rob-shaped body.
+		 */
+		else if ( points.size() == 2 )
+			return 2;
+		/*
+		 * Bendable body/filament-type shape, depending on whether it has
+		 * angles.
+		 */
 		else
-			return -1;					// undefined body type
-		
+			return ( _angles == null ) ? 3 : 4;
 	}
 }

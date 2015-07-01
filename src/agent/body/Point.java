@@ -1,36 +1,56 @@
 package agent.body;
 
-import utility.Vect;
+import utility.Vector;
 
-public class Point {
+public class Point
+{
+	
     static int UNIQUE_ID = 0;
     int uid = ++UNIQUE_ID;
-	private Double[] position;
-	private Double[] velocity;
-	private Double[] force;
 	
+    /**
+     * 
+     */
+    private Double[] _position;
+	
+    /**
+     * 
+     */
+    private Double[] _velocity;
+	
+    /**
+     * 
+     */
+    private Double[] _force;
+	
+    /*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
+    
 	public Point(int nDim) 
 	{
-		this.setPosition(Vect.zeros(nDim));
-		this.setVelocity(Vect.zeros(nDim));
-		this.setForce(Vect.zeros(nDim));
+		this.setPosition(Vector.zeros(nDim));
+		this.setVelocity(Vector.zeros(nDim));
+		this.setForce(Vector.zeros(nDim));
 	}
 	
-	//FIXME: change this to set position random location lowerbound[] 
-	//upperbound[], currently domain represents a simple spawn box with sizes
-	// "domain", this needs to be a bit more specific
+	/*
+	 * FIXME: change this to set position random location lowerbound[]
+	 * upperbound[], currently domain represents a simple spawn box with sizes
+	 * "domain", this needs to be a bit more specific
+	 */
 	public Point(int nDim, double domain) 
 	{
-		this.setPosition(Vect.randomDirection(nDim,domain));
-		this.setVelocity(Vect.zeros(nDim));
-		this.setForce(Vect.zeros(nDim));
+		this.setPosition(Vector.randomDirection(nDim,domain));
+		this.setVelocity(Vector.zeros(nDim));
+		this.setForce(Vector.zeros(nDim));
 	}
 	
 	public Point(Double[] p) 
 	{
 		this.setPosition(p);
-		this.setVelocity(Vect.zeros(p.length));
-		this.setForce(Vect.zeros(p.length));
+		this.setVelocity(Vector.zeros(p.length));
+		this.setForce(Vector.zeros(p.length));
 	}
 
 	public int identifier() 
@@ -38,84 +58,112 @@ public class Point {
         return uid;
     }
 	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
+	
+	public int nDim() 
+	{
+		return this._position.length;
+	}
+
+	public Double[] getPosition() 
+	{
+		return this._position;
+	}
+
+	public void setPosition(Double[] position) 
+	{
+		this._position = position;
+	}
+
+	public Double[] getForce()
+	{
+		return this._force;
+	}
+	
+	public void setForce(Double[] force)
+	{
+		this._force = force;
+	}
+	
+	public Double[] getVelocity()
+	{
+		return this._velocity;
+	}
+	
+	public void setVelocity(Double[] velocity)
+	{
+		this._velocity = velocity;
+	}
+	
+	/*************************************************************************
+	 * MOVEMENT METHODS
+	 ************************************************************************/
+	
 	/**
-	 * \brief performs one euler step for the mechanical relaxation.
+	 * \brief performs one Euler step for the mechanical relaxation.
+	 * 
+	 * FIXME Is this Forward Euler or Backward?
+	 * 
 	 * The velocity is expressed as v = (sum forces) / (3 Pi diameter viscosity)
 	 * Currently the viscosity of water is assumed.
-	 * @param vSquare
-	 * 			Highest squared velocity in the system
-	 * @param dt
-	 * 			Current timestep of the mechanical relaxation
-	 * @param radius
-	 * 			Radius of the Point
-	 * @return vSquare, if the squared velocity of this point is higher vSquare
+	 * 
+	 * @param vSquare	Highest squared velocity in the system.
+	 * @param dt	Current timestep of the mechanical relaxation.
+	 * @param radius	Radius of the Point.
+	 * @return vSquare; if the squared velocity of this point is higher vSquare
 	 * is updated.
 	 */
-	public Double euStep(Double vSquare, double dt, Double radius) 
+	public Double euStep(Double vSquare, Double dt, Double radius) 
 	{
-		position = Vect.sum(position, Vect.product(getVelocity(),dt));
-		setVelocity(Vect.product(getForce(), 1.0/(radius*0.01885)));
-		if (Vect.normSquare(getVelocity()) > vSquare)
-			vSquare = Vect.normSquare(getVelocity());
-		Vect.reset(getForce());
+		/*
+		 * 
+		 */
+		this._velocity = Vector.scaleCopy(this._velocity, dt);
+		this._position = Vector.addCopy(this._position, this._velocity );
+		/*
+		 * Update the velocity from the force
+		 * 
+		 * FIXME Where does this 0.01885 come from???
+		 */
+		this._velocity = Vector.scaleCopy(this._force, 1.0/(radius*0.01885));
+		if ( Vector.normSquare(getVelocity()) > vSquare )
+			vSquare = Vector.normSquare(this._velocity);
+		/*
+		 * Finally, reset 
+		 */
+		Vector.reset(_force);
 		return vSquare;
 	}
 	
-	//TODO: switch from a float RTree to a Double RTree so we can consistantly 
-	// use Doubles in the model implementation.
+	/*
+	 * TODO: switch from a float RTree to a Double RTree so we can
+	 * consistently use Doubles in the model implementation.
+	 */
 	public float[] coord(Double radius) 
 	{
-		float[] coord = new float[position.length];
-		for (int i = 0; i < position.length; i++) 
-			coord[i] = (float) (position[i]-radius);
+		float[] coord = new float[_position.length];
+		for (int i = 0; i < _position.length; i++) 
+			coord[i] = (float) (_position[i]-radius);
 		return coord;
 	}
 	
 	public float[] dimensions(Double radius) 
 	{
-		float[] dimensions = new float[position.length];
-		for (int i = 0; i < position.length; i++) 
+		float[] dimensions = new float[_position.length];
+		for (int i = 0; i < _position.length; i++) 
 			dimensions[i] = (float) (radius*2.0);
 		return dimensions;
 	}
 	
 	public float[] upper(Double radius) 
 	{
-		float[] coord = new float[position.length];
-		for (int i = 0; i < position.length; i++) 
-			coord[i] = (float) (position[i]+radius);
+		float[] coord = new float[_position.length];
+		for (int i = 0; i < _position.length; i++) 
+			coord[i] = (float) (_position[i]+radius);
 		return coord;
 	}
 	
-	public int nDim() 
-	{
-		return getPosition().length;
-	}
-
-	public Double[] getPosition() 
-	{
-		return position;
-	}
-
-	public void setPosition(Double[] position) 
-	{
-		this.position = position;
-	}
-
-	public Double[] getForce() {
-		return force;
-	}
-
-	public void setForce(Double[] force) {
-		this.force = force;
-	}
-
-	public Double[] getVelocity() {
-		return velocity;
-	}
-
-	public void setVelocity(Double[] velocity) {
-		this.velocity = velocity;
-	}
-
+	
 }

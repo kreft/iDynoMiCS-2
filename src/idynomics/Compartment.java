@@ -9,7 +9,9 @@ import spatialgrid.SoluteGrid;
 
 public class Compartment
 {
-	
+	/**
+	 * Unique name of this compartment.
+	 */
 	protected String _name;
 	
 	/**
@@ -18,22 +20,24 @@ public class Compartment
 	private int _nDims;
 	
 	/**
-	 * 
+	 * AgentContainer deals with 
 	 */
 	protected AgentContainer _agents;
 	
 	/**
 	 * 
 	 */
-	protected SoluteGrid[] _soluteGrids; 
+	protected SoluteGrid[] _solutes; 
 	
 	/**
 	 * 
 	 */
-	protected LinkedList<ProcessManager> _mechanisms;
+	protected LinkedList<ProcessManager> _processes;
 	
-	protected MechanismComparator mechComp;
+	protected ProcessComparator _procComp;
 	
+	
+	protected Double _localTime;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -41,7 +45,7 @@ public class Compartment
 	
 	public Compartment()
 	{
-		
+		_localTime = 0.0;
 	}
 	
 
@@ -49,13 +53,23 @@ public class Compartment
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
-	protected int getNumDims() {
+	protected int getNumDims()
+	{
 		return _nDims;
 	}
 
 
-	protected void setNumDims(int _nDims) {
+	protected void setNumDims(int _nDims)
+	{
 		this._nDims = _nDims;
+	}
+	
+	/**
+	 * TODO
+	 */
+	protected void setSpeciesInfo()
+	{
+		
 	}
 	
 	/*************************************************************************
@@ -67,16 +81,20 @@ public class Compartment
 	 */
 	public void step()
 	{
-		ProcessManager currentMech = _mechanisms.getFirst();
+		ProcessManager currentMech = _processes.getFirst();
 		while ( currentMech.getTimeForNextStep() < Timer.getEndOfCurrentIteration() )
 		{
-			currentMech.step(_soluteGrids, _agents);
-			Collections.sort(_mechanisms, mechComp);
-			currentMech = _mechanisms.getFirst();
+			currentMech.step(_solutes, _agents);
+			Collections.sort(_processes, _procComp);
+			currentMech = _processes.getFirst();
 		}
 	}
-
-	protected static class MechanismComparator implements Comparator<ProcessManager>
+	
+	/**
+	 * 
+	 * 
+	 */
+	protected static class ProcessComparator implements Comparator<ProcessManager>
 	{
 		@Override
 		public int compare(ProcessManager mech1, ProcessManager mech2) 
