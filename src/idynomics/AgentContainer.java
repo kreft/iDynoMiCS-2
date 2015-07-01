@@ -3,7 +3,7 @@ package idynomics;
 import java.util.LinkedList;
 
 import spatialregistry.RTree;
-import spatialregistry.spatialRegistry;
+import spatialregistry.SpatialRegistry;
 import agent.Agent;
 
 public class AgentContainer
@@ -11,7 +11,7 @@ public class AgentContainer
 	/**
 	 * all agents with a spatial location are stored in the RTree
 	 */
-	protected spatialRegistry<Agent> _agentTree;
+	protected SpatialRegistry<Agent> _agentTree;
 	
 	/**
 	 * all agents without a spatial location are stored in the agent List

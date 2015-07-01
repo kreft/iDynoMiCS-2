@@ -1,10 +1,10 @@
-package mechanism;
+package processManager;
 
 import agent.Agent;
 import spatialgrid.SoluteGrid;
 import idynomics.AgentContainer;
 
-public class StepAllAgents extends Mechanism
+public class StepAllAgents extends ProcessManager
 {
 	public StepAllAgents()
 	{

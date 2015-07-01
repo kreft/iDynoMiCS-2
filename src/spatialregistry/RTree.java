@@ -20,7 +20,7 @@ import java.util.Set;
  * @param <T>
  *          the type of entry to store in this RTree.
  */
-public class RTree<T> extends spatialRegistry<T>
+public class RTree<T> extends SpatialRegistry<T>
 {
   public enum SeedPicker { LINEAR, QUADRATIC }
 

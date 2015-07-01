@@ -1,9 +1,9 @@
-package mechanism;
+package processManager;
 
 import idynomics.AgentContainer;
 import spatialgrid.SoluteGrid;
 
-public class SolveChemostat extends Mechanism
+public class SolveChemostat extends ProcessManager
 {
 	public SolveChemostat()
 	{

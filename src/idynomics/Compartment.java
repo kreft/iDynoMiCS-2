@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import processManager.ProcessManager;
 import spatialgrid.SoluteGrid;
-import mechanism.Mechanism;
 
 public class Compartment
 {
@@ -30,7 +30,7 @@ public class Compartment
 	/**
 	 * 
 	 */
-	protected LinkedList<Mechanism> _mechanisms;
+	protected LinkedList<ProcessManager> _mechanisms;
 	
 	protected MechanismComparator mechComp;
 	
@@ -67,7 +67,7 @@ public class Compartment
 	 */
 	public void step()
 	{
-		Mechanism currentMech = _mechanisms.getFirst();
+		ProcessManager currentMech = _mechanisms.getFirst();
 		while ( currentMech.getTimeForNextStep() < Timer.getEndOfCurrentIteration() )
 		{
 			currentMech.step(_soluteGrids, _agents);
@@ -76,10 +76,10 @@ public class Compartment
 		}
 	}
 
-	protected static class MechanismComparator implements Comparator<Mechanism>
+	protected static class MechanismComparator implements Comparator<ProcessManager>
 	{
 		@Override
-		public int compare(Mechanism mech1, Mechanism mech2) 
+		public int compare(ProcessManager mech1, ProcessManager mech2) 
 		{
 			Double temp = mech1.getTimeForNextStep() -
 												mech2.getTimeForNextStep();

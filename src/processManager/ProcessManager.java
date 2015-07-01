@@ -1,9 +1,9 @@
-package mechanism;
+package processManager;
 
 import spatialgrid.SoluteGrid;
 import idynomics.AgentContainer;
 
-public abstract class Mechanism
+public abstract class ProcessManager
 {
 	protected String _name;
 	
@@ -18,7 +18,7 @@ public abstract class Mechanism
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public Mechanism()
+	public ProcessManager()
 	{
 		
 	}
