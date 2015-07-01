@@ -4,7 +4,7 @@
  * running an iDynoMiCS Simulation.
  * 
  * Package of classes that perform utility functions in the process of running
- * an iDynoMiCS Simulation. This package is part of iDynoMiCS v1.2, governed by
+ * an iDynoMiCS Simulation. This package is part of iDynoMiCS v2.0, governed by
  * the CeCILL license under French law and abides by the rules of distribution
  * of free software.  You can use, modify and/ or redistribute iDynoMiCS under
  * the terms of the CeCILL license as circulated by CEA, CNRS and INRIA at the
@@ -13,9 +13,7 @@
 package utility;
 
 import java.text.DecimalFormat;
-import java.util.LinkedList;
 import java.util.Random;
-import java.util.function.DoubleFunction;
 
 /**
  * \brief Abstract class with some extra useful math functions.
@@ -68,7 +66,7 @@ public final class ExtraMath
 	 */
 	public static final Double log2(Double x)
 	{
-		return (Math.log(x)/Math.log(2));
+		return (Math.log(x)/Math.log(2.0));
 	}
 	
 	/**
@@ -154,27 +152,12 @@ public final class ExtraMath
 	}
 	
 	/**
-	 * \brief Calculate the hypotenuse of a 2D right-angled triangle using
-	 * Pythagoras.
-	 * 
-	 * Formula: sqrt( a*a + b*b )
-	 * 
-	 * TODO replace references to this with Math.hypot
-	 * 
-	 * @param a Double value of the first side of the triangle.
-	 * @param b Double value of the second side of the triangle.
-	 * @return Double value of the hypotenuse of the triangle.
-	 */
-	public static final Double hypotenuse(Double a, Double b)
-	{
-		return Math.sqrt(sq(a) + sq(b));
-	}
-	
-	/**
 	 * \brief Calculate the hypotenuse of a 3D right-angled triangle using
 	 * Pythagoras.
 	 * 
 	 * Formula: sqrt( a*a + b*b + c*c )
+	 * 
+	 * Note: for a 2D hypotenuse, use Math.hypot(a, b)
 	 * 
 	 * @param a Double value of the length of the first side of the triangle.
 	 * @param b Double value of the length of the second side of the triangle.
@@ -491,7 +474,8 @@ public final class ExtraMath
 	 * Removes infinite/NaN values from the sum and the number of entries.
 	 * 
 	 * @param array Vector of Doubles.
-	 * @param fromSample Boolean denoting whether to divide by n-1 (True) or n (False) 
+	 * @param fromSample Boolean denoting whether to divide by n-1 (True) or n
+	 * (False) 
 	 * @return Standard deviation of a Double array
 	 */
 	public static Double stddev(Double[] array, Boolean fromSample)
@@ -499,24 +483,26 @@ public final class ExtraMath
 		Double mean = mean(array);
 		Double sum = 0.0;
 		Double n = 0.0;
-		
 		for (Double value : array)
 			if( Double.isFinite(value) )
 			{
 				sum += sq(value - mean);
 				n++;
 			}
-		
-		// check the array contains valid entries before trying to divide by zero
+		/*
+		 * Check the array contains valid entries before trying to divide by
+		 * zero.
+		 */
 		if (n == 0.0)
 		{
 //			LogFile.writeLogAlways("WARNING! ExtraMath.stddev(): array of length "+
 //												array.length+" has no valid entries");
 			return 0.0;
 		}
-		
-		// If this is from a sample we divide by (n-1), not n
-		if ((fromSample) && (n>1))
+		/*
+		 * If this is from a sample we divide by (n-1), not n
+		 */
+		if ( fromSample && (n > 1) )
 			n--;
 		return Math.sqrt(sum/n);
 	}
@@ -554,13 +540,14 @@ public final class ExtraMath
 	 * @param b	Double 2
 	 * @return	Boolean noting whether the two are the same sign.
 	 */
-	static public Boolean sameSign(Double a, Double b)
+	public static Boolean sameSign(Double a, Double b)
 	{
 		return (sign(a)*sign(b) >= 0);
 	}
 	
 	/**
-	 * \brief Output a Double value as a string, in a particular decimal format.
+	 * \brief Output a Double value as a string, in a particular decimal
+	 * format.
 	 * 
 	 * If true, use dfSc; if false, use dfUs. 
 	 * 
@@ -574,38 +561,42 @@ public final class ExtraMath
 	}
 	
 	/**
-	 * \brief Searches for a substring within a main string, and returns a double immediately after if it exists.
+	 * \brief Searches for a substring within a main string, and returns a
+	 * double immediately after if it exists.
 	 * 
-	 * Note that 1.0 will be returned if the substring is not found, the substring is at the very end 
-	 * of the main string, or there is no double immediately after.
+	 * Note that 1.0 will be returned if the substring is not found, the
+	 * substring is at the very end of the main string, or there is no double
+	 * immediately after.
 	 * 
-	 * @param mainString The string within which the search will be made
-	 * @param subString The substring being searched for
-	 * @return The double immediately after subString, if found. If not found, 1.0
+	 * @param mainString The string within which the search will be made.
+	 * @param subString The substring being searched for.
+	 * @return The double immediately after subString, if found. If not found,
+	 * 1.0
 	 */
-	public static Double doubleAfterSubstring(String mainString, String subString)
+	public static Double doubleAfterSubstring(String mainString,
+															String subString)
 	{
 		Double out = 1.0;
 		if (mainString.contains(subString))
 		{
-			int startIndex = mainString.indexOf(subString) + subString.length();
+			int startIndex = mainString.indexOf(subString) + 
+														subString.length();
 			int endIndex = startIndex + 1;
 			int maxIndex = mainString.length();
 			String potential;
 			
-			while ((endIndex < maxIndex) && 
+			while ( (endIndex < maxIndex) && 
 					(isNumeric(mainString.substring(startIndex, endIndex+1))))
+			{
 				endIndex++;
-			
+			}
 			potential = mainString.substring(startIndex, endIndex);
-			
-			if (isNumeric(potential))
+			if ( isNumeric(potential) )
 				out = Double.parseDouble(potential); 
 		}
 		return out;
 	}
 	
-
 	/**
 	 * \brief Checks if the supplied String can be safely parsed as a Double.
 	 * 
@@ -645,7 +636,8 @@ public final class ExtraMath
 	 * 
 	 * @param lBound	Lower bound (inclusive).
 	 * @param uBound	Upper bound (exclusive).
-	 * @return A uniformly distributed random double number in [lBound, uBound).
+	 * @return A uniformly distributed random double number in
+	 * [lBound, uBound).
 	 */
 	public static Double getUniRandDbl(Double lBound, Double uBound)
 	{
@@ -668,7 +660,8 @@ public final class ExtraMath
 	 * \brief Return 2 to the power of a uniformly distributed random number
 	 * in [0,1).
 	 * 
-	 * @return 2 to the power of a uniformly distributed random number in [0,1).
+	 * @return 2 to the power of a uniformly distributed random number in
+	 * [0,1).
 	 */
 	public static Double getExp2Rand()
 	{
@@ -676,10 +669,11 @@ public final class ExtraMath
 	}
 	
 	/**
-	 * \brief Return an integer random number less than the upper bound supplied.
+	 * \brief Return an Integer random number less than the upper bound
+	 * supplied.
 	 * 
 	 * @param uBound	Upper bound (exclusive).
-	 * @return A uniformly distributed random integer number in [0, uBound).
+	 * @return A uniformly distributed random Integer number in [0, uBound).
 	 */
 	public static Integer getUniRandInt(Integer uBound)
 	{
@@ -687,25 +681,27 @@ public final class ExtraMath
 	}
 	
 	/**
-	 * \brief Return an integer random number between two set bounds.
+	 * \brief Return a random Integer number between two set bounds.
 	 * 
 	 * @param lBound	Lower bound (inclusive).
 	 * @param uBound	Upper bound (exclusive).
-	 * @return A uniformly distributed random integer number in [lBound, uBound).
+	 * @return A uniformly distributed random integer in [lBound, uBound).
 	 */
 	public static Integer getUniRandInt(Integer lBound, Integer hBound)
 	{
-		return getUniRandInt(hBound-lBound)+lBound;
+		return getUniRandInt(hBound-lBound) + lBound;
 	}
 	
 	/**
-	 * @param lBound
-	 * @param hBound
-	 * @return a double between lBound inclusive and hBound exclusive
+	 * \brief Return a random Double number between two set bounds.
+	 * 
+	 * @param lBound	Lower bound (inclusive).
+	 * @param hBound	Upper bound (exclusive).
+	 * @return A uniformly distributed random Double in [lBound, uBound).
 	 */
 	public static Double getUniRand(Double lBound, Double hBound)
 	{
-		return random.nextDouble()*(hBound-lBound)+lBound;
+		return random.nextDouble()*(hBound-lBound) + lBound;
 	}
 	
 	/**
@@ -721,7 +717,7 @@ public final class ExtraMath
 		Double phi;
 		do {
 			phi = random.nextGaussian();
-		} while (Math.abs(phi)>2);
+		} while ( Math.abs(phi) > 2 );
 		return phi;
 	}
 	
@@ -745,17 +741,19 @@ public final class ExtraMath
 	 */
 	public static Double deviateFromCV(Double mu, Double cv) 
 	{
-		// No point going further if either is zero 
-		if (mu == 0.0 || cv == 0.0) return mu;
-		
-		Double result, deviation;
+		/*
+		 * No point going further if either is zero. 
+		 */
+		if ( mu == 0.0 || cv == 0.0)
+			return mu;
+		/*
+		 * Calculate the value.
+		 */
+		Double out;
 		do {
-			deviation = getNormRand();
-			// Compute the new value
-			result = mu*(1.0+cv*deviation);
-		} while (!sameSign(result, mu));
-		
-		return result;
+			out = mu * ( 1.0 + cv*getNormRand() );
+		} while ( ! sameSign(out, mu) );
+		return out;
 	}
 	
 	/**
@@ -778,16 +776,18 @@ public final class ExtraMath
 	 */
 	public static Double deviateFromSD(Double mu, Double sigma) 
 	{
-		// No point going further if the standard deviation is zero 
-		if (sigma == 0.0) return mu;
-		
-		Double result, deviation;
+		/*
+		 * No point going further if the standard deviation is zero. 
+		 */
+		if (sigma == 0.0)
+			return mu;
+		/*
+		 * Calculate the value.
+		 */
+		Double out;
 		do {
-			deviation = getNormRand();
-			// Compute the new value
-			result = mu + (sigma*deviation);
-		} while (!sameSign(result, mu));
-		
-		return result;
+			out = mu + ( sigma * getNormRand() );
+		} while ( ! sameSign(out, mu) );
+		return out;
 	}                           
 }
