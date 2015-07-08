@@ -1,4 +1,4 @@
-package spatialgrid;
+package spatialGrid;
 
 public class DoubleGrid extends ObjectGrid {
 

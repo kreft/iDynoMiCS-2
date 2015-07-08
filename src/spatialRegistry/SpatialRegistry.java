@@ -1,4 +1,4 @@
-package spatialregistry;
+package spatialRegistry;
 
 import java.util.List;
 

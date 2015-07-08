@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import agent.activity.*;
 import agent.body.*;
 import agent.state.*;
-import spatialgrid.SoluteGrid;
+import spatialGrid.SoluteGrid;
 import utility.Vector;
 
 public class Agent

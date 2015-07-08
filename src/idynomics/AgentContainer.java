@@ -3,7 +3,7 @@ package idynomics;
 import java.util.LinkedList;
 
 import agent.Agent;
-import spatialregistry.*;
+import spatialRegistry.*;
 
 public class AgentContainer
 {

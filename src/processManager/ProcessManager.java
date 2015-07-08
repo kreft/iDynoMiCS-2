@@ -1,6 +1,6 @@
 package processManager;
 
-import spatialgrid.SoluteGrid;
+import spatialGrid.SoluteGrid;
 import idynomics.AgentContainer;
 
 public abstract class ProcessManager

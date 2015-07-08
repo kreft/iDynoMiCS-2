@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 
 import processManager.ProcessManager;
-import spatialgrid.SoluteGrid;
+import spatialGrid.SoluteGrid;
 
 public class Compartment
 {

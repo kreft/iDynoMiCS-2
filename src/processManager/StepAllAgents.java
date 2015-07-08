@@ -1,7 +1,7 @@
 package processManager;
 
 import agent.Agent;
-import spatialgrid.SoluteGrid;
+import spatialGrid.SoluteGrid;
 import idynomics.AgentContainer;
 
 public class StepAllAgents extends ProcessManager

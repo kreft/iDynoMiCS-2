@@ -1,7 +1,7 @@
 package processManager;
 
 import idynomics.AgentContainer;
-import spatialgrid.SoluteGrid;
+import spatialGrid.SoluteGrid;
 
 public class SolveChemostat extends ProcessManager
 {
