@@ -1,8 +1,9 @@
-/spatialGrid/
 /agent/
-/processManager/
-/utility/
-/idynomics/
 /array/
+/idynomics/
+/lib/
+/processManager/
 /reaction/
-/test/
+/spatialGrid/
+/spatialRegistry/
+/utility/
