@@ -139,6 +139,50 @@ public final class Matrix
 				matrix[i][j] = value;
 		return matrix;
 	}
+
+	/**
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>.
+	 * 
+	 * <p>Note that <b>matrix</b> will be overwritten; use
+	 * <i>add(copy(<b>matrix</b>), <b>value</b>)</i> to preserve the original
+	 * state of <b>matrix</b>.</p>
+	 * 
+	 * @param matrix Two-dimensional array of integers.
+	 * @param value Increase every element of the <b>matrix</b> by this
+	 * integer value.
+	 * @return Given <b>matrix</b> with all elements increased by
+	 * <b>value</b>.
+	 */
+	public static int[][] add(int[][] matrix, int value)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
+				matrix[i][j] += value;
+		return matrix;
+	}
+	
+	/**
+	 * \brief Multiply all elements in a given <b>matrix</b> by a given
+	 * <b>value</b>.
+	 * 
+	 * <p>Note that <b>matrix</b> will be overwritten; use
+	 * <i>times(copy(<b>matrix</b>), <b>value</b>)</i> to preserve the
+	 * original state of <b>matrix</b>.</p>
+	 * 
+	 * @param matrix Two-dimensional array of integers.
+	 * @param value Multiply every element of the <b>matrix</b> by this
+	 * integer value.
+	 * @return Given <b>matrix</b> with all elements multiplied by
+	 * <b>value</b>.
+	 */
+	public static int[][] times(int[][] matrix, int value)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
+				matrix[i][j] *= value;
+		return matrix;
+	}
 	
 	/**
 	 * \brief A new m-by-n matrix of integers.
@@ -313,6 +357,37 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Extracts the required row as a column vector.
+	 * 
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @param matrix Two-dimensional array of integers.
+	 * @param index int index of the row required.
+	 * @return int[] array of the required row.
+	 */
+	public static int[] getRowAsColumn(int[][] matrix, int index)
+	{
+		return matrix[index];
+	}
+	
+	/**
+	 * \brief Extracts the required column as a vector.
+	 * 
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @param matrix Two-dimensional array of integers.
+	 * @param index int index of the column required.
+	 * @return int[] array of the required column.
+	 */
+	public static int[] getColumn(int[][] matrix, int index)
+	{
+		int[] out = new int[rowDim(matrix)];
+		for ( int i = 0; i < out.length; i++ )
+			out[i] = matrix[i][index];
+		return out;
+	}
+	
+	/**
 	 * \brief Converts a row vector to a column vector.
 	 * 
 	 * <p>Note that <b>rowVector</b> will be unaffected by this method.</p>
@@ -380,7 +455,6 @@ public final class Matrix
 	    return out;
 	}
 	
-
 	/**
 	 * \brief Finds the value of the greatest element in the given
 	 * <b>matrix</b>.
@@ -436,14 +510,8 @@ public final class Matrix
 	{
 		int n = colDim(matrix);
 		int out = 0;
-		int sum;
 		for ( int j = 0; j < n; j++ )
-		{
-			sum = 0;
-			for ( int[] row : matrix )
-				sum += row[j];
-			out = Math.max(out, sum);
-		}
+			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
 		return out;
 	}
 	
@@ -464,14 +532,8 @@ public final class Matrix
 	{
 		int n = colDim(matrix);
 		int out = 0;
-		int sum;
 		for ( int j = 0; j < n; j++ )
-		{
-			sum = 0;
-			for ( int[] row : matrix )
-				sum += row[j];
-			out = Math.min(out, sum);
-		}
+			out = Math.min(out, Vector.sum(getColumn(matrix, j)));
 		return out;
 	}
 	
@@ -665,9 +727,53 @@ public final class Matrix
 	 */
 	public static double[][] setAll(double[][] matrix, double value)
 	{
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
 				matrix[i][j] = value;
+		return matrix;
+	}
+	
+	/**
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>.
+	 * 
+	 * <p>Note that <b>matrix</b> will be overwritten; use
+	 * <i>add(copy(<b>matrix</b>), <b>value</b>)</i> to preserve the original
+	 * state of <b>matrix</b>.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @param value Increase every element of the <b>matrix</b> by this double
+	 * value.
+	 * @return Given <b>matrix</b> with all elements increased by
+	 * <b>value</b>.
+	 */
+	public static double[][] add(double[][] matrix, double value)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
+				matrix[i][j] += value;
+		return matrix;
+	}
+	
+	/**
+	 * \brief Multiply all elements in a given <b>matrix</b> by a given
+	 * <b>value</b>.
+	 * 
+	 * <p>Note that <b>matrix</b> will be overwritten; use
+	 * <i>times(copy(<b>matrix</b>), <b>value</b>)</i> to preserve the
+	 * original state of <b>matrix</b>.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @param value Multiply every element of the <b>matrix</b> by this double
+	 * value.
+	 * @return Given <b>matrix</b> with all elements multiplied by
+	 * <b>value</b>.
+	 */
+	public static double[][] times(double[][] matrix, double value)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
+				matrix[i][j] *= value;
 		return matrix;
 	}
 	
@@ -843,6 +949,37 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Extracts the required row as a column vector.
+	 * 
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @param index int index of the row required.
+	 * @return double[] array of the required row.
+	 */
+	public static double[] getRowAsColumn(double[][] matrix, int index)
+	{
+		return matrix[index];
+	}
+	
+	/**
+	 * \brief Extracts the required column as a vector.
+	 * 
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @param index int index of the column required.
+	 * @return int[] array of the required column.
+	 */
+	public static double[] getColumn(double[][] matrix, int index)
+	{
+		double[] out = new double[rowDim(matrix)];
+		for ( int i = 0; i < out.length; i++ )
+			out[i] = matrix[i][index];
+		return out;
+	}
+	
+	/**
 	 * \brief Converts a row vector to a column vector.
 	 * 
 	 * <p>Note that <b>rowVector</b> will be unaffected by this method.</p>
@@ -966,16 +1103,9 @@ public final class Matrix
 	 */
 	public static double maxColumnSum(double[][] matrix)
 	{
-		int n = colDim(matrix);
 		double out = 0.0;
-		double sum;
-		for ( int j = 0; j < n; j++ )
-		{
-			sum = 0.0;
-			for ( double[] row : matrix )
-				sum += row[j];
-			out = Math.max(out, sum);
-		}
+		for ( int j = 0; j < colDim(matrix); j++ )
+			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
 		return out;
 	}
 	
@@ -994,16 +1124,9 @@ public final class Matrix
 	 */
 	public static double minColumnSum(double[][] matrix)
 	{
-		int n = colDim(matrix);
 		double out = 0.0;
-		double sum;
-		for ( int j = 0; j < n; j++ )
-		{
-			sum = 0.0;
-			for ( double[] row : matrix )
-				sum += row[j];
-			out = Math.min(out, sum);
-		}
+		for ( int j = 0; j < colDim(matrix); j++ )
+			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
 		return out;
 	}
 	
@@ -1432,5 +1555,121 @@ public final class Matrix
 			for ( int j = 0; j < colDim(a); j++ )
 				a[i][j] /= b[i][j];
 		return a;
+	}
+	
+	/**
+	 * \brief Linear algebra matrix multiplication of the two given matrices.
+	 * 
+	 * <p>Inner dimensions must match, i.e. n<sub>a</sub> = m<sub>b</sub>. The
+	 * output will be a new m<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
+	 * 
+	 * <p>Note that the given matrices will be unaffected by this method.</p>
+	 * 
+	 * @param a Two-dimensional array of integers.
+	 * @param b Two-dimensional array of integers.
+	 * @return Two-dimensional array of integers: <b>a</b> x <b>b</b>.
+	 * @exception IllegalArgumentException Matrix inner row dimensions must
+	 * agree.
+	 */
+	public static int[][] times(int[][] a, int[][] b)
+	{
+		if ( colDim(a) != rowDim(b) )
+		{
+			throw new IllegalArgumentException(
+								"Matrix inner row dimensions must agree.");
+		}
+		int[][] out = new int[rowDim(a)][colDim(b)];
+		int[] bCol;
+		for ( int j = 0; j < colDim(b); j++ )
+		{
+			bCol = getColumn(b, j);
+			for ( int i = 0; i < rowDim(a); i++ )
+				out[i][j] = Vector.dotProduct(getRowAsColumn(a, i), bCol);
+		}
+		return out;
+	}
+	
+	/**
+	 * \brief Linear algebra matrix multiplication of the given <b>matrix</b>
+	 * (left) by the given column <b>vector</b> (right).
+	 * 
+	 * <p>Inner dimensions must match, i.e. n<sub>matrix</sub> =
+	 * length<sub>vector</sub>. The output will be a new column vector of 
+	 * length m<sub>matrix</sub></p>
+	 * 
+	 * @param matrix Two-dimensional array of integers.
+	 * @param vector One-dimensional array of integers.
+	 * @return One-dimensional array of integers that is <b>matrix</b> x
+	 * <b>vector</b>.
+	 */
+	public static int[] times(int[][] matrix, int[] vector)
+	{
+		if ( colDim(matrix) != vector.length )
+		{
+			throw new IllegalArgumentException(
+								"Matrix inner row dimensions must agree.");
+		}
+		int[] out = new int[rowDim(matrix)];
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			out[i] = Vector.dotProduct(getRowAsColumn(matrix, i), vector);
+		return out;
+	}
+	
+	/**
+	 * \brief Linear algebra matrix multiplication of the two given matrices.
+	 * 
+	 * <p>Inner dimensions must match, i.e. n<sub>a</sub> = m<sub>b</sub>. The
+	 * output will be a new m<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
+	 * 
+	 * <p>Note that the given matrices will be unaffected by this method.</p>
+	 * 
+	 * @param a Two-dimensional array of doubles.
+	 * @param b Two-dimensional array of doubles.
+	 * @return Two-dimensional array of doubles: <b>a</b> x <b>b</b>.
+	 * @exception IllegalArgumentException Matrix inner row dimensions must
+	 * agree.
+	 */
+	public static double[][] times(double[][] a, double[][] b)
+	{
+		if ( colDim(a) != rowDim(b) )
+		{
+			throw new IllegalArgumentException(
+								"Matrix inner row dimensions must agree.");
+		}
+		double[][] out = new double[rowDim(a)][colDim(b)];
+		double[] bCol;
+		for ( int j = 0; j < colDim(b); j++ )
+		{
+			bCol = getColumn(b, j);
+			for ( int i = 0; i < rowDim(a); i++ )
+				out[i][j] = Vector.dotProduct(getRowAsColumn(a, i), bCol);
+		}
+		return out;
+	}
+	
+	/**
+	 * \brief Linear algebra matrix multiplication of the given <b>matrix</b>
+	 * (left) by the given column <b>vector</b> (right).
+	 * 
+	 * <p>Inner dimensions must match, i.e. n<sub>matrix</sub> =
+	 * length<sub>vector</sub>. The output will be a new column vector of 
+	 * length m<sub>matrix</sub></p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles.
+	 * @return One-dimensional array of doubles that is <b>matrix</b> x
+	 * <b>vector</b>.
+	 */
+	public static double[] times(double[][] matrix, double[] vector)
+	{
+		if ( colDim(matrix) != vector.length )
+		{
+			throw new IllegalArgumentException(
+								"Matrix inner row dimensions must agree.");
+		}
+		double[] out = new double[rowDim(matrix)];
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			out[i] = Vector.dotProduct(getRowAsColumn(matrix, i), vector);
+		return out;
 	}
 }
