@@ -3,6 +3,7 @@ package agent.body;
 import utility.Vector;
 
 /**
+ * FIXME: Bas - Think of a better name for this class..
  * \brief methods used in collision/attraction detection and response
  * 
  * Methods are based on closest point algorithms from:
@@ -47,8 +48,8 @@ public final class Volume {
 	public static void neighbourInteraction(Point a, Point c, Double radii) 
 	{
 		Double[] force = interact(pointPoint(a.getPosition(), c.getPosition()), radii);
-		Vector.addTo(a.getForce(), force);
-		Vector.addTo(c.getForce(),Vector.reverseCopy(force));
+		Vector.add(a.getForce(), force);
+		Vector.add(c.getForce(),Vector.inverse(force));
 	}
 	
 	/**
@@ -68,9 +69,9 @@ public final class Volume {
 	{
 		Double[] force = interact(linesegPoint(a.getPosition(), b.getPosition(), 
 				c.getPosition()), radii);
-		Vector.addTo(a.getForce(), Vector.scaleCopy(force,1.0-s));
-		Vector.addTo(b.getForce(), Vector.scaleCopy(force,s));
-		Vector.addTo(c.getForce(), Vector.reverseCopy(force));
+		Vector.add(a.getForce(), Vector.product(force,1.0-s));
+		Vector.add(b.getForce(), Vector.product(force,s));
+		Vector.add(c.getForce(), Vector.inverse(force));
 	}
 	
 	/**
@@ -92,10 +93,10 @@ public final class Volume {
 	{
 		Double[] force = interact(linesegLineseg(a.getPosition(), b.getPosition(), 
 				c.getPosition(), d.getPosition()), radii);
-		Vector.addTo(a.getForce(), Vector.scaleCopy(force,1.0-s));
-		Vector.addTo(b.getForce(), Vector.scaleCopy(force,s));
-		Vector.addTo(c.getForce(), Vector.scaleCopy(Vector.reverseCopy(force),t));
-		Vector.addTo(d.getForce(), Vector.scaleCopy(Vector.reverseCopy(force),1.0-t));
+		Vector.add(a.getForce(), Vector.product(force,1.0-s));
+		Vector.add(b.getForce(), Vector.product(force,s));
+		Vector.add(c.getForce(), Vector.product(Vector.inverse(force),t));
+		Vector.add(d.getForce(), Vector.product(Vector.inverse(force),1.0-t));
 	}
 
 	/**
@@ -122,7 +123,7 @@ public final class Volume {
 		if (distance < 0.0) 
 		{
 			c = fPush * distance * distance;
-			return Vector.scaleCopy(Vector.normalizeCopy(dP),c);
+			return Vector.product(Vector.normalize(dP),c);
 		} 
 		
 		//attraction
@@ -138,7 +139,7 @@ public final class Volume {
 				c = fPull * - (p-distance) /
 						( 1.0 + Math.exp(6.0 - (36.0*distance) / p) );
 			}
-			return Vector.scaleCopy(dP,c);
+			return Vector.product(dP,c);
 		}
 		return Vector.zeros(dP.length);
 	}
@@ -153,8 +154,8 @@ public final class Volume {
 	 */
 	public static Double pointPoint(Double[] p, Double[] q) 
 	{
-		dP = Vector.minusCopy(p,q);
-		return Vector.normEuclid(dP);
+		dP = Vector.minus(p,q);
+		return Vector.normE(dP);
 	}
 	
 	/**
@@ -172,10 +173,10 @@ public final class Volume {
 	 */
 	public static Double linesegPoint(Double[] p0, Double[] p1, Double[] q0) 
 	{
-		Double[] ab = Vector.minusCopy(p1, p0);
-		s  = clamp(Vector.dotProduct(Vector.minusCopy(q0, p0),ab) / Vector.dotProduct(ab,ab));
-		dP = Vector.minusCopy(Vector.addCopy(p0, Vector.scaleCopy(ab,s)), q0);
-		return Vector.normEuclid(dP);
+		Double[] ab = Vector.minus(p1, p0);
+		s  = clamp(Vector.dot(Vector.minus(q0, p0),ab) / Vector.dot(ab,ab));
+		dP = Vector.minus(Vector.sum(p0, Vector.product(ab,s)), q0);
+		return Vector.normE(dP);
 	}
 	
 	/**
@@ -195,14 +196,14 @@ public final class Volume {
 	private static Double linesegLineseg(Double[] p0, Double[] p1, Double[] q0, 
 			Double[] q1) 
 	{		
-		Double[] r  	= Vector.minusCopy(p0, q0);
-		Double[] d1 	= Vector.minusCopy(p1, p0);
-		Double[] d2 	= Vector.minusCopy(q1, q0);
-		double a 		= Vector.dotProduct(d1,d1);
-		double e 		= Vector.dotProduct(d2,d2);
-		double f 		= Vector.dotProduct(d2,r);
-		double c 		= Vector.dotProduct(d1,r);
-		double b 		= Vector.dotProduct(d1,d2);
+		Double[] r  	= Vector.minus(p0, q0);
+		Double[] d1 	= Vector.minus(p1, p0);
+		Double[] d2 	= Vector.minus(q1, q0);
+		double a 		= Vector.dot(d1,d1);
+		double e 		= Vector.dot(d2,d2);
+		double f 		= Vector.dot(d2,r);
+		double c 		= Vector.dot(d1,r);
+		double b 		= Vector.dot(d1,d2);
 		double denom 	= a*e-b*b;
 		
 		// s, t = 0.0 if segments are parallel.
@@ -220,10 +221,10 @@ public final class Volume {
 			s = clamp((b-c)/a);
 		}
 		
-		Double[] c1 = Vector.addCopy( p0, Vector.scaleCopy(d1,s) );
-		Double[] c2 = Vector.addCopy( q0, Vector.scaleCopy(d2,t) );
-		dP = Vector.minusCopy(c1,c2);
-		return Vector.normEuclid(dP);
+		Double[] c1 = Vector.sum( p0, Vector.product(d1,s) );
+		Double[] c2 = Vector.sum( q0, Vector.product(d2,t) );
+		dP = Vector.minus(c1,c2);
+		return Vector.normE(dP);
 	}
 
 	/**
