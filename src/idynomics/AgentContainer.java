@@ -71,6 +71,19 @@ public class AgentContainer
 		return out;
 	}
 	
+	public void registerBirth(Agent agent) {
+		addAgent(agent);
+	}
+
+	private void addAgent(Agent agent) {
+		if (agent.isLocated())
+			_agentTree.insert(agent.getLower(),agent.getDim(),agent);
+		else
+			_agentList.add(agent);
+		
+	}
+	
+	
 	public LinkedList<Agent> getAllLocatedAgents()
 	{
 		LinkedList<Agent> out = new LinkedList<Agent>();
