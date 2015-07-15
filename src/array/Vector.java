@@ -240,7 +240,7 @@ public final class Vector
 	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
 	 * 
 	 * @param vector One-dimensional array of integers.
-	 * @return int sum of all elements in the vector.
+	 * @return int sum of all elements in the <b>vector</b>.
 	 */
 	public static int sum(int[] vector)
 	{
@@ -248,6 +248,44 @@ public final class Vector
 		for ( int i = 0; i < vector.length; i++ ) 
 			sum += vector[i];
 		return sum;
+	}
+	
+	/**
+	 * \brief Finds the value of the greatest element in the given
+	 * <b>vector</b>.
+	 * 
+	 * <p>E.g. maximum of the vector <i>(1, -3, 2)</i> is <i>2</i>.</p>
+	 * 
+	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
+	 * 
+	 * @param vector One-dimensional array of integers.
+	 * @return int value of the greatest element in the <b>vector</b>.
+	 */
+	public static int max(int[] vector)
+	{
+		int out = vector[0];
+		for ( int i = 1; i < vector.length; i++ )
+			out = Math.max(out, vector[i]);
+		return out;
+	}
+	
+	/**
+	 * \brief Finds the value of the least element in the given
+	 * <b>vector</b>.
+	 * 
+	 * <p>E.g. minimum of the vector <i>(1, -3, 2)</i> is <i>-3</i>.</p>
+	 * 
+	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
+	 * 
+	 * @param vector One-dimensional array of integers.
+	 * @return int value of the least element in the <b>vector</b>.
+	 */
+	public static int min(int[] vector)
+	{
+		int out = vector[0];
+		for ( int i = 1; i < vector.length; i++ )
+			out = Math.min(out, vector[i]);
+		return out;
 	}
 	
 	/**
@@ -260,7 +298,7 @@ public final class Vector
 	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
 	 * 
 	 * @param vector One-dimensional array of integers.
-	 * @return double sum of all elements in the vector.
+	 * @return double sum of all elements in the <b>vector</b>.
 	 */
 	public static int normSquare(int[] vector)
 	{
@@ -536,6 +574,45 @@ public final class Vector
 		for ( int i = 0; i < vector.length; i++ ) 
 			sum += vector[i];
 		return sum;
+	}
+	
+	/**
+	 * \brief Finds the value of the greatest element in the given
+	 * <b>vector</b>.
+	 * 
+	 * <p>E.g. maximum of the vector <i>(1, -3, 2)</i> is <i>2</i>.</p>
+	 * 
+	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @return double value of the greatest element in the vector.
+	 */
+	public static double max(double[] vector)
+	{
+		double out = vector[0];
+		for ( int i = 1; i < vector.length; i++ )
+			out = Math.max(out, vector[i]);
+		return out;
+	}
+	
+	/**
+	 * \brief Finds the value of the least element in the given
+	 * <b>vector</b>.
+	 * 
+	 * <p>E.g. minimum of the vector <i>(1.0, -3.0, 2.0)</i> is
+	 * <i>-3.0</i>.</p>
+	 * 
+	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @return double value of the least element in the vector.
+	 */
+	public static double min(double[] vector)
+	{
+		double out = vector[0];
+		for ( int i = 1; i < vector.length; i++ )
+			out = Math.min(out, vector[i]);
+		return out;
 	}
 	
 	/**

@@ -199,12 +199,6 @@ public class LUDecomposition
 		return x;
 	}
 	
-	public double[][] invert()
-	{
-		Matrix.checkSquare(this.lu);
-		return solve(Matrix.identityDbl(this.m));
-	}
-	
 	public double[] solve(double[] b)
 	{
 		if ( b.length != this.m )
