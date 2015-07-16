@@ -165,7 +165,7 @@ public abstract class ODEsolver
 					 */
 					W = Matrix.times(Matrix.copy(dFdY), -h*d);
 					W = Matrix.add(W, identity);
-					test = Matrix.cond(W);
+					test = Matrix.condition(W);
 					if ( test > 10.0)
 					{ 
 						LogFile.shoutLog(

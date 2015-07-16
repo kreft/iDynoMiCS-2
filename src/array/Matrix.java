@@ -407,6 +407,20 @@ public final class Matrix
 	}
 	
 	/**
+	 * TODO
+	 * 
+	 * @param vector
+	 * @return
+	 */
+	public static int[][] asDiagonal(int[] vector)
+	{
+		int[][] out = zerosInt(vector.length);
+		for ( int i = 0; i < vector.length; i++ )
+			out[i][i] = vector[i];
+		return out;
+	}
+	
+	/**
 	 * \brief Extract a subsection of the given <b>matrix</b>.
 	 * 
 	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
@@ -999,6 +1013,20 @@ public final class Matrix
 	}
 	
 	/**
+	 * TODO
+	 * 
+	 * @param vector
+	 * @return
+	 */
+	public static double[][] asDiagonal(double[] vector)
+	{
+		double[][] out = zerosDbl(vector.length);
+		for ( int i = 0; i < vector.length; i++ )
+			out[i][i] = vector[i];
+		return out;
+	}
+	
+	/**
 	 * \brief Extract a subsection of the given <b>matrix</b>.
 	 * 
 	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
@@ -1221,9 +1249,9 @@ public final class Matrix
 	 * @param matrix
 	 * @return
 	 */
-	public static double cond(double[][] matrix)
+	public static double condition(double[][] matrix)
 	{
-		return 1.0;
+		return (new SingularValueDecomposition(matrix)).condition();
 	}
 	
 	/*************************************************************************
