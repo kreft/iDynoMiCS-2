@@ -1,7 +1,6 @@
 package test;
 
-import array.Matrix;
-import array.Vector;
+import array.*;
 
 public class ArrayTest
 {
