@@ -1215,6 +1215,17 @@ public final class Matrix
 		return (new LUDecomposition(matrix)).solve(identity(matrix)); 
 	}
 	
+	/**
+	 * TODO
+	 * 
+	 * @param matrix
+	 * @return
+	 */
+	public static double cond(double[][] matrix)
+	{
+		return 1.0;
+	}
+	
 	/*************************************************************************
 	 * CONVERTING BETWEEN INTEGER AND DOUBLE
 	 ************************************************************************/
@@ -1671,5 +1682,31 @@ public final class Matrix
 		for ( int i = 0; i < rowDim(matrix); i++ )
 			out[i] = Vector.dotProduct(getRowAsColumn(matrix, i), vector);
 		return out;
+	}
+	
+	/**
+	 * 
+	 * TODO
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static double[][] solve(double[][] a, double[][] b)
+	{
+		return (new LUDecomposition(a)).solve(b);
+	}
+	
+	/**
+	 * 
+	 * TODO
+	 * 
+	 * @param matrix
+	 * @param vector
+	 * @return
+	 */
+	public static double[] solve(double[][] matrix, double[] vector)
+	{
+		return (new LUDecomposition(matrix)).solve(vector);
 	}
 }

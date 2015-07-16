@@ -199,6 +199,11 @@ public class LUDecomposition
 		return x;
 	}
 	
+	/**
+	 * 
+	 * @param b
+	 * @return
+	 */
 	public double[] solve(double[] b)
 	{
 		if ( b.length != this.m )

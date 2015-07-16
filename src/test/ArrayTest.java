@@ -8,19 +8,23 @@ public class ArrayTest
 
 	public static void main(String[] args)
 	{
-		int[][] id = Matrix.identityInt(4, 3);
+		/*int[][] id = Matrix.identityInt(4, 3);
 		for ( int[] row : id )
 		{
 			for ( int elem : row )
 				System.out.print(elem+" ");
 			System.out.println("");
-		}
+		}*/
 		
-		int[] v = Vector.zeroInt(3);
+		int[] v = Vector.zerosInt(3);
 		v[0] = 1;
 		v[1] = -3;
 		v[2] = 2;
-		System.out.println(Vector.max(v));
+		for ( int elem : v )
+			System.out.println(elem);
+		Vector.times(v, 2);
+		for ( int elem : v )
+			System.out.println(elem);
 	}
 
 }

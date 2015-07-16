@@ -1,36 +1,36 @@
 package utility;
 
 
-import utility.LogFile;
-import Jama.Matrix;
+import array.Matrix;
+import array.Vector;
 
 public abstract class ODEsolver
 {
 	/**
 	 * 
 	 */
-	protected Double d = 1.0 / (2.0 + Math.sqrt(2.0));
+	protected final double d = 1.0 / (2.0 + Math.sqrt(2.0));
 	
 	/**
 	 * 
 	 */
-	protected Double e32  = 6.0 + Math.sqrt(2.0);
+	protected final double e32  = 6.0 + Math.sqrt(2.0);
 	
 	/**
 	 * The order of this method is 3.
 	 */
-	protected Double power = 1.0/3.0;
+	protected final double power = 1.0/3.0;
 	
 	/**
 	 * Numerical accuracy for EPS (error per step) 
 	 */
-	protected Double sqrtE = Math.sqrt(2.22e-16);
+	protected final double sqrtE = Math.sqrt(2.22e-16);
 	
 	/**
 	 * Error Per Step: the smallest positive floating-point number such that
 	 * 1.0 + EPS > 1.0 
 	 */
-	protected Double EPS = 2.22e-16;
+	protected final double EPS = 2.22e-16;
 	
 	/**
 	 * Number of variables in the solver.
@@ -40,21 +40,25 @@ public abstract class ODEsolver
 	/**
 	 * 
 	 */
-	protected Boolean allowNegatives;
+	protected boolean allowNegatives;
 	
-	protected Matrix ynext;
+	protected double[] ynext;
 	
-	protected Matrix dYdT;
+	protected double[] dYdT;
 	
-	protected Matrix dFdT;
+	protected double[] dFdT;
 	
-	protected Matrix dFdY;
+	protected double[][] dFdY;
 	
-	protected Matrix f1, f2, W, invW, k1, k2, k3, kaux;
+	protected double[] f1, f2, k1, k2, k3, kaux, hddFdT;
 	
-	protected Double t, error, tnext, tdel, h, test;
+	protected double[][] W, invW;
 	
-	protected Boolean lastStep, noFailed, usingHMin;
+	protected double[][] identity;
+	
+	protected double t, error, tnext, h, test;
+	
+	protected boolean lastStep, noFailed, usingHMin, signsOK;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -69,18 +73,22 @@ public abstract class ODEsolver
 	{
 		this.nVar = nVar;
 		
-		ynext = new Matrix(nVar, 1, 0.0);
-		dYdT  = new Matrix(nVar, 1, 0.0);
-		dFdT  = new Matrix(nVar, 1, 0.0);
-		dFdY  = new Matrix(nVar, nVar, 0.0);
-		f1    = new Matrix(nVar, 1, 0.0);
-		f2    = new Matrix(nVar, 1, 0.0);
-		W     = new Matrix(nVar, nVar, 0.0);
-		invW  = new Matrix(nVar, nVar, 0.0);
-		k1    = new Matrix(nVar, 1, 0.0);
-		k2    = new Matrix(nVar, 1, 0.0);
-		k3    = new Matrix(nVar, 1, 0.0);
-		kaux  = new Matrix(nVar, 1, 0.0);
+		ynext = Vector.zerosDbl(nVar);
+		dYdT  = Vector.zerosDbl(nVar);
+		dFdT  = Vector.zerosDbl(nVar);
+		f1    = Vector.zerosDbl(nVar);
+		f2    = Vector.zerosDbl(nVar);
+		k1    = Vector.zerosDbl(nVar);
+		k2    = Vector.zerosDbl(nVar);
+		k3    = Vector.zerosDbl(nVar);
+		kaux  = Vector.zerosDbl(nVar);
+		hddFdT = Vector.zerosDbl(nVar);
+		
+		dFdY  = Matrix.zerosDbl(nVar);
+		W     = Matrix.zerosDbl(nVar);
+		invW  = Matrix.zerosDbl(nVar);
+		
+		identity = Matrix.identityDbl(nVar);
 	}
 	
 	/*************************************************************************
@@ -88,32 +96,31 @@ public abstract class ODEsolver
 	 ************************************************************************/
 	
 	/**
+	 * \brief TODO
 	 * 
-	 * @param y
-	 * @param tfinal
-	 * @param rtol
-	 * @param hmax
-	 * @return
+	 * 
+	 * @param y One-dimensional array of doubles.
+	 * @param tfinal Time duration to solve for.
+	 * @param rtol Relative tolerance.
+	 * @param hmax Maximum time-step permissible.
+	 * @return One-dimensional array of doubles.
+	 * @exception IllegalArgumentException Wrong vector dimensions.
 	 */
-	public Matrix solve(Matrix y, Double tfinal, Double rtol, Double hmax)
+	public double[] solve(double[] y, double tfinal, double rtol, double hmax)
 	{
 		/*
 		 * First check that y is the correct size.
 		 */
-		if ( y.getRowDimension() != nVar || y.getColumnDimension() != 1 )
-			throw new IllegalArgumentException("Wrong matrix dimensions");
-		/*
-		 * Reset the matrices we will need.
-		 */
-		
+		if ( y.length != nVar )
+			throw new IllegalArgumentException("Wrong vector dimensions.");
 		/*
 		 * Control statement in case the maximum timestep size, hmax, is too
 		 * large.
 		 */
-		while ( hmax > tfinal )
+		if ( hmax > tfinal )
 		{
-			hmax *= 0.5;
-			rtol *= 0.5;
+			rtol *= tfinal/hmax;
+			hmax = tfinal;
 		}
 		/*
 		 * First try a step size of hmax.
@@ -133,11 +140,11 @@ public abstract class ODEsolver
 				lastStep = true;
 			}
 			/*
-			 * Update dFdT based on the mini-timestep tdel. The Jacobian
-			 * matrix, dFdY, doesn't need this mini-timestep.
+			 * Update dFdT with a mini-timestep. The Jacobian matrix, dFdY,
+			 * doesn't need this.
 			 */
-			tdel = sqrtE * (t+h);
-			dFdT = calc2ndDeriv(y, tdel);
+			dFdT = calc2ndDeriv(y, sqrtE * ( t + h ));
+			hddFdT = Vector.times(Vector.copy(dFdT), -h*d);
 			dFdY = calcJacobian(y);
 			/*
 			 * Try out this value of h, keeping a note of whether it ever
@@ -156,56 +163,65 @@ public abstract class ODEsolver
 					/*
 					 * W = I - h * d * dFdY
 					 */
-					W = dFdY.times( - h * d );
-					W.plusEquals( Matrix.identity(nVar, nVar) );
-					if (W.cond() > 10)
+					W = Matrix.times(Matrix.copy(dFdY), -h*d);
+					W = Matrix.add(W, identity);
+					test = Matrix.cond(W);
+					if ( test > 10.0)
 					{ 
 						LogFile.shoutLog(
-								"Warning (ODEsolver): Condition of W is "+W.cond());
+							"Warning (ODEsolver): Condition of W is "+test);
 					}
-					invW = W.inverse();
 					/*
-					 * k1 = invW * ( dYdT(y) + h * d * dFdT )
+					 * Find k1 where
+					 * W*k1 = dYdT + h*d*dFdT
 					 */
-					k1 = invW.times( dFdT.times(h*d).plus(dYdT) );
+					k1 = Matrix.solve(W,Vector.add(Vector.copy(hddFdT),dYdT));
 					/*
 					 * f1 = dYdT(y + k1*h/2)
 					 */
-					f1 = calc1stDeriv( k1.times(h/2).plus(y) );
+					f1 = Vector.times(Vector.copy(k1), 0.5*h);
+					f1 = calc1stDeriv( Vector.add(f1, y));
 					/*
-					 * k2 = invW * ( f1 - k1 ) + k1
+					 * Find k2 where
+					 * W*(k2-k1) = f1 - k1  
 					 */
-					k2 = invW.times( f1.minus(k1) );
-					k2.plusEquals(k1);
+					k2 = Vector.subtract(Vector.copy(f1), k1);
+					k2 = Matrix.solve(W, k2);
+					k2 = Vector.add(k2, k1);
 					/*
 					 * ynext = y + h * k2
 					 */
-					ynext = k2.times(h).plus(y);
+					ynext = Vector.times(Vector.copy(k2), h);
+					ynext = Vector.add(ynext, y);
 					/*
 					 * f2 = dYdT(ynext)
 					 */
 					f2 = calc1stDeriv(ynext);
 					/*
-					 * k3 = invW * ( f2 - e32*(k2-f1) - 2*(k1-y) + h*d*dFdT )
+					 * 
+					 * Find k3 where 
+					 * W*k3 = ( f2 + e32*(f1-k2) + 2*(y-k1) + h*d*dFdT )
 					 * 
 					 * First set kaux as the expression inside the brackets,
 					 * then multiply by invW on the left.
 					 */
-					kaux = f2.copy();
-					kaux.minusEquals( k2.minus(f1).times(e32) );
-					kaux.minusEquals( k1.minus(y).times(2) );
-					kaux.plusEquals( dFdT.times(h*d));
-					k3 = invW.times(kaux);
+					kaux = Vector.add(Vector.copy(hddFdT), f2);
+					k3 = Vector.subtract(Vector.copy(f1), k2);
+					kaux = Vector.add(kaux, Vector.times(k3, e32));
+					k3 = Vector.subtract(Vector.copy(y), k1);
+					kaux = Vector.add(kaux, Vector.times(k3, 2.0));
+					k3 = Matrix.solve(W, kaux);
 					/*
 					 * We now use kaux to estimate the error of this step.
 					 */
 					for (int i = 0; i < nVar; i++)
-						kaux.set(i, 0, 1/Math.min(y.get(i,0), ynext.get(i,0)));
-					kaux.arrayTimesEquals(
-								k1.minus(k2.times(2)).plus(k3).times(h/6));
-					error = 0.0;
-					for (int i = 0; i < nVar; i++)
-						error = Math.max(error, kaux.get(i,0));
+						kaux[i] = 1/Math.min(y[i], ynext[i]);
+					/*
+					 * kaux *= (2*k2 + k3) * h / 6
+					 */
+					Vector.add(Vector.times(k2, 2.0), k3);
+					Vector.times(kaux, Vector.times(k2, h/6.0));
+					error = Vector.max(kaux);
 				}
 				catch (Exception e)
 				{
@@ -225,9 +241,14 @@ public abstract class ODEsolver
 				 * GEAR, C. W. 1971. Numerical Initial Value Problems in
 				 * Ordinary Differential Equations. Prentice-Hall, Englewood
 				 * Cliffs, N.J.
+				 * 
+				 * 
+				 * Rob 16July2015: Moved the checking for negatives into this
+				 * section on error checking.
 				 */
+				signsOK = ( ! allowNegatives ) || Vector.isNonnegative(ynext);
 				test = Math.pow((rtol/error), power);
-				if ( error > rtol )
+				if ( error > rtol && signsOK )
 				{ 
 					noFailed = false;
 					lastStep = false;
@@ -265,22 +286,10 @@ public abstract class ODEsolver
 			h = Math.min(h, hmax);
 			t = tnext;
 			/*
-			 * Check no variables have gone negative.
-			 * TODO Rob 4June2015: This could be done better.
-			 */
-			if ( ! allowNegatives )
-				for (int i = 0; i < nVar; i++)
-					if ( ynext.get(i, 0) < 0.0)
-					{
-						ynext.set(i, 0, 0.0);
-						LogFile.shoutLog(
-								"Warning (ODE solver): negative variable! "+i);
-					}
-			/*
 			 * Update the y and the first derivative dYdT.
 			 */
-			y = ynext.copy();
-			dYdT = f2.copy();
+			y = Vector.copy(ynext);
+			dYdT = Vector.copy(f2);
 		} // End of `while ( ! lastStep )`
 		/*
 		 * Finally, return the answer.
@@ -288,25 +297,35 @@ public abstract class ODEsolver
 		return y;
 	}
 	
-	
-	
-	
 	/**
 	 * Update the first derivative of Y, i.e. the rate of change of Y with
 	 * respect to time (dYdT = F).
 	 * 
 	 * @param y
 	 */
-	public abstract Matrix calc1stDeriv(Matrix y);
+	public abstract double[] calc1stDeriv(double[] y);
 	
 	/**
 	 * Update the second derivative of Y, i.e. the rate of change of F with
 	 * respect to time (dFdT).
 	 * 
 	 * @param y 
-	 * @param tdel 
+	 * @param deltaT 
 	 */
-	public abstract Matrix calc2ndDeriv(Matrix y, Double tdel);
+	public double[] calc2ndDeriv(double[] y, double deltaT)
+	{
+		double[] dYdT = calc1stDeriv(y);
+		double[] out = Vector.copy(dYdT);
+		/*
+		 * yNext = y + (deltaT * dYdT)
+		 */
+		Vector.add(Vector.times(out, deltaT), y);
+		/*
+		 * dFdT = ( dYdT(ynext) - dYdT(y) )/tdel
+		 */
+		out = calc1stDeriv(out);
+		return Vector.subtract(Vector.times(out, 1.0/deltaT), dYdT);
+	}
 	
 	/**
 	 * Update the Jacobian matrix, i.e. the rate of change of F with respect to
@@ -314,6 +333,6 @@ public abstract class ODEsolver
 	 * 
 	 * @param y 
 	 */
-	public abstract Matrix calcJacobian(Matrix y);
+	public abstract double[][] calcJacobian(double[] y);
 	
 }

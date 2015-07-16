@@ -32,6 +32,20 @@ public final class Vector
 	}
 	
 	/**
+	 * TODO
+	 * 
+	 * @param vector
+	 * @return
+	 */
+	public static boolean isNonnegative(int[] vector)
+	{
+		for ( int element : vector )
+			if ( element < 0 )
+				return false;
+		return true;
+	}
+	
+	/**
 	 * \brief Take a subset of the given <b>vector</b> and return it as a new
 	 * vector.
 	 * 
@@ -150,11 +164,28 @@ public final class Vector
 	 * @param n	Length of the vector to create.
 	 * @return	int[] array of length <b>n</b>, with all elements set to zero.
 	 */
-	public static int[] zeroInt(int n)
+	public static int[] zerosInt(int n)
 	{
 		return vector(n, 0);
 	}
 	
+	/**
+	 * TODO
+	 * 
+	 * @param vector
+	 * @return
+	 */
+	public static int[] zeros(int[] vector)
+	{
+		return zerosInt(vector.length);
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @param n
+	 * @return
+	 */
 	public static int[] range(int n)
 	{
 		int[] vector = new int[n];
@@ -347,6 +378,20 @@ public final class Vector
 	}
 	
 	/**
+	 * TODO
+	 * 
+	 * @param vector
+	 * @return
+	 */
+	public static boolean isNonnegative(double[] vector)
+	{
+		for ( double element : vector )
+			if ( element < 0.0 )
+				return false;
+		return true;
+	}
+	
+	/**
 	 * \brief Take a subset of the given <b>vector</b> and return it as a new
 	 * vector.
 	 * 
@@ -489,6 +534,17 @@ public final class Vector
 	public static double[] zerosDbl(int n)
 	{
 		return vector(n, 0.0);
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @param vector
+	 * @return
+	 */
+	public static double[] zeros(double[] vector)
+	{
+		return zerosDbl(vector.length);
 	}
 	
 	/**
@@ -889,6 +945,44 @@ public final class Vector
 		checkLengths(a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			a[i] += b[i];
+		return a;
+	}
+	
+	/**
+	 * \brief Subtract one vector from another.
+	 * 
+	 * <p>Note that <b>a</b> will be overwritten; use 
+	 * <i>add({@link #copy(int[] a)}, <b>b</b>)</i> to preserve the original
+	 * state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * 
+	 * @param a One-dimensional array of integers (overwritten).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @return int[] array of <b>a</b> - <b>b</b>.
+	 */
+	public static int[] subtract(int[] a, int[] b)
+	{
+		checkLengths(a, b);
+		for ( int i = 0; i < a.length; i++ ) 
+			a[i] -= b[i];
+		return a;
+	}
+	
+	/**
+	 * \brief Subtract one vector from another.
+	 * 
+	 * <p>Note that <b>a</b> will be overwritten; use 
+	 * <i>add({@link #copy(double[] a)}, <b>b</b>)</i> to preserve the
+	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * 
+	 * @param a One-dimensional array of doubles (overwritten).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return double[] array of <b>a</b> - <b>b</b>.
+	 */
+	public static double[] subtract(double[] a, double[] b)
+	{
+		checkLengths(a, b);
+		for ( int i = 0; i < a.length; i++ ) 
+			a[i] -= b[i];
 		return a;
 	}
 	
