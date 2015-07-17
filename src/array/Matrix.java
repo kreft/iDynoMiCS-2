@@ -1,5 +1,7 @@
 package array;
 
+import utility.ExtraMath;
+
 /**
  * 
  * <p>Credit to the JAMA package</p>
@@ -907,6 +909,45 @@ public final class Matrix
 	}
 	
 	/**
+	 * 
+	 * TODO
+	 * 
+	 * @param m
+	 * @param n
+	 * @return
+	 */
+	public static double[][] random(int m, int n)
+	{
+		double[][] out = new double[m][n];
+		for ( int i = 0; i < m; i++ )
+			for ( int j = 0; j < n; j++ )
+				out[i][j] = ExtraMath.getUniRandDbl();
+		return out;
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @param mn
+	 * @return
+	 */
+	public static double[][] random(int mn)
+	{
+		return random(mn, mn);
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @param matrix
+	 * @return
+	 */
+	public static double[][] random(double[][] matrix)
+	{
+		return random(rowDim(matrix), colDim(matrix));
+	}
+	
+	/**
 	 * \brief Make a deep copy of the given <b>matrix</b>.
 	 * 
 	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
@@ -1048,6 +1089,35 @@ public final class Matrix
 			for ( int i = 0; i < rows.length; i++ )
 				for ( int j = 0; j < cols.length; j++ )
 					out[i][j] = matrix[rows[i]][cols[j]];
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			throw new
+					ArrayIndexOutOfBoundsException("Check submatrix indices");
+		}
+		return out;
+	}
+	
+	/**
+	 * 
+	 * TODO
+	 * 
+	 * @param matrix
+	 * @param rStart
+	 * @param rStop
+	 * @param cStart
+	 * @param cStop
+	 * @return
+	 */
+	public static double[][] submatrix(double[][] matrix, int rStart,
+										int rStop, int cStart, int cStop)
+	{
+		double[][] out = new double[rStop-rStart][cStop-cStart];
+		try
+		{
+			for ( int i = rStart; i < rStop; i++ )
+				for ( int j = cStart; j < cStop; j++ )
+					out[i][j] = matrix[i][j];
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{

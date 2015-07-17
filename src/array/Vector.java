@@ -1,5 +1,7 @@
 package array;
 
+import utility.ExtraMath;
+
 /**
  * \brief Abstract class of useful vector functions.
  * 
@@ -162,7 +164,7 @@ public final class Vector
 	 * zero.
 	 * 
 	 * @param n	Length of the vector to create.
-	 * @return	int[] array of length <b>n</b>, with all elements set to zero.
+	 * @return int[] array of length <b>n</b>, with all elements set to zero.
 	 */
 	public static int[] zerosInt(int n)
 	{
@@ -170,10 +172,12 @@ public final class Vector
 	}
 	
 	/**
-	 * TODO
+	 * \brief A new integer vector of same length as <b>vector</b>, and all
+	 * elements set to zero.
 	 * 
-	 * @param vector
-	 * @return
+	 * @param vector One-dimensional array of integers.
+	 * @return int[] array of same length as <b>vector</b>, with all elements
+	 * set to zero.
 	 */
 	public static int[] zeros(int[] vector)
 	{
@@ -378,10 +382,32 @@ public final class Vector
 	}
 	
 	/**
-	 * TODO
+	 * \brief Check if the given <b>vector</b> is composed of zeros.
 	 * 
-	 * @param vector
-	 * @return
+	 * <p>Note that this method is vulnerable to numerical issues, i.e. values
+	 * that are extremely close to zero but not equal because of rounding.
+	 * Consider using {@link #isZero(double[] vector, double tolerance)}
+	 * instead.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles. 
+	 * @return boolean showing whether <b>vector</b> is all zeros (true) or 
+	 * contains a non-zero (false).
+	 */
+	public static boolean isZero(double[] vector)
+	{
+		for ( double element : vector )
+			if ( element != 0.0 )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief Check if all elements in a <b>vector</b> are positive or zero.
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @return boolean reporting whether the <b>vector</b> contains negative
+	 * elements (false) or if all elements are greater than or equal to zero
+	 * (true).
 	 */
 	public static boolean isNonnegative(double[] vector)
 	{
@@ -453,26 +479,6 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief Check if the given <b>vector</b> is composed of zeros.
-	 * 
-	 * <p>Note that this method is vulnerable to numerical issues, i.e. values
-	 * that are extremely close to zero but not equal because of rounding.
-	 * Consider using {@link #isZero(double[] vector, double tolerance)}
-	 * instead.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles. 
-	 * @return boolean showing whether <b>vector</b> is all zeros (true) or 
-	 * contains a non-zero (false).
-	 */
-	public static boolean isZero(double[] vector)
-	{
-		for ( double element : vector )
-			if ( element != 0.0 )
-				return false;
-		return true;
-	}
-	
-	/**
 	 * \brief Set all elements of the given <b>vector</b> to the double
 	 * <b>value</b> given.
 	 * 
@@ -537,14 +543,47 @@ public final class Vector
 	}
 	
 	/**
-	 * TODO
+	 * \brief A new double vector of same length as <b>vector</b>, and all
+	 * elements set to zero.
 	 * 
-	 * @param vector
-	 * @return
+	 * @param vector One-dimensional array of doubles.
+	 * @return double[] array of same length as <b>vector</b>, with all
+	 * elements set to zero.
 	 */
 	public static double[] zeros(double[] vector)
 	{
 		return zerosDbl(vector.length);
+	}
+	
+	/**
+	 * \brief A new double vector of length <b>n</b>, where each element is
+	 * randomly chosen from a uniform distribution in [0.0, 1.0).
+	 * 
+	 * @param n Length of the vector to create.
+	 * @return double[] array of length <b>n</b>, with all elements randomly
+	 * chosen from a uniform distribution between zero (inclusive) and one
+	 * (exclusive).
+	 */
+	public static double[] random(int n)
+	{
+		double[] out = new double[n];
+		for ( int i = 0; i < n; i++ )
+			out[i] = ExtraMath.getUniRandDbl();
+		return out;
+	}
+	
+	/**
+	 * \brief A new double vector of same length as <b>vector</b>, where each
+	 * element is randomly chosen from a uniform distribution in [0.0, 1.0).
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @return double[] array of same length as <b>vector</b>, with all
+	 * elements randomly chosen from a uniform distribution between zero
+	 * (inclusive) and one (exclusive).
+	 */
+	public static double[] random(double[] vector)
+	{
+		return random(vector.length);
 	}
 	
 	/**

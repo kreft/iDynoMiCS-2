@@ -1,3 +1,4 @@
+/Jama/
 /agent/
 /array/
 /idynomics/
@@ -6,8 +7,5 @@
 /reaction/
 /spatialGrid/
 /spatialRegistry/
-/utility/
 /test/
-/solver/
-/environment/
-/Jama/
+/utility/
