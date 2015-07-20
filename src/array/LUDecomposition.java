@@ -145,7 +145,7 @@ public class LUDecomposition
 	 * 
 	 * 
 	 * @return Determinant of the matrix given originally.
-	 * @exception IllegalArgumentException : Matrix must be square.
+	 * @exception IllegalArgumentException Matrix must be square.
 	 */
 	public double determinant()
 	{
@@ -161,8 +161,8 @@ public class LUDecomposition
 	 * 
 	 * @param b Two-dimensional array of doubles.
 	 * @return x such that lu * x = <b>b</b>(pivot, :)
-	 * @exception IllegalArgumentException : Matrix row dimensions must agree.
-     * @exception RuntimeException : Matrix is singular.
+	 * @exception IllegalArgumentException Matrix row dimensions must agree.
+     * @exception RuntimeException Matrix is singular.
 	 */
 	public double[][] solve(double[][] b)
 	{

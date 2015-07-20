@@ -409,10 +409,20 @@ public final class Matrix
 	}
 	
 	/**
-	 * TODO
+	 * \brief Converts a column vector to a diagonal matrix.
 	 * 
-	 * @param vector
-	 * @return
+	 * <p>For example, if <b>vector</b> = <br>1<br>2<br>3<br>then
+	 * <i>asDiagonal(</i><b>vector</b><i>)</i>) =<br>1, 0, 0;<br>0, 2, 0;<br>
+	 * 0, 0, 3;</p> 
+	 * 
+	 * <p>This is equivalent to <br>
+	 * double out = {@link #identityInt(int n)};<br>
+	 * {@link #times(int[][] out, int[] vector)};<br>
+	 * where n is the length of <b>vector</b>.</p>
+	 * 
+	 * @param vector One-dimensional array of integers.
+	 * @return Two-dimensional array of integers with the elements of
+	 * <b>vector</b> along the main diagonal and zeros elsewhere. 
 	 */
 	public static int[][] asDiagonal(int[] vector)
 	{
@@ -893,7 +903,7 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief A new square identity matrix.
+	 * \brief A new identity matrix.
 	 * 
 	 * <p>An identity matrix is filled with zeros, except on the main diagonal
 	 * where it has ones instead.</p>
@@ -909,12 +919,15 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Create a new <b>m</b>-by-<b>n</b> matrix with random elements.
 	 * 
-	 * TODO
+	 * <p>Random numbers are drawn from a uniform distribution over
+	 * [0, 1).</p>
 	 * 
-	 * @param m
-	 * @param n
-	 * @return
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @return Two-dimensional array of doubles with elements drawn from a 
+	 * uniform distribution.
 	 */
 	public static double[][] random(int m, int n)
 	{
@@ -926,10 +939,14 @@ public final class Matrix
 	}
 	
 	/**
-	 * TODO
+	 * \brief Create a new square matrix with random elements.
 	 * 
-	 * @param mn
-	 * @return
+	 * <p>Random numbers are drawn from a uniform distribution over
+	 * [0, 1).</p>
+	 * 
+	 * @param mn Number of rows = number of columns.
+	 * @return Two-dimensional array of doubles with elements drawn from a 
+	 * uniform distribution.
 	 */
 	public static double[][] random(int mn)
 	{
@@ -937,10 +954,14 @@ public final class Matrix
 	}
 	
 	/**
-	 * TODO
+	 * \brief Create a new matrix with random elements.
 	 * 
-	 * @param matrix
-	 * @return
+	 * <p>Random numbers are drawn from a uniform distribution over
+	 * [0, 1).</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @return Two-dimensional array of random doubles with the same number of
+	 * rows and of columns as <b>matrix</b>.
 	 */
 	public static double[][] random(double[][] matrix)
 	{
@@ -1054,10 +1075,20 @@ public final class Matrix
 	}
 	
 	/**
-	 * TODO
+	 * \brief Converts a column vector to a diagonal matrix.
 	 * 
-	 * @param vector
-	 * @return
+	 * <p>For example, if <b>vector</b> = <br>1<br>2<br>3<br>then
+	 * <i>asDiagonal(</i><b>vector</b><i>)</i>) =<br>1, 0, 0;<br>0, 2, 0;<br>
+	 * 0, 0, 3;</p> 
+	 * 
+	 * <p>This is equivalent to <br>
+	 * double out = {@link #identityDbl(int n)};<br>
+	 * {@link #times(double[][] out, double[] vector)};<br>
+	 * where n is the length of <b>vector</b>.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @return Two-dimensional array of doubles with the elements of
+	 * <b>vector</b> along the main diagonal and zeros elsewhere. 
 	 */
 	public static double[][] asDiagonal(double[] vector)
 	{
@@ -1099,15 +1130,22 @@ public final class Matrix
 	}
 	
 	/**
+	 * brief Extract a subsection of the given <b>matrix</b>.
 	 * 
-	 * TODO
+	 * <p>For example, if <b>matrix</b> = <br>1, 2, 3, 4;<br>5, 6, 7, 8;<br>
+	 * 9, 10, 11, 12;<br> then <i>submatrix(</i><b>matrix</b><i>, 0, 2, 1,
+	 * 4)</i> returns a new matrix<br>2, 3, 4;<br>6, 7, 8;</p>
 	 * 
-	 * @param matrix
-	 * @param rStart
-	 * @param rStop
-	 * @param cStart
-	 * @param cStop
-	 * @return
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 *  @param rStart int row index at which to start (inclusive).
+	 * @param rStop int row index at which to stop (exclusive).
+	 * @param cStart int column index at which to start (inclusive).
+	 * @param cStop int column index at which to stop (exclusive).
+	 * @return Two-dimensional array of doubles selectively copied from
+	 * <b>matrix</b>.
+	 * @exception  ArrayIndexOutOfBoundsException Check submatrix indices.
 	 */
 	public static double[][] submatrix(double[][] matrix, int rStart,
 										int rStop, int cStart, int cStop)
@@ -1302,11 +1340,19 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Finds the inverse of the given <b>matrix</b>, if possible.
+	 * 
+	 * <p>The inverse of a matrix is another matrix, say x, such that
+	 * <b>matrix</b> * x = I, where I is the identity matrix.</p>
+	 * 
+	 * <p>Note that an exception will be throw if the <b>matrix</b>'s
+	 * determinant is zero (i.e. it is singular).</p>
 	 * 
 	 * TODO JAMA solve() uses QRDecomposition if matrix is non-square
 	 * 
-	 * @param matrix
-	 * @return
+	 * @param matrix Two-dimensional array of doubles.
+	 * @return Two-dimensional array of doubles that is the inverse of
+	 * <b>matrix</b>.
 	 */
 	public static double[][] invert(double[][] matrix)
 	{
@@ -1314,10 +1360,25 @@ public final class Matrix
 	}
 	
 	/**
-	 * TODO
+	 * \brief Calculate the determinant of the given <b>matrix</b>.
 	 * 
-	 * @param matrix
-	 * @return
+	 * @param matrix Two-dimensional array of doubles.
+	 * @return double value of det(<b>matrix</b>).
+	 */
+	public static double determinant(double[][] matrix)
+	{
+		return (new LUDecomposition(matrix)).determinant();
+	}
+	
+	/**
+	 * \brief Condition number of the given <b>matrix</b>.
+	 * 
+	 * <p>The solution of a system of linear equations involving a
+	 * <b>matrix</b> with a high condition number is very sensitive to small
+	 * changes in that <b>matrix</b>.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @return Ratio of largest to smallest singular value.
 	 */
 	public static double condition(double[][] matrix)
 	{
@@ -1783,12 +1844,20 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Solve the system of linear equations represented by three
+	 * matrices, where <b>a</b>*x = <b>b</b> and x is the matrix to be found.
 	 * 
-	 * TODO
+	 * <p>Neither input matrix will be affected by this method and both
+	 * matrices must have the same number of rows (i.e. m<sub>a</sub> =
+	 * m<sub>b</sub>). The output matrix, x, will be a new
+	 * n<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * TODO JAMA code uses QRDecomposition if matrices are non-square.
+	 * 
+	 * @param a Two-dimensional array of doubles.
+	 * @param b Two-dimensional array of doubles.
+	 * @return Two-dimensional array of doubles x, such that <b>a</b>*x =
+	 * <b>b</b>. 
 	 */
 	public static double[][] solve(double[][] a, double[][] b)
 	{
@@ -1796,12 +1865,21 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Solve the system of linear equations represented by a
+	 * <b>matrix</b> and two vectors, x and <b>vector</b>, where
+	 * <b>matrix</b> * x = <b>vector</b> and x is the vector to be found.
 	 * 
-	 * TODO
+	 * <p>Neither input will be affected by this method and both
+	 * inputs must have the same number of rows (i.e. m<sub>matrix</sub> =
+	 * length<sub>vector</sub>). The output vector, x, will be a new
+	 * vector of length n<sub>matrix</sub>.</p>
 	 * 
-	 * @param matrix
-	 * @param vector
-	 * @return
+	 * TODO JAMA code uses QRDecomposition if matrices are non-square.
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles.
+	 * @return One-dimensional array of doubles, x, such that
+	 * <b>matrix</b> * x = <b>vector</b>. 
 	 */
 	public static double[] solve(double[][] matrix, double[] vector)
 	{

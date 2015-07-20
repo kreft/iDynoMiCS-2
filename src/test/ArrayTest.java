@@ -1,5 +1,7 @@
 package test;
 
+import java.util.HashMap;
+
 import array.*;
 
 public class ArrayTest
@@ -26,24 +28,27 @@ public class ArrayTest
 			System.out.println(elem);
 		*/
 		
-		boolean periodic = true;
 		
+		/*
+		 * Solve a tridiagonal matrix.
+		 * 
+		boolean periodic = true;
 		int m = 5;
 		double[][] a = Matrix.times(Matrix.identityDbl(m), 6.0);
 		for ( int i = 0; i < m -1; i++ )
 		{
-			a[i][i+1] = 2.3;
+			a[i][i+1] = 1.3;
 			a[i+1][i] = 1.8;
 		}
 		if ( periodic )
 		{
-			a[0][m-1] = 0.5;
-			a[m-1][0] = 0.5;
+			a[0][m-1] = 0.7;
+			a[m-1][0] = 3.2;
 		}
-		double[] vector = Vector.add(Vector.toDbl(Vector.range(m)), 5.0);
-		/*
+		double[] vector = Vector.add(Vector.toDbl(Vector.range(m)),0.0);
+		*
 		 * Solve it the brute force way.
-		 */
+		 *
 		double[] vsolveold = Matrix.solve(a, vector);
 		double[] vcheckold = Matrix.times(a, vsolveold);
 		for ( int i = 0; i < m; i++ )
@@ -57,21 +62,14 @@ public class ArrayTest
 		}
 		System.out.println("");
 		
-		/*
+		*
 		 * Solve it the better way.
-		 */
+		 *
 		double[][] td;
 		if ( periodic )
 			td = TriDiagonal.getTriDiagPeriodic(a);
 		else
 			td = TriDiagonal.getTriDiag(a);
-		for ( double[] row : td )
-		{
-			for ( double elem : row )
-				System.out.print(elem+" ");
-			System.out.println("");
-		}
-		System.out.println("");
 		double[] vsolvenew = Vector.copy(vector);
 		if ( periodic )
 			TriDiagonal.solvePeriodic(td, vsolvenew);
@@ -86,7 +84,18 @@ public class ArrayTest
 			System.out.print("\t"+vector[i]);
 			System.out.print("\t"+vchecknew[i]);
 			System.out.println("");
-		}
+		}*/
+		
+		/*
+		 * Check it's ok to have int[] arrays in a HashMap as an Object.
+		 */
+		int n = 5;
+		HashMap<String, Object> hash = new HashMap<String, Object>();
+		int[] test = Vector.range(n);
+		hash.put("test", test);
+		for ( int i = 0; i < n; i++ )
+			System.out.println(((int[]) hash.get("test"))[i]);
+		
 	}
 
 }
