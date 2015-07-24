@@ -672,6 +672,76 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Calculates the mean average entry in the given <b>vector</b>.
+	 * 
+	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
+	 * returns Double.NaN</p>
+	 * 
+	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @return double value of average of elements in <b>vector</b>.
+	 */
+	public static double mean(double[] vector)
+	{
+		double out = 0.0;
+		double n = 0.0;
+		for ( double elem : vector )
+			if ( Double.isFinite(elem) )
+			{
+				out += elem;
+				n++;
+			}
+		/*
+		 * Check the array contains valid entries before trying to divide by
+		 * zero.
+		 */
+		if ( n == 0.0 )
+			return Double.NaN;
+		return out/n;
+	}
+	
+	/**
+	 * \brief Calculates the standard deviation of elements in the given
+	 * <b>vector</b>.
+	 * 
+	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
+	 * returns Double.NaN</p>
+	 * 
+	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @param fromSample boolean denoting whether to divide by n-1 (true) or n
+	 * (false). 
+	 * @return double value of standard deviation of elements in
+	 * <b>vector</b>.
+	 */
+	public static double stdDev(double[] vector, boolean fromSample)
+	{
+		double mean = mean(vector);
+		double out = 0.0;
+		double n = 0.0;
+		for ( double elem : vector )
+			if ( Double.isFinite(elem) )
+			{
+				out = Math.hypot(out, elem - mean);
+				n++;
+			}
+		/*
+		 * Check the array contains valid entries before trying to divide by
+		 * zero.
+		 */
+		if ( n == 0.0 )
+			return Double.NaN;
+		/*
+		 * If this is from a sample we divide by (n-1), not n
+		 */
+		if ( fromSample && (n > 1.0) )
+			n--;
+		return out/Math.sqrt(n);
+	}
+	
+	/**
 	 * \brief Finds the value of the greatest element in the given
 	 * <b>vector</b>.
 	 * 
@@ -787,7 +857,7 @@ public final class Vector
 	}
 	
 	/*************************************************************************
-	 * CONVERTING BETWEEN INT[] AND DOUBLE[]
+	 * CONVERTING BETWEEN INTEGER AND DOUBLE
 	 ************************************************************************/
 	
 	/**
