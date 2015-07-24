@@ -1,10 +1,11 @@
-package utility;
+package solver;
 
 
-import array.Matrix;
-import array.Vector;
+import utility.LogFile;
+import linearAlgebra.Matrix;
+import linearAlgebra.Vector;
 
-public abstract class ODEsolver
+public abstract class ODErosenbrock
 {
 	/**
 	 * 
@@ -64,7 +65,7 @@ public abstract class ODEsolver
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public ODEsolver()
+	public ODErosenbrock()
 	{
 		
 	}

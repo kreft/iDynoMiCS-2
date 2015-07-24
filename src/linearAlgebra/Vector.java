@@ -1,4 +1,4 @@
-package array;
+package linearAlgebra;
 
 import utility.ExtraMath;
 

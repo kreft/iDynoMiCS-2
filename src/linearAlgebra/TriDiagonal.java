@@ -1,4 +1,4 @@
-package array;
+package linearAlgebra;
 
 public final class TriDiagonal
 {

@@ -2,7 +2,7 @@ package test;
 
 import java.util.HashMap;
 
-import array.*;
+import linearAlgebra.*;
 
 public class ArrayTest
 {
