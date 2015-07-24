@@ -65,7 +65,7 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief Reports if the matrix has as many rows as columns.
+	 * \brief Reports if the <b>matrix</b> has as many rows as columns.
 	 * 
 	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
 	 * 
@@ -127,11 +127,11 @@ public final class Matrix
 	 * 
 	 * <p>Note that <b>matrix</b> will be overwritten; use
 	 * <i>setAll(copy(<b>matrix</b>), <b>value</b>)</i> or
-	 * <i>newInt(<b>matrix</b>.length, <b>matrix</b>[0].length,
+	 * <i>matrix(<b>matrix</b>.length, <b>matrix</b>[0].length,
 	 * <b>value</b>)</i> to preserve the original state of <b>matrix</b>.</p>
 	 * 
 	 * @param matrix Two-dimensional array of integers.
-	 * @param value Fill the matrix with this integer value.
+	 * @param value Fill the <b>matrix</b> with this integer value.
 	 * @return Given <b>matrix</b> with all elements set to <b>value</b>.
 	 */
 	public static int[][] setAll(int[][] matrix, int value)
@@ -197,10 +197,7 @@ public final class Matrix
 	public static int[][] matrix(int m, int n, int value)
 	{
 		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = value;
-		return out;
+		return setAll(out, value);
 	}
 	
 	/**
@@ -1139,7 +1136,7 @@ public final class Matrix
 	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
 	 * 
 	 * @param matrix Two-dimensional array of doubles.
-	 *  @param rStart int row index at which to start (inclusive).
+	 * @param rStart int row index at which to start (inclusive).
 	 * @param rStop int row index at which to stop (exclusive).
 	 * @param cStart int column index at which to start (inclusive).
 	 * @param cStop int column index at which to stop (exclusive).
@@ -1333,9 +1330,9 @@ public final class Matrix
 		 * may be quicker, but riskier. 
 		 */
 		double out = 0.0;
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				out = Math.hypot(out, matrix[i][j]);
+		for ( double[] row : matrix )
+			for ( double elem : row )
+				out = Math.hypot(out, elem);
 		return out;
 	}
 	
@@ -1439,13 +1436,12 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief Floor a double[] as an int[].
+	 * \brief Floor a double[][] as an int[][].
 	 * 
 	 * <p>Note that elements of <b>matrix</b> are floored as in
-	 * <i>Math.floor(double x)</i>. See {@link #toDbl(double[][])}, etc
+	 * <i>Math.floor(double x)</i>. See {@link #toInt(double[][])}, etc
 	 * for alternate methods. This method should give identical output to
-	 * <i>recastToInt()</i> when all elements of <b>matrix</b> are 
-	 * positive.</p>
+	 * <i>toInt()</i> when all elements of <b>matrix</b> are positive.</p>
 	 * 
 	 * <p>Note also that this method makes a copy, so the original state of 
 	 * <b>matrix</b> will be unaffected.</p>
@@ -1469,7 +1465,7 @@ public final class Matrix
 	 * \brief Ceiling a double[][] as an int[][].
 	 * 
 	 * <p>Note that elements of <b>matrix</b> are ceilinged as in
-	 * <i>Math.ceil(double x)</i>. See {@link #toDbl(double[][])}, etc
+	 * <i>Math.ceil(double x)</i>. See {@link #toInt(double[][])}, etc
 	 * for alternate methods.</p>  
 	 * 
 	 * <p>Note also that this method makes a copy, so the original state of 
@@ -1562,7 +1558,7 @@ public final class Matrix
 	 * 
 	 * @param a Two-dimensional array of integers.
 	 * @param b Two-dimensional array of integers.
-	 * @return double[][] array of <b>a</b>+<b>b</b>.
+	 * @return int[][] array of <b>a</b>+<b>b</b>.
 	 */
 	public static int[][] add(int[][] a, int[][] b)
 	{
