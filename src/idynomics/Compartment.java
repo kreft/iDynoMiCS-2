@@ -2,6 +2,7 @@ package idynomics;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import processManager.ProcessManager;
@@ -27,7 +28,7 @@ public class Compartment
 	/**
 	 * 
 	 */
-	protected SoluteGrid[] _solutes; 
+	protected HashMap<String, SoluteGrid> _solutes; 
 	
 	/**
 	 * 

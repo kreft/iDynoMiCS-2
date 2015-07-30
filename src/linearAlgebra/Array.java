@@ -629,6 +629,17 @@ public final class Array
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @param nEach
+	 * @return
+	 */
+	public static double[][][] zerosDbl(int[] nEach)
+	{
+		return zerosDbl(nEach[0], nEach[1], nEach[2]);
+	}
+	
+	/**
 	 * \brief A new cubic array of double zeros.
 	 * 
 	 * @param nijk Number of rows = number of columns = number of stacks.
@@ -1028,6 +1039,40 @@ public final class Array
 	}
 	
 	/**
+	 * TODO
+	 * 
+	 * @param a Three-dimensional array of integers.
+	 * @param b Three-dimensional array of integers.
+	 * @return
+	 */
+	public static int[][][] setAll(int[][][] a, int[][][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < height(a); i++ )
+			for ( int j = 0; j < width(a); j++ )
+				for ( int k = 0; k < depth(a); k++ )
+					a[i][j][k] = b[i][j][k];
+		return a;
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @param a Three-dimensional array of doubles (overwritten).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 * @return
+	 */
+	public static double[][][] setAll(double[][][] a, double[][][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < height(a); i++ )
+			for ( int j = 0; j < width(a); j++ )
+				for ( int k = 0; k < depth(a); k++ )
+					a[i][j][k] = b[i][j][k];
+		return a;
+	}
+	
+	/**
 	 * \brief Add one array to another, element-by-element.
 	 * 
 	 * <p>Arrays must have same dimensions.</p>
@@ -1210,5 +1255,24 @@ public final class Array
 				for ( int k = 0; k < depth(a); k++ )
 					a[i][j][k] /= b[i][j][k];
 		return a;
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * 
+	 * @param a Three-dimensional array of doubles.
+	 * @param b Three-dimensional array of doubles.
+	 * @return
+	 */
+	public static double totalAbsDifference(double[][][] a, double[][][] b)
+	{
+		checkDimensionsSame(a, b);
+		double out = 0.0;
+		for ( int i = 0; i < height(a); i++ )
+			for ( int j = 0; j < width(a); j++ )
+				for ( int k = 0; k < depth(a); k++ )
+					out += Math.abs(a[i][j][k] - b[i][j][k]);
+		return out;
 	}
 }

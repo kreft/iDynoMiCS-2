@@ -712,7 +712,7 @@ public final class Vector
 	 * 
 	 * @param vector One-dimensional array of doubles.
 	 * @param fromSample boolean denoting whether to divide by n-1 (true) or n
-	 * (false). 
+	 * (false) 
 	 * @return double value of standard deviation of elements in
 	 * <b>vector</b>.
 	 */
@@ -972,6 +972,12 @@ public final class Vector
 	 * TWO VECTOR METHODS
 	 ************************************************************************/
 	
+	/**
+	 * TODO
+	 * 
+	 * @param a One-dimensional array of integers.
+	 * @param b One-dimensional array of integers.
+	 */
 	public static void checkLengths(int[] a, int[] b)
 	{
 		if ( a == null || b == null )
@@ -980,6 +986,12 @@ public final class Vector
 			throw new IllegalArgumentException("Vectors must be the same length.");
 	}
 	
+	/**
+	 * TODO
+	 * 
+	 * @param a One-dimensional array of doubles.
+	 * @param b One-dimensional array of doubles.
+	 */
 	public static void checkLengths(double[] a, double[] b)
 	{
 		if ( a == null || b == null )
@@ -988,12 +1000,48 @@ public final class Vector
 			throw new IllegalArgumentException("Vectors must be the same length.");
 	}
 	
+	/**
+	 * TODO
+	 * 
+	 * @param a One-dimensional array of doubles.
+	 * @param b One-dimensional array of integers.
+	 */
 	public static void checkLengths(double[] a, int[] b)
 	{
 		if ( a == null || b == null )
 			throw new IllegalArgumentException("Null vector given.");
 		if ( a.length != b.length )
 			throw new IllegalArgumentException("Vectors must be the same length.");
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @param a One-dimensional array of integers (overwritten).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @return
+	 */
+	public static int[] setAll(int[] a, int[] b)
+	{
+		checkLengths(a, b);
+		for ( int i = 0; i < a.length; i++ )
+			a[i] = b[i];
+		return a;
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @param a One-dimensional array of doubles (overwritten).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return
+	 */
+	public static double[] setAll(double[] a, double[] b)
+	{
+		checkLengths(a, b);
+		for ( int i = 0; i < a.length; i++ )
+			a[i] = b[i];
+		return a;
 	}
 	
 	/**

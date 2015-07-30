@@ -1548,6 +1548,38 @@ public final class Matrix
 	}
 	
 	/**
+	 * TODO
+	 * 
+	 * @param a Two-dimensional array of integers (overwritten).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @return
+	 */
+	public static int[][] setAll(int[][] a, int[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				a[i][j] = b[i][j];
+		return a;
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @param a Two-dimensional array of doubles (overwritten).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @return
+	 */
+	public static double[][] setAll(double[][] a, double[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				a[i][j] = b[i][j];
+		return a;
+	}
+	
+	/**
 	 * \brief Add one matrix to another, element-by-element.
 	 * 
 	 * <p>Matrices must have same dimensions.</p>

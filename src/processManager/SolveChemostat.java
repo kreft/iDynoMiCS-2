@@ -1,5 +1,7 @@
 package processManager;
 
+import java.util.HashMap;
+
 import idynomics.AgentContainer;
 import spatialGrid.SoluteGrid;
 
@@ -11,7 +13,8 @@ public class SolveChemostat extends ProcessManager
 	}
 
 	@Override
-	protected void internalStep(SoluteGrid[] solutes, AgentContainer agents)
+	protected void internalStep(HashMap<String, SoluteGrid> solutes,
+														AgentContainer agents)
 	{
 		
 	}

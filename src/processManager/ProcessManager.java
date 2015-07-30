@@ -1,5 +1,7 @@
 package processManager;
 
+import java.util.HashMap;
+
 import spatialGrid.SoluteGrid;
 import idynomics.AgentContainer;
 
@@ -71,7 +73,7 @@ public abstract class ProcessManager
 	 * STEPPING
 	 ************************************************************************/
 	
-	public void step(SoluteGrid[] solutes, AgentContainer agents)
+	public void step(HashMap<String, SoluteGrid> solutes, AgentContainer agents)
 	{
 		/*
 		 * This is where subclasses of Mechanism do their step. Note that
@@ -85,7 +87,7 @@ public abstract class ProcessManager
 		
 	}
 	
-	protected abstract void internalStep(SoluteGrid[] solutes,
+	protected abstract void internalStep(HashMap<String, SoluteGrid> solutes,
 											AgentContainer agents);
 	
 	/*************************************************************************
