@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import processManager.ProcessManager;
-import spatialGrid.SoluteGrid;
+import grid.SpatialGrid;
 
 public class Compartment
 {
+	
+	
 	/**
 	 * Unique name of this compartment.
 	 */
@@ -28,7 +30,7 @@ public class Compartment
 	/**
 	 * 
 	 */
-	protected HashMap<String, SoluteGrid> _solutes; 
+	protected HashMap<String, SpatialGrid> _solutes; 
 	
 	/**
 	 * 
@@ -82,12 +84,24 @@ public class Compartment
 	 */
 	public void step()
 	{
-		ProcessManager currentMech = _processes.getFirst();
-		while ( currentMech.getTimeForNextStep() < Timer.getEndOfCurrentIteration() )
+		ProcessManager currentProcess = _processes.getFirst();
+		while ( currentProcess.getTimeForNextStep() < 
+											Timer.getEndOfCurrentIteration() )
 		{
-			currentMech.step(_solutes, _agents);
+			_localTime = currentProcess.getTimeForNextStep();
+			/*
+			 * First process on the list does its thing. This should then
+			 * increase its next step time.
+			 */
+			currentProcess.step(_solutes, _agents);
+			/*
+			 * Reinsert this process at the appropriate position in the list.
+			 */
 			Collections.sort(_processes, _procComp);
-			currentMech = _processes.getFirst();
+			/*
+			 * Choose the new first process for the next iteration.
+			 */
+			currentProcess = _processes.getFirst();
 		}
 	}
 	

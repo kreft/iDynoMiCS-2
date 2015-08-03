@@ -1,11 +1,17 @@
 package solver;
 
-
 import utility.LogFile;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
-public abstract class ODErosenbrock
+/**
+ * \brief TODO
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) Centre for Computational
+ * Biology, University of Birmingham, U.K.
+ * @since August 2015
+ */
+public abstract class ODErosenbrock extends ODEsolver
 {
 	/**
 	 * 
@@ -34,14 +40,14 @@ public abstract class ODErosenbrock
 	protected final double EPS = 2.22e-16;
 	
 	/**
-	 * Number of variables in the solver.
+	 * Relative tolerance.
 	 */
-	protected int nVar;
+	protected double _rTol;
 	
 	/**
-	 * 
+	 * Maximum time-step permissible.
 	 */
-	protected boolean allowNegatives;
+	protected double _hMax;
 	
 	protected double[] ynext;
 	
@@ -70,26 +76,34 @@ public abstract class ODErosenbrock
 		
 	}
 	
-	public void init(int nVar)
+	/*************************************************************************
+	 * SIMPLE SETTERS
+	 ************************************************************************/
+	
+	public void init(String[] names, boolean allowNegatives,
+													double rTol, double hMax)
 	{
-		this.nVar = nVar;
+		super.init(names, allowNegatives);
 		
-		ynext = Vector.zerosDbl(nVar);
-		dYdT  = Vector.zerosDbl(nVar);
-		dFdT  = Vector.zerosDbl(nVar);
-		f1    = Vector.zerosDbl(nVar);
-		f2    = Vector.zerosDbl(nVar);
-		k1    = Vector.zerosDbl(nVar);
-		k2    = Vector.zerosDbl(nVar);
-		k3    = Vector.zerosDbl(nVar);
-		kaux  = Vector.zerosDbl(nVar);
-		hddFdT = Vector.zerosDbl(nVar);
+		this._rTol = rTol;
+		this._hMax = hMax;
 		
-		dFdY  = Matrix.zerosDbl(nVar);
-		W     = Matrix.zerosDbl(nVar);
-		invW  = Matrix.zerosDbl(nVar);
+		ynext = Vector.zerosDbl(_nVar);
+		dYdT  = Vector.zerosDbl(_nVar);
+		dFdT  = Vector.zerosDbl(_nVar);
+		f1    = Vector.zerosDbl(_nVar);
+		f2    = Vector.zerosDbl(_nVar);
+		k1    = Vector.zerosDbl(_nVar);
+		k2    = Vector.zerosDbl(_nVar);
+		k3    = Vector.zerosDbl(_nVar);
+		kaux  = Vector.zerosDbl(_nVar);
+		hddFdT = Vector.zerosDbl(_nVar);
 		
-		identity = Matrix.identityDbl(nVar);
+		dFdY  = Matrix.zerosDbl(_nVar);
+		W     = Matrix.zerosDbl(_nVar);
+		invW  = Matrix.zerosDbl(_nVar);
+		
+		identity = Matrix.identityDbl(_nVar);
 	}
 	
 	/*************************************************************************
@@ -101,43 +115,43 @@ public abstract class ODErosenbrock
 	 * 
 	 * 
 	 * @param y One-dimensional array of doubles.
-	 * @param tfinal Time duration to solve for.
-	 * @param rtol Relative tolerance.
-	 * @param hmax Maximum time-step permissible.
+	 * @param tFinal Time duration to solve for.
 	 * @return One-dimensional array of doubles.
 	 * @exception IllegalArgumentException Wrong vector dimensions.
 	 */
-	public double[] solve(double[] y, double tfinal, double rtol, double hmax)
+	protected double[] solve(double[] y, double tFinal)
 	{
 		/*
 		 * First check that y is the correct size.
 		 */
-		if ( y.length != nVar )
+		if ( y.length != _nVar )
 			throw new IllegalArgumentException("Wrong vector dimensions.");
 		/*
-		 * Control statement in case the maximum timestep size, hmax, is too
+		 * Control statement in case the maximum timestep size, hMax, is too
 		 * large.
 		 */
-		if ( hmax > tfinal )
+		double rTol = this._rTol;
+		double hMax = this._hMax;
+		if ( hMax > tFinal )
 		{
-			rtol *= tfinal/hmax;
-			hmax = tfinal;
+			rTol *= tFinal/hMax;
+			hMax = tFinal;
 		}
 		/*
 		 * First try a step size of hmax.
 		 */
 		t = 0.0;
 		lastStep  = false;
-		h = hmax;
+		h = hMax;
 		while ( ! lastStep )
 		{
 			/*
 			 * If the next step gets us close to the end, we may as well
 			 * just finish.
 			 */
-			if ( 1.05 * h >= tfinal - t )
+			if ( 1.05 * h >= tFinal - t )
 			{
-				h = tfinal - t;
+				h = tFinal - t;
 				lastStep = true;
 			}
 			/*
@@ -155,7 +169,7 @@ public abstract class ODErosenbrock
 			usingHMin = false;
 			while ( true )
 			{
-				tnext = ( lastStep ) ? tfinal : t + h;
+				tnext = ( lastStep ) ? tFinal : t + h;
 				/*
 				 * The Rosenbrock method.
 				 */
@@ -215,7 +229,7 @@ public abstract class ODErosenbrock
 					/*
 					 * We now use kaux to estimate the error of this step.
 					 */
-					for (int i = 0; i < nVar; i++)
+					for (int i = 0; i < _nVar; i++)
 						kaux[i] = 1/Math.min(y[i], ynext[i]);
 					/*
 					 * kaux *= (2*k2 + k3) * h / 6
@@ -247,9 +261,10 @@ public abstract class ODErosenbrock
 				 * Rob 16July2015: Moved the checking for negatives into this
 				 * section on error checking.
 				 */
-				signsOK = ( ! allowNegatives ) || Vector.isNonnegative(ynext);
-				test = Math.pow((rtol/error), power);
-				if ( error > rtol && signsOK )
+				signsOK = ( ! this._allowNegatives ) || 
+												Vector.isNonnegative(ynext);
+				test = Math.pow((rTol/error), power);
+				if ( error > rTol && signsOK )
 				{ 
 					noFailed = false;
 					lastStep = false;
@@ -265,7 +280,7 @@ public abstract class ODErosenbrock
 				}
 				else
 					break;
-				LogFile.writeLog("error = "+error+", rtol = "+rtol+", h = "+h);
+				LogFile.writeLog("error = "+error+", rTol = "+rTol+", h = "+h);
 			} // End of `while ( true )`
 			/*
 			 * If there were no failures compute a new h. We use the same
@@ -284,8 +299,16 @@ public abstract class ODErosenbrock
 			 * The upper limit of hmax still applies.
 			 * Update the time.
 			 */
-			h = Math.min(h, hmax);
+			h = Math.min(h, hMax);
 			t = tnext;
+			/*
+			 * Check if we've reached a steady-state solution.
+			 * 
+			 * TODO use the relative tolerance here? Could use another
+			 * parameter and set it negative if we want never to escape early.
+			 */
+			if( Vector.areSame(y, ynext) )
+				return ynext;
 			/*
 			 * Update the y and the first derivative dYdT.
 			 */

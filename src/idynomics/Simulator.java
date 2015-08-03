@@ -1,9 +1,11 @@
 package idynomics;
 
+import java.util.HashMap;
+
 public class Simulator
 {
 	
-	protected Compartment[] _compartments;
+	protected HashMap<String, Compartment> _compartments;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS

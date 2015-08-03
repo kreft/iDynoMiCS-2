@@ -13,6 +13,9 @@ import linearAlgebra.*;
  * to (nVoxel + 2*padding)</li><li>Grid coordinates go from -padding to
  * (nVoxel + padding)</li></ul></p>
  * 
+ * TODO Could do away with two coordinate systems by modifying coordinator and
+ * sticking with it
+ * 
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  *
@@ -22,7 +25,7 @@ public class SpatialGrid
 	/**
 	 * TODO
 	 */
-	protected double[][][] _array;
+	protected HashMap<String, double[][][]> _array;
 	
 	/**
 	 * TODO
@@ -45,23 +48,50 @@ public class SpatialGrid
 	protected int[] _currentCoord;
 	
 	/**
-	 * TODO
+	 * Standard names for SpatialGrid arrays that are used in various places.
 	 */
-	protected HashMap<String, double[][][]> _tempArray;
-	
+	public static final String concn = "concentration",
+								diff = "diffusivity",
+								domain = "domain", 
+								reac = "reacRate", 
+								dReac = "diffReacRate";
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param nVoxel
+	 * @param padding
+	 * @param resolution
+	 */
 	public SpatialGrid(int[] nVoxel, int[] padding, double resolution)
 	{
 		this._nVoxel = Vector.copy(nVoxel);
 		this._padding = Vector.copy(padding);
-		this._array = Array.zerosDbl(this._nVoxel[0] + 2*this._padding[0],
-									this._nVoxel[1] + 2*this._padding[1],
-									this._nVoxel[2] + 2*this._padding[2]);
 		this._res = resolution;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 */
+	public void newArray(String name)
+	{
+		try
+		{
+			Array.setAll(this._array.get(name), 0.0);
+		}
+		catch ( Exception e )
+		{
+			this._array.put(name, Array.zerosDbl(
+									this._nVoxel[0] + 2*this._padding[0],
+									this._nVoxel[1] + 2*this._padding[1],
+									this._nVoxel[2] + 2*this._padding[2]));
+		}
 	}
 	
 	/*************************************************************************
@@ -75,9 +105,9 @@ public class SpatialGrid
 	 * 
 	 * @return Three-dimensional array of doubles.
 	 */
-	public double[][][] getCore()
+	public double[][][] getCore(String name)
 	{
-		return Array.subarray(this._array,
+		return Array.subarray(this._array.get(name),
 				this._padding[0], this._nVoxel[0]+ this._padding[0],
 				this._padding[1], this._nVoxel[1]+ this._padding[1],
 				this._padding[2], this._nVoxel[2]+ this._padding[2]);
@@ -88,9 +118,9 @@ public class SpatialGrid
 	 * 
 	 * @return
 	 */
-	public double[][][] getArray()
+	public double[][][] getArray(String name)
 	{
-		return Array.copy(this._array);
+		return Array.copy(this._array.get(name));
 	}
 	
 	/**
@@ -162,17 +192,20 @@ public class SpatialGrid
 	 * \brief Applies the given function to the array element at the given
 	 * <b>voxel</b> coordinates (assumed adjusted for padding). 
 	 * 
+	 * @param name String name of the array.
 	 * @param aC Internal array coordinates of the voxel required. 
 	 * @param f DoubleFunction to apply to the array element at <b>voxel</b>.
 	 * @exception ArrayIndexOutOfBoundsException Voxel coordinates must be
 	 * inside array.
 	 */
-	private double applyToVoxel(int[] aC, DoubleFunction<Double> f)
+	private double applyToVoxel(String name, int[] aC,
+													DoubleFunction<Double> f)
 	{
 		try
 		{
-			return this._array[aC[0]][aC[1]][aC[2]] = 
-									f.apply(this._array[aC[0]][aC[1]][aC[2]]);
+			double[][][] array = this._array.get(name);
+			return array[aC[0]][aC[1]][aC[2]] = 
+										f.apply(array[aC[0]][aC[1]][aC[2]]);
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
@@ -202,12 +235,14 @@ public class SpatialGrid
 	/**
 	 * \brief TODO
 	 * 
+	 * @param name String name of the array.
 	 * @param gridCoords
 	 * @param f
 	 */
-	protected double applyToCoord(int[] gridCoords, DoubleFunction<Double> f)
+	protected double applyToCoord(String name, int[] gridCoords,
+													DoubleFunction<Double> f)
 	{
-		return this.applyToVoxel(this.arrayCoords(gridCoords), f);
+		return this.applyToVoxel(name, this.arrayCoords(gridCoords), f);
 	}
 	
 	/**
@@ -253,26 +288,38 @@ public class SpatialGrid
 	/**
 	 * TODO
 	 * 
+	 * @param name String name of the array.
 	 * @param gridCoords
 	 * @param value
 	 */
-	protected void setValueAt(int[] gridCoords, double value)
+	public void setValueAt(String name, int[] gridCoords, double value)
 	{
-		this.applyToCoord(gridCoords, (double v) -> {return value;});
+		this.applyToCoord(name, gridCoords, (double v)->{return value;});
 	}
 	
 	/**
 	 * TODO
 	 * 
+	 * @param name String name of the array.
 	 * @param gridCoords
 	 * @param value
 	 */
-	protected void addValueAt(int[] gridCoords, double value)
+	public void addValueAt(String name, int[] gridCoords, double value)
 	{
-		this.applyToCoord(gridCoords, (double v) -> {return v + value;});
+		this.applyToCoord(name, gridCoords, (double v)->{return v + value;});
 	}
 	
-	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @param gridCoords
+	 * @param value
+	 */
+	public void timesValueAt(String name, int[] gridCoords, double value)
+	{
+		this.applyToCoord(name, gridCoords, (double v)->{return v * value;});
+	}
 	
 	/*************************************************************************
 	 * VOXEL GETTERS
@@ -285,27 +332,29 @@ public class SpatialGrid
 	 * @param gridCoords
 	 * @return
 	 */
-	public double getValueAt(int[] gridCoords)
+	public double getValueAt(String name, int[] gridCoords)
 	{
-		return this.applyToCoord(gridCoords, (double v) -> {return v;});
+		return this.applyToCoord(name, gridCoords, (double v)->{return v;});
 	}
 	
 	/**
 	 * \brief TODO 
 	 * 
+	 * Consider replacing with some sort of neighbour coordinate iterator?
+	 * 
 	 * @param gridCoords
 	 * @return
 	 */
-	public double[][] getNeighborValues(int[] gridCoords)
+	public double[][] getNeighborValues(String name, int[] gridCoords)
 	{
 		double[][] out = new double[3][2];
 		int[] temp = Vector.copy(gridCoords);
 		for ( int axis = 0; axis < 3; axis++ )
 		{
 			temp[axis] -= 1;
-			out[axis][0] = this.getValueAt(temp);
+			out[axis][0] = this.getValueAt(name, temp);
 			temp[axis] += 2;
-			out[axis][1] = this.getValueAt(temp);
+			out[axis][1] = this.getValueAt(name, temp);
 			temp[axis] -= 1;
 		}
 		return out;
@@ -321,13 +370,14 @@ public class SpatialGrid
 	 * 
 	 * @param f
 	 */
-	private void applyToAllCore(DoubleFunction<Double> f)
+	private void applyToCore(String name, DoubleFunction<Double> f)
 	{
+		double[][][] array = this._array.get(name);
 		for ( int i = _padding[0]; i < _padding[0] + _nVoxel[0]; i++ )
 			for ( int j = _padding[1]; j < _padding[1] + _nVoxel[1]; j++ )
 				for ( int k = _padding[2]; k < _padding[2] + _nVoxel[2]; k++ )
 				{
-					this._array[i][j][k] = f.apply(this._array[i][j][k]);
+					array[i][j][k] = f.apply(array[i][j][k]);
 				}
 	}
 	
@@ -336,12 +386,12 @@ public class SpatialGrid
 	 * 
 	 * @param value double value to use.
 	 */
-	public void setAllTo(double value, boolean includePadding )
+	public void setAllTo(String name, double value, boolean includePadding )
 	{
 		if ( includePadding )
-			Array.setAll(this._array, value);
+			Array.setAll(this._array.get(name), value);
 		else
-			this.applyToAllCore((double v) -> {return value;});
+			this.applyToCore(name, (double v)->{return value;});
 	}
 	
 	/**
@@ -349,9 +399,9 @@ public class SpatialGrid
 	 * 
 	 * @param array
 	 */
-	public void setTo(double[][][] array)
+	public void setTo(String name, double[][][] array)
 	{
-		Array.setAll(this._array, array);
+		Array.setAll(this._array.get(name), array);
 	}
 	
 	/**
@@ -359,12 +409,12 @@ public class SpatialGrid
 	 * 
 	 * @param value
 	 */
-	public void addToAll(double value, boolean includePadding)
+	public void addToAll(String name, double value, boolean includePadding)
 	{
 		if ( includePadding )
-			Array.add(this._array, value);
+			Array.add(this._array.get(name), value);
 		else
-			this.applyToAllCore((double v) -> {return v + value;});
+			this.applyToCore(name, (double v)->{return v + value;});
 	}
 	
 	/*************************************************************************
@@ -378,9 +428,9 @@ public class SpatialGrid
 	 * 
 	 * @return
 	 */
-	public double getMax()
+	public double getMax(String name)
 	{
-		return Array.max(this._array);
+		return Array.max(this._array.get(name));
 	}
 	
 	/**
@@ -390,9 +440,9 @@ public class SpatialGrid
 	 * 
 	 * @return
 	 */
-	public double getMin()
+	public double getMin(String name)
 	{
-		return Array.min(this._array);
+		return Array.min(this._array.get(name));
 	}
 	
 	
@@ -408,23 +458,23 @@ public class SpatialGrid
 	 * @param axis
 	 * @return
 	 */
-	protected double differential(int[] gridCoords, int axis)
+	protected double differential(String name, int[] gridCoords, int axis)
 	{
 		int[] temp = Vector.copy(gridCoords);
-		double out = -2.0 * getValueAt(temp);
+		double out = -2.0 * getValueAt(name, temp);
 		temp[axis] += 1;
-		out += getValueAt(temp);
+		out += getValueAt(name, temp);
 		temp[axis] -= 2;
-		out += getValueAt(temp);
+		out += getValueAt(name, temp);
 		out /= 2.0 * this._res;
 		return ( Double.isFinite(out) ) ? out : 0.0;
 	}
 	
-	protected double[] gradient(int[] gridCoords)
+	protected double[] gradient(String name, int[] gridCoords)
 	{
 		double[] out = new double[3];
 		for ( int axis = 0; axis < 3; axis++ )
-			out[axis] = differential(gridCoords, axis);
+			out[axis] = differential(name, gridCoords, axis);
 		return out;
 	}
 	
@@ -463,8 +513,7 @@ public class SpatialGrid
 	 */
 	private boolean iteratorExceeds(int axis)
 	{
-		return _currentCoord[axis] >= 
-								this._nVoxel[axis] + this._padding[axis];
+		return _currentCoord[axis] >=  this._nVoxel[axis];
 	}
 	
 	/**
@@ -478,11 +527,11 @@ public class SpatialGrid
 		_currentCoord[0]++;
 		if ( this.iteratorExceeds(0) )
 		{
-			_currentCoord[0] = this._padding[0];
+			_currentCoord[0] = 0;
 			_currentCoord[1]++;
 			if ( this.iteratorExceeds(1) )
 			{
-				_currentCoord[1] = this._padding[1];
+				_currentCoord[1] = 0;
 				_currentCoord[2]++;
 				if ( this.iteratorExceeds(2) )
 				{
@@ -503,81 +552,15 @@ public class SpatialGrid
 	}
 	
 	/*************************************************************************
-	 * TEMPORARY ARRAY
-	 ************************************************************************/
-	
-	/**
-	 * \brief Initialise the temporary array 
-	 */
-	public void resetTempArray(String name)
-	{
-		try
-		{
-			Array.setAll(this._tempArray.get(name), 0.0);
-		}
-		catch ( Exception e)
-		{
-			this._tempArray.put(name, Array.zeros(this._array));
-		}
-	}
-	
-	public void copyArrayToTemporary(String name)
-	{
-		this._tempArray.put(name, this.getArray());
-	}
-	
-	/**
-	 * 
-	 * @param coords
-	 */
-	public double getTempAt(String name, int[] coords)
-	{
-		return this._tempArray.get(name)[coords[0]][coords[1]][coords[2]];
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param name
-	 * @param coords
-	 * @param value
-	 */
-	public void setTempAt(String name, int[] coords, double value)
-	{
-		
-	}
-	
-	/**
-	 * 
-	 * @param coords
-	 * @param value
-	 */
-	public void addToTempArray(String name, int[] coords, double value)
-	{
-		this._tempArray.get(name)[coords[0]][coords[1]][coords[2]] += value;
-	}
-	
-	/**
-	 * \brief Overwrite all values in the array with the corresponding values
-	 * in the temporary array.
-	 */
-	public void acceptTempArray(String name)
-	{
-		this.setTo(this._tempArray.get(name));
-	}
-	
-	/**
-	 * \brief Discard the temporary array to save memory.
-	 */
-	public void closeTempArray(String name)
-	{
-		this._tempArray.remove(name);
-	}
-	
-	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/
 	
-	
+	public StringBuffer arrayAsText(String name)
+	{
+		StringBuffer out = new StringBuffer("");
+		//double[][][] array = this._array.get(name);
+		// TODO
+		return out;
+	}
 	
 }

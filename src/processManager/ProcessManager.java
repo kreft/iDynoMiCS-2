@@ -2,7 +2,7 @@ package processManager;
 
 import java.util.HashMap;
 
-import spatialGrid.SoluteGrid;
+import grid.SpatialGrid;
 import idynomics.AgentContainer;
 
 public abstract class ProcessManager
@@ -11,9 +11,9 @@ public abstract class ProcessManager
 	
 	protected int _priority;
 	
-	protected Double _timeForNextStep;
+	protected double _timeForNextStep;
 	
-	protected Double _timeStepSize;
+	protected double _timeStepSize;
 	
 	
 	/*************************************************************************
@@ -49,22 +49,22 @@ public abstract class ProcessManager
 		return this._priority;
 	}
 	
-	public void setTimeForNextStep(Double newTime)
+	public void setTimeForNextStep(double newTime)
 	{
 		this._timeForNextStep = newTime;
 	}
 	
-	public Double getTimeForNextStep()
+	public double getTimeForNextStep()
 	{
 		return this._timeForNextStep;
 	}
 	
-	public void setTimeStepSize(Double newStepSize)
+	public void setTimeStepSize(double newStepSize)
 	{
 		this._timeStepSize = newStepSize;
 	}
 	
-	public Double getTimeStepSize()
+	public double getTimeStepSize()
 	{
 		return this._timeStepSize;
 	}
@@ -73,7 +73,8 @@ public abstract class ProcessManager
 	 * STEPPING
 	 ************************************************************************/
 	
-	public void step(HashMap<String, SoluteGrid> solutes, AgentContainer agents)
+	public void step(HashMap<String, SpatialGrid> solutes,
+														AgentContainer agents)
 	{
 		/*
 		 * This is where subclasses of Mechanism do their step. Note that
@@ -87,7 +88,7 @@ public abstract class ProcessManager
 		
 	}
 	
-	protected abstract void internalStep(HashMap<String, SoluteGrid> solutes,
+	protected abstract void internalStep(HashMap<String, SpatialGrid> solutes,
 											AgentContainer agents);
 	
 	/*************************************************************************

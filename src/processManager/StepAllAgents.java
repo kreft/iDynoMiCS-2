@@ -3,7 +3,7 @@ package processManager;
 import java.util.HashMap;
 
 import agent.Agent;
-import spatialGrid.SoluteGrid;
+import grid.SpatialGrid;
 import idynomics.AgentContainer;
 
 
@@ -15,7 +15,7 @@ public class StepAllAgents extends ProcessManager
 	}
 	
 	@Override
-	protected void internalStep(HashMap<String, SoluteGrid> solutes,
+	protected void internalStep(HashMap<String, SpatialGrid> solutes,
 														AgentContainer agents)
 	{
 		for ( Agent agent : agents.getAllAgents() )

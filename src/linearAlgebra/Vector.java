@@ -1286,4 +1286,61 @@ public final class Vector
 			out += a[i] * b[i];	
 		return out;
 	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static boolean areSame(int[] a, int[] b)
+	{
+		checkLengths(a, b);
+		for ( int i = 0; i < a.length; i++ )
+			if ( a[i] != b[i] )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static boolean areSame(double a[], double[] b)
+	{
+		checkLengths(a, b);
+		for ( int i = 0; i < a.length; i++ )
+			if ( a[i] != b[i] )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * <p>If <b>relTol</b> is negative, this method always returns false.</p>
+	 * 
+	 * @param a
+	 * @param b
+	 * @param relTol
+	 * @return
+	 */
+	public static boolean areSame(double a[], double[] b, double relTol)
+	{
+		if ( relTol < 0.0 )
+			return false;
+		checkLengths(a, b);
+		double divisor;
+		for ( int i = 0; i < a.length; i++ )
+		{
+			divisor = 0.5 * ( Math.abs(a[i]) + Math.abs(b[i]) );
+			if ( Math.abs(a[i] - b[i]) > divisor * relTol )
+				return false;
+		}
+		return true;
+	}
 }

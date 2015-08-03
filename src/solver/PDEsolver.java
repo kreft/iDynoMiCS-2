@@ -1,38 +1,16 @@
 package solver;
 
-import java.util.HashMap;
-import java.util.function.Function;
 import grid.SpatialGrid;
 
-public abstract class PDEsolver
+/**
+ * \brief TODO
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) Centre for Computational
+ * Biology, University of Birmingham, U.K.
+ * @since August 2015
+ */
+public abstract class PDEsolver extends Solver
 {
-	/**
-	 * List of solute names that this solver is responsible for.
-	 */
-	protected String[] _soluteNames;
-	
-	protected HashMap<String, SpatialGrid> _solute;
-	
-	/**
-	 * TODO
-	 */
-	protected Function<SpatialGrid, SpatialGrid> _reacFunc;
-	
-	/**
-	 * TODO
-	 */
-	protected HashMap<String, SpatialGrid> _reaction;
-	
-	/**
-	 * TODO
-	 */
-	protected SpatialGrid _domain;
-	
-	/**
-	 * TODO
-	 */
-	protected HashMap<String, SpatialGrid> _diffusivity;
-	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -47,87 +25,24 @@ public abstract class PDEsolver
 	}
 	
 	/*************************************************************************
-	 * SIMPLE SETTERS
-	 ************************************************************************/
-	
-	public void setSolute(HashMap<String, SpatialGrid> solute)
-	{
-		this._solute = solute;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param f
-	 */
-	public void setReactionFunction(Function<SpatialGrid, SpatialGrid> f)
-	{
-		this._reacFunc = f;
-	}
-	
-	
-	/**
-	 * \brief Tell the solver where to solve (e.g. biofilm, boundary layer), 
-	 * and where not to (e.g. bulk). 
-	 * 
-	 * 
-	 * @param domain TODO
-	 */
-	public void setDomain(SpatialGrid domain)
-	{
-		this._domain = domain;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param diffusivity
-	 */
-	public void setDiffusivity(HashMap<String, SpatialGrid> diffusivity)
-	{
-		this._diffusivity = diffusivity;
-	}
-	
-	/*************************************************************************
 	 * 
 	 ************************************************************************/
 	
 	/**
-	 * TODO
-	 * 
-	 * @param solute
-	 */
-	protected void updateReactionGrid(HashMap<String, SpatialGrid> solute)
-	{
-		if ( this._reacFunc == null )
-			return;
-		for ( String key : solute.keySet() )
-			this._reaction.put(key, this._reacFunc.apply(solute.get(key)));
-	}
-	
-	
-	/**
-	 * \brief TODO
-	 *
-	 */
-	protected void applyLOp()
-	{
-		for ( String sName : this._soluteNames)
-			applyLOp(sName, "lop");
-	}
-	
-	/**
 	 * \brief TODO
 	 * 
+	 * <p>Requires the arrays "domain", "diffusivity" and "concentration" to
+	 * be pre-filled in <b>solute</b>.</p>
+	 * 
 	 * @param solute
+	 * @param arrayName
 	 */
-	private void applyLOp(String sName, String tempName)
+	protected void addLOperator(SpatialGrid solute, String arrayName)
 	{
-		SpatialGrid solute = this._solute.get(sName);
-		SpatialGrid diffusivity = this._diffusivity.get(sName);
-		SpatialGrid reac = this._reaction.get(sName);
-		
-		int[] current;
+		/*
+		 * Reset the SpatialGrid's L-Operator array.
+		 */
+		solute.newArray(arrayName);
 		/*
 		 * Solute concentration and diffusivity at the current grid 
 		 * coordinates.
@@ -145,15 +60,16 @@ public abstract class PDEsolver
 		 * Iterate over all core voxels calculating the L-Operator. 
 		 */
 		solute.resetIterator();
+		int[] current;
 		while ( solute.iteratorHasNext() )
 		{
 			current = solute.iteratorNext();
-			if ( this._domain.getValueAt(current) == 0.0 )
+			if ( solute.getValueAt(SpatialGrid.domain, current) == 0.0 )
 				continue;
-			currConcn = solute.getValueAt(current);
-			currDiff = diffusivity.getValueAt(current);
-			concnNbh = solute.getNeighborValues(current);
-			diffNbh = diffusivity.getNeighborValues(current);
+			currConcn = solute.getValueAt(SpatialGrid.concn, current);
+			currDiff = solute.getValueAt(SpatialGrid.diff, current);
+			concnNbh = solute.getNeighborValues(SpatialGrid.concn, current);
+			diffNbh = solute.getNeighborValues(SpatialGrid.diff, current);
 			lop = 0.0;
 			for ( int axis = 0; axis < 3; axis++ )
 				for ( int i = 0; i < 2; i++ )
@@ -162,9 +78,70 @@ public abstract class PDEsolver
 											(concnNbh[axis][i] - currConcn); }
 					catch (ArrayIndexOutOfBoundsException e) {}
 				}
+			/*
+			 * Here we assume that all voxels are the same size.
+			 */
 			lop *= 0.5 / Math.pow(solute.getResolution(), 2.0);
-			lop += reac.getValueAt(current);
-			solute.addToTempArray(tempName, current, lop);
+			lop += solute.getValueAt(SpatialGrid.reac, current);
+			solute.addValueAt(arrayName, current, lop);
+		}
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * <p>Requires the arrays "domain", "diffusivity" and "diffReac" to be
+	 * pre-filled in <b>solute</b>.</p>
+	 * 
+	 * @param solute 
+	 * @param arrayName
+	 */
+	protected void divideByDiffLOperator(SpatialGrid solute, String arrayName)
+	{
+		/*
+		 * Reset the SpatialGrid's array
+		 * TODO skip this?
+		 */
+		solute.newArray(arrayName);
+		
+		int[] current;
+		/*
+		 * Diffusivity at the current grid coordinates.
+		 */
+		double currDiff;
+		/*
+		 * Diffusivity in the neighboring voxels;
+		 */
+		double[][] diffNbh;
+		/*
+		 * Temporary storage for the derivative of the L-Operator.
+		 */
+		double dLop;
+		/*
+		 * Iterate over all core voxels calculating the derivative of the 
+		 * L-Operator. 
+		 */
+		solute.resetIterator();
+		while ( solute.iteratorHasNext() )
+		{
+			current = solute.iteratorNext();
+			if ( solute.getValueAt(SpatialGrid.domain, current) == 0.0 )
+				continue;
+			currDiff = solute.getValueAt(SpatialGrid.diff, current);
+			diffNbh = solute.getNeighborValues(SpatialGrid.diff, current);
+			dLop = 0.0;
+			for ( int axis = 0; axis < 3; axis++ )
+				for ( int i = 0; i < 2; i++ )
+				{
+					try {	dLop += (diffNbh[axis][i] + currDiff); }
+					catch (ArrayIndexOutOfBoundsException e) {}
+				}
+			/*
+			 * Here we assume that all voxels are the same size.
+			 */
+			dLop *= 0.5 / Math.pow(solute.getResolution(), 2.0);
+			dLop += solute.getValueAt(SpatialGrid.dReac, current);
+			solute.timesValueAt(arrayName, current, 1.0/dLop);
 		}
 	}
 }
