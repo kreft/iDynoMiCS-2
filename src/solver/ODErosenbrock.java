@@ -11,7 +11,7 @@ import linearAlgebra.Vector;
  * Biology, University of Birmingham, U.K.
  * @since August 2015
  */
-public abstract class ODErosenbrock extends ODEsolver
+public class ODErosenbrock extends ODEsolver
 {
 	/**
 	 * 
@@ -117,15 +117,18 @@ public abstract class ODErosenbrock extends ODEsolver
 	 * @param y One-dimensional array of doubles.
 	 * @param tFinal Time duration to solve for.
 	 * @return One-dimensional array of doubles.
-	 * @exception IllegalArgumentException Wrong vector dimensions.
 	 */
-	protected double[] solve(double[] y, double tFinal)
+	@Override
+	public double[] solve(double[] y, double tFinal) throws Exception, 
+													IllegalArgumentException
 	{
 		/*
-		 * First check that y is the correct size.
+		 * Check the generic criteria, plus the Rosenbrock method needs the
+		 * Jacobian method to be set.
 		 */
-		if ( y.length != _nVar )
-			throw new IllegalArgumentException("Wrong vector dimensions.");
+		super.solve(y, tFinal);
+		if ( this._jacobian == null )
+			throw new Exception("No first derivative set.");
 		/*
 		 * Control statement in case the maximum timestep size, hMax, is too
 		 * large.
@@ -307,7 +310,7 @@ public abstract class ODErosenbrock extends ODEsolver
 			 * TODO use the relative tolerance here? Could use another
 			 * parameter and set it negative if we want never to escape early.
 			 */
-			if( Vector.areSame(y, ynext) )
+			if( (h == hMax) && Vector.areSame(y, ynext) )
 				return ynext;
 			/*
 			 * Update the y and the first derivative dYdT.
@@ -320,43 +323,4 @@ public abstract class ODErosenbrock extends ODEsolver
 		 */
 		return y;
 	}
-	
-	/**
-	 * Update the first derivative of Y, i.e. the rate of change of Y with
-	 * respect to time (dYdT = F).
-	 * 
-	 * @param y
-	 */
-	public abstract double[] calc1stDeriv(double[] y);
-	
-	/**
-	 * Update the second derivative of Y, i.e. the rate of change of F with
-	 * respect to time (dFdT).
-	 * 
-	 * @param y 
-	 * @param deltaT 
-	 */
-	public double[] calc2ndDeriv(double[] y, double deltaT)
-	{
-		double[] dYdT = calc1stDeriv(y);
-		double[] out = Vector.copy(dYdT);
-		/*
-		 * yNext = y + (deltaT * dYdT)
-		 */
-		Vector.add(Vector.times(out, deltaT), y);
-		/*
-		 * dFdT = ( dYdT(ynext) - dYdT(y) )/tdel
-		 */
-		out = calc1stDeriv(out);
-		return Vector.subtract(Vector.times(out, 1.0/deltaT), dYdT);
-	}
-	
-	/**
-	 * Update the Jacobian matrix, i.e. the rate of change of F with respect to
-	 * each of the variables in Y (dFdY).
-	 * 
-	 * @param y 
-	 */
-	public abstract double[][] calcJacobian(double[] y);
-	
 }

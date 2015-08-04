@@ -3,9 +3,10 @@
  */
 package solver;
 
-import grid.SpatialGrid;
-
 import java.util.HashMap;
+import java.util.function.Consumer;
+
+import grid.SpatialGrid;
 
 /**
  * \brief TODO
@@ -22,9 +23,10 @@ public abstract class Solver
 	protected String[] _variableNames;
 	
 	/**
-	 * 
+	 * TODO
 	 */
 	protected boolean _allowNegatives;
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -43,13 +45,15 @@ public abstract class Solver
 	 * SIMPLE SETTERS
 	 ************************************************************************/
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param variableNames
+	 * @param allowNegatives
+	 */
 	public void init(String[] variableNames, boolean allowNegatives)
 	{
 		this._variableNames = variableNames;
 		this._allowNegatives = allowNegatives;
 	}
-	
-	
-	public abstract void solve(HashMap<String, SpatialGrid> solutes,
-															double tFinal);
 }

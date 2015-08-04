@@ -1,5 +1,8 @@
 package solver;
 
+import java.util.HashMap;
+import java.util.function.Consumer;
+
 import grid.SpatialGrid;
 
 /**
@@ -11,6 +14,11 @@ import grid.SpatialGrid;
  */
 public abstract class PDEsolver extends Solver
 {
+	/**
+	 * TODO
+	 */
+	protected Consumer<HashMap<String, SpatialGrid>> _updaterFunction;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -23,6 +31,31 @@ public abstract class PDEsolver extends Solver
 	{
 		
 	}
+	
+	/*************************************************************************
+	 * 
+	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param f
+	 */
+	public void setUpdaterFunc(Consumer<HashMap<String, SpatialGrid>> f)
+	{
+		this._updaterFunction = f;
+	}
+	
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param solutes
+	 * @param tFinal
+	 */
+	public abstract void solve(HashMap<String, SpatialGrid> solutes,
+															double tFinal);
+	
 	
 	/*************************************************************************
 	 * 

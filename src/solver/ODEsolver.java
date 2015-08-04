@@ -3,9 +3,9 @@
  */
 package solver;
 
-import java.util.HashMap;
+import java.util.function.Function;
 
-import grid.SpatialGrid;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
 /**
@@ -13,7 +13,6 @@ import linearAlgebra.Vector;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) Centre for Computational
  * Biology, University of Birmingham, U.K.
- * @
  * @since August 2015
  */
 public abstract class ODEsolver extends Solver 
@@ -23,18 +22,24 @@ public abstract class ODEsolver extends Solver
 	 */
 	protected int _nVar;
 	
+	/**
+	 * TODO Consider switching to a BiConsumer?
+	 */
+	protected Function<double[], double[]> _firstDeriv;
+	
+	/**
+	 * TODO Consider switching to a BiConsumer?
+	 */
+	protected Function<double[], double[]> _secondDeriv;
+	
+	/**
+	 * TODO Consider switching to a BiConsumer?
+	 */
+	protected Function<double[], double[][]> _jacobian;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-	
-	/**
-	 * \brief TODO
-	 * 
-	 */
-	public ODEsolver()
-	{
-		
-	}
 	
 	public void init(String[] variableNames, boolean allowNegatives)
 	{
@@ -42,78 +47,131 @@ public abstract class ODEsolver extends Solver
 	}
 	
 	/*************************************************************************
-	 * KEY METHODS
+	 * SETTERS
 	 ************************************************************************/
 	
 	/**
 	 * \brief TODO
 	 * 
-	 * @param solutes
-	 * @param tFinal
+	 * @param dYdT
 	 */
-	@Override
-	public void solve(HashMap<String, SpatialGrid> solutes, double tFinal)
+	public void set1stDeriv(Function<double[], double[]> dYdT)
 	{
-		double[] y = Vector.zerosDbl(this._nVar);
-		/*
-		 * 
-		 */
-		for ( int i = 0; i < this._nVar; i++ )
-		{
-			y[i] = 
-				solutes.get(this._variableNames[i]).getMax(SpatialGrid.concn);
-		}
-			
-		/*
-		 * 
-		 */
-		y = this.solve(y, tFinal);
-		/*
-		 * 
-		 */
-		for ( int i = 0; i < this._nVar; i++ )
-		{
-			solutes.get(this._variableNames[i]).setAllTo(SpatialGrid.concn, 
-																y[i], true);
-		}
+		this._firstDeriv = dYdT;
+	}
+
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dFdT
+	 */
+	public void set2ndDeriv(Function<double[], double[]> dFdT)
+	{
+		this._secondDeriv = dFdT;
 	}
 	
 	/**
 	 * \brief TODO
 	 * 
-	 * <p>Alternate method to solve(). Had to change the name to avoid
-	 * problems with "erasure", whatever that is!</p>
-	 * 
-	 * @param variables
-	 * @param tFinal
+	 * @param jac
 	 */
-	public void solveDbl(HashMap<String, Double> variables, double tFinal)
+	public void setJacobian(Function<double[], double[][]> jac)
 	{
-		double[] y = Vector.zerosDbl(this._nVar);
-		/*
-		 * 
-		 */
-		for ( int i = 0; i < this._nVar; i++ )
-			y[i] = variables.get(this._variableNames[i]);
-		/*
-		 * 
-		 */
-		y = this.solve(y, tFinal);
-		/*
-		 * 
-		 */
-		for ( int i = 0; i < this._nVar; i++ )
-			variables.put(this._variableNames[i], y[i]);
+		this._jacobian = jac;
 	}
 	
+	/*************************************************************************
+	 * SOLVER METHODS
+	 ************************************************************************/
 	/**
 	 * \brief TODO
+	 * 
+	 * TODO Should choose a more specific subclass of Exception if no 1st
+	 * derivative method set.
+	 * 
+	 * TODO Check tFinal is positive and finite?
 	 * 
 	 * @param y
 	 * @param tFinal
 	 * @return
+	 * @throws Exception No first derivative set.
+	 * @exception IllegalArgumentException Wrong vector dimensions.
 	 */
-	protected abstract double[] solve(double[] y, double tFinal);
+	public double[] solve(double[] y, double tFinal) throws Exception, 
+													IllegalArgumentException
+	{
+		if ( this._firstDeriv == null )
+			throw new Exception("No first derivative set.");
+		if ( y.length != _nVar )
+			throw new IllegalArgumentException("Wrong vector dimensions.");
+		return y;
+	}
 	
+	/*************************************************************************
+	 * DERIVATIVES
+	 ************************************************************************/
 	
+	/**
+	 * Update the first derivative of Y, i.e. the rate of change of Y with
+	 * respect to time (dYdT = F).
+	 * 
+	 * @param y
+	 */
+	protected double[] calc1stDeriv(double[] y)
+	{
+		return this._firstDeriv.apply(y);
+	}
+	
+	/**
+	 * \brief Update the second derivative of Y, i.e. the rate of change of F
+	 * with respect to time (dFdT).
+	 * 
+	 * <p>Tries the user-defined second-derivative first, but switched to a
+	 * numerical method if this is not available.</p>
+	 * 
+	 * @param y 
+	 * @param deltaT 
+	 */
+	protected double[] calc2ndDeriv(double[] y, double deltaT)
+	{
+		try
+		{
+			return this._secondDeriv.apply(y);
+		}
+		catch ( NullPointerException e)
+		{
+			double[] dYdT = calc1stDeriv(y);
+			double[] out = Vector.copy(dYdT);
+			/*
+			 * yNext = y + (deltaT * dYdT)
+			 */
+			Vector.add(Vector.times(out, deltaT), y);
+			/*
+			 * dFdT = ( dYdT(ynext) - dYdT(y) )/tdel
+			 */
+			out = calc1stDeriv(out);
+			return Vector.subtract(Vector.times(out, 1.0/deltaT), dYdT);
+		}
+	}
+	
+	/**
+	 * Calculate the Jacobian matrix, i.e. the rate of change of F with
+	 * respect to each of the variables in Y (dFdY).
+	 * 
+	 * <p>Tries the user-defined Jacobian, returning zeros if this is not
+	 * available.</p>
+	 * 
+	 * @param y 
+	 */
+	protected double[][] calcJacobian(double[] y)
+	{
+		try
+		{
+			return this._jacobian.apply(y);
+		}
+		catch ( NullPointerException e)
+		{
+			return Matrix.zerosDbl(this._nVar);
+		}
+	}
 }
