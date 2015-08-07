@@ -8,6 +8,7 @@ import idynomics.AgentContainer;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import solver.ODErosenbrock;
+import utility.ExtraMath;
 
 /**
  * \brief TODO
@@ -61,7 +62,7 @@ public class SolveChemostat extends ProcessManager
 	{
 		this._solver = new ODErosenbrock();
 		this._soluteNames = soluteNames;
-		this._solver.init(this._soluteNames, false);
+		this._solver.init(this._soluteNames, false, 1.0e-6, 1.0e-6);
 	}
 	
 	/*************************************************************************
@@ -103,11 +104,11 @@ public class SolveChemostat extends ProcessManager
 		this._solver.set1stDeriv( (double[] y) ->
 		{
 			/*
-			 * First deal with inflow and dilution: dYdT = D(S0 - S)
+			 * First deal with inflow and dilution: dYdT = D(Sin - S)
 			 */
 			double[] dYdT = Vector.copy(y);
 			for ( int i = 0; i < this._soluteNames.length; i++ )
-				dYdT[i] += this._inflow.get(this._soluteNames[i]);
+				dYdT[i] -= this._inflow.get(this._soluteNames[i]);
 			Vector.times(dYdT, -this._dilution);
 			/*
 			 * TODO Apply agent reactions
@@ -117,13 +118,32 @@ public class SolveChemostat extends ProcessManager
 			/*
 			 * TODO Apply "aqueous" reactions.
 			 */
-			
+			/*System.out.println("\tS -> dYdT:"); //Bughunt
+			for ( int i = 0; i < y.length; i++ )
+				System.out.println("\t"+y[i]+"->"+dYdT[i]);*/
 			return dYdT;
 		});
 		/*
 		 * TODO Update the solver's 2nd derivative function (dF/dT)?
+		 * Leave out if we don't want to do this for reactions (the solver
+		 * will estimate dFdT numerically)
 		 */
-		//this._solver.set2ndDeriv( (double[] y) ->
+		this._solver.set2ndDeriv( (double[] y) ->
+		{
+			double[] dFdT = Vector.copy(y);
+			for ( int i = 0; i < this._soluteNames.length; i++ )
+				dFdT[i] -= this._inflow.get(this._soluteNames[i]);
+			Vector.times(dFdT, ExtraMath.sq(this._dilution));
+			/*
+			 * TODO Apply agent reactions
+			 */
+			//for ( Agent agent : agents.getAllAgents() )
+			//	agent.
+			/*
+			 * TODO Apply "aqueous" reactions.
+			 */
+			return dFdT;
+		});
 		/*
 		 * Update the solver's Jacobian function (dF/dY).
 		 */

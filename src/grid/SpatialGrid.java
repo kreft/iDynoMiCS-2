@@ -74,6 +74,13 @@ public class SpatialGrid
 		this._res = resolution;
 	}
 	
+	public SpatialGrid()
+	{
+		this._nVoxel = Vector.vector(3, 1);
+		this._padding = Vector.zerosInt(3);
+		this._res = 1.0;
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -81,16 +88,28 @@ public class SpatialGrid
 	 */
 	public void newArray(String name)
 	{
+		/*
+		 * First check that the array HashMap has been created.
+		 */
+		try
+		{ this._array.getClass(); }
+		catch (NullPointerException e)
+		{ this._array = new HashMap<String, double[][][]>(); }
+		/*
+		 * Now try resetting all values of this array. If it doesn't exist
+		 * yet, make it.
+		 */
 		try
 		{
 			Array.setAll(this._array.get(name), 0.0);
 		}
 		catch ( Exception e )
 		{
-			this._array.put(name, Array.zerosDbl(
-									this._nVoxel[0] + 2*this._padding[0],
-									this._nVoxel[1] + 2*this._padding[1],
-									this._nVoxel[2] + 2*this._padding[2]));
+			double[][][] array = Array.zerosDbl(
+					this._nVoxel[0] + 2*this._padding[0],
+					this._nVoxel[1] + 2*this._padding[1],
+					this._nVoxel[2] + 2*this._padding[2]);
+			this._array.put(name, array);
 		}
 	}
 	

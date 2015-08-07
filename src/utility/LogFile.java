@@ -104,9 +104,9 @@ public class LogFile
 		}
 		catch ( Exception e )
 		{
-			e.printStackTrace();
+			//e.printStackTrace();
 			System.out.println("Failed to write into log file");
-			System.out.println(message);
+			//System.out.println(message);
 		}
 	}
 	

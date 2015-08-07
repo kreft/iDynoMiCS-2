@@ -140,17 +140,32 @@ public abstract class ODEsolver extends Solver
 		}
 		catch ( NullPointerException e)
 		{
+			System.out.println("\tFinding dFdT numerically"); //Bughunt
 			double[] dYdT = calc1stDeriv(y);
 			double[] out = Vector.copy(dYdT);
 			/*
 			 * yNext = y + (deltaT * dYdT)
 			 */
 			Vector.add(Vector.times(out, deltaT), y);
+			System.out.println("\tyNext is"); //Bughunt
+			for ( double elem : out)
+				System.out.println(elem);
 			/*
 			 * dFdT = ( dYdT(ynext) - dYdT(y) )/tdel
 			 */
 			out = calc1stDeriv(out);
-			return Vector.subtract(Vector.times(out, 1.0/deltaT), dYdT);
+			System.out.println("\tDeriv there is"); //Bughunt
+			for ( double elem : out)
+				System.out.println(elem);
+			out = Vector.subtract(out, dYdT);
+			System.out.println("\tsubtract dYdT"); //Bughunt
+			for ( double elem : out)
+				System.out.println(elem);
+			out = Vector.times(out, 1.0/deltaT);
+			System.out.println("\tdivide by deltaT"); //Bughunt
+			for ( double elem : out)
+				System.out.println(elem);
+			return out;
 		}
 	}
 	

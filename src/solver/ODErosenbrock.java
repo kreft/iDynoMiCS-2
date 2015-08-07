@@ -40,9 +40,13 @@ public class ODErosenbrock extends ODEsolver
 	protected final double EPS = 2.22e-16;
 	
 	/**
-	 * Relative tolerance.
+	 * Absolute tolerance.
+	 * 
+	 * <p><b>[Rob 7Aug2015]</b> Switched to absolute tolerance from relative
+	 * tolerance due to error estimates heading to infinity as values approach
+	 * zero.</p>
 	 */
-	protected double _rTol;
+	protected double _absTol;
 	
 	/**
 	 * Maximum time-step permissible.
@@ -63,7 +67,7 @@ public class ODErosenbrock extends ODEsolver
 	
 	protected double[][] identity;
 	
-	protected double t, error, tnext, h, test;
+	protected double t, error, tNext, h, test;
 	
 	protected boolean lastStep, noFailed, usingHMin, signsOK;
 	
@@ -85,7 +89,7 @@ public class ODErosenbrock extends ODEsolver
 	{
 		super.init(names, allowNegatives);
 		
-		this._rTol = rTol;
+		this._absTol = rTol;
 		this._hMax = hMax;
 		
 		ynext = Vector.zerosDbl(_nVar);
@@ -133,13 +137,17 @@ public class ODErosenbrock extends ODEsolver
 		 * Control statement in case the maximum timestep size, hMax, is too
 		 * large.
 		 */
-		double rTol = this._rTol;
+		double absTol = this._absTol;
 		double hMax = this._hMax;
 		if ( hMax > tFinal )
 		{
-			rTol *= tFinal/hMax;
+			absTol *= tFinal/hMax;
 			hMax = tFinal;
 		}
+		/*
+		 * 
+		 */
+		dYdT = calc1stDeriv(y);
 		/*
 		 * First try a step size of hmax.
 		 */
@@ -162,8 +170,21 @@ public class ODErosenbrock extends ODEsolver
 			 * doesn't need this.
 			 */
 			dFdT = calc2ndDeriv(y, sqrtE * ( t + h ));
-			hddFdT = Vector.times(Vector.copy(dFdT), -h*d);
+			/*System.out.println("dFdT is"); //Bughunt
+			for ( double elem : dFdT)
+				System.out.println(elem);*/
+			hddFdT = Vector.times(Vector.copy(dFdT), h*d);
+			/*System.out.println("h*d*dFdT is"); //Bughunt
+			for ( double elem : hddFdT)
+				System.out.println(elem);*/
 			dFdY = calcJacobian(y);
+			/*System.out.println("dFdY is"); //Bughunt
+			for ( double[] row : dFdY ) 
+			{
+				for ( double elem : row)
+					System.out.print(elem+", ");
+				System.out.println("");
+			}*/
 			/*
 			 * Try out this value of h, keeping a note of whether it ever
 			 * fails.
@@ -172,7 +193,8 @@ public class ODErosenbrock extends ODEsolver
 			usingHMin = false;
 			while ( true )
 			{
-				tnext = ( lastStep ) ? tFinal : t + h;
+				tNext = ( lastStep ) ? tFinal : t + h;
+				//System.out.println("-> Trying from "+t+" to "+tNext); //Bughunt
 				/*
 				 * The Rosenbrock method.
 				 */
@@ -183,6 +205,14 @@ public class ODErosenbrock extends ODEsolver
 					 */
 					W = Matrix.times(Matrix.copy(dFdY), -h*d);
 					W = Matrix.add(W, identity);
+					/*System.out.println("\tW is"); //Bughunt
+					for ( double[] row : W ) 
+					{
+						System.out.print("\t\t");
+						for ( double elem : row)
+							System.out.print(elem+", ");
+						System.out.println("");
+					}*/
 					test = Matrix.condition(W);
 					if ( test > 10.0)
 					{ 
@@ -193,28 +223,56 @@ public class ODErosenbrock extends ODEsolver
 					 * Find k1 where
 					 * W*k1 = dYdT + h*d*dFdT
 					 */
-					k1 = Matrix.solve(W,Vector.add(Vector.copy(hddFdT),dYdT));
+					k1 = Vector.add(Vector.copy(hddFdT),dYdT);
+					/*System.out.println("dYdT + h*d*dFdT is"); //Bughunt
+					for ( double elem : k1)
+						System.out.println(elem);*/
+					k1 = Matrix.solve(W, k1);
+					/*System.out.println("k1 is"); //Bughunt
+					for ( double elem : k1)
+						System.out.println(elem);*/
 					/*
 					 * f1 = dYdT(y + k1*h/2)
 					 */
 					f1 = Vector.times(Vector.copy(k1), 0.5*h);
+					/*System.out.println("\tK1*h/2 is"); //Bughunt
+					for ( double elem : f1)
+						System.out.println(elem);*/
 					f1 = calc1stDeriv( Vector.add(f1, y));
+					/*System.out.println("f1 is"); //Bughunt
+					for ( double elem : f1)
+						System.out.println(elem);*/
 					/*
 					 * Find k2 where
 					 * W*(k2-k1) = f1 - k1  
 					 */
 					k2 = Vector.subtract(Vector.copy(f1), k1);
+					/*System.out.println("f1 - k1 is"); //Bughunt
+					for ( double elem : k2)
+						System.out.println(elem);*/
 					k2 = Matrix.solve(W, k2);
+					/*System.out.println("(f1 - k1)/W is"); //Bughunt
+					for ( double elem : k2)
+						System.out.println(elem);*/
 					k2 = Vector.add(k2, k1);
+					/*System.out.println("k2 is"); //Bughunt
+					for ( double elem : k2)
+						System.out.println(elem);*/
 					/*
 					 * ynext = y + h * k2
 					 */
 					ynext = Vector.times(Vector.copy(k2), h);
 					ynext = Vector.add(ynext, y);
+					/*System.out.println("ynext is"); //Bughunt
+					for ( double elem : ynext)
+						System.out.println(elem);*/
 					/*
 					 * f2 = dYdT(ynext)
 					 */
 					f2 = calc1stDeriv(ynext);
+					/*System.out.println("f2 is"); //Bughunt
+					for ( double elem : f2)
+						System.out.println(elem);*/
 					/*
 					 * 
 					 * Find k3 where 
@@ -224,7 +282,13 @@ public class ODErosenbrock extends ODEsolver
 					 * then multiply by invW on the left.
 					 */
 					kaux = Vector.add(Vector.copy(hddFdT), f2);
+					/*System.out.println("f2 + h*d*dFdT is"); //Bughunt
+					for ( double elem : kaux)
+						System.out.println(elem);*/
 					k3 = Vector.subtract(Vector.copy(f1), k2);
+					/*System.out.println("f2 + h*d*dFdT is"); //Bughunt
+					for ( double elem : kaux)
+						System.out.println(elem);*/
 					kaux = Vector.add(kaux, Vector.times(k3, e32));
 					k3 = Vector.subtract(Vector.copy(y), k1);
 					kaux = Vector.add(kaux, Vector.times(k3, 2.0));
@@ -234,11 +298,22 @@ public class ODErosenbrock extends ODEsolver
 					 */
 					for (int i = 0; i < _nVar; i++)
 						kaux[i] = 1/Math.min(y[i], ynext[i]);
+					/*System.out.println("1/min(y, ynext) is"); //Bughunt
+					for ( double elem : kaux)
+						System.out.println(elem);*/
 					/*
 					 * kaux *= (2*k2 + k3) * h / 6
 					 */
-					Vector.add(Vector.times(k2, 2.0), k3);
-					Vector.times(kaux, Vector.times(k2, h/6.0));
+					//Vector.add(Vector.times(k2, 2.0), k3);
+					//Vector.times(kaux, Vector.times(k2, h/6.0));
+					
+					/*
+					 * kaux = (k1 -2*k2 + k3) * h/6
+					 */
+					kaux = Vector.times(k2, -2.0);
+					Vector.add(kaux, k3);
+					Vector.add(kaux, k1);
+					Vector.times(kaux, h/6.0);
 					error = Vector.max(kaux);
 				}
 				catch (Exception e)
@@ -266,8 +341,8 @@ public class ODErosenbrock extends ODEsolver
 				 */
 				signsOK = ( ! this._allowNegatives ) || 
 												Vector.isNonnegative(ynext);
-				test = Math.pow((rTol/error), power);
-				if ( error > rTol && signsOK )
+				test = Math.pow((absTol/error), power);
+				if ( error > absTol && signsOK )
 				{ 
 					noFailed = false;
 					lastStep = false;
@@ -283,7 +358,8 @@ public class ODErosenbrock extends ODEsolver
 				}
 				else
 					break;
-				LogFile.writeLog("error = "+error+", rTol = "+rTol+", h = "+h);
+				LogFile.writeLog("error = "+error+", absTol = "+absTol+", h = "+h);
+				//return y; //Bughunt
 			} // End of `while ( true )`
 			/*
 			 * If there were no failures compute a new h. We use the same
@@ -303,7 +379,7 @@ public class ODErosenbrock extends ODEsolver
 			 * Update the time.
 			 */
 			h = Math.min(h, hMax);
-			t = tnext;
+			t = tNext;
 			/*
 			 * Check if we've reached a steady-state solution.
 			 * 

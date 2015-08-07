@@ -6,7 +6,7 @@ import idynomics.AgentContainer;
 import java.util.HashMap;
 import agent.activity.*;
 import agent.body.*;
-import spatialGrid.SoluteGrid;
+import grid.SpatialGrid;
 import utility.Vector;
 
 public class Agent
@@ -44,7 +44,7 @@ public class Agent
 	/**
      * Used for reaction speeds and growth
 	 */
-    SoluteGrid _solutes;
+    SpatialGrid _solutes;
 	
     /*************************************************************************
 	 * CONSTRUCTORS

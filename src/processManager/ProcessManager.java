@@ -11,7 +11,7 @@ public abstract class ProcessManager
 	
 	protected int _priority;
 	
-	protected double _timeForNextStep;
+	protected double _timeForNextStep = 0.0;
 	
 	protected double _timeStepSize;
 	
