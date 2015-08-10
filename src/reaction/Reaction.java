@@ -1,7 +1,8 @@
 package reaction;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+
+import expression.Component;
 
 /**
  * \brief TODO
@@ -13,7 +14,7 @@ public abstract class Reaction
 	/**
 	 * TODO
 	 */
-	protected ArrayList<Kinetic> _kinetics;
+	protected Component _kinetic;
 	
 	/**
 	 * TODO
@@ -30,8 +31,10 @@ public abstract class Reaction
 	{
 		
 	}
-
-
+	
+	
+	
+	
 	/*************************************************************************
 	 * SETTERS
 	 ************************************************************************/
@@ -64,10 +67,7 @@ public abstract class Reaction
 	 */
 	public double getRate(HashMap<String, Double> concentrations)
 	{
-		double out = 1.0;
-		for ( Kinetic k : this._kinetics )
-			out *= k.getRate(concentrations);
-		return out;
+		return this._kinetic.getValue(concentrations);
 	}
 	
 	/**
