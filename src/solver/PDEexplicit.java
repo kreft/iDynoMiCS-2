@@ -28,12 +28,14 @@ public class PDEexplicit extends PDEsolver
 	}
 	
 	
+	
 	/**
 	 * 
 	 * <p>Requires the arrays "diffusivity" and "concentration" to
 	 * be pre-filled in each SpatialGrid.</p>
 	 * 
 	 */
+	@Override
 	public void solve(HashMap<String, SpatialGrid> variables, double tFinal)
 	{
 		/*
@@ -55,7 +57,11 @@ public class PDEexplicit extends PDEsolver
 		for ( int iter = 0; iter < nIter; iter++ )
 			for ( String varName : this._variableNames )
 			{
-				
+				var = variables.get(varName);
+				var.newArray("lop");
+				addLOperator(var, "lop");
+				var.timesAll("lop", dt, false);
+				var.addArrayToArray(SpatialGrid.concn, "lop", false);
 			}
 	}
 	

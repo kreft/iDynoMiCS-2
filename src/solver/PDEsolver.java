@@ -84,7 +84,7 @@ public abstract class PDEsolver extends Solver
 		/*
 		 * Solute concentration and diffusivity in the neighboring voxels;
 		 */
-		double[][] concnNbh, diffNbh;
+		Double[][] concnNbh, diffNbh;
 		/*
 		 * Temporary storage for the L-Operator.
 		 */
@@ -92,11 +92,9 @@ public abstract class PDEsolver extends Solver
 		/*
 		 * Iterate over all core voxels calculating the L-Operator. 
 		 */
-		solute.resetIterator();
-		int[] current;
-		while ( solute.iteratorHasNext() )
+		for (int[] current = solute.resetIterator(); solute.isIteratorValid();
+											  current = solute.iteratorNext())
 		{
-			current = solute.iteratorNext();
 			if ( solute.getValueAt(SpatialGrid.domain, current) == 0.0 )
 				continue;
 			currConcn = solute.getValueAt(SpatialGrid.concn, current);
@@ -109,7 +107,7 @@ public abstract class PDEsolver extends Solver
 				{
 					try {	lop += (diffNbh[axis][i] + currDiff) *
 											(concnNbh[axis][i] - currConcn); }
-					catch (ArrayIndexOutOfBoundsException e) {}
+					catch (Exception e) {}
 				}
 			/*
 			 * Here we assume that all voxels are the same size.
@@ -137,7 +135,6 @@ public abstract class PDEsolver extends Solver
 		 */
 		solute.newArray(arrayName);
 		
-		int[] current;
 		/*
 		 * Diffusivity at the current grid coordinates.
 		 */
@@ -145,7 +142,7 @@ public abstract class PDEsolver extends Solver
 		/*
 		 * Diffusivity in the neighboring voxels;
 		 */
-		double[][] diffNbh;
+		Double[][] diffNbh;
 		/*
 		 * Temporary storage for the derivative of the L-Operator.
 		 */
@@ -154,10 +151,9 @@ public abstract class PDEsolver extends Solver
 		 * Iterate over all core voxels calculating the derivative of the 
 		 * L-Operator. 
 		 */
-		solute.resetIterator();
-		while ( solute.iteratorHasNext() )
+		for (int[] current = solute.resetIterator(); solute.isIteratorValid();
+											  current = solute.iteratorNext())
 		{
-			current = solute.iteratorNext();
 			if ( solute.getValueAt(SpatialGrid.domain, current) == 0.0 )
 				continue;
 			currDiff = solute.getValueAt(SpatialGrid.diff, current);

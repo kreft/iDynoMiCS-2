@@ -60,8 +60,8 @@ public class SolveChemostat extends ProcessManager
 	 */
 	public void init(String[] soluteNames)
 	{
-		this._solver = new ODErosenbrock();
 		this._soluteNames = soluteNames;
+		this._solver = new ODErosenbrock();
 		this._solver.init(this._soluteNames, false, 1.0e-6, 1.0e-6);
 	}
 	
@@ -116,7 +116,7 @@ public class SolveChemostat extends ProcessManager
 			//for ( Agent agent : agents.getAllAgents() )
 			//	agent.
 			/*
-			 * TODO Apply "aqueous" reactions.
+			 * TODO Apply extracellular reactions.
 			 */
 			/*System.out.println("\tS -> dYdT:"); //Bughunt
 			for ( int i = 0; i < y.length; i++ )
@@ -140,7 +140,7 @@ public class SolveChemostat extends ProcessManager
 			//for ( Agent agent : agents.getAllAgents() )
 			//	agent.
 			/*
-			 * TODO Apply "aqueous" reactions.
+			 * TODO Apply extracellular reactions.
 			 */
 			return dFdT;
 		});
@@ -160,7 +160,7 @@ public class SolveChemostat extends ProcessManager
 			//for ( Agent agent : agents.getAllAgents() )
 			//	agent.
 			/*
-			 * TODO Apply "aqueous" reactions.
+			 * TODO Apply extracellular reactions.
 			 */
 			
 			return jac;

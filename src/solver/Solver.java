@@ -3,11 +3,6 @@
  */
 package solver;
 
-import java.util.HashMap;
-import java.util.function.Consumer;
-
-import grid.SpatialGrid;
-
 /**
  * \brief TODO
  * 
@@ -55,5 +50,15 @@ public abstract class Solver
 	{
 		this._variableNames = variableNames;
 		this._allowNegatives = allowNegatives;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public int nVar()
+	{
+		return this._variableNames.length;
 	}
 }

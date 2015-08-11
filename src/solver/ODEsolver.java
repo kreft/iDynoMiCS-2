@@ -18,11 +18,6 @@ import linearAlgebra.Vector;
 public abstract class ODEsolver extends Solver 
 {
 	/**
-	 * Number of variables in the solver.
-	 */
-	protected int _nVar;
-	
-	/**
 	 * TODO Consider switching to a BiConsumer?
 	 */
 	protected Function<double[], double[]> _firstDeriv;
@@ -43,7 +38,7 @@ public abstract class ODEsolver extends Solver
 	
 	public void init(String[] variableNames, boolean allowNegatives)
 	{
-		this._nVar = variableNames.length;
+		super.init(variableNames, allowNegatives);
 	}
 	
 	/*************************************************************************
@@ -102,7 +97,7 @@ public abstract class ODEsolver extends Solver
 	{
 		if ( this._firstDeriv == null )
 			throw new Exception("No first derivative set.");
-		if ( y.length != _nVar )
+		if ( y.length != this.nVar() )
 			throw new IllegalArgumentException("Wrong vector dimensions.");
 		return y;
 	}
@@ -186,7 +181,7 @@ public abstract class ODEsolver extends Solver
 		}
 		catch ( NullPointerException e)
 		{
-			return Matrix.zerosDbl(this._nVar);
+			return Matrix.zerosDbl(this.nVar());
 		}
 	}
 }

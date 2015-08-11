@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 import processManager.SolveChemostat;
 
-public class SolverTest
+public class ODETest
 {
 	public static void main(String[] args)
 	{
@@ -35,7 +35,7 @@ public class SolverTest
 		System.out.println("\tS0 = 0.0");
 		System.out.println("\tD = 1.0");
 		System.out.println("\tNo agents or reactions");
-		System.out.println("1 - Concentration should halve each timestep");
+		System.out.println("Concentration should halve each timestep");
 		System.out.println("###############################################");
 		
 		String[] soluteNames = new String[1];

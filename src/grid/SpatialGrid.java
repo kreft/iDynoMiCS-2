@@ -2,6 +2,7 @@ package grid;
 
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
+import java.util.function.ToDoubleBiFunction;
 
 import linearAlgebra.*;
 
@@ -228,10 +229,10 @@ public class SpatialGrid
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
-			for ( int i : aC )
-				System.out.println(i);
+			//for ( int i : aC )
+			//	System.out.println(i);
 			throw new ArrayIndexOutOfBoundsException(
-									"Voxel coordinates must be inside array");
+						"Voxel coordinates must be inside array: "+aC[0]+", "+aC[1]+", "+aC[2]);
 		}
 	}
 	
@@ -364,16 +365,18 @@ public class SpatialGrid
 	 * @param gridCoords
 	 * @return
 	 */
-	public double[][] getNeighborValues(String name, int[] gridCoords)
+	public Double[][] getNeighborValues(String name, int[] gridCoords)
 	{
-		double[][] out = new double[3][2];
+		Double[][] out = new Double[3][2];
 		int[] temp = Vector.copy(gridCoords);
 		for ( int axis = 0; axis < 3; axis++ )
 		{
 			temp[axis] -= 1;
-			out[axis][0] = this.getValueAt(name, temp);
+			try { out[axis][0] = this.getValueAt(name, temp); } 
+			catch (ArrayIndexOutOfBoundsException e) {}
 			temp[axis] += 2;
-			out[axis][1] = this.getValueAt(name, temp);
+			try { out[axis][1] = this.getValueAt(name, temp); } 
+			catch (ArrayIndexOutOfBoundsException e) {}
 			temp[axis] -= 1;
 		}
 		return out;
@@ -436,6 +439,21 @@ public class SpatialGrid
 			this.applyToCore(name, (double v)->{return v + value;});
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @param value
+	 * @param includePadding
+	 */
+	public void timesAll(String name, double value, boolean includePadding)
+	{
+		if ( includePadding )
+			Array.times(this._array.get(name), value);
+		else
+			this.applyToCore(name, (double v)->{return v * value;});
+	}
+	
 	/*************************************************************************
 	 * ARRAY GETTERS
 	 ************************************************************************/
@@ -464,6 +482,35 @@ public class SpatialGrid
 		return Array.min(this._array.get(name));
 	}
 	
+	/*************************************************************************
+	 * TWO-ARRAY METHODS
+	 ************************************************************************/
+	
+	private void applyArrayToArray(String destination, String source,
+										ToDoubleBiFunction<Double, Double> f)
+	{
+		double[][][] dest = this._array.get(destination);
+		double[][][] src = this._array.get(source);
+		for ( int i = _padding[0]; i < _padding[0] + _nVoxel[0]; i++ )
+			for ( int j = _padding[1]; j < _padding[1] + _nVoxel[1]; j++ )
+				for ( int k = _padding[2]; k < _padding[2] + _nVoxel[2]; k++ )
+				{
+					dest[i][j][k] = 
+								f.applyAsDouble(dest[i][j][k], src[i][j][k]);
+				}
+	}
+	
+	public void addArrayToArray(String destination, String source, 
+													boolean includePadding)
+	{
+		if ( includePadding )
+			Array.add(this._array.get(destination), this._array.get(source));
+		else
+		{
+			this.applyArrayToArray(destination, source, 
+					(Double d, Double s) -> {return d + s;});
+		}
+	}
 	
 	/*************************************************************************
 	 * GRADIENTS
@@ -505,23 +552,10 @@ public class SpatialGrid
 	 * TODO
 	 * 
 	 */
-	public void resetIterator()
+	public int[] resetIterator()
 	{
 		this._currentCoord = Vector.zerosInt(3);
-	}
-	
-	/**
-	 * TODO
-	 * 
-	 * @return
-	 */
-	public boolean iteratorHasNext()
-	{
-		for ( int axis = 0; axis < 3; axis++ )
-			if ( this._currentCoord[axis] < this._nVoxel[axis] - 1)
-				return true;
-		return false;
-		
+		return this._currentCoord;
 	}
 	
 	/**
@@ -533,6 +567,19 @@ public class SpatialGrid
 	private boolean iteratorExceeds(int axis)
 	{
 		return _currentCoord[axis] >=  this._nVoxel[axis];
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public boolean isIteratorValid()
+	{
+		for ( int axis = 0; axis < 3; axis++ )
+			if ( iteratorExceeds(axis) )
+				return false;
+		return true;
 	}
 	
 	/**
@@ -554,8 +601,8 @@ public class SpatialGrid
 				_currentCoord[2]++;
 				if ( this.iteratorExceeds(2) )
 				{
-					throw new IllegalStateException(
-											"Iterator exceeds boundaries.");
+					//throw new IllegalStateException(
+					//						"Iterator exceeds boundaries.");
 				}
 			}
 		}

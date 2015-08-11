@@ -84,30 +84,38 @@ public class ODErosenbrock extends ODEsolver
 	 * SIMPLE SETTERS
 	 ************************************************************************/
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param names
+	 * @param allowNegatives
+	 * @param absTol
+	 * @param hMax
+	 */
 	public void init(String[] names, boolean allowNegatives,
-													double rTol, double hMax)
+												double absTol, double hMax)
 	{
 		super.init(names, allowNegatives);
 		
-		this._absTol = rTol;
+		this._absTol = absTol;
 		this._hMax = hMax;
 		
-		ynext = Vector.zerosDbl(_nVar);
-		dYdT  = Vector.zerosDbl(_nVar);
-		dFdT  = Vector.zerosDbl(_nVar);
-		f1    = Vector.zerosDbl(_nVar);
-		f2    = Vector.zerosDbl(_nVar);
-		k1    = Vector.zerosDbl(_nVar);
-		k2    = Vector.zerosDbl(_nVar);
-		k3    = Vector.zerosDbl(_nVar);
-		kaux  = Vector.zerosDbl(_nVar);
-		hddFdT = Vector.zerosDbl(_nVar);
+		ynext = Vector.zerosDbl(this.nVar());
+		dYdT  = Vector.zerosDbl(this.nVar());
+		dFdT  = Vector.zerosDbl(this.nVar());
+		f1    = Vector.zerosDbl(this.nVar());
+		f2    = Vector.zerosDbl(this.nVar());
+		k1    = Vector.zerosDbl(this.nVar());
+		k2    = Vector.zerosDbl(this.nVar());
+		k3    = Vector.zerosDbl(this.nVar());
+		kaux  = Vector.zerosDbl(this.nVar());
+		hddFdT = Vector.zerosDbl(this.nVar());
 		
-		dFdY  = Matrix.zerosDbl(_nVar);
-		W     = Matrix.zerosDbl(_nVar);
-		invW  = Matrix.zerosDbl(_nVar);
+		dFdY  = Matrix.zerosDbl(this.nVar());
+		W     = Matrix.zerosDbl(this.nVar());
+		invW  = Matrix.zerosDbl(this.nVar());
 		
-		identity = Matrix.identityDbl(_nVar);
+		identity = Matrix.identityDbl(this.nVar());
 	}
 	
 	/*************************************************************************
@@ -296,7 +304,7 @@ public class ODErosenbrock extends ODEsolver
 					/*
 					 * We now use kaux to estimate the error of this step.
 					 */
-					for (int i = 0; i < _nVar; i++)
+					for (int i = 0; i < this.nVar(); i++)
 						kaux[i] = 1/Math.min(y[i], ynext[i]);
 					/*System.out.println("1/min(y, ynext) is"); //Bughunt
 					for ( double elem : kaux)
