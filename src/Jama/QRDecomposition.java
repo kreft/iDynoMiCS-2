@@ -1,5 +1,4 @@
 package Jama;
-import Jama.util.*;
 
 /** QR Decomposition.
 <P>
@@ -57,7 +56,7 @@ public class QRDecomposition implements java.io.Serializable {
          // Compute 2-norm of k-th column without under/overflow.
          double nrm = 0;
          for (int i = k; i < m; i++) {
-            nrm = Maths.hypot(nrm,QR[i][k]);
+            nrm = Math.hypot(nrm,QR[i][k]);
          }
 
          if (nrm != 0.0) {

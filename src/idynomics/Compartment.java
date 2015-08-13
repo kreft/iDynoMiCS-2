@@ -109,7 +109,8 @@ public class Compartment
 	 * 
 	 * 
 	 */
-	protected static class ProcessComparator implements Comparator<ProcessManager>
+	protected static class ProcessComparator 
+										implements Comparator<ProcessManager>
 	{
 		@Override
 		public int compare(ProcessManager mech1, ProcessManager mech2) 

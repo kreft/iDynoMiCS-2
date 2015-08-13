@@ -34,6 +34,9 @@ public class PDEexplicit extends PDEsolver
 	 * <p>Requires the arrays "diffusivity" and "concentration" to
 	 * be pre-filled in each SpatialGrid.</p>
 	 * 
+	 * <p><b>[Rob 13Aug2015]</b> Time step is at most 10% of dx<sup>2</sup>/D,
+	 * as this works well in tests.</p>
+	 * 
 	 */
 	@Override
 	public void solve(HashMap<String, SpatialGrid> variables, double tFinal)
@@ -68,5 +71,4 @@ public class PDEexplicit extends PDEsolver
 				var.addArrayToArray(SpatialGrid.concn, "lop", false);
 			}
 	}
-	
 }
