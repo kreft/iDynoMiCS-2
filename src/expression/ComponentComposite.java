@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import utility.LogFile;
 
-public abstract class CompositeComponent extends Component
+public abstract class ComponentComposite extends Component
 {
 	protected String _expr;
 	
@@ -13,21 +13,25 @@ public abstract class CompositeComponent extends Component
 	 */
 	protected Component _a, _b;
 	
-	public CompositeComponent(Component a, Component b)
+	public ComponentComposite(Component a, Component b)
 	{
 		this._a = a;
 		this._b = b;
 	}
 	
+	@Override
 	public String getName()
 	{
-		return this._a.getName() + this._expr + this._b.getName();
+		String out = this._a.getName() + this._expr + this._b.getName();
+		return ( isNegative() ) ? "-("+out+")" : out;
 	}
 	
+	@Override
 	public String reportValue(HashMap<String, Double> variables)
 	{
-		return this._a.reportValue(variables) + this._expr +
+		String out = this._a.reportValue(variables) + this._expr +
 											this._b.reportValue(variables);
+		return ( isNegative() ) ? "-("+out+")" : out;
 	}
 	
 	protected void infiniteValueWarning(HashMap<String, Double> variables)
@@ -35,5 +39,4 @@ public abstract class CompositeComponent extends Component
 		LogFile.writeLog("WARNING! Infinite value: " + this.getName() + 
 										" = " + this.reportValue(variables));
 	}
-	
 }

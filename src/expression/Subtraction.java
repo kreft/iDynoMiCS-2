@@ -1,35 +1,24 @@
-/**
- * 
- */
-package expression.composite;
+package expression;
 
 import java.util.HashMap;
 
-import expression.Component;
-import expression.CompositeComponent;
-import expression.simple.Constant;
-
-/**
- * @author cleggrj
- *
- */
-public class Addition extends CompositeComponent
+public class Subtraction extends ComponentComposite
 {
 	/**
-	 * <b>a</b> + <b>b</b>
+	 * <b>a</b> - <b>b</b>
 	 */
-	public Addition(Component a, Component b)
+	public Subtraction(Component a, Component b)
 	{
 		super(a, b);
-		this._expr = "+";
+		this._expr = "-";
 	}
-	
+
 	@Override
 	public double getValue(HashMap<String, Double> variables)
 	{
-		return this._a.getValue(variables) + this._b.getValue(variables);
+		return this._a.getValue(variables) - this._b.getValue(variables);
 	}
-	
+
 	@Override
 	public Component differentiate(String withRespectTo)
 	{
@@ -39,6 +28,6 @@ public class Addition extends CompositeComponent
 			return db;
 		if ( this._b instanceof Constant )
 			return da;
-		return new Addition(da, db);
+		return new Subtraction(da, db);
 	}
 }

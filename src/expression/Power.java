@@ -1,12 +1,8 @@
-package expression.composite;
+package expression;
 
 import java.util.HashMap;
 
-import expression.Component;
-import expression.CompositeComponent;
-import expression.simple.Constant;
-
-public class Power extends CompositeComponent
+public class Power extends ComponentComposite
 {
 	/**
 	 * <b>a<sup>b</sup></b>

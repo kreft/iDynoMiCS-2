@@ -1,19 +1,16 @@
 /**
  * 
  */
-package expression.simple;
+package expression;
 
 import java.util.HashMap;
-
-import expression.Component;
-import expression.SimpleComponent;
 
 /**
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  */
-public class Constant extends SimpleComponent
+public class Constant extends ComponentSimple
 {
 	protected double _value;
 	
@@ -38,7 +35,7 @@ public class Constant extends SimpleComponent
 	@Override
 	public Component differentiate(String withRespectTo)
 	{
-		return new Constant("zero", 0.0);
+		return Constant.zero();
 	}
 	
 	
@@ -47,6 +44,19 @@ public class Constant extends SimpleComponent
 	public static Constant zero()
 	{
 		return new Constant("0", 0.0);
+	}
+	
+	public static boolean isConstantWithValue(Component c, double value)
+	{
+		if ( c instanceof Constant )
+			if ( ((Constant) c).getValue(null) == value )
+				return true;
+		return false;
+	}
+	
+	public static Constant minus()
+	{
+		return new Constant("-1", -1.0);
 	}
 	
 	public static Constant one()

@@ -1,19 +1,16 @@
 /**
  * 
  */
-package expression.simple;
+package expression;
 
 import java.util.HashMap;
-
-import expression.Component;
-import expression.SimpleComponent;
 
 /**
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  */
-public class Variable extends SimpleComponent
+public class Variable extends ComponentSimple
 {
 	
 	public Variable(String name)

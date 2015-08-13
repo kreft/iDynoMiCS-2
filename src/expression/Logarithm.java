@@ -1,13 +1,10 @@
-package expression.composite;
+package expression;
 
 import java.util.HashMap;
 
 import utility.LogFile;
-import expression.Component;
-import expression.CompositeComponent;
-import expression.simple.Constant;
 
-public class Logarithm extends CompositeComponent
+public class Logarithm extends ComponentComposite
 {
 	/**
 	 * log<sub><b>b</b></sub>(<b>a</b>)
@@ -26,14 +23,16 @@ public class Logarithm extends CompositeComponent
 	@Override
 	public String getName()
 	{
-		return "log_{" + this._b.getName() + "}("+this._a.getName()+")";
+		String out = "log_{" + this._b.getName() + "}("+this._a.getName()+")";
+		return ( isNegative() ) ? "-"+out : out;
 	}
 	
 	@Override
 	public String reportValue(HashMap<String, Double> variables)
 	{
-		return "log_{" + this._b.reportValue(variables) + "}("+
+		String out = "log_{" + this._b.reportValue(variables) + "}("+
 										this._a.reportValue(variables)+")";
+		return ( isNegative() ) ? "-"+out : out; 
 	}
 	
 	@Override
@@ -46,6 +45,9 @@ public class Logarithm extends CompositeComponent
 		return Math.log(a)/Math.log(b);
 	}
 	
+	/**
+	 * TODO this is no longer correct!
+	 */
 	@Override
 	public Component differentiate(String withRespectTo)
 	{
@@ -67,10 +69,10 @@ public class Logarithm extends CompositeComponent
 		}
 		else
 		{
-			out = new Logarithm(this._b, Constant.euler());
+			out = new LogNatural(this._b);
 			Component da = new Multiplication(this._a, out);
 			da = new Division(this._a.differentiate(withRespectTo), da);
-			Component db = new Logarithm(this._a, Constant.euler());
+			Component db = new LogNatural(this._a);
 			db = new Multiplication(db, this._b.differentiate(withRespectTo));
 			db = new Division(db, new Multiplication(this._b, 
 											new Power(out, Constant.two())));

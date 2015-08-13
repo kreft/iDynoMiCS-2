@@ -1,33 +1,26 @@
-/**
- * 
- */
-package expression.composite;
+package expression;
 
 import java.util.HashMap;
 
-import expression.Component;
-import expression.CompositeComponent;
-import expression.simple.Constant;
 
-/**
- * @author cleggrj
- *
- */
-public class Multiplication extends CompositeComponent
+public class Division extends ComponentComposite
 {
 	/**
-	 * <b>a</b> * <b>b</b>
+	 * <b>a</b> / <b>b</b>
 	 */
-	public Multiplication(Component a, Component b)
+	public Division(Component a, Component b)
 	{
 		super(a, b);
-		this._expr = "*";
+		this._expr = "/";
 	}
-
+	
 	@Override
 	public double getValue(HashMap<String, Double> variables)
 	{
-		return this._a.getValue(variables) * this._b.getValue(variables);
+		double b = this._b.getValue(variables);
+		if ( b == 0.0 )
+			this.infiniteValueWarning(variables);
+		return this._a.getValue(variables) / b;
 	}
 	
 	@Override
