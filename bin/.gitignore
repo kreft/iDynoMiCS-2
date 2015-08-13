@@ -1,13 +1,3 @@
-/Jama/
-/agent/
-/grid/
-/idynomics/
-/linearAlgebra/
-/processManager/
-/reaction/
-/solver/
-/spatialGrid/
-/spatialRegistry/
 /test/
-/utility/
-/expression/
+/grid/
+/solver/

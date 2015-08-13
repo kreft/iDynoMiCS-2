@@ -179,6 +179,16 @@ public class SpatialGrid
 	 * 
 	 * @return
 	 */
+	public int[] getPadding()
+	{
+		return Vector.copy(this._padding);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public boolean[] getSignificantAxes()
 	{
 		boolean[] out = new boolean[3];

@@ -41,16 +41,20 @@ public class PDEexplicit extends PDEsolver
 		/*
 		 * Find the largest time step that suits all variables.
 		 */
-		double dt = Double.MAX_VALUE;
+		double dt = tFinal;
 		SpatialGrid var;
+		int nIter = 1;
 		for ( String varName : this._variableNames )
 		{
 			var = variables.get(varName);
-			dt = Math.min(dt, 0.5 * ExtraMath.sq(var.getResolution()) /
+			dt = Math.min(dt, 0.1 * ExtraMath.sq(var.getResolution()) /
 												var.getMin(SpatialGrid.diff));
 		}
-		int nIter = (int) Math.ceil(tFinal/dt);
-		dt = tFinal/nIter;
+		if ( dt < tFinal )
+		{
+			nIter = (int) Math.ceil(tFinal/dt);
+			dt = tFinal/nIter;
+		}
 		/*
 		 * 
 		 */
@@ -63,13 +67,6 @@ public class PDEexplicit extends PDEsolver
 				var.timesAll("lop", dt, false);
 				var.addArrayToArray(SpatialGrid.concn, "lop", false);
 			}
-	}
-	
-	protected void solve(SpatialGrid solute, double tFinal)
-	{
-		solute.newArray("next");
-		
-		
 	}
 	
 }
