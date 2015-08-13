@@ -31,12 +31,12 @@ public class Multiplication extends CompositeComponent
 	}
 	
 	@Override
-	public Component getDifferential(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
 		Multiplication aDb = new Multiplication(this._a, 
-									this._b.getDifferential(withRespectTo));
+									this._b.differentiate(withRespectTo));
 		Multiplication bDa = new Multiplication(this._b,
-									this._a.getDifferential(withRespectTo));
+									this._a.differentiate(withRespectTo));
 		if ( this._a instanceof Constant )
 			return aDb;
 		if ( this._b instanceof Constant )

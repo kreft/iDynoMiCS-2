@@ -34,7 +34,7 @@ public class Variable extends SimpleComponent
 	}
 	
 	@Override
-	public Component getDifferential(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
 		if ( withRespectTo.equals(this._name) )
 			return Constant.one();

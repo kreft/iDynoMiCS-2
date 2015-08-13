@@ -36,7 +36,7 @@ public class Constant extends SimpleComponent
 	}
 	
 	@Override
-	public Component getDifferential(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
 		return new Constant("zero", 0.0);
 	}

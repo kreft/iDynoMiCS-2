@@ -18,6 +18,11 @@ public abstract class Reaction
 	
 	/**
 	 * TODO
+	 */
+	protected HashMap<String, Component> _diffKinetics;
+	
+	/**
+	 * TODO
 	 * 
 	 * TODO Insist that on no overlapping names between solutes and particles.
 	 */
@@ -83,6 +88,36 @@ public abstract class Reaction
 		HashMap<String, Double> out = this.copyStoichiometry();
 		out.replaceAll((s, d) -> {return d * rate;});
 		return out;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param concentrations
+	 * @param withRespectTo
+	 * @return
+	 */
+	public double getDiffRate(HashMap<String, Double> concentrations, 
+														String withRespectTo)
+	{
+		/*
+		 * If this is the first time we've tried to do this, make the HashMap.
+		 */
+		if ( this._diffKinetics == null )
+			this._diffKinetics = new HashMap<String, Component>();
+		/*
+		 * If we haven't tried differentiating w.r.t. this variable, do so now.
+		 */
+		if ( ! this._diffKinetics.containsKey(withRespectTo) )
+		{
+			this._diffKinetics.put(withRespectTo,
+								this._kinetic.differentiate(withRespectTo));
+		}
+		/*
+		 * Finally, calculate and return the value at this set of
+		 * concentrations.
+		 */
+		return this._diffKinetics.get(withRespectTo).getValue(concentrations);
 	}
 	
 	/*************************************************************************

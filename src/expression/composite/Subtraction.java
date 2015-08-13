@@ -24,10 +24,10 @@ public class Subtraction extends CompositeComponent
 	}
 
 	@Override
-	public Component getDifferential(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
-		Component da = this._a.getDifferential(withRespectTo);
-		Component db = this._b.getDifferential(withRespectTo);
+		Component da = this._a.differentiate(withRespectTo);
+		Component db = this._b.differentiate(withRespectTo);
 		if ( this._a instanceof Constant )
 			return db;
 		if ( this._b instanceof Constant )

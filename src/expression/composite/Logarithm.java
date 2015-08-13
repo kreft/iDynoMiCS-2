@@ -47,7 +47,7 @@ public class Logarithm extends CompositeComponent
 	}
 	
 	@Override
-	public Component getDifferential(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
 		Component out;
 		if ( this._b instanceof Constant )
@@ -56,22 +56,22 @@ public class Logarithm extends CompositeComponent
 			if ( b == Math.E )
 			{
 				out = new Division(
-							this._a.getDifferential(withRespectTo), this._a);
+							this._a.differentiate(withRespectTo), this._a);
 			}
 			else
 			{
 				out = new Constant("ln("+this._b.getName()+")", Math.log(b));
 				out = new Multiplication(this._a, out);
-				out = new Division(this._a.getDifferential(withRespectTo),out);
+				out = new Division(this._a.differentiate(withRespectTo),out);
 			}
 		}
 		else
 		{
 			out = new Logarithm(this._b, Constant.euler());
 			Component da = new Multiplication(this._a, out);
-			da = new Division(this._a.getDifferential(withRespectTo), da);
+			da = new Division(this._a.differentiate(withRespectTo), da);
 			Component db = new Logarithm(this._a, Constant.euler());
-			db = new Multiplication(db, this._b.getDifferential(withRespectTo));
+			db = new Multiplication(db, this._b.differentiate(withRespectTo));
 			db = new Division(db, new Multiplication(this._b, 
 											new Power(out, Constant.two())));
 			out = new Subtraction(da, db);

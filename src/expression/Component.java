@@ -18,5 +18,5 @@ public abstract class Component
 	
 	public abstract double getValue(HashMap<String, Double> variables);
 	
-	public abstract Component getDifferential(String withRespectTo);
+	public abstract Component differentiate(String withRespectTo);
 }

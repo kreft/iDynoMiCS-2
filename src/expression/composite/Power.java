@@ -41,12 +41,12 @@ public class Power extends CompositeComponent
 	}
 	
 	@Override
-	public Component getDifferential(String withRespectTo)
+	public Component differentiate(String withRespectTo)
 	{
 		if ( this._b instanceof Constant )
 		{
 			if ( this._b.getValue(null) == 1.0 )
-				return this._b.getDifferential(withRespectTo);
+				return this._b.differentiate(withRespectTo);
 			if ( this._b.getValue(null) == 0.0 )
 				return new Constant("0", 0.0);
 		}
