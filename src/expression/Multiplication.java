@@ -3,39 +3,50 @@
  */
 package expression;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
  * @author cleggrj
  *
  */
-public class Multiplication extends ComponentComposite
+public class Multiplication extends ComponentMultiple
 {
-	/**
-	 * <b>a</b> * <b>b</b>
-	 */
-	public Multiplication(Component a, Component b)
+	
+	public Multiplication(ArrayList<Component> a)
 	{
-		super(a, b);
+		super(a);
 		this._expr = "*";
 	}
-
+	
 	@Override
 	public double getValue(HashMap<String, Double> variables)
 	{
-		return this._a.getValue(variables) * this._b.getValue(variables);
+		double out = 1.0;
+		for ( Component c : this._components )
+			out *= c.getValue(variables);
+		return out;
 	}
 	
 	@Override
 	public Component differentiate(String withRespectTo)
 	{
-		Component da = this._a.differentiate(withRespectTo);
-		Component db = this._b.differentiate(withRespectTo);
-		if ( Constant.isConstantWithValue(da, 0.0) )
-			return new Multiplication(this._a, db);
-		if ( Constant.isConstantWithValue(db, 0.0) )
-			return new Multiplication(this._b, da);
-		return new Addition(new Multiplication(this._a, db),
-								new Multiplication(this._b, da));
+		ArrayList<Component> out = new ArrayList<Component>();
+		ArrayList<Component> temp;
+		Component c;
+		for ( int i = 0; i < out.size(); i++ )
+		{
+			c = this._components.get(i);
+			if ( c instanceof Constant )
+				continue;
+			temp = new ArrayList<Component>();
+			temp.addAll(this._components);
+			temp.set(i, c.differentiate(withRespectTo));
+			out.add(new Multiplication(temp));
+		}
+		if ( out.size() == 1 )
+			return out.get(0);
+		else
+			return new Addition(out);
 	}
 }

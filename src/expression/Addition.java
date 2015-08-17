@@ -3,38 +3,37 @@
  */
 package expression;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
  * @author cleggrj
  *
  */
-public class Addition extends ComponentComposite
+public class Addition extends ComponentMultiple
 {
-	/**
-	 * <b>a</b> + <b>b</b>
-	 */
-	public Addition(Component a, Component b)
+	public Addition(ArrayList<Component> a)
 	{
-		super(a, b);
+		super(a);
 		this._expr = "+";
 	}
 	
 	@Override
 	public double getValue(HashMap<String, Double> variables)
 	{
-		return this._a.getValue(variables) + this._b.getValue(variables);
+		double out = 0.0;
+		for ( Component c : this._components )
+			out += c.getValue(variables);
+		return out;
 	}
 	
 	@Override
 	public Component differentiate(String withRespectTo)
 	{
-		Component da = this._a.differentiate(withRespectTo);
-		Component db = this._b.differentiate(withRespectTo);
-		if ( this._a instanceof Constant )
-			return db;
-		if ( this._b instanceof Constant )
-			return da;
-		return new Addition(da, db);
+		ArrayList<Component> out = new ArrayList<Component>();
+		for ( Component c : this._components )
+			if ( ! (c instanceof Constant) )
+				out.add(c.differentiate(withRespectTo));
+		return new Multiplication(out);
 	}
 }

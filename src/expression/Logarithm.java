@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import utility.LogFile;
 
-public class Logarithm extends ComponentComposite
+public class Logarithm extends ComponentDouble
 {
 	/**
 	 * log<sub><b>b</b></sub>(<b>a</b>)
@@ -63,19 +63,19 @@ public class Logarithm extends ComponentComposite
 			else
 			{
 				out = new Constant("ln("+this._b.getName()+")", Math.log(b));
-				out = new Multiplication(this._a, out);
+				out = Expression.multiply(this._a, out);
 				out = new Division(this._a.differentiate(withRespectTo),out);
 			}
 		}
 		else
 		{
 			out = new LogNatural(this._b);
-			Component da = new Multiplication(this._a, out);
+			Component da = Expression.multiply(this._a, out);
 			da = new Division(this._a.differentiate(withRespectTo), da);
 			Component db = new LogNatural(this._a);
-			db = new Multiplication(db, this._b.differentiate(withRespectTo));
-			db = new Division(db, new Multiplication(this._b, 
-											new Power(out, Constant.two())));
+			db = Expression.multiply(db, this._b.differentiate(withRespectTo));
+			db = new Division(db, Expression.multiply(this._b, 
+											new Power(out, Expression.two())));
 			out = new Subtraction(da, db);
 		}
 		return out;

@@ -3,7 +3,7 @@ package expression;
 import java.util.HashMap;
 
 
-public class Division extends ComponentComposite
+public class Division extends ComponentDouble
 {
 	/**
 	 * <b>a</b> / <b>b</b>
@@ -26,14 +26,14 @@ public class Division extends ComponentComposite
 	@Override
 	public Component differentiate(String withRespectTo)
 	{
-		Multiplication aDb = new Multiplication(this._a, 
+		Multiplication aDb = Expression.multiply(this._a, 
 									this._b.differentiate(withRespectTo));
-		Multiplication bDa = new Multiplication(this._b,
+		Multiplication bDa = Expression.multiply(this._b,
 									this._a.differentiate(withRespectTo));
 		if ( this._a instanceof Constant )
 			return aDb;
 		if ( this._b instanceof Constant )
 			return bDa;
-		return new Addition(aDb, bDa);
+		return Expression.add(aDb, bDa);
 	}
 }

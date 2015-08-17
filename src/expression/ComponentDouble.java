@@ -4,16 +4,13 @@ import java.util.HashMap;
 
 import utility.LogFile;
 
-public abstract class ComponentComposite extends Component
+public abstract class ComponentDouble extends Component
 {
 	protected String _expr;
 	
-	/**
-	 * Used by all composite components.
-	 */
 	protected Component _a, _b;
 	
-	public ComponentComposite(Component a, Component b)
+	public ComponentDouble(Component a, Component b)
 	{
 		this._a = a;
 		this._b = b;
