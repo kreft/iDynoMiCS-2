@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!-- Created by JSBMLexample version 1.0 on 2015-07-28 at 16:07:25 BST with JSBML version 1.0-rc1. -->
+<sbml xmlns="http://www.sbml.org/sbml/level3/version1/core" level="3" version="1">
+  <model metaid="_8beaee77-0aff-4550-92ff-9f1a6dd597ec" id="test_model">
+    <annotation>
+	<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:vCard="http://www.w3.org/2001/vcard-rdf/3.0#">
+	<rdf:Description rdf:about="#_8beaee77-0aff-4550-92ff-9f1a6dd597ec">
+	<dc:creator>
+	<rdf:Bag>
+	<rdf:li rdf:parseType="Resource">
+	<vCard:N rdf:parseType="Resource">
+	<vCard:Family>Family Name</vCard:Family>
+	<vCard:Given>Given Name</vCard:Given>
+	</vCard:N>
+	<vCard:EMAIL>My@EMail.com</vCard:EMAIL>
+	<vCard:ORG rdf:parseType="Resource">
+	<vCard:Orgname>Organisation</vCard:Orgname>
+	</vCard:ORG>
+	</rdf:li>
+	</rdf:Bag>
+	</dc:creator>
+	</rdf:Description>
+	</rdf:RDF>
+	</annotation>
+      <listOfCompartments>
+      <compartment size="1" id="default"/>
+    </listOfCompartments>
+    <listOfSpecies>
+      <species compartment="default" id="test_spec1"/>
+      <species compartment="default" id="test_spec2"/>
+    </listOfSpecies>
+    <listOfReactions>
+      <reaction id="reaction_id">
+        <listOfReactants>
+          <speciesReference species="test_spec1" sboTerm="SBO:0000015"/>
+        </listOfReactants>
+        <listOfProducts>
+          <speciesReference species="test_spec2" sboTerm="SBO:0000011"/>
+        </listOfProducts>
+      </reaction>
+    </listOfReactions>
+  </model>
+</sbml>

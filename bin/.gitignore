@@ -1,4 +1,13 @@
-/linearAlgebra/
 /Jama/
+/agent/
 /expression/
+/grid/
+/idynomics/
+/jsbmlSandpit/
+/linearAlgebra/
+/processManager/
 /reaction/
+/solver/
+/spatialRegistry/
+/test/
+/utility/
