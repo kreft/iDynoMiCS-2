@@ -5,3 +5,4 @@
 	<classpathentry kind="lib" path="src/lib/jsbml-1.0-with-dependencies.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
+
