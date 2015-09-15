@@ -1,1 +1,15 @@
+/Jama/
+/agent/
+/expression/
+/grid/
+/idynomics/
+/jsbmlSandpit/
+/lib/
+/linearAlgebra/
+/processManager/
+/reaction/
+/solver/
+/spatialRegistry/
+/test/
+/utility/
 /.gitignore
