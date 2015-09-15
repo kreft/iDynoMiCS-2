@@ -1,1 +1,9 @@
-/.gitignore
+/Jama/
+/expression/
+/grid/
+/jsbmlSandpit/
+/linearAlgebra/
+/processManager/
+/solver/
+/spatialRegistry/
+/test/
