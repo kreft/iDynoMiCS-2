@@ -30,9 +30,8 @@ public class Cosine extends ComponentSingle
 	@Override
 	protected Component getDifferential(String withRespectTo)
 	{
-		Sine out = new Sine(this._a);
-		out.changeSign();
-		return out;
+		// TODO Auto-generated method stub
+		return new Multiplication(Constant.minus(), new Sine(this._a));
 	}
 
 }

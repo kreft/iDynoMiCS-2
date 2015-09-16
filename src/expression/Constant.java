@@ -35,6 +35,52 @@ public class Constant extends ComponentSimple
 	@Override
 	public Component differentiate(String withRespectTo)
 	{
-		return Expression.zero();
+		return Constant.zero();
+	}
+	
+	
+	
+	
+	public static Constant zero()
+	{
+		return new Constant("0", 0.0);
+	}
+	
+	public static boolean isConstantWithValue(Component c, double value)
+	{
+		if ( c instanceof Constant )
+			if ( ((Constant) c).getValue(null) == value )
+				return true;
+		return false;
+	}
+	
+	public static Constant minus()
+	{
+		return new Constant("-1", -1.0);
+	}
+	
+	public static Constant one()
+	{
+		return new Constant("1", 1.0);
+	}
+	
+	public static Constant two()
+	{
+		return new Constant("2", 2.0);
+	}
+	
+	public static Constant ten()
+	{
+		return new Constant("10", 10.0);
+	}
+	
+	public static Constant euler()
+	{
+		return new Constant("e", Math.E);
+	}
+	
+	public static Constant pi()
+	{
+		return new Constant("\\pi", Math.PI);
 	}
 }

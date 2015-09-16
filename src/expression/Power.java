@@ -2,7 +2,7 @@ package expression;
 
 import java.util.HashMap;
 
-public class Power extends ComponentDouble
+public class Power extends ComponentComposite
 {
 	/**
 	 * <b>a<sup>b</sup></b>
@@ -46,7 +46,7 @@ public class Power extends ComponentDouble
 			if ( this._b.getValue(null) == 0.0 )
 				return new Constant("0", 0.0);
 		}
-		Component newIndex = new Subtraction(this._b, Expression.one());
-		return Expression.multiply(this._b, new Power(this._a, newIndex));
+		Component newIndex = new Subtraction(this._b, Constant.one());
+		return new Multiplication(this._b, new Power(this._a, newIndex));
 	}
 }
