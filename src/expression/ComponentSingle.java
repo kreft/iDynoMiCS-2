@@ -31,7 +31,7 @@ public abstract class ComponentSingle extends Component
 	public Component differentiate(String withRespectTo)
 	{
 		if ( this._a instanceof Constant )
-			return Expression.zero();
+			return Constant.zero();
 		return this.getDifferential(withRespectTo);
 	}
 	

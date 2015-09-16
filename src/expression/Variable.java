@@ -34,7 +34,7 @@ public class Variable extends ComponentSimple
 	public Component differentiate(String withRespectTo)
 	{
 		if ( withRespectTo.equals(this._name) )
-			return Expression.one();
+			return Constant.one();
 		return new Variable("d("+this._name+")/d("+withRespectTo+")");
 	}
 }

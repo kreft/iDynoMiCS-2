@@ -2,7 +2,7 @@ package expression;
 
 import java.util.HashMap;
 
-public class Subtraction extends ComponentDouble
+public class Subtraction extends ComponentComposite
 {
 	/**
 	 * <b>a</b> - <b>b</b>
