@@ -5,8 +5,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import processManager.ProcessManager;
+import boundary.Boundary;
+import boundary.BoundaryConnected;
 import grid.SpatialGrid;
+import processManager.ProcessManager;
 
 public class Compartment
 {
@@ -31,6 +33,11 @@ public class Compartment
 	 * 
 	 */
 	protected HashMap<String, SpatialGrid> _solutes; 
+	
+	/**
+	 * 
+	 */
+	protected LinkedList<Boundary> _boundaries;
 	
 	/**
 	 * 
@@ -73,6 +80,11 @@ public class Compartment
 	protected void setSpeciesInfo()
 	{
 		
+	}
+	
+	public void addBoundary(Boundary aBoundary)
+	{
+		this._boundaries.add(aBoundary);
 	}
 	
 	/*************************************************************************
@@ -128,6 +140,15 @@ public class Compartment
 		}
 	}
 	
+	/**
+	 * 
+	 */
+	public void pushAllOutboundAgents()
+	{
+		for ( Boundary b : this._boundaries )
+			if ( b instanceof BoundaryConnected )
+				((BoundaryConnected) b).pushAllOutboundAgents();
+	}
 	
 	/*************************************************************************
 	 * REPORTING

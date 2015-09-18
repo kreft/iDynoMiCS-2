@@ -51,11 +51,29 @@ public abstract class BoundaryConnected extends Boundary
 	/**
 	 * \brief TODO
 	 * 
+	 * @param aBoundary
+	 */
+	public void setPartnerBoundary(BoundaryConnected aBoundary)
+	{
+		this._partnerBoundary = aBoundary;
+		/*
+		 * Probably unnecessary, but better safe than sorry.
+		 */
+		this._partnerBoundary.setPartnerBoundary(this);
+	}
+	
+	/*************************************************************************
+	 * AGENT TRANSFERS
+	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
 	 * TODO Safety: check if agent is already in list?
 	 * 
 	 * @param agent
 	 */
-	public void acceptAgentLeaving(Agent agent)
+	public void addOutboundAgent(Agent agent)
 	{
 		this._departureLounge.add(agent);
 	}
@@ -65,21 +83,19 @@ public abstract class BoundaryConnected extends Boundary
 	 * 
 	 * @param agents
 	 */
-	public void acceptTransferringAgents(LinkedList<Agent> agents)
+	public void acceptInboundAgents(LinkedList<Agent> agents)
 	{
 		for ( Agent traveller : agents )
 			this._arrivalsLounge.add(traveller);
-		agents.clear();
 	}
 	
 	/**
-	 * \brief TODO
 	 * 
-	 * @return
 	 */
-	public LinkedList<Agent> getAgentsToTransfer()
+	public void pushAllOutboundAgents()
 	{
-		return this._departureLounge;
+		this._partnerBoundary.acceptInboundAgents(this._departureLounge);
+		this._departureLounge.clear();
 	}
 	
 	
