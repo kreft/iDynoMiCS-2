@@ -1,7 +1,9 @@
 package processManager;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
+import boundary.Boundary;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 
@@ -67,6 +69,16 @@ public abstract class ProcessManager
 	public double getTimeStepSize()
 	{
 		return this._timeStepSize;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param boundaries
+	 */
+	public void showBoundaries(LinkedList<Boundary> boundaries)
+	{
+		
 	}
 	
 	/*************************************************************************

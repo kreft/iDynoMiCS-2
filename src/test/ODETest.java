@@ -3,11 +3,11 @@
  */
 package test;
 
-import grid.SpatialGrid;
-import idynomics.AgentContainer;
-
 import java.util.HashMap;
 
+import grid.SpatialGrid;
+import idynomics.AgentContainer;
+import idynomics.Compartment;
 import processManager.SolveChemostat;
 
 public class ODETest
@@ -22,9 +22,10 @@ public class ODETest
 		double timeStep = Math.log(2.0);
 		int nStep = 5;
 		
-		oneChemostatRise(nStep, timeStep);
-		oneChemostatFall(nStep, timeStep);
-		twoChemostatBasic(nStep, timeStep);
+		//oneChemostatRise(nStep, timeStep);
+		//oneChemostatFall(nStep, timeStep);
+		//twoChemostatBasic(nStep, timeStep);
+		compartment();
 	}
 	
 	private static void oneChemostatRise(int nStep, double stepSize)
@@ -227,5 +228,25 @@ public class ODETest
 				System.out.println("\t"+name+": "+solutes.get(name).getMax(SpatialGrid.concn));
 		}
 		System.out.println("\n");
+	}
+	
+	private static void compartment()
+	{
+		System.out.println("###############################################");
+		System.out.println("Testing chemostat for one solute:");
+		System.out.println("\tSin = 0.0");
+		System.out.println("\tS0 = 1.0");
+		System.out.println("\tD = 1.0");
+		System.out.println("\tNo agents or reactions");
+		System.out.println("Concentration should halve each timestep");
+		System.out.println("###############################################");
+		Compartment aCompartment = new Compartment();
+		
+		aCompartment.addSolute("rise");
+		
+		SolveChemostat chemoSolver = new SolveChemostat();
+		aCompartment.addProcessManager(chemoSolver);
+		
+		
 	}
 }

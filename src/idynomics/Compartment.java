@@ -12,8 +12,6 @@ import processManager.ProcessManager;
 
 public class Compartment
 {
-	
-	
 	/**
 	 * Unique name of this compartment.
 	 */
@@ -27,22 +25,24 @@ public class Compartment
 	/**
 	 * AgentContainer deals with 
 	 */
-	protected AgentContainer _agents;
+	protected AgentContainer _agents = new AgentContainer();
 	
 	/**
 	 * 
 	 */
-	protected HashMap<String, SpatialGrid> _solutes; 
+	protected HashMap<String, SpatialGrid> _solutes = 
+										new HashMap<String, SpatialGrid>(); 
 	
 	/**
 	 * 
 	 */
-	protected LinkedList<Boundary> _boundaries;
+	protected LinkedList<Boundary> _boundaries = new LinkedList<Boundary>();
 	
 	/**
 	 * 
 	 */
-	protected LinkedList<ProcessManager> _processes;
+	protected LinkedList<ProcessManager> _processes = 
+											new LinkedList<ProcessManager>();
 	
 	protected ProcessComparator _procComp;
 	
@@ -55,7 +55,7 @@ public class Compartment
 	
 	public Compartment()
 	{
-		_localTime = 0.0;
+		this._localTime = 0.0;
 	}
 	
 
@@ -82,9 +82,42 @@ public class Compartment
 		
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param soluteName
+	 */
+	public void addSolute(String soluteName)
+	{
+		/*
+		 * TODO voxels, padding, resolution
+		 * 
+		 * TODO safety: check if solute already in hashmap
+		 */
+		SpatialGrid sg = new SpatialGrid();
+		sg.newArray(SpatialGrid.concn);
+		this._solutes.put(soluteName, sg);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param aBoundary
+	 */
 	public void addBoundary(Boundary aBoundary)
 	{
 		this._boundaries.add(aBoundary);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param aProcessManager
+	 */
+	public void addProcessManager(ProcessManager aProcessManager)
+	{
+		aProcessManager.showBoundaries(this._boundaries);
+		this._processes.add(aProcessManager);
 	}
 	
 	/*************************************************************************

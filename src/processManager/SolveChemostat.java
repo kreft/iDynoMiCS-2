@@ -1,14 +1,18 @@
 package processManager;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import agent.Agent;
+import boundary.Boundary;
+import boundary.ChemostatConnection;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import solver.ODErosenbrock;
 import utility.ExtraMath;
+import utility.LogFile;
 
 /**
  * \brief TODO
@@ -39,6 +43,9 @@ public class SolveChemostat extends ProcessManager
 	 * Dilution rate in units of time<sup>-1</sup>.
 	 */
 	protected double _dilution;
+	
+	
+	protected LinkedList<ChemostatConnection> _inConnections, _outConnections;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -90,14 +97,63 @@ public class SolveChemostat extends ProcessManager
 		this._dilution = dilution;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param boundaries
+	 */
+	@Override
+	public void showBoundaries(LinkedList<Boundary> boundaries)
+	{
+		ChemostatConnection aChemoConnect;
+		for ( Boundary aBoundary : boundaries )
+			if ( aBoundary instanceof ChemostatConnection )
+			{
+				aChemoConnect = (ChemostatConnection) aBoundary;
+				if ( aChemoConnect.getFlowRate() > 0.0 )
+					this._inConnections.add(aChemoConnect);
+				else
+					this._outConnections.add(aChemoConnect);
+			}
+		/*
+		 * Update the dilution rate now to check that the outflow matches the
+		 * inflow.
+		 */
+		this.updateDilutionInflow();
+	}
+	
+	
+	
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 */
+	protected void updateDilutionInflow()
+	{
+		this._inflow.forEach((s,d) -> {d = 0.0;});
+		double in = 0.0, out = 0.0;
+		for ( ChemostatConnection aChemoConnect : this._inConnections )
+		{
+			in += aChemoConnect.getFlowRate();
+			this._inflow.forEach( (soluteName, concn) -> 
+				{concn += aChemoConnect.getConcentrations().get(soluteName);});
+		}
+		if ( in != out )
+		{
+			throw new IllegalArgumentException(
+							"Chemostat inflow and outflow rates must match!");
+		}
+		this._dilution = in;
+	}
 	
 	@Override
 	protected void internalStep(HashMap<String, SpatialGrid> solutes,
 														AgentContainer agents)
 	{
+		this.updateDilutionInflow();
 		/*
 		 * Update the solver's 1st derivative function (dY/dT).
 		 */
@@ -106,10 +162,10 @@ public class SolveChemostat extends ProcessManager
 			/*
 			 * First deal with inflow and dilution: dYdT = D(Sin - S)
 			 */
-			double[] dYdT = Vector.copy(y);
+			double[] dYdT = Vector.reverse(Vector.copy(y));
 			for ( int i = 0; i < this._soluteNames.length; i++ )
-				dYdT[i] -= this._inflow.get(this._soluteNames[i]);
-			Vector.times(dYdT, -this._dilution);
+				dYdT[i] += this._inflow.get(this._soluteNames[i]);
+			Vector.times(dYdT, this._dilution);
 			/*
 			 * TODO Apply agent reactions
 			 */
