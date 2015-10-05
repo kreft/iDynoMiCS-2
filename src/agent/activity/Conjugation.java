@@ -11,7 +11,10 @@ public class Conjugation extends Activity {
 	 */
 	public boolean prerequisites(Agent[] agents)
 	{
-		if ( (Boolean) agents[0].getState("isRepressed"))
+		//TODO Rob [5Oct2015]: Not quite sure what's going on here, need to
+		// discuss before developing further.
+		
+		/*if ( (Boolean) agents[0].getState("isRepressed"))
 			return false;
 		if ( (Integer) agents[0].getState("copyNumberThreshold") <  // copyNumberThreshold may be stored as species parameter
 				(Integer) agents[0].getState("getCopyNumber"))
@@ -25,7 +28,7 @@ public class Conjugation extends Activity {
 		if (Timer.getCurrentTime() - 
 				(Double) agents[0].getState("getLastReception") < 
 				(Double) agents[0].getState("receptionLag")) // receptionLag  may be stored as species parameter
-			return false;		
+			return false;*/	
 		return true;
 	}
 	

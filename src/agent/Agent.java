@@ -1,13 +1,15 @@
 package agent;
 
-
-import idynomics.AgentContainer;
-
 import java.util.HashMap;
+import java.util.LinkedList;
+
 import agent.activity.*;
 import agent.body.*;
+import agent.state.BodyState;
+import agent.state.State;
+import agent.state.State.StatePredicate;
 import grid.SpatialGrid;
-import utility.Vector;
+import idynomics.AgentContainer;
 
 public class Agent
 {
@@ -21,7 +23,7 @@ public class Agent
 	/**
 	 * The states HashMap use used to store all non generic Agent variables.
 	 */
-	protected HashMap<String, Object> _states = new HashMap<String, Object>();
+	protected HashMap<String, State> _states = new HashMap<String, State>();
 	
     /**
 	 * All activities owned by this Agent and whether they are currently enabled
@@ -71,11 +73,11 @@ public class Agent
 	 * 			name of the state (String)
 	 * @return Object of the type specific to the state
 	 */
-	public Object getState(String name)
+	public State getState(String name)
 	{
 		return _states.get(name);
 	}
-
+	
 	/**
 	 * \brief general setter method for any Agent state
 	 * @param name
@@ -83,34 +85,26 @@ public class Agent
 	 * @param state
 	 * 			Object that contains the value of the state.
 	 */
-	public void setState(String name, Object state)
+	public void setState(String name, State state)
 	{
-		_states.put(name,state);
+		_states.put(name, state);
 	}
 
-	/**
-	 * @return the total mass of the agent (including all components)
-	 */
-	public Double getMass()
+	public LinkedList<State> getStates(StatePredicate<State> tester)
 	{
-		return Vector.sum((Double[]) getState("mass"));	
+		LinkedList<State> out = new LinkedList<State>();
+		for ( State aState : this._states.values() )
+			if ( tester.test(aState) )
+				out.add(aState);
+		return out;
 	}
-
-	/**
-	 * @return the total volume of the agent
-	 */
-	public Double getVolume()
-	{
-		return Vector.dot( (Double[]) getState("mass"), 
-				(Double[]) getState("density"));
-	}
-
+	
 	/**
 	 * FIXME: this method may need some fine tuning in a later stage.
 	 * @return true if the agent has a located body.
 	 */
 	public Boolean isLocated() {
-		Body myBody = (Body) getState("Body");
+		Body myBody = (Body) ((BodyState) getState("Body")).get();
 		if (myBody.getMorphologyIndex() == 0)
 			return false;
 		else
@@ -122,8 +116,11 @@ public class Agent
 	 */
 	public float[] getLower() 
 	{
-		Body myBody = (Body) getState("Body");
-		return myBody.coord((Double) getState("radius"));
+		// TODO Rob [5Oct2015]: I know this is ugly, will try to fix it soon!
+		Body myBody = (Body) ((BodyState) getState("Body")).get();
+		// TODO Rob [5Oct2015]: why isn't radius part of the body state?
+		//return myBody.coord((Double) getState("radius"));
+		return myBody.coord(1.0);
 	}
 	
 	/**
@@ -131,8 +128,10 @@ public class Agent
 	 */
 	public float[] getLower(double margin) 
 	{
-		Body myBody = (Body) getState("Body");
-		return myBody.coord((Double) getState("radius"),margin);
+		// TODO 
+		Body myBody = (Body) ((BodyState) getState("Body")).get();
+		//return myBody.coord((Double) getState("radius"),margin);
+		return myBody.coord(1.0);
 	}
 
 	/** 
@@ -140,8 +139,10 @@ public class Agent
 	 */
 	public float[] getDim() 
 	{
-		Body myBody = (Body) getState("Body");
-		return myBody.dimensions((Double) getState("radius"));
+		Body myBody = (Body) ((BodyState) getState("Body")).get();
+		// TODO Rob [5Oct2015]: Why do we need the radius to find the dimensions?
+		//return myBody.dimensions((Double) getState("radius"));
+		return myBody.dimensions(1.0);
 	}
 
 	/**
@@ -149,8 +150,10 @@ public class Agent
 	 */
 	public float[] getDim(double margin) 
 	{
-		Body myBody = (Body) getState("Body");
-		return myBody.dimensions((Double) getState("radius"),margin);
+		Body myBody = (Body) ((BodyState) getState("Body")).get();
+		//TODO
+		//return myBody.dimensions((Double) getState("radius"),margin);
+		return myBody.dimensions(1.0, margin);
 	}
 
 

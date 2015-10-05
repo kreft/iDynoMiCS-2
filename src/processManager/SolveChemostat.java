@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import agent.Agent;
+import agent.state.HasReactions;
+import agent.state.State;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
 import grid.SpatialGrid;
@@ -163,14 +165,27 @@ public class SolveChemostat extends ProcessManager
 			 * First deal with inflow and dilution: dYdT = D(Sin - S)
 			 */
 			double[] dYdT = Vector.reverse(Vector.copy(y));
+			HashMap<String,Double> concns = new HashMap<String,Double>();
 			for ( int i = 0; i < this._soluteNames.length; i++ )
+			{
 				dYdT[i] += this._inflow.get(this._soluteNames[i]);
+				concns.put(this._soluteNames[i], y[i]);
+			}
 			Vector.times(dYdT, this._dilution);
 			/*
-			 * TODO Apply agent reactions
+			 * Apply agent reactions. Note that any agents without reactions
+			 * will return an empty list of States, and so will be skipped.
 			 */
-			//for ( Agent agent : agents.getAllAgents() )
-			//	agent.
+			HasReactions aReacState;
+			HashMap<String,Double> temp;
+			for ( Agent agent : agents.getAllAgents() )
+				for (State aState : agent.getStates(HasReactions.tester))
+				{
+					aReacState = (HasReactions) aState;
+					temp = aReacState.get1stTimeDerivatives(concns);
+					for ( int i = 0; i < this._soluteNames.length; i++ )
+						dYdT[i] += temp.get(this._soluteNames[i]);
+				}
 			/*
 			 * TODO Apply extracellular reactions.
 			 */
