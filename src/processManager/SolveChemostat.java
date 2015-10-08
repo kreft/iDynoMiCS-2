@@ -13,6 +13,7 @@ import idynomics.EnvironmentContainer;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import solver.ODErosenbrock;
+import solver.ODEsolver.Derivatives;
 import utility.ExtraMath;
 import utility.LogFile;
 
@@ -30,42 +31,42 @@ public class SolveChemostat extends ProcessManager
 	 * around to implementing more.
 	 */
 	protected ODErosenbrock _solver;
-	
+
 	/**
 	 * TODO
 	 */
 	protected String[] _soluteNames;
-	
+
 	/**
 	 * 
 	 */
 	protected HashMap<String, Double> _inflow;
-	
+
 	/**
 	 * Dilution rate in units of time<sup>-1</sup>.
 	 */
 	protected double _dilution;
-	
-	
+
+
 	protected LinkedList<ChemostatConnection> _inConnections = 
-										new LinkedList<ChemostatConnection>();
-	
+			new LinkedList<ChemostatConnection>();
+
 	protected LinkedList<ChemostatConnection> _outConnections = 
-										new LinkedList<ChemostatConnection>();
-	
+			new LinkedList<ChemostatConnection>();
+
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief TODO
 	 *
 	 */
 	public SolveChemostat()
 	{
-		
+
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -81,11 +82,11 @@ public class SolveChemostat extends ProcessManager
 			this._inflow.put(sName, 0.0);
 		this._dilution = 0.0;
 	}
-	
+
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -96,7 +97,7 @@ public class SolveChemostat extends ProcessManager
 	{
 		this._inflow = inflow;
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -106,7 +107,7 @@ public class SolveChemostat extends ProcessManager
 	{
 		this._dilution = dilution;
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -131,13 +132,13 @@ public class SolveChemostat extends ProcessManager
 		 */
 		this.updateDilutionInflow();
 	}
-	
-	
-	
+
+
+
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief TODO
 	 */
@@ -160,96 +161,95 @@ public class SolveChemostat extends ProcessManager
 		if ( inRate != outRate )
 		{
 			throw new IllegalArgumentException(
-							"Chemostat inflow and outflow rates must match!");
+					"Chemostat inflow and outflow rates must match!");
 		}
 		this._dilution = inRate;
 	}
-	
+
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
-														AgentContainer agents)
+			AgentContainer agents)
 	{
 		this.updateDilutionInflow();
 		/*
 		 * Update the solver's 1st derivative function (dY/dT).
 		 */
-		this._solver.set1stDeriv( (double[] y) ->
+		Derivatives deriv = new Derivatives()
 		{
-			/*
-			 * First deal with inflow and dilution: dYdT = D(Sin - S)
-			 */
-			double[] dYdT = Vector.reverse(Vector.copy(y));
-			HashMap<String,Double> concns = new HashMap<String,Double>();
-			for ( int i = 0; i < this._soluteNames.length; i++ )
+			@Override
+			public double[] firstDeriv(double[] y)
 			{
-				dYdT[i] += this._inflow.get(this._soluteNames[i]);
-				concns.put(this._soluteNames[i], y[i]);
-			}
-			Vector.times(dYdT, this._dilution);
-			/*
-			 * Apply agent reactions. Note that any agents without reactions
-			 * will return an empty list of States, and so will be skipped.
-			 */
-			HasReactions aReacState;
-			HashMap<String,Double> temp;
-			for ( Agent agent : agents.getAllAgents() )
-				for (Object aState : agent.getStates(HasReactions.tester))
+				/*
+				 * First deal with inflow and dilution: dYdT = D(Sin - S)
+				 */
+				double[] dYdT = Vector.reverse(Vector.copy(y));
+				HashMap<String,Double> concns = new HashMap<String,Double>();
+				for ( int i = 0; i < _soluteNames.length; i++ )
 				{
-					aReacState = (HasReactions) aState;
-					temp = aReacState.get1stTimeDerivatives(concns);
-					for ( int i = 0; i < this._soluteNames.length; i++ )
-						dYdT[i] += temp.get(this._soluteNames[i]);
+					dYdT[i] += _inflow.get(_soluteNames[i]);
+					concns.put(_soluteNames[i], y[i]);
 				}
-			/*
-			 * TODO Apply extracellular reactions.
-			 */
-			/*System.out.println("\tS -> dYdT:"); //Bughunt
-			for ( int i = 0; i < y.length; i++ )
-				System.out.println("\t"+y[i]+"->"+dYdT[i]);*/
-			return dYdT;
-		});
-		/*
-		 * TODO Update the solver's 2nd derivative function (dF/dT)?
-		 * Leave out if we don't want to do this for reactions (the solver
-		 * will estimate dFdT numerically)
-		 */
-		this._solver.set2ndDeriv( (double[] y) ->
-		{
-			double[] dFdT = Vector.copy(y);
-			for ( int i = 0; i < this._soluteNames.length; i++ )
-				dFdT[i] -= this._inflow.get(this._soluteNames[i]);
-			Vector.times(dFdT, ExtraMath.sq(this._dilution));
-			/*
-			 * TODO Apply agent reactions
-			 */
-			//for ( Agent agent : agents.getAllAgents() )
-			//	agent.
-			/*
-			 * TODO Apply extracellular reactions.
-			 */
-			return dFdT;
-		});
-		/*
-		 * Update the solver's Jacobian function (dF/dY).
-		 */
-		this._solver.setJacobian( (double[] y) ->
-		{
-			/*
-			 * First deal with dilution: dYdY = -D
-			 */
-			double[][] jac = Matrix.identityDbl(y.length);
-			Matrix.times(jac, -this._dilution);
-			/*
-			 * TODO Apply agent reactions
-			 */
-			//for ( Agent agent : agents.getAllAgents() )
-			//	agent.
-			/*
-			 * TODO Apply extracellular reactions.
-			 */
-			
-			return jac;
-		});
+				Vector.times(dYdT, _dilution);
+				/*
+				 * Apply agent reactions. Note that any agents without reactions
+				 * will return an empty list of States, and so will be skipped.
+				 */
+				HasReactions aReacState;
+				HashMap<String,Double> temp;
+				for ( Agent agent : agents.getAllAgents() )
+					for (Object aState : agent.getStates(HasReactions.tester))
+					{
+						aReacState = (HasReactions) aState;
+						temp = aReacState.get1stTimeDerivatives(concns);
+						for ( int i = 0; i < _soluteNames.length; i++ )
+							dYdT[i] += temp.get(_soluteNames[i]);
+					}
+				/*
+				 * TODO Apply extracellular reactions.
+				 */
+				/*System.out.println("\tS -> dYdT:"); //Bughunt
+				for ( int i = 0; i < y.length; i++ )
+					System.out.println("\t"+y[i]+"->"+dYdT[i]);*/
+				return dYdT;
+			}
+			@Override
+			public double[] secondDeriv(double[] y)
+			{
+				double[] dFdT = Vector.copy(y);
+				for ( int i = 0; i < _soluteNames.length; i++ )
+					dFdT[i] -= _inflow.get(_soluteNames[i]);
+				Vector.times(dFdT, ExtraMath.sq(_dilution));
+				/*
+				 * TODO Apply agent reactions
+				 */
+				//for ( Agent agent : agents.getAllAgents() )
+				//	agent.
+				/*
+				 * TODO Apply extracellular reactions.
+				 */
+				return dFdT;
+			}
+			@Override
+			public double[][] jacobian(double[] y)
+			{
+				/*
+				 * First deal with dilution: dYdY = -D
+				 */
+				double[][] jac = Matrix.identityDbl(y.length);
+				Matrix.times(jac, -_dilution);
+				/*
+				 * TODO Apply agent reactions
+				 */
+				//for ( Agent agent : agents.getAllAgents() )
+				//	agent.
+				/*
+				 * TODO Apply extracellular reactions.
+				 */
+
+				return jac;
+			}
+		};
+		this._solver.setDerivatives(deriv);
 		/*
 		 * Finally, solve the system.
 		 */
@@ -258,7 +258,7 @@ public class SolveChemostat extends ProcessManager
 		catch ( Exception e) { e.printStackTrace();}
 		updateSolutes(environment, y);
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -277,7 +277,7 @@ public class SolveChemostat extends ProcessManager
 		}
 		return y;
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -292,7 +292,7 @@ public class SolveChemostat extends ProcessManager
 		for ( int i = 0; i < y.length; i++ )
 		{
 			environment.getSoluteGrid(this._soluteNames[i]).setAllTo(
-											SpatialGrid.concn, y[i], true);
+					SpatialGrid.concn, y[i], true);
 		}
 	}
 }

@@ -139,8 +139,8 @@ public class ODErosenbrock extends ODEsolver
 		 * Jacobian method to be set.
 		 */
 		super.solve(y, tFinal);
-		if ( this._jacobian == null )
-			throw new Exception("No Jacobian set.");
+		/*if ( this._jacobian == null )
+			throw new Exception("No Jacobian set.");*/
 		/*
 		 * Control statement in case the maximum timestep size, hMax, is too
 		 * large.
@@ -155,7 +155,7 @@ public class ODErosenbrock extends ODEsolver
 		/*
 		 * 
 		 */
-		dYdT = calc1stDeriv(y);
+		dYdT = this._deriv.firstDeriv(y);
 		/*
 		 * First try a step size of hmax.
 		 */
@@ -177,7 +177,7 @@ public class ODErosenbrock extends ODEsolver
 			 * Update dFdT with a mini-timestep. The Jacobian matrix, dFdY,
 			 * doesn't need this.
 			 */
-			dFdT = calc2ndDeriv(y, sqrtE * ( t + h ));
+			dFdT = this._deriv.secondDeriv(y);
 			/*System.out.println("dFdT is"); //Bughunt
 			for ( double elem : dFdT)
 				System.out.println(elem);*/
@@ -185,7 +185,7 @@ public class ODErosenbrock extends ODEsolver
 			/*System.out.println("h*d*dFdT is"); //Bughunt
 			for ( double elem : hddFdT)
 				System.out.println(elem);*/
-			dFdY = calcJacobian(y);
+			dFdY = this._deriv.jacobian(y);
 			/*System.out.println("dFdY is"); //Bughunt
 			for ( double[] row : dFdY ) 
 			{
@@ -246,7 +246,7 @@ public class ODErosenbrock extends ODEsolver
 					/*System.out.println("\tK1*h/2 is"); //Bughunt
 					for ( double elem : f1)
 						System.out.println(elem);*/
-					f1 = calc1stDeriv( Vector.add(f1, y));
+					f1 = this._deriv.firstDeriv(Vector.add(f1, y));
 					/*System.out.println("f1 is"); //Bughunt
 					for ( double elem : f1)
 						System.out.println(elem);*/
@@ -277,7 +277,7 @@ public class ODErosenbrock extends ODEsolver
 					/*
 					 * f2 = dYdT(ynext)
 					 */
-					f2 = calc1stDeriv(ynext);
+					f2 = this._deriv.firstDeriv(ynext);
 					/*System.out.println("f2 is"); //Bughunt
 					for ( double elem : f2)
 						System.out.println(elem);*/
