@@ -2,7 +2,7 @@ package agent.state;
 
 import java.util.HashMap;
 
-public class ParticleMasses extends State implements HasMasses
+public class ParticleMasses implements HasMasses
 {
 	/**
 	 * 

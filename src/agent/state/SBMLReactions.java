@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.sbml.jsbml.Reaction;
 
-public class SBMLReactions extends State implements HasReactions
+public class SBMLReactions implements HasReactions
 {
 	protected Reaction[] _reactions;
 	

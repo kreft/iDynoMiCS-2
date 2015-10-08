@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import reaction.Reaction;
 
-public class IdynoReactions extends State implements HasReactions
+public class IdynoReactions implements HasReactions
 {
 	protected Reaction[] _reactions;
 	

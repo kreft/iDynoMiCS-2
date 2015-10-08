@@ -2,16 +2,16 @@ package agent.state;
 
 import java.util.HashMap;
 
-import agent.state.State.StatePredicate;
+import agent.Agent.StatePredicate;
 
 public interface HasReactions
 {
 	/**
 	 * 
 	 */
-	public final StatePredicate<State> tester = new StatePredicate<State>()
+	public final StatePredicate<Object> tester = new StatePredicate<Object>()
 	{
-		public boolean test(State aState)
+		public boolean test(Object aState)
 		{
 			return aState instanceof HasReactions;
 		}

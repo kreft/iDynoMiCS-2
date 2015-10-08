@@ -5,7 +5,6 @@ import java.util.LinkedList;
 
 import agent.Agent;
 import agent.state.HasReactions;
-import agent.state.State;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
 import grid.SpatialGrid;
@@ -194,7 +193,7 @@ public class SolveChemostat extends ProcessManager
 			HasReactions aReacState;
 			HashMap<String,Double> temp;
 			for ( Agent agent : agents.getAllAgents() )
-				for (State aState : agent.getStates(HasReactions.tester))
+				for (Object aState : agent.getStates(HasReactions.tester))
 				{
 					aReacState = (HasReactions) aState;
 					temp = aReacState.get1stTimeDerivatives(concns);
