@@ -56,6 +56,11 @@ public final class ExtraMath
 	
 	/* ----------------------- Simple calculations ------------------------ */
 	
+	public static final boolean areEqual(double x, double y, double absTol)
+	{
+		return Math.abs(x - y) < absTol;
+	}
+	
 	/**
 	 * \brief Computes the logarithm of base 2.
 	 * 

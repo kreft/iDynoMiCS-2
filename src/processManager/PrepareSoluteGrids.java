@@ -8,6 +8,7 @@ import java.util.HashMap;
 import agent.Agent;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 
 /**
  * 
@@ -34,18 +35,18 @@ public class PrepareSoluteGrids extends ProcessManager
 	 * 
 	 */
 	@Override
-	protected void internalStep(HashMap<String, SpatialGrid> solutes,
+	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
 		/*
 		 * Reset each solute grid's relevant arrays.
 		 */
-		for ( String sName : solutes.keySet() )
+		for ( String sName : environment.getSoluteNames() )
 		{
-			solutes.get(sName).newArray(SpatialGrid.reac);
-			solutes.get(sName).newArray(SpatialGrid.dReac);
-			solutes.get(sName).newArray(SpatialGrid.domain);
-			solutes.get(sName).newArray(SpatialGrid.diff);
+			environment.getSoluteGrid(sName).newArray(SpatialGrid.reac);
+			environment.getSoluteGrid(sName).newArray(SpatialGrid.dReac);
+			environment.getSoluteGrid(sName).newArray(SpatialGrid.domain);
+			environment.getSoluteGrid(sName).newArray(SpatialGrid.diff);
 		}
 		/*
 		 * Iterate through the agents, asking them to apply the relevant

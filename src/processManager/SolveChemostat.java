@@ -10,6 +10,7 @@ import boundary.Boundary;
 import boundary.ChemostatConnection;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import solver.ODErosenbrock;
@@ -47,7 +48,11 @@ public class SolveChemostat extends ProcessManager
 	protected double _dilution;
 	
 	
-	protected LinkedList<ChemostatConnection> _inConnections, _outConnections;
+	protected LinkedList<ChemostatConnection> _inConnections = 
+										new LinkedList<ChemostatConnection>();
+	
+	protected LinkedList<ChemostatConnection> _outConnections = 
+										new LinkedList<ChemostatConnection>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -72,6 +77,10 @@ public class SolveChemostat extends ProcessManager
 		this._soluteNames = soluteNames;
 		this._solver = new ODErosenbrock();
 		this._solver.init(this._soluteNames, false, 1.0e-6, 1.0e-6);
+		this._inflow = new HashMap<String, Double>();
+		for ( String sName : this._soluteNames )
+			this._inflow.put(sName, 0.0);
+		this._dilution = 0.0;
 	}
 	
 	/*************************************************************************
@@ -135,24 +144,30 @@ public class SolveChemostat extends ProcessManager
 	 */
 	protected void updateDilutionInflow()
 	{
-		this._inflow.forEach((s,d) -> {d = 0.0;});
-		double in = 0.0, out = 0.0;
+		double inRate = 0.0, outRate = 0.0;
+		for ( String sName : this._soluteNames )
+			this._inflow.put(sName, 0.0);
 		for ( ChemostatConnection aChemoConnect : this._inConnections )
 		{
-			in += aChemoConnect.getFlowRate();
-			this._inflow.forEach( (soluteName, concn) -> 
-				{concn += aChemoConnect.getConcentrations().get(soluteName);});
+			inRate += aChemoConnect.getFlowRate();
+			for ( String sName : this._soluteNames )
+			{
+				double temp = aChemoConnect.getConcentrations().get(sName);
+				this._inflow.put(sName, this._inflow.get(sName)+temp);
+			}
 		}
-		if ( in != out )
+		for ( ChemostatConnection aChemoConnect : this._outConnections )
+			outRate -= aChemoConnect.getFlowRate();
+		if ( inRate != outRate )
 		{
 			throw new IllegalArgumentException(
 							"Chemostat inflow and outflow rates must match!");
 		}
-		this._dilution = in;
+		this._dilution = inRate;
 	}
 	
 	@Override
-	protected void internalStep(HashMap<String, SpatialGrid> solutes,
+	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
 		this.updateDilutionInflow();
@@ -239,10 +254,10 @@ public class SolveChemostat extends ProcessManager
 		/*
 		 * Finally, solve the system.
 		 */
-		double[] y = getY(solutes);
+		double[] y = getY(environment);
 		try { y = this._solver.solve(y, this._timeStepSize); }
-		catch ( Exception e) {}
-		updateSolutes(solutes, y);
+		catch ( Exception e) { e.printStackTrace();}
+		updateSolutes(environment, y);
 	}
 	
 	/**
@@ -251,13 +266,13 @@ public class SolveChemostat extends ProcessManager
 	 * @param solutes
 	 * @return
 	 */
-	protected double[] getY(HashMap<String, SpatialGrid> solutes)
+	protected double[] getY(EnvironmentContainer environment)
 	{
 		double[] y = Vector.zerosDbl(this._soluteNames.length);
 		SpatialGrid sg;
 		for ( int i = 0; i < y.length; i++ )
 		{
-			sg = solutes.get(this._soluteNames[i]);
+			sg = environment.getSoluteGrid(this._soluteNames[i]);
 			//TODO Use average?
 			y[i] = sg.getMax(SpatialGrid.concn);
 		}
@@ -267,15 +282,17 @@ public class SolveChemostat extends ProcessManager
 	/**
 	 * \brief TODO
 	 * 
+	 * TODO This may need to be updated now that solutes belong to the
+	 * environment container
+	 * 
 	 * @param solutes
 	 * @param y
 	 */
-	protected void updateSolutes(HashMap<String, SpatialGrid> solutes,
-																double[] y)
+	protected void updateSolutes(EnvironmentContainer environment, double[] y)
 	{
 		for ( int i = 0; i < y.length; i++ )
 		{
-			solutes.get(this._soluteNames[i]).setAllTo(
+			environment.getSoluteGrid(this._soluteNames[i]).setAllTo(
 											SpatialGrid.concn, y[i], true);
 		}
 	}

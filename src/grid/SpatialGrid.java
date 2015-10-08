@@ -89,6 +89,17 @@ public class SpatialGrid
 	 */
 	public void newArray(String name)
 	{
+		this.newArray(name, 0.0);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @param initialValues
+	 */
+	public void newArray(String name, double initialValues)
+	{
 		/*
 		 * First check that the array HashMap has been created.
 		 */
@@ -106,10 +117,11 @@ public class SpatialGrid
 		}
 		catch ( Exception e )
 		{
-			double[][][] array = Array.zerosDbl(
+			double[][][] array = Array.array(
 					this._nVoxel[0] + 2*this._padding[0],
 					this._nVoxel[1] + 2*this._padding[1],
-					this._nVoxel[2] + 2*this._padding[2]);
+					this._nVoxel[2] + 2*this._padding[2],
+					initialValues);
 			this._array.put(name, array);
 		}
 	}

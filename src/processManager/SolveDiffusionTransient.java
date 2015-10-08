@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 
@@ -53,7 +54,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	}
 	
 	@Override
-	protected void internalStep(HashMap<String, SpatialGrid> solutes,
+	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
 		/*
@@ -72,7 +73,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		/*
 		 * 
 		 */
-		this._solver.solve(solutes, this._timeStepSize);
+		this._solver.solve(environment.getSolutes(), this._timeStepSize);
 	}
 
 }

@@ -2,25 +2,22 @@ package idynomics;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import boundary.Boundary;
 import boundary.BoundaryConnected;
-import grid.SpatialGrid;
 import processManager.ProcessManager;
 
 public class Compartment
-{
+{	
 	/**
-	 * Unique name of this compartment.
+	 * N-dimensional vector describing the shape of this compartment. 
+	 * 
+	 * TODO Rob [8Oct2015]: This may need to be replaced with some sort of 
+	 * shape object if we want to use non-rectangular compartments (e.g., 
+	 * spherical). This is low priority for now.
 	 */
-	protected String _name;
-	
-	/**
-	 * Number of spatial dimensions in this compartment.
-	 */
-	private int _nDims;
+	private double[] _sideLengths;
 	
 	/**
 	 * AgentContainer deals with 
@@ -30,8 +27,7 @@ public class Compartment
 	/**
 	 * 
 	 */
-	protected HashMap<String, SpatialGrid> _solutes = 
-										new HashMap<String, SpatialGrid>(); 
+	protected EnvironmentContainer _environment = new EnvironmentContainer();
 	
 	/**
 	 * 
@@ -44,10 +40,15 @@ public class Compartment
 	protected LinkedList<ProcessManager> _processes = 
 											new LinkedList<ProcessManager>();
 	
+	/**
+	 * 
+	 */
 	protected ProcessComparator _procComp;
 	
-	
-	protected Double _localTime;
+	/**
+	 * 
+	 */
+	protected Double _localTime = 0.0;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -55,7 +56,7 @@ public class Compartment
 	
 	public Compartment()
 	{
-		this._localTime = 0.0;
+		
 	}
 	
 
@@ -63,40 +64,14 @@ public class Compartment
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
-	protected int getNumDims()
+	public int getNumDims()
 	{
-		return _nDims;
-	}
-
-
-	protected void setNumDims(int _nDims)
-	{
-		this._nDims = _nDims;
+		return this._sideLengths.length;
 	}
 	
-	/**
-	 * TODO
-	 */
-	protected void setSpeciesInfo()
+	public void setSideLengths(double[] sideLengths)
 	{
-		
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName)
-	{
-		/*
-		 * TODO voxels, padding, resolution
-		 * 
-		 * TODO safety: check if solute already in hashmap
-		 */
-		SpatialGrid sg = new SpatialGrid();
-		sg.newArray(SpatialGrid.concn);
-		this._solutes.put(soluteName, sg);
+		this._sideLengths = sideLengths;
 	}
 	
 	/**
@@ -138,7 +113,7 @@ public class Compartment
 			 * First process on the list does its thing. This should then
 			 * increase its next step time.
 			 */
-			currentProcess.step(_solutes, _agents);
+			currentProcess.step(this._environment, this._agents);
 			/*
 			 * Reinsert this process at the appropriate position in the list.
 			 */

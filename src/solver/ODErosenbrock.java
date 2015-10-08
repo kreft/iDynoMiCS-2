@@ -140,7 +140,7 @@ public class ODErosenbrock extends ODEsolver
 		 */
 		super.solve(y, tFinal);
 		if ( this._jacobian == null )
-			throw new Exception("No first derivative set.");
+			throw new Exception("No Jacobian set.");
 		/*
 		 * Control statement in case the maximum timestep size, hMax, is too
 		 * large.

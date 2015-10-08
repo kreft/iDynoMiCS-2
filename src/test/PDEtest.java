@@ -3,24 +3,23 @@
  */
 package test;
 
-import java.util.HashMap;
-
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.SolveDiffusionTransient;
 
 public class PDEtest
 {
-	public static double D = 0.1;
+	public static double D = 1.0;
 	
 	public static void main(String[] args)
 	{
 		double stepSize = 10.0;
 		int nStep = 5;
 		
-		//oneDimRiseFall(nStep, stepSize);
-		//twoDimRandInit(nStep, stepSize);
+		oneDimRiseFall(nStep, stepSize);
+		twoDimRandInit(nStep, stepSize);
 		twoDimIncompleteDomain(nStep, stepSize);
 	}
 	
@@ -40,14 +39,12 @@ public class PDEtest
 		int[] padding = Vector.vector(3, 0);
 		padding[0] = 1;
 		
-		double resolution = 1.0;
-		
 		String[] soluteNames = new String[2];
 		soluteNames[0] = "rise";
 		soluteNames[1] = "fall";
 
-		HashMap<String, SpatialGrid> solutes = 
-				new HashMap<String, SpatialGrid>();
+		EnvironmentContainer environment = new EnvironmentContainer();
+		environment.init(nVoxel, padding, 1.0);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		double value;
@@ -56,8 +53,8 @@ public class PDEtest
 		for ( int i = 0; i < soluteNames.length; i++ )
 		{
 			String name = soluteNames[i];
-			sg = new SpatialGrid(nVoxel, padding, resolution);
-			sg.newArray(SpatialGrid.concn);
+			environment.addSolute(name);
+			sg = environment.getSoluteGrid(name);
 			for ( int j = -1; j < nVoxel[0]+1; j++ )
 			{
 				value = i + ((int)Math.pow(-1,i))*(Math.exp(-k*(j+1.0))-fudge)/(1.0-fudge);
@@ -70,7 +67,6 @@ public class PDEtest
 			sg.setAllTo(SpatialGrid.domain, 1.0, true);
 			sg.newArray(SpatialGrid.reac);
 			sg.newArray(SpatialGrid.dReac);
-			solutes.put(name, sg);
 		}
 		/*
 		 * Dummy AgentContainer will be empty
@@ -87,16 +83,16 @@ public class PDEtest
 		for ( String name : soluteNames )
 		{
 			System.out.println(name+": ");
-			printSoluteGrid(solutes.get(name));
+			printSoluteGrid(environment.getSoluteGrid(name));
 		}
 		for ( ; nStep > 0; nStep-- )
 		{
-			process.step(solutes, agents);
+			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
 			{
 				System.out.println(name+": ");
-				printSoluteGrid(solutes.get(name));
+				printSoluteGrid(environment.getSoluteGrid(name));
 			}
 		}
 		System.out.println("\n");
@@ -120,20 +116,17 @@ public class PDEtest
 		int[] padding = Vector.vector(3, 0);
 		padding[0] = padding[1] = 1;
 		
-		double resolution = 1.0;
-		
 		String[] soluteNames = new String[1];
 		soluteNames[0] = "solute";
 		
-		HashMap<String, SpatialGrid> solutes = 
-				new HashMap<String, SpatialGrid>();
+		EnvironmentContainer environment = new EnvironmentContainer();
+		environment.init(nVoxel, padding, 1.0);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
-		for ( int i = 0; i < soluteNames.length; i++ )
+		for ( String name : soluteNames )
 		{
-			String name = soluteNames[i];
-			sg = new SpatialGrid(nVoxel, padding, resolution);
-			sg.newArray(SpatialGrid.concn);
+			environment.addSolute(name);
+			sg = environment.getSoluteGrid(name);
 			for ( int j = -padding[0]; j < nVoxel[0]+padding[0]; j++ )
 			{
 				coords[0] = j;
@@ -158,8 +151,8 @@ public class PDEtest
 			sg.setAllTo(SpatialGrid.domain, 1.0, true);
 			sg.newArray(SpatialGrid.reac);
 			sg.newArray(SpatialGrid.dReac);
-			solutes.put(name, sg);
 		}
+		
 		/*
 		 * Dummy AgentContainer will be empty
 		 */
@@ -169,15 +162,15 @@ public class PDEtest
 		process.setTimeForNextStep(0.0);
 		process.setTimeStepSize(stepSize);
 		System.out.println("Time: "+process.getTimeForNextStep());
-		printSoluteGrid(solutes.get("solute"));
+		printSoluteGrid(environment.getSoluteGrid("solute"));
 		for ( ; nStep > 0; nStep-- )
 		{
-			process.step(solutes, agents);
+			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
 			{
 				System.out.println(name+": ");
-				printSoluteGrid(solutes.get(name));
+				printSoluteGrid(environment.getSoluteGrid(name));
 			}
 		}
 		System.out.println("\n");
@@ -201,20 +194,18 @@ public class PDEtest
 		int[] padding = Vector.vector(3, 0);
 		padding[0] = padding[1] = 1;
 		
-		double resolution = 1.0;
-		
 		String[] soluteNames = new String[1];
 		soluteNames[0] = "solute";
 		
-		HashMap<String, SpatialGrid> solutes = 
-				new HashMap<String, SpatialGrid>();
+		EnvironmentContainer environment = new EnvironmentContainer();
+		environment.init(nVoxel, padding, 1.0);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( int i = 0; i < soluteNames.length; i++ )
 		{
 			String name = soluteNames[i];
-			sg = new SpatialGrid(nVoxel, padding, resolution);
-			sg.newArray(SpatialGrid.concn);
+			environment.addSolute(name);
+			sg = environment.getSoluteGrid(name);
 			for ( int j = -padding[0]; j < nVoxel[0]+padding[0]; j++ )
 			{
 				coords[0] = j;
@@ -238,7 +229,6 @@ public class PDEtest
 			coords[1] = 1;
 			sg.setValueAt(SpatialGrid.concn, coords, 1.0);
 			sg.setValueAt(SpatialGrid.domain, coords, 0.0);
-			solutes.put(name, sg);
 		}
 		/*
 		 * Dummy AgentContainer will be empty
@@ -249,15 +239,15 @@ public class PDEtest
 		process.setTimeForNextStep(0.0);
 		process.setTimeStepSize(stepSize);
 		System.out.println("Time: "+process.getTimeForNextStep());
-		printSoluteGrid(solutes.get("solute"));
+		printSoluteGrid(environment.getSoluteGrid("solute"));
 		for ( ; nStep > 0; nStep-- )
 		{
-			process.step(solutes, agents);
+			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
 			{
 				System.out.println(name+": ");
-				printSoluteGrid(solutes.get(name));
+				printSoluteGrid(environment.getSoluteGrid(name));
 			}
 		}
 		System.out.println("\n");

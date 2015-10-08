@@ -1,8 +1,10 @@
 package idynomics;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import agent.Agent;
+import reaction.Reaction;
 import spatialRegistry.*;
 
 public class AgentContainer
@@ -17,6 +19,12 @@ public class AgentContainer
 	 * All agents without a spatial location are stored in the agentList.
 	 */
 	protected LinkedList<Agent> _agentList = new LinkedList<Agent>();
+	
+	/**
+	 * All reactions performed by agents.
+	 * TODO Check this is the best way of going about things!
+	 */
+	protected HashMap<String, Reaction> _agentReactions;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -41,12 +49,14 @@ public class AgentContainer
 		/*
 		 * Bas: I have chosen maxEntries and minEntries by testing what values
 		 * resulted in fast tree creation and agent searches.
+		 * 
+		 * TODO Rob: do we need to create a tree if nDims = 0?
 		 */
-		_agentTree = new RTree<Agent>(8, 2, nDims);
+		this._agentTree = new RTree<Agent>(8, 2, nDims);
 		/*
 		 * No parameters needed for the agentList.
 		 */
-		_agentList = new LinkedList<Agent>();
+		this._agentList = new LinkedList<Agent>();
 	}
 	
 	/*************************************************************************
@@ -66,8 +76,8 @@ public class AgentContainer
 	public LinkedList<Agent> getAllAgents()
 	{
 		LinkedList<Agent> out = new LinkedList<Agent>();
-		out.addAll(_agentList);
-		out.addAll(_agentTree.all());
+		out.addAll(this._agentList);
+		out.addAll(this._agentTree.all());
 		return out;
 	}
 	
@@ -76,10 +86,10 @@ public class AgentContainer
 	}
 
 	private void addAgent(Agent agent) {
-		if (agent.isLocated())
-			_agentTree.insert(agent.getLower(),agent.getDim(),agent);
+		if ( agent.isLocated() )
+			this._agentTree.insert(agent.getLower(), agent.getDim(), agent);
 		else
-			_agentList.add(agent);
+			this._agentList.add(agent);
 		
 	}
 	

@@ -4,10 +4,14 @@
 package test;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
+import boundary.Boundary;
+import boundary.ChemostatConnection;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
+import idynomics.EnvironmentContainer;
 import processManager.SolveChemostat;
 
 public class ODETest
@@ -22,10 +26,10 @@ public class ODETest
 		double timeStep = Math.log(2.0);
 		int nStep = 5;
 		
-		//oneChemostatRise(nStep, timeStep);
+		oneChemostatRise(nStep, timeStep);
 		//oneChemostatFall(nStep, timeStep);
 		//twoChemostatBasic(nStep, timeStep);
-		compartment();
+		//compartment();
 	}
 	
 	private static void oneChemostatRise(int nStep, double stepSize)
@@ -48,44 +52,47 @@ public class ODETest
 		HashMap<String, Double> inflowConcn = new HashMap<String, Double>();
 		inflowConcn.put(soluteNames[0], 1.0);
 		
+		LinkedList<Boundary> boundaries = new LinkedList<Boundary>();
+		ChemostatConnection ccIn = new ChemostatConnection();
+		ccIn.setFlowRate(1.0);
+		ccIn.setConcentrations(inflowConcn);
+		boundaries.add(ccIn);
+		ChemostatConnection ccOut = new ChemostatConnection();
+		ccOut.setFlowRate(-1.0);
+		boundaries.add(ccOut);
 		/*
 		 * 
 		 */
-		HashMap<String, SpatialGrid> solutes = 
-										new HashMap<String, SpatialGrid>();
-		SpatialGrid sg;
+		EnvironmentContainer environment = new EnvironmentContainer();
 		for ( String name : soluteNames )
-		{
-			sg = new SpatialGrid();
-			sg.newArray(SpatialGrid.concn);
-			sg.addToAll(SpatialGrid.concn, initialConcn.get(name), false);
-			solutes.put(name, sg);
-		}
+			environment.addSolute(name, initialConcn.get(name));
 		
 		/*
 		 * Dummy AgentContainer will be empty
 		 */
 		AgentContainer agents = new AgentContainer();
-		
+		agents.init(0);
 		/*
 		 * Set up the process manager
 		 */
 		SolveChemostat process = new SolveChemostat();
 		process.init(soluteNames);
-		process.setInflow(inflowConcn);
-		process.setDilution(1.0);
+		System.out.println("Adding  boundaries...");
+		process.showBoundaries(boundaries);
+		//process.setInflow(inflowConcn);
+		//process.setDilution(1.0);
 		process.setTimeForNextStep(0.0);
 		process.setTimeStepSize(stepSize);
 		
 		System.out.println("Time: "+process.getTimeForNextStep());
 		for ( String name : soluteNames )
-			System.out.println("\t"+name+": "+solutes.get(name).getMax(SpatialGrid.concn));
+			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
 		for ( ; nStep > 0; nStep-- )
 		{
-			process.step(solutes, agents);
+			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
-				System.out.println("\t"+name+": "+solutes.get(name).getMax(SpatialGrid.concn));
+				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
 		}
 		System.out.println("\n");
 	}
@@ -114,22 +121,15 @@ public class ODETest
 		/*
 		 * 
 		 */
-		HashMap<String, SpatialGrid> solutes = 
-										new HashMap<String, SpatialGrid>();
-		SpatialGrid sg;
+		EnvironmentContainer environment = new EnvironmentContainer();
 		for ( String name : soluteNames )
-		{
-			sg = new SpatialGrid();
-			sg.newArray(SpatialGrid.concn);
-			sg.addToAll(SpatialGrid.concn, initialConcn.get(name), false);
-			solutes.put(name, sg);
-		}
+			environment.addSolute(name, initialConcn.get(name));
 		
 		/*
 		 * Dummy AgentContainer will be empty
 		 */
 		AgentContainer agents = new AgentContainer();
-		
+		agents.init(0);
 		/*
 		 * Set up the process manager
 		 */
@@ -142,13 +142,13 @@ public class ODETest
 		
 		System.out.println("Time: "+process.getTimeForNextStep());
 		for ( String name : soluteNames )
-			System.out.println("\t"+name+": "+solutes.get(name).getMax(SpatialGrid.concn));
+			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
 		for ( ; nStep > 0; nStep-- )
 		{
-			process.step(solutes, agents);
+			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
-				System.out.println("\t"+name+": "+solutes.get(name).getMax(SpatialGrid.concn));
+				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
 		}
 		System.out.println("\n");
 	}
@@ -191,22 +191,15 @@ public class ODETest
 		/*
 		 * 
 		 */
-		HashMap<String, SpatialGrid> solutes = 
-										new HashMap<String, SpatialGrid>();
-		SpatialGrid sg;
+		EnvironmentContainer environment = new EnvironmentContainer();
 		for ( String name : soluteNames )
-		{
-			sg = new SpatialGrid();
-			sg.newArray(SpatialGrid.concn);
-			sg.addToAll(SpatialGrid.concn, initialConcn.get(name), false);
-			solutes.put(name, sg);
-		}
+			environment.addSolute(name, initialConcn.get(name));
 		
 		/*
 		 * Dummy AgentContainer will be empty
 		 */
 		AgentContainer agents = new AgentContainer();
-		
+		agents.init(0);
 		/*
 		 * Set up the process manager
 		 */
@@ -219,13 +212,13 @@ public class ODETest
 		
 		System.out.println("Time: "+process.getTimeForNextStep());
 		for ( String name : soluteNames )
-			System.out.println("\t"+name+": "+solutes.get(name).getMax(SpatialGrid.concn));
+			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
 		for ( ; nStep > 0; nStep-- )
 		{
-			process.step(solutes, agents);
+			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
-				System.out.println("\t"+name+": "+solutes.get(name).getMax(SpatialGrid.concn));
+				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
 		}
 		System.out.println("\n");
 	}
@@ -242,7 +235,7 @@ public class ODETest
 		System.out.println("###############################################");
 		Compartment aCompartment = new Compartment();
 		
-		aCompartment.addSolute("rise");
+		//aCompartment.addSolute("rise");
 		
 		SolveChemostat chemoSolver = new SolveChemostat();
 		aCompartment.addProcessManager(chemoSolver);

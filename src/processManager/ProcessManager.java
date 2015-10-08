@@ -1,11 +1,10 @@
 package processManager;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import boundary.Boundary;
-import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 
 public abstract class ProcessManager
 {
@@ -85,14 +84,13 @@ public abstract class ProcessManager
 	 * STEPPING
 	 ************************************************************************/
 	
-	public void step(HashMap<String, SpatialGrid> solutes,
-														AgentContainer agents)
+	public void step(EnvironmentContainer environment, AgentContainer agents)
 	{
 		/*
 		 * This is where subclasses of Mechanism do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
 		 */
-		this.internalStep(solutes, agents);
+		this.internalStep(environment, agents);
 		/*
 		 * Increase the 
 		 */
@@ -100,7 +98,7 @@ public abstract class ProcessManager
 		
 	}
 	
-	protected abstract void internalStep(HashMap<String, SpatialGrid> solutes,
+	protected abstract void internalStep(EnvironmentContainer environment,
 											AgentContainer agents);
 	
 	/*************************************************************************
