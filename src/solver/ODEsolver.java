@@ -3,6 +3,9 @@
  */
 package solver;
 
+import linearAlgebra.Matrix;
+import linearAlgebra.Vector;
+
 /**
  * \brief TODO
  * 
@@ -17,9 +20,56 @@ public abstract class ODEsolver extends Solver
 	 */
 	public interface Derivatives
 	{
+		/**
+		 * Small change in time or variable used by numerical methods for
+		 * estimating the 2nd derivative or the Jacobian. 
+		 */
+		double delta = 1E-6;
+		
+		/**
+		 * \brief You must specify the first derivative with respect to time.
+		 * 
+		 * @param y
+		 * @return
+		 */
 		double[] firstDeriv(double[] y);
-		double[] secondDeriv(double[] y);
-		double[][] jacobian(double[] y);
+		
+		/**
+		 * \brief You may specify the second derivative with respect to time,
+		 * but by default this is estimated numerically.
+		 * 
+		 * @param y
+		 * @return
+		 */
+		default double[] secondDeriv(double[] y)
+		{
+			double[] dYdT = firstDeriv(y);
+			/*
+			 * yNext = y + (deltaT * dYdT)
+			 */
+			double[] dFdT = Vector.copy(dYdT);
+			dFdT = Vector.times(dFdT, delta);
+			dFdT = Vector.add(dFdT, y);
+			/*
+			 * dFdT = ( dYdT(ynext) - dYdT(y) )/tdel
+			 */
+			dFdT = firstDeriv(dFdT);
+			dFdT = Vector.subtract(dFdT, dYdT);
+			dFdT = Vector.times(dFdT, 1.0/delta);
+			return dFdT;
+		};
+		
+		/**
+		 * 
+		 * @param y
+		 * @return
+		 */
+		default double[][] jacobian(double[] y)
+		{
+			double[][] dFdY = Matrix.zerosDbl(y.length);
+			//TODO numerical Jacobian estimation
+			return dFdY;
+		}
 	};
 	
 	/**
