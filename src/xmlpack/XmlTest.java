@@ -14,7 +14,7 @@ public class XmlTest {
 	public static void main(String[] args) {
 
 		// Load the xml document
-		Element doc = XmlLoad.loadDocument("data.xml");
+		Element doc = XmlLoad.loadDocument("testdata.xml");
 
 		
 		// Display document element's general info
