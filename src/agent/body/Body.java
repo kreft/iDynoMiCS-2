@@ -3,8 +3,21 @@ package agent.body;
 import java.util.LinkedList;
 import java.util.List;
 
+import agent.Agent.StatePredicate;
+
 public class Body {
     
+	/**
+	 * 
+	 */
+	public final static StatePredicate<Object> tester = new StatePredicate<Object>()
+	{
+		public boolean test(Object aState)
+		{
+			return aState instanceof Body;
+		}
+	};
+	
     /**
      * The 'body' of the agent is represented by sphere-swept volumes of a 
      * collection of points connected by springs of length lengths. This results

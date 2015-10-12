@@ -108,6 +108,11 @@ public class AgentContainer
 		return out;
 	}
 	
+	public int getNumAllAgents()
+	{
+		return this._agentList.size() + this._agentTree.all().size();
+	}
+	
 	/*************************************************************************
 	 * NEIGHBOURHOOD GETTERS
 	 ************************************************************************/

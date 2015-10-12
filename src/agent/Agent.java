@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import agent.activity.*;
 import agent.body.*;
+import agent.state.HasReactions;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 
@@ -99,11 +100,26 @@ public class Agent
 	}
 	
 	/**
+	 * TODO Rob [12Oct2015]: temporary fix, assumes one body or none.
+	 * 
+	 * @return
+	 */
+	public Body getBody()
+	{
+		for (Object aState : this.getStates(Body.tester))
+			return (Body) aState;
+		return null;
+	}
+	
+	/**
 	 * FIXME: this method may need some fine tuning in a later stage.
 	 * @return true if the agent has a located body.
 	 */
 	public Boolean isLocated() {
-		Body myBody = (Body) getState("Body");
+		//Body myBody = (Body) getState("Body");
+		Body myBody = this.getBody();
+		if ( myBody == null )
+			return false;
 		if (myBody.getMorphologyIndex() == 0)
 			return false;
 		else
@@ -115,7 +131,10 @@ public class Agent
 	 */
 	public float[] getLower() 
 	{
-		Body myBody = (Body) getState("Body");
+		//Body myBody = (Body) getState("Body");
+		Body myBody = this.getBody();
+		if ( myBody == null )
+			return null;
 		// TODO Rob [5Oct2015]: why isn't radius part of the body state?
 		return myBody.coord((Double) getState("radius"));
 	}
@@ -125,7 +144,10 @@ public class Agent
 	 */
 	public float[] getLower(double margin) 
 	{
-		Body myBody = (Body) getState("Body");
+		//Body myBody = (Body) getState("Body");
+		Body myBody = this.getBody();
+		if ( myBody == null )
+			return null;
 		return myBody.coord((Double) getState("radius"),margin);
 	}
 
@@ -134,7 +156,10 @@ public class Agent
 	 */
 	public float[] getDim() 
 	{
-		Body myBody = (Body) getState("Body");
+		//Body myBody = (Body) getState("Body");
+		Body myBody = this.getBody();
+		if ( myBody == null )
+			return null;
 		// TODO Rob [5Oct2015]: Why do we need the radius to find the dimensions?
 		return myBody.dimensions((Double) getState("radius"));
 	}
@@ -144,7 +169,10 @@ public class Agent
 	 */
 	public float[] getDim(double margin) 
 	{
-		Body myBody = (Body) getState("Body");
+		//Body myBody = (Body) getState("Body");
+		Body myBody = this.getBody();
+		if ( myBody == null )
+			return null;
 		return myBody.dimensions((Double) getState("radius"),margin);
 	}
 

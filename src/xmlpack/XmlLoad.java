@@ -53,7 +53,11 @@ public class XmlLoad {
 	    for (int i = 0; i < nodeList.getLength(); i++) 
 		     operation.action(nodeList.item(i));
 	}
-		
+	
+	/*************************************************************************
+	 * DISPLAYING
+	 ************************************************************************/
+	
 	public static void display(Node node)
 	{
 		display(null, node);

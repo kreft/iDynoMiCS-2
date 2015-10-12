@@ -7,7 +7,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
-
+import agent.Agent;
+import idynomics.AgentContainer;
 
 public class XmlTest {
 
@@ -38,31 +39,23 @@ public class XmlTest {
 		// load data into model
 		System.out.println("\nLoad data into model: ");
 		
-		////// example class
-		class TestAgent {
-			HashMap<String, Object> _states = new HashMap<String, Object>();
-			public void setState(String name, Object state)
-			{
-				_states.put(name, state);
-			}
-		}
-		
 		// iterate trough all agents in xml file and add them including their
 		// attributes
-		LinkedList<TestAgent> Agents = new LinkedList<TestAgent>();
+		AgentContainer agentContainer = new AgentContainer();
+		agentContainer.init(3);
 		for (int i = 0; i < agentNodes.getLength(); i++) 
 		{
-			TestAgent agent = new TestAgent();
+			Agent anAgent = new Agent();
 			NamedNodeMap att = ((Element) agentNodes.item(i)).getAttributes();
 			for(int j = 0; j< att.getLength(); j++)
 			{
-				agent.setState(att.item(j).getNodeName(), 
+				anAgent.setState(att.item(j).getNodeName(), 
 						att.item(j).getNodeValue());
 			}
-			Agents.add(agent);
+			agentContainer.registerBirth(anAgent);
 		}
 		
-		System.out.println("Created: " + Agents.size() + " agents");
+		System.out.println("Created: " + agentContainer.getNumAllAgents() + " agents");
 
 		//
 		System.out.println("\nThe end");
