@@ -1,7 +1,6 @@
 package solver;
 
 import java.util.HashMap;
-import java.util.function.Consumer;
 
 import grid.SpatialGrid;
 
@@ -14,38 +13,49 @@ import grid.SpatialGrid;
  */
 public abstract class PDEsolver extends Solver
 {
+	/*************************************************************************
+	 * UPDATER METHODS
+	 ************************************************************************/
+	
+	public interface Updater
+	{
+		/**
+		 * \brief Method to be applied to the variables before the solver
+		 * starts.
+		 * 
+		 * @param variables
+		 */
+		default void presolve(HashMap<String, SpatialGrid> variables)
+		{}
+		
+		/**
+		 * \brief Method to be applied to the variables before each mini time
+		 * step.
+		 * 
+		 * @param variables
+		 */
+		default void prestep(HashMap<String, SpatialGrid> variables)
+		{ }
+	}
+	
 	/**
 	 * TODO
 	 */
-	protected Consumer<HashMap<String, SpatialGrid>> _updaterFunction;
-	
-	/*************************************************************************
-	 * CONSTRUCTORS
-	 ************************************************************************/
-	
-	/**
-	 * \brief TODO
-	 *
-	 */
-	public PDEsolver()
-	{
-		
-	}
-	
-	/*************************************************************************
-	 * 
-	 ************************************************************************/
+	protected Updater _updater;
 	
 	/**
 	 * \brief TODO
 	 * 
-	 * @param f
+	 * @param updater
 	 */
-	public void setUpdaterFunc(Consumer<HashMap<String, SpatialGrid>> f)
+	public void setUpdater(Updater updater)
 	{
-		this._updaterFunction = f;
+		this._updater = updater;
 	}
 	
+	/*************************************************************************
+	 * SOLVER METHODS
+	 ************************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -55,11 +65,6 @@ public abstract class PDEsolver extends Solver
 	 */
 	public abstract void solve(HashMap<String, SpatialGrid> solutes,
 															double tFinal);
-	
-	
-	/*************************************************************************
-	 * 
-	 ************************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -172,5 +177,5 @@ public abstract class PDEsolver extends Solver
 			dLop += solute.getValueAt(SpatialGrid.dReac, current);
 			solute.timesValueAt(arrayName, current, 1.0/dLop);
 		}
-	}
+	}	
 }

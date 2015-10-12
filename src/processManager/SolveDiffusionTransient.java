@@ -5,12 +5,14 @@ package processManager;
 
 import java.util.HashMap;
 
-
+import agent.Agent;
+import agent.state.HasReactions;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import solver.PDEexplicit;
 import solver.PDEsolver;
+import solver.PDEsolver.Updater;
 
 /**
  * \brief TODO
@@ -57,23 +59,38 @@ public class SolveDiffusionTransient extends ProcessManager
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
-		/*
-		 * TODO
-		 */
-		this._solver.setUpdaterFunc((HashMap<String, SpatialGrid> hm) ->
+		Updater updater = new Updater()
 		{
-			//TODO
-			SpatialGrid sg;
-			for ( String soluteName : this._soluteNames )
+			public void presolve(HashMap<String, SpatialGrid> variables)
 			{
-				sg = hm.get(soluteName);
-				sg.setAllTo(SpatialGrid.domain, 1.0, true);
+				/*
+				 * TODO This currently sets everything to domain, but we want
+				 * only those regions in the biofilm and boundary layer.
+				 */
+				SpatialGrid sg;
+				for ( String soluteName : _soluteNames )
+				{
+					sg = variables.get(soluteName);
+					//sg.setAllTo(SpatialGrid.domain, 1.0, true);
+				}
 			}
-		});
+			
+			public void prestep(HashMap<String, SpatialGrid> variables)
+			{
+				/*
+				 * TODO agents put reaction rates on grids.
+				 */
+				for ( Agent agent : agents.getAllLocatedAgents() )
+					for (Object aState : agent.getStates(HasReactions.tester))
+					{
+						
+					}
+			}
+		};
 		/*
-		 * 
+		 * Set the updater method and solve.
 		 */
+		this._solver.setUpdater(updater);
 		this._solver.solve(environment.getSolutes(), this._timeStepSize);
 	}
-
 }

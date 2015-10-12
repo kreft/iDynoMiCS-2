@@ -41,6 +41,7 @@ public class PDEexplicit extends PDEsolver
 	@Override
 	public void solve(HashMap<String, SpatialGrid> variables, double tFinal)
 	{
+		this._updater.presolve(variables);
 		/*
 		 * Find the largest time step that suits all variables.
 		 */
@@ -62,6 +63,8 @@ public class PDEexplicit extends PDEsolver
 		 * 
 		 */
 		for ( int iter = 0; iter < nIter; iter++ )
+		{
+			this._updater.prestep(variables);
 			for ( String varName : this._variableNames )
 			{
 				var = variables.get(varName);
@@ -70,5 +73,6 @@ public class PDEexplicit extends PDEsolver
 				var.timesAll("lop", dt, false);
 				var.addArrayToArray(SpatialGrid.concn, "lop", false);
 			}
+		}
 	}
 }
