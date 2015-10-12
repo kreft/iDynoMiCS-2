@@ -18,6 +18,12 @@ public class Addition extends ComponentMultiple
 		this._expr = "+";
 	}
 	
+	public Addition(Component a, Component b)
+	{
+		super(a, b);
+		this._expr = "+";
+	}
+	
 	@Override
 	public double getValue(HashMap<String, Double> variables)
 	{

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * @author cleggrj
- *
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  */
 public class Multiplication extends ComponentMultiple
 {
@@ -16,6 +16,12 @@ public class Multiplication extends ComponentMultiple
 	public Multiplication(ArrayList<Component> a)
 	{
 		super(a);
+		this._expr = "*";
+	}
+	
+	public Multiplication(Component a, Component b)
+	{
+		super(a, b);
 		this._expr = "*";
 	}
 	

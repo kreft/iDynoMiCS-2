@@ -2,7 +2,10 @@ package expression;
 
 import java.util.HashMap;
 
-
+/**
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk)
+ */
 public class Division extends ComponentDouble
 {
 	/**
@@ -35,5 +38,15 @@ public class Division extends ComponentDouble
 		if ( this._b instanceof Constant )
 			return bDa;
 		return Expression.add(aDb, bDa);
+	}
+	
+	public Component getNumerator()
+	{
+		return this._a;
+	}
+	
+	public Component getDenominator()
+	{
+		return this._b;
 	}
 }

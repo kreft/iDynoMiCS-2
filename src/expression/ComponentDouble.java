@@ -4,6 +4,10 @@ import java.util.HashMap;
 
 import utility.LogFile;
 
+/**
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk)
+ */
 public abstract class ComponentDouble extends Component
 {
 	protected String _expr;

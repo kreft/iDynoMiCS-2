@@ -6,19 +6,15 @@ package expression;
 import java.util.ArrayList;
 
 /**
- * @author cleggrj
- *
+ * \brief Set of useful components for easy reference.
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  */
 public final class Expression
 {
 	/*************************************************************************
 	 * CONSTANTS
 	 ************************************************************************/
-	
-	public static Constant zero()
-	{
-		return new Constant("0", 0.0);
-	}
 	
 	public static boolean isConstantWithValue(Component c, double value)
 	{
@@ -31,6 +27,11 @@ public final class Expression
 	public static Constant minus()
 	{
 		return new Constant("-1", -1.0);
+	}
+	
+	public static Constant zero()
+	{
+		return new Constant("0", 0.0);
 	}
 	
 	public static Constant one()
@@ -130,4 +131,39 @@ public final class Expression
 		}
 	}
 	
+	/**
+	 * \brief
+	 * 
+	 * TODO b instanceof Power with index < 0
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static Division divide(Component a, Component b)
+	{
+		Component top = a;
+		Component bottom = b;
+		if ( a instanceof Division )
+		{
+			if ( b instanceof Division )
+			{
+				top = multiply(((Division) a).getNumerator(),
+											((Division) b).getDenominator());
+				bottom = multiply(((Division) a).getDenominator(),
+											((Division) b).getNumerator());
+			}
+			else
+			{
+				top = ((Division) a).getNumerator();
+				bottom = multiply(((Division) a).getDenominator(), b);
+			}
+		}
+		else if ( b instanceof Division )
+		{
+			top = multiply(a, ((Division) b).getDenominator());
+			bottom = ((Division) b).getNumerator();
+		}
+		return new Division(top, bottom);
+	}
 }

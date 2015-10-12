@@ -6,8 +6,9 @@ package expression;
 import java.util.HashMap;
 
 /**
- * @author cleggrj
- *
+ * 
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  */
 public class LogNatural extends ComponentSingle
 {

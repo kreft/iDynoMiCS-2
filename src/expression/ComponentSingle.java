@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public abstract class ComponentSingle extends Component
 {
-	protected String _expr;
+	protected String _expr = "";
 	
 	protected Component _a;
 	

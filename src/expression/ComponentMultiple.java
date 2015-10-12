@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * @author cleggrj
- *
+ * 
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  */
 public abstract class ComponentMultiple extends Component
 {
@@ -19,6 +20,13 @@ public abstract class ComponentMultiple extends Component
 	public ComponentMultiple(ArrayList<Component> components)
 	{
 		this._components = components;
+	}
+	
+	public ComponentMultiple(Component a, Component b)
+	{
+		this._components = new ArrayList<Component>();
+		this.appendComponent(a);
+		this.appendComponent(b);
 	}
 
 	@Override
