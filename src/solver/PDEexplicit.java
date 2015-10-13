@@ -71,7 +71,7 @@ public class PDEexplicit extends PDEsolver
 				var = variables.get(varName);
 				var.newArray("lop");
 				addLOperator(var, "lop");
-				var.timesAll("lop", dt, false);
+				var.timesAll("lop", dt);
 				var.addArrayToArray(SpatialGrid.concn, "lop", false);
 			}
 		}

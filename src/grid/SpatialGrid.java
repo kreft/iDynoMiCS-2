@@ -2,14 +2,24 @@ package grid;
 
 import java.util.HashMap;
 
-import boundary.Boundary.GridMethod;
-
 public abstract class SpatialGrid
 {
 	public enum BoundarySide
 	{
-		TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK
+		/*
+		 * Cartesian boundaries
+		 */
+		XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX,
+		/*
+		 * TODO Polar/cylindrical boundaries
+		 */
+		 
 	};
+	
+	public interface GridMethod
+	{
+		int[] getNewCoord(int[] coord);
+	}
 	
 	protected HashMap<BoundarySide,GridMethod> _boundaries;
 	
@@ -21,6 +31,7 @@ public abstract class SpatialGrid
 								domain = "domain", 
 								reac = "reacRate", 
 								dReac = "diffReacRate";
+	
 	
 	public abstract void newArray(String name, double initialValues);
 	
@@ -44,4 +55,6 @@ public abstract class SpatialGrid
 	{
 		this._boundaries.put(side, method);
 	}
+	
+	//public abstract ArrayList<BoundarySide> boundariesNextTo(int[] coords);
 }

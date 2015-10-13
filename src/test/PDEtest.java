@@ -63,9 +63,9 @@ public class PDEtest
 				sg.addValueAt(SpatialGrid.concn, coords, value);
 			}
 			sg.newArray(SpatialGrid.diff);
-			sg.setAllTo(SpatialGrid.diff, D, true);
+			sg.setAllTo(SpatialGrid.diff, D);
 			sg.newArray(SpatialGrid.domain);
-			sg.setAllTo(SpatialGrid.domain, 1.0, true);
+			sg.setAllTo(SpatialGrid.domain, 1.0);
 			sg.newArray(SpatialGrid.reac);
 			sg.newArray(SpatialGrid.dReac);
 		}
@@ -147,9 +147,9 @@ public class PDEtest
 				sg.setValueAt(SpatialGrid.concn, coords, Math.random());
 			}
 			sg.newArray(SpatialGrid.diff);
-			sg.setAllTo(SpatialGrid.diff, D, true);
+			sg.setAllTo(SpatialGrid.diff, D);
 			sg.newArray(SpatialGrid.domain);
-			sg.setAllTo(SpatialGrid.domain, 1.0, true);
+			sg.setAllTo(SpatialGrid.domain, 1.0);
 			sg.newArray(SpatialGrid.reac);
 			sg.newArray(SpatialGrid.dReac);
 		}
@@ -221,9 +221,9 @@ public class PDEtest
 				sg.setValueAt(SpatialGrid.concn, coords, 0.0);
 			}
 			sg.newArray(SpatialGrid.diff);
-			sg.setAllTo(SpatialGrid.diff, D, true);
+			sg.setAllTo(SpatialGrid.diff, D);
 			sg.newArray(SpatialGrid.domain);
-			sg.setAllTo(SpatialGrid.domain, 1.0, true);
+			sg.setAllTo(SpatialGrid.domain, 1.0);
 			sg.newArray(SpatialGrid.reac);
 			sg.newArray(SpatialGrid.dReac);
 			coords[0] = 1;
@@ -256,7 +256,7 @@ public class PDEtest
 	
 	private static void printSoluteGrid(CartesianGrid sg)
 	{
-		int[] dims = Vector.add(sg.getNumVoxels(), sg.getPadding());
+		int[] dims = Vector.copy(sg.getNumVoxels());
 		int[] start = Vector.zeros(dims);
 		boolean[] sig = sg.getSignificantAxes();
 		int[] coords = Vector.zeros(dims);

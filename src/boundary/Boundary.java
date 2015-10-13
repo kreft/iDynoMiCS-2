@@ -3,6 +3,7 @@
  */
 package boundary;
 
+import grid.SpatialGrid.GridMethod;
 import shape.Shape;
 
 /**
@@ -12,15 +13,12 @@ import shape.Shape;
  */
 public abstract class Boundary
 {
-	public interface GridMethod
-	{
-		
-	}
-	
 	/**
 	 * The shape this Boundary takes (e.g. Plane, Sphere).
 	 */
 	protected Shape _shape;
+	
+	protected GridMethod _gridMethod;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -70,6 +68,4 @@ public abstract class Boundary
 	{
 		return this._shape.distance(position);
 	}
-	
-	
 }

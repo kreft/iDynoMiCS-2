@@ -35,11 +35,6 @@ public class CartesianGrid extends SpatialGrid
 	protected int[] _nVoxel;
 	
 	/**
-	 * TODO
-	 */
-	protected int[] _padding;
-	
-	/**
 	 * Grid resolution, i.e. the side length of each voxel in this grid.
 	 */
 	protected double _res;
@@ -63,14 +58,12 @@ public class CartesianGrid extends SpatialGrid
 	public CartesianGrid(int[] nVoxel, int[] padding, double resolution)
 	{
 		this._nVoxel = Vector.copy(nVoxel);
-		this._padding = Vector.copy(padding);
 		this._res = resolution;
 	}
 	
 	public CartesianGrid()
 	{
 		this._nVoxel = Vector.vector(3, 1);
-		this._padding = Vector.zerosInt(3);
 		this._res = 1.0;
 	}
 	
@@ -99,11 +92,8 @@ public class CartesianGrid extends SpatialGrid
 		}
 		catch ( Exception e )
 		{
-			double[][][] array = Array.array(
-					this._nVoxel[0] + 2*this._padding[0],
-					this._nVoxel[1] + 2*this._padding[1],
-					this._nVoxel[2] + 2*this._padding[2],
-					initialValues);
+			double[][][] array = Array.array(this._nVoxel[0], this._nVoxel[1],
+											this._nVoxel[2], initialValues);
 			this._array.put(name, array);
 		}
 	}
@@ -111,21 +101,6 @@ public class CartesianGrid extends SpatialGrid
 	/*************************************************************************
 	 * SIMPLE GETTERS
 	 ************************************************************************/
-	
-	/**
-	 * \brief Makes a copy of this SpatialGrid's array.
-	 * 
-	 * <p>Does not include padding.</p>
-	 * 
-	 * @return Three-dimensional array of doubles.
-	 */
-	public double[][][] getCore(String name)
-	{
-		return Array.subarray(this._array.get(name),
-				this._padding[0], this._nVoxel[0]+ this._padding[0],
-				this._padding[1], this._nVoxel[1]+ this._padding[1],
-				this._padding[2], this._nVoxel[2]+ this._padding[2]);
-	}
 	
 	/**
 	 * \brief TODO
@@ -173,16 +148,6 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * @return
 	 */
-	public int[] getPadding()
-	{
-		return Vector.copy(this._padding);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
 	public boolean[] getSignificantAxes()
 	{
 		boolean[] out = new boolean[3];
@@ -211,6 +176,61 @@ public class CartesianGrid extends SpatialGrid
 	/*************************************************************************
 	 * COORDINATES
 	 ************************************************************************/
+	
+	private int[] checkCoords(int[] coord)
+	{
+		int[] out = Vector.copy(coord);
+		if ( out[0] < 0 )
+			out = _boundaries.get(BoundarySide.XMIN).getNewCoord(out);
+		if ( out[0] >= _nVoxel[0] )
+			out = _boundaries.get(BoundarySide.XMAX).getNewCoord(out);
+		if ( out[1] < 0 )
+			out = _boundaries.get(BoundarySide.YMIN).getNewCoord(out);
+		if ( out[1] >= _nVoxel[0] )
+			out = _boundaries.get(BoundarySide.YMAX).getNewCoord(out);
+		if ( out[2] < 0 )
+			out = _boundaries.get(BoundarySide.ZMIN).getNewCoord(out);
+		if ( out[2] >= _nVoxel[2] )
+			out = _boundaries.get(BoundarySide.ZMAX).getNewCoord(out);
+		return out;
+	}
+	
+	public double getValueAtNew(String arrayName, int[] coord)
+	{
+		double[][][] array = this._array.get(arrayName);
+		try
+		{
+			return array[coord[0]][coord[1]][coord[2]];
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			int[] newCoord = checkCoords(coord);
+			if ( newCoord == null )
+				return Double.NaN;
+			return array[newCoord[0]][newCoord[1]][newCoord[2]];
+		}
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param arrayName
+	 * @param coord
+	 * @param newValue
+	 */
+	public void setValueAtNew(String arrayName, int[] coord, double newValue)
+	{
+		double[][][] array = this._array.get(arrayName);
+		try
+		{
+			array[coord[0]][coord[1]][coord[2]] = newValue;
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			int[] newCoord = checkCoords(coord);
+			array[newCoord[0]][newCoord[1]][newCoord[2]] = newValue;
+		}
+	}
 	
 	/**
 	 * \brief Applies the given function to the array element at the given
@@ -243,22 +263,6 @@ public class CartesianGrid extends SpatialGrid
 	/**
 	 * \brief TODO
 	 * 
-	 * <p>Note that <b>gridCoords</b> could contain negative values, but
-	 * <i>arrayCoords</i> never will.</p>
-	 * 
-	 * @param gridCoords
-	 * @return
-	 */
-	private int[] arrayCoords(int[] gridCoords)
-	{
-		int[] out = Vector.copy(gridCoords);
-		Vector.add(out, this._padding);
-		return out;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
 	 * @param name String name of the array.
 	 * @param gridCoords
 	 * @param f
@@ -266,7 +270,7 @@ public class CartesianGrid extends SpatialGrid
 	protected double applyToCoord(String name, int[] gridCoords,
 													DoubleFunction<Double> f)
 	{
-		return this.applyToVoxel(name, this.arrayCoords(gridCoords), f);
+		return this.applyToVoxel(name, gridCoords, f);
 	}
 	
 	/**
@@ -290,7 +294,7 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public double[] getVoxelOrigin(int[] gridCoords)
 	{
-		int[] temp = Vector.add(Vector.copy(gridCoords), this._padding);
+		int[] temp = Vector.copy(gridCoords);
 		return Vector.times(Vector.toDbl(temp), this._res);
 	}
 	
@@ -318,7 +322,7 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public void setValueAt(String name, int[] gridCoords, double value)
 	{
-		this.applyToCoord(name, gridCoords, (double v)->{return value;});
+		this.applyToVoxel(name, gridCoords, (double v)->{return value;});
 	}
 	
 	/**
@@ -330,7 +334,7 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public void addValueAt(String name, int[] gridCoords, double value)
 	{
-		this.applyToCoord(name, gridCoords, (double v)->{return v + value;});
+		this.applyToVoxel(name, gridCoords, (double v)->{return v + value;});
 	}
 	
 	/**
@@ -342,7 +346,7 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public void timesValueAt(String name, int[] gridCoords, double value)
 	{
-		this.applyToCoord(name, gridCoords, (double v)->{return v * value;});
+		this.applyToVoxel(name, gridCoords, (double v)->{return v * value;});
 	}
 	
 	/*************************************************************************
@@ -358,7 +362,7 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public double getValueAt(String name, int[] gridCoords)
 	{
-		return this.applyToCoord(name, gridCoords, (double v)->{return v;});
+		return this.applyToVoxel(name, gridCoords, (double v)->{return v;});
 	}
 	
 	/**
@@ -389,35 +393,14 @@ public class CartesianGrid extends SpatialGrid
 	/*************************************************************************
 	 * ARRAY SETTERS
 	 ************************************************************************/
-	
-	/**
-	 * \brief Applies the given function to all array elements, excluding
-	 * padding.
-	 * 
-	 * @param f
-	 */
-	private void applyToCore(String name, DoubleFunction<Double> f)
-	{
-		double[][][] array = this._array.get(name);
-		for ( int i = _padding[0]; i < _padding[0] + _nVoxel[0]; i++ )
-			for ( int j = _padding[1]; j < _padding[1] + _nVoxel[1]; j++ )
-				for ( int k = _padding[2]; k < _padding[2] + _nVoxel[2]; k++ )
-				{
-					array[i][j][k] = f.apply(array[i][j][k]);
-				}
-	}
-	
 	/**
 	 * \brief Set all voxels to the <b>value</b> given.
 	 * 
 	 * @param value double value to use.
 	 */
-	public void setAllTo(String name, double value, boolean includePadding )
+	public void setAllTo(String name, double value )
 	{
-		if ( includePadding )
-			Array.setAll(this._array.get(name), value);
-		else
-			this.applyToCore(name, (double v)->{return value;});
+		Array.setAll(this._array.get(name), value);
 	}
 	
 	/**
@@ -435,12 +418,9 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * @param value
 	 */
-	public void addToAll(String name, double value, boolean includePadding)
+	public void addToAll(String name, double value)
 	{
-		if ( includePadding )
-			Array.add(this._array.get(name), value);
-		else
-			this.applyToCore(name, (double v)->{return v + value;});
+		Array.add(this._array.get(name), value);
 	}
 	
 	/**
@@ -450,12 +430,9 @@ public class CartesianGrid extends SpatialGrid
 	 * @param value
 	 * @param includePadding
 	 */
-	public void timesAll(String name, double value, boolean includePadding)
+	public void timesAll(String name, double value)
 	{
-		if ( includePadding )
-			Array.times(this._array.get(name), value);
-		else
-			this.applyToCore(name, (double v)->{return v * value;});
+		Array.times(this._array.get(name), value);
 	}
 	
 	/*************************************************************************
@@ -490,30 +467,10 @@ public class CartesianGrid extends SpatialGrid
 	 * TWO-ARRAY METHODS
 	 ************************************************************************/
 	
-	private void applyArrayToArray(String destination, String source,
-										ToDoubleBiFunction<Double, Double> f)
-	{
-		double[][][] dest = this._array.get(destination);
-		double[][][] src = this._array.get(source);
-		for ( int i = _padding[0]; i < _padding[0] + _nVoxel[0]; i++ )
-			for ( int j = _padding[1]; j < _padding[1] + _nVoxel[1]; j++ )
-				for ( int k = _padding[2]; k < _padding[2] + _nVoxel[2]; k++ )
-				{
-					dest[i][j][k] = 
-								f.applyAsDouble(dest[i][j][k], src[i][j][k]);
-				}
-	}
-	
 	public void addArrayToArray(String destination, String source, 
 													boolean includePadding)
 	{
-		if ( includePadding )
-			Array.add(this._array.get(destination), this._array.get(source));
-		else
-		{
-			this.applyArrayToArray(destination, source, 
-					(Double d, Double s) -> {return d + s;});
-		}
+		Array.add(this._array.get(destination), this._array.get(source));
 	}
 	
 	/*************************************************************************

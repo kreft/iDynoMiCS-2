@@ -292,8 +292,8 @@ public class SolveChemostat extends ProcessManager
 	{
 		for ( int i = 0; i < y.length; i++ )
 		{
-			environment.getSoluteGrid(this._soluteNames[i]).setAllTo(
-											SpatialGrid.concn, y[i], true);
+			environment.getSoluteGrid(this._soluteNames[i])
+										.setAllTo(SpatialGrid.concn, y[i]);
 		}
 	}
 }
