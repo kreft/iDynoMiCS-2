@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import agent.activity.*;
 import agent.body.*;
 import agent.state.HasReactions;
-import grid.SpatialGrid;
+import grid.CartesianGrid;
 import idynomics.AgentContainer;
 
 public class Agent
@@ -44,7 +44,7 @@ public class Agent
 	/**
      * Used for reaction speeds and growth
 	 */
-    SpatialGrid _solutes;
+    CartesianGrid _solutes;
     
     public interface StatePredicate<T> {boolean test(Object s);}
 	

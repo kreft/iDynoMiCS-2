@@ -3,8 +3,6 @@
  */
 package processManager;
 
-import java.util.HashMap;
-
 import agent.Agent;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;

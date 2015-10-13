@@ -3,6 +3,7 @@ package idynomics;
 import java.util.HashMap;
 import java.util.Set;
 
+import grid.CartesianGrid;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
 import reaction.Reaction;
@@ -19,8 +20,8 @@ public class EnvironmentContainer
 	/**
 	 * 
 	 */
-	protected HashMap<String, SpatialGrid> _solutes = 
-										new HashMap<String, SpatialGrid>();
+	protected HashMap<String, CartesianGrid> _solutes = 
+										new HashMap<String, CartesianGrid>();
 	
 	/**
 	 * 
@@ -95,7 +96,7 @@ public class EnvironmentContainer
 		/*
 		 * TODO safety: check if solute already in hashmap
 		 */
-		SpatialGrid sg = new SpatialGrid(this._defaultNVoxel,
+		CartesianGrid sg = new CartesianGrid(this._defaultNVoxel,
 										this._defaultPadding,
 										this._defaultResolution);
 		sg.newArray(SpatialGrid.concn, initialConcn);
@@ -111,12 +112,12 @@ public class EnvironmentContainer
 		return this._solutes.keySet();
 	}
 	
-	public SpatialGrid getSoluteGrid(String soluteName)
+	public CartesianGrid getSoluteGrid(String soluteName)
 	{
 		return this._solutes.get(soluteName);
 	}
 	
-	public HashMap<String, SpatialGrid> getSolutes()
+	public HashMap<String, CartesianGrid> getSolutes()
 	{
 		return this._solutes;
 	}

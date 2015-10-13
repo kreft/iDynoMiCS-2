@@ -12,6 +12,11 @@ import shape.Shape;
  */
 public abstract class Boundary
 {
+	public interface GridMethod
+	{
+		
+	}
+	
 	/**
 	 * The shape this Boundary takes (e.g. Plane, Sphere).
 	 */

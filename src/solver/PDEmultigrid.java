@@ -5,7 +5,7 @@ package solver;
 
 import java.util.HashMap;
 
-import grid.SpatialGrid;
+import grid.CartesianGrid;
 
 /**
  * \brief TODO
@@ -32,7 +32,7 @@ public class PDEmultigrid extends PDEsolver
 	 * @see solver.PDEsolver#solve(java.util.HashMap, double)
 	 */
 	@Override
-	public void solve(HashMap<String, SpatialGrid> solutes, double tFinal)
+	public void solve(HashMap<String, CartesianGrid> solutes, double tFinal)
 	{
 		
 

@@ -3,6 +3,7 @@ package solver;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import grid.CartesianGrid;
 import grid.SpatialGrid;
 
 /**
@@ -26,7 +27,7 @@ public abstract class PDEsolver extends Solver
 		 * 
 		 * @param variables
 		 */
-		default void presolve(HashMap<String, SpatialGrid> variables)
+		default void presolve(HashMap<String, CartesianGrid> variables)
 		{ }
 		
 		/**
@@ -35,7 +36,7 @@ public abstract class PDEsolver extends Solver
 		 * 
 		 * @param variables
 		 */
-		default void prestep(HashMap<String, SpatialGrid> variables)
+		default void prestep(HashMap<String, CartesianGrid> variables)
 		{ }
 	}
 	
@@ -64,7 +65,7 @@ public abstract class PDEsolver extends Solver
 	 * @param solutes
 	 * @param tFinal
 	 */
-	public abstract void solve(HashMap<String, SpatialGrid> solutes,
+	public abstract void solve(HashMap<String, CartesianGrid> solutes,
 															double tFinal);
 	
 	/**
@@ -76,7 +77,7 @@ public abstract class PDEsolver extends Solver
 	 * @param solute
 	 * @param arrayName
 	 */
-	protected void addLOperator(SpatialGrid solute, String arrayName)
+	protected void addLOperator(CartesianGrid solute, String arrayName)
 	{
 		/*
 		 * Reset the SpatialGrid's L-Operator array.
@@ -134,7 +135,7 @@ public abstract class PDEsolver extends Solver
 	 * @param solute 
 	 * @param arrayName
 	 */
-	protected void divideByDiffLOperator(SpatialGrid solute, String arrayName)
+	protected void divideByDiffLOperator(CartesianGrid solute, String arrayName)
 	{
 		/*
 		 * Reset the SpatialGrid's array

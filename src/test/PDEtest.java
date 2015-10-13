@@ -3,6 +3,7 @@
  */
 package test;
 
+import grid.CartesianGrid;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -45,7 +46,7 @@ public class PDEtest
 
 		EnvironmentContainer environment = new EnvironmentContainer();
 		environment.init(nVoxel, padding, 1.0);
-		SpatialGrid sg;
+		CartesianGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		double value;
 		double k = 1.0;
@@ -121,7 +122,7 @@ public class PDEtest
 		
 		EnvironmentContainer environment = new EnvironmentContainer();
 		environment.init(nVoxel, padding, 1.0);
-		SpatialGrid sg;
+		CartesianGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( String name : soluteNames )
 		{
@@ -199,7 +200,7 @@ public class PDEtest
 		
 		EnvironmentContainer environment = new EnvironmentContainer();
 		environment.init(nVoxel, padding, 1.0);
-		SpatialGrid sg;
+		CartesianGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( int i = 0; i < soluteNames.length; i++ )
 		{
@@ -253,7 +254,7 @@ public class PDEtest
 		System.out.println("\n");
 	}
 	
-	private static void printSoluteGrid(SpatialGrid sg)
+	private static void printSoluteGrid(CartesianGrid sg)
 	{
 		int[] dims = Vector.add(sg.getNumVoxels(), sg.getPadding());
 		int[] start = Vector.zeros(dims);

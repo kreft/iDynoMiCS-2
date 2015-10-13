@@ -7,6 +7,7 @@ import agent.Agent;
 import agent.state.HasReactions;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
+import grid.CartesianGrid;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -268,7 +269,7 @@ public class SolveChemostat extends ProcessManager
 	protected double[] getY(EnvironmentContainer environment)
 	{
 		double[] y = Vector.zerosDbl(this._soluteNames.length);
-		SpatialGrid sg;
+		CartesianGrid sg;
 		for ( int i = 0; i < y.length; i++ )
 		{
 			sg = environment.getSoluteGrid(this._soluteNames[i]);
@@ -292,7 +293,7 @@ public class SolveChemostat extends ProcessManager
 		for ( int i = 0; i < y.length; i++ )
 		{
 			environment.getSoluteGrid(this._soluteNames[i]).setAllTo(
-					SpatialGrid.concn, y[i], true);
+											SpatialGrid.concn, y[i], true);
 		}
 	}
 }

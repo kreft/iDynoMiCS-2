@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 import agent.Agent;
 import agent.state.HasReactions;
-import grid.SpatialGrid;
+import grid.CartesianGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import solver.PDEexplicit;
@@ -61,13 +61,13 @@ public class SolveDiffusionTransient extends ProcessManager
 	{
 		Updater updater = new Updater()
 		{
-			public void presolve(HashMap<String, SpatialGrid> variables)
+			public void presolve(HashMap<String, CartesianGrid> variables)
 			{
 				/*
 				 * TODO This currently sets everything to domain, but we want
 				 * only those regions in the biofilm and boundary layer.
 				 */
-				SpatialGrid sg;
+				CartesianGrid sg;
 				for ( String soluteName : _soluteNames )
 				{
 					sg = variables.get(soluteName);
@@ -75,7 +75,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				}
 			}
 			
-			public void prestep(HashMap<String, SpatialGrid> variables)
+			public void prestep(HashMap<String, CartesianGrid> variables)
 			{
 				/*
 				 * TODO agents put reaction rates on grids.

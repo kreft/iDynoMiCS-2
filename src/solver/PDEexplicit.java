@@ -3,6 +3,7 @@
  */
 package solver;
 
+import grid.CartesianGrid;
 import grid.SpatialGrid;
 
 import java.util.HashMap;
@@ -39,14 +40,14 @@ public class PDEexplicit extends PDEsolver
 	 * 
 	 */
 	@Override
-	public void solve(HashMap<String, SpatialGrid> variables, double tFinal)
+	public void solve(HashMap<String, CartesianGrid> variables, double tFinal)
 	{
 		this._updater.presolve(variables);
 		/*
 		 * Find the largest time step that suits all variables.
 		 */
 		double dt = tFinal;
-		SpatialGrid var;
+		CartesianGrid var;
 		int nIter = 1;
 		for ( String varName : this._variableNames )
 		{
