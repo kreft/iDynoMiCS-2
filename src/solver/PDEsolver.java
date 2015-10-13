@@ -1,5 +1,6 @@
 package solver;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import grid.SpatialGrid;
@@ -26,7 +27,7 @@ public abstract class PDEsolver extends Solver
 		 * @param variables
 		 */
 		default void presolve(HashMap<String, SpatialGrid> variables)
-		{}
+		{ }
 		
 		/**
 		 * \brief Method to be applied to the variables before each mini time
@@ -89,7 +90,7 @@ public abstract class PDEsolver extends Solver
 		/*
 		 * Solute concentration and diffusivity in the neighboring voxels;
 		 */
-		Double[][] concnNbh, diffNbh;
+		ArrayList<Double> concnNbh, diffNbh;
 		/*
 		 * Temporary storage for the L-Operator.
 		 */
@@ -107,18 +108,19 @@ public abstract class PDEsolver extends Solver
 			concnNbh = solute.getNeighborValues(SpatialGrid.concn, current);
 			diffNbh = solute.getNeighborValues(SpatialGrid.diff, current);
 			lop = 0.0;
-			for ( int axis = 0; axis < 3; axis++ )
-				for ( int i = 0; i < 2; i++ )
-				{
-					try {	lop += (diffNbh[axis][i] + currDiff) *
-											(concnNbh[axis][i] - currConcn); }
-					catch (Exception e) {}
-				}
+			for ( int i = 0; i < concnNbh.size(); i++ )
+				lop += (diffNbh.get(i)+currDiff)*(concnNbh.get(i)-currConcn);
 			/*
 			 * Here we assume that all voxels are the same size.
 			 */
-			lop *= 0.5 / Math.pow(solute.getResolution(), 2.0);
+			lop *= 0.5 * Math.pow(solute.getResolution(), -2.0);
+			/*
+			 * Add on any reactions.
+			 */
 			lop += solute.getValueAt(SpatialGrid.reac, current);
+			/*
+			 * Finally, apply this to the relevant array.
+			 */
 			solute.addValueAt(arrayName, current, lop);
 		}
 	}
@@ -147,7 +149,7 @@ public abstract class PDEsolver extends Solver
 		/*
 		 * Diffusivity in the neighboring voxels;
 		 */
-		Double[][] diffNbh;
+		ArrayList<Double> diffNbh;
 		/*
 		 * Temporary storage for the derivative of the L-Operator.
 		 */
@@ -164,12 +166,8 @@ public abstract class PDEsolver extends Solver
 			currDiff = solute.getValueAt(SpatialGrid.diff, current);
 			diffNbh = solute.getNeighborValues(SpatialGrid.diff, current);
 			dLop = 0.0;
-			for ( int axis = 0; axis < 3; axis++ )
-				for ( int i = 0; i < 2; i++ )
-				{
-					try {	dLop += (diffNbh[axis][i] + currDiff); }
-					catch (ArrayIndexOutOfBoundsException e) {}
-				}
+			for ( double diffusivity : diffNbh )
+				dLop += diffusivity + currDiff;
 			/*
 			 * Here we assume that all voxels are the same size.
 			 */

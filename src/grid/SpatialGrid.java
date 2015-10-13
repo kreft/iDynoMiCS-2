@@ -1,5 +1,6 @@
 package grid;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 import java.util.function.ToDoubleBiFunction;
@@ -306,7 +307,7 @@ public class SpatialGrid
 	 * @param gridCoords
 	 * @return
 	 */
-	protected double[] getVoxelOrigin(int[] gridCoords)
+	public double[] getVoxelOrigin(int[] gridCoords)
 	{
 		int[] temp = Vector.add(Vector.copy(gridCoords), this._padding);
 		return Vector.times(Vector.toDbl(temp), this._res);
@@ -318,7 +319,7 @@ public class SpatialGrid
 	 * @param gridCoords
 	 * @return
 	 */
-	protected double[] getVoxelCentre(int[] gridCoords)
+	public double[] getVoxelCentre(int[] gridCoords)
 	{
 		return Vector.add(getVoxelOrigin(gridCoords), 0.5*this._res);
 	}
@@ -387,17 +388,17 @@ public class SpatialGrid
 	 * @param gridCoords
 	 * @return
 	 */
-	public Double[][] getNeighborValues(String name, int[] gridCoords)
+	public ArrayList<Double> getNeighborValues(String name, int[] gridCoords)
 	{
-		Double[][] out = new Double[3][2];
+		ArrayList<Double> out = new ArrayList<Double>();
 		int[] temp = Vector.copy(gridCoords);
 		for ( int axis = 0; axis < 3; axis++ )
 		{
 			temp[axis] -= 1;
-			try { out[axis][0] = this.getValueAt(name, temp); } 
+			try { out.add(this.getValueAt(name, temp)); } 
 			catch (ArrayIndexOutOfBoundsException e) {}
 			temp[axis] += 2;
-			try { out[axis][1] = this.getValueAt(name, temp); } 
+			try { out.add(this.getValueAt(name, temp)); } 
 			catch (ArrayIndexOutOfBoundsException e) {}
 			temp[axis] -= 1;
 		}
