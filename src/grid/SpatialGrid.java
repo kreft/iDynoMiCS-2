@@ -2,20 +2,10 @@ package grid;
 
 import java.util.HashMap;
 
+import idynomics.Compartment.BoundarySide;
+
 public abstract class SpatialGrid
 {
-	public enum BoundarySide
-	{
-		/*
-		 * Cartesian boundaries
-		 */
-		XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX,
-		/*
-		 * TODO Polar/cylindrical boundaries
-		 */
-		 
-	};
-	
 	public interface GridMethod
 	{
 		int[] getNewCoord(int[] coord);

@@ -14,7 +14,7 @@ public class ConnectedCompartmentsTest
 		BoundaryConnected b2 = new BulkBLBoundary();
 		b1.setPartnerBoundary(b2);
 		b2.setPartnerBoundary(b1);
-		c1.addBoundary(b1);
-		c2.addBoundary(b2);
+		c1.addBoundary("", b1);
+		c2.addBoundary("", b2);
 	}
 }

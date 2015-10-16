@@ -6,7 +6,7 @@ import java.util.function.DoubleFunction;
 import java.util.function.ToDoubleBiFunction;
 
 import linearAlgebra.*;
-
+import idynomics.Compartment.BoundarySide;
 
 /**
  * 

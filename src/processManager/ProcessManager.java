@@ -1,5 +1,6 @@
 package processManager;
 
+import java.util.Collection;
 import java.util.LinkedList;
 
 import boundary.Boundary;
@@ -75,7 +76,7 @@ public abstract class ProcessManager
 	 * 
 	 * @param boundaries
 	 */
-	public void showBoundaries(LinkedList<Boundary> boundaries)
+	public void showBoundaries(Collection<Boundary> boundaries)
 	{
 		
 	}

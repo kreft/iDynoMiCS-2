@@ -1,5 +1,6 @@
 package processManager;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -115,7 +116,7 @@ public class SolveChemostat extends ProcessManager
 	 * @param boundaries
 	 */
 	@Override
-	public void showBoundaries(LinkedList<Boundary> boundaries)
+	public void showBoundaries(Collection<Boundary> boundaries)
 	{
 		ChemostatConnection aChemoConnect;
 		for ( Boundary aBoundary : boundaries )

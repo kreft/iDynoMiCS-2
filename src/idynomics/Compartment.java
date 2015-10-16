@@ -2,6 +2,7 @@ package idynomics;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 import boundary.Boundary;
@@ -9,7 +10,109 @@ import boundary.BoundaryConnected;
 import processManager.ProcessManager;
 
 public class Compartment
-{	
+{
+	public static enum CompartmentShape
+	{
+		DIMENSIONLESS(0),
+		
+		CARTESIAN1D(1),
+		
+		CARTESIAN2D(2),
+		
+		CARTESIAN3D(3),
+		
+		UNKNOWN(-1);
+		
+		private int nDim;
+		
+		private CompartmentShape(int nDim)
+		{
+			this.nDim = nDim;
+		}
+		
+		public static CompartmentShape getShapeFor(String shape)
+		{
+			if ( shape.equalsIgnoreCase("dimensionless") )
+				return DIMENSIONLESS;
+			else if ( shape.equalsIgnoreCase("cartesian1d") )
+				return CARTESIAN1D;
+			else if ( shape.equalsIgnoreCase("cartesian2d") )
+				return CARTESIAN2D;
+			else if ( shape.equalsIgnoreCase("cartesian3d") )
+				return CARTESIAN3D;
+			else
+				return UNKNOWN;
+		};
+		
+		public static HashMap<BoundarySide,Boundary> 
+									sideBoundariesFor(CompartmentShape aShape)
+		{
+			if ( aShape == DIMENSIONLESS || aShape == UNKNOWN )
+				return null;
+			HashMap<BoundarySide,Boundary> out = new 
+											HashMap<BoundarySide,Boundary>();
+			if ( aShape == CARTESIAN1D || aShape == CARTESIAN2D || 
+														aShape == CARTESIAN3D)
+			{
+				out.put(BoundarySide.XMIN, null);
+				out.put(BoundarySide.XMAX, null);
+			}
+			if ( aShape == CARTESIAN2D || aShape == CARTESIAN3D)
+			{
+				out.put(BoundarySide.YMIN, null);
+				out.put(BoundarySide.YMAX, null);
+			}
+			if ( aShape == CARTESIAN3D)
+			{
+				out.put(BoundarySide.ZMIN, null);
+				out.put(BoundarySide.ZMAX, null);
+			}
+			return out;
+		}
+	}
+	
+	public enum BoundarySide
+	{
+		/*
+		 * Cartesian boundaries.
+		 */
+		XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX,
+		/*
+		 * TODO Polar/cylindrical boundaries
+		 */
+		
+		/*
+		 * 
+		 */
+		INTERNAL,
+		/*
+		 * 
+		 */
+		UNKNOWN;
+		
+		public static BoundarySide getSideFor(String side)
+		{
+			if ( side.equalsIgnoreCase("xmin") )
+				return XMIN;
+			else if ( side.equalsIgnoreCase("xmax") )
+				return XMAX;
+			else if ( side.equalsIgnoreCase("ymin") )
+				return YMIN;
+			else if ( side.equalsIgnoreCase("ymax") )
+				return YMAX;
+			else if ( side.equalsIgnoreCase("zmin") )
+				return ZMIN;
+			else if ( side.equalsIgnoreCase("zmax") )
+				return ZMAX;
+			else if ( side.equalsIgnoreCase("internal") )
+				return INTERNAL;
+			else
+				return UNKNOWN;
+		}
+	};
+	
+	protected CompartmentShape _shape;
+	
 	/**
 	 * N-dimensional vector describing the shape of this compartment. 
 	 * 
@@ -30,9 +133,15 @@ public class Compartment
 	protected EnvironmentContainer _environment = new EnvironmentContainer();
 	
 	/**
-	 * 
+	 * Directory of boundaries that are linked to a specific side.
 	 */
-	protected LinkedList<Boundary> _boundaries = new LinkedList<Boundary>();
+	protected HashMap<BoundarySide,Boundary> _sideBoundaries;
+	
+	/**
+	 * List of boundaries in a dimensionless compartment, or internal
+	 * boundaries in a dimensional compartment.
+	 */
+	protected LinkedList<Boundary> _otherBoundaries;
 	
 	/**
 	 * 
@@ -59,14 +168,30 @@ public class Compartment
 		
 	}
 	
-
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	public void setShape(String shape)
+	{
+		this._shape = CompartmentShape.getShapeFor(shape);
+		if ( this._shape == CompartmentShape.UNKNOWN )
+		{
+			//TODO
+		}
+		this._otherBoundaries = new LinkedList<Boundary>();
+		this._sideBoundaries = CompartmentShape.sideBoundariesFor(this._shape);
+	}
+	
+	public boolean isDimensionless()
+	{
+		return this._shape == CompartmentShape.DIMENSIONLESS;
+	}
+	
 	public int getNumDims()
 	{
-		return this._sideLengths.length;
+		return this._shape.nDim;
+		//return this._sideLengths.length;
 	}
 	
 	public void setSideLengths(double[] sideLengths)
@@ -77,11 +202,28 @@ public class Compartment
 	/**
 	 * \brief TODO
 	 * 
+	 * <p>To add a side to a dimensionless compartment, it doesn't matter
+	 * what "side" is.</p>
+	 * 
+	 * @param side
 	 * @param aBoundary
 	 */
-	public void addBoundary(Boundary aBoundary)
+	public void addBoundary(String side, Boundary aBoundary)
 	{
-		this._boundaries.add(aBoundary);
+		this.addBoundary(BoundarySide.getSideFor(side), aBoundary);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param aBoundary
+	 */
+	public void addBoundary(BoundarySide side, Boundary aBoundary)
+	{
+		if ( this.isDimensionless() || side == BoundarySide.INTERNAL )
+			this._otherBoundaries.add(aBoundary);
+		else
+			this._sideBoundaries.put(side, aBoundary);
 	}
 	
 	/**
@@ -91,7 +233,7 @@ public class Compartment
 	 */
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
-		aProcessManager.showBoundaries(this._boundaries);
+		aProcessManager.showBoundaries(this._sideBoundaries.values());
 		this._processes.add(aProcessManager);
 	}
 	
@@ -153,7 +295,7 @@ public class Compartment
 	 */
 	public void pushAllOutboundAgents()
 	{
-		for ( Boundary b : this._boundaries )
+		for ( Boundary b : this._sideBoundaries.values() )
 			if ( b instanceof BoundaryConnected )
 				((BoundaryConnected) b).pushAllOutboundAgents();
 	}
