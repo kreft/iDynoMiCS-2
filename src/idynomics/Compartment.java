@@ -15,11 +15,11 @@ public class Compartment
 	{
 		DIMENSIONLESS(0),
 		
-		CARTESIAN1D(1),
+		LINE(1),
 		
-		CARTESIAN2D(2),
+		RECTANGLE(2),
 		
-		CARTESIAN3D(3),
+		CUBOID(3),
 		
 		UNKNOWN(-1);
 		
@@ -34,12 +34,12 @@ public class Compartment
 		{
 			if ( shape.equalsIgnoreCase("dimensionless") )
 				return DIMENSIONLESS;
-			else if ( shape.equalsIgnoreCase("cartesian1d") )
-				return CARTESIAN1D;
-			else if ( shape.equalsIgnoreCase("cartesian2d") )
-				return CARTESIAN2D;
-			else if ( shape.equalsIgnoreCase("cartesian3d") )
-				return CARTESIAN3D;
+			else if ( shape.equalsIgnoreCase("line") )
+				return LINE;
+			else if ( shape.equalsIgnoreCase("rectangle") )
+				return RECTANGLE;
+			else if ( shape.equalsIgnoreCase("cuboid") )
+				return CUBOID;
 			else
 				return UNKNOWN;
 		};
@@ -51,18 +51,17 @@ public class Compartment
 				return null;
 			HashMap<BoundarySide,Boundary> out = new 
 											HashMap<BoundarySide,Boundary>();
-			if ( aShape == CARTESIAN1D || aShape == CARTESIAN2D || 
-														aShape == CARTESIAN3D)
+			if ( aShape == LINE || aShape == RECTANGLE || aShape == CUBOID)
 			{
 				out.put(BoundarySide.XMIN, null);
 				out.put(BoundarySide.XMAX, null);
 			}
-			if ( aShape == CARTESIAN2D || aShape == CARTESIAN3D)
+			if ( aShape == RECTANGLE || aShape == CUBOID)
 			{
 				out.put(BoundarySide.YMIN, null);
 				out.put(BoundarySide.YMAX, null);
 			}
-			if ( aShape == CARTESIAN3D)
+			if ( aShape == CUBOID)
 			{
 				out.put(BoundarySide.ZMIN, null);
 				out.put(BoundarySide.ZMAX, null);

@@ -11,6 +11,11 @@ public abstract class SpatialGrid
 		int[] getNewCoord(int[] coord);
 	}
 	
+	public enum ArrayType
+	{
+		CONCN, DIFFUSIVITY, DOMAIN, PRODUCTIONRATE, DIFFPRODUCTIONRATE;
+	}
+	
 	protected HashMap<BoundarySide,GridMethod> _boundaries;
 	
 	/**
