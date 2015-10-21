@@ -8,7 +8,7 @@ public abstract class SpatialGrid
 {
 	public interface GridMethod
 	{
-		int[] getNewCoord(int[] coord);
+		int[] getCorrectCoord(int[] coord);
 	}
 	
 	protected HashMap<BoundarySide,GridMethod> _boundaries;

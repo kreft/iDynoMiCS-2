@@ -41,7 +41,7 @@ public abstract class BoundaryConnected extends Boundary
 	 */
 	public BoundaryConnected()
 	{
-		
+		super();
 	}
 	
 	/*************************************************************************
