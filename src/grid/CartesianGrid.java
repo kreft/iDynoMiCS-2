@@ -3,7 +3,6 @@ package grid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
-import java.util.function.ToDoubleBiFunction;
 
 import linearAlgebra.*;
 import idynomics.Compartment.BoundarySide;
@@ -181,55 +180,48 @@ public class CartesianGrid extends SpatialGrid
 	{
 		int[] out = Vector.copy(coord);
 		if ( out[0] < 0 )
-			out = _boundaries.get(BoundarySide.XMIN).getNewCoord(out);
+			out = _boundaries.get(BoundarySide.XMIN).getCorrectCoord(out);
 		if ( out[0] >= _nVoxel[0] )
-			out = _boundaries.get(BoundarySide.XMAX).getNewCoord(out);
+			out = _boundaries.get(BoundarySide.XMAX).getCorrectCoord(out);
 		if ( out[1] < 0 )
-			out = _boundaries.get(BoundarySide.YMIN).getNewCoord(out);
+			out = _boundaries.get(BoundarySide.YMIN).getCorrectCoord(out);
 		if ( out[1] >= _nVoxel[0] )
-			out = _boundaries.get(BoundarySide.YMAX).getNewCoord(out);
+			out = _boundaries.get(BoundarySide.YMAX).getCorrectCoord(out);
 		if ( out[2] < 0 )
-			out = _boundaries.get(BoundarySide.ZMIN).getNewCoord(out);
+			out = _boundaries.get(BoundarySide.ZMIN).getCorrectCoord(out);
 		if ( out[2] >= _nVoxel[2] )
-			out = _boundaries.get(BoundarySide.ZMAX).getNewCoord(out);
+			out = _boundaries.get(BoundarySide.ZMAX).getCorrectCoord(out);
 		return out;
 	}
 	
 	public double getValueAtNew(String arrayName, int[] coord)
 	{
 		double[][][] array = this._array.get(arrayName);
-		try
-		{
-			return array[coord[0]][coord[1]][coord[2]];
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			int[] newCoord = checkCoords(coord);
-			if ( newCoord == null )
-				return Double.NaN;
-			return array[newCoord[0]][newCoord[1]][newCoord[2]];
-		}
+		int[] corrected = this.checkCoords(coord);
+		if ( corrected != null )
+			return array[corrected[0]][corrected[1]][corrected[2]];
+		else
+			return Double.NaN;
 	}
 	
 	/**
-	 * \brief TODO
 	 * 
 	 * @param arrayName
 	 * @param coord
 	 * @param newValue
+	 * @return Whether or not the assignment was successful.
 	 */
-	public void setValueAtNew(String arrayName, int[] coord, double newValue)
+	public boolean setValueAtNew(String arrayName, int[] coord, double newValue)
 	{
 		double[][][] array = this._array.get(arrayName);
-		try
+		int[] corrected = this.checkCoords(coord);
+		if ( corrected != null )
 		{
-			array[coord[0]][coord[1]][coord[2]] = newValue;
+			array[corrected[0]][corrected[1]][corrected[2]] = newValue;
+			return true;
 		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			int[] newCoord = checkCoords(coord);
-			array[newCoord[0]][newCoord[1]][newCoord[2]] = newValue;
-		}
+		else
+			return false;
 	}
 	
 	/**

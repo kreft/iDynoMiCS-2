@@ -30,7 +30,16 @@ public abstract class Boundary
 	 */
 	public Boundary()
 	{
-		
+		/*
+		 * This is the default grid method: any coordinate outside of the
+		 * shape is disallowed. 
+		 */
+		this._gridMethod = new GridMethod()
+		{
+			@Override
+			public int[] getCorrectCoord(int[] coord)
+			{ return null; }
+		};
 	}
 	
 	/*************************************************************************
@@ -45,6 +54,16 @@ public abstract class Boundary
 	public Shape getShape()
 	{
 		return this._shape;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param aShape
+	 */
+	public void setShape(Shape aShape)
+	{
+		this._shape = aShape;
 	}
 	
 	/**
@@ -67,5 +86,15 @@ public abstract class Boundary
 	public double distance(double[] position)
 	{
 		return this._shape.distance(position);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public GridMethod getGridMethod()
+	{
+		return this._gridMethod;
 	}
 }

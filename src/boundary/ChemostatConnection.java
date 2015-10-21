@@ -2,6 +2,9 @@ package boundary;
 
 import java.util.HashMap;
 
+import grid.SpatialGrid.GridMethod;
+import linearAlgebra.Vector;
+
 public class ChemostatConnection extends BoundaryConnected
 {
 	/**
@@ -13,7 +16,17 @@ public class ChemostatConnection extends BoundaryConnected
 	
 	public ChemostatConnection()
 	{
-		
+		super();
+		/*
+		 * A chemostat shouldn't ask for this, but if it does it will always
+		 * get the origin. 
+		 */
+		this._gridMethod = new GridMethod()
+				{
+					@Override
+					public int[] getCorrectCoord(int[] coord)
+					{ return Vector.zeros(coord); }
+				};
 	}
 	
 	public void setFlowRate(double flowRate)

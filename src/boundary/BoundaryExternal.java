@@ -22,7 +22,7 @@ public abstract class BoundaryExternal extends Boundary
 	 */
 	public BoundaryExternal()
 	{
-		
+		super();
 	}
 
 }

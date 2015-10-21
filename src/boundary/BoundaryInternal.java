@@ -3,6 +3,8 @@
  */
 package boundary;
 
+import grid.SpatialGrid.GridMethod;
+
 /**
  * \brief Abstract subclass of Boundary that defines boundaries inside a
  * single Compartment.
@@ -19,8 +21,17 @@ public abstract class BoundaryInternal extends Boundary
 	/**\brief TODO
 	 * 
 	 */
-	public BoundaryInternal() {
-		// TODO Auto-generated constructor stub
+	public BoundaryInternal()
+	{
+		/*
+		 * Internal boundaries should make no difference to the grid.
+		 */
+		this._gridMethod = new GridMethod()
+		{
+			@Override
+			public int[] getCorrectCoord(int[] coord)
+			{ return coord; }
+		};
 	}
 
 }
