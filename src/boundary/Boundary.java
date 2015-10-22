@@ -34,12 +34,7 @@ public abstract class Boundary
 		 * This is the default grid method: any coordinate outside of the
 		 * shape is disallowed. 
 		 */
-		this._gridMethod = new GridMethod()
-		{
-			@Override
-			public int[] getCorrectCoord(int[] coord)
-			{ return null; }
-		};
+		this._gridMethod = zeroFlux();
 	}
 	
 	/*************************************************************************
@@ -104,12 +99,17 @@ public abstract class Boundary
 	
 	protected static GridMethod neumann(double gradient)
 	{
-		return new GridMethod() {
-
+		return new GridMethod()
+		{
 			@Override
 			public int[] getCorrectCoord(int[] coord) {
 				// TODO Auto-generated method stub
 				return null;
+			}
+			
+			public double getConcnGradient(int[] coord)
+			{
+				return gradient;
 			}
 			
 		};

@@ -3,12 +3,10 @@
  */
 package solver;
 
-import grid.CartesianGrid;
-import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
-
 import java.util.HashMap;
 
+import grid.CartesianGrid;
+import grid.SpatialGrid.ArrayType;
 import utility.ExtraMath;
 
 /**

@@ -25,13 +25,9 @@ public abstract class BoundaryInternal extends Boundary
 	{
 		/*
 		 * Internal boundaries should make no difference to the grid.
+		 * TODO
 		 */
-		this._gridMethod = new GridMethod()
-		{
-			@Override
-			public int[] getCorrectCoord(int[] coord)
-			{ return coord; }
-		};
+		//this._gridMethod = ;
 	}
 
 }

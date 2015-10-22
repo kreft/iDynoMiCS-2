@@ -9,7 +9,6 @@ import agent.state.HasReactions;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
 import grid.CartesianGrid;
-import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;

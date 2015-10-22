@@ -19,14 +19,10 @@ public class ChemostatConnection extends BoundaryConnected
 		super();
 		/*
 		 * A chemostat shouldn't ask for this, but if it does it will always
-		 * get the origin. 
+		 * get the origin.
+		 * TODO 
 		 */
-		this._gridMethod = new GridMethod()
-				{
-					@Override
-					public int[] getCorrectCoord(int[] coord)
-					{ return Vector.zeros(coord); }
-				};
+		//this._gridMethod = 
 	}
 	
 	public void setFlowRate(double flowRate)

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Set;
 
 import grid.CartesianGrid;
-import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
 import reaction.Reaction;
@@ -75,11 +74,10 @@ public class EnvironmentContainer
 	 * @param padding
 	 * @param res
 	 */
-	public void init(int[] nVoxel, int[] padding, double res)
+	public void init(int[] nVoxel, double res)
 	{
 		this._defaultResolution = res;
 		this._defaultNVoxel = nVoxel;
-		this._defaultPadding = padding;
 	}
 	
 	/**
@@ -98,7 +96,6 @@ public class EnvironmentContainer
 		 * TODO safety: check if solute already in hashmap
 		 */
 		CartesianGrid sg = new CartesianGrid(this._defaultNVoxel,
-										this._defaultPadding,
 										this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);

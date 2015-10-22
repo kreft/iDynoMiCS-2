@@ -9,11 +9,19 @@ public abstract class SpatialGrid
 	public interface GridMethod
 	{
 		int[] getCorrectCoord(int[] coord);
+		
+		double getConcnGradient(int[] coord);
 	}
 	
 	public enum ArrayType
 	{
-		CONCN, DIFFUSIVITY, DOMAIN, 
+		/*
+		 * The solute concentration.
+		 * TODO Change to VARIABLE to make more general?
+		 */
+		CONCN, 
+		
+		DIFFUSIVITY, DOMAIN, 
 		
 		PRODUCTIONRATE, DIFFPRODUCTIONRATE, LOPERATOR;
 	}

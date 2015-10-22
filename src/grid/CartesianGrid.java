@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
-import grid.SpatialGrid.ArrayType;
 import linearAlgebra.*;
 import idynomics.Compartment.BoundarySide;
 
@@ -44,6 +43,13 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	protected int[] _currentCoord;
 	
+	/**
+	 * Current neighbour coordinate considered by the neighbor iterator.
+	 */
+	protected int[] _currentNeighbor;
+	
+	protected boolean _inclIndirectNeighbors;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -55,7 +61,7 @@ public class CartesianGrid extends SpatialGrid
 	 * @param padding
 	 * @param resolution
 	 */
-	public CartesianGrid(int[] nVoxel, int[] padding, double resolution)
+	public CartesianGrid(int[] nVoxel, double resolution)
 	{
 		this._nVoxel = Vector.copy(nVoxel);
 		this._res = resolution;
@@ -509,7 +515,7 @@ public class CartesianGrid extends SpatialGrid
 	}
 	
 	/*************************************************************************
-	 * ITERATOR
+	 * COORDINATE ITERATOR
 	 ************************************************************************/
 	
 	/**
@@ -563,11 +569,6 @@ public class CartesianGrid extends SpatialGrid
 			{
 				_currentCoord[1] = 0;
 				_currentCoord[2]++;
-				if ( this.iteratorExceeds(2) )
-				{
-					//throw new IllegalStateException(
-					//						"Iterator exceeds boundaries.");
-				}
 			}
 		}
 		return _currentCoord;
@@ -579,6 +580,128 @@ public class CartesianGrid extends SpatialGrid
 	public void closeIterator()
 	{
 		this._currentCoord = null;
+	}
+	
+	/*************************************************************************
+	 * NEIGHBOR ITERATOR
+	 ************************************************************************/
+	
+	/**
+	 * TODO
+	 * 
+	 */
+	public int[] resetNbhIterator(boolean inclIndirectNeighbors)
+	{
+		this._currentNeighbor = Vector.copy(this._currentCoord);
+		this._inclIndirectNeighbors = inclIndirectNeighbors;
+		forLoop: for ( int axis = 0; axis < 3; axis++ )
+			if ( this._nVoxel[axis] > 1 )
+			{
+				this._currentNeighbor[axis]--;
+				if ( ! this._inclIndirectNeighbors )
+					break forLoop;
+			}
+		return this._currentNeighbor;
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @param axis
+	 * @return
+	 */
+	private boolean nbhIteratorExceeds(int axis)
+	{
+		if ( this._nVoxel[axis] == 1 && this._currentNeighbor[axis] != 0 )
+			return true;
+		return _currentNeighbor[axis] >  this._currentCoord[axis] + 1;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public boolean isNbhIteratorValid()
+	{
+		if ( Vector.areSame(this._currentCoord, this._currentNeighbor) )
+			return false;
+		for ( int axis = 0; axis < 3; axis++ )
+			if ( nbhIteratorExceeds(axis) )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * TODO
+	 * 
+	 * @return int[3] coordinates of next position.
+	 * @exception IllegalStateException Iterator exceeds boundaries.
+	 */
+	public int[] nbhIteratorNext()
+	{
+		int diff = ( this._inclIndirectNeighbors ) ? 1 : 2;
+		forLoop: for ( int axis = 0; axis < 3; axis++ )
+		{
+			if ( this._currentNeighbor[axis] <= this._currentCoord[axis] )
+			{
+				this._currentNeighbor[axis] += diff;
+				break forLoop;
+			}
+			else 
+			{
+				this._currentNeighbor[axis] = this._currentCoord[axis];
+				if ( axis < 2 )
+					this._currentNeighbor[axis + 1] = this._currentCoord[axis] -1;
+			}
+		}
+		/*
+		if ( this._inclIndirectNeighbors )
+		{
+			_currentNeighbor[0]++;
+			if ( this.nbhIteratorExceeds(0) )
+			{
+				_currentNeighbor[0] = 0;
+				_currentNeighbor[1]++;
+				if ( this.nbhIteratorExceeds(1) )
+				{
+					_currentNeighbor[1] = 0;
+					_currentNeighbor[2]++;
+				}
+			}
+			if ( Vector.areSame(this._currentNeighbor, this._currentCoord) )
+				return this.nbhIteratorNext();
+		}
+		else
+		{
+			forLoop: for ( int axis = 0; axis < 3; axis++ )
+			{
+				if ( this._currentNeighbor[axis] < this._currentCoord[axis] )
+				{
+					this._currentNeighbor[axis] += 2;
+					break forLoop;
+				}
+				else if ( this._currentNeighbor[axis] > this._currentCoord[axis] )
+				{
+					this._currentNeighbor[axis] = this._currentCoord[axis];
+					if ( axis < 2 )
+						this._currentNeighbor[axis + 1]--;
+					break forLoop;
+				}
+			}
+		}
+		*/
+		if ( Vector.areSame(this._currentNeighbor, this._currentCoord) )
+			return this.nbhIteratorNext();
+		return _currentNeighbor;
+	}
+	
+	/**
+	 * \brief Discard the iterative coordinate.
+	 */
+	public void closeNbhIterator()
+	{
+		this._currentNeighbor = null;
 	}
 	
 	/*************************************************************************
