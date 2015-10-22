@@ -6,7 +6,6 @@ package agent.activity;
  */
 
 import agent.Agent;
-import utility.ExtraMath;
 
 public class Segregation extends Activity {
 	

@@ -5,6 +5,7 @@ import java.util.Set;
 
 import grid.CartesianGrid;
 import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import utility.ExtraMath;
@@ -99,7 +100,7 @@ public class EnvironmentContainer
 		CartesianGrid sg = new CartesianGrid(this._defaultNVoxel,
 										this._defaultPadding,
 										this._defaultResolution);
-		sg.newArray(SpatialGrid.concn, initialConcn);
+		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
 	}
 	

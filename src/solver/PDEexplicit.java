@@ -5,6 +5,7 @@ package solver;
 
 import grid.CartesianGrid;
 import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 
 import java.util.HashMap;
 
@@ -53,7 +54,7 @@ public class PDEexplicit extends PDEsolver
 		{
 			var = variables.get(varName);
 			dt = Math.min(dt, 0.1 * ExtraMath.sq(var.getResolution()) /
-												var.getMin(SpatialGrid.diff));
+										   var.getMin(ArrayType.DIFFUSIVITY));
 		}
 		if ( dt < tFinal )
 		{
@@ -69,10 +70,10 @@ public class PDEexplicit extends PDEsolver
 			for ( String varName : this._variableNames )
 			{
 				var = variables.get(varName);
-				var.newArray("lop");
-				addLOperator(var, "lop");
-				var.timesAll("lop", dt);
-				var.addArrayToArray(SpatialGrid.concn, "lop", false);
+				var.newArray(ArrayType.LOPERATOR);
+				addLOperator(var, ArrayType.LOPERATOR);
+				var.timesAll(ArrayType.LOPERATOR, dt);
+				var.addArrayToArray(ArrayType.CONCN, ArrayType.LOPERATOR);
 			}
 		}
 	}

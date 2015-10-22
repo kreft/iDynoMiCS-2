@@ -1,9 +1,6 @@
 package processManager;
 
-import java.util.HashMap;
-
 import agent.Agent;
-import grid.CartesianGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 

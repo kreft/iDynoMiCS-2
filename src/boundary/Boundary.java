@@ -97,4 +97,27 @@ public abstract class Boundary
 	{
 		return this._gridMethod;
 	}
+	
+	/*************************************************************************
+	 * COMMON GRIDMETHODS
+	 ************************************************************************/
+	
+	protected static GridMethod neumann(double gradient)
+	{
+		return new GridMethod() {
+
+			@Override
+			public int[] getCorrectCoord(int[] coord) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+		};
+	}
+	
+	protected static GridMethod zeroFlux()
+	{
+		return neumann(0.0);
+	}
+	
 }

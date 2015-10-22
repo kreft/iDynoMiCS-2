@@ -13,38 +13,30 @@ public abstract class SpatialGrid
 	
 	public enum ArrayType
 	{
-		CONCN, DIFFUSIVITY, DOMAIN, PRODUCTIONRATE, DIFFPRODUCTIONRATE;
+		CONCN, DIFFUSIVITY, DOMAIN, 
+		
+		PRODUCTIONRATE, DIFFPRODUCTIONRATE, LOPERATOR;
 	}
 	
 	protected HashMap<BoundarySide,GridMethod> _boundaries;
 	
-	/**
-	 * Standard names for SpatialGrid arrays that are used in various places.
-	 */
-	public static final String concn = "concentration",
-								diff = "diffusivity",
-								domain = "domain", 
-								reac = "reacRate", 
-								dReac = "diffReacRate";
-	
-	
-	public abstract void newArray(String name, double initialValues);
+	public abstract void newArray(ArrayType type, double initialValues);
 	
 	/**
 	 * \brief TODO
 	 * 
 	 * @param name
 	 */
-	public void newArray(String name)
+	public void newArray(ArrayType type)
 	{
-		this.newArray(name, 0.0);
+		this.newArray(type, 0.0);
 	}
 	
-	public abstract double getMax(String name);
+	public abstract double getMax(ArrayType type);
 	
-	public abstract double getMin(String name);
+	public abstract double getMin(ArrayType type);
 	
-	public abstract double getValueAt(String name, double[] location);
+	public abstract double getValueAt(ArrayType type, double[] location);
 	
 	public void addBoundary(BoundarySide side, GridMethod method)
 	{

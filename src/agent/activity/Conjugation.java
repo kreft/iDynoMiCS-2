@@ -1,7 +1,6 @@
 package agent.activity;
 
 import agent.Agent;
-import idynomics.Timer;
 
 public class Conjugation extends Activity {
 	

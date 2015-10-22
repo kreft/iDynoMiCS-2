@@ -1,7 +1,6 @@
 package processManager;
 
 import java.util.Collection;
-import java.util.LinkedList;
 
 import boundary.Boundary;
 import idynomics.AgentContainer;

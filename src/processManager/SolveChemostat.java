@@ -10,6 +10,7 @@ import boundary.Boundary;
 import boundary.ChemostatConnection;
 import grid.CartesianGrid;
 import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Matrix;
@@ -275,7 +276,7 @@ public class SolveChemostat extends ProcessManager
 		{
 			sg = environment.getSoluteGrid(this._soluteNames[i]);
 			//TODO Use average?
-			y[i] = sg.getMax(SpatialGrid.concn);
+			y[i] = sg.getMax(ArrayType.CONCN);
 		}
 		return y;
 	}
@@ -294,7 +295,7 @@ public class SolveChemostat extends ProcessManager
 		for ( int i = 0; i < y.length; i++ )
 		{
 			environment.getSoluteGrid(this._soluteNames[i])
-										.setAllTo(SpatialGrid.concn, y[i]);
+										.setAllTo(ArrayType.CONCN, y[i]);
 		}
 	}
 }

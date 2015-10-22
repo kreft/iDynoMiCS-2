@@ -5,7 +5,6 @@ import java.util.LinkedList;
 
 import agent.activity.*;
 import agent.body.*;
-import agent.state.HasReactions;
 import grid.CartesianGrid;
 import idynomics.AgentContainer;
 

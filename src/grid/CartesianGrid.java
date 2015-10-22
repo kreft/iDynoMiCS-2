@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
+import grid.SpatialGrid.ArrayType;
 import linearAlgebra.*;
 import idynomics.Compartment.BoundarySide;
 
@@ -26,7 +27,7 @@ public class CartesianGrid extends SpatialGrid
 	/**
 	 * TODO
 	 */
-	protected HashMap<String, double[][][]> _array;
+	protected HashMap<ArrayType, double[][][]> _array;
 	
 	/**
 	 * TODO
@@ -72,28 +73,24 @@ public class CartesianGrid extends SpatialGrid
 	 * @param name
 	 * @param initialValues
 	 */
-	public void newArray(String name, double initialValues)
+	public void newArray(ArrayType type, double initialValues)
 	{
 		/*
 		 * First check that the array HashMap has been created.
 		 */
-		try
-		{ this._array.getClass(); }
-		catch (NullPointerException e)
-		{ this._array = new HashMap<String, double[][][]>(); }
+		if ( this._array == null )
+			this._array = new HashMap<ArrayType, double[][][]>();
 		/*
 		 * Now try resetting all values of this array. If it doesn't exist
 		 * yet, make it.
 		 */
-		try
-		{
-			Array.setAll(this._array.get(name), 0.0);
-		}
-		catch ( Exception e )
+		if ( this._array.containsKey(type) )
+			Array.setAll(this._array.get(type), 0.0);
+		else
 		{
 			double[][][] array = Array.array(this._nVoxel[0], this._nVoxel[1],
 											this._nVoxel[2], initialValues);
-			this._array.put(name, array);
+			this._array.put(type, array);
 		}
 	}
 	
@@ -106,9 +103,9 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * @return
 	 */
-	public double[][][] getArray(String name)
+	public double[][][] getArray(ArrayType type)
 	{
-		return Array.copy(this._array.get(name));
+		return Array.copy(this._array.get(type));
 	}
 	
 	/**
@@ -194,9 +191,9 @@ public class CartesianGrid extends SpatialGrid
 		return out;
 	}
 	
-	public double getValueAtNew(String arrayName, int[] coord)
+	public double getValueAtNew(ArrayType type, int[] coord)
 	{
-		double[][][] array = this._array.get(arrayName);
+		double[][][] array = this._array.get(type);
 		int[] corrected = this.checkCoords(coord);
 		if ( corrected != null )
 			return array[corrected[0]][corrected[1]][corrected[2]];
@@ -211,9 +208,9 @@ public class CartesianGrid extends SpatialGrid
 	 * @param newValue
 	 * @return Whether or not the assignment was successful.
 	 */
-	public boolean setValueAtNew(String arrayName, int[] coord, double newValue)
+	public boolean setValueAtNew(ArrayType type, int[] coord, double newValue)
 	{
-		double[][][] array = this._array.get(arrayName);
+		double[][][] array = this._array.get(type);
 		int[] corrected = this.checkCoords(coord);
 		if ( corrected != null )
 		{
@@ -234,12 +231,12 @@ public class CartesianGrid extends SpatialGrid
 	 * @exception ArrayIndexOutOfBoundsException Voxel coordinates must be
 	 * inside array.
 	 */
-	private double applyToVoxel(String name, int[] aC,
+	private double applyToVoxel(ArrayType type, int[] aC,
 													DoubleFunction<Double> f)
 	{
 		try
 		{
-			double[][][] array = this._array.get(name);
+			double[][][] array = this._array.get(type);
 			return array[aC[0]][aC[1]][aC[2]] = 
 										f.apply(array[aC[0]][aC[1]][aC[2]]);
 		}
@@ -259,10 +256,10 @@ public class CartesianGrid extends SpatialGrid
 	 * @param gridCoords
 	 * @param f
 	 */
-	protected double applyToCoord(String name, int[] gridCoords,
+	protected double applyToCoord(ArrayType type, int[] gridCoords,
 													DoubleFunction<Double> f)
 	{
-		return this.applyToVoxel(name, gridCoords, f);
+		return this.applyToVoxel(type, gridCoords, f);
 	}
 	
 	/**
@@ -312,9 +309,9 @@ public class CartesianGrid extends SpatialGrid
 	 * @param gridCoords
 	 * @param value
 	 */
-	public void setValueAt(String name, int[] gridCoords, double value)
+	public void setValueAt(ArrayType type, int[] gridCoords, double value)
 	{
-		this.applyToVoxel(name, gridCoords, (double v)->{return value;});
+		this.applyToVoxel(type, gridCoords, (double v)->{return value;});
 	}
 	
 	/**
@@ -324,9 +321,9 @@ public class CartesianGrid extends SpatialGrid
 	 * @param gridCoords
 	 * @param value
 	 */
-	public void addValueAt(String name, int[] gridCoords, double value)
+	public void addValueAt(ArrayType type, int[] gridCoords, double value)
 	{
-		this.applyToVoxel(name, gridCoords, (double v)->{return v + value;});
+		this.applyToVoxel(type, gridCoords, (double v)->{return v + value;});
 	}
 	
 	/**
@@ -336,9 +333,9 @@ public class CartesianGrid extends SpatialGrid
 	 * @param gridCoords
 	 * @param value
 	 */
-	public void timesValueAt(String name, int[] gridCoords, double value)
+	public void timesValueAt(ArrayType type, int[] gridCoords, double value)
 	{
-		this.applyToVoxel(name, gridCoords, (double v)->{return v * value;});
+		this.applyToVoxel(type, gridCoords, (double v)->{return v * value;});
 	}
 	
 	/*************************************************************************
@@ -352,9 +349,9 @@ public class CartesianGrid extends SpatialGrid
 	 * @param gridCoords
 	 * @return
 	 */
-	public double getValueAt(String name, int[] gridCoords)
+	public double getValueAt(ArrayType type, int[] gridCoords)
 	{
-		return this.applyToVoxel(name, gridCoords, (double v)->{return v;});
+		return this.applyToVoxel(type, gridCoords, (double v)->{return v;});
 	}
 	
 	/**
@@ -365,17 +362,17 @@ public class CartesianGrid extends SpatialGrid
 	 * @param gridCoords
 	 * @return
 	 */
-	public ArrayList<Double> getNeighborValues(String name, int[] gridCoords)
+	public ArrayList<Double> getNeighborValues(ArrayType type, int[] gridCoords)
 	{
 		ArrayList<Double> out = new ArrayList<Double>();
 		int[] temp = Vector.copy(gridCoords);
 		for ( int axis = 0; axis < 3; axis++ )
 		{
 			temp[axis] -= 1;
-			try { out.add(this.getValueAt(name, temp)); } 
+			try { out.add(this.getValueAt(type, temp)); } 
 			catch (ArrayIndexOutOfBoundsException e) {}
 			temp[axis] += 2;
-			try { out.add(this.getValueAt(name, temp)); } 
+			try { out.add(this.getValueAt(type, temp)); } 
 			catch (ArrayIndexOutOfBoundsException e) {}
 			temp[axis] -= 1;
 		}
@@ -390,9 +387,9 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * @param value double value to use.
 	 */
-	public void setAllTo(String name, double value )
+	public void setAllTo(ArrayType type, double value )
 	{
-		Array.setAll(this._array.get(name), value);
+		Array.setAll(this._array.get(type), value);
 	}
 	
 	/**
@@ -400,9 +397,9 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * @param array
 	 */
-	public void setTo(String name, double[][][] array)
+	public void setTo(ArrayType type, double[][][] array)
 	{
-		Array.setAll(this._array.get(name), array);
+		Array.setAll(this._array.get(type), array);
 	}
 	
 	/**
@@ -410,9 +407,9 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * @param value
 	 */
-	public void addToAll(String name, double value)
+	public void addToAll(ArrayType type, double value)
 	{
-		Array.add(this._array.get(name), value);
+		Array.add(this._array.get(type), value);
 	}
 	
 	/**
@@ -422,9 +419,9 @@ public class CartesianGrid extends SpatialGrid
 	 * @param value
 	 * @param includePadding
 	 */
-	public void timesAll(String name, double value)
+	public void timesAll(ArrayType type, double value)
 	{
-		Array.times(this._array.get(name), value);
+		Array.times(this._array.get(type), value);
 	}
 	
 	/*************************************************************************
@@ -438,9 +435,9 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * @return
 	 */
-	public double getMax(String name)
+	public double getMax(ArrayType type)
 	{
-		return Array.max(this._array.get(name));
+		return Array.max(this._array.get(type));
 	}
 	
 	/**
@@ -450,17 +447,16 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * @return
 	 */
-	public double getMin(String name)
+	public double getMin(ArrayType type)
 	{
-		return Array.min(this._array.get(name));
+		return Array.min(this._array.get(type));
 	}
 	
 	/*************************************************************************
 	 * TWO-ARRAY METHODS
 	 ************************************************************************/
 	
-	public void addArrayToArray(String destination, String source, 
-													boolean includePadding)
+	public void addArrayToArray(ArrayType destination, ArrayType source)
 	{
 		Array.add(this._array.get(destination), this._array.get(source));
 	}
@@ -475,9 +471,9 @@ public class CartesianGrid extends SpatialGrid
 	 * @param location
 	 * @return
 	 */
-	public double getValueAt(String name, double[] location)
+	public double getValueAt(ArrayType type, double[] location)
 	{
-		return this.getValueAt(name, this.getCoords(location));
+		return this.getValueAt(type, this.getCoords(location));
 	}
 	
 	/*************************************************************************
@@ -492,23 +488,23 @@ public class CartesianGrid extends SpatialGrid
 	 * @param axis
 	 * @return
 	 */
-	protected double differential(String name, int[] gridCoords, int axis)
+	protected double differential(ArrayType type, int[] gridCoords, int axis)
 	{
 		int[] temp = Vector.copy(gridCoords);
-		double out = -2.0 * getValueAt(name, temp);
+		double out = -2.0 * getValueAt(type, temp);
 		temp[axis] += 1;
-		out += getValueAt(name, temp);
+		out += getValueAt(type, temp);
 		temp[axis] -= 2;
-		out += getValueAt(name, temp);
+		out += getValueAt(type, temp);
 		out /= 2.0 * this._res;
 		return ( Double.isFinite(out) ) ? out : 0.0;
 	}
 	
-	protected double[] gradient(String name, int[] gridCoords)
+	protected double[] gradient(ArrayType type, int[] gridCoords)
 	{
 		double[] out = new double[3];
 		for ( int axis = 0; axis < 3; axis++ )
-			out[axis] = differential(name, gridCoords, axis);
+			out[axis] = differential(type, gridCoords, axis);
 		return out;
 	}
 	

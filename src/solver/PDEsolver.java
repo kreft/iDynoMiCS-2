@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import grid.CartesianGrid;
-import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 
 /**
  * \brief TODO
@@ -77,12 +77,12 @@ public abstract class PDEsolver extends Solver
 	 * @param solute
 	 * @param arrayName
 	 */
-	protected void addLOperator(CartesianGrid solute, String arrayName)
+	protected void addLOperator(CartesianGrid solute, ArrayType type)
 	{
 		/*
 		 * Reset the SpatialGrid's L-Operator array.
 		 */
-		solute.newArray(arrayName);
+		solute.newArray(ArrayType.LOPERATOR);
 		/*
 		 * Solute concentration and diffusivity at the current grid 
 		 * coordinates.
@@ -102,12 +102,12 @@ public abstract class PDEsolver extends Solver
 		for (int[] current = solute.resetIterator(); solute.isIteratorValid();
 											  current = solute.iteratorNext())
 		{
-			if ( solute.getValueAt(SpatialGrid.domain, current) == 0.0 )
+			if ( solute.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
 				continue;
-			currConcn = solute.getValueAt(SpatialGrid.concn, current);
-			currDiff = solute.getValueAt(SpatialGrid.diff, current);
-			concnNbh = solute.getNeighborValues(SpatialGrid.concn, current);
-			diffNbh = solute.getNeighborValues(SpatialGrid.diff, current);
+			currConcn = solute.getValueAt(ArrayType.CONCN, current);
+			currDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, current);
+			concnNbh = solute.getNeighborValues(ArrayType.CONCN, current);
+			diffNbh = solute.getNeighborValues(ArrayType.DIFFUSIVITY, current);
 			lop = 0.0;
 			for ( int i = 0; i < concnNbh.size(); i++ )
 				lop += (diffNbh.get(i)+currDiff)*(concnNbh.get(i)-currConcn);
@@ -118,11 +118,11 @@ public abstract class PDEsolver extends Solver
 			/*
 			 * Add on any reactions.
 			 */
-			lop += solute.getValueAt(SpatialGrid.reac, current);
+			lop += solute.getValueAt(ArrayType.PRODUCTIONRATE, current);
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
-			solute.addValueAt(arrayName, current, lop);
+			solute.addValueAt(type, current, lop);
 		}
 	}
 	
@@ -135,13 +135,13 @@ public abstract class PDEsolver extends Solver
 	 * @param solute 
 	 * @param arrayName
 	 */
-	protected void divideByDiffLOperator(CartesianGrid solute, String arrayName)
+	protected void divideByDiffLOperator(CartesianGrid solute, ArrayType arrayType)
 	{
 		/*
 		 * Reset the SpatialGrid's array
 		 * TODO skip this?
 		 */
-		solute.newArray(arrayName);
+		solute.newArray(ArrayType.LOPERATOR);
 		
 		/*
 		 * Diffusivity at the current grid coordinates.
@@ -162,10 +162,10 @@ public abstract class PDEsolver extends Solver
 		for (int[] current = solute.resetIterator(); solute.isIteratorValid();
 											  current = solute.iteratorNext())
 		{
-			if ( solute.getValueAt(SpatialGrid.domain, current) == 0.0 )
+			if ( solute.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
 				continue;
-			currDiff = solute.getValueAt(SpatialGrid.diff, current);
-			diffNbh = solute.getNeighborValues(SpatialGrid.diff, current);
+			currDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, current);
+			diffNbh = solute.getNeighborValues(ArrayType.DIFFUSIVITY, current);
 			dLop = 0.0;
 			for ( double diffusivity : diffNbh )
 				dLop += diffusivity + currDiff;
@@ -173,8 +173,8 @@ public abstract class PDEsolver extends Solver
 			 * Here we assume that all voxels are the same size.
 			 */
 			dLop *= 0.5 / Math.pow(solute.getResolution(), 2.0);
-			dLop += solute.getValueAt(SpatialGrid.dReac, current);
-			solute.timesValueAt(arrayName, current, 1.0/dLop);
+			dLop += solute.getValueAt(ArrayType.DIFFPRODUCTIONRATE, current);
+			solute.timesValueAt(arrayType, current, 1.0/dLop);
 		}
 	}	
 }

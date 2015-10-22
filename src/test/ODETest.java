@@ -10,6 +10,7 @@ import boundary.Boundary;
 import boundary.ChemostatConnection;
 import grid.CartesianGrid;
 import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
@@ -87,13 +88,13 @@ public class ODETest
 		
 		System.out.println("Time: "+process.getTimeForNextStep());
 		for ( String name : soluteNames )
-			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
+			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
 		for ( ; nStep > 0; nStep-- )
 		{
 			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
-				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
+				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
 		}
 		System.out.println("\n");
 	}
@@ -143,13 +144,13 @@ public class ODETest
 		
 		System.out.println("Time: "+process.getTimeForNextStep());
 		for ( String name : soluteNames )
-			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
+			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
 		for ( ; nStep > 0; nStep-- )
 		{
 			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
-				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
+				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
 		}
 		System.out.println("\n");
 	}
@@ -213,13 +214,13 @@ public class ODETest
 		
 		System.out.println("Time: "+process.getTimeForNextStep());
 		for ( String name : soluteNames )
-			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
+			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
 		for ( ; nStep > 0; nStep-- )
 		{
 			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
-				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(SpatialGrid.concn));
+				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
 		}
 		System.out.println("\n");
 	}

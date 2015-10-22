@@ -4,7 +4,7 @@
 package processManager;
 
 import agent.Agent;
-import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 
@@ -41,10 +41,10 @@ public class PrepareSoluteGrids extends ProcessManager
 		 */
 		for ( String sName : environment.getSoluteNames() )
 		{
-			environment.getSoluteGrid(sName).newArray(SpatialGrid.reac);
-			environment.getSoluteGrid(sName).newArray(SpatialGrid.dReac);
-			environment.getSoluteGrid(sName).newArray(SpatialGrid.domain);
-			environment.getSoluteGrid(sName).newArray(SpatialGrid.diff);
+			environment.getSoluteGrid(sName).newArray(ArrayType.PRODUCTIONRATE);
+			environment.getSoluteGrid(sName).newArray(ArrayType.DIFFPRODUCTIONRATE);
+			environment.getSoluteGrid(sName).newArray(ArrayType.DOMAIN);
+			environment.getSoluteGrid(sName).newArray(ArrayType.DIFFUSIVITY);
 		}
 		/*
 		 * Iterate through the agents, asking them to apply the relevant

@@ -5,6 +5,7 @@ package test;
 
 import grid.CartesianGrid;
 import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
@@ -60,14 +61,14 @@ public class PDEtest
 			{
 				value = i + ((int)Math.pow(-1,i))*(Math.exp(-k*(j+1.0))-fudge)/(1.0-fudge);
 				coords[0] = j;
-				sg.addValueAt(SpatialGrid.concn, coords, value);
+				sg.addValueAt(ArrayType.CONCN, coords, value);
 			}
-			sg.newArray(SpatialGrid.diff);
-			sg.setAllTo(SpatialGrid.diff, D);
-			sg.newArray(SpatialGrid.domain);
-			sg.setAllTo(SpatialGrid.domain, 1.0);
-			sg.newArray(SpatialGrid.reac);
-			sg.newArray(SpatialGrid.dReac);
+			sg.newArray(ArrayType.DIFFUSIVITY);
+			sg.setAllTo(ArrayType.DIFFUSIVITY, D);
+			sg.newArray(ArrayType.DOMAIN);
+			sg.setAllTo(ArrayType.DOMAIN, 1.0);
+			sg.newArray(ArrayType.PRODUCTIONRATE);
+			sg.newArray(ArrayType.DIFFPRODUCTIONRATE);
 		}
 		/*
 		 * Dummy AgentContainer will be empty
@@ -132,26 +133,26 @@ public class PDEtest
 			{
 				coords[0] = j;
 				coords[1] = -1;
-				sg.setValueAt(SpatialGrid.concn, coords, (j+1.0)/8.0);
+				sg.setValueAt(ArrayType.CONCN, coords, (j+1.0)/8.0);
 				coords[1] = 3;
-				sg.setValueAt(SpatialGrid.concn, coords, (5.0+j)/8.0);
+				sg.setValueAt(ArrayType.CONCN, coords, (5.0+j)/8.0);
 				coords[1] = j;
 				coords[0] = -1;
-				sg.setValueAt(SpatialGrid.concn, coords, (j+1.0)/8.0);
+				sg.setValueAt(ArrayType.CONCN, coords, (j+1.0)/8.0);
 				coords[0] = 3;
-				sg.setValueAt(SpatialGrid.concn, coords, (5.0+j)/8.0);
+				sg.setValueAt(ArrayType.CONCN, coords, (5.0+j)/8.0);
 			}
 			for ( coords = sg.resetIterator() ; sg.isIteratorValid();
 												coords = sg.iteratorNext() )
 			{
-				sg.setValueAt(SpatialGrid.concn, coords, Math.random());
+				sg.setValueAt(ArrayType.CONCN, coords, Math.random());
 			}
-			sg.newArray(SpatialGrid.diff);
-			sg.setAllTo(SpatialGrid.diff, D);
-			sg.newArray(SpatialGrid.domain);
-			sg.setAllTo(SpatialGrid.domain, 1.0);
-			sg.newArray(SpatialGrid.reac);
-			sg.newArray(SpatialGrid.dReac);
+			sg.newArray(ArrayType.DIFFUSIVITY);
+			sg.setAllTo(ArrayType.DIFFUSIVITY, D);
+			sg.newArray(ArrayType.DOMAIN);
+			sg.setAllTo(ArrayType.DOMAIN, 1.0);
+			sg.newArray(ArrayType.PRODUCTIONRATE);
+			sg.newArray(ArrayType.DIFFPRODUCTIONRATE);
 		}
 		
 		/*
@@ -211,25 +212,25 @@ public class PDEtest
 			{
 				coords[0] = j;
 				coords[1] = -1;
-				sg.setValueAt(SpatialGrid.concn, coords, 0.0);
+				sg.setValueAt(ArrayType.CONCN, coords, 0.0);
 				coords[1] = 3;
-				sg.setValueAt(SpatialGrid.concn, coords, 0.0);
+				sg.setValueAt(ArrayType.CONCN, coords, 0.0);
 				coords[1] = j;
 				coords[0] = -1;
-				sg.setValueAt(SpatialGrid.concn, coords, 0.0);
+				sg.setValueAt(ArrayType.CONCN, coords, 0.0);
 				coords[0] = 3;
-				sg.setValueAt(SpatialGrid.concn, coords, 0.0);
+				sg.setValueAt(ArrayType.CONCN, coords, 0.0);
 			}
-			sg.newArray(SpatialGrid.diff);
-			sg.setAllTo(SpatialGrid.diff, D);
-			sg.newArray(SpatialGrid.domain);
-			sg.setAllTo(SpatialGrid.domain, 1.0);
-			sg.newArray(SpatialGrid.reac);
-			sg.newArray(SpatialGrid.dReac);
+			sg.newArray(ArrayType.DIFFUSIVITY);
+			sg.setAllTo(ArrayType.DIFFUSIVITY, D);
+			sg.newArray(ArrayType.DOMAIN);
+			sg.setAllTo(ArrayType.DOMAIN, 1.0);
+			sg.newArray(ArrayType.PRODUCTIONRATE);
+			sg.newArray(ArrayType.DIFFPRODUCTIONRATE);
 			coords[0] = 1;
 			coords[1] = 1;
-			sg.setValueAt(SpatialGrid.concn, coords, 1.0);
-			sg.setValueAt(SpatialGrid.domain, coords, 0.0);
+			sg.setValueAt(ArrayType.CONCN, coords, 1.0);
+			sg.setValueAt(ArrayType.DOMAIN, coords, 0.0);
 		}
 		/*
 		 * Dummy AgentContainer will be empty
@@ -272,7 +273,7 @@ public class PDEtest
 				for ( int k = start[2]; k < dims[2]; k++ )
 				{
 					coords[2] = k;
-					System.out.printf("%.5f, ", sg.getValueAt(SpatialGrid.concn, coords));
+					System.out.printf("%.5f, ", sg.getValueAt(ArrayType.CONCN, coords));
 				}
 			}
 			System.out.println("");
