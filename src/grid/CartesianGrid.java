@@ -1,6 +1,7 @@
 package grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
@@ -48,7 +49,7 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	protected int[] _currentNeighbor;
 	
-	protected boolean _inclIndirectNeighbors;
+	protected boolean _inclDiagonalNhbs;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -593,14 +594,12 @@ public class CartesianGrid extends SpatialGrid
 	public int[] resetNbhIterator(boolean inclIndirectNeighbors)
 	{
 		this._currentNeighbor = Vector.copy(this._currentCoord);
-		this._inclIndirectNeighbors = inclIndirectNeighbors;
-		forLoop: for ( int axis = 0; axis < 3; axis++ )
+		this._inclDiagonalNhbs = inclIndirectNeighbors;
+		for ( int axis = 0; axis < 3; axis++ )
 			if ( this._nVoxel[axis] > 1 )
-			{
 				this._currentNeighbor[axis]--;
-				if ( ! this._inclIndirectNeighbors )
-					break forLoop;
-			}
+		if ( (! this._inclDiagonalNhbs) && isDiagNbh() )
+			return this.nbhIteratorNext();
 		return this._currentNeighbor;
 	}
 	
@@ -612,8 +611,15 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	private boolean nbhIteratorExceeds(int axis)
 	{
-		if ( this._nVoxel[axis] == 1 && this._currentNeighbor[axis] != 0 )
+		/*
+		 * If this is a trivial axis and we're not on it, then we're
+		 * definitely in the wrong place.
+		 */
+		if ( this._nVoxel[axis] == 1 && 
+					this._currentNeighbor[axis] != this._currentCoord[axis] )
+		{
 			return true;
+		}
 		return _currentNeighbor[axis] >  this._currentCoord[axis] + 1;
 	}
 	
@@ -624,8 +630,6 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public boolean isNbhIteratorValid()
 	{
-		if ( Vector.areSame(this._currentCoord, this._currentNeighbor) )
-			return false;
 		for ( int axis = 0; axis < 3; axis++ )
 			if ( nbhIteratorExceeds(axis) )
 				return false;
@@ -640,60 +644,38 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public int[] nbhIteratorNext()
 	{
-		int diff = ( this._inclIndirectNeighbors ) ? 1 : 2;
-		forLoop: for ( int axis = 0; axis < 3; axis++ )
+		this._currentNeighbor[0]++;
+		if ( this.nbhIteratorExceeds(0) )
 		{
-			if ( this._currentNeighbor[axis] <= this._currentCoord[axis] )
+			this._currentNeighbor[0] = this._currentCoord[0] - 1;
+			this._currentNeighbor[1]++;
+			if ( this.nbhIteratorExceeds(1) )
 			{
-				this._currentNeighbor[axis] += diff;
-				break forLoop;
-			}
-			else 
-			{
-				this._currentNeighbor[axis] = this._currentCoord[axis];
-				if ( axis < 2 )
-					this._currentNeighbor[axis + 1] = this._currentCoord[axis] -1;
+				this._currentNeighbor[1] = this._currentCoord[1] - 1;
+				this._currentNeighbor[2]++;
 			}
 		}
-		/*
-		if ( this._inclIndirectNeighbors )
-		{
-			_currentNeighbor[0]++;
-			if ( this.nbhIteratorExceeds(0) )
-			{
-				_currentNeighbor[0] = 0;
-				_currentNeighbor[1]++;
-				if ( this.nbhIteratorExceeds(1) )
-				{
-					_currentNeighbor[1] = 0;
-					_currentNeighbor[2]++;
-				}
-			}
-			if ( Vector.areSame(this._currentNeighbor, this._currentCoord) )
-				return this.nbhIteratorNext();
-		}
-		else
-		{
-			forLoop: for ( int axis = 0; axis < 3; axis++ )
-			{
-				if ( this._currentNeighbor[axis] < this._currentCoord[axis] )
-				{
-					this._currentNeighbor[axis] += 2;
-					break forLoop;
-				}
-				else if ( this._currentNeighbor[axis] > this._currentCoord[axis] )
-				{
-					this._currentNeighbor[axis] = this._currentCoord[axis];
-					if ( axis < 2 )
-						this._currentNeighbor[axis + 1]--;
-					break forLoop;
-				}
-			}
-		}
-		*/
 		if ( Vector.areSame(this._currentNeighbor, this._currentCoord) )
 			return this.nbhIteratorNext();
+		if ( (! this._inclDiagonalNhbs) && isDiagNbh() )
+			return this.nbhIteratorNext();
 		return _currentNeighbor;
+	}
+	
+	private boolean isDiagNbh()
+	{
+		int counter = 0;
+		int diff;
+		for ( int axis = 0; axis < 3; axis++ )
+		{
+			diff = (int) Math.abs(this._currentNeighbor[axis] - 
+													this._currentCoord[axis]);
+			if ( diff == 1 )
+				counter++;
+			if ( counter > 1 )
+				return true;
+		}
+		return false;
 	}
 	
 	/**

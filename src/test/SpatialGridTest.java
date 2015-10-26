@@ -28,8 +28,8 @@ public class SpatialGridTest
 	
 	private static void iteratorTest()
 	{
-		int nDim = 3;
-		int sideLength = 3;
+		int nDim = 1;
+		int sideLength = 4;
 		boolean inclIndirectNeighbors = true;
 		double resolution = 1.0;
 		
@@ -49,7 +49,7 @@ public class SpatialGridTest
 			nbhCounter = 0;
 			while ( grid.isNbhIteratorValid() )
 			{
-				System.out.println("\t"+Arrays.toString(nbh)+" is a neighbor");
+				//System.out.println("\t"+Arrays.toString(nbh)+" is a neighbor");
 				nbh = grid.nbhIteratorNext();
 				nbhCounter++;
 			}
