@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import grid.CartesianGrid;
 import grid.SpatialGrid.ArrayType;
+import grid.SpatialGrid.GridMethod;
 
 /**
  * \brief TODO
@@ -80,18 +81,18 @@ public abstract class PDEsolver extends Solver
 	protected void addLOperator(CartesianGrid solute, ArrayType type)
 	{
 		/*
-		 * Reset the SpatialGrid's L-Operator array.
+		 * Coordinates of the current position and of the current neighbor. 
 		 */
-		solute.newArray(ArrayType.LOPERATOR);
+		int[] current, nbh;
+		/*
+		 * The GridMethod to use if the current neighbor crosses a boundary.
+		 */
+		GridMethod gMethod;
 		/*
 		 * Solute concentration and diffusivity at the current grid 
-		 * coordinates.
+		 * coordinates and at the current neighbor coordinates.
 		 */
-		double currConcn, currDiff;
-		/*
-		 * Solute concentration and diffusivity in the neighboring voxels;
-		 */
-		ArrayList<Double> concnNbh, diffNbh;
+		double currConcn, currDiff, nbhDiff, nbhConcn;
 		/*
 		 * Temporary storage for the L-Operator.
 		 */
@@ -99,18 +100,28 @@ public abstract class PDEsolver extends Solver
 		/*
 		 * Iterate over all core voxels calculating the L-Operator. 
 		 */
-		for (int[] current = solute.resetIterator(); solute.isIteratorValid();
+		for ( current = solute.resetIterator(); solute.isIteratorValid();
 											  current = solute.iteratorNext())
 		{
 			if ( solute.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
 				continue;
+			lop = 0.0;
 			currConcn = solute.getValueAt(ArrayType.CONCN, current);
 			currDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, current);
-			concnNbh = solute.getNeighborValues(ArrayType.CONCN, current);
-			diffNbh = solute.getNeighborValues(ArrayType.DIFFUSIVITY, current);
-			lop = 0.0;
-			for ( int i = 0; i < concnNbh.size(); i++ )
-				lop += (diffNbh.get(i)+currDiff)*(concnNbh.get(i)-currConcn);
+			
+			for ( nbh = solute.resetNbhIterator(false); 
+				solute.isNbhIteratorValid(); nbh = solute.nbhIteratorNext() )
+			{
+				gMethod = solute.nbhIteratorIsOutside();
+				if ( gMethod == null )
+				{
+					nbhDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, nbh);
+					nbhConcn = solute.getValueAt(ArrayType.CONCN, nbh);
+					lop += (nbhDiff + currDiff) * (nbhConcn - currConcn);
+				}
+				else
+					lop += gMethod.getConcnGradient(current);
+			}
 			/*
 			 * Here we assume that all voxels are the same size.
 			 */
@@ -138,19 +149,18 @@ public abstract class PDEsolver extends Solver
 	protected void divideByDiffLOperator(CartesianGrid solute, ArrayType arrayType)
 	{
 		/*
-		 * Reset the SpatialGrid's array
-		 * TODO skip this?
+		 * Coordinates of the current position and of the current neighbor. 
 		 */
-		solute.newArray(ArrayType.LOPERATOR);
-		
+		int[] current, nbh;
 		/*
-		 * Diffusivity at the current grid coordinates.
+		 * The GridMethod to use if the current neighbor crosses a boundary.
 		 */
-		double currDiff;
+		GridMethod gMethod;
 		/*
-		 * Diffusivity in the neighboring voxels;
+		 * Solute diffusivity at the current grid coordinates and at the
+		 * current neighbor coordinates.
 		 */
-		ArrayList<Double> diffNbh;
+		double currDiff, nbhDiff;
 		/*
 		 * Temporary storage for the derivative of the L-Operator.
 		 */
@@ -159,16 +169,25 @@ public abstract class PDEsolver extends Solver
 		 * Iterate over all core voxels calculating the derivative of the 
 		 * L-Operator. 
 		 */
-		for (int[] current = solute.resetIterator(); solute.isIteratorValid();
+		for ( current = solute.resetIterator(); solute.isIteratorValid();
 											  current = solute.iteratorNext())
 		{
 			if ( solute.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
 				continue;
-			currDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, current);
-			diffNbh = solute.getNeighborValues(ArrayType.DIFFUSIVITY, current);
 			dLop = 0.0;
-			for ( double diffusivity : diffNbh )
-				dLop += diffusivity + currDiff;
+			currDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, current);
+			for ( nbh = solute.resetNbhIterator(false); 
+					solute.isNbhIteratorValid(); nbh = solute.nbhIteratorNext() )
+			{
+				gMethod = solute.nbhIteratorIsOutside();
+				if ( gMethod == null )
+				{
+					nbhDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, nbh);
+					dLop += (nbhDiff + currDiff);
+				}
+				else
+					dLop += gMethod.getConcnGradient(current);
+			}
 			/*
 			 * Here we assume that all voxels are the same size.
 			 */

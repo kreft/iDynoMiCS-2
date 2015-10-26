@@ -1,7 +1,5 @@
 package grid;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
@@ -306,8 +304,50 @@ public class CartesianGrid extends SpatialGrid
 	}
 	
 	/*************************************************************************
-	 * VOXEL SETTERS
+	 * BOUNDARIES
 	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO This doesn't check for the case that multiple boundaries have been
+	 * crossed!
+	 * 
+	 * @param coord
+	 * @return
+	 */
+	protected BoundarySide isOutside(int[] coord)
+	{
+		if ( coord[0] < 0 )
+			return BoundarySide.XMIN;
+		if ( coord[0] >= this._nVoxel[0] )
+			return BoundarySide.XMAX;
+		if ( coord[1] < 0 )
+			return BoundarySide.YMIN;
+		if ( coord[1] >= this._nVoxel[1] )
+			return BoundarySide.YMAX;
+		if ( coord[2] < 0 )
+			return BoundarySide.ZMIN;
+		if ( coord[2] >= this._nVoxel[2] )
+			return BoundarySide.ZMAX;
+		return null;
+	}
+	
+	/*************************************************************************
+	 * VOXEL GETTERS & SETTERS
+	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * 
+	 * @param gridCoords
+	 * @return
+	 */
+	public double getValueAt(ArrayType type, int[] gridCoords)
+	{
+		return this.applyToVoxel(type, gridCoords, (double v)->{return v;});
+	}
 	
 	/**
 	 * TODO
@@ -343,47 +383,6 @@ public class CartesianGrid extends SpatialGrid
 	public void timesValueAt(ArrayType type, int[] gridCoords, double value)
 	{
 		this.applyToVoxel(type, gridCoords, (double v)->{return v * value;});
-	}
-	
-	/*************************************************************************
-	 * VOXEL GETTERS
-	 ************************************************************************/
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * 
-	 * @param gridCoords
-	 * @return
-	 */
-	public double getValueAt(ArrayType type, int[] gridCoords)
-	{
-		return this.applyToVoxel(type, gridCoords, (double v)->{return v;});
-	}
-	
-	/**
-	 * \brief TODO 
-	 * 
-	 * Consider replacing with some sort of neighbour coordinate iterator?
-	 * 
-	 * @param gridCoords
-	 * @return
-	 */
-	public ArrayList<Double> getNeighborValues(ArrayType type, int[] gridCoords)
-	{
-		ArrayList<Double> out = new ArrayList<Double>();
-		int[] temp = Vector.copy(gridCoords);
-		for ( int axis = 0; axis < 3; axis++ )
-		{
-			temp[axis] -= 1;
-			try { out.add(this.getValueAt(type, temp)); } 
-			catch (ArrayIndexOutOfBoundsException e) {}
-			temp[axis] += 2;
-			try { out.add(this.getValueAt(type, temp)); } 
-			catch (ArrayIndexOutOfBoundsException e) {}
-			temp[axis] -= 1;
-		}
-		return out;
 	}
 	
 	/*************************************************************************
@@ -591,10 +590,10 @@ public class CartesianGrid extends SpatialGrid
 	 * TODO
 	 * 
 	 */
-	public int[] resetNbhIterator(boolean inclIndirectNeighbors)
+	public int[] resetNbhIterator(boolean inclDiagonalNhbs)
 	{
 		this._currentNeighbor = Vector.copy(this._currentCoord);
-		this._inclDiagonalNhbs = inclIndirectNeighbors;
+		this._inclDiagonalNhbs = inclDiagonalNhbs;
 		for ( int axis = 0; axis < 3; axis++ )
 			if ( this._nVoxel[axis] > 1 )
 				this._currentNeighbor[axis]--;
@@ -684,6 +683,18 @@ public class CartesianGrid extends SpatialGrid
 	public void closeNbhIterator()
 	{
 		this._currentNeighbor = null;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public GridMethod nbhIteratorIsOutside()
+	{
+		BoundarySide bSide = this.isOutside(this._currentNeighbor);
+		if ( bSide == null )
+			return null;
+		return this._boundaries.get(bSide);
 	}
 	
 	/*************************************************************************
