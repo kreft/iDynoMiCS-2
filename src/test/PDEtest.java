@@ -3,11 +3,13 @@
  */
 package test;
 
+import boundary.*;
 import grid.CartesianGrid;
-import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
+import idynomics.Timer;
 import linearAlgebra.Vector;
 import processManager.SolveDiffusionTransient;
 
@@ -20,9 +22,44 @@ public class PDEtest
 		double stepSize = 10.0;
 		int nStep = 5;
 		
-		oneDimRiseFall(nStep, stepSize);
-		twoDimRandInit(nStep, stepSize);
-		twoDimIncompleteDomain(nStep, stepSize);
+		oneDimRiseFallNew(nStep, stepSize);
+		//oneDimRiseFall(nStep, stepSize);
+		//twoDimRandInit(nStep, stepSize);
+		//twoDimIncompleteDomain(nStep, stepSize);
+	}
+	
+	private static void oneDimRiseFallNew(int nStep, double stepSize)
+	{
+		System.out.println("###############################################");
+		System.out.println("Testing 1D domain for two solutes:");
+		System.out.println("\tLeft & right fixed");
+		System.out.println("\tD = "+D);
+		System.out.println("\tNo agents or reactions");
+		System.out.println("Concentration should tend towards linear");
+		System.out.println("###############################################");
+		
+		String[] soluteNames = new String[2];
+		soluteNames[0] = "rise";
+		soluteNames[1] = "fall";
+		
+		Compartment aCompartment = new Compartment();
+		aCompartment.setShape("line");
+		aCompartment.addBoundary("xmin", new BoundaryFixed(0.0));
+		aCompartment.addBoundary("xmax", new BoundaryFixed(1.0));
+		aCompartment.setSideLengths(new double[] {3.0, 1.0, 1.0});
+		for ( String aSoluteName : soluteNames )
+			aCompartment.addSolute(aSoluteName);
+		
+		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
+		aProcess.init(soluteNames);
+		aProcess.setTimeForNextStep(0.0);
+		aProcess.setTimeStepSize(stepSize);
+		aCompartment.addProcessManager(aProcess);
+		
+		Timer aTimer = new Timer();
+		aTimer.setTimeStepSize(stepSize);
+		
+		
 	}
 	
 	private static void oneDimRiseFall(int nStep, double stepSize)

@@ -167,6 +167,11 @@ public class Compartment
 		
 	}
 	
+	public void init()
+	{
+		
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
@@ -234,6 +239,15 @@ public class Compartment
 	{
 		aProcessManager.showBoundaries(this._sideBoundaries.values());
 		this._processes.add(aProcessManager);
+	}
+	
+	/**
+	 * 
+	 * @param soluteName
+	 */
+	public void addSolute(String soluteName)
+	{
+		this._environment.addSolute(soluteName);
 	}
 	
 	/*************************************************************************

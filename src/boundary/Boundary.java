@@ -97,6 +97,25 @@ public abstract class Boundary
 	 * COMMON GRIDMETHODS
 	 ************************************************************************/
 	
+	protected static GridMethod dirichlet(double value)
+	{
+		return new GridMethod()
+		{
+
+			@Override
+			public int[] getCorrectCoord(int[] coord) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public double getConcnGradient(int[] coord) {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+		};
+	}
+	
 	protected static GridMethod neumann(double gradient)
 	{
 		return new GridMethod()
