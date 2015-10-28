@@ -1,10 +1,14 @@
 package idynomics;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
 import grid.CartesianGrid;
+import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
+import grid.SpatialGrid.GridMethod;
+import idynomics.Compartment.BoundarySide;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import utility.ExtraMath;
@@ -13,21 +17,22 @@ public class EnvironmentContainer
 {
 	protected int[] _defaultNVoxel = Vector.vector(3, 1);
 	
-	protected int[] _defaultPadding = Vector.zerosInt(3);
-	
 	protected double _defaultResolution = 1.0;
 	
 	/**
 	 * 
 	 */
-	protected HashMap<String, CartesianGrid> _solutes = 
-										new HashMap<String, CartesianGrid>();
+	protected HashMap<String, SpatialGrid> _solutes = 
+										new HashMap<String, SpatialGrid>();
 	
 	/**
 	 * 
 	 */
 	protected HashMap<String, Reaction> _reactions = 
 											new HashMap<String, Reaction>();
+	
+	protected HashMap<BoundarySide,GridMethod> _boundaries =
+									new HashMap<BoundarySide,GridMethod>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -60,8 +65,6 @@ public class EnvironmentContainer
 			if ( ! ExtraMath.areEqual(compartmentSize[i], temp, 1E-9) )
 				throw new IllegalArgumentException();
 		}
-		//TODO padding (depends on boundaries?)
-		this._defaultPadding = Vector.zeros(this._defaultNVoxel);
 	}
 	
 	/**
@@ -98,7 +101,16 @@ public class EnvironmentContainer
 		CartesianGrid sg = new CartesianGrid(this._defaultNVoxel,
 										this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
+		this._boundaries.forEach( (side, method) ->
+										{ sg.addBoundary(side, method); });
 		this._solutes.put(soluteName, sg);
+	}
+	
+	public void addBoundary(BoundarySide aSide, GridMethod aMethod)
+	{
+		this._boundaries.put(aSide, aMethod);
+		this._solutes.forEach( (name, grid) ->
+									{ grid.addBoundary(aSide, aMethod); });
 	}
 	
 	/*************************************************************************
@@ -110,13 +122,22 @@ public class EnvironmentContainer
 		return this._solutes.keySet();
 	}
 	
-	public CartesianGrid getSoluteGrid(String soluteName)
+	public SpatialGrid getSoluteGrid(String soluteName)
 	{
 		return this._solutes.get(soluteName);
 	}
 	
-	public HashMap<String, CartesianGrid> getSolutes()
+	public HashMap<String, SpatialGrid> getSolutes()
 	{
 		return this._solutes;
+	}
+	
+	/*************************************************************************
+	 * REPORTING
+	 ************************************************************************/
+	
+	public void printSolute(String soluteName)
+	{
+		System.out.println(this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
 	}
 }

@@ -5,12 +5,14 @@ package test;
 
 import boundary.*;
 import grid.CartesianGrid;
+import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Timer;
 import linearAlgebra.Vector;
+import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
 
 public class PDEtest
@@ -38,6 +40,8 @@ public class PDEtest
 		System.out.println("Concentration should tend towards linear");
 		System.out.println("###############################################");
 		
+		Timer.setTimeStepSize(stepSize);
+		
 		String[] soluteNames = new String[2];
 		soluteNames[0] = "rise";
 		soluteNames[1] = "fall";
@@ -47,8 +51,15 @@ public class PDEtest
 		aCompartment.addBoundary("xmin", new BoundaryFixed(0.0));
 		aCompartment.addBoundary("xmax", new BoundaryFixed(1.0));
 		aCompartment.setSideLengths(new double[] {3.0, 1.0, 1.0});
+		aCompartment.init();
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
+		//TODO diffusivities
+		
+		
+		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
+		aPrep.setTimeStepSize(Double.MAX_VALUE);
+		aCompartment.addProcessManager(aPrep);
 		
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(soluteNames);
@@ -56,10 +67,10 @@ public class PDEtest
 		aProcess.setTimeStepSize(stepSize);
 		aCompartment.addProcessManager(aProcess);
 		
-		Timer aTimer = new Timer();
-		aTimer.setTimeStepSize(stepSize);
+		aCompartment.step();
 		
-		
+		for ( String aSoluteName : soluteNames )
+			aCompartment.printSoluteGrid(aSoluteName);
 	}
 	
 	private static void oneDimRiseFall(int nStep, double stepSize)
@@ -81,7 +92,7 @@ public class PDEtest
 
 		EnvironmentContainer environment = new EnvironmentContainer();
 		environment.init(nVoxel, 1.0);
-		CartesianGrid sg;
+		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		double value;
 		double k = 1.0;
@@ -154,7 +165,7 @@ public class PDEtest
 		
 		EnvironmentContainer environment = new EnvironmentContainer();
 		environment.init(nVoxel, 1.0);
-		CartesianGrid sg;
+		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( String name : soluteNames )
 		{
@@ -229,7 +240,7 @@ public class PDEtest
 		
 		EnvironmentContainer environment = new EnvironmentContainer();
 		environment.init(nVoxel, 1.0);
-		CartesianGrid sg;
+		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( int i = 0; i < soluteNames.length; i++ )
 		{
@@ -283,7 +294,7 @@ public class PDEtest
 		System.out.println("\n");
 	}
 	
-	private static void printSoluteGrid(CartesianGrid sg)
+	private static void printSoluteGrid(SpatialGrid sg)
 	{
 		int[] dims = Vector.copy(sg.getNumVoxels());
 		int[] start = Vector.zeros(dims);

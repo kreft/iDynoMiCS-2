@@ -1,5 +1,6 @@
 package grid;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
@@ -22,37 +23,10 @@ import idynomics.Compartment.BoundarySide;
  */
 public class CartesianGrid extends SpatialGrid
 {
-	/**
-	 * TODO
-	 */
-	protected HashMap<ArrayType, double[][][]> _array;
-	
-	/**
-	 * TODO
-	 */
-	protected int[] _nVoxel;
-	
-	/**
-	 * Grid resolution, i.e. the side length of each voxel in this grid.
-	 */
-	protected double _res;
-	
-	/**
-	 * Current coordinate considered by the internal iterator.
-	 */
-	protected int[] _currentCoord;
-	
-	/**
-	 * Current neighbour coordinate considered by the neighbor iterator.
-	 */
-	protected int[] _currentNeighbor;
-	
-	protected boolean _inclDiagonalNhbs;
-	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -65,13 +39,13 @@ public class CartesianGrid extends SpatialGrid
 		this._nVoxel = Vector.copy(nVoxel);
 		this._res = resolution;
 	}
-	
+
 	public CartesianGrid()
 	{
 		this._nVoxel = Vector.vector(3, 1);
 		this._res = 1.0;
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -98,11 +72,11 @@ public class CartesianGrid extends SpatialGrid
 			this._array.put(type, array);
 		}
 	}
-	
+
 	/*************************************************************************
 	 * SIMPLE GETTERS
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -112,7 +86,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		return Array.copy(this._array.get(type));
 	}
-	
+
 	/**
 	 * \brief Returns the grid resolution (in micrometers).
 	 * 
@@ -122,7 +96,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		return this._res;
 	}
-	
+
 	/**
 	 * \brief Returns the volume of each voxel in this grid (in cubic 
 	 * micrometers).
@@ -133,7 +107,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		return Math.pow(this._res, 3.0);
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -143,7 +117,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		return Vector.copy(this._nVoxel);
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -156,7 +130,7 @@ public class CartesianGrid extends SpatialGrid
 			out[axis] = ( this._nVoxel[axis] > 1 );
 		return out;
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -169,34 +143,43 @@ public class CartesianGrid extends SpatialGrid
 			out += ( this._nVoxel[axis] > 1 ) ? 1 : 0;
 		return out;
 	}
-	
+
 	/*************************************************************************
 	 * SIMPLE SETTERS
 	 ************************************************************************/
-	
+
 	/*************************************************************************
 	 * COORDINATES
 	 ************************************************************************/
-	
+
 	private int[] checkCoords(int[] coord)
 	{
 		int[] out = Vector.copy(coord);
-		if ( out[0] < 0 )
-			out = _boundaries.get(BoundarySide.XMIN).getCorrectCoord(out);
-		if ( out[0] >= _nVoxel[0] )
-			out = _boundaries.get(BoundarySide.XMAX).getCorrectCoord(out);
-		if ( out[1] < 0 )
-			out = _boundaries.get(BoundarySide.YMIN).getCorrectCoord(out);
-		if ( out[1] >= _nVoxel[0] )
-			out = _boundaries.get(BoundarySide.YMAX).getCorrectCoord(out);
-		if ( out[2] < 0 )
-			out = _boundaries.get(BoundarySide.ZMIN).getCorrectCoord(out);
-		if ( out[2] >= _nVoxel[2] )
-			out = _boundaries.get(BoundarySide.ZMAX).getCorrectCoord(out);
+		if ( this._nVoxel[0] > 1 )
+		{
+			if ( out[0] < 0 )
+				out = _boundaries.get(BoundarySide.XMIN).getCorrectCoord(out);
+			if ( out[0] >= _nVoxel[0] )
+				out = _boundaries.get(BoundarySide.XMAX).getCorrectCoord(out);
+		}
+		if ( this._nVoxel[1] > 1 )
+		{
+			if ( out[1] < 0 )
+				out = _boundaries.get(BoundarySide.YMIN).getCorrectCoord(out);
+			if ( out[1] >= _nVoxel[0] )
+				out = _boundaries.get(BoundarySide.YMAX).getCorrectCoord(out);
+		}
+		if ( this._nVoxel[2] > 1 )
+		{
+			if ( out[2] < 0 )
+				out = _boundaries.get(BoundarySide.ZMIN).getCorrectCoord(out);
+			if ( out[2] >= _nVoxel[2] )
+				out = _boundaries.get(BoundarySide.ZMAX).getCorrectCoord(out);
+		}
 		return out;
 	}
-	
-	public double getValueAtNew(ArrayType type, int[] coord)
+
+	public double getValueAt(ArrayType type, int[] coord)
 	{
 		double[][][] array = this._array.get(type);
 		int[] corrected = this.checkCoords(coord);
@@ -205,7 +188,7 @@ public class CartesianGrid extends SpatialGrid
 		else
 			return Double.NaN;
 	}
-	
+
 	/**
 	 * 
 	 * @param arrayName
@@ -225,7 +208,7 @@ public class CartesianGrid extends SpatialGrid
 		else
 			return false;
 	}
-	
+
 	/**
 	 * \brief Applies the given function to the array element at the given
 	 * <b>voxel</b> coordinates (assumed adjusted for padding). 
@@ -237,23 +220,23 @@ public class CartesianGrid extends SpatialGrid
 	 * inside array.
 	 */
 	private double applyToVoxel(ArrayType type, int[] aC,
-													DoubleFunction<Double> f)
+			DoubleFunction<Double> f)
 	{
 		try
 		{
 			double[][][] array = this._array.get(type);
 			return array[aC[0]][aC[1]][aC[2]] = 
-										f.apply(array[aC[0]][aC[1]][aC[2]]);
+					f.apply(array[aC[0]][aC[1]][aC[2]]);
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
 			//for ( int i : aC )
 			//	System.out.println(i);
 			throw new ArrayIndexOutOfBoundsException(
-						"Voxel coordinates must be inside array: "+aC[0]+", "+aC[1]+", "+aC[2]);
+					"Voxel coordinates must be inside array: "+aC[0]+", "+aC[1]+", "+aC[2]);
 		}
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -262,11 +245,11 @@ public class CartesianGrid extends SpatialGrid
 	 * @param f
 	 */
 	protected double applyToCoord(ArrayType type, int[] gridCoords,
-													DoubleFunction<Double> f)
+			DoubleFunction<Double> f)
 	{
 		return this.applyToVoxel(type, gridCoords, f);
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -279,34 +262,34 @@ public class CartesianGrid extends SpatialGrid
 	{
 		return Vector.toInt(Vector.times(Vector.copy(location), 1/this._res));
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
 	 * @param gridCoords
 	 * @return
 	 */
-	public double[] getVoxelOrigin(int[] gridCoords)
+	public double[] getVoxelOrigin(int[] coords)
 	{
-		int[] temp = Vector.copy(gridCoords);
+		int[] temp = Vector.copy(coords);
 		return Vector.times(Vector.toDbl(temp), this._res);
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
 	 * @param gridCoords
 	 * @return
 	 */
-	public double[] getVoxelCentre(int[] gridCoords)
+	public double[] getVoxelCentre(int[] coords)
 	{
-		return Vector.add(getVoxelOrigin(gridCoords), 0.5*this._res);
+		return Vector.add(getVoxelOrigin(coords), 0.5*this._res);
 	}
-	
+
 	/*************************************************************************
 	 * BOUNDARIES
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -332,11 +315,11 @@ public class CartesianGrid extends SpatialGrid
 			return BoundarySide.ZMAX;
 		return null;
 	}
-	
+
 	/*************************************************************************
 	 * VOXEL GETTERS & SETTERS
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -344,11 +327,11 @@ public class CartesianGrid extends SpatialGrid
 	 * @param gridCoords
 	 * @return
 	 */
-	public double getValueAt(ArrayType type, int[] gridCoords)
+	public double getValueAtOLD(ArrayType type, int[] gridCoords)
 	{
 		return this.applyToVoxel(type, gridCoords, (double v)->{return v;});
 	}
-	
+
 	/**
 	 * TODO
 	 * 
@@ -360,7 +343,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		this.applyToVoxel(type, gridCoords, (double v)->{return value;});
 	}
-	
+
 	/**
 	 * TODO
 	 * 
@@ -372,7 +355,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		this.applyToVoxel(type, gridCoords, (double v)->{return v + value;});
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -384,7 +367,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		this.applyToVoxel(type, gridCoords, (double v)->{return v * value;});
 	}
-	
+
 	/*************************************************************************
 	 * ARRAY SETTERS
 	 ************************************************************************/
@@ -393,11 +376,11 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * @param value double value to use.
 	 */
-	public void setAllTo(ArrayType type, double value )
+	public void setAllTo(ArrayType type, double value)
 	{
 		Array.setAll(this._array.get(type), value);
 	}
-	
+
 	/**
 	 * TODO
 	 * 
@@ -407,7 +390,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		Array.setAll(this._array.get(type), array);
 	}
-	
+
 	/**
 	 * TODO
 	 * 
@@ -417,27 +400,24 @@ public class CartesianGrid extends SpatialGrid
 	{
 		Array.add(this._array.get(type), value);
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
 	 * @param name
 	 * @param value
-	 * @param includePadding
 	 */
 	public void timesAll(ArrayType type, double value)
 	{
 		Array.times(this._array.get(type), value);
 	}
-	
+
 	/*************************************************************************
 	 * ARRAY GETTERS
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief Returns the greatest value of the voxels in this grid.
-	 * 
-	 * TODO exclude padding?
 	 * 
 	 * @return
 	 */
@@ -445,11 +425,9 @@ public class CartesianGrid extends SpatialGrid
 	{
 		return Array.max(this._array.get(type));
 	}
-	
+
 	/**
 	 * \brief Returns the least value of the voxels in this grid.
-	 * 
-	 * TODO exclude padding?
 	 * 
 	 * @return
 	 */
@@ -457,35 +435,26 @@ public class CartesianGrid extends SpatialGrid
 	{
 		return Array.min(this._array.get(type));
 	}
-	
+
 	/*************************************************************************
 	 * TWO-ARRAY METHODS
 	 ************************************************************************/
-	
+
 	public void addArrayToArray(ArrayType destination, ArrayType source)
 	{
 		Array.add(this._array.get(destination), this._array.get(source));
 	}
-	
+
 	/*************************************************************************
 	 * LOCATION GETTERS
 	 ************************************************************************/
-	
-	/**
-	 * 
-	 * @param name
-	 * @param location
-	 * @return
-	 */
-	public double getValueAt(ArrayType type, double[] location)
-	{
-		return this.getValueAt(type, this.getCoords(location));
-	}
-	
+
+
+
 	/*************************************************************************
 	 * GRADIENTS
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief Calculate the differential 
 	 * 
@@ -505,7 +474,7 @@ public class CartesianGrid extends SpatialGrid
 		out /= 2.0 * this._res;
 		return ( Double.isFinite(out) ) ? out : 0.0;
 	}
-	
+
 	protected double[] gradient(ArrayType type, int[] gridCoords)
 	{
 		double[] out = new double[3];
@@ -513,11 +482,11 @@ public class CartesianGrid extends SpatialGrid
 			out[axis] = differential(type, gridCoords, axis);
 		return out;
 	}
-	
+
 	/*************************************************************************
 	 * COORDINATE ITERATOR
 	 ************************************************************************/
-	
+
 	/**
 	 * TODO
 	 * 
@@ -527,7 +496,7 @@ public class CartesianGrid extends SpatialGrid
 		this._currentCoord = Vector.zerosInt(3);
 		return this._currentCoord;
 	}
-	
+
 	/**
 	 * TODO
 	 * 
@@ -538,7 +507,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		return _currentCoord[axis] >=  this._nVoxel[axis];
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -551,7 +520,7 @@ public class CartesianGrid extends SpatialGrid
 				return false;
 		return true;
 	}
-	
+
 	/**
 	 * TODO
 	 * 
@@ -573,7 +542,7 @@ public class CartesianGrid extends SpatialGrid
 		}
 		return _currentCoord;
 	}
-	
+
 	/**
 	 * \brief Discard the iterative coordinate.
 	 */
@@ -581,11 +550,11 @@ public class CartesianGrid extends SpatialGrid
 	{
 		this._currentCoord = null;
 	}
-	
+
 	/*************************************************************************
 	 * NEIGHBOR ITERATOR
 	 ************************************************************************/
-	
+
 	/**
 	 * TODO
 	 * 
@@ -601,7 +570,7 @@ public class CartesianGrid extends SpatialGrid
 			return this.nbhIteratorNext();
 		return this._currentNeighbor;
 	}
-	
+
 	/**
 	 * TODO
 	 * 
@@ -615,13 +584,13 @@ public class CartesianGrid extends SpatialGrid
 		 * definitely in the wrong place.
 		 */
 		if ( this._nVoxel[axis] == 1 && 
-					this._currentNeighbor[axis] != this._currentCoord[axis] )
+				this._currentNeighbor[axis] != this._currentCoord[axis] )
 		{
 			return true;
 		}
 		return _currentNeighbor[axis] >  this._currentCoord[axis] + 1;
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -634,7 +603,7 @@ public class CartesianGrid extends SpatialGrid
 				return false;
 		return true;
 	}
-	
+
 	/**
 	 * TODO
 	 * 
@@ -660,7 +629,7 @@ public class CartesianGrid extends SpatialGrid
 			return this.nbhIteratorNext();
 		return _currentNeighbor;
 	}
-	
+
 	private boolean isDiagNbh()
 	{
 		int counter = 0;
@@ -668,7 +637,7 @@ public class CartesianGrid extends SpatialGrid
 		for ( int axis = 0; axis < 3; axis++ )
 		{
 			diff = (int) Math.abs(this._currentNeighbor[axis] - 
-													this._currentCoord[axis]);
+					this._currentCoord[axis]);
 			if ( diff == 1 )
 				counter++;
 			if ( counter > 1 )
@@ -676,7 +645,7 @@ public class CartesianGrid extends SpatialGrid
 		}
 		return false;
 	}
-	
+
 	/**
 	 * \brief Discard the iterative coordinate.
 	 */
@@ -684,7 +653,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		this._currentNeighbor = null;
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -696,17 +665,26 @@ public class CartesianGrid extends SpatialGrid
 			return null;
 		return this._boundaries.get(bSide);
 	}
-	
+
 	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/
-	
-	public StringBuffer arrayAsText(String name)
+
+	public String arrayAsText(ArrayType type)
 	{
-		StringBuffer out = new StringBuffer("");
-		//double[][][] array = this._array.get(name);
-		// TODO
+		String out = "";
+		double[][][] array = this._array.get(type);
+		for ( double[][] matrix : array )
+		{
+			for ( double[] row : matrix )
+			{
+				for ( double value : row )
+					out += value + ", ";
+				out += ";\n";
+			}
+			out += "|\n";
+		}
 		return out;
 	}
-	
+
 }

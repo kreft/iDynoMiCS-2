@@ -16,7 +16,6 @@ import idynomics.EnvironmentContainer;
  */
 public class PrepareSoluteGrids extends ProcessManager
 {
-
 	/**
 	 * \brief TODO
 	 * 
@@ -42,7 +41,7 @@ public class PrepareSoluteGrids extends ProcessManager
 		for ( String sName : environment.getSoluteNames() )
 		{
 			environment.getSoluteGrid(sName).newArray(ArrayType.PRODUCTIONRATE);
-			environment.getSoluteGrid(sName).newArray(ArrayType.DIFFPRODUCTIONRATE);
+			//environment.getSoluteGrid(sName).newArray(ArrayType.DIFFPRODUCTIONRATE);
 			environment.getSoluteGrid(sName).newArray(ArrayType.DOMAIN);
 			environment.getSoluteGrid(sName).newArray(ArrayType.DIFFUSIVITY);
 		}

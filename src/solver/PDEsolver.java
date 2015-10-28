@@ -1,9 +1,8 @@
 package solver;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import grid.CartesianGrid;
+import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SpatialGrid.GridMethod;
 
@@ -28,7 +27,7 @@ public abstract class PDEsolver extends Solver
 		 * 
 		 * @param variables
 		 */
-		default void presolve(HashMap<String, CartesianGrid> variables)
+		default void presolve(HashMap<String, SpatialGrid> variables)
 		{ }
 		
 		/**
@@ -37,7 +36,7 @@ public abstract class PDEsolver extends Solver
 		 * 
 		 * @param variables
 		 */
-		default void prestep(HashMap<String, CartesianGrid> variables)
+		default void prestep(HashMap<String, SpatialGrid> variables)
 		{ }
 	}
 	
@@ -66,7 +65,7 @@ public abstract class PDEsolver extends Solver
 	 * @param solutes
 	 * @param tFinal
 	 */
-	public abstract void solve(HashMap<String, CartesianGrid> solutes,
+	public abstract void solve(HashMap<String, SpatialGrid> solutes,
 															double tFinal);
 	
 	/**
@@ -78,7 +77,7 @@ public abstract class PDEsolver extends Solver
 	 * @param solute
 	 * @param arrayName
 	 */
-	protected void addLOperator(CartesianGrid solute, ArrayType type)
+	protected void addLOperator(String sName, SpatialGrid solute, ArrayType type)
 	{
 		/*
 		 * Coordinates of the current position and of the current neighbor. 
@@ -120,7 +119,7 @@ public abstract class PDEsolver extends Solver
 					lop += (nbhDiff + currDiff) * (nbhConcn - currConcn);
 				}
 				else
-					lop += gMethod.getConcnGradient(current);
+					lop += gMethod.getConcnGradient(sName, solute);
 			}
 			/*
 			 * Here we assume that all voxels are the same size.
@@ -146,7 +145,7 @@ public abstract class PDEsolver extends Solver
 	 * @param solute 
 	 * @param arrayName
 	 */
-	protected void divideByDiffLOperator(CartesianGrid solute, ArrayType arrayType)
+	protected void divideByDiffLOperator(String sName, SpatialGrid solute, ArrayType arrayType)
 	{
 		/*
 		 * Coordinates of the current position and of the current neighbor. 
@@ -186,7 +185,7 @@ public abstract class PDEsolver extends Solver
 					dLop += (nbhDiff + currDiff);
 				}
 				else
-					dLop += gMethod.getConcnGradient(current);
+					dLop += gMethod.getConcnGradient(sName, solute);
 			}
 			/*
 			 * Here we assume that all voxels are the same size.

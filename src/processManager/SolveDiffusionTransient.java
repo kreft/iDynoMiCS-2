@@ -7,7 +7,8 @@ import java.util.HashMap;
 
 import agent.Agent;
 import agent.state.HasReactions;
-import grid.CartesianGrid;
+import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import solver.PDEexplicit;
@@ -34,6 +35,12 @@ public class SolveDiffusionTransient extends ProcessManager
 	protected String[] _soluteNames;
 	
 	/**
+	 * TODO this may need to be generalised to some method for setting
+	 * diffusivities, e.g. lower inside biofilm.
+	 */
+	protected HashMap<String,Double> _diffusivity;
+	
+	/**
 	 * \brief TODO
 	 * 
 	 */
@@ -53,6 +60,10 @@ public class SolveDiffusionTransient extends ProcessManager
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
+		// TODO enter a diffusivity other than one!
+		this._diffusivity = new HashMap<String,Double>();
+		for ( String sName : soluteNames )
+			this._diffusivity.put(sName, 1.0);
 	}
 	
 	@Override
@@ -61,21 +72,28 @@ public class SolveDiffusionTransient extends ProcessManager
 	{
 		Updater updater = new Updater()
 		{
-			public void presolve(HashMap<String, CartesianGrid> variables)
+			public void presolve(HashMap<String, SpatialGrid> variables)
 			{
-				/*
-				 * TODO This currently sets everything to domain, but we want
-				 * only those regions in the biofilm and boundary layer.
-				 */
-				CartesianGrid sg;
+				SpatialGrid sg;
 				for ( String soluteName : _soluteNames )
 				{
 					sg = variables.get(soluteName);
-					//sg.setAllTo(SpatialGrid.domain, 1.0, true);
+					if ( ! sg.hasArray(ArrayType.DIFFUSIVITY) )
+						sg.newArray(ArrayType.DIFFUSIVITY);
+					sg.setAllTo(ArrayType.DIFFUSIVITY,
+												_diffusivity.get(soluteName));
+					/*
+					 * TODO This currently sets everything to domain, but we
+					 * want only those regions in the biofilm and boundary
+					 * layer.
+					 */
+					if ( ! sg.hasArray(ArrayType.DOMAIN) )
+						sg.newArray(ArrayType.DOMAIN);
+					sg.setAllTo(ArrayType.DOMAIN, 1.0);
 				}
 			}
 			
-			public void prestep(HashMap<String, CartesianGrid> variables)
+			public void prestep(HashMap<String, SpatialGrid> variables)
 			{
 				/*
 				 * TODO agents put reaction rates on grids.

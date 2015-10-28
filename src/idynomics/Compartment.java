@@ -13,6 +13,9 @@ public class Compartment
 {
 	public static enum CompartmentShape
 	{
+		/*
+		 * A compartment without spatial structure, e.g. a chemostat.
+		 */
 		DIMENSIONLESS(0),
 		
 		LINE(1),
@@ -151,7 +154,7 @@ public class Compartment
 	/**
 	 * 
 	 */
-	protected ProcessComparator _procComp;
+	protected ProcessComparator _procComp = new ProcessComparator();
 	
 	/**
 	 * 
@@ -169,7 +172,8 @@ public class Compartment
 	
 	public void init()
 	{
-		
+		this._agents.init(this.getNumDims());
+		this._environment.init(this._sideLengths, 1.0);
 	}
 	
 	/*************************************************************************
@@ -227,7 +231,10 @@ public class Compartment
 		if ( this.isDimensionless() || side == BoundarySide.INTERNAL )
 			this._otherBoundaries.add(aBoundary);
 		else
+		{
 			this._sideBoundaries.put(side, aBoundary);
+			this._environment.addBoundary(side, aBoundary.getGridMethod());
+		}
 	}
 	
 	/**
@@ -288,16 +295,16 @@ public class Compartment
 										implements Comparator<ProcessManager>
 	{
 		@Override
-		public int compare(ProcessManager mech1, ProcessManager mech2) 
+		public int compare(ProcessManager manager1, ProcessManager manager2) 
 		{
-			Double temp = mech1.getTimeForNextStep() -
-												mech2.getTimeForNextStep();
+			Double temp = manager1.getTimeForNextStep() -
+												manager2.getTimeForNextStep();
 			/*
 			 * TODO Should deal with numerical rounding errors here, rather
 			 * than just checking for zero. 
 			 */
 			if ( temp == 0.0 )
-				return mech1.getPriority() - mech2.getPriority();
+				return manager1.getPriority() - manager2.getPriority();
 			else
 				return temp.intValue();
 		}
@@ -317,4 +324,8 @@ public class Compartment
 	 * REPORTING
 	 ************************************************************************/
 	
+	public void printSoluteGrid(String soluteName)
+	{
+		this._environment.printSolute(soluteName);
+	}
 }

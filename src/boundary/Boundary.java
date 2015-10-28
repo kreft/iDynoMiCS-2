@@ -3,6 +3,7 @@
  */
 package boundary;
 
+import grid.SpatialGrid;
 import grid.SpatialGrid.GridMethod;
 import shape.Shape;
 
@@ -101,16 +102,15 @@ public abstract class Boundary
 	{
 		return new GridMethod()
 		{
-
 			@Override
 			public int[] getCorrectCoord(int[] coord) {
 				// TODO Auto-generated method stub
 				return null;
 			}
-
+			
 			@Override
-			public double getConcnGradient(int[] coord) {
-				// TODO Auto-generated method stub
+			public double getConcnGradient(String sName, SpatialGrid grid)
+			{
 				return 0;
 			}
 		};
@@ -126,7 +126,7 @@ public abstract class Boundary
 				return null;
 			}
 			
-			public double getConcnGradient(int[] coord)
+			public double getConcnGradient(String sName, SpatialGrid grid)
 			{
 				return gradient;
 			}
