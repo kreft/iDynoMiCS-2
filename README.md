@@ -14,6 +14,8 @@ Each compartment has four main components:
 - an agent container (this holds any agents - be they live or inert - modelled as discrete particles)
 - an ordered list of process managers.
 
+![compartment structure](ReadMeFigs/ReadMeFigs.png)
+
 ### Compartment shape
 
 ### Environment container
