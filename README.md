@@ -14,7 +14,7 @@ Each compartment has four main components:
 - an agent container (this holds any agents - be they live or inert - modelled as discrete particles)
 - an ordered list of process managers.
 
-![compartment structure](ReadMeFigs/ReadMeFigs.png)
+![compartment structure](https://github.com/roughhawkbit/iDynoMiCS-2/blob/master/ReadMeFigs/Slide1.png)
 
 ### Compartment shape
 
