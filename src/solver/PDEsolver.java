@@ -80,18 +80,9 @@ public abstract class PDEsolver extends Solver
 	protected void addLOperator(String sName, SpatialGrid solute, ArrayType type)
 	{
 		/*
-		 * Coordinates of the current position and of the current neighbor. 
+		 * Coordinates of the current position. 
 		 */
-		int[] current, nbh;
-		/*
-		 * The GridMethod to use if the current neighbor crosses a boundary.
-		 */
-		GridMethod gMethod;
-		/*
-		 * Solute concentration and diffusivity at the current grid 
-		 * coordinates and at the current neighbor coordinates.
-		 */
-		double currConcn, currDiff, nbhDiff, nbhConcn;
+		int[] current;
 		/*
 		 * Temporary storage for the L-Operator.
 		 */
@@ -105,26 +96,11 @@ public abstract class PDEsolver extends Solver
 			if ( solute.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
 				continue;
 			lop = 0.0;
-			currConcn = solute.getValueAt(ArrayType.CONCN, current);
-			currDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, current);
-			
-			for ( nbh = solute.resetNbhIterator(false); 
-				solute.isNbhIteratorValid(); nbh = solute.nbhIteratorNext() )
+			for ( solute.resetNbhIterator(false); 
+				solute.isNbhIteratorValid(); solute.nbhIteratorNext() )
 			{
-				gMethod = solute.nbhIteratorIsOutside();
-				if ( gMethod == null )
-				{
-					nbhDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, nbh);
-					nbhConcn = solute.getValueAt(ArrayType.CONCN, nbh);
-					lop += (nbhDiff + currDiff) * (nbhConcn - currConcn);
-				}
-				else
-					lop += gMethod.getConcnGradient(sName, solute);
+				lop += solute.getFluxWithNeighbor(sName);
 			}
-			/*
-			 * Here we assume that all voxels are the same size.
-			 */
-			lop *= 0.5 * Math.pow(solute.getResolution(), -2.0);
 			/*
 			 * Add on any reactions.
 			 */
@@ -185,7 +161,7 @@ public abstract class PDEsolver extends Solver
 					dLop += (nbhDiff + currDiff);
 				}
 				else
-					dLop += gMethod.getConcnGradient(sName, solute);
+					dLop += gMethod.getConcnGradient(solute);
 			}
 			/*
 			 * Here we assume that all voxels are the same size.

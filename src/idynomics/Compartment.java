@@ -80,9 +80,9 @@ public class Compartment
 		 */
 		XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX,
 		/*
-		 * TODO Polar/cylindrical boundaries
+		 * Polar/cylindrical boundaries
 		 */
-		
+		CIRCUMFERENCE,
 		/*
 		 * 
 		 */
@@ -174,6 +174,15 @@ public class Compartment
 	{
 		this._agents.init(this.getNumDims());
 		this._environment.init(this._sideLengths, 1.0);
+		for ( String soluteName : this._environment.getSoluteNames() )
+		{
+			this._sideBoundaries.forEach( (side, boundary) ->
+			{
+				this._environment.addBoundary(side, soluteName, 
+										boundary.getGridMethod(soluteName));
+			});
+		}
+		
 	}
 	
 	/*************************************************************************
@@ -233,7 +242,11 @@ public class Compartment
 		else
 		{
 			this._sideBoundaries.put(side, aBoundary);
-			this._environment.addBoundary(side, aBoundary.getGridMethod());
+			for ( String soluteName : this._environment.getSoluteNames() )
+			{
+				this._environment.addBoundary(side, soluteName,
+										aBoundary.getGridMethod(soluteName));
+			}
 		}
 	}
 	

@@ -4,11 +4,11 @@ public class BoundaryFixed extends BoundaryExternal
 {
 	public BoundaryFixed()
 	{
-		this._gridMethod = dirichlet(0.0);
+		this._defaultGridMethod = constantDirichlet(0.0);
 	}
 	
 	public BoundaryFixed(double value)
 	{
-		this._gridMethod = dirichlet(value);
+		this._defaultGridMethod = constantDirichlet(value);
 	}
 }

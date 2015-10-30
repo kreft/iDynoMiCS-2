@@ -550,7 +550,17 @@ public class CartesianGrid extends SpatialGrid
 	{
 		this._currentCoord = null;
 	}
-
+	
+	public double getValueAtCurrent(ArrayType type)
+	{
+		return this.getValueAt(type, this._currentCoord);
+	}
+	
+	public void setValueAtCurrent(ArrayType type, double value)
+	{
+		this.setValueAt(type, this._currentCoord, value);
+	}
+	
 	/*************************************************************************
 	 * NEIGHBOR ITERATOR
 	 ************************************************************************/
@@ -661,6 +671,7 @@ public class CartesianGrid extends SpatialGrid
 	public GridMethod nbhIteratorIsOutside()
 	{
 		BoundarySide bSide = this.isOutside(this._currentNeighbor);
+		System.out.println(Arrays.toString(this._currentNeighbor));
 		if ( bSide == null )
 			return null;
 		return this._boundaries.get(bSide);

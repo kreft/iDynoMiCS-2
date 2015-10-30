@@ -3,6 +3,8 @@
  */
 package boundary;
 
+import java.util.HashMap;
+
 import grid.SpatialGrid;
 import grid.SpatialGrid.GridMethod;
 import shape.Shape;
@@ -19,7 +21,16 @@ public abstract class Boundary
 	 */
 	protected Shape _shape;
 	
-	protected GridMethod _gridMethod;
+	/**
+	 * 
+	 */
+	protected GridMethod _defaultGridMethod;
+	
+	/**
+	 * 
+	 */
+	protected HashMap<String,GridMethod> _gridMethods = 
+											new HashMap<String,GridMethod>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -31,11 +42,7 @@ public abstract class Boundary
 	 */
 	public Boundary()
 	{
-		/*
-		 * This is the default grid method: any coordinate outside of the
-		 * shape is disallowed. 
-		 */
-		this._gridMethod = zeroFlux();
+		
 	}
 	
 	/*************************************************************************
@@ -84,21 +91,29 @@ public abstract class Boundary
 		return this._shape.distance(position);
 	}
 	
+	public void setGridMethod(String soluteName, GridMethod aMethod)
+	{
+		this._gridMethods.put(soluteName, aMethod);
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
 	 * @return
 	 */
-	public GridMethod getGridMethod()
+	public GridMethod getGridMethod(String soluteName)
 	{
-		return this._gridMethod;
+		if ( this._gridMethods.containsKey(soluteName) )
+			return this._gridMethods.get(soluteName);
+		else
+			return this._defaultGridMethod;
 	}
 	
 	/*************************************************************************
 	 * COMMON GRIDMETHODS
 	 ************************************************************************/
 	
-	protected static GridMethod dirichlet(double value)
+	public static GridMethod constantDirichlet(double value)
 	{
 		return new GridMethod()
 		{
@@ -109,14 +124,14 @@ public abstract class Boundary
 			}
 			
 			@Override
-			public double getConcnGradient(String sName, SpatialGrid grid)
+			public double getConcnGradient(SpatialGrid grid)
 			{
 				return 0;
 			}
 		};
 	}
 	
-	protected static GridMethod neumann(double gradient)
+	public static GridMethod constantNeumann(double gradient)
 	{
 		return new GridMethod()
 		{
@@ -126,7 +141,7 @@ public abstract class Boundary
 				return null;
 			}
 			
-			public double getConcnGradient(String sName, SpatialGrid grid)
+			public double getConcnGradient(SpatialGrid grid)
 			{
 				return gradient;
 			}
@@ -134,9 +149,9 @@ public abstract class Boundary
 		};
 	}
 	
-	protected static GridMethod zeroFlux()
+	public static GridMethod zeroFlux()
 	{
-		return neumann(0.0);
+		return constantNeumann(0.0);
 	}
 	
 }

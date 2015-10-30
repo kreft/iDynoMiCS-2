@@ -10,7 +10,7 @@ public abstract class SpatialGrid
 	{
 		int[] getCorrectCoord(int[] coord);
 		
-		double getConcnGradient(String sName, SpatialGrid grid);
+		double getConcnGradient(SpatialGrid grid);
 	}
 	
 	public enum ArrayType
@@ -111,6 +111,7 @@ public abstract class SpatialGrid
 	
 	public void addBoundary(BoundarySide side, GridMethod method)
 	{
+		System.out.println("Adding method to "+side.name()+" boundary");
 		this._boundaries.put(side, method);
 	}
 	
@@ -177,7 +178,16 @@ public abstract class SpatialGrid
 	
 	public abstract boolean isIteratorValid();
 	
+	public int[] iteratorCurrent()
+	{
+		return this._currentCoord;
+	}
+	
 	public abstract int[] iteratorNext();
+	
+	public abstract double getValueAtCurrent(ArrayType type);
+	
+	public abstract void setValueAtCurrent(ArrayType type, double value);
 	
 	/*************************************************************************
 	 * NEIGHBOR ITERATOR
@@ -187,9 +197,41 @@ public abstract class SpatialGrid
 	
 	public abstract boolean isNbhIteratorValid();
 	
+	public int[] neighborCurrent()
+	{
+		return this._currentNeighbor;
+	}
+	
 	public abstract int[] nbhIteratorNext();
 	
 	public abstract GridMethod nbhIteratorIsOutside();
+	
+	/**
+	 * 
+	 * TODO safety if neighbor iterator or arrays are not initialised.
+	 * 
+	 * @return
+	 */
+	public double getFluxWithNeighbor(String soluteName)
+	{
+		GridMethod aMethod = this.nbhIteratorIsOutside();
+		if( aMethod == null )
+		{
+			double out = this.getValueAtCurrent(ArrayType.CONCN)
+					- this.getValueAt(ArrayType.CONCN, this._currentNeighbor);
+			out *= this.getValueAtCurrent(ArrayType.DIFFUSIVITY)
+			  + this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor);
+			/*
+			 * Here we assume that all voxels are the same size.
+			 */
+			out *= 0.5 * Math.pow(this.getResolution(), -2.0);
+			return out;
+		}
+		else
+		{
+			return aMethod.getConcnGradient(this);
+		}
+	}
 	
 	/*************************************************************************
 	 * REPORTING

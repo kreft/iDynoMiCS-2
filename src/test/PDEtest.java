@@ -47,13 +47,17 @@ public class PDEtest
 		soluteNames[1] = "fall";
 		
 		Compartment aCompartment = new Compartment();
-		aCompartment.setShape("line");
-		aCompartment.addBoundary("xmin", new BoundaryFixed(0.0));
-		aCompartment.addBoundary("xmax", new BoundaryFixed(1.0));
 		aCompartment.setSideLengths(new double[] {3.0, 1.0, 1.0});
-		aCompartment.init();
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
+		aCompartment.setShape("line");
+		Boundary xmin = new BoundaryFixed();
+		xmin.setGridMethod("fall", Boundary.constantDirichlet(1.0));
+		aCompartment.addBoundary("xmin", xmin);
+		Boundary xmax = new BoundaryFixed();
+		xmax.setGridMethod("rise", Boundary.constantDirichlet(1.0));
+		aCompartment.addBoundary("xmax", xmax);
+		aCompartment.init();
 		//TODO diffusivities
 		
 		

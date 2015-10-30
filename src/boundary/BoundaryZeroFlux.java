@@ -5,6 +5,6 @@ public class BoundaryZeroFlux extends BoundaryExternal
 
 	public BoundaryZeroFlux()
 	{
-		super();
+		this._defaultGridMethod = zeroFlux();
 	}
 }

@@ -31,8 +31,8 @@ public class EnvironmentContainer
 	protected HashMap<String, Reaction> _reactions = 
 											new HashMap<String, Reaction>();
 	
-	protected HashMap<BoundarySide,GridMethod> _boundaries =
-									new HashMap<BoundarySide,GridMethod>();
+	protected HashMap<BoundarySide,HashMap<String,GridMethod>> _boundaries =
+									new HashMap<BoundarySide,HashMap<String,GridMethod>>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -101,16 +101,18 @@ public class EnvironmentContainer
 		CartesianGrid sg = new CartesianGrid(this._defaultNVoxel,
 										this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
-		this._boundaries.forEach( (side, method) ->
-										{ sg.addBoundary(side, method); });
+		this._boundaries.forEach( (side, map) ->
+							{ sg.addBoundary(side, map.get(soluteName)); });
 		this._solutes.put(soluteName, sg);
 	}
 	
-	public void addBoundary(BoundarySide aSide, GridMethod aMethod)
+	public void addBoundary(BoundarySide aSide, String soluteName,
+														GridMethod aMethod)
 	{
-		this._boundaries.put(aSide, aMethod);
-		this._solutes.forEach( (name, grid) ->
-									{ grid.addBoundary(aSide, aMethod); });
+		if ( ! this._boundaries.containsKey(aSide) )
+			this._boundaries.put(aSide, new HashMap<String,GridMethod>());
+		this._boundaries.get(aSide).put(soluteName, aMethod);
+		this._solutes.get(soluteName).addBoundary(aSide, aMethod);
 	}
 	
 	/*************************************************************************
