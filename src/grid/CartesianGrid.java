@@ -166,7 +166,7 @@ public class CartesianGrid extends SpatialGrid
 		{
 			if ( out[1] < 0 )
 				out = _boundaries.get(BoundarySide.YMIN).getCorrectCoord(out);
-			if ( out[1] >= _nVoxel[0] )
+			if ( out[1] >= _nVoxel[1] )
 				out = _boundaries.get(BoundarySide.YMAX).getCorrectCoord(out);
 		}
 		if ( this._nVoxel[2] > 1 )
