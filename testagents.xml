@@ -1,0 +1,16 @@
+<simulation comments="this is a file for Agent testing">
+	<compartment name="firstone" shape="CUBOID">
+		<agents>
+			<agent>
+				<state name="species" type="String" value="AOB" />
+				<state name="id" type="int" value="0001" />
+				<state name="mass" type="double" value="1" />
+				<state name="density" type="double" value="1" />
+				<state name="isLocated" type="boolean" value="false" />
+				<state name="body" type="body">
+					<point position="0.1, 0.1, 0.1" />
+				</state>
+			</agent>
+		</agents>
+	</compartment>
+</simulation>

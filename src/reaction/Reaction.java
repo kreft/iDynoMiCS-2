@@ -29,10 +29,34 @@ public class Reaction
 	 */
 	protected HashMap<String, Double> _stoichiometry;
 	
+	/**
+	 * this is a dummy constructor
+	 * TODO constructors?
+	 */
+	public Reaction(String construct)
+	{
+		
+	}
+	
+	public Reaction()
+	{
+		
+	}
+	
 	/*************************************************************************
 	 * COMMONLY USED REACTIONS
 	 * Note that stoichiometries must be set after the reaction is created.
 	 ************************************************************************/
+	
+	/**
+	 * FIXME Bas[3NOV2015]: method comes from HasReaction (depreciated) used in
+	 * solver methods I've put it here for now.
+	 */
+	public HashMap<String,Double> 
+			get1stTimeDerivatives(HashMap<String,Double> concns)
+	{
+		return concns;
+	}
 	
 	/**
 	 * \brief TODO

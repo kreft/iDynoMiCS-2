@@ -49,10 +49,9 @@ public class AgentContainer
 		/*
 		 * Bas: I have chosen maxEntries and minEntries by testing what values
 		 * resulted in fast tree creation and agent searches.
-		 * 
-		 * TODO Rob: do we need to create a tree if nDims = 0?
 		 */
-		this._agentTree = new RTree<Agent>(8, 2, nDims);
+		if (nDims != 0)
+			this._agentTree = new RTree<Agent>(8, 2, nDims);
 		/*
 		 * No parameters needed for the agentList.
 		 */
@@ -81,13 +80,17 @@ public class AgentContainer
 		return out;
 	}
 	
+	/*
+	 * Legacy support =)
+	 */
 	public void registerBirth(Agent agent) {
 		addAgent(agent);
 	}
 
-	private void addAgent(Agent agent) {
-		if ( agent.isLocated() )
-			this._agentTree.insert(agent.getLower(), agent.getDim(), agent);
+	//FIXME: .isLocated simplified for now, was an over extensive operation for a simple check.
+	public void addAgent(Agent agent) {
+		if ( (boolean) agent.get("isLocated") )
+			this._agentTree.insert((float[]) agent.get("lowerBouningBox"), (float[]) agent.get("dimensionsBoundingBox"), agent);
 		else
 			this._agentList.add(agent);
 		

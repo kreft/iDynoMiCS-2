@@ -3,20 +3,26 @@ package agent.body;
 import java.util.LinkedList;
 import java.util.List;
 
-import agent.Agent.StatePredicate;
-
 public class Body {
-    
+	
 	/**
 	 * 
 	 */
-	public final static StatePredicate<Object> tester = new StatePredicate<Object>()
+	public Body(List<Point> points, Double[] lengths, Double[] angles, Double radius) 
 	{
-		public boolean test(Object aState)
-		{
-			return aState instanceof Body;
-		}
-	};
+		this.points = points;
+		this._lengths = lengths;
+		this._angles = angles;
+		this._radius = radius;		
+	}
+	
+	public Body(List<Point> points) 
+	{
+		this.points = points;
+		this._lengths = null;
+		this._angles = null;
+		this._radius = null;		
+	}
 	
     /**
      * The 'body' of the agent is represented by sphere-swept volumes of a 
@@ -37,7 +43,7 @@ public class Body {
 	protected Double[] _angles		= null;
 	
 	/**
-	 * radius of the cell
+	 * radius of the cell (not used for coccoid cell types)
 	 */
 	protected Double _radius		= null;
 	
@@ -64,6 +70,11 @@ public class Body {
 		
 	}
 	
+	/**
+	 * 
+	 * @param radius
+	 * @return coordinates of lower corner of bounding box
+	 */
 	public float[] coord(Double radius) 
 	{
 		if(points.size() == 1)
@@ -79,6 +90,12 @@ public class Body {
 		return coord;
 	}
 	
+	/**
+	 * 
+	 * @param radius
+	 * @param t: added margin
+	 * @return coordinates of lower corner of bounding box with margin
+	 */
 	public float[] coord(Double radius, double t) 
 	{
 		if(points.size() == 1)
@@ -94,6 +111,11 @@ public class Body {
 		return coord;
 	}
 	
+	/**
+	 * 
+	 * @param radius
+	 * @return coordinates of upper corner of bounding box
+	 */
 	public float[] upper(Double radius) 
 	{
 		float[] upper = new float[nDim()];
@@ -107,6 +129,11 @@ public class Body {
 		return upper;
 	}
 	
+	/**
+	 * 
+	 * @param radius
+	 * @return dimensions of the bounding box
+	 */
 	public float[] dimensions(Double radius) 
 	{
 		if(points.size() == 1)
@@ -119,6 +146,12 @@ public class Body {
 		return dimensions;
 	}
 	
+	/**
+	 * 
+	 * @param radius
+	 * @param t: margin
+	 * @return dimensions of the bounding box with added margin
+	 */
 	public float[] dimensions(Double radius, double t) 
 	{
 		if(points.size() == 1)
@@ -131,6 +164,10 @@ public class Body {
 		return dimensions;
 	}
 	
+	/**
+	 * 
+	 * @return number of dimensions represented in the (first) point
+	 */
 	public int nDim() 
 	{
 		return points.get(0).nDim();

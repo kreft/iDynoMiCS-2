@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 
+import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
 import processManager.ProcessManager;
@@ -268,6 +269,15 @@ public class Compartment
 	public void addSolute(String soluteName)
 	{
 		this._environment.addSolute(soluteName);
+	}
+	
+	/**
+	 * 
+	 * @param Agent
+	 */
+	public void addAgent(Agent agent)
+	{
+		this._agents.addAgent(agent);
 	}
 	
 	/*************************************************************************

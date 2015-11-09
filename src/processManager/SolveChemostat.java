@@ -3,9 +3,10 @@ package processManager;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import agent.Agent;
-import agent.state.HasReactions;
+//import agent.state.HasReactions;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
 import grid.SpatialGrid;
@@ -14,6 +15,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import reaction.Reaction;
 import solver.ODErosenbrock;
 import solver.ODEsolver.Derivatives;
 import utility.ExtraMath;
@@ -196,16 +198,34 @@ public class SolveChemostat extends ProcessManager
 				 * Apply agent reactions. Note that any agents without reactions
 				 * will return an empty list of States, and so will be skipped.
 				 */
-				HasReactions aReacState;
+				// FIXME Bas[03Nov2015]: I'm kind of guessing here rewriting 
+				// based on unfinished classes.
+				// HasReactions aReacState;
+				// HashMap<String,Double> temp;
+
+//				for ( Agent agent : agents.getAllAgents() )
+//					for (Object aState : agent.getStates(HasReactions.tester))
+//					{
+//						aReacState = (HasReactions) aState;
+//						temp = aReacState.get1stTimeDerivatives(concns);
+//						for ( int i = 0; i < _soluteNames.length; i++ )
+//							dYdT[i] += temp.get(_soluteNames[i]);
+//					}
+				
 				HashMap<String,Double> temp;
 				for ( Agent agent : agents.getAllAgents() )
-					for (Object aState : agent.getStates(HasReactions.tester))
+				{
+					@SuppressWarnings("unchecked")
+					List<Reaction> reactions = (List<Reaction>) agent.getState("reactions");
+					for (Reaction reaction : reactions)
 					{
-						aReacState = (HasReactions) aState;
-						temp = aReacState.get1stTimeDerivatives(concns);
+						
+						temp = reaction.get1stTimeDerivatives(concns);
 						for ( int i = 0; i < _soluteNames.length; i++ )
 							dYdT[i] += temp.get(_soluteNames[i]);
 					}
+				}
+				
 				/*
 				 * TODO Apply extracellular reactions.
 				 */
