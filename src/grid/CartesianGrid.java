@@ -493,7 +493,11 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public int[] resetIterator()
 	{
-		this._currentCoord = Vector.zerosInt(3);
+		if ( this._currentCoord == null )
+			this._currentCoord = Vector.zerosInt(3);
+		else
+			for ( int i = 0; i < 3; i++ )
+				this._currentCoord[i] = 0;
 		return this._currentCoord;
 	}
 
@@ -571,7 +575,11 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public int[] resetNbhIterator(boolean inclDiagonalNhbs)
 	{
-		this._currentNeighbor = Vector.copy(this._currentCoord);
+		if ( this._currentNeighbor == null )
+			this._currentNeighbor = Vector.copy(this._currentCoord);
+		else
+			for ( int i = 0; i < 3; i++ )
+				this._currentNeighbor[i] = this._currentCoord[i];
 		this._inclDiagonalNhbs = inclDiagonalNhbs;
 		for ( int axis = 0; axis < 3; axis++ )
 			if ( this._nVoxel[axis] > 1 )
