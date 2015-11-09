@@ -4,13 +4,15 @@
 package processManager;
 
 import java.util.HashMap;
+import java.util.List;
 
 import agent.Agent;
-import agent.state.HasReactions;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
+
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import reaction.Reaction;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEsolver.Updater;
@@ -99,10 +101,16 @@ public class SolveDiffusionTransient extends ProcessManager
 				 * TODO agents put reaction rates on grids.
 				 */
 				for ( Agent agent : agents.getAllLocatedAgents() )
-					for (Object aState : agent.getStates(HasReactions.tester))
+				{
+					// FIXME Bas[3NOV2015]: removed dependence on depreciated class
+//					for (Object aState : agent.getStates(HasReactions.tester))
+					@SuppressWarnings("unchecked")
+					List<Reaction> reactions = (List<Reaction>) agent.getState("reactions");
+					for (Reaction reaction : reactions)
 					{
 						
 					}
+				}
 			}
 		};
 		/*

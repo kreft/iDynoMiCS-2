@@ -3,6 +3,20 @@ package utility;
 public final class Vector {
 	
 	/**
+	 * New* obtains a vector from an input string (comma separated)
+	 * @param vectorString
+	 * @return vector
+	 */
+	public static Double[] vectorFromString(String vectorString)
+	{
+		String[] fields = vectorString.split(",");
+		Double[] vector = new Double[fields.length];
+		for (int i = 0; i < fields.length; i++)		
+			vector[i] = Double.valueOf(fields[i]);
+		return vector;		
+	}
+	
+	/**
 	 * 
 	 * @param vector
 	 * @return Euclidean norm
@@ -134,6 +148,10 @@ public final class Vector {
 		for (int i = 0; i < vector.length; i++)
 			dot += vector[i] * second[i];	
 		return dot;
+	}
+	
+	public static Double dot(Double first, Double second) {
+		return first*second;
 	}
 
 	/**

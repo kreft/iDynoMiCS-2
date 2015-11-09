@@ -1,15 +1,17 @@
 package agent;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
 import agent.activity.*;
-import agent.body.*;
+import agent.state.CalculatedState;
+import agent.state.PrimaryState;
+import agent.state.State;
 import grid.CartesianGrid;
 import idynomics.AgentContainer;
 
 public class Agent
 {
+
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
 	 * the constructor.
@@ -20,7 +22,12 @@ public class Agent
 	/**
 	 * The states HashMap use used to store all non generic Agent variables.
 	 */
-	protected HashMap<String, Object> _states = new HashMap<String, Object>();
+	protected HashMap<String, Object> _states_dep = new HashMap<String, Object>();
+	
+	/**
+	 * The states HashMap stores all primary and secondary states.
+	 */
+	protected HashMap<String, State> _states = new HashMap<String, State>();
 	
     /**
 	 * All activities owned by this Agent and whether they are currently enabled
@@ -45,7 +52,7 @@ public class Agent
 	 */
     CartesianGrid _solutes;
     
-    public interface StatePredicate<T> {boolean test(Object s);}
+   // public interface StatePredicate<T> {boolean test(Object s);}
 	
     /*************************************************************************
 	 * CONSTRUCTORS
@@ -53,7 +60,7 @@ public class Agent
 	
 	public Agent()
 	{
-		
+
 	}
 	
 	public void init()
@@ -67,14 +74,25 @@ public class Agent
 	 ************************************************************************/
 	
 	/**
-	 * \brief general getter method for any Agent state
+	 * \brief general getter method for any primary Agent state
 	 * @param name
 	 * 			name of the state (String)
 	 * @return Object of the type specific to the state
 	 */
 	public Object getState(String name)
 	{
-		return _states.get(name);
+		if (_states.containsKey(name))
+			return _states.get(name);
+		else
+			return null;
+	}
+	
+	public Object get(String name)
+	{
+		if (_states.containsKey(name))
+			return _states.get(name).get();
+		else
+			return null;
 	}
 	
 	/**
@@ -84,98 +102,46 @@ public class Agent
 	 * @param state
 	 * 			Object that contains the value of the state.
 	 */
-	public void setState(String name, Object state)
+	public void setState(String name, State state)
 	{
 		_states.put(name, state);
 	}
-
-	public LinkedList<Object> getStates(StatePredicate<Object> tester)
+	
+	public void setPrimary(String name, Object state)
 	{
-		LinkedList<Object> out = new LinkedList<Object>();
-		for ( Object aState : this._states.values() )
-			if ( tester.test(aState) )
-				out.add(aState);
-		return out;
+		State aState = new PrimaryState();
+		aState.init(this, state);
+		_states.put(name, aState);
 	}
 	
 	/**
-	 * TODO Rob [12Oct2015]: temporary fix, assumes one body or none.
-	 * 
-	 * @return
+	 * set should be able to handle any type of state you throw at it.
+	 * @param name
+	 * @param state
 	 */
-	public Body getBody()
+	public void set(String name, Object state)
 	{
-		for (Object aState : this.getStates(Body.tester))
-			return (Body) aState;
-		return null;
-	}
-	
-	/**
-	 * FIXME: this method may need some fine tuning in a later stage.
-	 * @return true if the agent has a located body.
-	 */
-	public Boolean isLocated() {
-		//Body myBody = (Body) getState("Body");
-		Body myBody = this.getBody();
-		if ( myBody == null )
-			return false;
-		if (myBody.getMorphologyIndex() == 0)
-			return false;
+		if (state instanceof State)
+		{
+			State s = (State) state;
+			s.setAgent(this); // needed since otherwise the next line can result in errors for secondary states.
+			s.init(this, s.get());
+			_states.put(name, s);
+		}
+		else if (state instanceof CalculatedState.stateExpression)
+		{
+			State anonymous = new CalculatedState();
+			anonymous.init(this, (CalculatedState.stateExpression) state);
+			_states.put(name, anonymous);
+		} 
 		else
-			return true;
-	}
-
-	/**
-	 * @return the lower corner of bounding box.
-	 */
-	public float[] getLower() 
-	{
-		//Body myBody = (Body) getState("Body");
-		Body myBody = this.getBody();
-		if ( myBody == null )
-			return null;
-		// TODO Rob [5Oct2015]: why isn't radius part of the body state?
-		return myBody.coord((Double) getState("radius"));
+		{	
+		State aState = new PrimaryState();
+		aState.init(this, state);
+		_states.put(name, aState);
+		}
 	}
 	
-	/**
-	 * @return the lower corner of bounding box with added margin.
-	 */
-	public float[] getLower(double margin) 
-	{
-		//Body myBody = (Body) getState("Body");
-		Body myBody = this.getBody();
-		if ( myBody == null )
-			return null;
-		return myBody.coord((Double) getState("radius"),margin);
-	}
-
-	/** 
-	 * @return the rib length of bounding box.
-	 */
-	public float[] getDim() 
-	{
-		//Body myBody = (Body) getState("Body");
-		Body myBody = this.getBody();
-		if ( myBody == null )
-			return null;
-		// TODO Rob [5Oct2015]: Why do we need the radius to find the dimensions?
-		return myBody.dimensions((Double) getState("radius"));
-	}
-
-	/**
-	 * @return the rib length of bounding box with added margin.
-	 */
-	public float[] getDim(double margin) 
-	{
-		//Body myBody = (Body) getState("Body");
-		Body myBody = this.getBody();
-		if ( myBody == null )
-			return null;
-		return myBody.dimensions((Double) getState("radius"),margin);
-	}
-
-
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
@@ -224,7 +190,6 @@ public class Agent
 	public void registerBirth() {
 		_agents.registerBirth(this);
 	}
-
 	
 	/*************************************************************************
 	 * REPORTING
