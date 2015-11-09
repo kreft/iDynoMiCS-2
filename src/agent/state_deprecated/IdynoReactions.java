@@ -1,10 +1,10 @@
-package agent.state_depreciated;
+package agent.state_deprecated;
 
 import java.util.HashMap;
 
-import org.sbml.jsbml.Reaction;
+import reaction.Reaction;
 
-public class SBMLReactions implements HasReactions
+public class IdynoReactions implements HasReactions
 {
 	protected Reaction[] _reactions;
 	

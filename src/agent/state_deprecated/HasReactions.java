@@ -1,4 +1,4 @@
-package agent.state_depreciated;
+package agent.state_deprecated;
 
 import java.util.HashMap;
 
