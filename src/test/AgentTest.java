@@ -16,7 +16,7 @@ import agent.Agent;
 import agent.body.Body;
 import agent.body.Point;
 import agent.state.*;
-import agent.state.secondary.VolumeState;
+import agent.state.secondary.SimpleVolumeState;
 import idynomics.Compartment;
 
 public class AgentTest {
@@ -98,7 +98,7 @@ public class AgentTest {
 		testagent.setPrimary("density", 0.2);
 		
 		// add a predefined secondary state
-		State volume = new VolumeState();
+		State volume = new SimpleVolumeState();
 		volume.init(testagent, null);
 		testagent.setState("volume",volume);
 		
@@ -142,7 +142,7 @@ public class AgentTest {
 		ezagent.set("density", 0.2);
 		
 		// add a predefined secondary state
-		ezagent.set("volume",new VolumeState());
+		ezagent.set("volume",new SimpleVolumeState());
 		
 		// add a secondary state that was not previously defined (anonymous class).
 		ezagent.set("volume2", new CalculatedState.stateExpression() {

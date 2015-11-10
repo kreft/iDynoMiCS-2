@@ -18,11 +18,6 @@ public class Agent
 	 */
 	protected static int UNIQUE_ID = 0;
     protected int uid = ++UNIQUE_ID;
-
-	/**
-	 * The states HashMap use used to store all non generic Agent variables.
-	 */
-	protected HashMap<String, Object> _states_dep = new HashMap<String, Object>();
 	
 	/**
 	 * The states HashMap stores all primary and secondary states.

@@ -3,7 +3,7 @@ package agent.state.secondary;
 import agent.Agent;
 import agent.state.State;
 
-public class VolumeState implements State {
+public class ComponentVolumeState implements State {
 	
 	private Agent agent;
 
