@@ -103,6 +103,7 @@ public abstract class Boundary
 	 */
 	public GridMethod getGridMethod(String soluteName)
 	{
+		System.out.println("Looking for "+soluteName);
 		if ( this._gridMethods.containsKey(soluteName) )
 			return this._gridMethods.get(soluteName);
 		else

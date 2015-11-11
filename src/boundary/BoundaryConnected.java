@@ -57,9 +57,9 @@ public abstract class BoundaryConnected extends Boundary
 	{
 		this._partnerBoundary = aBoundary;
 		/*
-		 * Probably unnecessary, but better safe than sorry.
+		 * Removed as caused stack overflow!
 		 */
-		this._partnerBoundary.setPartnerBoundary(this);
+		//this._partnerBoundary.setPartnerBoundary(this);
 	}
 	
 	/*************************************************************************

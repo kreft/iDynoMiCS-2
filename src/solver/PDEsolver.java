@@ -74,10 +74,11 @@ public abstract class PDEsolver extends Solver
 	 * <p>Requires the arrays "domain", "diffusivity" and "concentration" to
 	 * be pre-filled in <b>solute</b>.</p>
 	 * 
-	 * @param solute
-	 * @param arrayName
+	 * @param varName
+	 * @param grid
+	 * @param destType
 	 */
-	protected void addLOperator(String sName, SpatialGrid solute, ArrayType type)
+	protected void addLOperator(String varName, SpatialGrid grid, ArrayType destType)
 	{
 		/*
 		 * Coordinates of the current position. 
@@ -90,25 +91,25 @@ public abstract class PDEsolver extends Solver
 		/*
 		 * Iterate over all core voxels calculating the L-Operator. 
 		 */
-		for ( current = solute.resetIterator(); solute.isIteratorValid();
-											  current = solute.iteratorNext())
+		for ( current = grid.resetIterator(); grid.isIteratorValid();
+											  current = grid.iteratorNext())
 		{
-			if ( solute.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
+			if ( grid.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
 				continue;
 			lop = 0.0;
-			for ( solute.resetNbhIterator(false); 
-				solute.isNbhIteratorValid(); solute.nbhIteratorNext() )
+			for ( grid.resetNbhIterator(false); 
+						grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
 			{
-				lop += solute.getFluxWithNeighbor(sName);
+				lop += grid.getFluxWithNeighbor(varName);
 			}
 			/*
 			 * Add on any reactions.
 			 */
-			lop += solute.getValueAt(ArrayType.PRODUCTIONRATE, current);
+			lop += grid.getValueAt(ArrayType.PRODUCTIONRATE, current);
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
-			solute.addValueAt(type, current, lop);
+			grid.addValueAt(destType, current, lop);
 		}
 	}
 	

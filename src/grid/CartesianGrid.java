@@ -10,14 +10,6 @@ import idynomics.Compartment.BoundarySide;
 /**
  * 
  * 
- * <p>Important note on coordinate systems:<ul><li>Array coordinates go from 0
- * to (nVoxel + 2*padding)</li><li>Grid coordinates go from -padding to
- * (nVoxel + padding)</li></ul></p>
- * 
- * TODO Could do away with two coordinate systems by modifying coordinator and
- * sticking with it
- * 
- * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  *
  */

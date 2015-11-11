@@ -170,8 +170,8 @@ public class AgentTest {
 		for (int i = 0; i < compartmentNodes.getLength(); i++) 
 		{
 			Element xmlCompartment = (Element) compartmentNodes.item(i);
-			Compartment aCompartment = new Compartment();
-			aCompartment.setShape(xmlCompartment.getAttribute("shape"));
+			Compartment aCompartment = new 
+							Compartment(xmlCompartment.getAttribute("shape"));
 			aCompartment.init();
 			
 			// Check the agent container

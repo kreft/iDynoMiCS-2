@@ -193,6 +193,15 @@ public abstract class SpatialGrid
 	 * NEIGHBOR ITERATOR
 	 ************************************************************************/
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO remove diagonal neighbours option? It causes problems with 
+	 * boundaries, i.e. can cross multiple at the same time.
+	 * 
+	 * @param inclDiagonalNbhs
+	 * @return
+	 */
 	public abstract int[] resetNbhIterator(boolean inclDiagonalNbhs);
 	
 	public abstract boolean isNbhIteratorValid();
@@ -217,6 +226,7 @@ public abstract class SpatialGrid
 		GridMethod aMethod = this.nbhIteratorIsOutside();
 		if( aMethod == null )
 		{
+			System.out.println("normal");
 			double out = this.getValueAtCurrent(ArrayType.CONCN)
 					- this.getValueAt(ArrayType.CONCN, this._currentNeighbor);
 			out *= this.getValueAtCurrent(ArrayType.DIFFUSIVITY)
@@ -229,6 +239,7 @@ public abstract class SpatialGrid
 		}
 		else
 		{
+			System.out.println("method");
 			return aMethod.getConcnGradient(this);
 		}
 	}
