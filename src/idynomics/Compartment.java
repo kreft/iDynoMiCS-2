@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import grid.SpatialGrid;
 import processManager.ProcessManager;
 
 public class Compartment
@@ -144,7 +145,8 @@ public class Compartment
 	 * List of boundaries in a dimensionless compartment, or internal
 	 * boundaries in a dimensional compartment.
 	 */
-	protected LinkedList<Boundary> _otherBoundaries;
+	protected LinkedList<Boundary> _otherBoundaries = 
+												new LinkedList<Boundary>();
 	
 	/**
 	 * 
@@ -166,13 +168,36 @@ public class Compartment
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public Compartment()
+	public Compartment(CompartmentShape aShape)
 	{
-		
+		this._shape = aShape;
+		this.setupShape();
+	}
+	
+	public Compartment(String aShapeName)
+	{
+		this._shape = CompartmentShape.getShapeFor(aShapeName);
+		this.setupShape();
+	}
+	
+	protected void setupShape()
+	{
+		if ( this._shape == CompartmentShape.UNKNOWN )
+		{
+			//TODO
+		}
+		this._otherBoundaries = new LinkedList<Boundary>();
+		this._sideBoundaries = CompartmentShape.sideBoundariesFor(this._shape);
 	}
 	
 	public void init()
 	{
+		if ( this._sideLengths == null )
+		{
+			// TODO
+			System.out.println("Warning! Compartment side lengths not set.");
+			return;
+		}
 		this._agents.init(this.getNumDims());
 		this._environment.init(this._sideLengths, 1.0);
 		for ( String soluteName : this._environment.getSoluteNames() )
@@ -190,16 +215,6 @@ public class Compartment
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
-	public void setShape(String shape)
-	{
-		this._shape = CompartmentShape.getShapeFor(shape);
-		if ( this._shape == CompartmentShape.UNKNOWN )
-		{
-			//TODO
-		}
-		this._otherBoundaries = new LinkedList<Boundary>();
-		this._sideBoundaries = CompartmentShape.sideBoundariesFor(this._shape);
-	}
 	
 	public boolean isDimensionless()
 	{
@@ -209,7 +224,6 @@ public class Compartment
 	public int getNumDims()
 	{
 		return this._shape.nDim;
-		//return this._sideLengths.length;
 	}
 	
 	public void setSideLengths(double[] sideLengths)
@@ -278,6 +292,11 @@ public class Compartment
 	public void addAgent(Agent agent)
 	{
 		this._agents.addAgent(agent);
+	}
+	
+	public SpatialGrid getSolute(String soluteName)
+	{
+		return this._environment.getSoluteGrid(soluteName);
 	}
 	
 	/*************************************************************************

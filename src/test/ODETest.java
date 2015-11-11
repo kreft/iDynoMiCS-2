@@ -235,7 +235,7 @@ public class ODETest
 		System.out.println("\tNo agents or reactions");
 		System.out.println("Concentration should halve each timestep");
 		System.out.println("###############################################");
-		Compartment aCompartment = new Compartment();
+		Compartment aCompartment = new Compartment("dimensionless");
 		
 		//aCompartment.addSolute("rise");
 		

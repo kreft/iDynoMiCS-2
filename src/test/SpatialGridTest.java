@@ -5,7 +5,11 @@ package test;
 
 import java.util.Arrays;
 
+import boundary.Boundary;
+import boundary.BoundaryFixed;
 import grid.CartesianGrid;
+import grid.SpatialGrid;
+import idynomics.Compartment;
 import linearAlgebra.Vector;
 
 /**
@@ -23,7 +27,8 @@ public class SpatialGridTest
 	 */
 	public static void main(String[] args)
 	{
-		iteratorTest();
+		//iteratorTest();
+		comaprtmentIteratorTest();
 	}
 	
 	private static void iteratorTest()
@@ -55,6 +60,34 @@ public class SpatialGridTest
 			}
 			System.out.println("\t"+nbhCounter+" neighbors");
 			coord = grid.iteratorNext();
+		}
+	}
+	
+	private static void comaprtmentIteratorTest()
+	{
+		Compartment aCompartment = new Compartment("line");
+		aCompartment.setSideLengths(new double[] {3.0, 1.0, 1.0});
+		aCompartment.addSolute("test");
+		Boundary xmin = new BoundaryFixed();
+		xmin.setGridMethod("test", Boundary.constantDirichlet(1.0));
+		aCompartment.addBoundary("xmin", xmin);
+		Boundary xmax = new BoundaryFixed();
+		xmax.setGridMethod("test", Boundary.constantDirichlet(0.0));
+		aCompartment.addBoundary("xmax", xmax);
+		aCompartment.init();
+		
+		SpatialGrid grid = aCompartment.getSolute("test");
+		System.out.println("grid size: "+Arrays.toString(grid.getNumVoxels()));
+		int[] current, nbh;
+		for ( current = grid.resetIterator(); grid.isIteratorValid();
+				  current = grid.iteratorNext())
+		{
+			System.out.println("current: "+Arrays.toString(current));
+			for ( nbh = grid.resetNbhIterator(false); 
+					grid.isNbhIteratorValid(); nbh = grid.nbhIteratorNext() )
+			{
+				System.out.println("\tnbh: "+Arrays.toString(nbh));
+			}
 		}
 	}
 }

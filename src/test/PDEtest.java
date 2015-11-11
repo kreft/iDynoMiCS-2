@@ -4,7 +4,6 @@
 package test;
 
 import boundary.*;
-import grid.CartesianGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
@@ -46,11 +45,10 @@ public class PDEtest
 		soluteNames[0] = "rise";
 		soluteNames[1] = "fall";
 		
-		Compartment aCompartment = new Compartment();
+		Compartment aCompartment = new Compartment("line");
 		aCompartment.setSideLengths(new double[] {3.0, 1.0, 1.0});
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
-		aCompartment.setShape("line");
 		Boundary xmin = new BoundaryFixed();
 		xmin.setGridMethod("fall", Boundary.constantDirichlet(1.0));
 		aCompartment.addBoundary("xmin", xmin);

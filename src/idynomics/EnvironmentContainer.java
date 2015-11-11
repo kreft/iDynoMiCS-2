@@ -54,6 +54,7 @@ public class EnvironmentContainer
 	 */
 	public void init(double[] compartmentSize, double defaultRes)
 	{
+		System.out.println("Initialising environment..."); //bughunt
 		this._defaultResolution = defaultRes;
 		this._defaultNVoxel = new int[compartmentSize.length];
 		double temp;
@@ -65,6 +66,7 @@ public class EnvironmentContainer
 			if ( ! ExtraMath.areEqual(compartmentSize[i], temp, 1E-9) )
 				throw new IllegalArgumentException();
 		}
+		System.out.println("\tEnv size: "+Arrays.toString(this._defaultNVoxel)); //bughunt
 	}
 	
 	/**
@@ -99,7 +101,7 @@ public class EnvironmentContainer
 		 * TODO safety: check if solute already in hashmap
 		 */
 		CartesianGrid sg = new CartesianGrid(this._defaultNVoxel,
-										this._defaultResolution);
+													this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._boundaries.forEach( (side, map) ->
 							{ sg.addBoundary(side, map.get(soluteName)); });
