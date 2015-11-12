@@ -22,7 +22,7 @@ public class PDEtest
 	public static void main(String[] args)
 	{
 		double stepSize = 1.0;
-		int nStep = 1;
+		int nStep = 10;
 		
 		oneDimRiseFallNew(nStep, stepSize);
 		//oneDimRiseFall(nStep, stepSize);
@@ -42,16 +42,17 @@ public class PDEtest
 		
 		Timer.setTimeStepSize(stepSize);
 		
-		String[] soluteNames = new String[2];
+		//String[] soluteNames = new String[2];
+		String[] soluteNames = new String[1];
 		soluteNames[0] = "rise";
-		soluteNames[1] = "fall";
+		//soluteNames[1] = "fall";
 		
 		Compartment aCompartment = new Compartment("line");
-		aCompartment.setSideLengths(new double[] {5.0, 1.0, 1.0});
+		aCompartment.setSideLengths(new double[] {4.0, 1.0, 1.0});
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
 		Boundary xmin = new BoundaryFixed();
-		xmin.setGridMethod("fall", Boundary.constantDirichlet(1.0));
+		//xmin.setGridMethod("fall", Boundary.constantDirichlet(1.0));
 		aCompartment.addBoundary("xmin", xmin);
 		Boundary xmax = new BoundaryFixed();
 		xmax.setGridMethod("rise", Boundary.constantDirichlet(1.0));
@@ -70,12 +71,16 @@ public class PDEtest
 		aProcess.setTimeStepSize(stepSize);
 		aCompartment.addProcessManager(aProcess);
 		
-		aCompartment.step();
-		
-		for ( String aSoluteName : soluteNames )
+		for ( int i = 0; i < nStep; i++ )
 		{
-			System.out.println("\n"+aSoluteName);
-			aCompartment.printSoluteGrid(aSoluteName);
+			System.out.println("\nStep "+i+": "+((i+1)*stepSize));
+			aCompartment.step();
+			for ( String aSoluteName : soluteNames )
+			{
+				//System.out.println(aSoluteName);
+				aCompartment.printSoluteGrid(aSoluteName);
+			}
+			Timer.step();
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package solver;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.SpatialGrid;
@@ -109,6 +110,7 @@ public abstract class PDEsolver extends Solver
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
+			//System.out.println(Arrays.toString(current)+": val = "+grid.getValueAtCurrent(ArrayType.CONCN)+", lop = "+lop); //bughunt
 			grid.addValueAt(destType, current, lop);
 		}
 	}
