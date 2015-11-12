@@ -21,8 +21,8 @@ public class PDEtest
 	
 	public static void main(String[] args)
 	{
-		double stepSize = 2.0;
-		int nStep = 100;
+		double stepSize = 1.0;
+		int nStep = 1;
 		
 		oneDimRiseFallNew(nStep, stepSize);
 		//oneDimRiseFall(nStep, stepSize);
@@ -73,7 +73,10 @@ public class PDEtest
 		aCompartment.step();
 		
 		for ( String aSoluteName : soluteNames )
+		{
+			System.out.println("\n"+aSoluteName);
 			aCompartment.printSoluteGrid(aSoluteName);
+		}
 	}
 	
 	private static void oneDimRiseFall(int nStep, double stepSize)

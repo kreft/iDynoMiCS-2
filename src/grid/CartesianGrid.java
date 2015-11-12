@@ -682,21 +682,33 @@ public class CartesianGrid extends SpatialGrid
 	 * REPORTING
 	 ************************************************************************/
 	
+	public void rowToBuffer(double[] row, StringBuffer buffer)
+	{
+		for ( int i = 0; i < row.length - 1; i++ )
+			buffer.append(row[i]+", ");
+		buffer.append(row[row.length-1]);
+	}
+	
+	public void matrixToBuffer(double[][] matrix, StringBuffer buffer)
+	{
+		for ( int i = 0; i < matrix.length - 1; i++ )
+		{
+			rowToBuffer(matrix[i], buffer);
+			buffer.append(";\n");
+		}
+		rowToBuffer(matrix[matrix.length - 1], buffer);
+	}
+	
 	public StringBuffer arrayAsBuffer(ArrayType type)
 	{
 		StringBuffer out = new StringBuffer();
 		double[][][] array = this._array.get(type);
-		
-		for ( double[][] matrix : array )
+		for ( int i = 0; i < array.length - 1; i++ )
 		{
-			for ( double[] row : matrix )
-			{
-				for ( double value : row )
-					out.append(value + ", ");
-				out.append(";\n");
-			}
+			matrixToBuffer(array[i], out);
 			out.append("|\n");
 		}
+		matrixToBuffer(array[array.length - 1], out);
 		return out;
 	}
 	
