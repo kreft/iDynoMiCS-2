@@ -10,6 +10,7 @@ import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
+import idynomics.Simulator;
 import idynomics.Timer;
 import linearAlgebra.Vector;
 import processManager.PrepareSoluteGrids;
@@ -24,64 +25,9 @@ public class PDEtest
 		double stepSize = 1.0;
 		int nStep = 10;
 		
-		oneDimRiseFallNew(nStep, stepSize);
-		//oneDimRiseFall(nStep, stepSize);
+		oneDimRiseFall(nStep, stepSize);
 		//twoDimRandInit(nStep, stepSize);
 		//twoDimIncompleteDomain(nStep, stepSize);
-	}
-	
-	private static void oneDimRiseFallNew(int nStep, double stepSize)
-	{
-		System.out.println("###############################################");
-		System.out.println("Testing 1D domain for two solutes:");
-		System.out.println("\tLeft & right fixed");
-		System.out.println("\tD = "+D);
-		System.out.println("\tNo agents or reactions");
-		System.out.println("Concentration should tend towards linear");
-		System.out.println("###############################################");
-		
-		Timer.setTimeStepSize(stepSize);
-		
-		//String[] soluteNames = new String[2];
-		String[] soluteNames = new String[1];
-		soluteNames[0] = "rise";
-		//soluteNames[1] = "fall";
-		
-		Compartment aCompartment = new Compartment("line");
-		aCompartment.setSideLengths(new double[] {4.0, 1.0, 1.0});
-		for ( String aSoluteName : soluteNames )
-			aCompartment.addSolute(aSoluteName);
-		Boundary xmin = new BoundaryFixed();
-		//xmin.setGridMethod("fall", Boundary.constantDirichlet(1.0));
-		aCompartment.addBoundary("xmin", xmin);
-		Boundary xmax = new BoundaryFixed();
-		xmax.setGridMethod("rise", Boundary.constantDirichlet(1.0));
-		aCompartment.addBoundary("xmax", xmax);
-		aCompartment.init();
-		//TODO diffusivities
-		
-		
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aPrep.setTimeStepSize(Double.MAX_VALUE);
-		aCompartment.addProcessManager(aPrep);
-		
-		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
-		aProcess.init(soluteNames);
-		aProcess.setTimeForNextStep(0.0);
-		aProcess.setTimeStepSize(stepSize);
-		aCompartment.addProcessManager(aProcess);
-		
-		for ( int i = 0; i < nStep; i++ )
-		{
-			System.out.println("\nStep "+i+": "+((i+1)*stepSize));
-			aCompartment.step();
-			for ( String aSoluteName : soluteNames )
-			{
-				//System.out.println(aSoluteName);
-				aCompartment.printSoluteGrid(aSoluteName);
-			}
-			Timer.step();
-		}
 	}
 	
 	private static void oneDimRiseFall(int nStep, double stepSize)
@@ -94,67 +40,45 @@ public class PDEtest
 		System.out.println("Concentration should tend towards linear");
 		System.out.println("###############################################");
 		
-		int[] nVoxel = Vector.vector(3, 1);
-		nVoxel[0] = 3;
+		Timer.setTimeStepSize(stepSize);
+		Timer.setEndOfSimulation(nStep*stepSize);
 		
 		String[] soluteNames = new String[2];
 		soluteNames[0] = "rise";
 		soluteNames[1] = "fall";
-
-		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
-		environment.setSize(nVoxel, 1.0);
-		SpatialGrid sg;
-		int[] coords = Vector.vector(3, 0);
-		double value;
-		double k = 1.0;
-		double fudge = Math.exp(-k*(nVoxel[0]+1.0));
-		for ( int i = 0; i < soluteNames.length; i++ )
+		
+		Simulator aSimulator = new Simulator();
+		Compartment aCompartment = aSimulator.addCompartment("compartment", "line");
+		aCompartment.setSideLengths(new double[] {4.0, 1.0, 1.0});
+		for ( String aSoluteName : soluteNames )
+			aCompartment.addSolute(aSoluteName);
+		Boundary xmin = new BoundaryFixed();
+		xmin.setGridMethod("fall", Boundary.constantDirichlet(1.0));
+		aCompartment.addBoundary("xmin", xmin);
+		Boundary xmax = new BoundaryFixed();
+		xmax.setGridMethod("rise", Boundary.constantDirichlet(1.0));
+		aCompartment.addBoundary("xmax", xmax);
+		aCompartment.init();
+		//TODO diffusivities
+		
+		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
+		aPrep.setTimeStepSize(Double.MAX_VALUE);
+		aCompartment.addProcessManager(aPrep);
+		
+		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
+		aProcess.init(soluteNames);
+		aProcess.setTimeForNextStep(0.0);
+		aProcess.setTimeStepSize(stepSize);
+		aCompartment.addProcessManager(aProcess);
+		
+		aSimulator.launch();
+		for ( String aSoluteName : soluteNames )
 		{
-			String name = soluteNames[i];
-			environment.addSolute(name);
-			sg = environment.getSoluteGrid(name);
-			for ( int j = -1; j < nVoxel[0]+1; j++ )
-			{
-				value = i + ((int)Math.pow(-1,i))*(Math.exp(-k*(j+1.0))-fudge)/(1.0-fudge);
-				coords[0] = j;
-				sg.addValueAt(ArrayType.CONCN, coords, value);
-			}
-			sg.newArray(ArrayType.DIFFUSIVITY);
-			sg.setAllTo(ArrayType.DIFFUSIVITY, D);
-			sg.newArray(ArrayType.DOMAIN);
-			sg.setAllTo(ArrayType.DOMAIN, 1.0);
-			sg.newArray(ArrayType.PRODUCTIONRATE);
-			sg.newArray(ArrayType.DIFFPRODUCTIONRATE);
+			System.out.println(aSoluteName);
+			aCompartment.printSoluteGrid(aSoluteName);
 		}
-		/*
-		 * Dummy AgentContainer will be empty
-		 */
-		AgentContainer agents = new AgentContainer();
-		/*
-		 * 
-		 */
-		SolveDiffusionTransient process = new SolveDiffusionTransient();
-		process.init(soluteNames);
-		process.setTimeForNextStep(0.0);
-		process.setTimeStepSize(stepSize);
-		System.out.println("Time: "+process.getTimeForNextStep());
-		for ( String name : soluteNames )
-		{
-			System.out.println(name+": ");
-			printSoluteGrid(environment.getSoluteGrid(name));
-		}
-		for ( ; nStep > 0; nStep-- )
-		{
-			process.step(environment, agents);
-			System.out.println("Time: "+process.getTimeForNextStep());
-			for ( String name : soluteNames )
-			{
-				System.out.println(name+": ");
-				printSoluteGrid(environment.getSoluteGrid(name));
-			}
-		}
-		System.out.println("\n");
 	}
+	
 	
 	private static void twoDimRandInit(int nStep, double stepSize)
 	{
