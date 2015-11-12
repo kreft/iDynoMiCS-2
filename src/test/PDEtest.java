@@ -4,6 +4,7 @@
 package test;
 
 import boundary.*;
+import grid.CartesianGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
@@ -20,8 +21,8 @@ public class PDEtest
 	
 	public static void main(String[] args)
 	{
-		double stepSize = 10.0;
-		int nStep = 5;
+		double stepSize = 2.0;
+		int nStep = 100;
 		
 		oneDimRiseFallNew(nStep, stepSize);
 		//oneDimRiseFall(nStep, stepSize);
@@ -46,7 +47,7 @@ public class PDEtest
 		soluteNames[1] = "fall";
 		
 		Compartment aCompartment = new Compartment("line");
-		aCompartment.setSideLengths(new double[] {3.0, 1.0, 1.0});
+		aCompartment.setSideLengths(new double[] {5.0, 1.0, 1.0});
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
 		Boundary xmin = new BoundaryFixed();
@@ -92,8 +93,8 @@ public class PDEtest
 		soluteNames[0] = "rise";
 		soluteNames[1] = "fall";
 
-		EnvironmentContainer environment = new EnvironmentContainer();
-		environment.init(nVoxel, 1.0);
+		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
+		environment.setSize(nVoxel, 1.0);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		double value;
@@ -165,8 +166,8 @@ public class PDEtest
 		String[] soluteNames = new String[1];
 		soluteNames[0] = "solute";
 		
-		EnvironmentContainer environment = new EnvironmentContainer();
-		environment.init(nVoxel, 1.0);
+		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
+		environment.setSize(nVoxel, 1.0);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( String name : soluteNames )
@@ -240,8 +241,8 @@ public class PDEtest
 		String[] soluteNames = new String[1];
 		soluteNames[0] = "solute";
 		
-		EnvironmentContainer environment = new EnvironmentContainer();
-		environment.init(nVoxel, 1.0);
+		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
+		environment.setSize(nVoxel, 1.0);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( int i = 0; i < soluteNames.length; i++ )

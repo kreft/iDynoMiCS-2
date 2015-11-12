@@ -8,7 +8,8 @@ import java.util.LinkedList;
 import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
-import grid.SpatialGrid;
+import grid.*;
+import grid.SpatialGrid.GridGetter;
 import processManager.ProcessManager;
 
 public class Compartment
@@ -73,9 +74,17 @@ public class Compartment
 			}
 			return out;
 		}
+		
+		public static GridGetter gridFor(CompartmentShape aShape)
+		{
+			if ( aShape == LINE || aShape == RECTANGLE || aShape == CUBOID)
+				return CartesianGrid.standardGetter();
+			//TODO Safety
+			return null;
+		}
 	}
 	
-	public enum BoundarySide
+	public static enum BoundarySide
 	{
 		/*
 		 * Cartesian boundaries.
@@ -134,7 +143,7 @@ public class Compartment
 	/**
 	 * 
 	 */
-	protected EnvironmentContainer _environment = new EnvironmentContainer();
+	protected EnvironmentContainer _environment;
 	
 	/**
 	 * Directory of boundaries that are linked to a specific side.
@@ -155,7 +164,7 @@ public class Compartment
 											new LinkedList<ProcessManager>();
 	
 	/**
-	 * 
+	 * ProcessComparator orders Process Managers by their time priority.
 	 */
 	protected ProcessComparator _procComp = new ProcessComparator();
 	
@@ -188,6 +197,9 @@ public class Compartment
 		}
 		this._otherBoundaries = new LinkedList<Boundary>();
 		this._sideBoundaries = CompartmentShape.sideBoundariesFor(this._shape);
+		this._agents.init(this.getNumDims());
+		this._environment = new 
+				  EnvironmentContainer(CompartmentShape.gridFor(this._shape));
 	}
 	
 	public void init()
@@ -198,8 +210,6 @@ public class Compartment
 			System.out.println("Warning! Compartment side lengths not set.");
 			return;
 		}
-		this._agents.init(this.getNumDims());
-		this._environment.init(this._sideLengths, 1.0);
 		for ( String soluteName : this._environment.getSoluteNames() )
 		{
 			this._sideBoundaries.forEach( (side, boundary) ->
@@ -229,6 +239,7 @@ public class Compartment
 	public void setSideLengths(double[] sideLengths)
 	{
 		this._sideLengths = sideLengths;
+		this._environment.setSize(this._sideLengths, 1.0);
 	}
 	
 	/**

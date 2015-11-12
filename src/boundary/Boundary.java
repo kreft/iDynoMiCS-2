@@ -6,6 +6,7 @@ package boundary;
 import java.util.HashMap;
 
 import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 import grid.SpatialGrid.GridMethod;
 import shape.Shape;
 
@@ -103,7 +104,7 @@ public abstract class Boundary
 	 */
 	public GridMethod getGridMethod(String soluteName)
 	{
-		System.out.println("Looking for "+soluteName);
+		//System.out.println("Looking for "+soluteName); //bughunt
 		if ( this._gridMethods.containsKey(soluteName) )
 			return this._gridMethods.get(soluteName);
 		else
@@ -125,9 +126,12 @@ public abstract class Boundary
 			}
 			
 			@Override
-			public double getConcnGradient(SpatialGrid grid)
+			public double getBoundaryFlux(SpatialGrid grid)
 			{
-				return 0;
+				double out = value - grid.getValueAtCurrent(ArrayType.CONCN);
+				out *= grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
+				out *= Math.pow(grid.getResolution(), -2.0);
+				return out;
 			}
 		};
 	}
@@ -142,7 +146,7 @@ public abstract class Boundary
 				return null;
 			}
 			
-			public double getConcnGradient(SpatialGrid grid)
+			public double getBoundaryFlux(SpatialGrid grid)
 			{
 				return gradient;
 			}

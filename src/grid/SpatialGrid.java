@@ -6,11 +6,16 @@ import idynomics.Compartment.BoundarySide;
 
 public abstract class SpatialGrid
 {
+	public interface GridGetter
+	{
+		SpatialGrid newGrid(int[] nVoxel, double resolution);
+	};
+	
 	public interface GridMethod
 	{
 		int[] getCorrectCoord(int[] coord);
 		
-		double getConcnGradient(SpatialGrid grid);
+		double getBoundaryFlux(SpatialGrid grid);
 	}
 	
 	public enum ArrayType
@@ -111,7 +116,7 @@ public abstract class SpatialGrid
 	
 	public void addBoundary(BoundarySide side, GridMethod method)
 	{
-		System.out.println("Adding method to "+side.name()+" boundary");
+		//System.out.println("Adding method to "+side.name()+" boundary"); //bughunt
 		this._boundaries.put(side, method);
 	}
 	
@@ -226,21 +231,22 @@ public abstract class SpatialGrid
 		GridMethod aMethod = this.nbhIteratorIsOutside();
 		if( aMethod == null )
 		{
-			System.out.println("normal");
-			double out = this.getValueAtCurrent(ArrayType.CONCN)
-					- this.getValueAt(ArrayType.CONCN, this._currentNeighbor);
+			double out = this.getValueAt(ArrayType.CONCN, this._currentNeighbor)
+					- this.getValueAtCurrent(ArrayType.CONCN);
 			out *= this.getValueAtCurrent(ArrayType.DIFFUSIVITY)
 			  + this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor);
 			/*
 			 * Here we assume that all voxels are the same size.
 			 */
 			out *= 0.5 * Math.pow(this.getResolution(), -2.0);
+			//System.out.println("normal: "+out); //bughunt
 			return out;
 		}
 		else
 		{
-			System.out.println("method");
-			return aMethod.getConcnGradient(this);
+			double flux = aMethod.getBoundaryFlux(this);
+			//System.out.println("method: "+flux); //bughunt
+			return flux;
 		}
 	}
 	

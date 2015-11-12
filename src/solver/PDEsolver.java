@@ -162,7 +162,7 @@ public abstract class PDEsolver extends Solver
 					dLop += (nbhDiff + currDiff);
 				}
 				else
-					dLop += gMethod.getConcnGradient(solute);
+					dLop += gMethod.getBoundaryFlux(solute);
 			}
 			/*
 			 * Here we assume that all voxels are the same size.

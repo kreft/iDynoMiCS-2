@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
+import grid.SpatialGrid.GridGetter;
 import linearAlgebra.*;
 import idynomics.Compartment.BoundarySide;
 
@@ -671,7 +672,7 @@ public class CartesianGrid extends SpatialGrid
 	public GridMethod nbhIteratorIsOutside()
 	{
 		BoundarySide bSide = this.isOutside(this._currentNeighbor);
-		System.out.println(Arrays.toString(this._currentNeighbor));
+		//System.out.println(Arrays.toString(this._currentNeighbor)); //bughunt
 		if ( bSide == null )
 			return null;
 		return this._boundaries.get(bSide);
@@ -680,22 +681,43 @@ public class CartesianGrid extends SpatialGrid
 	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/
-
-	public String arrayAsText(ArrayType type)
+	
+	public StringBuffer arrayAsBuffer(ArrayType type)
 	{
-		String out = "";
+		StringBuffer out = new StringBuffer();
 		double[][][] array = this._array.get(type);
+		
 		for ( double[][] matrix : array )
 		{
 			for ( double[] row : matrix )
 			{
 				for ( double value : row )
-					out += value + ", ";
-				out += ";\n";
+					out.append(value + ", ");
+				out.append(";\n");
 			}
-			out += "|\n";
+			out.append("|\n");
 		}
 		return out;
 	}
-
+	
+	public String arrayAsText(ArrayType type)
+	{
+		return this.arrayAsBuffer(type).toString();
+	}
+	
+	/*************************************************************************
+	 * GRID GETTER
+	 ************************************************************************/
+	
+	public static final GridGetter standardGetter()
+	{
+		return new GridGetter()
+		{
+			@Override
+			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
+			{
+				return new CartesianGrid(nVoxel, resolution);
+			}
+		};
+	}
 }
