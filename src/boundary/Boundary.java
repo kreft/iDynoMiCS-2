@@ -15,7 +15,7 @@ import shape.Shape;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class Boundary
+public class Boundary
 {
 	/**
 	 * The shape this Boundary takes (e.g. Plane, Sphere).
@@ -115,23 +115,24 @@ public abstract class Boundary
 	 * COMMON GRIDMETHODS
 	 ************************************************************************/
 	
+	public static double calcFlux(double bndryConcn, double gridConcn,
+										double diffusivity, double resolution)
+	{
+		return (bndryConcn - gridConcn) * diffusivity
+										* Math.pow(resolution,-2.0);
+	}
+	
 	public static GridMethod constantDirichlet(double value)
 	{
 		return new GridMethod()
 		{
 			@Override
-			public int[] getCorrectCoord(int[] coord) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
 			public double getBoundaryFlux(SpatialGrid grid)
 			{
-				double out = value - grid.getValueAtCurrent(ArrayType.CONCN);
-				out *= grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
-				out *= Math.pow(grid.getResolution(), -2.0);
-				return out;
+				return calcFlux(value, 
+								grid.getValueAtCurrent(ArrayType.CONCN),
+								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+								grid.getResolution());
 			}
 		};
 	}
@@ -140,12 +141,6 @@ public abstract class Boundary
 	{
 		return new GridMethod()
 		{
-			@Override
-			public int[] getCorrectCoord(int[] coord) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
 			public double getBoundaryFlux(SpatialGrid grid)
 			{
 				return gradient;

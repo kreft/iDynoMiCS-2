@@ -68,7 +68,7 @@ public class EnvironmentContainer
 			if ( ! ExtraMath.areEqual(compartmentSize[i], temp, 1E-9) )
 				throw new IllegalArgumentException();
 		}
-		System.out.println("\tEnv size: "+Arrays.toString(this._defaultNVoxel)); //bughunt
+		//System.out.println("\tEnv size: "+Arrays.toString(this._defaultNVoxel)); //bughunt
 	}
 	
 	/**
@@ -145,6 +145,12 @@ public class EnvironmentContainer
 	
 	public void printSolute(String soluteName)
 	{
+		System.out.println(soluteName+":");
 		System.out.println(this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
+	}
+	
+	public void printAllSolutes()
+	{
+		this._solutes.forEach((s,g) -> {this.printSolute(s);;});
 	}
 }

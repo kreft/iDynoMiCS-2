@@ -13,8 +13,6 @@ public abstract class SpatialGrid
 	
 	public interface GridMethod
 	{
-		int[] getCorrectCoord(int[] coord);
-		
 		double getBoundaryFlux(SpatialGrid grid);
 	}
 	

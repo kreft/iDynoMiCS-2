@@ -6,6 +6,7 @@ import java.util.function.DoubleFunction;
 
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.*;
+import utility.LogFile;
 import idynomics.Compartment.BoundarySide;
 
 /**
@@ -144,62 +145,38 @@ public class CartesianGrid extends SpatialGrid
 	/*************************************************************************
 	 * COORDINATES
 	 ************************************************************************/
-
-	private int[] checkCoords(int[] coord)
-	{
-		int[] out = Vector.copy(coord);
-		if ( this._nVoxel[0] > 1 )
-		{
-			if ( out[0] < 0 )
-				out = _boundaries.get(BoundarySide.XMIN).getCorrectCoord(out);
-			if ( out[0] >= _nVoxel[0] )
-				out = _boundaries.get(BoundarySide.XMAX).getCorrectCoord(out);
-		}
-		if ( this._nVoxel[1] > 1 )
-		{
-			if ( out[1] < 0 )
-				out = _boundaries.get(BoundarySide.YMIN).getCorrectCoord(out);
-			if ( out[1] >= _nVoxel[1] )
-				out = _boundaries.get(BoundarySide.YMAX).getCorrectCoord(out);
-		}
-		if ( this._nVoxel[2] > 1 )
-		{
-			if ( out[2] < 0 )
-				out = _boundaries.get(BoundarySide.ZMIN).getCorrectCoord(out);
-			if ( out[2] >= _nVoxel[2] )
-				out = _boundaries.get(BoundarySide.ZMAX).getCorrectCoord(out);
-		}
-		return out;
-	}
-
+	
+	/**
+	 * \brief Gets the value of one coordinate on the given array type.
+	 * 
+	 * @param type Type of array to get from.
+	 * @param coord Coordinate on this array to get.
+	 * @return double value at this coordinate on this array.
+	 */
 	public double getValueAt(ArrayType type, int[] coord)
 	{
-		double[][][] array = this._array.get(type);
-		int[] corrected = this.checkCoords(coord);
-		if ( corrected != null )
-			return array[corrected[0]][corrected[1]][corrected[2]];
+		if ( this._array.containsKey(type) )
+			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
 		else
 			return Double.NaN;
 	}
 
 	/**
+	 * \brief Change the value of one coordinate on the given array type.
 	 * 
-	 * @param arrayName
-	 * @param coord
-	 * @param newValue
-	 * @return Whether or not the assignment was successful.
+	 * @param type Type of array to be set.
+	 * @param coord Coordinate on this array to set.
+	 * @param newValue New value with which to overwrite the array.
 	 */
-	public boolean setValueAtNew(ArrayType type, int[] coord, double newValue)
+	public void setValueAtNew(ArrayType type, int[] coord, double newValue)
 	{
-		double[][][] array = this._array.get(type);
-		int[] corrected = this.checkCoords(coord);
-		if ( corrected != null )
+		if ( ! this._array.containsKey(type) )
 		{
-			array[corrected[0]][corrected[1]][corrected[2]] = newValue;
-			return true;
+			LogFile.writeLog("Warning: tried to set coordinate in "+
+							type.toString()+" array before initialisation.");
+			this.newArray(type);
 		}
-		else
-			return false;
+		this._array.get(type)[coord[0]][coord[1]][coord[2]] = newValue;
 	}
 
 	/**
@@ -693,8 +670,13 @@ public class CartesianGrid extends SpatialGrid
 	{
 		for ( int i = 0; i < matrix.length - 1; i++ )
 		{
-			rowToBuffer(matrix[i], buffer);
-			buffer.append(";\n");
+			if ( matrix[i].length == 1 )
+				buffer.append(matrix[i][0]+", ");
+			else
+			{
+				rowToBuffer(matrix[i], buffer);
+				buffer.append(";\n");
+			}
 		}
 		rowToBuffer(matrix[matrix.length - 1], buffer);
 	}
@@ -706,7 +688,10 @@ public class CartesianGrid extends SpatialGrid
 		for ( int i = 0; i < array.length - 1; i++ )
 		{
 			matrixToBuffer(array[i], out);
-			out.append("|\n");
+			if ( array[i].length == 1 )
+				out.append(", ");
+			else
+				out.append("\n");
 		}
 		matrixToBuffer(array[array.length - 1], out);
 		return out;

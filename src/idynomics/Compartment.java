@@ -381,4 +381,9 @@ public class Compartment
 	{
 		this._environment.printSolute(soluteName);
 	}
+	
+	public void printAllSoluteGrids()
+	{
+		this._environment.printAllSolutes();
+	}
 }

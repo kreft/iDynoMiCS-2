@@ -61,4 +61,13 @@ public class Simulator
 	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/
+	
+	public void printAll()
+	{
+		this._compartments.forEach((s,c) -> 
+		{
+			System.out.println("COMPARTMENT: "+s);
+			c.printAllSoluteGrids();
+		});
+	}
 }
