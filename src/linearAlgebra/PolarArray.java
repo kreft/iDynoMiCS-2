@@ -85,7 +85,7 @@ public final class PolarArray {
 		 // min 1, +1 for each quadrant (=4 for full circle)
 //		return nt*res / ((2*nr-res)*Math.max((int)(2*nt/Math.PI), 1));
 //		return nt / ((2*nr-1)*Math.max((int)(2*nt/Math.PI), 1));
-		return (int)(2*nt/Math.PI)+1;
+		return Math.max((int)(2*nt/Math.PI),1);
 	}
 	
 	public static void checkDimensionsSame(double[][][] a, double[][][] b) throws IllegalArgumentException
