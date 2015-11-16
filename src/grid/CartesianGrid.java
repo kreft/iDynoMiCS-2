@@ -569,19 +569,19 @@ public class CartesianGrid extends SpatialGrid
 	 * TODO
 	 * 
 	 */
-	public int[] resetNbhIterator(boolean inclDiagonalNhbs)
+	public int[] resetNbhIterator()
 	{
 		if ( this._currentNeighbor == null )
 			this._currentNeighbor = Vector.copy(this._currentCoord);
 		else
 			for ( int i = 0; i < 3; i++ )
 				this._currentNeighbor[i] = this._currentCoord[i];
-		this._inclDiagonalNhbs = inclDiagonalNhbs;
-		for ( int axis = 0; axis < 3; axis++ )
+		forLoop: for ( int axis = 0; axis < 3; axis++ )
 			if ( this._nVoxel[axis] > 1 )
+			{
 				this._currentNeighbor[axis]--;
-		if ( (! this._inclDiagonalNhbs) && isDiagNbh() )
-			return this.nbhIteratorNext();
+				break forLoop;
+			}
 		return this._currentNeighbor;
 	}
 
@@ -622,26 +622,41 @@ public class CartesianGrid extends SpatialGrid
 	 * TODO
 	 * 
 	 * @return int[3] coordinates of next position.
-	 * @exception IllegalStateException Iterator exceeds boundaries.
 	 */
 	public int[] nbhIteratorNext()
 	{
-		this._currentNeighbor[0]++;
+		/*
+		 * First look at the x-axis.
+		 */
+		if ( this._currentNeighbor[0] != this._currentCoord[0])
+			this._currentNeighbor[0] += 2;
 		if ( this.nbhIteratorExceeds(0) )
 		{
-			this._currentNeighbor[0] = this._currentCoord[0] - 1;
-			this._currentNeighbor[1]++;
-			if ( this.nbhIteratorExceeds(1) )
-			{
+			this._currentNeighbor[0] = this._currentCoord[0];
+			if ( this._nVoxel[1] > 1 )
 				this._currentNeighbor[1] = this._currentCoord[1] - 1;
-				this._currentNeighbor[2]++;
-			}
+			else
+				this._currentNeighbor[2] = this._currentCoord[2] - 1;
+			return this._currentNeighbor;
 		}
-		if ( Vector.areSame(this._currentNeighbor, this._currentCoord) )
-			return this.nbhIteratorNext();
-		if ( (! this._inclDiagonalNhbs) && isDiagNbh() )
-			return this.nbhIteratorNext();
-		return _currentNeighbor;
+		/*
+		 * Now look at the y-axis.
+		 */
+		if ( this._currentNeighbor[1] != this._currentCoord[1])
+			this._currentNeighbor[1] += 2;
+		if ( this.nbhIteratorExceeds(1) )
+		{
+			this._currentNeighbor[1] = this._currentCoord[1];
+			this._currentNeighbor[2] = this._currentCoord[2] - 1;
+			return this._currentNeighbor;
+		}	
+		/*
+		 * Finally, the z-axis. If this exceeds, it should be caught by the
+		 * is valid method and end the iteration. 
+		 */
+		if ( this._currentNeighbor[2] != this._currentCoord[2])
+			this._currentNeighbor[2] += 2;
+		return this._currentNeighbor;
 	}
 
 	private boolean isDiagNbh()

@@ -57,8 +57,6 @@ public abstract class SpatialGrid
 	 */
 	protected int[] _currentNeighbor;
 	
-	protected boolean _inclDiagonalNhbs;
-	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -201,13 +199,9 @@ public abstract class SpatialGrid
 	/**
 	 * \brief TODO
 	 * 
-	 * TODO remove diagonal neighbours option? It causes problems with 
-	 * boundaries, i.e. can cross multiple at the same time.
-	 * 
-	 * @param inclDiagonalNbhs
 	 * @return
 	 */
-	public abstract int[] resetNbhIterator(boolean inclDiagonalNbhs);
+	public abstract int[] resetNbhIterator();
 	
 	public abstract boolean isNbhIteratorValid();
 	

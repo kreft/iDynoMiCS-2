@@ -98,7 +98,7 @@ public abstract class PDEsolver extends Solver
 			if ( grid.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
 				continue;
 			lop = 0.0;
-			for ( grid.resetNbhIterator(false); 
+			for ( grid.resetNbhIterator(); 
 						grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
 			{
 				lop += grid.getFluxWithNeighbor(varName);
@@ -154,7 +154,7 @@ public abstract class PDEsolver extends Solver
 				continue;
 			dLop = 0.0;
 			currDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, current);
-			for ( nbh = solute.resetNbhIterator(false); 
+			for ( nbh = solute.resetNbhIterator(); 
 					solute.isNbhIteratorValid(); nbh = solute.nbhIteratorNext() )
 			{
 				gMethod = solute.nbhIteratorIsOutside();
