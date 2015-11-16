@@ -122,6 +122,8 @@ public abstract class SpatialGrid
 	
 	protected abstract BoundarySide isOutside(int[] coord);
 	
+	public abstract int[] cyclicTransform(int[] coord);
+	
 	/*************************************************************************
 	 * VOXEL GETTERS & SETTERS
 	 ************************************************************************/

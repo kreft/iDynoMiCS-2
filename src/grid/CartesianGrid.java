@@ -3,6 +3,7 @@ package grid;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
+import java.util.function.Function;
 
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.*;
@@ -284,6 +285,31 @@ public class CartesianGrid extends SpatialGrid
 		if ( coord[2] >= this._nVoxel[2] )
 			return BoundarySide.ZMAX;
 		return null;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO Rob [16Nov2015]: This is far from ideal, but I can't currently see
+	 * a better way of doing it.
+	 * 
+	 * @param bndry
+	 * @param coord
+	 * @return
+	 */
+	public int[] cyclicTransform(int[] coord)
+	{
+		int[] transformed = Vector.copy(coord);
+		for ( int i = 0; i < 3; i++ )
+		{
+			transformed[i] = (transformed[i] % this._nVoxel[i]);
+			if ( transformed[i] < 0 )
+				transformed[i] += this._nVoxel[i];
+		}
+		/*System.out.println("transforming "+Arrays.toString(coord)+
+				" to "+Arrays.toString(transformed)+" using nVoxel "+
+				Arrays.toString(_nVoxel)); //bughunt */
+		return transformed;
 	}
 
 	/*************************************************************************

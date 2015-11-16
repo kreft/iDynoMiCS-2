@@ -3,6 +3,7 @@
  */
 package boundary;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.SpatialGrid;
@@ -154,4 +155,19 @@ public class Boundary
 		return constantNeumann(0.0);
 	}
 	
+	public static GridMethod cyclic()
+	{
+		return new GridMethod()
+		{
+			public double getBoundaryFlux(SpatialGrid grid)
+			{
+				int[] nbh = grid.cyclicTransform(grid.neighborCurrent());
+				double d = 0.5*(grid.getValueAtCurrent(ArrayType.DIFFUSIVITY)+
+								 grid.getValueAt(ArrayType.DIFFUSIVITY, nbh));
+				return calcFlux(grid.getValueAt(ArrayType.CONCN, nbh),
+								grid.getValueAtCurrent(ArrayType.CONCN),
+								d, grid.getResolution());
+			}
+		};
+	}
 }

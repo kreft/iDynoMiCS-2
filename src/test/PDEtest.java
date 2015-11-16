@@ -31,7 +31,8 @@ public class PDEtest
 		 * Add the test compartments.
 		 */
 		oneDimRiseFallComp(aSimulator);
-		twoDimRandInit(aSimulator);
+		twoDimRandInitDiagBndrs(aSimulator);
+		twoDimRandInitCyclBndrs(aSimulator);
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
 		/*
 		 * Launch the simulation.
@@ -87,18 +88,18 @@ public class PDEtest
 		aCompartment.addProcessManager(aProcess);
 	}
 	
-	private static void twoDimRandInit(Simulator aSim)
+	private static void twoDimRandInitDiagBndrs(Simulator aSim)
 	{
 		System.out.println("###############################################");
-		System.out.println("COMPARTMENT: twoDimRandInit");
+		System.out.println("COMPARTMENT: twoDimRandInitDiagBndrs");
 		System.out.println("Testing 2D domain for one solute:");
 		System.out.println("\tRandom starting concentrations");
-		System.out.println("\tBoundaries fixed");
+		System.out.println("\tDirichlet boundaries fixed");
 		System.out.println("\tD = "+D);
 		System.out.println("\tNo agents or reactions");
-		System.out.println("Concentration should tend towards linear");
+		System.out.println("Concentration should tend towards linear along diagonal");
 		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment("twoDimRandInit", "rectangle");
+		Compartment aCompartment = aSim.addCompartment("twoDimRandInitDiagBndrs", "rectangle");
 		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
 		/*
 		 * 
@@ -138,6 +139,66 @@ public class PDEtest
 		SpatialGrid sg = aCompartment.getSolute("solute");
 		for ( int[] coords = sg.resetIterator() ; sg.isIteratorValid();
 												coords = sg.iteratorNext() )
+		{
+			sg.setValueAt(ArrayType.CONCN, coords, Math.random());
+		}
+		/*
+		 * The solute grids will need prepping before the solver can get to work.
+		 */
+		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
+		aPrep.setTimeStepSize(Double.MAX_VALUE);
+		aCompartment.addProcessManager(aPrep);
+		/*
+		 * Set up the transient diffusion-reaction solver.
+		 */
+		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
+		aProcess.init(soluteNames);
+		aProcess.setTimeForNextStep(0.0);
+		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aCompartment.addProcessManager(aProcess);
+	}
+	
+	private static void twoDimRandInitCyclBndrs(Simulator aSim)
+	{
+		System.out.println("###############################################");
+		System.out.println("COMPARTMENT: twoDimRandInitCyclBndrs");
+		System.out.println("Testing 2D domain for one solute:");
+		System.out.println("\tRandom starting concentrations");
+		System.out.println("\tDirichlet boundaries fixed");
+		System.out.println("\tD = "+D);
+		System.out.println("\tNo agents or reactions");
+		System.out.println("Concentration should tend towards linear along diagonal");
+		System.out.println("###############################################");
+		Compartment aCompartment = aSim.addCompartment("twoDimRandInitCyclBndrs", "rectangle");
+		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
+		/*
+		 * 
+		 */
+		String[] soluteNames = new String[1];
+		soluteNames[0] = "solute";
+		for ( String aSoluteName : soluteNames )
+			aCompartment.addSolute(aSoluteName);
+		/*
+		 * Set the boundary methods and initialise the compartment.
+		 */
+		Boundary xmin = new BoundaryFixed(0.0);
+		aCompartment.addBoundary("xmin", xmin);
+		Boundary xmax = new BoundaryFixed(1.0);
+		aCompartment.addBoundary("xmax", xmax);
+		BoundaryCyclic ymin = new BoundaryCyclic();
+		BoundaryCyclic ymax = new BoundaryCyclic();
+		ymin.setPartnerBoundary(ymax);
+		ymax.setPartnerBoundary(ymin);
+		aCompartment.addBoundary("ymin", ymin);
+		aCompartment.addBoundary("ymax", ymax);
+		//TODO diffusivities
+		aCompartment.init();
+		/*
+		 * Initialise the concentration array with random values.
+		 */
+		SpatialGrid sg = aCompartment.getSolute("solute");
+		for ( int[] coords = sg.resetIterator() ; sg.isIteratorValid();
+				coords = sg.iteratorNext() )
 		{
 			sg.setValueAt(ArrayType.CONCN, coords, Math.random());
 		}

@@ -23,7 +23,8 @@ public class Simulator
 	
 	public Compartment addCompartment(String name, String shape)
 	{
-		//TODO safety
+		if ( this._compartments.containsKey(name) )
+			System.out.println("Warning: overwriting comaprtment "+name);
 		Compartment aCompartment = new Compartment(shape);
 		this._compartments.put(name, aCompartment);
 		return aCompartment;
