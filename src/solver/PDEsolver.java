@@ -161,15 +161,12 @@ public abstract class PDEsolver extends Solver
 				if ( gMethod == null )
 				{
 					nbhDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, nbh);
-					dLop += (nbhDiff + currDiff);
+					dLop += 0.5*(nbhDiff + currDiff);
+					// TODO
 				}
 				else
 					dLop += gMethod.getBoundaryFlux(solute);
 			}
-			/*
-			 * Here we assume that all voxels are the same size.
-			 */
-			dLop *= 0.5 / Math.pow(solute.getResolution(), 2.0);
 			dLop += solute.getValueAt(ArrayType.DIFFPRODUCTIONRATE, current);
 			solute.timesValueAt(arrayType, current, 1.0/dLop);
 		}

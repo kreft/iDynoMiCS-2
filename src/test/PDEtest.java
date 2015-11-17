@@ -121,7 +121,7 @@ public class PDEtest
 								Vector.sum(current)/4.0, 
 								grid.getValueAtCurrent(ArrayType.CONCN),
 								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),
-								grid.getResolution());
+								grid.getNbhSharedSurfaceArea());
 			}
 			
 		};

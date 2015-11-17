@@ -3,7 +3,6 @@
  */
 package boundary;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.SpatialGrid;
@@ -117,10 +116,9 @@ public class Boundary
 	 ************************************************************************/
 	
 	public static double calcFlux(double bndryConcn, double gridConcn,
-										double diffusivity, double resolution)
+										double diffusivity, double surfaceArea)
 	{
-		return (bndryConcn - gridConcn) * diffusivity
-										* Math.pow(resolution,-2.0);
+		return (bndryConcn - gridConcn) * diffusivity * surfaceArea;
 	}
 	
 	public static GridMethod constantDirichlet(double value)
@@ -133,7 +131,7 @@ public class Boundary
 				return calcFlux(value, 
 								grid.getValueAtCurrent(ArrayType.CONCN),
 								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),
-								grid.getResolution());
+								grid.getNbhSharedSurfaceArea());
 			}
 		};
 	}
@@ -166,7 +164,7 @@ public class Boundary
 								 grid.getValueAt(ArrayType.DIFFUSIVITY, nbh));
 				return calcFlux(grid.getValueAt(ArrayType.CONCN, nbh),
 								grid.getValueAtCurrent(ArrayType.CONCN),
-								d, grid.getResolution());
+								d, grid.getNbhSharedSurfaceArea());
 			}
 		};
 	}

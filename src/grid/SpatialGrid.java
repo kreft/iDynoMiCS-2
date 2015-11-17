@@ -42,7 +42,12 @@ public abstract class SpatialGrid
 	/**
 	 * Grid resolution, i.e. the side length of each voxel in this grid.
 	 */
-	protected double _res;
+	protected double[][] _res;
+	
+	/**
+	 * 
+	 */
+	protected double _minVoxVoxSurfArea;
 	
 	protected HashMap<BoundarySide,GridMethod> _boundaries = 
 									new HashMap<BoundarySide,GridMethod>();
@@ -77,10 +82,6 @@ public abstract class SpatialGrid
 	 * SIMPLE GETTERS
 	 ************************************************************************/
 	
-	public abstract double getResolution();
-	
-	public abstract double getVoxelVolume();
-	
 	public abstract int[] getNumVoxels();
 	
 	public abstract boolean[] getSignificantAxes();
@@ -91,6 +92,8 @@ public abstract class SpatialGrid
 	{
 		return this._array.containsKey(type);
 	}
+	
+	public abstract double getMinVoxelVoxelSurfaceArea();
 	
 	/*************************************************************************
 	 * SIMPLE SETTERS
@@ -125,6 +128,8 @@ public abstract class SpatialGrid
 	/*************************************************************************
 	 * VOXEL GETTERS & SETTERS
 	 ************************************************************************/
+	
+	public abstract double getVoxelVolume(int[] coord);
 	
 	public abstract double getValueAt(ArrayType type, int[] coord);
 	
@@ -212,6 +217,8 @@ public abstract class SpatialGrid
 	
 	public abstract int[] nbhIteratorNext();
 	
+	public abstract double getNbhSharedSurfaceArea();
+	
 	public abstract GridMethod nbhIteratorIsOutside();
 	
 	/**
@@ -225,14 +232,21 @@ public abstract class SpatialGrid
 		GridMethod aMethod = this.nbhIteratorIsOutside();
 		if( aMethod == null )
 		{
+			/*
+			 * First find the difference in concentration.
+			 */
 			double out = this.getValueAt(ArrayType.CONCN, this._currentNeighbor)
 					- this.getValueAtCurrent(ArrayType.CONCN);
-			out *= this.getValueAtCurrent(ArrayType.DIFFUSIVITY)
-			  + this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor);
 			/*
-			 * Here we assume that all voxels are the same size.
+			 * Then multiply this by the average diffusivity.
 			 */
-			out *= 0.5 * Math.pow(this.getResolution(), -2.0);
+			out *= 0.5 * (this.getValueAtCurrent(ArrayType.DIFFUSIVITY) +
+			   this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor));
+			/*
+			 * Finally, multiply by the surface are the two voxels share (in
+			 * square microns).
+			 */
+			out *= this.getNbhSharedSurfaceArea();
 			//System.out.println("normal: "+out); //bughunt
 			return out;
 		}

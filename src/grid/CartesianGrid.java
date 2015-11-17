@@ -1,11 +1,10 @@
 package grid;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
-import java.util.function.Function;
 
-import grid.SpatialGrid.GridGetter;
 import linearAlgebra.*;
 import utility.LogFile;
 import idynomics.Compartment.BoundarySide;
@@ -18,10 +17,26 @@ import idynomics.Compartment.BoundarySide;
  */
 public class CartesianGrid extends SpatialGrid
 {
+	protected int _nbhDirection;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param nVoxel
+	 * @param padding
+	 * @param resolution
+	 */
+	public CartesianGrid(int[] nVoxel, double[][] resolution)
+	{
+		this._nVoxel = Vector.copy(nVoxel);
+		this._res = resolution;
+		this.calcMinVoxelVoxelSurfaceArea();
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -32,13 +47,23 @@ public class CartesianGrid extends SpatialGrid
 	public CartesianGrid(int[] nVoxel, double resolution)
 	{
 		this._nVoxel = Vector.copy(nVoxel);
-		this._res = resolution;
+		this._res = new double[3][];
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			this._res[dim] = new double[this._nVoxel[dim]];
+			for ( int i = 0; i < this._nVoxel[dim]; i++ )
+				this._res[dim][i] = resolution;
+		}
+		this.calcMinVoxelVoxelSurfaceArea();
 	}
 
 	public CartesianGrid()
 	{
 		this._nVoxel = Vector.vector(3, 1);
-		this._res = 1.0;
+		this._res = new double[3][1];
+		for ( int dim = 0; dim < 3; dim++ )
+			this._res[dim][0] = 1.0;
+		this.calcMinVoxelVoxelSurfaceArea();
 	}
 
 	/**
@@ -67,7 +92,46 @@ public class CartesianGrid extends SpatialGrid
 			this._array.put(type, array);
 		}
 	}
-
+	
+	public void calcMinVoxelVoxelSurfaceArea()
+	{
+		int nSA = this.numSignificantAxes();
+		double out = 1.0;
+		switch ( nSA )
+		{
+			case 0:
+				out = Double.NaN;
+				break;
+			case 1:
+				for ( int axis = 0; axis < 3; axis++ )
+				{
+					if ( this._nVoxel[axis] > 1 )
+						continue;
+					out *= this._res[axis][0];
+				}
+				break;
+			case 2:
+				double min = Double.MAX_VALUE;
+				for ( int axis = 0; axis < 3; axis++ )
+				{
+					if ( this._nVoxel[axis] > 1 )
+						min = Math.min(min, Vector.min(this._res[axis]));
+					else
+						out *= this._res[axis][0];
+				}
+				out *= out;
+				break;
+			case 3:
+				ArrayList<Double> axes = new ArrayList<Double>(3);
+				for ( int axis = 0; axis < 3; axis++ )
+					axes.set(axis, Vector.min(this._res[axis]));
+				Collections.sort(axes);
+				out = axes.get(0) * axes.get(1);
+				break;
+		}
+		this._minVoxVoxSurfArea = out;
+	}
+	
 	/*************************************************************************
 	 * SIMPLE GETTERS
 	 ************************************************************************/
@@ -83,24 +147,17 @@ public class CartesianGrid extends SpatialGrid
 	}
 
 	/**
-	 * \brief Returns the grid resolution (in micrometers).
-	 * 
-	 * @return double value of the grid resolution (in um).
-	 */
-	public double getResolution()
-	{
-		return this._res;
-	}
-
-	/**
-	 * \brief Returns the volume of each voxel in this grid (in cubic 
+	 * \brief Returns the volume of a voxel in this grid (in cubic 
 	 * micrometers).
 	 * 
-	 * @return double value of each voxel's volume (in um<sup>3</sup>).
+	 * @return double value of a voxel's volume (in um<sup>3</sup>).
 	 */
-	public double getVoxelVolume()
+	public double getVoxelVolume(int[] coord)
 	{
-		return Math.pow(this._res, 3.0);
+		double out = 1.0;
+		for ( int dim = 0; dim < 3; dim++ )
+			out *= this._res[dim][coord[dim]];
+		return out;
 	}
 
 	/**
@@ -138,7 +195,12 @@ public class CartesianGrid extends SpatialGrid
 			out += ( this._nVoxel[axis] > 1 ) ? 1 : 0;
 		return out;
 	}
-
+	
+	public double getMinVoxelVoxelSurfaceArea()
+	{
+		return this._minVoxVoxSurfArea;
+	}
+	
 	/*************************************************************************
 	 * SIMPLE SETTERS
 	 ************************************************************************/
@@ -226,12 +288,29 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * <p>This method does not affect the state of <b>location</b>.</p>
 	 * 
+	 * TODO Safety if location is outside bounds.
+	 * 
 	 * @param location 
 	 * @return 
 	 */
 	public int[] getCoords(double[] location)
 	{
-		return Vector.toInt(Vector.times(Vector.copy(location), 1/this._res));
+		int[] coord = new int[3];
+		double counter;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			counter = 0.0;
+			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )
+			{
+				counter += this._res[dim][i];
+				if ( counter >= location[dim] )
+				{
+					coord[dim] = i;
+					break countLoop;
+				}
+			}
+		}
+		return coord;
 	}
 
 	/**
@@ -242,8 +321,11 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public double[] getVoxelOrigin(int[] coords)
 	{
-		int[] temp = Vector.copy(coords);
-		return Vector.times(Vector.toDbl(temp), this._res);
+		double[] out = Vector.zerosDbl(3);
+		for ( int dim = 0; dim < 3; dim++ )
+			for ( int i = 0; i < coords[dim]; i++ )
+				out[dim] += this._res[dim][i];
+		return out;
 	}
 
 	/**
@@ -254,7 +336,10 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public double[] getVoxelCentre(int[] coords)
 	{
-		return Vector.add(getVoxelOrigin(coords), 0.5*this._res);
+		double[] out = getVoxelOrigin(coords);
+		for ( int dim = 0; dim < 3; dim++ )
+			out[dim] += 0.5 * this._res[dim][coords[dim]];
+		return out;
 	}
 
 	/*************************************************************************
@@ -442,44 +527,6 @@ public class CartesianGrid extends SpatialGrid
 	}
 
 	/*************************************************************************
-	 * LOCATION GETTERS
-	 ************************************************************************/
-
-
-
-	/*************************************************************************
-	 * GRADIENTS
-	 ************************************************************************/
-
-	/**
-	 * \brief Calculate the differential 
-	 * 
-	 * 
-	 * @param gridCoords
-	 * @param axis
-	 * @return
-	 */
-	protected double differential(ArrayType type, int[] gridCoords, int axis)
-	{
-		int[] temp = Vector.copy(gridCoords);
-		double out = -2.0 * getValueAt(type, temp);
-		temp[axis] += 1;
-		out += getValueAt(type, temp);
-		temp[axis] -= 2;
-		out += getValueAt(type, temp);
-		out /= 2.0 * this._res;
-		return ( Double.isFinite(out) ) ? out : 0.0;
-	}
-
-	protected double[] gradient(ArrayType type, int[] gridCoords)
-	{
-		double[] out = new double[3];
-		for ( int axis = 0; axis < 3; axis++ )
-			out[axis] = differential(type, gridCoords, axis);
-		return out;
-	}
-
-	/*************************************************************************
 	 * COORDINATE ITERATOR
 	 ************************************************************************/
 
@@ -576,13 +623,14 @@ public class CartesianGrid extends SpatialGrid
 		else
 			for ( int i = 0; i < 3; i++ )
 				this._currentNeighbor[i] = this._currentCoord[i];
-		forLoop: for ( int axis = 0; axis < 3; axis++ )
+		for ( int axis = 0; axis < 3; axis++ )
 			if ( this._nVoxel[axis] > 1 )
 			{
 				this._currentNeighbor[axis]--;
-				break forLoop;
+				this._nbhDirection = axis;
+				return this._currentNeighbor;
 			}
-		return this._currentNeighbor;
+		return null;
 	}
 
 	/**
@@ -625,64 +673,38 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public int[] nbhIteratorNext()
 	{
-		/*
-		 * First look at the x-axis.
-		 */
-		if ( this._currentNeighbor[0] != this._currentCoord[0])
-			this._currentNeighbor[0] += 2;
-		if ( this.nbhIteratorExceeds(0) )
+		if ( this._nbhDirection == 2 || 
+				this._currentNeighbor[this._nbhDirection] < 
+									this._currentCoord[this._nbhDirection] )
 		{
-			this._currentNeighbor[0] = this._currentCoord[0];
-			if ( this._nVoxel[1] > 1 )
-				this._currentNeighbor[1] = this._currentCoord[1] - 1;
-			else
-				this._currentNeighbor[2] = this._currentCoord[2] - 1;
-			return this._currentNeighbor;
+			this._currentNeighbor[this._nbhDirection] += 2;
 		}
-		/*
-		 * Now look at the y-axis.
-		 */
-		if ( this._currentNeighbor[1] != this._currentCoord[1])
-			this._currentNeighbor[1] += 2;
-		if ( this.nbhIteratorExceeds(1) )
+		else
 		{
-			this._currentNeighbor[1] = this._currentCoord[1];
-			this._currentNeighbor[2] = this._currentCoord[2] - 1;
-			return this._currentNeighbor;
-		}	
-		/*
-		 * Finally, the z-axis. If this exceeds, it should be caught by the
-		 * is valid method and end the iteration. 
-		 */
-		if ( this._currentNeighbor[2] != this._currentCoord[2])
-			this._currentNeighbor[2] += 2;
+			this._currentNeighbor[this._nbhDirection] = 
+									this._currentCoord[this._nbhDirection];
+			this._nbhDirection++;
+			this._currentNeighbor[this._nbhDirection] =
+								this._currentCoord[this._nbhDirection] - 1;
+		}
 		return this._currentNeighbor;
 	}
-
-	private boolean isDiagNbh()
+	
+	/**
+	 * 
+	 */
+	public double getNbhSharedSurfaceArea()
 	{
-		int counter = 0;
-		int diff;
+		double out = 1.0;
 		for ( int axis = 0; axis < 3; axis++ )
 		{
-			diff = (int) Math.abs(this._currentNeighbor[axis] - 
-					this._currentCoord[axis]);
-			if ( diff == 1 )
-				counter++;
-			if ( counter > 1 )
-				return true;
+			if ( axis == this._nbhDirection )
+				continue;
+			out *= this._res[axis][this._currentCoord[axis]];
 		}
-		return false;
+		return out;
 	}
-
-	/**
-	 * \brief Discard the iterative coordinate.
-	 */
-	public void closeNbhIterator()
-	{
-		this._currentNeighbor = null;
-	}
-
+	
 	/**
 	 * 
 	 * @return

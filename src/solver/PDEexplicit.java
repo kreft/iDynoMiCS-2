@@ -52,7 +52,7 @@ public class PDEexplicit extends PDEsolver
 		for ( String varName : this._variableNames )
 		{
 			var = variables.get(varName);
-			dt = Math.min(dt, 0.1 * ExtraMath.sq(var.getResolution()) /
+			dt = Math.min(dt, 0.1 * var.getMinVoxelVoxelSurfaceArea() /
 										   var.getMin(ArrayType.DIFFUSIVITY));
 		}
 		if ( dt < tFinal )
