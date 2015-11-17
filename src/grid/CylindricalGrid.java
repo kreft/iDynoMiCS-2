@@ -1,15 +1,15 @@
 package grid;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 
 public class CylindricalGrid extends CartesianGrid{
-	int ires;
+	final int ires;
+	int nbhIdx, idx;
+	final double[][] nbhs;
 	double nt_rad;
 	
 	public CylindricalGrid(int[] nVoxel, double resolution)
@@ -20,6 +20,7 @@ public class CylindricalGrid extends CartesianGrid{
 		this._res = resolution;				 // scales r & ires TODO: change 1/res in code, not here
 		this.nt_rad = nVoxel[1]*Math.PI/180;
 		this.ires=PolarArray.computeIRES(nVoxel[0], nt_rad, resolution);
+		nbhs=new double[][]{{0,0,1},{0,0,-1},{0,1,0},{0,-1,0},{-1,-1,0},{1,1,0}};
 		resetIterator();
 		resetNbhIterator(false);
 	}
@@ -132,48 +133,68 @@ public class CylindricalGrid extends CartesianGrid{
 		PolarArray.applyToAll(_array.get(destination), _array.get(source), (double vd, double vs)->{return vd+vs;});
 	}
 	
-	protected boolean iteratorExceeds(int axis)
-	{
-		switch(axis){
-		case 0: case 2: 
-			return _currentCoord[axis] >= this._nVoxel[axis]; 
-		case 1: 
-			return _currentCoord[axis] >= ires*(2*(_currentCoord[0]+1)-1);
-		default: throw new IllegalArgumentException("axis must be <= 3");
-		}
+//	protected boolean iteratorExceeds(int axis)
+//	{
+//		switch(axis){
+//		case 0: case 2: 
+//			return _currentCoord[axis] >= this._nVoxel[axis]; 
+//		case 1: 
+//			return _currentCoord[axis] >= ires*(2*(_currentCoord[0]+1)-1);
+//		default: throw new IllegalArgumentException("axis must be <= 3");
+//		}
+//	}
+	
+	@Override
+	public boolean isIteratorValid() {
+		return idx<=ires*_nVoxel[0]*_nVoxel[0];
 	}
 	
 	@Override
-	// needs to increment z first, then t, then r
-	public int[] iteratorNext()
-	{
-		_currentCoord[2]++;
-		if ( this.iteratorExceeds(2) )
-		{
-			_currentCoord[2] = 0;
-			_currentCoord[1]++;
-			if ( this.iteratorExceeds(1) )
-			{
-				_currentCoord[1] = 0;
-				_currentCoord[0]++;
-			}
-		}
+	public int[] resetIterator() {
+		idx=1;
+		return super.resetIterator();
+	}
+	
+	@Override
+	public int[] iteratorNext() {
+		idx++;
+		_currentCoord[0]=(int) Math.ceil(Math.pow(idx/ires,1/2))-1;
+		_currentCoord[1]=(int) (idx - ires*Math.pow(_currentCoord[0],2))-1;
+		_currentCoord[2]=(int) Math.ceil(idx/(ires*Math.pow(_nVoxel[0], 2)))-1;
 		return _currentCoord;
 	}
 	
-	public int[] resetNbhIterator()
-	{
-		if ( this._currentNeighbor == null )
-			this._currentNeighbor = Vector.copy(this._currentCoord);
-		else
-			for ( int i = 0; i < 3; i++ )
-				this._currentNeighbor[i] = this._currentCoord[i];
-		_currentNeighbor[0]--;
-		_currentNeighbor[1]=_currentNeighbor[1]/ires;
-		_currentNeighbor[2]--;
-		System.out.println("\tnbh: "+Arrays.toString(_currentNeighbor));
-		return this._currentNeighbor;
-	}
+//	@Override
+//	// needs to increment z first, then t, then r
+//	public int[] iteratorNext()
+//	{
+//		_currentCoord[2]++;
+//		if ( this.iteratorExceeds(2) )
+//		{
+//			_currentCoord[2] = 0;
+//			_currentCoord[1]++;
+//			if ( this.iteratorExceeds(1) )
+//			{
+//				_currentCoord[1] = 0;
+//				_currentCoord[0]++;
+//			}
+//		}
+//		return _currentCoord;
+//	}
+	
+//	public int[] resetNbhIterator()
+//	{
+//		if ( this._currentNeighbor == null )
+//			this._currentNeighbor = Vector.copy(this._currentCoord);
+//		else
+//			for ( int i = 0; i < 3; i++ )
+//				this._currentNeighbor[i] = this._currentCoord[i];
+//		_currentNeighbor[0]--;
+//		_currentNeighbor[1]=_currentNeighbor[1]/ires;
+//		_currentNeighbor[2]--;
+//		System.out.println("\tnbh: "+Arrays.toString(_currentNeighbor));
+//		return this._currentNeighbor;
+//	}
 	
 //	protected boolean nbhIteratorExceeds(int axis) throws RuntimeException
 //	{
@@ -192,53 +213,80 @@ public class CylindricalGrid extends CartesianGrid{
 //		}
 //	}
 	
-	protected boolean nbhIteratorExceeds(int axis) throws RuntimeException
-	{
-		switch(axis){
-		case 0: case 2: 
-			return _currentNeighbor[axis] >  this._currentCoord[axis] + 1;
-		case 1: 
-			return getVoxelOrigin(_currentNeighbor)[1] > getVoxelOrigin(_currentCoord)[1];//+nt_rad*_res/(ires*2*_currentCoord[0]);
-		default: throw new IllegalArgumentException("axis must be <= 3");
-		}
-	}
+//	protected boolean nbhIteratorExceeds(int axis) throws RuntimeException
+//	{
+//		switch(axis){
+//		case 0: case 2: 
+//			return _currentNeighbor[axis] >  this._currentCoord[axis] + 1;
+//		case 1: 
+//			return getVoxelOrigin(_currentNeighbor)[1] > getVoxelOrigin(_currentCoord)[1];//+nt_rad*_res/(ires*2*_currentCoord[0]);
+//		default: throw new IllegalArgumentException("axis must be <= 3");
+//		}
+//	}
 	
-	public boolean isNbhIteratorValid()
-	{
-		for ( int axis = 0; axis < 3; axis++ )
-			if ( nbhIteratorExceeds(axis) )
-				return false;
-		return true;
-	}
+//	public boolean isNbhIteratorValid()
+//	{
+//		for ( int axis = 0; axis < 3; axis++ )
+//			if ( nbhIteratorExceeds(axis) )
+//				return false;
+//		return true;
+//	}
 	
-	public int[] nbhIteratorNext()
-	{
-		this._currentNeighbor[2]++;
-		if ( this.nbhIteratorExceeds(2) )
-		{
-			this._currentNeighbor[2] = this._currentCoord[2] - 1;
-			this._currentNeighbor[1]++;
-			if ( this.nbhIteratorExceeds(1) )
-			{
-				this._currentNeighbor[0]++;
-				switch(_currentCoord[0]-_currentNeighbor[0]){
-				case 1:
-					this._currentNeighbor[1] = (this._currentCoord[1]-1)/ires;
-				case 0: // rc = rn
-					this._currentNeighbor[1] = this._currentCoord[1]-1;
-					break;
-				case -1: // rc < rn
-					this._currentNeighbor[1] = (this._currentCoord[1]-1)*ires;
-					break;
-				default: //throw new RuntimeException("oops");
-				}
-			}
-		}
-		if ( Vector.areSame(this._currentNeighbor, this._currentCoord) )
-			return this.nbhIteratorNext();
-		System.out.println("\tnbh: "+Arrays.toString(_currentNeighbor));
+	public int[] resetNbhIterator(){
+		nbhIdx=0;
+		_currentNeighbor=Vector.add(Vector.copy(_currentCoord),Vector.toInt(nbhs[nbhIdx]));
 		return _currentNeighbor;
 	}
+	
+	public boolean isNbhIteratorValid(){return nbhIdx<nbhs.length;}
+	
+	public int[] nbhIteratorNext(){
+		nbhIdx++;
+		if (isNbhIteratorValid()){
+			if (nbhIdx==4){ // moving in r
+				_currentNeighbor[0]=(int)(_currentCoord[0]+nbhs[nbhIdx][0]);
+				_currentNeighbor[2]=(int)(_currentCoord[2]+nbhs[nbhIdx][2]);
+				_currentNeighbor[1]=(int)(_currentCoord[1]-2*_currentCoord[1]/(2*_currentCoord[0]+1))-1;
+			}else if(nbhIdx==5){ // moving in r)
+				_currentNeighbor[0]=(int)(_currentCoord[0]+nbhs[nbhIdx][0]);
+				_currentNeighbor[2]=(int)(_currentCoord[2]+nbhs[nbhIdx][2]);
+				_currentNeighbor[1]=(int)(_currentCoord[1]+2*_currentCoord[1]/(2*_currentCoord[0]+1))+1;
+			}else{
+				_currentNeighbor=Vector.add(Vector.copy(_currentCoord),Vector.toInt(nbhs[nbhIdx]));
+			}
+		}
+		return _currentNeighbor;
+	}
+	
+	
+//	public int[] nbhIteratorNext()
+//	{
+//		this._currentNeighbor[2]++;
+//		if ( this.nbhIteratorExceeds(2) )
+//		{
+//			this._currentNeighbor[2] = this._currentCoord[2] - 1;
+//			this._currentNeighbor[1]++;
+//			if ( this.nbhIteratorExceeds(1) )
+//			{
+//				this._currentNeighbor[0]++;
+//				switch(_currentCoord[0]-_currentNeighbor[0]){
+//				case 1:
+//					this._currentNeighbor[1] = (this._currentCoord[1]-1)/ires;
+//				case 0: // rc = rn
+//					this._currentNeighbor[1] = this._currentCoord[1]-1;
+//					break;
+//				case -1: // rc < rn
+//					this._currentNeighbor[1] = (this._currentCoord[1]-1)*ires;
+//					break;
+//				default: //throw new RuntimeException("oops");
+//				}
+//			}
+//		}
+//		if ( Vector.areSame(this._currentNeighbor, this._currentCoord) )
+//			return this.nbhIteratorNext();
+//		System.out.println("\tnbh: "+Arrays.toString(_currentNeighbor));
+//		return _currentNeighbor;
+//	}
 
 	
 	public CartesianGrid toCartesianGrid(ArrayType type){

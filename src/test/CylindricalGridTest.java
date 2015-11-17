@@ -15,9 +15,11 @@ public class CylindricalGridTest {
 		System.out.println(gridp.arrayAsText(type));
 		System.out.println();
 		
+		
 		CartesianGrid gridc=gridp.toCartesianGrid(type);
 		System.out.println(gridc.arrayAsText(type));
 		System.out.println();
+		
 		
 		System.out.println("grid size: "+Arrays.toString(gridp.getNumVoxels()));
 		int[] current, nbh;
@@ -35,6 +37,16 @@ public class CylindricalGridTest {
 //		int[] coords=gridp.getCoords(new double[]{2,2,0});
 		int[] coords=gridp.getCoords(gridp.getVoxelOrigin(new int[]{3,41,7}));
 		System.out.println(coords[0]+" "+coords[1]+" "+coords[2]);
+		
+		
+		gridp.iteratorCurrent()[0]=1;
+		gridp.iteratorCurrent()[1]=1;
+		gridp.iteratorCurrent()[2]=0;
+		for ( nbh = gridp.resetNbhIterator(); 
+				gridp.isNbhIteratorValid(); nbh = gridp.nbhIteratorNext() )
+		{
+			System.out.println("\tnbh: "+Arrays.toString(nbh));
+		}
 	}
 
 }
