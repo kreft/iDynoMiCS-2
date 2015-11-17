@@ -132,6 +132,15 @@ public class CartesianGrid extends SpatialGrid
 		this._minVoxVoxSurfArea = out;
 	}
 	
+	public void calcMinVoxVoxResSq()
+	{
+		double m = Double.MAX_VALUE;
+		for ( int axis = 0; axis < 3; axis++ )
+			for ( int i = 0; i < this._nVoxel[axis] - 1; i++ )
+				m = Math.min(m, this._res[axis][i] * this._res[axis][i+1]);
+		this._minVoxVoxResSq = m;
+	}
+	
 	/*************************************************************************
 	 * SIMPLE GETTERS
 	 ************************************************************************/
@@ -194,11 +203,6 @@ public class CartesianGrid extends SpatialGrid
 		for ( int axis = 0; axis < 3; axis++ )
 			out += ( this._nVoxel[axis] > 1 ) ? 1 : 0;
 		return out;
-	}
-	
-	public double getMinVoxelVoxelSurfaceArea()
-	{
-		return this._minVoxVoxSurfArea;
 	}
 	
 	/*************************************************************************
@@ -703,6 +707,16 @@ public class CartesianGrid extends SpatialGrid
 			out *= this._res[axis][this._currentCoord[axis]];
 		}
 		return out;
+	}
+	
+	public double getCurrentNbhResSq()
+	{
+		double out = this._res[this._nbhDirection]
+								[this._currentCoord[this._nbhDirection]];
+		out += this._res[this._nbhDirection]
+						[this._currentNeighbor[this._nbhDirection]];
+		out *= 0.5;
+		return Math.pow(out, 2.0);
 	}
 	
 	/**

@@ -49,6 +49,8 @@ public abstract class SpatialGrid
 	 */
 	protected double _minVoxVoxSurfArea;
 	
+	protected double _minVoxVoxResSq;
+	
 	protected HashMap<BoundarySide,GridMethod> _boundaries = 
 									new HashMap<BoundarySide,GridMethod>();
 	
@@ -78,6 +80,8 @@ public abstract class SpatialGrid
 		this.newArray(type, 0.0);
 	}
 	
+	public abstract void calcMinVoxVoxResSq();
+	
 	/*************************************************************************
 	 * SIMPLE GETTERS
 	 ************************************************************************/
@@ -93,7 +97,15 @@ public abstract class SpatialGrid
 		return this._array.containsKey(type);
 	}
 	
-	public abstract double getMinVoxelVoxelSurfaceArea();
+	public double getMinVoxelVoxelSurfaceArea()
+	{
+		return this._minVoxVoxSurfArea;
+	}
+	
+	public double getMinVoxVoxResSq()
+	{
+		return this._minVoxVoxResSq;
+	}
 	
 	/*************************************************************************
 	 * SIMPLE SETTERS
@@ -219,6 +231,8 @@ public abstract class SpatialGrid
 	
 	public abstract double getNbhSharedSurfaceArea();
 	
+	public abstract double getCurrentNbhResSq();
+	
 	public abstract GridMethod nbhIteratorIsOutside();
 	
 	/**
@@ -246,7 +260,7 @@ public abstract class SpatialGrid
 			 * Finally, multiply by the surface are the two voxels share (in
 			 * square microns).
 			 */
-			out *= this.getNbhSharedSurfaceArea();
+			out /= this.getNbhSharedSurfaceArea();
 			//System.out.println("normal: "+out); //bughunt
 			return out;
 		}
