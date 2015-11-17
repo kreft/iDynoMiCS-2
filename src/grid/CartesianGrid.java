@@ -253,8 +253,6 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public double[] getVoxelCentre(int[] coords)
 	{
-//		System.out.println(_currentCoord[0]+"  "+_currentCoord[1]+"  "+_currentCoord[2]);
-//		System.out.println(getVoxelOrigin(coords)[0]+"  "+getVoxelOrigin(coords)[1]+"  "+getVoxelOrigin(coords)[2]);
 		return Vector.add(getVoxelOrigin(coords), 0.5*this._res);
 	}
 
@@ -479,7 +477,7 @@ public class CartesianGrid extends SpatialGrid
 	 * @param axis
 	 * @return
 	 */
-	protected boolean iteratorExceeds(int axis)
+	private boolean iteratorExceeds(int axis)
 	{
 		return _currentCoord[axis] >=  this._nVoxel[axis];
 	}
@@ -567,7 +565,7 @@ public class CartesianGrid extends SpatialGrid
 	 * @param axis
 	 * @return
 	 */
-	protected boolean nbhIteratorExceeds(int axis)
+	private boolean nbhIteratorExceeds(int axis)
 	{
 		/*
 		 * If this is a trivial axis and we're not on it, then we're
@@ -620,7 +618,7 @@ public class CartesianGrid extends SpatialGrid
 		return _currentNeighbor;
 	}
 
-	protected boolean isDiagNbh()
+	private boolean isDiagNbh()
 	{
 		int counter = 0;
 		int diff;

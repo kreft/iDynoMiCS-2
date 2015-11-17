@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import grid.CartesianGrid;
 import grid.CylindricalGrid;
-import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 
 public class CylindricalGridTest {
@@ -26,12 +25,16 @@ public class CylindricalGridTest {
 				  current = gridp.iteratorNext())
 		{
 			System.out.println("current: "+Arrays.toString(current));
-			for ( nbh = gridp.resetNbhIterator(false); 
+			for ( nbh = gridp.resetNbhIterator(); 
 					gridp.isNbhIteratorValid(); nbh = gridp.nbhIteratorNext() )
 			{
 				System.out.println("\tnbh: "+Arrays.toString(nbh));
 			}
 		}
+		System.out.println();
+//		int[] coords=gridp.getCoords(new double[]{2,2,0});
+		int[] coords=gridp.getCoords(gridp.getVoxelOrigin(new int[]{3,41,7}));
+		System.out.println(coords[0]+" "+coords[1]+" "+coords[2]);
 	}
 
 }
