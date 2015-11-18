@@ -136,6 +136,12 @@ public class CylindricalGrid extends CartesianGrid{
 	@Override
 	public boolean isIteratorValid() {return idx<=ires*_nVoxel[0]*_nVoxel[0];}
 	
+	public void setCurrent(int[] new_current){
+		_currentCoord=new_current;
+		idx=(int)(new_current[2]*ires*_nVoxel[0]*_nVoxel[0]+(new_current[1]+ires*new_current[0]*new_current[0]+1)); 
+//		System.out.println(new_current[0]+"  "+new_current[1]+"  "+new_current[2]+"  "+idx);
+	}
+	
 	@Override
 	public int[] resetIterator() {
 		idx=1;
@@ -164,9 +170,9 @@ public class CylindricalGrid extends CartesianGrid{
 		if (isNbhIteratorValid()){
 			_currentNeighbor=Vector.add(Vector.copy(_currentCoord),nbhs[nbhIdx]);
 			if (nbhIdx==4){ // moving along -r
-				_currentNeighbor[1]=(int)(_currentCoord[1]-2*_currentCoord[1]/(2*_currentCoord[0]+1))-1;
+				_currentNeighbor[1]=_currentCoord[1]-(int)Math.round(2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1));
 			}else if(nbhIdx==5){ // moving along r
-				_currentNeighbor[1]=(int)(_currentCoord[1]+2*_currentCoord[1]/(2*_currentCoord[0]+1))+1;
+				_currentNeighbor[1]=_currentCoord[1]+(int)Math.round(2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1));
 			}
 		}
 		return _currentNeighbor;
