@@ -2,9 +2,6 @@ package boundary;
 
 import java.util.HashMap;
 
-import grid.SpatialGrid.GridMethod;
-import linearAlgebra.Vector;
-
 public class ChemostatConnection extends BoundaryConnected
 {
 	/**

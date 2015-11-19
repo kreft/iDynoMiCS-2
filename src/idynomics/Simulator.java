@@ -5,7 +5,8 @@ import java.util.HashMap;
 public class Simulator
 {
 	
-	protected HashMap<String, Compartment> _compartments;
+	protected HashMap<String, Compartment> _compartments = 
+										   new HashMap<String, Compartment>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -20,6 +21,14 @@ public class Simulator
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	public Compartment addCompartment(String name, String shape)
+	{
+		if ( this._compartments.containsKey(name) )
+			System.out.println("Warning: overwriting comaprtment "+name);
+		Compartment aCompartment = new Compartment(shape);
+		this._compartments.put(name, aCompartment);
+		return aCompartment;
+	}
 	
 	/*************************************************************************
 	 * STEPPING
@@ -36,9 +45,30 @@ public class Simulator
 		 * cells that have tried to cross connected boundaries. 
 		 */
 		this._compartments.forEach((s,c) -> {c.pushAllOutboundAgents();});
+		/*
+		 * 
+		 */
+		Timer.step();
+	}
+	
+	public void launch()
+	{
+		while ( Timer.isRunning() )
+		{
+			this.step();
+		}
 	}
 	
 	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/
+	
+	public void printAll()
+	{
+		this._compartments.forEach((s,c) -> 
+		{
+			System.out.println("COMPARTMENT: "+s);
+			c.printAllSoluteGrids();
+		});
+	}
 }

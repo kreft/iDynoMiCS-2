@@ -65,7 +65,7 @@ public class ODETest
 		/*
 		 * 
 		 */
-		EnvironmentContainer environment = new EnvironmentContainer();
+		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
 		for ( String name : soluteNames )
 			environment.addSolute(name, initialConcn.get(name));
 		
@@ -123,7 +123,7 @@ public class ODETest
 		/*
 		 * 
 		 */
-		EnvironmentContainer environment = new EnvironmentContainer();
+		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
 		for ( String name : soluteNames )
 			environment.addSolute(name, initialConcn.get(name));
 		
@@ -193,7 +193,7 @@ public class ODETest
 		/*
 		 * 
 		 */
-		EnvironmentContainer environment = new EnvironmentContainer();
+		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
 		for ( String name : soluteNames )
 			environment.addSolute(name, initialConcn.get(name));
 		

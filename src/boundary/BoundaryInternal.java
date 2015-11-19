@@ -3,8 +3,6 @@
  */
 package boundary;
 
-import grid.SpatialGrid.GridMethod;
-
 /**
  * \brief Abstract subclass of Boundary that defines boundaries inside a
  * single Compartment.

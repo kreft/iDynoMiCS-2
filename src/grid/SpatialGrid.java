@@ -6,11 +6,14 @@ import idynomics.Compartment.BoundarySide;
 
 public abstract class SpatialGrid
 {
+	public interface GridGetter
+	{
+		SpatialGrid newGrid(int[] nVoxel, double resolution);
+	};
+	
 	public interface GridMethod
 	{
-		int[] getCorrectCoord(int[] coord);
-		
-		double getConcnGradient(SpatialGrid grid);
+		double getBoundaryFlux(SpatialGrid grid);
 	}
 	
 	public enum ArrayType
@@ -39,7 +42,14 @@ public abstract class SpatialGrid
 	/**
 	 * Grid resolution, i.e. the side length of each voxel in this grid.
 	 */
-	protected double _res;
+	protected double[][] _res;
+	
+	/**
+	 * 
+	 */
+	protected double _minVoxVoxSurfArea;
+	
+	protected double _minVoxVoxResSq;
 	
 	protected HashMap<BoundarySide,GridMethod> _boundaries = 
 									new HashMap<BoundarySide,GridMethod>();
@@ -53,8 +63,6 @@ public abstract class SpatialGrid
 	 * Current neighbour coordinate considered by the neighbor iterator.
 	 */
 	protected int[] _currentNeighbor;
-	
-	protected boolean _inclDiagonalNhbs;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -72,13 +80,11 @@ public abstract class SpatialGrid
 		this.newArray(type, 0.0);
 	}
 	
+	public abstract void calcMinVoxVoxResSq();
+	
 	/*************************************************************************
 	 * SIMPLE GETTERS
 	 ************************************************************************/
-	
-	public abstract double getResolution();
-	
-	public abstract double getVoxelVolume();
 	
 	public abstract int[] getNumVoxels();
 	
@@ -89,6 +95,16 @@ public abstract class SpatialGrid
 	public boolean hasArray(ArrayType type)
 	{
 		return this._array.containsKey(type);
+	}
+	
+	public double getMinVoxelVoxelSurfaceArea()
+	{
+		return this._minVoxVoxSurfArea;
+	}
+	
+	public double getMinVoxVoxResSq()
+	{
+		return this._minVoxVoxResSq;
 	}
 	
 	/*************************************************************************
@@ -111,7 +127,7 @@ public abstract class SpatialGrid
 	
 	public void addBoundary(BoundarySide side, GridMethod method)
 	{
-		System.out.println("Adding method to "+side.name()+" boundary");
+		//System.out.println("Adding method to "+side.name()+" boundary"); //bughunt
 		this._boundaries.put(side, method);
 	}
 	
@@ -119,9 +135,13 @@ public abstract class SpatialGrid
 	
 	protected abstract BoundarySide isOutside(int[] coord);
 	
+	public abstract int[] cyclicTransform(int[] coord);
+	
 	/*************************************************************************
 	 * VOXEL GETTERS & SETTERS
 	 ************************************************************************/
+	
+	public abstract double getVoxelVolume(int[] coord);
 	
 	public abstract double getValueAt(ArrayType type, int[] coord);
 	
@@ -196,13 +216,9 @@ public abstract class SpatialGrid
 	/**
 	 * \brief TODO
 	 * 
-	 * TODO remove diagonal neighbours option? It causes problems with 
-	 * boundaries, i.e. can cross multiple at the same time.
-	 * 
-	 * @param inclDiagonalNbhs
 	 * @return
 	 */
-	public abstract int[] resetNbhIterator(boolean inclDiagonalNbhs);
+	public abstract int[] resetNbhIterator();
 	
 	public abstract boolean isNbhIteratorValid();
 	
@@ -212,6 +228,10 @@ public abstract class SpatialGrid
 	}
 	
 	public abstract int[] nbhIteratorNext();
+	
+	public abstract double getNbhSharedSurfaceArea();
+	
+	public abstract double getCurrentNbhResSq();
 	
 	public abstract GridMethod nbhIteratorIsOutside();
 	
@@ -226,21 +246,29 @@ public abstract class SpatialGrid
 		GridMethod aMethod = this.nbhIteratorIsOutside();
 		if( aMethod == null )
 		{
-			System.out.println("normal");
-			double out = this.getValueAtCurrent(ArrayType.CONCN)
-					- this.getValueAt(ArrayType.CONCN, this._currentNeighbor);
-			out *= this.getValueAtCurrent(ArrayType.DIFFUSIVITY)
-			  + this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor);
 			/*
-			 * Here we assume that all voxels are the same size.
+			 * First find the difference in concentration.
 			 */
-			out *= 0.5 * Math.pow(this.getResolution(), -2.0);
+			double out = this.getValueAt(ArrayType.CONCN, this._currentNeighbor)
+					- this.getValueAtCurrent(ArrayType.CONCN);
+			/*
+			 * Then multiply this by the average diffusivity.
+			 */
+			out *= 0.5 * (this.getValueAtCurrent(ArrayType.DIFFUSIVITY) +
+			   this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor));
+			/*
+			 * Finally, multiply by the surface are the two voxels share (in
+			 * square microns).
+			 */
+			out /= this.getNbhSharedSurfaceArea();
+			//System.out.println("normal: "+out); //bughunt
 			return out;
 		}
 		else
 		{
-			System.out.println("method");
-			return aMethod.getConcnGradient(this);
+			double flux = aMethod.getBoundaryFlux(this);
+			//System.out.println("method: "+flux); //bughunt
+			return flux;
 		}
 	}
 	

@@ -41,6 +41,7 @@ public class PDEexplicit extends PDEsolver
 	@Override
 	public void solve(HashMap<String, SpatialGrid> variables, double tFinal)
 	{
+		//System.out.println("PDE solver being called "); //bughunt
 		this._updater.presolve(variables);
 		/*
 		 * Find the largest time step that suits all variables.
@@ -51,7 +52,7 @@ public class PDEexplicit extends PDEsolver
 		for ( String varName : this._variableNames )
 		{
 			var = variables.get(varName);
-			dt = Math.min(dt, 0.1 * ExtraMath.sq(var.getResolution()) /
+			dt = Math.min(dt, 0.1 * var.getMinVoxVoxResSq() /
 										   var.getMin(ArrayType.DIFFUSIVITY));
 		}
 		if ( dt < tFinal )
@@ -62,8 +63,10 @@ public class PDEexplicit extends PDEsolver
 		/*
 		 * 
 		 */
+		//System.out.println("Using ministep size "+dt); //bughunt
 		for ( int iter = 0; iter < nIter; iter++ )
 		{
+			//System.out.println("Ministep "+iter+": "+(iter+1)*dt); //bughunt
 			this._updater.prestep(variables);
 			for ( String varName : this._variableNames )
 			{

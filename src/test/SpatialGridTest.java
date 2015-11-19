@@ -27,15 +27,14 @@ public class SpatialGridTest
 	 */
 	public static void main(String[] args)
 	{
-		//iteratorTest();
-		comaprtmentIteratorTest();
+		iteratorTest();
+		//comaprtmentIteratorTest();
 	}
 	
 	private static void iteratorTest()
 	{
-		int nDim = 1;
-		int sideLength = 4;
-		boolean inclIndirectNeighbors = true;
+		int nDim = 2;
+		int sideLength = 3;
 		double resolution = 1.0;
 		
 		int[] nVoxel = Vector.vector(3, 1);
@@ -50,11 +49,11 @@ public class SpatialGridTest
 		while ( grid.isIteratorValid() )
 		{
 			System.out.println("Looking at coordinate "+Arrays.toString(coord));
-			nbh = grid.resetNbhIterator(inclIndirectNeighbors);
+			nbh = grid.resetNbhIterator();
 			nbhCounter = 0;
 			while ( grid.isNbhIteratorValid() )
 			{
-				//System.out.println("\t"+Arrays.toString(nbh)+" is a neighbor");
+				System.out.println("\t"+Arrays.toString(nbh)+" is a neighbor");
 				nbh = grid.nbhIteratorNext();
 				nbhCounter++;
 			}
@@ -65,8 +64,8 @@ public class SpatialGridTest
 	
 	private static void comaprtmentIteratorTest()
 	{
-		Compartment aCompartment = new Compartment("line");
-		aCompartment.setSideLengths(new double[] {3.0, 1.0, 1.0});
+		Compartment aCompartment = new Compartment("rectangle");
+		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
 		aCompartment.addSolute("test");
 		Boundary xmin = new BoundaryFixed();
 		xmin.setGridMethod("test", Boundary.constantDirichlet(1.0));
@@ -83,7 +82,7 @@ public class SpatialGridTest
 				  current = grid.iteratorNext())
 		{
 			System.out.println("current: "+Arrays.toString(current));
-			for ( nbh = grid.resetNbhIterator(false); 
+			for ( nbh = grid.resetNbhIterator(); 
 					grid.isNbhIteratorValid(); nbh = grid.nbhIteratorNext() )
 			{
 				System.out.println("\tnbh: "+Arrays.toString(nbh));

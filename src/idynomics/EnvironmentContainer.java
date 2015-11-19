@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
-import grid.CartesianGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SpatialGrid.GridMethod;
+import grid.SpatialGrid.GridGetter;
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.Vector;
 import reaction.Reaction;
@@ -15,6 +15,8 @@ import utility.ExtraMath;
 
 public class EnvironmentContainer
 {
+	protected GridGetter _gridGetter;
+	
 	protected int[] _defaultNVoxel = Vector.vector(3, 1);
 	
 	protected double _defaultResolution = 1.0;
@@ -32,15 +34,15 @@ public class EnvironmentContainer
 											new HashMap<String, Reaction>();
 	
 	protected HashMap<BoundarySide,HashMap<String,GridMethod>> _boundaries =
-									new HashMap<BoundarySide,HashMap<String,GridMethod>>();
+					   new HashMap<BoundarySide,HashMap<String,GridMethod>>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public EnvironmentContainer()
+	public EnvironmentContainer(GridGetter aGridGetter)
 	{
-		
+		this._gridGetter = aGridGetter;
 	}
 	
 	/**
@@ -52,12 +54,12 @@ public class EnvironmentContainer
 	 * @param compartmentSize
 	 * @param defaultRes
 	 */
-	public void init(double[] compartmentSize, double defaultRes)
+	public void setSize(double[] compartmentSize, double defaultRes)
 	{
-		System.out.println("Initialising environment..."); //bughunt
 		this._defaultResolution = defaultRes;
 		this._defaultNVoxel = new int[compartmentSize.length];
 		double temp;
+		
 		for ( int i = 0; i < compartmentSize.length; i++ )
 		{
 			this._defaultNVoxel[i] = (int) (compartmentSize[i] / defaultRes);
@@ -66,7 +68,7 @@ public class EnvironmentContainer
 			if ( ! ExtraMath.areEqual(compartmentSize[i], temp, 1E-9) )
 				throw new IllegalArgumentException();
 		}
-		System.out.println("\tEnv size: "+Arrays.toString(this._defaultNVoxel)); //bughunt
+		//System.out.println("\tEnv size: "+Arrays.toString(this._defaultNVoxel)); //bughunt
 	}
 	
 	/**
@@ -79,7 +81,7 @@ public class EnvironmentContainer
 	 * @param padding
 	 * @param res
 	 */
-	public void init(int[] nVoxel, double res)
+	public void setSize(int[] nVoxel, double res)
 	{
 		this._defaultResolution = res;
 		this._defaultNVoxel = nVoxel;
@@ -100,7 +102,8 @@ public class EnvironmentContainer
 		/*
 		 * TODO safety: check if solute already in hashmap
 		 */
-		CartesianGrid sg = new CartesianGrid(this._defaultNVoxel,
+		//System.out.println("Adding "+soluteName+" with "+Arrays.toString(this._defaultNVoxel)); //Bughunt
+		SpatialGrid sg = this._gridGetter.newGrid(this._defaultNVoxel,
 													this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._boundaries.forEach( (side, map) ->
@@ -142,6 +145,12 @@ public class EnvironmentContainer
 	
 	public void printSolute(String soluteName)
 	{
+		System.out.println(soluteName+":");
 		System.out.println(this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
+	}
+	
+	public void printAllSolutes()
+	{
+		this._solutes.forEach((s,g) -> {this.printSolute(s);;});
 	}
 }

@@ -6,6 +6,7 @@ package boundary;
 import java.util.HashMap;
 
 import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
 import grid.SpatialGrid.GridMethod;
 import shape.Shape;
 
@@ -14,7 +15,7 @@ import shape.Shape;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class Boundary
+public class Boundary
 {
 	/**
 	 * The shape this Boundary takes (e.g. Plane, Sphere).
@@ -103,7 +104,7 @@ public abstract class Boundary
 	 */
 	public GridMethod getGridMethod(String soluteName)
 	{
-		System.out.println("Looking for "+soluteName);
+		//System.out.println("Looking for "+soluteName); //bughunt
 		if ( this._gridMethods.containsKey(soluteName) )
 			return this._gridMethods.get(soluteName);
 		else
@@ -114,20 +115,23 @@ public abstract class Boundary
 	 * COMMON GRIDMETHODS
 	 ************************************************************************/
 	
+	public static double calcFlux(double bndryConcn, double gridConcn,
+										double diffusivity, double surfaceArea)
+	{
+		return (bndryConcn - gridConcn) * diffusivity * surfaceArea;
+	}
+	
 	public static GridMethod constantDirichlet(double value)
 	{
 		return new GridMethod()
 		{
 			@Override
-			public int[] getCorrectCoord(int[] coord) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public double getConcnGradient(SpatialGrid grid)
+			public double getBoundaryFlux(SpatialGrid grid)
 			{
-				return 0;
+				return calcFlux(value, 
+								grid.getValueAtCurrent(ArrayType.CONCN),
+								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+								grid.getNbhSharedSurfaceArea());
 			}
 		};
 	}
@@ -136,13 +140,7 @@ public abstract class Boundary
 	{
 		return new GridMethod()
 		{
-			@Override
-			public int[] getCorrectCoord(int[] coord) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			public double getConcnGradient(SpatialGrid grid)
+			public double getBoundaryFlux(SpatialGrid grid)
 			{
 				return gradient;
 			}
@@ -155,4 +153,19 @@ public abstract class Boundary
 		return constantNeumann(0.0);
 	}
 	
+	public static GridMethod cyclic()
+	{
+		return new GridMethod()
+		{
+			public double getBoundaryFlux(SpatialGrid grid)
+			{
+				int[] nbh = grid.cyclicTransform(grid.neighborCurrent());
+				double d = 0.5*(grid.getValueAtCurrent(ArrayType.DIFFUSIVITY)+
+								 grid.getValueAt(ArrayType.DIFFUSIVITY, nbh));
+				return calcFlux(grid.getValueAt(ArrayType.CONCN, nbh),
+								grid.getValueAtCurrent(ArrayType.CONCN),
+								d, grid.getNbhSharedSurfaceArea());
+			}
+		};
+	}
 }

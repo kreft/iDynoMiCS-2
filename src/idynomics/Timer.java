@@ -48,5 +48,18 @@ public class Timer
 		return _now + _timeStepSize;
 	}
 	
+	public static void step()
+	{
+		_now += _timeStepSize;
+	}
 	
+	public static void setEndOfSimulation(double endOfSimulation)
+	{
+		_endOfSimulation = endOfSimulation;
+	}
+	
+	public static boolean isRunning()
+	{
+		return _now < _endOfSimulation;
+	}
 }
