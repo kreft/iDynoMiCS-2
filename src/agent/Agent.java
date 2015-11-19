@@ -2,10 +2,17 @@ package agent;
 
 import java.util.HashMap;
 
+import org.w3c.dom.Node;
+
+import xmlpack.XmlLoad;
 import agent.activity.*;
+import agent.body.Body;
 import agent.state.CalculatedState;
 import agent.state.PrimaryState;
 import agent.state.State;
+import agent.state.secondary.CoccoidRadius;
+import agent.state.secondary.JointsState;
+import agent.state.secondary.SimpleVolumeState;
 import grid.CartesianGrid;
 import idynomics.AgentContainer;
 
@@ -58,9 +65,41 @@ public class Agent
 
 	}
 	
+	public Agent(Node agentNode)
+	{
+		XmlLoad.loadAgentPrimaries(this, agentNode);
+		loadAgentSecondaries();
+	}
+	
 	public void init()
 	{
 				
+	}
+	
+	public void loadAgentSecondaries()
+	{
+		if ((boolean) this.get("isLocated"))
+		{
+			if (((Body) this.get("body")).getMorphologyIndex() == 1)
+			{
+				this.set("joints",new JointsState());
+				this.set("volume",new SimpleVolumeState());
+				this.set("radius",new CoccoidRadius());
+			}
+			this.set("lowerBouningBox", new CalculatedState.stateExpression() {
+				@Override
+				public Object calculate(Agent agent) {
+					return ((Body) agent.get("body")).coord((double) agent.get("radius"));
+				}
+			});
+			
+			this.set("dimensionsBoundingBox", new CalculatedState.stateExpression() {
+				@Override
+				public Object calculate(Agent agent) {
+					return ((Body) agent.get("body")).dimensions((double) agent.get("radius"));
+				}
+			});
+		}
 	}
 	
 

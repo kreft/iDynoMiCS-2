@@ -2,6 +2,8 @@ package xmlpack;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -13,6 +15,12 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import reaction.Reaction;
+import utility.Vector;
+import agent.Agent;
+import agent.body.Body;
+import agent.body.Point;
 
 public class XmlLoad {
 	
@@ -52,6 +60,66 @@ public class XmlLoad {
 	{
 	    for (int i = 0; i < nodeList.getLength(); i++) 
 		     operation.action(nodeList.item(i));
+	}
+	
+	public static Agent loadAgentPrimaries(Agent aAgent, Node agentNode)
+	{
+		Element xmlAgent = (Element) agentNode;
+		
+		NodeList stateNodes = xmlAgent.getElementsByTagName("state");
+		for (int j = 0; j < stateNodes.getLength(); j++) 
+		{
+			Element stateElement = (Element) stateNodes.item(j);
+			
+			// state node with just attributes	
+			if (! stateElement.hasChildNodes())
+			{
+				switch (stateElement.getAttribute("type")) 
+				{
+					case "boolean" : 
+						aAgent.setPrimary(stateElement.getAttribute("name"), Boolean.valueOf(stateElement.getAttribute("value")));
+	                	break;
+					case "int" : 
+						aAgent.setPrimary(stateElement.getAttribute("name"), Integer.valueOf(stateElement.getAttribute("value")));
+	                	break;
+					case "double" : 
+						aAgent.setPrimary(stateElement.getAttribute("name"), Double.valueOf(stateElement.getAttribute("value")));
+	                	break;
+					case "String" : 
+						aAgent.setPrimary(stateElement.getAttribute("name"), stateElement.getAttribute("value"));
+	                	break;
+				}
+			}
+			// state node with attributes and child nodes 
+			else
+			{
+				switch (stateElement.getAttribute("type")) 
+				{
+					case "body" :
+						//FIXME: not finished only accounts for simple coccoid cells
+						List<Point> pointList = new LinkedList<Point>();
+						NodeList pointNodes = stateElement.getElementsByTagName("point");
+						for (int k = 0; k < pointNodes.getLength(); k++) 
+						{
+							Element point = (Element) pointNodes.item(k);
+							pointList.add(new Point(Vector.vectorFromString(point.getAttribute("position"))));
+						}
+						aAgent.setPrimary("body",new Body(pointList));
+						break;
+					case "reactions" :
+						List<Reaction> reactionList = new LinkedList<Reaction>();
+						NodeList reactionNodes = stateElement.getElementsByTagName("reaction");
+						for (int k = 0; k < reactionNodes.getLength(); k++) 
+						{
+							Element reaction = (Element) reactionNodes.item(k);
+							reactionList.add(new Reaction(reaction.getAttribute("whateverisneededforthisconstructor")));
+						}
+						aAgent.setPrimary("reactions",reactionList);
+						break;
+				}
+			}
+		}
+		return aAgent;
 	}
 	
 	/*************************************************************************

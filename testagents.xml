@@ -1,14 +1,37 @@
-<simulation comments="this is a file for Agent testing">
+<simulation name="mySim" comments="this is a file for Agent testing">
 	<compartment name="firstone" shape="CUBOID">
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
 				<state name="id" type="int" value="0001" />
-				<state name="mass" type="double" value="1" />
+				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
 				<state name="isLocated" type="boolean" value="true" />
+				<state name="pigment" type="String" value="GREEN" />
 				<state name="body" type="body">
-					<point position="0.1, 0.1, 0.1" />
+					<point position="0.5, 0.5, 0.0" />
+				</state>
+			</agent>
+			<agent>
+				<state name="species" type="String" value="AOB" />
+				<state name="id" type="int" value="0002" />
+				<state name="mass" type="double" value="0.2" />
+				<state name="density" type="double" value="1" />
+				<state name="isLocated" type="boolean" value="true" />
+				<state name="pigment" type="String" value="GREEN" />
+				<state name="body" type="body">
+					<point position="0.1, -0.1, 0.0" />
+				</state>
+			</agent>
+			<agent>
+				<state name="species" type="String" value="AOB" />
+				<state name="id" type="int" value="0003" />
+				<state name="mass" type="double" value="0.2" />
+				<state name="density" type="double" value="1" />
+				<state name="isLocated" type="boolean" value="true" />
+				<state name="pigment" type="String" value="GREEN" />
+				<state name="body" type="body">
+					<point position="-0.21, 0.55, 0.0" />
 				</state>
 			</agent>
 		</agents>

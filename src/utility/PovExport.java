@@ -8,7 +8,6 @@ import agent.Agent;
 public class PovExport {
 	static BufferedWriter output;
 	static int filewriterfilenr;
-	static String filewriterfileprefix;
 	
 	private static String DigitFilenr(int filenr) {
 		String apzero = String.valueOf(filenr);
@@ -26,7 +25,7 @@ public class PovExport {
 	public static void writepov(String prefix, List<Agent> agents) {
 		
 		try {
-			String location = "../../" + filewriterfileprefix + "/";
+			String location = "../../simulations/" + prefix + "/";
 			File theDir = new File(location);
 
 			// if the directory does not exist, create it
@@ -46,8 +45,8 @@ public class PovExport {
 			}
 			
 			// Create file 	
-			File f = new File("../../" + filewriterfileprefix + "/" 
-			+ filewriterfileprefix + DigitFilenr(filewriterfilenr) + ".pov");
+			File f = new File("../../simulations/" + prefix + "/" 
+			+ prefix + DigitFilenr(filewriterfilenr) + ".pov");
 			f.delete();
 			java.io.FileWriter fstream = new java.io.FileWriter(f, true);
 			PovExport.output = new BufferedWriter(fstream);
@@ -58,18 +57,18 @@ public class PovExport {
 			for (Agent a: agents) {	
 				@SuppressWarnings("unchecked")
 				List<Double[]> joints = (List<Double[]>) a.get("joints");
-				for (int i = 0; joints.size() < i; i++)
+				for (int i = 0; joints.size() > i; i++)
 				{
 					// sphere
 					output.write("sphere { \n" + toPov(joints.get(i)) + 
 							a.get("radius") + "\n pigment { " + a.get("pigment") 
-							+ "} }\n" );
-					if (joints.size() < i-1)
+							+ " } }\n" );
+					if (joints.size() > i+1)
 					{
 						//cylinder
 						output.write("cylinder { \n" + toPov(joints.get(i)) + 
 								", " + toPov(joints.get(i+1)) + a.get("radius") 
-								+ "\n pigment { " + a.get("pigment") + "} }\n" );
+								+ "\n pigment { " + a.get("pigment") + " } }\n" );
 					}
 				}
 			}

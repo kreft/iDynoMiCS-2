@@ -141,6 +141,11 @@ public class Compartment
 	public AgentContainer agents = new AgentContainer();
 	
 	/**
+	 * The Compartment is now aware of it's own name
+	 */
+	public String name;
+	
+	/**
 	 * 
 	 */
 	protected EnvironmentContainer _environment;
