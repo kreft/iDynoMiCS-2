@@ -8,7 +8,7 @@ public class Body {
 	/**
 	 * 
 	 */
-	public Body(List<Point> points, Double[] lengths, Double[] angles, Double radius) 
+	public Body(List<Point> points, double[] lengths, double[] angles, double radius) 
 	{
 		this.points = points;
 		this._lengths = lengths;
@@ -19,9 +19,9 @@ public class Body {
 	public Body(List<Point> points) 
 	{
 		this.points = points;
-		this._lengths = null;
-		this._angles = null;
-		this._radius = null;		
+		/*
+		 * Lengths, angles and radius remain undefined.
+		 */
 	}
 	
     /**
@@ -35,17 +35,17 @@ public class Body {
     /**
      * Rest length of internal springs connecting the points.
      */
-	protected Double[] _lengths		= null;
+	protected double[] _lengths;
 	
 	/**
 	 * Rest angles of torsion springs 
 	 */
-	protected Double[] _angles		= null;
+	protected double[] _angles;
 	
 	/**
 	 * radius of the cell (not used for coccoid cell types)
 	 */
-	protected Double _radius		= null;
+	protected double _radius;
 	
 	/**
 	 * FIXME: convert to switch-case rather than if else
@@ -70,13 +70,10 @@ public class Body {
 		
 	}
 	
-	public List<Double[]> getJoints()
+	public List<double[]> getJoints()
 	{
-		List<Double[]> joints = new LinkedList<Double[]>();
-		for (int i = 0; points.size() < i; i++)
-		{
-			joints.add(points.get(i).getPosition());
-		}
+		List<double[]> joints = new LinkedList<double[]>();
+		points.forEach( (p) -> joints.add(p.getPosition()) );
 		return joints;
 	}
 	
@@ -85,18 +82,14 @@ public class Body {
 	 * @param radius
 	 * @return coordinates of lower corner of bounding box
 	 */
-	public float[] coord(Double radius) 
+	public float[] coord(double radius) 
 	{
-		if(points.size() == 1)
+		if ( points.size() == 1 )
 			return points.get(0).coord(radius);
 		float[] coord = new float[nDim()];
 		for (Point o: points) 
-		{
-			for (int i = 0; i < nDim(); i++) 
-			{
-				coord[i] = Math.min(coord[i], o.coord(radius)[i]);
-			}
-		}
+			for ( int i = 0; i < nDim(); i++ ) 
+				coord[i] = Math.min( coord[i], o.coord(radius)[i] );
 		return coord;
 	}
 	
@@ -106,18 +99,14 @@ public class Body {
 	 * @param t: added margin
 	 * @return coordinates of lower corner of bounding box with margin
 	 */
-	public float[] coord(Double radius, double t) 
+	public float[] coord(double radius, double t) 
 	{
-		if(points.size() == 1)
+		if ( points.size() == 1 )
 			return points.get(0).coord(radius);
 		float[] coord = new float[nDim()];
 		for (Point o: points) 
-		{
-			for (int i = 0; i < nDim(); i++) 
-			{
+			for ( int i = 0; i < nDim(); i++ ) 
 				coord[i] = Math.min(coord[i], o.coord(radius)[i]) - (float) t;
-			}
-		}
 		return coord;
 	}
 	
@@ -130,12 +119,8 @@ public class Body {
 	{
 		float[] upper = new float[nDim()];
 		for (Point o: points) 
-		{
-			for (int i = 0; i < nDim(); i++) 
-			{
-				upper[i] = Math.max(upper[i], o.upper(radius)[i]);
-			}
-		}
+			for ( int i = 0; i < nDim(); i++ ) 
+				upper[i] = Math.max( upper[i], o.upper(radius)[i] );
 		return upper;
 	}
 	

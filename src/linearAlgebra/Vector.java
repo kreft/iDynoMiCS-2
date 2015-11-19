@@ -1486,6 +1486,28 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Calculate the dot quotient of the two vectors given.
+	 * 
+	 * <p>For example, <i>(a<sub>1</sub> , a<sub>2</sub> )./(b<sub>1</sub> ,
+	 * b<sub>2</sub> ) = a<sub>1</sub>/b<sub>1</sub> +
+	 * a<sub>2</sub>/b<sub>2</sub></i></p>
+	 * 
+	 * <p>Note that neither vector will be unaffected by this method.</p>
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return double value of the dot quotient of <b>a</b> and <b>b</b>.
+	 */
+	public static double dotQuotient(double[] a, double[] b)
+	{
+		checkLengths(a, b);
+		double out = 0.0;
+		for ( int i = 0; i < a.length; i++ )
+			out += a[i] / b[i];	
+		return out;
+	}
+	
+	/**
 	 * \brief TODO
 	 * 
 	 * @param a
