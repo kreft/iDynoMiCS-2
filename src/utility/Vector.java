@@ -153,6 +153,19 @@ public final class Vector {
 	public static Double dot(Double first, Double second) {
 		return first*second;
 	}
+	
+	/**
+	 * 
+	 * @param vector
+	 * @param second
+	 * @return
+	 */
+	public static double dotQuotient(Double[] vector, Double[] second) {
+		double dot = 0.0;
+		for (int i = 0; i < vector.length; i++)
+			dot += vector[i] / second[i];	
+		return dot;
+	}
 
 	/**
 	 * \brief replaces all fields of vector by 0.0

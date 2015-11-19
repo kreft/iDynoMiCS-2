@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import reaction.Reaction;
+import utility.PovExport;
 import utility.Vector;
 import xmlpack.XmlLoad;
 
@@ -16,7 +17,8 @@ import agent.Agent;
 import agent.body.Body;
 import agent.body.Point;
 import agent.state.*;
-import agent.state.secondary.VolumeState;
+import agent.state.secondary.CoccoidRadius;
+import agent.state.secondary.SimpleVolumeState;
 import idynomics.Compartment;
 
 public class AgentTest {
@@ -81,6 +83,28 @@ public class AgentTest {
 				}
 			}
 		}
+		
+		if ((boolean) aAgent.get("isLocated"))
+		{
+			if (((Body) aAgent.get("body")).getMorphologyIndex() == 1)
+			{
+				aAgent.set("radius",new CoccoidRadius());
+			}
+			aAgent.set("lowerBouningBox", new CalculatedState.stateExpression() {
+				@Override
+				public Object calculate(Agent agent) {
+					return ((Body) agent.get("body")).coord((double) agent.get("radius"));
+				}
+			});
+			
+			aAgent.set("dimensionsBoundingBox", new CalculatedState.stateExpression() {
+				@Override
+				public Object calculate(Agent agent) {
+					return ((Body) agent.get("body")).dimensions((double) agent.get("radius"));
+				}
+			});
+		}
+		
 		return aAgent;	
 	}
 
@@ -98,7 +122,7 @@ public class AgentTest {
 		testagent.setPrimary("density", 0.2);
 		
 		// add a predefined secondary state
-		State volume = new VolumeState();
+		State volume = new SimpleVolumeState();
 		volume.init(testagent, null);
 		testagent.setState("volume",volume);
 		
@@ -142,7 +166,7 @@ public class AgentTest {
 		ezagent.set("density", 0.2);
 		
 		// add a predefined secondary state
-		ezagent.set("volume",new VolumeState());
+		ezagent.set("volume",new SimpleVolumeState());
 		
 		// add a secondary state that was not previously defined (anonymous class).
 		ezagent.set("volume2", new CalculatedState.stateExpression() {
@@ -186,6 +210,10 @@ public class AgentTest {
 				aCompartment.addAgent(loadAgent(agentNodes.item(j)));
 
 			_compartments.put(xmlCompartment.getAttribute("name"), aCompartment);
+			
+			String prefix = "mySim";
+			
+			PovExport.writepov(prefix, aCompartment.agents.getAllLocatedAgents());
 		}
 	}
 }

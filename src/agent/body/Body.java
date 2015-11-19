@@ -70,6 +70,16 @@ public class Body {
 		
 	}
 	
+	public List<Double[]> getJoints()
+	{
+		List<Double[]> joints = new LinkedList<Double[]>();
+		for (int i = 0; points.size() < i; i++)
+		{
+			joints.add(points.get(i).getPosition());
+		}
+		return joints;
+	}
+	
 	/**
 	 * 
 	 * @param radius

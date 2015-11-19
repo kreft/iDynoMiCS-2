@@ -6,7 +6,7 @@
 				<state name="id" type="int" value="0001" />
 				<state name="mass" type="double" value="1" />
 				<state name="density" type="double" value="1" />
-				<state name="isLocated" type="boolean" value="false" />
+				<state name="isLocated" type="boolean" value="true" />
 				<state name="body" type="body">
 					<point position="0.1, 0.1, 0.1" />
 				</state>
