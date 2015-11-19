@@ -215,7 +215,22 @@ public final class Vector
 	}
 	
 	/**
-	 *  \brief Add a scalar <b>value</b> to every element of  a <b>vector</b>. 
+	 * \brief Gets a new vector of integers from a string.
+	 * 
+	 * @param vectorString String containing a vector of integers.
+	 * @return int[] vector of integers from this string.
+	 */
+	public static int[] intFromString(String vectorString)
+	{
+		String[] fields = vectorString.split(",");
+		int[] vector = new int[fields.length];
+		for (int i = 0; i < fields.length; i++)		
+			vector[i] = Integer.valueOf(fields[i]);
+		return vector;
+	}
+	
+	/**
+	 * \brief Add a scalar <b>value</b> to every element of  a <b>vector</b>. 
 	 * 
 	 * <p>Note that <b>vector</b> will be overwritten; use
 	 * <i>add(copy(<b>vector</b>), <b>value</b>)</i> to preserve the
@@ -564,7 +579,7 @@ public final class Vector
 	 * chosen from a uniform distribution between zero (inclusive) and one
 	 * (exclusive).
 	 */
-	public static double[] random(int n)
+	public static double[] randomZeroOne(int n)
 	{
 		double[] out = new double[n];
 		for ( int i = 0; i < n; i++ )
@@ -581,9 +596,75 @@ public final class Vector
 	 * elements randomly chosen from a uniform distribution between zero
 	 * (inclusive) and one (exclusive).
 	 */
-	public static double[] random(double[] vector)
+	public static double[] randomZeroOne(double[] vector)
 	{
-		return random(vector.length);
+		return randomZeroOne(vector.length);
+	}
+	
+	/**
+	 * \brief A new double vector of length <b>n</b>, where each element is
+	 * randomly chosen from a uniform distribution in (-1.0, 1.0).
+	 * 
+	 * @param n Length of the vector to create.
+	 * @return double[] array of length <b>n</b>, with all elements randomly
+	 * chosen from a uniform distribution between minus one and plus one 
+	 * (exclusive).
+	 */
+	public static double[] randomPlusMinus(int n)
+	{
+		double[] out = new double[n];
+		for ( int i = 0; i < n; i++ )
+		{
+			out[i] = ExtraMath.getUniRandDbl();
+			if ( ExtraMath.getRandBool() )
+				out[i] *= -1;
+		}
+		return out;
+	}
+	
+	/**
+	 * \brief A new double vector of same length as <b>vector</b>, where each
+	 * element is randomly chosen from a uniform distribution in (-1.0, 1.0).
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @return double[] array of same length as <b>vector</b>, with all
+	 * elements randomly chosen from a uniform distribution between minus one 
+	 * and plus one (exclusive).
+	 */
+	public static double[] randomPlusMinus(double[] vector)
+	{
+		return randomPlusMinus(vector.length);
+	}
+	
+	/**
+	 * \brief A new double vector of length <b>n</b>, where each element is
+	 * randomly chosen from a uniform distribution in (-<b>scale</b>, 
+	 * <b>scale</b>).
+	 * 
+	 * @param n Length of the vector to create.
+	 * @param scale Magnitude of largest number possible in a vector element.
+	 * @return double[] array of length <b>n</b>, with all elements randomly
+	 * chosen from a uniform distribution between minus <b>scale</b> and 
+	 * <b>scale</b> (exclusive).
+	 */
+	public static double[] randomPlusMinus(int n, double scale)
+	{
+		return times(randomPlusMinus(n), scale);
+	}
+	
+	/**
+	 * \brief A new double vector of same length as <b>vector</b>, where each
+	 * element is randomly chosen from a uniform distribution in (-<b>scale</b>, 
+	 * <b>scale</b>).
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @return double[] array of same length as <b>vector</b>, with all
+	 * elements randomly chosen from a uniform distribution between minus 
+	 * <b>scale</b> and <b>scale</b> (exclusive).
+	 */
+	public static double[] randomPlusMinus(double[] vector, double scale)
+	{
+		return randomPlusMinus(vector.length, scale);
 	}
 	
 	/**
@@ -600,6 +681,21 @@ public final class Vector
 		for ( int i = 0; i < vector.length; i++ )
 			v[i] = vector[i];
 		return v;
+	}
+	
+	/**
+	 * \brief Gets a new vector of doubles from a string.
+	 * 
+	 * @param vectorString String containing a vector of doubles.
+	 * @return double[] vector of doubles from this string.
+	 */
+	public static double[] dblFromString(String vectorString)
+	{
+		String[] fields = vectorString.split(",");
+		double[] vector = new double[fields.length];
+		for (int i = 0; i < fields.length; i++)		
+			vector[i] = Double.valueOf(fields[i]);
+		return vector;
 	}
 	
 	/**
@@ -625,10 +721,10 @@ public final class Vector
 	 * \brief Multiply a <b>vector</b> by a scalar <b>value</b>. 
 	 * 
 	 * <p>Note that <b>vector</b> will be overwritten; use
-	 * <i>times(copy(<b>vector</b>), <b>value</b>)</i> to preserve the
+	 * {@link #timesEquals(double[] vector, double value)} to preserve the
 	 * original state of <b>vector</b>.</p>
 	 * 
-	 * @param vector One-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles (overwritten).
 	 * @param value	double scalar by which to multiply <b>vector</b>.
 	 * @return	Given <b>vector</b> multiplied by the given <b>value</b>.
 	 */
@@ -637,6 +733,22 @@ public final class Vector
 		for ( int i = 0; i < vector.length; i++ ) 
 			vector[i] *= value;
 		return vector;
+	}
+	
+	/**
+	 * \brief Multiply a <b>vector</b> by a scalar <b>value</b>. 
+	 * 
+	 * <p>Note that <b>vector</b> will be preserved, as a new double[] is
+	 * created. Use {@link #times(double[] vector, double value)} to avoid 
+	 * garbage if <b>vector</b> may be overwritten.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param value	double scalar by which to multiply <b>vector</b>.
+	 * @return	Given <b>vector</b> multiplied by the given <b>value</b>.
+	 */
+	public static double[] timesEquals(double[] vector, double value)
+	{
+		return times(copy(vector), value);
 	}
 	
 	/**
@@ -653,6 +765,22 @@ public final class Vector
 	public static double[] reverse(double[] vector)
 	{
 		return times(vector, -1.0);
+	}
+	
+	/**
+	 * \brief Changes the sign of every element in the given <b>vector</b>.
+	 * 
+	 * <p>Note that <b>vector</b> will be preserved, as a new double[] is
+	 * created. Use {@link #reverse(double[] vector)} to avoid garbage if
+	 * <b>vector</b> may be overwritten.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles.
+	 * @return	new copy of <b>vector</b>, where all elements have their sign
+	 * changed.
+	 */
+	public static double[] reverseEquals(double[] vector)
+	{
+		return timesEquals(vector, -1.0);
 	}
 	
 	/**
@@ -1127,6 +1255,22 @@ public final class Vector
 	/**
 	 * \brief Subtract one vector from another.
 	 * 
+	 * <p>Note that neither vector will be overwritten, as a new vector is
+	 * created. Use {@link #subtract(int[] a, int[] b)} to avoid garbage
+	 * if <b>a</b> may be overwritten.</p>
+	 * 
+	 * @param a One-dimensional array of integers (preserved).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @return new integer[] array of <b>a</b> - <b>b</b>.
+	 */
+	public static int[] subtractEquals(int[] a, int[] b)
+	{
+		return subtract(copy(a), b);
+	}
+	
+	/**
+	 * \brief Subtract one vector from another.
+	 * 
 	 * <p>Note that <b>a</b> will be overwritten; use 
 	 * <i>add({@link #copy(double[] a)}, <b>b</b>)</i> to preserve the
 	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
@@ -1141,6 +1285,22 @@ public final class Vector
 		for ( int i = 0; i < a.length; i++ ) 
 			a[i] -= b[i];
 		return a;
+	}
+	
+	/**
+	 * \brief Subtract one vector from another.
+	 * 
+	 * <p>Note that neither vector will be overwritten, as a new vector is
+	 * created. Use {@link #subtract(double[] a, double[] b)} to avoid garbage
+	 * if <b>a</b> may be overwritten.</p>
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return new double[] array of <b>a</b> - <b>b</b>.
+	 */
+	public static double[] subtractEquals(double[] a, double[] b)
+	{
+		return subtract(copy(a), b);
 	}
 	
 	/**
@@ -1171,6 +1331,25 @@ public final class Vector
 	 * <p>Note that this method of multiplying differs from the dot product
 	 * and the cross product.</p>
 	 * 
+	 * <p>Note that neither vector will be overwritten, as a new vector is
+	 * created. Use {@link #times(int[] a, int[] b)} to avoid garbage if
+	 * <b>a</b> may be overwritten.</p>
+	 * 
+	 * @param a One-dimensional array of integers (preserved).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @return new int[] array of <b>a</b> times <b>b</b>.
+	 */
+	public static int[] timesEquals(int[] a, int[] b)
+	{
+		return times(copy(a), b);
+	}
+	
+	/**
+	 * \brief Times two vectors together element-wise.
+	 * 
+	 * <p>Note that this method of multiplying differs from the dot product
+	 * and the cross product.</p>
+	 * 
 	 * <p>Note also that <b>a</b> will be overwritten; use 
 	 * <i>times({@link #copy(double[] a)}, <b>b</b>)</i> to preserve the
 	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
@@ -1185,6 +1364,25 @@ public final class Vector
 		for ( int i = 0; i < a.length; i++ ) 
 			a[i] *= b[i];
 		return a;
+	}
+	
+	/**
+	 * \brief Times two vectors together element-wise.
+	 * 
+	 * <p>Note that this method of multiplying differs from the dot product
+	 * and the cross product.</p>
+	 * 
+	 * <p>Note that neither vector will be overwritten, as a new vector is
+	 * created. Use {@link #times(double[] a, double[] b)} to avoid garbage if
+	 * <b>a</b> may be overwritten.</p>
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return new double[] array of <b>a</b> times <b>b</b>.
+	 */
+	public static double[] timesEquals(double[] a, double[] b)
+	{
+		return times(copy(a), b);
 	}
 	
 	/**
@@ -1342,5 +1540,21 @@ public final class Vector
 				return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * \brief Euclidean distance between two positions, given by vectors.
+	 * 
+	 * @param a One-dimensional array of doubles.
+	 * @param b One-dimensional array of doubles.
+	 * @return double Euclidean distance between the two vectors.
+	 */
+	public static double distanceEuclid(double[] a, double[] b)
+	{
+		checkLengths(a, b);
+		double out = 0.0;
+		for ( int i = 0; i < a.length; i++ )
+			out += ExtraMath.sq(a[i] - b[i]);
+		return Math.sqrt(out);
 	}
 }

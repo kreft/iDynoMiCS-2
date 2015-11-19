@@ -3,12 +3,6 @@ package test;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import reaction.Reaction;
-import utility.PovExport;
-import utility.Vector;
-import xmlpack.XmlLoad;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -20,6 +14,10 @@ import agent.state.*;
 import agent.state.secondary.CoccoidRadius;
 import agent.state.secondary.SimpleVolumeState;
 import idynomics.Compartment;
+import reaction.Reaction;
+import utility.PovExport;
+import xmlpack.XmlLoad;
+
 
 public class AgentTest {
 
@@ -66,7 +64,7 @@ public class AgentTest {
 						for (int k = 0; k < pointNodes.getLength(); k++) 
 						{
 							Element point = (Element) pointNodes.item(k);
-							pointList.add(new Point(Vector.vectorFromString(point.getAttribute("position"))));
+							pointList.add(new Point(point.getAttribute("position")));
 						}
 						aAgent.setPrimary("body",new Body(pointList));
 						break;

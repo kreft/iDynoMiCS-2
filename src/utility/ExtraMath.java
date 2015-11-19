@@ -459,6 +459,16 @@ public final class ExtraMath
 	/*  -------------------- Random number generation  -------------------- */
 	
 	/**
+	 * \brief Return a random boolean.
+	 * 
+	 * @return A random boolean.
+	 */
+	public static boolean getRandBool()
+	{
+		return random.nextBoolean();
+	}
+	
+	/**
 	 * \brief Return a uniformly distributed random number between 0 and 1.
 	 * 
 	 * Lower bound (0) is inclusive, upper bound (1) is exclusive.
