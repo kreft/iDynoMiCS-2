@@ -1,6 +1,5 @@
 package agent.state.secondary;
 
-import utility.Vector;
 import agent.Agent;
 import agent.state.State;
 

@@ -7,12 +7,8 @@ import org.w3c.dom.Node;
 import xmlpack.XmlLoad;
 import agent.activity.*;
 import agent.body.Body;
-import agent.state.CalculatedState;
-import agent.state.PrimaryState;
-import agent.state.State;
-import agent.state.secondary.CoccoidRadius;
-import agent.state.secondary.JointsState;
-import agent.state.secondary.SimpleVolumeState;
+import agent.state.*;
+import agent.state.secondary.*;
 import grid.CartesianGrid;
 import idynomics.AgentContainer;
 
@@ -86,19 +82,8 @@ public class Agent
 				this.set("volume",new SimpleVolumeState());
 				this.set("radius",new CoccoidRadius());
 			}
-			this.set("lowerBouningBox", new CalculatedState.stateExpression() {
-				@Override
-				public Object calculate(Agent agent) {
-					return ((Body) agent.get("body")).coord((double) agent.get("radius"));
-				}
-			});
-			
-			this.set("dimensionsBoundingBox", new CalculatedState.stateExpression() {
-				@Override
-				public Object calculate(Agent agent) {
-					return ((Body) agent.get("body")).dimensions((double) agent.get("radius"));
-				}
-			});
+			this.set("lowerBoundingBox", new LowerBoundingBox());
+			this.set("dimensionsBoundingBox", new DimensionsBoundingBox());
 		}
 	}
 	

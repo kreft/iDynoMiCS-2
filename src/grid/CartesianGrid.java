@@ -10,9 +10,10 @@ import utility.LogFile;
 import idynomics.Compartment.BoundarySide;
 
 /**
- *\brief 
  * 
- * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk)
+ *
  */
 public class CartesianGrid extends SpatialGrid
 {
@@ -137,7 +138,7 @@ public class CartesianGrid extends SpatialGrid
 		for ( int axis = 0; axis < 3; axis++ )
 			for ( int i = 0; i < this._nVoxel[axis] - 1; i++ )
 				m = Math.min(m, this._res[axis][i] * this._res[axis][i+1]);
-		this._minVoxVoxDist = m;
+		this._minVoxVoxResSq = m;
 	}
 	
 	/*************************************************************************

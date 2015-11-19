@@ -4,134 +4,53 @@ import java.util.HashMap;
 
 import idynomics.Compartment.BoundarySide;
 
-/**
- * \brief A SpatialGrid stores information about a variable over space.
- * 
- * <p>A typical example is the concentration of a dissolved compound, often
- * referred to as a solute. A spatial grid describing the concentration of a
- * solute may also describe the diffusivity of this solute, as well as any
- * other necessary information about it that varies in space. Each type of
- * information, including concentration, is kept in a separate array. All
- * these arrays have identical dimensions and resolutions, so that voxels
- * overlap exactly.</p>
- * 
- * <p>Since all the arrays in a SpatialGrid line up, it is possible to iterate
- * over all voxels in a straightforward manner. On top of this, we can also
- * iterate over all neighbouring voxels of the voxel the main iterator is
- * currently focused on.</p>
- * 
- * <p>On the boundaries of the grid, </p>
- * 
- * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
- */
 public abstract class SpatialGrid
 {
-	/**
-	 * Simple interface for getting a particular type of grid, i.e. a subclass
-	 * of SpatialGrid. This will typically depend on the shape of the
-	 * compartment it belongs to.
-	 */
 	public interface GridGetter
 	{
 		SpatialGrid newGrid(int[] nVoxel, double resolution);
 	};
 	
-	/**
-	 * Interface detailing what should be done at a boundary. Typical examples
-	 * include Dirichlet and Neumann boundary conditions. 
-	 */
 	public interface GridMethod
 	{
 		double getBoundaryFlux(SpatialGrid grid);
 	}
 	
-	/**
-	 * Label for an array. 
-	 */
 	public enum ArrayType
 	{
-		/**
-		 * The concentration of, e.g., a solute.
+		/*
+		 * The solute concentration.
+		 * TODO Change to VARIABLE to make more general?
 		 */
 		CONCN, 
 		
-		/**
-		 * The diffusion coefficient of a solute. For example, this may be
-		 * lower inside a biofilm than in the surrounding water.
-		 */
-		DIFFUSIVITY,
+		DIFFUSIVITY, DOMAIN, 
 		
-		/**
-		 * The domain dictates where the diffusion is actually happening. For
-		 * example, when modelling a biofilm it may be assumed that liquid
-		 * outside the boundary layer is well-mixed.
-		 */
-		DOMAIN, 
-		
-		/**
-		 * The rate of production of this solute. Consumption is described by
-		 * negative production.
-		 */
-		PRODUCTIONRATE,
-		
-		/**
-		 * The differential of production rate with respect to its
-		 * concentration.
-		 */
-		DIFFPRODUCTIONRATE,
-		
-		/**
-		 * Laplacian operator.
-		 */
-		LOPERATOR;
+		PRODUCTIONRATE, DIFFPRODUCTIONRATE, LOPERATOR;
 	}
 	
 	/**
-	 * Dictionary of arrays according to their type. Note that not all types
-	 * may be occupied.
+	 * TODO
 	 */
 	protected HashMap<ArrayType, double[][][]> _array;
 	
 	/**
-	 * The number of voxels this grid has in each of the three spatial 
-	 * dimensions. Note that some of these may be 1 if the grid is not three-
-	 * dimensional.
-	 * 
-	 * <p>For example, a 3 by 2 rectangle would have _nVoxel = [3, 2, 1].</p> 
+	 * TODO
 	 */
 	protected int[] _nVoxel;
 	
 	/**
-	 * Grid resolution, i.e. the side length of each voxel in this grid. This
-	 * has three rows, one for each dimension. Each row has length of its
-	 * corresponding position in _nVoxel.
-	 * 
-	 * <p>For example, a 3 by 2 rectangle might have _res = 
-	 * [[1.0, 1.0, 1.0], [1.0, 1.0], [1.0]]</p>
+	 * Grid resolution, i.e. the side length of each voxel in this grid.
 	 */
 	protected double[][] _res;
 	
 	/**
-	 * Smallest distance between the centres of two neighbouring voxels in
-	 * this grid. 
-	 */
-	protected double _minVoxVoxDist;
-	
-	/**
-	 * Smallest shared surface area between two neighbouring voxels in this
-	 * grid. 
+	 * 
 	 */
 	protected double _minVoxVoxSurfArea;
 	
-	/**
-	 * Smallest volume of a voxel in this grid.
-	 */
-	protected double _minVoxelVolume;
+	protected double _minVoxVoxResSq;
 	
-	/**
-	 * Dictionary of methods to use on this grid when solving partial
-	 * differential equations (PDEs).  
-	 */
 	protected HashMap<BoundarySide,GridMethod> _boundaries = 
 									new HashMap<BoundarySide,GridMethod>();
 	
@@ -185,7 +104,7 @@ public abstract class SpatialGrid
 	
 	public double getMinVoxVoxResSq()
 	{
-		return this._minVoxVoxDist;
+		return this._minVoxVoxResSq;
 	}
 	
 	/*************************************************************************
