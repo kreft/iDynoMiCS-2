@@ -38,12 +38,10 @@ public final class Volume
 	/**
 	 * \brief Updates the net force on two interacting cells as a result from
 	 * passive interactions (sphere-sphere).
-	 * @param a
-	 * 			point of first cell
-	 * @param c
-	 * 			point of second cell
-	 * @param radii
-	 * 			sum of radii
+	 * 
+	 * @param a Point of first cell.
+	 * @param c Point of second cell.
+	 * @param radii Sum of radii.
 	 */
 	public static void neighbourInteraction(Point a, Point c, Double radii) 
 	{
@@ -54,21 +52,19 @@ public final class Volume
 	
 	/**
 	 * \brief Updates the net force on two interacting cells as a result from
-	 * passive interactions (sphere sphere)
-	 * @param a
-	 * 			first point of first cell
-	 * @param b
-	 * 			second point of first cell
-	 * @param c
-	 * 			first point of second cell
-	 * @param radii
-	 * 			sum of radii
+	 * passive interactions (rod-sphere).
+	 * 
+	 * @param a First point of first cell.
+	 * @param b Second point of first cell.
+	 * @param c First point of second cell.
+	 * @param radii Sum of radii.
 	 */
 	public static void neighbourInteraction(Point a, Point b, Point c, 
 			double radii) 
 	{
-		double[] force = interact(linesegPoint(a.getPosition(), b.getPosition(), 
-				c.getPosition()), radii);
+		double[] force = interact(
+			linesegPoint(a.getPosition(), b.getPosition(), c.getPosition()),
+			radii);
 		a.addToForce(Vector.timesEquals(force, 1.0 - s));
 		b.addToForce(Vector.timesEquals(force, s));
 		c.subtractFromForce(force);
@@ -76,17 +72,13 @@ public final class Volume
 	
 	/**
 	 * \brief Updates the net force on two interacting cells as a result from
-	 * passive interactions (sphere sphere)
-	 * @param a
-	 * 			first point of first cell
-	 * @param b
-	 * 			second point of first cell
-	 * @param c
-	 * 			first point of second cell
-	 * @param d
-	 * 			second point of second cell
-	 * @param radii
-	 * 			sum of radii
+	 * passive interactions (rod-rod).
+	 * 
+	 * @param a First point of first cell.
+	 * @param b Second point of first cell.
+	 * @param c First point of second cell.
+	 * @param d Second point of second cell.
+	 * @param radii Sum of radii.
 	 */
 	public static void neighbourInteraction(Point a, Point b, Point c, Point d, 
 			Double radii) 
@@ -100,8 +92,9 @@ public final class Volume
 	}
 
 	/**
-	 * \brief calculate the resulting force (each cell) as a result of a
-	 * neighbour interaction
+	 * \brief Calculate the resulting force (each cell) as a result of a
+	 * neighbour interaction.
+	 * 
 	 * @param distance
 	 * 			distance between central units of the two cells (either the
 	 * 			center of the sphere or the line-segment of the rod).
@@ -119,14 +112,13 @@ public final class Volume
 		boolean exponential = true; 		// exponential pull curve
 		distance 			-= radii+0.001;	// added margin
 		
-		//repulsion
+		// Repulsion
 		if (distance < 0.0) 
 		{
 			c = fPush * distance * distance;
-			return Vector.times(Vector.normaliseEuclid(dP), c);
-		} 
-		
-		//attraction
+			return Vector.normaliseEuclid(dP, c);
+		}
+		// Attraction
 		else if (distance < p) 
 		{
 			if (exponential)
@@ -141,16 +133,16 @@ public final class Volume
 			}
 			return Vector.times(dP, c);
 		}
+		// Too far away for an interaction.
 		return Vector.zeros(dP);
 	}
 	
 	/**
-	 * \brief sphere sphere distance.
-	 * @param p
-	 *			point of first sphere
-	 * @param q 
-	 * 			point of second sphere
-	 * @return distance between the two sphere-swept volumes (spheres sphere)
+	 * \brief Sphere-sphere distance.
+	 * 
+	 * @param p Point of first sphere.
+	 * @param q Point of second sphere.
+	 * @return distance between the two sphere-swept volumes (spheres-sphere).
 	 */
 	public static double pointPoint(double[] p, double[] q) 
 	{
@@ -189,15 +181,13 @@ public final class Volume
 	 * \brief cylinder cylinder distance.
 	 * 
 	 * (Ericson 2005, page 148) closest point on two line segments
-	 * @param p0
-	 * 			First point of first rod
-	 * @param p1
-	 * 			Second point of first rod
-	 * @param q0
-	 * 			First point of second rod
-	 * @param q1
-	 * 			Second point of second rod
-	 * @return distance between the two sphere-swept volumes (cylinder cylinder)
+	 * 
+	 * @param p0 First point of first rod.
+	 * @param p1 Second point of first rod.
+	 * @param q0 First point of second rod.
+	 * @param q1 Second point of second rod.
+	 * @return distance between the two sphere-swept volumes 
+	 * (cylinder-cylinder).
 	 */
 	private static double linesegLineseg(double[] p0, double[] p1,
 												double[] q0, double[] q1) 
@@ -244,9 +234,14 @@ public final class Volume
 	}
 
 	/**
-	 * \brief helper method used in line segment distance algorithms.
-	 * @param a: double
-	 * @return 0.0 for a < 0.0, 1.0 for a > 1.0 and a for 1.0 > a > 0.0
+	 * \brief Helper method used in line segment distance algorithms.
+	 * 
+	 * <p>Forces <b>a</b> to lie between zero and one (inclusive). If <b>a</b>
+	 * is negative, returns zero. If <b>a</b> is greater than one, returns 
+	 * one. Otherwise, returns <b>a</b>.</p>
+	 * 
+	 * @param a A double number.
+	 * @return <b>a</b> constrained to the interval [0.0, 1.0].
 	 */
 	private static double clamp(double a) 
 	{
