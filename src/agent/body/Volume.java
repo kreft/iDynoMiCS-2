@@ -65,8 +65,8 @@ public final class Volume
 		double[] force = interact(
 			linesegPoint(a.getPosition(), b.getPosition(), c.getPosition()),
 			radii);
-		a.addToForce(Vector.timesEquals(force, 1.0 - s));
-		b.addToForce(Vector.timesEquals(force, s));
+		a.addToForce(Vector.times(force, 1.0 - s));
+		b.addToForce(Vector.times(force, s));
 		c.subtractFromForce(force);
 	}
 	
@@ -85,10 +85,10 @@ public final class Volume
 	{
 		double[] force = interact(linesegLineseg(a.getPosition(), b.getPosition(), 
 				c.getPosition(), d.getPosition()), radii);
-		a.addToForce(Vector.timesEquals(force, 1.0 - s));
-		b.addToForce(Vector.timesEquals(force, s));
-		c.subtractFromForce(Vector.timesEquals(force, 1.0 - t));
-		d.subtractFromForce(Vector.timesEquals(force, t));
+		a.addToForce(Vector.times(force, 1.0 - s));
+		b.addToForce(Vector.times(force, s));
+		c.subtractFromForce(Vector.times(force, 1.0 - t));
+		d.subtractFromForce(Vector.times(force, t));
 	}
 
 	/**
@@ -131,7 +131,7 @@ public final class Volume
 				c = fPull * - (p-distance) /
 						( 1.0 + Math.exp(6.0 - (36.0*distance) / p) );
 			}
-			return Vector.times(dP, c);
+			return Vector.timesEquals(dP, c);
 		}
 		// Too far away for an interaction.
 		return Vector.zeros(dP);
@@ -147,7 +147,7 @@ public final class Volume
 	public static double pointPoint(double[] p, double[] q) 
 	{
 		Vector.setAll(dP, p);
-		Vector.subtract(dP, q);
+		Vector.minus(dP, q);
 		return Vector.normEuclid(dP);
 	}
 	
@@ -167,13 +167,13 @@ public final class Volume
 	public static double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
 		// ab = p1 - p0
-		Vector.subtract(Vector.setAll(dP, p1), p0);
-		s  = clamp( Vector.dotProduct(Vector.subtractEquals(q0, p0), dP) 
+		Vector.minus(Vector.setAll(dP, p1), p0);
+		s  = clamp( Vector.dotProduct(Vector.minusEquals(q0, p0), dP) 
 													/ Vector.normSquare(dP) );
 		// dP = (ab*s) + p0 - q0 
-		Vector.times(dP, s);
+		Vector.timesEquals(dP, s);
 		Vector.add(dP, p0);
-		Vector.subtract(dP, q0);
+		Vector.minus(dP, q0);
 		return Vector.normEuclid(dP);
 	}
 	
@@ -193,11 +193,11 @@ public final class Volume
 												double[] q0, double[] q1) 
 	{
 		// r = p0 - q0
-		double[] r      = Vector.subtractEquals(p0, q0);
+		double[] r      = Vector.minusEquals(p0, q0);
 		// d1 = p1 - p0
-		double[] d1     = Vector.subtractEquals(p1, p0);
+		double[] d1     = Vector.minusEquals(p1, p0);
 		// d2 = q1 - q0
-		double[] d2     = Vector.subtractEquals(q1, q0);
+		double[] d2     = Vector.minusEquals(q1, q0);
 		// a = d1 . d1 = (p1 - p0)^2
 		double a 		= Vector.normSquare(d1);
 		// e = d2 . d2 = (q1 - q0)^2
@@ -225,11 +225,11 @@ public final class Volume
 			s = clamp((b-c)/a);
 		}
 		// c1 = p0 + (d1*s)
-		double[] c1 = Vector.add( p0, Vector.timesEquals(d1,s) );
+		double[] c1 = Vector.add( p0, Vector.times(d1,s) );
 		// c2 = q0 + (d2*t)
-		double[] c2 = Vector.add( q0, Vector.times(Vector.copy(d2),t) );
+		double[] c2 = Vector.add( q0, Vector.timesEquals(Vector.copy(d2),t) );
 		// dP = c1 - c2
-		Vector.subtract(Vector.setAll(dP, c1), c2);
+		Vector.minus(Vector.setAll(dP, c1), c2);
 		return Vector.normEuclid(dP);
 	}
 

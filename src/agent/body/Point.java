@@ -60,9 +60,9 @@ public class Point
 	 */
 	public Double euStep(double vSquare, double dt, double radius) 
 	{
-		Vector.add(position, Vector.times(getVelocity(),dt));
+		Vector.add(position, Vector.timesEquals(getVelocity(),dt));
 		// TODO Rob [19Nov2015]: Where does this 0.01885 comes from?
-		setVelocity(Vector.times(getForce(), 1.0/(radius*0.01885)));
+		setVelocity(Vector.timesEquals(getForce(), 1.0/(radius*0.01885)));
 		if ( Vector.normSquare(getVelocity()) > vSquare )
 			vSquare = Vector.normSquare(getVelocity());
 		this.resetForce();
@@ -130,7 +130,7 @@ public class Point
 	
 	public void subtractFromForce(double[] forceToSubtract)
 	{
-		Vector.subtract(this.force, forceToSubtract);
+		Vector.minus(this.force, forceToSubtract);
 	}
 
 	public double[] getVelocity() {
