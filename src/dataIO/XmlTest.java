@@ -1,4 +1,4 @@
-package xmlpack;
+package dataIO;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -6,6 +6,7 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 
 public class XmlTest {
 
@@ -39,7 +40,7 @@ public class XmlTest {
 		// iterate trough all agents in xml file and add them including their
 		// attributes
 		AgentContainer agentContainer = new AgentContainer();
-		agentContainer.init(3);
+		agentContainer.init(new Compartment("CUBOID"));
 		for (int i = 0; i < agentNodes.getLength(); i++) 
 		{
 			Agent anAgent = new Agent();

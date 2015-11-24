@@ -73,7 +73,6 @@ public class ODETest
 		 * Dummy AgentContainer will be empty
 		 */
 		AgentContainer agents = new AgentContainer();
-		agents.init(0);
 		/*
 		 * Set up the process manager
 		 */
@@ -131,7 +130,6 @@ public class ODETest
 		 * Dummy AgentContainer will be empty
 		 */
 		AgentContainer agents = new AgentContainer();
-		agents.init(0);
 		/*
 		 * Set up the process manager
 		 */
@@ -201,7 +199,6 @@ public class ODETest
 		 * Dummy AgentContainer will be empty
 		 */
 		AgentContainer agents = new AgentContainer();
-		agents.init(0);
 		/*
 		 * Set up the process manager
 		 */

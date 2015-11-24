@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.w3c.dom.Node;
 
-import xmlpack.XmlLoad;
+import dataIO.XmlLoad;
 import agent.activity.*;
 import agent.body.Body;
 import agent.state.*;
@@ -22,7 +22,7 @@ public class Agent implements StateObject
 	 * the constructor.
 	 */
 	protected static int UNIQUE_ID = 0;
-    protected int uid = ++UNIQUE_ID;
+    private int uid = ++UNIQUE_ID;
 	
 	/**
 	 * The states HashMap stores all primary and secondary states.
@@ -77,6 +77,7 @@ public class Agent implements StateObject
 		species = SpeciesLib.get((String) get("species"));
 		this._compartment = compartment;
 		this.registerBirth();
+		// next line for testing purposes
 		System.out.println("Agent assigned to compartment: " + compartment.name);
 	}
 	
@@ -98,7 +99,7 @@ public class Agent implements StateObject
 	 */
 	public State getState(String name)
 	{
-		if (_states.containsKey(name))
+		if (isLocalState(name))
 			return _states.get(name);
 		else
 		{
@@ -219,6 +220,11 @@ public class Agent implements StateObject
 	public void registerBirth() {
 		_compartment.addAgent(this);
 	}
+
+	public int UID() {
+		return uid;
+	}
+
 	
 	/*************************************************************************
 	 * REPORTING

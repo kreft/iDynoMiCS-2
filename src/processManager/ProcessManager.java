@@ -6,113 +6,34 @@ import boundary.Boundary;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 
-public abstract class ProcessManager
+public interface ProcessManager
 {
-	protected String _name;
+
+	// should the constructor be in the interface?
 	
-	protected int _priority;
+	public void init();
+
+	public String getName();
 	
-	protected double _timeForNextStep = 0.0;
+	public void setPriority(int priority);
 	
-	protected double _timeStepSize;
+	public int getPriority();
 	
+	public void setTimeForNextStep(double newTime);
 	
-	/*************************************************************************
-	 * CONSTRUCTORS
-	 ************************************************************************/
+	public double getTimeForNextStep();
 	
-	public ProcessManager()
-	{
-		
-	}
+	public void setTimeStepSize(double newStepSize);
 	
-	public void init()
-	{
-		
-	}
+	public double getTimeStepSize();
+
+	public void showBoundaries(Collection<Boundary> boundaries);
+
+	public void step(EnvironmentContainer environment, AgentContainer agents);
 	
-	/*************************************************************************
-	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
-	
-	public String getName()
-	{
-		return this._name;
-	}
-	
-	public void setPriority(int priority)
-	{
-		this._priority = priority;
-	}
-	
-	public int getPriority()
-	{
-		return this._priority;
-	}
-	
-	public void setTimeForNextStep(double newTime)
-	{
-		this._timeForNextStep = newTime;
-	}
-	
-	public double getTimeForNextStep()
-	{
-		return this._timeForNextStep;
-	}
-	
-	public void setTimeStepSize(double newStepSize)
-	{
-		this._timeStepSize = newStepSize;
-	}
-	
-	public double getTimeStepSize()
-	{
-		return this._timeStepSize;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param boundaries
-	 */
-	public void showBoundaries(Collection<Boundary> boundaries)
-	{
-		
-	}
-	
-	/*************************************************************************
-	 * STEPPING
-	 ************************************************************************/
-	
-	public void step(EnvironmentContainer environment, AgentContainer agents)
-	{
-		//System.out.println("STEP");//bughunt
-		//System.out.println("timeForNextStep = "+_timeForNextStep);//bughunt
-		//System.out.println("timeStepSize = "+_timeStepSize);//bughunt
-		/*
-		 * This is where subclasses of Mechanism do their step. Note that
-		 * this._timeStepSize may change if an adaptive timestep is used.
-		 */
-		this.internalStep(environment, agents);
-		/*
-		 * Increase the 
-		 */
-		this._timeForNextStep += this._timeStepSize;
-		//System.out.println("timeForNextStep = "+_timeForNextStep);//bughunt
-	}
-	
-	protected abstract void internalStep(EnvironmentContainer environment,
+	public void internalStep(EnvironmentContainer environment,
 											AgentContainer agents);
-	
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
-	
-	public StringBuffer report()
-	{
-		StringBuffer out = new StringBuffer();
-		
-		return out;
-	}
+
+	public StringBuffer report();
 	
 }

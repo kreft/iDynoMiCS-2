@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import dataIO.LogFile;
 import agent.Agent;
 //import agent.state.HasReactions;
 import boundary.Boundary;
@@ -19,7 +20,6 @@ import reaction.Reaction;
 import solver.ODErosenbrock;
 import solver.ODEsolver.Derivatives;
 import utility.ExtraMath;
-import utility.LogFile;
 
 /**
  * \brief TODO
@@ -28,8 +28,98 @@ import utility.LogFile;
  * Biology, University of Birmingham, U.K.
  * @since August 2015
  */
-public class SolveChemostat extends ProcessManager
+public class SolveChemostat implements ProcessManager
 {
+	
+	protected String _name;
+	
+	protected int _priority;
+	
+	protected double _timeForNextStep = 0.0;
+	
+	protected double _timeStepSize;
+	
+	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
+
+	public void init()
+	{
+		
+	}
+	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
+	
+	public String getName()
+	{
+		return this._name;
+	}
+	
+	public void setPriority(int priority)
+	{
+		this._priority = priority;
+	}
+	
+	public int getPriority()
+	{
+		return this._priority;
+	}
+	
+	public void setTimeForNextStep(double newTime)
+	{
+		this._timeForNextStep = newTime;
+	}
+	
+	public double getTimeForNextStep()
+	{
+		return this._timeForNextStep;
+	}
+	
+	public void setTimeStepSize(double newStepSize)
+	{
+		this._timeStepSize = newStepSize;
+	}
+	
+	public double getTimeStepSize()
+	{
+		return this._timeStepSize;
+	}
+
+	/*************************************************************************
+	 * STEPPING
+	 ************************************************************************/
+	
+	public void step(EnvironmentContainer environment, AgentContainer agents)
+	{
+		//System.out.println("STEP");//bughunt
+		//System.out.println("timeForNextStep = "+_timeForNextStep);//bughunt
+		//System.out.println("timeStepSize = "+_timeStepSize);//bughunt
+		/*
+		 * This is where subclasses of Mechanism do their step. Note that
+		 * this._timeStepSize may change if an adaptive timestep is used.
+		 */
+		this.internalStep(environment, agents);
+		/*
+		 * Increase the 
+		 */
+		this._timeForNextStep += this._timeStepSize;
+		//System.out.println("timeForNextStep = "+_timeForNextStep);//bughunt
+	}
+	
+	/*************************************************************************
+	 * REPORTING
+	 ************************************************************************/
+	
+	public StringBuffer report()
+	{
+		StringBuffer out = new StringBuffer();
+		
+		return out;
+	}
+	
 	/**
 	 * TODO Could let the user choose which ODEsolver to use, if we ever get
 	 * around to implementing more.
@@ -171,7 +261,7 @@ public class SolveChemostat extends ProcessManager
 	}
 
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
+	public void internalStep(EnvironmentContainer environment,
 			AgentContainer agents)
 	{
 		this.updateDilutionInflow();

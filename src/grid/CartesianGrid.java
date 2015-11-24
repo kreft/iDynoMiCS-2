@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
+import dataIO.LogFile;
 import linearAlgebra.*;
-import utility.LogFile;
 import idynomics.Compartment.BoundarySide;
 
 /**
