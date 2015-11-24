@@ -24,7 +24,7 @@ public class AgentTest {
 		// Display document element's general info
 		XmlLoad.displayWithAttributes(null, doc, null);
 		System.out.println("-------------------------------------------------");
-		// XmlLoad.displayAllChildNodes("-",doc,true);
+		XmlLoad.displayAllChildNodes("-",doc,true);
 		
 		// cycle trough all species and add them to the species Lib
 		NodeList speciesNodes = doc.getElementsByTagName("species");

@@ -1,19 +1,4 @@
 <simulation name="mySim" comments="this is a file for Agent testing">
-	<speciesLib>
-	<!-- species library
-	The species library contains all agent species in the simulations. This may
-	include microbial species, plasmid and vector species, particle species etc.
-	
-	Species states are states that are in principal identical for all agents of
-	that species. However note that iDynoMiCS 2.0 does allow you to overwrite
-	states on agent level. Thus if a state is defined both on species level and 
-	on agent level, the agent state will be used in the simulation.
-	-->
-		<species name="AOB">
-			<state name="pigment" type="String" value="GREEN" />
-			<state name="morphology" type="String" value="coccoid" />
-		</species>
-	</speciesLib>
 	<compartment name="firstone" shape="CUBOID">
 		<agents>
 			<agent>

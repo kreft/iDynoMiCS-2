@@ -181,7 +181,7 @@ public class ODErosenbrock extends ODEsolver
 			/*System.out.println("dFdT is"); //Bughunt
 			for ( double elem : dFdT)
 				System.out.println(elem);*/
-			hddFdT = Vector.times(Vector.copy(dFdT), h*d);
+			hddFdT = Vector.timesEquals(Vector.copy(dFdT), h*d);
 			/*System.out.println("h*d*dFdT is"); //Bughunt
 			for ( double elem : hddFdT)
 				System.out.println(elem);*/
@@ -242,7 +242,7 @@ public class ODErosenbrock extends ODEsolver
 					/*
 					 * f1 = dYdT(y + k1*h/2)
 					 */
-					f1 = Vector.times(Vector.copy(k1), 0.5*h);
+					f1 = Vector.timesEquals(Vector.copy(k1), 0.5*h);
 					/*System.out.println("\tK1*h/2 is"); //Bughunt
 					for ( double elem : f1)
 						System.out.println(elem);*/
@@ -254,7 +254,7 @@ public class ODErosenbrock extends ODEsolver
 					 * Find k2 where
 					 * W*(k2-k1) = f1 - k1  
 					 */
-					k2 = Vector.subtract(Vector.copy(f1), k1);
+					k2 = Vector.minus(Vector.copy(f1), k1);
 					/*System.out.println("f1 - k1 is"); //Bughunt
 					for ( double elem : k2)
 						System.out.println(elem);*/
@@ -269,7 +269,7 @@ public class ODErosenbrock extends ODEsolver
 					/*
 					 * ynext = y + h * k2
 					 */
-					ynext = Vector.times(Vector.copy(k2), h);
+					ynext = Vector.timesEquals(Vector.copy(k2), h);
 					ynext = Vector.add(ynext, y);
 					/*System.out.println("ynext is"); //Bughunt
 					for ( double elem : ynext)
@@ -293,13 +293,13 @@ public class ODErosenbrock extends ODEsolver
 					/*System.out.println("f2 + h*d*dFdT is"); //Bughunt
 					for ( double elem : kaux)
 						System.out.println(elem);*/
-					k3 = Vector.subtract(Vector.copy(f1), k2);
+					k3 = Vector.minus(Vector.copy(f1), k2);
 					/*System.out.println("f2 + h*d*dFdT is"); //Bughunt
 					for ( double elem : kaux)
 						System.out.println(elem);*/
-					kaux = Vector.add(kaux, Vector.times(k3, e32));
-					k3 = Vector.subtract(Vector.copy(y), k1);
-					kaux = Vector.add(kaux, Vector.times(k3, 2.0));
+					kaux = Vector.add(kaux, Vector.timesEquals(k3, e32));
+					k3 = Vector.minus(Vector.copy(y), k1);
+					kaux = Vector.add(kaux, Vector.timesEquals(k3, 2.0));
 					k3 = Matrix.solve(W, kaux);
 					/*
 					 * We now use kaux to estimate the error of this step.
@@ -318,10 +318,10 @@ public class ODErosenbrock extends ODEsolver
 					/*
 					 * kaux = (k1 -2*k2 + k3) * h/6
 					 */
-					kaux = Vector.times(k2, -2.0);
+					kaux = Vector.timesEquals(k2, -2.0);
 					Vector.add(kaux, k3);
 					Vector.add(kaux, k1);
-					Vector.times(kaux, h/6.0);
+					Vector.timesEquals(kaux, h/6.0);
 					error = Vector.max(kaux);
 				}
 				catch (Exception e)

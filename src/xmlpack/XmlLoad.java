@@ -17,8 +17,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import reaction.Reaction;
-import utility.Vector;
-import agent.Agent;
+import linearAlgebra.Vector;
 import agent.StateObject;
 import agent.body.Body;
 import agent.body.Point;
@@ -110,7 +109,7 @@ public class XmlLoad {
 						for (int k = 0; k < pointNodes.getLength(); k++) 
 						{
 							Element point = (Element) pointNodes.item(k);
-							pointList.add(new Point(Vector.vectorFromString(
+							pointList.add(new Point(Vector.dblFromString(
 									point.getAttribute("position"))));
 						}
 						stateObject.setPrimary("body", new Body(pointList));

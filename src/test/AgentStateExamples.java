@@ -60,13 +60,13 @@ public class AgentStateExamples {
 		Agent ezagent = new Agent();
 
 		// add a new state
-		ezagent.set("mass", 0.1);
+		ezagent.set("mass",0.1);
 		
 		// add a new state again
 		ezagent.set("density", 0.2);
 		
 		// add a predefined secondary state
-		ezagent.set("volume", new SimpleVolumeState());
+		ezagent.set("volume",new SimpleVolumeState());
 		
 		// add a secondary state that was not previously defined (anonymous class).
 		ezagent.set("volume2", new CalculatedState.stateExpression() {
@@ -74,18 +74,6 @@ public class AgentStateExamples {
 			@Override
 			public Object calculate(Agent agent) {
 				return (Double) agent.get("mass") / (Double) agent.get("density");
-			}
-		});
-		
-		ezagent.set("volume3", new State() {
-
-			@Override
-			public Object get(Agent agent) {
-				return (Double) agent.get("mass") / (Double) agent.get("density");
-			}
-			
-			@Override
-			public void init(Object state) {
 			}
 		});
 		

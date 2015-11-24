@@ -12,7 +12,7 @@ public class SimpleVolumeState implements State {
 	
 	public Object get(Agent agent)
 	{
-		return  (Double) agent.get("mass") / (Double) agent.get("density");
+		return  (double) agent.get("mass") / (double) agent.get("density");
 	}
 
 }

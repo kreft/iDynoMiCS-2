@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import agent.Agent;
+import linearAlgebra.Vector;
 
 public class PovExport {
 	static BufferedWriter output;
@@ -16,9 +17,12 @@ public class PovExport {
 		return apzero;
 	}
 	
-	private static String toPov(Double[] vector) {
-		Double[] v = Vector.zeros(3);
-		Vector.addIffy(v, vector);
+	private static String toPov(double[] vector)
+	{
+		double[] v = Vector.zerosDbl(3);
+		int nDim = Math.min(vector.length, 3);
+		for ( int i = 0; i < nDim; i++ )
+			v[i] = vector[i];
 		return "< " + Double.toString(v[1]) + " , " + Double.toString(v[0]) + " , " + Double.toString(v[2]) + " >\n";
 	}
 	
@@ -56,7 +60,7 @@ public class PovExport {
 			
 			for (Agent a: agents) {	
 				@SuppressWarnings("unchecked")
-				List<Double[]> joints = (List<Double[]>) a.get("joints");
+				List<double[]> joints = (List<double[]>) a.get("joints");
 				for (int i = 0; joints.size() > i; i++)
 				{
 					// sphere

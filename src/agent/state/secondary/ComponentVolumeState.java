@@ -1,8 +1,8 @@
 package agent.state.secondary;
 
-import utility.Vector;
 import agent.Agent;
 import agent.state.State;
+import linearAlgebra.Vector;
 
 public class ComponentVolumeState implements State {
 
@@ -13,7 +13,7 @@ public class ComponentVolumeState implements State {
 	
 	public Object get(Agent agent)
 	{
-		return  Vector.dotQuotient((Double[]) agent.get("mass"), (Double[]) agent.get("density"));
+		return  Vector.dotQuotient((double[]) agent.get("mass"), 
+									(double[]) agent.get("density"));
 	}
-
 }
