@@ -193,7 +193,7 @@ public class SolveChemostat extends ProcessManager
 					dYdT[i] += _inflow.get(_soluteNames[i]);
 					concns.put(_soluteNames[i], y[i]);
 				}
-				Vector.times(dYdT, _dilution);
+				Vector.timesEquals(dYdT, _dilution);
 				/*
 				 * Apply agent reactions. Note that any agents without reactions
 				 * will return an empty list of States, and so will be skipped.
@@ -240,7 +240,7 @@ public class SolveChemostat extends ProcessManager
 				double[] dFdT = Vector.copy(y);
 				for ( int i = 0; i < _soluteNames.length; i++ )
 					dFdT[i] -= _inflow.get(_soluteNames[i]);
-				Vector.times(dFdT, ExtraMath.sq(_dilution));
+				Vector.timesEquals(dFdT, ExtraMath.sq(_dilution));
 				/*
 				 * TODO Apply agent reactions
 				 */
