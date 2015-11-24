@@ -7,8 +7,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
+import agent.Species;
 import idynomics.Compartment;
 import idynomics.Simulator;
+import idynomics.SpeciesLib;
 
 public class AgentTest {
 	
@@ -21,8 +23,17 @@ public class AgentTest {
 		
 		// Display document element's general info
 		XmlLoad.displayWithAttributes(null, doc, null);
-		System.out.println("-----------");
-		XmlLoad.displayAllChildNodes("-",doc,true);
+		System.out.println("-------------------------------------------------");
+		// XmlLoad.displayAllChildNodes("-",doc,true);
+		
+		// cycle trough all species and add them to the species Lib
+		NodeList speciesNodes = doc.getElementsByTagName("species");
+		for (int i = 0; i < speciesNodes.getLength(); i++) 
+		{
+			Element xmlSpecies = (Element) speciesNodes.item(i);
+			SpeciesLib.set(xmlSpecies.getAttribute("name"), 
+					new Species(speciesNodes.item(i)));
+		}
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = doc.getElementsByTagName("compartment");

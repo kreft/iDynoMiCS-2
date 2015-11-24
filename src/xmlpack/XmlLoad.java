@@ -19,6 +19,7 @@ import org.xml.sax.SAXException;
 import reaction.Reaction;
 import utility.Vector;
 import agent.Agent;
+import agent.StateObject;
 import agent.body.Body;
 import agent.body.Point;
 
@@ -62,64 +63,72 @@ public class XmlLoad {
 		     operation.action(nodeList.item(i));
 	}
 	
-	public static Agent loadAgentPrimaries(Agent aAgent, Node agentNode)
+	/**
+	 * Loads all states from xmlNode into anything that implements the
+	 * StateObject interface.
+	 * @param stateObject
+	 * @param xmlNode
+	 */
+	public static void loadStates(StateObject stateObject, Node xmlNode)
 	{
-		Element xmlAgent = (Element) agentNode;
+		Element xmlAgent = (Element) xmlNode;
 		
 		NodeList stateNodes = xmlAgent.getElementsByTagName("state");
 		for (int j = 0; j < stateNodes.getLength(); j++) 
 		{
-			Element stateElement = (Element) stateNodes.item(j);
-			
-			// state node with just attributes	
-			if (! stateElement.hasChildNodes())
+			Element s = (Element) stateNodes.item(j);
+			if (! s.hasChildNodes())	// state node with just attributes //
 			{
-				switch (stateElement.getAttribute("type")) 
+				switch (s.getAttribute("type")) 
 				{
 					case "boolean" : 
-						aAgent.setPrimary(stateElement.getAttribute("name"), Boolean.valueOf(stateElement.getAttribute("value")));
+						stateObject.setPrimary(s.getAttribute("name"), 
+								Boolean.valueOf(s.getAttribute("value")));
 	                	break;
 					case "int" : 
-						aAgent.setPrimary(stateElement.getAttribute("name"), Integer.valueOf(stateElement.getAttribute("value")));
+						stateObject.setPrimary(s.getAttribute("name"), 
+								Integer.valueOf(s.getAttribute("value")));
 	                	break;
 					case "double" : 
-						aAgent.setPrimary(stateElement.getAttribute("name"), Double.valueOf(stateElement.getAttribute("value")));
+						stateObject.setPrimary(s.getAttribute("name"), 
+								Double.valueOf(s.getAttribute("value")));
 	                	break;
 					case "String" : 
-						aAgent.setPrimary(stateElement.getAttribute("name"), stateElement.getAttribute("value"));
+						stateObject.setPrimary(s.getAttribute("name"), 
+								s.getAttribute("value"));
 	                	break;
 				}
 			}
-			// state node with attributes and child nodes 
-			else
+			else	// state node with attributes and child nodes //
 			{
-				switch (stateElement.getAttribute("type")) 
+				switch (s.getAttribute("type")) 
 				{
 					case "body" :
 						//FIXME: not finished only accounts for simple coccoid cells
 						List<Point> pointList = new LinkedList<Point>();
-						NodeList pointNodes = stateElement.getElementsByTagName("point");
+						NodeList pointNodes = s.getElementsByTagName("point");
 						for (int k = 0; k < pointNodes.getLength(); k++) 
 						{
 							Element point = (Element) pointNodes.item(k);
-							pointList.add(new Point(Vector.vectorFromString(point.getAttribute("position"))));
+							pointList.add(new Point(Vector.vectorFromString(
+									point.getAttribute("position"))));
 						}
-						aAgent.setPrimary("body",new Body(pointList));
+						stateObject.setPrimary("body", new Body(pointList));
 						break;
 					case "reactions" :
-						List<Reaction> reactionList = new LinkedList<Reaction>();
-						NodeList reactionNodes = stateElement.getElementsByTagName("reaction");
-						for (int k = 0; k < reactionNodes.getLength(); k++) 
+						List<Reaction> reactions = new LinkedList<Reaction>();
+						NodeList rNodes = s.getElementsByTagName("reaction");
+						for (int k = 0; k < rNodes.getLength(); k++) 
 						{
-							Element reaction = (Element) reactionNodes.item(k);
-							reactionList.add(new Reaction(reaction.getAttribute("whateverisneededforthisconstructor")));
+							Element reaction = (Element) rNodes.item(k);
+							reactions.add(new Reaction(
+									reaction.getAttribute("somethingReact")));
 						}
-						aAgent.setPrimary("reactions",reactionList);
+						stateObject.setPrimary("reactions", reactions);
 						break;
 				}
 			}
 		}
-		return aAgent;
 	}
 	
 	/*************************************************************************

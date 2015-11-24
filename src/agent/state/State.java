@@ -15,12 +15,8 @@ import agent.Agent;
  */
 public interface State {
 	
-	public void init(Agent agent, Object state);
+	public void init(Object state);
 	
-	public Object get();
-	
-	public Agent getAgent();
-	
-	public void setAgent(Agent agent);
+	public Object get(Agent agent);
 
 }

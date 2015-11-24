@@ -11,8 +11,10 @@ import agent.state.*;
 import agent.state.secondary.*;
 import grid.CartesianGrid;
 import idynomics.AgentContainer;
+import idynomics.Simulator;
+import idynomics.SpeciesLib;
 
-public class Agent
+public class Agent implements StateObject
 {
 
 	/**
@@ -50,6 +52,12 @@ public class Agent
 	 */
     CartesianGrid _solutes;
     
+    /**
+     * Used to fetch species states.
+     */
+    Species species;
+    
+    
    // public interface StatePredicate<T> {boolean test(Object s);}
 	
     /*************************************************************************
@@ -61,9 +69,10 @@ public class Agent
 
 	}
 	
-	public Agent(Node agentNode)
+	public Agent(Node xmlNode)
 	{
-		XmlLoad.loadAgentPrimaries(this, agentNode);
+		XmlLoad.loadStates(this, xmlNode);
+		species = SpeciesLib.get((String) get("species"));
 		loadAgentSecondaries();
 	}
 	
@@ -72,6 +81,9 @@ public class Agent
 				
 	}
 	
+	/*
+	 * set the secondary states
+	 */
 	public void loadAgentSecondaries()
 	{
 		if ((boolean) this.get("isLocated"))
@@ -98,7 +110,7 @@ public class Agent
 	 * 			name of the state (String)
 	 * @return Object of the type specific to the state
 	 */
-	public Object getState(String name)
+	public State getState(String name)
 	{
 		if (_states.containsKey(name))
 			return _states.get(name);
@@ -106,10 +118,25 @@ public class Agent
 			return null;
 	}
 	
-	public Object get(String name)
+	public boolean isLocalState(String name)
 	{
 		if (_states.containsKey(name))
-			return _states.get(name).get();
+			return true;
+		else
+			return false;
+	}
+	
+	/*
+	 * returns object stored in Agent state with name "name". If the state is
+	 * not found it will look for the Species state with "name". If this state
+	 * is also not found this method will return null.
+	 */
+	public Object get(String name)
+	{
+		if (this.isLocalState(name))
+			return getState(name).get(this);
+		else if (species.isLocalState(name))
+			return species.getState(name).get(this);
 		else
 			return null;
 	}
@@ -129,8 +156,15 @@ public class Agent
 	public void setPrimary(String name, Object state)
 	{
 		State aState = new PrimaryState();
-		aState.init(this, state);
+		aState.init(state);
 		_states.put(name, aState);
+	}
+	
+	public void setCalculated(String name, CalculatedState.stateExpression state)
+	{
+		State anonymous = new CalculatedState();
+		anonymous.init((CalculatedState.stateExpression) state);
+		_states.put(name, anonymous);
 	}
 	
 	/**
@@ -141,24 +175,11 @@ public class Agent
 	public void set(String name, Object state)
 	{
 		if (state instanceof State)
-		{
-			State s = (State) state;
-			s.setAgent(this); // needed since otherwise the next line can result in errors for secondary states.
-			s.init(this, s.get());
-			_states.put(name, s);
-		}
+			setState(name,(State) state);
 		else if (state instanceof CalculatedState.stateExpression)
-		{
-			State anonymous = new CalculatedState();
-			anonymous.init(this, (CalculatedState.stateExpression) state);
-			_states.put(name, anonymous);
-		} 
+			setCalculated(name,(CalculatedState.stateExpression) state);
 		else
-		{	
-		State aState = new PrimaryState();
-		aState.init(this, state);
-		_states.put(name, aState);
-		}
+			setPrimary(name, state);
 	}
 	
 	/*************************************************************************

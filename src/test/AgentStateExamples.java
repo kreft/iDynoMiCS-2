@@ -15,7 +15,7 @@ public class AgentStateExamples {
 
 		// add a new state
 		State mass = new PrimaryState();
-		mass.init(testagent, 0.1);
+		mass.init(0.1);
 		testagent.setState("mass",mass);
 		
 		// add a new state the automated way
@@ -23,12 +23,12 @@ public class AgentStateExamples {
 		
 		// add a predefined secondary state
 		State volume = new SimpleVolumeState();
-		volume.init(testagent, null);
+		volume.init(null);
 		testagent.setState("volume",volume);
 		
 		// add a secondary state that was not previously defined (anonymous class).
 		State anonymous = new CalculatedState();
-		anonymous.init(testagent, new CalculatedState.stateExpression() {
+		anonymous.init(new CalculatedState.stateExpression() {
 			
 			@Override
 			public Object calculate(Agent agent) {
@@ -40,9 +40,9 @@ public class AgentStateExamples {
 		System.out.println(testagent.get("mass"));
 		System.out.println(testagent.getState("mass").getClass());
 		System.out.println(testagent.get("density"));
-		System.out.println(volume.get());
+		System.out.println(volume.get(testagent));
 		System.out.println(testagent.get("volume"));
-		System.out.println(anonymous.get());
+		System.out.println(anonymous.get(testagent));
 		System.out.println(anonymous.getClass());
 		System.out.println(testagent.get("volume2"));
 		
@@ -60,13 +60,13 @@ public class AgentStateExamples {
 		Agent ezagent = new Agent();
 
 		// add a new state
-		ezagent.set("mass",0.1);
+		ezagent.set("mass", 0.1);
 		
 		// add a new state again
 		ezagent.set("density", 0.2);
 		
 		// add a predefined secondary state
-		ezagent.set("volume",new SimpleVolumeState());
+		ezagent.set("volume", new SimpleVolumeState());
 		
 		// add a secondary state that was not previously defined (anonymous class).
 		ezagent.set("volume2", new CalculatedState.stateExpression() {
@@ -74,6 +74,18 @@ public class AgentStateExamples {
 			@Override
 			public Object calculate(Agent agent) {
 				return (Double) agent.get("mass") / (Double) agent.get("density");
+			}
+		});
+		
+		ezagent.set("volume3", new State() {
+
+			@Override
+			public Object get(Agent agent) {
+				return (Double) agent.get("mass") / (Double) agent.get("density");
+			}
+			
+			@Override
+			public void init(Object state) {
 			}
 		});
 		
