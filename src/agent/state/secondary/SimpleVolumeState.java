@@ -5,7 +5,7 @@ import agent.state.State;
 
 public class SimpleVolumeState implements State {
 
-	public void init(Object state)
+	public void set(Object state)
 	{
 
 	}

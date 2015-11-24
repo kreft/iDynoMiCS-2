@@ -6,7 +6,7 @@ import agent.state.State;
 
 public class DimensionsBoundingBox implements State {
 
-	public void init(Object state)
+	public void set(Object state)
 	{
 
 	}

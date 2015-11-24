@@ -6,15 +6,14 @@ import agent.state.State;
 
 public class JointsState implements State {
 
-	public void init(Object state)
+	public void set(Object state)
 	{
 
 	}
 	
 	public Object get(Agent agent)
 	{
-		Body myBody = (Body) agent.get("body");
-		return myBody.getJoints();
+		return ((Body) agent.get("body")).getJoints();
 	}
 
 }

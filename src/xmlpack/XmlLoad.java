@@ -21,6 +21,7 @@ import linearAlgebra.Vector;
 import agent.StateObject;
 import agent.body.Body;
 import agent.body.Point;
+import agent.state.StateLib;
 
 public class XmlLoad {
 	
@@ -95,6 +96,10 @@ public class XmlLoad {
 					case "String" : 
 						stateObject.setPrimary(s.getAttribute("name"), 
 								s.getAttribute("value"));
+	                	break;
+					case "secondary" : 
+						stateObject.setState(s.getAttribute("name"), 
+								StateLib.get(s.getAttribute("value")));
 	                	break;
 				}
 			}

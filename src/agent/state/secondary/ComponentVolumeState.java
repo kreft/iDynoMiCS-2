@@ -6,7 +6,7 @@ import linearAlgebra.Vector;
 
 public class ComponentVolumeState implements State {
 
-	public void init(Object state)
+	public void set(Object state)
 	{
 		
 	}

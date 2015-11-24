@@ -68,14 +68,14 @@ public class Species implements StateObject
 	public void setPrimary(String name, Object state)
 	{
 		State aState = new PrimaryState();
-		aState.init(state);
+		aState.set(state);
 		_states.put(name, aState);
 	}
 	
 	public void setCalculated(String name, CalculatedState.stateExpression state)
 	{
 		State anonymous = new CalculatedState();
-		anonymous.init((CalculatedState.stateExpression) state);
+		anonymous.set((CalculatedState.stateExpression) state);
 		_states.put(name, anonymous);
 	}
 	

@@ -15,7 +15,7 @@ public class AgentStateExamples {
 
 		// add a new state
 		State mass = new PrimaryState();
-		mass.init(0.1);
+		mass.set(0.1);
 		testagent.setState("mass",mass);
 		
 		// add a new state the automated way
@@ -23,12 +23,12 @@ public class AgentStateExamples {
 		
 		// add a predefined secondary state
 		State volume = new SimpleVolumeState();
-		volume.init(null);
+		volume.set(null);
 		testagent.setState("volume",volume);
 		
 		// add a secondary state that was not previously defined (anonymous class).
 		State anonymous = new CalculatedState();
-		anonymous.init(new CalculatedState.stateExpression() {
+		anonymous.set(new CalculatedState.stateExpression() {
 			
 			@Override
 			public Object calculate(Agent agent) {

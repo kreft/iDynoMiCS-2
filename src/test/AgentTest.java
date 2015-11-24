@@ -8,9 +8,9 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Species;
+import agent.SpeciesLib;
 import idynomics.Compartment;
 import idynomics.Simulator;
-import idynomics.SpeciesLib;
 
 public class AgentTest {
 	
@@ -24,7 +24,7 @@ public class AgentTest {
 		// Display document element's general info
 		XmlLoad.displayWithAttributes(null, doc, null);
 		System.out.println("-------------------------------------------------");
-		XmlLoad.displayAllChildNodes("-",doc,true);
+		//XmlLoad.displayAllChildNodes("-",doc,true);
 		
 		// cycle trough all species and add them to the species Lib
 		NodeList speciesNodes = doc.getElementsByTagName("species");
@@ -40,23 +40,24 @@ public class AgentTest {
 		for (int i = 0; i < compartmentNodes.getLength(); i++) 
 		{
 			Element xmlCompartment = (Element) compartmentNodes.item(i);
-			Compartment aCompartment = sim.addCompartment(
+			Compartment comp = sim.addCompartment(
 					xmlCompartment.getAttribute("name"), 
 					xmlCompartment.getAttribute("shape"));
 			
 			// Check the agent container
-			NodeList agentcontainerNodes = xmlCompartment.getElementsByTagName("agents");
-			if (agentcontainerNodes.getLength() > 1)
+			if (xmlCompartment.getElementsByTagName("agents").getLength() > 1)
 				System.out.println("more than 1 agentcontainer!!!");
-			Element agentcontainer = (Element) agentcontainerNodes.item(0);
-			
-			// cycle trough all agents in the agent container
-			NodeList agentNodes = agentcontainer.getElementsByTagName("agent");
-			for (int j = 0; j < agentNodes.getLength(); j++) 
-				aCompartment.addAgent(new Agent(agentNodes.item(j)));
 
-			System.out.println("writing output for compartment: " + aCompartment.name);			
-			PovExport.writepov(aCompartment.name, aCompartment.agents.getAllLocatedAgents());
+			// cycle trough all agents in the agent container
+			NodeList agentNodes = ((Element) xmlCompartment.
+					getElementsByTagName("agents").item(0)).
+					getElementsByTagName("agent");
+			
+			for (int j = 0; j < agentNodes.getLength(); j++) 
+				new Agent(agentNodes.item(j), comp);
+
+			System.out.println("writing output for compartment: " + comp.name);			
+			PovExport.writepov(comp.name, comp.agents.getAllLocatedAgents());
 		}
 	}
 }

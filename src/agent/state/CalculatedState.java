@@ -11,7 +11,7 @@ public class CalculatedState implements State {
 		Object calculate(Agent agent);
 	}
 
-	public void init(Object stateExpression)
+	public void set(Object stateExpression)
 	{
 		this.expression = (stateExpression) stateExpression;
 	}

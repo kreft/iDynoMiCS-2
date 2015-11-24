@@ -1,12 +1,11 @@
-package idynomics;
+package agent;
 
 import java.util.HashMap;
-
-import agent.Species;
 
 public class SpeciesLib {
 
 	protected static HashMap<String, Species> _species = new HashMap<String, Species>();
+	protected static Species voidSpecies = new Species();
 	
 	public static Species set(String name, Species spiecies)
 	{
@@ -21,6 +20,6 @@ public class SpeciesLib {
 		if (_species.containsKey(name))
 			return _species.get(name);
 		else
-			return new Species(); //return a void species if species is not defined.
+			return voidSpecies; //return a void species if species is not defined.
 	}
 }

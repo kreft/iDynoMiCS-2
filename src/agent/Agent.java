@@ -11,8 +11,8 @@ import agent.state.*;
 import agent.state.secondary.*;
 import grid.CartesianGrid;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.Simulator;
-import idynomics.SpeciesLib;
 
 public class Agent implements StateObject
 {
@@ -43,14 +43,9 @@ public class Agent implements StateObject
     // until we have a definite answer to this question.
 	
 	/**
-     * Used to search neighbors and store newly created agents
+     * Used to search neighbors and store newly created agents, find local conditions
 	 */
-    AgentContainer _agents;
-	
-	/**
-     * Used for reaction speeds and growth
-	 */
-    CartesianGrid _solutes;
+    Compartment _compartment;
     
     /**
      * Used to fetch species states.
@@ -73,32 +68,23 @@ public class Agent implements StateObject
 	{
 		XmlLoad.loadStates(this, xmlNode);
 		species = SpeciesLib.get((String) get("species"));
-		loadAgentSecondaries();
+		System.out.println("Warning: agent not assigned to any compartment");
+	}
+	
+	public Agent(Node xmlNode, Compartment compartment)
+	{
+		XmlLoad.loadStates(this, xmlNode);
+		species = SpeciesLib.get((String) get("species"));
+		this._compartment = compartment;
+		this.registerBirth();
+		System.out.println("Agent assigned to compartment: " + compartment.name);
 	}
 	
 	public void init()
 	{
 				
 	}
-	
-	/*
-	 * set the secondary states
-	 */
-	public void loadAgentSecondaries()
-	{
-		if ((boolean) this.get("isLocated"))
-		{
-			if (((Body) this.get("body")).getMorphologyIndex() == 1)
-			{
-				this.set("joints",new JointsState());
-				this.set("volume",new SimpleVolumeState());
-				this.set("radius",new CoccoidRadius());
-			}
-			this.set("lowerBoundingBox", new LowerBoundingBox());
-			this.set("dimensionsBoundingBox", new DimensionsBoundingBox());
-		}
-	}
-	
+
 
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -115,7 +101,10 @@ public class Agent implements StateObject
 		if (_states.containsKey(name))
 			return _states.get(name);
 		else
+		{
+			System.out.println("Warning: agent state " + name + " not defined.");
 			return null;
+		}
 	}
 	
 	public boolean isLocalState(String name)
@@ -156,14 +145,14 @@ public class Agent implements StateObject
 	public void setPrimary(String name, Object state)
 	{
 		State aState = new PrimaryState();
-		aState.init(state);
+		aState.set(state);
 		_states.put(name, aState);
 	}
 	
 	public void setCalculated(String name, CalculatedState.stateExpression state)
 	{
 		State anonymous = new CalculatedState();
-		anonymous.init((CalculatedState.stateExpression) state);
+		anonymous.set((CalculatedState.stateExpression) state);
 		_states.put(name, anonymous);
 	}
 	
@@ -228,7 +217,7 @@ public class Agent implements StateObject
 	 * \brief: Registers the birth of a new agent with the agentContainer.
 	 */
 	public void registerBirth() {
-		_agents.registerBirth(this);
+		_compartment.addAgent(this);
 	}
 	
 	/*************************************************************************
