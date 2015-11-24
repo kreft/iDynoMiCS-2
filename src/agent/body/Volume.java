@@ -117,7 +117,7 @@ public final class Volume
 		{
 			c = fPush * distance * distance;
 			return Vector.normaliseEuclid(dP, c);
-		}
+		} 
 		// Attraction
 		else if (distance < p) 
 		{
@@ -191,7 +191,7 @@ public final class Volume
 	 */
 	private static double linesegLineseg(double[] p0, double[] p1,
 												double[] q0, double[] q1) 
-	{
+	{		
 		// r = p0 - q0
 		double[] r      = Vector.minusEquals(p0, q0);
 		// d1 = p1 - p0
@@ -214,12 +214,13 @@ public final class Volume
 		// s, t = 0.0 if segments are parallel.
 		s = ( (denom != 0.0) ? clamp( (b*f-c*e) / denom ) : 0.0 );	
 		t = (b*s + f) / e;
-		if( t < 0.0 ) 
+		
+		if(t<0.0) 
 		{
 			t = 0.0;
 			s = clamp(-c/a);
 		} 
-		else if ( t > 1.0 ) 
+		else if (t>1.0) 
 		{
 			t = 1.0;
 			s = clamp((b-c)/a);

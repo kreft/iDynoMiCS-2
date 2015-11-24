@@ -90,7 +90,7 @@ public class AgentContainer
 	//FIXME: .isLocated simplified for now, was an over extensive operation for a simple check.
 	public void addAgent(Agent agent) {
 		if ( (boolean) agent.get("isLocated") )
-			this._agentTree.insert((float[]) agent.get("lowerBouningBox"), (float[]) agent.get("dimensionsBoundingBox"), agent);
+			this._agentTree.insert((float[]) agent.get("lowerBoundingBox"), (float[]) agent.get("dimensionsBoundingBox"), agent);
 		else
 			this._agentList.add(agent);
 		

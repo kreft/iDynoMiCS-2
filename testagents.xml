@@ -1,14 +1,57 @@
-<simulation comments="this is a file for Agent testing">
+<simulation name="mySim" comments="this is a file for Agent testing">
+	<speciesLib>
+	<!-- species library
+	The species library contains all agent species in the simulations. This may
+	include microbial species, plasmid and vector species, particle species etc.
+	
+	Species states are states that are in principal identical for all agents of
+	that species. However note that iDynoMiCS 2.0 does allow you to overwrite
+	states on agent level. Thus if a state is defined both on species level and 
+	on agent level, the agent state will be used in the simulation.
+	-->
+		<species name="AOB">
+			<state name="pigment" type="String" value="GREEN" />
+			<state name="morphology" type="String" value="coccoid" />
+			<state name="joints" type="secondary" value="joints" />
+			<state name="volume" type="secondary" value="simpleVolume" />
+			<state name="radius" type="secondary" value="coccoidRadius" />
+			<state name="lowerBoundingBox" type="secondary" value="lowerBoundingBox" />
+			<state name="dimensionsBoundingBox" type="secondary" value="dimensionsBoundingBox" />
+		</species>
+	</speciesLib>
 	<compartment name="firstone" shape="CUBOID">
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
-				<state name="id" type="int" value="0001" />
-				<state name="mass" type="double" value="1" />
+				<state name="id" type="int" value="1" />
+				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
 				<state name="isLocated" type="boolean" value="true" />
+				<state name="pigment" type="String" value="GREEN" />
 				<state name="body" type="body">
-					<point position="0.1, 0.1, 0.1" />
+					<point position="0.5, 0.5, 0.0" />
+				</state>
+			</agent>
+			<agent>
+				<state name="species" type="String" value="AOB" />
+				<state name="id" type="int" value="2" />
+				<state name="mass" type="double" value="0.2" />
+				<state name="density" type="double" value="1" />
+				<state name="isLocated" type="boolean" value="true" />
+				<state name="pigment" type="String" value="GREEN" />
+				<state name="body" type="body">
+					<point position="0.1, -0.1, 0.0" />
+				</state>
+			</agent>
+			<agent>
+				<state name="species" type="String" value="AOB" />
+				<state name="id" type="int" value="3" />
+				<state name="mass" type="double" value="0.2" />
+				<state name="density" type="double" value="1" />
+				<state name="isLocated" type="boolean" value="true" />
+				<state name="pigment" type="String" value="GREEN" />
+				<state name="body" type="body">
+					<point position="-0.21, 0.55, 0.0" />
 				</state>
 			</agent>
 		</agents>

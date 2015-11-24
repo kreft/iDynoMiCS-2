@@ -2,14 +2,19 @@ package agent;
 
 import java.util.HashMap;
 
+import org.w3c.dom.Node;
+
+import xmlpack.XmlLoad;
 import agent.activity.*;
-import agent.state.CalculatedState;
-import agent.state.PrimaryState;
-import agent.state.State;
+import agent.body.Body;
+import agent.state.*;
+import agent.state.secondary.*;
 import grid.CartesianGrid;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
+import idynomics.Simulator;
 
-public class Agent
+public class Agent implements StateObject
 {
 
 	/**
@@ -38,14 +43,15 @@ public class Agent
     // until we have a definite answer to this question.
 	
 	/**
-     * Used to search neighbors and store newly created agents
+     * Used to search neighbors and store newly created agents, find local conditions
 	 */
-    AgentContainer _agents;
-	
-	/**
-     * Used for reaction speeds and growth
-	 */
-    CartesianGrid _solutes;
+    Compartment _compartment;
+    
+    /**
+     * Used to fetch species states.
+     */
+    Species species;
+    
     
    // public interface StatePredicate<T> {boolean test(Object s);}
 	
@@ -58,11 +64,27 @@ public class Agent
 
 	}
 	
+	public Agent(Node xmlNode)
+	{
+		XmlLoad.loadStates(this, xmlNode);
+		species = SpeciesLib.get((String) get("species"));
+		System.out.println("Warning: agent not assigned to any compartment");
+	}
+	
+	public Agent(Node xmlNode, Compartment compartment)
+	{
+		XmlLoad.loadStates(this, xmlNode);
+		species = SpeciesLib.get((String) get("species"));
+		this._compartment = compartment;
+		this.registerBirth();
+		System.out.println("Agent assigned to compartment: " + compartment.name);
+	}
+	
 	public void init()
 	{
 				
 	}
-	
+
 
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -74,18 +96,36 @@ public class Agent
 	 * 			name of the state (String)
 	 * @return Object of the type specific to the state
 	 */
-	public Object getState(String name)
+	public State getState(String name)
 	{
 		if (_states.containsKey(name))
 			return _states.get(name);
 		else
+		{
+			System.out.println("Warning: agent state " + name + " not defined.");
 			return null;
+		}
 	}
 	
-	public Object get(String name)
+	public boolean isLocalState(String name)
 	{
 		if (_states.containsKey(name))
-			return _states.get(name).get();
+			return true;
+		else
+			return false;
+	}
+	
+	/*
+	 * returns object stored in Agent state with name "name". If the state is
+	 * not found it will look for the Species state with "name". If this state
+	 * is also not found this method will return null.
+	 */
+	public Object get(String name)
+	{
+		if (this.isLocalState(name))
+			return getState(name).get(this);
+		else if (species.isLocalState(name))
+			return species.getState(name).get(this);
 		else
 			return null;
 	}
@@ -105,8 +145,15 @@ public class Agent
 	public void setPrimary(String name, Object state)
 	{
 		State aState = new PrimaryState();
-		aState.init(this, state);
+		aState.set(state);
 		_states.put(name, aState);
+	}
+	
+	public void setCalculated(String name, CalculatedState.stateExpression state)
+	{
+		State anonymous = new CalculatedState();
+		anonymous.set((CalculatedState.stateExpression) state);
+		_states.put(name, anonymous);
 	}
 	
 	/**
@@ -117,24 +164,11 @@ public class Agent
 	public void set(String name, Object state)
 	{
 		if (state instanceof State)
-		{
-			State s = (State) state;
-			s.setAgent(this); // needed since otherwise the next line can result in errors for secondary states.
-			s.init(this, s.get());
-			_states.put(name, s);
-		}
+			setState(name,(State) state);
 		else if (state instanceof CalculatedState.stateExpression)
-		{
-			State anonymous = new CalculatedState();
-			anonymous.init(this, (CalculatedState.stateExpression) state);
-			_states.put(name, anonymous);
-		} 
+			setCalculated(name,(CalculatedState.stateExpression) state);
 		else
-		{	
-		State aState = new PrimaryState();
-		aState.init(this, state);
-		_states.put(name, aState);
-		}
+			setPrimary(name, state);
 	}
 	
 	/*************************************************************************
@@ -183,7 +217,7 @@ public class Agent
 	 * \brief: Registers the birth of a new agent with the agentContainer.
 	 */
 	public void registerBirth() {
-		_agents.registerBirth(this);
+		_compartment.addAgent(this);
 	}
 	
 	/*************************************************************************

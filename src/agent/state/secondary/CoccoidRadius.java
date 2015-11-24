@@ -5,28 +5,16 @@ import agent.state.State;
 import utility.ExtraMath;
 
 public class CoccoidRadius  implements State {
-	
-	private Agent agent;
 
-	public void init(Agent agent, Object state)
+	public void set(Object state)
 	{
-		this.agent = agent;
+
 	}
 	
-	public Object get()
+	public Object get(Agent agent)
 	{
 		// V = 4/3 Pi r^3
-		return ExtraMath.radiusOfASphere((double) agent.get("Volume"));
-	}
-	
-	public Agent getAgent()
-	{
-		return agent;
-	}
-	
-	public void setAgent(Agent agent)
-	{
-		this.agent = agent;
+		return ExtraMath.radiusOfASphere((double) agent.get("volume"));
 	}
 }
 

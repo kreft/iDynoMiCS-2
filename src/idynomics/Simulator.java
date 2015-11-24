@@ -26,6 +26,7 @@ public class Simulator
 		if ( this._compartments.containsKey(name) )
 			System.out.println("Warning: overwriting comaprtment "+name);
 		Compartment aCompartment = new Compartment(shape);
+		aCompartment.name = name;
 		this._compartments.put(name, aCompartment);
 		return aCompartment;
 	}
