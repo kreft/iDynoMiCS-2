@@ -9,6 +9,10 @@ import agent.Agent;
 import agent.body.*;
 import boundary.Boundary;
 
+	////////////////////////
+	// WORK IN PROGRESS, initial version
+	////////////////////////
+
 public class AgentRelaxation implements ProcessManager {
 	protected String _name;
 	

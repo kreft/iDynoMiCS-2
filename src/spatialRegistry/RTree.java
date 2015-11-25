@@ -17,6 +17,9 @@ import java.util.Set;
  * Copyright 2010 Russ Weeks rweeks@newbrightidea.com Licensed under the GNU
  * LGPL License details here: http://www.gnu.org/licenses/lgpl-3.0.txt
  * 
+ * Additional methods implemented by Bastiaan Cockx baco@env.dtu.dk 2015
+ * public domain
+ * 
  * @param <T>
  *          the type of entry to store in this RTree.
  */
@@ -296,21 +299,17 @@ public class RTree<T> extends SpatialRegistry<T>
     if (n.leaf)
     {
       for (Node e : n.children)
-      {
          results.add(((Entry) e).entry);
-      }
     }
     else
     {
       for (Node c : n.children)
-      {
          all(c, results);
-      }
     }
   }
   
   /**
-   * added for idynomics compatability
+   * added for idynomics 1.0 compatability
    * @return returns random entry from tree
    */
   public T getRandom()

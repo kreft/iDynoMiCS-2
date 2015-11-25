@@ -146,8 +146,7 @@ public final class Volume
 	 */
 	public static double pointPoint(double[] p, double[] q) 
 	{
-		Vector.setAll(dP, p);
-		Vector.minus(dP, q);
+		dP = Vector.minusEquals(p, q);
 		return Vector.normEuclid(dP);
 	}
 	
@@ -167,7 +166,7 @@ public final class Volume
 	public static double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
 		// ab = p1 - p0
-		Vector.minus(Vector.setAll(dP, p1), p0);
+		dP = Vector.minusEquals(p1, p0);
 		s  = clamp( Vector.dotProduct(Vector.minusEquals(q0, p0), dP) 
 													/ Vector.normSquare(dP) );
 		// dP = (ab*s) + p0 - q0 
@@ -230,7 +229,7 @@ public final class Volume
 		// c2 = q0 + (d2*t)
 		double[] c2 = Vector.add( q0, Vector.timesEquals(Vector.copy(d2),t) );
 		// dP = c1 - c2
-		Vector.minus(Vector.setAll(dP, c1), c2);
+		dP = Vector.minusEquals(c1, c2);
 		return Vector.normEuclid(dP);
 	}
 

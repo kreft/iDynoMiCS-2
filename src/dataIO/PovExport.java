@@ -5,16 +5,16 @@ import agent.Agent;
 import linearAlgebra.Vector;
 
 public class PovExport {
-	static int filewriterfilenr;
+	int filewriterfilenr = 0;
 	
-	private static String DigitFilenr(int filenr) {
+	private String DigitFilenr(int filenr) {
 		String apzero = String.valueOf(filenr);
 		for(int i = 0; i < 4-String.valueOf(filenr).length(); i++)
 			apzero = "0" + apzero;
 		return apzero;
 	}
 	
-	private static String toPov(double[] vector)
+	private String toPov(double[] vector)
 	{
 		double[] v = Vector.zerosDbl(3);
 		int nDim = Math.min(vector.length, 3);
@@ -23,7 +23,7 @@ public class PovExport {
 		return "< " + Double.toString(v[1]) + " , " + Double.toString(v[0]) + " , " + Double.toString(v[2]) + " >\n";
 	}
 	
-	public static void writepov(String prefix, List<Agent> agents) 
+	public void writepov(String prefix, List<Agent> agents) 
 	{
 		FileHandler povFile = new FileHandler();
 		
@@ -53,6 +53,7 @@ public class PovExport {
 		}
 		povFile.write("#include \"../scenefooter.inc\"\n");
 		povFile.fclose();
+		filewriterfilenr++;
 	}
 	
 }
