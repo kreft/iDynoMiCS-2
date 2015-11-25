@@ -1,6 +1,6 @@
 package solver;
 
-import utility.LogFile;
+import dataIO.LogFile;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 

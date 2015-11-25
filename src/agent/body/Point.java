@@ -62,6 +62,10 @@ public class Point
 	{
 		Vector.add(position, Vector.timesEquals(getVelocity(),dt));
 		// TODO Rob [19Nov2015]: Where does this 0.01885 comes from?
+		// TODO Bas [24Nov2015]: this method still needs to be updated,
+		// currently the velocity is: (sum forces) / (3 Pi diameter viscosity)
+		// here the viscosity of water is assumed, that is where 0.01885 comes
+		// from.
 		setVelocity(Vector.timesEquals(getForce(), 1.0/(radius*0.01885)));
 		if ( Vector.normSquare(getVelocity()) > vSquare )
 			vSquare = Vector.normSquare(getVelocity());

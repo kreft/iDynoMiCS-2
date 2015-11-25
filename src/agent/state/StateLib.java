@@ -13,7 +13,7 @@ public class StateLib {
 	{
 		switch (state) 
 		{
-			case "joints" : return new JointsState();
+			case "joints" : return new JointsState(); // currently used by povExport
 			case "simpleVolume" : return new SimpleVolumeState();
 			case "coccoidRadius" : return new CoccoidRadius();
 			case "lowerBoundingBox" : return new LowerBoundingBox();

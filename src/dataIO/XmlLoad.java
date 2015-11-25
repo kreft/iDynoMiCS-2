@@ -1,4 +1,4 @@
-package xmlpack;
+package dataIO;
 
 import java.io.File;
 import java.io.IOException;

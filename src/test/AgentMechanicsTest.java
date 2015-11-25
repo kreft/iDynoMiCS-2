@@ -3,27 +3,27 @@ package test;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import dataIO.PovExport;
-import dataIO.XmlLoad;
 import agent.Agent;
 import agent.Species;
 import agent.SpeciesLib;
+import dataIO.PovExport;
+import dataIO.XmlLoad;
+import processManager.AgentRelaxation;
 import idynomics.Compartment;
 import idynomics.Simulator;
 
-public class AgentTest {
-	
-	static Simulator sim = new Simulator();
+public class AgentMechanicsTest {
 
 	public static void main(String[] args) {
 		
-		// load xml doc
-		Element doc = XmlLoad.loadDocument("testagents.xml");
+		////////////////////////
+		// Loading initial state from xml
+		////////////////////////
+
+		Simulator sim = new Simulator();
+		Compartment testcompartment = null;
 		
-		// Display document element's general info
-		XmlLoad.displayWithAttributes(null, doc, null);
-		System.out.println("-------------------------------------------------");
-		//XmlLoad.displayAllChildNodes("-",doc,true);
+		Element doc = XmlLoad.loadDocument("testagents.xml");
 		
 		// cycle trough all species and add them to the species Lib
 		NodeList speciesNodes = doc.getElementsByTagName("species");
@@ -39,7 +39,7 @@ public class AgentTest {
 		for (int i = 0; i < compartmentNodes.getLength(); i++) 
 		{
 			Element xmlCompartment = (Element) compartmentNodes.item(i);
-			Compartment comp = sim.addCompartment(
+			Compartment comp = testcompartment = sim.addCompartment(
 					xmlCompartment.getAttribute("name"), 
 					xmlCompartment.getAttribute("shape"));
 			
@@ -53,11 +53,33 @@ public class AgentTest {
 					getElementsByTagName("agent");
 			
 			for (int j = 0; j < agentNodes.getLength(); j++) 
-				new Agent(agentNodes.item(j)).registerBirth(comp);;
-
-			System.out.println("writing output for compartment: " + comp.name);	
+				comp.addAgent(new Agent(agentNodes.item(j)));
 			
-			new PovExport().writepov(comp.name, comp.agents.getAllLocatedAgents());
 		}
+		
+		////////////////////////
+		// set parameters and initiate process manager
+		////////////////////////
+		
+		double stepSize = 1.0;
+		int nStep = 50;
+
+		AgentRelaxation process = new AgentRelaxation();
+		process.setTimeForNextStep(0.0);
+		process.setTimeStepSize(stepSize);
+
+		PovExport pov = new PovExport();
+		System.out.println("Time: "+process.getTimeForNextStep());
+		// write initial state
+		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
+		for ( ; nStep > 0; nStep-- )
+		{
+			// step the process manager
+			process.step(testcompartment._environment, testcompartment.agents);
+			// write output
+			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
+			System.out.println("Time: "+process.getTimeForNextStep());
+		}
+		System.out.println("finished");
 	}
 }

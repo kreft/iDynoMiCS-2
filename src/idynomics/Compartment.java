@@ -148,7 +148,7 @@ public class Compartment
 	/**
 	 * 
 	 */
-	protected EnvironmentContainer _environment;
+	public EnvironmentContainer _environment;
 	
 	/**
 	 * Directory of boundaries that are linked to a specific side.
@@ -202,7 +202,7 @@ public class Compartment
 		}
 		this._otherBoundaries = new LinkedList<Boundary>();
 		this._sideBoundaries = CompartmentShape.sideBoundariesFor(this._shape);
-		this.agents.init(this.getNumDims());
+		this.agents.init(getNumDims());
 		this._environment = new 
 				  EnvironmentContainer(CompartmentShape.gridFor(this._shape));
 	}
@@ -247,6 +247,10 @@ public class Compartment
 		this._environment.setSize(this._sideLengths, 1.0);
 	}
 	
+	public double[] getSideLengths()
+	{
+		return this._sideLengths;
+	}
 	/**
 	 * \brief TODO
 	 * 

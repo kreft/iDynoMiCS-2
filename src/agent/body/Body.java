@@ -77,6 +77,11 @@ public class Body {
 		return joints;
 	}
 	
+	public List<Point> getPoints()
+	{
+		return this.points;
+	}
+	
 	/**
 	 * 
 	 * @param radius

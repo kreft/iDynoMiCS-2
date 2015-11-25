@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.w3c.dom.Node;
 
-import xmlpack.XmlLoad;
+import dataIO.XmlLoad;
 import agent.activity.*;
 import agent.body.Body;
 import agent.state.*;
@@ -22,7 +22,7 @@ public class Agent implements StateObject
 	 * the constructor.
 	 */
 	protected static int UNIQUE_ID = 0;
-    protected int uid = ++UNIQUE_ID;
+    private int uid = ++UNIQUE_ID;
 	
 	/**
 	 * The states HashMap stores all primary and secondary states.
@@ -40,13 +40,8 @@ public class Agent implements StateObject
     // do not know what information is needed for those activities thus how do
     // we do we ensure that the agents can perform all activities without giving
     // them all available information? For now let them have all information 
-    // until we have a definite answer to this question.
-	
-	/**
-     * Used to search neighbors and store newly created agents, find local conditions
-	 */
-    Compartment _compartment;
-    
+    // until we have a definite answ     * Used to search neighbors and store newly created agents
+
     /**
      * Used to fetch species states.
      */
@@ -68,16 +63,6 @@ public class Agent implements StateObject
 	{
 		XmlLoad.loadStates(this, xmlNode);
 		species = SpeciesLib.get((String) get("species"));
-		System.out.println("Warning: agent not assigned to any compartment");
-	}
-	
-	public Agent(Node xmlNode, Compartment compartment)
-	{
-		XmlLoad.loadStates(this, xmlNode);
-		species = SpeciesLib.get((String) get("species"));
-		this._compartment = compartment;
-		this.registerBirth();
-		System.out.println("Agent assigned to compartment: " + compartment.name);
 	}
 	
 	public void init()
@@ -98,7 +83,7 @@ public class Agent implements StateObject
 	 */
 	public State getState(String name)
 	{
-		if (_states.containsKey(name))
+		if (isLocalState(name))
 			return _states.get(name);
 		else
 		{
@@ -216,9 +201,14 @@ public class Agent implements StateObject
 	/**
 	 * \brief: Registers the birth of a new agent with the agentContainer.
 	 */
-	public void registerBirth() {
-		_compartment.addAgent(this);
+	public void registerBirth(Compartment compartment) {
+		compartment.addAgent(this);
 	}
+
+	public int UID() {
+		return uid;
+	}
+
 	
 	/*************************************************************************
 	 * REPORTING
