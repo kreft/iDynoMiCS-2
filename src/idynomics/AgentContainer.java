@@ -10,7 +10,7 @@ import spatialRegistry.*;
 
 public class AgentContainer
 {
-	Compartment _compartment;
+	private int nDim;
 	/**
 	 * All agents with a spatial location are stored in the agentTree 
 	 * (e.g. an RTree).
@@ -46,15 +46,15 @@ public class AgentContainer
 	 * 
 	 * @param nDims	Number of dimensions in this domain (x,y,z).
 	 */
-	public void init(Compartment compartment) 
+	public void init(int compartmentNumDims) 
 	{
-		this._compartment = compartment;
+		this.nDim = compartmentNumDims;
 		/*
 		 * Bas: I have chosen maxEntries and minEntries by testing what values
 		 * resulted in fast tree creation and agent searches.
 		 */
-		if (!_compartment.isDimensionless())
-			this._agentTree = new RTree<Agent>(8, 2, _compartment.getNumDims());
+		if (! (nDim == 0))
+			this._agentTree = new RTree<Agent>(8, 2, this.nDim);
 		/*
 		 * No parameters needed for the agentList.
 		 */
@@ -102,7 +102,7 @@ public class AgentContainer
 	public void refreshSpatialRegistry()
 	{
 		List<Agent> agentList = _agentTree.all();
-		this._agentTree = new RTree<Agent>(8, 2, _compartment.getNumDims());
+		this._agentTree = new RTree<Agent>(8, 2, this.nDim);
 		for(Agent a: agentList) 
 			_agentTree.insert((float[]) a.get("lowerBoundingBox"), (float[]) a.get("dimensionsBoundingBox"), a);
 	}

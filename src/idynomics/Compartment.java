@@ -202,7 +202,7 @@ public class Compartment
 		}
 		this._otherBoundaries = new LinkedList<Boundary>();
 		this._sideBoundaries = CompartmentShape.sideBoundariesFor(this._shape);
-		this.agents.init(this);
+		this.agents.init(getNumDims());
 		this._environment = new 
 				  EnvironmentContainer(CompartmentShape.gridFor(this._shape));
 	}

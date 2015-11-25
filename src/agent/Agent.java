@@ -40,13 +40,8 @@ public class Agent implements StateObject
     // do not know what information is needed for those activities thus how do
     // we do we ensure that the agents can perform all activities without giving
     // them all available information? For now let them have all information 
-    // until we have a definite answer to this question.
-	
-	/**
-     * Used to search neighbors and store newly created agents, find local conditions
-	 */
-    Compartment _compartment;
-    
+    // until we have a definite answ     * Used to search neighbors and store newly created agents
+
     /**
      * Used to fetch species states.
      */
@@ -68,17 +63,6 @@ public class Agent implements StateObject
 	{
 		XmlLoad.loadStates(this, xmlNode);
 		species = SpeciesLib.get((String) get("species"));
-		System.out.println("Warning: agent not assigned to any compartment");
-	}
-	
-	public Agent(Node xmlNode, Compartment compartment)
-	{
-		XmlLoad.loadStates(this, xmlNode);
-		species = SpeciesLib.get((String) get("species"));
-		this._compartment = compartment;
-		this.registerBirth();
-		// next line for testing purposes
-		System.out.println("Agent assigned to compartment: " + compartment.name);
 	}
 	
 	public void init()
@@ -217,8 +201,8 @@ public class Agent implements StateObject
 	/**
 	 * \brief: Registers the birth of a new agent with the agentContainer.
 	 */
-	public void registerBirth() {
-		_compartment.addAgent(this);
+	public void registerBirth(Compartment compartment) {
+		compartment.addAgent(this);
 	}
 
 	public int UID() {

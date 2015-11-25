@@ -39,8 +39,7 @@ public class XmlTest {
 		
 		// iterate trough all agents in xml file and add them including their
 		// attributes
-		AgentContainer agentContainer = new AgentContainer();
-		agentContainer.init(new Compartment("CUBOID"));
+		Compartment comp = new Compartment("CUBOID");
 		for (int i = 0; i < agentNodes.getLength(); i++) 
 		{
 			Agent anAgent = new Agent();
@@ -50,10 +49,10 @@ public class XmlTest {
 				anAgent.setPrimary(att.item(j).getNodeName(), 
 						att.item(j).getNodeValue());
 			}
-			agentContainer.registerBirth(anAgent);
+			comp.addAgent(anAgent);
 		}
 		
-		System.out.println("Created: " + agentContainer.getNumAllAgents() + " agents");
+		System.out.println("Created: " + comp.agents.getNumAllAgents() + " agents");
 
 		//
 		System.out.println("\nThe end");

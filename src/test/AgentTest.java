@@ -53,7 +53,7 @@ public class AgentTest {
 					getElementsByTagName("agent");
 			
 			for (int j = 0; j < agentNodes.getLength(); j++) 
-				new Agent(agentNodes.item(j), comp);
+				new Agent(agentNodes.item(j)).registerBirth(comp);;
 
 			System.out.println("writing output for compartment: " + comp.name);	
 			
