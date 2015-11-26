@@ -116,7 +116,8 @@ public final class Volume
 		if (distance < 0.0) 
 		{
 			c = fPush * distance * distance;
-			return Vector.normaliseEuclid(dP, c);
+			Vector.normaliseEuclid(dP, c);
+			return dP;
 		} 
 		// Attraction
 		else if (distance < p) 
@@ -131,7 +132,8 @@ public final class Volume
 				c = fPull * - (p-distance) /
 						( 1.0 + Math.exp(6.0 - (36.0*distance) / p) );
 			}
-			return Vector.timesEquals(dP, c);
+			Vector.timesEquals(dP, c);
+			return dP;
 		}
 		// Too far away for an interaction.
 		return Vector.zeros(dP);
@@ -146,7 +148,7 @@ public final class Volume
 	 */
 	public static double pointPoint(double[] p, double[] q) 
 	{
-		dP = Vector.minusEquals(p, q);
+		dP = Vector.minus(p, q);
 		return Vector.normEuclid(dP);
 	}
 	
@@ -166,8 +168,8 @@ public final class Volume
 	public static double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
 		// ab = p1 - p0
-		dP = Vector.minusEquals(p1, p0);
-		s  = clamp( Vector.dotProduct(Vector.minusEquals(q0, p0), dP) 
+		dP = Vector.minus(p1, p0);
+		s  = clamp( Vector.dotProduct( Vector.minus(q0, p0), dP) 
 													/ Vector.normSquare(dP) );
 		// dP = (ab*s) + p0 - q0 
 		Vector.timesEquals(dP, s);
@@ -192,11 +194,11 @@ public final class Volume
 												double[] q0, double[] q1) 
 	{		
 		// r = p0 - q0
-		double[] r      = Vector.minusEquals(p0, q0);
+		double[] r      = Vector.minus(p0, q0);
 		// d1 = p1 - p0
-		double[] d1     = Vector.minusEquals(p1, p0);
+		double[] d1     = Vector.minus(p1, p0);
 		// d2 = q1 - q0
-		double[] d2     = Vector.minusEquals(q1, q0);
+		double[] d2     = Vector.minus(q1, q0);
 		// a = d1 . d1 = (p1 - p0)^2
 		double a 		= Vector.normSquare(d1);
 		// e = d2 . d2 = (q1 - q0)^2
@@ -214,22 +216,24 @@ public final class Volume
 		s = ( (denom != 0.0) ? clamp( (b*f-c*e) / denom ) : 0.0 );	
 		t = (b*s + f) / e;
 		
-		if(t<0.0) 
+		if ( t < 0.0 ) 
 		{
 			t = 0.0;
 			s = clamp(-c/a);
 		} 
-		else if (t>1.0) 
+		else if ( t > 1.0 ) 
 		{
 			t = 1.0;
 			s = clamp((b-c)/a);
 		}
 		// c1 = p0 + (d1*s)
-		double[] c1 = Vector.add( p0, Vector.times(d1,s) );
+		double[] c1 = Vector.times(d1, s);
+		Vector.addEquals(c1, p0);
 		// c2 = q0 + (d2*t)
-		double[] c2 = Vector.add( q0, Vector.timesEquals(Vector.copy(d2),t) );
+		double[] c2 = Vector.times(d2, t);
+		Vector.addEquals(c1, q0);
 		// dP = c1 - c2
-		dP = Vector.minusEquals(c1, c2);
+		dP = Vector.minus(c1, c2);
 		return Vector.normEuclid(dP);
 	}
 

@@ -181,7 +181,7 @@ public class ODErosenbrock extends ODEsolver
 			/*System.out.println("dFdT is"); //Bughunt
 			for ( double elem : dFdT)
 				System.out.println(elem);*/
-			hddFdT = Vector.timesEquals(Vector.copy(dFdT), h*d);
+			Vector.timesTo(hddFdT, dFdT, h*d);
 			/*System.out.println("h*d*dFdT is"); //Bughunt
 			for ( double elem : hddFdT)
 				System.out.println(elem);*/
@@ -231,7 +231,7 @@ public class ODErosenbrock extends ODEsolver
 					 * Find k1 where
 					 * W*k1 = dYdT + h*d*dFdT
 					 */
-					k1 = Vector.add(Vector.copy(hddFdT),dYdT);
+					Vector.addTo(k1, hddFdT, dYdT);
 					/*System.out.println("dYdT + h*d*dFdT is"); //Bughunt
 					for ( double elem : k1)
 						System.out.println(elem);*/
@@ -242,7 +242,7 @@ public class ODErosenbrock extends ODEsolver
 					/*
 					 * f1 = dYdT(y + k1*h/2)
 					 */
-					f1 = Vector.timesEquals(Vector.copy(k1), 0.5*h);
+					Vector.timesTo(f1, k1, 0.5*h);
 					/*System.out.println("\tK1*h/2 is"); //Bughunt
 					for ( double elem : f1)
 						System.out.println(elem);*/
@@ -254,7 +254,7 @@ public class ODErosenbrock extends ODEsolver
 					 * Find k2 where
 					 * W*(k2-k1) = f1 - k1  
 					 */
-					k2 = Vector.minus(Vector.copy(f1), k1);
+					Vector.minusTo(k2, f1, k1);
 					/*System.out.println("f1 - k1 is"); //Bughunt
 					for ( double elem : k2)
 						System.out.println(elem);*/
@@ -262,15 +262,16 @@ public class ODErosenbrock extends ODEsolver
 					/*System.out.println("(f1 - k1)/W is"); //Bughunt
 					for ( double elem : k2)
 						System.out.println(elem);*/
-					k2 = Vector.add(k2, k1);
+					// TODO Rob [26Nov2015]: Is this correct?
+					Vector.addEquals(k2, k1);
 					/*System.out.println("k2 is"); //Bughunt
 					for ( double elem : k2)
 						System.out.println(elem);*/
 					/*
 					 * ynext = y + h * k2
 					 */
-					ynext = Vector.timesEquals(Vector.copy(k2), h);
-					ynext = Vector.add(ynext, y);
+					Vector.timesTo(ynext, k2, h);
+					Vector.addEquals(ynext, y);
 					/*System.out.println("ynext is"); //Bughunt
 					for ( double elem : ynext)
 						System.out.println(elem);*/
@@ -289,23 +290,23 @@ public class ODErosenbrock extends ODEsolver
 					 * First set kaux as the expression inside the brackets,
 					 * then multiply by invW on the left.
 					 */
-					kaux = Vector.add(Vector.copy(hddFdT), f2);
-					/*System.out.println("f2 + h*d*dFdT is"); //Bughunt
-					for ( double elem : kaux)
-						System.out.println(elem);*/
-					k3 = Vector.minus(Vector.copy(f1), k2);
-					/*System.out.println("f2 + h*d*dFdT is"); //Bughunt
-					for ( double elem : kaux)
-						System.out.println(elem);*/
-					kaux = Vector.add(kaux, Vector.timesEquals(k3, e32));
-					k3 = Vector.minus(Vector.copy(y), k1);
-					kaux = Vector.add(kaux, Vector.timesEquals(k3, 2.0));
+					// f2 + h*d*dFdT
+					Vector.addTo(kaux, hddFdT, f2);
+					// + e32 * (f1 - k2)
+					Vector.minusTo(k3, f1, k2);
+					Vector.timesEquals(k3, e32);
+					Vector.addEquals(kaux, k3);
+					// + 2 * (y - k1)
+					Vector.minusTo(k3, y, k1);
+					Vector.timesEquals(k3, 2.0);
+					Vector.addEquals(kaux, k3);
+					// 
 					k3 = Matrix.solve(W, kaux);
 					/*
 					 * We now use kaux to estimate the error of this step.
 					 */
-					for (int i = 0; i < this.nVar(); i++)
-						kaux[i] = 1/Math.min(y[i], ynext[i]);
+					//for (int i = 0; i < this.nVar(); i++)
+					//	kaux[i] = 1/Math.min(y[i], ynext[i]);
 					/*System.out.println("1/min(y, ynext) is"); //Bughunt
 					for ( double elem : kaux)
 						System.out.println(elem);*/
@@ -318,9 +319,9 @@ public class ODErosenbrock extends ODEsolver
 					/*
 					 * kaux = (k1 -2*k2 + k3) * h/6
 					 */
-					kaux = Vector.timesEquals(k2, -2.0);
-					Vector.add(kaux, k3);
-					Vector.add(kaux, k1);
+					Vector.timesTo(kaux, k2, -2.0);
+					Vector.addEquals(kaux, k3);
+					Vector.addEquals(kaux, k1);
 					Vector.timesEquals(kaux, h/6.0);
 					error = Vector.max(kaux);
 				}

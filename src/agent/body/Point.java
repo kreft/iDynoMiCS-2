@@ -60,13 +60,18 @@ public class Point
 	 */
 	public Double euStep(double vSquare, double dt, double radius) 
 	{
-		Vector.add(position, Vector.timesEquals(getVelocity(),dt));
+		double[] temp = Vector.times(getVelocity(), dt);
+		Vector.addEquals(position, temp);
 		// TODO Rob [19Nov2015]: Where does this 0.01885 comes from?
 		// TODO Bas [24Nov2015]: this method still needs to be updated,
 		// currently the velocity is: (sum forces) / (3 Pi diameter viscosity)
 		// here the viscosity of water is assumed, that is where 0.01885 comes
 		// from.
-		setVelocity(Vector.timesEquals(getForce(), 1.0/(radius*0.01885)));
+		// TODO Rob [26Nov2015]: OK, let's just sure this is clearly
+		// documented before release. For now, I've replaced the 1/0.01885
+		// with 53.05, as this is slightly less work for the CPU! 
+		Vector.timesTo(temp, getForce(), 53.05/radius );
+		setVelocity(temp);
 		if ( Vector.normSquare(getVelocity()) > vSquare )
 			vSquare = Vector.normSquare(getVelocity());
 		this.resetForce();

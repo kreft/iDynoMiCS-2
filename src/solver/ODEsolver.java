@@ -47,15 +47,14 @@ public abstract class ODEsolver extends Solver
 			/*
 			 * yNext = y + (deltaT * dYdT)
 			 */
-			double[] dFdT = Vector.copy(dYdT);
-			dFdT = Vector.timesEquals(dFdT, delta);
-			dFdT = Vector.add(dFdT, y);
+			double[] dFdT = Vector.times(y, delta);
+			Vector.addEquals(dFdT, y);
 			/*
 			 * dFdT = ( dYdT(ynext) - dYdT(y) )/tdel
 			 */
 			dFdT = firstDeriv(dFdT);
-			dFdT = Vector.minus(dFdT, dYdT);
-			dFdT = Vector.timesEquals(dFdT, 1.0/delta);
+			Vector.minusEquals(dFdT, dYdT);
+			Vector.timesEquals(dFdT, 1.0/delta);
 			return dFdT;
 		};
 		

@@ -32,6 +32,7 @@ import utility.ExtraMath;
  * </ul>  
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
 public final class Vector
 {
@@ -47,6 +48,7 @@ public final class Vector
 	 * @param value	int value to use.
 	 * @return	int[] array of length <b>n</b>, with all elements set to
 	 * <b>value</b>.
+	 * @see #vector(int n, double value)
 	 */
 	public static int[] vector(int n, int value)
 	{
@@ -62,6 +64,7 @@ public final class Vector
 	 * @param value	double value to use.
 	 * @return	double[] array of length <b>n</b>, with all elements set to
 	 * <b>value</b>.
+	 * @see #vector(int n, int value)
 	 */
 	public static double[] vector(int n, double value)
 	{
@@ -75,6 +78,8 @@ public final class Vector
 	 * 
 	 * @param n	Length of the vector to create.
 	 * @return int[] array of length <b>n</b>, with all elements set to zero.
+	 * @see #zeros(int[] vector)
+	 * @see #zerosDbl(int n)
 	 */
 	public static int[] zerosInt(int n)
 	{
@@ -90,6 +95,8 @@ public final class Vector
 	 * @param vector One-dimensional array of integers (preserved).
 	 * @return int[] array of same length as <b>vector</b>, with all elements
 	 * set to zero.
+	 * @see #zerosInt(int n)
+	 * @see #zeros(double[] vector)
 	 */
 	public static int[] zeros(int[] vector)
 	{
@@ -103,6 +110,8 @@ public final class Vector
 	 * @param n	Length of the vector to create.
 	 * @return	double[] array of length <b>n</b>, with all elements set to
 	 * zero.
+	 * @see #zeros(double[] vector)
+	 * @see #zerosInt(int n)
 	 */
 	public static double[] zerosDbl(int n)
 	{
@@ -116,6 +125,8 @@ public final class Vector
 	 * @param vector One-dimensional array of doubles.
 	 * @return double[] array of same length as <b>vector</b>, with all
 	 * elements set to zero.
+	 * @see #zerosDbl(int n)
+	 * @see #zeros(int[] vector)
 	 */
 	public static double[] zeros(double[] vector)
 	{
@@ -142,6 +153,7 @@ public final class Vector
 	 * 
 	 * @param vectorString String containing a vector of integers.
 	 * @return int[] vector of integers from this string.
+	 * @see #dblFromString(String vectorString)
 	 */
 	public static int[] intFromString(String vectorString)
 	{
@@ -157,6 +169,7 @@ public final class Vector
 	 * 
 	 * @param vectorString String containing a vector of doubles.
 	 * @return double[] vector of doubles from this string.
+	 * @see intFromString(String vectorString)
 	 */
 	public static double[] dblFromString(String vectorString)
 	{
@@ -174,18 +187,15 @@ public final class Vector
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
 	 * 
-	 * <p>Creates a new int[] for <b>destination</b> if it is <i>null</i> or
-	 * the wrong length.</p>
-	 * 
 	 * @param destination int[] to be overwritten with the values of
 	 * <b>source</b>.
 	 * @param source int[] to be copied from (preserved).
 	 * @return <b>destination</b>
+	 * @see #copy(int[] vector)
+	 * @see #copyTo(double[] destination, double[] source)
 	 */
 	public static int[] copyTo(int[] destination, int[] source)
 	{
-		if ( destination == null || destination.length != source.length )
-			destination = new int[source.length];
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
 		return destination;
@@ -198,27 +208,26 @@ public final class Vector
 	 * 
 	 * @param vector One-dimensional array of integers (preserved).
 	 * @return new int[] that is a copy of <b>vector</b>.
+	 * @see #copyTo(int[] destination, int[] source)
+	 * @see #copy(double[] vector)
 	 */
 	public static int[] copy(int[] vector)
 	{
-		return copyTo(null, vector);
+		return copyTo(new int[vector.length], vector);
 	}
 	
 	/**
 	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
 	 * 
-	 * <p>Creates a new double[] for <b>destination</b> if it is <i>null</i>
-	 * or the wrong length.</p>
-	 * 
 	 * @param destination double[] to be overwritten with the values of
 	 * <b>source</b>.
 	 * @param source double[] to be copied from (preserved).
 	 * @return <b>destination</b>
+	 * @see #copy(double[] vector)
+	 * @see #copyTo(int[] destination, int[] source)
 	 */
 	public static double[] copyTo(double[] destination, double[] source)
 	{
-		if ( destination == null || destination.length != source.length )
-			destination = new double[source.length];
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
 		return destination;
@@ -229,26 +238,26 @@ public final class Vector
 	 * 
 	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
 	 * 
-	 * @param vector One-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return	double[] that is a copy of <b>vector</b>.
+	 * @see #copyTo(double[] destination, double[] source)
+	 * @see #copy(int[] vector)
 	 */
 	public static double[] copy(double[] vector)
 	{
-		return copyTo(null, vector);
+		return copyTo(new double[vector.length], vector);
 	}
 	
 	/**
 	 * \brief Set all elements of the given <b>vector</b> to the integer
 	 * <b>value</b> given.
 	 * 
-	 * <p>Note that <b>vector</b> will be overwritten; use
-	 * <i>setAll(copy(<b>vector</b>), <b>value</b>)</i> or
-	 * <i>newInt(<b>vector</b>.length, <b>value</b>)</i> to preserve the
-	 * original state of <b>vector</b>.</p>
-	 * 
 	 * @param vector One-dimensional array of integers (overwritten).
 	 * @param value	int value to use.
-	 * @return	Given <b>vector</b>, with all elements set to <b>value</b>.
+	 * @return Given <b>vector</b>, with all elements set to <b>value</b>.
+	 * @see #reset(int[] vector)
+	 * @see #vector(int n, int value)
+	 * @see #setAll(double[] vector, double value)
 	 */
 	public static int[] setAll(int[] vector, int value)
 	{
@@ -260,13 +269,11 @@ public final class Vector
 	/**
 	 * \brief Reset all elements of the given <b>vector</b> to zero.
 	 * 
-	 * <p>Note that <b>vector</b> will be overwritten; use
-	 * <i>reset(copy(<b>vector</b>))</i> or
-	 * <i>zerosInt(<b>vector</b>.length)</i> 
-	 * to preserve the original state of <b>vector</b>.</p>
-	 * 
-	 * @param vector One-dimensional array of integers.
+	 * @param vector One-dimensional array of integers (overwritten).
 	 * @return	Given <b>vector</b>, with all elements set to zero.
+	 * @see #setAll(int[] vector, int value)
+	 * @see #zerosInt(int n)
+	 * @see #reset(double[] vector)
 	 */
 	public static int[] reset(int[] vector)
 	{
@@ -277,13 +284,12 @@ public final class Vector
 	 * \brief Set all elements of the given <b>vector</b> to the double
 	 * <b>value</b> given.
 	 * 
-	 * <p>Note that <b>vector</b> will be overwritten; use
-	 * <i>vector(vector.length, value)</i> to preserve the original state of
-	 * <b>vector</b>.</p>
-	 * 
 	 * @param vector One-dimensional array of doubles (overwritten).
 	 * @param value	double value to use.
 	 * @return	Given <b>vector</b>, with all elements set to <b>value</b>.
+	 * @see #reset(double[] vector)
+	 * @see #vector(int n, double value)
+	 * @see #setAll(int[] vector, int value)
 	 */
 	public static double[] setAll(double[] vector, double value)
 	{
@@ -295,51 +301,15 @@ public final class Vector
 	/**
 	 * \brief Reset all elements of the given <b>vector</b> to zero.
 	 * 
-	 * <p>Note that <b>vector</b> will be overwritten; use
-	 * <i>reset(copy(<b>vector</b>))</i> or
-	 * <i>zerosDbl(<b>vector</b>.length)</i> 
-	 * to preserve the original state of <b>vector</b>.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles (overwritten).
 	 * @return	Given <b>vector</b>, with all elements set to zero.
+	 * @see #setAll(double[] vector, double value)
+	 * @see #zerosDbl(int n)
+	 * @see #reset(int[] vector)
 	 */
 	public static double[] reset(double[] vector)
 	{
 		return setAll(vector, 0.0);
-	}
-	
-	/**
-	 * TODO
-	 * 
-	 * @param a One-dimensional array of integers (overwritten).
-	 * @param b One-dimensional array of integers (preserved).
-	 * @return
-	 */
-	public static int[] setAll(int[] a, int[] b)
-	{
-		if ( a == null )
-			return a = copy(b);
-		checkLengths(a, b);
-		for ( int i = 0; i < a.length; i++ )
-			a[i] = b[i];
-		return a;
-	}
-	
-	/**
-	 * TODO
-	 * 
-	 * @param a One-dimensional array of doubles (overwritten).
-	 * @param b One-dimensional array of doubles (preserved).
-	 * @return
-	 */
-	public static double[] setAll(double[] a, double[] b)
-	{
-		if ( a == null )
-			return a = copy(b);
-		checkLengths(a, b);
-		for ( int i = 0; i < a.length; i++ )
-			a[i] = b[i];
-		return a;
 	}
 	
 	/*************************************************************************
@@ -349,11 +319,12 @@ public final class Vector
 	/**
 	 * \brief Check if the given <b>vector</b> is composed of zeros.
 	 * 
-	 * <p>Note that <b>vector</b> is unaffected by this method.</p>
-	 * 
 	 * @param vector One-dimensional array of integers (preserved).
 	 * @return boolean showing whether <b>vector</b> is all zeros (true) or 
 	 * contains a non-zero (false).
+	 * @see #isNonnegative(int[] vector)
+	 * @see #isZero(double[] vector)
+	 * @see #isZero(double[] vector, double tolerance)
 	 */
 	public static boolean isZero(int[] vector)
 	{
@@ -371,11 +342,12 @@ public final class Vector
 	 * Consider using {@link #isZero(double[] vector, double tolerance)}
 	 * instead.</p>
 	 * 
-	 * <p>Note that <b>vector</b> is unaffected by this method.</p>
-	 * 
 	 * @param vector One-dimensional array of doubles (preserved). 
 	 * @return boolean showing whether <b>vector</b> is all zeros (true) or 
 	 * contains a non-zero (false).
+	 * @see #isZero(double[] vector, double tolerance)
+	 * @see #isNonnegative(double[] vector)
+	 * @see #isZero(int[] vector)
 	 */
 	public static boolean isZero(double[] vector)
 	{
@@ -391,14 +363,15 @@ public final class Vector
 	 * <p>If confident that numerical issues can be ignored, consider using
 	 * {@link #isZero(double[] vector)} instead (slightly faster).</p>
 	 * 
-	 * <p>Note that <b>vector</b> is unaffected by this method.</p>
-	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @param tolerance double value for the absolute tolerance, i.e.
 	 * <i>|x<sub>i</sub>|</i> <= tolerance will be accepted as close enough to
 	 * zero (helps avoid numerical issues). 
 	 * @return boolean showing whether <b>vector</b> is all zeros (true) or 
 	 * contains a non-zero (false).
+	 * @see #isZero(double[] vector)
+	 * @see #isNonnegative(double[] vector)
+	 * @see #isZero(int[] vector)
 	 */
 	public static boolean isZero(double[] vector, double tolerance)
 	{
@@ -412,11 +385,11 @@ public final class Vector
 	 * \brief Check if all the elements of the given <b>vector</b> are
 	 * non-negative, i.e. greater than or equal to zero.
 	 * 
-	 * <p>Note that <b>vector</b> is unaffected by this method.</p>
-	 * 
 	 * @param vector One-dimensional array of integers (preserved).
 	 * @return boolean showing whether all elements or <b>vector</b> are >= 0
 	 * (true) or at least one is < 0 (false).
+	 * @see #isZero(int[] vector)
+	 * @see #isNonnegative(double[] vector)
 	 */
 	public static boolean isNonnegative(int[] vector)
 	{
@@ -435,6 +408,9 @@ public final class Vector
 	 * @return boolean reporting whether the <b>vector</b> contains negative
 	 * elements (false) or if all elements are greater than or equal to zero
 	 * (true).
+	 * @see #isZero(double[] vector)
+	 * @see #isZero(double[] vector, double tolerance)
+	 * @see #isNonnegative(int[] vector)
 	 */
 	public static boolean isNonnegative(double[] vector)
 	{
@@ -445,10 +421,15 @@ public final class Vector
 	}
 	
 	/**
-	 * TODO
+	 * \brief Check that the two given vectors are not null, and have the same
+	 * length.
 	 * 
-	 * @param a One-dimensional array of integers.
-	 * @param b One-dimensional array of integers.
+	 * @param a One-dimensional array of integers (preserved).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Null vector given.
+	 * @exception IllegalArgumentException Vectors must be the same length.
+	 * @see #checkLengths(double[] a, double[] b)
+	 * @see #checkLengths(double[] a, int[] b)
 	 */
 	public static void checkLengths(int[] a, int[] b)
 	{
@@ -459,10 +440,15 @@ public final class Vector
 	}
 	
 	/**
-	 * TODO
+	 * \brief Check that the two given vectors are not null, and have the same
+	 * length.
 	 * 
-	 * @param a One-dimensional array of doubles.
-	 * @param b One-dimensional array of doubles.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Null vector given.
+	 * @exception IllegalArgumentException Vectors must be the same length.
+	 * @see #checkLengths(int[] a, int[] b)
+	 * @see #checkLengths(double[] a, int[] b)
 	 */
 	public static void checkLengths(double[] a, double[] b)
 	{
@@ -473,10 +459,15 @@ public final class Vector
 	}
 	
 	/**
-	 * TODO
+	 * \brief Check that the two given vectors are not null, and have the same
+	 * length.
 	 * 
-	 * @param a One-dimensional array of doubles.
-	 * @param b One-dimensional array of integers.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Null vector given.
+	 * @exception IllegalArgumentException Vectors must be the same length.
+	 * @see #checkLengths(int[] a, int[] b)
+	 * @see #checkLengths(double[] a, double[] b)
 	 */
 	public static void checkLengths(double[] a, int[] b)
 	{
@@ -487,11 +478,14 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief See if the two given vectors have the same elements, in the same
+	 * order.
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a One-dimensional array of integers (preserved).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @return boolean: true if they are the same, false if at least one
+	 * element-element pair differs.
+	 * @see #areSame(double[] a, double[] b)
 	 */
 	public static boolean areSame(int[] a, int[] b)
 	{
@@ -503,11 +497,14 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief See if the two given vectors have the same elements, in the same
+	 * order.
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return boolean: true if they are the same, false if at least one
+	 * element-element pair differs.
+	 * @see #areSame(int[] a, int[] b)
 	 */
 	public static boolean areSame(double a[], double[] b)
 	{
@@ -517,32 +514,6 @@ public final class Vector
 				return false;
 		return true;
 	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * <p>If <b>relTol</b> is negative, this method always returns false.</p>
-	 * 
-	 * @param a
-	 * @param b
-	 * @param relTol
-	 * @return
-	 */
-	public static boolean areSame(double a[], double[] b, double relTol)
-	{
-		if ( relTol < 0.0 )
-			return false;
-		checkLengths(a, b);
-		double divisor;
-		for ( int i = 0; i < a.length; i++ )
-		{
-			divisor = 0.5 * ( Math.abs(a[i]) + Math.abs(b[i]) );
-			if ( Math.abs(a[i] - b[i]) > divisor * relTol )
-				return false;
-		}
-		return true;
-	}
-	
 	
 	/*************************************************************************
 	 * BASIC ARTHIMETIC
@@ -554,147 +525,124 @@ public final class Vector
 	 * \brief Add a scalar <b>value</b> to every element of a <b>source</b>,
 	 * placing the result in <b>destination</b>.
 	 * 
-	 * <p>Creates a new int[] for <b>destination</b> if it is <i>null</i> or
-	 * the wrong length.</p>
-	 * 
-	 * @param destination The int[] to be filled with the result
-	 * (overwritten).
+	 * @param destination The int[] to be filled with the result (overwritten).
 	 * @param source The int[] from which to take pre-existing values
 	 * (preserved). 
-	 * @param value double value to add to all elements.
-	 * @return <b>destination</b> with new values.
+	 * @param value int value to add to all elements.
+	 * @see #add(int[] vector, int value)
+	 * @see #addEquals(int[] vector, int value)
+	 * @see #addTo(double[] destination, double[] source, double value)
 	 */
-	public static int[] addTo(int[] destination, int[] source, int value)
+	public static void addTo(int[] destination, int[] source, int value)
 	{
-		if ( destination == null || destination.length != source.length )
-			destination = new int[source.length];
+		checkLengths(destination, source);
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i] + value;
-		return destination;
 	}
 	
 	/**
 	 * \brief Add a scalar <b>value</b> to every element of a <b>vector</b>,
 	 * returning the result as a new vector. 
 	 * 
-	 * <p>Note that <b>vector</b> will be preserved and the result written
-	 * into a new int[]. <ul><li>Use 
-	 * {@link #addEquals(int[] vector, int value)} to overwrite 
-	 * <b>vector</b></li><li> or 
-	 * {@link #addTo(int[] destination, int[] vector, int value)} to write the
-	 * result into a given int[].</li></ul></p>
-	 * 
 	 * @param vector One-dimensional array of integers (preserved).
 	 * @param value int to add to every element of <b>vector</b>.
 	 * @return new int[] with elements equal to those in <b>vector</b>, plus
 	 * <b>value</b>.
+	 * @see #addTo(int[] destination, int[] source, int value)
+	 * @see #addEquals(int[] vector, int value)
+	 * @see #add(double[] vector, double value)
 	 */
 	public static int[] add(int[] vector, int value)
 	{
-		return addTo(null, vector, value);
+		int[] out = new int[vector.length];
+		addTo(out, vector, value);
+		return out;
 	}
 	
 	/**
 	 * \brief Add a scalar <b>value</b> to every element of a <b>vector</b>,
 	 * overwriting the old values of <b>vector</b>.
 	 * 
-	 * <p>Note that <b>vector</b> will be overwritten. <ul><li>Use 
-	 * {@link #add(int[] vector, int value)} to write the results into a new
-	 * int[]</li><li> or 
-	 * {@link #addTo(int[] destination, int[] vector, int value)} to write the
-	 * result into a given int[].</li></ul></p>
-	 * 
 	 * @param vector One-dimensional array of integers (overwritten).
 	 * @param value	int to add to every element of <b>vector</b>.
-	 * @return	Given <b>vector</b>, with all elements greater by
-	 * <b>value</b>.
+	 * @see #addTo(int[] destination, int[] source, int value)
+	 * @see #add(int[] vector, int value)
+	 * @see #addEquals(double[] vector, double value)
 	 */
-	public static int[] addEquals(int[] vector, int value)
+	public static void addEquals(int[] vector, int value)
 	{
-		return addTo(vector, vector, value);
+		addTo(vector, vector, value);
 	}
 
 	/**
 	 * \brief Add a scalar <b>value</b> to every element of a <b>source</b>,
 	 * placing the result in <b>destination</b>.
 	 * 
-	 * <p>Creates a new double[] for <b>destination</b> if it is <i>null</i> or
-	 * the wrong length.</p>
-	 * 
 	 * @param destination The double[] to be filled with the result
 	 * (overwritten).
 	 * @param source The double[] from which to take pre-existing values
 	 * (preserved). 
 	 * @param value double value to add to all elements.
-	 * @return <b>destination</b> with new values.
+	 * @see #add(double[] vector, double value)
+	 * @see #addEquals(double[] vector, double value)
+	 * @see #addTo(double[] destination, double[] source, double value)
 	 */
-	public static double[] addTo(double[] destination, double[] source, 
-															double value)
+	public static void addTo(double[] destination, double[] source, 
+																double value)
 	{
-		if ( destination == null || destination.length != source.length )
-			destination = new double[source.length];
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i] + value;
-		return destination;
 	}
 	
 	/**
 	 * \brief Add a scalar <b>value</b> to every element of a <b>vector</b>,
 	 * returning the result as a new vector. 
 	 * 
-	 * <p>Note that <b>vector</b> will be preserved and the result written
-	 * into a new double[]. <ul><li>Use 
-	 * {@link #addEquals(double[] vector, double value)} to overwrite 
-	 * <b>vector</b></li><li> or 
-	 * {@link #addTo(double[] destination, double[] vector, double value)} to
-	 * write the result into a given double[].</li></ul></p>
-	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @param value double to add to every element of <b>vector</b>.
 	 * @return new double[] with elements equal to those in <b>vector</b>,
 	 * plus <b>value</b>.
+	 * @see #addTo(double[] destination, double[] source, double value)
+	 * @see #addEquals(double[] vector, double value)
+	 * @see #add(int[] vector, int value)
 	 */
 	public static double[] add(double[] vector, double value)
 	{
-		return addTo(null, vector, value);
+		double[] out = new double[vector.length];
+		addTo(out, vector, value);
+		return out;
 	}
 	
 	/**
 	 * \brief Add a scalar <b>value</b> to every element of a <b>vector</b>,
 	 * overwriting the old values of <b>vector</b>.
 	 * 
-	 * <p>Note that <b>vector</b> will be overwritten. <ul><li>Use 
-	 * {@link #add(double[] vector, double value)} to write the results into a
-	 * new double[]</li><li> or 
-	 * {@link #addTo(double[] destination, double[] vector, double value)} to
-	 * write the result into a given double[].</li></ul></p>
-	 * 
 	 * @param vector One-dimensional array of doubles (overwritten).
 	 * @param value	double to add to every element of <b>vector</b>.
-	 * @return	Given <b>vector</b>, with all elements greater by
-	 * <b>value</b>.
+	 * @see #addTo(double[] destination, double[] source, double value)
+	 * @see #add(double[] vector, double value)
+	 * @see #addEquals(int[] vector, int value)
 	 */
-	public static double[] addEquals(double[] vector, double value)
+	public static void addEquals(double[] vector, double value)
 	{
-		return addTo(vector, vector, value);
+		addTo(vector, vector, value);
 	}
 	
 	/**
 	 * \brief Add two vectors together, writing the result into the given
 	 * <b>destination</b>.
 	 * 
-	 * <p>Creates a new int[] for <b>destination</b> if it is <i>null</i> or
-	 * the wrong length.</p>
-	 * 
+	 * @param destination One-dimensional array of integers (overwritten).
 	 * @param a One-dimensional array of integers (preserved).
 	 * @param b One-dimensional array of integers (preserved).
-	 * @return new int[] array of <b>a</b> + <b>b</b>.
+	 * @see #add(int[] a, int[] b)
+	 * @see #addEquals(int[] a, int[] b)
+	 * @see #addTo(double[] destination, double[] a, double[] b)
 	 */
 	public static void addTo(int[] destination, int[] a, int[] b)
 	{
 		checkLengths(a, b);
-		if ( destination == null || destination.length != a.length )
-			destination = new int[a.length];
+		checkLengths(a, destination);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] + b[i];
 	}
@@ -705,6 +653,9 @@ public final class Vector
 	 * @param a One-dimensional array of integers (preserved).
 	 * @param b One-dimensional array of integers (preserved).
 	 * @return new int[] array of <b>a</b> + <b>b</b>.
+	 * @see #addTo(int[] destination, int[] a, int[] b)
+	 * @see #addEquals(int[] a, int[] b)
+	 * @see #add(double[] a, double[] b)
 	 */
 	public static int[] add(int[] a, int[] b)
 	{
@@ -718,6 +669,9 @@ public final class Vector
 	 * 
 	 * @param a One-dimensional array of integers (overwritten).
 	 * @param b One-dimensional array of integers (preserved).
+	 * @see #addTo(int[] destination, int[] a, int[] b)
+	 * @see #add(int[] a, int[] b)
+	 * @see #addEquals(double[] a, double[] b)
 	 */
 	public static void addEquals(int[] a, int[] b)
 	{
@@ -725,117 +679,159 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief Add two vectors together.
+	 * \brief Add two vectors together, writing the result into the given
+	 * <b>destination</b>.
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>add({@link #copy(double[] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a One-dimensional array of doubles (overwritten).
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
-	 * @return double[] array of <b>a</b> + <b>b</b>.
+	 * @see #add(double[] a, double[] b)
+	 * @see #addEquals(double[] a, double[] b)
+	 * @see #addTo(int[] destination, int[] a, int[] b)
 	 */
-	public static double[] add(double[] a, double[] b)
+	public static void addTo(double[] destination, double[] a, double[] b)
 	{
 		checkLengths(a, b);
+		checkLengths(a, destination);
 		for ( int i = 0; i < a.length; i++ ) 
-			a[i] += b[i];
-		return a;
+			destination[i] = a[i] + b[i];
 	}
 	
 	/**
-	 * \brief Add two vectors together.
+	 * \brief Add two vectors together, writing the result into a new vector.
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>add({@link #copy(double[] a)}, <b>b</b>)</i> to preserve the original
-	 * state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * <p>Not also that <i>a + b = b + a</i>. The result is returned as a
-	 * double. Returning an int can be done safely using: <i>(int)
-	 * add(a, b)</i> or <i>add(</i>{@link #toInt(double[] a)}<i>, b)</i>.</p>
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return new int[] array of <b>a</b> + <b>b</b>.
+	 * @see #addTo(double[] destination, double[] a, double[] b)
+	 * @see #addEquals(double[] a, double[] b)
+	 * @see #add(int[] a, int[] b)
+	 */
+	public static double[] add(double[] a, double[] b)
+	{
+		double[] out = new double[a.length];
+		addTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Add two vectors together, writing the result into <b>a</b>.
 	 * 
 	 * @param a One-dimensional array of doubles (overwritten).
-	 * @param b One-dimensional array of integers (preserved).
-	 * @return double[] array of <b>a</b> + <b>b</b>.
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @see #addTo(double[] destination, double[] a, double[] b)
+	 * @see #add(double[] a, double[] b)
+	 * @see #addEquals(int[] a, int[] b)
 	 */
-	public static double[] add(double[] a, int[] b)
+	public static void addEquals(double[] a, double[] b)
 	{
-		checkLengths(a, b);
-		for ( int i = 0; i < a.length; i++ ) 
-			a[i] += b[i];
-		return a;
+		addTo(a, a, b);
 	}
 	
 	/* Subtracting (vectors only) */
 	
 	/**
-	 * \brief Subtract one vector from another.
+	 * \brief Subtract one vector from another, writing the result into the
+	 * given <b>destination</b>.
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>add({@link #copy(int[] a)}, <b>b</b>)</i> to preserve the original
-	 * state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a One-dimensional array of integers (overwritten).
+	 * @param destination One-dimensional array of integers (overwritten with
+	 * <b>a</b> - <b>b</b>).
+	 * @param a One-dimensional array of integers (preserved).
 	 * @param b One-dimensional array of integers (preserved).
-	 * @return int[] array of <b>a</b> - <b>b</b>.
+	 * @see #minus(int[] a, int[] b)
+	 * @see #minusEquals(int[] a, int[] b)
+	 * @see #minusTo(double[] destination, double[] a, double[] b)
 	 */
-	public static int[] minus(int[] a, int[] b)
+	public static void minusTo(int[] destination, int[] a, int[] b)
 	{
 		checkLengths(a, b);
+		checkLengths(a, destination);
 		for ( int i = 0; i < a.length; i++ ) 
-			a[i] -= b[i];
-		return a;
+			destination[i] = a[i] - b[i];
 	}
 	
 	/**
-	 * \brief Subtract one vector from another.
-	 * 
-	 * <p>Note that neither vector will be overwritten, as a new vector is
-	 * created. Use {@link #minus(int[] a, int[] b)} to avoid garbage
-	 * if <b>a</b> may be overwritten.</p>
+	 * \brief Subtract one vector from another, writing the result into a new
+	 * vector.
 	 * 
 	 * @param a One-dimensional array of integers (preserved).
 	 * @param b One-dimensional array of integers (preserved).
-	 * @return new integer[] array of <b>a</b> - <b>b</b>.
+	 * @return new int[] array of <b>a</b> - <b>b</b>.
+	 * @see #addTo(int[] destination, int[] a, int[] b)
+	 * @see #addEquals(int[] a, int[] b)
+	 * @see #add(double[] a, double[] b)
 	 */
-	public static int[] minusEquals(int[] a, int[] b)
+	public static int[] minus(int[] a, int[] b)
 	{
-		return minus(copy(a), b);
+		int[] out = new int[a.length];
+		minusTo(out, a, b);
+		return out;
 	}
 	
 	/**
-	 * \brief Subtract one vector from another.
+	 * \brief Subtract one vector from another, writing the result into <b>a</b>.
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>add({@link #copy(double[] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a One-dimensional array of doubles (overwritten).
-	 * @param b One-dimensional array of doubles (preserved).
-	 * @return double[] array of <b>a</b> - <b>b</b>.
+	 * @param a One-dimensional array of integers (overwritten).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @see #minusTo(int[] destination, int[] a, int[] b)
+	 * @see #minus(int[] a, int[] b)
+	 * @see #minusEquals(double[] a, double[] b)
 	 */
-	public static double[] minus(double[] a, double[] b)
+	public static void minusEquals(int[] a, int[] b)
+	{
+		minusTo(a, a, b);
+	}
+	
+	/**
+	 * \brief Subtract one vector from another, writing the result into the
+	 * given <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of doubles (overwritten with
+	 * <b>a</b> - <b>b</b>).
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @see #minus(double[] a, double[] b)
+	 * @see #minusEquals(double[] a, double[] b)
+	 * @see #minusTo(int[] destination, int[] a, int[] b)
+	 */
+	public static void minusTo(double[] destination, double[] a, double[] b)
 	{
 		checkLengths(a, b);
+		checkLengths(a, destination);
 		for ( int i = 0; i < a.length; i++ ) 
-			a[i] -= b[i];
-		return a;
+			destination[i] = a[i] - b[i];
 	}
 	
 	/**
-	 * \brief Subtract one vector from another.
-	 * 
-	 * <p>Note that neither vector will be overwritten, as a new vector is
-	 * created. Use {@link #minus(double[] a, double[] b)} to avoid garbage
-	 * if <b>a</b> may be overwritten.</p>
+	 * \brief Subtract one vector from another, writing the result into a new
+	 * vector.
 	 * 
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @return new double[] array of <b>a</b> - <b>b</b>.
+	 * @see #addTo(double[] destination, double[] a, double[] b)
+	 * @see #addEquals(double[] a, double[] b)
+	 * @see #add(int[] a, int[] b)
 	 */
-	public static double[] minusEquals(double[] a, double[] b)
+	public static double[] minus(double[] a, double[] b)
 	{
-		return minus(copy(a), b);
+		double[] out = new double[a.length];
+		minusTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Subtract one vector from another, writing the result into <b>a</b>.
+	 * 
+	 * @param a One-dimensional array of doubles (overwritten).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @see #minusTo(double[] destination, double[] a, double[] b)
+	 * @see #minus(double[] a, double[] b)
+	 * @see #minusEquals(int[] a, int[] b)
+	 */
+	public static void minusEquals(double[] a, double[] b)
+	{
+		minusTo(a, a, b);
 	}
 	
 	/* Multiplication */
@@ -844,28 +840,19 @@ public final class Vector
 	 * \brief Multiply every element of a <b>source</b> int[] by a scalar
 	 * <b>value</b>, placing the result in <b>destination</b>.
 	 * 
-	 * <p>Creates a new int[] for <b>destination</b> if it is <i>null</i> or
-	 * the wrong length.</p>
-	 * 
-	 * <ul><li>Use 
-	 * {@link #timesEquals(int[] vector, int value)} to overwrite 
-	 * <b>vector</b></li><li> or {@link #times(int[] vector, int value)} to
-	 * write the results into a new int[].</li></ul>
-	 * 
 	 * @param destination The int[] to be filled with the result
-	 * (overwritten). Must be the same length as <b>source</b>.
+	 * (overwritten).
 	 * @param source The int[] from which to take pre-existing values
 	 * (preserved). 
 	 * @param value int value by which to multiply all elements.
-	 * @return <b>destination</b> with new values.
+	 * @see #times(int[] a, int[] b)
+	 * @see #timesEquals(int[] a, int[] b)
+	 * @see #timesTo(double[] destination, double[] a, double[] b)
 	 */
-	public static int[] timesTo(int[] destination, int[] source, int value)
+	public static void timesTo(int[] destination, int[] source, int value)
 	{
-		if ( destination == null || destination.length != source.length )
-			destination = new int[source.length];
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i] * value;
-		return destination;
 	}
 	
 	/**
@@ -884,7 +871,9 @@ public final class Vector
 	 */
 	public static int[] times(int[] vector, int value)
 	{
-		return timesTo(new int[vector.length], vector, value);
+		int[] out = new int[vector.length];
+		timesTo(out, vector, value);
+		return out;
 	}
 	
 	/**
@@ -901,80 +890,68 @@ public final class Vector
 	 * @param value	int scalar by which to multiply <b>vector</b>.
 	 * @return	Given <b>vector</b> multiplied by the given <b>value</b>.
 	 */
-	public static int[] timesEquals(int[] vector, int value)
+	public static void timesEquals(int[] vector, int value)
 	{
-		return timesTo(vector, vector, value);
+		timesTo(vector, vector, value);
 	}
-
+	
 	/**
 	 * \brief Multiply every element of a <b>source</b> double[] by a scalar
 	 * <b>value</b>, placing the result in <b>destination</b>.
 	 * 
-	 * <ul><li>Use 
-	 * {@link #timesEquals(double[] vector, double value)} to overwrite 
-	 * <b>vector</b></li><li> or {@link #times(double[] vector, double value)}
-	 * to write the results into a new double[].</li></ul>
-	 * 
 	 * @param destination The double[] to be filled with the result
-	 * (overwritten). 
+	 * (overwritten).
 	 * @param source The double[] from which to take pre-existing values
 	 * (preserved). 
-	 * @param value double value by which to multiply all elements.
-	 * @return <b>destination</b> with new values.
+	 * @param value double value to multiply with all elements.
+	 * @see #times(double[] vector, double value)
+	 * @see #timesEquals(double[] vector, double value)
+	 * @see #timesTo(double[] destination, double[] source, double value)
 	 */
-	public static double[] timesTo(double[] destination, double[] source,
+	public static void timesTo(double[] destination, double[] source, 
 																double value)
 	{
-		if ( destination == null || destination.length != source.length )
-			destination = new double[source.length];
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i] * value;
-		return destination;
 	}
 	
 	/**
-	 * \brief Multiply a <b>vector</b> by a scalar <b>value</b>. 
-	 * 
-	 * <p>Note that <b>vector</b> will be preserved and the result written
-	 * into a new double[]. <ul><li>Use 
-	 * {@link #timesEquals(double[] vector, double value)} to overwrite 
-	 * <b>vector</b></li><li> or 
-	 * {@link #timesTo(double[] destination, double[] source, double value)}
-	 * to write the result into a given double[].</li></ul></p>
+	 * \brief Multiply a <b>vector</b> by a scalar <b>value</b>, returning the
+	 * result as a new vector. 
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
-	 * @param value	double scalar by which to multiply <b>vector</b>.
-	 * @return New double[] equal to <b>vector</b> * <b>value</b>.
+	 * @param value double to multiply with every element of <b>vector</b>.
+	 * @return new double[] with elements equal to those in <b>vector</b>,
+	 * times <b>value</b>.
+	 * @see #timesTo(double[] destination, double[] source, double value)
+	 * @see #timesEquals(double[] vector, double value)
+	 * @see #times(int[] vector, int value)
 	 */
 	public static double[] times(double[] vector, double value)
 	{
-		return timesTo(null, vector, value);
+		double[] out = new double[vector.length];
+		timesTo(out, vector, value);
+		return out;
 	}
 	
 	/**
-	 * \brief Multiply a <b>vector</b> by a scalar <b>value</b>. 
-	 * 
-	 * <p>Note that <b>vector</b> will be overwritten; use
-	 * {@link #times(double[] vector, double value)} to preserve the
-	 * original state of <b>vector</b>.</p>
+	 * \brief Multiply a <b>vector</b> by a scalar <b>value</b>, overwriting
+	 * the old values of <b>vector</b>.
 	 * 
 	 * @param vector One-dimensional array of doubles (overwritten).
-	 * @param value	double scalar by which to multiply <b>vector</b>.
-	 * @return	Given <b>vector</b> multiplied by the given <b>value</b>.
+	 * @param value	double to multiply with every element of <b>vector</b>.
+	 * @see #timesTo(double[] destination, double[] source, double value)
+	 * @see #times(double[] vector, double value)
+	 * @see #timesEquals(int[] vector, int value)
 	 */
-	public static double[] timesEquals(double[] vector, double value)
+	public static void timesEquals(double[] vector, double value)
 	{
-		for ( int i = 0; i < vector.length; i++ ) 
-			vector[i] *= value;
-		return vector;
+		timesTo(vector, vector, value);
 	}
 	
 	/**
 	 * \brief Sets each element of <b>destination</b> to be the corresponding
 	 * element of <b>source</b>, but with opposite sign (+/-).
-	 * 
-	 * <p>Creates a new int[] for <b>destination</b> if it is <i>null</i> or
-	 * the wrong length.</p>
 	 * 
 	 * <ul><li>Use {@link #reverseEquals(int[] vector, int value)} to
 	 * overwrite <b>vector</b></li><li> or
@@ -987,8 +964,6 @@ public final class Vector
 	 */
 	public static int[] reverseTo(int[] destination, int[] source)
 	{
-		if ( destination == null || destination.length != source.length )
-			destination = new int[source.length];
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = -source[i];
 		return destination;
@@ -1011,7 +986,7 @@ public final class Vector
 	 */
 	public static int[] reverse(int[] vector)
 	{
-		return reverseTo(null, vector);
+		return reverseTo(new int[vector.length], vector);
 	}
 	
 	/**
@@ -1036,9 +1011,6 @@ public final class Vector
 	 * \brief Sets each element of <b>destination</b> to be the corresponding
 	 * element of <b>source</b>, but with opposite sign (+/-).
 	 * 
-	 * <p>Creates a new double[] for <b>destination</b> if it is <i>null</i>
-	 * or the wrong length.</p>
-	 * 
 	 * <ul><li>Use {@link #reverseEquals(double[] vector, double value)} to
 	 * overwrite <b>vector</b></li><li> or
 	 * {@link #reverse(double[] vector, double value)} to write the results into a
@@ -1048,9 +1020,9 @@ public final class Vector
 	 * @return	Given <b>vector</b>, where all elements have their sign
 	 * changed.
 	 */
-	public static double[] reverseTo(double[] destination, double[] source)
+	public static void reverseTo(double[] destination, double[] source)
 	{
-		return timesTo(destination, source, -1.0);
+		timesTo(destination, source, -1.0);
 	}
 	
 	/**
@@ -1066,7 +1038,9 @@ public final class Vector
 	 */
 	public static double[] reverse(double[] vector)
 	{
-		return reverseTo(null, vector);
+		double[] out = new double[vector.length];
+		reverseTo(out, vector);
+		return out;
 	}
 	
 	/**
@@ -1080,117 +1054,113 @@ public final class Vector
 	 * @return	Given <b>vector</b>, where all elements have their sign
 	 * changed.
 	 */
-	public static double[] reverseEquals(double[] vector)
+	public static void reverseEquals(double[] vector)
 	{
-		return reverseTo(vector, vector);
+		reverseTo(vector, vector);
 	}
 	
 	/**
-	 * \brief Times two vectors together element-wise.
+	 * \brief Multiply two vectors together element-wise, writing the result
+	 * into the given <b>destination</b>.
 	 * 
-	 * <p>Note that this method of multiplying differs from the dot product
-	 * and the cross product.</p>
-	 * 
-	 * <p>Note also that <b>a</b> will be overwritten; use 
-	 * <i>times({@link #copy(int[] a)}, <b>b</b>)</i> to preserve the original
-	 * state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a One-dimensional array of integers (overwritten).
+	 * @param destination One-dimensional array of integers (overwritten).
+	 * @param a One-dimensional array of integers (preserved).
 	 * @param b One-dimensional array of integers (preserved).
-	 * @return int[] array of <b>a</b> times <b>b</b>.
+	 * @see #times(int[] a, int[] b)
+	 * @see #timesEquals(int[] a, int[] b)
+	 * @see #timesTo(double[] destination, double[] a, double[] b)
 	 */
-	public static int[] times(int[] a, int[] b)
+	public static void timesTo(int[] destination, int[] a, int[] b)
 	{
 		checkLengths(a, b);
+		checkLengths(a, destination);
 		for ( int i = 0; i < a.length; i++ ) 
-			a[i] *= b[i];
-		return a;
+			destination[i] = a[i] * b[i];
 	}
 	
 	/**
-	 * \brief Times two vectors together element-wise.
-	 * 
-	 * <p>Note that this method of multiplying differs from the dot product
-	 * and the cross product.</p>
-	 * 
-	 * <p>Note that neither vector will be overwritten, as a new vector is
-	 * created. Use {@link #times(int[] a, int[] b)} to avoid garbage if
-	 * <b>a</b> may be overwritten.</p>
+	 * \brief Multiply two vectors together element-wise, writing the result
+	 * into a new vector.
 	 * 
 	 * @param a One-dimensional array of integers (preserved).
 	 * @param b One-dimensional array of integers (preserved).
-	 * @return new int[] array of <b>a</b> times <b>b</b>.
+	 * @return new int[] array of <b>a</b> * <b>b</b>.
+	 * @see #timesTo(int[] destination, int[] a, int[] b)
+	 * @see #timesEquals(int[] a, int[] b)
+	 * @see #times(double[] a, double[] b)
 	 */
-	public static int[] timesEquals(int[] a, int[] b)
+	public static int[] times(int[] a, int[] b)
 	{
-		return times(copy(a), b);
+		int[] out = new int[a.length];
+		timesTo(out, a, b);
+		return out;
 	}
 	
 	/**
-	 * \brief Times two vectors together element-wise.
+	 * \brief Multiply two vectors together element-wise, writing the result
+	 * into <b>a</b>.
 	 * 
-	 * <p>Note that this method of multiplying differs from the dot product
-	 * and the cross product.</p>
-	 * 
-	 * <p>Note also that <b>a</b> will be overwritten; use 
-	 * <i>times({@link #copy(double[] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a One-dimensional array of doubles (overwritten).
-	 * @param b One-dimensional array of doubles (preserved).
-	 * @return double[] array of <b>a</b> times <b>b</b>.
+	 * @param a One-dimensional array of integers (overwritten).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @see #timesTo(int[] destination, int[] a, int[] b)
+	 * @see #times(int[] a, int[] b)
+	 * @see #timesEquals(double[] a, double[] b)
 	 */
-	public static double[] times(double[] a, double[] b)
+	public static void timesEquals(int[] a, int[] b)
+	{
+		timesTo(a, a, b);
+	}
+	
+	/**
+	 * \brief Multiply two vectors together element-wise, writing the result
+	 * into the given <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @see #times(double[] a, double[] b)
+	 * @see #timesEquals(double[] a, double[] b)
+	 * @see #timesTo(int[] destination, int[] a, int[] b)
+	 */
+	public static void timesTo(double[] destination, double[] a, double[] b)
 	{
 		checkLengths(a, b);
+		checkLengths(a, destination);
 		for ( int i = 0; i < a.length; i++ ) 
-			a[i] *= b[i];
-		return a;
+			destination[i] = a[i] * b[i];
 	}
 	
 	/**
-	 * \brief Times two vectors together element-wise.
-	 * 
-	 * <p>Note that this method of multiplying differs from the dot product
-	 * and the cross product.</p>
-	 * 
-	 * <p>Note that neither vector will be overwritten, as a new vector is
-	 * created. Use {@link #times(double[] a, double[] b)} to avoid garbage if
-	 * <b>a</b> may be overwritten.</p>
+	 * \brief Multiply two vectors together element-wise, writing the result
+	 * into a new vector.
 	 * 
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
-	 * @return new double[] array of <b>a</b> times <b>b</b>.
+	 * @return new int[] array of <b>a</b> + <b>b</b>.
+	 * @see #timesTo(double[] destination, double[] a, double[] b)
+	 * @see #timesEquals(double[] a, double[] b)
+	 * @see #times(int[] a, int[] b)
 	 */
-	public static double[] timesEquals(double[] a, double[] b)
+	public static double[] times(double[] a, double[] b)
 	{
-		return times(copy(a), b);
+		double[] out = new double[a.length];
+		timesTo(out, a, b);
+		return out;
 	}
 	
 	/**
-	 * \brief Times two vectors together element-wise.
-	 * 
-	 * <p>Note that this method of multiplying differs from the dot product
-	 * and the cross product.</p>
-	 * 
-	 * <p>Note also that <b>a</b> will be overwritten; use 
-	 * <i>times({@link #copy(int[] a)}, <b>b</b>)</i> to preserve the original
-	 * state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * <p>furthermore, the result is returned as a double. Returning an
-	 * int is potentially ambiguous: <i>(int) times(a, b)</i> will often
-	 * be different to <i>times(</i>{@link #toInt(double[] a)}<i>, b)</i>!</p>
+	 * \brief Multiply two vectors together element-wise, writing the result
+	 * into <b>a</b>.
 	 * 
 	 * @param a One-dimensional array of doubles (overwritten).
-	 * @param b One-dimensional array of integers (preserved).
-	 * @return double[] array of <b>a</b> times <b>b</b>.
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @see #timesTo(double[] destination, double[] a, double[] b)
+	 * @see #times(double[] a, double[] b)
+	 * @see #timesEquals(int[] a, int[] b)
 	 */
-	public static double[] times(double[] a, int[] b)
+	public static void timesEquals(double[] a, double[] b)
 	{
-		checkLengths(a, b);
-		for ( int i = 0; i < a.length; i++ ) 
-			a[i] *= b[i];
-		return a;
+		timesTo(a, a, b);
 	}
 	
 	/*************************************************************************
@@ -1202,9 +1172,6 @@ public final class Vector
 	/**
 	 * \brief Take a subset of the given <b>vector</b> and return it as a new
 	 * vector.
-	 * 
-	 * <p>Note that the given <b>vector</b> will be unaffected by this
-	 * method.</p>
 	 * 
 	 * @param vector One-dimensional array of integers (preserved).
 	 * @param start int index of <b>vector</b> to start at (inclusive).
@@ -1224,9 +1191,6 @@ public final class Vector
 	 * \brief Take a subset of the given <b>vector</b> and return it as a new
 	 * vector.
 	 * 
-	 * <p>Note that the given <b>vector</b> will be unaffected by this
-	 * method.</p>
-	 * 
 	 * @param vector One-dimensional array of integers (preserved).
 	 * @param indices int[] array of indices to use.
 	 * @return integer[] array subset of <b>vector</b>.
@@ -1242,9 +1206,6 @@ public final class Vector
 	/**
 	 * \brief Take a subset of the given <b>vector</b> and return it as a new
 	 * vector.
-	 * 
-	 * <p>Note that the given <b>vector</b> will be unaffected by this
-	 * method.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @param start int index of <b>vector</b> to start at (inclusive).
@@ -1264,9 +1225,6 @@ public final class Vector
 	 * \brief Take a subset of the given <b>vector</b> and return it as a new
 	 * vector.
 	 * 
-	 * <p>Note that the given <b>vector</b> will be unaffected by this
-	 * method.</p>
-	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @param indices int[] array of indices to use.
 	 * @return double[] array subset of <b>vector</b>.
@@ -1282,24 +1240,60 @@ public final class Vector
 	/* Flip */
 	
 	/**
-	 * \brief Reverse the order of a vector.
+	 * \brief Reverse the order of a given vector <b>source</b>, writing the
+	 * result into <b>destination</b>.
 	 * 
-	 * <p>Note that the given <b>vector</b> will be unaffected by this
-	 * method.</p>
+	 * <p>For example, (1.0, 2.0, 3.0) would be flipped to (3.0, 2.0, 1.0).</p>
 	 * 
-	 * <p>See also {@link #reverse(int[] vector)}.</p>
+	 * @param destination One-dimensional array of integers (overwritten).
+	 * @param source One-dimensional array of integers (preserved).
+	 * @return The int[] <b>destination</b> with the same elements as 
+	 * <b>source</b>, but in the opposite order. 
+	 */
+	public static int[] flipTo(int[] destination, int[] source)
+	{
+		int i = source.length;
+		for ( int element : source )
+			destination[--i] = element;
+		return destination;
+	}
+	
+	/**
+	 * \brief Make a copy of the given <b>vector</b>, except with the order
+	 * flipped.
+	 * 
+	 * <p>For example, (1, 2, 3) would be flipped to (3, 2, 1).</p>
 	 * 
 	 * @param vector One-dimensional array of integers (preserved).
-	 * @return new int[] array with the same elements as <b>vector</b>, but in
+	 * @return int[] array with the same elements as <b>vector</b>, but in
 	 * the opposite order. 
+	 * @see #reverse(int[] vector)
 	 */
 	public static int[] flip(int[] vector)
 	{
-		int i = vector.length;
-		int[] out = new int[i];
-		for ( int element : vector )
-			out[--i] = element;
-		return out;
+		return flipTo(new int[vector.length], vector);
+	}
+	
+	/**
+	 * \brief Reverse the order of a vector.
+	 * 
+	 * <p>For example, (1, 2, 3) would be flipped to (3, 2, 1).</p>
+	 * 
+	 * @param vector One-dimensional array of integers (overwritten).
+	 * @return The same int[] as input, but with the order of elements flipped.
+	 */
+	public static int[] flipEquals(int[] vector)
+	{
+		int n = (int) 0.5 * vector.length;
+		int temp;
+		int j = vector.length;
+		for ( int i = 0; i < n; i++ )
+		{
+			temp = vector[i];
+			vector[i] = vector[j--];
+			vector[j] = temp;
+		}
+		return vector;
 	}
 	
 	/**
@@ -1308,8 +1302,6 @@ public final class Vector
 	 * 
 	 * <p>For example, (1.0, 2.0, 3.0) would be flipped to (3.0, 2.0, 1.0).</p>
 	 * 
-	 * <p>Note that <b>source</b> will be unaffected by this method.</p>
-	 * 
 	 * @param destination One-dimensional array of doubles (overwritten).
 	 * @param source One-dimensional array of doubles (preserved).
 	 * @return The double[] <b>destination</b> with the same elements as 
@@ -1317,8 +1309,6 @@ public final class Vector
 	 */
 	public static double[] flipTo(double[] destination, double[] source)
 	{
-		if ( destination == null || destination.length != source.length )
-			destination = new double[source.length];
 		int i = source.length;
 		for ( double element : source )
 			destination[--i] = element;
@@ -1342,7 +1332,7 @@ public final class Vector
 	 */
 	public static double[] flip(double[] vector)
 	{
-		return flipTo(null, vector);
+		return flipTo(new double[vector.length], vector);
 	}
 	
 	/**
@@ -1381,10 +1371,10 @@ public final class Vector
 	 * 
 	 * <p>E.g. maximum of the vector <i>(1, -3, 2)</i> is <i>2</i>.</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of integers.
+	 * @param vector One-dimensional array of integers (preserved).
 	 * @return int value of the greatest element in the <b>vector</b>.
+	 * @see #min(int[] vector)
+	 * @see #max(double[] vector)
 	 */
 	public static int max(int[] vector)
 	{
@@ -1400,10 +1390,10 @@ public final class Vector
 	 * 
 	 * <p>E.g. minimum of the vector <i>(1, -3, 2)</i> is <i>-3</i>.</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of integers.
+	 * @param vector One-dimensional array of integers (preserved).
 	 * @return int value of the least element in the <b>vector</b>.
+	 * @see #max(int[] vector)
+	 * @see #min(double[] vector)
 	 */
 	public static int min(int[] vector)
 	{
@@ -1419,10 +1409,10 @@ public final class Vector
 	 * 
 	 * <p>E.g. maximum of the vector <i>(1, -3, 2)</i> is <i>2</i>.</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of the greatest element in the vector.
+	 * @see #min(double[] vector)
+	 * @see #max(int[] vector)
 	 */
 	public static double max(double[] vector)
 	{
@@ -1439,10 +1429,10 @@ public final class Vector
 	 * <p>E.g. minimum of the vector <i>(1.0, -3.0, 2.0)</i> is
 	 * <i>-3.0</i>.</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of the least element in the vector.
+	 * @see #max(double[] vector)
+	 * @see #min(int[] vector)
 	 */
 	public static double min(double[] vector)
 	{
@@ -1461,10 +1451,10 @@ public final class Vector
 	 * <p>E.g. the normSquare of the vector <i>(a, b)</i> is
 	 * <i>a<sup>2</sup> + b<sup>2</sup></i>.</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of integers.
-	 * @return double sum of all elements in the <b>vector</b>.
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @return double sum of all elements in <b>vector</b>.
+	 * @see #normEuclid(int[] vector)
+	 * @see #normSquare(double[] vector)
 	 */
 	public static int normSquare(int[] vector)
 	{
@@ -1477,10 +1467,10 @@ public final class Vector
 	 * <p>E.g. the normEuclid of the vector <i>(a, b)</i> is
 	 * <i>(a<sup>2</sup> + b<sup>2</sup> )<sup>1/2</sup></i>.</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of integers.
-	 * @return	double Euclidean norm of elements in <b>vector</b>.
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @return double Euclidean norm of elements in <b>vector</b>.
+	 * @see #normSquare(int[] vector)
+	 * @see #normEuclid(double[] vector)
 	 */
 	public static double normEuclid(int[] vector)
 	{
@@ -1494,8 +1484,10 @@ public final class Vector
 	 * <p>E.g. the normSquare of the vector <i>(a, b)</i> is
 	 * <i>a<sup>2</sup> + b<sup>2</sup></i>.</p>
 	 * 
-	 * @param vector One-dimensional array of doubles.
-	 * @return double sum of all elements in the vector.
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @return double sum of all elements in <b>vector</b>.
+	 * @see #normEuclid(double[] vector)
+	 * @see #normSquare(int[] vector)
 	 */
 	public static double normSquare(double[] vector)
 	{
@@ -1510,8 +1502,10 @@ public final class Vector
 	 * 
 	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
 	 * 
-	 * @param vector One-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return	double Euclidean norm of elements in <b>vector</b>.
+	 * @see #normSquare(double[] vector)
+	 * @see #normEuclid(int[] vector)
 	 */
 	public static double normEuclid(double[] vector)
 	{
@@ -1525,10 +1519,9 @@ public final class Vector
 	 * 
 	 * <p>E.g. the sum of the vector <i>(a, b)</i> is <i>a + b</i>.</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of integers.
+	 * @param vector One-dimensional array of integers (preserved).
 	 * @return int sum of all elements in the <b>vector</b>.
+	 * @see #sum(double[] vector)
 	 */
 	public static int sum(int[] vector)
 	{
@@ -1543,8 +1536,9 @@ public final class Vector
 	 * 
 	 * <p>E.g. the sum of the vector <i>(a, b)</i> is <i>a + b</i>.</p>
 	 * 
-	 * @param vector One-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double sum of all elements in the vector.
+	 * @see #sum(int[] vector)
 	 */
 	public static double sum(double[] vector)
 	{
@@ -1555,17 +1549,18 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief Calculates the mean average entry in the given <b>vector</b>.
+	 * \brief Calculates the arithmetic mean average element in the given 
+	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
 	 * returns Double.NaN</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles.
-	 * @return double value of average of elements in <b>vector</b>.
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @return double value of arithmetic mean of elements in <b>vector</b>.
+	 * @see #meanGeo(double[] vector)
+	 * @see #meanHar(double[] vector)
 	 */
-	public static double mean(double[] vector)
+	public static double meanAri(double[] vector)
 	{
 		double out = 0.0;
 		double n = 0.0;
@@ -1585,15 +1580,75 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Calculates the geometric mean average element in the given 
+	 * <b>vector</b>.
+	 * 
+	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
+	 * returns zero</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @return double value of geometric mean of elements in <b>vector</b>.
+	 * @see #meanAri(double[] vector)
+	 * @see #meanHar(double[] vector)
+	 */
+	public static double meanGeo(double[] vector)
+	{
+		double out = 0.0;
+		double n = 0.0;
+		for ( double elem : vector )
+			if ( Double.isFinite(elem) )
+			{
+				out *= elem;
+				n++;
+			}
+		/*
+		 * Check the array contains valid entries before trying to divide by
+		 * zero.
+		 */
+		if ( n == 0.0 )
+			return 0.0;
+		return Math.pow(out, 1/n);
+	}
+	
+	/**
+	 * \brief Calculates the harmonic mean average element in the given 
+	 * <b>vector</b>.
+	 * 
+	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
+	 * returns positive infinity</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @return double value of harmonic mean of elements in <b>vector</b>.
+	 * @see #meanAri(double[] vector)
+	 * @see #meanGeo(double[] vector)
+	 */
+	public static double meanHar(double[] vector)
+	{
+		double out = 0.0;
+		for ( double elem : vector )
+		{
+			if ( elem == 0.0 )
+				return 0.0;
+			if ( Double.isFinite(elem) )
+				out += 1/elem;
+		}
+		/*
+		 * Check the array contains valid entries before trying to divide by
+		 * zero.
+		 */
+		if ( out == 0.0 )
+			return Double.POSITIVE_INFINITY;
+		return 1/out;
+	}
+	
+	/**
 	 * \brief Calculates the standard deviation of elements in the given
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
 	 * returns Double.NaN</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles (preserved).
 	 * @param fromSample boolean denoting whether to divide by n-1 (true) or n
 	 * (false) 
 	 * @return double value of standard deviation of elements in
@@ -1601,7 +1656,9 @@ public final class Vector
 	 */
 	public static double stdDev(double[] vector, boolean fromSample)
 	{
-		double mean = mean(vector);
+		double mean = meanAri(vector);
+		if ( mean == Double.NaN )
+			return mean;
 		double out = 0.0;
 		double n = 0.0;
 		for ( double elem : vector )
@@ -1617,7 +1674,7 @@ public final class Vector
 		if ( n == 0.0 )
 			return Double.NaN;
 		/*
-		 * If this is from a sample we divide by (n-1), not n
+		 * If this is from a sample we divide by (n-1), not n.
 		 */
 		if ( fromSample && (n > 1.0) )
 			n--;
@@ -1633,12 +1690,10 @@ public final class Vector
 	 * b<sub>2</sub> ) = a<sub>1</sub>*b<sub>1</sub> +
 	 * a<sub>2</sub>*b<sub>2</sub></i></p>
 	 * 
-	 * <p>Note that neither vector will be unaffected by this method,
-	 * and that the order they are entered as arguments is irrelevant.</p>
-	 * 
-	 * @param a One-dimensional array of integers.
-	 * @param b One-dimensional array of integers.
+	 * @param a One-dimensional array of integers (preserved).
+	 * @param b One-dimensional array of integers (preserved).
 	 * @return int value of the dot product of <b>a</b> and <b>b</b>.
+	 * @see #dotProduct(double[] a, double[] b)
 	 */
 	public static int dotProduct(int[] a, int[] b)
 	{
@@ -1656,42 +1711,13 @@ public final class Vector
 	 * b<sub>2</sub> ) = a<sub>1</sub>*b<sub>1</sub> +
 	 * a<sub>2</sub>*b<sub>2</sub></i></p>
 	 * 
-	 * <p>Note that neither vector will be unaffected by this method,
-	 * and that the order they are entered as arguments is irrelevant.</p>
-	 * 
-	 * @param a One-dimensional array of doubles.
-	 * @param b One-dimensional array of doubles.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
 	 * @return double value of the dot product of <b>a</b> and <b>b</b>.
+	 * @see #dotQuotient(double[] a, double[] b)
+	 * @see #dotProduct(int[] a, int[] b)
 	 */
 	public static double dotProduct(double[] a, double[] b)
-	{
-		checkLengths(a, b);
-		double out = 0.0;
-		for ( int i = 0; i < a.length; i++ )
-			out += a[i] * b[i];	
-		return out;
-	}
-	
-	/**
-	 * \brief Calculate the dot product of the two vectors given.
-	 * 
-	 * <p>For example, <i>(a<sub>1</sub> , a<sub>2</sub> ).(b<sub>1</sub> ,
-	 * b<sub>2</sub> ) = a<sub>1</sub>*b<sub>1</sub> +
-	 * a<sub>2</sub>*b<sub>2</sub></i></p>
-	 * 
-	 * <p>Note that neither vector will be unaffected by this method,
-	 * and that <i>a</i>.<i>b</i> = <i>b</i>.<i>a</i>.</p>
-	 * 
-	 * <p>Note also that the result is returned as a double. Returning an
-	 * int is potentially ambiguous: <i>(int) dotProduct(a, b)</i> will often
-	 * be different to <i>dotProduct(</i>{@link #toInt(double[] a)}<i>, b)</i>
-	 * !</p>
-	 * 
-	 * @param a One-dimensional array of doubles.
-	 * @param b One-dimensional array of integers.
-	 * @return double value of the dot product of <b>a</b> and <b>b</b>.
-	 */
-	public static double dotProduct(double[] a, int[] b)
 	{
 		checkLengths(a, b);
 		double out = 0.0;
@@ -1707,11 +1733,10 @@ public final class Vector
 	 * b<sub>2</sub> ) = a<sub>1</sub>/b<sub>1</sub> +
 	 * a<sub>2</sub>/b<sub>2</sub></i></p>
 	 * 
-	 * <p>Note that neither vector will be unaffected by this method.</p>
-	 * 
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @return double value of the dot quotient of <b>a</b> and <b>b</b>.
+	 * @see #dotProduct(double[] a, double[] b)
 	 */
 	public static double dotQuotient(double[] a, double[] b)
 	{
@@ -1727,8 +1752,8 @@ public final class Vector
 	/**
 	 * \brief Euclidean distance between two positions, given by vectors.
 	 * 
-	 * @param a One-dimensional array of doubles.
-	 * @param b One-dimensional array of doubles.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
 	 * @return double Euclidean distance between the two vectors.
 	 */
 	public static double distanceEuclid(double[] a, double[] b)
@@ -1824,7 +1849,9 @@ public final class Vector
 	 */
 	public static double[] randomPlusMinus(int n, double scale)
 	{
-		return timesEquals(randomPlusMinus(n), scale);
+		double[] out =  randomPlusMinus(n);
+		timesEquals(out, scale);
+		return out; 
 	}
 	
 	/**
@@ -1964,43 +1991,131 @@ public final class Vector
 	 * amount, so that the Euclidean norm of <b>vector</b> becomes 
 	 * <b>newNorm</b>.
 	 * 
-	 * <p>Note that <b>vector</b> will be overwritten; use
-	 * <i>normaliseEuclid(copy(<b>vector</b>), <b>value</b>)</i> to preserve
-	 * the original state of <b>vector</b>.</p>
+	 * <p>Note that if the <b>vector</b> is composed of all zeros, this
+	 * method will simply exit with the <b>vector</b> unchanged.</p>
 	 * 
-	 * <p>Note also that if the <b>vector</b> is composed of all zeros, this
-	 * method will simply return the <b>vector</b> unchanged.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles.
-	 * @param newNorm double value for the Euclidean norm of <b>vector</i>.
-	 * @return double[] array of <b>vector</b>, where the elements have been
-	 * scaled so that {@link #normEuclid(double[] vector)} = newNorm.
+	 * @param vector One-dimensional array of doubles (overwritten).
+	 * @param newNorm double value for the new Euclidean norm of <b>vector</i>.
 	 */
-	public static double[] normaliseEuclid(double[] vector, double newNorm)
+	public static void normaliseEuclid(double[] vector, double newNorm)
 	{
 		double oldNorm = normEuclid(vector);
-		if ( oldNorm == 0.0 )
-			return vector;
-		return timesEquals(vector, newNorm/oldNorm);
+		if ( oldNorm != 0.0 )
+			timesEquals(vector, newNorm/oldNorm);
 	}
 	
 	/**
 	 * \brief Scale each element of the given <b>vector</b> by the same
-	 * amount, so that the Euclidean norm of <b>vector</b> becomes 1.0
+	 * amount, so that the Euclidean norm of <b>vector</b> becomes one.
 	 * 
-	 * <p>Note that <b>vector</b> will be overwritten; use
-	 * <i>normaliseEuclid(copy(<b>vector</b>))</i> to preserve the original
-	 * state of <b>vector</b>.</p>
+	 * <p>Note that if the <b>vector</b> is composed of all zeros, this
+	 * method will simply exit with the <b>vector</b> unchanged.</p>
 	 * 
-	 * <p>Note also that if the <b>vector</b> is composed of all zeros, this
-	 * method will simply return the <b>vector</b> unchanged.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles.
-	 * @return double[] array of <b>vector</b>, where the elements have been
-	 * scaled so that {@link #normEuclid(double[] vector)} = 1.0
+	 * @param vector One-dimensional array of doubles (overwritten).
 	 */
-	public static double[] normaliseEuclid(double[] vector)
+	public static void normaliseEuclid(double[] vector)
 	{
-		return normaliseEuclid(vector, 1.0);
+		normaliseEuclid(vector, 1.0);
+	}
+	
+	/*************************************************************************
+	 * GEOMETRY
+	 ************************************************************************/
+	
+	/**
+	 * \brief Find the cosine of the angle between two vectors.
+	 * 
+	 * <p>Returns zero if either of the vectors is all zeros.</p>
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return Cosine of the angle between the two given vectors.
+	 * @see #cosAngle(double[] a, double[] b)
+	 */
+	public static double cosAngle(double[] a, double[] b)
+	{
+		/*
+		 * Returning 0.0 if the dot product is 0.0 removes the danger of
+		 * dividing 0.0/0.0 and also speeds things up slightly if the vectors
+		 * are orthogonal.
+		 */
+		double dot = dotProduct(a, b);
+		return ( dot == 0.0 ) ? 0.0 : dot/(normEuclid(a) * normEuclid(b));
+	}
+	
+	/**
+	 * \brief Find the angle between two vectors.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return The angle between the two given vectors (in radians).
+	 * @see #cosAngle(double[] a, double[] b)
+	 */
+	public static double angle(double[] a, double[] b)
+	{
+		return Math.acos(cosAngle(a, b));
+	}
+	
+	/**
+	 * \brief See if the two given vectors are at right-angles to one another.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return boolean: true if they are orthogonal, false if not.
+	 * @see #areParallel(double a[], double[] b)
+	 */
+	public static boolean areOrthogonal(double a[], double[] b)
+	{
+		return dotProduct(a, b) == 0.0;
+	}
+	
+	/**
+	 * \brief See if the two given vectors are at parallel.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return boolean: true if they are parallel, false if not.
+	 * @see #areOrthogonal(double a[], double[] b)
+	 */
+	public static boolean areParallel(double a[], double[] b)
+	{
+		return ( Math.abs(cosAngle(a, b)) == 1.0 );
+	}
+	
+	/**
+	 * \brief Find the cross-product of two 3-dimensional vectors, <b>a</b>
+	 * and <b>b</b>, and write the result into <b>destination</b>.
+	 * 
+	 * <p>Currently only implemented for 3D vectors.</p>
+	 * 
+	 * @param destination  One-dimensional array of doubles to be overwritten
+	 * with <b>a</b> x <b>b</b>.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Vectors must be 3D.
+	 */
+	public static void crossProductTo(double[] destination, double[] a,
+																double[] b)
+	{
+		if ( destination.length != 3 || a.length != 3 || b.length != 3 )
+			throw new IllegalArgumentException("Vectors must be 3D.");
+		for ( int i = 0; i < 3; i++ )
+			destination[i] = a[(i+1)%3]*b[(i+2)%3] - a[(i+2)%3]*b[(i+1)%3];
+	}
+	
+	/**
+	 * \brief Find the cross-product of two 3-dimensional vectors, <b>a</b>
+	 * and <b>b</b>, and write the result into a new vector.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return new double[3] with the cross-product.
+	 * @exception IllegalArgumentException Vectors must be 3D.
+	 */
+	public static double[] crossProduct(double[] a, double[] b)
+	{
+		double[] out = new double[3];
+		crossProductTo(out, a, b);
+		return out;
 	}
 }
