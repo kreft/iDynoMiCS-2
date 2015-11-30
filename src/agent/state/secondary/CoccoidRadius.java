@@ -16,5 +16,10 @@ public class CoccoidRadius  implements State {
 		// V = 4/3 Pi r^3
 		return ExtraMath.radiusOfASphere((double) agent.get("volume"));
 	}
+	
+	public State copy()
+	{
+		return this;
+	}
 }
 

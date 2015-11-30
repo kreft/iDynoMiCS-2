@@ -15,5 +15,9 @@ public class JointsState implements State {
 	{
 		return ((Body) agent.get("body")).getJoints();
 	}
-
+	
+	public State copy()
+	{
+		return this;
+	}
 }

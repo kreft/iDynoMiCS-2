@@ -46,6 +46,11 @@ public class AgentStateExamples {
 		System.out.println(anonymous.getClass());
 		System.out.println(testagent.get("volume2"));
 		
+		testagent.set("myint", 0);
+		testagent.set("mybool", true);
+		testagent.set("mystring", "hello!");
+		Agent copyAgent = new Agent(testagent);
+		System.out.println("catch");
 		
 		//////////////
 		// now the same thing the ezway

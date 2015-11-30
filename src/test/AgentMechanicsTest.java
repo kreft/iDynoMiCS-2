@@ -1,5 +1,7 @@
 package test;
 
+import java.util.Random;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -8,7 +10,7 @@ import agent.Species;
 import agent.SpeciesLib;
 import dataIO.PovExport;
 import dataIO.XmlLoad;
-import processManager.AgentRelaxation;
+import processManager.*;
 import idynomics.Compartment;
 import idynomics.Simulator;
 
@@ -61,24 +63,29 @@ public class AgentMechanicsTest {
 		// set parameters and initiate process manager
 		////////////////////////
 		
-		double stepSize = 1.0;
-		int nStep = 50;
-
-		AgentRelaxation process = new AgentRelaxation();
-		process.setTimeForNextStep(0.0);
-		process.setTimeStepSize(stepSize);
+		double stepSize = 1;
+		int nStep, mStep;
+		nStep = mStep = 4*24;
+		ProcessManager agentRelax = new AgentRelaxation();
+		agentRelax.setTimeForNextStep(0.0);
+		agentRelax.setTimeStepSize(stepSize);
+		
+		ProcessManager agentGrowth = new AgentGrowth();
+		agentGrowth.setTimeForNextStep(0.0);
+		agentGrowth.setTimeStepSize(stepSize);
 
 		PovExport pov = new PovExport();
-		System.out.println("Time: "+process.getTimeForNextStep());
+		System.out.println("Time: "+agentRelax.getTimeForNextStep());
 		// write initial state
 		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 		for ( ; nStep > 0; nStep-- )
 		{
 			// step the process manager
-			process.step(testcompartment._environment, testcompartment.agents);
+			agentGrowth.step(testcompartment._environment, testcompartment.agents);
+			agentRelax.step(testcompartment._environment, testcompartment.agents);
 			// write output
 			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
-			System.out.println("Time: "+process.getTimeForNextStep());
+			System.out.println(mStep-nStep +" Time: "+agentRelax.getTimeForNextStep());
 		}
 		System.out.println("finished");
 	}

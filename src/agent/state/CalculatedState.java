@@ -20,4 +20,9 @@ public class CalculatedState implements State {
 	{
 		return expression.calculate(agent);
 	}
+	
+	public State copy()
+	{
+		return this;
+	}
 }

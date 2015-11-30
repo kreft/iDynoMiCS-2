@@ -14,5 +14,10 @@ public class SimpleVolumeState implements State {
 	{
 		return  (double) agent.get("mass") / (double) agent.get("density");
 	}
+	
+	public State copy()
+	{
+		return this;
+	}
 
 }

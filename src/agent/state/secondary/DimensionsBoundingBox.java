@@ -15,5 +15,9 @@ public class DimensionsBoundingBox implements State {
 	{
 		return ((Body) agent.get("body")).dimensions((double) agent.get("radius"));
 	}
-
+	
+	public State copy()
+	{
+		return this;
+	}
 }

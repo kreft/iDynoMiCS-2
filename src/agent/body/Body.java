@@ -1,9 +1,13 @@
 package agent.body;
 
+import generalInterfaces.Copyable;
+
 import java.util.LinkedList;
 import java.util.List;
 
-public class Body {
+import linearAlgebra.Vector;
+
+public class Body implements Copyable {
 	
 	/**
 	 * 
@@ -22,6 +26,19 @@ public class Body {
 		/*
 		 * Lengths, angles and radius remain undefined.
 		 */
+	}
+	
+	public Body copy()
+	{
+		//TODO make this
+		List<Point> newPoints = new LinkedList<Point>();
+		for ( Point p : points)
+		{
+			Point duplicate = new Point(Vector.copy(p.getPosition()));
+			newPoints.add(duplicate);
+		}
+			
+		return new Body(newPoints);
 	}
 	
     /**

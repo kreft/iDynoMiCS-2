@@ -86,7 +86,9 @@ public abstract class BoundaryConnected extends Boundary
 	public void acceptInboundAgents(LinkedList<Agent> agents)
 	{
 		for ( Agent traveller : agents )
+		{
 			this._arrivalsLounge.add(traveller);
+		}
 	}
 	
 	/**
