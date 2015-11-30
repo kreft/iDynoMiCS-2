@@ -17,9 +17,11 @@
 			<state name="radius" type="secondary" value="coccoidRadius" />
 			<state name="lowerBoundingBox" type="secondary" value="lowerBoundingBox" />
 			<state name="dimensionsBoundingBox" type="secondary" value="dimensionsBoundingBox" />
+			<!-- this has not been made yet, use a static growthrate for now -->
+			<state name="growthRate" type="double" value="0.08" />
 		</species>
 	</speciesLib>
-	<compartment name="firstone" shape="CUBOID">
+	<compartment name="second" shape="CUBOID">
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
@@ -29,7 +31,7 @@
 				<state name="isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="GREEN" />
 				<state name="body" type="body">
-					<point position="0.2, 0.3, 0.0" />
+					<point position="0.2, 0.3, 0.1" />
 				</state>
 			</agent>
 			<agent>
@@ -51,7 +53,7 @@
 				<state name="isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="GREEN" />
 				<state name="body" type="body">
-					<point position="-0.1, 0.2, 0.0" />
+					<point position="-0.1, 0.2, -0.1" />
 				</state>
 			</agent>
 		</agents>

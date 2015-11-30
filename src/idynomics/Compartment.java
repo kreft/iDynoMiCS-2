@@ -247,10 +247,6 @@ public class Compartment
 		this._environment.setSize(this._sideLengths, 1.0);
 	}
 	
-	public double[] getSideLengths()
-	{
-		return this._sideLengths;
-	}
 	/**
 	 * \brief TODO
 	 * 
@@ -312,6 +308,7 @@ public class Compartment
 	public void addAgent(Agent agent)
 	{
 		this.agents.addAgent(agent);
+		agent.setCompartment(this);
 	}
 	
 	public SpatialGrid getSolute(String soluteName)

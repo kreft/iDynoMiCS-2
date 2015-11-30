@@ -16,4 +16,9 @@ public class ComponentVolumeState implements State {
 		return  Vector.dotQuotient((double[]) agent.get("mass"), 
 									(double[]) agent.get("density"));
 	}
+	
+	public State copy()
+	{
+		return this;
+	}
 }

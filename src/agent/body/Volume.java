@@ -21,19 +21,19 @@ public final class Volume
 	 * Vector that represents the shortest distance between: point-point,
 	 * point-line segment and line segment-line segment.
 	 */
-	static double[] dP;
+	double[] dP;
 	
 	/**
 	 * Represents the closest point on the first line segment expressed as a
 	 * fraction of the line segment.
 	 */
-	static double s;
+	double s;
 	
 	/**
 	 * Represents the closest point on the second line segment expressed as a
 	 * fraction of the line segment.
 	 */
-	static double t;
+	double t;
 	
 	/**
 	 * \brief Updates the net force on two interacting cells as a result from
@@ -43,7 +43,7 @@ public final class Volume
 	 * @param c Point of second cell.
 	 * @param radii Sum of radii.
 	 */
-	public static void neighbourInteraction(Point a, Point c, Double radii) 
+	public void neighbourInteraction(Point a, Point c, Double radii) // change to simply receive a List of points from both agents
 	{
 		double[] force = interact(pointPoint(a.getPosition(), c.getPosition()), radii);
 		a.addToForce(force);
@@ -59,7 +59,7 @@ public final class Volume
 	 * @param c First point of second cell.
 	 * @param radii Sum of radii.
 	 */
-	public static void neighbourInteraction(Point a, Point b, Point c, 
+	public void neighbourInteraction(Point a, Point b, Point c, 
 			double radii) 
 	{
 		double[] force = interact(
@@ -80,7 +80,7 @@ public final class Volume
 	 * @param d Second point of second cell.
 	 * @param radii Sum of radii.
 	 */
-	public static void neighbourInteraction(Point a, Point b, Point c, Point d, 
+	public void neighbourInteraction(Point a, Point b, Point c, Point d, 
 			Double radii) 
 	{
 		double[] force = interact(linesegLineseg(a.getPosition(), b.getPosition(), 
@@ -103,38 +103,42 @@ public final class Volume
 	 * @return returns the total resulting force (each cell) as a result of a
 	 * neighbour interaction
 	 */
-	private static double[] interact(double distance, double radii) 
+	private double[] interact(double distance, double radii) 
 	{
+		// TODO make a flexible version that may be defined depending on the
+		// interacting agents
+		// FIXME this needs to be set somewhere.. but not here
 		double c;
 		double p 			= 0.01; 		// pull distance
 		double fPull 		= 0.0002;		// pull force scalar
-		double fPush 		= 0.6;			// push force scalar
+		double fPush 		= 2.0;			// push force scalar
 		boolean exponential = true; 		// exponential pull curve
 		distance 			-= radii+0.001;	// added margin
 		
 		// Repulsion
 		if (distance < 0.0) 
 		{
-			c = fPush * distance * distance;
+			// c = fPush * distance * distance; //quadratic
+			c = Math.abs(fPush * distance); //linear
 			Vector.normaliseEuclid(dP, c);
 			return dP;
 		} 
 		// Attraction
-		else if (distance < p) 
-		{
-			if (exponential)
-			{
-				c = fPull * -3.0 * Math.exp(-6.0*distance/p) /
-						( 1.0 + Math.exp(6.0 - (36.0*distance) / p) ); 
-			}
-			else
-			{
-				c = fPull * - (p-distance) /
-						( 1.0 + Math.exp(6.0 - (36.0*distance) / p) );
-			}
-			Vector.timesEquals(dP, c);
-			return dP;
-		}
+		// TODO disabled until it makes sense from  agent tree point of view
+//		else if (distance < p) 
+//		{
+//			if (exponential)
+//			{
+//				c = fPull * -3.0 * Math.exp(-6.0*distance/p) /
+//						( 1.0 + Math.exp(6.0 - (36.0*distance) / p) ); 
+//			}
+//			else
+//			{
+//				c = fPull * - (p-distance) /
+//						( 1.0 + Math.exp(6.0 - (36.0*distance) / p) );
+//			}
+//			return Vector.timesEquals(dP, c);
+//		}
 		// Too far away for an interaction.
 		return Vector.zeros(dP);
 	}
@@ -146,7 +150,7 @@ public final class Volume
 	 * @param q Point of second sphere.
 	 * @return distance between the two sphere-swept volumes (spheres-sphere).
 	 */
-	public static double pointPoint(double[] p, double[] q) 
+	public double pointPoint(double[] p, double[] q) 
 	{
 		dP = Vector.minus(p, q);
 		return Vector.normEuclid(dP);
@@ -165,7 +169,7 @@ public final class Volume
 	 * 			Point of sphere
 	 * @return distance between the two sphere-swept volumes (sphere cylinder)
 	 */
-	public static double linesegPoint(double[] p0, double[] p1, double[] q0) 
+	public double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
 		// ab = p1 - p0
 		dP = Vector.minus(p1, p0);
@@ -190,7 +194,7 @@ public final class Volume
 	 * @return distance between the two sphere-swept volumes 
 	 * (cylinder-cylinder).
 	 */
-	private static double linesegLineseg(double[] p0, double[] p1,
+	private double linesegLineseg(double[] p0, double[] p1,
 												double[] q0, double[] q1) 
 	{		
 		// r = p0 - q0
@@ -228,10 +232,10 @@ public final class Volume
 		}
 		// c1 = p0 + (d1*s)
 		double[] c1 = Vector.times(d1, s);
-		Vector.addEquals(c1, p0);
+		Vector.addEquals(p0, c1);
 		// c2 = q0 + (d2*t)
 		double[] c2 = Vector.times(d2, t);
-		Vector.addEquals(c1, q0);
+		Vector.addEquals(q0, c1);
 		// dP = c1 - c2
 		dP = Vector.minus(c1, c2);
 		return Vector.normEuclid(dP);
@@ -247,7 +251,7 @@ public final class Volume
 	 * @param a A double number.
 	 * @return <b>a</b> constrained to the interval [0.0, 1.0].
 	 */
-	private static double clamp(double a) 
+	private double clamp(double a) 
 	{
 		return Math.max( Math.min(a, 1.0), 0.0 );
 	}

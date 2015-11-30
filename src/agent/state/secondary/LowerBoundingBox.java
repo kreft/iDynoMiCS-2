@@ -15,5 +15,9 @@ public class LowerBoundingBox implements State {
 	{
 		return ((Body) agent.get("body")).coord((double) agent.get("radius"));
 	}
-
+	
+	public State copy()
+	{
+		return this;
+	}
 }

@@ -22,7 +22,8 @@ public class Agent implements StateObject
 	 * the constructor.
 	 */
 	protected static int UNIQUE_ID = 0;
-    private int uid = ++UNIQUE_ID;
+    final int uid = ++UNIQUE_ID;
+
 	
 	/**
 	 * The states HashMap stores all primary and secondary states.
@@ -40,13 +41,17 @@ public class Agent implements StateObject
     // do not know what information is needed for those activities thus how do
     // we do we ensure that the agents can perform all activities without giving
     // them all available information? For now let them have all information 
-    // until we have a definite answ     * Used to search neighbors and store newly created agents
-
+    // until we have a definite answ
+    
     /**
      * Used to fetch species states.
      */
     Species species;
     
+    /**
+     * The compartment the agent is currently in
+     */
+    protected Compartment compartment;
     
    // public interface StatePredicate<T> {boolean test(Object s);}
 	
@@ -63,6 +68,19 @@ public class Agent implements StateObject
 	{
 		XmlLoad.loadStates(this, xmlNode);
 		species = SpeciesLib.get((String) get("species"));
+	}
+	
+	/**
+	 * TODO this is a copy constructor, keep up to date, make deep copies
+	 * uid is the unique identifier and should always be unique
+	 * @param agent
+	 */
+	public Agent(Agent agent)
+	{
+		for (String key : agent._states.keySet())
+			this._states.put(key, agent.getState(key).copy());
+		species = SpeciesLib.get((String) get("species"));
+		this.compartment = agent.getCompartment();
 	}
 	
 	public void init()
@@ -156,6 +174,16 @@ public class Agent implements StateObject
 			setPrimary(name, state);
 	}
 	
+	public Compartment getCompartment()
+	{
+		return compartment;
+	}
+	
+	public void setCompartment(Compartment compartment)
+	{
+		this.compartment = compartment;
+	}
+	
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
@@ -200,12 +228,14 @@ public class Agent implements StateObject
 
 	/**
 	 * \brief: Registers the birth of a new agent with the agentContainer.
+	 * note that the compartment field of the agent is set by the compartment
+	 * itself.
 	 */
-	public void registerBirth(Compartment compartment) {
+	public void registerBirth() {
 		compartment.addAgent(this);
 	}
 
-	public int UID() {
+	public int identity() {
 		return uid;
 	}
 

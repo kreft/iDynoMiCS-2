@@ -53,8 +53,8 @@ public class AgentTest {
 					getElementsByTagName("agent");
 			
 			for (int j = 0; j < agentNodes.getLength(); j++) 
-				new Agent(agentNodes.item(j)).registerBirth(comp);;
-
+				comp.addAgent(new Agent(agentNodes.item(j)));
+			
 			System.out.println("writing output for compartment: " + comp.name);	
 			
 			new PovExport().writepov(comp.name, comp.agents.getAllLocatedAgents());

@@ -10,7 +10,7 @@ import linearAlgebra.Vector;
 public class Point
 {
     static int UNIQUE_ID = 0;
-    int uid = ++UNIQUE_ID;
+    protected int uid = ++UNIQUE_ID;
 	private double[] position;
 	private double[] velocity;
 	private double[] force;
@@ -134,12 +134,12 @@ public class Point
 	
 	public void addToForce(double[] forceToAdd)
 	{
-		Vector.add(this.force, forceToAdd);
+		Vector.addEquals(this.force, forceToAdd);
 	}
 	
 	public void subtractFromForce(double[] forceToSubtract)
 	{
-		Vector.minus(this.force, forceToSubtract);
+		Vector.minusEquals(this.force, forceToSubtract);
 	}
 
 	public double[] getVelocity() {

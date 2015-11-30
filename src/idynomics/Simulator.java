@@ -1,6 +1,8 @@
 package idynomics;
 
 import java.util.HashMap;
+import utility.*;
+
 
 public class Simulator
 {
@@ -14,7 +16,8 @@ public class Simulator
 	
 	public Simulator()
 	{
-		
+		//TODO fully implement MTRandom
+		ExtraMath.random = new MTRandom((long) Math.random());
 	}
 	
 	/*************************************************************************
@@ -54,6 +57,7 @@ public class Simulator
 	
 	public void launch()
 	{
+
 		while ( Timer.isRunning() )
 		{
 			this.step();
