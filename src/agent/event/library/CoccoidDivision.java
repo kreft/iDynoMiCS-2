@@ -28,11 +28,11 @@ public class CoccoidDivision implements Event {
 					0.5*(double) mother.get("radius"));
 			
 			Point p = momBody.getPoints().get(0);
-			p.setPosition(Vector.add(Vector.copy(originalPos), shift));
+			p.setPosition(Vector.add(originalPos, shift));
 			
 			Body daughterBody = (Body) daughter.get("body");
 			Point q = daughterBody.getPoints().get(0);
-			q.setPosition(Vector.minus(Vector.copy(originalPos), shift));
+			q.setPosition(Vector.minus(originalPos, shift));
 			
 			daughter.registerBirth();
 		}

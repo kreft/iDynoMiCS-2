@@ -232,10 +232,10 @@ public final class Volume
 		}
 		// c1 = p0 + (d1*s)
 		double[] c1 = Vector.times(d1, s);
-		Vector.addEquals(c1, p0);
+		Vector.addEquals(p0, c1);
 		// c2 = q0 + (d2*t)
 		double[] c2 = Vector.times(d2, t);
-		Vector.addEquals(c1, q0);
+		Vector.addEquals(q0, c1);
 		// dP = c1 - c2
 		dP = Vector.minus(c1, c2);
 		return Vector.normEuclid(dP);
@@ -251,7 +251,7 @@ public final class Volume
 	 * @param a A double number.
 	 * @return <b>a</b> constrained to the interval [0.0, 1.0].
 	 */
-	private static double clamp(double a) 
+	private double clamp(double a) 
 	{
 		return Math.max( Math.min(a, 1.0), 0.0 );
 	}
