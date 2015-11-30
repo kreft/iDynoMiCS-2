@@ -29,6 +29,7 @@ import utility.ExtraMath;
  *   <li>new random vectors</li>
  *   <li>converting between integer and double</li>
  *   <li>rescaling vectors</li>
+ *   <li>geometry</li>
  * </ul>  
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
