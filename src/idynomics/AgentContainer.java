@@ -53,8 +53,11 @@ public class AgentContainer
 		 * Bas: I have chosen maxEntries and minEntries by testing what values
 		 * resulted in fast tree creation and agent searches.
 		 */
-		if (! (nDim == 0))
+		if ( nDim == 0 )
+			this._agentTree = new DummyTree<Agent>();
+		else
 			this._agentTree = new RTree<Agent>(8, 2, this.nDim);
+		
 		/*
 		 * No parameters needed for the agentList.
 		 */
@@ -91,7 +94,8 @@ public class AgentContainer
 	}
 
 	//FIXME: .isLocated simplified for now, was an over extensive operation for a simple check.
-	public void addAgent(Agent agent) {
+	public void addAgent(Agent agent)
+	{
 		if ( (boolean) agent.get("isLocated") )
 			this._agentTree.insert((float[]) agent.get("lowerBoundingBox"), (float[]) agent.get("dimensionsBoundingBox"), agent);
 		else
