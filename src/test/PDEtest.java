@@ -3,7 +3,8 @@
  */
 package test;
 
-import boundary.*;
+import boundary.Boundary;
+import boundary.BoundaryFixed;
 import grid.CartesianGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;

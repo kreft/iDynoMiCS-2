@@ -5,7 +5,8 @@ import java.util.LinkedList;
 
 import agent.Agent;
 import reaction.Reaction;
-import spatialRegistry.*;
+import spatialRegistry.RTree;
+import spatialRegistry.SpatialRegistry;
 
 public class AgentContainer
 {

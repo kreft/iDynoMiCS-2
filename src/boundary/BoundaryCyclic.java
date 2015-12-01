@@ -1,7 +1,5 @@
 package boundary;
 
-import grid.SpatialGrid.GridMethod;
-
 public class BoundaryCyclic extends BoundaryConnected
 {
 	public BoundaryCyclic()

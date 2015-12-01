@@ -4,10 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import reaction.Reaction;
-import utility.Vector;
-import xmlpack.XmlLoad;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -15,9 +11,14 @@ import org.w3c.dom.NodeList;
 import agent.Agent;
 import agent.body.Body;
 import agent.body.Point;
-import agent.state.*;
+import agent.state.CalculatedState;
+import agent.state.PrimaryState;
+import agent.state.State;
 import agent.state.secondary.VolumeState;
 import idynomics.Compartment;
+import reaction.Reaction;
+import utility.Vector;
+import xmlpack.XmlLoad;
 
 public class AgentTest {
 

@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
 import grid.CartesianGrid;
-import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.Compartment;

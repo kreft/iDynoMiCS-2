@@ -6,25 +6,56 @@ import java.util.function.DoubleFunction;
 import java.util.function.DoubleSupplier;
 
 public final class PolarArray {
-	public static double[][][] create(int nr, double ires, int nz){
+	public static double[][][] createCylinder(int nr, double ires, int nz){
 		double[][][] a = new double[nr][0][0];
 		for (int i=0; i<nr; ++i){
-			a[i] = new double[(int)(ires*(2*(i+1)-1))][nz];
+			a[i] = new double[(int)(ires*(2*i+1))][nz];
 		}
 		return a;
 	}
 	
-	public static double[][][] create(int nr, double nt, int nz, double ires, double val){
-		return applyToAll(create(nr, ires, nz),()->{return val;});
+	public static double[][][] createCylinder(int nr, int nz, double ires, double val){
+		return applyToAll(createCylinder(nr, ires, nz),()->{return val;});
+	}
+	
+	public static double[][][] createSphere(int nr, double iresT, double iresP){
+		double[][][] a = new double[nr][0][0];
+		for (int i=0; i<nr; ++i){
+			int nr_p=i+1;
+			a[i] = new double[(int)(nr_p*iresT*iresP)][0];
+			for (int j=0; j<a[i].length; ++j){
+				a[i][j] = new double[2*(j%nr_p)+1];
+			}
+		}
+		return a;
+	}
+	
+	public static double[][][] createSphere(int nr, double iresT, double iresP, double val){
+		return applyToAll(createSphere(nr, iresT, iresP),()->{return val;});
 	}
 	
 	public static double[][][] applyToAll(double[][][] array, DoubleSupplier f){
+		int iresT=4, iresP=2;
 		for (int i=0; i<array.length; ++i){
 			double[][] b=array[i];
 			for (int j=0; j<b.length;++j){
 				double[] c=b[j];
 				for (int k=0; k<c.length;++k) {
 					c[k]=f.getAsDouble();
+//					int idx = (int)(1.0/6*i*(i+1)*(2*i+1)*8 + (k+(j%(i+1))*(j%(i+1))+(i+1)*(i+1)*(j/(i+1))))+1;
+////					int idx = (int)(j%(i+1)*j%(i+1)+k+(i+1)*j+4.0/3*i*(i+1)*(2*i+1))+1;
+//					int r=(int) Math.ceil(Math.pow(idx/8.0,1.0/2))-1;
+//					double idx_tp = idx-1.0/6*(r-1)*r*(2*r-1)*8;
+//					if(r>1) r=(int) Math.ceil(Math.pow(idx_tp/8,1.0/2))-1;
+//					double idx_tp2 = idx-1.0/6*r*(r+1)*(2*r+1)*8;
+//					int t=(int) (Math.ceil(Math.pow((idx_tp2-1)%((r+1)*(r+1))+1,1.0/2))+(r+1)*(Math.ceil((idx_tp2)/((r+1)*(r+1)))-1))-1;
+//					int p=(int) (((idx_tp2-1)%((r+1)*(r+1))+1) - Math.pow(j%(r+1),2))-1;
+////					int idx_tp=(int)((idx-(1/6*r*(r+1)*(2*r+1)*8))%((r+1)*(r+1)));
+////					int t = (int) (Math.ceil(Math.pow(idx_tp,1.0/2))-1);
+////					int p = (int) (idx_tp - 2*Math.pow(t,2))-1;
+//					System.out.println(idx);
+//					System.out.println("r: "+r+",t: "+t+",p: "+p);
+//					System.out.println();
 				}
 				b[j]=c;
 			}

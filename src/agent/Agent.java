@@ -2,7 +2,7 @@ package agent;
 
 import java.util.HashMap;
 
-import agent.activity.*;
+import agent.activity.Activity;
 import agent.state.CalculatedState;
 import agent.state.PrimaryState;
 import agent.state.State;

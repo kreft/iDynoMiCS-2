@@ -1,13 +1,12 @@
 package grid;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
-import grid.SpatialGrid.GridGetter;
-import linearAlgebra.*;
-import utility.LogFile;
 import idynomics.Compartment.BoundarySide;
+import linearAlgebra.Array;
+import linearAlgebra.Vector;
+import utility.LogFile;
 
 /**
  * 

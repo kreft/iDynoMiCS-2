@@ -19,7 +19,6 @@ import reaction.Reaction;
 import solver.ODErosenbrock;
 import solver.ODEsolver.Derivatives;
 import utility.ExtraMath;
-import utility.LogFile;
 
 /**
  * \brief TODO

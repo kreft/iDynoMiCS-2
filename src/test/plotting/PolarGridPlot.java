@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.geom.Ellipse2D;
-import java.util.Arrays;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;

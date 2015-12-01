@@ -1,7 +1,5 @@
 package test;
 
-import java.util.Arrays;
-
 import org.jfree.ui.RefineryUtilities;
 
 import grid.CartesianGrid;

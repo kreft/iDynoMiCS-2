@@ -1,8 +1,8 @@
 package solver;
 
-import utility.LogFile;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import utility.LogFile;
 
 /**
  * \brief TODO

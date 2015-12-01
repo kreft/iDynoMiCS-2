@@ -7,22 +7,21 @@ import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 
 public class CylindricalGrid extends CartesianGrid{
-	final double ires;
+	final double iresT;
 	int nbhIdx, idx;
-	final int[][] nbhs;
+	int[][] nbhs;
 	double nt_rad;
 	
 	public CylindricalGrid(int[] nVoxel, double resolution)
 	{
 		nVoxel[1] = nVoxel[1]%361; // theta periodic in 1..360
 		this._nVoxel = Vector.copy(nVoxel);  // [r theta z], r=0 || theta=0 -> no grid, z=0 -> polar grid
-		this._nVoxel[0]=this._nVoxel[0];
 		this._res = resolution;				 // scales r & ires TODO: change 1/res in code, not here
 		this.nt_rad = nVoxel[1]*Math.PI/180;
-		this.ires=PolarArray.computeIRES(nVoxel[0], nt_rad, resolution);
+		this.iresT=PolarArray.computeIRES(nVoxel[0], nt_rad, resolution);
 		nbhs=new int[][]{{0,0,1},{0,0,-1},{0,1,0},{0,-1,0},{-1,-1,0},{1,1,0}};
 		resetIterator();
-		resetNbhIterator(false);
+		resetNbhIterator();
 	}
 
 	public CylindricalGrid(){this(Vector.vector(3, 1),1);}
@@ -42,8 +41,8 @@ public class CylindricalGrid extends CartesianGrid{
 			PolarArray.applyToAll(_array.get(type), ()->{return initialValues;});
 		else
 		{
-			double[][][] array = PolarArray.create(this._nVoxel[0], this.nt_rad,
-											this._nVoxel[2], this.ires, initialValues);
+			double[][][] array = PolarArray.createCylinder(this._nVoxel[0],
+											this._nVoxel[2], this.iresT, initialValues);
 			this._array.put(type, array);
 		}
 	}
@@ -51,14 +50,14 @@ public class CylindricalGrid extends CartesianGrid{
 	@Override
 	public double getVoxelVolume() {
 		// TODO Auto-generated method stub
-		return nt_rad*_res*_res*_res/(ires*2);
+		return nt_rad*_res*_res*_res/(iresT*2);
 	}
 
 	@Override
 	public int[] getCoords(double[] loc) {
 		return new int[]{
 				(int)(loc[0]/_res),
-				(int)(loc[1]*ires*2*loc[0]/(nt_rad*_res)),
+				(int)(loc[1]*iresT*2*loc[0]/(nt_rad*_res)),
 				(int)(loc[2]/_res)};
 	}
 
@@ -67,8 +66,8 @@ public class CylindricalGrid extends CartesianGrid{
 		double r=coords[0]*_res;
 		double t;
 		if (r==0) t = Math.min(coords[1]*(Math.PI/2),nt_rad);
-		else if (r>0) t = coords[1]*nt_rad*_res/(ires*2*r);
-		else t = Math.abs(coords[1]*nt_rad*_res/(ires*2*r))-Math.PI;
+		else if (r>0) t = coords[1]*nt_rad*_res/(iresT*2*r);
+		else t = Math.abs(coords[1]*nt_rad*_res/(iresT*2*r))-Math.PI;
 		double z=coords[2]*_res;
 //		System.out.println(coords[0]+"  "+coords[1]+"  "+coords[2]+" | "+r+"  "+t+"  "+z);
 		return new double[]{r,t,z};
@@ -77,7 +76,7 @@ public class CylindricalGrid extends CartesianGrid{
 	public double[] getVoxelCentre(int[] coords)
 	{
 		double r=(coords[0]+0.5)*_res;
-		double t=(coords[1]+0.5)*nt_rad*_res/(ires*2*r);
+		double t=(coords[1]+0.5)*nt_rad*_res/(iresT*2*r);
 		double z=(coords[2]+0.5)*_res;
 		return new double[]{r,t,z};
 	}
@@ -90,7 +89,7 @@ public class CylindricalGrid extends CartesianGrid{
 			return BoundarySide.CIRCUMFERENCE;
 		if ( coord[1] < 0 )
 			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
-		if ( coord[1] >= ires*(2*coord[0]-1) )
+		if ( coord[1] >= iresT*(2*coord[0]-1) )
 			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
 		if ( coord[2] < 0 )
 			return BoundarySide.ZMIN;
@@ -134,11 +133,11 @@ public class CylindricalGrid extends CartesianGrid{
 	}
 	
 	@Override
-	public boolean isIteratorValid() {return idx<=ires*_nVoxel[0]*_nVoxel[0];}
+	public boolean isIteratorValid() {return idx<=_nVoxel[2]*iresT*_nVoxel[0]*_nVoxel[0];}
 	
 	public void setCurrent(int[] new_current){
 		_currentCoord=new_current;
-		idx=(int)(new_current[2]*ires*_nVoxel[0]*_nVoxel[0]+(new_current[1]+ires*new_current[0]*new_current[0]+1)); 
+		idx=(int)(new_current[2]*iresT*_nVoxel[0]*_nVoxel[0]+(new_current[1]+iresT*new_current[0]*new_current[0]+1)); 
 //		System.out.println(new_current[0]+"  "+new_current[1]+"  "+new_current[2]+"  "+idx);
 	}
 	
@@ -151,9 +150,9 @@ public class CylindricalGrid extends CartesianGrid{
 	@Override
 	public int[] iteratorNext() {
 		idx++;
-		_currentCoord[0]=(int) Math.ceil(Math.pow(idx/ires,1.0/2))-1;
-		_currentCoord[1]=(int) (idx - ires*Math.pow(_currentCoord[0],2))-1;
-		_currentCoord[2]=(int) Math.ceil(idx/(ires*Math.pow(_nVoxel[0], 2)))-1;
+		_currentCoord[2]=(int) Math.ceil(idx/(iresT*Math.pow(_nVoxel[0], 2)))-1;
+		_currentCoord[0]=(int) Math.ceil(Math.pow((idx-(_currentCoord[2]*iresT*Math.pow(_nVoxel[0], 2)))/iresT,1.0/2))-1;
+		_currentCoord[1]=(int) (idx - iresT*Math.pow(_currentCoord[0],2))-1;
 		return _currentCoord;
 	}
 	
@@ -169,10 +168,9 @@ public class CylindricalGrid extends CartesianGrid{
 		nbhIdx++;
 		if (isNbhIteratorValid()){
 			_currentNeighbor=Vector.add(Vector.copy(_currentCoord),nbhs[nbhIdx]);
-			if (nbhIdx==4){ // moving along -r
-				_currentNeighbor[1]=_currentCoord[1]-(int)Math.round(2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1));
-			}else if(nbhIdx==5){ // moving along r
-				_currentNeighbor[1]=_currentCoord[1]+(int)Math.round(2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1));
+			if (nbhIdx>3){ // moving in r
+				System.out.println(2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1));
+				_currentNeighbor[1]=_currentCoord[1]+nbhs[nbhIdx][1]*(int)Math.round(2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1));
 			}
 		}
 		return _currentNeighbor;
