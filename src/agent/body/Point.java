@@ -15,6 +15,7 @@ public class Point
 	private double[] velocity;
 	private double[] force;
 	
+	
 	public Point(double[] p) 
 	{
 		this.setPosition(p);
@@ -58,10 +59,8 @@ public class Point
 	 * @return vSquare, if the squared velocity of this point is higher vSquare
 	 * is updated.
 	 */
-	public Double euStep(double vSquare, double dt, double radius) 
+	public void euStep(double dt, double radius) 
 	{
-		double[] temp = Vector.times(getVelocity(), dt);
-		Vector.addEquals(position, temp);
 		// TODO Rob [19Nov2015]: Where does this 0.01885 comes from?
 		// TODO Bas [24Nov2015]: this method still needs to be updated,
 		// currently the velocity is: (sum forces) / (3 Pi diameter viscosity)
@@ -70,14 +69,22 @@ public class Point
 		// TODO Rob [26Nov2015]: OK, let's just sure this is clearly
 		// documented before release. For now, I've replaced the 1/0.01885
 		// with 53.05, as this is slightly less work for the CPU! 
-		Vector.timesTo(temp, getForce(), 53.05/radius );
-		setVelocity(temp);
-		if ( Vector.normSquare(getVelocity()) > vSquare )
-			vSquare = Vector.normSquare(getVelocity());
+		// TODO for (longer) rod segments we cannot simply use the radius or
+		// diameter but need to use the equivalent spherical diameter
+		// definition by wiki: the equivalent diameter of a non-spherical 
+		// particle is equal to a diameter of a spherical particle that exhibits 
+		// identical properties (in this case hydrodynamic).
+		// see pdf forces in microbial systems.
+		setVelocity(dxdt(radius));
+		Vector.addEquals(position, Vector.times(getVelocity(), dt));
 		this.resetForce();
-		return vSquare;
 	}
-	
+
+	private double[] dxdt(double radius)
+	{
+		return Vector.times(getForce(), 53.05/radius);
+	}
+
 	//TODO: switch from a float RTree to a Double RTree so we can consistantly 
 	// use Doubles in the model implementation.
 	public float[] coord(double radius) 
