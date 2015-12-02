@@ -16,6 +16,611 @@ import utility.ExtraMath;
 public final class Matrix
 {
 	/*************************************************************************
+	 * STANDARD NEW MATRICES
+	 ************************************************************************/
+	
+	/* Given value */
+	
+	/**
+	 * \brief A new m-by-n matrix of integers.
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @param value Fill the matrix with this integer value.
+	 * @return Two-dimensional array of integers, all of <b>value</b> given.
+	 */
+	public static int[][] matrix(int m, int n, int value)
+	{
+		int[][] out = new int[m][n];
+		return setAll(out, value);
+	}
+	
+	/**
+	 * \brief A new square matrix of integers.
+	 * 
+	 * @param mn Number of rows = number of columns.
+	 * @param value Fill the matrix with this integer value.
+	 * @return Two-dimensional array of integers, all of <b>value</b> given.
+	 */
+	public static int[][] matrix(int mn, int value)
+	{
+		return matrix(mn, mn, value);
+	}
+	
+	/**
+	 * \brief A new m-by-n matrix of doubles.
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @param value Fill the matrix with this double value.
+	 * @return Two-dimensional array of doubles, all of <b>value</b> given.
+	 */
+	public static double[][] matrix(int m, int n, double value)
+	{
+		double[][] matrix = new double[m][n];
+		return setAll(matrix, value);
+	}
+	
+	/**
+	 * \brief A new square matrix of doubles.
+	 * 
+	 * @param mn Number of rows = number of columns.
+	 * @param value Fill the matrix with this double value.
+	 * @return Two-dimensional array of doubles, all of <b>value</b> given.
+	 */
+	public static double[][] matrix(int mn, double value)
+	{
+		return matrix(mn, mn, value);
+	}
+	
+	/* Zeros */
+	
+	/**
+	 * \brief A new m-by-n matrix of integer zeros.
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @return Two-dimensional array of integers, all of value 0.
+	 */
+	public static int[][] zerosInt(int m, int n)
+	{
+		return matrix(m, n, 0);
+	}
+	
+	/**
+	 * \brief A new square matrix of integer zeros.
+	 * 
+	 * @param mn Number of rows = number of columns.
+	 * @return Two-dimensional array of integers, all of value 0.
+	 */
+	public static int[][] zerosInt(int mn)
+	{
+		return matrix(mn, 0);
+	}
+	
+	/**
+	 * \brief A new m-by-n matrix of integer zeros.
+	 * 
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @return Two-dimensional array of integers.
+	 * @param matrix Two-dimensional array of integers.
+	 * @return Two-dimensional array of all of integer value 0, with the same
+	 * number of rows and of columns as <b>matrix</b>.
+	 */
+	public static int[][] zeros(int[][] matrix)
+	{
+		return zerosInt(rowDim(matrix), colDim(matrix));
+	}
+
+	/**
+	 * \brief A new m-by-n matrix of double zeros.
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @return Two-dimensional array of doubles, all of value 0.0.
+	 */
+	public static double[][] zerosDbl(int m, int n)
+	{
+		return matrix(m, n, 0.0);
+	}
+	
+	/**
+	 * \brief Constructs a square matrix full of double zeros.
+	 * 
+	 * @param mn	Number of rows (same as number of columns)
+	 * @return	double[][] array composed of zeros.
+	 */
+	public static double[][] zerosDbl(int mn)
+	{
+		return matrix(mn, 0.0);
+	}
+	
+	/**
+	 * \brief A new m-by-n matrix of double zeros.
+	 * 
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @return Two-dimensional array of doubles.
+	 * @param matrix Two-dimensional array of doubles.
+	 * @return Two-dimensional array of all of double value 0.0, with the same
+	 * number of rows and of columns as <b>matrix</b>.
+	 */
+	public static double[][] zeros(double[][] matrix)
+	{
+		return zerosDbl(rowDim(matrix), colDim(matrix));
+	}
+	
+	/* Identity */
+	
+	/**
+	 * \brief A new identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @return Two-dimensional array of integers with ones on the diagonal and
+	 * zeros elsewhere.
+	 */
+	public static int[][] identityInt(int m, int n)
+	{
+		int[][] out = new int[m][n];
+		for ( int i = 0; i < m; i++ )
+			for ( int j = 0; j < n; j++ )
+				out[i][j] = ( i == j ) ? 1 : 0;
+		return out;
+	}
+	
+	/**
+	 * \brief A new square identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param mn Number of rows = number of columns.
+	 * @return Two-dimensional array of integers with ones on the diagonal and
+	 * zeros elsewhere.
+	 */
+	public static int[][] identityInt(int mn)
+	{
+		return identityInt(mn, mn);
+	}
+	
+	/**
+	 * \brief A new square identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of integers.
+	 * @return Two-dimensional array of integers with ones on the diagonal and
+	 * zeros elsewhere, with the same number of rows and of columns as
+	 * <b>matrix</b>.
+	 */
+	public static int[][] identity(int[][] matrix)
+	{
+		return identityInt(rowDim(matrix), colDim(matrix));
+	}
+	
+	/**
+	 * \brief A new identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @return Two-dimensional array of doubles with ones on the diagonal and
+	 * zeros elsewhere.
+	 */
+	public static double[][] identityDbl(int m, int n)
+	{
+		double[][] out = new double[m][n];
+		for ( int i = 0; i < m; i++ )
+			for ( int j = 0; j < n; j++ )
+				out[i][j] = ( i == j ) ? 1.0 : 0.0;
+		return out;
+	}
+	
+	/**
+	 * \brief A new square identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param mn Number of rows = number of columns.
+	 * @return Two-dimensional array of doubles with ones on the diagonal and
+	 * zeros elsewhere.
+	 */
+	public static double[][] identityDbl(int mn)
+	{
+		return identityDbl(mn, mn);
+	}
+	
+	/**
+	 * \brief A new identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @return Two-dimensional array of doubles with ones on the diagonal and
+	 * zeros elsewhere, with the same number of rows and of columns as
+	 * <b>matrix</b>.
+	 */
+	public static double[][] identity(double[][] matrix)
+	{
+		return identityDbl(rowDim(matrix), colDim(matrix));
+	}
+	
+	/*************************************************************************
+	 * COPYING AND SETTING
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * CHECKING METHODS
+	 ************************************************************************/
+	
+	
+	/*************************************************************************
+	 * BASIC ARTHIMETIC
+	 ************************************************************************/
+	
+	/* Adding */
+	
+	/**
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>, writing the result into <b>destination</b>.
+	 * 
+	 * @param destination Two-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 * @param matrix Two-dimensional array of integers from which to take 
+	 * pre-existing values (preserved).
+	 * @param value integer value to add to all elements.
+	 * @see #add(int[][], int)
+	 * @see #addEquals(int[][], int)
+	 * @see #addTo(int[][], int[][], int[][])
+	 * @see #addTo(double[][], double[][], double)
+	 */
+	public static void addTo(int[][] destination, int[][] matrix, int value)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
+				destination[i][j] = matrix[i][j] + value;
+	}
+	
+	/**
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>, returning the result as a new int[][].
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @param value integer value to add to all elements.
+	 * @return new int[][] with elements equals to those in <b>matrix</b>,
+	 * plus <b>value</b>.
+	 * @see #addTo(int[][], int[][], int)
+	 * @see #addEquals(int[][], int)
+	 * @see #add(int[][], int[][])
+	 * @see #add(double[][], double)
+	 */
+	public static int[][] add(int[][] matrix, int value)
+	{
+		int[][] out = new int[matrix.length][matrix[0].length];
+		addTo(out, matrix, value);
+		return out;
+	}
+	
+	/**
+	 * \brief Add a scalar <b>value</b> to every element of a <b>matrix</b>,
+	 * overwriting the old values of <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param value integer value to add to all elements.
+	 * @see #addTo(int[][], int[][], int)
+	 * @see #add(int[][], int)
+	 * @see #addEquals(int[][], int[][])
+	 * @see #addEquals(double[][], double)
+	 */
+	public static void addEquals(int[][] matrix, int value)
+	{
+		addTo(matrix, matrix, value);
+	}
+	
+	/**
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>, writing the result into <b>destination</b>.
+	 * 
+	 * @param destination Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 * @param matrix Two-dimensional array of doubles from which to take 
+	 * pre-existing values (preserved).
+	 * @param value double value to add to all elements.
+	 * @see #add(double[][], double)
+	 * @see #addEquals(double[][], double)
+	 * @see #addTo(double[][], double[][], double[][])
+	 * @see #addEquals(int[][], int)
+	 */
+	public static void addTo(double[][] destination, double[][] matrix, double value)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
+				destination[i][j] = matrix[i][j] + value;
+	}
+	
+	/**
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>, returning the result as a new double[][].
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @param value double value to add to all elements.
+	 * @return new double[][] with elements equals to those in <b>matrix</b>,
+	 * plus <b>value</b>.
+	 * @see #addTo(double[][], double[][], double)
+	 * @see #addEquals(double[][], double)
+	 * @see #add(double[][], double[][])
+	 * @see #add(int[][], int)
+	 */
+	public static double[][] add(double[][] matrix, double value)
+	{
+		double[][] out = new double[matrix.length][matrix[0].length];
+		addTo(out, matrix, value);
+		return out;
+	}
+	
+	/**
+	 * \brief Add a scalar <b>value</b> to every element of a <b>matrix</b>,
+	 * overwriting the old values of <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param value double value to add to all elements.
+	 * @see #addTo(double[][], double[][], double)
+	 * @see #add(double[][], double)
+	 * @see #addEquals(double[][], double[][])
+	 * @see #addEquals(int[][], int)
+	 */
+	public static void addEquals(double[][] matrix, double value)
+	{
+		addTo(matrix, matrix, value);
+	}
+	
+	/**
+	 * \brief Add matrix <b>a</b> to matrix <b>b</b>, element-by-element,
+	 * writing the result into matrix <b>destination</b>.
+	 * 
+	 * @param destination Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @see #add(int[][], int[][])
+	 * @see #addEquals(int[][], int[][])
+	 * @see #addTo(int[][], int[][], int)
+	 * @see #addTo(double[][], double[][], double[][]) 
+	 */
+	public static void addTo(int[][] destination, int[][] a, int[][] b)
+	{
+		for ( int i = 0; i < rowDim(destination); i++ )
+			for ( int j = 0; j < colDim(destination); j++ )
+				destination[i][j] = a[i][j] + b[i][j];
+	}
+	
+	/**
+	 * \brief Add matrix <b>a</b> to matrix <b>b</b>, element-by-element,
+	 * writing the result into a new matrix.
+	 * 
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @return new int[][] array of <b>a</b>+<b>b</b>.
+	 * @see #addTo(int[][], int[][], int[][])
+	 * @see #addEquals(int[][], int[][])
+	 * @see #add(int[][], int)
+	 * @see #add(double[][], double[][])
+	 */
+	public static int[][] add(int[][] a, int[][] b)
+	{
+		int[][] out = new int[a.length][a[0].length];
+		addTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Add matrix <b>a</b> to matrix <b>b</b>, element-by-element,
+	 * writing the result into <b>a</b>.
+	 * 
+	 * @param a Two-dimensional array of integers (overwritten).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @see #addTo(int[][], int[][], int[][])
+	 * @see #add(int[][], int[][])
+	 * @see #addEquals(int[][], int)
+	 * @see #addEquals(double[][], double[][])
+	 */
+	public static void addEquals(int[][] a, int[][] b)
+	{
+		addTo(a, a, b);
+	}
+	
+	/**
+	 * \brief Add matrix <b>a</b> to matrix <b>b</b>, element-by-element,
+	 * writing the result into matrix <b>destination</b>.
+	 * 
+	 * @param destination Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @see #add(double[][], double[][])
+	 * @see #addEquals(double[][], double[][])
+	 * @see #addTo(double[][], double[][], double)
+	 * @see #addTo(double[][], double[][], double[][]) 
+	 */
+	public static void addTo(double[][] destination, double[][] a, double[][] b)
+	{
+		for ( int i = 0; i < rowDim(destination); i++ )
+			for ( int j = 0; j < colDim(destination); j++ )
+				destination[i][j] = a[i][j] + b[i][j];
+	}
+	
+	/**
+	 * \brief Add matrix <b>a</b> to matrix <b>b</b>, element-by-element,
+	 * writing the result into a new matrix.
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @return new double[][] array of <b>a</b>+<b>b</b>.
+	 * @see #addTo(double[][], double[][], double[][])
+	 * @see #addEquals(double[][], double[][])
+	 * @see #add(double[][], double)
+	 * @see #add(int[][], int[][])
+	 */
+	public static double[][] add(double[][] a, double[][] b)
+	{
+		double[][] out = new double[a.length][a[0].length];
+		addTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Add matrix <b>a</b> to matrix <b>b</b>, element-by-element,
+	 * writing the result into <b>a</b>.
+	 * 
+	 * @param a Two-dimensional array of doubles (overwritten).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @see #addTo(double[][], double[][], double[][])
+	 * @see #add(double[][], double[][])
+	 * @see #addEquals(double[][], double)
+	 * @see #addEquals(int[][], int[][])
+	 */
+	public static void addEquals(double[][] a, double[][] b)
+	{
+		addTo(a, a, b);
+	}
+	
+	/* Subtracting */
+	
+	/* Multiplication */
+	
+	/**
+	 * \brief times a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>, writing the result into <b>destination</b>.
+	 * 
+	 * @param destination Two-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 * @param matrix Two-dimensional array of integers from which to take 
+	 * pre-existing values (preserved).
+	 * @param value integer value to times to all elements.
+	 * @see #times(int[][], int)
+	 * @see #timesEquals(int[][], int)
+	 * @see #timesTo(int[][], int[][], int[][])
+	 * @see #timesTo(double[][], double[][], double)
+	 */
+	public static void timesTo(int[][] destination, int[][] matrix, int value)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
+				destination[i][j] = matrix[i][j] + value;
+	}
+	
+	/**
+	 * \brief times a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>, returning the result as a new int[][].
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @param value integer value to times to all elements.
+	 * @return new int[][] with elements equals to those in <b>matrix</b>,
+	 * plus <b>value</b>.
+	 * @see #timesTo(int[][], int[][], int)
+	 * @see #timesEquals(int[][], int)
+	 * @see #times(int[][], int[][])
+	 * @see #times(double[][], double)
+	 */
+	public static int[][] times(int[][] matrix, int value)
+	{
+		int[][] out = new int[matrix.length][matrix[0].length];
+		timesTo(out, matrix, value);
+		return out;
+	}
+	
+	/**
+	 * \brief times a scalar <b>value</b> to every element of a <b>matrix</b>,
+	 * overwriting the old values of <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param value integer value to times to all elements.
+	 * @see #timesTo(int[][], int[][], int)
+	 * @see #times(int[][], int)
+	 * @see #timesEquals(int[][], int[][])
+	 * @see #timesEquals(double[][], double)
+	 */
+	public static void timesEquals(int[][] matrix, int value)
+	{
+		timesTo(matrix, matrix, value);
+	}
+	
+	/**
+	 * \brief times a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>, writing the result into <b>destination</b>.
+	 * 
+	 * @param destination Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 * @param matrix Two-dimensional array of doubles from which to take 
+	 * pre-existing values (preserved).
+	 * @param value double value to times to all elements.
+	 * @see #times(double[][], double)
+	 * @see #timesEquals(double[][], double)
+	 * @see #timesTo(double[][], double[][], double[][])
+	 * @see #timesEquals(int[][], int)
+	 */
+	public static void timesTo(double[][] destination, double[][] matrix, double value)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
+				destination[i][j] = matrix[i][j] + value;
+	}
+	
+	/**
+	 * \brief times a given <b>value</b> to all elements in a given
+	 * <b>matrix</b>, returning the result as a new double[][].
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @param value double value to times to all elements.
+	 * @return new double[][] with elements equals to those in <b>matrix</b>,
+	 * plus <b>value</b>.
+	 * @see #timesTo(double[][], double[][], double)
+	 * @see #timesEquals(double[][], double)
+	 * @see #times(double[][], double[][])
+	 * @see #times(int[][], int)
+	 */
+	public static double[][] times(double[][] matrix, double value)
+	{
+		double[][] out = new double[matrix.length][matrix[0].length];
+		timesTo(out, matrix, value);
+		return out;
+	}
+	
+	/**
+	 * \brief times a scalar <b>value</b> to every element of a <b>matrix</b>,
+	 * overwriting the old values of <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param value double value to times to all elements.
+	 * @see #timesTo(double[][], double[][], double)
+	 * @see #times(double[][], double)
+	 * @see #timesEquals(double[][], double[][])
+	 * @see #timesEquals(int[][], int)
+	 */
+	public static void timesEquals(double[][] matrix, double value)
+	{
+		timesTo(matrix, matrix, value);
+	}
+	
+	/*************************************************************************
+	 * SUBMATRICES
+	 ************************************************************************/
+	
+	
+	
+	
+	
+	/*************************************************************************
 	 * SIMPLE INTEGER METHODS
 	 ************************************************************************/
 	
@@ -140,165 +745,6 @@ public final class Matrix
 			for ( int j = 0; j < matrix[0].length; j++ )
 				matrix[i][j] = value;
 		return matrix;
-	}
-
-	/**
-	 * \brief Add a given <b>value</b> to all elements in a given
-	 * <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be overwritten; use
-	 * <i>add(copy(<b>matrix</b>), <b>value</b>)</i> to preserve the original
-	 * state of <b>matrix</b>.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @param value Increase every element of the <b>matrix</b> by this
-	 * integer value.
-	 * @return Given <b>matrix</b> with all elements increased by
-	 * <b>value</b>.
-	 */
-	public static int[][] add(int[][] matrix, int value)
-	{
-		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				matrix[i][j] += value;
-		return matrix;
-	}
-	
-	/**
-	 * \brief Multiply all elements in a given <b>matrix</b> by a given
-	 * <b>value</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be overwritten; use
-	 * <i>times(copy(<b>matrix</b>), <b>value</b>)</i> to preserve the
-	 * original state of <b>matrix</b>.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @param value Multiply every element of the <b>matrix</b> by this
-	 * integer value.
-	 * @return Given <b>matrix</b> with all elements multiplied by
-	 * <b>value</b>.
-	 */
-	public static int[][] times(int[][] matrix, int value)
-	{
-		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				matrix[i][j] *= value;
-		return matrix;
-	}
-	
-	/**
-	 * \brief A new m-by-n matrix of integers.
-	 * 
-	 * @param m Number of rows.
-	 * @param n Number of columns.
-	 * @param value Fill the matrix with this integer value.
-	 * @return Two-dimensional array of integers, all of <b>value</b> given.
-	 */
-	public static int[][] matrix(int m, int n, int value)
-	{
-		int[][] out = new int[m][n];
-		return setAll(out, value);
-	}
-	
-	/**
-	 * \brief A new square matrix of integers.
-	 * 
-	 * @param mn Number of rows = number of columns.
-	 * @param value Fill the matrix with this integer value.
-	 * @return Two-dimensional array of integers, all of <b>value</b> given.
-	 */
-	public static int[][] matrix(int mn, int value)
-	{
-		return matrix(mn, mn, value);
-	}
-	
-	/**
-	 * \brief A new m-by-n matrix of integer zeros.
-	 * 
-	 * @param m Number of rows.
-	 * @param n Number of columns.
-	 * @return Two-dimensional array of integers, all of value 0.
-	 */
-	public static int[][] zerosInt(int m, int n)
-	{
-		return matrix(m, n, 0);
-	}
-	
-	/**
-	 * \brief A new square matrix of integer zeros.
-	 * 
-	 * @param mn Number of rows = number of columns.
-	 * @return Two-dimensional array of integers, all of value 0.
-	 */
-	public static int[][] zerosInt(int mn)
-	{
-		return matrix(mn, 0);
-	}
-	
-	/**
-	 * \brief A new m-by-n matrix of integer zeros.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @return Two-dimensional array of integers.
-	 * @param matrix Two-dimensional array of integers.
-	 * @return Two-dimensional array of all of integer value 0, with the same
-	 * number of rows and of columns as <b>matrix</b>.
-	 */
-	public static int[][] zeros(int[][] matrix)
-	{
-		return zerosInt(rowDim(matrix), colDim(matrix));
-	}
-	
-	/**
-	 * \brief A new identity matrix.
-	 * 
-	 * <p>An identity matrix is filled with zeros, except on the main diagonal
-	 * where it has ones instead.</p>
-	 * 
-	 * @param m Number of rows.
-	 * @param n Number of columns.
-	 * @return Two-dimensional array of integers with ones on the diagonal and
-	 * zeros elsewhere.
-	 */
-	public static int[][] identityInt(int m, int n)
-	{
-		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1 : 0;
-		return out;
-	}
-	
-	/**
-	 * \brief A new square identity matrix.
-	 * 
-	 * <p>An identity matrix is filled with zeros, except on the main diagonal
-	 * where it has ones instead.</p>
-	 * 
-	 * @param mn Number of rows = number of columns.
-	 * @return Two-dimensional array of integers with ones on the diagonal and
-	 * zeros elsewhere.
-	 */
-	public static int[][] identityInt(int mn)
-	{
-		return identityInt(mn, mn);
-	}
-	
-	/**
-	 * \brief A new square identity matrix.
-	 * 
-	 * <p>An identity matrix is filled with zeros, except on the main diagonal
-	 * where it has ones instead.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return Two-dimensional array of integers with ones on the diagonal and
-	 * zeros elsewhere, with the same number of rows and of columns as
-	 * <b>matrix</b>.
-	 */
-	public static int[][] identity(int[][] matrix)
-	{
-		return identityInt(rowDim(matrix), colDim(matrix));
 	}
 	
 	/**
@@ -754,165 +1200,6 @@ public final class Matrix
 			for ( int j = 0; j < colDim(matrix); j++ )
 				matrix[i][j] = value;
 		return matrix;
-	}
-	
-	/**
-	 * \brief Add a given <b>value</b> to all elements in a given
-	 * <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be overwritten; use
-	 * <i>add(copy(<b>matrix</b>), <b>value</b>)</i> to preserve the original
-	 * state of <b>matrix</b>.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @param value Increase every element of the <b>matrix</b> by this double
-	 * value.
-	 * @return Given <b>matrix</b> with all elements increased by
-	 * <b>value</b>.
-	 */
-	public static double[][] add(double[][] matrix, double value)
-	{
-		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				matrix[i][j] += value;
-		return matrix;
-	}
-	
-	/**
-	 * \brief Multiply all elements in a given <b>matrix</b> by a given
-	 * <b>value</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be overwritten; use
-	 * <i>times(copy(<b>matrix</b>), <b>value</b>)</i> to preserve the
-	 * original state of <b>matrix</b>.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @param value Multiply every element of the <b>matrix</b> by this double
-	 * value.
-	 * @return Given <b>matrix</b> with all elements multiplied by
-	 * <b>value</b>.
-	 */
-	public static double[][] times(double[][] matrix, double value)
-	{
-		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				matrix[i][j] *= value;
-		return matrix;
-	}
-	
-	/**
-	 * \brief A new m-by-n matrix of doubles.
-	 * 
-	 * @param m Number of rows.
-	 * @param n Number of columns.
-	 * @param value Fill the matrix with this double value.
-	 * @return Two-dimensional array of doubles, all of <b>value</b> given.
-	 */
-	public static double[][] matrix(int m, int n, double value)
-	{
-		double[][] matrix = new double[m][n];
-		return setAll(matrix, value);
-	}
-	
-	/**
-	 * \brief A new square matrix of doubles.
-	 * 
-	 * @param mn Number of rows = number of columns.
-	 * @param value Fill the matrix with this double value.
-	 * @return Two-dimensional array of doubles, all of <b>value</b> given.
-	 */
-	public static double[][] matrix(int mn, double value)
-	{
-		return matrix(mn, mn, value);
-	}
-	
-	/**
-	 * \brief A new m-by-n matrix of double zeros.
-	 * 
-	 * @param m Number of rows.
-	 * @param n Number of columns.
-	 * @return Two-dimensional array of doubles, all of value 0.0.
-	 */
-	public static double[][] zerosDbl(int m, int n)
-	{
-		return matrix(m, n, 0.0);
-	}
-	
-	/**
-	 * \brief Constructs a square matrix full of double zeros.
-	 * 
-	 * @param mn	Number of rows (same as number of columns)
-	 * @return	double[][] array composed of zeros.
-	 */
-	public static double[][] zerosDbl(int mn)
-	{
-		return matrix(mn, 0.0);
-	}
-	
-	/**
-	 * \brief A new m-by-n matrix of double zeros.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @return Two-dimensional array of doubles.
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return Two-dimensional array of all of double value 0.0, with the same
-	 * number of rows and of columns as <b>matrix</b>.
-	 */
-	public static double[][] zeros(double[][] matrix)
-	{
-		return zerosDbl(rowDim(matrix), colDim(matrix));
-	}
-	
-	/**
-	 * \brief A new identity matrix.
-	 * 
-	 * <p>An identity matrix is filled with zeros, except on the main diagonal
-	 * where it has ones instead.</p>
-	 * 
-	 * @param m Number of rows.
-	 * @param n Number of columns.
-	 * @return Two-dimensional array of doubles with ones on the diagonal and
-	 * zeros elsewhere.
-	 */
-	public static double[][] identityDbl(int m, int n)
-	{
-		double[][] out = new double[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1.0 : 0.0;
-		return out;
-	}
-	
-	/**
-	 * \brief A new square identity matrix.
-	 * 
-	 * <p>An identity matrix is filled with zeros, except on the main diagonal
-	 * where it has ones instead.</p>
-	 * 
-	 * @param mn Number of rows = number of columns.
-	 * @return Two-dimensional array of doubles with ones on the diagonal and
-	 * zeros elsewhere.
-	 */
-	public static double[][] identityDbl(int mn)
-	{
-		return identityDbl(mn, mn);
-	}
-	
-	/**
-	 * \brief A new identity matrix.
-	 * 
-	 * <p>An identity matrix is filled with zeros, except on the main diagonal
-	 * where it has ones instead.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return Two-dimensional array of doubles with ones on the diagonal and
-	 * zeros elsewhere, with the same number of rows and of columns as
-	 * <b>matrix</b>.
-	 */
-	public static double[][] identity(double[][] matrix)
-	{
-		return identityDbl(rowDim(matrix), colDim(matrix));
 	}
 	
 	/**
@@ -1576,50 +1863,6 @@ public final class Matrix
 		for ( int i = 0; i < rowDim(a); i++ )
 			for ( int j = 0; j < colDim(a); j++ )
 				a[i][j] = b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Add one matrix to another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>add({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @return int[][] array of <b>a</b>+<b>b</b>.
-	 */
-	public static int[][] add(int[][] a, int[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] += b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Add one matrix to another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>add({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return double[][] array of <b>a</b>+<b>b</b>.
-	 */
-	public static double[][] add(double[][] a, double[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] += b[i][j];
 		return a;
 	}
 	

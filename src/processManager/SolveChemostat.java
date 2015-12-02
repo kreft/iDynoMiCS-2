@@ -257,7 +257,7 @@ public class SolveChemostat extends ProcessManager
 				 * First deal with dilution: dYdY = -D
 				 */
 				double[][] jac = Matrix.identityDbl(y.length);
-				Matrix.times(jac, -_dilution);
+				Matrix.timesEquals(jac, -_dilution);
 				/*
 				 * TODO Apply agent reactions
 				 */

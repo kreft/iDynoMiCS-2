@@ -211,8 +211,8 @@ public class ODErosenbrock extends ODEsolver
 					/*
 					 * W = I - h * d * dFdY
 					 */
-					W = Matrix.times(Matrix.copy(dFdY), -h*d);
-					W = Matrix.add(W, identity);
+					Matrix.timesTo(W, dFdY, -h*d);
+					Matrix.addEquals(W, identity);
 					/*System.out.println("\tW is"); //Bughunt
 					for ( double[] row : W ) 
 					{
