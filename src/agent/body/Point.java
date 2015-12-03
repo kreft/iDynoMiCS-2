@@ -78,29 +78,29 @@ public class Point
 		return vSquare;
 	}
 	
-	//TODO: switch from a float RTree to a Double RTree so we can consistantly 
+	//TODO: switch from a double RTree to a Double RTree so we can consistantly 
 	// use Doubles in the model implementation.
-	public float[] coord(double radius) 
+	public double[] coord(double radius) 
 	{
-		float[] coord = new float[position.length];
+		double[] coord = new double[position.length];
 		for (int i = 0; i < position.length; i++) 
-			coord[i] = (float) (position[i]-radius);
+			coord[i] = (double) (position[i]-radius);
 		return coord;
 	}
 	
-	public float[] dimensions(double radius) 
+	public double[] dimensions(double radius) 
 	{
-		float[] dimensions = new float[position.length];
+		double[] dimensions = new double[position.length];
 		for (int i = 0; i < position.length; i++) 
-			dimensions[i] = (float) (radius*2.0);
+			dimensions[i] = (double) (radius*2.0);
 		return dimensions;
 	}
 	
-	public float[] upper(double radius) 
+	public double[] upper(double radius) 
 	{
-		float[] coord = new float[position.length];
+		double[] coord = new double[position.length];
 		for (int i = 0; i < position.length; i++) 
-			coord[i] = (float) (position[i]+radius);
+			coord[i] = (double) (position[i]+radius);
 		return coord;
 	}
 	

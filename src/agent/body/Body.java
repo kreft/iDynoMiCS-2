@@ -104,11 +104,11 @@ public class Body implements Copyable {
 	 * @param radius
 	 * @return coordinates of lower corner of bounding box
 	 */
-	public float[] coord(double radius) 
+	public double[] coord(double radius) 
 	{
 		if ( points.size() == 1 )
 			return points.get(0).coord(radius);
-		float[] coord = new float[nDim()];
+		double[] coord = new double[nDim()];
 		for (Point o: points) 
 			for ( int i = 0; i < nDim(); i++ ) 
 				coord[i] = Math.min( coord[i], o.coord(radius)[i] );
@@ -121,14 +121,14 @@ public class Body implements Copyable {
 	 * @param t: added margin
 	 * @return coordinates of lower corner of bounding box with margin
 	 */
-	public float[] coord(double radius, double t) 
+	public double[] coord(double radius, double t) 
 	{
 		if ( points.size() == 1 )
 			return points.get(0).coord(radius);
-		float[] coord = new float[nDim()];
+		double[] coord = new double[nDim()];
 		for (Point o: points) 
 			for ( int i = 0; i < nDim(); i++ ) 
-				coord[i] = Math.min(coord[i], o.coord(radius)[i]) - (float) t;
+				coord[i] = Math.min(coord[i], o.coord(radius)[i]) - (double) t;
 		return coord;
 	}
 	
@@ -137,9 +137,9 @@ public class Body implements Copyable {
 	 * @param radius
 	 * @return coordinates of upper corner of bounding box
 	 */
-	public float[] upper(Double radius) 
+	public double[] upper(Double radius) 
 	{
-		float[] upper = new float[nDim()];
+		double[] upper = new double[nDim()];
 		for (Point o: points) 
 			for ( int i = 0; i < nDim(); i++ ) 
 				upper[i] = Math.max( upper[i], o.upper(radius)[i] );
@@ -151,13 +151,13 @@ public class Body implements Copyable {
 	 * @param radius
 	 * @return dimensions of the bounding box
 	 */
-	public float[] dimensions(Double radius) 
+	public double[] dimensions(Double radius) 
 	{
 		if(points.size() == 1)
 			return points.get(0).dimensions(radius);
-		float[] coord 		= coord(radius);
-		float[] upper 		= upper(radius);
-		float[] dimensions	= new float[nDim()];
+		double[] coord 		= coord(radius);
+		double[] upper 		= upper(radius);
+		double[] dimensions	= new double[nDim()];
 		for (int i = 0; i < nDim(); i++)
 			dimensions[i] = upper[i] - coord[i];
 		return dimensions;
@@ -169,15 +169,15 @@ public class Body implements Copyable {
 	 * @param t: margin
 	 * @return dimensions of the bounding box with added margin
 	 */
-	public float[] dimensions(Double radius, double t) 
+	public double[] dimensions(Double radius, double t) 
 	{
 		if(points.size() == 1)
 			return points.get(0).dimensions(radius);
-		float[] coord 		= coord(radius);
-		float[] upper 		= upper(radius);
-		float[] dimensions	= new float[nDim()];
+		double[] coord 		= coord(radius);
+		double[] upper 		= upper(radius);
+		double[] dimensions	= new double[nDim()];
 		for (int i = 0; i < nDim(); i++)
-			dimensions[i] = upper[i] - coord[i] + 2 * (float) t;
+			dimensions[i] = upper[i] - coord[i] + 2 * (double) t;
 		return dimensions;
 	}
 	

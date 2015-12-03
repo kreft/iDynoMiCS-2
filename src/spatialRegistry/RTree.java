@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import utility.ExtraMath;
+
 
 /**
  * Implementation of an arbitrary-dimension RTree. Based on R-Trees: A Dynamic
@@ -20,8 +22,8 @@ import java.util.Set;
  * Additional methods implemented by Bastiaan Cockx baco@env.dtu.dk 2015
  * public domain
  * 
- * @param <T>
- *          the type of entry to store in this RTree.
+ * @param <T> The type of entry to store in this RTree.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
 public class RTree<T> extends SpatialRegistry<T>
 {
@@ -31,7 +33,7 @@ public class RTree<T> extends SpatialRegistry<T>
   private final int minEntries;
   private final int numDims;
 
-  private final float[] pointDims;
+  private final double[] pointDims;
 
   private final SeedPicker seedPicker;
 
@@ -57,7 +59,7 @@ public class RTree<T> extends SpatialRegistry<T>
     this.maxEntries = maxEntries;
     this.minEntries = minEntries;
     this.seedPicker = seedPicker;
-    pointDims = new float[numDims];
+    pointDims = new double[numDims];
     root = buildRoot(true);
   }
 
@@ -78,12 +80,12 @@ public class RTree<T> extends SpatialRegistry<T>
 
   private Node buildRoot(boolean asLeaf)
   {
-    float[] initCoords = new float[numDims];
-    float[] initDimensions = new float[numDims];
+    double[] initCoords = new double[numDims];
+    double[] initDimensions = new double[numDims];
     for (int i = 0; i < this.numDims; i++)
     {
-      initCoords[i] = (float) Math.sqrt(Float.MAX_VALUE);
-      initDimensions[i] = -2.0f * (float) Math.sqrt(Float.MAX_VALUE);
+      initCoords[i] = (double) Math.sqrt(Double.MAX_VALUE);
+      initDimensions[i] = -2.0 * (double) Math.sqrt(Double.MAX_VALUE);
     }
     return new Node(initCoords, initDimensions, asLeaf);
   }
@@ -142,7 +144,7 @@ public class RTree<T> extends SpatialRegistry<T>
    * @return a list of objects whose rectangles overlap with the given
    *         rectangle.
    */
-  public List<T> search(float[] coords, float[] dimensions)
+  public List<T> search(double[] coords, double[] dimensions)
   {
     assert (coords.length == numDims);
     assert (dimensions.length == numDims);
@@ -151,7 +153,7 @@ public class RTree<T> extends SpatialRegistry<T>
     return results;
   }
 
-  private void search(float[] coords, float[] dimensions, Node n,
+  private void search(double[] coords, double[] dimensions, Node n,
       LinkedList<T> results)
   {
     if (n.leaf)
@@ -178,8 +180,8 @@ public class RTree<T> extends SpatialRegistry<T>
   
   //added 15-04-2015
   //FIXME: for testing purposes remove this method from production version
-  public List<T> cyclicsearch(float[] coords, float[] dimensions) {
-	  float[] domain = new float[]{1.0f,1.0f,1.0f}; 
+  public List<T> cyclicsearch(double[] coords, double[] dimensions) {
+	  double[] domain = new double[]{1.0,1.0,1.0}; 
 	  Boolean[] cyclicdimension = new Boolean[]{false,true,false};
 	  return cyclicsearch(coords,dimensions,domain,cyclicdimension);
   }
@@ -201,10 +203,10 @@ public class RTree<T> extends SpatialRegistry<T>
    * @return a list of objects whose rectangles overlap with the given
    *         rectangle.
    */
-  public List<T> cyclicsearch(float[] coords, float[] dimensions, 
-		  float[] domain, Boolean[] cyclicdimension)  {
+  public List<T> cyclicsearch(double[] coords, double[] dimensions, 
+		  double[] domain, Boolean[] cyclicdimension)  {
 		  LinkedList<T> combinedlist = new LinkedList<T>();
-		  float[][] localcoords = new float[1+counttrue(cyclicdimension)*2][dimensions.length];
+		  double[][] localcoords = new double[1+counttrue(cyclicdimension)*2][dimensions.length];
 		  
 		  localcoords[0] = coords;
 		  int i = 1;
@@ -233,10 +235,10 @@ public class RTree<T> extends SpatialRegistry<T>
    * 		  the size of the domain
    * @param dim
    * 		  the dimension (numbered from 0) in which the shift needs to take place.
-   * @return A float array that represents the upper search window in dimension (dim).
+   * @return A double array that represents the upper search window in dimension (dim).
    */
-  private float[] adddim(float[] coord, float[] b, int dim) {
-	  float[] c = new float[coord.length];
+  private double[] adddim(double[] coord, double[] b, int dim) {
+	  double[] c = new double[coord.length];
 	  for (int i = 0; i < coord.length; ++i) {
 		  if (dim == i)
 			  c[i] = coord[i] + b[i];
@@ -256,10 +258,10 @@ public class RTree<T> extends SpatialRegistry<T>
    * 		  the size of the domain
    * @param dim
    * 		  the dimension (numbered from 0) in which the shift needs to take place.
-   * @return A float array that represents the lower search window in dimension (dim).
+   * @return A double array that represents the lower search window in dimension (dim).
    */
-  private float[] subdim(float[] coord, float[] b, int dim) {
-	  float[] c = new float[coord.length];
+  private double[] subdim(double[] coord, double[] b, int dim) {
+	  double[] c = new double[coord.length];
 	  for (int i = 0; i < coord.length; ++i) {
 		  if (dim == i)
 			  c[i] = coord[i] - b[i];
@@ -316,7 +318,7 @@ public class RTree<T> extends SpatialRegistry<T>
   {
     LinkedList<T> results = new LinkedList<T>();
     all(root, results);
-	return results.get(Math.round((float) Math.random()*results.size()));
+	return results.get(ExtraMath.getUniRandInt(results.size()));
   }
   
   /**
@@ -331,7 +333,7 @@ public class RTree<T> extends SpatialRegistry<T>
    *          the entry to delete
    * @return true iff the entry was deleted from the RTree.
    */
-  public boolean delete(float[] coords, float[] dimensions, T entry)
+  public boolean delete(double[] coords, double[] dimensions, T entry)
   {
     assert (coords.length == numDims);
     assert (dimensions.length == numDims);
@@ -371,7 +373,7 @@ public class RTree<T> extends SpatialRegistry<T>
   /**
    * Deletes the entry with unknown location from the RTree
    * XXX: this method has no info on the object location and therefore needs to iterate trough all
-   * items. delete(float[] coords, float[] dimensions, T entry) is the preferred method.
+   * items. delete(double[] coords, double[] dimensions, T entry) is the preferred method.
    * @param entry
    *          the entry to delete
    * @return true iff the entry was deleted from the RTree.
@@ -404,12 +406,12 @@ public class RTree<T> extends SpatialRegistry<T>
     return (removed != null);
   }
 
-  public boolean delete(float[] coords, T entry)
+  public boolean delete(double[] coords, T entry)
   {
     return delete(coords, pointDims, entry);
   }
 
-  private Node findLeaf(Node n, float[] coords, float[] dimensions, T entry)
+  private Node findLeaf(Node n, double[] coords, double[] dimensions, T entry)
   {
     if (n.leaf)
     {
@@ -516,7 +518,7 @@ public class RTree<T> extends SpatialRegistry<T>
    * @param entry
    *          the entry to insert
    */
-  public void insert(float[] coords, float[] dimensions, T entry)
+  public void insert(double[] coords, double[] dimensions, T entry)
   {
     assert (coords.length == numDims);
     assert (dimensions.length == numDims);
@@ -541,7 +543,7 @@ public class RTree<T> extends SpatialRegistry<T>
    * @param coords
    * @param entry
    */
-  public void insert(float[] coords, T entry)
+  public void insert(double[] coords, T entry)
   {
     insert(coords, pointDims, entry);
   }
@@ -618,8 +620,8 @@ public class RTree<T> extends SpatialRegistry<T>
       }
       Node c = seedPicker == SeedPicker.LINEAR ? lPickNext(cc) : qPickNext(cc, nn);
       Node preferred;
-      float e0 = getRequiredExpansion(nn[0].coords, nn[0].dimensions, c);
-      float e1 = getRequiredExpansion(nn[1].coords, nn[1].dimensions, c);
+      double e0 = getRequiredExpansion(nn[0].coords, nn[0].dimensions, c);
+      double e1 = getRequiredExpansion(nn[1].coords, nn[1].dimensions, c);
       if (e0 < e1)
       {
         preferred = nn[0];
@@ -630,8 +632,8 @@ public class RTree<T> extends SpatialRegistry<T>
       }
       else
       {
-        float a0 = getArea(nn[0].dimensions);
-        float a1 = getArea(nn[1].dimensions);
+        double a0 = getArea(nn[0].dimensions);
+        double a1 = getArea(nn[1].dimensions);
         if (a0 < a1)
         {
           preferred = nn[0];
@@ -667,22 +669,22 @@ public class RTree<T> extends SpatialRegistry<T>
   {
     @SuppressWarnings("unchecked")
     RTree<T>.Node[] bestPair = new RTree.Node[2];
-    float maxWaste = -1.0f * Float.MAX_VALUE;
+    double maxWaste = -1.0 * Float.MAX_VALUE;
     for (Node n1: nn)
     {
       for (Node n2: nn)
       {
         if (n1 == n2) continue;
-        float n1a = getArea(n1.dimensions);
-        float n2a = getArea(n2.dimensions);
-        float ja = 1.0f;
+        double n1a = getArea(n1.dimensions);
+        double n2a = getArea(n2.dimensions);
+        double ja = 1.0;
         for ( int i = 0; i < numDims; i++ )
         {
-          float jc0 = Math.min(n1.coords[i], n2.coords[i]);
-          float jc1 = Math.max(n1.coords[i] + n1.dimensions[i], n2.coords[i] + n2.dimensions[i]);
+          double jc0 = Math.min(n1.coords[i], n2.coords[i]);
+          double jc1 = Math.max(n1.coords[i] + n1.dimensions[i], n2.coords[i] + n2.dimensions[i]);
           ja *= (jc1 - jc0);
         }
-        float waste = ja - n1a - n2a;
+        double waste = ja - n1a - n2a;
         if ( waste > maxWaste )
         {
           maxWaste = waste;
@@ -703,13 +705,13 @@ public class RTree<T> extends SpatialRegistry<T>
    */
   private Node qPickNext(LinkedList<Node> cc, Node[] nn)
   {
-    float maxDiff = -1.0f * Float.MAX_VALUE;
+    double maxDiff = -1.0 * Float.MAX_VALUE;
     Node nextC = null;
     for ( Node c: cc )
     {
-      float n0Exp = getRequiredExpansion(nn[0].coords, nn[0].dimensions, c);
-      float n1Exp = getRequiredExpansion(nn[1].coords, nn[1].dimensions, c);
-      float diff = Math.abs(n1Exp - n0Exp);
+      double n0Exp = getRequiredExpansion(nn[0].coords, nn[0].dimensions, c);
+      double n1Exp = getRequiredExpansion(nn[1].coords, nn[1].dimensions, c);
+      double diff = Math.abs(n1Exp - n0Exp);
       if (diff > maxDiff)
       {
         maxDiff = diff;
@@ -727,11 +729,11 @@ public class RTree<T> extends SpatialRegistry<T>
     @SuppressWarnings("unchecked")
     RTree<T>.Node[] bestPair = new RTree.Node[2];
     boolean foundBestPair = false;
-    float bestSep = 0.0f;
+    double bestSep = 0.0;
     for (int i = 0; i < numDims; i++)
     {
-      float dimLb = Float.MAX_VALUE, dimMinUb = Float.MAX_VALUE;
-      float dimUb = -1.0f * Float.MAX_VALUE, dimMaxLb = -1.0f * Float.MAX_VALUE;
+      double dimLb = Float.MAX_VALUE, dimMinUb = Float.MAX_VALUE;
+      double dimUb = -1.0 * Float.MAX_VALUE, dimMaxLb = -1.0 * Float.MAX_VALUE;
       Node nMaxLb = null, nMinUb = null;
       for (Node n : nn)
       {
@@ -754,7 +756,7 @@ public class RTree<T> extends SpatialRegistry<T>
           nMinUb = n;
         }
       }
-      float sep = (nMaxLb == nMinUb) ? -1.0f :
+      double sep = (nMaxLb == nMinUb) ? -1.0 :
                   Math.abs((dimMinUb - dimMaxLb) / (dimUb - dimLb));
       if (sep >= bestSep)
       {
@@ -767,7 +769,7 @@ public class RTree<T> extends SpatialRegistry<T>
     // In the degenerate case where all points are the same, the above
     // algorithm does not find a best pair.  Just pick the first 2
     // children.
-    if ( !foundBestPair )
+    if ( ! foundBestPair )
     {
       bestPair = new RTree.Node[] { nn.get(0), nn.get(1) };
     }
@@ -790,8 +792,8 @@ public class RTree<T> extends SpatialRegistry<T>
     assert(nodes.length >= 1): "Pass some nodes to tighten!";
     for (Node n: nodes) {
       assert(n.children.size() > 0) : "tighten() called on empty node!";
-      float[] minCoords = new float[numDims];
-      float[] maxCoords = new float[numDims];
+      double[] minCoords = new double[numDims];
+      double[] maxCoords = new double[numDims];
       for (int i = 0; i < numDims; i++)
       {
         minCoords[i] = Float.MAX_VALUE;
@@ -829,11 +831,11 @@ public class RTree<T> extends SpatialRegistry<T>
     {
       return n;
     }
-    float minInc = Float.MAX_VALUE;
+    double minInc = Float.MAX_VALUE;
     Node next = null;
     for (RTree<T>.Node c : n.children)
     {
-      float inc = getRequiredExpansion(c.coords, c.dimensions, e);
+      double inc = getRequiredExpansion(c.coords, c.dimensions, e);
       if (inc < minInc)
       {
         minInc = inc;
@@ -841,8 +843,8 @@ public class RTree<T> extends SpatialRegistry<T>
       }
       else if (inc == minInc)
       {
-        float curArea = 1.0f;
-        float thisArea = 1.0f;
+        double curArea = 1.0;
+        double thisArea = 1.0;
         for (int i = 0; i < c.dimensions.length; i++)
         {
           curArea *= next.dimensions[i];
@@ -861,10 +863,10 @@ public class RTree<T> extends SpatialRegistry<T>
    * Returns the increase in area necessary for the given rectangle to cover the
    * given entry.
    */
-  private float getRequiredExpansion(float[] coords, float[] dimensions, Node e)
+  private double getRequiredExpansion(double[] coords, double[] dimensions, Node e)
   {
-    float area = getArea(dimensions);
-    float[] deltas = new float[dimensions.length];
+    double area = getArea(dimensions);
+    double[] deltas = new double[dimensions.length];
     for (int i = 0; i < deltas.length; i++)
     {
       if (coords[i] + dimensions[i] < e.coords[i] + e.dimensions[i])
@@ -876,7 +878,7 @@ public class RTree<T> extends SpatialRegistry<T>
         deltas[i] = coords[i] - e.coords[i];
       }
     }
-    float expanded = 1.0f;
+    double expanded = 1.0;
     for (int i = 0; i < dimensions.length; i++)
     {
       expanded *= dimensions[i] + deltas[i];
@@ -884,9 +886,9 @@ public class RTree<T> extends SpatialRegistry<T>
     return (expanded - area);
   }
 
-  private float getArea(float[] dimensions)
+  private double getArea(double[] dimensions)
   {
-    float area = 1.0f;
+    double area = 1.0;
     for (int i = 0; i < dimensions.length; i++)
     {
       area *= dimensions[i];
@@ -894,10 +896,10 @@ public class RTree<T> extends SpatialRegistry<T>
     return area;
   }
 
-  private boolean isOverlap(float[] scoords, float[] sdimensions,
-      float[] coords, float[] dimensions)
+  private boolean isOverlap(double[] scoords, double[] sdimensions,
+      double[] coords, double[] dimensions)
   {
-    final float FUDGE_FACTOR=1.001f;
+    final double FUDGE_FACTOR=1.001f;
     for (int i = 0; i < scoords.length; i++)
     {
       boolean overlapInThisDimension = false;
@@ -929,28 +931,29 @@ public class RTree<T> extends SpatialRegistry<T>
  
   private class Node
   {
-    final float[] coords;
-    final float[] dimensions;
+    final double[] coords;
+    final double[] dimensions;
     final LinkedList<Node> children;
     final boolean leaf;
 
     Node parent;
 
-    private Node(float[] coords, float[] dimensions, boolean leaf)
+    private Node(double[] coords, double[] dimensions, boolean leaf)
     {
-      this.coords = new float[coords.length];
-      this.dimensions = new float[dimensions.length];
+      this.coords = new double[coords.length];
+      this.dimensions = new double[dimensions.length];
       System.arraycopy(coords, 0, this.coords, 0, coords.length);
       System.arraycopy(dimensions, 0, this.dimensions, 0, dimensions.length);
       this.leaf = leaf;
       children = new LinkedList<Node>();
     }
         
-    private double distance(float[] point) {
-    	float[] d = new float[point.length];
-    	Float distsquared = 0.0f;
+    private double distance(double[] point)
+    {
+    	double[] d = new double[point.length];
+    	double distsquared = 0.0;
     	for(int i = 0; i<point.length; i++) {
-    		d[i] = Math.max(Math.max(coords[i] - point[i], point[i] - coords[i] + dimensions[i]), 0.0f);
+    		d[i] = Math.max(Math.max(coords[i] - point[i], point[i] - coords[i] + dimensions[i]), 0.0);
     		distsquared += d[i]*d[i];
     	}
     	return Math.sqrt(distsquared);
@@ -962,7 +965,7 @@ public class RTree<T> extends SpatialRegistry<T>
   {
     final T entry;
 
-    public Entry(float[] coords, float[] dimensions, T entry)
+    public Entry(double[] coords, double[] dimensions, T entry)
     {
       // an entry isn't actually a leaf (its parent is a leaf)
       // but all the algorithms should stop at the first leaf they encounter,
@@ -1010,8 +1013,8 @@ public class RTree<T> extends SpatialRegistry<T>
     int numChildren = (n.children == null) ? 0 : n.children.size();
     for ( int i = 0; i < numChildren; i++ )
     {
-      visualize(n.children.get(i), pw, (int)(x0 + (i * w/(float)numChildren)),
-          y0 + elemHeight, (int)(w/(float)numChildren), h - elemHeight);
+      visualize(n.children.get(i), pw, (int)(x0 + (i * w/(double)numChildren)),
+          y0 + elemHeight, (int)(w/(double)numChildren), h - elemHeight);
     }
     pw.println( "</div>" );
   }

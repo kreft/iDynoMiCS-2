@@ -2,10 +2,47 @@ package spatialRegistry;
 
 import java.util.List;
 
-public abstract class SpatialRegistry<T> {
+/**
+ * 
+ * 
+ * @param <T>
+ * 
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
+ */
+public abstract class SpatialRegistry<T>
+{
+	/**
+	 * \brief TODO
+	 * 
+	 * @param coords
+	 * @param dimension
+	 * @return
+	 */
+	public abstract List<T> search(double[] coords, double[] dimension);
 	
-	public abstract List<T> search(float[] coords, float[] dimension);
-	public abstract List<T> cyclicsearch(float[] coords, float[] dimension);
+	/**
+	 * \brief TODO
+	 * 
+	 * @param coords
+	 * @param dimension
+	 * @return
+	 */
+	public abstract List<T> cyclicsearch(double[] coords, double[] dimension);
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public abstract List<T> all();
-	public abstract void insert(float[] coords, float[] dimensions, T entry);
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param coords
+	 * @param dimensions
+	 * @param entry
+	 */
+	public abstract void insert(double[] coords, double[] dimensions, T entry);
 }
