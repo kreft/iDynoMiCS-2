@@ -669,7 +669,7 @@ public class RTree<T> extends SpatialRegistry<T>
   {
     @SuppressWarnings("unchecked")
     RTree<T>.Node[] bestPair = new RTree.Node[2];
-    double maxWaste = -1.0 * Float.MAX_VALUE;
+    double maxWaste = -1.0 * Double.MAX_VALUE;
     for (Node n1: nn)
     {
       for (Node n2: nn)
@@ -705,7 +705,7 @@ public class RTree<T> extends SpatialRegistry<T>
    */
   private Node qPickNext(LinkedList<Node> cc, Node[] nn)
   {
-    double maxDiff = -1.0 * Float.MAX_VALUE;
+    double maxDiff = -1.0 * Double.MAX_VALUE;
     Node nextC = null;
     for ( Node c: cc )
     {
@@ -732,8 +732,8 @@ public class RTree<T> extends SpatialRegistry<T>
     double bestSep = 0.0;
     for (int i = 0; i < numDims; i++)
     {
-      double dimLb = Float.MAX_VALUE, dimMinUb = Float.MAX_VALUE;
-      double dimUb = -1.0 * Float.MAX_VALUE, dimMaxLb = -1.0 * Float.MAX_VALUE;
+      double dimLb = Double.MAX_VALUE, dimMinUb = Double.MAX_VALUE;
+      double dimUb = -1.0 * Double.MAX_VALUE, dimMaxLb = -1.0 * Double.MAX_VALUE;
       Node nMaxLb = null, nMinUb = null;
       for (Node n : nn)
       {
@@ -796,8 +796,8 @@ public class RTree<T> extends SpatialRegistry<T>
       double[] maxCoords = new double[numDims];
       for (int i = 0; i < numDims; i++)
       {
-        minCoords[i] = Float.MAX_VALUE;
-        maxCoords[i] = Float.MIN_VALUE;
+        minCoords[i] = Double.MAX_VALUE;
+        maxCoords[i] = Double.MIN_VALUE;
 
         for (Node c : n.children)
         {
@@ -831,7 +831,7 @@ public class RTree<T> extends SpatialRegistry<T>
     {
       return n;
     }
-    double minInc = Float.MAX_VALUE;
+    double minInc = Double.MAX_VALUE;
     Node next = null;
     for (RTree<T>.Node c : n.children)
     {
