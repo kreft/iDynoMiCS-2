@@ -15,8 +15,15 @@ import linearAlgebra.Vector;
  * with points. this way other objects such as biomass carriers or tubes
  * can be implemented.
  */
-public final class Volume
+public class Volume
 {	
+
+
+	public Volume(int nDim)
+	{
+		this.dP = Vector.zerosDbl(nDim);
+	}
+	
 	/**
 	 * Vector that represents the shortest distance between: point-point,
 	 * point-line segment and line segment-line segment.
@@ -27,13 +34,13 @@ public final class Volume
 	 * Represents the closest point on the first line segment expressed as a
 	 * fraction of the line segment.
 	 */
-	double s;
+	double s = 0;
 	
 	/**
 	 * Represents the closest point on the second line segment expressed as a
 	 * fraction of the line segment.
 	 */
-	double t;
+	double t = 0;
 	
 	/**
 	 * \brief Updates the net force on two interacting cells as a result from
@@ -152,7 +159,7 @@ public final class Volume
 	 */
 	public double pointPoint(double[] p, double[] q) 
 	{
-		dP = Vector.minus(p, q);
+		Vector.minusTo(dP, p, q);
 		return Vector.normEuclid(dP);
 	}
 	
@@ -172,13 +179,13 @@ public final class Volume
 	public double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
 		// ab = p1 - p0
-		dP = Vector.minus(p1, p0);
+		Vector.minusTo(dP, p1, p0);
 		s  = clamp( Vector.dotProduct( Vector.minus(q0, p0), dP) 
 													/ Vector.normSquare(dP) );
 		// dP = (ab*s) + p0 - q0 
 		Vector.timesEquals(dP, s);
-		Vector.add(dP, p0);
-		Vector.minus(dP, q0);
+		Vector.addEquals(dP, p0);
+		Vector.minusEquals(dP, q0);
 		return Vector.normEuclid(dP);
 	}
 	

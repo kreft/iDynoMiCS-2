@@ -17,7 +17,7 @@ public class AgentRelaxation extends ProcessManager {
 		agents.refreshSpatialRegistry();
 		
 		
-		Volume iterator = new Volume();
+		Volume iterator = new Volume(agents.getNumDims());
 		// Calculate forces
 		for(Agent agent: agents.getAllLocatedAgents()) 
 		{
