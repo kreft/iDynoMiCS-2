@@ -21,10 +21,11 @@ public final class PolarArray {
 	public static double[][][] createSphere(int nr, double iresT, double iresP){
 		double[][][] a = new double[nr][0][0];
 		for (int i=0; i<nr; ++i){
-			int nr_p=i+1;
-			a[i] = new double[(int)(nr_p*iresT*iresP)][0];
+			int ntp=2*(i+1)+1;
+			a[i] = new double[(int)(iresT*ntp)][0];
 			for (int j=0; j<a[i].length; ++j){
-				a[i][j] = new double[2*(j%nr_p)+1];
+				// rectangular for iresP > 2, else triangular
+				a[i][j] = new double[(int)(j+1+(iresP-1)*(ntp-j))];		
 			}
 		}
 		return a;
@@ -35,7 +36,7 @@ public final class PolarArray {
 	}
 	
 	public static double[][][] applyToAll(double[][][] array, DoubleSupplier f){
-		int iresT=4, iresP=2;
+//		int iresT=4, iresP=2;
 		for (int i=0; i<array.length; ++i){
 			double[][] b=array[i];
 			for (int j=0; j<b.length;++j){

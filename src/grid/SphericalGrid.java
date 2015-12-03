@@ -62,33 +62,59 @@ public class SphericalGrid extends CylindricalGrid{
 	
 	@Override
 	public double[] getVoxelOrigin(int[] coords) {
-		double r = coords[0];
-		double p,t;
-		
-		int idx_ires=(int)(coords[1]/(r+1));
-		int quadt = (int)(idx_ires%iresT), 
-			quadp=(int)(idx_ires/iresT);
-		
-		if (r==0){ p = 0; t = 0;}
+		int r=coords[0],t=coords[1],p=coords[2];
+		int ntr=nt(r);
+		boolean right_ex = iresP > 1;
+		boolean is_right = p > t;
+		int ioct=(int)((t/ntr)*(right_ex ? iresP : 1)+1+(is_right ? 1 : 0)); 
+		t = is_right ? ntr-t%ntr-1 : t%ntr;
+		p = is_right ? ntr-p : p;
+		double pd, td;
+		if (r==0){ pd = 0; td = 0;}
 		else{
-			if (quadp==1) {
-				p=(r-(coords[1]%(r+1)))*(Math.PI/2/r);	
-			}
-			else p = (coords[1]%(r+1))*(Math.PI/2/r);	
-//			p = (coords[1]%(r+1))*(Math.PI/2/r);	
+			pd = p*(nt_rad/4)/(2*r);
+			td = t*(nt_rad/4)/(2*r);
 		}
-		if ((coords[1]%(r+1))==0) t = 0;
-		else t = coords[2]*(Math.PI/(4*(coords[1]%(r+1))));
 		
 //		System.out.println(quadt+"  "+quadp);
 		
 //		t+=quadt*(nt_rad/4); 
 //		p+=quadp*(np_rad/2); 
-		t+=quadt*(Math.PI/2); 
-		p+=quadp*(Math.PI/2); 
+//		t+=quadt*(Math.PI/2); 
+//		p+=quadp*(Math.PI/2); 
 				
-		return new double[]{r,t,p};
+		return new double[]{r,td,pd};
 	}
+	
+//	@Override
+//	public double[] getVoxelOrigin(int[] coords) {
+//		double r = coords[0];
+//		double p,t;
+//		
+//		int idx_ires=(int)(coords[1]/(r+1));
+//		int quadt = (int)(idx_ires%iresT), 
+//			quadp=(int)(idx_ires/iresT);
+//		
+//		if (r==0){ p = 0; t = 0;}
+//		else{
+//			if (quadp==1) {
+//				p=(r-(coords[1]%(r+1)))*(Math.PI/2/r);	
+//			}
+//			else p = (coords[1]%(r+1))*(Math.PI/2/r);	
+////			p = (coords[1]%(r+1))*(Math.PI/2/r);	
+//		}
+//		if ((coords[1]%(r+1))==0) t = 0;
+//		else t = coords[2]*(Math.PI/(4*(coords[1]%(r+1))));
+//		
+////		System.out.println(quadt+"  "+quadp);
+//		
+////		t+=quadt*(nt_rad/4); 
+////		p+=quadp*(np_rad/2); 
+////		t+=quadt*(Math.PI/2); 
+////		p+=quadp*(Math.PI/2); 
+//				
+//		return new double[]{r,t,p};
+//	}
 
 //	public double[] getVoxelCentre(int[] coords)
 //	{
@@ -160,28 +186,30 @@ public class SphericalGrid extends CylindricalGrid{
 	
 	public void setCurrent(int[] new_current){
 		_currentCoord=new_current;
-		int i=_currentCoord[0], j=_currentCoord[1], k=_currentCoord[2];
-		idx=(int)(1.0/6*i*(i+1)*(2*i+1)*8 + (k+(j%(i+1))*(j%(i+1))+(i+1)*(i+1)*(j/(i+1))))+1;
+//		int i=_currentCoord[0], j=_currentCoord[1], k=_currentCoord[2];
+//		idx=(int)(1.0/6*i*(i+1)*(2*i+1)*8 + (k+(j%(i+1))*(j%(i+1))+(i+1)*(i+1)*(j/(i+1))))+1;
 //		System.out.println(idx);
 //		System.out.println(new_current[0]+"  "+new_current[1]+"  "+new_current[2]+"  "+idx);
+		idx=c2idx(new_current);
 	}
 	
 	@Override
 	public int[] iteratorNext() {
 		idx++;
-		//TODO: eventually change matrix layout to avoid this formula (change p and t? concatenate 'ires blocks' horizontal?)..
-		//TODO: variables to speed computation up a bit..
-		//TODO: compute over integers, not reals, should simplify a lot.. 
-		int r = (int) (1.0/2*((iresP*iresT)/(Math.pow(3, 1.0/3)*Math.pow(108*iresP*iresP*iresT*iresT*idx
-				+ Math.sqrt(3)*Math.sqrt(3888*Math.pow(iresP, 4)*Math.pow(iresT, 4)*idx*idx
-				- Math.pow(iresP, 6)*Math.pow(iresT,6)),1.0/3))
-				+ Math.pow(108*iresP*iresP*iresT*iresT*idx+Math.sqrt(3)*Math.sqrt(3888*Math.pow(iresP, 4)*Math.pow(iresT, 4)*idx*idx 
-				- Math.pow(iresP, 6)*Math.pow(iresT, 6)),1.0/3)/(Math.pow(3, 2.0/3)*iresP*iresT))-1.0/2); 
-		double idx_tp2 = idx-1.0/6*r*(r+1)*(2*r+1)*iresT*iresP;
-		int t=(int) (Math.ceil(Math.pow((idx_tp2-1)%((r+1)*(r+1))+1,1.0/2))+(r+1)*(Math.ceil((idx_tp2)/((r+1)*(r+1)))-1))-1;
-		int p=(int) (((idx_tp2-1)%((r+1)*(r+1))+1) - Math.pow(t%(r+1),2))-1;
-//		p = -(8*Math.pow(r,3))/3-4*r*r-j mod (i+1)^2-1/3 i (3 j+4)-j+x-1;
-		_currentCoord[0]=r; _currentCoord[1]=t; _currentCoord[2]=p;
+//		//TODO: eventually change matrix layout to avoid this formula (change p and t? concatenate 'ires blocks' horizontal?)..
+//		//TODO: variables to speed computation up a bit..
+//		//TODO: compute over integers, not reals, should simplify a lot.. 
+//		int r = (int) (1.0/2*((iresP*iresT)/(Math.pow(3, 1.0/3)*Math.pow(108*iresP*iresP*iresT*iresT*idx
+//				+ Math.sqrt(3)*Math.sqrt(3888*Math.pow(iresP, 4)*Math.pow(iresT, 4)*idx*idx
+//				- Math.pow(iresP, 6)*Math.pow(iresT,6)),1.0/3))
+//				+ Math.pow(108*iresP*iresP*iresT*iresT*idx+Math.sqrt(3)*Math.sqrt(3888*Math.pow(iresP, 4)*Math.pow(iresT, 4)*idx*idx 
+//				- Math.pow(iresP, 6)*Math.pow(iresT, 6)),1.0/3)/(Math.pow(3, 2.0/3)*iresP*iresT))-1.0/2); 
+//		double idx_tp2 = idx-1.0/6*r*(r+1)*(2*r+1)*iresT*iresP;
+//		int t=(int) (Math.ceil(Math.pow((idx_tp2-1)%((r+1)*(r+1))+1,1.0/2))+(r+1)*(Math.ceil((idx_tp2)/((r+1)*(r+1)))-1))-1;
+//		int p=(int) (((idx_tp2-1)%((r+1)*(r+1))+1) - Math.pow(t%(r+1),2))-1;
+////		p = -(8*Math.pow(r,3))/3-4*r*r-j mod (i+1)^2-1/3 i (3 j+4)-j+x-1;
+//		_currentCoord[0]=r; _currentCoord[1]=t; _currentCoord[2]=p;
+		_currentCoord=idx2c(idx);
 		return _currentCoord;
 	}
 	
@@ -198,8 +226,51 @@ public class SphericalGrid extends CylindricalGrid{
 		return _currentNeighbor;
 	}
 	
-	public int length(){
-		int nr=_nVoxel[0];
-		return (int)(1.0/6*nr*(nr+1)*(2*nr+1)*iresT*iresP);
+	public int length(){return sn(_nVoxel[0]-1);}
+	
+	// utility functions 
+	// width and height of each triangle (number of cells in the orthogonal directions of the p-t plane)
+	private int nt(int r){return 2*r+1;}
+	// number of cells in row coords[1]
+	private int np(int[] c){return (c[2] > c[1] ? nt(c[0])-c[1] : c[1]+1);} 
+	// number of cells in an octant until and including row t (for left triangle)
+	private int snp(int t){return (int)(1.0/2*(t+1)*(t+2));} 
+	// number of cells until and including matrix r
+	private int sn(int r){return (int)(1.0/6*iresT*iresP*(r+1)*(r+2)*(r*r+3));}
+	// converts rtp coordinates to an index
+	private int c2idx(int[] c){
+		return c[2] > c[1] ? sn(c[0]-1)+snp(c[1]%nt(c[0])-1)+c[2]+1 
+				: sn(c[0]-1)+snp(nt(c[0])-c[1]%nt(c[0])-2)+np(c)-c[2];
 	}
+	// converts an index to rtp coordinates 
+	private int[] idx2c(int idx){
+//		System.out.println(idx);
+		//TODO: make variables for r to speed computation up
+		int r = (int)((7*iresP*iresT)/(4*Math.pow(3,1.0/3)*Math.pow(-27*Math.pow(iresP,3)*Math.pow(iresT,3)
+				+ 432*Math.pow(iresP,2)*Math.pow(iresT,2)*idx
+				+ 2*Math.sqrt(3)*Math.sqrt(-25*Math.pow(iresP,6)*Math.pow(iresT,6)
+				- 1944*Math.pow(iresP,5)*Math.pow(iresT,5)*idx
+				+ 15552*Math.pow(iresP,4)*Math.pow(iresT,4)*idx*idx),1.0/3))
+				+ Math.pow(-27*Math.pow(iresP,3)*Math.pow(iresT,3)+432*Math.pow(iresP,2)*Math.pow(iresT,2)*idx
+				+ 2*Math.sqrt(3)*Math.sqrt(-25*Math.pow(iresP,6)*Math.pow(iresT,6)
+				- 1944*Math.pow(iresP,5)*Math.pow(iresT,5)*idx
+				+ 15552*Math.pow(iresP,4)*Math.pow(iresT,4)*idx*idx),1.0/3)/(4*Math.pow(3,2.0/3)*iresP*iresT)-1.0/4);
+		int idxr=idx-sn(r-1); // index starting with 1 in this r slice
+		int ntr=nt(r);
+		int nco=(r+1)*(2*r+1); // number of cells in each octand
+		int ioct=(int)Math.ceil((double)idxr/nco); // index of octand in r slice
+		boolean right_ex = iresP > 1;
+		boolean is_right=right_ex ? ioct%iresP==0 : false; // left or right triangle in quadrant matrix (p=0 | p=90)
+		int idxo=(idxr-1)%nco+1; // index starting with 1 in each octand
+		int t = (int)Math.ceil(1.0/2*(Math.sqrt(8*idxo+1)-3));
+		int p = idxo-snp(t-1)-1;
+		if (is_right) {
+			t=ntr-t-1;
+			p=ntr-p;  // npr=ntr+1
+		}
+		t += right_ex ? ((int)Math.ceil((double)ioct/iresP)-1)*ntr : (ioct-1)*ntr;
+		
+		return new int[]{r,t,p};
+	}
+	
 }
