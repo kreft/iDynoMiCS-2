@@ -49,7 +49,7 @@ public class AgentRelaxation extends ProcessManager {
 		int nstep		= 0;
 		double tStep	= _timeStepSize;
 		double maxMovement		= 0.009; //maximum distance an object may travel per step usually defined by smallest object
-		boolean shoving = false;
+		boolean shoving = true;
 		// Mechanical relaxation
 		while(tMech < tStep) 
 		{			
