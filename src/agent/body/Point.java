@@ -1,6 +1,9 @@
 package agent.body;
 
+import java.util.Random;
+
 import linearAlgebra.Vector;
+import utility.MTRandom;
 
 /**
  * \brief TODO
@@ -11,6 +14,7 @@ public class Point
 {
     static int UNIQUE_ID = 0;
     protected int uid = ++UNIQUE_ID;
+    Random random = new MTRandom();
 	private double[] position;
 	private double[] velocity;
 	private double[] force;
@@ -83,6 +87,44 @@ public class Point
 	private double[] dxdt(double radius)
 	{
 		return Vector.times(getForce(), 53.05/radius);
+	}
+	
+	public void shove(double dt, double radius)
+	{
+		//////////////////////////////////////////////
+		// Legacy support (^_^ )
+		/////////////////////////////////////////////
+		// not identical but shoves like there is no tomorrow 
+		// TODO note that force is currently scaled may need to revise later
+		
+		if (!Vector.isZero(getForce()))	{
+			velocity = Vector.onesDbl(velocity.length);
+			
+			// anti deadlock
+			if (Vector.normEuclid(getForce())  < 0.2)
+				Vector.addEquals(position, Vector.times(getForce(), 5.0* radius)); 
+			// anti catapult
+			else
+				Vector.addEquals(position, Vector.times(getForce(), 0.7* radius)); 
+		}
+		else {
+			velocity = Vector.zerosDbl(velocity.length);
+		}
+		this.resetForce();
+		
+		/////////////////////////////////////////////
+		// sort of replacing the following old code
+		/////////////////////////////////////////////
+		// ContinuousVector diff = computeDifferenceVector(aNeighbor);
+		// Double delta = diff.norm() - getInteractDistance(aNeighbor);
+		// Math.exp(-delta * 5 / _totalRadius)
+		// diff.normalizeVector(delta);
+		// if ( isMutual )
+		// {
+		// 	diff.times(0.5);
+		//	aNeighbor._movement.add(diff);
+		// } 
+		// this._movement.subtract(diff);
 	}
 
 	//TODO: switch from a float RTree to a Double RTree so we can consistantly 

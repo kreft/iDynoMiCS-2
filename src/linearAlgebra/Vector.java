@@ -104,7 +104,7 @@ public final class Vector
 	{
 		return zerosInt(vector.length);
 	}
-	
+
 	/**
 	 * \brief A new double vector of length <b>n</b>, and all elements set to
 	 * zero.
@@ -118,6 +118,12 @@ public final class Vector
 	public static double[] zerosDbl(int n)
 	{
 		return vector(n, 0.0);
+	}
+	
+	// FIXME nicify
+	public static double[] onesDbl(int n)
+	{
+		return vector(n, 1.0);
 	}
 	
 	/**
