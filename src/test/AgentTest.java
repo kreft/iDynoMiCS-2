@@ -10,12 +10,16 @@ import agent.Species;
 import agent.SpeciesLib;
 import idynomics.Compartment;
 import idynomics.Simulator;
+import utility.ExtraMath;
 
 public class AgentTest {
 	
 	static Simulator sim = new Simulator();
 
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
+		// Make sure the random number generator is up and running.
+		ExtraMath.initialiseRandomNumberGenerator();
 		
 		// load xml doc
 		Element doc = XmlLoad.loadDocument("testagents.xml");

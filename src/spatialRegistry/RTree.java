@@ -623,39 +623,25 @@ public class RTree<T> extends SpatialRegistry<T>
       double e0 = getRequiredExpansion(nn[0].coords, nn[0].dimensions, c);
       double e1 = getRequiredExpansion(nn[1].coords, nn[1].dimensions, c);
       if (e0 < e1)
-      {
         preferred = nn[0];
-      }
       else if (e0 > e1)
-      {
         preferred = nn[1];
-      }
       else
       {
         double a0 = getArea(nn[0].dimensions);
         double a1 = getArea(nn[1].dimensions);
         if (a0 < a1)
-        {
           preferred = nn[0];
-        }
         else if (e0 > a1)
-        {
           preferred = nn[1];
-        }
         else
         {
           if (nn[0].children.size() < nn[1].children.size())
-          {
             preferred = nn[0];
-          }
           else if (nn[0].children.size() > nn[1].children.size())
-          {
             preferred = nn[1];
-          }
           else
-          {
-            preferred = nn[(int) Math.round(Math.random())];
-          }
+            preferred = nn[ExtraMath.getUniRandInt(2)];
         }
       }
       preferred.children.add(c);

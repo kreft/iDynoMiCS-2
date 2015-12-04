@@ -15,11 +15,15 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import processManager.SolveChemostat;
+import utility.ExtraMath;
 
 public class ODETest
 {
 	public static void main(String[] args)
 	{
+		// Make sure the random number generator is up and running.
+		ExtraMath.initialiseRandomNumberGenerator();
+		
 		/*
 		 * Setting a time step of ln(2) means that the difference between the
 		 * chemostat concentrations and the respective inflow concentrations
