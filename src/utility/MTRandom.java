@@ -11,49 +11,54 @@ package utility;
 import java.util.Random;
 
 /**
- * \brief An implementation of the original java mersenne twister class by Makoto Matsumoto and Takuji Nishimura 
+ * \brief An implementation of the original java mersenne twister class by
+ * Makoto Matsumoto and Takuji Nishimura. 
  * 
- * An implementation of the original java mersenne twister class by Makoto Matsumoto and Takuji Nishimura 
+ * <p>A Java implementation of the MT19937 (Mersenne Twister) pseudo random
+ * number generator algorithm based upon the original C code by Makoto
+ * Matsumoto and Takuji Nishimura.</p> 
  * 
- * @author Chinmay Kanchi (CGK813@bham.ac.uk), Centre for Systems Biology, University of Birmingham (UK)
+ * As a subclass of java.util.Random this class provides a single canonical
+ * method next() for generating bits in the pseudo random number sequence.  
+ * Anyone using this class should invoke the public inherited methods
+ * (nextInt(), nextFloat etc.) to obtain values as normal.  This class should
+ * provide a drop-in replacement for the standard implementation of
+ * java.util.Random with the additional advantage of having a far longer
+ * period and the ability to use a far larger seed value.</p>
  * 
- * COMMENT ON ORIGINAL SOURCE CODE:
- * MTRandom : A Java implementation of the MT19937 (Mersenne Twister) pseudo random number generator algorithm based upon the
- *            original C code by Makoto Matsumoto and Takuji Nishimura.
- * Author   : David Beaumont
- * Email    : mersenne-at-www.goui.net
+ * <p>This is not a cryptographically strong source of randomness and should
+ * not be used for cryptographic systems or in any other situation where true
+ * random numbers are required.</p>
  * 
- * For the original C code, see:  http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html
+ * <p>Note that the 4 transient int and int[] fields in the original code have
+ * commented out. These (obviously) prevented the MTRandom class from being
+ * serialized properly. I'm not entirely sure that this might not have
+ * knock-on effects, but it doesn't seem to.</p>
+ * 
+ * <p><b>COMMENT ON ORIGINAL SOURCE CODE:</b></p>
+ * 
+ * <p>For the original C code, see: 
+ * <a href="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html">here</a>
+ * .</p>
+ * 
+ * <p>This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or (at
+ * your option) any later version.</p>
+ * 
+ * <p>This library is distributed in the hope that it will be useful but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ * License for more details.</p>
+ * 
+ * <p>You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA</p>
  *
- * This version, Copyright (C) 2005, David Beaumont.
- * 
- * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
- * 
- * This library is distributed in the hope that it will be useful but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * 
  * @version 1.0
- * @author David Beaumont, Copyright 2005
- * 
- * A Java implementation of the MT19937 (Mersenne Twister) pseudo random number generator algorithm based upon the original C code
- * by Makoto Matsumoto and Takuji Nishimura 
- * 
- * As a subclass of java.util.Random this class provides a single canonical method next() for generating bits in the pseudo random
- * number sequence.  Anyone using this class should invoke the public inherited methods (nextInt(), nextFloat etc.) to obtain values as
- * normal.  This class should provide a drop-in replacement for the standard implementation of java.util.Random with the additional
- * advantage of having a far longer period and the ability to use a far larger seed value.
- * 
- * This is not a cryptographically strong source of randomness and should not be used for cryptographic systems or in any
- * other situation where true random numbers are required.
- * 
- * Note that the 4 transient int and int[] fields in the original code have commented out. These (obviously) prevented the MTRandom 
- * class from being serialized properly. I'm not entirely sure that this might not have knock-on effects, but it doesn't seem to.
- * 
+ * @author David Beaumont (mersenne-at-www.goui.net), Copyright (C) 2005.
+ * @author Chinmay Kanchi (CGK813@bham.ac.uk), Centre for Systems Biology,
+ * University of Birmingham (UK).
  */
 public class MTRandom extends Random 
 {
@@ -148,7 +153,8 @@ public class MTRandom extends Random
 	 * @param compatible Compatibility flag for replicating original
 	 * behaviour.
 	 */
-	public MTRandom(boolean compatible) {
+	public MTRandom(boolean compatible)
+	{
 		super(0L);
 		compat = compatible;
 		setSeed(compat?DEFAULT_SEED:System.currentTimeMillis());
@@ -161,7 +167,8 @@ public class MTRandom extends Random
 	 * 
 	 * @param seed The seed value with which to initialise this class.
 	 */
-	public MTRandom(long seed) {
+	public MTRandom(long seed)
+	{
 		super(seed);
 	}
 
@@ -174,7 +181,8 @@ public class MTRandom extends Random
 	 * @throws NullPointerException if the buffer is null.
 	 * @throws IllegalArgumentException if the buffer has zero length.
 	 */
-	public MTRandom(byte[] buf) {
+	public MTRandom(byte[] buf)
+	{
 		super(0L);
 		setSeed(buf);
 	}
@@ -188,112 +196,145 @@ public class MTRandom extends Random
 	 * @throws NullPointerException if the buffer is null.
 	 * @throws IllegalArgumentException if the buffer has zero length.
 	 */
-	public MTRandom(int[] buf) {
+	public MTRandom(int[] buf)
+	{
 		super(0L);
 		setSeed(buf);
 	}
-
-	// Initializes mt[N] with a simple integer seed. This method is
-	// required as part of the Mersenne Twister algorithm but need
-	// not be made public.
-	private final void setSeed(int seed) {
-
-		// Annoying runtime check for initialisation of internal data
-		// caused by java.util.Random invoking setSeed() during init.
-		// This is unavoidable because no fields in our instance will
-		// have been initialised at this point, not even if the code
-		// were placed at the declaration of the member variable.
-		if (mt == null) mt = new int[N];
+	
+	/**
+	 * \brief Initialises mt[N] with a simple integer seed.
+	 * 
+	 * <p>This method is required as part of the Mersenne Twister algorithm
+	 * but need not be made public.</p>
+	 * 
+	 * @param seed integer seed.
+	 */
+	private final void setSeed(int seed) 
+	{
+		/*
+		 * Annoying runtime check for initialisation of internal data caused
+		 * by java.util.Random invoking setSeed() during init. This is
+		 * unavoidable because no fields in our instance will have been
+		 * initialised at this point, not even if the code were placed at the
+		 * declaration of the member variable.
+		 */
+		if ( mt == null )
+			mt = new int[N];
 
 		// ---- Begin Mersenne Twister Algorithm ----
 		mt[0] = seed;
-		for (mti = 1; mti < N; mti++) {
+		for ( mti = 1; mti < N; mti++ )
 			mt[mti] = (MAGIC_FACTOR1 * (mt[mti-1] ^ (mt[mti-1] >>> 30)) + mti);
-		}
 		// ---- End Mersenne Twister Algorithm ----
 	}
 
 	/**
-	 * This method resets the state of this instance using the 64
-	 * bits of seed data provided.  Note that if the same seed data
-	 * is passed to two different instances of MTRandom (both of
-	 * which share the same compatibility state) then the sequence
-	 * of numbers generated by both instances will be identical.
-	 * <p>
-	 * If this instance was initialised in 'compatibility' mode then
-	 * this method will only use the lower 32 bits of any seed value
-	 * passed in and will match the behaviour of the original C code
-	 * exactly with respect to state initialisation.
+	 * \brief Resets the state of this instance using the 64
+	 * bits of seed data provided.
 	 * 
-	 * @param seed The 64 bit value used to initialise the random
-	 * number generator state. 
+	 * <p>Note that if the same seed data is passed to two different instances
+	 * of MTRandom (both of which share the same compatibility state) then the
+	 * sequence of numbers generated by both instances will be identical.</p>
+	 * 
+	 * <p>If this instance was initialised in 'compatibility' mode then this
+	 * method will only use the lower 32 bits of any seed value passed in and
+	 * will match the behaviour of the original C code exactly with respect to
+	 * state initialisation.</p>
+	 * 
+	 * @param seed The 64 bit value used to initialise the random number
+	 * generator state. 
 	 */
 	@Override
-	public final synchronized void setSeed(long seed) {
-		if (compat) {
-			setSeed((int)seed);
-		} else {
-
-			// Annoying runtime check for initialisation of internal data
-			// caused by java.util.Random invoking setSeed() during init.
-			// This is unavoidable because no fields in our instance will
-			// have been initialised at this point, not even if the code
-			// were placed at the declaration of the member variable.
-			if (ibuf == null) ibuf = new int[2];
-
-			ibuf[0] = (int)seed;
-			ibuf[1] = (int)(seed >>> 32);
-			setSeed(ibuf);
+	public final synchronized void setSeed(long seed)
+	{
+		if ( compat )
+			setSeed( (int) seed );
+		else
+		{
+			/*
+			 * Annoying runtime check for initialisation of internal data
+			 * caused by java.util.Random invoking setSeed() during init.
+			 * This is unavoidable because no fields in our instance will have
+			 * been initialised at this point, not even if the code were
+			 * placed at the declaration of the member variable.
+			 */
+			if (ibuf == null)
+				ibuf = new int[2];
+			ibuf[0] = (int) seed;
+			ibuf[1] = (int) ( seed >>> 32 );
+			setSeed( ibuf );
 		}
 	}
 
 	/**
-	 * This method resets the state of this instance using the byte
-	 * array of seed data provided.  Note that calling this method
-	 * is equivalent to calling "setSeed(pack(buf))" and in particular
-	 * will result in a new integer array being generated during the
-	 * call.  If you wish to retain this seed data to allow the pseudo
-	 * random sequence to be restarted then it would be more efficient
-	 * to use the "pack()" method to convert it into an integer array
-	 * first and then use that to re-seed the instance.  The behaviour
-	 * of the class will be the same in both cases but it will be more
-	 * efficient.
+	 * \brief Resets the state of this instance using the byte array of seed
+	 * data provided.  
+	 * 
+	 * <p>Note that calling this method is equivalent to calling 
+	 * <i>setSeed(pack(buf))</i> and in particular will result in a new
+	 * integer array being generated during the call.  If you wish to retain
+	 * this seed data to allow the pseudo random sequence to be restarted then
+	 * it would be more efficient to use the {@link #pack(byte[])} method to
+	 * convert it into an integer array first and then use that to re-seed the
+	 * instance.  The behaviour of the class will be the same in both cases
+	 * but it will be more efficient.</p>
 	 *
 	 * @param buf The non-empty byte array of seed information.
 	 * @throws NullPointerException if the buffer is null.
 	 * @throws IllegalArgumentException if the buffer has zero length.
 	 */
-	public final void setSeed(byte[] buf) {
+	public final void setSeed(byte[] buf)
+	{
 		setSeed(pack(buf));
 	}
 
 	/**
-	 * This method resets the state of this instance using the integer
-	 * array of seed data provided.  This is the canonical way of
-	 * resetting the pseudo random number sequence.
+	 * \brief Resets the state of this instance using the integer
+	 * array of seed data provided.
+	 * 
+	 * <p>This is the canonical way of resetting the pseudo random number
+	 * sequence.</p>
 	 * 
 	 * @param buf The non-empty integer array of seed information.
 	 * @throws NullPointerException if the buffer is null.
 	 * @throws IllegalArgumentException if the buffer has zero length.
 	 */
-	public final synchronized void setSeed(int[] buf) {
+	public final synchronized void setSeed(int[] buf)
+	{
 		int length = buf.length;
-		if (length == 0) throw new IllegalArgumentException("Seed buffer may not be empty");
+		if ( length == 0 )
+			throw new IllegalArgumentException("Seed buffer may not be empty");
 		// ---- Begin Mersenne Twister Algorithm ----
-		int i = 1, j = 0, k = (N > length ? N : length);
+		int i = 1, j = 0, k = Math.max(N, length);
 		setSeed(MAGIC_SEED);
-		for (; k > 0; k--) {
-			mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >>> 30)) * MAGIC_FACTOR2)) + buf[j] + j;
-			i++; j++;
-			if (i >= N) { mt[0] = mt[N-1]; i = 1; }
-			if (j >= length) j = 0;
-		}
-		for (k = N-1; k > 0; k--) {
-			mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >>> 30)) * MAGIC_FACTOR3)) - i;
+		for ( ; k > 0; k-- )
+		{
+			mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >>> 30)) * MAGIC_FACTOR2))
+																+ buf[j] + j;
 			i++;
-			if (i >= N) { mt[0] = mt[N-1]; i = 1; }
+			j++;
+			if ( i >= N ) 
+			{ 
+				mt[0] = mt[N-1];
+				i = 1;
+			}
+			if ( j >= length )
+				j = 0;
 		}
-		mt[0] = UPPER_MASK; // MSB is 1; assuring non-zero initial array
+		for ( k = N-1; k > 0; k-- )
+		{
+			mt[i] = (mt[i] ^ ((mt[i-1] ^ (mt[i-1] >>> 30)) * MAGIC_FACTOR3))
+																		- i;
+			i++;
+			if ( i >= N )
+			{ 
+				mt[0] = mt[N-1];
+				i = 1;
+			}
+		}
+		// MSB is 1; assuring non-zero initial array
+		mt[0] = UPPER_MASK; 
 		// ---- End Mersenne Twister Algorithm ----
 	}
 
@@ -320,35 +361,35 @@ public class MTRandom extends Random
 	 * specified number of bits in the lower part of the integer.
 	 */
 	@Override
-	protected final synchronized int next(int bits) {
+	protected final synchronized int next(int bits)
+	{
 		// ---- Begin Mersenne Twister Algorithm ----
 		int y, kk;
-		if (mti >= N) {             // generate N words at one time
-
-			// In the original C implementation, mti is checked here
-			// to determine if initialisation has occurred; if not
-			// it initialises this instance with DEFAULT_SEED (5489).
-			// This is no longer necessary as initialisation of the
-			// Java instance must result in initialisation occurring
-			// Use the constructor MTRandom(true) to enable backwards
-			// compatible behaviour.
-			
-			for (kk = 0; kk < N-M; kk++) {
+		if ( mti >= N ) // generate N words at one time
+		{             
+			/*
+			 * In the original C implementation, mti is checked here to
+			 * determine if initialisation has occurred; if not it initialises
+			 * this instance with DEFAULT_SEED (5489). This is no longer
+			 * necessary as initialisation of the Java instance must result in
+			 * initialisation occurring. Use the constructor MTRandom(true) to
+			 * enable backwards compatible behaviour.
+			 */
+			for ( kk = 0; kk < N-M; kk++ )
+			{
 				y = (mt[kk] & UPPER_MASK) | (mt[kk+1] & LOWER_MASK);
 				mt[kk] = mt[kk+M] ^ (y >>> 1) ^ MAGIC[y & 0x1];
 			}
-			for (;kk < N-1; kk++) {
+			for ( ;kk < N-1; kk++ )
+			{
 				y = (mt[kk] & UPPER_MASK) | (mt[kk+1] & LOWER_MASK);
 				mt[kk] = mt[kk+(M-N)] ^ (y >>> 1) ^ MAGIC[y & 0x1];
 			}
 			y = (mt[N-1] & UPPER_MASK) | (mt[0] & LOWER_MASK);
 			mt[N-1] = mt[M-1] ^ (y >>> 1) ^ MAGIC[y & 0x1];
-
 			mti = 0;
 		}
-  
 		y = mt[mti++];
-
 		// Tempering
 		y ^= (y >>> 11);
 		y ^= (y << 7) & MAGIC_MASK1;
@@ -384,13 +425,18 @@ public class MTRandom extends Random
 	 * @return A non-null integer array of the packed bytes.
 	 * @throws NullPointerException if the given byte array is null.
 	 */
-	public static int[] pack(byte[] buf) {
+	public static int[] pack(byte[] buf)
+	{
 		int k, blen = buf.length, ilen = ((buf.length+3) >>> 2);
 		int[] ibuf = new int[ilen];
-		for (int n = 0; n < ilen; n++) {
+		for (int n = 0; n < ilen; n++)
+		{
 			int m = (n+1) << 2;
-			if (m > blen) m = blen;
-			for (k = buf[--m]&0xff; (m & 0x3) != 0; k = (k << 8) | buf[--m]&0xff);
+			if ( m > blen )
+				m = blen;
+			for ( k = buf[--m]&0xff;
+				  (m & 0x3) != 0;
+				  k = (k << 8) | buf[--m]&0xff );
 			ibuf[n] = k;
 		}
 		return ibuf;
