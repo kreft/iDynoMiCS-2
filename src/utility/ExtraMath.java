@@ -12,8 +12,14 @@
  */
 package utility;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.DecimalFormat;
+import java.util.Calendar;
 import java.util.Random;
+
+import utility.MTRandom;
 
 /**
  * \brief Abstract class with some extra useful math functions.
@@ -53,6 +59,69 @@ public final class ExtraMath
 	 * Random number generator
 	 */
 	public static Random random;
+	
+	/* ----------------------- Initialising random ------------------------ */
+	
+	/**
+	 * \brief Initialise the random number generator with a randomly generated
+	 * seed.
+	 */
+	public static void initialiseRandomNumberGenerator()
+	{
+		long seed = (long) ( Calendar.getInstance().getTimeInMillis() *
+															Math.random() );
+		intialiseRandomNumberGenerator(seed);
+	}
+	
+	/**
+	 * \brief Initialise the random number generator with a given <b>seed</b>.
+	 * 
+	 * @param seed long integer number to seed the random number generator. 
+	 */
+	public static void intialiseRandomNumberGenerator(long seed)
+	{
+		random = new MTRandom(seed);
+	}
+	
+	/**
+	 * \brief Initialise the random number generator with an 
+	 * ObjectInputStream.
+	 * 
+	 * @param stream ObjectInputStream to read from.
+	 */
+	public static void initialiseRandomNumberGenerator(ObjectInputStream stream)
+	{
+		try
+		{
+			random = (MTRandom) stream.readObject();
+		}
+		catch (ClassNotFoundException e)
+		{
+			// TODO
+		}
+		catch (IOException e)
+		{
+			// TODO
+		}
+	}
+	
+	/**
+	 * \brief Write the state of the random number generator to an 
+	 * ObjectOutputStream.
+	 * 
+	 * @param stream ObjectOutputStream to write to.
+	 */
+	public static void writeRandomNumberGenerator(ObjectOutputStream stream)
+	{
+		try
+		{
+			stream.writeObject(random);
+		}
+		catch (IOException e)
+		{
+			// TODO
+		}
+	}
 	
 	/* ----------------------- Simple calculations ------------------------ */
 	
