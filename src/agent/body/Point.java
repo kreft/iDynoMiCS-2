@@ -19,6 +19,8 @@ public class Point
 	private double[] velocity;
 	private double[] force;
 	
+	private double[] hvelocity;
+	private double[] hposition;
 	
 	public Point(double[] p) 
 	{
@@ -83,8 +85,25 @@ public class Point
 		Vector.addEquals(position, Vector.times(getVelocity(), dt));
 		this.resetForce();
 	}
+	
+	public void heun1(double dt, double radius)
+	{
+		setVelocity(dxdt(radius));
+		hposition = Vector.copy(position);
+		Vector.addEquals(position, Vector.times(dxdt(radius), dt));
+		hvelocity = dxdt(radius);
+		this.resetForce();
+	}
+	
+	public void heun2(double dt, double radius)
+	{
+		position = Vector.add(hposition, Vector.times(
+				Vector.add(dxdt(radius),hvelocity), dt/2.0));
+		
+		this.resetForce();
+	}
 
-	private double[] dxdt(double radius)
+	public double[] dxdt(double radius)
 	{
 		return Vector.times(getForce(), 53.05/radius);
 	}

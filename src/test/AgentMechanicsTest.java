@@ -75,11 +75,11 @@ public class AgentMechanicsTest {
 		agentGrowth.setTimeForNextStep(0.0);
 		agentGrowth.setTimeStepSize(stepSize);
 
-		PovExport pov = new PovExport();
+//		PovExport pov = new PovExport();
 		SvgExport svg = new SvgExport();
 		System.out.println("Time: "+agentRelax.getTimeForNextStep());
 		// write initial state
-		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
+//		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 		svg.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 		for ( ; nStep > 0; nStep-- )
 		{
@@ -87,7 +87,7 @@ public class AgentMechanicsTest {
 			agentGrowth.step(testcompartment._environment, testcompartment.agents);
 			agentRelax.step(testcompartment._environment, testcompartment.agents);
 			// write output
-			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
+//			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 			svg.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 			System.out.println(mStep-nStep +" Time: "+agentRelax.getTimeForNextStep());
 		}

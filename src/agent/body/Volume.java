@@ -125,7 +125,6 @@ public class Volume
 		// Repulsion
 		if (distance < 0.0) 
 		{
-			// c = fPush * distance * distance; //quadratic
 			c = Math.abs(fPush * distance); //linear
 			Vector.normaliseEuclid(dP, c);
 			return dP;
