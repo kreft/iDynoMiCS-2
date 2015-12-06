@@ -32,7 +32,8 @@ public final class Matrix
 	public static int[][] matrix(int m, int n, int value)
 	{
 		int[][] out = new int[m][n];
-		return setAll(out, value);
+		setAll(out, value);
+		return out;
 	}
 	
 	/**
@@ -58,7 +59,8 @@ public final class Matrix
 	public static double[][] matrix(int m, int n, double value)
 	{
 		double[][] matrix = new double[m][n];
-		return setAll(matrix, value);
+		setAll(matrix, value);
+		return matrix;
 	}
 	
 	/**
@@ -259,10 +261,220 @@ public final class Matrix
 	 * COPYING AND SETTING
 	 ************************************************************************/
 	
+	/**
+	 * \brief Make a deep copy of the given <b>matrix</b>, placing the result
+	 * into a <b>destination</b>.
+	 * 
+	 * @param destination Two-dimensional array of integers (overwritten).
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @see #copy(int[][])
+	 */
+	public static void copyTo(int[][] destination, int[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[0].length; j++ )
+				destination[i][j] = matrix[i][j];
+	}
+	
+	/**
+	 * \brief Make a deep copy of the given <b>matrix</b>, placing the result
+	 * into a new int[][].
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @return int[][] array that is an exact copy of the given <b>matrix</b>.
+	 * @see #copyTo(int[][], int[][])
+	 */
+	public static int[][] copy(int[][] matrix)
+	{
+		int[][] out = new int[matrix.length][matrix[0].length];
+		copyTo(out, matrix);
+		return out;
+	}
+	
+	/**
+	 * \brief Make a deep copy of the given <b>matrix</b>, placing the result
+	 * into a <b>destination</b>.
+	 * 
+	 * @param destination Two-dimensional array of doubles (overwritten).
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @see #copy(double[][])
+	 */
+	public static void copyTo(double[][] destination, double[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[0].length; j++ )
+				destination[i][j] = matrix[i][j];
+	}
+	
+	/**
+	 * \brief Make a deep copy of the given <b>matrix</b>, placing the result
+	 * into a new double[][].
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return double[][] array that is an exact copy of the given <b>matrix</b>.
+	 * @see #copyTo(double[][], double[][])
+	 */
+	public static double[][] copy(double[][] matrix)
+	{
+		double[][] out = new double[matrix.length][matrix[0].length];
+		copyTo(out, matrix);
+		return out;
+	}
+	
+
+	/**
+	 * \brief Set all elements of the given <b>matrix</b> to the integer
+	 * <b>value</b> given.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param value Fill the <b>matrix</b> with this integer value.
+	 */
+	public static void setAll(int[][] matrix, int value)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[0].length; j++ )
+				matrix[i][j] = value;
+	}
+	
+	/**
+	 * \brief Set all elements of the given <b>matrix</b> to the double
+	 * <b>value</b> given.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param value Fill the matrix with this double value.
+	 */
+	public static void setAll(double[][] matrix, double value)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			for ( int j = 0; j < colDim(matrix); j++ )
+				matrix[i][j] = value;
+	}
+	
 	/*************************************************************************
 	 * CHECKING METHODS
 	 ************************************************************************/
 	
+	/* Internal consistency */
+	
+	/**
+	 * \brief Check the consistency of the row lengths in a given
+	 * <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException All rows must have the same length.
+	 */
+	public static void checkDimensions(int[][] matrix)
+	{
+		for ( int i = 1; i < matrix.length; i++ )
+			if ( matrix[i].length != matrix[0].length )
+			{
+				throw new IllegalArgumentException(
+									"All rows must have the same length.");
+			}
+	}
+	
+	/**
+	 * \brief Check the consistency of the row lengths in a given
+	 * <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException All rows must have the same length.
+	 */
+	public static void checkDimensions(double[][] matrix)
+	{
+		for ( int i = 1; i < matrix.length; i++ )
+			if ( matrix[i].length != matrix[0].length )
+			{
+				throw new IllegalArgumentException(
+									"All rows must have the same length.");
+			}
+	}
+	
+	/* Two matrices */
+	
+	/**
+	 * \brief Check that the two matrices given have the same dimensions.
+	 * 
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Matrix row dimensions must agree.
+	 */
+	public static void checkDimensionsSame(int[][] a, int[][] b)
+	{
+		if ( rowDim(a) != rowDim(b) || colDim(a) != colDim(b) )
+		{
+			throw new 
+				IllegalArgumentException("Matrix row dimensions must agree.");
+		}
+	}
+	
+	/**
+	 * \brief Check that the two matrices given have the same dimensions.
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Matrix row dimensions must agree.
+	 */
+	public static void checkDimensionsSame(double[][] a, double[][] b)
+	{
+		if ( rowDim(a) != rowDim(b) || colDim(a) != colDim(b) )
+		{
+			throw new 
+				IllegalArgumentException("Matrix row dimensions must agree.");
+		}
+	}
+	
+	/* Square matrix */
+	
+	/**
+	 * \brief Reports if the <b>matrix</b> has as many rows as columns.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @return boolean reporting whether the <b>matrix</b> is square (true) or
+	 * not (false).
+	 */
+	public static boolean isSquare(int[][] matrix)
+	{
+		return ( rowDim(matrix) == colDim(matrix) );
+	}
+	
+	/**
+	 * \brief Checks that the given <b>matrix</b> is square, throwing an error
+	 * if not.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Matrix must be square.
+	 */
+	public static void checkSquare(int[][] matrix)
+	{
+		if ( ! isSquare(matrix) )
+			throw new IllegalArgumentException("Matrix must be square.");
+	}
+	
+	/**
+	 * \brief Reports if the given <b>matrix</b> has as many rows as columns.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return boolean reporting whether the <b>matrix</b> is square (true) or
+	 * not (false).
+	 */
+	public static boolean isSquare(double[][] matrix)
+	{
+		return ( rowDim(matrix) == colDim(matrix) );
+	}
+	
+	/**
+	 * \brief Checks that the given <b>matrix</b> is square, throwing an error
+	 * if not.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Matrix must be square.
+	 */
+	public static void checkSquare(double[][] matrix)
+	{
+		if ( ! isSquare(matrix) )
+			throw new IllegalArgumentException("Matrix must be square.");
+	}
 	
 	/*************************************************************************
 	 * BASIC ARTHIMETIC
@@ -496,6 +708,52 @@ public final class Matrix
 	
 	/* Subtracting */
 	
+
+	
+	/**
+	 * \brief Subtract one matrix from another, element-by-element.
+	 * 
+	 * <p>Matrices must have same dimensions.</p>
+	 * 
+	 * <p>Note that <b>a</b> will be overwritten; use 
+	 * <i>subtract({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
+	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * 
+	 * @param a Two-dimensional array of integers.
+	 * @param b Two-dimensional array of integers.
+	 * @return double[][] array of <b>a</b>-<b>b</b>.
+	 */
+	public static int[][] subtract(int[][] a, int[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				a[i][j] -= b[i][j];
+		return a;
+	}
+	
+	/**
+	 * \brief Subtract one matrix from another, element-by-element.
+	 * 
+	 * <p>Matrices must have same dimensions.</p>
+	 * 
+	 * <p>Note that <b>a</b> will be overwritten; use 
+	 * <i>subtract({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
+	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * 
+	 * @param a Two-dimensional array of doubles.
+	 * @param b Two-dimensional array of doubles.
+	 * @return double[][] array of <b>a</b>-<b>b</b>.
+	 */
+	public static double[][] subtract(double[][] a, double[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				a[i][j] -= b[i][j];
+		return a;
+	}
+	
 	/* Multiplication */
 	
 	/**
@@ -612,36 +870,316 @@ public final class Matrix
 		timesTo(matrix, matrix, value);
 	}
 	
+	/**
+	 * \brief Times one matrix by another, element-by-element.
+	 * 
+	 * <p>Matrices must have same dimensions.</p>
+	 * 
+	 * <p>Note that <b>a</b> will be overwritten; use 
+	 * <i>elemTimes({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
+	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * 
+	 * @param a Two-dimensional array of integers.
+	 * @param b Two-dimensional array of integers.
+	 * @return int[][] array of <b>a</b> times <b>b</b> element-wise.
+	 */
+	public static int[][] elemTimes(int[][] a, int[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				a[i][j] *= b[i][j];
+		return a;
+	}
+	
+	/**
+	 * \brief Times one matrix by another, element-by-element.
+	 * 
+	 * <p>Matrices must have same dimensions.</p>
+	 * 
+	 * <p>Note that <b>a</b> will be overwritten; use 
+	 * <i>elemTimes({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
+	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * 
+	 * @param a Two-dimensional array of doubles.
+	 * @param b Two-dimensional array of doubles.
+	 * @return double[][] array of <b>a</b> times <b>b</b> element-wise.
+	 */
+	public static double[][] elemTimes(double[][] a, double[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				a[i][j] *= b[i][j];
+		return a;
+	}
+	
+	/**
+	 * \brief Linear algebra matrix multiplication of the two given matrices.
+	 * 
+	 * <p>Inner dimensions must match, i.e. n<sub>a</sub> = m<sub>b</sub>. The
+	 * output will be a new m<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
+	 * 
+	 * <p>Note that the given matrices will be unaffected by this method.</p>
+	 * 
+	 * @param a Two-dimensional array of integers.
+	 * @param b Two-dimensional array of integers.
+	 * @return Two-dimensional array of integers: <b>a</b> x <b>b</b>.
+	 * @exception IllegalArgumentException Matrix inner row dimensions must
+	 * agree.
+	 */
+	public static int[][] times(int[][] a, int[][] b)
+	{
+		if ( colDim(a) != rowDim(b) )
+		{
+			throw new IllegalArgumentException(
+								"Matrix inner row dimensions must agree.");
+		}
+		int[][] out = new int[rowDim(a)][colDim(b)];
+		int[] bCol;
+		for ( int j = 0; j < colDim(b); j++ )
+		{
+			bCol = getColumn(b, j);
+			for ( int i = 0; i < rowDim(a); i++ )
+				out[i][j] = Vector.dotProduct(getRowAsColumn(a, i), bCol);
+		}
+		return out;
+	}
+	
+	/**
+	 * \brief Linear algebra matrix multiplication of the given <b>matrix</b>
+	 * (left) by the given column <b>vector</b> (right).
+	 * 
+	 * <p>Inner dimensions must match, i.e. n<sub>matrix</sub> =
+	 * length<sub>vector</sub>. The output will be a new column vector of 
+	 * length m<sub>matrix</sub></p>
+	 * 
+	 * @param matrix Two-dimensional array of integers.
+	 * @param vector One-dimensional array of integers.
+	 * @return One-dimensional array of integers that is <b>matrix</b> x
+	 * <b>vector</b>.
+	 */
+	public static int[] times(int[][] matrix, int[] vector)
+	{
+		if ( colDim(matrix) != vector.length )
+		{
+			throw new IllegalArgumentException(
+								"Matrix inner row dimensions must agree.");
+		}
+		int[] out = new int[rowDim(matrix)];
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			out[i] = Vector.dotProduct(getRowAsColumn(matrix, i), vector);
+		return out;
+	}
+	
+	/**
+	 * \brief Linear algebra matrix multiplication of the two given matrices.
+	 * 
+	 * <p>Inner dimensions must match, i.e. n<sub>a</sub> = m<sub>b</sub>. The
+	 * output will be a new m<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
+	 * 
+	 * <p>Note that the given matrices will be unaffected by this method.</p>
+	 * 
+	 * @param a Two-dimensional array of doubles.
+	 * @param b Two-dimensional array of doubles.
+	 * @return Two-dimensional array of doubles: <b>a</b> x <b>b</b>.
+	 * @exception IllegalArgumentException Matrix inner row dimensions must
+	 * agree.
+	 */
+	public static double[][] times(double[][] a, double[][] b)
+	{
+		if ( colDim(a) != rowDim(b) )
+		{
+			throw new IllegalArgumentException(
+								"Matrix inner row dimensions must agree.");
+		}
+		double[][] out = new double[rowDim(a)][colDim(b)];
+		double[] bCol;
+		for ( int j = 0; j < colDim(b); j++ )
+		{
+			bCol = getColumn(b, j);
+			for ( int i = 0; i < rowDim(a); i++ )
+				out[i][j] = Vector.dotProduct(getRowAsColumn(a, i), bCol);
+		}
+		return out;
+	}
+	
+	/**
+	 * \brief Linear algebra matrix multiplication of the given <b>matrix</b>
+	 * (left) by the given column <b>vector</b> (right).
+	 * 
+	 * <p>Inner dimensions must match, i.e. n<sub>matrix</sub> =
+	 * length<sub>vector</sub>. The output will be a new column vector of 
+	 * length m<sub>matrix</sub></p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @param vector One-dimensional array of doubles.
+	 * @return One-dimensional array of doubles that is <b>matrix</b> x
+	 * <b>vector</b>.
+	 */
+	public static double[] times(double[][] matrix, double[] vector)
+	{
+		if ( colDim(matrix) != vector.length )
+		{
+			throw new IllegalArgumentException(
+								"Matrix inner row dimensions must agree.");
+		}
+		double[] out = new double[rowDim(matrix)];
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			out[i] = Vector.dotProduct(getRowAsColumn(matrix, i), vector);
+		return out;
+	}
+	
+	/* Division */
+	
+	/**
+	 * \brief Divide one matrix by another, element-by-element.
+	 * 
+	 * <p>Matrices must have same dimensions.</p>
+	 * 
+	 * <p>Note that <b>a</b> will be overwritten; use 
+	 * <i>elemDivide({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
+	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * 
+	 * @param a Two-dimensional array of integers.
+	 * @param b Two-dimensional array of integers.
+	 * @return int[][] array of <b>a</b> divided by <b>b</b> element-wise.
+	 */
+	public static int[][] elemDivide(int[][] a, int[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				a[i][j] /= b[i][j];
+		return a;
+	}
+	
+	/**
+	 * \brief Divide one matrix by another, element-by-element.
+	 * 
+	 * <p>Matrices must have same dimensions.</p>
+	 * 
+	 * <p>Note that <b>a</b> will be overwritten; use 
+	 * <i>elemDivide({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
+	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * 
+	 * @param a Two-dimensional array of doubles.
+	 * @param b Two-dimensional array of doubles.
+	 * @return double[][] array of <b>a</b> divided by <b>b</b> element-wise.
+	 */
+	public static double[][] elemDivide(double[][] a, double[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				a[i][j] /= b[i][j];
+		return a;
+	}
+	
 	/*************************************************************************
 	 * SUBMATRICES
 	 ************************************************************************/
 	
-	
-	
-	
-	
-	/*************************************************************************
-	 * SIMPLE INTEGER METHODS
-	 ************************************************************************/
-	
 	/**
-	 * \brief Check the consistency of the row lengths in a given
-	 * <b>matrix</b>.
+	 * \brief Extract a subsection of the given <b>matrix</b>.
 	 * 
 	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
 	 * 
 	 * @param matrix Two-dimensional array of integers.
-	 * @exception IllegalArgumentException All rows must have the same length.
+	 * @param rows int[] array of row indices to include, in the order given.
+	 * @param cols int[] array of column indices to include, in the order
+	 * given.
+	 * @return Two-dimensional array of integers selectively copied from
+	 * <b>matrix</b>.
+	 * @exception  ArrayIndexOutOfBoundsException Check submatrix indices.
 	 */
-	public static void checkDimensions(int[][] matrix)
+	public static int[][] submatrix(int[][] matrix, int[] rows, int[] cols)
 	{
-		for ( int i = 1; i < matrix.length; i++ )
-			if ( matrix[i].length != matrix[0].length )
-			{
-				throw new IllegalArgumentException(
-									"All rows must have the same length.");
-			}
+		int[][] out = new int[rows.length][cols.length];
+		try
+		{
+			for ( int i = 0; i < rows.length; i++ )
+				for ( int j = 0; j < cols.length; j++ )
+					out[i][j] = matrix[rows[i]][cols[j]];
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			throw new
+					ArrayIndexOutOfBoundsException("Check submatrix indices");
+		}
+		return out;
 	}
+	
+	/**
+	 * \brief Extract a subsection of the given <b>matrix</b>.
+	 * 
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @param rows int[] array of row indices to include, in the order given.
+	 * @param cols int[] array of column indices to include, in the order
+	 * given.
+	 * @return Two-dimensional array of doubles selectively copied from
+	 * <b>matrix</b>.
+	 * @exception  ArrayIndexOutOfBoundsException Check submatrix indices.
+	 */
+	public static double[][] submatrix(double[][] matrix, int[] rows,
+																int[] cols)
+	{
+		double[][] out = new double[rows.length][cols.length];
+		try
+		{
+			for ( int i = 0; i < rows.length; i++ )
+				for ( int j = 0; j < cols.length; j++ )
+					out[i][j] = matrix[rows[i]][cols[j]];
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			throw new
+					ArrayIndexOutOfBoundsException("Check submatrix indices");
+		}
+		return out;
+	}
+	
+	/**
+	 * brief Extract a subsection of the given <b>matrix</b>.
+	 * 
+	 * <p>For example, if <b>matrix</b> = <br>1, 2, 3, 4;<br>5, 6, 7, 8;<br>
+	 * 9, 10, 11, 12;<br> then <i>submatrix(</i><b>matrix</b><i>, 0, 2, 1,
+	 * 4)</i> returns a new matrix<br>2, 3, 4;<br>6, 7, 8;</p>
+	 * 
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles.
+	 * @param rStart int row index at which to start (inclusive).
+	 * @param rStop int row index at which to stop (exclusive).
+	 * @param cStart int column index at which to start (inclusive).
+	 * @param cStop int column index at which to stop (exclusive).
+	 * @return Two-dimensional array of doubles selectively copied from
+	 * <b>matrix</b>.
+	 * @exception  ArrayIndexOutOfBoundsException Check submatrix indices.
+	 */
+	public static double[][] submatrix(double[][] matrix, int rStart,
+										int rStop, int cStart, int cStop)
+	{
+		double[][] out = new double[rStop-rStart][cStop-cStart];
+		try
+		{
+			for ( int i = rStart; i < rStop; i++ )
+				for ( int j = cStart; j < cStop; j++ )
+					out[i][j] = matrix[i][j];
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			throw new
+					ArrayIndexOutOfBoundsException("Check submatrix indices");
+		}
+		return out;
+	}
+	
+	/*************************************************************************
+	 * SIMPLE INTEGER METHODS
+	 ************************************************************************/
 	
 	/**
 	 * \brief Number of rows in the given <b>matrix</b>.
@@ -670,35 +1208,6 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief Reports if the <b>matrix</b> has as many rows as columns.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return boolean reporting whether the <b>matrix</b> is square (true) or
-	 * not (false).
-	 */
-	public static boolean isSquare(int[][] matrix)
-	{
-		return ( rowDim(matrix) == colDim(matrix) );
-	}
-	
-	/**
-	 * \brief Checks that the given <b>matrix</b> is square, throwing an error
-	 * if not.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @exception IllegalArgumentException Matrix must be square.
-	 */
-	public static void checkSquare(int[][] matrix)
-	{
-		if ( ! isSquare(matrix) )
-			throw new IllegalArgumentException("Matrix must be square.");
-	}
-	
-	/**
 	 * \brief Returns the size of the largest of the two dimensions (# rows or
 	 * # columns) of the given <b>matrix</b>.
 	 * 
@@ -724,44 +1233,6 @@ public final class Matrix
 	public static int minDim(int[][] matrix)
 	{
 		return Math.min(matrix.length, matrix[0].length);
-	}
-	
-	/**
-	 * \brief Set all elements of the given <b>matrix</b> to the integer
-	 * <b>value</b> given.
-	 * 
-	 * <p>Note that <b>matrix</b> will be overwritten; use
-	 * <i>setAll(copy(<b>matrix</b>), <b>value</b>)</i> or
-	 * <i>matrix(<b>matrix</b>.length, <b>matrix</b>[0].length,
-	 * <b>value</b>)</i> to preserve the original state of <b>matrix</b>.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @param value Fill the <b>matrix</b> with this integer value.
-	 * @return Given <b>matrix</b> with all elements set to <b>value</b>.
-	 */
-	public static int[][] setAll(int[][] matrix, int value)
-	{
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				matrix[i][j] = value;
-		return matrix;
-	}
-	
-	/**
-	 * \brief Make a deep copy of the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return int[][] array that is an exact copy of the given <b>matrix</b>.
-	 */
-	public static int[][] copy(int[][] matrix)
-	{
-		int[][] out = new int[matrix.length][matrix[0].length];
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				out[i][j] = matrix[i][j];
-		return out;
 	}
 	
 	/**
@@ -872,36 +1343,6 @@ public final class Matrix
 		int[][] out = zerosInt(vector.length);
 		for ( int i = 0; i < vector.length; i++ )
 			out[i][i] = vector[i];
-		return out;
-	}
-	
-	/**
-	 * \brief Extract a subsection of the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @param rows int[] array of row indices to include, in the order given.
-	 * @param cols int[] array of column indices to include, in the order
-	 * given.
-	 * @return Two-dimensional array of integers selectively copied from
-	 * <b>matrix</b>.
-	 * @exception  ArrayIndexOutOfBoundsException Check submatrix indices.
-	 */
-	public static int[][] submatrix(int[][] matrix, int[] rows, int[] cols)
-	{
-		int[][] out = new int[rows.length][cols.length];
-		try
-		{
-			for ( int i = 0; i < rows.length; i++ )
-				for ( int j = 0; j < cols.length; j++ )
-					out[i][j] = matrix[rows[i]][cols[j]];
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			throw new
-					ArrayIndexOutOfBoundsException("Check submatrix indices");
-		}
 		return out;
 	}
 	
@@ -1084,25 +1525,6 @@ public final class Matrix
 	 ************************************************************************/
 	
 	/**
-	 * \brief Check the consistency of the row lengths in a given
-	 * <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @exception IllegalArgumentException All rows must have the same length.
-	 */
-	public static void checkDimensions(double[][] matrix)
-	{
-		for ( int i = 1; i < matrix.length; i++ )
-			if ( matrix[i].length != matrix[0].length )
-			{
-				throw new IllegalArgumentException(
-									"All rows must have the same length.");
-			}
-	}
-	
-	/**
 	 * \brief Number of rows in the given <b>matrix</b>.
 	 * 
 	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
@@ -1129,35 +1551,6 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief Reports if the matrix has as many rows as columns.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return boolean reporting whether the <b>matrix</b> is square (true) or
-	 * not (false).
-	 */
-	public static boolean isSquare(double[][] matrix)
-	{
-		return ( rowDim(matrix) == colDim(matrix) );
-	}
-	
-	/**
-	 * \brief Checks that the given <b>matrix</b> is square, throwing an error
-	 * if not.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @exception IllegalArgumentException Matrix must be square.
-	 */
-	public static void checkSquare(double[][] matrix)
-	{
-		if ( ! isSquare(matrix) )
-			throw new IllegalArgumentException("Matrix must be square.");
-	}
-	
-	/**
 	 * \brief Returns the size of the largest of the two dimensions (# rows or
 	 * # columns) of the given <b>matrix</b>.
 	 * 
@@ -1179,27 +1572,6 @@ public final class Matrix
 	public static int minDim(double[][] matrix)
 	{
 		return Math.min(matrix.length, matrix[0].length);
-	}
-	
-	/**
-	 * \brief Set all elements of the given <b>matrix</b> to the double
-	 * <b>value</b> given.
-	 * 
-	 * <p>Note that <b>matrix</b> will be overwritten; use
-	 * <i>setAll(copy(<b>matrix</b>), <b>value</b>)</i> or
-	 * <i>newInt(<b>matrix</b>.length, <b>matrix</b>[0].length,
-	 * <b>value</b>)</i> to preserve the original state of <b>matrix</b>.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @param value Fill the matrix with this double value.
-	 * @return Given <b>matrix</b> with all elements set to <b>value</b>.
-	 */
-	public static double[][] setAll(double[][] matrix, double value)
-	{
-		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				matrix[i][j] = value;
-		return matrix;
 	}
 	
 	/**
@@ -1250,24 +1622,6 @@ public final class Matrix
 	public static double[][] random(double[][] matrix)
 	{
 		return random(rowDim(matrix), colDim(matrix));
-	}
-	
-	/**
-	 * \brief Make a deep copy of the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return double[][] array that is an exact copy of the given
-	 * <b>matrix</b>.
-	 */
-	public static double[][] copy(double[][] matrix)
-	{
-		double[][] out = new double[matrix.length][matrix[0].length];
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				out[i][j] = matrix[i][j];
-		return out;
 	}
 	
 	/**
@@ -1379,73 +1733,6 @@ public final class Matrix
 		double[][] out = zerosDbl(vector.length);
 		for ( int i = 0; i < vector.length; i++ )
 			out[i][i] = vector[i];
-		return out;
-	}
-	
-	/**
-	 * \brief Extract a subsection of the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @param rows int[] array of row indices to include, in the order given.
-	 * @param cols int[] array of column indices to include, in the order
-	 * given.
-	 * @return Two-dimensional array of doubles selectively copied from
-	 * <b>matrix</b>.
-	 * @exception  ArrayIndexOutOfBoundsException Check submatrix indices.
-	 */
-	public static double[][] submatrix(double[][] matrix, int[] rows,
-																int[] cols)
-	{
-		double[][] out = new double[rows.length][cols.length];
-		try
-		{
-			for ( int i = 0; i < rows.length; i++ )
-				for ( int j = 0; j < cols.length; j++ )
-					out[i][j] = matrix[rows[i]][cols[j]];
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			throw new
-					ArrayIndexOutOfBoundsException("Check submatrix indices");
-		}
-		return out;
-	}
-	
-	/**
-	 * brief Extract a subsection of the given <b>matrix</b>.
-	 * 
-	 * <p>For example, if <b>matrix</b> = <br>1, 2, 3, 4;<br>5, 6, 7, 8;<br>
-	 * 9, 10, 11, 12;<br> then <i>submatrix(</i><b>matrix</b><i>, 0, 2, 1,
-	 * 4)</i> returns a new matrix<br>2, 3, 4;<br>6, 7, 8;</p>
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @param rStart int row index at which to start (inclusive).
-	 * @param rStop int row index at which to stop (exclusive).
-	 * @param cStart int column index at which to start (inclusive).
-	 * @param cStop int column index at which to stop (exclusive).
-	 * @return Two-dimensional array of doubles selectively copied from
-	 * <b>matrix</b>.
-	 * @exception  ArrayIndexOutOfBoundsException Check submatrix indices.
-	 */
-	public static double[][] submatrix(double[][] matrix, int rStart,
-										int rStop, int cStart, int cStop)
-	{
-		double[][] out = new double[rStop-rStart][cStop-cStart];
-		try
-		{
-			for ( int i = rStart; i < rStop; i++ )
-				for ( int j = cStart; j < cStop; j++ )
-					out[i][j] = matrix[i][j];
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			throw new
-					ArrayIndexOutOfBoundsException("Check submatrix indices");
-		}
 		return out;
 	}
 	
@@ -1797,322 +2084,6 @@ public final class Matrix
 	/*************************************************************************
 	 * TWO MATRIX METHODS
 	 ************************************************************************/
-	
-	/**
-	 * \brief Check that the two matrices given have the same dimensions.
-	 * 
-	 * <p>Note that the matrices will be unaffected by this method.</p>
-	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @exception IllegalArgumentException Matrix row dimensions must agree.
-	 */
-	public static void checkDimensionsSame(int[][] a, int[][] b)
-	{
-		if ( rowDim(a) != rowDim(b) || colDim(a) != colDim(b) )
-		{
-			throw new 
-				IllegalArgumentException("Matrix row dimensions must agree.");
-		}
-	}
-	
-	/**
-	 * \brief Check that the two matrices given have the same dimensions.
-	 * 
-	 * <p>Note that the matrices will be unaffected by this method.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @exception IllegalArgumentException Matrix row dimensions must agree.
-	 */
-	public static void checkDimensionsSame(double[][] a, double[][] b)
-	{
-		if ( rowDim(a) != rowDim(b) || colDim(a) != colDim(b) )
-		{
-			throw new 
-				IllegalArgumentException("Matrix row dimensions must agree.");
-		}
-	}
-	
-	/**
-	 * TODO
-	 * 
-	 * @param a Two-dimensional array of integers (overwritten).
-	 * @param b Two-dimensional array of integers (preserved).
-	 * @return
-	 */
-	public static int[][] setAll(int[][] a, int[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] = b[i][j];
-		return a;
-	}
-	
-	/**
-	 * TODO
-	 * 
-	 * @param a Two-dimensional array of doubles (overwritten).
-	 * @param b Two-dimensional array of doubles (preserved).
-	 * @return
-	 */
-	public static double[][] setAll(double[][] a, double[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] = b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Subtract one matrix from another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>subtract({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @return double[][] array of <b>a</b>-<b>b</b>.
-	 */
-	public static int[][] subtract(int[][] a, int[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] -= b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Subtract one matrix from another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>subtract({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return double[][] array of <b>a</b>-<b>b</b>.
-	 */
-	public static double[][] subtract(double[][] a, double[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] -= b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Times one matrix by another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemTimes({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @return int[][] array of <b>a</b> times <b>b</b> element-wise.
-	 */
-	public static int[][] elemTimes(int[][] a, int[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] *= b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Times one matrix by another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemTimes({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return double[][] array of <b>a</b> times <b>b</b> element-wise.
-	 */
-	public static double[][] elemTimes(double[][] a, double[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] *= b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Divide one matrix by another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemDivide({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @return int[][] array of <b>a</b> divided by <b>b</b> element-wise.
-	 */
-	public static int[][] elemDivide(int[][] a, int[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] /= b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Divide one matrix by another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemDivide({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return double[][] array of <b>a</b> divided by <b>b</b> element-wise.
-	 */
-	public static double[][] elemDivide(double[][] a, double[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] /= b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Linear algebra matrix multiplication of the two given matrices.
-	 * 
-	 * <p>Inner dimensions must match, i.e. n<sub>a</sub> = m<sub>b</sub>. The
-	 * output will be a new m<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
-	 * 
-	 * <p>Note that the given matrices will be unaffected by this method.</p>
-	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @return Two-dimensional array of integers: <b>a</b> x <b>b</b>.
-	 * @exception IllegalArgumentException Matrix inner row dimensions must
-	 * agree.
-	 */
-	public static int[][] times(int[][] a, int[][] b)
-	{
-		if ( colDim(a) != rowDim(b) )
-		{
-			throw new IllegalArgumentException(
-								"Matrix inner row dimensions must agree.");
-		}
-		int[][] out = new int[rowDim(a)][colDim(b)];
-		int[] bCol;
-		for ( int j = 0; j < colDim(b); j++ )
-		{
-			bCol = getColumn(b, j);
-			for ( int i = 0; i < rowDim(a); i++ )
-				out[i][j] = Vector.dotProduct(getRowAsColumn(a, i), bCol);
-		}
-		return out;
-	}
-	
-	/**
-	 * \brief Linear algebra matrix multiplication of the given <b>matrix</b>
-	 * (left) by the given column <b>vector</b> (right).
-	 * 
-	 * <p>Inner dimensions must match, i.e. n<sub>matrix</sub> =
-	 * length<sub>vector</sub>. The output will be a new column vector of 
-	 * length m<sub>matrix</sub></p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @param vector One-dimensional array of integers.
-	 * @return One-dimensional array of integers that is <b>matrix</b> x
-	 * <b>vector</b>.
-	 */
-	public static int[] times(int[][] matrix, int[] vector)
-	{
-		if ( colDim(matrix) != vector.length )
-		{
-			throw new IllegalArgumentException(
-								"Matrix inner row dimensions must agree.");
-		}
-		int[] out = new int[rowDim(matrix)];
-		for ( int i = 0; i < rowDim(matrix); i++ )
-			out[i] = Vector.dotProduct(getRowAsColumn(matrix, i), vector);
-		return out;
-	}
-	
-	/**
-	 * \brief Linear algebra matrix multiplication of the two given matrices.
-	 * 
-	 * <p>Inner dimensions must match, i.e. n<sub>a</sub> = m<sub>b</sub>. The
-	 * output will be a new m<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
-	 * 
-	 * <p>Note that the given matrices will be unaffected by this method.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return Two-dimensional array of doubles: <b>a</b> x <b>b</b>.
-	 * @exception IllegalArgumentException Matrix inner row dimensions must
-	 * agree.
-	 */
-	public static double[][] times(double[][] a, double[][] b)
-	{
-		if ( colDim(a) != rowDim(b) )
-		{
-			throw new IllegalArgumentException(
-								"Matrix inner row dimensions must agree.");
-		}
-		double[][] out = new double[rowDim(a)][colDim(b)];
-		double[] bCol;
-		for ( int j = 0; j < colDim(b); j++ )
-		{
-			bCol = getColumn(b, j);
-			for ( int i = 0; i < rowDim(a); i++ )
-				out[i][j] = Vector.dotProduct(getRowAsColumn(a, i), bCol);
-		}
-		return out;
-	}
-	
-	/**
-	 * \brief Linear algebra matrix multiplication of the given <b>matrix</b>
-	 * (left) by the given column <b>vector</b> (right).
-	 * 
-	 * <p>Inner dimensions must match, i.e. n<sub>matrix</sub> =
-	 * length<sub>vector</sub>. The output will be a new column vector of 
-	 * length m<sub>matrix</sub></p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @param vector One-dimensional array of doubles.
-	 * @return One-dimensional array of doubles that is <b>matrix</b> x
-	 * <b>vector</b>.
-	 */
-	public static double[] times(double[][] matrix, double[] vector)
-	{
-		if ( colDim(matrix) != vector.length )
-		{
-			throw new IllegalArgumentException(
-								"Matrix inner row dimensions must agree.");
-		}
-		double[] out = new double[rowDim(matrix)];
-		for ( int i = 0; i < rowDim(matrix); i++ )
-			out[i] = Vector.dotProduct(getRowAsColumn(matrix, i), vector);
-		return out;
-	}
 	
 	/**
 	 * \brief Solve the system of linear equations represented by three
