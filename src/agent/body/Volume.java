@@ -118,7 +118,7 @@ public class Volume
 		double c;
 		double p 			= 0.01; 		// pull distance
 		double fPull 		= 0.0002;		// pull force scalar
-		double fPush 		= 2.0;			// push force scalar
+		double fPush 		= 3.0;			// push force scalar
 		boolean exponential = true; 		// exponential pull curve
 		distance 			-= radii+0.001;	// added margin
 		

@@ -29,7 +29,7 @@
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
 				<state name="isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="GREEN" />
+				<state name="pigment" type="String" value="RED" />
 				<state name="body" type="body">
 					<point position="0.2, 0.3" />
 				</state>
@@ -40,7 +40,7 @@
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
 				<state name="isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="GREEN" />
+				<state name="pigment" type="String" value="BLUE" />
 				<state name="body" type="body">
 					<point position="0.1, -0.1" />
 				</state>
