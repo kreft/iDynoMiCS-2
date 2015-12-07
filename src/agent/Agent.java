@@ -151,14 +151,7 @@ public class Agent implements StateObject
 		aState.set(state);
 		_states.put(name, aState);
 	}
-	
-	public void setCalculated(String name, CalculatedState.stateExpression state)
-	{
-		State anonymous = new CalculatedState();
-		anonymous.set((CalculatedState.stateExpression) state);
-		_states.put(name, anonymous);
-	}
-	
+
 	/**
 	 * set should be able to handle any type of state you throw at it.
 	 * @param name
@@ -168,8 +161,6 @@ public class Agent implements StateObject
 	{
 		if (state instanceof State)
 			setState(name,(State) state);
-		else if (state instanceof CalculatedState.stateExpression)
-			setCalculated(name,(CalculatedState.stateExpression) state);
 		else
 			setPrimary(name, state);
 	}
@@ -200,7 +191,7 @@ public class Agent implements StateObject
 			_activities.get(activity).execute(new Agent[]{this},timestep);
 		}
 		catch (Exception e) // null pointer exception?
-	{
+		{
 			System.out.println(e.toString());
 		}
 	}

@@ -108,6 +108,7 @@ public class XmlLoad {
 				switch (s.getAttribute("type")) 
 				{
 					case "body" :
+						// TODO body now set to name that is indicated.. test this
 						//FIXME: not finished only accounts for simple coccoid cells
 						List<Point> pointList = new LinkedList<Point>();
 						NodeList pointNodes = s.getElementsByTagName("point");
@@ -117,7 +118,7 @@ public class XmlLoad {
 							pointList.add(new Point(Vector.dblFromString(
 									point.getAttribute("position"))));
 						}
-						stateObject.setPrimary("body", new Body(pointList));
+						stateObject.setPrimary(s.getAttribute("name"), new Body(pointList));
 						break;
 					case "reactions" :
 						List<Reaction> reactions = new LinkedList<Reaction>();
@@ -128,7 +129,7 @@ public class XmlLoad {
 							reactions.add(new Reaction(
 									reaction.getAttribute("somethingReact")));
 						}
-						stateObject.setPrimary("reactions", reactions);
+						stateObject.setPrimary(s.getAttribute("name"), reactions);
 						break;
 				}
 			}

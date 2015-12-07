@@ -1,10 +1,9 @@
 package test;
 
 import agent.Agent;
-import agent.state.CalculatedState;
 import agent.state.PrimaryState;
 import agent.state.State;
-import agent.state.secondary.SimpleVolumeState;
+import agent.state.secondary.*;
 
 public class AgentStateExamples {
 
@@ -23,34 +22,43 @@ public class AgentStateExamples {
 		
 		// add a predefined secondary state
 		State volume = new SimpleVolumeState();
-		volume.set(null);
+		volume.set("mass,density");
+		
 		testagent.setState("volume",volume);
 		
+		// removed "calculated state" since we don't want to use anonymous
+		// states but it is still possible..
+		testagent.setState("volume2",
 		// add a secondary state that was not previously defined (anonymous class).
-		State anonymous = new CalculatedState();
-		anonymous.set(new CalculatedState.stateExpression() {
-			
+		new State() {
 			@Override
-			public Object calculate(Agent agent) {
+			public void set(Object state) {
+
+			}
+
+			@Override
+			public Object get(Agent agent) {
 				return (Double) agent.get("mass") / (Double) agent.get("density");
 			}
+
+			@Override
+			public State copy() {
+				return this; // *information is only stored in primary states
+			}
 		});
-		testagent.setState("volume2",anonymous);
+
 		
 		System.out.println(testagent.get("mass"));
 		System.out.println(testagent.getState("mass").getClass());
 		System.out.println(testagent.get("density"));
 		System.out.println(volume.get(testagent));
 		System.out.println(testagent.get("volume"));
-		System.out.println(anonymous.get(testagent));
-		System.out.println(anonymous.getClass());
+		System.out.println(testagent.get("volume2"));
 		System.out.println(testagent.get("volume2"));
 		
 		testagent.set("myint", 0);
 		testagent.set("mybool", true);
 		testagent.set("mystring", "hello!");
-		Agent copyAgent = new Agent(testagent);
-		System.out.println("catch");
 		
 		//////////////
 		// now the same thing the ezway
@@ -71,17 +79,7 @@ public class AgentStateExamples {
 		ezagent.set("density", 0.2);
 		
 		// add a predefined secondary state
-		ezagent.set("volume",new SimpleVolumeState());
-		
-		// add a secondary state that was not previously defined (anonymous class).
-		ezagent.set("volume2", new CalculatedState.stateExpression() {
-			
-			@Override
-			public Object calculate(Agent agent) {
-				return (Double) agent.get("mass") / (Double) agent.get("density");
-			}
-		});
-		
+		ezagent.set("volume", new SimpleVolumeState("mass,density"));
 		
 		}
 		System.out.println(times + " times in: " + (System.currentTimeMillis()-tic) + " milisecs");
