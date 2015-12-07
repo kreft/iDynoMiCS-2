@@ -191,7 +191,7 @@ public class Agent implements StateObject
 			_activities.get(activity).execute(new Agent[]{this},timestep);
 		}
 		catch (Exception e) // null pointer exception?
-		{
+	{
 			System.out.println(e.toString());
 		}
 	}

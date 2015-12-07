@@ -16,7 +16,7 @@ public class AgentStateExamples {
 		State mass = new PrimaryState();
 		mass.set(0.1);
 		testagent.setState("mass",mass);
-		
+				
 		// add a new state the automated way
 		testagent.setPrimary("density", 0.2);
 		
@@ -35,7 +35,7 @@ public class AgentStateExamples {
 			public void set(Object state) {
 
 			}
-
+			
 			@Override
 			public Object get(Agent agent) {
 				return (Double) agent.get("mass") / (Double) agent.get("density");
@@ -46,7 +46,6 @@ public class AgentStateExamples {
 				return this; // *information is only stored in primary states
 			}
 		});
-
 		
 		System.out.println(testagent.get("mass"));
 		System.out.println(testagent.getState("mass").getClass());
@@ -79,7 +78,7 @@ public class AgentStateExamples {
 		ezagent.set("density", 0.2);
 		
 		// add a predefined secondary state
-		ezagent.set("volume", new SimpleVolumeState("mass,density"));
+		ezagent.set("volume",new SimpleVolumeState());
 		
 		}
 		System.out.println(times + " times in: " + (System.currentTimeMillis()-tic) + " milisecs");

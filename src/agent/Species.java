@@ -70,8 +70,7 @@ public class Species implements StateObject
 		aState.set(state);
 		_states.put(name, aState);
 	}
-	
-	
+
 	/**
 	 * set should be able to handle any type of state you throw at it.
 	 * @param name
@@ -81,7 +80,7 @@ public class Species implements StateObject
 	{
 		if (state instanceof State)
 			setState(name,(State) state);
-		else
+		else 
 			setPrimary(name, state);
 	}
 	

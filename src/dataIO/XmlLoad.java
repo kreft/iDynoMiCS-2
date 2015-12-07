@@ -21,7 +21,7 @@ import linearAlgebra.Vector;
 import agent.StateObject;
 import agent.body.Body;
 import agent.body.Point;
-import agent.state.StateLib;
+import agent.state.StateLoader;
 
 public class XmlLoad {
 	
@@ -99,7 +99,7 @@ public class XmlLoad {
 	                	break;
 					case "secondary" : 
 						stateObject.setState(s.getAttribute("name"), 
-								StateLib.get(s.getAttribute("value")));
+								StateLoader.get(s.getAttribute("value")));
 	                	break;
 				}
 			}
@@ -108,7 +108,6 @@ public class XmlLoad {
 				switch (s.getAttribute("type")) 
 				{
 					case "body" :
-						// TODO body now set to name that is indicated.. test this
 						//FIXME: not finished only accounts for simple coccoid cells
 						List<Point> pointList = new LinkedList<Point>();
 						NodeList pointNodes = s.getElementsByTagName("point");
@@ -118,7 +117,7 @@ public class XmlLoad {
 							pointList.add(new Point(Vector.dblFromString(
 									point.getAttribute("position"))));
 						}
-						stateObject.setPrimary(s.getAttribute("name"), new Body(pointList));
+						stateObject.setPrimary("body", new Body(pointList));
 						break;
 					case "reactions" :
 						List<Reaction> reactions = new LinkedList<Reaction>();
@@ -129,7 +128,7 @@ public class XmlLoad {
 							reactions.add(new Reaction(
 									reaction.getAttribute("somethingReact")));
 						}
-						stateObject.setPrimary(s.getAttribute("name"), reactions);
+						stateObject.setPrimary("reactions", reactions);
 						break;
 				}
 			}

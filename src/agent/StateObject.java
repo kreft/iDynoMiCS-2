@@ -11,7 +11,7 @@ public interface StateObject {
 	public void setState(String name, State state);
 	
 	public void setPrimary(String name, Object state);
-
+	
 	public void set(String name, Object state);
 
 }

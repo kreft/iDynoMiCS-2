@@ -12,11 +12,11 @@
 		<species name="AOB">
 			<state name="pigment" type="String" value="GREEN" />
 			<state name="morphology" type="String" value="coccoid" />
-			<state name="joints" type="secondary" value="joints" />
-			<state name="volume" type="secondary" value="simpleVolume" />
-			<state name="radius" type="secondary" value="coccoidRadius" />
-			<state name="lowerBoundingBox" type="secondary" value="lowerBoundingBox" />
-			<state name="dimensionsBoundingBox" type="secondary" value="dimensionsBoundingBox" />
+			<state name="joints" type="secondary" value="JointsState" />
+			<state name="volume" type="secondary" value="SimpleVolumeState" />
+			<state name="radius" type="secondary" value="CoccoidRadius" />
+			<state name="lowerBoundingBox" type="secondary" value="LowerBoundingBox" />
+			<state name="dimensionsBoundingBox" type="secondary" value="DimensionsBoundingBox" />
 			<!-- this has not been made yet, use a static growthrate for now -->
 			<state name="growthRate" type="double" value="0.08" />
 		</species>
