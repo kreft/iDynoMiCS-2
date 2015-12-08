@@ -29,7 +29,8 @@ public class Point
 	
 	public Point(double[] p) 
 	{
-		this.setPosition(Vector.copy(p)); 	// copying may be slower to initiate, but is saver
+		// Copying may be slower to initiate, but is safer.
+		this.setPosition(Vector.copy(p));
 		this.setForce(Vector.zeros(p));
 	}
 	
@@ -94,23 +95,50 @@ public class Point
 		this.resetForce();
 	}
 	
+	/**
+	 * \brief First stage of Heun's method.
+	 * 
+	 * @param dt
+	 * @param radius
+	 */
 	public void heun1(double dt, double radius)
 	{
-		c[0] = Vector.copy(p);									//hposition = Vector.copy(p);
+		// h position = Vector.copy(p);
+		c[0] = Vector.copy(p);									
 		Vector.addEquals(p, Vector.times(dxdt(radius), dt));
-		c[1] = dxdt(radius);									//hvelocity = dxdt(radius);
+		// h velocity = dxdt(radius);
+		c[1] = dxdt(radius);
 		this.resetForce();
 	}
 	
+	/**
+	 * \brief Second stage of Heun's method.
+	 * 
+	 * @param dt
+	 * @param radius
+	 */
 	public void heun2(double dt, double radius)
 	{
-		p = Vector.add(c[0], 
-				Vector.times(Vector.add(dxdt(radius),c[1]), dt/2.0));
+		/*
+		 * p = c0 + (dxdt * c1 * dt / 2)
+		 */
+		p = Vector.add(dxdt(radius),c[1]);
+		Vector.timesEquals(p, dt/2.0);
+		Vector.addEquals(p, c[0]);
 		this.resetForce();
 	}
-
+	
+	/**
+	 * 
+	 * @param radius
+	 * @return
+	 */
 	public double[] dxdt(double radius)
 	{
+		/*
+		 * 53.05 = 1/0.01885
+		 * 0.01885 = 3 * pi * (viscosity of water)
+		 */
 		return Vector.times(getForce(), 53.05/radius);
 	}
 	
@@ -120,11 +148,14 @@ public class Point
 		// not identical but shoves like there is no tomorrow 
 		// TODO note that force is currently scaled may need to revise later
 		
-		if (!Vector.isZero(getForce()))	{
-			if (Vector.normEuclid(getForce())  < 0.2)							// anti deadlock
+		if ( ! Vector.isZero(getForce()) )
+		{
+			// anti deadlock
+			if ( Vector.normEuclid(getForce()) < 0.2 )
 				Vector.addEquals(p, Vector.times(getForce(), 5.0* radius)); 
+			// anti catapult
 			else
-				Vector.addEquals(p, Vector.times(getForce(), 0.7* radius)); 	// anti catapult
+				Vector.addEquals(p, Vector.times(getForce(), 0.7* radius));
 		}
 		this.resetForce();
 	}
@@ -192,5 +223,4 @@ public class Point
 	{
 		Vector.minusEquals(this.f, forceToSubtract);
 	}
-
 }
