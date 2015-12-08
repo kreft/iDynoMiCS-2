@@ -6,7 +6,7 @@ import linearAlgebra.Vector;
 import utility.MTRandom;
 
 /**
- * \brief TODO
+ * \brief TODO needs spring cleaning.. keep Point as a minimal object
  * 
  * @author Bastiaan Cockx, DTU (baco@env.dtu.dk)
  */
@@ -14,19 +14,17 @@ public class Point
 {
     static int UNIQUE_ID = 0;
     protected int uid = ++UNIQUE_ID;
-    Random random = new MTRandom();
-	private double[] position;
-	private double[] velocity;
-	private double[] force;
+    Random random = new MTRandom(); 	// needs proper implementation
+    
+	private double[] p;					// position
+	private double[] f;					// force
 	
-	private double[] hvelocity;
-	private double[] hposition;
+	private double[][] c;				// used for higher order ODE solvers
 	
 	public Point(double[] p) 
 	{
-		this.setPosition(p);
-		this.setVelocity(Vector.zerosDbl(p.length));
-		this.setForce(Vector.zerosDbl(p.length));
+		this.setPosition(Vector.copy(p)); 	// copying may be slower to initiate, but is saver
+		this.resetForce();
 	}
 	
 	public Point(int nDim)
@@ -35,7 +33,7 @@ public class Point
 	}
 	
 	//FIXME: change this to set position random location lowerbound[] 
-	//upperbound[], currently domain represents a simple spawn box with sizes
+	// upperbound[], currently domain represents a simple spawn box with sizes
 	// "domain", this needs to be a bit more specific
 	public Point(int nDim, double domain) 
 	{
@@ -45,6 +43,11 @@ public class Point
 	public Point(String vectorString)
 	{
 		this(Vector.dblFromString(vectorString));
+	}
+	
+	public void setC(int size)
+	{
+		c = new double[size][p.length];
 	}
 	
 	public int identifier() 
@@ -81,25 +84,22 @@ public class Point
 		// particle is equal to a diameter of a spherical particle that exhibits 
 		// identical properties (in this case hydrodynamic).
 		// see pdf forces in microbial systems.
-		setVelocity(dxdt(radius));
-		Vector.addEquals(position, Vector.times(getVelocity(), dt));
+		Vector.addEquals(p, Vector.times(dxdt(radius), dt));
 		this.resetForce();
 	}
 	
 	public void heun1(double dt, double radius)
 	{
-		setVelocity(dxdt(radius));
-		hposition = Vector.copy(position);
-		Vector.addEquals(position, Vector.times(dxdt(radius), dt));
-		hvelocity = dxdt(radius);
+		c[0] = Vector.copy(p);									//hposition = Vector.copy(p);
+		Vector.addEquals(p, Vector.times(dxdt(radius), dt));
+		c[1] = dxdt(radius);									//hvelocity = dxdt(radius);
 		this.resetForce();
 	}
 	
 	public void heun2(double dt, double radius)
 	{
-		position = Vector.add(hposition, Vector.times(
-				Vector.add(dxdt(radius),hvelocity), dt/2.0));
-		
+		p = Vector.add(c[0], 
+				Vector.times(Vector.add(dxdt(radius),c[1]), dt/2.0));
 		this.resetForce();
 	}
 
@@ -108,114 +108,77 @@ public class Point
 		return Vector.times(getForce(), 53.05/radius);
 	}
 	
-	public void shove(double dt, double radius)
+	public void shove(double dt, double radius) 
 	{
-		//////////////////////////////////////////////
-		// Legacy support (^_^ )
-		/////////////////////////////////////////////
+		// Legacy support
 		// not identical but shoves like there is no tomorrow 
 		// TODO note that force is currently scaled may need to revise later
 		
 		if (!Vector.isZero(getForce()))	{
-			velocity = Vector.onesDbl(velocity.length);
-			
-			// anti deadlock
-			if (Vector.normEuclid(getForce())  < 0.2)
-				Vector.addEquals(position, Vector.times(getForce(), 5.0* radius)); 
-			// anti catapult
+			if (Vector.normEuclid(getForce())  < 0.2)							// anti deadlock
+				Vector.addEquals(p, Vector.times(getForce(), 5.0* radius)); 
 			else
-				Vector.addEquals(position, Vector.times(getForce(), 0.7* radius)); 
-		}
-		else {
-			velocity = Vector.zerosDbl(velocity.length);
+				Vector.addEquals(p, Vector.times(getForce(), 0.7* radius)); 	// anti catapult
 		}
 		this.resetForce();
-		
-		/////////////////////////////////////////////
-		// sort of replacing the following old code
-		/////////////////////////////////////////////
-		// ContinuousVector diff = computeDifferenceVector(aNeighbor);
-		// Double delta = diff.norm() - getInteractDistance(aNeighbor);
-		// Math.exp(-delta * 5 / _totalRadius)
-		// diff.normalizeVector(delta);
-		// if ( isMutual )
-		// {
-		// 	diff.times(0.5);
-		//	aNeighbor._movement.add(diff);
-		// } 
-		// this._movement.subtract(diff);
 	}
 
 	//TODO: switch from a float RTree to a Double RTree so we can consistantly 
 	// use Doubles in the model implementation.
 	public float[] coord(double radius) 
 	{
-		float[] coord = new float[position.length];
-		for (int i = 0; i < position.length; i++) 
-			coord[i] = (float) (position[i]-radius);
+		float[] coord = new float[p.length];
+		for (int i = 0; i < p.length; i++) 
+			coord[i] = (float) (p[i]-radius);
 		return coord;
 	}
 	
 	public float[] dimensions(double radius) 
 	{
-		float[] dimensions = new float[position.length];
-		for (int i = 0; i < position.length; i++) 
+		float[] dimensions = new float[p.length];
+		for (int i = 0; i < p.length; i++) 
 			dimensions[i] = (float) (radius*2.0);
 		return dimensions;
 	}
 	
 	public float[] upper(double radius) 
 	{
-		float[] coord = new float[position.length];
-		for (int i = 0; i < position.length; i++) 
-			coord[i] = (float) (position[i]+radius);
+		float[] coord = new float[p.length];
+		for (int i = 0; i < p.length; i++) 
+			coord[i] = (float) (p[i]+radius);
 		return coord;
 	}
 	
-	public int nDim() 
-	{
-		return getPosition().length;
+	public int nDim() {
+		return p.length;
 	}
 
-	public double[] getPosition() 
-	{
-		return position;
+	public double[] getPosition() {
+		return p;
 	}
 
-	public void setPosition(double[] position) 
-	{
-		this.position = position;
+	public void setPosition(double[] position) {
+		this.p = position;
 	}
 
 	public double[] getForce() {
-		return force;
+		return f;
 	}
 
 	public void setForce(double[] force) {
-		this.force = force;
+		this.f = force;
 	}
 	
-	public void resetForce()
-	{
-		Vector.reset(this.force);
+	private void resetForce() {
+		f = Vector.zerosDbl(p.length);
 	}
 	
-	public void addToForce(double[] forceToAdd)
-	{
-		Vector.addEquals(this.force, forceToAdd);
+	public void addToForce(double[] forceToAdd) {
+		Vector.addEquals(this.f, forceToAdd);
 	}
 	
-	public void subtractFromForce(double[] forceToSubtract)
-	{
-		Vector.minusEquals(this.force, forceToSubtract);
-	}
-
-	public double[] getVelocity() {
-		return velocity;
-	}
-
-	public void setVelocity(double[] velocity) {
-		this.velocity = velocity;
+	public void subtractFromForce(double[] forceToSubtract) {
+		Vector.minusEquals(this.f, forceToSubtract);
 	}
 
 }
