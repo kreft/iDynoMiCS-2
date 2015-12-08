@@ -1,10 +1,6 @@
 package agent.body;
 
-import java.util.Random;
-
 import linearAlgebra.Vector;
-import utility.ExtraMath;
-import utility.MTRandom;
 
 /**
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
@@ -15,17 +11,26 @@ public class Point
 {
     static int UNIQUE_ID = 0;
     protected int uid = ++UNIQUE_ID;
-    Random random = ExtraMath.random; 	// check implementation
     
-	private double[] p;					// position
-	private double[] f;					// force
+    /**
+     * Position vector.
+     */
+	private double[] p;
 	
-	private double[][] c;				// used for higher order ODE solvers
+	/**
+	 * Force vector.
+	 */
+	private double[] f;
+	
+	/**
+	 * Used by higher-order ODE solvers.
+	 */
+	private double[][] c;
 	
 	public Point(double[] p) 
 	{
 		this.setPosition(Vector.copy(p)); 	// copying may be slower to initiate, but is saver
-		this.resetForce();
+		this.setForce(Vector.zeros(p));
 	}
 	
 	public Point(int nDim)
@@ -148,35 +153,43 @@ public class Point
 		return coord;
 	}
 	
-	public int nDim() {
+	public int nDim()
+	{
 		return p.length;
 	}
 
-	public double[] getPosition() {
+	public double[] getPosition()
+	{
 		return p;
 	}
 
-	public void setPosition(double[] position) {
+	public void setPosition(double[] position)
+	{
 		this.p = position;
 	}
 
-	public double[] getForce() {
+	public double[] getForce()
+	{
 		return f;
 	}
 
-	public void setForce(double[] force) {
+	public void setForce(double[] force)
+	{
 		this.f = force;
 	}
 	
-	private void resetForce() {
-		f = Vector.zerosDbl(p.length);
+	private void resetForce()
+	{
+		Vector.reset(f);
 	}
 	
-	public void addToForce(double[] forceToAdd) {
+	public void addToForce(double[] forceToAdd)
+	{
 		Vector.addEquals(this.f, forceToAdd);
 	}
 	
-	public void subtractFromForce(double[] forceToSubtract) {
+	public void subtractFromForce(double[] forceToSubtract)
+	{
 		Vector.minusEquals(this.f, forceToSubtract);
 	}
 
