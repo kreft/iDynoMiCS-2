@@ -2163,7 +2163,8 @@ public final class Vector
 			case 1 : return polar;
 			case 3 : c[2] = polar[0] * Math.cos(polar[2]);
 					 phi  = polar[2];
-			case 2 : c[1] = polar[0] * Math.cos(polar[1]) * Math.sin(phi);
+			case 2 : c[0] = polar[0] * Math.cos(polar[1]) * Math.sin(phi);
+					 c[1] = polar[0] * Math.sin(polar[1]) * Math.sin(phi);		
 		}
 		return c;
 	}
