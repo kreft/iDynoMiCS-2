@@ -12,16 +12,16 @@
 		<species name="AOB">
 			<state name="pigment" type="String" value="GREEN" />
 			<state name="morphology" type="String" value="coccoid" />
-			<state name="joints" type="secondary" value="joints" />
-			<state name="volume" type="secondary" value="simpleVolume" />
-			<state name="radius" type="secondary" value="coccoidRadius" />
-			<state name="lowerBoundingBox" type="secondary" value="lowerBoundingBox" />
-			<state name="dimensionsBoundingBox" type="secondary" value="dimensionsBoundingBox" />
+			<state name="joints" type="secondary" value="JointsState" />
+			<state name="volume" type="secondary" value="SimpleVolumeState" />
+			<state name="radius" type="secondary" value="CoccoidRadius" />
+			<state name="lowerBoundingBox" type="secondary" value="LowerBoundingBox" />
+			<state name="dimensionsBoundingBox" type="secondary" value="DimensionsBoundingBox" />
 			<!-- this has not been made yet, use a static growthrate for now -->
 			<state name="growthRate" type="double" value="0.08" />
 		</species>
 	</speciesLib>
-	<compartment name="second" shape="CUBOID">
+	<compartment name="second" shape="rectangle">
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
@@ -29,9 +29,9 @@
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
 				<state name="isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="GREEN" />
+				<state name="pigment" type="String" value="RED" />
 				<state name="body" type="body">
-					<point position="0.2, 0.3, 0.1" />
+					<point position="0.2, 0.3" />
 				</state>
 			</agent>
 			<agent>
@@ -40,9 +40,9 @@
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
 				<state name="isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="GREEN" />
+				<state name="pigment" type="String" value="BLUE" />
 				<state name="body" type="body">
-					<point position="0.1, -0.1, 0.0" />
+					<point position="0.1, -0.1" />
 				</state>
 			</agent>
 			<agent>
@@ -53,7 +53,7 @@
 				<state name="isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="GREEN" />
 				<state name="body" type="body">
-					<point position="-0.1, 0.2, -0.1" />
+					<point position="-0.1, 0.2" />
 				</state>
 			</agent>
 		</agents>

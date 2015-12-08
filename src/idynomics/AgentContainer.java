@@ -10,7 +10,7 @@ import spatialRegistry.*;
 
 public class AgentContainer
 {
-	private int nDim;
+	protected int nDim;
 	/**
 	 * All agents with a spatial location are stored in the agentTree 
 	 * (e.g. an RTree).
@@ -67,6 +67,11 @@ public class AgentContainer
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
+	
+	public int getNumDims()
+	{
+		return nDim;
+	}
 	
 	/**
 	 * \brief 
