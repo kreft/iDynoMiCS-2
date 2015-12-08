@@ -5,7 +5,6 @@ import java.util.HashMap;
 import org.w3c.dom.Node;
 
 import dataIO.XmlLoad;
-import agent.state.CalculatedState;
 import agent.state.PrimaryState;
 import agent.state.State;
 
@@ -71,14 +70,7 @@ public class Species implements StateObject
 		aState.set(state);
 		_states.put(name, aState);
 	}
-	
-	public void setCalculated(String name, CalculatedState.stateExpression state)
-	{
-		State anonymous = new CalculatedState();
-		anonymous.set((CalculatedState.stateExpression) state);
-		_states.put(name, anonymous);
-	}
-	
+
 	/**
 	 * set should be able to handle any type of state you throw at it.
 	 * @param name
@@ -88,9 +80,7 @@ public class Species implements StateObject
 	{
 		if (state instanceof State)
 			setState(name,(State) state);
-		else if (state instanceof CalculatedState.stateExpression)
-			setCalculated(name,(CalculatedState.stateExpression) state);
-		else
+		else 
 			setPrimary(name, state);
 	}
 	

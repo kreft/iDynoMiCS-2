@@ -104,7 +104,7 @@ public final class Vector
 	{
 		return zerosInt(vector.length);
 	}
-	
+
 	/**
 	 * \brief A new double vector of length <b>n</b>, and all elements set to
 	 * zero.
@@ -118,6 +118,12 @@ public final class Vector
 	public static double[] zerosDbl(int n)
 	{
 		return vector(n, 0.0);
+	}
+	
+	// FIXME nicify
+	public static double[] onesDbl(int n)
+	{
+		return vector(n, 1.0);
 	}
 	
 	/**
@@ -2119,5 +2125,47 @@ public final class Vector
 		double[] out = new double[3];
 		crossProductTo(out, a, b);
 		return out;
+	}
+	
+	// TODO document: handling polar/spherical coordinates
+	/**
+	 *	x = r cos(theta) sin(phi)
+	 *	y = r sin(theta) sin(phi)
+	 *	z = r cos(phi)
+	 *	r = sqrt(x2+y2+z2)
+	 *	theta = atan2(y, x)
+	 *	phi = acos(z/r)
+	 */
+	
+	public static double polarRadius(double[] cartesian)
+	{
+		return normEuclid(cartesian);
+	}
+	
+	public static double[] toPolar(double[] cartesian)
+	{
+		double[] p = new double[cartesian.length];
+		switch(cartesian.length) 
+		{
+			case 3 : p[2] = Math.acos(cartesian[2]/normEuclid(cartesian));
+			case 2 : p[1] = Math.atan2(cartesian[1], cartesian[0]);
+			case 1 : p[0] = normEuclid(cartesian);
+		}
+		return p;
+	}
+	
+	public static double[] toCartesian(double[] polar)
+	{
+		double[] c = new double[polar.length];
+		double phi = 0.0;
+		switch(polar.length) 
+		{
+			case 1 : return polar;
+			case 3 : c[2] = polar[0] * Math.cos(polar[2]);
+					 phi  = polar[2];
+			case 2 : c[0] = polar[0] * Math.cos(polar[1]) * Math.sin(phi);
+					 c[1] = polar[0] * Math.sin(polar[1]) * Math.sin(phi);		
+		}
+		return c;
 	}
 }

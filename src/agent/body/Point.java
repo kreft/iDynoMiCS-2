@@ -1,9 +1,13 @@
 package agent.body;
 
+import java.util.Random;
+
 import linearAlgebra.Vector;
+import utility.ExtraMath;
+import utility.MTRandom;
 
 /**
- * \brief TODO
+ * \brief TODO needs spring cleaning.. keep Point as a minimal object
  * 
  * @author Bastiaan Cockx, DTU (baco@env.dtu.dk)
  */
@@ -11,15 +15,17 @@ public class Point
 {
     static int UNIQUE_ID = 0;
     protected int uid = ++UNIQUE_ID;
-	private double[] position;
-	private double[] velocity;
-	private double[] force;
+    Random random = ExtraMath.random; 	// check implementation
+    
+	private double[] p;					// position
+	private double[] f;					// force
+	
+	private double[][] c;				// used for higher order ODE solvers
 	
 	public Point(double[] p) 
 	{
-		this.setPosition(p);
-		this.setVelocity(Vector.zerosDbl(p.length));
-		this.setForce(Vector.zerosDbl(p.length));
+		this.setPosition(Vector.copy(p)); 	// copying may be slower to initiate, but is saver
+		this.resetForce();
 	}
 	
 	public Point(int nDim)
@@ -28,7 +34,7 @@ public class Point
 	}
 	
 	//FIXME: change this to set position random location lowerbound[] 
-	//upperbound[], currently domain represents a simple spawn box with sizes
+	// upperbound[], currently domain represents a simple spawn box with sizes
 	// "domain", this needs to be a bit more specific
 	public Point(int nDim, double domain) 
 	{
@@ -38,6 +44,11 @@ public class Point
 	public Point(String vectorString)
 	{
 		this(Vector.dblFromString(vectorString));
+	}
+	
+	public void setC(int size)
+	{
+		c = new double[size][p.length];
 	}
 	
 	public int identifier() 
@@ -58,10 +69,8 @@ public class Point
 	 * @return vSquare, if the squared velocity of this point is higher vSquare
 	 * is updated.
 	 */
-	public Double euStep(double vSquare, double dt, double radius) 
+	public void euStep(double dt, double radius) 
 	{
-		double[] temp = Vector.times(getVelocity(), dt);
-		Vector.addEquals(position, temp);
 		// TODO Rob [19Nov2015]: Where does this 0.01885 comes from?
 		// TODO Bas [24Nov2015]: this method still needs to be updated,
 		// currently the velocity is: (sum forces) / (3 Pi diameter viscosity)
@@ -70,84 +79,105 @@ public class Point
 		// TODO Rob [26Nov2015]: OK, let's just sure this is clearly
 		// documented before release. For now, I've replaced the 1/0.01885
 		// with 53.05, as this is slightly less work for the CPU! 
-		Vector.timesTo(temp, getForce(), 53.05/radius );
-		setVelocity(temp);
-		if ( Vector.normSquare(getVelocity()) > vSquare )
-			vSquare = Vector.normSquare(getVelocity());
+		// TODO for (longer) rod segments we cannot simply use the radius or
+		// diameter but need to use the equivalent spherical diameter
+		// definition by wiki: the equivalent diameter of a non-spherical 
+		// particle is equal to a diameter of a spherical particle that exhibits 
+		// identical properties (in this case hydrodynamic).
+		// see pdf forces in microbial systems.
+		Vector.addEquals(p, Vector.times(dxdt(radius), dt));
 		this.resetForce();
-		return vSquare;
 	}
 	
-	//TODO: switch from a double RTree to a Double RTree so we can consistantly 
-	// use Doubles in the model implementation.
+	public void heun1(double dt, double radius)
+	{
+		c[0] = Vector.copy(p);									//hposition = Vector.copy(p);
+		Vector.addEquals(p, Vector.times(dxdt(radius), dt));
+		c[1] = dxdt(radius);									//hvelocity = dxdt(radius);
+		this.resetForce();
+	}
+	
+	public void heun2(double dt, double radius)
+	{
+		p = Vector.add(c[0], 
+				Vector.times(Vector.add(dxdt(radius),c[1]), dt/2.0));
+		this.resetForce();
+	}
+
+	public double[] dxdt(double radius)
+	{
+		return Vector.times(getForce(), 53.05/radius);
+	}
+	
+	public void shove(double dt, double radius) 
+	{
+		// Legacy support
+		// not identical but shoves like there is no tomorrow 
+		// TODO note that force is currently scaled may need to revise later
+		
+		if (!Vector.isZero(getForce()))	{
+			if (Vector.normEuclid(getForce())  < 0.2)							// anti deadlock
+				Vector.addEquals(p, Vector.times(getForce(), 5.0* radius)); 
+			else
+				Vector.addEquals(p, Vector.times(getForce(), 0.7* radius)); 	// anti catapult
+		}
+		this.resetForce();
+	}
+	
 	public double[] coord(double radius) 
 	{
-		double[] coord = new double[position.length];
-		for (int i = 0; i < position.length; i++) 
-			coord[i] = (double) (position[i]-radius);
+		double[] coord = new double[p.length];
+		for (int i = 0; i < p.length; i++) 
+			coord[i] = p[i] - radius;
 		return coord;
 	}
 	
 	public double[] dimensions(double radius) 
 	{
-		double[] dimensions = new double[position.length];
-		for (int i = 0; i < position.length; i++) 
-			dimensions[i] = (double) (radius*2.0);
+		double[] dimensions = new double[p.length];
+		for (int i = 0; i < p.length; i++) 
+			dimensions[i] = radius * 2.0;
 		return dimensions;
 	}
 	
 	public double[] upper(double radius) 
 	{
-		double[] coord = new double[position.length];
-		for (int i = 0; i < position.length; i++) 
-			coord[i] = (double) (position[i]+radius);
+		double[] coord = new double[p.length];
+		for (int i = 0; i < p.length; i++) 
+			coord[i] = p[i] + radius;
 		return coord;
 	}
 	
-	public int nDim() 
-	{
-		return getPosition().length;
+	public int nDim() {
+		return p.length;
 	}
 
-	public double[] getPosition() 
-	{
-		return position;
+	public double[] getPosition() {
+		return p;
 	}
 
-	public void setPosition(double[] position) 
-	{
-		this.position = position;
+	public void setPosition(double[] position) {
+		this.p = position;
 	}
 
 	public double[] getForce() {
-		return force;
+		return f;
 	}
 
 	public void setForce(double[] force) {
-		this.force = force;
+		this.f = force;
 	}
 	
-	public void resetForce()
-	{
-		Vector.reset(this.force);
+	private void resetForce() {
+		f = Vector.zerosDbl(p.length);
 	}
 	
-	public void addToForce(double[] forceToAdd)
-	{
-		Vector.addEquals(this.force, forceToAdd);
+	public void addToForce(double[] forceToAdd) {
+		Vector.addEquals(this.f, forceToAdd);
 	}
 	
-	public void subtractFromForce(double[] forceToSubtract)
-	{
-		Vector.minusEquals(this.force, forceToSubtract);
-	}
-
-	public double[] getVelocity() {
-		return velocity;
-	}
-
-	public void setVelocity(double[] velocity) {
-		this.velocity = velocity;
+	public void subtractFromForce(double[] forceToSubtract) {
+		Vector.minusEquals(this.f, forceToSubtract);
 	}
 
 }
