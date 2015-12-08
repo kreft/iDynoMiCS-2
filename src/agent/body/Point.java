@@ -123,30 +123,28 @@ public class Point
 		}
 		this.resetForce();
 	}
-
-	//TODO: switch from a float RTree to a Double RTree so we can consistantly 
-	// use Doubles in the model implementation.
-	public float[] coord(double radius) 
+	
+	public double[] coord(double radius) 
 	{
-		float[] coord = new float[p.length];
+		double[] coord = new double[p.length];
 		for (int i = 0; i < p.length; i++) 
-			coord[i] = (float) (p[i]-radius);
+			coord[i] = p[i] - radius;
 		return coord;
 	}
 	
-	public float[] dimensions(double radius) 
+	public double[] dimensions(double radius) 
 	{
-		float[] dimensions = new float[p.length];
+		double[] dimensions = new double[p.length];
 		for (int i = 0; i < p.length; i++) 
-			dimensions[i] = (float) (radius*2.0);
+			dimensions[i] = radius * 2.0;
 		return dimensions;
 	}
 	
-	public float[] upper(double radius) 
+	public double[] upper(double radius) 
 	{
-		float[] coord = new float[p.length];
+		double[] coord = new double[p.length];
 		for (int i = 0; i < p.length; i++) 
-			coord[i] = (float) (p[i]+radius);
+			coord[i] = p[i] + radius;
 		return coord;
 	}
 	

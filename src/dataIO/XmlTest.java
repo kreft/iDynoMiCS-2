@@ -5,12 +5,15 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
-import idynomics.AgentContainer;
 import idynomics.Compartment;
+import utility.ExtraMath;
 
 public class XmlTest {
 
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
+		// Make sure the random number generator is up and running.
+		ExtraMath.initialiseRandomNumberGenerator();
 
 		// Load the xml document
 		Element doc = XmlLoad.loadDocument("testdata.xml");

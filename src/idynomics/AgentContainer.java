@@ -102,7 +102,10 @@ public class AgentContainer
 	public void addAgent(Agent agent)
 	{
 		if ( (boolean) agent.get("isLocated") )
-			this._agentTree.insert((float[]) agent.get("lowerBoundingBox"), (float[]) agent.get("dimensionsBoundingBox"), agent);
+		{
+			this._agentTree.insert((double[]) agent.get("lowerBoundingBox"),
+						(double[]) agent.get("dimensionsBoundingBox"), agent);
+		}
 		else
 			this._agentList.add(agent);
 		
@@ -113,7 +116,10 @@ public class AgentContainer
 		List<Agent> agentList = _agentTree.all();
 		this._agentTree = new RTree<Agent>(8, 2, this.nDim);
 		for(Agent a: agentList) 
-			_agentTree.insert((float[]) a.get("lowerBoundingBox"), (float[]) a.get("dimensionsBoundingBox"), a);
+		{
+			_agentTree.insert((double[]) a.get("lowerBoundingBox"), 
+								(double[]) a.get("dimensionsBoundingBox"), a);
+		}
 	}
 	
 	public LinkedList<Agent> getAllLocatedAgents()

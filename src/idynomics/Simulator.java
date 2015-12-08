@@ -17,7 +17,7 @@ public class Simulator
 	public Simulator()
 	{
 		//TODO fully implement MTRandom
-		ExtraMath.random = new MTRandom((long) Math.random());
+		ExtraMath.initialiseRandomNumberGenerator();
 	}
 	
 	/*************************************************************************

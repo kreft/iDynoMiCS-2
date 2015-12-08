@@ -16,13 +16,13 @@ public class DummyTree<T> extends SpatialRegistry<T>
 	}
 	
 	@Override
-	public List<T> search(float[] coords, float[] dimension)
+	public List<T> search(double[] coords, double[] dimension)
 	{
 		return this._emptyList;
 	}
 
 	@Override
-	public List<T> cyclicsearch(float[] coords, float[] dimension)
+	public List<T> cyclicsearch(double[] coords, double[] dimension)
 	{
 		return this._emptyList;
 	}
@@ -34,7 +34,7 @@ public class DummyTree<T> extends SpatialRegistry<T>
 	}
 
 	@Override
-	public void insert(float[] coords, float[] dimensions, T entry)
+	public void insert(double[] coords, double[] dimensions, T entry)
 	{
 		// TODO Some sort of warning message?
 	}

@@ -35,8 +35,8 @@ public class AgentRelaxation extends ProcessManager {
 		{
 			//agent.innerSprings();	// TODO method needs to be implemented (but not in Agent())
 			for(Agent neighbour: agents._agentTree.search(
-					(float[]) agent.get("lowerBoundingBox"), /// TODO Add optional extra margin for pulls!!!
-					(float[]) agent.get("dimensionsBoundingBox"))) 
+					(double[]) agent.get("lowerBoundingBox"), /// TODO Add optional extra margin for pulls!!!
+					(double[]) agent.get("dimensionsBoundingBox"))) 
 			{
 				if (agent.identity() > neighbour.identity())
 					{
