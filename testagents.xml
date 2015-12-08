@@ -8,6 +8,8 @@
 	that species. However note that iDynoMiCS 2.0 does allow you to overwrite
 	states on agent level. Thus if a state is defined both on species level and 
 	on agent level, the agent state will be used in the simulation.
+	
+	small test
 	-->
 		<species name="AOB">
 			<state name="pigment" type="String" value="GREEN" />
