@@ -2149,7 +2149,7 @@ public final class Vector
 		{
 			case 3 : p[2] = Math.acos(cartesian[2]/normEuclid(cartesian));
 			case 2 : p[1] = Math.atan2(cartesian[1], cartesian[0]);
-			case 1 : normEuclid(cartesian);
+			case 1 : p[0] = normEuclid(cartesian);
 		}
 		return p;
 	}

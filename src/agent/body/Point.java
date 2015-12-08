@@ -3,6 +3,7 @@ package agent.body;
 import java.util.Random;
 
 import linearAlgebra.Vector;
+import utility.ExtraMath;
 import utility.MTRandom;
 
 /**
@@ -14,7 +15,7 @@ public class Point
 {
     static int UNIQUE_ID = 0;
     protected int uid = ++UNIQUE_ID;
-    Random random = new MTRandom(); 	// needs proper implementation
+    Random random = ExtraMath.random; 	// check implementation
     
 	private double[] p;					// position
 	private double[] f;					// force
