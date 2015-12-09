@@ -2,6 +2,7 @@ package agent.body;
 
 import linearAlgebra.Vector;
 
+
 /**
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
  * 
@@ -103,11 +104,9 @@ public class Point
 	 */
 	public void heun1(double dt, double radius)
 	{
-		// h position = Vector.copy(p);
-		c[0] = Vector.copy(p);									
+		c[0] = Vector.copy(p);									//hposition = Vector.copy(p);
 		Vector.addEquals(p, Vector.times(dxdt(radius), dt));
-		// h velocity = dxdt(radius);
-		c[1] = dxdt(radius);
+		c[1] = dxdt(radius);									//hvelocity = dxdt(radius);
 		this.resetForce();
 	}
 	
@@ -120,7 +119,7 @@ public class Point
 	public void heun2(double dt, double radius)
 	{
 		/*
-		 * p = c0 + (dxdt * c1 * dt / 2)
+		 * p = c0 + ((dxdt + c1) * dt / 2)
 		 */
 		p = Vector.add(dxdt(radius),c[1]);
 		Vector.timesEquals(p, dt/2.0);
@@ -138,6 +137,7 @@ public class Point
 		/*
 		 * 53.05 = 1/0.01885
 		 * 0.01885 = 3 * pi * (viscosity of water)
+		 * TODO calculate from user divined viscosity
 		 */
 		return Vector.times(getForce(), 53.05/radius);
 	}
