@@ -183,8 +183,17 @@ public abstract class SpatialGrid
 		return this._minVoxVoxSurfArea;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO This needs some serious looking into! 
+	 * 
+	 * @return
+	 */
 	public double getMinVoxVoxResSq()
 	{
+		if ( this._minVoxVoxDist == 0.0 )
+			this.calcMinVoxVoxResSq();
 		return this._minVoxVoxDist;
 	}
 	

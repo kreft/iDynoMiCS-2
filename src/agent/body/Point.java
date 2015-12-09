@@ -1,10 +1,6 @@
 package agent.body;
 
-import java.util.Random;
-
 import linearAlgebra.Vector;
-import utility.ExtraMath;
-import utility.MTRandom;
 
 /**
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
@@ -15,17 +11,27 @@ public class Point
 {
     static int UNIQUE_ID = 0;
     protected int uid = ++UNIQUE_ID;
-    Random random = ExtraMath.random; 	// check implementation
     
-	private double[] p;					// position
-	private double[] f;					// force
+    /**
+     * Position vector.
+     */
+	private double[] p;
 	
-	private double[][] c;				// used for higher order ODE solvers
+	/**
+	 * Force vector.
+	 */
+	private double[] f;
+	
+	/**
+	 * Used by higher-order ODE solvers.
+	 */
+	private double[][] c;
 	
 	public Point(double[] p) 
 	{
-		this.setPosition(Vector.copy(p)); 	// copying may be slower to initiate, but is saver
-		this.resetForce();
+		// Copying may be slower to initiate, but is safer.
+		this.setPosition(Vector.copy(p));
+		this.setForce(Vector.zeros(p));
 	}
 	
 	public Point(int nDim)
@@ -89,23 +95,50 @@ public class Point
 		this.resetForce();
 	}
 	
+	/**
+	 * \brief First stage of Heun's method.
+	 * 
+	 * @param dt
+	 * @param radius
+	 */
 	public void heun1(double dt, double radius)
 	{
-		c[0] = Vector.copy(p);									//hposition = Vector.copy(p);
+		// h position = Vector.copy(p);
+		c[0] = Vector.copy(p);									
 		Vector.addEquals(p, Vector.times(dxdt(radius), dt));
-		c[1] = dxdt(radius);									//hvelocity = dxdt(radius);
+		// h velocity = dxdt(radius);
+		c[1] = dxdt(radius);
 		this.resetForce();
 	}
 	
+	/**
+	 * \brief Second stage of Heun's method.
+	 * 
+	 * @param dt
+	 * @param radius
+	 */
 	public void heun2(double dt, double radius)
 	{
-		p = Vector.add(c[0], 
-				Vector.times(Vector.add(dxdt(radius),c[1]), dt/2.0));
+		/*
+		 * p = c0 + (dxdt * c1 * dt / 2)
+		 */
+		p = Vector.add(dxdt(radius),c[1]);
+		Vector.timesEquals(p, dt/2.0);
+		Vector.addEquals(p, c[0]);
 		this.resetForce();
 	}
-
+	
+	/**
+	 * 
+	 * @param radius
+	 * @return
+	 */
 	public double[] dxdt(double radius)
 	{
+		/*
+		 * 53.05 = 1/0.01885
+		 * 0.01885 = 3 * pi * (viscosity of water)
+		 */
 		return Vector.times(getForce(), 53.05/radius);
 	}
 	
@@ -115,11 +148,14 @@ public class Point
 		// not identical but shoves like there is no tomorrow 
 		// TODO note that force is currently scaled may need to revise later
 		
-		if (!Vector.isZero(getForce()))	{
-			if (Vector.normEuclid(getForce())  < 0.2)							// anti deadlock
+		if ( ! Vector.isZero(getForce()) )
+		{
+			// anti deadlock
+			if ( Vector.normEuclid(getForce()) < 0.2 )
 				Vector.addEquals(p, Vector.times(getForce(), 5.0* radius)); 
+			// anti catapult
 			else
-				Vector.addEquals(p, Vector.times(getForce(), 0.7* radius)); 	// anti catapult
+				Vector.addEquals(p, Vector.times(getForce(), 0.7* radius));
 		}
 		this.resetForce();
 	}
@@ -148,36 +184,43 @@ public class Point
 		return coord;
 	}
 	
-	public int nDim() {
+	public int nDim()
+	{
 		return p.length;
 	}
 
-	public double[] getPosition() {
+	public double[] getPosition()
+	{
 		return p;
 	}
 
-	public void setPosition(double[] position) {
+	public void setPosition(double[] position)
+	{
 		this.p = position;
 	}
 
-	public double[] getForce() {
+	public double[] getForce()
+	{
 		return f;
 	}
 
-	public void setForce(double[] force) {
+	public void setForce(double[] force)
+	{
 		this.f = force;
 	}
 	
-	private void resetForce() {
-		f = Vector.zerosDbl(p.length);
+	private void resetForce()
+	{
+		Vector.reset(f);
 	}
 	
-	public void addToForce(double[] forceToAdd) {
+	public void addToForce(double[] forceToAdd)
+	{
 		Vector.addEquals(this.f, forceToAdd);
 	}
 	
-	public void subtractFromForce(double[] forceToSubtract) {
+	public void subtractFromForce(double[] forceToSubtract)
+	{
 		Vector.minusEquals(this.f, forceToSubtract);
 	}
-
 }
