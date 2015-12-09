@@ -128,7 +128,7 @@ public class Body implements Copyable {
 		double[] coord = new double[nDim()];
 		for (Point o: points) 
 			for ( int i = 0; i < nDim(); i++ ) 
-				coord[i] = Math.min(coord[i], o.coord(radius)[i]) - (double) t;
+				coord[i] = Math.min(coord[i], o.coord(radius)[i]) - t;
 		return coord;
 	}
 	
@@ -177,7 +177,7 @@ public class Body implements Copyable {
 		double[] upper 		= upper(radius);
 		double[] dimensions	= new double[nDim()];
 		for (int i = 0; i < nDim(); i++)
-			dimensions[i] = upper[i] - coord[i] + 2 * (double) t;
+			dimensions[i] = upper[i] - coord[i] + 2 * t;
 		return dimensions;
 	}
 	

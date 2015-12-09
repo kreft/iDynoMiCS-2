@@ -23,6 +23,7 @@ import utility.ExtraMath;
  * public domain
  * 
  * @param <T> The type of entry to store in this RTree.
+ * @author Russ Weeks rweeks@newbrightidea.com
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
 public class RTree<T> extends SpatialRegistry<T>
