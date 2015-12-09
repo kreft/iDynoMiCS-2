@@ -6,13 +6,10 @@ import org.w3c.dom.Node;
 
 import dataIO.XmlLoad;
 import agent.activity.*;
-import agent.body.Body;
+import agent.event.Event;
 import agent.state.*;
-import agent.state.secondary.*;
-import grid.CartesianGrid;
-import idynomics.AgentContainer;
 import idynomics.Compartment;
-import idynomics.Simulator;
+
 
 public class Agent implements StateObject
 {
@@ -34,7 +31,7 @@ public class Agent implements StateObject
 	 * All activities owned by this Agent and whether they are currently enabled
 	 * or disabled.
      */
-    protected HashMap<String, Activity> _activities = new HashMap<String, Activity>();
+    protected HashMap<String, Event> _events = new HashMap<String, Event>();
 
     //FIXME: Bas - dilemma: so we prefer not giving everything all information
     // that is available, however.. agents need to perform their activities we
@@ -52,8 +49,6 @@ public class Agent implements StateObject
      * The compartment the agent is currently in
      */
     protected Compartment compartment;
-    
-   // public interface StatePredicate<T> {boolean test(Object s);}
 	
     /*************************************************************************
 	 * CONSTRUCTORS
@@ -184,31 +179,14 @@ public class Agent implements StateObject
 	 * @param activity
 	 * @param timestep
 	 */
-	public void doActivity(String activity, Double timestep) 
+	public void eventTrigger(String event, Agent compliant, Double timestep) 
 	{
 		try
 		{
-			_activities.get(activity).execute(new Agent[]{this},timestep);
+			_events.get(event).start(this, compliant,timestep);
 		}
 		catch (Exception e) // null pointer exception?
 	{
-			System.out.println(e.toString());
-		}
-	}
-	
-	/**
-	 * \brief do time dependent multiple actor activity.
-	 * @param activity
-	 * @param timestep
-	 */
-	public void doActivity(String activity, Agent secondActor, Double timestep) 
-	{
-		try
-		{
-			_activities.get(activity).execute(new Agent[]{this,secondActor},timestep);
-		}
-		catch (Exception e) // null pointer exception?
-		{
 			System.out.println(e.toString());
 		}
 	}
