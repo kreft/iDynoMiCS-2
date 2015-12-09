@@ -5,11 +5,9 @@ import java.util.HashMap;
 import org.w3c.dom.Node;
 
 import dataIO.XmlLoad;
-import agent.activity.*;
 import agent.event.Event;
 import agent.state.*;
 import idynomics.Compartment;
-
 
 public class Agent implements StateObject
 {
@@ -49,7 +47,7 @@ public class Agent implements StateObject
      * The compartment the agent is currently in
      */
     protected Compartment compartment;
-	
+    
     /*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -186,7 +184,7 @@ public class Agent implements StateObject
 			_events.get(event).start(this, compliant,timestep);
 		}
 		catch (Exception e) // null pointer exception?
-	{
+		{
 			System.out.println(e.toString());
 		}
 	}
