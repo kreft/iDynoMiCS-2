@@ -443,14 +443,15 @@ public final class Matrix
 			}
 	}
 	
-	/* Two matrices */
+	/* Two or three matrices */
 	
 	/**
 	 * \brief Check that the two matrices given have the same dimensions.
 	 * 
 	 * @param a Two-dimensional array of integers (preserved).
 	 * @param b Two-dimensional array of integers (preserved).
-	 * @exception IllegalArgumentException Matrix row dimensions must agree.
+	 * @exception IllegalArgumentException Matrix dimensions must agree.
+	 * @see #checkDimensionsSame(int[][], int[][], int[][])
 	 * @see #checkDimensions(int[][])
 	 * @see #checkSquare(int[][])
 	 * @see #checkDimensionsSame(double[][], double[][])
@@ -460,8 +461,26 @@ public final class Matrix
 		if ( rowDim(a) != rowDim(b) || colDim(a) != colDim(b) )
 		{
 			throw new 
-				IllegalArgumentException("Matrix row dimensions must agree.");
+				IllegalArgumentException("Matrix dimensions must agree.");
 		}
+	}
+	
+	/**
+	 * \brief Check that the three matrices given have the same dimensions.
+	 * 
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @param c Two-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Matrix row dimensions must agree.
+	 * @see #checkDimensionsSame(int[][], int[][])
+	 * @see #checkDimensions(int[][])
+	 * @see #checkSquare(int[][])
+	 * @see #checkDimensionsSame(double[][], double[][], double[][])
+	 */
+	public static void checkDimensionsSame(int[][] a, int[][] b, int[][] c)
+	{
+		checkDimensionsSame(a, b);
+		checkDimensionsSame(a, c);
 	}
 	
 	/**
@@ -471,6 +490,7 @@ public final class Matrix
 	 * @param b Two-dimensional array of doubles (preserved).
 	 * @exception IllegalArgumentException Matrix row dimensions must agree.
 	 * @see #checkDimensions(double[][])
+	 * @see #checkDimensionsSame(double[][], double[][], double[][])
 	 * @see #checkSquare(double[][])
 	 * @see #checkDimensionsSame(int[][], int[][])
 	 */
@@ -481,6 +501,24 @@ public final class Matrix
 			throw new 
 				IllegalArgumentException("Matrix row dimensions must agree.");
 		}
+	}
+	
+	/**
+	 * \brief Check that the three matrices given have the same dimensions.
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @param c Two-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Matrix row dimensions must agree.
+	 * @see #checkDimensionsSame(double[][], double[][])
+	 * @see #checkDimensions(double[][])
+	 * @see #checkSquare(double[][])
+	 * @see #checkDimensionsSame(int[][], int[][], int[][])
+	 */
+	public static void checkDimensionsSame(double[][] a, double[][] b, double[][] c)
+	{
+		checkDimensionsSame(a, b);
+		checkDimensionsSame(a, c);
 	}
 	
 	/* Square matrix */
@@ -567,6 +605,7 @@ public final class Matrix
 	 */
 	public static void addTo(int[][] destination, int[][] matrix, int value)
 	{
+		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
 			for ( int j = 0; j < colDim(matrix); j++ )
 				destination[i][j] = matrix[i][j] + value;
@@ -612,6 +651,8 @@ public final class Matrix
 	 * \brief Add a given <b>value</b> to all elements in a given
 	 * <b>matrix</b>, writing the result into <b>destination</b>.
 	 * 
+	 * <p>Both input matrices must have the same dimensions.</p>
+	 * 
 	 * @param destination Two-dimensional array of doubles to be filled with 
 	 * the result (overwritten).
 	 * @param matrix Two-dimensional array of doubles from which to take 
@@ -624,6 +665,7 @@ public final class Matrix
 	 */
 	public static void addTo(double[][] destination, double[][] matrix, double value)
 	{
+		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
 			for ( int j = 0; j < colDim(matrix); j++ )
 				destination[i][j] = matrix[i][j] + value;
@@ -680,6 +722,7 @@ public final class Matrix
 	 */
 	public static void addTo(int[][] destination, int[][] a, int[][] b)
 	{
+		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(destination); i++ )
 			for ( int j = 0; j < colDim(destination); j++ )
 				destination[i][j] = a[i][j] + b[i][j];
@@ -735,6 +778,7 @@ public final class Matrix
 	 */
 	public static void addTo(double[][] destination, double[][] a, double[][] b)
 	{
+		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(destination); i++ )
 			for ( int j = 0; j < colDim(destination); j++ )
 				destination[i][j] = a[i][j] + b[i][j];
@@ -777,57 +821,133 @@ public final class Matrix
 	
 	/* Subtracting */
 	
-
-	
 	/**
-	 * \brief Subtract one matrix from another, element-by-element.
+	 * \brief Subtract matrix <b>b</b> from matrix <b>a</b>, element-by-element,
+	 * writing the result into matrix <b>destination</b>.
 	 * 
-	 * <p>Matrices must have same dimensions.</p>
+	 * <p><b>destination</b> = <b>a</b> - <b>b</b></p>
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>subtract({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @return double[][] array of <b>a</b>-<b>b</b>.
+	 * @param destination Two-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @see #minus(int[][], int[][])
+	 * @see #minusEquals(int[][], int[][])
+	 * @see #addTo(int[][], int[][], int)
+	 * @see #minusTo(double[][], double[][], double[][]) 
 	 */
-	public static int[][] subtract(int[][] a, int[][] b)
+	public static void minusTo(int[][] destination, int[][] a, int[][] b)
 	{
-		checkDimensionsSame(a, b);
+		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
 			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] -= b[i][j];
-		return a;
+				destination[i][j] = a[i][j] - b[i][j];
 	}
 	
 	/**
-	 * \brief Subtract one matrix from another, element-by-element.
+	 * \brief Subtract matrix <b>b</b> from matrix <b>a</b>, element-by-element,
+	 * writing the result into a new int[][].
 	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>subtract({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return double[][] array of <b>a</b>-<b>b</b>.
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @return new int[][] array of <b>a</b> - <b>b</b>.
+	 * @see #minusTo(int[][], int[][], int[][])
+	 * @see #minusEquals(int[][], int[][])
+	 * @see #addTo(int[][], int[][], int)
+	 * @see #minus(double[][], double[][]) 
 	 */
-	public static double[][] subtract(double[][] a, double[][] b)
+	public static int[][] minus(int[][] a, int[][] b)
 	{
-		checkDimensionsSame(a, b);
+		int[][] out = new int[a.length][a[0].length];
+		minusTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Subtract matrix <b>b</b> from matrix <b>a</b>, element-by-element,
+	 * writing the result into <b>a</b>.
+	 * 
+	 * <p><b>a</b> is overwritten with <b>a</b> - <b>b</b>.</p>
+	 * 
+	 * @param a Two-dimensional array of integers (overwritten).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @see #minusTo(int[][], int[][], int[][])
+	 * @see #minus(int[][], int[][])
+	 * @see #addEquals(int[][], int)
+	 * @see #minusEquals(double[][], double[][])
+	 */
+	public static void minusEquals(int[][] a, int[][] b)
+	{
+		minusTo(a, a, b);
+	}
+	
+	/**
+	 * \brief Subtract matrix <b>b</b> from matrix <b>a</b>, element-by-element,
+	 * writing the result into matrix <b>destination</b>.
+	 * 
+	 * <p><b>destination</b> = <b>a</b> - <b>b</b></p>
+	 * 
+	 * @param destination Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @see #minus(double[][], double[][])
+	 * @see #minusEquals(double[][], double[][])
+	 * @see #addTo(double[][], double[][], double)
+	 * @see #minusTo(int[][], int[][], int[][]) 
+	 */
+	public static void minusTo(double[][] destination, double[][] a, double[][] b)
+	{
+		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
 			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] -= b[i][j];
-		return a;
+				destination[i][j] = a[i][j] - b[i][j];
+	}
+	
+	/**
+	 * \brief Subtract matrix <b>b</b> from matrix <b>a</b>, element-by-element,
+	 * writing the result into a new double[][].
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @return new double[][] array of <b>a</b> - <b>b</b>.
+	 * @see #minusTo(double[][], double[][], double[][])
+	 * @see #minusEquals(double[][], double[][])
+	 * @see #addTo(double[][], double[][], double)
+	 * @see #minus(int[][], int[][]) 
+	 */
+	public static double[][] minus(double[][] a, double[][] b)
+	{
+		double[][] out = new double[a.length][a[0].length];
+		minusTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Subtract matrix <b>b</b> from matrix <b>a</b>, element-by-element,
+	 * writing the result into <b>a</b>.
+	 * 
+	 * <p><b>a</b> is overwritten with <b>a</b> - <b>b</b>.</p>
+	 * 
+	 * @param a Two-dimensional array of doubles (overwritten).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @see #minusTo(double[][], double[][], double[][])
+	 * @see #minus(double[][], double[][])
+	 * @see #addEquals(double[][], double)
+	 * @see #minusEquals(int[][], int[][])
+	 */
+	public static void minusEquals(double[][] a, double[][] b)
+	{
+		minusTo(a, a, b);
 	}
 	
 	/* Multiplication */
 	
 	/**
-	 * \brief times a given <b>value</b> to all elements in a given
-	 * <b>matrix</b>, writing the result into <b>destination</b>.
+	 * \brief Multiply every element of a <b>matrix</b> by a scalar
+	 * <b>value</b>,, writing the result into <b>destination</b>.
+	 * 
+	 * <p>Both input matrices must have the same dimensions.</p>
 	 * 
 	 * @param destination Two-dimensional array of integers to be filled with 
 	 * the result (overwritten).
@@ -841,14 +961,15 @@ public final class Matrix
 	 */
 	public static void timesTo(int[][] destination, int[][] matrix, int value)
 	{
+		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
 			for ( int j = 0; j < colDim(matrix); j++ )
 				destination[i][j] = matrix[i][j] + value;
 	}
 	
 	/**
-	 * \brief times a given <b>value</b> to all elements in a given
-	 * <b>matrix</b>, returning the result as a new int[][].
+	 *\brief Multiply every element of a <b>matrix</b> by a scalar
+	 * <b>value</b>,, returning the result as a new int[][].
 	 * 
 	 * @param matrix Two-dimensional array of integers (preserved).
 	 * @param value integer value to times to all elements.
@@ -867,8 +988,8 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief times a scalar <b>value</b> to every element of a <b>matrix</b>,
-	 * overwriting the old values of <b>matrix</b>.
+	 * \brief Multiply every element of a <b>matrix</b> by a scalar
+	 * <b>value</b>, overwriting the old values of <b>matrix</b>.
 	 * 
 	 * @param matrix Two-dimensional array of integers (overwritten).
 	 * @param value integer value to times to all elements.
@@ -883,8 +1004,10 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief times a given <b>value</b> to all elements in a given
-	 * <b>matrix</b>, writing the result into <b>destination</b>.
+	 * \brief Multiply every element of a <b>matrix</b> by a scalar
+	 * <b>value</b>, writing the result into <b>destination</b>.
+	 * 
+	 * <p>Both input matrices must have the same dimensions.</p>
 	 * 
 	 * @param destination Two-dimensional array of doubles to be filled with 
 	 * the result (overwritten).
@@ -898,14 +1021,15 @@ public final class Matrix
 	 */
 	public static void timesTo(double[][] destination, double[][] matrix, double value)
 	{
+		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
 			for ( int j = 0; j < colDim(matrix); j++ )
 				destination[i][j] = matrix[i][j] + value;
 	}
 	
 	/**
-	 * \brief times a given <b>value</b> to all elements in a given
-	 * <b>matrix</b>, returning the result as a new double[][].
+	 * \brief Multiply every element of a <b>matrix</b> by a scalar
+	 * <b>value</b>, returning the result as a new double[][].
 	 * 
 	 * @param matrix Two-dimensional array of doubles (preserved).
 	 * @param value double value to times to all elements.
@@ -924,8 +1048,8 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief times a scalar <b>value</b> to every element of a <b>matrix</b>,
-	 * overwriting the old values of <b>matrix</b>.
+	 * \brief Multiply every element of a <b>matrix</b> by a scalar
+	 * <b>value</b>, overwriting the old values of <b>matrix</b>.
 	 * 
 	 * @param matrix Two-dimensional array of doubles (overwritten).
 	 * @param value double value to times to all elements.
@@ -940,78 +1064,263 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief Times one matrix by another, element-by-element.
+	 * \brief Element-by-element, multiply matrix <b>a</b> by matrix <b>b</b>,
+	 * writing the result into matrix <b>destination</b>.
 	 * 
-	 * <p>Matrices must have same dimensions.</p>
+	 * <p>All three inputs must have the same dimensions.</p>
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemTimes({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * @param destination Two-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @see #elemTimes(int[][], int[][])
+	 * @see #elemTimesEquals(int[][], int[][])
+	 * @see #timesTo(int[][], int[][], int[][])
+	 * @see #elemTimesTo(double[][], double[][], double[][])
+	 */
+	public static void elemTimesTo(int[][] destination, int[][] a, int[][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(b); j++ )
+				destination[i][j] = a[i][j] + b[i][j];
+	}
+	
+	/**
+	 * \brief Element-by-element, multiply matrix <b>a</b> by matrix <b>b</b>,
+	 * writing the result into a new int[][].
 	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
+	 * <p>Both inputs must have the same dimensions.</p>
+	 * 
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
 	 * @return int[][] array of <b>a</b> times <b>b</b> element-wise.
+	 * @see #elemTimesTo(int[][], int[][], int[][])
+	 * @see #elemTimesEquals(int[][], int[][])
+	 * @see #times(int[][], int[][])
+	 * @see #elemTimes(double[][], double[][])
 	 */
 	public static int[][] elemTimes(int[][] a, int[][] b)
 	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] *= b[i][j];
-		return a;
+		int[][] out = new int[a.length][a[0].length];
+		elemTimesTo(out, a, b);
+		return out;
 	}
 	
 	/**
-	 * \brief Times one matrix by another, element-by-element.
+	 * \brief Element-by-element, multiply matrix <b>a</b> by matrix <b>b</b>,
+	 * overwriting <b>a</b> with the result.
 	 * 
-	 * <p>Matrices must have same dimensions.</p>
+	 * <p>Both inputs must have the same dimensions.</p>
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemTimes({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * @param a Two-dimensional array of integers (overwritten).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @see #elemTimesTo(int[][], int[][], int[][])
+	 * @see #elemTimes(int[][], int[][])
+	 * @see #timesEquals(int[][], int[][])
+	 * @see #elemTimesEquals(double[][], double[][])
+	 */
+	public static void elemTimesEquals(int[][] a, int[][] b)
+	{
+		elemTimesTo(a, a, b);
+	}
+	
+	/**
+	 * \brief Element-by-element, multiply matrix <b>a</b> by matrix <b>b</b>,
+	 * writing the result into matrix <b>destination</b>.
 	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
+	 * <p>All three inputs must have the same dimensions.</p>
+	 * 
+	 * @param destination Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @see #elemTimes(double[][], double[][])
+	 * @see #elemTimesEquals(double[][], double[][])
+	 * @see #timesTo(double[][], double[][], double[][])
+	 * @see #elemTimesTo(int[][], int[][], int[][])
+	 */
+	public static void elemTimesTo(double[][] destination, double[][] a, double[][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(b); j++ )
+				destination[i][j] = a[i][j] + b[i][j];
+	}
+	
+	/**
+	 * \brief Element-by-element, multiply matrix <b>a</b> by matrix <b>b</b>,
+	 * writing the result into a new double[][].
+	 * 
+	 * <p>Both inputs must have the same dimensions.</p>
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
 	 * @return double[][] array of <b>a</b> times <b>b</b> element-wise.
+	 * @see #elemTimesTo(double[][], double[][], double[][])
+	 * @see #elemTimesEquals(double[][], double[][])
+	 * @see #times(double[][], double[][])
+	 * @see #elemTimes(int[][], int[][])
 	 */
 	public static double[][] elemTimes(double[][] a, double[][] b)
 	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] *= b[i][j];
-		return a;
+		double[][] out = new double[a.length][a[0].length];
+		elemTimesTo(out, a, b);
+		return out;
 	}
 	
 	/**
-	 * \brief Linear algebra matrix multiplication of the two given matrices.
+	 * \brief Element-by-element, multiply matrix <b>a</b> by matrix <b>b</b>,
+	 * overwriting <b>a</b> with the result.
 	 * 
-	 * <p>Inner dimensions must match, i.e. n<sub>a</sub> = m<sub>b</sub>. The
-	 * output will be a new m<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
+	 * <p>Both inputs must have the same dimensions.</p>
 	 * 
-	 * <p>Note that the given matrices will be unaffected by this method.</p>
+	 * @param a Two-dimensional array of doubles (overwritten).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @see #elemTimesTo(double[][], double[][], double[][])
+	 * @see #elemTimes(double[][], double[][])
+	 * @see #timesEquals(double[][], double[][])
+	 * @see #elemTimesEquals(int[][], int[][])
+	 */
+	public static void elemTimesEquals(double[][] a, double[][] b)
+	{
+		elemTimesTo(a, a, b);
+	}
+	
+	/**
+	 * \brief Using matrix multiplication, multiply matrix <b>a</b> by matrix 
+	 * <b>b</b>, writing the result into matrix <b>destination</b>.
 	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @return Two-dimensional array of integers: <b>a</b> x <b>b</b>.
+	 * <ul>
+	 * <li><b>destination</b> must have the same number of rows as <b>a</b>.</li>
+	 * <li><b>destination</b> must have the same number of columns as <b>b</b>.</li>
+	 * <li><b>a</b> must have as many columns as <b>b</b> has rows.</li>
+	 * </ul>
+	 * 
+	 * @param destination Two-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Matrix outer row dimensions must
+	 * agree.
 	 * @exception IllegalArgumentException Matrix inner row dimensions must
 	 * agree.
+	 * @see #times(int[][], int[][])
+	 * @see #elemTimesTo(int[][], int[][], int[][])
+	 * @see #timesTo(double[][], double[][], double[][])
 	 */
-	public static int[][] times(int[][] a, int[][] b)
+	public static void timesTo(int[][] destination, int[][] a, int[][] b)
 	{
+		if ( rowDim(destination) != rowDim(a) ||
+											colDim(destination) != colDim(b) )
+		{
+			throw new IllegalArgumentException(
+								"Matrix outer row dimensions must agree.");
+		}
 		if ( colDim(a) != rowDim(b) )
 		{
 			throw new IllegalArgumentException(
 								"Matrix inner row dimensions must agree.");
 		}
-		int[][] out = new int[rowDim(a)][colDim(b)];
+		int[] aRow;
 		int[] bCol;
 		for ( int j = 0; j < colDim(b); j++ )
 		{
 			bCol = getColumn(b, j);
 			for ( int i = 0; i < rowDim(a); i++ )
-				out[i][j] = Vector.dotProduct(getRowAsColumn(a, i), bCol);
+			{
+				aRow = getRowAsColumn(a, i);
+				destination[i][j] = Vector.dotProduct(aRow, bCol);
+			}
 		}
+	}
+	
+	/**
+	 * \brief Using matrix multiplication, multiply matrix <b>a</b> by matrix 
+	 * <b>b</b>, writing the result into a new int[][].
+	 * 
+	 * <p><b>a</b> must have as many columns as <b>b</b> has rows.</p>
+	 * 
+	 * @param a Two-dimensional array of integers (preserved).
+	 * @param b Two-dimensional array of integers (preserved).
+	 * @return new int[][] of the matrix multiplication <b>a</b> * <b>b</b>.
+	 * @see #timesTo(int[][], int[][], int[][])
+	 * @see #elemTimes( int[][], int[][])
+	 * @see #times(double[][], double[][])
+	 */
+	public static int[][] times(int[][] a, int[][] b)
+	{
+		int[][] out = new int[rowDim(a)][colDim(b)];
+		timesTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Using matrix multiplication, multiply matrix <b>a</b> by matrix 
+	 * <b>b</b>, writing the result into matrix <b>destination</b>.
+	 * 
+	 * <ul>
+	 * <li><b>destination</b> must have the same number of rows as <b>a</b>.</li>
+	 * <li><b>destination</b> must have the same number of columns as <b>b</b>.</li>
+	 * <li><b>a</b> must have as many columns as <b>b</b> has rows.</li>
+	 * </ul>
+	 * 
+	 * @param destination Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Matrix outer row dimensions must
+	 * agree.
+	 * @exception IllegalArgumentException Matrix inner row dimensions must
+	 * agree.
+	 * @see #times(double[][], double[][])
+	 * @see #elemTimesTo(double[][], double[][], double[][])
+	 * @see #timesTo(int[][], int[][], int[][])
+	 */
+	public static void timesTo(double[][] destination,
+								double[][] a, double[][] b)
+	{
+		if ( rowDim(destination) != rowDim(a) ||
+											colDim(destination) != colDim(b) )
+		{
+			throw new IllegalArgumentException(
+								"Matrix outer row dimensions must agree.");
+		}
+		if ( colDim(a) != rowDim(b) )
+		{
+			throw new IllegalArgumentException(
+								"Matrix inner row dimensions must agree.");
+		}
+		double[] aRow;
+		double[] bCol;
+		for ( int j = 0; j < colDim(b); j++ )
+		{
+			bCol = getColumn(b, j);
+			for ( int i = 0; i < rowDim(a); i++ )
+			{
+				aRow = getRowAsColumn(a, i);
+				destination[i][j] = Vector.dotProduct(aRow, bCol);
+			}
+		}
+	}
+	
+	/**
+	 * \brief Using matrix multiplication, multiply matrix <b>a</b> by matrix 
+	 * <b>b</b>, writing the result into a new double[][].
+	 * 
+	 * <p><b>a</b> must have as many columns as <b>b</b> has rows.</p>
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @return new double[][] of the matrix multiplication <b>a</b> * <b>b</b>.
+	 * @see #timesTo(double[][], double[][], double[][])
+	 * @see #elemTimes(double[][], double[][])
+	 * @see #times(int[][], int[][])
+	 */
+	public static double[][] times(double[][] a, double[][] b)
+	{
+		double[][] out = new double[rowDim(a)][colDim(b)];
+		timesTo(out, a, b);
 		return out;
 	}
 	
@@ -1038,38 +1347,6 @@ public final class Matrix
 		int[] out = new int[rowDim(matrix)];
 		for ( int i = 0; i < rowDim(matrix); i++ )
 			out[i] = Vector.dotProduct(getRowAsColumn(matrix, i), vector);
-		return out;
-	}
-	
-	/**
-	 * \brief Linear algebra matrix multiplication of the two given matrices.
-	 * 
-	 * <p>Inner dimensions must match, i.e. n<sub>a</sub> = m<sub>b</sub>. The
-	 * output will be a new m<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
-	 * 
-	 * <p>Note that the given matrices will be unaffected by this method.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return Two-dimensional array of doubles: <b>a</b> x <b>b</b>.
-	 * @exception IllegalArgumentException Matrix inner row dimensions must
-	 * agree.
-	 */
-	public static double[][] times(double[][] a, double[][] b)
-	{
-		if ( colDim(a) != rowDim(b) )
-		{
-			throw new IllegalArgumentException(
-								"Matrix inner row dimensions must agree.");
-		}
-		double[][] out = new double[rowDim(a)][colDim(b)];
-		double[] bCol;
-		for ( int j = 0; j < colDim(b); j++ )
-		{
-			bCol = getColumn(b, j);
-			for ( int i = 0; i < rowDim(a); i++ )
-				out[i][j] = Vector.dotProduct(getRowAsColumn(a, i), bCol);
-		}
 		return out;
 	}
 	
