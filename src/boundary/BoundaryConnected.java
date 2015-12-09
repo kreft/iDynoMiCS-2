@@ -23,13 +23,13 @@ public abstract class BoundaryConnected extends Boundary
 	 * List of Agents that are leaving this compartment via this boundary, and
 	 * so need to travel to the connected compartment.
 	 */
-	protected LinkedList<Agent> _departureLounge;
+	protected LinkedList<Agent> _departureLounge = new LinkedList<Agent>();
 	
 	/**
 	 * List of Agents that have travelled here from the connected compartment
 	 * and need to be entered into this compartment.
 	 */
-	protected LinkedList<Agent> _arrivalsLounge;
+	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -86,7 +86,9 @@ public abstract class BoundaryConnected extends Boundary
 	public void acceptInboundAgents(LinkedList<Agent> agents)
 	{
 		for ( Agent traveller : agents )
+		{
 			this._arrivalsLounge.add(traveller);
+		}
 	}
 	
 	/**

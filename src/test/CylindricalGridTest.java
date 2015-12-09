@@ -1,25 +1,24 @@
 package test;
 
-import org.jfree.ui.RefineryUtilities;
+import java.io.IOException;
 
-import grid.CartesianGrid;
 import grid.CylindricalGrid;
 import grid.SpatialGrid.ArrayType;
-import test.plotting.PolarGridPlot;
+import test.plotting.PolarGridPlot3D;
 
 public class CylindricalGridTest {
 
 	public static void main(String[] args) {
-		CylindricalGrid gridp = new CylindricalGrid(new int[]{21,360,1},1);
+		CylindricalGrid gridp = new CylindricalGrid(new int[]{5,360,1},new double[]{1,1,1});
 		ArrayType type=ArrayType.CONCN;
 		gridp.newArray(type, 0);
-		System.out.println(gridp.arrayAsText(type));
-		System.out.println();
+//		System.out.println(gridp.arrayAsText(type));
+//		System.out.println();
 		
 		
-		CartesianGrid gridc=gridp.toCartesianGrid(type);
-		System.out.println(gridc.arrayAsText(type));
-		System.out.println();
+//		CartesianGrid gridc=gridp.toCartesianGrid(type);
+//		System.out.println(gridc.arrayAsText(type));
+//		System.out.println();
 		
 		
 //		System.out.println("grid size: "+Arrays.toString(gridp.getNumVoxels()));
@@ -38,12 +37,22 @@ public class CylindricalGridTest {
 //		int[] coords=gridp.getCoords(gridp.getVoxelOrigin(new int[]{3,41,7}));
 //		System.out.println(coords[0]+" "+coords[1]+" "+coords[2]);
 				
-		System.out.println();
-		final PolarGridPlot demo = new PolarGridPlot("Polar Chart Demo",gridp);
-        demo.pack();
-        RefineryUtilities.centerFrameOnScreen(demo);
-        demo.setVisible(true);
-        demo.start();
+//		System.out.println();
+//		final PolarGridPlot demo = new PolarGridPlot("Polar Chart Demo",gridp);
+//        demo.pack();
+//        RefineryUtilities.centerFrameOnScreen(demo);
+//        demo.setVisible(true);
+//        demo.start();
+        
+		PolarGridPlot3D plot = new PolarGridPlot3D(gridp,true);
+		System.out.println("press enter to start iterator");
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        plot.start();
 	}
 
 }

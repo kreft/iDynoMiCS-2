@@ -6,25 +6,23 @@ import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 
-public class CylindricalGrid extends CartesianGrid{
-	final double iresT;
-	int nbhIdx, idx;
-	int[][] nbhs;
-	double nt_rad;
+/**
+ * @author qwer
+ *
+ */
+public class CylindricalGrid extends PolarGrid{
 	
-	public CylindricalGrid(int[] nVoxel, double resolution)
+	public CylindricalGrid(int[] nVoxel, double[][] resolution)
 	{
-		nVoxel[1] = nVoxel[1]%361; // theta periodic in 1..360
-		this._nVoxel = Vector.copy(nVoxel);  // [r theta z], r=0 || theta=0 -> no grid, z=0 -> polar grid
-		this._res = resolution;				 // scales r & ires TODO: change 1/res in code, not here
-		this.nt_rad = nVoxel[1]*Math.PI/180;
-		this.iresT=PolarArray.computeIRES(nVoxel[0], nt_rad, resolution);
-		nbhs=new int[][]{{0,0,1},{0,0,-1},{0,1,0},{0,-1,0},{-1,-1,0},{1,1,0}};
-		resetIterator();
-		resetNbhIterator();
+		super(nVoxel, resolution);
+	}
+	
+	public CylindricalGrid(int[] nVoxel, double[] resolution)
+	{
+		super(nVoxel, resolution);
 	}
 
-	public CylindricalGrid(){this(Vector.vector(3, 1),1);}
+	public CylindricalGrid(){this(new int[]{1,90,1},new double[][]{{1},{1},{1}});}
 	
 	@Override
 	public void newArray(ArrayType type, double initialValues) {
@@ -42,43 +40,71 @@ public class CylindricalGrid extends CartesianGrid{
 		else
 		{
 			double[][][] array = PolarArray.createCylinder(this._nVoxel[0],
-											this._nVoxel[2], this.iresT, initialValues);
+											this._nVoxel[2], this._res[1][0], initialValues);
 			this._array.put(type, array);
 		}
 	}
 
 	@Override
-	public double getVoxelVolume() {
-		// TODO Auto-generated method stub
-		return nt_rad*_res*_res*_res/(iresT*2);
+	public double getVoxelVolume(int[] coord) {
+//		return nt_rad*_res*_res*_res/(iresT*2);
+		double res_r=_res[0][coord[0]], res_z=_res[2][coord[2]];
+		return 1.0/2*res_r*res_z*(2*coord[0]+res_r)*getArcLength(coord[0]);
+	}
+	
+	// returns the arc length of a grid element at radius r in radian (assuming constant resolution in t)
+	// = t2-t1
+	private double getArcLength(double r){
+//		return nt_rad*_res/(iresT*2*coord[0]);
+		return nt_rad/(_res[1][0]*2*r);
 	}
 
 	@Override
 	public int[] getCoords(double[] loc) {
-		return new int[]{
-				(int)(loc[0]/_res),
-				(int)(loc[1]*iresT*2*loc[0]/(nt_rad*_res)),
-				(int)(loc[2]/_res)};
+		int[] coord = new int[3];
+		double counter;
+		for ( int dim = 0; dim < 3; dim+=2 )
+		{
+			counter = 0.0;
+			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )
+			{
+				counter += this._res[dim][i];
+				if ( counter >= loc[dim] )
+				{
+					coord[dim] = i;
+					break countLoop;
+				}
+			}
+		}
+//		coord[1]=(int)(loc[1]*_res[1][0]*2*loc[0]/(nt_rad*_res));
+		coord[1]=(int)(loc[1]*_res[1][0]*2*loc[0]/nt_rad);
+		return coord;
+//		return new int[]{
+//				(int)(loc[0]/_res),
+//				(int)(loc[1]*iresT*2*loc[0]/(nt_rad*_res)),
+//				(int)(loc[2]/_res)};
+	}
+	
+	private double[] getLocation(int[] coord, double[] inside){
+		double r=(coord[0]+inside[0])*_res[0][coord[0]];
+		double l=getArcLength(coord[0]+inside[0]);
+		double t;
+		if (r==0) t = Math.min((coord[1]+inside[1])*(Math.PI/2),nt_rad);
+		else if (r>0) t = (coord[1]+inside[1])*l;
+		else t = Math.abs((coord[1]+inside[1])*l)-Math.PI;
+		double z=(coord[2]+inside[2])*_res[2][coord[2]];
+//		System.out.println(coord[0]+"  "+coord[1]+"  "+coord[2]+" | "+r+"  "+t+"  "+z);
+		return new double[]{r,t,z};
 	}
 
 	@Override
-	public double[] getVoxelOrigin(int[] coords) {
-		double r=coords[0]*_res;
-		double t;
-		if (r==0) t = Math.min(coords[1]*(Math.PI/2),nt_rad);
-		else if (r>0) t = coords[1]*nt_rad*_res/(iresT*2*r);
-		else t = Math.abs(coords[1]*nt_rad*_res/(iresT*2*r))-Math.PI;
-		double z=coords[2]*_res;
-//		System.out.println(coords[0]+"  "+coords[1]+"  "+coords[2]+" | "+r+"  "+t+"  "+z);
-		return new double[]{r,t,z};
+	public double[] getVoxelOrigin(int[] coord) {
+		return getLocation(coord, new double[]{0d,0d,0d});
 	}
 	
-	public double[] getVoxelCentre(int[] coords)
+	public double[] getVoxelCentre(int[] coord)
 	{
-		double r=(coords[0]+0.5)*_res;
-		double t=(coords[1]+0.5)*nt_rad*_res/(iresT*2*r);
-		double z=(coords[2]+0.5)*_res;
-		return new double[]{r,t,z};
+		return getLocation(coord, new double[]{0.5,0.5,0.5});
 	}
 
 	@Override
@@ -89,7 +115,7 @@ public class CylindricalGrid extends CartesianGrid{
 			return BoundarySide.CIRCUMFERENCE;
 		if ( coord[1] < 0 )
 			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
-		if ( coord[1] >= iresT*(2*coord[0]-1) )
+		if ( coord[1] >= _res[1][0]*(2*coord[0]-1) )
 			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
 		if ( coord[2] < 0 )
 			return BoundarySide.ZMIN;
@@ -97,108 +123,89 @@ public class CylindricalGrid extends CartesianGrid{
 			return BoundarySide.ZMAX;
 		return null;
 	}
+	
+//	public CartesianGrid toCartesianGrid(ArrayType type){
+//		CartesianGrid grid = new CartesianGrid(
+//				new int[]{2*_nVoxel[0],2*_nVoxel[0],_nVoxel[2]}, _res);
+//		grid.newArray(type);
+//		grid.setAllTo(type, Double.NaN);
+//		this.resetIterator();
+//		int[] next=_currentCoord;
+//		do{
+//			double[] loc_p=this.getVoxelCentre(next);
+//			int[] ar = new int[]{
+//					(int)(Math.ceil((loc_p[0])*Math.sin(loc_p[1])/_res)+_nVoxel[0]-1),
+//					(int)(Math.ceil((loc_p[0])*Math.cos(loc_p[1])/_res)+_nVoxel[0]-1),
+//					next[2]
+//			};
+//			double val=grid.getValueAt(type, ar);
+//			if (Double.isNaN(val)) 
+//				grid.setValueAt(type, ar, 0);
+//			else
+//				grid.setValueAt(type, ar, val+1);
+//			next=this.iteratorNext();
+//		}while(this.isIteratorValid());
+//		return grid;
+//	}
+	
+	public int length(){return (int)(_nVoxel[2]*_res[1][0]*_nVoxel[0]*_nVoxel[0]);}	
+
 
 	@Override
-	public void setAllTo(ArrayType type, double value) {
-		PolarArray.applyToAll(_array.get(type), ()->{return value;});
+	public void calcMinVoxVoxResSq() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
-	public void addToAll(ArrayType type, double value) {
-		PolarArray.applyToAll(_array.get(type), (double v)->{return v+value;});
+	public int[] cyclicTransform(int[] coord) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
-	public void timesAll(ArrayType type, double value) {
-		PolarArray.applyToAll(_array.get(type), (double v)->{return v*value;});
+	public double getNbhSharedSurfaceArea() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	@Override
-	public double getMax(ArrayType type) {
-		final double[] max=new double[]{Double.NEGATIVE_INFINITY};
-		PolarArray.applyToAll(_array.get(type),(double v)->{max[0]=v>max[0] ? v : max[0];});
-		return max[0];
+	public double getCurrentNbhResSq() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+
+	@Override
+	// converts current index to rtz coordinates and updates the currentCoord (used when idx changed)
+	public void currentIdxChanged() {
+		_currentCoord[2]=(int) Math.ceil(idx/(_res[1][0]*Math.pow(_nVoxel[0], 2)))-1;
+		double idx_z=idx-(_currentCoord[2]*_res[1][0]*Math.pow(_nVoxel[0], 2));
+		_currentCoord[0]=(int) Math.ceil(Math.pow(idx_z/_res[1][0],1.0/2))-1;
+		_currentCoord[1]=(int) (idx_z - _res[1][0]*Math.pow(_currentCoord[0],2))-1;
+	}
+	
+	@Override
+	public int coord2idx(int[] coord){
+		return (int)(coord[2]*_res[1][0]*_nVoxel[0]*_nVoxel[0]
+				+(coord[1]+_res[1][0]*coord[0]*coord[0]+1));
 	}
 
 	@Override
-	public double getMin(ArrayType type) {
-		final double[] min=new double[]{Double.POSITIVE_INFINITY};
-		PolarArray.applyToAll(_array.get(type),(double v)->{min[0]=v<min[0] ? v : min[0];});
-		return min[0];
-	}
-
-	@Override
-	public void addArrayToArray(ArrayType destination, ArrayType source) {
-		PolarArray.applyToAll(_array.get(destination), _array.get(source), (double vd, double vs)->{return vd+vs;});
-	}
-	
-	@Override
-	public boolean isIteratorValid() {return idx<=_nVoxel[2]*iresT*_nVoxel[0]*_nVoxel[0];}
-	
-	public void setCurrent(int[] new_current){
-		_currentCoord=new_current;
-		idx=(int)(new_current[2]*iresT*_nVoxel[0]*_nVoxel[0]+(new_current[1]+iresT*new_current[0]*new_current[0]+1)); 
-//		System.out.println(new_current[0]+"  "+new_current[1]+"  "+new_current[2]+"  "+idx);
-	}
-	
-	@Override
-	public int[] resetIterator() {
-		idx=1;
-		return super.resetIterator();
-	}
-	
-	@Override
-	public int[] iteratorNext() {
-		idx++;
-		_currentCoord[2]=(int) Math.ceil(idx/(iresT*Math.pow(_nVoxel[0], 2)))-1;
-		_currentCoord[0]=(int) Math.ceil(Math.pow((idx-(_currentCoord[2]*iresT*Math.pow(_nVoxel[0], 2)))/iresT,1.0/2))-1;
-		_currentCoord[1]=(int) (idx - iresT*Math.pow(_currentCoord[0],2))-1;
-		return _currentCoord;
-	}
-	
-	public int[] resetNbhIterator(){
-		nbhIdx=0;
-		_currentNeighbor=Vector.add(Vector.copy(_currentCoord),nbhs[nbhIdx]);
-		return _currentNeighbor;
-	}
-	
-	public boolean isNbhIteratorValid(){return nbhIdx<nbhs.length;}
-	
-	public int[] nbhIteratorNext(){
-		nbhIdx++;
+	public void currentNbhIdxChanged() {
 		if (isNbhIteratorValid()){
 			_currentNeighbor=Vector.add(Vector.copy(_currentCoord),nbhs[nbhIdx]);
 			if (nbhIdx>3){ // moving in r
-				System.out.println(2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1));
-				_currentNeighbor[1]=_currentCoord[1]+nbhs[nbhIdx][1]*(int)Math.round(2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1));
+				double t_scale=2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1);
+				if (!isMultNbh && (t_scale%1 > 0.5 || t_scale%1 == 0d)) {
+					_currentNeighbor[1]=_currentCoord[1]+nbhs[nbhIdx][1]*(int)Math.ceil(t_scale);
+					nbhIdx--;
+					isMultNbh=true;
+				} else {
+					_currentNeighbor[1]=_currentCoord[1]+nbhs[nbhIdx][1]*(int)Math.floor(t_scale);
+					isMultNbh=false;
+				}
 			}
 		}
-		return _currentNeighbor;
 	}
-
-	
-	public CartesianGrid toCartesianGrid(ArrayType type){
-		CartesianGrid grid = new CartesianGrid(
-				new int[]{2*_nVoxel[0],2*_nVoxel[0],_nVoxel[2]}, _res);
-		grid.newArray(type);
-		grid.setAllTo(type, Double.NaN);
-		this.resetIterator();
-		int[] next=_currentCoord;
-		do{
-			double[] loc_p=this.getVoxelCentre(next);
-			int[] ar = new int[]{
-					(int)(Math.ceil((loc_p[0])*Math.sin(loc_p[1])/_res)+_nVoxel[0]-1),
-					(int)(Math.ceil((loc_p[0])*Math.cos(loc_p[1])/_res)+_nVoxel[0]-1),
-					next[2]
-			};
-			double val=grid.getValueAt(type, ar);
-			if (Double.isNaN(val)) 
-				grid.setValueAt(type, ar, 0);
-			else
-				grid.setValueAt(type, ar, val+1);
-			next=this.iteratorNext();
-		}while(this.isIteratorValid());
-		return grid;
-	}
-
 }

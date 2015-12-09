@@ -4,46 +4,134 @@ import java.util.HashMap;
 
 import idynomics.Compartment.BoundarySide;
 
+/**
+ * \brief A SpatialGrid stores information about a variable over space.
+ * 
+ * <p>A typical example is the concentration of a dissolved compound, often
+ * referred to as a solute. A spatial grid describing the concentration of a
+ * solute may also describe the diffusivity of this solute, as well as any
+ * other necessary information about it that varies in space. Each type of
+ * information, including concentration, is kept in a separate array. All
+ * these arrays have identical dimensions and resolutions, so that voxels
+ * overlap exactly.</p>
+ * 
+ * <p>Since all the arrays in a SpatialGrid line up, it is possible to iterate
+ * over all voxels in a straightforward manner. On top of this, we can also
+ * iterate over all neighbouring voxels of the voxel the main iterator is
+ * currently focused on.</p>
+ * 
+ * <p>On the boundaries of the grid, </p>
+ * 
+ * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
+ */
 public abstract class SpatialGrid
 {
+	/**
+	 * Simple interface for getting a particular type of grid, i.e. a subclass
+	 * of SpatialGrid. This will typically depend on the shape of the
+	 * compartment it belongs to.
+	 */
 	public interface GridGetter
 	{
 		SpatialGrid newGrid(int[] nVoxel, double resolution);
 	};
 	
+	/**
+	 * Interface detailing what should be done at a boundary. Typical examples
+	 * include Dirichlet and Neumann boundary conditions. 
+	 */
 	public interface GridMethod
 	{
 		double getBoundaryFlux(SpatialGrid grid);
 	}
 	
+	/**
+	 * Label for an array. 
+	 */
 	public enum ArrayType
 	{
-		/*
-		 * The solute concentration.
-		 * TODO Change to VARIABLE to make more general?
+		/**
+		 * The concentration of, e.g., a solute.
 		 */
 		CONCN, 
 		
-		DIFFUSIVITY, DOMAIN, 
+		/**
+		 * The diffusion coefficient of a solute. For example, this may be
+		 * lower inside a biofilm than in the surrounding water.
+		 */
+		DIFFUSIVITY,
 		
-		PRODUCTIONRATE, DIFFPRODUCTIONRATE, LOPERATOR;
+		/**
+		 * The domain dictates where the diffusion is actually happening. For
+		 * example, when modelling a biofilm it may be assumed that liquid
+		 * outside the boundary layer is well-mixed.
+		 */
+		DOMAIN, 
+		
+		/**
+		 * The rate of production of this solute. Consumption is described by
+		 * negative production.
+		 */
+		PRODUCTIONRATE,
+		
+		/**
+		 * The differential of production rate with respect to its
+		 * concentration.
+		 */
+		DIFFPRODUCTIONRATE,
+		
+		/**
+		 * Laplacian operator.
+		 */
+		LOPERATOR;
 	}
 	
 	/**
-	 * TODO
+	 * Dictionary of arrays according to their type. Note that not all types
+	 * may be occupied.
 	 */
 	protected HashMap<ArrayType, double[][][]> _array;
 	
 	/**
-	 * TODO
+	 * The number of voxels this grid has in each of the three spatial 
+	 * dimensions. Note that some of these may be 1 if the grid is not three-
+	 * dimensional.
+	 * 
+	 * <p>For example, a 3 by 2 rectangle would have _nVoxel = [3, 2, 1].</p> 
 	 */
 	protected int[] _nVoxel;
 	
 	/**
-	 * Grid resolution, i.e. the side length of each voxel in this grid.
+	 * Grid resolution, i.e. the side length of each voxel in this grid. This
+	 * has three rows, one for each dimension. Each row has length of its
+	 * corresponding position in _nVoxel.
+	 * 
+	 * <p>For example, a 3 by 2 rectangle might have _res = 
+	 * [[1.0, 1.0, 1.0], [1.0, 1.0], [1.0]]</p>
 	 */
-	protected double _res;
+	protected double[][] _res;
 	
+	/**
+	 * Smallest distance between the centres of two neighbouring voxels in
+	 * this grid. 
+	 */
+	protected double _minVoxVoxDist;
+	
+	/**
+	 * Smallest shared surface area between two neighbouring voxels in this
+	 * grid. 
+	 */
+	protected double _minVoxVoxSurfArea;
+	
+	/**
+	 * Smallest volume of a voxel in this grid.
+	 */
+	protected double _minVoxelVolume;
+	
+	/**
+	 * Dictionary of methods to use on this grid when solving partial
+	 * differential equations (PDEs).  
+	 */
 	protected HashMap<BoundarySide,GridMethod> _boundaries = 
 									new HashMap<BoundarySide,GridMethod>();
 	
@@ -56,8 +144,6 @@ public abstract class SpatialGrid
 	 * Current neighbour coordinate considered by the neighbor iterator.
 	 */
 	protected int[] _currentNeighbor;
-	
-	protected boolean _inclDiagonalNhbs;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -75,13 +161,11 @@ public abstract class SpatialGrid
 		this.newArray(type, 0.0);
 	}
 	
+	public abstract void calcMinVoxVoxResSq();
+	
 	/*************************************************************************
 	 * SIMPLE GETTERS
 	 ************************************************************************/
-	
-	public abstract double getResolution();
-	
-	public abstract double getVoxelVolume();
 	
 	public abstract int[] getNumVoxels();
 	
@@ -92,6 +176,25 @@ public abstract class SpatialGrid
 	public boolean hasArray(ArrayType type)
 	{
 		return this._array.containsKey(type);
+	}
+	
+	public double getMinVoxelVoxelSurfaceArea()
+	{
+		return this._minVoxVoxSurfArea;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO This needs some serious looking into! 
+	 * 
+	 * @return
+	 */
+	public double getMinVoxVoxResSq()
+	{
+		if ( this._minVoxVoxDist == 0.0 )
+			this.calcMinVoxVoxResSq();
+		return this._minVoxVoxDist;
 	}
 	
 	/*************************************************************************
@@ -122,9 +225,13 @@ public abstract class SpatialGrid
 	
 	protected abstract BoundarySide isOutside(int[] coord);
 	
+	public abstract int[] cyclicTransform(int[] coord);
+	
 	/*************************************************************************
 	 * VOXEL GETTERS & SETTERS
 	 ************************************************************************/
+	
+	public abstract double getVoxelVolume(int[] coord);
 	
 	public abstract double getValueAt(ArrayType type, int[] coord);
 	
@@ -199,13 +306,9 @@ public abstract class SpatialGrid
 	/**
 	 * \brief TODO
 	 * 
-	 * TODO remove diagonal neighbours option? It causes problems with 
-	 * boundaries, i.e. can cross multiple at the same time.
-	 * 
-	 * @param inclDiagonalNbhs
 	 * @return
 	 */
-	public abstract int[] resetNbhIterator(boolean inclDiagonalNbhs);
+	public abstract int[] resetNbhIterator();
 	
 	public abstract boolean isNbhIteratorValid();
 	
@@ -215,6 +318,10 @@ public abstract class SpatialGrid
 	}
 	
 	public abstract int[] nbhIteratorNext();
+	
+	public abstract double getNbhSharedSurfaceArea();
+	
+	public abstract double getCurrentNbhResSq();
 	
 	public abstract GridMethod nbhIteratorIsOutside();
 	
@@ -229,14 +336,21 @@ public abstract class SpatialGrid
 		GridMethod aMethod = this.nbhIteratorIsOutside();
 		if( aMethod == null )
 		{
+			/*
+			 * First find the difference in concentration.
+			 */
 			double out = this.getValueAt(ArrayType.CONCN, this._currentNeighbor)
 					- this.getValueAtCurrent(ArrayType.CONCN);
-			out *= this.getValueAtCurrent(ArrayType.DIFFUSIVITY)
-			  + this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor);
 			/*
-			 * Here we assume that all voxels are the same size.
+			 * Then multiply this by the average diffusivity.
 			 */
-			out *= 0.5 * Math.pow(this.getResolution(), -2.0);
+			out *= 0.5 * (this.getValueAtCurrent(ArrayType.DIFFUSIVITY) +
+			   this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor));
+			/*
+			 * Finally, multiply by the surface are the two voxels share (in
+			 * square microns).
+			 */
+			out /= this.getNbhSharedSurfaceArea();
 			//System.out.println("normal: "+out); //bughunt
 			return out;
 		}

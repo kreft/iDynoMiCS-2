@@ -2,7 +2,7 @@ package expression;
 
 import java.util.HashMap;
 
-import utility.LogFile;
+import dataIO.LogFile;
 
 public class Logarithm extends ComponentDouble
 {

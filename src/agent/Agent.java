@@ -2,14 +2,19 @@ package agent;
 
 import java.util.HashMap;
 
-import agent.activity.Activity;
-import agent.state.CalculatedState;
-import agent.state.PrimaryState;
-import agent.state.State;
+import org.w3c.dom.Node;
+
+import dataIO.XmlLoad;
+import agent.activity.*;
+import agent.body.Body;
+import agent.state.*;
+import agent.state.secondary.*;
 import grid.CartesianGrid;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
+import idynomics.Simulator;
 
-public class Agent
+public class Agent implements StateObject
 {
 
 	/**
@@ -17,12 +22,8 @@ public class Agent
 	 * the constructor.
 	 */
 	protected static int UNIQUE_ID = 0;
-    protected int uid = ++UNIQUE_ID;
+    final int uid = ++UNIQUE_ID;
 
-	/**
-	 * The states HashMap use used to store all non generic Agent variables.
-	 */
-	protected HashMap<String, Object> _states_dep = new HashMap<String, Object>();
 	
 	/**
 	 * The states HashMap stores all primary and secondary states.
@@ -40,17 +41,17 @@ public class Agent
     // do not know what information is needed for those activities thus how do
     // we do we ensure that the agents can perform all activities without giving
     // them all available information? For now let them have all information 
-    // until we have a definite answer to this question.
-	
-	/**
-     * Used to search neighbors and store newly created agents
-	 */
-    AgentContainer _agents;
-	
-	/**
-     * Used for reaction speeds and growth
-	 */
-    CartesianGrid _solutes;
+    // until we have a definite answ
+    
+    /**
+     * Used to fetch species states.
+     */
+    Species species;
+    
+    /**
+     * The compartment the agent is currently in
+     */
+    protected Compartment compartment;
     
    // public interface StatePredicate<T> {boolean test(Object s);}
 	
@@ -63,11 +64,30 @@ public class Agent
 
 	}
 	
+	public Agent(Node xmlNode)
+	{
+		XmlLoad.loadStates(this, xmlNode);
+		species = SpeciesLib.get((String) get("species"));
+	}
+	
+	/**
+	 * TODO this is a copy constructor, keep up to date, make deep copies
+	 * uid is the unique identifier and should always be unique
+	 * @param agent
+	 */
+	public Agent(Agent agent)
+	{
+		for (String key : agent._states.keySet())
+			this._states.put(key, agent.getState(key).copy());
+		species = SpeciesLib.get((String) get("species"));
+		this.compartment = agent.getCompartment();
+	}
+	
 	public void init()
 	{
 				
 	}
-	
+
 
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -79,18 +99,36 @@ public class Agent
 	 * 			name of the state (String)
 	 * @return Object of the type specific to the state
 	 */
-	public Object getState(String name)
+	public State getState(String name)
 	{
-		if (_states.containsKey(name))
+		if (isLocalState(name))
 			return _states.get(name);
 		else
+		{
+			System.out.println("Warning: agent state " + name + " not defined.");
 			return null;
+		}
 	}
 	
-	public Object get(String name)
+	public boolean isLocalState(String name)
 	{
 		if (_states.containsKey(name))
-			return _states.get(name).get();
+			return true;
+		else
+			return false;
+	}
+	
+	/*
+	 * returns object stored in Agent state with name "name". If the state is
+	 * not found it will look for the Species state with "name". If this state
+	 * is also not found this method will return null.
+	 */
+	public Object get(String name)
+	{
+		if (this.isLocalState(name))
+			return getState(name).get(this);
+		else if (species.isLocalState(name))
+			return species.getState(name).get(this);
 		else
 			return null;
 	}
@@ -110,10 +148,10 @@ public class Agent
 	public void setPrimary(String name, Object state)
 	{
 		State aState = new PrimaryState();
-		aState.init(this, state);
+		aState.set(state);
 		_states.put(name, aState);
 	}
-	
+
 	/**
 	 * set should be able to handle any type of state you throw at it.
 	 * @param name
@@ -122,24 +160,19 @@ public class Agent
 	public void set(String name, Object state)
 	{
 		if (state instanceof State)
-		{
-			State s = (State) state;
-			s.setAgent(this); // needed since otherwise the next line can result in errors for secondary states.
-			s.init(this, s.get());
-			_states.put(name, s);
-		}
-		else if (state instanceof CalculatedState.stateExpression)
-		{
-			State anonymous = new CalculatedState();
-			anonymous.init(this, (CalculatedState.stateExpression) state);
-			_states.put(name, anonymous);
-		} 
+			setState(name,(State) state);
 		else
-		{	
-		State aState = new PrimaryState();
-		aState.init(this, state);
-		_states.put(name, aState);
-		}
+			setPrimary(name, state);
+	}
+	
+	public Compartment getCompartment()
+	{
+		return compartment;
+	}
+	
+	public void setCompartment(Compartment compartment)
+	{
+		this.compartment = compartment;
 	}
 	
 	/*************************************************************************
@@ -186,10 +219,17 @@ public class Agent
 
 	/**
 	 * \brief: Registers the birth of a new agent with the agentContainer.
+	 * note that the compartment field of the agent is set by the compartment
+	 * itself.
 	 */
 	public void registerBirth() {
-		_agents.registerBirth(this);
+		compartment.addAgent(this);
 	}
+
+	public int identity() {
+		return uid;
+	}
+
 	
 	/*************************************************************************
 	 * REPORTING

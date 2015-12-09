@@ -1,7 +1,9 @@
-package xmlpack;
+package dataIO;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -13,6 +15,13 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import reaction.Reaction;
+import linearAlgebra.Vector;
+import agent.StateObject;
+import agent.body.Body;
+import agent.body.Point;
+import agent.state.StateLoader;
 
 public class XmlLoad {
 	
@@ -52,6 +61,78 @@ public class XmlLoad {
 	{
 	    for (int i = 0; i < nodeList.getLength(); i++) 
 		     operation.action(nodeList.item(i));
+	}
+	
+	/**
+	 * Loads all states from xmlNode into anything that implements the
+	 * StateObject interface.
+	 * @param stateObject
+	 * @param xmlNode
+	 */
+	public static void loadStates(StateObject stateObject, Node xmlNode)
+	{
+		Element xmlAgent = (Element) xmlNode;
+		
+		NodeList stateNodes = xmlAgent.getElementsByTagName("state");
+		for (int j = 0; j < stateNodes.getLength(); j++) 
+		{
+			Element s = (Element) stateNodes.item(j);
+			if (! s.hasChildNodes())	// state node with just attributes //
+			{
+				switch (s.getAttribute("type")) 
+				{
+					case "boolean" : 
+						stateObject.setPrimary(s.getAttribute("name"), 
+								Boolean.valueOf(s.getAttribute("value")));
+	                	break;
+					case "int" : 
+						stateObject.setPrimary(s.getAttribute("name"), 
+								Integer.valueOf(s.getAttribute("value")));
+	                	break;
+					case "double" : 
+						stateObject.setPrimary(s.getAttribute("name"), 
+								Double.valueOf(s.getAttribute("value")));
+	                	break;
+					case "String" : 
+						stateObject.setPrimary(s.getAttribute("name"), 
+								s.getAttribute("value"));
+	                	break;
+					case "secondary" : 
+						stateObject.setState(s.getAttribute("name"), 
+								StateLoader.get(s.getAttribute("value")));
+	                	break;
+				}
+			}
+			else	// state node with attributes and child nodes //
+			{
+				switch (s.getAttribute("type")) 
+				{
+					case "body" :
+						//FIXME: not finished only accounts for simple coccoid cells
+						List<Point> pointList = new LinkedList<Point>();
+						NodeList pointNodes = s.getElementsByTagName("point");
+						for (int k = 0; k < pointNodes.getLength(); k++) 
+						{
+							Element point = (Element) pointNodes.item(k);
+							pointList.add(new Point(Vector.dblFromString(
+									point.getAttribute("position"))));
+						}
+						stateObject.setPrimary("body", new Body(pointList));
+						break;
+					case "reactions" :
+						List<Reaction> reactions = new LinkedList<Reaction>();
+						NodeList rNodes = s.getElementsByTagName("reaction");
+						for (int k = 0; k < rNodes.getLength(); k++) 
+						{
+							Element reaction = (Element) rNodes.item(k);
+							reactions.add(new Reaction(
+									reaction.getAttribute("somethingReact")));
+						}
+						stateObject.setPrimary("reactions", reactions);
+						break;
+				}
+			}
+		}
 	}
 	
 	/*************************************************************************

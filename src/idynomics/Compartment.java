@@ -139,12 +139,17 @@ public class Compartment
 	/**
 	 * AgentContainer deals with 
 	 */
-	protected AgentContainer _agents = new AgentContainer();
+	public AgentContainer agents = new AgentContainer();
+	
+	/**
+	 * The Compartment is now aware of it's own name
+	 */
+	public String name;
 	
 	/**
 	 * 
 	 */
-	protected EnvironmentContainer _environment;
+	public EnvironmentContainer _environment;
 	
 	/**
 	 * Directory of boundaries that are linked to a specific side.
@@ -198,7 +203,7 @@ public class Compartment
 		}
 		this._otherBoundaries = new LinkedList<Boundary>();
 		this._sideBoundaries = CompartmentShape.sideBoundariesFor(this._shape);
-		this._agents.init(this.getNumDims());
+		this.agents.init(getNumDims());
 		this._environment = new 
 				  EnvironmentContainer(CompartmentShape.gridFor(this._shape));
 	}
@@ -303,7 +308,8 @@ public class Compartment
 	 */
 	public void addAgent(Agent agent)
 	{
-		this._agents.addAgent(agent);
+		this.agents.addAgent(agent);
+		agent.setCompartment(this);
 	}
 	
 	public SpatialGrid getSolute(String soluteName)
@@ -329,7 +335,7 @@ public class Compartment
 			 * First process on the list does its thing. This should then
 			 * increase its next step time.
 			 */
-			currentProcess.step(this._environment, this._agents);
+			currentProcess.step(this._environment, this.agents);
 			/*
 			 * Reinsert this process at the appropriate position in the list.
 			 */

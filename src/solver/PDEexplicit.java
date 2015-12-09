@@ -47,13 +47,15 @@ public class PDEexplicit extends PDEsolver
 		 * Find the largest time step that suits all variables.
 		 */
 		double dt = tFinal;
+		//System.out.println("Starting with ministep size "+dt); //bughunt
 		SpatialGrid var;
 		int nIter = 1;
 		for ( String varName : this._variableNames )
 		{
 			var = variables.get(varName);
-			dt = Math.min(dt, 0.1 * ExtraMath.sq(var.getResolution()) /
+			dt = Math.min(dt, 0.1 * var.getMinVoxVoxResSq() /
 										   var.getMin(ArrayType.DIFFUSIVITY));
+			//System.out.println(varName+" ministep size "+dt); //bughunt
 		}
 		if ( dt < tFinal )
 		{

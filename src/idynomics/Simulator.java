@@ -1,6 +1,8 @@
 package idynomics;
 
 import java.util.HashMap;
+import utility.*;
+
 
 public class Simulator
 {
@@ -14,7 +16,8 @@ public class Simulator
 	
 	public Simulator()
 	{
-		
+		//TODO fully implement MTRandom
+		ExtraMath.initialiseRandomNumberGenerator();
 	}
 	
 	/*************************************************************************
@@ -23,8 +26,10 @@ public class Simulator
 	
 	public Compartment addCompartment(String name, String shape)
 	{
-		//TODO safety
+		if ( this._compartments.containsKey(name) )
+			System.out.println("Warning: overwriting comaprtment "+name);
 		Compartment aCompartment = new Compartment(shape);
+		aCompartment.name = name;
 		this._compartments.put(name, aCompartment);
 		return aCompartment;
 	}
@@ -52,6 +57,7 @@ public class Simulator
 	
 	public void launch()
 	{
+
 		while ( Timer.isRunning() )
 		{
 			this.step();

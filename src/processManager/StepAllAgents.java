@@ -7,11 +7,6 @@ import idynomics.EnvironmentContainer;
 
 public class StepAllAgents extends ProcessManager
 {
-	public StepAllAgents()
-	{
-		
-	}
-	
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)

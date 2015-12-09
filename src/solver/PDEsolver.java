@@ -97,7 +97,7 @@ public abstract class PDEsolver extends Solver
 			if ( grid.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
 				continue;
 			lop = 0.0;
-			for ( grid.resetNbhIterator(false); 
+			for ( grid.resetNbhIterator(); 
 						grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
 			{
 				lop += grid.getFluxWithNeighbor(varName);
@@ -153,22 +153,19 @@ public abstract class PDEsolver extends Solver
 				continue;
 			dLop = 0.0;
 			currDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, current);
-			for ( nbh = solute.resetNbhIterator(false); 
+			for ( nbh = solute.resetNbhIterator(); 
 					solute.isNbhIteratorValid(); nbh = solute.nbhIteratorNext() )
 			{
 				gMethod = solute.nbhIteratorIsOutside();
 				if ( gMethod == null )
 				{
 					nbhDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, nbh);
-					dLop += (nbhDiff + currDiff);
+					dLop += 0.5*(nbhDiff + currDiff);
+					// TODO
 				}
 				else
 					dLop += gMethod.getBoundaryFlux(solute);
 			}
-			/*
-			 * Here we assume that all voxels are the same size.
-			 */
-			dLop *= 0.5 / Math.pow(solute.getResolution(), 2.0);
 			dLop += solute.getValueAt(ArrayType.DIFFPRODUCTIONRATE, current);
 			solute.timesValueAt(arrayType, current, 1.0/dLop);
 		}

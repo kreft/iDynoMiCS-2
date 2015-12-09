@@ -2,19 +2,20 @@ package idynomics;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import agent.Agent;
 import reaction.Reaction;
-import spatialRegistry.RTree;
-import spatialRegistry.SpatialRegistry;
+import spatialRegistry.*;
 
 public class AgentContainer
 {
+	protected int nDim;
 	/**
 	 * All agents with a spatial location are stored in the agentTree 
 	 * (e.g. an RTree).
 	 */
-	protected SpatialRegistry<Agent> _agentTree;
+	public SpatialRegistry<Agent> _agentTree;
 	
 	/**
 	 * All agents without a spatial location are stored in the agentList.
@@ -45,14 +46,18 @@ public class AgentContainer
 	 * 
 	 * @param nDims	Number of dimensions in this domain (x,y,z).
 	 */
-	public void init(int nDims) 
+	public void init(int compartmentNumDims) 
 	{
+		this.nDim = compartmentNumDims;
 		/*
 		 * Bas: I have chosen maxEntries and minEntries by testing what values
 		 * resulted in fast tree creation and agent searches.
 		 */
-		if (nDims != 0)
-			this._agentTree = new RTree<Agent>(8, 2, nDims);
+		if ( nDim == 0 )
+			this._agentTree = new DummyTree<Agent>();
+		else
+			this._agentTree = new RTree<Agent>(8, 2, this.nDim);
+		
 		/*
 		 * No parameters needed for the agentList.
 		 */
@@ -62,6 +67,11 @@ public class AgentContainer
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
+	
+	public int getNumDims()
+	{
+		return nDim;
+	}
 	
 	/**
 	 * \brief 
@@ -89,14 +99,28 @@ public class AgentContainer
 	}
 
 	//FIXME: .isLocated simplified for now, was an over extensive operation for a simple check.
-	public void addAgent(Agent agent) {
+	public void addAgent(Agent agent)
+	{
 		if ( (boolean) agent.get("isLocated") )
-			this._agentTree.insert((float[]) agent.get("lowerBouningBox"), (float[]) agent.get("dimensionsBoundingBox"), agent);
+		{
+			this._agentTree.insert((double[]) agent.get("lowerBoundingBox"),
+						(double[]) agent.get("dimensionsBoundingBox"), agent);
+		}
 		else
 			this._agentList.add(agent);
 		
 	}
 	
+	public void refreshSpatialRegistry()
+	{
+		List<Agent> agentList = _agentTree.all();
+		this._agentTree = new RTree<Agent>(8, 2, this.nDim);
+		for(Agent a: agentList) 
+		{
+			_agentTree.insert((double[]) a.get("lowerBoundingBox"), 
+								(double[]) a.get("dimensionsBoundingBox"), a);
+		}
+	}
 	
 	public LinkedList<Agent> getAllLocatedAgents()
 	{

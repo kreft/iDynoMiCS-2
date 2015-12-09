@@ -1,14 +1,18 @@
 package agent.body;
 
+import generalInterfaces.Copyable;
+
 import java.util.LinkedList;
 import java.util.List;
 
-public class Body {
+import linearAlgebra.Vector;
+
+public class Body implements Copyable {
 	
 	/**
 	 * 
 	 */
-	public Body(List<Point> points, Double[] lengths, Double[] angles, Double radius) 
+	public Body(List<Point> points, double[] lengths, double[] angles, double radius) 
 	{
 		this.points = points;
 		this._lengths = lengths;
@@ -19,9 +23,22 @@ public class Body {
 	public Body(List<Point> points) 
 	{
 		this.points = points;
-		this._lengths = null;
-		this._angles = null;
-		this._radius = null;		
+		/*
+		 * Lengths, angles and radius remain undefined.
+		 */
+	}
+	
+	public Body copy()
+	{
+		//TODO make this
+		List<Point> newPoints = new LinkedList<Point>();
+		for ( Point p : points)
+		{
+			Point duplicate = new Point(Vector.copy(p.getPosition()));
+			newPoints.add(duplicate);
+		}
+			
+		return new Body(newPoints);
 	}
 	
     /**
@@ -35,17 +52,17 @@ public class Body {
     /**
      * Rest length of internal springs connecting the points.
      */
-	protected Double[] _lengths		= null;
+	protected double[] _lengths;
 	
 	/**
 	 * Rest angles of torsion springs 
 	 */
-	protected Double[] _angles		= null;
+	protected double[] _angles;
 	
 	/**
 	 * radius of the cell (not used for coccoid cell types)
 	 */
-	protected Double _radius		= null;
+	protected double _radius;
 	
 	/**
 	 * FIXME: convert to switch-case rather than if else
@@ -70,23 +87,31 @@ public class Body {
 		
 	}
 	
+	public List<double[]> getJoints()
+	{
+		List<double[]> joints = new LinkedList<double[]>();
+		points.forEach( (p) -> joints.add(p.getPosition()) );
+		return joints;
+	}
+	
+	public List<Point> getPoints()
+	{
+		return this.points;
+	}
+	
 	/**
 	 * 
 	 * @param radius
 	 * @return coordinates of lower corner of bounding box
 	 */
-	public float[] coord(Double radius) 
+	public double[] coord(double radius) 
 	{
-		if(points.size() == 1)
+		if ( points.size() == 1 )
 			return points.get(0).coord(radius);
-		float[] coord = new float[nDim()];
+		double[] coord = new double[nDim()];
 		for (Point o: points) 
-		{
-			for (int i = 0; i < nDim(); i++) 
-			{
-				coord[i] = Math.min(coord[i], o.coord(radius)[i]);
-			}
-		}
+			for ( int i = 0; i < nDim(); i++ ) 
+				coord[i] = Math.min( coord[i], o.coord(radius)[i] );
 		return coord;
 	}
 	
@@ -96,18 +121,14 @@ public class Body {
 	 * @param t: added margin
 	 * @return coordinates of lower corner of bounding box with margin
 	 */
-	public float[] coord(Double radius, double t) 
+	public double[] coord(double radius, double t) 
 	{
-		if(points.size() == 1)
+		if ( points.size() == 1 )
 			return points.get(0).coord(radius);
-		float[] coord = new float[nDim()];
+		double[] coord = new double[nDim()];
 		for (Point o: points) 
-		{
-			for (int i = 0; i < nDim(); i++) 
-			{
-				coord[i] = Math.min(coord[i], o.coord(radius)[i]) - (float) t;
-			}
-		}
+			for ( int i = 0; i < nDim(); i++ ) 
+				coord[i] = Math.min(coord[i], o.coord(radius)[i]) - t;
 		return coord;
 	}
 	
@@ -116,16 +137,12 @@ public class Body {
 	 * @param radius
 	 * @return coordinates of upper corner of bounding box
 	 */
-	public float[] upper(Double radius) 
+	public double[] upper(Double radius) 
 	{
-		float[] upper = new float[nDim()];
+		double[] upper = new double[nDim()];
 		for (Point o: points) 
-		{
-			for (int i = 0; i < nDim(); i++) 
-			{
-				upper[i] = Math.max(upper[i], o.upper(radius)[i]);
-			}
-		}
+			for ( int i = 0; i < nDim(); i++ ) 
+				upper[i] = Math.max( upper[i], o.upper(radius)[i] );
 		return upper;
 	}
 	
@@ -134,13 +151,13 @@ public class Body {
 	 * @param radius
 	 * @return dimensions of the bounding box
 	 */
-	public float[] dimensions(Double radius) 
+	public double[] dimensions(Double radius) 
 	{
 		if(points.size() == 1)
 			return points.get(0).dimensions(radius);
-		float[] coord 		= coord(radius);
-		float[] upper 		= upper(radius);
-		float[] dimensions	= new float[nDim()];
+		double[] coord 		= coord(radius);
+		double[] upper 		= upper(radius);
+		double[] dimensions	= new double[nDim()];
 		for (int i = 0; i < nDim(); i++)
 			dimensions[i] = upper[i] - coord[i];
 		return dimensions;
@@ -152,15 +169,15 @@ public class Body {
 	 * @param t: margin
 	 * @return dimensions of the bounding box with added margin
 	 */
-	public float[] dimensions(Double radius, double t) 
+	public double[] dimensions(Double radius, double t) 
 	{
 		if(points.size() == 1)
 			return points.get(0).dimensions(radius);
-		float[] coord 		= coord(radius);
-		float[] upper 		= upper(radius);
-		float[] dimensions	= new float[nDim()];
+		double[] coord 		= coord(radius);
+		double[] upper 		= upper(radius);
+		double[] dimensions	= new double[nDim()];
 		for (int i = 0; i < nDim(); i++)
-			dimensions[i] = upper[i] - coord[i] + 2 * (float) t;
+			dimensions[i] = upper[i] - coord[i] + 2 * t;
 		return dimensions;
 	}
 	

@@ -5,9 +5,6 @@ public class BoundaryCyclic extends BoundaryConnected
 	public BoundaryCyclic()
 	{
 		super();
-		//TODO
-		//this._gridMethod = 
+		this._defaultGridMethod = Boundary.cyclic(); 
 	}
-	
-	
 }

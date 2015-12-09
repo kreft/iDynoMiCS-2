@@ -1,15 +1,19 @@
-package xmlpack;
+package dataIO;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
-import idynomics.AgentContainer;
+import idynomics.Compartment;
+import utility.ExtraMath;
 
 public class XmlTest {
 
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
+		// Make sure the random number generator is up and running.
+		ExtraMath.initialiseRandomNumberGenerator();
 
 		// Load the xml document
 		Element doc = XmlLoad.loadDocument("testdata.xml");
@@ -38,8 +42,7 @@ public class XmlTest {
 		
 		// iterate trough all agents in xml file and add them including their
 		// attributes
-		AgentContainer agentContainer = new AgentContainer();
-		agentContainer.init(3);
+		Compartment comp = new Compartment("CUBOID");
 		for (int i = 0; i < agentNodes.getLength(); i++) 
 		{
 			Agent anAgent = new Agent();
@@ -49,10 +52,10 @@ public class XmlTest {
 				anAgent.setPrimary(att.item(j).getNodeName(), 
 						att.item(j).getNodeValue());
 			}
-			agentContainer.registerBirth(anAgent);
+			comp.addAgent(anAgent);
 		}
 		
-		System.out.println("Created: " + agentContainer.getNumAllAgents() + " agents");
+		System.out.println("Created: " + comp.agents.getNumAllAgents() + " agents");
 
 		//
 		System.out.println("\nThe end");
