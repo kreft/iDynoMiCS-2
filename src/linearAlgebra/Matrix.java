@@ -28,6 +28,8 @@ public final class Matrix
 	 * @param n Number of columns.
 	 * @param value Fill the matrix with this integer value.
 	 * @return Two-dimensional array of integers, all of <b>value</b> given.
+	 * @see #matrix(int, int)
+	 * @see #matrix(int, int, double)
 	 */
 	public static int[][] matrix(int m, int n, int value)
 	{
@@ -42,6 +44,8 @@ public final class Matrix
 	 * @param mn Number of rows = number of columns.
 	 * @param value Fill the matrix with this integer value.
 	 * @return Two-dimensional array of integers, all of <b>value</b> given.
+	 * @see #matrix(int, int, int)
+	 * @see #matrix(int, double)
 	 */
 	public static int[][] matrix(int mn, int value)
 	{
@@ -55,6 +59,8 @@ public final class Matrix
 	 * @param n Number of columns.
 	 * @param value Fill the matrix with this double value.
 	 * @return Two-dimensional array of doubles, all of <b>value</b> given.
+	 * @see #matrix(int, double)
+	 * @see #matrix(int, int, int)
 	 */
 	public static double[][] matrix(int m, int n, double value)
 	{
@@ -69,6 +75,8 @@ public final class Matrix
 	 * @param mn Number of rows = number of columns.
 	 * @param value Fill the matrix with this double value.
 	 * @return Two-dimensional array of doubles, all of <b>value</b> given.
+	 * @see #matrix(int, int, double)
+	 * @see #matrix(int, int)
 	 */
 	public static double[][] matrix(int mn, double value)
 	{
@@ -83,6 +91,9 @@ public final class Matrix
 	 * @param m Number of rows.
 	 * @param n Number of columns.
 	 * @return Two-dimensional array of integers, all of value 0.
+	 * @see #zerosInt(int)
+	 * @see #zeros(int[][])
+	 * @see #zerosDbl(int, int)
 	 */
 	public static int[][] zerosInt(int m, int n)
 	{
@@ -94,6 +105,9 @@ public final class Matrix
 	 * 
 	 * @param mn Number of rows = number of columns.
 	 * @return Two-dimensional array of integers, all of value 0.
+	 * @see #zerosInt(int, int)
+	 * @see #zeros(int[][])
+	 * @see #zerosDbl(int)
 	 */
 	public static int[][] zerosInt(int mn)
 	{
@@ -103,12 +117,12 @@ public final class Matrix
 	/**
 	 * \brief A new m-by-n matrix of integer zeros.
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @return Two-dimensional array of integers.
-	 * @param matrix Two-dimensional array of integers.
+	 * @param matrix Two-dimensional array of integers (preserved).
 	 * @return Two-dimensional array of all of integer value 0, with the same
 	 * number of rows and of columns as <b>matrix</b>.
+	 * @see #zerosInt(int, int)
+	 * @see #zerosInt(int)
+	 * @see #zeros(double[][])
 	 */
 	public static int[][] zeros(int[][] matrix)
 	{
@@ -121,6 +135,9 @@ public final class Matrix
 	 * @param m Number of rows.
 	 * @param n Number of columns.
 	 * @return Two-dimensional array of doubles, all of value 0.0.
+	 * @see #zerosDbl(int)
+	 * @see #zeros(double[][])
+	 * @see #zerosInt(int, int)
 	 */
 	public static double[][] zerosDbl(int m, int n)
 	{
@@ -132,6 +149,9 @@ public final class Matrix
 	 * 
 	 * @param mn	Number of rows (same as number of columns)
 	 * @return	double[][] array composed of zeros.
+	 * @see #zerosDbl(int, int)
+	 * @see #zeros(double[][])
+	 * @see #zerosInt(int)
 	 */
 	public static double[][] zerosDbl(int mn)
 	{
@@ -147,6 +167,9 @@ public final class Matrix
 	 * @param matrix Two-dimensional array of doubles.
 	 * @return Two-dimensional array of all of double value 0.0, with the same
 	 * number of rows and of columns as <b>matrix</b>.
+	 * @see #zerosDbl(int, int)
+	 * @see #zerosDbl(int)
+	 * @see #zeros(int[][])
 	 */
 	public static double[][] zeros(double[][] matrix)
 	{
@@ -165,6 +188,9 @@ public final class Matrix
 	 * @param n Number of columns.
 	 * @return Two-dimensional array of integers with ones on the diagonal and
 	 * zeros elsewhere.
+	 * @see #identityInt(int)
+	 * @see #identity(int[][])
+	 * @see #identityDbl(int, int)
 	 */
 	public static int[][] identityInt(int m, int n)
 	{
@@ -184,6 +210,9 @@ public final class Matrix
 	 * @param mn Number of rows = number of columns.
 	 * @return Two-dimensional array of integers with ones on the diagonal and
 	 * zeros elsewhere.
+	 * @see #identityInt(int, int)
+	 * @see #identity(int[][])
+	 * @see #identityDbl(int)
 	 */
 	public static int[][] identityInt(int mn)
 	{
@@ -200,6 +229,9 @@ public final class Matrix
 	 * @return Two-dimensional array of integers with ones on the diagonal and
 	 * zeros elsewhere, with the same number of rows and of columns as
 	 * <b>matrix</b>.
+	 * @see #identityInt(int, int)
+	 * @see #identityInt(int)
+	 * @see #identity(double[][])
 	 */
 	public static int[][] identity(int[][] matrix)
 	{
@@ -216,6 +248,9 @@ public final class Matrix
 	 * @param n Number of columns.
 	 * @return Two-dimensional array of doubles with ones on the diagonal and
 	 * zeros elsewhere.
+	 * @see #identityDbl(int, int)
+	 * @see #identity(double[][])
+	 * @see #identityInt(int, int)
 	 */
 	public static double[][] identityDbl(int m, int n)
 	{
@@ -235,6 +270,9 @@ public final class Matrix
 	 * @param mn Number of rows = number of columns.
 	 * @return Two-dimensional array of doubles with ones on the diagonal and
 	 * zeros elsewhere.
+	 * @see #identityDbl(int, int)
+	 * @see #identity(double[][])
+	 * @see #identityInt(int)
 	 */
 	public static double[][] identityDbl(int mn)
 	{
@@ -251,6 +289,9 @@ public final class Matrix
 	 * @return Two-dimensional array of doubles with ones on the diagonal and
 	 * zeros elsewhere, with the same number of rows and of columns as
 	 * <b>matrix</b>.
+	 * @see #identityDbl(int, int)
+	 * @see #identityDbl(int)
+	 * @see #identity(int[][])
 	 */
 	public static double[][] identity(double[][] matrix)
 	{
@@ -268,6 +309,7 @@ public final class Matrix
 	 * @param destination Two-dimensional array of integers (overwritten).
 	 * @param matrix Two-dimensional array of integers (preserved).
 	 * @see #copy(int[][])
+	 * @see #copyTo(double[][], double[][])
 	 */
 	public static void copyTo(int[][] destination, int[][] matrix)
 	{
@@ -283,6 +325,7 @@ public final class Matrix
 	 * @param matrix Two-dimensional array of integers (preserved).
 	 * @return int[][] array that is an exact copy of the given <b>matrix</b>.
 	 * @see #copyTo(int[][], int[][])
+	 * @see #copy(double[][])
 	 */
 	public static int[][] copy(int[][] matrix)
 	{
@@ -298,6 +341,7 @@ public final class Matrix
 	 * @param destination Two-dimensional array of doubles (overwritten).
 	 * @param matrix Two-dimensional array of doubles (preserved).
 	 * @see #copy(double[][])
+	 * @see #copyTo(int[][], int[][])
 	 */
 	public static void copyTo(double[][] destination, double[][] matrix)
 	{
@@ -313,6 +357,7 @@ public final class Matrix
 	 * @param matrix Two-dimensional array of doubles (preserved).
 	 * @return double[][] array that is an exact copy of the given <b>matrix</b>.
 	 * @see #copyTo(double[][], double[][])
+	 * @see #copy(int[][])
 	 */
 	public static double[][] copy(double[][] matrix)
 	{
@@ -328,6 +373,7 @@ public final class Matrix
 	 * 
 	 * @param matrix Two-dimensional array of integers (overwritten).
 	 * @param value Fill the <b>matrix</b> with this integer value.
+	 * @see #setAll(double[][], double)
 	 */
 	public static void setAll(int[][] matrix, int value)
 	{
@@ -342,6 +388,7 @@ public final class Matrix
 	 * 
 	 * @param matrix Two-dimensional array of doubles (overwritten).
 	 * @param value Fill the matrix with this double value.
+	 * @see #setAll(int[][], int)
 	 */
 	public static void setAll(double[][] matrix, double value)
 	{
@@ -362,6 +409,9 @@ public final class Matrix
 	 * 
 	 * @param matrix Two-dimensional array of integers (preserved).
 	 * @exception IllegalArgumentException All rows must have the same length.
+	 * @see #checkDimensions(double[][])
+	 * @see #checkDimensionsSame(int[][], int[][])
+	 * @see #checkSquare(int[][])
 	 */
 	public static void checkDimensions(int[][] matrix)
 	{
@@ -379,6 +429,9 @@ public final class Matrix
 	 * 
 	 * @param matrix Two-dimensional array of doubles (preserved).
 	 * @exception IllegalArgumentException All rows must have the same length.
+	 * @see #checkDimensions(int[][])
+	 * @see #checkDimensionsSame(double[][], double[][])
+	 * @see #checkSquare(double[][])
 	 */
 	public static void checkDimensions(double[][] matrix)
 	{
@@ -398,6 +451,9 @@ public final class Matrix
 	 * @param a Two-dimensional array of integers (preserved).
 	 * @param b Two-dimensional array of integers (preserved).
 	 * @exception IllegalArgumentException Matrix row dimensions must agree.
+	 * @see #checkDimensions(int[][])
+	 * @see #checkSquare(int[][])
+	 * @see #checkDimensionsSame(double[][], double[][])
 	 */
 	public static void checkDimensionsSame(int[][] a, int[][] b)
 	{
@@ -414,6 +470,9 @@ public final class Matrix
 	 * @param a Two-dimensional array of doubles (preserved).
 	 * @param b Two-dimensional array of doubles (preserved).
 	 * @exception IllegalArgumentException Matrix row dimensions must agree.
+	 * @see #checkDimensions(double[][])
+	 * @see #checkSquare(double[][])
+	 * @see #checkDimensionsSame(int[][], int[][])
 	 */
 	public static void checkDimensionsSame(double[][] a, double[][] b)
 	{
@@ -432,6 +491,8 @@ public final class Matrix
 	 * @param matrix Two-dimensional array of integers (preserved).
 	 * @return boolean reporting whether the <b>matrix</b> is square (true) or
 	 * not (false).
+	 * @see #checkSquare(int[][])
+	 * @see #isSquare(double[][])
 	 */
 	public static boolean isSquare(int[][] matrix)
 	{
@@ -444,6 +505,9 @@ public final class Matrix
 	 * 
 	 * @param matrix Two-dimensional array of integers (preserved).
 	 * @exception IllegalArgumentException Matrix must be square.
+	 * @see #isSquare(int[][])
+	 * @see #checkSquare(double[][])
+	 * @see #checkDimensions(int[][])
 	 */
 	public static void checkSquare(int[][] matrix)
 	{
@@ -457,6 +521,8 @@ public final class Matrix
 	 * @param matrix Two-dimensional array of doubles (preserved).
 	 * @return boolean reporting whether the <b>matrix</b> is square (true) or
 	 * not (false).
+	 * @see #checkSquare(double[][])
+	 * @see #isSquare(int[][])
 	 */
 	public static boolean isSquare(double[][] matrix)
 	{
@@ -469,6 +535,9 @@ public final class Matrix
 	 * 
 	 * @param matrix Two-dimensional array of doubles (preserved).
 	 * @exception IllegalArgumentException Matrix must be square.
+	 * @see #isSquare(double[][])
+	 * @see #checkDimensions(double[][])
+	 * @see #checkSquare(int[][])
 	 */
 	public static void checkSquare(double[][] matrix)
 	{
