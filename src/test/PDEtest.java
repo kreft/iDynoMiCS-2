@@ -5,9 +5,10 @@ package test;
 
 import boundary.*;
 import grid.CartesianGrid;
+import grid.GridBoundary;
+import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SpatialGrid.GridMethod;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
@@ -65,10 +66,10 @@ public class PDEtest
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
 		Boundary xmin = new BoundaryFixed();
-		xmin.setGridMethod("fall", Boundary.constantDirichlet(1.0));
+		xmin.setGridMethod("fall", GridBoundary.constantDirichlet(1.0));
 		aCompartment.addBoundary("xmin", xmin);
 		Boundary xmax = new BoundaryFixed();
-		xmax.setGridMethod("rise", Boundary.constantDirichlet(1.0));
+		xmax.setGridMethod("rise", GridBoundary.constantDirichlet(1.0));
 		aCompartment.addBoundary("xmax", xmax);
 		//TODO diffusivities
 		aCompartment.init();
@@ -117,7 +118,7 @@ public class PDEtest
 			public double getBoundaryFlux(SpatialGrid grid)
 			{
 				int[] current = grid.iteratorCurrent();
-				return Boundary.calcFlux(
+				return GridBoundary.calcFlux(
 								Vector.sum(current)/4.0, 
 								grid.getValueAtCurrent(ArrayType.CONCN),
 								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),

@@ -2,6 +2,7 @@ package grid;
 
 import java.util.HashMap;
 
+import grid.GridBoundary.GridMethod;
 import idynomics.Compartment.BoundarySide;
 
 /**
@@ -35,15 +36,6 @@ public abstract class SpatialGrid
 	{
 		SpatialGrid newGrid(int[] nVoxel, double resolution);
 	};
-	
-	/**
-	 * Interface detailing what should be done at a boundary. Typical examples
-	 * include Dirichlet and Neumann boundary conditions. 
-	 */
-	public interface GridMethod
-	{
-		double getBoundaryFlux(SpatialGrid grid);
-	}
 	
 	/**
 	 * Label for an array. 

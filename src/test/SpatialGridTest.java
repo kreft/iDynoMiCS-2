@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 import boundary.Boundary;
 import boundary.BoundaryFixed;
+import grid.GridBoundary;
 import grid.CartesianGrid;
 import grid.SpatialGrid;
 import idynomics.Compartment;
@@ -68,10 +69,10 @@ public class SpatialGridTest
 		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
 		aCompartment.addSolute("test");
 		Boundary xmin = new BoundaryFixed();
-		xmin.setGridMethod("test", Boundary.constantDirichlet(1.0));
+		xmin.setGridMethod("test", GridBoundary.constantDirichlet(1.0));
 		aCompartment.addBoundary("xmin", xmin);
 		Boundary xmax = new BoundaryFixed();
-		xmax.setGridMethod("test", Boundary.constantDirichlet(0.0));
+		xmax.setGridMethod("test", GridBoundary.constantDirichlet(0.0));
 		aCompartment.addBoundary("xmax", xmax);
 		aCompartment.init();
 		

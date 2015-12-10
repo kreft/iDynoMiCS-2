@@ -9,6 +9,7 @@ import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
 import grid.*;
+import grid.GridBoundary;
 import grid.SpatialGrid.GridGetter;
 import processManager.ProcessManager;
 

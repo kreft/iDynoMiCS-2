@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
+import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SpatialGrid.GridMethod;
 import grid.SpatialGrid.GridGetter;
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.Vector;
