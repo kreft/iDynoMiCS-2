@@ -21,6 +21,7 @@ import linearAlgebra.Vector;
 import agent.StateObject;
 import agent.body.Body;
 import agent.body.Point;
+import agent.event.EventLoader;
 import agent.state.StateLoader;
 
 public class XmlLoad {
@@ -101,6 +102,9 @@ public class XmlLoad {
 						stateObject.setState(s.getAttribute("name"), 
 								StateLoader.get(s.getAttribute("value")));
 	                	break;
+					case "event" :
+						stateObject.setPrimary(s.getAttribute("name"), // TODO Bas do some proper testing, checking
+								EventLoader.get(s.getAttribute("value")));
 				}
 			}
 			else	// state node with attributes and child nodes //

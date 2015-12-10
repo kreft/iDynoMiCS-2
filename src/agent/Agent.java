@@ -182,57 +182,24 @@ public class Agent implements StateObject
 	
 	public void action(String event)
 	{
-		try
-		{
-			_events.get(event).start(this, null, null);
-		}
-		catch (Exception e)
-		{
-			
-		}
+		action(event, null, null);
 	}
 	
 	public void action(String event, Double timestep)
 	{
-		try
-		{
-			_events.get(event).start(this, null, timestep);
-		}
-		catch (Exception e)
-		{
-			
-		}
+		action(event, null, timestep);
 	}
 	
 	public void action(String event, Agent compliant)
 	{
-		try
-		{
-			_events.get(event).start(this, compliant, null);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		action(event, compliant, null);
 	}
 	
-	public void action(String event, Agent compliant, double timestep)
+	public void action(String event, Agent compliant, Double timestep)
 	{
-		Object className = this.get(event);
-		if (className != null)
-		{
-			try {
-				Event action = (Event) Class.forName("agent.state.event." + className).newInstance();
-				action.start(this, compliant, timestep);
-			} catch (ClassNotFoundException e ){
-				System.out.println("ERROR: the class " + className + " could not be found. Check the agent.state.event package for the existence of this class.");
-				e.printStackTrace();
-			} catch (InstantiationException | IllegalAccessException e)  {
-				System.out.println("ERROR: the class " + className + " could not be accesed or instantieated. Check whether the called class is a valid Event object.");
-				e.printStackTrace();
-			}
-
-		}
+		Object myEvent = this.get(event);
+		if (myEvent != null)
+			((Event) myEvent).start(this, compliant, timestep);
 	}
 	
 	/*************************************************************************

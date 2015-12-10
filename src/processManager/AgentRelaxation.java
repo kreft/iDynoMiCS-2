@@ -22,8 +22,8 @@ public class AgentRelaxation extends ProcessManager {
 	// TODO the following should folow from the protocol file
 	double dtBase		= 0.01;	
 	double maxMovement	= 0.1;
-	String method 		= "shove";
-	boolean timeLeap	= false;
+	String method 		= "euler";
+	boolean timeLeap	= true;
 	
 	private void updateForces(AgentContainer agents) 
 	{
@@ -54,7 +54,7 @@ public class AgentRelaxation extends ProcessManager {
 											AgentContainer agents) {
 		int nstep	= 0;
 		tMech		= 0.0;
-		dtMech 		= 0.002; // TODO (initial) time step.. needs to be build out of protocol file
+		dtMech 		= 0.0005; // TODO (initial) time step.. needs to be build out of protocol file
 		
 		// if higher order ODE solvers are used we need additional space to write.
 		switch (method)

@@ -19,6 +19,8 @@
 			<state name="radius" type="secondary" value="CoccoidRadius" />
 			<state name="lowerBoundingBox" type="secondary" value="LowerBoundingBox" />
 			<state name="dimensionsBoundingBox" type="secondary" value="DimensionsBoundingBox" />
+			<state name="growth" type="event" value="SimpleGrowth" />
+			<state name="divide" type="event" value="CoccoidDivision" />
 			<!-- this has not been made yet, use a static growthrate for now -->
 			<state name="growthRate" type="double" value="0.08" />
 		</species>
