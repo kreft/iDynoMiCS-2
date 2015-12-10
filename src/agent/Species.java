@@ -38,6 +38,15 @@ public class Species implements StateObject
 			return false;
 	}
 	
+	public boolean isGlobalState(String name)
+	{
+		if (_states.containsKey(name))
+			return true;
+		else
+			return false;
+		// update this method if a higher order StateObject class is created
+	}
+	
 	/**
 	 * \brief general getter method for any primary Agent state
 	 * @param name
@@ -83,5 +92,4 @@ public class Species implements StateObject
 		else 
 			setPrimary(name, state);
 	}
-	
 }

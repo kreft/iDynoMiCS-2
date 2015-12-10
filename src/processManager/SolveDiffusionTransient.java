@@ -9,7 +9,6 @@ import java.util.List;
 import agent.Agent;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import reaction.Reaction;
@@ -104,11 +103,21 @@ public class SolveDiffusionTransient extends ProcessManager
 				{
 					// FIXME Bas[3NOV2015]: removed dependence on depreciated class
 //					for (Object aState : agent.getStates(HasReactions.tester))
-					@SuppressWarnings("unchecked")
-					List<Reaction> reactions = (List<Reaction>) agent.getState("reactions");
-					for (Reaction reaction : reactions)
+
+					// TODO Bas [09.12.15] don't use getState unless you want
+					// to obtain the State (object) from the agent. Use 
+					// agent.get to retrieve the value from the agent state
+					// agent.get returns null if the state does not exist!
+					if (agent.isGlobalState("reactions"))
 					{
-						
+						@SuppressWarnings("unchecked")
+						List<Reaction> reactions = 
+								(List<Reaction>) agent.get("reactions");
+						for (Reaction reaction : reactions)
+						{
+							// testing
+							System.out.println(reaction.toString());
+						}
 					}
 				}
 			}

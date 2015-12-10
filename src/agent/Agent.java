@@ -41,7 +41,7 @@ public class Agent implements StateObject
     /**
      * Used to fetch species states.
      */
-    Species species;
+    Species species = new Species();
     
     /**
      * The compartment the agent is currently in
@@ -109,6 +109,14 @@ public class Agent implements StateObject
 			return true;
 		else
 			return false;
+	}
+	
+	public boolean isGlobalState(String name)
+	{
+		if (_states.containsKey(name))
+			return true;
+		else
+			return species.isGlobalState(name);
 	}
 	
 	/*

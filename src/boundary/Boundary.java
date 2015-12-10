@@ -121,12 +121,6 @@ public class Boundary
 		return (bndryConcn - gridConcn) * diffusivity * surfaceArea;
 	}
 	
-	// TODO: Bas [09.12.15] these are (named) methods returning new anonymous
-	// classes implementing the GridMethod interface. For readability and
-	// Consistency within iDynoMiCS would it be nicer to simply add them as
-	// regular classes implementing GridMethod. We may have a separate package
-	// with GridMethods
-	
 	public static GridMethod constantDirichlet(double value)
 	{
 		return new GridMethod()

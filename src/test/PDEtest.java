@@ -55,6 +55,10 @@ public class PDEtest
 		System.out.println("Concentration should tend towards linear");
 		System.out.println("###############################################");
 		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "line");
+		
+		// TODO Bas [10.12.15] why do 1D and 2D compartments need to have 3 side
+		// lengths? This seems to define the amount of voxels in each direction
+		// how do we set the actual (metric) size of the domain?
 		aCompartment.setSideLengths(new double[] {4.0, 1.0, 1.0});
 		/*
 		 * Add the solutes and boundary conditions.
@@ -111,6 +115,7 @@ public class PDEtest
 		/*
 		 * Set the boundary methods and initialise the compartment.
 		 */
+		
 		GridMethod aGridMethod = new GridMethod()
 		{
 			@Override
@@ -125,6 +130,8 @@ public class PDEtest
 			}
 			
 		};
+		
+		aGridMethod.getClass();
 		for ( String side : new String[] {"xmin", "xmax", "ymin", "ymax"})
 		{
 			Boundary bndry = new Boundary();
