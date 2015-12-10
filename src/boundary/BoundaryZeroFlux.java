@@ -1,12 +1,12 @@
 package boundary;
 
-import grid.GridBoundary;
+import grid.GridBoundary.ZeroFlux;;
 
 public class BoundaryZeroFlux extends BoundaryExternal
 {
 
 	public BoundaryZeroFlux()
 	{
-		this._defaultGridMethod = GridBoundary.zeroFlux();
+		this._defaultGridMethod = new ZeroFlux();
 	}
 }
