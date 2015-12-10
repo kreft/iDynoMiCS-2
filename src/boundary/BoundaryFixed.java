@@ -1,16 +1,16 @@
 package boundary;
 
-import grid.GridBoundary;
+import grid.GridBoundary.ConstantDirichlet;
 
 public class BoundaryFixed extends BoundaryExternal
 {
 	public BoundaryFixed()
 	{
-		this._defaultGridMethod = GridBoundary.constantDirichlet(0.0);
+		this._defaultGridMethod = new ConstantDirichlet();
 	}
 	
 	public BoundaryFixed(double value)
 	{
-		this._defaultGridMethod = GridBoundary.constantDirichlet(value);
+		this._defaultGridMethod = new ConstantDirichlet();
 	}
 }
