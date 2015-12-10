@@ -3,9 +3,9 @@ package solver;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SpatialGrid.GridMethod;
 
 /**
  * \brief TODO
