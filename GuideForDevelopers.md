@@ -51,7 +51,11 @@ public double specPurp;
 
 ## `int` vs `Integer`, `double` vs `Double`
 
+## Use of `instanceof`
 
+## Everything should be possible to initialise through XML
+
+## Visualisation should be the same regardless of whether it's during the simulation or from results
 
 ## Using Git, GitHub and eGit
 
