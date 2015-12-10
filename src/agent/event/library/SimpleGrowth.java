@@ -6,7 +6,7 @@ import agent.event.Event;
 
 public class SimpleGrowth implements Event {
 
-	public void start(Agent agent, Agent compliant, double timeStep)
+	public void start(Agent agent, Agent compliant, Double timeStep)
 	{
 		// TODO: We are going to do this different (integrate into ODE/PDE)
 		// this method is just for testing purposes.

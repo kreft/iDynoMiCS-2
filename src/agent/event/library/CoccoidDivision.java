@@ -9,7 +9,7 @@ import agent.event.Event;
 
 public class CoccoidDivision implements Event {
 
-	public void start(Agent mother, Agent daughter, double timeStep)
+	public void start(Agent mother, Agent daughter, Double timeStep)
 	{
 		//TODO check phase 
 		double momMass =(double) mother.get("mass");

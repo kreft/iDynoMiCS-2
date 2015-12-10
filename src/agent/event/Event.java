@@ -4,6 +4,6 @@ import agent.Agent;
 
 public interface Event {
 	
-	public void start(Agent initiator, Agent compliant, double timeStep);
+	public void start(Agent initiator, Agent compliant, Double timeStep);
 
 }

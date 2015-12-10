@@ -180,20 +180,58 @@ public class Agent implements StateObject
 	 * STEPPING
 	 ************************************************************************/
 	
-	/**
-	 * \brief do time dependent activity.
-	 * @param activity
-	 * @param timestep
-	 */
-	public void eventTrigger(String event, Agent compliant, Double timestep) 
+	public void action(String event)
 	{
 		try
 		{
-			_events.get(event).start(this, compliant,timestep);
+			_events.get(event).start(this, null, null);
 		}
-		catch (Exception e) // null pointer exception?
+		catch (Exception e)
 		{
-			System.out.println(e.toString());
+			
+		}
+	}
+	
+	public void action(String event, Double timestep)
+	{
+		try
+		{
+			_events.get(event).start(this, null, timestep);
+		}
+		catch (Exception e)
+		{
+			
+		}
+	}
+	
+	public void action(String event, Agent compliant)
+	{
+		try
+		{
+			_events.get(event).start(this, compliant, null);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void action(String event, Agent compliant, double timestep)
+	{
+		Object className = this.get(event);
+		if (className != null)
+		{
+			try {
+				Event action = (Event) Class.forName("agent.state.event." + className).newInstance();
+				action.start(this, compliant, timestep);
+			} catch (ClassNotFoundException e ){
+				System.out.println("ERROR: the class " + className + " could not be found. Check the agent.state.event package for the existence of this class.");
+				e.printStackTrace();
+			} catch (InstantiationException | IllegalAccessException e)  {
+				System.out.println("ERROR: the class " + className + " could not be accesed or instantieated. Check whether the called class is a valid Event object.");
+				e.printStackTrace();
+			}
+
 		}
 	}
 	
