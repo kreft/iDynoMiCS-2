@@ -67,64 +67,116 @@ public class SphericalGrid extends PolarGrid{
 		return null;
 	}
 	
-	@Override
-	public double[] getVoxelOrigin(int[] coords) {
-		int r=coords[0],t=coords[1],p=coords[2];
-		int ntr=nt(r);
+//	private double[] getLocation(int[] coord, double[] inside){
+//		double r=coord[0]+inside[0],t=coord[1]+inside[1],p=coord[2]+inside[2];
+//		int ntr=nt(coord[0]);
+//		int mod_t = coord[1]%ntr;
+//		boolean right_ex = _res[2][0] > 1;
+//		boolean is_right = coord[2] > mod_t;
+//		int ioct=(int)((coord[1]/ntr)*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
+////		System.out.println(t+"  "+ioct);
+//		t = (is_right ? ntr-mod_t-1 : mod_t) + inside[1];
+////		t = mod_t + inside[1];
+//		p = (is_right ? ntr-coord[2] : coord[2]) + inside[2];
+////		System.out.println(Arrays.toString(coords));
+////		System.out.println("t: "+t+", p:"+p);
+////		System.out.println();
+//		double pd, td;
+//		if (coord[0]==0){ pd = Math.PI/4; td = Math.PI/4;}
+//		else{
+////			if (is_right) pd = (ntr-t)*(nt_rad/(_res[1][0]*2*r));
+////			else pd = t*(nt_rad/(_res[1][0]*2*r));
+//////			pd = t*(nt_rad/(_res[1][0]*2*r));
+////			if (t-inside[1] == 0) td=0;
+////			else td = p*(Math.PI/2/(t-inside[1]));
+////			if (is_right) pd = (ntr-t)*(nt_rad/(_res[1][0]*2*r));
+////			else pd = t*(nt_rad/(_res[1][0]*2*r));
+////			if (t-inside[1] == 0) td=0;
+////			else td = p*(Math.PI/2/(t-inside[1]));
+//			double l=getArcLength(r+1);
+//			System.out.println(Math.PI/2/l);
+//			if (t==0) {pd=0; td=0;}
+//			else {
+//				td = p*l;
+//				pd = t*l;
+//			}
+//		}
+////		if (is_right) pd+=Math.PI/2;
+////		td += right_ex ? (ioct-1)/2*(Math.PI/2) : (ioct-1)*(Math.PI/2);
+//		System.out.println(Arrays.toString(new double[]{r,td,pd}));
+//		return new double[]{r,td,pd};
+//	}
+	
+	private double[] getLocation(int[] coord, double[] inside){
+		int ntr=nt(coord[0]);
+		int mod_t = coord[1]%ntr;
 		boolean right_ex = _res[2][0] > 1;
-		boolean is_right = p > t%ntr;
-		int ioct=(int)((t/ntr)*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
+		boolean is_right = coord[2] > mod_t;
+		int ioct=(int)((coord[1]/ntr)*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
 //		System.out.println(t+"  "+ioct);
-		t = is_right ? ntr-t%ntr-1 : t%ntr;
-		p = is_right ? ntr-p : p;
+		coord[1] = (is_right ? ntr-mod_t-1 : mod_t);
+//		t = mod_t + inside[1];
+		coord[2] = (is_right ? ntr-coord[2] : coord[2]);
 //		System.out.println(Arrays.toString(coords));
 //		System.out.println("t: "+t+", p:"+p);
 //		System.out.println();
-		double pd, td;
-		if (r==0){ pd = is_right ? Math.PI : 0; td = 0;}
-		else{
-			if (is_right) td = (ntr-t-1)*(nt_rad/(_res[1][0]*2*r));
-			else td = t*(nt_rad/(_res[1][0]*2*r));
-			if (t == 0) pd=is_right ? Math.PI : 0;
-			else pd = p*(Math.PI/2/t);
+		double pd, td, l, ls;
+		if (coord[0]==0) {pd=(coord[1]+inside[1])*Math.PI/2; td=(coord[2]+inside[2])*Math.PI/2;}
+		else {
+			l=getArcLength(coord[0]+inside[0]+1);
+			ls=Math.PI/2/l;
+//			double sp=(0.153247*(1+ntr)*(-1+ntr)*ntr)/Math.pow(1+coord[0],837.0/625)
+			double sp=ls/(ntr-1), st=ls/(coord[1]+1);
+			td = (coord[2]+inside[2])*l*st;
+//			pd = Math.min(t*l/st,Math.PI/2);
+			pd=(coord[1]+inside[1])*l*sp;
+			System.out.println(coord[0]+"  "+ntr);
+			System.out.println(l+"  "+ls+"  "+st+"  "+sp);
 		}
-		if (is_right) td+=Math.PI/2;
-		pd += right_ex ? (ioct-1)/2*(Math.PI/2) : ioct*(Math.PI/2);
-				
-		return new double[]{r,td,pd};
+		if (is_right) pd+=Math.PI;
+		td += right_ex ? (ioct-1)/2*(Math.PI/2) : (ioct-1)*(Math.PI/2);
+		System.out.println(Arrays.toString(new double[]{coord[0],td,pd}));
+		return new double[]{coord[0]+inside[0],td,pd};
 	}
 	
-	public double[] getVoxelCentre(int[] coords)
-	{
-		int r=coords[0],t=coords[1],p=coords[2];
-		int ntr=nt(r);
-		boolean right_ex = _res[2][0] > 1;
-		boolean is_right = p > t%ntr;
-		int ioct=(int)((t/ntr)*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
-//		System.out.println(t+"  "+ioct);
-		t = is_right ? ntr-t%ntr-1 : t%ntr;
-		p = is_right ? ntr-p : p;
-//		System.out.println(Arrays.toString(coords));
-//		System.out.println("t: "+t+", p:"+p);
-//		System.out.println();
-		double[] o=getVoxelOrigin(coords);
-		double rd=o[0]+0.5, td=o[1], pd=o[2];
-		if (r==0){ pd = Math.PI/4; td = Math.PI/4;}
-		else{
-//			if (is_right) td -= 0.5*(nt_rad/(_res[1][0]*2*r));
-//			else td += 0.5*(nt_rad/(_res[1][0]*2*r));
-//			if (t == 0) pd=Math.PI/4;
-//			else pd += 0.5*(Math.PI/2/t);
-//			td += 0.5*(nt_rad/(_res[1][0]*2*r));
-//			if (t == 0) pd=Math.PI/4;
-//			else pd += 0.5*(Math.PI/2/t);
-		}
-//		if (is_right) td+=Math.PI/2;
-//		pd += right_ex ? (ioct-1)/2*(Math.PI/2) : ioct*(Math.PI/2);
-//		r+=0.5;		
-		
-		return new double[]{rd,td,pd};
+	@Override
+	public double[] getVoxelOrigin(int[] coord) {
+		return getLocation(coord,new double[]{0d,0d,0d});
 	}
+	public double[] getVoxelCentre(int[] coord){
+		return getLocation(coord,new double[]{0.5,0.5,0.5});
+	}
+//	public double[] getVoxelCentre(int[] coords)
+//	{
+//		int r=coords[0],t=coords[1],p=coords[2];
+//		int ntr=nt(r);
+//		boolean right_ex = _res[2][0] > 1;
+//		boolean is_right = p > t%ntr;
+//		int ioct=(int)((t/ntr)*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
+////		System.out.println(t+"  "+ioct);
+//		t = is_right ? ntr-t%ntr-1 : t%ntr;
+//		p = is_right ? ntr-p : p;
+////		System.out.println(Arrays.toString(coords));
+////		System.out.println("t: "+t+", p:"+p);
+////		System.out.println();
+//		double[] o=getVoxelOrigin(coords);
+//		double rd=o[0]+0.5, td=o[1], pd=o[2];
+//		if (r==0){ pd = Math.PI/4; td = Math.PI/4;}
+//		else{
+////			if (is_right) td -= 0.5*(nt_rad/(_res[1][0]*2*r));
+////			else td += 0.5*(nt_rad/(_res[1][0]*2*r));
+////			if (t == 0) pd=Math.PI/4;
+////			else pd += 0.5*(Math.PI/2/t);
+////			td += 0.5*(nt_rad/(_res[1][0]*2*r));
+////			if (t == 0) pd=Math.PI/4;
+////			else pd += 0.5*(Math.PI/2/t);
+//		}
+////		if (is_right) td+=Math.PI/2;
+////		pd += right_ex ? (ioct-1)/2*(Math.PI/2) : ioct*(Math.PI/2);
+////		r+=0.5;		
+//		
+//		return new double[]{rd,td,pd};
+//	}
 	
 	@Override
 	protected BoundarySide isOutside(int[] coord) {
@@ -154,6 +206,8 @@ public class SphericalGrid extends PolarGrid{
 	private int snp(int t){return (int)(1.0/2*(t+1)*(t+2));} 
 	// number of cells until and including matrix r
 	private int sn(int r){return (int)(1.0/6*_res[1][0]*_res[2][0]*(r+1)*(r+2)*(4*r+3));}
+	//
+	private double getArcLength(double r){return Math.pow(0.8498*r,-0.6696);}
 
 	@Override
 	public void currentIdxChanged() {

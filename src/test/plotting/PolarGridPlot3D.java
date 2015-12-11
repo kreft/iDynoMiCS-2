@@ -57,9 +57,9 @@ public class PolarGridPlot3D {
 			Vector3f vector;
 			if (grid instanceof SphericalGrid){
 				vector = new Vector3f(
-						(float)(p[0]*Math.cos(p[2])*Math.sin(p[1])), 
-						(float)(p[0]*Math.sin(p[2])*Math.sin(p[1])),
-						(float)(p[0]*Math.cos(p[1])));
+						(float)(p[0]*Math.cos(p[1])*Math.sin(p[2])), 
+						(float)(p[0]*Math.sin(p[1])*Math.sin(p[2])),
+						(float)(p[0]*Math.cos(p[2])));
 			}
 			else vector = new Vector3f((float)(p[0]*Math.sin(p[1])), 
 					(float)(p[0]*Math.cos(p[1])), (float)(p[2]));
