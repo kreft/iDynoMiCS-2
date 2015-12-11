@@ -4,8 +4,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
-import agent.Species;
-import agent.SpeciesLib;
+import agent.Clade;
+import agent.CladeLib;
 import dataIO.PovExport;
 import dataIO.SvgExport;
 import dataIO.XmlLoad;
@@ -27,12 +27,12 @@ public class AgentMechanicsTest {
 		Element doc = XmlLoad.loadDocument("testagents.xml");
 		
 		// cycle trough all species and add them to the species Lib
-		NodeList speciesNodes = doc.getElementsByTagName("species");
-		for (int i = 0; i < speciesNodes.getLength(); i++) 
+		NodeList cladeNodes = doc.getElementsByTagName("clade");
+		for (int i = 0; i < cladeNodes.getLength(); i++) 
 		{
-			Element xmlSpecies = (Element) speciesNodes.item(i);
-			SpeciesLib.set(xmlSpecies.getAttribute("name"), 
-					new Species(speciesNodes.item(i)));
+			Element xmlSpecies = (Element) cladeNodes.item(i);
+			CladeLib.set(xmlSpecies.getAttribute("name"), 
+					new Clade(cladeNodes.item(i)));
 		}
 		
 		// cycle trough all compartments

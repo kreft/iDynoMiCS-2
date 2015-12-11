@@ -1,5 +1,5 @@
 <simulation name="mySim" comments="this is a file for Agent testing">
-	<speciesLib>
+	<cladeLib>
 	<!-- species library
 	The species library contains all agent species in the simulations. This may
 	include microbial species, plasmid and vector species, particle species etc.
@@ -11,7 +11,7 @@
 	
 	small test
 	-->
-		<species name="AOB">
+		<clade name="AOB">
 			<state name="pigment" type="String" value="GREEN" />
 			<state name="morphology" type="String" value="coccoid" />
 			<state name="joints" type="secondary" value="JointsState" />
@@ -23,12 +23,12 @@
 			<state name="divide" type="event" value="CoccoidDivision" />
 			<!-- this has not been made yet, use a static growthrate for now -->
 			<state name="growthRate" type="double" value="0.08" />
-		</species>
-	</speciesLib>
+		</clade>
+	</cladeLib>
 	<compartment name="second" shape="rectangle">
 		<agents>
 			<agent>
-				<state name="species" type="String" value="AOB" />
+				<state name="clade" type="String" value="AOB" />
 				<state name="id" type="int" value="1" />
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
@@ -39,7 +39,7 @@
 				</state>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
+				<state name="clade" type="String" value="AOB" />
 				<state name="id" type="int" value="2" />
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
@@ -50,7 +50,7 @@
 				</state>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
+				<state name="clade" type="String" value="AOB" />
 				<state name="id" type="int" value="3" />
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />

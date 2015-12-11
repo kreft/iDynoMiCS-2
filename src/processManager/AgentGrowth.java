@@ -16,8 +16,8 @@ public class AgentGrowth extends ProcessManager {
 
 		for ( Agent agent : agents.getAllAgents() )
 		{
-			agent.action("growth", _timeStepSize);
-			agent.action("divide", _timeStepSize);
+			agent.event("growth", _timeStepSize);
+			agent.event("divide", _timeStepSize);
 		}
 	}
 	

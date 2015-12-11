@@ -19,29 +19,19 @@ public class Agent implements StateObject
 	protected static int UNIQUE_ID = 0;
     final int uid = ++UNIQUE_ID;
 
-	
 	/**
 	 * The states HashMap stores all primary and secondary states.
+	 * FIXME Bas: now also includes all events an agent can perform.. consider
+	 * renaming
 	 */
 	protected HashMap<String, State> _states = new HashMap<String, State>();
-	
-    /**
-	 * All activities owned by this Agent and whether they are currently enabled
-	 * or disabled.
-     */
-    protected HashMap<String, Event> _events = new HashMap<String, Event>();
-
-    //FIXME: Bas - dilemma: so we prefer not giving everything all information
-    // that is available, however.. agents need to perform their activities we
-    // do not know what information is needed for those activities thus how do
-    // we do we ensure that the agents can perform all activities without giving
-    // them all available information? For now let them have all information 
-    // until we have a definite answ
     
     /**
      * Used to fetch species states.
+     * creates a new empty species for if no species is defined. (we may want to
+     * do this slightly different).
      */
-    Species species = new Species();
+    Clade clade = new Clade();
     
     /**
      * The compartment the agent is currently in
@@ -60,7 +50,7 @@ public class Agent implements StateObject
 	public Agent(Node xmlNode)
 	{
 		XmlLoad.loadStates(this, xmlNode);
-		species = SpeciesLib.get((String) get("species"));
+		clade = CladeLib.get((String) get("clade"));
 	}
 	
 	/**
@@ -72,7 +62,7 @@ public class Agent implements StateObject
 	{
 		for (String key : agent._states.keySet())
 			this._states.put(key, agent.getState(key).copy());
-		species = SpeciesLib.get((String) get("species"));
+		clade = CladeLib.get((String) get("clade"));
 		this.compartment = agent.getCompartment();
 	}
 	
@@ -113,10 +103,10 @@ public class Agent implements StateObject
 	
 	public boolean isGlobalState(String name)
 	{
-		if (_states.containsKey(name))
+		if (isLocalState(name))
 			return true;
 		else
-			return species.isGlobalState(name);
+			return clade.isGlobalState(name);
 	}
 	
 	/*
@@ -128,8 +118,8 @@ public class Agent implements StateObject
 	{
 		if (this.isLocalState(name))
 			return getState(name).get(this);
-		else if (species.isLocalState(name))
-			return species.getState(name).get(this);
+		else if (clade.isLocalState(name))
+			return clade.getState(name).get(this);
 		else
 			return null;
 	}
@@ -180,22 +170,22 @@ public class Agent implements StateObject
 	 * STEPPING
 	 ************************************************************************/
 	
-	public void action(String event)
+	public void event(String event)
 	{
-		action(event, null, null);
+		event(event, null, null);
 	}
 	
-	public void action(String event, Double timestep)
+	public void event(String event, Double timestep)
 	{
-		action(event, null, timestep);
+		event(event, null, timestep);
 	}
 	
-	public void action(String event, Agent compliant)
+	public void event(String event, Agent compliant)
 	{
-		action(event, compliant, null);
+		event(event, compliant, null);
 	}
 	
-	public void action(String event, Agent compliant, Double timestep)
+	public void event(String event, Agent compliant, Double timestep)
 	{
 		Object myEvent = this.get(event);
 		if (myEvent != null)
