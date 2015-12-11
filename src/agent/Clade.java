@@ -15,6 +15,11 @@ public class Clade implements StateObject
 	 */
 	protected HashMap<String, State> _states = new HashMap<String, State>();
 	
+	/**
+	 * is set to the voidClade if non is set.
+	 */
+	protected Clade clade;
+	
     /*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -24,6 +29,8 @@ public class Clade implements StateObject
 	
 	public Clade(Node xmlNode) {
 		XmlLoad.loadStates(this, xmlNode);
+		if (getState("parentClade") != null)
+			clade = CladeLib.get((String) getState("parentClade").get(null));
 	}
 	
 	/*************************************************************************

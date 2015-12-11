@@ -28,10 +28,9 @@ public class Agent implements StateObject
     
     /**
      * Used to fetch species states.
-     * creates a new empty species for if no species is defined. (we may want to
-     * do this slightly different).
+     * is set to the voidClade if non is set.
      */
-    Clade clade = new Clade();
+    Clade clade;
     
     /**
      * The compartment the agent is currently in
@@ -50,7 +49,8 @@ public class Agent implements StateObject
 	public Agent(Node xmlNode)
 	{
 		XmlLoad.loadStates(this, xmlNode);
-		clade = CladeLib.get((String) get("clade"));
+		if (getState("clade") != null)
+			clade = CladeLib.get((String) get("clade"));
 	}
 	
 	/**
