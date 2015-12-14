@@ -11,9 +11,9 @@ public class LUDecomposition
 {
 	private double[][] lu;
 	
-	private int m, n, pivotSign;
+	private int m, n, _pivotSign;
 	
-	private int[] pivot;
+	private int[] _pivot;
 	
 	public LUDecomposition(double[][] matrix)
 	{
@@ -23,10 +23,8 @@ public class LUDecomposition
 		this.n = Matrix.colDim(this.lu);
 		double[] tempRow;
 		double[] tempCol = new double[this.m];
-		this.pivot = new int[this.m];
-		this.pivotSign = 1;
-		for ( int i = 0; i < this.m; i++ )
-			this.pivot[i] = i;
+		this._pivot = Vector.range(this.m);
+		this._pivotSign = 1;
 		/*
 		 * Loop over columns.
 		 */
@@ -35,8 +33,7 @@ public class LUDecomposition
 			/*
 			 * Copy this column temporarily.
 			 */
-			for ( int i = 0; i < this.m; i++ )
-				tempCol[i] = this.lu[i][j];
+			Matrix.getColumnTo(tempCol, this.lu, j);
 			/*
 			 * Apply previous transformations.
 			 */
@@ -44,7 +41,8 @@ public class LUDecomposition
 			{
 				tempRow = this.lu[i];
 				/*
-				 * Most of the time is spent in the following dot product.
+				 * Most of the time is spent in the following dot product. No
+				 * point using Vector.dotProduct(), as we only go up to kMax.
 				 */
 				int kMax = Math.min(i,  j);
 				double sum = 0.0;
@@ -62,7 +60,7 @@ public class LUDecomposition
 					p = i;
 			if ( p != j )
 			{
-				this.pivotSign *= -1;
+				this._pivotSign *= -1;
 				int tempJ = 0;
 				for ( ; tempJ < this.n; tempJ++ )
 				{
@@ -70,9 +68,9 @@ public class LUDecomposition
 					this.lu[p][tempJ] = this.lu[j][tempJ];
 					this.lu[j][tempJ] = temp;
 				}
-				tempJ = this.pivot[p];
-				this.pivot[p] = this.pivot[j];
-				this.pivot[j] = tempJ;
+				tempJ = this._pivot[p];
+				this._pivot[p] = this._pivot[j];
+				this._pivot[j] = tempJ;
 			}
 			/*
 			 * Compute multipliers.
@@ -130,19 +128,31 @@ public class LUDecomposition
 		return out;
 	}
 	
+	/**
+	 * \brief Get a copy of this L-U Decomposition's pivot vector.
+	 * 
+	 * @return An {@code int[]} copy of this Lower-Upper Decomposition's pivot
+	 *    vector.
+	 */
 	public int[] getPivot()
 	{
-		return Vector.copy(this.pivot);
-	}
-	
-	public double[] getDblPivot()
-	{
-		return Vector.toDbl(this.pivot);
+		return Vector.copy(this._pivot);
 	}
 	
 	/**
-	 * \brief
+	 * \brief Get a copy of this L-U Decomposition's pivot vector, with 
+	 * {@code int} indices recast as {@code double}s.
 	 * 
+	 * @return An {@code double[]} copy of this Lower-Upper Decomposition's
+	 *    pivot vector.
+	 */
+	public double[] getDblPivot()
+	{
+		return Vector.toDbl(this._pivot);
+	}
+	
+	/**
+	 * \brief Calculate the determinant.
 	 * 
 	 * @return Determinant of the matrix given originally.
 	 * @exception IllegalArgumentException Matrix must be square.
@@ -150,7 +160,7 @@ public class LUDecomposition
 	public double determinant()
 	{
 		Matrix.checkSquare(this.lu);
-		double out = (double) this.pivotSign;
+		double out = (double) this._pivotSign;
 		for ( int i = 0; i < this.m; i++ )
 			out *= this.lu[i][i];
 		return out;
@@ -177,7 +187,7 @@ public class LUDecomposition
 		 * Copy right-hand side with pivoting.
 		 */
 		int nx = Matrix.colDim(b);
-		double[][] x = Matrix.submatrix(b, this.pivot, Vector.range(nx));
+		double[][] x = Matrix.submatrix(b, this._pivot, Vector.range(nx));
 		/*
 		 * Solve l * y = b(pivot, :)
 		 */
@@ -200,11 +210,14 @@ public class LUDecomposition
 	}
 	
 	/**
+	 * \brief TODO
 	 * 
+	 * @param destination
 	 * @param b
-	 * @return
+	 * @see #solve(double[])
+	 * @see #solveEquals(double[])
 	 */
-	public double[] solve(double[] b)
+	public void solveTo(double[] destination, double[] b)
 	{
 		if ( b.length != this.m )
 		{
@@ -214,25 +227,55 @@ public class LUDecomposition
 		if ( this.isSingular() )
 			throw new RuntimeException("Matrix is singular.");
 		/*
-		 * Copy right-hand side with pivoting.
+		 * Copy right-hand side with pivoting. Vector.subsetTo() should check
+		 * that destination and pivot have the same length.
 		 */
-		double[] x = Vector.subset(b, this.pivot);
+		Vector.subsetTo(destination, b, this._pivot);
 		/*
 		 * Solve l * y = b(pivot, :)
 		 */
-		for ( int k = 0; k < this.n-1; k++ )
+		for ( int k = 0; k < this.n - 1; k++ )
 			for ( int i = k+1; i < this.n; i++ )
-				x[i] -= x[k] * this.lu[i][k];
+				destination[i] -= destination[k] * this.lu[i][k];
 		/*
 		 * Solve u * x = y
 		 */
-		for (int k = n-1; k >= 0; k--)
+		for (int k = n - 1; k >= 0; k--)
 		{
-	         x[k] /= this.lu[k][k];
+			destination[k] /= this.lu[k][k];
 	         for ( int i = 0; i < k; i++ )
-	        	 x[i] -= x[k] * this.lu[i][k];
+	        	 destination[i] -= destination[k] * this.lu[i][k];
 	    }
-		return x;
 	}
 	
+	/**
+	 * \brief Solve the system of linear equations represented by a
+	 * <b>matrix</b> and two vectors, x and <b>vector</b>, where
+	 * <b>matrix</b> * x = <b>vector</b> and x is the vector to be found.
+	 * 
+	 * @param b One-dimensional array of {@code double}s (preserved).
+	 * @return New {@code double[]} of x.
+	 * @see #solveTo(double[], double[])
+	 * @see #solveEquals(double[])
+	 */
+	public double[] solve(double[] b)
+	{
+		double[] out = new double[this.m];
+		this.solveTo(out, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Solve the system of linear equations represented by a
+	 * <b>matrix</b> and two vectors, x and <b>b</b>, where
+	 * <b>matrix</b> * x = <b>b</b> and x is the vector to be found.
+	 * 
+	 * @param b One-dimensional array of {@code double}s (overwritten).
+	 * @see #solveTo(double[], double[])
+	 * @see #solve(double[])
+	 */
+	public void solveEquals(double[] b)
+	{
+		this.solveTo(b, b);
+	}
 }
