@@ -8,8 +8,7 @@ import java.util.LinkedList;
 import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
-import grid.CartesianGrid;
-import grid.SpatialGrid;
+import grid.*;
 import grid.SpatialGrid.GridGetter;
 import processManager.ProcessManager;
 
