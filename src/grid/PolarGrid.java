@@ -1,5 +1,6 @@
 package grid;
 
+import java.lang.instrument.IllegalClassFormatException;
 import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
@@ -20,7 +21,17 @@ public abstract class PolarGrid extends SpatialGrid {
 	PolarGrid(int[] nVoxel, double[] resolution){
 		double [][] res = new double[3][0];
 		for (int i=0; i<res.length; ++i){
-			res[i] = i==1 ? new double[1] : new double[nVoxel[i]];
+			if (this instanceof CylindricalGrid)
+				res[i] = i==1 ? new double[1] : new double[nVoxel[i]];
+			else if (this instanceof SphericalGrid)
+				res[i] = i==1 || i==2 ? new double[1] : new double[nVoxel[i]];
+			else
+				try {
+					throw new IllegalClassFormatException("Only spherical and cylindrical Grid is allowed here");
+				} catch (IllegalClassFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
 			for (int j=0; j<res[i].length; ++j){
 				res[i][j]=resolution[i];
 			}
@@ -241,7 +252,6 @@ public abstract class PolarGrid extends SpatialGrid {
 	public GridMethod nbhIteratorIsOutside()
 	{
 		BoundarySide bSide = this.isOutside(this._currentNeighbor);
-		//System.out.println(Arrays.toString(this._currentNeighbor)); //bughunt
 		if ( bSide == null )
 			return null;
 		return this._boundaries.get(bSide);
@@ -289,7 +299,10 @@ public abstract class PolarGrid extends SpatialGrid {
 	
 	public int[] resetNbhIterator(){
 		nbhIdx=0;
-		currentNbhIdxChanged();
+		if ( this._currentNeighbor == null )
+			this._currentNeighbor = Vector.zerosInt(3);
+		else
+			currentNbhIdxChanged();
 		return _currentNeighbor;
 	}
 	
@@ -302,6 +315,7 @@ public abstract class PolarGrid extends SpatialGrid {
 	}
 	
 	public abstract int length();
+	public abstract double[] getLocation(int[] coord, double[] inside);
 
 	/*************************************************************************
 	 * REPORTING

@@ -85,7 +85,7 @@ public class CylindricalGrid extends PolarGrid{
 //				(int)(loc[2]/_res)};
 	}
 	
-	private double[] getLocation(int[] coord, double[] inside){
+	public double[] getLocation(int[] coord, double[] inside){
 		double r=(coord[0]+inside[0])*_res[0][coord[0]];
 		double l=getArcLength(coord[0]+inside[0]);
 		double t;
@@ -197,6 +197,7 @@ public class CylindricalGrid extends PolarGrid{
 			_currentNeighbor=Vector.add(Vector.copy(_currentCoord),nbhs[nbhIdx]);
 			if (nbhIdx>3){ // moving in r
 				double t_scale=2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1);
+//				double t_scale=((double)_currentCoord[1])/_currentCoord[0];
 				if (!isMultNbh && (t_scale%1 > 0.5 || t_scale%1 == 0d)) {
 					_currentNeighbor[1]=_currentCoord[1]+nbhs[nbhIdx][1]*(int)Math.ceil(t_scale);
 					nbhIdx--;
