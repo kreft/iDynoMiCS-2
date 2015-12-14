@@ -235,7 +235,7 @@ public class ODErosenbrock extends ODEsolver
 					/*System.out.println("dYdT + h*d*dFdT is"); //Bughunt
 					for ( double elem : k1)
 						System.out.println(elem);*/
-					k1 = Matrix.solve(W, k1);
+					Matrix.solveEquals(W, k1);
 					/*System.out.println("k1 is"); //Bughunt
 					for ( double elem : k1)
 						System.out.println(elem);*/
@@ -258,7 +258,7 @@ public class ODErosenbrock extends ODEsolver
 					/*System.out.println("f1 - k1 is"); //Bughunt
 					for ( double elem : k2)
 						System.out.println(elem);*/
-					k2 = Matrix.solve(W, k2);
+					Matrix.solveEquals(W, k2);
 					/*System.out.println("(f1 - k1)/W is"); //Bughunt
 					for ( double elem : k2)
 						System.out.println(elem);*/
@@ -301,7 +301,7 @@ public class ODErosenbrock extends ODEsolver
 					Vector.timesEquals(k3, 2.0);
 					Vector.addEquals(kaux, k3);
 					// 
-					k3 = Matrix.solve(W, kaux);
+					Matrix.solveTo(k3, W, kaux);
 					/*
 					 * We now use kaux to estimate the error of this step.
 					 */

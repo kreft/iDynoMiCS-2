@@ -4,6 +4,28 @@ import utility.ExtraMath;
 
 /**
  * 
+ * <p>By convention:<ul><li>a method <i>function(matrix)</i> returns a new
+ * matrix,</li><li>the equivalent <i>functionEquals(matrix)</i> overwrites the
+ * values in the argument matrix,</li><li> and <i>functionTo(destination,
+ * source)</i> uses <i>source</i> as the input and writes the result into 
+ * <i>destination</i>.</li></ul> If in doubt, the description of the method
+ * should make it clear which arguments are preserved and which are
+ * overwritten.</p>
+ * 
+ * <p>The layout of this class is:<p>
+ * <ul>
+ *   <li>standard new matrices</i>
+ *   <li>dimensions</i>
+ *   <li>copying and setting</i>
+ *   <li>checking methods (isZero, etc)</li>
+ *   <li>basic arithmetic (+, -, *, /)</li>
+ *   <li>submatrices and reordering</li>
+ *   <li>scalars from matrices (sum, dot product, etc)</i>
+ *   <li>new random matrices</li>
+ *   <li>converting between integer and double</li>
+ *   <li>advanced methods</li>
+ * </ul>
+ * 
  * <p>Credit to the JAMA package</p>
  * 
  * <p>Note that all arrays from the <b>array.Vector</b> class are treated here
@@ -22,12 +44,13 @@ public final class Matrix
 	/* Given value */
 	
 	/**
-	 * \brief A new m-by-n matrix of integers.
+	 * \brief A new m-by-n matrix of {@code int}s.
 	 * 
 	 * @param m Number of rows.
 	 * @param n Number of columns.
-	 * @param value Fill the matrix with this integer value.
-	 * @return Two-dimensional array of integers, all of <b>value</b> given.
+	 * @param value Fill the matrix with this {@code int} value.
+	 * @return Two-dimensional array of {@code int}s, all of <b>value</b>
+	 *    given.
 	 * @see #matrix(int, int)
 	 * @see #matrix(int, int, double)
 	 */
@@ -39,11 +62,12 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief A new square matrix of integers.
+	 * \brief A new square matrix of {@code int}s.
 	 * 
 	 * @param mn Number of rows = number of columns.
-	 * @param value Fill the matrix with this integer value.
-	 * @return Two-dimensional array of integers, all of <b>value</b> given.
+	 * @param value Fill the matrix with this {@code int} value.
+	 * @return Two-dimensional array of {@code int}s, all of <b>value</b>
+	 *    given.
 	 * @see #matrix(int, int, int)
 	 * @see #matrix(int, double)
 	 */
@@ -53,12 +77,13 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief A new m-by-n matrix of doubles.
+	 * \brief A new m-by-n matrix of {@code double}s.
 	 * 
 	 * @param m Number of rows.
 	 * @param n Number of columns.
-	 * @param value Fill the matrix with this double value.
-	 * @return Two-dimensional array of doubles, all of <b>value</b> given.
+	 * @param value Fill the matrix with this {@code double} value.
+	 * @return Two-dimensional array of {@code double}s, all of <b>value</b>
+	 *    given.
 	 * @see #matrix(int, double)
 	 * @see #matrix(int, int, int)
 	 */
@@ -70,11 +95,12 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief A new square matrix of doubles.
+	 * \brief A new square matrix of {@code double}s.
 	 * 
 	 * @param mn Number of rows = number of columns.
-	 * @param value Fill the matrix with this double value.
-	 * @return Two-dimensional array of doubles, all of <b>value</b> given.
+	 * @param value Fill the matrix with this {@code double} value.
+	 * @return Two-dimensional array of {@code double}s, all of <b>value</b>
+	 *    given.
 	 * @see #matrix(int, int, double)
 	 * @see #matrix(int, int)
 	 */
@@ -90,7 +116,7 @@ public final class Matrix
 	 * 
 	 * @param m Number of rows.
 	 * @param n Number of columns.
-	 * @return Two-dimensional array of integers, all of value 0.
+	 * @return Two-dimensional array of {@code int}s, all of value 0.
 	 * @see #zerosInt(int)
 	 * @see #zeros(int[][])
 	 * @see #zerosDbl(int, int)
@@ -104,7 +130,7 @@ public final class Matrix
 	 * \brief A new square matrix of integer zeros.
 	 * 
 	 * @param mn Number of rows = number of columns.
-	 * @return Two-dimensional array of integers, all of value 0.
+	 * @return Two-dimensional array of {@code int}s, all of value 0.
 	 * @see #zerosInt(int, int)
 	 * @see #zeros(int[][])
 	 * @see #zerosDbl(int)
@@ -117,8 +143,8 @@ public final class Matrix
 	/**
 	 * \brief A new m-by-n matrix of integer zeros.
 	 * 
-	 * @param matrix Two-dimensional array of integers (preserved).
-	 * @return Two-dimensional array of all of integer value 0, with the same
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return Two-dimensional array of all of {@code int} value 0, with the same
 	 * number of rows and of columns as <b>matrix</b>.
 	 * @see #zerosInt(int, int)
 	 * @see #zerosInt(int)
@@ -130,11 +156,11 @@ public final class Matrix
 	}
 
 	/**
-	 * \brief A new m-by-n matrix of double zeros.
+	 * \brief A new m-by-n matrix of {@code double} zeros.
 	 * 
 	 * @param m Number of rows.
 	 * @param n Number of columns.
-	 * @return Two-dimensional array of doubles, all of value 0.0.
+	 * @return Two-dimensional array of {@code double}s, all of value 0.0.
 	 * @see #zerosDbl(int)
 	 * @see #zeros(double[][])
 	 * @see #zerosInt(int, int)
@@ -145,10 +171,10 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief Constructs a square matrix full of double zeros.
+	 * \brief Constructs a square matrix full of {@code double} zeros.
 	 * 
-	 * @param mn	Number of rows (same as number of columns)
-	 * @return	double[][] array composed of zeros.
+	 * @param mn Number of rows (same as number of columns)
+	 * @return {@code double[][]} array composed of zeros.
 	 * @see #zerosDbl(int, int)
 	 * @see #zeros(double[][])
 	 * @see #zerosInt(int)
@@ -159,14 +185,12 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief A new m-by-n matrix of double zeros.
+	 * \brief A new m-by-n matrix of {@code double} zeros.
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @return Two-dimensional array of doubles.
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return Two-dimensional array of all of double value 0.0, with the same
-	 * number of rows and of columns as <b>matrix</b>.
+	 * @return Two-dimensional array of {@code double}s (preserved).
+	 * @param matrix Two-dimensional array of {@code double}s.
+	 * @return Two-dimensional array of all of {@code double} value 0.0, with
+	 *    the same number of rows and of columns as <b>matrix</b>.
 	 * @see #zerosDbl(int, int)
 	 * @see #zerosDbl(int)
 	 * @see #zeros(int[][])
@@ -186,8 +210,8 @@ public final class Matrix
 	 * 
 	 * @param m Number of rows.
 	 * @param n Number of columns.
-	 * @return Two-dimensional array of integers with ones on the diagonal and
-	 * zeros elsewhere.
+	 * @return Two-dimensional array of {@code int}s with ones on the diagonal
+	 *    and zeros elsewhere.
 	 * @see #identityInt(int)
 	 * @see #identity(int[][])
 	 * @see #identityDbl(int, int)
@@ -208,8 +232,8 @@ public final class Matrix
 	 * where it has ones instead.</p>
 	 * 
 	 * @param mn Number of rows = number of columns.
-	 * @return Two-dimensional array of integers with ones on the diagonal and
-	 * zeros elsewhere.
+	 * @return Two-dimensional array of {@code int}s with ones on the diagonal
+	 *    and zeros elsewhere.
 	 * @see #identityInt(int, int)
 	 * @see #identity(int[][])
 	 * @see #identityDbl(int)
@@ -225,10 +249,10 @@ public final class Matrix
 	 * <p>An identity matrix is filled with zeros, except on the main diagonal
 	 * where it has ones instead.</p>
 	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return Two-dimensional array of integers with ones on the diagonal and
-	 * zeros elsewhere, with the same number of rows and of columns as
-	 * <b>matrix</b>.
+	 * @param matrix Two-dimensional array of {@code int}s.
+	 * @return Two-dimensional array of {@code int}s with ones on the diagonal
+	 *    and zeros elsewhere, with the same number of rows and of columns as
+	 *    <b>matrix</b>.
 	 * @see #identityInt(int, int)
 	 * @see #identityInt(int)
 	 * @see #identity(double[][])
@@ -246,8 +270,8 @@ public final class Matrix
 	 * 
 	 * @param m Number of rows.
 	 * @param n Number of columns.
-	 * @return Two-dimensional array of doubles with ones on the diagonal and
-	 * zeros elsewhere.
+	 * @return Two-dimensional array of {@code double}s with ones on the
+	 *    diagonal and zeros elsewhere.
 	 * @see #identityDbl(int, int)
 	 * @see #identity(double[][])
 	 * @see #identityInt(int, int)
@@ -268,8 +292,8 @@ public final class Matrix
 	 * where it has ones instead.</p>
 	 * 
 	 * @param mn Number of rows = number of columns.
-	 * @return Two-dimensional array of doubles with ones on the diagonal and
-	 * zeros elsewhere.
+	 * @return Two-dimensional array of {@code double}s with ones on the
+	 *    diagonal and zeros elsewhere.
 	 * @see #identityDbl(int, int)
 	 * @see #identity(double[][])
 	 * @see #identityInt(int)
@@ -285,10 +309,10 @@ public final class Matrix
 	 * <p>An identity matrix is filled with zeros, except on the main diagonal
 	 * where it has ones instead.</p>
 	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return Two-dimensional array of doubles with ones on the diagonal and
-	 * zeros elsewhere, with the same number of rows and of columns as
-	 * <b>matrix</b>.
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return Two-dimensional array of {@code double}s with ones on the
+	 *    diagonal and zeros elsewhere, with the same number of rows and of
+	 *    columns as <b>matrix</b>.
 	 * @see #identityDbl(int, int)
 	 * @see #identityDbl(int)
 	 * @see #identity(int[][])
@@ -296,6 +320,134 @@ public final class Matrix
 	public static double[][] identity(double[][] matrix)
 	{
 		return identityDbl(rowDim(matrix), colDim(matrix));
+	}
+	
+	/*************************************************************************
+	 * DIMENSIONS
+	 ************************************************************************/
+	
+	/**
+	 * \brief Number of rows in the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code int} number of rows in the given <b>matrix</b>.
+	 * @see #colDim(int[][])
+	 * @see #maxDim(int[][])
+	 * @see #minDim(int[][])
+	 * @see #rowDim(double[][])
+	 */
+	public static int rowDim(int[][] matrix)
+	{
+		return matrix.length;
+	}
+	
+	/**
+	 * \brief Number of rows in the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code int} number of rows in the given <b>matrix</b>.
+	 * @see #colDim(double[][])
+	 * @see #maxDim(double[][])
+	 * @see #minDim(double[][])
+	 * @see #rowDim(int[][])
+	 */
+	public static int rowDim(double[][] matrix)
+	{
+		return matrix.length;
+	}
+	
+	/**
+	 * \brief Number of columns in the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code int} number of columns in the given <b>matrix</b>.
+	 * @see #rowDim(double[][])
+	 * @see #maxDim(int[][])
+	 * @see #minDim(int[][])
+	 * @see #colDim(int[][])
+	 */
+	public static int colDim(double[][] matrix)
+	{
+		return matrix[0].length;
+	}
+	
+	/**
+	 * \brief Number of columns in the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code int} number of columns in the given <b>matrix</b>.
+	 * @see #rowDim(int[][])
+	 * @see #maxDim(double[][])
+	 * @see #minDim(double[][])
+	 * @see #colDim(double[][])
+	 */
+	public static int colDim(int[][] matrix)
+	{
+		return matrix[0].length;
+	}
+	
+	/**
+	 * \brief Returns the size of the largest of the two dimensions (# rows or
+	 * # columns) of the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return Size of the largest dimension of the given <b>matrix</b>.
+	 * @see #colDim(int[][])
+	 * @see #rowDim(int[][])
+	 * @see #minDim(int[][])
+	 * @see #maxDim(double[][])
+	 */
+	public static int maxDim(int[][] matrix)
+	{
+		return Math.max(rowDim(matrix), colDim(matrix));
+	}
+	
+	/**
+	 * \brief Returns the size of the largest of the two dimensions (# rows or
+	 * # columns) of the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return Size of the largest dimension of the given <b>matrix</b>.
+	 * @see #colDim(double[][])
+	 * @see #rowDim(double[][])
+	 * @see #minDim(double[][])
+	 * @see #maxDim(int[][])
+	 */
+	public static int maxDim(double[][] matrix)
+	{
+		return Math.max(rowDim(matrix), colDim(matrix));
+	}
+	
+	/**
+	 * \brief Returns the size of the smallest of the two dimensions (# rows
+	 * or # columns) of the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return Size of the smallest dimension of the given <b>matrix</b>.
+	 * @see #colDim(int[][])
+	 * @see #rowDim(int[][])
+	 * @see #maxDim(int[][])
+	 * @see #minDim(double[][])
+	 */
+	public static int minDim(int[][] matrix)
+	{
+		return Math.min(rowDim(matrix), colDim(matrix));
+	}
+	
+	/**
+	 * \brief Returns the size of the smallest of the two dimensions (# rows
+	 * or # columns) of the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return Size of the smallest dimension of the given <b>matrix</b>.
+	 * @see #colDim(double[][])
+	 * @see #rowDim(double[][])
+	 * @see #maxDim(double[][])
+	 * @see #minDim(int[][])
+	 */
+	public static int minDim(double[][] matrix)
+	{
+		return Math.min(rowDim(matrix), colDim(matrix));
 	}
 	
 	/*************************************************************************
@@ -1429,9 +1581,7 @@ public final class Matrix
 	/**
 	 * \brief Extract a subsection of the given <b>matrix</b>.
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
+	 * @param matrix Two-dimensional array of integers (preserved).
 	 * @param rows int[] array of row indices to include, in the order given.
 	 * @param cols int[] array of column indices to include, in the order
 	 * given.
@@ -1496,7 +1646,43 @@ public final class Matrix
 	 * 
 	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
 	 * 
-	 * @param matrix Two-dimensional array of doubles.
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @param rStart int row index at which to start (inclusive).
+	 * @param rStop int row index at which to stop (exclusive).
+	 * @param cStart int column index at which to start (inclusive).
+	 * @param cStop int column index at which to stop (exclusive).
+	 * @return Two-dimensional array of integers selectively copied from
+	 * <b>matrix</b>.
+	 * @exception  ArrayIndexOutOfBoundsException Check submatrix indices.
+	 */
+	public static int[][] submatrix(int[][] matrix, int rStart,
+											int rStop, int cStart, int cStop)
+	{
+		int[][] out = new int[rStop-rStart][cStop-cStart];
+		try
+		{
+			for ( int i = rStart; i < rStop; i++ )
+				for ( int j = cStart; j < cStop; j++ )
+					out[i][j] = matrix[i][j];
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			throw new
+					ArrayIndexOutOfBoundsException("Check submatrix indices");
+		}
+		return out;
+	}
+	
+	/**
+	 * brief Extract a subsection of the given <b>matrix</b>.
+	 * 
+	 * <p>For example, if <b>matrix</b> = <br>1, 2, 3, 4;<br>5, 6, 7, 8;<br>
+	 * 9, 10, 11, 12;<br> then <i>submatrix(</i><b>matrix</b><i>, 0, 2, 1,
+	 * 4)</i> returns a new matrix<br>2, 3, 4;<br>6, 7, 8;</p>
+	 * 
+	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
 	 * @param rStart int row index at which to start (inclusive).
 	 * @param rStop int row index at which to stop (exclusive).
 	 * @param cStart int column index at which to start (inclusive).
@@ -1506,7 +1692,7 @@ public final class Matrix
 	 * @exception  ArrayIndexOutOfBoundsException Check submatrix indices.
 	 */
 	public static double[][] submatrix(double[][] matrix, int rStart,
-										int rStop, int cStart, int cStop)
+											int rStop, int cStart, int cStop)
 	{
 		double[][] out = new double[rStop-rStart][cStop-cStart];
 		try
@@ -1524,72 +1710,20 @@ public final class Matrix
 	}
 	
 	/*************************************************************************
-	 * SIMPLE INTEGER METHODS
+	 * MATRIX-VECTOR CONVERSIONS
 	 ************************************************************************/
-	
-	/**
-	 * \brief Number of rows in the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return int number of rows in the given <b>matrix</b>.
-	 */
-	public static int rowDim(int[][] matrix)
-	{
-		return matrix.length;
-	}
-	
-	/**
-	 * \brief Number of columns in the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return int number of columns in the given <b>matrix</b>.
-	 */
-	public static int colDim(int[][] matrix)
-	{
-		return matrix[0].length;
-	}
-	
-	/**
-	 * \brief Returns the size of the largest of the two dimensions (# rows or
-	 * # columns) of the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return Size of the largest dimension of the given <b>matrix</b>.
-	 */
-	public static int maxDim(int[][] matrix)
-	{
-		return Math.max(matrix.length, matrix[0].length);
-	}
-	
-	/**
-	 * \brief Returns the size of the smallest of the two dimensions (# rows
-	 * or # columns) of the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return Size of the smallest dimension of the given <b>matrix</b>.
-	 */
-	public static int minDim(int[][] matrix)
-	{
-		return Math.min(matrix.length, matrix[0].length);
-	}
 	
 	/**
 	 * \brief Transpose a column <b>vector</b> to a row vector.
 	 * 
 	 * <p>Use {@link #toVector(int[][])} to reverse this.</p>
 	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of integers.
-	 * @return int[1][] array with the same elements as <b>vector</b>.
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @return new {@code int[1][]} array with the same elements as
+	 *    <b>vector</b>.
+	 * @see #toVector(int[][])
+	 * @see #transpose(int[][])
+	 * @see #transpose(double[])
 	 */
 	public static int[][] transpose(int[] vector)
 	{
@@ -1599,15 +1733,34 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Transpose a column <b>vector</b> to a row vector.
+	 * 
+	 * <p>Use {@link #toVector(double[][])} to reverse this.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @return new double[1][] array with the same elements as <b>vector</b>.
+	 * @see #toVector(double[][])
+	 * @see #transpose(double[][])
+	 * @see #transpose(int[])
+	 */
+	public static double[][] transpose(double[] vector)
+	{
+		double[][] out = new double[1][vector.length];
+		for ( int i = 0; i < vector.length; i++ )
+			out[0][i] = vector[i];
+		return out;
+	}
+	
+	/**
 	 * \brief Transpose a <b>matrix</b>, i.e. flip it over its diagonal.
 	 * 
 	 * <p>For example, the matrix <i>(1, 2; 3, 4)</i> transposed is
 	 *  <i>(1, 3; 2, 4)</i>.</p>
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return int[][] array of the given <b>matrix</b> transposed.
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @return new {@code int[][]} array of the given <b>matrix</b> transposed.
+	 * @see #transpose(int[])
+	 * @see #transpose(double[][])
 	 */
 	public static int[][] transpose(int[][] matrix)
 	{
@@ -1619,13 +1772,32 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Transpose a <b>matrix</b>, i.e. flip it over its diagonal.
+	 * 
+	 * <p>For example, the matrix <i>(1.0, 2.0; 3.0, 4.0)</i> transposed is
+	 *  <i>(1.0, 3.0; 2.0, 4.0)</i>.</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return new {@code double[][]} array of the given <b>matrix</b>
+	 * transposed.
+	 * @see #transpose(double[])
+	 * @see #transpose(int[][])
+	 */
+	public static double[][] transpose(double[][] matrix)
+	{
+		double[][] out = new double[matrix[0].length][matrix.length];
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[0].length; j++ )
+				out[j][i] = matrix[i][j];
+		return out;
+	}
+	
+	/**
 	 * \brief Extracts the required row as a column vector.
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @param index int index of the row required.
-	 * @return int[] array of the required row.
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @param index {@code int} index of the row required.
+	 * @return new {@code int[]} array of the required row.
 	 */
 	public static int[] getRowAsColumn(int[][] matrix, int index)
 	{
@@ -1633,39 +1805,102 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Extracts the required row as a column vector.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param index {@code int} index of the row required.
+	 * @return new {@code double[]} array of the required row.
+	 */
+	public static double[] getRowAsColumn(double[][] matrix, int index)
+	{
+		return matrix[index];
+	}
+	
+	/**
 	 * \brief Extracts the required column as a vector.
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @param index int index of the column required.
-	 * @return int[] array of the required column.
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @param index {@code int} index of the column required.
+	 * @return new {@code int[]} vector of the required column.
 	 */
 	public static int[] getColumn(int[][] matrix, int index)
 	{
-		int[] out = new int[rowDim(matrix)];
-		for ( int i = 0; i < out.length; i++ )
+		int nRow = rowDim(matrix);
+		int[] out = new int[nRow];
+		for ( int i = 0; i < nRow; i++ )
 			out[i] = matrix[i][index];
+		return out;
+	}
+	
+	/**
+	 * \brief Extracts the required column as a vector, overwriting 
+	 * <b>destination</b> with the result.
+	 * 
+	 * @param destination One-dimensional array of {@code double}s
+	 *    (overwritten).
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param index {@code int} index of the column required.
+	 * @throws IllegalArgumentException Destination must have as many rows as
+	 *    matrix.
+	 */
+	public static void getColumnTo(double[] destination, double[][] matrix,
+																	int index)
+	{
+		if ( destination.length != rowDim(matrix) )
+		{
+			throw new IllegalArgumentException(
+							"Destination must have as many rows as matrix.");
+		}
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			destination[i] = matrix[i][index];
+	}
+	
+	/**
+	 * \brief Extracts the required column as a new vector.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param index {@code int} index of the column required.
+	 * @return new {@code double[]} array of the required column.
+	 */
+	public static double[] getColumn(double[][] matrix, int index)
+	{
+		double[] out = new double[rowDim(matrix)];
+		getColumnTo(out, matrix, index);
 		return out;
 	}
 	
 	/**
 	 * \brief Converts a row vector to a column vector.
 	 * 
-	 * <p>Note that <b>rowVector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param rowVector int[1][] array of integer values;
-	 * @return One-dimensional array of integers.
+	 * @param rowVector {@code int[1][]} array of integer values (preserved).
+	 * @return New one-dimensional array of {@code int}s.
 	 * @exception IllegalArgumentException Matrix must have only one row.
 	 */
-	public static int[] toVector(int[][] rowVector)
+	public static int[] asVector(int[][] rowVector)
 	{
 		if ( rowDim(rowVector) != 1 )
 		{
 			throw new 
 				IllegalArgumentException("Matrix must have only one row.");
 		}
-		return Vector.copy(rowVector[1]);
+		return Vector.copy(rowVector[0]);
+	}
+
+	/**
+	 * \brief Converts a row vector to a column vector.
+	 * 
+	 * @param rowVector {@code double[1][]} array of real values (preserved).
+	 * @return One-dimensional array of {@code double}s.
+	 * @exception IllegalArgumentException Matrix must have only one row.
+	 */
+	public static double[] asVector(double[][] rowVector)
+	{
+		if ( rowDim(rowVector) != 1 )
+		{
+			throw new 
+				IllegalArgumentException("Matrix must have only one row.");
+		}
+		return Vector.copy(rowVector[0]);
 	}
 	
 	/**
@@ -1675,13 +1910,8 @@ public final class Matrix
 	 * <i>asDiagonal(</i><b>vector</b><i>)</i>) =<br>1, 0, 0;<br>0, 2, 0;<br>
 	 * 0, 0, 3;</p> 
 	 * 
-	 * <p>This is equivalent to <br>
-	 * double out = {@link #identityInt(int n)};<br>
-	 * {@link #times(int[][] out, int[] vector)};<br>
-	 * where n is the length of <b>vector</b>.</p>
-	 * 
-	 * @param vector One-dimensional array of integers.
-	 * @return Two-dimensional array of integers with the elements of
+	 * @param vector One-dimensional array of {@code int}s (preserved).
+	 * @return Two-dimensional array of {@code int}s with the elements of
 	 * <b>vector</b> along the main diagonal and zeros elsewhere. 
 	 */
 	public static int[][] asDiagonal(int[] vector)
@@ -1693,18 +1923,60 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Converts a column vector to a diagonal matrix.
+	 * 
+	 * <p>For example, if <b>vector</b> = <br>1<br>2<br>3<br>then
+	 * <i>asDiagonal(</i><b>vector</b><i>)</i>) =<br>1, 0, 0;<br>0, 2, 0;<br>
+	 * 0, 0, 3;</p> 
+	 * 
+	 * @param vector One-dimensional array of {@code double}s.
+	 * @return New two-dimensional array of {@code double}s with the elements
+	 * of <b>vector</b> along the main diagonal and zeros elsewhere. 
+	 */
+	public static double[][] asDiagonal(double[] vector)
+	{
+		double[][] out = zerosDbl(vector.length);
+		for ( int i = 0; i < vector.length; i++ )
+			out[i][i] = vector[i];
+		return out;
+	}
+	
+	/*************************************************************************
+	 * SCALARS FROM MATRICES
+	 ************************************************************************/
+	
+	/**
 	 * \brief Trace of the <b>matrix</b> given.
 	 * 
 	 * <p>The trace is the sum of all elements on the main diagonal.</p>
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return Integer sum of elements in the diagonal.
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code int} sum of elements in the diagonal.
+	 * @see #trace(double[][])
+	 * @see #asDiagonal(int[])
 	 */
 	public static int trace(int[][] matrix)
 	{
 		int out = 0;
+		int min = minDim(matrix);
+		for (int i = 0; i < min; i++)
+	         out += matrix[i][i];
+	    return out;
+	}
+
+	/**
+	 * \brief Trace of the <b>matrix</b> given.
+	 * 
+	 * <p>The trace is the sum of all elements on the main diagonal.</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code double} sum of elements in the diagonal.
+	 * @see #trace(int[][])
+	 * @see #asDiagonal(double[])
+	 */
+	public static double trace(double[][] matrix)
+	{
+		double out = 0;
 		int min = minDim(matrix);
 		for (int i = 0; i < min; i++)
 	         out += matrix[i][i];
@@ -1717,10 +1989,13 @@ public final class Matrix
 	 * 
 	 * <p>E.g. maximum of the matrix <i>(1, -3; 2, 0)</i> is <i>2</i>.</p>
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return int value of the greatest element in the <b>matrix</b>.
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code int} value of the greatest element in the <b>matrix</b>.
+	 * @see #min(int[][])
+	 * @see #maxColumnSum(int[][])
+	 * @see #maxRowSum(int[][])
+	 * @see #maxDim(int[][])
+	 * @see #max(double[][])
 	 */
 	public static int max(int[][] matrix)
 	{
@@ -1731,20 +2006,70 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Finds the value of the greatest element in the given
+	 * <b>matrix</b>.
+	 * 
+	 * <p>E.g. maximum of the matrix <i>(1.0, -3.0; 2.0, 0.0)</i> is
+	 * <i>2.0</i>.</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code double} value of the greatest element in the 
+	 *    <b>matrix</b>.
+	 * @see #min(double[][])
+	 * @see #maxColumnSum(double[][])
+	 * @see #maxRowSum(double[][])
+	 * @see #maxDim(double[][])
+	 * @see #max(int[][])
+	 */
+	public static double max(double[][] matrix)
+	{
+		double out = matrix[0][0];
+		for ( double[] row : matrix )
+			out = Math.max(out, Vector.max(row));
+		return out;
+	}
+	
+	/**
 	 * \brief Finds the value of the least element in the given
 	 * <b>matrix</b>.
 	 * 
 	 * <p>E.g. minimum of the matrix <i>(1, -3; 2, 0)</i> is <i>-3</i>.</p>
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return int value of the least element in the <b>matrix</b>.
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code int} value of the least element in the <b>matrix</b>.
+	 * @see #max(int[][])
+	 * @see #minColumnSum(int[][])
+	 * @see #minRowSum(int[][])
+	 * @see #minDim(int[][])
+	 * @see #min(double[][])
 	 */
 	public static int min(int[][] matrix)
 	{
 		int out = matrix[0][0];
 		for ( int[] row : matrix )
+			out = Math.max(out, Vector.min(row));
+		return out;
+	}
+	
+	/**
+	 * \brief Finds the value of the least element in the given
+	 * <b>matrix</b>.
+	 * 
+	 * <p>E.g. minimum of the matrix <i>(1.0, -3.0; 2.0, 0.0)</i> is
+	 * <i>-3.0</i>.</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code double} value of the least element in the <b>matrix</b>.
+	 * @see #max(double[][])
+	 * @see #minColumnSum(double[][])
+	 * @see #minRowSum(double[][])
+	 * @see #minDim(double[][])
+	 * @see #min(int[][])
+	 */
+	public static double min(double[][] matrix)
+	{
+		double out = matrix[0][0];
+		for ( double[] row : matrix )
 			out = Math.max(out, Vector.min(row));
 		return out;
 	}
@@ -1756,11 +2081,9 @@ public final class Matrix
 	 * have sums of <i>3</i> (left) and of <i>7</i> (right). The maximum 
 	 * of these is 7.</p>
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return int value of the greatest sum of all columns in the given
-	 * <b>matrix</b>.
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code int} value of the greatest sum of all columns in the
+	 *    given <b>matrix</b>.
 	 */
 	public static int maxColumnSum(int[][] matrix)
 	{
@@ -1772,17 +2095,34 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Greatest sum of all columns in the given <b>matrix</b>.
+	 * 
+	 * <p>For example, the columns of the matrix <i>(1.0, 3.0; 2.0, 4.0)</i>
+	 * have sums of <i>3.0</i> (left) and of <i>7.0</i> (right). The maximum 
+	 * of these is 7.0.</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code double} value of the greatest sum of all columns in the
+	 *    given <b>matrix</b>.
+	 */
+	public static double maxColumnSum(double[][] matrix)
+	{
+		double out = 0.0;
+		for ( int j = 0; j < colDim(matrix); j++ )
+			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
+		return out;
+	}
+	
+	/**
 	 * \brief Least sum of all columns in the given <b>matrix</b>.
 	 * 
 	 * <p>For example, the columns of the matrix <i>(1, 3; 2, 4)</i>
 	 * have sums of <i>3</i> (left) and of <i>7</i> (right). The minimum 
 	 * of these is 3.</p>
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return int value of the least sum of all columns in the given
-	 * <b>matrix</b>.
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code int} value of the least sum of all columns in the given
+	 *    <b>matrix</b>.
 	 */
 	public static int minColumnSum(int[][] matrix)
 	{
@@ -1794,22 +2134,58 @@ public final class Matrix
 	}
 	
 	/**
+	 * \brief Least sum of all columns in the given <b>matrix</b>.
+	 * 
+	 * <p>For example, the columns of the matrix <i>(1.0, 3.0; 2.0, 4.0)</i>
+	 * have sums of <i>3.0</i> (left) and of <i>7.0</i> (right). The minimum 
+	 * of these is 3.0.</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code double} value of the least sum of all columns in the
+	 *    given <b>matrix</b>.
+	 */
+	public static double minColumnSum(double[][] matrix)
+	{
+		double out = 0.0;
+		for ( int j = 0; j < colDim(matrix); j++ )
+			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
+		return out;
+	}
+	
+	/**
 	 * \brief Greatest sum of all rows in the given <b>matrix</b>.
 	 * 
 	 * <p>For example, the rows of the matrix <i>(1, 3; 2, 4)</i>
 	 * have sums of <i>4</i> (top) and of <i>6</i> (bottom). The maximum 
 	 * of these is 6.</p>
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return integer value of the greatest sum of all rows in the given
-	 * <b>matrix</b>.
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code int} value of the greatest sum of all rows in the given
+	 *    <b>matrix</b>.
 	 */
 	public static int maxRowSum(int[][] matrix)
 	{
 		int out = 0;
 		for ( int[] row : matrix )
+			out = Math.max(out, Vector.sum(row));
+		return out;
+	}
+	
+	/**
+	 * \brief Greatest sum of all rows in the given <b>matrix</b>.
+	 * 
+	 * <p>For example, the rows of the matrix <i>(1.0, 3.0; 2.0, 4.0)</i>
+	 * have sums of <i>4.0</i> (top) and of <i>6.0</i> (bottom). The maximum 
+	 * of these is 6.0.</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code double} value of the greatest sum of all rows in the
+	 *    given <b>matrix</b>.
+	 */
+	public static double maxRowSum(double[][] matrix)
+	{
+		double out = 0.0;
+		for ( double[] row : matrix )
 			out = Math.max(out, Vector.sum(row));
 		return out;
 	}
@@ -1821,16 +2197,33 @@ public final class Matrix
 	 * have sums of <i>4</i> (top) and of <i>6</i> (bottom). The minimum 
 	 * of these is 4.</p>
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return int value of the least sum of all rows in the given
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code int} value of the least sum of all rows in the given
 	 * <b>matrix</b>.
 	 */
 	public static int minRowSum(int[][] matrix)
 	{
 		int out = 0;
 		for ( int[] row : matrix )
+			out = Math.min(out, Vector.sum(row));
+		return out;
+	}
+	
+	/**
+	 * \brief Least sum of all rows in the given <b>matrix</b>.
+	 * 
+	 * <p>For example, the rows of the matrix <i>(1.0, 3.0; 2.0, 4.0)</i>
+	 * have sums of <i>4.0</i> (top) and of <i>6.0</i> (bottom). The minimum 
+	 * of these is 4.0.</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code double} value of the least sum of all rows in the given
+	 *    <b>matrix</b>.
+	 */
+	public static double minRowSum(double[][] matrix)
+	{
+		double out = 0.0;
+		for ( double[] row : matrix )
 			out = Math.min(out, Vector.sum(row));
 		return out;
 	}
@@ -1843,11 +2236,8 @@ public final class Matrix
 	 * See e.g. http://mathworld.wolfram.com/FrobeniusNorm.html for more
 	 * details.</p>
 	 * 
-	 * <p>The original state of <b>matrix</b> will be unaffected by this
-	 * method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return Square root of the sum of all elements squared.
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code double} square root of the sum of all elements squared.
 	 */
 	public static double normFrobenius(int[][] matrix)
 	{
@@ -1866,59 +2256,37 @@ public final class Matrix
 		return out;
 	}
 	
+	/**
+	 * \brief Frobenius norm of a given <b>matrix</b>.
+	 * 
+	 * <p>Note that the Frobenius norm is often called the Euclidean norm, but
+	 * this may be confused with the L<sup>2</sup>-norm of a complex vector.
+	 * See e.g. http://mathworld.wolfram.com/FrobeniusNorm.html for more
+	 * details.</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code double} square root of the sum of all elements squared.
+	 */
+	public static double normFrobenius(double[][] matrix)
+	{
+		/*
+		 * JAMA method uses Math.hypot, presumably to avoid the risk of out
+		 * exceeding the maximum size for a double. Something like
+		 * 	...
+		 * 		out = Math.pow(matrix[i][j], 2);
+		 * 	return Math.sqrt(out);
+		 * may be quicker, but riskier. 
+		 */
+		double out = 0.0;
+		for ( double[] row : matrix )
+			for ( double elem : row )
+				out = Math.hypot(out, elem);
+		return out;
+	}
+	
 	/*************************************************************************
-	 * SIMPLE DOUBLE METHODS
+	 * NEW RANDOM MATRICES
 	 ************************************************************************/
-	
-	/**
-	 * \brief Number of rows in the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return int number of rows in the given <b>matrix</b>.
-	 */
-	public static int rowDim(double[][] matrix)
-	{
-		return matrix.length;
-	}
-	
-	/**
-	 * \brief Number of columns in the given <b>matrix</b>.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return int number of columns in the given <b>matrix</b>.
-	 */
-	public static int colDim(double[][] matrix)
-	{
-		return matrix[0].length;
-	}
-	
-	/**
-	 * \brief Returns the size of the largest of the two dimensions (# rows or
-	 * # columns) of the given <b>matrix</b>.
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return Size of the largest dimension of the given <b>matrix</b>.
-	 */
-	public static int maxDim(double[][] matrix)
-	{
-		return Math.max(matrix.length, matrix[0].length);
-	}
-	
-	/**
-	 * \brief Returns the size of the smallest of the two dimensions (# rows
-	 * or # columns) of the given <b>matrix</b>.
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return Size of the smallest dimension of the given <b>matrix</b>.
-	 */
-	public static int minDim(double[][] matrix)
-	{
-		return Math.min(matrix.length, matrix[0].length);
-	}
 	
 	/**
 	 * \brief Create a new <b>m</b>-by-<b>n</b> matrix with random elements.
@@ -1930,6 +2298,8 @@ public final class Matrix
 	 * @param n Number of columns.
 	 * @return Two-dimensional array of doubles with elements drawn from a 
 	 * uniform distribution.
+	 * @see #random(int)
+	 * @see #random(double[][])
 	 */
 	public static double[][] random(int m, int n)
 	{
@@ -1949,6 +2319,8 @@ public final class Matrix
 	 * @param mn Number of rows = number of columns.
 	 * @return Two-dimensional array of doubles with elements drawn from a 
 	 * uniform distribution.
+	 * @see #random(int, int)
+	 * @see #random(double[][])
 	 */
 	public static double[][] random(int mn)
 	{
@@ -1961,299 +2333,160 @@ public final class Matrix
 	 * <p>Random numbers are drawn from a uniform distribution over
 	 * [0, 1).</p>
 	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return Two-dimensional array of random doubles with the same number of
-	 * rows and of columns as <b>matrix</b>.
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return Two-dimensional array of random {@code double}s with the same
+	 *    number of rows and of columns as <b>matrix</b>.
+	 * @see #random(int, int)
+	 * @see #random(int)
 	 */
 	public static double[][] random(double[][] matrix)
 	{
 		return random(rowDim(matrix), colDim(matrix));
 	}
+	/*************************************************************************
+	 * CONVERTING BETWEEN INTEGER AND DOUBLE
+	 ************************************************************************/
 	
 	/**
-	 * \brief Transpose a column <b>vector</b> to a row vector.
+	 * \brief Recast a {@code double[][]} as an {@code int[][]}.
 	 * 
-	 * <p>Use {@link #toVector(double[][])} to reverse this.</p>
-	 * 
-	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles.
-	 * @return double[1][] array with the same elements as <b>vector</b>.
+	 * @param matrix Two-dimensional array of {@code double}s (preserved). 
+	 * @return new {@code int[][]} array where each element is the recast
+	 * {@code double} in the corresponding position of <b>matrix</b>.
+	 * @see #round(double[][])
+	 * @see #floor(double[][])
+	 * @see #ceil(double[][])
+	 * @see #toDbl(int[][])
 	 */
-	public static double[][] transpose(double[] vector)
+	public static int[][] toInt(double[][] matrix)
 	{
-		double[][] out = new double[1][vector.length];
-		for ( int i = 0; i < vector.length; i++ )
-			out[0][i] = vector[i];
+		int m = rowDim(matrix);
+		int n = colDim(matrix);
+		int[][] out = new int[m][n];
+		for ( int i = 0; i < m; i++ )
+			for ( int j = 0; j < n; j++ )
+				out[i][j] = (int) matrix[i][j];
 		return out;
 	}
 	
 	/**
-	 * \brief Transpose a <b>matrix</b>, i.e. flip it over its diagonal.
+	 * \brief Round a {@code double[][]} as an {@code int[][]}.
 	 * 
-	 * <p>For example, the matrix <i>(1.0, 2.0; 3.0, 4.0)</i> transposed is
-	 *  <i>(1.0, 3.0; 2.0, 4.0)</i>.</p>
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return new {@code int[][]} array where each element is the rounded
+	 * {@code double} in the corresponding position of <b>matrix</b>.
+	 * @see #toInt(double[][])
+	 * @see #floor(double[][])
+	 * @see #ceil(double[][])
+	 * @see #toDbl(int[][])
+	 */
+	public static int[][] round(double[][] matrix)
+	{
+		int m = rowDim(matrix);
+		int n = colDim(matrix);
+		int[][] out = new int[m][n];
+		for ( int i = 0; i < m; i++ )
+			for ( int j = 0; j < n; j++ )
+				out[i][j] = (int) Math.round(matrix[i][j]);
+		return out;
+	}
+	
+	/**
+	 * \brief Floor a {@code double[][]} as an {@code int[][]}.
 	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return new {@code int[][]} array where each element is the floored
+	 * {@code double} in the corresponding position of <b>matrix</b>.
+	 * @see #toInt(double[][])
+	 * @see #round(double[][])
+	 * @see #ceil(double[][])
+	 * @see #toDbl(int[][])
+	 */
+	public static int[][] floor(double[][] matrix)
+	{
+		int m = rowDim(matrix);
+		int n = colDim(matrix);
+		int[][] out = new int[m][n];
+		for ( int i = 0; i < m; i++ )
+			for ( int j = 0; j < n; j++ )
+				out[i][j] = (int) Math.floor(matrix[i][j]);
+		return out;
+	}
+	
+	/**
+	 * \brief Ceiling a {@code double[][]} as an {@code int[][]}.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return new {@code int[][]} array where each element is the ceilinged
+	 * {@code double} in the corresponding position of <b>matrix</b>.
+	 * @see #toInt(double[][])
+	 * @see #round(double[][])
+	 * @see #floor(double[][])
+	 * @see #toDbl(int[][])
+	 */
+	public static int[][] ceil(double[][] matrix)
+	{
+		int m = rowDim(matrix);
+		int n = colDim(matrix);
+		int[][] out = new int[m][n];
+		for ( int i = 0; i < m; i++ )
+			for ( int j = 0; j < n; j++ )
+				out[i][j] = (int) Math.ceil(matrix[i][j]);
+		return out;
+	}
+	
+	/**
+	 * \brief Recast an {@code int[][]} as a {@code double[][]}.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s. 
+	 * @return New {@code double[][]} array where each element is the recast
+	 * {@code int} in the corresponding position of <b>matrix</b>.
+	 * @see #toInt(double[][])
+	 * @see #round(double[][])
+	 * @see #floor(double[][])
+	 * @see #ceil(double[][])
+	 */
+	public static double[][] toDbl(int[][] matrix)
+	{
+		int m = rowDim(matrix);
+		int n = colDim(matrix);
+		double[][] out = new double[m][n];
+		for ( int i = 0; i < m; i++ )
+			for ( int j = 0; j < n; j++ )
+				out[i][j] = (double) matrix[i][j];
+		return out;
+	}
+	
+	/*************************************************************************
+	 * ADVANCED METHODS
+	 ************************************************************************/
+	
+	/**
+	 * \brief Calculate the determinant of the given <b>matrix</b>.
+	 * 
+	 * <p>Note that <b>matrix</b> must be square.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return The {@code double} value of det(<b>matrix</b>).
+	 */
+	public static double determinant(double[][] matrix)
+	{
+		return (new LUDecomposition(matrix)).determinant();
+	}
+	
+	/**
+	 * \brief Condition number of the given <b>matrix</b>.
+	 * 
+	 * <p>The solution of a system of linear equations involving a
+	 * <b>matrix</b> with a high condition number is very sensitive to small
+	 * changes in that <b>matrix</b>.</p>
 	 * 
 	 * @param matrix Two-dimensional array of doubles.
-	 * @return double[][] array of the given <b>matrix</b> transposed.
+	 * @return Ratio of largest to smallest singular value.
 	 */
-	public static double[][] transpose(double[][] matrix)
+	public static double condition(double[][] matrix)
 	{
-		double[][] out = new double[matrix[0].length][matrix.length];
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				out[j][i] = matrix[i][j];
-		return out;
-	}
-	
-	/**
-	 * \brief Extracts the required row as a column vector.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @param index int index of the row required.
-	 * @return double[] array of the required row.
-	 */
-	public static double[] getRowAsColumn(double[][] matrix, int index)
-	{
-		return matrix[index];
-	}
-	
-	/**
-	 * \brief Extracts the required column as a vector.
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @param index int index of the column required.
-	 * @return int[] array of the required column.
-	 */
-	public static double[] getColumn(double[][] matrix, int index)
-	{
-		double[] out = new double[rowDim(matrix)];
-		for ( int i = 0; i < out.length; i++ )
-			out[i] = matrix[i][index];
-		return out;
-	}
-	
-	/**
-	 * \brief Converts a row vector to a column vector.
-	 * 
-	 * <p>Note that <b>rowVector</b> will be unaffected by this method.</p>
-	 * 
-	 * @param rowVector double[1][] array of double values;
-	 * @return One-dimensional array of doubles.
-	 * @exception IllegalArgumentException Matrix must have only one row.
-	 */
-	public static double[] toVector(double[][] rowVector)
-	{
-		if ( rowDim(rowVector) != 1 )
-		{
-			throw new 
-				IllegalArgumentException("Matrix must have only one row.");
-		}
-		return Vector.copy(rowVector[1]);
-	}
-	
-	/**
-	 * \brief Converts a column vector to a diagonal matrix.
-	 * 
-	 * <p>For example, if <b>vector</b> = <br>1<br>2<br>3<br>then
-	 * <i>asDiagonal(</i><b>vector</b><i>)</i>) =<br>1, 0, 0;<br>0, 2, 0;<br>
-	 * 0, 0, 3;</p> 
-	 * 
-	 * <p>This is equivalent to <br>
-	 * double out = {@link #identityDbl(int n)};<br>
-	 * {@link #times(double[][] out, double[] vector)};<br>
-	 * where n is the length of <b>vector</b>.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles.
-	 * @return Two-dimensional array of doubles with the elements of
-	 * <b>vector</b> along the main diagonal and zeros elsewhere. 
-	 */
-	public static double[][] asDiagonal(double[] vector)
-	{
-		double[][] out = zerosDbl(vector.length);
-		for ( int i = 0; i < vector.length; i++ )
-			out[i][i] = vector[i];
-		return out;
-	}
-	
-	/**
-	 * \brief Trace of the <b>matrix</b> given.
-	 * 
-	 * <p>The trace is the sum of all elements on the main diagonal.</p>
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of integers.
-	 * @return Integer sum of elements in the diagonal.
-	 */
-	public static double trace(double[][] matrix)
-	{
-		double out = 0;
-		int min = minDim(matrix);
-		for (int i = 0; i < min; i++)
-	         out += matrix[i][i];
-	    return out;
-	}
-	
-	/**
-	 * \brief Finds the value of the greatest element in the given
-	 * <b>matrix</b>.
-	 * 
-	 * <p>E.g. maximum of the matrix <i>(1.0, -3.0; 2.0, 0.0)</i> is
-	 * <i>2.0</i>.</p>
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return double value of the greatest element in the <b>matrix</b>.
-	 */
-	public static double max(double[][] matrix)
-	{
-		double out = matrix[0][0];
-		for ( double[] row : matrix )
-			out = Math.max(out, Vector.max(row));
-		return out;
-	}
-	
-	/**
-	 * \brief Finds the value of the least element in the given
-	 * <b>matrix</b>.
-	 * 
-	 * <p>E.g. minimum of the matrix <i>(1.0, -3.0; 2.0, 0.0)</i> is
-	 * <i>-3.0</i>.</p>
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return double value of the least element in the <b>matrix</b>.
-	 */
-	public static double min(double[][] matrix)
-	{
-		double out = matrix[0][0];
-		for ( double[] row : matrix )
-			out = Math.max(out, Vector.min(row));
-		return out;
-	}
-	
-	/**
-	 * \brief Greatest sum of all columns in the given <b>matrix</b>.
-	 * 
-	 * <p>For example, the columns of the matrix <i>(1.0, 3.0; 2.0, 4.0)</i>
-	 * have sums of <i>3.0</i> (left) and of <i>7.0</i> (right). The maximum 
-	 * of these is 7.0.</p>
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return double value of the greatest sum of all columns in the given
-	 * <b>matrix</b>.
-	 */
-	public static double maxColumnSum(double[][] matrix)
-	{
-		double out = 0.0;
-		for ( int j = 0; j < colDim(matrix); j++ )
-			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
-		return out;
-	}
-	
-	/**
-	 * \brief Least sum of all columns in the given <b>matrix</b>.
-	 * 
-	 * <p>For example, the columns of the matrix <i>(1.0, 3.0; 2.0, 4.0)</i>
-	 * have sums of <i>3.0</i> (left) and of <i>7.0</i> (right). The minimum 
-	 * of these is 3.0.</p>
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return double value of the least sum of all columns in the given
-	 * <b>matrix</b>.
-	 */
-	public static double minColumnSum(double[][] matrix)
-	{
-		double out = 0.0;
-		for ( int j = 0; j < colDim(matrix); j++ )
-			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
-		return out;
-	}
-	
-	/**
-	 * \brief Greatest sum of all rows in the given <b>matrix</b>.
-	 * 
-	 * <p>For example, the rows of the matrix <i>(1.0, 3.0; 2.0, 4.0)</i>
-	 * have sums of <i>4.0</i> (top) and of <i>6.0</i> (bottom). The maximum 
-	 * of these is 6.0.</p>
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return double value of the greatest sum of all rows in the given
-	 * <b>matrix</b>.
-	 */
-	public static double maxRowSum(double[][] matrix)
-	{
-		double out = 0.0;
-		for ( double[] row : matrix )
-			out = Math.max(out, Vector.sum(row));
-		return out;
-	}
-	
-	/**
-	 * \brief Least sum of all rows in the given <b>matrix</b>.
-	 * 
-	 * <p>For example, the rows of the matrix <i>(1.0, 3.0; 2.0, 4.0)</i>
-	 * have sums of <i>4.0</i> (top) and of <i>6.0</i> (bottom). The minimum 
-	 * of these is 4.0.</p>
-	 * 
-	 * <p>Note that <b>matrix</b> will be unaffected by this method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return double value of the least sum of all rows in the given
-	 * <b>matrix</b>.
-	 */
-	public static double minRowSum(double[][] matrix)
-	{
-		double out = 0.0;
-		for ( double[] row : matrix )
-			out = Math.min(out, Vector.sum(row));
-		return out;
-	}
-	
-	/**
-	 * \brief Frobenius norm of a given <b>matrix</b>.
-	 * 
-	 * <p>Note that the Frobenius norm is often called the Euclidean norm, but
-	 * this may be confused with the L<sup>2</sup>-norm of a complex vector.
-	 * See e.g. http://mathworld.wolfram.com/FrobeniusNorm.html for more
-	 * details.</p>
-	 * 
-	 * <p>The original state of <b>matrix</b> will be unaffected by this
-	 * method.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return Square root of the sum of all elements squared.
-	 */
-	public static double normFrobenius(double[][] matrix)
-	{
-		/*
-		 * JAMA method uses Math.hypot, presumably to avoid the risk of out
-		 * exceeding the maximum size for a double. Something like
-		 * 	...
-		 * 		out = Math.pow(matrix[i][j], 2);
-		 * 	return Math.sqrt(out);
-		 * may be quicker, but riskier. 
-		 */
-		double out = 0.0;
-		for ( double[] row : matrix )
-			for ( double elem : row )
-				out = Math.hypot(out, elem);
-		return out;
+		return (new SingularValueDecomposition(matrix)).condition();
 	}
 	
 	/**
@@ -2277,161 +2510,6 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief Calculate the determinant of the given <b>matrix</b>.
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return double value of det(<b>matrix</b>).
-	 */
-	public static double determinant(double[][] matrix)
-	{
-		return (new LUDecomposition(matrix)).determinant();
-	}
-	
-	/**
-	 * \brief Condition number of the given <b>matrix</b>.
-	 * 
-	 * <p>The solution of a system of linear equations involving a
-	 * <b>matrix</b> with a high condition number is very sensitive to small
-	 * changes in that <b>matrix</b>.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @return Ratio of largest to smallest singular value.
-	 */
-	public static double condition(double[][] matrix)
-	{
-		return (new SingularValueDecomposition(matrix)).condition();
-	}
-	
-	/*************************************************************************
-	 * CONVERTING BETWEEN INTEGER AND DOUBLE
-	 ************************************************************************/
-	
-	/**
-	 * \brief Recast a double[][] as an int[][].
-	 * 
-	 * <p>Note that any digits after the decimal point are simply discarded.
-	 * See {@link #round(double[][])}, etc for alternate methods.</p>  
-	 * 
-	 * <p>Note also that this method makes a copy, so the original state of 
-	 * <b>matrix</b> will be unaffected.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles. 
-	 * @return	int[][] array where each element is the recast double in the
-	 * corresponding position of <b>matrix</b>.
-	 */
-	public static int[][] toInt(double[][] matrix)
-	{
-		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) matrix[i][j];
-		return out;
-	}
-	
-	/**
-	 * \brief Round a double[][] as an int[][].
-	 * 
-	 * <p>Note that elements of <b>matrix</b> are rounded as in
-	 * <i>Math.round(double x)</i>. See {@link #toDbl(double[][])}, etc
-	 * for alternate methods.</p>  
-	 * 
-	 * <p>Note also that this method makes a copy, so the original state of 
-	 * <b>matrix</b> will be unaffected.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles. 
-	 * @return	int[][] array where each element is the rounded double in the
-	 * corresponding position of <b>matrix</b>.
-	 */
-	public static int[][] round(double[][] matrix)
-	{
-		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) Math.round(matrix[i][j]);
-		return out;
-	}
-	
-	/**
-	 * \brief Floor a double[][] as an int[][].
-	 * 
-	 * <p>Note that elements of <b>matrix</b> are floored as in
-	 * <i>Math.floor(double x)</i>. See {@link #toInt(double[][])}, etc
-	 * for alternate methods. This method should give identical output to
-	 * <i>toInt()</i> when all elements of <b>matrix</b> are positive.</p>
-	 * 
-	 * <p>Note also that this method makes a copy, so the original state of 
-	 * <b>matrix</b> will be unaffected.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles. 
-	 * @return	int[][] array where each element is the floored double in the
-	 * corresponding position of <b>matrix</b>.
-	 */
-	public static int[][] floor(double[][] matrix)
-	{
-		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) Math.floor(matrix[i][j]);
-		return out;
-	}
-	
-	/**
-	 * \brief Ceiling a double[][] as an int[][].
-	 * 
-	 * <p>Note that elements of <b>matrix</b> are ceilinged as in
-	 * <i>Math.ceil(double x)</i>. See {@link #toInt(double[][])}, etc
-	 * for alternate methods.</p>  
-	 * 
-	 * <p>Note also that this method makes a copy, so the original state of 
-	 * <b>matrix</b> will be unaffected.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles. 
-	 * @return	int[][] array where each element is the ceilinged double in
-	 * the corresponding position of <b>matrix</b>.
-	 */
-	public static int[][] ceil(double[][] matrix)
-	{
-		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) Math.ceil(matrix[i][j]);
-		return out;
-	}
-	
-	/**
-	 * \brief Recast an int[][] as a double[][].
-	 * 
-	 * <p>Note also that this method makes a copy, so the original state of 
-	 * <b>matrix</b> will be unaffected.</p>
-	 * 
-	 * @param matrix Two-dimensional array of doubles. 
-	 * @return	double[][] array where each element is the recast int in the
-	 * corresponding position of <b>matrix</b>.
-	 */
-	public static double[][] toDbl(int[][] matrix)
-	{
-		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		double[][] out = new double[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (double) matrix[i][j];
-		return out;
-	}
-	
-	/*************************************************************************
-	 * TWO MATRIX METHODS
-	 ************************************************************************/
-	
-	/**
 	 * \brief Solve the system of linear equations represented by three
 	 * matrices, where <b>a</b>*x = <b>b</b> and x is the matrix to be found.
 	 * 
@@ -2442,10 +2520,10 @@ public final class Matrix
 	 * 
 	 * TODO JAMA code uses QRDecomposition if matrices are non-square.
 	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return Two-dimensional array of doubles x, such that <b>a</b>*x =
-	 * <b>b</b>. 
+	 * @param a Two-dimensional array of {@code double}s (preserved).
+	 * @param b Two-dimensional array of {@code double}s (preserved).
+	 *  @return New two-dimensional array of {@code double}s, x, such that
+	 *    <b>matrix</b> * x = <b>vector</b>.
 	 */
 	public static double[][] solve(double[][] a, double[][] b)
 	{
@@ -2453,24 +2531,58 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief Solve the system of linear equations represented by a
-	 * <b>matrix</b> and two vectors, x and <b>vector</b>, where
-	 * <b>matrix</b> * x = <b>vector</b> and x is the vector to be found.
-	 * 
-	 * <p>Neither input will be affected by this method and both
-	 * inputs must have the same number of rows (i.e. m<sub>matrix</sub> =
-	 * length<sub>vector</sub>). The output vector, x, will be a new
-	 * vector of length n<sub>matrix</sub>.</p>
+	 * \brief Solve <b>matrix</b> * x = <b>vector</b> and write the 
+	 * result, x, into a <b>destination</b>.
 	 * 
 	 * TODO JAMA code uses QRDecomposition if matrices are non-square.
 	 * 
-	 * @param matrix Two-dimensional array of doubles.
-	 * @param vector One-dimensional array of doubles.
-	 * @return One-dimensional array of doubles, x, such that
-	 * <b>matrix</b> * x = <b>vector</b>. 
+	 * @param destination One-dimensional array of {@code double}s 
+	 *    (overwritten).
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param vector One-dimensional array of {@code double}s (preserved).
+	 */
+	public static void solveTo(double[] destination, double[][] matrix,
+															double[] vector)
+	{
+		(new LUDecomposition(matrix)).solveTo(destination, vector);
+	}
+	
+	/**
+	 * \brief Solve <b>matrix</b> * x = <b>vector</b> and write the 
+	 * result, x, into a new {@code double[]}.
+	 * 
+	 * <p>Both inputs must have the same number of rows 
+	 * (i.e. m<sub>matrix</sub> = length<sub>vector</sub>). The output vector
+	 * will be a new vector of length n<sub>matrix</sub>.</p>
+	 * 
+	 * TODO JAMA code uses QRDecomposition if matrices are non-square.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param vector One-dimensional array of {@code double}s (preserved).
+	 * @return New one-dimensional array of {@code double}s, x, such that
+	 *    <b>matrix</b> * x = <b>vector</b>. 
 	 */
 	public static double[] solve(double[][] matrix, double[] vector)
 	{
 		return (new LUDecomposition(matrix)).solve(vector);
+	}
+	
+	/**
+	 * \brief Solve <b>matrix</b> * x = <b>vector</b> and write the 
+	 * result, x, into the given <b>vector</b>.
+	 * 
+	 * <p>Both inputs must have the same number of rows 
+	 * (i.e. m<sub>matrix</sub> = length<sub>vector</sub>).</p>
+	 * 
+	 * TODO JAMA code uses QRDecomposition if matrices are non-square.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param vector One-dimensional array of {@code double}s (overwritten).
+	 * @see #solveTo(double[][], double[][], double[])
+	 * @see #solve(double[][], double[])
+	 */
+	public static void solveEquals(double[][] matrix, double[] vector)
+	{
+		(new LUDecomposition(matrix)).solveEquals(vector);
 	}
 }
