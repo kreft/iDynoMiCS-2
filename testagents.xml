@@ -13,14 +13,14 @@
 	-->
 		<clade name="AOB">
 			<state name="pigment" type="String" value="GREEN" />
-			<state name="morphology" type="String" value="coccoid" />
-			<state name="joints" type="secondary" value="JointsState" />
-			<state name="volume" type="secondary" value="SimpleVolumeState" />
-			<state name="radius" type="secondary" value="CoccoidRadius" />
-			<state name="lowerBoundingBox" type="secondary" value="LowerBoundingBox" />
-			<state name="dimensionsBoundingBox" type="secondary" value="DimensionsBoundingBox" />
-			<state name="growth" type="event" value="SimpleGrowth" />
-			<state name="divide" type="event" value="CoccoidDivision" />
+			<state name="morphology" type="String" value="coccoid"/>
+			<state name="joints" type="secondary" value="JointsState" input="" />
+			<state name="volume" type="secondary" value="SimpleVolumeState" input="" />
+			<state name="radius" type="secondary" value="CoccoidRadius" input="" />
+			<state name="lowerBoundingBox" type="secondary" value="LowerBoundingBox" input="" />
+			<state name="dimensionsBoundingBox" type="secondary" value="DimensionsBoundingBox" input="" />
+			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
+			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
 			<!-- this has not been made yet, use a static growthrate for now -->
 			<state name="growthRate" type="double" value="0.08" />
 		</clade>

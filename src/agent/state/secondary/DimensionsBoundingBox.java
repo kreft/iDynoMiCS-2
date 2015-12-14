@@ -2,9 +2,10 @@ package agent.state.secondary;
 
 import agent.Agent;
 import agent.body.Body;
+import agent.state.SecondaryState;
 import agent.state.State;
 
-public class DimensionsBoundingBox implements State {
+public class DimensionsBoundingBox extends SecondaryState implements State {
 
 	public void set(Object state)
 	{

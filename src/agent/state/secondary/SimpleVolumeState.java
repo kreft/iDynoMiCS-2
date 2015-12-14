@@ -1,9 +1,10 @@
 package agent.state.secondary;
 
 import agent.Agent;
+import agent.state.SecondaryState;
 import agent.state.State;
 
-public class SimpleVolumeState implements State {
+public class SimpleVolumeState extends SecondaryState implements State {
 
 	public void set(Object state)
 	{

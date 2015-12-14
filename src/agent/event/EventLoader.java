@@ -7,12 +7,14 @@ public class EventLoader {
 	 * @param the exact class name as defined in the agent.state.secondary package.
 	 * @return
 	 */
-	public static Event get(String className)
+	public static Event getEvent(String className, String inputStates)
 	{
 		Class<?> c;
 		try {
 			c = Class.forName("agent.event.library." + className);
-			return (Event) c.newInstance();
+			Event myEvent = (Event) c.newInstance();
+			myEvent.setInput(inputStates);
+			return myEvent;
 		} catch (ClassNotFoundException e ){
 			System.out.println("ERROR: the class " + className + " could not be found. Check the agent.event.library package for the existence of this class.");
 			e.printStackTrace();

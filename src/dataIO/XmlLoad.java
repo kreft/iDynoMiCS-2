@@ -100,11 +100,11 @@ public class XmlLoad {
 	                	break;
 					case "secondary" : 
 						stateObject.setState(s.getAttribute("name"), 
-								StateLoader.get(s.getAttribute("value")));
+								StateLoader.getSecondary(s.getAttribute("value"), s.getAttribute("input")));
 	                	break;
 					case "event" :
 						stateObject.setPrimary(s.getAttribute("name"), // TODO Bas do some proper testing, checking
-								EventLoader.get(s.getAttribute("value")));
+								EventLoader.getEvent(s.getAttribute("value"), s.getAttribute("input")));
 				}
 			}
 			else	// state node with attributes and child nodes //

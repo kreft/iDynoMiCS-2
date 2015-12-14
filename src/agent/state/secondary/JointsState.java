@@ -2,9 +2,10 @@ package agent.state.secondary;
 
 import agent.Agent;
 import agent.body.Body;
+import agent.state.SecondaryState;
 import agent.state.State;
 
-public class JointsState implements State {
+public class JointsState extends SecondaryState implements State {
 
 	public void set(Object state)
 	{
