@@ -5,12 +5,12 @@
 	<classpathentry kind="lib" path="src/lib/SimulationCoreLibrary_v1.4_incl-libs.jar"/>
 	<classpathentry kind="lib" path="src/lib/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="lib" path="src/lib/jcommon-1.0.23.jar"/>
-	<classpathentry kind="lib" path="C:/Users/qwer/git/iDynoMiCS-2/src/lib/j3dcore.jar">
+	<classpathentry kind="lib" path="src/lib/j3dcore.jar">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="iDynoMiCS-2/src/lib"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/qwer/git/iDynoMiCS-2/src/lib/j3dutils.jar"/>
-	<classpathentry kind="lib" path="C:/Users/qwer/git/iDynoMiCS-2/src/lib/vecmath.jar"/>
+	<classpathentry kind="lib" path="src/lib/j3dutils.jar"/>
+	<classpathentry kind="lib" path="src/lib/vecmath.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
