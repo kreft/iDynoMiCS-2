@@ -3,7 +3,11 @@ package reaction;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import expression.*;
+import expression.Component;
+import expression.Constant;
+import expression.Division;
+import expression.Expression;
+import expression.Variable;
 
 /**
  * \brief TODO

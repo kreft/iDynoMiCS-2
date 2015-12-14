@@ -9,7 +9,6 @@ import java.util.List;
 import agent.Agent;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import reaction.Reaction;

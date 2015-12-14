@@ -1,8 +1,18 @@
 package jsbmlSandpit;
 
 import java.beans.PropertyChangeEvent;
+
 import javax.swing.tree.TreeNode;
-import org.sbml.jsbml.*;
+
+import org.sbml.jsbml.Compartment;
+import org.sbml.jsbml.Creator;
+import org.sbml.jsbml.History;
+import org.sbml.jsbml.Model;
+import org.sbml.jsbml.Reaction;
+import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLWriter;
+import org.sbml.jsbml.Species;
+import org.sbml.jsbml.SpeciesReference;
 import org.sbml.jsbml.util.TreeNodeChangeListener;
 import org.sbml.jsbml.util.TreeNodeRemovedEvent;
 /** Creates an {@link SBMLDocument} and writes its contents to a file. **/

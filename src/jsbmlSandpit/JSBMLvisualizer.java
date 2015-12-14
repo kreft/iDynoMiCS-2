@@ -6,9 +6,14 @@ package jsbmlSandpit;
 import java.awt.GraphicsConfiguration;
 import java.awt.HeadlessException;
 import java.io.File;
-import javax.swing.*;
 
-import org.sbml.jsbml.*;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTree;
+import javax.swing.UIManager;
+
+import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.SBMLReader;
 
 
 public class JSBMLvisualizer extends JFrame
