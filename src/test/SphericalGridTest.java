@@ -19,28 +19,28 @@ public class SphericalGridTest {
 //		System.out.println(gridp.arrayAsText(type));
 //		System.out.println();
 		
-		int[] current;
-		int z=0;
-		for ( current = gridp.resetIterator(); gridp.isIteratorValid();
-				current = gridp.iteratorNext())
-		{
-			System.out.println(Arrays.toString(current));
-			System.out.println(Arrays.toString(gridp.getVoxelOrigin(Vector.copy(current))));
-			System.out.println(Arrays.toString(gridp.getCoords(Vector.copy(gridp.getVoxelOrigin(Vector.copy(current))))));
-			System.out.println();
-			z++;
-		}
-//		PolarGridPlot3D plot = new PolarGridPlot3D(gridp,false); // false=origin, true=centre
-////		System.out.println();
-//		System.out.println(gridp.length());
-//		System.out.println("press enter to start iterator");
-//		try {
-//			System.in.read();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
+//		int[] current;
+//		int z=0;
+//		for ( current = gridp.resetIterator(); gridp.isIteratorValid();
+//				current = gridp.iteratorNext())
+//		{
+//			System.out.println(Arrays.toString(current));
+//			System.out.println(Arrays.toString(gridp.getVoxelOrigin(Vector.copy(current))));
+//			System.out.println(Arrays.toString(gridp.getCoords(Vector.copy(gridp.getVoxelOrigin(Vector.copy(current))))));
+//			System.out.println();
+//			z++;
 //		}
-//        plot.start();
+		PolarGridPlot3D plot = new PolarGridPlot3D(gridp,false); // false=origin, true=centre
+//		System.out.println();
+		System.out.println(gridp.length());
+		System.out.println("press enter to start iterator");
+		try {
+			System.in.read();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        plot.start();
 	}
 
 }
