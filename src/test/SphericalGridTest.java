@@ -12,7 +12,7 @@ public class SphericalGridTest {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		SphericalGrid gridp = new SphericalGrid(new int[]{3,360,180},new double[]{1,1,1});
+		SphericalGrid gridp = new SphericalGrid(new int[]{10,90,180},new double[]{1,1,1});
 		ArrayType type=ArrayType.CONCN;
 		gridp.newArray(type, 0);
 		

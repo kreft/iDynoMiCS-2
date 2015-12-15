@@ -1,11 +1,9 @@
 package grid;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
-import linearAlgebra.Vector;
 
 public class SphericalGrid extends PolarGrid{
 	double np_rad;

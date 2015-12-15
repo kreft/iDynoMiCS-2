@@ -9,7 +9,9 @@ import test.plotting.PolarGridPlot3D;
 public class CylindricalGridTest {
 
 	public static void main(String[] args) {
-		CylindricalGrid gridp = new CylindricalGrid(new int[]{5,360,1},new double[]{1,1,1});
+		CylindricalGrid gridp = new CylindricalGrid(
+				new int[]{5,270,3},
+				new double[][]{{5,4,3,2,1},{1},{1,6,2}});
 		ArrayType type=ArrayType.CONCN;
 		gridp.newArray(type, 0);
 //		System.out.println(gridp.arrayAsText(type));

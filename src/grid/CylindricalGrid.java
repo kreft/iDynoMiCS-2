@@ -86,7 +86,18 @@ public class CylindricalGrid extends PolarGrid{
 	}
 	
 	public double[] getLocation(int[] coord, double[] inside){
-		double r=(coord[0]+inside[0])*_res[0][coord[0]];
+		double r=0, z=0;
+		for ( int dim = 0; dim < 3; dim++ ){
+			for ( int i = 0; i < coord[0]; i++ ){
+				r += this._res[0][i];
+			}
+			for ( int i = 0; i < coord[2]; i++ ){
+				z += this._res[2][i];
+			}
+			r+=inside[0]*this._res[0][coord[0]];
+			z+=inside[2]*this._res[2][coord[2]];
+		}
+//		double r=(coord[0]+inside[0])*_res[0][coord[0]];
 		double t;
 		if (r==0) {
 			t = Math.min((coord[1]+inside[1])*(Math.PI/2),nt_rad);
@@ -95,7 +106,7 @@ public class CylindricalGrid extends PolarGrid{
 			if (r>0) t = (coord[1]+inside[1])*l;
 			else t = Math.abs((coord[1]+inside[1])*l)-Math.PI;
 		}
-		double z=(coord[2]+inside[2])*_res[2][coord[2]];
+//		double z=(coord[2]+inside[2])*_res[2][coord[2]];
 //		System.out.println(coord[0]+"  "+coord[1]+"  "+coord[2]+" | "+r+"  "+t+"  "+z);
 		return new double[]{r,t,z};
 	}
