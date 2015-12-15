@@ -177,12 +177,14 @@ public class CylindricalGrid extends PolarGrid{
 	
 
 	@Override
-	// converts current index to rtz coordinates and updates the currentCoord (used when idx changed)
-	public void currentIdxChanged() {
-		_currentCoord[2]=(int) Math.ceil(idx/(_res[1][0]*Math.pow(_nVoxel[0], 2)))-1;
-		double idx_z=idx-(_currentCoord[2]*_res[1][0]*Math.pow(_nVoxel[0], 2));
-		_currentCoord[0]=(int) Math.ceil(Math.pow(idx_z/_res[1][0],1.0/2))-1;
-		_currentCoord[1]=(int) (idx_z - _res[1][0]*Math.pow(_currentCoord[0],2))-1;
+	// converts idx to rtz coordinates
+	public int[] idx2coord(int idx, int[] coord) {
+		if (coord==null) coord=new int[3];
+		coord[2]=(int) Math.ceil(idx/(_res[1][0]*Math.pow(_nVoxel[0], 2)))-1;
+		double idx_z=idx-(coord[2]*_res[1][0]*Math.pow(_nVoxel[0], 2));
+		coord[0]=(int) Math.ceil(Math.pow(idx_z/_res[1][0],1.0/2))-1;
+		coord[1]=(int) (idx_z - _res[1][0]*Math.pow(coord[0],2))-1;
+		return coord;
 	}
 	
 	@Override

@@ -68,13 +68,14 @@ public class SphericalGrid extends PolarGrid{
 		}
 		boolean is_right = loc[2]>=Math.PI;
 		boolean right_ex = _res[2][0] > 1;
-		int ioct=(int)((loc[1]/(Math.PI/2))*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
+		int ioct=(int)((int)round10(loc[1]/(Math.PI/2))*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
+//		System.out.println((loc[1]/(Math.PI/2)));
 		double p = (is_right ? loc[2]-Math.PI : loc[2]);
 		double t = loc[1]%(Math.PI/2);
 		int ntr=nt(coord[0]);
-		coord[1]=(int)(p/getArcLengthP(ntr)-1);
-		coord[2]=(int)(t/getArcLengthT(coord[1],ntr));
-		System.out.println(p/getArcLengthP(ntr));
+		coord[1]=(int)round10(p/getArcLengthP(ntr)-1);
+		coord[2]=(int)round10(t/getArcLengthT(coord[1],ntr));
+		System.out.println(t+" "+getArcLengthT(coord[1],ntr));
 		if (is_right) {
 			coord[2]=ntr-coord[2];
 			coord[1]=ntr-coord[1]-1;
@@ -91,7 +92,7 @@ public class SphericalGrid extends PolarGrid{
 		int ioct=(int)((coord[1]/ntr)*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
 		int p = (is_right ? ntr-mod_t-1 : mod_t);
 		int t = (is_right ? ntr-coord[2] : coord[2]);
-		double td = (t+inside[2])*getArcLengthT(coord[1], ntr);
+		double td = (t+inside[2])*getArcLengthT(p, ntr);
 		double pd=(p+(1-inside[1]))*getArcLengthP(ntr); // 1-ti because p starts at positive z axis...
 		if (is_right) pd+=Math.PI;
 		td += right_ex ? (ioct-1)/2*(Math.PI/2) : (ioct-1)*(Math.PI/2);
@@ -159,7 +160,8 @@ public class SphericalGrid extends PolarGrid{
 	private double round10(double x){return Math.round(x*1e10)*1e-10;}
 
 	@Override
-	public void currentIdxChanged() {
+	public int[] idx2coord(int idx, int[] coord) {
+		if (coord==null) coord=new int[3];
 		//TODO: make variables for r to speed computation up
 		int r = (int)((7*_res[2][0]*_res[1][0])/(4*Math.pow(3,1.0/3)*Math.pow(-27*Math.pow(_res[2][0],3)*Math.pow(_res[1][0],3)
 				+ 432*Math.pow(_res[2][0],2)*Math.pow(_res[1][0],2)*idx
@@ -184,9 +186,10 @@ public class SphericalGrid extends PolarGrid{
 			p=ntr-p;  // npr=ntr+1
 		}
 		t += right_ex ? ((int)Math.ceil((double)ioct/_res[2][0])-1)*ntr : (ioct-1)*ntr;
-		_currentCoord[0]=r;
-		_currentCoord[1]=t;
-		_currentCoord[2]=p;
+		coord[0]=r;
+		coord[1]=t;
+		coord[2]=p;
+		return coord;
 	}
 
 	@Override
@@ -236,9 +239,13 @@ public class SphericalGrid extends PolarGrid{
 
 	@Override
 	public int[] cyclicTransform(int[] coord) {
-		// TODO Auto-generated method stub
-		// periodische boundary
-		return null;
+		double[] loc = new double[]{1d,1d,1d};
+		loc = getLocation(coord, loc);
+		loc[0] = coord[0]%_nVoxel[0];
+		loc[1] = loc[1]%nt_rad;
+		loc[2] = loc[2]%np_rad;
+		coord = getCoords(loc);
+		return coord;
 	}
 
 	@Override

@@ -257,13 +257,17 @@ public abstract class PolarGrid extends SpatialGrid {
 		return this._boundaries.get(bSide);
 	}
 	
-	public abstract void currentIdxChanged();
 	public abstract void currentNbhIdxChanged();
 	public abstract int coord2idx(int[] coord);
+	public abstract int[] idx2coord(int idx, int[] coord);
 	
 	// converts current rtp or rtz coordinates to an index and updates the index (used when _currentCoord changed)
 	public void currentCoordChanged() {
 		idx = coord2idx(_currentCoord);
+	}
+	
+	public void currentIdxChanged(){
+		_currentCoord=idx2coord(idx, _currentCoord);
 	}
 	
 	public void setCurrent(int[] new_currentCoord){
