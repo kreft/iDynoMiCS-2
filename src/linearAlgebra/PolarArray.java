@@ -5,7 +5,21 @@ import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
 import java.util.function.DoubleSupplier;
 
+/**
+ * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
+ *
+ * Utility class for PolarGrids
+ */
 public final class PolarArray {
+	
+	/**
+	 * Used to create an array to store a CylindricalGrid
+	 * 
+	 * @param nr - number of voxels in r direction
+	 * @param ires - inner resolution in t direction
+	 * @param nz - number of voxels in z direction
+	 * @return - An array used to store a CylindricalGrid
+	 */
 	public static double[][][] createCylinder(int nr, double ires, int nz){
 		double[][][] a = new double[nr][0][0];
 		for (int i=0; i<nr; ++i){
@@ -14,14 +28,32 @@ public final class PolarArray {
 		return a;
 	}
 	
-	public static double[][][] createCylinder(int nr, int nz, double ires, double val){
+	/**
+	 * Used to create an array to store a CylindricalGrid
+	 * 
+	 * @param nr - number of voxels in r direction
+	 * @param nz - number of voxels in z direction
+	 * @param ires - inner resolution in t direction
+	 * @param val - initial value
+	 * @return - An array used to store a CylindricalGrid
+	 */
+	public static double[][][] createCylinder(
+			int nr, int nz, double ires, double val){
 		return applyToAll(createCylinder(nr, ires, nz),()->{return val;});
 	}
 	
+	/**
+	 * Used to create an array to store a SphericalGrid
+	 * 
+	 * @param nr - number of voxels in r direction
+	 * @param iresT - inner resolution in t direction
+	 * @param iresP - inner resolution in p direction
+	 * @return - An array used to store a SphericalGrid
+	 */
 	public static double[][][] createSphere(int nr, double iresT, double iresP){
 		double[][][] a = new double[nr][0][0];
 		for (int i=0; i<nr; ++i){
-			int ntp=2*(i+1)+1;
+			int ntp=2*(i+1)+1; 
 			a[i] = new double[(int)(iresT*ntp)][0];
 			for (int j=0; j<a[i].length; ++j){
 				// rectangular for iresP > 2, else triangular
@@ -31,32 +63,34 @@ public final class PolarArray {
 		return a;
 	}
 	
-	public static double[][][] createSphere(int nr, double iresT, double iresP, double val){
+	/**
+	 * Used to create an array to store a SphericalGrid
+	 * 
+	 * @param nr - number of voxels in r direction
+	 * @param iresT - inner resolution in t direction
+	 * @param iresP - inner resolution in p direction
+	 * @param val - initial value
+	 * @return - An array used to store a SphericalGrid
+	 */
+	public static double[][][] createSphere(
+			int nr, double iresT, double iresP, double val){
 		return applyToAll(createSphere(nr, iresT, iresP),()->{return val;});
 	}
 	
+	/**
+	 * Used to set all grid cells to a value supplied by f
+	 * 
+	 * @param array - a PolarArray
+	 * @param f - function supplying a double value
+	 * @return - the array with all grid cells set to the value supplied by f
+	 */
 	public static double[][][] applyToAll(double[][][] array, DoubleSupplier f){
-//		int iresT=4, iresP=2;
 		for (int i=0; i<array.length; ++i){
 			double[][] b=array[i];
 			for (int j=0; j<b.length;++j){
 				double[] c=b[j];
 				for (int k=0; k<c.length;++k) {
 					c[k]=f.getAsDouble();
-//					int idx = (int)(1.0/6*i*(i+1)*(2*i+1)*8 + (k+(j%(i+1))*(j%(i+1))+(i+1)*(i+1)*(j/(i+1))))+1;
-////					int idx = (int)(j%(i+1)*j%(i+1)+k+(i+1)*j+4.0/3*i*(i+1)*(2*i+1))+1;
-//					int r=(int) Math.ceil(Math.pow(idx/8.0,1.0/2))-1;
-//					double idx_tp = idx-1.0/6*(r-1)*r*(2*r-1)*8;
-//					if(r>1) r=(int) Math.ceil(Math.pow(idx_tp/8,1.0/2))-1;
-//					double idx_tp2 = idx-1.0/6*r*(r+1)*(2*r+1)*8;
-//					int t=(int) (Math.ceil(Math.pow((idx_tp2-1)%((r+1)*(r+1))+1,1.0/2))+(r+1)*(Math.ceil((idx_tp2)/((r+1)*(r+1)))-1))-1;
-//					int p=(int) (((idx_tp2-1)%((r+1)*(r+1))+1) - Math.pow(j%(r+1),2))-1;
-////					int idx_tp=(int)((idx-(1/6*r*(r+1)*(2*r+1)*8))%((r+1)*(r+1)));
-////					int t = (int) (Math.ceil(Math.pow(idx_tp,1.0/2))-1);
-////					int p = (int) (idx_tp - 2*Math.pow(t,2))-1;
-//					System.out.println(idx);
-//					System.out.println("r: "+r+",t: "+t+",p: "+p);
-//					System.out.println();
 				}
 				b[j]=c;
 			}
@@ -65,7 +99,13 @@ public final class PolarArray {
 		return array;
 	}
 	
-	public static double[][][] applyToAll(double[][][] array, DoubleConsumer f){
+	/**
+	 * Used to read all values in the array.
+	 * 
+	 * @param array - a PolarArray
+	 * @param f - a function consuming a double value
+	 */
+	public static void applyToAll(double[][][] array, DoubleConsumer f){
 		for (int i=0; i<array.length; ++i){
 			double[][] b=array[i];
 			for (int j=0; j<b.length;++j){
@@ -73,14 +113,19 @@ public final class PolarArray {
 				for (int k=0; k<c.length;++k) {
 					f.accept(c[k]);
 				}
-				b[j]=c;
 			}
-			array[i] = b;
 		}
-		return array;
 	}
 	
-	public static double[][][] applyToAll(double[][][] array, DoubleFunction<Double> f){
+	/**
+	 * Used to manipulate all values in the array.
+	 * 
+	 * @param array - a PolarArray
+	 * @param f - a function manipulating a double value
+	 * @return - the manipulated array
+	 */
+	public static double[][][] applyToAll(
+			double[][][] array, DoubleFunction<Double> f){
 		for (int i=0; i<array.length; ++i){
 			double[][] b=array[i];
 			for (int j=0; j<b.length;++j){
@@ -95,7 +140,17 @@ public final class PolarArray {
 		return array;
 	}
 	
-	public static double[][][] applyToAll(double[][][] a1, double[][][] a2, DoubleBinaryOperator f){
+	/**
+	 * Used to perform a binary operation between each grid cell 
+	 * of the both arrays. Writes the result into a1.
+	 * 
+	 * @param a1 - a PolarArray
+	 * @param a2 - a PolarArray
+	 * @param f - a function providing the binary operation
+	 * @return - array a1 with the results of the operation f
+	 */
+	public static double[][][] applyToAll(
+			double[][][] a1, double[][][] a2, DoubleBinaryOperator f){
 		checkDimensionsSame(a1, a2);
 		for (int i=0; i<a1.length; ++i){
 			double[][] b1=a1[i];
@@ -120,14 +175,28 @@ public final class PolarArray {
 //		return Math.max(2*nt/Math.PI,1);
 //	}
 	
+	/**
+	 * Computes the inner resolution for phi or theta dimensions.
+	 * 
+	 * @param nr - number of voxels in r direction
+	 * @param nt - length in theta or phi direction (in radian)
+	 * @return - the inner resolution
+	 */
 	public static double computeIRES(int nr, double nt){
 		 // min 1, +1 for each quadrant (=4 for full circle)
 		return Math.max(2*nt/Math.PI,1);
 	}
 	
-	public static void checkDimensionsSame(double[][][] a, double[][][] b) throws IllegalArgumentException
+	/**
+	 * @param a - a polar array
+	 * @param b - another polar array
+	 * @throws IllegalArgumentException if dimensions are not the same
+	 */
+	public static void checkDimensionsSame(double[][][] a, double[][][] b) 
+			throws IllegalArgumentException
 	{
-		IllegalArgumentException e = new IllegalArgumentException("Array dimensions must agree.");
+		IllegalArgumentException e = 
+				new IllegalArgumentException("Array dimensions must agree.");
 		if (a.length!=b.length) throw e;
 		if (a[0][0].length!=b[0][0].length) throw e;
 		for (int i=0; i<a.length; ++i){
@@ -135,6 +204,10 @@ public final class PolarArray {
 		}
 	}
 	
+	/**
+	 * @param a - a polar array.
+	 * @return - the maximum value in array a.
+	 */
 	public static double max(double[][][] a){
 		double max=Double.NEGATIVE_INFINITY;
 		for (int i=0; i<a.length; ++i){
