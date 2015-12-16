@@ -1,5 +1,17 @@
 # Guide for developers
 
+## General tips
+Use of spaces: a few extra spaces can make a huge difference to how human-readable code is. For example, this
+``` java
+if(i<3)x=x+Math.PI*2;
+```
+is a lot less readable than this
+``` java
+if ( i < 3 )
+  x += Math.PI * 2;
+```
+despite being the same from the compiler's point of view.
+
 ## Line lengths
 Please keep line lengths to a maximum of 79 characters wherever possible. This makes it easier to reading code on small screens, and to compare code side-by-side on one larger screen.
 
