@@ -2,6 +2,7 @@ package test.plotting;
 
 import java.awt.Color;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
@@ -31,16 +32,18 @@ import com.sun.j3d.utils.universe.Viewer;
 import grid.PolarGrid;
 import grid.SphericalGrid;
 import linearAlgebra.Vector;
+import test.CylindricalGridTest;
 
 public class PolarGridPlot3D {
 	BranchGroup group, polyGroup;
 	PolarGrid grid;
+	SimpleUniverse universe;
 	final Color3f red=new Color3f(1f, 0f, 0f), 
 			blue=new Color3f(0f, 0f, 1f), 
 			green=new Color3f(0f, 1f, 0f);
 	
-	public PolarGridPlot3D(PolarGrid grid, boolean centre){
-		SimpleUniverse universe = new SimpleUniverse();
+	public PolarGridPlot3D(PolarGrid grid, boolean centre, boolean print_grid){
+		universe = new SimpleUniverse();
 		group = new BranchGroup();
 		polyGroup = new BranchGroup();
 		this.grid=grid;
@@ -78,16 +81,16 @@ public class PolarGridPlot3D {
 	        GeometryArray result = gi.getGeometryArray();
 
 			Shape3D poly = new Shape3D(
-					result, makeNoCullVecAppearance(green));
+					result, makeNoCullVecAppearance(red));
 			polyGroup.addChild(poly);
 		}
-		addLights(polyGroup);
+//		addLights(polyGroup);
 		universe.getViewingPlatform().setNominalViewingTransform();
 		universe.addBranchGraph(group);
-		universe.addBranchGraph(polyGroup);
+		if (print_grid) universe.addBranchGraph(polyGroup);
 	}
 	
-	public void start(){
+	public void runIterator(){
     	int[] current;
     	long t;
         for ( current = grid.resetIterator(); grid.isIteratorValid();
@@ -95,7 +98,7 @@ public class PolarGridPlot3D {
         {
         	t=System.currentTimeMillis();
         	int[] state = linearAlgebra.Vector.copy(current);
-        	setColor(false);
+        	setColorAll(false);
         	grid.setCurrent(state);
         	try {
         		Thread.sleep(Math.max(0, 500-System.currentTimeMillis()+t));
@@ -103,7 +106,21 @@ public class PolarGridPlot3D {
         		// TODO Auto-generated catch block
         		e.printStackTrace();
         	}
-        	setColor(true);
+        	setColorAll(true);
+        }
+    }
+	
+	public void startIterator(){
+        for ( grid.resetIterator(); grid.isIteratorValid();
+        		grid.iteratorNext())
+        {
+//        	int[] state = linearAlgebra.Vector.copy(current);
+        	setColorAll(false);
+        	universe.getViewer().getView().repaint();
+        	System.out.println("press enter to step iterator");
+        	CylindricalGridTest.keyboard.nextLine();
+        	setColorAll(true);
+        	universe.getViewer().getView().repaint();
         }
     }
 	
@@ -123,28 +140,50 @@ public class PolarGridPlot3D {
 		PolygonAttributes myPA = new PolygonAttributes( );
 		myPA.setCullFace( PolygonAttributes.CULL_NONE );
 		myPA.setPolygonMode( PolygonAttributes.POLYGON_LINE);
+		myPA.setCapability(PolygonAttributes.ALLOW_MODE_WRITE);
+		myPA.setCapability(PolygonAttributes.ALLOW_MODE_READ);
 		ap.setPolygonAttributes(myPA);
+		Material m = new Material();
+		m.setCapability(Material.ALLOW_COMPONENT_READ);
+		m.setCapability(Material.ALLOW_COMPONENT_WRITE);
+		m.setEmissiveColor(color); 
+		m.setShininess(128);
+		ap.setMaterial(m);
     	return ap;
 	}
 	
-	private void setColor(boolean reset){
-		Sphere c = (Sphere)((TransformGroup)group.getChild(grid.iteratorCurrentIdx()-1)).getChild(0);
-    	Material m = c.getAppearance().getMaterial();
-		if (reset) m.setEmissiveColor(green);
-		else m.setEmissiveColor(red);
-    	
-    	int[] nbh;
-    	for ( nbh = grid.resetNbhIterator(); 
-				grid.isNbhIteratorValid(); nbh = grid.nbhIteratorNext() )
+	private void setColorAll(boolean reset){
+		setColor(grid.iteratorCurrentIdx()-1,reset,true);
+    	for ( grid.resetNbhIterator(); 
+				grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
 		{
-//    		System.out.println(Arrays.toString(nbh)+"  "+(grid.coord2idx(nbh)-1));
-    		int idx=grid.coord2idx(nbh)-1;
-    		if (idx>0 && idx<grid.length()){  // ignore boundaries for the moment
-    			c = (Sphere)((TransformGroup)group.getChild(idx)).getChild(0);
-    			m = c.getAppearance().getMaterial();
-    			if (reset) m.setEmissiveColor(green);
-    			else m.setEmissiveColor(blue);
+    		LinkedList<int[]> nbhq=grid.getCurrentNeighborQueue();
+    		for (int[] nbh_i : nbhq){
+    			System.out.println(Arrays.toString(grid.iteratorCurrent())+"  "
+    					+Arrays.toString(nbh_i)+"  "+(grid.coord2idx(nbh_i)-1));
+    			int idx=grid.coord2idx(nbh_i)-1;
+    			if (idx>=0 && idx<grid.length()){  // ignore boundaries for the moment
+    				setColor(idx,reset,false);
+    			}
     		}
+		}
+	}
+	
+	private void setColor(int idx, boolean reset, boolean isCurrent){
+		Sphere c = (Sphere)((TransformGroup)group.getChild(idx)).getChild(0);
+    	Material cm = c.getAppearance().getMaterial();
+    	Shape3D p = (Shape3D)polyGroup.getChild(idx);
+    	PolygonAttributes pa = p.getAppearance().getPolygonAttributes();
+    	Material pm = p.getAppearance().getMaterial();
+		if (reset){
+			pa.setPolygonMode( PolygonAttributes.POLYGON_LINE);
+			cm.setEmissiveColor(green);
+			pm.setEmissiveColor(red);
+		}
+		else{
+			pa.setPolygonMode(PolygonAttributes.POLYGON_FILL);
+			cm.setEmissiveColor(isCurrent ? red : blue);
+			pm.setEmissiveColor(isCurrent ? red : blue);
 		}
 	}
 	

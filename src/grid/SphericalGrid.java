@@ -1,9 +1,11 @@
 package grid;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
+import linearAlgebra.Vector;
 
 /**
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
@@ -90,70 +92,21 @@ public class SphericalGrid extends PolarGrid{
 	 */
 	@Override
 	public int[] getCoords(double[] loc) {
-		int[] coord = new int[3];
-		// determine r 
-		double counter = 0.0;
-		countLoop: for ( int i = 0; i < this._nVoxel[0]; i++ )
-		{
-			if ( counter >= loc[0] )
-			{
-				coord[0] = i;
-				break countLoop;
-			}
-			counter += this._res[0][i];
-		}
-		// is in right array (octand 5-8)?
-		boolean is_right = loc[2]>=Math.PI; 
-		// does right array exist?
-		boolean right_ex = _res[2][0] > 1;  
-		// compute the octand the location is in
-		int ioct=(int)((int)round10(loc[1]/(Math.PI/2))
-				*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
-		// transform p to octand 1
-		double p = (is_right ? loc[2]-Math.PI : loc[2]);
-		// transform t to octand 1
-		double t = loc[1]%(Math.PI/2);
-		// number of grid cells for current radius 
-		int npt=npt(coord[0]);
-		// determine p coordinate
-		coord[1]=(int)round10(p/getArcLengthP(npt)-1);
-		// determine t coordinate
-		coord[2]=(int)round10(t/getArcLengthT(coord[1],npt));
-		// transform p and t into original octand again
-		if (is_right) {
-			coord[2]=npt-coord[2];
-			coord[1]=npt-coord[1]-1;
-		}
-		coord[1] += right_ex ? (ioct-1)/2*npt : (ioct-1)*npt;
-		return coord;
+		return (int[])(new Stats(loc).transToRightOct(null));
+	}
+	
+	@Override
+	@Deprecated
+	public int[] getCoords(double[] loc, double[] inside) {
+		//TODO: implement
+		return null;
 	}
 	
 	/* (non-Javadoc)
 	 * @see grid.PolarGrid#getLocation(int[], double[])
 	 */
 	public double[] getLocation(int[] coord, double[] inside){
-		// number of grid cells for current radius 
-		int npt=npt(coord[0]);
-		// the t 'real' t-coordinate for each octand (concatenated vertical)
-		int mod_t = coord[1]%npt;
-		// does right array exist?
-		boolean right_ex = _res[2][0] > 1;
-		// is in right array (octand 5-8)?
-		boolean is_right = coord[2] > mod_t;
-		// compute the octand the location is in
-		int ioct=(int)((coord[1]/npt)*(right_ex ? _res[2][0] : 1)+1
-					+ (is_right ? 1 : 0)); 
-		// transform to octand 1
-		int p = (is_right ? npt-mod_t-1 : mod_t);
-		int t = (is_right ? npt-coord[2] : coord[2]);
-		// compute location inside octand 1
-		double td = (t+inside[2])*getArcLengthT(p, npt);
-		// 1-ti because p starts at positive z axis...
-		double pd=(p+(1-inside[1]))*getArcLengthP(npt); 
-		// transform to original octand again
-		if (is_right) pd+=Math.PI;
-		td += right_ex ? (ioct-1)/2*(Math.PI/2) : (ioct-1)*(Math.PI/2);
-		return new double[]{coord[0]+inside[0],td,pd};
+		return (double[])(new Stats(coord,inside).transToRightOct(null));
 	}
 	
 	/* (non-Javadoc)
@@ -208,13 +161,9 @@ public class SphericalGrid extends PolarGrid{
 	 * @return -  width and height of each triangle 
 	 */
 	private int npt(int r){return 2*r+1;}
-
-	/**
-	 * @param c - a spherical (r,t,p)-coordinate
-	 * @return - the number of cells in row c[1]
-	 */
-	private int nt(int[] c){return (c[2] > c[1] ? npt(c[0])-c[1] : c[1]+1);} 
 	
+	private int no(int r){return npt(r)*(1+r);}
+
 	/**
 	 * @param p - phi coordinate (row index)
 	 * @return - number of cells in an octant until and including row p (for left triangle)
@@ -234,7 +183,7 @@ public class SphericalGrid extends PolarGrid{
 	 * @param npt - width and height of each triangle
 	 * @return - the arc length in t direction
 	 */
-	private double getArcLengthT(double p, double npt){
+	private double getArcLengthT(int p, double npt){
 		return round10((Math.PI/2)/(p+1));
 	}
 	
@@ -243,59 +192,61 @@ public class SphericalGrid extends PolarGrid{
 	 * @return - the arc length in p direction
 	 */
 	private double getArcLengthP(double npt){return round10((Math.PI/2)/npt);}
-	
-	/**
-	 * @param x - any double
-	 * @return - rounded value with 1e-10 precision
-	 */
-	private double round10(double x){return Math.round(x*1e10)*1e-10;}
 
+//	/* (non-Javadoc)
+//	 * @see grid.PolarGrid#idx2coord(int, int[])
+//	 */
+//	@Override
+//	public int[] idx2coord(int idx, int[] coord) {
+//		//TODO: make more variables than x?
+//		// idx=sn(r) solved for r with mathematica
+//		double x = Math.pow(-27*Math.pow(_res[2][0],3)*Math.pow(_res[1][0],3)
+//				+ 432*Math.pow(_res[2][0],2)*Math.pow(_res[1][0],2)*idx
+//				+ 2*Math.sqrt(3)*Math.sqrt(-25*Math.pow(_res[2][0],6)
+//				* Math.pow(_res[1][0],6)
+//				- 1944*Math.pow(_res[2][0],5)*Math.pow(_res[1][0],5)*idx
+//				+ 15552*Math.pow(_res[2][0],4)
+//				* Math.pow(_res[1][0],4)*idx*idx),1.0/3);
+//		int r = (int)(
+//					(7*_res[2][0]*_res[1][0]) / (4*Math.pow(3,1.0/3) * x) + x
+//					/ (4*Math.pow(3,2.0/3)*_res[2][0]*_res[1][0]) - 1.0/4);
+//		// index starting with 1 in this r slice
+//		int idxr=idx-sn(r-1); 
+//		// width and height of each triangle
+//		int npt=npt(r);
+//		// number of cells in each octand
+//		int nco=(r+1)*(2*r+1); 
+//		// index of octand in r slice
+//		int ioct=(int)Math.ceil((double)idxr/nco); 
+//		// does right array exist?
+//		boolean right_ex = _res[2][0] > 1;
+//		// left or right triangle in quadrant matrix (p=0 | p=90)
+//		boolean is_right=right_ex ? ioct%_res[2][0]==0 : false;
+//		// index starting with 1 in each octand
+//		int idxo=(idxr-1)%nco+1; 
+//		// p-coordinate (row)
+//		int p = (int)Math.ceil(1.0/2*(Math.sqrt(8*idxo+1)-3));
+//		// p-coordinate (column)
+//		int t = idxo-snt(p-1)-1;
+//		// transform  p and t to given octand
+//		if (is_right) {
+//			p=npt-p-1;
+//			t=npt-t;  // npr=ntr+1
+//		}
+//		p += right_ex ? ((int)Math.ceil((double)ioct/_res[2][0])-1)*npt 
+//				: (ioct-1)*npt;
+//		
+//		if (coord==null) coord = new int[]{r,t,p};
+//		else {coord[0]=r; coord[1]=p; coord[2]=t;}
+//		return coord;
+//	}
+	
 	/* (non-Javadoc)
 	 * @see grid.PolarGrid#idx2coord(int, int[])
 	 */
 	@Override
 	public int[] idx2coord(int idx, int[] coord) {
-		//TODO: make more variables than x?
-		// idx=sn(r) solved for r with mathematica
-		double x = Math.pow(-27*Math.pow(_res[2][0],3)*Math.pow(_res[1][0],3)
-				+ 432*Math.pow(_res[2][0],2)*Math.pow(_res[1][0],2)*idx
-				+ 2*Math.sqrt(3)*Math.sqrt(-25*Math.pow(_res[2][0],6)
-				* Math.pow(_res[1][0],6)
-				- 1944*Math.pow(_res[2][0],5)*Math.pow(_res[1][0],5)*idx
-				+ 15552*Math.pow(_res[2][0],4)
-				* Math.pow(_res[1][0],4)*idx*idx),1.0/3);
-		int r = (int)(
-					(7*_res[2][0]*_res[1][0]) / (4*Math.pow(3,1.0/3) * x) + x
-					/ (4*Math.pow(3,2.0/3)*_res[2][0]*_res[1][0]) - 1.0/4);
-		// index starting with 1 in this r slice
-		int idxr=idx-sn(r-1); 
-		// width and height of each triangle
-		int npt=npt(r);
-		// number of cells in each octand
-		int nco=(r+1)*(2*r+1); 
-		// index of octand in r slice
-		int ioct=(int)Math.ceil((double)idxr/nco); 
-		// does right array exist?
-		boolean right_ex = _res[2][0] > 1;
-		// left or right triangle in quadrant matrix (p=0 | p=90)
-		boolean is_right=right_ex ? ioct%_res[2][0]==0 : false;
-		// index starting with 1 in each octand
-		int idxo=(idxr-1)%nco+1; 
-		// p-coordinate (row)
-		int p = (int)Math.ceil(1.0/2*(Math.sqrt(8*idxo+1)-3));
-		// p-coordinate (column)
-		int t = idxo-snt(p-1)-1;
-		// transform  p and t to given octand
-		if (is_right) {
-			p=npt-p-1;
-			t=npt-t;  // npr=ntr+1
-		}
-		p += right_ex ? ((int)Math.ceil((double)ioct/_res[2][0])-1)*npt 
-				: (ioct-1)*npt;
-		
-		if (coord==null) coord = new int[]{r,t,p};
-		else {coord[0]=r; coord[1]=p; coord[2]=t;}
-		return coord;
+		return (int[])(new Stats(idx).transToRightOct(coord));
 	}
 
 	/* (non-Javadoc)
@@ -303,44 +254,71 @@ public class SphericalGrid extends PolarGrid{
 	 */
 	@Override
 	public void currentNbhIdxChanged() {
-		if (isNbhIteratorValid()){
+		nbhq.clear();
+		if (isNbhIteratorValid()){ // only if inside boundaries
 			if (_nbhIdx>3){ // moving in r
-				double t_scale=(_currentCoord[1]+1)/(_currentCoord[0]+1);
-				double p_scale=(_currentCoord[2]+1)/(_currentCoord[1]+1);
-				if (!_isMultNbh && (t_scale%1 > 0.5 || t_scale%1 == 0d)) {
-					_currentNeighbor[1]=_currentCoord[1]+_nbhs[_nbhIdx][1]*(int)Math.ceil(t_scale);
-					_currentNeighbor[2]=_currentCoord[2]+_nbhs[_nbhIdx][2]*(int)Math.ceil(p_scale);
-					_nbhIdx--;
-					_isMultNbh=true;
-				} else {
-					_currentNeighbor[1]=_currentCoord[1]+_nbhs[_nbhIdx][1]*(int)Math.floor(t_scale);
-					_currentNeighbor[2]=_currentCoord[2]+_nbhs[_nbhIdx][2]*(int)Math.floor(p_scale);
-					_isMultNbh=false;
-				}
-			}else if (_nbhIdx<2){ // moving in p
-				double p_scale=(_currentCoord[2]+1)/(_currentCoord[1]+1);
-				if (!_isMultNbh && (p_scale%1 > 0.5 || p_scale%1 == 0d)) {
-					_currentNeighbor[2]=_currentCoord[2]+_nbhs[_nbhIdx][2]*(int)Math.ceil(p_scale);
-					_nbhIdx--;
-					_isMultNbh=true; 
-				} else {
-					_currentNeighbor[2]=_currentCoord[2]+_nbhs[_nbhIdx][2]*(int)Math.ceil(p_scale);
-					_isMultNbh=false;
-				}
-			}else{  // moving in t
+				int[] cc=_currentCoord;
+				int[] nbh=Vector.add(Vector.copy(cc),_nbhs[_nbhIdx]);
+				if (nbh[0]>=0){ // only positive r
+					Stats stats = new Stats(nbh,new double[]{0d,0d,0d});
+					System.out.println(stats.lp+" "+stats.lt+"  "+stats.mod_t+"  "+stats.npt);
 				
+					double t1 = getLocation(cc, new double[]{_nbhs[_nbhIdx][0],0d,0d})[1];
+					double t2 = getLocation(cc, new double[]{_nbhs[_nbhIdx][0],0d,1d})[1];
+					double p1 = getLocation(cc, new double[]{_nbhs[_nbhIdx][0],1d,0d})[2];
+					double p2 = getLocation(cc, new double[]{_nbhs[_nbhIdx][0],0d,0d})[2];
+					System.out.println(t1+" "+t2+" "+p1+" "+p2);
+					for (double t=t1; t<t2; t+=stats.lt){
+						for (double p=p1; p<p2; p+=stats.lp){
+//							double[] inside=new double[3];
+							int[] c=getCoords(
+									new double[]{nbh[0],t,p}//,
+//									inside
+									);
+							//						System.out.println(t1+" "+t2+" "+l);
+							System.out.println(Arrays.toString(new double[]{nbh[0],t,
+									p})+"  "+Arrays.toString(c)+"  "/*+Arrays.toString(inside)*/);
+//							if (inside[1]<=0.5){
+//								nbhq.add(c);
+//							}
+							nbhq.add(c);
+						}
+					}
+				}
+//			}else if (_nbhIdx<2){ // moving in p
+//								
+			}else{ // moving in t  
+				_currentNeighbor=Vector.add(
+						Vector.copy(_currentCoord),_nbhs[_nbhIdx]);
+				nbhq.add(_currentNeighbor);
 			}
 		}
-//		System.out.println(Arrays.toString(_currentNeighbor));
 	}
 
+//	/* (non-Javadoc)
+//	 * @see grid.PolarGrid#coord2idx(int[])
+//	 */
+//	@Override
+//	public int coord2idx(int[] coord) {
+//		return coord[2] > coord[1] ? 
+//				sn(coord[0]-1)+snt(coord[1]%npt(coord[0])-1)+coord[2]+1 
+//				: sn(coord[0]-1)+snt(npt(coord[0])-coord[1]%npt(coord[0])-2) 
+//					+ nt(coord)-coord[2];
+//	}
+	
 	/* (non-Javadoc)
 	 * @see grid.PolarGrid#coord2idx(int[])
 	 */
 	@Override
 	public int coord2idx(int[] coord) {
-		return coord[2] > coord[1] ? sn(coord[0]-1)+snt(coord[1]%npt(coord[0])-1)+coord[2]+1 
-				: sn(coord[0]-1)+snt(npt(coord[0])-coord[1]%npt(coord[0])-2)+nt(coord)-coord[2];
+		int npt=npt(coord[0]);
+		int p_mod_npt=coord[1]%npt;
+		int sn_prev = sn(coord[0]-1);
+		int no = no(coord[0]);
+		int idxq = coord[2] > p_mod_npt ?  // right array
+				sn_prev+no+snt(npt-p_mod_npt-2)+npt-coord[2]+1
+				: sn_prev+snt(p_mod_npt-1)+coord[2]+1;
+		return idxq+2*no*(coord[1]/npt);
 	}
 
 	/* (non-Javadoc)
@@ -392,5 +370,160 @@ public class SphericalGrid extends PolarGrid{
 		// TODO Auto-generated method stub
 		// not important atm
 		return 0;
+	}
+	
+	/**
+	 * Transforms a coordinate to location and vice versa.
+	 * Transforms both to octand 1. 
+	 * Stores or computes all informations to restore original state.
+	 * 
+	 * CARE: its (r,t,p) in space and (r,p,t) in array at the moment!
+	 * // TODO: switch p and t cooordinate in array 
+	 */
+	private class Stats{
+		private int npt, mod_t, ioct;
+		private double r, p, t, lt, lp;  
+		private boolean right_ex, is_right, returns_coord;
+		
+		private Stats(int r, int p, int t, double ir, double ip, double it){
+			// flag indicating that this Stat is returning 
+			// true:  an array-coordinate
+			// false: a location
+			returns_coord=false;  
+			// number of grid cells for current radius 
+			npt=npt(r);
+			// the 'real' t-coordinate for each octand (concatenated vertical)
+			mod_t = p%npt;
+			// does right array exist?
+			right_ex = _res[2][0] > 1;
+			// is in right array (octand 5-8)?
+			is_right = t > mod_t;
+			// compute the octand the location is in
+			ioct=(int)((p/npt)*(right_ex ? _res[2][0] : 1)+1
+					+ (is_right ? 1 : 0)); 
+			// transform to octand 1
+			this.p = (is_right ? npt-mod_t-1 : mod_t);
+			this.t = (is_right ? npt-t : t);
+
+			lp=getArcLengthP(npt);
+			lt=getArcLengthT((int) this.p,npt);
+			
+			// determine r (like in cartesian grid)
+			for ( int i = 0; i < r; i++ ){
+				this.r += _res[0][i];
+			}
+			this.r+=ir*_res[0][r];
+			// compute location inside octand 1
+			this.t = (this.t+it)*lt;
+			// 1-ti because p starts at positive z axis...
+			this.p=(this.p+(1-ip))*lp; 
+		}
+		
+		private Stats(int[] coord, double[] inside){
+			this(coord[0],coord[1],coord[2],inside[0],inside[1],inside[2]);
+		}
+		
+		private Stats(double r, double t, double p){
+			// flag indicating that this Stat is computed for location, not coord
+			returns_coord=true;
+			// determine r (like in cartesian grid)
+			double counter = 0.0;
+			countLoop: for ( int i = 0; i < _nVoxel[0]; i++ )
+			{
+				if ( counter >= r )
+				{
+					this.r = i;
+					break countLoop;
+				}
+				counter += _res[0][i];
+			}
+			// is in right array (octand 5-8)?
+			is_right = p>=Math.PI; 
+			// does right array exist?
+			right_ex = _res[2][0] > 1;  
+			// compute the octand the location is in
+			ioct=(int)((int)round10(t/(Math.PI/2))
+					*(right_ex ? _res[2][0] : 1)+1+(is_right ? 1 : 0)); 
+			// transform p to octand 1
+			this.p = (is_right ? p-Math.PI : p);
+			// transform t to octand 1
+			this.t = t%(Math.PI/2);
+			// number of grid cells for current radius 
+			npt=npt((int)this.r);
+			// determine p coordinate
+			lp=getArcLengthP(npt);
+			this.p=(int)round10(this.p/lp-1);
+			// determine t coordinate
+			lt=getArcLengthT((int)this.p, npt);
+			this.t=(int)round10(this.t/lt);
+		}
+		
+		private Stats(double[] loc){
+			this(loc[0],loc[1],loc[2]);
+		}
+		
+		private Stats(int idx){
+			returns_coord=true;
+			//TODO: make more variables than x?
+			// idx=sn(r) solved for r with mathematica
+			double x = Math.pow(-27*Math.pow(_res[2][0],3)*Math.pow(_res[1][0],3)
+					+ 432*Math.pow(_res[2][0],2)*Math.pow(_res[1][0],2)*idx
+					+ 2*Math.sqrt(3)*Math.sqrt(-25*Math.pow(_res[2][0],6)
+					* Math.pow(_res[1][0],6)
+					- 1944*Math.pow(_res[2][0],5)*Math.pow(_res[1][0],5)*idx
+					+ 15552*Math.pow(_res[2][0],4)
+					* Math.pow(_res[1][0],4)*idx*idx),1.0/3);
+			int r = (int)(
+						(7*_res[2][0]*_res[1][0]) / (4*Math.pow(3,1.0/3) * x) + x
+						/ (4*Math.pow(3,2.0/3)*_res[2][0]*_res[1][0]) - 1.0/4);
+			// index starting with 1 in this r slice
+			int idxr=idx-sn(r-1); 
+			// width and height of each triangle
+			npt=npt(r);
+			// number of cells in each octand
+			int nco=no(r); 
+			// index of octand in r slice
+			ioct=(int)Math.ceil((double)idxr/nco); 
+			// does right array exist?
+			right_ex = _res[2][0] > 1;
+			// left or right triangle in quadrant matrix (p=0 | p=90)
+			is_right=right_ex ? ioct%_res[2][0]==0 : false;
+			// index starting with 1 in each octand
+			int idxo=(idxr-1)%nco+1; 
+			// radius
+			this.r = r;
+			// p-coordinate (row)
+			p = (int)Math.ceil(1.0/2*(Math.sqrt(_res[1][0]*_res[2][0]*idxo+1)-3));
+			// t-coordinate (column)
+			t = idxo-snt((int)p-1)-1;
+		}
+		
+		private Object transToRightOct(Object o){
+			// transform to original octand again
+			//TODO: maybe add some !instanceof -> error
+			if (returns_coord){
+				if (is_right) {
+					t=npt-t;
+					p=npt-p-1;
+				}
+				p += right_ex ? (ioct-1)/2*npt : (ioct-1)*npt;
+				if (o==null) return new int[]{(int)r,(int)p,(int)t};
+				else {
+					int[] d = (int[])o;
+					d[0]=(int)r;d[1]=(int)p;d[2]=(int)t;
+					return d;
+				}
+			}else{
+				if (is_right) p+=Math.PI;
+				t += right_ex ? (ioct-1)/2*(Math.PI/2) : (ioct-1)*(Math.PI/2);
+				if (o==null) return new double[]{r,t,p};
+				else {
+					double[] d = (double[])o;
+					d[0]=r;d[1]=t;d[2]=p;
+					return d;
+				}
+			}
+			
+		}
 	}
 }

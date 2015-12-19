@@ -1,6 +1,7 @@
 package grid;
 
 import java.lang.instrument.IllegalClassFormatException;
+import java.util.LinkedList;
 import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
@@ -23,6 +24,8 @@ public abstract class PolarGrid extends SpatialGrid {
 	protected int[][] _nbhs;
 	// _nVoxel[1] in radian -> length in theta, currently only multiples of Pi/2 
 	protected double _nt_rad;
+	
+	protected LinkedList<int[]> nbhq = new LinkedList<int[]>();
 
 	/**
 	 * @param nVoxel - length in each dimension
@@ -429,7 +432,7 @@ public abstract class PolarGrid extends SpatialGrid {
 	public int[] resetNbhIterator(){
 		_nbhIdx=0;
 		if ( this._currentNeighbor == null )
-			this._currentNeighbor = Vector.zerosInt(3);
+			this._currentNeighbor = Vector.add(Vector.zerosInt(3),_nbhs[0]);
 		else
 			currentNbhIdxChanged();
 		return _currentNeighbor;
@@ -449,6 +452,10 @@ public abstract class PolarGrid extends SpatialGrid {
 		return _currentNeighbor;
 	}
 	
+	public LinkedList<int[]> getCurrentNeighborQueue(){
+		return nbhq;
+	}
+	
 	/**
 	 * @return the length of the grid (maximum index)
 	 */
@@ -466,6 +473,13 @@ public abstract class PolarGrid extends SpatialGrid {
 	 * @return - the location in simulation space.
 	 */
 	public abstract double[] getLocation(int[] coord, double[] inside);
+	public abstract int[] getCoords(double[] loc, double[] inside);
+	
+	/**
+	 * @param x - any double
+	 * @return - rounded value with 1e-10 precision
+	 */
+	protected double round10(double x){return Math.round(x*1e10)*1e-10;}
 
 	/*************************************************************************
 	 * REPORTING

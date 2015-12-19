@@ -1,10 +1,12 @@
 package grid;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import test.plotting.PolarGridPlot;
 
 /**
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
@@ -107,17 +109,43 @@ public class CylindricalGrid extends PolarGrid{
 			counter = 0.0;
 			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )
 			{
-				counter += this._res[dim][i];
 				if ( counter >= loc[dim] )
 				{
 					coord[dim] = i;
 					break countLoop;
 				}
+				counter += this._res[dim][i];
 			}
 		}
 		// determine t coordinate
 //		coord[1]=(int)(loc[1]*_res[1][0]*2*loc[0]/(nt_rad*_res));
-		coord[1]=(int)(loc[1]*_res[1][0]*2*loc[0]/_nt_rad);
+//		coord[1]=(int)(loc[1]*_res[1][0]*2*loc[0]/_nt_rad);
+		coord[1]=(int)round10(loc[1]/getArcLength(coord[0]));
+		return coord;
+	}
+	
+	public int[] getCoords(double[] loc, double[] inside) {
+		int[] coord = new int[3];
+		// determine r and z coordinate
+		double counter;
+		for ( int dim = 0; dim < 3; dim+=2 )
+		{
+			counter = 0.0;
+			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )
+			{
+				if ( counter >= loc[dim] )
+				{
+					coord[dim] = i;
+					inside[dim] = counter-loc[dim];
+					break countLoop;
+				}
+				counter += this._res[dim][i];
+			}
+		}
+		// determine t coordinate
+		double t=(int)round10(loc[1]/getArcLength(coord[0]));
+		coord[1]=(int)t;
+		inside[1]=t-coord[1];
 		return coord;
 	}
 	
@@ -127,16 +155,14 @@ public class CylindricalGrid extends PolarGrid{
 	public double[] getLocation(int[] coord, double[] inside){
 		// determine r and z location (like in cartesian grid)
 		double r=0, z=0; 
-		for ( int dim = 0; dim < 3; dim++ ){
-			for ( int i = 0; i < coord[0]; i++ ){
-				r += this._res[0][i];
-			}
-			for ( int i = 0; i < coord[2]; i++ ){
-				z += this._res[2][i];
-			}
-			r+=inside[0]*this._res[0][coord[0]];
-			z+=inside[2]*this._res[2][coord[2]];
+		for ( int i = 0; i < coord[0]; i++ ){
+			r += this._res[0][i];
 		}
+		for ( int i = 0; i < coord[2]; i++ ){
+			z += this._res[2][i];
+		}
+		r+=inside[0]*this._res[0][coord[0]];
+		z+=inside[2]*this._res[2][coord[2]];
 		// determine t location (dependent on r)
 		double t;
 		if (r==0) {
@@ -277,31 +303,69 @@ public class CylindricalGrid extends PolarGrid{
 				+(coord[1]+_res[1][0]*coord[0]*coord[0]+1));
 	}
 
+//	/* (non-Javadoc)
+//	 * @see grid.PolarGrid#currentNbhIdxChanged()
+//	 */
+//	@Override
+//	public void currentNbhIdxChanged() {
+//		if (isNbhIteratorValid()){ // only if inside boundaries
+//			// add the relative position to current index for constant r 
+//			_currentNeighbor=Vector.add(
+//					Vector.copy(_currentCoord),_nbhs[_nbhIdx]);
+//			if (_nbhIdx>3){ // moving in r
+//				// the scaling factor for r=r+-1
+//				double t_scale=(2.0*_currentCoord[0]+3)/(2.0*_currentCoord[0]+1);
+//				// if scaling has high or no error
+//				// -> insert additional ceiled neighbor
+//				System.out.println(t_scale);
+//				if (!_isMultNbh && (t_scale%1 > 0.5 || t_scale%1 == 0d)) {
+//					_currentNeighbor[1]=_currentCoord[1]
+//							+ _nbhs[_nbhIdx][1]*(int)Math.ceil(t_scale);
+//					_nbhIdx--;
+//					_isMultNbh=true;
+//				// else reset and insert default floored neighbor
+//				} else {
+//					_currentNeighbor[1]=_currentCoord[1]
+//							+ _nbhs[_nbhIdx][1]*(int)Math.floor(t_scale);
+//					_isMultNbh=false;
+//				}
+//			}
+//		}
+//	}
+	
 	/* (non-Javadoc)
 	 * @see grid.PolarGrid#currentNbhIdxChanged()
 	 */
 	@Override
 	public void currentNbhIdxChanged() {
+		nbhq.clear();
 		if (isNbhIteratorValid()){ // only if inside boundaries
-			// add the relative position to current index for constant r 
-			_currentNeighbor=Vector.add(
-					Vector.copy(_currentCoord),_nbhs[_nbhIdx]);
 			if (_nbhIdx>3){ // moving in r
-				// the scaling factor for r=r+-1
-				double t_scale=2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1);
-				// if scaling has high or no error
-				// -> insert additional ceiled neighbor
-				if (!_isMultNbh && (t_scale%1 > 0.5 || t_scale%1 == 0d)) {
-					_currentNeighbor[1]=_currentCoord[1]
-							+ _nbhs[_nbhIdx][1]*(int)Math.ceil(t_scale);
-					_nbhIdx--;
-					_isMultNbh=true;
-				// else reset and insert default floored neighbor
-				} else {
-					_currentNeighbor[1]=_currentCoord[1]
-							+ _nbhs[_nbhIdx][1]*(int)Math.floor(t_scale);
-					_isMultNbh=false;
+				int[] cc=_currentCoord;
+				double l=getArcLength(cc[0]+_nbhs[_nbhIdx][0]);
+				if (l>0){ // only for positive r
+					double t1 = getLocation(cc, new double[]{1d,0d,0d})[1];
+					double t2 = getLocation(cc, new double[]{1d,1d,0d})[1];
+					for (double t=t1; t<t2; t+=l){
+//						double[] inside=new double[3];
+						int[] c=getCoords(
+								new double[]{cc[0]+_nbhs[_nbhIdx][0],t,
+										cc[2]+_nbhs[_nbhIdx][2]}//,
+//								inside
+								);
+//						System.out.println(t1+" "+t2+" "+l);
+						System.out.println(Arrays.toString(new double[]{cc[0]+_nbhs[_nbhIdx][0],t,
+										cc[2]+_nbhs[_nbhIdx][2]})+"  "+Arrays.toString(c)+"  "/*+Arrays.toString(inside)*/);
+//						if (inside[1]<=0.5){
+//							nbhq.add(c);
+//						}
+						nbhq.add(c);
+					}
 				}
+			}else{ // add the relative position to current index for constant r 
+				_currentNeighbor=Vector.add(
+						Vector.copy(_currentCoord),_nbhs[_nbhIdx]);
+				nbhq.add(_currentNeighbor);
 			}
 		}
 	}
