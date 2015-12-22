@@ -1,6 +1,8 @@
 package grid;
 
 import java.lang.instrument.IllegalClassFormatException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.function.DoubleFunction;
 
@@ -16,6 +18,8 @@ import linearAlgebra.Vector;
  *
  */
 public abstract class PolarGrid extends SpatialGrid {
+	// percentage of area that a neighbor needs to share with current coord
+	protected double sA_th = 0.25;
 	// current index of iterator and neighborhood iterator
 	protected int _nbhIdx, _idx;   
 	// used to block neighborhood iterator on multiple neighbors
@@ -25,7 +29,7 @@ public abstract class PolarGrid extends SpatialGrid {
 	// _nVoxel[1] in radian -> length in theta, currently only multiples of Pi/2 
 	protected double _nt_rad;
 	
-	protected LinkedList<int[]> nbhq = new LinkedList<int[]>();
+	protected HashSet<int[]> _nbhSet = new HashSet<int[]>();
 
 	/**
 	 * @param nVoxel - length in each dimension
@@ -411,8 +415,9 @@ public abstract class PolarGrid extends SpatialGrid {
 		_idx=1;
 		if ( this._currentCoord == null )
 			this._currentCoord = Vector.zerosInt(3);
-		else
+		else{
 			currentIdxChanged();
+		}
 		return this._currentCoord;
 	}
 	
@@ -452,8 +457,70 @@ public abstract class PolarGrid extends SpatialGrid {
 		return _currentNeighbor;
 	}
 	
-	public LinkedList<int[]> getCurrentNeighborQueue(){
-		return nbhq;
+	public HashSet<int[]> getCurrentNeighborSet(){
+		return _nbhSet;
+	}
+	
+	protected abstract BoundarySide isOutside(int[] coord, int dim);
+	
+	/* (non-Javadoc)
+	 * @see grid.SpatialGrid#isOutside(int[])
+	 */
+	@Override
+	protected BoundarySide isOutside(int[] coord) {
+		for (int dim=0; dim<3; ++dim){
+			BoundarySide bs = isOutside(coord,dim);
+			if (bs!=null) return bs;
+		}
+		return null;
+	}
+	
+	/**
+	 * Computes isOutside for all 3 dimensions. Does return minimum OR maximum, 
+	 * not both. Decision for min or max if the coord is both min and max 
+	 * depends on the actual implementation of isOutside in the sub class.
+	 * 
+	 * @param coord - an array coordinate.
+	 * @param out - Array of length 3 to write BoundarySides into, can be null.
+	 * @return - BoundarySides at all 3 dimensions 
+	 *           (array of 3 nulls if no boundary was hit at all)
+	 */
+	protected BoundarySide[] getBoundarySides(int[]coord, BoundarySide[] out){
+		if (out==null) out = new BoundarySide[3];
+		for (int dim=0; dim<3; ++dim)
+			out[dim]=isOutside(coord, dim);
+		return out;
+	}
+	
+	/**
+	 * Checks the current neighbor set for points outside the grid.
+	 * Performs cyclic transform for inside boundaries, removes all others.
+	 */
+	protected void transOrDeleteNbhsOutside(){
+		// stores coordinates to be removed
+		LinkedList<int[]> rem = new LinkedList<int[]>();
+		// stores transformed coordinates
+		LinkedList<int[]> trans = new LinkedList<int[]>(); 
+		BoundarySide[] bsa = new BoundarySide[3];
+		for (int[] c : _nbhSet){
+			int nc=0, ic=0; // null counter and internal with r>=0 counter
+			bsa = getBoundarySides(c, bsa);
+			for (BoundarySide bs : bsa){
+				if (bs==null) nc++;
+				if (bs==BoundarySide.INTERNAL && c[0]>=0) ic++;
+			}
+			if (nc!=3) rem.add(c);  // not only null -> isOutside somewhere
+			if (nc+ic==3) {			
+				// only null and internal with r>=0 -> transform
+				c=cyclicTransform(c);
+				trans.add(c); 
+			}
+		}
+		// remove all marked elements
+		while(!rem.isEmpty()){_nbhSet.remove(rem.pop());}
+		
+		// add transformed elements
+		while(!trans.isEmpty()){_nbhSet.add(trans.pop());}
 	}
 	
 	/**
@@ -473,13 +540,22 @@ public abstract class PolarGrid extends SpatialGrid {
 	 * @return - the location in simulation space.
 	 */
 	public abstract double[] getLocation(int[] coord, double[] inside);
+	
+	/**
+	 * Transforms a given location into array-coordinates and 
+	 * computes sub-coordinates inside the grid element if inside != null. 
+	 * 
+	 * @param loc - a location in simpulated space.
+	 * @param inside - array to write sub-coordinates into, can be null.
+	 * @return - the array coordinates corresponding to location loc.
+	 */
 	public abstract int[] getCoords(double[] loc, double[] inside);
 	
 	/**
 	 * @param x - any double
 	 * @return - rounded value with 1e-10 precision
 	 */
-	protected double round10(double x){return Math.round(x*1e10)*1e-10;}
+	protected double round10(double x){return Math.round(x*1e5)*1e-5;}
 
 	/*************************************************************************
 	 * REPORTING

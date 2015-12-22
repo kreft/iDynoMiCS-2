@@ -16,7 +16,7 @@ public class CylindricalGridTest {
 //				new int[]{5,360,3},
 //				new double[][]{{1,.5,.5,.5,.5},{1},{.5,2,1}});
 		CylindricalGrid gridp = new CylindricalGrid(
-				new int[]{5,360,3},
+				new int[]{3,360,1},
 				new double[]{1,1,1});
 		ArrayType type=ArrayType.CONCN;
 		gridp.newArray(type, 0);
@@ -62,11 +62,14 @@ public class CylindricalGridTest {
 //        demo.setVisible(true);
 //        demo.start();
         
-		PolarGridPlot3D plot = new PolarGridPlot3D(gridp,true,false);
+		PolarGridPlot3D plot = new PolarGridPlot3D(gridp,true,true);
 		System.out.println("press enter to start iterator");
 		keyboard.nextLine();
-        plot.startIterator();
+//        plot.startIterator();
+        plot.runIterator();
         keyboard.close();
+		
+//		System.out.println(Arrays.toString(gridp.cyclicTransform(new int[]{0,-1,0})));
 	}
 
 }

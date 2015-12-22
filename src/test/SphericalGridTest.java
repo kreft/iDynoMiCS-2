@@ -12,7 +12,7 @@ public class SphericalGridTest {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		SphericalGrid gridp = new SphericalGrid(new int[]{5,360,180},new double[]{1,1,1});
+		SphericalGrid gridp = new SphericalGrid(new int[]{3,360,90},new double[]{1,1,1});
 		ArrayType type=ArrayType.CONCN;
 		gridp.newArray(type, 0);
 		
@@ -32,8 +32,10 @@ public class SphericalGridTest {
 //			
 //			System.out.println();
 //		}
+//		
+//		System.out.println(gridp.length());
 		
-		PolarGridPlot3D plot = new PolarGridPlot3D(gridp,true,false);
+		PolarGridPlot3D plot = new PolarGridPlot3D(gridp,true,true);
 		System.out.println("press enter to start iterator");
 		CylindricalGridTest.keyboard.nextLine();
         plot.startIterator();

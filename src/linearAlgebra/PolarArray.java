@@ -52,12 +52,10 @@ public final class PolarArray {
 	 */
 	public static double[][][] createSphere(int nr, double iresT, double iresP){
 		double[][][] a = new double[nr][0][0];
-		for (int i=0; i<nr; ++i){
-			int ntp=2*(i+1)+1; 
-			a[i] = new double[(int)(iresT*ntp)][0];
-			for (int j=0; j<a[i].length; ++j){
-				// rectangular for iresP > 2, else triangular
-				a[i][j] = new double[(int)(j+1+(iresP-1)*(ntp-j))];		
+		for (int r=0; r<nr; ++r){
+			a[r] = new double[np(r,iresP)][0];
+			for (int p=0; p<a[r].length; ++p){
+				a[r][p] = new double[nt(r, p, iresT, iresP)];		
 			}
 		}
 		return a;
@@ -220,5 +218,72 @@ public final class PolarArray {
 			}
 		}
 		return max;
+	}
+	
+	/**
+	 * Computes a factor that scales the number of elements for increasing 
+	 * radius to keep element volume fairly constant.
+	 * 
+	 * @param r - radius.
+	 * @return - a scaling factor for a given radius.
+	 */
+	public static int s(int r){return 2*r+1;}
+	
+	/**
+	 * computes the number of elements in one triangle for radius r
+	 * 
+	 * @param r - radius
+	 * @param iresT - inner resolution in t direction
+	 * @return - the number of elements in one triangle for radius r.
+	 */
+	public static int sn(int r, double iresT){
+		return (int)(iresT*s(r)*(r+1));
+	}
+	
+	/**
+	 * @param r - radius.
+	 * @param iresP - inner resolution in p direction
+	 * @return - the number of rows for given radius.
+	 */
+	public static int np(int r, double iresP) {return (int)iresP*s(r);}
+	
+	/**
+	 * Computes the number of elements in row (r,p)
+	 * 
+	 * @param p - phi coordinate
+	 * @param np - number of rows
+	 * @param iresT - inner resolution in t direction
+	 * @param iresP - inner resolution in p direction
+	 * @return - the number of elements in row p
+	 */
+	public static int nt(int r, int p, double iresT, double iresP){
+		return (int)((p<s(r) ? p+1 : np(r,iresP)-p)*iresT);
+	}
+	
+	/**
+	 * computes the number of elements in a triangle until row p 
+	 * 
+	 * @param p - phi coordinate (row index)
+	 * @param iresT - inner resolution in t direction
+	 * @param iresP - inner resolution in p direction
+	 * @return - number of cells in a triangle until row p
+	 */
+	public static int n(int r, int p, double iresT, double iresP){
+		return (int)(p==s(r) ? 0 
+			: p<s(r) ? 1.0/2*iresT*p*(p+1)
+			: -1/8.0*iresT*(np(r,iresP)-2*p)*(3*np(r,iresP)-2*p+2));
+	}
+	
+	/**
+	 * computes the number of elements in the whole matrix until and including 
+	 * matrix-slice r
+	 * 
+	 * @param r - radius
+	 * @param iresP - inner resolution in p direction
+	 * @param iresT - inner resolution in t direction
+	 * @return - the number of grid cells until and including matrix r
+	 */
+	public static int N(int r, double iresT, double iresP){
+		return (int)(1.0/6*iresT*iresP*(r+1)*(r+2)*(4*r+3));
 	}
 }

@@ -2,7 +2,7 @@ package test.plotting;
 
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.HashSet;
 
 import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
@@ -114,7 +114,6 @@ public class PolarGridPlot3D {
         for ( grid.resetIterator(); grid.isIteratorValid();
         		grid.iteratorNext())
         {
-//        	int[] state = linearAlgebra.Vector.copy(current);
         	setColorAll(false);
         	universe.getViewer().getView().repaint();
         	System.out.println("press enter to step iterator");
@@ -139,6 +138,7 @@ public class PolarGridPlot3D {
 		Appearance ap = new Appearance();
 		PolygonAttributes myPA = new PolygonAttributes( );
 		myPA.setCullFace( PolygonAttributes.CULL_NONE );
+		myPA.setBackFaceNormalFlip(true);
 		myPA.setPolygonMode( PolygonAttributes.POLYGON_LINE);
 		myPA.setCapability(PolygonAttributes.ALLOW_MODE_WRITE);
 		myPA.setCapability(PolygonAttributes.ALLOW_MODE_READ);
@@ -157,19 +157,22 @@ public class PolarGridPlot3D {
     	for ( grid.resetNbhIterator(); 
 				grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
 		{
-    		LinkedList<int[]> nbhq=grid.getCurrentNeighborQueue();
+    		HashSet<int[]> nbhq=grid.getCurrentNeighborSet();
     		for (int[] nbh_i : nbhq){
-    			System.out.println(Arrays.toString(grid.iteratorCurrent())+"  "
-    					+Arrays.toString(nbh_i)+"  "+(grid.coord2idx(nbh_i)-1));
     			int idx=grid.coord2idx(nbh_i)-1;
     			if (idx>=0 && idx<grid.length()){  // ignore boundaries for the moment
     				setColor(idx,reset,false);
+        			System.out.println(Arrays.toString(grid.iteratorCurrent())+"  "
+        					+Arrays.toString(nbh_i)+"  "+idx);
+        			universe.getViewer().getView().repaint();
     			}
     		}
 		}
+        
 	}
 	
 	private void setColor(int idx, boolean reset, boolean isCurrent){
+		int b = 10;  // pause to get changes updated (else strange errors happen) 
 		Sphere c = (Sphere)((TransformGroup)group.getChild(idx)).getChild(0);
     	Material cm = c.getAppearance().getMaterial();
     	Shape3D p = (Shape3D)polyGroup.getChild(idx);
@@ -177,13 +180,19 @@ public class PolarGridPlot3D {
     	Material pm = p.getAppearance().getMaterial();
 		if (reset){
 			pa.setPolygonMode( PolygonAttributes.POLYGON_LINE);
+			sleepUnsave(b);
 			cm.setEmissiveColor(green);
+			sleepUnsave(b);
 			pm.setEmissiveColor(red);
+			sleepUnsave(b);
 		}
 		else{
 			pa.setPolygonMode(PolygonAttributes.POLYGON_FILL);
+			sleepUnsave(b);
 			cm.setEmissiveColor(isCurrent ? red : blue);
+			sleepUnsave(b);
 			pm.setEmissiveColor(isCurrent ? red : blue);
+			sleepUnsave(b);
 		}
 	}
 	
@@ -294,5 +303,14 @@ public class PolarGridPlot3D {
 		}
 		
 		return qa;
+	}
+	
+	private void sleepUnsave(int millis){
+		try {
+			Thread.sleep(millis); 
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
