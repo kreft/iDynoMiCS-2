@@ -1,4 +1,4 @@
-# Guide for developers
+# Coding
 
 Useful links:
 - [Java code conventions (Oracle)](http://www.oracle.com/technetwork/java/codeconventions-150003.pdf)
@@ -134,6 +134,18 @@ return booleanVariableOrExpression;
 This is a confusing aspect of Java, but worth learning the distinction. All data types with a lower-case name are [primitives](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html), and in iDynoMiCS we tend only to use `int`, `double` and `boolean` the vast majority of the time. On the other hand, data types in _CamelCase_ are [objects](https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html) and many familiar ones act as "wrappers" for primitives: `Integer`, `Double`, `Boolean`, and `String` (for `char`).
 
 
+# Teamwork
+
+Useful links:
+- [Atlassian Git Tutorial: Workflows](https://www.atlassian.com/git/tutorials/comparing-workflows)
+- [A Visual Git Reference](http://marklodato.github.io/visual-git-guide/index-en.html)
+- [Code Tuts+](http://code.tutsplus.com/tutorials/focusing-on-a-team-workflow-with-git--cms-22514)
+
 ## Using Git, GitHub and eGit
 
 ### Forking vs branching
+
+### Merging vs rebasing
+
+## Communication
+GitHub enables discussion of issues and aspects of specific code, but there's nothing quite like a face-to-face conversation to resolve these and more general topics. We hold a [Google hangout](https://hangouts.google.com/) roughly every week or two 
