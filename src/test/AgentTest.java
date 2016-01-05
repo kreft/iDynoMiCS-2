@@ -6,8 +6,8 @@ import org.w3c.dom.NodeList;
 import dataIO.PovExport;
 import dataIO.XmlLoad;
 import agent.Agent;
-import agent.Clade;
-import agent.CladeLib;
+import agent.Species;
+import agent.SpeciesLib;
 import idynomics.Compartment;
 import idynomics.Simulator;
 import utility.ExtraMath;
@@ -34,8 +34,8 @@ public class AgentTest {
 		for (int i = 0; i < speciesNodes.getLength(); i++) 
 		{
 			Element xmlSpecies = (Element) speciesNodes.item(i);
-			CladeLib.set(xmlSpecies.getAttribute("name"), 
-					new Clade(speciesNodes.item(i)));
+			SpeciesLib.set(xmlSpecies.getAttribute("name"), 
+					new Species(speciesNodes.item(i)));
 		}
 		
 		// cycle trough all compartments

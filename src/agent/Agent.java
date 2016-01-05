@@ -29,8 +29,13 @@ public class Agent implements StateObject
     /**
      * Used to fetch species states.
      * is set to the voidClade if non is set.
+     * FIXME Bas [12.12.15]: currently 'clade' is the ownly thing with a fixed 
+     * name from the xml file. Should we reserve a specific type of naming of
+     * states or events for hard coded stuff like this? It could be as simple as
+     * .clade, _clade or *clade. reserving all strings that start with the
+     * indication character.
      */
-    Clade clade;
+    Species species;
     
     /**
      * The compartment the agent is currently in
@@ -49,8 +54,8 @@ public class Agent implements StateObject
 	public Agent(Node xmlNode)
 	{
 		XmlLoad.loadStates(this, xmlNode);
-		if (getState("clade") != null)
-			clade = CladeLib.get((String) get("clade"));
+		if (getState("species") != null)
+			species = SpeciesLib.get((String) get("species"));
 	}
 	
 	/**
@@ -62,7 +67,7 @@ public class Agent implements StateObject
 	{
 		for (String key : agent._states.keySet())
 			this._states.put(key, agent.getState(key).copy());
-		clade = CladeLib.get((String) get("clade"));
+		species = SpeciesLib.get((String) get("species"));
 		this.compartment = agent.getCompartment();
 	}
 	
@@ -106,7 +111,7 @@ public class Agent implements StateObject
 		if (isLocalState(name))
 			return true;
 		else
-			return clade.isGlobalState(name);
+			return species.isGlobalState(name);
 	}
 	
 	/*
@@ -118,8 +123,8 @@ public class Agent implements StateObject
 	{
 		if (this.isLocalState(name))
 			return getState(name).get(this);
-		else if (clade.isLocalState(name))
-			return clade.getState(name).get(this);
+		else if (species.isLocalState(name))
+			return species.getState(name).get(this);
 		else
 			return null;
 	}

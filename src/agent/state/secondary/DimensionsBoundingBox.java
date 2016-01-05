@@ -7,6 +7,8 @@ import agent.state.State;
 
 public class DimensionsBoundingBox extends SecondaryState implements State {
 
+	// input: body, radius
+	
 	public void set(Object state)
 	{
 
@@ -14,7 +16,7 @@ public class DimensionsBoundingBox extends SecondaryState implements State {
 	
 	public Object get(Agent agent)
 	{
-		return ((Body) agent.get("body")).dimensions((double) agent.get("radius"));
+		return ((Body) agent.get(input[0])).dimensions((double) agent.get(input[1]));
 	}
 	
 	public State copy()

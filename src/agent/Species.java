@@ -8,7 +8,7 @@ import dataIO.XmlLoad;
 import agent.state.PrimaryState;
 import agent.state.State;
 
-public class Clade implements StateObject 
+public class Species implements StateObject 
 {
 	/**
 	 * The states HashMap stores all primary and secondary states.
@@ -18,19 +18,19 @@ public class Clade implements StateObject
 	/**
 	 * is set to the voidClade if non is set.
 	 */
-	protected Clade clade;
+	protected Species species;
 	
     /*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public Clade() {
+	public Species() {
 	}
 	
-	public Clade(Node xmlNode) {
+	public Species(Node xmlNode) {
 		XmlLoad.loadStates(this, xmlNode);
-		if (getState("parentClade") != null)
-			clade = CladeLib.get((String) getState("parentClade").get(null));
+		if (getState("parentSpecies") != null)
+			species = SpeciesLib.get((String) getState("parentSpecies").get(null));
 	}
 	
 	/*************************************************************************

@@ -1,6 +1,6 @@
 <simulation name="mySim" comments="this is a file for Agent testing">
-	<cladeLib>
-	<!-- species library
+	<speciesLib>
+	<!-- species/species library
 	The species library contains all agent species in the simulations. This may
 	include microbial species, plasmid and vector species, particle species etc.
 	
@@ -11,24 +11,24 @@
 	
 	small test
 	-->
-		<clade name="AOB">
+		<species name="AOB">
 			<state name="pigment" type="String" value="GREEN" />
 			<state name="morphology" type="String" value="coccoid"/>
-			<state name="joints" type="secondary" value="JointsState" input="" />
-			<state name="volume" type="secondary" value="SimpleVolumeState" input="" />
-			<state name="radius" type="secondary" value="CoccoidRadius" input="" />
-			<state name="lowerBoundingBox" type="secondary" value="LowerBoundingBox" input="" />
-			<state name="dimensionsBoundingBox" type="secondary" value="DimensionsBoundingBox" input="" />
+			<state name="joints" type="secondary" value="JointsState" input="body" />
+			<state name="volume" type="secondary" value="SimpleVolumeState" input="mass,density" />
+			<state name="radius" type="secondary" value="CoccoidRadius" input="volume" />
+			<state name="lowerBoundingBox" type="secondary" value="LowerBoundingBox" input="body,radius" />
+			<state name="dimensionsBoundingBox" type="secondary" value="DimensionsBoundingBox" input="body,radius" />
 			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
 			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
 			<!-- this has not been made yet, use a static growthrate for now -->
 			<state name="growthRate" type="double" value="0.08" />
-		</clade>
-	</cladeLib>
+		</species>
+	</speciesLib>
 	<compartment name="second" shape="rectangle">
 		<agents>
 			<agent>
-				<state name="clade" type="String" value="AOB" />
+				<state name="species" type="String" value="AOB" />
 				<state name="id" type="int" value="1" />
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
@@ -39,7 +39,7 @@
 				</state>
 			</agent>
 			<agent>
-				<state name="clade" type="String" value="AOB" />
+				<state name="species" type="String" value="AOB" />
 				<state name="id" type="int" value="2" />
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
@@ -50,7 +50,7 @@
 				</state>
 			</agent>
 			<agent>
-				<state name="clade" type="String" value="AOB" />
+				<state name="species" type="String" value="AOB" />
 				<state name="id" type="int" value="3" />
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />

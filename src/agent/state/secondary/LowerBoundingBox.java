@@ -6,6 +6,8 @@ import agent.state.SecondaryState;
 import agent.state.State;
 
 public class LowerBoundingBox extends SecondaryState implements State {
+	
+	//input body, radius
 
 	public void set(Object state)
 	{
@@ -14,7 +16,7 @@ public class LowerBoundingBox extends SecondaryState implements State {
 	
 	public Object get(Agent agent)
 	{
-		return ((Body) agent.get("body")).coord((double) agent.get("radius"));
+		return ((Body) agent.get(input[0])).coord((double) agent.get(input[1]));
 	}
 	
 	public State copy()

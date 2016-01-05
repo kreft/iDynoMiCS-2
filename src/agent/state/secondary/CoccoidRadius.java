@@ -6,6 +6,8 @@ import agent.state.State;
 import utility.ExtraMath;
 
 public class CoccoidRadius extends SecondaryState implements State {
+	
+	// input volume
 
 	public void set(Object state)
 	{
@@ -15,7 +17,7 @@ public class CoccoidRadius extends SecondaryState implements State {
 	public Object get(Agent agent)
 	{
 		// V = 4/3 Pi r^3
-		return ExtraMath.radiusOfASphere((double) agent.get("volume"));
+		return ExtraMath.radiusOfASphere((double) agent.get(input[0]));
 	}
 	
 	public State copy()

@@ -6,6 +6,8 @@ import agent.state.State;
 import linearAlgebra.Vector;
 
 public class ComponentVolumeState extends SecondaryState implements State {
+	
+	// input mass, density
 
 	public void set(Object state)
 	{
@@ -14,8 +16,8 @@ public class ComponentVolumeState extends SecondaryState implements State {
 	
 	public Object get(Agent agent)
 	{
-		return  Vector.dotQuotient((double[]) agent.get("mass"), 
-									(double[]) agent.get("density"));
+		return  Vector.dotQuotient((double[]) agent.get(input[0]), 
+									(double[]) agent.get(input[1]));
 	}
 	
 	public State copy()
