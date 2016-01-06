@@ -9,6 +9,7 @@ import boundary.Boundary;
 import boundary.BoundaryFixed;
 import grid.CartesianGrid;
 import grid.SpatialGrid;
+import grid.GridBoundary.ConstantDirichlet;
 import idynomics.Compartment;
 import linearAlgebra.Vector;
 
@@ -68,10 +69,14 @@ public class SpatialGridTest
 		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
 		aCompartment.addSolute("test");
 		Boundary xmin = new BoundaryFixed();
-		xmin.setGridMethod("test", Boundary.constantDirichlet(1.0));
+		ConstantDirichlet testXmin = new ConstantDirichlet();
+		testXmin.setValue(1.0);
+		xmin.setGridMethod("test", testXmin);
 		aCompartment.addBoundary("xmin", xmin);
 		Boundary xmax = new BoundaryFixed();
-		xmax.setGridMethod("test", Boundary.constantDirichlet(0.0));
+		ConstantDirichlet testXmax = new ConstantDirichlet();
+		testXmax.setValue(0.0);
+		xmax.setGridMethod("test", testXmax);
 		aCompartment.addBoundary("xmax", xmax);
 		aCompartment.init();
 		

@@ -133,6 +133,11 @@ return booleanVariableOrExpression;
 ## `int` vs `Integer`, `double` vs `Double`
 This is a confusing aspect of Java, but worth learning the distinction. All data types with a lower-case name are [primitives](https://docs.oracle.com/javase/tutorial/java/nutsandbolts/datatypes.html), and in iDynoMiCS we tend only to use `int`, `double` and `boolean` the vast majority of the time. On the other hand, data types in _CamelCase_ are [objects](https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html) and many familiar ones act as "wrappers" for primitives: `Integer`, `Double`, `Boolean`, and `String` (for `char`).
 
+## Use of `instanceof`
+
+## Everything should be possible to initialise through XML
+
+## Visualisation should be the same regardless of whether it's during the simulation or from results
 
 # Teamwork
 

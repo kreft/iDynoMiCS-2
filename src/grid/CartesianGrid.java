@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
+import grid.GridBoundary.GridMethod;
 import linearAlgebra.*;
 import idynomics.Compartment.BoundarySide;
 
