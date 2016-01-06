@@ -62,7 +62,7 @@ public class PolarGridPlot3D {
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 				current = grid.iteratorNext())
 		{
-//			System.out.println(Arrays.toString(current));
+			System.out.println(Arrays.toString(current));
 			if (centre) p = grid.getVoxelCentre(Vector.copy(current));
 			else p = grid.getVoxelOrigin(Vector.copy(current));
 //			System.out.println(Arrays.toString(p));
@@ -91,15 +91,15 @@ public class PolarGridPlot3D {
 	}
 	
 	public void runIterator(){
-    	int[] current;
+//    	int[] current;
     	long t;
-        for ( current = grid.resetIterator(); grid.isIteratorValid();
-        		current = grid.iteratorNext())
+        for ( grid.resetIterator(); grid.isIteratorValid();
+        		grid.iteratorNext())
         {
         	t=System.currentTimeMillis();
-        	int[] state = linearAlgebra.Vector.copy(current);
+//        	int[] state = linearAlgebra.Vector.copy(current);
         	setColorAll(false);
-        	grid.setCurrent(state);
+//        	grid.setCurrent(state);
         	try {
         		Thread.sleep(Math.max(0, 500-System.currentTimeMillis()+t));
         	} catch (InterruptedException e) {
@@ -111,10 +111,13 @@ public class PolarGridPlot3D {
     }
 	
 	public void startIterator(){
+//		int[] current;
         for ( grid.resetIterator(); grid.isIteratorValid();
         		grid.iteratorNext())
         {
+//        	int[] state = linearAlgebra.Vector.copy(current);
         	setColorAll(false);
+//        	grid.setCurrent(state);
         	universe.getViewer().getView().repaint();
         	System.out.println("press enter to step iterator");
         	CylindricalGridTest.keyboard.nextLine();
@@ -154,17 +157,17 @@ public class PolarGridPlot3D {
 	
 	private void setColorAll(boolean reset){
 		setColor(grid.iteratorCurrentIdx()-1,reset,true);
-    	for ( grid.resetNbhIterator(); 
-				grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
+    	for (int[] nbh = grid.resetNbhIterator(); 
+				grid.isNbhIteratorValid(); nbh=grid.nbhIteratorNext() )
 		{
-    		HashSet<int[]> nbhq=grid.getCurrentNeighborSet();
-    		for (int[] nbh_i : nbhq){
-    			int idx=grid.coord2idx(nbh_i)-1;
+//    		System.out.println(grid.nbhIteratorIsOutside());
+    		if (grid.nbhIteratorIsOutside()==null){
+    			int idx=grid.coord2idx(nbh)-1;
     			if (idx>=0 && idx<grid.length()){  // ignore boundaries for the moment
     				setColor(idx,reset,false);
-        			System.out.println(Arrays.toString(grid.iteratorCurrent())+"  "
-        					+Arrays.toString(nbh_i)+"  "+idx);
-        			universe.getViewer().getView().repaint();
+    				//        			System.out.println(Arrays.toString(grid.iteratorCurrent())+"  "
+    				//        					+Arrays.toString(nbh_i)+"  "+idx);
+    				universe.getViewer().getView().repaint();
     			}
     		}
 		}
@@ -229,6 +232,7 @@ public class PolarGridPlot3D {
 		}
 		else vector = new Vector3f((float)(p[0]*Math.sin(p[1])), 
 				(float)(p[0]*Math.cos(p[1])), (float)(p[2]));
+		System.out.println(Arrays.toString(p)+"  "+vector);
 		transform.setTranslation(vector);
 		tg.setTransform(transform);
 		return tg;

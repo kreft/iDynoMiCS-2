@@ -101,14 +101,6 @@ public class CylindricalGrid extends PolarGrid{
 		int nt = PolarArray.nt(	_nVoxel[0]-1, rs, _res[1][0], 1);
 		return _nt_rad/nt;
 	}
-
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getCoords(double[])
-	 */
-	@Override
-	public int[] getCoords(double[] loc) {
-		return getCoords(loc,null);
-	}
 	
 	public int[] getCoords(double[] loc, double[] inside) {
 		int[] coord = new int[3];
@@ -232,18 +224,23 @@ public class CylindricalGrid extends PolarGrid{
 		
 		bs = isOutside(coord,2);
 		if (bs==BoundarySide.ZMAX)
-			coord[2] = coord[2]%(_nVoxel[2]-2);
+			coord[2] = coord[2]%(_nVoxel[2]-1);
 		if (bs==BoundarySide.ZMIN)
 			coord[2] = _nVoxel[2]+coord[2];
 		
 		bs = isOutside(coord,1);
 		if (bs!=null){
-			double[] loc = getVoxelOrigin(coord);
-			loc[0] = coord[0];
-			System.out.println(Arrays.toString(coord)+" "+loc[1]);
-			loc[1] = loc[1]>=0 ? loc[1]%_nt_rad : _nt_rad+loc[1];
-			loc[2] = coord[2];
-			coord = getCoords(loc);
+			int nt=PolarArray.nt(
+					_nVoxel[0], PolarArray.s(coord[0])-1, _res[1][0], _res[2][0]);
+			switch (bs){
+			case YMAX: coord[1] = coord[1]%(nt-1); break;
+			case YMIN: coord[1] = nt+coord[2]; break;
+			case INTERNAL:
+				coord[1] = coord[1]%nt; 
+				if (coord[1] < 0) coord[1] += nt;
+				break;
+			default: throw new RuntimeException("unknown boundary side"+bs);
+			}
 		}
 		return coord;
 	}
@@ -262,8 +259,29 @@ public class CylindricalGrid extends PolarGrid{
 	 */
 	@Override
 	public double getCurrentNbhResSq() {
-		// TODO Auto-generated method stub
-		return 0;
+		double sA=0, t1_nbh, t2_nbh;
+//		boolean is_right, is_left, is_inBetween;
+//		t1_nbh = t-inside[1]*len_nbh;
+//		t2_nbh = t+(1-inside[1])*len_nbh;
+//		
+//		// t1 of nbh <= t1 of cc (right counter-clockwise)
+//		if (dr < 0){
+//			is_right = t1_nbh <= t1_cur;
+//			is_left = t2_nbh >= t2_cur;
+//			is_inBetween = is_left && is_right;
+//			len_s = len_cur;
+//		}else{
+//			is_right = t1_nbh < t1_cur;
+//			is_left = t2_nbh > t2_cur;
+//			is_inBetween = !(is_left || is_right);
+//			len_s = len_nbh;
+//		}
+//		
+//		if (is_inBetween) sA = 1;
+//		else if (is_right) sA = (t2_nbh-t1_cur)/len_s;
+//		else sA = (t2_cur-t1_nbh)/len_s; // is_left
+		
+		return sA;
 	}
 	
 	/* (non-Javadoc)
@@ -292,67 +310,95 @@ public class CylindricalGrid extends PolarGrid{
 				+(coord[1]+_res[1][0]*coord[0]*coord[0]+1));
 	}
 	
+//	/* (non-Javadoc)
+//	 * @see grid.PolarGrid#currentNbhIdxChanged()
+//	 */
+//	@Override
+//	public void currentNbhIdxChanged() {
+//		_subNbhSet.clear();
+//		if (isNbhIteratorValid()){ // only if inside boundaries
+//			if (_nbhIdx>3){ // moving in r
+//				int[] cc = _currentCoord, nbh;
+//				int dr = _nbhs[_nbhIdx][0];
+//				if (cc[0]>0 || dr>=0){
+//					double[] loc1=getLocation(cc,new double[]{0,0d,0d});
+//					double[] loc2=getLocation(cc,new double[]{0,1d,0d});
+//					double t1_cur = loc1[1], t2_cur = loc2[1], t1_nbh, t2_nbh;
+//					double[] inside=new double[3];
+//					boolean is_right, is_left, is_inBetween;
+//					double len_nbh = getArcLength(cc[0]+dr),
+//					       len_cur = t2_cur-t1_cur,
+//						   len_s;
+//					double sA;
+//					System.out.println(t1_cur+"  "+t2_cur+"  "+len_nbh);
+//					// until -dr*(len_nbh/10) to prevent rounding error ?
+//					for (double t=t1_cur; t<t2_cur+len_nbh;t+=len_nbh){
+//						nbh=getCoords(new double[]{
+//								loc1[0]+dr*_res[0][cc[0]+dr],
+//								t,loc1[2]},inside);
+//						
+//						t1_nbh = t-inside[1]*len_nbh;
+//						t2_nbh = t+(1-inside[1])*len_nbh;
+//						
+//						// t1 of nbh <= t1 of cc (right counter-clockwise)
+//						if (dr < 0){
+//							is_right = t1_nbh <= t1_cur;
+//							is_left = t2_nbh >= t2_cur;
+//							is_inBetween = is_left && is_right;
+//							len_s = len_cur;
+//						}else{
+//							is_right = t1_nbh < t1_cur;
+//							is_left = t2_nbh > t2_cur;
+//							is_inBetween = !(is_left || is_right);
+//							len_s = len_nbh;
+//						}
+//						
+//						if (is_inBetween) sA = 1;
+//						else if (is_right) sA = (t2_nbh-t1_cur)/len_s;
+//						else sA = (t2_cur-t1_nbh)/len_s; // is_left
+//						
+//						if (sA>=sA_th) _subNbhSet.add(nbh);
+//						
+//						System.out.println(t+"  "
+//								+Arrays.toString(nbh)+"  "+
+//								Arrays.toString(inside)+"  "+
+//								is_left+"  "+is_right+"  "+sA);
+//					}
+//				}else _subNbhSet.add(new int[]{-1,cc[1],cc[2]});
+//			}else{ // add the relative position to current index for constant r 
+//				_subNbhSet.add(Vector.add(
+//						Vector.copy(_currentCoord),_nbhs[_nbhIdx]));
+//			}
+//			
+//			transOrDeleteNbhsOutside();
+//		}
+//	}
+	
 	/* (non-Javadoc)
 	 * @see grid.PolarGrid#currentNbhIdxChanged()
 	 */
 	@Override
-	public void currentNbhIdxChanged() {
-		_nbhSet.clear();
-		if (isNbhIteratorValid()){ // only if inside boundaries
-			if (_nbhIdx>3){ // moving in r
-				int[] cc = _currentCoord, nbh;
-				int dr = _nbhs[_nbhIdx][0];
-				if (cc[0]>0 || dr>=0){
-					double[] loc1=getLocation(cc,new double[]{0,0d,0d});
-					double[] loc2=getLocation(cc,new double[]{0,1d,0d});
-					double t1_cur = loc1[1], t2_cur = loc2[1], t1_nbh, t2_nbh;
-					double[] inside=new double[3];
-					boolean is_right, is_left, is_inBetween;
-					double len_nbh = getArcLength(cc[0]+dr),
-					       len_cur = t2_cur-t1_cur,
-						   len_s;
-					double sA;
-					System.out.println(t1_cur+"  "+t2_cur+"  "+len_nbh);
-					// until -dr*(len_nbh/10) to prevent rounding error ?
-					for (double t=t1_cur; t<t2_cur+len_nbh;t+=len_nbh){
-						nbh=getCoords(new double[]{
-								loc1[0]+dr*_res[0][cc[0]+dr],
-								t,loc1[2]},inside);
-						
-						t1_nbh = t-inside[1]*len_nbh;
-						t2_nbh = t+(1-inside[1])*len_nbh;
-						
-						// t1 of nbh <= t1 of cc (right counter-clockwise)
-						if (dr < 0){
-							is_right = t1_nbh <= t1_cur;
-							is_left = t2_nbh >= t2_cur;
-							is_inBetween = is_left && is_right;
-							len_s = len_cur;
-						}else{
-							is_right = t1_nbh < t1_cur;
-							is_left = t2_nbh > t2_cur;
-							is_inBetween = !(is_left || is_right);
-							len_s = len_nbh;
-						}
-						
-						if (is_inBetween) sA = 1;
-						else if (is_right) sA = (t2_nbh-t1_cur)/len_s;
-						else sA = (t2_cur-t1_nbh)/len_s; // is_left
-						
-						if (sA>=sA_th) _nbhSet.add(nbh);
-						
-						System.out.println(t+"  "
-								+Arrays.toString(nbh)+"  "+
-								Arrays.toString(inside)+"  "+
-								is_left+"  "+is_right+"  "+sA);
-					}
-				}else _nbhSet.add(new int[]{-1,cc[1],cc[2]});
-			}else{ // add the relative position to current index for constant r 
-				_nbhSet.add(Vector.add(
-						Vector.copy(_currentCoord),_nbhs[_nbhIdx]));
-			}
-			
-			transOrDeleteNbhsOutside();
+	public void fillNbhSet() {
+		if (_nbhIdx>3){ // moving in r
+			int[] cc = _currentCoord;
+			int dr = _nbhs[_nbhIdx][0];
+			if (cc[0] + dr >= 0){
+				// _nVoxel[0] isntead of _nVoxel[0] - 1 to allow neighbors outside
+				double nt_cur=PolarArray.nt(
+						_nVoxel[0], PolarArray.s(cc[0])-1, _res[1][0], _res[2][0]);
+				double nt_nbh=PolarArray.nt(
+						_nVoxel[0], PolarArray.s(cc[0]+dr)-1, _res[1][0], _res[2][0]);
+				double drt=nt_nbh/nt_cur;
+//									System.out.println(nt_cur+" "+nt_nbh+" "+drt);
+//									System.out.println(cc[1]*drt+"  "+(cc[1]+1)*drt);
+				for (int t=(int)(cc[1]*drt);  t<(cc[1]+1)*drt; t++){
+//					System.out.println(t);
+					_subNbhSet.add(new int[]{cc[0]+dr,t,cc[2]+_nbhs[_nbhIdx][2]});
+				}
+			}else _subNbhSet.add(new int[]{-1,cc[1],cc[2]});
+		}else{ // add the relative position to current index for constant r 
+			_subNbhSet.add(Vector.add(
+					Vector.copy(_currentCoord),_nbhs[_nbhIdx]));
 		}
 	}
 	
@@ -363,7 +409,7 @@ public class CylindricalGrid extends PolarGrid{
 				return BoundarySide.INTERNAL;
 			if ( coord[0] >= this._nVoxel[0] )
 				return BoundarySide.CIRCUMFERENCE;
-			break;
+			return null;
 		case 1:
 			if ( coord[1] < 0 )
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
@@ -371,15 +417,14 @@ public class CylindricalGrid extends PolarGrid{
 					_nVoxel[0]-1, PolarArray.s(coord[0])-1, _res[1][0], _res[2][0]);
 			if ( coord[1] >= nt)
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
-			break;
+			return null;
 		case 2:
 			if ( coord[2] < 0 )
 				return BoundarySide.ZMIN;
 			if ( coord[2] >= this._nVoxel[2] )
 				return BoundarySide.ZMAX;
-			break;
-			default: throw new IllegalArgumentException("dim must be > 0 and < 3");
+			return null;
+		default: throw new IllegalArgumentException("dim must be > 0 and < 3");
 		}
-		return null;
 	}
 }

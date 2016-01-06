@@ -271,7 +271,7 @@ public final class PolarArray {
 	public static int n(int r, int p, double iresT, double iresP){
 		return (int)(p==s(r) ? 0 
 			: p<s(r) ? 1.0/2*iresT*p*(p+1)
-			: -1/8.0*iresT*(np(r,iresP)-2*p)*(3*np(r,iresP)-2*p+2));
+			: -1.0/8*iresT*(np(r,iresP)-2*p)*(3*np(r,iresP)-2*p+2));
 	}
 	
 	/**

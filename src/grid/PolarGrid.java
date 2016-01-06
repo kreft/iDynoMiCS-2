@@ -1,9 +1,9 @@
 package grid;
 
 import java.lang.instrument.IllegalClassFormatException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
@@ -21,15 +21,14 @@ public abstract class PolarGrid extends SpatialGrid {
 	// percentage of area that a neighbor needs to share with current coord
 	protected double sA_th = 0.25;
 	// current index of iterator and neighborhood iterator
-	protected int _nbhIdx, _idx;   
-	// used to block neighborhood iterator on multiple neighbors
-	protected boolean _isMultNbh;  
+	protected int _nbhIdx, _subNbhIdx, _idx;   
 	// array, pre-defining neighbors of a grid cell relative to the cell
 	protected int[][] _nbhs;
 	// _nVoxel[1] in radian -> length in theta, currently only multiples of Pi/2 
 	protected double _nt_rad;
 	
-	protected HashSet<int[]> _nbhSet = new HashSet<int[]>();
+	protected ArrayList<int[]> _subNbhSet = new ArrayList<int[]>();
+	
 
 	/**
 	 * @param nVoxel - length in each dimension
@@ -97,7 +96,7 @@ public abstract class PolarGrid extends SpatialGrid {
 		this._nt_rad = nVoxel[1]*Math.PI/180;
 		// determine inner resolution in theta automatically for all polarGrids
 		this._res[1][0] = PolarArray.computeIRES(nVoxel[0], _nt_rad);  
-		 // neighbours
+		 // neighbours (r,t,p)
 		_nbhs=new int[][]{{0,0,1},{0,0,-1},{0,1,0},{0,-1,0},{-1,-1,0},{1,1,0}};
 		resetIterator();
 		resetNbhIterator();
@@ -332,14 +331,29 @@ public abstract class PolarGrid extends SpatialGrid {
 		BoundarySide bSide = this.isOutside(this._currentNeighbor);
 		if ( bSide == null )
 			return null;
-		return this._boundaries.get(bSide);
+		GridMethod m = this._boundaries.get(bSide);
+		//TODO: throw IllegalAccessError ?
+		if (m==null){ 
+			System.err.println(
+				"trying to access non-existent boundary side "+bSide.toString());
+		}
+		return m;
 	}
 	
 	/**
 	 * updates the current neighbor coordinate
 	 * called when the neighborhood iterator was manipulated.
 	 */
-	public abstract void currentNbhIdxChanged();
+	public void currentNbhIdxChanged(){
+		_subNbhIdx=0;
+		_subNbhSet.clear();
+		fillNbhSet();
+//		if (_subNbhSet.isEmpty())
+//			nbhIteratorNext();
+		_currentNeighbor = _subNbhSet.get(0);
+	}
+	
+	public abstract void fillNbhSet();
 	
 	/**
 	 * converts (r,t,p) or (r,t,z) coordinates into an index 
@@ -400,7 +414,7 @@ public abstract class PolarGrid extends SpatialGrid {
 	 * @see grid.SpatialGrid#isIteratorValid()
 	 */
 	@Override
-	public boolean isIteratorValid() {return _idx<=length();}
+	public boolean isIteratorValid() {return _idx <= length();}
 	
 	/**
 	 * @return the current iterator index
@@ -436,29 +450,34 @@ public abstract class PolarGrid extends SpatialGrid {
 	 */
 	public int[] resetNbhIterator(){
 		_nbhIdx=0;
-		if ( this._currentNeighbor == null )
-			this._currentNeighbor = Vector.add(Vector.zerosInt(3),_nbhs[0]);
-		else
-			currentNbhIdxChanged();
+		currentNbhIdxChanged();
+		_currentNeighbor = transInternal(_currentNeighbor);
 		return _currentNeighbor;
 	}
 	
 	/* (non-Javadoc)
 	 * @see grid.SpatialGrid#isNbhIteratorValid()
 	 */
-	public boolean isNbhIteratorValid(){return _nbhIdx<_nbhs.length;}
+	public boolean isNbhIteratorValid(){
+		if (_subNbhIdx >= _subNbhSet.size()){
+			return _nbhIdx < _nbhs.length - 1;
+		}
+		return true;
+	}
 	
 	/* (non-Javadoc)
 	 * @see grid.SpatialGrid#nbhIteratorNext()
 	 */
 	public int[] nbhIteratorNext(){
-		_nbhIdx++;
-		currentNbhIdxChanged();
+		_subNbhIdx++;
+		if (_subNbhIdx < _subNbhSet.size()){ // subiterator has next
+			_currentNeighbor = _subNbhSet.get(_subNbhIdx);
+		}else{
+			_nbhIdx++;
+			if (_nbhIdx < _nbhs.length) currentNbhIdxChanged();
+		}
+		_currentNeighbor = transInternal(_currentNeighbor);
 		return _currentNeighbor;
-	}
-	
-	public HashSet<int[]> getCurrentNeighborSet(){
-		return _nbhSet;
 	}
 	
 	protected abstract BoundarySide isOutside(int[] coord, int dim);
@@ -493,34 +512,21 @@ public abstract class PolarGrid extends SpatialGrid {
 	}
 	
 	/**
-	 * Checks the current neighbor set for points outside the grid.
-	 * Performs cyclic transform for inside boundaries, removes all others.
+	 * Performs cyclic transform for inside boundaries.
 	 */
-	protected void transOrDeleteNbhsOutside(){
-		// stores coordinates to be removed
-		LinkedList<int[]> rem = new LinkedList<int[]>();
-		// stores transformed coordinates
-		LinkedList<int[]> trans = new LinkedList<int[]>(); 
+	protected int[] transInternal(int[] coord){
 		BoundarySide[] bsa = new BoundarySide[3];
-		for (int[] c : _nbhSet){
-			int nc=0, ic=0; // null counter and internal with r>=0 counter
-			bsa = getBoundarySides(c, bsa);
-			for (BoundarySide bs : bsa){
-				if (bs==null) nc++;
-				if (bs==BoundarySide.INTERNAL && c[0]>=0) ic++;
-			}
-			if (nc!=3) rem.add(c);  // not only null -> isOutside somewhere
-			if (nc+ic==3) {			
-				// only null and internal with r>=0 -> transform
-				c=cyclicTransform(c);
-				trans.add(c); 
-			}
+		int nc=0, ic=0; // null counter and internal with r>=0 counter
+		bsa = getBoundarySides(coord, bsa);
+		for (BoundarySide bs : bsa){
+			if (bs==null) nc++;
+			if (bs==BoundarySide.INTERNAL && coord[0]>=0) ic++;
 		}
-		// remove all marked elements
-		while(!rem.isEmpty()){_nbhSet.remove(rem.pop());}
-		
-		// add transformed elements
-		while(!trans.isEmpty()){_nbhSet.add(trans.pop());}
+		if (nc+ic==3) {			
+			// only null and internal with r>=0 -> transform
+			coord=cyclicTransform(coord);
+		}
+		return coord;
 	}
 	
 	/**
@@ -541,6 +547,14 @@ public abstract class PolarGrid extends SpatialGrid {
 	 */
 	public abstract double[] getLocation(int[] coord, double[] inside);
 	
+	/* (non-Javadoc)
+	 * @see grid.SpatialGrid#getCoords(double[])
+	 */
+	@Override
+	public int[] getCoords(double[] loc) {
+		return getCoords(loc,null);
+	}
+	
 	/**
 	 * Transforms a given location into array-coordinates and 
 	 * computes sub-coordinates inside the grid element if inside != null. 
@@ -555,7 +569,13 @@ public abstract class PolarGrid extends SpatialGrid {
 	 * @param x - any double
 	 * @return - rounded value with 1e-10 precision
 	 */
-	protected double round10(double x){return Math.round(x*1e5)*1e-5;}
+	protected double round10(double x){return Math.round(x*1e10)*1e-10;}
+	
+	/**
+	 * @param x - any double
+	 * @return - rounded value with 1e-100 precision
+	 */
+	protected double round100(double x){return Math.round(x*1e16)*1e-16;}
 
 	/*************************************************************************
 	 * REPORTING
