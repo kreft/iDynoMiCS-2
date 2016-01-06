@@ -4,6 +4,7 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
+import grid.GridBoundary.GridMethod;
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
