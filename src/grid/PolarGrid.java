@@ -5,9 +5,9 @@ import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
-import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.BoundarySide;
 
 public abstract class PolarGrid extends SpatialGrid {
 	int nbhIdx, idx;

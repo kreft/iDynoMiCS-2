@@ -4,11 +4,11 @@
 package boundary;
 
 import java.util.HashMap;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import generalInterfaces.CanPrelaunchCheck;
 import grid.GridBoundary.GridMethod;
 import shape.Shape;
 
@@ -17,7 +17,7 @@ import shape.Shape;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public class Boundary
+public class Boundary implements CanPrelaunchCheck
 {
 	/**
 	 * The shape this Boundary takes (e.g. Plane, Sphere).
@@ -111,27 +111,6 @@ public class Boundary
 		this._shape = aShape;
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param position
-	 * @return
-	 */
-	public boolean isOutside(double[] position)
-	{
-		return this._shape.isOutside(position);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param position
-	 * @return
-	 */
-	public double distance(double[] position)
-	{
-		return this._shape.distance(position);
-	}
 	
 	public void setGridMethod(String soluteName, GridMethod aMethod)
 	{
@@ -150,5 +129,15 @@ public class Boundary
 			return this._gridMethods.get(soluteName);
 		else
 			return this._defaultGridMethod;
+	}
+	
+	/*************************************************************************
+	 * PRE-LAUNCH CHECK
+	 ************************************************************************/
+	
+	public boolean isReadyForLaunch()
+	{
+		// TODO
+		return true;
 	}
 }

@@ -735,6 +735,188 @@ public final class Matrix
 			throw new IllegalArgumentException("Matrix must be square.");
 	}
 	
+	/**
+	 * \brief Check if the given <b>matrix</b> is composed of zeros.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code boolean} showing whether <b>matrix</b> is all zeros
+	 * (true) or contains a non-zero (false).
+	 * @see #isNonnegative(int[][])
+	 * @see #isZero(double[][])
+	 * @see #isZero(double[][], double)
+	 */
+	public static boolean isZero(int[][] matrix)
+	{
+		for ( int[] row : matrix )
+			for ( int element : row )
+				if ( element != 0 )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief Check if the given <b>matrix</b> is composed of zeros.
+	 * 
+	 * <p>Note that this method is vulnerable to numerical issues, i.e. values
+	 * that are extremely close to zero but not equal because of rounding.
+	 * Consider using {@link #isZero(double[][] matrix, double tolerance)}
+	 * instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved). 
+	 * @return {@code boolean} showing whether <b>matrix</b> is all zeros 
+	 * (true) or contains a non-zero (false).
+	 * @see #isZero(double[][], double)
+	 * @see #isNonnegative(double[][])
+	 * @see #isZero(int[][])
+	 */
+	public static boolean isZero(double[][] matrix)
+	{
+		for ( double[] row : matrix )
+			for ( double element : row )
+				if ( element != 0.0 )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief Check if the given <b>matrix</b> is composed of zeros.
+	 * 
+	 * <p>If confident that numerical issues can be ignored, consider using
+	 * {@link #isZero(double[][] matrix)} instead (slightly faster).</p>
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param tolerance {@code double} value for the absolute tolerance, i.e.
+	 * <i>|x<sub>i,j</sub>|</i> <= tolerance will be accepted as close enough
+	 * to zero (helps avoid numerical issues). 
+	 * @return {@code boolean} showing whether <b>matrix</b> is all zeros 
+	 * (true) or contains a non-zero (false).
+	 * @see #isZero(double[][])
+	 * @see #isNonnegative(double[][])
+	 * @see #isZero(int[][])
+	 */
+	public static boolean isZero(double[][] matrix, double tolerance)
+	{
+		for ( double[] row : matrix )
+			for ( double element : row )
+				if ( Math.abs(element) > tolerance )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief Check if all the elements of the given <b>matrix</b> are
+	 * non-negative, i.e. greater than or equal to zero.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code boolean} showing whether all elements or <b>vector</b> 
+	 * are >= 0 (true) or at least one is < 0 (false).
+	 * @see #isZero(int[][])
+	 * @see #isNonnegative(double[][])
+	 */
+	public static boolean isNonnegative(int[][] matrix)
+	{
+		for ( int[] row : matrix )
+			for ( int element : row )
+				if ( element < 0 )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief Check if all elements in a <b>matrix</b> are positive or zero.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code boolean} reporting whether the <b>vector</b> contains 
+	 * negative elements (false) or if all elements are greater than or equal
+	 * to zero (true).
+	 * @see #isZero(double[][])
+	 * @see #isZero(double[][], double)
+	 * @see #isNonnegative(int[][])
+	 */
+	public static boolean isNonnegative(double[][] matrix)
+	{
+		for ( double[] row : matrix )
+			for ( double element : row )
+				if ( element < 0.0 )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the two given matrices have the same elements, in the same
+	 * order.
+	 * 
+	 * @param a Two-dimensional array of {@code int}s (preserved).
+	 * @param b Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code boolean}: true if they are the same, false if at least
+	 * one element-element pair differs.
+	 * @see #areSame(double[][], double[][])
+	 */
+	public static boolean areSame(int[][] a, int[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				if ( a[i][j] != b[i][j] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the two given vectors have the same elements, in the same
+	 * order.
+	 * 
+	 * <p>Note that this method is vulnerable to numerical issues, i.e. values
+	 * that are extremely close together but not equal because of rounding.
+	 * Consider using 
+	 * {@link #areSame(double[][] a, double[][] b, double tolerance)}
+	 * instead.</p>
+	 * 
+	 * @param a Two-dimensional array of {@code double}s (preserved).
+	 * @param b Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code boolean}: true if they are the same, false if at least
+	 * one element-element pair differs.
+	 * @see #areSame(double[][], double[][], double)
+	 * @see #areSame(int[][], int[][])
+	 */
+	public static boolean areSame(double[][] a, double[][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				if ( a[i][j] != b[i][j] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the two given vectors have the same elements, in the same
+	 * order.
+	 * 
+	 * <p>If confident that numerical issues can be ignored, consider using
+	 * {@link #areSame(double[][] a, double[][] b)} instead (slightly faster).
+	 * </p>
+	 * 
+	 * @param a Two-dimensional array of {@code double}s (preserved).
+	 * @param b Two-dimensional array of {@code double}s (preserved).
+	 * @param tolerance {@code double} value for the absolute tolerance, i.e.
+	 * <i>|a<sub>i,j</sub> - b<sub>i,j</sub>|</i> <= tolerance will be accepted
+	 * as close enough to zero (helps avoid numerical issues). 
+	 * @return {@code boolean}: true if they are the same, false if at least
+	 * one element-element pair differs.
+	 * @see #areSame(double[][], double[][])
+	 * @see #areSame(int[][], int[][])
+	 */
+	public static boolean areSame(double[][] a, double[][] b, double tolerance)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < rowDim(a); i++ )
+			for ( int j = 0; j < colDim(a); j++ )
+				if ( Math.abs(a[i][j] - b[i][j]) > tolerance )
+					return false;
+		return true;
+	}
+	
 	/*************************************************************************
 	 * BASIC ARTHIMETIC
 	 ************************************************************************/

@@ -2,9 +2,9 @@ package grid;
 
 import java.util.HashMap;
 
-import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.BoundarySide;
 
 /**
  * @author qwer
@@ -126,7 +126,7 @@ public class CylindricalGrid extends PolarGrid{
 		if ( coord[0] < 0 )
 			return BoundarySide.INTERNAL;
 		if ( coord[0] >= this._nVoxel[0] )
-			return BoundarySide.CIRCUMFERENCE;
+			return BoundarySide.RMAX;
 		if ( coord[1] < 0 )
 			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
 		if ( coord[1] >= _res[1][0]*(2*coord[0]-1) )
