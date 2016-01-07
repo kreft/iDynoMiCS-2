@@ -3,11 +3,14 @@
  */
 package test;
 
+import org.w3c.dom.Node;
+
 import boundary.*;
 import grid.CartesianGrid;
+import grid.GridBoundary;
+import grid.GridBoundary.*;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SpatialGrid.GridMethod;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
@@ -69,10 +72,14 @@ public class PDEtest
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
 		Boundary xmin = new BoundaryFixed();
-		xmin.setGridMethod("fall", Boundary.constantDirichlet(1.0));
+		ConstantDirichlet fallXmin = new ConstantDirichlet();
+		fallXmin.setValue(1.0);
+		xmin.setGridMethod("fall", fallXmin);
 		aCompartment.addBoundary("xmin", xmin);
 		Boundary xmax = new BoundaryFixed();
-		xmax.setGridMethod("rise", Boundary.constantDirichlet(1.0));
+		ConstantDirichlet riseXmax = new ConstantDirichlet();
+		riseXmax.setValue(1.0);
+		xmin.setGridMethod("rise", riseXmax);
 		aCompartment.addBoundary("xmax", xmax);
 		//TODO diffusivities
 		aCompartment.init();
@@ -118,11 +125,16 @@ public class PDEtest
 		
 		GridMethod aGridMethod = new GridMethod()
 		{
+			public void init(Node xmlNode)
+			{
+				
+			}
+			
 			@Override
 			public double getBoundaryFlux(SpatialGrid grid)
 			{
 				int[] current = grid.iteratorCurrent();
-				return Boundary.calcFlux(
+				return GridBoundary.calcFlux(
 								Vector.sum(current)/4.0, 
 								grid.getValueAtCurrent(ArrayType.CONCN),
 								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),

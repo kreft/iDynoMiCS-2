@@ -5,9 +5,11 @@ package boundary;
 
 import java.util.HashMap;
 
-import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
-import grid.SpatialGrid.GridMethod;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import grid.GridBoundary.GridMethod;
 import shape.Shape;
 
 /**
@@ -23,12 +25,15 @@ public class Boundary
 	protected Shape _shape;
 	
 	/**
-	 * 
+	 * The grid method this boundary should use for any variable that is not
+	 * named in the dictionary {@link #_gridMethods}. 
 	 */
 	protected GridMethod _defaultGridMethod;
 	
 	/**
-	 * TODO Bas [09.12.15] different solutes may have different gridmethods?
+	 * Dictionary of grid methods that this boundary should use for each
+	 * variable (e.g. a solute). If a variable is not in this list, use the
+	 * default, {@link #_defaultGridMethod}, instead.
 	 */
 	protected HashMap<String,GridMethod> _gridMethods = 
 											new HashMap<String,GridMethod>();
@@ -44,6 +49,42 @@ public class Boundary
 	public Boundary()
 	{
 		
+	}
+	
+	public void init(Node xmlNode)
+	{
+		Element xmlBoundary = (Element) xmlNode;
+		Element xmlGrid;
+		String variableName, className;
+		GridMethod aGridMethod;
+		NodeList gridNodes = xmlBoundary.getElementsByTagName("gridMethods");
+		for ( int i = 0; i < gridNodes.getLength(); i++ )
+		{
+			xmlGrid = (Element) gridNodes.item(i);
+			className = xmlGrid.getAttribute("class");
+			try
+			{
+				aGridMethod = (GridMethod) Class.forName(className).newInstance();
+				aGridMethod.init(xmlGrid);
+				if ( xmlGrid.hasAttribute("variable") )
+				{
+					variableName = xmlGrid.getAttribute("variable");
+					this._gridMethods.put(variableName, aGridMethod);
+				}
+				else
+					this._defaultGridMethod = aGridMethod;
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 	}
 	
 	/*************************************************************************
@@ -109,63 +150,5 @@ public class Boundary
 			return this._gridMethods.get(soluteName);
 		else
 			return this._defaultGridMethod;
-	}
-	
-	/*************************************************************************
-	 * COMMON GRIDMETHODS
-	 ************************************************************************/
-	
-	public static double calcFlux(double bndryConcn, double gridConcn,
-										double diffusivity, double surfaceArea)
-	{
-		return (bndryConcn - gridConcn) * diffusivity * surfaceArea;
-	}
-	
-	public static GridMethod constantDirichlet(double value)
-	{
-		return new GridMethod()
-		{
-			@Override
-			public double getBoundaryFlux(SpatialGrid grid)
-			{
-				return calcFlux(value, 
-								grid.getValueAtCurrent(ArrayType.CONCN),
-								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),
-								grid.getNbhSharedSurfaceArea());
-			}
-		};
-	}
-	
-	public static GridMethod constantNeumann(double gradient)
-	{
-		return new GridMethod()
-		{
-			public double getBoundaryFlux(SpatialGrid grid)
-			{
-				return gradient;
-			}
-			
-		};
-	}
-	
-	public static GridMethod zeroFlux()
-	{
-		return constantNeumann(0.0);
-	}
-	
-	public static GridMethod cyclic()
-	{
-		return new GridMethod()
-		{
-			public double getBoundaryFlux(SpatialGrid grid)
-			{
-				int[] nbh = grid.cyclicTransform(grid.neighborCurrent());
-				double d = 0.5*(grid.getValueAtCurrent(ArrayType.DIFFUSIVITY)+
-								 grid.getValueAt(ArrayType.DIFFUSIVITY, nbh));
-				return calcFlux(grid.getValueAt(ArrayType.CONCN, nbh),
-								grid.getValueAtCurrent(ArrayType.CONCN),
-								d, grid.getNbhSharedSurfaceArea());
-			}
-		};
 	}
 }

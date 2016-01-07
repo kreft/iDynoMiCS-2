@@ -1230,6 +1230,21 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param vector
+	 * @param indices
+	 */
+	public static void subsetTo(double[] destination, double[] vector,
+																int[] indices)
+	{
+		checkLengths(destination, indices);
+		for ( int i = 0; i < indices.length; i++ )
+			destination[i] = vector[indices[i]];
+	}
+	
+	/**
 	 * \brief Take a subset of the given <b>vector</b> and return it as a new
 	 * vector.
 	 * 
@@ -1240,8 +1255,7 @@ public final class Vector
 	public static double[] subset(double[] vector, int[] indices)
 	{
 		double[] out = new double[indices.length];
-		for ( int i = 0; i < out.length; i++ )
-			out[i] = vector[indices[i]];
+		subsetTo(out, vector, indices);
 		return out;
 	}
 	

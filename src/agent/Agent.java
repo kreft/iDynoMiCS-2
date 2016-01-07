@@ -48,7 +48,7 @@ public class Agent implements StateObject
 	
 	public Agent()
 	{
-
+		
 	}
 	
 	public Agent(Node xmlNode)
