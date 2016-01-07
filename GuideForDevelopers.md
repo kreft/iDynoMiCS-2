@@ -139,6 +139,11 @@ This is a confusing aspect of Java, but worth learning the distinction. All data
 
 ## Visualisation should be the same regardless of whether it's during the simulation or from results
 
+# Testing
+
+Useful links:
+- [Unit testing with JUnit](http://www.vogella.com/tutorials/JUnit/article.html)
+
 # Teamwork
 
 Useful links:
