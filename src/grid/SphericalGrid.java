@@ -1,13 +1,13 @@
 package grid;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.function.IntFunction;
 
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
-import linearAlgebra.Vector;
 
 /**
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
@@ -16,6 +16,9 @@ import linearAlgebra.Vector;
  */
 public class SphericalGrid extends PolarGrid{
 	protected double _np_rad;
+	// needs to be changed if resolution in p or t changes 
+	// (should resolution be dynamically? -> implement event) 
+	private double ipt, iptsq; 
 	
 	/**
 	 * @param nVoxel - length in each dimension
@@ -56,6 +59,8 @@ public class SphericalGrid extends PolarGrid{
 		// inner resolution, depending on length in r and p
 		this._res[2][0]=PolarArray.computeIRES(_nVoxel[0], _np_rad);
 		this._nVoxel[2] = _nVoxel[2]%181; // phi periodic in 1..180
+		ipt=_res[1][0]*_res[2][0]; 
+		iptsq = ipt*ipt;
 	}
 	
 	/* (non-Javadoc)
@@ -122,6 +127,7 @@ public class SphericalGrid extends PolarGrid{
 	 * @see grid.PolarGrid#getLocation(int[], double[])
 	 */
 	public double[] getLocation(int[] coord, double[] inside){
+		if (inside==null) inside=new double[]{0.0,0.0,0.0};
 		
 		double length_p=PolarArray.np(coord[0], _res[2][0]);
 		double length_t=PolarArray.nt(coord[0], coord[1], _res[1][0], _res[2][0]);
@@ -206,6 +212,19 @@ public class SphericalGrid extends PolarGrid{
 //		return coord;
 //	}
 	
+	public static BigDecimal sqrt(BigDecimal A, final int SCALE) {
+	    BigDecimal x0 = new BigDecimal("0");
+	    BigDecimal x1 = new BigDecimal(Math.sqrt(A.doubleValue()));
+	    while (!x0.equals(x1)) {
+	        x0 = x1;
+	        x1 = A.divide(x0, SCALE, RoundingMode.HALF_UP);
+	        x1 = x1.add(x0);
+	        x1 = x1.divide(BigDecimal.valueOf(2), SCALE, RoundingMode.HALF_UP);
+
+	    }
+	    return x1;
+	}
+	
 	/* (non-Javadoc)
 	 * @see grid.PolarGrid#idx2coord(int, int[])
 	 */
@@ -218,21 +237,59 @@ public class SphericalGrid extends PolarGrid{
 				iresP=_res[2][0],
 				ipt=iresP*iresT,
 				iptsq=ipt*ipt,
-				ipttr=iptsq*ipt;
+				ipttr=iptsq*ipt,
+				iptqu=iptsq*iptsq,
+				iptpe=iptsq*ipttr,
+				iptse=ipttr*ipttr;
+//		
+//		double x = Math.pow(
+//					iptsq*(2*Math.sqrt(-75*iptsq-5832*ipt*idx+46656*idx*idx)-27*ipt+432*idx)
+//				,1.0/3);
+//		double rd = (1.0/12)*(-3+(7*a*a*ipt) / x + (a*x) / ipt);
 		
-		double x = Math.pow(
-							- 27 * ipttr
-							+ 432 * iptsq * idx
-							+ 2 * Math.sqrt(3) * Math.sqrt(
-									- 25 * ipttr * ipttr
-									- 1944 * ipttr * iptsq * idx
-									+ 15552 * iptsq * iptsq * idx * idx
-								)
-							,1.0/3);
+//		double iresT=_res[1][0],
+//				iresP=_res[2][0],
+////				x=Math.pow(-27*ipttr+432*iptsq*idx+3.4641
+////						*Math.sqrt(-25*iptsq-1944*iptpe*idx+15552*iptqu*idx*idx),1.0/3);
+//				x=Math.pow(-27*ipt*(-0.1283*
+//						Math.sqrt(-1944*iptsq*idx*(ipt-8*idx)-25)
+//						+iptsq-16*ipt*idx),1.0/3);
+//		
+//		double rd = (-1.25+(1.21338*ipt)/x+(0.120187*x)/ipt);
 		
-		double rd = (
-					(7*ipt) / (4*Math.pow(3,1.0/3) * x) + x
-					/ (4*Math.pow(3,2.0/3)*ipt) - 1.0/4);
+//		double x=-82944*ipttr+1.3271e7*iptsq*idx-1.3271e7*iptsq;
+//		
+//		double rd  = -1.25+(17.6389*ipt)/Math.pow(x+Math.sqrt(x*x-9.71086e10*iptse),1.0/3)
+//				+(0.00826771*Math.pow(x+Math.sqrt(x*x-9.71086e10*iptse),1.0/3))/ipt;
+		
+		double x=Math.pow(-27*ipttr+432*iptsq*idx+3.4641
+				*Math.sqrt(-25*iptse-1944*iptpe*idx+15552*iptqu*idx*idx),1.0/3);
+		
+		double rd = (1.21338*ipt)/x + (0.120187*x)/ipt - 0.25;
+		
+//		if (idx==760 || idx==2976)
+//			rd++;
+		
+//		System.out.println(idx+"  "+rd+"  "+x);
+		
+//		double pt=iresT*iresP;
+//		double rd = 1.0/2*(Math.sqrt((8*idx)/iresT+1)-1);
+		
+//		double x = Math.pow(
+//							- 27 * ipttr
+//							+ 432 * iptsq * idx
+//							+ 2 * Math.sqrt(3) * iptsq * Math.sqrt(idx*idx*(
+//									- (25 *iptsq)/(idx*idx)
+//									- (1944 * ipt) / idx
+//									+ 15552)
+//								)
+//							,1.0/3);
+		
+//		double rd = (
+//					(7*ipt) / (4*Math.pow(3,1.0/3) * x) + x
+//					/ (4*Math.pow(3,2.0/3)*ipt) - 1.0/4);
+		
+//		System.out.println(1.0/4*Math.sqrt((8*idx)/(ipt)+1)-3.0/4);
 		
 //		double ipt=iresP*iresT,
 //				iptsq=ipt*ipt,
@@ -249,7 +306,6 @@ public class SphericalGrid extends PolarGrid{
 //		System.out.println(x+"  "+rd);
 		
 		int r=(int)rd;
-		int s = PolarArray.s(r);
 		// index starting with 1 in this r slice
 		int idxr=idx-PolarArray.N(r-1,iresT,iresP); 
 		// number of rows
@@ -266,19 +322,14 @@ public class SphericalGrid extends PolarGrid{
 		// r-coordinate
 		coord[0]=r;
 		// p-coordinate (column)
-		IntFunction<Integer> rsup = new IntFunction<Integer>() {
-			@Override
-			public Integer apply(int idxo) {
-				return (int)Math.ceil(1.0/2*(Math.sqrt(8*idxo/iresT+1)-3));
-			}
-		};
-
-		if (is_right) coord[1]=np-rsup.apply(idxor)-1;
-		else coord[1]=rsup.apply(idxo);
+		if (is_right) coord[1]=np-(int)Math.ceil(1.0/2*(Math.sqrt(8*idxor/iresT+1)-3))-1;
+		else coord[1]=(int)Math.ceil(1.0/2*(Math.sqrt(8*idxo/iresT+1)-3));
+		
 		// t-coordinate (row)
 		int n_prev = PolarArray.n(r, coord[1], iresT, iresP);
 //		System.out.println(idx+"  "+n_prev+" "+PolarArray.nt(coord[0], coord[1], iresT, iresP));
 		coord[2] = idxo-n_prev-1;
+//		System.out.println(idx+Arrays.toString(coord));
 //		if (is_right) 
 //			coord[2]=PolarArray.nt(coord[0], coord[1], iresT, iresP)-coord[2];
 		return coord;
@@ -291,6 +342,7 @@ public class SphericalGrid extends PolarGrid{
 	public void fillNbhSet() {
 		int[] cc = _currentCoord;
 		double iresT=_res[1][0], iresP=_res[2][0];
+//		System.out.println(Arrays.toString(cc));
 		if (_nbhIdx>3){ // moving in r
 			int dr = _nbhs[_nbhIdx][0];
 			if (cc[0] + dr >= 0){
@@ -303,7 +355,7 @@ public class SphericalGrid extends PolarGrid{
 				for (int p=(int)(cc[1]*drp);  p<(cc[1]+1)*drp; p++){
 					nt_nbh=PolarArray.nt(cc[0] + dr, p, iresT, iresP);
 					drt=nt_nbh/nt_cur;
-					System.out.println(Arrays.toString(cc)+"  "+drt+" "+nt_nbh+" "+nt_cur);
+//					System.out.println(drt+" "+nt_nbh+" "+nt_cur);
 					for (int t=(int)(cc[2]*drt);  t<(cc[2]+1)*drt; t++){
 						_subNbhSet.add(new int[]{cc[0]+dr,p,t});
 					}
@@ -311,12 +363,12 @@ public class SphericalGrid extends PolarGrid{
 			}else _subNbhSet.add(new int[]{-1,cc[1],cc[2]});
 		}else if (_nbhIdx<2){ // moving in p
 			int dp = _nbhs[_nbhIdx][2];
-			System.out.println(dp);
+//			System.out.println(dp);
 			if (cc[1] + dp >= 0){
 				double nt_cur=PolarArray.nt(cc[0], cc[1], iresT, iresP);
-				double nt_nbh=PolarArray.nt(cc[0], cc[1]+dp, iresT, 2);
+				double nt_nbh=PolarArray.nt(cc[0], cc[1]+dp, iresT, iresP);
 				double drt=nt_nbh/nt_cur;
-				System.out.println(Arrays.toString(cc)+"  "+drt+" "+nt_nbh+" "+nt_cur);
+//				System.out.println(drt+" "+nt_nbh+" "+nt_cur);
 				for (int t=(int)(cc[2]*drt);  t<(cc[2]+1)*drt; t++){
 					_subNbhSet.add(new int[]{cc[0],cc[1]+dp,t});
 				}

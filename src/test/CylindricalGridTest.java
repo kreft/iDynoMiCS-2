@@ -20,7 +20,7 @@ public class CylindricalGridTest {
 //				new int[]{5,360,3},
 //				new double[][]{{1,.5,.5,.5,.5},{1},{.5,2,1}});
 		CylindricalGrid gridp = new CylindricalGrid(
-				new int[]{30,360,1},
+				new int[]{3,360,1},
 				new double[]{1,1,1});
 		ArrayType type=ArrayType.CONCN;
 		gridp.newArray(type, 0);

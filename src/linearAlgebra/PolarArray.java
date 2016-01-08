@@ -257,7 +257,9 @@ public final class PolarArray {
 	 * @return - the number of elements in row p
 	 */
 	public static int nt(int r, int p, double iresT, double iresP){
-		return (int)((p<s(r) ? p+1 : np(r,iresP)-p)*iresT);
+		int np=np(r,iresP);
+		// p>=np and p<0 need to be considered for neighbors
+		return (int)((((p<s(r) || p>=np) && p>=0) ? p+1 : np-p)*iresT);
 	}
 	
 	/**
@@ -284,6 +286,6 @@ public final class PolarArray {
 	 * @return - the number of grid cells until and including matrix r
 	 */
 	public static int N(int r, double iresT, double iresP){
-		return (int)(1.0/6*iresT*iresP*(r+1)*(r+2)*(4*r+3));
+		return (int)((iresT*iresP*(r+1)*(r+2)*(4*r+3))/6);
 	}
 }

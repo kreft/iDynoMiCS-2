@@ -27,8 +27,7 @@ public abstract class PolarGrid extends SpatialGrid {
 	// _nVoxel[1] in radian -> length in theta, currently only multiples of Pi/2 
 	protected double _nt_rad;
 	
-	protected ArrayList<int[]> _subNbhSet = new ArrayList<int[]>();
-	
+	protected ArrayList<int[]> _subNbhSet = new ArrayList<int[]>();	
 
 	/**
 	 * @param nVoxel - length in each dimension
@@ -98,8 +97,6 @@ public abstract class PolarGrid extends SpatialGrid {
 		this._res[1][0] = PolarArray.computeIRES(nVoxel[0], _nt_rad);  
 		 // neighbours (r,t,p)
 		_nbhs=new int[][]{{0,0,1},{0,0,-1},{0,1,0},{0,-1,0},{-1,-1,0},{1,1,0}};
-		resetIterator();
-		resetNbhIterator();
 	}
 
 	/* (non-Javadoc)

@@ -232,7 +232,7 @@ public class PolarGridPlot3D {
 		}
 		else vector = new Vector3f((float)(p[0]*Math.sin(p[1])), 
 				(float)(p[0]*Math.cos(p[1])), (float)(p[2]));
-		System.out.println(Arrays.toString(p)+"  "+vector);
+//		System.out.println(Arrays.toString(p)+"  "+vector);
 		transform.setTranslation(vector);
 		tg.setTransform(transform);
 		return tg;
