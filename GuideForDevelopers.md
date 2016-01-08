@@ -31,7 +31,7 @@ import idynomics.Compartment;
 ## Line lengths
 Please keep line lengths to a maximum of 80 characters wherever possible. This makes it easier to reading code on small screens, and to compare code side-by-side on one wider screen. To make this easier, you can set up Eclipse to show a margin guide:
 
-![Eclipse editor margin column](https://raw.githubusercontent.com/roughhawkbit/iDynoMiCS-2/master/Docs/EclipseEditorMarginColumn.png?token=ADJGIYWQONBU8-i50va29wgoIUCQFKAxks5WmNw5wA%3D%3D)
+![Eclipse editor margin column](https://raw.githubusercontent.com/roughhawkbit/iDynoMiCS-2/master/Docs/EclipseEditorMarginColumn.png?token=ADJGITdAOIqbkRZY34_4u0O0TC3sxxJ6ks5WmN2bwA%3D%3D)
 
 
 TODO wrapping lines
