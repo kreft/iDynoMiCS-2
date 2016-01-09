@@ -2,7 +2,6 @@ package test.plotting;
 
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.HashSet;
 
 import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
@@ -32,7 +31,7 @@ import com.sun.j3d.utils.universe.Viewer;
 import grid.PolarGrid;
 import grid.SphericalGrid;
 import linearAlgebra.Vector;
-import test.CylindricalGridTest;
+import test.PolarGridTest;
 
 public class PolarGridPlot3D {
 	BranchGroup group, polyGroup;
@@ -62,7 +61,7 @@ public class PolarGridPlot3D {
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 				current = grid.iteratorNext())
 		{
-			System.out.println(Arrays.toString(current));
+//			System.out.println(Arrays.toString(current));
 			if (centre) p = grid.getVoxelCentre(Vector.copy(current));
 			else p = grid.getVoxelOrigin(Vector.copy(current));
 //			System.out.println(Arrays.toString(p));
@@ -120,7 +119,7 @@ public class PolarGridPlot3D {
 //        	grid.setCurrent(state);
         	universe.getViewer().getView().repaint();
         	System.out.println("press enter to step iterator");
-        	CylindricalGridTest.keyboard.nextLine();
+        	PolarGridTest.keyboard.nextLine();
         	setColorAll(true);
         	universe.getViewer().getView().repaint();
         }
@@ -156,7 +155,7 @@ public class PolarGridPlot3D {
 	}
 	
 	private void setColorAll(boolean reset){
-		setColor(grid.iteratorCurrentIdx()-1,reset,true);
+		setColor(grid.coord2idx(grid.iteratorCurrent())-1,reset,true);
     	for (int[] nbh = grid.resetNbhIterator(); 
 				grid.isNbhIteratorValid(); nbh=grid.nbhIteratorNext() )
 		{

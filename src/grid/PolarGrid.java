@@ -2,6 +2,7 @@ package grid;
 
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.function.DoubleFunction;
@@ -18,10 +19,8 @@ import linearAlgebra.Vector;
  *
  */
 public abstract class PolarGrid extends SpatialGrid {
-	// percentage of area that a neighbor needs to share with current coord
-	protected double sA_th = 0.25;
 	// current index of iterator and neighborhood iterator
-	protected int _nbhIdx, _subNbhIdx, _idx;   
+	protected int _nbhIdx, _subNbhIdx;   
 	// array, pre-defining neighbors of a grid cell relative to the cell
 	protected int[][] _nbhs;
 	// _nVoxel[1] in radian -> length in theta, currently only multiples of Pi/2 
@@ -361,84 +360,47 @@ public abstract class PolarGrid extends SpatialGrid {
 	 */
 	public abstract int coord2idx(int[] coord);
 	
-	/**
-	 * converts an index into (r,t,p) or (r,t,z) coordinates.
-	 * (for SphericalGrid and CylindricalGrid, respectively). 
-	 * 
-	 * @param idx - an index starting from 1
-	 * @param coord - array of length 3 to write the result in, can be null.
-	 * @return - the corresponding (r,t,p) or (r,t,z) coordinate.
-	 */
-	public abstract int[] idx2coord(int idx, int[] coord);
-	
-	/**
-	 * converts current (r,t,p) or (r,t,z) coordinates into an index 
-	 * and updates the index (used when _currentCoord changed)
-	 */
-	public void currentCoordChanged() {
-		_idx = coord2idx(_currentCoord);
-	}
-	
-	/**
-	 * converts the current index into (r,t,p) or (r,t,z) coordinates.
-	 * and updates the current coordinate (used when _currentIdx changed)
-	 */
-	public void currentIdxChanged(){
-		_currentCoord=idx2coord(_idx, _currentCoord);
-	}
-	
-	/**
-	 * Used to manipulate the current coordinate. 
-	 * Sends a currentCoordChanged() event.
-	 * @param new_currentCoord the new current coordinate.
-	 */
-	public void setCurrent(int[] new_currentCoord){
-		_currentCoord=new_currentCoord;
-		currentCoordChanged();
-	}
-	
-	/**
-	 * Used to manipulate the current index. 
-	 * Sends a currentIdxChanged() event.
-	 * @param new_currentIdx the new current index.
-	 */
-	public void setCurrent(int new_currentIdx){
-		_idx=new_currentIdx;
-		currentIdxChanged();
-	}
-	
 	/* (non-Javadoc)
 	 * @see grid.SpatialGrid#isIteratorValid()
 	 */
 	@Override
-	public boolean isIteratorValid() {return _idx <= length();}
-	
-	/**
-	 * @return the current iterator index
-	 */
-	public int iteratorCurrentIdx(){return _idx;}
+	public boolean isIteratorValid() {return _currentCoord[0] < _nVoxel[0];}
 	
 	/* (non-Javadoc)
 	 * @see grid.SpatialGrid#resetIterator()
 	 */
-	@Override
-	public int[] resetIterator() {
-		_idx=1;
+	public int[] resetIterator()
+	{
 		if ( this._currentCoord == null )
 			this._currentCoord = Vector.zerosInt(3);
-		else{
-			currentIdxChanged();
-		}
+		else
+			for ( int i = 0; i < 3; i++ )
+				this._currentCoord[i] = 0;
 		return this._currentCoord;
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#iteratorNext()
+	protected abstract boolean iteratorExceeds(int axis);
+	
+	/**
+	 * TODO
+	 * 
+	 * @return int[3] coordinates of next position.
+	 * @exception IllegalStateException Iterator exceeds boundaries.
 	 */
-	@Override
-	public int[] iteratorNext() {
-		_idx++;
-		currentIdxChanged();
+	public int[] iteratorNext()
+	{
+		_currentCoord[2]++;
+		if ( this.iteratorExceeds(2) )
+		{
+			_currentCoord[2] = 0;
+			_currentCoord[1]++;
+			if ( this.iteratorExceeds(1) )
+			{
+				_currentCoord[1] = 0;
+				_currentCoord[0]++;
+			}
+		}
+//		System.out.println(Arrays.toString(_currentCoord));
 		return _currentCoord;
 	}
 	

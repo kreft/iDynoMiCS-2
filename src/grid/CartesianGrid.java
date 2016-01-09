@@ -53,7 +53,7 @@ public class CartesianGrid extends SpatialGrid
 			for ( int i = 0; i < this._nVoxel[dim]; i++ )
 				this._res[dim][i] = resolution;
 		}
-		this.calcMinVoxelVoxelSurfaceArea();
+//		this.calcMinVoxelVoxelSurfaceArea();
 	}
 
 	public CartesianGrid()

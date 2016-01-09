@@ -163,72 +163,16 @@ public class SphericalGrid extends PolarGrid{
 	 * @see grid.PolarGrid#length()
 	 */
 	public int length(){return PolarArray.N(_nVoxel[0]-1,_res[1][0],_res[2][0]);}
+		
 
-//	/* (non-Javadoc)
-//	 * @see grid.PolarGrid#idx2coord(int, int[])
-//	 */
-//	@Override
-//	public int[] idx2coord(int idx, int[] coord) {
-//		//TODO: make more variables than x?
-//		// idx=sn(r) solved for r with mathematica
-//		double x = Math.pow(-27*Math.pow(_res[2][0],3)*Math.pow(_res[1][0],3)
-//				+ 432*Math.pow(_res[2][0],2)*Math.pow(_res[1][0],2)*idx
-//				+ 2*Math.sqrt(3)*Math.sqrt(-25*Math.pow(_res[2][0],6)
-//				* Math.pow(_res[1][0],6)
-//				- 1944*Math.pow(_res[2][0],5)*Math.pow(_res[1][0],5)*idx
-//				+ 15552*Math.pow(_res[2][0],4)
-//				* Math.pow(_res[1][0],4)*idx*idx),1.0/3);
-//		int r = (int)(
-//					(7*_res[2][0]*_res[1][0]) / (4*Math.pow(3,1.0/3) * x) + x
-//					/ (4*Math.pow(3,2.0/3)*_res[2][0]*_res[1][0]) - 1.0/4);
-//		// index starting with 1 in this r slice
-//		int idxr=idx-sn(r-1); 
-//		// width and height of each triangle
-//		int npt=npt(r);
-//		// number of cells in each octand
-//		int nco=(r+1)*(2*r+1); 
-//		// index of octand in r slice
-//		int ioct=(int)Math.ceil((double)idxr/nco); 
-//		// does right array exist?
-//		boolean right_ex = _res[2][0] > 1;
-//		// left or right triangle in quadrant matrix (p=0 | p=90)
-//		boolean is_right=right_ex ? ioct%_res[2][0]==0 : false;
-//		// index starting with 1 in each octand
-//		int idxo=(idxr-1)%nco+1; 
-//		// p-coordinate (row)
-//		int p = (int)Math.ceil(1.0/2*(Math.sqrt(8*idxo+1)-3));
-//		// p-coordinate (column)
-//		int t = idxo-snt(p-1)-1;
-//		// transform  p and t to given octand
-//		if (is_right) {
-//			p=npt-p-1;
-//			t=npt-t;  // npr=ntr+1
-//		}
-//		p += right_ex ? ((int)Math.ceil((double)ioct/_res[2][0])-1)*npt 
-//				: (ioct-1)*npt;
-//		
-//		if (coord==null) coord = new int[]{r,t,p};
-//		else {coord[0]=r; coord[1]=p; coord[2]=t;}
-//		return coord;
-//	}
-	
-	public static BigDecimal sqrt(BigDecimal A, final int SCALE) {
-	    BigDecimal x0 = new BigDecimal("0");
-	    BigDecimal x1 = new BigDecimal(Math.sqrt(A.doubleValue()));
-	    while (!x0.equals(x1)) {
-	        x0 = x1;
-	        x1 = A.divide(x0, SCALE, RoundingMode.HALF_UP);
-	        x1 = x1.add(x0);
-	        x1 = x1.divide(BigDecimal.valueOf(2), SCALE, RoundingMode.HALF_UP);
-
-	    }
-	    return x1;
-	}
-	
-	/* (non-Javadoc)
-	 * @see grid.PolarGrid#idx2coord(int, int[])
+	/**
+	 * works only for r<=96 
+	 * 
+	 * @param idx
+	 * @param coord
+	 * @return
 	 */
-	@Override
+	@Deprecated
 	public int[] idx2coord(int idx, int[] coord) {
 		//TODO: make more variables than x?
 		// idx=N(r-1) solved for r with mathematica
@@ -236,75 +180,18 @@ public class SphericalGrid extends PolarGrid{
 		double iresT=_res[1][0],
 				iresP=_res[2][0],
 				ipt=iresP*iresT,
-				iptsq=ipt*ipt,
-				ipttr=iptsq*ipt,
-				iptqu=iptsq*iptsq,
-				iptpe=iptsq*ipttr,
-				iptse=ipttr*ipttr;
-//		
-//		double x = Math.pow(
-//					iptsq*(2*Math.sqrt(-75*iptsq-5832*ipt*idx+46656*idx*idx)-27*ipt+432*idx)
-//				,1.0/3);
-//		double rd = (1.0/12)*(-3+(7*a*a*ipt) / x + (a*x) / ipt);
+				iptsq=ipt*ipt;
 		
-//		double iresT=_res[1][0],
-//				iresP=_res[2][0],
-////				x=Math.pow(-27*ipttr+432*iptsq*idx+3.4641
-////						*Math.sqrt(-25*iptsq-1944*iptpe*idx+15552*iptqu*idx*idx),1.0/3);
-//				x=Math.pow(-27*ipt*(-0.1283*
-//						Math.sqrt(-1944*iptsq*idx*(ipt-8*idx)-25)
-//						+iptsq-16*ipt*idx),1.0/3);
-//		
-//		double rd = (-1.25+(1.21338*ipt)/x+(0.120187*x)/ipt);
+//		double x=Math.pow(-27*ipttr+432*iptsq*idx+3.4641
+//				*Math.sqrt(-25*iptse-1944*iptpe*idx+15552*iptqu*idx*idx),1.0/3);
+		double x=3.0*Math.pow(-iptsq*(
+					-0.1283*Math.sqrt(idx)*Math.sqrt(
+							-1944.0*ipt+15552.0*idx-(25.0*iptsq)/idx)
+					+ipt-16.0*idx),1.0/3);
 		
-//		double x=-82944*ipttr+1.3271e7*iptsq*idx-1.3271e7*iptsq;
-//		
-//		double rd  = -1.25+(17.6389*ipt)/Math.pow(x+Math.sqrt(x*x-9.71086e10*iptse),1.0/3)
-//				+(0.00826771*Math.pow(x+Math.sqrt(x*x-9.71086e10*iptse),1.0/3))/ipt;
-		
-		double x=Math.pow(-27*ipttr+432*iptsq*idx+3.4641
-				*Math.sqrt(-25*iptse-1944*iptpe*idx+15552*iptqu*idx*idx),1.0/3);
-		
-		double rd = (1.21338*ipt)/x + (0.120187*x)/ipt - 0.25;
-		
-//		if (idx==760 || idx==2976)
-//			rd++;
-		
-//		System.out.println(idx+"  "+rd+"  "+x);
-		
-//		double pt=iresT*iresP;
-//		double rd = 1.0/2*(Math.sqrt((8*idx)/iresT+1)-1);
-		
-//		double x = Math.pow(
-//							- 27 * ipttr
-//							+ 432 * iptsq * idx
-//							+ 2 * Math.sqrt(3) * iptsq * Math.sqrt(idx*idx*(
-//									- (25 *iptsq)/(idx*idx)
-//									- (1944 * ipt) / idx
-//									+ 15552)
-//								)
-//							,1.0/3);
-		
-//		double rd = (
-//					(7*ipt) / (4*Math.pow(3,1.0/3) * x) + x
-//					/ (4*Math.pow(3,2.0/3)*ipt) - 1.0/4);
-		
-//		System.out.println(1.0/4*Math.sqrt((8*idx)/(ipt)+1)-3.0/4);
-		
-//		double ipt=iresP*iresT,
-//				iptsq=ipt*ipt,
-//				x=-16*idx + ipt,
-//				a=iptsq*iptsq*(15552*idx*idx  - 1944*idx*ipt - 25*iptsq ),
-//				y=Math.sqrt(3)*Math.sqrt(a);
-//
-//		double rd = (-3 - (7*Math.pow(3,2.0/3)*ipt) 
-//						/ Math.pow(27*iptsq*x + 2*y, 1.0/3) 
-//						- Math.pow(81*iptsq*x + 6*y, 1.0/3) 
-//					/ ipt) / 12;
-		
-//		System.out.println(iptsq+"  "+x+"  "+y+"  "+a+"  "+rd);
-//		System.out.println(x+"  "+rd);
-		
+//		double rd = (1.21338*ipt)/x + (0.120187*x)/ipt - 0.25;
+		double rd = (7*ipt)/(4*Math.pow(3,1.0/3)*x) + x/(ipt*4*Math.pow(3,2.0/3)) - 0.25;
+		System.out.println(rd);
 		int r=(int)rd;
 		// index starting with 1 in this r slice
 		int idxr=idx-PolarArray.N(r-1,iresT,iresP); 
@@ -333,6 +220,21 @@ public class SphericalGrid extends PolarGrid{
 //		if (is_right) 
 //			coord[2]=PolarArray.nt(coord[0], coord[1], iresT, iresP)-coord[2];
 		return coord;
+	}
+	
+	/* (non-Javadoc)
+	 * @see grid.PolarGrid#iteratorExceeds(int)
+	 */
+	@Override
+	protected boolean iteratorExceeds(int axis) {
+		switch(axis){
+		case 0: return _currentCoord[0] >=  this._nVoxel[0];
+		case 1: return _currentCoord[1] 
+							>= PolarArray.np(_currentCoord[0], _res[2][0]);
+		case 2: return _currentCoord[2] >= PolarArray.nt(
+				_currentCoord[0], _currentCoord[1], _res[1][0], _res[2][0]);
+		default: throw new RuntimeException("0 < axis <= 3 not satisfied");
+		}
 	}
 
 	/* (non-Javadoc)
