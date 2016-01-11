@@ -52,3 +52,19 @@ Common boundary grid methods include:
 Procss managers work on the agent container and/or the environment container. Examples include, but are not limited to:
 - solving solute transport using a numerical solving algorithm (typically an ODE solver in a dimensionless compartment, and a PDE solver in all other compartment types) and querying agents for their impact on their local environment
 - stepping through agents in the agent container; these will often need to query their local environment during this process.
+
+
+
+
+
+
+
+
+
+
+
+
+## Notes
+
+### Relative diffusivity
+[This paper](http://journals.plos.org/plosone/article?id=10.1371/journal.pone.0146093) might be useful

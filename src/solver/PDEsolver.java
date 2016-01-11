@@ -3,9 +3,9 @@ package solver;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SpatialGrid.GridMethod;
 
 /**
  * \brief TODO
@@ -86,11 +86,11 @@ public abstract class PDEsolver extends Solver
 		 */
 		int[] current;
 		/*
-		 * Temporary storage for the L-Operator.
+		 * Temporary storage for the Laplace operator.
 		 */
 		double lop;
 		/*
-		 * Iterate over all core voxels calculating the L-Operator. 
+		 * Iterate over all core voxels calculating the Laplace operator. 
 		 */
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 											  current = grid.iteratorNext())

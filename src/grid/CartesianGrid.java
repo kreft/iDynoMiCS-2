@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
+import grid.GridBoundary.GridMethod;
 import linearAlgebra.*;
 import idynomics.Compartment.BoundarySide;
 
@@ -53,7 +54,7 @@ public class CartesianGrid extends SpatialGrid
 			for ( int i = 0; i < this._nVoxel[dim]; i++ )
 				this._res[dim][i] = resolution;
 		}
-//		this.calcMinVoxelVoxelSurfaceArea();
+		this.calcMinVoxelVoxelSurfaceArea();
 	}
 
 	public CartesianGrid()

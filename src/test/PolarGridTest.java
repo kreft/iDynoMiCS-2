@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 import boundary.Boundary;
+import boundary.BoundaryFixed;
 import grid.CylindricalGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SphericalGrid;
@@ -61,7 +62,7 @@ public class PolarGridTest {
 		
 		// add boundaries
 		for (BoundarySide bs : BoundarySide.values()){
-			gridp.addBoundary(bs, Boundary.constantDirichlet(0.0));
+			gridp.addBoundary(bs, new BoundaryFixed().getGridMethod(""));
 		}
 		
 		long t_start = System.currentTimeMillis();
