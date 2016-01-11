@@ -125,6 +125,14 @@ public final class ExtraMath
 	
 	/* ----------------------- Simple calculations ------------------------ */
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param x
+	 * @param y
+	 * @param absTol
+	 * @return
+	 */
 	public static final boolean areEqual(double x, double y, double absTol)
 	{
 		return Math.abs(x - y) < absTol;

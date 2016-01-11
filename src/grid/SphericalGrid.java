@@ -4,13 +4,18 @@ import java.util.HashMap;
 
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
+import linearAlgebra.Vector;
 
 /**
+ * \brief A grid with a spherical (r,t,p) coordinate system.
+ *  
+ * TODO Rob [11Jan2016]: radial, theta, phi? Let's use this convention:
+ * http://mathworld.wolfram.com/SphericalCoordinates.html
+ *  
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
- *
- *  A grid with a spherical (r,t,p) coordinate system.
  */
-public class SphericalGrid extends PolarGrid{
+public class SphericalGrid extends PolarGrid
+{
 	protected double _np_rad;
 	
 	/**
@@ -40,25 +45,43 @@ public class SphericalGrid extends PolarGrid{
 	/**
 	 * Constructs a Grid with lengths (1,90,90) -- one grid cell
 	 */
-	public SphericalGrid(){this(new int[]{1,90,90},new double[][]{{1},{1},{1}});}
+	public SphericalGrid()
+	{
+		this(new int[]{1, 90, 90}, new double[][]{{1.0}, {1.0}, {1.0}});
+	}
 	
 	/**
 	 * Shared constructor commands. Initializes all members.
 	 * 
 	 */
-	private void init(){
+	private void init()
+	{
 		// length in p in radians
-		this._np_rad = _nVoxel[2]*Math.PI/180;
+		this._np_rad = Math.toRadians( _nVoxel[2] );
 		// inner resolution, depending on length in r and p
 		this._ires[2]=PolarArray.ires(_nVoxel[0], _np_rad, _res[2][0]);
 		this._nVoxel[2] = _nVoxel[2]%181; // phi periodic in 1..180
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#newArray(grid.SpatialGrid.ArrayType, double)
-	 */
+	protected double[][] convertResolution(int[] nVoxel, double[] oldRes)
+	{
+		double [][] res = new double[3][0];
+		/*
+		 * The angular dimensions theta and TODO are set by
+		 * linearAlgebra.PolarArray, so we nVoxel here.
+		 */
+		res[0] = Vector.vector( nVoxel[0] , oldRes[0]);
+		/*
+		 * Just give res one value in the theta and TODO dimensions.
+		 */
+		for ( int i = 1; i < 3; i++ )
+			res[i] = Vector.vector( 1 , oldRes[i]);
+		return res;
+	}
+	
 	@Override
-	public void newArray(ArrayType type, double initialValues) {
+	public void newArray(ArrayType type, double initialValues)
+	{
 		/*
 		 * First check that the array HashMap has been created.
 		 */
@@ -125,9 +148,8 @@ public class SphericalGrid extends PolarGrid{
 	/* (non-Javadoc)
 	 * @see grid.PolarGrid#getLocation(int[], double[])
 	 */
-	public double[] getLocation(int[] coord, double[] inside){
-		if (inside==null) inside=new double[]{0.0,0.0,0.0};
-		
+	public double[] getLocation(int[] coord, double[] inside)
+	{
 		double length_p=np(coord[0]);
 		double length_t=nt(coord[0], coord[1]);
 		
@@ -147,15 +169,16 @@ public class SphericalGrid extends PolarGrid{
 	 * @see grid.SpatialGrid#getVoxelOrigin(int[])
 	 */
 	@Override
-	public double[] getVoxelOrigin(int[] coord) {
-		return getLocation(coord,null);
+	public double[] getVoxelOrigin(int[] coord)
+	{
+		return getLocation(coord, VOXEL_ORIGIN_HELPER);
 	}
 	
 	/* (non-Javadoc)
 	 * @see grid.SpatialGrid#getVoxelCentre(int[])
 	 */
 	public double[] getVoxelCentre(int[] coord){
-		return getLocation(coord,new double[]{0.5,0.5,0.5});
+		return getLocation(coord, VOXEL_CENTRE_HELPER);
 	}
 	
 	/* (non-Javadoc)

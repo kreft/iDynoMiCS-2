@@ -7,12 +7,12 @@ import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 
 /**
+ * \brief A grid with polar (r,t) coordinates and a cartesian z coordinate.
+ * 
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
- *
- * A grid with polar (r,t) coordinates and a cartesian z coordinate. 
  */
-public class CylindricalGrid extends PolarGrid{
-	
+public class CylindricalGrid extends PolarGrid
+{
 	/**
 	 * @param nVoxel - length in each dimension
 	 * @param resolution - Array of length 3,
@@ -42,9 +42,19 @@ public class CylindricalGrid extends PolarGrid{
 		this(new int[]{1,90,1},new double[][]{{1},{1},{1}});
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#newArray(grid.SpatialGrid.ArrayType, double)
-	 */
+	protected double[][] convertResolution(int[] nVoxel, double[] oldRes)
+	{
+		double [][] res = new double[3][0];
+		/*
+		 * The angular dimension theta is set by linearAlgebra.PolarArray, so
+		 * we deal with it separately.
+		 */
+		for ( int i = 0; i < 3; i += 2 )
+			res[i] = Vector.vector( nVoxel[i] , oldRes[i]);
+		res[1] = Vector.vector(1, oldRes[1]);
+		return res;
+	}
+	
 	@Override
 	public void newArray(ArrayType type, double initialValues) {
 		/*
@@ -75,29 +85,36 @@ public class CylindricalGrid extends PolarGrid{
 			this._array.put(type, array);
 		}
 	}
-
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getVoxelVolume(int[])
-	 */
+	
 	@Override
-	public double getVoxelVolume(int[] coord) {
-		double res_r=_res[0][coord[0]], res_z=_res[2][coord[2]];
-		// let A(r) be the area enclosed by a polar curve r=r(t):
-		// A(r)= 1/2 \int_t1^t2 r^2 dt
-		// then the voxel volume is \int_z^{z+res_z} A(r+res_r) - A(r) dz, or:
+	public double getVoxelVolume(int[] coord)
+	{
+		/*
+		 * TODO Rob [11Jan2016]: How do we avoid using coord[1]?
+		 */
+		double res_r = _res[0][coord[0]];
+		double res_z = _res[2][coord[2]];
+		/*
+		 * Let A(r) be the area enclosed by a polar curve r=r(t):
+		 * A(r)= 1/2 \int_t1^t2 r^2 dt
+		 * then the voxel volume is \int_z^{z+res_z} A(r+res_r) - A(r) dz, or:
+		 * 
+		 * TODO Rob [11Jan2016]: This is not terribly clear
+		 */
 		return 1.0/2*res_r*res_z*(2*coord[0]+res_r)*getArcLength(coord[0]);
 	}
 	
 	/**
-	 * returns the arc length of a grid element at radius r in radians
-	 * (assuming constant resolution in t)
+	 * \brief The arc length of a grid element at radius r in radians
+	 * (assuming constant resolution in theta).
 	 * 
 	 * @param r - the radius.
 	 * @return - the arc length of the grid elements at r+1.
 	 */
-	private double getArcLength(int r){
+	private double getArcLength(int r)
+	{
 		// r-coordinate to t coord in spherical grid
-		int rs=s(r)-1;
+		int rs = s(r)-1;
 		// number of elements in row r
 		int nt = nt(_nVoxel[0]-1, rs);
 		return _nt_rad/nt;
@@ -128,51 +145,50 @@ public class CylindricalGrid extends PolarGrid{
 		return coord;
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.PolarGrid#getLocation(int[], double[])
-	 */
-	public double[] getLocation(int[] coord, double[] inside){
-		double ri, ti, pi;
-		if (inside==null) {ri=0; ti=0; pi=0;}
-		else {ri=inside[0]; ti=inside[1]; pi=inside[2];}
-		
-		// determine r and z location (like in cartesian grid)
-		double r=0, z=0; 
-		for ( int i = 0; i < coord[0]; i++ ){
-			r += this._res[0][i];
-		}
-		for ( int i = 0; i < coord[2]; i++ ){
-			z += this._res[2][i];
-		}
-		r+=ri*this._res[0][coord[0]];
-		z+=pi*this._res[2][coord[2]];
-		// determine t location (dependent on r)
-		double t;
-		if (r==0) {
-			t = Math.min((coord[1]+ti)*(Math.PI/2),_nt_rad);
-		}else{
-			double l=getArcLength(coord[0]); // the length (degree) at r+1
-			if (r>0) t = (coord[1]+ti)*l;
-			//TODO: swap 180 degree if r<0 ?? or don't allow <0 ?  
-			else t = Math.abs((coord[1]+ti)*l)-Math.PI; 
-		}
-		return new double[]{r,t,z};
-	}
-
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getVoxelOrigin(int[])
-	 */
 	@Override
-	public double[] getVoxelOrigin(int[] coord) {
-		return getLocation(coord, null);
+	public double[] getLocation(int[] coord, double[] inside)
+	{
+		/*
+		 * Determine r and z location (like in cartesian grid)
+		 */
+		double r = 0.0;
+		double z = 0.0;
+		for ( int i = 0; i < coord[0]; i++ )
+			r += this._res[0][i];
+		for ( int i = 0; i < coord[2]; i++ )
+			z += this._res[2][i];
+		/* Include the inside modifier for r and z. */
+		r += inside[0] * this._res[0][coord[0]];
+		z += inside[2] * this._res[2][coord[2]];
+		/*
+		 * Determine the azimuthal location (dependent on radial).
+		 */
+		double t;
+		double ti = inside[1];
+		if ( r == 0.0 )
+			t = Math.min((coord[1]+ti)*(Math.PI/2),_nt_rad);
+		else
+		{
+			// the length (degree) at r+1
+			double l = getArcLength(coord[0]);
+			if ( r > 0.0 )
+				t = (coord[1]+ti)*l;
+			//TODO: swap 180 degree if r<0 ?? or don't allow <0 ?  
+			else
+				t = Math.abs((coord[1]+ti)*l)-Math.PI; 
+		}
+		return new double[] { r, t, z };
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getVoxelCentre(int[])
-	 */
+	@Override
+	public double[] getVoxelOrigin(int[] coord) {
+		return getLocation(coord, VOXEL_ORIGIN_HELPER);
+	}
+	
+	@Override
 	public double[] getVoxelCentre(int[] coord)
 	{
-		return getLocation(coord, new double[]{0.5,0.5,0.5});
+		return getLocation(coord, VOXEL_CENTRE_HELPER);
 	}
 	
 //	/**

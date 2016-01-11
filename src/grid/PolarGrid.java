@@ -1,6 +1,5 @@
 package grid;
 
-import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
 import java.util.function.DoubleFunction;
 
@@ -11,25 +10,113 @@ import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 
 /**
- * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
+ * \brief Abstract super class of all polar grids (Cylindrical and Spherical).
  * 
- * abstract super class of all polar grids (Cylindrical and Spherical)
- *
+ * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
  */
-public abstract class PolarGrid extends SpatialGrid {
-	// current index of iterator and neighborhood iterator
-	protected int _nbhIdx, _subNbhIdx;   
-	// array, pre-defining neighbors of a grid cell relative to the cell
+public abstract class PolarGrid extends SpatialGrid
+{
+	/**
+	 * Current index of iterator.
+	 */
+	protected int _nbhIdx;
+	/**
+	 * Current index of neighborhood iterator.
+	 */
+	protected int _subNbhIdx;
+	/**
+	 * Predefined array of relative neighbors of a grid coordinate.
+	 */
 	protected int[][] _nbhs;
-	// _nVoxel[1] in radian -> length in theta, currently only multiples of Pi/2 
+	/**
+	 * _nVoxel[1] in radian -> length in theta, currently only multiples of Pi/2
+	 * 
+	 * TODO Rob [11Jan2016]: What does this mean?
+	 */
 	protected double _nt_rad;
-	// inner resolutions (number of quadrants) for polar dimensions 
+	/**
+	 * Inner resolutions (number of quadrants) for polar dimensions.
+	 * 
+	 * TODO Rob [11Jan2016]: Needs explaining better.
+	 */
 	protected double[] _ires;
-	// Set to store (maybe multiple) neighbors for the current neighbor direction
+	/**
+	 * Set to store (maybe multiple) neighbors for the current neighbor
+	 * direction.
+	 * TODO Rob [11Jan2016]: Needs explaining better.
+	 */
 	protected ArrayList<int[]> _subNbhSet;	
+	/**
+	 * A helper vector for finding the location of the origin of a voxel.
+	 */
+	protected final double[] VOXEL_ORIGIN_HELPER = Vector.vector(3, 0.0);
+	/**
+	 * A helper vector for finding the location of the centre of a voxel.
+	 */
+	protected final double[] VOXEL_CENTRE_HELPER = Vector.vector(3, 0.5);
+	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
 	
 	/**
-	 * Shared constructor commands. Initializes all members and resets iterators.
+	 * \brief Shared constructor commands. Initializes all members and resets
+	 * iterators.
+	 * 
+	 * TODO Rob [11Jan2016]: Am I right in thinking that all angle must be
+	 * input in degrees, and are then converted into radians?
+	 * 
+	 * TODO Rob [11Jan2016]: using nVoxel to input the angular dimensions is
+	 * the wrong way to go about things, but this probably stems from how I set
+	 * up SpatialGrid. We need to discuss this.
+	 * 
+	 * @param nVoxel Number of voxels in each dimension.
+	 * @param resolution Array of length 3,
+	 *  containing arrays of length _nVoxel[dim] for non-dependent dimensions
+	 *  (r and z) and length 1 for dependent dimensions (t and p), 
+	 *  which implicitly scale with r.
+	 */
+	private void init(int[] nVoxel, double[][] resolution)
+	{
+		/*
+		 * Theta periodic in 1..360
+		 */
+		nVoxel[1] = Math.floorMod(nVoxel[1], 360);
+		/*
+		 * [r theta z], r=0 || theta=0 -> no grid, z=0 -> polar grid
+		 */
+		_nVoxel = Vector.copy(nVoxel);  
+		/*
+		 * Scales r but not ires. 
+		 */
+		_res = resolution;				
+		 /*
+		  * Central angle of the arc (theta) in radians.
+		  * 
+		  * TODO Rob [11Jan2016]: "Central angle of the arc" is correct
+		  * terminology for the cylinder, but not for the sphere. We need to
+		  * think about this!
+		  */
+		_nt_rad = Math.toRadians(nVoxel[1]);
+		_ires = new double[3];
+		/*
+		 * Determine inner resolution in theta automatically for all
+		 * polarGrids.
+		 */
+		_ires[1] = PolarArray.ires(nVoxel[0], _nt_rad, _res[1][0]);  
+		 /*
+		  * Neighbours (r, t, p)
+		  * 
+		  * TODO Rob [11Jan2016]: why are these coordinates chosen?
+		  */
+		_nbhs = new int[][] { {0,0,1}, {0,0,-1},
+							  {0,1,0}, {0,-1,0}, 
+							  {-1,-1,0}, {1,1,0} };
+		_subNbhSet = new ArrayList<int[]>();
+	}
+
+	/**
+	 * TODO \brief Constructor for a PolarGrid, using ... as arguments.
 	 * 
 	 * @param nVoxel - length in each dimension
 	 * @param resolution - Array of length 3,
@@ -37,80 +124,45 @@ public abstract class PolarGrid extends SpatialGrid {
 	 *  (r and z) and length 1 for dependent dimensions (t and p), 
 	 *  which implicitly scale with r.
 	 */
-	private void init(int[] nVoxel, double[][] resolution){
-		// theta periodic in 1..360
-		nVoxel[1] = nVoxel[1]%361; 
-		// [r theta z], r=0 || theta=0 -> no grid, z=0 -> polar grid
-		_nVoxel = Vector.copy(nVoxel);  
-		// scales r but not ires 
-		_res = resolution;				
-		 // length in t in radian
-		_nt_rad = nVoxel[1]*Math.PI/180;
-		_ires=new double[3];
-		// determine inner resolution in theta automatically for all polarGrids
-		_ires[1] = PolarArray.ires(nVoxel[0], _nt_rad, _res[1][0]);  
-		 // neighbours (r,t,p)
-		_nbhs=new int[][]{{0,0,1},{0,0,-1},{0,1,0},{0,-1,0},{-1,-1,0},{1,1,0}};
-		_subNbhSet = new ArrayList<int[]>();
-	}
-
-	/**
-	 * @param nVoxel - length in each dimension
-	 * @param resolution - Array of length 3,
-	 *  containing arrays of length _nVoxel[dim] for non-dependent dimensions
-	 *  (r and z) and length 1 for dependent dimensions (t and p), 
-	 *  which implicitly scale with r.
-	 */
-	PolarGrid(int[] nVoxel, double[][] resolution){
-		init(nVoxel,resolution);
+	public PolarGrid(int[] nVoxel, double[][] resolution)
+	{
+		init(nVoxel, resolution);
 	}
 	
 	/**
+	 * TODO \brief Constructor for a PolarGrid, using ... as arguments.
+	 * 
 	 * @param nVoxel - length in each dimension
 	 * @param resolution -  Array of length 3 defining constant resolution
 	 *  in each dimension 
 	 */
-	PolarGrid(int[] nVoxel, double[] resolution){
-		// convert resolution to double[][]
-		double [][] res = new double[3][0];
-		for (int i=0; i<res.length; ++i){
-			// TODO: other Polar Grids (if there are any in the future) need 
-			// implement own conversions here, which is not so handy maybe.
-			
-			// convert dependent resolutions
-			if (this instanceof CylindricalGrid)
-				// only one dependent variable t for cyl. grid (const. res)
-				res[i] = i==1 ? new double[1] : new double[nVoxel[i]];
-			else if (this instanceof SphericalGrid)
-				// two dependent variables t and p for spher. grid (const. res)
-				res[i] = i==1 || i==2 ? new double[1] : new double[nVoxel[i]];
-			else
-				try {
-					throw new IllegalClassFormatException(
-							"Only spherical and cylindrical Grid is allowed here");
-				} catch (IllegalClassFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
-			// write to new array
-			for (int j=0; j<res[i].length; ++j){
-				res[i][j]=resolution[i];
-			}
-		}
+	public PolarGrid(int[] nVoxel, double[] resolution)
+	{
+		double[][] res = convertResolution(nVoxel, resolution);
 		init(nVoxel,res);
 	}
-
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getNumVoxels()
+	
+	/**
+	 * \brief Convert resolution from a one-dimensional vector to a
+	 * 2-dimensional array.
+	 * 
+	 * <p>The way this will be done depends on the type of grid, i.e.
+	 * Cylindrical or Spherical.</p>
+	 * 
+	 * @param nVoxel TODO
+	 * @param oldRes
+	 * @return
 	 */
+	protected abstract double[][] convertResolution(int[] nVoxel,
+															double[] oldRes);
+	
 	@Override
-	public int[] getNumVoxels() {
+	public int[] getNumVoxels()
+	{
 		return Vector.copy(this._nVoxel);
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getSignificantAxes()
-	 */
+	@Override
 	public boolean[] getSignificantAxes()
 	{
 		boolean[] out = new boolean[3];
@@ -121,9 +173,7 @@ public abstract class PolarGrid extends SpatialGrid {
 		return out;
 	}
 
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#numSignificantAxes()
-	 */
+	@Override
 	public int numSignificantAxes()
 	{
 		int out = 0;
