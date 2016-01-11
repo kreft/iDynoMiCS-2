@@ -31,16 +31,18 @@ import com.sun.j3d.utils.universe.Viewer;
 import grid.PolarGrid;
 import grid.SphericalGrid;
 import linearAlgebra.Vector;
+import test.PolarGridTest;
 
 public class PolarGridPlot3D {
 	BranchGroup group, polyGroup;
 	PolarGrid grid;
+	SimpleUniverse universe;
 	final Color3f red=new Color3f(1f, 0f, 0f), 
 			blue=new Color3f(0f, 0f, 1f), 
 			green=new Color3f(0f, 1f, 0f);
 	
-	public PolarGridPlot3D(PolarGrid grid, boolean centre){
-		SimpleUniverse universe = new SimpleUniverse();
+	public PolarGridPlot3D(PolarGrid grid, boolean centre, boolean print_grid){
+		universe = new SimpleUniverse();
 		group = new BranchGroup();
 		polyGroup = new BranchGroup();
 		this.grid=grid;
@@ -78,32 +80,48 @@ public class PolarGridPlot3D {
 	        GeometryArray result = gi.getGeometryArray();
 
 			Shape3D poly = new Shape3D(
-					result, makeNoCullVecAppearance(green));
+					result, makeNoCullVecAppearance(red));
 			polyGroup.addChild(poly);
 		}
-		addLights(polyGroup);
+//		addLights(polyGroup);
 		universe.getViewingPlatform().setNominalViewingTransform();
 		universe.addBranchGraph(group);
-		universe.addBranchGraph(polyGroup);
+		if (print_grid) universe.addBranchGraph(polyGroup);
 	}
 	
-	public void start(){
-    	int[] current;
+	public void runIterator(){
+//    	int[] current;
     	long t;
-        for ( current = grid.resetIterator(); grid.isIteratorValid();
-        		current = grid.iteratorNext())
+        for ( grid.resetIterator(); grid.isIteratorValid();
+        		grid.iteratorNext())
         {
         	t=System.currentTimeMillis();
-        	int[] state = linearAlgebra.Vector.copy(current);
-        	setColor(false);
-        	grid.setCurrent(state);
+//        	int[] state = linearAlgebra.Vector.copy(current);
+        	setColorAll(false);
+//        	grid.setCurrent(state);
         	try {
         		Thread.sleep(Math.max(0, 500-System.currentTimeMillis()+t));
         	} catch (InterruptedException e) {
         		// TODO Auto-generated catch block
         		e.printStackTrace();
         	}
-        	setColor(true);
+        	setColorAll(true);
+        }
+    }
+	
+	public void startIterator(){
+//		int[] current;
+        for ( grid.resetIterator(); grid.isIteratorValid();
+        		grid.iteratorNext())
+        {
+//        	int[] state = linearAlgebra.Vector.copy(current);
+        	setColorAll(false);
+//        	grid.setCurrent(state);
+        	universe.getViewer().getView().repaint();
+        	System.out.println("press enter to step iterator");
+        	PolarGridTest.keyboard.nextLine();
+        	setColorAll(true);
+        	universe.getViewer().getView().repaint();
         }
     }
 	
@@ -122,29 +140,61 @@ public class PolarGridPlot3D {
 		Appearance ap = new Appearance();
 		PolygonAttributes myPA = new PolygonAttributes( );
 		myPA.setCullFace( PolygonAttributes.CULL_NONE );
+		myPA.setBackFaceNormalFlip(true);
 		myPA.setPolygonMode( PolygonAttributes.POLYGON_LINE);
+		myPA.setCapability(PolygonAttributes.ALLOW_MODE_WRITE);
+		myPA.setCapability(PolygonAttributes.ALLOW_MODE_READ);
 		ap.setPolygonAttributes(myPA);
+		Material m = new Material();
+		m.setCapability(Material.ALLOW_COMPONENT_READ);
+		m.setCapability(Material.ALLOW_COMPONENT_WRITE);
+		m.setEmissiveColor(color); 
+		m.setShininess(128);
+		ap.setMaterial(m);
     	return ap;
 	}
 	
-	private void setColor(boolean reset){
-		Sphere c = (Sphere)((TransformGroup)group.getChild(grid.iteratorCurrentIdx()-1)).getChild(0);
-    	Material m = c.getAppearance().getMaterial();
-		if (reset) m.setEmissiveColor(green);
-		else m.setEmissiveColor(red);
-    	
-    	int[] nbh;
-    	for ( nbh = grid.resetNbhIterator(); 
-				grid.isNbhIteratorValid(); nbh = grid.nbhIteratorNext() )
+	private void setColorAll(boolean reset){
+		setColor(grid.coord2idx(grid.iteratorCurrent())-1,reset,true);
+    	for (int[] nbh = grid.resetNbhIterator(); 
+				grid.isNbhIteratorValid(); nbh=grid.nbhIteratorNext() )
 		{
-//    		System.out.println(Arrays.toString(nbh)+"  "+(grid.coord2idx(nbh)-1));
-    		int idx=grid.coord2idx(nbh)-1;
-    		if (idx>0 && idx<grid.length()){  // ignore boundaries for the moment
-    			c = (Sphere)((TransformGroup)group.getChild(idx)).getChild(0);
-    			m = c.getAppearance().getMaterial();
-    			if (reset) m.setEmissiveColor(green);
-    			else m.setEmissiveColor(blue);
+//    		System.out.println(grid.nbhIteratorIsOutside());
+    		if (grid.nbhIteratorIsOutside()==null){
+    			int idx=grid.coord2idx(nbh)-1;
+    			if (idx>=0 && idx<grid.length()){  // ignore boundaries for the moment
+    				setColor(idx,reset,false);
+    				//        			System.out.println(Arrays.toString(grid.iteratorCurrent())+"  "
+    				//        					+Arrays.toString(nbh_i)+"  "+idx);
+    				universe.getViewer().getView().repaint();
+    			}
     		}
+		}
+        
+	}
+	
+	private void setColor(int idx, boolean reset, boolean isCurrent){
+		int b = 10;  // pause to get changes updated (else strange errors happen) 
+		Sphere c = (Sphere)((TransformGroup)group.getChild(idx)).getChild(0);
+    	Material cm = c.getAppearance().getMaterial();
+    	Shape3D p = (Shape3D)polyGroup.getChild(idx);
+    	PolygonAttributes pa = p.getAppearance().getPolygonAttributes();
+    	Material pm = p.getAppearance().getMaterial();
+		if (reset){
+			pa.setPolygonMode( PolygonAttributes.POLYGON_LINE);
+			sleepUnsave(b);
+			cm.setEmissiveColor(green);
+			sleepUnsave(b);
+			pm.setEmissiveColor(red);
+			sleepUnsave(b);
+		}
+		else{
+			pa.setPolygonMode(PolygonAttributes.POLYGON_FILL);
+			sleepUnsave(b);
+			cm.setEmissiveColor(isCurrent ? red : blue);
+			sleepUnsave(b);
+			pm.setEmissiveColor(isCurrent ? red : blue);
+			sleepUnsave(b);
 		}
 	}
 	
@@ -181,6 +231,7 @@ public class PolarGridPlot3D {
 		}
 		else vector = new Vector3f((float)(p[0]*Math.sin(p[1])), 
 				(float)(p[0]*Math.cos(p[1])), (float)(p[2]));
+//		System.out.println(Arrays.toString(p)+"  "+vector);
 		transform.setTranslation(vector);
 		tg.setTransform(transform);
 		return tg;
@@ -255,5 +306,14 @@ public class PolarGridPlot3D {
 		}
 		
 		return qa;
+	}
+	
+	private void sleepUnsave(int millis){
+		try {
+			Thread.sleep(millis); 
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
