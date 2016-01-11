@@ -1,10 +1,6 @@
 package grid;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
-
-import org.jlibsedml.validation.ISedMLValidator;
 
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
@@ -65,10 +61,15 @@ public class CylindricalGrid extends PolarGrid{
 					_array.get(type), ()->{return initialValues;});
 		else
 		{
+			int[] nt = new int[_nVoxel[0]];
+			for (int i=0; i<nt.length; ++i){
+				nt[i] = np(i);
+			}
+			
 			double[][][] array = PolarArray.createCylinder(
 					this._nVoxel[0],
+					nt, 
 					this._nVoxel[2], 
-					this._res[1][0], 
 					initialValues
 				);
 			this._array.put(type, array);
@@ -96,9 +97,9 @@ public class CylindricalGrid extends PolarGrid{
 	 */
 	private double getArcLength(int r){
 		// r-coordinate to t coord in spherical grid
-		int rs=PolarArray.s(r)-1;
+		int rs=s(r)-1;
 		// number of elements in row r
-		int nt = PolarArray.nt(	_nVoxel[0]-1, rs, _res[1][0], 1);
+		int nt = nt(_nVoxel[0]-1, rs);
 		return _nt_rad/nt;
 	}
 	
@@ -209,7 +210,7 @@ public class CylindricalGrid extends PolarGrid{
 	 * @see grid.PolarGrid#length()
 	 */
 	public int length(){
-		return (int)(_nVoxel[2]*_res[1][0]*_nVoxel[0]*_nVoxel[0]);
+		return (int)(_nVoxel[2]*_ires[1]*_nVoxel[0]*_nVoxel[0]);
 	}	
 
 	@Override
@@ -237,8 +238,7 @@ public class CylindricalGrid extends PolarGrid{
 		
 		bs = isOutside(coord,1);
 		if (bs!=null){
-			int nt=PolarArray.nt(
-					_nVoxel[0], PolarArray.s(coord[0])-1, _res[1][0], _res[2][0]);
+			int nt=nt(_nVoxel[0], s(coord[0])-1);
 			switch (bs){
 			case YMAX: coord[1] = coord[1]%(nt-1); break;
 			case YMIN: coord[1] = nt+coord[2]; break;
@@ -315,13 +315,13 @@ public class CylindricalGrid extends PolarGrid{
 	public int[] idx2coord(int idx, int[] coord) {
 		if (coord==null) coord=new int[3];
 		// determine z coordinate
-		coord[2]=(int) Math.ceil(idx/(_res[1][0]*Math.pow(_nVoxel[0], 2)))-1;
+		coord[2]=(int) Math.ceil(idx/(_ires[1]*Math.pow(_nVoxel[0], 2)))-1;
 		// 'reset' iterator to 1 in current z array 
-		double idx_z=idx-(coord[2]*_res[1][0]*Math.pow(_nVoxel[0], 2));
+		double idx_z=idx-(coord[2]*_ires[1]*Math.pow(_nVoxel[0], 2));
 		// determine r coordinate
-		coord[0]=(int) Math.ceil(Math.pow(idx_z/_res[1][0],1.0/2))-1;
+		coord[0]=(int) Math.ceil(Math.pow(idx_z/_ires[1],1.0/2))-1;
 		// determine t coordinate
-		coord[1]=(int) (idx_z - _res[1][0]*Math.pow(coord[0],2))-1;
+		coord[1]=(int) (idx_z - _ires[1]*Math.pow(coord[0],2))-1;
 		return coord;
 	}
 	
@@ -331,8 +331,8 @@ public class CylindricalGrid extends PolarGrid{
 	 */
 	@Override
 	public int coord2idx(int[] coord){
-		return (int)(coord[2]*_res[1][0]*_nVoxel[0]*_nVoxel[0]
-				+(coord[1]+_res[1][0]*coord[0]*coord[0]+1));
+		return (int)(coord[2]*_ires[1]*_nVoxel[0]*_nVoxel[0]
+				+(coord[1]+_ires[1]*coord[0]*coord[0]+1));
 	}
 	
 	/* (non-Javadoc)
@@ -341,8 +341,8 @@ public class CylindricalGrid extends PolarGrid{
 	protected boolean iteratorExceeds(int axis) {
 		switch(axis){
 		case 0: case 2: return _currentCoord[axis] >=  this._nVoxel[axis];
-		case 1: return _currentCoord[axis] >= PolarArray.nt(
-				_nVoxel[0], PolarArray.s(_currentCoord[0])-1, _res[1][0], _res[2][0]);
+		case 1: return _currentCoord[axis] 
+				>= nt(_nVoxel[0], s(_currentCoord[0])-1);
 		default: throw new RuntimeException("0 < axis <= 3 not satisfied");
 		}
 	}
@@ -357,15 +357,13 @@ public class CylindricalGrid extends PolarGrid{
 			int dr = _nbhs[_nbhIdx][0];
 			if (cc[0] + dr >= 0){
 				// _nVoxel[0] isntead of _nVoxel[0] - 1 to allow neighbors outside
-				double nt_cur=PolarArray.nt(
-						_nVoxel[0], PolarArray.s(cc[0])-1, _res[1][0], _res[2][0]);
-				double nt_nbh=PolarArray.nt(
-						_nVoxel[0], PolarArray.s(cc[0]+dr)-1, _res[1][0], _res[2][0]);
+				double nt_cur=nt(_nVoxel[0], s(cc[0])-1);
+				double nt_nbh=nt(_nVoxel[0], s(cc[0]+dr)-1);
 				double drt=nt_nbh/nt_cur;
 //									System.out.println(nt_cur+" "+nt_nbh+" "+drt);
 //									System.out.println(cc[1]*drt+"  "+(cc[1]+1)*drt);
 				for (int t=(int)(cc[1]*drt);  t<(cc[1]+1)*drt; t++){
-					System.out.println((cc[1]*drt)+" "+((cc[1]+1)*drt)+" "+t);
+//					System.out.println((cc[1]*drt)+" "+((cc[1]+1)*drt)+" "+t);
 					_subNbhSet.add(new int[]{cc[0]+dr,t,cc[2]+_nbhs[_nbhIdx][2]});
 				}
 			}else _subNbhSet.add(new int[]{-1,cc[1],cc[2]});
@@ -389,8 +387,7 @@ public class CylindricalGrid extends PolarGrid{
 		case 1:
 			if ( coord[1] < 0 )
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
-			int nt=PolarArray.nt(
-					_nVoxel[0]-1, PolarArray.s(coord[0])-1, _res[1][0], _res[2][0]);
+			int nt=nt(_nVoxel[0]-1, s(coord[0])-1);
 			if ( coord[1] >= nt)
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
 			return null;

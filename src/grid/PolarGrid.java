@@ -25,8 +25,36 @@ public abstract class PolarGrid extends SpatialGrid {
 	protected int[][] _nbhs;
 	// _nVoxel[1] in radian -> length in theta, currently only multiples of Pi/2 
 	protected double _nt_rad;
+	// inner resolutions (number of quadrants) for polar dimensions 
+	protected double[] _ires;
+	// Set to store (maybe multiple) neighbors for the current neighbor direction
+	protected ArrayList<int[]> _subNbhSet;	
 	
-	protected ArrayList<int[]> _subNbhSet = new ArrayList<int[]>();	
+	/**
+	 * Shared constructor commands. Initializes all members and resets iterators.
+	 * 
+	 * @param nVoxel - length in each dimension
+	 * @param resolution - Array of length 3,
+	 *  containing arrays of length _nVoxel[dim] for non-dependent dimensions
+	 *  (r and z) and length 1 for dependent dimensions (t and p), 
+	 *  which implicitly scale with r.
+	 */
+	private void init(int[] nVoxel, double[][] resolution){
+		// theta periodic in 1..360
+		nVoxel[1] = nVoxel[1]%361; 
+		// [r theta z], r=0 || theta=0 -> no grid, z=0 -> polar grid
+		_nVoxel = Vector.copy(nVoxel);  
+		// scales r but not ires 
+		_res = resolution;				
+		 // length in t in radian
+		_nt_rad = nVoxel[1]*Math.PI/180;
+		_ires=new double[3];
+		// determine inner resolution in theta automatically for all polarGrids
+		_ires[1] = PolarArray.ires(nVoxel[0], _nt_rad, _res[1][0]);  
+		 // neighbours (r,t,p)
+		_nbhs=new int[][]{{0,0,1},{0,0,-1},{0,1,0},{0,-1,0},{-1,-1,0},{1,1,0}};
+		_subNbhSet = new ArrayList<int[]>();
+	}
 
 	/**
 	 * @param nVoxel - length in each dimension
@@ -72,30 +100,6 @@ public abstract class PolarGrid extends SpatialGrid {
 			}
 		}
 		init(nVoxel,res);
-	}
-	
-	/**
-	 * Shared constructor commands. Initializes all members and resets iterators.
-	 * 
-	 * @param nVoxel - length in each dimension
-	 * @param resolution - Array of length 3,
-	 *  containing arrays of length _nVoxel[dim] for non-dependent dimensions
-	 *  (r and z) and length 1 for dependent dimensions (t and p), 
-	 *  which implicitly scale with r.
-	 */
-	private void init(int[] nVoxel, double[][] resolution){
-		// theta periodic in 1..360
-		nVoxel[1] = nVoxel[1]%361; 
-		// [r theta z], r=0 || theta=0 -> no grid, z=0 -> polar grid
-		this._nVoxel = Vector.copy(nVoxel);  
-		// scales r but not ires 
-		this._res = resolution;				
-		 // length in t in radian
-		this._nt_rad = nVoxel[1]*Math.PI/180;
-		// determine inner resolution in theta automatically for all polarGrids
-		this._res[1][0] = PolarArray.computeIRES(nVoxel[0], _nt_rad);  
-		 // neighbours (r,t,p)
-		_nbhs=new int[][]{{0,0,1},{0,0,-1},{0,1,0},{0,-1,0},{-1,-1,0},{1,1,0}};
 	}
 
 	/* (non-Javadoc)
@@ -524,6 +528,10 @@ public abstract class PolarGrid extends SpatialGrid {
 	 */
 	public abstract int[] getCoords(double[] loc, double[] inside);
 	
+	/**************************************************************************/
+	/************************* UTILITY METHODS ********************************/
+	/**************************************************************************/
+	
 	/**
 	 * @param x - any double
 	 * @return - rounded value with 1e-10 precision
@@ -535,6 +543,79 @@ public abstract class PolarGrid extends SpatialGrid {
 	 * @return - rounded value with 1e-100 precision
 	 */
 	protected double round100(double x){return Math.round(x*1e16)*1e-16;}
+	
+	/**
+	 * Computes a factor that scales the number of elements for increasing 
+	 * radius to keep element volume fairly constant.
+	 * 
+	 * @param r - radius.
+	 * @return - a scaling factor for a given radius.
+	 */
+	protected int s(int r){return 2*r+1;}
+	
+	/**
+	 * computes the number of elements in one triangle for radius r
+	 * 
+	 * @param r - radius
+	 * @return - the number of elements in one triangle for radius r.
+	 */
+	protected  int sn(int r){
+		return (int)(_ires[1]*s(r)*(r+1));
+	}
+	
+	/**
+	 * @param r - radius.
+	 * @return - the number of rows for given radius.
+	 */
+	public int np(int r) {
+		return (int)_ires[2]*s(r);
+	}
+	
+	/**
+	 * Computes the number of elements in row (r,p)
+	 * 
+	 * @param p - phi coordinate
+	 * @param np - number of rows
+	 * @return - the number of elements in row p
+	 */
+	public int nt(int r, int p){
+		// number of rows
+		int np=np(r);
+		// index of row where p>90°
+		double ir = np/_ires[2]*_res[2][0];
+		// p>=np and p<0 need to be considered for neighbors
+		return (int)((((p<ir || p>=np) && p>=0) ? p+1 : np-p)*_ires[1]);
+	}
+	
+	/**
+	 * computes the number of elements in a triangle until row p 
+	 * 
+	 * @param p - phi coordinate (row index)
+	 * @return - number of cells in a triangle until row p
+	 */
+	public int n(int r, int p){
+		// number of rows
+		int np=np(r);
+		// index of row where p>90°
+		double ir = np/_ires[2]*_res[2][0];
+		return (int)(((p<ir || p>=np) && p>=0) ? 
+				1.0/2*_ires[1]*p*(p+1)
+				: -1.0/8*_ires[1]*(np-2*p)*(3*np-2*p+2));
+//		return (int)(p==ir ? 0 
+//			: p<ir ? 1.0/2*_ires[1]*p*(p+1)
+//			: -1.0/8*_ires[1]*(np-2*p)*(3*np-2*p+2));
+	}
+	
+	/**
+	 * computes the number of elements in the whole matrix until and including 
+	 * matrix-slice r
+	 * 
+	 * @param r - radius
+	 * @return - the number of grid cells until and including matrix r
+	 */
+	public int N(int r){
+		return (int)((_ires[1]*_ires[2]*(r+1)*(r+2)*(4*r+3))/6);
+	}
 
 	/*************************************************************************
 	 * REPORTING
