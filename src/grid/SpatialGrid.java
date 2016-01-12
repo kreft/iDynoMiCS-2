@@ -209,11 +209,8 @@ public abstract class SpatialGrid
 	
 	public void addBoundary(BoundarySide side, GridMethod method)
 	{
-		//System.out.println("Adding method to "+side.name()+" boundary"); //bughunt
 		this._boundaries.put(side, method);
 	}
-	
-	//public abstract ArrayList<BoundarySide> boundariesNextTo(int[] coords);
 	
 	protected abstract BoundarySide isOutside(int[] coord);
 	
@@ -227,11 +224,11 @@ public abstract class SpatialGrid
 	
 	public abstract double getValueAt(ArrayType type, int[] coord);
 	
-	public abstract void setValueAt(ArrayType type, int[] gridCoords, double value);
+	public abstract void setValueAt(ArrayType type, int[] coord, double value);
 	
-	public abstract void addValueAt(ArrayType type, int[] gridCoords, double value);
+	public abstract void addValueAt(ArrayType type, int[] coord, double value);
 	
-	public abstract void timesValueAt(ArrayType type, int[] gridCoords, double value);
+	public abstract void timesValueAt(ArrayType type, int[] coord, double value);
 	
 	/*************************************************************************
 	 * ARRAY SETTERS

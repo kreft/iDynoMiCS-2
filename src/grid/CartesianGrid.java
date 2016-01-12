@@ -7,11 +7,12 @@ import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
+import grid.ResolutionCalculator.ResCalc;
 import linearAlgebra.*;
 import idynomics.Compartment.BoundarySide;
 
 /**
- *\brief 
+ * \brief 
  * 
  * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
  */
@@ -22,6 +23,35 @@ public class CartesianGrid extends SpatialGrid
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
+	
+	/**
+	 * \brief Construct a CartesianGrid from a 3-vector of total dimension
+	 * sizes and corresponding methods for calculating voxel resolutions. 
+	 * 
+	 * @param totalSize
+	 * @param resCalc
+	 */
+	public CartesianGrid(double[] totalSize, ResCalc[] resCalc)
+	{
+		ArrayList<Double> resolutions = new ArrayList<Double>();
+		double total;
+		double temp;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			resolutions.clear();
+			total = 0.0;
+			while ( total < totalSize[dim] )
+			{
+				temp = resCalc[dim].getResolution(resolutions.size());
+				if ( total + temp > totalSize[dim] )
+					temp = totalSize[dim] - total;
+				resolutions.add(temp);
+			}
+			this._res[dim] = new double[resolutions.size()];
+			for ( int i = 0; i < resolutions.size(); i++ )
+				this._res[dim][i] = resolutions.get(i);
+		}
+	}
 	
 	/**
 	 * \brief TODO
