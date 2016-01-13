@@ -27,13 +27,20 @@ public class AgentMechanicsTest {
 		Element doc = XmlLoad.loadDocument("testagents.xml");
 		
 		// cycle trough all species and add them to the species Lib
-		NodeList cladeNodes = doc.getElementsByTagName("species");
-		for (int i = 0; i < cladeNodes.getLength(); i++) 
+		NodeList speciesNodes = doc.getElementsByTagName("species");
+		for (int i = 0; i < speciesNodes.getLength(); i++) 
 		{
-			Element xmlSpecies = (Element) cladeNodes.item(i);
+			Element xmlSpecies = (Element) speciesNodes.item(i);
 			SpeciesLib.set(xmlSpecies.getAttribute("name"), 
-					new Species(cladeNodes.item(i)));
+					new Species(speciesNodes.item(i)));
 		}
+		
+		for (int i = 0; i < speciesNodes.getLength(); i++) 
+		{
+			Element xmlSpecies = (Element) speciesNodes.item(i);
+			XmlLoad.loadSpeciesModules(SpeciesLib.get(xmlSpecies.getAttribute("name")),speciesNodes.item(i)); 
+		}
+
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = doc.getElementsByTagName("compartment");

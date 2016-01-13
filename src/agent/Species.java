@@ -1,6 +1,7 @@
 package agent;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 
 import org.w3c.dom.Node;
 
@@ -16,9 +17,10 @@ public class Species implements StateObject
 	protected HashMap<String, State> _states = new HashMap<String, State>();
 	
 	/**
-	 * is set to the voidClade if non is set.
+	 * The speciesModules List contains all Species modules incorporated in this
+	 * Species(module).
 	 */
-	protected Species species;
+	protected LinkedList<Species> speciesModules = new LinkedList<Species>();
 	
     /*************************************************************************
 	 * CONSTRUCTORS
@@ -29,8 +31,6 @@ public class Species implements StateObject
 	
 	public Species(Node xmlNode) {
 		XmlLoad.loadStates(this, xmlNode);
-		if (getState("parentSpecies") != null)
-			species = SpeciesLib.get((String) getState("parentSpecies").get(null));
 	}
 	
 	/*************************************************************************
@@ -39,10 +39,7 @@ public class Species implements StateObject
 	
 	public boolean isLocalState(String name)
 	{
-		if (_states.containsKey(name))
-			return true;
-		else
-			return false;
+		return _states.containsKey(name) ? true : false;
 	}
 	
 	public boolean isGlobalState(String name)
@@ -50,12 +47,18 @@ public class Species implements StateObject
 		if (_states.containsKey(name))
 			return true;
 		else
-			return false;
+			for (Species m : speciesModules)
+				if(m.isGlobalState(name) == true)
+					return true;
+		
+		return false;
+			
 		// update this method if a higher order StateObject class is created
 	}
 	
 	/**
-	 * \brief general getter method for any primary Agent state
+	 * \brief general getter method for any Agent state stored in this species 
+	 * module
 	 * @param name
 	 * 			name of the state (String)
 	 * @return Object of the type specific to the state
@@ -65,8 +68,14 @@ public class Species implements StateObject
 		if (isLocalState(name))
 			return _states.get(name);
 		else
-			return null;
+			for (Species m : speciesModules)
+				if(m.isGlobalState(name) == true)
+					return m.getState(name);
+		
+		System.out.println("Warning: could not find state: " + name);
+		return null;
 	}
+	
 	
 	/**
 	 * \brief general setter method for any Agent state
@@ -99,4 +108,12 @@ public class Species implements StateObject
 		else 
 			setPrimary(name, state);
 	}
+	
+	public void addSpeciesModule(String name)
+	{
+		//FIXME: Bas [13.01.16] lets be sure we aren't adding a lot of void
+		// species here.
+		speciesModules.add(SpeciesLib.get(name));
+	}
+
 }

@@ -18,6 +18,7 @@ import org.xml.sax.SAXException;
 
 import reaction.Reaction;
 import linearAlgebra.Vector;
+import agent.Species;
 import agent.StateObject;
 import agent.body.Body;
 import agent.body.Point;
@@ -136,6 +137,26 @@ public class XmlLoad {
 						break;
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Load speciesModules is used to obtain all speciesModules from an XML node
+	 * and load the corresponding speciesModules into the speciesModules List of
+	 * the Species.
+	 *  
+	 * @param species
+	 * @param xmlNode
+	 */
+	public static void loadSpeciesModules(Species species, Node xmlNode)
+	{
+		Element xmlSpecies = (Element) xmlNode;
+		
+		NodeList speciesNodes = xmlSpecies.getElementsByTagName("speciesModule");
+		for (int j = 0; j < speciesNodes.getLength(); j++) 
+		{
+			Element s = (Element) speciesNodes.item(j);
+			species.addSpeciesModule(s.getAttribute("name"));
 		}
 	}
 	

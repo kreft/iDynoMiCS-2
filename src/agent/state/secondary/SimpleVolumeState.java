@@ -4,7 +4,23 @@ import agent.Agent;
 import agent.state.SecondaryState;
 import agent.state.State;
 
+
 public class SimpleVolumeState extends SecondaryState implements State {
+	
+	/**
+	 * input mass, density
+	 * @author baco
+	 *
+	 */
+	public SimpleVolumeState(String input)
+	{
+		this.setInput(input);
+	}
+	
+	public SimpleVolumeState()
+	{
+		
+	}
 
 	// input mass, density
 	

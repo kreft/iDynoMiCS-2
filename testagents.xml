@@ -13,6 +13,13 @@
 	-->
 		<species name="AOB">
 			<state name="pigment" type="String" value="GREEN" />
+
+			
+			<!-- this has not been made yet, use a static growthrate for now -->
+			<state name="growthRate" type="double" value="0.08" />
+			<speciesModule name="coccoid" />
+		</species>
+		<species name="coccoid">
 			<state name="morphology" type="String" value="coccoid"/>
 			<state name="joints" type="secondary" value="JointsState" input="body" />
 			<state name="volume" type="secondary" value="SimpleVolumeState" input="mass,density" />
@@ -21,9 +28,8 @@
 			<state name="dimensionsBoundingBox" type="secondary" value="DimensionsBoundingBox" input="body,radius" />
 			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
 			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
-			<!-- this has not been made yet, use a static growthrate for now -->
-			<state name="growthRate" type="double" value="0.08" />
 		</species>
+		
 	</speciesLib>
 	<compartment name="second" shape="rectangle">
 		<agents>

@@ -7,8 +7,20 @@ import agent.state.State;
 
 public class JointsState extends SecondaryState implements State {
 	
-	// input: body
-
+	/**
+	 * 
+	 * @param input: volume
+	 */
+	public JointsState(String input)
+	{
+		this.setInput(input);
+	}
+	
+	public JointsState()
+	{
+		
+	}
+	
 	public void set(Object state)
 	{
 

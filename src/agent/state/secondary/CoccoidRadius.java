@@ -5,9 +5,26 @@ import agent.state.SecondaryState;
 import agent.state.State;
 import utility.ExtraMath;
 
+
 public class CoccoidRadius extends SecondaryState implements State {
+
+	/**
+	 * input volume
+	 * @author baco
+	 *
+	 */
+	public CoccoidRadius(String input)
+	{
+		this.setInput(input);
+	}
 	
-	// input volume
+	/**
+	 * used by XMLloader, input needs to be set afterwards
+	 */
+	public CoccoidRadius()
+	{
+		
+	}
 
 	public void set(Object state)
 	{

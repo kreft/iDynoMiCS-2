@@ -28,12 +28,6 @@ public class Agent implements StateObject
     
     /**
      * Used to fetch species states.
-     * is set to the voidClade if non is set.
-     * FIXME Bas [12.12.15]: currently 'clade' is the ownly thing with a fixed 
-     * name from the xml file. Should we reserve a specific type of naming of
-     * states or events for hard coded stuff like this? It could be as simple as
-     * .clade, _clade or *clade. reserving all strings that start with the
-     * indication character.
      */
     Species species;
     
@@ -48,14 +42,13 @@ public class Agent implements StateObject
 	
 	public Agent()
 	{
-		
+
 	}
 	
 	public Agent(Node xmlNode)
 	{
 		XmlLoad.loadStates(this, xmlNode);
-		if (getState("species") != null)
-			species = SpeciesLib.get((String) get("species"));
+		this.init();
 	}
 	
 	/**
@@ -67,13 +60,13 @@ public class Agent implements StateObject
 	{
 		for (String key : agent._states.keySet())
 			this._states.put(key, agent.getState(key).copy());
-		species = SpeciesLib.get((String) get("species"));
+		this.init();
 		this.compartment = agent.getCompartment();
 	}
 	
 	public void init()
 	{
-				
+			species = SpeciesLib.get(isLocalState("species") ? (String) get("species") : "");
 	}
 
 
@@ -89,6 +82,7 @@ public class Agent implements StateObject
 	 */
 	public State getState(String name)
 	{
+		//return (isLocalState(name) ?  _states.get(name) : null);
 		if (isLocalState(name))
 			return _states.get(name);
 		else
@@ -100,18 +94,12 @@ public class Agent implements StateObject
 	
 	public boolean isLocalState(String name)
 	{
-		if (_states.containsKey(name))
-			return true;
-		else
-			return false;
+		return _states.containsKey(name) ? true : false;
 	}
 	
 	public boolean isGlobalState(String name)
 	{
-		if (isLocalState(name))
-			return true;
-		else
-			return species.isGlobalState(name);
+		return isLocalState(name) ? true : species.isGlobalState(name);
 	}
 	
 	/*
@@ -121,12 +109,16 @@ public class Agent implements StateObject
 	 */
 	public Object get(String name)
 	{
-		if (this.isLocalState(name))
-			return getState(name).get(this);
-		else if (species.isLocalState(name))
-			return species.getState(name).get(this);
-		else
-			return null;
+		return this.isLocalState(name) ? getState(name).get(this) : species.getState(name).get(this);
+//		if (this.isLocalState(name))
+//			return getState(name).get(this);
+//		else if (this.isGlobalState(name))
+//			return species.getState(name).get(this);
+//		else
+//		{
+//			System.out.println("failed to lookup " + name);
+//			return null;
+//		}
 	}
 	
 	/**

@@ -10,11 +10,12 @@ import utility.ExtraMath;
 import agent.Agent;
 import agent.body.Body;
 import agent.body.Point;
+import agent.state.SecondaryState;
 import agent.state.secondary.*;
 import boundary.Boundary;
+import grid.GridBoundary;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SpatialGrid.GridMethod;
 import idynomics.Compartment;
 import idynomics.Simulator;
 import idynomics.Timer;
@@ -44,7 +45,7 @@ public class AgentCompartmentTest {
 		for ( String side : new String[] {"xmin", "xmax", "ymin", "ymax"})
 		{
 			Boundary bndry = new Boundary();
-			bndry.setGridMethod("solute", Boundary.cyclic());
+			// bndry.setGridMethod("solute", GridBoundary.Cyclic()); //FIXME: how does this work with the new gridMethods?
 			aCompartment.addBoundary(side, bndry);
 		}
 		//TODO diffusivities
@@ -76,16 +77,19 @@ public class AgentCompartmentTest {
 		Agent ezAgent = new Agent();
 		ezAgent.set("mass",0.1);
 		ezAgent.set("density", 0.2);
-		ezAgent.set("volume",new SimpleVolumeState());
-		ezAgent.set("radius", new CoccoidRadius());
-		ezAgent.set("isLocated", true);
-		ezAgent.set("lowerBoundingBox", new LowerBoundingBox());
-		ezAgent.set("dimensionsBoundingBox", new DimensionsBoundingBox());
-		
+		ezAgent.set("volume",new SimpleVolumeState("mass,density"));
+		ezAgent.set("radius", new CoccoidRadius("volume"));
+		ezAgent.set("isLocated", true);		
 		List<Point> pts = new LinkedList<Point>();
 		pts.add(new Point(2));
 		ezAgent.set("body", new Body(pts));
-		
+
+		ezAgent.set("joints", new JointsState("volume"));
+		ezAgent.set("lowerBoundingBox", new LowerBoundingBox());
+		((SecondaryState) ezAgent.getState("lowerBoundingBox")).setInput("body,radius");
+		ezAgent.set("dimensionsBoundingBox", new DimensionsBoundingBox());
+		((SecondaryState) ezAgent.getState("dimensionsBoundingBox")).setInput("body,radius");
+		ezAgent.init();
 		aCompartment.addAgent(ezAgent);
 
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
