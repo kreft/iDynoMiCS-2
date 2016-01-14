@@ -19,7 +19,6 @@ import linearAlgebra.Vector;
 public abstract class Shape implements CanPrelaunchCheck
 {
 	protected int _nDim;
-	
 	/**
 	 * 3-dimensional vector describing the size of this shape.
 	 * 

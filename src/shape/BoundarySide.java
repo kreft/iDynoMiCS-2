@@ -6,6 +6,8 @@ package shape;
 /**
  * 
  * 
+ * @author cleggrj
+ *
  */
 public enum BoundarySide
 {
