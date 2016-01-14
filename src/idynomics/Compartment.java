@@ -10,6 +10,7 @@ import boundary.Boundary;
 import boundary.BoundaryConnected;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
+import grid.SpatialGrid.GridGetter;
 import processManager.ProcessManager;
 import shape.Shape;
 import utility.ExtraMath;
