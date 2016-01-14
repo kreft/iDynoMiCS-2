@@ -81,7 +81,7 @@ public abstract class PolarGrid extends SpatialGrid
 		/*
 		 * Theta periodic in 1..360
 		 */
-		nVoxel[1] = Math.floorMod(nVoxel[1], 360);
+		nVoxel[1] = Math.floorMod(nVoxel[1], 361);
 		/*
 		 * [r theta z], r=0 || theta=0 -> no grid, z=0 -> polar grid
 		 */
@@ -607,51 +607,48 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param r - radius
 	 * @return - the number of elements in one triangle for radius r.
 	 */
+	@Deprecated
 	protected  int sn(int r){
 		return (int)(_ires[1]*s(r)*(r+1));
 	}
 	
 	/**
 	 * @param r - radius.
-	 * @return - the number of rows for given radius.
+	 * @return - the number of rows for a given radius.
 	 */
-	public int np(int r) {
-		return (int)_ires[2]*s(r);
+	public int nt(int r) {
+		return (int)_ires[1]*s(r);
 	}
 	
 	/**
-	 * Computes the number of elements in row (r,p)
+	 * Computes the number of elements in row (r,t)
 	 * 
 	 * @param p - phi coordinate
-	 * @param np - number of rows
-	 * @return - the number of elements in row p
+	 * @param t - theta cordinate
+	 * @return - the number of elements in row t
 	 */
-	public int nt(int r, int p){
-		// number of rows
-		int np=np(r);
-		// index of row where p>90°
-		double ir = np/_ires[2]*_res[2][0];
-		// p>=np and p<0 need to be considered for neighbors
-		return (int)((((p<ir || p>=np) && p>=0) ? p+1 : np-p)*_ires[1]);
+	public int np(int r, int t){
+		double t_scale=(Math.PI/2)/(s(r)-0.5);
+		t%=s(r)*2;
+		double np=_ires[2]+(s(r)-1)*_ires[2]*Math.sin(t*t_scale);
+//		System.out.println(np);
+		return (int)Math.round(np);
 	}
 	
 	/**
-	 * computes the number of elements in a triangle until row p 
+	 * \brief computes the number of elements in the matrix with index r 
+	 * 		  until but excluding row t
 	 * 
-	 * @param p - phi coordinate (row index)
-	 * @return - number of cells in a triangle until row p
+	 * @param r - radius (matrix index)
+	 * @param t - theta coordinate (row index)
+	 * @return - number of cells in a triangle until row t
 	 */
-	public int n(int r, int p){
-		// number of rows
-		int np=np(r);
-		// index of row where p>90°
-		double ir = np/_ires[2]*_res[2][0];
-		return (int)(((p<ir || p>=np) && p>=0) ? 
-				1.0/2*_ires[1]*p*(p+1)
-				: -1.0/8*_ires[1]*(np-2*p)*(3*np-2*p+2));
-//		return (int)(p==ir ? 0 
-//			: p<ir ? 1.0/2*_ires[1]*p*(p+1)
-//			: -1.0/8*_ires[1]*(np-2*p)*(3*np-2*p+2));
+	public int n(int r, int t){
+		return (int) (_ires[2]*t*(2*r*Math.sin((Math.PI*t)/(4*r+1))+1));
+//		 return (int)((2*t*(-1 + Math.cos(1)) - _ires[2]*(1 + r)*Math.sin(1) 
+//				 + _ires[2]*(1 + r)*(Math.sin(1 - t) 
+//				 + Math.sin(t)))/(-1 + Math.cos(1)));
+
 	}
 	
 	/**

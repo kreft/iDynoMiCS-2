@@ -49,7 +49,7 @@ public class PolarGridTest {
 		
 		// choose array type here
 		SphericalGrid gridp = new SphericalGrid(
-				new int[]{5,90,90},new double[]{1,1,1});
+				new int[]{2,90,90},new double[]{1,1,1});
 		
 //	    CylindricalGrid gridp = new CylindricalGrid(
 //				new int[]{4,360,1},new double[]{1,1,1});
@@ -89,51 +89,51 @@ public class PolarGridTest {
 		/**************** uncomment to test iterator's speed  *****************/
 		/**********************************************************************/
 		
-//		t_start = System.currentTimeMillis();
-//		
-//		int[] current;
-//		for ( current = gridp.resetIterator(); gridp.isIteratorValid();
-//				current = gridp.iteratorNext())
-//		{
-//			
-//			/****************** uncomment to test iterator ********************/			
-//			
-////			System.out.println("current: "+Arrays.toString(current)+
-////					"\torigin: "+Arrays.toString(
-////							gridp.getVoxelOrigin(Vector.copy(current)))
-////					+"\tcoord: "+Arrays.toString(
-////							gridp.getCoords(Vector.copy(
-////							gridp.getVoxelOrigin(Vector.copy(current)))))
-////					+"\tindex: "+gridp.coord2idx(current)
-////					+"\tvolume: "+gridp.getVoxelVolume(current)
-////			);
-////			
-////			System.out.println();
-//			
-//			/******* uncomment to test iterator and neighborhood iterator *****/
-//		
-////			System.out.println("grid size: "
-////						+Arrays.toString(gridp.getNumVoxels()));
-////			int[] nbh;
-////			for ( current = gridp.resetIterator(); gridp.isIteratorValid();
-////					  current = gridp.iteratorNext())
-////			{
-////				System.out.println("current: "+Arrays.toString(current));
-////				for ( nbh = gridp.resetNbhIterator(); 
-////						gridp.isNbhIteratorValid(); 
-////							nbh = gridp.nbhIteratorNext() )
-////				{
-////					System.out.println("\tnbh: "+Arrays.toString(nbh));
-////				}
-////			}
-////			System.out.println();
-////			int[] coords=gridp.getCoords(
-////								gridp.getVoxelOrigin(new int[]{3,41,7}));
-////			System.out.println(coords[0]+" "+coords[1]+" "+coords[2]);
-//		}
-//		
-//		System.out.println("time needed to iterate through grid: "
-//			+(System.currentTimeMillis()-t_start)+" ms");	
+		t_start = System.currentTimeMillis();
+		
+		int[] current;
+		for ( current = gridp.resetIterator(); gridp.isIteratorValid();
+				current = gridp.iteratorNext())
+		{
+			
+			/****************** uncomment to test iterator ********************/			
+			
+			System.out.println("current: "+Arrays.toString(current)+
+					"\torigin: "+Arrays.toString(
+							gridp.getVoxelOrigin(Vector.copy(current)))
+					+"\tcoord: "+Arrays.toString(
+							gridp.getCoords(Vector.copy(
+							gridp.getVoxelOrigin(Vector.copy(current)))))
+					+"\tindex: "+gridp.coord2idx(current)
+					+"\tvolume: "+gridp.getVoxelVolume(current)
+			);
+			
+			System.out.println();
+			
+			/******* uncomment to test iterator and neighborhood iterator *****/
+		
+//			System.out.println("grid size: "
+//						+Arrays.toString(gridp.getNumVoxels()));
+//			int[] nbh;
+//			for ( current = gridp.resetIterator(); gridp.isIteratorValid();
+//					  current = gridp.iteratorNext())
+//			{
+//				System.out.println("current: "+Arrays.toString(current));
+//				for ( nbh = gridp.resetNbhIterator(); 
+//						gridp.isNbhIteratorValid(); 
+//							nbh = gridp.nbhIteratorNext() )
+//				{
+//					System.out.println("\tnbh: "+Arrays.toString(nbh));
+//				}
+//			}
+//			System.out.println();
+//			int[] coords=gridp.getCoords(
+//								gridp.getVoxelOrigin(new int[]{3,41,7}));
+//			System.out.println(coords[0]+" "+coords[1]+" "+coords[2]);
+		}
+		
+		System.out.println("time needed to iterate through grid: "
+			+(System.currentTimeMillis()-t_start)+" ms");	
 		
 		/**********************************************************************/
 		/************ uncomment to create graphical representation ************/

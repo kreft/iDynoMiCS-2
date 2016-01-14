@@ -73,7 +73,7 @@ public class CylindricalGrid extends PolarGrid
 		{
 			int[] nt = new int[_nVoxel[0]];
 			for (int i=0; i<nt.length; ++i){
-				nt[i] = np(i);
+				nt[i] = nt(i);
 			}
 			
 			double[][][] array = PolarArray.createCylinder(
@@ -113,10 +113,8 @@ public class CylindricalGrid extends PolarGrid
 	 */
 	private double getArcLength(int r)
 	{
-		// r-coordinate to t coord in spherical grid
-		int rs = s(r)-1;
 		// number of elements in row r
-		int nt = nt(_nVoxel[0]-1, rs);
+		int nt = nt(r);
 		return _nt_rad/nt;
 	}
 	
@@ -254,7 +252,7 @@ public class CylindricalGrid extends PolarGrid
 		
 		bs = isOutside(coord,1);
 		if (bs!=null){
-			int nt=nt(_nVoxel[0], s(coord[0])-1);
+			int nt=nt(coord[0]);
 			switch (bs){
 			case YMAX: coord[1] = coord[1]%(nt-1); break;
 			case YMIN: coord[1] = nt+coord[2]; break;
@@ -356,10 +354,12 @@ public class CylindricalGrid extends PolarGrid
 	 */
 	protected boolean iteratorExceeds(int axis) {
 		switch(axis){
-		case 0: case 2: return _currentCoord[axis] >=  this._nVoxel[axis];
-		case 1: return _currentCoord[axis] 
-				>= nt(_nVoxel[0], s(_currentCoord[0])-1);
-		default: throw new RuntimeException("0 < axis <= 3 not satisfied");
+		case 0: case 2: 
+			return _currentCoord[axis] >=  this._nVoxel[axis];
+		case 1: 
+			return _currentCoord[axis] >= nt(_currentCoord[0]);
+		default: 
+			throw new RuntimeException("0 < axis <= 3 not satisfied");
 		}
 	}
 	
@@ -373,8 +373,8 @@ public class CylindricalGrid extends PolarGrid
 			int dr = _nbhs[_nbhIdx][0];
 			if (cc[0] + dr >= 0){
 				// _nVoxel[0] isntead of _nVoxel[0] - 1 to allow neighbors outside
-				double nt_cur=nt(_nVoxel[0], s(cc[0])-1);
-				double nt_nbh=nt(_nVoxel[0], s(cc[0]+dr)-1);
+				double nt_cur=nt(cc[0]);
+				double nt_nbh=nt(cc[0]+dr);
 				double drt=nt_nbh/nt_cur;
 //									System.out.println(nt_cur+" "+nt_nbh+" "+drt);
 //									System.out.println(cc[1]*drt+"  "+(cc[1]+1)*drt);
@@ -403,7 +403,7 @@ public class CylindricalGrid extends PolarGrid
 		case 1:
 			if ( coord[1] < 0 )
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
-			int nt=nt(_nVoxel[0]-1, s(coord[0])-1);
+			int nt=nt(coord[0]);
 			if ( coord[1] >= nt)
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
 			return null;

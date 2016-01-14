@@ -47,17 +47,20 @@ public final class PolarArray {
 	 * Used to create an array to store a SphericalGrid
 	 * 
 	 * @param nr - number of voxels in r direction
-	 * @param np - number of voxels in p direction for each r
-	 * @param nt - number of voxels in t direction for each r and each p
+	 * @param nt - number of voxels in t direction for each r
+	 * @param np - number of voxels in p direction for each r and each t
 	 * @return - An array used to store a SphericalGrid
 	 */
-	public static double[][][] createSphere(int nr, int[][] nt, int[] np){
+	public static double[][][] createSphere(int nr, int[] nt, int[][] np){
 		double[][][] a = new double[nr][][];
 		for (int r=0; r<nr; ++r){
-			a[r] = new double[np[r]][];
-			for (int p=0; p<a[r].length; ++p){
-				a[r][p] = new double[nt[r][p]];		
+//			System.out.println(r);
+			a[r] = new double[nt[r]][];
+			for (int t=0; t<a[r].length; ++t){
+//				System.out.println(np[r][t]);
+				a[r][t] = new double[np[r][t]];		
 			}
+//			System.out.println();
 		}
 		return a;
 	}
@@ -66,13 +69,13 @@ public final class PolarArray {
 	 * Used to create an array to store a SphericalGrid
 	 * 
 	 * @param nr - number of voxels in r direction
-	 * @param np - number of voxels in p direction for each r
-	 * @param nt - number of voxels in t direction for each r and each p
+	 * @param nt - number of voxels in t direction for each r
+	 * @param np - number of voxels in p direction for each r and each t
 	 * @param val - initial value
 	 * @return - An array used to store a SphericalGrid
 	 */
 	public static double[][][] createSphere(
-			int nr, int[][] nt, int[] np, double val){
+			int nr, int[] nt, int[][] np, double val){
 		return applyToAll(createSphere(nr, nt, np),()->{return val;});
 	}
 	
