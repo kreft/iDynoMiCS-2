@@ -16,7 +16,7 @@ public final class ShapeLibrary
 	 * DUMMY SHAPE (for chemostats, etc)
 	 ************************************************************************/
 	
-	public class Dimensionless extends Shape
+	public static class Dimensionless extends Shape
 	{
 		public Dimensionless()
 		{
@@ -35,7 +35,7 @@ public final class ShapeLibrary
 	 * SHAPES WITH STRAIGHT EDGES
 	 ************************************************************************/
 	
-	public class Line extends Shape
+	public static class Line extends Shape
 	{
 		public Line()
 		{
@@ -53,7 +53,7 @@ public final class ShapeLibrary
 		}
 	}
 	
-	public class Rectangle extends Line
+	public static class Rectangle extends Line
 	{
 		public Rectangle()
 		{
@@ -64,7 +64,7 @@ public final class ShapeLibrary
 		}
 	}
 	
-	public class Cuboid extends Rectangle
+	public static class Cuboid extends Rectangle
 	{
 		public Cuboid()
 		{
@@ -79,7 +79,7 @@ public final class ShapeLibrary
 	 * SHAPES WITH ROUND EDGES
 	 ************************************************************************/
 	
-	public abstract class Polar extends Shape
+	public static abstract class Polar extends Shape
 	{
 		public Polar()
 		{
@@ -88,7 +88,7 @@ public final class ShapeLibrary
 		}
 	}
 	
-	public class Circle extends Polar
+	public static class Circle extends Polar
 	{
 		public Circle()
 		{
@@ -104,7 +104,7 @@ public final class ShapeLibrary
 		}
 	}
 	
-	public class Cylinder extends Circle
+	public static class Cylinder extends Circle
 	{
 		public Cylinder()
 		{
@@ -115,7 +115,7 @@ public final class ShapeLibrary
 		}
 	}
 	
-	public class Sphere extends Polar
+	public static class Sphere extends Polar
 	{
 		public Sphere()
 		{

@@ -29,7 +29,7 @@
 		</species>
 	</speciesLib>
 	
-	<compartment name="second" shape="rectangle">
+	<compartment name="second" shape="Rectangle">
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
