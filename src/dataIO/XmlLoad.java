@@ -18,9 +18,11 @@ import org.xml.sax.SAXException;
 
 import reaction.Reaction;
 import linearAlgebra.Vector;
+import agent.Species;
 import agent.StateObject;
 import agent.body.Body;
 import agent.body.Point;
+import agent.event.EventLoader;
 import agent.state.StateLoader;
 
 public class XmlLoad {
@@ -99,8 +101,11 @@ public class XmlLoad {
 	                	break;
 					case "secondary" : 
 						stateObject.setState(s.getAttribute("name"), 
-								StateLoader.get(s.getAttribute("value")));
+								StateLoader.getSecondary(s.getAttribute("value"), s.getAttribute("input")));
 	                	break;
+					case "event" :
+						stateObject.setPrimary(s.getAttribute("name"), // TODO Bas do some proper testing, checking
+								EventLoader.getEvent(s.getAttribute("value"), s.getAttribute("input")));
 				}
 			}
 			else	// state node with attributes and child nodes //
@@ -132,6 +137,26 @@ public class XmlLoad {
 						break;
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Load speciesModules is used to obtain all speciesModules from an XML node
+	 * and load the corresponding speciesModules into the speciesModules List of
+	 * the Species.
+	 *  
+	 * @param species
+	 * @param xmlNode
+	 */
+	public static void loadSpeciesModules(Species species, Node xmlNode)
+	{
+		Element xmlSpecies = (Element) xmlNode;
+		
+		NodeList speciesNodes = xmlSpecies.getElementsByTagName("speciesModule");
+		for (int j = 0; j < speciesNodes.getLength(); j++) 
+		{
+			Element s = (Element) speciesNodes.item(j);
+			species.addSpeciesModule(s.getAttribute("name"));
 		}
 	}
 	

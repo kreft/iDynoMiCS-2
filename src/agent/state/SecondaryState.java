@@ -6,9 +6,14 @@ public abstract class SecondaryState implements State {
 	
 	protected String[] input;
 
-	public void set(Object state)
+	public void setInput(String input)
 	{
-		input = ((String) state).split(",");
+		this.input = input.split(",");
+	}
+	
+	public String[] getInput()
+	{
+		return input;
 	}
 	
 	public State copy()

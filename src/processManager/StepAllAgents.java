@@ -13,9 +13,9 @@ public class StepAllAgents extends ProcessManager
 	{
 		for ( Agent agent : agents.getAllAgents() )
 		{
-			agent.doActivity("grow", this._timeStepSize);
-			agent.doActivity("divide", null);
-			agent.doActivity("die", null);
+			agent.event("grow", this._timeStepSize);
+			agent.event("divide");
+			agent.event("die");
 		}
 	}
 }

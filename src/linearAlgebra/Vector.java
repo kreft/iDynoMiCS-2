@@ -2218,4 +2218,27 @@ public final class Vector
 		}
 		return c;
 	}
+	
+	public static double[] toCylindrical(double[] cartesian) 
+	{
+		if(cartesian.length == 3)
+		{
+			double[] p = toPolar(new double[] {cartesian[0], cartesian[1]});
+			return new double[] {p[0], p[1], cartesian[2]};
+		}
+		System.out.println("ERROR: Vector.toCylindrical only accepts 3D input!"); 
+		return null;
+	}
+	
+	
+	public static double[] cylindricalToCartesian(double[] cylindrical)
+	{
+		if(cylindrical.length == 3)
+		{
+			double[] p = toCartesian(new double[] {cylindrical[0], cylindrical[1]});
+			return new double[] {p[0], p[1], cylindrical[2]};
+		}
+		System.out.println("ERROR: Vector.cylindricalToCartesian only accepts 3D input!"); 
+		return null;
+	}
 }

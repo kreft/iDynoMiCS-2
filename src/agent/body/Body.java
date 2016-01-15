@@ -61,6 +61,7 @@ public class Body implements Copyable {
 	
 	/**
 	 * radius of the cell (not used for coccoid cell types)
+	 * FIXME: this is confusing, there should be a better way of doing this
 	 */
 	protected double _radius;
 	

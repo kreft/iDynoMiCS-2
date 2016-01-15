@@ -5,16 +5,12 @@ import java.util.HashMap;
 import org.w3c.dom.Node;
 
 import dataIO.XmlLoad;
-import agent.activity.*;
-import agent.body.Body;
+import agent.event.Event;
 import agent.state.*;
-import agent.state.secondary.*;
-import grid.CartesianGrid;
-import idynomics.AgentContainer;
+import generalInterfaces.Quizable;
 import idynomics.Compartment;
-import idynomics.Simulator;
 
-public class Agent implements StateObject
+public class Agent implements StateObject, Quizable
 {
 
 	/**
@@ -24,50 +20,36 @@ public class Agent implements StateObject
 	protected static int UNIQUE_ID = 0;
     final int uid = ++UNIQUE_ID;
 
-	
 	/**
 	 * The states HashMap stores all primary and secondary states.
+	 * FIXME Bas: now also includes all events an agent can perform.. consider
+	 * renaming
 	 */
 	protected HashMap<String, State> _states = new HashMap<String, State>();
-	
-    /**
-	 * All activities owned by this Agent and whether they are currently enabled
-	 * or disabled.
-     */
-    protected HashMap<String, Activity> _activities = new HashMap<String, Activity>();
-
-    //FIXME: Bas - dilemma: so we prefer not giving everything all information
-    // that is available, however.. agents need to perform their activities we
-    // do not know what information is needed for those activities thus how do
-    // we do we ensure that the agents can perform all activities without giving
-    // them all available information? For now let them have all information 
-    // until we have a definite answ
     
     /**
      * Used to fetch species states.
      */
-    Species species;
+    protected Species species;
     
     /**
      * The compartment the agent is currently in
      */
     protected Compartment compartment;
     
-   // public interface StatePredicate<T> {boolean test(Object s);}
-	
     /*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
 	public Agent()
 	{
-		
+
 	}
 	
 	public Agent(Node xmlNode)
 	{
 		XmlLoad.loadStates(this, xmlNode);
-		species = SpeciesLib.get((String) get("species"));
+		this.init();
 	}
 	
 	/**
@@ -79,13 +61,13 @@ public class Agent implements StateObject
 	{
 		for (String key : agent._states.keySet())
 			this._states.put(key, agent.getState(key).copy());
-		species = SpeciesLib.get((String) get("species"));
+		this.init();
 		this.compartment = agent.getCompartment();
 	}
 	
 	public void init()
 	{
-				
+		species = SpeciesLib.get(isLocalState("species") ? (String) get("species") : "");
 	}
 
 
@@ -101,6 +83,7 @@ public class Agent implements StateObject
 	 */
 	public State getState(String name)
 	{
+		//return (isLocalState(name) ?  _states.get(name) : null);
 		if (isLocalState(name))
 			return _states.get(name);
 		else
@@ -112,10 +95,12 @@ public class Agent implements StateObject
 	
 	public boolean isLocalState(String name)
 	{
-		if (_states.containsKey(name))
-			return true;
-		else
-			return false;
+		return _states.containsKey(name) ? true : false;
+	}
+	
+	public boolean isGlobalState(String name)
+	{
+		return isLocalState(name) ? true : species.isGlobalState(name);
 	}
 	
 	/*
@@ -125,12 +110,7 @@ public class Agent implements StateObject
 	 */
 	public Object get(String name)
 	{
-		if (this.isLocalState(name))
-			return getState(name).get(this);
-		else if (species.isLocalState(name))
-			return species.getState(name).get(this);
-		else
-			return null;
+		return this.isLocalState(name) ? getState(name).get(this) : species.getState(name).get(this);
 	}
 	
 	/**
@@ -179,38 +159,26 @@ public class Agent implements StateObject
 	 * STEPPING
 	 ************************************************************************/
 	
-	/**
-	 * \brief do time dependent activity.
-	 * @param activity
-	 * @param timestep
-	 */
-	public void doActivity(String activity, Double timestep) 
+	public void event(String event)
 	{
-		try
-		{
-			_activities.get(activity).execute(new Agent[]{this},timestep);
-		}
-		catch (Exception e) // null pointer exception?
-	{
-			System.out.println(e.toString());
-		}
+		event(event, null, null);
 	}
 	
-	/**
-	 * \brief do time dependent multiple actor activity.
-	 * @param activity
-	 * @param timestep
-	 */
-	public void doActivity(String activity, Agent secondActor, Double timestep) 
+	public void event(String event, Double timestep)
 	{
-		try
-		{
-			_activities.get(activity).execute(new Agent[]{this,secondActor},timestep);
-		}
-		catch (Exception e) // null pointer exception?
-		{
-			System.out.println(e.toString());
-		}
+		event(event, null, timestep);
+	}
+	
+	public void event(String event, Agent compliant)
+	{
+		event(event, compliant, null);
+	}
+	
+	public void event(String event, Agent compliant, Double timestep)
+	{
+		Object myEvent = this.get(event);
+		if (myEvent != null)
+			((Event) myEvent).start(this, compliant, timestep);
 	}
 	
 	/*************************************************************************
