@@ -2,6 +2,7 @@ package test.plotting;
 
 import java.awt.Color;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
@@ -37,6 +38,8 @@ public class PolarGridPlot3D {
 	BranchGroup group, polyGroup;
 	PolarGrid grid;
 	SimpleUniverse universe;
+	HashMap<Integer,Integer> coord2idx; 
+	
 	final Color3f red=new Color3f(1f, 0f, 0f), 
 			blue=new Color3f(0f, 0f, 1f), 
 			green=new Color3f(0f, 1f, 0f);
@@ -45,6 +48,7 @@ public class PolarGridPlot3D {
 		universe = new SimpleUniverse();
 		group = new BranchGroup();
 		polyGroup = new BranchGroup();
+		coord2idx = new HashMap<Integer,Integer>();
 		this.grid=grid;
 		
 		OrbitBehavior B = new OrbitBehavior();
@@ -58,9 +62,11 @@ public class PolarGridPlot3D {
 			
 		int[] current;
 		double[] p;
+		int idx=0;
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 				current = grid.iteratorNext())
 		{
+			coord2idx.put(Arrays.hashCode(current), idx);
 //			System.out.println(Arrays.toString(current));
 			if (centre) p = grid.getVoxelCentre(Vector.copy(current));
 			else p = grid.getVoxelOrigin(Vector.copy(current));
@@ -82,6 +88,7 @@ public class PolarGridPlot3D {
 			Shape3D poly = new Shape3D(
 					result, makeNoCullVecAppearance(red));
 			polyGroup.addChild(poly);
+			idx++;
 		}
 //		addLights(polyGroup);
 		universe.getViewingPlatform().setNominalViewingTransform();
@@ -100,7 +107,7 @@ public class PolarGridPlot3D {
         	setColorAll(false);
 //        	grid.setCurrent(state);
         	try {
-        		Thread.sleep(Math.max(0, 500-System.currentTimeMillis()+t));
+        		Thread.sleep(Math.max(0, 1000-System.currentTimeMillis()+t));
         	} catch (InterruptedException e) {
         		// TODO Auto-generated catch block
         		e.printStackTrace();
@@ -155,22 +162,20 @@ public class PolarGridPlot3D {
 	}
 	
 	private void setColorAll(boolean reset){
-		setColor(grid.coord2idx(grid.iteratorCurrent())-1,reset,true);
+		setColor(coord2idx.get(Arrays.hashCode(grid.iteratorCurrent())),reset,true);
     	for (int[] nbh = grid.resetNbhIterator(); 
 				grid.isNbhIteratorValid(); nbh=grid.nbhIteratorNext() )
 		{
-//    		System.out.println(grid.nbhIteratorIsOutside());
+    		//    		System.out.println(grid.nbhIteratorIsOutside());
     		if (grid.nbhIteratorIsOutside()==null){
-    			int idx=grid.coord2idx(nbh)-1;
-    			if (idx>=0 && idx<grid.length()){  // ignore boundaries for the moment
-    				setColor(idx,reset,false);
-    				//        			System.out.println(Arrays.toString(grid.iteratorCurrent())+"  "
-    				//        					+Arrays.toString(nbh_i)+"  "+idx);
-    				universe.getViewer().getView().repaint();
-    			}
+    			int idx=coord2idx.get(Arrays.hashCode(nbh));
+    			setColor(idx,reset,false);
+    			//        			System.out.println(Arrays.toString(grid.iteratorCurrent())+"  "
+    			//        					+Arrays.toString(nbh_i)+"  "+idx);
+    			universe.getViewer().getView().repaint();
     		}
 		}
-        
+
 	}
 	
 	private void setColor(int idx, boolean reset, boolean isCurrent){

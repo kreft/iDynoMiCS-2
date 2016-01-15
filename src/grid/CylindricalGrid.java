@@ -73,7 +73,7 @@ public class CylindricalGrid extends PolarGrid
 		{
 			int[] nt = new int[_nVoxel[0]];
 			for (int i=0; i<nt.length; ++i){
-				nt[i] = nt(i);
+				nt[i] = nCols(i,s(i)-1);
 			}
 			
 			double[][][] array = PolarArray.createCylinder(
@@ -89,19 +89,27 @@ public class CylindricalGrid extends PolarGrid
 	@Override
 	public double getVoxelVolume(int[] coord)
 	{
+		double[] loc1=getVoxelOrigin(coord);
+		double[] loc2=getLocation(coord,VOXEL_All_ONE_HELPER);
 		/*
-		 * TODO Rob [11Jan2016]: How do we avoid using coord[1]?
-		 */
-		double res_r = _res[0][coord[0]];
-		double res_z = _res[2][coord[2]];
-		/*
-		 * Let A(r) be the area enclosed by a polar curve r=r(t):
-		 * A(r)= 1/2 \int_t1^t2 r^2 dt
-		 * then the voxel volume is \int_z^{z+res_z} A(r+res_r) - A(r) dz, or:
-		 * 
-		 * TODO Rob [11Jan2016]: This is not terribly clear
-		 */
-		return 1.0/2*res_r*res_z*(2*coord[0]+res_r)*getArcLength(coord[0]);
+		 * mathematica:
+		 * Integrate[
+		 * 	Integrate[(1/2*r2^2),{t,t1,t2}] 
+		 * 		- Integrate[(1/2 *r1^2),{t,t1,t2}], 
+		 * {z,z1,z2}]
+		 */		
+		return  ((loc2[0]*loc2[0]-loc1[0]*loc1[0])
+					* (loc2[1]-loc1[1])
+					* (loc2[2]-loc1[2])
+				)/2;
+//		/*
+//		 * Let A(r) be the area enclosed by a polar curve r=r(t):
+//		 * A(r)= 1/2 \int_t1^t2 r^2 dt
+//		 * then the voxel volume is \int_z^{z+res_z} A(r+res_r) - A(r) dz, or:
+//		 * 
+//		 * TODO Rob [11Jan2016]: This is not terribly clear
+//		 */
+//		return 1.0/2*res_r*res_z*(2*coord[0]+res_r)*getArcLength(coord[0]);
 	}
 	
 	/**
@@ -113,80 +121,46 @@ public class CylindricalGrid extends PolarGrid
 	 */
 	private double getArcLength(int r)
 	{
-		// number of elements in row r
-		int nt = nt(r);
+		// number of elements in column (r,s(r))
+		int nt = nCols(r,s(r)-1);
 		return _nt_rad/nt;
 	}
 	
 	public int[] getCoords(double[] loc, double[] inside) {
 		int[] coord = new int[3];
-		// determine r and z coordinate
-		double counter;
-		for ( int dim = 0; dim < 3; dim+=2 )
-		{
-			counter = 0.0;
-			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )
-			{
-				if ( counter >= loc[dim] )
-				{
-					coord[dim] = i;
-					if (inside!=null) inside[dim] = counter-loc[dim];
-					break countLoop;
-				}
-				counter += this._res[dim][i];
-			}
-		}
-		// determine t coordinate
-		double t=loc[1]/getArcLength(coord[0]);
-		coord[1]=(int)(t);
-		if (inside!=null) inside[1]=Math.abs(t-coord[1]);
+		/*
+		 * determine i 
+		 */
+		cartLoc2Coord(loc[0], _nVoxel[0], _res[0], 0, coord, inside);
+		/*
+		 * determine j
+		 */
+		polarLoc2Coord(loc[1], getArcLength(coord[0]), 1, coord, inside);
+		/*
+		 * determine k
+		 */
+		cartLoc2Coord(loc[2], _nVoxel[2], _res[2], 2, coord, inside);
 		return coord;
 	}
 	
 	@Override
 	public double[] getLocation(int[] coord, double[] inside)
 	{
+		double[] loc = new double[3];
+		
 		/*
-		 * Determine r and z location (like in cartesian grid)
+		 * Determine r (like in cartesian grid)
 		 */
-		double r = 0.0;
-		double z = 0.0;
-		for ( int i = 0; i < coord[0]; i++ )
-			r += this._res[0][i];
-		for ( int i = 0; i < coord[2]; i++ )
-			z += this._res[2][i];
-		/* Include the inside modifier for r and z. */
-		r += inside[0] * this._res[0][coord[0]];
-		z += inside[2] * this._res[2][coord[2]];
+		cartCoord2Loc(coord[0], _res[0], inside[0], 0, loc);
 		/*
-		 * Determine the azimuthal location (dependent on radial).
+		 * determine t 
 		 */
-		double t;
-		double ti = inside[1];
-		if ( r == 0.0 )
-			t = Math.min((coord[1]+ti)*(Math.PI/2),_nt_rad);
-		else
-		{
-			// the length (degree) at r+1
-			double l = getArcLength(coord[0]);
-			if ( r > 0.0 )
-				t = (coord[1]+ti)*l;
-			//TODO: swap 180 degree if r<0 ?? or don't allow <0 ?  
-			else
-				t = Math.abs((coord[1]+ti)*l)-Math.PI; 
-		}
-		return new double[] { r, t, z };
-	}
-	
-	@Override
-	public double[] getVoxelOrigin(int[] coord) {
-		return getLocation(coord, VOXEL_ORIGIN_HELPER);
-	}
-	
-	@Override
-	public double[] getVoxelCentre(int[] coord)
-	{
-		return getLocation(coord, VOXEL_CENTRE_HELPER);
+		polarCoord2Loc(coord[1], getArcLength(coord[0]), inside[1], 1, loc);
+		/*
+		 * Determine z (like in cartesian grid)
+		 */
+		cartCoord2Loc(coord[2], _res[2], inside[2], 2, loc);
+		return loc;
 	}
 	
 //	/**
@@ -252,10 +226,10 @@ public class CylindricalGrid extends PolarGrid
 		
 		bs = isOutside(coord,1);
 		if (bs!=null){
-			int nt=nt(coord[0]);
+			int nt=nCols(coord[0],s(coord[0])-1);
 			switch (bs){
 			case YMAX: coord[1] = coord[1]%(nt-1); break;
-			case YMIN: coord[1] = nt+coord[2]; break;
+			case YMIN: coord[1] = nt+coord[1]; break;
 			case INTERNAL:
 				coord[1] = coord[1]%nt; 
 				if (coord[1] < 0) coord[1] += nt;
@@ -343,7 +317,7 @@ public class CylindricalGrid extends PolarGrid
 	/* (non-Javadoc)
 	 * @see grid.PolarGrid#coord2idx(int[])
 	 */
-	@Override
+	@Deprecated
 	public int coord2idx(int[] coord){
 		return (int)(coord[2]*_ires[1]*_nVoxel[0]*_nVoxel[0]
 				+(coord[1]+_ires[1]*coord[0]*coord[0]+1));
@@ -357,7 +331,7 @@ public class CylindricalGrid extends PolarGrid
 		case 0: case 2: 
 			return _currentCoord[axis] >=  this._nVoxel[axis];
 		case 1: 
-			return _currentCoord[axis] >= nt(_currentCoord[0]);
+			return _currentCoord[axis] >= nCols(_currentCoord[0],s(_currentCoord[0])-1);
 		default: 
 			throw new RuntimeException("0 < axis <= 3 not satisfied");
 		}
@@ -373,13 +347,13 @@ public class CylindricalGrid extends PolarGrid
 			int dr = _nbhs[_nbhIdx][0];
 			if (cc[0] + dr >= 0){
 				// _nVoxel[0] isntead of _nVoxel[0] - 1 to allow neighbors outside
-				double nt_cur=nt(cc[0]);
-				double nt_nbh=nt(cc[0]+dr);
+				double nt_cur=nCols(cc[0],s(cc[0])-1);
+				double nt_nbh=nCols(cc[0]+dr,s(cc[0]+dr)-1);
 				double drt=nt_nbh/nt_cur;
 //									System.out.println(nt_cur+" "+nt_nbh+" "+drt);
 //									System.out.println(cc[1]*drt+"  "+(cc[1]+1)*drt);
 				for (int t=(int)(cc[1]*drt);  t<(cc[1]+1)*drt; t++){
-//					System.out.println((cc[1]*drt)+" "+((cc[1]+1)*drt)+" "+t);
+					System.out.println((cc[1]*drt)+" "+((cc[1]+1)*drt)+" "+t);
 					_subNbhSet.add(new int[]{cc[0]+dr,t,cc[2]+_nbhs[_nbhIdx][2]});
 				}
 			}else _subNbhSet.add(new int[]{-1,cc[1],cc[2]});
@@ -403,7 +377,7 @@ public class CylindricalGrid extends PolarGrid
 		case 1:
 			if ( coord[1] < 0 )
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
-			int nt=nt(coord[0]);
+			int nt=nCols(coord[0],s(coord[0])-1);
 			if ( coord[1] >= nt)
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
 			return null;

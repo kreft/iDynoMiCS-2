@@ -179,7 +179,9 @@ public final class PolarArray {
 	 */
 	public static double ires(int nr, double nt, double res){
 		 // min 1, +1 for each quadrant (=4 for full circle)
-		return Math.max(2*nt/(Math.PI*res),1);
+//		return Math.max(2*nt/(Math.PI*res),1);
+		System.out.println(2*nt/(Math.PI*res));
+		return 2*nt/(Math.PI*res);
 	}
 	
 	/**

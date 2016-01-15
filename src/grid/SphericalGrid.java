@@ -99,10 +99,10 @@ public class SphericalGrid extends PolarGrid
 			int[] nt = new int[_nVoxel[0]];
 			int[][] np = new int[_nVoxel[0]][];
 			for (int r=0; r<nt.length; ++r){
-				nt[r] = nt(r);
+				nt[r] = nRows(r);
 				np[r] = new int[nt[r]];
 				for (int t=0; t<nt[r]; ++t){
-					np[r][t] = np(r,t);
+					np[r][t] = nCols(r,t);
 				}
 			}
 			
@@ -114,34 +114,33 @@ public class SphericalGrid extends PolarGrid
 		}
 	}
 	
+	private double getArcLengthT(int i, int j){
+		int nk=nCols(i, j);
+		return _nt_rad/nk;
+	}
+	
+	private double getArcLengthP(int i){
+		int nj=nRows(i);
+		return _np_rad/nj;
+	}
+	
 	@Override
 	public int[] getCoords(double[] loc, double[] inside) {
-		double r=loc[0], t=loc[1], p=loc[2];
 		int[] coord = new int[3];
-		// determine r (like in cartesian grid)
-		double counter = 0.0;
-		countLoop: for ( int i = 0; i < _nVoxel[0]; i++ )
-		{
-			if ( counter >=  r)
-			{
-				coord[0] = i;
-				if (inside!=null) inside[0] = counter-loc[0];
-				break countLoop;
-			}
-			counter += _res[0][i];
-		}
-		
-		// determine t coordinate
-		int nt=nt(coord[0]);
-		double lt=_nt_rad/nt;
-		coord[1]=(int)(t/lt);
-		if (inside!=null) inside[1]=Math.abs(t/lt-1-coord[1]);
-		
-		// determine t coordinate
-		int np=np(coord[0], coord[1]);
-		double lp=_np_rad/np;
-		coord[2]=(int)(p/lp);
-		if (inside!=null) inside[2]=Math.abs(p/lp-coord[2]);
+		/*
+		 * determine i (like in cartesian grid)
+		 */
+		cartLoc2Coord(loc[0], _nVoxel[0], _res[0], 0, coord, inside);
+		/*
+		 * determine j
+		 */
+		polarLoc2Coord(loc[2], getArcLengthP(coord[0]),
+				1, coord, inside);
+		/*
+		 * determine k
+		 */
+		polarLoc2Coord(loc[1], getArcLengthT(coord[0], coord[1]),
+				2, coord, inside);
 		return coord;
 	}
 	
@@ -150,35 +149,23 @@ public class SphericalGrid extends PolarGrid
 	 */
 	public double[] getLocation(int[] coord, double[] inside)
 	{
-		double length_t=nt(coord[0]);
-		double length_p=np(coord[0], coord[1]);
+		double[] loc = new double[3];
 		
-		// determine r (like in cartesian grid)
-		double r=0;
-		for ( int i = 0; i < coord[0]; i++ ){
-			r += _res[0][i];
-		}
-		return new double[]{
-			r+inside[0]*_res[0][coord[0]],
-			(coord[1]+inside[1])*(_nt_rad/length_t),
-			(coord[2]+inside[2])*(_np_rad/length_p)
-		}; 
-	}
-	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getVoxelOrigin(int[])
-	 */
-	@Override
-	public double[] getVoxelOrigin(int[] coord)
-	{
-		return getLocation(coord, VOXEL_ORIGIN_HELPER);
-	}
-	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getVoxelCentre(int[])
-	 */
-	public double[] getVoxelCentre(int[] coord){
-		return getLocation(coord, VOXEL_CENTRE_HELPER);
+		/*
+		 * determine r
+		 */
+		cartCoord2Loc(coord[0], _res[0], inside[0], 0, loc);
+		/*
+		 * determine t
+		 */
+		polarCoord2Loc(coord[2], getArcLengthT(coord[0], coord[1]), inside[2], 
+				1, loc);
+		/*
+		 * determine p
+		 */
+		polarCoord2Loc(coord[1], getArcLengthP(coord[0]), inside[1], 2, loc);
+		
+		return loc;
 	}
 	
 	/* (non-Javadoc)
@@ -252,8 +239,8 @@ public class SphericalGrid extends PolarGrid
 		switch(axis){
 		case 0: return _currentCoord[0] >=  this._nVoxel[0];
 		case 1: return _currentCoord[1] 
-							>= nt(_currentCoord[0]);
-		case 2: return _currentCoord[2] >= np(
+							>= nRows(_currentCoord[0]);
+		case 2: return _currentCoord[2] >= nCols(
 				_currentCoord[0], _currentCoord[1]);
 		default: throw new RuntimeException("0 < axis <= 3 not satisfied");
 		}
@@ -269,31 +256,31 @@ public class SphericalGrid extends PolarGrid
 		if (_nbhIdx>3){ // moving in r
 			int dr = _nbhs[_nbhIdx][0];
 			if (cc[0] + dr >= 0){
-				double nt_cur = nt(cc[0]);
-				double nt_nbh = nt(cc[0] + dr);
-				double np_cur=np(cc[0], cc[1]);
-				double np_nbh;
-				double drp;
-				double drt=nt_nbh/nt_cur;
-				for (int t=(int)(cc[1]*drt);  t<(cc[1]+1)*drt; t++){
-					np_nbh=np(cc[0] + dr, t);
-					drp=np_nbh/np_cur;
+				double np_cur = nRows(cc[0]);
+				double np_nbh = nRows(cc[0] + dr);
+				double nt_cur=nCols(cc[0], cc[1]);
+				double nt_nbh;
+				double drt;
+				double drp=np_nbh/np_cur;
+				for (int p=(int)(cc[1]*drp);  p<(cc[1]+1)*drp; p++){
+					nt_nbh=nCols(cc[0] + dr, p);
+					drt=nt_nbh/nt_cur;
 //					System.out.println(drt+" "+nt_nbh+" "+nt_cur);
-					for (int p=(int)(cc[2]*drp);  p<(cc[2]+1)*drp; p++){
-						_subNbhSet.add(new int[]{cc[0]+dr,t,p});
+					for (int t=(int)(cc[2]*drt);  t<(cc[2]+1)*drt; t++){
+						_subNbhSet.add(new int[]{cc[0]+dr,p,t});
 					}
 				}
 			}else _subNbhSet.add(new int[]{-1,cc[1],cc[2]});
-		}else if (_nbhIdx<2){ // moving in t
-			int dt = _nbhs[_nbhIdx][2];
+		}else if (_nbhIdx<2){ // moving in p
+			int dp = _nbhs[_nbhIdx][2];
 //			System.out.println(dp);
-			if (cc[1] + dt >= 0){
-				double np_cur=np(cc[0], cc[1]);
-				double np_nbh=np(cc[0], cc[1]+dt);
-				double drp=np_nbh/np_cur;
+			if (cc[1] + dp >= 0){
+				double nt_cur=nCols(cc[0], cc[1]);
+				double nt_nbh=nCols(cc[0], cc[1]+dp);
+				double drt=nt_nbh/nt_cur;
 //				System.out.println(drt+" "+nt_nbh+" "+nt_cur);
-				for (int p=(int)(cc[2]*drp);  p<(cc[2]+1)*drp; p++){
-					_subNbhSet.add(new int[]{cc[0],cc[1]+dt,p});
+				for (int t=(int)(cc[2]*drt);  t<(cc[2]+1)*drt; t++){
+					_subNbhSet.add(new int[]{cc[0],cc[1]+dp,t});
 				}
 			}else  _subNbhSet.add(new int[]{cc[0],-1,cc[2]});
 		}else{ // add the relative position to current index for constant r 
@@ -307,11 +294,13 @@ public class SphericalGrid extends PolarGrid
 	/* (non-Javadoc)
 	 * @see grid.PolarGrid#coord2idx(int[])
 	 */
-	@Override
+	@Deprecated
 	public int coord2idx(int[] coord) {
 		int N_prev = N(coord[0]-1);
 		int n_prev = n(coord[0],coord[1]);
+//		System.out.println(N_prev+" "+n_prev);
 		return N_prev + n_prev + coord[2] + 1;
+	
 //		
 //		int s =s(coord[0]);
 //		int sn=sn(coord[0]);
@@ -342,21 +331,15 @@ public class SphericalGrid extends PolarGrid
 		if (bs==BoundarySide.INTERNAL)
 			coord[0] = _nVoxel[0]+coord[0];
 		
-		bs = isOutside(coord,2);
-		if (bs==BoundarySide.ZMAX)
-			coord[2] = coord[2]%(_nVoxel[2]-1);
-		if (bs==BoundarySide.ZMIN)
-			coord[2] = _nVoxel[2]+coord[2];
-		
 		bs = isOutside(coord,1);
 		if (bs!=null){
-			int nt=nt(coord[0]);
+			int np=nRows(coord[0]);
 			switch (bs){
-			case YMAX: coord[1] = coord[1]%(nt-1); break;
-			case YMIN: coord[1] = nt+coord[2]; break;
+			case YMAX: coord[1] = coord[1]%(np-1); break;
+			case YMIN: coord[1] = np+coord[2]; break;
 			case INTERNAL:
-				coord[1] = coord[1]%nt; 
-				if (coord[1] < 0)	coord[1] += nt;
+				coord[1] = coord[1]%np; 
+				if (coord[1] < 0)	coord[1] += np;
 				break;
 			default: throw new RuntimeException("unknown boundary side"+bs);
 			}
@@ -364,13 +347,13 @@ public class SphericalGrid extends PolarGrid
 		
 		bs = isOutside(coord,2);
 		if (bs!=null){
-			int np=np(coord[0], coord[1]);
+			int nt=nCols(coord[0], coord[1]);
 			switch (bs){
-			case YMAX: coord[2] = coord[2]%(np-1); break;
-			case YMIN: coord[2] = np+coord[2]; break;
+			case YMAX: coord[2] = coord[2]%(nt-1); break;
+			case YMIN: coord[2] = nt+coord[2]; break;
 			case INTERNAL:
-				coord[2] = coord[2]%np; 
-				if (coord[2] < 0) coord[2] += np;
+				coord[2] = coord[2]%nt; 
+				if (coord[2] < 0) coord[2] += nt;
 				break;
 			default: throw new RuntimeException("unknown boundary side"+bs);
 			}
@@ -385,12 +368,8 @@ public class SphericalGrid extends PolarGrid
 	public double getVoxelVolume(int[] coord) {
 		// mathematica: Integrate[r^2 sin p,{p,p1,p2},{t,t1,t2},{r,r1,r2}] 
 		double[] loc1=getVoxelOrigin(coord);
-		double[] loc2=getLocation(coord,new double[]{1.0,1.0,1.0});
-//		return 2.0/3*_res[0][0]*_ires[1]
-//				*(_res[0][0]*_res[0][0]
-//					+ 3*_res[0][0]*loc[0]
-//					+ 3*loc[0]*loc[0])
-//				* Math.sin(_ires[2]/2)*Math.sin(_ires[2]/2+coord[2]);
+		double[] loc2=getLocation(coord,VOXEL_All_ONE_HELPER);
+
 		return ((loc1[0]*loc1[0]*loc1[0]-loc2[0]*loc2[0]*loc2[0])
 					* (loc1[1]-loc2[1])
 					* (Math.cos(loc1[2])-Math.cos(loc2[2]))
@@ -429,14 +408,14 @@ public class SphericalGrid extends PolarGrid
 				return BoundarySide.CIRCUMFERENCE;
 			break;
 		case 1:
-			int nt=nt(coord[0]);
+			int nt=nRows(coord[0]);
 			if ( coord[1] < 0 )
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
 			if ( coord[1] >= nt)
 				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
 			break;
 		case 2:
-			int np=np(coord[0],coord[1]);
+			int np=nCols(coord[0],coord[1]);
 			if ( coord[2] < 0 )
 				return _nVoxel[2]==180 ? BoundarySide.INTERNAL : BoundarySide.ZMIN;
 			if ( coord[2] >= np )

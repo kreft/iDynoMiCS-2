@@ -54,6 +54,10 @@ public abstract class PolarGrid extends SpatialGrid
 	 * A helper vector for finding the location of the centre of a voxel.
 	 */
 	protected final double[] VOXEL_CENTRE_HELPER = Vector.vector(3, 0.5);
+	/**
+	 * A helper vector for finding the 'upper most' location of a voxel.
+	 */
+	protected final double[] VOXEL_All_ONE_HELPER = Vector.vector(3, 1.0);
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -403,20 +407,31 @@ public abstract class PolarGrid extends SpatialGrid
 	
 	public abstract void fillNbhSet();
 	
-	/**
-	 * converts (r,t,p) or (r,t,z) coordinates into an index 
-	 * (for SphericalGrid and CylindricalGrid, respectively). 
-	 * 
-	 * @param coord - a (r,t,p) or (r,t,z) coordinate
-	 * @return the corresponding index
-	 */
-	public abstract int coord2idx(int[] coord);
+//	/**
+//	 * converts (r,t,p) or (r,t,z) coordinates into an index 
+//	 * (for SphericalGrid and CylindricalGrid, respectively). 
+//	 * 
+//	 * @param coord - a (r,t,p) or (r,t,z) coordinate
+//	 * @return the corresponding index
+//	 */
+//	public abstract int coord2idx(int[] coord);
 	
 	/* (non-Javadoc)
 	 * @see grid.SpatialGrid#isIteratorValid()
 	 */
 	@Override
 	public boolean isIteratorValid() {return _currentCoord[0] < _nVoxel[0];}
+	
+	public boolean iteratorHasNext() {
+		/*
+		 * iterator is valid and not on second last item
+		 */
+		return isIteratorValid() 
+				&& !(_currentCoord[0] == _nVoxel[0]-1 
+				&& _currentCoord[1] == nRows(_currentCoord[0])-1
+				&& _currentCoord[2] 
+						== nCols(_currentCoord[0],_currentCoord[1])-1);
+	}
 	
 	/* (non-Javadoc)
 	 * @see grid.SpatialGrid#resetIterator()
@@ -540,10 +555,10 @@ public abstract class PolarGrid extends SpatialGrid
 		return coord;
 	}
 	
-	/**
-	 * @return the length of the grid (maximum index)
-	 */
-	public abstract int length();
+//	/**
+//	 * @return the length of the grid (maximum index)
+//	 */
+//	public abstract int length();
 	
 	/**
 	 * Converts a coordinate in the grid's array to a location in simulated 
@@ -557,6 +572,17 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @return - the location in simulation space.
 	 */
 	public abstract double[] getLocation(int[] coord, double[] inside);
+	
+	@Override
+	public double[] getVoxelOrigin(int[] coord) {
+		return getLocation(coord, VOXEL_ORIGIN_HELPER);
+	}
+	
+	@Override
+	public double[] getVoxelCentre(int[] coord)
+	{
+		return getLocation(coord, VOXEL_CENTRE_HELPER);
+	}
 	
 	/* (non-Javadoc)
 	 * @see grid.SpatialGrid#getCoords(double[])
@@ -613,38 +639,45 @@ public abstract class PolarGrid extends SpatialGrid
 	}
 	
 	/**
-	 * @param r - radius.
+	 * \brief computes the number of rows in matrix i.
+	 * 
+	 * @param i - matrix index
 	 * @return - the number of rows for a given radius.
 	 */
-	public int nt(int r) {
-		return (int)_ires[1]*s(r);
+	public int nRows(int i) {
+		return (int)_ires[2]*s(i);
 	}
 	
 	/**
-	 * Computes the number of elements in row (r,t)
+	 * \brief Computes the number of columns in matrix i
 	 * 
-	 * @param p - phi coordinate
-	 * @param t - theta cordinate
-	 * @return - the number of elements in row t
+	 * @param i - matrix index
+	 * @param j - row index
+	 * @return - the number of elements in row j
 	 */
-	public int np(int r, int t){
-		double t_scale=(Math.PI/2)/(s(r)-0.5);
-		t%=s(r)*2;
-		double np=_ires[2]+(s(r)-1)*_ires[2]*Math.sin(t*t_scale);
+	public int nCols(int i, int j){
+		double t_scale=(Math.PI/2)/(s(i)-0.5);
+		double np=_ires[1]+(s(i)-1)*_ires[1]*Math.sin(j*t_scale*_res[2][0]);
 //		System.out.println(np);
 		return (int)Math.round(np);
 	}
 	
 	/**
-	 * \brief computes the number of elements in the matrix with index r 
-	 * 		  until but excluding row t
+	 * \brief computes the number of elements in the matrix with index i 
+	 * 		  until but excluding row j
 	 * 
-	 * @param r - radius (matrix index)
-	 * @param t - theta coordinate (row index)
-	 * @return - number of cells in a triangle until row t
+	 * @param i - matrix index
+	 * @param j - row index
+	 * @return - the number of elements in matrix i until but excluding row j
 	 */
-	public int n(int r, int t){
-		return (int) (_ires[2]*t*(2*r*Math.sin((Math.PI*t)/(4*r+1))+1));
+	public int n(int i, int j){
+		double x=2*_ires[1]*i*Math.sin((Math.PI*_res[2][0])/(2*(4*i+1)));
+		double y=Math.cos((Math.PI*_res[2][0])/(4*i+1))-1;
+		return (int)Math.round((x*Math.cos((Math.PI*(0.5-j)*_res[2][0])/(4*i+1)))/(y)+j*_ires[1]
+						-(x*Math.cos((Math.PI*_res[2][0])/(2*(4*i+1))))/(y));
+		
+//		return (int) Math.round(_ires[1]*j*(2*i*Math.sin((Math.PI*j)/(4*i+1))+1));
+		
 //		 return (int)((2*t*(-1 + Math.cos(1)) - _ires[2]*(1 + r)*Math.sin(1) 
 //				 + _ires[2]*(1 + r)*(Math.sin(1 - t) 
 //				 + Math.sin(t)))/(-1 + Math.cos(1)));
@@ -652,14 +685,51 @@ public abstract class PolarGrid extends SpatialGrid
 	}
 	
 	/**
-	 * computes the number of elements in the whole matrix until and including 
-	 * matrix-slice r
+	 * computes the number of elements in the grid array until and including 
+	 * matrix i
 	 * 
-	 * @param r - radius
-	 * @return - the number of grid cells until and including matrix r
+	 * @param i - matrix index
+	 * @return - the number of elements until and including matrix i
 	 */
-	public int N(int r){
-		return (int)((_ires[1]*_ires[2]*(r+1)*(r+2)*(4*r+3))/6);
+	public int N(int i){
+		return (int)((_ires[1]*_ires[2]*(i+1)*(i+2)*(4*i+3))/6);
+	}
+	
+	public static void cartLoc2Coord(
+			double loc, int nVoxel, double[] res,
+			int idx_out, int[] coord_out, double[] inside_out){
+		double counter = 0.0;
+		countLoop: for ( int i = 0; i < nVoxel; i++ )
+		{
+			if ( counter >= loc)
+			{
+				coord_out[idx_out] = i;
+				if (inside_out!=null) inside_out[idx_out] = counter-loc;
+				break countLoop;
+			}
+			counter += res[i];
+		}
+	}
+	
+	public static void polarLoc2Coord(double loc, double arcLength, 
+			int idx_out, int[] coord_out, double[] inside_out){
+		double c = loc/arcLength;
+		coord_out[idx_out] = (int)(c);
+		if (inside_out != null) 
+			inside_out[idx_out] = Math.abs(c-coord_out[idx_out]);
+	}
+	
+	public static void cartCoord2Loc(int coord, double[] res, double inside,
+			int idx_out, double[] loc_out){
+		for ( int i = 0; i < coord; i++ ){
+			loc_out[idx_out] += res[i];
+		}
+		loc_out[idx_out] += inside * res[coord];
+	}
+	
+	public static void polarCoord2Loc(int coord, double arcLength, double inside,
+			int idx_out, double[] loc_out){
+		loc_out[idx_out]=(coord+inside)*arcLength;
 	}
 
 	/*************************************************************************
