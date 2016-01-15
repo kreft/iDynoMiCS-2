@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import agent.Agent;
-//import agent.state.HasReactions;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
 import grid.SpatialGrid;

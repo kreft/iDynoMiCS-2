@@ -3,7 +3,7 @@ package grid;
 import java.util.HashMap;
 
 import grid.GridBoundary.GridMethod;
-import idynomics.Compartment.BoundarySide;
+import shape.BoundarySide;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.

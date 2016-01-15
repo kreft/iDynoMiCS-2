@@ -8,7 +8,7 @@ import java.util.function.DoubleFunction;
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import linearAlgebra.*;
-import idynomics.Compartment.BoundarySide;
+import shape.BoundarySide;
 
 /**
  *\brief 
@@ -791,6 +791,19 @@ public class CartesianGrid extends SpatialGrid
 			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
 			{
 				return new CartesianGrid(nVoxel, resolution);
+			}
+		};
+	}
+	
+	public static final GridGetter dimensionlessGetter()
+	{
+		return new GridGetter()
+		{
+			@Override
+			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
+			{
+				// TODO check this is the best way.
+				return new CartesianGrid(Vector.onesInt(3), resolution);
 			}
 		};
 	}
