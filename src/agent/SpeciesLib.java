@@ -10,7 +10,7 @@ public class SpeciesLib {
 	public static Species set(String name, Species spiecies)
 	{
 		if ( SpeciesLib._species.containsKey(name) )
-			System.out.println("Warning: overwriting clade "+name);
+			System.out.println("Warning: overwriting species module "+name);
 		SpeciesLib._species.put(name, spiecies);
 		return spiecies;
 	}
