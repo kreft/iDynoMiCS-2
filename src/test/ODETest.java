@@ -14,6 +14,7 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import processManager.SolveChemostat;
+import shape.ShapeLibrary;
 import utility.ExtraMath;
 
 public class ODETest
@@ -68,7 +69,8 @@ public class ODETest
 		/*
 		 * 
 		 */
-		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
+		EnvironmentContainer environment =
+				new EnvironmentContainer(new ShapeLibrary.Dimensionless());
 		for ( String name : soluteNames )
 			environment.addSolute(name, initialConcn.get(name));
 		
@@ -126,7 +128,8 @@ public class ODETest
 		/*
 		 * 
 		 */
-		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
+		EnvironmentContainer environment = 
+				new EnvironmentContainer(new ShapeLibrary.Dimensionless());
 		for ( String name : soluteNames )
 			environment.addSolute(name, initialConcn.get(name));
 		
@@ -195,7 +198,8 @@ public class ODETest
 		/*
 		 * 
 		 */
-		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
+		EnvironmentContainer environment = 
+				new EnvironmentContainer(new ShapeLibrary.Dimensionless());
 		for ( String name : soluteNames )
 			environment.addSolute(name, initialConcn.get(name));
 		
