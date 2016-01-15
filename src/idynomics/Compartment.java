@@ -2,7 +2,6 @@ package idynomics;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import agent.Agent;
@@ -12,7 +11,6 @@ import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
 import processManager.ProcessManager;
 import shape.Shape;
-import utility.ExtraMath;
 import shape.BoundarySide;
 
 public class Compartment implements CanPrelaunchCheck

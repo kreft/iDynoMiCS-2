@@ -6,6 +6,8 @@ package shape;
 /**
  * 
  * 
+ * @author cleggrj
+ *
  */
 public enum BoundarySide
 {
@@ -67,6 +69,6 @@ public enum BoundarySide
 	
 	public static boolean isSideBoundary(BoundarySide aSide)
 	{
-		return ! ( aSide == INTERNAL || aSide == CONNECTION || aSide == UNKNOWN );
+		return !(aSide == INTERNAL || aSide == CONNECTION || aSide == UNKNOWN);
 	}
 }

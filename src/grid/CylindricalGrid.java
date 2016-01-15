@@ -175,6 +175,24 @@ public class CylindricalGrid extends PolarGrid{
 		return getLocation(coord, new double[]{0.5,0.5,0.5});
 	}
 	
+	@Override
+	protected BoundarySide isOutside(int[] coord) {
+		if ( coord[0] < 0 )
+			return BoundarySide.RMIN;
+		if ( coord[0] >= this._nVoxel[0] )
+			return BoundarySide.RMAX;
+		if ( coord[1] < 0 )
+			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
+		if ( coord[1] >= _res[1][0]*(2*coord[0]-1) )
+			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
+		if ( coord[2] < 0 )
+			return BoundarySide.ZMIN;
+		if ( coord[2] >= this._nVoxel[2] )
+			return BoundarySide.ZMAX;
+		return null;
+	}
+
+	
 //	/**
 //	 * no longer maintained and may not work
 //	 * 
