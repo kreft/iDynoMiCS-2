@@ -2,28 +2,49 @@ package grid;
 
 import java.util.HashMap;
 
-import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.BoundarySide;
 
 /**
- * @author qwer
+ * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
  *
+ * A grid with polar (r,t) coordinates and a cartesian z coordinate. 
  */
 public class CylindricalGrid extends PolarGrid{
 	
+	/**
+	 * @param nVoxel - length in each dimension
+	 * @param resolution - Array of length 3,
+	 *  containing arrays of length _nVoxel[dim] for non-dependent dimensions
+	 *  (r and z) and length 1 for dependent dimensions (t and p), 
+	 *  which implicitly scale with r.
+	 */
 	public CylindricalGrid(int[] nVoxel, double[][] resolution)
 	{
 		super(nVoxel, resolution);
 	}
 	
+	/**
+	 * @param nVoxel - length in each dimension
+	 * @param resolution -  Array of length 3 defining constant resolution
+	 *  in each dimension 
+	 */
 	public CylindricalGrid(int[] nVoxel, double[] resolution)
 	{
 		super(nVoxel, resolution);
 	}
 
-	public CylindricalGrid(){this(new int[]{1,90,1},new double[][]{{1},{1},{1}});}
+	/**
+	 * Constructs a Grid with lengths (1,90,1) -- one grid cell
+	 */
+	public CylindricalGrid(){
+		this(new int[]{1,90,1},new double[][]{{1},{1},{1}});
+	}
 	
+	/* (non-Javadoc)
+	 * @see grid.SpatialGrid#newArray(grid.SpatialGrid.ArrayType, double)
+	 */
 	@Override
 	public void newArray(ArrayType type, double initialValues) {
 		/*
@@ -36,108 +57,149 @@ public class CylindricalGrid extends PolarGrid{
 		 * yet, make it.
 		 */
 		if ( this._array.containsKey(type) )
-			PolarArray.applyToAll(_array.get(type), ()->{return initialValues;});
+			PolarArray.applyToAll(
+					_array.get(type), ()->{return initialValues;});
 		else
 		{
-			double[][][] array = PolarArray.createCylinder(this._nVoxel[0],
-											this._nVoxel[2], this._res[1][0], initialValues);
+			int[] nt = new int[_nVoxel[0]];
+			for (int i=0; i<nt.length; ++i){
+				nt[i] = np(i);
+			}
+			
+			double[][][] array = PolarArray.createCylinder(
+					this._nVoxel[0],
+					nt, 
+					this._nVoxel[2], 
+					initialValues
+				);
 			this._array.put(type, array);
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see grid.SpatialGrid#getVoxelVolume(int[])
+	 */
 	@Override
 	public double getVoxelVolume(int[] coord) {
-//		return nt_rad*_res*_res*_res/(iresT*2);
 		double res_r=_res[0][coord[0]], res_z=_res[2][coord[2]];
+		// let A(r) be the area enclosed by a polar curve r=r(t):
+		// A(r)= 1/2 \int_t1^t2 r^2 dt
+		// then the voxel volume is \int_z^{z+res_z} A(r+res_r) - A(r) dz, or:
 		return 1.0/2*res_r*res_z*(2*coord[0]+res_r)*getArcLength(coord[0]);
 	}
 	
-	// returns the arc length of a grid element at radius r in radian (assuming constant resolution in t)
-	// = t2-t1
-	private double getArcLength(double r){
-//		return nt_rad*_res/(iresT*2*coord[0]);
-		return nt_rad/(_res[1][0]*(2*r+1));
+	/**
+	 * returns the arc length of a grid element at radius r in radians
+	 * (assuming constant resolution in t)
+	 * 
+	 * @param r - the radius.
+	 * @return - the arc length of the grid elements at r+1.
+	 */
+	private double getArcLength(int r){
+		// r-coordinate to t coord in spherical grid
+		int rs=s(r)-1;
+		// number of elements in row r
+		int nt = nt(_nVoxel[0]-1, rs);
+		return _nt_rad/nt;
 	}
-
-	@Override
-	public int[] getCoords(double[] loc) {
+	
+	public int[] getCoords(double[] loc, double[] inside) {
 		int[] coord = new int[3];
+		// determine r and z coordinate
 		double counter;
 		for ( int dim = 0; dim < 3; dim+=2 )
 		{
 			counter = 0.0;
 			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )
 			{
-				counter += this._res[dim][i];
 				if ( counter >= loc[dim] )
 				{
 					coord[dim] = i;
+					if (inside!=null) inside[dim] = counter-loc[dim];
 					break countLoop;
 				}
+				counter += this._res[dim][i];
 			}
 		}
-//		coord[1]=(int)(loc[1]*_res[1][0]*2*loc[0]/(nt_rad*_res));
-		coord[1]=(int)(loc[1]*_res[1][0]*2*loc[0]/nt_rad);
+		// determine t coordinate
+		double t=loc[1]/getArcLength(coord[0]);
+		coord[1]=(int)(t);
+		if (inside!=null) inside[1]=Math.abs(t-coord[1]);
 		return coord;
-//		return new int[]{
-//				(int)(loc[0]/_res),
-//				(int)(loc[1]*iresT*2*loc[0]/(nt_rad*_res)),
-//				(int)(loc[2]/_res)};
 	}
 	
+	/* (non-Javadoc)
+	 * @see grid.PolarGrid#getLocation(int[], double[])
+	 */
 	public double[] getLocation(int[] coord, double[] inside){
-		double r=0, z=0;
-		for ( int dim = 0; dim < 3; dim++ ){
-			for ( int i = 0; i < coord[0]; i++ ){
-				r += this._res[0][i];
-			}
-			for ( int i = 0; i < coord[2]; i++ ){
-				z += this._res[2][i];
-			}
-			r+=inside[0]*this._res[0][coord[0]];
-			z+=inside[2]*this._res[2][coord[2]];
+		double ri, ti, pi;
+		if (inside==null) {ri=0; ti=0; pi=0;}
+		else {ri=inside[0]; ti=inside[1]; pi=inside[2];}
+		
+		// determine r and z location (like in cartesian grid)
+		double r=0, z=0; 
+		for ( int i = 0; i < coord[0]; i++ ){
+			r += this._res[0][i];
 		}
-//		double r=(coord[0]+inside[0])*_res[0][coord[0]];
+		for ( int i = 0; i < coord[2]; i++ ){
+			z += this._res[2][i];
+		}
+		r+=ri*this._res[0][coord[0]];
+		z+=pi*this._res[2][coord[2]];
+		// determine t location (dependent on r)
 		double t;
 		if (r==0) {
-			t = Math.min((coord[1]+inside[1])*(Math.PI/2),nt_rad);
+			t = Math.min((coord[1]+ti)*(Math.PI/2),_nt_rad);
 		}else{
-			double l=getArcLength(coord[0]);
-			if (r>0) t = (coord[1]+inside[1])*l;
-			else t = Math.abs((coord[1]+inside[1])*l)-Math.PI;
+			double l=getArcLength(coord[0]); // the length (degree) at r+1
+			if (r>0) t = (coord[1]+ti)*l;
+			//TODO: swap 180 degree if r<0 ?? or don't allow <0 ?  
+			else t = Math.abs((coord[1]+ti)*l)-Math.PI; 
 		}
-//		double z=(coord[2]+inside[2])*_res[2][coord[2]];
-//		System.out.println(coord[0]+"  "+coord[1]+"  "+coord[2]+" | "+r+"  "+t+"  "+z);
 		return new double[]{r,t,z};
 	}
 
+	/* (non-Javadoc)
+	 * @see grid.SpatialGrid#getVoxelOrigin(int[])
+	 */
 	@Override
 	public double[] getVoxelOrigin(int[] coord) {
-		return getLocation(coord, new double[]{0d,0d,0d});
+		return getLocation(coord, null);
 	}
 	
+	/* (non-Javadoc)
+	 * @see grid.SpatialGrid#getVoxelCentre(int[])
+	 */
 	public double[] getVoxelCentre(int[] coord)
 	{
 		return getLocation(coord, new double[]{0.5,0.5,0.5});
 	}
-
+	
 	@Override
 	protected BoundarySide isOutside(int[] coord) {
 		if ( coord[0] < 0 )
-			return BoundarySide.INTERNAL;
+			return BoundarySide.RMIN;
 		if ( coord[0] >= this._nVoxel[0] )
-			return BoundarySide.CIRCUMFERENCE;
+			return BoundarySide.RMAX;
 		if ( coord[1] < 0 )
-			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
+			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
 		if ( coord[1] >= _res[1][0]*(2*coord[0]-1) )
-			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
+			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
 		if ( coord[2] < 0 )
 			return BoundarySide.ZMIN;
 		if ( coord[2] >= this._nVoxel[2] )
 			return BoundarySide.ZMAX;
 		return null;
 	}
+
 	
+//	/**
+//	 * no longer maintained and may not work
+//	 * 
+//	 * @param type
+//	 * @return
+//	 */
+//	@Deprecated
 //	public CartesianGrid toCartesianGrid(ArrayType type){
 //		CartesianGrid grid = new CartesianGrid(
 //				new int[]{2*_nVoxel[0],2*_nVoxel[0],_nVoxel[2]}, _res);
@@ -162,8 +224,12 @@ public class CylindricalGrid extends PolarGrid{
 //		return grid;
 //	}
 	
-	public int length(){return (int)(_nVoxel[2]*_res[1][0]*_nVoxel[0]*_nVoxel[0]);}	
-
+	/* (non-Javadoc)
+	 * @see grid.PolarGrid#length()
+	 */
+	public int length(){
+		return (int)(_nVoxel[2]*_ires[1]*_nVoxel[0]*_nVoxel[0]);
+	}	
 
 	@Override
 	public void calcMinVoxVoxResSq() {
@@ -171,58 +237,185 @@ public class CylindricalGrid extends PolarGrid{
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see grid.SpatialGrid#cyclicTransform(int[])
+	 */
 	@Override
 	public int[] cyclicTransform(int[] coord) {
-		// TODO Auto-generated method stub
-		return null;
+		BoundarySide bs = isOutside(coord,0);
+		if (bs==BoundarySide.RMAX)
+			coord[0] = coord[0]%(_nVoxel[0]-1);
+		if (bs==BoundarySide.INTERNAL)
+			coord[0] = _nVoxel[0]+coord[0];
+		
+		bs = isOutside(coord,2);
+		if (bs==BoundarySide.ZMAX)
+			coord[2] = coord[2]%(_nVoxel[2]-1);
+		if (bs==BoundarySide.ZMIN)
+			coord[2] = _nVoxel[2]+coord[2];
+		
+		bs = isOutside(coord,1);
+		if (bs!=null){
+			int nt=nt(_nVoxel[0], s(coord[0])-1);
+			switch (bs){
+			case YMAX: coord[1] = coord[1]%(nt-1); break;
+			case YMIN: coord[1] = nt+coord[2]; break;
+			case INTERNAL:
+				coord[1] = coord[1]%nt; 
+				if (coord[1] < 0) coord[1] += nt;
+				break;
+			default: throw new RuntimeException("unknown boundary side"+bs);
+			}
+		}
+		return coord;
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see grid.SpatialGrid#getNbhSharedSurfaceArea()
+	 */
 	@Override
 	public double getNbhSharedSurfaceArea() {
-		// TODO Auto-generated method stub
+//		if (_nbhIdx>3){ // moving in r
+//			
+//		}else return 1;
 		return 0;
 	}
 
+//	/* (non-Javadoc)
+//	 * @see grid.SpatialGrid#getNbhSharedSurfaceArea()
+//	 */
+//	@Override
+//	public double getNbhSharedSurfaceArea() {
+////		double sA=0, t1_nbh, t2_nbh;
+////		boolean is_right, is_left, is_inBetween;
+////		t1_nbh = t-inside[1]*len_nbh;
+////		t2_nbh = t+(1-inside[1])*len_nbh;
+////		
+////		// t1 of nbh <= t1 of cc (right counter-clockwise)
+////		if (dr < 0){
+////			is_right = t1_nbh <= t1_cur;
+////			is_left = t2_nbh >= t2_cur;
+////			is_inBetween = is_left && is_right;
+////			len_s = len_cur;
+////		}else{
+////			is_right = t1_nbh < t1_cur;
+////			is_left = t2_nbh > t2_cur;
+////			is_inBetween = !(is_left || is_right);
+////			len_s = len_nbh;
+////		}
+////		
+////		if (is_inBetween) sA = 1;
+////		else if (is_right) sA = (t2_nbh-t1_cur)/len_s;
+////		else sA = (t2_cur-t1_nbh)/len_s; // is_left
+////		
+////		return sA;
+//	}
+
+	/* (non-Javadoc)
+	 * @see grid.SpatialGrid#getCurrentNbhResSq()
+	 */
 	@Override
 	public double getCurrentNbhResSq() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 	
-
-	@Override
-	// converts idx to rtz coordinates
+	
+	/**
+	 * deprecated because it causes problem in SphericalGrid and may 
+	 * fail in CylindricalGrid for very large indices as well
+	 * 
+	 * @param idx - an index
+	 * @param coord - a array to write coord into (optional)
+	 * @return - a (r,p,t) coordinate
+	 */
+	@Deprecated
 	public int[] idx2coord(int idx, int[] coord) {
 		if (coord==null) coord=new int[3];
-		coord[2]=(int) Math.ceil(idx/(_res[1][0]*Math.pow(_nVoxel[0], 2)))-1;
-		double idx_z=idx-(coord[2]*_res[1][0]*Math.pow(_nVoxel[0], 2));
-		coord[0]=(int) Math.ceil(Math.pow(idx_z/_res[1][0],1.0/2))-1;
-		coord[1]=(int) (idx_z - _res[1][0]*Math.pow(coord[0],2))-1;
+		// determine z coordinate
+		coord[2]=(int) Math.ceil(idx/(_ires[1]*Math.pow(_nVoxel[0], 2)))-1;
+		// 'reset' iterator to 1 in current z array 
+		double idx_z=idx-(coord[2]*_ires[1]*Math.pow(_nVoxel[0], 2));
+		// determine r coordinate
+		coord[0]=(int) Math.ceil(Math.pow(idx_z/_ires[1],1.0/2))-1;
+		// determine t coordinate
+		coord[1]=(int) (idx_z - _ires[1]*Math.pow(coord[0],2))-1;
 		return coord;
 	}
 	
+	
+	/* (non-Javadoc)
+	 * @see grid.PolarGrid#coord2idx(int[])
+	 */
 	@Override
 	public int coord2idx(int[] coord){
-		return (int)(coord[2]*_res[1][0]*_nVoxel[0]*_nVoxel[0]
-				+(coord[1]+_res[1][0]*coord[0]*coord[0]+1));
+		return (int)(coord[2]*_ires[1]*_nVoxel[0]*_nVoxel[0]
+				+(coord[1]+_ires[1]*coord[0]*coord[0]+1));
 	}
-
+	
+	/* (non-Javadoc)
+	 * @see grid.PolarGrid#iteratorExceeds(int)
+	 */
+	protected boolean iteratorExceeds(int axis) {
+		switch(axis){
+		case 0: case 2: return _currentCoord[axis] >=  this._nVoxel[axis];
+		case 1: return _currentCoord[axis] 
+				>= nt(_nVoxel[0], s(_currentCoord[0])-1);
+		default: throw new RuntimeException("0 < axis <= 3 not satisfied");
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see grid.PolarGrid#currentNbhIdxChanged()
+	 */
 	@Override
-	public void currentNbhIdxChanged() {
-		if (isNbhIteratorValid()){
-			_currentNeighbor=Vector.add(Vector.copy(_currentCoord),nbhs[nbhIdx]);
-			if (nbhIdx>3){ // moving in r
-				double t_scale=2*(_currentCoord[1]+1)/(2.0*_currentCoord[0]+1);
-//				double t_scale=((double)_currentCoord[1])/_currentCoord[0];
-				if (!isMultNbh && (t_scale%1 > 0.5 || t_scale%1 == 0d)) {
-					_currentNeighbor[1]=_currentCoord[1]+nbhs[nbhIdx][1]*(int)Math.ceil(t_scale);
-					nbhIdx--;
-					isMultNbh=true;
-				} else {
-					_currentNeighbor[1]=_currentCoord[1]+nbhs[nbhIdx][1]*(int)Math.floor(t_scale);
-					isMultNbh=false;
+	public void fillNbhSet() {
+		if (_nbhIdx>3){ // moving in r
+			int[] cc = _currentCoord;
+			int dr = _nbhs[_nbhIdx][0];
+			if (cc[0] + dr >= 0){
+				// _nVoxel[0] isntead of _nVoxel[0] - 1 to allow neighbors outside
+				double nt_cur=nt(_nVoxel[0], s(cc[0])-1);
+				double nt_nbh=nt(_nVoxel[0], s(cc[0]+dr)-1);
+				double drt=nt_nbh/nt_cur;
+//									System.out.println(nt_cur+" "+nt_nbh+" "+drt);
+//									System.out.println(cc[1]*drt+"  "+(cc[1]+1)*drt);
+				for (int t=(int)(cc[1]*drt);  t<(cc[1]+1)*drt; t++){
+//					System.out.println((cc[1]*drt)+" "+((cc[1]+1)*drt)+" "+t);
+					_subNbhSet.add(new int[]{cc[0]+dr,t,cc[2]+_nbhs[_nbhIdx][2]});
 				}
-			}
+			}else _subNbhSet.add(new int[]{-1,cc[1],cc[2]});
+		}else{ // add the relative position to current index for constant r 
+			_subNbhSet.add(Vector.add(
+					Vector.copy(_currentCoord),_nbhs[_nbhIdx]));
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see grid.PolarGrid#isOutside(int[], int)
+	 */
+	protected BoundarySide isOutside(int[] coord, int dim) {
+		switch (dim) {
+		case 0:
+			if ( coord[0] < 0 )
+				return BoundarySide.RMIN;
+			if ( coord[0] >= this._nVoxel[0] )
+				return BoundarySide.RMAX;
+			return null;
+		case 1:
+			if ( coord[1] < 0 )
+				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
+			int nt=nt(_nVoxel[0]-1, s(coord[0])-1);
+			if ( coord[1] >= nt)
+				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
+			return null;
+		case 2:
+			if ( coord[2] < 0 )
+				return BoundarySide.ZMIN;
+			if ( coord[2] >= this._nVoxel[2] )
+				return BoundarySide.ZMAX;
+			return null;
+		default: throw new IllegalArgumentException("dim must be > 0 and < 3");
 		}
 	}
 }

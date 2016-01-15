@@ -29,7 +29,10 @@ import idynomics.Compartment;
 ```
 
 ## Line lengths
-Please keep line lengths to a maximum of 80 characters wherever possible. This makes it easier to reading code on small screens, and to compare code side-by-side on one wider screen.
+Please keep line lengths to a maximum of 80 characters wherever possible. This makes it easier to reading code on small screens, and to compare code side-by-side on one wider screen. To make this easier, you can set up Eclipse to show a margin guide:
+
+![Eclipse editor margin column](https://raw.githubusercontent.com/roughhawkbit/iDynoMiCS-2/master/Docs/EclipseEditorMarginColumn.png?token=ADJGITdAOIqbkRZY34_4u0O0TC3sxxJ6ks5WmN2bwA%3D%3D)
+
 
 TODO wrapping lines
 
@@ -138,6 +141,28 @@ This is a confusing aspect of Java, but worth learning the distinction. All data
 ## Everything should be possible to initialise through XML
 
 ## Visualisation should be the same regardless of whether it's during the simulation or from results
+
+## Using modulo
+
+We often need to use [modulo](https://en.wikipedia.org/wiki/Modulo_operation), for example when dealing with periodic boundaries or circular geometries. The in-built Java modulus is specified using the `%` sign:
+``` java 
+// dividend % divisor = remainder
+1 % 3 ; // = 1
+5 % 3 ; // = 2
+-2 % 3 ; // = -2
+```
+Note that the sign of the answer is always that of the dividend. If you want it to be the same sign as the divisor (as is often the case), use `Math.floorMod(int dividend, int divisor)`:
+``` java 
+// dividend % divisor = remainder
+Math.floorMod(1, 3) ; // = 1
+Math.floorMod(5, 3) ; // = 2
+Math.floorMod(-2, 3) ; // = 1
+```
+
+# Testing
+
+Useful links:
+- [Unit testing with JUnit](http://www.vogella.com/tutorials/JUnit/article.html)
 
 # Teamwork
 

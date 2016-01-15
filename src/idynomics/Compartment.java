@@ -2,166 +2,40 @@ package idynomics;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
-import grid.GridBoundary;
-import grid.SpatialGrid.GridGetter;
 import processManager.ProcessManager;
+import shape.Shape;
+import shape.BoundarySide;
 
-public class Compartment
+public class Compartment implements CanPrelaunchCheck
 {
-	public static enum CompartmentShape
-	{
-		/*
-		 * A compartment without spatial structure, e.g. a chemostat.
-		 */
-		DIMENSIONLESS(0),
-		
-		LINE(1),
-		
-		RECTANGLE(2),
-		
-		CUBOID(3),
-		
-		UNKNOWN(-1);
-		
-		private int nDim;
-		
-		private CompartmentShape(int nDim)
-		{
-			this.nDim = nDim;
-		}
-		
-		public static CompartmentShape getShapeFor(String shape)
-		{
-			if ( shape.equalsIgnoreCase("dimensionless") )
-				return DIMENSIONLESS;
-			else if ( shape.equalsIgnoreCase("line") )
-				return LINE;
-			else if ( shape.equalsIgnoreCase("rectangle") )
-				return RECTANGLE;
-			else if ( shape.equalsIgnoreCase("cuboid") )
-				return CUBOID;
-			else
-				return UNKNOWN;
-		};
-		
-		public static HashMap<BoundarySide,Boundary> 
-									sideBoundariesFor(CompartmentShape aShape)
-		{
-			if ( aShape == DIMENSIONLESS || aShape == UNKNOWN )
-				return null;
-			HashMap<BoundarySide,Boundary> out = new 
-											HashMap<BoundarySide,Boundary>();
-			if ( aShape == LINE || aShape == RECTANGLE || aShape == CUBOID)
-			{
-				out.put(BoundarySide.XMIN, null);
-				out.put(BoundarySide.XMAX, null);
-			}
-			if ( aShape == RECTANGLE || aShape == CUBOID)
-			{
-				out.put(BoundarySide.YMIN, null);
-				out.put(BoundarySide.YMAX, null);
-			}
-			if ( aShape == CUBOID)
-			{
-				out.put(BoundarySide.ZMIN, null);
-				out.put(BoundarySide.ZMAX, null);
-			}
-			return out;
-		}
-		
-		public static GridGetter gridFor(CompartmentShape aShape)
-		{
-			if ( aShape == LINE || aShape == RECTANGLE || aShape == CUBOID)
-				return CartesianGrid.standardGetter();
-			//TODO Safety
-			return null;
-		}
-	}
-	
-	public static enum BoundarySide
-	{
-		/*
-		 * Cartesian boundaries.
-		 */
-		XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX,
-		/*
-		 * Polar/cylindrical boundaries
-		 */
-		CIRCUMFERENCE,
-		/*
-		 * 
-		 */
-		INTERNAL,
-		/*
-		 * 
-		 */
-		UNKNOWN;
-		
-		public static BoundarySide getSideFor(String side)
-		{
-			if ( side.equalsIgnoreCase("xmin") )
-				return XMIN;
-			else if ( side.equalsIgnoreCase("xmax") )
-				return XMAX;
-			else if ( side.equalsIgnoreCase("ymin") )
-				return YMIN;
-			else if ( side.equalsIgnoreCase("ymax") )
-				return YMAX;
-			else if ( side.equalsIgnoreCase("zmin") )
-				return ZMIN;
-			else if ( side.equalsIgnoreCase("zmax") )
-				return ZMAX;
-			else if ( side.equalsIgnoreCase("internal") )
-				return INTERNAL;
-			else
-				return UNKNOWN;
-		}
-	};
-	
-	protected CompartmentShape _shape;
-	
 	/**
-	 * N-dimensional vector describing the shape of this compartment. 
+	 * The Compartment is now aware of its own name.
 	 * 
-	 * TODO Rob [8Oct2015]: This may need to be replaced with some sort of 
-	 * shape object if we want to use non-rectangular compartments (e.g., 
-	 * spherical). This is low priority for now.
-	 */
-	private double[] _sideLengths;
-	
-	/**
-	 * AgentContainer deals with 
-	 */
-	public AgentContainer agents = new AgentContainer();
-	
-	/**
-	 * The Compartment is now aware of it's own name
+	 * TODO Rob [12Jan2016]: I'd rather it didn't, but this is low priority.
 	 */
 	public String name;
 	
 	/**
-	 * 
+	 * TODO
+	 */
+	protected Shape _shape;
+	
+	/**
+	 * AgentContainer deals with TODO
+	 */
+	public AgentContainer agents = new AgentContainer();
+	
+	/**
+	 * TODO
 	 */
 	public EnvironmentContainer _environment;
-	
-	/**
-	 * Directory of boundaries that are linked to a specific side.
-	 */
-	protected HashMap<BoundarySide,Boundary> _sideBoundaries;
-	
-	/**
-	 * List of boundaries in a dimensionless compartment, or internal
-	 * boundaries in a dimensional compartment.
-	 */
-	protected LinkedList<Boundary> _otherBoundaries = 
-												new LinkedList<Boundary>();
 	
 	/**
 	 * 
@@ -183,7 +57,7 @@ public class Compartment
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public Compartment(CompartmentShape aShape)
+	public Compartment(Shape aShape)
 	{
 		this._shape = aShape;
 		this.setupShape();
@@ -191,39 +65,26 @@ public class Compartment
 	
 	public Compartment(String aShapeName)
 	{
-		this._shape = CompartmentShape.getShapeFor(aShapeName);
+		try
+		{
+			// TODO check 
+			this._shape = (Shape) Class.forName(aShapeName).newInstance();
+		}
+		catch ( Exception e )
+		{
+			// TODO
+		}
 		this.setupShape();
 	}
 	
 	protected void setupShape()
 	{
-		if ( this._shape == CompartmentShape.UNKNOWN )
-		{
-			//TODO
-		}
-		this._otherBoundaries = new LinkedList<Boundary>();
-		this._sideBoundaries = CompartmentShape.sideBoundariesFor(this._shape);
-		this.agents.init(getNumDims());
-		this._environment = new 
-				  EnvironmentContainer(CompartmentShape.gridFor(this._shape));
+		this.agents.init( getNumDims() );
+		this._environment = new EnvironmentContainer(this._shape.gridGetter());
 	}
 	
 	public void init()
 	{
-		if ( this._sideLengths == null )
-		{
-			// TODO
-			System.out.println("Warning! Compartment side lengths not set.");
-			return;
-		}
-		for ( String soluteName : this._environment.getSoluteNames() )
-		{
-			this._sideBoundaries.forEach( (side, boundary) ->
-			{
-				this._environment.addBoundary(side, soluteName, 
-										boundary.getGridMethod(soluteName));
-			});
-		}
 		
 	}
 	
@@ -234,18 +95,18 @@ public class Compartment
 	
 	public boolean isDimensionless()
 	{
-		return this._shape == CompartmentShape.DIMENSIONLESS;
+		return this._shape.getNumberOfDimensions() == 0;
 	}
 	
 	public int getNumDims()
 	{
-		return this._shape.nDim;
+		return this._shape.getNumberOfDimensions();
 	}
 	
 	public void setSideLengths(double[] sideLengths)
 	{
-		this._sideLengths = sideLengths;
-		this._environment.setSize(this._sideLengths, 1.0);
+		this._shape.setSideLengths(sideLengths);
+		this._environment.setSize(sideLengths, 1.0);
 	}
 	
 	/**
@@ -267,19 +128,9 @@ public class Compartment
 	 * 
 	 * @param aBoundary
 	 */
-	public void addBoundary(BoundarySide side, Boundary aBoundary)
+	public void addBoundary(BoundarySide aSide, Boundary aBoundary)
 	{
-		if ( this.isDimensionless() || side == BoundarySide.INTERNAL )
-			this._otherBoundaries.add(aBoundary);
-		else
-		{
-			this._sideBoundaries.put(side, aBoundary);
-			for ( String soluteName : this._environment.getSoluteNames() )
-			{
-				this._environment.addBoundary(side, soluteName,
-										aBoundary.getGridMethod(soluteName));
-			}
-		}
+		this._shape.addBoundary(aSide, aBoundary);
 	}
 	
 	/**
@@ -289,7 +140,7 @@ public class Compartment
 	 */
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
-		aProcessManager.showBoundaries(this._sideBoundaries.values());
+		aProcessManager.showBoundaries(this._shape.getOtherBoundaries());
 		this._processes.add(aProcessManager);
 	}
 	
@@ -375,9 +226,26 @@ public class Compartment
 	 */
 	public void pushAllOutboundAgents()
 	{
-		for ( Boundary b : this._sideBoundaries.values() )
+		// TODO Rob [12Jan2016]: I broke my own rule about using instanceof...
+		// need to check if it's justified here.
+		for ( Boundary b : this._shape.getSideBoundaries() )
 			if ( b instanceof BoundaryConnected )
 				((BoundaryConnected) b).pushAllOutboundAgents();
+	}
+	
+	/*************************************************************************
+	 * PRE-LAUNCH CHECK
+	 ************************************************************************/
+	
+	public boolean isReadyForLaunch()
+	{
+		if ( this._shape == null )
+		{
+			System.out.println("Compartment shape is undefined!");
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/*************************************************************************

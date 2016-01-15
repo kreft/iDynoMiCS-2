@@ -1,6 +1,5 @@
 package idynomics;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -8,13 +7,16 @@ import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SpatialGrid.GridGetter;
-import idynomics.Compartment.BoundarySide;
+import shape.BoundarySide;
+import shape.Shape;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import utility.ExtraMath;
 
 public class EnvironmentContainer
 {
+	protected Shape _shape;
+	
 	protected GridGetter _gridGetter;
 	
 	protected int[] _defaultNVoxel = Vector.vector(3, 1);
@@ -39,6 +41,16 @@ public class EnvironmentContainer
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
+	
+	public EnvironmentContainer()
+	{
+		
+	}
+	
+	public void setShape(Shape aShape)
+	{
+		this._shape = aShape;
+	}
 	
 	public EnvironmentContainer(GridGetter aGridGetter)
 	{

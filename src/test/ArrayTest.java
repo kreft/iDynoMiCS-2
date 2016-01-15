@@ -1,5 +1,6 @@
 package test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import linearAlgebra.*;
@@ -88,13 +89,48 @@ public class ArrayTest
 		
 		/*
 		 * Check it's ok to have int[] arrays in a HashMap as an Object.
-		 */
+		 *
 		int n = 5;
 		HashMap<String, Object> hash = new HashMap<String, Object>();
 		int[] test = Vector.range(n);
 		hash.put("test", test);
 		for ( int i = 0; i < n; i++ )
 			System.out.println(((int[]) hash.get("test"))[i]);
+		*/
+		
+		/* Test matrix */
+		double[][] a = Matrix.zerosDbl(3);
+		a[0][0] = 1.0; a[0][1] = 2.0; a[0][2] = 3.0;
+		a[1][0] = 0.0; a[1][1] = 1.0; a[1][2] = 4.0;
+		a[2][0] = 5.0; a[2][1] = 6.0; a[2][2] = 0.0;
+		for ( double[] row : a )
+		{
+			for ( double elem : row )
+				System.out.print(elem+" ");
+			System.out.println("");
+		}
+		System.out.println("");
+		/* Analytic solution */
+		double[][] b = Matrix.zerosDbl(3);
+		b[0][0] = -24.0; b[0][1] =  18.0; b[0][2] =  5.0;
+		b[1][0] =  20.0; b[1][1] = -15.0; b[1][2] = -4.0;
+		b[2][0] = - 5.0; b[2][1] =   4.0; b[2][2] = 1.0;
+		for ( double[] row : b )
+		{
+			for ( double elem : row )
+				System.out.print(elem+" ");
+			System.out.println("");
+		}
+		System.out.println("");
+		/* Assert */
+		double[][] invert = Matrix.invert(a);
+		for ( double[] row : invert )
+		{
+			for ( double elem : row )
+				System.out.print(elem+" ");
+			System.out.println("");
+		}
+		System.out.println("");
 		
 	}
 
