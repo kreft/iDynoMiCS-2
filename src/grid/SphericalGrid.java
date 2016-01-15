@@ -2,8 +2,8 @@ package grid;
 
 import java.util.HashMap;
 
-import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
+import shape.BoundarySide;
 
 /**
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
@@ -162,8 +162,7 @@ public class SphericalGrid extends PolarGrid{
 	 * @see grid.PolarGrid#length()
 	 */
 	public int length(){return N(_nVoxel[0]-1);}
-		
-
+	
 	/**
 	 * works only for r<=96 
 	 * 
@@ -310,7 +309,7 @@ public class SphericalGrid extends PolarGrid{
 	@Override
 	public int[] cyclicTransform(int[] coord) {
 		BoundarySide bs = isOutside(coord,0);
-		if (bs==BoundarySide.CIRCUMFERENCE)
+		if (bs==BoundarySide.RMAX)
 			coord[0] = coord[0]%(_nVoxel[0]-1);
 		if (bs==BoundarySide.INTERNAL)
 			coord[0] = _nVoxel[0]+coord[0];
@@ -397,23 +396,23 @@ public class SphericalGrid extends PolarGrid{
 		switch (dim) {
 		case 0:
 			if ( coord[0] < 0 )
-				return BoundarySide.INTERNAL;
+				return BoundarySide.RMIN;
 			if ( coord[0] >= this._nVoxel[0] )
-				return BoundarySide.CIRCUMFERENCE;
+				return BoundarySide.RMAX;
 			break;
 		case 1:
 			int nt=nt(coord[0], coord[1]);
 			if ( coord[2] < 0 )
-				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
+				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
 			if ( coord[2] >= nt)
-				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
+				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
 			break;
 		case 2:
 			int np=np(coord[0]);
 			if ( coord[1] < 0 )
-				return _nVoxel[2]==180 ? BoundarySide.INTERNAL : BoundarySide.ZMIN;
+				return _nVoxel[2]==180 ? BoundarySide.INTERNAL : BoundarySide.PHIMIN;
 			if ( coord[1] >= np )
-				return _nVoxel[2]==180 ? BoundarySide.INTERNAL : BoundarySide.ZMAX;
+				return _nVoxel[2]==180 ? BoundarySide.INTERNAL : BoundarySide.PHIMAX;
 			break;
 			default: throw new IllegalArgumentException("dim must be > 0 and < 3");
 		}
