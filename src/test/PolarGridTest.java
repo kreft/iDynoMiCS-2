@@ -18,7 +18,6 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import boundary.BoundaryFixed;
-import grid.CylindricalGrid;
 import grid.PolarGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -31,26 +30,21 @@ public class PolarGridTest {
 	public static Scanner keyboard = new Scanner(System.in);
 	
 	/****** CARE: 
-	 * coordinates in the spherical array are (r,p,t), locations in space are (r,t,p)!
-	 * in the cylindrical array coordinates are (r,t,z)
-	 * _ires, _res and _nVoxel are in (r,t,p) notation as well
-	 * (it was meant to be (r,t,p) anywhere, but now t depends on p 
-	 * and not the other way around and "horizontally jagged" 
-	 * arrays cannot be created in java)
+	 * switch of array coordinates in the spherical grid array:
+	 * (r,p,t):
+	 * 		- coordinates in the spherical array
+	 * 		- inside[] for getLocation()
+	 * (r,t,p):
+	 * 		- cylindrical array coordinates
+	 *  	- locations in space 
+	 *  	- _ires
+	 *  	- _res
+	 *  	- _nVoxel
 	 */
 	
-	/******** DIFFERENCES TO CARTESIAN GRID: 
-	 * resolution for polar dimensions can only be set constant
-	 * -> resolutions of r and z can be set like in cartesian grid
-	 * _res[1][0] is used only (constant resolution in t)
-	 * _res[2][0] is used only for spherical grid (constant resolution in p)
-	 * _res[1|2][1...] are ignored atm
- 	 */
-	
 	/* SUGGESTED IMPROVEMENTS:
-	 * - we could store a cumulative sum of the resoultions to speed computation
-	 *  of locations up (where we compute it on every call)
-	 *  
+	 *  - store a cumulative sum of the resoultions to speed computation
+	 *  	of locations up (where we compute it on every call)
 	 *  - 
 	 */
 
@@ -203,7 +197,7 @@ public class PolarGridTest {
 		
 		/*
 		 * set tick unit manually 
-		 * (because automatic it sometimes sets the tick unit too small to display)
+		 * (because it sometimes sets the tick unit too small to display)
 		 */
 		NumberAxis range = (NumberAxis) plot.getRangeAxis();
         range.setTickUnit(new NumberTickUnit(0.1));
