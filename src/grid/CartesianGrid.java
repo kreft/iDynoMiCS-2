@@ -1,6 +1,7 @@
 package grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
@@ -267,8 +268,6 @@ public class CartesianGrid extends SpatialGrid
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
-			//for ( int i : aC )
-			//	System.out.println(i);
 			throw new ArrayIndexOutOfBoundsException(
 					"Voxel coordinates must be inside array: "+aC[0]+", "+aC[1]+", "+aC[2]);
 		}
@@ -726,7 +725,6 @@ public class CartesianGrid extends SpatialGrid
 	public GridMethod nbhIteratorIsOutside()
 	{
 		BoundarySide bSide = this.isOutside(this._currentNeighbor);
-		//System.out.println(Arrays.toString(this._currentNeighbor)); //bughunt
 		if ( bSide == null )
 			return null;
 		return this._boundaries.get(bSide);

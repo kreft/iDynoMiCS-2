@@ -6,9 +6,11 @@ package shape;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Set;
 
 import boundary.Boundary;
 import generalInterfaces.CanPrelaunchCheck;
+import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 
@@ -128,6 +130,16 @@ public abstract class Shape implements CanPrelaunchCheck
 			this._sideBoundaries.put(aSide, aBoundary);
 		else
 			this._otherBoundaries.add(aBoundary);	
+	}
+	
+	public Set<BoundarySide> getBoundarySides()
+	{
+		return this._sideBoundaries.keySet();
+	}
+	
+	public GridMethod getGridMethod(BoundarySide aSide, String soluteName)
+	{
+		return this._sideBoundaries.get(aSide).getGridMethod(soluteName);
 	}
 	
 	/**
