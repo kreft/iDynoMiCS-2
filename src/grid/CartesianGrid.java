@@ -783,6 +783,12 @@ public class CartesianGrid extends SpatialGrid
 	 * GRID GETTER
 	 ************************************************************************/
 	
+	/**
+	 * TODO: Bas [15.01.2016] these GridGetter methods can probably made a bit
+	 * simpler by directly implementing their newGrid(...) methods rather than
+	 * returning a new an anonymous GridGetter() that implements this method. 
+	 **/
+	
 	public static final GridGetter standardGetter()
 	{
 		return new GridGetter()
