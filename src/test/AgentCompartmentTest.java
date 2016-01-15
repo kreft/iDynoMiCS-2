@@ -28,7 +28,7 @@ public class AgentCompartmentTest {
 		
 		Simulator aSim = new Simulator();
 		
-		Compartment aCompartment = aSim.addCompartment("myCompartment", "rectangle");
+		Compartment aCompartment = aSim.addCompartment("myCompartment", "Rectangle");
 		aCompartment.setSideLengths(new double[] {9.0, 9.0, 1.0});
 		/*
 		 * 
@@ -79,16 +79,16 @@ public class AgentCompartmentTest {
 		ezAgent.set("density", 0.2);
 		ezAgent.set("volume",new SimpleVolumeState("mass,density"));
 		ezAgent.set("radius", new CoccoidRadius("volume"));
-		ezAgent.set("isLocated", true);		
+		ezAgent.set("#isLocated", true);		
 		List<Point> pts = new LinkedList<Point>();
 		pts.add(new Point(2));
 		ezAgent.set("body", new Body(pts));
 
 		ezAgent.set("joints", new JointsState("volume"));
-		ezAgent.set("lowerBoundingBox", new LowerBoundingBox());
-		((SecondaryState) ezAgent.getState("lowerBoundingBox")).setInput("body,radius");
-		ezAgent.set("dimensionsBoundingBox", new DimensionsBoundingBox());
-		((SecondaryState) ezAgent.getState("dimensionsBoundingBox")).setInput("body,radius");
+		ezAgent.set("#boundingLower", new LowerBoundingBox());
+		((SecondaryState) ezAgent.getState("#boundingLower")).setInput("body,radius");
+		ezAgent.set("#boundingSides", new DimensionsBoundingBox());
+		((SecondaryState) ezAgent.getState("#boundingSides")).setInput("body,radius");
 		ezAgent.init();
 		aCompartment.addAgent(ezAgent);
 
