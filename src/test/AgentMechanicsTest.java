@@ -12,7 +12,6 @@ import dataIO.PovExport;
 import dataIO.SvgExport;
 import dataIO.XmlLoad;
 import processManager.*;
-import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Simulator;
 
@@ -88,7 +87,7 @@ public class AgentMechanicsTest {
 		 */
 //		PovExport pov = new PovExport();
 		SvgExport svg = new SvgExport();
-		
+
 		System.out.println("Time: "+agentRelax.getTimeForNextStep());
 		// write initial state
 //		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
