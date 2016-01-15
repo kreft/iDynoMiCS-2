@@ -13,8 +13,6 @@
 	-->
 		<species name="AOB">
 			<state name="pigment" type="String" value="GREEN" />
-
-			
 			<!-- this has not been made yet, use a static growthrate for now -->
 			<state name="growthRate" type="double" value="0.08" />
 			<speciesModule name="coccoid" />
@@ -24,21 +22,20 @@
 			<state name="joints" type="secondary" value="JointsState" input="body" />
 			<state name="volume" type="secondary" value="SimpleVolumeState" input="mass,density" />
 			<state name="radius" type="secondary" value="CoccoidRadius" input="volume" />
-			<state name="lowerBoundingBox" type="secondary" value="LowerBoundingBox" input="body,radius" />
-			<state name="dimensionsBoundingBox" type="secondary" value="DimensionsBoundingBox" input="body,radius" />
+			<state name="#boundingLower" type="secondary" value="LowerBoundingBox" input="body,radius" />
+			<state name="#boundingSides" type="secondary" value="DimensionsBoundingBox" input="body,radius" />
 			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
 			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
 		</species>
-		
 	</speciesLib>
+	
 	<compartment name="second" shape="rectangle">
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
-				<state name="id" type="int" value="1" />
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
-				<state name="isLocated" type="boolean" value="true" />
+				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="RED" />
 				<state name="body" type="body">
 					<point position="0.2, 0.3" />
@@ -46,10 +43,9 @@
 			</agent>
 			<agent>
 				<state name="species" type="String" value="AOB" />
-				<state name="id" type="int" value="2" />
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
-				<state name="isLocated" type="boolean" value="true" />
+				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="BLUE" />
 				<state name="body" type="body">
 					<point position="0.1, -0.1" />
@@ -57,15 +53,22 @@
 			</agent>
 			<agent>
 				<state name="species" type="String" value="AOB" />
-				<state name="id" type="int" value="3" />
 				<state name="mass" type="double" value="0.2" />
 				<state name="density" type="double" value="1" />
-				<state name="isLocated" type="boolean" value="true" />
+				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="GREEN" />
 				<state name="body" type="body">
 					<point position="-0.1, 0.2" />
 				</state>
 			</agent>
 		</agents>
+		
+		<output>
+			<writer name="SvgExport">
+				<task quizable="Agent" bool="#isLocated" draw="circle" centers="joints" color="pigment" radius="radius" />
+			</writer>
+		</output>
 	</compartment>
+	
+
 </simulation>

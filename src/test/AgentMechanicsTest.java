@@ -1,5 +1,7 @@
 package test;
 
+import java.util.LinkedList;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -10,6 +12,7 @@ import dataIO.PovExport;
 import dataIO.SvgExport;
 import dataIO.XmlLoad;
 import processManager.*;
+import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Simulator;
 
@@ -80,8 +83,12 @@ public class AgentMechanicsTest {
 		agentGrowth.setTimeForNextStep(0.0);
 		agentGrowth.setTimeStepSize(stepSize);
 
+		/**
+		 * Very unfinished!!!
+		 */
 //		PovExport pov = new PovExport();
 		SvgExport svg = new SvgExport();
+		
 		System.out.println("Time: "+agentRelax.getTimeForNextStep());
 		// write initial state
 //		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());

@@ -7,9 +7,10 @@ import org.w3c.dom.Node;
 import dataIO.XmlLoad;
 import agent.event.Event;
 import agent.state.*;
+import generalInterfaces.Quizable;
 import idynomics.Compartment;
 
-public class Agent implements StateObject
+public class Agent implements StateObject, Quizable
 {
 
 	/**
@@ -29,7 +30,7 @@ public class Agent implements StateObject
     /**
      * Used to fetch species states.
      */
-    Species species;
+    protected Species species;
     
     /**
      * The compartment the agent is currently in
@@ -66,7 +67,7 @@ public class Agent implements StateObject
 	
 	public void init()
 	{
-			species = SpeciesLib.get(isLocalState("species") ? (String) get("species") : "");
+		species = SpeciesLib.get(isLocalState("species") ? (String) get("species") : "");
 	}
 
 
@@ -110,15 +111,6 @@ public class Agent implements StateObject
 	public Object get(String name)
 	{
 		return this.isLocalState(name) ? getState(name).get(this) : species.getState(name).get(this);
-//		if (this.isLocalState(name))
-//			return getState(name).get(this);
-//		else if (this.isGlobalState(name))
-//			return species.getState(name).get(this);
-//		else
-//		{
-//			System.out.println("failed to lookup " + name);
-//			return null;
-//		}
 	}
 	
 	/**

@@ -101,10 +101,10 @@ public class AgentContainer
 	//FIXME: .isLocated simplified for now, was an over extensive operation for a simple check.
 	public void addAgent(Agent agent)
 	{
-		if ( (boolean) agent.get("isLocated") )
+		if ( (boolean) agent.get("#isLocated") )
 		{
-			this._agentTree.insert((double[]) agent.get("lowerBoundingBox"),
-						(double[]) agent.get("dimensionsBoundingBox"), agent);
+			this._agentTree.insert((double[]) agent.get("#boundingLower"),
+						(double[]) agent.get("#boundingSides"), agent);
 		}
 		else
 			this._agentList.add(agent);
@@ -114,11 +114,11 @@ public class AgentContainer
 	public void refreshSpatialRegistry()
 	{
 		List<Agent> agentList = _agentTree.all();
-		this._agentTree = new RTree<Agent>(8, 2, this.nDim);
+		this._agentTree = new RTree<Agent>(8, 2, this.nDim); // rtree paramaters could follow from the protocol file
 		for(Agent a: agentList) 
 		{
-			_agentTree.insert((double[]) a.get("lowerBoundingBox"), 
-								(double[]) a.get("dimensionsBoundingBox"), a);
+			_agentTree.insert((double[]) a.get("#boundingLower"), 
+								(double[]) a.get("#boundingSides"), a);
 		}
 	}
 	
