@@ -79,6 +79,8 @@ public class SolveDiffusionTransient extends ProcessManager
 				for ( String soluteName : _soluteNames )
 				{
 					sg = variables.get(soluteName);
+					if ( ! sg.hasArray(ArrayType.PRODUCTIONRATE) )
+						sg.newArray(ArrayType.PRODUCTIONRATE);
 					if ( ! sg.hasArray(ArrayType.DIFFUSIVITY) )
 						sg.newArray(ArrayType.DIFFUSIVITY);
 					sg.setAllTo(ArrayType.DIFFUSIVITY,
