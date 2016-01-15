@@ -1,15 +1,11 @@
 package test;
 
-import java.util.Arrays;
 import java.util.Scanner;
 
-import boundary.Boundary;
 import boundary.BoundaryFixed;
-import grid.CylindricalGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SphericalGrid;
-import idynomics.Compartment.BoundarySide;
-import linearAlgebra.Vector;
+import shape.BoundarySide;
 import test.plotting.PolarGridPlot3D;
 
 public class PolarGridTest {

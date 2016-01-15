@@ -2,8 +2,8 @@ package grid;
 
 import java.util.HashMap;
 
-import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
+import shape.BoundarySide;
 
 /**
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
@@ -162,63 +162,22 @@ public class SphericalGrid extends PolarGrid{
 	 * @see grid.PolarGrid#length()
 	 */
 	public int length(){return N(_nVoxel[0]-1);}
-		
-
-	/**
-	 * works only for r<=96 
-	 * 
-	 * @param idx
-	 * @param coord
-	 * @return
-	 */
-	@Deprecated
-	public int[] idx2coord(int idx, int[] coord) {
-		//TODO: make more variables than x?
-		// idx=N(r-1) solved for r with mathematica
-		
-		double iresT=_ires[1],
-				iresP=_ires[2],
-				ipt=iresP*iresT,
-				iptsq=ipt*ipt;
-		
-//		double x=Math.pow(-27*ipttr+432*iptsq*idx+3.4641
-//				*Math.sqrt(-25*iptse-1944*iptpe*idx+15552*iptqu*idx*idx),1.0/3);
-		double x=3.0*Math.pow(-iptsq*(
-					-0.1283*Math.sqrt(idx)*Math.sqrt(
-							-1944.0*ipt+15552.0*idx-(25.0*iptsq)/idx)
-					+ipt-16.0*idx),1.0/3);
-		
-//		double rd = (1.21338*ipt)/x + (0.120187*x)/ipt - 0.25;
-		double rd = (7*ipt)/(4*Math.pow(3,1.0/3)*x) + x/(ipt*4*Math.pow(3,2.0/3)) - 0.25;
-		System.out.println(rd);
-		int r=(int)rd;
-		// index starting with 1 in this r slice
-		int idxr=idx-N(r-1); 
-		// number of rows
-		int np=np(r);			
-		// number of elements in each triangle
-		int sn=sn(r);
-		// is p >= Pi/2 ? 			
-		boolean is_right = idxr>sn;
-		// index starting with 1 in each octand (reverse for right array)
-		int idxo=(idxr-1)%sn+1; 
-		int idxor=2*sn-idxr+1;
-		
-		if (coord==null) coord = new int[3];
-		// r-coordinate
-		coord[0]=r;
-		// p-coordinate (column)
-		if (is_right) coord[1]=np-(int)Math.ceil(1.0/2*(Math.sqrt(8*idxor/iresT+1)-3))-1;
-		else coord[1]=(int)Math.ceil(1.0/2*(Math.sqrt(8*idxo/iresT+1)-3));
-		
-		// t-coordinate (row)
-		int n_prev = n(r, coord[1]);
-//		System.out.println(idx+"  "+n_prev+" "+PolarArray.nt(coord[0], coord[1], iresT, iresP));
-		coord[2] = idxo-n_prev-1;
-//		System.out.println(idx+Arrays.toString(coord));
-//		if (is_right) 
-//			coord[2]=PolarArray.nt(coord[0], coord[1], iresT, iresP)-coord[2];
-		return coord;
+	
+	@Override
+	protected BoundarySide isOutside(int[] coord) {
+		if ( coord[0] < 0 )
+			return BoundarySide.RMIN;
+		if ( coord[0] >= this._nVoxel[0] )
+			return BoundarySide.RMAX;
+		if ( coord[1] < 0 )
+			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
+		if ( coord[1] >= _res[1][0]*(2*coord[0]-1) )
+			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
+		if ( coord[2] < 0 )
+			return _nVoxel[2]==360 ? BoundarySide.INTERNAL : BoundarySide.PHIMIN;
+		if ( coord[2] >= this._nVoxel[2] )
+			return _nVoxel[2]==360 ? BoundarySide.INTERNAL : BoundarySide.PHIMAX;
+		return null;
 	}
 	
 	/* (non-Javadoc)
@@ -310,7 +269,7 @@ public class SphericalGrid extends PolarGrid{
 	@Override
 	public int[] cyclicTransform(int[] coord) {
 		BoundarySide bs = isOutside(coord,0);
-		if (bs==BoundarySide.CIRCUMFERENCE)
+		if (bs==BoundarySide.RMAX)
 			coord[0] = coord[0]%(_nVoxel[0]-1);
 		if (bs==BoundarySide.INTERNAL)
 			coord[0] = _nVoxel[0]+coord[0];
@@ -397,23 +356,23 @@ public class SphericalGrid extends PolarGrid{
 		switch (dim) {
 		case 0:
 			if ( coord[0] < 0 )
-				return BoundarySide.INTERNAL;
+				return BoundarySide.RMIN;
 			if ( coord[0] >= this._nVoxel[0] )
-				return BoundarySide.CIRCUMFERENCE;
+				return BoundarySide.RMAX;
 			break;
 		case 1:
 			int nt=nt(coord[0], coord[1]);
 			if ( coord[2] < 0 )
-				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
+				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
 			if ( coord[2] >= nt)
-				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
+				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
 			break;
 		case 2:
 			int np=np(coord[0]);
 			if ( coord[1] < 0 )
-				return _nVoxel[2]==180 ? BoundarySide.INTERNAL : BoundarySide.ZMIN;
+				return _nVoxel[2]==180 ? BoundarySide.INTERNAL : BoundarySide.PHIMIN;
 			if ( coord[1] >= np )
-				return _nVoxel[2]==180 ? BoundarySide.INTERNAL : BoundarySide.ZMAX;
+				return _nVoxel[2]==180 ? BoundarySide.INTERNAL : BoundarySide.PHIMAX;
 			break;
 			default: throw new IllegalArgumentException("dim must be > 0 and < 3");
 		}

@@ -8,7 +8,7 @@ import java.util.function.DoubleFunction;
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import linearAlgebra.*;
-import idynomics.Compartment.BoundarySide;
+import shape.BoundarySide;
 
 /**
  *\brief 
@@ -783,6 +783,12 @@ public class CartesianGrid extends SpatialGrid
 	 * GRID GETTER
 	 ************************************************************************/
 	
+	/**
+	 * TODO: Bas [15.01.2016] these GridGetter methods can probably made a bit
+	 * simpler by directly implementing their newGrid(...) methods rather than
+	 * returning a new an anonymous GridGetter() that implements this method. 
+	 **/
+	
 	public static final GridGetter standardGetter()
 	{
 		return new GridGetter()
@@ -791,6 +797,19 @@ public class CartesianGrid extends SpatialGrid
 			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
 			{
 				return new CartesianGrid(nVoxel, resolution);
+			}
+		};
+	}
+	
+	public static final GridGetter dimensionlessGetter()
+	{
+		return new GridGetter()
+		{
+			@Override
+			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
+			{
+				// TODO check this is the best way.
+				return new CartesianGrid(Vector.onesInt(3), resolution);
 			}
 		};
 	}

@@ -1,10 +1,12 @@
 package idynomics;
 
 import java.util.HashMap;
+
+import generalInterfaces.CanPrelaunchCheck;
 import utility.*;
 
 
-public class Simulator
+public class Simulator implements CanPrelaunchCheck
 {
 	
 	protected HashMap<String, Compartment> _compartments = 
@@ -75,5 +77,31 @@ public class Simulator
 			System.out.println("COMPARTMENT: "+s);
 			c.printAllSoluteGrids();
 		});
+	}
+	
+	/*************************************************************************
+	 * PRE-LAUNCH CHECK
+	 ************************************************************************/
+	
+	public boolean isReadyForLaunch()
+	{
+		/* Check the log file is initialised. */
+		// TODO
+		/* Check the random number generator is initialised. */
+		if ( ExtraMath.random == null )
+		{
+			System.out.println("Random number generator not initialised!");
+			return false;
+		}
+		/* Check we have at least one compartment. */
+		if ( this._compartments.isEmpty() )
+			return false;
+		/* If any compartments are not ready, then stop. */
+		for ( Compartment c : this._compartments.values() )
+			if ( ! c.isReadyForLaunch() )
+				return false;
+		
+		
+		return true;
 	}
 }

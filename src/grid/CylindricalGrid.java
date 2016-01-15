@@ -2,9 +2,9 @@ package grid;
 
 import java.util.HashMap;
 
-import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.BoundarySide;
 
 /**
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
@@ -175,6 +175,24 @@ public class CylindricalGrid extends PolarGrid{
 		return getLocation(coord, new double[]{0.5,0.5,0.5});
 	}
 	
+	@Override
+	protected BoundarySide isOutside(int[] coord) {
+		if ( coord[0] < 0 )
+			return BoundarySide.RMIN;
+		if ( coord[0] >= this._nVoxel[0] )
+			return BoundarySide.RMAX;
+		if ( coord[1] < 0 )
+			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
+		if ( coord[1] >= _res[1][0]*(2*coord[0]-1) )
+			return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
+		if ( coord[2] < 0 )
+			return BoundarySide.ZMIN;
+		if ( coord[2] >= this._nVoxel[2] )
+			return BoundarySide.ZMAX;
+		return null;
+	}
+
+	
 //	/**
 //	 * no longer maintained and may not work
 //	 * 
@@ -225,7 +243,7 @@ public class CylindricalGrid extends PolarGrid{
 	@Override
 	public int[] cyclicTransform(int[] coord) {
 		BoundarySide bs = isOutside(coord,0);
-		if (bs==BoundarySide.CIRCUMFERENCE)
+		if (bs==BoundarySide.RMAX)
 			coord[0] = coord[0]%(_nVoxel[0]-1);
 		if (bs==BoundarySide.INTERNAL)
 			coord[0] = _nVoxel[0]+coord[0];
@@ -380,16 +398,16 @@ public class CylindricalGrid extends PolarGrid{
 		switch (dim) {
 		case 0:
 			if ( coord[0] < 0 )
-				return BoundarySide.INTERNAL;
+				return BoundarySide.RMIN;
 			if ( coord[0] >= this._nVoxel[0] )
-				return BoundarySide.CIRCUMFERENCE;
+				return BoundarySide.RMAX;
 			return null;
 		case 1:
 			if ( coord[1] < 0 )
-				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMIN;
+				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
 			int nt=nt(_nVoxel[0]-1, s(coord[0])-1);
 			if ( coord[1] >= nt)
-				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.YMAX;
+				return _nVoxel[1]==360 ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
 			return null;
 		case 2:
 			if ( coord[2] < 0 )
