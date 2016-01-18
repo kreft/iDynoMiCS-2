@@ -27,6 +27,14 @@ public class ResolutionCalculator
 		}
 		
 		public abstract double getResolution(int voxelIndex);
+		/**
+		 * \brief calculates the sum of all resolutions until 
+		 * and including the resolution at voxelIndex.
+		 * 
+		 * @param voxelIndex
+		 * @return
+		 */
+		public abstract double getResolutionSum(int voxelIndex);
 	}
 	
 	public abstract class SameRes extends ResCalc
@@ -38,16 +46,29 @@ public class ResolutionCalculator
 		{
 			return this._resolution;
 		}
+		
+		@Override
+		public double getResolutionSum(int voxelIndex)
+		{
+			return this._resolution * voxelIndex;
+		}
 	}
 	
 	public abstract class VariableRes extends ResCalc
 	{
 		protected double _resolution[];
+		protected double _resolutionSum[];
 		
 		@Override
 		public double getResolution(int voxelIndex)
 		{
 			return this._resolution[voxelIndex];
+		}
+		
+		@Override
+		public double getResolutionSum(int voxelIndex)
+		{
+			return this._resolutionSum[voxelIndex];
 		}
 	}
 	

@@ -18,6 +18,25 @@ import idynomics.Compartment.BoundarySide;
  */
 public class CartesianGrid extends SpatialGrid
 {
+	/**
+	 * The number of voxels this grid has in each of the three spatial 
+	 * dimensions. Note that some of these may be 1 if the grid is not three-
+	 * dimensional.
+	 * 
+	 * <p>For example, a 3 by 2 rectangle would have _nVoxel = [3, 2, 1].</p> 
+	 */
+	protected int[] _nVoxel;
+	
+	/**
+	 * Grid resolution, i.e. the side length of each voxel in this grid. This
+	 * has three rows, one for each dimension. Each row has length of its
+	 * corresponding position in _nVoxel.
+	 * 
+	 * <p>For example, a 3 by 2 rectangle might have _res = 
+	 * [[1.0, 1.0, 1.0], [1.0, 1.0], [1.0]]</p>
+	 */
+	protected double[][] _res;
+	
 	protected int _nbhDirection;
 	
 	/*************************************************************************
@@ -33,6 +52,8 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public CartesianGrid(double[] totalSize, ResCalc[] resCalc)
 	{
+		this._nVoxel = new int[3];
+		this._res = new double[3][];
 		ArrayList<Double> resolutions = new ArrayList<Double>();
 		double total;
 		double temp;
@@ -43,11 +64,13 @@ public class CartesianGrid extends SpatialGrid
 			while ( total < totalSize[dim] )
 			{
 				temp = resCalc[dim].getResolution(resolutions.size());
-				if ( total + temp > totalSize[dim] )
+				if ( (total + temp) > totalSize[dim] )
 					temp = totalSize[dim] - total;
+				total += temp;
 				resolutions.add(temp);
 			}
 			this._res[dim] = new double[resolutions.size()];
+			this._nVoxel[dim] = resCalc[dim].getNVoxel();
 			for ( int i = 0; i < resolutions.size(); i++ )
 				this._res[dim][i] = resolutions.get(i);
 		}
@@ -818,9 +841,17 @@ public class CartesianGrid extends SpatialGrid
 		return new GridGetter()
 		{
 			@Override
-			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
+			public SpatialGrid newGrid(double[] totalLength, double resolution) 
 			{
-				return new CartesianGrid(nVoxel, resolution);
+				ResolutionCalculator r = new ResolutionCalculator();
+				
+				ResCalc[] resCalc= new ResCalc[3];
+				
+				for (int dim=0; dim<3; dim++){
+					resCalc[dim] = r.new UniformResolution();
+					resCalc[dim].init(resolution, totalLength[dim]);
+				};
+				return new CartesianGrid(totalLength,resCalc);
 			}
 		};
 	}

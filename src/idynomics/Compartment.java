@@ -28,6 +28,12 @@ public class Compartment
 		
 		CUBOID(3),
 		
+		DISK(2),
+		
+		CYLINDER(3),
+		
+		SPHERE(3),
+		
 		UNKNOWN(-1);
 		
 		private int nDim;
@@ -39,16 +45,20 @@ public class Compartment
 		
 		public static CompartmentShape getShapeFor(String shape)
 		{
-			if ( shape.equalsIgnoreCase("dimensionless") )
-				return DIMENSIONLESS;
-			else if ( shape.equalsIgnoreCase("line") )
-				return LINE;
-			else if ( shape.equalsIgnoreCase("rectangle") )
-				return RECTANGLE;
-			else if ( shape.equalsIgnoreCase("cuboid") )
-				return CUBOID;
-			else
-				return UNKNOWN;
+			CompartmentShape s = valueOf(shape.toUpperCase());
+			if (s==null) return UNKNOWN;
+			return s;
+			
+//			if ( shape.equalsIgnoreCase("dimensionless") )
+//				return DIMENSIONLESS;
+//			else if ( shape.equalsIgnoreCase("line") )
+//				return LINE;
+//			else if ( shape.equalsIgnoreCase("rectangle") )
+//				return RECTANGLE;
+//			else if ( shape.equalsIgnoreCase("cuboid") )
+//				return CUBOID;
+//			else
+//				return UNKNOWN;
 		};
 		
 		public static HashMap<BoundarySide,Boundary> 
@@ -73,15 +83,39 @@ public class Compartment
 				out.put(BoundarySide.ZMIN, null);
 				out.put(BoundarySide.ZMAX, null);
 			}
+			if ( aShape == DISK || aShape == CYLINDER || aShape == SPHERE)
+			{
+//				out.put(BoundarySide.INTERNAL, null);
+//				out.put(BoundarySide.CIRCUMFERENCE, null);
+				out.put(BoundarySide.XMIN, null);
+				out.put(BoundarySide.XMAX, null);
+			}
+			if ( aShape == DISK || aShape == CYLINDER || aShape == SPHERE)
+			{
+				out.put(BoundarySide.YMIN, null);
+				out.put(BoundarySide.YMAX, null);
+			}
+			if ( aShape == CYLINDER || aShape == SPHERE)
+			{
+				out.put(BoundarySide.ZMIN, null);
+				out.put(BoundarySide.ZMAX, null);
+			}
 			return out;
 		}
 		
 		public static GridGetter gridFor(CompartmentShape aShape)
 		{
-			if ( aShape == LINE || aShape == RECTANGLE || aShape == CUBOID)
+			switch(aShape){
+			case LINE: case RECTANGLE: case CUBOID:
 				return CartesianGrid.standardGetter();
-			//TODO Safety
-			return null;
+			case DISK: case CYLINDER:
+				return CylindricalGrid.standardGetter();
+			case SPHERE:
+				return SphericalGrid.standardGetter();
+			default: 
+				//TODO Safety
+				return null;
+			}
 		}
 	}
 	
@@ -106,22 +140,26 @@ public class Compartment
 		
 		public static BoundarySide getSideFor(String side)
 		{
-			if ( side.equalsIgnoreCase("xmin") )
-				return XMIN;
-			else if ( side.equalsIgnoreCase("xmax") )
-				return XMAX;
-			else if ( side.equalsIgnoreCase("ymin") )
-				return YMIN;
-			else if ( side.equalsIgnoreCase("ymax") )
-				return YMAX;
-			else if ( side.equalsIgnoreCase("zmin") )
-				return ZMIN;
-			else if ( side.equalsIgnoreCase("zmax") )
-				return ZMAX;
-			else if ( side.equalsIgnoreCase("internal") )
-				return INTERNAL;
-			else
-				return UNKNOWN;
+			BoundarySide s = valueOf(side.toUpperCase());
+			if (s==null) return UNKNOWN;
+			return s;
+			
+//			if ( side.equalsIgnoreCase("xmin") )
+//				return XMIN;
+//			else if ( side.equalsIgnoreCase("xmax") )
+//				return XMAX;
+//			else if ( side.equalsIgnoreCase("ymin") )
+//				return YMIN;
+//			else if ( side.equalsIgnoreCase("ymax") )
+//				return YMAX;
+//			else if ( side.equalsIgnoreCase("zmin") )
+//				return ZMIN;
+//			else if ( side.equalsIgnoreCase("zmax") )
+//				return ZMAX;
+//			else if ( side.equalsIgnoreCase("internal") )
+//				return INTERNAL;
+//			else
+//				return UNKNOWN;
 		}
 	};
 	

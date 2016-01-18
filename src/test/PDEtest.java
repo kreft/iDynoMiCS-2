@@ -242,14 +242,14 @@ public class PDEtest
 		System.out.println("###############################################");
 		
 		
-		int[] nVoxel = Vector.vector(3, 1);
-		nVoxel[0] = nVoxel[1] = 3;
+		double[] size = Vector.vector(3, 1.0);
+		size[0] = size[1] = 3;
 		
 		String[] soluteNames = new String[1];
 		soluteNames[0] = "solute";
 		
 		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
-		environment.setSize(nVoxel, 1.0);
+		environment.setSize(size, 1.0);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( int i = 0; i < soluteNames.length; i++ )
@@ -257,7 +257,8 @@ public class PDEtest
 			String name = soluteNames[i];
 			environment.addSolute(name);
 			sg = environment.getSoluteGrid(name);
-			for ( int j = 0; j < nVoxel[0]; j++ )
+			System.out.println(size[0]);
+			for ( int j = 0; j < size[0]; j++ )
 			{
 				coords[0] = j;
 				coords[1] = -1;

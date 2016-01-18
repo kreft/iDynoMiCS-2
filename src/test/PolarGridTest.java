@@ -17,17 +17,27 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import boundary.Boundary;
+import boundary.BoundaryCyclic;
 import boundary.BoundaryFixed;
+import grid.CylindricalGrid;
 import grid.PolarGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SphericalGrid;
+import grid.GridBoundary.ConstantDirichlet;
+import idynomics.Compartment;
+import idynomics.Simulator;
+import idynomics.Timer;
 import idynomics.Compartment.BoundarySide;
 import linearAlgebra.Vector;
+import processManager.PrepareSoluteGrids;
+import processManager.SolveDiffusionTransient;
 import test.plotting.PolarGridPlot3D;
 
 public class PolarGridTest {
 	public static Scanner keyboard = new Scanner(System.in);
+	public static double D = 1.0;
 	
 	/****** CARE: 
 	 * switch of array coordinates in the spherical grid array:
@@ -41,26 +51,31 @@ public class PolarGridTest {
 	 *  	- _res
 	 *  	- _nVoxel
 	 */
-	
-	/* SUGGESTED IMPROVEMENTS:
-	 *  - store a cumulative sum of the resoultions to speed computation
-	 *  	of locations up (where we compute it on every call)
-	 *  - 
-	 */
 
 	public static void main(String[] args) {
+		/* Questions:
+		 *  - discuss getNumVoxel(),
+		 *  - what happens for getCoords() and getLocation() if outside bounds? 
+		 */
 		
 		/**********************************************************************/
 		/********************* CHOOSE ARRAY TYPE HERE *************************/
 		/**********************************************************************/
 		
-		SphericalGrid grid = new SphericalGrid(
-				new int[]{20,360,180},new double[]{1,1,0.5});
+//		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},1);
+		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},
+				new double[]{1,1,1});
 		
-//	    CylindricalGrid grid = new CylindricalGrid(
-//				new int[]{40,360,1},new double[]{1,1,1});
+//	    CylindricalGrid grid = new CylindricalGrid(new double[]{3,360,1},1);
+//		CylindricalGrid grid = new CylindricalGrid(
+//				new double[]{3,360,1},new double[]{1,1,1});
 		
 //	    CartesianGrid gridp = new CartesianGrid(new int[]{100,100,4000},1);
+		
+		Timer.setTimeStepSize(1.0);
+		Timer.setEndOfSimulation(10.0);
+		
+		Simulator aSimulator = new Simulator();
 		
 		/*
 		 * create the array
@@ -85,11 +100,26 @@ public class PolarGridTest {
 //		 * booleans:
 //		 * step manual | automatic
 //		 * plot centre | origin
-//		 * plot | do not plot grid
+//		 * do | do not plot grid cell polygons
 //		 */
 //		createGraphics(grid,true,true,true); 
 		
-		plotVoxelVolumes(grid);
+//		plotVoxelVolumes(grid);
+		oneDimRiseFallComp(aSimulator);
+		
+		/**********************************************************************/
+		/***************************** SIMULATION *****************************/
+		/**********************************************************************/
+		
+		//TODO twoDimIncompleteDomain(nStep, stepSize);
+		/*
+		 * Launch the simulation.
+		 */
+		aSimulator.launch();
+		/*
+		 * Print the results.
+		 */
+		aSimulator.printAll();
 		
 	}
 	
@@ -136,7 +166,6 @@ public class PolarGridTest {
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 				current = grid.iteratorNext())
 		{
-			
 			System.out.println("grid size: "
 					+Arrays.toString(grid.getNumVoxels()));
 			int[] nbh;
@@ -152,9 +181,6 @@ public class PolarGridTest {
 				}
 			}
 			System.out.println();
-			int[] coords=grid.getCoords(
-					grid.getVoxelOrigin(new int[]{3,41,7}));
-			System.out.println(coords[0]+" "+coords[1]+" "+coords[2]);
 		}
 	}
 	
@@ -211,5 +237,92 @@ public class PolarGridTest {
 		frame.pack();
 		frame.setVisible(true);
 		frame.add(chartPanel);
+	}
+	
+	private static void oneDimRiseFallComp(Simulator aSim)
+	{
+		System.out.println("###############################################");
+		System.out.println("COMPARTMENT: oneDimRiseFall");
+		System.out.println("Testing 1D domain for two solutes:");
+		System.out.println("\tLeft & right fixed");
+		System.out.println("\tD = "+D);
+		System.out.println("\tNo agents or reactions");
+		System.out.println("Concentration should tend towards linear");
+		System.out.println("###############################################");
+		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "disk");
+		aCompartment.setSideLengths(new double[] {3.0, 360.0, 1.0});
+		/*
+		 * Add the solutes and boundary conditions.
+		 */
+		String[] soluteNames = new String[2];
+		soluteNames[0] = "rise";
+		soluteNames[1] = "fall";
+		for ( String aSoluteName : soluteNames )
+			aCompartment.addSolute(aSoluteName);
+		
+//		Boundary inter = new BoundaryCyclic();
+//		ConstantDirichlet fallInter = new ConstantDirichlet();
+//		fallInter.setValue(1.0);
+//		inter.setGridMethod("fall", fallInter);
+//		aCompartment.addBoundary("INTERNAL", inter);
+//		
+		Boundary circ = new BoundaryFixed();
+		ConstantDirichlet riseCirc = new ConstantDirichlet();
+		riseCirc.setValue(1.0);
+		circ.setGridMethod("rise", riseCirc);
+		aCompartment.addBoundary("CIRCUMFERENCE", circ);
+		
+		Boundary xmin = new BoundaryFixed();
+		ConstantDirichlet fallXmin = new ConstantDirichlet();
+		fallXmin.setValue(1.0);
+		xmin.setGridMethod("fall", fallXmin);
+		aCompartment.addBoundary("XMIN", xmin);
+		
+		Boundary xmax = new BoundaryFixed();
+		ConstantDirichlet riseXmax = new ConstantDirichlet();
+		riseXmax.setValue(1.0);
+		xmax.setGridMethod("rise", riseXmax);
+		aCompartment.addBoundary("XMAX", xmax);
+		
+		Boundary ymin = new BoundaryFixed();
+		ConstantDirichlet fallYmin = new ConstantDirichlet();
+		fallYmin.setValue(1.0);
+		ymin.setGridMethod("fall", fallYmin);
+		aCompartment.addBoundary("YMIN", ymin);
+		
+		Boundary ymax = new BoundaryFixed();
+		ConstantDirichlet riseYmax = new ConstantDirichlet();
+		riseYmax.setValue(1.0);
+		ymax.setGridMethod("rise", riseYmax);
+		aCompartment.addBoundary("YMAX", ymax);
+		
+		Boundary zmin = new BoundaryFixed();
+		ConstantDirichlet fallZmin = new ConstantDirichlet();
+		fallZmin.setValue(1.0);
+		zmin.setGridMethod("fall", fallZmin);
+		aCompartment.addBoundary("ZMIN", zmin);
+		
+		Boundary zmax = new BoundaryFixed();
+		ConstantDirichlet riseZmax = new ConstantDirichlet();
+		riseZmax.setValue(1.0);
+		zmax.setGridMethod("rise", riseZmax);
+		aCompartment.addBoundary("ZMAX", zmax);
+		
+		//TODO diffusivities
+		aCompartment.init();
+		/*
+		 * The solute grids will need prepping before the solver can get to work.
+		 */
+		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
+		aPrep.setTimeStepSize(Double.MAX_VALUE);
+		aCompartment.addProcessManager(aPrep);
+		/*
+		 * Set up the transient diffusion-reaction solver.
+		 */
+		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
+		aProcess.init(soluteNames);
+		aProcess.setTimeForNextStep(0.0);
+		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aCompartment.addProcessManager(aProcess);
 	}
 }
