@@ -14,7 +14,8 @@ import linearAlgebra.Vector;
 /**
  * \brief Abstract super class of all polar grids (Cylindrical and Spherical).
  * 
- * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
+ * @author Stefan Lang, Friedrich-Schiller University Jena
+ * (stefan.lang@uni-jena.de)
  */
 public abstract class PolarGrid extends SpatialGrid
 {
@@ -488,16 +489,19 @@ public abstract class PolarGrid extends SpatialGrid
 	/**************************************************************************/
 	
 	/**
-	 * \brief Computes a factor that scales the number of elements for increasing 
-	 * radius to keep element volume fairly constant.
+	 * \brief Computes a factor that scales the number of elements for
+	 * increasing  radius to keep element volume fairly constant.
 	 * 
 	 * @param r - radius.
 	 * @return - a scaling factor for a given radius.
 	 */
-	protected static int s(int r){return 2*r+1;}
+	protected static int s(int r)
+	{
+		return ( 2 * r) + 1;
+		}
 	
 	/**
-	 * \brief Transforms a cartesian location into a coordinate in the array. 
+	 * \brief Transforms a Cartesian location into a coordinate in the array. 
 	 * 
 	 * The result is written into coord_out[idx_out] and inside_out[idx_out].
 	 *  
@@ -508,9 +512,9 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param coord_out - Output coordinate array.
 	 * @param inside_out - Output inside array.
 	 */
-	public static void cartLoc2Coord(
-			double loc, ResCalc resCalc,
-			int idx_out, int[] coord_out, double[] inside_out){
+	public static void cartLoc2Coord(double loc, ResCalc resCalc,
+							int idx_out, int[] coord_out, double[] inside_out)
+	{
 		//TODO: use getResolutionSum(i)
 		double counter = 0.0;
 		countLoop: for ( int i = 0; i < resCalc.getNVoxel(); i++ )
@@ -518,7 +522,8 @@ public abstract class PolarGrid extends SpatialGrid
 			if ( counter >= loc)
 			{
 				coord_out[idx_out] = i;
-				if (inside_out!=null) inside_out[idx_out] = counter-loc;
+				if ( inside_out != null ) 
+					inside_out[idx_out] = counter-loc;
 				break countLoop;
 			}
 			counter += resCalc.getResolution(i);
@@ -537,15 +542,16 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param inside_out - Output inside array.
 	 */
 	public static void polarLoc2Coord(double loc, double arcLength, 
-			int idx_out, int[] coord_out, double[] inside_out){
+							int idx_out, int[] coord_out, double[] inside_out)
+	{
 		double c = loc/arcLength;
 		coord_out[idx_out] = (int)(c);
-		if (inside_out != null) 
-			inside_out[idx_out] = Math.abs(c-coord_out[idx_out]);
+		if ( inside_out != null ) 
+			inside_out[idx_out] = Math.abs( c - coord_out[idx_out] );
 	}
 	
 	/**
-	 * \brief Transforms a cartesian coordinate into a location in space.
+	 * \brief Transforms a Cartesian coordinate into a location in space.
 	 * 
 	 * The result is written into loc_out[idx_out].
 	 * 
@@ -555,12 +561,12 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param idx_out - Index for output.
 	 * @param loc_out - Output location array.
 	 */
-	public static void cartCoord2Loc(int coord, ResCalc resCalc, double inside,
-			int idx_out, double[] loc_out){
+	public static void cartCoord2Loc(int coord, ResCalc resCalc,
+								double inside, int idx_out, double[] loc_out)
+	{
 		//TODO: use getResolutionSum(i)
-		for ( int i = 0; i < coord; i++ ){
+		for ( int i = 0; i < coord; i++ )
 			loc_out[idx_out] += resCalc.getResolution(i);
-		}
 		loc_out[idx_out] += inside * resCalc.getResolution(coord);
 	}
 	
@@ -575,9 +581,10 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param idx_out - Index for output.
 	 * @param loc_out - Output location array.
 	 */
-	public static void polarCoord2Loc(int coord, double arcLength, double inside,
-			int idx_out, double[] loc_out){
-		loc_out[idx_out]=(coord+inside)*arcLength;
+	public static void polarCoord2Loc(int coord, double arcLength, 
+								double inside, int idx_out, double[] loc_out)
+	{
+		loc_out[idx_out] = ( coord + inside ) * arcLength;
 	}
 
 	/*************************************************************************

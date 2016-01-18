@@ -9,9 +9,20 @@ import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 
 /**
- * \brief A grid with a spherical (r,t,p) coordinate system.
+ * \brief A grid with a spherical coordinate system.
  *  
- * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
+ *  <p>Here we use the {@code r, θ, φ)} convention:</p><ul><li>{@code r} is the
+ *  <i>radial</i> coordinate, i.e. Euclidean distance from the origin</li><li>
+ *  {@code θ (theta)} is the <i>azimuthal</i> coordinate (also known as the
+ *  <i>longitude</i>) and takes values between 0 and 2π radians</li><li>
+ *  {@code φ (phi)} is the <i>polar</i> coordinate (also known as the
+ *  <i>zenith</i> or <i>colatitude</i>) and takes values between 0 and π 
+ *  radians</li></ul><p>See 
+ *  <a href="http://mathworld.wolfram.com/SphericalCoordinates.html">here</a> 
+ *  for more details.</p>  
+ *  
+ * @author Stefan Lang, Friedrich-Schiller University Jena
+ * (stefan.lang@uni-jena.de)
  */
 public class SphericalGrid extends PolarGrid
 {
@@ -48,9 +59,9 @@ public class SphericalGrid extends PolarGrid
 	 * @param totalSize
 	 * @param res
 	 */
-	public SphericalGrid(double[] totalSize, double[] res){
+	public SphericalGrid(double[] totalSize, double[] res)
+	{
 		super(totalSize);
-		
 		/*
 		 * Set up sphere-specific members
 		 */
@@ -60,23 +71,35 @@ public class SphericalGrid extends PolarGrid
 		/*
 		 * Set up uniform resolution calculator array
 		 */
-		ResolutionCalculator r = new ResolutionCalculator();
-		_resCalc = new UniformResolution[3][][];
-		_resCalc[0] = new UniformResolution[1][1];
-		_resCalc[0][0][0] = r.new UniformResolution();
-		_resCalc[0][0][0].init(res[0], totalSize[0]);
-
+		ResolutionCalculator resolution = new ResolutionCalculator();
+		this._resCalc = new UniformResolution[3][][];
+		/*
+		 * Set up for the radial coordinate, and find out how many shells we
+		 * have.
+		 */
+		this._resCalc[0] = new UniformResolution[1][1];
+		this._resCalc[0][0][0] = resolution.new UniformResolution();
+		this._resCalc[0][0][0].init(res[0], totalSize[0]);
 		int nr = _resCalc[0][0][0].getNVoxel();
-		_resCalc[1] = new UniformResolution[nr][1];
-		_resCalc[2] = new UniformResolution[nr][];
-		for (int i=0; i<nr; ++i){
-			_resCalc[1][i][0] = r.new UniformResolution();
-			_resCalc[1][i][0].init(res[2], nRows(i));
-			int np = _resCalc[1][i][0].getNVoxel();
-			_resCalc[2][i] = new UniformResolution[np];
-			for (int j=0; j<np; ++j){
-				_resCalc[2][i][j] = r.new UniformResolution();
-				_resCalc[2][i][j].init(res[1], nCols(i,j));
+		/*
+		 * For each radial shell we have a known number of voxels in theta,
+		 * but the number of voxels in phi varies. 
+		 */
+		this._resCalc[1] = new UniformResolution[nr][1];
+		this._resCalc[2] = new UniformResolution[nr][];
+		int np;
+		for ( int i = 0; i < nr; ++i )
+		{
+			/* Set up for theta. */
+			this._resCalc[1][i][0] = resolution.new UniformResolution();
+			this._resCalc[1][i][0].init(res[2], nRows(i));
+			/* Determine how many for phi, and set these up. */
+			np = this._resCalc[1][i][0].getNVoxel();
+			this._resCalc[2][i] = new UniformResolution[np];
+			for ( int j = 0; j < np; ++j )
+			{
+				this._resCalc[2][i][j] = resolution.new UniformResolution();
+				this._resCalc[2][i][j].init(res[1], nCols(i, j));
 			}
 		}
 	}
@@ -94,22 +117,6 @@ public class SphericalGrid extends PolarGrid
 		this(new double[]{1, 90, 90}, 1.0);
 	}
 	
-//	protected double[][] convertResolution(int[] nVoxel, double[] oldRes)
-//	{
-//		double [][] res = new double[3][0];
-//		/*
-//		 * The angular dimensions theta and TODO are set by
-//		 * linearAlgebra.PolarArray, so we nVoxel here.
-//		 */
-//		res[0] = Vector.vector( nVoxel[0] , oldRes[0]);
-//		/*
-//		 * Just give res one value in the theta and TODO dimensions.
-//		 */
-//		for ( int i = 1; i < 3; i++ )
-//			res[i] = Vector.vector( 1 , oldRes[i]);
-//		return res;
-//	}
-	
 	@Override
 	public void newArray(ArrayType type, double initialValues)
 	{
@@ -124,11 +131,11 @@ public class SphericalGrid extends PolarGrid
 		 */
 		if ( this._array.containsKey(type) )
 			PolarArray.applyToAll(
-					_array.get(type), ()->{return initialValues;});
+					this._array.get(type), ()->{return initialValues;});
 		else
 		{
 			double[][][] array = PolarArray.createSphere(
-					_resCalc, initialValues
+					this._resCalc, initialValues
 			);
 			
 			this._array.put(type, array);
@@ -141,15 +148,18 @@ public class SphericalGrid extends PolarGrid
 	 * 
 	 * TODO: Assumes constant resolution at the moment?!
 	 * 
-	 * @param coord - A coordinate inside the grid.
-	 * @return - The arc length along the azimuthal dimension of the grid 
-	 * 				element at the given coordinate.
+	 * @param coord Coordinates of a voxel in the grid.
+	 * @return The arc length along the azimuthal dimension (theta) for this
+	 * voxel.
 	 * @exception ArrayIndexOutOfBoundsException Voxel coordinates must be
 	 * inside array.
 	 */
-	private double getArcLengthT(int[] coord){
-		int nk=_resCalc[2][coord[0]][coord[1]].getNVoxel();
-		return _radSize[1]/nk;
+	private double getArcLengthTheta(int[] coord)
+	{
+		// TODO Rob [18Jan2016]: why do we use resCalc[2]? resCalc[1] would
+		// make more sense to me!
+		int nk = this._resCalc[2][coord[0]][coord[1]].getNVoxel();
+		return this._radSize[1] / nk;
 	}
 	
 	/**
@@ -158,32 +168,35 @@ public class SphericalGrid extends PolarGrid
 	 * 
 	 * TODO: Assumes constant resolution at the moment?!
 	 * 
-	 * @param coord - A coordinate inside the grid.
-	 * @return - The arc length along the polar dimension of the grid element 
-	 * 				at the given coordinate.
+	 * @param coord Coordinates of a voxel in the grid.
+	 * @return The arc length along the polar dimension (phi) for this voxel.
 	 * @exception ArrayIndexOutOfBoundsException Voxel coordinates must be
 	 * inside array.
 	 */
-	private double getArcLengthP(int[] coord){
-		int nj=_resCalc[1][coord[0]][0].getNVoxel();
-		return _radSize[2]/nj;
+	private double getArcLengthPhi(int[] coord)
+	{
+		// TODO Rob [18Jan2016]: why do we use resCalc[1]? resCalc[2] would
+		// make more sense to me!
+		int nj = this._resCalc[1][coord[0]][0].getNVoxel();
+		return this._radSize[2] / nj;
 	}
 	
 	@Override
-	public int[] getCoords(double[] loc, double[] inside) {
+	public int[] getCoords(double[] loc, double[] inside)
+	{
 		int[] coord = new int[3];
 		/*
-		 * determine i (like in cartesian grid)
+		 * Determine i (as in Cartesian grid).
 		 */
-		cartLoc2Coord(loc[0], _resCalc[0][0][0], 0, coord, inside);
+		cartLoc2Coord(loc[0], this._resCalc[0][0][0], 0, coord, inside);
 		/*
-		 * determine j
+		 * Determine j.
 		 */
-		polarLoc2Coord(loc[2], getArcLengthP(coord), 1, coord, inside);
+		polarLoc2Coord(loc[2], getArcLengthPhi(coord), 1, coord, inside);
 		/*
-		 * determine k
+		 * Determine k.
 		 */
-		polarLoc2Coord(loc[1], getArcLengthT(coord), 2, coord, inside);
+		polarLoc2Coord(loc[1], getArcLengthTheta(coord), 2, coord, inside);
 		return coord;
 	}
 	
@@ -192,24 +205,24 @@ public class SphericalGrid extends PolarGrid
 	{
 		double[] loc = new double[3];
 		/*
-		 * determine r
+		 * Determine r.
 		 */
 		cartCoord2Loc(coord[0], _resCalc[0][0][0], inside[0], 0, loc);
 		/*
-		 * determine t
+		 * Determine theta.
 		 */
-		polarCoord2Loc(coord[2], getArcLengthT(coord), inside[2], 1, loc);
-		/*
-		 * determine p
+		polarCoord2Loc(coord[2], getArcLengthTheta(coord), inside[2], 1, loc);
+		/* 
+		 * Determine phi.
 		 */
-		polarCoord2Loc(coord[1], getArcLengthP(coord), inside[1], 2, loc);
-		
+		polarCoord2Loc(coord[1], getArcLengthPhi(coord), inside[1], 2, loc);
 		return loc;
 	}
 	
 	@Override
-	public boolean isIteratorValid() {
-		return _currentCoord[0] < _resCalc[0][0][0].getNVoxel();
+	public boolean isIteratorValid()
+	{
+		return ! this.iteratorExceeds(0);
 	}
 	
 	@Override
@@ -227,20 +240,23 @@ public class SphericalGrid extends PolarGrid
 
 	@Override
 	//TODO: assumes constant resolution for each r at the moment?
-	public void fillNbhSet() {
+	public void fillNbhSet()
+	{
 		int[] cc = _currentCoord;
 //		System.out.println(Arrays.toString(cc));
 		/*
 		 * Moving along radial dimension.
 		 */
-		if (_nbhIdx>3){ 
+		if ( _nbhIdx > 3 )
+		{ 
 			/*
-			 * change in r (-1 or 1)
+			 * Change in r (-1 or 1)
 			 */
 			int dr = NBH_DIRECS[_nbhIdx][0];
-			if (isOutside(new int[]{cc[0]+dr,-1,-1},0)==null){
+			if ( isOutside(new int[]{cc[0]+dr, -1, -1}, 0)==null )
+			{
 				/*
-				 * compute number of voxels along azimuthal and polar dimension
+				 * Compute number of voxels along azimuthal and polar dimension
 				 * for this and the neighboring 'constant-radius-shell'.
 				 */
 				double np_cur = _resCalc[1][cc[0]][0].getNVoxel();
@@ -248,30 +264,33 @@ public class SphericalGrid extends PolarGrid
 				double nt_cur= _resCalc[2][cc[0]][cc[1]].getNVoxel();
 				double nt_nbh;
 				/*
-				 * compute the neighbor nVoxel to current nVoxel ratio 
+				 * Compute the neighbor nVoxel to current nVoxel ratio 
 				 * for the polar dimension.
 				 */
 				double drt;
-				double drp=np_nbh/np_cur;
+				double drp = np_nbh / np_cur;
 				/*
 				 * Loop through all neighbors along the polar dimension.
 				 * Starting from the current polar angle coordinate times the 
 				 * nVoxel ratio and ending at the next polar angle coordinate
 				 * times the nVoxel ratio.
 				 */
-				for (int p=(int)(cc[1]*drp);  p<(cc[1]+1)*drp; p++){
-					nt_nbh=_resCalc[2][cc[0] + dr][p].getNVoxel();
+				for (int phi = (int) (cc[1]*drp);  phi < (cc[1]+1)*drp; phi++ )
+				{
+					nt_nbh=_resCalc[2][cc[0] + dr][phi].getNVoxel();
 					/*
-					 * compute the neighbor nVoxel to current nVoxel ratio 
+					 * Compute the neighbor nVoxel to current nVoxel ratio 
 					 * for the azimuthal dimension.
 					 */
-					drt=nt_nbh/nt_cur;
-//					System.out.println(drt+" "+nt_nbh+" "+nt_cur);
+					drt = nt_nbh / nt_cur;
+					//System.out.println(drt+" "+nt_nbh+" "+nt_cur);
 					/*
 					 * Loop through all neighbors along the azimuthal dimension.
 					 */
-					for (int t=(int)(cc[2]*drt);  t<(cc[2]+1)*drt; t++){
-						_subNbhSet.add(new int[]{cc[0]+dr,p,t});
+					for ( int theta = (int) (cc[2]*drt); 
+											theta < (cc[2]+1)*drt; theta++ )
+					{
+						_subNbhSet.add( new int[]{cc[0]+dr, phi, theta} );
 					}
 				}
 			}
@@ -283,7 +302,8 @@ public class SphericalGrid extends PolarGrid
 		/*
 		 * Moving along polar dimension.
 		 */
-		else if (_nbhIdx<2){ 
+		else if ( _nbhIdx < 2 )
+		{ 
 			/*
 			 * change in p (-1 or 1)
 			 */
@@ -312,17 +332,18 @@ public class SphericalGrid extends PolarGrid
 			/*
 			* only change p coordinate if outside the grid along polar dimension.
 			*/
-			else  _subNbhSet.add(new int[]{cc[0],cc[1]+dp,cc[2]});
+			else
+				this._subNbhSet.add(new int[]{cc[0],cc[1]+dp,cc[2]});
 		}
 		/*
-		 * add the relative position to current coord if moving along azimuthal
-		 * dimension
+		 * Add the relative position to the current coordinate if moving along
+		 * azimuthal dimension.
 		 */
-		else{ 
-			_subNbhSet.add(new int[]{
-					cc[0]+NBH_DIRECS[_nbhIdx][0],
-					cc[1]+NBH_DIRECS[_nbhIdx][2],
-					cc[2]+NBH_DIRECS[_nbhIdx][1]});
+		else
+		{ 
+			this._subNbhSet.add(new int[]{ cc[0] + NBH_DIRECS[_nbhIdx][0],
+									  		cc[1] + NBH_DIRECS[_nbhIdx][2],
+									  		cc[2] + NBH_DIRECS[_nbhIdx][1] });
 		}
 	}
 

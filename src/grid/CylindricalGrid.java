@@ -9,9 +9,20 @@ import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 
 /**
- * \brief A grid with polar (r,t) coordinates and a cartesian z coordinate.
+ * \brief A grid with 2D polar coordinates and a Cartesian {@code z}
+ * coordinate.
  * 
- * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
+ * <p>Here we use the {@code (r, θ, z)} convention:</p><ul><li>{@code r} is the
+ *  <i>radial</i> coordinate, i.e. Euclidean distance from the origin axis</li>
+ *  <li>{@code θ (theta)} is the <i>azimuthal</i> coordinate (also known as the
+ *  <i>polar</i>) and takes values between 0 and 2π radians</li><li>
+ *  {@code z} is the <i>height</i> coordinate and is essentially a Cartesian
+ *  coordinate</li></ul><p>See 
+ *  <a href="http://mathworld.wolfram.com/CylindricalCoordinates.html">here</a> 
+ *  for more details.</p>  
+ * 
+ * @author Stefan Lang, Friedrich-Schiller University Jena
+ * (stefan.lang@uni-jena.de)
  */
 public class CylindricalGrid extends PolarGrid
 {
@@ -254,7 +265,7 @@ public class CylindricalGrid extends PolarGrid
 		if (bs==BoundarySide.INTERNAL){
 			coord[0] = 0;
 			/*
-			 * 2 = 180� at coord[0]=0
+			 * 2 = 180° at coord[0]=0
 			 */
 			coord[1] = coord[1]+2;  
 		}
@@ -431,15 +442,17 @@ public class CylindricalGrid extends PolarGrid
 	}
 	
 	/**
-	 * \brief computes the number of rows in matrix i for resolution 1.
+	 * \brief Computes the number of rows in matrix i for resolution 1.
 	 * 
-	 * This is the total length if transformed to a cartesian coordinate system.
+	 * <p>This is the total length if transformed to a Cartesian coordinate
+	 * system.</p>
 	 * 
-	 * @param i - matrix index
-	 * @return - the number of rows for a given radius.
+	 * @param i Matrix index.
+	 * @return The number of rows for a given radius.
 	 */
-	private int nRows(int i) {
-		return (int)_ires[1]*s(i);
+	private int nRows(int i)
+	{
+		return (int) _ires[1] * s(i);
 	}
 	
 	/*************************************************************************
