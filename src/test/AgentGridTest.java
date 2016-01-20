@@ -30,7 +30,7 @@ public class AgentGridTest
 		 */
 		Simulator aSim = new Simulator();
 		Compartment aCompartment = aSim.addCompartment("myCompartment",
-																"Rectangle");
+																"rectangle");
 		aCompartment.setSideLengths(new double[] {9.0, 9.0, 1.0});
 		/*
 		 * Set the boundary methods.

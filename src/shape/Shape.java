@@ -10,6 +10,7 @@ import java.util.Set;
 
 import boundary.Boundary;
 import generalInterfaces.CanPrelaunchCheck;
+import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
@@ -18,7 +19,7 @@ import linearAlgebra.Vector;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class Shape implements CanPrelaunchCheck
+public abstract class Shape implements CanPrelaunchCheck, XMLable
 {
 	protected int _nDim;
 	/**
@@ -191,5 +192,14 @@ public abstract class Shape implements CanPrelaunchCheck
 				return false;
 		/* All checks passed: ready to launch. */
 		return true;
+	}
+	
+	/*************************************************************************
+	 * XML-ABLE
+	 ************************************************************************/
+	
+	public static Object getNewInstance(String className)
+	{
+		return XMLable.getNewInstance(className, "shape.ShapeLibrary$");
 	}
 }
