@@ -24,14 +24,14 @@ Compartment shapes must be drawn from a list of pre-defined shapes; users are en
 
 | Name          | Dimensions   | Required boundaries sides          | SpatialGrid type              |
 | ------------- |:------------:| ---------------------------------- | ----------------------------- |
-| dimensionless | 0            | none                               | none                          |
-| line          | 1            | XMIN, XMAX                         | CartesianGrid                 |
-| rectangle     | 2            | XMIN, XMAX, YMIN, YMAX             | CartesianGrid                 |
-| cuboid        | 3            | XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX | CartesianGrid                 |
-| radius        | 1            | CIRCUMFERENCE                      | SphericalGrid/CylindricalGrid |
-| circle        | 2            | CIRCUMFERENCE                      | SphericalGrid/CylindricalGrid |
-| sphere        | 3            | CIRCUMFERENCE                      | SphericalGrid                 |
-| cylinder      | 3            | CIRCUMFERENCE, XMIN, XMAX          | CylindricalGrid               |
+| Dimensionless | 0            | none                               | none                          |
+| Line          | 1            | XMIN, XMAX                         | CartesianGrid                 |
+| Rectangle     | 2            | XMIN, XMAX, YMIN, YMAX             | CartesianGrid                 |
+| Cuboid        | 3            | XMIN, XMAX, YMIN, YMAX, ZMIN, ZMAX | CartesianGrid                 |
+| Radius        | 1            | RMAX                               | SphericalGrid/CylindricalGrid |
+| Circle        | 2            | RMAX                               | SphericalGrid/CylindricalGrid |
+| Sphere        | 3            | RMAX                               | SphericalGrid                 |
+| Cylinder      | 3            | RMAX, ZMIN, ZMAX                   | CylindricalGrid               |
 
 **Table 1. Compartment shapes available.** Note that extra boundaries may be permitted: those shown here are only those required. For instance, either a batch culture and a chemostat compartment would take a *dimensionless* shape, but the difference between the two would be in the extra boundaries of a chemostat compartment describing flow in and out. Note also that all compartments must have a volume, and so the user may need to specify the size of dimensions that are not explicitly modelled.
 
