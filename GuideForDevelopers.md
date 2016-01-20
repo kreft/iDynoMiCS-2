@@ -170,8 +170,11 @@ Useful links:
 - [Atlassian Git Tutorial: Workflows](https://www.atlassian.com/git/tutorials/comparing-workflows)
 - [A Visual Git Reference](http://marklodato.github.io/visual-git-guide/index-en.html)
 - [Code Tuts+](http://code.tutsplus.com/tutorials/focusing-on-a-team-workflow-with-git--cms-22514)
+- [A Quick Introduction to Version Control with Git and GitHub](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004668)
 
 ## Using Git, GitHub and eGit
+
+
 
 ### Forking vs branching
 
