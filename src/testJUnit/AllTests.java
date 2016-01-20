@@ -14,7 +14,7 @@ import org.junit.runners.Suite.SuiteClasses;
  *
  */
 @RunWith(Suite.class)
-@SuiteClasses({ LinearAlgebraTest.class })
+@SuiteClasses({ LinearAlgebraTest.class, XMLableTest.class })
 public class AllTests {
 
 }
