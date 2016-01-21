@@ -125,7 +125,15 @@ public class LinearAlgebraTest
 		assertTrue("8a", Vector.areSame(componentForm, w, TOLERANCE));
 		assertTrue("8b", ExtraMath.areEqual(Vector.normEuclid(componentForm),
 															norm, TOLERANCE));
-		
+		/* Question 9: p->q where p = (1,3) and q = (2,-1). */
+		int[] p = new int[]{1, 3};
+		int[] q = new int[]{2, -1};
+		int[] pq = Vector.minus(q, p);
+		assertTrue("9", Vector.areSame(pq, new int[]{1, -4}));
+		/* Question 10: origin->u where u is mid-point of (2,-1) and (-4,3). */
+		u = Vector.midPoint(new double[]{2, -1}, new double[]{-4, 3});
+		v[0] = -1; v[1] = 1;
+		assertTrue(Vector.areSame(u, v, TOLERANCE));
 	}
 	
 }
