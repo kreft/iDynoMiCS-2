@@ -545,6 +545,25 @@ public final class Vector
 		return true;
 	}
 	
+	/**
+	 * \brief See if the two given vectors have the same elements, in the same
+	 * order.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return boolean: true if they are the same, false if at least one
+	 * element-element pair differs.
+	 * @see #areSame(int[], int[])
+	 */
+	public static boolean areSame(double a[], double[] b, double absTol)
+	{
+		checkLengths(a, b);
+		for ( int i = 0; i < a.length; i++ )
+			if ( ! ExtraMath.areEqual(a[i], b[i], absTol) )
+				return false;
+		return true;
+	}
+	
 	/*************************************************************************
 	 * BASIC ARTHIMETIC
 	 ************************************************************************/
