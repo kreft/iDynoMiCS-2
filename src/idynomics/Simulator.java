@@ -59,7 +59,11 @@ public class Simulator implements CanPrelaunchCheck
 	
 	public void launch()
 	{
-
+		if ( ! isReadyForLaunch() )
+		{
+			System.out.println("Simulator not ready to launch!");
+			return;
+		}
 		while ( Timer.isRunning() )
 		{
 			this.step();
