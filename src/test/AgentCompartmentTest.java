@@ -14,9 +14,7 @@ import agent.body.Body;
 import agent.body.Point;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
-import agent.state.secondary.*;
-import boundary.Boundary;
-import grid.GridBoundary;
+import boundary.BoundaryCyclic;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
@@ -43,14 +41,15 @@ public class AgentCompartmentTest {
 		/*
 		 * Set the boundary methods and initialise the compartment.
 		 */
-
 		// set 4 periodic boundaries
-		for ( String side : new String[] {"xmin", "xmax", "ymin", "ymax"})
+		for ( String side : new String[] {"x", "y"})
 		{
-			Boundary bndry = new Boundary();
-			// bndry.setGridMethod("solute", GridBoundary.Cyclic());
-			//FIXME: how does this work with the new gridMethods?
-			aCompartment.addBoundary(side, bndry);
+			BoundaryCyclic min = new BoundaryCyclic();
+			BoundaryCyclic max = new BoundaryCyclic();
+			min.setPartnerBoundary(max);
+			max.setPartnerBoundary(min);
+			aCompartment.addBoundary(side+"min", min);
+			aCompartment.addBoundary(side+"max", max);
 		}
 		//TODO diffusivities
 		aCompartment.init();
