@@ -2267,11 +2267,23 @@ public final class Vector
 	 *	phi = acos(z/r)
 	 */
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cartesian
+	 * @return
+	 */
 	public static double polarRadius(double[] cartesian)
 	{
 		return normEuclid(cartesian);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cartesian
+	 * @return
+	 */
 	public static double[] toPolar(double[] cartesian)
 	{
 		double[] p = new double[cartesian.length];
@@ -2284,6 +2296,12 @@ public final class Vector
 		return p;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param polar
+	 * @return
+	 */
 	public static double[] toCartesian(double[] polar)
 	{
 		double[] c = new double[polar.length];
@@ -2299,6 +2317,12 @@ public final class Vector
 		return c;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cartesian
+	 * @return
+	 */
 	public static double[] toCylindrical(double[] cartesian) 
 	{
 		if(cartesian.length == 3)
@@ -2310,7 +2334,12 @@ public final class Vector
 		return null;
 	}
 	
-	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cylindrical
+	 * @return
+	 */
 	public static double[] cylindricalToCartesian(double[] cylindrical)
 	{
 		if(cylindrical.length == 3)
