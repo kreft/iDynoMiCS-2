@@ -85,7 +85,7 @@ public class CartesianGrid extends SpatialGrid
 		 * yet, make it.
 		 */
 		if ( this._array.containsKey(type) )
-			Array.setAll(this._array.get(type), 0.0);
+			Array.setAll(this._array.get(type), initialValues);
 		else
 		{
 			double[][][] array = Array.array(this._nVoxel[0], this._nVoxel[1],
