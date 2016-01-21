@@ -12,8 +12,9 @@ import linearAlgebra.Vector;
 import utility.ExtraMath;
 
 /**
- * @author cleggrj
- *
+ * 
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public class LinearAlgebraTest
 {
@@ -50,10 +51,10 @@ public class LinearAlgebraTest
 	
 	/**
 	 * These exercises are from Thomas' Calculus (2005, 11th Edition)
-	 * Pages 860-862, A59-60.
+	 * Pages 860, A59.
 	 */
 	@Test
-	public void vectorExcercises()
+	public void vectorExercises()
 	{
 		double[] u = new double[]{3, -2};
 		double[] v = new double[]{-2, 5};
@@ -156,5 +157,34 @@ public class LinearAlgebraTest
 		u = Vector.toCartesian(v);
 		componentForm[0] = -0.5; componentForm[1] = Math.sqrt(3) / 2;
 		assertTrue("Q13", Vector.areSame(u, componentForm, TOLERANCE));
+		/* Question 14: unit vector with angle -3pi/4 to the positive x-axis.*/
+		v[0] = 1; v[1] = -3 * Math.PI / 4;
+		u = Vector.toCartesian(v);
+		componentForm[0] = -1/Math.sqrt(2); componentForm[1] = -1/Math.sqrt(2);
+		assertTrue("Q14", Vector.areSame(u, componentForm, TOLERANCE));
+		/*
+		 * Questions 15 & 16 are about rotating points around the origin by a
+		 * given angle.
+		 */
+		/* Question 17: p->q where p = (5,7,-1) and q = (2,9,-2). */
+		p = new int[]{5, 7, -1};
+		q = new int[]{2, 9, -2};
+		pq = Vector.minus(q, p);
+		assertTrue("Q17", Vector.areSame(pq, new int[]{-3, 2, -1}));
+		/* Question 18: p->q where p = (1,2,0) and q = (-3,0,5). */
+		p[0] = 1;  p[1] = 2; p[2] = 0;
+		q[0] = -3; q[1] = 0; q[2] = 5;
+		pq = Vector.minus(q, p);
+		assertTrue("Q18", Vector.areSame(pq, new int[]{-4, -2, 5}));
+		/* Question 19: u->v where u = (-7,-8,1) and v = (-10,8,1). */
+		u = new double[]{-7, -8, 1};
+		v = new double[]{-10, 8, 1};
+		w = Vector.minus(v, u);
+		assertTrue("Q19", Vector.areSame(w, new double[]{-3, 16, 0}));
+		/* Question 20: u->v where u = (1,0,3) and v = (-1,4,5). */
+		u[0] =  1; u[1] = 0; u[2] = 3;
+		v[0] = -1; v[1] = 4; v[2] = 5;
+		w = Vector.minus(v, u);
+		assertTrue("Q20", Vector.areSame(w, new double[]{-2, 4, 2}));
 	}
 }
