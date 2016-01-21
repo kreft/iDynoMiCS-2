@@ -26,7 +26,7 @@ public class AgentCompartmentTest {
 
 	public static void main(String[] args) {
 		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(20.0);
+		Timer.setEndOfSimulation(2.0);
 		
 		Simulator aSim = new Simulator();
 		

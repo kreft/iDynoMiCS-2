@@ -300,7 +300,8 @@ public class CartesianGrid extends SpatialGrid
 	{
 		int[] coord = new int[3];
 		double counter;
-		for ( int dim = 0; dim < 3; dim++ )
+		int maxDim = Math.min(3, location.length);
+		for ( int dim = 0; dim < maxDim; dim++ )
 		{
 			counter = 0.0;
 			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )
