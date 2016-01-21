@@ -137,7 +137,8 @@ public class Boundary implements CanPrelaunchCheck
 	
 	public boolean isReadyForLaunch()
 	{
-		// TODO
+		if ( this._defaultGridMethod == null && this._gridMethods.isEmpty() )
+			return false;
 		return true;
 	}
 }

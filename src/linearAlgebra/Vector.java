@@ -458,8 +458,9 @@ public final class Vector
 	 * @param b One-dimensional array of integers (preserved).
 	 * @exception IllegalArgumentException Null vector given.
 	 * @exception IllegalArgumentException Vectors must be the same length.
-	 * @see #checkLengths(double[] a, double[] b)
-	 * @see #checkLengths(double[] a, int[] b)
+	 * @see #checkLengths(int[], int[], int[])
+	 * @see #checkLengths(double[], double[])
+	 * @see #checkLengths(double[], int[])
 	 */
 	public static void checkLengths(int[] a, int[] b)
 	{
@@ -473,12 +474,30 @@ public final class Vector
 	 * \brief Check that the two given vectors are not null, and have the same
 	 * length.
 	 * 
+	 * @param a One-dimensional array of integers (preserved).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @param c One-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Null vector given.
+	 * @exception IllegalArgumentException Vectors must be the same length.
+	 * @see #checkLengths(int[], int[])
+	 * @see #checkLengths(double[], double[], double[])
+	 */
+	public static void checkLengths(int[] a, int[] b, int[] c)
+	{
+		checkLengths(a, b);
+		checkLengths(b, c);
+	}
+	
+	/**
+	 * \brief Check that the two given vectors are not null, and have the same
+	 * length.
+	 * 
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @exception IllegalArgumentException Null vector given.
 	 * @exception IllegalArgumentException Vectors must be the same length.
-	 * @see #checkLengths(int[] a, int[] b)
-	 * @see #checkLengths(double[] a, int[] b)
+	 * @see #checkLengths(int[], int[])
+	 * @see #checkLengths(double[], int[])
 	 */
 	public static void checkLengths(double[] a, double[] b)
 	{
@@ -493,11 +512,29 @@ public final class Vector
 	 * length.
 	 * 
 	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @param c One-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Null vector given.
+	 * @exception IllegalArgumentException Vectors must be the same length.
+	 * @see #checkLengths(double[], double[])
+	 * @see #checkLengths(int[], int[], int[])
+	 */
+	public static void checkLengths(double[] a, double[] b, double[] c)
+	{
+		checkLengths(a, b);
+		checkLengths(b, c);
+	}
+	
+	/**
+	 * \brief Check that the two given vectors are not null, and have the same
+	 * length.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of integers (preserved).
 	 * @exception IllegalArgumentException Null vector given.
 	 * @exception IllegalArgumentException Vectors must be the same length.
-	 * @see #checkLengths(int[] a, int[] b)
-	 * @see #checkLengths(double[] a, double[] b)
+	 * @see #checkLengths(int[], int[])
+	 * @see #checkLengths(double[], double[])
 	 */
 	public static void checkLengths(double[] a, int[] b)
 	{
@@ -690,8 +727,7 @@ public final class Vector
 	 */
 	public static void addTo(int[] destination, int[] a, int[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] + b[i];
 	}
@@ -740,8 +776,7 @@ public final class Vector
 	 */
 	public static void addTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] + b[i];
 	}
@@ -793,8 +828,7 @@ public final class Vector
 	 */
 	public static void minusTo(int[] destination, int[] a, int[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] - b[i];
 	}
@@ -845,8 +879,7 @@ public final class Vector
 	 */
 	public static void minusTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] - b[i];
 	}
@@ -1121,8 +1154,7 @@ public final class Vector
 	 */
 	public static void timesTo(int[] destination, int[] a, int[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] * b[i];
 	}
@@ -2194,6 +2226,35 @@ public final class Vector
 		double[] out = new double[3];
 		crossProductTo(out, a, b);
 		return out;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param a
+	 * @param b
+	 */
+	public static void midPointTo(double[] destination, double[] a, double[] b)
+	{
+		checkLengths(destination, a, b);
+		minusTo(destination, a, b);
+		timesEquals(destination, 0.5);
+		addEquals(destination, b);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public static double[] midPoint(double[] a, double[] b)
+	{
+		double[] out = new double[a.length];
+		midPointTo(out, a, b);
+		return a;
 	}
 	
 	// TODO document: handling polar/spherical coordinates
