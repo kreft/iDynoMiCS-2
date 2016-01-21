@@ -27,7 +27,7 @@ public class AgentCompartmentTest {
 
 	public static void main(String[] args) {
 		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(10.0);
+		Timer.setEndOfSimulation(20.0);
 		
 		Simulator aSim = new Simulator();
 		
@@ -66,9 +66,12 @@ public class AgentCompartmentTest {
 		/*
 		 * The solute grids will need prepping before the solver can get to work.
 		 */
+		
 		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
+		aPrep.setTimeForNextStep(0.0);
 		aPrep.setTimeStepSize(Double.MAX_VALUE);
 		aCompartment.addProcessManager(aPrep);
+		
 		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
@@ -86,7 +89,7 @@ public class AgentCompartmentTest {
 		ezAgent.set("growthRate", 0.2);
 		ezAgent.set("#isLocated", true);		
 		List<Point> pts = new LinkedList<Point>();
-		pts.add(new Point(2));
+		pts.add(new Point(new double[]{1.0, 1.0}));
 		ezAgent.set("body", new Body(pts));
 
 		ezAgent.set("joints", StateLoader.getSecondary("JointsState","volume"));

@@ -39,4 +39,8 @@ public class CoccoidDivision extends Event {
 			daughter.registerBirth();
 		}
 	}
+	
+	public Object copy() {
+		return this;
+	}
 }

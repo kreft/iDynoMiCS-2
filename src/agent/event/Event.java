@@ -1,8 +1,9 @@
 package agent.event;
 
+import generalInterfaces.Copyable;
 import agent.Agent;
 
-public abstract class Event {
+public abstract class Event implements Copyable {
 	
 	protected String[] input;
 
@@ -18,4 +19,6 @@ public abstract class Event {
 	
 	public abstract void start(Agent initiator, Agent compliant, Double timeStep);
 
+	public abstract Object copy();
+	
 }
