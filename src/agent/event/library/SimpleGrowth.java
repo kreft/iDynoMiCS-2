@@ -19,4 +19,8 @@ public class SimpleGrowth extends Event {
 		agent.set(input[0], newMass);
 	}
 	
+	public Object copy() {
+		return this;
+	}
+	
 }

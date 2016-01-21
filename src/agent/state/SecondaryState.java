@@ -1,8 +1,9 @@
 package agent.state;
 
+import generalInterfaces.Copyable;
 import agent.Agent;
 
-public abstract class SecondaryState implements State {
+public abstract class SecondaryState implements State, Copyable {
 	
 	protected String[] input;
 

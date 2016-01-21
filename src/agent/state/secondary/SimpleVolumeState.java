@@ -12,18 +12,6 @@ public class SimpleVolumeState extends SecondaryState implements State {
 	 * @author baco
 	 *
 	 */
-	public SimpleVolumeState(String input)
-	{
-		this.setInput(input);
-	}
-	
-	public SimpleVolumeState()
-	{
-		
-	}
-
-	// input mass, density
-	
 	public void set(Object state)
 	{
 

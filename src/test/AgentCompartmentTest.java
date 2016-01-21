@@ -3,14 +3,17 @@ package test;
 import java.util.LinkedList;
 import java.util.List;
 
-import linearAlgebra.Vector;
+import processManager.AgentGrowth;
+import processManager.AgentRelaxation;
 import processManager.PrepareSoluteGrids;
+import processManager.ProcessManager;
 import processManager.SolveDiffusionTransient;
 import utility.ExtraMath;
 import agent.Agent;
 import agent.body.Body;
 import agent.body.Point;
-import agent.state.SecondaryState;
+import agent.event.EventLoader;
+import agent.state.StateLoader;
 import agent.state.secondary.*;
 import boundary.Boundary;
 import grid.GridBoundary;
@@ -24,7 +27,7 @@ public class AgentCompartmentTest {
 
 	public static void main(String[] args) {
 		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(10.0);
+		Timer.setEndOfSimulation(20.0);
 		
 		Simulator aSim = new Simulator();
 		
@@ -63,9 +66,12 @@ public class AgentCompartmentTest {
 		/*
 		 * The solute grids will need prepping before the solver can get to work.
 		 */
+		
 		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
+		aPrep.setTimeForNextStep(0.0);
 		aPrep.setTimeStepSize(Double.MAX_VALUE);
 		aCompartment.addProcessManager(aPrep);
+		
 		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
@@ -78,20 +84,33 @@ public class AgentCompartmentTest {
 		Agent ezAgent = new Agent();
 		ezAgent.set("mass",0.1);
 		ezAgent.set("density", 0.2);
-		ezAgent.set("volume",new SimpleVolumeState("mass,density"));
-		ezAgent.set("radius", new CoccoidRadius("volume"));
-		ezAgent.set("isLocated", true);		
+		ezAgent.set("volume", StateLoader.getSecondary("SimpleVolumeState","mass,density"));
+		ezAgent.set("radius",  StateLoader.getSecondary("CoccoidRadius","volume"));
+		ezAgent.set("growthRate", 0.2);
+		ezAgent.set("#isLocated", true);		
 		List<Point> pts = new LinkedList<Point>();
-		pts.add(new Point(2));
+		pts.add(new Point(new double[]{1.0, 1.0}));
 		ezAgent.set("body", new Body(pts));
 
-		ezAgent.set("joints", new JointsState("volume"));
-		ezAgent.set("lowerBoundingBox", new LowerBoundingBox());
-		((SecondaryState) ezAgent.getState("lowerBoundingBox")).setInput("body,radius");
-		ezAgent.set("dimensionsBoundingBox", new DimensionsBoundingBox());
-		((SecondaryState) ezAgent.getState("dimensionsBoundingBox")).setInput("body,radius");
+		ezAgent.set("joints", StateLoader.getSecondary("JointsState","volume"));
+		ezAgent.set("#boundingLower", StateLoader.getSecondary("LowerBoundingBox","body,radius"));
+		ezAgent.set("#boundingSides", StateLoader.getSecondary("DimensionsBoundingBox","body,radius"));
+		
+		ezAgent.set("growth", EventLoader.getEvent("SimpleGrowth","mass,growthRate"));
+		ezAgent.set("divide", EventLoader.getEvent("CoccoidDivision","mass,radius,body"));
+		
 		ezAgent.init();
 		aCompartment.addAgent(ezAgent);
+
+		ProcessManager agentRelax = new AgentRelaxation();
+		agentRelax.setTimeForNextStep(0.0);
+		agentRelax.setTimeStepSize(Timer.getTimeStepSize());
+		aCompartment.addProcessManager(agentRelax);
+		
+		ProcessManager agentGrowth = new AgentGrowth();
+		agentGrowth.setTimeForNextStep(0.0);
+		agentGrowth.setTimeStepSize(Timer.getTimeStepSize());
+		aCompartment.addProcessManager(agentGrowth);
 
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
 		/*

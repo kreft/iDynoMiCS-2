@@ -13,19 +13,6 @@ public class CoccoidRadius extends SecondaryState implements State {
 	 * @author baco
 	 *
 	 */
-	public CoccoidRadius(String input)
-	{
-		this.setInput(input);
-	}
-	
-	/**
-	 * used by XMLloader, input needs to be set afterwards
-	 */
-	public CoccoidRadius()
-	{
-		
-	}
-
 	public void set(Object state)
 	{
 
