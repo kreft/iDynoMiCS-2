@@ -50,11 +50,23 @@ public class EnvironmentContainer
 	public void setShape(Shape aShape)
 	{
 		this._shape = aShape;
+		this._gridGetter = this._shape.gridGetter();
 	}
 	
-	public EnvironmentContainer(GridGetter aGridGetter)
+	public EnvironmentContainer(Shape aShape)
 	{
-		this._gridGetter = aGridGetter;
+		this._shape = aShape;
+		this._gridGetter = this._shape.gridGetter();
+	}
+	
+	public void init()
+	{
+		for ( BoundarySide aBS : this._shape.getBoundarySides() )
+			for ( String soluteName : this._solutes.keySet() )
+			{
+				this._solutes.get(soluteName).addBoundary(aBS, 
+						this._shape.getGridMethod(aBS, soluteName));
+			}
 	}
 	
 	/**

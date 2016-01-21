@@ -19,6 +19,7 @@ import idynomics.Timer;
 import linearAlgebra.Vector;
 import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
+import shape.ShapeLibrary;
 
 public class PDEtest
 {
@@ -57,7 +58,7 @@ public class PDEtest
 		System.out.println("\tNo agents or reactions");
 		System.out.println("Concentration should tend towards linear");
 		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "line");
+		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "Line");
 		
 		// TODO Bas [10.12.15] why do 1D and 2D compartments need to have 3 side
 		// lengths? This seems to define the amount of voxels in each direction
@@ -87,7 +88,6 @@ public class PDEtest
 		 * The solute grids will need prepping before the solver can get to work.
 		 */
 		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aPrep.setTimeStepSize(Double.MAX_VALUE);
 		aCompartment.addProcessManager(aPrep);
 		/*
 		 * Set up the transient diffusion-reaction solver.
@@ -110,7 +110,8 @@ public class PDEtest
 		System.out.println("\tNo agents or reactions");
 		System.out.println("Concentration should tend towards linear along diagonal");
 		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment("twoDimRandInitDiagBndrs", "rectangle");
+		Compartment aCompartment = aSim.addCompartment(
+									"twoDimRandInitDiagBndrs", "Rectangle");
 		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
 		/*
 		 * 
@@ -188,7 +189,8 @@ public class PDEtest
 		System.out.println("\tNo agents or reactions");
 		System.out.println("Concentration should tend towards linear along diagonal");
 		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment("twoDimRandInitCyclBndrs", "rectangle");
+		Compartment aCompartment = aSim.addCompartment(
+									"twoDimRandInitCyclBndrs", "Rectangle");
 		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
 		/*
 		 * 
@@ -254,8 +256,8 @@ public class PDEtest
 		
 		String[] soluteNames = new String[1];
 		soluteNames[0] = "solute";
-		
-		EnvironmentContainer environment = new EnvironmentContainer(CartesianGrid.standardGetter());
+		EnvironmentContainer environment =
+				new EnvironmentContainer(new ShapeLibrary.Rectangle());
 		environment.setSize(nVoxel, 1.0);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);

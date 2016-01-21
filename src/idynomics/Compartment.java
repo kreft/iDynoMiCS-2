@@ -11,7 +11,6 @@ import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
 import processManager.ProcessManager;
 import shape.Shape;
-import shape.ShapeLibrary;
 import shape.BoundarySide;
 
 public class Compartment implements CanPrelaunchCheck
@@ -67,28 +66,19 @@ public class Compartment implements CanPrelaunchCheck
 	public Compartment(String aShapeName)
 	{
 		System.out.println("Making Compartment with shape: "+aShapeName);
-		try
-		{
-			// TODO check 
-			aShapeName = "shape.ShapeLibrary$" + aShapeName;
-			this._shape = (Shape) Class.forName(aShapeName).newInstance();
-		}
-		catch ( Exception e )
-		{
-			e.printStackTrace();
-		}
+		this._shape = (Shape) Shape.getNewInstance(aShapeName);
 		this.setupShape();
 	}
 	
 	protected void setupShape()
 	{
 		this.agents.init( getNumDims() );
-		this._environment = new EnvironmentContainer(this._shape.gridGetter());
+		this._environment = new EnvironmentContainer(this._shape);
 	}
 	
 	public void init()
 	{
-		
+		this._environment.init();
 	}
 	
 	/*************************************************************************

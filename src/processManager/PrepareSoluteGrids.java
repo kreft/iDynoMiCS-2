@@ -22,7 +22,7 @@ public class PrepareSoluteGrids extends ProcessManager
 	 */
 	public PrepareSoluteGrids()
 	{
-		
+		this.setTimeForNextStep(Double.MAX_VALUE);
 	}
 	
 	/**

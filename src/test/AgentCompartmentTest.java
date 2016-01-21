@@ -28,7 +28,7 @@ public class AgentCompartmentTest {
 		
 		Simulator aSim = new Simulator();
 		
-		Compartment aCompartment = aSim.addCompartment("myCompartment", "rectangle");
+		Compartment aCompartment = aSim.addCompartment("myCompartment", "Rectangle");
 		aCompartment.setSideLengths(new double[] {9.0, 9.0, 1.0});
 		/*
 		 * 
@@ -45,7 +45,8 @@ public class AgentCompartmentTest {
 		for ( String side : new String[] {"xmin", "xmax", "ymin", "ymax"})
 		{
 			Boundary bndry = new Boundary();
-			// bndry.setGridMethod("solute", GridBoundary.Cyclic()); //FIXME: how does this work with the new gridMethods?
+			// bndry.setGridMethod("solute", GridBoundary.Cyclic());
+			//FIXME: how does this work with the new gridMethods?
 			aCompartment.addBoundary(side, bndry);
 		}
 		//TODO diffusivities
