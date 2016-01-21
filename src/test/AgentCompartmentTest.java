@@ -7,6 +7,7 @@ import processManager.AgentGrowth;
 import processManager.AgentRelaxation;
 import processManager.PrepareSoluteGrids;
 import processManager.ProcessManager;
+import processManager.RefreshMassGrids;
 import processManager.SolveDiffusionTransient;
 import utility.ExtraMath;
 import agent.Agent;
@@ -34,8 +35,9 @@ public class AgentCompartmentTest {
 		/*
 		 * 
 		 */
-		String[] soluteNames = new String[1];
+		String[] soluteNames = new String[2];
 		soluteNames[0] = "solute";
+		soluteNames[1] = "biomass";
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
 		/*
@@ -62,6 +64,14 @@ public class AgentCompartmentTest {
 		{
 			sg.setValueAt(ArrayType.CONCN, coords, ExtraMath.getUniRandDbl());
 		}
+		
+		SpatialGrid bm = aCompartment.getSolute("biomass");
+		for ( int[] coords = bm.resetIterator() ; bm.isIteratorValid();
+												coords = bm.iteratorNext() )
+		{
+			bm.setValueAt(ArrayType.CONCN, coords, 0.0);
+		}
+		
 		/*
 		 * The solute grids will need prepping before the solver can get to work.
 		 */
@@ -97,6 +107,15 @@ public class AgentCompartmentTest {
 		
 		ezAgent.set("growth", EventLoader.getEvent("SimpleGrowth","mass,growthRate"));
 		ezAgent.set("divide", EventLoader.getEvent("CoccoidDivision","mass,radius,body"));
+		
+		ezAgent.set("massGrid", "biomass");
+		ezAgent.set("coccoidCenter",StateLoader.getSecondary("CoccoidCenter","body"));
+		ezAgent.set("massToGrid", EventLoader.getEvent("MassToGrid","mass,biomass,coccoidCenter"));
+		
+		ProcessManager agentMassGrid = new RefreshMassGrids();
+		agentMassGrid.setTimeForNextStep(0.0);
+		agentMassGrid.setTimeStepSize(Timer.getTimeStepSize());
+		aCompartment.addProcessManager(agentMassGrid);
 		
 		ezAgent.init();
 		aCompartment.addAgent(ezAgent);
