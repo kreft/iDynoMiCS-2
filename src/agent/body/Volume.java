@@ -25,10 +25,33 @@ public class Volume
 	}
 	
 	/**
+	 * Work in progress for periodic boundaries etc.
+	 * @param nDim
+	 * @param boundaryTypes
+	 * @param gridLength
+	 */
+	public Volume(int nDim, int[] boundaryTypes, double[] gridLength)
+	{
+		this.dP = Vector.zerosDbl(nDim);
+		this.boundaries = boundaryTypes;
+		this.gridLengths = gridLength;
+	}
+	
+	/**
 	 * Vector that represents the shortest distance between: point-point,
 	 * point-line segment and line segment-line segment.
 	 */
 	double[] dP;
+	
+	/**
+	 * 
+	 */
+	int[] boundaries;
+	
+	/**
+	 * 
+	 */
+	double[] gridLengths;
 	
 	/**
 	 * Represents the closest point on the first line segment expressed as a
@@ -41,6 +64,24 @@ public class Volume
 	 * fraction of the line segment.
 	 */
 	double t = 0;
+	
+	/**
+	 * Regular periodicity (opposite sides)
+	 */
+	public double periodicDistance(double distance, double gridLength)
+	{
+		if ( Math.abs(distance) > 0.5 * gridLength )
+			distance -= Math.signum(distance) * gridLength;
+		return distance;
+	}
+	
+	public double[] periodicDistanceVector(double[] distance)
+	{
+		for(int i = 0; i < distance.length; i++)
+			if(boundaries[i] == 1)
+				distance[i] = periodicDistance(distance[i], gridLengths[i]);
+		return distance;
+	}
 	
 	/**
 	 * \brief Updates the net force on two interacting cells as a result from
@@ -159,6 +200,7 @@ public class Volume
 	public double pointPoint(double[] p, double[] q) 
 	{
 		Vector.minusTo(dP, p, q);
+		periodicDistanceVector(dP);
 		return Vector.normEuclid(dP);
 	}
 	

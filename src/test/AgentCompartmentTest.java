@@ -9,6 +9,7 @@ import processManager.PrepareSoluteGrids;
 import processManager.ProcessManager;
 import processManager.RefreshMassGrids;
 import processManager.SolveDiffusionTransient;
+import processManager.WriteAgentsSvg;
 import utility.ExtraMath;
 import agent.Agent;
 import agent.body.Body;
@@ -26,7 +27,7 @@ public class AgentCompartmentTest {
 
 	public static void main(String[] args) {
 		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(2.0);
+		Timer.setEndOfSimulation(25.0);
 		
 		Simulator aSim = new Simulator();
 		
@@ -85,7 +86,7 @@ public class AgentCompartmentTest {
 		 * Set up the transient diffusion-reaction solver.
 		 */
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
-		aProcess.init(soluteNames);
+		aProcess.init(new String[]{soluteNames[0]});
 		aProcess.setTimeForNextStep(0.0);
 		aProcess.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
@@ -96,12 +97,13 @@ public class AgentCompartmentTest {
 		ezAgent.set("volume", StateLoader.getSecondary("SimpleVolumeState","mass,density"));
 		ezAgent.set("radius",  StateLoader.getSecondary("CoccoidRadius","volume"));
 		ezAgent.set("growthRate", 0.2);
-		ezAgent.set("#isLocated", true);		
+		ezAgent.set("#isLocated", true);	
+		ezAgent.set("pigment", "GREEN");
 		List<Point> pts = new LinkedList<Point>();
 		pts.add(new Point(new double[]{1.0, 1.0}));
 		ezAgent.set("body", new Body(pts));
 
-		ezAgent.set("joints", StateLoader.getSecondary("JointsState","volume"));
+		ezAgent.set("joints", StateLoader.getSecondary("JointsState","body"));
 		ezAgent.set("#boundingLower", StateLoader.getSecondary("LowerBoundingBox","body,radius"));
 		ezAgent.set("#boundingSides", StateLoader.getSecondary("DimensionsBoundingBox","body,radius"));
 		
@@ -129,6 +131,13 @@ public class AgentCompartmentTest {
 		agentGrowth.setTimeForNextStep(0.0);
 		agentGrowth.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(agentGrowth);
+		
+		ProcessManager svgOutput = new WriteAgentsSvg();
+		svgOutput.setPriority(1);
+		svgOutput.setTimeForNextStep(0.0);
+		svgOutput.setTimeStepSize(Timer.getTimeStepSize());
+		((WriteAgentsSvg) svgOutput).init(aCompartment.name, aCompartment.agents);
+		aCompartment.addProcessManager(svgOutput);
 
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
 		/*

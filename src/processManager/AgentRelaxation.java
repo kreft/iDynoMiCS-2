@@ -25,16 +25,17 @@ public class AgentRelaxation extends ProcessManager {
 	String method 		= "euler";
 	boolean timeLeap	= true;
 	
-	private void updateForces(AgentContainer agents) 
+	private void updateForces(EnvironmentContainer environment, AgentContainer agents) 
 	{
 		agents.refreshSpatialRegistry();
-		Volume iterator = new Volume(agents.getNumDims());
+		//FIXME hard coded periodic boundaries and domain size for test case, initiate properly
+		Volume iterator = new Volume(agents.getNumDims(), new int[]{1,1}, new double[]{9.0,9.0});
 		
 		// Calculate forces
 		for(Agent agent: agents.getAllLocatedAgents()) 
 		{
 			//agent.innerSprings();	// TODO method needs to be implemented (but not in Agent())
-			for(Agent neighbour: agents._agentTree.search(
+			for(Agent neighbour: agents._agentTree.cyclicsearch(
 					(double[]) agent.get("#boundingLower"), /// TODO Add optional extra margin for pulls!!!
 					(double[]) agent.get("#boundingSides"))) 
 			{
@@ -68,8 +69,8 @@ public class AgentRelaxation extends ProcessManager {
 		
 		// Mechanical relaxation
 		while(tMech < _timeStepSize) 
-		{			
-			updateForces(agents);
+		{	
+			updateForces(environment, agents);
 			
 			/// obtain current highest particle velocity
 			vSquare = 0.0;
@@ -112,7 +113,7 @@ public class AgentRelaxation extends ProcessManager {
 					for(Agent agent: agents.getAllLocatedAgents())
 						for (Point point: ((Body) agent.get("body")).getPoints())
 							point.heun1(dtMech, (double) agent.get("radius"));
-					updateForces(agents);
+					updateForces(environment,agents);
 					for(Agent agent: agents.getAllLocatedAgents())
 						for (Point point: ((Body) agent.get("body")).getPoints())
 							point.heun2(dtMech, (double) agent.get("radius"));
@@ -120,6 +121,11 @@ public class AgentRelaxation extends ProcessManager {
 					tMech += dtMech;
 					break;
 			}
+			//FIXME hard coded domain/ periodic boundaries right now, implement properly
+			for(Agent agent: agents.getAllLocatedAgents())
+				for (Point point: ((Body) agent.get("body")).getPoints())
+					point.updatePeriodicLocation(new int[]{1,1}, new double[]{9.0,9.0});
+			
 			nstep++;
 		}
 		System.out.println(agents.getNumAllAgents() + " after " + nstep

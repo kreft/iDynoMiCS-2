@@ -9,7 +9,7 @@ public class JointsState extends SecondaryState implements State {
 	
 	/**
 	 * 
-	 * @param input: volume
+	 * @param input: body
 	 */
 	public void set(Object state)
 	{

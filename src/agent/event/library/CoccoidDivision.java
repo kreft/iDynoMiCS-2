@@ -15,7 +15,7 @@ public class CoccoidDivision extends Event {
 	{
 		//TODO check phase 
 		double momMass =(double) mother.get(input[0]);
-		if (momMass > 1)
+		if (momMass > 0.2)
 		{
 			Body momBody = (Body) mother.get(input[2]);
 
