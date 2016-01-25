@@ -78,7 +78,7 @@ public class Compartment implements CanPrelaunchCheck
 	public void init()
 	{
 		this._environment.init();
-		this.agents.init( getNumDims() ); // moved here since the agent compartment was init before it was constructed!
+		this.agents.init(this._shape); // moved here since the agent compartment was init before it was constructed!
 	}
 	
 	/*************************************************************************

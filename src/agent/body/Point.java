@@ -224,17 +224,5 @@ public class Point
 		Vector.minusEquals(this.f, forceToSubtract);
 	}
 
-	public void updatePeriodicLocation(int[] boundaries, double[] gridLengths) 
-	{
-		for(int i = 0; i < p.length; i++)
-		{
-			if(boundaries[i] == 1)
-			{
-				if(p[i] < 0.0)
-					p[i] += gridLengths[i];
-				if(p[i] > gridLengths[i])
-					p[i] -= gridLengths[i];
-			}
-		}
-	}
+	
 }

@@ -14,6 +14,7 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import processManager.SolveChemostat;
+import shape.Shape;
 import shape.ShapeLibrary;
 import utility.ExtraMath;
 
@@ -69,8 +70,9 @@ public class ODETest
 		/*
 		 * 
 		 */
+		Shape myShape = new ShapeLibrary.Dimensionless();
 		EnvironmentContainer environment =
-				new EnvironmentContainer(new ShapeLibrary.Dimensionless());
+				new EnvironmentContainer(myShape);
 		for ( String name : soluteNames )
 			environment.addSolute(name, initialConcn.get(name));
 		
@@ -78,7 +80,7 @@ public class ODETest
 		 * Dummy AgentContainer will be empty
 		 */
 		AgentContainer agents = new AgentContainer();
-		agents.init(0);
+		agents.init(myShape);
 		/*
 		 * Set up the process manager
 		 */

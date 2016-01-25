@@ -61,17 +61,7 @@ public class Volume
 	 * fraction of the line segment.
 	 */
 	double t = 0;
-	
-	/**
-	 * Regular periodicity (opposite sides)
-	 */
-	public double periodicDistance(double distance, double gridLength)
-	{
-		if ( Math.abs(distance) > (0.5 * gridLength) )
-			distance -= Math.signum(distance) * gridLength;
-		return distance;
-	}
-	
+		
 	/**
 	 * TODO angular periodicity 
 	 * @param distance
@@ -79,9 +69,8 @@ public class Volume
 	 */
 	public double[] periodicDistanceVector(double[] distance)
 	{
-		for(int i = 0; i < distance.length; i++)
-			if(periodicBoundaries.containsKey(i))
-				distance[i] = periodicDistance(distance[i], periodicBoundaries.get(i)._periodicDistance);
+		for(int dim : periodicBoundaries.keySet())
+				distance[dim] = periodicBoundaries.get(dim).periodicDistance(distance[dim]);
 		return distance;
 	}
 	

@@ -7,6 +7,7 @@ import java.util.List;
 import boundary.PeriodicAgentBoundary;
 import agent.Agent;
 import reaction.Reaction;
+import shape.Shape;
 import spatialRegistry.*;
 
 public class AgentContainer
@@ -16,7 +17,7 @@ public class AgentContainer
 	 * in a lot of cases the compartment is not reachable it is also here!
 	 * Consider changing this...
 	 */
-	protected int nDim;
+	protected Shape _shape;
 	/**
 	 * All agents with a spatial location are stored in the agentTree 
 	 * (e.g. an RTree).
@@ -57,18 +58,18 @@ public class AgentContainer
 	 * 
 	 * @param nDims	Number of dimensions in this domain (x,y,z).
 	 */
-	public void init(int compartmentNumDims) 
+	public void init(Shape shape) 
 	{
-		this.nDim = compartmentNumDims;
+		this._shape = shape;
 		/*
 		 * Bas: I have chosen maxEntries and minEntries by testing what values
 		 * resulted in fast tree creation and agent searches.
 		 */
-		if ( nDim == 0 )
+		if ( _shape.getNumberOfDimensions() == 0 )
 			this._agentTree = new DummyTree<Agent>();
 		else
 		{
-			this._agentTree = new RTree<Agent>(8, 2, this.nDim);
+			this._agentTree = new RTree<Agent>(8, 2, _shape.getNumberOfDimensions());
 			this._agentTree.setPeriodicBoundaries(_agentBoundaries);
 		}
 		
@@ -84,7 +85,7 @@ public class AgentContainer
 	
 	public int getNumDims()
 	{
-		return nDim;
+		return _shape.getNumberOfDimensions();
 	}
 	
 	public void addAgentBoundary(PeriodicAgentBoundary boundary)
@@ -138,7 +139,7 @@ public class AgentContainer
 	public void refreshSpatialRegistry()
 	{
 		List<Agent> agentList = _agentTree.all();
-		this._agentTree = new RTree<Agent>(8, 2, this.nDim); // rtree paramaters could follow from the protocol file
+		this._agentTree = new RTree<Agent>(8, 2, _shape.getNumberOfDimensions()); // rtree paramaters could follow from the protocol file
 		for(Agent a: agentList) 
 		{
 			_agentTree.insert((double[]) a.get("#boundingLower"), 

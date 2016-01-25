@@ -122,11 +122,10 @@ public class AgentRelaxation extends ProcessManager {
 					tMech += dtMech;
 					break;
 			}
-			//FIXME hard coded domain/ periodic boundaries right now, implement properly
+
 			for(Agent agent: agents.getAllLocatedAgents())
 				for (Point point: ((Body) agent.get("body")).getPoints())
-					point.updatePeriodicLocation(new int[]{1,1}, new double[]{9.0,9.0});
-			
+					agents.getAgentBoundaries().forEach((k,v)->point.setPosition(v.inFrameLocation(point.getPosition())));
 			nstep++;
 		}
 		if(this._debugMode)
