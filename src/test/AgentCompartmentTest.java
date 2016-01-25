@@ -17,6 +17,7 @@ import agent.body.Point;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
 import boundary.BoundaryCyclic;
+import boundary.PeriodicAgentBoundary;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
@@ -54,6 +55,17 @@ public class AgentCompartmentTest {
 			aCompartment.addBoundary(side+"min", min);
 			aCompartment.addBoundary(side+"max", max);
 		}
+		
+		PeriodicAgentBoundary xBound = new PeriodicAgentBoundary();
+		xBound._periodicDistance = 9.0;
+		xBound.periodicDimension = 0;
+		aCompartment.agents.addAgentBoundary(xBound);
+		
+		PeriodicAgentBoundary yBound = new PeriodicAgentBoundary();
+		yBound._periodicDistance = 9.0;
+		yBound.periodicDimension = 1;
+		aCompartment.agents.addAgentBoundary(yBound);
+		
 		//TODO diffusivities
 		aCompartment.init();
 		/*
@@ -123,16 +135,22 @@ public class AgentCompartmentTest {
 		aCompartment.addAgent(ezAgent);
 
 		ProcessManager agentRelax = new AgentRelaxation();
+		agentRelax.setName("agentRelax");
+		agentRelax.debugMode();
 		agentRelax.setTimeForNextStep(0.0);
 		agentRelax.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(agentRelax);
 		
 		ProcessManager agentGrowth = new AgentGrowth();
+		agentGrowth.setName("agentGrowth");
+		//agentGrowth.debugMode();
 		agentGrowth.setTimeForNextStep(0.0);
 		agentGrowth.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(agentGrowth);
 		
 		ProcessManager svgOutput = new WriteAgentsSvg();
+		svgOutput.setName("svgOutput");
+		svgOutput.debugMode();
 		svgOutput.setPriority(1);
 		svgOutput.setTimeForNextStep(0.0);
 		svgOutput.setTimeStepSize(Timer.getTimeStepSize());

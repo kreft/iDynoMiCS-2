@@ -25,7 +25,7 @@ public class SvgExport {
 		/**
 		 * work out how to do scaling and domain properly and consistently
 		 */
-		return " cx=\"" + Double.toString(500+50.0*v[0]) + "\" cy=\"" + Double.toString(500+50.0*v[1]) + "\" ";
+		return " cx=\"" + Double.toString(25+50.0*v[0]) + "\" cy=\"" + Double.toString(25+50.0*v[1]) + "\" ";
 	}
 	
 	public void writepov(String prefix, List<Agent> agents) 
@@ -36,6 +36,7 @@ public class SvgExport {
 		+ prefix + DigitFilenr(filewriterfilenr) + ".svg");
 
 		svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
+		svgFile.write("<rect x=\"25\" y=\"25\" width=\"450\" height=\"450\" fill=\"gray\" />\n");
 		
 		/**
 		 *  the original

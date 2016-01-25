@@ -1,12 +1,16 @@
 package spatialRegistry;
 
+import idynomics.AgentContainer;
+
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import boundary.PeriodicAgentBoundary;
 import utility.ExtraMath;
 
 
@@ -42,6 +46,7 @@ public class RTree<T> extends SpatialRegistry<T>
   private Node nearest;
 
   private volatile int size;
+  private HashMap<Integer, PeriodicAgentBoundary> _periodicBoundaries;
 
   /**
    * Creates a new RTree.
@@ -100,7 +105,24 @@ public class RTree<T> extends SpatialRegistry<T>
     this(50, 2, 2, SeedPicker.LINEAR);
   }
 
+  //TODO: I'm not really a fan, but we have to have access to this info somehow
   /**
+   * 
+   */
+  public void setPeriodicBoundaries(HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries)
+  {
+	  this._periodicBoundaries = periodicBoundaries;
+  }
+  
+  /**
+   * 
+   */
+	public void addPeriodicBoundary(PeriodicAgentBoundary boundary)
+	{
+		this._periodicBoundaries.put(boundary.periodicDimension, boundary);
+	}
+
+/**
    * @return the maximum number of entries per node
    */
   public int getMaxEntries()
@@ -178,15 +200,7 @@ public class RTree<T> extends SpatialRegistry<T>
       }
     }
   }
-  
-  //added 15-04-2015
-  //FIXME: for testing purposes remove this method from production version
-  public List<T> cyclicsearch(double[] coords, double[] dimensions) {
-	  double[] domain = new double[]{1.0,1.0,1.0}; 
-	  Boolean[] cyclicdimension = new Boolean[]{false,true,false};
-	  return cyclicsearch(coords,dimensions,domain,cyclicdimension);
-  }
-  
+
   //added 15-04-2015 - Bastiaan
   /**
    * Searches the RTree for objects overlapping with the given rectangle
@@ -204,22 +218,23 @@ public class RTree<T> extends SpatialRegistry<T>
    * @return a list of objects whose rectangles overlap with the given
    *         rectangle.
    */
-  public List<T> cyclicsearch(double[] coords, double[] dimensions, 
-		  double[] domain, Boolean[] cyclicdimension)  {
+  public List<T> cyclicsearch(double[] coords, double[] dimensions)  {
+	  
 		  LinkedList<T> combinedlist = new LinkedList<T>();
-		  double[][] localcoords = new double[1+counttrue(cyclicdimension)*2][dimensions.length];
+		  double[][] localcoords = new double[1+_periodicBoundaries.size()*2][dimensions.length];
 		  
 		  localcoords[0] = coords;
 		  int i = 1;
-		  for(int j = 0; j < cyclicdimension.length; j++) {
-			  if (cyclicdimension[j]) {
-				  localcoords[i] = adddim(coords,domain,j);
-				  localcoords[i+1] = subdim(coords,domain,j);
+		  for(int j = 0; j < dimensions.length; j++) {
+			  if (_periodicBoundaries.containsKey(j)) {
+				  localcoords[i] = adddim(coords,_periodicBoundaries.get(j)._periodicDistance,j);
+				  localcoords[i+1] = subdim(coords,_periodicBoundaries.get(j)._periodicDistance,j);
 				  i=i+2;
 			  }			  
 		  }
 		  
-		  for(int j = 0; j < localcoords[j].length-1; j++) {
+		  for(int j = 0; j < localcoords.length; j++) 
+		  {
 			  LinkedList<T> results = new LinkedList<T>();
 			  search(localcoords[j], dimensions, root, results);
 			  combinedlist.addAll(results);
@@ -238,11 +253,11 @@ public class RTree<T> extends SpatialRegistry<T>
    * 		  the dimension (numbered from 0) in which the shift needs to take place.
    * @return A double array that represents the upper search window in dimension (dim).
    */
-  private double[] adddim(double[] coord, double[] b, int dim) {
+  private double[] adddim(double[] coord, double periodicDistance, int dim) {
 	  double[] c = new double[coord.length];
 	  for (int i = 0; i < coord.length; ++i) {
 		  if (dim == i)
-			  c[i] = coord[i] + b[i];
+			  c[i] = coord[i] + periodicDistance;
 		  else
 			  c[i] = coord[i];
 	  }
@@ -261,11 +276,11 @@ public class RTree<T> extends SpatialRegistry<T>
    * 		  the dimension (numbered from 0) in which the shift needs to take place.
    * @return A double array that represents the lower search window in dimension (dim).
    */
-  private double[] subdim(double[] coord, double[] b, int dim) {
+  private double[] subdim(double[] coord, double periodicDistance, int dim) {
 	  double[] c = new double[coord.length];
 	  for (int i = 0; i < coord.length; ++i) {
 		  if (dim == i)
-			  c[i] = coord[i] - b[i];
+			  c[i] = coord[i] - periodicDistance;
 		  else
 			  c[i] = coord[i];
 	  }

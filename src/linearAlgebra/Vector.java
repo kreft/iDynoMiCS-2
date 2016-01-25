@@ -1333,6 +1333,20 @@ public final class Vector
 		return out;
 	}
 	
+	/**
+	 * 
+	 * @param vector
+	 * @param stop
+	 * @return
+	 */
+	public static double[] subset(double[] vector, int stop)
+	{
+		double[] out = new double[stop];
+		for ( int i = 0; i < out.length; i++ )
+			out[i] = vector[i];
+		return out;
+	}
+	
 	/* Flip */
 	
 	/**

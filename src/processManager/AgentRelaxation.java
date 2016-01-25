@@ -29,7 +29,8 @@ public class AgentRelaxation extends ProcessManager {
 	{
 		agents.refreshSpatialRegistry();
 		//FIXME hard coded periodic boundaries and domain size for test case, initiate properly
-		Volume iterator = new Volume(agents.getNumDims(), new int[]{1,1}, new double[]{9.0,9.0});
+		//TODO: in my opinion this information should all just come from the compartment
+		Volume iterator = new Volume(agents.getNumDims(), agents.getAgentBoundaries());
 		
 		// Calculate forces
 		for(Agent agent: agents.getAllLocatedAgents()) 

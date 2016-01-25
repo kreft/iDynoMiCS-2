@@ -1,5 +1,8 @@
 package agent.body;
 
+import java.util.HashMap;
+
+import boundary.PeriodicAgentBoundary;
 import linearAlgebra.Vector;
 
 /**
@@ -24,17 +27,16 @@ public class Volume
 		this.dP = Vector.zerosDbl(nDim);
 	}
 	
-	/**
-	 * Work in progress for periodic boundaries etc.
-	 * @param nDim
-	 * @param boundaryTypes
-	 * @param gridLength
-	 */
-	public Volume(int nDim, int[] boundaryTypes, double[] gridLength)
+//	/**
+//	 * Work in progress for periodic boundaries etc.
+//	 * @param nDim
+//	 * @param boundaryTypes
+//	 * @param gridLength
+//	 */
+	public Volume(int nDim, HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries)
 	{
 		this.dP = Vector.zerosDbl(nDim);
-		this.boundaries = boundaryTypes;
-		this.gridLengths = gridLength;
+		this.periodicBoundaries = periodicBoundaries;
 	}
 	
 	/**
@@ -46,12 +48,7 @@ public class Volume
 	/**
 	 * 
 	 */
-	int[] boundaries;
-	
-	/**
-	 * 
-	 */
-	double[] gridLengths;
+	private HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries;
 	
 	/**
 	 * Represents the closest point on the first line segment expressed as a
@@ -70,16 +67,21 @@ public class Volume
 	 */
 	public double periodicDistance(double distance, double gridLength)
 	{
-		if ( Math.abs(distance) > 0.5 * gridLength )
+		if ( Math.abs(distance) > (0.5 * gridLength) )
 			distance -= Math.signum(distance) * gridLength;
 		return distance;
 	}
 	
+	/**
+	 * TODO angular periodicity 
+	 * @param distance
+	 * @return
+	 */
 	public double[] periodicDistanceVector(double[] distance)
 	{
 		for(int i = 0; i < distance.length; i++)
-			if(boundaries[i] == 1)
-				distance[i] = periodicDistance(distance[i], gridLengths[i]);
+			if(periodicBoundaries.containsKey(i))
+				distance[i] = periodicDistance(distance[i], periodicBoundaries.get(i)._periodicDistance);
 		return distance;
 	}
 	
@@ -161,6 +163,7 @@ public class Volume
 		double fPull 		= 0.0002;		// pull force scalar
 		double fPush 		= 3.0;			// push force scalar
 		boolean exponential = true; 		// exponential pull curve
+		
 		distance 			-= radii+0.001;	// added margin
 		
 		// Repulsion
