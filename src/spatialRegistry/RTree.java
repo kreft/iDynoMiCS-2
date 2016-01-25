@@ -218,74 +218,32 @@ public class RTree<T> extends SpatialRegistry<T>
    * @return a list of objects whose rectangles overlap with the given
    *         rectangle.
    */
-  public List<T> cyclicsearch(double[] coords, double[] dimensions)  {
-	  
-		  LinkedList<T> combinedlist = new LinkedList<T>();
-		  double[][] localcoords = new double[1+_periodicBoundaries.size()*2][dimensions.length];
-		  
-		  localcoords[0] = coords;
-		  int i = 1;
-		  for(int j = 0; j < dimensions.length; j++) {
-			  if (_periodicBoundaries.containsKey(j)) {
-				  localcoords[i] = adddim(coords,_periodicBoundaries.get(j)._periodicDistance,j);
-				  localcoords[i+1] = subdim(coords,_periodicBoundaries.get(j)._periodicDistance,j);
-				  i=i+2;
-			  }			  
-		  }
-		  
-		  for(int j = 0; j < localcoords.length; j++) 
-		  {
-			  LinkedList<T> results = new LinkedList<T>();
-			  search(localcoords[j], dimensions, root, results);
-			  combinedlist.addAll(results);
-		  }
-		  return combinedlist;
-	  }
-  /**
-   * helper method that returns the upper search window in dimension (dim)
-   * 
-   * @param coord
-   * 		  the corner of the original search rectangle that is the lower 
-   * 		  bound of every dimension (eg. the top-left corner)
-   * @param b
-   * 		  the size of the domain
-   * @param dim
-   * 		  the dimension (numbered from 0) in which the shift needs to take place.
-   * @return A double array that represents the upper search window in dimension (dim).
-   */
-  private double[] adddim(double[] coord, double periodicDistance, int dim) {
-	  double[] c = new double[coord.length];
-	  for (int i = 0; i < coord.length; ++i) {
-		  if (dim == i)
-			  c[i] = coord[i] + periodicDistance;
-		  else
-			  c[i] = coord[i];
-	  }
-	  return c;
-  }
-  
-  /**
-   * helper method that returns the lower search window in dimension (dim)
-   * 
-   * @param coord
-   * 		  the corner of the original search rectangle that is the lower 
-   * 		  bound of every dimension (eg. the top-left corner)
-   * @param b
-   * 		  the size of the domain
-   * @param dim
-   * 		  the dimension (numbered from 0) in which the shift needs to take place.
-   * @return A double array that represents the lower search window in dimension (dim).
-   */
-  private double[] subdim(double[] coord, double periodicDistance, int dim) {
-	  double[] c = new double[coord.length];
-	  for (int i = 0; i < coord.length; ++i) {
-		  if (dim == i)
-			  c[i] = coord[i] - periodicDistance;
-		  else
-			  c[i] = coord[i];
-	  }
-	  return c;
-  }
+	public List<T> cyclicsearch(double[] coords, double[] dimensions)  {
+		LinkedList<double[]> boxList = new LinkedList<double[]>();
+		LinkedList<T> combinedlist = new LinkedList<T>();
+		boxList.add(coords);
+		
+		for(int dim : _periodicBoundaries.keySet())
+		{
+			LinkedList<double[]> temp = new LinkedList<double[]>();
+			for(double[] b : boxList) 
+			{
+				
+				temp.add(_periodicBoundaries.get(dim).subdim(b));
+				temp.add(_periodicBoundaries.get(dim).adddim(b));
+			}
+			boxList.addAll(temp);
+		}
+
+		for(double[] b : boxList) 
+		{
+			LinkedList<T> results = new LinkedList<T>();
+			search(b, dimensions, root, results);
+			combinedlist.addAll(results);
+		}
+		return combinedlist;
+	}
+
   
   /**
    * helper method that counts the number of fields with value 'true' in an array of booleans.

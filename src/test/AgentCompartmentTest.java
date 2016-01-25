@@ -134,24 +134,27 @@ public class AgentCompartmentTest {
 		ezAgent.init();
 		aCompartment.addAgent(ezAgent);
 
-		ProcessManager agentRelax = new AgentRelaxation();
-		agentRelax.setName("agentRelax");
-		agentRelax.debugMode();
-		agentRelax.setTimeForNextStep(0.0);
-		agentRelax.setTimeStepSize(Timer.getTimeStepSize());
-		aCompartment.addProcessManager(agentRelax);
-		
+
 		ProcessManager agentGrowth = new AgentGrowth();
 		agentGrowth.setName("agentGrowth");
 		//agentGrowth.debugMode();
+		agentGrowth.setPriority(0);
 		agentGrowth.setTimeForNextStep(0.0);
 		agentGrowth.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(agentGrowth);
 		
+		ProcessManager agentRelax = new AgentRelaxation();
+		agentRelax.setName("agentRelax");
+		agentRelax.debugMode();
+		agentRelax.setPriority(1);
+		agentRelax.setTimeForNextStep(0.0);
+		agentRelax.setTimeStepSize(Timer.getTimeStepSize());
+		aCompartment.addProcessManager(agentRelax);
+		
 		ProcessManager svgOutput = new WriteAgentsSvg();
 		svgOutput.setName("svgOutput");
 		svgOutput.debugMode();
-		svgOutput.setPriority(1);
+		svgOutput.setPriority(2);
 		svgOutput.setTimeForNextStep(0.0);
 		svgOutput.setTimeStepSize(Timer.getTimeStepSize());
 		((WriteAgentsSvg) svgOutput).init(aCompartment.name, aCompartment.agents);

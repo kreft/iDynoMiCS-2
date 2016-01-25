@@ -129,7 +129,8 @@ public class AgentRelaxation extends ProcessManager {
 			
 			nstep++;
 		}
-		System.out.println(agents.getNumAllAgents() + " after " + nstep
+		if(this._debugMode)
+			System.out.println(agents.getNumAllAgents() + " after " + nstep
 				+ " iterations");
 	}	
 }
