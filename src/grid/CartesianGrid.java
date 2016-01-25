@@ -85,7 +85,7 @@ public class CartesianGrid extends SpatialGrid
 		 * yet, make it.
 		 */
 		if ( this._array.containsKey(type) )
-			Array.setAll(this._array.get(type), 0.0);
+			Array.setAll(this._array.get(type), initialValues);
 		else
 		{
 			double[][][] array = Array.array(this._nVoxel[0], this._nVoxel[1],
@@ -300,8 +300,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		int[] coord = new int[3];
 		double counter;
-		int maxDim = Math.min(3, location.length);
-		for ( int dim = 0; dim < maxDim; dim++ )
+		for ( int dim = 0; dim < 3; dim++ )
 		{
 			counter = 0.0;
 			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )

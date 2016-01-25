@@ -1333,20 +1333,6 @@ public final class Vector
 		return out;
 	}
 	
-	/**
-	 * 
-	 * @param vector
-	 * @param stop
-	 * @return
-	 */
-	public static double[] subset(double[] vector, int stop)
-	{
-		double[] out = new double[stop];
-		for ( int i = 0; i < out.length; i++ )
-			out[i] = vector[i];
-		return out;
-	}
-	
 	/* Flip */
 	
 	/**
@@ -2281,11 +2267,23 @@ public final class Vector
 	 *	phi = acos(z/r)
 	 */
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cartesian
+	 * @return
+	 */
 	public static double polarRadius(double[] cartesian)
 	{
 		return normEuclid(cartesian);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cartesian
+	 * @return
+	 */
 	public static double[] toPolar(double[] cartesian)
 	{
 		double[] p = new double[cartesian.length];
@@ -2298,21 +2296,33 @@ public final class Vector
 		return p;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param polar
+	 * @return
+	 */
 	public static double[] toCartesian(double[] polar)
 	{
 		double[] c = new double[polar.length];
-		double phi = 0.0;
+		double sinPhi = 1.0;
 		switch ( polar.length )
 		{
 			case 1 : return polar;
 			case 3 : c[2] = polar[0] * Math.cos(polar[2]);
-					 phi  = polar[2];
-			case 2 : c[0] = polar[0] * Math.cos(polar[1]) * Math.sin(phi);
-					 c[1] = polar[0] * Math.sin(polar[1]) * Math.sin(phi);		
+					 sinPhi  = Math.sin(polar[2]);
 		}
+		c[0] = polar[0] * Math.cos(polar[1]) * sinPhi;
+		c[1] = polar[0] * Math.sin(polar[1]) * sinPhi;
 		return c;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cartesian
+	 * @return
+	 */
 	public static double[] toCylindrical(double[] cartesian) 
 	{
 		if(cartesian.length == 3)
@@ -2324,7 +2334,12 @@ public final class Vector
 		return null;
 	}
 	
-	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cylindrical
+	 * @return
+	 */
 	public static double[] cylindricalToCartesian(double[] cylindrical)
 	{
 		if(cylindrical.length == 3)
