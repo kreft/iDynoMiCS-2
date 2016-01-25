@@ -7,7 +7,9 @@ import processManager.AgentGrowth;
 import processManager.AgentRelaxation;
 import processManager.PrepareSoluteGrids;
 import processManager.ProcessManager;
+import processManager.RefreshMassGrids;
 import processManager.SolveDiffusionTransient;
+import processManager.WriteAgentsSvg;
 import utility.ExtraMath;
 import agent.Agent;
 import agent.body.Body;
@@ -15,6 +17,7 @@ import agent.body.Point;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
 import boundary.BoundaryCyclic;
+import boundary.PeriodicAgentBoundary;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
@@ -25,7 +28,7 @@ public class AgentCompartmentTest {
 
 	public static void main(String[] args) {
 		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(20.0);
+		Timer.setEndOfSimulation(25.0);
 		
 		Simulator aSim = new Simulator();
 		
@@ -34,8 +37,9 @@ public class AgentCompartmentTest {
 		/*
 		 * 
 		 */
-		String[] soluteNames = new String[1];
+		String[] soluteNames = new String[2];
 		soluteNames[0] = "solute";
+		soluteNames[1] = "biomass";
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
 		/*
@@ -51,6 +55,17 @@ public class AgentCompartmentTest {
 			aCompartment.addBoundary(side+"min", min);
 			aCompartment.addBoundary(side+"max", max);
 		}
+		
+		PeriodicAgentBoundary xBound = new PeriodicAgentBoundary();
+		xBound._periodicDistance = 9.0;
+		xBound.periodicDimension = 0;
+		aCompartment.agents.addAgentBoundary(xBound);
+		
+		PeriodicAgentBoundary yBound = new PeriodicAgentBoundary();
+		yBound._periodicDistance = 9.0;
+		yBound.periodicDimension = 1;
+		aCompartment.agents.addAgentBoundary(yBound);
+		
 		//TODO diffusivities
 		aCompartment.init();
 		/*
@@ -62,6 +77,14 @@ public class AgentCompartmentTest {
 		{
 			sg.setValueAt(ArrayType.CONCN, coords, ExtraMath.getUniRandDbl());
 		}
+		
+		SpatialGrid bm = aCompartment.getSolute("biomass");
+		for ( int[] coords = bm.resetIterator() ; bm.isIteratorValid();
+												coords = bm.iteratorNext() )
+		{
+			bm.setValueAt(ArrayType.CONCN, coords, 0.0);
+		}
+		
 		/*
 		 * The solute grids will need prepping before the solver can get to work.
 		 */
@@ -75,7 +98,7 @@ public class AgentCompartmentTest {
 		 * Set up the transient diffusion-reaction solver.
 		 */
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
-		aProcess.init(soluteNames);
+		aProcess.init(new String[]{soluteNames[0]});
 		aProcess.setTimeForNextStep(0.0);
 		aProcess.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
@@ -86,30 +109,56 @@ public class AgentCompartmentTest {
 		ezAgent.set("volume", StateLoader.getSecondary("SimpleVolumeState","mass,density"));
 		ezAgent.set("radius",  StateLoader.getSecondary("CoccoidRadius","volume"));
 		ezAgent.set("growthRate", 0.2);
-		ezAgent.set("#isLocated", true);		
+		ezAgent.set("#isLocated", true);	
+		ezAgent.set("pigment", "GREEN");
 		List<Point> pts = new LinkedList<Point>();
 		pts.add(new Point(new double[]{1.0, 1.0}));
 		ezAgent.set("body", new Body(pts));
 
-		ezAgent.set("joints", StateLoader.getSecondary("JointsState","volume"));
+		ezAgent.set("joints", StateLoader.getSecondary("JointsState","body"));
 		ezAgent.set("#boundingLower", StateLoader.getSecondary("LowerBoundingBox","body,radius"));
 		ezAgent.set("#boundingSides", StateLoader.getSecondary("DimensionsBoundingBox","body,radius"));
 		
 		ezAgent.set("growth", EventLoader.getEvent("SimpleGrowth","mass,growthRate"));
 		ezAgent.set("divide", EventLoader.getEvent("CoccoidDivision","mass,radius,body"));
 		
+		ezAgent.set("massGrid", "biomass");
+		ezAgent.set("coccoidCenter",StateLoader.getSecondary("CoccoidCenter","body"));
+		ezAgent.set("massToGrid", EventLoader.getEvent("MassToGrid","mass,biomass,coccoidCenter"));
+		
+		ProcessManager agentMassGrid = new RefreshMassGrids();
+		agentMassGrid.setTimeForNextStep(0.0);
+		agentMassGrid.setTimeStepSize(Timer.getTimeStepSize());
+		aCompartment.addProcessManager(agentMassGrid);
+		
 		ezAgent.init();
 		aCompartment.addAgent(ezAgent);
 
+
+		ProcessManager agentGrowth = new AgentGrowth();
+		agentGrowth.setName("agentGrowth");
+		//agentGrowth.debugMode();
+		agentGrowth.setPriority(0);
+		agentGrowth.setTimeForNextStep(0.0);
+		agentGrowth.setTimeStepSize(Timer.getTimeStepSize());
+		aCompartment.addProcessManager(agentGrowth);
+		
 		ProcessManager agentRelax = new AgentRelaxation();
+		agentRelax.setName("agentRelax");
+		agentRelax.debugMode();
+		agentRelax.setPriority(1);
 		agentRelax.setTimeForNextStep(0.0);
 		agentRelax.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(agentRelax);
 		
-		ProcessManager agentGrowth = new AgentGrowth();
-		agentGrowth.setTimeForNextStep(0.0);
-		agentGrowth.setTimeStepSize(Timer.getTimeStepSize());
-		aCompartment.addProcessManager(agentGrowth);
+		ProcessManager svgOutput = new WriteAgentsSvg();
+		svgOutput.setName("svgOutput");
+		svgOutput.debugMode();
+		svgOutput.setPriority(2);
+		svgOutput.setTimeForNextStep(0.0);
+		svgOutput.setTimeStepSize(Timer.getTimeStepSize());
+		((WriteAgentsSvg) svgOutput).init(aCompartment.name, aCompartment.agents);
+		aCompartment.addProcessManager(svgOutput);
 
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
 		/*

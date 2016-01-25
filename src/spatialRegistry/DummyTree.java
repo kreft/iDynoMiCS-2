@@ -1,7 +1,10 @@
 package spatialRegistry;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+
+import boundary.PeriodicAgentBoundary;
 
 /**
  * A dummy spatial registry for dimensionless compartments.
@@ -37,5 +40,18 @@ public class DummyTree<T> extends SpatialRegistry<T>
 	public void insert(double[] coords, double[] dimensions, T entry)
 	{
 		// TODO Some sort of warning message?
+	}
+
+	@Override
+	public void setPeriodicBoundaries(
+			HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addPeriodicBoundary(PeriodicAgentBoundary boundary) {
+		// TODO Auto-generated method stub
+		
 	}
 }

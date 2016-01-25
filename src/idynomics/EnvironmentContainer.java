@@ -163,6 +163,16 @@ public class EnvironmentContainer
 		return this._solutes;
 	}
 	
+	/**
+	 * FIXME: this is really a property of the compartment but we otherwise
+	 * cannot access this information from the process manager, consider refact.
+	 * @return
+	 */
+	public double[] getEdgeLengths()
+	{
+		return _shape.getEdgeLengths();
+	}
+	
 	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/

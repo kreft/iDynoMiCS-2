@@ -88,6 +88,16 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @param lengths
+	 */
+	public double[] getEdgeLengths()
+	{
+		return Vector.subset(this._lengths, this._nDim);
+	}
+	
+	/**
 	 * \brief Return the number of "true" dimensions this shape has.
 	 * 
 	 * <p>Note that even 0-, 1- and 2-dimensional shapes may have a nonzero 

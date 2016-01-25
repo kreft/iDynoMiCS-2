@@ -1,15 +1,17 @@
 package agent.state.secondary;
 
+import utility.ExtraMath;
 import agent.Agent;
 import agent.body.Body;
 import agent.state.SecondaryState;
 import agent.state.State;
 
-public class JointsState extends SecondaryState implements State {
-	
+public class CoccoidCenter extends SecondaryState implements State {
+
 	/**
-	 * 
-	 * @param input: body
+	 * input body
+	 * @author baco
+	 *
 	 */
 	public void set(Object state)
 	{
@@ -18,7 +20,8 @@ public class JointsState extends SecondaryState implements State {
 	
 	public Object get(Agent agent)
 	{
-		return ((Body) agent.get(input[0])).getJoints();
+		// V = 4/3 Pi r^3
+		return ((Body) agent.get(input[0])).getJoints().get(0);
 	}
 	
 	public State copy()
