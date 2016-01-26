@@ -68,9 +68,10 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 ************************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief Gets the side lengths of all dimensions.
 	 * 
-	 * @return
+	 * @param lengths {@code double} array of all side lengths.
+	 * @see #getEdgeLengths()
 	 */
 	public double[] getSideLengths()
 	{
@@ -78,23 +79,32 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Gets the side lengths of only the significant dimensions.
 	 * 
-	 * @param lengths
-	 */
-	public void setSideLengths(double[] lengths)
-	{
-		this._lengths = Vector.copy(lengths);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param lengths
+	 * @param lengths {@code double} array of significant side lengths.
+	 * @see #getSideLengths()
 	 */
 	public double[] getEdgeLengths()
 	{
 		return Vector.subset(this._lengths, this._nDim);
+	}
+	
+	/**
+	 * \brief Set the side lengths of this shape.
+	 * 
+	 * <p>NOTE: If lengths has more than 3 elements, the extra elements will be
+	 * ignored. If lengths has fewer than 3 elements, the extra sides will be
+	 * given zero length.</p>
+	 * 
+	 * @param lengths {@code double} array of side lengths.
+	 */
+	public void setSideLengths(double[] lengths)
+	{
+		int maxDim = Math.min(3, lengths.length);
+		for ( int i = 0; i < maxDim; i++ )
+			this._lengths[i] = lengths[i];
+		for ( int i = maxDim; i < 3; i++ )
+			this._lengths[i] = 0.0;
 	}
 	
 	/**
