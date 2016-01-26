@@ -228,7 +228,6 @@ public class RTree<T> extends SpatialRegistry<T>
 			LinkedList<double[]> temp = new LinkedList<double[]>();
 			for(double[] b : boxList) 
 			{
-				
 				temp.add(_periodicBoundaries.get(dim).subdim(b));
 				temp.add(_periodicBoundaries.get(dim).adddim(b));
 			}

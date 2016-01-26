@@ -88,6 +88,11 @@ public class AgentContainer
 		return _shape.getNumberOfDimensions();
 	}
 	
+	public Shape getShape()
+	{
+		return _shape;
+	}
+	
 	public void addAgentBoundary(PeriodicAgentBoundary boundary)
 	{
 		this._agentBoundaries.put(boundary.periodicDimension, boundary);
