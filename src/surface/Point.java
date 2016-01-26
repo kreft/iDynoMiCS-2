@@ -1,4 +1,4 @@
-package agent.body;
+package surface;
 
 import linearAlgebra.Vector;
 
@@ -14,7 +14,7 @@ public class Point
     protected int uid = ++UNIQUE_ID;
     
     /**
-     * location vector.
+     * Position vector.
      */
 	private double[] p;
 	

@@ -1,8 +1,27 @@
 package surface;
 
+import agent.body.Point;
 import linearAlgebra.Vector;
 
+/**
+ * 
+ * Methods are based on closest point algorithms from:
+ * Ericson, C. (2005). Real-time collision detection. Computer (Vol. 1).
+ * 
+ * All cells are represented as sphere-swept volumes
+ * 
+ * On a later stage is class can be expanded to also describe other surfaces
+ * with points. this way other objects such as biomass carriers or tubes
+ * can be implemented.
+ */
 public class Collision {
+	
+	public interface CollisionFunction
+	{
+		public double[] interactionForce(double distance);
+	}
+	
+	private CollisionFunction collisionFun;
 	
 	/**
 	 * Vector that represents the shortest distance between: point-point,
@@ -21,6 +40,63 @@ public class Collision {
 	 * fraction of the line segment.
 	 */
 	private double t = 0;
+
+	public void collision(Surface a, Surface b)
+	{
+		collisionFun.interactionForce(distance(a,b));
+	}
+	
+	public double distance(Surface a, Surface b)
+	{
+		Surface first = null;
+		Surface second = null;
+		
+		// filaments to be implemented
+		if ((a.type() == Surface.Type.STRAND ) || (b.type() == Surface.Type.STRAND ))
+		{
+			System.out.println("WARNING: STRAND shape not supported (yet) collision detect..");
+			return 0.0;
+		}
+		
+		// plane interactions
+		if (a.type() == Surface.Type.PLANE )
+		{
+			first = a;
+			second = b;
+		} else if (b.type() == Surface.Type.PLANE )
+		{
+			first = b;
+			second = a;
+		}
+		if (second.type() == Surface.Type.SPHERE)
+			return planeSphere((Plane) first, (SphereSweptVolume) second);
+		else if (second.type() == Surface.Type.ROD)
+			return planeRod((Plane) first, (SphereSweptVolume) second);
+		
+		// sphere-swept-volume interactions
+		if(a.type() == Surface.Type.ROD)
+		{
+			first = a;
+			second = b;
+		} else if(b.type() == Surface.Type.ROD)
+		{
+			first = b;
+			second = a;
+		}
+		if (second.type() == Surface.Type.SPHERE)
+			return rodSphere((SphereSweptVolume) first, (SphereSweptVolume) second);
+		else if (second.type() == Surface.Type.ROD)
+			return rodRod((SphereSweptVolume) first, (SphereSweptVolume) second);
+		else if (second.type() != null)
+			return sphereSphere((SphereSweptVolume) first, (SphereSweptVolume) second);
+		else
+		{
+			System.out.println("WARNING: undefined Surface type");
+			return 0.0;
+		}
+		
+	}
+	
 	
 	/**
 	 * Work in progress, stores the vector that points the shortest distance
@@ -60,12 +136,18 @@ public class Collision {
 	 * @param q Point of second sphere.
 	 * @return distance between the two sphere-swept volumes (spheres-sphere).
 	 */
-	private double pointPoint(double[] p, double[] q) 
+	public double pointPoint(double[] p, double[] q) 
 	{
 		periodicVectorTo(dP, p, q);
 		return Vector.normEuclid(dP);
 	}
 	
+	public double sphereSphere(SphereSweptVolume a, SphereSweptVolume b)
+	{
+		return pointPoint(a._points.get(0).getPosition(),
+				b._points.get(0).getPosition()) - a._radius - b._radius;
+	}
+
 	/**
 	 * \brief sphere cylinder distance.
 	 * 
@@ -79,7 +161,7 @@ public class Collision {
 	 * 			Point of sphere
 	 * @return distance between the two sphere-swept volumes (sphere cylinder)
 	 */
-	private double linesegPoint(double[] p0, double[] p1, double[] q0) 
+	public double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
 		// ab = p1 - p0
 		Vector.minusTo(dP, p1, p0);
@@ -90,6 +172,13 @@ public class Collision {
 		Vector.addEquals(dP, p0);
 		Vector.minusEquals(dP, q0);
 		return Vector.normEuclid(dP);
+	}
+	
+	public double rodSphere(SphereSweptVolume a, SphereSweptVolume b)
+	{
+		return linesegPoint(a._points.get(0).getPosition(),
+				a._points.get(1).getPosition(),
+				b._points.get(0).getPosition()) - a._radius - b._radius;
 	}
 	
 	/**
@@ -104,7 +193,7 @@ public class Collision {
 	 * @return distance between the two sphere-swept volumes 
 	 * (cylinder-cylinder).
 	 */
-	private double linesegLineseg(double[] p0, double[] p1,
+	public double linesegLineseg(double[] p0, double[] p1,
 												double[] q0, double[] q1) 
 	{		
 		// r = p0 - q0
@@ -151,31 +240,44 @@ public class Collision {
 		return Vector.normEuclid(dP);
 	}
 	
+	public double rodRod(SphereSweptVolume a, SphereSweptVolume b)
+	{
+		return linesegLineseg(a._points.get(0).getPosition(),
+				a._points.get(1).getPosition(),
+				b._points.get(0).getPosition(),
+				b._points.get(1).getPosition()) - a._radius - b._radius;
+	}
+	
 	/**
 	 * TODO: testing
 	 * @param point
 	 * @return
 	 */
-	public double[] closestPointonPlane(double[] point, double[] normal, double d)
+	public double[] closestPointonPlane(double[] normal, double d, double[] point)
 	{
-		return Vector.times( Vector.add(point, -planePoint(point, normal, d)), d);
+		return Vector.times( Vector.add(point, -planePoint(normal, d, point)), d);
 	}
 	
 	/**
 	 * 
 	 */
-	public double planePoint(double[] point, double[] normal, double d)
+	public double planePoint(double[] normal, double d, double[] point)
 	{
 		return Vector.dotProduct(normal, point) - d;
 	}
 	
+	public double planeSphere(Plane plane, SphereSweptVolume sphere)
+	{
+		return planePoint(plane.normal, plane.d, sphere._points.get(0).getPosition()) - sphere._radius;
+	}
+	
 	/**
 	 * 
 	 */
-	public double planeLineSeg(double[] p0, double[] p1, double[] normal, double d)
+	public double planeLineSeg(double[] normal, double d, double[] p0, double[] p1)
 	{
-		double a = planePoint(p0, normal, d);
-		double b = planePoint(p1, normal, d);
+		double a = planePoint(normal, d, p0);
+		double b = planePoint(normal, d, p1);
 		if (a < b)
 		{
 			this.s = 0.0;
@@ -191,6 +293,11 @@ public class Collision {
 			this.s = 0.5;
 			return a;
 		}
+	}
+	
+	public double planeRod(Plane plane, SphereSweptVolume rod)
+	{
+		return planeLineSeg(plane.normal, plane.d, rod._points.get(0).getPosition(), rod._points.get(1).getPosition()) - rod._radius;
 	}
 
 	/**

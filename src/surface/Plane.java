@@ -7,12 +7,12 @@ import linearAlgebra.Vector;
  * @author baco
  *
  */
-public class Plane {
+public class Plane extends Surface {
 
 	public double[] normal;
 	
 	public double d; // d = normal dotproduct point-on-plane
-	
+
 	public Plane(double[] normal, double d)
 	{
 		this.normal = normal;
@@ -32,21 +32,7 @@ public class Plane {
 		this.d = Vector.dotProduct(normal, pointA);
 	}
 	
-	/**
-	 * TODO: testing
-	 * @param point
-	 * @return
-	 */
-	public double[] closestPoint(double[] point)
-	{
-		return Vector.times( Vector.add(point, -distanceToPoint(point)), this.d);
-	}
-	
-	/**
-	 * 
-	 */
-	public double distanceToPoint(double[] point)
-	{
-		return Vector.dotProduct(this.normal, point) - this.d;
+	public Type type() {
+		return Surface.Type.PLANE;
 	}
 }
