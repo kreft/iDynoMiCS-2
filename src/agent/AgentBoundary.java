@@ -21,11 +21,6 @@ public final class AgentBoundary
 		{
 			return false;
 		}
-		
-		default double[] getCyclicPoint(double[] location)
-		{
-			return null;
-		}
 	}
 	
 	/*************************************************************************
@@ -55,12 +50,6 @@ public final class AgentBoundary
 		public boolean isCyclic()
 		{
 			return true;
-		}
-		
-		public double[] getCyclicPoint(double[] location)
-		{
-			//TODO
-			return null;
 		}
 	}
 }
