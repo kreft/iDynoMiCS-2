@@ -6,6 +6,7 @@ package shape;
 import grid.CartesianGrid;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
+import shape.ShapeDimension.DimName;
 
 /**
  * 
@@ -22,7 +23,6 @@ public final class ShapeLibrary
 		public Dimensionless()
 		{
 			super();
-			this._nDim = 0;
 		}
 		@Override
 		public GridGetter gridGetter()
@@ -31,15 +31,9 @@ public final class ShapeLibrary
 			return CartesianGrid.dimensionlessGetter();
 		}
 		
-		public boolean isInside(double[] location)
+		public double[] getLocalPosition(double[] location)
 		{
-			// TODO check
-			return true;
-		}
-		
-		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
-		{
-			return null;
+			return location;
 		}
 	}
 	
@@ -54,11 +48,10 @@ public final class ShapeLibrary
 		public Line()
 		{
 			super();
-			this._nDim = 1;
+			this._dimensions.put(DimName.X, null);
+			
 			this._requiredBoundarySides.add(BoundarySide.XMIN);
 			this._requiredBoundarySides.add(BoundarySide.XMAX);
-			this._sideDict.put(BoundarySide.XMIN, new int[]{X_DIM, 0});
-			this._sideDict.put(BoundarySide.XMAX, new int[]{X_DIM, 1});
 		}
 		
 		@Override
@@ -68,18 +61,9 @@ public final class ShapeLibrary
 			return CartesianGrid.standardGetter();
 		}
 		
-		public boolean isInside(double[] location)
+		public double[] getLocalPosition(double[] location)
 		{
-			return isInsideLocal(location);
-		}
-		
-		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
-		{
-			if ( aSide == BoundarySide.XMIN )
-				return this.subtractSideLength(loc, X_DIM);
-			if ( aSide == BoundarySide.XMAX )
-				return this.addSideLength(loc, X_DIM);
-			return null;
+			return location;
 		}
 	}
 	
@@ -90,23 +74,9 @@ public final class ShapeLibrary
 		public Rectangle()
 		{
 			super();
-			this._nDim = 2;
+			this._dimensions.put(DimName.Y, null);
 			this._requiredBoundarySides.add(BoundarySide.YMIN);
 			this._requiredBoundarySides.add(BoundarySide.YMAX);
-			this._sideDict.put(BoundarySide.YMIN, new int[]{Y_DIM, 0});
-			this._sideDict.put(BoundarySide.YMAX, new int[]{Y_DIM, 1});
-		}
-		
-		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
-		{
-			double[] out = super.getCyclicPoint(aSide, loc);
-			if ( out != null )
-				return out;
-			if ( aSide == BoundarySide.YMIN )
-				return this.subtractSideLength(loc, Y_DIM);
-			if ( aSide == BoundarySide.YMAX )
-				return this.addSideLength(loc, Y_DIM);
-			return null;
 		}
 	}
 	
@@ -117,24 +87,11 @@ public final class ShapeLibrary
 		public Cuboid()
 		{
 			super();
-			this._nDim = 3;
+			this._dimensions.put(DimName.Z, null);
 			this._requiredBoundarySides.add(BoundarySide.ZMIN);
 			this._requiredBoundarySides.add(BoundarySide.ZMAX);
-			this._sideDict.put(BoundarySide.ZMIN, new int[]{Z_DIM, 0});
-			this._sideDict.put(BoundarySide.ZMAX, new int[]{Z_DIM, 1});
 		}
 		
-		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
-		{
-			double[] out = super.getCyclicPoint(aSide, loc);
-			if ( out != null )
-				return out;
-			if ( aSide == BoundarySide.ZMIN )
-				return this.subtractSideLength(loc, Z_DIM);
-			if ( aSide == BoundarySide.ZMAX )
-				return this.addSideLength(loc, Z_DIM);
-			return null;
-		}
 	}
 	
 	/*************************************************************************
@@ -148,18 +105,8 @@ public final class ShapeLibrary
 		public Polar()
 		{
 			super();
+			this._dimensions.put(DimName.R, null);
 			this._requiredBoundarySides.add(BoundarySide.RMAX);
-			this._sideDict.put(BoundarySide.RMIN, new int[]{R_DIM, 0});
-			this._sideDict.put(BoundarySide.RMAX, new int[]{R_DIM, 1});
-		}
-		
-		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
-		{
-			if ( aSide == BoundarySide.RMIN )
-				return this.subtractSideLength(loc, R_DIM);
-			if ( aSide == BoundarySide.RMAX )
-				return this.addSideLength(loc, R_DIM);
-			return null;
 		}
 	}
 	
@@ -170,9 +117,7 @@ public final class ShapeLibrary
 		public Circle()
 		{
 			super();
-			this._nDim = 2;
-			this._sideDict.put(BoundarySide.THETAMIN, new int[]{THETA_DIM, 0});
-			this._sideDict.put(BoundarySide.THETAMAX, new int[]{THETA_DIM, 1});
+			this._dimensions.put(DimName.THETA, null);
 		}
 		
 		@Override
@@ -182,22 +127,9 @@ public final class ShapeLibrary
 			return null;
 		}
 		
-		public boolean isInside(double[] location)
+		public double[] getLocalPosition(double[] location)
 		{
-			double[] local = Vector.toCylindrical(location);
-			return isInsideLocal(local);
-		}
-		
-		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
-		{
-			double[] out = super.getCyclicPoint(aSide, loc);
-			if ( out != null )
-				return out;
-			if ( aSide == BoundarySide.THETAMIN )
-				return this.subtractSideLength(loc, THETA_DIM);
-			if ( aSide == BoundarySide.THETAMAX )
-				return this.addSideLength(loc, THETA_DIM);
-			return null;
+			return Vector.toCylindrical(location);
 		}
 	}
 	
@@ -208,23 +140,9 @@ public final class ShapeLibrary
 		public Cylinder()
 		{
 			super();
-			this._nDim = 3;
+			this._dimensions.put(DimName.Z, null);
 			this._requiredBoundarySides.add(BoundarySide.ZMIN);
 			this._requiredBoundarySides.add(BoundarySide.ZMAX);
-			this._sideDict.put(BoundarySide.ZMIN, new int[]{Z_DIM, 0});
-			this._sideDict.put(BoundarySide.ZMAX, new int[]{Z_DIM, 1});
-		}
-		
-		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
-		{
-			double[] out = super.getCyclicPoint(aSide, loc);
-			if ( out != null )
-				return out;
-			if ( aSide == BoundarySide.ZMIN )
-				return this.subtractSideLength(loc, Z_DIM);
-			if ( aSide == BoundarySide.ZMAX )
-				return this.addSideLength(loc, Z_DIM);
-			return null;
 		}
 	}
 	
@@ -236,11 +154,8 @@ public final class ShapeLibrary
 		public Sphere()
 		{
 			super();
-			this._nDim = 3;
-			this._sideDict.put(BoundarySide.PHIMIN, new int[]{PHI_DIM, 0});
-			this._sideDict.put(BoundarySide.PHIMAX, new int[]{PHI_DIM, 1});
-			this._sideDict.put(BoundarySide.THETAMIN, new int[]{THETA_DIM, 0});
-			this._sideDict.put(BoundarySide.THETAMAX, new int[]{THETA_DIM, 1});
+			this._dimensions.put(DimName.PHI, null);
+			this._dimensions.put(DimName.THETA, null);
 		}
 		
 		@Override
@@ -250,29 +165,9 @@ public final class ShapeLibrary
 			return null;
 		}
 		
-		public boolean isInside(double[] location)
+		public double[] getLocalPosition(double[] location)
 		{
-			double[] local = Vector.toPolar(location);
-			return isInsideLocal(local);
-		}
-		
-		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
-		{
-			double[] out = super.getCyclicPoint(aSide, loc);
-			if ( out != null )
-				return out;
-			/*
-			 * Note that spherical coordinates are (r, phi, theta).
-			 */
-			if ( aSide == BoundarySide.PHIMIN )
-				return this.subtractSideLength(loc, PHI_DIM);
-			if ( aSide == BoundarySide.PHIMAX )
-				return this.addSideLength(loc, PHI_DIM);
-			if ( aSide == BoundarySide.THETAMIN )
-				return this.subtractSideLength(loc, THETA_DIM);
-			if ( aSide == BoundarySide.THETAMAX )
-				return this.addSideLength(loc, THETA_DIM);
-			return null;
+			return Vector.toPolar(location);
 		}
 	}
 }

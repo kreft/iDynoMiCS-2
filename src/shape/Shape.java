@@ -5,15 +5,19 @@ package shape;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
 import boundary.Boundary;
+import boundary.BoundaryConnected;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
+import shape.ShapeDimension.*;
 
 /**
  * 
@@ -21,15 +25,11 @@ import linearAlgebra.Vector;
  */
 public abstract class Shape implements CanPrelaunchCheck, XMLable
 {
-	protected int _nDim;
 	/**
-	 * 3-dimensional vector describing the size of this shape.
-	 * 
-	 * <p>Even 0-, 1- and 2-dimensional shapes may need to have a thickness on
-	 * their "missing" dimension(s).</p>
+	 * Ordered dictionary of dimensions for this shape.
 	 */
-	protected double[] _lengths;
-	
+	protected LinkedHashMap<DimName, Dimension> _dimensions = 
+									new LinkedHashMap<DimName, Dimension>();
 	/**
 	 * A list of boundary sides that must be specified.
 	 */
@@ -40,10 +40,6 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * be only one boundary for each boundary side here.
 	 */
 	protected HashMap<BoundarySide, Boundary> _sideBoundaries;
-	
-	protected Boundary[][] _sides;
-	
-	protected HashMap<BoundarySide, int[]> _sideDict;
 	
 	/**
 	 * List of boundaries in a dimensionless compartment, or internal
@@ -61,28 +57,90 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public Shape()
 	{
-		this._lengths = new double[3];
 		this._requiredBoundarySides = new LinkedList<BoundarySide>();
 		this._sideBoundaries = new HashMap<BoundarySide, Boundary>();
-		this._sides = new Boundary[3][2];
-		this._sideDict = new HashMap<BoundarySide, int[]>();
 		this._otherBoundaries = new LinkedList<Boundary>();
 	}
 	
 	/*************************************************************************
-	 * BASIC SETTERS & GETTERS
+	 * DIMENSIONS
 	 ************************************************************************/
 	
 	/**
-	 * \brief Gets the side lengths of all dimensions.
+	 * \brief Make the given dimension cyclic.
 	 * 
-	 * @param lengths {@code double} array of all side lengths.
-	 * @see #getEdgeLengths()
+	 * @param dimensionName {@code String} name of the dimension.
 	 */
-	public double[] getSideLengths()
+	public void makeCyclic(String dimensionName)
 	{
-		return Vector.copy(this._lengths);
+		this.makeCyclic(DimName.valueOf(dimensionName));
 	}
+	
+	/**
+	 * \brief Make the given dimension cyclic.
+	 * 
+	 * @param dimension {@code DimName} enumeration of the dimension.
+	 */
+	public void makeCyclic(DimName dimension)
+	{
+		if ( this._dimensions.containsKey(dimension) )
+		{
+			Dimension dim = this._dimensions.get(dimension);
+			if ( dim == null )
+				this._dimensions.put(dimension, new CyclicDimension());
+			else if ( ! (dim instanceof CyclicDimension) )
+			{
+				// TODO safety
+			}
+		}
+		else
+		{
+			// TODO safety
+		}
+	}
+	
+	public void setBoundary(DimName dimension, Boundary bndry, boolean setMin)
+	{
+		if ( this._dimensions.containsKey(dimension) )
+		{
+			Dimension dim = this._dimensions.get(dimension);
+			BoundedDimension bDim;
+			if ( dim == null )
+			{
+				bDim = new BoundedDimension();
+				this._dimensions.put(dimension, bDim);
+			}
+			else if ( dim instanceof BoundedDimension )
+				bDim = (BoundedDimension) dim;
+			else
+			{
+				// TODO safety
+				return;
+			}
+			if ( setMin )
+				bDim.setMinBoundary(bndry);
+			else
+				bDim.setMaxBoundary(bndry);
+		}
+		else
+		{
+			// TODO safety
+		}
+	}
+	
+	
+	/**
+	 * \brief Set the minimum and maximum boundaries for the given dimension.
+	 * 
+	 * @param dimensionName {@code String} name of the dimension.
+	 * @param bndry
+	 * @param setMin
+	 */
+	public void setBoundary(String dimension, Boundary bndry, boolean setMin)
+	{
+		this.setBoundary(DimName.valueOf(dimension), bndry, setMin);
+	}
+	
 	
 	/**
 	 * \brief Gets the side lengths of only the significant dimensions.
@@ -90,27 +148,37 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * @param lengths {@code double} array of significant side lengths.
 	 * @see #getSideLengths()
 	 */
-	public double[] getEdgeLengths()
+	public double[] getDimensionLengths()
 	{
-		return Vector.subset(this._lengths, this._nDim);
+		double[] out = new double[this._dimensions.size()];
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			out[i] = dim.getLength();
+			i++;
+		}
+		return out;
 	}
 	
 	/**
-	 * \brief Set the side lengths of this shape.
+	 * \brief Set the dimension lengths of this shape.
 	 * 
-	 * <p>NOTE: If lengths has more than 3 elements, the extra elements will be
-	 * ignored. If lengths has fewer than 3 elements, the extra sides will be
-	 * given zero length.</p>
+	 * <p>NOTE: If <b>lengths</b> has more than elements than this shape has
+	 * dimensions, the extra elements will be ignored. If <b>lengths</b> has
+	 * fewer elements than this shape has dimensions, the remaining dimensions
+	 * will be given length zero.</p>
 	 * 
-	 * @param lengths {@code double} array of side lengths.
+	 * @param lengths {@code double} array of dimension lengths.
 	 */
-	public void setSideLengths(double[] lengths)
+	public void setDimensionLengths(double[] lengths)
 	{
-		int maxDim = Math.min(3, lengths.length);
-		for ( int i = 0; i < maxDim; i++ )
-			this._lengths[i] = lengths[i];
-		for ( int i = maxDim; i < 3; i++ )
-			this._lengths[i] = 0.0;
+		int maxDim = Math.min(this._dimensions.size(), lengths.length);
+		Iterator<Dimension> iter = this._dimensions.values().iterator();
+		int i = 0;
+		while ( iter.hasNext() && i < maxDim )
+			iter.next().setLength(lengths[i]);
+		while ( iter.hasNext() )
+			iter.next().setLength(0.0);
 	}
 	
 	/**
@@ -123,8 +191,12 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public int getNumberOfDimensions()
 	{
-		return this._nDim;
+		return this._dimensions.size();
 	}
+	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -132,6 +204,8 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * @return
 	 */
 	public abstract GridGetter gridGetter();
+	
+	protected abstract double[] getLocalPosition(double[] cartesian);
 	
 	/*************************************************************************
 	 * BOUNDARIES
@@ -174,9 +248,18 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * 
 	 * @return
 	 */
-	public Collection<Boundary> getSideBoundaries()
+	public Collection<BoundaryConnected> getConnectedBoundaries()
 	{
-		return this._sideBoundaries.values();
+		LinkedList<BoundaryConnected> cB = new LinkedList<BoundaryConnected>();
+		for ( Dimension dim : this._dimensions.values() )
+			if ( dim instanceof BoundedDimension )
+				for ( Boundary b : ((BoundedDimension) dim).getBoundaries() )
+					if ( b instanceof BoundaryConnected )
+						cB.add((BoundaryConnected) b);
+		for ( Boundary b : this._otherBoundaries )
+			if ( b instanceof BoundaryConnected )
+				cB.add((BoundaryConnected) b);
+		return cB;
 	}
 	
 	/**
@@ -198,62 +281,41 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * @param location 
 	 * @return
 	 */
-	protected boolean isInsideLocal(double[] location)
+	public boolean isInside(double[] location)
 	{
-		int maxDim = Math.min(3, location.length);
-		for ( int dim = 0; dim < maxDim; dim++ )
-			if ( location[dim] < 0.0 || location[dim] >= this._lengths[dim] )
+		double[] position = this.getLocalPosition(location);
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			if ( ! dim.isInside(position[i]) )
 				return false;
+			i++;
+		}
 		return true;
 	}
 	
-	/**
-	 * \brief Check if a given location is inside this shape.
-	 * 
-	 * TODO
-	 * 
-	 * @param location
-	 * @return
-	 */
-	public abstract boolean isInside(double[] location);
-	
 	public void applyBoundariesLocal(double[] location)
 	{
-		/*
-		int maxDim = Math.min(this._nDim, location.length);
-		for ( Boundary[] sideRow : this._sides )
-			for ( Boundary bndry : sideRow )
-				if ( bndry != null )
-					
-		*/
-		
-		Boundary bndry;
-		for ( BoundarySide bS : this._sideBoundaries.keySet() )
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
 		{
-			bndry = this._sideBoundaries.get(bS);
-			
+			location[i] = dim.applyBoundary(location[i]);
+			i++;
 		}
+		// TODO other boundaries 
 	}
-	
-	/**
-	 * 
-	 * @param aSide
-	 * @param loc
-	 * @return
-	 */
-	public abstract double[] getCyclicPoint(BoundarySide aSide, double[] loc);
 	
 	protected double[] addSideLength(double[] loc, int dimension)
 	{
 		double[] out = Vector.copy(loc);
-		out[dimension] += this._lengths[dimension];
+		// TODO out[dimension] += this._lengths[dimension];
 		return out;
 	}
 	
 	protected double[] subtractSideLength(double[] loc, int dimension)
 	{
 		double[] out = Vector.copy(loc);
-		out[dimension] -= this._lengths[dimension];
+		// TODO out[dimension] -= this._lengths[dimension];
 		return out;
 	}
 	
@@ -267,24 +329,30 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	{
 		LinkedList<double[]> out = new LinkedList<double[]>();
 		out.add(location);
-		Boundary b;
-		double[] point;
-		for ( BoundarySide bS : this._sideBoundaries.keySet() )
+		LinkedList<double[]> temp = new LinkedList<double[]>();
+		double[] newPoint;
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
 		{
-			System.out.println(bS);
-			b = this._sideBoundaries.get(bS);
-			System.out.println("\t"+b);
-			if ( b.getAgentMethod().isCyclic() )
+			if ( dim instanceof CyclicDimension )
 			{
-				LinkedList<double[]> temp = new LinkedList<double[]>();
 				for ( double[] loc : out )
 				{
-					point = this.getCyclicPoint(bS, loc);
-					if ( point != null )
-						temp.add(point);
+					/* Add the point below. */
+					newPoint = Vector.copy(loc);
+					newPoint[i] -= dim.getLength();
+					temp.add(newPoint);
+					/* Add the point above. */
+					newPoint = Vector.copy(loc);
+					newPoint[i] += dim.getLength();
+					temp.add(newPoint);
 				}
+				/* Transfer all from temp to out. */
 				out.addAll(temp);
+				temp.clear();
 			}
+			/* Increment the dimension iterator, even if this isn't cyclic. */
+			i++;
 		}
 		return out;
 	}

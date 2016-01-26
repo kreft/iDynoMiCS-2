@@ -85,6 +85,10 @@ public class Compartment implements CanPrelaunchCheck
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	public Shape getShape()
+	{
+		return this._shape;
+	}
 	
 	public boolean isDimensionless()
 	{
@@ -98,7 +102,7 @@ public class Compartment implements CanPrelaunchCheck
 	
 	public void setSideLengths(double[] sideLengths)
 	{
-		this._shape.setSideLengths(sideLengths);
+		this._shape.setDimensionLengths(sideLengths);
 		this._environment.setSize(sideLengths, 1.0);
 	}
 	
@@ -215,15 +219,12 @@ public class Compartment implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * 
+	 * TODO
 	 */
 	public void pushAllOutboundAgents()
 	{
-		// TODO Rob [12Jan2016]: I broke my own rule about using instanceof...
-		// need to check if it's justified here.
-		for ( Boundary b : this._shape.getSideBoundaries() )
-			if ( b instanceof BoundaryConnected )
-				((BoundaryConnected) b).pushAllOutboundAgents();
+		for ( BoundaryConnected b : this._shape.getConnectedBoundaries() )
+			b.pushAllOutboundAgents();
 	}
 	
 	/*************************************************************************
