@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
-import agent.AgentBoundary.AgentMethod;
 import boundary.Boundary;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
@@ -185,6 +184,44 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	}
 	
 	/**
+	 * \brief Check if a given location, in local dimensions, is inside this
+	 * shape.
+	 * 
+	 * TODO
+	 * 
+	 * @param location 
+	 * @return
+	 */
+	protected boolean isInsideLocal(double[] location)
+	{
+		int maxDim = Math.min(3, location.length);
+		for ( int dim = 0; dim < maxDim; dim++ )
+			if ( location[dim] < 0.0 || location[dim] >= this._lengths[dim] )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief Check if a given location is inside this shape.
+	 * 
+	 * TODO
+	 * 
+	 * @param location
+	 * @return
+	 */
+	public abstract boolean isInside(double[] location);
+	
+	public void applyBoundariesLocal(double[] location)
+	{
+		Boundary bndry;
+		for ( BoundarySide bS : this._sideBoundaries.keySet() )
+		{
+			bndry = this._sideBoundaries.get(bS);
+			
+		}
+	}
+	
+	/**
 	 * 
 	 * @param aSide
 	 * @param loc
@@ -220,8 +257,10 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		double[] point;
 		for ( BoundarySide bS : this._sideBoundaries.keySet() )
 		{
+			System.out.println(bS);
 			b = this._sideBoundaries.get(bS);
-			if ( b.getAgentMethod(null).isCyclic() )
+			System.out.println("\t"+b);
+			if ( b.getAgentMethod().isCyclic() )
 			{
 				LinkedList<double[]> temp = new LinkedList<double[]>();
 				for ( double[] loc : out )

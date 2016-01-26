@@ -31,6 +31,12 @@ public final class ShapeLibrary
 			return CartesianGrid.dimensionlessGetter();
 		}
 		
+		public boolean isInside(double[] location)
+		{
+			// TODO check
+			return true;
+		}
+		
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
 		{
 			return null;
@@ -56,6 +62,11 @@ public final class ShapeLibrary
 		{
 			// TODO Make 1D, 2D, and 3D getters?
 			return CartesianGrid.standardGetter();
+		}
+		
+		public boolean isInside(double[] location)
+		{
+			return isInsideLocal(location);
 		}
 		
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
@@ -151,6 +162,12 @@ public final class ShapeLibrary
 			return null;
 		}
 		
+		public boolean isInside(double[] location)
+		{
+			double[] local = Vector.toCylindrical(location);
+			return isInsideLocal(local);
+		}
+		
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
 		{
 			double[] out = super.getCyclicPoint(aSide, loc);
@@ -200,6 +217,12 @@ public final class ShapeLibrary
 		{
 			// TODO Make getter for SphericalGrid
 			return null;
+		}
+		
+		public boolean isInside(double[] location)
+		{
+			double[] local = Vector.toPolar(location);
+			return isInsideLocal(local);
 		}
 		
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
