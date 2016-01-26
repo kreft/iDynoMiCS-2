@@ -84,9 +84,9 @@ public final class ShapeLibrary
 			if ( out != null )
 				return out;
 			if ( aSide == BoundarySide.YMIN )
-				return this.subtractSideLength(loc, 2);
+				return this.subtractSideLength(loc, 1);
 			if ( aSide == BoundarySide.YMAX )
-				return this.addSideLength(loc, 2);
+				return this.addSideLength(loc, 1);
 			return null;
 		}
 	}
