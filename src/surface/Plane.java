@@ -1,4 +1,4 @@
-package agent.body;
+package surface;
 
 import linearAlgebra.Vector;
 
@@ -9,9 +9,9 @@ import linearAlgebra.Vector;
  */
 public class Plane {
 
-	private double[] normal;
+	public double[] normal;
 	
-	private double d; // d = normal dotproduct point-on-plane
+	public double d; // d = normal dotproduct point-on-plane
 	
 	public Plane(double[] normal, double d)
 	{

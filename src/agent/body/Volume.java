@@ -2,7 +2,6 @@ package agent.body;
 
 import java.util.HashMap;
 
-import shape.Shape;
 import boundary.PeriodicAgentBoundary;
 import linearAlgebra.Vector;
 
@@ -32,12 +31,12 @@ public class Volume
 //	 * Work in progress for periodic boundaries etc.
 //	 * @param nDim
 //	 * @param boundaryTypes
-//	 * @param gridLength HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries
+//	 * @param gridLength
 //	 */
-	public Volume(Shape shape)
+	public Volume(int nDim, HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries)
 	{
-		this._shape = shape;
-		this.dP = Vector.zerosDbl(_shape.getNumberOfDimensions());
+		this.dP = Vector.zerosDbl(nDim);
+		this.periodicBoundaries = periodicBoundaries;
 	}
 	
 	/**
@@ -49,7 +48,7 @@ public class Volume
 	/**
 	 * 
 	 */
-	private Shape _shape;
+	private HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries;
 	
 	/**
 	 * Represents the closest point on the first line segment expressed as a
