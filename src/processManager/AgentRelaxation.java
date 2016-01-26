@@ -125,7 +125,10 @@ public class AgentRelaxation extends ProcessManager {
 
 			for(Agent agent: agents.getAllLocatedAgents())
 				for (Point point: ((Body) agent.get("body")).getPoints())
-					agents.getAgentBoundaries().forEach((k,v)->point.setPosition(v.inFrameLocation(point.getPosition())));
+				{
+					agents.getAgentBoundaries().forEach((k,v)->
+					point.setPosition(v.inFrameLocation(point.getPosition())));
+				}
 			nstep++;
 		}
 		if(this._debugMode)
