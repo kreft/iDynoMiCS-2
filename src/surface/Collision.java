@@ -177,6 +177,20 @@ public class Collision {
 		double a = planePoint(p0, normal, d);
 		double b = planePoint(p1, normal, d);
 		if (a < b)
+		{
+			this.s = 0.0;
+			return a;
+		}
+		if (a > b) 
+		{
+			this.s = 1.0;
+			return b;
+		}
+		else
+		{
+			this.s = 0.5;
+			return a;
+		}
 	}
 
 	/**
