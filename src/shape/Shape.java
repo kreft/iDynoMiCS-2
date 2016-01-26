@@ -41,6 +41,10 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	protected HashMap<BoundarySide, Boundary> _sideBoundaries;
 	
+	protected Boundary[][] _sides;
+	
+	protected HashMap<BoundarySide, int[]> _sideDict;
+	
 	/**
 	 * List of boundaries in a dimensionless compartment, or internal
 	 * boundaries in a dimensional compartment.
@@ -60,6 +64,8 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		this._lengths = new double[3];
 		this._requiredBoundarySides = new LinkedList<BoundarySide>();
 		this._sideBoundaries = new HashMap<BoundarySide, Boundary>();
+		this._sides = new Boundary[3][2];
+		this._sideDict = new HashMap<BoundarySide, int[]>();
 		this._otherBoundaries = new LinkedList<Boundary>();
 	}
 	
@@ -213,6 +219,14 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	
 	public void applyBoundariesLocal(double[] location)
 	{
+		/*
+		int maxDim = Math.min(this._nDim, location.length);
+		for ( Boundary[] sideRow : this._sides )
+			for ( Boundary bndry : sideRow )
+				if ( bndry != null )
+					
+		*/
+		
 		Boundary bndry;
 		for ( BoundarySide bS : this._sideBoundaries.keySet() )
 		{

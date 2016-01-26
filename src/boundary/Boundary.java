@@ -22,6 +22,8 @@ public class Boundary implements CanPrelaunchCheck
 {
 	/**
 	 * The shape this Boundary takes (e.g. Plane, Sphere).
+	 * 
+	 * FIXME this should change to surface
 	 */
 	protected Shape _shape;
 	
