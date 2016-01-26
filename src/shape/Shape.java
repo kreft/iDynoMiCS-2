@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
+import agent.AgentBoundary.AgentMethod;
 import boundary.Boundary;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
@@ -181,6 +182,44 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public Collection<Boundary> getOtherBoundaries()
 	{
 		return this._otherBoundaries;
+	}
+	
+	/**
+	 * 
+	 * @param aSide
+	 * @param loc
+	 * @return
+	 */
+	public abstract double[] getCyclicPoint(BoundarySide aSide, double[] loc);
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param location
+	 * @return
+	 */
+	public LinkedList<double[]> getCyclicPoints(double[] location)
+	{
+		LinkedList<double[]> out = new LinkedList<double[]>();
+		out.add(location);
+		Boundary b;
+		double[] point;
+		for ( BoundarySide bS : this._sideBoundaries.keySet() )
+		{
+			b = this._sideBoundaries.get(bS);
+			if ( b.getAgentMethod(null).isCyclic() )
+			{
+				LinkedList<double[]> temp = new LinkedList<double[]>();
+				for ( double[] loc : out )
+				{
+					point = this.getCyclicPoint(bS, loc);
+					if ( point != null )
+						temp.add(point);
+				}
+				out.addAll(temp);
+			}
+		}
+		return out;
 	}
 	
 	/*************************************************************************

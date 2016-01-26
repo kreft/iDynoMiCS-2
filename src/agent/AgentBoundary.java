@@ -17,7 +17,15 @@ public final class AgentBoundary
 	{
 		void init(Node xmlNode);
 		
+		default boolean isCyclic()
+		{
+			return false;
+		}
 		
+		default double[] getCyclicPoint(double[] location)
+		{
+			return null;
+		}
 	}
 	
 	/*************************************************************************
@@ -42,6 +50,17 @@ public final class AgentBoundary
 		public void init(Node xmlNode)
 		{
 			// TODO
+		}
+		
+		public boolean isCyclic()
+		{
+			return true;
+		}
+		
+		public double[] getCyclicPoint(double[] location)
+		{
+			//TODO
+			return null;
 		}
 	}
 }
