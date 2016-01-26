@@ -58,22 +58,13 @@ public final class ShapeLibrary
 			return CartesianGrid.standardGetter();
 		}
 		
-		@SuppressWarnings("incomplete-switch")
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
 		{
-			double[] out = null;
-			switch ( aSide )
-			{
-			case XMIN:
-				out = Vector.copy(loc);
-				out[0] -= this._lengths[0];
-				break;
-			case XMAX:
-				out = Vector.copy(loc);
-				out[0] += this._lengths[0];
-				break;
-			}
-			return out;
+			if ( aSide == BoundarySide.XMIN )
+				return this.subtractSideLength(loc, 0);
+			if ( aSide == BoundarySide.XMAX )
+				return this.addSideLength(loc, 0);
+			return null;
 		}
 	}
 	
@@ -87,24 +78,16 @@ public final class ShapeLibrary
 			this._requiredBoundarySides.add(BoundarySide.YMAX);
 		}
 		
-		@SuppressWarnings("incomplete-switch")
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
 		{
 			double[] out = super.getCyclicPoint(aSide, loc);
 			if ( out != null )
 				return out;
-			switch ( aSide )
-			{
-			case YMIN:
-				out = Vector.copy(loc);
-				out[1] -= this._lengths[1];
-				break;
-			case YMAX:
-				out = Vector.copy(loc);
-				out[1] += this._lengths[1];
-				break;
-			}
-			return out;
+			if ( aSide == BoundarySide.YMIN )
+				return this.subtractSideLength(loc, 2);
+			if ( aSide == BoundarySide.YMAX )
+				return this.addSideLength(loc, 2);
+			return null;
 		}
 	}
 	
@@ -118,24 +101,16 @@ public final class ShapeLibrary
 			this._requiredBoundarySides.add(BoundarySide.ZMAX);
 		}
 		
-		@SuppressWarnings("incomplete-switch")
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
 		{
 			double[] out = super.getCyclicPoint(aSide, loc);
 			if ( out != null )
 				return out;
-			switch ( aSide )
-			{
-			case ZMIN:
-				out = Vector.copy(loc);
-				out[2] -= this._lengths[2];
-				break;
-			case ZMAX:
-				out = Vector.copy(loc);
-				out[2] += this._lengths[2];
-				break;
-			}
-			return out;
+			if ( aSide == BoundarySide.ZMIN )
+				return this.subtractSideLength(loc, 2);
+			if ( aSide == BoundarySide.ZMAX )
+				return this.addSideLength(loc, 2);
+			return null;
 		}
 	}
 	
@@ -151,22 +126,13 @@ public final class ShapeLibrary
 			this._requiredBoundarySides.add(BoundarySide.RMAX);
 		}
 		
-		@SuppressWarnings("incomplete-switch")
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
 		{
-			double[] out = null;
-			switch ( aSide )
-			{
-			case RMIN:
-				out = Vector.copy(loc);
-				out[0] -= this._lengths[0];
-				break;
-			case RMAX:
-				out = Vector.copy(loc);
-				out[0] += this._lengths[0];
-				break;
-			}
-			return out;
+			if ( aSide == BoundarySide.RMIN )
+				return this.subtractSideLength(loc, 0);
+			if ( aSide == BoundarySide.RMAX )
+				return this.addSideLength(loc, 0);
+			return null;
 		}
 	}
 	
@@ -185,24 +151,16 @@ public final class ShapeLibrary
 			return null;
 		}
 		
-		@SuppressWarnings("incomplete-switch")
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
 		{
 			double[] out = super.getCyclicPoint(aSide, loc);
 			if ( out != null )
 				return out;
-			switch ( aSide )
-			{
-			case THETAMIN:
-				out = Vector.copy(loc);
-				out[1] -= this._lengths[1];
-				break;
-			case THETAMAX:
-				out = Vector.copy(loc);
-				out[1] += this._lengths[1];
-				break;
-			}
-			return out;
+			if ( aSide == BoundarySide.THETAMIN )
+				return this.subtractSideLength(loc, 1);
+			if ( aSide == BoundarySide.THETAMAX )
+				return this.addSideLength(loc, 1);
+			return null;
 		}
 	}
 	
@@ -216,24 +174,16 @@ public final class ShapeLibrary
 			this._requiredBoundarySides.add(BoundarySide.ZMAX);
 		}
 		
-		@SuppressWarnings("incomplete-switch")
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
 		{
 			double[] out = super.getCyclicPoint(aSide, loc);
 			if ( out != null )
 				return out;
-			switch ( aSide )
-			{
-			case ZMIN:
-				out = Vector.copy(loc);
-				out[2] -= this._lengths[2];
-				break;
-			case ZMAX:
-				out = Vector.copy(loc);
-				out[2] += this._lengths[2];
-				break;
-			}
-			return out;
+			if ( aSide == BoundarySide.ZMIN )
+				return this.subtractSideLength(loc, 2);
+			if ( aSide == BoundarySide.ZMAX )
+				return this.addSideLength(loc, 2);
+			return null;
 		}
 	}
 	
@@ -252,32 +202,23 @@ public final class ShapeLibrary
 			return null;
 		}
 		
-		@SuppressWarnings("incomplete-switch")
 		public double[] getCyclicPoint(BoundarySide aSide, double[] loc)
 		{
 			double[] out = super.getCyclicPoint(aSide, loc);
 			if ( out != null )
 				return out;
-			switch ( aSide )
-			{
-			case THETAMIN:
-				out = Vector.copy(loc);
-				out[1] -= this._lengths[1];
-				break;
-			case THETAMAX:
-				out = Vector.copy(loc);
-				out[1] += this._lengths[1];
-				break;
-			case PHIMIN:
-				out = Vector.copy(loc);
-				out[2] -= this._lengths[2];
-				break;
-			case PHIMAX:
-				out = Vector.copy(loc);
-				out[2] += this._lengths[2];
-				break;
-			}
-			return out;
+			/*
+			 * Note that spherical coordinates are (r, phi, theta).
+			 */
+			if ( aSide == BoundarySide.PHIMIN )
+				return this.subtractSideLength(loc, 1);
+			if ( aSide == BoundarySide.PHIMAX )
+				return this.addSideLength(loc, 1);
+			if ( aSide == BoundarySide.THETAMIN )
+				return this.subtractSideLength(loc, 2);
+			if ( aSide == BoundarySide.THETAMAX )
+				return this.addSideLength(loc, 2);
+			return null;
 		}
 	}
 }

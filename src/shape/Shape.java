@@ -192,6 +192,20 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public abstract double[] getCyclicPoint(BoundarySide aSide, double[] loc);
 	
+	protected double[] addSideLength(double[] loc, int dimension)
+	{
+		double[] out = Vector.copy(loc);
+		out[dimension] += this._lengths[dimension];
+		return out;
+	}
+	
+	protected double[] subtractSideLength(double[] loc, int dimension)
+	{
+		double[] out = Vector.copy(loc);
+		out[dimension] -= this._lengths[dimension];
+		return out;
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
