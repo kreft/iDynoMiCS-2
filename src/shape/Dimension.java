@@ -1,9 +1,13 @@
 package shape;
 
+import java.util.Arrays;
+
 import boundary.Boundary;
 import generalInterfaces.CanPrelaunchCheck;
 
 /**
+ * 
+ * TODO start point? I.e. not necessarily starting at zero
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
@@ -13,25 +17,25 @@ public class Dimension implements CanPrelaunchCheck
 	 * Total length of this dimension. Must be >= 0.
 	 */
 	protected double _length;
-
+	
 	/**
 	 * If this is a cyclic dimension, different rules apply.
 	 */
 	protected boolean _isCyclic = false;
-
+	
 	/**
 	 * Boundary objects at the minimum (0) and maximum (1). Meaningless in
 	 * cyclic dimensions.
 	 */
 	protected Boundary[] _boundaries = new Boundary[2];
-
+	
 	/**
 	 * Whether boundaries are required (true) or optional (false) at the
 	 * minimum (0) and maximum (1) of this dimension. Meaningless in
 	 * cyclic dimensions.
 	 */
-	protected boolean[] _required = new boolean[]{false, false};
-
+	protected boolean[] _required = new boolean[]{true, true};
+	
 	/**
 	 * \brief Get the length of this dimension.
 	 * 
@@ -41,7 +45,7 @@ public class Dimension implements CanPrelaunchCheck
 	{
 		return this._length;
 	}
-
+	
 	/**
 	 * \brief Set the length of this dimension.
 	 * 
@@ -56,14 +60,14 @@ public class Dimension implements CanPrelaunchCheck
 		}
 		this._length = length;
 	}
-
+	
 	public void setCyclic()
 	{
 		this._isCyclic = true;
 		// TODO safety if boundaries already set
 		this._boundaries = new Boundary[]{};
 	}
-
+	
 	/**
 	 * \brief Whether this dimension is cyclic or not.
 	 * 
@@ -74,44 +78,39 @@ public class Dimension implements CanPrelaunchCheck
 	{
 		return this._isCyclic;
 	}
-
+	
 	/*
 	 * Boundaries
 	 */
-
+	
 	protected int m(boolean setMin)
 	{
 		return setMin ? 0 : 1;
 	}
-
-	/**
-	 * \brief Tell this dimension that the boundary at its minimum must be
-	 * specified. Meaningless in cyclic dimensions.
-	 */
-
+	
 	/**
 	 * \brief Tell this dimension that the boundary at the given extreme
-	 * must be specified. Meaningless in cyclic dimensions.
+	 * may not be specified. Meaningless in cyclic dimensions.
 	 * 
 	 * @param setMin {@code boolean} specifying whether to set the minimum
 	 * (true) or the maximum (false).
 	 * @see #setBoundariesRequired()
 	 */
-	public void setBoundaryRequired(boolean setMin)
+	public void setBoundaryOptional(boolean setMin)
 	{
-		this._required[m(setMin)] = true;
+		this._required[m(setMin)] = false;
 	}
 	
 	/**
-	 * \brief Tell this dimension that both boundaries must be specified.
+	 * \brief Tell this dimension that both boundaries may not be specified.
 	 * Meaningless in cyclic dimensions.
 	 * 
 	 * @see #setBoundaryRequired(boolean)
 	 */
-	public void setBoundariesRequired()
+	public void setBoundariesOptional()
 	{
-		this._required[0] = true;
-		this._required[1] = true;
+		this._required[0] = false;
+		this._required[1] = false;
 	}
 	
 	/**
@@ -131,16 +130,16 @@ public class Dimension implements CanPrelaunchCheck
 		else
 			this._boundaries[m(setMin)] = aBoundary;
 	}
-
+	
 	public Boundary[] getBoundaries()
 	{
 		return this._boundaries;
 	}
-
+	
 	/*
 	 * Useful methods
 	 */
-
+	
 	/**
 	 * \brief Get the shortest distance between two positions along this
 	 * dimension.
@@ -153,12 +152,16 @@ public class Dimension implements CanPrelaunchCheck
 	 */
 	public double getShortest(double a, double b)
 	{
-		double out = a - b;
+		double out = b - a;
+		System.out.println("b - a: "+out);
 		if ( this._isCyclic &&  (Math.abs(out) > 0.5 * this._length) )
-			out -= 0.5 * this._length * Math.signum(out);
+		{
+			out -= this._length * Math.signum(out);
+			System.out.println("cyclic b - a: "+out);
+		}
 		return out;
 	}
-
+	
 	public double applyBoundary(double a)
 	{
 		if ( this._isCyclic )
@@ -172,17 +175,17 @@ public class Dimension implements CanPrelaunchCheck
 			return Math.max(0.0, Math.min(this._length, a));
 		}
 	}
-
+	
 	public boolean isInside(double a)
 	{
 		/* Always inside a cyclic dimension. */
 		return this._isCyclic || (( a >= 0.0 ) && ( a < this._length ));
 	}
-
+	
 	/**************************************************************************
 	 * PRE-LAUNCH CHECK
 	 *************************************************************************/
-
+	
 	public boolean isReadyForLaunch()
 	{
 		for ( int i = 0; i < 2; i++ )

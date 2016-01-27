@@ -3,6 +3,7 @@
  */
 package shape;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -160,13 +161,14 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public void setDimensionLengths(double[] lengths)
 	{
-		int maxDim = Math.min(this._dimensions.size(), lengths.length);
-		Iterator<Dimension> iter = this._dimensions.values().iterator();
 		int i = 0;
-		while ( iter.hasNext() && i < maxDim )
-			iter.next().setLength(lengths[i]);
-		while ( iter.hasNext() )
-			iter.next().setLength(0.0);
+		Dimension dim;
+		for ( DimName d : this._dimensions.keySet() )
+		{
+			dim = this.getDimensionSafe(d);
+			dim.setLength(( i < lengths.length ) ? lengths[i] : 0.0);
+			i++;
+		}
 	}
 	
 	/**
@@ -307,10 +309,13 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public LinkedList<double[]> getCyclicPoints(double[] location)
 	{
-		// TODO convert to local coordinates and back
-		
-		LinkedList<double[]> out = new LinkedList<double[]>();
-		out.add(location);
+		// TODO safety with vector length
+		/*
+		 * Find all the cyclic points in 
+		 */
+		double[] position = this.getLocalPosition(location);
+		LinkedList<double[]> localPoints = new LinkedList<double[]>();
+		localPoints.add(position);
 		LinkedList<double[]> temp = new LinkedList<double[]>();
 		double[] newPoint;
 		int i = 0;
@@ -318,7 +323,8 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		{
 			if ( dim.isCyclic() )
 			{
-				for ( double[] loc : out )
+				// TODO We don't need these in an angular dimension with 2 * pi
+				for ( double[] loc : localPoints )
 				{
 					/* Add the point below. */
 					newPoint = Vector.copy(loc);
@@ -330,13 +336,41 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 					temp.add(newPoint);
 				}
 				/* Transfer all from temp to out. */
-				out.addAll(temp);
+				localPoints.addAll(temp);
 				temp.clear();
 			}
 			/* Increment the dimension iterator, even if this isn't cyclic. */
 			i++;
 		}
-		return out;
+		/* Convert everything back into global coordinates and return. */
+		LinkedList<double[]> out = new LinkedList<double[]>();
+		for ( double[] p : localPoints )
+			out.add(this.getGlobalLocation(p));
+		return localPoints;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public double[] getMinDifference(double[] a, double[] b)
+	{
+		// TODO safety with vector length & number of dimensions
+		// TOD check this is the right approach in polar geometries
+		Vector.checkLengths(a, b);
+		double[] aLocal = this.getLocalPosition(a);
+		double[] bLocal = this.getLocalPosition(b);
+		double[] diffLocal = new double[a.length];
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			diffLocal[i] = dim.getShortest(aLocal[i], bLocal[i]);
+			i++;
+		}
+		return this.getGlobalLocation(diffLocal);
 	}
 	
 	/*************************************************************************
