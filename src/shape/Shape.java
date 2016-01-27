@@ -17,7 +17,6 @@ import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
-import shape.ShapeDimension.*;
 
 /**
  * 
@@ -25,19 +24,28 @@ import shape.ShapeDimension.*;
  */
 public abstract class Shape implements CanPrelaunchCheck, XMLable
 {
+	public enum DimName
+	{
+		X, Y, Z, R, THETA, PHI;
+	}
+
 	/**
 	 * Ordered dictionary of dimensions for this shape.
 	 */
-	protected LinkedHashMap<DimName, Dimension> _dimensions = 
-									new LinkedHashMap<DimName, Dimension>();
+	protected LinkedHashMap<Shape.DimName, Dimension> _dimensions = 
+								 	   new LinkedHashMap<DimName, Dimension>();
 	/**
 	 * A list of boundary sides that must be specified.
+	 * 
+	 * TODO remove
 	 */
 	protected Collection<BoundarySide> _requiredBoundarySides;
 	
 	/**
 	 * Directory of boundaries that are linked to a specific side. There can
 	 * be only one boundary for each boundary side here.
+	 * 
+	 * TODO remove
 	 */
 	protected HashMap<BoundarySide, Boundary> _sideBoundaries;
 	
@@ -69,11 +77,28 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	/**
 	 * \brief Make the given dimension cyclic.
 	 * 
-	 * @param dimensionName {@code String} name of the dimension.
+	 * @param dimensionName {@code String} name of the dimension. Lower/upper
+	 * case is irrelevant.
 	 */
 	public void makeCyclic(String dimensionName)
 	{
-		this.makeCyclic(DimName.valueOf(dimensionName));
+		this.makeCyclic(DimName.valueOf(dimensionName.toUpperCase()));
+	}
+	
+	protected Dimension getDimensionSafe(Shape.DimName dimension)
+	{
+		if ( this._dimensions.containsKey(dimension) )
+		{
+			Dimension dim = this._dimensions.get(dimension);
+			if ( dim == null )
+				this._dimensions.put(dimension, (dim = new Dimension()));
+			return dim;
+		}
+		else
+		{
+			// TODO safety
+			return null;
+		}
 	}
 	
 	/**
@@ -83,49 +108,12 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public void makeCyclic(DimName dimension)
 	{
-		if ( this._dimensions.containsKey(dimension) )
-		{
-			Dimension dim = this._dimensions.get(dimension);
-			if ( dim == null )
-				this._dimensions.put(dimension, new CyclicDimension());
-			else if ( ! (dim instanceof CyclicDimension) )
-			{
-				// TODO safety
-			}
-		}
-		else
-		{
-			// TODO safety
-		}
+		this.getDimensionSafe(dimension).setCyclic();
 	}
 	
 	public void setBoundary(DimName dimension, Boundary bndry, boolean setMin)
 	{
-		if ( this._dimensions.containsKey(dimension) )
-		{
-			Dimension dim = this._dimensions.get(dimension);
-			BoundedDimension bDim;
-			if ( dim == null )
-			{
-				bDim = new BoundedDimension();
-				this._dimensions.put(dimension, bDim);
-			}
-			else if ( dim instanceof BoundedDimension )
-				bDim = (BoundedDimension) dim;
-			else
-			{
-				// TODO safety
-				return;
-			}
-			if ( setMin )
-				bDim.setMinBoundary(bndry);
-			else
-				bDim.setMaxBoundary(bndry);
-		}
-		else
-		{
-			// TODO safety
-		}
+		this.getDimensionSafe(dimension).setBoundary(bndry, setMin);
 	}
 	
 	
@@ -207,6 +195,8 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	
 	protected abstract double[] getLocalPosition(double[] cartesian);
 	
+	protected abstract double[] getGlobalLocation(double[] local);
+	
 	/*************************************************************************
 	 * BOUNDARIES
 	 ************************************************************************/
@@ -252,8 +242,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	{
 		LinkedList<BoundaryConnected> cB = new LinkedList<BoundaryConnected>();
 		for ( Dimension dim : this._dimensions.values() )
-			if ( dim instanceof BoundedDimension )
-				for ( Boundary b : ((BoundedDimension) dim).getBoundaries() )
+				for ( Boundary b : dim.getBoundaries() )
 					if ( b instanceof BoundaryConnected )
 						cB.add((BoundaryConnected) b);
 		for ( Boundary b : this._otherBoundaries )
@@ -273,10 +262,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	}
 	
 	/**
-	 * \brief Check if a given location, in local dimensions, is inside this
-	 * shape.
-	 * 
-	 * TODO
+	 * \brief Check if a given location is inside this shape.
 	 * 
 	 * @param location 
 	 * @return
@@ -294,39 +280,35 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		return true;
 	}
 	
-	public void applyBoundariesLocal(double[] location)
+	/**
+	 * \brief TODO
+	 * 
+	 * @param location
+	 */
+	public void applyBoundaries(double[] location)
 	{
+		double[] position = this.getLocalPosition(location);
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			location[i] = dim.applyBoundary(location[i]);
+			position[i] = dim.applyBoundary(position[i]);
 			i++;
 		}
-		// TODO other boundaries 
-	}
-	
-	protected double[] addSideLength(double[] loc, int dimension)
-	{
-		double[] out = Vector.copy(loc);
-		// TODO out[dimension] += this._lengths[dimension];
-		return out;
-	}
-	
-	protected double[] subtractSideLength(double[] loc, int dimension)
-	{
-		double[] out = Vector.copy(loc);
-		// TODO out[dimension] -= this._lengths[dimension];
-		return out;
+		Vector.copyTo(location, this.getGlobalLocation(position));
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Find all neighbouring points in space that would  
+	 * 
+	 * <p>For use by the R-Tree.</p>
 	 * 
 	 * @param location
 	 * @return
 	 */
 	public LinkedList<double[]> getCyclicPoints(double[] location)
 	{
+		// TODO convert to local coordinates and back
+		
 		LinkedList<double[]> out = new LinkedList<double[]>();
 		out.add(location);
 		LinkedList<double[]> temp = new LinkedList<double[]>();
@@ -334,7 +316,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			if ( dim instanceof CyclicDimension )
+			if ( dim.isCyclic() )
 			{
 				for ( double[] loc : out )
 				{

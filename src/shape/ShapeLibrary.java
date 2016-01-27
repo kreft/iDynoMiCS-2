@@ -6,7 +6,6 @@ package shape;
 import grid.CartesianGrid;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
-import shape.ShapeDimension.DimName;
 
 /**
  * 
@@ -35,6 +34,11 @@ public final class ShapeLibrary
 		{
 			return location;
 		}
+		
+		public double[] getGlobalLocation(double[] local)
+		{
+			return local;
+		}
 	}
 	
 	/*************************************************************************
@@ -43,12 +47,12 @@ public final class ShapeLibrary
 	
 	public static class Line extends Shape
 	{
-		protected final static int X_DIM = 0;
-		
 		public Line()
 		{
 			super();
-			this._dimensions.put(DimName.X, null);
+			Dimension dim = new Dimension();
+			dim.setBoundariesRequired();
+			this._dimensions.put(Shape.DimName.X, null);
 			
 			this._requiredBoundarySides.add(BoundarySide.XMIN);
 			this._requiredBoundarySides.add(BoundarySide.XMAX);
@@ -65,16 +69,19 @@ public final class ShapeLibrary
 		{
 			return location;
 		}
+		
+		public double[] getGlobalLocation(double[] local)
+		{
+			return local;
+		}
 	}
 	
 	public static class Rectangle extends Line
 	{
-		protected final static int Y_DIM = 1;
-		
 		public Rectangle()
 		{
 			super();
-			this._dimensions.put(DimName.Y, null);
+			this._dimensions.put(Shape.DimName.Y, null);
 			this._requiredBoundarySides.add(BoundarySide.YMIN);
 			this._requiredBoundarySides.add(BoundarySide.YMAX);
 		}
@@ -82,12 +89,10 @@ public final class ShapeLibrary
 	
 	public static class Cuboid extends Rectangle
 	{
-		protected final static int Z_DIM = 2;
-		
 		public Cuboid()
 		{
 			super();
-			this._dimensions.put(DimName.Z, null);
+			this._dimensions.put(Shape.DimName.Z, null);
 			this._requiredBoundarySides.add(BoundarySide.ZMIN);
 			this._requiredBoundarySides.add(BoundarySide.ZMAX);
 		}
@@ -100,24 +105,20 @@ public final class ShapeLibrary
 	
 	public static abstract class Polar extends Shape
 	{
-		protected final static int R_DIM = 0;
-		
 		public Polar()
 		{
 			super();
-			this._dimensions.put(DimName.R, null);
+			this._dimensions.put(Shape.DimName.R, null);
 			this._requiredBoundarySides.add(BoundarySide.RMAX);
 		}
 	}
 	
 	public static class Circle extends Polar
 	{
-		protected final static int THETA_DIM = 1;
-		
 		public Circle()
 		{
 			super();
-			this._dimensions.put(DimName.THETA, null);
+			this._dimensions.put(Shape.DimName.THETA, null);
 		}
 		
 		@Override
@@ -131,31 +132,37 @@ public final class ShapeLibrary
 		{
 			return Vector.toCylindrical(location);
 		}
+		
+		public double[] getGlobalLocation(double[] local)
+		{
+			return Vector.toCartesian(local);
+		}
 	}
 	
 	public static class Cylinder extends Circle
 	{
-		protected final static int Z_DIM = 2;
-		
 		public Cylinder()
 		{
 			super();
-			this._dimensions.put(DimName.Z, null);
+			this._dimensions.put(Shape.DimName.Z, null);
 			this._requiredBoundarySides.add(BoundarySide.ZMIN);
 			this._requiredBoundarySides.add(BoundarySide.ZMAX);
+		}
+		
+		@Override
+		public double[] getGlobalLocation(double[] local)
+		{
+			return Vector.cylindricalToCartesian(local);
 		}
 	}
 	
 	public static class Sphere extends Polar
 	{
-		protected final static int PHI_DIM = 1;
-		protected final static int THETA_DIM = 2;
-		
 		public Sphere()
 		{
 			super();
-			this._dimensions.put(DimName.PHI, null);
-			this._dimensions.put(DimName.THETA, null);
+			this._dimensions.put(Shape.DimName.PHI, null);
+			this._dimensions.put(Shape.DimName.THETA, null);
 		}
 		
 		@Override
@@ -168,6 +175,11 @@ public final class ShapeLibrary
 		public double[] getLocalPosition(double[] location)
 		{
 			return Vector.toPolar(location);
+		}
+		
+		public double[] getGlobalLocation(double[] local)
+		{
+			return Vector.toCartesian(local);
 		}
 	}
 }
