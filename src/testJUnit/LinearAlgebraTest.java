@@ -187,4 +187,30 @@ public class LinearAlgebraTest
 		w = Vector.minus(v, u);
 		assertTrue("Q20", Vector.areSame(w, new double[]{-2, 4, 2}));
 	}
+	
+	@Test
+	public void cartesianPolarExercises()
+	{
+		double[] cartesianOriginal, sphericalOriginal, cartesianReturned;
+		/* 1D
+		 * Note that a negative input is nonsensical here.
+		 */
+		cartesianOriginal = new double[]{4.6};
+		sphericalOriginal = Vector.toPolar(cartesianOriginal);
+		cartesianReturned = Vector.toCartesian(sphericalOriginal);
+		assertTrue("Cartesian -> Polar -> Cartesian (1D)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		/* 2D */
+		cartesianOriginal = new double[]{-1.0, -2.0};
+		sphericalOriginal = Vector.toPolar(cartesianOriginal);
+		cartesianReturned = Vector.toCartesian(sphericalOriginal);
+		assertTrue("Cartesian -> Polar -> Cartesian (2D)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		/* 3D */
+		cartesianOriginal = new double[]{1.0, 2.0, 3.0};
+		sphericalOriginal = Vector.toPolar(cartesianOriginal);
+		cartesianReturned = Vector.toCartesian(sphericalOriginal);
+		assertTrue("Cartesian -> Polar -> Cartesian (3D)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+	}
 }
