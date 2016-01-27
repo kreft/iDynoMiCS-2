@@ -1,16 +1,25 @@
 package surface;
 
+import java.util.HashMap;
+
 public abstract class Surface
 {
 	protected Collision collisionDomain;
+	
+    static int UNIQUE_ID = 0;
+    protected int uid = ++UNIQUE_ID;
+    
+    public HashMap<Integer, Surface> _collisionIgnored = new HashMap<Integer, Surface>();
 		
 	public enum Type
 	{
 		SPHERE,
 		ROD,
-		STRAND, // for filaments, needs to be implemented still
 		PLANE,
+		// INFINITECYLINDER
 	}
+	
+	public boolean bounding;
 	
 	public void init(Collision collisionDomain) 
 	{
@@ -18,5 +27,10 @@ public abstract class Surface
 	}
 	
 	public abstract Type type();
+	
+	public double distanceTo(Surface surface)
+	{
+		return collisionDomain.distance(this, surface);
+	}
 
 }

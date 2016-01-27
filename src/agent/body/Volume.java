@@ -2,6 +2,7 @@ package agent.body;
 
 import java.util.HashMap;
 
+import surface.Point;
 import boundary.PeriodicAgentBoundary;
 import linearAlgebra.Vector;
 
@@ -159,7 +160,7 @@ public class Volume
 		if (distance < 0.0) 
 		{
 			c = Math.abs(fPush * distance); //linear
-			Vector.normaliseEuclid(dP, c);
+			Vector.normaliseEuclidEquals(dP, c);
 			return dP;
 		} 
 		// Attraction

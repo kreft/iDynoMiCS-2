@@ -1,5 +1,6 @@
 package surface;
 
+import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 
 
@@ -8,13 +9,13 @@ import linearAlgebra.Vector;
  * 
  * @author Bastiaan Cockx, DTU (baco@env.dtu.dk)
  */
-public class Point
+public class Point implements Copyable
 {
     static int UNIQUE_ID = 0;
     protected int uid = ++UNIQUE_ID;
     
     /**
-     * Position vector.
+     * location vector.
      */
 	private double[] p;
 	
@@ -27,6 +28,11 @@ public class Point
 	 * Used by higher-order ODE solvers.
 	 */
 	private double[][] c;
+
+	public Object copy() 
+	{
+		return new Point(this.p);
+	}
 	
 	public Point(double[] p) 
 	{

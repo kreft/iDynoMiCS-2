@@ -1,23 +1,28 @@
 package agent.body;
 
 import generalInterfaces.Copyable;
+import idynomics.NameRef;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import linearAlgebra.Vector;
+import agent.Agent;
+import surface.*;
 
 public class Body implements Copyable {
 	
 	/**
-	 * 
+	 * the body belongs to agent
+	 */
+	Agent agent; 
+	
+	/**
+	 * TODO: Depricated, remove
 	 */
 	public Body(List<Point> points, double[] lengths, double[] angles, double radius) 
 	{
 		this.points = points;
-		this._lengths = lengths;
-		this._angles = angles;
-		this._radius = radius;		
+		this._angles = angles;		
 	}
 	
 	public Body(List<Point> points) 
@@ -28,17 +33,62 @@ public class Body implements Copyable {
 		 */
 	}
 	
+	/**
+	 * Coccoid
+	 */
+	public Body(Point point, double radius)
+	{
+		this.points.add(point);
+		this.surfaces.add(new Sphere(point, radius));
+	}
+	
+	public Body(Sphere sphere)
+	{
+		this.points.add(sphere._point);
+		this.surfaces.add(sphere);
+	}
+	
+	/**
+	 * Rod
+	 * @param rod
+	 */
+	public Body(Rod rod)
+	{
+		this.points.add(rod._points[0]);
+		this.points.add(rod._points[1]);
+		this.surfaces.add(rod);
+	}
+
+	
+	/**
+	 * Hybrid: Coccoid, Rod, Chain of rods
+	 * @return
+	 */
+	public Body(List<Point> points, double length, double radius)
+	{
+		this.points.addAll(points);
+		if(this.points.size() == 1)
+			this.surfaces.add(new Sphere(points.get(0), radius));
+		else
+		{
+			for(int i = 0; points.size()-1 > i; i++)
+			{
+				this.surfaces.add(new Rod(points.get(i), points.get(i+1), length, radius));
+			}
+		}
+	}
+
 	public Body copy()
 	{
-		//TODO make this
-		List<Point> newPoints = new LinkedList<Point>();
-		for ( Point p : points)
+		// TODO make for multishape bodies
+		switch (surfaces.get(0).type())
 		{
-			Point duplicate = new Point(Vector.copy(p.getPosition()));
-			newPoints.add(duplicate);
+		case SPHERE:
+			return new Body(new Sphere((Sphere) surfaces.get(0)));
+		case ROD:
+			return new Body(new Rod((Rod) surfaces.get(0)));
 		}
-			
-		return new Body(newPoints);
+		return null;
 	}
 	
     /**
@@ -47,47 +97,16 @@ public class Body implements Copyable {
      * in a single sphere for coccoid-type agents or a tube for agents described
      * by multiple points.
      */
-    protected List<Point> points 	= new LinkedList<Point>();
-	
-    /**
-     * Rest length of internal springs connecting the points.
-     */
-	protected double[] _lengths;
-	
+    protected List<Point> points = new LinkedList<Point>();
+    
+    protected List<Surface> surfaces = new LinkedList<Surface>();
+
 	/**
 	 * Rest angles of torsion springs 
 	 */
 	protected double[] _angles;
 	
-	/**
-	 * radius of the cell (not used for coccoid cell types)
-	 * FIXME: this is confusing, there should be a better way of doing this
-	 */
-	protected double _radius;
-	
-	/**
-	 * FIXME: convert to switch-case rather than if else
-	 */
-	public int getMorphologyIndex()
-	{
-		if (points.size() == 0)
-			return 0;					// no body
-		else if (points.size() == 1)
-			return 1;					// cocoid body
-		else if (points.size() == 2)
-			return 2;					// rod body
-		else if (points.size() > 2)
-		{
-			if (_angles == null)
-				return 3;				// bendable body / filaments
-			else
-				return 4;				// bend body type
-		}
-		else
-			return -1;					// undefined body type
-		
-	}
-	
+	//TODO: take out
 	public List<double[]> getJoints()
 	{
 		List<double[]> joints = new LinkedList<double[]>();
@@ -189,5 +208,14 @@ public class Body implements Copyable {
 	public int nDim() 
 	{
 		return points.get(0).nDim();
+	}
+
+	// obtains the radius which can be a primary or secondary agent state
+	public double getRadius() {
+		return (double) agent.get(NameRef.bodyRadius);
+	}
+
+	public double getLength() {
+		return (double) agent.get(NameRef.bodyLength);
 	}
 }

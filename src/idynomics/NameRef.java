@@ -15,4 +15,14 @@ public class NameRef {
 	 * 
 	 */
 	public static String boundingSides = "#boundingSides";
+	
+	/**
+	 * 
+	 */
+	public static String bodyRadius = "#bodyRadius";
+
+	/**
+	 * 
+	 */
+	public static String bodyLength = "#bodyLength";
 }

@@ -1,9 +1,9 @@
 package surface;
 
-import agent.body.Point;
 import linearAlgebra.Vector;
 
 /**
+ * NOTE: this class is not thread-safe.
  * 
  * Methods are based on closest point algorithms from:
  * Ericson, C. (2005). Real-time collision detection. Computer (Vol. 1).
@@ -13,12 +13,14 @@ import linearAlgebra.Vector;
  * On a later stage is class can be expanded to also describe other surfaces
  * with points. this way other objects such as biomass carriers or tubes
  * can be implemented.
+ * 
+ * @author baco
  */
 public class Collision {
 	
 	public interface CollisionFunction
 	{
-		public double[] interactionForce(double distance);
+		public double interactionForce(double distance);
 	}
 	
 	private CollisionFunction collisionFun;
@@ -40,55 +42,90 @@ public class Collision {
 	 * fraction of the line segment.
 	 */
 	private double t = 0;
+	
+	/**
+	 * flip if the force needs to be added to b and subtracted from a
+	 */
+	private boolean flip = false;
 
+	/**
+	 * apply a collision force on a and b if applicable
+	 */
 	public void collision(Surface a, Surface b)
 	{
-		collisionFun.interactionForce(distance(a,b));
+		double f = collisionFun.interactionForce(distance(a,b));
+		double[] force = Vector.normaliseEuclid((flip ? Vector.flip(dP) : dP), f);
+		if(flip)
+		{
+			applyForce(b, force ,s);
+			applyForce(a, Vector.flip(force), t);
+		} 
+		else
+		{
+			applyForce(a, force ,s);
+			applyForce(b, Vector.flip(force), t);
+		}
+	}
+	
+	public void applyForce(Surface surf, double[] force, double intersect)
+	{
+		switch (surf.type())
+		{
+		case SPHERE:
+			((Sphere) surf)._point.addToForce(force);
+		case ROD:
+			((Rod) surf)._points[0].addToForce(Vector.times(force,intersect));
+			((Rod) surf)._points[1].addToForce(Vector.times(force,1.0-intersect));
+		case PLANE:
+			System.out.println("WARNING: Surface Plane does not accept force");
+		}
 	}
 	
 	public double distance(Surface a, Surface b)
 	{
 		Surface first = null;
 		Surface second = null;
-		
-		// filaments to be implemented
-		if ((a.type() == Surface.Type.STRAND ) || (b.type() == Surface.Type.STRAND ))
-		{
-			System.out.println("WARNING: STRAND shape not supported (yet) collision detect..");
-			return 0.0;
-		}
-		
+
 		// plane interactions
 		if (a.type() == Surface.Type.PLANE )
 		{
 			first = a;
 			second = b;
+			flip = false;
 		} else if (b.type() == Surface.Type.PLANE )
 		{
 			first = b;
 			second = a;
+			flip = true;
 		}
 		if (second.type() == Surface.Type.SPHERE)
-			return planeSphere((Plane) first, (SphereSweptVolume) second);
+			return planeSphere((Plane) first, (Sphere) second);
 		else if (second.type() == Surface.Type.ROD)
-			return planeRod((Plane) first, (SphereSweptVolume) second);
+			return planeRod((Plane) first, (Rod) second);
 		
 		// sphere-swept-volume interactions
 		if(a.type() == Surface.Type.ROD)
 		{
 			first = a;
 			second = b;
+			flip = false;
 		} else if(b.type() == Surface.Type.ROD)
 		{
 			first = b;
 			second = a;
+			flip = true;
 		}
 		if (second.type() == Surface.Type.SPHERE)
-			return rodSphere((SphereSweptVolume) first, (SphereSweptVolume) second);
+			return rodSphere((Rod) first, (Sphere) second);
 		else if (second.type() == Surface.Type.ROD)
-			return rodRod((SphereSweptVolume) first, (SphereSweptVolume) second);
+			return rodRod((Rod) first, (Rod) second);
+		
+		// sphere sphere
 		else if (second.type() != null)
-			return sphereSphere((SphereSweptVolume) first, (SphereSweptVolume) second);
+		{
+			flip = false;
+			return sphereSphere((Sphere) first, (Sphere) second);
+		}
 		else
 		{
 			System.out.println("WARNING: undefined Surface type");
@@ -142,10 +179,21 @@ public class Collision {
 		return Vector.normEuclid(dP);
 	}
 	
-	public double sphereSphere(SphereSweptVolume a, SphereSweptVolume b)
+	public double sphereSphere(Sphere a, Sphere b)
 	{
-		return pointPoint(a._points.get(0).getPosition(),
-				b._points.get(0).getPosition()) - a._radius - b._radius;
+		// a is around b
+		if (a.bounding)
+			return -pointPoint(a._point.getPosition(),
+					b._point.getPosition()) + a.getRadius() - b.getRadius();
+		
+		// b is around a
+		if (b.bounding)
+			return -pointPoint(a._point.getPosition(),
+					b._point.getPosition()) - a.getRadius() + b.getRadius();
+		
+		// normal collision
+		return pointPoint(a._point.getPosition(),
+				b._point.getPosition()) - a.getRadius() - b.getRadius();
 	}
 
 	/**
@@ -174,11 +222,11 @@ public class Collision {
 		return Vector.normEuclid(dP);
 	}
 	
-	public double rodSphere(SphereSweptVolume a, SphereSweptVolume b)
+	public double rodSphere(Rod a, Sphere b)
 	{
-		return linesegPoint(a._points.get(0).getPosition(),
-				a._points.get(1).getPosition(),
-				b._points.get(0).getPosition()) - a._radius - b._radius;
+		return linesegPoint(a._points[0].getPosition(),
+				a._points[1].getPosition(),
+				b._point.getPosition()) - a.getRadius() - b.getRadius();
 	}
 	
 	/**
@@ -240,12 +288,12 @@ public class Collision {
 		return Vector.normEuclid(dP);
 	}
 	
-	public double rodRod(SphereSweptVolume a, SphereSweptVolume b)
+	public double rodRod(Rod a, Rod b)
 	{
-		return linesegLineseg(a._points.get(0).getPosition(),
-				a._points.get(1).getPosition(),
-				b._points.get(0).getPosition(),
-				b._points.get(1).getPosition()) - a._radius - b._radius;
+		return linesegLineseg(a._points[0].getPosition(),
+				a._points[1].getPosition(),
+				b._points[0].getPosition(),
+				b._points[1].getPosition()) - a.getRadius() - b.getRadius();
 	}
 	
 	/**
@@ -266,9 +314,9 @@ public class Collision {
 		return Vector.dotProduct(normal, point) - d;
 	}
 	
-	public double planeSphere(Plane plane, SphereSweptVolume sphere)
+	public double planeSphere(Plane plane, Sphere sphere)
 	{
-		return planePoint(plane.normal, plane.d, sphere._points.get(0).getPosition()) - sphere._radius;
+		return planePoint(plane.normal, plane.d, sphere._point.getPosition()) - sphere.getRadius();
 	}
 	
 	/**
@@ -295,9 +343,9 @@ public class Collision {
 		}
 	}
 	
-	public double planeRod(Plane plane, SphereSweptVolume rod)
+	public double planeRod(Plane plane, Rod rod)
 	{
-		return planeLineSeg(plane.normal, plane.d, rod._points.get(0).getPosition(), rod._points.get(1).getPosition()) - rod._radius;
+		return planeLineSeg(plane.normal, plane.d, rod._points[0].getPosition(), rod._points[1].getPosition()) - rod.getRadius();
 	}
 
 	/**

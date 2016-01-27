@@ -17,11 +17,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import reaction.Reaction;
+import surface.Point;
 import linearAlgebra.Vector;
 import agent.Species;
 import agent.StateObject;
 import agent.body.Body;
-import agent.body.Point;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
 

@@ -1,5 +1,6 @@
 package processManager;
 
+import surface.Point;
 import linearAlgebra.Vector;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
