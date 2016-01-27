@@ -33,30 +33,44 @@ public class Body implements Copyable {
 		 */
 	}
 	
+	
+	// TODO some proper testing
 	/**
 	 * Coccoid
 	 */
-	public Body(Point point, double radius)
+	public Body(Point point, Agent agent)
 	{
 		this.points.add(point);
-		this.surfaces.add(new Sphere(point, radius));
+		this.surfaces.add(new Sphere(point, this));
 	}
 	
-	public Body(Sphere sphere)
+	public Body(Sphere sphere, Agent agent)
 	{
 		this.points.add(sphere._point);
+		sphere.setBody(this);
 		this.surfaces.add(sphere);
+		this.agent = agent;
 	}
 	
 	/**
 	 * Rod
 	 * @param rod
 	 */
-	public Body(Rod rod)
+	public Body(Point[] points, Agent agent)
+	{
+		this.points.add(points[0]);
+		this.points.add(points[1]);
+		this.surfaces.add(new Rod(points, this));
+		this.agent = agent;
+	}
+	
+	public Body(Rod rod, Agent agent)
 	{
 		this.points.add(rod._points[0]);
 		this.points.add(rod._points[1]);
+		rod.setBody(this);
 		this.surfaces.add(rod);
+		this.agent = agent;
 	}
 
 	
@@ -78,17 +92,20 @@ public class Body implements Copyable {
 		}
 	}
 
+	//TODO proper testing
 	public Body copy()
 	{
 		// TODO make for multishape bodies
 		switch (surfaces.get(0).type())
 		{
 		case SPHERE:
-			return new Body(new Sphere((Sphere) surfaces.get(0)));
+			return new Body(new Sphere((Sphere) surfaces.get(0)), this.agent);
 		case ROD:
-			return new Body(new Rod((Rod) surfaces.get(0)));
+			return new Body(new Rod((Rod) surfaces.get(0)), this.agent);
+		default:
+			return null;
 		}
-		return null;
+		
 	}
 	
     /**

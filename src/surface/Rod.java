@@ -37,6 +37,12 @@ public class Rod extends Surface{
 		this._radius = radius;
     }
 	
+    public Rod(Point[] points, Body body)
+    {
+    	this._points = points;
+    	this.body = body;
+    }
+	
 
 	public Rod(Rod rod) 
 	{
@@ -65,6 +71,11 @@ public class Rod extends Surface{
 		if (body == null)
 			return _length;
 		return body.getLength();
+	}
+	
+	public void setBody(Body body)
+	{
+		this.body = body;
 	}
 
 	//TODO

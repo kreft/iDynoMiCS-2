@@ -17,6 +17,12 @@ public class Sphere extends Surface{
     	this._point = point;
     	this._radius = radius;
     }
+    
+    public Sphere(Point point, Body body)
+    {
+    	this._point = point;
+    	this.body = body;
+    }
 
     /**
      * copy constructor
@@ -37,6 +43,11 @@ public class Sphere extends Surface{
 		if (body == null)
 			return _radius;
 		return body.getRadius();
+	}
+	
+	public void setBody(Body body)
+	{
+		this.body = body;
 	}
 	
 	//TODO
