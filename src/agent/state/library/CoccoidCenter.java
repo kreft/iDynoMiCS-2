@@ -1,8 +1,8 @@
-package agent.state.secondary;
+package agent.state.library;
 
 import utility.ExtraMath;
 import agent.Agent;
-import agent.body.Body;
+import agent.Body;
 import agent.state.SecondaryState;
 import agent.state.State;
 

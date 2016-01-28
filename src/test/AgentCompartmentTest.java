@@ -13,7 +13,7 @@ import processManager.WriteAgentsSvg;
 import surface.Point;
 import utility.ExtraMath;
 import agent.Agent;
-import agent.body.Body;
+import agent.Body;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
 import boundary.BoundaryCyclic;

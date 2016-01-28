@@ -4,7 +4,7 @@ import agent.Agent;
 import agent.state.PrimaryState;
 import agent.state.State;
 import agent.state.StateLoader;
-import agent.state.secondary.*;
+import agent.state.library.*;
 
 public class AgentStateExamples {
 

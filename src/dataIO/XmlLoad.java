@@ -19,9 +19,9 @@ import org.xml.sax.SAXException;
 import reaction.Reaction;
 import surface.Point;
 import linearAlgebra.Vector;
+import agent.Body;
 import agent.Species;
-import agent.StateObject;
-import agent.body.Body;
+import agent.AspectRegistry;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
 
@@ -71,7 +71,7 @@ public class XmlLoad {
 	 * @param stateObject
 	 * @param xmlNode
 	 */
-	public static void loadStates(StateObject stateObject, Node xmlNode)
+	public static void loadStates(AspectRegistry stateObject, Node xmlNode)
 	{
 		Element xmlAgent = (Element) xmlNode;
 		

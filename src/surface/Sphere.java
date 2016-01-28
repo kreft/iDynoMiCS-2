@@ -1,7 +1,7 @@
 package surface;
 
 import utility.Copier;
-import agent.body.Body;
+import agent.Body;
 
 
 public class Sphere extends Surface{

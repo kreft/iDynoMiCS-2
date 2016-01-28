@@ -1,4 +1,4 @@
-package agent.body;
+package agent;
 
 import java.util.HashMap;
 
@@ -7,6 +7,8 @@ import boundary.PeriodicAgentBoundary;
 import linearAlgebra.Vector;
 
 /**
+ * TODO: this class will be removed and replaced by the new collision class in the surface package
+ * 
  * FIXME: Bas - Think of a better name for this class..
  * \brief methods used in collision/attraction detection and response
  * 

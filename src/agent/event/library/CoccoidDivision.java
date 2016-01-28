@@ -4,7 +4,7 @@ import surface.Point;
 import utility.ExtraMath;
 import linearAlgebra.Vector;
 import agent.Agent;
-import agent.body.Body;
+import agent.Body;
 import agent.event.Event;
 
 public class CoccoidDivision extends Event {

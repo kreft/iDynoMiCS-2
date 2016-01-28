@@ -5,7 +5,8 @@ import linearAlgebra.Vector;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import agent.Agent;
-import agent.body.*;
+import agent.Body;
+import agent.Volume;
 
 	////////////////////////
 	// WORK IN PROGRESS, initial version

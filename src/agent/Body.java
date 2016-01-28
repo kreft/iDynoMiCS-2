@@ -1,4 +1,4 @@
-package agent.body;
+package agent;
 
 import generalInterfaces.Copyable;
 import idynomics.NameRef;
@@ -6,7 +6,6 @@ import idynomics.NameRef;
 import java.util.LinkedList;
 import java.util.List;
 
-import agent.Agent;
 import surface.*;
 
 public class Body implements Copyable {

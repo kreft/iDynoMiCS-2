@@ -1,21 +1,14 @@
 package agent;
-
-import java.util.HashMap;
 import java.util.LinkedList;
 
 import org.w3c.dom.Node;
 
 import dataIO.XmlLoad;
-import agent.state.PrimaryState;
+import agent.event.Event;
 import agent.state.State;
 
-public class Species implements StateObject 
+public class Species extends AspectRegistry 
 {
-	/**
-	 * The states HashMap stores all primary and secondary states.
-	 */
-	protected HashMap<String, State> _states = new HashMap<String, State>();
-	
 	/**
 	 * The speciesModules List contains all Species modules incorporated in this
 	 * Species(module).
@@ -75,40 +68,7 @@ public class Species implements StateObject
 		System.out.println("Warning: could not find state: " + name);
 		return null;
 	}
-	
-	
-	/**
-	 * \brief general setter method for any Agent state
-	 * @param name
-	 * 			name of the state (String)
-	 * @param state
-	 * 			Object that contains the value of the state.
-	 */
-	public void setState(String name, State state)
-	{
-		_states.put(name, state);
-	}
-	
-	public void setPrimary(String name, Object state)
-	{
-		State aState = new PrimaryState();
-		aState.set(state);
-		_states.put(name, aState);
-	}
 
-	/**
-	 * set should be able to handle any type of state you throw at it.
-	 * @param name
-	 * @param state
-	 */
-	public void set(String name, Object state)
-	{
-		if (state instanceof State)
-			setState(name,(State) state);
-		else 
-			setPrimary(name, state);
-	}
-	
 	public void addSpeciesModule(String name)
 	{
 		//FIXME: Bas [13.01.16] lets be sure we aren't adding a lot of void

@@ -10,7 +10,7 @@ import agent.state.*;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 
-public class Agent implements StateObject, Quizable
+public class Agent extends AspectRegistry implements Quizable
 {
 
 	/**
@@ -26,6 +26,13 @@ public class Agent implements StateObject, Quizable
 	 * renaming
 	 */
 	protected HashMap<String, State> _states = new HashMap<String, State>();
+	
+    /**
+	 * All activities owned by this Agent and whether they are currently enabled
+	 * or disabled.
+     */
+    protected HashMap<String, Event> _events = new HashMap<String, Event>();
+	
     
     /**
      * Used to fetch species states.
@@ -93,11 +100,6 @@ public class Agent implements StateObject, Quizable
 		}
 	}
 	
-	public boolean isLocalState(String name)
-	{
-		return _states.containsKey(name) ? true : false;
-	}
-	
 	public boolean isGlobalState(String name)
 	{
 		return isLocalState(name) ? true : species.isGlobalState(name);
@@ -130,6 +132,11 @@ public class Agent implements StateObject, Quizable
 		State aState = new PrimaryState();
 		aState.set(state);
 		_states.put(name, aState);
+	}
+	
+	public void setEvent(String name, Event event)
+	{
+		_events.put(name, event);
 	}
 
 	/**
@@ -176,7 +183,7 @@ public class Agent implements StateObject, Quizable
 	
 	public void event(String event, Agent compliant, Double timestep)
 	{
-		Object myEvent = this.get(event);
+		Event myEvent = _events.get(event);
 		if (myEvent != null)
 			((Event) myEvent).start(this, compliant, timestep);
 	}
@@ -197,7 +204,6 @@ public class Agent implements StateObject, Quizable
 	public int identity() {
 		return uid;
 	}
-
 	
 	/*************************************************************************
 	 * REPORTING
