@@ -98,9 +98,9 @@ public abstract class ProcessManager
 	
 	public void step(EnvironmentContainer environment, AgentContainer agents)
 	{
-//		System.out.println("STEP");//bughunt
-//		System.out.println("timeForNextStep = "+_timeForNextStep);//bughunt
-//		System.out.println("timeStepSize = "+_timeStepSize);//bughunt
+		//System.out.println("STEP");//bughunt
+		//System.out.println("timeForNextStep = "+_timeForNextStep);//bughunt
+		//System.out.println("timeStepSize = "+_timeStepSize);//bughunt
 		/*
 		 * This is where subclasses of Mechanism do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
