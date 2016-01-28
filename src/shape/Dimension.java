@@ -1,7 +1,5 @@
 package shape;
 
-import java.util.Arrays;
-
 import boundary.Boundary;
 import generalInterfaces.CanPrelaunchCheck;
 

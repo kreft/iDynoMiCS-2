@@ -2,16 +2,13 @@ package grid;
 
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 
 /**
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
@@ -582,7 +579,7 @@ public abstract class PolarGrid extends SpatialGrid {
 	public int nt(int r, int p){
 		// number of rows
 		int np=np(r);
-		// index of row where p>90°
+		// index of row where p>90ï¿½
 		double ir = np/_ires[2]*_res[2][0];
 		// p>=np and p<0 need to be considered for neighbors
 		return (int)((((p<ir || p>=np) && p>=0) ? p+1 : np-p)*_ires[1]);
@@ -597,7 +594,7 @@ public abstract class PolarGrid extends SpatialGrid {
 	public int n(int r, int p){
 		// number of rows
 		int np=np(r);
-		// index of row where p>90°
+		// index of row where p>90ï¿½
 		double ir = np/_ires[2]*_res[2][0];
 		return (int)(((p<ir || p>=np) && p>=0) ? 
 				1.0/2*_ires[1]*p*(p+1)

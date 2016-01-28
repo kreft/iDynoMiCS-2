@@ -3,7 +3,7 @@ package grid;
 import java.util.HashMap;
 
 import linearAlgebra.PolarArray;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 
 /**
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
