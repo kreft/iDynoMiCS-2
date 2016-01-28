@@ -12,6 +12,7 @@ import shape.ShapeConventions.BoundarySide;
 import shape.Shape;
 import linearAlgebra.Vector;
 import reaction.Reaction;
+import utility.ExtraMath;
 
 public class EnvironmentContainer
 {

@@ -212,6 +212,7 @@ In the command line, this is done like so:
 ``` bash
 git config --global core.autocrlf true
 ```
+<<<<<<< a903bf5337293f5aa6e65185692225cc7b95bfea
 <<<<<<< 292354f7e848348fb3a908acbbe6560078be654d
 
 ## GitHub hacks
@@ -223,3 +224,5 @@ If you've configured Git nicely and yet it still misbehaves, try these little ha
 | Change the tab size | ?ts=4 |
 =======
 >>>>>>> line endings, encoding
+=======
+>>>>>>> resolve conflicts
