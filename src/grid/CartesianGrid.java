@@ -1,7 +1,6 @@
 package grid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
@@ -9,7 +8,7 @@ import java.util.function.DoubleFunction;
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import linearAlgebra.*;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 
 /**
  *\brief 

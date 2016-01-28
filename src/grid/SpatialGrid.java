@@ -1,9 +1,10 @@
 package grid;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import grid.GridBoundary.GridMethod;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.
@@ -209,11 +210,13 @@ public abstract class SpatialGrid
 	
 	public void addBoundary(BoundarySide side, GridMethod method)
 	{
-		//System.out.println("Adding method to "+side.name()+" boundary"); //bughunt
 		this._boundaries.put(side, method);
 	}
 	
-	//public abstract ArrayList<BoundarySide> boundariesNextTo(int[] coords);
+	public Set<BoundarySide> getBoundarySides()
+	{
+		return this._boundaries.keySet();
+	}
 	
 	protected abstract BoundarySide isOutside(int[] coord);
 	

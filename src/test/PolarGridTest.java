@@ -5,7 +5,7 @@ import java.util.Scanner;
 import boundary.BoundaryFixed;
 import grid.SpatialGrid.ArrayType;
 import grid.SphericalGrid;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 import test.plotting.PolarGridPlot3D;
 
 public class PolarGridTest {
