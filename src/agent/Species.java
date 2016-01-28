@@ -1,13 +1,13 @@
 package agent;
+
 import java.util.LinkedList;
 
 import org.w3c.dom.Node;
 
 import dataIO.XmlLoad;
-import agent.event.Event;
 import agent.state.State;
 
-public class Species extends AspectRegistry 
+public class Species extends AspectRegistry
 {
 	/**
 	 * The speciesModules List contains all Species modules incorporated in this
@@ -30,11 +30,6 @@ public class Species extends AspectRegistry
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
-	public boolean isLocalState(String name)
-	{
-		return _states.containsKey(name) ? true : false;
-	}
-	
 	public boolean isGlobalState(String name)
 	{
 		if (_states.containsKey(name))
@@ -43,10 +38,7 @@ public class Species extends AspectRegistry
 			for (Species m : speciesModules)
 				if(m.isGlobalState(name) == true)
 					return true;
-		
 		return false;
-			
-		// update this method if a higher order StateObject class is created
 	}
 	
 	/**
@@ -68,7 +60,7 @@ public class Species extends AspectRegistry
 		System.out.println("Warning: could not find state: " + name);
 		return null;
 	}
-
+	
 	public void addSpeciesModule(String name)
 	{
 		//FIXME: Bas [13.01.16] lets be sure we aren't adding a lot of void

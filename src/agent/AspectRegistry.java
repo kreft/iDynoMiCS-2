@@ -2,22 +2,15 @@ package agent;
 
 import java.util.HashMap;
 
-import agent.event.Event;
 import agent.state.PrimaryState;
 import agent.state.State;
 
 public abstract class AspectRegistry {
 	
 	/**
-	 * The states HashMap stores all primary and secondary states.
+	 * The states HashMap stores all primary, secondary states and events.
 	 */
 	protected HashMap<String, State> _states = new HashMap<String, State>();
-	
-    /**
-	 * All activities owned by this Agent and whether they are currently enabled
-	 * or disabled.
-     */
-    protected HashMap<String, Event> _events = new HashMap<String, Event>();
     
     public abstract State getState(String state);
     
@@ -35,21 +28,16 @@ public abstract class AspectRegistry {
 	 * @param state
 	 * 			Object that contains the value of the state.
 	 */
-	public void setState(String name, State state)
+	private void setState(String name, State state)
 	{
 		_states.put(name, state);
 	}
 	
-	public void setPrimary(String name, Object state)
+	private void setPrimary(String name, Object state)
 	{
 		State aState = new PrimaryState();
 		aState.set(state);
 		_states.put(name, aState);
-	}
-	
-	public void setEvent(String name, Event event)
-	{
-		_events.put(name, event);
 	}
 
 	/**

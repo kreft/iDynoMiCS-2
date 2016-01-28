@@ -68,10 +68,10 @@ public class XmlLoad {
 	/**
 	 * Loads all states from xmlNode into anything that implements the
 	 * StateObject interface.
-	 * @param stateObject
+	 * @param aspectReg
 	 * @param xmlNode
 	 */
-	public static void loadStates(AspectRegistry stateObject, Node xmlNode)
+	public static void loadStates(AspectRegistry aspectReg, Node xmlNode)
 	{
 		Element xmlAgent = (Element) xmlNode;
 		
@@ -84,27 +84,27 @@ public class XmlLoad {
 				switch (s.getAttribute("type")) 
 				{
 					case "boolean" : 
-						stateObject.setPrimary(s.getAttribute("name"), 
+						aspectReg.set(s.getAttribute("name"), 
 								Boolean.valueOf(s.getAttribute("value")));
 	                	break;
 					case "int" : 
-						stateObject.setPrimary(s.getAttribute("name"), 
+						aspectReg.set(s.getAttribute("name"), 
 								Integer.valueOf(s.getAttribute("value")));
 	                	break;
 					case "double" : 
-						stateObject.setPrimary(s.getAttribute("name"), 
+						aspectReg.set(s.getAttribute("name"), 
 								Double.valueOf(s.getAttribute("value")));
 	                	break;
 					case "String" : 
-						stateObject.setPrimary(s.getAttribute("name"), 
+						aspectReg.set(s.getAttribute("name"), 
 								s.getAttribute("value"));
 	                	break;
 					case "secondary" : 
-						stateObject.setState(s.getAttribute("name"), 
+						aspectReg.set(s.getAttribute("name"), 
 								StateLoader.getSecondary(s.getAttribute("value"), s.getAttribute("input")));
 	                	break;
 					case "event" :
-						stateObject.setPrimary(s.getAttribute("name"), // TODO Bas do some proper testing, checking
+						aspectReg.set(s.getAttribute("name"), // TODO Bas do some proper testing, checking
 								EventLoader.getEvent(s.getAttribute("value"), s.getAttribute("input")));
 				}
 			}
@@ -122,7 +122,7 @@ public class XmlLoad {
 							pointList.add(new Point(Vector.dblFromString(
 									point.getAttribute("position"))));
 						}
-						stateObject.setPrimary("body", new Body(pointList));
+						aspectReg.set("body", new Body(pointList));
 						break;
 					case "reactions" :
 						List<Reaction> reactions = new LinkedList<Reaction>();
@@ -133,7 +133,7 @@ public class XmlLoad {
 							reactions.add(new Reaction(
 									reaction.getAttribute("somethingReact")));
 						}
-						stateObject.setPrimary("reactions", reactions);
+						aspectReg.set("reactions", reactions);
 						break;
 				}
 			}

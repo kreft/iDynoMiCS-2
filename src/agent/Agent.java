@@ -1,7 +1,4 @@
 package agent;
-
-import java.util.HashMap;
-
 import org.w3c.dom.Node;
 
 import dataIO.XmlLoad;
@@ -20,20 +17,6 @@ public class Agent extends AspectRegistry implements Quizable
 	protected static int UNIQUE_ID = 0;
     final int uid = ++UNIQUE_ID;
 
-	/**
-	 * The states HashMap stores all primary and secondary states.
-	 * FIXME Bas: now also includes all events an agent can perform.. consider
-	 * renaming
-	 */
-	protected HashMap<String, State> _states = new HashMap<String, State>();
-	
-    /**
-	 * All activities owned by this Agent and whether they are currently enabled
-	 * or disabled.
-     */
-    protected HashMap<String, Event> _events = new HashMap<String, Event>();
-	
-    
     /**
      * Used to fetch species states.
      */
@@ -93,7 +76,8 @@ public class Agent extends AspectRegistry implements Quizable
 		//return (isLocalState(name) ?  _states.get(name) : null);
 		if (isLocalState(name))
 			return _states.get(name);
-		else
+		else if (isGlobalState(name))
+			return species.getState(name);	 
 		{
 			System.out.println("Warning: agent state " + name + " not defined.");
 			return null;
@@ -112,46 +96,9 @@ public class Agent extends AspectRegistry implements Quizable
 	 */
 	public Object get(String name)
 	{
-		return this.isLocalState(name) ? getState(name).get(this) : species.getState(name).get(this);
-	}
-	
-	/**
-	 * \brief general setter method for any Agent state
-	 * @param name
-	 * 			name of the state (String)
-	 * @param state
-	 * 			Object that contains the value of the state.
-	 */
-	public void setState(String name, State state)
-	{
-		_states.put(name, state);
-	}
-	
-	public void setPrimary(String name, Object state)
-	{
-		State aState = new PrimaryState();
-		aState.set(state);
-		_states.put(name, aState);
-	}
-	
-	public void setEvent(String name, Event event)
-	{
-		_events.put(name, event);
+		return getState(name).get(this);
 	}
 
-	/**
-	 * set should be able to handle any type of state you throw at it.
-	 * @param name
-	 * @param state
-	 */
-	public void set(String name, Object state)
-	{
-		if (state instanceof State)
-			setState(name,(State) state);
-		else
-			setPrimary(name, state);
-	}
-	
 	public Compartment getCompartment()
 	{
 		return compartment;
@@ -183,7 +130,7 @@ public class Agent extends AspectRegistry implements Quizable
 	
 	public void event(String event, Agent compliant, Double timestep)
 	{
-		Event myEvent = _events.get(event);
+		Object myEvent = this.get(event);
 		if (myEvent != null)
 			((Event) myEvent).start(this, compliant, timestep);
 	}
@@ -204,6 +151,7 @@ public class Agent extends AspectRegistry implements Quizable
 	public int identity() {
 		return uid;
 	}
+
 	
 	/*************************************************************************
 	 * REPORTING
