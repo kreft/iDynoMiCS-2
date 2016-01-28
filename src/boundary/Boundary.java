@@ -22,6 +22,8 @@ public class Boundary implements CanPrelaunchCheck
 {
 	/**
 	 * The shape this Boundary takes (e.g. Plane, Sphere).
+	 * 
+	 * FIXME this should change to surface
 	 */
 	protected Shape _shape;
 	
@@ -40,18 +42,9 @@ public class Boundary implements CanPrelaunchCheck
 											new HashMap<String,GridMethod>();
 	
 	/**
-	 * The agent method this boundary should use for any variable that is not
-	 * named in the dictionary {@link #_agentMethods}. 
+	 * The agent method this boundary should use for any agent. 
 	 */
-	protected AgentMethod _defaultAgentMethod;
-	
-	/**
-	 * Dictionary of grid methods that this boundary should use for each
-	 * species. If a variable is not in this list, use the default,
-	 * {@link #_defaultAgentMethod}, instead.
-	 */
-	protected HashMap<String,AgentMethod> _agentMethods = 
-											new HashMap<String,AgentMethod>();
+	protected AgentMethod _agentMethod;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -158,9 +151,9 @@ public class Boundary implements CanPrelaunchCheck
 	 * @param speciesName
 	 * @param aMethod
 	 */
-	public void setAgentMethod(String speciesName, AgentMethod aMethod)
+	public void setAgentMethod(AgentMethod aMethod)
 	{
-		this._agentMethods.put(speciesName, aMethod);
+		this._agentMethod = aMethod;
 	}
 	
 	/**
@@ -169,12 +162,9 @@ public class Boundary implements CanPrelaunchCheck
 	 * @param speciesName
 	 * @return
 	 */
-	public AgentMethod getAgentMethod(String speciesName)
+	public AgentMethod getAgentMethod()
 	{
-		if ( this._agentMethods.containsKey(speciesName) )
-			return this._agentMethods.get(speciesName);
-		else
-			return this._defaultAgentMethod;
+		return this._agentMethod;
 	}
 	
 	/*************************************************************************

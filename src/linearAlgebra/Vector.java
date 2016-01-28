@@ -1334,13 +1334,16 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Take a subset of the given <b>vector</b> and return it as a new
+	 * vector.
 	 * 
-	 * @param vector
-	 * @param stop
-	 * @return
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param stop int index of <b>vector</b> to stop at (exclusive).
+	 * @return New double array of <b>vector</b>[0, ..., stop-1].
 	 */
 	public static double[] subset(double[] vector, int stop)
 	{
+		// TODO safety if stop > vector.length?
 		double[] out = new double[stop];
 		for ( int i = 0; i < out.length; i++ )
 			out[i] = vector[i];
@@ -2270,11 +2273,13 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Find the mid-point of two vectors, writing the result into 
+	 * <b>destination</b>.
 	 * 
-	 * @param destination
-	 * @param a
-	 * @param b
+	 * @param destination  One-dimensional array of doubles to be overwritten.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @see #midPoint(double[], double[])
 	 */
 	public static void midPointTo(double[] destination, double[] a, double[] b)
 	{
@@ -2285,11 +2290,13 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Find the mid-point of two vectors, giving the result as a new
+	 * vector.
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return New one-dimensional array of doubles with the mid-point of
+	 * <b>a</b> and <b>b</b>.
 	 */
 	public static double[] midPoint(double[] a, double[] b)
 	{
@@ -2330,9 +2337,9 @@ public final class Vector
 		double[] p = new double[cartesian.length];
 		switch ( cartesian.length ) 
 		{
-			case 3 : p[2] = Math.acos(cartesian[2]/normEuclid(cartesian));
+			case 3 : p[2] = Math.acos(cartesian[2]/polarRadius(cartesian));
 			case 2 : p[1] = Math.atan2(cartesian[1], cartesian[0]);
-			case 1 : p[0] = normEuclid(cartesian);
+			case 1 : p[0] = polarRadius(cartesian);
 		}
 		return p;
 	}
@@ -2368,7 +2375,7 @@ public final class Vector
 	{
 		if(cartesian.length == 3)
 		{
-			double[] p = toPolar(new double[] {cartesian[0], cartesian[1]});
+			double[] p = toPolar(Vector.subset(cartesian, 2));
 			return new double[] {p[0], p[1], cartesian[2]};
 		}
 		System.out.println("ERROR: Vector.toCylindrical only accepts 3D input!"); 
@@ -2385,7 +2392,8 @@ public final class Vector
 	{
 		if(cylindrical.length == 3)
 		{
-			double[] p = toCartesian(new double[] {cylindrical[0], cylindrical[1]});
+			
+			double[] p = toCartesian(Vector.subset(cylindrical, 2));
 			return new double[] {p[0], p[1], cylindrical[2]};
 		}
 		System.out.println("ERROR: Vector.cylindricalToCartesian only accepts 3D input!"); 

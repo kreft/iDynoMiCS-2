@@ -170,7 +170,7 @@ public class EnvironmentContainer
 	 */
 	public double[] getEdgeLengths()
 	{
-		return _shape.getEdgeLengths();
+		return _shape.getDimensionLengths();
 	}
 	
 	/*************************************************************************

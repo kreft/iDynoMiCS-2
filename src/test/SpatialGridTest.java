@@ -66,18 +66,19 @@ public class SpatialGridTest
 	private static void comaprtmentIteratorTest()
 	{
 		Compartment aCompartment = new Compartment("rectangle");
-		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
-		aCompartment.addSolute("test");
+		/* Set up the dimensions and boundaries. */
 		Boundary xmin = new BoundaryFixed();
 		ConstantDirichlet testXmin = new ConstantDirichlet();
 		testXmin.setValue(1.0);
 		xmin.setGridMethod("test", testXmin);
-		aCompartment.addBoundary("xmin", xmin);
+		aCompartment.getShape().setBoundary("X", xmin, true);
 		Boundary xmax = new BoundaryFixed();
 		ConstantDirichlet testXmax = new ConstantDirichlet();
 		testXmax.setValue(0.0);
 		xmax.setGridMethod("test", testXmax);
-		aCompartment.addBoundary("xmax", xmax);
+		aCompartment.getShape().setBoundary("X", xmax, false);
+		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
+		aCompartment.addSolute("test");
 		aCompartment.init();
 		
 		SpatialGrid grid = aCompartment.getSolute("test");

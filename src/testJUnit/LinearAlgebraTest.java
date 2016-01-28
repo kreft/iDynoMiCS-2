@@ -7,6 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import static testJUnit.AllTests.TOLERANCE;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import utility.ExtraMath;
@@ -18,8 +19,6 @@ import utility.ExtraMath;
  */
 public class LinearAlgebraTest
 {
-	double TOLERANCE = 1E-6;
-	
 	@Test
 	public void multiplicationOfZeroVectorShouldReturnZero()
 	{
@@ -186,5 +185,72 @@ public class LinearAlgebraTest
 		v[0] = -1; v[1] = 4; v[2] = 5;
 		w = Vector.minus(v, u);
 		assertTrue("Q20", Vector.areSame(w, new double[]{-2, 4, 2}));
+	}
+	
+	@Test
+	public void cartesianPolarExercises()
+	{
+		double[] cartesianOriginal, cartesianReturned,
+					polarOriginal, polarReturned;
+		/* **************** Cartesian -> polar -> Cartesian **************** */
+		/* 1D
+		 * Note that a negative input is nonsensical here.
+		 */
+		cartesianOriginal = new double[]{4.6};
+		polarOriginal = Vector.toPolar(cartesianOriginal);
+		cartesianReturned = Vector.toCartesian(polarOriginal);
+		assertTrue("Cartesian -> Polar -> Cartesian (1D)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		/* 2D */
+		cartesianOriginal = new double[]{-1.0, -2.0};
+		polarOriginal = Vector.toPolar(cartesianOriginal);
+		cartesianReturned = Vector.toCartesian(polarOriginal);
+		assertTrue("Cartesian -> Polar -> Cartesian (2D)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		/* 3D */
+		cartesianOriginal = new double[]{1.0, 2.0, 3.0};
+		polarOriginal = Vector.toPolar(cartesianOriginal);
+		cartesianReturned = Vector.toCartesian(polarOriginal);
+		assertTrue("Cartesian -> Polar -> Cartesian (3D)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		
+		
+		
+		polarOriginal = new double[]{Math.sqrt(2.0), 0.25*Math.PI};
+		cartesianOriginal = new double[]{1.0, 1.0};
+		cartesianReturned = Vector.toCartesian(polarOriginal);
+		assertTrue("pol(sqrt2,pi/4,0) -> car(1,1,0)",
+				Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+	}
+	
+	@Test
+	public void cylinderCartesianExercises()
+	{
+		double[] cartesianOriginal, cartesianReturned,
+					cylindricalOriginal, cylindricalReturned;
+		/*
+		 * 
+		 */
+		cylindricalOriginal = new double[]{1.0, Math.PI, 0.0};
+		cartesianOriginal = new double[]{-1.0, 0.0, 0.0};
+		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		assertTrue("cyl(1,pi,0) -> car(-1,0,0)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		cylindricalOriginal[1] = 0.5 * Math.PI;
+		cartesianOriginal[0] = 0.0; cartesianOriginal[1] = 1.0;
+		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		assertTrue("cyl(1,pi/2,0) -> car(0,1,0)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		cylindricalOriginal[1] = 1.5 * Math.PI;
+		cartesianOriginal[0] = 0.0; cartesianOriginal[1] = -1.0;
+		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		assertTrue("cyl(1,3pi/2,0) -> car(0,-1,0)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		cylindricalOriginal[0] = Math.sqrt(2.0);
+		cylindricalOriginal[1] = 0.25 * Math.PI;
+		cartesianOriginal[0] = 1.0; cartesianOriginal[1] = 1.0;
+		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		assertTrue("cyl(sqrt2,pi/4,0) -> car(1,1,0)",
+			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
 	}
 }

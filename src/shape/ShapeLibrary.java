@@ -5,6 +5,7 @@ package shape;
 
 import grid.CartesianGrid;
 import grid.SpatialGrid.GridGetter;
+import linearAlgebra.Vector;
 
 /**
  * 
@@ -21,13 +22,22 @@ public final class ShapeLibrary
 		public Dimensionless()
 		{
 			super();
-			this._nDim = 0;
 		}
 		@Override
 		public GridGetter gridGetter()
 		{
 			// TODO Make DummyGrid?
 			return CartesianGrid.dimensionlessGetter();
+		}
+		
+		public double[] getLocalPosition(double[] location)
+		{
+			return location;
+		}
+		
+		public double[] getGlobalLocation(double[] local)
+		{
+			return local;
 		}
 	}
 	
@@ -40,7 +50,8 @@ public final class ShapeLibrary
 		public Line()
 		{
 			super();
-			this._nDim = 1;
+			this._dimensions.put(Shape.DimName.X, new Dimension());
+			
 			this._requiredBoundarySides.add(BoundarySide.XMIN);
 			this._requiredBoundarySides.add(BoundarySide.XMAX);
 		}
@@ -51,6 +62,16 @@ public final class ShapeLibrary
 			// TODO Make 1D, 2D, and 3D getters?
 			return CartesianGrid.standardGetter();
 		}
+		
+		public double[] getLocalPosition(double[] location)
+		{
+			return location;
+		}
+		
+		public double[] getGlobalLocation(double[] local)
+		{
+			return local;
+		}
 	}
 	
 	public static class Rectangle extends Line
@@ -58,7 +79,7 @@ public final class ShapeLibrary
 		public Rectangle()
 		{
 			super();
-			this._nDim = 2;
+			this._dimensions.put(Shape.DimName.Y, new Dimension());
 			this._requiredBoundarySides.add(BoundarySide.YMIN);
 			this._requiredBoundarySides.add(BoundarySide.YMAX);
 		}
@@ -69,10 +90,11 @@ public final class ShapeLibrary
 		public Cuboid()
 		{
 			super();
-			this._nDim = 3;
+			this._dimensions.put(Shape.DimName.Z, new Dimension());
 			this._requiredBoundarySides.add(BoundarySide.ZMIN);
 			this._requiredBoundarySides.add(BoundarySide.ZMAX);
 		}
+		
 	}
 	
 	/*************************************************************************
@@ -84,6 +106,10 @@ public final class ShapeLibrary
 		public Polar()
 		{
 			super();
+			/* There is no need for an r-min boundary. */
+			Dimension dim = new Dimension();
+			dim.setBoundaryOptional(true);
+			this._dimensions.put(Shape.DimName.R, dim);
 			this._requiredBoundarySides.add(BoundarySide.RMAX);
 		}
 	}
@@ -93,7 +119,13 @@ public final class ShapeLibrary
 		public Circle()
 		{
 			super();
-			this._nDim = 2;
+			/*
+			 * Set to a full circle by default, let it be overwritten later.
+			 */
+			Dimension dim = new Dimension();
+			dim.setCyclic();
+			dim.setLength(2 * Math.PI);
+			this._dimensions.put(Shape.DimName.THETA, dim);
 		}
 		
 		@Override
@@ -102,6 +134,16 @@ public final class ShapeLibrary
 			// TODO Make (2D?) getter for CylindricalGrid
 			return null;
 		}
+		
+		public double[] getLocalPosition(double[] location)
+		{
+			return Vector.toPolar(location);
+		}
+		
+		public double[] getGlobalLocation(double[] local)
+		{
+			return Vector.toCartesian(local);
+		}
 	}
 	
 	public static class Cylinder extends Circle
@@ -109,9 +151,21 @@ public final class ShapeLibrary
 		public Cylinder()
 		{
 			super();
-			this._nDim = 3;
+			this._dimensions.put(Shape.DimName.Z, new Dimension());
 			this._requiredBoundarySides.add(BoundarySide.ZMIN);
 			this._requiredBoundarySides.add(BoundarySide.ZMAX);
+		}
+		
+		@Override
+		public double[] getLocalPosition(double[] location)
+		{
+			return Vector.toCylindrical(location);
+		}
+		
+		@Override
+		public double[] getGlobalLocation(double[] local)
+		{
+			return Vector.cylindricalToCartesian(local);
 		}
 	}
 	
@@ -120,7 +174,17 @@ public final class ShapeLibrary
 		public Sphere()
 		{
 			super();
-			this._nDim = 3;
+			/*
+			 * Set full angular dimensions by default, can be overwritten later.
+			 */
+			Dimension dim = new Dimension();
+			dim.setCyclic();
+			dim.setLength(Math.PI);
+			this._dimensions.put(Shape.DimName.PHI, dim);
+			dim = new Dimension();
+			dim.setCyclic();
+			dim.setLength(2 * Math.PI);
+			this._dimensions.put(Shape.DimName.THETA, dim);
 		}
 		
 		@Override
@@ -128,6 +192,16 @@ public final class ShapeLibrary
 		{
 			// TODO Make getter for SphericalGrid
 			return null;
+		}
+		
+		public double[] getLocalPosition(double[] location)
+		{
+			return Vector.toPolar(location);
+		}
+		
+		public double[] getGlobalLocation(double[] local)
+		{
+			return Vector.toCartesian(local);
 		}
 	}
 }
