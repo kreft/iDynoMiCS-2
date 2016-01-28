@@ -212,3 +212,11 @@ In the command line, this is done like so:
 ``` bash
 git config --global core.autocrlf true
 ```
+
+## GitHub hacks
+If you've configured Git nicely and yet it still misbehaves, try these little hacks in your URL bar...
+
+| Problem             | Fix   |
+| ------------------- | ----- |
+| Ignore whitespace   | ?w=1  |
+| Change the tab size | ?ts=4 |
