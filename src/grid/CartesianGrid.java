@@ -12,7 +12,7 @@ import linearAlgebra.*;
 import shape.ShapeConventions.BoundarySide;
 
 /**
- * \brief 
+ * \brief TODO
  * 
  * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
  */
@@ -44,6 +44,7 @@ public class CartesianGrid extends SpatialGrid
 	 ************************************************************************/
 	
 	/**
+<<<<<<< 608e3632949b048948db0fb652602a1304ee7697
 	 * \brief Construct a CartesianGrid from a 3-vector of total dimension
 	 * sizes and corresponding methods for calculating voxel resolutions. 
 	 * 
@@ -77,6 +78,8 @@ public class CartesianGrid extends SpatialGrid
 	}
 	
 	/**
+=======
+>>>>>>> restructure shape package, needs further work
 	 * \brief TODO
 	 * 
 	 * @param nVoxel

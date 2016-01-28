@@ -3,19 +3,14 @@
  */
 package shape;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Set;
 
 import boundary.Boundary;
 import boundary.BoundaryConnected;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
