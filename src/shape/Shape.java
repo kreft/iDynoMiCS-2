@@ -3,12 +3,16 @@
  */
 package shape;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
 import boundary.Boundary;
+import boundary.BoundaryConnected;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
@@ -21,23 +25,28 @@ import linearAlgebra.Vector;
  */
 public abstract class Shape implements CanPrelaunchCheck, XMLable
 {
-	protected int _nDim;
+	public enum DimName
+	{
+		X, Y, Z, R, THETA, PHI;
+	}
+
 	/**
-	 * 3-dimensional vector describing the size of this shape.
-	 * 
-	 * <p>Even 0-, 1- and 2-dimensional shapes may need to have a thickness on
-	 * their "missing" dimension(s).</p>
+	 * Ordered dictionary of dimensions for this shape.
 	 */
-	protected double[] _lengths;
-	
+	protected LinkedHashMap<Shape.DimName, Dimension> _dimensions = 
+								 	   new LinkedHashMap<DimName, Dimension>();
 	/**
 	 * A list of boundary sides that must be specified.
+	 * 
+	 * TODO remove
 	 */
 	protected Collection<BoundarySide> _requiredBoundarySides;
 	
 	/**
 	 * Directory of boundaries that are linked to a specific side. There can
 	 * be only one boundary for each boundary side here.
+	 * 
+	 * TODO remove
 	 */
 	protected HashMap<BoundarySide, Boundary> _sideBoundaries;
 	
@@ -57,44 +66,109 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public Shape()
 	{
-		this._lengths = new double[3];
 		this._requiredBoundarySides = new LinkedList<BoundarySide>();
 		this._sideBoundaries = new HashMap<BoundarySide, Boundary>();
 		this._otherBoundaries = new LinkedList<Boundary>();
 	}
 	
 	/*************************************************************************
-	 * BASIC SETTERS & GETTERS
+	 * DIMENSIONS
 	 ************************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief Make the given dimension cyclic.
 	 * 
-	 * @return
+	 * @param dimensionName {@code String} name of the dimension. Lower/upper
+	 * case is irrelevant.
 	 */
-	public double[] getSideLengths()
+	public void makeCyclic(String dimensionName)
 	{
-		return Vector.copy(this._lengths);
+		this.makeCyclic(DimName.valueOf(dimensionName.toUpperCase()));
+	}
+	
+	protected Dimension getDimensionSafe(Shape.DimName dimension)
+	{
+		if ( this._dimensions.containsKey(dimension) )
+		{
+			Dimension dim = this._dimensions.get(dimension);
+			if ( dim == null )
+				this._dimensions.put(dimension, (dim = new Dimension()));
+			return dim;
+		}
+		else
+		{
+			// TODO safety
+			return null;
+		}
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Make the given dimension cyclic.
 	 * 
-	 * @param lengths
+	 * @param dimension {@code DimName} enumeration of the dimension.
 	 */
-	public void setSideLengths(double[] lengths)
+	public void makeCyclic(DimName dimension)
 	{
-		this._lengths = Vector.copy(lengths);
+		this.getDimensionSafe(dimension).setCyclic();
+	}
+	
+	public void setBoundary(DimName dimension, Boundary bndry, boolean setMin)
+	{
+		this.getDimensionSafe(dimension).setBoundary(bndry, setMin);
+	}
+	
+	
+	/**
+	 * \brief Set the minimum and maximum boundaries for the given dimension.
+	 * 
+	 * @param dimensionName {@code String} name of the dimension.
+	 * @param bndry
+	 * @param setMin
+	 */
+	public void setBoundary(String dimension, Boundary bndry, boolean setMin)
+	{
+		this.setBoundary(DimName.valueOf(dimension), bndry, setMin);
+	}
+	
+	
+	/**
+	 * \brief Gets the side lengths of only the significant dimensions.
+	 * 
+	 * @param lengths {@code double} array of significant side lengths.
+	 * @see #getSideLengths()
+	 */
+	public double[] getDimensionLengths()
+	{
+		double[] out = new double[this._dimensions.size()];
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			out[i] = dim.getLength();
+			i++;
+		}
+		return out;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the dimension lengths of this shape.
 	 * 
-	 * @param lengths
+	 * <p>NOTE: If <b>lengths</b> has more than elements than this shape has
+	 * dimensions, the extra elements will be ignored. If <b>lengths</b> has
+	 * fewer elements than this shape has dimensions, the remaining dimensions
+	 * will be given length zero.</p>
+	 * 
+	 * @param lengths {@code double} array of dimension lengths.
 	 */
-	public double[] getEdgeLengths()
+	public void setDimensionLengths(double[] lengths)
 	{
-		return Vector.subset(this._lengths, this._nDim);
+		int i = 0;
+		Dimension dim;
+		for ( DimName d : this._dimensions.keySet() )
+		{
+			dim = this.getDimensionSafe(d);
+			dim.setLength(( i < lengths.length ) ? lengths[i] : 0.0);
+			i++;
+		}
 	}
 	
 	/**
@@ -107,8 +181,12 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public int getNumberOfDimensions()
 	{
-		return this._nDim;
+		return this._dimensions.size();
 	}
+	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -116,6 +194,10 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * @return
 	 */
 	public abstract GridGetter gridGetter();
+	
+	protected abstract double[] getLocalPosition(double[] cartesian);
+	
+	protected abstract double[] getGlobalLocation(double[] local);
 	
 	/*************************************************************************
 	 * BOUNDARIES
@@ -158,9 +240,17 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * 
 	 * @return
 	 */
-	public Collection<Boundary> getSideBoundaries()
+	public Collection<BoundaryConnected> getConnectedBoundaries()
 	{
-		return this._sideBoundaries.values();
+		LinkedList<BoundaryConnected> cB = new LinkedList<BoundaryConnected>();
+		for ( Dimension dim : this._dimensions.values() )
+				for ( Boundary b : dim.getBoundaries() )
+					if ( b instanceof BoundaryConnected )
+						cB.add((BoundaryConnected) b);
+		for ( Boundary b : this._otherBoundaries )
+			if ( b instanceof BoundaryConnected )
+				cB.add((BoundaryConnected) b);
+		return cB;
 	}
 	
 	/**
@@ -171,6 +261,116 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public Collection<Boundary> getOtherBoundaries()
 	{
 		return this._otherBoundaries;
+	}
+	
+	/**
+	 * \brief Check if a given location is inside this shape.
+	 * 
+	 * @param location 
+	 * @return
+	 */
+	public boolean isInside(double[] location)
+	{
+		double[] position = this.getLocalPosition(location);
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			if ( ! dim.isInside(position[i]) )
+				return false;
+			i++;
+		}
+		return true;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param location
+	 */
+	public void applyBoundaries(double[] location)
+	{
+		double[] position = this.getLocalPosition(location);
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			position[i] = dim.applyBoundary(position[i]);
+			i++;
+		}
+		Vector.copyTo(location, this.getGlobalLocation(position));
+	}
+	
+	/**
+	 * \brief Find all neighbouring points in space that would  
+	 * 
+	 * <p>For use by the R-Tree.</p>
+	 * 
+	 * @param location
+	 * @return
+	 */
+	public LinkedList<double[]> getCyclicPoints(double[] location)
+	{
+		// TODO safety with vector length
+		/*
+		 * Find all the cyclic points in 
+		 */
+		double[] position = this.getLocalPosition(location);
+		LinkedList<double[]> localPoints = new LinkedList<double[]>();
+		localPoints.add(position);
+		LinkedList<double[]> temp = new LinkedList<double[]>();
+		double[] newPoint;
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			if ( dim.isCyclic() )
+			{
+				// TODO We don't need these in an angular dimension with 2 * pi
+				for ( double[] loc : localPoints )
+				{
+					/* Add the point below. */
+					newPoint = Vector.copy(loc);
+					newPoint[i] -= dim.getLength();
+					temp.add(newPoint);
+					/* Add the point above. */
+					newPoint = Vector.copy(loc);
+					newPoint[i] += dim.getLength();
+					temp.add(newPoint);
+				}
+				/* Transfer all from temp to out. */
+				localPoints.addAll(temp);
+				temp.clear();
+			}
+			/* Increment the dimension iterator, even if this isn't cyclic. */
+			i++;
+		}
+		/* Convert everything back into global coordinates and return. */
+		LinkedList<double[]> out = new LinkedList<double[]>();
+		for ( double[] p : localPoints )
+			out.add(this.getGlobalLocation(p));
+		return localPoints;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	public double[] getMinDifference(double[] a, double[] b)
+	{
+		// TODO safety with vector length & number of dimensions
+		// TOD check this is the right approach in polar geometries
+		Vector.checkLengths(a, b);
+		double[] aLocal = this.getLocalPosition(a);
+		double[] bLocal = this.getLocalPosition(b);
+		double[] diffLocal = new double[a.length];
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			diffLocal[i] = dim.getShortest(aLocal[i], bLocal[i]);
+			i++;
+		}
+		return this.getGlobalLocation(diffLocal);
 	}
 	
 	/*************************************************************************

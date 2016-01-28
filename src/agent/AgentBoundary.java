@@ -17,7 +17,10 @@ public final class AgentBoundary
 	{
 		void init(Node xmlNode);
 		
-		
+		default boolean isCyclic()
+		{
+			return false;
+		}
 	}
 	
 	/*************************************************************************
@@ -42,6 +45,11 @@ public final class AgentBoundary
 		public void init(Node xmlNode)
 		{
 			// TODO
+		}
+		
+		public boolean isCyclic()
+		{
+			return true;
 		}
 	}
 }
