@@ -545,7 +545,6 @@ public abstract class PolarGrid extends SpatialGrid
 	 * \brief Transforms a location on a given polar axis into its 
 	 * 			corresponding coordinate in the array. 
 	 * 
-<<<<<<< a903bf5337293f5aa6e65185692225cc7b95bfea
 	 * The result is written into coord_out[axis] and inside_out[axis].
 	 * 
 	 * @param axis - The axis to be operated on (index in output arrays).
@@ -577,7 +576,6 @@ public abstract class PolarGrid extends SpatialGrid
 	 * \brief Transforms an array coordinate on a given Cartesian axis into its 
 	 * 			corresponding location in space. 
 	 * 
-<<<<<<< a903bf5337293f5aa6e65185692225cc7b95bfea
 	 * The result is written into loc_out[axis].
 	 * 
 	 * @param coord - A coordinate in one dimension.
