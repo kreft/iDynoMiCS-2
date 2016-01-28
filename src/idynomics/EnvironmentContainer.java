@@ -3,15 +3,15 @@ package idynomics;
 import java.util.HashMap;
 import java.util.Set;
 
+import boundary.Boundary;
 import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SpatialGrid.GridGetter;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 import shape.Shape;
 import linearAlgebra.Vector;
 import reaction.Reaction;
-import utility.ExtraMath;
 
 public class EnvironmentContainer
 {
@@ -61,11 +61,16 @@ public class EnvironmentContainer
 	
 	public void init()
 	{
-		for ( BoundarySide aBS : this._shape.getBoundarySides() )
+		SpatialGrid aSG;
+		Boundary bndry;
 			for ( String soluteName : this._solutes.keySet() )
 			{
-				this._solutes.get(soluteName).addBoundary(aBS, 
-						this._shape.getGridMethod(aBS, soluteName));
+			aSG = this._solutes.get(soluteName);
+			for ( BoundarySide aBS : aSG.getBoundarySides() )
+			{
+				bndry = this._shape.getBoundary(aBS);
+				aSG.addBoundary(aBS, bndry.getGridMethod(soluteName));
+			}
 			}
 	}
 	

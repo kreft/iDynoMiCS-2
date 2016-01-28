@@ -7,7 +7,7 @@ import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 
 /**
  * \brief A grid with a spherical coordinate system.
@@ -687,7 +687,7 @@ public class SphericalGrid extends PolarGrid
 			break;
 		case 1:
 			if (isOutside(coord,0)!=null)  
-				return BoundarySide.UNKNOWN;
+				return null;
 			int np=_resCalc[1][coord[0]][0].getNVoxel();
 			if ( coord[1] < 0 )
 				return _radSize[2]==Math.PI ? BoundarySide.INTERNAL : BoundarySide.PHIMAX;
@@ -696,7 +696,7 @@ public class SphericalGrid extends PolarGrid
 			break;
 		case 2:
 			if (isOutside(coord,0)!=null || isOutside(coord,1)!=null)  
-				return BoundarySide.UNKNOWN;
+				return null;
 			int nt=_resCalc[2][coord[0]][coord[1]].getNVoxel();
 			if ( coord[2] < 0 )
 				return _radSize[1]==2*Math.PI ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;

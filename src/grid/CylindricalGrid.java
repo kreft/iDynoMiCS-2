@@ -5,9 +5,9 @@ import java.util.HashMap;
 
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.UniformResolution;
-import shape.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.ShapeConventions.BoundarySide;
 
 /**
  * \brief A grid with 2D polar coordinates and a Cartesian {@code z}
@@ -536,7 +536,7 @@ public class CylindricalGrid extends PolarGrid
 				return _radSize[1]==2*Math.PI ?
 							BoundarySide.INTERNAL : BoundarySide.THETAMIN;
 			if (isOutside(coord,0)!=null)  
-				return BoundarySide.UNKNOWN;
+				return null;
 			int nt=_resCalc[1][coord[0]].getNVoxel();
 			if ( coord[1] >= nt)
 				return _radSize[1]==2*Math.PI ?
