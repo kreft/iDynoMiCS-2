@@ -19,7 +19,7 @@ public class EnvironmentContainer
 	
 	protected GridGetter _gridGetter;
 	
-	protected int[] _defaultNVoxel = Vector.vector(3, 1);
+	protected double[] _defaultTotalLength = Vector.vector(3, 1.0);
 	
 	protected double _defaultResolution = 1.0;
 	
@@ -81,17 +81,20 @@ public class EnvironmentContainer
 	public void setSize(double[] compartmentSize, double defaultRes)
 	{
 		this._defaultResolution = defaultRes;
-		this._defaultNVoxel = new int[compartmentSize.length];
-		double temp;
+		this._defaultTotalLength = compartmentSize;
 		
-		for ( int i = 0; i < compartmentSize.length; i++ )
-		{
-			this._defaultNVoxel[i] = (int) (compartmentSize[i] / defaultRes);
-			temp = defaultRes * this._defaultNVoxel[i];
-			// TODO message
-			if ( ! ExtraMath.areEqual(compartmentSize[i], temp, 1E-9) )
-				throw new IllegalArgumentException();
-		}
+//		this._defaultResolution = defaultRes;
+//		this._defaultNVoxel = new int[compartmentSize.length];
+//		double temp;
+//		
+//		for ( int i = 0; i < compartmentSize.length; i++ )
+//		{
+//			this._defaultNVoxel[i] = (int) (compartmentSize[i] / defaultRes);
+//			temp = defaultRes * this._defaultNVoxel[i];
+//			// TODO message
+//			if ( ! ExtraMath.areEqual(compartmentSize[i], temp, 1E-9) )
+//				throw new IllegalArgumentException();
+//		}
 		//System.out.println("\tEnv size: "+Arrays.toString(this._defaultNVoxel)); //bughunt
 	}
 	
@@ -105,11 +108,11 @@ public class EnvironmentContainer
 	 * @param padding
 	 * @param res
 	 */
-	public void setSize(int[] nVoxel, double res)
-	{
-		this._defaultResolution = res;
-		this._defaultNVoxel = nVoxel;
-	}
+//	public void setSize(int[] nVoxel, double res)
+//	{
+//		this._defaultResolution = res;
+//		this._defaultNVoxel = nVoxel;
+//	}
 	
 	/**
 	 * \brief TODO
@@ -127,7 +130,7 @@ public class EnvironmentContainer
 		 * TODO safety: check if solute already in hashmap
 		 */
 		//System.out.println("Adding "+soluteName+" with "+Arrays.toString(this._defaultNVoxel)); //Bughunt
-		SpatialGrid sg = this._gridGetter.newGrid(this._defaultNVoxel,
+		SpatialGrid sg = this._gridGetter.newGrid(this._defaultTotalLength,
 													this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._boundaries.forEach( (side, map) ->

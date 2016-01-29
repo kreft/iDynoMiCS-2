@@ -34,7 +34,7 @@ public abstract class SpatialGrid
 	 */
 	public interface GridGetter
 	{
-		SpatialGrid newGrid(int[] nVoxel, double resolution);
+		SpatialGrid newGrid(double[] totalSize, double resolution);
 	};
 	
 	/**
@@ -83,25 +83,6 @@ public abstract class SpatialGrid
 	 * may be occupied.
 	 */
 	protected HashMap<ArrayType, double[][][]> _array;
-	
-	/**
-	 * The number of voxels this grid has in each of the three spatial 
-	 * dimensions. Note that some of these may be 1 if the grid is not three-
-	 * dimensional.
-	 * 
-	 * <p>For example, a 3 by 2 rectangle would have _nVoxel = [3, 2, 1].</p> 
-	 */
-	protected int[] _nVoxel;
-	
-	/**
-	 * Grid resolution, i.e. the side length of each voxel in this grid. This
-	 * has three rows, one for each dimension. Each row has length of its
-	 * corresponding position in _nVoxel.
-	 * 
-	 * <p>For example, a 3 by 2 rectangle might have _res = 
-	 * [[1.0, 1.0, 1.0], [1.0, 1.0], [1.0]]</p>
-	 */
-	protected double[][] _res;
 	
 	/**
 	 * Smallest distance between the centres of two neighbouring voxels in

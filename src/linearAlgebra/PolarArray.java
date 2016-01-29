@@ -4,7 +4,9 @@ import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleFunction;
 import java.util.function.DoubleSupplier;
-import java.util.function.IntSupplier;
+
+import grid.ResolutionCalculator.ResCalc;
+import grid.ResolutionCalculator.UniformResolution;
 
 /**
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
@@ -16,15 +18,19 @@ public final class PolarArray {
 	/**
 	 * Used to create an array to store a CylindricalGrid
 	 * 
-	 * @param nr - number of voxels in r direction
-	 * @param nt - number of voxels in t direction for each r
-	 * @param nz - number of voxels in z direction
+	 * @param resCalc
 	 * @return - An array used to store a CylindricalGrid
 	 */
-	public static double[][][] createCylinder(int nr, int[] nt, int nz){
-		double[][][] a = new double[nr][0][0];
+	public static double[][][] createCylinder(ResCalc[][] resCalc){
+		int nr, nt, nz;
+		nr = resCalc[0][0].getNVoxel();
+		nz = resCalc[2][0].getNVoxel();
+		
+		double[][][] a = new double[nr][][];
 		for (int i=0; i<nr; ++i){
-			a[i] = new double[nt[i]][nz];
+			nt = resCalc[1][i].getNVoxel();
+//			System.out.println(nt);
+			a[i] = new double[nt][nz];
 		}
 		return a;
 	}
@@ -32,32 +38,39 @@ public final class PolarArray {
 	/**
 	 * Used to create an array to store a CylindricalGrid
 	 * 
-	 * @param nr - number of voxels in r direction
-	 * @param nt - number of voxels in t direction for each r
-	 * @param nz - number of voxels in z direction
+	 * @param resCalc
 	 * @param val - initial value
 	 * @return - An array used to store a CylindricalGrid
 	 */
 	public static double[][][] createCylinder(
-			int nr, int[] nt, int nz, double val){
-		return applyToAll(createCylinder(nr, nt, nz),()->{return val;});
+			ResCalc[][] resCalc, double val){
+		return applyToAll(createCylinder(resCalc),()->{return val;});
 	}
 	
 	/**
 	 * Used to create an array to store a SphericalGrid
 	 * 
 	 * @param nr - number of voxels in r direction
-	 * @param np - number of voxels in p direction for each r
-	 * @param nt - number of voxels in t direction for each r and each p
+	 * @param nt - number of voxels in t direction for each r
+	 * @param np - number of voxels in p direction for each r and each t
 	 * @return - An array used to store a SphericalGrid
 	 */
-	public static double[][][] createSphere(int nr, int[][] nt, int[] np){
+	public static double[][][] createSphere(ResCalc[][][] resCalc){
+		int nr, nt, np;
+		nr = resCalc[0][0][0].getNVoxel();
+		
 		double[][][] a = new double[nr][][];
 		for (int r=0; r<nr; ++r){
-			a[r] = new double[np[r]][];
-			for (int p=0; p<a[r].length; ++p){
-				a[r][p] = new double[nt[r][p]];		
+//			System.out.println(r);
+			np = resCalc[1][r][0].getNVoxel();
+			a[r] = new double[np][];
+			for (int p=0; p<np; ++p){
+//				System.out.println(np[r][t]);
+				nt = resCalc[2][r][p].getNVoxel();
+//				System.out.println(nt);
+				a[r][p] = new double[nt];		
 			}
+//			System.out.println();
 		}
 		return a;
 	}
@@ -66,14 +79,13 @@ public final class PolarArray {
 	 * Used to create an array to store a SphericalGrid
 	 * 
 	 * @param nr - number of voxels in r direction
-	 * @param np - number of voxels in p direction for each r
-	 * @param nt - number of voxels in t direction for each r and each p
+	 * @param nt - number of voxels in t direction for each r
+	 * @param np - number of voxels in p direction for each r and each t
 	 * @param val - initial value
 	 * @return - An array used to store a SphericalGrid
 	 */
-	public static double[][][] createSphere(
-			int nr, int[][] nt, int[] np, double val){
-		return applyToAll(createSphere(nr, nt, np),()->{return val;});
+	public static double[][][] createSphere(ResCalc[][][] resCalc, double val){
+		return applyToAll(createSphere(resCalc),()->{return val;});
 	}
 	
 	/**
@@ -170,13 +182,14 @@ public final class PolarArray {
 	/**
 	 * Computes the inner resolution for phi or theta dimensions.
 	 * 
-	 * @param nr - number of voxels in r direction
-	 * @param nt - length in theta or phi direction (in radian)
+	 * @param n - total size in theta or phi direction (in radian)
 	 * @return - the inner resolution
 	 */
-	public static double ires(int nr, double nt, double res){
+	public static double ires(double n){
 		 // min 1, +1 for each quadrant (=4 for full circle)
-		return Math.max(2*nt/(Math.PI*res),1);
+//		return Math.max(2*nt/(Math.PI*res),1);
+//		System.out.println(2*nt/Math.PI);
+		return 2*n/Math.PI;
 	}
 	
 	/**
@@ -212,5 +225,14 @@ public final class PolarArray {
 			}
 		}
 		return max;
+	}
+	
+	public static double area(
+			double r, double theta0, double theta1, double phi0, double phi1){
+		return r * r * (theta1 - theta0) * (Math.cos(phi0)-Math.cos(phi1));
+	}
+	
+	public static double arcLength(double r, double theta0, double theta1){
+		return r * (theta1 - theta0);
 	}
 }
