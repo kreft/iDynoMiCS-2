@@ -593,17 +593,17 @@ public class SphericalGrid extends PolarGrid
 	@Override
 	public int[] cyclicTransform(int[] coord) {
 		BoundarySide bs = isOutside(coord,0);
-		if (bs==BoundarySide.CIRCUMFERENCE)
+		if (bs==BoundarySide.RMAX)
 			coord[0] = coord[0]%(_resCalc[0][0][0].getNVoxel()-1);
-		if (bs==BoundarySide.INTERNAL)
+		if (bs==BoundarySide.RMIN)
 			coord[0] = _resCalc[0][0][0].getNVoxel()+coord[0];
 		
 		bs = isOutside(coord,1);
 		if (bs!=null){
 			int np=_resCalc[2][coord[0]][0].getNVoxel();;
 			switch (bs){
-			case YMAX: coord[1] = coord[1]%(np-1); break;
-			case YMIN: coord[1] = np+coord[2]; break;
+			case PHIMAX: coord[1] = coord[1]%(np-1); break;
+			case PHIMIN: coord[1] = np+coord[2]; break;
 			case INTERNAL:
 				coord[1] = coord[1]%np; 
 				if (coord[1] < 0)	coord[1] += np;
@@ -616,8 +616,8 @@ public class SphericalGrid extends PolarGrid
 		if (bs!=null){
 			int nt=_resCalc[2][coord[0]][coord[1]].getNVoxel();
 			switch (bs){
-			case YMAX: coord[2] = coord[2]%(nt-1); break;
-			case YMIN: coord[2] = nt+coord[2]; break;
+			case THETAMAX: coord[2] = coord[2]%(nt-1); break;
+			case THETAMIN: coord[2] = nt+coord[2]; break;
 			case INTERNAL:
 				coord[2] = coord[2]%nt; 
 				if (coord[2] < 0) coord[2] += nt;
@@ -681,27 +681,27 @@ public class SphericalGrid extends PolarGrid
 		switch (dim) {
 		case 0:
 			if ( coord[0] < 0 )
-				return BoundarySide.INTERNAL;
+				return BoundarySide.RMIN;
 			if ( coord[0] >= _resCalc[0][0][0].getNVoxel() )
-				return BoundarySide.CIRCUMFERENCE;
+				return BoundarySide.RMAX;
 			break;
 		case 1:
 			if (isOutside(coord,0)!=null)  
 				return BoundarySide.UNKNOWN;
 			int np=_resCalc[1][coord[0]][0].getNVoxel();
 			if ( coord[1] < 0 )
-				return _radSize[2]==Math.PI ? BoundarySide.INTERNAL : BoundarySide.ZMIN;
+				return _radSize[2]==Math.PI ? BoundarySide.INTERNAL : BoundarySide.PHIMAX;
 			if ( coord[1] >= np )
-				return _radSize[2]==Math.PI ? BoundarySide.INTERNAL : BoundarySide.ZMAX;
+				return _radSize[2]==Math.PI ? BoundarySide.INTERNAL : BoundarySide.PHIMIN;
 			break;
 		case 2:
 			if (isOutside(coord,0)!=null || isOutside(coord,1)!=null)  
 				return BoundarySide.UNKNOWN;
 			int nt=_resCalc[2][coord[0]][coord[1]].getNVoxel();
 			if ( coord[2] < 0 )
-				return _radSize[1]==2*Math.PI ? BoundarySide.INTERNAL : BoundarySide.YMIN;
+				return _radSize[1]==2*Math.PI ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
 			if ( coord[2] >= nt)
-				return _radSize[1]==2*Math.PI ? BoundarySide.INTERNAL : BoundarySide.YMAX;
+				return _radSize[1]==2*Math.PI ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
 			break;
 			default: throw new IllegalArgumentException("dim must be > 0 and < 3");
 		}

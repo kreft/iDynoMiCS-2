@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.UniformResolution;
-import idynomics.Compartment.BoundarySide;
+import shape.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 
@@ -299,11 +299,11 @@ public class CylindricalGrid extends PolarGrid
 		bs = isOutside(coord,0);
 		if (bs!=null){
 			switch (bs){
-			case CIRCUMFERENCE: 
+			case RMAX: 
 				/* flip azimuthal coordinate by 180° */
 				
 				coord[0] = coord[0]%(nVoxel-1); break;
-			case INTERNAL: 
+			case RMIN: 
 				coord[0] = 0;
 				/* 
 				 * If the boundary side is internal 
@@ -331,8 +331,8 @@ public class CylindricalGrid extends PolarGrid
 		bs = isOutside(coord,1);
 		if (bs!=null){
 			switch (bs){
-			case YMAX: coord[1] = coord[1]%(nVoxel-1); break;
-			case YMIN: coord[1] = nVoxel+coord[1]; break;
+			case THETAMAX: coord[1] = coord[1]%(nVoxel-1); break;
+			case THETAMIN: coord[1] = nVoxel+coord[1]; break;
 			case INTERNAL:
 				coord[1] = coord[1]%nVoxel; 
 				if (coord[1] < 0) coord[1] += nVoxel;
@@ -527,20 +527,20 @@ public class CylindricalGrid extends PolarGrid
 		switch (dim) {
 		case 0:
 			if ( coord[0] < 0 )
-				return BoundarySide.INTERNAL;
+				return BoundarySide.RMIN;
 			if ( coord[0] >= _resCalc[0][0].getNVoxel() )
-				return BoundarySide.CIRCUMFERENCE;
+				return BoundarySide.RMAX;
 			return null;
 		case 1:
 			if ( coord[1] < 0 )
 				return _radSize[1]==2*Math.PI ?
-							BoundarySide.INTERNAL : BoundarySide.YMIN;
+							BoundarySide.INTERNAL : BoundarySide.THETAMIN;
 			if (isOutside(coord,0)!=null)  
 				return BoundarySide.UNKNOWN;
 			int nt=_resCalc[1][coord[0]].getNVoxel();
 			if ( coord[1] >= nt)
 				return _radSize[1]==2*Math.PI ?
-							BoundarySide.INTERNAL : BoundarySide.YMAX;
+							BoundarySide.INTERNAL : BoundarySide.THETAMAX;
 			return null;
 		case 2:
 			if ( coord[2] < 0 )

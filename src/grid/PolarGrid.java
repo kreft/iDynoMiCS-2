@@ -7,7 +7,7 @@ import boundary.BoundaryCyclic;
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import grid.ResolutionCalculator.ResCalc;
-import idynomics.Compartment.BoundarySide;
+import shape.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 
@@ -437,21 +437,21 @@ public abstract class PolarGrid extends SpatialGrid
 	}
 	
 	/**
-	 * \brief Performs cyclic transform for inside boundaries with radius >= 0.
+	 * \brief Performs cyclic transform for inside boundaries.
 	 * 
 	 * @param coord - A coordinate
 	 * @return - The cyclic transformed coordinate.
 	 */
 	protected int[] transInternal(int[] coord){
 		BoundarySide[] bsa = new BoundarySide[3];
-		int nc=0, ic=0; // null counter and internal with r>=0 counter
+		int nc=0, ic=0; // null counter, internal counter
 		bsa = getBoundarySides(coord, bsa);
 		for (BoundarySide bs : bsa){
 			if (bs==null) nc++;
-			if (bs==BoundarySide.INTERNAL && coord[0]>=0) ic++;
+			if (bs==BoundarySide.INTERNAL) ic++;
 		}
 		if (nc+ic==3) {			
-			// only null and internal with r>=0 -> transform
+			// only null and internal -> transform
 			coord=cyclicTransform(coord);
 		}
 		return coord;

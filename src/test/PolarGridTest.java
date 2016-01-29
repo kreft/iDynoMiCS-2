@@ -29,7 +29,7 @@ import grid.GridBoundary.ConstantDirichlet;
 import idynomics.Compartment;
 import idynomics.Simulator;
 import idynomics.Timer;
-import idynomics.Compartment.BoundarySide;
+import shape.BoundarySide;
 import linearAlgebra.Vector;
 import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
@@ -305,7 +305,7 @@ public class PolarGridTest {
 		aCompartment.addProcessManager(aProcess);
 		
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
-		PolarGrid riseGrid = (PolarGrid)aSim.getCompartments()[0].getSolute("fall");
+		PolarGrid riseGrid = (PolarGrid) aCompartment.getSolute("fall");
 		PolarGridPlot3D plot = createGraphics(riseGrid,0,0,false);
 		plot.plotCurrentConcentrations();
 		while ( Timer.isRunning() )

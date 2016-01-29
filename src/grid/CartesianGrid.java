@@ -866,7 +866,7 @@ public class CartesianGrid extends SpatialGrid
 		return new GridGetter()
 		{
 			@Override
-			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
+			public SpatialGrid newGrid(double[] totalSize, double resolution) 
 			{
 				// TODO check this is the best way.
 				return new CartesianGrid(Vector.onesInt(3), resolution);
