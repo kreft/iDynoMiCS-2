@@ -50,7 +50,7 @@ public final class Vector
 	 * @param value	int value to use.
 	 * @return	int[] array of length <b>n</b>, with all elements set to
 	 * <b>value</b>.
-	 * @see #vector(int n, double value)
+	 * @see #vector(int, double)
 	 */
 	public static int[] vector(int n, int value)
 	{
@@ -66,7 +66,7 @@ public final class Vector
 	 * @param value	double value to use.
 	 * @return	double[] array of length <b>n</b>, with all elements set to
 	 * <b>value</b>.
-	 * @see #vector(int n, int value)
+	 * @see #vector(int, int)
 	 */
 	public static double[] vector(int n, double value)
 	{
@@ -80,8 +80,9 @@ public final class Vector
 	 * 
 	 * @param n	Length of the vector to create.
 	 * @return int[] array of length <b>n</b>, with all elements set to zero.
-	 * @see #zeros(int[] vector)
-	 * @see #zerosDbl(int n)
+	 * @see #zeros(int[])
+	 * @see #onesInt(int)
+	 * @see #zerosDbl(int)
 	 */
 	public static int[] zerosInt(int n)
 	{
@@ -97,8 +98,8 @@ public final class Vector
 	 * @param vector One-dimensional array of integers (preserved).
 	 * @return int[] array of same length as <b>vector</b>, with all elements
 	 * set to zero.
-	 * @see #zerosInt(int n)
-	 * @see #zeros(double[] vector)
+	 * @see #zerosInt(int)
+	 * @see #zeros(double[])
 	 */
 	public static int[] zeros(int[] vector)
 	{
@@ -112,18 +113,13 @@ public final class Vector
 	 * @param n	Length of the vector to create.
 	 * @return	double[] array of length <b>n</b>, with all elements set to
 	 * zero.
-	 * @see #zeros(double[] vector)
-	 * @see #zerosInt(int n)
+	 * @see #zeros(double[])
+	 * @see #onesDbl(int)
+	 * @see #zerosInt(int)
 	 */
 	public static double[] zerosDbl(int n)
 	{
 		return vector(n, 0.0);
-	}
-	
-	// FIXME nicify
-	public static double[] onesDbl(int n)
-	{
-		return vector(n, 1.0);
 	}
 	
 	/**
@@ -133,12 +129,40 @@ public final class Vector
 	 * @param vector One-dimensional array of doubles.
 	 * @return double[] array of same length as <b>vector</b>, with all
 	 * elements set to zero.
-	 * @see #zerosDbl(int n)
-	 * @see #zeros(int[] vector)
+	 * @see #zerosDbl(int)
+	 * @see #zeros(int[])
 	 */
 	public static double[] zeros(double[] vector)
 	{
 		return zerosDbl(vector.length);
+	}
+	
+	/**
+	 * \brief A new integer vector of length <b>n</b>, and all elements set to
+	 * one.
+	 * 
+	 * @param n	Length of the vector to create.
+	 * @return int[] array of length <b>n</b>, with all elements set to one.
+	 * @see #zerosInt(int)
+	 * @see #onesDbl(int)
+	 */
+	public static int[] onesInt(int n)
+	{
+		return vector(n, 1);
+	}
+	
+	/**
+	 * \brief A new integer vector of length <b>n</b>, and all elements set to
+	 * one.
+	 * 
+	 * @param n	Length of the vector to create.
+	 * @return double[] array of length <b>n</b>, with all elements set to one.
+	 * @see #zerosDbl(int)
+	 * @see #onesInt(int)
+	 */
+	public static double[] onesDbl(int n)
+	{
+		return vector(n, 1.0);
 	}
 	
 	/**
@@ -161,7 +185,7 @@ public final class Vector
 	 * 
 	 * @param vectorString String containing a vector of integers.
 	 * @return int[] vector of integers from this string.
-	 * @see #dblFromString(String vectorString)
+	 * @see #dblFromString(String)
 	 */
 	public static int[] intFromString(String vectorString)
 	{
@@ -177,7 +201,7 @@ public final class Vector
 	 * 
 	 * @param vectorString String containing a vector of doubles.
 	 * @return double[] vector of doubles from this string.
-	 * @see intFromString(String vectorString)
+	 * @see intFromString(String)
 	 */
 	public static double[] dblFromString(String vectorString)
 	{
@@ -327,12 +351,12 @@ public final class Vector
 	/**
 	 * \brief Check if the given <b>vector</b> is composed of zeros.
 	 * 
-	 * @param vector One-dimensional array of integers (preserved).
-	 * @return boolean showing whether <b>vector</b> is all zeros (true) or 
-	 * contains a non-zero (false).
-	 * @see #isNonnegative(int[] vector)
-	 * @see #isZero(double[] vector)
-	 * @see #isZero(double[] vector, double tolerance)
+	 * @param vector One-dimensional array of {@code int}s (preserved).
+	 * @return {@code boolean} showing whether <b>vector</b> is all zeros
+	 * (true) or contains a non-zero (false).
+	 * @see #isNonnegative(int[])
+	 * @see #isZero(double[])
+	 * @see #isZero(double[], double)
 	 */
 	public static boolean isZero(int[] vector)
 	{
@@ -350,12 +374,12 @@ public final class Vector
 	 * Consider using {@link #isZero(double[] vector, double tolerance)}
 	 * instead.</p>
 	 * 
-	 * @param vector One-dimensional array of doubles (preserved). 
-	 * @return boolean showing whether <b>vector</b> is all zeros (true) or 
-	 * contains a non-zero (false).
-	 * @see #isZero(double[] vector, double tolerance)
-	 * @see #isNonnegative(double[] vector)
-	 * @see #isZero(int[] vector)
+	 * @param vector One-dimensional array of {@code double}s (preserved). 
+	 * @return {@code boolean} showing whether <b>vector</b> is all zeros
+	 * (true) or contains a non-zero (false).
+	 * @see #isZero(double[], double)
+	 * @see #isNonnegative(double[])
+	 * @see #isZero(int[])
 	 */
 	public static boolean isZero(double[] vector)
 	{
@@ -371,15 +395,15 @@ public final class Vector
 	 * <p>If confident that numerical issues can be ignored, consider using
 	 * {@link #isZero(double[] vector)} instead (slightly faster).</p>
 	 * 
-	 * @param vector One-dimensional array of doubles (preserved).
-	 * @param tolerance double value for the absolute tolerance, i.e.
+	 * @param vector One-dimensional array of {@code double}s (preserved).
+	 * @param tolerance {@code double} value for the absolute tolerance, i.e.
 	 * <i>|x<sub>i</sub>|</i> <= tolerance will be accepted as close enough to
 	 * zero (helps avoid numerical issues). 
-	 * @return boolean showing whether <b>vector</b> is all zeros (true) or 
-	 * contains a non-zero (false).
-	 * @see #isZero(double[] vector)
-	 * @see #isNonnegative(double[] vector)
-	 * @see #isZero(int[] vector)
+	 * @return {@code boolean} showing whether <b>vector</b> is all zeros
+	 * (true) or contains a non-zero (false).
+	 * @see #isZero(double[])
+	 * @see #isNonnegative(double[])
+	 * @see #isZero(int[])
 	 */
 	public static boolean isZero(double[] vector, double tolerance)
 	{
@@ -393,11 +417,11 @@ public final class Vector
 	 * \brief Check if all the elements of the given <b>vector</b> are
 	 * non-negative, i.e. greater than or equal to zero.
 	 * 
-	 * @param vector One-dimensional array of integers (preserved).
-	 * @return boolean showing whether all elements or <b>vector</b> are >= 0
-	 * (true) or at least one is < 0 (false).
-	 * @see #isZero(int[] vector)
-	 * @see #isNonnegative(double[] vector)
+	 * @param vector One-dimensional array of {@code int}s (preserved).
+	 * @return {@code boolean} showing whether all elements or <b>vector</b>
+	 * are >= 0 (true) or at least one is < 0 (false).
+	 * @see #isZero(int[])
+	 * @see #isNonnegative(double[])
 	 */
 	public static boolean isNonnegative(int[] vector)
 	{
@@ -410,15 +434,13 @@ public final class Vector
 	/**
 	 * \brief Check if all elements in a <b>vector</b> are positive or zero.
 	 * 
-	 * <p>Note that <b>vector</b> is unaffected by this method.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles (preserved).
-	 * @return boolean reporting whether the <b>vector</b> contains negative
-	 * elements (false) or if all elements are greater than or equal to zero
-	 * (true).
-	 * @see #isZero(double[] vector)
-	 * @see #isZero(double[] vector, double tolerance)
-	 * @see #isNonnegative(int[] vector)
+	 * @param vector One-dimensional array of {@code double}s (preserved).
+	 * @return {@code boolean} reporting whether the <b>vector</b> contains
+	 * negative elements (false) or if all elements are greater than or equal
+	 * to zero (true).
+	 * @see #isZero(double[])
+	 * @see #isZero(double[], double)
+	 * @see #isNonnegative(int[])
 	 */
 	public static boolean isNonnegative(double[] vector)
 	{
@@ -436,8 +458,9 @@ public final class Vector
 	 * @param b One-dimensional array of integers (preserved).
 	 * @exception IllegalArgumentException Null vector given.
 	 * @exception IllegalArgumentException Vectors must be the same length.
-	 * @see #checkLengths(double[] a, double[] b)
-	 * @see #checkLengths(double[] a, int[] b)
+	 * @see #checkLengths(int[], int[], int[])
+	 * @see #checkLengths(double[], double[])
+	 * @see #checkLengths(double[], int[])
 	 */
 	public static void checkLengths(int[] a, int[] b)
 	{
@@ -451,12 +474,30 @@ public final class Vector
 	 * \brief Check that the two given vectors are not null, and have the same
 	 * length.
 	 * 
+	 * @param a One-dimensional array of integers (preserved).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @param c One-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Null vector given.
+	 * @exception IllegalArgumentException Vectors must be the same length.
+	 * @see #checkLengths(int[], int[])
+	 * @see #checkLengths(double[], double[], double[])
+	 */
+	public static void checkLengths(int[] a, int[] b, int[] c)
+	{
+		checkLengths(a, b);
+		checkLengths(b, c);
+	}
+	
+	/**
+	 * \brief Check that the two given vectors are not null, and have the same
+	 * length.
+	 * 
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @exception IllegalArgumentException Null vector given.
 	 * @exception IllegalArgumentException Vectors must be the same length.
-	 * @see #checkLengths(int[] a, int[] b)
-	 * @see #checkLengths(double[] a, int[] b)
+	 * @see #checkLengths(int[], int[])
+	 * @see #checkLengths(double[], int[])
 	 */
 	public static void checkLengths(double[] a, double[] b)
 	{
@@ -471,11 +512,29 @@ public final class Vector
 	 * length.
 	 * 
 	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @param c One-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Null vector given.
+	 * @exception IllegalArgumentException Vectors must be the same length.
+	 * @see #checkLengths(double[], double[])
+	 * @see #checkLengths(int[], int[], int[])
+	 */
+	public static void checkLengths(double[] a, double[] b, double[] c)
+	{
+		checkLengths(a, b);
+		checkLengths(b, c);
+	}
+	
+	/**
+	 * \brief Check that the two given vectors are not null, and have the same
+	 * length.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of integers (preserved).
 	 * @exception IllegalArgumentException Null vector given.
 	 * @exception IllegalArgumentException Vectors must be the same length.
-	 * @see #checkLengths(int[] a, int[] b)
-	 * @see #checkLengths(double[] a, double[] b)
+	 * @see #checkLengths(int[], int[])
+	 * @see #checkLengths(double[], double[])
 	 */
 	public static void checkLengths(double[] a, int[] b)
 	{
@@ -493,7 +552,7 @@ public final class Vector
 	 * @param b One-dimensional array of integers (preserved).
 	 * @return boolean: true if they are the same, false if at least one
 	 * element-element pair differs.
-	 * @see #areSame(double[] a, double[] b)
+	 * @see #areSame(double[], double[])
 	 */
 	public static boolean areSame(int[] a, int[] b)
 	{
@@ -512,13 +571,32 @@ public final class Vector
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @return boolean: true if they are the same, false if at least one
 	 * element-element pair differs.
-	 * @see #areSame(int[] a, int[] b)
+	 * @see #areSame(int[], int[])
 	 */
 	public static boolean areSame(double a[], double[] b)
 	{
 		checkLengths(a, b);
 		for ( int i = 0; i < a.length; i++ )
 			if ( a[i] != b[i] )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the two given vectors have the same elements, in the same
+	 * order.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return boolean: true if they are the same, false if at least one
+	 * element-element pair differs.
+	 * @see #areSame(int[], int[])
+	 */
+	public static boolean areSame(double a[], double[] b, double absTol)
+	{
+		checkLengths(a, b);
+		for ( int i = 0; i < a.length; i++ )
+			if ( ! ExtraMath.areEqual(a[i], b[i], absTol) )
 				return false;
 		return true;
 	}
@@ -649,8 +727,7 @@ public final class Vector
 	 */
 	public static void addTo(int[] destination, int[] a, int[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] + b[i];
 	}
@@ -699,8 +776,7 @@ public final class Vector
 	 */
 	public static void addTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] + b[i];
 	}
@@ -752,8 +828,7 @@ public final class Vector
 	 */
 	public static void minusTo(int[] destination, int[] a, int[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] - b[i];
 	}
@@ -804,8 +879,7 @@ public final class Vector
 	 */
 	public static void minusTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] - b[i];
 	}
@@ -1080,8 +1154,7 @@ public final class Vector
 	 */
 	public static void timesTo(int[] destination, int[] a, int[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] * b[i];
 	}
@@ -1230,11 +1303,12 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Take a subset of the given <b>vector</b> and write the result
+	 * into <b>destination</b>.
 	 * 
-	 * @param destination
-	 * @param vector
-	 * @param indices
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param indices int[] array of indices to use.
 	 */
 	public static void subsetTo(double[] destination, double[] vector,
 																int[] indices)
@@ -1259,25 +1333,44 @@ public final class Vector
 		return out;
 	}
 	
+	/**
+	 * \brief Take a subset of the given <b>vector</b> and return it as a new
+	 * vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param stop int index of <b>vector</b> to stop at (exclusive).
+	 * @return New double array of <b>vector</b>[0, ..., stop-1].
+	 */
+	public static double[] subset(double[] vector, int stop)
+	{
+		// TODO safety if stop > vector.length?
+		double[] out = new double[stop];
+		for ( int i = 0; i < out.length; i++ )
+			out[i] = vector[i];
+		return out;
+	}
+	
 	/* Flip */
 	
 	/**
 	 * \brief Reverse the order of a given vector <b>source</b>, writing the
 	 * result into <b>destination</b>.
 	 * 
-	 * <p>For example, (1.0, 2.0, 3.0) would be flipped to (3.0, 2.0, 1.0).</p>
+	 * <p>For example, (1, 2, 3) would be flipped to (3, 2, 1).</p>
 	 * 
 	 * @param destination One-dimensional array of integers (overwritten).
 	 * @param source One-dimensional array of integers (preserved).
-	 * @return The int[] <b>destination</b> with the same elements as 
-	 * <b>source</b>, but in the opposite order. 
+	 * @see #flip(int[])
+	 * @see #flipEquals(int[])
+	 * @see #flipTo(double[])
+	 * @see #reverseTo(int[] vector)
 	 */
-	public static int[] flipTo(int[] destination, int[] source)
+	public static void flipTo(int[] destination, int[] source)
 	{
+		checkLengths(destination, source);
 		int i = source.length;
 		for ( int element : source )
 			destination[--i] = element;
-		return destination;
 	}
 	
 	/**
@@ -1287,13 +1380,18 @@ public final class Vector
 	 * <p>For example, (1, 2, 3) would be flipped to (3, 2, 1).</p>
 	 * 
 	 * @param vector One-dimensional array of integers (preserved).
-	 * @return int[] array with the same elements as <b>vector</b>, but in
+	 * @return New int[] array with the same elements as <b>vector</b>, but in
 	 * the opposite order. 
+	 * @see #flipTo(int[], int[])
+	 * @see #flipEquals(int[])
+	 * @see #flip(double[])
 	 * @see #reverse(int[] vector)
 	 */
 	public static int[] flip(int[] vector)
 	{
-		return flipTo(new int[vector.length], vector);
+		int[] out = new int[vector.length];
+		flipTo(out, vector);
+		return out;
 	}
 	
 	/**
@@ -1302,9 +1400,12 @@ public final class Vector
 	 * <p>For example, (1, 2, 3) would be flipped to (3, 2, 1).</p>
 	 * 
 	 * @param vector One-dimensional array of integers (overwritten).
-	 * @return The same int[] as input, but with the order of elements flipped.
+	 * @see #flipTo(int[], int[])
+	 * @see #flip(int[])
+	 * @see #flipEquals(double[])
+	 * @see #reverseEquals(int[])
 	 */
-	public static int[] flipEquals(int[] vector)
+	public static void flipEquals(int[] vector)
 	{
 		int n = (int) 0.5 * vector.length;
 		int temp;
@@ -1315,7 +1416,6 @@ public final class Vector
 			vector[i] = vector[j--];
 			vector[j] = temp;
 		}
-		return vector;
 	}
 	
 	/**
@@ -1324,17 +1424,19 @@ public final class Vector
 	 * 
 	 * <p>For example, (1.0, 2.0, 3.0) would be flipped to (3.0, 2.0, 1.0).</p>
 	 * 
-	 * @param destination One-dimensional array of doubles (overwritten).
-	 * @param source One-dimensional array of doubles (preserved).
-	 * @return The double[] <b>destination</b> with the same elements as 
-	 * <b>source</b>, but in the opposite order. 
+	 * @param destination One-dimensional array of {@code double}s
+	 * (overwritten).
+	 * @param source One-dimensional array of {@code double}s (preserved).
+	 * @see #flip(double[])
+	 * @see #flipEquals(double[])
+	 * @see #flipTo(int[], int[])
+	 * @see #reverseTo(double[], double[])
 	 */
-	public static double[] flipTo(double[] destination, double[] source)
+	public static void flipTo(double[] destination, double[] source)
 	{
 		int i = source.length;
 		for ( double element : source )
 			destination[--i] = element;
-		return destination;
 	}
 	
 	/**
@@ -1343,18 +1445,19 @@ public final class Vector
 	 * 
 	 * <p>For example, (1.0, 2.0, 3.0) would be flipped to (3.0, 2.0, 1.0).</p>
 	 * 
-	 * <p>Note that the given <b>vector</b> will be unaffected by this
-	 * method.</p>
-	 * 
-	 * <p>See also {@link #reverse(double[] vector)}.</p>
-	 * 
-	 * @param vector One-dimensional array of doubles (preserved).
-	 * @return double[] array with the same elements as <b>vector</b>, but in
-	 * the opposite order. 
+	 * @param vector One-dimensional array of {@code double}s (preserved).
+	 * @return New {@code double[]} array with the same elements as
+	 * <b>vector</b>, but in the opposite order. 
+	 * @see #flipTo(double[], double[])
+	 * @see #flipEquals(double[])
+	 * @see #flip(int[])
+	 * @see #reverse(double[])
 	 */
 	public static double[] flip(double[] vector)
 	{
-		return flipTo(new double[vector.length], vector);
+		double[] out = new double[vector.length];
+		flipTo(out, vector);
+		return out;
 	}
 	
 	/**
@@ -1362,11 +1465,13 @@ public final class Vector
 	 * 
 	 * <p>For example, (1.0, 2.0, 3.0) would be flipped to (3.0, 2.0, 1.0).</p>
 	 * 
-	 * @param vector One-dimensional array of doubles (overwritten).
-	 * @return The same double[] as input, but with the order of elements
-	 * flipped.
+	 * @param vector One-dimensional array of {@code double}s (overwritten).
+	 * @see #flipTo(double[], double[])
+	 * @see #flip(double[])
+	 * @see #flipEquals(int[])
+	 * @see #reverseEquals(double[])
 	 */
-	public static double[] flipEquals(double[] vector)
+	public static void flipEquals(double[] vector)
 	{
 		int n = (int) 0.5 * vector.length;
 		double temp;
@@ -1377,7 +1482,6 @@ public final class Vector
 			vector[i] = vector[j--];
 			vector[j] = temp;
 		}
-		return vector;
 	}
 	
 	/*************************************************************************
@@ -2141,6 +2245,39 @@ public final class Vector
 		return out;
 	}
 	
+	/**
+	 * \brief Find the mid-point of two vectors, writing the result into 
+	 * <b>destination</b>.
+	 * 
+	 * @param destination  One-dimensional array of doubles to be overwritten.
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @see #midPoint(double[], double[])
+	 */
+	public static void midPointTo(double[] destination, double[] a, double[] b)
+	{
+		checkLengths(destination, a, b);
+		minusTo(destination, a, b);
+		timesEquals(destination, 0.5);
+		addEquals(destination, b);
+	}
+	
+	/**
+	 * \brief Find the mid-point of two vectors, giving the result as a new
+	 * vector.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return New one-dimensional array of doubles with the mid-point of
+	 * <b>a</b> and <b>b</b>.
+	 */
+	public static double[] midPoint(double[] a, double[] b)
+	{
+		double[] out = new double[a.length];
+		midPointTo(out, a, b);
+		return a;
+	}
+	
 	// TODO document: handling polar/spherical coordinates
 	/**
 	 *	x = r cos(theta) sin(phi)
@@ -2151,35 +2288,88 @@ public final class Vector
 	 *	phi = acos(z/r)
 	 */
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cartesian
+	 * @return
+	 */
 	public static double polarRadius(double[] cartesian)
 	{
 		return normEuclid(cartesian);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cartesian
+	 * @return
+	 */
 	public static double[] toPolar(double[] cartesian)
 	{
 		double[] p = new double[cartesian.length];
-		switch(cartesian.length) 
+		switch ( cartesian.length ) 
 		{
-			case 3 : p[2] = Math.acos(cartesian[2]/normEuclid(cartesian));
+			case 3 : p[2] = Math.acos(cartesian[2]/polarRadius(cartesian));
 			case 2 : p[1] = Math.atan2(cartesian[1], cartesian[0]);
-			case 1 : p[0] = normEuclid(cartesian);
+			case 1 : p[0] = polarRadius(cartesian);
 		}
 		return p;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param polar
+	 * @return
+	 */
 	public static double[] toCartesian(double[] polar)
 	{
 		double[] c = new double[polar.length];
-		double phi = 0.0;
-		switch(polar.length) 
+		double sinPhi = 1.0;
+		switch ( polar.length )
 		{
 			case 1 : return polar;
 			case 3 : c[2] = polar[0] * Math.cos(polar[2]);
-					 phi  = polar[2];
-			case 2 : c[0] = polar[0] * Math.cos(polar[1]) * Math.sin(phi);
-					 c[1] = polar[0] * Math.sin(polar[1]) * Math.sin(phi);		
+					 sinPhi  = Math.sin(polar[2]);
 		}
+		c[0] = polar[0] * Math.cos(polar[1]) * sinPhi;
+		c[1] = polar[0] * Math.sin(polar[1]) * sinPhi;
 		return c;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cartesian
+	 * @return
+	 */
+	public static double[] toCylindrical(double[] cartesian) 
+	{
+		if(cartesian.length == 3)
+		{
+			double[] p = toPolar(Vector.subset(cartesian, 2));
+			return new double[] {p[0], p[1], cartesian[2]};
+		}
+		System.out.println("ERROR: Vector.toCylindrical only accepts 3D input!"); 
+		return null;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param cylindrical
+	 * @return
+	 */
+	public static double[] cylindricalToCartesian(double[] cylindrical)
+	{
+		if(cylindrical.length == 3)
+		{
+			
+			double[] p = toCartesian(Vector.subset(cylindrical, 2));
+			return new double[] {p[0], p[1], cylindrical[2]};
+		}
+		System.out.println("ERROR: Vector.cylindricalToCartesian only accepts 3D input!"); 
+		return null;
 	}
 }

@@ -44,7 +44,7 @@ public abstract class PolarGrid extends SpatialGrid
 	 */
 	protected double[] _radSize;
 	/**
-	 * factor scaling polar dimensions to have one grid cell per 90� 
+	 * factor scaling polar dimensions to have one grid cell per 90? 
 	 * (4 grid cells for a full circle) for 0 <= radius < 1
 	 */
 	protected double[] _ires;

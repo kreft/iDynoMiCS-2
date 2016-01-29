@@ -16,6 +16,8 @@ public abstract class ProcessManager
 	
 	protected double _timeStepSize;
 	
+	protected boolean _debugMode = false;
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -38,6 +40,11 @@ public abstract class ProcessManager
 	public String getName()
 	{
 		return this._name;
+	}
+	
+	public void setName(String name)
+	{
+		this._name = name;
 	}
 	
 	public void setPriority(int priority)
@@ -70,6 +77,11 @@ public abstract class ProcessManager
 		return this._timeStepSize;
 	}
 	
+	public void debugMode()
+	{
+		this._debugMode = true;
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -98,7 +110,9 @@ public abstract class ProcessManager
 		 * Increase the 
 		 */
 		this._timeForNextStep += this._timeStepSize;
-		//System.out.println("timeForNextStep = "+_timeForNextStep);//bughunt
+		
+		if (_debugMode)
+			System.out.println(getName() + " timeForNextStep = "+_timeForNextStep); 
 	}
 	
 	protected abstract void internalStep(EnvironmentContainer environment,

@@ -4,11 +4,12 @@
 package boundary;
 
 import java.util.HashMap;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import agent.AgentBoundary.AgentMethod;
+import generalInterfaces.CanPrelaunchCheck;
 import grid.GridBoundary.GridMethod;
 import shape.Shape;
 
@@ -17,10 +18,12 @@ import shape.Shape;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public class Boundary
+public class Boundary implements CanPrelaunchCheck
 {
 	/**
 	 * The shape this Boundary takes (e.g. Plane, Sphere).
+	 * 
+	 * FIXME this should change to surface
 	 */
 	protected Shape _shape;
 	
@@ -37,6 +40,11 @@ public class Boundary
 	 */
 	protected HashMap<String,GridMethod> _gridMethods = 
 											new HashMap<String,GridMethod>();
+	
+	/**
+	 * The agent method this boundary should use for any agent. 
+	 */
+	protected AgentMethod _agentMethod;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -114,25 +122,9 @@ public class Boundary
 	/**
 	 * \brief TODO
 	 * 
-	 * @param position
-	 * @return
+	 * @param soluteName
+	 * @param aMethod
 	 */
-	public boolean isOutside(double[] position)
-	{
-		return this._shape.isOutside(position);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param position
-	 * @return
-	 */
-	public double distance(double[] position)
-	{
-		return this._shape.distance(position);
-	}
-	
 	public void setGridMethod(String soluteName, GridMethod aMethod)
 	{
 		this._gridMethods.put(soluteName, aMethod);
@@ -141,6 +133,7 @@ public class Boundary
 	/**
 	 * \brief TODO
 	 * 
+	 * @param soluteName
 	 * @return
 	 */
 	public GridMethod getGridMethod(String soluteName)
@@ -150,5 +143,38 @@ public class Boundary
 			return this._gridMethods.get(soluteName);
 		else
 			return this._defaultGridMethod;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param speciesName
+	 * @param aMethod
+	 */
+	public void setAgentMethod(AgentMethod aMethod)
+	{
+		this._agentMethod = aMethod;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param speciesName
+	 * @return
+	 */
+	public AgentMethod getAgentMethod()
+	{
+		return this._agentMethod;
+	}
+	
+	/*************************************************************************
+	 * PRE-LAUNCH CHECK
+	 ************************************************************************/
+	
+	public boolean isReadyForLaunch()
+	{
+		if ( this._defaultGridMethod == null && this._gridMethods.isEmpty() )
+			return false;
+		return true;
 	}
 }

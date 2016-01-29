@@ -1,5 +1,8 @@
 package agent.body;
 
+import java.util.HashMap;
+
+import boundary.PeriodicAgentBoundary;
 import linearAlgebra.Vector;
 
 /**
@@ -24,11 +27,28 @@ public class Volume
 		this.dP = Vector.zerosDbl(nDim);
 	}
 	
+//	/**
+//	 * Work in progress for periodic boundaries etc.
+//	 * @param nDim
+//	 * @param boundaryTypes
+//	 * @param gridLength
+//	 */
+	public Volume(int nDim, HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries)
+	{
+		this.dP = Vector.zerosDbl(nDim);
+		this.periodicBoundaries = periodicBoundaries;
+	}
+	
 	/**
 	 * Vector that represents the shortest distance between: point-point,
 	 * point-line segment and line segment-line segment.
 	 */
 	double[] dP;
+	
+	/**
+	 * 
+	 */
+	private HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries;
 	
 	/**
 	 * Represents the closest point on the first line segment expressed as a
@@ -41,6 +61,18 @@ public class Volume
 	 * fraction of the line segment.
 	 */
 	double t = 0;
+		
+	/**
+	 * TODO angular periodicity 
+	 * @param distance
+	 * @return
+	 */
+	public double[] periodicDistanceVector(double[] distance)
+	{
+		for(int dim : periodicBoundaries.keySet())
+				distance[dim] = periodicBoundaries.get(dim).periodicDistance(distance[dim]);
+		return distance;
+	}
 	
 	/**
 	 * \brief Updates the net force on two interacting cells as a result from
@@ -120,6 +152,7 @@ public class Volume
 		double fPull 		= 0.0002;		// pull force scalar
 		double fPush 		= 3.0;			// push force scalar
 		boolean exponential = true; 		// exponential pull curve
+		
 		distance 			-= radii+0.001;	// added margin
 		
 		// Repulsion
@@ -159,6 +192,7 @@ public class Volume
 	public double pointPoint(double[] p, double[] q) 
 	{
 		Vector.minusTo(dP, p, q);
+		periodicDistanceVector(dP);
 		return Vector.normEuclid(dP);
 	}
 	

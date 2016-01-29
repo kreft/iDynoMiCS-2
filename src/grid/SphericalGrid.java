@@ -5,9 +5,9 @@ import java.util.HashMap;
 
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.UniformResolution;
-import idynomics.Compartment.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.BoundarySide;
 
 /**
  * \brief A grid with a spherical coordinate system.

@@ -22,21 +22,23 @@ public class AgentRelaxation extends ProcessManager {
 	// TODO the following should folow from the protocol file
 	double dtBase		= 0.01;	
 	double maxMovement	= 0.1;
-	String method 		= "shove";
-	boolean timeLeap	= false;
+	String method 		= "euler";
+	boolean timeLeap	= true;
 	
-	private void updateForces(AgentContainer agents) 
+	private void updateForces(EnvironmentContainer environment, AgentContainer agents) 
 	{
 		agents.refreshSpatialRegistry();
-		Volume iterator = new Volume(agents.getNumDims());
+		//FIXME hard coded periodic boundaries and domain size for test case, initiate properly
+		//TODO: in my opinion this information should all just come from the compartment
+		Volume iterator = new Volume(agents.getNumDims(), agents.getAgentBoundaries());
 		
 		// Calculate forces
 		for(Agent agent: agents.getAllLocatedAgents()) 
 		{
 			//agent.innerSprings();	// TODO method needs to be implemented (but not in Agent())
-			for(Agent neighbour: agents._agentTree.search(
-					(double[]) agent.get("lowerBoundingBox"), /// TODO Add optional extra margin for pulls!!!
-					(double[]) agent.get("dimensionsBoundingBox"))) 
+			for(Agent neighbour: agents._agentTree.cyclicsearch(
+					(double[]) agent.get("#boundingLower"), /// TODO Add optional extra margin for pulls!!!
+					(double[]) agent.get("#boundingSides"))) 
 			{
 				if (agent.identity() > neighbour.identity())
 					{
@@ -54,7 +56,7 @@ public class AgentRelaxation extends ProcessManager {
 											AgentContainer agents) {
 		int nstep	= 0;
 		tMech		= 0.0;
-		dtMech 		= 0.002; // TODO (initial) time step.. needs to be build out of protocol file
+		dtMech 		= 0.0005; // TODO (initial) time step.. needs to be build out of protocol file
 		
 		// if higher order ODE solvers are used we need additional space to write.
 		switch (method)
@@ -68,8 +70,8 @@ public class AgentRelaxation extends ProcessManager {
 		
 		// Mechanical relaxation
 		while(tMech < _timeStepSize) 
-		{			
-			updateForces(agents);
+		{	
+			updateForces(environment, agents);
 			
 			/// obtain current highest particle velocity
 			vSquare = 0.0;
@@ -112,7 +114,7 @@ public class AgentRelaxation extends ProcessManager {
 					for(Agent agent: agents.getAllLocatedAgents())
 						for (Point point: ((Body) agent.get("body")).getPoints())
 							point.heun1(dtMech, (double) agent.get("radius"));
-					updateForces(agents);
+					updateForces(environment,agents);
 					for(Agent agent: agents.getAllLocatedAgents())
 						for (Point point: ((Body) agent.get("body")).getPoints())
 							point.heun2(dtMech, (double) agent.get("radius"));
@@ -120,9 +122,17 @@ public class AgentRelaxation extends ProcessManager {
 					tMech += dtMech;
 					break;
 			}
+
+			for(Agent agent: agents.getAllLocatedAgents())
+				for (Point point: ((Body) agent.get("body")).getPoints())
+				{
+					agents.getAgentBoundaries().forEach((k,v)->
+					point.setPosition(v.inFrameLocation(point.getPosition())));
+				}
 			nstep++;
 		}
-		System.out.println(agents.getNumAllAgents() + " after " + nstep
+		if(this._debugMode)
+			System.out.println(agents.getNumAllAgents() + " after " + nstep
 				+ " iterations");
 	}	
 }

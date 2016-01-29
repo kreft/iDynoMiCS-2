@@ -192,7 +192,7 @@ public class LUDecomposition
 		 * Solve l * y = b(pivot, :)
 		 */
 		for ( int k = 0; k < this.n-1; k++ )
-			for ( int i = k+1; k < this.n; i++ )
+			for ( int i = k+1; i < this.n; i++ )
 				for ( int j = 0; j < nx; j++ )
 					x[i][j] -= x[k][j] * this.lu[i][k];
 		/*

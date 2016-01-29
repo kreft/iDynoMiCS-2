@@ -4,13 +4,20 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import boundary.PeriodicAgentBoundary;
 import agent.Agent;
 import reaction.Reaction;
+import shape.Shape;
 import spatialRegistry.*;
 
 public class AgentContainer
 {
-	protected int nDim;
+	/**
+	 * FIXME: nDim should really only be stored in the compartment, but since
+	 * in a lot of cases the compartment is not reachable it is also here!
+	 * Consider changing this...
+	 */
+	protected Shape _shape;
 	/**
 	 * All agents with a spatial location are stored in the agentTree 
 	 * (e.g. an RTree).
@@ -27,6 +34,11 @@ public class AgentContainer
 	 * TODO Check this is the best way of going about things!
 	 */
 	protected HashMap<String, Reaction> _agentReactions;
+	
+	/**
+	 * 
+	 */
+	protected HashMap<Integer, PeriodicAgentBoundary> _agentBoundaries = new HashMap<Integer, PeriodicAgentBoundary>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -46,17 +58,20 @@ public class AgentContainer
 	 * 
 	 * @param nDims	Number of dimensions in this domain (x,y,z).
 	 */
-	public void init(int compartmentNumDims) 
+	public void init(Shape shape) 
 	{
-		this.nDim = compartmentNumDims;
+		this._shape = shape;
 		/*
 		 * Bas: I have chosen maxEntries and minEntries by testing what values
 		 * resulted in fast tree creation and agent searches.
 		 */
-		if ( nDim == 0 )
+		if ( _shape.getNumberOfDimensions() == 0 )
 			this._agentTree = new DummyTree<Agent>();
 		else
-			this._agentTree = new RTree<Agent>(8, 2, this.nDim);
+		{
+			this._agentTree = new RTree<Agent>(8, 2, _shape.getNumberOfDimensions());
+			this._agentTree.setPeriodicBoundaries(_agentBoundaries);
+		}
 		
 		/*
 		 * No parameters needed for the agentList.
@@ -70,7 +85,17 @@ public class AgentContainer
 	
 	public int getNumDims()
 	{
-		return nDim;
+		return _shape.getNumberOfDimensions();
+	}
+	
+	public void addAgentBoundary(PeriodicAgentBoundary boundary)
+	{
+		this._agentBoundaries.put(boundary.periodicDimension, boundary);
+	}
+	
+	public HashMap<Integer, PeriodicAgentBoundary> getAgentBoundaries()
+	{
+		return this._agentBoundaries;
 	}
 	
 	/**
@@ -98,13 +123,13 @@ public class AgentContainer
 		addAgent(agent);
 	}
 
-	//FIXME: .isLocated simplified for now, was an over extensive operation for a simple check.
+	//FIXME: #isLocated simplified for now, was an over extensive operation for a simple check.
 	public void addAgent(Agent agent)
 	{
-		if ( (boolean) agent.get("isLocated") )
+		if ( (boolean) agent.get("#isLocated") )
 		{
-			this._agentTree.insert((double[]) agent.get("lowerBoundingBox"),
-						(double[]) agent.get("dimensionsBoundingBox"), agent);
+			this._agentTree.insert((double[]) agent.get("#boundingLower"),
+						(double[]) agent.get("#boundingSides"), agent);
 		}
 		else
 			this._agentList.add(agent);
@@ -114,12 +139,13 @@ public class AgentContainer
 	public void refreshSpatialRegistry()
 	{
 		List<Agent> agentList = _agentTree.all();
-		this._agentTree = new RTree<Agent>(8, 2, this.nDim);
+		this._agentTree = new RTree<Agent>(8, 2, _shape.getNumberOfDimensions()); // rtree paramaters could follow from the protocol file
 		for(Agent a: agentList) 
 		{
-			_agentTree.insert((double[]) a.get("lowerBoundingBox"), 
-								(double[]) a.get("dimensionsBoundingBox"), a);
+			_agentTree.insert((double[]) a.get("#boundingLower"), 
+								(double[]) a.get("#boundingSides"), a);
 		}
+		this._agentTree.setPeriodicBoundaries(_agentBoundaries);
 	}
 	
 	public LinkedList<Agent> getAllLocatedAgents()

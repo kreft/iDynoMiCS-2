@@ -142,6 +142,23 @@ This is a confusing aspect of Java, but worth learning the distinction. All data
 
 ## Visualisation should be the same regardless of whether it's during the simulation or from results
 
+## Using modulo
+
+We often need to use [modulo](https://en.wikipedia.org/wiki/Modulo_operation), for example when dealing with periodic boundaries or circular geometries. The in-built Java modulus is specified using the `%` sign:
+``` java 
+// dividend % divisor = remainder
+1 % 3 ; // = 1
+5 % 3 ; // = 2
+-2 % 3 ; // = -2
+```
+Note that the sign of the answer is always that of the dividend. If you want it to be the same sign as the divisor (as is often the case), use `Math.floorMod(int dividend, int divisor)`:
+``` java 
+// dividend % divisor = remainder
+Math.floorMod(1, 3) ; // = 1
+Math.floorMod(5, 3) ; // = 2
+Math.floorMod(-2, 3) ; // = 1
+```
+
 # Testing
 
 Useful links:
@@ -153,6 +170,7 @@ Useful links:
 - [Atlassian Git Tutorial: Workflows](https://www.atlassian.com/git/tutorials/comparing-workflows)
 - [A Visual Git Reference](http://marklodato.github.io/visual-git-guide/index-en.html)
 - [Code Tuts+](http://code.tutsplus.com/tutorials/focusing-on-a-team-workflow-with-git--cms-22514)
+- [A Quick Introduction to Version Control with Git and GitHub](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004668)
 
 ## Using Git, GitHub and eGit
 
@@ -160,5 +178,45 @@ Useful links:
 
 ### Merging vs rebasing
 
+#### Merging with SmartGit
+1. Commit and push all changes you have made in your branch.
+2. Close all editors/IDEs and open SmartGit.
+3. Make sure the branches you want to merge are up to date by:
+	-	Check-out branch A (yours) and pull (ctrl+shift+7 to view your branches).
+	-	Check-out branch B (Master) and pull.
+4. Check-out the branch that will receive the merge commit (your branch).
+5. Select the branch you want to merge on top of that (Master) and click merge.
+6. **If there are conflicts**, open all files with the 'conflicts' tag and resolve conflicts (the conflicts 
+resolve tool can be used to view your file on the left, the file from master on
+right and the result in the middle). Per conflict you can pick either the
+changes from your file or from master or write something new all together, you
+need to look carefully which side has the correct code.
+7. After resolving the conflicts in a file, 'stage' the file.
+8. After all conflicts in all files are resolved and all the changes have been
+staged commit the changes.
+9. **If there are (no more) conflicts** push the merge-commit.
+10. now there should be no more conflicts between your branch and the master
+branch and you can create a pull-request in GitHub.
+
 ## Communication
 GitHub enables discussion of issues and aspects of specific code, but there's nothing quite like a face-to-face conversation to resolve these and more general topics. We hold a [Google hangout](https://hangouts.google.com/) roughly every week or two 
+
+## Git configuration
+### Line endings
+Please set the git configuration setting `core.autocrlf` to `true` for contributing to iDynoMiCS 2. It's generally a good idea to do this for your global settings if you are working on projects that are developed in both Windows and in Unix (Mac/Linux) environments. This only needs to be set once. 
+
+To set this in Eclipse with eGit installed, go to *Preferences > Team > Git > Configuration*:
+![eGit line endings](https://raw.githubusercontent.com/roughhawkbit/iDynoMiCS-2/Rob/Docs/eGit_line_endings.png?token=ADJGIcSdFTgBM9Hdin0CcGUB2Y0OuRl0ks5Wpfw-wA%3D%3D)
+
+In the command line, this is done like so:
+``` bash
+git config --global core.autocrlf true
+```
+
+## GitHub hacks
+If you've configured Git nicely and yet it still misbehaves, try these little hacks in your URL bar...
+
+| Problem             | Fix   |
+| ------------------- | ----- |
+| Ignore whitespace   | ?w=1  |
+| Change the tab size | ?ts=4 |

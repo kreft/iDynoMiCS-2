@@ -1,6 +1,7 @@
 package grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
@@ -9,7 +10,7 @@ import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import grid.ResolutionCalculator.ResCalc;
 import linearAlgebra.*;
-import idynomics.Compartment.BoundarySide;
+import shape.BoundarySide;
 
 /**
  * \brief 
@@ -137,7 +138,7 @@ public class CartesianGrid extends SpatialGrid
 		 * yet, make it.
 		 */
 		if ( this._array.containsKey(type) )
-			Array.setAll(this._array.get(type), 0.0);
+			Array.setAll(this._array.get(type), initialValues);
 		else
 		{
 			double[][][] array = Array.array(this._nVoxel[0], this._nVoxel[1],
@@ -320,8 +321,6 @@ public class CartesianGrid extends SpatialGrid
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
-			//for ( int i : aC )
-			//	System.out.println(i);
 			throw new ArrayIndexOutOfBoundsException(
 					"Voxel coordinates must be inside array: "+aC[0]+", "+aC[1]+", "+aC[2]);
 		}
@@ -354,7 +353,8 @@ public class CartesianGrid extends SpatialGrid
 	{
 		int[] coord = new int[3];
 		double counter;
-		for ( int dim = 0; dim < 3; dim++ )
+		int maxDim = Math.min(3, location.length);
+		for ( int dim = 0; dim < maxDim; dim++ )
 		{
 			counter = 0.0;
 			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )
@@ -779,7 +779,6 @@ public class CartesianGrid extends SpatialGrid
 	public GridMethod nbhIteratorIsOutside()
 	{
 		BoundarySide bSide = this.isOutside(this._currentNeighbor);
-		//System.out.println(Arrays.toString(this._currentNeighbor)); //bughunt
 		if ( bSide == null )
 			return null;
 		return this._boundaries.get(bSide);
@@ -836,6 +835,12 @@ public class CartesianGrid extends SpatialGrid
 	 * GRID GETTER
 	 ************************************************************************/
 	
+	/**
+	 * TODO: Bas [15.01.2016] these GridGetter methods can probably made a bit
+	 * simpler by directly implementing their newGrid(...) methods rather than
+	 * returning a new an anonymous GridGetter() that implements this method. 
+	 **/
+	
 	public static final GridGetter standardGetter()
 	{
 		return new GridGetter()
@@ -852,6 +857,19 @@ public class CartesianGrid extends SpatialGrid
 					resCalc[dim].init(resolution, totalLength[dim]);
 				};
 				return new CartesianGrid(totalLength,resCalc);
+			}
+		};
+	}
+	
+	public static final GridGetter dimensionlessGetter()
+	{
+		return new GridGetter()
+		{
+			@Override
+			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
+			{
+				// TODO check this is the best way.
+				return new CartesianGrid(Vector.onesInt(3), resolution);
 			}
 		};
 	}

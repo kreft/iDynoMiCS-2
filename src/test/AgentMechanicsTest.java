@@ -35,6 +35,13 @@ public class AgentMechanicsTest {
 					new Species(speciesNodes.item(i)));
 		}
 		
+		for (int i = 0; i < speciesNodes.getLength(); i++) 
+		{
+			Element xmlSpecies = (Element) speciesNodes.item(i);
+			XmlLoad.loadSpeciesModules(SpeciesLib.get(xmlSpecies.getAttribute("name")),speciesNodes.item(i)); 
+		}
+
+		
 		// cycle trough all compartments
 		NodeList compartmentNodes = doc.getElementsByTagName("compartment");
 		for (int i = 0; i < compartmentNodes.getLength(); i++) 
@@ -73,8 +80,12 @@ public class AgentMechanicsTest {
 		agentGrowth.setTimeForNextStep(0.0);
 		agentGrowth.setTimeStepSize(stepSize);
 
+		/**
+		 * Very unfinished!!!
+		 */
 //		PovExport pov = new PovExport();
 		SvgExport svg = new SvgExport();
+
 		System.out.println("Time: "+agentRelax.getTimeForNextStep());
 		// write initial state
 //		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());

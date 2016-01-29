@@ -11,6 +11,9 @@ public class BoundaryFixed extends BoundaryExternal
 	
 	public BoundaryFixed(double value)
 	{
-		this._defaultGridMethod = new ConstantDirichlet();
+		ConstantDirichlet gm = new ConstantDirichlet();
+		gm.setValue(value);
+		this._defaultGridMethod = gm;
+		
 	}
 }

@@ -10,7 +10,17 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-/.gitignore
 
 # Binaries
 bin/
+
+# Mac files
+.DS_Store
+*/.DS_Store
+
+
+# Manuscript files
+manuscript/iDyno2_latex_plos.out
+manuscript/iDyno2_latex_plos.aux
+manuscript/iDyno2_latex_plos.synctex.gz
+/manuscript/

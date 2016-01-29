@@ -1,6 +1,5 @@
 package idynomics;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -8,13 +7,16 @@ import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SpatialGrid.GridGetter;
-import idynomics.Compartment.BoundarySide;
+import shape.BoundarySide;
+import shape.Shape;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import utility.ExtraMath;
 
 public class EnvironmentContainer
 {
+	protected Shape _shape;
+	
 	protected GridGetter _gridGetter;
 	
 	protected double[] _defaultTotalLength = Vector.vector(3, 1.0);
@@ -40,9 +42,31 @@ public class EnvironmentContainer
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public EnvironmentContainer(GridGetter aGridGetter)
+	public EnvironmentContainer()
 	{
-		this._gridGetter = aGridGetter;
+		
+	}
+	
+	public void setShape(Shape aShape)
+	{
+		this._shape = aShape;
+		this._gridGetter = this._shape.gridGetter();
+	}
+	
+	public EnvironmentContainer(Shape aShape)
+	{
+		this._shape = aShape;
+		this._gridGetter = this._shape.gridGetter();
+	}
+	
+	public void init()
+	{
+		for ( BoundarySide aBS : this._shape.getBoundarySides() )
+			for ( String soluteName : this._solutes.keySet() )
+			{
+				this._solutes.get(soluteName).addBoundary(aBS, 
+						this._shape.getGridMethod(aBS, soluteName));
+			}
 	}
 	
 	/**
@@ -140,6 +164,16 @@ public class EnvironmentContainer
 	public HashMap<String, SpatialGrid> getSolutes()
 	{
 		return this._solutes;
+	}
+	
+	/**
+	 * FIXME: this is really a property of the compartment but we otherwise
+	 * cannot access this information from the process manager, consider refact.
+	 * @return
+	 */
+	public double[] getEdgeLengths()
+	{
+		return _shape.getDimensionLengths();
 	}
 	
 	/*************************************************************************

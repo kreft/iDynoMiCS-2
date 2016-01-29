@@ -1,14 +1,20 @@
 package agent.state;
 
+import generalInterfaces.Copyable;
 import agent.Agent;
 
-public abstract class SecondaryState implements State {
+public abstract class SecondaryState implements State, Copyable {
 	
 	protected String[] input;
 
-	public void set(Object state)
+	public void setInput(String input)
 	{
-		input = ((String) state).split(",");
+		this.input = input.split(",");
+	}
+	
+	public String[] getInput()
+	{
+		return input;
 	}
 	
 	public State copy()
