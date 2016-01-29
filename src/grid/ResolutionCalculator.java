@@ -16,6 +16,7 @@ public class ResolutionCalculator
 	public abstract class ResCalc
 	{
 		protected int _nVoxel;
+		protected double _length;
 		
 		// TODO void init(Node xmlNode);
 		
@@ -26,6 +27,10 @@ public class ResolutionCalculator
 			return this._nVoxel;
 		}
 		
+		public double getTotalLength(){
+			return _length;
+		}
+		
 		public abstract double getResolution(int voxelIndex);
 		/**
 		 * \brief calculates the sum of all resolutions until 
@@ -34,12 +39,19 @@ public class ResolutionCalculator
 		 * @param voxelIndex
 		 * @return
 		 */
-		public abstract double getResolutionSum(int voxelIndex);
+		public abstract double getCumResSum(int voxelIndex);
 	}
 	
 	public abstract class SameRes extends ResCalc
 	{
-		protected double _resolution;
+		protected double _resolution, _cumResSum[];
+		
+		protected void init(){
+			this._cumResSum = new double[_nVoxel];
+			for (int i=0; i<_nVoxel; ++i)
+				this._cumResSum[i] = _resolution * (i+1);
+			this._length = _cumResSum[_nVoxel - 1];
+		}
 		
 		@Override
 		public double getResolution(int voxelIndex)
@@ -48,16 +60,17 @@ public class ResolutionCalculator
 		}
 		
 		@Override
-		public double getResolutionSum(int voxelIndex)
+		public double getCumResSum(int voxelIndex)
 		{
-			return this._resolution * voxelIndex;
+			if (voxelIndex < 0) return 0;
+			if (voxelIndex >= _nVoxel) return Double.NaN;
+			return _cumResSum[voxelIndex];
 		}
 	}
 	
 	public abstract class VariableRes extends ResCalc
 	{
-		protected double _resolution[];
-		protected double _resolutionSum[];
+		protected double _resolution[],  _cumResSum[];
 		
 		@Override
 		public double getResolution(int voxelIndex)
@@ -66,9 +79,9 @@ public class ResolutionCalculator
 		}
 		
 		@Override
-		public double getResolutionSum(int voxelIndex)
+		public double getCumResSum(int voxelIndex)
 		{
-			return this._resolutionSum[voxelIndex];
+			return this._cumResSum[voxelIndex];
 		}
 	}
 	
@@ -108,6 +121,7 @@ public class ResolutionCalculator
 				this._nVoxel++;
 				this._resolution = altRes;
 			}
+			super.init();
 		}
 	}
 	
@@ -136,6 +150,16 @@ public class ResolutionCalculator
 				this._resolution = altRes;
 				altRes = totalLength / altNVoxel;
 			}
+			super.init();
 		}
+	}
+	
+	public class VaryingResolution extends VariableRes
+	{
+		@Override
+		void init(double targetResolution, double totalLength) {
+			
+		}
+		
 	}
 }

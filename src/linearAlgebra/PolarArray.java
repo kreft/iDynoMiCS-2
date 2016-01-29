@@ -226,4 +226,13 @@ public final class PolarArray {
 		}
 		return max;
 	}
+	
+	public static double area(
+			double r, double theta0, double theta1, double phi0, double phi1){
+		return r * r * (theta1 - theta0) * (Math.cos(phi0)-Math.cos(phi1));
+	}
+	
+	public static double arcLength(double r, double theta0, double theta1){
+		return r * (theta1 - theta0);
+	}
 }

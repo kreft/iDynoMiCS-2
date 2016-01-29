@@ -1,5 +1,6 @@
 package grid;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.ResolutionCalculator.ResCalc;
@@ -11,13 +12,13 @@ import linearAlgebra.Vector;
 /**
  * \brief A grid with a spherical coordinate system.
  *  
- *  <p>Here we use the {@code r, θ, φ)} convention:</p><ul><li>{@code r} is the
+ *  <p>Here we use the {@code r, φ, θ)} convention:</p><ul><li>{@code r} is the
  *  <i>radial</i> coordinate, i.e. Euclidean distance from the origin</li><li>
- *  {@code θ (theta)} is the <i>azimuthal</i> coordinate (also known as the
- *  <i>longitude</i>) and takes values between 0 and 2π radians</li><li>
  *  {@code φ (phi)} is the <i>polar</i> coordinate (also known as the
  *  <i>zenith</i> or <i>colatitude</i>) and takes values between 0 and π 
- *  radians</li></ul><p>See 
+ *  radians</li></ul><p><li>
+ *  {@code θ (theta)} is the <i>azimuthal</i> coordinate (also known as the
+ *  <i>longitude</i>) and takes values between 0 and 2π radians</li>See 
  *  <a href="http://mathworld.wolfram.com/SphericalCoordinates.html">here</a> 
  *  for more details.</p>  
  *  
@@ -33,19 +34,20 @@ public class SphericalGrid extends PolarGrid
 	 * Notes:
 	 * - The array has three rows, one for each dimension.
 	 * - A row may contain a single value, a vector or a matrix.
-	 * - _resCalc[0] is the radial angle and has length 1 (single value).
-	 * - _resCalc[1] is the polar angle.
-	 * - _resCalc[2] is the azimuthal angle.
+	 * - _resCalc[0] is the radial distance and has length 1 (single value).
+	 * - _resCalc[1] is the polar angle φ.
+	 * - _resCalc[2] is the azimuthal angle θ.
 	 * 
 	 * - To keep the volume over the grid cells fairly constant for same 
-	 * 		resolutions, some dependencies between the _nVoxels were implemented:
-	 *  * The number of voxels along the polar dimension (np) 
-	 *  	is dependent on the radius (r): np=ires[2]*s(r) with s(r)=2*r+1;
-	 * 	* The number of voxels along the azimuthal dimension (nt) 
-	 * 		is dependent on the polar angle (p).
-	 *    This dependency is actually a sine with the domain scaled from [0,pi]
-	 *    to [0,np(r)-1] and the co-domain scaled from [0,1] so that it peaks 
-	 *    with a value of ires[1]*s(r)  	  
+	 * 		resolutions, some dependencies between the number of voxels
+	 * 		were implemented:
+	 *  * The number of voxels along the polar dimension (η_φ) 
+	 *  	is dependent on the radius r: η_φ(r)=ires[2]*s(r) with s(r)=2*r+1;
+	 * 	* The number of voxels along the azimuthal dimension (η_θ) 
+	 * 		is dependent on the radius r and the polar angle φ.
+	 *    This dependency is actually a sine with the domain scaled from [0,π]
+	 *    to [0,η_φ(r)-1] and the co-domain scaled from [0,1] so that it peaks 
+	 *    with a value of ires[1]*s(r) at the equator.  	  
 	 * 
 	 * <p>For example, a sphere (-> ires[1]=4, ires[2]=2) with radius 2  
 	 * 			and resolution 1 would have:
@@ -92,14 +94,17 @@ public class SphericalGrid extends PolarGrid
 		{
 			/* Set up for theta. */
 			this._resCalc[1][i][0] = resolution.new UniformResolution();
-			this._resCalc[1][i][0].init(res[2], nRows(i));
+			this._resCalc[1][i][0].init(res[2], (int) _ires[2] * s(i));
 			/* Determine how many for phi, and set these up. */
 			np = this._resCalc[1][i][0].getNVoxel();
 			this._resCalc[2][i] = new UniformResolution[np];
 			for ( int j = 0; j < np; ++j )
 			{
+				double p_scale=(Math.PI/2)/(s(i)-0.5);
+				double nt=_ires[1]+(s(i)-1)*_ires[1]*Math.sin(j*p_scale);
+				double length = (int)Math.round(nt);
 				this._resCalc[2][i][j] = resolution.new UniformResolution();
-				this._resCalc[2][i][j].init(res[1], nCols(i, j));
+				this._resCalc[2][i][j].init(res[1], length);
 			}
 		}
 	}
@@ -156,15 +161,14 @@ public class SphericalGrid extends PolarGrid
 	 */
 	private double getArcLengthTheta(int[] coord)
 	{
-		// TODO Rob [18Jan2016]: why do we use resCalc[2]? resCalc[1] would
-		// make more sense to me!
-		int nk = this._resCalc[2][coord[0]][coord[1]].getNVoxel();
-		return this._radSize[1] / nk;
+		ResCalc resCalc = _resCalc[2][coord[0]][coord[1]];
+		return resCalc.getResolution(coord[2])
+				* _radSize[1] / resCalc.getTotalLength();
 	}
 	
 	/**
-	 * \brief Computes the arc length along the polar dimension of the 
-	 * grid element at the given coordinate.
+	 * \brief Computes the arc length along the polar dimension of
+	 *  the given voxel.
 	 * 
 	 * TODO: Assumes constant resolution at the moment?!
 	 * 
@@ -175,10 +179,9 @@ public class SphericalGrid extends PolarGrid
 	 */
 	private double getArcLengthPhi(int[] coord)
 	{
-		// TODO Rob [18Jan2016]: why do we use resCalc[1]? resCalc[2] would
-		// make more sense to me!
-		int nj = this._resCalc[1][coord[0]][0].getNVoxel();
-		return this._radSize[2] / nj;
+		ResCalc resCalc = _resCalc[1][coord[0]][0];
+		return resCalc.getResolution(coord[1])
+				* _radSize[2] / resCalc.getTotalLength();
 	}
 	
 	@Override
@@ -188,15 +191,29 @@ public class SphericalGrid extends PolarGrid
 		/*
 		 * Determine i (as in Cartesian grid).
 		 */
-		cartLoc2Coord(loc[0], this._resCalc[0][0][0], 0, coord, inside);
+		cartLoc2Coord(0,
+				loc[0],
+				this._resCalc[0][0][0],
+				coord,
+				inside);
 		/*
 		 * Determine j.
 		 */
-		polarLoc2Coord(loc[2], getArcLengthPhi(coord), 1, coord, inside);
+		polarLoc2Coord(1,
+				loc[1],
+				this._radSize[1],
+				this._resCalc[1][coord[0]][0],
+				coord,
+				inside);
 		/*
 		 * Determine k.
 		 */
-		polarLoc2Coord(loc[1], getArcLengthTheta(coord), 2, coord, inside);
+		polarLoc2Coord(2,
+				loc[2],
+				this._radSize[2],
+				this._resCalc[2][coord[0]][coord[1]],
+				coord, 
+				inside);
 		return coord;
 	}
 	
@@ -207,15 +224,29 @@ public class SphericalGrid extends PolarGrid
 		/*
 		 * Determine r.
 		 */
-		cartCoord2Loc(coord[0], _resCalc[0][0][0], inside[0], 0, loc);
-		/*
-		 * Determine theta.
-		 */
-		polarCoord2Loc(coord[2], getArcLengthTheta(coord), inside[2], 1, loc);
+		cartCoord2Loc(0,
+				coord[0],
+				_resCalc[0][0][0],
+				inside[0],
+				loc);
 		/* 
 		 * Determine phi.
 		 */
-		polarCoord2Loc(coord[1], getArcLengthPhi(coord), inside[1], 2, loc);
+		polarCoord2Loc(1,
+				coord[1],
+				this._radSize[1],
+				this._resCalc[1][coord[0]][0],
+				inside[1],
+				loc);
+		/*
+		 * Determine theta.
+		 */
+		polarCoord2Loc(2,
+				coord[2],
+				this._radSize[2],
+				this._resCalc[2][coord[0]][coord[1]],
+				inside[2],
+				loc);
 		return loc;
 	}
 	
@@ -252,47 +283,182 @@ public class SphericalGrid extends PolarGrid
 			/*
 			 * Change in r (-1 or 1)
 			 */
+			int[] nbh_coord = new int[3];
 			int dr = NBH_DIRECS[_nbhIdx][0];
-			if ( isOutside(new int[]{cc[0]+dr, -1, -1}, 0)==null )
+			nbh_coord[0] = cc[0] + dr;
+			if ( isOutside(new int[]{nbh_coord[0] , -1, -1}, 0)==null )
 			{
+				double[] bounds_theta = new double[2];
+				double[] bounds_phi = new double[2];
+				double[] bounds_nbh_theta = new double[2];
+				double[] bounds_nbh_phi = new double[2];
+				
+				double len_cur_theta = getArcLengthTheta(cc);
+				double len_cur_phi = getArcLengthPhi(cc);
+				
 				/*
-				 * Compute number of voxels along azimuthal and polar dimension
-				 * for this and the neighboring 'constant-radius-shell'.
+				 * current coord bounds phi
 				 */
-				double np_cur = _resCalc[1][cc[0]][0].getNVoxel();
-				double np_nbh = _resCalc[1][cc[0] + dr][0].getNVoxel();
-				double nt_cur= _resCalc[2][cc[0]][cc[1]].getNVoxel();
-				double nt_nbh;
+				polarCoord2Loc(0, 
+						cc[1],
+						_radSize[1],
+						_resCalc[1][cc[0]][0], 
+						0, 
+						bounds_phi);
+				
+				polarCoord2Loc(1, 
+						cc[1],
+						_radSize[1],
+						_resCalc[1][cc[0]][0], 
+						1, 
+						bounds_phi);
+				
 				/*
-				 * Compute the neighbor nVoxel to current nVoxel ratio 
-				 * for the polar dimension.
+				 * current coord bounds theta
 				 */
-				double drt;
-				double drp = np_nbh / np_cur;
+				polarCoord2Loc(0, 
+						cc[2],
+						_radSize[1],
+						_resCalc[2][cc[0]][cc[1]], 
+						0, 
+						bounds_theta);
+				
+				polarCoord2Loc(1, 
+						cc[2],
+						_radSize[1],
+						_resCalc[2][cc[0]][cc[1]], 
+						1, 
+						bounds_theta);
+				
 				/*
-				 * Loop through all neighbors along the polar dimension.
-				 * Starting from the current polar angle coordinate times the 
-				 * nVoxel ratio and ending at the next polar angle coordinate
-				 * times the nVoxel ratio.
+				 * first neighbor phi coordinate
 				 */
-				for (int phi = (int) (cc[1]*drp);  phi < (cc[1]+1)*drp; phi++ )
-				{
-					nt_nbh=_resCalc[2][cc[0] + dr][phi].getNVoxel();
+				polarLoc2Coord(1, 
+						bounds_phi[0],
+						_radSize[1],
+						_resCalc[1][nbh_coord[0]][0], 
+						nbh_coord, 
+						null);
+				
+				/*
+				 * First neighbor phi location 0 (origin)
+				 */
+				polarCoord2Loc(0, 
+						nbh_coord[1],
+						_radSize[1],
+						_resCalc[1][nbh_coord[0]][0], 
+						0, 
+						bounds_nbh_phi);
+				
+				while(bounds_nbh_phi[0] < bounds_phi[1]){	
 					/*
-					 * Compute the neighbor nVoxel to current nVoxel ratio 
-					 * for the azimuthal dimension.
+					 * next neighbor in phi 
 					 */
-					drt = nt_nbh / nt_cur;
-					//System.out.println(drt+" "+nt_nbh+" "+nt_cur);
+					polarCoord2Loc(1, 
+							nbh_coord[1],
+							_radSize[1],
+							_resCalc[1][nbh_coord[0]][0], 
+							1, 
+							bounds_nbh_phi);
+					
+					double len_nbh_phi = getArcLengthPhi(nbh_coord);
+					
+					double sA_phi = getSharedArea(dr,
+							len_cur_phi,
+							bounds_phi,
+							bounds_nbh_phi,
+							len_nbh_phi);
+//					System.out.println(Arrays.toString(nbh_coord));
 					/*
-					 * Loop through all neighbors along the azimuthal dimension.
+					 * first neighbor theta coordinate
 					 */
-					for ( int theta = (int) (cc[2]*drt); 
-											theta < (cc[2]+1)*drt; theta++ )
-					{
-						_subNbhSet.add( new int[]{cc[0]+dr, phi, theta} );
+					polarLoc2Coord(2, 
+							bounds_theta[0],
+							_radSize[1],
+							_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
+							nbh_coord, 
+							null);
+					
+					/*
+					 * First neighbor theta location 0 (origin)
+					 */
+					polarCoord2Loc(0, 
+							nbh_coord[2],
+							_radSize[1],
+							_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
+							0, 
+							bounds_nbh_theta);
+					
+					while(bounds_nbh_theta[0] < bounds_theta[1]){	
+						/*
+						 * next neighbor in theta
+						 */
+						polarCoord2Loc(1, 
+								nbh_coord[2],
+								_radSize[1],
+								_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
+								1, 
+								bounds_nbh_theta);
+						
+						double len_nbh_theta = getArcLengthTheta(nbh_coord);
+						
+						double sA_theta = getSharedArea(dr,
+								len_cur_theta,
+								bounds_theta,
+								bounds_nbh_theta,
+								len_nbh_theta);
+						
+//						System.out.print("phi: "+Arrays.toString(bounds_nbh_phi)+"  "+Arrays.toString(bounds_phi));
+//						System.out.println(" theta: "+Arrays.toString(bounds_nbh_theta)+"  "+Arrays.toString(bounds_theta));
+						
+						_subNbhSet.add(Vector.copy(nbh_coord));
+						_subNbhSharedAreaSet.add(sA_phi * sA_theta);
+						
+						bounds_nbh_theta[0] = bounds_nbh_theta[1];
+						nbh_coord[2]++;
 					}
+					bounds_nbh_phi[0] = bounds_nbh_phi[1];
+					nbh_coord[1]++;
 				}
+				
+//				/*
+//				 * Compute number of voxels along azimuthal and polar dimension
+//				 * for this and the neighboring 'constant-radius-shell'.
+//				 */
+//				double np_cur = _resCalc[1][cc[0]][0].getNVoxel();
+//				double np_nbh = _resCalc[1][cc[0] + dr][0].getNVoxel();
+//				double nt_cur= _resCalc[2][cc[0]][cc[1]].getNVoxel();
+//				double nt_nbh;
+//				/*
+//				 * Compute the neighbor nVoxel to current nVoxel ratio 
+//				 * for the polar dimension.
+//				 */
+//				double drt;
+//				double drp = np_nbh / np_cur;
+//				/*
+//				 * Loop through all neighbors along the polar dimension.
+//				 * Starting from the current polar angle coordinate times the 
+//				 * nVoxel ratio and ending at the next polar angle coordinate
+//				 * times the nVoxel ratio.
+//				 */
+//				for (int phi = (int) (cc[1]*drp);  phi < (cc[1]+1)*drp; phi++ )
+//				{
+//					nt_nbh=_resCalc[2][cc[0] + dr][phi].getNVoxel();
+//					/*
+//					 * Compute the neighbor nVoxel to current nVoxel ratio 
+//					 * for the azimuthal dimension.
+//					 */
+//					drt = nt_nbh / nt_cur;
+//					//System.out.println(drt+" "+nt_nbh+" "+nt_cur);
+//					/*
+//					 * Loop through all neighbors along the azimuthal dimension.
+//					 */
+//					for ( int theta = (int) (cc[2]*drt); 
+//											theta < (cc[2]+1)*drt; theta++ )
+//					{
+//						_subNbhSet.add( new int[]{cc[0]+dr, phi, theta} );
+//					}
+//				}
 			}
 			/*
 			* only change r coordinate if outside the grid along radial dimension.
@@ -305,35 +471,105 @@ public class SphericalGrid extends PolarGrid
 		else if ( _nbhIdx < 2 )
 		{ 
 			/*
-			 * change in p (-1 or 1)
+			 * change in phi (-1 or 1)
 			 */
-			int dp = NBH_DIRECS[_nbhIdx][2];
+			int dphi = NBH_DIRECS[_nbhIdx][2];
+			int[] nbh_coord = new int[3];
+			nbh_coord[1] = cc[1] + dphi;
 //			System.out.println(dp);
-			if (isOutside(new int[]{cc[0],cc[1]+dp,-1},1)==null){
+			if (isOutside(new int[]{cc[0],nbh_coord[1],-1},1)==null){
+				nbh_coord[0] = cc[0] + NBH_DIRECS[_nbhIdx][0];
+				double[] bounds = new double[2];
+				double[] bounds_nbh = new double[2];
+				
+				double len_cur = getArcLengthTheta(cc);
+				
 				/*
-				 * compute number of voxels (along azimuthal dimension) for this 
-				 * and the neighboring row in the matrix with index cc[0].
+				 * current coord bounds theta
 				 */
-				double nt_cur=_resCalc[2][cc[0]][cc[1]].getNVoxel();
-				double nt_nbh=_resCalc[2][cc[0]][cc[1] + dp].getNVoxel();
+				polarCoord2Loc(0, 
+						cc[2],
+						_radSize[1],
+						_resCalc[2][cc[0]][cc[1]], 
+						0, 
+						bounds);
+				
+				polarCoord2Loc(1, 
+						cc[2],
+						_radSize[1],
+						_resCalc[2][cc[0]][cc[1]], 
+						1, 
+						bounds);
+				
 				/*
-				 * compute the neighbor row length to current row length ratio 
-				 * for the azimuthal dimension.
+				 * first neighbor theta coordinate
 				 */
-				double drt=nt_nbh/nt_cur;
-//				System.out.println(drt+" "+nt_nbh+" "+nt_cur);
+				polarLoc2Coord(2, 
+						bounds[0],
+						_radSize[1],
+						_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
+						nbh_coord, 
+						null);
+				
 				/*
-				 * Loop through all neighbors along the azimuthal dimension.
+				 * First neighbor theta location 0 (origin)
 				 */
-				for (int t=(int)(cc[2]*drt);  t<(cc[2]+1)*drt; t++){
-					_subNbhSet.add(new int[]{cc[0],cc[1]+dp,t});
+				polarCoord2Loc(0, 
+						nbh_coord[2],
+						_radSize[1],
+						_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
+						0, 
+						bounds_nbh);
+				
+				while(bounds_nbh[0] < bounds[1]){	
+					/*
+					 * next neighbor in theta 
+					 */
+					polarCoord2Loc(1, 
+							nbh_coord[2],
+							_radSize[1],
+							_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
+							1, 
+							bounds_nbh);
+					
+					double len_nbh = getArcLengthTheta(nbh_coord);
+					
+					double sA = getSharedArea(dphi,
+							len_cur,
+							bounds,
+							bounds_nbh,
+							len_nbh);
+					
+					_subNbhSet.add(Vector.copy(nbh_coord));
+					_subNbhSharedAreaSet.add(sA);
+					bounds_nbh[0] = bounds_nbh[1];
+					nbh_coord[2]++;
 				}
+				
+//				/*
+//				 * compute number of voxels (along azimuthal dimension) for this 
+//				 * and the neighboring row in the matrix with index cc[0].
+//				 */
+//				double nt_cur=_resCalc[2][cc[0]][cc[1]].getNVoxel();
+//				double nt_nbh=_resCalc[2][cc[0]][cc[1] + dphi].getNVoxel();
+//				/*
+//				 * compute the neighbor row length to current row length ratio 
+//				 * for the azimuthal dimension.
+//				 */
+//				double drt=nt_nbh/nt_cur;
+////				System.out.println(drt+" "+nt_nbh+" "+nt_cur);
+//				/*
+//				 * Loop through all neighbors along the azimuthal dimension.
+//				 */
+//				for (int t=(int)(cc[2]*drt);  t<(cc[2]+1)*drt; t++){
+//					_subNbhSet.add(new int[]{cc[0],cc[1]+dphi,t});
+//				}
 			}
 			/*
 			* only change p coordinate if outside the grid along polar dimension.
 			*/
 			else
-				this._subNbhSet.add(new int[]{cc[0],cc[1]+dp,cc[2]});
+				this._subNbhSet.add(new int[]{cc[0],cc[1]+dphi,cc[2]});
 		}
 		/*
 		 * Add the relative position to the current coordinate if moving along
@@ -472,33 +708,22 @@ public class SphericalGrid extends PolarGrid
 		return null;
 	}
 	
-	/**
-	 * \brief computes the number of rows in matrix i for resolution 1.
-	 * 
-	 * This is the total length if transformed to a cartesian coordinate system.
-	 * 
-	 * @param i - matrix index
-	 * @return - the number of rows for a given radius.
-	 */
-	private int nRows(int i) {
-		return (int)_ires[2]*s(i);
-	}
-	
-	/**
-	 * \brief Computes the number of columns in matrix i, row j for resolution 1.
-	 * 
-	 * This is the total length if transformed to a cartesian coordinate system.
-	 * 
-	 * @param i - matrix index
-	 * @param j - row index
-	 * @return - the number of elements in row j
-	 */
-	private int nCols(int i, int j){
-		double res = _resCalc[1][i][0].getResolutionSum(s(i))/s(i);
-		double p_scale=(Math.PI/2)/(s(i)-0.5) * res;
-		double nt=_ires[1]+(s(i)-1)*_ires[1]*Math.sin(j*p_scale)*res;
-		return (int)Math.round(nt);
-	}
+//	/**
+//	 * \brief Computes the number of columns in matrix i, row j for resolution 1.
+//	 * 
+//	 * This is the total length if transformed to a cartesian coordinate system.
+//	 * 
+//	 * @param i - matrix index
+//	 * @param j - row index
+//	 * @return - the number of elements in row j
+//	 */
+//	private int nCols(int i, int j){
+//
+////		double res = _resCalc[1][i][0].getCumResSum(s(i))/s(i);
+////		double p_scale=(Math.PI/2)/(s(i)-0.5) * res;
+////		double nt=_ires[1]+(s(i)-1)*_ires[1]*Math.sin(j*p_scale)*res;
+////		return (int)Math.round(nt);
+//	}
 	
 	/*************************************************************************
 	 * GRID GETTER

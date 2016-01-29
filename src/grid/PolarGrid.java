@@ -35,12 +35,16 @@ public abstract class PolarGrid extends SpatialGrid
 	 * it is empty and the iterator is valid.
 	 */
 	protected ArrayList<int[]> _subNbhSet;	
+	protected ArrayList<Double> _subNbhSharedAreaSet;	
+	
+	protected double _currentNbhSharedSufaceArea;
+	
 	/**
 	 * Total size in each dimension
 	 */
 	protected double[] _radSize;
 	/**
-	 * factor scaling polar dimensions to have one grid cell per 90° 
+	 * factor scaling polar dimensions to have one grid cell per 90ï¿½ 
 	 * (4 grid cells for a full circle) for 0 <= radius < 1
 	 */
 	protected double[] _ires;
@@ -84,6 +88,7 @@ public abstract class PolarGrid extends SpatialGrid
 		_ires = Vector.vector(3, -1.0);
 		_radSize = Vector.vector(3, -1.0);
 		_subNbhSet = new ArrayList<int[]>();
+		_subNbhSharedAreaSet = new ArrayList<Double>();
 		
 		/*
 		 * Set up members
@@ -289,10 +294,12 @@ public abstract class PolarGrid extends SpatialGrid
 	public void currentNbhIdxChanged(){
 		_subNbhIdx=0;
 		_subNbhSet.clear();
+		_subNbhSharedAreaSet.clear();
 		fillNbhSet();
 //		if (_subNbhSet.isEmpty())
 //			nbhIteratorNext();
 		_currentNeighbor = _subNbhSet.get(0);
+		_currentNbhSharedSufaceArea = _subNbhSharedAreaSet.get(0);
 	}
 	
 	/**
@@ -369,6 +376,7 @@ public abstract class PolarGrid extends SpatialGrid
 		 */
 		if (_subNbhIdx < _subNbhSet.size()){ 
 			_currentNeighbor = _subNbhSet.get(_subNbhIdx);
+			_currentNbhSharedSufaceArea = _subNbhSharedAreaSet.get(_subNbhIdx);
 		}else{
 			/*
 			 * if _subNbhSet has no more elements step into next 
@@ -382,6 +390,11 @@ public abstract class PolarGrid extends SpatialGrid
 		 */
 		_currentNeighbor = transInternal(_currentNeighbor);
 		return _currentNeighbor;
+	}
+	
+	@Override
+	public double getNbhSharedSurfaceArea() {
+		return _currentNbhSharedSufaceArea;
 	}
 	
 	/**
@@ -498,94 +511,132 @@ public abstract class PolarGrid extends SpatialGrid
 	protected static int s(int r)
 	{
 		return ( 2 * r) + 1;
-		}
-	
-	/**
-	 * \brief Transforms a Cartesian location into a coordinate in the array. 
-	 * 
-	 * The result is written into coord_out[idx_out] and inside_out[idx_out].
-	 *  
-	 * @param loc - A location in one dimension.
-	 * @param nVoxel - Number of voxels in that dimension.
-	 * @param res -  The resolution of the coordinate.
-	 * @param idx_out - Index for output.
-	 * @param coord_out - Output coordinate array.
-	 * @param inside_out - Output inside array.
-	 */
-	public static void cartLoc2Coord(double loc, ResCalc resCalc,
-							int idx_out, int[] coord_out, double[] inside_out)
-	{
-		//TODO: use getResolutionSum(i)
-		double counter = 0.0;
-		countLoop: for ( int i = 0; i < resCalc.getNVoxel(); i++ )
-		{
-			if ( counter >= loc)
-			{
-				coord_out[idx_out] = i;
-				if ( inside_out != null ) 
-					inside_out[idx_out] = counter-loc;
-				break countLoop;
-			}
-			counter += resCalc.getResolution(i);
-		}
 	}
 	
 	/**
-	 * \brief Transforms a polar location into a coordinate in the array.
+	 * \brief Transforms a location on a given Cartesian axis into its 
+	 * 			corresponding coordinate in the array. 
+	 *  
+	 * The result is written into coord_out[axis] and inside_out[axis].
+	 *  
+	 * @param axis - The axis to be operated on (index in output arrays).
+	 * @param loc - A location on axis {@code axis}.
+	 * @param resCalc - Resolution calculator for axis {@code axis}.
+	 * @param coord_out - Output coordinate array.
+	 * @param inside_out - Output inside array.
+	 */
+	public static void cartLoc2Coord(int axis, double loc, ResCalc resCalc,
+									 int[] coord_out, double[] inside_out)
+	{
+		//TODO: use getResolutionSum(i)
+		
+		coord_out[axis] = 0; 
+		double cumRes_prev = 0;
+		while (cumRes_prev < loc){
+			cumRes_prev = resCalc.getCumResSum(coord_out[axis]);
+			coord_out[axis]++;
+		}
+		if ( inside_out != null ) 
+			inside_out[axis] = (loc - cumRes_prev) 
+								/ resCalc.getResolution(coord_out[axis]);
+	}
+	
+	/**
+	 * \brief Transforms a location on a given polar axis into its 
+	 * 			corresponding coordinate in the array. 
 	 * 
-	 * The result is written into coord_out[idx_out] and inside_out[idx_out].
+	 * The result is written into coord_out[axis] and inside_out[axis].
 	 * 
+	 * @param axis - The axis to be operated on (index in output arrays).
 	 * @param loc - A location in one dimension.
 	 * @param arcLength - The arcLength in that dimension.
 	 * @param idx_out - Index for output.
 	 * @param coord_out - Output coordinate array.
 	 * @param inside_out - Output inside array.
 	 */
-	public static void polarLoc2Coord(double loc, double arcLength, 
-							int idx_out, int[] coord_out, double[] inside_out)
+	public static void polarLoc2Coord(int axis, double loc, double rad_size, 
+						ResCalc resCalc, int[] coord_out, double[] inside_out)
 	{
-		double c = loc/arcLength;
-		coord_out[idx_out] = (int)(c);
+		final double arcLength = rad_size / resCalc.getTotalLength();
+		int c = 0; 
+		double length = resCalc.getCumResSum(c) * arcLength;
+		while (length <= loc){
+			c++;
+			length = resCalc.getCumResSum(c) * arcLength;
+//			System.out.println(length+" "+loc+" "+arcLength+" "+ resCalc.getCumResSum(c));
+		}
 		if ( inside_out != null ) 
-			inside_out[idx_out] = Math.abs( c - coord_out[idx_out] );
+//			System.out.println(length+" "+loc);
+			inside_out[axis] = 1 - (length - loc) 
+									/ (resCalc.getResolution(c) * arcLength);
+		coord_out[axis] = c;
 	}
 	
 	/**
-	 * \brief Transforms a Cartesian coordinate into a location in space.
+	 * \brief Transforms an array coordinate on a given Cartesian axis into its 
+	 * 			corresponding location in space. 
 	 * 
-	 * The result is written into loc_out[idx_out].
+	 * The result is written into loc_out[axis].
 	 * 
 	 * @param coord - A coordinate in one dimension.
 	 * @param resCalc - The resolution calculator for the given dimension.
 	 * @param inside - The subcoordinate inside the grid cell.
-	 * @param idx_out - Index for output.
+	 * @param axis - The axis to be operated on (index in output arrays).
 	 * @param loc_out - Output location array.
 	 */
-	public static void cartCoord2Loc(int coord, ResCalc resCalc,
-								double inside, int idx_out, double[] loc_out)
+	public static void cartCoord2Loc(int axis, int coord, ResCalc resCalc,
+								double inside, double[] loc_out)
 	{
-		//TODO: use getResolutionSum(i)
-		for ( int i = 0; i < coord; i++ )
-			loc_out[idx_out] += resCalc.getResolution(i);
-		loc_out[idx_out] += inside * resCalc.getResolution(coord);
+		loc_out[axis] = resCalc.getCumResSum(coord-1);
+		loc_out[axis] += inside * resCalc.getResolution(coord);
 	}
 	
 	/**
-	 * \brief Transforms a polar coordinate into a location in space.
+	 * \brief Transforms a location on a given polar axis into its 
+	 * 			corresponding coordinate in the array. 
 	 * 
-	 * The result is written into loc_out[idx_out].
+	 * The result is written into loc_out[axis].
 	 * 
 	 * @param coord - A coordinate in one dimension.
 	 * @param arcLength - The arcLength in that dimension.
 	 * @param inside - The subcoordinate inside the grid cell.
-	 * @param idx_out - Index for output.
+	 * @param axis - The axis to be operated on (index in output arrays).
 	 * @param loc_out - Output location array.
 	 */
-	public static void polarCoord2Loc(int coord, double arcLength, 
-								double inside, int idx_out, double[] loc_out)
+	public static void polarCoord2Loc(int axis, int coord, double radSize, 
+								ResCalc resCalc, double inside, double[] loc_out)
 	{
-		loc_out[idx_out] = ( coord + inside ) * arcLength;
+		loc_out[axis] = resCalc.getCumResSum(coord-1) 
+							/ resCalc.getTotalLength() 
+							* radSize;
+		loc_out[axis] += inside * resCalc.getResolution(coord) 
+								* (radSize / resCalc.getTotalLength());
 	}
+	
+	protected static double getSharedArea(int d, double len_cur, 
+			double[] bounds, double[] bounds_nbh, double len_nbh){
+		boolean is_right, is_left, is_inBetween;
+		double sA=0;
+
+		// t1 of nbh <= t1 of cc (right, counter-clockwise)
+		double len_s;
+		if (d < 0){
+			is_right = bounds_nbh[0] <= bounds[0];
+			is_left = bounds_nbh[1] >= bounds[1];
+			is_inBetween = is_left && is_right;
+			len_s = len_cur;
+		}else{
+			is_right = bounds_nbh[0] < bounds[0];
+			is_left = bounds_nbh[1] > bounds[1];
+			is_inBetween = !(is_left || is_right);
+			len_s = len_nbh;
+		}
+
+		if (is_inBetween) sA = 1;
+		else if (is_right) sA = (bounds_nbh[1]-bounds[0])/len_s;
+		else sA = (bounds[1]-bounds_nbh[0])/len_s; // is_left
+		return sA;
+}
 
 	/*************************************************************************
 	 * REPORTING

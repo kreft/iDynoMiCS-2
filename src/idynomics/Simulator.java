@@ -1,7 +1,9 @@
 package idynomics;
 
 import java.util.HashMap;
-import utility.*;
+import java.util.Set;
+
+import utility.ExtraMath;
 
 
 public class Simulator
@@ -32,6 +34,11 @@ public class Simulator
 		aCompartment.name = name;
 		this._compartments.put(name, aCompartment);
 		return aCompartment;
+	}
+	
+	public Compartment[] getCompartments(){
+		Compartment[] compartments = new Compartment[this._compartments.size()];
+		return this._compartments.values().toArray(compartments);
 	}
 	
 	/*************************************************************************

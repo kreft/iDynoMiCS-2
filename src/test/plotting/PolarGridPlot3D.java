@@ -1,14 +1,13 @@
 package test.plotting;
 
-import java.awt.Color;
 import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
 import javax.media.j3d.BoundingSphere;
+import javax.media.j3d.Bounds;
 import javax.media.j3d.BranchGroup;
-import javax.media.j3d.DirectionalLight;
 import javax.media.j3d.GeometryArray;
 import javax.media.j3d.Material;
 import javax.media.j3d.PolygonAttributes;
@@ -16,9 +15,9 @@ import javax.media.j3d.QuadArray;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
+import javax.media.j3d.TransparencyAttributes;
 import javax.media.j3d.View;
 import javax.vecmath.Color3f;
-import javax.vecmath.Color4f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3f;
 
@@ -30,6 +29,7 @@ import com.sun.j3d.utils.universe.SimpleUniverse;
 import com.sun.j3d.utils.universe.Viewer;
 
 import grid.PolarGrid;
+import grid.SpatialGrid.ArrayType;
 import grid.SphericalGrid;
 import linearAlgebra.Vector;
 import test.PolarGridTest;
@@ -39,21 +39,23 @@ public class PolarGridPlot3D {
 	PolarGrid grid;
 	SimpleUniverse universe;
 	HashMap<Integer,Integer> coord2idx; 
+	boolean print_grid_lines, plot_locations;
 	
-	final Color3f red=new Color3f(1f, 0f, 0f), 
-			blue=new Color3f(0f, 0f, 1f), 
-			green=new Color3f(0f, 1f, 0f);
+	final Color3f RED=new Color3f(1f, 0f, 0f), 
+			BLUE=new Color3f(0f, 0f, 1f), 
+			GREEN=new Color3f(0f, 1f, 0f);
 	
-	public PolarGridPlot3D(PolarGrid grid, boolean centre, boolean print_grid){
+	public PolarGridPlot3D(PolarGrid grid, int plot_location, boolean print_grid){
+		print_grid_lines = print_grid;
 		universe = new SimpleUniverse();
-		group = new BranchGroup();
+		group = plot_location > 0 ? new BranchGroup(): null;
 		polyGroup = new BranchGroup();
 		coord2idx = new HashMap<Integer,Integer>();
 		this.grid=grid;
-		
+		Bounds bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 1000.0);
 		OrbitBehavior B = new OrbitBehavior();
 		B.setReverseZoom(true);
-		B.setSchedulingBounds(new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 1000.0) );
+		B.setSchedulingBounds(bounds);
 		universe.getViewingPlatform().setViewPlatformBehavior(B);
 		Viewer viewer = universe.getViewer();
 		View view = viewer.getView();
@@ -67,34 +69,47 @@ public class PolarGridPlot3D {
 				current = grid.iteratorNext())
 		{
 			coord2idx.put(Arrays.hashCode(current), idx);
-//			System.out.println(Arrays.toString(current));
-			if (centre) p = grid.getVoxelCentre(Vector.copy(current));
-			else p = grid.getVoxelOrigin(Vector.copy(current));
-//			System.out.println(Arrays.toString(p));
-//			System.out.println();
-			
-			Sphere sphere = new Sphere(0.05f);
-			sphere.setAppearance(makeShinyAppearance(green));
-			TransformGroup tg = toCartesian(p);
-			tg.addChild(sphere);
-			group.addChild(tg);
-			
-			QuadArray qa = getGridCell(Vector.copy(current));
-			GeometryInfo gi = new GeometryInfo(qa);
-	        NormalGenerator ng = new NormalGenerator();
-	        ng.generateNormals(gi);
-	        GeometryArray result = gi.getGeometryArray();
+			if (plot_location>0){
+				//			System.out.println(Arrays.toString(current));
+				if (plot_location==2) 
+					p = grid.getVoxelCentre(Vector.copy(current));
+				else if (plot_location==1)
+					p = grid.getVoxelOrigin(Vector.copy(current));
+				else throw new IllegalArgumentException();
+				//			System.out.println(Arrays.toString(p));
+				//			System.out.println();
 
+				Sphere sphere = new Sphere(0.05f);
+				sphere.setAppearance(makeShinyAppearance(GREEN));
+				TransformGroup tg = toCartesian(p);
+				tg.addChild(sphere);
+				group.addChild(tg);
+			}
+			QuadArray qa = getGridCell(Vector.copy(current),0);
+			GeometryInfo gi = new GeometryInfo(qa);
+			NormalGenerator ng = new NormalGenerator();
+			ng.generateNormals(gi);
+			GeometryArray result = gi.getGeometryArray();
+
+			/*
+			 * alpha = [0, 1] with 0 beeing opaque
+			 * shininess = [1, 128] with 1 beeing not shiny at all 
+			 */
 			Shape3D poly = new Shape3D(
-					result, makeNoCullVecAppearance(red));
+					result, makeNoCullVecAppearance(RED, print_grid));
 			polyGroup.addChild(poly);
 			idx++;
 		}
 //		addLights(polyGroup);
+		AmbientLight ambientLight = new AmbientLight(new Color3f(1f,1f,1f));
+		ambientLight.setInfluencingBounds(bounds);
+		polyGroup.addChild(ambientLight);
 		universe.getViewingPlatform().setNominalViewingTransform();
-		universe.addBranchGraph(group);
-		if (print_grid) universe.addBranchGraph(polyGroup);
+		if (plot_location>0) universe.addBranchGraph(group);
+		universe.addBranchGraph(polyGroup);
 	}
+	
+	
 	
 	public void runIterator(){
 //    	int[] current;
@@ -132,19 +147,37 @@ public class PolarGridPlot3D {
         }
     }
 	
+	public void plotCurrentConcentrations(){
+		int idx;
+		int [] current;
+//		double max_conc = grid.getMax(ArrayType.CONCN);
+//		System.out.println(max_conc);
+        for ( current=grid.resetIterator(); grid.isIteratorValid();
+        		current=grid.iteratorNext())
+        {
+        	idx = coord2idx.get(Arrays.hashCode(current));
+        	float alpha = (float)(
+        			1-grid.getValueAtCurrent(ArrayType.CONCN));
+        	System.out.println(grid.getValueAtCurrent(ArrayType.CONCN));
+        	setTransparency(idx, alpha);
+        }
+	}
+	
 	private static Appearance makeShinyAppearance(Color3f color){
 		Appearance ap = new Appearance();
 		Material m = new Material();
 		m.setCapability(Material.ALLOW_COMPONENT_READ);
 		m.setCapability(Material.ALLOW_COMPONENT_WRITE);
-		m.setEmissiveColor(color); 
-		m.setShininess(128);
+		m.setAmbientColor(color); 
 		ap.setMaterial(m);
     	return ap;
 	}
 	
-	private static Appearance makeNoCullVecAppearance(Color3f color){
+	private static Appearance makeNoCullVecAppearance(
+											Color3f color, boolean print_grid){
 		Appearance ap = new Appearance();
+		ap.setCapability(Appearance.ALLOW_POLYGON_ATTRIBUTES_READ);
+		ap.setCapability(Appearance.ALLOW_POLYGON_ATTRIBUTES_WRITE);
 		PolygonAttributes myPA = new PolygonAttributes( );
 		myPA.setCullFace( PolygonAttributes.CULL_NONE );
 		myPA.setBackFaceNormalFlip(true);
@@ -155,73 +188,76 @@ public class PolarGridPlot3D {
 		Material m = new Material();
 		m.setCapability(Material.ALLOW_COMPONENT_READ);
 		m.setCapability(Material.ALLOW_COMPONENT_WRITE);
-		m.setEmissiveColor(color); 
-		m.setShininess(128);
+		m.setAmbientColor(color);
 		ap.setMaterial(m);
+		TransparencyAttributes ta = new TransparencyAttributes(
+				TransparencyAttributes.NICEST, 0f);
+		ta.setCapability(TransparencyAttributes.ALLOW_VALUE_WRITE);
+		ap.setTransparencyAttributes(ta);
     	return ap;
 	}
 	
 	private void setColorAll(boolean reset){
-		setColor(coord2idx.get(Arrays.hashCode(grid.iteratorCurrent())),reset,true);
+		setColor(coord2idx.get(Arrays.hashCode(grid.iteratorCurrent())),
+				reset,RED);
     	for (int[] nbh = grid.resetNbhIterator(); 
 				grid.isNbhIteratorValid(); nbh=grid.nbhIteratorNext() )
 		{
     		//    		System.out.println(grid.nbhIteratorIsOutside());
     		if (grid.nbhIteratorIsOutside()==null){
     			int idx=coord2idx.get(Arrays.hashCode(nbh));
-    			setColor(idx,reset,false);
+    			setColor(idx,reset,BLUE);
     			//        			System.out.println(Arrays.toString(grid.iteratorCurrent())+"  "
     			//        					+Arrays.toString(nbh_i)+"  "+idx);
     			universe.getViewer().getView().repaint();
     		}
 		}
-
 	}
 	
-	private void setColor(int idx, boolean reset, boolean isCurrent){
-		int b = 10;  // pause to get changes updated (else strange errors happen) 
-		Sphere c = (Sphere)((TransformGroup)group.getChild(idx)).getChild(0);
-    	Material cm = c.getAppearance().getMaterial();
-    	Shape3D p = (Shape3D)polyGroup.getChild(idx);
+	private void setColor(int idx, boolean reset, Color3f color){
+//		int b = 10;  // pause to get changes updated (else sometimes strange graphics) 
+		Shape3D c, p;
+		Material cm = null, pm;
+		if (plot_locations){
+			c = (Shape3D)((TransformGroup)group.getChild(idx)).getChild(0);
+			cm = c.getAppearance().getMaterial();
+		}
+    	p = (Shape3D)polyGroup.getChild(idx);
     	PolygonAttributes pa = p.getAppearance().getPolygonAttributes();
-    	Material pm = p.getAppearance().getMaterial();
+    	pm = p.getAppearance().getMaterial();
 		if (reset){
 			pa.setPolygonMode( PolygonAttributes.POLYGON_LINE);
-			sleepUnsave(b);
-			cm.setEmissiveColor(green);
-			sleepUnsave(b);
-			pm.setEmissiveColor(red);
-			sleepUnsave(b);
+//			sleepUnsave(b);
+			if (cm != null){
+				cm.setAmbientColor(GREEN);
+//				sleepUnsave(b);
+			}
+			pm.setAmbientColor(RED);
+//			sleepUnsave(b);
+			
 		}
 		else{
 			pa.setPolygonMode(PolygonAttributes.POLYGON_FILL);
-			sleepUnsave(b);
-			cm.setEmissiveColor(isCurrent ? red : blue);
-			sleepUnsave(b);
-			pm.setEmissiveColor(isCurrent ? red : blue);
-			sleepUnsave(b);
+//			sleepUnsave(b);
+			if (cm != null){
+				cm.setAmbientColor(color);
+//				sleepUnsave(b);
+			}
+			pm.setAmbientColor(color);
+			// has to be set again
+			p.getAppearance().setPolygonAttributes(pa);
+//			sleepUnsave(b);
 		}
 	}
 	
-	private void addLights(BranchGroup b) {
-		//Create a bounding sphere to act as the active bounds
-		//of the lights
-		BoundingSphere bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0),
-				100.0);
-		//Create the colours and directions
-		Color3f lightColour = new Color3f(1.0f, 1.0f, 1.0f);
-		Vector3f lightDir = new Vector3f(-1.0f, -1.0f, -1.0f);
-		Color3f ambientColour = new Color3f(0.2f, 0.2f, 0.2f);
-		//Create the lights
-		AmbientLight ambientLight = new AmbientLight(ambientColour);
-		ambientLight.setInfluencingBounds(bounds);
-		DirectionalLight directionalLight = new DirectionalLight(lightColour,
-				lightDir);
-		directionalLight.setInfluencingBounds(bounds);
-		//Add the lights to the branch
-		b.addChild(ambientLight);
-		b.addChild(directionalLight);
-	}	
+	private void setTransparency(int idx, float alpha){
+//		int b = 10;  // pause to get changes updated (else sometimes strange graphics) 
+		Shape3D p = (Shape3D)polyGroup.getChild(idx);
+		Appearance ap = p.getAppearance();
+		PolygonAttributes pa = ap.getPolygonAttributes();
+		pa.setPolygonMode(PolygonAttributes.POLYGON_FILL);
+		ap.getTransparencyAttributes().setTransparency(alpha);
+	}
 
 	private TransformGroup toCartesian(double[] p){
 		TransformGroup tg = new TransformGroup();
@@ -230,9 +266,9 @@ public class PolarGridPlot3D {
 		Vector3f vector;
 		if (grid instanceof SphericalGrid){
 			vector = new Vector3f(
-					(float)(p[0]*Math.cos(p[1])*Math.sin(p[2])), 
-					(float)(p[0]*Math.sin(p[1])*Math.sin(p[2])),
-					(float)(p[0]*Math.cos(p[2])));
+					(float)(p[0]*Math.cos(p[2])*Math.sin(p[1])), 
+					(float)(p[0]*Math.sin(p[2])*Math.sin(p[1])),
+					(float)(p[0]*Math.cos(p[1])));
 		}
 		else vector = new Vector3f((float)(p[0]*Math.sin(p[1])), 
 				(float)(p[0]*Math.cos(p[1])), (float)(p[2]));
@@ -247,17 +283,17 @@ public class PolarGridPlot3D {
 		double[] p;
 		if (grid instanceof SphericalGrid){
 			p = new double[]{
-					(float)(in[0]*Math.cos(in[1])*Math.sin(in[2])), 
-					(float)(in[0]*Math.sin(in[1])*Math.sin(in[2])),
-					(float)(in[0]*Math.cos(in[2]))};
+					(float)(in[0]*Math.cos(in[2])*Math.sin(in[1])), 
+					(float)(in[0]*Math.sin(in[2])*Math.sin(in[1])),
+					(float)(in[0]*Math.cos(in[1]))};
 		}
 		else p = new double[]{(float)(in[0]*Math.sin(in[1])), 
 				(float)(in[0]*Math.cos(in[1])), (float)(in[2])};
 		return p;
 	}
 	
-	private QuadArray getGridCell(int[] coord){
-		QuadArray qa = new QuadArray(24,QuadArray.COORDINATES | QuadArray.COLOR_4);
+	private QuadArray getGridCell(int[] coord, int alpha){
+		QuadArray qa = new QuadArray(24,QuadArray.COORDINATES);
 
 //		Vector3f norm = new Vector3f(0f,0f,1f);
 		double[] in = new double[]{0,0,0};
@@ -304,11 +340,6 @@ public class PolarGridPlot3D {
 		qa.setCoordinates(21,p3);
 		qa.setCoordinates(22,p5);
 		qa.setCoordinates(23,p8);
-				
-		Color4f c = new Color4f(new Color(255, 0, 0, 50));
-		for (int i=0; i<24; ++i){
-			qa.setColor(i, c);
-		}
 		
 		return qa;
 	}

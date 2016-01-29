@@ -1,5 +1,6 @@
 package grid;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.ResolutionCalculator.ResCalc;
@@ -55,22 +56,37 @@ public class CylindricalGrid extends PolarGrid
 	 *  in each dimension 
 	 */
 	public CylindricalGrid(double[] totalLength, double[] res){
+		/*
+		 * Set up members of super class
+		 */
 		super(totalLength);
-		ResolutionCalculator r = new ResolutionCalculator();
+		/*
+		 * Set up uniform resolution calculator array
+		 */
+		ResolutionCalculator resolution = new ResolutionCalculator();
+		/*
+		 * Set up for the radial coordinate, and find out how many shells we
+		 * have.
+		 */
 		_resCalc = new UniformResolution[3][];
 		_resCalc[0] = new UniformResolution[1];
-		_resCalc[0][0] = r.new UniformResolution();
+		_resCalc[0][0] = resolution.new UniformResolution();
 		_resCalc[0][0].init(res[0], totalLength[0]);
+		int nr = _resCalc[0][0].getNVoxel();
 		
+		/* Set up for the height coordinate {@code z}. */
 		_resCalc[2] = new UniformResolution[1];
-		_resCalc[2][0] = r.new UniformResolution();
+		_resCalc[2][0] = resolution.new UniformResolution();
 		_resCalc[2][0].init(res[2], totalLength[2]);
 		
-		int nr = _resCalc[0][0].getNVoxel();
+		/*
+		 * Set up for the azimuthal coordinate {@code θ (theta)}. The number of
+		 * voxels in theta depends on the radial coordinate {@code r}.
+		 */
 		_resCalc[1] = new UniformResolution[nr];
 		for (int i=0; i<nr; ++i){
-			_resCalc[1][i] = r.new UniformResolution();
-			_resCalc[1][i].init(res[1], nRows(i));
+			_resCalc[1][i] = resolution.new UniformResolution();
+			_resCalc[1][i].init(res[1], (int) (_ires[1] * s(i)));
 		}
 	}
 	
@@ -90,33 +106,7 @@ public class CylindricalGrid extends PolarGrid
 	public CylindricalGrid(){
 		this(new double[]{1,90,1},1);
 	}
-	
-//	/**
-//	 * @param nVoxel - length in each dimension
-//	 * @param resolution - Array of length 3,
-//	 *  containing arrays of length _nVoxel[dim] for non-dependent dimensions
-//	 *  (r and z) and length 1 for dependent dimensions (t and p), 
-//	 *  which implicitly scale with r.
-//	 */
-//	public CylindricalGrid(int[] nVoxel, double[][] resolution)
-//	{
-//		super(nVoxel, resolution);
-//	}
-//	
-	
-//	protected double[][] convertResolution(int[] nVoxel, double[] oldRes)
-//	{
-//		double [][] res = new double[3][0];
-//		/*
-//		 * The angular dimension theta is set by linearAlgebra.PolarArray, so
-//		 * we deal with it separately.
-//		 */
-//		for ( int i = 0; i < 3; i += 2 )
-//			res[i] = Vector.vector( nVoxel[i] , oldRes[i]);
-//		res[1] = Vector.vector(1, oldRes[1]);
-//		return res;
-//	}
-	
+		
 	@Override
 	public void newArray(ArrayType type, double initialValues) {
 		/*
@@ -155,10 +145,10 @@ public class CylindricalGrid extends PolarGrid
 		 * 		- Integrate[(1/2 *r1^2),{t,t1,t2}], 
 		 * {z,z1,z2}]
 		 */		
-		return  ((loc2[0]*loc2[0]-loc1[0]*loc1[0])
-					* (loc2[1]-loc1[1])
-					* (loc2[2]-loc1[2])
-				)/2;
+		return  ((loc2[0] * loc2[0] - loc1[0] * loc1[0])
+					* (loc2[1] - loc1[1])
+					* (loc2[2] - loc1[2])
+				) / 2;
 	}
 	
 	/**
@@ -171,11 +161,10 @@ public class CylindricalGrid extends PolarGrid
 	 * @exception ArrayIndexOutOfBoundsException Voxel coordinates must be
 	 * inside array.
 	 */
-	private double getArcLength(int[] coord)
+	private double getArcLengthTheta(int[] coord)
 	{
-		// number of elements in row r
-		int nt = _resCalc[1][coord[0]].getNVoxel();
-		return _radSize[1]/nt;
+		return _resCalc[1][coord[0]].getResolution(coord[1])
+			* _radSize[1] / _resCalc[1][coord[0]].getTotalLength();
 	}
 	
 	@Override
@@ -185,16 +174,28 @@ public class CylindricalGrid extends PolarGrid
 		/*
 		 * determine i 
 		 */
-		cartLoc2Coord(loc[0], _resCalc[0][0], 0, coord, inside);
-//		if (isOutside(coord[0], 0)!=null) return null;
+		cartLoc2Coord(0, 
+				loc[0],
+				_resCalc[0][0],
+				coord, 
+				inside);
 		/*
 		 * determine j
 		 */
-		polarLoc2Coord(loc[1], getArcLength(coord), 1, coord, inside);
+		polarLoc2Coord(1, 
+				loc[1],
+				this._radSize[1], 
+				this._resCalc[1][coord[0]],
+				coord, 
+				inside);
 		/*
 		 * determine k
 		 */
-		cartLoc2Coord(loc[2], _resCalc[2][0], 2, coord, inside);
+		cartLoc2Coord(2,
+				loc[2],
+				_resCalc[2][0], 
+				coord, 
+				inside);
 		return coord;
 	}
 	
@@ -207,29 +208,55 @@ public class CylindricalGrid extends PolarGrid
 		/*
 		 * Determine r (like in cartesian grid)
 		 */
-		cartCoord2Loc(coord[0], _resCalc[0][0], inside[0], 0, loc);
+		cartCoord2Loc(0, 
+				coord[0], 
+				_resCalc[0][0], 
+				inside[0], 
+				loc);
 		/*
 		 * determine t 
 		 */
-		polarCoord2Loc(coord[1], getArcLength(coord), inside[1], 1, loc);
+		polarCoord2Loc(
+				1, 								
+				coord[1], 						
+				this._radSize[1],				
+				this._resCalc[1][coord[0]], 	
+				inside[1], 
+				loc);
 		/*
 		 * Determine z (like in cartesian grid)
 		 */
-		cartCoord2Loc(coord[2], _resCalc[2][0], inside[2], 2, loc);
+		cartCoord2Loc(2, 
+				coord[2], 
+				_resCalc[2][0], 
+				inside[2], 
+				loc);
 		return loc;
 	}
 
 	@Override
 	public void calcMinVoxVoxResSq() {
 		double m = Double.MAX_VALUE;
-		for ( int axis = 0; axis < 3; axis+=2 )
-			for ( int i = 0; i < _resCalc[axis][0].getNVoxel() - 1; i++ )
-				m = Math.min(m, _resCalc[axis][0].getResolution(i)
-						* _resCalc[axis][0].getResolution(i+1));
+		/* 
+		 * Determine minimal squared resolution in r and z (axis 0 and 2). 
+		 */ 
+		for ( int axis = 0; axis < 3; axis+=2 ){
+			int nVoxel = _resCalc[axis][0].getNVoxel();
+			for ( int i = 0; i < nVoxel - 1; i++ ){
+				double res_cur = _resCalc[axis][0].getResolution(i);
+				double res_next = _resCalc[axis][0].getResolution(i+1);
+				m = Math.min(m, res_cur	* res_next);
+			}
+		}
+		/* 
+		 * Determine minimal squared resolution in theta (axis 1). 
+		 */ 
 		for (int i=0; i<_resCalc[1].length; ++i){
-			for ( int j = 0; j < _resCalc[1][i].getNVoxel() - 1; j++ ){
-				m = Math.min(m, _resCalc[1][i].getResolution(j)
-						* _resCalc[1][i].getResolution(j+1));
+			int nVoxel = _resCalc[1][i].getNVoxel();
+			for ( int j = 0; j < nVoxel - 1; j++ ){
+				double res_cur = _resCalc[1][i].getResolution(j);
+				double res_next = _resCalc[1][i].getResolution(j+1);
+				m = Math.min(m, res_cur * res_next);
 			}
 		}
 		this._minVoxVoxDist = m;
@@ -257,48 +284,63 @@ public class CylindricalGrid extends PolarGrid
 
 	@Override
 	public int[] cyclicTransform(int[] coord) {
+		/*
+		 * This function will transform the given coordinate orthogonal
+		 * to the boundary (or boundaries) it exceeds.
+		 */
 		
-		int nr = _resCalc[0][0].getNVoxel();
-		BoundarySide bs = isOutside(coord,0);
-		if (bs==BoundarySide.CIRCUMFERENCE)
-			coord[0] = coord[0]%(nr-1);
-		if (bs==BoundarySide.INTERNAL){
-			coord[0] = 0;
-			/*
-			 * 2 = 180° at coord[0]=0
-			 */
-			coord[1] = coord[1]+2;  
+		/* Stores the boundary side for each dimension we are looking at */
+		BoundarySide bs;
+		/* Stores the number of voxels for each dimension we are looking at */
+		int nVoxel;
+		
+		/* Transform along radial dimension first. */
+		nVoxel = _resCalc[0][0].getNVoxel();
+		bs = isOutside(coord,0);
+		if (bs!=null){
+			switch (bs){
+			case CIRCUMFERENCE: 
+				/* flip azimuthal coordinate by 180° */
+				
+				coord[0] = coord[0]%(nVoxel-1); break;
+			case INTERNAL: 
+				coord[0] = 0;
+				/* 
+				 * If the boundary side is internal 
+				 * 2 = 180° at coord[0]=0
+				 */
+				coord[1] = coord[1]+2;  
+				break;
+			default: throw new RuntimeException("unknown boundary side"+bs);
+			}
 		}
 
-		int nz = _resCalc[2][0].getNVoxel();
+		nVoxel = _resCalc[2][0].getNVoxel();
 		bs = isOutside(coord,2);
-		if (bs==BoundarySide.ZMAX)
-			coord[2] = coord[2]%(nz-1);
-		if (bs==BoundarySide.ZMIN)
-			coord[2] = nz+coord[2];
+		if (bs!=null){
+			switch (bs){
+			case ZMAX:
+				coord[2] = coord[2]%(nVoxel-1); break;
+			case ZMIN:
+				coord[2] = nVoxel+coord[2]; break;
+			default: throw new RuntimeException("unknown boundary side"+bs);
+			}
+		}
 		
-		int nt = _resCalc[1][coord[0]].getNVoxel();
+		nVoxel = _resCalc[1][coord[0]].getNVoxel();
 		bs = isOutside(coord,1);
 		if (bs!=null){
 			switch (bs){
-			case YMAX: coord[1] = coord[1]%(nt-1); break;
-			case YMIN: coord[1] = nt+coord[1]; break;
+			case YMAX: coord[1] = coord[1]%(nVoxel-1); break;
+			case YMIN: coord[1] = nVoxel+coord[1]; break;
 			case INTERNAL:
-				coord[1] = coord[1]%nt; 
-				if (coord[1] < 0) coord[1] += nt;
+				coord[1] = coord[1]%nVoxel; 
+				if (coord[1] < 0) coord[1] += nVoxel;
 				break;
 			default: throw new RuntimeException("unknown boundary side"+bs);
 			}
 		}
 		return coord;
-	}
-	
-	@Override
-	public double getNbhSharedSurfaceArea() {
-		//TODO: implement
-		System.err.println(
-				"tried to call unimplemented method getNbhSharedSurfaceArea()");
-		return 1;
 	}
 
 //	/* (non-Javadoc)
@@ -362,55 +404,124 @@ public class CylindricalGrid extends PolarGrid
 		/*
 		 * Moving along radial dimension.
 		 */
-		if (_nbhIdx>3){
-			int[] cc = _currentCoord;
+		int[] cc = _currentCoord;
+		if (_nbhIdx>3){			
 			/*
 			 * change in r (-1 or 1)
 			 */
+			int[] nbh_coord = new int[3];
 			int dr = NBH_DIRECS[_nbhIdx][0];
-			if (isOutside(new int[]{cc[0]+dr, -1, -1}, 0)==null){
+			nbh_coord[0] = cc[0] + dr;
+			if (isOutside(new int[]{nbh_coord[0], -1, -1}, 0) == null){
+				nbh_coord[2] = cc[2] + NBH_DIRECS[_nbhIdx][2];
+				double[] bounds = new double[2];
+				double[] bounds_nbh = new double[2];
+				
+				double len_cur = getArcLengthTheta(cc);
+				
 				/*
-				 * compute number of voxels (along azimuthal dimension) for this 
-				 * and the neighboring row.
+				 * bounds
 				 */
-				int nt_cur=_resCalc[1][cc[0]].getNVoxel();
-				int nt_nbh=_resCalc[1][cc[0] + dr].getNVoxel();
+				polarCoord2Loc(0, 
+						cc[1],
+						_radSize[1],
+						_resCalc[1][cc[0]], 
+						0, 
+						bounds);
+				
+				polarCoord2Loc(1, 
+						cc[1],
+						_radSize[1],
+						_resCalc[1][cc[0]], 
+						1, 
+						bounds);
+				
 				/*
-				 * compute the neighbor row length to current row length ratio 
-				 * for the azimuthal dimension.
+				 * first neighbor theta coordinate
 				 */
-				double drt=(double)nt_nbh/nt_cur;
-//									System.out.println(nt_cur+" "+nt_nbh+" "+drt);
-//									System.out.println(cc[1]*drt+"  "+(cc[1]+1)*drt);
+				polarLoc2Coord(1, 
+						bounds[0],
+						_radSize[1],
+						_resCalc[1][nbh_coord[0]], 
+						nbh_coord, 
+						null);
+				
 				/*
-				 * Loop through all neighbors along the azimuthal dimension.
-				 * Starting from the current azimuthal angle coordinate times the 
-				 * length ratio and ending at the next polar angle coordinate
-				 * times the length ratio.
+				 * First neighbor theta location 0 (origin)
 				 */
-				for (int t=(int)(cc[1]*drt);  t<(cc[1]+1)*drt; t++){
-//					System.out.println((cc[1]*drt)+" "+((cc[1]+1)*drt)+" "+t);
-					_subNbhSet.add(new int[]{
-							cc[0]+dr, t, cc[2] + NBH_DIRECS[_nbhIdx][2]});
+				polarCoord2Loc(0, 
+						nbh_coord[1],
+						_radSize[1],
+						_resCalc[1][nbh_coord[0]], 
+						0, 
+						bounds_nbh);
+				
+				while(bounds_nbh[0] < bounds[1]){	
+					/*
+					 * next neighbor in theta 
+					 */
+					polarCoord2Loc(1, 
+							nbh_coord[1],
+							_radSize[1],
+							_resCalc[1][nbh_coord[0]], 
+							1, 
+							bounds_nbh);
+					
+					double len_nbh = getArcLengthTheta(nbh_coord);
+					
+					double sA = getSharedArea(dr,
+							len_cur,
+							bounds,
+							bounds_nbh,
+							len_nbh);
+					
+					_subNbhSet.add(Vector.copy(nbh_coord));		
+					_subNbhSharedAreaSet.add(sA);
+					
+					bounds_nbh[0] = bounds_nbh[1];
+					nbh_coord[1]++;
 				}
 			}
 			/*
 			* only change r coordinate if outside the grid along radial dimension.
 			*/
 			else {
-				_subNbhSet.add(new int[]{cc[0]+dr, cc[1], cc[2]});
+				int[] nbh = new int[]{cc[0]+dr, cc[1], cc[2]};
+				_subNbhSet.add(nbh);
+//				double out = 1.0;
+//				out *= this._resCalc[1][nbh[0]].getResolution(nbh[1]);
+//				out *= this._resCalc[2][0].getResolution(nbh[2]);
+//				_subNbhSharedAreaSet.add(out);
+				_subNbhSharedAreaSet.add(Double.NaN);
 			}
 		}
 		/*
-		 * add the relative position to current coord if moving along azimuthal
-		 * or z dimension.
+		 * Moving along azimuthal dimension.
+		 */
+		else if ( _nbhIdx < 2 )
+		{ 
+			int[] nbh = Vector.add(
+					Vector.copy(_currentCoord),NBH_DIRECS[_nbhIdx]);
+			_subNbhSet.add(nbh);
+			double out = 1.0;
+			out *= this._resCalc[0][0].getResolution(nbh[0]);
+			out *= this._resCalc[2][0].getResolution(nbh[2]);
+			_subNbhSharedAreaSet.add(out);
+		}
+		/*
+		 * Moving along z dimension.
 		 */
 		else{ 
-			_subNbhSet.add(Vector.add(
-					Vector.copy(_currentCoord),NBH_DIRECS[_nbhIdx]));
+			int[] nbh = Vector.add(
+					Vector.copy(_currentCoord),NBH_DIRECS[_nbhIdx]);
+			_subNbhSet.add(nbh);
+			double out = 1.0;
+			out *= this._resCalc[0][0].getResolution(nbh[0]);
+			out *= this._resCalc[1][nbh[0]].getResolution(nbh[1]);
+			_subNbhSharedAreaSet.add(out);
 		}
 	}
-	
+
 	@Override
 	protected BoundarySide isOutside(int[] coord, int dim) {
 		switch (dim) {
@@ -439,20 +550,6 @@ public class CylindricalGrid extends PolarGrid
 			return null;
 		default: throw new IllegalArgumentException("dim must be > 0 and < 3");
 		}
-	}
-	
-	/**
-	 * \brief Computes the number of rows in matrix i for resolution 1.
-	 * 
-	 * <p>This is the total length if transformed to a Cartesian coordinate
-	 * system.</p>
-	 * 
-	 * @param i Matrix index.
-	 * @return The number of rows for a given radius.
-	 */
-	private int nRows(int i)
-	{
-		return (int) _ires[1] * s(i);
 	}
 	
 	/*************************************************************************

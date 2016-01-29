@@ -38,44 +38,25 @@ import test.plotting.PolarGridPlot3D;
 public class PolarGridTest {
 	public static Scanner keyboard = new Scanner(System.in);
 	public static double D = 1.0;
-	
-	/****** CARE: 
-	 * switch of array coordinates in the spherical grid array:
-	 * (r,p,t):
-	 * 		- coordinates in the spherical array
-	 * 		- inside[] for getLocation()
-	 * (r,t,p):
-	 * 		- cylindrical array coordinates
-	 *  	- locations in space 
-	 *  	- _ires
-	 *  	- _res
-	 *  	- _nVoxel
-	 */
 
 	public static void main(String[] args) {
-		/* Questions:
-		 *  - discuss getNumVoxel(),
-		 *  - what happens for getCoords() and getLocation() if outside bounds? 
-		 */
 		
 		/**********************************************************************/
 		/********************* CHOOSE ARRAY TYPE HERE *************************/
 		/**********************************************************************/
 		
 //		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},1);
-		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},
-				new double[]{1,1,1});
+//		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},
+//				new double[]{1,1,2});
 		
-//	    CylindricalGrid grid = new CylindricalGrid(new double[]{3,360,1},1);
+	    CylindricalGrid grid = new CylindricalGrid(new double[]{3,360,1},1);
 //		CylindricalGrid grid = new CylindricalGrid(
-//				new double[]{3,360,1},new double[]{1,1,1});
+//				new double[]{3,360,1},new double[]{1,2,1});
 		
 //	    CartesianGrid gridp = new CartesianGrid(new int[]{100,100,4000},1);
 		
 		Timer.setTimeStepSize(1.0);
 		Timer.setEndOfSimulation(10.0);
-		
-		Simulator aSimulator = new Simulator();
 		
 		/*
 		 * create the array
@@ -89,6 +70,12 @@ public class PolarGridTest {
 			grid.addBoundary(bs, new BoundaryFixed().getGridMethod(""));
 		}
 		
+//		grid.setValueAt(type, new int[]{1,1,1},1);
+//		grid.setValueAt(type, new int[]{2,2,1},0.5);
+//		grid.setValueAt(type, new int[]{2,3,1},0.5);
+//		grid.setValueAt(type, new int[]{2,4,1},0.5);
+//		grid.setValueAt(type, new int[]{2,0,0},0.5);
+		
 		/**********************************************************************/
 		/******************** CHOOSE TEST METHOD HERE *************************/
 		/**********************************************************************/
@@ -97,30 +84,17 @@ public class PolarGridTest {
 //		testIterator(grid);
 //		testNbhIterator(grid);
 //		/*
-//		 * booleans:
-//		 * step manual | automatic
-//		 * plot centre | origin
+//		 * paramters for create graphics:
+//		 * iterator: 	0: no iterator,1: step manual 2: step automatic
+//		 * locations: 	0: no location,1: origin 	  2: centre
 //		 * do | do not plot grid cell polygons
 //		 */
-//		createGraphics(grid,true,true,true); 
-		
+//		PolarGridPlot3D plot = createGraphics(grid,1,2,false);
+//		plot.plotCurrentConcentrations();
 //		plotVoxelVolumes(grid);
-		oneDimRiseFallComp(aSimulator);
-		
-		/**********************************************************************/
-		/***************************** SIMULATION *****************************/
-		/**********************************************************************/
-		
-		//TODO twoDimIncompleteDomain(nStep, stepSize);
-		/*
-		 * Launch the simulation.
-		 */
-		aSimulator.launch();
-		/*
-		 * Print the results.
-		 */
-		aSimulator.printAll();
-		
+//		oneDimRiseFallComp();
+
+		keyboard.close();
 	}
 	
 	public static void testMemoryAndIteratorSpeed(SpatialGrid grid){
@@ -184,17 +158,20 @@ public class PolarGridTest {
 		}
 	}
 	
-	public static void createGraphics(PolarGrid grid, boolean step_manual,
-			boolean plot_centre, boolean plot_grid){
+	public static PolarGridPlot3D createGraphics(PolarGrid grid, int iterator_step,
+			int location, boolean plot_grid){
 		/*
 		 * PolarGrid only atm because of getLocation(..) method
 		 */
-		PolarGridPlot3D plot = new PolarGridPlot3D(grid,plot_centre,plot_grid);
-		System.out.println("press enter to start iterator");
-		keyboard.nextLine();
-        if (step_manual) plot.startIterator();  
-        else plot.runIterator();     
-        keyboard.close();
+		PolarGridPlot3D plot = new PolarGridPlot3D(grid,location,plot_grid);
+		if (iterator_step>0){
+			System.out.println("press enter to start iterator");
+			keyboard.nextLine();
+			if (iterator_step==1) plot.startIterator();  
+			else if (iterator_step==2) plot.runIterator();     
+			keyboard.close();
+		}
+		return plot;
 	}
 
 	public static void plotVoxelVolumes(SpatialGrid grid){
@@ -239,8 +216,10 @@ public class PolarGridTest {
 		frame.add(chartPanel);
 	}
 	
-	private static void oneDimRiseFallComp(Simulator aSim)
+	private static void oneDimRiseFallComp()
 	{
+		Simulator aSim = new Simulator();
+		
 		System.out.println("###############################################");
 		System.out.println("COMPARTMENT: oneDimRiseFall");
 		System.out.println("Testing 1D domain for two solutes:");
@@ -250,7 +229,7 @@ public class PolarGridTest {
 		System.out.println("Concentration should tend towards linear");
 		System.out.println("###############################################");
 		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "disk");
-		aCompartment.setSideLengths(new double[] {3.0, 360.0, 1.0});
+		aCompartment.setSideLengths(new double[] {3.0, 360.0, 10.0});
 		/*
 		 * Add the solutes and boundary conditions.
 		 */
@@ -324,5 +303,21 @@ public class PolarGridTest {
 		aProcess.setTimeForNextStep(0.0);
 		aProcess.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
+		
+		//TODO twoDimIncompleteDomain(nStep, stepSize);
+		PolarGrid riseGrid = (PolarGrid)aSim.getCompartments()[0].getSolute("fall");
+		PolarGridPlot3D plot = createGraphics(riseGrid,0,0,false);
+		plot.plotCurrentConcentrations();
+		while ( Timer.isRunning() )
+		{
+			System.out.println("press enter to step PDE");
+			keyboard.nextLine();
+			aSim.step();
+			plot.plotCurrentConcentrations();
+		}
+		/*
+		 * Print the results.
+		 */
+		aSim.printAll();
 	}
 }
