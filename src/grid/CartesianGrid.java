@@ -44,6 +44,7 @@ public class CartesianGrid extends SpatialGrid
 	 ************************************************************************/
 	
 	/**
+<<<<<<< HEAD
 <<<<<<< 7b27cd941af004d0fc3e6c36056a489275dd5a9e
 <<<<<<< 608e3632949b048948db0fb652602a1304ee7697
 	 * \brief Construct a CartesianGrid from a 3-vector of total dimension
@@ -83,6 +84,8 @@ public class CartesianGrid extends SpatialGrid
 >>>>>>> restructure shape package, needs further work
 =======
 >>>>>>> restructure shape package, needs further work
+=======
+>>>>>>> 97880e644d91a2889830d1de2f30aad95e69e61a
 	 * \brief TODO
 	 * 
 	 * @param nVoxel
