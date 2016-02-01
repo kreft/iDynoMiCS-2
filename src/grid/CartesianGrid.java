@@ -10,9 +10,11 @@ import grid.GridBoundary.GridMethod;
 import grid.ResolutionCalculator.ResCalc;
 import linearAlgebra.*;
 import shape.ShapeConventions.BoundarySide;
+import shape.ShapeConventions.DimName;
 
 /**
- * \brief TODO
+ * \brief Subclass of SpatialGrid that discretises space into rectilinear
+ * voxels. Uses the (X, Y, Z) dimension system.
  * 
  * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
  */
@@ -25,7 +27,7 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * <p>For example, a 3 by 2 rectangle would have _nVoxel = [3, 2, 1].</p> 
 	 */
-	protected int[] _nVoxel;
+	protected int[] _nVoxel = new int[3];
 	
 	/**
 	 * Grid resolution, i.e. the side length of each voxel in this grid. This
@@ -35,7 +37,7 @@ public class CartesianGrid extends SpatialGrid
 	 * <p>For example, a 3 by 2 rectangle might have _res = 
 	 * [[1.0, 1.0, 1.0], [1.0, 1.0], [1.0]]</p>
 	 */
-	protected double[][] _res;
+	protected double[][] _res  = new double[3][];
 	
 	protected int _nbhDirection;
 	
@@ -52,8 +54,11 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public CartesianGrid(double[] totalSize, ResCalc[] resCalc)
 	{
-		this._nVoxel = new int[3];
-		this._res = new double[3][];
+		/* Dimension names for a CartesianGrid. */
+		this._dimName[0] = DimName.X;
+		this._dimName[1] = DimName.Y;
+		this._dimName[2] = DimName.Z;
+		/* Set up the resolutions. */
 		ArrayList<Double> resolutions = new ArrayList<Double>();
 		double total;
 		double temp;
@@ -74,19 +79,6 @@ public class CartesianGrid extends SpatialGrid
 			for ( int i = 0; i < resolutions.size(); i++ )
 				this._res[dim][i] = resolutions.get(i);
 		}
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param nVoxel
-	 * @param padding
-	 * @param resolution
-	 */
-	public CartesianGrid(int[] nVoxel, double[][] resolution)
-	{
-		this._nVoxel = Vector.copy(nVoxel);
-		this._res = resolution;
 		this.calcMinVoxelVoxelSurfaceArea();
 	}
 	
@@ -99,24 +91,22 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public CartesianGrid(int[] nVoxel, double resolution)
 	{
-		this._nVoxel = Vector.copy(nVoxel);
-		this._res = new double[3][];
-		for ( int dim = 0; dim < 3; dim++ )
+		double[] totalSize = new double[3];
+		
+		ResolutionCalculator res = new ResolutionCalculator();
+		ResCalc[] resCalc = new ResCalc[3];
+		for ( int i = 0; i < 3; i++ )
 		{
-			this._res[dim] = new double[this._nVoxel[dim]];
-			for ( int i = 0; i < this._nVoxel[dim]; i++ )
-				this._res[dim][i] = resolution;
+			totalSize[i] = nVoxel[i]*resolution;
+			resCalc[i] = res.new UniformResolution();
+			resCalc[i].init(resolution, totalSize[i]);
 		}
-		this.calcMinVoxelVoxelSurfaceArea();
+		new CartesianGrid(totalSize, resCalc);
 	}
 
 	public CartesianGrid()
 	{
-		this._nVoxel = Vector.vector(3, 1);
-		this._res = new double[3][1];
-		for ( int dim = 0; dim < 3; dim++ )
-			this._res[dim][0] = 1.0;
-		this.calcMinVoxelVoxelSurfaceArea();
+		new CartesianGrid(Vector.onesInt(3), 1.0);
 	}
 
 	/**

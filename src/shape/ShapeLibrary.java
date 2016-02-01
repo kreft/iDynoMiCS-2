@@ -102,7 +102,7 @@ public final class ShapeLibrary
 			super();
 			/* There is no need for an r-min boundary. */
 			Dimension dim = new Dimension();
-			dim.setBoundaryOptional(true);
+			dim.setBoundaryOptional(0);
 			this._dimensions.put(DimName.R, dim);
 		}
 	}

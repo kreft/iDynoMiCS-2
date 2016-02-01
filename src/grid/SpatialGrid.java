@@ -5,6 +5,7 @@ import java.util.Set;
 
 import grid.GridBoundary.GridMethod;
 import shape.ShapeConventions.BoundarySide;
+import shape.ShapeConventions.DimName;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.
@@ -84,6 +85,11 @@ public abstract class SpatialGrid
 	 * may be occupied.
 	 */
 	protected HashMap<ArrayType, double[][][]> _array;
+	
+	/**
+	 * 
+	 */
+	protected DimName[] _dimName = new DimName[3];
 	
 	/**
 	 * Smallest distance between the centres of two neighbouring voxels in

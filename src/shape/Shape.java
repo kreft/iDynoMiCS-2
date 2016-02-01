@@ -87,9 +87,9 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		this.getDimensionSafe(dimension).setCyclic();
 	}
 	
-	public void setBoundary(DimName dimension, Boundary bndry, boolean setMin)
+	public void setBoundary(DimName dimension, Boundary bndry, int index)
 	{
-		this.getDimensionSafe(dimension).setBoundary(bndry, setMin);
+		this.getDimensionSafe(dimension).setBoundary(bndry, index);
 	}
 	
 	
@@ -100,9 +100,9 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * @param bndry
 	 * @param setMin
 	 */
-	public void setBoundary(String dimension, Boundary bndry, boolean setMin)
+	public void setBoundary(String dimension, Boundary bndry, int index)
 	{
-		this.setBoundary(DimName.valueOf(dimension), bndry, setMin);
+		this.setBoundary(DimName.valueOf(dimension), bndry, index);
 	}
 	
 	
@@ -200,7 +200,8 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 			// TODO Rob [28Jan2016]: throw an error if this dimension is not in
 			// our list?
 			Dimension dim = this._dimensions.get(dimN);
-			dim.setBoundary(aBoundary, aSide == dimN.minBndry);
+			int index = (aSide == dimN.minBndry) ? 0 : 1;
+			dim.setBoundary(aBoundary, index);
 		}
 	}
 	

@@ -71,12 +71,12 @@ public class SpatialGridTest
 		ConstantDirichlet testXmin = new ConstantDirichlet();
 		testXmin.setValue(1.0);
 		xmin.setGridMethod("test", testXmin);
-		aCompartment.getShape().setBoundary("X", xmin, true);
+		aCompartment.getShape().setBoundary("X", xmin, 0);
 		Boundary xmax = new BoundaryFixed();
 		ConstantDirichlet testXmax = new ConstantDirichlet();
 		testXmax.setValue(0.0);
 		xmax.setGridMethod("test", testXmax);
-		aCompartment.getShape().setBoundary("X", xmax, false);
+		aCompartment.getShape().setBoundary("X", xmax, 1);
 		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
 		aCompartment.addSolute("test");
 		aCompartment.init();
