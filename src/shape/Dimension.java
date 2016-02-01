@@ -1,7 +1,6 @@
 package shape;
 
 import boundary.Boundary;
-import boundary.BoundaryCyclic;
 import generalInterfaces.CanPrelaunchCheck;
 
 /**
