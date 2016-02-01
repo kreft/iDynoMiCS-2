@@ -3,11 +3,10 @@
  */
 package grid;
 
-import org.w3c.dom.Node;
-
 import utility.ExtraMath;
 
 /**
+ * \brief Collection of methods for calculating appropriate grid resolutions. 
  * 
  * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
  */
@@ -157,8 +156,9 @@ public class ResolutionCalculator
 	public class VaryingResolution extends VariableRes
 	{
 		@Override
-		void init(double targetResolution, double totalLength) {
-			
+		void init(double targetResolution, double totalLength)
+		{
+			// TODO
 		}
 		
 	}
