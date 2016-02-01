@@ -18,21 +18,19 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import boundary.Boundary;
-import boundary.BoundaryCyclic;
 import boundary.BoundaryFixed;
 import grid.CylindricalGrid;
 import grid.PolarGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SphericalGrid;
 import grid.GridBoundary.ConstantDirichlet;
 import idynomics.Compartment;
 import idynomics.Simulator;
 import idynomics.Timer;
-import shape.BoundarySide;
 import linearAlgebra.Vector;
 import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
+import shape.ShapeConventions.BoundarySide;
 import test.plotting.PolarGridPlot3D;
 
 public class PolarGridTest {

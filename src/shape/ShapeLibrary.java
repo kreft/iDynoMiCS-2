@@ -6,6 +6,7 @@ package shape;
 import grid.CartesianGrid;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
+import shape.ShapeConventions.DimName;
 
 /**
  * 
@@ -50,10 +51,7 @@ public final class ShapeLibrary
 		public Line()
 		{
 			super();
-			this._dimensions.put(Shape.DimName.X, new Dimension());
-			
-			this._requiredBoundarySides.add(BoundarySide.XMIN);
-			this._requiredBoundarySides.add(BoundarySide.XMAX);
+			this._dimensions.put(DimName.X, new Dimension());
 		}
 		
 		@Override
@@ -79,9 +77,7 @@ public final class ShapeLibrary
 		public Rectangle()
 		{
 			super();
-			this._dimensions.put(Shape.DimName.Y, new Dimension());
-			this._requiredBoundarySides.add(BoundarySide.YMIN);
-			this._requiredBoundarySides.add(BoundarySide.YMAX);
+			this._dimensions.put(DimName.Y, new Dimension());
 		}
 	}
 	
@@ -90,9 +86,7 @@ public final class ShapeLibrary
 		public Cuboid()
 		{
 			super();
-			this._dimensions.put(Shape.DimName.Z, new Dimension());
-			this._requiredBoundarySides.add(BoundarySide.ZMIN);
-			this._requiredBoundarySides.add(BoundarySide.ZMAX);
+			this._dimensions.put(DimName.Z, new Dimension());
 		}
 		
 	}
@@ -109,8 +103,7 @@ public final class ShapeLibrary
 			/* There is no need for an r-min boundary. */
 			Dimension dim = new Dimension();
 			dim.setBoundaryOptional(true);
-			this._dimensions.put(Shape.DimName.R, dim);
-			this._requiredBoundarySides.add(BoundarySide.RMAX);
+			this._dimensions.put(DimName.R, dim);
 		}
 	}
 	
@@ -125,7 +118,7 @@ public final class ShapeLibrary
 			Dimension dim = new Dimension();
 			dim.setCyclic();
 			dim.setLength(2 * Math.PI);
-			this._dimensions.put(Shape.DimName.THETA, dim);
+			this._dimensions.put(DimName.THETA, dim);
 		}
 		
 		@Override
@@ -151,9 +144,7 @@ public final class ShapeLibrary
 		public Cylinder()
 		{
 			super();
-			this._dimensions.put(Shape.DimName.Z, new Dimension());
-			this._requiredBoundarySides.add(BoundarySide.ZMIN);
-			this._requiredBoundarySides.add(BoundarySide.ZMAX);
+			this._dimensions.put(DimName.Z, new Dimension());
 		}
 		
 		@Override
@@ -180,11 +171,11 @@ public final class ShapeLibrary
 			Dimension dim = new Dimension();
 			dim.setCyclic();
 			dim.setLength(Math.PI);
-			this._dimensions.put(Shape.DimName.PHI, dim);
+			this._dimensions.put(DimName.PHI, dim);
 			dim = new Dimension();
 			dim.setCyclic();
 			dim.setLength(2 * Math.PI);
-			this._dimensions.put(Shape.DimName.THETA, dim);
+			this._dimensions.put(DimName.THETA, dim);
 		}
 		
 		@Override

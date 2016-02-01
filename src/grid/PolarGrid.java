@@ -7,9 +7,9 @@ import boundary.BoundaryCyclic;
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import grid.ResolutionCalculator.ResCalc;
-import shape.BoundarySide;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.ShapeConventions.BoundarySide;
 
 /**
  * \brief Abstract super class of all polar grids (Cylindrical and Spherical).

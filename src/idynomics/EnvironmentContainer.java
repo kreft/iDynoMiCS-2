@@ -3,15 +3,15 @@ package idynomics;
 import java.util.HashMap;
 import java.util.Set;
 
+import boundary.Boundary;
 import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SpatialGrid.GridGetter;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 import shape.Shape;
 import linearAlgebra.Vector;
 import reaction.Reaction;
-import utility.ExtraMath;
 
 public class EnvironmentContainer
 {
@@ -61,12 +61,17 @@ public class EnvironmentContainer
 	
 	public void init()
 	{
-		for ( BoundarySide aBS : this._shape.getBoundarySides() )
-			for ( String soluteName : this._solutes.keySet() )
+		SpatialGrid aSG;
+		Boundary bndry;
+		for ( String soluteName : this._solutes.keySet() )
+		{
+			aSG = this._solutes.get(soluteName);
+			for ( BoundarySide aBS : aSG.getBoundarySides() )
 			{
-				this._solutes.get(soluteName).addBoundary(aBS, 
-						this._shape.getGridMethod(aBS, soluteName));
+				bndry = this._shape.getBoundary(aBS);
+				aSG.addBoundary(aBS, bndry.getGridMethod(soluteName));
 			}
+		}
 	}
 	
 	/**
@@ -82,37 +87,7 @@ public class EnvironmentContainer
 	{
 		this._defaultResolution = defaultRes;
 		this._defaultTotalLength = compartmentSize;
-		
-//		this._defaultResolution = defaultRes;
-//		this._defaultNVoxel = new int[compartmentSize.length];
-//		double temp;
-//		
-//		for ( int i = 0; i < compartmentSize.length; i++ )
-//		{
-//			this._defaultNVoxel[i] = (int) (compartmentSize[i] / defaultRes);
-//			temp = defaultRes * this._defaultNVoxel[i];
-//			// TODO message
-//			if ( ! ExtraMath.areEqual(compartmentSize[i], temp, 1E-9) )
-//				throw new IllegalArgumentException();
-//		}
-		//System.out.println("\tEnv size: "+Arrays.toString(this._defaultNVoxel)); //bughunt
 	}
-	
-	/**
-	 *\brief TODO 
-	 * 
-	 * TODO Rob [8Oct2015]: This is very temporary, just need to get testing
-	 * to work so I can test other bits and bobs. 
-	 * 
-	 * @param nVoxel
-	 * @param padding
-	 * @param res
-	 */
-//	public void setSize(int[] nVoxel, double res)
-//	{
-//		this._defaultResolution = res;
-//		this._defaultNVoxel = nVoxel;
-//	}
 	
 	/**
 	 * \brief TODO
@@ -129,7 +104,6 @@ public class EnvironmentContainer
 		/*
 		 * TODO safety: check if solute already in hashmap
 		 */
-		//System.out.println("Adding "+soluteName+" with "+Arrays.toString(this._defaultNVoxel)); //Bughunt
 		SpatialGrid sg = this._gridGetter.newGrid(this._defaultTotalLength,
 													this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);

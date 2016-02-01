@@ -3,53 +3,29 @@
  */
 package shape;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-import java.util.Set;
 
 import boundary.Boundary;
 import boundary.BoundaryConnected;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
-
+import shape.ShapeConventions.DimName;
+import shape.ShapeConventions.BoundarySide;
 /**
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public abstract class Shape implements CanPrelaunchCheck, XMLable
 {
-	public enum DimName
-	{
-		X, Y, Z, R, THETA, PHI;
-	}
-
 	/**
 	 * Ordered dictionary of dimensions for this shape.
 	 */
-	protected LinkedHashMap<Shape.DimName, Dimension> _dimensions = 
+	protected LinkedHashMap<DimName, Dimension> _dimensions = 
 								 	   new LinkedHashMap<DimName, Dimension>();
-	/**
-	 * A list of boundary sides that must be specified.
-	 * 
-	 * TODO remove
-	 */
-	protected Collection<BoundarySide> _requiredBoundarySides;
-	
-	/**
-	 * Directory of boundaries that are linked to a specific side. There can
-	 * be only one boundary for each boundary side here.
-	 * 
-	 * TODO remove
-	 */
-	protected HashMap<BoundarySide, Boundary> _sideBoundaries;
-	
 	/**
 	 * List of boundaries in a dimensionless compartment, or internal
 	 * boundaries in a dimensional compartment.
@@ -66,8 +42,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public Shape()
 	{
-		this._requiredBoundarySides = new LinkedList<BoundarySide>();
-		this._sideBoundaries = new HashMap<BoundarySide, Boundary>();
+		this._dimensions = new LinkedHashMap<DimName, Dimension>();
 		this._otherBoundaries = new LinkedList<Boundary>();
 	}
 	
@@ -86,7 +61,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		this.makeCyclic(DimName.valueOf(dimensionName.toUpperCase()));
 	}
 	
-	protected Dimension getDimensionSafe(Shape.DimName dimension)
+	protected Dimension getDimensionSafe(DimName dimension)
 	{
 		if ( this._dimensions.containsKey(dimension) )
 		{
@@ -211,28 +186,31 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public void addBoundary(BoundarySide aSide, Boundary aBoundary)
 	{
-		/* If this boundary is required, we can now take it off the list. */
-		if ( this._requiredBoundarySides.contains(aSide) )
-			this._requiredBoundarySides.remove(aSide);
-		
-		// TODO Rob [14Jan2015]: throw an error/warning if a side boundary is
-		// being overwritten?
-		// TODO Rob [14Jan2015]: separate lists for internal & connection
-		// boundaries? 
-		if ( BoundarySide.isSideBoundary(aSide) )
-			this._sideBoundaries.put(aSide, aBoundary);
+		DimName dimN = aSide.dim;
+		if ( dimN == null )
+		{
+			// TODO Rob [14Jan2015]: separate lists for internal & connection
+			// boundaries? 
+			this._otherBoundaries.add(aBoundary);
+		}
 		else
-			this._otherBoundaries.add(aBoundary);	
+		{
+			// TODO Rob [14Jan2015]: throw an error/warning if a side boundary
+			// is being overwritten?
+			// TODO Rob [28Jan2016]: throw an error if this dimension is not in
+			// our list?
+			Dimension dim = this._dimensions.get(dimN);
+			dim.setBoundary(aBoundary, aSide == dimN.minBndry);
+		}
 	}
 	
-	public Set<BoundarySide> getBoundarySides()
+	public Boundary getBoundary(BoundarySide aSide)
 	{
-		return this._sideBoundaries.keySet();
-	}
-	
-	public GridMethod getGridMethod(BoundarySide aSide, String soluteName)
-	{
-		return this._sideBoundaries.get(aSide).getGridMethod(soluteName);
+		DimName dimN = aSide.dim;
+		if ( dimN == null )
+			return null;
+		Dimension dim = this._dimensions.get(dimN);
+		return dim.getBoundaries()[aSide == dimN.minBndry ? 0 : 1];
 	}
 	
 	/**
@@ -379,23 +357,13 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	
 	public boolean isReadyForLaunch()
 	{
-		/* Check there are no more boundaries required. */
-		if ( ! this._requiredBoundarySides.isEmpty() )
-		{
-			// TODO
-			return false;
-		}
-		/* If there are any other boundaries, check these are ready. */
-		Boundary b;
-		for ( BoundarySide s : this._sideBoundaries.keySet() )
-		{
-			b = this._sideBoundaries.get(s);
-			if ( ! b.isReadyForLaunch() )
+		/* Check all dimensions are ready. */
+		for ( Dimension dim : this._dimensions.values() )
+			if ( ! dim.isReadyForLaunch() )
 			{
 				// TODO
 				return false;
 			}
-		}
 		/* If there are any other boundaries, check these are ready. */
 		for ( Boundary bound : this._otherBoundaries )
 			if ( ! bound.isReadyForLaunch() )
