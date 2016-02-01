@@ -47,8 +47,8 @@ public class AgentCompartmentTest {
 			BoundaryCyclic max = new BoundaryCyclic();
 			min.setPartnerBoundary(max);
 			max.setPartnerBoundary(min);
-			aCompartment.getShape().setBoundary(side, min, true);
-			aCompartment.getShape().setBoundary(side, max, false);
+			aCompartment.getShape().setBoundary(side, min, 0);
+			aCompartment.getShape().setBoundary(side, max, 1);
 		}
 		
 		/*
