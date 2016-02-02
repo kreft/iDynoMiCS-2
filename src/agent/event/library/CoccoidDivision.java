@@ -1,6 +1,8 @@
 package agent.event.library;
 
+import surface.Link;
 import surface.Point;
+import surface.Surface;
 import utility.ExtraMath;
 import linearAlgebra.Vector;
 import agent.Agent;
@@ -35,6 +37,13 @@ public class CoccoidDivision extends Event {
 			Body daughterBody = (Body) daughter.get(input[2]);
 			Point q = daughterBody.getPoints().get(0);
 			q.setPosition(Vector.minus(originalPos, shift));
+			
+			
+			//TODO testing
+			if (mother.get("filialLinker") == null || !(boolean) mother.get("filialLinker"))
+			{}
+			else
+				momBody._links.add(new Link(new Point[]{p,q}, new Surface[]{momBody.getSurface(),daughterBody.getSurface()},1.7));
 			
 			daughter.registerBirth();
 		}

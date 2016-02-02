@@ -79,7 +79,8 @@ public class Agent extends AspectRegistry implements Quizable
 		else if (isGlobalState(name))
 			return species.getState(name);	 
 		{
-			System.out.println("Warning: agent state " + name + " not defined.");
+			//TODO muted for testing purposes
+			//System.out.println("Warning: agent state " + name + " not defined.");
 			return null;
 		}
 	}
@@ -96,7 +97,11 @@ public class Agent extends AspectRegistry implements Quizable
 	 */
 	public Object get(String name)
 	{
-		return getState(name).get(this);
+		State state = getState(name);
+		if (state == null)
+			return null;
+		else
+			return getState(name).get(this);
 	}
 
 	public Compartment getCompartment()

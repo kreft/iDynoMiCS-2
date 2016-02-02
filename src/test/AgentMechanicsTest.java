@@ -73,9 +73,14 @@ public class AgentMechanicsTest {
 		// set parameters and initiate process manager
 		////////////////////////
 		
-		double stepSize = 1;
+		double stepSize = 0.25;
 		int nStep, mStep;
-		nStep = mStep = 4*24;
+		nStep = mStep = 250;
+		
+		ProcessManager agentMove = new AgentStochasticMove();
+		agentMove.setTimeForNextStep(0.0);
+		agentMove.setTimeStepSize(stepSize);
+		
 		ProcessManager agentRelax = new AgentRelaxation();
 		agentRelax.setTimeForNextStep(0.0);
 		agentRelax.setTimeStepSize(stepSize);
@@ -98,7 +103,9 @@ public class AgentMechanicsTest {
 		{
 			// step the process manager
 			agentGrowth.step(testcompartment._environment, testcompartment.agents);
+			agentMove.step(testcompartment._environment, testcompartment.agents);
 			agentRelax.step(testcompartment._environment, testcompartment.agents);
+			
 			// write output
 //			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 			svg.writepov(testcompartment.name, testcompartment.agents);

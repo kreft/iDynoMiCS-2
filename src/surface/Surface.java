@@ -28,6 +28,11 @@ public abstract class Surface
 	
 	public abstract Type type();
 	
+	public Collision getCollisionDomain()
+	{
+		return collisionDomain;
+	}
+	
 	public double distanceTo(Surface surface)
 	{
 		return collisionDomain.distance(this, surface);

@@ -24,6 +24,25 @@ public class Collision {
 		public double[] interactionForce(double distance, double[] dP);
 	}
 	
+	public CollisionFunction PullFunction = new CollisionFunction()
+	{
+		public double[] interactionForce(double distance, double[] dP)
+		{
+			double c;
+			double fPull 		= -0.6;		// pull force scalar
+			distance 			-= 0.001;	// added margin
+			
+			// Repulsion
+			if (distance > 0.0) 
+			{
+				c = Math.abs(fPull * distance); //linear
+				Vector.normaliseEuclidEquals(dP, c);
+				return dP;
+			} 
+			return Vector.zeros(dP);
+		}
+	};
+	
 	public CollisionFunction DefaultCollision = new CollisionFunction()
 	{
 		public double[] interactionForce(double distance, double[] dP)
@@ -31,7 +50,7 @@ public class Collision {
 			double c;
 			double p 			= 0.01; 		// pull distance
 			double fPull 		= 0.0002;		// pull force scalar
-			double fPush 		= 3.0;			// push force scalar
+			double fPush 		= 6.0;			// push force scalar
 			boolean exponential = true; 		// exponential pull curve
 			
 			distance 			-= 0.001;	// added margin
@@ -66,6 +85,8 @@ public class Collision {
 	
 	private CollisionFunction collisionFun;
 	
+	private CollisionFunction pullFun;
+	
 	private Shape computationalDomain;
 	
 	/**
@@ -98,6 +119,9 @@ public class Collision {
 		this.collisionFun = DefaultCollision;
 		this.computationalDomain = compartmentShape;
 		this.dP = Vector.zerosDbl(compartmentShape.getNumberOfDimensions());
+		
+		//FIXME testing purposes
+		this.pullFun = PullFunction;
 	}
 
 	/**
@@ -119,6 +143,26 @@ public class Collision {
 		{
 			applyForce(a, force,s);
 			applyForce(b, Vector.times(force,-1.0), t);
+		}
+	}
+	
+	//FIXME temporary for testing
+	public void pull(Surface a, Surface b)
+	{
+		
+		//TODO check all the flipin' flipping here
+		double[] force = pullFun.interactionForce(distance(a,b), 
+				(flip ? Vector.times(this.dP,-1.0) : this.dP));
+
+		if(flip)
+		{
+			applyForce(a, force,s);
+			applyForce(b, Vector.times(force,-1.0), t);
+		} 
+		else
+		{
+			applyForce(b, force,s);
+			applyForce(a, Vector.times(force,-1.0), t);
 		}
 	}
 	

@@ -1,6 +1,9 @@
 package utility;
 
 import linearAlgebra.Vector;
+
+import java.util.LinkedList;
+
 import generalInterfaces.Copyable;
 
 /**
@@ -12,6 +15,8 @@ public final class Copier {
 	
 	public static Object copy(Object copyable)
 	{
+		if (copyable == null)
+			return null;
 		if (copyable instanceof Double || copyable.getClass() == double.class)
 		{
 			return new Double((double) copyable);

@@ -15,6 +15,8 @@ public class Body implements Duplicable {
 	 */
 	Agent agent; 
 	
+	public LinkedList<Link> _links = new LinkedList<Link>();
+	
 	/**
 	 * TODO: Depricated, remove
 	 */
