@@ -41,27 +41,30 @@ public class Dimension implements CanPrelaunchCheck
 	/**
 	 * \brief Get the length of this dimension.
 	 * 
-	 * @return
+	 * @return A positive {@code double}.
 	 */
 	public double getLength()
 	{
 		return this._extreme[1] - this._extreme[0];
 	}
 	
+	/**
+	 * \brief Confirm that the maximum extreme is greater than the minimum.
+	 */
 	protected void checkExtremes()
 	{
 		if ( this._extreme[1] <= this._extreme[0] )
 		{
-			throw new IllegalArgumentException(
-					"Dimension length must be >= 0");
+			throw new 
+					IllegalArgumentException("Dimension length must be >= 0");
 		}
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the value for a specified extreme to take.
 	 * 
-	 * @param value
-	 * @param index
+	 * @param value Value for the specified extreme to take.
+	 * @param index Which extreme to set: 0 for minimum, 1 for maximum.
 	 */
 	public void setExtreme(double value, int index)
 	{
@@ -70,10 +73,12 @@ public class Dimension implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the values of both the minimum and maximum extremes.
 	 * 
-	 * @param minValue
-	 * @param maxValue
+	 * <p>Note that <b>minValue</b> must be less than <b>maxValue</b>.</p>
+	 * 
+	 * @param minValue Value for the minimum extreme to take.
+	 * @param maxValue Value for the maximum extreme to take.
 	 */
 	public void setExtremes(double minValue, double maxValue)
 	{
@@ -96,8 +101,6 @@ public class Dimension implements CanPrelaunchCheck
 	public void setCyclic()
 	{
 		this._isCyclic = true;
-		// TODO safety if boundaries already set
-		this._boundary = new Boundary[]{};
 	}
 	
 	/**
@@ -119,6 +122,7 @@ public class Dimension implements CanPrelaunchCheck
 	 * \brief Tell this dimension that the boundary at the minimum extreme may
 	 * not be specified. Meaningless in cyclic dimensions.
 	 * 
+	 * @param index Which boundary to set: 0 for minimum, 1 for maximum.
 	 * @see #setBoundariesRequired()
 	 */
 	public void setBoundaryOptional(int index)
@@ -140,41 +144,26 @@ public class Dimension implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the boundary at the specified extreme.
 	 * 
-	 * @param aBoundary
-	 * @param setMin {@code boolean} specifying whether to set the minimum
-	 * boundary (true) or the maximum boundary (false).
+	 * @param aBoundary {@code Boundary} object to set at the specified extreme.
+	 * @param index Which boundary to set: 0 for minimum, 1 for maximum.
 	 */
 	public void setBoundary(Boundary aBoundary, int index)
 	{
-		if ( this._isCyclic )
-		{
-			// TODO
-			//throw new Exception();
-		}
-		else
-			this._boundary[index] = aBoundary;
+		this._boundary[index] = aBoundary;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set both the minimum and maximum boundaries.
 	 * 
-	 * @param minBndry
-	 * @param maxBndry
+	 * @param minBndry {@code Boundary} to set at the minimum extreme.
+	 * @param maxBndry {@code Boundary} to set at the maximum extreme.
 	 */
 	public void setBoundaries(Boundary minBndry, Boundary maxBndry)
 	{
-		if ( this._isCyclic )
-		{
-			// TODO
-			//throw new Exception();
-		}
-		else
-		{
-			this._boundary[0] = minBndry;
-			this._boundary[1] = maxBndry;
-		}
+		this._boundary[0] = minBndry;
+		this._boundary[1] = maxBndry;
 	}
 	
 	/**
@@ -193,13 +182,52 @@ public class Dimension implements CanPrelaunchCheck
 		return this._boundary;
 	}
 	
+	/**************************************************************************
+	 * USEFUL METHODS
+	 *************************************************************************/
+	
 	/**
-	 * \brief TODO
+	 * \brief Get the shortest distance between two positions along this
+	 * dimension.
 	 * 
-	 * @param a
-	 * @return
+	 * <p>Note that this may be negative if <b>b</b> > <b>a</b>.</p> 
+	 * 
+	 * @param a Position in this dimension.
+	 * @param b Position in this dimension.
+	 * @return Shortest distance between <b>a</b> and <b>b</b>, accounting for
+	 * cyclic dimension if necessary.
 	 */
-	public double applyBoundary(double a)
+	public double getShortest(double a, double b)
+	{
+		// TODO check that a and b are inside?
+		double out = b - a;
+		if ( this._isCyclic &&  (Math.abs(out) > 0.5 * this.getLength()) )
+			out -= this.getLength() * Math.signum(out);
+		return out;
+	}
+	
+	/**
+	 * \brief Checks if the position given is within the extremes.
+	 * 
+	 * <p>Always inside a cyclic dimension.</p>
+	 * 
+	 * @param a Position in this dimension.
+	 * @return Whether <b>a</b> is inside (true) or outside (false).
+	 */
+	public boolean isInside(double a)
+	{
+		return this._isCyclic ||
+					(( a >= this._extreme[0] ) && ( a < this._extreme[1] ));
+	}
+	
+	/**
+	 * \brief Given a position on in this dimension, finds the closest point
+	 * within the extremes.
+	 * 
+	 * @param a Position in this dimension.
+	 * @return Closest point to <b>a</b> within the extremes.
+	 */
+	public double getInside(double a)
 	{
 		if ( this._isCyclic )
 		{
@@ -216,41 +244,6 @@ public class Dimension implements CanPrelaunchCheck
 			return Math.min( this._extreme[1] - Math.ulp(this._extreme[1]),
 												Math.max(this._extreme[0], a));
 		}
-	}
-	
-	/**************************************************************************
-	 * USEFUL METHODS
-	 *************************************************************************/
-	
-	/**
-	 * \brief Get the shortest distance between two positions along this
-	 * dimension.
-	 * 
-	 * <p>Note that this may be negative if <b>b</b> > <b>a</b>.</p> 
-	 * 
-	 * @param a
-	 * @param b
-	 * @return
-	 */
-	public double getShortest(double a, double b)
-	{
-		double out = b - a;
-		if ( this._isCyclic &&  (Math.abs(out) > 0.5 * this.getLength()) )
-			out -= this.getLength() * Math.signum(out);
-		return out;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param a
-	 * @return
-	 */
-	public boolean isInside(double a)
-	{
-		/* Always inside a cyclic dimension. */
-		return this._isCyclic ||
-					(( a >= this._extreme[0] ) && ( a < this._extreme[1] ));
 	}
 	
 	/**************************************************************************
