@@ -1,6 +1,8 @@
 package agent.state;
 
+import utility.Copier;
 import generalInterfaces.Copyable;
+import generalInterfaces.Duplicable;
 import agent.Agent;
 
 public class PrimaryState implements State {
@@ -22,30 +24,18 @@ public class PrimaryState implements State {
 		// way of doing it
 		// TODO: more objects from primitives to be included
 		State copy = new PrimaryState();
-		switch (state.getClass().getSimpleName()) 
-		{
-			case "Double" : 
-				copy.set(new Double((double) state));
-				return copy;
-			case "Integer" : 
-				copy.set(new Integer((int) state));
-				return copy;
-			case "Boolean" : 
-				copy.set(new Boolean((boolean) state));
-				return copy;
-			case "String" :  
-				// copy.set(String.copyValueOf(((String) state).toCharArray()));
-				// FIXME double check whether this works, Strings are immutable.
-				copy.set(state); 
-				return copy;
-		}
-		if (state instanceof Copyable)
-		{
-			copy.set(((Copyable) state).copy());
-			return copy;
-		} else {
-			throw new Error("Unable to copy agent state");
-		}
+		copy.set(Copier.copy(state));
+		return copy;
+	}
+	
+	public State duplicate(Agent agent)
+	{
+		State copy = new PrimaryState();
+		if (state instanceof Duplicable)
+			copy.set(((Duplicable) state).copy(agent));
+		else
+			copy.set(Copier.copy(state));
+		return copy;
 	}
 	
 }

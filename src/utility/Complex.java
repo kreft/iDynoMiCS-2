@@ -15,7 +15,7 @@ package utility;
  * Includes basic math operations (addition, subtraction, multiplication,
  * division). 
  *
- * @author Andreas Dötsch (andreas.doetsch@helmholtz-hzi.de), Helmholtz Centre
+ * @author Andreas Dï¿½tsch (andreas.doetsch@helmholtz-hzi.de), Helmholtz Centre
  * for Infection Research (Germany).
  */
 public class Complex

@@ -2,6 +2,7 @@ package agent.event;
 
 import generalInterfaces.Copyable;
 import agent.Agent;
+import agent.state.State;
 
 public abstract class Event implements Copyable {
 	

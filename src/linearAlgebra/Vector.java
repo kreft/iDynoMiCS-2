@@ -2112,6 +2112,33 @@ public final class Vector
 	 * RESCALING VECTORS
 	 ************************************************************************/
 	
+	//TODO commenting 
+	public static void normaliseEuclidTo(double[] destination, double[] source, 
+			double newNorm)
+	{
+		checkLengths(destination, source);
+		double oldNorm = normEuclid(source);
+		if ( oldNorm != 0.0 )
+			timesTo(destination, source, newNorm/oldNorm);
+	}
+	
+	public static void normaliseEuclidTo(double[] destination, double[] source)
+	{
+		normaliseEuclidTo(destination, source, 1.0);
+	}
+	
+	public static double[] normaliseEuclid(double[] vector, double newNorm)
+	{
+		double[] destination = new double[vector.length];
+		normaliseEuclidTo(destination, vector, newNorm);
+		return destination;
+	}
+	
+	public static double[] normaliseEuclid(double[] vector)
+	{
+		return normaliseEuclid(vector, 1.0);
+	}
+	
 	/**
 	 * \brief Scale each element of the given <b>vector</b> by the same
 	 * amount, so that the Euclidean norm of <b>vector</b> becomes 
@@ -2123,7 +2150,7 @@ public final class Vector
 	 * @param vector One-dimensional array of doubles (overwritten).
 	 * @param newNorm double value for the new Euclidean norm of <b>vector</i>.
 	 */
-	public static void normaliseEuclid(double[] vector, double newNorm)
+	public static void normaliseEuclidEquals(double[] vector, double newNorm)
 	{
 		double oldNorm = normEuclid(vector);
 		if ( oldNorm != 0.0 )
@@ -2139,9 +2166,9 @@ public final class Vector
 	 * 
 	 * @param vector One-dimensional array of doubles (overwritten).
 	 */
-	public static void normaliseEuclid(double[] vector)
+	public static void normaliseEuclidEquals(double[] vector)
 	{
-		normaliseEuclid(vector, 1.0);
+		normaliseEuclidEquals(vector, 1.0);
 	}
 	
 	/*************************************************************************

@@ -1,4 +1,4 @@
-package agent.state.secondary;
+package agent.state.library;
 
 import agent.Agent;
 import agent.state.SecondaryState;

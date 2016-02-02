@@ -1,7 +1,4 @@
 package agent;
-
-import java.util.HashMap;
-
 import org.w3c.dom.Node;
 
 import dataIO.XmlLoad;
@@ -10,7 +7,7 @@ import agent.state.*;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 
-public class Agent implements StateObject, Quizable
+public class Agent extends AspectRegistry implements Quizable
 {
 
 	/**
@@ -20,13 +17,6 @@ public class Agent implements StateObject, Quizable
 	protected static int UNIQUE_ID = 0;
     final int uid = ++UNIQUE_ID;
 
-	/**
-	 * The states HashMap stores all primary and secondary states.
-	 * FIXME Bas: now also includes all events an agent can perform.. consider
-	 * renaming
-	 */
-	protected HashMap<String, State> _states = new HashMap<String, State>();
-    
     /**
      * Used to fetch species states.
      */
@@ -60,7 +50,7 @@ public class Agent implements StateObject, Quizable
 	public Agent(Agent agent)
 	{
 		for (String key : agent._states.keySet())
-			this._states.put(key, agent.getState(key).copy());
+			this._states.put(key, agent.getState(key).duplicate(this));
 		this.init();
 		this.compartment = agent.getCompartment();
 	}
@@ -86,16 +76,12 @@ public class Agent implements StateObject, Quizable
 		//return (isLocalState(name) ?  _states.get(name) : null);
 		if (isLocalState(name))
 			return _states.get(name);
-		else
+		else if (isGlobalState(name))
+			return species.getState(name);	 
 		{
 			System.out.println("Warning: agent state " + name + " not defined.");
 			return null;
 		}
-	}
-	
-	public boolean isLocalState(String name)
-	{
-		return _states.containsKey(name) ? true : false;
 	}
 	
 	public boolean isGlobalState(String name)
@@ -110,41 +96,9 @@ public class Agent implements StateObject, Quizable
 	 */
 	public Object get(String name)
 	{
-		return this.isLocalState(name) ? getState(name).get(this) : species.getState(name).get(this);
-	}
-	
-	/**
-	 * \brief general setter method for any Agent state
-	 * @param name
-	 * 			name of the state (String)
-	 * @param state
-	 * 			Object that contains the value of the state.
-	 */
-	public void setState(String name, State state)
-	{
-		_states.put(name, state);
-	}
-	
-	public void setPrimary(String name, Object state)
-	{
-		State aState = new PrimaryState();
-		aState.set(state);
-		_states.put(name, aState);
+		return getState(name).get(this);
 	}
 
-	/**
-	 * set should be able to handle any type of state you throw at it.
-	 * @param name
-	 * @param state
-	 */
-	public void set(String name, Object state)
-	{
-		if (state instanceof State)
-			setState(name,(State) state);
-		else
-			setPrimary(name, state);
-	}
-	
 	public Compartment getCompartment()
 	{
 		return compartment;

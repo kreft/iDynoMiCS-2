@@ -20,4 +20,6 @@ public interface State {
 	public Object get(Agent agent);
 
 	public State copy();
+
+	public State duplicate(Agent agent);
 }

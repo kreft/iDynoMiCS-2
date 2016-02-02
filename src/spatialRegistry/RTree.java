@@ -11,6 +11,7 @@ import java.util.ListIterator;
 import java.util.Set;
 
 import boundary.PeriodicAgentBoundary;
+import shape.Shape;
 import utility.ExtraMath;
 
 
@@ -46,7 +47,7 @@ public class RTree<T> extends SpatialRegistry<T>
   private Node nearest;
 
   private volatile int size;
-  private HashMap<Integer, PeriodicAgentBoundary> _periodicBoundaries;
+  private Shape domain;
 
   /**
    * Creates a new RTree.
@@ -83,6 +84,13 @@ public class RTree<T> extends SpatialRegistry<T>
   {
     this(maxEntries, minEntries, numDims, SeedPicker.LINEAR);
   }
+  
+  // cyclic search Rtree
+  public RTree(int maxEntries, int minEntries, int numDims,
+			Shape shape) {
+	  this(maxEntries, minEntries, numDims, SeedPicker.LINEAR);
+	  this.domain = shape;
+	}
 
   private Node buildRoot(boolean asLeaf)
   {
@@ -105,22 +113,7 @@ public class RTree<T> extends SpatialRegistry<T>
     this(50, 2, 2, SeedPicker.LINEAR);
   }
 
-  //TODO: I'm not really a fan, but we have to have access to this info somehow
-  /**
-   * 
-   */
-  public void setPeriodicBoundaries(HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries)
-  {
-	  this._periodicBoundaries = periodicBoundaries;
-  }
-  
-  /**
-   * 
-   */
-	public void addPeriodicBoundary(PeriodicAgentBoundary boundary)
-	{
-		this._periodicBoundaries.put(boundary.periodicDimension, boundary);
-	}
+
 
 /**
    * @return the maximum number of entries per node
@@ -219,21 +212,8 @@ public class RTree<T> extends SpatialRegistry<T>
    *         rectangle.
    */
 	public List<T> cyclicsearch(double[] coords, double[] dimensions)  {
-		LinkedList<double[]> boxList = new LinkedList<double[]>();
 		LinkedList<T> combinedlist = new LinkedList<T>();
-		boxList.add(coords);
-		
-		for(int dim : _periodicBoundaries.keySet())
-		{
-			LinkedList<double[]> temp = new LinkedList<double[]>();
-			for(double[] b : boxList) 
-			{
-				
-				temp.add(_periodicBoundaries.get(dim).subdim(b));
-				temp.add(_periodicBoundaries.get(dim).adddim(b));
-			}
-			boxList.addAll(temp);
-		}
+		LinkedList<double[]> boxList = domain.getCyclicPoints(coords);
 
 		for(double[] b : boxList) 
 		{

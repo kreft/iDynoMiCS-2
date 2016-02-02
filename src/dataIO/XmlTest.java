@@ -49,7 +49,7 @@ public class XmlTest {
 			NamedNodeMap att = ((Element) agentNodes.item(i)).getAttributes();
 			for(int j = 0; j< att.getLength(); j++)
 			{
-				anAgent.setPrimary(att.item(j).getNodeName(), 
+				anAgent.set(att.item(j).getNodeName(), 
 						att.item(j).getNodeValue());
 			}
 			comp.addAgent(anAgent);

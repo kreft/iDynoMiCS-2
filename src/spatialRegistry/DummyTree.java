@@ -41,17 +41,4 @@ public class DummyTree<T> extends SpatialRegistry<T>
 	{
 		// TODO Some sort of warning message?
 	}
-
-	@Override
-	public void setPeriodicBoundaries(
-			HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addPeriodicBoundary(PeriodicAgentBoundary boundary) {
-		// TODO Auto-generated method stub
-		
-	}
 }

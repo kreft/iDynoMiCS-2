@@ -17,11 +17,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import reaction.Reaction;
+import surface.Point;
 import linearAlgebra.Vector;
+import agent.Agent;
+import agent.Body;
 import agent.Species;
-import agent.StateObject;
-import agent.body.Body;
-import agent.body.Point;
+import agent.AspectRegistry;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
 
@@ -68,10 +69,10 @@ public class XmlLoad {
 	/**
 	 * Loads all states from xmlNode into anything that implements the
 	 * StateObject interface.
-	 * @param stateObject
+	 * @param aspectReg
 	 * @param xmlNode
 	 */
-	public static void loadStates(StateObject stateObject, Node xmlNode)
+	public static void loadStates(AspectRegistry aspectReg, Node xmlNode)
 	{
 		Element xmlAgent = (Element) xmlNode;
 		
@@ -84,27 +85,27 @@ public class XmlLoad {
 				switch (s.getAttribute("type")) 
 				{
 					case "boolean" : 
-						stateObject.setPrimary(s.getAttribute("name"), 
+						aspectReg.setPrimary(s.getAttribute("name"), 
 								Boolean.valueOf(s.getAttribute("value")));
 	                	break;
 					case "int" : 
-						stateObject.setPrimary(s.getAttribute("name"), 
+						aspectReg.setPrimary(s.getAttribute("name"), 
 								Integer.valueOf(s.getAttribute("value")));
 	                	break;
 					case "double" : 
-						stateObject.setPrimary(s.getAttribute("name"), 
+						aspectReg.setPrimary(s.getAttribute("name"), 
 								Double.valueOf(s.getAttribute("value")));
 	                	break;
 					case "String" : 
-						stateObject.setPrimary(s.getAttribute("name"), 
+						aspectReg.setPrimary(s.getAttribute("name"), 
 								s.getAttribute("value"));
 	                	break;
 					case "secondary" : 
-						stateObject.setState(s.getAttribute("name"), 
+						aspectReg.setState(s.getAttribute("name"), 
 								StateLoader.getSecondary(s.getAttribute("value"), s.getAttribute("input")));
 	                	break;
 					case "event" :
-						stateObject.setPrimary(s.getAttribute("name"), // TODO Bas do some proper testing, checking
+						aspectReg.setPrimary(s.getAttribute("name"), // TODO Bas do some proper testing, checking
 								EventLoader.getEvent(s.getAttribute("value"), s.getAttribute("input")));
 				}
 			}
@@ -122,7 +123,10 @@ public class XmlLoad {
 							pointList.add(new Point(Vector.dblFromString(
 									point.getAttribute("position"))));
 						}
-						stateObject.setPrimary("body", new Body(pointList));
+						// Bas [01.02.16] TODO: currently only agents can have a
+						// body, look into this if other things alos need to be
+						// able to have a body
+						aspectReg.setPrimary("body", new Body(pointList, (Agent) aspectReg));
 						break;
 					case "reactions" :
 						List<Reaction> reactions = new LinkedList<Reaction>();
@@ -133,7 +137,7 @@ public class XmlLoad {
 							reactions.add(new Reaction(
 									reaction.getAttribute("somethingReact")));
 						}
-						stateObject.setPrimary("reactions", reactions);
+						aspectReg.setPrimary("reactions", reactions);
 						break;
 				}
 			}
@@ -256,4 +260,6 @@ public class XmlLoad {
 			} );
 		}			
 	}
+
+
 }

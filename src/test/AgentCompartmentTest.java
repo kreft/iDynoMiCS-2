@@ -10,10 +10,10 @@ import processManager.ProcessManager;
 import processManager.RefreshMassGrids;
 import processManager.SolveDiffusionTransient;
 import processManager.WriteAgentsSvg;
+import surface.Point;
 import utility.ExtraMath;
 import agent.Agent;
-import agent.body.Body;
-import agent.body.Point;
+import agent.Body;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
 import boundary.BoundaryCyclic;
@@ -112,8 +112,7 @@ public class AgentCompartmentTest {
 		ezAgent.set("#isLocated", true);	
 		ezAgent.set("pigment", "GREEN");
 		List<Point> pts = new LinkedList<Point>();
-		pts.add(new Point(new double[]{1.0, 1.0}));
-		ezAgent.set("body", new Body(pts));
+		ezAgent.set("body", new Body(new Point(new double[]{1.0, 1.0}),ezAgent));
 
 		ezAgent.set("joints", StateLoader.getSecondary("JointsState","body"));
 		ezAgent.set("#boundingLower", StateLoader.getSecondary("LowerBoundingBox","body,radius"));

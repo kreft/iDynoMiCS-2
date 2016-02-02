@@ -1,11 +1,14 @@
-package agent.body;
+package agent;
 
 import java.util.HashMap;
 
+import surface.Point;
 import boundary.PeriodicAgentBoundary;
 import linearAlgebra.Vector;
 
 /**
+ * TODO: this class will be removed and replaced by the new collision class in the surface package
+ * 
  * FIXME: Bas - Think of a better name for this class..
  * \brief methods used in collision/attraction detection and response
  * 
@@ -84,7 +87,7 @@ public class Volume
 	 */
 	public void neighbourInteraction(Point a, Point c, Double radii) // change to simply receive a List of points from both agents
 	{
-		double[] force = interact(pointPoint(a.getPosition(), c.getPosition()), radii);
+		double[] force = interact(pointPoint(a.getPosition(), c.getPosition()) - radii, 0.0);
 		a.addToForce(force);
 		c.subtractFromForce(force);
 	}
@@ -159,7 +162,7 @@ public class Volume
 		if (distance < 0.0) 
 		{
 			c = Math.abs(fPush * distance); //linear
-			Vector.normaliseEuclid(dP, c);
+			Vector.normaliseEuclidEquals(dP, c);
 			return dP;
 		} 
 		// Attraction

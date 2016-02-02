@@ -15,7 +15,7 @@ The implementation of cyclic boundaries with the mechanical relaxation module wa
 Agent morphologies and mechanical relaxation
 --
 
-‘Mass’-points
+'Mass'-points
 Points are currently stored as a linked list in the locatedAgent class.
 
 Rest lengths and angles for multi-point cells (rods, filaments) are also stored within the locatedAgent class however as an array of Doubles.
@@ -25,14 +25,14 @@ An RTree is creating when the mechanical relaxation is initiated and updated dur
 Forces and velocities:
 --
 Currently only simple forces are implemented (attraction, repulsion and internal spring forces).
-Stochastic movement can be implemented as force, velocity or position. We think a change in velocity or position is probably the best approach. A change in position would achieve the aim of ‘shaking’ the particles a bit to avoid stalemates, where cells are caught in local minima. A change of force is in principle more correct but more difficult to tune to achieve the shake up.
+Stochastic movement can be implemented as force, velocity or position. We think a change in velocity or position is probably the best approach. A change in position would achieve the aim of 'shaking' the particles a bit to avoid stalemates, where cells are caught in local minima. A change of force is in principle more correct but more difficult to tune to achieve the shake up.
 
-Small movement steps required for small particles: having small EPS particles forces us to make small timesteps so that particles don’t jump through others during one timestep.
+Small movement steps required for small particles: having small EPS particles forces us to make small timesteps so that particles don't jump through others during one timestep.
 Range of attachment force 80 nm.
 
 Rod-cells:
 --
-Shape of rod cells given by sphere-swept volume, not sphere – cylinder- sphere.
+Shape of rod cells given by sphere-swept volume, not sphere - cylinder- sphere.
 Kinks in filaments pose special issues.
 Distribution of biomass over grid
 Two options: 
@@ -56,7 +56,7 @@ Branching filaments
 Branching filaments can maintain their relative position by creating torsion springs between every connected rod cell that attaches in a single point.
 
 Cell-cell attachment
-Cell membranes behave as fluids thus attached particles moving ‘freely’ over each other surface due to the fact there is not angular orientation of the cells is not a bug but a feature and resembles what is expected in natural systems.
+Cell membranes behave as fluids thus attached particles moving 'freely' over each other surface due to the fact there is not angular orientation of the cells is not a bug but a feature and resembles what is expected in natural systems.
 Division
 The division module for rod shaped cells is ready, however not yet implemented in iDynoMiCS.
 Polarity
@@ -69,6 +69,6 @@ iDynoMiCS 2.0
 
 Activities:
 --
-Static objects managed by ‘mechanisms’ 
+Static objects managed by 'mechanisms' 
 Activities hard coded as library in iDynoMiCS
 Additional activities: Signalling, chemotaxis

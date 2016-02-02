@@ -10,12 +10,12 @@ public class StateLoader {
 	{
 		Class<?> c;
 		try {
-			c = Class.forName("agent.state.secondary." + className);
+			c = Class.forName("agent.state.library." + className);
 			SecondaryState myState = (SecondaryState) c.newInstance();
 			myState.setInput(inputStates);
 			return myState;
 		} catch (ClassNotFoundException e ){
-			System.out.println("ERROR: the class " + className + " could not be found. Check the agent.state.secondary package for the existence of this class.");
+			System.out.println("ERROR: the class " + className + " could not be found. Check the agent.state.library package for the existence of this class.");
 			e.printStackTrace();
 		} catch (InstantiationException | IllegalAccessException e)  {
 			System.out.println("ERROR: the class " + className + " could not be accesed or instantieated. Check whether the called class is a valid State object.");

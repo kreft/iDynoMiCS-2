@@ -1,11 +1,11 @@
-package agent.state.secondary;
+package agent.state.library;
 
 import agent.Agent;
-import agent.body.Body;
+import agent.Body;
 import agent.state.SecondaryState;
 import agent.state.State;
 
-public class JointsState extends SecondaryState implements State {
+public class SimpleSurface extends SecondaryState implements State {
 	
 	/**
 	 * 
@@ -18,7 +18,7 @@ public class JointsState extends SecondaryState implements State {
 	
 	public Object get(Agent agent)
 	{
-		return ((Body) agent.get(input[0])).getJoints();
+		return ((Body) agent.get(input[0])).getSurface();
 	}
 	
 	public State copy()

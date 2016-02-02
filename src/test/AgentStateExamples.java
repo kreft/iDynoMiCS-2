@@ -4,7 +4,6 @@ import agent.Agent;
 import agent.state.PrimaryState;
 import agent.state.State;
 import agent.state.StateLoader;
-import agent.state.secondary.*;
 
 public class AgentStateExamples {
 
@@ -16,19 +15,19 @@ public class AgentStateExamples {
 		// add a new state
 		State mass = new PrimaryState();
 		mass.set(0.1);
-		testagent.setState("mass",mass);
+		testagent.set("mass",mass);
 				
 		// add a new state the automated way
-		testagent.setPrimary("density", 0.2);
+		testagent.set("density", 0.2);
 		
 		// add a predefined secondary state
 		State volume =  StateLoader.getSecondary("SimpleVolumeState","mass,density");
 		
-		testagent.setState("volume",volume);
+		testagent.set("volume",volume);
 		
 		// removed "calculated state" since we don't want to use anonymous
 		// states but it is still possible..
-		testagent.setState("volume2",
+		testagent.set("volume2",
 		// add a secondary state that was not previously defined (anonymous class).
 		new State() {
 			@Override
@@ -44,6 +43,12 @@ public class AgentStateExamples {
 			@Override
 			public State copy() {
 				return this; // *information is only stored in primary states
+			}
+			
+			@Override
+			public State duplicate(Agent agent) {
+				// TODO Auto-generated method stub
+				return this;
 			}
 		});
 		

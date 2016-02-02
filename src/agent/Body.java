@@ -1,44 +1,124 @@
-package agent.body;
+package agent;
 
-import generalInterfaces.Copyable;
+import generalInterfaces.Duplicable;
+import idynomics.NameRef;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import linearAlgebra.Vector;
+import surface.*;
 
-public class Body implements Copyable {
+public class Body implements Duplicable {
 	
 	/**
-	 * 
+	 * the body belongs to agent
 	 */
-	public Body(List<Point> points, double[] lengths, double[] angles, double radius) 
+	Agent agent; 
+	
+	/**
+	 * TODO: Depricated, remove
+	 */
+//	public Body(List<Point> points, double[] lengths, double[] angles, double radius) 
+//	{
+//		this.points = points;
+//		this._angles = angles;		
+//	}
+//	
+//	public Body(List<Point> points) 
+//	{
+//		this.points = points;
+//		/*
+//		 * Lengths, angles and radius remain undefined.
+//		 */
+//	}
+	
+	
+	// TODO some proper testing
+	/**
+	 * Coccoid
+	 */
+	public Body(Point point, Agent agent)
 	{
-		this.points = points;
-		this._lengths = lengths;
-		this._angles = angles;
-		this._radius = radius;		
+		this.points.add(point);
+		this.surfaces.add(new Sphere(point, this));
 	}
 	
-	public Body(List<Point> points) 
+	public Body(Sphere sphere, Agent agent)
 	{
-		this.points = points;
-		/*
-		 * Lengths, angles and radius remain undefined.
-		 */
+		this.points.add(sphere._point);
+		sphere.setBody(this);
+		this.surfaces.add(sphere);
+		this.agent = agent;
 	}
 	
-	public Body copy()
+	/**
+	 * Rod
+	 * @param rod
+	 */
+	public Body(Point[] points, Agent agent)
 	{
-		//TODO make this
-		List<Point> newPoints = new LinkedList<Point>();
-		for ( Point p : points)
+		this.points.add(points[0]);
+		this.points.add(points[1]);
+		this.surfaces.add(new Rod(points, this));
+		this.agent = agent;
+	}
+	
+	public Body(Rod rod, Agent agent)
+	{
+		this.points.add(rod._points[0]);
+		this.points.add(rod._points[1]);
+		rod.setBody(this);
+		this.surfaces.add(rod);
+		this.agent = agent;
+	}
+
+	
+	/**
+	 * Hybrid: Coccoid, Rod, rods, TODO Chain
+	 * @return
+	 */
+	public Body(List<Point> points, Agent agent)
+	{
+		this.points = points;
+		if (points.size() == 1)
+			this.surfaces.add(new Sphere(points.get(0), this));
+		if (points.size() == 2)
+			this.surfaces.add(new Rod(new Point[]{points.get(0), points.get(1)}, this));
+		if(points.size() > 2)
+			System.out.println("WARNING: CHAIN type not supported yet"); //TODO 
+		this.agent = agent;
+	}
+	
+	public Body(List<Point> points, double length, double radius, Agent agent)
+	{
+		this.agent = agent;
+		this.points.addAll(points);
+		if(this.points.size() == 1)
+			this.surfaces.add(new Sphere(points.get(0), radius));
+		else
 		{
-			Point duplicate = new Point(Vector.copy(p.getPosition()));
-			newPoints.add(duplicate);
+			for(int i = 0; points.size()-1 > i; i++)
+			{
+				this.surfaces.add(new Rod(points.get(i), points.get(i+1), length, radius));
+			}
 		}
-			
-		return new Body(newPoints);
+	}
+
+
+	//TODO proper testing
+	public Body copy(Agent agent)
+	{
+		// TODO make for multishape bodies
+		switch (surfaces.get(0).type())
+		{
+		case SPHERE:
+			return new Body(new Sphere((Sphere) surfaces.get(0), this), agent);
+		case ROD:
+			return new Body(new Rod((Rod) surfaces.get(0), this), agent);
+		default:
+			return null;
+		}
+		
 	}
 	
     /**
@@ -47,47 +127,16 @@ public class Body implements Copyable {
      * in a single sphere for coccoid-type agents or a tube for agents described
      * by multiple points.
      */
-    protected List<Point> points 	= new LinkedList<Point>();
-	
-    /**
-     * Rest length of internal springs connecting the points.
-     */
-	protected double[] _lengths;
-	
+    protected List<Point> points = new LinkedList<Point>();
+    
+    protected List<Surface> surfaces = new LinkedList<Surface>();
+
 	/**
 	 * Rest angles of torsion springs 
 	 */
 	protected double[] _angles;
 	
-	/**
-	 * radius of the cell (not used for coccoid cell types)
-	 * FIXME: this is confusing, there should be a better way of doing this
-	 */
-	protected double _radius;
-	
-	/**
-	 * FIXME: convert to switch-case rather than if else
-	 */
-	public int getMorphologyIndex()
-	{
-		if (points.size() == 0)
-			return 0;					// no body
-		else if (points.size() == 1)
-			return 1;					// cocoid body
-		else if (points.size() == 2)
-			return 2;					// rod body
-		else if (points.size() > 2)
-		{
-			if (_angles == null)
-				return 3;				// bendable body / filaments
-			else
-				return 4;				// bend body type
-		}
-		else
-			return -1;					// undefined body type
-		
-	}
-	
+	//TODO: take out
 	public List<double[]> getJoints()
 	{
 		List<double[]> joints = new LinkedList<double[]>();
@@ -98,6 +147,12 @@ public class Body implements Copyable {
 	public List<Point> getPoints()
 	{
 		return this.points;
+	}
+	
+	//FIXME only for testing purposes
+	public Surface getSurface()
+	{
+		return this.surfaces.get(0);
 	}
 	
 	/**
@@ -189,5 +244,14 @@ public class Body implements Copyable {
 	public int nDim() 
 	{
 		return points.get(0).nDim();
+	}
+
+	// obtains the radius which can be a primary or secondary agent state
+	public double getRadius() {
+		return (double) agent.get(NameRef.bodyRadius);
+	}
+
+	public double getLength() {
+		return (double) agent.get(NameRef.bodyLength);
 	}
 }

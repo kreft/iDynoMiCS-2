@@ -1,10 +1,14 @@
 package processManager;
 
+import surface.Collision;
+import surface.Point;
+import surface.Surface;
 import linearAlgebra.Vector;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import agent.Agent;
-import agent.body.*;
+import agent.Body;
+import agent.Volume;
 
 	////////////////////////
 	// WORK IN PROGRESS, initial version
@@ -30,7 +34,7 @@ public class AgentRelaxation extends ProcessManager {
 		agents.refreshSpatialRegistry();
 		//FIXME hard coded periodic boundaries and domain size for test case, initiate properly
 		//TODO: in my opinion this information should all just come from the compartment
-		Volume iterator = new Volume(agents.getNumDims(), agents.getAgentBoundaries());
+		Collision iterator = new Collision(null, agents.getShape());
 		
 		// Calculate forces
 		for(Agent agent: agents.getAllLocatedAgents()) 
@@ -42,11 +46,7 @@ public class AgentRelaxation extends ProcessManager {
 			{
 				if (agent.identity() > neighbour.identity())
 					{
-					iterator.neighbourInteraction(			// TODO this needs to be expanded to also include other agent types
-							((Body) neighbour.get("body")).getPoints().get(0),
-							((Body) agent.get("body")).getPoints().get(0) , 
-							(double) agent.get("radius") + 
-							(double) neighbour.get("radius"));
+					iterator.collision((Surface) agent.get("surface"), (Surface) neighbour.get("surface"));
 					}
 			}
 		}
@@ -126,8 +126,7 @@ public class AgentRelaxation extends ProcessManager {
 			for(Agent agent: agents.getAllLocatedAgents())
 				for (Point point: ((Body) agent.get("body")).getPoints())
 				{
-					agents.getAgentBoundaries().forEach((k,v)->
-					point.setPosition(v.inFrameLocation(point.getPosition())));
+					agents.getShape().applyBoundaries(point.getPosition());
 				}
 			nstep++;
 		}

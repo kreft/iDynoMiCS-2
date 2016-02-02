@@ -50,6 +50,8 @@ public class AgentMechanicsTest {
 			Compartment comp = testcompartment = sim.addCompartment(
 					xmlCompartment.getAttribute("name"), 
 					xmlCompartment.getAttribute("shape"));
+			comp.setSideLengths(new double[] {9.0, 9.0, 1.0});
+			comp.init();
 			
 			// Check the agent container
 			if (xmlCompartment.getElementsByTagName("agents").getLength() > 1)
