@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import boundary.PeriodicAgentBoundary;
 import agent.Agent;
 import reaction.Reaction;
 import shape.Shape;
@@ -34,11 +33,6 @@ public class AgentContainer
 	 * TODO Check this is the best way of going about things!
 	 */
 	protected HashMap<String, Reaction> _agentReactions;
-	
-	/**
-	 * 
-	 */
-	protected HashMap<Integer, PeriodicAgentBoundary> _agentBoundaries = new HashMap<Integer, PeriodicAgentBoundary>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -90,16 +84,6 @@ public class AgentContainer
 	public Shape getShape()
 	{
 		return _shape;
-	}
-	
-	public void addAgentBoundary(PeriodicAgentBoundary boundary)
-	{
-		this._agentBoundaries.put(boundary.periodicDimension, boundary);
-	}
-	
-	public HashMap<Integer, PeriodicAgentBoundary> getAgentBoundaries()
-	{
-		return this._agentBoundaries;
 	}
 	
 	/**

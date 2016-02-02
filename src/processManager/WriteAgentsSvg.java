@@ -17,13 +17,13 @@ public class WriteAgentsSvg extends ProcessManager
 	{
 		//FIXME: very quick and dirty
 		this.CompName = compartmentName;
-		svg.writepov(CompName, agents.getAllLocatedAgents());
+		svg.writepov(CompName, agents);
 	}
 	
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
-		svg.writepov(CompName, agents.getAllLocatedAgents());
+		svg.writepov(CompName, agents);
 	}
 }

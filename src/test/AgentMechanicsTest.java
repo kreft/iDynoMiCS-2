@@ -50,9 +50,11 @@ public class AgentMechanicsTest {
 			Compartment comp = testcompartment = sim.addCompartment(
 					xmlCompartment.getAttribute("name"), 
 					xmlCompartment.getAttribute("shape"));
-			comp.setSideLengths(new double[] {9.0, 9.0, 1.0});
+			comp.setSideLengths(new double[] {18.0, 18.0, 1.0});
+			comp.getShape().makeCyclic("X");
+			comp.getShape().makeCyclic("Y");
 			comp.init();
-			
+						
 			// Check the agent container
 			if (xmlCompartment.getElementsByTagName("agents").getLength() > 1)
 				System.out.println("more than 1 agentcontainer!!!");
@@ -91,7 +93,7 @@ public class AgentMechanicsTest {
 		System.out.println("Time: "+agentRelax.getTimeForNextStep());
 		// write initial state
 //		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
-		svg.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
+		svg.writepov(testcompartment.name, testcompartment.agents);
 		for ( ; nStep > 0; nStep-- )
 		{
 			// step the process manager
@@ -99,7 +101,7 @@ public class AgentMechanicsTest {
 			agentRelax.step(testcompartment._environment, testcompartment.agents);
 			// write output
 //			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
-			svg.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
+			svg.writepov(testcompartment.name, testcompartment.agents);
 			System.out.println(mStep-nStep +" Time: "+agentRelax.getTimeForNextStep());
 		}
 		System.out.println("finished");

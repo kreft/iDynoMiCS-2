@@ -1,6 +1,7 @@
 package shape;
 
 import boundary.Boundary;
+import boundary.BoundaryCyclic;
 import generalInterfaces.CanPrelaunchCheck;
 
 /**
@@ -63,6 +64,7 @@ public class Dimension implements CanPrelaunchCheck
 	{
 		this._isCyclic = true;
 		// TODO safety if boundaries already set
+		// FIXME Bas [02.02.16] This does not seem to work, please look into this
 		this._boundaries = new Boundary[]{};
 	}
 	
@@ -165,11 +167,15 @@ public class Dimension implements CanPrelaunchCheck
 		if ( this._isCyclic )
 		{
 			// TODO check this modulo behaves with negative numbers
-			return a % this._length;
+			// TODO Bas [03.03.16] nope it does not, check whether this fixes every scenario
+			return a % this._length + (a < 0 ? this._length : 0);
 		}
 		else
 		{
 			// TODO use length minus some tidy amount?
+			// FIXME Bas [02.02.16] this method is not suitable for use with
+			// complexer shape (think rods colliding with spherical boundary)
+			// use collision with surface object instead.
 			return Math.max(0.0, Math.min(this._length, a));
 		}
 	}
