@@ -11,7 +11,7 @@ import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
 import processManager.ProcessManager;
 import shape.Shape;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 
 public class Compartment implements CanPrelaunchCheck
 {
@@ -117,7 +117,7 @@ public class Compartment implements CanPrelaunchCheck
 	 */
 	public void addBoundary(String side, Boundary aBoundary)
 	{
-		this.addBoundary(BoundarySide.getSideFor(side), aBoundary);
+		this.addBoundary(BoundarySide.valueOf(side.toUpperCase()), aBoundary);
 	}
 	
 	/**

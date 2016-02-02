@@ -1,146 +1,321 @@
 package test;
 
+import java.awt.BorderLayout;
+import java.util.Arrays;
 import java.util.Scanner;
 
+import javax.swing.JFrame;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.NumberTickUnit;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYDotRenderer;
+import org.jfree.data.xy.XYDataItem;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+import boundary.Boundary;
 import boundary.BoundaryFixed;
+import grid.CylindricalGrid;
+import grid.PolarGrid;
+import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SphericalGrid;
-import shape.BoundarySide;
+import grid.GridBoundary.ConstantDirichlet;
+import idynomics.Compartment;
+import idynomics.Simulator;
+import idynomics.Timer;
+import linearAlgebra.Vector;
+import processManager.PrepareSoluteGrids;
+import processManager.SolveDiffusionTransient;
+import shape.ShapeConventions.BoundarySide;
 import test.plotting.PolarGridPlot3D;
 
 public class PolarGridTest {
 	public static Scanner keyboard = new Scanner(System.in);
-	
-	/****** CARE: 
-	 * coordinates in the spherical array are (r,p,t), locations in space are (r,t,p)!
-	 * in the cylindrical array coordinates are (r,t,z)
-	 * _ires, _res and _nVoxel are in (r,t,p) notation as well
-	 * (it was meant to be (r,t,p) anywhere, but now t depends on p 
-	 * and not the other way around and "horizontally jagged" 
-	 * arrays cannot be created in java)
-	 */
-	
-	/******** DIFFERENCES TO CARTESIAN GRID: 
-	 * resolution for polar dimensions can only be set constant
-	 * -> resolutions of r and z can be set like in cartesian grid
-	 * _res[1][0] is used only (constant resolution in t)
-	 * _res[2][0] is used only for spherical grid (constant resolution in p)
-	 * _res[1|2][1...] are ignored atm
- 	 */
-	
-	/******** KNOWN BUGS: 
-	 * - resolution in p (_res[2][0]) can not be changed at the moment
-	 * - iterator fails for _nVoxel[1|2]%90 != 0 (not full quadrants) 
-	 * 		in spherical grid
-	 * 		(still creation and visual representation work somehow)
-	 * - the volume is most likely not correctly computed atm.
-	 */
-	
-	/* SUGGESTED IMPROVEMENTS:
-	 * - we could store a cumulative sum of the resoultions to speed computation
-	 *  of locations up (where we compute it on every call)
-	 */
+	public static double D = 1.0;
 
 	public static void main(String[] args) {
 		
-		// choose array type here
-		SphericalGrid gridp = new SphericalGrid(
-				new int[]{5,90,90},new double[]{1,1,1});
+		/**********************************************************************/
+		/********************* CHOOSE ARRAY TYPE HERE *************************/
+		/**********************************************************************/
 		
-//	    CylindricalGrid gridp = new CylindricalGrid(
-//				new int[]{4,360,1},new double[]{1,1,1});
+//		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},1);
+//		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},
+//				new double[]{1,1,2});
+		
+	    CylindricalGrid grid = new CylindricalGrid(new double[]{3,360,1},1);
+//		CylindricalGrid grid = new CylindricalGrid(
+//				new double[]{3,360,1},new double[]{1,2,1});
 		
 //	    CartesianGrid gridp = new CartesianGrid(new int[]{100,100,4000},1);
 		
-		// create an array
-		ArrayType type=ArrayType.CONCN;
-		gridp.newArray(type, 0);
+		Timer.setTimeStepSize(1.0);
+		Timer.setEndOfSimulation(10.0);
 		
-		// add boundaries
+		/*
+		 * create the array
+		 */
+		ArrayType type=ArrayType.CONCN;
+		grid.newArray(type, 0);
+		/*
+		 * add boundaries
+		 */
 		for (BoundarySide bs : BoundarySide.values()){
-			gridp.addBoundary(bs, new BoundaryFixed().getGridMethod(""));
+			grid.addBoundary(bs, new BoundaryFixed().getGridMethod(""));
 		}
 		
+//		grid.setValueAt(type, new int[]{1,1,1},1);
+//		grid.setValueAt(type, new int[]{2,2,1},0.5);
+//		grid.setValueAt(type, new int[]{2,3,1},0.5);
+//		grid.setValueAt(type, new int[]{2,4,1},0.5);
+//		grid.setValueAt(type, new int[]{2,0,0},0.5);
+		
+		/**********************************************************************/
+		/******************** CHOOSE TEST METHOD HERE *************************/
+		/**********************************************************************/
+		
+//		testMemoryAndIteratorSpeed(grid);
+//		testIterator(grid);
+//		testNbhIterator(grid);
+//		/*
+//		 * paramters for create graphics:
+//		 * iterator: 	0: no iterator,1: step manual 2: step automatic
+//		 * locations: 	0: no location,1: origin 	  2: centre
+//		 * do | do not plot grid cell polygons
+//		 */
+//		PolarGridPlot3D plot = createGraphics(grid,1,2,false);
+//		plot.plotCurrentConcentrations();
+//		plotVoxelVolumes(grid);
+//		oneDimRiseFallComp();
+
+		keyboard.close();
+	}
+	
+	public static void testMemoryAndIteratorSpeed(SpatialGrid grid){
 		long t_start = System.currentTimeMillis();
+		long mem_start = (Runtime.getRuntime().totalMemory() 
+				- Runtime.getRuntime().freeMemory());
+
+		System.out.println("time needed to create grid: "
+				+(System.currentTimeMillis()-t_start)
+				+" ms");
+
+		System.out.println("Memory usage of grid array: "+
+				((Runtime.getRuntime().totalMemory() 
+						- Runtime.getRuntime().freeMemory()
+						)-mem_start)/1e6 + " MB");
 		
-		/**********************************************************************/
-		/*************** uncomment to test memory usage of grid ***************/
-		/**********************************************************************/
-		
-//	    long mem_start = (Runtime.getRuntime().totalMemory() 
-//	    		- Runtime.getRuntime().freeMemory());
-//	    		
-//		System.out.println("time needed to create grid: "
-//				+(System.currentTimeMillis()-t_start)
-//				+" ms");
-//		
-//		System.out.println("Memory usage of grid array: "+
-//				((Runtime.getRuntime().totalMemory() 
-//						- Runtime.getRuntime().freeMemory()
-//				)-mem_start)/1e6 + " MB");
-//		System.out.println("number of grid elements: "+gridp.length());
-				
-		
-		/**********************************************************************/
-		/**************** uncomment to test iterator's speed  *****************/
-		/**********************************************************************/
-		
-//		t_start = System.currentTimeMillis();
-//		
-//		int[] current;
-//		for ( current = gridp.resetIterator(); gridp.isIteratorValid();
-//				current = gridp.iteratorNext())
-//		{
-//			
-//			/****************** uncomment to test iterator ********************/			
-//			
-////			System.out.println("current: "+Arrays.toString(current)+
-////					"\torigin: "+Arrays.toString(
-////							gridp.getVoxelOrigin(Vector.copy(current)))
-////					+"\tcoord: "+Arrays.toString(
-////							gridp.getCoords(Vector.copy(
-////							gridp.getVoxelOrigin(Vector.copy(current)))))
-////					+"\tindex: "+gridp.coord2idx(current)
-////					+"\tvolume: "+gridp.getVoxelVolume(current)
-////			);
-////			
-////			System.out.println();
-//			
-//			/******* uncomment to test iterator and neighborhood iterator *****/
-//		
-////			System.out.println("grid size: "
-////						+Arrays.toString(gridp.getNumVoxels()));
-////			int[] nbh;
-////			for ( current = gridp.resetIterator(); gridp.isIteratorValid();
-////					  current = gridp.iteratorNext())
-////			{
-////				System.out.println("current: "+Arrays.toString(current));
-////				for ( nbh = gridp.resetNbhIterator(); 
-////						gridp.isNbhIteratorValid(); 
-////							nbh = gridp.nbhIteratorNext() )
-////				{
-////					System.out.println("\tnbh: "+Arrays.toString(nbh));
-////				}
-////			}
-////			System.out.println();
-////			int[] coords=gridp.getCoords(
-////								gridp.getVoxelOrigin(new int[]{3,41,7}));
-////			System.out.println(coords[0]+" "+coords[1]+" "+coords[2]);
-//		}
-//		
-//		System.out.println("time needed to iterate through grid: "
-//			+(System.currentTimeMillis()-t_start)+" ms");	
-		
-		/**********************************************************************/
-		/************ uncomment to create graphical representation ************/
-		/**********************************************************************/
-		
-		PolarGridPlot3D plot = new PolarGridPlot3D(gridp,true,true);
-		System.out.println("press enter to start iterator");
-		keyboard.nextLine();
-        plot.startIterator();  // manual step
-//        plot.runIterator();      // running automatically
-        keyboard.close();
+		t_start = System.currentTimeMillis();
+//		int last_idx=0;
+		while (grid.isIteratorValid()) grid.iteratorNext();
+		System.out.println("time needed to iterate through grid: "
+				+(System.currentTimeMillis()-t_start)+" ms");	
 	}
 
+	public static void testIterator(SpatialGrid grid){
+		int[] current;
+		for ( current = grid.resetIterator(); grid.isIteratorValid();
+				current = grid.iteratorNext())
+		{
+			System.out.println("current: "+Arrays.toString(current)+
+					"\torigin: "+Arrays.toString(
+							grid.getVoxelOrigin(Vector.copy(current)))
+					+"\tcoord: "+Arrays.toString(
+							grid.getCoords(Vector.copy(
+							grid.getVoxelOrigin(Vector.copy(current)))))
+					+"\tvolume: "+grid.getVoxelVolume(current)
+			);
+			System.out.println();
+		}
+	}
+	
+	public static void testNbhIterator(SpatialGrid grid){
+		int[] current;
+		for ( current = grid.resetIterator(); grid.isIteratorValid();
+				current = grid.iteratorNext())
+		{
+			System.out.println("grid size: "
+					+Arrays.toString(grid.getNumVoxels()));
+			int[] nbh;
+			for ( current = grid.resetIterator(); grid.isIteratorValid();
+					current = grid.iteratorNext())
+			{
+				System.out.println("current: "+Arrays.toString(current));
+				for ( nbh = grid.resetNbhIterator(); 
+						grid.isNbhIteratorValid(); 
+						nbh = grid.nbhIteratorNext() )
+				{
+					System.out.println("\tnbh: "+Arrays.toString(nbh));
+				}
+			}
+			System.out.println();
+		}
+	}
+	
+	public static PolarGridPlot3D createGraphics(PolarGrid grid, int iterator_step,
+			int location, boolean plot_grid){
+		/*
+		 * PolarGrid only atm because of getLocation(..) method
+		 */
+		PolarGridPlot3D plot = new PolarGridPlot3D(grid,location,plot_grid);
+		if (iterator_step>0){
+			System.out.println("press enter to start iterator");
+			keyboard.nextLine();
+			if (iterator_step==1) plot.startIterator();  
+			else if (iterator_step==2) plot.runIterator();     
+			keyboard.close();
+		}
+		return plot;
+	}
+
+	public static void plotVoxelVolumes(SpatialGrid grid){
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		XYSeries vol = new XYSeries("Volume");
+		
+		int[] current;
+		int x=0;
+		double val;
+		for ( current = grid.resetIterator(); grid.isIteratorValid();
+				current = grid.iteratorNext())
+		{
+			val=grid.getVoxelVolume(current);
+			vol.add(new XYDataItem(x, val));
+			x++;
+		}
+		
+		dataset.addSeries(vol);
+		JFreeChart chart = ChartFactory.createXYStepChart(
+				"Line Chart Demo", "X", "Y", dataset);
+		XYPlot plot = (XYPlot) chart.getPlot();
+		XYDotRenderer renderer = new XYDotRenderer();
+		renderer.setDotHeight(4);
+		renderer.setDotWidth(3);
+		plot.setRenderer(renderer);
+		
+		/*
+		 * set tick unit manually 
+		 * (because it sometimes sets the tick unit too small to display)
+		 */
+		NumberAxis range = (NumberAxis) plot.getRangeAxis();
+        range.setTickUnit(new NumberTickUnit(0.1));
+		
+		ChartPanel chartPanel = new ChartPanel(chart);
+//		JPanel panel = new JPanel();
+//		panel.add(chartPanel);
+		JFrame frame = new JFrame("Voxel Volumes");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().add(chartPanel, BorderLayout.CENTER);
+		frame.pack();
+		frame.setVisible(true);
+		frame.add(chartPanel);
+	}
+	
+	private static void oneDimRiseFallComp()
+	{
+		Simulator aSim = new Simulator();
+		
+		System.out.println("###############################################");
+		System.out.println("COMPARTMENT: oneDimRiseFall");
+		System.out.println("Testing 1D domain for two solutes:");
+		System.out.println("\tLeft & right fixed");
+		System.out.println("\tD = "+D);
+		System.out.println("\tNo agents or reactions");
+		System.out.println("Concentration should tend towards linear");
+		System.out.println("###############################################");
+		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "disk");
+		aCompartment.setSideLengths(new double[] {3.0, 360.0, 10.0});
+		/*
+		 * Add the solutes and boundary conditions.
+		 */
+		String[] soluteNames = new String[2];
+		soluteNames[0] = "rise";
+		soluteNames[1] = "fall";
+		for ( String aSoluteName : soluteNames )
+			aCompartment.addSolute(aSoluteName);
+		
+//		Boundary inter = new BoundaryCyclic();
+//		ConstantDirichlet fallInter = new ConstantDirichlet();
+//		fallInter.setValue(1.0);
+//		inter.setGridMethod("fall", fallInter);
+//		aCompartment.addBoundary("INTERNAL", inter);
+//		
+		Boundary circ = new BoundaryFixed();
+		ConstantDirichlet riseCirc = new ConstantDirichlet();
+		riseCirc.setValue(1.0);
+		circ.setGridMethod("rise", riseCirc);
+		aCompartment.addBoundary("CIRCUMFERENCE", circ);
+		
+		Boundary xmin = new BoundaryFixed();
+		ConstantDirichlet fallXmin = new ConstantDirichlet();
+		fallXmin.setValue(1.0);
+		xmin.setGridMethod("fall", fallXmin);
+		aCompartment.addBoundary("XMIN", xmin);
+		
+		Boundary xmax = new BoundaryFixed();
+		ConstantDirichlet riseXmax = new ConstantDirichlet();
+		riseXmax.setValue(1.0);
+		xmax.setGridMethod("rise", riseXmax);
+		aCompartment.addBoundary("XMAX", xmax);
+		
+		Boundary ymin = new BoundaryFixed();
+		ConstantDirichlet fallYmin = new ConstantDirichlet();
+		fallYmin.setValue(1.0);
+		ymin.setGridMethod("fall", fallYmin);
+		aCompartment.addBoundary("YMIN", ymin);
+		
+		Boundary ymax = new BoundaryFixed();
+		ConstantDirichlet riseYmax = new ConstantDirichlet();
+		riseYmax.setValue(1.0);
+		ymax.setGridMethod("rise", riseYmax);
+		aCompartment.addBoundary("YMAX", ymax);
+		
+		Boundary zmin = new BoundaryFixed();
+		ConstantDirichlet fallZmin = new ConstantDirichlet();
+		fallZmin.setValue(1.0);
+		zmin.setGridMethod("fall", fallZmin);
+		aCompartment.addBoundary("ZMIN", zmin);
+		
+		Boundary zmax = new BoundaryFixed();
+		ConstantDirichlet riseZmax = new ConstantDirichlet();
+		riseZmax.setValue(1.0);
+		zmax.setGridMethod("rise", riseZmax);
+		aCompartment.addBoundary("ZMAX", zmax);
+		
+		//TODO diffusivities
+		aCompartment.init();
+		/*
+		 * The solute grids will need prepping before the solver can get to work.
+		 */
+		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
+		aPrep.setTimeStepSize(Double.MAX_VALUE);
+		aCompartment.addProcessManager(aPrep);
+		/*
+		 * Set up the transient diffusion-reaction solver.
+		 */
+		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
+		aProcess.init(soluteNames);
+		aProcess.setTimeForNextStep(0.0);
+		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aCompartment.addProcessManager(aProcess);
+		
+		//TODO twoDimIncompleteDomain(nStep, stepSize);
+		PolarGrid riseGrid = (PolarGrid) aCompartment.getSolute("fall");
+		PolarGridPlot3D plot = createGraphics(riseGrid,0,0,false);
+		plot.plotCurrentConcentrations();
+		while ( Timer.isRunning() )
+		{
+			System.out.println("press enter to step PDE");
+			keyboard.nextLine();
+			aSim.step();
+			plot.plotCurrentConcentrations();
+		}
+		/*
+		 * Print the results.
+		 */
+		aSim.printAll();
+	}
 }

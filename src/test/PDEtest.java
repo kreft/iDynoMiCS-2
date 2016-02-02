@@ -251,14 +251,14 @@ public class PDEtest
 		System.out.println("###############################################");
 		
 		
-		int[] nVoxel = Vector.vector(3, 1);
-		nVoxel[0] = nVoxel[1] = 3;
+		double[] length = Vector.vector(3, 1.0);
+		length[0] = length[1] = 3;
 		
 		String[] soluteNames = new String[1];
 		soluteNames[0] = "solute";
 		EnvironmentContainer environment =
 				new EnvironmentContainer(new ShapeLibrary.Rectangle());
-		environment.setSize(nVoxel, 1.0);
+		environment.setSize(length, 1.0);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( int i = 0; i < soluteNames.length; i++ )
@@ -266,7 +266,7 @@ public class PDEtest
 			String name = soluteNames[i];
 			environment.addSolute(name);
 			sg = environment.getSoluteGrid(name);
-			for ( int j = 0; j < nVoxel[0]; j++ )
+			for ( int j = 0; j < length[0]; j++ )
 			{
 				coords[0] = j;
 				coords[1] = -1;

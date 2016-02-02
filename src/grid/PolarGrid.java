@@ -1,143 +1,114 @@
 package grid;
 
-import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.function.DoubleFunction;
 
+import boundary.BoundaryCyclic;
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
+import grid.ResolutionCalculator.ResCalc;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 
 /**
- * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
+ * \brief Abstract super class of all polar grids (Cylindrical and Spherical).
  * 
- * abstract super class of all polar grids (Cylindrical and Spherical)
- *
+ * @author Stefan Lang, Friedrich-Schiller University Jena
+ * (stefan.lang@uni-jena.de)
  */
-public abstract class PolarGrid extends SpatialGrid {
-	// current index of iterator and neighborhood iterator
-	protected int _nbhIdx, _subNbhIdx;   
-	// array, pre-defining neighbors of a grid cell relative to the cell
-	protected int[][] _nbhs;
-	// _nVoxel[1] in radian -> length in theta, currently only multiples of Pi/2 
-	protected double _nt_rad;
-	// inner resolutions (number of quadrants) for polar dimensions 
-	protected double[] _ires;
-	// Set to store (maybe multiple) neighbors for the current neighbor direction
+public abstract class PolarGrid extends SpatialGrid
+{
+	/**
+	 * Current index of iterator.
+	 */
+	protected int _nbhIdx;
+	/**
+	 * Current index of neighborhood iterator.
+	 */
+	protected int _subNbhIdx;
+	/**
+	 * A set to store (maybe multiple) neighbors for the current neighbor
+	 * direction. It will have size one in r and z dimensions and 
+	 * 1 <= size <= 3 in azimuthal dimension. The iterators next() function will
+	 * iterate over this set while it has more elements or (re) populate it if 
+	 * it is empty and the iterator is valid.
+	 */
 	protected ArrayList<int[]> _subNbhSet;	
+	protected ArrayList<Double> _subNbhSharedAreaSet;	
+	
+	protected double _currentNbhSharedSufaceArea;
 	
 	/**
-	 * Shared constructor commands. Initializes all members and resets iterators.
+	 * Total size in each dimension
+	 */
+	protected double[] _radSize;
+	/**
+	 * factor scaling polar dimensions to have one grid cell per 90? 
+	 * (4 grid cells for a full circle) for 0 <= radius < 1
+	 */
+	protected double[] _ires;
+	/**
+	 * Predefined array of relative neighbor directions of a grid coordinate.
+	 */
+	protected final int[][] NBH_DIRECS = new int[][] {
+		{0,0,1}, {0,0,-1},{0,1,0}, {0,-1,0}, {-1,-1,0}, {1,1,0}
+	};
+	/**
+	 * A helper vector for finding the location of the origin of a voxel.
+	 */
+	protected final double[] VOXEL_ORIGIN_HELPER = Vector.vector(3, 0.0);
+	/**
+	 * A helper vector for finding the location of the centre of a voxel.
+	 */
+	protected final double[] VOXEL_CENTRE_HELPER = Vector.vector(3, 0.5);
+	/**
+	 * A helper vector for finding the 'upper most' location of a voxel.
+	 */
+	protected final double[] VOXEL_All_ONE_HELPER = Vector.vector(3, 1.0);
+	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
+	
+	/**
+	 * \brief Construct a PolarGrid from a 3-vector of total dimension
+	 * sizes. 
 	 * 
-	 * @param nVoxel - length in each dimension
-	 * @param resolution - Array of length 3,
-	 *  containing arrays of length _nVoxel[dim] for non-dependent dimensions
-	 *  (r and z) and length 1 for dependent dimensions (t and p), 
-	 *  which implicitly scale with r.
+	 * Note that resolution determination must be handled by the sub-classes!
+	 * 
+	 * @param totalSize
+	 * @param resCalc
 	 */
-	private void init(int[] nVoxel, double[][] resolution){
-		// theta periodic in 1..360
-		nVoxel[1] = nVoxel[1]%361; 
-		// [r theta z], r=0 || theta=0 -> no grid, z=0 -> polar grid
-		_nVoxel = Vector.copy(nVoxel);  
-		// scales r but not ires 
-		_res = resolution;				
-		 // length in t in radian
-		_nt_rad = nVoxel[1]*Math.PI/180;
-		_ires=new double[3];
-		// determine inner resolution in theta automatically for all polarGrids
-		_ires[1] = PolarArray.ires(nVoxel[0], _nt_rad, _res[1][0]);  
-		 // neighbours (r,t,p)
-		_nbhs=new int[][]{{0,0,1},{0,0,-1},{0,1,0},{0,-1,0},{-1,-1,0},{1,1,0}};
+	public PolarGrid(double[] totalSize)
+	{
+		/*
+		 * Initialize members
+		 */
+		_ires = Vector.vector(3, -1.0);
+		_radSize = Vector.vector(3, -1.0);
 		_subNbhSet = new ArrayList<int[]>();
-	}
-
-	/**
-	 * @param nVoxel - length in each dimension
-	 * @param resolution - Array of length 3,
-	 *  containing arrays of length _nVoxel[dim] for non-dependent dimensions
-	 *  (r and z) and length 1 for dependent dimensions (t and p), 
-	 *  which implicitly scale with r.
-	 */
-	PolarGrid(int[] nVoxel, double[][] resolution){
-		init(nVoxel,resolution);
+		_subNbhSharedAreaSet = new ArrayList<Double>();
+		
+		/*
+		 * Set up members
+		 */
+		_nbhIdx = 0;
+		_subNbhIdx = 0;
+		_radSize[1] = Math.toRadians(totalSize[1]%361);
+		_ires[1] = PolarArray.ires(_radSize[1]);  
+		addBoundary(BoundarySide.INTERNAL,
+				new BoundaryCyclic().getGridMethod(""));
 	}
 	
-	/**
-	 * @param nVoxel - length in each dimension
-	 * @param resolution -  Array of length 3 defining constant resolution
-	 *  in each dimension 
-	 */
-	PolarGrid(int[] nVoxel, double[] resolution){
-		// convert resolution to double[][]
-		double [][] res = new double[3][0];
-		for (int i=0; i<res.length; ++i){
-			// TODO: other Polar Grids (if there are any in the future) need 
-			// implement own conversions here, which is not so handy maybe.
-			
-			// convert dependent resolutions
-			if (this instanceof CylindricalGrid)
-				// only one dependent variable t for cyl. grid (const. res)
-				res[i] = i==1 ? new double[1] : new double[nVoxel[i]];
-			else if (this instanceof SphericalGrid)
-				// two dependent variables t and p for spher. grid (const. res)
-				res[i] = i==1 || i==2 ? new double[1] : new double[nVoxel[i]];
-			else
-				try {
-					throw new IllegalClassFormatException(
-							"Only spherical and cylindrical Grid is allowed here");
-				} catch (IllegalClassFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 
-			// write to new array
-			for (int j=0; j<res[i].length; ++j){
-				res[i][j]=resolution[i];
-			}
-		}
-		init(nVoxel,res);
-	}
-
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getNumVoxels()
-	 */
 	@Override
-	public int[] getNumVoxels() {
-		return Vector.copy(this._nVoxel);
-	}
-	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getSignificantAxes()
-	 */
-	public boolean[] getSignificantAxes()
+	@Deprecated // we have to talk about _nVoxel or _totalLength beeing standard 
+	public int[] getNumVoxels()
 	{
-		boolean[] out = new boolean[3];
-		for ( int axis = 0; axis < 3; axis++ )
-			// since periodicity is handled in constructor 
-			// this should work for all PolarGrids
-			out[axis] = ( this._nVoxel[axis] > 1 );  
-		return out;
+		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#numSignificantAxes()
-	 */
-	public int numSignificantAxes()
-	{
-		int out = 0;
-		for ( int axis = 0; axis < 3; axis++ )
-			out += ( this._nVoxel[axis] > 1 ) ? 1 : 0;
-		return out;
-	}
-
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getValueAt(grid.SpatialGrid.ArrayType, int[])
-	 */
+	@Override
 	public double getValueAt(ArrayType type, int[] coord)
 	{
 		if ( this._array.containsKey(type) )
@@ -152,6 +123,8 @@ public abstract class PolarGrid extends SpatialGrid {
 	 * @param type Type of array to be set.
 	 * @param coord Coordinate on this array to set.
 	 * @param newValue New value with which to overwrite the array.
+	 * @exception ArrayIndexOutOfBoundsException Voxel coordinates must be
+	 * inside array.
 	 */
 	public void setValueAtNew(ArrayType type, int[] coord, double newValue)
 	{
@@ -240,33 +213,21 @@ public abstract class PolarGrid extends SpatialGrid {
 		this.applyToVoxel(type, gridCoords, (double v)->{return v * value;});
 	}
 
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#setAllTo(grid.SpatialGrid.ArrayType, double)
-	 */
 	@Override
 	public void setAllTo(ArrayType type, double value) {
 		PolarArray.applyToAll(_array.get(type), ()->{return value;});
 	}
 
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#addToAll(grid.SpatialGrid.ArrayType, double)
-	 */
 	@Override
 	public void addToAll(ArrayType type, double value) {
 		PolarArray.applyToAll(_array.get(type), (double v)->{return v+value;});
 	}
 
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#timesAll(grid.SpatialGrid.ArrayType, double)
-	 */
 	@Override
 	public void timesAll(ArrayType type, double value) {
 		PolarArray.applyToAll(_array.get(type), (double v)->{return v*value;});
 	}
 
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getMax(grid.SpatialGrid.ArrayType)
-	 */
 	@Override
 	public double getMax(ArrayType type) {
 		final double[] max=new double[]{Double.NEGATIVE_INFINITY};
@@ -276,9 +237,6 @@ public abstract class PolarGrid extends SpatialGrid {
 		return max[0];
 	}
 
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getMin(grid.SpatialGrid.ArrayType)
-	 */
 	@Override
 	public double getMin(ArrayType type) {
 		final double[] min=new double[]{Double.POSITIVE_INFINITY};
@@ -288,9 +246,6 @@ public abstract class PolarGrid extends SpatialGrid {
 		return min[0];
 	}
 
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#addArrayToArray(grid.SpatialGrid.ArrayType, grid.SpatialGrid.ArrayType)
-	 */
 	@Override
 	public void addArrayToArray(ArrayType destination, ArrayType source) {
 		PolarArray.applyToAll(
@@ -308,25 +263,15 @@ public abstract class PolarGrid extends SpatialGrid {
 		this._currentCoord = null;
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getValueAtCurrent(grid.SpatialGrid.ArrayType)
-	 */
 	public double getValueAtCurrent(ArrayType type)
 	{
 		return this.getValueAt(type, this._currentCoord);
 	}
-	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#setValueAtCurrent(grid.SpatialGrid.ArrayType, double)
-	 */
 	public void setValueAtCurrent(ArrayType type, double value)
 	{
 		this.setValueAt(type, this._currentCoord, value);
 	}
 
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#nbhIteratorIsOutside()
-	 */
 	public GridMethod nbhIteratorIsOutside()
 	{
 		BoundarySide bSide = this.isOutside(this._currentNeighbor);
@@ -342,38 +287,30 @@ public abstract class PolarGrid extends SpatialGrid {
 	}
 	
 	/**
-	 * updates the current neighbor coordinate
-	 * called when the neighborhood iterator was manipulated.
+	 * \brief updates the current neighbor coordinate.
+	 * 
+	 * Called when the neighborhood iterator was manipulated.
 	 */
 	public void currentNbhIdxChanged(){
 		_subNbhIdx=0;
 		_subNbhSet.clear();
+		_subNbhSharedAreaSet.clear();
 		fillNbhSet();
 //		if (_subNbhSet.isEmpty())
 //			nbhIteratorNext();
 		_currentNeighbor = _subNbhSet.get(0);
+		_currentNbhSharedSufaceArea = _subNbhSharedAreaSet.get(0);
 	}
 	
-	public abstract void fillNbhSet();
-	
 	/**
-	 * converts (r,t,p) or (r,t,z) coordinates into an index 
-	 * (for SphericalGrid and CylindricalGrid, respectively). 
+	 * \brief Populates the <b>_subNbhSet</b> for the current <b>NBH_DIREC</b>.
 	 * 
-	 * @param coord - a (r,t,p) or (r,t,z) coordinate
-	 * @return the corresponding index
+	 * Called when the current neighborhood index changed, 
+	 * which means that <b>NBH_DIREC</b> changed, too.
 	 */
-	public abstract int coord2idx(int[] coord);
-	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#isIteratorValid()
-	 */
+	public abstract void fillNbhSet();
+
 	@Override
-	public boolean isIteratorValid() {return _currentCoord[0] < _nVoxel[0];}
-	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#resetIterator()
-	 */
 	public int[] resetIterator()
 	{
 		if ( this._currentCoord == null )
@@ -384,6 +321,12 @@ public abstract class PolarGrid extends SpatialGrid {
 		return this._currentCoord;
 	}
 	
+	/**
+	 * \brief Returns a boolean indicating whether the iterator exceeds <b>axis</b>.
+	 * 
+	 * @param axis - An axis with 0 <= axis < 3.
+	 * @return - A boolean indicating whether the iterator exceeds <b>axis</b>.
+	 */
 	protected abstract boolean iteratorExceeds(int axis);
 	
 	/**
@@ -409,9 +352,7 @@ public abstract class PolarGrid extends SpatialGrid {
 		return _currentCoord;
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#resetNbhIterator()
-	 */
+	@Override
 	public int[] resetNbhIterator(){
 		_nbhIdx=0;
 		currentNbhIdxChanged();
@@ -419,36 +360,54 @@ public abstract class PolarGrid extends SpatialGrid {
 		return _currentNeighbor;
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#isNbhIteratorValid()
-	 */
+	@Override
 	public boolean isNbhIteratorValid(){
 		if (_subNbhIdx >= _subNbhSet.size()){
-			return _nbhIdx < _nbhs.length - 1;
+			return _nbhIdx < NBH_DIRECS.length - 1;
 		}
 		return true;
 	}
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#nbhIteratorNext()
-	 */
+	@Override
 	public int[] nbhIteratorNext(){
 		_subNbhIdx++;
-		if (_subNbhIdx < _subNbhSet.size()){ // subiterator has next
+		/*
+		 * iterate through _subNbhSet first
+		 */
+		if (_subNbhIdx < _subNbhSet.size()){ 
 			_currentNeighbor = _subNbhSet.get(_subNbhIdx);
+			_currentNbhSharedSufaceArea = _subNbhSharedAreaSet.get(_subNbhIdx);
 		}else{
+			/*
+			 * if _subNbhSet has no more elements step into next 
+			 * (orthogonal) direction and (re-)populate the _subNbhSet.
+			 */
 			_nbhIdx++;
-			if (_nbhIdx < _nbhs.length) currentNbhIdxChanged();
+			if (_nbhIdx < NBH_DIRECS.length) currentNbhIdxChanged();
 		}
+		/*
+		 * Transform internal boundaries with radius >= 0 automatically (cyclic)
+		 */
 		_currentNeighbor = transInternal(_currentNeighbor);
 		return _currentNeighbor;
 	}
 	
+	@Override
+	public double getNbhSharedSurfaceArea() {
+		return _currentNbhSharedSufaceArea;
+	}
+	
+	/**
+	 * \brief Checks if the given coordinate is outside the grid 
+	 * in dimension <b>dim</b>.
+	 * 
+	 * @param coord - A coordinate.
+	 * @param dim - A dimension with 0 <= dim < 3.
+	 * @return - A BoundarySide if the coordinate is outside in dimension 
+	 * 			<b>dim</b>. Or null if the coordinate is not outside.
+	 */
 	protected abstract BoundarySide isOutside(int[] coord, int dim);
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#isOutside(int[])
-	 */
 	@Override
 	protected BoundarySide isOutside(int[] coord) {
 		for (int dim=0; dim<3; ++dim){
@@ -459,8 +418,10 @@ public abstract class PolarGrid extends SpatialGrid {
 	}
 	
 	/**
-	 * Computes isOutside for all 3 dimensions. Does return minimum OR maximum, 
-	 * not both. Decision for min or max if the coord is both min and max 
+	 * \brief Computes isOutside for all 3 dimensions. 
+	 * 
+	 * Does return minimum OR maximum, not both. 
+	 * Decision for min or max if the coord is both min and max 
 	 * depends on the actual implementation of isOutside in the sub class.
 	 * 
 	 * @param coord - an array coordinate.
@@ -476,31 +437,30 @@ public abstract class PolarGrid extends SpatialGrid {
 	}
 	
 	/**
-	 * Performs cyclic transform for inside boundaries.
+	 * \brief Performs cyclic transform for inside boundaries.
+	 * 
+	 * @param coord - A coordinate
+	 * @return - The cyclic transformed coordinate.
 	 */
 	protected int[] transInternal(int[] coord){
 		BoundarySide[] bsa = new BoundarySide[3];
-		int nc=0, ic=0; // null counter and internal with r>=0 counter
+		int nc=0, ic=0; // null counter, internal counter
 		bsa = getBoundarySides(coord, bsa);
 		for (BoundarySide bs : bsa){
 			if (bs==null) nc++;
-			if (bs==BoundarySide.INTERNAL && coord[0]>=0) ic++;
+			if (bs==BoundarySide.INTERNAL) ic++;
 		}
 		if (nc+ic==3) {			
-			// only null and internal with r>=0 -> transform
+			// only null and internal -> transform
 			coord=cyclicTransform(coord);
 		}
 		return coord;
 	}
 	
 	/**
-	 * @return the length of the grid (maximum index)
-	 */
-	public abstract int length();
-	
-	/**
-	 * Converts a coordinate in the grid's array to a location in simulated 
+	 * \brief Converts a coordinate in the grid's array to a location in simulated 
 	 * space. 
+	 * 
 	 * 'Subcoordinates' can be transformed using the 'inside' array.
 	 * For example type getLocation(coord, new double[]{0.5,0.5,0.5})
 	 * to get the center point of the grid cell defined by 'coord'.
@@ -511,16 +471,24 @@ public abstract class PolarGrid extends SpatialGrid {
 	 */
 	public abstract double[] getLocation(int[] coord, double[] inside);
 	
-	/* (non-Javadoc)
-	 * @see grid.SpatialGrid#getCoords(double[])
-	 */
+	@Override
+	public double[] getVoxelOrigin(int[] coord) {
+		return getLocation(coord, VOXEL_ORIGIN_HELPER);
+	}
+	
+	@Override
+	public double[] getVoxelCentre(int[] coord)
+	{
+		return getLocation(coord, VOXEL_CENTRE_HELPER);
+	}
+	
 	@Override
 	public int[] getCoords(double[] loc) {
 		return getCoords(loc,null);
 	}
 	
 	/**
-	 * Transforms a given location into array-coordinates and 
+	 * \brief Transforms a given location into array-coordinates and 
 	 * computes sub-coordinates inside the grid element if inside != null. 
 	 * 
 	 * @param loc - a location in simpulated space.
@@ -534,89 +502,141 @@ public abstract class PolarGrid extends SpatialGrid {
 	/**************************************************************************/
 	
 	/**
-	 * @param x - any double
-	 * @return - rounded value with 1e-10 precision
-	 */
-	protected double round10(double x){return Math.round(x*1e10)*1e-10;}
-	
-	/**
-	 * @param x - any double
-	 * @return - rounded value with 1e-100 precision
-	 */
-	protected double round100(double x){return Math.round(x*1e16)*1e-16;}
-	
-	/**
-	 * Computes a factor that scales the number of elements for increasing 
-	 * radius to keep element volume fairly constant.
+	 * \brief Computes a factor that scales the number of elements for
+	 * increasing  radius to keep element volume fairly constant.
 	 * 
 	 * @param r - radius.
 	 * @return - a scaling factor for a given radius.
 	 */
-	protected int s(int r){return 2*r+1;}
+	protected static int s(int r)
+	{
+		return ( 2 * r) + 1;
+	}
 	
 	/**
-	 * computes the number of elements in one triangle for radius r
+	 * \brief Transforms a location on a given Cartesian axis into its 
+	 * 			corresponding coordinate in the array. 
+	 *  
+	 * The result is written into coord_out[axis] and inside_out[axis].
+	 *  
+	 * @param axis - The axis to be operated on (index in output arrays).
+	 * @param loc - A location on axis {@code axis}.
+	 * @param resCalc - Resolution calculator for axis {@code axis}.
+	 * @param coord_out - Output coordinate array.
+	 * @param inside_out - Output inside array.
+	 */
+	public static void cartLoc2Coord(int axis, double loc, ResCalc resCalc,
+									 int[] coord_out, double[] inside_out)
+	{
+		//TODO: use getResolutionSum(i)
+		
+		coord_out[axis] = 0; 
+		double cumRes_prev = 0;
+		while (cumRes_prev < loc){
+			cumRes_prev = resCalc.getCumResSum(coord_out[axis]);
+			coord_out[axis]++;
+		}
+		if ( inside_out != null ) 
+			inside_out[axis] = (loc - cumRes_prev) 
+								/ resCalc.getResolution(coord_out[axis]);
+	}
+	
+	/**
+	 * \brief Transforms a location on a given polar axis into its 
+	 * 			corresponding coordinate in the array. 
 	 * 
-	 * @param r - radius
-	 * @return - the number of elements in one triangle for radius r.
-	 */
-	protected  int sn(int r){
-		return (int)(_ires[1]*s(r)*(r+1));
-	}
-	
-	/**
-	 * @param r - radius.
-	 * @return - the number of rows for given radius.
-	 */
-	public int np(int r) {
-		return (int)_ires[2]*s(r);
-	}
-	
-	/**
-	 * Computes the number of elements in row (r,p)
+	 * The result is written into coord_out[axis] and inside_out[axis].
 	 * 
-	 * @param p - phi coordinate
-	 * @param np - number of rows
-	 * @return - the number of elements in row p
+	 * @param axis - The axis to be operated on (index in output arrays).
+	 * @param loc - A location in one dimension.
+	 * @param arcLength - The arcLength in that dimension.
+	 * @param idx_out - Index for output.
+	 * @param coord_out - Output coordinate array.
+	 * @param inside_out - Output inside array.
 	 */
-	public int nt(int r, int p){
-		// number of rows
-		int np=np(r);
-		// index of row where p>90°
-		double ir = np/_ires[2]*_res[2][0];
-		// p>=np and p<0 need to be considered for neighbors
-		return (int)((((p<ir || p>=np) && p>=0) ? p+1 : np-p)*_ires[1]);
+	public static void polarLoc2Coord(int axis, double loc, double rad_size, 
+						ResCalc resCalc, int[] coord_out, double[] inside_out)
+	{
+		final double arcLength = rad_size / resCalc.getTotalLength();
+		int c = 0; 
+		double length = resCalc.getCumResSum(c) * arcLength;
+		while (length <= loc){
+			c++;
+			length = resCalc.getCumResSum(c) * arcLength;
+//			System.out.println(length+" "+loc+" "+arcLength+" "+ resCalc.getCumResSum(c));
+		}
+		if ( inside_out != null ) 
+//			System.out.println(length+" "+loc);
+			inside_out[axis] = 1 - (length - loc) 
+									/ (resCalc.getResolution(c) * arcLength);
+		coord_out[axis] = c;
 	}
 	
 	/**
-	 * computes the number of elements in a triangle until row p 
+	 * \brief Transforms an array coordinate on a given Cartesian axis into its 
+	 * 			corresponding location in space. 
 	 * 
-	 * @param p - phi coordinate (row index)
-	 * @return - number of cells in a triangle until row p
+	 * The result is written into loc_out[axis].
+	 * 
+	 * @param coord - A coordinate in one dimension.
+	 * @param resCalc - The resolution calculator for the given dimension.
+	 * @param inside - The subcoordinate inside the grid cell.
+	 * @param axis - The axis to be operated on (index in output arrays).
+	 * @param loc_out - Output location array.
 	 */
-	public int n(int r, int p){
-		// number of rows
-		int np=np(r);
-		// index of row where p>90°
-		double ir = np/_ires[2]*_res[2][0];
-		return (int)(((p<ir || p>=np) && p>=0) ? 
-				1.0/2*_ires[1]*p*(p+1)
-				: -1.0/8*_ires[1]*(np-2*p)*(3*np-2*p+2));
-//		return (int)(p==ir ? 0 
-//			: p<ir ? 1.0/2*_ires[1]*p*(p+1)
-//			: -1.0/8*_ires[1]*(np-2*p)*(3*np-2*p+2));
+	public static void cartCoord2Loc(int axis, int coord, ResCalc resCalc,
+								double inside, double[] loc_out)
+	{
+		loc_out[axis] = resCalc.getCumResSum(coord-1);
+		loc_out[axis] += inside * resCalc.getResolution(coord);
 	}
 	
 	/**
-	 * computes the number of elements in the whole matrix until and including 
-	 * matrix-slice r
+	 * \brief Transforms a location on a given polar axis into its 
+	 * 			corresponding coordinate in the array. 
 	 * 
-	 * @param r - radius
-	 * @return - the number of grid cells until and including matrix r
+	 * The result is written into loc_out[axis].
+	 * 
+	 * @param coord - A coordinate in one dimension.
+	 * @param arcLength - The arcLength in that dimension.
+	 * @param inside - The subcoordinate inside the grid cell.
+	 * @param axis - The axis to be operated on (index in output arrays).
+	 * @param loc_out - Output location array.
 	 */
-	public int N(int r){
-		return (int)((_ires[1]*_ires[2]*(r+1)*(r+2)*(4*r+3))/6);
+	public static void polarCoord2Loc(int axis, int coord, double radSize, 
+								ResCalc resCalc, double inside, double[] loc_out)
+	{
+		loc_out[axis] = resCalc.getCumResSum(coord-1) 
+							/ resCalc.getTotalLength() 
+							* radSize;
+		loc_out[axis] += inside * resCalc.getResolution(coord) 
+								* (radSize / resCalc.getTotalLength());
 	}
+	
+	protected static double getSharedArea(int d, double len_cur, 
+			double[] bounds, double[] bounds_nbh, double len_nbh){
+		boolean is_right, is_left, is_inBetween;
+		double sA=0;
+
+		// t1 of nbh <= t1 of cc (right, counter-clockwise)
+		double len_s;
+		if (d < 0){
+			is_right = bounds_nbh[0] <= bounds[0];
+			is_left = bounds_nbh[1] >= bounds[1];
+			is_inBetween = is_left && is_right;
+			len_s = len_cur;
+		}else{
+			is_right = bounds_nbh[0] < bounds[0];
+			is_left = bounds_nbh[1] > bounds[1];
+			is_inBetween = !(is_left || is_right);
+			len_s = len_nbh;
+		}
+
+		if (is_inBetween) sA = 1;
+		else if (is_right) sA = (bounds_nbh[1]-bounds[0])/len_s;
+		else sA = (bounds[1]-bounds_nbh[0])/len_s; // is_left
+		return sA;
+}
 
 	/*************************************************************************
 	 * REPORTING
@@ -664,5 +684,4 @@ public abstract class PolarGrid extends SpatialGrid {
 	{
 		return this.arrayAsBuffer(type).toString();
 	}
-
 }

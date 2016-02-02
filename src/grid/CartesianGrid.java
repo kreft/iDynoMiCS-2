@@ -1,28 +1,80 @@
 package grid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.function.DoubleFunction;
 
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
+import grid.ResolutionCalculator.ResCalc;
 import linearAlgebra.*;
-import shape.BoundarySide;
+import shape.ShapeConventions.BoundarySide;
 
 /**
- *\brief 
+ * \brief TODO
  * 
  * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
  */
 public class CartesianGrid extends SpatialGrid
 {
+	/**
+	 * The number of voxels this grid has in each of the three spatial 
+	 * dimensions. Note that some of these may be 1 if the grid is not three-
+	 * dimensional.
+	 * 
+	 * <p>For example, a 3 by 2 rectangle would have _nVoxel = [3, 2, 1].</p> 
+	 */
+	protected int[] _nVoxel;
+	
+	/**
+	 * Grid resolution, i.e. the side length of each voxel in this grid. This
+	 * has three rows, one for each dimension. Each row has length of its
+	 * corresponding position in _nVoxel.
+	 * 
+	 * <p>For example, a 3 by 2 rectangle might have _res = 
+	 * [[1.0, 1.0, 1.0], [1.0, 1.0], [1.0]]</p>
+	 */
+	protected double[][] _res;
+	
 	protected int _nbhDirection;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
+	
+	/**
+	 * \brief Construct a CartesianGrid from a 3-vector of total dimension
+	 * sizes and corresponding methods for calculating voxel resolutions. 
+	 * 
+	 * @param totalSize
+	 * @param resCalc
+	 */
+	public CartesianGrid(double[] totalSize, ResCalc[] resCalc)
+	{
+		this._nVoxel = new int[3];
+		this._res = new double[3][];
+		ArrayList<Double> resolutions = new ArrayList<Double>();
+		double total;
+		double temp;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			resolutions.clear();
+			total = 0.0;
+			while ( total < totalSize[dim] )
+			{
+				temp = resCalc[dim].getResolution(resolutions.size());
+				if ( (total + temp) > totalSize[dim] )
+					temp = totalSize[dim] - total;
+				total += temp;
+				resolutions.add(temp);
+			}
+			this._res[dim] = new double[resolutions.size()];
+			this._nVoxel[dim] = resCalc[dim].getNVoxel();
+			for ( int i = 0; i < resolutions.size(); i++ )
+				this._res[dim][i] = resolutions.get(i);
+		}
+	}
 	
 	/**
 	 * \brief TODO
@@ -793,9 +845,17 @@ public class CartesianGrid extends SpatialGrid
 		return new GridGetter()
 		{
 			@Override
-			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
+			public SpatialGrid newGrid(double[] totalLength, double resolution) 
 			{
-				return new CartesianGrid(nVoxel, resolution);
+				ResolutionCalculator r = new ResolutionCalculator();
+				
+				ResCalc[] resCalc= new ResCalc[3];
+				
+				for (int dim=0; dim<3; dim++){
+					resCalc[dim] = r.new UniformResolution();
+					resCalc[dim].init(resolution, totalLength[dim]);
+				};
+				return new CartesianGrid(totalLength,resCalc);
 			}
 		};
 	}
@@ -805,7 +865,7 @@ public class CartesianGrid extends SpatialGrid
 		return new GridGetter()
 		{
 			@Override
-			public SpatialGrid newGrid(int[] nVoxel, double resolution) 
+			public SpatialGrid newGrid(double[] totalSize, double resolution) 
 			{
 				// TODO check this is the best way.
 				return new CartesianGrid(Vector.onesInt(3), resolution);
