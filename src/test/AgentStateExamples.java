@@ -46,7 +46,7 @@ public class AgentStateExamples {
 			}
 			
 			@Override
-			public State Duplicate(Agent agent) {
+			public State duplicate(Agent agent) {
 				// TODO Auto-generated method stub
 				return this;
 			}

@@ -28,7 +28,7 @@ public class PrimaryState implements State {
 		return copy;
 	}
 	
-	public State Duplicate(Agent agent)
+	public State duplicate(Agent agent)
 	{
 		State copy = new PrimaryState();
 		if (state instanceof Duplicable)

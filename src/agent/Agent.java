@@ -50,7 +50,7 @@ public class Agent extends AspectRegistry implements Quizable
 	public Agent(Agent agent)
 	{
 		for (String key : agent._states.keySet())
-			this._states.put(key, agent.getState(key).Duplicate(this));
+			this._states.put(key, agent.getState(key).duplicate(this));
 		this.init();
 		this.compartment = agent.getCompartment();
 	}

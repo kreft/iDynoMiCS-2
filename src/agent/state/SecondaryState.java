@@ -22,7 +22,7 @@ public abstract class SecondaryState implements State, Copyable {
 		return this;
 	}
 	
-	public State Duplicate(Agent agent)
+	public State duplicate(Agent agent)
 	{
 		return this;
 	}

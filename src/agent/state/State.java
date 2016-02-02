@@ -21,5 +21,5 @@ public interface State {
 
 	public State copy();
 
-	public State Duplicate(Agent agent);
+	public State duplicate(Agent agent);
 }
