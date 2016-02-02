@@ -42,27 +42,30 @@ public class Dimension implements CanPrelaunchCheck
 	/**
 	 * \brief Get the length of this dimension.
 	 * 
-	 * @return
+	 * @return A positive {@code double}.
 	 */
 	public double getLength()
 	{
 		return this._extreme[1] - this._extreme[0];
 	}
 	
+	/**
+	 * \brief Confirm that the maximum extreme is greater than the minimum.
+	 */
 	protected void checkExtremes()
 	{
 		if ( this._extreme[1] <= this._extreme[0] )
 		{
-			throw new IllegalArgumentException(
-					"Dimension length must be >= 0");
+			throw new 
+					IllegalArgumentException("Dimension length must be >= 0");
 		}
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the value for a specified extreme to take.
 	 * 
-	 * @param value
-	 * @param index
+	 * @param value Value for the specified extreme to take.
+	 * @param index Which extreme to set: 0 for minimum, 1 for maximum.
 	 */
 	public void setExtreme(double value, int index)
 	{
@@ -71,10 +74,12 @@ public class Dimension implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the values of both the minimum and maximum extremes.
 	 * 
-	 * @param minValue
-	 * @param maxValue
+	 * <p>Note that <b>minValue</b> must be less than <b>maxValue</b>.</p>
+	 * 
+	 * @param minValue Value for the minimum extreme to take.
+	 * @param maxValue Value for the maximum extreme to take.
 	 */
 	public void setExtremes(double minValue, double maxValue)
 	{
@@ -97,9 +102,6 @@ public class Dimension implements CanPrelaunchCheck
 	public void setCyclic()
 	{
 		this._isCyclic = true;
-		// TODO safety if boundaries already set
-		// FIXME Bas [02.02.16] This does not seem to work, please look into this
-		this._boundary = new Boundary[]{};
 	}
 	
 	/**
@@ -121,6 +123,7 @@ public class Dimension implements CanPrelaunchCheck
 	 * \brief Tell this dimension that the boundary at the minimum extreme may
 	 * not be specified. Meaningless in cyclic dimensions.
 	 * 
+	 * @param index Which boundary to set: 0 for minimum, 1 for maximum.
 	 * @see #setBoundariesRequired()
 	 */
 	public void setBoundaryOptional(int index)
@@ -139,14 +142,14 @@ public class Dimension implements CanPrelaunchCheck
 	{
 		this.setBoundaryOptional(0);
 		this.setBoundaryOptional(1);
+		this.setBoundaryOptional(0);
+		this.setBoundaryOptional(1);
 	}
-	
 	/**
-	 * \brief TODO
+	 * \brief Set both the minimum and maximum boundaries.
 	 * 
-	 * @param aBoundary
-	 * @param setMin {@code boolean} specifying whether to set the minimum
-	 * boundary (true) or the maximum boundary (false).
+	 * @param minBndry {@code Boundary} to set at the minimum extreme.
+	 * @param maxBndry {@code Boundary} to set at the maximum extreme.
 	 */
 	public void setBoundary(Boundary aBoundary, int index)
 	{
@@ -177,6 +180,8 @@ public class Dimension implements CanPrelaunchCheck
 			this._boundary[0] = minBndry;
 			this._boundary[1] = maxBndry;
 		}
+		this._boundary[0] = minBndry;
+		this._boundary[1] = maxBndry;
 	}
 	
 	/**
@@ -230,9 +235,10 @@ public class Dimension implements CanPrelaunchCheck
 	 * 
 	 * <p>Note that this may be negative if <b>b</b> > <b>a</b>.</p> 
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a Position in this dimension.
+	 * @param b Position in this dimension.
+	 * @return Shortest distance between <b>a</b> and <b>b</b>, accounting for
+	 * cyclic dimension if necessary.
 	 */
 	public double getShortest(double a, double b)
 	{

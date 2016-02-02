@@ -272,7 +272,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			position[i] = dim.applyBoundary(position[i]);
+			position[i] = dim.getInside(position[i]);
 			i++;
 		}
 		Vector.copyTo(location, this.getGlobalLocation(position));
