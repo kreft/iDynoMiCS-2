@@ -18,6 +18,7 @@
 			<speciesModule name="coccoid" />
 		</species>
 		<species name="coccoid">
+			<state name="coccoidCenter" type="secondary" value="CoccoidCenter" input="body" />
 			<state name="morphology" type="String" value="coccoid"/>
 			<state name="joints" type="secondary" value="JointsState" input="body" />
 			<state name="volume" type="secondary" value="SimpleVolumeState" input="mass,density" />
@@ -26,6 +27,7 @@
 			<state name="#boundingSides" type="secondary" value="DimensionsBoundingBox" input="body,radius" />
 			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
 			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
+			<state name="surface" type="secondary" value="SimpleSurface" input="body" />
 		</species>
 	</speciesLib>
 	
@@ -38,7 +40,7 @@
 				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="RED" />
 				<state name="body" type="body">
-					<point position="0.2, 0.3" />
+					<point position="5.2, 5.2" />
 				</state>
 			</agent>
 			<agent>
@@ -48,7 +50,7 @@
 				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="BLUE" />
 				<state name="body" type="body">
-					<point position="0.1, -0.1" />
+					<point position="5.0, 5.3" />
 				</state>
 			</agent>
 			<agent>
@@ -58,7 +60,7 @@
 				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="GREEN" />
 				<state name="body" type="body">
-					<point position="-0.1, 0.2" />
+					<point position="5.3, 5.2" />
 				</state>
 			</agent>
 		</agents>

@@ -32,5 +32,10 @@ public abstract class Surface
 	{
 		return collisionDomain.distance(this, surface);
 	}
+	
+	public void collisionWith(Surface surface)
+	{
+		collisionDomain.distance(this, surface);
+	}
 
 }

@@ -1,5 +1,6 @@
 package surface;
 
+import shape.Shape;
 import linearAlgebra.Vector;
 
 /**
@@ -20,10 +21,52 @@ public class Collision {
 	
 	public interface CollisionFunction
 	{
-		public double interactionForce(double distance);
+		public double[] interactionForce(double distance, double[] dP);
 	}
 	
+	public CollisionFunction DefaultCollision = new CollisionFunction()
+	{
+		public double[] interactionForce(double distance, double[] dP)
+		{
+			double c;
+			double p 			= 0.01; 		// pull distance
+			double fPull 		= 0.0002;		// pull force scalar
+			double fPush 		= 3.0;			// push force scalar
+			boolean exponential = true; 		// exponential pull curve
+			
+			distance 			-= 0.001;	// added margin
+			
+			// Repulsion
+			if (distance < 0.0) 
+			{
+				c = Math.abs(fPush * distance); //linear
+				Vector.normaliseEuclidEquals(dP, c);
+				return dP;
+			} 
+			// Attraction
+			// TODO disabled until it makes sense from  agent tree point of view
+//			else if (distance < p) 
+//			{
+//				if (exponential)
+//				{
+//					c = fPull * -3.0 * Math.exp(-6.0*distance/p) /
+//							( 1.0 + Math.exp(6.0 - (36.0*distance) / p) ); 
+//				}
+//				else
+//				{
+//					c = fPull * - (p-distance) /
+//							( 1.0 + Math.exp(6.0 - (36.0*distance) / p) );
+//				}
+//				return Vector.timesEquals(dP, c);
+//			}
+			// Too far away for an interaction.
+			return Vector.zeros(dP);
+		}
+	};
+	
 	private CollisionFunction collisionFun;
+	
+	private Shape computationalDomain;
 	
 	/**
 	 * Vector that represents the shortest distance between: point-point,
@@ -47,23 +90,35 @@ public class Collision {
 	 * flip if the force needs to be added to b and subtracted from a
 	 */
 	private boolean flip = false;
+	
+	public Collision(CollisionFunction collisionFunction, Shape compartmentShape)
+	{
+		if (collisionFunction != null)
+			this.collisionFun = collisionFunction;
+		this.collisionFun = DefaultCollision;
+		this.computationalDomain = compartmentShape;
+		this.dP = Vector.zerosDbl(compartmentShape.getNumberOfDimensions());
+	}
 
 	/**
 	 * apply a collision force on a and b if applicable
 	 */
 	public void collision(Surface a, Surface b)
 	{
-		double f = collisionFun.interactionForce(distance(a,b));
-		double[] force = Vector.normaliseEuclid((flip ? Vector.flip(dP) : dP), f);
+		
+		//TODO check all the flipin' flipping here
+		double[] force = collisionFun.interactionForce(distance(a,b), 
+				(flip ? Vector.times(this.dP,-1.0) : this.dP));
+
 		if(flip)
 		{
-			applyForce(b, force ,s);
-			applyForce(a, Vector.flip(force), t);
+			applyForce(b, force,s);
+			applyForce(a, Vector.times(force,-1.0), t);
 		} 
 		else
 		{
-			applyForce(a, force ,s);
-			applyForce(b, Vector.flip(force), t);
+			applyForce(a, force,s);
+			applyForce(b, Vector.times(force,-1.0), t);
 		}
 	}
 	
@@ -73,9 +128,11 @@ public class Collision {
 		{
 		case SPHERE:
 			((Sphere) surf)._point.addToForce(force);
+			break;
 		case ROD:
 			((Rod) surf)._points[0].addToForce(Vector.times(force,intersect));
 			((Rod) surf)._points[1].addToForce(Vector.times(force,1.0-intersect));
+			break;
 		case PLANE:
 			System.out.println("WARNING: Surface Plane does not accept force");
 		}
@@ -98,7 +155,9 @@ public class Collision {
 			second = a;
 			flip = true;
 		}
-		if (second.type() == Surface.Type.SPHERE)
+		if (second == null)
+			{}
+		else if (second.type() == Surface.Type.SPHERE)
 			return planeSphere((Plane) first, (Sphere) second);
 		else if (second.type() == Surface.Type.ROD)
 			return planeRod((Plane) first, (Rod) second);
@@ -115,14 +174,18 @@ public class Collision {
 			second = a;
 			flip = true;
 		}
-		if (second.type() == Surface.Type.SPHERE)
+		if (second == null)
+			{}
+		else if (second.type() == Surface.Type.SPHERE)
 			return rodSphere((Rod) first, (Sphere) second);
 		else if (second.type() == Surface.Type.ROD)
 			return rodRod((Rod) first, (Rod) second);
 		
 		// sphere sphere
-		else if (second.type() != null)
+		if(a.type() == Surface.Type.SPHERE)
 		{
+			first = a;
+			second = b;
 			flip = false;
 			return sphereSphere((Sphere) first, (Sphere) second);
 		}
@@ -139,32 +202,11 @@ public class Collision {
 	 * Work in progress, stores the vector that points the shortest distance
 	 * between a and b
 	 */
-	private void periodicVectorTo(double[] dP, double[] a, double[] b)
+	private void setPeriodicDistanceVector(double[] a, double[] b)
 	{
-		boolean periodicBoundaries = false;
-		if(! periodicBoundaries)
-			Vector.minusTo(dP, a, b);
-		else
-			dP = null; // TODO the shortest distance trough periodic boundaries
+		this.dP = computationalDomain.getMinDifference(a,b);
 	}
 	
-	/**
-	 * 
-	 */
-	private double[] periodicVector(double[] a, double[] b)
-	{
-		double[] dP = new double[a.length];
-		periodicVectorTo(dP, a, b);
-		return dP;
-	}
-	
-	/**
-	 * 
-	 */
-	private void periodicVectorEquals(double[] dP, double[] a)
-	{
-		periodicVectorTo(dP, dP, a);
-	}
 	
 	/**
 	 * \brief Sphere-sphere distance.
@@ -175,7 +217,8 @@ public class Collision {
 	 */
 	public double pointPoint(double[] p, double[] q) 
 	{
-		periodicVectorTo(dP, p, q);
+		setPeriodicDistanceVector(p, q);
+//		Vector.minusTo(dP, p, q);
 		return Vector.normEuclid(dP);
 	}
 	
@@ -244,21 +287,14 @@ public class Collision {
 	public double linesegLineseg(double[] p0, double[] p1,
 												double[] q0, double[] q1) 
 	{		
-		// r = p0 - q0
+
 		double[] r      = Vector.minus(p0, q0);
-		// d1 = p1 - p0
 		double[] d1     = Vector.minus(p1, p0);
-		// d2 = q1 - q0
 		double[] d2     = Vector.minus(q1, q0);
-		// a = d1 . d1 = (p1 - p0)^2
 		double a 		= Vector.normSquare(d1);
-		// e = d2 . d2 = (q1 - q0)^2
 		double e 		= Vector.normSquare(d2);
-		// f = d2 . r = (q1 - q0) . (p0 - q0)
 		double f 		= Vector.dotProduct(d2, r);
-		// c = d1 . r = (p1 - p0) . (p0 - q0)
 		double c 		= Vector.dotProduct(d1, r);
-		// b = d1 . d2 = (p1 - p0) . (q1 - q0)
 		double b 		= Vector.dotProduct(d1, d2);
 		// denominator
 		double denom 	= (a * e) - (b * b);

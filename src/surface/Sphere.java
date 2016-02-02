@@ -28,10 +28,10 @@ public class Sphere extends Surface{
      * copy constructor
      * @param sphere
      */
-	public Sphere(Sphere sphere) {
+	public Sphere(Sphere sphere, Body body) {
 		this._point = (Point) Copier.copy(sphere._point);
 		this._radius = (double) Copier.copy(sphere._radius);
-		this.body = sphere.body; // We do not want to create a new body
+		this.body = body; 
 	}
 
 	public Type type() {

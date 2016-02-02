@@ -2,6 +2,7 @@ package agent.state;
 
 import utility.Copier;
 import generalInterfaces.Copyable;
+import generalInterfaces.Duplicable;
 import agent.Agent;
 
 public class PrimaryState implements State {
@@ -24,6 +25,16 @@ public class PrimaryState implements State {
 		// TODO: more objects from primitives to be included
 		State copy = new PrimaryState();
 		copy.set(Copier.copy(state));
+		return copy;
+	}
+	
+	public State Duplicate(Agent agent)
+	{
+		State copy = new PrimaryState();
+		if (state instanceof Duplicable)
+			copy.set(((Duplicable) state).copy(agent));
+		else
+			copy.set(Copier.copy(state));
 		return copy;
 	}
 	

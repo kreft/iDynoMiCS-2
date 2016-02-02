@@ -4,7 +4,6 @@ import agent.Agent;
 import agent.state.PrimaryState;
 import agent.state.State;
 import agent.state.StateLoader;
-import agent.state.library.*;
 
 public class AgentStateExamples {
 
@@ -44,6 +43,12 @@ public class AgentStateExamples {
 			@Override
 			public State copy() {
 				return this; // *information is only stored in primary states
+			}
+			
+			@Override
+			public State Duplicate(Agent agent) {
+				// TODO Auto-generated method stub
+				return this;
 			}
 		});
 		

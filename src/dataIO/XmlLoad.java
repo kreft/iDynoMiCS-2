@@ -19,6 +19,7 @@ import org.xml.sax.SAXException;
 import reaction.Reaction;
 import surface.Point;
 import linearAlgebra.Vector;
+import agent.Agent;
 import agent.Body;
 import agent.Species;
 import agent.AspectRegistry;
@@ -84,27 +85,27 @@ public class XmlLoad {
 				switch (s.getAttribute("type")) 
 				{
 					case "boolean" : 
-						aspectReg.set(s.getAttribute("name"), 
+						aspectReg.setPrimary(s.getAttribute("name"), 
 								Boolean.valueOf(s.getAttribute("value")));
 	                	break;
 					case "int" : 
-						aspectReg.set(s.getAttribute("name"), 
+						aspectReg.setPrimary(s.getAttribute("name"), 
 								Integer.valueOf(s.getAttribute("value")));
 	                	break;
 					case "double" : 
-						aspectReg.set(s.getAttribute("name"), 
+						aspectReg.setPrimary(s.getAttribute("name"), 
 								Double.valueOf(s.getAttribute("value")));
 	                	break;
 					case "String" : 
-						aspectReg.set(s.getAttribute("name"), 
+						aspectReg.setPrimary(s.getAttribute("name"), 
 								s.getAttribute("value"));
 	                	break;
 					case "secondary" : 
-						aspectReg.set(s.getAttribute("name"), 
+						aspectReg.setState(s.getAttribute("name"), 
 								StateLoader.getSecondary(s.getAttribute("value"), s.getAttribute("input")));
 	                	break;
 					case "event" :
-						aspectReg.set(s.getAttribute("name"), // TODO Bas do some proper testing, checking
+						aspectReg.setPrimary(s.getAttribute("name"), // TODO Bas do some proper testing, checking
 								EventLoader.getEvent(s.getAttribute("value"), s.getAttribute("input")));
 				}
 			}
@@ -122,7 +123,10 @@ public class XmlLoad {
 							pointList.add(new Point(Vector.dblFromString(
 									point.getAttribute("position"))));
 						}
-						aspectReg.set("body", new Body(pointList));
+						// Bas [01.02.16] TODO: currently only agents can have a
+						// body, look into this if other things alos need to be
+						// able to have a body
+						aspectReg.setPrimary("body", new Body(pointList, (Agent) aspectReg));
 						break;
 					case "reactions" :
 						List<Reaction> reactions = new LinkedList<Reaction>();
@@ -133,7 +137,7 @@ public class XmlLoad {
 							reactions.add(new Reaction(
 									reaction.getAttribute("somethingReact")));
 						}
-						aspectReg.set("reactions", reactions);
+						aspectReg.setPrimary("reactions", reactions);
 						break;
 				}
 			}
@@ -256,4 +260,6 @@ public class XmlLoad {
 			} );
 		}			
 	}
+
+
 }

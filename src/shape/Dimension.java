@@ -152,12 +152,12 @@ public class Dimension implements CanPrelaunchCheck
 	 */
 	public double getShortest(double a, double b)
 	{
-		double out = b - a;
-		System.out.println("b - a: "+out);
+		double out = a - b;
+		//System.out.println("b - a: "+out);
 		if ( this._isCyclic &&  (Math.abs(out) > 0.5 * this._length) )
 		{
 			out -= this._length * Math.signum(out);
-			System.out.println("cyclic b - a: "+out);
+			//System.out.println("cyclic b - a: "+out);
 		}
 		return out;
 	}

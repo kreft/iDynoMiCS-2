@@ -48,8 +48,6 @@ public abstract class SpatialRegistry<T>
 	 * @param entry
 	 */
 	public abstract void insert(double[] coords, double[] dimensions, T entry);
-	
-	public abstract void setPeriodicBoundaries(HashMap<Integer, PeriodicAgentBoundary> periodicBoundaries);
-	public abstract void addPeriodicBoundary(PeriodicAgentBoundary boundary);
+
 
 }

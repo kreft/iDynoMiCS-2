@@ -19,7 +19,7 @@ public class NameRef {
 	/**
 	 * 
 	 */
-	public static String bodyRadius = "#bodyRadius";
+	public static String bodyRadius = "radius";
 
 	/**
 	 * 

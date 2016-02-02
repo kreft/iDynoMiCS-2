@@ -44,13 +44,13 @@ public class Rod extends Surface{
     }
 	
 
-	public Rod(Rod rod) 
+	public Rod(Rod rod, Body body) 
 	{
 		this._points = new Point[] {(Point) rod._points[0].copy(), 
 				(Point) rod._points[0].copy()};
 		this._length = (double) Copier.copy(rod._length);
 		this._radius = (double) Copier.copy(rod._radius);
-		this.body = rod.body;
+		this.body = body;
 	}
 
 

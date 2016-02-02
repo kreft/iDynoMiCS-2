@@ -1,6 +1,6 @@
 package agent;
 
-import generalInterfaces.Copyable;
+import generalInterfaces.Duplicable;
 import idynomics.NameRef;
 
 import java.util.LinkedList;
@@ -8,7 +8,7 @@ import java.util.List;
 
 import surface.*;
 
-public class Body implements Copyable {
+public class Body implements Duplicable {
 	
 	/**
 	 * the body belongs to agent
@@ -18,19 +18,19 @@ public class Body implements Copyable {
 	/**
 	 * TODO: Depricated, remove
 	 */
-	public Body(List<Point> points, double[] lengths, double[] angles, double radius) 
-	{
-		this.points = points;
-		this._angles = angles;		
-	}
-	
-	public Body(List<Point> points) 
-	{
-		this.points = points;
-		/*
-		 * Lengths, angles and radius remain undefined.
-		 */
-	}
+//	public Body(List<Point> points, double[] lengths, double[] angles, double radius) 
+//	{
+//		this.points = points;
+//		this._angles = angles;		
+//	}
+//	
+//	public Body(List<Point> points) 
+//	{
+//		this.points = points;
+//		/*
+//		 * Lengths, angles and radius remain undefined.
+//		 */
+//	}
 	
 	
 	// TODO some proper testing
@@ -74,11 +74,24 @@ public class Body implements Copyable {
 
 	
 	/**
-	 * Hybrid: Coccoid, Rod, Chain of rods
+	 * Hybrid: Coccoid, Rod, rods, TODO Chain
 	 * @return
 	 */
-	public Body(List<Point> points, double length, double radius)
+	public Body(List<Point> points, Agent agent)
 	{
+		this.points = points;
+		if (points.size() == 1)
+			this.surfaces.add(new Sphere(points.get(0), this));
+		if (points.size() == 2)
+			this.surfaces.add(new Rod(new Point[]{points.get(0), points.get(1)}, this));
+		if(points.size() > 2)
+			System.out.println("WARNING: CHAIN type not supported yet"); //TODO 
+		this.agent = agent;
+	}
+	
+	public Body(List<Point> points, double length, double radius, Agent agent)
+	{
+		this.agent = agent;
 		this.points.addAll(points);
 		if(this.points.size() == 1)
 			this.surfaces.add(new Sphere(points.get(0), radius));
@@ -91,16 +104,17 @@ public class Body implements Copyable {
 		}
 	}
 
+
 	//TODO proper testing
-	public Body copy()
+	public Body copy(Agent agent)
 	{
 		// TODO make for multishape bodies
 		switch (surfaces.get(0).type())
 		{
 		case SPHERE:
-			return new Body(new Sphere((Sphere) surfaces.get(0)), this.agent);
+			return new Body(new Sphere((Sphere) surfaces.get(0), this), agent);
 		case ROD:
-			return new Body(new Rod((Rod) surfaces.get(0)), this.agent);
+			return new Body(new Rod((Rod) surfaces.get(0), this), agent);
 		default:
 			return null;
 		}
@@ -133,6 +147,12 @@ public class Body implements Copyable {
 	public List<Point> getPoints()
 	{
 		return this.points;
+	}
+	
+	//FIXME only for testing purposes
+	public Surface getSurface()
+	{
+		return this.surfaces.get(0);
 	}
 	
 	/**

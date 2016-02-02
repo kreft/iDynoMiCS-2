@@ -28,12 +28,12 @@ public abstract class AspectRegistry {
 	 * @param state
 	 * 			Object that contains the value of the state.
 	 */
-	private void setState(String name, State state)
+	public void setState(String name, State state)
 	{
 		_states.put(name, state);
 	}
 	
-	private void setPrimary(String name, Object state)
+	public void setPrimary(String name, Object state)
 	{
 		State aState = new PrimaryState();
 		aState.set(state);

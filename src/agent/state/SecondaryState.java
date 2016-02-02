@@ -22,5 +22,10 @@ public abstract class SecondaryState implements State, Copyable {
 		return this;
 	}
 	
+	public State Duplicate(Agent agent)
+	{
+		return this;
+	}
+	
 	public abstract Object get(Agent agent);
 }

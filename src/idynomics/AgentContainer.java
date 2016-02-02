@@ -70,7 +70,6 @@ public class AgentContainer
 		else
 		{
 			this._agentTree = new RTree<Agent>(8, 2, _shape.getNumberOfDimensions());
-			this._agentTree.setPeriodicBoundaries(_agentBoundaries);
 		}
 		
 		/*
@@ -144,13 +143,12 @@ public class AgentContainer
 	public void refreshSpatialRegistry()
 	{
 		List<Agent> agentList = _agentTree.all();
-		this._agentTree = new RTree<Agent>(8, 2, _shape.getNumberOfDimensions()); // rtree paramaters could follow from the protocol file
+		this._agentTree = new RTree<Agent>(8, 2, _shape.getNumberOfDimensions(), _shape); // rtree paramaters could follow from the protocol file
 		for(Agent a: agentList) 
 		{
 			_agentTree.insert((double[]) a.get("#boundingLower"), 
 								(double[]) a.get("#boundingSides"), a);
 		}
-		this._agentTree.setPeriodicBoundaries(_agentBoundaries);
 	}
 	
 	public LinkedList<Agent> getAllLocatedAgents()

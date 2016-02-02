@@ -87,7 +87,7 @@ public class Volume
 	 */
 	public void neighbourInteraction(Point a, Point c, Double radii) // change to simply receive a List of points from both agents
 	{
-		double[] force = interact(pointPoint(a.getPosition(), c.getPosition()), radii);
+		double[] force = interact(pointPoint(a.getPosition(), c.getPosition()) - radii, 0.0);
 		a.addToForce(force);
 		c.subtractFromForce(force);
 	}
