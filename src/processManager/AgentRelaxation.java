@@ -50,7 +50,7 @@ public class AgentRelaxation extends ProcessManager {
 			{
 				if (links.get(i).evaluate(iterator))
 				{
-					Feedback.out(LogLevel.ALL, "Fillial link breakage due to "
+					Feedback.out(LogLevel.BULK, "Fillial link breakage due to "
 							+ "over extending maximum link length.");
 					links.remove(i);
 				}

@@ -67,7 +67,7 @@ public class Species extends AspectRegistry
 				if(m.isGlobalState(name) == true)
 					return m.getState(name);
 		
-		Feedback.out(LogLevel.ALL, "Warning: could not find state: " + name);
+		Feedback.out(LogLevel.BULK, "Warning: could not find state: " + name);
 		return null;
 	}
 	

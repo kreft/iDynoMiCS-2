@@ -57,7 +57,7 @@ public class CoccoidDivision extends Event {
 			if (mother.get(NameRef.fillialLinker) == null || !(boolean) 
 					mother.get(NameRef.fillialLinker))
 			{
-				Feedback.out(LogLevel.ALL, "Agent does not create fillial "
+				Feedback.out(LogLevel.BULK, "Agent does not create fillial "
 						+ "links");
 			}
 			else

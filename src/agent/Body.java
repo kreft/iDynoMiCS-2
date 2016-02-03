@@ -6,6 +6,8 @@ import idynomics.NameRef;
 import java.util.LinkedList;
 import java.util.List;
 
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
 import surface.*;
 
 public class Body implements Duplicable {
@@ -94,11 +96,13 @@ public class Body implements Duplicable {
 	{
 		this.points = points;
 		if (points.size() == 1)
-			this.surfaces.add(new Sphere(points.get(0), this));
+			this.surfaces.add( new Sphere(points.get(0), this) );
 		if (points.size() == 2)
-			this.surfaces.add(new Rod(new Point[]{points.get(0), points.get(1)}, this));
+			this.surfaces.add( new Rod(new Point[]{ points.get(0), 
+					points.get(1)} , this));
 		if(points.size() > 2)
-			System.out.println("WARNING: CHAIN type not supported yet"); //TODO 
+			Feedback.out(LogLevel.QUIET, "WARNING: assigning unsuported body "
+					+ "type"); //TODO 
 		this.agent = agent;
 	}
 	

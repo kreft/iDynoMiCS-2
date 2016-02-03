@@ -1,0 +1,75 @@
+<simulation name="mySim" comments="this is a file for Agent testing">
+	<general>
+		<param name="outputLocation" type="String" value="../../Simulations/superTest/" />
+		<param name="outputLevel" type="LogLevel" value="EXPRESSIVE" />
+	</general>
+	
+	<speciesLib>
+	<!-- species/species library
+	The species library contains all agent species in the simulations. This may
+	include microbial species, plasmid and vector species, particle species etc.
+	
+	Species states are states that are in principal identical for all agents of
+	that species. However note that iDynoMiCS 2.0 does allow you to overwrite
+	states on agent level. Thus if a state is defined both on species level and 
+	on agent level, the agent state will be used in the simulation.
+	
+	small test
+	-->
+		<species name="AOB">
+			<state name="pigment" type="String" value="GREEN" />
+			<!-- this has not been made yet, use a static growthrate for now -->
+			<state name="growthRate" type="double" value="0.08" />
+			<state name="stochasticMove" type="event" value="StochasticMove" input="body" />
+			<speciesModule name="coccoid" />
+		</species>
+		<species name="coccoid">
+			<state name="coccoidCenter" type="secondary" value="CoccoidCenter" input="body" />
+			<state name="morphology" type="String" value="coccoid"/>
+			<state name="joints" type="secondary" value="JointsState" input="body" />
+			<state name="volume" type="secondary" value="SimpleVolumeState" input="mass,density" />
+			<state name="radius" type="secondary" value="CoccoidRadius" input="volume" />
+			<state name="#boundingLower" type="secondary" value="LowerBoundingBox" input="body,radius" />
+			<state name="#boundingSides" type="secondary" value="DimensionsBoundingBox" input="body,radius" />
+			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
+			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
+			<state name="surface" type="secondary" value="SimpleSurface" input="body" />
+		</species>
+	</speciesLib>
+
+	<compartment name="second" shape="Rectangle">
+		<agents>
+			<agent>
+				<state name="species" type="String" value="AOB" />
+				<state name="mass" type="double" value="0.2" />
+				<state name="density" type="double" value="1" />
+				<state name="#isLocated" type="boolean" value="true" />
+				<state name="pigment" type="String" value="RED" />
+				<state name="filialLinker" type="boolean" value="true" />
+				<state name="body" type="body">
+					<point position="14.2, 14.2" />
+				</state>
+			</agent>
+			<agent>
+				<state name="species" type="String" value="AOB" />
+				<state name="mass" type="double" value="0.2" />
+				<state name="density" type="double" value="1" />
+				<state name="#isLocated" type="boolean" value="true" />
+				<state name="pigment" type="String" value="BLUE" />
+				<state name="body" type="body">
+					<point position="15.0, 5.3" />
+				</state>
+			</agent>
+			<agent>
+				<state name="species" type="String" value="AOB" />
+				<state name="mass" type="double" value="0.2" />
+				<state name="density" type="double" value="1" />
+				<state name="#isLocated" type="boolean" value="true" />
+				<state name="pigment" type="String" value="GREEN" />
+				<state name="body" type="body">
+					<point position="5.3, 13.2" />
+				</state>
+			</agent>
+		</agents>	
+	</compartment>
+</simulation>

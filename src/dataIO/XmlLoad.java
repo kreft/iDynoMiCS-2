@@ -2,6 +2,7 @@ package dataIO;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,6 +26,8 @@ import agent.Species;
 import agent.AspectRegistry;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
+import dataIO.Feedback.LogLevel;
+import idynomics.Param;
 
 public class XmlLoad {
 	
@@ -161,6 +164,38 @@ public class XmlLoad {
 		{
 			Element s = (Element) speciesNodes.item(j);
 			species.addSpeciesModule(s.getAttribute("name"));
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public static void loadGeneralParameters(Node xmlNode)
+	{
+		Element xmlgeneral = (Element) xmlNode;
+		
+		NodeList paramNodes = xmlgeneral.getElementsByTagName("param");
+		for (int j = 0; j < paramNodes.getLength(); j++) 
+		{
+			Element s = (Element) paramNodes.item(j);
+			try {
+				Class<?> c = Param.class;
+				Field f = c.getDeclaredField(s.getAttribute("name"));
+				f.set(f, s.getAttribute("value"));
+
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchFieldException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	

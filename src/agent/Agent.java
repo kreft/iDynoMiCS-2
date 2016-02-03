@@ -99,7 +99,7 @@ public class Agent extends AspectRegistry implements Quizable
 			return species.getState(name);	
 		else
 		{
-			Feedback.out(LogLevel.ALL, "State " + name + " is not defined for "
+			Feedback.out(LogLevel.BULK, "State " + name + " is not defined for "
 					+ "agent " + identity());
 			return null;
 		}

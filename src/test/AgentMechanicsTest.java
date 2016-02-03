@@ -25,7 +25,7 @@ public class AgentMechanicsTest {
 
 		Simulator sim = new Simulator();
 		Compartment testcompartment = null;
-		Feedback.set(LogLevel.DEBUG);
+		Feedback.set(LogLevel.EXPRESSIVE);
 		
 		Element doc = XmlLoad.loadDocument("testagents.xml");
 		
