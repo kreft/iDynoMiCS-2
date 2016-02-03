@@ -4,9 +4,16 @@ import java.util.LinkedList;
 
 import org.w3c.dom.Node;
 
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
 import dataIO.XmlLoad;
 import agent.state.State;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class Species extends AspectRegistry
 {
 	/**
@@ -30,6 +37,9 @@ public class Species extends AspectRegistry
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	/**
+	 * Check whether the state exists for this species or it's species modules. 
+	 */
 	public boolean isGlobalState(String name)
 	{
 		if (_states.containsKey(name))
@@ -57,15 +67,18 @@ public class Species extends AspectRegistry
 				if(m.isGlobalState(name) == true)
 					return m.getState(name);
 		
-		System.out.println("Warning: could not find state: " + name);
+		Feedback.out(LogLevel.ALL, "Warning: could not find state: " + name);
 		return null;
 	}
 	
+	/**
+	 * add a species module to be incorporated in this species
+	 * FIXME: Bas [13.01.16] lets be sure we aren't adding a lot of void
+	 * species here.
+	 * @param name
+	 */
 	public void addSpeciesModule(String name)
 	{
-		//FIXME: Bas [13.01.16] lets be sure we aren't adding a lot of void
-		// species here.
 		speciesModules.add(SpeciesLib.get(name));
 	}
-
 }

@@ -4,9 +4,16 @@ package agent.event.library;
 import agent.Agent;
 import agent.event.Event;
 
+/**
+ * TODO: We are going to do this different (integrate into ODE/PDE), this event
+ * is simplified and not correct.
+ * Simple event that increases the agents mass according to it's growth rate
+ * and the time step
+ * @author baco
+ *
+ * NOTE: input "mass" "growthRate"
+ */
 public class SimpleGrowth extends Event {
-	
-	// input "mass" "growthRate"
 
 	public void start(Agent agent, Agent compliant, Double timeStep)
 	{
@@ -19,7 +26,11 @@ public class SimpleGrowth extends Event {
 		agent.set(input[0], newMass);
 	}
 	
-	public Object copy() {
+	/**
+	 * Events are general behavior patterns, copy returns this
+	 */
+	public Object copy() 
+	{
 		return this;
 	}
 	

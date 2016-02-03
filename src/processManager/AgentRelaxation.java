@@ -13,6 +13,8 @@ import java.util.List;
 
 import agent.Agent;
 import agent.Body;
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
 
 	////////////////////////
 	// WORK IN PROGRESS, initial version
@@ -47,7 +49,11 @@ public class AgentRelaxation extends ProcessManager {
 			for (int i = 0; i < links.size(); i++)
 			{
 				if (links.get(i).evaluate(iterator))
+				{
+					Feedback.out(LogLevel.ALL, "Fillial link breakage due to "
+							+ "over extending maximum link length.");
 					links.remove(i);
+				}
 			}
 			//agent.innerSprings();	// TODO method needs to be implemented (but not in Agent())
 			for(Agent neighbour: agents._agentTree.cyclicsearch(

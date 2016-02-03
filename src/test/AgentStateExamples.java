@@ -39,11 +39,6 @@ public class AgentStateExamples {
 			public Object get(Agent agent) {
 				return (Double) agent.get("mass") / (Double) agent.get("density");
 			}
-
-			@Override
-			public State copy() {
-				return this; // *information is only stored in primary states
-			}
 			
 			@Override
 			public State duplicate(Agent agent) {

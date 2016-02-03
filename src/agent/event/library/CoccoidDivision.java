@@ -8,11 +8,23 @@ import linearAlgebra.Vector;
 import agent.Agent;
 import agent.Body;
 import agent.event.Event;
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
+import idynomics.NameRef;
 
+/**
+ * Simple coccoid division class, divides mother cell in two with a random
+ * moves mother and daughter in a random opposing direction and registers the
+ * daughter cell to the compartment
+ * @author baco
+ *
+ * NOTE: inputs 0 "mass" 1 "radius" 2 "body"
+ */
 public class CoccoidDivision extends Event {
-	
-	// inputs 0 "mass" 1 "radius" 2 "body"
 
+	/**
+	 * Method that initiates the division
+	 */
 	public void start(Agent mother, Agent daughter, Double timeStep)
 	{
 		//TODO check phase 
@@ -21,12 +33,14 @@ public class CoccoidDivision extends Event {
 		{
 			Body momBody = (Body) mother.get(input[2]);
 
+			// FIXME change for settable random factor
 			if (daughter == null)
 				daughter = new Agent(mother); // the copy constructor
-			double randHalf = ExtraMath.getUniRandDbl(momMass*0.5, momMass*0.55);
-			mother.set(input[0], momMass-randHalf);
-			daughter.set(input[0], randHalf);
+			double randM = ExtraMath.getUniRandDbl(momMass*0.5, momMass*0.55);
+			mother.set(input[0], momMass-randM);
+			daughter.set(input[0], randM);
 			
+			// TODO Joints state will be removed
 			double[] originalPos = momBody.getJoints().get(0);
 			double[] shift = Vector.randomPlusMinus(originalPos.length, 
 					0.5*(double) mother.get(input[1]));
@@ -39,16 +53,27 @@ public class CoccoidDivision extends Event {
 			q.setPosition(Vector.minus(originalPos, shift));
 			
 			
-			//TODO testing
-			if (mother.get("filialLinker") == null || !(boolean) mother.get("filialLinker"))
-			{}
+			//TODO work in progress, currently testing fillial links
+			if (mother.get(NameRef.fillialLinker) == null || !(boolean) 
+					mother.get(NameRef.fillialLinker))
+			{
+				Feedback.out(LogLevel.ALL, "Agent does not create fillial "
+						+ "links");
+			}
 			else
-				momBody._links.add(new Link(new Point[]{p,q}, new Surface[]{momBody.getSurface(),daughterBody.getSurface()},1.7));
-			
+			{
+				momBody._links.add( new Link( new Point[]{ p , q } , 
+						new Surface[]{ momBody.getSurface(),
+						daughterBody.getSurface() } , 1.7 ));
+			}
 			daughter.registerBirth();
+			Feedback.out(LogLevel.DEBUG, "CoccoidDivision added daughter cell");
 		}
 	}
 	
+	/**
+	 * Events are general behavior patterns, copy returns this
+	 */
 	public Object copy() {
 		return this;
 	}

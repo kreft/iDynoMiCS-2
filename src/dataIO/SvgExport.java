@@ -2,9 +2,11 @@ package dataIO;
 
 import generalInterfaces.Quizable;
 import idynomics.AgentContainer;
+import idynomics.Param;
 
 import java.util.List;
 import agent.Agent;
+import dataIO.Feedback.LogLevel;
 import linearAlgebra.Vector;
 
 public class SvgExport {
@@ -36,14 +38,17 @@ public class SvgExport {
 	{
 		List<Agent> agents = agentContainer.getAllLocatedAgents();
 		FileHandler svgFile = new FileHandler();
-		
-		svgFile.fnew("../../Simulations/" + prefix + "/" 
-		+ prefix + DigitFilenr(filewriterfilenr) + ".svg");
+		String fileString = Param.outputLocation + prefix + "/" 
+				+ prefix + DigitFilenr(filewriterfilenr) + ".svg";
+		svgFile.fnew(fileString);
+		Feedback.out(LogLevel.EXPRESSIVE, "Writing new file: " + fileString);
 
 		svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
 		
 		double[] compDomain = agentContainer.getShape().getDimensionLengths();
-		svgFile.write("<rect x=\"" + spacer + "\" y=\"" + spacer + "\" width=\"" + compDomain[0] * scalar + "\" height=\"" + compDomain[1] * scalar + "\" fill=\"gray\" />\n");
+		svgFile.write("<rect x=\"" + spacer + "\" y=\"" + spacer + "\" width=\"" 
+				+ compDomain[0] * scalar + "\" height=\"" + compDomain[1] * 
+				scalar + "\" fill=\"gray\" />\n");
 		
 		/**
 		 *  the original
@@ -79,6 +84,10 @@ public class SvgExport {
 		filewriterfilenr++;
 	}
 	
+	/**
+	 * Work in progress, dynamic graphical output
+	 *
+	 */
 	public class Task
 	{
 		public List<Quizable> quizables;

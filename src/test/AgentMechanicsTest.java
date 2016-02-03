@@ -6,6 +6,8 @@ import org.w3c.dom.NodeList;
 import agent.Agent;
 import agent.Species;
 import agent.SpeciesLib;
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
 import dataIO.PovExport;
 import dataIO.SvgExport;
 import dataIO.XmlLoad;
@@ -23,6 +25,7 @@ public class AgentMechanicsTest {
 
 		Simulator sim = new Simulator();
 		Compartment testcompartment = null;
+		Feedback.set(LogLevel.DEBUG);
 		
 		Element doc = XmlLoad.loadDocument("testagents.xml");
 		
@@ -57,7 +60,7 @@ public class AgentMechanicsTest {
 						
 			// Check the agent container
 			if (xmlCompartment.getElementsByTagName("agents").getLength() > 1)
-				System.out.println("more than 1 agentcontainer!!!");
+				Feedback.out(LogLevel.QUIET, "more than 1 agentcontainer!!!");
 
 			// cycle trough all agents in the agent container
 			NodeList agentNodes = ((Element) xmlCompartment.
@@ -95,7 +98,7 @@ public class AgentMechanicsTest {
 //		PovExport pov = new PovExport();
 		SvgExport svg = new SvgExport();
 
-		System.out.println("Time: "+agentRelax.getTimeForNextStep());
+		Feedback.out(LogLevel.NORMAL, "Time: " + agentRelax.getTimeForNextStep());
 		// write initial state
 //		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 		svg.writepov(testcompartment.name, testcompartment.agents);
@@ -109,8 +112,8 @@ public class AgentMechanicsTest {
 			// write output
 //			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 			svg.writepov(testcompartment.name, testcompartment.agents);
-			System.out.println(mStep-nStep +" Time: "+agentRelax.getTimeForNextStep());
+			Feedback.out(LogLevel.NORMAL, mStep-nStep + " Time: " + agentRelax.getTimeForNextStep());
 		}
-		System.out.println("finished");
+		Feedback.out(LogLevel.QUIET,"finished");
 	}
 }

@@ -4,6 +4,8 @@ import linearAlgebra.Vector;
 
 import java.util.LinkedList;
 
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
 import generalInterfaces.Copyable;
 
 /**
@@ -13,15 +15,24 @@ import generalInterfaces.Copyable;
  */
 public final class Copier {
 	
+	/**
+	 * Attempts to create a deep copy of any input object
+	 * @param copyable
+	 * @return
+	 */
 	public static Object copy(Object copyable)
 	{
 		if (copyable == null)
+		{
+			Feedback.out(LogLevel.DEBUG, "Copier returns a null object");
 			return null;
+		}
 		if (copyable instanceof Double || copyable.getClass() == double.class)
 		{
 			return new Double((double) copyable);
 		}
-		if (copyable instanceof Double[] || copyable.getClass() == double[].class)
+		if (copyable instanceof Double[] || copyable.getClass() == 
+				double[].class)
 		{
 			return Vector.copy((double[]) copyable);
 		}
@@ -46,8 +57,9 @@ public final class Copier {
 		} 
 		else 
 		{
-			throw new Error("WARNING: Unable to copy the input object");
+			Feedback.out(LogLevel.NORMAL,"WARNING: Unable to copy the input object"
+					+ ", returning null object instead");
+			return null;
 		}
 	}
-
 }

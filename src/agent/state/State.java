@@ -15,11 +15,23 @@ import agent.Agent;
  */
 public interface State {
 	
+	/**
+	 * Set the state
+	 * @param state
+	 */
 	public void set(Object state);
 	
+	/**
+	 * return the value of the state (either direct or calulated)
+	 * @param agent
+	 * @return
+	 */
 	public Object get(Agent agent);
 
-	public State copy();
-
+	/**
+	 * return a duplicate of this state (duplicable interface)
+	 * NOTE: this method may be removed when we switch to an other solution for
+	 * states that require ownership definition.
+	 */
 	public State duplicate(Agent agent);
 }

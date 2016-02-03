@@ -48,10 +48,7 @@ public class Collision {
 		public double[] interactionForce(double distance, double[] dP)
 		{
 			double c;
-			double p 			= 0.01; 		// pull distance
-			double fPull 		= 0.0002;		// pull force scalar
 			double fPush 		= 6.0;			// push force scalar
-			boolean exponential = true; 		// exponential pull curve
 			
 			distance 			-= 0.001;	// added margin
 			
@@ -62,23 +59,6 @@ public class Collision {
 				Vector.normaliseEuclidEquals(dP, c);
 				return dP;
 			} 
-			// Attraction
-			// TODO disabled until it makes sense from  agent tree point of view
-//			else if (distance < p) 
-//			{
-//				if (exponential)
-//				{
-//					c = fPull * -3.0 * Math.exp(-6.0*distance/p) /
-//							( 1.0 + Math.exp(6.0 - (36.0*distance) / p) ); 
-//				}
-//				else
-//				{
-//					c = fPull * - (p-distance) /
-//							( 1.0 + Math.exp(6.0 - (36.0*distance) / p) );
-//				}
-//				return Vector.timesEquals(dP, c);
-//			}
-			// Too far away for an interaction.
 			return Vector.zeros(dP);
 		}
 	};
