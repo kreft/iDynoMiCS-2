@@ -1,10 +1,11 @@
 package grid;
 
 import java.util.HashMap;
-import java.util.Set;
 
 import grid.GridBoundary.GridMethod;
-import shape.ShapeConventions.BoundarySide;
+import grid.ResolutionCalculator.ResCalc;
+import linearAlgebra.Array;
+import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
 
 /**
@@ -37,6 +38,9 @@ public abstract class SpatialGrid
 	public interface GridGetter
 	{
 		SpatialGrid newGrid(double[] totalSize, double resolution);
+		
+		// TODO
+		//SpatialGrid newGrid(ResCalc[] resolutionCalculator);
 	};
 	
 	/**
@@ -84,12 +88,18 @@ public abstract class SpatialGrid
 	 * Dictionary of arrays according to their type. Note that not all types
 	 * may be occupied.
 	 */
-	protected HashMap<ArrayType, double[][][]> _array;
+	protected HashMap<ArrayType, double[][][]> _array
+									= new HashMap<ArrayType, double[][][]>();
 	
 	/**
-	 * 
+	 * TODO
 	 */
 	protected DimName[] _dimName = new DimName[3];
+	
+	/**
+	 * TODO
+	 */
+	protected GridMethod[][] _dimBoundaries = new GridMethod[3][2];
 	
 	/**
 	 * Smallest distance between the centres of two neighbouring voxels in
@@ -109,13 +119,6 @@ public abstract class SpatialGrid
 	protected double _minVoxelVolume;
 	
 	/**
-	 * Dictionary of methods to use on this grid when solving partial
-	 * differential equations (PDEs).  
-	 */
-	protected HashMap<BoundarySide,GridMethod> _boundaries = 
-									new HashMap<BoundarySide,GridMethod>();
-	
-	/**
 	 * Current coordinate considered by the internal iterator.
 	 */
 	protected int[] _currentCoord;
@@ -129,35 +132,90 @@ public abstract class SpatialGrid
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
+	/**
+	 * \brief Initialise an array of the given <b>type</b> and fill all voxels
+	 * with <b>initialValues</b>.
+	 * 
+	 * @param type {@code ArrayType} for the new array.
+	 * @param initialValues {@code double} for every voxel to take.
+	 */
 	public abstract void newArray(ArrayType type, double initialValues);
 	
 	/**
-	 * \brief TODO
+	 * \brief Initialise an array of the given <b>type</b> and fill it with
+	 * zeros.
 	 * 
-	 * @param name
+	 * @param type {@code ArrayType} for the new array.
 	 */
 	public void newArray(ArrayType type)
 	{
 		this.newArray(type, 0.0);
 	}
 	
+	/**
+	 * \brief TODO
+	 *
+	 */
 	public abstract void calcMinVoxVoxResSq();
 	
 	/*************************************************************************
 	 * SIMPLE GETTERS
 	 ************************************************************************/
 	
-	public abstract int[] getNumVoxels();
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public DimName[] getDimensionNames()
+	{
+		return this._dimName;
+	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dim
+	 * @return
+	 */
+	public int indexFor(DimName dim)
+	{
+		for ( int i = 0; i < 3; i++ )
+			if ( dim == this._dimName[i] )
+				return i;
+		return -1;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public abstract boolean[] getSignificantAxes();
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public abstract int numSignificantAxes();
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @return
+	 */
 	public boolean hasArray(ArrayType type)
 	{
 		return this._array.containsKey(type);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public double getMinVoxelVoxelSurfaceArea()
 	{
 		return this._minVoxVoxSurfArea;
@@ -178,74 +236,280 @@ public abstract class SpatialGrid
 	}
 	
 	/*************************************************************************
-	 * SIMPLE SETTERS
-	 ************************************************************************/
-	
-	/*************************************************************************
 	 * COORDINATES
 	 ************************************************************************/
 	
+	/**
+	 * \brief Find the coordinates of the voxel that encloses the given
+	 * <b>location</b>.
+	 * 
+	 * @param location Continuous location within the shape.
+	 * @return Discrete coordinates within this grid.
+	 */
 	public abstract int[] getCoords(double[] location);
 	
+	/**
+	 * \brief Find the location of the lower corner of the voxel specified by
+	 * the given coordinates.
+	 * 
+	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @return Continuous location of the lower corner of this voxel.
+	 */
 	public abstract double[] getVoxelOrigin(int[] coords);
 	
+	/**
+	 * \brief Find the location of the centre of the voxel specified by the
+	 * given coordinates.
+	 * 
+	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @return Continuous location of the centre of this voxel.
+	 */
 	public abstract double[] getVoxelCentre(int[] coords);
+	
+	/**
+	 * \brief Get the number of voxels in each dimension for the given
+	 * coordinates.
+	 * 
+	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
+	 * irrelevant, but it will make a difference in the polar grids.</p>
+	 * 
+	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @return A 3-vector of the number of voxels in each dimension.
+	 */
+	public abstract int[] getNVoxel(int[] coords);
 	
 	/*************************************************************************
 	 * BOUNDARIES
 	 ************************************************************************/
 	
-	public void addBoundary(BoundarySide side, GridMethod method)
+	/**
+	 * \brief Tell this grid what to do at a boundary.
+	 * 
+	 * @param dim The name of the dimension.
+	 * @param index The index of the extreme: 0 for the minimum extreme, 1 for
+	 * the maximum extreme.
+	 * @param method The grid method to use at this boundary.
+	 */
+	public void addBoundary(DimName dim, int index, GridMethod method)
 	{
-		this._boundaries.put(side, method);
+		int dimIndex = indexFor(dim);
+		if ( dimIndex == -1 )
+		{
+			// TODO safety
+		}
+		else if ( index < 0 || index > 1 )
+		{
+			// TODO safety
+		}
+		else
+		{
+			this._dimBoundaries[dimIndex][index] = method;
+		}
 	}
 	
-	public Set<BoundarySide> getBoundarySides()
+	/**
+	 * \brief Check if a given coordinate belongs in this grid. If it is not, 
+	 * return the {@code GridMethod} that should be used.
+	 * 
+	 * @param coord Discrete coordinates of a voxel on this grid.
+	 * @return A @{@code GridMethod} to use if the coordinates are outside this
+	 * grid. {@code null} if the coordinates are inside.
+	 */
+	protected GridMethod isOutside(int[] coord)
 	{
-		return this._boundaries.keySet();
+		int[] nVoxel = this.getNVoxel(coord);
+		GridMethod out = null;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			if ( coord[dim] < 0 && (out = this._dimBoundaries[dim][0]) != null)
+				break;
+			if ( coord[dim] >= nVoxel[dim]  && 
+								(out = this._dimBoundaries[dim][1]) != null)
+				break;
+		}
+		return out;
 	}
 	
-	protected abstract BoundarySide isOutside(int[] coord);
-	
-	public abstract int[] cyclicTransform(int[] coord);
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO this should really only be done for cyclic dimensions
+	 * 
+	 * TODO Rob [16Nov2015]: This is far from ideal, but I can't currently see
+	 * a better way of doing it.
+	 * 
+	 * @param coord Discrete coordinates of a voxel on this grid.
+	 * @return New 3-vector to use instead.
+	 */
+	public int[] cyclicTransform(int[] coord)
+	{
+		int[] transformed = new int[3];
+		int[] nVoxel = this.getNVoxel(coord);
+		for ( int dim = 0; dim < 3; dim++ )
+			transformed[dim] = Math.floorMod(coord[dim], nVoxel[dim]);
+		return transformed;
+	}
 	
 	/*************************************************************************
 	 * VOXEL GETTERS & SETTERS
 	 ************************************************************************/
 	
+	/**
+	 * \brief Calculate the volume of the voxel specified by the given
+	 * coordinates.
+	 * 
+	 * @param coord Discrete coordinates of a voxel on this grid.
+	 * @return Volume of this voxel.
+	 */
 	public abstract double getVoxelVolume(int[] coord);
 	
-	public abstract double getValueAt(ArrayType type, int[] coord);
+	/**
+	 * \brief Gets the value of one coordinate on the given array type.
+	 * 
+	 * @param type Type of array to get from.
+	 * @param coord Coordinate on this array to get.
+	 * @return double value at this coordinate on this array.
+	 */
+	public double getValueAt(ArrayType type, int[] coord)
+	{
+		if ( this._array.containsKey(type) )
+			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
+		else
+			return Double.NaN;
+	}
 	
-	public abstract void setValueAt(ArrayType type, int[] gridCoords, double value);
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @param coord
+	 * @param value
+	 */
+	public void setValueAt(ArrayType type, int[] coord, double value)
+	{
+		if ( this._array.containsKey(type) )
+			this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
+		// TODO safety?
+	}
 	
-	public abstract void addValueAt(ArrayType type, int[] gridCoords, double value);
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @param coord
+	 * @param value
+	 */
+	public void addValueAt(ArrayType type, int[] coord, double value)
+	{
+		if ( this._array.containsKey(type) )
+			this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
+		// TODO safety?
+	}
 	
-	public abstract void timesValueAt(ArrayType type, int[] gridCoords, double value);
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @param coord
+	 * @param value
+	 */
+	public void timesValueAt(ArrayType type, int[] coord, double value)
+	{
+		if ( this._array.containsKey(type) )
+			this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
+		// TODO safety?
+	}
 	
 	/*************************************************************************
 	 * ARRAY SETTERS
 	 ************************************************************************/
 	
-	public abstract void setAllTo(ArrayType type, double value);
+	/**
+	 * \brief Set all values in the array specified to the <b>value</b> given.
+	 * 
+	 * @param type Type of the array to set.
+	 * @param value New value for all elements of this array.
+	 */
+	public void setAllTo(ArrayType type, double value)
+	{
+		Array.setAll(this._array.get(type), value);
+	}
 	
-	public abstract void addToAll(ArrayType type, double value);
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @param array
+	 */
+	public void setTo(ArrayType type, double[][][] array)
+	{
+		Array.setAll(this._array.get(type), array);
+	}
 	
-	public abstract void timesAll(ArrayType type, double value);
+	/**
+	 * \brief Increase all values in the array specified by the <b>value</b>
+	 * given.
+	 * 
+	 * <p>To decrease all elements of this array (i.e. subtract), simply use
+	 * {@code addToAll(type, -value)}.</p>
+	 * 
+	 * @param type Type of the array to use.
+	 * @param value New value to add to all elements of this array.
+	 */
+	public void addToAll(ArrayType type, double value)
+	{
+		Array.add(this._array.get(type), value);
+	}
+	
+	/**
+	 * \brief Multiply all values in the array specified by the <b>value</b>
+	 * given.
+	 * 
+	 * <p>To divide all elements of this array, simply use
+	 * {@code timesAll(type, 1.0/value)}.</p>
+	 * 
+	 * @param type Type of the array to use.
+	 * @param value New value with which to multiply all elements of this array.
+	 */
+	public void timesAll(ArrayType type, double value)
+	{
+		Array.times(this._array.get(type), value);
+	}
 	
 	/*************************************************************************
 	 * ARRAY GETTERS
 	 ************************************************************************/
 	
-	public abstract double getMax(ArrayType type);
+	/**
+	 * \brief Get the greatest value in the given array.
+	 * 
+	 * @param type Type of the array to use.
+	 * @return Greatest value of all the elements of the array <b>type</b>.
+	 */
+	public double getMax(ArrayType type)
+	{
+		return Array.max(this._array.get(type));
+	}
 	
-	public abstract double getMin(ArrayType type);
+	/**
+	 * \brief Get the least value in the given array.
+	 * 
+	 * @param type Type of the array to use.
+	 * @return Least value of all the elements of the array <b>type</b>.
+	 */
+	public double getMin(ArrayType type)
+	{
+		return Array.min(this._array.get(type));
+	}
 	
 	/*************************************************************************
 	 * TWO-ARRAY METHODS
 	 ************************************************************************/
 	
-	public abstract void addArrayToArray(ArrayType destination, ArrayType source);
+	public void addArrayToArray(ArrayType destination, ArrayType source)
+	{
+		Array.add(this._array.get(destination), this._array.get(source));
+	}
 	
 	/*************************************************************************
 	 * LOCATION GETTERS
@@ -266,20 +530,100 @@ public abstract class SpatialGrid
 	 * COORDINATE ITERATOR
 	 ************************************************************************/
 	
-	public abstract int[] resetIterator();
+	/**
+	 * \brief Return the coordinate iterator to its initial state.
+	 * 
+	 * @return The value of the coordinate iterator.
+	 */
+	public int[] resetIterator()
+	{
+		if ( this._currentCoord == null )
+			this._currentCoord = Vector.zerosInt(3);
+		else
+			Vector.reset(this._currentCoord);
+		return this._currentCoord;
+	}
 	
-	public abstract boolean isIteratorValid();
+	/**
+	 * \brief Determine whether the current coordinate of the iterator is
+	 * outside the grid in the dimension specified.
+	 * 
+	 * @param axis Index of the dimension to look at.
+	 * @return Whether the coordinate iterator is inside (false) or outside
+	 * (true) the grid along this dimension.
+	 */
+	protected boolean iteratorExceeds(int axis)
+	{
+		return this._currentCoord[axis] >= 
+									this.getNVoxel(this._currentCoord)[axis];
+	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public boolean isIteratorValid()
+	{
+		int[] nVoxel = this.getNVoxel(this._currentCoord);
+		for ( int axis = 0; axis < 3; axis++ )
+			if ( this._currentCoord[axis] >= nVoxel[axis] )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief Get the current state of the coordinate iterator.
+	 * 
+	 * @return The value of the coordinate iterator.
+	 */
 	public int[] iteratorCurrent()
 	{
 		return this._currentCoord;
 	}
 	
-	public abstract int[] iteratorNext();
+	/**
+	 * \brief Step the coordinate iterator forward once.
+	 * 
+	 * @return The new value of the coordinate iterator.
+	 */
+	public int[] iteratorNext()
+	{
+		_currentCoord[0]++;
+		if ( this.iteratorExceeds(0) )
+		{
+			_currentCoord[0] = 0;
+			_currentCoord[1]++;
+			if ( this.iteratorExceeds(1) )
+			{
+				_currentCoord[1] = 0;
+				_currentCoord[2]++;
+			}
+		}
+		return _currentCoord;
+	}
 	
-	public abstract double getValueAtCurrent(ArrayType type);
+	/**
+	 * \brief Get the value of the given array in the 
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public double getValueAtCurrent(ArrayType type)
+	{
+		return this.getValueAt(type, this.iteratorCurrent());
+	}
 	
-	public abstract void setValueAtCurrent(ArrayType type, double value);
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @param value
+	 */
+	public void setValueAtCurrent(ArrayType type, double value)
+	{
+		this.setValueAt(type, this.iteratorCurrent(), value);
+	}
 	
 	/*************************************************************************
 	 * NEIGHBOR ITERATOR
@@ -305,7 +649,10 @@ public abstract class SpatialGrid
 	
 	public abstract double getCurrentNbhResSq();
 	
-	public abstract GridMethod nbhIteratorIsOutside();
+	public GridMethod nbhIteratorIsOutside()
+	{
+		return this.isOutside(this._currentNeighbor);
+	}
 	
 	/**
 	 * 

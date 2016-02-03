@@ -44,7 +44,7 @@ public final class PolarArray {
 	 */
 	public static double[][][] createCylinder(
 			ResCalc[][] resCalc, double val){
-		return applyToAll(createCylinder(resCalc),()->{return val;});
+		return setAllTo(createCylinder(resCalc), val);
 	}
 	
 	/**
@@ -85,7 +85,7 @@ public final class PolarArray {
 	 * @return - An array used to store a SphericalGrid
 	 */
 	public static double[][][] createSphere(ResCalc[][][] resCalc, double val){
-		return applyToAll(createSphere(resCalc),()->{return val;});
+		return setAllTo(createSphere(resCalc), val);
 	}
 	
 	/**
@@ -95,13 +95,14 @@ public final class PolarArray {
 	 * @param f - function supplying a double value
 	 * @return - the array with all grid cells set to the value supplied by f
 	 */
-	public static double[][][] applyToAll(double[][][] array, DoubleSupplier f){
+	public static double[][][] setAllTo(double[][][] array, double value)
+	{
 		for (int i=0; i<array.length; ++i){
 			double[][] b=array[i];
 			for (int j=0; j<b.length;++j){
 				double[] c=b[j];
 				for (int k=0; k<c.length;++k) {
-					c[k]=f.getAsDouble();
+					c[k]= value;
 				}
 				b[j]=c;
 			}
@@ -116,16 +117,12 @@ public final class PolarArray {
 	 * @param array - a PolarArray
 	 * @param f - a function consuming a double value
 	 */
-	public static void applyToAll(double[][][] array, DoubleConsumer f){
-		for (int i=0; i<array.length; ++i){
-			double[][] b=array[i];
-			for (int j=0; j<b.length;++j){
-				double[] c=b[j];
-				for (int k=0; k<c.length;++k) {
-					f.accept(c[k]);
-				}
-			}
-		}
+	public static void applyToAll(double[][][] array, DoubleConsumer f)
+	{
+		for ( int i = 0; i < array.length; i++ )
+			for ( int j = 0; j < array[i].length; j++ )
+				for ( int k = 0; k < array[i][j].length; k++ )
+					f.accept(array[i][j][k]);
 	}
 	
 	/**
@@ -136,60 +133,30 @@ public final class PolarArray {
 	 * @return - the manipulated array
 	 */
 	public static double[][][] applyToAll(
-			double[][][] array, DoubleFunction<Double> f){
-		for (int i=0; i<array.length; ++i){
-			double[][] b=array[i];
-			for (int j=0; j<b.length;++j){
-				double[] c=b[j];
-				for (int k=0; k<c.length;++k) {
-					c[k]=f.apply(c[k]);
-				}
-				b[j]=c;
-			}
-			array[i] = b;
-		}
+			double[][][] array, DoubleFunction<Double> f)
+	{
+		for ( int i = 0; i < array.length; i++ )
+			for ( int j = 0; j < array[i].length; j++ )
+				for ( int k = 0; k < array[i][j].length; k++ )
+					array[i][j][k] = f.apply(array[i][j][k]);
 		return array;
 	}
 	
 	/**
-	 * Used to perform a binary operation between each grid cell 
-	 * of the both arrays. Writes the result into a1.
+	 * \brief Computes the inner resolution for phi or theta dimensions.
 	 * 
-	 * @param a1 - a PolarArray
-	 * @param a2 - a PolarArray
-	 * @param f - a function providing the binary operation
-	 * @return - array a1 with the results of the operation f
-	 */
-	public static double[][][] applyToAll(
-			double[][][] a1, double[][][] a2, DoubleBinaryOperator f){
-		checkDimensionsSame(a1, a2);
-		for (int i=0; i<a1.length; ++i){
-			double[][] b1=a1[i];
-			double[][] b2=a2[i];
-			for (int j=0; j<b1.length;++j){
-				double[] c1=b1[j];
-				double[] c2=b2[j];
-				for (int k=0; k<c1.length;++k) {
-					c1[k]=f.applyAsDouble(c1[k], c2[k]);
-				}
-				b1[j]=c1;
-			}
-			a1[i] = b1;
-		}
-		return a1;
-	}
-	
-	/**
-	 * Computes the inner resolution for phi or theta dimensions.
+	 * TODO Rob [2Feb2016]: Is this essentially the number of quarter-circles
+	 * covered by the given angle?
 	 * 
 	 * @param n - total size in theta or phi direction (in radian)
 	 * @return - the inner resolution
 	 */
-	public static double ires(double n){
+	public static double ires(double n)
+	{
 		 // min 1, +1 for each quadrant (=4 for full circle)
 //		return Math.max(2*nt/(Math.PI*res),1);
 //		System.out.println(2*nt/Math.PI);
-		return 2*n/Math.PI;
+		return 2 * n / Math.PI;
 	}
 	
 	/**
@@ -202,37 +169,45 @@ public final class PolarArray {
 	{
 		IllegalArgumentException e = 
 				new IllegalArgumentException("Array dimensions must agree.");
-		if (a.length!=b.length) throw e;
-		if (a[0][0].length!=b[0][0].length) throw e;
-		for (int i=0; i<a.length; ++i){
-			if (a[i].length!=b[i].length) throw e;
-		}
+		if ( a.length != b.length )
+			throw e;
+		if ( a[0][0].length != b[0][0].length )
+			throw e;
+		for ( int i = 0; i < a.length; i++ )
+			if ( a[i].length != b[i].length )
+				throw e;
 	}
 	
 	/**
-	 * @param a - a polar array.
-	 * @return - the maximum value in array a.
+	 * \brief TODO
+	 * 
+	 * TODO Not currently used
+	 * 
+	 * @param r
+	 * @param theta0
+	 * @param theta1
+	 * @param phi0
+	 * @param phi1
+	 * @return
 	 */
-	public static double max(double[][][] a){
-		double max=Double.NEGATIVE_INFINITY;
-		for (int i=0; i<a.length; ++i){
-			double[][] b=a[i];
-			for (int j=0; j<b.length;++j){
-				double[] c=b[j];
-				for (int k=0; k<c.length;++k) {
-					max = c[k]>max ? c[k] : max;
-				}
-			}
-		}
-		return max;
-	}
-	
-	public static double area(
-			double r, double theta0, double theta1, double phi0, double phi1){
+	public static double area(double r, double theta0, double theta1,
+											double phi0, double phi1)
+	{
 		return r * r * (theta1 - theta0) * (Math.cos(phi0)-Math.cos(phi1));
 	}
 	
-	public static double arcLength(double r, double theta0, double theta1){
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO Not currently used
+	 * 
+	 * @param r
+	 * @param theta0
+	 * @param theta1
+	 * @return
+	 */
+	public static double arcLength(double r, double theta0, double theta1)
+	{
 		return r * (theta1 - theta0);
 	}
 }

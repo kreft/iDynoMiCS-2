@@ -4,89 +4,95 @@ import java.util.HashMap;
 import java.util.Set;
 
 import boundary.Boundary;
-import grid.GridBoundary.GridMethod;
+import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SpatialGrid.GridGetter;
-import shape.ShapeConventions.BoundarySide;
-import shape.Shape;
-import linearAlgebra.Vector;
 import reaction.Reaction;
+import shape.Shape;
+import shape.ShapeConventions.DimName;
 
-public class EnvironmentContainer
+/**
+ * \brief Manages the solutes in a {@code Compartment}.
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ */
+public class EnvironmentContainer implements CanPrelaunchCheck
 {
+	/**
+	 * This dictates both geometry and size, and it inherited from the
+	 * {@code Compartment} this {@code EnvrionmentContainer} belongs to.
+	 */
 	protected Shape _shape;
-	
-	protected GridGetter _gridGetter;
-	
-	protected double[] _defaultTotalLength = Vector.vector(3, 1.0);
-	
+	/**
+	 * TODO replace with resolution calculator
+	 */
 	protected double _defaultResolution = 1.0;
 	
 	/**
-	 * 
+	 * Dictionary of solutes.
 	 */
 	protected HashMap<String, SpatialGrid> _solutes = 
 										new HashMap<String, SpatialGrid>();
-	
 	/**
-	 * 
+	 * Dictionary of extracellular reactions.
 	 */
 	protected HashMap<String, Reaction> _reactions = 
 											new HashMap<String, Reaction>();
-	
-	protected HashMap<BoundarySide,HashMap<String,GridMethod>> _boundaries =
-					   new HashMap<BoundarySide,HashMap<String,GridMethod>>();
+	/**
+	 * Solutes can only be added while this is {@code false}, and the simulation
+	 * cannot begin until it is {@code true}.
+	 */
+	protected boolean _hasInitialised = false;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public EnvironmentContainer()
-	{
-		
-	}
-	
-	public void setShape(Shape aShape)
-	{
-		this._shape = aShape;
-		this._gridGetter = this._shape.gridGetter();
-	}
-	
+	/**
+	 * \brief Construct an {@code EnvironmentContainer} from a {@code Shape}.
+	 * 
+	 * @param aShape {@code Shape} object (see shape.ShapeLibrary).
+	 */
 	public EnvironmentContainer(Shape aShape)
 	{
 		this._shape = aShape;
-		this._gridGetter = this._shape.gridGetter();
 	}
 	
-	public void init()
+	/**
+	 * \brief Construct an {@code EnvironmentContainer} from the name of a
+	 * {@code Shape}.
+	 * 
+	 * <p>Used by test classes.</p>
+	 * 
+	 * @param shapeName {@code String} name of a shape.
+	 */
+	public EnvironmentContainer(String shapeName)
 	{
-		SpatialGrid aSG;
-		Boundary bndry;
-		for ( String soluteName : this._solutes.keySet() )
-		{
-			aSG = this._solutes.get(soluteName);
-			for ( BoundarySide aBS : aSG.getBoundarySides() )
-			{
-				bndry = this._shape.getBoundary(aBS);
-				aSG.addBoundary(aBS, bndry.getGridMethod(soluteName));
-			}
-		}
+		this((Shape) Shape.getNewInstance(shapeName));
 	}
 	
 	/**
 	 * \brief TODO
 	 * 
-	 * TODO Rob [8Oct2015]: this probably needs more work, just wanted
-	 * something to get me rolling elsewhere. 
-	 * 
-	 * @param compartmentSize
-	 * @param defaultRes
+	 * This should be done after the shape is set up and all solutes added.
+	 * TODO make more robust. 
 	 */
-	public void setSize(double[] compartmentSize, double defaultRes)
+	public void init()
 	{
-		this._defaultResolution = defaultRes;
-		this._defaultTotalLength = compartmentSize;
+		SpatialGrid aSG;
+		Boundary[] boundaries;
+		for ( DimName dimName : this._shape.getDimensionNames() )
+		{
+			boundaries = this._shape.getDimension(dimName).getBoundaries();
+			for ( int i = 0; i < 2; i++ )
+				for ( String soluteName : this._solutes.keySet() )
+				{
+					aSG = this._solutes.get(soluteName);
+					aSG.addBoundary(dimName, i,
+									boundaries[i].getGridMethod(soluteName));
+				}
+		}
+		this._hasInitialised = true;
 	}
 	
 	/**
@@ -99,26 +105,26 @@ public class EnvironmentContainer
 		this.addSolute(soluteName, 0.0);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param soluteName
+	 * @param initialConcn
+	 */
 	public void addSolute(String soluteName, double initialConcn)
 	{
+		if ( this._hasInitialised )
+		{
+			throw new Error("Cannot add new solutes after the environment container has initialised!");
+		}
 		/*
 		 * TODO safety: check if solute already in hashmap
 		 */
-		SpatialGrid sg = this._gridGetter.newGrid(this._defaultTotalLength,
-													this._defaultResolution);
+		SpatialGrid sg = this._shape.gridGetter().newGrid(
+											this._shape.getDimensionLengths(),
+											this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
-		this._boundaries.forEach( (side, map) ->
-							{ sg.addBoundary(side, map.get(soluteName)); });
 		this._solutes.put(soluteName, sg);
-	}
-	
-	public void addBoundary(BoundarySide aSide, String soluteName,
-														GridMethod aMethod)
-	{
-		if ( ! this._boundaries.containsKey(aSide) )
-			this._boundaries.put(aSide, new HashMap<String,GridMethod>());
-		this._boundaries.get(aSide).put(soluteName, aMethod);
-		this._solutes.get(soluteName).addBoundary(aSide, aMethod);
 	}
 	
 	/*************************************************************************
@@ -163,5 +169,18 @@ public class EnvironmentContainer
 	public void printAllSolutes()
 	{
 		this._solutes.forEach((s,g) -> {this.printSolute(s);;});
+	}
+	
+	/*************************************************************************
+	 * PRE-LAUNCH CHECK
+	 ************************************************************************/
+	
+	@Override
+	public boolean isReadyForLaunch()
+	{
+		if ( ! this._hasInitialised )
+			return false;
+		// TODO
+		return true;
 	}
 }

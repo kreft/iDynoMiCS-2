@@ -1,9 +1,14 @@
+/**
+ * TODO
+ */
 package shape;
 
 import boundary.Boundary;
 import generalInterfaces.CanPrelaunchCheck;
+import shape.ShapeConventions.BoundaryCyclic;
 
 /**
+ * \brief TODO
  * 
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
@@ -99,9 +104,14 @@ public class Dimension implements CanPrelaunchCheck
 		this.checkExtremes();
 	}
 	
+	/**
+	 * \brief TODO
+	 *
+	 */
 	public void setCyclic()
 	{
 		this._isCyclic = true;
+		this.setBoundaries(new BoundaryCyclic(), new BoundaryCyclic());
 	}
 	
 	/**
@@ -142,8 +152,6 @@ public class Dimension implements CanPrelaunchCheck
 	{
 		this.setBoundaryOptional(0);
 		this.setBoundaryOptional(1);
-		this.setBoundaryOptional(0);
-		this.setBoundaryOptional(1);
 	}
 	/**
 	 * \brief Set both the minimum and maximum boundaries.
@@ -163,23 +171,15 @@ public class Dimension implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set both the minimum and maximum boundaries.
 	 * 
 	 * @param minBndry
 	 * @param maxBndry
+	 * @param minBndry {@code Boundary} to set at the minimum extreme.
+	 * @param maxBndry {@code Boundary} to set at the maximum extreme.
 	 */
 	public void setBoundaries(Boundary minBndry, Boundary maxBndry)
 	{
-		if ( this._isCyclic )
-		{
-			// TODO
-			//throw new Exception();
-		}
-		else
-		{
-			this._boundary[0] = minBndry;
-			this._boundary[1] = maxBndry;
-		}
 		this._boundary[0] = minBndry;
 		this._boundary[1] = maxBndry;
 	}
@@ -200,12 +200,10 @@ public class Dimension implements CanPrelaunchCheck
 		return this._boundary;
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param a
-	 * @return
-	 */
+	/**************************************************************************
+	 * USEFUL METHODS
+	 *************************************************************************/
+	
 	public double applyBoundary(double a)
 	{
 		if ( this._isCyclic )
@@ -242,10 +240,25 @@ public class Dimension implements CanPrelaunchCheck
 	 */
 	public double getShortest(double a, double b)
 	{
+		// TODO check that a and b are inside?
 		double out = b - a;
 		if ( this._isCyclic &&  (Math.abs(out) > 0.5 * this.getLength()) )
 			out -= this.getLength() * Math.signum(out);
 		return out;
+	}
+	
+	/**
+	 * \brief Checks if the position given is within the extremes.
+	 * 
+	 * <p>Always inside a cyclic dimension.</p>
+	 * 
+	 * @param a Position in this dimension.
+	 * @return Whether <b>a</b> is inside (true) or outside (false).
+	 */
+	public boolean isInside(double a)
+	{
+		return this._isCyclic ||
+					(( a >= this._extreme[0] ) && ( a < this._extreme[1] ));
 	}
 	
 	/**
@@ -272,16 +285,6 @@ public class Dimension implements CanPrelaunchCheck
 			return Math.min( this._extreme[1] - Math.ulp(this._extreme[1]),
 												Math.max(this._extreme[0], a));
 		}
-	}
-	
-	public boolean isInside(double a)
-	{
-		/* Always inside a cyclic dimension. */
-		// NOTE: Bas [04.02.16] even if the domain is cyclic points can still be
-		// outside, yet when they are cyclic they need to be moved to the other
-		// side.
-		// return this._isCyclic || (( a >= 0.0 ) && ( a < this._length ));
-		return ( a >= this._extreme[0] ) && ( a < this._extreme[1] );
 	}
 	
 	/**************************************************************************
