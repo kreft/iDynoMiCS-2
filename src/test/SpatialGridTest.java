@@ -82,10 +82,10 @@ public class SpatialGridTest
 		aCompartment.init();
 		
 		SpatialGrid grid = aCompartment.getSolute("test");
-		System.out.println("grid size: "+Arrays.toString(grid.getNumVoxels()));
 		int[] current, nbh;
-		for ( current = grid.resetIterator(); grid.isIteratorValid();
-				  current = grid.iteratorNext())
+		current = grid.resetIterator();
+		System.out.println("grid size: "+Arrays.toString(grid.getNVoxel(current)));
+		for ( ; grid.isIteratorValid(); current = grid.iteratorNext())
 		{
 			System.out.println("current: "+Arrays.toString(current));
 			for ( nbh = grid.resetNbhIterator(); 

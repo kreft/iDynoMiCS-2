@@ -3,6 +3,15 @@ package test;
 import java.util.LinkedList;
 import java.util.List;
 
+import agent.Agent;
+import agent.Body;
+import agent.event.EventLoader;
+import agent.state.StateLoader;
+import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
+import idynomics.Compartment;
+import idynomics.Simulator;
+import idynomics.Timer;
 import processManager.AgentGrowth;
 import processManager.AgentRelaxation;
 import processManager.PrepareSoluteGrids;
@@ -10,23 +19,14 @@ import processManager.ProcessManager;
 import processManager.RefreshMassGrids;
 import processManager.SolveDiffusionTransient;
 import processManager.WriteAgentsSvg;
+import shape.ShapeConventions.DimName;
 import surface.Point;
 import utility.ExtraMath;
-import agent.Agent;
-import agent.Body;
-import agent.event.EventLoader;
-import agent.state.StateLoader;
-import boundary.BoundaryCyclic;
-import boundary.PeriodicAgentBoundary;
-import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
-import idynomics.Compartment;
-import idynomics.Simulator;
-import idynomics.Timer;
 
-public class AgentCompartmentTest {
-
-	public static void main(String[] args) {
+public class AgentCompartmentTest
+{
+	public static void main(String[] args)
+	{
 		Timer.setTimeStepSize(1.0);
 		Timer.setEndOfSimulation(25.0);
 		
@@ -46,26 +46,8 @@ public class AgentCompartmentTest {
 		 * Set the boundary methods and initialise the compartment.
 		 */
 		// set 4 periodic boundaries
-		for ( String side : new String[] {"x", "y"})
-		{
-			BoundaryCyclic min = new BoundaryCyclic();
-			BoundaryCyclic max = new BoundaryCyclic();
-			min.setPartnerBoundary(max);
-			max.setPartnerBoundary(min);
-			aCompartment.addBoundary(side+"min", min);
-			aCompartment.addBoundary(side+"max", max);
-		}
-		
-		PeriodicAgentBoundary xBound = new PeriodicAgentBoundary();
-		xBound._periodicDistance = 9.0;
-		xBound.periodicDimension = 0;
-		aCompartment.agents.addAgentBoundary(xBound);
-		
-		PeriodicAgentBoundary yBound = new PeriodicAgentBoundary();
-		yBound._periodicDistance = 9.0;
-		yBound.periodicDimension = 1;
-		aCompartment.agents.addAgentBoundary(yBound);
-		
+		for ( DimName dim : new DimName[]{DimName.X, DimName.Y} )
+			aCompartment.getShape().getDimension(dim).setCyclic();
 		//TODO diffusivities
 		aCompartment.init();
 		/*

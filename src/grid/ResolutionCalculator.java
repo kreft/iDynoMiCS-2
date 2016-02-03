@@ -14,7 +14,13 @@ public class ResolutionCalculator
 {
 	public abstract class ResCalc
 	{
+		/**
+		 * Total number of voxels along this dimension.
+		 */
 		protected int _nVoxel;
+		/**
+		 * Total length along this dimension.
+		 */
 		protected double _length;
 		
 		// TODO void init(Node xmlNode);
@@ -26,11 +32,13 @@ public class ResolutionCalculator
 			return this._nVoxel;
 		}
 		
-		public double getTotalLength(){
+		public double getTotalLength()
+		{
 			return _length;
 		}
 		
 		public abstract double getResolution(int voxelIndex);
+		
 		/**
 		 * \brief calculates the sum of all resolutions until 
 		 * and including the resolution at voxelIndex.

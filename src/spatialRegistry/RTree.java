@@ -1,16 +1,12 @@
 package spatialRegistry;
 
-import idynomics.AgentContainer;
-
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
-import boundary.PeriodicAgentBoundary;
 import shape.Shape;
 import utility.ExtraMath;
 
@@ -86,11 +82,12 @@ public class RTree<T> extends SpatialRegistry<T>
   }
   
   // cyclic search Rtree
-  public RTree(int maxEntries, int minEntries, int numDims,
-			Shape shape) {
-	  this(maxEntries, minEntries, numDims, SeedPicker.LINEAR);
+  public RTree(int maxEntries, int minEntries, Shape shape)
+  {
+	  this(maxEntries, minEntries, shape.getNumberOfDimensions(),
+			  											SeedPicker.LINEAR);
 	  this.domain = shape;
-	}
+  }
 
   private Node buildRoot(boolean asLeaf)
   {

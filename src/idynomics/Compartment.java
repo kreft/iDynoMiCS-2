@@ -11,7 +11,7 @@ import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
 import processManager.ProcessManager;
 import shape.Shape;
-import shape.ShapeConventions.BoundarySide;
+import shape.ShapeConventions.DimName;
 
 public class Compartment implements CanPrelaunchCheck
 {
@@ -29,8 +29,9 @@ public class Compartment implements CanPrelaunchCheck
 	
 	/**
 	 * AgentContainer deals with TODO
+	 * 
 	 */
-	public AgentContainer agents = new AgentContainer();
+	public AgentContainer agents;
 	
 	/**
 	 * TODO
@@ -60,25 +61,18 @@ public class Compartment implements CanPrelaunchCheck
 	public Compartment(Shape aShape)
 	{
 		this._shape = aShape;
-		this.setupShape();
+		this._environment = new EnvironmentContainer(this._shape);
+		this.agents = new AgentContainer(this._shape);
 	}
 	
 	public Compartment(String aShapeName)
 	{
-		System.out.println("Making Compartment with shape: "+aShapeName);
-		this._shape = (Shape) Shape.getNewInstance(aShapeName);
-		this.setupShape();
-	}
-	
-	protected void setupShape()
-	{
-		this._environment = new EnvironmentContainer(this._shape);
+		this((Shape) Shape.getNewInstance(aShapeName));
 	}
 	
 	public void init()
 	{
 		this._environment.init();
-		this.agents.init(this._shape); // moved here since the agent compartment was init before it was constructed!
 	}
 	
 	/*************************************************************************
@@ -103,31 +97,18 @@ public class Compartment implements CanPrelaunchCheck
 	public void setSideLengths(double[] sideLengths)
 	{
 		this._shape.setDimensionLengths(sideLengths);
-		this._environment.setSize(sideLengths, 1.0);
 	}
 	
 	/**
 	 * \brief TODO
 	 * 
-	 * <p>To add a side to a dimensionless compartment, it doesn't matter
-	 * what "side" is.</p>
-	 * 
-	 * @param side
+	 * @param dim
+	 * @param index
 	 * @param aBoundary
 	 */
-	public void addBoundary(String side, Boundary aBoundary)
+	public void addBoundary(DimName dim, int index, Boundary aBoundary)
 	{
-		this.addBoundary(BoundarySide.valueOf(side.toUpperCase()), aBoundary);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param aBoundary
-	 */
-	public void addBoundary(BoundarySide aSide, Boundary aBoundary)
-	{
-		this._shape.addBoundary(aSide, aBoundary);
+		this._shape.setBoundary(dim, index, aBoundary);
 	}
 	
 	/**

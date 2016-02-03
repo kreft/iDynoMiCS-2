@@ -1,10 +1,14 @@
+/**
+ * TODO
+ */
 package shape;
 
 import boundary.Boundary;
 import generalInterfaces.CanPrelaunchCheck;
+import shape.ShapeConventions.BoundaryCyclic;
 
 /**
- * 
+ * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
@@ -98,9 +102,14 @@ public class Dimension implements CanPrelaunchCheck
 		this.checkExtremes();
 	}
 	
+	/**
+	 * \brief TODO
+	 *
+	 */
 	public void setCyclic()
 	{
 		this._isCyclic = true;
+		this.setBoundaries(new BoundaryCyclic(), new BoundaryCyclic());
 	}
 	
 	/**

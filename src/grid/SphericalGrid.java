@@ -1,13 +1,11 @@
 package grid;
 
-import java.util.Arrays;
-import java.util.HashMap;
-
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
-import shape.ShapeConventions.BoundarySide;
+import shape.ShapeConventions.DimName;
+import utility.ExtraMath;
 
 /**
  * \brief A grid with a spherical coordinate system.
@@ -24,6 +22,7 @@ import shape.ShapeConventions.BoundarySide;
  *  
  * @author Stefan Lang, Friedrich-Schiller University Jena
  * (stefan.lang@uni-jena.de)
+ * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
  */
 public class SphericalGrid extends PolarGrid
 {
@@ -57,19 +56,26 @@ public class SphericalGrid extends PolarGrid
 	 */
 	protected ResCalc[][][] _resCalc;
 	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
+	
 	/**
+	 * \brief TODO
+	 * 
 	 * @param totalSize
 	 * @param res
 	 */
 	public SphericalGrid(double[] totalSize, double[] res)
 	{
 		super(totalSize);
+		this._dimName[1] = DimName.PHI;
+		this._dimName[2] = DimName.THETA;
 		/*
 		 * Set up sphere-specific members
 		 */
-		_radSize[2] = Math.toRadians(totalSize[2]%181);
-		_ires[2] = PolarArray.ires(_radSize[2]); 
-
+		this._radSize[2] = Math.toRadians(totalSize[2]%181);
+		this._ires[2] = PolarArray.ires(this._radSize[2]); 
 		/*
 		 * Set up uniform resolution calculator array
 		 */
@@ -82,29 +88,31 @@ public class SphericalGrid extends PolarGrid
 		this._resCalc[0] = new UniformResolution[1][1];
 		this._resCalc[0][0][0] = resolution.new UniformResolution();
 		this._resCalc[0][0][0].init(res[0], totalSize[0]);
-		int nr = _resCalc[0][0][0].getNVoxel();
+		int numShells = _resCalc[0][0][0].getNVoxel();
 		/*
-		 * For each radial shell we have a known number of voxels in theta,
-		 * but the number of voxels in phi varies. 
+		 * For each radial shell we have a known number of voxels in phi,
+		 * but the number of voxels in theta varies.
 		 */
-		this._resCalc[1] = new UniformResolution[nr][1];
-		this._resCalc[2] = new UniformResolution[nr][];
-		int np;
-		for ( int i = 0; i < nr; ++i )
+		this._resCalc[1] = new UniformResolution[numShells][1];
+		this._resCalc[2] = new UniformResolution[numShells][];
+		int numRings;
+		double phi_scale, ring_length;
+		for ( int i = 0; i < numShells; ++i )
 		{
 			/* Set up for theta. */
 			this._resCalc[1][i][0] = resolution.new UniformResolution();
-			this._resCalc[1][i][0].init(res[2], (int) _ires[2] * s(i));
+			this._resCalc[1][i][0].init(res[2], this._ires[2] * s(i));
 			/* Determine how many for phi, and set these up. */
-			np = this._resCalc[1][i][0].getNVoxel();
-			this._resCalc[2][i] = new UniformResolution[np];
-			for ( int j = 0; j < np; ++j )
+			numRings = this._resCalc[1][i][0].getNVoxel();
+			this._resCalc[2][i] = new UniformResolution[numRings];
+			for ( int j = 0; j < numRings; ++j )
 			{
-				double p_scale=(Math.PI/2)/(s(i)-0.5);
-				double nt=_ires[1]+(s(i)-1)*_ires[1]*Math.sin(j*p_scale);
-				double length = (int)Math.round(nt);
+				// TODO this is about as clear as mud - clarify and comment!
+				phi_scale = 0.5 * Math.PI / (s(i)-0.5);
+				ring_length = this._ires[1] + 
+							(s(i)-1)*this._ires[1]*Math.sin(j * phi_scale);
 				this._resCalc[2][i][j] = resolution.new UniformResolution();
-				this._resCalc[2][i][j].init(res[1], length);
+				this._resCalc[2][i][j].init(res[1], ring_length);
 			}
 		}
 	}
@@ -126,26 +134,21 @@ public class SphericalGrid extends PolarGrid
 	public void newArray(ArrayType type, double initialValues)
 	{
 		/*
-		 * First check that the array HashMap has been created.
-		 */
-		if ( this._array == null )
-			this._array = new HashMap<ArrayType, double[][][]>();
-		/*
-		 * Now try resetting all values of this array. If it doesn't exist
-		 * yet, make it.
+		 * Try resetting all values of this array. If it doesn't exist yet,
+		 * make it.
 		 */
 		if ( this._array.containsKey(type) )
-			PolarArray.applyToAll(
-					this._array.get(type), ()->{return initialValues;});
+			PolarArray.setAllTo(this._array.get(type), initialValues);
 		else
 		{
-			double[][][] array = PolarArray.createSphere(
-					this._resCalc, initialValues
-			);
-			
-			this._array.put(type, array);
+			this._array.put(type,
+					PolarArray.createSphere(this._resCalc, initialValues));
 		}
 	}
+	
+	/*************************************************************************
+	 * SIMPLE GETTERS
+	 ************************************************************************/
 	
 	/**
 	 * \brief Computes the arc length along the azimuthal dimension of the 
@@ -161,9 +164,9 @@ public class SphericalGrid extends PolarGrid
 	 */
 	private double getArcLengthTheta(int[] coord)
 	{
-		ResCalc resCalc = _resCalc[2][coord[0]][coord[1]];
+		ResCalc resCalc = this._resCalc[2][coord[0]][coord[1]];
 		return resCalc.getResolution(coord[2])
-				* _radSize[1] / resCalc.getTotalLength();
+				* this._radSize[1] / resCalc.getTotalLength();
 	}
 	
 	/**
@@ -179,9 +182,9 @@ public class SphericalGrid extends PolarGrid
 	 */
 	private double getArcLengthPhi(int[] coord)
 	{
-		ResCalc resCalc = _resCalc[1][coord[0]][0];
+		ResCalc resCalc = this._resCalc[1][coord[0]][0];
 		return resCalc.getResolution(coord[1])
-				* _radSize[2] / resCalc.getTotalLength();
+				* this._radSize[2] / resCalc.getTotalLength();
 	}
 	
 	@Override
@@ -250,25 +253,80 @@ public class SphericalGrid extends PolarGrid
 		return loc;
 	}
 	
+
 	@Override
-	public boolean isIteratorValid()
+	public void calcMinVoxVoxResSq()
 	{
-		return ! this.iteratorExceeds(0);
+		// TODO Auto-generated method stub
+		System.err.println(
+				"tried to call unimplemented method calcMinVoxVoxResSq()");
 	}
 	
 	@Override
-	protected boolean iteratorExceeds(int axis) {
-		switch(axis){
-		case 0: return _currentCoord[0] >=  _resCalc[0][0][0].getNVoxel();
-		case 1: return iteratorExceeds(0) ? true : _currentCoord[1] 
-							>= _resCalc[1][_currentCoord[0]][0].getNVoxel();
-		case 2: return (iteratorExceeds(0) || iteratorExceeds(1)) ? true 
-				: _currentCoord[2] >= _resCalc[2][_currentCoord[0]]
-											[_currentCoord[1]].getNVoxel();
-		default: throw new RuntimeException("0 < axis <= 3 not satisfied");
-		}
+	public double getVoxelVolume(int[] coord)
+	{
+		// mathematica: Integrate[r^2 sin p,{p,p1,p2},{t,t1,t2},{r,r1,r2}] 
+		double[] loc1 = getVoxelOrigin(coord);
+		double[] loc2 = getVoxelUpperCorner(coord);
+		/* r */
+		double out = ExtraMath.cube(loc1[0]) - ExtraMath.cube(loc2[0]);
+		/* phi */
+		out *= loc1[1] - loc2[1];
+		/* theta */
+		out *= Math.cos(loc1[2]) - Math.cos(loc2[2]);
+		return out / 3.0;
+	}
+	
+	@Override
+	public boolean[] getSignificantAxes()
+	{
+		boolean[] out = new boolean[3];
+		out[0] = ( this._resCalc[0][0][0].getNVoxel() > 1 );  
+		out[1] = ( this._radSize[1] > 0.0 );
+		out[2] = ( this._radSize[2] > 0.0 );
+		return out;
 	}
 
+	@Override
+	public int numSignificantAxes()
+	{
+		int out = 0;
+		out += (this._resCalc[0][0][0].getNVoxel() > 1 ) ? 1 : 0;
+		out += (this._radSize[1] > 0) ? 1 : 0;
+		out += (this._radSize[2] > 0) ? 1 : 0;
+		return out;
+	}
+
+	@Override
+	public double getNbhSharedSurfaceArea()
+	{
+		// TODO Auto-generated method stub
+		System.err.println(
+				"tried to call unimplemented method getNbhSharedSurfaceArea()");
+		return 1;
+	}
+
+	@Override
+	public double getCurrentNbhResSq()
+	{
+		// TODO Auto-generated method stub
+		System.err.println(
+				"tried to call unimplemented method getCurrentNbhResSq()");
+		return 1;
+	}
+	
+	@Override
+	public int[] getNVoxel(int[] coords)
+	{
+		return new int[]{this._resCalc[0][0][0].getNVoxel(),
+						 this._resCalc[1][coords[0]][0].getNVoxel(),
+						 this._resCalc[2][coords[0]][coords[1]].getNVoxel()};
+	}
+	
+	/*************************************************************************
+	 * 
+	 ************************************************************************/
+	
 	@Override
 	//TODO: assumes constant resolution for each r at the moment?
 	public void fillNbhSet()
@@ -286,7 +344,7 @@ public class SphericalGrid extends PolarGrid
 			int[] nbh_coord = new int[3];
 			int dr = NBH_DIRECS[_nbhIdx][0];
 			nbh_coord[0] = cc[0] + dr;
-			if ( isOutside(new int[]{nbh_coord[0] , -1, -1}, 0)==null )
+			if ( isOutside(new int[]{nbh_coord[0] , -1, -1}) == null )
 			{
 				double[] bounds_theta = new double[2];
 				double[] bounds_phi = new double[2];
@@ -389,7 +447,8 @@ public class SphericalGrid extends PolarGrid
 							0, 
 							bounds_nbh_theta);
 					
-					while(bounds_nbh_theta[0] < bounds_theta[1]){	
+					while(bounds_nbh_theta[0] < bounds_theta[1])
+					{	
 						/*
 						 * next neighbor in theta
 						 */
@@ -407,10 +466,8 @@ public class SphericalGrid extends PolarGrid
 								bounds_theta,
 								bounds_nbh_theta,
 								len_nbh_theta);
-						
 //						System.out.print("phi: "+Arrays.toString(bounds_nbh_phi)+"  "+Arrays.toString(bounds_phi));
 //						System.out.println(" theta: "+Arrays.toString(bounds_nbh_theta)+"  "+Arrays.toString(bounds_theta));
-						
 						_subNbhSet.add(Vector.copy(nbh_coord));
 						_subNbhSharedAreaSet.add(sA_phi * sA_theta);
 						
@@ -420,45 +477,6 @@ public class SphericalGrid extends PolarGrid
 					bounds_nbh_phi[0] = bounds_nbh_phi[1];
 					nbh_coord[1]++;
 				}
-				
-//				/*
-//				 * Compute number of voxels along azimuthal and polar dimension
-//				 * for this and the neighboring 'constant-radius-shell'.
-//				 */
-//				double np_cur = _resCalc[1][cc[0]][0].getNVoxel();
-//				double np_nbh = _resCalc[1][cc[0] + dr][0].getNVoxel();
-//				double nt_cur= _resCalc[2][cc[0]][cc[1]].getNVoxel();
-//				double nt_nbh;
-//				/*
-//				 * Compute the neighbor nVoxel to current nVoxel ratio 
-//				 * for the polar dimension.
-//				 */
-//				double drt;
-//				double drp = np_nbh / np_cur;
-//				/*
-//				 * Loop through all neighbors along the polar dimension.
-//				 * Starting from the current polar angle coordinate times the 
-//				 * nVoxel ratio and ending at the next polar angle coordinate
-//				 * times the nVoxel ratio.
-//				 */
-//				for (int phi = (int) (cc[1]*drp);  phi < (cc[1]+1)*drp; phi++ )
-//				{
-//					nt_nbh=_resCalc[2][cc[0] + dr][phi].getNVoxel();
-//					/*
-//					 * Compute the neighbor nVoxel to current nVoxel ratio 
-//					 * for the azimuthal dimension.
-//					 */
-//					drt = nt_nbh / nt_cur;
-//					//System.out.println(drt+" "+nt_nbh+" "+nt_cur);
-//					/*
-//					 * Loop through all neighbors along the azimuthal dimension.
-//					 */
-//					for ( int theta = (int) (cc[2]*drt); 
-//											theta < (cc[2]+1)*drt; theta++ )
-//					{
-//						_subNbhSet.add( new int[]{cc[0]+dr, phi, theta} );
-//					}
-//				}
 			}
 			/*
 			* only change r coordinate if outside the grid along radial dimension.
@@ -468,16 +486,17 @@ public class SphericalGrid extends PolarGrid
 		/*
 		 * Moving along polar dimension.
 		 */
-		else if ( _nbhIdx < 2 )
+		else if ( this._nbhIdx < 2 )
 		{ 
 			/*
 			 * change in phi (-1 or 1)
 			 */
-			int dphi = NBH_DIRECS[_nbhIdx][2];
+			int dPhi = NBH_DIRECS[this._nbhIdx][2];
 			int[] nbh_coord = new int[3];
-			nbh_coord[1] = cc[1] + dphi;
+			nbh_coord[1] = cc[1] + dPhi;
 //			System.out.println(dp);
-			if (isOutside(new int[]{cc[0],nbh_coord[1],-1},1)==null){
+			if ( isOutside(new int[]{cc[0],nbh_coord[1],-1}) == null )
+			{
 				nbh_coord[0] = cc[0] + NBH_DIRECS[_nbhIdx][0];
 				double[] bounds = new double[2];
 				double[] bounds_nbh = new double[2];
@@ -521,7 +540,8 @@ public class SphericalGrid extends PolarGrid
 						0, 
 						bounds_nbh);
 				
-				while(bounds_nbh[0] < bounds[1]){	
+				while(bounds_nbh[0] < bounds[1])
+				{	
 					/*
 					 * next neighbor in theta 
 					 */
@@ -534,7 +554,7 @@ public class SphericalGrid extends PolarGrid
 					
 					double len_nbh = getArcLengthTheta(nbh_coord);
 					
-					double sA = getSharedArea(dphi,
+					double sA = getSharedArea(dPhi,
 							len_cur,
 							bounds,
 							bounds_nbh,
@@ -545,31 +565,12 @@ public class SphericalGrid extends PolarGrid
 					bounds_nbh[0] = bounds_nbh[1];
 					nbh_coord[2]++;
 				}
-				
-//				/*
-//				 * compute number of voxels (along azimuthal dimension) for this 
-//				 * and the neighboring row in the matrix with index cc[0].
-//				 */
-//				double nt_cur=_resCalc[2][cc[0]][cc[1]].getNVoxel();
-//				double nt_nbh=_resCalc[2][cc[0]][cc[1] + dphi].getNVoxel();
-//				/*
-//				 * compute the neighbor row length to current row length ratio 
-//				 * for the azimuthal dimension.
-//				 */
-//				double drt=nt_nbh/nt_cur;
-////				System.out.println(drt+" "+nt_nbh+" "+nt_cur);
-//				/*
-//				 * Loop through all neighbors along the azimuthal dimension.
-//				 */
-//				for (int t=(int)(cc[2]*drt);  t<(cc[2]+1)*drt; t++){
-//					_subNbhSet.add(new int[]{cc[0],cc[1]+dphi,t});
-//				}
 			}
 			/*
 			* only change p coordinate if outside the grid along polar dimension.
 			*/
 			else
-				this._subNbhSet.add(new int[]{cc[0],cc[1]+dphi,cc[2]});
+				this._subNbhSet.add(new int[]{cc[0],cc[1]+dPhi,cc[2]});
 		}
 		/*
 		 * Add the relative position to the current coordinate if moving along
@@ -582,148 +583,6 @@ public class SphericalGrid extends PolarGrid
 									  		cc[2] + NBH_DIRECS[_nbhIdx][1] });
 		}
 	}
-
-	@Override
-	public void calcMinVoxVoxResSq() {
-		// TODO Auto-generated method stub
-		System.err.println(
-				"tried to call unimplemented method calcMinVoxVoxResSq()");
-	}
-
-	@Override
-	public int[] cyclicTransform(int[] coord) {
-		BoundarySide bs = isOutside(coord,0);
-		if (bs==BoundarySide.RMAX)
-			coord[0] = coord[0]%(_resCalc[0][0][0].getNVoxel()-1);
-		if (bs==BoundarySide.RMIN)
-			coord[0] = _resCalc[0][0][0].getNVoxel()+coord[0];
-		
-		bs = isOutside(coord,1);
-		if (bs!=null){
-			int np=_resCalc[2][coord[0]][0].getNVoxel();;
-			switch (bs){
-			case PHIMAX: coord[1] = coord[1]%(np-1); break;
-			case PHIMIN: coord[1] = np+coord[2]; break;
-			case INTERNAL:
-				coord[1] = coord[1]%np; 
-				if (coord[1] < 0)	coord[1] += np;
-				break;
-			default: throw new RuntimeException("unknown boundary side"+bs);
-			}
-		}
-		
-		bs = isOutside(coord,2);
-		if (bs!=null){
-			int nt=_resCalc[2][coord[0]][coord[1]].getNVoxel();
-			switch (bs){
-			case THETAMAX: coord[2] = coord[2]%(nt-1); break;
-			case THETAMIN: coord[2] = nt+coord[2]; break;
-			case INTERNAL:
-				coord[2] = coord[2]%nt; 
-				if (coord[2] < 0) coord[2] += nt;
-				break;
-			default: throw new RuntimeException("unknown boundary side"+bs);
-			}
-		}
-		return coord;
-	}
-
-	@Override
-	public double getVoxelVolume(int[] coord) {
-		// mathematica: Integrate[r^2 sin p,{p,p1,p2},{t,t1,t2},{r,r1,r2}] 
-		double[] loc1=getVoxelOrigin(coord);
-		double[] loc2=getLocation(coord,VOXEL_All_ONE_HELPER);
-
-		return ((loc1[0]*loc1[0]*loc1[0]-loc2[0]*loc2[0]*loc2[0])
-					* (loc1[1]-loc2[1])
-					* (Math.cos(loc1[2])-Math.cos(loc2[2]))
-				)/3;
-	}
-	
-	@Override
-	public boolean[] getSignificantAxes()
-	{
-		boolean[] out = new boolean[3];
-		out[0] = (_resCalc[0][0][0].getNVoxel() > 1 );  
-		out[1] = _radSize[1] > 0;
-		out[2] = _radSize[2] > 0;
-		return out;
-	}
-
-	@Override
-	public int numSignificantAxes()
-	{
-		int out = 0;
-		out += (_resCalc[0][0][0].getNVoxel() > 1 ) ? 1 : 0;
-		out += _radSize[1] > 0 ? 1 : 0;
-		out += _radSize[2] > 0 ? 1 : 0;
-		return out;
-	}
-
-	@Override
-	public double getNbhSharedSurfaceArea() {
-		// TODO Auto-generated method stub
-		System.err.println(
-				"tried to call unimplemented method getNbhSharedSurfaceArea()");
-		return 1;
-	}
-
-	@Override
-	public double getCurrentNbhResSq() {
-		// TODO Auto-generated method stub
-		System.err.println(
-				"tried to call unimplemented method getCurrentNbhResSq()");
-		return 1;
-	}
-
-	@Override
-	protected BoundarySide isOutside(int[] coord, int dim) {
-		switch (dim) {
-		case 0:
-			if ( coord[0] < 0 )
-				return BoundarySide.RMIN;
-			if ( coord[0] >= _resCalc[0][0][0].getNVoxel() )
-				return BoundarySide.RMAX;
-			break;
-		case 1:
-			if (isOutside(coord,0)!=null)  
-				return null;
-			int np=_resCalc[1][coord[0]][0].getNVoxel();
-			if ( coord[1] < 0 )
-				return _radSize[2]==Math.PI ? BoundarySide.INTERNAL : BoundarySide.PHIMAX;
-			if ( coord[1] >= np )
-				return _radSize[2]==Math.PI ? BoundarySide.INTERNAL : BoundarySide.PHIMIN;
-			break;
-		case 2:
-			if (isOutside(coord,0)!=null || isOutside(coord,1)!=null)  
-				return null;
-			int nt=_resCalc[2][coord[0]][coord[1]].getNVoxel();
-			if ( coord[2] < 0 )
-				return _radSize[1]==2*Math.PI ? BoundarySide.INTERNAL : BoundarySide.THETAMAX;
-			if ( coord[2] >= nt)
-				return _radSize[1]==2*Math.PI ? BoundarySide.INTERNAL : BoundarySide.THETAMIN;
-			break;
-			default: throw new IllegalArgumentException("dim must be > 0 and < 3");
-		}
-		return null;
-	}
-	
-//	/**
-//	 * \brief Computes the number of columns in matrix i, row j for resolution 1.
-//	 * 
-//	 * This is the total length if transformed to a cartesian coordinate system.
-//	 * 
-//	 * @param i - matrix index
-//	 * @param j - row index
-//	 * @return - the number of elements in row j
-//	 */
-//	private int nCols(int i, int j){
-//
-////		double res = _resCalc[1][i][0].getCumResSum(s(i))/s(i);
-////		double p_scale=(Math.PI/2)/(s(i)-0.5) * res;
-////		double nt=_ires[1]+(s(i)-1)*_ires[1]*Math.sin(j*p_scale)*res;
-////		return (int)Math.round(nt);
-//	}
 	
 	/*************************************************************************
 	 * GRID GETTER
