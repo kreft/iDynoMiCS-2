@@ -1,13 +1,11 @@
 package spatialRegistry;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
- * 
+ * \brief TODO
  * 
  * @param <T>
- * 
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */

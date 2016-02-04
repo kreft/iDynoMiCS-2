@@ -78,20 +78,19 @@ public class SolveDiffusionTransient extends ProcessManager
 				for ( String soluteName : _soluteNames )
 				{
 					sg = variables.get(soluteName);
-					if ( ! sg.hasArray(ArrayType.PRODUCTIONRATE) )
-						sg.newArray(ArrayType.PRODUCTIONRATE);
-					if ( ! sg.hasArray(ArrayType.DIFFUSIVITY) )
-						sg.newArray(ArrayType.DIFFUSIVITY);
-					sg.setAllTo(ArrayType.DIFFUSIVITY,
+					/*
+					 * Reset the production rate and diffusivity arrays,
+					 * creating them if they do not already exist.
+					 * 
+					 * TODO use a diffusion setter
+					 */
+					sg.newArray(ArrayType.PRODUCTIONRATE);
+					sg.newArray(ArrayType.DIFFUSIVITY, 
 												_diffusivity.get(soluteName));
 					/*
-					 * TODO This currently sets everything to domain, but we
-					 * want only those regions in the biofilm and boundary
-					 * layer.
+					 * TODO use a DomainSetter
 					 */
-					if ( ! sg.hasArray(ArrayType.DOMAIN) )
-						sg.newArray(ArrayType.DOMAIN);
-					sg.setAllTo(ArrayType.DOMAIN, 1.0);
+					sg.newArray(ArrayType.DOMAIN, 1.0);
 				}
 			}
 			

@@ -2,6 +2,7 @@ package grid;
 
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.UniformResolution;
+import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -74,6 +75,7 @@ public class SphericalGrid extends PolarGrid
 		/*
 		 * Set up sphere-specific members
 		 */
+		
 		this._radSize[2] = Math.toRadians(totalSize[2]%181);
 		this._ires[2] = PolarArray.ires(this._radSize[2]); 
 		/*
@@ -122,14 +124,6 @@ public class SphericalGrid extends PolarGrid
 		this(totalSize, Vector.vector(3, res));
 	}
 	
-	/**
-	 * Constructs a Grid with lengths (1,90,90) -- one grid cell
-	 */
-	public SphericalGrid()
-	{
-		this(new double[]{1, 90, 90}, 1.0);
-	}
-	
 	@Override
 	public void newArray(ArrayType type, double initialValues)
 	{
@@ -138,7 +132,7 @@ public class SphericalGrid extends PolarGrid
 		 * make it.
 		 */
 		if ( this._array.containsKey(type) )
-			PolarArray.setAllTo(this._array.get(type), initialValues);
+			Array.setAll(this._array.get(type), initialValues);
 		else
 		{
 			this._array.put(type,
@@ -164,9 +158,11 @@ public class SphericalGrid extends PolarGrid
 	 */
 	private double getArcLengthTheta(int[] coord)
 	{
+		// TODO surely we can just
+		// return resCalc.getResolution(coord[2]); ?
 		ResCalc resCalc = this._resCalc[2][coord[0]][coord[1]];
 		return resCalc.getResolution(coord[2])
-				* this._radSize[1] / resCalc.getTotalLength();
+				* this.getTotalLength(1) / resCalc.getTotalLength();
 	}
 	
 	/**
@@ -183,8 +179,9 @@ public class SphericalGrid extends PolarGrid
 	private double getArcLengthPhi(int[] coord)
 	{
 		ResCalc resCalc = this._resCalc[1][coord[0]][0];
+		// TODO surely we can just return resCalc.getResolution(coord[1])?
 		return resCalc.getResolution(coord[1])
-				* this._radSize[2] / resCalc.getTotalLength();
+				* this.getTotalLength(2) / resCalc.getTotalLength();
 	}
 	
 	@Override
@@ -204,7 +201,7 @@ public class SphericalGrid extends PolarGrid
 		 */
 		polarLoc2Coord(1,
 				loc[1],
-				this._radSize[1],
+				this.getTotalLength(1),
 				this._resCalc[1][coord[0]][0],
 				coord,
 				inside);
@@ -213,7 +210,7 @@ public class SphericalGrid extends PolarGrid
 		 */
 		polarLoc2Coord(2,
 				loc[2],
-				this._radSize[2],
+				this.getTotalLength(2),
 				this._resCalc[2][coord[0]][coord[1]],
 				coord, 
 				inside);
@@ -237,7 +234,7 @@ public class SphericalGrid extends PolarGrid
 		 */
 		polarCoord2Loc(1,
 				coord[1],
-				this._radSize[1],
+				this.getTotalLength(1),
 				this._resCalc[1][coord[0]][0],
 				inside[1],
 				loc);
@@ -246,7 +243,7 @@ public class SphericalGrid extends PolarGrid
 		 */
 		polarCoord2Loc(2,
 				coord[2],
-				this._radSize[2],
+				this.getTotalLength(2),
 				this._resCalc[2][coord[0]][coord[1]],
 				inside[2],
 				loc);
@@ -282,8 +279,8 @@ public class SphericalGrid extends PolarGrid
 	{
 		boolean[] out = new boolean[3];
 		out[0] = ( this._resCalc[0][0][0].getNVoxel() > 1 );  
-		out[1] = ( this._radSize[1] > 0.0 );
-		out[2] = ( this._radSize[2] > 0.0 );
+		out[1] = ( this.getTotalLength(1) > 0.0 );
+		out[2] = ( this.getTotalLength(2) > 0.0 );
 		return out;
 	}
 
@@ -292,8 +289,8 @@ public class SphericalGrid extends PolarGrid
 	{
 		int out = 0;
 		out += (this._resCalc[0][0][0].getNVoxel() > 1 ) ? 1 : 0;
-		out += (this._radSize[1] > 0) ? 1 : 0;
-		out += (this._radSize[2] > 0) ? 1 : 0;
+		out += (this.getTotalLength(1) > 0) ? 1 : 0;
+		out += (this.getTotalLength(2) > 0) ? 1 : 0;
 		return out;
 	}
 
@@ -305,15 +302,6 @@ public class SphericalGrid extends PolarGrid
 				"tried to call unimplemented method getNbhSharedSurfaceArea()");
 		return 1;
 	}
-
-	@Override
-	public double getCurrentNbhResSq()
-	{
-		// TODO Auto-generated method stub
-		System.err.println(
-				"tried to call unimplemented method getCurrentNbhResSq()");
-		return 1;
-	}
 	
 	@Override
 	public int[] getNVoxel(int[] coords)
@@ -323,11 +311,32 @@ public class SphericalGrid extends PolarGrid
 						 this._resCalc[2][coords[0]][coords[1]].getNVoxel()};
 	}
 	
+	protected double getTotalLength(int axis)
+	{
+		return this._resCalc[axis][0][0].getTotalLength();
+	}
+	
+	@Override
+	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	{
+		switch ( axis )
+		{
+			/* r */
+			case 0: return this._resCalc[0][0][0];
+			/* phi */
+			case 1: return this._resCalc[1][coord[0]][0];
+			/* theta */
+			case 2: return this._resCalc[2][coord[0]][coord[1]];
+			// TODO throw an exception?
+			default: return null;
+		}
+	}
+	
 	/*************************************************************************
 	 * 
 	 ************************************************************************/
 	
-	@Override
+	// @Override
 	//TODO: assumes constant resolution for each r at the moment?
 	public void fillNbhSet()
 	{
@@ -359,14 +368,14 @@ public class SphericalGrid extends PolarGrid
 				 */
 				polarCoord2Loc(0, 
 						cc[1],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[1][cc[0]][0], 
 						0, 
 						bounds_phi);
 				
 				polarCoord2Loc(1, 
 						cc[1],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[1][cc[0]][0], 
 						1, 
 						bounds_phi);
@@ -376,14 +385,14 @@ public class SphericalGrid extends PolarGrid
 				 */
 				polarCoord2Loc(0, 
 						cc[2],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[2][cc[0]][cc[1]], 
 						0, 
 						bounds_theta);
 				
 				polarCoord2Loc(1, 
 						cc[2],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[2][cc[0]][cc[1]], 
 						1, 
 						bounds_theta);
@@ -393,7 +402,7 @@ public class SphericalGrid extends PolarGrid
 				 */
 				polarLoc2Coord(1, 
 						bounds_phi[0],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[1][nbh_coord[0]][0], 
 						nbh_coord, 
 						null);
@@ -403,7 +412,7 @@ public class SphericalGrid extends PolarGrid
 				 */
 				polarCoord2Loc(0, 
 						nbh_coord[1],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[1][nbh_coord[0]][0], 
 						0, 
 						bounds_nbh_phi);
@@ -414,7 +423,7 @@ public class SphericalGrid extends PolarGrid
 					 */
 					polarCoord2Loc(1, 
 							nbh_coord[1],
-							_radSize[1],
+							this.getTotalLength(1),
 							_resCalc[1][nbh_coord[0]][0], 
 							1, 
 							bounds_nbh_phi);
@@ -432,7 +441,7 @@ public class SphericalGrid extends PolarGrid
 					 */
 					polarLoc2Coord(2, 
 							bounds_theta[0],
-							_radSize[1],
+							this.getTotalLength(1),
 							_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
 							nbh_coord, 
 							null);
@@ -442,7 +451,7 @@ public class SphericalGrid extends PolarGrid
 					 */
 					polarCoord2Loc(0, 
 							nbh_coord[2],
-							_radSize[1],
+							this.getTotalLength(1),
 							_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
 							0, 
 							bounds_nbh_theta);
@@ -454,7 +463,7 @@ public class SphericalGrid extends PolarGrid
 						 */
 						polarCoord2Loc(1, 
 								nbh_coord[2],
-								_radSize[1],
+								this.getTotalLength(1),
 								_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
 								1, 
 								bounds_nbh_theta);
@@ -508,14 +517,14 @@ public class SphericalGrid extends PolarGrid
 				 */
 				polarCoord2Loc(0, 
 						cc[2],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[2][cc[0]][cc[1]], 
 						0, 
 						bounds);
 				
 				polarCoord2Loc(1, 
 						cc[2],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[2][cc[0]][cc[1]], 
 						1, 
 						bounds);
@@ -525,7 +534,7 @@ public class SphericalGrid extends PolarGrid
 				 */
 				polarLoc2Coord(2, 
 						bounds[0],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
 						nbh_coord, 
 						null);
@@ -535,7 +544,7 @@ public class SphericalGrid extends PolarGrid
 				 */
 				polarCoord2Loc(0, 
 						nbh_coord[2],
-						_radSize[1],
+						this.getTotalLength(1),
 						_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
 						0, 
 						bounds_nbh);
@@ -547,7 +556,7 @@ public class SphericalGrid extends PolarGrid
 					 */
 					polarCoord2Loc(1, 
 							nbh_coord[2],
-							_radSize[1],
+							this.getTotalLength(1),
 							_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
 							1, 
 							bounds_nbh);

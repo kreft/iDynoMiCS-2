@@ -92,12 +92,16 @@ public abstract class SpatialGrid
 									= new HashMap<ArrayType, double[][][]>();
 	
 	/**
-	 * TODO
+	 * Array of the names of each dimension. For example, a Cartesian grid has
+	 * (X, Y, Z).
 	 */
 	protected DimName[] _dimName = new DimName[3];
 	
 	/**
-	 * TODO
+	 * Array of the boundaries at each dimension's extremes. The three rows
+	 * correspond to the dimension names in {@link #_dimName}, and the two
+	 * elements in each row correspond to the minimum (0) and maximum (1)
+	 * extremes of each dimension.
 	 */
 	protected GridMethod[][] _dimBoundaries = new GridMethod[3][2];
 	
@@ -128,6 +132,12 @@ public abstract class SpatialGrid
 	 */
 	protected int[] _currentNeighbor;
 	
+	/**
+	 * Whether the neighbor iterator is currently valid (true) or invalid
+	 * (false).
+	 */
+	protected boolean _nbhValid;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -153,8 +163,8 @@ public abstract class SpatialGrid
 	}
 	
 	/**
-	 * \brief TODO
-	 *
+	 * \brief Calculate the smallest centre-centre distance between neighboring
+	 * voxels in this grid, and store the result in {@link #_minVoxVoxDist}.
 	 */
 	public abstract void calcMinVoxVoxResSq();
 	
@@ -163,9 +173,10 @@ public abstract class SpatialGrid
 	 ************************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the list of dimension names for this grid.
 	 * 
-	 * @return
+	 * @return Vector of dimension names that will have 3 elements.
+	 * @see #indexFor(DimName)
 	 */
 	public DimName[] getDimensionNames()
 	{
@@ -173,10 +184,12 @@ public abstract class SpatialGrid
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Find the index of the given dimension name.
 	 * 
-	 * @param dim
-	 * @return
+	 * @param dim Name of the dimension being sought.
+	 * @return {@code int} taking value of 0, 1, 2 (recognised names) or -1
+	 * (unrecognised name).
+	 * @see #getDimensionNames()
 	 */
 	public int indexFor(DimName dim)
 	{
@@ -187,24 +200,47 @@ public abstract class SpatialGrid
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Get a list of which axes are significant.
 	 * 
-	 * @return
+	 * @return {@code boolean} array of which axes are significant (true) or
+	 * insignificant (false).
+	 * @see #numSignificantAxes()
 	 */
-	public abstract boolean[] getSignificantAxes();
+	public boolean[] getSignificantAxes()
+	{
+		boolean[] out = new boolean[3];
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			out[dim] = ( this._dimBoundaries[dim][0] != null ||
+										this._dimBoundaries[dim][1] != null );
+		}
+		return out;
+	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Count how many axes are significant.
 	 * 
-	 * @return
+	 * @return Number of significant axes. Will be between 0 and 3 (inclusive).
+	 * @see #getSignificantAxes()
 	 */
-	public abstract int numSignificantAxes();
+	public int numSignificantAxes()
+	{
+		int out = 0;
+		for ( int dim = 0; dim < 3; dim++ )
+			if ( this._dimBoundaries[dim][0] != null ||
+									this._dimBoundaries[dim][1] != null )
+			{
+				out++;
+			}
+		return out;
+	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Whether this grid has an array of the type specified.
 	 * 
-	 * @param type
-	 * @return
+	 * @param type Type of array sought (e.g. CONCN).
+	 * @return {@code true} if this array is already initialised in this grid,
+	 * {@code false} otherwise.
 	 */
 	public boolean hasArray(ArrayType type)
 	{
@@ -278,6 +314,15 @@ public abstract class SpatialGrid
 	 */
 	public abstract int[] getNVoxel(int[] coords);
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param coord
+	 * @param axis
+	 * @return
+	 */
+	protected abstract ResCalc getResolutionCalculator(int[] coord, int axis);
+	
 	/*************************************************************************
 	 * BOUNDARIES
 	 ************************************************************************/
@@ -319,12 +364,18 @@ public abstract class SpatialGrid
 	{
 		int[] nVoxel = this.getNVoxel(coord);
 		GridMethod out = null;
+		int c, n;
+		/*
+		 * For each dimension, check if the coordinate lies outside the grid.
+		 * If the boundary there is not null, return it.
+		 */
 		for ( int dim = 0; dim < 3; dim++ )
 		{
-			if ( coord[dim] < 0 && (out = this._dimBoundaries[dim][0]) != null)
+			c = coord[dim];
+			if ( c < 0 && (out = this._dimBoundaries[dim][0]) != null )
 				break;
-			if ( coord[dim] >= nVoxel[dim]  && 
-								(out = this._dimBoundaries[dim][1]) != null)
+			n = nVoxel[dim];
+			if ( c >= n  && (out = this._dimBoundaries[dim][1]) != null )
 				break;
 		}
 		return out;
@@ -344,10 +395,22 @@ public abstract class SpatialGrid
 	public int[] cyclicTransform(int[] coord)
 	{
 		int[] transformed = new int[3];
-		int[] nVoxel = this.getNVoxel(coord);
 		for ( int dim = 0; dim < 3; dim++ )
-			transformed[dim] = Math.floorMod(coord[dim], nVoxel[dim]);
+			this.cyclicTransfom(transformed, coord, dim);
 		return transformed;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param coord
+	 * @param dim
+	 */
+	protected void cyclicTransfom(int[] destination, int[] coord, int dim)
+	{
+		int nVoxel = this.getResolutionCalculator(coord, dim).getNVoxel();
+		destination[dim] = Math.floorMod(coord[dim], nVoxel);
 	}
 	
 	/*************************************************************************
@@ -636,18 +699,62 @@ public abstract class SpatialGrid
 	 */
 	public abstract int[] resetNbhIterator();
 	
-	public abstract boolean isNbhIteratorValid();
+	/**
+	 * \brief Check if the neighbor iterator takes a valid coordinate.
+	 * 
+	 * @return {@code boolean true} if it is valid, {@code false} if it is not.
+	 */
+	public boolean isNbhIteratorValid()
+	{
+		return this._nbhValid;
+	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public int[] neighborCurrent()
 	{
 		return this._currentNeighbor;
 	}
 	
+	/**
+	 * \brief Try to increase the neighbor iterator from the minus-side of the
+	 * current coordinate to the plus-side.
+	 * 
+	 * <p>For use on linear dimensions (X, Y, Z, R) and not on angular ones
+	 * (THETA, PHI).</p>
+	 * 
+	 * @param dim Index of the dimension to move in.
+	 * @return Whether the increase was successful (true) or a failure (false).
+	 */
+	protected boolean nbhJumpOverCurrent(int dim)
+	{
+		if ( this._currentNeighbor[dim] < this._currentCoord[dim] )
+		{
+			ResCalc rC = this.getResolutionCalculator(
+												   this._currentNeighbor, dim);
+			if ( this._currentCoord[dim] < rC.getNVoxel() - 1 || 
+										this._dimBoundaries[dim][1] != null )
+			{
+				this._currentNeighbor[dim] = this._currentCoord[dim] + 1;
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public abstract int[] nbhIteratorNext();
 	
 	public abstract double getNbhSharedSurfaceArea();
 	
-	public abstract double getCurrentNbhResSq();
+	//public abstract double getCurrentNbhResSq();
 	
 	public GridMethod nbhIteratorIsOutside()
 	{
