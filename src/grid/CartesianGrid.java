@@ -2,13 +2,9 @@ package grid;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.function.DoubleFunction;
 
-import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import grid.ResolutionCalculator.ResCalc;
-import grid.SpatialGrid.ArrayType;
 import linearAlgebra.*;
 import shape.ShapeConventions.DimName;
 
@@ -52,7 +48,7 @@ public class CartesianGrid extends SpatialGrid
 	/**
 	 * TODO
 	 */
-	protected int _nbhDirection;
+	protected DimName _nbhDirection;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -62,10 +58,10 @@ public class CartesianGrid extends SpatialGrid
 	 * \brief Construct a CartesianGrid from a 3-vector of total dimension
 	 * sizes and corresponding methods for calculating voxel resolutions. 
 	 * 
-	 * @param totalSize
-	 * @param resCalc
+	 * @param totalSize 3-vector of total side lengths of each dimension.
+	 * @param resCalc 
 	 */
-	public CartesianGrid(double[] totalSize, ResCalc[] resCalc)
+	public CartesianGrid(ResCalc[] resCalc)
 	{
 		/* Dimension names for a CartesianGrid. */
 		this._dimName[0] = DimName.X;
@@ -73,25 +69,32 @@ public class CartesianGrid extends SpatialGrid
 		this._dimName[2] = DimName.Z;
 		/* Set up the resolutions. */
 		ArrayList<Double> resolutions = new ArrayList<Double>();
-		double total;
-		double temp;
+		double remaining, temp;
 		for ( int dim = 0; dim < 3; dim++ )
 		{
 			resolutions.clear();
-			total = 0.0;
-			while ( total < totalSize[dim] )
+			remaining = resCalc[dim].getTotalLength();
+			while ( remaining > 0.0 )
 			{
 				temp = resCalc[dim].getResolution(resolutions.size());
-				if ( (total + temp) > totalSize[dim] )
-					temp = totalSize[dim] - total;
-				total += temp;
+				if ( (remaining - temp) < 0.0 )
+				{
+					temp = remaining;
+					remaining = 0.0;
+				}
+				else
+					remaining -= temp;
 				resolutions.add(temp);
 			}
 			this._res[dim] = new double[resolutions.size()];
 			this._nVoxel[dim] = resCalc[dim].getNVoxel();
 			for ( int i = 0; i < resolutions.size(); i++ )
-				this._res[dim][i] = resolutions.get(i);
+				this._res[dim][i] = (double) resolutions.get(i);
 		}
+		/* 
+		 * Finally, pre-calculate the smallest shared surface area between
+		 * neighboring voxels.
+		 */
 		this.calcMinVoxelVoxelSurfaceArea();
 	}
 	
@@ -114,7 +117,7 @@ public class CartesianGrid extends SpatialGrid
 			resCalc[i] = res.new UniformResolution();
 			resCalc[i].init(resolution, totalSize[i]);
 		}
-		new CartesianGrid(totalSize, resCalc);
+		new CartesianGrid(resCalc);
 	}
 
 	public CartesianGrid()
@@ -210,42 +213,6 @@ public class CartesianGrid extends SpatialGrid
 			out *= this._res[dim][coord[dim]];
 		return out;
 	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public int[] getNumVoxels()
-	{
-		return Vector.copy(this._nVoxel);
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public boolean[] getSignificantAxes()
-	{
-		boolean[] out = new boolean[3];
-		for ( int axis = 0; axis < 3; axis++ )
-			out[axis] = ( this._nVoxel[axis] > 1 );
-		return out;
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public int numSignificantAxes()
-	{
-		int out = 0;
-		for ( int axis = 0; axis < 3; axis++ )
-			out += ( this._nVoxel[axis] > 1 ) ? 1 : 0;
-		return out;
-	}
 	
 	/*************************************************************************
 	 * SIMPLE SETTERS
@@ -258,7 +225,7 @@ public class CartesianGrid extends SpatialGrid
 	@Override
 	public int[] getCoords(double[] location)
 	{
-		// TODO safety if location is outside?
+		// TODO use ResolutionCalculator getVoxelIndex once we use it here.
 		int[] coord = new int[3];
 		double counter;
 		int maxDim = Math.min(3, location.length);
@@ -278,6 +245,10 @@ public class CartesianGrid extends SpatialGrid
 		return coord;
 	}
 
+	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	{
+		return this._resCalc[axis];
+	}
 	
 	/*************************************************************************
 	 * VOXEL GETTERS & SETTERS
@@ -321,13 +292,12 @@ public class CartesianGrid extends SpatialGrid
 		if ( this._currentNeighbor == null )
 			this._currentNeighbor = Vector.copy(this._currentCoord);
 		else
-			for ( int i = 0; i < 3; i++ )
-				this._currentNeighbor[i] = this._currentCoord[i];
+			Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		for ( int axis = 0; axis < 3; axis++ )
-			if ( this._nVoxel[axis] > 1 )
+			if ( this._nVoxel[axis] > 1 || this._dimBoundaries[axis][0] != null )
 			{
 				this._currentNeighbor[axis]--;
-				this._nbhDirection = axis;
+				this._nbhDirection = this._dimName[axis];
 				return this._currentNeighbor;
 			}
 		return null;
@@ -373,46 +343,36 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public int[] nbhIteratorNext()
 	{
-		if ( this._nbhDirection == 2 || 
-				this._currentNeighbor[this._nbhDirection] < 
-									this._currentCoord[this._nbhDirection] )
+		int nbhDir = this.indexFor(this._nbhDirection);
+		if ( this._nbhDirection == DimName.Z || 
+				this._currentNeighbor[nbhDir] < this._currentCoord[nbhDir] )
 		{
-			this._currentNeighbor[this._nbhDirection] += 2;
+			this._currentNeighbor[nbhDir] += 2;
 		}
 		else
 		{
-			this._currentNeighbor[this._nbhDirection] = 
-									this._currentCoord[this._nbhDirection];
-			this._nbhDirection++;
-			this._currentNeighbor[this._nbhDirection] =
-								this._currentCoord[this._nbhDirection] - 1;
+			this._currentNeighbor[nbhDir] = this._currentCoord[nbhDir];
+			nbhDir++;
+			this._nbhDirection = this._dimName[nbhDir];
+			this._currentNeighbor[nbhDir] = this._currentCoord[nbhDir] - 1;
 		}
 		return this._currentNeighbor;
 	}
 	
-	/**
-	 * 
-	 */
+	@Override
 	public double getNbhSharedSurfaceArea()
 	{
-		double out = 1.0;
-		for ( int axis = 0; axis < 3; axis++ )
+		int absDiff = 0, cumulativeAbsDiff = 0;
+		double area = 1.0;
+		for ( int i = 0; i < 3; i++ )
 		{
-			if ( axis == this._nbhDirection )
-				continue;
-			out *= this._res[axis][this._currentCoord[axis]];
+			absDiff = Math.abs(this._currentCoord[i]-this._currentNeighbor[i]);
+			if ( absDiff == 0 )
+				area *= this._res[i][this._currentCoord[i]];
+			else
+				cumulativeAbsDiff += absDiff;
 		}
-		return out;
-	}
-	
-	public double getCurrentNbhResSq()
-	{
-		double out = this._res[this._nbhDirection]
-								[this._currentCoord[this._nbhDirection]];
-		out += this._res[this._nbhDirection]
-						[this._currentNeighbor[this._nbhDirection]];
-		out *= 0.5;
-		return Math.pow(out, 2.0);
+		return ( cumulativeAbsDiff == 1 ) ? area : 0.0;
 	}
 	
 	@Override
@@ -493,7 +453,7 @@ public class CartesianGrid extends SpatialGrid
 					resCalc[dim] = r.new UniformResolution();
 					resCalc[dim].init(resolution, totalLength[dim]);
 				};
-				return new CartesianGrid(totalLength,resCalc);
+				return new CartesianGrid(resCalc);
 			}
 		};
 	}

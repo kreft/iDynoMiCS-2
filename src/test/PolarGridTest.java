@@ -19,7 +19,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import boundary.Boundary;
 import boundary.BoundaryFixed;
-import boundary.BoundaryZeroFlux;
 import grid.CylindricalGrid;
 import grid.PolarGrid;
 import grid.SpatialGrid;

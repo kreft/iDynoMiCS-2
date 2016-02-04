@@ -1,10 +1,7 @@
 package spatialRegistry;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import boundary.PeriodicAgentBoundary;
 
 /**
  * A dummy spatial registry for dimensionless compartments.

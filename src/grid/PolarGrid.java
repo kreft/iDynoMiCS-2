@@ -42,9 +42,10 @@ public abstract class PolarGrid extends SpatialGrid
 	 */
 	protected ArrayList<int[]> _subNbhSet;	
 	protected ArrayList<Double> _subNbhSharedAreaSet;	
-	
+	/**
+	 * 
+	 */
 	protected double _currentNbhSharedSufaceArea;
-	
 	/**
 	 * Total size in each dimension
 	 */
@@ -130,7 +131,7 @@ public abstract class PolarGrid extends SpatialGrid
 	 * Called when the current neighborhood index changed, 
 	 * which means that <b>NBH_DIREC</b> changed, too.
 	 */
-	public abstract void fillNbhSet();
+	//public abstract void fillNbhSet();
 	
 	@Override
 	public int[] resetNbhIterator()
@@ -146,6 +147,60 @@ public abstract class PolarGrid extends SpatialGrid
 		if (_subNbhIdx >= _subNbhSet.size()){
 			return _nbhIdx < NBH_DIRECS.length - 1;
 		}
+		return true;
+	}
+	
+	protected boolean increaseNbhByOnePolar(int dim)
+	{
+		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, dim);
+		/*
+		 * If increasing would push us over a null boundary, return false.
+		 */
+		if ( this._currentNeighbor[dim] == rC.getNVoxel() - 1 )
+			if ( this._dimBoundaries[dim][1] == null )
+				return false;
+		/*
+		 * If increasing would mean we no longer overlap, return false.
+		 */
+		double nbhMax = rC.getCumulativeResolution(this._currentNeighbor[dim]);
+		rC = this.getResolutionCalculator(this._currentCoord, dim);
+		double curMax = rC.getCumulativeResolution(this._currentCoord[dim]);
+		if ( nbhMax >= curMax )
+			return false;
+		/*
+		 * Otherwise, increase and return true.
+		 */
+		this._currentNeighbor[dim]++;
+		return true;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dim
+	 * @param shellIndex 
+	 * @return
+	 */
+	protected boolean setNbhFirstInNewShell(int dim, int shellIndex)
+	{
+		ResCalc rC = this.getResolutionCalculator(this._currentCoord, dim);
+		Vector.copyTo(this._currentNeighbor, this._currentNeighbor);
+		this._currentNeighbor[0] = shellIndex;
+		/*
+		 * First check that the new shell is inside the grid. If we're on a
+		 * defined boundary, the angular coordinate is irrelevant.
+		 */
+		if ( shellIndex < 0 )
+			return ( this._dimBoundaries[dim][0] != null );
+		if ( shellIndex < rC.getNVoxel() )
+			return ( this._dimBoundaries[dim][1] != null);
+		/*
+		 * We're on an intermediate shell, so find the voxel which has the
+		 * current coordinate's minimum angle inside it.
+		 */
+		double angle = rC.getCumulativeResolution(this._currentCoord[dim] - 1);
+		rC = this.getResolutionCalculator(this._currentNeighbor, dim);
+		this._currentNeighbor[dim] = rC.getVoxelIndex(angle);
 		return true;
 	}
 	
@@ -182,53 +237,6 @@ public abstract class PolarGrid extends SpatialGrid
 	public double getNbhSharedSurfaceArea()
 	{
 		return _currentNbhSharedSufaceArea;
-	}
-	
-	/**
-	 * \brief Computes isOutside for all 3 dimensions. 
-	 * 
-	 * Does return minimum OR maximum, not both. 
-	 * Decision for min or max if the coord is both min and max 
-	 * depends on the actual implementation of isOutside in the sub class.
-	 * 
-	 * @param coord - an array coordinate.
-	 * @param out - Array of length 3 to write BoundarySides into, can be null.
-	 * @return - BoundarySides at all 3 dimensions 
-	 *           (array of 3 nulls if no boundary was hit at all)
-	 */
-	protected BoundarySide[] getBoundarySides(int[]coord, BoundarySide[] out)
-	{
-		if ( out == null )
-			out = new BoundarySide[3];
-		for ( int dim=0; dim < 3; dim++ )
-			out[dim] = isOutside(coord, dim);
-		return out;
-	}
-	
-	/**
-	 * \brief Performs cyclic transform for inside boundaries.
-	 * 
-	 * @param coord - A coordinate
-	 * @return - The cyclic transformed coordinate.
-	 */
-	protected int[] transInternal(int[] coord)
-	{
-		BoundarySide[] bsa = new BoundarySide[3];
-		int nc=0, ic=0; // null counter, internal counter
-		bsa = getBoundarySides(coord, bsa);
-		for (BoundarySide bs : bsa)
-		{
-			if ( bs == null )
-				nc++;
-			if ( bs == BoundarySide.INTERNAL )
-				ic++;
-		}
-		if ( nc + ic == 3 )
-		{
-			// only null and internal -> transform
-			coord = cyclicTransform(coord);
-		}
-		return coord;
 	}
 	
 	/**
@@ -320,7 +328,7 @@ public abstract class PolarGrid extends SpatialGrid
 		double cumRes_prev = 0;
 		while (cumRes_prev < loc)
 		{
-			cumRes_prev = resCalc.getCumResSum(coord_out[axis]);
+			cumRes_prev = resCalc.getCumulativeResolution(coord_out[axis]);
 			coord_out[axis]++;
 		}
 		if ( inside_out != null ) 
@@ -348,10 +356,10 @@ public abstract class PolarGrid extends SpatialGrid
 	{
 		final double arcLength = rad_size / resCalc.getTotalLength();
 		int c = 0; 
-		double length = resCalc.getCumResSum(c) * arcLength;
+		double length = resCalc.getCumulativeResolution(c) * arcLength;
 		while (length <= loc){
 			c++;
-			length = resCalc.getCumResSum(c) * arcLength;
+			length = resCalc.getCumulativeResolution(c) * arcLength;
 //			System.out.println(length+" "+loc+" "+arcLength+" "+ resCalc.getCumResSum(c));
 		}
 		if ( inside_out != null ) 
@@ -363,20 +371,20 @@ public abstract class PolarGrid extends SpatialGrid
 	
 	/**
 	 * \brief Transforms an array coordinate on a given Cartesian axis into its 
-	 * 			corresponding location in space. 
+	 * corresponding location in space. 
 	 * 
-	 * The result is written into loc_out[axis].
+	 * <p>The result is written into loc_out[axis].</p>
 	 * 
-	 * @param coord - A coordinate in one dimension.
-	 * @param resCalc - The resolution calculator for the given dimension.
-	 * @param inside - The subcoordinate inside the grid cell.
-	 * @param axis - The axis to be operated on (index in output arrays).
-	 * @param loc_out - Output location array.
+	 * @param axis The axis to be operated on (index in output arrays).
+	 * @param coord A coordinate in one dimension.
+	 * @param resCalc The resolution calculator for the given dimension.
+	 * @param inside The subcoordinate inside the grid cell.
+	 * @param loc_out Output location vector.
 	 */
 	public static void cartCoord2Loc(int axis, int coord, ResCalc resCalc,
 								double inside, double[] loc_out)
 	{
-		loc_out[axis] = resCalc.getCumResSum(coord-1);
+		loc_out[axis] = resCalc.getCumulativeResolution(coord-1);
 		loc_out[axis] += inside * resCalc.getResolution(coord);
 	}
 	
@@ -395,7 +403,7 @@ public abstract class PolarGrid extends SpatialGrid
 	public static void polarCoord2Loc(int axis, int coord, double radSize, 
 								ResCalc resCalc, double inside, double[] loc_out)
 	{
-		loc_out[axis] = resCalc.getCumResSum(coord-1) 
+		loc_out[axis] = resCalc.getCumulativeResolution(coord-1) 
 							/ resCalc.getTotalLength() 
 							* radSize;
 		loc_out[axis] += inside * resCalc.getResolution(coord) 

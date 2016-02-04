@@ -1,145 +1,74 @@
 package linearAlgebra;
 
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleFunction;
-import java.util.function.DoubleSupplier;
-
 import grid.ResolutionCalculator.ResCalc;
-import grid.ResolutionCalculator.UniformResolution;
 
 /**
+ * \brief Utility class for PolarGrids.
+ * 
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
- *
- * Utility class for PolarGrids
  */
-public final class PolarArray {
+public final class PolarArray
+{
+	/**
+	 * \brief Used to create an array to store a CylindricalGrid.
+	 * 
+	 * @param resCalc TODO
+	 * @return An array used to store a CylindricalGrid
+	 */
+	public static double[][][] createCylinder(ResCalc[][] resCalc)
+	{
+		return createCylinder(resCalc, 0.0);
+	}
 	
 	/**
-	 * Used to create an array to store a CylindricalGrid
+	 * \brief Used to create an array to store a CylindricalGrid.
 	 * 
-	 * @param resCalc
-	 * @return - An array used to store a CylindricalGrid
+	 * @param resCalc TODO
+	 * @param val Initial value for all voxels in this array.
+	 * @return An array used to store a CylindricalGrid.
 	 */
-	public static double[][][] createCylinder(ResCalc[][] resCalc){
-		int nr, nt, nz;
+	public static double[][][] createCylinder(ResCalc[][] resCalc, double val)
+	{
+		int nr, nz;
 		nr = resCalc[0][0].getNVoxel();
 		nz = resCalc[2][0].getNVoxel();
-		
 		double[][][] a = new double[nr][][];
-		for (int i=0; i<nr; ++i){
-			nt = resCalc[1][i].getNVoxel();
-//			System.out.println(nt);
-			a[i] = new double[nt][nz];
-		}
+		for ( int i = 0; i < nr; i++ )
+			a[i] = Matrix.matrix(resCalc[1][i].getNVoxel(), nz, val);
 		return a;
 	}
 	
 	/**
-	 * Used to create an array to store a CylindricalGrid
+	 * \brief Used to create an array to store a SphericalGrid.
 	 * 
-	 * @param resCalc
-	 * @param val - initial value
-	 * @return - An array used to store a CylindricalGrid
+	 * @param resCalc TODO
+	 * @return An array used to store a SphericalGrid.
 	 */
-	public static double[][][] createCylinder(
-			ResCalc[][] resCalc, double val){
-		return setAllTo(createCylinder(resCalc), val);
+	public static double[][][] createSphere(ResCalc[][][] resCalc)
+	{
+		return createSphere(resCalc, 0.0);
 	}
 	
 	/**
-	 * Used to create an array to store a SphericalGrid
+	 * \brief Used to create an array to store a SphericalGrid.
 	 * 
-	 * @param nr - number of voxels in r direction
-	 * @param nt - number of voxels in t direction for each r
-	 * @param np - number of voxels in p direction for each r and each t
-	 * @return - An array used to store a SphericalGrid
+	 * @param resCalc TODO
+	 * @param val Initial value for all voxels in this array.
+	 * @return An array used to store a SphericalGrid.
 	 */
-	public static double[][][] createSphere(ResCalc[][][] resCalc){
-		int nr, nt, np;
-		nr = resCalc[0][0][0].getNVoxel();
-		
-		double[][][] a = new double[nr][][];
-		for (int r=0; r<nr; ++r){
-//			System.out.println(r);
-			np = resCalc[1][r][0].getNVoxel();
-			a[r] = new double[np][];
-			for (int p=0; p<np; ++p){
-//				System.out.println(np[r][t]);
-				nt = resCalc[2][r][p].getNVoxel();
-//				System.out.println(nt);
-				a[r][p] = new double[nt];		
-			}
-//			System.out.println();
+	public static double[][][] createSphere(ResCalc[][][] resCalc, double val)
+	{
+		int nR = resCalc[0][0][0].getNVoxel();
+		int nPhi;
+		double[][][] a = new double[nR][][];
+		for ( int r = 0; r < nR; r++ )
+		{
+			nPhi = resCalc[1][r][0].getNVoxel();
+			a[r] = new double[nPhi][];
+			for ( int p = 0; p < nPhi; p++ )
+				a[r][p] = Vector.vector(resCalc[2][r][p].getNVoxel(), val);
 		}
 		return a;
-	}
-	
-	/**
-	 * Used to create an array to store a SphericalGrid
-	 * 
-	 * @param nr - number of voxels in r direction
-	 * @param nt - number of voxels in t direction for each r
-	 * @param np - number of voxels in p direction for each r and each t
-	 * @param val - initial value
-	 * @return - An array used to store a SphericalGrid
-	 */
-	public static double[][][] createSphere(ResCalc[][][] resCalc, double val){
-		return setAllTo(createSphere(resCalc), val);
-	}
-	
-	/**
-	 * Used to set all grid cells to a value supplied by f
-	 * 
-	 * @param array - a PolarArray
-	 * @param f - function supplying a double value
-	 * @return - the array with all grid cells set to the value supplied by f
-	 */
-	public static double[][][] setAllTo(double[][][] array, double value)
-	{
-		for (int i=0; i<array.length; ++i){
-			double[][] b=array[i];
-			for (int j=0; j<b.length;++j){
-				double[] c=b[j];
-				for (int k=0; k<c.length;++k) {
-					c[k]= value;
-				}
-				b[j]=c;
-			}
-			array[i] = b;
-		}
-		return array;
-	}
-	
-	/**
-	 * Used to read all values in the array.
-	 * 
-	 * @param array - a PolarArray
-	 * @param f - a function consuming a double value
-	 */
-	public static void applyToAll(double[][][] array, DoubleConsumer f)
-	{
-		for ( int i = 0; i < array.length; i++ )
-			for ( int j = 0; j < array[i].length; j++ )
-				for ( int k = 0; k < array[i][j].length; k++ )
-					f.accept(array[i][j][k]);
-	}
-	
-	/**
-	 * Used to manipulate all values in the array.
-	 * 
-	 * @param array - a PolarArray
-	 * @param f - a function manipulating a double value
-	 * @return - the manipulated array
-	 */
-	public static double[][][] applyToAll(
-			double[][][] array, DoubleFunction<Double> f)
-	{
-		for ( int i = 0; i < array.length; i++ )
-			for ( int j = 0; j < array[i].length; j++ )
-				for ( int k = 0; k < array[i][j].length; k++ )
-					array[i][j][k] = f.apply(array[i][j][k]);
-		return array;
 	}
 	
 	/**
