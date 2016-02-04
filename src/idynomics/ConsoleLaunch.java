@@ -20,34 +20,49 @@ public class ConsoleLaunch {
 	
 	public static void main(String[] args) {
 		
-		System.out.print("Starting iDynoMiCS " + Idynomics.version_number + 
-				"\n");
+		System.out.print("Starting iDynoMiCS " +Idynomics.version_number+ "\n");
 		
+		/*
+		 * Acquire our protocol file
+		 */
 		if(args == null || args.length == 0 || args[0] == null)
 		{
 			@SuppressWarnings("resource")
 			Scanner user_input = new Scanner( System.in );
 			System.out.print("Enter protocol file path: ");
 			Param.protocolFile = user_input.next( );
-			System.out.print("initiating from: " + Param.protocolFile + 
-					"\n════════════════════════════════════════════════════════"
-					+ "════════════════════════\n");
-			
-			/*
-			 * This will probably done somewhere else, here now for testing
-			 */
-			Element doc = XmlLoad.loadDocument(Param.protocolFile);
-			NodeList general = doc.getElementsByTagName("general");
-			for (int i = 0; i < general.getLength(); i++) 
-			{
-				XmlLoad.loadGeneralParameters(general.item(i));
-			}
-			Feedback.set(LogLevel.valueOf(Param.outputLevel));
 		}
 		else
 		{
 			Param.protocolFile = args[0];
 		}
+		
+		/*
+		 * Report and initiate our protocol file
+		 */
+		System.out.print("initiating from: " + Param.protocolFile + 
+				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		
+		XmlLoad.xmlInit(Param.protocolFile);
+		Feedback.out(LogLevel.NORMAL, Param.simulationComment);
+		Feedback.out(LogLevel.NORMAL, "storing results in " + 
+				Param.outputLocation);
+		
+		/**
+		 * construct the full simulation from the previously loaded xmlDoc
+		 */
+		XmlLoad.constructSimulation();
+		
+		/*
+		 * Launch the simulation.
+		 */
+		Idynomics.simulator.launch();
+		
+		/*
+		 * Print the results.
+		 */
+		Idynomics.simulator.printAll();
 		
 		// We may include an extensive protocol file check here and ask for
 		// additional input if needed.

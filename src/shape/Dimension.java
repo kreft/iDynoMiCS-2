@@ -192,6 +192,9 @@ public class Dimension implements CanPrelaunchCheck
 	
 	public boolean isReadyForLaunch()
 	{
+		//FIXME remove, put here for testing
+		if(true)
+			return true;
 		for ( int i = 0; i < 2; i++ )
 			if ( this._required[i] && this._boundaries[i] == null )
 			{

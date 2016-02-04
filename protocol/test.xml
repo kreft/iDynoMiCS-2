@@ -1,7 +1,11 @@
-<simulation name="mySim" comments="this is a file for Agent testing">
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+<simulation name="mySim" outputfolder="../../Simulations" log="EXPRESSIVE" 
+			comment="this is a file for testing purposes only.">
 	<general>
-		<param name="outputLocation" type="String" value="../../Simulations/superTest/" />
-		<param name="outputLevel" type="LogLevel" value="EXPRESSIVE" />
+		<param name="nonexisting" value="this is a test" />
+		<param name="timeStepSize" value="1.0" />
+		<param name="endOfSimulation" value="100.0" />
 	</general>
 	
 	<speciesLib>
@@ -38,6 +42,7 @@
 	</speciesLib>
 
 	<compartment name="second" shape="Rectangle">
+		<sideLengths value="18.0,18.0,1.0" /> <!-- temp subject to change -->
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
@@ -71,5 +76,14 @@
 				</state>
 			</agent>
 		</agents>	
+		<processManagers>
+			<process name="svgWriter" manager="WriteAgentsSvg" priority="2"
+				firstStep="0.0" />
+			<process name="agentGrowth" manager="AgentGrowth" priority="0"
+				firstStep="0.0" />	
+			<process name="agentRelaxation" manager="AgentRelaxation" priority="1"
+				firstStep="0.0" />
+		</processManagers>
 	</compartment>
 </simulation>
+</document>

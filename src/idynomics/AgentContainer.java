@@ -116,8 +116,8 @@ public class AgentContainer
 	{
 		if ( (boolean) agent.get("#isLocated") )
 		{
-			this._agentTree.insert((double[]) agent.get("#boundingLower"),
-						(double[]) agent.get("#boundingSides"), agent);
+			this._agentTree.insert((double[]) agent.get(NameRef.boundingLower),
+						(double[]) agent.get(NameRef.boundingSides), agent);
 		}
 		else
 			this._agentList.add(agent);

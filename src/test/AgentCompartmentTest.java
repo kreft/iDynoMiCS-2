@@ -150,7 +150,6 @@ public class AgentCompartmentTest {
 		svgOutput.setPriority(2);
 		svgOutput.setTimeForNextStep(0.0);
 		svgOutput.setTimeStepSize(Timer.getTimeStepSize());
-		((WriteAgentsSvg) svgOutput).init(aCompartment.name, aCompartment.agents);
 		aCompartment.addProcessManager(svgOutput);
 
 		//TODO twoDimIncompleteDomain(nStep, stepSize);

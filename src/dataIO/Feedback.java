@@ -3,6 +3,7 @@ package dataIO;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import idynomics.Idynomics;
 import idynomics.Param;
 
 /**
@@ -24,8 +25,10 @@ public class Feedback {
 	public enum LogLevel {
 		SILENT, 
 		// Should generate no messages, no message should have this output level
+		CRITICAL,
+		// Only critical (error) messages
 		QUIET, 
-		// Only critical messages
+		// minimal simulation information.
 		NORMAL, 
 		// Messages for a normal simulation
 		EXPRESSIVE, 
@@ -51,7 +54,12 @@ public class Feedback {
 	 * Date format
 	 */
 	private static SimpleDateFormat ft = 
-			new SimpleDateFormat("yyyy.MM.dd hh:mm:ss");
+			new SimpleDateFormat("[yyyy.MM.dd HH:mm:ss] ");
+	
+	/**
+	 * Short date format
+	 */
+	private static SimpleDateFormat st = new SimpleDateFormat("[HH:mm] ");
 	
 	/**
 	 * Set the output level and create the log file. This method should be
@@ -63,8 +71,20 @@ public class Feedback {
 	{
 		logFile.fnew(Param.outputLocation + "/log.txt");
 		outputLevel = level;
-		out(dataIO.Feedback.LogLevel.QUIET, "Log start " + ft.format(new Date())
-				+ " output level: " + outputLevel.toString());
+		out(dataIO.Feedback.LogLevel.QUIET, "iDynoMiCS " + 
+		Idynomics.version_number  + " "	+ Idynomics.version_description + 
+				"\nOutput level is " + outputLevel.toString() + ", starting at " + 
+				ft.format(new Date()) + "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+				+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+	}
+	
+	/**
+	 * Set Feedback class from string.
+	 * @param level
+	 */
+	public static void set(String level)
+	{
+		set(LogLevel.valueOf(level));
 	}
 	
 	/**
@@ -76,21 +96,20 @@ public class Feedback {
 	 * @param message
 	 * @param level
 	 */
-
 	public static void out(LogLevel level, String message)
 	{
 		if (outputLevel == null)
 		{
-			if(Param.outputLevel != null)
-				set(LogLevel.valueOf(Param.outputLevel));
-			else
-				set(dataIO.Feedback.LogLevel.NORMAL);
+			set(dataIO.Feedback.LogLevel.NORMAL);
 		}
 		
 		if (level.compareTo(outputLevel) < 1)
 		{
-			System.out.println(message);
-			logFile.write(message + "\n");
+			if (level == LogLevel.CRITICAL)
+				System.err.println(st.format(new Date()) + message);
+			else
+				System.out.println(st.format(new Date()) + message);
+			logFile.write(ft.format(new Date()) + message + "\n");
 		}
 	}
 }
