@@ -98,7 +98,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		this.getDimensionSafe(dimension).setCyclic();
 	}
 	
-	public void setBoundary(DimName dimension, Boundary bndry, int index)
+	public void setBoundary(DimName dimension, int index, Boundary bndry)
 	{
 		this.getDimensionSafe(dimension).setBoundary(bndry, index);
 	}
@@ -113,7 +113,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public void setBoundary(String dimension, Boundary bndry, int index)
 	{
-		this.setBoundary(DimName.valueOf(dimension), bndry, index);
+		this.setBoundary(DimName.valueOf(dimension), index, bndry);
 	}
 	
 	
@@ -193,7 +193,6 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	/*************************************************************************
 	 * BOUNDARIES
 	 ************************************************************************/
-	
 	/**
 	 * \brief TODO
 	 * 
@@ -318,7 +317,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public double[] getMinDifference(double[] a, double[] b)
 	{
 		// TODO safety with vector length & number of dimensions
-		// TODO check this is the right approach in polar geometries
+		// TOD check this is the right approach in polar geometries
 		Vector.checkLengths(a, b);
 		double[] aLocal = this.getLocalPosition(a);
 		double[] bLocal = this.getLocalPosition(b);

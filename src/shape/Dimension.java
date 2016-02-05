@@ -204,29 +204,6 @@ public class Dimension implements CanPrelaunchCheck
 	 * USEFUL METHODS
 	 *************************************************************************/
 	
-	public double applyBoundary(double a)
-	{
-		if ( this._isCyclic )
-		{
-			// TODO check this modulo behaves with negative a
-			return this._extreme[0] +
-								( (a - this._extreme[0]) % this.getLength() );
-		}
-		else
-		{
-			/*
-			 * this._extreme[1] is an exclusive limit, so take a value just
-			 * below if necessary.
-			 */
-			return Math.min( this._extreme[1] - Math.ulp(this._extreme[1]),
-												Math.max(this._extreme[0], a));
-		}
-	}
-	
-	/**************************************************************************
-	 * USEFUL METHODS
-	 *************************************************************************/
-	
 	/**
 	 * \brief Get the shortest distance between two positions along this
 	 * dimension.

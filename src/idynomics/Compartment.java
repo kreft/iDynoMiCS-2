@@ -108,7 +108,7 @@ public class Compartment implements CanPrelaunchCheck
 	 */
 	public void addBoundary(DimName dim, int index, Boundary aBoundary)
 	{
-		this._shape.setBoundary(dim, aBoundary, index);
+		this._shape.setBoundary(dim, index, aBoundary);
 	}
 	
 	/**
