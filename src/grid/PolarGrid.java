@@ -118,7 +118,8 @@ public abstract class PolarGrid extends SpatialGrid
 		_subNbhIdx=0;
 		_subNbhSet.clear();
 		_subNbhSharedAreaSet.clear();
-		fillNbhSet();
+		//FIXME commented out for testing
+//		fillNbhSet();
 //		if (_subNbhSet.isEmpty())
 //			nbhIteratorNext();
 		_currentNeighbor = _subNbhSet.get(0);
@@ -138,7 +139,8 @@ public abstract class PolarGrid extends SpatialGrid
 	{
 		_nbhIdx=0;
 		currentNbhIdxChanged();
-		_currentNeighbor = transInternal(_currentNeighbor);
+		//FIXME commented out for testing
+//		_currentNeighbor = transInternal(_currentNeighbor);
 		return _currentNeighbor;
 	}
 	
@@ -229,7 +231,8 @@ public abstract class PolarGrid extends SpatialGrid
 		/*
 		 * Transform internal boundaries with radius >= 0 automatically (cyclic)
 		 */
-		_currentNeighbor = transInternal(_currentNeighbor);
+		//FIXME commented out for testing
+//		_currentNeighbor = transInternal(_currentNeighbor);
 		return _currentNeighbor;
 	}
 	
