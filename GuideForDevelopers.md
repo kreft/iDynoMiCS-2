@@ -203,14 +203,14 @@ GitHub enables discussion of issues and aspects of specific code, but there's no
 
 ## Git configuration
 ### Line endings
-Please set the git configuration setting `core.autocrlf` to `lf` for contributing to iDynoMiCS 2. It's generally a good idea to do this for your global settings if you are working on projects that are developed in both Windows and in Unix (Mac/Linux) environments. This only needs to be set once. 
+Please set the git configuration setting `core.autocrlf` to `false` for contributing to iDynoMiCS 2. It's generally a good idea to do this for your global settings if you are working on projects that are developed in both Windows and in Unix (Mac/Linux) environments. This only needs to be set once. 
 
 To set this in Eclipse with eGit installed, go to *Preferences > Team > Git > Configuration*:
 ![eGit line endings](https://raw.githubusercontent.com/roughhawkbit/iDynoMiCS-2/master/Docs/eGit_line_endings.png?token=ADJGISle9ZPOp__NbvEDcHhg7ZJNePxqks5Wvg4WwA%3D%3D)
 
 In the command line, this is done like so:
 ``` bash
-git config --global core.autocrlf lf
+git config --global core.autocrlf false
 ```
 
 ## GitHub hacks
