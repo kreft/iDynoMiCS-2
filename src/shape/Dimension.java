@@ -218,7 +218,7 @@ public class Dimension implements CanPrelaunchCheck
 	public double getShortest(double a, double b)
 	{
 		// TODO check that a and b are inside?
-		double out = b - a;
+		double out = a - b;
 		if ( this._isCyclic &&  (Math.abs(out) > 0.5 * this.getLength()) )
 			out -= this.getLength() * Math.signum(out);
 		return out;
