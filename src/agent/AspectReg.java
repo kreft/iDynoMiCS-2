@@ -142,6 +142,7 @@ public class AspectReg<A> {
 	 * NOTE if multiple aspect registry modules have an aspect with the same key
 	 * the first encountered espect with that key will be returned.
 	 */
+	@SuppressWarnings("unchecked")
 	private Aspect getAspect(String key)
 	{
 		if (_aspects.containsKey(key))
@@ -158,6 +159,7 @@ public class AspectReg<A> {
 	/**
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	public void duplicate(AspectInterface newObj)
 	{
 		AspectReg<A> duplicate = (AspectReg<A>) newObj.registry();
