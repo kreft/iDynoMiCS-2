@@ -2,17 +2,15 @@ package grid;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.function.DoubleFunction;
 
-import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import grid.ResolutionCalculator.ResCalc;
 import linearAlgebra.*;
-import shape.ShapeConventions.BoundarySide;
+import shape.ShapeConventions.DimName;
 
 /**
- * \brief TODO
+ * \brief Subclass of SpatialGrid that discretises space into rectilinear
+ * voxels. Uses the (X, Y, Z) dimension system.
  * 
  * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
  */
@@ -23,9 +21,11 @@ public class CartesianGrid extends SpatialGrid
 	 * dimensions. Note that some of these may be 1 if the grid is not three-
 	 * dimensional.
 	 * 
-	 * <p>For example, a 3 by 2 rectangle would have _nVoxel = [3, 2, 1].</p> 
+	 * <p>For example, a 3 by 2 rectangle would have _nVoxel = [3, 2, 1].</p>
+	 * 
+	 * TODO replace with _resCalc
 	 */
-	protected int[] _nVoxel;
+	protected int[] _nVoxel = new int[3];
 	
 	/**
 	 * Grid resolution, i.e. the side length of each voxel in this grid. This
@@ -34,10 +34,21 @@ public class CartesianGrid extends SpatialGrid
 	 * 
 	 * <p>For example, a 3 by 2 rectangle might have _res = 
 	 * [[1.0, 1.0, 1.0], [1.0, 1.0], [1.0]]</p>
+	 * 
+	 * TODO replace with _resCalc
 	 */
-	protected double[][] _res;
+	protected double[][] _res  = new double[3][];
 	
-	protected int _nbhDirection;
+	/**
+	 * 
+	 * TODO replace _nVoxel and _res
+	 */
+	protected ResCalc[] _resCalc = new ResCalc[3];
+	
+	/**
+	 * TODO
+	 */
+	protected DimName _nbhDirection;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -47,46 +58,43 @@ public class CartesianGrid extends SpatialGrid
 	 * \brief Construct a CartesianGrid from a 3-vector of total dimension
 	 * sizes and corresponding methods for calculating voxel resolutions. 
 	 * 
-	 * @param totalSize
-	 * @param resCalc
+	 * @param totalSize 3-vector of total side lengths of each dimension.
+	 * @param resCalc 
 	 */
-	public CartesianGrid(double[] totalSize, ResCalc[] resCalc)
+	public CartesianGrid(ResCalc[] resCalc)
 	{
-		this._nVoxel = new int[3];
-		this._res = new double[3][];
+		/* Dimension names for a CartesianGrid. */
+		this._dimName[0] = DimName.X;
+		this._dimName[1] = DimName.Y;
+		this._dimName[2] = DimName.Z;
+		/* Set up the resolutions. */
 		ArrayList<Double> resolutions = new ArrayList<Double>();
-		double total;
-		double temp;
+		double remaining, temp;
 		for ( int dim = 0; dim < 3; dim++ )
 		{
 			resolutions.clear();
-			total = 0.0;
-			while ( total < totalSize[dim] )
+			remaining = resCalc[dim].getTotalLength();
+			while ( remaining > 0.0 )
 			{
 				temp = resCalc[dim].getResolution(resolutions.size());
-				if ( (total + temp) > totalSize[dim] )
-					temp = totalSize[dim] - total;
-				total += temp;
+				if ( (remaining - temp) < 0.0 )
+				{
+					temp = remaining;
+					remaining = 0.0;
+				}
+				else
+					remaining -= temp;
 				resolutions.add(temp);
 			}
 			this._res[dim] = new double[resolutions.size()];
 			this._nVoxel[dim] = resCalc[dim].getNVoxel();
 			for ( int i = 0; i < resolutions.size(); i++ )
-				this._res[dim][i] = resolutions.get(i);
+				this._res[dim][i] = (double) resolutions.get(i);
 		}
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param nVoxel
-	 * @param padding
-	 * @param resolution
-	 */
-	public CartesianGrid(int[] nVoxel, double[][] resolution)
-	{
-		this._nVoxel = Vector.copy(nVoxel);
-		this._res = resolution;
+		/* 
+		 * Finally, pre-calculate the smallest shared surface area between
+		 * neighboring voxels.
+		 */
 		this.calcMinVoxelVoxelSurfaceArea();
 	}
 	
@@ -99,51 +107,35 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public CartesianGrid(int[] nVoxel, double resolution)
 	{
-		this._nVoxel = Vector.copy(nVoxel);
-		this._res = new double[3][];
-		for ( int dim = 0; dim < 3; dim++ )
+		double[] totalSize = new double[3];
+		
+		ResolutionCalculator res = new ResolutionCalculator();
+		ResCalc[] resCalc = new ResCalc[3];
+		for ( int i = 0; i < 3; i++ )
 		{
-			this._res[dim] = new double[this._nVoxel[dim]];
-			for ( int i = 0; i < this._nVoxel[dim]; i++ )
-				this._res[dim][i] = resolution;
+			totalSize[i] = nVoxel[i]*resolution;
+			resCalc[i] = res.new UniformResolution();
+			resCalc[i].init(resolution, totalSize[i]);
 		}
-		this.calcMinVoxelVoxelSurfaceArea();
+		new CartesianGrid(resCalc);
 	}
 
 	public CartesianGrid()
 	{
-		this._nVoxel = Vector.vector(3, 1);
-		this._res = new double[3][1];
-		for ( int dim = 0; dim < 3; dim++ )
-			this._res[dim][0] = 1.0;
-		this.calcMinVoxelVoxelSurfaceArea();
+		new CartesianGrid(Vector.onesInt(3), 1.0);
 	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @param name
-	 * @param initialValues
-	 */
+	
+	@Override
 	public void newArray(ArrayType type, double initialValues)
 	{
 		/*
-		 * First check that the array HashMap has been created.
+		 * Try resetting all values of this array. If it doesn't exist yet,
+		 * make it.
 		 */
-		if ( this._array == null )
-			this._array = new HashMap<ArrayType, double[][][]>();
-		/*
-		 * Now try resetting all values of this array. If it doesn't exist
-		 * yet, make it.
-		 */
-		if ( this._array.containsKey(type) )
+		if ( this.hasArray(type) )
 			Array.setAll(this._array.get(type), initialValues);
 		else
-		{
-			double[][][] array = Array.array(this._nVoxel[0], this._nVoxel[1],
-											this._nVoxel[2], initialValues);
-			this._array.put(type, array);
-		}
+			this._array.put(type, Array.array(this._nVoxel, initialValues));
 	}
 	
 	public void calcMinVoxelVoxelSurfaceArea()
@@ -221,42 +213,6 @@ public class CartesianGrid extends SpatialGrid
 			out *= this._res[dim][coord[dim]];
 		return out;
 	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public int[] getNumVoxels()
-	{
-		return Vector.copy(this._nVoxel);
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public boolean[] getSignificantAxes()
-	{
-		boolean[] out = new boolean[3];
-		for ( int axis = 0; axis < 3; axis++ )
-			out[axis] = ( this._nVoxel[axis] > 1 );
-		return out;
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public int numSignificantAxes()
-	{
-		int out = 0;
-		for ( int axis = 0; axis < 3; axis++ )
-			out += ( this._nVoxel[axis] > 1 ) ? 1 : 0;
-		return out;
-	}
 	
 	/*************************************************************************
 	 * SIMPLE SETTERS
@@ -266,90 +222,10 @@ public class CartesianGrid extends SpatialGrid
 	 * COORDINATES
 	 ************************************************************************/
 	
-	/**
-	 * \brief Gets the value of one coordinate on the given array type.
-	 * 
-	 * @param type Type of array to get from.
-	 * @param coord Coordinate on this array to get.
-	 * @return double value at this coordinate on this array.
-	 */
-	public double getValueAt(ArrayType type, int[] coord)
-	{
-		if ( this._array.containsKey(type) )
-			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
-		else
-			return Double.NaN;
-	}
-
-	/**
-	 * \brief Change the value of one coordinate on the given array type.
-	 * 
-	 * @param type Type of array to be set.
-	 * @param coord Coordinate on this array to set.
-	 * @param newValue New value with which to overwrite the array.
-	 */
-	public void setValueAtNew(ArrayType type, int[] coord, double newValue)
-	{
-		if ( ! this._array.containsKey(type) )
-		{
-			LogFile.writeLog("Warning: tried to set coordinate in "+
-							type.toString()+" array before initialisation.");
-			this.newArray(type);
-		}
-		this._array.get(type)[coord[0]][coord[1]][coord[2]] = newValue;
-	}
-
-	/**
-	 * \brief Applies the given function to the array element at the given
-	 * <b>voxel</b> coordinates (assumed adjusted for padding). 
-	 * 
-	 * @param name String name of the array.
-	 * @param aC Internal array coordinates of the voxel required. 
-	 * @param f DoubleFunction to apply to the array element at <b>voxel</b>.
-	 * @exception ArrayIndexOutOfBoundsException Voxel coordinates must be
-	 * inside array.
-	 */
-	private double applyToVoxel(ArrayType type, int[] aC,
-			DoubleFunction<Double> f)
-	{
-		try
-		{
-			double[][][] array = this._array.get(type);
-			return array[aC[0]][aC[1]][aC[2]] = 
-					f.apply(array[aC[0]][aC[1]][aC[2]]);
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			throw new ArrayIndexOutOfBoundsException(
-					"Voxel coordinates must be inside array: "+aC[0]+", "+aC[1]+", "+aC[2]);
-		}
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @param name String name of the array.
-	 * @param gridCoords
-	 * @param f
-	 */
-	protected double applyToCoord(ArrayType type, int[] gridCoords,
-			DoubleFunction<Double> f)
-	{
-		return this.applyToVoxel(type, gridCoords, f);
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * <p>This method does not affect the state of <b>location</b>.</p>
-	 * 
-	 * TODO Safety if location is outside bounds.
-	 * 
-	 * @param location 
-	 * @return 
-	 */
+	@Override
 	public int[] getCoords(double[] location)
 	{
+		// TODO use ResolutionCalculator getVoxelIndex once we use it here.
 		int[] coord = new int[3];
 		double counter;
 		int maxDim = Math.min(3, location.length);
@@ -369,12 +245,16 @@ public class CartesianGrid extends SpatialGrid
 		return coord;
 	}
 
-	/**
-	 * \brief TODO
-	 * 
-	 * @param gridCoords
-	 * @return
-	 */
+	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	{
+		return this._resCalc[axis];
+	}
+	
+	/*************************************************************************
+	 * VOXEL GETTERS & SETTERS
+	 ************************************************************************/
+	
+	@Override
 	public double[] getVoxelOrigin(int[] coords)
 	{
 		double[] out = Vector.zerosDbl(3);
@@ -383,13 +263,8 @@ public class CartesianGrid extends SpatialGrid
 				out[dim] += this._res[dim][i];
 		return out;
 	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @param gridCoords
-	 * @return
-	 */
+	
+	@Override
 	public double[] getVoxelCentre(int[] coords)
 	{
 		double[] out = getVoxelOrigin(coords);
@@ -397,271 +272,11 @@ public class CartesianGrid extends SpatialGrid
 			out[dim] += 0.5 * this._res[dim][coords[dim]];
 		return out;
 	}
-
-	/*************************************************************************
-	 * BOUNDARIES
-	 ************************************************************************/
-
-	/**
-	 * \brief TODO
-	 * 
-	 * TODO This doesn't check for the case that multiple boundaries have been
-	 * crossed!
-	 * 
-	 * @param coord
-	 * @return
-	 */
-	protected BoundarySide isOutside(int[] coord)
-	{
-		if ( coord[0] < 0 )
-			return BoundarySide.XMIN;
-		if ( coord[0] >= this._nVoxel[0] )
-			return BoundarySide.XMAX;
-		if ( coord[1] < 0 )
-			return BoundarySide.YMIN;
-		if ( coord[1] >= this._nVoxel[1] )
-			return BoundarySide.YMAX;
-		if ( coord[2] < 0 )
-			return BoundarySide.ZMIN;
-		if ( coord[2] >= this._nVoxel[2] )
-			return BoundarySide.ZMAX;
-		return null;
-	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * TODO Rob [16Nov2015]: This is far from ideal, but I can't currently see
-	 * a better way of doing it.
-	 * 
-	 * @param bndry
-	 * @param coord
-	 * @return
-	 */
-	public int[] cyclicTransform(int[] coord)
+	@Override
+	public int[] getNVoxel(int[] coords)
 	{
-		int[] transformed = Vector.copy(coord);
-		for ( int i = 0; i < 3; i++ )
-		{
-			transformed[i] = (transformed[i] % this._nVoxel[i]);
-			if ( transformed[i] < 0 )
-				transformed[i] += this._nVoxel[i];
-		}
-		/*System.out.println("transforming "+Arrays.toString(coord)+
-				" to "+Arrays.toString(transformed)+" using nVoxel "+
-				Arrays.toString(_nVoxel)); //bughunt */
-		return transformed;
-	}
-
-	/*************************************************************************
-	 * VOXEL GETTERS & SETTERS
-	 ************************************************************************/
-
-	/**
-	 * \brief TODO
-	 * 
-	 * 
-	 * @param gridCoords
-	 * @return
-	 */
-	public double getValueAtOLD(ArrayType type, int[] gridCoords)
-	{
-		return this.applyToVoxel(type, gridCoords, (double v)->{return v;});
-	}
-
-	/**
-	 * TODO
-	 * 
-	 * @param name String name of the array.
-	 * @param gridCoords
-	 * @param value
-	 */
-	public void setValueAt(ArrayType type, int[] gridCoords, double value)
-	{
-		this.applyToVoxel(type, gridCoords, (double v)->{return value;});
-	}
-
-	/**
-	 * TODO
-	 * 
-	 * @param name String name of the array.
-	 * @param gridCoords
-	 * @param value
-	 */
-	public void addValueAt(ArrayType type, int[] gridCoords, double value)
-	{
-		this.applyToVoxel(type, gridCoords, (double v)->{return v + value;});
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @param name
-	 * @param gridCoords
-	 * @param value
-	 */
-	public void timesValueAt(ArrayType type, int[] gridCoords, double value)
-	{
-		this.applyToVoxel(type, gridCoords, (double v)->{return v * value;});
-	}
-
-	/*************************************************************************
-	 * ARRAY SETTERS
-	 ************************************************************************/
-	/**
-	 * \brief Set all voxels to the <b>value</b> given.
-	 * 
-	 * @param value double value to use.
-	 */
-	public void setAllTo(ArrayType type, double value)
-	{
-		Array.setAll(this._array.get(type), value);
-	}
-
-	/**
-	 * TODO
-	 * 
-	 * @param array
-	 */
-	public void setTo(ArrayType type, double[][][] array)
-	{
-		Array.setAll(this._array.get(type), array);
-	}
-
-	/**
-	 * TODO
-	 * 
-	 * @param value
-	 */
-	public void addToAll(ArrayType type, double value)
-	{
-		Array.add(this._array.get(type), value);
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @param name
-	 * @param value
-	 */
-	public void timesAll(ArrayType type, double value)
-	{
-		Array.times(this._array.get(type), value);
-	}
-
-	/*************************************************************************
-	 * ARRAY GETTERS
-	 ************************************************************************/
-
-	/**
-	 * \brief Returns the greatest value of the voxels in this grid.
-	 * 
-	 * @return
-	 */
-	public double getMax(ArrayType type)
-	{
-		return Array.max(this._array.get(type));
-	}
-
-	/**
-	 * \brief Returns the least value of the voxels in this grid.
-	 * 
-	 * @return
-	 */
-	public double getMin(ArrayType type)
-	{
-		return Array.min(this._array.get(type));
-	}
-
-	/*************************************************************************
-	 * TWO-ARRAY METHODS
-	 ************************************************************************/
-
-	public void addArrayToArray(ArrayType destination, ArrayType source)
-	{
-		Array.add(this._array.get(destination), this._array.get(source));
-	}
-
-	/*************************************************************************
-	 * COORDINATE ITERATOR
-	 ************************************************************************/
-
-	/**
-	 * TODO
-	 * 
-	 */
-	public int[] resetIterator()
-	{
-		if ( this._currentCoord == null )
-			this._currentCoord = Vector.zerosInt(3);
-		else
-			for ( int i = 0; i < 3; i++ )
-				this._currentCoord[i] = 0;
-		return this._currentCoord;
-	}
-
-	/**
-	 * TODO
-	 * 
-	 * @param axis
-	 * @return
-	 */
-	private boolean iteratorExceeds(int axis)
-	{
-		return _currentCoord[axis] >=  this._nVoxel[axis];
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public boolean isIteratorValid()
-	{
-		for ( int axis = 0; axis < 3; axis++ )
-			if ( iteratorExceeds(axis) )
-				return false;
-		return true;
-	}
-
-	/**
-	 * TODO
-	 * 
-	 * @return int[3] coordinates of next position.
-	 * @exception IllegalStateException Iterator exceeds boundaries.
-	 */
-	public int[] iteratorNext()
-	{
-		_currentCoord[0]++;
-		if ( this.iteratorExceeds(0) )
-		{
-			_currentCoord[0] = 0;
-			_currentCoord[1]++;
-			if ( this.iteratorExceeds(1) )
-			{
-				_currentCoord[1] = 0;
-				_currentCoord[2]++;
-			}
-		}
-		return _currentCoord;
-	}
-
-	/**
-	 * \brief Discard the iterative coordinate.
-	 */
-	public void closeIterator()
-	{
-		this._currentCoord = null;
-	}
-	
-	public double getValueAtCurrent(ArrayType type)
-	{
-		return this.getValueAt(type, this._currentCoord);
-	}
-	
-	public void setValueAtCurrent(ArrayType type, double value)
-	{
-		this.setValueAt(type, this._currentCoord, value);
+		return this._nVoxel;
 	}
 	
 	/*************************************************************************
@@ -677,13 +292,12 @@ public class CartesianGrid extends SpatialGrid
 		if ( this._currentNeighbor == null )
 			this._currentNeighbor = Vector.copy(this._currentCoord);
 		else
-			for ( int i = 0; i < 3; i++ )
-				this._currentNeighbor[i] = this._currentCoord[i];
+			Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		for ( int axis = 0; axis < 3; axis++ )
-			if ( this._nVoxel[axis] > 1 )
+			if ( this._nVoxel[axis] > 1 || this._dimBoundaries[axis][0] != null )
 			{
 				this._currentNeighbor[axis]--;
-				this._nbhDirection = axis;
+				this._nbhDirection = this._dimName[axis];
 				return this._currentNeighbor;
 			}
 		return null;
@@ -729,58 +343,42 @@ public class CartesianGrid extends SpatialGrid
 	 */
 	public int[] nbhIteratorNext()
 	{
-		if ( this._nbhDirection == 2 || 
-				this._currentNeighbor[this._nbhDirection] < 
-									this._currentCoord[this._nbhDirection] )
+		int nbhDir = this.indexFor(this._nbhDirection);
+		if ( this._nbhDirection == DimName.Z || 
+				this._currentNeighbor[nbhDir] < this._currentCoord[nbhDir] )
 		{
-			this._currentNeighbor[this._nbhDirection] += 2;
+			this._currentNeighbor[nbhDir] += 2;
 		}
 		else
 		{
-			this._currentNeighbor[this._nbhDirection] = 
-									this._currentCoord[this._nbhDirection];
-			this._nbhDirection++;
-			this._currentNeighbor[this._nbhDirection] =
-								this._currentCoord[this._nbhDirection] - 1;
+			this._currentNeighbor[nbhDir] = this._currentCoord[nbhDir];
+			nbhDir++;
+			this._nbhDirection = this._dimName[nbhDir];
+			this._currentNeighbor[nbhDir] = this._currentCoord[nbhDir] - 1;
 		}
 		return this._currentNeighbor;
 	}
 	
-	/**
-	 * 
-	 */
+	@Override
 	public double getNbhSharedSurfaceArea()
 	{
-		double out = 1.0;
-		for ( int axis = 0; axis < 3; axis++ )
+		int absDiff = 0, cumulativeAbsDiff = 0;
+		double area = 1.0;
+		for ( int i = 0; i < 3; i++ )
 		{
-			if ( axis == this._nbhDirection )
-				continue;
-			out *= this._res[axis][this._currentCoord[axis]];
+			absDiff = Math.abs(this._currentCoord[i]-this._currentNeighbor[i]);
+			if ( absDiff == 0 )
+				area *= this._res[i][this._currentCoord[i]];
+			else
+				cumulativeAbsDiff += absDiff;
 		}
-		return out;
+		return ( cumulativeAbsDiff == 1 ) ? area : 0.0;
 	}
 	
-	public double getCurrentNbhResSq()
-	{
-		double out = this._res[this._nbhDirection]
-								[this._currentCoord[this._nbhDirection]];
-		out += this._res[this._nbhDirection]
-						[this._currentNeighbor[this._nbhDirection]];
-		out *= 0.5;
-		return Math.pow(out, 2.0);
-	}
-	
-	/**
-	 * 
-	 * @return
-	 */
+	@Override
 	public GridMethod nbhIteratorIsOutside()
 	{
-		BoundarySide bSide = this.isOutside(this._currentNeighbor);
-		if ( bSide == null )
-			return null;
-		return this._boundaries.get(bSide);
+		return this.isOutside(this._currentNeighbor);
 	}
 
 	/*************************************************************************
@@ -855,7 +453,7 @@ public class CartesianGrid extends SpatialGrid
 					resCalc[dim] = r.new UniformResolution();
 					resCalc[dim].init(resolution, totalLength[dim]);
 				};
-				return new CartesianGrid(totalLength,resCalc);
+				return new CartesianGrid(resCalc);
 			}
 		};
 	}

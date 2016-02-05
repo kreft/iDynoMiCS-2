@@ -19,7 +19,9 @@ import idynomics.Timer;
 import linearAlgebra.Vector;
 import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
+import shape.Shape;
 import shape.ShapeLibrary;
+import shape.ShapeConventions.DimName;
 
 public class PDEtest
 {
@@ -76,12 +78,12 @@ public class PDEtest
 		ConstantDirichlet fallXmin = new ConstantDirichlet();
 		fallXmin.setValue(1.0);
 		xmin.setGridMethod("fall", fallXmin);
-		aCompartment.addBoundary("xmin", xmin);
+		aCompartment.addBoundary(DimName.X, 0, xmin);
 		Boundary xmax = new BoundaryFixed();
 		ConstantDirichlet riseXmax = new ConstantDirichlet();
 		riseXmax.setValue(1.0);
 		xmin.setGridMethod("rise", riseXmax);
-		aCompartment.addBoundary("xmax", xmax);
+		aCompartment.addBoundary(DimName.X, 1, xmax);
 		//TODO diffusivities
 		aCompartment.init();
 		/*
@@ -143,14 +145,13 @@ public class PDEtest
 			}
 			
 		};
-		
-		aGridMethod.getClass();
-		for ( String side : new String[] {"xmin", "xmax", "ymin", "ymax"})
-		{
-			Boundary bndry = new Boundary();
-			bndry.setGridMethod("solute", aGridMethod);
-			aCompartment.addBoundary(side, bndry);
-		}
+		for ( DimName dim : aCompartment.getShape().getDimensionNames() )
+			for ( int i = 0; i < 2; i++ )
+			{
+				Boundary bndry = new Boundary();
+				bndry.setGridMethod("solute", aGridMethod);
+				aCompartment.addBoundary(dim, i, bndry);
+			}
 		//TODO diffusivities
 		aCompartment.init();
 		/*
@@ -202,16 +203,9 @@ public class PDEtest
 		/*
 		 * Set the boundary methods and initialise the compartment.
 		 */
-		Boundary xmin = new BoundaryFixed(0.0);
-		aCompartment.addBoundary("xmin", xmin);
-		Boundary xmax = new BoundaryFixed(1.0);
-		aCompartment.addBoundary("xmax", xmax);
-		BoundaryCyclic ymin = new BoundaryCyclic();
-		BoundaryCyclic ymax = new BoundaryCyclic();
-		ymin.setPartnerBoundary(ymax);
-		ymax.setPartnerBoundary(ymin);
-		aCompartment.addBoundary("ymin", ymin);
-		aCompartment.addBoundary("ymax", ymax);
+		aCompartment.addBoundary(DimName.X, 0, new BoundaryFixed(0.0));
+		aCompartment.addBoundary(DimName.X, 1, new BoundaryFixed(1.0));
+		aCompartment.getShape().getDimension(DimName.Y).setCyclic();
 		//TODO diffusivities
 		aCompartment.init();
 		/*
@@ -256,9 +250,9 @@ public class PDEtest
 		
 		String[] soluteNames = new String[1];
 		soluteNames[0] = "solute";
-		EnvironmentContainer environment =
-				new EnvironmentContainer(new ShapeLibrary.Rectangle());
-		environment.setSize(length, 1.0);
+		Shape aShape = new ShapeLibrary.Rectangle();
+		aShape.setDimensionLengths(length);
+		EnvironmentContainer environment = new EnvironmentContainer(aShape);
 		SpatialGrid sg;
 		int[] coords = Vector.vector(3, 0);
 		for ( int i = 0; i < soluteNames.length; i++ )
@@ -293,7 +287,7 @@ public class PDEtest
 		/*
 		 * Dummy AgentContainer will be empty
 		 */
-		AgentContainer agents = new AgentContainer();
+		AgentContainer agents = new AgentContainer("Dimensionless");
 		SolveDiffusionTransient process = new SolveDiffusionTransient();
 		process.init(soluteNames);
 		process.setTimeForNextStep(0.0);
@@ -315,7 +309,7 @@ public class PDEtest
 	
 	private static void printSoluteGrid(SpatialGrid sg)
 	{
-		int[] dims = Vector.copy(sg.getNumVoxels());
+		int[] dims = Vector.copy(sg.getNVoxel(Vector.zerosInt(3)));
 		int[] start = Vector.zeros(dims);
 		boolean[] sig = sg.getSignificantAxes();
 		int[] coords = Vector.zeros(dims);

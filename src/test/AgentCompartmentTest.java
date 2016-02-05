@@ -3,6 +3,15 @@ package test;
 import java.util.LinkedList;
 import java.util.List;
 
+import agent.Agent;
+import agent.Body;
+import agent.event.EventLoader;
+import agent.state.StateLoader;
+import grid.SpatialGrid;
+import grid.SpatialGrid.ArrayType;
+import idynomics.Compartment;
+import idynomics.Simulator;
+import idynomics.Timer;
 import processManager.AgentGrowth;
 import processManager.AgentRelaxation;
 import processManager.PrepareSoluteGrids;
@@ -10,6 +19,7 @@ import processManager.ProcessManager;
 import processManager.RefreshMassGrids;
 import processManager.SolveDiffusionTransient;
 import processManager.WriteAgentsSvg;
+import shape.ShapeConventions.DimName;
 import surface.Point;
 import utility.ExtraMath;
 import agent.Agent;
@@ -23,9 +33,10 @@ import idynomics.Compartment;
 import idynomics.Simulator;
 import idynomics.Timer;
 
-public class AgentCompartmentTest {
-
-	public static void main(String[] args) {
+public class AgentCompartmentTest
+{
+	public static void main(String[] args)
+	{
 		Timer.setTimeStepSize(1.0);
 		Timer.setEndOfSimulation(25.0);
 		
@@ -33,33 +44,12 @@ public class AgentCompartmentTest {
 		
 		Compartment aCompartment = aSim.addCompartment("myCompartment", "Rectangle");
 		aCompartment.setSideLengths(new double[] {9.0, 9.0, 1.0});
-			
-		aCompartment.getShape().makeCyclic("X");
-		aCompartment.getShape().makeCyclic("Y");
-		
 		/*
 		 * Set the boundary methods and initialise the compartment.
 		 */
 		// set 4 periodic boundaries
-		for ( String side : new String[] {"X", "Y"})
-		{
-			BoundaryCyclic min = new BoundaryCyclic();
-			BoundaryCyclic max = new BoundaryCyclic();
-			min.setPartnerBoundary(max);
-			max.setPartnerBoundary(min);
-			aCompartment.getShape().setBoundary(side, min, true);
-			aCompartment.getShape().setBoundary(side, max, false);
-		}
-		
-		/*
-		 * 
-		 */
-		String[] soluteNames = new String[2];
-		soluteNames[0] = "solute";
-		soluteNames[1] = "biomass";
-		for ( String aSoluteName : soluteNames )
-			aCompartment.addSolute(aSoluteName);
-
+		for ( DimName dim : new DimName[]{DimName.X, DimName.Y} )
+			aCompartment.getShape().getDimension(dim).setCyclic();
 		//TODO diffusivities
 		aCompartment.init();
 		/*
@@ -92,7 +82,7 @@ public class AgentCompartmentTest {
 		 * Set up the transient diffusion-reaction solver.
 		 */
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
-		aProcess.init(new String[]{soluteNames[0]});
+		aProcess.init(new String[]{"solute"});
 		aProcess.setTimeForNextStep(0.0);
 		aProcess.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);

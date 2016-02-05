@@ -79,8 +79,7 @@ public class ODETest
 		/*
 		 * Dummy AgentContainer will be empty
 		 */
-		AgentContainer agents = new AgentContainer();
-		agents.init(myShape);
+		AgentContainer agents = new AgentContainer("Dimensionless");
 		/*
 		 * Set up the process manager
 		 */
@@ -138,7 +137,7 @@ public class ODETest
 		/*
 		 * Dummy AgentContainer will be empty
 		 */
-		AgentContainer agents = new AgentContainer();
+		AgentContainer agents = new AgentContainer(new ShapeLibrary.Dimensionless());
 		/*
 		 * Set up the process manager
 		 */
@@ -208,7 +207,7 @@ public class ODETest
 		/*
 		 * Dummy AgentContainer will be empty
 		 */
-		AgentContainer agents = new AgentContainer();
+		AgentContainer agents = new AgentContainer("Dimensionless");
 		/*
 		 * Set up the process manager
 		 */

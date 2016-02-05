@@ -6,6 +6,7 @@ package shape;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.Set;
 
 import boundary.Boundary;
 import boundary.BoundaryConnected;
@@ -14,7 +15,6 @@ import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
-import shape.ShapeConventions.BoundarySide;
 /**
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
@@ -30,7 +30,8 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * List of boundaries in a dimensionless compartment, or internal
 	 * boundaries in a dimensional compartment.
 	 */
-	protected Collection<Boundary> _otherBoundaries;
+	protected Collection<Boundary> _otherBoundaries = 
+													new LinkedList<Boundary>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -42,8 +43,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public Shape()
 	{
-		this._dimensions = new LinkedHashMap<DimName, Dimension>();
-		this._otherBoundaries = new LinkedList<Boundary>();
+		
 	}
 	
 	/*************************************************************************
@@ -61,6 +61,17 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		this.makeCyclic(DimName.valueOf(dimensionName.toUpperCase()));
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dimension
+	 * @return
+	 */
+	public Dimension getDimension(DimName dimension)
+	{
+		return this._dimensions.get(dimension);
+	}
+	
 	protected Dimension getDimensionSafe(DimName dimension)
 	{
 		if ( this._dimensions.containsKey(dimension) )
@@ -73,7 +84,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		else
 		{
 			// TODO safety
-			return null;
+			return this.getDimension(dimension);
 		}
 	}
 	
@@ -87,9 +98,9 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		this.getDimensionSafe(dimension).setCyclic();
 	}
 	
-	public void setBoundary(DimName dimension, Boundary bndry, boolean setMin)
+	public void setBoundary(DimName dimension, int index, Boundary bndry)
 	{
-		this.getDimensionSafe(dimension).setBoundary(bndry, setMin);
+		this.getDimensionSafe(dimension).setBoundary(bndry, index);
 	}
 	
 	
@@ -100,9 +111,9 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * @param bndry
 	 * @param setMin
 	 */
-	public void setBoundary(String dimension, Boundary bndry, boolean setMin)
+	public void setBoundary(String dimension, Boundary bndry, int index)
 	{
-		this.setBoundary(DimName.valueOf(dimension), bndry, setMin);
+		this.setBoundary(DimName.valueOf(dimension), index, bndry);
 	}
 	
 	
@@ -159,6 +170,11 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		return this._dimensions.size();
 	}
 	
+	public Set<DimName> getDimensionNames()
+	{
+		return this._dimensions.keySet();
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
@@ -177,42 +193,6 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	/*************************************************************************
 	 * BOUNDARIES
 	 ************************************************************************/
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param aSide
-	 * @param aBoundary
-	 */
-	public void addBoundary(BoundarySide aSide, Boundary aBoundary)
-	{
-		DimName dimN = aSide.dim;
-		if ( dimN == null )
-		{
-			// TODO Rob [14Jan2015]: separate lists for internal & connection
-			// boundaries? 
-			this._otherBoundaries.add(aBoundary);
-		}
-		else
-		{
-			// TODO Rob [14Jan2015]: throw an error/warning if a side boundary
-			// is being overwritten?
-			// TODO Rob [28Jan2016]: throw an error if this dimension is not in
-			// our list?
-			Dimension dim = this._dimensions.get(dimN);
-			dim.setBoundary(aBoundary, aSide == dimN.minBndry);
-		}
-	}
-	
-	public Boundary getBoundary(BoundarySide aSide)
-	{
-		DimName dimN = aSide.dim;
-		if ( dimN == null )
-			return null;
-		Dimension dim = this._dimensions.get(dimN);
-		return dim.getBoundaries()[aSide == dimN.minBndry ? 0 : 1];
-	}
-	
 	/**
 	 * \brief TODO
 	 * 
@@ -271,7 +251,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			position[i] = dim.applyBoundary(position[i]);
+			position[i] = dim.getInside(position[i]);
 			i++;
 		}
 		Vector.copyTo(location, this.getGlobalLocation(position));
@@ -337,7 +317,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public double[] getMinDifference(double[] a, double[] b)
 	{
 		// TODO safety with vector length & number of dimensions
-		// TODO check this is the right approach in polar geometries
+		// TOD check this is the right approach in polar geometries
 		Vector.checkLengths(a, b);
 		double[] aLocal = this.getLocalPosition(a);
 		double[] bLocal = this.getLocalPosition(b);

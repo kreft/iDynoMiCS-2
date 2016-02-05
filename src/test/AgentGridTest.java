@@ -8,6 +8,7 @@ import idynomics.Compartment;
 import idynomics.Simulator;
 import idynomics.Timer;
 import processManager.SolveDiffusionTransient;
+import shape.ShapeConventions.DimName;
 
 /**
  * 
@@ -35,10 +36,10 @@ public class AgentGridTest
 		/*
 		 * Set the boundary methods.
 		 */
-		aCompartment.addBoundary("xmin", new BoundaryZeroFlux());
-		aCompartment.addBoundary("xmax", new BoundaryFixed(topConcn));
-		aCompartment.addBoundary("ymin", new BoundaryZeroFlux());
-		aCompartment.addBoundary("ymax", new BoundaryZeroFlux());
+		aCompartment.addBoundary(DimName.X, 0, new BoundaryZeroFlux());
+		aCompartment.addBoundary(DimName.X, 1, new BoundaryFixed(topConcn));
+		aCompartment.addBoundary(DimName.Y, 0, new BoundaryZeroFlux());
+		aCompartment.addBoundary(DimName.Y, 1, new BoundaryZeroFlux());
 		/*
 		 * We just have one solute, but need to give it to the process manager
 		 * in an array.
