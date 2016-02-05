@@ -4,6 +4,8 @@ import agent.Agent;
 import agent.Body;
 import agent.state.SecondaryState;
 import agent.state.State;
+import generalInterfaces.AspectInterface;
+import generalInterfaces.Quizable;
 
 public class DimensionsBoundingBox extends SecondaryState implements State {
 
@@ -14,8 +16,9 @@ public class DimensionsBoundingBox extends SecondaryState implements State {
 
 	}
 	
-	public Object get(Agent agent)
+	public Object get(AspectInterface aspectOwner)
 	{
+		Quizable agent = (Quizable) aspectOwner;
 		return ((Body) agent.get(input[0])).dimensions((double) agent.get(input[1]));
 	}
 	

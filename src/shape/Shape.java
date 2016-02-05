@@ -337,7 +337,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public double[] getMinDifference(double[] a, double[] b)
 	{
 		// TODO safety with vector length & number of dimensions
-		// TOD check this is the right approach in polar geometries
+		// TODO check this is the right approach in polar geometries
 		Vector.checkLengths(a, b);
 		double[] aLocal = this.getLocalPosition(a);
 		double[] bLocal = this.getLocalPosition(b);

@@ -6,6 +6,8 @@ import org.w3c.dom.NodeList;
 import agent.Agent;
 import agent.Species;
 import agent.SpeciesLib;
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
 import dataIO.PovExport;
 import dataIO.SvgExport;
 import dataIO.XmlLoad;
@@ -23,6 +25,7 @@ public class AgentMechanicsTest {
 
 		Simulator sim = new Simulator();
 		Compartment testcompartment = null;
+		Feedback.set(LogLevel.EXPRESSIVE);
 		
 		Element doc = XmlLoad.loadDocument("testagents.xml");
 		
@@ -50,12 +53,14 @@ public class AgentMechanicsTest {
 			Compartment comp = testcompartment = sim.addCompartment(
 					xmlCompartment.getAttribute("name"), 
 					xmlCompartment.getAttribute("shape"));
-			comp.setSideLengths(new double[] {9.0, 9.0, 1.0});
+			comp.setSideLengths(new double[] {18.0, 18.0, 1.0});
+			comp.getShape().makeCyclic("X");
+			comp.getShape().makeCyclic("Y");
 			comp.init();
-			
+						
 			// Check the agent container
 			if (xmlCompartment.getElementsByTagName("agents").getLength() > 1)
-				System.out.println("more than 1 agentcontainer!!!");
+				Feedback.out(LogLevel.QUIET, "more than 1 agentcontainer!!!");
 
 			// cycle trough all agents in the agent container
 			NodeList agentNodes = ((Element) xmlCompartment.
@@ -71,9 +76,14 @@ public class AgentMechanicsTest {
 		// set parameters and initiate process manager
 		////////////////////////
 		
-		double stepSize = 1;
+		double stepSize = 0.25;
 		int nStep, mStep;
-		nStep = mStep = 4*24;
+		nStep = mStep = 250;
+		
+		ProcessManager agentMove = new AgentStochasticMove();
+		agentMove.setTimeForNextStep(0.0);
+		agentMove.setTimeStepSize(stepSize);
+		
 		ProcessManager agentRelax = new AgentRelaxation();
 		agentRelax.setTimeForNextStep(0.0);
 		agentRelax.setTimeStepSize(stepSize);
@@ -88,20 +98,22 @@ public class AgentMechanicsTest {
 //		PovExport pov = new PovExport();
 		SvgExport svg = new SvgExport();
 
-		System.out.println("Time: "+agentRelax.getTimeForNextStep());
+		Feedback.out(LogLevel.NORMAL, "Time: " + agentRelax.getTimeForNextStep());
 		// write initial state
 //		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
-		svg.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
+		svg.writepov(testcompartment.name, testcompartment.agents);
 		for ( ; nStep > 0; nStep-- )
 		{
 			// step the process manager
 			agentGrowth.step(testcompartment._environment, testcompartment.agents);
+			agentMove.step(testcompartment._environment, testcompartment.agents);
 			agentRelax.step(testcompartment._environment, testcompartment.agents);
+			
 			// write output
 //			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
-			svg.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
-			System.out.println(mStep-nStep +" Time: "+agentRelax.getTimeForNextStep());
+			svg.writepov(testcompartment.name, testcompartment.agents);
+			Feedback.out(LogLevel.NORMAL, mStep-nStep + " Time: " + agentRelax.getTimeForNextStep());
 		}
-		System.out.println("finished");
+		Feedback.out(LogLevel.QUIET,"finished");
 	}
 }

@@ -4,9 +4,20 @@ import java.util.List;
 import agent.Agent;
 import linearAlgebra.Vector;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class PovExport {
 	int filewriterfilenr = 0;
 	
+	/**
+	 * returns file number with appending zeros as string.
+	 * TODO: move to a place sensible for all file handling classes.
+	 * @param filenr
+	 * @return
+	 */
 	private String DigitFilenr(int filenr) {
 		String apzero = String.valueOf(filenr);
 		for(int i = 0; i < 4-String.valueOf(filenr).length(); i++)
@@ -14,6 +25,11 @@ public class PovExport {
 		return apzero;
 	}
 	
+	/**
+	 * returns Location vector in POVray format
+	 * @param vector
+	 * @return
+	 */
 	private String toPov(double[] vector)
 	{
 		double[] v = Vector.zerosDbl(3);
@@ -23,6 +39,11 @@ public class PovExport {
 		return "< " + Double.toString(v[1]) + " , " + Double.toString(v[0]) + " , " + Double.toString(v[2]) + " >\n";
 	}
 	
+	/**
+	 * Writes current scene as .pov file
+	 * @param prefix
+	 * @param agents
+	 */
 	public void writepov(String prefix, List<Agent> agents) 
 	{
 		FileHandler povFile = new FileHandler();

@@ -1,14 +1,20 @@
 package processManager;
 
 import surface.Collision;
+import surface.Link;
 import surface.Point;
 import surface.Surface;
 import linearAlgebra.Vector;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+
+import java.util.LinkedList;
+import java.util.List;
+
 import agent.Agent;
 import agent.Body;
-import agent.Volume;
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
 
 	////////////////////////
 	// WORK IN PROGRESS, initial version
@@ -39,6 +45,17 @@ public class AgentRelaxation extends ProcessManager {
 		// Calculate forces
 		for(Agent agent: agents.getAllLocatedAgents()) 
 		{
+			List<Link> links = ((Body) agent.get("body"))._links;
+			for (int i = 0; i < links.size(); i++)
+			{
+				if (links.get(i).evaluate(iterator))
+				{
+					Feedback.out(LogLevel.BULK, "Fillial link breakage due to "
+							+ "over extending maximum link length.");
+					links.remove(i);
+				}
+			}
+			
 			//agent.innerSprings();	// TODO method needs to be implemented (but not in Agent())
 			for(Agent neighbour: agents._agentTree.cyclicsearch(
 					(double[]) agent.get("#boundingLower"), /// TODO Add optional extra margin for pulls!!!

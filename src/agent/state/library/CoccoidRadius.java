@@ -3,6 +3,8 @@ package agent.state.library;
 import agent.Agent;
 import agent.state.SecondaryState;
 import agent.state.State;
+import generalInterfaces.AspectInterface;
+import generalInterfaces.Quizable;
 import utility.ExtraMath;
 
 
@@ -18,8 +20,9 @@ public class CoccoidRadius extends SecondaryState implements State {
 
 	}
 	
-	public Object get(Agent agent)
+	public Object get(AspectInterface aspectOwner)
 	{
+		Quizable agent = (Quizable) aspectOwner;
 		// V = 4/3 Pi r^3
 		return ExtraMath.radiusOfASphere((double) agent.get(input[0]));
 	}

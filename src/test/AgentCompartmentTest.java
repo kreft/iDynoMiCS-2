@@ -17,7 +17,6 @@ import agent.Body;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
 import boundary.BoundaryCyclic;
-import boundary.PeriodicAgentBoundary;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
@@ -34,6 +33,24 @@ public class AgentCompartmentTest {
 		
 		Compartment aCompartment = aSim.addCompartment("myCompartment", "Rectangle");
 		aCompartment.setSideLengths(new double[] {9.0, 9.0, 1.0});
+			
+		aCompartment.getShape().makeCyclic("X");
+		aCompartment.getShape().makeCyclic("Y");
+		
+		/*
+		 * Set the boundary methods and initialise the compartment.
+		 */
+		// set 4 periodic boundaries
+		for ( String side : new String[] {"X", "Y"})
+		{
+			BoundaryCyclic min = new BoundaryCyclic();
+			BoundaryCyclic max = new BoundaryCyclic();
+			min.setPartnerBoundary(max);
+			max.setPartnerBoundary(min);
+			aCompartment.getShape().setBoundary(side, min, true);
+			aCompartment.getShape().setBoundary(side, max, false);
+		}
+		
 		/*
 		 * 
 		 */
@@ -42,30 +59,7 @@ public class AgentCompartmentTest {
 		soluteNames[1] = "biomass";
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
-		/*
-		 * Set the boundary methods and initialise the compartment.
-		 */
-		// set 4 periodic boundaries
-		for ( String side : new String[] {"x", "y"})
-		{
-			BoundaryCyclic min = new BoundaryCyclic();
-			BoundaryCyclic max = new BoundaryCyclic();
-			min.setPartnerBoundary(max);
-			max.setPartnerBoundary(min);
-			aCompartment.addBoundary(side+"min", min);
-			aCompartment.addBoundary(side+"max", max);
-		}
-		
-		PeriodicAgentBoundary xBound = new PeriodicAgentBoundary();
-		xBound._periodicDistance = 9.0;
-		xBound.periodicDimension = 0;
-		aCompartment.agents.addAgentBoundary(xBound);
-		
-		PeriodicAgentBoundary yBound = new PeriodicAgentBoundary();
-		yBound._periodicDistance = 9.0;
-		yBound.periodicDimension = 1;
-		aCompartment.agents.addAgentBoundary(yBound);
-		
+
 		//TODO diffusivities
 		aCompartment.init();
 		/*
@@ -156,7 +150,6 @@ public class AgentCompartmentTest {
 		svgOutput.setPriority(2);
 		svgOutput.setTimeForNextStep(0.0);
 		svgOutput.setTimeStepSize(Timer.getTimeStepSize());
-		((WriteAgentsSvg) svgOutput).init(aCompartment.name, aCompartment.agents);
 		aCompartment.addProcessManager(svgOutput);
 
 		//TODO twoDimIncompleteDomain(nStep, stepSize);

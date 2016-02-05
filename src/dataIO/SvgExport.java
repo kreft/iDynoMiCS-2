@@ -1,13 +1,24 @@
 package dataIO;
 
 import generalInterfaces.Quizable;
+import idynomics.AgentContainer;
+import idynomics.Param;
+
 import java.util.List;
 import agent.Agent;
+import dataIO.Feedback.LogLevel;
 import linearAlgebra.Vector;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class SvgExport {
 	int filewriterfilenr = 0;
 	public List<Task> tasks;
+	public double scalar = 25.0;
+	public double spacer = 25.0;
 	
 	private String DigitFilenr(int filenr) {
 		String apzero = String.valueOf(filenr);
@@ -25,18 +36,24 @@ public class SvgExport {
 		/**
 		 * work out how to do scaling and domain properly and consistently
 		 */
-		return " cx=\"" + Double.toString(25+50.0*v[0]) + "\" cy=\"" + Double.toString(25+50.0*v[1]) + "\" ";
+		return " cx=\"" + Double.toString(spacer+scalar*v[0]) + "\" cy=\"" + Double.toString(spacer+scalar*v[1]) + "\" ";
 	}
 	
-	public void writepov(String prefix, List<Agent> agents) 
+	public void writepov(String prefix, AgentContainer agentContainer) 
 	{
+		List<Agent> agents = agentContainer.getAllLocatedAgents();
 		FileHandler svgFile = new FileHandler();
-		
-		svgFile.fnew("../../Simulations/" + prefix + "/" 
-		+ prefix + DigitFilenr(filewriterfilenr) + ".svg");
+		String fileString = Param.outputLocation + prefix + "/" 
+				+ prefix + DigitFilenr(filewriterfilenr) + ".svg";
+		svgFile.fnew(fileString);
+		Feedback.out(LogLevel.EXPRESSIVE, "Writing new file: " + fileString);
 
 		svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
-		svgFile.write("<rect x=\"25\" y=\"25\" width=\"450\" height=\"450\" fill=\"gray\" />\n");
+		
+		double[] compDomain = agentContainer.getShape().getDimensionLengths();
+		svgFile.write("<rect x=\"" + spacer + "\" y=\"" + spacer + "\" width=\"" 
+				+ compDomain[0] * scalar + "\" height=\"" + compDomain[1] * 
+				scalar + "\" fill=\"gray\" />\n");
 		
 		/**
 		 *  the original
@@ -49,7 +66,7 @@ public class SvgExport {
 			{
 				// sphere
 				svgFile.write("<circle " + toSvg(joints.get(i)) + "r=\"" +
-						50.0* (double) a.get("radius") + "\" fill=\"" + a.get("pigment") 
+						scalar * (double) a.get("radius") + "\" fill=\"" + a.get("pigment") 
 						+ "\" />\n" );
 //				if (joints.size() > i+1)
 //				{
@@ -72,6 +89,10 @@ public class SvgExport {
 		filewriterfilenr++;
 	}
 	
+	/**
+	 * Work in progress, dynamic graphical output
+	 *
+	 */
 	public class Task
 	{
 		public List<Quizable> quizables;
@@ -102,7 +123,7 @@ public class SvgExport {
 			{
 				// sphere
 				File.write("<circle " + toSvg(c) + "r=\"" +
-						50.0* (double) q.get(radius) + "\" fill=\"" + q.get(pigment) 
+						scalar * (double) q.get(radius) + "\" fill=\"" + q.get(pigment) 
 						+ "\" />\n" );
 			}
 		}

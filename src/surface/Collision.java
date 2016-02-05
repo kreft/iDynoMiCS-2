@@ -6,7 +6,7 @@ import linearAlgebra.Vector;
 /**
  * NOTE: this class is not thread-safe.
  * 
- * Methods are based on closest point algorithms from:
+ * Distance methods are based on closest point algorithms from:
  * Ericson, C. (2005). Real-time collision detection. Computer (Vol. 1).
  * 
  * All cells are represented as sphere-swept volumes
@@ -24,15 +24,31 @@ public class Collision {
 		public double[] interactionForce(double distance, double[] dP);
 	}
 	
+	public CollisionFunction PullFunction = new CollisionFunction()
+	{
+		public double[] interactionForce(double distance, double[] dP)
+		{
+			double c;
+			double fPull 		= -0.6;		// pull force scalar
+			distance 			-= 0.001;	// added margin
+			
+			// Repulsion
+			if (distance > 0.0) 
+			{
+				c = Math.abs(fPull * distance); //linear
+				Vector.normaliseEuclidEquals(dP, c);
+				return dP;
+			} 
+			return Vector.zeros(dP);
+		}
+	};
+	
 	public CollisionFunction DefaultCollision = new CollisionFunction()
 	{
 		public double[] interactionForce(double distance, double[] dP)
 		{
 			double c;
-			double p 			= 0.01; 		// pull distance
-			double fPull 		= 0.0002;		// pull force scalar
-			double fPush 		= 3.0;			// push force scalar
-			boolean exponential = true; 		// exponential pull curve
+			double fPush 		= 6.0;			// push force scalar
 			
 			distance 			-= 0.001;	// added margin
 			
@@ -43,28 +59,13 @@ public class Collision {
 				Vector.normaliseEuclidEquals(dP, c);
 				return dP;
 			} 
-			// Attraction
-			// TODO disabled until it makes sense from  agent tree point of view
-//			else if (distance < p) 
-//			{
-//				if (exponential)
-//				{
-//					c = fPull * -3.0 * Math.exp(-6.0*distance/p) /
-//							( 1.0 + Math.exp(6.0 - (36.0*distance) / p) ); 
-//				}
-//				else
-//				{
-//					c = fPull * - (p-distance) /
-//							( 1.0 + Math.exp(6.0 - (36.0*distance) / p) );
-//				}
-//				return Vector.timesEquals(dP, c);
-//			}
-			// Too far away for an interaction.
 			return Vector.zeros(dP);
 		}
 	};
 	
 	private CollisionFunction collisionFun;
+	
+	private CollisionFunction pullFun;
 	
 	private Shape computationalDomain;
 	
@@ -98,6 +99,9 @@ public class Collision {
 		this.collisionFun = DefaultCollision;
 		this.computationalDomain = compartmentShape;
 		this.dP = Vector.zerosDbl(compartmentShape.getNumberOfDimensions());
+		
+		//FIXME testing purposes
+		this.pullFun = PullFunction;
 	}
 
 	/**
@@ -119,6 +123,26 @@ public class Collision {
 		{
 			applyForce(a, force,s);
 			applyForce(b, Vector.times(force,-1.0), t);
+		}
+	}
+	
+	//FIXME temporary for testing
+	public void pull(Surface a, Surface b)
+	{
+		
+		//TODO check all the flipin' flipping here
+		double[] force = pullFun.interactionForce(distance(a,b), 
+				(flip ? Vector.times(this.dP,-1.0) : this.dP));
+
+		if(flip)
+		{
+			applyForce(a, force,s);
+			applyForce(b, Vector.times(force,-1.0), t);
+		} 
+		else
+		{
+			applyForce(b, force,s);
+			applyForce(a, Vector.times(force,-1.0), t);
 		}
 	}
 	

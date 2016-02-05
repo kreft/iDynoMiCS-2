@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-<simulation name="mySim" comments="this is a file for Agent testing">
+<simulation name="mySim" outputfolder="../../Simulations" log="EXPRESSIVE" 
+			comment="this is a file for testing purposes only.">
+	<general>
+		<param name="timeStepSize" value="1.0" />
+		<param name="endOfSimulation" value="60.0" />
+	</general>
+	
 	<speciesLib>
 	<!-- species/species library
 	The species library contains all agent species in the simulations. This may
@@ -33,8 +39,9 @@
 			<state name="surface" type="secondary" value="SimpleSurface" input="body" />
 		</species>
 	</speciesLib>
-	
+
 	<compartment name="second" shape="Rectangle">
+		<sideLengths value="20.0,20.0,1.0" /> <!-- temp subject to change -->
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
@@ -42,31 +49,9 @@
 				<state name="density" type="double" value="1" />
 				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="RED" />
-				<state name="filialLinker" type="boolean" value="true" />
+				 <!--<state name="filialLinker" type="boolean" value="true" /> -->
 				<state name="body" type="body">
-					<point position="14.2, 14.2" />
-				</state>
-			</agent>
-			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="RED" />
-				<state name="filialLinker" type="boolean" value="true" />
-				<state name="body" type="body">
-					<point position="9.2, 4.2" />
-				</state>
-			</agent>
-			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="RED" />
-				<state name="filialLinker" type="boolean" value="true" />
-				<state name="body" type="body">
-					<point position="4.2, 10.2" />
+					<point position="12.2, 12.2" />
 				</state>
 			</agent>
 			<agent>
@@ -76,27 +61,7 @@
 				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="BLUE" />
 				<state name="body" type="body">
-					<point position="15.0, 5.3" />
-				</state>
-			</agent>
-			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="BLUE" />
-				<state name="body" type="body">
-					<point position="4.0, 3.3" />
-				</state>
-			</agent>
-			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="BLUE" />
-				<state name="body" type="body">
-					<point position="10.0, 10.3" />
+					<point position="12.0, 5.3" />
 				</state>
 			</agent>
 			<agent>
@@ -106,38 +71,20 @@
 				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="GREEN" />
 				<state name="body" type="body">
-					<point position="5.3, 13.2" />
+					<point position="5.3, 12.2" />
 				</state>
 			</agent>
-			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="GREEN" />
-				<state name="body" type="body">
-					<point position="1.3, 6.2" />
-				</state>
-			</agent>
-			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="GREEN" />
-				<state name="body" type="body">
-					<point position="7.3, 5.2" />
-				</state>
-			</agent>
-		</agents>
-		
-		<output>
-			<writer name="SvgExport">
-				<task quizable="Agent" bool="#isLocated" draw="circle" centers="joints" color="pigment" radius="radius" />
-			</writer>
-		</output>
+		</agents>	
+		<processManagers>
+			<process name="svgWriter" manager="WriteAgentsSvg" priority="2"
+				firstStep="0.0" />
+			<process name="agentGrowth" manager="AgentGrowth" priority="0"
+				firstStep="0.0" />	
+			<process name="agentMove" manager="AgentStochasticMove" priority="0"
+				firstStep="0.0" />
+			<process name="agentRelax" manager="AgentRelaxation" priority="1"
+				firstStep="0.0" />
+		</processManagers>
 	</compartment>
-	
-
 </simulation>
 </document>

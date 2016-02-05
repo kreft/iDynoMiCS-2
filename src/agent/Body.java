@@ -1,39 +1,55 @@
 package agent;
 
+import generalInterfaces.AspectInterface;
 import generalInterfaces.Duplicable;
 import idynomics.NameRef;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
 import surface.*;
 
 public class Body implements Duplicable {
 	
 	/**
 	 * the body belongs to agent
+	 * NOTE: this maybe taken out when we find an other solution for duplicables
 	 */
 	Agent agent; 
 	
+    /**
+     * The 'body' of the agent is represented by sphere-swept volumes of a 
+     * collection of points connected by springs of length lengths. This results
+     * in a single sphere for coccoid-type agents or a tube for agents described
+     * by multiple points.
+     */
+    protected List<Point> points = new LinkedList<Point>();
+    
+    /**
+     * The surfaces describe the different segments of the agents body.
+     */
+    protected List<Surface> surfaces = new LinkedList<Surface>();
+
 	/**
-	 * TODO: Depricated, remove
+	 * Rest angles of torsion springs for multi-segment agents
 	 */
-//	public Body(List<Point> points, double[] lengths, double[] angles, double radius) 
-//	{
-//		this.points = points;
-//		this._angles = angles;		
-//	}
-//	
-//	public Body(List<Point> points) 
-//	{
-//		this.points = points;
-//		/*
-//		 * Lengths, angles and radius remain undefined.
-//		 */
-//	}
+	protected double[] _angles;
+	
+	/**
+	 * NOTE: work in progress, subject to change
+	 * Links with other agents/bodies owned by this body
+	 * NOTE: this list does not contain links with this body owned by an other
+	 * body
+	 */
+	public LinkedList<Link> _links = new LinkedList<Link>();
 	
 	
-	// TODO some proper testing
+    /*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
+	
 	/**
 	 * Coccoid
 	 */
@@ -71,9 +87,9 @@ public class Body implements Duplicable {
 		this.surfaces.add(rod);
 		this.agent = agent;
 	}
-
 	
 	/**
+	 * NOTE: work in progress
 	 * Hybrid: Coccoid, Rod, rods, TODO Chain
 	 * @return
 	 */
@@ -81,11 +97,13 @@ public class Body implements Duplicable {
 	{
 		this.points = points;
 		if (points.size() == 1)
-			this.surfaces.add(new Sphere(points.get(0), this));
+			this.surfaces.add( new Sphere(points.get(0), this) );
 		if (points.size() == 2)
-			this.surfaces.add(new Rod(new Point[]{points.get(0), points.get(1)}, this));
+			this.surfaces.add( new Rod(new Point[]{ points.get(0), 
+					points.get(1)} , this));
 		if(points.size() > 2)
-			System.out.println("WARNING: CHAIN type not supported yet"); //TODO 
+			Feedback.out(LogLevel.QUIET, "WARNING: assigning unsuported body "
+					+ "type"); //TODO 
 		this.agent = agent;
 	}
 	
@@ -99,16 +117,76 @@ public class Body implements Duplicable {
 		{
 			for(int i = 0; points.size()-1 > i; i++)
 			{
-				this.surfaces.add(new Rod(points.get(i), points.get(i+1), length, radius));
+				this.surfaces.add(new Rod(points.get(i), points.get(i+1), 
+						length, radius));
 			}
 		}
 	}
 
-
-	//TODO proper testing
-	public Body copy(Agent agent)
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
+	
+	/**
+	 * 
+	 * @return number of dimensions represented in the (first) point
+	 */
+	public int nDim() 
 	{
-		// TODO make for multishape bodies
+		return points.get(0).nDim();
+	}
+
+	/**
+	 * returns the radius of the body, obtained from the agent
+	 * @return
+	 */
+	public double getRadius() {
+		return (double) agent.get(NameRef.bodyRadius);
+	}
+
+	/**
+	 * returns the spine length of the agent, obtained from the agent
+	 * @return
+	 */
+	public double getLength() {
+		return (double) agent.get(NameRef.bodyLength);
+	}
+	
+	/**
+	 * returns all points in the agent body
+	 * @return
+	 */
+	public List<Point> getPoints()
+	{
+		return this.points;
+	}
+	
+	//TODO: method will be replaced
+	public List<double[]> getJoints()
+	{
+		List<double[]> joints = new LinkedList<double[]>();
+		points.forEach( (p) -> joints.add(p.getPosition()) );
+		return joints;
+	}
+	
+	//FIXME only for testing purposes
+	public Surface getSurface()
+	{
+		return this.surfaces.get(0);
+	}
+	
+	/*************************************************************************
+	 * general methods
+	 ************************************************************************/
+	
+	/**
+	 * returns a duplicate of this body and registers a new agent NOTE: does
+	 * not set the agent's body state!
+	 * TODO proper testing TODO make for multishape bodies
+	 */
+	public Body copy(AspectInterface asp)
+	{
+		Agent agent = (Agent) asp;
 		switch (surfaces.get(0).type())
 		{
 		case SPHERE:
@@ -118,43 +196,12 @@ public class Body implements Duplicable {
 		default:
 			return null;
 		}
-		
 	}
 	
-    /**
-     * The 'body' of the agent is represented by sphere-swept volumes of a 
-     * collection of points connected by springs of length lengths. This results
-     * in a single sphere for coccoid-type agents or a tube for agents described
-     * by multiple points.
-     */
-    protected List<Point> points = new LinkedList<Point>();
-    
-    protected List<Surface> surfaces = new LinkedList<Surface>();
-
-	/**
-	 * Rest angles of torsion springs 
-	 */
-	protected double[] _angles;
-	
-	//TODO: take out
-	public List<double[]> getJoints()
-	{
-		List<double[]> joints = new LinkedList<double[]>();
-		points.forEach( (p) -> joints.add(p.getPosition()) );
-		return joints;
-	}
-	
-	public List<Point> getPoints()
-	{
-		return this.points;
-	}
-	
-	//FIXME only for testing purposes
-	public Surface getSurface()
-	{
-		return this.surfaces.get(0);
-	}
-	
+	/////////////////////////////////////////////////////////////////////////
+	// TODO the bounding box related methods will be replaced by a bounding
+	// box object
+	/////////////////////////////////////////////////////////////////////////
 	/**
 	 * 
 	 * @param radius
@@ -235,23 +282,5 @@ public class Body implements Duplicable {
 		for (int i = 0; i < nDim(); i++)
 			dimensions[i] = upper[i] - coord[i] + 2 * t;
 		return dimensions;
-	}
-	
-	/**
-	 * 
-	 * @return number of dimensions represented in the (first) point
-	 */
-	public int nDim() 
-	{
-		return points.get(0).nDim();
-	}
-
-	// obtains the radius which can be a primary or secondary agent state
-	public double getRadius() {
-		return (double) agent.get(NameRef.bodyRadius);
-	}
-
-	public double getLength() {
-		return (double) agent.get(NameRef.bodyLength);
 	}
 }

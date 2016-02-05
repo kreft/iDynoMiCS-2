@@ -20,6 +20,16 @@ public class Idynomics
 	public static Double version_number = 2.0;
 	
 	/**
+	 * Version description
+	 */
+	public static String version_description = "alpha build 2016.02.04";
+	
+	/**
+	 * Simulator
+	 */
+	public static Simulator simulator = new Simulator();
+	
+	/**
 	* \brief Main method used to start iDynoMiCS.
 	* 
 	* @param args Simulation arguments passed from the command line

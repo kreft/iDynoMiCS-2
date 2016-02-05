@@ -5,6 +5,8 @@ public class NameRef {
 	/**
 	 * Agent state references
 	 */
+	
+	public static String species = "species";
 
 	/**
 	 * 
@@ -25,4 +27,9 @@ public class NameRef {
 	 * 
 	 */
 	public static String bodyLength = "#bodyLength";
+	
+	/**
+	 * NOTE: linker springs will be reworked later, subject to change.
+	 */
+	public static String fillialLinker = "filialLinker";
 }
