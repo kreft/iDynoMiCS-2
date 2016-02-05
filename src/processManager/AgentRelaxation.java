@@ -55,6 +55,7 @@ public class AgentRelaxation extends ProcessManager {
 					links.remove(i);
 				}
 			}
+			
 			//agent.innerSprings();	// TODO method needs to be implemented (but not in Agent())
 			for(Agent neighbour: agents._agentTree.cyclicsearch(
 					(double[]) agent.get("#boundingLower"), /// TODO Add optional extra margin for pulls!!!

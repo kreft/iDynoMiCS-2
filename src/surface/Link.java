@@ -1,5 +1,10 @@
 package surface;
 
+/**
+ * Some testing class will likely be removed or get an other form
+ * @author baco
+ *
+ */
 public class Link {
 	
 

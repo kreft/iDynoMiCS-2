@@ -10,8 +10,14 @@ import agent.Body;
  */
 public class Sphere extends Surface{
 	
+	/**
+	 * The point of this sphere
+	 */
     public Point _point;
 
+    /**
+     * the radius of this spehere
+     */
     private double _radius;
     
     private Body body;
