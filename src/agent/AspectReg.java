@@ -62,8 +62,11 @@ public class AspectReg<A> {
 	 */
 	public void add(String key, A aspect)
 	{
-		Aspect a = new Aspect(aspect);
-		_aspects.put(key, a);
+		if (aspect != null)
+		{
+			Aspect a = new Aspect(aspect);
+			_aspects.put(key, a);
+		}
 	}
 	
 	/**
