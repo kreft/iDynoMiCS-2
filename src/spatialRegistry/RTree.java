@@ -82,11 +82,12 @@ public class RTree<T> extends SpatialRegistry<T>
   }
   
   // cyclic search Rtree
-  public RTree(int maxEntries, int minEntries, int numDims,
-			Shape shape) {
-	  this(maxEntries, minEntries, numDims, SeedPicker.LINEAR);
+  public RTree(int maxEntries, int minEntries, Shape shape)
+  {
+	  this(maxEntries, minEntries, shape.getNumberOfDimensions(),
+			  											SeedPicker.LINEAR);
 	  this._shape = shape;
-	}
+  }
 
   private Node buildRoot(boolean asLeaf)
   {

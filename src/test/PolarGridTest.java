@@ -30,15 +30,20 @@ import idynomics.Timer;
 import linearAlgebra.Vector;
 import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
-import shape.ShapeConventions.BoundarySide;
+import shape.ShapeConventions.DimName;
 import test.plotting.PolarGridPlot3D;
 
-public class PolarGridTest {
+public class PolarGridTest
+{
 	public static Scanner keyboard = new Scanner(System.in);
+	
+	/**
+	 * Diffusivity
+	 */
 	public static double D = 1.0;
 
-	public static void main(String[] args) {
-		
+	public static void main(String[] args)
+	{
 		/**********************************************************************/
 		/********************* CHOOSE ARRAY TYPE HERE *************************/
 		/**********************************************************************/
@@ -64,9 +69,9 @@ public class PolarGridTest {
 		/*
 		 * add boundaries
 		 */
-		for (BoundarySide bs : BoundarySide.values()){
-			grid.addBoundary(bs, new BoundaryFixed().getGridMethod(""));
-		}
+		for ( DimName dim : grid.getDimensionNames() )
+			for ( int i = 0; i < 2; i++ )
+				grid.addBoundary(dim, i, new ConstantDirichlet());
 		
 //		grid.setValueAt(type, new int[]{1,1,1},1);
 //		grid.setValueAt(type, new int[]{2,2,1},0.5);
@@ -116,7 +121,8 @@ public class PolarGridTest {
 				+(System.currentTimeMillis()-t_start)+" ms");	
 	}
 
-	public static void testIterator(SpatialGrid grid){
+	public static void testIterator(SpatialGrid grid)
+	{
 		int[] current;
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 				current = grid.iteratorNext())
@@ -133,13 +139,15 @@ public class PolarGridTest {
 		}
 	}
 	
-	public static void testNbhIterator(SpatialGrid grid){
+	public static void testNbhIterator(SpatialGrid grid)
+	{
 		int[] current;
+		// FIXME Why do we have a nested for-loop for the current iterator???
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 				current = grid.iteratorNext())
 		{
 			System.out.println("grid size: "
-					+Arrays.toString(grid.getNumVoxels()));
+					+Arrays.toString(grid.getNVoxel(current)));
 			int[] nbh;
 			for ( current = grid.resetIterator(); grid.isIteratorValid();
 					current = grid.iteratorNext())
@@ -157,7 +165,8 @@ public class PolarGridTest {
 	}
 	
 	public static PolarGridPlot3D createGraphics(PolarGrid grid, int iterator_step,
-			int location, boolean plot_grid){
+			int location, boolean plot_grid)
+	{
 		/*
 		 * PolarGrid only atm because of getLocation(..) method
 		 */
@@ -247,43 +256,44 @@ public class PolarGridTest {
 		ConstantDirichlet riseCirc = new ConstantDirichlet();
 		riseCirc.setValue(1.0);
 		circ.setGridMethod("rise", riseCirc);
-		aCompartment.addBoundary("CIRCUMFERENCE", circ);
+		aCompartment.addBoundary(DimName.R, 1, circ);
+		
 		
 		Boundary xmin = new BoundaryFixed();
 		ConstantDirichlet fallXmin = new ConstantDirichlet();
 		fallXmin.setValue(1.0);
 		xmin.setGridMethod("fall", fallXmin);
-		aCompartment.addBoundary("XMIN", xmin);
+		aCompartment.addBoundary(DimName.X, 0, xmin);
 		
 		Boundary xmax = new BoundaryFixed();
 		ConstantDirichlet riseXmax = new ConstantDirichlet();
 		riseXmax.setValue(1.0);
 		xmax.setGridMethod("rise", riseXmax);
-		aCompartment.addBoundary("XMAX", xmax);
+		aCompartment.addBoundary(DimName.X, 1, xmax);
 		
 		Boundary ymin = new BoundaryFixed();
 		ConstantDirichlet fallYmin = new ConstantDirichlet();
 		fallYmin.setValue(1.0);
 		ymin.setGridMethod("fall", fallYmin);
-		aCompartment.addBoundary("YMIN", ymin);
+		aCompartment.addBoundary(DimName.Y, 0, ymin);
 		
 		Boundary ymax = new BoundaryFixed();
 		ConstantDirichlet riseYmax = new ConstantDirichlet();
 		riseYmax.setValue(1.0);
 		ymax.setGridMethod("rise", riseYmax);
-		aCompartment.addBoundary("YMAX", ymax);
+		aCompartment.addBoundary(DimName.Y, 1, ymax);
 		
 		Boundary zmin = new BoundaryFixed();
 		ConstantDirichlet fallZmin = new ConstantDirichlet();
 		fallZmin.setValue(1.0);
 		zmin.setGridMethod("fall", fallZmin);
-		aCompartment.addBoundary("ZMIN", zmin);
+		aCompartment.addBoundary(DimName.Z, 0, zmin);
 		
 		Boundary zmax = new BoundaryFixed();
 		ConstantDirichlet riseZmax = new ConstantDirichlet();
 		riseZmax.setValue(1.0);
 		zmax.setGridMethod("rise", riseZmax);
-		aCompartment.addBoundary("ZMAX", zmax);
+		aCompartment.addBoundary(DimName.Z, 1, zmax);
 		
 		//TODO diffusivities
 		aCompartment.init();

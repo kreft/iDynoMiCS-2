@@ -8,7 +8,6 @@ import linearAlgebra.Vector;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import agent.Agent;

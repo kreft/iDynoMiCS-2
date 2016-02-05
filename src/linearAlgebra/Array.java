@@ -535,9 +535,9 @@ public final class Array
 	 */
 	public static double[][][] setAll(double[][][] array, double value)
 	{
-		for ( int i = 0; i < height(array); i++ )
-			for ( int j = 0; j < width(array); j++ )
-				for ( int k = 0; k < depth(array); k++ )
+		for ( int i = 0; i < array.length; i++ )
+			for ( int j = 0; j < array[i].length; j++ )
+				for ( int k = 0; k < array[i][j].length; k++ )
 					array[i][j][k] = value;
 		return array;
 	}
@@ -558,9 +558,9 @@ public final class Array
 	 */
 	public static double[][][] add(double[][][] array, double value)
 	{
-		for ( int i = 0; i < height(array); i++ )
-			for ( int j = 0; j < width(array); j++ )
-				for ( int k = 0; k < depth(array); k++ )
+		for ( int i = 0; i < array.length; i++ )
+			for ( int j = 0; j < array[i].length; j++ )
+				for ( int k = 0; k < array[i][j].length; k++ )
 					array[i][j][k] += value;
 		return array;
 	}
@@ -581,9 +581,9 @@ public final class Array
 	 */
 	public static double[][][] times(double[][][] array, double value)
 	{
-		for ( int i = 0; i < height(array); i++ )
-			for ( int j = 0; j < width(array); j++ )
-				for ( int k = 0; k < depth(array); k++ )
+		for ( int i = 0; i < array.length; i++ )
+			for ( int j = 0; j < array[i].length; j++ )
+				for ( int k = 0; k < array[i][j].length; k++ )
 					array[i][j][k] *= value;
 		return array;
 	}
@@ -601,6 +601,22 @@ public final class Array
 	{
 		double[][][] out = new double[ni][nj][nk];
 		return setAll(out, value);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param size
+	 * @param value
+	 * @return
+	 */
+	public static double[][][] array(int[] size, double value)
+	{
+		if ( size.length != 3)
+		{
+			// TODO safety
+		}
+		return array(size[0], size[1], size[2], value);
 	}
 	
 	/**
@@ -1111,9 +1127,9 @@ public final class Array
 	public static double[][][] add(double[][][] a, double[][][] b)
 	{
 		checkDimensionsSame(a, b);
-		for ( int i = 0; i < height(a); i++ )
-			for ( int j = 0; j < width(a); j++ )
-				for ( int k = 0; k < depth(a); k++ )
+		for ( int i = 0; i < a.length; i++ )
+			for ( int j = 0; j < a[i].length; j++ )
+				for ( int k = 0; k < a[i][j].length; k++ )
 					a[i][j][k] += b[i][j][k];
 		return a;
 	}
@@ -1134,9 +1150,9 @@ public final class Array
 	public static int[][][] subtract(int[][][] a, int[][][] b)
 	{
 		checkDimensionsSame(a, b);
-		for ( int i = 0; i < height(a); i++ )
-			for ( int j = 0; j < width(a); j++ )
-				for ( int k = 0; k < depth(a); k++ )
+		for ( int i = 0; i < a.length; i++ )
+			for ( int j = 0; j < a[i].length; j++ )
+				for ( int k = 0; k < a[i][j].length; k++ )
 					a[i][j][k] -= b[i][j][k];
 		return a;
 	}
@@ -1157,9 +1173,9 @@ public final class Array
 	public static double[][][] subtract(double[][][] a, double[][][] b)
 	{
 		checkDimensionsSame(a, b);
-		for ( int i = 0; i < height(a); i++ )
-			for ( int j = 0; j < width(a); j++ )
-				for ( int k = 0; k < depth(a); k++ )
+		for ( int i = 0; i < a.length; i++ )
+			for ( int j = 0; j < a[i].length; j++ )
+				for ( int k = 0; k < a[i][j].length; k++ )
 					a[i][j][k] -= b[i][j][k];
 		return a;
 	}
@@ -1180,9 +1196,9 @@ public final class Array
 	public static int[][][] elemTimes(int[][][] a, int[][][] b)
 	{
 		checkDimensionsSame(a, b);
-		for ( int i = 0; i < height(a); i++ )
-			for ( int j = 0; j < width(a); j++ )
-				for ( int k = 0; k < depth(a); k++ )
+		for ( int i = 0; i < a.length; i++ )
+			for ( int j = 0; j < a[i].length; j++ )
+				for ( int k = 0; k < a[i][j].length; k++ )
 					a[i][j][k] *= b[i][j][k];
 		return a;
 	}
@@ -1192,20 +1208,16 @@ public final class Array
 	 * 
 	 * <p>Arrays must have same dimensions.</p>
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemTimes({@link #copy(double[][][] a)}, <b>b</b>)</i> to preserve
-	 * the original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Three-dimensional array of doubles.
-	 * @param b Three-dimensional array of doubles.
+	 * @param a Three-dimensional array of doubles (overwritten).
+	 * @param b Three-dimensional array of doubles (preserved).
 	 * @return double[][][] array of <b>a</b> times <b>b</b> element-wise.
 	 */
 	public static double[][][] elemTimes(double[][][] a, double[][][] b)
 	{
 		checkDimensionsSame(a, b);
-		for ( int i = 0; i < height(a); i++ )
-			for ( int j = 0; j < width(a); j++ )
-				for ( int k = 0; k < depth(a); k++ )
+		for ( int i = 0; i < a.length; i++ )
+			for ( int j = 0; j < a[i].length; j++ )
+				for ( int k = 0; k < a[i][j].length; k++ )
 					a[i][j][k] *= b[i][j][k];
 		return a;
 	}
@@ -1215,20 +1227,16 @@ public final class Array
 	 * 
 	 * <p>Arrays must have same dimensions.</p>
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemDivide({@link #copy(int[][][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Three-dimensional array of integers.
-	 * @param b Three-dimensional array of integers.
+	 * @param a Three-dimensional array of integers (overwritten).
+	 * @param b Three-dimensional array of integers (preserved).
 	 * @return int[][][] array of <b>a</b> divided by <b>b</b> element-wise.
 	 */
 	public static int[][][] elemDivide(int[][][] a, int[][][] b)
 	{
 		checkDimensionsSame(a, b);
-		for ( int i = 0; i < height(a); i++ )
-			for ( int j = 0; j < width(a); j++ )
-				for ( int k = 0; k < depth(a); k++ )
+		for ( int i = 0; i < a.length; i++ )
+			for ( int j = 0; j < a[i].length; j++ )
+				for ( int k = 0; k < a[i][j].length; k++ )
 					a[i][j][k] /= b[i][j][k];
 		return a;
 	}
@@ -1238,40 +1246,38 @@ public final class Array
 	 * 
 	 * <p>Arrays must have same dimensions.</p>
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemDivide({@link #copy(double[][][] a)}, <b>b</b>)</i> to preserve
-	 * the original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Three-dimensional array of doubles.
-	 * @param b Three-dimensional array of doubles.
+	 * @param a Three-dimensional array of doubles (overwritten).
+	 * @param b Three-dimensional array of doubles (preserved).
 	 * @return double[][][] array of <b>a</b> divided by <b>b</b>
 	 * element-wise.
 	 */
 	public static double[][][] elemDivide(double[][][] a, double[][][] b)
 	{
 		checkDimensionsSame(a, b);
-		for ( int i = 0; i < height(a); i++ )
-			for ( int j = 0; j < width(a); j++ )
-				for ( int k = 0; k < depth(a); k++ )
+		for ( int i = 0; i < a.length; i++ )
+			for ( int j = 0; j < a[i].length; j++ )
+				for ( int k = 0; k < a[i][j].length; k++ )
 					a[i][j][k] /= b[i][j][k];
 		return a;
 	}
 	
 	/**
-	 * TODO
+	 * \brief Find the total of the absolute pairwise differences between
+	 * elements of two arrays.
 	 * 
+	 * <p>Arrays must have same dimensions.</p>
 	 * 
-	 * @param a Three-dimensional array of doubles.
-	 * @param b Three-dimensional array of doubles.
-	 * @return
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 * @return Total of the absolute pairwise differences.
 	 */
 	public static double totalAbsDifference(double[][][] a, double[][][] b)
 	{
 		checkDimensionsSame(a, b);
 		double out = 0.0;
-		for ( int i = 0; i < height(a); i++ )
-			for ( int j = 0; j < width(a); j++ )
-				for ( int k = 0; k < depth(a); k++ )
+		for ( int i = 0; i < a.length; i++ )
+			for ( int j = 0; j < a[i].length; j++ )
+				for ( int k = 0; k < a[i][j].length; k++ )
 					out += Math.abs(a[i][j][k] - b[i][j][k]);
 		return out;
 	}

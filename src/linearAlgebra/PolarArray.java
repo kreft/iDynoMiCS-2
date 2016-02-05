@@ -1,195 +1,91 @@
 package linearAlgebra;
 
-import java.util.function.DoubleBinaryOperator;
-import java.util.function.DoubleConsumer;
-import java.util.function.DoubleFunction;
-import java.util.function.DoubleSupplier;
-
 import grid.ResolutionCalculator.ResCalc;
-import grid.ResolutionCalculator.UniformResolution;
 
 /**
+ * \brief Utility class for PolarGrids.
+ * 
  * @author Stefan Lang, Friedrich-Schiller University Jena (stefan.lang@uni-jena.de)
- *
- * Utility class for PolarGrids
  */
-public final class PolarArray {
+public final class PolarArray
+{
+	/**
+	 * \brief Used to create an array to store a CylindricalGrid.
+	 * 
+	 * @param resCalc TODO
+	 * @return An array used to store a CylindricalGrid
+	 */
+	public static double[][][] createCylinder(ResCalc[][] resCalc)
+	{
+		return createCylinder(resCalc, 0.0);
+	}
 	
 	/**
-	 * Used to create an array to store a CylindricalGrid
+	 * \brief Used to create an array to store a CylindricalGrid.
 	 * 
-	 * @param resCalc
-	 * @return - An array used to store a CylindricalGrid
+	 * @param resCalc TODO
+	 * @param val Initial value for all voxels in this array.
+	 * @return An array used to store a CylindricalGrid.
 	 */
-	public static double[][][] createCylinder(ResCalc[][] resCalc){
-		int nr, nt, nz;
+	public static double[][][] createCylinder(ResCalc[][] resCalc, double val)
+	{
+		int nr, nz;
 		nr = resCalc[0][0].getNVoxel();
 		nz = resCalc[2][0].getNVoxel();
-		
 		double[][][] a = new double[nr][][];
-		for (int i=0; i<nr; ++i){
-			nt = resCalc[1][i].getNVoxel();
-//			System.out.println(nt);
-			a[i] = new double[nt][nz];
+		for ( int i = 0; i < nr; i++ )
+			a[i] = Matrix.matrix(resCalc[1][i].getNVoxel(), nz, val);
+		return a;
+	}
+	
+	/**
+	 * \brief Used to create an array to store a SphericalGrid.
+	 * 
+	 * @param resCalc TODO
+	 * @return An array used to store a SphericalGrid.
+	 */
+	public static double[][][] createSphere(ResCalc[][][] resCalc)
+	{
+		return createSphere(resCalc, 0.0);
+	}
+	
+	/**
+	 * \brief Used to create an array to store a SphericalGrid.
+	 * 
+	 * @param resCalc TODO
+	 * @param val Initial value for all voxels in this array.
+	 * @return An array used to store a SphericalGrid.
+	 */
+	public static double[][][] createSphere(ResCalc[][][] resCalc, double val)
+	{
+		int nR = resCalc[0][0][0].getNVoxel();
+		int nPhi;
+		double[][][] a = new double[nR][][];
+		for ( int r = 0; r < nR; r++ )
+		{
+			nPhi = resCalc[1][r][0].getNVoxel();
+			a[r] = new double[nPhi][];
+			for ( int p = 0; p < nPhi; p++ )
+				a[r][p] = Vector.vector(resCalc[2][r][p].getNVoxel(), val);
 		}
 		return a;
 	}
 	
 	/**
-	 * Used to create an array to store a CylindricalGrid
+	 * \brief Computes the inner resolution for phi or theta dimensions.
 	 * 
-	 * @param resCalc
-	 * @param val - initial value
-	 * @return - An array used to store a CylindricalGrid
-	 */
-	public static double[][][] createCylinder(
-			ResCalc[][] resCalc, double val){
-		return applyToAll(createCylinder(resCalc),()->{return val;});
-	}
-	
-	/**
-	 * Used to create an array to store a SphericalGrid
-	 * 
-	 * @param nr - number of voxels in r direction
-	 * @param nt - number of voxels in t direction for each r
-	 * @param np - number of voxels in p direction for each r and each t
-	 * @return - An array used to store a SphericalGrid
-	 */
-	public static double[][][] createSphere(ResCalc[][][] resCalc){
-		int nr, nt, np;
-		nr = resCalc[0][0][0].getNVoxel();
-		
-		double[][][] a = new double[nr][][];
-		for (int r=0; r<nr; ++r){
-//			System.out.println(r);
-			np = resCalc[1][r][0].getNVoxel();
-			a[r] = new double[np][];
-			for (int p=0; p<np; ++p){
-//				System.out.println(np[r][t]);
-				nt = resCalc[2][r][p].getNVoxel();
-//				System.out.println(nt);
-				a[r][p] = new double[nt];		
-			}
-//			System.out.println();
-		}
-		return a;
-	}
-	
-	/**
-	 * Used to create an array to store a SphericalGrid
-	 * 
-	 * @param nr - number of voxels in r direction
-	 * @param nt - number of voxels in t direction for each r
-	 * @param np - number of voxels in p direction for each r and each t
-	 * @param val - initial value
-	 * @return - An array used to store a SphericalGrid
-	 */
-	public static double[][][] createSphere(ResCalc[][][] resCalc, double val){
-		return applyToAll(createSphere(resCalc),()->{return val;});
-	}
-	
-	/**
-	 * Used to set all grid cells to a value supplied by f
-	 * 
-	 * @param array - a PolarArray
-	 * @param f - function supplying a double value
-	 * @return - the array with all grid cells set to the value supplied by f
-	 */
-	public static double[][][] applyToAll(double[][][] array, DoubleSupplier f){
-		for (int i=0; i<array.length; ++i){
-			double[][] b=array[i];
-			for (int j=0; j<b.length;++j){
-				double[] c=b[j];
-				for (int k=0; k<c.length;++k) {
-					c[k]=f.getAsDouble();
-				}
-				b[j]=c;
-			}
-			array[i] = b;
-		}
-		return array;
-	}
-	
-	/**
-	 * Used to read all values in the array.
-	 * 
-	 * @param array - a PolarArray
-	 * @param f - a function consuming a double value
-	 */
-	public static void applyToAll(double[][][] array, DoubleConsumer f){
-		for (int i=0; i<array.length; ++i){
-			double[][] b=array[i];
-			for (int j=0; j<b.length;++j){
-				double[] c=b[j];
-				for (int k=0; k<c.length;++k) {
-					f.accept(c[k]);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Used to manipulate all values in the array.
-	 * 
-	 * @param array - a PolarArray
-	 * @param f - a function manipulating a double value
-	 * @return - the manipulated array
-	 */
-	public static double[][][] applyToAll(
-			double[][][] array, DoubleFunction<Double> f){
-		for (int i=0; i<array.length; ++i){
-			double[][] b=array[i];
-			for (int j=0; j<b.length;++j){
-				double[] c=b[j];
-				for (int k=0; k<c.length;++k) {
-					c[k]=f.apply(c[k]);
-				}
-				b[j]=c;
-			}
-			array[i] = b;
-		}
-		return array;
-	}
-	
-	/**
-	 * Used to perform a binary operation between each grid cell 
-	 * of the both arrays. Writes the result into a1.
-	 * 
-	 * @param a1 - a PolarArray
-	 * @param a2 - a PolarArray
-	 * @param f - a function providing the binary operation
-	 * @return - array a1 with the results of the operation f
-	 */
-	public static double[][][] applyToAll(
-			double[][][] a1, double[][][] a2, DoubleBinaryOperator f){
-		checkDimensionsSame(a1, a2);
-		for (int i=0; i<a1.length; ++i){
-			double[][] b1=a1[i];
-			double[][] b2=a2[i];
-			for (int j=0; j<b1.length;++j){
-				double[] c1=b1[j];
-				double[] c2=b2[j];
-				for (int k=0; k<c1.length;++k) {
-					c1[k]=f.applyAsDouble(c1[k], c2[k]);
-				}
-				b1[j]=c1;
-			}
-			a1[i] = b1;
-		}
-		return a1;
-	}
-	
-	/**
-	 * Computes the inner resolution for phi or theta dimensions.
+	 * TODO Rob [2Feb2016]: Is this essentially the number of quarter-circles
+	 * covered by the given angle?
 	 * 
 	 * @param n - total size in theta or phi direction (in radian)
 	 * @return - the inner resolution
 	 */
-	public static double ires(double n){
+	public static double ires(double n)
+	{
 		 // min 1, +1 for each quadrant (=4 for full circle)
 //		return Math.max(2*nt/(Math.PI*res),1);
 //		System.out.println(2*nt/Math.PI);
-		return 2*n/Math.PI;
+		return 2 * n / Math.PI;
 	}
 	
 	/**
@@ -202,37 +98,45 @@ public final class PolarArray {
 	{
 		IllegalArgumentException e = 
 				new IllegalArgumentException("Array dimensions must agree.");
-		if (a.length!=b.length) throw e;
-		if (a[0][0].length!=b[0][0].length) throw e;
-		for (int i=0; i<a.length; ++i){
-			if (a[i].length!=b[i].length) throw e;
-		}
+		if ( a.length != b.length )
+			throw e;
+		if ( a[0][0].length != b[0][0].length )
+			throw e;
+		for ( int i = 0; i < a.length; i++ )
+			if ( a[i].length != b[i].length )
+				throw e;
 	}
 	
 	/**
-	 * @param a - a polar array.
-	 * @return - the maximum value in array a.
+	 * \brief TODO
+	 * 
+	 * TODO Not currently used
+	 * 
+	 * @param r
+	 * @param theta0
+	 * @param theta1
+	 * @param phi0
+	 * @param phi1
+	 * @return
 	 */
-	public static double max(double[][][] a){
-		double max=Double.NEGATIVE_INFINITY;
-		for (int i=0; i<a.length; ++i){
-			double[][] b=a[i];
-			for (int j=0; j<b.length;++j){
-				double[] c=b[j];
-				for (int k=0; k<c.length;++k) {
-					max = c[k]>max ? c[k] : max;
-				}
-			}
-		}
-		return max;
-	}
-	
-	public static double area(
-			double r, double theta0, double theta1, double phi0, double phi1){
+	public static double area(double r, double theta0, double theta1,
+											double phi0, double phi1)
+	{
 		return r * r * (theta1 - theta0) * (Math.cos(phi0)-Math.cos(phi1));
 	}
 	
-	public static double arcLength(double r, double theta0, double theta1){
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO Not currently used
+	 * 
+	 * @param r
+	 * @param theta0
+	 * @param theta1
+	 * @return
+	 */
+	public static double arcLength(double r, double theta0, double theta1)
+	{
 		return r * (theta1 - theta0);
 	}
 }
