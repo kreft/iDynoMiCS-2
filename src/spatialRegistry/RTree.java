@@ -43,7 +43,7 @@ public class RTree<T> extends SpatialRegistry<T>
   private Node nearest;
 
   private volatile int size;
-  private Shape domain;
+  private Shape _shape;
 
   /**
    * Creates a new RTree.
@@ -85,7 +85,7 @@ public class RTree<T> extends SpatialRegistry<T>
   public RTree(int maxEntries, int minEntries, int numDims,
 			Shape shape) {
 	  this(maxEntries, minEntries, numDims, SeedPicker.LINEAR);
-	  this.domain = shape;
+	  this._shape = shape;
 	}
 
   private Node buildRoot(boolean asLeaf)
@@ -200,7 +200,7 @@ public class RTree<T> extends SpatialRegistry<T>
    *          dimension (eg. the top-left corner)
    * @param dimensions
    *          the dimensions of the rectangle.
-   * @param domain
+   * @param _shape
    * 		  size of the cyclic domain
    * @param cyclicdimension
    * 		  array of booleans that defines which boundaries are cyclic
@@ -209,7 +209,7 @@ public class RTree<T> extends SpatialRegistry<T>
    */
 	public List<T> cyclicsearch(double[] coords, double[] dimensions)  {
 		LinkedList<T> combinedlist = new LinkedList<T>();
-		LinkedList<double[]> boxList = domain.getCyclicPoints(coords);
+		LinkedList<double[]> boxList = _shape.getCyclicPoints(coords);
 
 		for(double[] b : boxList) 
 		{

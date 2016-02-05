@@ -3,9 +3,8 @@
 <simulation name="mySim" outputfolder="../../Simulations" log="EXPRESSIVE" 
 			comment="this is a file for testing purposes only.">
 	<general>
-		<param name="nonexisting" value="this is a test" />
 		<param name="timeStepSize" value="1.0" />
-		<param name="endOfSimulation" value="100.0" />
+		<param name="endOfSimulation" value="60.0" />
 	</general>
 	
 	<speciesLib>
@@ -42,7 +41,7 @@
 	</speciesLib>
 
 	<compartment name="second" shape="Rectangle">
-		<sideLengths value="18.0,18.0,1.0" /> <!-- temp subject to change -->
+		<sideLengths value="20.0,20.0,1.0" /> <!-- temp subject to change -->
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
@@ -50,9 +49,9 @@
 				<state name="density" type="double" value="1" />
 				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="RED" />
-				<state name="filialLinker" type="boolean" value="true" />
+				 <!--<state name="filialLinker" type="boolean" value="true" /> -->
 				<state name="body" type="body">
-					<point position="14.2, 14.2" />
+					<point position="12.2, 12.2" />
 				</state>
 			</agent>
 			<agent>
@@ -62,7 +61,7 @@
 				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="BLUE" />
 				<state name="body" type="body">
-					<point position="15.0, 5.3" />
+					<point position="12.0, 5.3" />
 				</state>
 			</agent>
 			<agent>
@@ -72,7 +71,7 @@
 				<state name="#isLocated" type="boolean" value="true" />
 				<state name="pigment" type="String" value="GREEN" />
 				<state name="body" type="body">
-					<point position="5.3, 13.2" />
+					<point position="5.3, 12.2" />
 				</state>
 			</agent>
 		</agents>	
@@ -81,7 +80,9 @@
 				firstStep="0.0" />
 			<process name="agentGrowth" manager="AgentGrowth" priority="0"
 				firstStep="0.0" />	
-			<process name="agentRelaxation" manager="AgentRelaxation" priority="1"
+			<process name="agentMove" manager="AgentStochasticMove" priority="0"
+				firstStep="0.0" />
+			<process name="agentRelax" manager="AgentRelaxation" priority="1"
 				firstStep="0.0" />
 		</processManagers>
 	</compartment>

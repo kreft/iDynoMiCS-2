@@ -3,7 +3,11 @@ package surface;
 import utility.Copier;
 import agent.Body;
 
-
+/**
+ * 
+ * @author baco
+ *
+ */
 public class Rod extends Surface{
 	
     public Point[] _points;

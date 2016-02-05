@@ -6,7 +6,7 @@ import linearAlgebra.Vector;
 /**
  * NOTE: this class is not thread-safe.
  * 
- * Methods are based on closest point algorithms from:
+ * Distance methods are based on closest point algorithms from:
  * Ericson, C. (2005). Real-time collision detection. Computer (Vol. 1).
  * 
  * All cells are represented as sphere-swept volumes

@@ -3,7 +3,11 @@ package surface;
 import utility.Copier;
 import agent.Body;
 
-
+/**
+ * 
+ * @author baco
+ *
+ */
 public class Sphere extends Surface{
 	
     public Point _point;

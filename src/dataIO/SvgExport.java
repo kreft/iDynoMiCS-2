@@ -9,6 +9,11 @@ import agent.Agent;
 import dataIO.Feedback.LogLevel;
 import linearAlgebra.Vector;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class SvgExport {
 	int filewriterfilenr = 0;
 	public List<Task> tasks;

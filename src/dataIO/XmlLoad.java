@@ -20,33 +20,27 @@ import org.xml.sax.SAXException;
 
 import reaction.Reaction;
 import surface.Point;
-import utility.ExtraMath;
 import linearAlgebra.Vector;
-import processManager.AgentGrowth;
-import processManager.AgentRelaxation;
-import processManager.PrepareSoluteGrids;
 import processManager.ProcessManager;
-import processManager.RefreshMassGrids;
-import processManager.SolveDiffusionTransient;
-import processManager.WriteAgentsSvg;
 import agent.Agent;
 import agent.Body;
 import agent.Species;
 import agent.SpeciesLib;
 import agent.AspectRegistry;
-import agent.event.Event;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
-import boundary.BoundaryCyclic;
 import dataIO.Feedback.LogLevel;
-import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Simulator;
 import idynomics.Timer;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class XmlLoad {
 	
 	/////////////////////////////

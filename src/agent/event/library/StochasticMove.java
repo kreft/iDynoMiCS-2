@@ -29,7 +29,7 @@ public class StochasticMove extends Event {
 		for (Point p : points)
 		{
 			p.setPosition(Vector.add(p.getPosition(), 
-					Vector.randomPlusMinus(agentBody.nDim(), timeStep*2.0)));
+					Vector.randomPlusMinus(agentBody.nDim(), timeStep*0.5)));
 		}
 	}
 	

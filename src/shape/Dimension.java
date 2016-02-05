@@ -9,6 +9,7 @@ import generalInterfaces.CanPrelaunchCheck;
  * TODO start point? I.e. not necessarily starting at zero
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author baco
  */
 public class Dimension implements CanPrelaunchCheck
 {
@@ -162,13 +163,24 @@ public class Dimension implements CanPrelaunchCheck
 		return out;
 	}
 	
+	/**
+	 * returns in Frame locations if a is out of the domain frame in a cyclic
+	 * dimension
+	 * @param double a
+	 * @return
+	 */
+	public double inFrameLocation(double a) 
+	{
+		return a % this._length + (a < 0 ? this._length : 0);
+	}
+	
 	public double applyBoundary(double a)
 	{
 		if ( this._isCyclic )
 		{
 			// TODO check this modulo behaves with negative numbers
-			// TODO Bas [03.03.16] nope it does not, check whether this fixes every scenario
-			return a % this._length + (a < 0 ? this._length : 0);
+			// TODO Bas [03.03.16] nope, but fixed now
+			return inFrameLocation(a);
 		}
 		else
 		{
@@ -183,7 +195,11 @@ public class Dimension implements CanPrelaunchCheck
 	public boolean isInside(double a)
 	{
 		/* Always inside a cyclic dimension. */
-		return this._isCyclic || (( a >= 0.0 ) && ( a < this._length ));
+		// NOTE: Bas [04.02.16] even if the domain is cyclic points can still be
+		// outside, yet when they are cyclic they need to be moved to the other
+		// side.
+		// return this._isCyclic || (( a >= 0.0 ) && ( a < this._length ));
+		return  ( a >= 0.0 ) && ( a < this._length );
 	}
 	
 	/**************************************************************************
@@ -192,7 +208,7 @@ public class Dimension implements CanPrelaunchCheck
 	
 	public boolean isReadyForLaunch()
 	{
-		//FIXME remove, put here for testing
+		//FIXME remove, put here for testing, all it currently can do is block launch
 		if(true)
 			return true;
 		for ( int i = 0; i < 2; i++ )
