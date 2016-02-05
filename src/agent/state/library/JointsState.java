@@ -4,6 +4,8 @@ import agent.Agent;
 import agent.Body;
 import agent.state.SecondaryState;
 import agent.state.State;
+import generalInterfaces.AspectInterface;
+import generalInterfaces.Quizable;
 
 public class JointsState extends SecondaryState implements State {
 	
@@ -16,8 +18,9 @@ public class JointsState extends SecondaryState implements State {
 
 	}
 	
-	public Object get(Agent agent)
+	public Object get(AspectInterface aspectOwner)
 	{
+		Quizable agent = (Quizable) aspectOwner;
 		return ((Body) agent.get(input[0])).getJoints();
 	}
 	

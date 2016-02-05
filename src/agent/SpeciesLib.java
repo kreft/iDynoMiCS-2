@@ -7,6 +7,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dataIO.XmlLoad;
+import generalInterfaces.AspectInterface;
 
 /**
  * The species library maintains a hashmap of all species known in this 
@@ -19,7 +20,7 @@ public class SpeciesLib {
 	/**
 	 * Contains all known species
 	 */
-	protected static HashMap<String, Species> _species = new HashMap<String, Species>();
+	protected static HashMap<String, AspectInterface> _species = new HashMap<String, AspectInterface>();
 	
 	/**
 	 * void species, returned if no species is set.
@@ -67,7 +68,7 @@ public class SpeciesLib {
 	 * @param spiecies
 	 * @return
 	 */
-	public static Species set(String name, Species spiecies)
+	public static AspectInterface set(String name, AspectInterface spiecies)
 	{
 		if ( SpeciesLib._species.containsKey(name) )
 			System.out.println("Warning: overwriting species module "+name);
@@ -80,7 +81,7 @@ public class SpeciesLib {
 	 * @param name
 	 * @return
 	 */
-	public static Species get(String name)
+	public static AspectInterface get(String name)
 	{
 		if (_species.containsKey(name))
 			return _species.get(name);

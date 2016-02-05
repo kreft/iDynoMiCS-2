@@ -214,7 +214,7 @@ public class SolveChemostat extends ProcessManager
 				for ( Agent agent : agents.getAllAgents() )
 				{
 					@SuppressWarnings("unchecked")
-					List<Reaction> reactions = (List<Reaction>) agent.getState("reactions");
+					List<Reaction> reactions = (List<Reaction>) agent.get("reactions");
 					for (Reaction reaction : reactions)
 					{
 						

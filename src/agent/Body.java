@@ -1,5 +1,6 @@
 package agent;
 
+import generalInterfaces.AspectInterface;
 import generalInterfaces.Duplicable;
 import idynomics.NameRef;
 
@@ -183,8 +184,9 @@ public class Body implements Duplicable {
 	 * not set the agent's body state!
 	 * TODO proper testing TODO make for multishape bodies
 	 */
-	public Body copy(Agent agent)
+	public Body copy(AspectInterface asp)
 	{
+		Agent agent = (Agent) asp;
 		switch (surfaces.get(0).type())
 		{
 		case SPHERE:

@@ -23,6 +23,7 @@ import surface.Point;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import agent.Agent;
+import agent.AspectReg;
 import agent.Body;
 import agent.Species;
 import agent.SpeciesLib;
@@ -30,6 +31,7 @@ import agent.AspectRegistry;
 import agent.event.EventLoader;
 import agent.state.StateLoader;
 import dataIO.Feedback.LogLevel;
+import generalInterfaces.AspectInterface;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
@@ -192,9 +194,10 @@ public class XmlLoad {
 	 * @param aspectReg
 	 * @param xmlNode
 	 */
-	public static void loadStates(AspectRegistry aspectReg, Node xmlNode)
+	public static void loadStates(AspectInterface aspectInterface, Node xmlNode)
 	{
 		Element xmlAgent = (Element) xmlNode;
+		AspectReg<Object> aspectReg = (AspectReg<Object>) aspectInterface.registry();
 		
 		NodeList stateNodes = xmlAgent.getElementsByTagName("state");
 		for (int j = 0; j < stateNodes.getLength(); j++) 
@@ -205,28 +208,28 @@ public class XmlLoad {
 				switch (s.getAttribute("type")) 
 				{
 					case "boolean" : 
-						aspectReg.setPrimary(s.getAttribute("name"), 
+						aspectReg.add(s.getAttribute("name"), 
 								Boolean.valueOf(s.getAttribute("value")));
 	                	break;
 					case "int" : 
-						aspectReg.setPrimary(s.getAttribute("name"), 
+						aspectReg.add(s.getAttribute("name"), 
 								Integer.valueOf(s.getAttribute("value")));
 	                	break;
 					case "double" : 
-						aspectReg.setPrimary(s.getAttribute("name"), 
+						aspectReg.add(s.getAttribute("name"), 
 								Double.valueOf(s.getAttribute("value")));
 	                	break;
 					case "String" : 
-						aspectReg.setPrimary(s.getAttribute("name"), 
+						aspectReg.add(s.getAttribute("name"), 
 								s.getAttribute("value"));
 	                	break;
 					case "secondary" : 
-						aspectReg.setState(s.getAttribute("name"), 
+						aspectReg.add(s.getAttribute("name"), 
 								StateLoader.getSecondary(s.getAttribute("value")
 										, s.getAttribute("input")));
 	                	break;
 					case "event" :
-						aspectReg.setPrimary(s.getAttribute("name"), 
+						aspectReg.add(s.getAttribute("name"), 
 								EventLoader.getEvent(s.getAttribute("value"), 
 										s.getAttribute("input")));
 				}
@@ -248,8 +251,8 @@ public class XmlLoad {
 						// Bas [01.02.16] TODO: currently only agents can have a
 						// body, look into this if other things alos need to be
 						// able to have a body
-						aspectReg.setPrimary("body", new Body(pointList, 
-								(Agent) aspectReg));
+						aspectReg.add("body", new Body(pointList, 
+								(Agent) aspectInterface));
 						break;
 					case "reactions" :
 						List<Reaction> reactions = new LinkedList<Reaction>();
@@ -260,7 +263,7 @@ public class XmlLoad {
 							reactions.add(new Reaction(
 									reaction.getAttribute("somethingReact")));
 						}
-						aspectReg.setPrimary("reactions", reactions);
+						aspectReg.add("reactions", reactions);
 						break;
 				}
 			}
@@ -275,7 +278,7 @@ public class XmlLoad {
 	 * @param species
 	 * @param xmlNode
 	 */
-	public static void loadSpeciesModules(Species species, Node xmlNode)
+	public static void loadSpeciesModules(AspectInterface species, Node xmlNode)
 	{
 		Element xmlSpecies = (Element) xmlNode;
 		
@@ -283,7 +286,7 @@ public class XmlLoad {
 		for (int j = 0; j < nodes.getLength(); j++) 
 		{
 			Element s = (Element) nodes.item(j);
-			species.addSpeciesModule(s.getAttribute("name"));
+			species.registry().addSubModule(s.getAttribute("name"));
 		}
 	}
 	

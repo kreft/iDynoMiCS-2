@@ -1,7 +1,9 @@
 package agent.state;
 
+import generalInterfaces.AspectInterface;
 import generalInterfaces.Copyable;
 import agent.Agent;
+import agent.AspectReg;
 
 /**
  * Secondary states contain a description of how secondary states can be
@@ -58,5 +60,5 @@ public abstract class SecondaryState implements State, Copyable {
 	/**
 	 * return the current (up-to-date) value of the secondary state.
 	 */
-	public abstract Object get(Agent agent);
+	public abstract Object get(AspectInterface registry);
 }

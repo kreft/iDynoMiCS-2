@@ -109,7 +109,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					// to obtain the State (object) from the agent. Use 
 					// agent.get to retrieve the value from the agent state
 					// agent.get returns null if the state does not exist!
-					if (agent.isGlobalState("reactions"))
+					if (agent.aspectRegistry.isGlobalAspect("reactions"))
 					{
 						@SuppressWarnings("unchecked")
 						List<Reaction> reactions = 

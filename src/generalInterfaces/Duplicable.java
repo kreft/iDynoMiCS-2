@@ -12,5 +12,5 @@ public interface Duplicable {
 	 * immutable objects. Yet it allows to set ownership to a new agent.
 	 * @return
 	 */
-	public Object copy(Agent agent);
+	public Object copy(AspectInterface newObj);
 }

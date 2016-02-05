@@ -4,9 +4,12 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 import agent.event.Event;
-import agent.state.Calculated;
+import agent.state.SecondaryState;
 import dataIO.Feedback;
 import dataIO.Feedback.LogLevel;
+import generalInterfaces.AspectInterface;
+import generalInterfaces.Duplicable;
+import utility.Copier;
 
 
 /**
@@ -38,7 +41,21 @@ public class AspectReg<A> {
 	/**
 	 * Contains all (sub) modules
 	 */
-	protected LinkedList<AspectReg<A>> _modules = new LinkedList<AspectReg<A>>();
+	protected LinkedList<AspectInterface> _modules = new LinkedList<AspectInterface>();
+	
+	/**
+	 * returns true if the key is found in the aspect tree
+	 */
+	public boolean isGlobalAspect(String key)
+	{
+		if (_aspects.containsKey(key))
+			return true;
+		else
+			for (AspectInterface m : _modules)
+				if(m.registry().isGlobalAspect(key) == true)
+					return true;
+		return false;
+	}
 	
 	/**
 	 * add an aspect to this registry
@@ -50,6 +67,14 @@ public class AspectReg<A> {
 	}
 	
 	/**
+	 * same as add but intend is to overwrite
+	 */
+	public void set(String key, A aspect)
+	{
+		add(key,aspect);
+	}
+	
+	/**
 	 * remove aspect from this registry
 	 */
 	public void remove(String key)
@@ -58,16 +83,33 @@ public class AspectReg<A> {
 	}
 	
 	/**
+	 * add a species module to be incorporated in this species
+	 * FIXME: Bas [13.01.16] lets be sure we aren't adding a lot of void
+	 * species here.
+	 * @param name
+	 */
+	public void addSubModule(String name)
+	{
+		addSubModule(SpeciesLib.get(name));
+	}
+	
+	public void addSubModule(AspectInterface module)
+	{
+		_modules.add(module);
+	}
+	
+	/**
 	 * get value if the aspect is a primary or calculated state
 	 */
-	public Object getValue(AspectReg<A> rootRegistry, String key)
+	public Object getValue(AspectInterface rootRegistry, String key)
 	{
 		Aspect a = getAspect(key);
-		
+		if (a == null)
+			return null;
     	switch (a.type)
     	{
     	case PRIMARY: return a.aspect;
-    	case CALCULATED: return ((Calculated) a.aspect).get(rootRegistry);
+    	case CALCULATED: return ((SecondaryState) a.aspect).get(rootRegistry);
     	case EVENT: Feedback.out(LogLevel.CRITICAL, "Attempt to get event" +
     			key + "as Value!");
     	}
@@ -79,8 +121,9 @@ public class AspectReg<A> {
 	 * @param initiator
 	 * @param compliant
 	 * @param timeStep
+	 * TODO: some proper testing
 	 */
-	public void doEvent(AspectReg<A> initiator, AspectReg<A>  compliant, 
+	public void doEvent(AspectInterface initiator, AspectInterface compliant, 
 			double timeStep, String key)
 	{
 		Aspect a = getAspect(key);
@@ -88,16 +131,55 @@ public class AspectReg<A> {
 		if (a.type != AspectType.EVENT)
 			Feedback.out(LogLevel.CRITICAL, "Attempt to initiate non event "
 					+ "aspect" + key + "as event!");
-		//((Event) a.aspect).start(initiator, compliant, timeStep);
+		((Event) a.aspect).start((Agent) initiator, (Agent) compliant, timeStep);
 	}
 	
 	/**
 	 * get local or global aspect (for internal usage).
+	 * NOTE if multiple aspect registry modules have an aspect with the same key
+	 * the first encountered espect with that key will be returned.
 	 */
 	private Aspect getAspect(String key)
 	{
-		return _aspects.get(key);
-		//TODO global aspects
+		if (_aspects.containsKey(key))
+			return _aspects.get(key);
+		else
+			for (AspectInterface m : _modules)
+				if(m.registry().isGlobalAspect(key) == true)
+					return (Aspect) m.registry().getAspect(key);
+		
+		Feedback.out(LogLevel.BULK, "Warning: could not find aspect: " + key);
+		return null;
+	}
+	
+	/**
+	 * 
+	 */
+	public void duplicate(AspectInterface newObj)
+	{
+		AspectReg<A> duplicate = (AspectReg<A>) newObj.registry();
+		duplicate.clear();
+		for (String key : _aspects.keySet())
+		{
+			Aspect a = getAspect(key);
+			if (a.aspect instanceof Duplicable)
+				duplicate.add(key, (A) ((Duplicable) a.aspect).copy(newObj)); 
+			else
+				duplicate.add(key, (A) Copier.copy(a.aspect));
+		}
+		for (AspectInterface m : _modules)
+		{
+			duplicate.addSubModule(m);
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void clear()
+	{
+		this._aspects.clear();
+		this._modules.clear();
 	}
 	
 	/**
@@ -117,7 +199,7 @@ public class AspectReg<A> {
 	    public Aspect(A aspect)
 	    {
 	      this.aspect = aspect;
-	      if(aspect instanceof Calculated)
+	      if(aspect instanceof SecondaryState)
 	    	  this.type = AspectType.CALCULATED;
 	      else if(aspect instanceof Event)
 	    	  this.type = AspectType.EVENT;

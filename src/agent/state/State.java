@@ -26,7 +26,7 @@ public interface State {
 	 * @param agent
 	 * @return
 	 */
-	public Object get(Agent agent);
+//	public Object get(Agent agent);
 
 	/**
 	 * return a duplicate of this state (duplicable interface)

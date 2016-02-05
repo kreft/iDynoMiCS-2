@@ -6,6 +6,7 @@ import dataIO.Feedback.LogLevel;
 import dataIO.XmlLoad;
 import agent.event.Event;
 import agent.state.*;
+import generalInterfaces.AspectInterface;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.NameRef;
@@ -15,7 +16,7 @@ import idynomics.NameRef;
  * @author baco
  *
  */
-public class Agent extends AspectRegistry implements Quizable
+public class Agent implements Quizable, AspectInterface
 {
 
 	/**
@@ -24,16 +25,13 @@ public class Agent extends AspectRegistry implements Quizable
 	 */
 	protected static int UNIQUE_ID = 0;
     final int uid = ++UNIQUE_ID;
-
-    /**
-     * Used to fetch species states.
-     */
-    protected Species species;
     
     /**
      * The compartment the agent is currently in
      */
     protected Compartment compartment;
+    
+    public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
     
     /*************************************************************************
 	 * CONSTRUCTORS
@@ -57,8 +55,7 @@ public class Agent extends AspectRegistry implements Quizable
 	 */
 	public Agent(Agent agent)
 	{
-		for (String key : agent._states.keySet())
-			this._states.put(key, agent.getState(key).duplicate(this));
+		agent.aspectRegistry.duplicate(this);
 		this.init();
 		this.compartment = agent.getCompartment();
 	}
@@ -68,41 +65,17 @@ public class Agent extends AspectRegistry implements Quizable
 	 */
 	public void init()
 	{
-		species = SpeciesLib.get(isLocalState(NameRef.species) ? 
-				(String) get(NameRef.species) : "");
+		aspectRegistry.addSubModule((Species) SpeciesLib.get(aspectRegistry.isGlobalAspect(NameRef.species) ? 
+				(String) get(NameRef.species) : ""));
 	}
 
 
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
-	/**
-	 * Check whether the state exists for this agent 
-	 */
-	public boolean isGlobalState(String name)
-	{
-		return isLocalState(name) ? true : species.isGlobalState(name);
-	}
-	
-	/**
-	 * \brief general getter method for any primary Agent state
-	 * @param name
-	 * 			name of the state (String)
-	 * @return Object of the type specific to the state
-	 */
-	public State getState(String name)
-	{
-		if (isLocalState(name))
-			return _states.get(name);
-		else if (isGlobalState(name))
-			return species.getState(name);	
-		else
-		{
-			Feedback.out(LogLevel.BULK, "State " + name + " is not defined for "
-					+ "agent " + identity());
-			return null;
-		}
+
+	public AspectReg<?> registry() {
+		return aspectRegistry;
 	}
 	
 	/*
@@ -110,13 +83,14 @@ public class Agent extends AspectRegistry implements Quizable
 	 * not found it will look for the Species state with "name". If this state
 	 * is also not found this method will return null.
 	 */
-	public Object get(String name)
+	public Object get(String key)
 	{
-		State state = getState(name);
-		if (state == null)
-			return null;
-		else
-			return getState(name).get(this);
+		return aspectRegistry.getValue(this, key);
+	}
+	
+	public void set(String key, Object aspect)
+	{
+		aspectRegistry.set(key, aspect);
 	}
 
 	/**
@@ -164,9 +138,7 @@ public class Agent extends AspectRegistry implements Quizable
 	
 	public void event(String event, Agent compliant, Double timestep)
 	{
-		Object myEvent = this.get(event);
-		if (myEvent != null)
-			((Event) myEvent).start(this, compliant, timestep);
+		aspectRegistry.doEvent(this,compliant,timestep,event);
 	}
 	
 	/*************************************************************************
