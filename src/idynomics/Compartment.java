@@ -72,6 +72,12 @@ public class Compartment implements CanPrelaunchCheck
 	
 	public void init()
 	{
+		/*
+		 * NOTE: Bas [06.02.16] this may be set elsewhere as long as it is after
+		 * the Dimensions and sideLengths are set.
+		 */
+		this._shape.setSurfaces();
+		
 		this._environment.init();
 	}
 	

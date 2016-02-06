@@ -22,11 +22,6 @@ public class Rod extends Surface{
 	 */
     private double _radius;
     
-    /**
-     * The body this Rod belongs to (null if none)
-     */
-    private Body body;
-    
     public Rod(Point[] points, double spineLength, double radius)
     {
     	this._points = points;
@@ -41,45 +36,39 @@ public class Rod extends Surface{
 		this._radius = radius;
     }
 	
-    public Rod(Point[] points, Body body)
+    public Rod(Point[] points)
     {
     	this._points = points;
-    	this.body = body;
     }
 	
 
-	public Rod(Rod rod, Body body) 
+	public Rod(Rod rod) 
 	{
 		this._points = new Point[] {(Point) rod._points[0].copy(), 
 				(Point) rod._points[0].copy()};
 		this._length = (double) Copier.copy(rod._length);
 		this._radius = (double) Copier.copy(rod._radius);
-		this.body = body;
 	}
 
 
 	public Type type() {
 		return Surface.Type.ROD;
-
 	}
 	
 	public double getRadius()
 	{
-		if (body == null)
-			return _radius;
-		return body.getRadius();
+		return _radius;
 	}
 	
 	public double getLength()
 	{
-		if (body == null)
-			return _length;
-		return body.getLength();
+		return _length;
 	}
 	
-	public void setBody(Body body)
+	public void set(double radius, double spineLength)
 	{
-		this.body = body;
+		this._radius = radius;
+		this._length = spineLength;
 	}
 
 	//TODO

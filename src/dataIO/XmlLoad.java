@@ -251,8 +251,7 @@ public class XmlLoad {
 						// Bas [01.02.16] TODO: currently only agents can have a
 						// body, look into this if other things alos need to be
 						// able to have a body
-						aspectReg.add("body", new Body(pointList, 
-								(Agent) aspectInterface));
+						aspectReg.add("body", new Body(pointList));
 						break;
 					case "reactions" :
 						List<Reaction> reactions = new LinkedList<Reaction>();

@@ -37,11 +37,12 @@
 			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
 			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
 			<state name="surface" type="secondary" value="SimpleSurface" input="body" />
+			<state name="updateBody" type="event" value="UpdateBody" input="body,radius,length" />
 		</species>
 	</speciesLib>
 
 	<compartment name="second" shape="Rectangle">
-		<sideLengths value="20.0,20.0,1.0" /> <!-- temp subject to change -->
+		<sideLengths value="13.0,13.0,1.0" /> <!-- temp subject to change -->
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />

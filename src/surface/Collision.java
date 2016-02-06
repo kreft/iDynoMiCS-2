@@ -1,6 +1,8 @@
 package surface;
 
 import shape.Shape;
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
 import linearAlgebra.Vector;
 
 /**
@@ -158,7 +160,7 @@ public class Collision {
 			((Rod) surf)._points[1].addToForce(Vector.times(force,1.0-intersect));
 			break;
 		case PLANE:
-			System.out.println("WARNING: Surface Plane does not accept force");
+			Feedback.out(LogLevel.BULK,"WARNING: Surface Plane does not accept force");
 		}
 	}
 	

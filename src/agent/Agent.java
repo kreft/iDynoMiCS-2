@@ -123,7 +123,7 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public void event(String event)
 	{
-		event(event, null, null);
+		event(event, null, 0.0);
 	}
 	
 	public void event(String event, Double timestep)
@@ -133,7 +133,7 @@ public class Agent implements Quizable, AspectInterface
 	
 	public void event(String event, Agent compliant)
 	{
-		event(event, compliant, null);
+		event(event, compliant, 0.0);
 	}
 	
 	public void event(String event, Agent compliant, Double timestep)

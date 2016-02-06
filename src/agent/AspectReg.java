@@ -62,11 +62,7 @@ public class AspectReg<A> {
 	 */
 	public void add(String key, A aspect)
 	{
-		if (aspect != null)
-		{
-			Aspect a = new Aspect(aspect);
-			_aspects.put(key, a);
-		}
+		_aspects.put(key, new Aspect(aspect));
 	}
 	
 	/**
@@ -130,11 +126,14 @@ public class AspectReg<A> {
 			double timeStep, String key)
 	{
 		Aspect a = getAspect(key);
-
-		if (a.type != AspectType.EVENT)
+		if (a == null)
+			Feedback.out(LogLevel.CRITICAL, "Warning: aspepct registry does not"
+					+ " contain event:" + key);
+		else if (a.type != AspectType.EVENT)
 			Feedback.out(LogLevel.CRITICAL, "Attempt to initiate non event "
 					+ "aspect" + key + "as event!");
-		((Event) a.aspect).start((Agent) initiator, (Agent) compliant, timeStep);
+		else
+			((Event) a.aspect).start((Agent) initiator, (Agent) compliant, timeStep);
 	}
 	
 	/**

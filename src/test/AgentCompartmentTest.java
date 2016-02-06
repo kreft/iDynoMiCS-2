@@ -21,6 +21,7 @@ import processManager.SolveDiffusionTransient;
 import processManager.WriteAgentsSvg;
 import shape.ShapeConventions.DimName;
 import surface.Point;
+import surface.Sphere;
 import utility.ExtraMath;
 import agent.Agent;
 import agent.Body;
@@ -96,7 +97,7 @@ public class AgentCompartmentTest
 		ezAgent.set("#isLocated", true);	
 		ezAgent.set("pigment", "GREEN");
 		List<Point> pts = new LinkedList<Point>();
-		ezAgent.set("body", new Body(new Point(new double[]{1.0, 1.0}),ezAgent));
+		ezAgent.set("body", new Body(new Sphere(new Point(new double[]{1.0, 1.0}),0.0)));
 
 		ezAgent.set("joints", StateLoader.getSecondary("JointsState","body"));
 		ezAgent.set("#boundingLower", StateLoader.getSecondary("LowerBoundingBox","body,radius"));

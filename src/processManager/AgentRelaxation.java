@@ -36,6 +36,9 @@ public class AgentRelaxation extends ProcessManager {
 	
 	private void updateForces(EnvironmentContainer environment, AgentContainer agents) 
 	{
+		for(Agent agent: agents.getAllLocatedAgents()) 
+			agent.event("updateBody");
+		
 		agents.refreshSpatialRegistry();
 		//FIXME hard coded periodic boundaries and domain size for test case, initiate properly
 		//TODO: in my opinion this information should all just come from the compartment
@@ -65,6 +68,15 @@ public class AgentRelaxation extends ProcessManager {
 					iterator.collision((Surface) agent.get("surface"), (Surface) neighbour.get("surface"));
 					}
 			}
+			
+			/*
+			 * Boundary collisions
+			 */
+			for(Surface s : agents.getShape().getSurfaces())
+			{
+				iterator.collision(s, (Surface) agent.get("surface"));
+			}
+			
 		}
 	}
 
