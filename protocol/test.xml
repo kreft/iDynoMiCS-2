@@ -42,7 +42,7 @@
 	</speciesLib>
 
 	<compartment name="second" shape="Rectangle">
-		<sideLengths value="13.0,13.0,1.0" /> <!-- temp subject to change -->
+		<sideLengths value="16.0,16.0,1.0" /> <!-- temp subject to change -->
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />

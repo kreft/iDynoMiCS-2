@@ -1,5 +1,6 @@
 package agent.event;
 
+import generalInterfaces.AspectInterface;
 import generalInterfaces.Copyable;
 import agent.Agent;
 
@@ -43,7 +44,7 @@ public abstract class Event implements Copyable {
 	 * @param compliant
 	 * @param timeStep
 	 */
-	public abstract void start(Agent initiator, Agent compliant, Double timeStep);
+	public abstract void start(AspectInterface initiator, AspectInterface compliant, Double timeStep);
 
 	/**
 	 * return a copy of this event.

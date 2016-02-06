@@ -31,7 +31,7 @@ public class AgentRelaxation extends ProcessManager {
 	// TODO the following should folow from the protocol file
 	double dtBase		= 0.01;	
 	double maxMovement	= 0.1;
-	String method 		= "euler";
+	String method 		= "shove";
 	boolean timeLeap	= true;
 	
 	private void updateForces(EnvironmentContainer environment, AgentContainer agents) 

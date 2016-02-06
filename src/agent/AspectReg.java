@@ -9,6 +9,7 @@ import dataIO.Feedback;
 import dataIO.Feedback.LogLevel;
 import generalInterfaces.AspectInterface;
 import generalInterfaces.Duplicable;
+import generalInterfaces.Quizable;
 import utility.Copier;
 
 
@@ -62,7 +63,11 @@ public class AspectReg<A> {
 	 */
 	public void add(String key, A aspect)
 	{
-		_aspects.put(key, new Aspect(aspect));
+		if(_aspects.containsKey(key))
+			Feedback.out(LogLevel.DEBUG, "attempt to add aspect " + key + 
+					" which already exists in this aspect registry");
+		else
+			set(key,aspect);
 	}
 	
 	/**
@@ -70,7 +75,7 @@ public class AspectReg<A> {
 	 */
 	public void set(String key, A aspect)
 	{
-		add(key,aspect);
+		_aspects.put(key, new Aspect(aspect));
 	}
 	
 	/**
@@ -82,19 +87,21 @@ public class AspectReg<A> {
 	}
 	
 	/**
-	 * add a species module to be incorporated in this species
-	 * FIXME: Bas [13.01.16] lets be sure we aren't adding a lot of void
-	 * species here.
-	 * @param name
+	 * Add subModule (implementing AspectInterface)
+	 * @param module
 	 */
-	public void addSubModule(String name)
-	{
-		addSubModule(SpeciesLib.get(name));
-	}
-	
 	public void addSubModule(AspectInterface module)
 	{
 		_modules.add(module);
+	}
+	
+	/**
+	 * Add subModule from quizable Library
+	 * @param name
+	 */
+	public void addSubModule(String name, Quizable library)
+	{
+		addSubModule((AspectInterface) library.get(name));
 	}
 	
 	/**
@@ -108,7 +115,7 @@ public class AspectReg<A> {
     	switch (a.type)
     	{
     	case PRIMARY: return a.aspect;
-    	case CALCULATED: return ((SecondaryState) a.aspect).get(rootRegistry);
+    	case CALCULATED: return a.calc.get(rootRegistry);
     	case EVENT: Feedback.out(LogLevel.CRITICAL, "Attempt to get event" +
     			key + "as Value!");
     	}
@@ -129,11 +136,12 @@ public class AspectReg<A> {
 		if (a == null)
 			Feedback.out(LogLevel.CRITICAL, "Warning: aspepct registry does not"
 					+ " contain event:" + key);
+		
 		else if (a.type != AspectType.EVENT)
 			Feedback.out(LogLevel.CRITICAL, "Attempt to initiate non event "
 					+ "aspect" + key + "as event!");
 		else
-			((Event) a.aspect).start((Agent) initiator, (Agent) compliant, timeStep);
+			a.event.start(initiator, compliant, timeStep);
 	}
 	
 	/**
@@ -156,29 +164,25 @@ public class AspectReg<A> {
 	}
 	
 	/**
-	 * 
+	 * copies all aspects and submodule from donor into this aspect registry
 	 */
 	@SuppressWarnings("unchecked")
-	public void duplicate(AspectInterface newObj)
+	public void duplicate(AspectInterface donor)
 	{
-		AspectReg<A> duplicate = (AspectReg<A>) newObj.registry();
-		duplicate.clear();
-		for (String key : _aspects.keySet())
+		this.clear();
+		AspectReg<?> donorReg = donor.registry();
+		for (String key : donorReg._aspects.keySet())
 		{
-			Aspect a = getAspect(key);
-			if (a.aspect instanceof Duplicable)
-				duplicate.add(key, (A) ((Duplicable) a.aspect).copy(newObj)); 
-			else
-				duplicate.add(key, (A) Copier.copy(a.aspect));
+			add(key, (A) Copier.copy(donorReg.getAspect(key).aspect));
 		}
-		for (AspectInterface m : _modules)
+		for (AspectInterface m : donorReg._modules)
 		{
-			duplicate.addSubModule(m);
+			addSubModule(m);
 		}
 	}
 
 	/**
-	 * 
+	 * clear all
 	 */
 	public void clear()
 	{
@@ -195,20 +199,39 @@ public class AspectReg<A> {
 	{
 		final A aspect;
 		final AspectType type;
-
+		
+		/**
+		 * Testing direct access fields (to prevent excessive casting).
+		 * Worth skimming of some milliseconds here ;)
+		 */
+		final SecondaryState calc;
+		final Event event;
+		
 		/**
 		 * Sets the aspect and declares type
 		 * @param aspect
 		 */
 	    public Aspect(A aspect)
 	    {
-	      this.aspect = aspect;
-	      if(aspect instanceof SecondaryState)
-	    	  this.type = AspectType.CALCULATED;
-	      else if(aspect instanceof Event)
-	    	  this.type = AspectType.EVENT;
-	      else
-	    	  this.type = AspectType.PRIMARY;
+			this.aspect = aspect;
+			if(aspect instanceof SecondaryState)
+			{
+				  this.type = AspectType.CALCULATED;
+				  this.calc = (SecondaryState) aspect;
+				  this.event = null;
+			}
+			else if(aspect instanceof Event)
+			{
+				  this.type = AspectType.EVENT;
+				  this.event = (Event) aspect;
+				  this.calc = null;
+			}
+			else
+			{
+				  this.type = AspectType.PRIMARY;
+				  this.event = null;
+				  this.calc = null;
+			}
 	    }
 	} 
 }

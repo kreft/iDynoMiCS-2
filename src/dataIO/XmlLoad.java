@@ -166,7 +166,7 @@ public class XmlLoad {
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
-		SpeciesLib.setAll(loadUnique(Param.xmlDoc, "speciesLib"));
+		Idynomics.simulator.speciesLibrary.setAll(loadUnique(Param.xmlDoc, "speciesLib"));
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = 
@@ -285,7 +285,14 @@ public class XmlLoad {
 		for (int j = 0; j < nodes.getLength(); j++) 
 		{
 			Element s = (Element) nodes.item(j);
-			species.registry().addSubModule(s.getAttribute("name"));
+			
+			/**
+			 * add a species module to be incorporated in this species
+			 * FIXME: Bas [13.01.16] lets be sure we aren't adding a lot of void
+			 * species here.
+			 * @param name
+			 */
+			species.registry().addSubModule(s.getAttribute("name"), Idynomics.simulator.speciesLibrary);
 		}
 	}
 	

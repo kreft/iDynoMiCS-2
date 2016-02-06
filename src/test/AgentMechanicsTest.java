@@ -13,6 +13,7 @@ import dataIO.SvgExport;
 import dataIO.XmlLoad;
 import processManager.*;
 import idynomics.Compartment;
+import idynomics.Idynomics;
 import idynomics.Simulator;
 
 public class AgentMechanicsTest {
@@ -34,14 +35,15 @@ public class AgentMechanicsTest {
 		for (int i = 0; i < speciesNodes.getLength(); i++) 
 		{
 			Element xmlSpecies = (Element) speciesNodes.item(i);
-			SpeciesLib.set(xmlSpecies.getAttribute("name"), 
+			Idynomics.simulator.speciesLibrary.set(xmlSpecies.getAttribute("name"), 
 					new Species(speciesNodes.item(i)));
 		}
 		
 		for (int i = 0; i < speciesNodes.getLength(); i++) 
 		{
 			Element xmlSpecies = (Element) speciesNodes.item(i);
-			XmlLoad.loadSpeciesModules(SpeciesLib.get(xmlSpecies.getAttribute("name")),speciesNodes.item(i)); 
+			XmlLoad.loadSpeciesModules(Idynomics.simulator.speciesLibrary.get(
+					xmlSpecies.getAttribute("name")),speciesNodes.item(i)); 
 		}
 
 		

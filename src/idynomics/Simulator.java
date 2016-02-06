@@ -2,6 +2,7 @@ package idynomics;
 
 import java.util.HashMap;
 
+import agent.SpeciesLib;
 import generalInterfaces.CanPrelaunchCheck;
 import utility.*;
 
@@ -11,6 +12,8 @@ public class Simulator implements CanPrelaunchCheck
 	
 	protected HashMap<String, Compartment> _compartments = 
 										   new HashMap<String, Compartment>();
+	
+	public SpeciesLib speciesLibrary = new SpeciesLib();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS

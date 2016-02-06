@@ -10,6 +10,7 @@ import agent.Body;
 import agent.event.Event;
 import dataIO.Feedback;
 import dataIO.Feedback.LogLevel;
+import generalInterfaces.AspectInterface;
 import idynomics.NameRef;
 
 /**
@@ -25,8 +26,10 @@ public class CoccoidDivision extends Event {
 	/**
 	 * Method that initiates the division
 	 */
-	public void start(Agent mother, Agent daughter, Double timeStep)
+	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
+		Agent mother = (Agent) initiator;
+		Agent daughter = (Agent) compliant;
 		//TODO check phase 
 		double momMass =(double) mother.get(input[0]);
 		if (momMass > 0.2)

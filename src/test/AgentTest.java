@@ -7,8 +7,8 @@ import dataIO.PovExport;
 import dataIO.XmlLoad;
 import agent.Agent;
 import agent.Species;
-import agent.SpeciesLib;
 import idynomics.Compartment;
+import idynomics.Idynomics;
 import idynomics.Simulator;
 import utility.ExtraMath;
 
@@ -34,7 +34,7 @@ public class AgentTest {
 		for (int i = 0; i < speciesNodes.getLength(); i++) 
 		{
 			Element xmlSpecies = (Element) speciesNodes.item(i);
-			SpeciesLib.set(xmlSpecies.getAttribute("name"), 
+			Idynomics.simulator.speciesLibrary.set(xmlSpecies.getAttribute("name"), 
 					new Species(speciesNodes.item(i)));
 		}
 		

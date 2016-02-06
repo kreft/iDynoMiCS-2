@@ -3,6 +3,7 @@ package agent.event.library;
 //FIXME this class is for testing purposes only!!!
 import agent.Agent;
 import agent.event.Event;
+import generalInterfaces.AspectInterface;
 
 /**
  * TODO: We are going to do this different (integrate into ODE/PDE), this event
@@ -15,8 +16,9 @@ import agent.event.Event;
  */
 public class SimpleGrowth extends Event {
 
-	public void start(Agent agent, Agent compliant, Double timeStep)
+	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
+		Agent agent = (Agent) initiator;
 		// TODO: We are going to do this different (integrate into ODE/PDE)
 		// this method is just for testing purposes.
 		// simple ask the agents at what rate they grow, they should than figure
