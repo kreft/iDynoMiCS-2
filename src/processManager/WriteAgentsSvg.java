@@ -15,6 +15,6 @@ public class WriteAgentsSvg extends ProcessManager
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
-		svg.writepov("PlaceHolderSinceProcessManagerCannotAccessCompartmentName", agents);
+		svg.writepov((String) reg().getValue(this, "comparmentName"), agents);
 	}
 }

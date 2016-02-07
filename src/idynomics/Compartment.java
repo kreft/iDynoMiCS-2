@@ -75,7 +75,6 @@ public class Compartment implements CanPrelaunchCheck
 	{
 		this((Shape) Shape.getNewInstance(aShapeName));
 	}
-
 	
 	public void init()
 	{

@@ -30,6 +30,9 @@ public class Agent implements Quizable, AspectInterface
      */
     protected Compartment compartment;
     
+    /**
+     * The aspect registry
+     */
     public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
     
     /*************************************************************************
@@ -43,7 +46,7 @@ public class Agent implements Quizable, AspectInterface
 	
 	public Agent(Node xmlNode)
 	{
-		XmlLoad.loadStates(this, xmlNode);
+		AspectInterface.loadAspects(this, xmlNode);
 		this.init();
 	}
 	

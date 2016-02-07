@@ -107,65 +107,7 @@ public class XmlLoad {
 		}
 	}
 
-	/**
-	 * Loads all states from xmlNode into anything that implements the
-	 * StateObject interface.
-	 * @param aspectReg
-	 * @param xmlNode
-	 */
-	public static void loadStates(AspectInterface aspectInterface, Node xmlNode)
-	{
-		Element xmlAgent = (Element) xmlNode;
-		@SuppressWarnings("unchecked")
-		AspectReg<Object> aspectReg = (AspectReg<Object>) aspectInterface.reg();
-		
-		NodeList stateNodes = xmlAgent.getElementsByTagName("state");
-		for (int j = 0; j < stateNodes.getLength(); j++) 
-		{
-			Element s = (Element) stateNodes.item(j);
-			if (! s.hasChildNodes())	// state node with just attributes //
-			{
-				switch (s.getAttribute("type")) 
-				{
-					case "boolean" : 
-						aspectReg.add(s.getAttribute("name"), 
-								Boolean.valueOf(s.getAttribute("value")));
-	                	break;
-					case "int" : 
-						aspectReg.add(s.getAttribute("name"), 
-								Integer.valueOf(s.getAttribute("value")));
-	                	break;
-					case "double" : 
-						aspectReg.add(s.getAttribute("name"), 
-								Double.valueOf(s.getAttribute("value")));
-	                	break;
-					case "String" : 
-						aspectReg.add(s.getAttribute("name"), 
-								s.getAttribute("value"));
-	                	break;
-					case "secondary" : 
-						aspectReg.add(s.getAttribute("name"), 
-								Calculated.getNewInstance(s));
-	                	break;
-					case "event" :
-						aspectReg.add(s.getAttribute("name"), 
-								Event.getNewInstance(s));
-				}
-			}
-			else	// state node with attributes and child nodes //
-			{
-				switch (s.getAttribute("type")) 
-				{
-					case "body" :
-						aspectReg.add("body", Body.getNewInstance(s));
-						break;
-					case "reactions" :
-						// TODO
-						break;
-				}
-			}
-		}
-	}
+
 	
 	/**
 	 * Load speciesModules is used to obtain all speciesModules from an XML node

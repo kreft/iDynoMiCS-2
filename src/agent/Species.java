@@ -24,7 +24,7 @@ public class Species implements AspectInterface
 	}
 	
 	public Species(Node xmlNode) {
-		XmlLoad.loadStates(this, xmlNode);
+		AspectInterface.loadAspects(this, xmlNode);
 	}
 
 	

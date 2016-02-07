@@ -5,15 +5,16 @@ import java.util.Collection;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import aspect.Calculated;
+import aspect.AspectInterface;
+import aspect.AspectReg;
 import boundary.Boundary;
-import dataIO.XmlHandler;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.NameRef;
 import idynomics.Timer;
 
-public abstract class ProcessManager implements XMLable
+public abstract class ProcessManager implements XMLable, AspectInterface
 {
 	protected String _name;
 	
@@ -25,6 +26,11 @@ public abstract class ProcessManager implements XMLable
 	
 	protected boolean _debugMode = false;
 	
+	/**
+     * The aspect registry
+     */
+    public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -34,26 +40,43 @@ public abstract class ProcessManager implements XMLable
 	{
 		
 	}
-
-	public static ProcessManager getNewInstance(Node xmlNode)
-	{
-		Element p = (Element) xmlNode;
-		ProcessManager process = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		process.setName(p.getAttribute("name"));
-		process.setPriority(Integer.valueOf(p.getAttribute("priority")));
-		process.setTimeForNextStep(Double.valueOf(p.getAttribute("firstStep")));
-		process.setTimeStepSize(Timer.getTimeStepSize());
-		return process;
-	}
 	
 	public void init()
 	{
 		
 	}
+
+	/**
+	 * implements XMLable interface, return new instance from xml Node
+	 * @param xmlNode
+	 * @return
+	 */
+	public static ProcessManager getNewInstance(Node xmlNode)
+	{
+		Element p = (Element) xmlNode;
+		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
+		
+		proc.setName( p.getAttribute( NameRef.xmlName ));
+		proc.setPriority( Integer.valueOf( 
+				p.getAttribute( NameRef.processPriority) ));
+		proc.setTimeForNextStep( Double.valueOf(
+				p.getAttribute( NameRef.initialStep )));
+		proc.setTimeStepSize( Timer.getTimeStepSize() );
+
+		AspectInterface.loadAspects(proc, xmlNode);
+		return proc;
+	}
 	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
+	
+	/**
+	 * return the aspect registry (implementation of aspect interface).
+	 */
+	public AspectReg<?> reg() {
+		return aspectRegistry;
+	}
 	
 	public String getName()
 	{

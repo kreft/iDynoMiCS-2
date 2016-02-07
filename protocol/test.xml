@@ -78,7 +78,9 @@
 		</agents>	
 		<processManagers>
 			<process name="svgWriter" class="WriteAgentsSvg" priority="2"
-				firstStep="0.0" package="processManager." />
+				firstStep="0.0" package="processManager." >
+				<state name="comparmentName" type="String" value="second" />
+			</process>
 			<process name="agentGrowth" class="AgentGrowth" priority="0"
 				firstStep="0.0" package="processManager." />	
 			<process name="agentMove" class="AgentStochasticMove" priority="0"
