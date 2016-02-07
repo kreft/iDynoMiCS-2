@@ -5,8 +5,8 @@ import generalInterfaces.Copyable;
 import java.util.LinkedList;
 import java.util.List;
 
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import dataIO.Log;
+import dataIO.Log.tier;
 import surface.*;
 
 public class Body implements Copyable {

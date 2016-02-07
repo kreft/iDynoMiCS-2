@@ -2,8 +2,8 @@ package agent.event.library;
 
 import agent.Agent;
 import agent.Body;
-import agent.event.Event;
-import generalInterfaces.AspectInterface;
+import aspect.AspectInterface;
+import aspect.Event;
 
 public class UpdateBody extends Event {
 

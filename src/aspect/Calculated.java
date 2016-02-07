@@ -1,22 +1,14 @@
-package agent.state;
+package aspect;
 
-import generalInterfaces.AspectInterface;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
-
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
-import agent.Agent;
-import agent.AspectReg;
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
 import dataIO.XmlHandler;
 
 /**
- * Secondary states contain a description of how secondary states can be
- * calculated from primary states. Secondary states return the value of this
- * calculated states when queried and are intended to prevent errors due to
+ * Calculated/Secondary states contain a description of how secondary states 
+ * can be calculated from primary states. Secondary states return the value of 
+ * this calculated states when queried and are intended to prevent errors due to
  * state values that have not been updated, and they reduce memory capacity 
  * since the can be set on species level rather than agent level.
  * @author baco

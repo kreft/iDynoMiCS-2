@@ -6,8 +6,8 @@ import org.w3c.dom.NodeList;
 import agent.Agent;
 import agent.Species;
 import agent.SpeciesLib;
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import dataIO.Log;
+import dataIO.Log.tier;
 import dataIO.PovExport;
 import dataIO.SvgExport;
 import dataIO.XmlHandler;
@@ -27,7 +27,7 @@ public class AgentMechanicsTest {
 
 		Simulator sim = new Simulator();
 		Compartment testcompartment = null;
-		Feedback.set(LogLevel.EXPRESSIVE);
+		Log.set(tier.EXPRESSIVE);
 		
 		Element doc = XmlHandler.loadDocument("testagents.xml");
 		
@@ -63,7 +63,7 @@ public class AgentMechanicsTest {
 						
 			// Check the agent container
 			if (xmlCompartment.getElementsByTagName("agents").getLength() > 1)
-				Feedback.out(LogLevel.QUIET, "more than 1 agentcontainer!!!");
+				Log.out(tier.QUIET, "more than 1 agentcontainer!!!");
 
 			// cycle trough all agents in the agent container
 			NodeList agentNodes = ((Element) xmlCompartment.
@@ -101,7 +101,7 @@ public class AgentMechanicsTest {
 //		PovExport pov = new PovExport();
 		SvgExport svg = new SvgExport();
 
-		Feedback.out(LogLevel.NORMAL, "Time: " + agentRelax.getTimeForNextStep());
+		Log.out(tier.NORMAL, "Time: " + agentRelax.getTimeForNextStep());
 		// write initial state
 //		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 		svg.writepov(testcompartment.name, testcompartment.agents);
@@ -115,8 +115,8 @@ public class AgentMechanicsTest {
 			// write output
 //			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
 			svg.writepov(testcompartment.name, testcompartment.agents);
-			Feedback.out(LogLevel.NORMAL, mStep-nStep + " Time: " + agentRelax.getTimeForNextStep());
+			Log.out(tier.NORMAL, mStep-nStep + " Time: " + agentRelax.getTimeForNextStep());
 		}
-		Feedback.out(LogLevel.QUIET,"finished");
+		Log.out(tier.QUIET,"finished");
 	}
 }

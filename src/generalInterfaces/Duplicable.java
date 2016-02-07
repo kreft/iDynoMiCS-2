@@ -1,6 +1,7 @@
 package generalInterfaces;
 
 import agent.Agent;
+import aspect.AspectInterface;
 
 //TODO sort out the best way of handling copyable and duplicable objects
 public interface Duplicable {

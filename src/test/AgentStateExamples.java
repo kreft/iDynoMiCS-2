@@ -1,7 +1,6 @@
 package test;
 
 import agent.Agent;
-import agent.state.StateLoader;
 
 public class AgentStateExamples {
 
@@ -67,8 +66,6 @@ public class AgentStateExamples {
 		// add a new state again
 		ezagent.set("density", 0.2);
 		
-		// add a predefined secondary state
-		ezagent.set("volume",  StateLoader.getSecondary("SimpleVolumeState","mass,density"));
 		
 		}
 		System.out.println(times + " times in: " + (System.currentTimeMillis()-tic) + " milisecs");

@@ -1,9 +1,10 @@
 package agent;
 import org.w3c.dom.Node;
 
-import dataIO.Feedback.*;
+import aspect.AspectInterface;
+import aspect.AspectReg;
+import dataIO.Log.*;
 import dataIO.XmlLoad;
-import generalInterfaces.AspectInterface;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Idynomics;

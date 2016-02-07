@@ -12,8 +12,8 @@ import java.util.List;
 
 import agent.Agent;
 import agent.Body;
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import dataIO.Log;
+import dataIO.Log.tier;
 
 	////////////////////////
 	// WORK IN PROGRESS, initial version
@@ -52,7 +52,7 @@ public class AgentRelaxation extends ProcessManager {
 			{
 				if (links.get(i).evaluate(iterator))
 				{
-					Feedback.out(LogLevel.BULK, "Fillial link breakage due to "
+					Log.out(tier.BULK, "Fillial link breakage due to "
 							+ "over extending maximum link length.");
 					links.remove(i);
 				}

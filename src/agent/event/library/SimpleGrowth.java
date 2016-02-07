@@ -2,8 +2,8 @@ package agent.event.library;
 
 //FIXME this class is for testing purposes only!!!
 import agent.Agent;
-import agent.event.Event;
-import generalInterfaces.AspectInterface;
+import aspect.AspectInterface;
+import aspect.Event;
 
 /**
  * TODO: We are going to do this different (integrate into ODE/PDE), this event

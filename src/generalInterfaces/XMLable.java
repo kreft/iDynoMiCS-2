@@ -6,9 +6,8 @@ package generalInterfaces;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
-import dataIO.LogFile;
+import dataIO.Log;
+import dataIO.Log.tier;
 import idynomics.Idynomics;
 
 /**
@@ -74,7 +73,7 @@ public interface XMLable
 		}
 		catch ( Exception e )
 		{
-			LogFile.shoutLog(
+			Log.out(tier.CRITICAL,
 					"ERROR! Problem in XMLable.getNewInstance("+className+")");
 			e.printStackTrace();
 		}
@@ -90,7 +89,7 @@ public interface XMLable
 	{
 		Element E = (Element) xmlNode;
 		if(! E.hasAttribute("class"))
-			Feedback.out(LogLevel.CRITICAL, "no className devined in: " + 
+			Log.out(tier.CRITICAL, "no className devined in: " + 
 					E.getTagName());
 		else if(! E.hasAttribute("package"))
 			return getNewInstance(xmlNode, E.getAttribute("class"));

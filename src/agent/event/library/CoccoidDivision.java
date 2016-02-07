@@ -7,10 +7,10 @@ import utility.ExtraMath;
 import linearAlgebra.Vector;
 import agent.Agent;
 import agent.Body;
-import agent.event.Event;
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
-import generalInterfaces.AspectInterface;
+import aspect.AspectInterface;
+import aspect.Event;
+import dataIO.Log;
+import dataIO.Log.tier;
 import idynomics.NameRef;
 
 /**
@@ -60,7 +60,7 @@ public class CoccoidDivision extends Event {
 			if (mother.get(NameRef.fillialLinker) == null || !(boolean) 
 					mother.get(NameRef.fillialLinker))
 			{
-				Feedback.out(LogLevel.BULK, "Agent does not create fillial "
+				Log.out(tier.BULK, "Agent does not create fillial "
 						+ "links");
 			}
 			else
@@ -70,7 +70,7 @@ public class CoccoidDivision extends Event {
 						daughterBody.getSurface() } , 1.7 ));
 			}
 			daughter.registerBirth();
-			Feedback.out(LogLevel.DEBUG, "CoccoidDivision added daughter cell");
+			Log.out(tier.DEBUG, "CoccoidDivision added daughter cell");
 		}
 	}
 }

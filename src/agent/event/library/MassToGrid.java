@@ -2,8 +2,8 @@ package agent.event.library;
 
 import grid.SpatialGrid;
 import agent.Agent;
-import agent.event.Event;
-import generalInterfaces.AspectInterface;
+import aspect.AspectInterface;
+import aspect.Event;
 import grid.SpatialGrid.ArrayType;
 
 /**

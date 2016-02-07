@@ -1,6 +1,4 @@
-package generalInterfaces;
-
-import agent.AspectReg;
+package aspect;
 
 public abstract interface AspectInterface {
 	

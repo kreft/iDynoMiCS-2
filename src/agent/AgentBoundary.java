@@ -8,6 +8,9 @@ import org.w3c.dom.Node;
 /**
  * \brief TODO
  * 
+ * NOTE: Bas [07.02.2016] all agent boundary interactions are done by Shape
+ * aren't they? is this class needed?
+ * 
  * @author Bastiaan Cockx
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */

@@ -1,8 +1,8 @@
 package agent.state.library;
 
 import agent.Body;
-import agent.state.Calculated;
-import generalInterfaces.AspectInterface;
+import aspect.AspectInterface;
+import aspect.Calculated;
 import generalInterfaces.Quizable;
 
 /**

@@ -1,11 +1,10 @@
-package agent;
+package aspect;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
-import generalInterfaces.AspectInterface;
+import dataIO.Log;
+import dataIO.Log.tier;
 import generalInterfaces.Quizable;
 import utility.Copier;
 
@@ -17,18 +16,6 @@ import utility.Copier;
  * @param <A>
  */
 public class AspectReg<A> {
-	
-	/**
-	 * The recognized aspect types
-	 * @author baco
-	 *
-	 */
-	public enum AspectType
-	{
-		PRIMARY,
-		CALCULATED,
-		EVENT
-	}
 	
 	/**
 	 * The aspect HashMap stores all aspects (primary, secondary states and 
@@ -63,7 +50,7 @@ public class AspectReg<A> {
 	public void add(String key, A aspect)
 	{
 		if(_aspects.containsKey(key))
-			Feedback.out(LogLevel.DEBUG, "attempt to add aspect " + key + 
+			Log.out(tier.DEBUG, "attempt to add aspect " + key + 
 					" which already exists in this aspect registry");
 		else
 			set(key,aspect);
@@ -115,7 +102,7 @@ public class AspectReg<A> {
     	{
     	case PRIMARY: return a.aspect;
     	case CALCULATED: return a.calc.get(rootRegistry);
-    	case EVENT: Feedback.out(LogLevel.CRITICAL, "Attempt to get event" +
+    	case EVENT: Log.out(tier.CRITICAL, "Attempt to get event" +
     			key + "as Value!");
     	}
     	return null;
@@ -133,11 +120,11 @@ public class AspectReg<A> {
 	{
 		Aspect<?> a = getAspect(key);
 		if (a == null)
-			Feedback.out(LogLevel.CRITICAL, "Warning: aspepct registry does not"
+			Log.out(tier.CRITICAL, "Warning: aspepct registry does not"
 					+ " contain event:" + key);
 		
-		else if (a.type != AspectType.EVENT)
-			Feedback.out(LogLevel.CRITICAL, "Attempt to initiate non event "
+		else if (a.type != Aspect.aspectClass.EVENT)
+			Log.out(tier.CRITICAL, "Attempt to initiate non event "
 					+ "aspect" + key + "as event!");
 		else
 			a.event.start(initiator, compliant, timeStep);
@@ -157,7 +144,7 @@ public class AspectReg<A> {
 				if(m.registry().isGlobalAspect(key) == true)
 					return (Aspect<?>) m.registry().getAspect(key);
 		
-		Feedback.out(LogLevel.BULK, "Warning: could not find aspect: " + key);
+		Log.out(tier.BULK, "Warning: could not find aspect: " + key);
 		return null;
 	}
 	

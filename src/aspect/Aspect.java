@@ -1,8 +1,4 @@
-package agent;
-
-import agent.AspectReg.AspectType;
-import agent.event.Event;
-import agent.state.Calculated;
+package aspect;
 
 /**
  * 
@@ -12,11 +8,23 @@ import agent.state.Calculated;
  */
 public class Aspect<A>
 {
+	/**
+	 * The recognized aspect types
+	 * @author baco
+	 *
+	 */
+	public enum aspectClass
+	{
+		PRIMARY,
+		CALCULATED,
+		EVENT
+	}
+
 	final A aspect;
-	final AspectType type;
+	final aspectClass type;
 	
 	/**
-	 * Testing direct access fields (to prevent excessive casting).
+	 * Testing/experimenting direct access fields (to prevent excessive casting).
 	 * Worth skimming of some milliseconds here ;)
 	 */
 	final Calculated calc;
@@ -32,19 +40,19 @@ public class Aspect<A>
     	this.aspect = aspect;
 		if(this.aspect instanceof Calculated)
 		{
-			  this.type = AspectType.CALCULATED;
+			  this.type = Aspect.aspectClass.CALCULATED;
 			  this.calc = (Calculated) aspect;
 			  this.event = null;
 		}
 		else if(aspect instanceof Event)
 		{
-			  this.type = AspectType.EVENT;
+			  this.type = Aspect.aspectClass.EVENT;
 			  this.event = (Event) aspect;
 			  this.calc = null;
 		}
 		else
 		{
-			  this.type = AspectType.PRIMARY;
+			  this.type = Aspect.aspectClass.PRIMARY;
 			  this.event = null;
 			  this.calc = null;
 		}

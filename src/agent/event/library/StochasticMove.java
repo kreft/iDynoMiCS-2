@@ -4,8 +4,8 @@ import java.util.List;
 
 import agent.Agent;
 import agent.Body;
-import agent.event.Event;
-import generalInterfaces.AspectInterface;
+import aspect.AspectInterface;
+import aspect.Event;
 import linearAlgebra.Vector;
 import surface.Point;
 

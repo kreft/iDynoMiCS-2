@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import dataIO.Log;
+import dataIO.Log.tier;
 import dataIO.XmlHandler;
 
 /**
@@ -41,7 +41,7 @@ public class XMLableLibrary {
 			return _lib.get(key);
 		else
 		{
-			Feedback.out(LogLevel.CRITICAL, "Could not obtain " + key + " from"
+			Log.out(tier.CRITICAL, "Could not obtain " + key + " from"
 					+ " XMLableLibrary");
 			return null;
 		}
@@ -54,7 +54,7 @@ public class XMLableLibrary {
 	{
 		if(_lib.containsKey(className))
 		{
-			Feedback.out(LogLevel.DEBUG, "Overwriting class,package association"
+			Log.out(tier.DEBUG, "Overwriting class,package association"
 					+ className + " , " + classPackage);
 		}
 		_lib.put(className, classPackage);

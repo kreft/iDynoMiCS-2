@@ -23,7 +23,7 @@
 			<state name="pigment" type="String" value="GREEN" />
 			<!-- this has not been made yet, use a static growthrate for now -->
 			<state name="growthRate" type="double" value="0.08" />
-			<state name="stochasticMove" type="event" value="StochasticMove" input="body" />
+			<state name="stochasticMove" type="event" class="StochasticMove" package="agent.event.library." input="body" />
 			<speciesModule name="coccoid" />
 		</species>
 		<species name="coccoid">
@@ -34,10 +34,10 @@
 			<state name="radius" type="secondary" class="CoccoidRadius" input="volume" />
 			<state name="#boundingLower" type="secondary" class="LowerBoundingBox" input="body,radius" />
 			<state name="#boundingSides" type="secondary" class="DimensionsBoundingBox" input="body,radius" />
-			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
-			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
+			<state name="growth" type="event" package="agent.event.library." class="SimpleGrowth" input="mass,growthRate" />
+			<state name="divide" type="event" package="agent.event.library." class="CoccoidDivision" input="mass,radius,body" />
 			<state name="surface" type="secondary" class="SimpleSurface" input="body" />
-			<state name="updateBody" type="event" value="UpdateBody" input="body,radius,length" />
+			<state name="updateBody" type="event" package="agent.event.library." class="UpdateBody" input="body,radius,length" />
 		</species>
 	</speciesLib>
 

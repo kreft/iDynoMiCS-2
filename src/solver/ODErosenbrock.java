@@ -1,6 +1,7 @@
 package solver;
 
-import dataIO.LogFile;
+import dataIO.Log;
+import dataIO.Log.tier;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
@@ -224,7 +225,7 @@ public class ODErosenbrock extends ODEsolver
 					test = Matrix.condition(W);
 					if ( test > 10.0)
 					{ 
-						LogFile.shoutLog(
+						Log.out(tier.CRITICAL,
 							"Warning (ODEsolver): Condition of W is "+test);
 					}
 					/*
@@ -327,7 +328,7 @@ public class ODErosenbrock extends ODEsolver
 				}
 				catch (Exception e)
 				{
-					LogFile.writeError("Problem in Rosenbrock step", e);
+					Log.out(tier.CRITICAL,"Problem in Rosenbrock step" + e);
 				}
 				/*
 				 * The solution is accepted if the weighted error is less than
@@ -367,7 +368,7 @@ public class ODErosenbrock extends ODEsolver
 				}
 				else
 					break;
-				LogFile.writeLog("error = "+error+", absTol = "+absTol+", h = "+h);
+				Log.out(tier.NORMAL,"error = "+error+", absTol = "+absTol+", h = "+h);
 				//return y; //Bughunt
 			} // End of `while ( true )`
 			/*

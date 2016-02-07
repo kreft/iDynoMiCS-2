@@ -14,13 +14,12 @@ import surface.Point;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import agent.Agent;
-import agent.AspectReg;
 import agent.Body;
-import agent.event.EventLoader;
-import agent.state.Calculated;
-import agent.state.StateLoader;
-import dataIO.Feedback.LogLevel;
-import generalInterfaces.AspectInterface;
+import aspect.AspectInterface;
+import aspect.AspectReg;
+import aspect.Calculated;
+import aspect.Event;
+import dataIO.Log.tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
@@ -45,12 +44,12 @@ public class XmlLoad {
 			c = Class.forName(inPackage + "." + inClass);
 			return c.newInstance();
 		} catch (ClassNotFoundException e ){
-			Feedback.out(LogLevel.QUIET,"ERROR: the class " + inClass + " "
+			Log.out(tier.QUIET,"ERROR: the class " + inClass + " "
 					+ "could not be found. Check the " + inPackage
 					+ "package for the existence of this class.");
 			e.printStackTrace();
 		} catch (InstantiationException | IllegalAccessException e)  {
-			Feedback.out(LogLevel.QUIET,"ERROR: the class " + inClass + " "
+			Log.out(tier.QUIET,"ERROR: the class " + inClass + " "
 					+ "could not be accesed or instantieated. Check whether the"
 					+ " called class is valid.");
 			e.printStackTrace();
@@ -180,9 +179,8 @@ public class XmlLoad {
 								Calculated.getNewInstance(s));
 	                	break;
 					case "event" :
-						aspectReg.add(s.getAttribute("name"),
-								EventLoader.getEvent(s.getAttribute("value"), 
-										s.getAttribute("input")));
+						aspectReg.add(s.getAttribute("name"), 
+								Event.getNewInstance(s));
 				}
 			}
 			else	// state node with attributes and child nodes //
@@ -263,7 +261,7 @@ public class XmlLoad {
 		Param.simulationName = XmlHandler.obtainAttribute(sim, "name");
 		Param.outputRoot = XmlHandler.obtainAttribute(sim, "outputfolder");
 		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + "/";
-		Feedback.set(XmlHandler.obtainAttribute(sim,"log"));
+		Log.set(XmlHandler.obtainAttribute(sim,"log"));
 		
 		Param.simulationComment = XmlHandler.gatherAttribute(sim,"comment");
 	}
