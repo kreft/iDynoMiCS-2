@@ -1,29 +1,18 @@
 package dataIO;
 
-import java.lang.reflect.Field;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import reaction.Reaction;
-import surface.Point;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import utility.Helper;
 import agent.Agent;
-import agent.Body;
 import aspect.AspectInterface;
-import aspect.AspectReg;
-import aspect.Calculated;
-import aspect.Event;
 import dataIO.Log.tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
-import idynomics.Simulator;
 import idynomics.Timer;
 
 
@@ -47,11 +36,13 @@ public class XmlLoad {
 		
 		Element xmlCompartment = (Element) compartmentNode;
 		Compartment comp = Idynomics.simulator.addCompartment(
-				xmlCompartment.getAttribute("name"), 
-				xmlCompartment.getAttribute("shape"));
+				Helper.obtainInput(xmlCompartment.getAttribute("name"), 
+				"missing comparment name specification"), 
+				Helper.obtainInput(xmlCompartment.getAttribute("shape"),
+				"missing cmpartment shape"));
 		
-		comp.setSideLengths( Vector.dblFromString( XmlHandler.obtainAttribute( 
-				XmlHandler.loadUnique(xmlCompartment,"sideLengths"), "value")));
+		comp.setSideLengths(Vector.dblFromString(XmlHandler.loadUniqueAtribute(
+				xmlCompartment,"sideLengths", "value")));
 		
 		// TODO solutes, grids
 		// TODO boundaries?, other stuff
@@ -62,20 +53,34 @@ public class XmlLoad {
 		 * Load agents and agent container
 		 */
 		Element agents = XmlHandler.loadUnique(Param.xmlDoc,"agents");
-		NodeList agentNodes = agents.getElementsByTagName("agent");
-		for (int j = 0; j < agentNodes.getLength(); j++) 
-			comp.addAgent(new Agent(agentNodes.item(j)));
+		if(agents != null)
+		{
+			NodeList agentNodes = agents.getElementsByTagName("agent");
+			for (int j = 0; j < agentNodes.getLength(); j++) 
+				comp.addAgent(new Agent(agentNodes.item(j)));
+		}
+		else
+			Log.out(tier.NORMAL, "Warning: starting simulation without agents");
 		
 		/**
 		 * Process managers
 		 */
 		Element processManagers = XmlHandler.loadUnique(
 				Param.xmlDoc,"processManagers");
-		NodeList processNodes = processManagers.getElementsByTagName("process");
-		for (int j = 0; j < processNodes.getLength(); j++) 
+		if(processManagers != null)
 		{
-			comp.addProcessManager( ProcessManager.getNewInstance(
-					processNodes.item(j)));
+			NodeList pNodes = processManagers.getElementsByTagName("process");
+			for (int j = 0; j < pNodes.getLength(); j++) 
+			{
+				comp.addProcessManager( ProcessManager.getNewInstance(
+						pNodes.item(j)));
+			}
+		}
+		else
+		{
+			Log.out(tier.CRITICAL, "Warning: attempt to start simulation"
+					+ "without process managers, aborting..");
+			Helper.abort(3000);
 		}
 	}
 	
@@ -90,8 +95,10 @@ public class XmlLoad {
 		loadGeneralParameters();
 		
 		// NOTE: misses construction from xml, quick fix
-		Timer.setTimeStepSize(Double.valueOf(Param.timeStepSize));
-		Timer.setEndOfSimulation(Double.valueOf(Param.endOfSimulation));
+		Timer.setTimeStepSize(Double.valueOf( Helper.obtainInput( 
+				Param.timeStepSize,"Timer time step size")));
+		Timer.setEndOfSimulation( Double.valueOf( Helper.obtainInput(
+				Param.endOfSimulation,"End of simulation")));
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		

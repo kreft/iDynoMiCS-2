@@ -3,6 +3,8 @@ package idynomics;
 import java.util.HashMap;
 
 import agent.SpeciesLib;
+import dataIO.Log;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import utility.*;
 
@@ -100,16 +102,25 @@ public class Simulator implements CanPrelaunchCheck
 		/* Check the random number generator is initialised. */
 		if ( ExtraMath.random == null )
 		{
-			System.out.println("Random number generator not initialised!");
+			Log.out(tier.CRITICAL,"Random number generator not initialised!");
 			return false;
 		}
 		/* Check we have at least one compartment. */
 		if ( this._compartments.isEmpty() )
+		{
+			Log.out(tier.CRITICAL,"No compartment(s) speciefied!");
 			return false;
+		}
 		/* If any compartments are not ready, then stop. */
 		for ( Compartment c : this._compartments.values() )
+		{
 			if ( ! c.isReadyForLaunch() )
+			{
+				Log.out(tier.CRITICAL,"Compartment " + c.name + " not ready for"
+						+ " laucnh!");
 				return false;
+			}
+		}
 		
 		
 		return true;

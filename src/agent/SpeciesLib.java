@@ -7,6 +7,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import aspect.AspectInterface;
+import dataIO.Log;
+import dataIO.Log.tier;
 import dataIO.XmlLoad;
 import generalInterfaces.Quizable;
 
@@ -33,27 +35,35 @@ public class SpeciesLib implements Quizable {
 	 */
 	public void setAll(Element speciesNode)
 	{
-		// cycle trough all species and add them to the species Lib
-		NodeList speciesNodes = speciesNode.getElementsByTagName("species");
-		
-		/*
-		 * Loading species aspects
-		 */
-		for (int i = 0; i < speciesNodes.getLength(); i++) 
-		{
-			Element xmlSpecies = (Element) speciesNodes.item(i);
-			set(xmlSpecies.getAttribute("name"), 
-					new Species(speciesNodes.item(i)));
+		if(speciesNode != null)
+			{
+			// cycle trough all species and add them to the species Lib
+				NodeList speciesNodes = 
+						speciesNode.getElementsByTagName("species");
+			
+			/*
+			 * Loading species aspects
+			 */
+			for (int i = 0; i < speciesNodes.getLength(); i++) 
+			{
+				Element xmlSpecies = (Element) speciesNodes.item(i);
+				set(xmlSpecies.getAttribute("name"), 
+						new Species(speciesNodes.item(i)));
+			}
+			
+			/*
+			 * Loading species modules
+			 */
+			for (int i = 0; i < speciesNodes.getLength(); i++) 
+			{
+				Element xmlSpecies = (Element) speciesNodes.item(i);
+				XmlLoad.loadSpeciesModules( get(
+						xmlSpecies.getAttribute("name")),speciesNodes.item(i)); 
+			}
 		}
-		
-		/*
-		 * Loading species modules
-		 */
-		for (int i = 0; i < speciesNodes.getLength(); i++) 
+		else
 		{
-			Element xmlSpecies = (Element) speciesNodes.item(i);
-			XmlLoad.loadSpeciesModules( get(
-					xmlSpecies.getAttribute("name")),speciesNodes.item(i)); 
+			Log.out(tier.EXPRESSIVE, "No species library defined");
 		}
 	}
 	

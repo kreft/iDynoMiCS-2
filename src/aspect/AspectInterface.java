@@ -6,6 +6,13 @@ import org.w3c.dom.NodeList;
 
 import agent.Body;
 
+/**
+ * The aspect interface is implemented by classes with an aspect registry,
+ * allows for direct interaction with the aspect registry and easy loading of 
+ * aspects from xml.
+ * @author baco
+ *
+ */
 public abstract interface AspectInterface {
 	
 	public AspectReg<?> reg();

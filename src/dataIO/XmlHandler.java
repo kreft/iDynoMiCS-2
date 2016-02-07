@@ -18,6 +18,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import dataIO.Log.tier;
+import idynomics.Param;
+import utility.Helper;
+
 /**
  * handles xml files
  * @author baco
@@ -41,8 +45,11 @@ public class XmlHandler {
 			doc.getDocumentElement().normalize();
 			return doc.getDocumentElement();
 		} catch (SAXException | IOException | ParserConfigurationException e) {
-			e.printStackTrace();
-			return null;
+			Log.out(tier.CRITICAL, "Error while loading: " + document + "\n"
+					+ "error message: " + e.getMessage());
+			Log.out(tier.DEBUG, e.getStackTrace().toString());
+			document = Helper.obtainInput(null, "Atempt to re-obtain document");
+			return loadDocument(document);
 		}
 	}
 
@@ -164,18 +171,31 @@ public class XmlHandler {
 		NodeList nodes =  xmlElement.getElementsByTagName(tagName);
 		if (nodes.getLength() > 1)
 		{
-			System.err.println("Warning: document contains more than 1"
+			Log.out(tier.NORMAL,"Warning: document contains more than 1"
 					+ tagName + " nodes, loading first simulation node...");
 		}
 		else if (nodes.getLength() == 0)
 		{
-			System.err.println("Error: could not identify " + tagName + "node, "
-					+ "make sure your file contains all required elements."
-					+ "Aborting...");
-			System.exit(0);
+			Log.out(tier.NORMAL,"Warning: could not identify " + tagName + 
+					" node, make sure your file contains all required elements."
+					+ " Attempt to continue with 'null' node.");
+			return null;
 		}
 		return (Element) nodes.item(0);
 	}		
+	
+	public static String loadUniqueAtribute(Element xmlElement, String tagName, 
+			String attribute)
+	{
+		Element e = loadUnique(xmlElement, tagName);
+		if(e == null)
+		{
+			return Helper.obtainInput(null, "Required " + attribute +
+					" from missing xml node: " + tagName);
+		}
+		else 
+			return obtainAttribute(e, attribute);
+	}
 
 	/*************************************************************************
 	 * DISPLAYING
