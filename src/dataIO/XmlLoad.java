@@ -26,6 +26,7 @@ import idynomics.Param;
 import idynomics.Simulator;
 import idynomics.Timer;
 
+
 /**
  * 
  * @author baco
@@ -36,61 +37,24 @@ public class XmlLoad {
 	////////////////////////////
 	// Methods
 	////////////////////////////
-	
-	public static Object newInstance(String inPackage, String inClass)
-	{
-		Class<?> c;
-		try {
-			c = Class.forName(inPackage + "." + inClass);
-			return c.newInstance();
-		} catch (ClassNotFoundException e ){
-			Log.out(tier.QUIET,"ERROR: the class " + inClass + " "
-					+ "could not be found. Check the " + inPackage
-					+ "package for the existence of this class.");
-			e.printStackTrace();
-		} catch (InstantiationException | IllegalAccessException e)  {
-			Log.out(tier.QUIET,"ERROR: the class " + inClass + " "
-					+ "could not be accesed or instantieated. Check whether the"
-					+ " called class is valid.");
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	/**
-	 * TODO: ProcessManager has no xml node constructor, quick fix
-	 */
-	public static ProcessManager constuctProcessManager(Node processNode)
-	{
-		Element p = (Element) processNode;
 		
-		ProcessManager process = (ProcessManager) newInstance("processManager", 
-				p.getAttribute("manager"));
-		process.setName(p.getAttribute("name"));
-		process.setPriority(Integer.valueOf(p.getAttribute("priority")));
-		process.setTimeForNextStep(Double.valueOf(p.getAttribute("firstStep")));
-		process.setTimeStepSize(Timer.getTimeStepSize());
-		return process;
-	}
-	
 	/**
 	 * TODO: compartmend has no xml node constructor, quick fix
 	 */
 	public static void constructCompartment(Node compartmentNode)
 	{
-		Simulator mySim = Idynomics.simulator;
 		// NOTE: misses construction from xml, quick fix
 		
 		Element xmlCompartment = (Element) compartmentNode;
-		Compartment comp = mySim.addCompartment(
+		Compartment comp = Idynomics.simulator.addCompartment(
 				xmlCompartment.getAttribute("name"), 
 				xmlCompartment.getAttribute("shape"));
 		
 		comp.setSideLengths( Vector.dblFromString( XmlHandler.obtainAttribute( 
-				XmlHandler.loadUnique(xmlCompartment, "sideLengths"), "value")));
+				XmlHandler.loadUnique(xmlCompartment,"sideLengths"), "value")));
 		
-		// solutes, grids
-		// TODO boundaries?? other stuff
+		// TODO solutes, grids
+		// TODO boundaries?, other stuff
 		
 		comp.init();
 		
@@ -105,17 +69,21 @@ public class XmlLoad {
 		/**
 		 * Process managers
 		 */
-		Element processManagers = XmlHandler.loadUnique(Param.xmlDoc,"processManagers");
+		Element processManagers = XmlHandler.loadUnique(
+				Param.xmlDoc,"processManagers");
 		NodeList processNodes = processManagers.getElementsByTagName("process");
 		for (int j = 0; j < processNodes.getLength(); j++) 
 		{
-			comp.addProcessManager(constuctProcessManager(processNodes.item(j)));
+			comp.addProcessManager( ProcessManager.getNewInstance(
+					processNodes.item(j)));
 		}
 	}
 	
 	
 	/**
-	 * 
+	 * build up simulation from xml file.
+	 * NOTE: if you want to make changes to the iDynomics documents setup this
+	 * is probably your starting point
 	 */
 	public static void constructSimulation()
 	{
@@ -127,7 +95,8 @@ public class XmlLoad {
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
-		Idynomics.simulator.speciesLibrary.setAll(XmlHandler.loadUnique(Param.xmlDoc, "speciesLib"));
+		Idynomics.simulator.speciesLibrary.setAll( XmlHandler.loadUnique(
+				Param.xmlDoc, "speciesLib"));
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = 
@@ -148,7 +117,7 @@ public class XmlLoad {
 	{
 		Element xmlAgent = (Element) xmlNode;
 		@SuppressWarnings("unchecked")
-		AspectReg<Object> aspectReg = (AspectReg<Object>) aspectInterface.registry();
+		AspectReg<Object> aspectReg = (AspectReg<Object>) aspectInterface.reg();
 		
 		NodeList stateNodes = xmlAgent.getElementsByTagName("state");
 		for (int j = 0; j < stateNodes.getLength(); j++) 
@@ -188,30 +157,10 @@ public class XmlLoad {
 				switch (s.getAttribute("type")) 
 				{
 					case "body" :
-						//FIXME: not finished only accounts for simple coccoids
-						List<Point> pointList = new LinkedList<Point>();
-						NodeList pointNodes = s.getElementsByTagName("point");
-						for (int k = 0; k < pointNodes.getLength(); k++) 
-						{
-							Element point = (Element) pointNodes.item(k);
-							pointList.add(new Point(Vector.dblFromString(
-									point.getAttribute("position"))));
-						}
-						// Bas [01.02.16] TODO: currently only agents can have a
-						// body, look into this if other things alos need to be
-						// able to have a body
-						aspectReg.add("body", new Body(pointList));
+						aspectReg.add("body", Body.getNewInstance(s));
 						break;
 					case "reactions" :
-						List<Reaction> reactions = new LinkedList<Reaction>();
-						NodeList rNodes = s.getElementsByTagName("reaction");
-						for (int k = 0; k < rNodes.getLength(); k++) 
-						{
-							Element reaction = (Element) rNodes.item(k);
-							reactions.add(new Reaction(
-									reaction.getAttribute("somethingReact")));
-						}
-						aspectReg.add("reactions", reactions);
+						// TODO
 						break;
 				}
 			}
@@ -241,7 +190,8 @@ public class XmlLoad {
 			 * species here.
 			 * @param name
 			 */
-			species.registry().addSubModule(s.getAttribute("name"), Idynomics.simulator.speciesLibrary);
+			species.reg().addSubModule(s.getAttribute("name"), 
+					Idynomics.simulator.speciesLibrary);
 		}
 	}
 	
@@ -257,12 +207,13 @@ public class XmlLoad {
 		 * is called before logging is initiated.
 		 */
 		Param.xmlDoc = XmlHandler.loadDocument(Param.protocolFile);
-		Element sim = XmlHandler.loadUnique((Element) Param.xmlDoc, "simulation");
+		Element sim = XmlHandler.loadUnique((Element) Param.xmlDoc, 
+				"simulation");
 		Param.simulationName = XmlHandler.obtainAttribute(sim, "name");
 		Param.outputRoot = XmlHandler.obtainAttribute(sim, "outputfolder");
-		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + "/";
+		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + 
+				"/";
 		Log.set(XmlHandler.obtainAttribute(sim,"log"));
-		
 		Param.simulationComment = XmlHandler.gatherAttribute(sim,"comment");
 	}
 	
@@ -271,40 +222,15 @@ public class XmlLoad {
 	 */
 	public static void loadGeneralParameters()
 	{
-		NodeList general = Param.xmlDoc.getElementsByTagName("general");
+		NodeList general = XmlHandler.getAll(Param.xmlDoc,"general");
 		for (int i = 0; i < general.getLength(); i++) 
 		{
-			Element xmlgeneral = (Element) general.item(i);
-			NodeList paramNodes = xmlgeneral.getElementsByTagName("param");
+			NodeList paramNodes = XmlHandler.getAll(general.item(i),"param");
 			for (int j = 0; j < paramNodes.getLength(); j++) 
 			{
 				Element s = (Element) paramNodes.item(j);
-				try {
-					Class<?> c = Param.class;
-					Field f = c.getDeclaredField(s.getAttribute("name"));
-					f.set(f, s.getAttribute("value"));
-	
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchFieldException e) {
-					// NOTE: do not log this since this may occur before the log
-					// is initiated (the log it self is start from a general 
-					// param
-					System.err.println("Warning: attempting to set non existend"
-							+ " general paramater: " + s.getAttribute("name") );
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				XmlHandler.setStaticField(Param.class, s);
 			}
 		}
 	}
-	
-
-
-
 }

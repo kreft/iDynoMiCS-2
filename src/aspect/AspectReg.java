@@ -39,7 +39,7 @@ public class AspectReg<A> {
 			return true;
 		else
 			for (AspectInterface m : _modules)
-				if(m.registry().isGlobalAspect(key) == true)
+				if(m.reg().isGlobalAspect(key) == true)
 					return true;
 		return false;
 	}
@@ -141,8 +141,8 @@ public class AspectReg<A> {
 			return _aspects.get(key);
 		else
 			for (AspectInterface m : _modules)
-				if(m.registry().isGlobalAspect(key) == true)
-					return (Aspect<?>) m.registry().getAspect(key);
+				if(m.reg().isGlobalAspect(key) == true)
+					return (Aspect<?>) m.reg().getAspect(key);
 		
 		Log.out(tier.BULK, "Warning: could not find aspect: " + key);
 		return null;
@@ -155,7 +155,7 @@ public class AspectReg<A> {
 	public void duplicate(AspectInterface donor)
 	{
 		this.clear();
-		AspectReg<?> donorReg = donor.registry();
+		AspectReg<?> donorReg = donor.reg();
 		for (String key : donorReg._aspects.keySet())
 			add(key, (A) Copier.copy(donorReg.getAspect(key).aspect));
 		for (AspectInterface m : donorReg._modules)

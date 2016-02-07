@@ -77,14 +77,14 @@
 			</agent>
 		</agents>	
 		<processManagers>
-			<process name="svgWriter" manager="WriteAgentsSvg" priority="2"
-				firstStep="0.0" />
-			<process name="agentGrowth" manager="AgentGrowth" priority="0"
-				firstStep="0.0" />	
-			<process name="agentMove" manager="AgentStochasticMove" priority="0"
-				firstStep="0.0" />
-			<process name="agentRelax" manager="AgentRelaxation" priority="1"
-				firstStep="0.0" />
+			<process name="svgWriter" class="WriteAgentsSvg" priority="2"
+				firstStep="0.0" package="processManager." />
+			<process name="agentGrowth" class="AgentGrowth" priority="0"
+				firstStep="0.0" package="processManager." />	
+			<process name="agentMove" class="AgentStochasticMove" priority="0"
+				firstStep="0.0" package="processManager." />
+			<process name="agentRelax" class="AgentRelaxation" priority="1"
+				firstStep="0.0" package="processManager." />
 		</processManagers>
 	</compartment>
 </simulation>

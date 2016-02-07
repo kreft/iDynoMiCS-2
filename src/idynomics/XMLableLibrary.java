@@ -26,7 +26,7 @@ public class XMLableLibrary {
 	{
 		Element classLibrary = 
 				XmlHandler.loadDocument("general/classLibrary.xml");
-		List<String[]> tempLib = XmlHandler.gatherAtributes( classLibrary, 
+		List<String[]> tempLib = XmlHandler.gatherAtributesFrom( classLibrary, 
 				"classDef", new String[]{"name", "package"});
 		for(String[] c : tempLib)
 			set(c[0], c[1]);

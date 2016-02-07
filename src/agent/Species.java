@@ -32,7 +32,7 @@ public class Species implements AspectInterface
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 
-	public AspectReg<?> registry() {
+	public AspectReg<?> reg() {
 		return aspectRegistry;
 	}
 }

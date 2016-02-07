@@ -47,8 +47,20 @@ public class AgentCompartmentTest
 		// set 4 periodic boundaries
 		for ( DimName dim : new DimName[]{DimName.X, DimName.Y} )
 			aCompartment.getShape().getDimension(dim).setCyclic();
+		
+		/*
+		 * 
+		 */
+		String[] soluteNames = new String[2];
+		soluteNames[0] = "solute";
+		soluteNames[1] = "biomass";
+		for ( String aSoluteName : soluteNames )
+			aCompartment.addSolute(aSoluteName);
+		
 		//TODO diffusivities
 		aCompartment.init();
+
+		
 		/*
 		 * Initialise the concentration array with random values.
 		 */

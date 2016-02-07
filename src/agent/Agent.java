@@ -75,7 +75,7 @@ public class Agent implements Quizable, AspectInterface
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 
-	public AspectReg<?> registry() {
+	public AspectReg<?> reg() {
 		return aspectRegistry;
 	}
 	

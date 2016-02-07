@@ -4,11 +4,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
+import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
@@ -69,6 +75,7 @@ public class Compartment implements CanPrelaunchCheck
 	{
 		this((Shape) Shape.getNewInstance(aShapeName));
 	}
+
 	
 	public void init()
 	{

@@ -2,6 +2,7 @@ package dataIO;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -16,8 +17,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import idynomics.Param;
 
 /**
  * handles xml files
@@ -59,6 +58,13 @@ public class XmlHandler {
 			return "";
 	}
 	
+	/**
+	 * Gathers non critical attributes, returns "" if the attribute is not
+	 * defined. This method does not ask the user for any information.
+	 * @param xmlElement
+	 * @param attribute
+	 * @return
+	 */
 	public static String gatherAttribute(Node xmlElement, String attribute)
 	{
 		return gatherAttribute((Element) xmlElement, attribute);
@@ -89,7 +95,7 @@ public class XmlHandler {
 	 * @param attributes
 	 * @return
 	 */
-	public static List<String[]> gatherAtributes(Element parent, String tag, 
+	public static List<String[]> gatherAtributesFrom(Element parent, String tag, 
 			String[] attributes)
 	{
 		NodeList nodes = getAll(parent, tag);
@@ -113,10 +119,63 @@ public class XmlHandler {
 		return getAll((Element) parent, tag);
 	}
 	
+	/**
+	 * returning all child nodes identified by tag from parent node or element
+	 */
 	public static NodeList getAll(Element parent, String tag)
 	{
 		return parent.getElementsByTagName(tag);
 	}
+	
+	/**
+	 * Directly writes attributes from xml node to static field
+	 */
+	public static void setStaticField(Class<?> c, Element element)
+	{
+		try {
+			Field f = c.getDeclaredField(element.getAttribute("name"));
+			f.set(c, element.getAttribute("value"));
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// NOTE: do not log this since this may occur before the log
+			// is initiated (the log it self is start from a general 
+			// param
+			System.err.println("Warning: attempting to set non existend"
+					+ " general paramater: " + element.getAttribute("name") );
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Checks for unique node exists and whether it is unique, than returns it.
+	 * @param xmlElement
+	 * @param tagName
+	 * @return
+	 */
+	public static Element loadUnique(Element xmlElement, String tagName)
+	{
+		NodeList nodes =  xmlElement.getElementsByTagName(tagName);
+		if (nodes.getLength() > 1)
+		{
+			System.err.println("Warning: document contains more than 1"
+					+ tagName + " nodes, loading first simulation node...");
+		}
+		else if (nodes.getLength() == 0)
+		{
+			System.err.println("Error: could not identify " + tagName + "node, "
+					+ "make sure your file contains all required elements."
+					+ "Aborting...");
+			System.exit(0);
+		}
+		return (Element) nodes.item(0);
+	}		
 
 	/*************************************************************************
 	 * DISPLAYING
@@ -214,28 +273,5 @@ public class XmlHandler {
 			}
 		} 
 	}
-
-	/**
-	 * Checks for unique node exists and whether it is unique, than returns it.
-	 * @param xmlElement
-	 * @param tagName
-	 * @return
-	 */
-	public static Element loadUnique(Element xmlElement, String tagName)
-	{
-		NodeList nodes =  xmlElement.getElementsByTagName(tagName);
-		if (nodes.getLength() > 1)
-		{
-			System.err.println("Warning: document contains more than 1"
-					+ tagName + " nodes, loading first simulation node...");
-		}
-		else if (nodes.getLength() == 0)
-		{
-			System.err.println("Error: could not identify " + tagName + "node, "
-					+ "make sure your file contains all required elements."
-					+ "Aborting...");
-			System.exit(0);
-		}
-		return (Element) nodes.item(0);
-	}			
+	
 }

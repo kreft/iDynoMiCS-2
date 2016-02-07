@@ -2,11 +2,18 @@ package processManager;
 
 import java.util.Collection;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import aspect.Calculated;
 import boundary.Boundary;
+import dataIO.XmlHandler;
+import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.Timer;
 
-public abstract class ProcessManager
+public abstract class ProcessManager implements XMLable
 {
 	protected String _name;
 	
@@ -26,6 +33,17 @@ public abstract class ProcessManager
 	public ProcessManager()
 	{
 		
+	}
+
+	public static ProcessManager getNewInstance(Node xmlNode)
+	{
+		Element p = (Element) xmlNode;
+		ProcessManager process = (ProcessManager) XMLable.getNewInstance(xmlNode);
+		process.setName(p.getAttribute("name"));
+		process.setPriority(Integer.valueOf(p.getAttribute("priority")));
+		process.setTimeForNextStep(Double.valueOf(p.getAttribute("firstStep")));
+		process.setTimeStepSize(Timer.getTimeStepSize());
+		return process;
 	}
 	
 	public void init()
