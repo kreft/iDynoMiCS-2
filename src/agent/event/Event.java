@@ -2,6 +2,7 @@ package agent.event;
 
 import generalInterfaces.AspectInterface;
 import generalInterfaces.Copyable;
+import generalInterfaces.XMLable;
 import agent.Agent;
 
 /**
@@ -34,7 +35,7 @@ public abstract class Event implements Copyable {
 	 */
 	public String[] getInput()
 	{
-		return input;
+		return this.input;
 	}
 	
 	/**
@@ -47,8 +48,9 @@ public abstract class Event implements Copyable {
 	public abstract void start(AspectInterface initiator, AspectInterface compliant, Double timeStep);
 
 	/**
-	 * return a copy of this event.
+	 * Events are general behavior patterns, copy returns this
 	 */
-	public abstract Object copy();
-	
+	public Object copy() {
+		return this;
+	}
 }

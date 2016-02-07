@@ -25,11 +25,4 @@ public class MassToGrid  extends Event {
 		MassGrid.addValueAt(ArrayType.CONCN, MassGrid.getCoords((double[]) 
 				agent.get(input[2])), (double) agent.get(input[0]));
 	}
-	
-	/**
-	 * Events are general behavior patterns, copy returns this
-	 */
-	public Object copy() {
-		return this;
-	}
 }

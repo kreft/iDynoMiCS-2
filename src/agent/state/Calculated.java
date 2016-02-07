@@ -2,8 +2,16 @@ package agent.state;
 
 import generalInterfaces.AspectInterface;
 import generalInterfaces.Copyable;
+import generalInterfaces.XMLable;
+
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import agent.Agent;
 import agent.AspectReg;
+import dataIO.Feedback;
+import dataIO.Feedback.LogLevel;
+import dataIO.XmlHandler;
 
 /**
  * Secondary states contain a description of how secondary states can be
@@ -14,7 +22,7 @@ import agent.AspectReg;
  * @author baco
  *
  */
-public abstract class SecondaryState implements State, Copyable {
+public abstract class Calculated implements Copyable, XMLable {
 	
 	/**
 	 * input states
@@ -42,21 +50,23 @@ public abstract class SecondaryState implements State, Copyable {
 	/**
 	 * return a copy of this state.
 	 */
-	public State copy()
+	public Calculated copy()
 	{
 		return this;
 	}
 	
 	/**
-	 * return a duplicate of this state (duplicable interface)
-	 * NOTE: this method may be removed when we switch to an other solution for
-	 * states that require ownership definition.
+	 * General constructor from xmlNodes, returns a new instance directly from
+	 * an xml node. Overwrite this method in implementing class if the class
+	 * needs constructor arguments (they should be stored within the Node).
 	 */
-	public State duplicate(Agent agent)
+	public static Object getNewInstance(Node xmlNode)
 	{
-		return this;
+		Calculated obj = (Calculated) XMLable.getNewInstance(xmlNode);
+		obj.setInput(XmlHandler.gatherAttribute(xmlNode, "input"));
+		return obj;
 	}
-	
+		
 	/**
 	 * return the current (up-to-date) value of the secondary state.
 	 */

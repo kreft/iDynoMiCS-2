@@ -10,12 +10,12 @@ public class StateLoader {
 	 * @param the exact class name as defined in the agent.state.library package
 	 * @return
 	 */
-	public static State getSecondary(String className, String inputStates)
+	public static Calculated getSecondary(String className, String inputStates)
 	{
 		Class<?> c;
 		try {
 			c = Class.forName("agent.state.library." + className);
-			SecondaryState myState = (SecondaryState) c.newInstance();
+			Calculated myState = (Calculated) c.newInstance();
 			myState.setInput(inputStates);
 			return myState;
 		} catch (ClassNotFoundException e ){

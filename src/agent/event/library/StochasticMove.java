@@ -34,13 +34,4 @@ public class StochasticMove extends Event {
 					Vector.randomPlusMinus(agentBody.nDim(), timeStep*0.5)));
 		}
 	}
-	
-	/**
-	 * Events are general behavior patterns, copy returns this
-	 */
-	public Object copy() 
-	{
-		return this;
-	}
-	
 }

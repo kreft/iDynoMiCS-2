@@ -13,13 +13,4 @@ public class UpdateBody extends Event {
 		Body body = (Body) agent.get(input[0]);
 		body.update((double) agent.get(input[1]), 0.0);
 	}
-	
-	/**
-	 * Events are general behavior patterns, copy returns this
-	 */
-	public Object copy() 
-	{
-		return this;
-	}
-	
 }

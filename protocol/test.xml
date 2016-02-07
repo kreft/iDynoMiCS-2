@@ -27,16 +27,16 @@
 			<speciesModule name="coccoid" />
 		</species>
 		<species name="coccoid">
-			<state name="coccoidCenter" type="secondary" value="CoccoidCenter" input="body" />
+			<state name="coccoidCenter" type="secondary" class="CoccoidCenter" input="body" />
 			<state name="morphology" type="String" value="coccoid"/>
-			<state name="joints" type="secondary" value="JointsState" input="body" />
-			<state name="volume" type="secondary" value="SimpleVolumeState" input="mass,density" />
-			<state name="radius" type="secondary" value="CoccoidRadius" input="volume" />
-			<state name="#boundingLower" type="secondary" value="LowerBoundingBox" input="body,radius" />
-			<state name="#boundingSides" type="secondary" value="DimensionsBoundingBox" input="body,radius" />
+			<state name="joints" type="secondary" class="JointsState" input="body" />
+			<state name="volume" type="secondary" class="SimpleVolumeState" input="mass,density" />
+			<state name="radius" type="secondary" class="CoccoidRadius" input="volume" />
+			<state name="#boundingLower" type="secondary" class="LowerBoundingBox" input="body,radius" />
+			<state name="#boundingSides" type="secondary" class="DimensionsBoundingBox" input="body,radius" />
 			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
 			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
-			<state name="surface" type="secondary" value="SimpleSurface" input="body" />
+			<state name="surface" type="secondary" class="SimpleSurface" input="body" />
 			<state name="updateBody" type="event" value="UpdateBody" input="body,radius,length" />
 		</species>
 	</speciesLib>

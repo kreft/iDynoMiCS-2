@@ -1,22 +1,13 @@
 package dataIO;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import reaction.Reaction;
 import surface.Point;
@@ -25,10 +16,8 @@ import processManager.ProcessManager;
 import agent.Agent;
 import agent.AspectReg;
 import agent.Body;
-import agent.Species;
-import agent.SpeciesLib;
-import agent.AspectRegistry;
 import agent.event.EventLoader;
+import agent.state.Calculated;
 import agent.state.StateLoader;
 import dataIO.Feedback.LogLevel;
 import generalInterfaces.AspectInterface;
@@ -45,37 +34,9 @@ import idynomics.Timer;
  */
 public class XmlLoad {
 	
-	/////////////////////////////
-	// Interfaces
-	/////////////////////////////
-	
-	public interface nodeOperation {
-		void action(Node node);
-	}
-	
-	////////////////////////////
-	// Local classes
-	////////////////////////////
-	
 	////////////////////////////
 	// Methods
 	////////////////////////////
-	
-	public static Element loadDocument(String document)
-	{
-		try {
-			File fXmlFile = new File(document);
-			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
-			Document doc;
-			doc = dBuilder.parse(fXmlFile);
-			doc.getDocumentElement().normalize();
-			return doc.getDocumentElement();
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 	
 	public static Object newInstance(String inPackage, String inClass)
 	{
@@ -100,8 +61,7 @@ public class XmlLoad {
 	/**
 	 * TODO: ProcessManager has no xml node constructor, quick fix
 	 */
-	public static void constuctProcessManager(Node processNode, 
-			Compartment compartment)
+	public static ProcessManager constuctProcessManager(Node processNode)
 	{
 		Element p = (Element) processNode;
 		
@@ -111,7 +71,7 @@ public class XmlLoad {
 		process.setPriority(Integer.valueOf(p.getAttribute("priority")));
 		process.setTimeForNextStep(Double.valueOf(p.getAttribute("firstStep")));
 		process.setTimeStepSize(Timer.getTimeStepSize());
-		compartment.addProcessManager(process);
+		return process;
 	}
 	
 	/**
@@ -127,8 +87,8 @@ public class XmlLoad {
 				xmlCompartment.getAttribute("name"), 
 				xmlCompartment.getAttribute("shape"));
 		
-		comp.setSideLengths( Vector.dblFromString( obtainAttribute( 
-				loadUnique(xmlCompartment, "sideLengths"), "value")));
+		comp.setSideLengths( Vector.dblFromString( XmlHandler.obtainAttribute( 
+				XmlHandler.loadUnique(xmlCompartment, "sideLengths"), "value")));
 		
 		// solutes, grids
 		// TODO boundaries?? other stuff
@@ -138,7 +98,7 @@ public class XmlLoad {
 		/**
 		 * Load agents and agent container
 		 */
-		Element agents = loadUnique(Param.xmlDoc,"agents");
+		Element agents = XmlHandler.loadUnique(Param.xmlDoc,"agents");
 		NodeList agentNodes = agents.getElementsByTagName("agent");
 		for (int j = 0; j < agentNodes.getLength(); j++) 
 			comp.addAgent(new Agent(agentNodes.item(j)));
@@ -146,10 +106,12 @@ public class XmlLoad {
 		/**
 		 * Process managers
 		 */
-		Element processManagers = loadUnique(Param.xmlDoc,"processManagers");
+		Element processManagers = XmlHandler.loadUnique(Param.xmlDoc,"processManagers");
 		NodeList processNodes = processManagers.getElementsByTagName("process");
 		for (int j = 0; j < processNodes.getLength(); j++) 
-			constuctProcessManager(processNodes.item(j), comp);
+		{
+			comp.addProcessManager(constuctProcessManager(processNodes.item(j)));
+		}
 	}
 	
 	
@@ -166,7 +128,7 @@ public class XmlLoad {
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
-		Idynomics.simulator.speciesLibrary.setAll(loadUnique(Param.xmlDoc, "speciesLib"));
+		Idynomics.simulator.speciesLibrary.setAll(XmlHandler.loadUnique(Param.xmlDoc, "speciesLib"));
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = 
@@ -178,17 +140,6 @@ public class XmlLoad {
 	}
 
 	/**
-	 * Perform iterative operation for all nodes in nodeList
-	 * @param nodeList
-	 * @param operation
-	 */
-	public static void forAllNodes(NodeList nodeList, nodeOperation operation) 
-	{
-	    for (int i = 0; i < nodeList.getLength(); i++) 
-		     operation.action(nodeList.item(i));
-	}
-	
-	/**
 	 * Loads all states from xmlNode into anything that implements the
 	 * StateObject interface.
 	 * @param aspectReg
@@ -197,6 +148,7 @@ public class XmlLoad {
 	public static void loadStates(AspectInterface aspectInterface, Node xmlNode)
 	{
 		Element xmlAgent = (Element) xmlNode;
+		@SuppressWarnings("unchecked")
 		AspectReg<Object> aspectReg = (AspectReg<Object>) aspectInterface.registry();
 		
 		NodeList stateNodes = xmlAgent.getElementsByTagName("state");
@@ -225,11 +177,10 @@ public class XmlLoad {
 	                	break;
 					case "secondary" : 
 						aspectReg.add(s.getAttribute("name"), 
-								StateLoader.getSecondary(s.getAttribute("value")
-										, s.getAttribute("input")));
+								Calculated.getNewInstance(s));
 	                	break;
 					case "event" :
-						aspectReg.add(s.getAttribute("name"), 
+						aspectReg.add(s.getAttribute("name"),
 								EventLoader.getEvent(s.getAttribute("value"), 
 										s.getAttribute("input")));
 				}
@@ -307,68 +258,14 @@ public class XmlLoad {
 		 * This method contains System.err in stead of normal logging since it
 		 * is called before logging is initiated.
 		 */
-		Param.xmlDoc = loadDocument(Param.protocolFile);
-		Element sim = loadUnique((Element) Param.xmlDoc, "simulation");
-		Param.simulationName = obtainAttribute(sim, "name");
-		Param.outputRoot = obtainAttribute(sim, "outputfolder");
+		Param.xmlDoc = XmlHandler.loadDocument(Param.protocolFile);
+		Element sim = XmlHandler.loadUnique((Element) Param.xmlDoc, "simulation");
+		Param.simulationName = XmlHandler.obtainAttribute(sim, "name");
+		Param.outputRoot = XmlHandler.obtainAttribute(sim, "outputfolder");
 		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + "/";
-		Feedback.set(obtainAttribute(sim,"log"));
+		Feedback.set(XmlHandler.obtainAttribute(sim,"log"));
 		
-		Param.simulationComment = gatherAttribute(sim,"comment");
-	}
-	
-	/**
-	 * Checks for unique node exists and whether it is unique, than returns it.
-	 * @param xmlElement
-	 * @param tagName
-	 * @return
-	 */
-	public static Element loadUnique(Element xmlElement, String tagName)
-	{
-		NodeList nodes =  Param.xmlDoc.getElementsByTagName(tagName);
-		if (nodes.getLength() > 1)
-		{
-			System.err.println("Warning: document contains more than 1"
-					+ tagName + " nodes, loading first simulation node...");
-		}
-		else if (nodes.getLength() == 0)
-		{
-			System.err.println("Error: could not identify " + tagName + "node, "
-					+ "make sure your file contains all required elements."
-					+ "Aborting...");
-			System.exit(0);
-		}
-		return (Element) nodes.item(0);
-	}
-	
-	/**
-	 * This method gets an attribute from an element, if the element does not
-	 * have this attribute it will ask the user.
-	 */
-	public static String obtainAttribute(Element xmlElement, String attribute)
-	{
-		if(xmlElement.hasAttribute(attribute))
-			return  xmlElement.getAttribute(attribute);
-		else
-		{
-		@SuppressWarnings("resource")
-		Scanner user_input = new Scanner( System.in );
-		System.out.print(xmlElement.getNodeName() + " misses the "
-				+ "attribute: \"" + attribute + "\", please enter a value: " );
-		return user_input.next( );
-		}
-	}
-	
-	/**
-	 * Gathers non critical attributes, returns "" if the attribute is not
-	 * defined. This method does not ask the user for any information.
-	 */
-	public static String gatherAttribute(Element xmlElement, String attribute)
-	{
-		if(xmlElement.hasAttribute(attribute))
-			return xmlElement.getAttribute(attribute);
-		else
-			return "";
+		Param.simulationComment = XmlHandler.gatherAttribute(sim,"comment");
 	}
 	
 	/**
@@ -409,103 +306,7 @@ public class XmlLoad {
 		}
 	}
 	
-	/*************************************************************************
-	 * DISPLAYING
-	 ************************************************************************/
-	
-	public static void display(Node node)
-	{
-		display(null, node);
-	}
-	
-	public static void display(String prefix,Node node)
-	{
-		if (node.getNodeType() == Node.ELEMENT_NODE) 
-			display(prefix, (Element) node);
-	}
-	
-	public static void display(Element element)
-	{
-		display(null, element);
-	}
-	
-	public static void display(String prefix, Element element)
-	{
-		String ln = " " + element.getTagName() + " " 
-				+ element.getAttribute("name");
-		if (prefix == null) 
-			System.out.println(ln);
-		else
-			System.out.println(prefix + ln);
-	}
-	
-	public static void displayWithAttributes(String prefix, Node node, 
-			String[] attributes)
-	{
-		if (node.getNodeType() == Node.ELEMENT_NODE) 
-			displayWithAttributes(prefix, (Element) node, attributes);
-	}
-	
-	public static void displayWithAttributes(String prefix, Element element, 
-			String[] attributes)
-	{
-		display(prefix, element);
-		NamedNodeMap a = element.getAttributes();
-		for (int i = 0; i < a.getLength(); i++) {
-			String ln = " |" + a.item(i).getNodeName() + " : " 
-					+ a.item(i).getNodeValue();
-			if (prefix == null) 
-				System.out.println(ln);
-			else
-				System.out.println(prefix + ln);
-		}
-	}
-	
-	public static void displayIfAttribute(Element element, String attribute, 
-			String value)
-	{
-		if(element.getAttribute(attribute).toString().equals(value))
-		{
-			displayWithAttributes(null, element, null);
-		}
-	}
-	
-	public static void displayAllChildNodes(Element element)
-	{
-		displayAllChildNodes(null, element);	
-	}
-	
-	public static void displayAllChildNodes(String prefix, Element element)
-	{
-		displayAllChildNodes(null, element, false);
-	}
-	
-	public static void displayAllChildNodes(String prefix, Element element, 
-			Boolean attributes)
-	{
-		if (element.hasChildNodes()) 
-		{
-			NodeList childNodes = element.getChildNodes();
-			forAllNodes(childNodes, new nodeOperation() { 
-				public void action(Node node) 
-				{ 
-					if (attributes)
-						displayWithAttributes(prefix, node, null);
-					else
-						display(prefix, node); 
-					if (node.getNodeType() == Node.ELEMENT_NODE) 
-					{
-						if (prefix == null) 
-							displayAllChildNodes(null, (Element) node, 
-									attributes);
-						else 
-							displayAllChildNodes(prefix + "-", 
-									(Element) node, attributes );
-					}
-				}
-			} );
-		}			
-	}
+
 
 
 }

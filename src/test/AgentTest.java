@@ -4,7 +4,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import dataIO.PovExport;
-import dataIO.XmlLoad;
+import dataIO.XmlHandler;
 import agent.Agent;
 import agent.Species;
 import idynomics.Compartment;
@@ -22,10 +22,10 @@ public class AgentTest {
 		ExtraMath.initialiseRandomNumberGenerator();
 		
 		// load xml doc
-		Element doc = XmlLoad.loadDocument("testagents.xml");
+		Element doc = XmlHandler.loadDocument("testagents.xml");
 		
 		// Display document element's general info
-		XmlLoad.displayWithAttributes(null, doc, null);
+		XmlHandler.displayWithAttributes(null, doc, null);
 		System.out.println("-------------------------------------------------");
 		//XmlLoad.displayAllChildNodes("-",doc,true);
 		

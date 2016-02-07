@@ -27,13 +27,4 @@ public class SimpleGrowth extends Event {
 		(double) agent.get(input[0]) * timeStep + (double) agent.get(input[0]);
 		agent.set(input[0], newMass);
 	}
-	
-	/**
-	 * Events are general behavior patterns, copy returns this
-	 */
-	public Object copy() 
-	{
-		return this;
-	}
-	
 }

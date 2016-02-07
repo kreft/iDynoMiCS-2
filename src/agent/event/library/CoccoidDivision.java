@@ -73,11 +73,4 @@ public class CoccoidDivision extends Event {
 			Feedback.out(LogLevel.DEBUG, "CoccoidDivision added daughter cell");
 		}
 	}
-	
-	/**
-	 * Events are general behavior patterns, copy returns this
-	 */
-	public Object copy() {
-		return this;
-	}
 }

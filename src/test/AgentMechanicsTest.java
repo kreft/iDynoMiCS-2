@@ -10,6 +10,7 @@ import dataIO.Feedback;
 import dataIO.Feedback.LogLevel;
 import dataIO.PovExport;
 import dataIO.SvgExport;
+import dataIO.XmlHandler;
 import dataIO.XmlLoad;
 import processManager.*;
 import idynomics.Compartment;
@@ -28,7 +29,7 @@ public class AgentMechanicsTest {
 		Compartment testcompartment = null;
 		Feedback.set(LogLevel.EXPRESSIVE);
 		
-		Element doc = XmlLoad.loadDocument("testagents.xml");
+		Element doc = XmlHandler.loadDocument("testagents.xml");
 		
 		// cycle trough all species and add them to the species Lib
 		NodeList speciesNodes = doc.getElementsByTagName("species");

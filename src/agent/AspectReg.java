@@ -3,12 +3,9 @@ package agent;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import agent.event.Event;
-import agent.state.SecondaryState;
 import dataIO.Feedback;
 import dataIO.Feedback.LogLevel;
 import generalInterfaces.AspectInterface;
-import generalInterfaces.Duplicable;
 import generalInterfaces.Quizable;
 import utility.Copier;
 
@@ -37,12 +34,14 @@ public class AspectReg<A> {
 	 * The aspect HashMap stores all aspects (primary, secondary states and 
 	 * events).
 	 */
-	protected HashMap<String, Aspect> _aspects = new HashMap<String, Aspect>();
+	protected HashMap<String, Aspect<?>> _aspects = 
+			new HashMap<String, Aspect<?>>();
 	
 	/**
 	 * Contains all (sub) modules
 	 */
-	protected LinkedList<AspectInterface> _modules = new LinkedList<AspectInterface>();
+	protected LinkedList<AspectInterface> _modules = 
+			new LinkedList<AspectInterface>();
 	
 	/**
 	 * returns true if the key is found in the aspect tree
@@ -75,7 +74,7 @@ public class AspectReg<A> {
 	 */
 	public void set(String key, A aspect)
 	{
-		_aspects.put(key, new Aspect(aspect));
+		_aspects.put(key, new Aspect<A>(aspect));
 	}
 	
 	/**
@@ -109,7 +108,7 @@ public class AspectReg<A> {
 	 */
 	public Object getValue(AspectInterface rootRegistry, String key)
 	{
-		Aspect a = getAspect(key);
+		Aspect<?> a = getAspect(key);
 		if (a == null)
 			return null;
     	switch (a.type)
@@ -132,7 +131,7 @@ public class AspectReg<A> {
 	public void doEvent(AspectInterface initiator, AspectInterface compliant, 
 			double timeStep, String key)
 	{
-		Aspect a = getAspect(key);
+		Aspect<?> a = getAspect(key);
 		if (a == null)
 			Feedback.out(LogLevel.CRITICAL, "Warning: aspepct registry does not"
 					+ " contain event:" + key);
@@ -147,17 +146,16 @@ public class AspectReg<A> {
 	/**
 	 * get local or global aspect (for internal usage).
 	 * NOTE if multiple aspect registry modules have an aspect with the same key
-	 * the first encountered espect with that key will be returned.
+	 * the first encountered aspect with that key will be returned.
 	 */
-	@SuppressWarnings("unchecked")
-	private Aspect getAspect(String key)
+	private Aspect<?> getAspect(String key)
 	{
 		if (_aspects.containsKey(key))
 			return _aspects.get(key);
 		else
 			for (AspectInterface m : _modules)
 				if(m.registry().isGlobalAspect(key) == true)
-					return (Aspect) m.registry().getAspect(key);
+					return (Aspect<?>) m.registry().getAspect(key);
 		
 		Feedback.out(LogLevel.BULK, "Warning: could not find aspect: " + key);
 		return null;
@@ -172,13 +170,9 @@ public class AspectReg<A> {
 		this.clear();
 		AspectReg<?> donorReg = donor.registry();
 		for (String key : donorReg._aspects.keySet())
-		{
 			add(key, (A) Copier.copy(donorReg.getAspect(key).aspect));
-		}
 		for (AspectInterface m : donorReg._modules)
-		{
 			addSubModule(m);
-		}
 	}
 
 	/**
@@ -189,49 +183,4 @@ public class AspectReg<A> {
 		this._aspects.clear();
 		this._modules.clear();
 	}
-	
-	/**
-	 * 
-	 * @author baco
-	 *
-	 */
-	private class Aspect
-	{
-		final A aspect;
-		final AspectType type;
-		
-		/**
-		 * Testing direct access fields (to prevent excessive casting).
-		 * Worth skimming of some milliseconds here ;)
-		 */
-		final SecondaryState calc;
-		final Event event;
-		
-		/**
-		 * Sets the aspect and declares type
-		 * @param aspect
-		 */
-	    public Aspect(A aspect)
-	    {
-			this.aspect = aspect;
-			if(aspect instanceof SecondaryState)
-			{
-				  this.type = AspectType.CALCULATED;
-				  this.calc = (SecondaryState) aspect;
-				  this.event = null;
-			}
-			else if(aspect instanceof Event)
-			{
-				  this.type = AspectType.EVENT;
-				  this.event = (Event) aspect;
-				  this.calc = null;
-			}
-			else
-			{
-				  this.type = AspectType.PRIMARY;
-				  this.event = null;
-				  this.calc = null;
-			}
-	    }
-	} 
 }

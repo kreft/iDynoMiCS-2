@@ -13,6 +13,9 @@ public class Simulator implements CanPrelaunchCheck
 	protected HashMap<String, Compartment> _compartments = 
 										   new HashMap<String, Compartment>();
 	
+	/*
+	 * contains all species for this simulation
+	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
 	
 	/*************************************************************************
