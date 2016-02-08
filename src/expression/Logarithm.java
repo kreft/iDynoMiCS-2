@@ -2,7 +2,8 @@ package expression;
 
 import java.util.HashMap;
 
-import dataIO.LogFile;
+import dataIO.Log;
+import dataIO.Log.tier;
 
 public class Logarithm extends ComponentDouble
 {
@@ -16,7 +17,7 @@ public class Logarithm extends ComponentDouble
 		if ( this._b instanceof Constant )
 		{
 			if ( B == 1.0 || B == 0.0 )
-				LogFile.writeLog("WARNING! Infinite value: log base "+B);
+				Log.out(tier.NORMAL,"WARNING! Infinite value: log base "+B);
 		}
 	}
 	

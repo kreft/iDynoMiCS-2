@@ -1,20 +1,16 @@
 package agent.state.library;
 
-import agent.Agent;
 import agent.Body;
-import agent.state.SecondaryState;
-import agent.state.State;
-import generalInterfaces.AspectInterface;
+import aspect.AspectInterface;
+import aspect.Calculated;
 import generalInterfaces.Quizable;
 
-public class LowerBoundingBox extends SecondaryState implements State {
-	
-	//input body, radius
-
-	public void set(Object state)
-	{
-
-	}
+/**
+ * input body, radius
+ * @author baco
+ *
+ */
+public class LowerBoundingBox extends Calculated {
 	
 	public Object get(AspectInterface aspectOwner)
 	{
@@ -22,8 +18,4 @@ public class LowerBoundingBox extends SecondaryState implements State {
 		return ((Body) agent.get(input[0])).coord((double) agent.get(input[1]));
 	}
 	
-	public State copy()
-	{
-		return this;
-	}
 }

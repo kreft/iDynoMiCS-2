@@ -3,8 +3,9 @@ package dataIO;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
-import dataIO.Feedback.LogLevel;
+import dataIO.Log.tier;
 
 /**
  * Handles file operations, create folders and files, write output.
@@ -14,6 +15,18 @@ import dataIO.Feedback.LogLevel;
 public class FileHandler {
 	BufferedWriter output;
 	int filewriterfilenr;
+	
+	/*
+	 * set to true if each line needs to be written to file immediately (for
+	 * instance for the log file.
+	 */
+	public boolean flushAll = false;
+
+// FIXME Bas [07.02.2016] what are the use cases for this?
+//	/**
+//	 * Decimal format used in logging simulation messages.
+//	 */
+//	private static DecimalFormat _decimalFormat = new DecimalFormat("0.0");
 	
 	/**
 	 * Creates directory if it does not exist
@@ -28,9 +41,12 @@ public class FileHandler {
 			try{
 				base.mkdir();
 		        result = true;
+		        // NOTE Do not write log before output dir is created
+		        System.out.println("new dir created " + base.getAbsolutePath());
 		    } 
 		    catch(SecurityException se){
-		        //handle it
+		    	// NOTE Do not write log before output dir is created
+		    	System.err.println("unable to create dir: " + dir + "\n" + se);
 		    }        
 		}
 		return result;
@@ -100,7 +116,8 @@ public class FileHandler {
 	{
 		try {
 			output.write(line);
-			output.flush();
+			if(flushAll)
+				output.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

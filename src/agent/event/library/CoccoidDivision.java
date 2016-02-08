@@ -7,9 +7,10 @@ import utility.ExtraMath;
 import linearAlgebra.Vector;
 import agent.Agent;
 import agent.Body;
-import agent.event.Event;
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import aspect.AspectInterface;
+import aspect.Event;
+import dataIO.Log;
+import dataIO.Log.tier;
 import idynomics.NameRef;
 
 /**
@@ -25,8 +26,10 @@ public class CoccoidDivision extends Event {
 	/**
 	 * Method that initiates the division
 	 */
-	public void start(Agent mother, Agent daughter, Double timeStep)
+	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
+		Agent mother = (Agent) initiator;
+		Agent daughter = (Agent) compliant;
 		//TODO check phase 
 		double momMass =(double) mother.get(input[0]);
 		if (momMass > 0.2)
@@ -57,7 +60,7 @@ public class CoccoidDivision extends Event {
 			if (mother.get(NameRef.fillialLinker) == null || !(boolean) 
 					mother.get(NameRef.fillialLinker))
 			{
-				Feedback.out(LogLevel.BULK, "Agent does not create fillial "
+				Log.out(tier.BULK, "Agent does not create fillial "
 						+ "links");
 			}
 			else
@@ -67,14 +70,7 @@ public class CoccoidDivision extends Event {
 						daughterBody.getSurface() } , 1.7 ));
 			}
 			daughter.registerBirth();
-			Feedback.out(LogLevel.DEBUG, "CoccoidDivision added daughter cell");
+			Log.out(tier.DEBUG, "CoccoidDivision added daughter cell");
 		}
-	}
-	
-	/**
-	 * Events are general behavior patterns, copy returns this
-	 */
-	public Object copy() {
-		return this;
 	}
 }

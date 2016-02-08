@@ -2,8 +2,8 @@ package processManager;
 
 //FIXME this class is for testing purposes only!!!
 import agent.Agent;
-import agent.event.Event;
 import agent.event.library.*;
+import aspect.Event;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 

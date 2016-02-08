@@ -1,11 +1,33 @@
 package idynomics;
 
 public class NameRef {
+	
+	/**
+	 * General xml name references
+	 */
+	
+	/**
+	 * The name for the object
+	 */
+	public static String xmlName = "name";
+	
+	/**
+	 * Process manager references
+	 */
+	public static String processPriority = "priority";
+	
+	/**
+	 * Process manager initial step
+	 */
+	public static String initialStep = "firstStep";
 
 	/**
 	 * Agent state references
 	 */
 	
+	/**
+	 * The agent species
+	 */
 	public static String species = "species";
 
 	/**
@@ -27,6 +49,11 @@ public class NameRef {
 	 * 
 	 */
 	public static String bodyLength = "#bodyLength";
+	
+	/**
+	 * 
+	 */
+	public static String bodyUpdate = "updateBody";
 	
 	/**
 	 * NOTE: linker springs will be reworked later, subject to change.

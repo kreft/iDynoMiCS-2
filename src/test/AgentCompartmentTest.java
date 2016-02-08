@@ -5,8 +5,6 @@ import java.util.List;
 
 import agent.Agent;
 import agent.Body;
-import agent.event.EventLoader;
-import agent.state.StateLoader;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
@@ -21,11 +19,10 @@ import processManager.SolveDiffusionTransient;
 import processManager.WriteAgentsSvg;
 import shape.ShapeConventions.DimName;
 import surface.Point;
+import surface.Sphere;
 import utility.ExtraMath;
 import agent.Agent;
 import agent.Body;
-import agent.event.EventLoader;
-import agent.state.StateLoader;
 import boundary.BoundaryCyclic;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -50,8 +47,20 @@ public class AgentCompartmentTest
 		// set 4 periodic boundaries
 		for ( DimName dim : new DimName[]{DimName.X, DimName.Y} )
 			aCompartment.getShape().getDimension(dim).setCyclic();
+		
+		/*
+		 * 
+		 */
+		String[] soluteNames = new String[2];
+		soluteNames[0] = "solute";
+		soluteNames[1] = "biomass";
+		for ( String aSoluteName : soluteNames )
+			aCompartment.addSolute(aSoluteName);
+		
 		//TODO diffusivities
 		aCompartment.init();
+
+		
 		/*
 		 * Initialise the concentration array with random values.
 		 */
@@ -90,24 +99,25 @@ public class AgentCompartmentTest
 		Agent ezAgent = new Agent();
 		ezAgent.set("mass",0.1);
 		ezAgent.set("density", 0.2);
-		ezAgent.set("volume", StateLoader.getSecondary("SimpleVolumeState","mass,density"));
-		ezAgent.set("radius",  StateLoader.getSecondary("CoccoidRadius","volume"));
-		ezAgent.set("growthRate", 0.2);
-		ezAgent.set("#isLocated", true);	
-		ezAgent.set("pigment", "GREEN");
-		List<Point> pts = new LinkedList<Point>();
-		ezAgent.set("body", new Body(new Point(new double[]{1.0, 1.0}),ezAgent));
-
-		ezAgent.set("joints", StateLoader.getSecondary("JointsState","body"));
-		ezAgent.set("#boundingLower", StateLoader.getSecondary("LowerBoundingBox","body,radius"));
-		ezAgent.set("#boundingSides", StateLoader.getSecondary("DimensionsBoundingBox","body,radius"));
-		
-		ezAgent.set("growth", EventLoader.getEvent("SimpleGrowth","mass,growthRate"));
-		ezAgent.set("divide", EventLoader.getEvent("CoccoidDivision","mass,radius,body"));
-		
-		ezAgent.set("massGrid", "biomass");
-		ezAgent.set("coccoidCenter",StateLoader.getSecondary("CoccoidCenter","body"));
-		ezAgent.set("massToGrid", EventLoader.getEvent("MassToGrid","mass,biomass,coccoidCenter"));
+		// FIXME no longer functional due to refactoring aspects
+//		ezAgent.set("volume", StateLoader.getSecondary("SimpleVolumeState","mass,density"));
+//		ezAgent.set("radius",  StateLoader.getSecondary("CoccoidRadius","volume"));
+//		ezAgent.set("growthRate", 0.2);
+//		ezAgent.set("#isLocated", true);	
+//		ezAgent.set("pigment", "GREEN");
+//		List<Point> pts = new LinkedList<Point>();
+//		ezAgent.set("body", new Body(new Sphere(new Point(new double[]{1.0, 1.0}),0.0)));
+//
+//		ezAgent.set("joints", StateLoader.getSecondary("JointsState","body"));
+//		ezAgent.set("#boundingLower", StateLoader.getSecondary("LowerBoundingBox","body,radius"));
+//		ezAgent.set("#boundingSides", StateLoader.getSecondary("DimensionsBoundingBox","body,radius"));
+//		
+//		ezAgent.set("growth", EventLoader.getEvent("SimpleGrowth","mass,growthRate"));
+//		ezAgent.set("divide", EventLoader.getEvent("CoccoidDivision","mass,radius,body"));
+//		
+//		ezAgent.set("massGrid", "biomass");
+//		ezAgent.set("coccoidCenter",StateLoader.getSecondary("CoccoidCenter","body"));
+//		ezAgent.set("massToGrid", EventLoader.getEvent("MassToGrid","mass,biomass,coccoidCenter"));
 		
 		ProcessManager agentMassGrid = new RefreshMassGrids();
 		agentMassGrid.setTimeForNextStep(0.0);

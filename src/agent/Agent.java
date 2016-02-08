@@ -1,14 +1,13 @@
 package agent;
 import org.w3c.dom.Node;
 
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import aspect.AspectInterface;
+import aspect.AspectReg;
+import dataIO.Log.*;
 import dataIO.XmlLoad;
-import agent.event.Event;
-import agent.state.*;
-import generalInterfaces.AspectInterface;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
+import idynomics.Idynomics;
 import idynomics.NameRef;
 
 /**
@@ -31,6 +30,9 @@ public class Agent implements Quizable, AspectInterface
      */
     protected Compartment compartment;
     
+    /**
+     * The aspect registry
+     */
     public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
     
     /*************************************************************************
@@ -44,7 +46,7 @@ public class Agent implements Quizable, AspectInterface
 	
 	public Agent(Node xmlNode)
 	{
-		XmlLoad.loadStates(this, xmlNode);
+		AspectInterface.loadAspects(this, xmlNode);
 		this.init();
 	}
 	
@@ -55,7 +57,7 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public Agent(Agent agent)
 	{
-		agent.aspectRegistry.duplicate(this);
+		this.aspectRegistry.duplicate(agent);
 		this.init();
 		this.compartment = agent.getCompartment();
 	}
@@ -65,7 +67,9 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public void init()
 	{
-		aspectRegistry.addSubModule((Species) SpeciesLib.get(aspectRegistry.isGlobalAspect(NameRef.species) ? 
+		aspectRegistry.addSubModule( 
+				(Species) Idynomics.simulator.speciesLibrary.get(
+						aspectRegistry.isGlobalAspect(NameRef.species) ? 
 				(String) get(NameRef.species) : ""));
 	}
 
@@ -74,7 +78,7 @@ public class Agent implements Quizable, AspectInterface
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 
-	public AspectReg<?> registry() {
+	public AspectReg<?> reg() {
 		return aspectRegistry;
 	}
 	
@@ -123,7 +127,7 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public void event(String event)
 	{
-		event(event, null, null);
+		event(event, null, 0.0);
 	}
 	
 	public void event(String event, Double timestep)
@@ -133,7 +137,7 @@ public class Agent implements Quizable, AspectInterface
 	
 	public void event(String event, Agent compliant)
 	{
-		event(event, compliant, null);
+		event(event, compliant, 0.0);
 	}
 	
 	public void event(String event, Agent compliant, Double timestep)

@@ -4,22 +4,36 @@ import surface.Collision;
 import surface.Link;
 import surface.Point;
 import surface.Surface;
+import utility.Helper;
 import linearAlgebra.Vector;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.NameRef;
 
 import java.util.List;
 
 import agent.Agent;
 import agent.Body;
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import dataIO.Log;
+import dataIO.Log.tier;
 
 	////////////////////////
 	// WORK IN PROGRESS, initial version
 	////////////////////////
 
 public class AgentRelaxation extends ProcessManager {
+	
+	/**
+	 * Available relaxation methods
+	 * @author baco
+	 *
+	 */
+	private enum method
+	{
+		SHOVE,
+		EULER,
+		HEUN
+	}
 	
 	// FIXME work in progress
 	// set Mechanical stepper
@@ -28,17 +42,48 @@ public class AgentRelaxation extends ProcessManager {
 	double vSquare;
 	double tMech;		
 	
-	// TODO the following should folow from the protocol file
+	/**
+	 * Relaxation parameters (overwritten by init)
+	 */
 	double dtBase		= 0.01;	
-	double maxMovement	= 0.1;
-	String method 		= "euler";
+	double maxMovement	= 0.1;	
+	method _method		= method.SHOVE;
 	boolean timeLeap	= true;
 	
-	private void updateForces(EnvironmentContainer environment, AgentContainer agents) 
+	public void init()
 	{
+		/**
+		 * Obtaining relaxation parameters
+		 */
+		dtBase		= Double.valueOf(Helper.setIfNone((String) 
+				  			  reg().getValue(this, "dtBase"), String.valueOf(0.01)));	
+		maxMovement	= Double.valueOf(Helper.setIfNone(String.valueOf(
+							  reg().getValue(this, "maxMovement")), String.valueOf(0.1)));	
+		_method		= method.valueOf(Helper.obtainInput((String) 
+							  reg().getValue(this, "relaxationMethod"), "agent " + 
+							  "relaxation misses relaxation method "
+							  + "(SHOVE,EULER,HEUN)"));
+		timeLeap	= true;
+	}
+	
+	/**
+	 * Update forces on all agent mass points
+	 * @param environment
+	 * @param agents
+	 */
+	private void updateForces(EnvironmentContainer environment, 
+			AgentContainer agents) 
+	{
+		/**
+		 * Update agent body now required
+		 */
+		for(Agent agent: agents.getAllLocatedAgents()) 
+			agent.event(NameRef.bodyUpdate);
+		
+		/**
+		 * Updated bodies thus update spatial tree
+		 */
 		agents.refreshSpatialRegistry();
-		//FIXME hard coded periodic boundaries and domain size for test case, initiate properly
-		//TODO: in my opinion this information should all just come from the compartment
 		Collision iterator = new Collision(null, agents.getShape());
 		
 		// Calculate forces
@@ -49,22 +94,40 @@ public class AgentRelaxation extends ProcessManager {
 			{
 				if (links.get(i).evaluate(iterator))
 				{
-					Feedback.out(LogLevel.BULK, "Fillial link breakage due to "
+					Log.out(tier.BULK, "Fillial link breakage due to "
 							+ "over extending maximum link length.");
 					links.remove(i);
 				}
 			}
 			
-			//agent.innerSprings();	// TODO method needs to be implemented (but not in Agent())
+			/**
+			 * NOTE: currently missing internal springs for rod cells.
+			 */
+			
+			/**
+			 * perform neighborhood search and perform collision detection and
+			 * response
+			 * TODO Add optional extra margin for pulls!!!
+			 */
 			for(Agent neighbour: agents._agentTree.cyclicsearch(
-					(double[]) agent.get("#boundingLower"), /// TODO Add optional extra margin for pulls!!!
-					(double[]) agent.get("#boundingSides"))) 
+					(double[]) agent.get("#boundingLower"),
+					(double[]) agent.get("#boundingSides")))
 			{
 				if (agent.identity() > neighbour.identity())
-					{
-					iterator.collision((Surface) agent.get("surface"), (Surface) neighbour.get("surface"));
-					}
+				{
+					iterator.collision((Surface) agent.get("surface"), 
+							(Surface) neighbour.get("surface"));
+				}
 			}
+			
+			/*
+			 * Boundary collisions
+			 */
+			for(Surface s : agents.getShape().getSurfaces())
+			{
+				iterator.collision(s, (Surface) agent.get("surface"));
+			}
+			
 		}
 	}
 
@@ -75,13 +138,15 @@ public class AgentRelaxation extends ProcessManager {
 		dtMech 		= 0.0005; // TODO (initial) time step.. needs to be build out of protocol file
 		
 		// if higher order ODE solvers are used we need additional space to write.
-		switch (method)
+		switch (_method)
 		{
-			case "heun" :
+			case HEUN :
 				for(Agent agent: agents.getAllLocatedAgents())
 					for (Point point: ((Body) agent.get("body")).getPoints())
 						point.setC(2);
 				break;
+		default:
+			break;
 		}
 		
 		// Mechanical relaxation
@@ -106,9 +171,9 @@ public class AgentRelaxation extends ProcessManager {
 				dtMech = _timeStepSize-tMech;
 			
 			// perform the step using (method)
-			switch (method)
+			switch (_method)
 			{
-				case "shove" :
+				case SHOVE :
 					for(Agent agent: agents.getAllLocatedAgents())
 						for (Point point: ((Body) agent.get("body")).getPoints())
 							point.shove(dtMech, (double) agent.get("radius"));
@@ -116,7 +181,7 @@ public class AgentRelaxation extends ProcessManager {
 						tMech = _timeStepSize;
 				break;
 			
-				case "euler" :
+				case EULER :
 					/// Euler's method
 					for(Agent agent: agents.getAllLocatedAgents())
 						for (Point point: ((Body) agent.get("body")).getPoints())
@@ -125,7 +190,7 @@ public class AgentRelaxation extends ProcessManager {
 					break;
 				
 		// NOTE : higher order ODE solvers don't like time Leaping.. be careful.
-				case "heun" :
+				case HEUN :
 					/// Heun's method
 					for(Agent agent: agents.getAllLocatedAgents())
 						for (Point point: ((Body) agent.get("body")).getPoints())

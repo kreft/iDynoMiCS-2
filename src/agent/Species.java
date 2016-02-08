@@ -2,8 +2,9 @@ package agent;
 
 import org.w3c.dom.Node;
 
+import aspect.AspectInterface;
+import aspect.AspectReg;
 import dataIO.XmlLoad;
-import generalInterfaces.AspectInterface;
 
 /**
  * 
@@ -23,7 +24,7 @@ public class Species implements AspectInterface
 	}
 	
 	public Species(Node xmlNode) {
-		XmlLoad.loadStates(this, xmlNode);
+		AspectInterface.loadAspects(this, xmlNode);
 	}
 
 	
@@ -31,7 +32,7 @@ public class Species implements AspectInterface
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 
-	public AspectReg<?> registry() {
+	public AspectReg<?> reg() {
 		return aspectRegistry;
 	}
 }

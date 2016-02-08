@@ -4,9 +4,11 @@ import java.util.List;
 
 import agent.Agent;
 import agent.Body;
-import agent.event.Event;
+import aspect.AspectInterface;
+import aspect.Event;
 import linearAlgebra.Vector;
 import surface.Point;
+import utility.Helper;
 
 /**
  * TODO: this method is simplified and not correct
@@ -21,24 +23,17 @@ public class StochasticMove extends Event {
 	 * Perform one stochastic move (uniRand) scaled by the time step) NOTE: for
 	 * testing purposes only, incorrect method
 	 */
-	public void start(Agent agent, Agent compliant, Double timeStep)
+	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
+		Agent agent = (Agent) initiator;
 		//FIXME this is not correct!! simple event for testing.
 		Body agentBody = (Body) agent.get(input[0]);
 		List<Point> points = agentBody.getPoints();
 		for (Point p : points)
 		{
 			p.setPosition(Vector.add(p.getPosition(), 
-					Vector.randomPlusMinus(agentBody.nDim(), timeStep*0.5)));
+					Vector.randomPlusMinus(agentBody.nDim(), timeStep*
+					Helper.getDouble( agent.get(input[1]) ))));
 		}
 	}
-	
-	/**
-	 * Events are general behavior patterns, copy returns this
-	 */
-	public Object copy() 
-	{
-		return this;
-	}
-	
 }
