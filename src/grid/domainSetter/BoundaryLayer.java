@@ -9,7 +9,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import agent.Agent;
-import dataIO.LogFile;
+import dataIO.Log;
+import dataIO.Log.tier;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
@@ -44,7 +45,7 @@ public class BoundaryLayer implements IsDomainSetter
 		}
 		else
 		{
-			LogFile.shoutLog("Boundary layer thickness must be set!");
+			Log.out(tier.CRITICAL,"Boundary layer thickness must be set!");
 			System.exit(-1);
 		}
 	}

@@ -51,6 +51,13 @@ public abstract class Surface
 	}
 	
 	/**
+	 * 
+	 * @param a
+	 * @param b
+	 */
+	public abstract void set(double a, double b);
+	
+	/**
 	 * returns the surface type
 	 * @return
 	 */

@@ -2,7 +2,8 @@ package agent.event.library;
 
 import grid.SpatialGrid;
 import agent.Agent;
-import agent.event.Event;
+import aspect.AspectInterface;
+import aspect.Event;
 import grid.SpatialGrid.ArrayType;
 
 /**
@@ -17,17 +18,11 @@ public class MassToGrid  extends Event {
 	/**
 	 * write mass to target grid.
 	 */
-	public void start(Agent agent, Agent compliant, Double timeStep)
+	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
+		Agent agent = (Agent) initiator;
 		SpatialGrid MassGrid = agent.getCompartment().getSolute(input[1]);
 		MassGrid.addValueAt(ArrayType.CONCN, MassGrid.getCoords((double[]) 
 				agent.get(input[2])), (double) agent.get(input[0]));
-	}
-	
-	/**
-	 * Events are general behavior patterns, copy returns this
-	 */
-	public Object copy() {
-		return this;
 	}
 }

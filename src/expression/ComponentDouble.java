@@ -2,7 +2,8 @@ package expression;
 
 import java.util.HashMap;
 
-import dataIO.LogFile;
+import dataIO.Log;
+import dataIO.Log.tier;
 
 /**
  * 
@@ -37,7 +38,7 @@ public abstract class ComponentDouble extends Component
 	
 	protected void infiniteValueWarning(HashMap<String, Double> variables)
 	{
-		LogFile.writeLog("WARNING! Infinite value: " + this.getName() + 
+		Log.out(tier.CRITICAL,"WARNING! Infinite value: " + this.getName() + 
 										" = " + this.reportValue(variables));
 	}
 }

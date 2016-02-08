@@ -1,42 +1,20 @@
 package dataIO;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import reaction.Reaction;
-import surface.Point;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import utility.Helper;
 import agent.Agent;
-import agent.AspectReg;
-import agent.Body;
-import agent.Species;
-import agent.SpeciesLib;
-import agent.AspectRegistry;
-import agent.event.EventLoader;
-import agent.state.StateLoader;
-import dataIO.Feedback.LogLevel;
-import generalInterfaces.AspectInterface;
+import aspect.AspectInterface;
+import dataIO.Log.tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
-import idynomics.Simulator;
 import idynomics.Timer;
+
 
 /**
  * 
@@ -45,128 +23,87 @@ import idynomics.Timer;
  */
 public class XmlLoad {
 	
-	/////////////////////////////
-	// Interfaces
-	/////////////////////////////
-	
-	public interface nodeOperation {
-		void action(Node node);
-	}
-	
-	////////////////////////////
-	// Local classes
-	////////////////////////////
-	
 	////////////////////////////
 	// Methods
 	////////////////////////////
-	
-	public static Element loadDocument(String document)
-	{
-		try {
-			File fXmlFile = new File(document);
-			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
-			Document doc;
-			doc = dBuilder.parse(fXmlFile);
-			doc.getDocumentElement().normalize();
-			return doc.getDocumentElement();
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	public static Object newInstance(String inPackage, String inClass)
-	{
-		Class<?> c;
-		try {
-			c = Class.forName(inPackage + "." + inClass);
-			return c.newInstance();
-		} catch (ClassNotFoundException e ){
-			Feedback.out(LogLevel.QUIET,"ERROR: the class " + inClass + " "
-					+ "could not be found. Check the " + inPackage
-					+ "package for the existence of this class.");
-			e.printStackTrace();
-		} catch (InstantiationException | IllegalAccessException e)  {
-			Feedback.out(LogLevel.QUIET,"ERROR: the class " + inClass + " "
-					+ "could not be accesed or instantieated. Check whether the"
-					+ " called class is valid.");
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
-	/**
-	 * TODO: ProcessManager has no xml node constructor, quick fix
-	 */
-	public static void constuctProcessManager(Node processNode, 
-			Compartment compartment)
-	{
-		Element p = (Element) processNode;
 		
-		ProcessManager process = (ProcessManager) newInstance("processManager", 
-				p.getAttribute("manager"));
-		process.setName(p.getAttribute("name"));
-		process.setPriority(Integer.valueOf(p.getAttribute("priority")));
-		process.setTimeForNextStep(Double.valueOf(p.getAttribute("firstStep")));
-		process.setTimeStepSize(Timer.getTimeStepSize());
-		compartment.addProcessManager(process);
-	}
-	
 	/**
 	 * TODO: compartmend has no xml node constructor, quick fix
 	 */
 	public static void constructCompartment(Node compartmentNode)
 	{
-		Simulator mySim = Idynomics.simulator;
 		// NOTE: misses construction from xml, quick fix
 		
 		Element xmlCompartment = (Element) compartmentNode;
-		Compartment comp = mySim.addCompartment(
-				xmlCompartment.getAttribute("name"), 
-				xmlCompartment.getAttribute("shape"));
+		Compartment comp = Idynomics.simulator.addCompartment(
+				Helper.obtainInput(xmlCompartment.getAttribute("name"), 
+				"missing comparment name specification"), 
+				Helper.obtainInput(xmlCompartment.getAttribute("shape"),
+				"missing cmpartment shape"));
 		
-		comp.setSideLengths( Vector.dblFromString( obtainAttribute( 
-				loadUnique(xmlCompartment, "sideLengths"), "value")));
+		comp.setSideLengths(Vector.dblFromString(XmlHandler.loadUniqueAtribute(
+				xmlCompartment,"sideLengths", "value")));
 		
-		// solutes, grids
-		// TODO boundaries?? other stuff
+		// TODO solutes, grids
+		// TODO boundaries?, other stuff
 		
 		comp.init();
 		
 		/**
 		 * Load agents and agent container
 		 */
-		Element agents = loadUnique(Param.xmlDoc,"agents");
-		NodeList agentNodes = agents.getElementsByTagName("agent");
-		for (int j = 0; j < agentNodes.getLength(); j++) 
-			comp.addAgent(new Agent(agentNodes.item(j)));
+		Element agents = XmlHandler.loadUnique(Param.xmlDoc,"agents");
+		if(agents != null)
+		{
+			NodeList agentNodes = agents.getElementsByTagName("agent");
+			for (int j = 0; j < agentNodes.getLength(); j++) 
+				comp.addAgent(new Agent(agentNodes.item(j)));
+		}
+		else
+			Log.out(tier.NORMAL, "Warning: starting simulation without agents");
 		
 		/**
 		 * Process managers
 		 */
-		Element processManagers = loadUnique(Param.xmlDoc,"processManagers");
-		NodeList processNodes = processManagers.getElementsByTagName("process");
-		for (int j = 0; j < processNodes.getLength(); j++) 
-			constuctProcessManager(processNodes.item(j), comp);
+		Element processManagers = XmlHandler.loadUnique(
+				Param.xmlDoc,"processManagers");
+		if(processManagers != null)
+		{
+			NodeList pNodes = processManagers.getElementsByTagName("process");
+			for (int j = 0; j < pNodes.getLength(); j++) 
+			{
+				comp.addProcessManager( ProcessManager.getNewInstance(
+						pNodes.item(j)));
+			}
+		}
+		else
+		{
+			Log.out(tier.CRITICAL, "Warning: attempt to start simulation"
+					+ "without process managers, aborting..");
+			Helper.abort(3000);
+		}
 	}
 	
 	
 	/**
-	 * 
+	 * build up simulation from xml file.
+	 * NOTE: if you want to make changes to the iDynomics documents setup this
+	 * is probably your starting point
 	 */
 	public static void constructSimulation()
 	{
 		loadGeneralParameters();
 		
 		// NOTE: misses construction from xml, quick fix
-		Timer.setTimeStepSize(Double.valueOf(Param.timeStepSize));
-		Timer.setEndOfSimulation(Double.valueOf(Param.endOfSimulation));
+		Timer.setTimeStepSize(Double.valueOf( Helper.obtainInput( 
+				Param.timeStepSize,"Timer time step size")));
+		Timer.setEndOfSimulation( Double.valueOf( Helper.obtainInput(
+				Param.endOfSimulation,"End of simulation")));
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
-		SpeciesLib.setAll(loadUnique(Param.xmlDoc, "speciesLib"));
+		Idynomics.simulator.speciesLibrary.setAll( XmlHandler.loadUnique(
+				Param.xmlDoc, "speciesLib"));
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = 
@@ -177,98 +114,7 @@ public class XmlLoad {
 		}
 	}
 
-	/**
-	 * Perform iterative operation for all nodes in nodeList
-	 * @param nodeList
-	 * @param operation
-	 */
-	public static void forAllNodes(NodeList nodeList, nodeOperation operation) 
-	{
-	    for (int i = 0; i < nodeList.getLength(); i++) 
-		     operation.action(nodeList.item(i));
-	}
-	
-	/**
-	 * Loads all states from xmlNode into anything that implements the
-	 * StateObject interface.
-	 * @param aspectReg
-	 * @param xmlNode
-	 */
-	public static void loadStates(AspectInterface aspectInterface, Node xmlNode)
-	{
-		Element xmlAgent = (Element) xmlNode;
-		AspectReg<Object> aspectReg = (AspectReg<Object>) aspectInterface.registry();
-		
-		NodeList stateNodes = xmlAgent.getElementsByTagName("state");
-		for (int j = 0; j < stateNodes.getLength(); j++) 
-		{
-			Element s = (Element) stateNodes.item(j);
-			if (! s.hasChildNodes())	// state node with just attributes //
-			{
-				switch (s.getAttribute("type")) 
-				{
-					case "boolean" : 
-						aspectReg.add(s.getAttribute("name"), 
-								Boolean.valueOf(s.getAttribute("value")));
-	                	break;
-					case "int" : 
-						aspectReg.add(s.getAttribute("name"), 
-								Integer.valueOf(s.getAttribute("value")));
-	                	break;
-					case "double" : 
-						aspectReg.add(s.getAttribute("name"), 
-								Double.valueOf(s.getAttribute("value")));
-	                	break;
-					case "String" : 
-						aspectReg.add(s.getAttribute("name"), 
-								s.getAttribute("value"));
-	                	break;
-					case "secondary" : 
-						aspectReg.add(s.getAttribute("name"), 
-								StateLoader.getSecondary(s.getAttribute("value")
-										, s.getAttribute("input")));
-	                	break;
-					case "event" :
-						aspectReg.add(s.getAttribute("name"), 
-								EventLoader.getEvent(s.getAttribute("value"), 
-										s.getAttribute("input")));
-				}
-			}
-			else	// state node with attributes and child nodes //
-			{
-				switch (s.getAttribute("type")) 
-				{
-					case "body" :
-						//FIXME: not finished only accounts for simple coccoids
-						List<Point> pointList = new LinkedList<Point>();
-						NodeList pointNodes = s.getElementsByTagName("point");
-						for (int k = 0; k < pointNodes.getLength(); k++) 
-						{
-							Element point = (Element) pointNodes.item(k);
-							pointList.add(new Point(Vector.dblFromString(
-									point.getAttribute("position"))));
-						}
-						// Bas [01.02.16] TODO: currently only agents can have a
-						// body, look into this if other things alos need to be
-						// able to have a body
-						aspectReg.add("body", new Body(pointList, 
-								(Agent) aspectInterface));
-						break;
-					case "reactions" :
-						List<Reaction> reactions = new LinkedList<Reaction>();
-						NodeList rNodes = s.getElementsByTagName("reaction");
-						for (int k = 0; k < rNodes.getLength(); k++) 
-						{
-							Element reaction = (Element) rNodes.item(k);
-							reactions.add(new Reaction(
-									reaction.getAttribute("somethingReact")));
-						}
-						aspectReg.add("reactions", reactions);
-						break;
-				}
-			}
-		}
-	}
+
 	
 	/**
 	 * Load speciesModules is used to obtain all speciesModules from an XML node
@@ -286,7 +132,15 @@ public class XmlLoad {
 		for (int j = 0; j < nodes.getLength(); j++) 
 		{
 			Element s = (Element) nodes.item(j);
-			species.registry().addSubModule(s.getAttribute("name"));
+			
+			/**
+			 * add a species module to be incorporated in this species
+			 * FIXME: Bas [13.01.16] lets be sure we aren't adding a lot of void
+			 * species here.
+			 * @param name
+			 */
+			species.reg().addSubModule(s.getAttribute("name"), 
+					Idynomics.simulator.speciesLibrary);
 		}
 	}
 	
@@ -301,68 +155,15 @@ public class XmlLoad {
 		 * This method contains System.err in stead of normal logging since it
 		 * is called before logging is initiated.
 		 */
-		Param.xmlDoc = loadDocument(Param.protocolFile);
-		Element sim = loadUnique((Element) Param.xmlDoc, "simulation");
-		Param.simulationName = obtainAttribute(sim, "name");
-		Param.outputRoot = obtainAttribute(sim, "outputfolder");
-		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + "/";
-		Feedback.set(obtainAttribute(sim,"log"));
-		
-		Param.simulationComment = gatherAttribute(sim,"comment");
-	}
-	
-	/**
-	 * Checks for unique node exists and whether it is unique, than returns it.
-	 * @param xmlElement
-	 * @param tagName
-	 * @return
-	 */
-	public static Element loadUnique(Element xmlElement, String tagName)
-	{
-		NodeList nodes =  Param.xmlDoc.getElementsByTagName(tagName);
-		if (nodes.getLength() > 1)
-		{
-			System.err.println("Warning: document contains more than 1"
-					+ tagName + " nodes, loading first simulation node...");
-		}
-		else if (nodes.getLength() == 0)
-		{
-			System.err.println("Error: could not identify " + tagName + "node, "
-					+ "make sure your file contains all required elements."
-					+ "Aborting...");
-			System.exit(0);
-		}
-		return (Element) nodes.item(0);
-	}
-	
-	/**
-	 * This method gets an attribute from an element, if the element does not
-	 * have this attribute it will ask the user.
-	 */
-	public static String obtainAttribute(Element xmlElement, String attribute)
-	{
-		if(xmlElement.hasAttribute(attribute))
-			return  xmlElement.getAttribute(attribute);
-		else
-		{
-		@SuppressWarnings("resource")
-		Scanner user_input = new Scanner( System.in );
-		System.out.print(xmlElement.getNodeName() + " misses the "
-				+ "attribute: \"" + attribute + "\", please enter a value: " );
-		return user_input.next( );
-		}
-	}
-	
-	/**
-	 * Gathers non critical attributes, returns "" if the attribute is not
-	 * defined. This method does not ask the user for any information.
-	 */
-	public static String gatherAttribute(Element xmlElement, String attribute)
-	{
-		if(xmlElement.hasAttribute(attribute))
-			return xmlElement.getAttribute(attribute);
-		else
-			return "";
+		Param.xmlDoc = XmlHandler.loadDocument(Param.protocolFile);
+		Element sim = XmlHandler.loadUnique((Element) Param.xmlDoc, 
+				"simulation");
+		Param.simulationName = XmlHandler.obtainAttribute(sim, "name");
+		Param.outputRoot = XmlHandler.obtainAttribute(sim, "outputfolder");
+		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + 
+				"/";
+		Log.set(XmlHandler.obtainAttribute(sim,"log"));
+		Param.simulationComment = XmlHandler.gatherAttribute(sim,"comment");
 	}
 	
 	/**
@@ -370,136 +171,15 @@ public class XmlLoad {
 	 */
 	public static void loadGeneralParameters()
 	{
-		NodeList general = Param.xmlDoc.getElementsByTagName("general");
+		NodeList general = XmlHandler.getAll(Param.xmlDoc,"general");
 		for (int i = 0; i < general.getLength(); i++) 
 		{
-			Element xmlgeneral = (Element) general.item(i);
-			NodeList paramNodes = xmlgeneral.getElementsByTagName("param");
+			NodeList paramNodes = XmlHandler.getAll(general.item(i),"param");
 			for (int j = 0; j < paramNodes.getLength(); j++) 
 			{
 				Element s = (Element) paramNodes.item(j);
-				try {
-					Class<?> c = Param.class;
-					Field f = c.getDeclaredField(s.getAttribute("name"));
-					f.set(f, s.getAttribute("value"));
-	
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchFieldException e) {
-					// NOTE: do not log this since this may occur before the log
-					// is initiated (the log it self is start from a general 
-					// param
-					System.err.println("Warning: attempting to set non existend"
-							+ " general paramater: " + s.getAttribute("name") );
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				XmlHandler.setStaticField(Param.class, s);
 			}
 		}
 	}
-	
-	/*************************************************************************
-	 * DISPLAYING
-	 ************************************************************************/
-	
-	public static void display(Node node)
-	{
-		display(null, node);
-	}
-	
-	public static void display(String prefix,Node node)
-	{
-		if (node.getNodeType() == Node.ELEMENT_NODE) 
-			display(prefix, (Element) node);
-	}
-	
-	public static void display(Element element)
-	{
-		display(null, element);
-	}
-	
-	public static void display(String prefix, Element element)
-	{
-		String ln = " " + element.getTagName() + " " 
-				+ element.getAttribute("name");
-		if (prefix == null) 
-			System.out.println(ln);
-		else
-			System.out.println(prefix + ln);
-	}
-	
-	public static void displayWithAttributes(String prefix, Node node, 
-			String[] attributes)
-	{
-		if (node.getNodeType() == Node.ELEMENT_NODE) 
-			displayWithAttributes(prefix, (Element) node, attributes);
-	}
-	
-	public static void displayWithAttributes(String prefix, Element element, 
-			String[] attributes)
-	{
-		display(prefix, element);
-		NamedNodeMap a = element.getAttributes();
-		for (int i = 0; i < a.getLength(); i++) {
-			String ln = " |" + a.item(i).getNodeName() + " : " 
-					+ a.item(i).getNodeValue();
-			if (prefix == null) 
-				System.out.println(ln);
-			else
-				System.out.println(prefix + ln);
-		}
-	}
-	
-	public static void displayIfAttribute(Element element, String attribute, 
-			String value)
-	{
-		if(element.getAttribute(attribute).toString().equals(value))
-		{
-			displayWithAttributes(null, element, null);
-		}
-	}
-	
-	public static void displayAllChildNodes(Element element)
-	{
-		displayAllChildNodes(null, element);	
-	}
-	
-	public static void displayAllChildNodes(String prefix, Element element)
-	{
-		displayAllChildNodes(null, element, false);
-	}
-	
-	public static void displayAllChildNodes(String prefix, Element element, 
-			Boolean attributes)
-	{
-		if (element.hasChildNodes()) 
-		{
-			NodeList childNodes = element.getChildNodes();
-			forAllNodes(childNodes, new nodeOperation() { 
-				public void action(Node node) 
-				{ 
-					if (attributes)
-						displayWithAttributes(prefix, node, null);
-					else
-						display(prefix, node); 
-					if (node.getNodeType() == Node.ELEMENT_NODE) 
-					{
-						if (prefix == null) 
-							displayAllChildNodes(null, (Element) node, 
-									attributes);
-						else 
-							displayAllChildNodes(prefix + "-", 
-									(Element) node, attributes );
-					}
-				}
-			} );
-		}			
-	}
-
-
 }

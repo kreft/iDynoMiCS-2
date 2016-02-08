@@ -4,11 +4,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import dataIO.PovExport;
-import dataIO.XmlLoad;
+import dataIO.XmlHandler;
 import agent.Agent;
 import agent.Species;
-import agent.SpeciesLib;
 import idynomics.Compartment;
+import idynomics.Idynomics;
 import idynomics.Simulator;
 import utility.ExtraMath;
 
@@ -22,10 +22,10 @@ public class AgentTest {
 		ExtraMath.initialiseRandomNumberGenerator();
 		
 		// load xml doc
-		Element doc = XmlLoad.loadDocument("testagents.xml");
+		Element doc = XmlHandler.loadDocument("testagents.xml");
 		
 		// Display document element's general info
-		XmlLoad.displayWithAttributes(null, doc, null);
+		XmlHandler.displayWithAttributes(null, doc, null);
 		System.out.println("-------------------------------------------------");
 		//XmlLoad.displayAllChildNodes("-",doc,true);
 		
@@ -34,7 +34,7 @@ public class AgentTest {
 		for (int i = 0; i < speciesNodes.getLength(); i++) 
 		{
 			Element xmlSpecies = (Element) speciesNodes.item(i);
-			SpeciesLib.set(xmlSpecies.getAttribute("name"), 
+			Idynomics.simulator.speciesLibrary.set(xmlSpecies.getAttribute("name"), 
 					new Species(speciesNodes.item(i)));
 		}
 		

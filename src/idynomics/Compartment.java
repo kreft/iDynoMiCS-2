@@ -4,11 +4,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
+import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
@@ -72,6 +78,15 @@ public class Compartment implements CanPrelaunchCheck
 	
 	public void init()
 	{
+		/*
+		 * NOTE: Bas [06.02.16] this may be set elsewhere as long as it is after
+		 * the Dimensions and sideLengths are set.
+		 * 
+		 * NOTE: Rob [8Feb2016] here is fine (_environment also needs
+		 * sideLengths, etc).
+		 */
+		this._shape.setSurfaces();
+		
 		this._environment.init();
 	}
 	

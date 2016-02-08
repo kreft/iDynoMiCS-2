@@ -1,6 +1,25 @@
 package idynomics;
 
 public class NameRef {
+	
+	/**
+	 * General xml name references
+	 */
+	
+	/**
+	 * The name for the object
+	 */
+	public static String xmlName = "name";
+	
+	/**
+	 * Process manager references
+	 */
+	public static String processPriority = "priority";
+	
+	/**
+	 * Process manager initial step
+	 */
+	public static String initialStep = "firstStep";
 
 	/**
 	 * Agent state references

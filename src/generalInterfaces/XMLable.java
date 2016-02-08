@@ -3,12 +3,18 @@
  */
 package generalInterfaces;
 
-import dataIO.LogFile;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import dataIO.Log;
+import dataIO.Log.tier;
+import idynomics.Idynomics;
 
 /**
  * 
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author baco
  */
 public interface XMLable
 {
@@ -67,10 +73,37 @@ public interface XMLable
 		}
 		catch ( Exception e )
 		{
-			LogFile.shoutLog(
+			Log.out(tier.CRITICAL,
 					"ERROR! Problem in XMLable.getNewInstance("+className+")");
 			e.printStackTrace();
 		}
 		return out;
+	}
+	
+	/**
+	 * General constructor from xmlNodes, returns a new instance directly from
+	 * an xml node. Overwrite this method in implementing class if the class
+	 * needs constructor arguments (they should be stored within the Node).
+	 */
+	public static Object getNewInstance(Node xmlNode)
+	{
+		Element E = (Element) xmlNode;
+		if(! E.hasAttribute("class"))
+			Log.out(tier.CRITICAL, "no className devined in: " + 
+					E.getTagName());
+		else if(! E.hasAttribute("package"))
+			return getNewInstance(xmlNode, E.getAttribute("class"));
+		return getNewInstance(E.getAttribute("class") , 
+				E.getAttribute("package"));
+	}
+	
+	/**
+	 * General constructor from xmlNodes, attempts to resolve package from
+	 * className
+	 */
+	public static Object getNewInstance(Node xmlNode, String className)
+	{
+		return getNewInstance(className, 
+				Idynomics.xmlPackageLibrary.get(className));
 	}
 }

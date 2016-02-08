@@ -55,6 +55,14 @@ public class Plane extends Surface {
 		this.d = Vector.dotProduct(normal, pointA);
 	}
 	
+	/**
+	 * Plane.set allows one to move the plane allong its normal
+	 */
+	public void set(double d, double notUsed)
+	{
+		this.d = d;
+	}
+	
 	public Type type() {
 		return Surface.Type.PLANE;
 	}

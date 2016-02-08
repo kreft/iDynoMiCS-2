@@ -30,6 +30,12 @@ public class Idynomics
 	public static Simulator simulator = new Simulator();
 	
 	/**
+	 * Contains all predefined className package association for easy class
+	 * initiation from xml file.
+	 */
+	public static XMLableLibrary xmlPackageLibrary = new XMLableLibrary();
+	
+	/**
 	* \brief Main method used to start iDynoMiCS.
 	* 
 	* @param args Simulation arguments passed from the command line

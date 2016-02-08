@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.function.DoubleFunction;
 
 import boundary.BoundaryCyclic;
-import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
 import grid.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
