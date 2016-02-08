@@ -33,6 +33,14 @@ public class Helper {
 			input = String.valueOf(ifNone);
 		return input;
 	}
+	
+	/**
+	 * 
+	 */
+	public static double getDouble(Object input)
+	{
+		return Double.valueOf(String.valueOf(input));
+	}
 
 	/**
 	 * Delayed abort allows user to read abort statement before shutdown
