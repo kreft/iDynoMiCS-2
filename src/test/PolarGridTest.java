@@ -30,6 +30,7 @@ import idynomics.Timer;
 import linearAlgebra.Vector;
 import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
+import shape.Shape;
 import shape.ShapeConventions.DimName;
 import test.plotting.PolarGridPlot3D;
 
@@ -235,8 +236,10 @@ public class PolarGridTest
 		System.out.println("\tNo agents or reactions");
 		System.out.println("Concentration should tend towards linear");
 		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "disk");
-		aCompartment.setSideLengths(new double[] {3.0, 360.0, 10.0});
+		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall");
+		Shape aShape = (Shape) Shape.getNewInstance("disk");
+		aShape.setDimensionLengths(new double[] {3.0, 360.0, 10.0});
+		aCompartment.setShape(aShape);
 		/*
 		 * Add the solutes and boundary conditions.
 		 */

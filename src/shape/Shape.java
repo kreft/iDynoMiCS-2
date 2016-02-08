@@ -8,8 +8,15 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
@@ -19,6 +26,7 @@ import surface.Plane;
 import surface.Point;
 import surface.Sphere;
 import surface.Surface;
+import utility.Helper;
 /**
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
@@ -57,6 +65,35 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		
 	}
 	
+	public void init(Node xmlNode)
+	{
+		Element elem = (Element) xmlNode;
+		NodeList children;
+		Element child;
+		String str;
+		DimName dimName;
+		Dimension dim;
+		/* Set up the dimensions. */
+		children = XmlHandler.getAll(elem, "dimension");
+		for ( int i = 0; i < children.getLength(); i++ )
+		{
+			child = (Element) children.item(i);
+			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
+			str = Helper.obtainInput(str, "dimension name");
+			dimName = DimName.valueOf(str);
+			dim = this.getDimension(dimName);
+			if ( dim == null )
+			{
+				Log.out(tier.CRITICAL, "Warning: Dimension "+str+
+								" not recognised by shape "+this.getClass());
+				continue;
+			}
+			dim.init(child);
+		}
+		/* Set up any other boundaries. */
+		// TODO
+	}
+	
 	/*************************************************************************
 	 * DIMENSIONS
 	 ************************************************************************/
@@ -81,6 +118,27 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public Dimension getDimension(DimName dimension)
 	{
 		return this._dimensions.get(dimension);
+	}
+	
+	/**
+	 * \brief Finds the index of the dimension name given.
+	 * 
+	 * <p>For example, in a cuboid, {@code Z} has index {@code 2}.</p>
+	 * 
+	 * @param dimension DimName of a dimension thought to be in this
+	 * {@code Shape}.
+	 * @return Index of the dimension, if present; {@code -1}, if not.
+	 */
+	public int getDimensionIndex(DimName dimension)
+	{
+		int out = 0;
+		for ( DimName d : this._dimensions.keySet() )
+		{
+			if ( d == dimension )
+				return out;
+			out++;
+		}
+		return -1;
 	}
 	
 	protected Dimension getDimensionSafe(DimName dimension)

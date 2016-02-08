@@ -10,6 +10,7 @@ import org.w3c.dom.NodeList;
 
 import agent.AgentBoundary.AgentMethod;
 import generalInterfaces.CanPrelaunchCheck;
+import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
 import shape.Shape;
 
@@ -18,7 +19,7 @@ import shape.Shape;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public class Boundary implements CanPrelaunchCheck
+public class Boundary implements CanPrelaunchCheck, XMLable
 {
 	/**
 	 * The shape this Boundary takes (e.g. Plane, Sphere).
@@ -177,4 +178,14 @@ public class Boundary implements CanPrelaunchCheck
 			return false;
 		return true;
 	}
+	
+	/*************************************************************************
+	 * XML-ABLE
+	 ************************************************************************/
+	
+	public static Object getNewInstance(String className)
+	{
+		return XMLable.getNewInstance(className, "boundary");
+	}
+	
 }
