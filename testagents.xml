@@ -1,141 +1,162 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 <simulation name="mySim" comments="this is a file for Agent testing">
-	<speciesLib>
-	<!-- species/species library
-	The species library contains all agent species in the simulations. This may
-	include microbial species, plasmid and vector species, particle species etc.
-	
-	Species states are states that are in principal identical for all agents of
-	that species. However note that iDynoMiCS 2.0 does allow you to overwrite
-	states on agent level. Thus if a state is defined both on species level and 
-	on agent level, the agent state will be used in the simulation.
-	
-	small test
-	-->
-		<species name="AOB">
-			<state name="pigment" type="String" value="GREEN" />
-			<!-- this has not been made yet, use a static growthrate for now -->
-			<state name="growthRate" type="double" value="0.08" />
-			<state name="stochasticMove" type="event" value="StochasticMove" input="body" />
-			<speciesModule name="coccoid" />
-		</species>
-		<species name="coccoid">
-			<state name="coccoidCenter" type="secondary" value="CoccoidCenter" input="body" />
-			<state name="morphology" type="String" value="coccoid"/>
-			<state name="joints" type="secondary" value="JointsState" input="body" />
-			<state name="volume" type="secondary" value="SimpleVolumeState" input="mass,density" />
-			<state name="radius" type="secondary" value="CoccoidRadius" input="volume" />
-			<state name="#boundingLower" type="secondary" value="LowerBoundingBox" input="body,radius" />
-			<state name="#boundingSides" type="secondary" value="DimensionsBoundingBox" input="body,radius" />
-			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
-			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
-			<state name="surface" type="secondary" value="SimpleSurface" input="body" />
-		</species>
-	</speciesLib>
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test -->
+			<species name="AOB">
+				<aspect name="pigment" type="String" value="GREEN" />
+				<!-- this has not been made yet, use a static growthrate for now -->
+				<aspect name="growthRate" type="double" value="0.08" />
+				<speciesModule name="coccoid" />
+				<speciesModule name="stochasticMover" />
+			</species>
+			<species name="coccoid">
+				<aspect name="coccoidCenter" type="secondary" class="CoccoidCenter"
+					input="body" />
+				<aspect name="morphology" type="String" value="coccoid" />
+				<aspect name="joints" type="secondary" class="JointsState"
+					input="body" />
+				<aspect name="volume" type="secondary" class="SimpleVolumeState"
+					input="mass,density" />
+				<aspect name="radius" type="secondary" class="CoccoidRadius"
+					input="volume" />
+				<aspect name="#boundingLower" type="secondary" class="LowerBoundingBox"
+					input="body,radius" />
+				<aspect name="#boundingSides" type="secondary" class="DimensionsBoundingBox"
+					input="body,radius" />
+				<aspect name="growth" type="event" package="agent.event.library."
+					class="SimpleGrowth" input="mass,growthRate" />
+				<aspect name="divide" type="event" package="agent.event.library."
+					class="CoccoidDivision" input="mass,radius,body" />
+				<aspect name="surface" type="secondary" class="SimpleSurface"
+					input="body" />
+				<aspect name="updateBody" type="event" package="agent.event.library."
+					class="UpdateBody" input="body,radius,length" />
+			</species>
+			<species name="stochasticMover">
+				<aspect name="stochasticStep" type="double" value="0.1" />
+				<aspect name="stochasticMove" type="event" class="StochasticMove"
+					package="agent.event.library." input="body,stochasticStep" />
+			</species>
+		</speciesLib>
 	
 	<compartment name="second" shape="Rectangle">
 		<agents>
 			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="RED" />
-				<state name="filialLinker" type="boolean" value="true" />
-				<state name="body" type="body">
+				<aspect name="species" type="String" value="AOB" />
+				<aspect name="mass" type="double" value="0.2" />
+				<aspect name="density" type="double" value="1" />
+				<aspect name="#isLocated" type="boolean" value="true" />
+				<aspect name="pigment" type="String" value="RED" />
+				<!-- <aspect name="filialLinker" type="boolean" value="true" /> -->
+				<aspect name="body" type="body">
 					<point position="14.2, 14.2" />
-				</state>
+				</aspect>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="RED" />
-				<state name="filialLinker" type="boolean" value="true" />
-				<state name="body" type="body">
+				<aspect name="species" type="String" value="AOB" />
+				<aspect name="mass" type="double" value="0.2" />
+				<aspect name="density" type="double" value="1" />
+				<aspect name="#isLocated" type="boolean" value="true" />
+				<aspect name="pigment" type="String" value="RED" />
+				<!-- <aspect name="filialLinker" type="boolean" value="true" /> -->
+				<aspect name="body" type="body">
 					<point position="9.2, 4.2" />
-				</state>
+				</aspect>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="RED" />
-				<state name="filialLinker" type="boolean" value="true" />
-				<state name="body" type="body">
+				<aspect name="species" type="String" value="AOB" />
+				<aspect name="mass" type="double" value="0.2" />
+				<aspect name="density" type="double" value="1" />
+				<aspect name="#isLocated" type="boolean" value="true" />
+				<aspect name="pigment" type="String" value="RED" />
+				<!-- <aspect name="filialLinker" type="boolean" value="true" /> -->
+				<aspect name="body" type="body">
 					<point position="4.2, 10.2" />
-				</state>
+				</aspect>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="BLUE" />
-				<state name="body" type="body">
+				<aspect name="species" type="String" value="AOB" />
+				<aspect name="mass" type="double" value="0.2" />
+				<aspect name="density" type="double" value="1" />
+				<aspect name="#isLocated" type="boolean" value="true" />
+				<aspect name="pigment" type="String" value="BLUE" />
+				<aspect name="body" type="body">
 					<point position="15.0, 5.3" />
-				</state>
+				</aspect>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="BLUE" />
-				<state name="body" type="body">
+				<aspect name="species" type="String" value="AOB" />
+				<aspect name="mass" type="double" value="0.2" />
+				<aspect name="density" type="double" value="1" />
+				<aspect name="#isLocated" type="boolean" value="true" />
+				<aspect name="pigment" type="String" value="BLUE" />
+				<aspect name="body" type="body">
 					<point position="4.0, 3.3" />
-				</state>
+				</aspect>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="BLUE" />
-				<state name="body" type="body">
+				<aspect name="species" type="String" value="AOB" />
+				<aspect name="mass" type="double" value="0.2" />
+				<aspect name="density" type="double" value="1" />
+				<aspect name="#isLocated" type="boolean" value="true" />
+				<aspect name="pigment" type="String" value="BLUE" />
+				<aspect name="body" type="body">
 					<point position="10.0, 10.3" />
-				</state>
+				</aspect>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="GREEN" />
-				<state name="body" type="body">
+				<aspect name="species" type="String" value="AOB" />
+				<aspect name="mass" type="double" value="0.2" />
+				<aspect name="density" type="double" value="1" />
+				<aspect name="#isLocated" type="boolean" value="true" />
+				<aspect name="pigment" type="String" value="GREEN" />
+				<aspect name="body" type="body">
 					<point position="5.3, 13.2" />
-				</state>
+				</aspect>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="GREEN" />
-				<state name="body" type="body">
+				<aspect name="species" type="String" value="AOB" />
+				<aspect name="mass" type="double" value="0.2" />
+				<aspect name="density" type="double" value="1" />
+				<aspect name="#isLocated" type="boolean" value="true" />
+				<aspect name="pigment" type="String" value="GREEN" />
+				<aspect name="body" type="body">
 					<point position="1.3, 6.2" />
-				</state>
+				</aspect>
 			</agent>
 			<agent>
-				<state name="species" type="String" value="AOB" />
-				<state name="mass" type="double" value="0.2" />
-				<state name="density" type="double" value="1" />
-				<state name="#isLocated" type="boolean" value="true" />
-				<state name="pigment" type="String" value="GREEN" />
-				<state name="body" type="body">
+				<aspect name="species" type="String" value="AOB" />
+				<aspect name="mass" type="double" value="0.2" />
+				<aspect name="density" type="double" value="1" />
+				<aspect name="#isLocated" type="boolean" value="true" />
+				<aspect name="pigment" type="String" value="GREEN" />
+				<aspect name="body" type="body">
 					<point position="7.3, 5.2" />
-				</state>
+				</aspect>
 			</agent>
 		</agents>
-		
-		<output>
-			<writer name="SvgExport">
-				<task quizable="Agent" bool="#isLocated" draw="circle" centers="joints" color="pigment" radius="radius" />
-			</writer>
-		</output>
+		<processManagers>
+			<process name="svgWriter" class="WriteAgentsSvg" priority="3"
+				firstStep="0.0" package="processManager.">
+				<aspect name="comparmentName" type="String" value="second" />
+			</process>
+			<process name="agentGrowth" class="AgentGrowth" priority="0"
+				firstStep="0.0" package="processManager." />
+			<process name="agentMove" class="AgentStochasticMove"
+				priority="1" firstStep="0.0" package="processManager." />
+			<process name="agentRelax" class="AgentRelaxation" priority="2"
+				firstStep="0.0" package="processManager.">
+				<aspect name="maxMovement" type="double" value="0.05" />
+				<aspect name="relaxationMethod" type="String" value="SHOVE" />
+			</process>
+		</processManagers>
 	</compartment>
 	
 
