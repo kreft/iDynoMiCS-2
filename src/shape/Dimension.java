@@ -72,9 +72,12 @@ public class Dimension implements CanPrelaunchCheck
 		int index = -1;
 		/*
 		 * See if this is cyclic. Assume not if unspecified.
+		 * 
+		 * TODO check that str is "false" and not a typo of "true" 
+		 * (e.g. "truw")
 		 */
 		str = XmlHandler.gatherAttribute(elem, "isCyclic");
-		if ( str != null && str != "" && Boolean.getBoolean(str) )
+		if ( Boolean.valueOf(str) )
 			this.setCyclic();
 		/* 
 		 * Boundaries at the extremes.
@@ -85,12 +88,16 @@ public class Dimension implements CanPrelaunchCheck
 			extElem = (Element) extNodes.item(i);
 			str = XmlHandler.gatherAttribute(extElem, "name");
 			str = Helper.obtainInput(str, "dimension extreme (min/max)");
-			if ( str.toLowerCase() == "min" )
+			str = str.toLowerCase();
+			if ( str.equals("min") )
 				index = 0;
-			else if ( str.toLowerCase() == "max" )
+			else if ( str.equals("max") )
 				index = 1;
 			else
-				// TODO safety
+			{
+				Log.out(tier.CRITICAL, 
+						"Warning! Dimension extreme must be min or max: "+str);
+			}
 			/* Set the position, if given (not always necessary). */
 			str = XmlHandler.gatherAttribute(extElem, "position");
 			if ( str != null && str != "")
