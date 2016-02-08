@@ -12,7 +12,7 @@ public class Helper {
 	 */
 	public static String obtainInput(String input, String description)
 	{
-		if (input == null || input == "")
+		if ( input == null || input == "" )
 		{
 			@SuppressWarnings("resource")
 			Scanner user_input = new Scanner( System.in );

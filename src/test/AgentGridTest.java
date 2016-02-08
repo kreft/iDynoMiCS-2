@@ -8,6 +8,7 @@ import idynomics.Compartment;
 import idynomics.Simulator;
 import idynomics.Timer;
 import processManager.SolveDiffusionTransient;
+import shape.Shape;
 import shape.ShapeConventions.DimName;
 
 /**
@@ -30,9 +31,10 @@ public class AgentGridTest
 		 * Make a simulator and give it one 9x9 compartment.
 		 */
 		Simulator aSim = new Simulator();
-		Compartment aCompartment = aSim.addCompartment("myCompartment",
-																"rectangle");
-		aCompartment.setSideLengths(new double[] {9.0, 9.0, 1.0});
+		Compartment aCompartment = aSim.addCompartment("myCompartment");
+		Shape aShape = (Shape) Shape.getNewInstance("rectangle");
+		aShape.setDimensionLengths(new double[] {9.0, 9.0, 1.0});
+		aCompartment.setShape(aShape);
 		/*
 		 * Set the boundary methods.
 		 */
