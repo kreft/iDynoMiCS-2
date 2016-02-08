@@ -73,7 +73,7 @@ public class Dimension implements CanPrelaunchCheck
 		/*
 		 * See if this is cyclic. Assume not if unspecified.
 		 */
-		str = XmlHandler.loadUniqueAtribute(elem, "isCyclic", "boolean");
+		str = XmlHandler.gatherAttribute(elem, "isCyclic");
 		if ( str != null && str != "" && Boolean.getBoolean(str) )
 			this.setCyclic();
 		/* 
@@ -83,7 +83,7 @@ public class Dimension implements CanPrelaunchCheck
 		for ( int i = 0; i < extNodes.getLength(); i++ )
 		{
 			extElem = (Element) extNodes.item(i);
-			str = XmlHandler.loadUniqueAtribute(extElem, "name", "string");
+			str = XmlHandler.gatherAttribute(extElem, "name");
 			str = Helper.obtainInput(str, "dimension extreme (min/max)");
 			if ( str.toLowerCase() == "min" )
 				index = 0;
@@ -92,7 +92,7 @@ public class Dimension implements CanPrelaunchCheck
 			else
 				// TODO safety
 			/* Set the position, if given (not always necessary). */
-			str = XmlHandler.loadUniqueAtribute(extElem, "position", "value");
+			str = XmlHandler.gatherAttribute(extElem, "position");
 			if ( str != null && str != "")
 				this.setExtreme(Double.valueOf(str), index);
 			/* Set the boundary, if given (not always necessary). */
