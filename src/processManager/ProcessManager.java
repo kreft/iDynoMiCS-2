@@ -62,8 +62,9 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 		proc.setTimeForNextStep( Double.valueOf(
 				p.getAttribute( NameRef.initialStep )));
 		proc.setTimeStepSize( Timer.getTimeStepSize() );
-
 		AspectInterface.loadAspects(proc, xmlNode);
+		
+		proc.init();
 		return proc;
 	}
 	

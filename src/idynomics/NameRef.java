@@ -25,6 +25,9 @@ public class NameRef {
 	 * Agent state references
 	 */
 	
+	/**
+	 * The agent species
+	 */
 	public static String species = "species";
 
 	/**
@@ -46,6 +49,11 @@ public class NameRef {
 	 * 
 	 */
 	public static String bodyLength = "#bodyLength";
+	
+	/**
+	 * 
+	 */
+	public static String bodyUpdate = "updateBody";
 	
 	/**
 	 * NOTE: linker springs will be reworked later, subject to change.

@@ -23,6 +23,24 @@ public class Helper {
 		}
 		return input;
 	}
+	
+	/**
+	 * Returns String from input, if not set returns string value of ifNone.
+	 */
+	public static String setIfNone(String input, Object ifNone)
+	{
+		if (input == null || input == "")
+			input = String.valueOf(ifNone);
+		return input;
+	}
+	
+	/**
+	 * 
+	 */
+	public static double getDouble(Object input)
+	{
+		return Double.valueOf(String.valueOf(input));
+	}
 
 	/**
 	 * Delayed abort allows user to read abort statement before shutdown

@@ -41,9 +41,12 @@ public class FileHandler {
 			try{
 				base.mkdir();
 		        result = true;
+		        // NOTE Do not write log before output dir is created
+		        System.out.println("new dir created " + base.getAbsolutePath());
 		    } 
 		    catch(SecurityException se){
-		        //handle it
+		    	// NOTE Do not write log before output dir is created
+		    	System.err.println("unable to create dir: " + dir + "\n" + se);
 		    }        
 		}
 		return result;

@@ -3,6 +3,7 @@ package processManager;
 import dataIO.SvgExport;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import utility.Helper;
 
 public class WriteAgentsSvg extends ProcessManager
 {
@@ -15,6 +16,8 @@ public class WriteAgentsSvg extends ProcessManager
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
-		svg.writepov((String) reg().getValue(this, "comparmentName"), agents);
+		svg.writepov( Helper.obtainInput((String) reg().getValue(this, 
+				"comparmentName"), "svg writer misses compartment name"), 
+				agents);
 	}
 }

@@ -29,7 +29,7 @@ public abstract interface AspectInterface {
 		@SuppressWarnings("unchecked")
 		AspectReg<Object> aspectReg = (AspectReg<Object>) aspectInterface.reg();
 		
-		NodeList stateNodes = e.getElementsByTagName("state");
+		NodeList stateNodes = e.getElementsByTagName("aspect");
 		for (int j = 0; j < stateNodes.getLength(); j++) 
 		{
 			Element s = (Element) stateNodes.item(j);

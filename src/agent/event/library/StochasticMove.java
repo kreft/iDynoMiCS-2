@@ -8,6 +8,7 @@ import aspect.AspectInterface;
 import aspect.Event;
 import linearAlgebra.Vector;
 import surface.Point;
+import utility.Helper;
 
 /**
  * TODO: this method is simplified and not correct
@@ -31,7 +32,8 @@ public class StochasticMove extends Event {
 		for (Point p : points)
 		{
 			p.setPosition(Vector.add(p.getPosition(), 
-					Vector.randomPlusMinus(agentBody.nDim(), timeStep*0.5)));
+					Vector.randomPlusMinus(agentBody.nDim(), timeStep*
+					Helper.getDouble( agent.get(input[1]) ))));
 		}
 	}
 }
