@@ -17,7 +17,7 @@ public class Logarithm extends ComponentDouble
 		if ( this._b instanceof Constant )
 		{
 			if ( B == 1.0 || B == 0.0 )
-				Log.out(tier.NORMAL,"WARNING! Infinite value: log base "+B);
+				Log.out(tier.CRITICAL,"WARNING! Infinite value: log base "+B);
 		}
 	}
 	
