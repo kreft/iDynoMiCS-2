@@ -25,6 +25,16 @@ import utility.Helper;
 public class Dimension implements CanPrelaunchCheck
 {
 	/**
+	 * If we need to put a point just inside the maximum extreme, use this
+	 * number multiplied by the dimension length as the small amount less than
+	 * this._extreme[1] to use.
+	 * 
+	 * <p>NOTE: Rob [8Feb2016] We used to use Math.ulp(this.getLength()) but
+	 * that didn't seem to work very well.</p>
+	 */
+	private final static double INSIDE_MAX_SCALAR = 1.0E-6;
+	
+	/**
 	 * Minimum and maximum values for this dimension. Must be finite and have
 	 * {@code this._extreme[0]} < {@code this._extreme[1]}.
 	 */
@@ -335,8 +345,11 @@ public class Dimension implements CanPrelaunchCheck
 			 * this._extreme[1] is an exclusive limit, so take a value just
 			 * below if necessary.
 			 */
-			return Math.min( this._extreme[1] - Math.ulp(this._extreme[1]),
-												Math.max(this._extreme[0], a));
+			if ( a >= this._extreme[1] )
+				return this._extreme[1] - (INSIDE_MAX_SCALAR*this.getLength());
+			if ( a < this._extreme[0] )
+				return this._extreme[0];
+			return a;
 		}
 	}
 	
