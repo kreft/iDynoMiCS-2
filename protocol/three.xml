@@ -1,6 +1,5 @@
 <document>
 	<simulation>
-		<compartment>
-		</compartment>
+		<compartment />
 	</simulation>
 </document>

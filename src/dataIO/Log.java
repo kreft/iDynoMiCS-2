@@ -73,7 +73,7 @@ public class Log {
 		logFile.fnew(Param.outputLocation + "/log.txt");
 		logFile.flushAll = true;
 		outputLevel = level;
-		out(dataIO.Log.tier.QUIET, "iDynoMiCS " + 
+		out(tier.QUIET, "iDynoMiCS " + 
 		Idynomics.version_number  + " "	+ Idynomics.version_description + 
 				"\nOutput level is " + outputLevel.toString() + ", starting at " + 
 				ft.format(new Date()) + "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -102,10 +102,9 @@ public class Log {
 	{
 		if (outputLevel == null)
 		{
-			set(dataIO.Log.tier.NORMAL);
+			System.err.println("Error attempt to write log before it is set");
 		}
-		
-		if (level.compareTo(outputLevel) < 1)
+		else if (level.compareTo(outputLevel) < 1)
 		{
 			if (level == tier.CRITICAL)
 				System.err.println(st.format(new Date()) + message);
