@@ -184,6 +184,13 @@ public class XmlHandler {
 		return (Element) nodes.item(0);
 	}		
 	
+	/**
+	 * Loads attribute from a unique node
+	 * @param xmlElement
+	 * @param tagName
+	 * @param attribute
+	 * @return
+	 */
 	public static String loadUniqueAtribute(Element xmlElement, String tagName, 
 			String attribute)
 	{

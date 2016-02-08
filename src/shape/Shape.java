@@ -78,7 +78,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
+			str = XmlHandler.gatherAttribute(child, "name");
 			str = Helper.obtainInput(str, "dimension name");
 			dimName = DimName.valueOf(str);
 			dim = this.getDimension(dimName);
