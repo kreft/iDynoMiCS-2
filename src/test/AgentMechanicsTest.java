@@ -5,10 +5,8 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Species;
-import agent.SpeciesLib;
 import dataIO.Log;
 import dataIO.Log.tier;
-import dataIO.PovExport;
 import dataIO.SvgExport;
 import dataIO.XmlHandler;
 import dataIO.XmlLoad;
@@ -46,33 +44,26 @@ public class AgentMechanicsTest {
 			XmlLoad.loadSpeciesModules(Idynomics.simulator.speciesLibrary.get(
 					xmlSpecies.getAttribute("name")),speciesNodes.item(i)); 
 		}
-
-		
-		// cycle trough all compartments
+		/*
+		 * Cycle through all compartments.
+		 */
 		NodeList compartmentNodes = doc.getElementsByTagName("compartment");
 		for (int i = 0; i < compartmentNodes.getLength(); i++) 
 		{
 			Element xmlCompartment = (Element) compartmentNodes.item(i);
 			Compartment comp = testcompartment = sim.addCompartment(
-					xmlCompartment.getAttribute("name"), 
-					xmlCompartment.getAttribute("shape"));
-			comp.setSideLengths(new double[] {18.0, 18.0, 1.0});
-			comp.getShape().makeCyclic("X");
-			comp.getShape().makeCyclic("Y");
-			comp.init();
+										xmlCompartment.getAttribute("name"));
+			comp.init(xmlCompartment);
 						
-			// Check the agent container
+			/* Check the agent container. */
 			if (xmlCompartment.getElementsByTagName("agents").getLength() > 1)
 				Log.out(tier.QUIET, "more than 1 agentcontainer!!!");
-
-			// cycle trough all agents in the agent container
+			/* Cycle through all agents in the agent container. */
 			NodeList agentNodes = ((Element) xmlCompartment.
 					getElementsByTagName("agents").item(0)).
 					getElementsByTagName("agent");
-			
 			for (int j = 0; j < agentNodes.getLength(); j++) 
 				comp.addAgent(new Agent(agentNodes.item(j)));
-			
 		}
 		
 		////////////////////////

@@ -11,13 +11,15 @@ import org.w3c.dom.NodeList;
 import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import dataIO.Log;
 import dataIO.XmlHandler;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
-import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
+import utility.Helper;
 
 public class Compartment implements CanPrelaunchCheck
 {
@@ -64,16 +66,78 @@ public class Compartment implements CanPrelaunchCheck
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
+	public Compartment()
+	{
+		
+	}
+	
 	public Compartment(Shape aShape)
+	{
+		this.setShape(aShape);
+	}
+	
+	public Compartment(String aShapeName)
+	{
+		this((Shape) Shape.getNewInstance(aShapeName));
+	}
+	
+	/**
+	 * \brief
+	 * 
+	 * TODO This should go back to being private once tests are based on XML
+	 * protocols.
+	 * 
+	 * @param aShape
+	 */
+	public void setShape(Shape aShape)
 	{
 		this._shape = aShape;
 		this._environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
 	}
 	
-	public Compartment(String aShapeName)
+	/**
+	 * \brief Initialise this {@code Compartment} from an XML node. 
+	 * 
+	 * @param xmlNode An XML node from a protocol file.
+	 */
+	public void init(Node xmlNode)
 	{
-		this((Shape) Shape.getNewInstance(aShapeName));
+		Element elem = (Element) xmlNode;
+		String str;
+		NodeList children;
+		Element child;
+		/* 
+		 * First, make the shape this Compartment will take.
+		 */
+		children = XmlHandler.getAll(elem, "shape");
+		if ( children.getLength() != 1 )
+		{
+			Log.out(tier.CRITICAL, "Warning: Compartment must have one shape!");
+			return;
+		}
+		child = (Element) children.item(0);
+		str = child.getAttribute("class");
+		str = Helper.obtainInput(str, "compartment shape class");
+		this.setShape((Shape) Shape.getNewInstance(str));
+		this._shape.init(child);
+		/*
+		 * Give it solutes.
+		 */
+		children = XmlHandler.getAll(elem, "solute");
+		for ( int i = 0; i < children.getLength(); i++ )
+		{
+			child = (Element) children.item(i);
+			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
+			str = Helper.obtainInput(str, "solute name");
+			this.addSolute(str);
+			// TODO diffusivity
+			// TODO initial value
+		}
+		/*
+		 * Finally, finish off the initialisation as standard.
+		 */
+		this.init();
 	}
 	
 	public void init()
