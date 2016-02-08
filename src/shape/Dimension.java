@@ -156,6 +156,11 @@ public class Dimension implements CanPrelaunchCheck
 		this.checkExtremes();
 	}
 	
+	public double getExtreme(int index)
+	{
+		return this._extreme[index];
+	}
+	
 	/**
 	 * \brief Set the length of this dimension.
 	 * 

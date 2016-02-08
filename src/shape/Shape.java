@@ -24,7 +24,7 @@ import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Point;
-import surface.Sphere;
+import surface.Ball;
 import surface.Surface;
 import utility.Helper;
 /**
@@ -227,6 +227,31 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	}
 	
 	/**
+	 * TODO Method to replace setSurfaces()
+	 * 
+	 */
+	public abstract void setSurfs();
+	
+	protected void setPlanarSurfaces(DimName aDimName)
+	{
+		Dimension dim = this.getDimension(aDimName);
+		// TODO safety if dim == null
+		if ( dim.isCyclic() )
+			return;
+		int index = this.getDimensionIndex(aDimName);
+		double[] normal = Vector.zerosDbl( this.getNumberOfDimensions() );
+		Plane p;
+		/* The minimum extreme. */
+		normal[index] = 1.0;
+		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
+		this._surfaces.add( p );
+		/* The maximum extreme. */
+		normal[index] = -1.0;
+		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
+		this._surfaces.add( p );
+	}
+	
+	/**
 	 * Set the collision surface object
 	 * 
 	 * NOTE: this would be a lot cleaner if the dimensions would be aware of 
@@ -288,7 +313,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 					 * switch case. This should be stored somewhere since always 
 					 * reverse engineering this does not make a a lot of sense.
 					 */
-					Sphere outbound = new Sphere( new Point(min) ,
+					Ball outbound = new Ball( new Point(min) ,
 							this._dimensions.get(d).getLength() );
 					outbound.bounding = true;
 					_surfaces.add(outbound);
