@@ -8,6 +8,9 @@ import grid.CylindricalGrid;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
+import surface.Plane;
+import surface.Point;
+import surface.Ball;
 
 /**
  * 
@@ -41,6 +44,13 @@ public final class ShapeLibrary
 		{
 			return local;
 		}
+		
+		public void setSurfs()
+		{
+			/*
+			 * Do nothing!
+			 */
+		}
 	}
 	
 	/*************************************************************************
@@ -71,6 +81,11 @@ public final class ShapeLibrary
 		{
 			return local;
 		}
+		
+		public void setSurfs()
+		{
+			this.setPlanarSurfaces(DimName.X);
+		}
 	}
 	
 	public static class Rectangle extends Line
@@ -79,6 +94,14 @@ public final class ShapeLibrary
 		{
 			super();
 			this._dimensions.put(DimName.Y, new Dimension());
+		}
+		
+		public void setSurfs()
+		{
+			/* Do the X dimension. */
+			super.setSurfs();
+			/* Now the Y dimension. */
+			this.setPlanarSurfaces(DimName.Y);
 		}
 	}
 	
@@ -90,6 +113,13 @@ public final class ShapeLibrary
 			this._dimensions.put(DimName.Z, new Dimension());
 		}
 		
+		public void setSurfs()
+		{
+			/* Do the X and Y dimensions. */
+			super.setSurfs();
+			/* Now the Z dimension. */
+			this.setPlanarSurfaces(DimName.Z);
+		}
 	}
 	
 	/*************************************************************************
@@ -137,6 +167,11 @@ public final class ShapeLibrary
 		{
 			return Vector.toCartesian(local);
 		}
+		
+		public void setSurfs()
+		{
+			// TODO
+		}
 	}
 	
 	public static class Cylinder extends Circle
@@ -157,6 +192,14 @@ public final class ShapeLibrary
 		public double[] getGlobalLocation(double[] local)
 		{
 			return Vector.cylindricalToCartesian(local);
+		}
+		
+		public void setSurfs()
+		{
+			/* Do the R and THETA dimensions. */
+			super.setSurfs();
+			/* Now the Z dimension. */
+			this.setPlanarSurfaces(DimName.Z);
 		}
 	}
 	
@@ -193,6 +236,27 @@ public final class ShapeLibrary
 		public double[] getGlobalLocation(double[] local)
 		{
 			return Vector.toCartesian(local);
+		}
+		
+		public void setSurfs()
+		{
+			Dimension dim = this.getDimension(DimName.R);
+			double[] centre = Vector.zerosDbl(this.getNumberOfDimensions());
+			Ball outbound;
+			double radius;
+			/* Inner radius, if it exists. */
+			radius = dim.getExtreme(0);
+			if ( radius > 0.0 )
+			{
+				outbound = new Ball( new Point(centre) , radius);
+				outbound.bounding = false;
+				this._surfaces.add(outbound);
+			}
+			/* Outer radius always exists. */
+			radius = dim.getExtreme(1);
+			outbound = new Ball( new Point(centre) , radius);
+			outbound.bounding = true;
+			this._surfaces.add(outbound);
 		}
 	}
 }

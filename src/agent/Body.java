@@ -52,10 +52,10 @@ public class Body implements Copyable, XMLable {
 	public Body(Point point, double radius)
 	{
 		this.points.add(point);
-		this.surfaces.add(new Sphere(point, radius));
+		this.surfaces.add(new Ball(point, radius));
 	}
 	
-	public Body(Sphere sphere)
+	public Body(Ball sphere)
 	{
 		this.points.add(sphere._point);
 		this.surfaces.add(sphere);
@@ -89,7 +89,7 @@ public class Body implements Copyable, XMLable {
 
 		this.points.addAll(points);
 		if(this.points.size() == 1)
-			this.surfaces.add(new Sphere(points.get(0), radius));
+			this.surfaces.add(new Ball(points.get(0), radius));
 		else
 		{
 			for(int i = 0; points.size()-1 > i; i++)
@@ -195,7 +195,7 @@ public class Body implements Copyable, XMLable {
 		switch (surfaces.get(0).type())
 		{
 		case SPHERE:
-			return new Body(new Sphere((Sphere) surfaces.get(0)));
+			return new Body(new Ball((Ball) surfaces.get(0)));
 		case ROD:
 			return new Body(new Rod((Rod) surfaces.get(0)));
 		default:

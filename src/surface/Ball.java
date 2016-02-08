@@ -8,7 +8,7 @@ import agent.Body;
  * @author baco
  *
  */
-public class Sphere extends Surface{
+public class Ball extends Surface{
 	
 	/**
 	 * The point of this sphere
@@ -20,7 +20,7 @@ public class Sphere extends Surface{
      */
     private double _radius;
 
-    public Sphere(Point point, double radius)
+    public Ball(Point point, double radius)
     {
     	this._point = point;
     	this._radius = radius;
@@ -31,7 +31,7 @@ public class Sphere extends Surface{
      * copy constructor
      * @param sphere
      */
-	public Sphere(Sphere sphere) {
+	public Ball(Ball sphere) {
 		this._point = (Point) Copier.copy(sphere._point);
 		this._radius = (double) Copier.copy(sphere._radius);
 	}
