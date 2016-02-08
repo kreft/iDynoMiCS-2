@@ -3,9 +3,17 @@
  */
 package shape;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import boundary.Boundary;
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import shape.ShapeConventions.BoundaryCyclic;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -39,6 +47,61 @@ public class Dimension implements CanPrelaunchCheck
 	 * If this is a cyclic dimension, different rules apply.
 	 */
 	protected boolean _isCyclic = false;
+	
+	/**************************************************************************
+	 * CONSTRUCTORS
+	 *************************************************************************/
+	
+	public void init(Node xmlNode)
+	{
+		Element elem = (Element) xmlNode;
+		String str;
+		NodeList extNodes, bndNodes;
+		Element extElem, bndElem;
+		Boundary aBoundary;
+		int index = -1;
+		/*
+		 * See if this is cyclic. Assume not if unspecified.
+		 */
+		str = XmlHandler.loadUniqueAtribute(elem, "isCyclic", "boolean");
+		if ( str != null && str != "" && Boolean.getBoolean(str) )
+			this.setCyclic();
+		/* 
+		 * Boundaries at the extremes.
+		 */
+		extNodes = XmlHandler.getAll(elem, "extreme");
+		for ( int i = 0; i < extNodes.getLength(); i++ )
+		{
+			extElem = (Element) extNodes.item(i);
+			str = XmlHandler.loadUniqueAtribute(extElem, "name", "string");
+			str = Helper.obtainInput(str, "dimension extreme (min/max)");
+			if ( str.toLowerCase() == "min" )
+				index = 0;
+			else if ( str.toLowerCase() == "max" )
+				index = 1;
+			else
+				// TODO safety
+			/* Set the position, if given (not always necessary). */
+			str = XmlHandler.loadUniqueAtribute(extElem, "position", "value");
+			if ( str != null && str != "")
+				this.setExtreme(Double.valueOf(str), index);
+			/* Set the boundary, if given (not always necessary). */
+			bndNodes = XmlHandler.getAll(elem, "boundary");
+			if ( bndNodes.getLength() > 1 )
+			{
+				Log.out(tier.CRITICAL, 
+					  "Warning: Dimension extreme must have 0 or 1 boundary!");
+			}
+			else if ( bndNodes.getLength() == 1 )
+			{
+				bndElem = (Element) bndNodes.item(0);
+				str = bndElem.getAttribute("class");
+				aBoundary = (Boundary) Boundary.getNewInstance(str);
+				aBoundary.init(bndElem);
+				this.setBoundary(aBoundary, index);
+			}
+		}
+	}
 	
 	/**************************************************************************
 	 * BASIC SETTERS AND GETTERS

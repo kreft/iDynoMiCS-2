@@ -12,8 +12,8 @@ import java.util.List;
 
 import agent.Agent;
 import agent.Body;
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import dataIO.Log;
+import dataIO.Log.tier;
 
 	////////////////////////
 	// WORK IN PROGRESS, initial version
@@ -31,11 +31,14 @@ public class AgentRelaxation extends ProcessManager {
 	// TODO the following should folow from the protocol file
 	double dtBase		= 0.01;	
 	double maxMovement	= 0.1;
-	String method 		= "euler";
+	String method 		= "shove";
 	boolean timeLeap	= true;
 	
 	private void updateForces(EnvironmentContainer environment, AgentContainer agents) 
 	{
+		for(Agent agent: agents.getAllLocatedAgents()) 
+			agent.event("updateBody");
+		
 		agents.refreshSpatialRegistry();
 		//FIXME hard coded periodic boundaries and domain size for test case, initiate properly
 		//TODO: in my opinion this information should all just come from the compartment
@@ -49,7 +52,7 @@ public class AgentRelaxation extends ProcessManager {
 			{
 				if (links.get(i).evaluate(iterator))
 				{
-					Feedback.out(LogLevel.BULK, "Fillial link breakage due to "
+					Log.out(tier.BULK, "Fillial link breakage due to "
 							+ "over extending maximum link length.");
 					links.remove(i);
 				}
@@ -65,6 +68,15 @@ public class AgentRelaxation extends ProcessManager {
 					iterator.collision((Surface) agent.get("surface"), (Surface) neighbour.get("surface"));
 					}
 			}
+			
+			/*
+			 * Boundary collisions
+			 */
+			for(Surface s : agents.getShape().getSurfaces())
+			{
+				iterator.collision(s, (Surface) agent.get("surface"));
+			}
+			
 		}
 	}
 

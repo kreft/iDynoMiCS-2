@@ -8,16 +8,29 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
+import surface.Plane;
+import surface.Point;
+import surface.Sphere;
+import surface.Surface;
+import utility.Helper;
 /**
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @autho Baco
  */
 public abstract class Shape implements CanPrelaunchCheck, XMLable
 {
@@ -33,6 +46,12 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	protected Collection<Boundary> _otherBoundaries = 
 													new LinkedList<Boundary>();
 	
+	/**
+	 * Surface Object for collision detection methods
+	 */
+	protected Collection<Surface> _surfaces = new LinkedList<Surface>();
+	
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -44,6 +63,35 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public Shape()
 	{
 		
+	}
+	
+	public void init(Node xmlNode)
+	{
+		Element elem = (Element) xmlNode;
+		NodeList children;
+		Element child;
+		String str;
+		DimName dimName;
+		Dimension dim;
+		/* Set up the dimensions. */
+		children = XmlHandler.getAll(elem, "dimension");
+		for ( int i = 0; i < children.getLength(); i++ )
+		{
+			child = (Element) children.item(i);
+			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
+			str = Helper.obtainInput(str, "dimension name");
+			dimName = DimName.valueOf(str);
+			dim = this.getDimension(dimName);
+			if ( dim == null )
+			{
+				Log.out(tier.CRITICAL, "Warning: Dimension "+str+
+								" not recognised by shape "+this.getClass());
+				continue;
+			}
+			dim.init(child);
+		}
+		/* Set up any other boundaries. */
+		// TODO
 	}
 	
 	/*************************************************************************
@@ -70,6 +118,27 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public Dimension getDimension(DimName dimension)
 	{
 		return this._dimensions.get(dimension);
+	}
+	
+	/**
+	 * \brief Finds the index of the dimension name given.
+	 * 
+	 * <p>For example, in a cuboid, {@code Z} has index {@code 2}.</p>
+	 * 
+	 * @param dimension DimName of a dimension thought to be in this
+	 * {@code Shape}.
+	 * @return Index of the dimension, if present; {@code -1}, if not.
+	 */
+	public int getDimensionIndex(DimName dimension)
+	{
+		int out = 0;
+		for ( DimName d : this._dimensions.keySet() )
+		{
+			if ( d == dimension )
+				return out;
+			out++;
+		}
+		return -1;
 	}
 	
 	protected Dimension getDimensionSafe(DimName dimension)
@@ -155,6 +224,91 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 			dim.setLength(( i < lengths.length ) ? lengths[i] : 0.0);
 			i++;
 		}
+	}
+	
+	/**
+	 * Set the collision surface object
+	 * 
+	 * NOTE: this would be a lot cleaner if the dimensions would be aware of 
+	 * their dimension (returning their own surface objects), but I could only 
+	 * found these information as the keyset of the hashmap.
+	 * FIXME Shape currently does not allow to set a starting point of the
+	 * domain.. this would be nice and necessary if we want to have an R minimum
+	 * hard boundary.. Imagine a biofilm growing on a particle.
+	 * TODO: cylinders, PHI, THETA planes, min surfaces that can be set.  
+	 */
+	public void setSurfaces()
+	{
+		for( DimName d : this._dimensions.keySet())
+		{
+			if(! this._dimensions.get(d)._isCyclic)
+			{
+				double[] normal = Vector.zerosDbl( this._dimensions.size() );
+				double[] min = Vector.zerosDbl( this._dimensions.size() );
+				switch (d)
+				{
+				case X:
+					normal[0] = 1.0;
+					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct( 
+							normal, min)));
+					normal[0] = -1.0;
+					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct(
+							normal, this.getDimensionLengths() )));
+					break;
+				case Y:
+					normal[1] = 1.0;
+					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct( 
+							normal, min )));
+					normal[1] = -1.0;
+					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct(
+							normal , this.getDimensionLengths() )));
+					break;
+				case Z:
+					normal[2] = 1.0;
+					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct( 
+							normal, min)));
+					normal[2] = -1.0;
+					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct( 
+							normal , this.getDimensionLengths() )));
+					/*
+					 * FIXME the Cylinder has two dimensions but the second is
+					 * stored as Z does we have to make an exception for it...
+					 * or better, make the shape aware of its shape (enum?)
+					 * allows to create a switch case based on shape rather than
+					 * dimensions
+					 */
+					break;
+				case R:
+					/*
+					 * FIXME Shape currently does not allow to set a minimum R
+					 * thus we cannot set an Rmin hard boundary
+					 * TODO does the shape know whether it is of sphere type
+					 * or cylinder type otherwise we have to check whether
+					 * both R and PHI/THETA?/X?/Y?/Z? exists before we start the 
+					 * switch case. This should be stored somewhere since always 
+					 * reverse engineering this does not make a a lot of sense.
+					 */
+					Sphere outbound = new Sphere( new Point(min) ,
+							this._dimensions.get(d).getLength() );
+					outbound.bounding = true;
+					_surfaces.add(outbound);
+					break;
+				case PHI:
+					// TODO
+					break;
+				case THETA:
+					// TODO
+				}
+			}
+		}
+	}
+	
+	/**
+	 * returns the surfaces set for this shape
+	 */
+	public Collection<Surface> getSurfaces()
+	{
+		return this._surfaces;
 	}
 	
 	/**

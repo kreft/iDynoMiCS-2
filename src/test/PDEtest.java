@@ -6,7 +6,6 @@ package test;
 import org.w3c.dom.Node;
 
 import boundary.*;
-import grid.CartesianGrid;
 import grid.GridBoundary;
 import grid.GridBoundary.*;
 import grid.SpatialGrid;
@@ -60,12 +59,15 @@ public class PDEtest
 		System.out.println("\tNo agents or reactions");
 		System.out.println("Concentration should tend towards linear");
 		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "Line");
 		
 		// TODO Bas [10.12.15] why do 1D and 2D compartments need to have 3 side
 		// lengths? This seems to define the amount of voxels in each direction
 		// how do we set the actual (metric) size of the domain?
-		aCompartment.setSideLengths(new double[] {4.0, 1.0, 1.0});
+		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall");
+		Shape aShape = (Shape) Shape.getNewInstance("Line");
+		aShape.setDimensionLengths(new double[] {4.0, 1.0, 1.0});
+		aCompartment.setShape(aShape);
+		
 		/*
 		 * Add the solutes and boundary conditions.
 		 */
@@ -112,9 +114,10 @@ public class PDEtest
 		System.out.println("\tNo agents or reactions");
 		System.out.println("Concentration should tend towards linear along diagonal");
 		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment(
-									"twoDimRandInitDiagBndrs", "Rectangle");
-		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
+		Compartment aCompartment = aSim.addCompartment("twoDimRandInitDiagBndrs");
+		Shape aShape = (Shape) Shape.getNewInstance("Rectangle");
+		aShape.setDimensionLengths(new double[] {3.0, 3.0, 1.0});
+		aCompartment.setShape(aShape);
 		/*
 		 * 
 		 */
@@ -190,9 +193,11 @@ public class PDEtest
 		System.out.println("\tNo agents or reactions");
 		System.out.println("Concentration should tend towards linear along diagonal");
 		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment(
-									"twoDimRandInitCyclBndrs", "Rectangle");
-		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
+		
+		Compartment aCompartment = aSim.addCompartment("twoDimRandInitCyclBndrs");
+		Shape aShape = (Shape) Shape.getNewInstance("Rectangle");
+		aShape.setDimensionLengths(new double[] {3.0, 3.0, 1.0});
+		aCompartment.setShape(aShape);
 		/*
 		 * 
 		 */

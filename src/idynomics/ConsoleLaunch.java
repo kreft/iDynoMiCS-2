@@ -6,8 +6,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import dataIO.XmlLoad;
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import dataIO.Log;
+import dataIO.Log.tier;
 
 /**
  * General class to launch simulation from the console, accepts protocol file
@@ -45,15 +45,14 @@ public class ConsoleLaunch {
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		
 		XmlLoad.xmlInit(Param.protocolFile);
-		Feedback.out(LogLevel.NORMAL, Param.simulationComment);
-		Feedback.out(LogLevel.NORMAL, "storing results in " + 
+		Log.out(tier.NORMAL, Param.simulationComment);
+		Log.out(tier.NORMAL, "storing results in " + 
 				Param.outputLocation);
 		
 		/**
 		 * construct the full simulation from the previously loaded xmlDoc
 		 */
 		XmlLoad.constructSimulation();
-		
 		/*
 		 * Launch the simulation.
 		 */

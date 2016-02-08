@@ -34,7 +34,15 @@
 		</species>
 	</speciesLib>
 	
-	<compartment name="second" shape="Rectangle">
+	<compartment name="second">
+		<shape class="Rectangle">
+			<dimension name="X" isCyclic="true">
+				<extreme name="max" position="18.0"/>
+			</dimension> 
+			<dimension name="Y" isCyclic="true">
+				<extreme name="max" position="18.0"/>
+			</dimension> 
+		</shape>
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />

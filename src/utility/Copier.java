@@ -4,8 +4,8 @@ import linearAlgebra.Vector;
 
 import java.util.LinkedList;
 
-import dataIO.Feedback;
-import dataIO.Feedback.LogLevel;
+import dataIO.Log;
+import dataIO.Log.tier;
 import generalInterfaces.Copyable;
 
 /**
@@ -24,7 +24,7 @@ public final class Copier {
 	{
 		if (copyable == null)
 		{
-			Feedback.out(LogLevel.DEBUG, "Copier returns a null object");
+			Log.out(tier.DEBUG, "Copier returns a null object");
 			return null;
 		}
 		if (copyable instanceof Double || copyable.getClass() == double.class)
@@ -57,7 +57,7 @@ public final class Copier {
 		} 
 		else 
 		{
-			Feedback.out(LogLevel.NORMAL,"WARNING: Unable to copy the input object"
+			Log.out(tier.NORMAL,"WARNING: Unable to copy the input object"
 					+ ", returning null object instead");
 			return null;
 		}

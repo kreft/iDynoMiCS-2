@@ -2,6 +2,14 @@ package idynomics;
 
 import java.util.HashMap;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import agent.SpeciesLib;
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import utility.*;
 
@@ -11,6 +19,11 @@ public class Simulator implements CanPrelaunchCheck
 	
 	protected HashMap<String, Compartment> _compartments = 
 										   new HashMap<String, Compartment>();
+	
+	/*
+	 * contains all species for this simulation
+	 */
+	public SpeciesLib speciesLibrary = new SpeciesLib();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -22,15 +35,37 @@ public class Simulator implements CanPrelaunchCheck
 		ExtraMath.initialiseRandomNumberGenerator();
 	}
 	
+	public void init(Node xmlNode)
+	{
+		Element elem = (Element) xmlNode;
+		String str;
+		NodeList children;
+		Element child;
+		
+		children = XmlHandler.getAll(elem, "compartment");
+		if ( children.getLength() == 0 )
+		{
+			// TODO
+		}
+		for ( int i = 0; i < children.getLength(); i++ )
+		{
+			child = (Element) children.item(i);
+			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
+			str = Helper.obtainInput(str, "compartment name");
+			Compartment aCompartment = this.addCompartment(str);
+			aCompartment.init(child);
+		}
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
-	public Compartment addCompartment(String name, String shape)
+	public Compartment addCompartment(String name)
 	{
 		if ( this._compartments.containsKey(name) )
-			System.out.println("Warning: overwriting comaprtment "+name);
-		Compartment aCompartment = new Compartment(shape);
+			Log.out(tier.CRITICAL, "Warning: overwriting compartment "+name);
+		Compartment aCompartment = new Compartment();
 		aCompartment.name = name;
 		this._compartments.put(name, aCompartment);
 		return aCompartment;
@@ -61,7 +96,7 @@ public class Simulator implements CanPrelaunchCheck
 	{
 		if ( ! isReadyForLaunch() )
 		{
-			System.out.println("Simulator not ready to launch!");
+			Log.out(tier.CRITICAL, "Simulator not ready to launch!");
 			return;
 		}
 		while ( Timer.isRunning() )
@@ -94,16 +129,25 @@ public class Simulator implements CanPrelaunchCheck
 		/* Check the random number generator is initialised. */
 		if ( ExtraMath.random == null )
 		{
-			System.out.println("Random number generator not initialised!");
+			Log.out(tier.CRITICAL,"Random number generator not initialised!");
 			return false;
 		}
 		/* Check we have at least one compartment. */
 		if ( this._compartments.isEmpty() )
+		{
+			Log.out(tier.CRITICAL,"No compartment(s) specified!");
 			return false;
+		}
 		/* If any compartments are not ready, then stop. */
 		for ( Compartment c : this._compartments.values() )
+		{
 			if ( ! c.isReadyForLaunch() )
+			{
+				Log.out(tier.CRITICAL,"Compartment " + c.name + " not ready for"
+						+ " launch!");
 				return false;
+			}
+		}
 		
 		
 		return true;

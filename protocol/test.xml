@@ -23,25 +23,26 @@
 			<state name="pigment" type="String" value="GREEN" />
 			<!-- this has not been made yet, use a static growthrate for now -->
 			<state name="growthRate" type="double" value="0.08" />
-			<state name="stochasticMove" type="event" value="StochasticMove" input="body" />
+			<state name="stochasticMove" type="event" class="StochasticMove" package="agent.event.library." input="body" />
 			<speciesModule name="coccoid" />
 		</species>
 		<species name="coccoid">
-			<state name="coccoidCenter" type="secondary" value="CoccoidCenter" input="body" />
+			<state name="coccoidCenter" type="secondary" class="CoccoidCenter" input="body" />
 			<state name="morphology" type="String" value="coccoid"/>
-			<state name="joints" type="secondary" value="JointsState" input="body" />
-			<state name="volume" type="secondary" value="SimpleVolumeState" input="mass,density" />
-			<state name="radius" type="secondary" value="CoccoidRadius" input="volume" />
-			<state name="#boundingLower" type="secondary" value="LowerBoundingBox" input="body,radius" />
-			<state name="#boundingSides" type="secondary" value="DimensionsBoundingBox" input="body,radius" />
-			<state name="growth" type="event" value="SimpleGrowth" input="mass,growthRate" />
-			<state name="divide" type="event" value="CoccoidDivision" input="mass,radius,body" />
-			<state name="surface" type="secondary" value="SimpleSurface" input="body" />
+			<state name="joints" type="secondary" class="JointsState" input="body" />
+			<state name="volume" type="secondary" class="SimpleVolumeState" input="mass,density" />
+			<state name="radius" type="secondary" class="CoccoidRadius" input="volume" />
+			<state name="#boundingLower" type="secondary" class="LowerBoundingBox" input="body,radius" />
+			<state name="#boundingSides" type="secondary" class="DimensionsBoundingBox" input="body,radius" />
+			<state name="growth" type="event" package="agent.event.library." class="SimpleGrowth" input="mass,growthRate" />
+			<state name="divide" type="event" package="agent.event.library." class="CoccoidDivision" input="mass,radius,body" />
+			<state name="surface" type="secondary" class="SimpleSurface" input="body" />
+			<state name="updateBody" type="event" package="agent.event.library." class="UpdateBody" input="body,radius,length" />
 		</species>
 	</speciesLib>
 
 	<compartment name="second" shape="Rectangle">
-		<sideLengths value="20.0,20.0,1.0" /> <!-- temp subject to change -->
+		<sideLengths value="16.0,16.0,1.0" /> <!-- temp subject to change -->
 		<agents>
 			<agent>
 				<state name="species" type="String" value="AOB" />
@@ -76,14 +77,16 @@
 			</agent>
 		</agents>	
 		<processManagers>
-			<process name="svgWriter" manager="WriteAgentsSvg" priority="2"
-				firstStep="0.0" />
-			<process name="agentGrowth" manager="AgentGrowth" priority="0"
-				firstStep="0.0" />	
-			<process name="agentMove" manager="AgentStochasticMove" priority="0"
-				firstStep="0.0" />
-			<process name="agentRelax" manager="AgentRelaxation" priority="1"
-				firstStep="0.0" />
+			<process name="svgWriter" class="WriteAgentsSvg" priority="2"
+				firstStep="0.0" package="processManager." >
+				<state name="comparmentName" type="String" value="second" />
+			</process>
+			<process name="agentGrowth" class="AgentGrowth" priority="0"
+				firstStep="0.0" package="processManager." />	
+			<process name="agentMove" class="AgentStochasticMove" priority="0"
+				firstStep="0.0" package="processManager." />
+			<process name="agentRelax" class="AgentRelaxation" priority="1"
+				firstStep="0.0" package="processManager." />
 		</processManagers>
 	</compartment>
 </simulation>

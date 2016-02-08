@@ -4,14 +4,22 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
 import processManager.ProcessManager;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
+import utility.Helper;
 
 public class Compartment implements CanPrelaunchCheck
 {
@@ -58,11 +66,14 @@ public class Compartment implements CanPrelaunchCheck
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
+	public Compartment()
+	{
+		
+	}
+	
 	public Compartment(Shape aShape)
 	{
-		this._shape = aShape;
-		this._environment = new EnvironmentContainer(this._shape);
-		this.agents = new AgentContainer(this._shape);
+		this.setShape(aShape);
 	}
 	
 	public Compartment(String aShapeName)
@@ -70,8 +81,76 @@ public class Compartment implements CanPrelaunchCheck
 		this((Shape) Shape.getNewInstance(aShapeName));
 	}
 	
+	/**
+	 * \brief
+	 * 
+	 * TODO This should go back to being private once tests are based on XML
+	 * protocols.
+	 * 
+	 * @param aShape
+	 */
+	public void setShape(Shape aShape)
+	{
+		this._shape = aShape;
+		this._environment = new EnvironmentContainer(this._shape);
+		this.agents = new AgentContainer(this._shape);
+	}
+	
+	/**
+	 * \brief Initialise this {@code Compartment} from an XML node. 
+	 * 
+	 * @param xmlNode An XML node from a protocol file.
+	 */
+	public void init(Node xmlNode)
+	{
+		Element elem = (Element) xmlNode;
+		String str;
+		NodeList children;
+		Element child;
+		/* 
+		 * First, make the shape this Compartment will take.
+		 */
+		children = XmlHandler.getAll(elem, "shape");
+		if ( children.getLength() != 1 )
+		{
+			Log.out(tier.CRITICAL, "Warning: Compartment must have one shape!");
+			return;
+		}
+		child = (Element) children.item(0);
+		str = child.getAttribute("class");
+		str = Helper.obtainInput(str, "compartment shape class");
+		this.setShape((Shape) Shape.getNewInstance(str));
+		this._shape.init(child);
+		/*
+		 * Give it solutes.
+		 */
+		children = XmlHandler.getAll(elem, "solute");
+		for ( int i = 0; i < children.getLength(); i++ )
+		{
+			child = (Element) children.item(i);
+			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
+			str = Helper.obtainInput(str, "solute name");
+			this.addSolute(str);
+			// TODO diffusivity
+			// TODO initial value
+		}
+		/*
+		 * Finally, finish off the initialisation as standard.
+		 */
+		this.init();
+	}
+	
 	public void init()
 	{
+		/*
+		 * NOTE: Bas [06.02.16] this may be set elsewhere as long as it is after
+		 * the Dimensions and sideLengths are set.
+		 * 
+		 * NOTE: Rob [8Feb2016] here is fine (_environment also needs
+		 * sideLengths, etc).
+		 */
+		this._shape.setSurfaces();
+		
 		this._environment.init();
 	}
 	
