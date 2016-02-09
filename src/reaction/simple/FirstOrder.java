@@ -11,7 +11,7 @@ public class FirstOrder extends Reaction{
 
 	public double rate(double concentration)
 	{
-		return -k*concentration;
+		return -k*noNeg(concentration);
 	}
 	
 	public double conc(double concentration, double dt)

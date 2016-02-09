@@ -11,9 +11,12 @@ public class MichaelisMenten extends Reaction {
 		this.Vm = maxRate;
 	}
 
+	/**
+	 * reaction rate at concentration
+	 */
 	public double rate(double concentration)
 	{
-		return - (Vm * concentration)/ (k + concentration);
+		return - (Vm * noNeg(concentration))/ (k + noNeg(concentration));
 	}
 	
 	public double conc(double concentration, double dt)

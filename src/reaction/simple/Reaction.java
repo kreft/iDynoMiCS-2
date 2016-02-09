@@ -20,6 +20,15 @@ public abstract class Reaction {
 	public abstract double rate(double concentration);
 	
 	/**
+	 * Negative concentrations don't make any sense, sets negative input to 0.0
+	 * used by reaction rate expressions
+	 */
+	public double noNeg(double input)
+	{
+		return (input >= 0.0 ? input : 0.0);
+	}
+	
+	/**
 	 * ode returns the concentration after a given amount of time dt using an
 	 * Ode method
 	 * @param concentration
@@ -36,9 +45,9 @@ public abstract class Reaction {
 		{
 			switch (method)
 			{
-			case EULER: c = eul(c, dt/n);
+			case EULER: c = eul(noNeg(c), dt/n);
 				break;
-			case HEUN: c = heun(c, dt/n);
+			case HEUN: c = heun(noNeg(c), dt/n);
 				break;
 			}
 		}

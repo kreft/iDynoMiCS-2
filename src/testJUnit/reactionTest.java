@@ -13,7 +13,7 @@ public class reactionTest {
 	public void testReaction()
 	{
 		double c0 = 2.0;
-		double t  = 25.0;
+		double t  = 20.0;
 		double tstep = 5.0;
 		System.out.println("Michaelis Menten: lambert W function, heun's,"
 				+ " euler's method");
