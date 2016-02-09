@@ -1,15 +1,8 @@
 package grid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.function.DoubleFunction;
 
-import boundary.Boundary;
-import boundary.BoundaryCyclic;
-import dataIO.LogFile;
-import grid.GridBoundary.GridMethod;
 import grid.ResolutionCalculator.ResCalc;
-import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
