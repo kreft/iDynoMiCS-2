@@ -1,7 +1,11 @@
-package agent.event;
+package aspect;
 
 import generalInterfaces.Copyable;
-import agent.Agent;
+import generalInterfaces.XMLable;
+
+import org.w3c.dom.Node;
+
+import dataIO.XmlHandler;
 
 /**
  * An Event is a special agent aspect that performs an "action". This action can
@@ -11,7 +15,7 @@ import agent.Agent;
  * @author baco
  *
  */
-public abstract class Event implements Copyable {
+public abstract class Event implements Copyable, XMLable {
 	
 	/**
 	 * input states
@@ -33,7 +37,19 @@ public abstract class Event implements Copyable {
 	 */
 	public String[] getInput()
 	{
-		return input;
+		return this.input;
+	}
+	
+	/**
+	 * General constructor from xmlNodes, returns a new instance directly from
+	 * an xml node. Overwrite this method in implementing class if the class
+	 * needs constructor arguments (they should be stored within the Node).
+	 */
+	public static Object getNewInstance(Node xmlNode)
+	{
+		Event obj = (Event) XMLable.getNewInstance(xmlNode);
+		obj.setInput(XmlHandler.gatherAttribute(xmlNode, "input"));
+		return obj;
 	}
 	
 	/**
@@ -43,11 +59,12 @@ public abstract class Event implements Copyable {
 	 * @param compliant
 	 * @param timeStep
 	 */
-	public abstract void start(Agent initiator, Agent compliant, Double timeStep);
+	public abstract void start(AspectInterface initiator, AspectInterface compliant, Double timeStep);
 
 	/**
-	 * return a copy of this event.
+	 * Events are general behavior patterns, copy returns this
 	 */
-	public abstract Object copy();
-	
+	public Object copy() {
+		return this;
+	}
 }

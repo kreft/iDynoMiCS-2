@@ -19,29 +19,21 @@ public class Sphere extends Surface{
      * the radius of this spehere
      */
     private double _radius;
-    
-    private Body body;
-    
+
     public Sphere(Point point, double radius)
     {
     	this._point = point;
     	this._radius = radius;
     }
-    
-    public Sphere(Point point, Body body)
-    {
-    	this._point = point;
-    	this.body = body;
-    }
+
 
     /**
      * copy constructor
      * @param sphere
      */
-	public Sphere(Sphere sphere, Body body) {
+	public Sphere(Sphere sphere) {
 		this._point = (Point) Copier.copy(sphere._point);
 		this._radius = (double) Copier.copy(sphere._radius);
-		this.body = body; 
 	}
 
 	public Type type() {
@@ -50,14 +42,12 @@ public class Sphere extends Surface{
 	
 	public double getRadius()
 	{
-		if (body == null)
-			return _radius;
-		return body.getRadius();
+		return _radius;
 	}
 	
-	public void setBody(Body body)
+	public void set(double radius, double notUsed)
 	{
-		this.body = body;
+		this._radius = radius;
 	}
 	
 	//TODO

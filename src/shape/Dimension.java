@@ -239,6 +239,16 @@ public class Dimension implements CanPrelaunchCheck
 	}
 	
 	/**
+	 * returns the periodic (in Frame) location in this dimension, returns input
+	 * if the location is already in Frame.
+	 */
+	public double periodicLocation(double a)
+	{
+		return this._extreme[0] + ( (a - this._extreme[0]) % this.getLength() + 
+				(a < 0 ? this.getLength() : 0) );
+	}
+	
+	/**
 	 * \brief Given a position on in this dimension, finds the closest point
 	 * within the extremes.
 	 * 
@@ -249,9 +259,7 @@ public class Dimension implements CanPrelaunchCheck
 	{
 		if ( this._isCyclic )
 		{
-			// TODO check this modulo behaves with negative a
-			return this._extreme[0] +
-								( (a - this._extreme[0]) % this.getLength() );
+			return periodicLocation(a);
 		}
 		else
 		{
