@@ -1,10 +1,10 @@
 package reaction.simple;
 
-public class Firstorder extends Reaction{
+public class FirstOrder extends Reaction{
 	
 	final double k;
 	
-	public Firstorder(double k)
+	public FirstOrder(double k)
 	{
 		this.k = k;
 	}
@@ -14,7 +14,7 @@ public class Firstorder extends Reaction{
 		return -k*concentration;
 	}
 	
-	public double C(double concentration, double dt)
+	public double conc(double concentration, double dt)
 	{
 		return concentration * Math.exp(-k*dt);
 	}

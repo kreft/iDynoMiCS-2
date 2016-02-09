@@ -16,7 +16,7 @@ public class MichaelisMenten extends Reaction {
 		return - (Vm * concentration)/ (k + concentration);
 	}
 	
-	public double C(double concentration, double dt)
+	public double conc(double concentration, double dt)
 	{
 		/**
 		 * Goličnik, M. (2011). Exact and approximate solutions for the 

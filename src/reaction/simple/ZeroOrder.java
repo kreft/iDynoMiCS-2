@@ -14,7 +14,7 @@ public class ZeroOrder extends Reaction {
 		return -k;
 	}
 	
-	public double C(double concentration, double dt)
+	public double conc(double concentration, double dt)
 	{
 		return -k*dt + concentration;
 	}
