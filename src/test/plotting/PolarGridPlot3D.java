@@ -203,7 +203,7 @@ public class PolarGridPlot3D {
     	for (int[] nbh = grid.resetNbhIterator(); 
 				grid.isNbhIteratorValid(); nbh=grid.nbhIteratorNext() )
 		{
-    		//    		System.out.println(grid.nbhIteratorIsOutside());
+    		System.out.println(Arrays.toString(nbh)+" " + grid.nbhIteratorIsOutside());
     		if (grid.nbhIteratorIsOutside()==null){
     			int idx=coord2idx.get(Arrays.hashCode(nbh));
     			setColor(idx,reset,BLUE);

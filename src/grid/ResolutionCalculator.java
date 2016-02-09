@@ -76,10 +76,14 @@ public class ResolutionCalculator
 		@Override
 		public double getCumulativeResolution(int voxelIndex)
 		{
-			if ( voxelIndex < 0 || voxelIndex >= this._nVoxel )
+			if ( voxelIndex >= this._nVoxel )
 			{
 				throw new IllegalArgumentException("Voxel index out of range");
 			}
+			
+			if (voxelIndex < 0)
+				return 0;
+			
 			return this._resolution * (voxelIndex + 1);
 		}
 		
@@ -121,6 +125,7 @@ public class ResolutionCalculator
 				this._cumulativeRes = Vector.copy(this._resolution);
 				for ( int i = 1; i < this._nVoxel; i++ )
 					this._cumulativeRes[i] += this._cumulativeRes[i-1];
+				this._length = this._cumulativeRes[this._nVoxel - 1];
 			}
 			return this._cumulativeRes[voxelIndex];
 		}
@@ -175,6 +180,7 @@ public class ResolutionCalculator
 				this._nVoxel++;
 				this._resolution = altRes;
 			}
+			this._length = getCumulativeResolution(this._nVoxel - 1);
 		}
 	}
 	
@@ -203,6 +209,7 @@ public class ResolutionCalculator
 				this._resolution = altRes;
 				altRes = totalLength / altNVoxel;
 			}
+			this._length = getCumulativeResolution(this._nVoxel - 1);
 		}
 	}
 	

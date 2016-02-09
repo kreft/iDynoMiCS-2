@@ -1,5 +1,6 @@
 package grid;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.GridBoundary.GridMethod;
@@ -359,7 +360,7 @@ public abstract class SpatialGrid
 	 * @param coord Discrete coordinates of a voxel on this grid.
 	 * @return A @{@code GridMethod} to use if the coordinates are outside this
 	 * grid. {@code null} if the coordinates are inside.
-	 */
+	 */ 
 	protected GridMethod isOutside(int[] coord)
 	{
 		int[] nVoxel = this.getNVoxel(coord);
@@ -372,11 +373,13 @@ public abstract class SpatialGrid
 		for ( int dim = 0; dim < 3; dim++ )
 		{
 			c = coord[dim];
-			if ( c < 0 && (out = this._dimBoundaries[dim][0]) != null )
+			if ( c < 0 && (out = this._dimBoundaries[dim][0]) != null){
 				break;
+			}
 			n = nVoxel[dim];
-			if ( c >= n  && (out = this._dimBoundaries[dim][1]) != null )
+			if ( c >= n && (out = this._dimBoundaries[dim][1]) != null){
 				break;
+			}
 		}
 		return out;
 	}
@@ -652,15 +655,19 @@ public abstract class SpatialGrid
 	 */
 	public int[] iteratorNext()
 	{
-		_currentCoord[0]++;
-		if ( this.iteratorExceeds(0) )
+		/*
+		 * We have to step through last dimension first, because we use jagged 
+		 * arrays in the PolarGrids.
+		 */
+		_currentCoord[2]++;
+		if ( this.iteratorExceeds(2) )
 		{
-			_currentCoord[0] = 0;
+			_currentCoord[2] = 0;
 			_currentCoord[1]++;
 			if ( this.iteratorExceeds(1) )
 			{
 				_currentCoord[1] = 0;
-				_currentCoord[2]++;
+				_currentCoord[0]++;
 			}
 		}
 		return _currentCoord;
@@ -735,8 +742,15 @@ public abstract class SpatialGrid
 		{
 			ResCalc rC = this.getResolutionCalculator(
 												   this._currentNeighbor, dim);
-			if ( this._currentCoord[dim] < rC.getNVoxel() - 1 || 
-										this._dimBoundaries[dim][1] != null )
+			boolean is_inside_min = this._currentNeighbor[dim] < rC.getNVoxel();
+			boolean is_inside_max = this._currentNeighbor[dim] >= 0;
+			boolean is_on_boundary_min 
+					= ( !is_inside_min && this._dimBoundaries[dim][0] != null);
+			boolean is_on_boundary_max 
+					= ( !is_inside_max && this._dimBoundaries[dim][1] != null);
+			if ( (is_inside_min && is_inside_max) 
+					|| (is_on_boundary_min && (is_inside_max || is_on_boundary_max))
+					|| (is_on_boundary_max && (is_inside_min || is_on_boundary_min)))
 			{
 				this._currentNeighbor[dim] = this._currentCoord[dim] + 1;
 				return true;

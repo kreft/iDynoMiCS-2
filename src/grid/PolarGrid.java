@@ -1,8 +1,10 @@
 package grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.function.DoubleFunction;
 
+import boundary.Boundary;
 import boundary.BoundaryCyclic;
 import dataIO.LogFile;
 import grid.GridBoundary.GridMethod;
@@ -104,7 +106,11 @@ public abstract class PolarGrid extends SpatialGrid
 		 */
 		_nbhIdx = 0;
 		_subNbhIdx = 0;
-		_radSize[1] = Math.toRadians(totalSize[1]%361);
+		_radSize[1] = totalSize[1];
+		if (_radSize[1] == 2 * Math.PI) {
+			_dimBoundaries[1][0] = new GridBoundary.Cyclic();
+			_dimBoundaries[1][1] = new GridBoundary.Cyclic();
+		}
 		_ires[1] = PolarArray.ires(_radSize[1]);
 	}
 	
@@ -144,16 +150,29 @@ public abstract class PolarGrid extends SpatialGrid
 		return _currentNeighbor;
 	}
 	
-	@Override
-	public boolean isNbhIteratorValid(){
-		if (_subNbhIdx >= _subNbhSet.size()){
-			return _nbhIdx < NBH_DIRECS.length - 1;
-		}
-		return true;
+//	@Override
+//	public boolean isNbhIteratorValid(){
+//		if (_subNbhIdx >= _subNbhSet.size()){
+//			return _nbhIdx < NBH_DIRECS.length - 1;
+//		}
+//		return true;
+//	}
+	
+	protected double getTotalLength(int dim)
+	{
+		return _radSize[dim];
+	}
+	
+	protected double getArcLength(int[] coord, int dim)
+	{
+		ResCalc rC 
+					= this.getResolutionCalculator(coord, dim);
+		return rC.getResolution(coord[dim])
+				* this.getTotalLength(dim) / rC.getTotalLength();
 	}
 	
 	protected boolean increaseNbhByOnePolar(int dim)
-	{
+	{		
 		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, dim);
 		/*
 		 * If increasing would push us over a null boundary, return false.
@@ -185,23 +204,28 @@ public abstract class PolarGrid extends SpatialGrid
 	 */
 	protected boolean setNbhFirstInNewShell(int dim, int shellIndex)
 	{
-		ResCalc rC = this.getResolutionCalculator(this._currentCoord, dim);
-		Vector.copyTo(this._currentNeighbor, this._currentNeighbor);
-		this._currentNeighbor[0] = shellIndex;
 		/*
 		 * First check that the new shell is inside the grid. If we're on a
 		 * defined boundary, the angular coordinate is irrelevant.
 		 */
+		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
 		if ( shellIndex < 0 )
-			return ( this._dimBoundaries[dim][0] != null );
-		if ( shellIndex < rC.getNVoxel() )
-			return ( this._dimBoundaries[dim][1] != null);
+			return ( this._dimBoundaries[0][0] != null );
+		if ( shellIndex >= rC.getNVoxel() )
+			return ( this._dimBoundaries[0][1] != null);
+		
+		rC = this.getResolutionCalculator(this._currentCoord, dim);
+		
+		Vector.copyTo(this._currentNeighbor, this._currentCoord);
+		this._currentNeighbor[0] = shellIndex;
 		/*
 		 * We're on an intermediate shell, so find the voxel which has the
 		 * current coordinate's minimum angle inside it.
 		 */
 		double angle = rC.getCumulativeResolution(this._currentCoord[dim] - 1);
+		
 		rC = this.getResolutionCalculator(this._currentNeighbor, dim);
+		
 		this._currentNeighbor[dim] = rC.getVoxelIndex(angle);
 		return true;
 	}
@@ -298,6 +322,11 @@ public abstract class PolarGrid extends SpatialGrid
 	/**************************************************************************/
 	/************************* UTILITY METHODS ********************************/
 	/**************************************************************************/
+	
+	protected static double getTargetResolution(int shell, double res,
+															double totalLength){			
+		return (Math.PI * Math.PI * res) / ((2 * shell + 1) * totalLength);
+	}
 	
 	/**
 	 * \brief Computes a factor that scales the number of elements for

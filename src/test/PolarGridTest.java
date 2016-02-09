@@ -52,7 +52,7 @@ public class PolarGridTest
 //		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},
 //				new double[]{1,1,2});
 		
-	    CylindricalGrid grid = new CylindricalGrid(new double[]{3,360,1},1);
+	    CylindricalGrid grid = new CylindricalGrid(new double[]{3,2*Math.PI,1},1);
 //		CylindricalGrid grid = new CylindricalGrid(
 //				new double[]{3,360,1},new double[]{1,2,1});
 		
@@ -69,9 +69,9 @@ public class PolarGridTest
 		/*
 		 * add boundaries
 		 */
-		for ( DimName dim : grid.getDimensionNames() )
-			for ( int i = 0; i < 2; i++ )
-				grid.addBoundary(dim, i, new ConstantDirichlet());
+//		for ( DimName dim : grid.getDimensionNames() )
+//			for ( int i = 0; i < 2; i++ )
+//				grid.addBoundary(dim, i, new ConstantDirichlet());
 		
 //		grid.setValueAt(type, new int[]{1,1,1},1);
 //		grid.setValueAt(type, new int[]{2,2,1},0.5);
@@ -85,7 +85,7 @@ public class PolarGridTest
 		
 //		testMemoryAndIteratorSpeed(grid);
 //		testIterator(grid);
-//		testNbhIterator(grid);
+		testNbhIterator(grid);
 //		/*
 //		 * paramters for create graphics:
 //		 * iterator: 	0: no iterator,1: step manual 2: step automatic
@@ -157,7 +157,9 @@ public class PolarGridTest
 						grid.isNbhIteratorValid(); 
 						nbh = grid.nbhIteratorNext() )
 				{
-					System.out.println("\tnbh: "+Arrays.toString(nbh));
+					System.out.print("\tnbh: "+Arrays.toString(nbh));
+					System.out.println(
+							",\tshared area: "+grid.getNbhSharedSurfaceArea());
 				}
 			}
 			System.out.println();

@@ -1,5 +1,7 @@
 package grid;
 
+import java.util.Arrays;
+
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.Array;
@@ -91,18 +93,14 @@ public class CylindricalGrid extends PolarGrid
 		 * voxels in theta depends on the shell (i.e. size of r).
 		 */
 		this._resCalc[1] = new UniformResolution[nr];
-		double targetRes;
 		for ( int shell = 0; shell < nr; shell++ )
 		{
 			this._resCalc[1][shell] = resolution.new UniformResolution();
-			// this._ires[1] * s(shell) =
-			// (2 * Math.toRadians(totalSize[1]) / pi) * ((2 * shell) + 1)
-			//this._resCalc[1][shell].init(res[1], this._ires[1] * s(shell));
-			// Why not just initalise with totalLength[1] in radians and
-			// save ourselves a lot of hassle?!
-			targetRes = res[1] / ( ( 2 * shell ) + 1);
+			double targetRes = getTargetResolution(shell, res[1], totalLength[1]);
 			this._resCalc[1][shell].init(targetRes, totalLength[1]);
 		}
+		resetIterator();
+		resetNbhIterator();
 	}
 	
 	/**
@@ -227,15 +225,31 @@ public class CylindricalGrid extends PolarGrid
 	{
 		// TODO make this a permanent vector, rather than initialising anew
 		// each time it's called for.
-		return new int[]{this._resCalc[0][0].getNVoxel(),
-							this._resCalc[1][coords[0]].getNVoxel(),
-							this._resCalc[2][0].getNVoxel()};
+		/*
+		 * resolution calculator in first dimension ({@code r})
+		 * should always be stored in resCalc[0][0] (no checking needed)
+		 */
+		int ni = this._resCalc[0][0].getNVoxel();
+		/*
+		 * check if the coordinate is valid for 2nd dimension 
+		 * ({@code theta})
+		 */
+		int nj = (coords[0] >= 0 && coords[0] < this._resCalc[1].length) ? 
+				 this._resCalc[1][coords[0]].getNVoxel() : 0;
+//		int nj = this._resCalc[1][coords[0]].getNVoxel();
+		/*
+		* resolution calculator in third dimension ({@code z})
+		* should always be stored in resCalc[2][0] (no checking needed)
+		*/
+		int nk = this._resCalc[2][0].getNVoxel();
+		return new int[]{ni, nj, nk};
+
 	}
 	
 	@Override
 	protected ResCalc getResolutionCalculator(int[] coord, int axis)
 	{
-		return this._resCalc[axis][ (axis == 1) ? coord[0] : 0 ];
+		return this._resCalc[axis][(axis == 1) ? coord[0] : 0];
 	}
 	
 	/*************************************************************************
@@ -262,10 +276,12 @@ public class CylindricalGrid extends PolarGrid
 	 */
 	protected boolean moveNbhToMinus(int dim)
 	{
-		Vector.copyTo(this._currentNeighbor, this._currentNeighbor);
+		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[dim]--;
-		return (this._currentCoord[dim] == 0) && 
-										(this._dimBoundaries[dim][0] == null);
+
+		boolean is_inside = this._currentNeighbor[dim] >= 0;
+		return  is_inside 
+				|| ( !is_inside && this._dimBoundaries[dim][0] != null);
 	}
 	
 	@Override

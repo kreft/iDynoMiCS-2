@@ -64,19 +64,19 @@ public class SphericalGrid extends PolarGrid
 	/**
 	 * \brief TODO
 	 * 
-	 * @param totalSize
+	 * @param totalLength
 	 * @param res
 	 */
-	public SphericalGrid(double[] totalSize, double[] res)
+	public SphericalGrid(double[] totalLength, double[] res)
 	{
-		super(totalSize);
+		super(totalLength);
 		this._dimName[1] = DimName.PHI;
 		this._dimName[2] = DimName.THETA;
 		/*
 		 * Set up sphere-specific members
 		 */
 		
-		this._radSize[2] = Math.toRadians(totalSize[2]%181);
+		this._radSize[2] = Math.toRadians(totalLength[2]%181);
 		this._ires[2] = PolarArray.ires(this._radSize[2]); 
 		/*
 		 * Set up uniform resolution calculator array
@@ -89,7 +89,7 @@ public class SphericalGrid extends PolarGrid
 		 */
 		this._resCalc[0] = new UniformResolution[1][1];
 		this._resCalc[0][0][0] = resolution.new UniformResolution();
-		this._resCalc[0][0][0].init(res[0], totalSize[0]);
+		this._resCalc[0][0][0].init(res[0], totalLength[0]);
 		int numShells = _resCalc[0][0][0].getNVoxel();
 		/*
 		 * For each radial shell we have a known number of voxels in phi,
@@ -99,22 +99,37 @@ public class SphericalGrid extends PolarGrid
 		this._resCalc[2] = new UniformResolution[numShells][];
 		int numRings;
 		double phi_scale, ring_length;
-		for ( int i = 0; i < numShells; ++i )
+		for ( int shell = 0; shell < numShells; ++shell )
 		{
 			/* Set up for theta. */
-			this._resCalc[1][i][0] = resolution.new UniformResolution();
-			this._resCalc[1][i][0].init(res[2], this._ires[2] * s(i));
+			this._resCalc[1][shell][0] = resolution.new UniformResolution();
+			double tRes = getTargetResolution(shell, res[1], totalLength[1]);
+			this._resCalc[1][shell][0].init(tRes, totalLength[1]);
 			/* Determine how many for phi, and set these up. */
-			numRings = this._resCalc[1][i][0].getNVoxel();
-			this._resCalc[2][i] = new UniformResolution[numRings];
+			numRings = this._resCalc[1][shell][0].getNVoxel();
+			this._resCalc[2][shell] = new UniformResolution[numRings];
 			for ( int j = 0; j < numRings; ++j )
 			{
-				// TODO this is about as clear as mud - clarify and comment!
-				phi_scale = 0.5 * Math.PI / (s(i)-0.5);
+				/*
+				 * Scale phi to peak at π / 2 instead of s(shell), where it 
+				 * would peak for a resolution of one. This way we can use it as
+				 * an input argument for a sine (which peaks at sin(π / 2) = 1
+				 * naturally). Actually we let it peak at s(shell) - 0.5 to keep
+				 * things symmetric around the equator.
+				 */
+				phi_scale = 0.5 * Math.PI / (s(shell)-0.5);
+				/*
+				 * compute the sine of the scaled phi coordinate and scale the 
+				 * result to be 
+				 * sin(0) = number of voxels at r=0 (iresTheta)
+				 * sin(π / 2) = s(shell) * iresTheta
+				 * sin(π) = number of voxels at r=0 (iresTheta)
+				 * This is the number of voxels in theta.
+				 */
 				ring_length = this._ires[1] + 
-							(s(i)-1)*this._ires[1]*Math.sin(j * phi_scale);
-				this._resCalc[2][i][j] = resolution.new UniformResolution();
-				this._resCalc[2][i][j].init(res[1], ring_length);
+							(s(shell)-1)*this._ires[1]*Math.sin(j * phi_scale);
+				this._resCalc[2][shell][j] = resolution.new UniformResolution();
+				this._resCalc[2][shell][j].init(res[1], totalLength[2]);
 			}
 		}
 	}
@@ -148,8 +163,6 @@ public class SphericalGrid extends PolarGrid
 	 * \brief Computes the arc length along the azimuthal dimension of the 
 	 * grid element at the given coordinate.
 	 * 
-	 * TODO: Assumes constant resolution at the moment?!
-	 * 
 	 * @param coord Coordinates of a voxel in the grid.
 	 * @return The arc length along the azimuthal dimension (theta) for this
 	 * voxel.
@@ -158,8 +171,6 @@ public class SphericalGrid extends PolarGrid
 	 */
 	private double getArcLengthTheta(int[] coord)
 	{
-		// TODO surely we can just
-		// return resCalc.getResolution(coord[2]); ?
 		ResCalc resCalc = this._resCalc[2][coord[0]][coord[1]];
 		return resCalc.getResolution(coord[2])
 				* this.getTotalLength(1) / resCalc.getTotalLength();
