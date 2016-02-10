@@ -52,7 +52,7 @@ public class XmlLoad {
 		/**
 		 * Load agents and agent container
 		 */
-		Element agents = XmlHandler.loadUnique(Param.xmlDoc,"agents");
+		Element agents = XmlHandler.loadUnique(xmlCompartment,"agents");
 		if(agents != null)
 		{
 			NodeList agentNodes = agents.getElementsByTagName("agent");
@@ -66,7 +66,7 @@ public class XmlLoad {
 		 * Process managers
 		 */
 		Element processManagers = XmlHandler.loadUnique(
-				Param.xmlDoc,"processManagers");
+				xmlCompartment,"processManagers");
 		if(processManagers != null)
 		{
 			NodeList pNodes = processManagers.getElementsByTagName("process");

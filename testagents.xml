@@ -142,8 +142,18 @@
 				</aspect>
 			</agent>
 		</agents>
+		<processManagers>
+			<process name="svgWriter" class="WriteAgentsSvg" priority="3" firstStep="0.0" package="processManager.">
+				<aspect name="comparmentName" type="String" value="second" />
+			</process>
+			<process name="agentGrowth" class="AgentGrowth" priority="0" firstStep="0.0" package="processManager." />
+			<process name="agentRelax" class="AgentRelaxation" priority="2" firstStep="0.0" package="processManager.">
+				<aspect name="maxMovement" type="double" value="0.05" />
+				<aspect name="relaxationMethod" type="String" value="SHOVE" />
+			</process>
+		</processManagers>
 	</compartment>
-	
+
 
 </simulation>
 </document>

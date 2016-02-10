@@ -1,6 +1,6 @@
 package reaction.simple;
 
-public class ZeroOrder extends Reaction {
+public class ZeroOrder implements ReactionRate {
 	
 	final double k;
 	
@@ -9,12 +9,12 @@ public class ZeroOrder extends Reaction {
 		this.k = k;
 	}
 
-	public double rate(double concentration)
+	public double rateTerm(double[] concentration)
 	{
 		return -k;
 	}
 	
-	public double conc(double concentration, double dt)
+	public double direct(double concentration, double dt)
 	{
 		return -k*dt + concentration;
 	}

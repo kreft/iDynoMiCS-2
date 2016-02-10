@@ -23,32 +23,21 @@
 				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
-				<aspect name="coccoidCenter" type="secondary" class="CoccoidCenter"
-					input="body" />
-				<aspect name="morphology" type="String" value="coccoid" />
-				<aspect name="joints" type="secondary" class="JointsState"
-					input="body" />
-				<aspect name="volume" type="secondary" class="SimpleVolumeState"
-					input="mass,density" />
-				<aspect name="radius" type="secondary" class="CoccoidRadius"
-					input="volume" />
-				<aspect name="#boundingLower" type="secondary" class="LowerBoundingBox"
-					input="body,radius" />
-				<aspect name="#boundingSides" type="secondary" class="DimensionsBoundingBox"
-					input="body,radius" />
-				<aspect name="growth" type="event" package="agent.event.library."
-					class="SimpleGrowth" input="mass,growthRate" />
-				<aspect name="divide" type="event" package="agent.event.library."
-					class="CoccoidDivision" input="mass,radius,body" />
-				<aspect name="surface" type="secondary" class="SimpleSurface"
-					input="body" />
-				<aspect name="updateBody" type="event" package="agent.event.library."
-					class="UpdateBody" input="body,radius,length" />
+				<aspect name="morphology" 		type="String" 		value="coccoid" />
+				<aspect name="coccoidCenter" 	type="secondary" 	class="CoccoidCenter" 			input="body" />
+				<aspect name="joints" 			type="secondary" 	class="JointsState" 			input="body" />
+				<aspect name="volume" 			type="secondary" 	class="SimpleVolumeState" 		input="mass,density" />
+				<aspect name="radius" 			type="secondary" 	class="CoccoidRadius" 			input="volume" />
+				<aspect name="#boundingLower" 	type="secondary" 	class="LowerBoundingBox" 		input="body,radius" />
+				<aspect name="#boundingSides" 	type="secondary" 	class="DimensionsBoundingBox" 	input="body,radius" />
+				<aspect name="growth" 			type="event" 		class="SimpleGrowth"  	 		input="mass,growthRate" 	package="agent.event.library." />
+				<aspect name="divide" 			type="event" 		class="CoccoidDivision"			input="mass,radius,body" 	package="agent.event.library." />
+				<aspect name="surface" 			type="secondary" 	class="SimpleSurface" 			input="body" />
+				<aspect name="updateBody" 		type="event" 		class="UpdateBody" 				input="body,radius,length" 	package="agent.event.library." />
 			</species>
 			<species name="stochasticMover">
 				<aspect name="stochasticStep" type="double" value="0.1" />
-				<aspect name="stochasticMove" type="event" class="StochasticMove"
-					package="agent.event.library." input="body,stochasticStep" />
+				<aspect name="stochasticMove" type="event" class="StochasticMove" package="agent.event.library." input="body,stochasticStep" />
 			</species>
 		</speciesLib>
 
