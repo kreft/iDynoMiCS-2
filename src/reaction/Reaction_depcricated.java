@@ -10,7 +10,7 @@ import expression.*;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  */
-public class Reaction
+public class Reaction_depcricated
 {
 	/**
 	 * TODO
@@ -33,12 +33,12 @@ public class Reaction
 	 * this is a dummy constructor
 	 * TODO constructors?
 	 */
-	public Reaction(String construct)
+	public Reaction_depcricated(String construct)
 	{
 		
 	}
 	
-	public Reaction()
+	public Reaction_depcricated()
 	{
 		
 	}
@@ -64,9 +64,9 @@ public class Reaction
 	 * @param rate
 	 * @return
 	 */
-	public static Reaction constitutiveReaction(double rate)
+	public static Reaction_depcricated constitutiveReaction(double rate)
 	{
-		Reaction out = new Reaction();
+		Reaction_depcricated out = new Reaction_depcricated();
 		Component c1 = new Constant("rate", rate);
 		out.setKinetic(c1);
 		return out;
@@ -79,9 +79,9 @@ public class Reaction
 	 * @param variables
 	 * @return
 	 */
-	public static Reaction massLawReaction(double k, ArrayList<String> variables)
+	public static Reaction_depcricated massLawReaction(double k, ArrayList<String> variables)
 	{
-		Reaction out = new Reaction();
+		Reaction_depcricated out = new Reaction_depcricated();
 		Component c1 = new Constant("k", k);
 		for ( String var : variables )
 			c1 = Expression.multiply(c1, new Variable(var));
@@ -98,10 +98,10 @@ public class Reaction
 	 * @param catalyst
 	 * @return
 	 */
-	public static Reaction monodReaction(double muMax, double kS, 
+	public static Reaction_depcricated monodReaction(double muMax, double kS, 
 											String substrate, String catalyst)
 	{
-		Reaction out = new Reaction();
+		Reaction_depcricated out = new Reaction_depcricated();
 		Component c1 = new Constant("muMax", muMax);
 		Component c2 = new Constant("kS", kS);
 		Component c3 = new Variable(substrate);

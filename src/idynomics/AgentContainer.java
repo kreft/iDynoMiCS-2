@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import agent.Agent;
-import reaction.Reaction;
+import reaction.Reaction_depcricated;
 import shape.Shape;
 import spatialRegistry.*;
 
@@ -33,7 +33,7 @@ public class AgentContainer
 	 * All reactions performed by agents.
 	 * TODO Check this is the best way of going about things!
 	 */
-	protected HashMap<String, Reaction> _agentReactions;
+	protected HashMap<String, Reaction_depcricated> _agentReactions;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS

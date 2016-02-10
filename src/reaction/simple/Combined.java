@@ -1,10 +1,10 @@
 package reaction.simple;
 
-public class Combined implements ReactionRate{
+public class Combined implements RateTerm{
 	
-	final ReactionRate[] _terms;
+	final RateTerm[] _terms;
 	
-	public Combined(ReactionRate[] terms)
+	public Combined(RateTerm[] terms)
 	{
 		this._terms = terms;
 	}

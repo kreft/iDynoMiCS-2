@@ -1,6 +1,6 @@
 package reaction.simple;
 
-public class ReactionParameter implements ReactionRate {
+public class Catalyst implements RateTerm {
 
 	public double rateTerm(double[] concentration) {
 		return concentration[0];
