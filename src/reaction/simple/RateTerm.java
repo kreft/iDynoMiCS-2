@@ -5,7 +5,7 @@ package reaction.simple;
  * @author baco
  *
  */
-public interface ReactionRate {
+public interface RateTerm {
 	
 	public enum ode {
 		EULER,

@@ -1,6 +1,6 @@
 package reaction.simple;
 
-public class MichaelisMenten implements ReactionRate {
+public class MichaelisMenten implements RateTerm {
 	
 	final double k;
 	private double Vm;
@@ -21,7 +21,7 @@ public class MichaelisMenten implements ReactionRate {
 	 */
 	public double rateTerm(double[] concentration)
 	{
-		return - (Vm * ReactionRate.noNeg(concentration[0]))/ (k + ReactionRate.noNeg(concentration[0]));
+		return - (Vm * RateTerm.noNeg(concentration[0]))/ (k + RateTerm.noNeg(concentration[0]));
 	}
 	
 	/**

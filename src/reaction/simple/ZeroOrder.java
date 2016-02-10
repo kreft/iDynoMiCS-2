@@ -1,6 +1,6 @@
 package reaction.simple;
 
-public class ZeroOrder implements ReactionRate {
+public class ZeroOrder implements RateTerm {
 	
 	final double k;
 	
@@ -16,7 +16,7 @@ public class ZeroOrder implements ReactionRate {
 	
 	public double direct(double concentration, double dt)
 	{
-		return -k*dt + concentration;
+		return RateTerm.noNeg(-k*dt + concentration);
 	}
 
 }

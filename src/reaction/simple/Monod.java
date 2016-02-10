@@ -1,6 +1,6 @@
 package reaction.simple;
 
-public class Monod implements ReactionRate{
+public class Monod implements RateTerm{
 
 	final double k;
 	private double muMax;
@@ -21,7 +21,7 @@ public class Monod implements ReactionRate{
 	 */
 	public double rateTerm(double[] concentration)
 	{
-		return - (muMax * ReactionRate.noNeg(concentration[0]))/ (k + ReactionRate.noNeg(concentration[0]));
+		return - (muMax * RateTerm.noNeg(concentration[0]))/ (k + RateTerm.noNeg(concentration[0]));
 	}
 	
 	public double direct(double concentration, double dt) {

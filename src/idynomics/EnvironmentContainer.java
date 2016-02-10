@@ -7,7 +7,7 @@ import boundary.Boundary;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import reaction.Reaction;
+import reaction.Reaction_depcricated;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 
@@ -36,8 +36,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	/**
 	 * Dictionary of extracellular reactions.
 	 */
-	protected HashMap<String, Reaction> _reactions = 
-											new HashMap<String, Reaction>();
+	protected HashMap<String, Reaction_depcricated> _reactions = 
+											new HashMap<String, Reaction_depcricated>();
 	/**
 	 * Solutes can only be added while this is {@code false}, and the simulation
 	 * cannot begin until it is {@code true}.
