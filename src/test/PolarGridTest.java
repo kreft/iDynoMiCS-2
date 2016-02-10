@@ -20,10 +20,11 @@ import org.jfree.data.xy.XYSeriesCollection;
 import boundary.Boundary;
 import boundary.BoundaryFixed;
 import grid.CylindricalGrid;
+import grid.GridBoundary.ConstantDirichlet;
 import grid.PolarGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.GridBoundary.ConstantDirichlet;
+import grid.SphericalGrid;
 import idynomics.Compartment;
 import idynomics.Simulator;
 import idynomics.Timer;
@@ -48,11 +49,11 @@ public class PolarGridTest
 		/********************* CHOOSE ARRAY TYPE HERE *************************/
 		/**********************************************************************/
 		
-//		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},1);
+		SphericalGrid grid = new SphericalGrid(new double[]{3, Math.PI ,2 * Math.PI},1);
 //		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},
 //				new double[]{1,1,2});
 		
-	    CylindricalGrid grid = new CylindricalGrid(new double[]{3,2*Math.PI,1},1);
+//	    CylindricalGrid grid = new CylindricalGrid(new double[]{3,2*Math.PI,1},1);
 //		CylindricalGrid grid = new CylindricalGrid(
 //				new double[]{3,360,1},new double[]{1,2,1});
 		
@@ -85,16 +86,16 @@ public class PolarGridTest
 		
 //		testMemoryAndIteratorSpeed(grid);
 //		testIterator(grid);
-		testNbhIterator(grid);
+//		testNbhIterator(grid);
 //		/*
 //		 * paramters for create graphics:
 //		 * iterator: 	0: no iterator,1: step manual 2: step automatic
 //		 * locations: 	0: no location,1: origin 	  2: centre
 //		 * do | do not plot grid cell polygons
 //		 */
-//		PolarGridPlot3D plot = createGraphics(grid,1,2,false);
+//		PolarGridPlot3D plot = createGraphics(grid,2,2,false);
 //		plot.plotCurrentConcentrations();
-//		plotVoxelVolumes(grid);
+		plotVoxelVolumes(grid);
 //		oneDimRiseFallComp();
 
 		keyboard.close();

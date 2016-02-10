@@ -742,15 +742,8 @@ public abstract class SpatialGrid
 		{
 			ResCalc rC = this.getResolutionCalculator(
 												   this._currentNeighbor, dim);
-			boolean is_inside_min = this._currentNeighbor[dim] < rC.getNVoxel();
-			boolean is_inside_max = this._currentNeighbor[dim] >= 0;
-			boolean is_on_boundary_min 
-					= ( !is_inside_min && this._dimBoundaries[dim][0] != null);
-			boolean is_on_boundary_max 
-					= ( !is_inside_max && this._dimBoundaries[dim][1] != null);
-			if ( (is_inside_min && is_inside_max) 
-					|| (is_on_boundary_min && (is_inside_max || is_on_boundary_max))
-					|| (is_on_boundary_max && (is_inside_min || is_on_boundary_min)))
+			if ( this._currentCoord[dim] < rC.getNVoxel() - 1 || 
+										this._dimBoundaries[dim][1] != null )
 			{
 				this._currentNeighbor[dim] = this._currentCoord[dim] + 1;
 				return true;
