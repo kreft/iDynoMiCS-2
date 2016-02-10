@@ -1,9 +1,15 @@
-package reaction.simple;
+package reaction;
 
 import linearAlgebra.Vector;
-import reaction.simple.RateTerm.*;
+import reaction.term.RateTerm;
+import reaction.term.RateTerm.*;
 
 public class Reaction {
+
+	public static enum ode {
+		EULER,
+		HEUN
+	}
 
 	protected double[] _stoichiometry;
 	
@@ -47,7 +53,7 @@ public class Reaction {
 	 * @param dt
 	 * @return
 	 */
-	public double[] ode(double[] concentration, ode method, double dt, 
+	public double[] ode(double[] concentration, Reaction.ode method, double dt, 
 			double tstep)
 	{
 		double ts = dt / Math.ceil(dt/tstep);
@@ -75,7 +81,7 @@ public class Reaction {
 	 * @param tstep
 	 * @return
 	 */
-	public double ode(double concentration, ode method, double dt, 
+	public double ode(double concentration, Reaction.ode method, double dt, 
 			double tstep)
 	{
 		return ode(new double[]{concentration}, method, dt, tstep)[0];
