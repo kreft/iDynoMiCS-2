@@ -11,6 +11,9 @@ import org.w3c.dom.Node;
  * NOTE: Bas [07.02.2016] all agent boundary interactions are done by Shape
  * aren't they? is this class needed?
  * 
+ * NOTE: Rob [8Feb2016]: I think this still needed, except for the cyclic stuff
+ * as that's now handled by Dimension.
+ * 
  * @author Bastiaan Cockx
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */

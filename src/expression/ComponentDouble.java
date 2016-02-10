@@ -38,7 +38,7 @@ public abstract class ComponentDouble extends Component
 	
 	protected void infiniteValueWarning(HashMap<String, Double> variables)
 	{
-		Log.out(tier.NORMAL,"WARNING! Infinite value: " + this.getName() + 
+		Log.out(tier.CRITICAL,"WARNING! Infinite value: " + this.getName() + 
 										" = " + this.reportValue(variables));
 	}
 }
