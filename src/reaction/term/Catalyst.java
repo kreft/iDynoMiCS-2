@@ -1,4 +1,4 @@
-package reaction.simple;
+package reaction.term;
 
 public class Catalyst implements RateTerm {
 
@@ -7,7 +7,7 @@ public class Catalyst implements RateTerm {
 	}
 
 	public double direct(double concentration, double dt) {
-		System.out.println("direct method not available for reaction param");
+		System.out.println("direct method not available for catalyst");
 		return 0.0;
 	}
 }

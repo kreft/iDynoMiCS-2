@@ -1,4 +1,4 @@
-package reaction.simple;
+package reaction.term;
 
 public class FirstOrder implements RateTerm{
 	

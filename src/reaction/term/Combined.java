@@ -1,4 +1,4 @@
-package reaction.simple;
+package reaction.term;
 
 public class Combined implements RateTerm{
 	

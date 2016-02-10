@@ -1,4 +1,4 @@
-package reaction.simple;
+package reaction.term;
 
 /**
  * general reaction class
@@ -7,11 +7,6 @@ package reaction.simple;
  */
 public interface RateTerm {
 	
-	public enum ode {
-		EULER,
-		HEUN
-	}
-
 	/**
 	 * reaction rate at given concentration
 	 * @param concentration
