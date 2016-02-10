@@ -1,31 +1,39 @@
 package reaction.simple;
 
-/**
- * general reaction class
- * @author baco
- *
- */
-public abstract class Reaction {
-	
-	public enum ode {
-		EULER,
-		HEUN
-	}
+import linearAlgebra.Vector;
+import reaction.simple.ReactionRate.*;
 
-	/**
-	 * reaction rate at given concentration
-	 * @param concentration
-	 * @return
-	 */
-	public abstract double rate(double concentration);
+public class Reaction {
+
+	protected double[] _stoichiometry;
 	
-	/**
-	 * Negative concentrations don't make any sense, sets negative input to 0.0
-	 * used by reaction rate expressions
-	 */
-	public double noNeg(double input)
+	protected ReactionRate _rate;
+	
+	public Reaction(double[] stoichiometry, ReactionRate rate)
 	{
-		return (input >= 0.0 ? input : 0.0);
+		this._stoichiometry = stoichiometry;
+		this._rate = rate;
+	}
+	
+	public Reaction(double stoichiometry, ReactionRate rate)
+	{
+		this._stoichiometry = new double[]{stoichiometry};
+		this._rate = rate;
+	}
+	
+	private double[] conc(double[] concentrations)
+	{
+		double[] r = Vector.zerosDbl(concentrations.length);
+		for(int i = 0; i < r.length; i++)
+		{
+			r[i] += _stoichiometry[i] * _rate.rateTerm(concentrations);
+		}
+		return r;
+	}
+	
+	public double directMethod(double concentration, double dt)
+	{
+		return _rate.direct(concentration, dt);
 	}
 	
 	/**
@@ -35,23 +43,29 @@ public abstract class Reaction {
 	 * @param dt
 	 * @return
 	 */
-	public double ode(double concentration, ode method, double dt, 
+	public double[] ode(double[] concentration, ode method, double dt, 
 			double tstep)
 	{
 		double ts = dt / Math.ceil(dt/tstep);
 		double n = Math.rint(dt/ts);
-		double c = concentration;
+		double[] c = Vector.copy(ReactionRate.noNeg(concentration));
 		for(int i = 0; i < n; i++)
 		{
 			switch (method)
 			{
-			case EULER: c = eul(noNeg(c), dt/n);
+			case EULER: c = eul(c, dt/n);
 				break;
-			case HEUN: c = heun(noNeg(c), dt/n);
+			case HEUN: c = heun(c, dt/n);
 				break;
 			}
 		}
-		return c;
+		return ReactionRate.noNeg(c);
+	}
+	
+	public double ode(double concentration, ode method, double dt, 
+			double tstep)
+	{
+		return ode(new double[]{concentration}, method, dt, tstep)[0];
 	}
 	
 	/**
@@ -60,9 +74,9 @@ public abstract class Reaction {
 	 * @param dt
 	 * @return
 	 */
-	public double eul(double concentration, double dt)
+	public double[] eul(double[] concentration, double dt)
 	{
-		return concentration + rate(concentration) * dt;
+		return Vector.add(concentration, Vector.times(conc(concentration), dt));
 	}
 	
 	/**
@@ -71,9 +85,12 @@ public abstract class Reaction {
 	 * @param dt
 	 * @return
 	 */
-	public double heun(double concentration, double dt)
+	public double[] heun(double[] concentration, double dt)
 	{
-		double c = concentration + rate(concentration) * dt;
-		return concentration + (rate(concentration) + rate(c)) * dt/2.0;
+		double[] k = eul(concentration, dt);
+		return Vector.add(concentration, Vector.times( Vector.add( 
+				conc(concentration), conc(k)) ,dt/2));
 	}
+
+	
 }

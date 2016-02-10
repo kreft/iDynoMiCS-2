@@ -1,25 +1,36 @@
 package reaction.simple;
 
-public class MichaelisMenten extends Reaction {
+public class MichaelisMenten implements ReactionRate {
 	
 	final double k;
-	final double Vm;
+	private double Vm;
 	
+	/**
+	 * Regular Michaelis Menten constructor
+	 * @param k
+	 * @param maxRate
+	 */
 	public MichaelisMenten(double k, double maxRate)
 	{
 		this.k = k;
 		this.Vm = maxRate;
 	}
-
+	
 	/**
 	 * reaction rate at concentration
 	 */
-	public double rate(double concentration)
+	public double rateTerm(double[] concentration)
 	{
-		return - (Vm * noNeg(concentration))/ (k + noNeg(concentration));
+		return - (Vm * ReactionRate.noNeg(concentration[0]))/ (k + ReactionRate.noNeg(concentration[0]));
 	}
 	
-	public double conc(double concentration, double dt)
+	/**
+	 * Implements Lambert W function to find concentration after dt.
+	 * @param concentration
+	 * @param dt
+	 * @return
+	 */
+	public double direct(double concentration, double dt)
 	{
 		/**
 		 * Goličnik, M. (2011). Exact and approximate solutions for the 
