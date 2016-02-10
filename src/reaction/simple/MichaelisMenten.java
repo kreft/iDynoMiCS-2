@@ -38,11 +38,12 @@ public class MichaelisMenten extends Reaction {
 	//////////////////////////////////////////////////////////
 
 	private static double PRECISION = 1E-12;
+	private static double ITERATIONMAX = 100;
 
 	public static double LambertW(double z)
 	{
 		double S = 0.0;
-		for (int n=1; n <= 100; n++)
+		for (int n=0; n <= ITERATIONMAX; n++)
 		{
 			double Se = S * StrictMath.pow(StrictMath.E, S);
 			double S1e = (S+1) * 
@@ -51,6 +52,9 @@ public class MichaelisMenten extends Reaction {
 				return S;
 			S -= (Se-z) / (S1e - (S+2) * (Se-z) / (2*S+2));
 		}
+		System.out.println("LambertW Max iterations reached, error:" + 
+				StrictMath.abs((z - (S * StrictMath.pow(StrictMath.E, S))) / 
+				((S+1) * StrictMath.pow(StrictMath.E, S))));
 		return S;
 	}
 	

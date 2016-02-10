@@ -55,7 +55,7 @@ public abstract class Reaction {
 	}
 	
 	/**
-	 * An euler step
+	 * An euler step (mostly here for comparison)
 	 * @param concentration
 	 * @param dt
 	 * @return

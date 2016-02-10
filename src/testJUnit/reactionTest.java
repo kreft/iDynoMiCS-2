@@ -14,10 +14,10 @@ public class reactionTest {
 	{
 		double c0 = 2.0;
 		double t  = 20.0;
-		double tstep = 5.0;
+		double tstep = 10.0;
 		System.out.println("Michaelis Menten: lambert W function, heun's,"
 				+ " euler's method");
-		MichaelisMenten reaction = new MichaelisMenten(0.02, 0.01);
+		MichaelisMenten reaction = new MichaelisMenten(0.02, 0.05);
 		System.out.println(reaction.conc(c0, t));
 		System.out.println(reaction.ode(c0, ode.HEUN, t, tstep));
 		System.out.println(reaction.ode(c0, ode.EULER, t, tstep));
