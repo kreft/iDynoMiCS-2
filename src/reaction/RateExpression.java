@@ -10,24 +10,45 @@ import expression.Variable;
 
 public class RateExpression {
 	
+	/**
+	 * Input expression
+	 */
 	public String expression;
 	
+	/**
+	 * Recognized operators
+	 */
 	public String[] operators = new String[]{"^", "SQRT", "*", "/", "+", "-"};
 	
+	/**
+	 * Subexpression (braces)
+	 */
 	public TreeMap<Integer, RateExpression> _subExpressions = new TreeMap<Integer, RateExpression>();
 	
+	/**
+	 * Todo: constant
+	 */
 	public HashMap<String, Double> _terms;
 	
+	/**
+	 * Eval tree
+	 */
 	public TreeMap<Integer, String> _eval =  new TreeMap<Integer, String>();
 		
 	public RateExpression(String expression, HashMap<String, Double> terms)
 	{
+		/**
+		 * initial construction
+		 */
 		expression = expression.replaceAll("\\s+","");
 		this.expression = expression;
 		if (terms == null)
 			terms = new HashMap<String, Double>();
 		_terms = terms;
 			
+		/**
+		 * obtain brace location and count depth
+		 */
 		TreeMap<Integer,Integer> brackets = new TreeMap<Integer,Integer>();
 		
 		int c = -1;
@@ -56,10 +77,17 @@ public class RateExpression {
 		int o = 0;
 		for(Integer key : brackets.keySet())
 		{
+			/**
+			 * what is handled at this level
+			 */
 			if (c == 0)
 			{
-				setEq(String.valueOf(expression.subSequence(o, key)));
+				setEq(o,String.valueOf(expression.subSequence(o, key)));
 			}
+			
+			/**
+			 * what is hadled at deeper level (braces)
+			 */
 			if(brackets.get(key) != null)
 			{
 				c += brackets.get(key);
@@ -74,28 +102,52 @@ public class RateExpression {
 		}
 	}
 	
-	public void setEq(String equation)
+	/**
+	 * load brace free sub sequence into eval tree, start represents starts 
+	 * location of substring in overall expressiong
+	 * @param equation
+	 */
+	public void setEq(int start, String equation)
 	{
-		
+		/**
+		 * locate operators
+		 */
 		TreeMap<Integer,String> operLoc = new TreeMap<Integer,String>();
 		for(String s : operators)
 		{
-			operLoc.putAll(identifyStrLoc(equation,s));
+			operLoc.putAll(identifyStrLoc(equation,s,start));
 		}
 		
+		/**
+		 * Load non-operator entries into eval tree
+		 */
 		int o = 0;
 		for(Integer key : operLoc.keySet())
 		{
-			if(key != 0)
-				_eval.put(o,equation.substring(o,key));
-			o = key+1;
+			//NOTE subtract start for correct identification in substring
+			if(key-start != 0)
+				_eval.put(o+start,equation.substring(o,key-start));
+			o = key-start+1;
 		}
+		
+		/**
+		 * also add the last one
+		 */
 		if(o != 0)
-			_eval.put(o,equation.substring(o,equation.length()));
+			_eval.put(o+start,equation.substring(o,equation.length()));
+		
 		_eval.putAll(operLoc);
 	}
 	
-	public TreeMap<Integer,String> identifyStrLoc(String sequence, String str)
+	/**
+	 * helper method that returns TreeMap that identifies all occurrences of str
+	 * in sequence
+	 * @param sequence
+	 * @param str
+	 * @param start
+	 * @return
+	 */
+	public TreeMap<Integer,String> identifyStrLoc(String sequence, String str, int start)
 	{
 		TreeMap<Integer,String> seqMap = new TreeMap<Integer,String>();
 		int c = -1;
@@ -104,12 +156,18 @@ public class RateExpression {
 			int temp = sequence.indexOf(str, c+1);
 			if (temp == -1)
 				break;
-			seqMap.put(temp, str);
+			seqMap.put(start+temp, str);
 			c = temp;
 		}
 		return seqMap;
 	}
 	
+	/**
+	 * Store substring (braces) in _subExpressions map, also add it to eval,
+	 * prepend $ for later identification
+	 * @param start
+	 * @param end
+	 */
 	public void setSub(int start, int end)
 	{
 		_subExpressions.put(start, new RateExpression( 
@@ -122,11 +180,18 @@ public class RateExpression {
 		this._terms.put(key, value);
 	}
 	
+	/**
+	 * Write full equation from tree on screen
+	 */
 	public void printEval()
 	{
 		System.out.println(stringEval());
 	}
 	
+	/**
+	 * Return full equation from tree as string (we could do a similar thing for
+	 * tex
+	 */
 	public String stringEval()
 	{
 		String str = "";
@@ -145,6 +210,11 @@ public class RateExpression {
 		return str;
 	}
 	
+	/**
+	 * build a root expression Component
+	 * TODO: work in progress
+	 * @return
+	 */
 	public Component build()
 	{
 		TreeMap<Integer, Component> _calc = new TreeMap<Integer, Component>();
@@ -159,7 +229,11 @@ public class RateExpression {
 			
 	
 			
-			// constants
+			/**
+			 * constants TODO: we could build them up from "_terms" as well
+			 * yet any directly written doubles should also be interpreted as
+			 * constant
+			 */
 			if(t.contains("."))
 				_calc.put(i, new Constant(t, Double.parseDouble(t)));
 			
@@ -190,6 +264,13 @@ public class RateExpression {
 		return new Constant("",5.0);
 	}
 	
+	/**
+	 * Return Component based on operator
+	 * @param operator
+	 * @param prev
+	 * @param next
+	 * @return
+	 */
 	public Component constructComponent(String operator, int prev, int next)
 	{
 		return new Constant("",5.0);
