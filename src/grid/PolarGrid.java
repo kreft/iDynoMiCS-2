@@ -17,18 +17,8 @@ public abstract class PolarGrid extends SpatialGrid
 	 * be negative.
 	 */
 	protected double _rMin = 0.0;
-	/**
-	 * A helper vector for finding the location of the origin of a voxel.
-	 */
-	protected final double[] VOXEL_ORIGIN_HELPER = Vector.vector(3, 0.0);
-	/**
-	 * A helper vector for finding the location of the centre of a voxel.
-	 */
-	protected final double[] VOXEL_CENTRE_HELPER = Vector.vector(3, 0.5);
-	/**
-	 * A helper vector for finding the 'upper most' location of a voxel.
-	 */
-	protected final double[] VOXEL_All_ONE_HELPER = Vector.vector(3, 1.0);
+	
+	protected final static double N_ZERO_FACTOR = 2 / Math.PI;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -47,43 +37,11 @@ public abstract class PolarGrid extends SpatialGrid
 	{
 		/* Polar grids always start with an R dimension. */
 		this._dimName[0] = DimName.R;
+		
+		this._currentNVoxel = new int[3];
 	}
 	
-	@Override
-	public int[] getCoords(double[] loc)
-	{
-		return getCoords(loc, null);
-	}
-	
-	/**
-	 * \brief Transforms a given location into array-coordinates and 
-	 * computes sub-coordinates inside the grid element if inside != null. 
-	 * 
-	 * @param loc - a location in simulated space.
-	 * @param inside - array to write sub-coordinates into, can be null.
-	 * @return - the array coordinates corresponding to location loc.
-	 */
-	public int[] getCoords(double[] loc, double[] inside)
-	{
-		// TODO inside doesn't seem to be used.
-		// TODO this gives loc in cylindrical coordinates, shouldn't it be in
-		// Cartesian?
-		int[] coord = new int[3];
-		ResCalc rC;
-		for ( int dim = 0; dim < 3; dim++ )
-		{
-			rC = this.getResolutionCalculator(coord, dim);
-			coord[dim] = rC.getVoxelIndex(loc[dim]);
-			if ( inside != null )
-			{
-				inside[dim] = loc[dim] - 
-								rC.getCumulativeResolution(coord[dim] - 1);
-			}
-		}
-		return coord;
-	}
-	
-	/**
+	/** TODO
 	 * 
 	 * @param coord
 	 * @param dim
@@ -98,7 +56,7 @@ public abstract class PolarGrid extends SpatialGrid
 		return false;
 	}
 	
-	/**
+	/** TODO
 	 * 
 	 * @param coord
 	 * @param dim
@@ -148,19 +106,6 @@ public abstract class PolarGrid extends SpatialGrid
 		return true;
 	}
 	
-	/**
-	 * \brief Move the neighbor iterator to the current coordinate, 
-	 * and make the index at <b>dim</b> one less.
-	 * 
-	 * @return {@code boolean} reporting whether this is valid.
-	 */
-	protected boolean moveNbhToMinus(int dim)
-	{
-		Vector.copyTo(this._currentNeighbor, this._currentCoord);
-		this._currentNeighbor[dim]--;
-		return (this._currentNeighbor[dim] >= 0) || (this._dimBoundaries[dim][0] != null);
-	}
-	
 	protected boolean increaseNbhByOnePolar(int dim)
 	{		
 		if (dim == 0 || (dim == 2 && this._dimName[2] == DimName.Z))
@@ -205,54 +150,20 @@ public abstract class PolarGrid extends SpatialGrid
 		return 1;
 	}
 	
-	/**
-	 * \brief Converts a coordinate in the grid's array to a location in simulated 
-	 * space. 
-	 * 
-	 * 'Subcoordinates' can be transformed using the 'inside' array.
-	 * For example type getLocation(coord, new double[]{0.5,0.5,0.5})
-	 * to get the center point of the grid cell defined by 'coord'.
-	 * 
-	 * @param coord - a coordinate in the grid's array.
-	 * @param inside - relative position inside the grid cell.
-	 * @return - the location in simulation space.
-	 */
-	public double[] getLocation(int[] coord, double[] inside)
-	{
-		// TODO this gives the location in cylindrical dimensions... convert to
-		// Cartesian?
-		double[] loc = Vector.copy(inside);
-		ResCalc rC;
-		for ( int dim = 0; dim < 3; dim++ )
-		{
-			rC = this.getResolutionCalculator(coord, dim);
-			loc[dim] *= rC.getResolution(coord[dim]);
-			loc[dim] += rC.getCumulativeResolution(coord[dim] - 1);
-		}
-		return loc;
+	@Override
+	public int[] resetIterator(){
+		this._currentCoord = super.resetIterator();
+		/* keep the current nVoxel pointer up to date for polar grids */
+		this.updateCurrentNVoxel();		
+		return this._currentCoord;
 	}
 	
 	@Override
-	public double[] getVoxelOrigin(int[] coord)
-	{
-		return getLocation(coord, VOXEL_ORIGIN_HELPER);
-	}
-	
-	@Override
-	public double[] getVoxelCentre(int[] coord)
-	{
-		return getLocation(coord, VOXEL_CENTRE_HELPER);
-	}
-	
-	/**
-	 * \brief Get the corner farthest from the origin of the voxel specified. 
-	 * 
-	 * @param coord
-	 * @return
-	 */
-	protected double[] getVoxelUpperCorner(int[] coord)
-	{
-		return getLocation(coord, VOXEL_All_ONE_HELPER);
+	public int[] iteratorNext(){
+		this._currentCoord = super.iteratorNext();
+		/* keep the current nVoxel pointer up to date for polar grids */
+		this.updateCurrentNVoxel();		
+		return this._currentCoord;
 	}
 	
 	/**************************************************************************/
@@ -271,26 +182,11 @@ public abstract class PolarGrid extends SpatialGrid
 		return 2 * radiusIndex + 1;
 	}
 	
-	/**
-	 * \brief Computes a factor scaling a polar dimension to have more voxels
-	 * with increasing totalLength.
-	 *  
-	 * @param n - total size in theta or phi direction (in radian)
-	 * @return - A factor scaling a polar dimension to have more voxels
-	 * with increasing totalLength.
-	 */
-	public static double scaleForLength()
-	{
-		return 2 / Math.PI;
+	protected static double getTargetResolution(int shell, double res){			
+		return res / (N_ZERO_FACTOR * scaleForShell(shell));
 	}
 	
-	protected static double getTargetResolution(
-											int shell, double res, double n_0){			
-		return res / (n_0 * scaleForShell(shell));
-	}
-	
-	protected static double getTargetResolution(
-								  int shell, int ring, double res, double n_0){
+	protected static double getTargetResolution(int shell, int ring, double res){
 		/*
 		 * Scale phi to peak at π / 2 instead of s(shell), where it 
 		 * would peak for a resolution of one. This way we can use it as
@@ -298,7 +194,7 @@ public abstract class PolarGrid extends SpatialGrid
 		 * naturally). Actually we let it peak at s(shell) - 0.5 to keep
 		 * things symmetric around the equator.
 		 */
-		double ring_scale = 0.5 * Math.PI / (scaleForShell(shell)-0.5);
+		double ring_scale = 0.5 * Math.PI / (scaleForShell(shell) - 0.5);
 		
 		/* Compute the sine of the scaled phi-coordinate */
 		double length = Math.sin(ring * ring_scale);
@@ -310,8 +206,10 @@ public abstract class PolarGrid extends SpatialGrid
 		 * sin(π) = N₀
 		 * This is the number of voxels in theta for resolution one.
 		 */
-		length = n_0 + n_0 * length * (scaleForShell(shell) - 1);
+		length = N_ZERO_FACTOR 
+						+ N_ZERO_FACTOR * length * (scaleForShell(shell) - 1);
 		
+		/* Scale the resolution to account for the additional voxels */
 		return res / length;
 	}
 	

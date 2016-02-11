@@ -28,15 +28,16 @@ import com.sun.j3d.utils.geometry.Sphere;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 import com.sun.j3d.utils.universe.Viewer;
 
-import grid.PolarGrid;
+import grid.CylindricalGrid;
+import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SphericalGrid;
 import linearAlgebra.Vector;
 import test.PolarGridTest;
 
-public class PolarGridPlot3D {
+public class SpatialGridPlot3D {
 	BranchGroup group, polyGroup;
-	PolarGrid grid;
+	SpatialGrid grid;
 	SimpleUniverse universe;
 	HashMap<Integer,Integer> coord2idx; 
 	boolean print_grid_lines, plot_locations;
@@ -45,7 +46,7 @@ public class PolarGridPlot3D {
 			BLUE=new Color3f(0f, 0f, 1f), 
 			GREEN=new Color3f(0f, 1f, 0f);
 	
-	public PolarGridPlot3D(PolarGrid grid, int plot_location, boolean print_grid){
+	public SpatialGridPlot3D(SpatialGrid grid, int plot_location, boolean print_grid){
 		print_grid_lines = print_grid;
 		universe = new SimpleUniverse();
 		group = plot_location > 0 ? new BranchGroup(): null;
@@ -112,15 +113,13 @@ public class PolarGridPlot3D {
 	
 	
 	public void runIterator(){
-//    	int[] current;
     	long t;
         for ( grid.resetIterator(); grid.isIteratorValid();
         		grid.iteratorNext())
         {
+    		
         	t=System.currentTimeMillis();
-//        	int[] state = linearAlgebra.Vector.copy(current);
         	setColorAll(false);
-//        	grid.setCurrent(state);
         	try {
         		Thread.sleep(Math.max(0, 1000-System.currentTimeMillis()+t));
         	} catch (InterruptedException e) {
@@ -132,13 +131,10 @@ public class PolarGridPlot3D {
     }
 	
 	public void startIterator(){
-//		int[] current;
         for ( grid.resetIterator(); grid.isIteratorValid();
         		grid.iteratorNext())
         {
-//        	int[] state = linearAlgebra.Vector.copy(current);
         	setColorAll(false);
-//        	grid.setCurrent(state);
         	universe.getViewer().getView().repaint();
         	System.out.println("press enter to step iterator");
         	PolarGridTest.keyboard.nextLine();
@@ -150,8 +146,6 @@ public class PolarGridPlot3D {
 	public void plotCurrentConcentrations(){
 		int idx;
 		int [] current;
-//		double max_conc = grid.getMax(ArrayType.CONCN);
-//		System.out.println(max_conc);
         for ( current=grid.resetIterator(); grid.isIteratorValid();
         		current=grid.iteratorNext())
         {
@@ -270,8 +264,10 @@ public class PolarGridPlot3D {
 					(float)(p[0]*Math.sin(p[2])*Math.sin(p[1])),
 					(float)(p[0]*Math.cos(p[1])));
 		}
-		else vector = new Vector3f((float)(p[0]*Math.sin(p[1])), 
+		else if (grid instanceof CylindricalGrid)
+			vector = new Vector3f((float)(p[0]*Math.sin(p[1])), 
 				(float)(p[0]*Math.cos(p[1])), (float)(p[2]));
+		else vector = new Vector3f((float)p[0], (float)p[1], (float)p[2]);
 //		System.out.println(Arrays.toString(p)+"  "+vector);
 		transform.setTranslation(vector);
 		tg.setTransform(transform);
@@ -281,14 +277,17 @@ public class PolarGridPlot3D {
 	private double[] getCartLoc(int[] coord, double[] in){
 		in = grid.getLocation(Vector.copy(coord), in);
 		double[] p;
-		if (grid instanceof SphericalGrid){
+		if (grid instanceof SphericalGrid)
 			p = new double[]{
 					(float)(in[0]*Math.cos(in[2])*Math.sin(in[1])), 
 					(float)(in[0]*Math.sin(in[2])*Math.sin(in[1])),
 					(float)(in[0]*Math.cos(in[1]))};
-		}
-		else p = new double[]{(float)(in[0]*Math.sin(in[1])), 
-				(float)(in[0]*Math.cos(in[1])), (float)(in[2])};
+		else if (grid instanceof CylindricalGrid)
+			p = new double[]{(float)(in[0]*Math.sin(in[1])), 
+					(float)(in[0]*Math.cos(in[1])), (float)(in[2])};
+		else 
+			p = in;
+		
 		return p;
 	}
 	

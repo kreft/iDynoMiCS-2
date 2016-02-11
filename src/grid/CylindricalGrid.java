@@ -1,6 +1,7 @@
 package grid;
 
 import grid.ResolutionCalculator.ResCalc;
+import grid.ResolutionCalculator.ResCalcFactory;
 import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
@@ -59,7 +60,7 @@ public class CylindricalGrid extends PolarGrid
 	 * @param res -  Array of length 3 defining constant resolution
 	 *  in each dimension 
 	 */
-	public CylindricalGrid(double[] totalLength, double[] res)
+	public CylindricalGrid(ResCalc[][] resCalc)
 	{
 		/*
 		 * Set up members of super class.
@@ -68,45 +69,16 @@ public class CylindricalGrid extends PolarGrid
 		this._dimName[1] = DimName.THETA;
 		this._dimName[2] = DimName.Z;
 		
+		this._resCalc = resCalc;
+		
 		/* 
 		 * add cyclic boundaries to theta's max and min if we have a full circle
 		 */
-		if (totalLength[1] == 2 * Math.PI) {
+		if (getTotalLength(1) == 2 * Math.PI) {
 			_dimBoundaries[1][0] = new GridBoundary.Cyclic();
 			_dimBoundaries[1][1] = new GridBoundary.Cyclic();
 		}
 		
-		/*
-		 * Set up uniform resolution calculator array.
-		 */
-		ResolutionCalculator resolution = new ResolutionCalculator();
-		/*
-		 * Set up for the radial coordinate, and find out how many shells we
-		 * have.
-		 */
-		this._resCalc = new UniformResolution[3][];
-		this._resCalc[0] = new UniformResolution[1];
-		this._resCalc[0][0] = resolution.new UniformResolution();
-		this._resCalc[0][0].init(res[0], totalLength[0]);
-		int nr = this._resCalc[0][0].getNVoxel();
-		/*
-		 * Set up for the height coordinate {@code z}.
-		 */
-		this._resCalc[2] = new UniformResolution[1];
-		this._resCalc[2][0] = resolution.new UniformResolution();
-		this._resCalc[2][0].init(res[2], totalLength[2]);
-		/*
-		 * Set up for the azimuthal coordinate {@code θ (theta)}. The number of
-		 * voxels in theta depends on the shell (i.e. size of r).
-		 */
-		double n_0_theta = scaleForLength();
-		this._resCalc[1] = new UniformResolution[nr];
-		for ( int shell = 0; shell < nr; shell++ )
-		{
-			this._resCalc[1][shell] = resolution.new UniformResolution();
-			double targetRes = getTargetResolution(shell, res[1], n_0_theta);
-			this._resCalc[1][shell].init(targetRes, totalLength[1]);
-		}
 		resetIterator();
 		resetNbhIterator();
 	}
@@ -116,9 +88,14 @@ public class CylindricalGrid extends PolarGrid
 	 * @param res -  Array of length 3 defining constant resolution
 	 *  in each dimension 
 	 */
-	public CylindricalGrid(double[] totalLength, double res)
+	public CylindricalGrid(double[] totalLength, double resolution)
 	{
-		this(totalLength, Vector.vector(3, res));
+		this(ResCalcFactory.createUniformResCalcForCylinder(totalLength, resolution));
+	}
+
+	public CylindricalGrid()
+	{
+		this(new double[]{1.0, Math.PI / 2.0, 1.0}, 1.0);
 	}
 		
 	@Override
@@ -192,35 +169,35 @@ public class CylindricalGrid extends PolarGrid
 	}
 	
 	@Override
-	public int[] getNVoxel(int[] coords)
+	public int[] getNVoxel(int[] coords, int[] outNVoxel)
 	{
-		// TODO make this a permanent vector, rather than initialising anew
-		// each time it's called for.
+		if (outNVoxel == null)
+			outNVoxel = new int[3];
 		/*
 		 * resolution calculator in first dimension ({@code r})
 		 * should always be stored in resCalc[0][0] (no checking needed)
 		 */
 		ResCalc rC = getResolutionCalculator(coords, 0);
-		int ni = rC.getNVoxel();
+		outNVoxel[0] = rC.getNVoxel();
 		/*
 		 * check if the coordinate is valid for 2nd dimension 
 		 * ({@code theta})
 		 */
 		boolean is_inside_r = coords[0] >= 0 && coords[0] < rC.getNVoxel();
-		int nj;
 		if (is_inside_r){
 			rC = getResolutionCalculator(coords, 1);
-			nj = rC.getNVoxel();
+			outNVoxel[1] = rC.getNVoxel();
 		}
-		else nj = 0;
+		else outNVoxel[1] = 0;
 
 		/*
 		* resolution calculator in third dimension ({@code z})
 		* should always be stored in resCalc[2][0] (no checking needed)
 		*/
 		rC = getResolutionCalculator(coords, 2);
-		int nk = rC.getNVoxel();
-		return new int[]{ni, nj, nk};
+		outNVoxel[2] = rC.getNVoxel();
+		
+		return outNVoxel;
 	}
 	
 	protected double getTotalLength(int axis)

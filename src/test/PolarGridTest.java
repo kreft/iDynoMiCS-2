@@ -18,7 +18,9 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import boundary.Boundary;
+import boundary.BoundaryCyclic;
 import boundary.BoundaryFixed;
+import grid.CartesianGrid;
 import grid.CylindricalGrid;
 import grid.GridBoundary.ConstantDirichlet;
 import grid.PolarGrid;
@@ -32,7 +34,7 @@ import linearAlgebra.Vector;
 import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
 import shape.ShapeConventions.DimName;
-import test.plotting.PolarGridPlot3D;
+import test.plotting.SpatialGridPlot3D;
 
 public class PolarGridTest
 {
@@ -57,7 +59,7 @@ public class PolarGridTest
 //		CylindricalGrid grid = new CylindricalGrid(
 //				new double[]{3,360,1},new double[]{1,2,1});
 		
-//	    CartesianGrid gridp = new CartesianGrid(new int[]{100,100,4000},1);
+//	    CartesianGrid grid = new CartesianGrid(new double[]{2,2,2},1);
 		
 		Timer.setTimeStepSize(1.0);
 		Timer.setEndOfSimulation(10.0);
@@ -93,10 +95,10 @@ public class PolarGridTest
 //		 * locations: 	0: no location,1: origin 	  2: centre
 //		 * do | do not plot grid cell polygons
 //		 */
-//		PolarGridPlot3D plot = createGraphics(grid,2,2,false);
+//		SpatialGridPlot3D plot = createGraphics(grid,2,2,false);
 //		plot.plotCurrentConcentrations();
-		plotVoxelVolumes(grid);
-//		oneDimRiseFallComp();
+//		plotVoxelVolumes(grid);
+		oneDimRiseFallComp();
 
 		keyboard.close();
 	}
@@ -143,37 +145,32 @@ public class PolarGridTest
 	public static void testNbhIterator(SpatialGrid grid)
 	{
 		int[] current;
-		// FIXME Why do we have a nested for-loop for the current iterator???
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 				current = grid.iteratorNext())
 		{
 			System.out.println("grid size: "
-					+Arrays.toString(grid.getNVoxel(current)));
+					+Arrays.toString(grid.getCurrentNVoxel()));
 			int[] nbh;
-			for ( current = grid.resetIterator(); grid.isIteratorValid();
-					current = grid.iteratorNext())
+			System.out.println("current: "+Arrays.toString(current));
+			for ( nbh = grid.resetNbhIterator(); 
+					grid.isNbhIteratorValid(); 
+					nbh = grid.nbhIteratorNext() )
 			{
-				System.out.println("current: "+Arrays.toString(current));
-				for ( nbh = grid.resetNbhIterator(); 
-						grid.isNbhIteratorValid(); 
-						nbh = grid.nbhIteratorNext() )
-				{
-					System.out.print("\tnbh: "+Arrays.toString(nbh));
-					System.out.println(
-							",\tshared area: "+grid.getNbhSharedSurfaceArea());
-				}
+				System.out.print("\tnbh: "+Arrays.toString(nbh));
+				System.out.println(
+						",\tshared area: "+grid.getNbhSharedSurfaceArea());
 			}
 			System.out.println();
 		}
 	}
 	
-	public static PolarGridPlot3D createGraphics(PolarGrid grid, int iterator_step,
+	public static SpatialGridPlot3D createGraphics(SpatialGrid grid, int iterator_step,
 			int location, boolean plot_grid)
 	{
 		/*
 		 * PolarGrid only atm because of getLocation(..) method
 		 */
-		PolarGridPlot3D plot = new PolarGridPlot3D(grid,location,plot_grid);
+		SpatialGridPlot3D plot = new SpatialGridPlot3D(grid,location,plot_grid);
 		if (iterator_step>0){
 			System.out.println("press enter to start iterator");
 			keyboard.nextLine();
@@ -238,7 +235,7 @@ public class PolarGridTest
 		System.out.println("\tNo agents or reactions");
 		System.out.println("Concentration should tend towards linear");
 		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "disk");
+		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall", "circle");
 		aCompartment.setSideLengths(new double[] {3.0, 360.0, 10.0});
 		/*
 		 * Add the solutes and boundary conditions.
@@ -261,42 +258,11 @@ public class PolarGridTest
 		circ.setGridMethod("rise", riseCirc);
 		aCompartment.addBoundary(DimName.R, 1, circ);
 		
-		
-		Boundary xmin = new BoundaryFixed();
-		ConstantDirichlet fallXmin = new ConstantDirichlet();
-		fallXmin.setValue(1.0);
-		xmin.setGridMethod("fall", fallXmin);
-		aCompartment.addBoundary(DimName.X, 0, xmin);
-		
-		Boundary xmax = new BoundaryFixed();
-		ConstantDirichlet riseXmax = new ConstantDirichlet();
-		riseXmax.setValue(1.0);
-		xmax.setGridMethod("rise", riseXmax);
-		aCompartment.addBoundary(DimName.X, 1, xmax);
-		
-		Boundary ymin = new BoundaryFixed();
-		ConstantDirichlet fallYmin = new ConstantDirichlet();
-		fallYmin.setValue(1.0);
-		ymin.setGridMethod("fall", fallYmin);
-		aCompartment.addBoundary(DimName.Y, 0, ymin);
-		
-		Boundary ymax = new BoundaryFixed();
-		ConstantDirichlet riseYmax = new ConstantDirichlet();
-		riseYmax.setValue(1.0);
-		ymax.setGridMethod("rise", riseYmax);
-		aCompartment.addBoundary(DimName.Y, 1, ymax);
-		
-		Boundary zmin = new BoundaryFixed();
-		ConstantDirichlet fallZmin = new ConstantDirichlet();
-		fallZmin.setValue(1.0);
-		zmin.setGridMethod("fall", fallZmin);
-		aCompartment.addBoundary(DimName.Z, 0, zmin);
-		
-		Boundary zmax = new BoundaryFixed();
-		ConstantDirichlet riseZmax = new ConstantDirichlet();
-		riseZmax.setValue(1.0);
-		zmax.setGridMethod("rise", riseZmax);
-		aCompartment.addBoundary(DimName.Z, 1, zmax);
+//		Boundary theta_min = new BoundaryCyclic();
+//		aCompartment.addBoundary(DimName.THETA, 0, theta_min);
+//		
+//		Boundary theta_max = new BoundaryCyclic();
+//		aCompartment.addBoundary(DimName.THETA, 1, theta_max);
 		
 		//TODO diffusivities
 		aCompartment.init();
@@ -317,7 +283,7 @@ public class PolarGridTest
 		
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
 		PolarGrid riseGrid = (PolarGrid) aCompartment.getSolute("fall");
-		PolarGridPlot3D plot = createGraphics(riseGrid,0,0,false);
+		SpatialGridPlot3D plot = createGraphics(riseGrid,0,0,false);
 		plot.plotCurrentConcentrations();
 		while ( Timer.isRunning() )
 		{

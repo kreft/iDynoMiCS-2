@@ -1,7 +1,9 @@
 package grid;
 
+import java.util.Arrays;
+
 import grid.ResolutionCalculator.ResCalc;
-import grid.ResolutionCalculator.UniformResolution;
+import grid.ResolutionCalculator.ResCalcFactory;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
@@ -67,71 +69,34 @@ public class SphericalGrid extends PolarGrid
 	 * @param totalLength
 	 * @param res
 	 */
-	public SphericalGrid(double[] totalLength, double[] res)
+	public SphericalGrid(ResCalc[][][] resCalc)
 	{
 		super();
 		this._dimName[1] = DimName.PHI;
 		this._dimName[2] = DimName.THETA;
 		
+		this._resCalc = resCalc;
+		
 		/* add cyclic boundaries to phi's max and min if we have a half circle*/
-		if (totalLength[1] == Math.PI) {
+		if (getTotalLength(1) == Math.PI) {
 			_dimBoundaries[1][0] = new GridBoundary.Cyclic();
 			_dimBoundaries[1][1] = new GridBoundary.Cyclic();
 		}
 		/* 
 		 * add cyclic boundaries to theta's max and min if we have a full circle
 		 */
-		if (totalLength[2] == 2 * Math.PI) {
+		if (getTotalLength(2) == 2 * Math.PI) {
 			_dimBoundaries[2][0] = new GridBoundary.Cyclic();
 			_dimBoundaries[2][1] = new GridBoundary.Cyclic();
 		}
 		
-		/*
-		 * Set up uniform resolution calculator array
-		 */
-		ResolutionCalculator resolution = new ResolutionCalculator();
-		this._resCalc = new UniformResolution[3][][];
-		/*
-		 * Set up for the radial coordinate, and find out how many shells we
-		 * have.
-		 */
-		this._resCalc[0] = new UniformResolution[1][1];
-		this._resCalc[0][0][0] = resolution.new UniformResolution();
-		this._resCalc[0][0][0].init(res[0], totalLength[0]);
-		int numShells = _resCalc[0][0][0].getNVoxel();
-		/*
-		 * For each radial shell we have a known number of voxels in phi,
-		 * but the number of voxels in theta varies.
-		 */
-		double n_0_theta = scaleForLength();
-		double n_0_phi = scaleForLength();
-		
-		this._resCalc[1] = new UniformResolution[numShells][1];
-		this._resCalc[2] = new UniformResolution[numShells][];
-		for ( int shell = 0; shell < numShells; ++shell )
-		{
-			/* Set up for theta. */
-			this._resCalc[1][shell][0] = resolution.new UniformResolution();
-			double tRes = getTargetResolution(shell, res[1], n_0_phi);
-			this._resCalc[1][shell][0].init(tRes, totalLength[1]);
-			
-			/* Determine how many for phi, and set these up. */
-			int numRings = this._resCalc[1][shell][0].getNVoxel();
-			this._resCalc[2][shell] = new UniformResolution[numRings];
-			for ( int ring = 0; ring < numRings; ++ring )
-			{
-				tRes = getTargetResolution(shell, ring, res[2], n_0_theta);		
-				this._resCalc[2][shell][ring] = resolution.new UniformResolution();
-				this._resCalc[2][shell][ring].init(tRes, totalLength[2]);
-			}
-		}
 		resetIterator();
 		resetNbhIterator();
 	}
 	
-	public SphericalGrid(double[] totalSize, double res)
+	public SphericalGrid(double[] totalLength, double res)
 	{
-		this(totalSize, Vector.vector(3, res));
+		this(ResCalcFactory.createUniformResCalcForSphere(totalLength, res));
 	}
 	
 	@Override
@@ -199,25 +164,26 @@ public class SphericalGrid extends PolarGrid
 	}
 	
 	@Override
-	public int[] getNVoxel(int[] coords)
+	public int[] getNVoxel(int[] coords, int[] outNVoxel)
 	{
-		// TODO make this a permanent vector, rather than initialising anew
-		// each time it's called for.
+		if (outNVoxel == null)
+			outNVoxel = new int[3];
 		/*
 		 * resolution calculator in first dimension ({@code r})
 		 * should always be stored in resCalc[0][0] (no checking needed)
 		 */
 		ResCalc rC = getResolutionCalculator(coords, 0);
-		int ni = rC.getNVoxel();
+		outNVoxel[0] = rC.getNVoxel();
 		/*
 		 * check if the coordinate is valid for 2nd dimension ({@code phi})
 		 */
 		boolean is_inside_r = coords[0] >= 0 && coords[0] < rC.getNVoxel();
-		int nj = 0;
 		if (is_inside_r){
 			rC = getResolutionCalculator(coords, 1);
-			nj =  rC.getNVoxel();
+			outNVoxel[1] =  rC.getNVoxel();
 		}
+		else outNVoxel[1] = 0;
+		
 		/*
 		* check if the coordinate is valid for 3rd dimension ({@code theta})
 		*/
@@ -226,9 +192,11 @@ public class SphericalGrid extends PolarGrid
 		int nk = 0;
 		if (is_inside_r && is_inside_phi){
 			rC = getResolutionCalculator(coords, 2);
-			nk = rC.getNVoxel();
+			outNVoxel[2] = rC.getNVoxel();
 		}
-		return new int[]{ni, nj, nk};
+		else outNVoxel[2] = 0;
+		
+		return outNVoxel;
 	}
 	
 	@Override
@@ -239,7 +207,7 @@ public class SphericalGrid extends PolarGrid
 			/* r */
 			case 0: return this._resCalc[0][0][0];
 			/* phi */
-			case 1: return this._resCalc[1][coord[0]][0];
+			case 1: return this._resCalc[1][0][coord[0]];
 			/* theta */
 			case 2: return this._resCalc[2][coord[0]][coord[1]];
 			// TODO throw an exception?

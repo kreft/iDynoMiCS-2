@@ -65,7 +65,7 @@ public final class PolarArray
 		double[][][] a = new double[nR][][];
 		for ( int r = 0; r < nR; r++ )
 		{
-			nPhi = resCalc[1][r][0].getNVoxel();
+			nPhi = resCalc[1][0][r].getNVoxel();
 			a[r] = new double[nPhi][];
 			for ( int p = 0; p < nPhi; p++ ){
 				a[r][p] = Vector.vector(resCalc[2][r][p].getNVoxel(), val);
