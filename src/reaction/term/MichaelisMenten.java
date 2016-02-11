@@ -4,6 +4,7 @@ public class MichaelisMenten implements RateTerm {
 	
 	final double k;
 	private double Vm;
+	private String[] S;
 	
 	/**
 	 * Regular Michaelis Menten constructor
@@ -21,7 +22,7 @@ public class MichaelisMenten implements RateTerm {
 	 */
 	public double rateTerm(double[] concentration)
 	{
-		return - (Vm * RateTerm.noNeg(concentration[0]))/ (k + RateTerm.noNeg(concentration[0]));
+		return (Vm * RateTerm.noNeg(concentration[0]))/ (k + RateTerm.noNeg(concentration[0]));
 	}
 	
 	/**

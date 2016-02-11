@@ -3,6 +3,7 @@ package reaction.term;
 public class Combined implements RateTerm{
 	
 	final RateTerm[] _terms;
+	private String[] S;
 	
 	public Combined(RateTerm[] terms)
 	{

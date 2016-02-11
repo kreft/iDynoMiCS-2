@@ -3,17 +3,16 @@ package reaction.term;
 public class Monod implements RateTerm{
 
 	final double k;
-	private double muMax;
+	private String[] S;
 	
 	/**
 	 * Monod constructor
 	 * @param muMax
 	 * @param k
 	 */
-	public Monod(double muMax, double k)
+	public Monod(double k)
 	{
 		this.k = k;
-		this.muMax = muMax;
 	}
 
 	/**
@@ -21,7 +20,7 @@ public class Monod implements RateTerm{
 	 */
 	public double rateTerm(double[] concentration)
 	{
-		return - (muMax * RateTerm.noNeg(concentration[0]))/ (k + RateTerm.noNeg(concentration[0]));
+		return RateTerm.noNeg(concentration[0]) / (k + RateTerm.noNeg(concentration[0]));
 	}
 	
 	public double direct(double concentration, double dt) {

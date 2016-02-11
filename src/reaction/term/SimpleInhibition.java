@@ -3,6 +3,7 @@ package reaction.term;
 public class SimpleInhibition implements RateTerm {
 	
 	private double k;
+	private String[] S;
 
 	public SimpleInhibition(double k)
 	{
@@ -13,7 +14,7 @@ public class SimpleInhibition implements RateTerm {
 	 */
 	public double rateTerm(double[] concentration)
 	{
-		return -k / (k + RateTerm.noNeg(concentration[0]));
+		return k / (k + RateTerm.noNeg(concentration[0]));
 	}
 	public double direct(double concentration, double dt) {
 		System.out.println("direct method not available for inhibition term");

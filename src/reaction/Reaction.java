@@ -1,30 +1,51 @@
 package reaction;
 
+import java.util.HashMap;
+
 import linearAlgebra.Vector;
 import reaction.term.RateTerm;
-import reaction.term.RateTerm.*;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class Reaction {
 
 	public static enum ode {
 		EULER,
 		HEUN
 	}
+	
+	protected HashMap<String,Double> _stoichiometry = new HashMap<String,Double>();
 
-	protected double[] _stoichiometry;
+	protected double[] stoichiometry;
 	
 	protected RateTerm _rate;
 	
-	public Reaction(double[] stoichiometry, RateTerm rate)
+	public Reaction(double[] stoichiometry, String[] compounds, RateTerm rate)
 	{
-		this._stoichiometry = stoichiometry;
+		this.stoichiometry = stoichiometry;
 		this._rate = rate;
+		for(int i = 0; i < stoichiometry.length; i++)
+			_stoichiometry.put(compounds[i], stoichiometry[i]);
 	}
 	
-	public Reaction(double stoichiometry, RateTerm rate)
+	public Reaction(double stoichiometry, String compound, RateTerm rate)
 	{
-		this._stoichiometry = new double[]{stoichiometry};
-		this._rate = rate;
+		this(new double[]{stoichiometry}, new String[]{compound}, rate);
+	}
+	
+	public String reaction()
+	{
+		String r = "";
+		for(String k : _stoichiometry.keySet())
+		{
+			if(_stoichiometry.get(k) != 0.0)
+				r = r + (_stoichiometry.get(k) > 0.0 ? "+" : "" ) + 
+					_stoichiometry.get(k) + " " + k + " ";
+		}
+		return r;
 	}
 	
 	public double[] rate(double[] concentrations)
@@ -32,7 +53,7 @@ public class Reaction {
 		double[] r = Vector.zerosDbl(concentrations.length);
 		for(int i = 0; i < r.length; i++)
 		{
-			r[i] -= _stoichiometry[i] * _rate.rateTerm(concentrations);
+			r[i] = stoichiometry[i] * _rate.rateTerm(concentrations);
 		}
 		return r;
 	}

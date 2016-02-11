@@ -3,6 +3,7 @@ package reaction.term;
 public class FirstOrder implements RateTerm{
 	
 	final double k;
+	private String[] S;
 	
 	public FirstOrder(double k)
 	{
@@ -11,7 +12,7 @@ public class FirstOrder implements RateTerm{
 
 	public double rateTerm(double[] concentration)
 	{
-		return -k*RateTerm.noNeg(concentration[0]);
+		return k*RateTerm.noNeg(concentration[0]);
 	}
 	
 	public double direct(double concentration, double dt)
