@@ -21,10 +21,11 @@ public class RateExpression {
 	/**
 	 * Subexpression (braces)
 	 */
-	private TreeMap<Integer, RateExpression> _subExpressions = new TreeMap<Integer, RateExpression>();
+	private TreeMap<Integer, RateExpression> _subExpressions = 
+			new TreeMap<Integer, RateExpression>();
 	
 	/**
-	 * Todo: constant
+	 * Todo: constants with name?
 	 */
 	public HashMap<String, Double> _terms;
 	
@@ -36,7 +37,8 @@ public class RateExpression {
 	/**
 	 * calc TreeMap
 	 */
-	private TreeMap<Integer, Component> _calc = new TreeMap<Integer, Component>();
+	private TreeMap<Integer, Component> _calc = 
+			new TreeMap<Integer, Component>();
 	
 	/**
 	 * The component object
@@ -98,9 +100,10 @@ public class RateExpression {
 			if (c == 0)
 			{
 				if(key > 0 )
-					setEq(o,String.valueOf(expression.subSequence(o, key)));
+					setEq(o,String.valueOf(expression.subSequence( o, key )));
 				else
-					setEq(o+1,String.valueOf(expression.subSequence(o+1, brackets.ceilingKey(key+1))));
+					setEq(o+1,String.valueOf(expression.subSequence( o+1, 
+							brackets.ceilingKey( key+1 ))));
 			}
 			
 			/**
@@ -109,6 +112,9 @@ public class RateExpression {
 			if(brackets.get(key) != null)
 			{
 				c += brackets.get(key);
+				/**
+				 * make sure not to reset o on a descent!
+				 */
 				if(c == 1 && brackets.get(key) != -1)
 					o = key;
 				if(c == 0)
@@ -137,7 +143,7 @@ public class RateExpression {
 			TreeMap<Integer,String> operLoc = new TreeMap<Integer,String>();
 			for(String s : operators)
 			{
-				operLoc.putAll(identifyStrLoc(equation,s,start));
+				operLoc.putAll( identifyStrLoc( equation, s, start ));
 			}
 			
 			/**
@@ -148,15 +154,15 @@ public class RateExpression {
 			{
 				//NOTE subtract start for correct identification in substring
 				if(key-start != 0)
-					_eval.put(o+start,equation.substring(o,key-start));
-				o = key-start+1;
+					_eval.put(o+start,equation.substring( o, key-start ));
+				o = key - start + 1;
 			}
 			
 			/**
 			 * also add the last one
 			 */
 			if(o != 0)
-				_eval.put(o+start,equation.substring(o,equation.length()));
+				_eval.put( o+start ,equation.substring( o, equation.length() ));
 			
 			_eval.putAll(operLoc);
 		}
@@ -170,13 +176,14 @@ public class RateExpression {
 	 * @param start
 	 * @return
 	 */
-	public TreeMap<Integer,String> identifyStrLoc(String sequence, String str, int start)
+	public TreeMap<Integer,String> identifyStrLoc(String sequence, String str, 
+			int start)
 	{
 		TreeMap<Integer,String> seqMap = new TreeMap<Integer,String>();
 		int c = -1;
 		while (true)
 		{
-			int temp = sequence.indexOf(str, c+1);
+			int temp = sequence.indexOf(str, c+1 );
 			if (temp == -1)
 				break;
 			seqMap.put(start+temp, str);
@@ -259,7 +266,8 @@ public class RateExpression {
 			// braces
 			if(t.contains("$"))
 			{
-				_calc.put(i, _subExpressions.get( Integer.valueOf(t.replaceAll("\\$", ""))).component);
+				_calc.put(i, _subExpressions.get( Integer.valueOf( t.replaceAll(
+						"\\$", "") ) ).component);
 			}
 			
 			/**
@@ -287,22 +295,24 @@ public class RateExpression {
 				t = _eval.get(i);
 				if(t.contains(operators[j]))
 				{
-					int min = (_calc.floorKey(i-1) != null ? _calc.floorKey(i-1) : -1);
-					int plu = (_calc.ceilingKey(i+1) != null ? _calc.ceilingKey(i+1) : -1);
-					_calc.put(i, constructComponent(operators[j],min,plu));
-					if(_calc.containsKey(min))
-						_calc.remove(min);
-					if(_calc.containsKey(plu))
-						_calc.remove(plu);
+					int min = (_calc.floorKey( i-1 ) != null ? 
+							_calc.floorKey( i-1 ) : -1);
+					int plu = (_calc.ceilingKey( i+1 ) != null ? 
+							_calc.ceilingKey( i+1 ) : -1);
+					_calc.put(i, constructComponent( operators[j], min, plu ));
+					if(_calc.containsKey( min ))
+						_calc.remove( min );
+					if(_calc.containsKey( plu ))
+						_calc.remove( plu );
 				}
 			}
 		}
-		
-		// WORK IN PROGRESS when all operations are implemented
-		if (_calc.keySet().isEmpty())
+
+		if (_calc.keySet().isEmpty() || _calc.size() > 1)
 		{
-			System.out.println("WARNING: unfinished expression root element!!!");
-			return new Constant("",1.0);
+			System.err.println("ERROR: unfinished or empty expression root "
+					+ "element!!!");
+			return new Constant("ERROR!!!!!",1.0);
 		} else
 			return _calc.get(_calc.firstKey());
 	}
@@ -325,7 +335,8 @@ public class RateExpression {
 				_calc.get(next)) : new Multiplication( new Constant("-1",-1),
 				_calc.get(next)));
 		}
-		return new Constant("",5.0);
+		System.err.println("ERROR: could not construnct component!");
+		return new Constant("ERROR!!!!!",1.0);
 	}
 	
 }
