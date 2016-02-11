@@ -3,6 +3,7 @@ package reaction.term;
 public class ZeroOrder implements RateTerm {
 	
 	final double k;
+	private String[] S;
 	
 	public ZeroOrder(double k)
 	{
@@ -11,7 +12,7 @@ public class ZeroOrder implements RateTerm {
 
 	public double rateTerm(double[] concentration)
 	{
-		return -k;
+		return k;
 	}
 	
 	public double direct(double concentration, double dt)

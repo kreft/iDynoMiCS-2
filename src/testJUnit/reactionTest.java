@@ -19,23 +19,23 @@ public class reactionTest {
 	public void testReaction()
 	{
 		double c0 = 2.5;
-		double t  = 50.0;
-		double tstep = 1.0;
+		double t  = 15.0;
+		double tstep = 0.1;
 		System.out.println("Michaelis Menten: lambert W function, heun's,"
 				+ " euler's method");
-		Reaction m = new Reaction(-1.0, new MichaelisMenten(0.25, 0.05));
+		Reaction m = new Reaction(-1.0, " ",new MichaelisMenten(0.25, 0.05));
 		System.out.println(m.directMethod(c0, t));
 		System.out.println(m.ode(c0, Reaction.ode.HEUN, t, tstep));
 		System.out.println(m.ode(c0, Reaction.ode.EULER, t, tstep));
 		
 		System.out.println("\nFirst order: exact, heun's, euler's method");
-		Reaction f = new Reaction(-1.0, new FirstOrder(0.02));		
+		Reaction f = new Reaction(-1.0, " ",new FirstOrder(0.02));		
 		System.out.println(f.directMethod(c0, t));
 		System.out.println(f.ode(c0, Reaction.ode.HEUN, t, tstep));
 		System.out.println(f.ode(c0, Reaction.ode.EULER, t, tstep));
 		
 		System.out.println("\nZero order: exact, heun's, euler's method");
-		Reaction z = new Reaction(-1.0, new ZeroOrder(0.02));
+		Reaction z = new Reaction(-1.0, " ",new ZeroOrder(0.02));
 		System.out.println(z.directMethod(c0, t));
 		System.out.println(z.ode(c0, Reaction.ode.HEUN, t, tstep));
 		System.out.println(z.ode(c0, Reaction.ode.EULER, t, tstep));
@@ -51,13 +51,21 @@ public class reactionTest {
 				0.0,			//Oxygen
 				0.877192982,	//Nitrate
 				12.57861635}, 	//Dinitrogen
+				new String[]{"Anammox",
+				"Ammonium",
+				"Nitrite",
+				"Oxygen",
+				"Nitrate",
+				"Dinitrogen"},
 				new Combined( new RateTerm[]{ new Catalyst(), 
-				new Monod(0.08,0.07), new Monod(0.08,0.05), 
-				new SimpleInhibition(0.01)}));
+				new Monod(0.07), new Monod(0.05), 
+				new SimpleInhibition(0.01), new ZeroOrder(0.08)}));
 		
 		System.out.println(Vector.dblToString(AMXgrowth.ode(new double[]{
-				1.0,1.0,1.0,0.0,0.0,0.0}, Reaction.ode.EULER, t, tstep)));
+				1.0, 1.0, 1.0, 0.0, 0.0, 0.0}, Reaction.ode.EULER, t, tstep)));
 		System.out.println(Vector.dblToString(AMXgrowth.ode(new double[]{
-				1.0,1.0,1.0,1.0,0.0,0.0}, Reaction.ode.EULER, t, tstep)));
+				1.0, 1.0, 1.0, 1.0, 0.0, 0.0}, Reaction.ode.EULER, t, tstep)));
+		
+		System.out.println(AMXgrowth.reaction());
 	}
 }

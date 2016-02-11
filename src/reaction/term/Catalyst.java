@@ -1,6 +1,8 @@
 package reaction.term;
 
 public class Catalyst implements RateTerm {
+	
+	private String[] S;
 
 	public double rateTerm(double[] concentration) {
 		return concentration[0];
