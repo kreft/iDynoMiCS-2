@@ -1,7 +1,15 @@
 package testJUnit;
 
+import java.util.HashMap;
+
 import org.junit.Test;
 
+import expression.Addition;
+import expression.Component;
+import expression.ComponentSimple;
+import expression.Constant;
+import expression.Division;
+import expression.Variable;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import reaction.term.Catalyst;
@@ -67,5 +75,43 @@ public class reactionTest {
 				1.0, 1.0, 1.0, 1.0, 0.0, 0.0}, Reaction.ode.EULER, t, tstep)));
 		
 		System.out.println(AMXgrowth.reaction());
+	}
+	
+
+	
+	@Test
+	public void expres()
+	{
+		HashMap<String,Double> values = new HashMap<String,Double>();
+		values.put("S", 1.0);
+
+		Component s = new Variable("S");
+		Component k = new Constant("k",0.07);
+		Component d = new Addition(s,k);
+		Component f = new Division(s,d);
+		for( int i = 0; i < 10000; i++) {
+
+		System.out.println(f.getValue(values));
+		}
+	}
+	
+	@Test
+	public void expres3()
+	{
+		for( int i = 0; i < 10000; i++) {
+			System.out.println(1.0/(0.07+1));
+		}
+	}
+	
+	@Test
+	public void expres2()
+	{
+		for( int i = 0; i < 10000; i++) {
+			double[] t = new double[]{1.0};
+			Reaction AMXgrowth = new Reaction(new double[]{1.0, 0.07},new String[]{"Anammox",
+					"Ammonium"},new Combined( new RateTerm[]{ new Catalyst(), 
+					new Monod(0.07)}));
+			System.out.println(AMXgrowth.rate(t));
+		}
 	}
 }

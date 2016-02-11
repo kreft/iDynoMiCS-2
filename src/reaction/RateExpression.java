@@ -3,14 +3,16 @@ package reaction;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import reaction.term.RateTerm;
+import expression.Component;
+import expression.Constant;
+import expression.Variable;
 
 
 public class RateExpression {
 	
 	public String expression;
 	
-	public String[] operators = new String[]{"*", "/", "+", "-"};
+	public String[] operators = new String[]{"^", "SQRT", "*", "/", "+", "-"};
 	
 	public TreeMap<Integer, RateExpression> _subExpressions = new TreeMap<Integer, RateExpression>();
 	
@@ -134,26 +136,34 @@ public class RateExpression {
 			t = _eval.get(e);
 			if( t.contains("$"))
 			{
-				str = str + " ( " + _subExpressions.get( Integer.valueOf(
-						t.replaceAll("\\$", ""))).stringEval() + " ) ";
+				str = str + "( " + _subExpressions.get( Integer.valueOf(
+						t.replaceAll("\\$", ""))).stringEval() + ") ";
 			}
 			else
-				str = str + _eval.get(e);
+				str = str + _eval.get(e) + " ";
 		}
 		return str;
 	}
 	
-	public double eval()
+	public Component build()
 	{
-		TreeMap<Integer, Double> _calc = new TreeMap<Integer, Double>();
+		TreeMap<Integer, Component> _calc = new TreeMap<Integer, Component>();
 		String t;
 		for(Integer i : _eval.keySet())
 		{
 			t = _eval.get(i);
+			// braces
 			if(t.contains("$"))
 				_calc.put(i, _subExpressions.get( Integer.valueOf(
-						t.replaceAll("\\$", ""))).eval());
+						t.replaceAll("\\$", ""))).build());
 			
+	
+			
+			// constants
+			if(t.contains("."))
+				_calc.put(i, new Constant(t, Double.parseDouble(t)));
+			
+			// variables
 			boolean isOperator = false;
 			for(String op : operators)
 			{
@@ -162,17 +172,27 @@ public class RateExpression {
 			}
 			
 			if(! isOperator)
-				_calc.put(i, _terms.get(t));
+				_calc.put(i, new Variable(t));
 		}
 		
+		// Do the operator stuff here
 		for(int j = 0; j < operators.length; j++)
 		{
 			for(Integer i : _eval.keySet())
 			{
 				t = _eval.get(i);
+				if(t.contains(operators[j]))
+					constructComponent(operators[j],i-1,i+1);
 			}
 		}
 		
+		// WORK IN PROGRESS when all operations are implemented
+		return new Constant("",5.0);
+	}
+	
+	public Component constructComponent(String operator, int prev, int next)
+	{
+		return new Constant("",5.0);
 	}
 	
 }
