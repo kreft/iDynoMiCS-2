@@ -1,4 +1,4 @@
-package reaction.term;
+package zArchivedClasses;
 
 public class Combined implements RateTerm{
 	

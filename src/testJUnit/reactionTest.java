@@ -11,15 +11,15 @@ import expression.Constant;
 import expression.Division;
 import expression.Variable;
 import linearAlgebra.Vector;
-import reaction.Reaction;
-import reaction.term.Catalyst;
-import reaction.term.Combined;
-import reaction.term.FirstOrder;
-import reaction.term.MichaelisMenten;
-import reaction.term.Monod;
-import reaction.term.RateTerm;
-import reaction.term.SimpleInhibition;
-import reaction.term.ZeroOrder;
+import zArchivedClasses.Catalyst;
+import zArchivedClasses.Combined;
+import zArchivedClasses.FirstOrder;
+import zArchivedClasses.MichaelisMenten;
+import zArchivedClasses.Monod;
+import zArchivedClasses.RateTerm;
+import zArchivedClasses.Reaction;
+import zArchivedClasses.SimpleInhibition;
+import zArchivedClasses.ZeroOrder;
 
 public class reactionTest {
 

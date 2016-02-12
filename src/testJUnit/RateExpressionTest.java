@@ -4,17 +4,17 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import reaction.RateExpression;
+import expression.ExpressionBuilder;
 
 public class RateExpressionTest {
 
 	@Test
 	public void express()
 	{
-		RateExpression exp = new RateExpression("25.0 * 3.0", null);
-		RateExpression exp2 = new RateExpression("1.0 / (1.0 + 0.5)", null);
-		RateExpression exp3 = new RateExpression("(-22.0 * (1.0 * (1.0 * 5.5)) - 2.0) / (8.1 * 5.0)", null);
-		RateExpression exp4 = new RateExpression("mu * S / (K + S)", null);
+		ExpressionBuilder exp = new ExpressionBuilder("25.0 * 3.0", null);
+		ExpressionBuilder exp2 = new ExpressionBuilder("1.0 / SQRT(1.0 + 0.5)", null);
+		ExpressionBuilder exp3 = new ExpressionBuilder("(-22.0 * (1.0 * (1.0 * 5.5)) - 2.0) + 1.0 / (8.1 * 5.0)", null);
+		ExpressionBuilder exp4 = new ExpressionBuilder("mu * S / (K + S)", null);
 		
 		HashMap<String,Double> components = new HashMap<String,Double>();
 		components.put("mu", 0.1);
