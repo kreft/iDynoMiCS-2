@@ -128,6 +128,16 @@ public class ExpressionBuilder {
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @param expression
+	 */
+	public ExpressionBuilder(String expression)
+	{
+		this(expression, new HashMap<String, Double>());
+	}
+	
+	/**
 	 * load brace free sub sequence into eval tree, start represents starts 
 	 * location of substring in overall expressiong
 	 * @param equation
