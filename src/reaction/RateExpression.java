@@ -56,8 +56,6 @@ public class RateExpression {
 		 * initial construction
 		 */
 		expression = expression.replaceAll("\\s+","");
-		if(expression.startsWith("("))
-			expression = expression.substring(1, expression.length()-1);
 		this.expression = expression;
 		if (terms == null)
 			terms = new HashMap<String, Double>();
@@ -101,9 +99,6 @@ public class RateExpression {
 			{
 				if(key > 0 )
 					setEq(o,String.valueOf(expression.subSequence( o, key )));
-				else
-					setEq(o+1,String.valueOf(expression.subSequence( o+1, 
-							brackets.ceilingKey( key+1 ))));
 			}
 			
 			/**
@@ -200,12 +195,9 @@ public class RateExpression {
 	 */
 	public void setSub(int start, int end)
 	{
-		if(start+1 < end-1)
-		{
-			_subExpressions.put(start, new RateExpression( 
-					expression.substring(start+1, end-1), this._terms));
-			_eval.put(start, String.valueOf("$" + start));
-		}
+		_subExpressions.put(start, new RateExpression( 
+				expression.substring(start+1, end-1), this._terms));
+		_eval.put(start, String.valueOf("$" + start));
 	}
 	
 	public void addTerm(String key, double value)
