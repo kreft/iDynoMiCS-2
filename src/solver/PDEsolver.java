@@ -70,7 +70,12 @@ public abstract class PDEsolver extends Solver
 															double tFinal);
 	
 	/**
-	 * \brief TODO
+	 * \brief Add the Laplacian Operator to the LOPERATOR array of the given
+	 * grid.
+	 * 
+	 * <p>The Laplacian Operator is the divergence of the gradient of the
+	 * concentration, and is commonly denoted by ∆ (capital delta) or
+	 * nabla<sup>2</sup>.</p>
 	 * 
 	 * <p>Requires the arrays "domain", "diffusivity" and "concentration" to
 	 * be pre-filled in <b>solute</b>.</p>
@@ -79,7 +84,7 @@ public abstract class PDEsolver extends Solver
 	 * @param grid
 	 * @param destType
 	 */
-	protected void addLOperator(String varName, SpatialGrid grid, ArrayType destType)
+	protected void addLOperator(String varName, SpatialGrid grid)
 	{
 		/*
 		 * Coordinates of the current position. 
@@ -111,7 +116,7 @@ public abstract class PDEsolver extends Solver
 			 * Finally, apply this to the relevant array.
 			 */
 			//System.out.println(Arrays.toString(current)+": val = "+grid.getValueAtCurrent(ArrayType.CONCN)+", lop = "+lop); //bughunt
-			grid.addValueAt(destType, current, lop);
+			grid.addValueAt(ArrayType.LOPERATOR, current, lop);
 		}
 	}
 	

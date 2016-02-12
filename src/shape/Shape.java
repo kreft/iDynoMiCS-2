@@ -65,6 +65,14 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * <p>Note that all subclasses of Shape use this for initialisation,
+	 * except for Dimensionless.</p>
+	 * 
+	 * @param xmlNode
+	 */
 	public void init(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;

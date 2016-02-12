@@ -75,7 +75,7 @@ public class PDEexplicit extends PDEsolver
 			{
 				var = variables.get(varName);
 				var.newArray(ArrayType.LOPERATOR);
-				addLOperator(varName, var, ArrayType.LOPERATOR);
+				addLOperator(varName, var);
 				var.timesAll(ArrayType.LOPERATOR, dt);
 				var.addArrayToArray(ArrayType.CONCN, ArrayType.LOPERATOR);
 			}

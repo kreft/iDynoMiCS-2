@@ -59,19 +59,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * \brief Construct an {@code EnvironmentContainer} from the name of a
-	 * {@code Shape}.
-	 * 
-	 * <p>Used by test classes.</p>
-	 * 
-	 * @param shapeName {@code String} name of a shape.
-	 */
-	public EnvironmentContainer(String shapeName)
-	{
-		this((Shape) Shape.getNewInstance(shapeName));
-	}
-	
-	/**
 	 * \brief TODO
 	 * 
 	 * This should be done after the shape is set up and all solutes added.
