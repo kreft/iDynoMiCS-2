@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.w3c.dom.Node;
+
 import agent.Agent;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
@@ -72,6 +74,12 @@ public class SolveChemostat extends ProcessManager
 	public SolveChemostat()
 	{
 
+	}
+	
+	
+	public void init()
+	{
+		init((String[]) reg().getValue(this, "soluteNames"));
 	}
 
 	/**

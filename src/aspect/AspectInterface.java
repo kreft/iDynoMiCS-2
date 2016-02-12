@@ -53,6 +53,10 @@ public abstract interface AspectInterface {
 						aspectReg.add(s.getAttribute("name"), 
 								s.getAttribute("value"));
 	                	break;
+					case "String[]" : 
+						aspectReg.add(s.getAttribute("name"), 
+								s.getAttribute("value").split(","));
+	                	break;
 					case "secondary" : 
 						aspectReg.add(s.getAttribute("name"), 
 								Calculated.getNewInstance(s));
