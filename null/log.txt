@@ -1,4 +1,0 @@
-[2016.02.08 14:50:38] iDynoMiCS 2.0 alpha build 2016.02.04
-Output level is EXPRESSIVE, starting at [2016.02.08 14:50:38] 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-[2016.02.08 14:50:38] no className devined in: state
