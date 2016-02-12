@@ -4,6 +4,7 @@
 package shape;
 
 import grid.CartesianGrid;
+import grid.CylindricalGrid;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -124,8 +125,7 @@ public final class ShapeLibrary
 		@Override
 		public GridGetter gridGetter()
 		{
-			// TODO Make (2D?) getter for CylindricalGrid
-			return null;
+			return CylindricalGrid.standardGetter();
 		}
 		
 		public double[] getLocalPosition(double[] location)

@@ -224,17 +224,17 @@ The source code is publicly available to download from \url{https://github.com/r
 \linenumbers
 
 \section*{Introduction}
-Individual-based modelling of microbial communities is becoming ever more widespread as software is developed and computational power increases \cite{ferrer2008}.
+Individual-based modelling of microbial communities is becoming ever more widespread as software is developed and computational power increases \cite{Ferrer2008}.
 Drive for more generic software:
-checked by more people, so more reliable \cite{joppa2013};
+checked by more people, so more reliable \cite{Joppa2013};
 easier to compare different model formulations, i.e. structural sensitivity \cite{adamson2013}.
-Software based on \cite{bacsim, idyno1}.
+Software based on \cite{Kreft1998, Lardon2011}.
 
 % You may title this section "Methods" or "Models". 
 % "Models" is not a valid title for PLoS ONE authors. However, PLoS ONE
 % authors may use "Analysis" 
 \section*{Models}
-We follow the Overview, Design concepts and Details (ODD) protocol for description of iDynoMiCS 2 \cite{oddprotocol}. Further details are available in Supporting Information for some parts of the model description.
+The model description follows the ODD (Overview, Design concepts, Details) protocol \cite{Grimm2006, Grimm2010}. Further details are available in Supporting Information for some parts of the model description.
 
 \subsection*{Purpose}
 
@@ -247,7 +247,7 @@ Each compartment is self-contained.
 No interaction between compartments within a global time-step, all transfers are stored and happen instantly between timesteps.
 
 \subsection*{Design concepts}
-The iDynoMiCS 2 structure inherits many concepts from previous packages \cite{bacsim, idyno1}, but also builds on these.
+The iDynoMiCS 2 structure inherits many concepts from previous packages \cite{Kreft1998, Lardon2011}, but also builds on these.
 \paragraph{Emergence}
 
 
@@ -265,7 +265,7 @@ but implementing this feature is, to our knowledge, the first time it has been o
 \subsection*{Initialization}
 
 \subsection*{Input}
-Native protocol file layout, but (hopefully!) able to read in other formats such as SBML \cite{sbml} and CellML \cite{cellml}.
+Native protocol file layout, but (hopefully!) able to read in other formats such as Hucka2003 \cite{Hucka2003} and Cuellar2003 \cite{Cuellar2003}.
 
 
 \subsection*{Submodels}
@@ -304,38 +304,41 @@ Native protocol file layout, but (hopefully!) able to read in other formats such
 % Compile your BiBTeX database using our plos2015.bst
 % style file and paste the contents of your .bbl file
 % here.
+
+\bibliography{bibliography}
+
 % 
-\begin{thebibliography}{10}
-\bibitem{joppa2013}
-Joppa LN, McInerny G, Harper R, Salido L, Takeda K, O’Hara K, et al. Troubling trends in scientific software use. Science. 2013; 340:814–815. doi:10.1126/science.1231535
-
-\bibitem{adamson2013}
-Adamson MW, Morozov AY. When can we trust our model predictions? Unearthing structural sensitivity in biological systems. Proc R Soc A. 2013; 469:20120500. doi:10.1098/rspa.2012.0500
-
-
-\bibitem{bacsim}
-Kreft J-U, Booth G, Wimpenny JWT. BacSim, a simulator for Individual-based Modelling of bacterial colony growth. Microbiology. 1998; 144: 3275–87. doi:10.1099/00221287-144-12-3275.
-
-\bibitem{idyno1}
-Lardon LA, Merkey BV, Martins S, Dötsch A, Picioreanu C, Kreft J-U, Smets BF. iDynoMiCS: next-generation individual-based modelling of biofilms. Environ Microbiol. 2011; 13(9):2416-2434. doi:10.1111/j.1462-2920.2011.02414.x
-
-\bibitem{ferrer2008}
-Ferrer J, Prats C, Lopez D. Individual-based Modelling: An essential tool for microbiology. J Biol Phys. 2008; 34(1-2): 19–37. doi:10.1007/s10867-008-9082-3.
-
-\bibitem{oddprotocol}
-Grimm V, Berger U, Bastiansen F, Eliassen S, Ginot V, Giske J, Goss-Custard J, et al. A standard protocol for describing Individual-based and Agent-based Models. Ecological Modelling. 2006; 198(1-2): 115–26. doi:10.1016/j.ecolmodel.2006.04.023.
-
-\bibitem{wanner1986}
-Wanner O, Gujer W. A multispecies biofilm model. Biotechnology and Bioengineering. 1986; 28(3): 314–28. doi:10.1002/bit.260280304.
-
-\bibitem{sbml}
-Hucka M, Finney A, Sauro HM, Bolouri H, Doyle JC, Kitano H, Arkin AP, et al. The Systems Biology Markup Language (SBML): A medium for representation and exchange of biochemical network models. Bioinformatics. 2003; 19(4): 524–31. doi:10.1093/bioinformatics/btg015.
-
-\bibitem{cellml}
-Cuellar AA, Lloyd CM, Nielsen PF, Bullivant DP, Nickerson DP, Hunter PJ. An overview of CellML 1.1, a biological model description language. Simulation. 2003;79: 740–747. doi:10.1177/0037549703040939
-
-
-\end{thebibliography}
+%\begin{thebibliography}{10}
+%\bibitem{Joppa2013}
+%Joppa LN, McInerny G, Harper R, Salido L, Takeda K, O’Hara K, et al. Troubling trends in scientific software use. Science. 2013; 340:814–815. doi:10.1126/science.1231535
+%
+%\bibitem{Adamson2012}
+%Adamson MW, Morozov AY. When can we trust our model predictions? Unearthing structural sensitivity in biological systems. Proc R Soc A. 2013; 469:20120500. doi:10.1098/rspa.2012.0500
+%
+%
+%\bibitem{Kreft1998}
+%Kreft J-U, Booth G, Wimpenny JWT. BacSim, a simulator for Individual-based Modelling of bacterial colony growth. Microbiology. 1998; 144: 3275–87. doi:10.1099/00221287-144-12-3275.
+%
+%\bibitem{Lardon2011}
+%Lardon LA, Merkey BV, Martins S, Dötsch A, Picioreanu C, Kreft J-U, Smets BF. iDynoMiCS: next-generation individual-based modelling of biofilms. Environ Microbiol. 2011; 13(9):2416-2434. doi:10.1111/j.1462-2920.2011.02414.x
+%
+%\bibitem{Ferrer2008}
+%Ferrer J, Prats C, Lopez D. Individual-based Modelling: An essential tool for microbiology. J Biol Phys. 2008; 34(1-2): 19–37. doi:10.1007/s10867-008-9082-3.
+%
+%\bibitem{oddprotocol}
+%Grimm V, Berger U, Bastiansen F, Eliassen S, Ginot V, Giske J, Goss-Custard J, et al. A standard protocol for describing Individual-based and Agent-based Models. Ecological Modelling. 2006; 198(1-2): 115–26. doi:10.1016/j.ecolmodel.2006.04.023.
+%
+%\bibitem{wanner1986}
+%Wanner O, Gujer W. A multispecies biofilm model. Biotechnology and Bioengineering. 1986; 28(3): 314–28. doi:10.1002/bit.260280304.
+%
+%\bibitem{Hucka2003}
+%Hucka M, Finney A, Sauro HM, Bolouri H, Doyle JC, Kitano H, Arkin AP, et al. The Systems Biology Markup Language (Hucka2003): A medium for representation and exchange of biochemical network models. Bioinformatics. 2003; 19(4): 524–31. doi:10.1093/bioinformatics/btg015.
+%
+%\bibitem{Cuellar2003}
+%Cuellar AA, Lloyd CM, Nielsen PF, Bullivant DP, Nickerson DP, Hunter PJ. An overview of Cuellar2003 1.1, a biological model description language. Simulation. 2003;79: 740–747. doi:10.1177/0037549703040939
+%
+%
+%\end{thebibliography}
 
 \end{document}
 

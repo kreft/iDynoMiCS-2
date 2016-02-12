@@ -309,7 +309,8 @@ public class PDEtest
 	
 	private static void printSoluteGrid(SpatialGrid sg)
 	{
-		int[] dims = Vector.copy(sg.getNVoxel(Vector.zerosInt(3)));
+		/* Stefan [11Feb2016]: assumes CartesianGrid (same nVoxel in all dims)*/
+		int[] dims = Vector.copy(sg.getCurrentNVoxel());
 		int[] start = Vector.zeros(dims);
 		boolean[] sig = sg.getSignificantAxes();
 		int[] coords = Vector.zeros(dims);
