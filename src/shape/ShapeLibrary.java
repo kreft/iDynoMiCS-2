@@ -48,7 +48,7 @@ public final class ShapeLibrary
 		public GridGetter gridGetter()
 		{
 			// TODO Make DummyGrid?
-			return CartesianGrid.dimensionlessGetter();
+			return CartesianGrid.dimensionlessGetter(this._volume);
 		}
 		
 		public double[] getLocalPosition(double[] location)
