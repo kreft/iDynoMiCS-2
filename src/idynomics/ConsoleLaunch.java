@@ -53,7 +53,6 @@ public class ConsoleLaunch {
 		 * construct the full simulation from the previously loaded xmlDoc
 		 */
 		XmlLoad.constructSimulation();
-		
 		/*
 		 * Launch the simulation.
 		 */

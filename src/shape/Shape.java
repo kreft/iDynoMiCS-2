@@ -8,8 +8,15 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
@@ -17,8 +24,9 @@ import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Point;
-import surface.Sphere;
+import surface.Ball;
 import surface.Surface;
+import utility.Helper;
 /**
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
@@ -57,6 +65,43 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * <p>Note that all subclasses of Shape use this for initialisation,
+	 * except for Dimensionless.</p>
+	 * 
+	 * @param xmlNode
+	 */
+	public void init(Node xmlNode)
+	{
+		Element elem = (Element) xmlNode;
+		NodeList children;
+		Element child;
+		String str;
+		DimName dimName;
+		Dimension dim;
+		/* Set up the dimensions. */
+		children = XmlHandler.getAll(elem, "dimension");
+		for ( int i = 0; i < children.getLength(); i++ )
+		{
+			child = (Element) children.item(i);
+			str = XmlHandler.gatherAttribute(child, "name");
+			str = Helper.obtainInput(str, "dimension name");
+			dimName = DimName.valueOf(str);
+			dim = this.getDimension(dimName);
+			if ( dim == null )
+			{
+				Log.out(tier.CRITICAL, "Warning: Dimension "+str+
+								" not recognised by shape "+this.getClass());
+				continue;
+			}
+			dim.init(child);
+		}
+		/* Set up any other boundaries. */
+		// TODO
+	}
+	
 	/*************************************************************************
 	 * DIMENSIONS
 	 ************************************************************************/
@@ -81,6 +126,27 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public Dimension getDimension(DimName dimension)
 	{
 		return this._dimensions.get(dimension);
+	}
+	
+	/**
+	 * \brief Finds the index of the dimension name given.
+	 * 
+	 * <p>For example, in a cuboid, {@code Z} has index {@code 2}.</p>
+	 * 
+	 * @param dimension DimName of a dimension thought to be in this
+	 * {@code Shape}.
+	 * @return Index of the dimension, if present; {@code -1}, if not.
+	 */
+	public int getDimensionIndex(DimName dimension)
+	{
+		int out = 0;
+		for ( DimName d : this._dimensions.keySet() )
+		{
+			if ( d == dimension )
+				return out;
+			out++;
+		}
+		return -1;
 	}
 	
 	protected Dimension getDimensionSafe(DimName dimension)
@@ -169,6 +235,31 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	}
 	
 	/**
+	 * TODO Method to replace setSurfaces()
+	 * 
+	 */
+	public abstract void setSurfs();
+	
+	protected void setPlanarSurfaces(DimName aDimName)
+	{
+		Dimension dim = this.getDimension(aDimName);
+		// TODO safety if dim == null
+		if ( dim.isCyclic() )
+			return;
+		int index = this.getDimensionIndex(aDimName);
+		double[] normal = Vector.zerosDbl( this.getNumberOfDimensions() );
+		Plane p;
+		/* The minimum extreme. */
+		normal[index] = 1.0;
+		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
+		this._surfaces.add( p );
+		/* The maximum extreme. */
+		normal[index] = -1.0;
+		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
+		this._surfaces.add( p );
+	}
+	
+	/**
 	 * Set the collision surface object
 	 * 
 	 * NOTE: this would be a lot cleaner if the dimensions would be aware of 
@@ -230,7 +321,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 					 * switch case. This should be stored somewhere since always 
 					 * reverse engineering this does not make a a lot of sense.
 					 */
-					Sphere outbound = new Sphere( new Point(min) ,
+					Ball outbound = new Ball( new Point(min) ,
 							this._dimensions.get(d).getLength() );
 					outbound.bounding = true;
 					_surfaces.add(outbound);

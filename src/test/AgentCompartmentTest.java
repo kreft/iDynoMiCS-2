@@ -1,10 +1,6 @@
 package test;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import agent.Agent;
-import agent.Body;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
@@ -17,18 +13,9 @@ import processManager.ProcessManager;
 import processManager.RefreshMassGrids;
 import processManager.SolveDiffusionTransient;
 import processManager.WriteAgentsSvg;
+import shape.Shape;
 import shape.ShapeConventions.DimName;
-import surface.Point;
-import surface.Sphere;
 import utility.ExtraMath;
-import agent.Agent;
-import agent.Body;
-import boundary.BoundaryCyclic;
-import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
-import idynomics.Compartment;
-import idynomics.Simulator;
-import idynomics.Timer;
 
 public class AgentCompartmentTest
 {
@@ -39,8 +26,10 @@ public class AgentCompartmentTest
 		
 		Simulator aSim = new Simulator();
 		
-		Compartment aCompartment = aSim.addCompartment("myCompartment", "Rectangle");
-		aCompartment.setSideLengths(new double[] {9.0, 9.0, 1.0});
+		Compartment aCompartment = aSim.addCompartment("myCompartment");
+		Shape aShape = (Shape) Shape.getNewInstance("rectangle");
+		aShape.setDimensionLengths(new double[] {9.0, 9.0, 1.0});
+		aCompartment.setShape(aShape);
 		/*
 		 * Set the boundary methods and initialise the compartment.
 		 */

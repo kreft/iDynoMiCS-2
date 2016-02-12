@@ -44,9 +44,8 @@ public class AgentTest {
 		{
 			Element xmlCompartment = (Element) compartmentNodes.item(i);
 			Compartment comp = sim.addCompartment(
-					xmlCompartment.getAttribute("name"), 
-					xmlCompartment.getAttribute("shape"));
-			
+										xmlCompartment.getAttribute("name"));
+			comp.init(xmlCompartment);
 			// Check the agent container
 			if (xmlCompartment.getElementsByTagName("agents").getLength() > 1)
 				System.out.println("more than 1 agentcontainer!!!");

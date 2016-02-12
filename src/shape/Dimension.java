@@ -3,9 +3,17 @@
  */
 package shape;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import boundary.Boundary;
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import shape.ShapeConventions.BoundaryCyclic;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -16,6 +24,16 @@ import shape.ShapeConventions.BoundaryCyclic;
  */
 public class Dimension implements CanPrelaunchCheck
 {
+	/**
+	 * If we need to put a point just inside the maximum extreme, use this
+	 * number multiplied by the dimension length as the small amount less than
+	 * this._extreme[1] to use.
+	 * 
+	 * <p>NOTE: Rob [8Feb2016] We used to use Math.ulp(this.getLength()) but
+	 * that didn't seem to work very well.</p>
+	 */
+	private final static double INSIDE_MAX_SCALAR = 1.0E-6;
+	
 	/**
 	 * Minimum and maximum values for this dimension. Must be finite and have
 	 * {@code this._extreme[0]} < {@code this._extreme[1]}.
@@ -39,6 +57,68 @@ public class Dimension implements CanPrelaunchCheck
 	 * If this is a cyclic dimension, different rules apply.
 	 */
 	protected boolean _isCyclic = false;
+	
+	/**************************************************************************
+	 * CONSTRUCTORS
+	 *************************************************************************/
+	
+	public void init(Node xmlNode)
+	{
+		Element elem = (Element) xmlNode;
+		String str;
+		NodeList extNodes, bndNodes;
+		Element extElem, bndElem;
+		Boundary aBoundary;
+		int index = -1;
+		/*
+		 * See if this is cyclic. Assume not if unspecified.
+		 * 
+		 * TODO check that str is "false" and not a typo of "true" 
+		 * (e.g. "truw")
+		 */
+		str = XmlHandler.gatherAttribute(elem, "isCyclic");
+		if ( Boolean.valueOf(str) )
+			this.setCyclic();
+		/* 
+		 * Boundaries at the extremes.
+		 */
+		extNodes = XmlHandler.getAll(elem, "extreme");
+		for ( int i = 0; i < extNodes.getLength(); i++ )
+		{
+			extElem = (Element) extNodes.item(i);
+			str = XmlHandler.gatherAttribute(extElem, "name");
+			str = Helper.obtainInput(str, "dimension extreme (min/max)");
+			str = str.toLowerCase();
+			if ( str.equals("min") )
+				index = 0;
+			else if ( str.equals("max") )
+				index = 1;
+			else
+			{
+				Log.out(tier.CRITICAL, 
+						"Warning! Dimension extreme must be min or max: "+str);
+			}
+			/* Set the position, if given (not always necessary). */
+			str = XmlHandler.gatherAttribute(extElem, "position");
+			if ( str != null && str != "")
+				this.setExtreme(Double.valueOf(str), index);
+			/* Set the boundary, if given (not always necessary). */
+			bndNodes = XmlHandler.getAll(elem, "boundary");
+			if ( bndNodes.getLength() > 1 )
+			{
+				Log.out(tier.CRITICAL, 
+					  "Warning: Dimension extreme must have 0 or 1 boundary!");
+			}
+			else if ( bndNodes.getLength() == 1 )
+			{
+				bndElem = (Element) bndNodes.item(0);
+				str = bndElem.getAttribute("class");
+				aBoundary = (Boundary) Boundary.getNewInstance(str);
+				aBoundary.init(bndElem);
+				this.setBoundary(aBoundary, index);
+			}
+		}
+	}
 	
 	/**************************************************************************
 	 * BASIC SETTERS AND GETTERS
@@ -91,6 +171,11 @@ public class Dimension implements CanPrelaunchCheck
 		this._extreme[0] = minValue;
 		this._extreme[1] = maxValue;
 		this.checkExtremes();
+	}
+	
+	public double getExtreme(int index)
+	{
+		return this._extreme[index];
 	}
 	
 	/**
@@ -267,8 +352,11 @@ public class Dimension implements CanPrelaunchCheck
 			 * this._extreme[1] is an exclusive limit, so take a value just
 			 * below if necessary.
 			 */
-			return Math.min( this._extreme[1] - Math.ulp(this._extreme[1]),
-												Math.max(this._extreme[0], a));
+			if ( a >= this._extreme[1] )
+				return this._extreme[1] - (INSIDE_MAX_SCALAR*this.getLength());
+			if ( a < this._extreme[0] )
+				return this._extreme[0];
+			return a;
 		}
 	}
 	

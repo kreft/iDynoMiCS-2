@@ -19,7 +19,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import dataIO.Log.tier;
-import idynomics.Param;
 import utility.Helper;
 
 /**
@@ -184,6 +183,13 @@ public class XmlHandler {
 		return (Element) nodes.item(0);
 	}		
 	
+	/**
+	 * Loads attribute from a unique node
+	 * @param xmlElement
+	 * @param tagName
+	 * @param attribute
+	 * @return
+	 */
 	public static String loadUniqueAtribute(Element xmlElement, String tagName, 
 			String attribute)
 	{
@@ -193,7 +199,7 @@ public class XmlHandler {
 			return Helper.obtainInput(null, "Required " + attribute +
 					" from missing xml node: " + tagName);
 		}
-		else 
+		else
 			return obtainAttribute(e, attribute);
 	}
 
