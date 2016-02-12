@@ -209,7 +209,7 @@ public class SolveChemostat extends ProcessManager
 					if ( reactions == null )
 						continue;
 					for (Reaction aReac : reactions)
-						applyReactionFluxes(aReac, concns, dYdT);
+						applyProductionRates(aReac, concns, dYdT);
 					// TODO tell the agent about the rates of production of its
 					// biomass types?
 				}
@@ -217,7 +217,7 @@ public class SolveChemostat extends ProcessManager
 				 * Apply extracellular reactions.
 				 */
 				for ( Reaction aReac : environment.getReactions() )
-					applyReactionFluxes(aReac, concns, dYdT);
+					applyProductionRates(aReac, concns, dYdT);
 				return dYdT;
 			}
 			@Override
@@ -287,20 +287,20 @@ public class SolveChemostat extends ProcessManager
 	}
 
 	/**
-	 * \brief TODO
+	 * \brief Push all new values of solute concentrations to the relevant
+	 * grids in the given {@code EnvironmentContainer}.
 	 * 
-	 * TODO This may need to be updated now that solutes belong to the
-	 * environment container
-	 * 
-	 * @param solutes
-	 * @param y
+	 * @param environment The destination for the new solute concentrations.
+	 * @param y New solute concentrations, in the same order as
+	 * {@code this._soluteNames};
 	 */
 	protected void updateSolutes(EnvironmentContainer environment, double[] y)
 	{
+		SpatialGrid aSG;
 		for ( int i = 0; i < y.length; i++ )
 		{
-			environment.getSoluteGrid(this._soluteNames[i])
-										.setAllTo(ArrayType.CONCN, y[i]);
+			aSG = environment.getSoluteGrid(this._soluteNames[i]);
+			aSG.setAllTo(ArrayType.CONCN, y[i]);
 		}
 	}
 	
@@ -311,11 +311,11 @@ public class SolveChemostat extends ProcessManager
 	 * @param concns
 	 * @param dYdT
 	 */
-	protected void applyReactionFluxes(Reaction aReac,
+	protected void applyProductionRates(Reaction aReac,
 								HashMap<String, Double> concns, double[] dYdT)
 	{
-		aReac.updateRate(concns);
+		double rate = aReac.getRate(concns);
 		for ( int i = 0; i < this._soluteNames.length; i++ )
-			dYdT[i] += aReac.getProductionRate(this._soluteNames[i]);
+			dYdT[i] += rate * aReac.getStoichiometry(this._soluteNames[i]);
 	}
 }
