@@ -132,7 +132,6 @@ public class Reaction implements XMLable
 		return this._kinetic.getValue(concentrations);
 	}
 	
-
 	/**
 	 * \brief Fetch the amount of this chemical species produced per reaction
 	 * event.
