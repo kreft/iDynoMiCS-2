@@ -3,11 +3,16 @@
  */
 package shape;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.Log.tier;
 import grid.CartesianGrid;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
-import surface.Plane;
 import surface.Point;
 import surface.Ball;
 
@@ -23,10 +28,21 @@ public final class ShapeLibrary
 	
 	public static class Dimensionless extends Shape
 	{
+		protected double _volume = 0.0;
+		
 		public Dimensionless()
 		{
 			super();
 		}
+		
+		@Override
+		public void init(Node xmlNode)
+		{
+			Element elem = (Element) xmlNode;
+			String str = XmlHandler.loadUniqueAtribute(elem,"volume","string");
+			this._volume = Double.parseDouble(str);
+		}
+		
 		@Override
 		public GridGetter gridGetter()
 		{
@@ -49,6 +65,19 @@ public final class ShapeLibrary
 			/*
 			 * Do nothing!
 			 */
+		}
+		
+		public boolean isReadyForLaunch()
+		{
+			if ( ! super.isReadyForLaunch() )
+				return false;
+			if ( this._volume <= 0.0 )
+			{
+				Log.out(tier.CRITICAL,
+							"Dimensionless shape must have positive volume!");
+				return false;
+			}
+			return true;
 		}
 	}
 	

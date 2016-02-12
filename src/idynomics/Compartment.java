@@ -135,6 +135,16 @@ public class Compartment implements CanPrelaunchCheck
 			// TODO initial value
 		}
 		/*
+		 * Give it extracellular reactions.
+		 */
+		children = XmlHandler.getAll(elem, "reaction");
+		for ( int i = 0; i < children.getLength(); i++ )
+		{
+			child = (Element) children.item(i);
+			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
+			
+		}
+		/*
 		 * Finally, finish off the initialisation as standard.
 		 */
 		this.init();
