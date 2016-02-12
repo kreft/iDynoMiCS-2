@@ -12,22 +12,22 @@ import expression.ExpressionBuilder;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  *
  */
-public class Reaction {
-
+public class Reaction
+{
 	/**
 	 * Reaction stoichiometry
 	 */
-	final HashMap<String,Double> _stoichiometry = new HashMap<String,Double>();
+	private HashMap<String,Double> _stoichiometry = new HashMap<String,Double>();
+	
+	/**
+	 * TODO
+	 */
+	private Component _kinetic;
 	
 	/**
 	 * 
 	 */
 	private HashMap<String, Component> _diffKinetics;
-	
-	/**
-	 * rate expression
-	 */
-	private Component component;
 
 	public Reaction(Map<String, Double> stoichiometry, String rate)
 	{
@@ -37,14 +37,14 @@ public class Reaction {
 		 */
 		stoichiometry.forEach((k,v)-> _stoichiometry.put(k, v));
 		ExpressionBuilder e = new ExpressionBuilder(rate, new HashMap<String,Double>());
-		this.component = e.component;
+		this._kinetic = e.component;
 	}
 	
 	public Reaction(String chemicalSpecies, double stoichiometry, String rate)
 	{
 		_stoichiometry.put(chemicalSpecies, stoichiometry);
 		ExpressionBuilder e = new ExpressionBuilder(rate, new HashMap<String,Double>());
-		this.component = e.component;
+		this._kinetic = e.component;
 	}
 	
 	/**
@@ -54,7 +54,7 @@ public class Reaction {
 	 */
 	public double getRate(HashMap<String, Double> concentrations)
 	{
-		return this.component.getValue(concentrations);
+		return this._kinetic.getValue(concentrations);
 	}
 	
 	/**
@@ -93,7 +93,7 @@ public class Reaction {
 		if ( ! this._diffKinetics.containsKey(withRespectTo) )
 		{
 			this._diffKinetics.put(withRespectTo,
-								this.component.differentiate(withRespectTo));
+								this._kinetic.differentiate(withRespectTo));
 		}
 		/*
 		 * Finally, calculate and return the value at this set of

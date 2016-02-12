@@ -14,7 +14,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import reaction.Reaction_depcricated;
+import reaction.Reaction;
 import solver.ODErosenbrock;
 import solver.ODEsolver.Derivatives;
 import utility.ExtraMath;
@@ -214,11 +214,11 @@ public class SolveChemostat extends ProcessManager
 				for ( Agent agent : agents.getAllAgents() )
 				{
 					@SuppressWarnings("unchecked")
-					List<Reaction_depcricated> reactions = (List<Reaction_depcricated>) agent.get("reactions");
-					for (Reaction_depcricated reaction : reactions)
+					List<Reaction> reactions = (List<Reaction>) agent.get("reactions");
+					for (Reaction reaction : reactions)
 					{
 						
-						temp = reaction.get1stTimeDerivatives(concns);
+						temp = reaction.getFluxes(concns);
 						for ( int i = 0; i < _soluteNames.length; i++ )
 							dYdT[i] += temp.get(_soluteNames[i]);
 					}

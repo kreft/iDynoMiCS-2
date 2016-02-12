@@ -12,7 +12,7 @@ import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import reaction.Reaction_depcricated;
+import reaction.Reaction;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEsolver.Updater;
@@ -112,9 +112,9 @@ public class SolveDiffusionTransient extends ProcessManager
 					if (agent.aspectRegistry.isGlobalAspect("reactions"))
 					{
 						@SuppressWarnings("unchecked")
-						List<Reaction_depcricated> reactions = 
-								(List<Reaction_depcricated>) agent.get("reactions");
-						for (Reaction_depcricated reaction : reactions)
+						List<Reaction> reactions = 
+								(List<Reaction>) agent.get("reactions");
+						for (Reaction reaction : reactions)
 						{
 							// testing
 							System.out.println(reaction.toString());
