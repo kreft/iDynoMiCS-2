@@ -9,6 +9,7 @@ import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
+import utility.ExtraMath;
 
 /**
  * \brief Subclass of SpatialGrid that discretises space into rectilinear
@@ -367,7 +368,7 @@ public class CartesianGrid extends SpatialGrid
 		};
 	}
 	
-	public static final GridGetter dimensionlessGetter()
+	public static final GridGetter dimensionlessGetter(double volume)
 	{
 		return new GridGetter()
 		{
@@ -375,7 +376,8 @@ public class CartesianGrid extends SpatialGrid
 			public SpatialGrid newGrid(double[] totalSize, double resolution) 
 			{
 				// TODO check this is the best way.
-				return new CartesianGrid(Vector.onesDbl(3), resolution);
+				return new CartesianGrid(Vector.onesDbl(3),
+											ExtraMath.cubeRoot(volume));
 			}
 		};
 	}
