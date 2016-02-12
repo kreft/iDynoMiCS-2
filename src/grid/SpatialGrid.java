@@ -98,7 +98,7 @@ public abstract class SpatialGrid
 	 */
 	protected DimName[] _dimName = new DimName[3];
 	
-	protected int[] _currentNVoxel;
+	protected int[] _currentNVoxel = new int[3];
 	
 	/**
 	 * Array of the boundaries at each dimension's extremes. The three rows
