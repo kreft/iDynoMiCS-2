@@ -39,6 +39,10 @@ public class Reaction implements XMLable
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
+	/**
+	 * XML constructor
+	 * @param xmlNode
+	 */
 	public Reaction(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
@@ -49,11 +53,16 @@ public class Reaction implements XMLable
 						Double.valueOf(XmlHandler.obtainAttribute(
 						(Element) stochiometrics.item(i), "coefficient")));
 		ExpressionBuilder e = 
-				new ExpressionBuilder(XmlHandler.obtainAttribute(elem,"rate"), 
-				new HashMap<String,Double>());
+				new ExpressionBuilder(XmlHandler.attributeFromUniqueNode(elem, 
+				"expression", "value"),	new HashMap<String,Double>());
 		this._kinetic = e.component;
 	}
 	
+	/**
+	 * XMLable interface implementation.
+	 * @param xmlNode
+	 * @return
+	 */
 	public static Object getNewInstance(Node xmlNode)
 	{
 		return new Reaction(xmlNode);

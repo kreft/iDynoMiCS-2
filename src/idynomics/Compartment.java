@@ -17,6 +17,7 @@ import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
 import processManager.ProcessManager;
+import reaction.Reaction;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 import utility.Helper;
@@ -106,7 +107,7 @@ public class Compartment implements CanPrelaunchCheck
 		Element elem = (Element) xmlNode;
 
 		this.setShape((Shape) Shape.getNewInstance(
-				XmlHandler.loadUniqueAtribute(elem, "shape", "class")));
+				XmlHandler.attributeFromUniqueNode(elem, "shape", "class")));
 		this._shape.init(XmlHandler.loadUnique(elem, "shape"));
 		
 		/*
@@ -128,7 +129,11 @@ public class Compartment implements CanPrelaunchCheck
 		 */
 		NodeList children = XmlHandler.getAll(elem, "reaction");
 		for ( int i = 0; i < children.getLength(); i++ )
+		{
 			XmlHandler.obtainAttribute((Element) children.item(i),"name");
+			Reaction r = (Reaction) Reaction.getNewInstance(children.item(i));
+
+		}
 			
 		/*
 		 * Finally, finish off the initialisation as standard.

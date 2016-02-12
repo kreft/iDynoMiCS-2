@@ -190,7 +190,7 @@ public class XmlHandler {
 	 * @param attribute
 	 * @return
 	 */
-	public static String loadUniqueAtribute(Element xmlElement, String tagName, 
+	public static String attributeFromUniqueNode(Element xmlElement, String tagName, 
 			String attribute)
 	{
 		Element e = loadUnique(xmlElement, tagName);
