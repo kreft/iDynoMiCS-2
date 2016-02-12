@@ -38,7 +38,12 @@ public class SolveChemostat extends ProcessManager
 	 * TODO
 	 */
 	protected String[] _soluteNames;
-
+	
+	/**
+	 * Temporary 
+	 */
+	protected HashMap<String,Double> _rates = new HashMap<String,Double>();
+	
 	/**
 	 * 
 	 */
@@ -193,43 +198,26 @@ public class SolveChemostat extends ProcessManager
 				}
 				Vector.timesEquals(dYdT, _dilution);
 				/*
-				 * Apply agent reactions. Note that any agents without reactions
-				 * will return an empty list of States, and so will be skipped.
+				 * Apply agent reactions. Note that any agents without
+				 * reactions will return null, and so will be skipped.
 				 */
-				// FIXME Bas[03Nov2015]: I'm kind of guessing here rewriting 
-				// based on unfinished classes.
-				// HasReactions aReacState;
-				// HashMap<String,Double> temp;
-
-//				for ( Agent agent : agents.getAllAgents() )
-//					for (Object aState : agent.getStates(HasReactions.tester))
-//					{
-//						aReacState = (HasReactions) aState;
-//						temp = aReacState.get1stTimeDerivatives(concns);
-//						for ( int i = 0; i < _soluteNames.length; i++ )
-//							dYdT[i] += temp.get(_soluteNames[i]);
-//					}
-				
-				HashMap<String,Double> temp;
 				for ( Agent agent : agents.getAllAgents() )
 				{
 					@SuppressWarnings("unchecked")
-					List<Reaction> reactions = (List<Reaction>) agent.get("reactions");
-					for (Reaction reaction : reactions)
-					{
-						
-						temp = reaction.getFluxes(concns);
-						for ( int i = 0; i < _soluteNames.length; i++ )
-							dYdT[i] += temp.get(_soluteNames[i]);
-					}
+					List<Reaction> reactions = 
+									(List<Reaction>) agent.get("reactions");
+					if ( reactions == null )
+						continue;
+					for (Reaction aReac : reactions)
+						applyReactionFluxes(aReac, concns, dYdT);
+					// TODO tell the agent about the rates of production of its
+					// biomass types?
 				}
-				
 				/*
-				 * TODO Apply extracellular reactions.
+				 * Apply extracellular reactions.
 				 */
-				/*System.out.println("\tS -> dYdT:"); //Bughunt
-				for ( int i = 0; i < y.length; i++ )
-					System.out.println("\t"+y[i]+"->"+dYdT[i]);*/
+				for ( Reaction aReac : environment.getReactions() )
+					applyReactionFluxes(aReac, concns, dYdT);
 				return dYdT;
 			}
 			@Override
@@ -314,5 +302,20 @@ public class SolveChemostat extends ProcessManager
 			environment.getSoluteGrid(this._soluteNames[i])
 										.setAllTo(ArrayType.CONCN, y[i]);
 		}
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param aReac
+	 * @param concns
+	 * @param dYdT
+	 */
+	protected void applyReactionFluxes(Reaction aReac,
+								HashMap<String, Double> concns, double[] dYdT)
+	{
+		aReac.updateRate(concns);
+		for ( int i = 0; i < this._soluteNames.length; i++ )
+			dYdT[i] += aReac.getProductionRate(this._soluteNames[i]);
 	}
 }
