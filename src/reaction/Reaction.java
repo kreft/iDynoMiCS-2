@@ -28,27 +28,38 @@ public class Reaction
 	 * 
 	 */
 	private HashMap<String, Component> _diffKinetics;
-
-	public Reaction(Map<String, Double> stoichiometry, String rate)
+	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
+	
+	public Reaction(Map<String, Double> stoichiometry, String kinetic)
 	{
-		/**
+		/*
 		 * Lambda expressions are slow in Java, but okay if they are only used
-		 * once
+		 * once.
 		 */
-		stoichiometry.forEach((k,v)-> _stoichiometry.put(k, v));
-		ExpressionBuilder e = new ExpressionBuilder(rate, new HashMap<String,Double>());
+		stoichiometry.forEach((k,v)-> this._stoichiometry.put(k, v));
+		ExpressionBuilder e = 
+				new ExpressionBuilder(kinetic, new HashMap<String,Double>());
 		this._kinetic = e.component;
 	}
 	
-	public Reaction(String chemicalSpecies, double stoichiometry, String rate)
+	public Reaction(String chemicalSpecies, double stoichiometry, String kinetic)
 	{
-		_stoichiometry.put(chemicalSpecies, stoichiometry);
-		ExpressionBuilder e = new ExpressionBuilder(rate, new HashMap<String,Double>());
+		this._stoichiometry.put(chemicalSpecies, stoichiometry);
+		ExpressionBuilder e = 
+				new ExpressionBuilder(kinetic, new HashMap<String,Double>());
 		this._kinetic = e.component;
 	}
+	
+	/*************************************************************************
+	 * GETTERS
+	 ************************************************************************/
 	
 	/**
-	 * Returns the reaction rate depending on concentrations
+	 * \brief Returns the reaction rate depending on concentrations.
+	 * 
 	 * @param concentrations
 	 * @return
 	 */
@@ -68,7 +79,8 @@ public class Reaction
 	{
 		double rate = this.getRate(concentrations);
 		HashMap<String, Double> out  = new HashMap<String,Double>();
-		_stoichiometry.forEach((k,v)-> out.put(k, v * rate));
+		for ( String name : this._stoichiometry.keySet() )
+			out.put(name, this._stoichiometry.get(name) * rate);
 		return out;
 	}
 	
