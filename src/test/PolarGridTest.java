@@ -3,6 +3,7 @@ package test;
 import java.awt.BorderLayout;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.function.DoubleFunction;
 
 import javax.swing.JFrame;
 
@@ -24,6 +25,10 @@ import grid.CartesianGrid;
 import grid.CylindricalGrid;
 import grid.GridBoundary.ConstantDirichlet;
 import grid.PolarGrid;
+import grid.ResolutionCalculator;
+import grid.ResolutionCalculator.ResCalc;
+import grid.ResolutionCalculator.ResCalcFactory;
+import grid.ResolutionCalculator.ResolutionFunction;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SphericalGrid;
@@ -52,15 +57,43 @@ public class PolarGridTest
 		/********************* CHOOSE ARRAY TYPE HERE *************************/
 		/**********************************************************************/
 		
-		SphericalGrid grid = new SphericalGrid(new double[]{3, Math.PI ,2 * Math.PI},1);
-//		SphericalGrid grid = new SphericalGrid(new double[]{3,90,90},
-//				new double[]{1,1,2});
+		/* standard constructors */
 		
-//	    CylindricalGrid grid = new CylindricalGrid(new double[]{3,2*Math.PI,1},1);
-//		CylindricalGrid grid = new CylindricalGrid(
-//				new double[]{3,360,1},new double[]{1,2,1});
+		double[] totalLength = new double[]{3, Math.PI ,2 * Math.PI};
+		double resolution = 1;
+//		
+//	    CartesianGrid grid = new CartesianGrid(totalLength, resolution);
+//		SphericalGrid grid = new SphericalGrid(totalLength, resolution);		
+//	    CylindricalGrid grid = new CylindricalGrid(totalLength, resolution);		
+
 		
-//	    CartesianGrid grid = new CartesianGrid(new double[]{2,2,2},1);
+		/* resolution functions */
+		
+		DoubleFunction<?>[] res_funs = new DoubleFunction<?>[]{
+			i -> i * i, 
+			j -> Math.sin(j), 
+			k -> Math.sqrt(k)
+		};
+		Class<?>[] res_classes = new Class[]{
+				ResolutionCalculator.ResolutionFunction.class,
+				ResolutionCalculator.ResolutionFunction.class,
+				ResolutionCalculator.ResolutionFunction.class
+		};
+		ResCalc[][] rC = ResCalcFactory.createResCalcForCylinder(
+				new double[]{3,2*Math.PI,1}, 
+				res_funs,
+				res_classes
+				);
+		
+		
+//		CartesianGrid grid = new CartesianGrid(rC);
+		CylindricalGrid grid = new CylindricalGrid(rC);
+//		SphericalGrid grid = new SphericalGrid(rC);
+		
+				
+		/**********************************************************************/
+		/********************** SOME INITIALIZING *****************************/
+		/**********************************************************************/	
 		
 		Timer.setTimeStepSize(1.0);
 		Timer.setEndOfSimulation(10.0);
@@ -103,6 +136,10 @@ public class PolarGridTest
 
 		keyboard.close();
 	}
+	
+	/**************************************************************************/
+	/******************************** METHODS *********************************/
+	/**************************************************************************/
 	
 	public static void testMemoryAndIteratorSpeed(SpatialGrid grid){
 		long t_start = System.currentTimeMillis();

@@ -37,8 +37,6 @@ public abstract class PolarGrid extends SpatialGrid
 	{
 		/* Polar grids always start with an R dimension. */
 		this._dimName[0] = DimName.R;
-		
-		this._currentNVoxel = new int[3];
 	}
 	
 	/** TODO
@@ -63,14 +61,11 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @return
 	 */
 	protected boolean isOnUndefinedBoundary(int[] coord, int dim){
-		ResCalc rC = this.getResolutionCalculator(coord, dim);
 		if ( coord[dim] < 0 )
-			if (this._dimBoundaries[dim][0] == null) 
-				return true;
-		if ( coord[dim] >= rC.getNVoxel() )
-			if (this._dimBoundaries[dim][1] == null) 
-				return true;
-		return false;
+            return  (this._dimBoundaries[dim][0] == null);
+        if ( coord[dim] >= this.getResolutionCalculator(coord, dim).getNVoxel())
+            return (this._dimBoundaries[dim][1] == null);
+        return false;
 	}
 	
 	/**
@@ -92,6 +87,8 @@ public abstract class PolarGrid extends SpatialGrid
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
 		if (isOnUndefinedBoundary(this._currentNeighbor, 0))
 			return false;
+		
+		//TODO: possibly return isOnUndefinedBoundary..
 		
 		rC = this.getResolutionCalculator(this._currentCoord, 1);
 		/*

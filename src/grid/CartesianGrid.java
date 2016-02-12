@@ -50,7 +50,6 @@ public class CartesianGrid extends SpatialGrid
 		this._resCalc = resCalc;
 		
 		/* in the cartesian grid we have to call this method only once here */
-		this._currentNVoxel = new int[3];
 		updateCurrentNVoxel();
 		
 		/* 
