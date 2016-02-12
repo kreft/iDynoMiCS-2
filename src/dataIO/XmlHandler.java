@@ -200,7 +200,6 @@ public class XmlHandler {
 					" from missing xml node: " + tagName);
 		}
 		else
-			// FIXME Shouldn't we be passing tagName instead of attribute?
 			return obtainAttribute(e, attribute);
 	}
 
