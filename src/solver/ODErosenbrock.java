@@ -78,7 +78,14 @@ public class ODErosenbrock extends ODEsolver
 	
 	public ODErosenbrock()
 	{
-		
+
+	}
+	
+	public ODErosenbrock(String[] soluteNames, boolean allowNegatives, double absTol, double hMax)
+	{
+		this.init(soluteNames, allowNegatives, absTol, hMax);
+		Log.out(tier.DEBUG, "ODErosenbrock: " + allowNegatives +  " " +  absTol 
+				+  " " +  hMax);
 	}
 	
 	/*************************************************************************
@@ -96,6 +103,11 @@ public class ODErosenbrock extends ODEsolver
 	public void init(String[] names, boolean allowNegatives,
 												double absTol, double hMax)
 	{
+		/**
+		 * NOTE Bas [12.02.16] seems ODErosenbrock does not like absTol < hMax
+		 */
+		hMax = ( absTol > hMax ? hMax : absTol);
+		
 		super.init(names, allowNegatives);
 		
 		this._absTol = absTol;

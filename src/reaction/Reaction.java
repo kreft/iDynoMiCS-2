@@ -39,8 +39,6 @@ public class Reaction implements XMLable
 	 */
 	private HashMap<String, Component> _diffKinetics;
 	
-	private double _rate;
-	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -133,25 +131,18 @@ public class Reaction implements XMLable
 		return this._kinetic.getValue(concentrations);
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param concentrations
-	 */
-	public double updateRate(HashMap<String, Double> concentrations)
-	{
-		return (this._rate = this.getRate(concentrations));
-	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
 	 * @param reactantName
 	 */
-	public double getProductionRate(String reactantName)
+	public double getProductionRate(String reactantName, 
+			HashMap<String, Double> concentrations)
 	{
 		if ( this._stoichiometry.containsKey(reactantName) )
-			return this._stoichiometry.get(reactantName) * this._rate;
+			return this._stoichiometry.get(reactantName) * 
+					this.getRate(concentrations);
 		return 0.0;
 	}
 	

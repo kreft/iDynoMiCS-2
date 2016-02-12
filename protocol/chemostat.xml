@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="EXPRESSIVE" outputfolder="../results" name="mySim">
+	<simulation log="DEBUG" outputfolder="../results" name="mySim">
 		<general>
 			<param name="timeStepSize" value="1.0"/>
 			<param name="endOfSimulation" value="60.0"/>
@@ -13,7 +13,7 @@
 			</solutes>
 			<reactions>
 				<reaction name="testReact">
-					<expression value="solute1 / ( 0.1 + solute1)" />
+					<expression value="solute1 * 0.1" />
 					<stochiometric component="solute1" coefficient="-1.0" />
 					<stochiometric component="solute2" coefficient="0.5" />
 				</reaction>
@@ -22,6 +22,9 @@
 				<process name="solveChemostat" class="SolveChemostat" priority="0"
 					firstStep="0.0" package="processManager.">
 					<aspect name="soluteNames" type="String[]" value="solute1,solute2" />
+					<aspect name="tolerance" type="double" value="1.0e-3" />
+					<aspect name="hMax" type="double" value="1.0e-3" />
+					<aspect name="solver" type="String" value="other" />
 				</process>
 			</processManagers>
 		</compartment>
