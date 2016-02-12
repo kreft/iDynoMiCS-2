@@ -1,12 +1,16 @@
-package reaction;
+package expression;
 
 import java.util.HashMap;
 import java.util.TreeMap;
 
 import expression.*;
 
-
-public class RateExpression {
+/**
+ * 
+ * @author baco
+ *
+ */
+public class ExpressionBuilder {
 	
 	/**
 	 * Input expression
@@ -21,8 +25,8 @@ public class RateExpression {
 	/**
 	 * Subexpression (braces)
 	 */
-	private TreeMap<Integer, RateExpression> _subExpressions = 
-			new TreeMap<Integer, RateExpression>();
+	private TreeMap<Integer, ExpressionBuilder> _subExpressions = 
+			new TreeMap<Integer, ExpressionBuilder>();
 	
 	/**
 	 * Todo: constants with name?
@@ -50,7 +54,7 @@ public class RateExpression {
 	 * @param expression
 	 * @param terms
 	 */
-	public RateExpression(String expression, HashMap<String, Double> terms)
+	public ExpressionBuilder(String expression, HashMap<String, Double> terms)
 	{
 		/**
 		 * initial construction
@@ -150,11 +154,12 @@ public class RateExpression {
 				//NOTE subtract start for correct identification in substring
 				if(key-start != 0)
 					_eval.put(o+start,equation.substring( o, key-start ));
-				o = key - start + 1;
+				o = key - start + operLoc.get(key).length();
 			}
 			
 			/**
-			 * also add the last one
+			 * also add the last one (this means we can't end with an operator
+			 * build in a check if we would need to do that)
 			 */
 			if(o != 0)
 				_eval.put( o+start ,equation.substring( o, equation.length() ));
@@ -195,7 +200,7 @@ public class RateExpression {
 	 */
 	public void setSub(int start, int end)
 	{
-		_subExpressions.put(start, new RateExpression( 
+		_subExpressions.put(start, new ExpressionBuilder( 
 				expression.substring(start+1, end-1), this._terms));
 		_eval.put(start, String.valueOf("$" + start));
 	}
@@ -292,10 +297,7 @@ public class RateExpression {
 					int plu = (_calc.ceilingKey( i+1 ) != null ? 
 							_calc.ceilingKey( i+1 ) : -1);
 					_calc.put(i, constructComponent( operators[j], min, plu ));
-					if(_calc.containsKey( min ))
-						_calc.remove( min );
-					if(_calc.containsKey( plu ))
-						_calc.remove( plu );
+					postOperatorTruncate(operators[j], min, plu);
 				}
 			}
 		}
@@ -326,9 +328,34 @@ public class RateExpression {
 		case ("-"): return (prev >= 0 ? new Subtraction( _calc.get(prev),
 				_calc.get(next)) : new Multiplication( new Constant("-1",-1),
 				_calc.get(next)));
+		case ("^"): return new Power(_calc.get(prev), _calc.get(next));
+		case ("SQRT"): return new Power(_calc.get(next), new Constant("0.5",0.5));
 		}
 		System.err.println("ERROR: could not construnct component!");
 		return new Constant("ERROR!!!!!",1.0);
+	}
+	
+	/**
+	 * Truncate calc tree after the operation has completed.
+	 */
+	public void postOperatorTruncate(String operator, int prev, int next)
+	{
+		switch (operator)
+		{
+		case ("+"): 
+		case ("*"): 
+		case ("/"): 
+		case ("-"): 
+		case ("^"):
+		if(_calc.containsKey( prev ))
+			_calc.remove( prev );
+		if(_calc.containsKey( next ))
+			_calc.remove( next );
+		break;
+		case("SQRT"):
+			if(_calc.containsKey( next ))
+				_calc.remove( next );
+		}
 	}
 	
 }
