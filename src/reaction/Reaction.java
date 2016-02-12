@@ -1,144 +1,56 @@
 package reaction;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
-import expression.*;
+import expression.Component;
+import expression.ExpressionBuilder;
 
 /**
- * \brief TODO
  * 
+ * @author baco
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
+ *
  */
 public class Reaction
 {
 	/**
-	 * TODO
+	 * Reaction stoichiometry
 	 */
-	protected Component _kinetic;
+	private HashMap<String,Double> _stoichiometry = new HashMap<String,Double>();
 	
 	/**
 	 * TODO
 	 */
-	protected HashMap<String, Component> _diffKinetics;
+	private Component _kinetic;
 	
 	/**
-	 * TODO
 	 * 
-	 * TODO Insist that on no overlapping names between solutes and particles.
 	 */
-	protected HashMap<String, Double> _stoichiometry;
-	
-	/**
-	 * this is a dummy constructor
-	 * TODO constructors?
-	 */
-	public Reaction(String construct)
-	{
-		
-	}
-	
-	public Reaction()
-	{
-		
-	}
+	private HashMap<String, Component> _diffKinetics;
 	
 	/*************************************************************************
-	 * COMMONLY USED REACTIONS
-	 * Note that stoichiometries must be set after the reaction is created.
+	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	/**
-	 * FIXME Bas[3NOV2015]: method comes from HasReaction (depreciated) used in
-	 * solver methods I've put it here for now.
-	 */
-	public HashMap<String,Double> 
-			get1stTimeDerivatives(HashMap<String,Double> concns)
+	public Reaction(Map<String, Double> stoichiometry, String kinetic)
 	{
-		return concns;
+		/*
+		 * Lambda expressions are slow in Java, but okay if they are only used
+		 * once.
+		 */
+		stoichiometry.forEach((k,v)-> this._stoichiometry.put(k, v));
+		ExpressionBuilder e = 
+				new ExpressionBuilder(kinetic, new HashMap<String,Double>());
+		this._kinetic = e.component;
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param rate
-	 * @return
-	 */
-	public static Reaction constitutiveReaction(double rate)
+	public Reaction(String chemicalSpecies, double stoichiometry, String kinetic)
 	{
-		Reaction out = new Reaction();
-		Component c1 = new Constant("rate", rate);
-		out.setKinetic(c1);
-		return out;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param k
-	 * @param variables
-	 * @return
-	 */
-	public static Reaction massLawReaction(double k, ArrayList<String> variables)
-	{
-		Reaction out = new Reaction();
-		Component c1 = new Constant("k", k);
-		for ( String var : variables )
-			c1 = Expression.multiply(c1, new Variable(var));
-		out.setKinetic(c1);
-		return out;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param muMax
-	 * @param kS
-	 * @param substrate
-	 * @param catalyst
-	 * @return
-	 */
-	public static Reaction monodReaction(double muMax, double kS, 
-											String substrate, String catalyst)
-	{
-		Reaction out = new Reaction();
-		Component c1 = new Constant("muMax", muMax);
-		Component c2 = new Constant("kS", kS);
-		Component c3 = new Variable(substrate);
-		Component c4 = new Variable(catalyst);
-		c1 = Expression.multiply(c1, c3);
-		c2 = Expression.add(c2, c3);
-		c3 = new Division(c1, c2);
-		out.setKinetic(Expression.multiply(c3, c4));
-		return out;
-	}
-	
-	
-	/*************************************************************************
-	 * SETTERS
-	 ************************************************************************/
-	
-	/**
-	 * \brief Set this reaction's kinetic rate law.
-	 * 
-	 * @param c
-	 */
-	public void setKinetic(Component c)
-	{
-		this._kinetic = c;
-	}
-	
-	/**
-	 * \brief Set this reaction's stoichiometries.
-	 * 
-	 * <p>I.e. the amount of each substance that is produced (positive) or
-	 * consumed (negative) each time this reaction occurs.</p> 
-	 * 
-	 * @param stoichiometry
-	 */
-	public void setStroichiometry(HashMap<String, Double> stoichiometry)
-	{
-		this._stoichiometry = stoichiometry;
+		this._stoichiometry.put(chemicalSpecies, stoichiometry);
+		ExpressionBuilder e = 
+				new ExpressionBuilder(kinetic, new HashMap<String,Double>());
+		this._kinetic = e.component;
 	}
 	
 	/*************************************************************************
@@ -146,22 +58,7 @@ public class Reaction
 	 ************************************************************************/
 	
 	/**
-	 * \brief Makes a deep copy of this Reaction's stoichiometry HashMap.
-	 * 
-	 * TODO there may be a more elegant way of doing this.
-	 * 
-	 * @return
-	 */
-	public HashMap<String, Double> copyStoichiometry()
-	{
-		HashMap<String, Double> out = new HashMap<String, Double>();
-		for ( String key : this._stoichiometry.keySet() )
-			out.put(key, this._stoichiometry.get(key));
-		return out;
-	}
-	
-	/**
-	 * \brief TODO
+	 * \brief Returns the reaction rate depending on concentrations.
 	 * 
 	 * @param concentrations
 	 * @return
@@ -181,8 +78,9 @@ public class Reaction
 									HashMap<String, Double> concentrations)
 	{
 		double rate = this.getRate(concentrations);
-		HashMap<String, Double> out = this.copyStoichiometry();
-		out.replaceAll((s, d) -> {return d * rate;});
+		HashMap<String, Double> out  = new HashMap<String,Double>();
+		for ( String name : this._stoichiometry.keySet() )
+			out.put(name, this._stoichiometry.get(name) * rate);
 		return out;
 	}
 	
@@ -215,9 +113,6 @@ public class Reaction
 		 */
 		return this._diffKinetics.get(withRespectTo).getValue(concentrations);
 	}
-	
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
-	
+
+
 }

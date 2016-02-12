@@ -218,7 +218,7 @@ public class SolveChemostat extends ProcessManager
 					for (Reaction reaction : reactions)
 					{
 						
-						temp = reaction.get1stTimeDerivatives(concns);
+						temp = reaction.getFluxes(concns);
 						for ( int i = 0; i < _soluteNames.length; i++ )
 							dYdT[i] += temp.get(_soluteNames[i]);
 					}
