@@ -2399,4 +2399,17 @@ public final class Vector
 		System.out.println("ERROR: Vector.cylindricalToCartesian only accepts 3D input!"); 
 		return null;
 	}
+	
+	/**
+	 * returns double vector in string format
+	 * @param vector
+	 * @return
+	 */
+	public static String dblToString(double[] vector)
+	{
+		String out = "";
+		for(int i = 0; i < vector.length; i++)
+			out = out + Double.toString(vector[i]) + " \t";
+		return out;
+	}
 }

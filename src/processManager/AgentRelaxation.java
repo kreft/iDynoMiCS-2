@@ -47,7 +47,7 @@ public class AgentRelaxation extends ProcessManager {
 	 */
 	double dtBase		= 0.01;	
 	double maxMovement	= 0.1;	
-	method _method		= method.SHOVE;
+	method _method		= method.EULER;
 	boolean timeLeap	= true;
 	
 	public void init()
