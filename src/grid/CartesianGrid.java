@@ -3,9 +3,11 @@ package grid;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import grid.GridBoundary.GridMethod;
 import grid.ResolutionCalculator.ResCalc;
-import linearAlgebra.*;
+import grid.ResolutionCalculator.ResCalcFactory;
+import grid.ResolutionCalculator.UniformResolution;
+import linearAlgebra.Array;
+import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
 
 /**
@@ -16,32 +18,9 @@ import shape.ShapeConventions.DimName;
  */
 public class CartesianGrid extends SpatialGrid
 {
+
 	/**
-	 * The number of voxels this grid has in each of the three spatial 
-	 * dimensions. Note that some of these may be 1 if the grid is not three-
-	 * dimensional.
-	 * 
-	 * <p>For example, a 3 by 2 rectangle would have _nVoxel = [3, 2, 1].</p>
-	 * 
-	 * TODO replace with _resCalc
-	 */
-	protected int[] _nVoxel = new int[3];
-	
-	/**
-	 * Grid resolution, i.e. the side length of each voxel in this grid. This
-	 * has three rows, one for each dimension. Each row has length of its
-	 * corresponding position in _nVoxel.
-	 * 
-	 * <p>For example, a 3 by 2 rectangle might have _res = 
-	 * [[1.0, 1.0, 1.0], [1.0, 1.0], [1.0]]</p>
-	 * 
-	 * TODO replace with _resCalc
-	 */
-	protected double[][] _res  = new double[3][];
-	
-	/**
-	 * 
-	 * TODO replace _nVoxel and _res
+	 * TODO
 	 */
 	protected ResCalc[] _resCalc = new ResCalc[3];
 	
@@ -67,30 +46,13 @@ public class CartesianGrid extends SpatialGrid
 		this._dimName[0] = DimName.X;
 		this._dimName[1] = DimName.Y;
 		this._dimName[2] = DimName.Z;
-		/* Set up the resolutions. */
-		ArrayList<Double> resolutions = new ArrayList<Double>();
-		double remaining, temp;
-		for ( int dim = 0; dim < 3; dim++ )
-		{
-			resolutions.clear();
-			remaining = resCalc[dim].getTotalLength();
-			while ( remaining > 0.0 )
-			{
-				temp = resCalc[dim].getResolution(resolutions.size());
-				if ( (remaining - temp) < 0.0 )
-				{
-					temp = remaining;
-					remaining = 0.0;
-				}
-				else
-					remaining -= temp;
-				resolutions.add(temp);
-			}
-			this._res[dim] = new double[resolutions.size()];
-			this._nVoxel[dim] = resCalc[dim].getNVoxel();
-			for ( int i = 0; i < resolutions.size(); i++ )
-				this._res[dim][i] = (double) resolutions.get(i);
-		}
+		
+		this._resCalc = resCalc;
+		
+		/* in the cartesian grid we have to call this method only once here */
+		this._currentNVoxel = new int[3];
+		updateCurrentNVoxel();
+		
 		/* 
 		 * Finally, pre-calculate the smallest shared surface area between
 		 * neighboring voxels.
@@ -102,27 +64,16 @@ public class CartesianGrid extends SpatialGrid
 	 * \brief TODO
 	 * 
 	 * @param nVoxel
-	 * @param padding
 	 * @param resolution
 	 */
-	public CartesianGrid(int[] nVoxel, double resolution)
+	public CartesianGrid(double[] totalLength, double resolution)
 	{
-		double[] totalSize = new double[3];
-		
-		ResolutionCalculator res = new ResolutionCalculator();
-		ResCalc[] resCalc = new ResCalc[3];
-		for ( int i = 0; i < 3; i++ )
-		{
-			totalSize[i] = nVoxel[i]*resolution;
-			resCalc[i] = res.new UniformResolution();
-			resCalc[i].init(resolution, totalSize[i]);
-		}
-		new CartesianGrid(resCalc);
+		this( ResCalcFactory.createUniformResCalcForCube(totalLength, resolution));
 	}
 
 	public CartesianGrid()
 	{
-		new CartesianGrid(Vector.onesInt(3), 1.0);
+		this( Vector.onesDbl(3), 1.0);
 	}
 	
 	@Override
@@ -135,13 +86,15 @@ public class CartesianGrid extends SpatialGrid
 		if ( this.hasArray(type) )
 			Array.setAll(this._array.get(type), initialValues);
 		else
-			this._array.put(type, Array.array(this._nVoxel, initialValues));
+			this._array.put(type, 
+							Array.array(this._currentNVoxel, initialValues));
 	}
 	
 	public void calcMinVoxelVoxelSurfaceArea()
 	{
 		int nSA = this.numSignificantAxes();
 		double out = 1.0;
+		ResCalc rC;
 		switch ( nSA )
 		{
 			case 0:
@@ -150,26 +103,31 @@ public class CartesianGrid extends SpatialGrid
 			case 1:
 				for ( int axis = 0; axis < 3; axis++ )
 				{
-					if ( this._nVoxel[axis] > 1 )
+					rC = this.getResolutionCalculator(axis);
+					if ( this._currentNVoxel[axis] > 1 )
 						continue;
-					out *= this._res[axis][0];
+					out *= rC.getResolution(0);
 				}
 				break;
 			case 2:
 				double min = Double.MAX_VALUE;
+				
 				for ( int axis = 0; axis < 3; axis++ )
 				{
-					if ( this._nVoxel[axis] > 1 )
-						min = Math.min(min, Vector.min(this._res[axis]));
+					rC = this.getResolutionCalculator(axis);
+					if ( this._currentNVoxel[axis] > 1 )
+						min = Math.min(min, rC.getMinResolution());
 					else
-						out *= this._res[axis][0];
+						out *= rC.getResolution(0);
 				}
 				out *= out;
 				break;
 			case 3:
 				ArrayList<Double> axes = new ArrayList<Double>(3);
-				for ( int axis = 0; axis < 3; axis++ )
-					axes.set(axis, Vector.min(this._res[axis]));
+				for ( int axis = 0; axis < 3; axis++ ){
+					rC = this.getResolutionCalculator(axis);
+					axes.set(axis, rC.getMinResolution());
+				}
 				Collections.sort(axes);
 				out = axes.get(0) * axes.get(1);
 				break;
@@ -180,9 +138,12 @@ public class CartesianGrid extends SpatialGrid
 	public void calcMinVoxVoxResSq()
 	{
 		double m = Double.MAX_VALUE;
-		for ( int axis = 0; axis < 3; axis++ )
-			for ( int i = 0; i < this._nVoxel[axis] - 1; i++ )
-				m = Math.min(m, this._res[axis][i] * this._res[axis][i+1]);
+		ResCalc rC;
+		for ( int axis = 0; axis < 3; axis++ ){
+			rC = this.getResolutionCalculator(axis);
+			for ( int i = 0; i < this._currentNVoxel[axis] - 1; i++ )
+				m = Math.min(m, rC.getResolution(i) * rC.getResolution(i + 1));
+		}
 		this._minVoxVoxDist = m;
 	}
 	
@@ -210,7 +171,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		double out = 1.0;
 		for ( int dim = 0; dim < 3; dim++ )
-			out *= this._res[dim][coord[dim]];
+			out *= this.getResolutionCalculator(dim).getResolution(coord[dim]);
 		return out;
 	}
 	
@@ -229,12 +190,14 @@ public class CartesianGrid extends SpatialGrid
 		int[] coord = new int[3];
 		double counter;
 		int maxDim = Math.min(3, location.length);
+		ResCalc rC;
 		for ( int dim = 0; dim < maxDim; dim++ )
 		{
+			rC = getResolutionCalculator(dim);
 			counter = 0.0;
-			countLoop: for ( int i = 0; i < this._nVoxel[dim]; i++ )
+			countLoop: for ( int i = 0; i < this._currentNVoxel[dim]; i++ )
 			{
-				counter += this._res[dim][i];
+				counter += rC.getResolution(i);
 				if ( counter >= location[dim] )
 				{
 					coord[dim] = i;
@@ -244,10 +207,21 @@ public class CartesianGrid extends SpatialGrid
 		}
 		return coord;
 	}
-
-	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	
+	/**
+	 * TODO
+	 * @param axis
+	 * @return
+	 */
+	protected ResCalc getResolutionCalculator(int axis)
 	{
 		return this._resCalc[axis];
+	}
+
+	@Override
+	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	{
+		return getResolutionCalculator(axis);
 	}
 	
 	/*************************************************************************
@@ -255,107 +229,53 @@ public class CartesianGrid extends SpatialGrid
 	 ************************************************************************/
 	
 	@Override
-	public double[] getVoxelOrigin(int[] coords)
+	public int[] getNVoxel(int[] coords, int[] outNVoxel)
 	{
-		double[] out = Vector.zerosDbl(3);
-		for ( int dim = 0; dim < 3; dim++ )
-			for ( int i = 0; i < coords[dim]; i++ )
-				out[dim] += this._res[dim][i];
-		return out;
-	}
-	
-	@Override
-	public double[] getVoxelCentre(int[] coords)
-	{
-		double[] out = getVoxelOrigin(coords);
-		for ( int dim = 0; dim < 3; dim++ )
-			out[dim] += 0.5 * this._res[dim][coords[dim]];
-		return out;
-	}
-	
-	@Override
-	public int[] getNVoxel(int[] coords)
-	{
-		return this._nVoxel;
+		if (outNVoxel == null)
+			outNVoxel = new int[3];
+		for (int dim=0; dim<3; ++dim)
+			outNVoxel[dim] = this._resCalc[dim].getNVoxel();
+		return outNVoxel;
 	}
 	
 	/*************************************************************************
 	 * NEIGHBOR ITERATOR
 	 ************************************************************************/
 
-	/**
-	 * TODO
-	 * 
-	 */
+	@Override
 	public int[] resetNbhIterator()
 	{
+		this._nbhValid = true;
 		if ( this._currentNeighbor == null )
 			this._currentNeighbor = Vector.copy(this._currentCoord);
 		else
 			Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		for ( int axis = 0; axis < 3; axis++ )
-			if ( this._nVoxel[axis] > 1 || this._dimBoundaries[axis][0] != null )
-			{
-				this._currentNeighbor[axis]--;
+			/* See if we can take one of the neighbors in dimension 'axis'. */
+			if ( this.moveNbhToMinus(axis) || this.nbhJumpOverCurrent(axis) ){
 				this._nbhDirection = this._dimName[axis];
 				return this._currentNeighbor;
 			}
+		this._nbhValid = false;
 		return null;
 	}
 
-	/**
-	 * TODO
-	 * 
-	 * @param axis
-	 * @return
-	 */
-	private boolean nbhIteratorExceeds(int axis)
-	{
-		/*
-		 * If this is a trivial axis and we're not on it, then we're
-		 * definitely in the wrong place.
-		 */
-		if ( this._nVoxel[axis] == 1 && 
-				this._currentNeighbor[axis] != this._currentCoord[axis] )
-		{
-			return true;
-		}
-		return _currentNeighbor[axis] >  this._currentCoord[axis] + 1;
-	}
 
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public boolean isNbhIteratorValid()
-	{
-		for ( int axis = 0; axis < 3; axis++ )
-			if ( nbhIteratorExceeds(axis) )
-				return false;
-		return true;
-	}
-
-	/**
-	 * TODO
-	 * 
-	 * @return int[3] coordinates of next position.
-	 */
+	@Override
 	public int[] nbhIteratorNext()
 	{
 		int nbhDir = this.indexFor(this._nbhDirection);
-		if ( this._nbhDirection == DimName.Z || 
-				this._currentNeighbor[nbhDir] < this._currentCoord[nbhDir] )
-		{
-			this._currentNeighbor[nbhDir] += 2;
-		}
-		else
-		{
-			this._currentNeighbor[nbhDir] = this._currentCoord[nbhDir];
+		if ( ! this.nbhJumpOverCurrent(nbhDir)){
 			nbhDir++;
-			this._nbhDirection = this._dimName[nbhDir];
-			this._currentNeighbor[nbhDir] = this._currentCoord[nbhDir] - 1;
+			if (nbhDir < 3){
+				this._nbhDirection = this._dimName[nbhDir];
+				if ( ! moveNbhToMinus(nbhDir))
+					return nbhIteratorNext();
+				
+			}
+			else this._nbhValid = false;
 		}
+			
 		return this._currentNeighbor;
 	}
 	
@@ -364,21 +284,18 @@ public class CartesianGrid extends SpatialGrid
 	{
 		int absDiff = 0, cumulativeAbsDiff = 0;
 		double area = 1.0;
+		ResCalc rC;
 		for ( int i = 0; i < 3; i++ )
 		{
 			absDiff = Math.abs(this._currentCoord[i]-this._currentNeighbor[i]);
-			if ( absDiff == 0 )
-				area *= this._res[i][this._currentCoord[i]];
+			if ( absDiff == 0 ){
+				rC = this.getResolutionCalculator(i);
+				area *= rC.getResolution(this._currentCoord[i]);
+			}
 			else
 				cumulativeAbsDiff += absDiff;
 		}
 		return ( cumulativeAbsDiff == 1 ) ? area : 0.0;
-	}
-	
-	@Override
-	public GridMethod nbhIteratorIsOutside()
-	{
-		return this.isOutside(this._currentNeighbor);
 	}
 
 	/*************************************************************************
@@ -445,15 +362,7 @@ public class CartesianGrid extends SpatialGrid
 			@Override
 			public SpatialGrid newGrid(double[] totalLength, double resolution) 
 			{
-				ResolutionCalculator r = new ResolutionCalculator();
-				
-				ResCalc[] resCalc= new ResCalc[3];
-				
-				for (int dim=0; dim<3; dim++){
-					resCalc[dim] = r.new UniformResolution();
-					resCalc[dim].init(resolution, totalLength[dim]);
-				};
-				return new CartesianGrid(resCalc);
+				return new CartesianGrid(totalLength, resolution);
 			}
 		};
 	}
@@ -466,7 +375,7 @@ public class CartesianGrid extends SpatialGrid
 			public SpatialGrid newGrid(double[] totalSize, double resolution) 
 			{
 				// TODO check this is the best way.
-				return new CartesianGrid(Vector.onesInt(3), resolution);
+				return new CartesianGrid(Vector.onesDbl(3), resolution);
 			}
 		};
 	}

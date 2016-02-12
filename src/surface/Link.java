@@ -23,8 +23,8 @@ public class Link {
 	
 	public boolean evaluate(Collision collisionDomain)
 	{
-		double d = collisionDomain.sphereSphere( (Sphere) _surfaces[0], 
-				(Sphere) _surfaces[1]);
+		double d = collisionDomain.sphereSphere( (Ball) _surfaces[0], 
+				(Ball) _surfaces[1]);
 		if (d < 0)
 			return false;
 		else if (d > _snap)

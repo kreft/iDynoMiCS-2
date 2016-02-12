@@ -1,7 +1,9 @@
 package grid;
 
+import java.util.Arrays;
+
 import grid.ResolutionCalculator.ResCalc;
-import grid.ResolutionCalculator.UniformResolution;
+import grid.ResolutionCalculator.ResCalcFactory;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
@@ -64,64 +66,37 @@ public class SphericalGrid extends PolarGrid
 	/**
 	 * \brief TODO
 	 * 
-	 * @param totalSize
+	 * @param totalLength
 	 * @param res
 	 */
-	public SphericalGrid(double[] totalSize, double[] res)
+	public SphericalGrid(ResCalc[][][] resCalc)
 	{
-		super(totalSize);
+		super();
 		this._dimName[1] = DimName.PHI;
 		this._dimName[2] = DimName.THETA;
-		/*
-		 * Set up sphere-specific members
-		 */
 		
-		this._radSize[2] = Math.toRadians(totalSize[2]%181);
-		this._ires[2] = PolarArray.ires(this._radSize[2]); 
-		/*
-		 * Set up uniform resolution calculator array
-		 */
-		ResolutionCalculator resolution = new ResolutionCalculator();
-		this._resCalc = new UniformResolution[3][][];
-		/*
-		 * Set up for the radial coordinate, and find out how many shells we
-		 * have.
-		 */
-		this._resCalc[0] = new UniformResolution[1][1];
-		this._resCalc[0][0][0] = resolution.new UniformResolution();
-		this._resCalc[0][0][0].init(res[0], totalSize[0]);
-		int numShells = _resCalc[0][0][0].getNVoxel();
-		/*
-		 * For each radial shell we have a known number of voxels in phi,
-		 * but the number of voxels in theta varies.
-		 */
-		this._resCalc[1] = new UniformResolution[numShells][1];
-		this._resCalc[2] = new UniformResolution[numShells][];
-		int numRings;
-		double phi_scale, ring_length;
-		for ( int i = 0; i < numShells; ++i )
-		{
-			/* Set up for theta. */
-			this._resCalc[1][i][0] = resolution.new UniformResolution();
-			this._resCalc[1][i][0].init(res[2], this._ires[2] * s(i));
-			/* Determine how many for phi, and set these up. */
-			numRings = this._resCalc[1][i][0].getNVoxel();
-			this._resCalc[2][i] = new UniformResolution[numRings];
-			for ( int j = 0; j < numRings; ++j )
-			{
-				// TODO this is about as clear as mud - clarify and comment!
-				phi_scale = 0.5 * Math.PI / (s(i)-0.5);
-				ring_length = this._ires[1] + 
-							(s(i)-1)*this._ires[1]*Math.sin(j * phi_scale);
-				this._resCalc[2][i][j] = resolution.new UniformResolution();
-				this._resCalc[2][i][j].init(res[1], ring_length);
-			}
+		this._resCalc = resCalc;
+		
+		/* add cyclic boundaries to phi's max and min if we have a half circle*/
+		if (getTotalLength(1) == Math.PI) {
+			_dimBoundaries[1][0] = new GridBoundary.Cyclic();
+			_dimBoundaries[1][1] = new GridBoundary.Cyclic();
 		}
+		/* 
+		 * add cyclic boundaries to theta's max and min if we have a full circle
+		 */
+		if (getTotalLength(2) == 2 * Math.PI) {
+			_dimBoundaries[2][0] = new GridBoundary.Cyclic();
+			_dimBoundaries[2][1] = new GridBoundary.Cyclic();
+		}
+		
+		resetIterator();
+		resetNbhIterator();
 	}
 	
-	public SphericalGrid(double[] totalSize, double res)
+	public SphericalGrid(double[] totalLength, double res)
 	{
-		this(totalSize, Vector.vector(3, res));
+		this(ResCalcFactory.createUniformResCalcForSphere(totalLength, res));
 	}
 	
 	@Override
@@ -143,113 +118,6 @@ public class SphericalGrid extends PolarGrid
 	/*************************************************************************
 	 * SIMPLE GETTERS
 	 ************************************************************************/
-	
-	/**
-	 * \brief Computes the arc length along the azimuthal dimension of the 
-	 * grid element at the given coordinate.
-	 * 
-	 * TODO: Assumes constant resolution at the moment?!
-	 * 
-	 * @param coord Coordinates of a voxel in the grid.
-	 * @return The arc length along the azimuthal dimension (theta) for this
-	 * voxel.
-	 * @exception ArrayIndexOutOfBoundsException Voxel coordinates must be
-	 * inside array.
-	 */
-	private double getArcLengthTheta(int[] coord)
-	{
-		// TODO surely we can just
-		// return resCalc.getResolution(coord[2]); ?
-		ResCalc resCalc = this._resCalc[2][coord[0]][coord[1]];
-		return resCalc.getResolution(coord[2])
-				* this.getTotalLength(1) / resCalc.getTotalLength();
-	}
-	
-	/**
-	 * \brief Computes the arc length along the polar dimension of
-	 *  the given voxel.
-	 * 
-	 * TODO: Assumes constant resolution at the moment?!
-	 * 
-	 * @param coord Coordinates of a voxel in the grid.
-	 * @return The arc length along the polar dimension (phi) for this voxel.
-	 * @exception ArrayIndexOutOfBoundsException Voxel coordinates must be
-	 * inside array.
-	 */
-	private double getArcLengthPhi(int[] coord)
-	{
-		ResCalc resCalc = this._resCalc[1][coord[0]][0];
-		// TODO surely we can just return resCalc.getResolution(coord[1])?
-		return resCalc.getResolution(coord[1])
-				* this.getTotalLength(2) / resCalc.getTotalLength();
-	}
-	
-	@Override
-	public int[] getCoords(double[] loc, double[] inside)
-	{
-		int[] coord = new int[3];
-		/*
-		 * Determine i (as in Cartesian grid).
-		 */
-		cartLoc2Coord(0,
-				loc[0],
-				this._resCalc[0][0][0],
-				coord,
-				inside);
-		/*
-		 * Determine j.
-		 */
-		polarLoc2Coord(1,
-				loc[1],
-				this.getTotalLength(1),
-				this._resCalc[1][coord[0]][0],
-				coord,
-				inside);
-		/*
-		 * Determine k.
-		 */
-		polarLoc2Coord(2,
-				loc[2],
-				this.getTotalLength(2),
-				this._resCalc[2][coord[0]][coord[1]],
-				coord, 
-				inside);
-		return coord;
-	}
-	
-	@Override
-	public double[] getLocation(int[] coord, double[] inside)
-	{
-		double[] loc = new double[3];
-		/*
-		 * Determine r.
-		 */
-		cartCoord2Loc(0,
-				coord[0],
-				_resCalc[0][0][0],
-				inside[0],
-				loc);
-		/* 
-		 * Determine phi.
-		 */
-		polarCoord2Loc(1,
-				coord[1],
-				this.getTotalLength(1),
-				this._resCalc[1][coord[0]][0],
-				inside[1],
-				loc);
-		/*
-		 * Determine theta.
-		 */
-		polarCoord2Loc(2,
-				coord[2],
-				this.getTotalLength(2),
-				this._resCalc[2][coord[0]][coord[1]],
-				inside[2],
-				loc);
-		return loc;
-	}
-	
 
 	@Override
 	public void calcMinVoxVoxResSq()
@@ -262,6 +130,7 @@ public class SphericalGrid extends PolarGrid
 	@Override
 	public double getVoxelVolume(int[] coord)
 	{
+		//TODO: wrong
 		// mathematica: Integrate[r^2 sin p,{p,p1,p2},{t,t1,t2},{r,r1,r2}] 
 		double[] loc1 = getVoxelOrigin(coord);
 		double[] loc2 = getVoxelUpperCorner(coord);
@@ -293,27 +162,41 @@ public class SphericalGrid extends PolarGrid
 		out += (this.getTotalLength(2) > 0) ? 1 : 0;
 		return out;
 	}
-
-	@Override
-	public double getNbhSharedSurfaceArea()
-	{
-		// TODO Auto-generated method stub
-		System.err.println(
-				"tried to call unimplemented method getNbhSharedSurfaceArea()");
-		return 1;
-	}
 	
 	@Override
-	public int[] getNVoxel(int[] coords)
+	public int[] getNVoxel(int[] coords, int[] outNVoxel)
 	{
-		return new int[]{this._resCalc[0][0][0].getNVoxel(),
-						 this._resCalc[1][coords[0]][0].getNVoxel(),
-						 this._resCalc[2][coords[0]][coords[1]].getNVoxel()};
-	}
-	
-	protected double getTotalLength(int axis)
-	{
-		return this._resCalc[axis][0][0].getTotalLength();
+		if (outNVoxel == null)
+			outNVoxel = new int[3];
+		/*
+		 * resolution calculator in first dimension ({@code r})
+		 * should always be stored in resCalc[0][0] (no checking needed)
+		 */
+		ResCalc rC = getResolutionCalculator(coords, 0);
+		outNVoxel[0] = rC.getNVoxel();
+		/*
+		 * check if the coordinate is valid for 2nd dimension ({@code phi})
+		 */
+		boolean is_inside_r = coords[0] >= 0 && coords[0] < rC.getNVoxel();
+		if (is_inside_r){
+			rC = getResolutionCalculator(coords, 1);
+			outNVoxel[1] =  rC.getNVoxel();
+		}
+		else outNVoxel[1] = 0;
+		
+		/*
+		* check if the coordinate is valid for 3rd dimension ({@code theta})
+		*/
+		boolean is_inside_phi
+							= coords[1] >= 0 && coords[1] < rC.getNVoxel();
+		int nk = 0;
+		if (is_inside_r && is_inside_phi){
+			rC = getResolutionCalculator(coords, 2);
+			outNVoxel[2] = rC.getNVoxel();
+		}
+		else outNVoxel[2] = 0;
+		
+		return outNVoxel;
 	}
 	
 	@Override
@@ -324,7 +207,7 @@ public class SphericalGrid extends PolarGrid
 			/* r */
 			case 0: return this._resCalc[0][0][0];
 			/* phi */
-			case 1: return this._resCalc[1][coord[0]][0];
+			case 1: return this._resCalc[1][0][coord[0]];
 			/* theta */
 			case 2: return this._resCalc[2][coord[0]][coord[1]];
 			// TODO throw an exception?
@@ -332,265 +215,181 @@ public class SphericalGrid extends PolarGrid
 		}
 	}
 	
+	protected double getTotalLength(int axis)
+	{
+		return this._resCalc[axis][0][0].getTotalLength();
+	}
+	
 	/*************************************************************************
-	 * 
+	 * ITERATOR
 	 ************************************************************************/
 	
-	// @Override
-	//TODO: assumes constant resolution for each r at the moment?
-	public void fillNbhSet()
+	/**
+	 * TODO
+	 * 
+	 * @param shellIndex
+	 * @return
+	 */
+	protected boolean setNbhFirstInNewRing(int ringIndex)
 	{
-		int[] cc = _currentCoord;
-//		System.out.println(Arrays.toString(cc));
+		this._currentNeighbor[1] = ringIndex;
+		
+		/* If we are on an invalid shell, we are definitely in the wrong place*/
+		if (isOnBoundary(this._currentNeighbor, 0))
+			return false;
+		
 		/*
-		 * Moving along radial dimension.
+		 * First check that the new ring is inside the grid. If we're on a
+		 * defined boundary, the theta coordinate is irrelevant.
 		 */
-		if ( _nbhIdx > 3 )
-		{ 
-			/*
-			 * Change in r (-1 or 1)
-			 */
-			int[] nbh_coord = new int[3];
-			int dr = NBH_DIRECS[_nbhIdx][0];
-			nbh_coord[0] = cc[0] + dr;
-			if ( isOutside(new int[]{nbh_coord[0] , -1, -1}) == null )
-			{
-				double[] bounds_theta = new double[2];
-				double[] bounds_phi = new double[2];
-				double[] bounds_nbh_theta = new double[2];
-				double[] bounds_nbh_phi = new double[2];
-				
-				double len_cur_theta = getArcLengthTheta(cc);
-				double len_cur_phi = getArcLengthPhi(cc);
-				
-				/*
-				 * current coord bounds phi
-				 */
-				polarCoord2Loc(0, 
-						cc[1],
-						this.getTotalLength(1),
-						_resCalc[1][cc[0]][0], 
-						0, 
-						bounds_phi);
-				
-				polarCoord2Loc(1, 
-						cc[1],
-						this.getTotalLength(1),
-						_resCalc[1][cc[0]][0], 
-						1, 
-						bounds_phi);
-				
-				/*
-				 * current coord bounds theta
-				 */
-				polarCoord2Loc(0, 
-						cc[2],
-						this.getTotalLength(1),
-						_resCalc[2][cc[0]][cc[1]], 
-						0, 
-						bounds_theta);
-				
-				polarCoord2Loc(1, 
-						cc[2],
-						this.getTotalLength(1),
-						_resCalc[2][cc[0]][cc[1]], 
-						1, 
-						bounds_theta);
-				
-				/*
-				 * first neighbor phi coordinate
-				 */
-				polarLoc2Coord(1, 
-						bounds_phi[0],
-						this.getTotalLength(1),
-						_resCalc[1][nbh_coord[0]][0], 
-						nbh_coord, 
-						null);
-				
-				/*
-				 * First neighbor phi location 0 (origin)
-				 */
-				polarCoord2Loc(0, 
-						nbh_coord[1],
-						this.getTotalLength(1),
-						_resCalc[1][nbh_coord[0]][0], 
-						0, 
-						bounds_nbh_phi);
-				
-				while(bounds_nbh_phi[0] < bounds_phi[1]){	
-					/*
-					 * next neighbor in phi 
-					 */
-					polarCoord2Loc(1, 
-							nbh_coord[1],
-							this.getTotalLength(1),
-							_resCalc[1][nbh_coord[0]][0], 
-							1, 
-							bounds_nbh_phi);
-					
-					double len_nbh_phi = getArcLengthPhi(nbh_coord);
-					
-					double sA_phi = getSharedArea(dr,
-							len_cur_phi,
-							bounds_phi,
-							bounds_nbh_phi,
-							len_nbh_phi);
-//					System.out.println(Arrays.toString(nbh_coord));
-					/*
-					 * first neighbor theta coordinate
-					 */
-					polarLoc2Coord(2, 
-							bounds_theta[0],
-							this.getTotalLength(1),
-							_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
-							nbh_coord, 
-							null);
-					
-					/*
-					 * First neighbor theta location 0 (origin)
-					 */
-					polarCoord2Loc(0, 
-							nbh_coord[2],
-							this.getTotalLength(1),
-							_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
-							0, 
-							bounds_nbh_theta);
-					
-					while(bounds_nbh_theta[0] < bounds_theta[1])
-					{	
-						/*
-						 * next neighbor in theta
-						 */
-						polarCoord2Loc(1, 
-								nbh_coord[2],
-								this.getTotalLength(1),
-								_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
-								1, 
-								bounds_nbh_theta);
-						
-						double len_nbh_theta = getArcLengthTheta(nbh_coord);
-						
-						double sA_theta = getSharedArea(dr,
-								len_cur_theta,
-								bounds_theta,
-								bounds_nbh_theta,
-								len_nbh_theta);
-//						System.out.print("phi: "+Arrays.toString(bounds_nbh_phi)+"  "+Arrays.toString(bounds_phi));
-//						System.out.println(" theta: "+Arrays.toString(bounds_nbh_theta)+"  "+Arrays.toString(bounds_theta));
-						_subNbhSet.add(Vector.copy(nbh_coord));
-						_subNbhSharedAreaSet.add(sA_phi * sA_theta);
-						
-						bounds_nbh_theta[0] = bounds_nbh_theta[1];
-						nbh_coord[2]++;
-					}
-					bounds_nbh_phi[0] = bounds_nbh_phi[1];
-					nbh_coord[1]++;
-				}
-			}
-			/*
-			* only change r coordinate if outside the grid along radial dimension.
-			*/
-			else _subNbhSet.add(new int[]{cc[0] + dr,cc[1],cc[2]});
-		}
+		if (isOnBoundary(this._currentNeighbor, 1))
+			return false;
+		
+		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 2);
 		/*
-		 * Moving along polar dimension.
+		 * We're on an intermediate ring, so find the voxel which has the
+		 * current coordinate's minimum theta angle inside it.
 		 */
-		else if ( this._nbhIdx < 2 )
-		{ 
-			/*
-			 * change in phi (-1 or 1)
-			 */
-			int dPhi = NBH_DIRECS[this._nbhIdx][2];
-			int[] nbh_coord = new int[3];
-			nbh_coord[1] = cc[1] + dPhi;
-//			System.out.println(dp);
-			if ( isOutside(new int[]{cc[0],nbh_coord[1],-1}) == null )
-			{
-				nbh_coord[0] = cc[0] + NBH_DIRECS[_nbhIdx][0];
-				double[] bounds = new double[2];
-				double[] bounds_nbh = new double[2];
-				
-				double len_cur = getArcLengthTheta(cc);
-				
-				/*
-				 * current coord bounds theta
-				 */
-				polarCoord2Loc(0, 
-						cc[2],
-						this.getTotalLength(1),
-						_resCalc[2][cc[0]][cc[1]], 
-						0, 
-						bounds);
-				
-				polarCoord2Loc(1, 
-						cc[2],
-						this.getTotalLength(1),
-						_resCalc[2][cc[0]][cc[1]], 
-						1, 
-						bounds);
-				
-				/*
-				 * first neighbor theta coordinate
-				 */
-				polarLoc2Coord(2, 
-						bounds[0],
-						this.getTotalLength(1),
-						_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
-						nbh_coord, 
-						null);
-				
-				/*
-				 * First neighbor theta location 0 (origin)
-				 */
-				polarCoord2Loc(0, 
-						nbh_coord[2],
-						this.getTotalLength(1),
-						_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
-						0, 
-						bounds_nbh);
-				
-				while(bounds_nbh[0] < bounds[1])
-				{	
-					/*
-					 * next neighbor in theta 
-					 */
-					polarCoord2Loc(1, 
-							nbh_coord[2],
-							this.getTotalLength(1),
-							_resCalc[2][nbh_coord[0]][nbh_coord[1]], 
-							1, 
-							bounds_nbh);
-					
-					double len_nbh = getArcLengthTheta(nbh_coord);
-					
-					double sA = getSharedArea(dPhi,
-							len_cur,
-							bounds,
-							bounds_nbh,
-							len_nbh);
-					
-					_subNbhSet.add(Vector.copy(nbh_coord));
-					_subNbhSharedAreaSet.add(sA);
-					bounds_nbh[0] = bounds_nbh[1];
-					nbh_coord[2]++;
-				}
-			}
-			/*
-			* only change p coordinate if outside the grid along polar dimension.
-			*/
-			else
-				this._subNbhSet.add(new int[]{cc[0],cc[1]+dPhi,cc[2]});
-		}
+		double theta = rC.getCumulativeResolution(this._currentCoord[2] - 1);
+		
+		rC = this.getResolutionCalculator(this._currentNeighbor, 2);
+		
+		this._currentNeighbor[2] = rC.getVoxelIndex(theta);
+		return true;
+	}
+	
+	@Override
+	public int[] resetNbhIterator()
+	{
 		/*
-		 * Add the relative position to the current coordinate if moving along
-		 * azimuthal dimension.
+		 * First check that the neighbor iterator is initialised and set to the
+		 * current coordinate.
 		 */
+		if ( this._currentNeighbor == null )
+			this._currentNeighbor = Vector.copy(this._currentCoord);
 		else
-		{ 
-			this._subNbhSet.add(new int[]{ cc[0] + NBH_DIRECS[_nbhIdx][0],
-									  		cc[1] + NBH_DIRECS[_nbhIdx][2],
-									  		cc[2] + NBH_DIRECS[_nbhIdx][1] });
+			Vector.copyTo(this._currentNeighbor, this._currentCoord);
+		/*
+		 * Now find the first neighbor.
+		 */
+		this._nbhValid = true;
+		/* See if we can use the inside r-shell. */
+		if ( this.setNbhFirstInNewShell( this._currentCoord[0] - 1 ) && 
+				this.setNbhFirstInNewRing( this._currentNeighbor[1] ) )
+			return this._currentNeighbor;
+		
+		/* 
+		 * See if we can take one of the phi-minus-neighbors of the current 
+		 * r-shell. 
+		 */
+		if ( this.setNbhFirstInNewShell( this._currentCoord[0]) 
+				&& this.setNbhFirstInNewRing( this._currentCoord[1] - 1) )
+			return this._currentNeighbor;
+		/* See if we can take one of the theta-neighbors 
+		 * in the current phi-shell.
+		 */
+		if ( this.moveNbhToMinus(2) || this.nbhJumpOverCurrent(2) )
+			return this._currentNeighbor;
+		/* See if we can take one of the phi-plus-neighbors. */
+		if ( this.setNbhFirstInNewRing( this._currentCoord[1] + 1) )
+			return this._currentNeighbor;
+		
+		/* See if we can use the outside r-shell. */
+		if ( this.setNbhFirstInNewShell( this._currentCoord[0] + 1 ) && 
+				this.setNbhFirstInNewRing( this._currentNeighbor[1] ) )
+			return this._currentNeighbor;
+		
+		/* There are no valid neighbors. */
+		this._nbhValid = false;
+		return this._currentNeighbor;
+	}
+	
+	@Override
+	public int[] nbhIteratorNext()
+	{
+		/*
+		 * In the cylindrical grid, we start the 
+		 */
+		if ( this._currentNeighbor[0] == this._currentCoord[0] - 1 )
+		{
+			/*
+			 * We're in the r-shell just inside that of the 
+			 * current coordinate.
+			 * Try increasing theta by one voxel. If this fails, move out to
+			 * the next ring. If this fails, move out to the next shell (which 
+			 * must be existent, since it is the one of the current coord) 
+			 * and try to move to the phi-minus ring. 
+			 * If this fails, the phi-ring must be invalid, so try to move to
+			 * the theta-minus neighbor in the current phi-ring.
+			 * If this fails call this method again.
+			 */
+			if ( ! this.increaseNbhByOnePolar(2) )
+				if ( ! this.increaseNbhByOnePolar(1) ||
+						! this.setNbhFirstInNewRing(_currentNeighbor[1]) )
+					if ( ! this.setNbhFirstInNewShell( this._currentCoord[0] ) 
+						|| !this.setNbhFirstInNewRing( this._currentCoord[1] - 1 ) )						
+						if ( ! this.moveNbhToMinus(2) )
+							return this.nbhIteratorNext();
 		}
+		else if ( this._currentNeighbor[0] == this._currentCoord[0] )
+		{
+			/* 
+			 * We're in the same r-shell as the current coordinate.
+			 */
+			if ( this._currentNeighbor[1] == this._currentCoord[1] - 1 )
+			{
+				/*
+				 * We're in the phi-ring just inside that of the 
+				 * current coordinate.
+				 * Try increasing theta by one voxel. If this fails, move out to
+				 * the next ring. If this fails, call this method again.
+				 */
+				if ( ! this.increaseNbhByOnePolar(2) )
+					if ( ! this.moveNbhToMinus(2) )
+						return this.nbhIteratorNext();
+			}
+			else if ( this._currentNeighbor[1] == this._currentCoord[1] )
+			{
+				/*
+				 * We're in the same phi-ring as the current coordinate.
+				 * Try to jump to the theta-plus side of the current
+				 * coordinate. If you can't, try switching to the phi-plus
+				 * ring.
+				 */
+				if ( ! this.nbhJumpOverCurrent(2) )
+					if ( ! this.setNbhFirstInNewRing(this._currentCoord[1] + 1) )
+						return this.nbhIteratorNext();
+			}
+			else 
+			{
+				/* We're in the phi-ring just outside that of the 
+				 * current coordinate. 
+				 * Try increasing theta by one voxel. If this fails, move out 
+				 * to the next shell. If this fails, move to the next rings. If
+				 * this fails, we are finished.
+				*/
+				if ( ! this.increaseNbhByOnePolar(2) )
+					if (! this.setNbhFirstInNewShell(this._currentCoord[0] + 1) 
+						|| !this.setNbhFirstInNewRing( this._currentNeighbor[1]) )
+						if (!this.increaseNbhByOnePolar(1)	||
+								! this.setNbhFirstInNewRing(_currentNeighbor[1]) )
+							if (!this.increaseNbhByOnePolar(1)	||
+									! this.setNbhFirstInNewRing(_currentNeighbor[1]) )
+								this._nbhValid = false;
+			}
+		}
+		else 
+		{
+			/* 
+			 * We're in the r-shell just outside that of the current coordinate.
+			 * If we can't increase phi and theta any more, then we've finished.
+			 */
+			if ( ! this.increaseNbhByOnePolar(2) )
+				if ( ! this.increaseNbhByOnePolar(1) ||
+						! this.setNbhFirstInNewRing(_currentNeighbor[1]) )
+					this._nbhValid = false;
+		}
+		return this._currentNeighbor;
 	}
 	
 	/*************************************************************************

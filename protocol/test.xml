@@ -41,8 +41,15 @@
 			</species>
 		</speciesLib>
 
-		<compartment name="second" shape="Rectangle">
-			<sideLengths value="16.0,16.0,1.0" /> <!-- temp subject to change -->
+		<compartment name="second">
+			<shape class="Rectangle">
+				<dimension name="X" isCyclic="true">
+					<extreme name="max" position="16.0"/>
+				</dimension> 
+				<dimension name="Y" isCyclic="true">
+					<extreme name="max" position="16.0"/>
+				</dimension> 
+			</shape>
 			<agents>
 				<agent>
 					<aspect name="species" type="String" value="AOB" />

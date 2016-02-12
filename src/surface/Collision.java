@@ -153,7 +153,7 @@ public class Collision {
 		switch (surf.type())
 		{
 		case SPHERE:
-			((Sphere) surf)._point.addToForce(force);
+			((Ball) surf)._point.addToForce(force);
 			break;
 		case ROD:
 			((Rod) surf)._points[0].addToForce(Vector.times(force,intersect));
@@ -184,7 +184,7 @@ public class Collision {
 		if (second == null)
 			{}
 		else if (second.type() == Surface.Type.SPHERE)
-			return planeSphere((Plane) first, (Sphere) second);
+			return planeSphere((Plane) first, (Ball) second);
 		else if (second.type() == Surface.Type.ROD)
 			return planeRod((Plane) first, (Rod) second);
 		
@@ -203,7 +203,7 @@ public class Collision {
 		if (second == null)
 			{}
 		else if (second.type() == Surface.Type.SPHERE)
-			return rodSphere((Rod) first, (Sphere) second);
+			return rodSphere((Rod) first, (Ball) second);
 		else if (second.type() == Surface.Type.ROD)
 			return rodRod((Rod) first, (Rod) second);
 		
@@ -213,7 +213,7 @@ public class Collision {
 			first = a;
 			second = b;
 			flip = false;
-			return sphereSphere((Sphere) first, (Sphere) second);
+			return sphereSphere((Ball) first, (Ball) second);
 		}
 		else
 		{
@@ -248,7 +248,7 @@ public class Collision {
 		return Vector.normEuclid(dP);
 	}
 	
-	public double sphereSphere(Sphere a, Sphere b)
+	public double sphereSphere(Ball a, Ball b)
 	{
 		// a is around b
 		if (a.bounding)
@@ -291,7 +291,7 @@ public class Collision {
 		return Vector.normEuclid(dP);
 	}
 	
-	public double rodSphere(Rod a, Sphere b)
+	public double rodSphere(Rod a, Ball b)
 	{
 		return linesegPoint(a._points[0].getPosition(),
 				a._points[1].getPosition(),
@@ -376,7 +376,7 @@ public class Collision {
 		return Vector.dotProduct(normal, point) - d;
 	}
 	
-	public double planeSphere(Plane plane, Sphere sphere)
+	public double planeSphere(Plane plane, Ball sphere)
 	{
 		return planePoint(plane.normal, plane.d, sphere._point.getPosition()) - sphere.getRadius();
 	}

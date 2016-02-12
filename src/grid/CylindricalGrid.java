@@ -1,6 +1,7 @@
 package grid;
 
 import grid.ResolutionCalculator.ResCalc;
+import grid.ResolutionCalculator.ResCalcFactory;
 import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
@@ -59,50 +60,27 @@ public class CylindricalGrid extends PolarGrid
 	 * @param res -  Array of length 3 defining constant resolution
 	 *  in each dimension 
 	 */
-	public CylindricalGrid(double[] totalLength, double[] res)
+	public CylindricalGrid(ResCalc[][] resCalc)
 	{
 		/*
 		 * Set up members of super class.
 		 */
-		super(totalLength);
+		super();
 		this._dimName[1] = DimName.THETA;
 		this._dimName[2] = DimName.Z;
-		/*
-		 * Set up uniform resolution calculator array.
+		
+		this._resCalc = resCalc;
+		
+		/* 
+		 * add cyclic boundaries to theta's max and min if we have a full circle
 		 */
-		ResolutionCalculator resolution = new ResolutionCalculator();
-		/*
-		 * Set up for the radial coordinate, and find out how many shells we
-		 * have.
-		 */
-		this._resCalc = new UniformResolution[3][];
-		this._resCalc[0] = new UniformResolution[1];
-		this._resCalc[0][0] = resolution.new UniformResolution();
-		this._resCalc[0][0].init(res[0], totalLength[0]);
-		int nr = this._resCalc[0][0].getNVoxel();
-		/*
-		 * Set up for the height coordinate {@code z}.
-		 */
-		this._resCalc[2] = new UniformResolution[1];
-		this._resCalc[2][0] = resolution.new UniformResolution();
-		this._resCalc[2][0].init(res[2], totalLength[2]);
-		/*
-		 * Set up for the azimuthal coordinate {@code θ (theta)}. The number of
-		 * voxels in theta depends on the shell (i.e. size of r).
-		 */
-		this._resCalc[1] = new UniformResolution[nr];
-		double targetRes;
-		for ( int shell = 0; shell < nr; shell++ )
-		{
-			this._resCalc[1][shell] = resolution.new UniformResolution();
-			// this._ires[1] * s(shell) =
-			// (2 * Math.toRadians(totalSize[1]) / pi) * ((2 * shell) + 1)
-			//this._resCalc[1][shell].init(res[1], this._ires[1] * s(shell));
-			// Why not just initalise with totalLength[1] in radians and
-			// save ourselves a lot of hassle?!
-			targetRes = res[1] / ( ( 2 * shell ) + 1);
-			this._resCalc[1][shell].init(targetRes, totalLength[1]);
+		if (getTotalLength(1) == 2 * Math.PI) {
+			_dimBoundaries[1][0] = new GridBoundary.Cyclic();
+			_dimBoundaries[1][1] = new GridBoundary.Cyclic();
 		}
+		
+		resetIterator();
+		resetNbhIterator();
 	}
 	
 	/**
@@ -110,9 +88,14 @@ public class CylindricalGrid extends PolarGrid
 	 * @param res -  Array of length 3 defining constant resolution
 	 *  in each dimension 
 	 */
-	public CylindricalGrid(double[] totalLength, double res)
+	public CylindricalGrid(double[] totalLength, double resolution)
 	{
-		this(totalLength, Vector.vector(3, res));
+		this(ResCalcFactory.createUniformResCalcForCylinder(totalLength, resolution));
+	}
+
+	public CylindricalGrid()
+	{
+		this(new double[]{1.0, Math.PI / 2.0, 1.0}, 1.0);
 	}
 		
 	@Override
@@ -154,43 +137,6 @@ public class CylindricalGrid extends PolarGrid
 		volume *= (upper[2] - origin[2]);
 		return volume;
 	}
-	
-	@Override
-	public int[] getCoords(double[] loc, double[] inside)
-	{
-		// TODO inside doesn't seem to be used.
-		// TODO this gives loc in cylindrical coordinates, shouldn't it be in
-		// Cartesian?
-		int[] coord = new int[3];
-		ResCalc rC;
-		for ( int dim = 0; dim < 3; dim++ )
-		{
-			rC = this.getResolutionCalculator(coord, dim);
-			coord[dim] = rC.getVoxelIndex(loc[dim]);
-			if ( inside != null )
-			{
-				inside[dim] = loc[dim] - 
-								rC.getCumulativeResolution(coord[dim] - 1);
-			}
-		}
-		return coord;
-	}
-	
-	@Override
-	public double[] getLocation(int[] coord, double[] inside)
-	{
-		// TODO this gives the location in cylindrical dimensions... convert to
-		// Cartesian?
-		double[] loc = Vector.copy(inside);
-		ResCalc rC;
-		for ( int dim = 0; dim < 3; dim++ )
-		{
-			rC = this.getResolutionCalculator(coord, dim);
-			loc[dim] *= rC.getResolution(coord[dim]);
-			loc[dim] += rC.getCumulativeResolution(coord[dim] - 1);
-		}
-		return loc;
-	}
 
 	@Override
 	public void calcMinVoxVoxResSq()
@@ -223,26 +169,52 @@ public class CylindricalGrid extends PolarGrid
 	}
 	
 	@Override
-	public int[] getNVoxel(int[] coords)
+	public int[] getNVoxel(int[] coords, int[] outNVoxel)
 	{
-		// TODO make this a permanent vector, rather than initialising anew
-		// each time it's called for.
-		return new int[]{this._resCalc[0][0].getNVoxel(),
-							this._resCalc[1][coords[0]].getNVoxel(),
-							this._resCalc[2][0].getNVoxel()};
+		if (outNVoxel == null)
+			outNVoxel = new int[3];
+		/*
+		 * resolution calculator in first dimension ({@code r})
+		 * should always be stored in resCalc[0][0] (no checking needed)
+		 */
+		ResCalc rC = getResolutionCalculator(coords, 0);
+		outNVoxel[0] = rC.getNVoxel();
+		/*
+		 * check if the coordinate is valid for 2nd dimension 
+		 * ({@code theta})
+		 */
+		boolean is_inside_r = coords[0] >= 0 && coords[0] < rC.getNVoxel();
+		if (is_inside_r){
+			rC = getResolutionCalculator(coords, 1);
+			outNVoxel[1] = rC.getNVoxel();
+		}
+		else outNVoxel[1] = 0;
+
+		/*
+		* resolution calculator in third dimension ({@code z})
+		* should always be stored in resCalc[2][0] (no checking needed)
+		*/
+		rC = getResolutionCalculator(coords, 2);
+		outNVoxel[2] = rC.getNVoxel();
+		
+		return outNVoxel;
+	}
+	
+	protected double getTotalLength(int axis)
+	{
+		return this._resCalc[axis][0].getTotalLength();
 	}
 	
 	@Override
 	protected ResCalc getResolutionCalculator(int[] coord, int axis)
 	{
-		return this._resCalc[axis][ (axis == 1) ? coord[0] : 0 ];
+		return this._resCalc[axis][(axis == 1) ? coord[0] : 0];
 	}
 	
 	/*************************************************************************
 	 * ITERATOR
 	 ************************************************************************/
 	
-
 	/**
 	 * \brief Try moving the neighbor iterator to the r-shell just outside that
 	 * of the current coordinate. Set the neighbor iterator valid flag to false
@@ -250,22 +222,8 @@ public class CylindricalGrid extends PolarGrid
 	 */
 	protected void moveNbhToOuterShell()
 	{
-		if ( ! this.setNbhFirstInNewShell(1, this._currentCoord[0] + 1) )
+		if ( ! this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
 			this._nbhValid = false;
-	}
-	
-	/**
-	 * \brief Move the neighbor iterator to the same r- and z-indices as the
-	 * current coordinate, and make the theta-index one less.
-	 * 
-	 * @return {@code boolean} reporting whether this is valid.
-	 */
-	protected boolean moveNbhToMinus(int dim)
-	{
-		Vector.copyTo(this._currentNeighbor, this._currentNeighbor);
-		this._currentNeighbor[dim]--;
-		return (this._currentCoord[dim] == 0) && 
-										(this._dimBoundaries[dim][0] == null);
 	}
 	
 	@Override
@@ -284,7 +242,7 @@ public class CylindricalGrid extends PolarGrid
 		 */
 		this._nbhValid = true;
 		/* See if we can use the inside r-shell. */
-		if ( this.setNbhFirstInNewShell(1, this._currentCoord[0] - 1) )
+		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) )
 			return this._currentNeighbor;
 		/* See if we can take one of the theta-neighbors. */
 		if ( this.moveNbhToMinus(1) || this.nbhJumpOverCurrent(1) )
@@ -293,13 +251,12 @@ public class CylindricalGrid extends PolarGrid
 		if ( this.moveNbhToMinus(2) || this.nbhJumpOverCurrent(2) )
 			return this._currentNeighbor;
 		/* See if we can use the outside r-shell. */
-		if ( this.setNbhFirstInNewShell(1, this._currentCoord[0] + 1) )
+		if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
 			return this._currentNeighbor;
 		/* There are no valid neighbors. */
 		this._nbhValid = false;
 		return this._currentNeighbor;
 	}
-	
 	
 	@Override
 	public int[] nbhIteratorNext()

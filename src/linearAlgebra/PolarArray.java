@@ -1,5 +1,7 @@
 package linearAlgebra;
 
+import java.util.Arrays;
+
 import grid.ResolutionCalculator.ResCalc;
 
 /**
@@ -63,29 +65,13 @@ public final class PolarArray
 		double[][][] a = new double[nR][][];
 		for ( int r = 0; r < nR; r++ )
 		{
-			nPhi = resCalc[1][r][0].getNVoxel();
+			nPhi = resCalc[1][0][r].getNVoxel();
 			a[r] = new double[nPhi][];
-			for ( int p = 0; p < nPhi; p++ )
+			for ( int p = 0; p < nPhi; p++ ){
 				a[r][p] = Vector.vector(resCalc[2][r][p].getNVoxel(), val);
+			}
 		}
 		return a;
-	}
-	
-	/**
-	 * \brief Computes the inner resolution for phi or theta dimensions.
-	 * 
-	 * TODO Rob [2Feb2016]: Is this essentially the number of quarter-circles
-	 * covered by the given angle?
-	 * 
-	 * @param n - total size in theta or phi direction (in radian)
-	 * @return - the inner resolution
-	 */
-	public static double ires(double n)
-	{
-		 // min 1, +1 for each quadrant (=4 for full circle)
-//		return Math.max(2*nt/(Math.PI*res),1);
-//		System.out.println(2*nt/Math.PI);
-		return 2 * n / Math.PI;
 	}
 	
 	/**

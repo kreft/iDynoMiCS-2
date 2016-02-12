@@ -21,33 +21,28 @@ import idynomics.Timer;
  * @author baco
  *
  */
-public class XmlLoad {
+public class XmlLoad
+{
 	
 	////////////////////////////
 	// Methods
 	////////////////////////////
 		
 	/**
-	 * TODO: compartmend has no xml node constructor, quick fix
+	 * TODO: compartment has no xml node constructor, quick fix
 	 */
 	public static void constructCompartment(Node compartmentNode)
 	{
 		// NOTE: misses construction from xml, quick fix
 		
 		Element xmlCompartment = (Element) compartmentNode;
-		Compartment comp = Idynomics.simulator.addCompartment(
-				Helper.obtainInput(xmlCompartment.getAttribute("name"), 
-				"missing comparment name specification"), 
-				Helper.obtainInput(xmlCompartment.getAttribute("shape"),
-				"missing cmpartment shape"));
-		
-		comp.setSideLengths(Vector.dblFromString(XmlHandler.loadUniqueAtribute(
-				xmlCompartment,"sideLengths", "value")));
-		
-		// TODO solutes, grids
-		// TODO boundaries?, other stuff
-		
-		comp.init();
+		/*
+		 * Find the name of this compartment and its shape.
+		 */
+		String compName = xmlCompartment.getAttribute("name");
+		compName = Helper.obtainInput(compName, "comparment name");
+		Compartment comp = Idynomics.simulator.addCompartment(compName);
+		comp.init(xmlCompartment);
 		
 		/**
 		 * Load agents and agent container

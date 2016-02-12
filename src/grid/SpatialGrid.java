@@ -1,5 +1,6 @@
 package grid;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.GridBoundary.GridMethod;
@@ -97,6 +98,8 @@ public abstract class SpatialGrid
 	 */
 	protected DimName[] _dimName = new DimName[3];
 	
+	protected int[] _currentNVoxel;
+	
 	/**
 	 * Array of the boundaries at each dimension's extremes. The three rows
 	 * correspond to the dimension names in {@link #_dimName}, and the two
@@ -137,6 +140,19 @@ public abstract class SpatialGrid
 	 * (false).
 	 */
 	protected boolean _nbhValid;
+	
+	/**
+	 * A helper vector for finding the location of the origin of a voxel.
+	 */
+	protected final double[] VOXEL_ORIGIN_HELPER = Vector.vector(3, 0.0);
+	/**
+	 * A helper vector for finding the location of the centre of a voxel.
+	 */
+	protected final double[] VOXEL_CENTRE_HELPER = Vector.vector(3, 0.5);
+	/**
+	 * A helper vector for finding the 'upper most' location of a voxel.
+	 */
+	protected final double[] VOXEL_All_ONE_HELPER = Vector.vector(3, 1.0);
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -282,7 +298,60 @@ public abstract class SpatialGrid
 	 * @param location Continuous location within the shape.
 	 * @return Discrete coordinates within this grid.
 	 */
-	public abstract int[] getCoords(double[] location);
+	public int[] getCoords(double[] loc)
+	{
+		return getCoords(loc, null);
+	}
+	
+	/**
+	 * \brief Transforms a given location into array-coordinates and 
+	 * computes sub-coordinates inside the grid element if inside != null. 
+	 * 
+	 * @param loc - a location in simulated space.
+	 * @param inside - array to write sub-coordinates into, can be null.
+	 * @return - the array coordinates corresponding to location loc.
+	 */
+	public int[] getCoords(double[] loc, double[] inside)
+	{
+		int[] coord = new int[3];
+		ResCalc rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			rC = this.getResolutionCalculator(coord, dim);
+			coord[dim] = rC.getVoxelIndex(loc[dim]);
+			if ( inside != null )
+			{
+				inside[dim] = loc[dim] - 
+								rC.getCumulativeResolution(coord[dim] - 1);
+			}
+		}
+		return coord;
+	}
+	
+	/**
+	 * \brief Converts a coordinate in the grid's array to a location in simulated 
+	 * space. 
+	 * 
+	 * 'Subcoordinates' can be transformed using the 'inside' array.
+	 * For example type getLocation(coord, new double[]{0.5,0.5,0.5})
+	 * to get the center point of the grid cell defined by 'coord'.
+	 * 
+	 * @param coord - a coordinate in the grid's array.
+	 * @param inside - relative position inside the grid cell.
+	 * @return - the location in simulation space.
+	 */
+	public double[] getLocation(int[] coord, double[] inside)
+	{
+		double[] loc = Vector.copy(inside);
+		ResCalc rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			rC = this.getResolutionCalculator(coord, dim);
+			loc[dim] *= rC.getResolution(coord[dim]);
+			loc[dim] += rC.getCumulativeResolution(coord[dim] - 1);
+		}
+		return loc;
+	}
 	
 	/**
 	 * \brief Find the location of the lower corner of the voxel specified by
@@ -291,7 +360,10 @@ public abstract class SpatialGrid
 	 * @param coords Discrete coordinates of a voxel on this grid.
 	 * @return Continuous location of the lower corner of this voxel.
 	 */
-	public abstract double[] getVoxelOrigin(int[] coords);
+	public double[] getVoxelOrigin(int[] coord)
+	{
+		return getLocation(coord, VOXEL_ORIGIN_HELPER);
+	}
 	
 	/**
 	 * \brief Find the location of the centre of the voxel specified by the
@@ -300,7 +372,43 @@ public abstract class SpatialGrid
 	 * @param coords Discrete coordinates of a voxel on this grid.
 	 * @return Continuous location of the centre of this voxel.
 	 */
-	public abstract double[] getVoxelCentre(int[] coords);
+	public double[] getVoxelCentre(int[] coord)
+	{
+		return getLocation(coord, VOXEL_CENTRE_HELPER);
+	}
+	
+	/**
+	 * \brief Get the corner farthest from the origin of the voxel specified. 
+	 * 
+	 * @param coord
+	 * @return
+	 */
+	protected double[] getVoxelUpperCorner(int[] coord)
+	{
+		return getLocation(coord, VOXEL_All_ONE_HELPER);
+	}
+	
+	/**
+	 * \brief Get the number of voxels in each dimension for the current
+	 * coordinates.
+	 * 
+	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
+	 * irrelevant, but it will make a difference in the polar grids.</p>
+	 * 
+	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @return A 3-vector of the number of voxels in each dimension.
+	 */
+	public int[] updateCurrentNVoxel(){
+		return getNVoxel(this._currentCoord, this._currentNVoxel);
+	}
+	
+	public int[] getCurrentNVoxel(){
+		return this._currentNVoxel;
+	}
+	
+	public int[] getNVoxel(int[] coords){
+		return getNVoxel(coords, null);
+	}
 	
 	/**
 	 * \brief Get the number of voxels in each dimension for the given
@@ -312,7 +420,7 @@ public abstract class SpatialGrid
 	 * @param coords Discrete coordinates of a voxel on this grid.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
-	public abstract int[] getNVoxel(int[] coords);
+	protected abstract int[] getNVoxel(int[] coords, int[] outNVoxel);
 	
 	/**
 	 * \brief TODO
@@ -359,7 +467,7 @@ public abstract class SpatialGrid
 	 * @param coord Discrete coordinates of a voxel on this grid.
 	 * @return A @{@code GridMethod} to use if the coordinates are outside this
 	 * grid. {@code null} if the coordinates are inside.
-	 */
+	 */ 
 	protected GridMethod isOutside(int[] coord)
 	{
 		int[] nVoxel = this.getNVoxel(coord);
@@ -372,10 +480,10 @@ public abstract class SpatialGrid
 		for ( int dim = 0; dim < 3; dim++ )
 		{
 			c = coord[dim];
-			if ( c < 0 && (out = this._dimBoundaries[dim][0]) != null )
+			if ( c < 0 && (out = this._dimBoundaries[dim][0]) != null)
 				break;
 			n = nVoxel[dim];
-			if ( c >= n  && (out = this._dimBoundaries[dim][1]) != null )
+			if ( c >= n && (out = this._dimBoundaries[dim][1]) != null)
 				break;
 		}
 		return out;
@@ -617,8 +725,7 @@ public abstract class SpatialGrid
 	 */
 	protected boolean iteratorExceeds(int axis)
 	{
-		return this._currentCoord[axis] >= 
-									this.getNVoxel(this._currentCoord)[axis];
+		return this._currentCoord[axis] >= this._currentNVoxel[axis];
 	}
 	
 	/**
@@ -628,9 +735,8 @@ public abstract class SpatialGrid
 	 */
 	public boolean isIteratorValid()
 	{
-		int[] nVoxel = this.getNVoxel(this._currentCoord);
 		for ( int axis = 0; axis < 3; axis++ )
-			if ( this._currentCoord[axis] >= nVoxel[axis] )
+			if ( this._currentCoord[axis] >= this._currentNVoxel[axis] )
 				return false;
 		return true;
 	}
@@ -652,15 +758,19 @@ public abstract class SpatialGrid
 	 */
 	public int[] iteratorNext()
 	{
-		_currentCoord[0]++;
-		if ( this.iteratorExceeds(0) )
+		/*
+		 * We have to step through last dimension first, because we use jagged 
+		 * arrays in the PolarGrids.
+		 */
+		_currentCoord[2]++;
+		if ( this.iteratorExceeds(2) )
 		{
-			_currentCoord[0] = 0;
+			_currentCoord[2] = 0;
 			_currentCoord[1]++;
 			if ( this.iteratorExceeds(1) )
 			{
 				_currentCoord[1] = 0;
-				_currentCoord[2]++;
+				_currentCoord[0]++;
 			}
 		}
 		return _currentCoord;
@@ -717,6 +827,19 @@ public abstract class SpatialGrid
 	public int[] neighborCurrent()
 	{
 		return this._currentNeighbor;
+	}
+	
+	/**
+	 * \brief Move the neighbor iterator to the current coordinate, 
+	 * and make the index at <b>dim</b> one less.
+	 * 
+	 * @return {@code boolean} reporting whether this is valid.
+	 */
+	protected boolean moveNbhToMinus(int dim)
+	{
+		Vector.copyTo(this._currentNeighbor, this._currentCoord);
+		this._currentNeighbor[dim]--;
+		return (this._currentNeighbor[dim] >= 0) || (this._dimBoundaries[dim][0] != null);
 	}
 	
 	/**

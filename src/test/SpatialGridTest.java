@@ -38,7 +38,7 @@ public class SpatialGridTest
 		int sideLength = 3;
 		double resolution = 1.0;
 		
-		int[] nVoxel = Vector.vector(3, 1);
+		double[] nVoxel = Vector.onesDbl(3);
 		for ( int i = 0; i < nDim; i++ )
 			nVoxel[i] = sideLength;
 		CartesianGrid grid = new CartesianGrid(nVoxel, resolution);
@@ -84,7 +84,7 @@ public class SpatialGridTest
 		SpatialGrid grid = aCompartment.getSolute("test");
 		int[] current, nbh;
 		current = grid.resetIterator();
-		System.out.println("grid size: "+Arrays.toString(grid.getNVoxel(current)));
+		System.out.println("grid size: "+Arrays.toString(grid.getCurrentNVoxel()));
 		for ( ; grid.isIteratorValid(); current = grid.iteratorNext())
 		{
 			System.out.println("current: "+Arrays.toString(current));
