@@ -1,5 +1,6 @@
 package idynomics;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -102,7 +103,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	{
 		if ( this._hasInitialised )
 		{
-			throw new Error("Cannot add new solutes after the environment container has initialised!");
+			throw new Error("Cannot add new solutes after the environment"+
+												" container has initialised!");
 		}
 		/*
 		 * TODO safety: check if solute already in hashmap
@@ -134,13 +136,13 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * FIXME: this is really a property of the compartment but we otherwise
-	 * cannot access this information from the process manager, consider refact.
+	 * \brief Get a list of this {@code Compartment}'s extracellular reactions.
+	 * 
 	 * @return
 	 */
-	public double[] getEdgeLengths()
+	public Collection<Reaction> getReactions()
 	{
-		return _shape.getDimensionLengths();
+		return this._reactions.values();
 	}
 	
 	/*************************************************************************
