@@ -40,7 +40,7 @@ public final class ShapeLibrary
 		public void init(Node xmlNode)
 		{
 			Element elem = (Element) xmlNode;
-			String str = XmlHandler.loadUniqueAtribute(elem,"volume","string");
+			String str = XmlHandler.attributeFromUniqueNode(elem,"volume","string");
 			this._volume = Double.parseDouble(str);
 		}
 		

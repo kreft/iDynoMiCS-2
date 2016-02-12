@@ -17,6 +17,7 @@ import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
 import processManager.ProcessManager;
+import reaction.Reaction;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 import utility.Helper;
@@ -104,46 +105,36 @@ public class Compartment implements CanPrelaunchCheck
 	public void init(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
-		String str;
-		NodeList children;
-		Element child;
-		/* 
-		 * First, make the shape this Compartment will take.
-		 */
-		children = XmlHandler.getAll(elem, "shape");
-		if ( children.getLength() != 1 )
-		{
-			Log.out(tier.CRITICAL, "Warning: Compartment must have one shape!");
-			return;
-		}
-		child = (Element) children.item(0);
-		str = child.getAttribute("class");
-		str = Helper.obtainInput(str, "compartment shape class");
-		this.setShape((Shape) Shape.getNewInstance(str));
-		this._shape.init(child);
+
+		this.setShape((Shape) Shape.getNewInstance(
+				XmlHandler.attributeFromUniqueNode(elem, "shape", "class")));
+		this._shape.init(XmlHandler.loadUnique(elem, "shape"));
+		
 		/*
 		 * Give it solutes.
+		 * NOTE: wouldn't we want to pass initial grid values to? It would also
+		 * be possible for the grids to be Xmlable
 		 */
-		children = XmlHandler.getAll(elem, "solute");
-		for ( int i = 0; i < children.getLength(); i++ )
-		{
-			child = (Element) children.item(i);
-			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
-			str = Helper.obtainInput(str, "solute name");
-			this.addSolute(str);
+		NodeList solutes = XmlHandler.getAll(elem, "solute");
+		for ( int i = 0; i < solutes.getLength(); i++)
+			this.addSolute(XmlHandler.obtainAttribute((Element) solutes.item(i), 
+					"name"));
+
+			
 			// TODO diffusivity
 			// TODO initial value
-		}
+		
 		/*
 		 * Give it extracellular reactions.
 		 */
-		children = XmlHandler.getAll(elem, "reaction");
+		NodeList children = XmlHandler.getAll(elem, "reaction");
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
-			child = (Element) children.item(i);
-			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
-			
+			XmlHandler.obtainAttribute((Element) children.item(i),"name");
+			Reaction r = (Reaction) Reaction.getNewInstance(children.item(i));
+
 		}
+			
 		/*
 		 * Finally, finish off the initialisation as standard.
 		 */

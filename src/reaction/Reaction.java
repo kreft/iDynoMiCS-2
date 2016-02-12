@@ -3,8 +3,14 @@ package reaction;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import dataIO.XmlHandler;
 import expression.Component;
 import expression.ExpressionBuilder;
+import generalInterfaces.XMLable;
 
 /**
  * 
@@ -12,7 +18,7 @@ import expression.ExpressionBuilder;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  *
  */
-public class Reaction
+public class Reaction implements XMLable
 {
 	/**
 	 * Reaction stoichiometry
@@ -32,6 +38,35 @@ public class Reaction
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
+	
+	/**
+	 * XML constructor
+	 * @param xmlNode
+	 */
+	public Reaction(Node xmlNode)
+	{
+		Element elem = (Element) xmlNode;
+		NodeList stochiometrics = XmlHandler.getAll(elem, "stochiometric");
+			for ( int i = 0; i < stochiometrics.getLength(); i++)
+				this._stoichiometry.put(XmlHandler.obtainAttribute(
+						(Element) stochiometrics.item(i), "component") , 
+						Double.valueOf(XmlHandler.obtainAttribute(
+						(Element) stochiometrics.item(i), "coefficient")));
+		ExpressionBuilder e = 
+				new ExpressionBuilder(XmlHandler.attributeFromUniqueNode(elem, 
+				"expression", "value"),	new HashMap<String,Double>());
+		this._kinetic = e.component;
+	}
+	
+	/**
+	 * XMLable interface implementation.
+	 * @param xmlNode
+	 * @return
+	 */
+	public static Object getNewInstance(Node xmlNode)
+	{
+		return new Reaction(xmlNode);
+	}
 	
 	public Reaction(Map<String, Double> stoichiometry, String kinetic)
 	{
