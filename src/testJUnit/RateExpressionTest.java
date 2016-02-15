@@ -12,7 +12,7 @@ public class RateExpressionTest {
 	public void express()
 	{
 		ExpressionB exp = new ExpressionB("25.0 * 3.0", null);
-		ExpressionB exp2 = new ExpressionB("1.0 / SQRT(1.0 + 0.5)", null);
+		ExpressionB exp2 = new ExpressionB("#e^1.0 / 5.0EXP(1.0 + 0.5)", null);
 		ExpressionB exp3 = new ExpressionB("(-22.0 * (1.0 * (1.0 * 5.5)) - 2.0)"
 				+ " + 1.0 / (8.1 * 5.0)", null);
 		ExpressionB exp4 = new ExpressionB("mu * S / (K + S)", null);

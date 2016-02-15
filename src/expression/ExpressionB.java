@@ -15,13 +15,15 @@ public class ExpressionB extends Component {
 	/**
 	 * expression string
 	 */
-	protected String expression;
+	final String expression;
 	
 	/**
-	 * Recognized operators, in order of evaluation
+	 * Recognized operators, in order of evaluation TODO: currently hashtagging
+	 * stuff that is likely to be in a variable or constant, discuss consider
+	 * other indicator
 	 */
 	public static String[] operators = new 
-			String[]{"^", "SQRT", "*", "/", "+", "-"};
+			String[]{"#e", "#PI", "EXP", "^", "SQRT", "*", "/", "+", "-"};
 	
 	/**
 	 * constants in this expression
@@ -36,7 +38,7 @@ public class ExpressionB extends Component {
 	/**
 	 * The component object
 	 */
-	public Component _a;
+	final Component _a;
 	
 	/**
 	 * expression constructor
@@ -48,8 +50,7 @@ public class ExpressionB extends Component {
 		/**
 		 * initial construction
 		 */
-		expression = expression.replaceAll("\\s+","");
-		this.expression = expression;
+		this.expression = expression.replaceAll("\\s+","");
 		if (constants == null)
 			constants = new HashMap<String, Double>();
 		_constants = constants;
@@ -89,8 +90,14 @@ public class ExpressionB extends Component {
 		 */
 		TreeMap<Integer, ExpressionB> _subs = new TreeMap<Integer, ExpressionB>();
 
+		/**
+		 * construct treeMaps for correct Component construction
+		 */
 		constructTreeMaps(_eval, _calc, _subs);
 
+		/**
+		 * some final error checking before setting the root Component
+		 */
 		if (_calc.keySet().isEmpty() || _calc.size() > 1)
 		{
 			System.err.println("ERROR: unfinished or empty expression root "
@@ -165,7 +172,6 @@ public class ExpressionB extends Component {
 			}
 		}
 		
-		
 		/**
 		 * build a root expression Component (from tree)
 		 */
@@ -181,7 +187,9 @@ public class ExpressionB extends Component {
 					isOperator = true;
 			}
 			
-			// braces
+			/**
+			 * handle sub expressions (braces)
+			 */
 			if(t.contains("$"))
 			{
 				_calc.put(i, _subs.get( Integer.valueOf( t.replaceAll(
@@ -189,9 +197,7 @@ public class ExpressionB extends Component {
 			}
 			
 			/**
-			 * constants TODO: we could build them up from "_terms" as well
-			 * yet any directly written doubles should also be interpreted as
-			 * constant
+			 * add . defined constants
 			 */
 			else if(t.contains("."))
 			{
@@ -199,10 +205,30 @@ public class ExpressionB extends Component {
 			}
 	
 			/**
-			 * variables
+			 * variables, hashmap defined constants
 			 */
 			else if(! (isOperator || t.isEmpty()))
-				_calc.put(i, new Variable(t));
+			{
+				boolean isConstant = false;
+				/**
+				 * string defined constants
+				 */
+				for(String key : _constants.keySet())
+				{
+					if(key == t)
+					{
+						_calc.put(i, new Constant(t, _constants.get(key)));
+						isConstant = true;
+					}
+				}
+				
+				/**
+				 * variables
+				 */
+				if (! isConstant)
+					_calc.put(i, new Variable(t));
+			}
+				
 		}
 		
 		// Do the operator stuff here
@@ -265,6 +291,12 @@ public class ExpressionB extends Component {
 		}
 	}
 	
+	/**
+	 * adding variable encountered in expression string
+	 * @param loc
+	 * @param value
+	 * @param _eval
+	 */
 	private void addVar(int loc, String value, TreeMap<Integer,String> _eval)
 	{
 		_eval.put(loc,value);
@@ -309,9 +341,15 @@ public class ExpressionB extends Component {
 		_eval.put(start, String.valueOf("$" + start));
 	}
 	
-	public void addTerm(String key, double value)
+	/**
+	 * adds a constant (with value), removes it from being a variable.
+	 * @param key
+	 * @param value
+	 */
+	public void defineConstant(String key, double value)
 	{
 		this._constants.put(key, value);
+		this._variables.remove(this._variables.indexOf(key));
 	}
 
 	/**
@@ -343,8 +381,14 @@ public class ExpressionB extends Component {
 		 */
 		TreeMap<Integer, ExpressionB> _subs = new TreeMap<Integer, ExpressionB>();
 
+		/**
+		 * construct treeMaps for correct Component construction
+		 */
 		constructTreeMaps(_eval, _calc, _subs);
 		
+		/**
+		 * write expression from treeMaps linear in correct order
+		 */
 		String str = "";
 		String t;
 		for(Integer e :_eval.keySet())
@@ -381,6 +425,10 @@ public class ExpressionB extends Component {
 				_calc.get(next)));
 		case ("^"): return new Power(_calc.get(prev), _calc.get(next));
 		case ("SQRT"): return new Power(_calc.get(next), new Constant("0.5",0.5));
+		case ("#e"): return new Constant("e", Math.E);
+		case ("#PI"): return new Constant("PI", Math.PI);
+		case ("EXP"): return new Multiplication(_calc.get(prev), 
+				new Power(new Constant("10", 10.0), _calc.get(next)));
 		}
 		System.err.println("ERROR: could not construnct component!");
 		return new Constant("ERROR!!!!!",1.0);
@@ -399,6 +447,7 @@ public class ExpressionB extends Component {
 		case ("/"): 
 		case ("-"): 
 		case ("^"):
+		case ("EXP"):
 		if(_calc.containsKey( prev ))
 			_calc.remove( prev );
 		if(_calc.containsKey( next ))
@@ -407,6 +456,9 @@ public class ExpressionB extends Component {
 		case("SQRT"):
 			if(_calc.containsKey( next ))
 				_calc.remove( next );
+		case("#e"):
+		case("#PI"):
+			break;
 		}
 	}
 
