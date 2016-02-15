@@ -3,14 +3,11 @@ package grid;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import dataIO.Log;
-import dataIO.Log.tier;
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.ResCalcFactory;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
-import utility.ExtraMath;
 
 /**
  * \brief Subclass of SpatialGrid that discretises space into rectilinear
@@ -365,25 +362,6 @@ public class CartesianGrid extends SpatialGrid
 			public SpatialGrid newGrid(double[] totalLength, double resolution) 
 			{
 				return new CartesianGrid(totalLength, resolution);
-			}
-		};
-	}
-	
-	public static final GridGetter dimensionlessGetter(double volume)
-	{
-		return new GridGetter()
-		{
-			@Override
-			public SpatialGrid newGrid(double[] totalSize, double resolution) 
-			{
-				// TODO check this is the best way.
-				if ( volume <= 0.0 )
-				{
-					Log.out(tier.CRITICAL, "Warning! Trying to initialise a"+
-							" dimensionless grid with zero volume.");
-				}
-				return new CartesianGrid(Vector.onesDbl(3),
-											ExtraMath.cubeRoot(volume));
 			}
 		};
 	}

@@ -30,7 +30,6 @@ public class ODETest
 		 * should half every timestep. 
 		 */
 		double timeStep = Math.log(2.0);
-		//double timeStep = 1.0E-36;
 		int nStep = 5;
 		
 		oneChemostatRise(nStep, timeStep);
