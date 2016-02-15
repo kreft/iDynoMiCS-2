@@ -1,21 +1,30 @@
 package solver;
 
 import linearAlgebra.Vector;
-import zArchivedClasses.RateTerm;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public class ODEheunsmethod extends ODEsolver {
+public class ODEheunsmethod extends ODEsolver
+{
 	
 	/**
 	 * Maximum time-step permissible.
 	 */
 	protected double _hMax;
 	
-	protected double[] dYdT;
+	/**
+	 * Temporary vectors.
+	 */
+	protected double[] dYdT, k, dKdT;
+	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
 	
 	public ODEheunsmethod(String[] names, boolean allowNegatives, double hMax)
 	{
@@ -26,36 +35,69 @@ public class ODEheunsmethod extends ODEsolver {
 	{
 		super.init(names, allowNegatives);
 		this._hMax = hMax;
+		this.dYdT = new double[names.length];
+		this.k = new double[names.length];
+		this.dKdT = new double[names.length];
 	}
 	
-	public double[] solve(double[] y, double tFinal) throws Exception, 
-	IllegalArgumentException
+	/*************************************************************************
+	 * KEY METHOS
+	 ************************************************************************/
+	
+	public double[] solve(double[] y, double tFinal) 
+									throws Exception, IllegalArgumentException
 	{
-		double ts = tFinal / Math.ceil(tFinal/_hMax);
-		double n = Math.rint(tFinal/ts);
-		double[] c = Vector.copy(noNeg(y));
-		for(int i = 0; i < n; i++)
-			c = heun(c, tFinal/n);
-		return noNeg(c);
+		/*
+		 * Check the input vector is acceptable.
+		 */
+		super.solve(y, tFinal);
+		/*
+		 * Solve the system.
+		 */
+		double timeStep;
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
+		while ( tFinal > 0.0 )
+		{
+			timeStep = Math.min(this._hMax, tFinal);
+			heun(y, timeStep);
+			if ( ! this._allowNegatives )
+				Vector.makeNonnegative(y);
+			tFinal -= timeStep;
+		}
+		return y;
 	}
 	
-	public double[] noNeg(double[] c)
+	/**
+	 * \brief Apply a forward-Euler step.
+	 * 
+	 * @param destination One-dimensional array of {@code double}s which will
+	 * be overwritten with the result.
+	 * @param y One-dimensional array of {@code double}s with the current set
+	 * of values (preserved).
+	 * @param dt Time step.
+	 */
+	protected void euler(double[] destination, double[] y, double dt)
 	{
-		if(! _allowNegatives)
-			for(double d : c)
-				d = (d > 0.0 ? d : 0.0);
-		return c;
+		this._deriv.firstDeriv(destination, y);
+		Vector.timesEquals(destination, dt);
+		Vector.addEquals(destination, y);
 	}
-
-	public double[] eul(double[] y, double dt)
+	
+	/**
+	 * \brief Apply a step of Heun's method.
+	 * 
+	 * @param y One-dimensional array of {@code double}s with the current set
+	 * of values - this will be overwritten with the result.
+	 * @param dt Time step.
+	 */
+	protected void heun(double[] y, double dt)
 	{
-		return Vector.add(y, Vector.times(this._deriv.firstDeriv(y), dt));
-	}
-
-	public double[] heun(double[] y, double dt)
-	{
-		double[] k = eul(y, dt);
-		return Vector.add(y, Vector.times( Vector.add( 
-				this._deriv.firstDeriv(y), this._deriv.firstDeriv(k)) ,dt/2));
+		euler(this.k, y, dt);
+		this._deriv.firstDeriv(dYdT, y);
+		this._deriv.firstDeriv(dKdT, this.k);
+		Vector.addEquals(dYdT, dKdT);
+		Vector.timesEquals(dYdT, dt/2);
+		Vector.addEquals(y, dYdT);
 	}
 }

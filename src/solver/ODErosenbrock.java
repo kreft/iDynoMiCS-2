@@ -1,5 +1,7 @@
 package solver;
 
+import java.util.Arrays;
+
 import dataIO.Log;
 import dataIO.Log.tier;
 import linearAlgebra.Matrix;
@@ -8,19 +10,17 @@ import linearAlgebra.Vector;
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) Centre for Computational
- * Biology, University of Birmingham, U.K.
- * @since August 2015
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public class ODErosenbrock extends ODEsolver
 {
 	/**
-	 * 
+	 * TODO
 	 */
 	protected final double d = 1.0 / (2.0 + Math.sqrt(2.0));
 	
 	/**
-	 * 
+	 * TODO
 	 */
 	protected final double e32  = 6.0 + Math.sqrt(2.0);
 	
@@ -30,15 +30,17 @@ public class ODErosenbrock extends ODEsolver
 	protected final double power = 1.0/3.0;
 	
 	/**
-	 * Numerical accuracy for EPS (error per step) 
-	 */
-	protected final double sqrtE = Math.sqrt(2.22e-16);
-	
-	/**
 	 * Error Per Step: the smallest positive floating-point number such that
 	 * 1.0 + EPS > 1.0 
 	 */
 	protected final double EPS = 2.22e-16;
+	
+	/**
+	 * Numerical accuracy for EPS (error per step)
+	 * 
+	 * TODO is this used?
+	 */
+	protected final double sqrtE = Math.sqrt(EPS);
 	
 	/**
 	 * Absolute tolerance.
@@ -152,8 +154,6 @@ public class ODErosenbrock extends ODEsolver
 		 * Jacobian method to be set.
 		 */
 		super.solve(y, tFinal);
-		/*if ( this._jacobian == null )
-			throw new Exception("No Jacobian set.");*/
 		/*
 		 * Control statement in case the maximum timestep size, hMax, is too
 		 * large.
@@ -165,10 +165,6 @@ public class ODErosenbrock extends ODEsolver
 			absTol *= tFinal/hMax;
 			hMax = tFinal;
 		}
-		/*
-		 * 
-		 */
-		dYdT = this._deriv.firstDeriv(y);
 		/*
 		 * First try a step size of hmax.
 		 */
@@ -190,22 +186,9 @@ public class ODErosenbrock extends ODEsolver
 			 * Update dFdT with a mini-timestep. The Jacobian matrix, dFdY,
 			 * doesn't need this.
 			 */
-			dFdT = this._deriv.secondDeriv(y);
-			/*System.out.println("dFdT is"); //Bughunt
-			for ( double elem : dFdT)
-				System.out.println(elem);*/
-			Vector.timesTo(hddFdT, dFdT, h*d);
-			/*System.out.println("h*d*dFdT is"); //Bughunt
-			for ( double elem : hddFdT)
-				System.out.println(elem);*/
-			dFdY = this._deriv.jacobian(y);
-			/*System.out.println("dFdY is"); //Bughunt
-			for ( double[] row : dFdY ) 
-			{
-				for ( double elem : row)
-					System.out.print(elem+", ");
-				System.out.println("");
-			}*/
+			this._deriv.secondDeriv(dFdT, y);
+			Vector.timesTo(hddFdT, dFdT, h * d);
+			this._deriv.jacobian(dFdY, y);
 			/*
 			 * Try out this value of h, keeping a note of whether it ever
 			 * fails.
@@ -215,7 +198,6 @@ public class ODErosenbrock extends ODEsolver
 			while ( true )
 			{
 				tNext = ( lastStep ) ? tFinal : t + h;
-				//System.out.println("-> Trying from "+t+" to "+tNext); //Bughunt
 				/*
 				 * The Rosenbrock method.
 				 */
@@ -224,16 +206,8 @@ public class ODErosenbrock extends ODEsolver
 					/*
 					 * W = I - h * d * dFdY
 					 */
-					Matrix.timesTo(W, dFdY, -h*d);
+					Matrix.timesTo(W, dFdY, - h * d);
 					Matrix.addEquals(W, identity);
-					/*System.out.println("\tW is"); //Bughunt
-					for ( double[] row : W ) 
-					{
-						System.out.print("\t\t");
-						for ( double elem : row)
-							System.out.print(elem+", ");
-						System.out.println("");
-					}*/
 					test = Matrix.condition(W);
 					if ( test > 10.0)
 					{ 
@@ -245,56 +219,31 @@ public class ODErosenbrock extends ODEsolver
 					 * W*k1 = dYdT + h*d*dFdT
 					 */
 					Vector.addTo(k1, hddFdT, dYdT);
-					/*System.out.println("dYdT + h*d*dFdT is"); //Bughunt
-					for ( double elem : k1)
-						System.out.println(elem);*/
 					Matrix.solveEquals(W, k1);
-					/*System.out.println("k1 is"); //Bughunt
-					for ( double elem : k1)
-						System.out.println(elem);*/
 					/*
 					 * f1 = dYdT(y + k1*h/2)
+					 * 
+					 * Use f2 as temporary place holder.
 					 */
-					Vector.timesTo(f1, k1, 0.5*h);
-					/*System.out.println("\tK1*h/2 is"); //Bughunt
-					for ( double elem : f1)
-						System.out.println(elem);*/
-					f1 = this._deriv.firstDeriv(Vector.add(f1, y));
-					/*System.out.println("f1 is"); //Bughunt
-					for ( double elem : f1)
-						System.out.println(elem);*/
+					Vector.timesTo(f2, k1, 0.5*h);
+					Vector.addEquals(f2, y);
+					this._deriv.firstDeriv(f1, f2);
 					/*
 					 * Find k2 where
 					 * W*(k2-k1) = f1 - k1  
 					 */
 					Vector.minusTo(k2, f1, k1);
-					/*System.out.println("f1 - k1 is"); //Bughunt
-					for ( double elem : k2)
-						System.out.println(elem);*/
 					Matrix.solveEquals(W, k2);
-					/*System.out.println("(f1 - k1)/W is"); //Bughunt
-					for ( double elem : k2)
-						System.out.println(elem);*/
-					// TODO Rob [26Nov2015]: Is this correct?
 					Vector.addEquals(k2, k1);
-					/*System.out.println("k2 is"); //Bughunt
-					for ( double elem : k2)
-						System.out.println(elem);*/
 					/*
 					 * ynext = y + h * k2
 					 */
 					Vector.timesTo(ynext, k2, h);
 					Vector.addEquals(ynext, y);
-					/*System.out.println("ynext is"); //Bughunt
-					for ( double elem : ynext)
-						System.out.println(elem);*/
 					/*
 					 * f2 = dYdT(ynext)
 					 */
-					f2 = this._deriv.firstDeriv(ynext);
-					/*System.out.println("f2 is"); //Bughunt
-					for ( double elem : f2)
-						System.out.println(elem);*/
+					this._deriv.firstDeriv(f2, ynext);
 					/*
 					 * 
 					 * Find k3 where 
@@ -302,14 +251,15 @@ public class ODErosenbrock extends ODEsolver
 					 * 
 					 * First set kaux as the expression inside the brackets,
 					 * then multiply by invW on the left.
+					 * 
+					 * f2 + h*d*dFdT
 					 */
-					// f2 + h*d*dFdT
 					Vector.addTo(kaux, hddFdT, f2);
-					// + e32 * (f1 - k2)
+					/* + e32 * (f1 - k2) */
 					Vector.minusTo(k3, f1, k2);
 					Vector.timesEquals(k3, e32);
 					Vector.addEquals(kaux, k3);
-					// + 2 * (y - k1)
+					/* + 2 * (y - k1) */
 					Vector.minusTo(k3, y, k1);
 					Vector.timesEquals(k3, 2.0);
 					Vector.addEquals(kaux, k3);
@@ -320,15 +270,11 @@ public class ODErosenbrock extends ODEsolver
 					 */
 					//for (int i = 0; i < this.nVar(); i++)
 					//	kaux[i] = 1/Math.min(y[i], ynext[i]);
-					/*System.out.println("1/min(y, ynext) is"); //Bughunt
-					for ( double elem : kaux)
-						System.out.println(elem);*/
 					/*
 					 * kaux *= (2*k2 + k3) * h / 6
 					 */
 					//Vector.add(Vector.times(k2, 2.0), k3);
 					//Vector.times(kaux, Vector.times(k2, h/6.0));
-					
 					/*
 					 * kaux = (k1 -2*k2 + k3) * h/6
 					 */
@@ -380,7 +326,7 @@ public class ODErosenbrock extends ODEsolver
 				}
 				else
 					break;
-				Log.out(tier.NORMAL,"error = "+error+", absTol = "+absTol+", h = "+h);
+				//Log.out(tier.NORMAL,"error = "+error+", absTol = "+absTol+", h = "+h);
 				//return y; //Bughunt
 			} // End of `while ( true )`
 			/*
@@ -413,12 +359,9 @@ public class ODErosenbrock extends ODEsolver
 			/*
 			 * Update the y and the first derivative dYdT.
 			 */
-			y = Vector.copy(ynext);
-			dYdT = Vector.copy(f2);
+			Vector.copyTo(y, ynext);
+			Vector.copyTo(dYdT, f2);
 		} // End of `while ( ! lastStep )`
-		/*
-		 * Finally, return the answer.
-		 */
 		return y;
 	}
 }
