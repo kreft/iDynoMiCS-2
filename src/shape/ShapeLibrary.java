@@ -29,7 +29,7 @@ public final class ShapeLibrary
 	
 	public static class Dimensionless extends Shape
 	{
-		protected double _volume = 0.0;
+		protected double _volume = 1.0;
 		
 		public Dimensionless()
 		{
@@ -44,10 +44,16 @@ public final class ShapeLibrary
 			this._volume = Double.parseDouble(str);
 		}
 		
+		public void setVolume(double volume)
+		{
+			this._volume = volume;
+		}
+		
 		@Override
 		public GridGetter gridGetter()
 		{
 			// TODO Make DummyGrid?
+			Log.out(tier.EXPRESSIVE, "dimensionless vol is "+this._volume);
 			return CartesianGrid.dimensionlessGetter(this._volume);
 		}
 		

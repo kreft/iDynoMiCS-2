@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Set;
 
 import boundary.Boundary;
+import dataIO.Log;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -34,6 +36,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	protected HashMap<String, SpatialGrid> _solutes = 
 										new HashMap<String, SpatialGrid>();
+	/**
+	 * Dictionary of average solute concentrations (useful for chemostat).
+	 */
+	protected HashMap<String, Double> _averageConcns;
 	/**
 	 * Dictionary of extracellular reactions.
 	 */
@@ -114,6 +120,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 											this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
+		Log.out(tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
 	}
 	
 	/*************************************************************************
@@ -145,12 +152,47 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return this._reactions.values();
 	}
 	
-	/**'
+	/**
+	 * \brief TODO
 	 * 
+	 * @param reaction
+	 * @param name
 	 */
 	public void addReaction(Reaction reaction, String name)
 	{
-		_reactions.put(name, reaction);
+		this._reactions.put(name, reaction);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param soluteName
+	 * @return
+	 */
+	public double getAverageConcentration(String soluteName)
+	{
+		return this._solutes.get(soluteName).getAverage(ArrayType.CONCN);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param soluteName
+	 * @param newConcn
+	 */
+	public void setAllConcentration(String soluteName, double newConcn)
+	{
+		this._solutes.get(soluteName).setAllTo(ArrayType.CONCN, newConcn);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public Collection<Boundary> getOtherBoundaries()
+	{
+		return this._shape.getOtherBoundaries();
 	}
 	
 	/*************************************************************************

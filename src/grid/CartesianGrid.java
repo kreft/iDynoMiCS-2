@@ -3,9 +3,10 @@ package grid;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import dataIO.Log;
+import dataIO.Log.tier;
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.ResCalcFactory;
-import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -234,7 +235,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		if (outNVoxel == null)
 			outNVoxel = new int[3];
-		for (int dim=0; dim<3; ++dim)
+		for ( int dim = 0; dim < 3; dim++ )
 			outNVoxel[dim] = this._resCalc[dim].getNVoxel();
 		return outNVoxel;
 	}
@@ -376,6 +377,11 @@ public class CartesianGrid extends SpatialGrid
 			public SpatialGrid newGrid(double[] totalSize, double resolution) 
 			{
 				// TODO check this is the best way.
+				if ( volume <= 0.0 )
+				{
+					Log.out(tier.CRITICAL, "Warning! Trying to initialise a"+
+							" dimensionless grid with zero volume.");
+				}
 				return new CartesianGrid(Vector.onesDbl(3),
 											ExtraMath.cubeRoot(volume));
 			}
