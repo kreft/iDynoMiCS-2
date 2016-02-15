@@ -3,6 +3,8 @@
  */
 package solver;
 
+import linearAlgebra.Vector;
+
 /**
  * \brief TODO
  * 
@@ -53,6 +55,8 @@ public abstract class ODEsolver extends Solver
 			throw new Exception("No derivatives set.");
 		if ( y.length != this.nVar() )
 			throw new IllegalArgumentException("Wrong vector dimensions.");
+		if ( ! this._allowNegatives )
+			Vector.makeNonnegative(y);
 		return y;
 	}
 }

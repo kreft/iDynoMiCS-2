@@ -3,24 +3,27 @@ package solver;
 import linearAlgebra.Vector;
 
 /**
- * \brief TODO
+ * \brief Numerical solver for systems of Ordinary Differential Equations
+ * (ODEs).
  * 
+ * <p>Also known as improved or modified Euler's method, and closely related to
+ * two-stage second-order Runge-Kutta methods.</p>
+ * 
+ * TODO Rob[15Feb2016]: Is there an error estimate for this method?
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public class ODEheunsmethod extends ODEsolver
 {
-	
 	/**
 	 * Maximum time-step permissible.
 	 */
-	protected double _hMax;
-	
+	private double hMax;
 	/**
-	 * Temporary vectors.
+	 * Temporary vector, set and used by the solver.
 	 */
-	protected double[] dYdT, k, dKdT;
+	private double[] dYdT, k, dKdT;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -34,7 +37,7 @@ public class ODEheunsmethod extends ODEsolver
 	public void init(String[] names, boolean allowNegatives, double hMax)
 	{
 		super.init(names, allowNegatives);
-		this._hMax = hMax;
+		this.hMax = hMax;
 		this.dYdT = new double[names.length];
 		this.k = new double[names.length];
 		this.dKdT = new double[names.length];
@@ -55,15 +58,14 @@ public class ODEheunsmethod extends ODEsolver
 		 * Solve the system.
 		 */
 		double timeStep;
-		if ( ! this._allowNegatives )
-			Vector.makeNonnegative(y);
-		while ( tFinal > 0.0 )
+		double timeRemaining = tFinal;
+		while ( timeRemaining > 0.0 )
 		{
-			timeStep = Math.min(this._hMax, tFinal);
+			timeStep = Math.min(this.hMax, tFinal);
 			heun(y, timeStep);
 			if ( ! this._allowNegatives )
 				Vector.makeNonnegative(y);
-			tFinal -= timeStep;
+			timeRemaining -= timeStep;
 		}
 		return y;
 	}

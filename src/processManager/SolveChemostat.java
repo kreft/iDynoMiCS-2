@@ -11,7 +11,6 @@ import dataIO.Log;
 import dataIO.Log.tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import solver.ODEderivatives;
