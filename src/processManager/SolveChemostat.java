@@ -333,6 +333,6 @@ public class SolveChemostat extends ProcessManager
 								HashMap<String, Double> concns, double[] dYdT)
 	{
 		for ( int i = 0; i < this._soluteNames.length; i++ )
-			dYdT[i] += aReac.getProductionRate(this._soluteNames[i], concns);
+			dYdT[i] += aReac.getProductionRate(concns, this._soluteNames[i]);
 	}
 }

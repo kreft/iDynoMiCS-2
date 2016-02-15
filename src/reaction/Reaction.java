@@ -158,8 +158,8 @@ public class Reaction implements XMLable
 	 * @return The rate of production (positive) or consumption (negative) of
 	 * this reactant chemical species.
 	 */
-	public double getProductionRate(String reactantName, 
-										HashMap<String, Double> concentrations)
+	public double getProductionRate(HashMap<String, Double> concentrations, 
+														String reactantName)
 	{
 		return this.getStoichiometry(reactantName) * 
 											this.getRate(concentrations);
