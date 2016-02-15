@@ -35,7 +35,9 @@ public abstract class ComponentMultiple extends Component
 		String out = this._components.get(0).getName();
 		for ( int i = 1; i < this._components.size(); i++ )
 			out += this._expr+this._components.get(i).getName();
-		return ( isNegative() ) ? "-("+out+")" : out;
+		return ( isNegative() ) ? "-("+out+")" : "("+out+")";
+		// NOTE: added braces since in some instances otherwise an incorrect
+		// expression is shown.
 	}
 	
 	@Override

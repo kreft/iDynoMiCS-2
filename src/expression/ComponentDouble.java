@@ -25,7 +25,7 @@ public abstract class ComponentDouble extends Component
 	public String getName()
 	{
 		String out = this._a.getName() + this._expr + this._b.getName();
-		return ( isNegative() ) ? "-("+out+")" : out;
+		return ( isNegative() ) ? "-("+out+")" : "("+out+")";
 	}
 	
 	@Override

@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
-import expression.ExpressionBuilder;
+import expression.ExpressionB;
 
 /**
  * 
@@ -13,12 +13,12 @@ import expression.ExpressionBuilder;
  */
 public class StateExpression extends Calculated {
 	
-	private ExpressionBuilder e;
+	private ExpressionB expression;
 
 	@Override
 	public void setInput(String input)
 	{
-		this.e = new ExpressionBuilder(input.replaceAll("\\s+",""));
+		this.expression = new ExpressionB(input.replaceAll("\\s+",""));
 	}
 	
 	/**
@@ -27,9 +27,9 @@ public class StateExpression extends Calculated {
 	public Object get(AspectInterface aspectOwner)
 	{
 		HashMap<String, Double> variables = new HashMap<String, Double>();
-		for(String var : e._variables)
+		for(String var : expression._variables)
 			variables.put(var, aspectOwner.getDouble(var));
-		return e.component.getValue(variables);
+		return expression.getValue(variables);
 	}
 
 }
