@@ -17,20 +17,20 @@
 				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
-				<aspect name="coccoidCenter" type="secondary" class="CoccoidCenter"
+				<aspect name="coccoidCenter" type="calculated" class="CoccoidCenter"
 					input="body" />
 				<aspect name="morphology" type="String" value="coccoid" />
-				<aspect name="joints" type="secondary" class="JointsState"
+				<aspect name="joints" type="calculated" class="JointsState"
 					input="body" />
-				<aspect name="volume" type="secondary" class="SimpleVolumeState"
+				<aspect name="volume" type="calculated" class="SimpleVolumeState"
 					input="mass,density" />
-				<aspect name="radius" type="secondary" class="CoccoidRadius"
+				<aspect name="radius" type="calculated" class="CoccoidRadius"
 					input="volume" />
 				<aspect name="growth" type="event" package="agent.event.library."
 					class="SimpleGrowth" input="mass,growthRate" />
 				<aspect name="divide" type="event" package="agent.event.library."
 					class="CoccoidDivision" input="mass,radius,body" />
-				<aspect name="surface" type="secondary" class="SimpleSurface"
+				<aspect name="surface" type="calculated" class="SimpleSurface"
 					input="body" />
 				<aspect name="updateBody" type="event" package="agent.event.library."
 					class="UpdateBody" input="body,radius,length" />

@@ -1,9 +1,9 @@
 package expression;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.TreeMap;
-
-import expression.*;
 
 /**
  * 
@@ -31,7 +31,12 @@ public class ExpressionBuilder {
 	/**
 	 * Todo: constants with name?
 	 */
-	public HashMap<String, Double> _terms;
+	public HashMap<String, Double> _constants;
+	
+	/**
+	 * 
+	 */
+	public List<String> _variables = new LinkedList<String>();
 	
 	/**
 	 * Eval tree
@@ -63,7 +68,7 @@ public class ExpressionBuilder {
 		this.expression = expression;
 		if (terms == null)
 			terms = new HashMap<String, Double>();
-		_terms = terms;
+		_constants = terms;
 			
 		/**
 		 * obtain brace location and count depth
@@ -163,7 +168,7 @@ public class ExpressionBuilder {
 			{
 				//NOTE subtract start for correct identification in substring
 				if(key-start != 0)
-					_eval.put(o+start,equation.substring( o, key-start ));
+					addVar( o+start,equation.substring( o, key-start ));
 				o = key - start + operLoc.get(key).length();
 			}
 			
@@ -172,10 +177,16 @@ public class ExpressionBuilder {
 			 * build in a check if we would need to do that)
 			 */
 			if(o != 0)
-				_eval.put( o+start ,equation.substring( o, equation.length() ));
+				addVar( o+start ,equation.substring( o, equation.length() ));
 			
 			_eval.putAll(operLoc);
 		}
+	}
+	
+	private void addVar(int loc, String value)
+	{
+		_eval.put(loc,value);
+		_variables.add(value);
 	}
 	
 	/**
@@ -211,13 +222,13 @@ public class ExpressionBuilder {
 	public void setSub(int start, int end)
 	{
 		_subExpressions.put(start, new ExpressionBuilder( 
-				expression.substring(start+1, end-1), this._terms));
+				expression.substring(start+1, end-1), this._constants));
 		_eval.put(start, String.valueOf("$" + start));
 	}
 	
 	public void addTerm(String key, double value)
 	{
-		this._terms.put(key, value);
+		this._constants.put(key, value);
 	}
 	
 	/**

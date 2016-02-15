@@ -27,6 +27,7 @@ public abstract class Calculated implements Copyable, XMLable {
 	 */
 	public void setInput(String input)
 	{
+		input.replaceAll("\\s+","");
 		this.input = input.split(",");
 	}
 	

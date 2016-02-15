@@ -2,6 +2,7 @@
 <document>
 <!-- agent.state.library -->
 	<classRef>
+		<classDef name="StateExpression" package="agent.state.library." />
 		<classDef name="CoccoidCenter" package="agent.state.library." />
 		<classDef name="CoccoidRadius" package="agent.state.library." />
 		<classDef name="ComponentVolumeState" package="agent.state.library." />

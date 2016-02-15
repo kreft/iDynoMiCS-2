@@ -19,7 +19,7 @@ public class Ball extends Surface implements HasBoundingBox {
     /**
      * the radius of this spehere
      */
-    private double _radius;
+    public double _radius;
 
     public Ball(Point point, double radius)
     {

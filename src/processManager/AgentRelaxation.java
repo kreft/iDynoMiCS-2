@@ -55,14 +55,11 @@ public class AgentRelaxation extends ProcessManager {
 		/**
 		 * Obtaining relaxation parameters
 		 */
-		dtBase		= Double.valueOf(Helper.setIfNone((String) 
-				  			  reg().getValue(this, "dtBase"), String.valueOf(0.01)));	
-		maxMovement	= Double.valueOf(Helper.setIfNone(String.valueOf(
-							  reg().getValue(this, "maxMovement")), String.valueOf(0.1)));	
-		_method		= method.valueOf(Helper.obtainInput((String) 
-							  reg().getValue(this, "relaxationMethod"), "agent " + 
-							  "relaxation misses relaxation method "
-							  + "(SHOVE,EULER,HEUN)"));
+		dtBase		= Helper.setIfNone(getDouble("dtBase"),0.01);	
+		maxMovement	= Helper.setIfNone(getDouble("maxMovement"),0.1);	
+		_method		= method.valueOf(Helper.obtainInput(getString(
+				"relaxationMethod"), "agent relaxation misses relaxation method"
+				+ " (SHOVE,EULER,HEUN)"));
 		timeLeap	= true;
 	}
 	

@@ -5,6 +5,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import agent.Body;
+import linearAlgebra.Vector;
+import surface.BoundingBox;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -44,10 +46,16 @@ public abstract interface AspectInterface {
 					case "int" : 
 						aspectReg.add(s.getAttribute("name"), 
 								Integer.valueOf(s.getAttribute("value")));
+					case "int[]" : 
+						aspectReg.add(s.getAttribute("name"), 
+								Vector.intFromString(s.getAttribute("value")));
 	                	break;
 					case "double" : 
 						aspectReg.add(s.getAttribute("name"), 
 								Double.valueOf(s.getAttribute("value")));
+					case "double[]" : 
+						aspectReg.add(s.getAttribute("name"), 
+								Vector.dblFromString(s.getAttribute("value")));
 	                	break;
 					case "String" : 
 						aspectReg.add(s.getAttribute("name"), 
@@ -57,7 +65,7 @@ public abstract interface AspectInterface {
 						aspectReg.add(s.getAttribute("name"), 
 								s.getAttribute("value").split(","));
 	                	break;
-					case "secondary" : 
+					case "calculated" : 
 						aspectReg.add(s.getAttribute("name"), 
 								Calculated.getNewInstance(s));
 	                	break;
@@ -81,14 +89,50 @@ public abstract interface AspectInterface {
 		}
 	}
 	
-	public default double getDouble(String aspect)
+	/**************************************************************************
+	 * Quick getter methods, making life easy and code readable, expand as new
+	 * objects are implemented in the aspect interface
+	 * NOTE: there may be more efficient ways of doing this, check
+	 */
+	
+	public default Double getDouble(String aspect)
 	{
-		return (double) reg().getValue(this, aspect);
+		return (reg().getValue(this, aspect) != null ? (double) reg().getValue(this, aspect) : null);
 	}
 	
-	public default double getString(String aspect)
+	public default String getString(String aspect)
 	{
-		return (double) reg().getValue(this, aspect);
+		return (reg().getValue(this, aspect) != null ? (String) reg().getValue(this, aspect) : null);
+	}
+	
+	public default Integer getInt(String aspect)
+	{
+		return (reg().getValue(this, aspect) != null ? (int) reg().getValue(this, aspect) : null);
+	}
+	
+	public default Float getFloat(String aspect)
+	{
+		return (reg().getValue(this, aspect) != null ? (float) reg().getValue(this, aspect) : null);
+	}
+	
+	public default Boolean getBoolean(String aspect)
+	{
+		return (reg().getValue(this, aspect) != null ? (boolean) reg().getValue(this, aspect): null);
+	}
+	
+	public default Event getEvent(String aspect)
+	{
+		return (reg().getValue(this, aspect) != null ? (Event) reg().getValue(this, aspect) : null);
+	}
+	
+	public default Calculated getCalculated(String aspect)
+	{
+		return (reg().getValue(this, aspect) != null ? (Calculated) reg().getValue(this, aspect) : null);
+	}
+	
+	public default String[] getStringA(String aspect)
+	{
+		return (reg().getValue(this, aspect) != null ? (String[]) reg().getValue(this, aspect) : null);
 	}
 
 }

@@ -281,6 +281,36 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Copy the <b>vector</b> given to a new boolean[] array.
+	 * 
+	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
+	 * 
+	 * @param vector One-dimensional array of booleans (preserved).
+	 * @return	boolean[] that is a copy of <b>vector</b>.
+	 * @see #copyTo(boolean[] destination, boolean[] source)
+	 */
+	public static boolean[] copy(boolean[] vector)
+	{
+		return copyTo(new boolean[vector.length], vector);
+	}
+	
+	/**
+	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
+	 * 
+	 * @param destination boolean[] to be overwritten with the values of
+	 * <b>source</b>.
+	 * @param source boolean[] to be copied from (preserved).
+	 * @return <b>destination</b>
+	 * @see #copy(boolean[] vector)
+	 */
+	public static boolean[] copyTo(boolean[] destination, boolean[] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i];
+		return destination;
+	}
+	
+	/**
 	 * \brief Set all elements of the given <b>vector</b> to the integer
 	 * <b>value</b> given.
 	 * 
