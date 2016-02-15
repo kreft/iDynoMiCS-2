@@ -25,13 +25,14 @@ public class Helper {
 	}
 	
 	/**
-	 * Returns String from input, if not set returns string value of ifNone.
+	 * Returns T from input, if not set returns string value of ifNone.
 	 */
-	public static String setIfNone(String input, Object ifNone)
+	public static <T> T setIfNone(T input, T ifNone)
 	{
 		if (input == null || input == "")
-			input = String.valueOf(ifNone);
-		return input;
+			return ifNone;
+		else
+			return input;
 	}
 	
 	/**

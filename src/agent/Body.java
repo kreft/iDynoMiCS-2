@@ -2,6 +2,7 @@ package agent;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
+import generalInterfaces.HasBoundingBox;
 import linearAlgebra.Vector;
 
 import java.util.LinkedList;
@@ -181,6 +182,14 @@ public class Body implements Copyable, XMLable {
 		return this.surfaces.get(0);
 	}
 	
+	public List<BoundingBox> getBoxes(double margin)
+	{
+		List<BoundingBox> boxes = new LinkedList<BoundingBox>();
+		for(Surface s : surfaces)
+			boxes.add( ((HasBoundingBox) s).boundingBox(margin) );
+		return boxes;
+	}
+	
 	/*************************************************************************
 	 * general methods
 	 ************************************************************************/
@@ -201,91 +210,5 @@ public class Body implements Copyable, XMLable {
 		default:
 			return null;
 		}
-	}
-	
-	/////////////////////////////////////////////////////////////////////////
-	// TODO the bounding box related methods will be replaced by a bounding
-	// box object
-	/////////////////////////////////////////////////////////////////////////
-	/**
-	 * 
-	 * @param radius
-	 * @return coordinates of lower corner of bounding box
-	 */
-	public double[] coord(double radius) 
-	{
-		if ( points.size() == 1 )
-			return points.get(0).coord(radius);
-		double[] coord = new double[nDim()];
-		for (Point o: points) 
-			for ( int i = 0; i < nDim(); i++ ) 
-				coord[i] = Math.min( coord[i], o.coord(radius)[i] );
-		return coord;
-	}
-	
-	/**
-	 * 
-	 * @param radius
-	 * @param t: added margin
-	 * @return coordinates of lower corner of bounding box with margin
-	 */
-	public double[] coord(double radius, double t) 
-	{
-		if ( points.size() == 1 )
-			return points.get(0).coord(radius);
-		double[] coord = new double[nDim()];
-		for (Point o: points) 
-			for ( int i = 0; i < nDim(); i++ ) 
-				coord[i] = Math.min(coord[i], o.coord(radius)[i]) - t;
-		return coord;
-	}
-	
-	/**
-	 * 
-	 * @param radius
-	 * @return coordinates of upper corner of bounding box
-	 */
-	public double[] upper(Double radius) 
-	{
-		double[] upper = new double[nDim()];
-		for (Point o: points) 
-			for ( int i = 0; i < nDim(); i++ ) 
-				upper[i] = Math.max( upper[i], o.upper(radius)[i] );
-		return upper;
-	}
-	
-	/**
-	 * 
-	 * @param radius
-	 * @return dimensions of the bounding box
-	 */
-	public double[] dimensions(Double radius) 
-	{
-		if(points.size() == 1)
-			return points.get(0).dimensions(radius);
-		double[] coord 		= coord(radius);
-		double[] upper 		= upper(radius);
-		double[] dimensions	= new double[nDim()];
-		for (int i = 0; i < nDim(); i++)
-			dimensions[i] = upper[i] - coord[i];
-		return dimensions;
-	}
-	
-	/**
-	 * 
-	 * @param radius
-	 * @param t: margin
-	 * @return dimensions of the bounding box with added margin
-	 */
-	public double[] dimensions(Double radius, double t) 
-	{
-		if(points.size() == 1)
-			return points.get(0).dimensions(radius);
-		double[] coord 		= coord(radius);
-		double[] upper 		= upper(radius);
-		double[] dimensions	= new double[nDim()];
-		for (int i = 0; i < nDim(); i++)
-			dimensions[i] = upper[i] - coord[i] + 2 * t;
-		return dimensions;
 	}
 }

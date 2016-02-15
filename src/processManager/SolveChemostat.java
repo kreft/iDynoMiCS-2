@@ -93,17 +93,13 @@ public class SolveChemostat extends ProcessManager
 	public void init(String[] soluteNames)
 	{
 		this._soluteNames = soluteNames;
-		// NOTE Bas: yes, yes I'll make nicer methods for this..
-		if(Helper.setIfNone(String.valueOf(reg().getValue(this, "solver")), 
-				"rosenbrock").equals("heun"))
+		if(Helper.setIfNone(getString("solver"),"rosenbrock").equals("heun"))
 			this._solver = new ODEheunsmethod(this._soluteNames, false, 
-					Double.valueOf(Helper.setIfNone(String.valueOf(
-					reg().getValue(this, "hMax")), 1.0e-6)));
+					Helper.setIfNone(getDouble("hMax"), 1.0e-6));
 		else
 			this._solver = new ODErosenbrock(this._soluteNames, false, 
-					Double.valueOf(Helper.setIfNone( String.valueOf(reg().getValue(
-					this, "tolerance")), 1.0e-6)), Double.valueOf(Helper.setIfNone( 
-					String.valueOf(reg().getValue(this, "hMax")), 1.0e-6)));
+					Helper.setIfNone(getDouble("tolerance"), 1.0e-6), 
+					Helper.setIfNone(getDouble("hMax"), 1.0e-6));
 		this._inflow = new HashMap<String, Double>();
 		for ( String sName : this._soluteNames )
 			this._inflow.put(sName, 0.0);

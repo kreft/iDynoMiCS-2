@@ -3,9 +3,9 @@
 	<simulation log="DEBUG" outputfolder="../results" name="mySim">
 		<general>
 			<param name="timeStepSize" value="1.0"/>
-			<param name="endOfSimulation" value="60.0"/>
+			<param name="endOfSimulation" value="20.0"/>
 		</general>
-		<compartment name="batchheun">
+		<compartment name="batch_heun">
 			<shape class="Dimensionless" volume="1.0" />
 			<solutes>
 				<solute name="solute1" concentration="2.0" />
@@ -28,7 +28,7 @@
 				</process>
 			</processManagers>
 		</compartment>
-		<compartment name="batchrosenbrock">
+		<compartment name="batch_rosenbrock">
 			<shape class="Dimensionless" volume="1.0" />
 			<solutes>
 				<solute name="solute1" concentration="2.0" />

@@ -80,5 +80,15 @@ public abstract interface AspectInterface {
 			}
 		}
 	}
+	
+	public default double getDouble(String aspect)
+	{
+		return (double) reg().getValue(this, aspect);
+	}
+	
+	public default double getString(String aspect)
+	{
+		return (double) reg().getValue(this, aspect);
+	}
 
 }
