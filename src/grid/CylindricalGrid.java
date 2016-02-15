@@ -2,7 +2,6 @@ package grid;
 
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.ResCalcFactory;
-import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
