@@ -1,7 +1,5 @@
 package aspect;
 
-import expression.Component;
-
 /**
  * 
  * @author baco

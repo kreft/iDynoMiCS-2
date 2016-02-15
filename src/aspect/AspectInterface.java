@@ -95,44 +95,102 @@ public abstract interface AspectInterface {
 	 * NOTE: there may be more efficient ways of doing this, check
 	 */
 	
+	/**
+	 * check for global existence of aspect
+	 * @param aspect
+	 * @return
+	 */
+	default boolean checkAspect(String aspect)
+	{
+		return reg().isGlobalAspect(aspect) && reg().getValue(this, aspect) != null;
+	}
+	
+	/**
+	 * check, cast and return aspect, return null if the aspect does not exist
+	 * or is equal to null
+	 * @param aspect
+	 * @return
+	 */
 	public default Double getDouble(String aspect)
 	{
-		return (reg().getValue(this, aspect) != null ? (double) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (double) reg().getValue(this, aspect) : null);
 	}
 	
+	/**
+	 * check, cast and return aspect, return null if the aspect does not exist
+	 * or is equal to null
+	 * @param aspect
+	 * @return
+	 */
 	public default String getString(String aspect)
 	{
-		return (reg().getValue(this, aspect) != null ? (String) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (String) reg().getValue(this, aspect) : null);
 	}
 	
+	/**
+	 * check, cast and return aspect, return null if the aspect does not exist
+	 * or is equal to null
+	 * @param aspect
+	 * @return
+	 */
 	public default Integer getInt(String aspect)
 	{
-		return (reg().getValue(this, aspect) != null ? (int) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (int) reg().getValue(this, aspect) : null);
 	}
 	
+	/**
+	 * check, cast and return aspect, return null if the aspect does not exist
+	 * or is equal to null
+	 * @param aspect
+	 * @return
+	 */
 	public default Float getFloat(String aspect)
 	{
-		return (reg().getValue(this, aspect) != null ? (float) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (float) reg().getValue(this, aspect) : null);
 	}
 	
+	/**
+	 * check, cast and return aspect, return null if the aspect does not exist
+	 * or is equal to null
+	 * @param aspect
+	 * @return
+	 */
 	public default Boolean getBoolean(String aspect)
 	{
-		return (reg().getValue(this, aspect) != null ? (boolean) reg().getValue(this, aspect): null);
+		return (checkAspect(aspect) ? (boolean) reg().getValue(this, aspect): null);
 	}
 	
+	/**
+	 * check, cast and return aspect, return null if the aspect does not exist
+	 * or is equal to null
+	 * @param aspect
+	 * @return
+	 */
 	public default Event getEvent(String aspect)
 	{
-		return (reg().getValue(this, aspect) != null ? (Event) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (Event) reg().getValue(this, aspect) : null);
 	}
 	
+	/**
+	 * check, cast and return aspect, return null if the aspect does not exist
+	 * or is equal to null
+	 * @param aspect
+	 * @return
+	 */
 	public default Calculated getCalculated(String aspect)
 	{
-		return (reg().getValue(this, aspect) != null ? (Calculated) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (Calculated) reg().getValue(this, aspect) : null);
 	}
 	
+	/**
+	 * check, cast and return aspect, return null if the aspect does not exist
+	 * or is equal to null
+	 * @param aspect
+	 * @return
+	 */
 	public default String[] getStringA(String aspect)
 	{
-		return (reg().getValue(this, aspect) != null ? (String[]) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (String[]) reg().getValue(this, aspect) : null);
 	}
 
 }
