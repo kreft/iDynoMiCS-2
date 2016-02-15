@@ -5,6 +5,11 @@ import java.util.Scanner;
 import dataIO.Log;
 import dataIO.Log.tier;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class Helper {
 
 	/**
@@ -25,7 +30,7 @@ public class Helper {
 	}
 	
 	/**
-	 * Returns T from input, if not set returns string value of ifNone.
+	 * Returns any input object <T> from input, if not set returns ifNone <T>.
 	 */
 	public static <T> T setIfNone(T input, T ifNone)
 	{
@@ -33,14 +38,6 @@ public class Helper {
 			return ifNone;
 		else
 			return input;
-	}
-	
-	/**
-	 * 
-	 */
-	public static double getDouble(Object input)
-	{
-		return Double.valueOf(String.valueOf(input));
 	}
 
 	/**

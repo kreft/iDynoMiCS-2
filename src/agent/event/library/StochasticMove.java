@@ -33,7 +33,7 @@ public class StochasticMove extends Event {
 		{
 			p.setPosition(Vector.add(p.getPosition(), 
 					Vector.randomPlusMinus(agentBody.nDim(), timeStep*
-					Helper.getDouble( agent.get(input[1]) ))));
+					agent.getDouble(input[1]))));
 		}
 	}
 }
