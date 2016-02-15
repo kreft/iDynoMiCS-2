@@ -40,9 +40,9 @@ public abstract class ODEsolver extends Solver
 	 * 
 	 * TODO Check tFinal is positive and finite?
 	 * 
-	 * @param y
-	 * @param tFinal
-	 * @return
+	 * @param y One-dimensional array of doubles.
+	 * @param tFinal Time duration to solve for.
+	 * @return One-dimensional array of doubles.
 	 * @throws Exception No first derivative set.
 	 * @exception IllegalArgumentException Wrong vector dimensions.
 	 */

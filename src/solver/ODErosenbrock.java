@@ -1,6 +1,7 @@
+/**
+ * 
+ */
 package solver;
-
-import java.util.Arrays;
 
 import dataIO.Log;
 import dataIO.Log.tier;
@@ -8,7 +9,11 @@ import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
 /**
- * \brief TODO
+ * \brief Numerical solver for stiff systems of Ordinary Differential Equations
+ * (ODEs).
+ * 
+ * <b>Based on code in {@code simulator.diffusionSolver.Solve_chemostat} from
+ * the iDynoMiCS 1 package.</p>
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
@@ -17,62 +22,84 @@ public class ODErosenbrock extends ODEsolver
 	/**
 	 * TODO
 	 */
-	protected final double d = 1.0 / (2.0 + Math.sqrt(2.0));
+	private final double d = 1.0 / (2.0 + Math.sqrt(2.0));
 	
 	/**
 	 * TODO
 	 */
-	protected final double e32  = 6.0 + Math.sqrt(2.0);
+	private final double e32  = 6.0 + Math.sqrt(2.0);
 	
 	/**
 	 * The order of this method is 3.
 	 */
-	protected final double power = 1.0/3.0;
+	private final double power = 1.0/3.0;
 	
 	/**
 	 * Error Per Step: the smallest positive floating-point number such that
 	 * 1.0 + EPS > 1.0 
 	 */
-	protected final double EPS = 2.22e-16;
+	private final double EPS = 2.22e-16;
 	
 	/**
-	 * Numerical accuracy for EPS (error per step)
-	 * 
-	 * TODO is this used?
-	 */
-	protected final double sqrtE = Math.sqrt(EPS);
-	
-	/**
-	 * Absolute tolerance.
+	 * Maximum absolute tolerance. Note that the actual value of absTol used
+	 * may be smaller with small time steps.
 	 * 
 	 * <p><b>[Rob 7Aug2015]</b> Switched to absolute tolerance from relative
 	 * tolerance due to error estimates heading to infinity as values approach
 	 * zero.</p>
 	 */
-	protected double _absTol;
+	private double _absTol;
 	
 	/**
-	 * Maximum time-step permissible.
+	 * Maximum time-step permissible. Note that the actual value of hMax used
+	 * may be smaller with small time steps.
 	 */
-	protected double _hMax;
+	private double _hMax;
+	/**
+	 * Estimate of the new value of <b>y</b> after a small time step.
+	 */
+	private double[] ynext;
+	/**
+	 * First derivative with respect to time.
+	 */
+	private double[] dYdT;
+	/**
+	 * Second derivative with respect to time.
+	 */
+	private double[] dFdT;
+	/**
+	 * Jacobian matrix.
+	 */
+	private double[][] dFdY;
+	/**
+	 * Estimate a of future rates of change, set and used by the solver.
+	 */
+	private double[] f1, f2;
+	/**
+	 * Weighing of the importance of a result, set and used by the solver.
+	 */
+	private double[] k1, k2, k3, kaux;
 	
-	protected double[] ynext;
-	
-	protected double[] dYdT;
-	
-	protected double[] dFdT;
-	
-	protected double[][] dFdY;
-	
-	protected double[] f1, f2, k1, k2, k3, kaux, hddFdT;
-	
-	protected double[][] W, invW;
-	
-	protected double[][] identity;
-	
-	protected double t, error, tNext, h, test;
-	
-	protected boolean lastStep, noFailed, usingHMin, signsOK;
+	/**
+	 * {@code h * d * dFdT}, calculated once as it used several times.
+	 */
+	private double[] hddFdT;
+	/**
+	 * {@code I - ( h * d * dFdY)}
+	 */
+	private double[][] W;
+	/**
+	 * The identity matrix, of size (nVar x nVar).
+	 */
+	private double[][] identity;
+	/**
+	 * {@code double} set and used by the solver.
+	 */
+	private double t, error, tNext, h, test;
+	/**
+	 * {@code boolean} set and used by the solver.
+	 */
+	private boolean lastStep, noFailed, usingHMin, signsOK;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -83,7 +110,8 @@ public class ODErosenbrock extends ODEsolver
 
 	}
 	
-	public ODErosenbrock(String[] soluteNames, boolean allowNegatives, double absTol, double hMax)
+	public ODErosenbrock(String[] soluteNames, boolean allowNegatives,
+													double absTol, double hMax)
 	{
 		this.init(soluteNames, allowNegatives, absTol, hMax);
 		Log.out(tier.DEBUG, "ODErosenbrock: " + allowNegatives +  " " +  absTol 
@@ -105,16 +133,13 @@ public class ODErosenbrock extends ODEsolver
 	public void init(String[] names, boolean allowNegatives,
 												double absTol, double hMax)
 	{
-		/**
-		 * NOTE Bas [12.02.16] seems ODErosenbrock does not like absTol < hMax
-		 */
-		hMax = ( absTol > hMax ? hMax : absTol);
-		
 		super.init(names, allowNegatives);
-		
+		/* Doubles */
 		this._absTol = absTol;
-		this._hMax = hMax;
-		
+		// NOTE Bas [12.02.16] seems ODErosenbrock does not like absTol < hMax
+		// TODO Rob [15Feb2016]: any more info? Website URL?
+		this._hMax = ( absTol > hMax ? hMax : absTol);
+		/* Vectors */
 		ynext = Vector.zerosDbl(this.nVar());
 		dYdT  = Vector.zerosDbl(this.nVar());
 		dFdT  = Vector.zerosDbl(this.nVar());
@@ -125,26 +150,18 @@ public class ODErosenbrock extends ODEsolver
 		k3    = Vector.zerosDbl(this.nVar());
 		kaux  = Vector.zerosDbl(this.nVar());
 		hddFdT = Vector.zerosDbl(this.nVar());
-		
+		/* Matrices */
 		dFdY  = Matrix.zerosDbl(this.nVar());
 		W     = Matrix.zerosDbl(this.nVar());
-		invW  = Matrix.zerosDbl(this.nVar());
-		
 		identity = Matrix.identityDbl(this.nVar());
 	}
+	
+	// TODO init from xml node?
 	
 	/*************************************************************************
 	 * KEY METHOS
 	 ************************************************************************/
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * 
-	 * @param y One-dimensional array of doubles.
-	 * @param tFinal Time duration to solve for.
-	 * @return One-dimensional array of doubles.
-	 */
 	@Override
 	public double[] solve(double[] y, double tFinal) throws Exception, 
 													IllegalArgumentException
@@ -236,13 +253,13 @@ public class ODErosenbrock extends ODEsolver
 					Matrix.solveEquals(W, k2);
 					Vector.addEquals(k2, k1);
 					/*
-					 * ynext = y + h * k2
-					 */
+					 * These will be the new values of y and dYdT, assuming the
+					 * error is small enough.
+					 */ 
+					/* ynext = y + h * k2 */
 					Vector.timesTo(ynext, k2, h);
 					Vector.addEquals(ynext, y);
-					/*
-					 * f2 = dYdT(ynext)
-					 */
+					/* f2 = dYdT(ynext) */
 					this._deriv.firstDeriv(f2, ynext);
 					/*
 					 * 
@@ -251,9 +268,8 @@ public class ODErosenbrock extends ODEsolver
 					 * 
 					 * First set kaux as the expression inside the brackets,
 					 * then multiply by invW on the left.
-					 * 
-					 * f2 + h*d*dFdT
 					 */
+					/* f2 + h*d*dFdT */
 					Vector.addTo(kaux, hddFdT, f2);
 					/* + e32 * (f1 - k2) */
 					Vector.minusTo(k3, f1, k2);
@@ -263,19 +279,10 @@ public class ODErosenbrock extends ODEsolver
 					Vector.minusTo(k3, y, k1);
 					Vector.timesEquals(k3, 2.0);
 					Vector.addEquals(kaux, k3);
-					// 
+					/* k3 = W-1(...) */ 
 					Matrix.solveTo(k3, W, kaux);
 					/*
-					 * We now use kaux to estimate the error of this step.
-					 */
-					//for (int i = 0; i < this.nVar(); i++)
-					//	kaux[i] = 1/Math.min(y[i], ynext[i]);
-					/*
-					 * kaux *= (2*k2 + k3) * h / 6
-					 */
-					//Vector.add(Vector.times(k2, 2.0), k3);
-					//Vector.times(kaux, Vector.times(k2, h/6.0));
-					/*
+					 * Use kaux to estimate the greatest error:
 					 * kaux = (k1 -2*k2 + k3) * h/6
 					 */
 					Vector.timesTo(kaux, k2, -2.0);
@@ -286,7 +293,7 @@ public class ODErosenbrock extends ODEsolver
 				}
 				catch (Exception e)
 				{
-					Log.out(tier.CRITICAL,"Problem in Rosenbrock step" + e);
+					Log.out(tier.CRITICAL, "Problem in Rosenbrock step" + e);
 				}
 				/*
 				 * The solution is accepted if the weighted error is less than
@@ -326,8 +333,6 @@ public class ODErosenbrock extends ODEsolver
 				}
 				else
 					break;
-				//Log.out(tier.NORMAL,"error = "+error+", absTol = "+absTol+", h = "+h);
-				//return y; //Bughunt
 			} // End of `while ( true )`
 			/*
 			 * If there were no failures compute a new h. We use the same
@@ -350,9 +355,7 @@ public class ODErosenbrock extends ODEsolver
 			t = tNext;
 			/*
 			 * Check if we've reached a steady-state solution.
-			 * 
-			 * TODO use the relative tolerance here? Could use another
-			 * parameter and set it negative if we want never to escape early.
+			 * NOTE: do not use absTol when comparing y and ynext!
 			 */
 			if( (h == hMax) && Vector.areSame(y, ynext) )
 				return ynext;
