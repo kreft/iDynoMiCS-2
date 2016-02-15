@@ -118,7 +118,8 @@ public class Compartment implements CanPrelaunchCheck
 		NodeList solutes = XmlHandler.getAll(elem, "solute");
 		for ( int i = 0; i < solutes.getLength(); i++)
 			this.addSolute(XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					"name"));
+					"name"), Double.valueOf(XmlHandler.obtainAttribute(
+					(Element) solutes.item(i), "concentration")));
 
 			
 			// TODO diffusivity
@@ -127,13 +128,12 @@ public class Compartment implements CanPrelaunchCheck
 		/*
 		 * Give it extracellular reactions.
 		 */
-		NodeList children = XmlHandler.getAll(elem, "reaction");
-		for ( int i = 0; i < children.getLength(); i++ )
-		{
-			XmlHandler.obtainAttribute((Element) children.item(i),"name");
-			Reaction r = (Reaction) Reaction.getNewInstance(children.item(i));
+		NodeList reactions = XmlHandler.getAll(elem, "reaction");
+		for ( int i = 0; i < reactions.getLength(); i++ )
+			this._environment.addReaction((Reaction) Reaction.getNewInstance(
+					reactions.item(i)),XmlHandler.obtainAttribute(
+					(Element) reactions.item(i),"name"));
 
-		}
 			
 		/*
 		 * Finally, finish off the initialisation as standard.
@@ -209,6 +209,15 @@ public class Compartment implements CanPrelaunchCheck
 	public void addSolute(String soluteName)
 	{
 		this._environment.addSolute(soluteName);
+	}
+	
+	/**
+	 * 
+	 * @param soluteName
+	 */
+	public void addSolute(String soluteName, double initialConcentration)
+	{
+		this._environment.addSolute(soluteName, initialConcentration);
 	}
 	
 	/**

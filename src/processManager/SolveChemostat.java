@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.w3c.dom.Node;
+
 import agent.Agent;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
@@ -15,9 +17,12 @@ import idynomics.EnvironmentContainer;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import reaction.Reaction;
+import solver.ODEheunsmethod;
 import solver.ODErosenbrock;
+import solver.ODEsolver;
 import solver.ODEsolver.Derivatives;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -32,7 +37,7 @@ public class SolveChemostat extends ProcessManager
 	 * TODO Could let the user choose which ODEsolver to use, if we ever get
 	 * around to implementing more.
 	 */
-	protected ODErosenbrock _solver;
+	protected ODEsolver _solver;
 
 	/**
 	 * TODO
@@ -73,6 +78,12 @@ public class SolveChemostat extends ProcessManager
 	{
 
 	}
+	
+	
+	public void init()
+	{
+		init((String[]) reg().getValue(this, "soluteNames"));
+	}
 
 	/**
 	 * \brief TODO
@@ -82,8 +93,17 @@ public class SolveChemostat extends ProcessManager
 	public void init(String[] soluteNames)
 	{
 		this._soluteNames = soluteNames;
-		this._solver = new ODErosenbrock();
-		this._solver.init(this._soluteNames, false, 1.0e-6, 1.0e-6);
+		// NOTE Bas: yes, yes I'll make nicer methods for this..
+		if(Helper.setIfNone(String.valueOf(reg().getValue(this, "solver")), 
+				"rosenbrock").equals("heun"))
+			this._solver = new ODEheunsmethod(this._soluteNames, false, 
+					Double.valueOf(Helper.setIfNone(String.valueOf(
+					reg().getValue(this, "hMax")), 1.0e-6)));
+		else
+			this._solver = new ODErosenbrock(this._soluteNames, false, 
+					Double.valueOf(Helper.setIfNone( String.valueOf(reg().getValue(
+					this, "tolerance")), 1.0e-6)), Double.valueOf(Helper.setIfNone( 
+					String.valueOf(reg().getValue(this, "hMax")), 1.0e-6)));
 		this._inflow = new HashMap<String, Double>();
 		for ( String sName : this._soluteNames )
 			this._inflow.put(sName, 0.0);
@@ -314,8 +334,7 @@ public class SolveChemostat extends ProcessManager
 	protected void applyReactionFluxes(Reaction aReac,
 								HashMap<String, Double> concns, double[] dYdT)
 	{
-		aReac.updateRate(concns);
 		for ( int i = 0; i < this._soluteNames.length; i++ )
-			dYdT[i] += aReac.getProductionRate(this._soluteNames[i]);
+			dYdT[i] += aReac.getProductionRate(this._soluteNames[i], concns);
 	}
 }

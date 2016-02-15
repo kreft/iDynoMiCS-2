@@ -145,6 +145,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return this._reactions.values();
 	}
 	
+	/**'
+	 * 
+	 */
+	public void addReaction(Reaction reaction, String name)
+	{
+		_reactions.put(name, reaction);
+	}
+	
 	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/
