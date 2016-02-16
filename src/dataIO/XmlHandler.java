@@ -88,6 +88,8 @@ public class XmlHandler {
 		{
 		@SuppressWarnings("resource")
 		Scanner user_input = new Scanner( System.in );
+		//NOTE put this here since output line order was sometimes swapped.
+		Helper.pause(50);
 		System.out.print(xmlElement.getNodeName() + " misses the "
 				+ "attribute: \"" + attribute + "\", please enter a value: " );
 		return user_input.next( );

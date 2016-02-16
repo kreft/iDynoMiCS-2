@@ -62,12 +62,17 @@ public class Helper {
 	 */
 	public static void abort(int delay) {
 		Log.out(tier.CRITICAL, "Aborting..");
+		pause(delay);
+		System.exit(0);
+	}
+	
+	public static void pause(int delay)
+	{
 		try {
 		    Thread.sleep(delay);
 		} catch(InterruptedException ex) {
 		    Thread.currentThread().interrupt();
 		}
-		System.exit(0);
 	}
 	
 	public static String enumToString(Class<?> anEnum)

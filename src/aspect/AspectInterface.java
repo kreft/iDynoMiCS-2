@@ -46,6 +46,7 @@ public abstract interface AspectInterface {
 					case "int" : 
 						aspectReg.add(s.getAttribute("name"), 
 								Integer.valueOf(s.getAttribute("value")));
+						break;
 					case "int[]" : 
 						aspectReg.add(s.getAttribute("name"), 
 								Vector.intFromString(s.getAttribute("value")));
@@ -53,6 +54,7 @@ public abstract interface AspectInterface {
 					case "double" : 
 						aspectReg.add(s.getAttribute("name"), 
 								Double.valueOf(s.getAttribute("value")));
+						break;
 					case "double[]" : 
 						aspectReg.add(s.getAttribute("name"), 
 								Vector.dblFromString(s.getAttribute("value")));

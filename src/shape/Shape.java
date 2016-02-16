@@ -76,30 +76,30 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	public void init(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
-		NodeList children;
-		Element child;
-		String str;
+		Element dimensionElement;
 		DimName dimName;
-		Dimension dim;
+		
 		/* Set up the dimensions. */
-		children = XmlHandler.getAll(elem, "dimension");
-		for ( int i = 0; i < children.getLength(); i++ )
+		NodeList dimensionNodes = XmlHandler.getAll(elem, "dimension");
+		for ( int i = 0; i < dimensionNodes.getLength(); i++ )
 		{
-			child = (Element) children.item(i);
-			str = XmlHandler.gatherAttribute(child, "name");
-			dim = null;
-			while ( dim == null )
+			dimensionElement = (Element) dimensionNodes.item(i);
+			dimName = null;
+			while (dimName == null) 
 			{
-				str = Helper.obtainInput(str, "dimension name");
-				dimName = DimName.valueOf(str);
-				dim = this.getDimension(dimName);
-				if(dim == null)
-					Log.out(tier.CRITICAL, "Warning: Dimension " + str +
-								" not recognised by shape " + this.getClass() +
-								", use: " + Helper.enumToString(DimName.class));
-				continue;
+				try
+				{
+				dimName = DimName.valueOf(XmlHandler.obtainAttribute(
+						dimensionElement, "name"));
+				}
+				catch (IllegalArgumentException e)
+				{
+					Log.out(tier.CRITICAL, "Warning: input Dimension not "
+							+ "recognised by shape " + this.getClass().getName() +
+							", use: " + Helper.enumToString(DimName.class));
+				}
 			}
-			dim.init(child);
+			this.getDimension(dimName).init(dimensionElement);
 		}
 		/* Set up any other boundaries. */
 		// TODO
