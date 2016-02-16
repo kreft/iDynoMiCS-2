@@ -57,21 +57,6 @@ public class Helper {
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @param input
-	 * @param ifNone
-	 * @return
-	 */
-	public static double getDouble(Object input, double ifNone)
-	{
-		if ( input == null || input == "" )
-			return getDouble(input);
-		else
-			return ifNone;
-	}
-	
-	/**
 	 * Delayed abort allows user to read abort statement before shutdown
 	 * @param delay
 	 */
