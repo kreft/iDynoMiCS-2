@@ -3,6 +3,11 @@ package solver;
 import linearAlgebra.Vector;
 import zArchivedClasses.RateTerm;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class ODEheunsmethod extends ODEsolver {
 	
 	/**

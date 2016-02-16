@@ -9,7 +9,7 @@ import org.w3c.dom.NodeList;
 
 import dataIO.XmlHandler;
 import expression.Component;
-import expression.ExpressionBuilder;
+import expression.ExpressionB;
 import generalInterfaces.XMLable;
 
 /**
@@ -60,8 +60,8 @@ public class Reaction implements XMLable
 					Double.valueOf(XmlHandler.obtainAttribute(
 													temp, "coefficient")));
 		}
-		this._kinetic = getComponent(
-			XmlHandler.attributeFromUniqueNode(elem, "expression", "value"));
+		this._kinetic = new ExpressionB(XmlHandler.attributeFromUniqueNode(
+				elem, "expression", "value"));
 	}
 	
 	/**
@@ -92,7 +92,7 @@ public class Reaction implements XMLable
 	 */
 	public Reaction(Map<String, Double> stoichiometry, String kinetic)
 	{
-		this(stoichiometry, getComponent(kinetic));
+		this(stoichiometry, new ExpressionB(kinetic));
 	}
 	
 	/**
@@ -108,7 +108,7 @@ public class Reaction implements XMLable
 	 */
 	public Reaction(String chemSpecies, double stoichiometry, String kinetic)
 	{
-		this(getHM(chemSpecies, stoichiometry), getComponent(kinetic));
+		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic));
 	}
 	
 	/*************************************************************************
@@ -224,18 +224,6 @@ public class Reaction implements XMLable
 	/*************************************************************************
 	 * MISCELLANEOUS METHODS
 	 ************************************************************************/
-	
-	/**
-	 * \brief Get a {@code Component} from a {@code String}.
-	 * 
-	 * @param expression {@code String} describing the mathematical expression.
-	 * @return {@code Component} describing the mathematical expression.
-	 */
-	private static Component getComponent(String expression)
-	{
-		ExpressionBuilder e = new ExpressionBuilder(expression);
-		return e.component;
-	}
 	
 	/**
 	 * \brief Get a {@code HashMap<String,Double>} initialised with a single

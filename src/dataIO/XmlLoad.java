@@ -6,6 +6,7 @@ import org.w3c.dom.NodeList;
 
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import shape.ShapeConventions.DimName;
 import utility.Helper;
 import agent.Agent;
 import aspect.AspectInterface;
@@ -157,7 +158,20 @@ public class XmlLoad
 		Param.outputRoot = XmlHandler.obtainAttribute(sim, "outputfolder");
 		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + 
 				"/";
-		Log.set(XmlHandler.obtainAttribute(sim,"log"));
+		tier t = null;
+		while (t == null) 
+		{
+			try
+			{
+				t = tier.valueOf(XmlHandler.obtainAttribute(sim,"log"));
+			}
+			catch (IllegalArgumentException e)
+			{
+				System.out.println("log level not recognized, use: " + 
+						Helper.enumToString(tier.class));
+			}
+		}
+		Log.set(t);
 		Param.simulationComment = XmlHandler.gatherAttribute(sim,"comment");
 	}
 	

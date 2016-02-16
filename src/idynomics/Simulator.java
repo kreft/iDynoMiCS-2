@@ -113,7 +113,7 @@ public class Simulator implements CanPrelaunchCheck
 	{
 		this._compartments.forEach((s,c) -> 
 		{
-			System.out.println("COMPARTMENT: "+s);
+			Log.out(tier.QUIET,"COMPARTMENT: " + s);
 			c.printAllSoluteGrids();
 		});
 	}

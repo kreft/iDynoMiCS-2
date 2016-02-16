@@ -226,11 +226,10 @@ public final class Vector
 	 * @see #copy(int[] vector)
 	 * @see #copyTo(double[] destination, double[] source)
 	 */
-	public static int[] copyTo(int[] destination, int[] source)
+	public static void copyTo(int[] destination, int[] source)
 	{
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
-		return destination;
 	}
 	
 	/**
@@ -245,7 +244,9 @@ public final class Vector
 	 */
 	public static int[] copy(int[] vector)
 	{
-		return copyTo(new int[vector.length], vector);
+		int[] out = new int[vector.length];
+		copyTo(out, vector);
+		return out;
 	}
 	
 	/**
@@ -258,11 +259,10 @@ public final class Vector
 	 * @see #copy(double[] vector)
 	 * @see #copyTo(int[] destination, int[] source)
 	 */
-	public static double[] copyTo(double[] destination, double[] source)
+	public static void copyTo(double[] destination, double[] source)
 	{
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
-		return destination;
 	}
 	
 	/**
@@ -277,7 +277,40 @@ public final class Vector
 	 */
 	public static double[] copy(double[] vector)
 	{
-		return copyTo(new double[vector.length], vector);
+		double[] out = new double[vector.length];
+		copyTo(out, vector);
+		return out;
+	}
+	
+	/**
+	 * \brief Copy the <b>vector</b> given to a new boolean[] array.
+	 * 
+	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
+	 * 
+	 * @param vector One-dimensional array of booleans (preserved).
+	 * @return	boolean[] that is a copy of <b>vector</b>.
+	 * @see #copyTo(boolean[] destination, boolean[] source)
+	 */
+	public static boolean[] copy(boolean[] vector)
+	{
+		boolean[] out = new boolean[vector.length];
+		copyTo(out, vector);
+		return out;
+	}
+	
+	/**
+	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
+	 * 
+	 * @param destination boolean[] to be overwritten with the values of
+	 * <b>source</b>.
+	 * @param source boolean[] to be copied from (preserved).
+	 * @return <b>destination</b>
+	 * @see #copy(boolean[] vector)
+	 */
+	public static void copyTo(boolean[] destination, boolean[] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i];
 	}
 	
 	/**

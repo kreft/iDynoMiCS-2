@@ -5,9 +5,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import agent.Agent;
+import agent.Body;
 import reaction.Reaction;
 import shape.Shape;
 import spatialRegistry.*;
+import surface.BoundingBox;
 
 /**
  * \brief Manages the agents in a {@code Compartment}.
@@ -138,9 +140,8 @@ public class AgentContainer
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
-		this._agentTree.insert(
-							(double[]) anAgent.get("#boundingLower"),
-							(double[]) anAgent.get("#boundingSides"), anAgent);
+		for(BoundingBox b: ((Body) anAgent.get(NameRef.agentBody)).getBoxes(0.0))
+			this._agentTree.insert(b, anAgent);
 	}
 	
 	public void refreshSpatialRegistry()

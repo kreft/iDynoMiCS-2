@@ -4,30 +4,41 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import expression.ExpressionBuilder;
+import expression.ExpressionB;
 
 public class RateExpressionTest {
 
 	@Test
 	public void express()
 	{
-		ExpressionBuilder exp = new ExpressionBuilder("25.0 * 3.0", null);
-		ExpressionBuilder exp2 = new ExpressionBuilder("1.0 / SQRT(1.0 + 0.5)", null);
-		ExpressionBuilder exp3 = new ExpressionBuilder("(-22.0 * (1.0 * (1.0 * 5.5)) - 2.0) + 1.0 / (8.1 * 5.0)", null);
-		ExpressionBuilder exp4 = new ExpressionBuilder("mu * S / (K + S)", null);
+		ExpressionB exp = new ExpressionB("25.0 * 3.0", null);
+		ExpressionB exp2 = new ExpressionB("#e^1.0 / 5.0EXP(1.0 + 0.5)", null);
+		ExpressionB exp3 = new ExpressionB("(-22.0 * (1.0 * (1.0 * 5.5)) - 2.0)"
+				+ " + 1.0 / (8.1 * 5.0)", null);
+		ExpressionB exp4 = new ExpressionB("mu * S / (K + S)", null);
 		
 		HashMap<String,Double> components = new HashMap<String,Double>();
 		components.put("mu", 0.1);
 		components.put("S", 3.0);
 		components.put("K", 1.0);
 		
-		System.out.println(exp.stringEval() + " = " + exp.component.getValue(
+		exp.printEval();
+		System.out.println(exp.getName() + " = " + exp.getValue(
 				new HashMap<String,Double>()));
-		System.out.println(exp2.stringEval() + " = " + exp2.component.getValue(
+		System.out.println();
+		
+		exp2.printEval();
+		System.out.println(exp2.getName() + " = " + exp2.getValue(
 				new HashMap<String,Double>()));
-		System.out.println(exp3.stringEval() + " = " + exp3.component.getValue(
+		System.out.println();
+		
+		exp3.printEval();
+		System.out.println(exp3.getName() + " = " + exp3.getValue(
 				new HashMap<String,Double>()));
-		System.out.println(exp4.stringEval() + " = " + exp4.component.getValue(
+		System.out.println();
+		
+		exp4.printEval();
+		System.out.println(exp4.getName() + " = " + exp4.getValue(
 				components));
 	}
 }

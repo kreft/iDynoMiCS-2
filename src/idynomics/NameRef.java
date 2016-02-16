@@ -29,6 +29,11 @@ public class NameRef {
 	 * The agent species
 	 */
 	public static String species = "species";
+	
+	/**
+	 * 
+	 */
+	public static String agentBody = "body";
 
 	/**
 	 * 

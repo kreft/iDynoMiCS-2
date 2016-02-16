@@ -3,6 +3,8 @@ package spatialRegistry;
 import java.util.LinkedList;
 import java.util.List;
 
+import surface.BoundingBox;
+
 /**
  * A dummy spatial registry for dimensionless compartments.
  */
@@ -37,5 +39,23 @@ public class DummyTree<T> extends SpatialRegistry<T>
 	public void insert(double[] coords, double[] dimensions, T entry)
 	{
 		// TODO Some sort of warning message?
+	}
+
+	@Override
+	public void insert(BoundingBox boundingBox, T entry) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<T> cyclicsearch(BoundingBox boundingBox) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

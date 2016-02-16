@@ -1,14 +1,15 @@
 package surface;
 
 import utility.Copier;
-import agent.Body;
+import generalInterfaces.HasBoundingBox;
+import surface.BoundingBox;
 
 /**
  * 
  * @author baco
  *
  */
-public class Rod extends Surface{
+public class Rod extends Surface implements HasBoundingBox {
 	
     public Point[] _points;
 	
@@ -71,9 +72,21 @@ public class Rod extends Surface{
 		this._length = spineLength;
 	}
 
-	//TODO
+	public double[][] pointMatrix()
+	{
+		double[][] p = new double[_points[0].nDim()][_points.length];
+		for(int i = 0; i < _points.length; i++)
+			p[i] = _points[i].getPosition();
+		return p;
+	}
+	
+	public BoundingBox boundingBox(double margin)
+	{
+		return new BoundingBox(pointMatrix(),_radius,margin);
+	}
+
 	public BoundingBox boundingBox()
 	{
-		return null;
+		return new BoundingBox(pointMatrix(),_radius);
 	}
 }
