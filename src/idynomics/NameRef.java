@@ -64,4 +64,15 @@ public class NameRef {
 	 * NOTE: linker springs will be reworked later, subject to change.
 	 */
 	public static String fillialLinker = "filialLinker";
+
+	/**
+	 * List with all surface objects associated with the object
+	 */
+	public static String surfaceList = "surfaces";
+
+	/**
+	 * the solute name for the default BiomassGrid (the grid in which all 
+	 * biomass/biofilm is represented
+	 */
+	public static String defaultBiomassGrid = "biomass";
 }

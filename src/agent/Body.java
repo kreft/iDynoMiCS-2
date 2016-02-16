@@ -182,6 +182,11 @@ public class Body implements Copyable, XMLable {
 		return this.surfaces.get(0);
 	}
 	
+	public List<Surface> getSurfaces()
+	{
+		return this.surfaces;
+	}
+	
 	public List<BoundingBox> getBoxes(double margin)
 	{
 		List<BoundingBox> boxes = new LinkedList<BoundingBox>();

@@ -37,6 +37,17 @@ public class Ball extends Surface implements HasBoundingBox {
 		this._radius = (double) Copier.copy(sphere._radius);
 	}
 
+	/**
+	 * 
+	 * @param center
+	 * @param radius
+	 */
+	public Ball(double[] center, double radius) {
+    	this._point = new Point(center);
+    	this._radius = radius;
+	}
+
+
 	public Type type() {
 		return Surface.Type.SPHERE;
 	}
