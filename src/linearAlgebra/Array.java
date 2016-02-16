@@ -856,6 +856,26 @@ public final class Array
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @param array
+	 * @return
+	 */
+	public static double meanArith(double[][][] array)
+	{
+		double total = 0.0;
+		double n = 0.0;
+		for ( double[][] row : array )
+			for ( double[] colV : row )
+				for ( double elem : colV )
+				{
+					total += elem;
+					n++;
+				}
+		return (n == 0.0) ? 0.0 : total/n;
+	}
+	
+	/**
 	 * \brief Norm of a given <b>array</b>.
 	 * 
 	 * TODO is this a Euclidean norm? Frobenius norm?

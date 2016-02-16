@@ -1,3 +1,4 @@
+
 package reaction;
 
 import java.util.HashMap;
@@ -131,50 +132,38 @@ public class Reaction implements XMLable
 		return this._kinetic.getValue(concentrations);
 	}
 	
-
 	/**
-	 * \brief TODO
+	 * \brief Fetch the amount of this chemical species produced per reaction
+	 * event.
 	 * 
-	 * @param reactantName
+	 * @param reactantName The name of the chemical species of interest.
+	 * @return The stoichiometry of this chemical species in this reaction.
 	 */
-	public double getProductionRate(String reactantName, 
-			HashMap<String, Double> concentrations)
+	public double getStoichiometry(String reactantName)
 	{
 		if ( this._stoichiometry.containsKey(reactantName) )
-			return this._stoichiometry.get(reactantName) * 
-					this.getRate(concentrations);
+			return this._stoichiometry.get(reactantName);
 		return 0.0;
 	}
 	
 	/**
-	 * \brief Calculate the rates of production for each reactant in this
-	 * reaction's stoichiometry, writing the result into the <b>fluxes</b>
-	 * {@code HashMap<String,Double>} given.
+	 * \brief Calculate the production rate of a given chemical species.
 	 * 
-	 * @param concentrations
-	 * @param fluxes
-	 */
-	public void putFluxes(HashMap<String, Double> concentrations,
-												HashMap<String, Double> fluxes)
-	{
-		double rate = this.getRate(concentrations);
-		for ( String name : this._stoichiometry.keySet() )
-			fluxes.put(name, this._stoichiometry.get(name) * rate);
-	}
-	
-	/**
-	 * \brief Calculate the rates of production for each reactant in this
-	 * reaction's stoichiometry, writing the result into a new dictionary.
+	 * <p>Note that the reaction rate is calculated each time this method is
+	 * called. If you are likely to want the production rates of many
+	 * reactants, call {@link #getRate(HashMap)} first, then multiply it with
+	 * {@link #getStoichiometry(String)} for each solute separately.</p>
 	 * 
-	 * @param concentrations
-	 * @return
+	 * @param concentrations Dictionary of concentrations of reactants.
+	 * @param reactantName The name of the chemical species of interest.
+	 * @return The rate of production (positive) or consumption (negative) of
+	 * this reactant chemical species.
 	 */
-	public HashMap<String, Double> getFluxes(
-									HashMap<String, Double> concentrations)
+	public double getProductionRate(HashMap<String, Double> concentrations, 
+														String reactantName)
 	{
-		HashMap<String, Double> fluxes  = new HashMap<String,Double>();
-		this.putFluxes(concentrations, fluxes);
-		return fluxes;
+		return this.getStoichiometry(reactantName) * 
+											this.getRate(concentrations);
 	}
 	
 	/**

@@ -5,7 +5,6 @@ import java.util.Collections;
 
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.ResCalcFactory;
-import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -233,7 +232,7 @@ public class CartesianGrid extends SpatialGrid
 	{
 		if (outNVoxel == null)
 			outNVoxel = new int[3];
-		for (int dim=0; dim<3; ++dim)
+		for ( int dim = 0; dim < 3; dim++ )
 			outNVoxel[dim] = this._resCalc[dim].getNVoxel();
 		return outNVoxel;
 	}
@@ -363,19 +362,6 @@ public class CartesianGrid extends SpatialGrid
 			public SpatialGrid newGrid(double[] totalLength, double resolution) 
 			{
 				return new CartesianGrid(totalLength, resolution);
-			}
-		};
-	}
-	
-	public static final GridGetter dimensionlessGetter()
-	{
-		return new GridGetter()
-		{
-			@Override
-			public SpatialGrid newGrid(double[] totalSize, double resolution) 
-			{
-				// TODO check this is the best way.
-				return new CartesianGrid(Vector.onesDbl(3), resolution);
 			}
 		};
 	}

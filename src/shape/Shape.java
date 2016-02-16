@@ -383,6 +383,18 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	/*************************************************************************
 	 * BOUNDARIES
 	 ************************************************************************/
+	
+	/**
+	 * \brief Add the given {@code Boundary} to this {@code Shape}'s list of
+	 * "other" boundaries, i.e. those not associated with a {@code Dimension}.
+	 * 
+	 * @param aBoundary {@code Boundary} object.
+	 */
+	public void addOtherBoundary(Boundary aBoundary)
+	{
+		this._otherBoundaries.add(aBoundary);
+	}
+	
 	/**
 	 * \brief TODO
 	 * 

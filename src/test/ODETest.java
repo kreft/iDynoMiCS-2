@@ -4,18 +4,17 @@
 package test;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
-import boundary.Boundary;
 import boundary.ChemostatConnection;
-import grid.CartesianGrid;
+import dataIO.Log;
+import dataIO.Log.tier;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import processManager.SolveChemostat;
-import shape.Shape;
 import shape.ShapeLibrary;
+import shape.ShapeLibrary.Dimensionless;
 import utility.ExtraMath;
 
 public class ODETest
@@ -24,7 +23,7 @@ public class ODETest
 	{
 		// Make sure the random number generator is up and running.
 		ExtraMath.initialiseRandomNumberGenerator();
-		
+		Log.set(tier.DEBUG);
 		/*
 		 * Setting a time step of ln(2) means that the difference between the
 		 * chemostat concentrations and the respective inflow concentrations
@@ -47,35 +46,33 @@ public class ODETest
 		System.out.println("\tS0 = 0.0");
 		System.out.println("\tD = 1.0");
 		System.out.println("\tNo agents or reactions");
-		System.out.println("Concentration should halve each timestep");
+		System.out.println("Concentration should tend towards one");
 		System.out.println("###############################################");
 		
-		String[] soluteNames = new String[1];
-		soluteNames[0] = "rise";
-		
-		HashMap<String, Double> initialConcn = new HashMap<String, Double>();
-		initialConcn.put(soluteNames[0], 0.0);
-		
-		HashMap<String, Double> inflowConcn = new HashMap<String, Double>();
-		inflowConcn.put(soluteNames[0], 1.0);
-		
-		LinkedList<Boundary> boundaries = new LinkedList<Boundary>();
-		ChemostatConnection ccIn = new ChemostatConnection();
-		ccIn.setFlowRate(1.0);
-		ccIn.setConcentrations(inflowConcn);
-		boundaries.add(ccIn);
-		ChemostatConnection ccOut = new ChemostatConnection();
-		ccOut.setFlowRate(-1.0);
-		boundaries.add(ccOut);
 		/*
 		 * 
 		 */
-		Shape myShape = new ShapeLibrary.Dimensionless();
-		EnvironmentContainer environment =
-				new EnvironmentContainer(myShape);
+		String[] soluteNames = new String[]{"rise"};
+		HashMap<String, Double> inflowConcn = new HashMap<String, Double>();
+		inflowConcn.put(soluteNames[0], 1.0);
+		/*
+		 * Set up the environment, with its shape and solute.
+		 */
+		Dimensionless myShape = new ShapeLibrary.Dimensionless();
+		myShape.setVolume(1.0);
+		EnvironmentContainer environment = new EnvironmentContainer(myShape);
 		for ( String name : soluteNames )
-			environment.addSolute(name, initialConcn.get(name));
-		
+			environment.addSolute(name, 0.0);
+		/*
+		 * Add the inflow and outflow.
+		 */
+		ChemostatConnection ccIn = new ChemostatConnection();
+		ccIn.setFlowRate(1.0);
+		ccIn.setConcentrations(inflowConcn);
+		myShape.addOtherBoundary(ccIn);
+		ChemostatConnection ccOut = new ChemostatConnection();
+		ccOut.setFlowRate(-1.0);
+		myShape.addOtherBoundary(ccOut);
 		/*
 		 * Dummy AgentContainer will be empty
 		 */
@@ -84,23 +81,26 @@ public class ODETest
 		 * Set up the process manager
 		 */
 		SolveChemostat process = new SolveChemostat();
+		//process.aspectRegistry.set("solver", "heun");
 		process.init(soluteNames);
-		System.out.println("Adding  boundaries...");
-		process.showBoundaries(boundaries);
-		//process.setInflow(inflowConcn);
-		//process.setDilution(1.0);
 		process.setTimeForNextStep(0.0);
 		process.setTimeStepSize(stepSize);
 		
 		System.out.println("Time: "+process.getTimeForNextStep());
 		for ( String name : soluteNames )
-			System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
+		{
+			System.out.println("\t"+name+": "+
+					environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
+		}
 		for ( ; nStep > 0; nStep-- )
 		{
 			process.step(environment, agents);
 			System.out.println("Time: "+process.getTimeForNextStep());
 			for ( String name : soluteNames )
-				System.out.println("\t"+name+": "+environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
+			{
+				System.out.println("\t"+name+": "+
+						environment.getSoluteGrid(name).getMax(ArrayType.CONCN));
+			}
 		}
 		System.out.println("\n");
 	}
@@ -143,8 +143,8 @@ public class ODETest
 		 */
 		SolveChemostat process = new SolveChemostat();
 		process.init(soluteNames);
-		process.setInflow(inflowConcn);
-		process.setDilution(1.0);
+		//process.setInflow(inflowConcn);
+		//process.setDilution(1.0);
 		process.setTimeForNextStep(0.0);
 		process.setTimeStepSize(stepSize);
 		
@@ -213,8 +213,8 @@ public class ODETest
 		 */
 		SolveChemostat process = new SolveChemostat();
 		process.init(soluteNames);
-		process.setInflow(inflowConcn);
-		process.setDilution(1.0);
+		//process.setInflow(inflowConcn);
+		//process.setDilution(1.0);
 		process.setTimeForNextStep(0.0);
 		process.setTimeStepSize(stepSize);
 		

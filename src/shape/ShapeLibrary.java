@@ -11,6 +11,7 @@ import dataIO.XmlHandler;
 import dataIO.Log.tier;
 import grid.CartesianGrid;
 import grid.CylindricalGrid;
+import grid.DummyGrid;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -44,11 +45,16 @@ public final class ShapeLibrary
 			this._volume = Double.parseDouble(str);
 		}
 		
+		public void setVolume(double volume)
+		{
+			this._volume = volume;
+		}
+		
 		@Override
 		public GridGetter gridGetter()
 		{
-			// TODO Make DummyGrid?
-			return CartesianGrid.dimensionlessGetter();
+			Log.out(tier.DEBUG, "Dimensionless shape volume is "+this._volume);
+			return DummyGrid.dimensionlessGetter(this._volume);
 		}
 		
 		public double[] getLocalPosition(double[] location)

@@ -377,6 +377,95 @@ public final class Vector
 		return setAll(vector, 0.0);
 	}
 	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param vector One-dimensional array of {@code int}s (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>vector</b>.
+	 * @see #restrictMaximum(int[], int)
+	 */
+	public static void restrictMinimum(int[] vector, int newMinimum)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			if ( vector[i] < newMinimum )
+				vector[i] = newMinimum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value less
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param vector One-dimensional array of {@code int}s (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>vector</b>.
+	 * @see #restrictMinimum(int[], int)
+	 */
+	public static void restrictMaximum(int[] vector, int newMaximum)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			if ( vector[i] > newMaximum )
+				vector[i] = newMaximum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value greater
+	 * than or equal to zero.
+	 * 
+	 * @param vector One-dimensional array of {@code int}s (overwritten).
+	 * @see #restrictMinimum(int[], int)
+	 * @see #restrictMaximum(int[], int)
+	 */
+	public static void makeNonnegative(int[] vector)
+	{
+		restrictMinimum(vector, 0);
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param vector One-dimensional array of {@code double}s (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>vector</b>.
+	 * @see #restrictMaximum(double[], double)
+	 * @see #restrictMinimum(int[], int)
+	 */
+	public static void restrictMinimum(double[] vector, double newMinimum)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			if ( vector[i] < newMinimum )
+				vector[i] = newMinimum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value less
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param vector One-dimensional array of {@code double}s (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>vector</b>.
+	 * @see #restrictMinimum(double[], double)
+	 * @see #restrictMaximum(int[], int)
+	 */
+	public static void restrictMaximum(double[] vector, double newMaximum)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			if ( vector[i] > newMaximum )
+				vector[i] = newMaximum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value greater
+	 * than or equal to zero.
+	 * 
+	 * @param vector One-dimensional array of {@code double}s (overwritten).
+	 * @see #restrictMinimum(double[], double)
+	 * @see #restrictMaximum(double[], double)
+	 * @see #makeNonnegative(int[])
+	 */
+	public static void makeNonnegative(double[] vector)
+	{
+		restrictMinimum(vector, 0.0);
+	}
+	
 	/*************************************************************************
 	 * CHECKING METHODS
 	 ************************************************************************/

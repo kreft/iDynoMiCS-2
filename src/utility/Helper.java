@@ -55,7 +55,7 @@ public class Helper {
 		else
 			return input;
 	}
-
+	
 	/**
 	 * Delayed abort allows user to read abort statement before shutdown
 	 * @param delay

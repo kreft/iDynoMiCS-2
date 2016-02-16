@@ -1298,7 +1298,7 @@ public final class Matrix
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
 			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] + value;
+				destination[i][j] = matrix[i][j] * value;
 	}
 	
 	/**
@@ -1358,7 +1358,7 @@ public final class Matrix
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
 			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] + value;
+				destination[i][j] = matrix[i][j] * value;
 	}
 	
 	/**
