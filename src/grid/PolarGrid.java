@@ -19,9 +19,8 @@ public abstract class PolarGrid extends SpatialGrid
 	protected double _rMin = 0.0;
 	
 	/**
-	 * TODO
-	 * 
-	 * Presumably, (π/2)<sup>-1</sup> is because we're using quarter circles..?
+	 * A constant factor scaling resolutions of polar grids.
+	 * Set to (π/2)<sup>-1</sup> to have quarter circles at radius 0.
 	 */
 	protected final static double N_ZERO_FACTOR = 2 / Math.PI;
 	
@@ -30,10 +29,7 @@ public abstract class PolarGrid extends SpatialGrid
 	 ************************************************************************/
 	
 	/**
-	 * \brief Construct a PolarGrid from a 3-vector of total dimension
-	 * sizes. 
-	 * 
-	 * Note that resolution determination must be handled by the sub-classes!
+	 * \brief Construct a 'dimensionless' PolarGrid.
 	 * 
 	 * @param totalSize
 	 * @param resCalc
@@ -42,8 +38,6 @@ public abstract class PolarGrid extends SpatialGrid
 	{
 		/* Polar grids always start with an R dimension. */
 		this._dimName[0] = DimName.R;
-		
-		this._currentNVoxel = new int[3];
 	}
 	
 	/** TODO
@@ -68,14 +62,11 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @return
 	 */
 	protected boolean isOnUndefinedBoundary(int[] coord, int dim){
-		ResCalc rC = this.getResolutionCalculator(coord, dim);
 		if ( coord[dim] < 0 )
-			if (this._dimBoundaries[dim][0] == null) 
-				return true;
-		if ( coord[dim] >= rC.getNVoxel() )
-			if (this._dimBoundaries[dim][1] == null) 
-				return true;
-		return false;
+            return  (this._dimBoundaries[dim][0] == null);
+        if ( coord[dim] >= this.getResolutionCalculator(coord, dim).getNVoxel())
+            return (this._dimBoundaries[dim][1] == null);
+        return false;
 	}
 	
 	/**
@@ -97,6 +88,10 @@ public abstract class PolarGrid extends SpatialGrid
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
 		if ( isOnUndefinedBoundary(this._currentNeighbor, 0) )
 			return false;
+		if (isOnBoundary(this._currentNeighbor, 0))
+			return true;
+		
+		//TODO: possibly return isOnUndefinedBoundary..
 		
 		rC = this.getResolutionCalculator(this._currentCoord, 1);
 		/*
@@ -110,6 +105,10 @@ public abstract class PolarGrid extends SpatialGrid
 		return true;
 	}
 	
+	/**
+	 * @param dim
+	 * @return
+	 */
 	protected boolean increaseNbhByOnePolar(int dim)
 	{		
 		if (dim == 0 || (dim == 2 && this._dimName[2] == DimName.Z))
@@ -124,6 +123,10 @@ public abstract class PolarGrid extends SpatialGrid
 			return false;
 		
 		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, dim);
+		
+		/* If we are already on a boundary, return false */
+		if ( this._currentNeighbor[dim] > rC.getNVoxel() - 1)
+				return false;
 		
 		/* If increasing would push us over a null boundary, return false */
 		if ( this._currentNeighbor[dim] == rC.getNVoxel() - 1)
@@ -146,17 +149,7 @@ public abstract class PolarGrid extends SpatialGrid
 	}
 	
 	@Override
-	public double getNbhSharedSurfaceArea()
-	{
-		// TODO Auto-generated method stub
-//		System.err.println(
-//				"tried to call unimplemented method getNbhSharedSurfaceArea()");
-		return 1;
-	}
-	
-	@Override
-	public int[] resetIterator()
-	{
+	public int[] resetIterator(){
 		this._currentCoord = super.resetIterator();
 		/* keep the current nVoxel pointer up to date for polar grids */
 		this.updateCurrentNVoxel();		
@@ -184,7 +177,7 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @return A scaling factor for a given radius, based on the relative arc
 	 * length at this radius.
 	 */
-	protected static int scaleForShell(int radiusIndex)
+	protected static int getFactorForShell(int radiusIndex)
 	{
 		/*
 		 * The logic behind this scaling factor is that the length of an arc,
@@ -199,28 +192,26 @@ public abstract class PolarGrid extends SpatialGrid
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Converts the given resolution {@code res} to account for varying radius.
 	 * 
 	 * @param shell
 	 * @param res
 	 * @return
 	 */
-	public static double getTargetResolution(int shell, double res)
-	{
-		return res / (N_ZERO_FACTOR * scaleForShell(shell));
-		// = (pi/2) * res * / ( 2*shell + 1) 
+	public static double scaleResolutionForShell(int shell, double res){			
+		return res / (N_ZERO_FACTOR * getFactorForShell(shell));
 	}
 	
-	/**
-	 * \brief TODO
+	/**	
+	 * \brief Converts the given resolution {@code res} to account for varying 
+	 * radius and polar angle.
 	 * 
 	 * @param shell
 	 * @param ring
 	 * @param res
 	 * @return
 	 */
-	public static double getTargetResolution(int shell, int ring, double res)
-	{
+	public static double scaleResolutionForRing(int shell, int ring, double res){
 		/*
 		 * Scale phi to peak at π / 2 instead of s(shell), where it 
 		 * would peak for a resolution of one. This way we can use it as
@@ -228,11 +219,13 @@ public abstract class PolarGrid extends SpatialGrid
 		 * naturally). Actually we let it peak at s(shell) - 0.5 to keep
 		 * things symmetric around the equator.
 		 */
-		double ring_scale = 0.5 * Math.PI / (scaleForShell(shell) - 0.5);
-		// TODO Rob[16Feb2016]: would this be clearer?
-		//double ring_scale = 0.5 * Math.PI / ( (2*shell) + 0.5);
+		double ring_scale = 0.5 * Math.PI / (getFactorForShell(shell) - 0.5);
+		
 		/* Compute the sine of the scaled phi-coordinate */
 		double length = Math.sin(ring * ring_scale);
+		// TODO: check why length can be < 0 here (possibly resolutions ~ 0)
+		length = Math.max(0, length);
+		
 		/* Scale the result to be:
 		 * Nₒ = number of voxels at r = 0 in theta dimension.
 		 * sin(0) = N₀
@@ -241,7 +234,7 @@ public abstract class PolarGrid extends SpatialGrid
 		 * This is the number of voxels in theta for resolution one.
 		 */
 		length = N_ZERO_FACTOR 
-					+ N_ZERO_FACTOR * length * (scaleForShell(shell) - 1);
+					+ N_ZERO_FACTOR * length * (getFactorForShell(shell) - 1);
 		// TODO Rob[16Feb2016]: would this be clearer?
 		// length = N_ZERO_FACTOR * ( 1 + length*( 2 * shell ) );
 		/* Scale the resolution to account for the additional voxels */

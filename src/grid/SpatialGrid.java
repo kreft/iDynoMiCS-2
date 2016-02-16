@@ -97,7 +97,7 @@ public abstract class SpatialGrid
 	 */
 	protected DimName[] _dimName = new DimName[3];
 	
-	protected int[] _currentNVoxel;
+	protected int[] _currentNVoxel = new int[3];
 	
 	/**
 	 * Array of the boundaries at each dimension's extremes. The three rows
@@ -410,6 +410,21 @@ public abstract class SpatialGrid
 	public int[] getNVoxel(int[] coords)
 	{
 		return getNVoxel(coords, null);
+	}
+	
+	/**
+	 * //TODO: make permanent vector in the grids.
+	 * @param dim - a dimension index.
+	 * @return The total length of the grid along the given dimension.
+	 */
+	public abstract double getTotalLength(int dim);
+	
+	public double[] getTotalLength(){
+		//TODO: make permanent vector in the grids.
+		return new double[]{
+				getTotalLength(0), 
+				getTotalLength(1), 
+				getTotalLength(2)};
 	}
 	
 	/**

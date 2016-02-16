@@ -1,6 +1,7 @@
 package grid;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 import grid.resolution.ResCalcFactory;
@@ -49,7 +50,6 @@ public class CartesianGrid extends SpatialGrid
 		this._resCalc = resCalc;
 		
 		/* in the cartesian grid we have to call this method only once here */
-		this._currentNVoxel = new int[3];
 		updateCurrentNVoxel();
 		
 		/* 
@@ -237,6 +237,12 @@ public class CartesianGrid extends SpatialGrid
 		return outNVoxel;
 	}
 	
+	@Override
+	public double getTotalLength(int dim)
+	{
+		return this._resCalc[dim].getTotalLength();
+	}
+	
 	/*************************************************************************
 	 * NEIGHBOR ITERATOR
 	 ************************************************************************/
@@ -274,7 +280,6 @@ public class CartesianGrid extends SpatialGrid
 			}
 			else this._nbhValid = false;
 		}
-			
 		return this._currentNeighbor;
 	}
 	
