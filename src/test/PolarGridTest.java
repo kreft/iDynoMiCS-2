@@ -1,11 +1,12 @@
 package test;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Scanner;
-import java.util.function.DoubleFunction;
 
 import javax.swing.JFrame;
+import javax.vecmath.Color3f;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -19,19 +20,11 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import boundary.Boundary;
-import boundary.BoundaryCyclic;
 import boundary.BoundaryFixed;
-import grid.CartesianGrid;
 import grid.CylindricalGrid;
 import grid.GridBoundary.ConstantDirichlet;
-import grid.PolarGrid;
-import grid.ResolutionCalculator;
-import grid.ResolutionCalculator.ResCalc;
-import grid.ResolutionCalculator.ResCalcFactory;
-import grid.ResolutionCalculator.ResolutionFunction;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SphericalGrid;
 import idynomics.Compartment;
 import idynomics.Simulator;
 import idynomics.Timer;
@@ -41,6 +34,8 @@ import processManager.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 import test.plotting.SpatialGridPlot3D;
+import test.plotting.SpatialGridPlot3D.Branch;
+import test.plotting.SpatialGridPlot3D.VoxelTarget;
 
 public class PolarGridTest
 {
@@ -59,45 +54,55 @@ public class PolarGridTest
 		
 		/* standard constructors */
 		
-		double[] totalLength = new double[]{3, Math.PI ,2 * Math.PI};
+		double[] totalLength = new double[]{3, 2 * Math.PI , 1};
 		double resolution = 1;
 //		
-//	    CartesianGrid grid = new CartesianGrid(totalLength, resolution);
-//		SphericalGrid grid = new SphericalGrid(totalLength, resolution);		
-//	    CylindricalGrid grid = new CylindricalGrid(totalLength, resolution);		
+//	    CartesianGrid grid = new CartesianGrid(totalLength, resolution);		
+	    CylindricalGrid grid = new CylindricalGrid(totalLength, resolution);
+//		SphericalGrid grid = new SphericalGrid(totalLength, resolution);
 
 		
-		/* resolution functions */
+		/* resolution objects */
 		
-		DoubleFunction<?>[] res_funs = new DoubleFunction<?>[]{
-			i -> i * i, 
-			j -> Math.sin(j), 
-			k -> Math.sqrt(k)
-		};
-		Class<?>[] res_classes = new Class[]{
-				ResolutionCalculator.ResolutionFunction.class,
-				ResolutionCalculator.ResolutionFunction.class,
-				ResolutionCalculator.ResolutionFunction.class
-		};
-		ResCalc[][] rC = ResCalcFactory.createResCalcForCylinder(
-				new double[]{3,2*Math.PI,1}, 
-				res_funs,
-				res_classes
-				);
+//		Object[] res_funs = new Object[]{
+//			new double[]{3, 0.5, 2, 1}, 
+//			(DoubleFunction<Double>) j -> (0.1 + Math.abs(Math.sin(j))), 
+//			0.5
+//		};
+		
+//		Class<?>[] res_classes = new Class[]{
+//				ResolutionCalculator.SimpleVaryingResolution.class,
+//				ResolutionCalculator.ResolutionFunction.class,
+//				ResolutionCalculator.MultiGrid.class
+//		};
+		
+//		ResCalc[] rC = ResCalcFactory.createResCalcForCube(
+//				new double[]{5,5,5}, 
+//				res_funs,
+//				res_classes
+//				);
+		
+//		ResCalc[][] rC = ResCalcFactory.createResCalcForCylinder(
+//				new double[]{3,2*Math.PI,1}, 
+//				res_funs,
+//				res_classes
+//				);
+		
+//		ResCalc[][][] rC = ResCalcFactory.createResCalcForSphere(
+//				totalLength, 
+//				res_funs,
+//				res_classes
+//				);
 		
 		
 //		CartesianGrid grid = new CartesianGrid(rC);
-		CylindricalGrid grid = new CylindricalGrid(rC);
+//		CylindricalGrid grid = new CylindricalGrid(rC);
 //		SphericalGrid grid = new SphericalGrid(rC);
 		
 				
 		/**********************************************************************/
 		/********************** SOME INITIALIZING *****************************/
-		/**********************************************************************/	
-		
-		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(10.0);
-		
+		/**********************************************************************/			
 		/*
 		 * create the array
 		 */
@@ -123,16 +128,10 @@ public class PolarGridTest
 //		testMemoryAndIteratorSpeed(grid);
 //		testIterator(grid);
 //		testNbhIterator(grid);
-//		/*
-//		 * paramters for create graphics:
-//		 * iterator: 	0: no iterator,1: step manual 2: step automatic
-//		 * locations: 	0: no location,1: origin 	  2: centre
-//		 * do | do not plot grid cell polygons
-//		 */
-//		SpatialGridPlot3D plot = createGraphics(grid,2,2,false);
-//		plot.plotCurrentConcentrations();
+		SpatialGridPlot3D plot = createGraphics(grid,null,ArrayType.CONCN, 
+													true, Vector.vector(3, 0.5));
 //		plotVoxelVolumes(grid);
-		oneDimRiseFallComp();
+//		twoDimRisePDETest();
 
 		keyboard.close();
 	}
@@ -202,18 +201,20 @@ public class PolarGridTest
 		}
 	}
 	
-	public static SpatialGridPlot3D createGraphics(SpatialGrid grid, int iterator_step,
-			int location, boolean plot_grid)
+	public static SpatialGridPlot3D createGraphics(SpatialGrid grid, double[] loc,
+		ArrayType type, boolean create_iterator, double[] in_voxel_location)
 	{
-		/*
-		 * PolarGrid only atm because of getLocation(..) method
-		 */
-		SpatialGridPlot3D plot = new SpatialGridPlot3D(grid,location,plot_grid);
-		if (iterator_step>0){
+		SpatialGridPlot3D plot = new SpatialGridPlot3D();
+		
+		plot.setWorldPosition(grid, type, loc);
+		plot.autoSetCamera();
+		if (in_voxel_location != null){
+			plot.addPoints(grid, type, in_voxel_location);
+		}
+		if (create_iterator){
 			System.out.println("press enter to start iterator");
 			keyboard.nextLine();
-			if (iterator_step==1) plot.startIterator();  
-			else if (iterator_step==2) plot.runIterator();     
+			plot.startIterator(grid, type);
 			keyboard.close();
 		}
 		return plot;
@@ -261,21 +262,15 @@ public class PolarGridTest
 		frame.add(chartPanel);
 	}
 	
-	private static void oneDimRiseFallComp()
+	private static void twoDimRisePDETest()
 	{
 		Simulator aSim = new Simulator();
-		
-		System.out.println("###############################################");
-		System.out.println("COMPARTMENT: oneDimRiseFall");
-		System.out.println("Testing 1D domain for two solutes:");
-		System.out.println("\tLeft & right fixed");
-		System.out.println("\tD = "+D);
-		System.out.println("\tNo agents or reactions");
-		System.out.println("Concentration should tend towards linear");
-		System.out.println("###############################################");
-		Compartment aCompartment = aSim.addCompartment("oneDimRiseFall");
+		Timer.setTimeStepSize(1.0);
+		Timer.setEndOfSimulation(50);
+
+		Compartment aCompartment = aSim.addCompartment("twoDimRise");
 		Shape aShape = (Shape) Shape.getNewInstance("circle");
-		aShape.setDimensionLengths(new double[] {3.0, 360.0, 10.0});
+		aShape.setDimensionLengths(new double[] {50.0, 2 * Math.PI, 1.0});
 		aCompartment.setShape(aShape);
 		/*
 		 * Add the solutes and boundary conditions.
@@ -285,52 +280,52 @@ public class PolarGridTest
 		soluteNames[1] = "fall";
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
+			
+		Boundary rmin = new BoundaryFixed();
+		ConstantDirichlet fallRMin = new ConstantDirichlet();
+		fallRMin.setValue(1.0);
+		rmin.setGridMethod("fall", fallRMin);
+		aCompartment.addBoundary(DimName.R, 0, rmin);
+	
+		Boundary rmax = new BoundaryFixed();
+		ConstantDirichlet riseRMax = new ConstantDirichlet();
+		riseRMax.setValue(1.0);
+		rmax.setGridMethod("rise", riseRMax);
+		aCompartment.addBoundary(DimName.R, 1, rmax);
 		
-//		Boundary inter = new BoundaryCyclic();
-//		ConstantDirichlet fallInter = new ConstantDirichlet();
-//		fallInter.setValue(1.0);
-//		inter.setGridMethod("fall", fallInter);
-//		aCompartment.addBoundary("INTERNAL", inter);
-//		
-		Boundary circ = new BoundaryFixed();
-		ConstantDirichlet riseCirc = new ConstantDirichlet();
-		riseCirc.setValue(1.0);
-		circ.setGridMethod("rise", riseCirc);
-		aCompartment.addBoundary(DimName.R, 1, circ);
-		
-//		Boundary theta_min = new BoundaryCyclic();
-//		aCompartment.addBoundary(DimName.THETA, 0, theta_min);
-//		
-//		Boundary theta_max = new BoundaryCyclic();
-//		aCompartment.addBoundary(DimName.THETA, 1, theta_max);
-		
-		//TODO diffusivities
 		aCompartment.init();
 		/*
 		 * The solute grids will need prepping before the solver can get to work.
 		 */
 		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aPrep.setTimeStepSize(Double.MAX_VALUE);
 		aCompartment.addProcessManager(aPrep);
 		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(soluteNames);
-		aProcess.setTimeForNextStep(0.0);
 		aProcess.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
 		
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
-		PolarGrid riseGrid = (PolarGrid) aCompartment.getSolute("fall");
-		SpatialGridPlot3D plot = createGraphics(riseGrid,0,0,false);
-		plot.plotCurrentConcentrations();
+		SpatialGrid riseGrid = (SpatialGrid) aCompartment.getSolute("rise");
+		SpatialGridPlot3D plot = createGraphics(riseGrid, Vector.zerosDbl(3), 
+												ArrayType.CONCN, false, null);
+		plot.setPolygonMode(VoxelTarget.ALL, riseGrid, ArrayType.CONCN, true);
+		plot.setColor(Branch.Voxels, VoxelTarget.ALL, riseGrid, ArrayType.CONCN, new Color3f(1f,0f,0f));
+//		plot.plotCurrentConcentrations(riseGrid);
+		long t;
+		System.out.println("press enter to start PDE");
+		keyboard.nextLine();
 		while ( Timer.isRunning() )
 		{
-			System.out.println("press enter to step PDE");
-			keyboard.nextLine();
+			t = System.currentTimeMillis();
+			System.out.print("solving PDE step...");
 			aSim.step();
-			plot.plotCurrentConcentrations();
+			System.out.println(" done!");
+			System.out.print(" plotting concentrations...");
+			plot.plotCurrentConcentrations(riseGrid);
+			System.out.println(" done!");
 		}
 		/*
 		 * Print the results.

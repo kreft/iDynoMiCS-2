@@ -3,7 +3,6 @@
  */
 package grid;
 
-import java.lang.invoke.LambdaMetafactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -148,7 +147,7 @@ public class ResolutionCalculator
 				for ( int i = 1; i < this._nVoxel; i++ )
 					this._cumulativeRes[i] += this._cumulativeRes[i-1];
 			}
-			return this._cumulativeRes[voxelIndex];
+			return voxelIndex < 0 ? 0 : this._cumulativeRes[voxelIndex];
 		}
 
 		@Override
@@ -234,6 +233,10 @@ public class ResolutionCalculator
 		}
 	}
 
+	/**
+	 * \brief A ResolutionCalculator that will have |{@code targetResolution}| 
+	 * voxels while scaling resolutions to match the {@code totalLength}.
+	 */
 	public static class SimpleVaryingResolution extends VariableRes
 	{
 		public void init(double[] targetResolution,	double totalLength) {
@@ -247,21 +250,42 @@ public class ResolutionCalculator
 		}
 	}
 	
+	
+	/**
+	 * \brief A resolution calculator for a double function.
+	 * 
+	 * {@code targetResolution} accepts a single double, which will be 
+	 * normalized to a [0,1]-domain with respect to totalLength. 
+	 * The result is considered to be an absolute resolution and must always be 
+	 * positive.
+	 *
+	 */
 	public static class ResolutionFunction extends VariableRes
 	{
 		public void init(DoubleFunction<Double> targetResolution, double totalLength) {
+			
+			/* get length at dimension origin */ 
 			double length = 0;
+			
+			/* set up resolution array */
 			ArrayList<Double> res = new ArrayList<>();
 			while (length < totalLength){
+				
+				/* add resolution for the current relative location */
 				double r =  targetResolution.apply(length / totalLength);
+				if (r <= 0) 
+					throw new IllegalArgumentException(
+							"ResolutionFunctions must return a positive value");
 				res.add(r);
+				
+				/* increment */
 				length += r;
 				this._nVoxel++;
 			}
 			double diff_per_voxel = (totalLength - length) / _nVoxel;
 			_resolution = new double[_nVoxel];
 			for (int i = 0; i<_nVoxel; ++i)
-				_resolution[i] = res.get(i) - diff_per_voxel;
+				_resolution[i] = res.get(i) + diff_per_voxel;
 			this._length = getCumulativeResolution(this._nVoxel - 1);
 		}
 	}
@@ -434,14 +458,13 @@ public class ResolutionCalculator
 			ResCalc[] out = new ResCalc[3];
 			DimName[] dims = new DimName[]{DimName.X,DimName.Y,DimName.Z};
 			
-			/* loop through all dimensions and create the appropriate ResCalc */
-			for (int dim=0; dim<3; ++dim)
-				out[dim] = (ResCalc) createResCalcForDimension(
-						dims[dim],
-						null,
-						totalLength[dim],
-						res[dim],
-						resCalcClasses[dim]);
+			/* create appropriate ResCalc Objects for dimension combinations*/
+			Object[] resCalc = createResCalcForDimensions(dims,
+					totalLength, res, resCalcClasses);
+			
+			/* cast to correct data type and update the array */
+			for (int i=0; i<3; ++i)
+				out[i] = (ResCalc) resCalc[i];
 			
 			return out;
 		}
@@ -607,22 +630,28 @@ public class ResolutionCalculator
 				/* fetch class of resolution object */
 				Class<?> resClass = res.getClass();
 				
+				/* cast Integer to double */
+				if (resClass.equals(Integer.class)){
+					res = Double.valueOf((Integer) res);
+					resClass = double.class;
+				}
+				
 				/* cast Double to double */
 				if (resClass.equals(Double.class))
 					resClass = double.class;
+			
 				/* 
-				 * cast all (!) Lambda expressions to DoubleFunction<Double>
-				 * TODO: safety regarding lambdas
+				 * getClass() will not determine the functional interface,
+				 * so do it manually here.
 				 */
-				if (resClass.equals(FunctionalInterface.class) )
+				if (res instanceof DoubleFunction )
 					resClass = DoubleFunction.class;
-				
+
 				/* get suitable initializing method */
 				Method init = resCalcClass.getMethod(
 						"init", 
 						resClass, 
 						double.class);
-
 				switch (dim){
 				/* for cartesian(-like) dimensions just call init method */
 				case R: case Z: case X: case Y:
@@ -640,7 +669,6 @@ public class ResolutionCalculator
 
 					/* determine the number of shells we have from the dimArgs */
 					int nShells = ((ResCalc) dimArgs.get(0)).getNVoxel();
-					
 					/* 
 					 * init shell-only-dependent dimension 
 					 * this is theta for the cylinder and phi for the sphere.
@@ -689,9 +717,12 @@ public class ResolutionCalculator
 					}
 					return rC_twoDim;
 				}
+			} catch (InvocationTargetException e){
+				/* lets only report the causing error here */
+				e.getCause().printStackTrace();
 			} catch (NoSuchMethodException | SecurityException 
-					| IllegalAccessException | IllegalArgumentException 
-					| InvocationTargetException | InstantiationException e) {
+					| IllegalAccessException | IllegalArgumentException
+					| InstantiationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -703,19 +734,20 @@ public class ResolutionCalculator
 				//TODO safety
 				DoubleFunction<Double> r = (DoubleFunction<Double>)res;
 				DoubleFunction<Double> fun = 
-						x -> PolarGrid.getTargetResolution(shell, r.apply(x));
+						x -> PolarGrid.scaleResolutionForShell(shell, r.apply(x));
 				return fun;
 			}
 			else if (res instanceof double[]){
 				double[] r = (double[]) res;
 				for (int i=0; i<r.length; ++i){
-					r[i] = PolarGrid.getTargetResolution(shell, r[i]);
+					r[i] = PolarGrid.scaleResolutionForShell(shell, r[i]);
 				}
 				return r;
-			}else { //double
+			}else if (res instanceof Double){ //double
 				double r = (double) res;
-				return PolarGrid.getTargetResolution(shell, r);
-			}
+				return PolarGrid.scaleResolutionForShell(shell, r);
+			} 
+			return null;
 		}
 		
 		private static Object manipulateResolutionObject(Object res, int shell, int ring){
@@ -723,20 +755,21 @@ public class ResolutionCalculator
 				//TODO safety
 				DoubleFunction<Double> r = (DoubleFunction<Double>)res;
 				DoubleFunction<Double> fun = 
-						x -> PolarGrid.getTargetResolution(
+						x -> PolarGrid.scaleResolutionForRing(
 													shell, ring, r.apply(x));
 				return fun;
 			}
 			else if (res instanceof double[]){
 				double[] r = (double[]) res;
 				for (int i=0; i<r.length; ++i){
-					r[i] = PolarGrid.getTargetResolution(shell, ring, r[i]);
+					r[i] = PolarGrid.scaleResolutionForRing(shell, ring, r[i]);
 				}
 				return r;
-			}else { //double
+			}else if (res instanceof Double){ //double
 				double r = (double) res;
-				return PolarGrid.getTargetResolution(shell, ring, r);
+				return PolarGrid.scaleResolutionForRing(shell, ring, r);
 			}
+			return null;
 		}
 	}
 }

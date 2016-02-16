@@ -411,6 +411,21 @@ public abstract class SpatialGrid
 	}
 	
 	/**
+	 * //TODO: make permanent vector in the grids.
+	 * @param dim - a dimension index.
+	 * @return The total length of the grid along the given dimension.
+	 */
+	public abstract double getTotalLength(int dim);
+	
+	public double[] getTotalLength(){
+		//TODO: make permanent vector in the grids.
+		return new double[]{
+				getTotalLength(0), 
+				getTotalLength(1), 
+				getTotalLength(2)};
+	}
+	
+	/**
 	 * \brief Get the number of voxels in each dimension for the given
 	 * coordinates.
 	 * 

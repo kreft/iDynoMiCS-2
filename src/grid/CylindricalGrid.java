@@ -2,7 +2,6 @@ package grid;
 
 import grid.ResolutionCalculator.ResCalc;
 import grid.ResolutionCalculator.ResCalcFactory;
-import grid.ResolutionCalculator.UniformResolution;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
@@ -30,24 +29,24 @@ public class CylindricalGrid extends PolarGrid
 {
 	/**
 	 * \brief The number of voxels this grid has in each of the three spatial 
-	 * dimensions and the corresponding resolution calculator.
+	 * dimensions and the corresponding resolution calculator. </br>
 	 * 
-	 * Notes:
-	 * - The array has three rows, one for each dimension.
-	 * - A row may contain a single value or a vector.
-	 * - _resCalc[0] is the radial angle and has length 1 (single value).
-	 * - _resCalc[1] is the azimuthal angle.
-	 * - _resCalc[2] is the z-dimension.
+	 * <p>Notes:
+	 * <ul>
+	 * <li> The array has three rows, one for each dimension.</li>
+	 * <li> A row may contain a single value or a vector.</li>
+	 * <li> _resCalc[0] is the radial angle and has length 1 (single value).</li>
+	 * <li> _resCalc[1] is the azimuthal angle.</li>
+	 * <li> _resCalc[2] is the z-dimension.</li>
+	 * <li> The number of voxels along the azimuthal dimension {@code η_θ} 
+	 *  	is dependent on the radius {@code r}: </br>
+	 *  	η_θ(r) = N₀ * s(r) with s(r) = 2 * r + 1;	</li>  
+	 * </ul></p>
 	 * 
-	 * - To keep the volume over the grid cells fairly constant for same 
-	 * 		resolutions, some dependencies between the _nVoxels were implemented:
-	 *  * The number of voxels along the azimuthal dimension (np) 
-	 *  	is dependent on the radius (r): nt=ires[1]*s(r) with s(r)=2*r+1;	  
-	 * 
-	 * <p>For example, a disc (-> ires[1]=4) with radius 2 
-	 * 			 and uniform resolution 1 would have: 
-	 * 		_nVoxel = [ [[2]], [[4],[12]], [[1]] ].
-	 * 		_res = [[[1.0, 1.0]], [[1.0^4, 1.0^12]], [[1.0]]]</p>
+	 * <p>For example, a disc (-> N₀ = 4) with radius 2 
+	 * 			 and uniform resolution 1 would have: </br>
+	 * 		_nVoxel = { {2}, {4,12}, {1} }.</br>
+	 * 		_res = { {1.0, 1.0}, {{1.0}^4, {1.0}^12}, {1.0}]</p>
 	 */
 	protected ResCalc[][] _resCalc;
 	
@@ -70,6 +69,11 @@ public class CylindricalGrid extends PolarGrid
 		this._dimName[2] = DimName.Z;
 		
 		this._resCalc = resCalc;
+		
+		/* handle periodicity here or in another place? */
+		if (getTotalLength(1) < 0 || getTotalLength(1) > 2 * Math.PI)
+			throw new IndexOutOfBoundsException(
+										"0 <= totalLength <= 2π not satisfied");
 		
 		/* 
 		 * add cyclic boundaries to theta's max and min if we have a full circle
@@ -159,13 +163,34 @@ public class CylindricalGrid extends PolarGrid
 		 * TODO This doesn't account for partially-overlapping voxel-voxel
 		 * interfaces. 
 		 */ 
-		for ( int shell = 0; shell < this._resCalc[1].length; shell++ )
-		{
-			rC = this._resCalc[1][shell];
-			for ( int i = 0; i < rC.getNVoxel() - 1; i++ )
-				m = Math.min(m, rC.getResolution(i) * rC.getResolution(i+1));
-		}
+//		for ( int shell = 0; shell < this._resCalc[1].length; shell++ )
+//		{
+//			rC = this._resCalc[1][shell];
+//			for ( int i = 0; i < rC.getNVoxel() - 1; i++ )
+//				m = Math.min(m, rC.getResolution(i) * rC.getResolution(i+1));
+//		}
+		System.out.println(m);
 		this._minVoxVoxDist = m;
+	}
+	
+	@Override
+	public double getNbhSharedSurfaceArea()
+	{
+//		int absDiff = 0, cumulativeAbsDiff = 0;
+//		double area = 1.0;
+//		ResCalc rC;
+//		for ( int i = 0; i < 3; i++ )
+//		{
+//			absDiff = Math.abs(this._currentCoord[i] - this._currentNeighbor[i]);
+//			if ( absDiff == 0 ){
+//				rC = this.getResolutionCalculator(this._currentCoord,i);
+//				area *= rC.getResolution(this._currentCoord[i]);
+//			}
+//			else
+//				cumulativeAbsDiff += absDiff;
+//		}
+//		return ( cumulativeAbsDiff == 1 ) ? area : 0.0;
+		return 1;
 	}
 	
 	@Override
@@ -200,9 +225,10 @@ public class CylindricalGrid extends PolarGrid
 		return outNVoxel;
 	}
 	
-	protected double getTotalLength(int axis)
+	@Override
+	public double getTotalLength(int dim)
 	{
-		return this._resCalc[axis][0].getTotalLength();
+		return this._resCalc[dim][0].getTotalLength();
 	}
 	
 	@Override
