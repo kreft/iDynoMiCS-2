@@ -60,6 +60,8 @@ public abstract class SpatialGrid
 		DIFFUSIVITY,
 		
 		/**
+		 * NOTE: Bas [18.02.16] DOMAIN is a very general term for something that
+		 * indicates only the diffusion domain, please consider renaming
 		 * The domain dictates where the diffusion is actually happening. For
 		 * example, when modelling a biofilm it may be assumed that liquid
 		 * outside the boundary layer is well-mixed.
