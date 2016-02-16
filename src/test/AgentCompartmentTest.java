@@ -1,9 +1,12 @@
 package test;
 
 import agent.Agent;
+import dataIO.Log;
+import dataIO.Log.tier;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
+import idynomics.Param;
 import idynomics.Simulator;
 import idynomics.Timer;
 import processManager.AgentGrowth;
@@ -25,6 +28,9 @@ public class AgentCompartmentTest
 		Timer.setEndOfSimulation(25.0);
 		
 		Simulator aSim = new Simulator();
+		Log.set(tier.DEBUG);
+		Param.simulationName = "test";
+		Param.outputLocation = "../results/test";
 		
 		Compartment aCompartment = aSim.addCompartment("myCompartment");
 		Shape aShape = (Shape) Shape.getNewInstance("rectangle");
@@ -133,13 +139,6 @@ public class AgentCompartmentTest
 		agentRelax.setTimeStepSize(Timer.getTimeStepSize());
 		aCompartment.addProcessManager(agentRelax);
 		
-		ProcessManager svgOutput = new WriteAgentsSvg();
-		svgOutput.setName("svgOutput");
-		svgOutput.debugMode();
-		svgOutput.setPriority(2);
-		svgOutput.setTimeForNextStep(0.0);
-		svgOutput.setTimeStepSize(Timer.getTimeStepSize());
-		aCompartment.addProcessManager(svgOutput);
 
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
 		/*
