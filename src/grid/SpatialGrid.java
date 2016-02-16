@@ -3,7 +3,7 @@ package grid;
 import java.util.HashMap;
 
 import grid.GridBoundary.GridMethod;
-import grid.ResolutionCalculator.ResCalc;
+import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;

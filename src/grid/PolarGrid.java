@@ -1,6 +1,6 @@
 package grid;
 
-import grid.ResolutionCalculator.ResCalc;
+import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
 
@@ -182,11 +182,11 @@ public abstract class PolarGrid extends SpatialGrid
 		return 2 * radiusIndex + 1;
 	}
 	
-	protected static double getTargetResolution(int shell, double res){			
+	public static double getTargetResolution(int shell, double res){			
 		return res / (N_ZERO_FACTOR * scaleForShell(shell));
 	}
 	
-	protected static double getTargetResolution(int shell, int ring, double res){
+	public static double getTargetResolution(int shell, int ring, double res){
 		/*
 		 * Scale phi to peak at π / 2 instead of s(shell), where it 
 		 * would peak for a resolution of one. This way we can use it as
