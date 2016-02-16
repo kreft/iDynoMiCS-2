@@ -1,11 +1,16 @@
 package aspect;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import agent.Body;
+import dataIO.XmlHandler;
 import linearAlgebra.Vector;
+import reaction.Reaction;
 import surface.BoundingBox;
 
 /**
@@ -84,8 +89,12 @@ public abstract interface AspectInterface {
 					case "body" :
 						aspectReg.add("body", Body.getNewInstance(s));
 						break;
-					case "reactions" :
-						// TODO
+					case "List" :
+						List<Object> temp = new LinkedList<Object>();
+						NodeList items = XmlHandler.getAll(s, "item");
+						for ( int i = 0; i < items.getLength(); i++ )
+							temp.add((Object) ((Element) items.item(i)).getAttribute("value"));
+						aspectReg.add(s.getAttribute("name"),temp);
 						break;
 				}
 			}
@@ -107,6 +116,16 @@ public abstract interface AspectInterface {
 	{
 		return reg().isGlobalAspect(aspect) && reg().getValue(this, aspect) 
 				!= null;
+	}
+	
+	/**
+	 * Getting raw aspect object
+	 * @param aspect
+	 * @return
+	 */
+	public default Object getValue(String aspect)
+	{
+		return (checkAspect(aspect) ?  reg().getValue(this, aspect) : null);
 	}
 	
 	/**

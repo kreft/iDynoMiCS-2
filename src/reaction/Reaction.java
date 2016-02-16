@@ -11,7 +11,9 @@ import org.w3c.dom.NodeList;
 import dataIO.XmlHandler;
 import expression.Component;
 import expression.ExpressionB;
+import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
+import utility.Copier;
 
 /**
  * \brief 
@@ -19,7 +21,7 @@ import generalInterfaces.XMLable;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class Reaction implements XMLable
+public class Reaction implements XMLable, Copyable
 {
 	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
@@ -33,12 +35,29 @@ public class Reaction implements XMLable
 	 * proceeds.
 	 */
 	private Component _kinetic;
+	
 	/**
 	 * Dictionary of mathematical expressions describing the differentiation
 	 * of {@code this._kinetic} with respect to variables, whose names are
 	 * stored as {@code Strings}.
 	 */
 	private HashMap<String, Component> _diffKinetics;
+	
+	/**
+	 * reaction name
+	 */
+	public String _name;
+	
+	@Override
+	public Object copy() {
+		HashMap<String,Double> sto = 
+				new HashMap<String,Double>();
+		for(String key : _stoichiometry.keySet())
+			sto.put(key, (double) Copier.copy(_stoichiometry.get(key)));
+		// NOTE: _kinetic is not copyable, this will become an issue of you
+		// want to do evo addaptation simulations
+		return new Reaction(sto, _kinetic, _name);
+	}
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -52,6 +71,7 @@ public class Reaction implements XMLable
 	public Reaction(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
+		this._name = XmlHandler.obtainAttribute(elem, "name");
 		NodeList stochiometrics = XmlHandler.getAll(elem, "stochiometric");
 		for ( int i = 0; i < stochiometrics.getLength(); i++ )
 		{
@@ -75,8 +95,9 @@ public class Reaction implements XMLable
 	 * @param kinetic {@code Component} describing the rate at which this
 	 * reaction proceeds.
 	 */
-	public Reaction(Map<String, Double> stoichiometry, Component kinetic)
+	public Reaction(Map<String, Double> stoichiometry, Component kinetic, String name)
 	{
+		this._name = name;
 		this._stoichiometry.putAll(stoichiometry);
 		this._kinetic = kinetic;
 	}
@@ -91,9 +112,9 @@ public class Reaction implements XMLable
 	 * @param kinetic {@code String} describing the rate at which this reaction
 	 * proceeds.
 	 */
-	public Reaction(Map<String, Double> stoichiometry, String kinetic)
+	public Reaction(Map<String, Double> stoichiometry, String kinetic, String name)
 	{
-		this(stoichiometry, new ExpressionB(kinetic));
+		this(stoichiometry, new ExpressionB(kinetic), name);
 	}
 	
 	/**
@@ -107,9 +128,9 @@ public class Reaction implements XMLable
 	 * @param kinetic {@code String} describing the rate at which this reaction
 	 * proceeds.
 	 */
-	public Reaction(String chemSpecies, double stoichiometry, String kinetic)
+	public Reaction(String chemSpecies, double stoichiometry, String kinetic, String name)
 	{
-		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic));
+		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
 	}
 	
 	/*************************************************************************

@@ -16,6 +16,7 @@ import reaction.Reaction;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEsolver.Updater;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -67,6 +68,11 @@ public class SolveDiffusionTransient extends ProcessManager
 			this._diffusivity.put(sName, 1.0);
 	}
 	
+	public void init()
+	{
+		this.init(getStringA("solutes"));
+	}
+	
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
@@ -99,6 +105,12 @@ public class SolveDiffusionTransient extends ProcessManager
 			{
 				/*
 				 * TODO agents put reaction rates on grids.
+				 * Bas [17.02.16] for consistency sake please choose something
+				 * consistent it make total sense to simply scale the reactions
+				 * with the amount of catalyst (biomass) in a grid cell, this
+				 * is the convention, or if you want to let the agents perform
+				 * their own reaction (less fast but oke). Don't simply copy
+				 * stuff around, I don't like hard coded spaghetti. 
 				 */
 				for ( Agent agent : agents.getAllLocatedAgents() )
 				{
@@ -112,9 +124,9 @@ public class SolveDiffusionTransient extends ProcessManager
 					if (agent.aspectRegistry.isGlobalAspect("reactions"))
 					{
 						@SuppressWarnings("unchecked")
-						List<Reaction> reactions = 
-								(List<Reaction>) agent.get("reactions");
-						for (Reaction reaction : reactions)
+						List<String> reactions = 
+								(List<String>) agent.get("reactions");
+						for (String reaction : reactions)
 						{
 							// testing
 							System.out.println(reaction.toString());

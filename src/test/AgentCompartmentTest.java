@@ -1,6 +1,7 @@
 package test;
 
 import agent.Agent;
+import agent.event.library.MassToGrid;
 import dataIO.Log;
 import dataIO.Log.tier;
 import grid.SpatialGrid;
@@ -15,7 +16,6 @@ import processManager.PrepareSoluteGrids;
 import processManager.ProcessManager;
 import processManager.RefreshMassGrids;
 import processManager.SolveDiffusionTransient;
-import processManager.WriteAgentsSvg;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 import utility.ExtraMath;

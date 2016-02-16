@@ -16,6 +16,8 @@ import dataIO.XmlHandler;
 import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
+import grid.SpatialGrid.ArrayType;
+import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
@@ -117,10 +119,24 @@ public class Compartment implements CanPrelaunchCheck
 		 */
 		NodeList solutes = XmlHandler.getAll(elem, "solute");
 		for ( int i = 0; i < solutes.getLength(); i++)
-			this.addSolute(XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					"name"), Double.valueOf(XmlHandler.obtainAttribute(
+		{
+			String soluteName = XmlHandler.obtainAttribute((Element) 
+					solutes.item(i), "name");
+			this.addSolute(soluteName, Double.valueOf(XmlHandler.obtainAttribute(
 					(Element) solutes.item(i), "concentration")));
-
+			
+			// FIXME please provide standard methods to load entire solute grids
+			SpatialGrid myGrid = this.getSolute(soluteName);
+			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), "vox");
+			for (int j = 0; j < voxelvalues.getLength(); j++)
+			{
+				myGrid.setValueAt(ArrayType.CONCN, Vector.intFromString(
+						XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
+						, "coord")) , Double.valueOf( XmlHandler
+						.obtainAttribute((Element) voxelvalues.item(j), "value"
+						)));
+			}
+		}
 			
 			// TODO diffusivity
 			// TODO initial value
@@ -139,6 +155,9 @@ public class Compartment implements CanPrelaunchCheck
 		 * Finally, finish off the initialisation as standard.
 		 */
 		this.init();
+		
+
+
 	}
 	
 	public void init()
@@ -153,6 +172,8 @@ public class Compartment implements CanPrelaunchCheck
 		this._shape.setSurfaces();
 		
 		this._environment.init();
+		
+		
 	}
 	
 	/*************************************************************************
