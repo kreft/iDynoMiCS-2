@@ -90,6 +90,9 @@ public class SolveDiffusionTransient extends ProcessManager
 					 * creating them if they do not already exist.
 					 * 
 					 * TODO use a diffusion setter
+					 * FIXME Bas: why not one grid with reaction rate and salvage
+					 * the production/consumption rate directly from the reaction
+					 * stochiometry??
 					 */
 					sg.newArray(ArrayType.PRODUCTIONRATE);
 					sg.newArray(ArrayType.DIFFUSIVITY, 
@@ -104,6 +107,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			public void prestep(HashMap<String, SpatialGrid> variables)
 			{
 				/*
+				 * FIXME Bas: what is this methods supposed to provide?
 				 * TODO agents put reaction rates on grids.
 				 * Bas [17.02.16] for consistency sake please choose something
 				 * consistent it make total sense to simply scale the reactions
@@ -126,8 +130,13 @@ public class SolveDiffusionTransient extends ProcessManager
 						@SuppressWarnings("unchecked")
 						List<String> reactions = 
 								(List<String>) agent.get("reactions");
+						// NOTE Bas: I rather not copy identical Reaction objects'
+						// to every single agent that performs it if you can
+						// refer to them in a list
 						for (String reaction : reactions)
 						{
+							environment.getReaction(reaction);
+							//TODO whatever is required from this method -> please comment
 							// testing
 							System.out.println(reaction.toString());
 						}
