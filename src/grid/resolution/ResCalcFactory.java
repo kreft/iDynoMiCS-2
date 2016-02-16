@@ -10,11 +10,13 @@ import grid.resolution.ResolutionCalculator.ResCalc;
 import grid.resolution.ResolutionCalculator.UniformResolution;
 import shape.ShapeConventions.DimName;
 
-/**************************************************************************/
-/****************** RESOLUTION CALCULATOR FACTORY *************************/
-/**************************************************************************/
-
-public class ResCalcFactory {
+/**
+ * \brief TODO
+ * 
+ * @author Stefan Lang, TODO
+ */
+public class ResCalcFactory
+{
 	
 	/**********************************************************************/
 	/*********************** STANDARD CREATOR  ****************************/
@@ -109,7 +111,7 @@ public class ResCalcFactory {
 	{
 		ResCalc[] out = new ResCalc[3];
 		DimName[] dims = new DimName[]{DimName.X,DimName.Y,DimName.Z};
-		for (int dim=0; dim<3; ++dim)
+		for ( int dim = 0; dim < 3; dim++ )
 			out[dim] = (ResCalc) createResCalcForDimension(
 					dims[dim],
 					null,
@@ -179,7 +181,8 @@ public class ResCalcFactory {
 	{
 		Object[] out = new Object[3];
 		ArrayList<Object> dimArgs = new ArrayList<>();
-		for (int dim = 0; dim < 3; ++dim){
+		for (int dim = 0; dim < 3; ++dim)
+		{
 			/* add the last resCalc to arguments for polar dimensions */
 			if (dims[dim]==DimName.THETA || dims[dim]==DimName.PHI)
 				dimArgs.add(out[dim-1]);
@@ -196,6 +199,17 @@ public class ResCalcFactory {
 		return out;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dim
+	 * @param dimArgs
+	 * @param totalLength
+	 * @param res
+	 * @param resClass
+	 * @param resCalcClass
+	 * @return
+	 */
 	private static Object createResCalcForDimension( 
 			DimName dim,
 			ArrayList<Object> dimArgs,
@@ -236,10 +250,11 @@ public class ResCalcFactory {
 
 				Object[][] rFun_twoDim = new ResCalc[nr][];
 				ResCalc[] rC_phi = ((ResCalc[]) dimArgs.get(1));
-				for (int shell=0; shell<nr; ++shell){
+				for ( int shell = 0; shell < nr; shell++ )
+				{
 					int np = rC_phi[shell].getNVoxel();
 					rFun_twoDim[shell] = new ResCalc[np];
-					for ( int ring = 0; ring < np; ++ring )
+					for ( int ring = 0; ring < np; ring++ )
 					{
 						rFun_singleVal = resCalcClass.newInstance(); 
 						Object scaled_res = manipulateResolutionObject(res, shell, ring);
@@ -258,42 +273,71 @@ public class ResCalcFactory {
 		return null;
 	}
 	
-	private static Object manipulateResolutionObject(Object res, int shell){
-		if (res instanceof DoubleFunction){
+	/**
+	 * \brief TODO
+	 * 
+	 * Presumably this is for polar grids...?
+	 * 
+	 * @param res
+	 * @param shell
+	 * @return
+	 */
+	private static Object manipulateResolutionObject(Object res, int shell)
+	{
+		if ( res instanceof DoubleFunction )
+		{
 			//TODO safety
-			DoubleFunction<Double> r = (DoubleFunction<Double>)res;
-			DoubleFunction<Double> fun = 
-					x -> PolarGrid.getTargetResolution(shell, r.apply(x));
+			DoubleFunction<Double> r = (DoubleFunction<Double>) res;
+			DoubleFunction<Double> fun = x -> 
+							PolarGrid.getTargetResolution(shell, r.apply(x));
 			return fun;
 		}
-		else if (res instanceof double[]){
+		else if ( res instanceof double[] )
+		{
 			double[] r = (double[]) res;
-			for (int i=0; i<r.length; ++i){
+			for ( int i = 0; i < r.length; i++ )
 				r[i] = PolarGrid.getTargetResolution(shell, r[i]);
-			}
 			return r;
-		}else { //double
+		}
+		else
+		{
+			/* double */
 			double r = (double) res;
 			return PolarGrid.getTargetResolution(shell, r);
 		}
 	}
 	
-	private static Object manipulateResolutionObject(Object res, int shell, int ring){
-		if (res instanceof DoubleFunction){
+	/**
+	 * \brief TODO
+	 * 
+	 * Presumably this is for polar grids...?
+	 * 
+	 * @param res
+	 * @param shell
+	 * @param ring
+	 * @return
+	 */
+	private static Object manipulateResolutionObject(
+											Object res, int shell, int ring)
+	{
+		if ( res instanceof DoubleFunction )
+		{
 			//TODO safety
-			DoubleFunction<Double> r = (DoubleFunction<Double>)res;
-			DoubleFunction<Double> fun = 
-					x -> PolarGrid.getTargetResolution(
-												shell, ring, r.apply(x));
+			DoubleFunction<Double> r = (DoubleFunction<Double>) res;
+			DoubleFunction<Double> fun = x -> 
+						PolarGrid.getTargetResolution(shell, ring, r.apply(x));
 			return fun;
 		}
-		else if (res instanceof double[]){
+		else if (res instanceof double[])
+		{
 			double[] r = (double[]) res;
-			for (int i=0; i<r.length; ++i){
+			for ( int i = 0; i < r.length; i++ )
 				r[i] = PolarGrid.getTargetResolution(shell, ring, r[i]);
-			}
 			return r;
-		}else { //double
+		}
+		else
+		{
+			/* double */
 			double r = (double) res;
 			return PolarGrid.getTargetResolution(shell, ring, r);
 		}
