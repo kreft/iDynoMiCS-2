@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation name="mySim" outputfolder="../../Simulations"
-		log="QUIET" comment="this is a file for testing purposes only.">
+		comment="this is a file for testing purposes only.">
 		<general>
 			<param name="timeStepSize" value="1.0" />
 			<param name="endOfSimulation" value="60.0" />

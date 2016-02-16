@@ -87,13 +87,16 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		{
 			child = (Element) children.item(i);
 			str = XmlHandler.gatherAttribute(child, "name");
-			str = Helper.obtainInput(str, "dimension name");
-			dimName = DimName.valueOf(str);
-			dim = this.getDimension(dimName);
-			if ( dim == null )
+			dim = null;
+			while ( dim == null )
 			{
-				Log.out(tier.CRITICAL, "Warning: Dimension "+str+
-								" not recognised by shape "+this.getClass());
+				str = Helper.obtainInput(str, "dimension name");
+				dimName = DimName.valueOf(str);
+				dim = this.getDimension(dimName);
+				if(dim == null)
+					Log.out(tier.CRITICAL, "Warning: Dimension " + str +
+								" not recognised by shape " + this.getClass() +
+								", use: " + Helper.enumToString(DimName.class));
 				continue;
 			}
 			dim.init(child);

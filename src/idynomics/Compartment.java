@@ -305,7 +305,7 @@ public class Compartment implements CanPrelaunchCheck
 	{
 		if ( this._shape == null )
 		{
-			System.out.println("Compartment shape is undefined!");
+			Log.out(tier.CRITICAL, "Compartment shape is undefined!");
 			return false;
 		}
 		if ( ! this._shape.isReadyForLaunch() )

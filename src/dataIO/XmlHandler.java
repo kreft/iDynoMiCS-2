@@ -44,10 +44,10 @@ public class XmlHandler {
 			doc.getDocumentElement().normalize();
 			return doc.getDocumentElement();
 		} catch (SAXException | IOException | ParserConfigurationException e) {
-			Log.out(tier.CRITICAL, "Error while loading: " + document + "\n"
+			System.err.println("Error while loading: " + document + "\n"
 					+ "error message: " + e.getMessage());
-			Log.out(tier.DEBUG, e.getStackTrace().toString());
-			document = Helper.obtainInput(null, "Atempt to re-obtain document");
+			document = Helper.obtainInput(null, "Atempt to re-obtain document",
+					true);
 			return loadDocument(document);
 		}
 	}

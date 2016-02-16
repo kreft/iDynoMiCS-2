@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Set;
 
 import boundary.Boundary;
+import dataIO.Log;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -159,8 +161,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	
 	public void printSolute(String soluteName)
 	{
-		System.out.println(soluteName+":");
-		System.out.println(this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
+		Log.out(tier.QUIET, soluteName+":");
+		Log.out(tier.QUIET, this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
 	}
 	
 	public void printAllSolutes()
