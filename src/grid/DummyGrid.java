@@ -3,7 +3,7 @@
  */
 package grid;
 
-import grid.ResolutionCalculator.ResCalc;
+import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 
