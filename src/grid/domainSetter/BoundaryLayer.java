@@ -35,8 +35,15 @@ public class BoundaryLayer implements IsDomainSetter
 	 */
 	protected double _value = 1.0;
 	
+	/**
+	 * the thickness of the pure diffusion film (sorry no flow currently)
+	 */
 	protected double _layerThickness;
 	
+	/**
+	 * initiation from xml node attributes: value, layerthickness
+	 * @param xmlNode
+	 */
 	public void init(Node xmlNode)
 	{
 		// TODO Check this, maybe making use of XMLable interface

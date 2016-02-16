@@ -14,18 +14,37 @@ import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 
 /**
- * 
+ * Simple diffusivity setter based allowing for two discrete diffusivity regimes
+ * _defaultDiffusivity for the suspension, _biofilmDiffusivity for the biofilm
+ * _threshold indicates the minimum concentration of biomass in a grid cell
+ * before a grid cell is considered part of a biofilm rather than suspension
+ * (set to 0.0 for iDynoMiCS one compatibility).
  * @author baco
  *
  */
 public class DiffusivitySetter {
 
+	/**
+	 * Diffusivity for the suspension
+	 */
 	protected double _defaultDiffusivity;
 	
+	/**
+	 * Diffusivity for the biofilm
+	 */
 	protected double _biofilmDiffusivity;
 	
+	/**
+	 * indicates the minimum concentration of biomass in a grid cell
+	 * before a grid cell is considered part of a biofilm rather than suspension
+	 * (set to 0.0 for iDynoMiCS one compatibility).
+	 */
 	protected double _threshold;
 	
+	/**
+	 * initiation from xml node
+	 * @param xmlNode
+	 */
 	public void init(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
@@ -40,6 +59,14 @@ public class DiffusivitySetter {
 				"threshold"));
 	}
 
+	/**
+	 * base diffusivity on given concentration grids, use and update biomassgrid
+	 * if no input concentration grids are given.
+	 * @param diffusivityGrid
+	 * @param concentrationGrids
+	 * @param env
+	 * @param agents
+	 */
 	public void updateDiffusivity(SpatialGrid diffusivityGrid, SpatialGrid[] 
 			concentrationGrids, EnvironmentContainer env, AgentContainer agents)
 	{
