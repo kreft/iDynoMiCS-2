@@ -55,14 +55,11 @@ public class AgentRelaxation extends ProcessManager {
 		/**
 		 * Obtaining relaxation parameters
 		 */
-		dtBase		= Double.valueOf(Helper.setIfNone((String) 
-				  			  reg().getValue(this, "dtBase"), String.valueOf(0.01)));	
-		maxMovement	= Double.valueOf(Helper.setIfNone(String.valueOf(
-							  reg().getValue(this, "maxMovement")), String.valueOf(0.1)));	
-		_method		= method.valueOf(Helper.obtainInput((String) 
-							  reg().getValue(this, "relaxationMethod"), "agent " + 
-							  "relaxation misses relaxation method "
-							  + "(SHOVE,EULER,HEUN)"));
+		dtBase		= Helper.setIfNone(getDouble("dtBase"),0.01);	
+		maxMovement	= Helper.setIfNone(getDouble("maxMovement"),0.1);	
+		_method		= method.valueOf(Helper.obtainInput(getString(
+				"relaxationMethod"), "agent relaxation misses relaxation method"
+				+ " (SHOVE,EULER,HEUN)"));
 		timeLeap	= true;
 	}
 	
@@ -89,7 +86,7 @@ public class AgentRelaxation extends ProcessManager {
 		// Calculate forces
 		for(Agent agent: agents.getAllLocatedAgents()) 
 		{
-			List<Link> links = ((Body) agent.get("body"))._links;
+			List<Link> links = ((Body) agent.get(NameRef.agentBody))._links;
 			for (int i = 0; i < links.size(); i++)
 			{
 				if (links.get(i).evaluate(iterator))
@@ -106,12 +103,12 @@ public class AgentRelaxation extends ProcessManager {
 			
 			/**
 			 * perform neighborhood search and perform collision detection and
-			 * response
+			 * response FIXME: this has not been adapted to multi surface
+			 * objects!
 			 * TODO Add optional extra margin for pulls!!!
 			 */
 			for(Agent neighbour: agents._agentTree.cyclicsearch(
-					(double[]) agent.get("#boundingLower"),
-					(double[]) agent.get("#boundingSides")))
+					((Body) agent.get(NameRef.agentBody)).getBoxes(0.0)))
 			{
 				if (agent.identity() > neighbour.identity())
 				{

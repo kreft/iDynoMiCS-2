@@ -1,6 +1,6 @@
 package grid;
 
-import grid.ResolutionCalculator.ResCalc;
+import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
 
@@ -20,6 +20,7 @@ public abstract class PolarGrid extends SpatialGrid
 	
 	/**
 	 * A constant factor scaling resolutions of polar grids.
+	 * Set to (π/2)<sup>-1</sup> to have quarter circles at radius 0.
 	 */
 	protected final static double N_ZERO_FACTOR = 2 / Math.PI;
 	
@@ -85,7 +86,7 @@ public abstract class PolarGrid extends SpatialGrid
 		 * defined boundary, the angular coordinate is irrelevant.
 		 */
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
-		if (isOnUndefinedBoundary(this._currentNeighbor, 0))
+		if ( isOnUndefinedBoundary(this._currentNeighbor, 0) )
 			return false;
 		if (isOnBoundary(this._currentNeighbor, 0))
 			return true;
@@ -101,7 +102,6 @@ public abstract class PolarGrid extends SpatialGrid
 		rC = this.getResolutionCalculator(this._currentNeighbor, 1);
 		
 		this._currentNeighbor[1] = rC.getVoxelIndex(angle);
-		
 		return true;
 	}
 	
@@ -136,7 +136,6 @@ public abstract class PolarGrid extends SpatialGrid
 		/*
 		 * If increasing would mean we no longer overlap, return false.
 		 */
-//System.out.println(this._currentNeighbor[dim]);
 		double nbhMax = rC.getCumulativeResolution(this._currentNeighbor[dim]);
 		rC = this.getResolutionCalculator(this._currentCoord, dim);
 		double curMax = rC.getCumulativeResolution(this._currentCoord[dim]);
@@ -158,7 +157,8 @@ public abstract class PolarGrid extends SpatialGrid
 	}
 	
 	@Override
-	public int[] iteratorNext(){
+	public int[] iteratorNext()
+	{
 		this._currentCoord = super.iteratorNext();
 		/* keep the current nVoxel pointer up to date for polar grids */
 		this.updateCurrentNVoxel();		
@@ -173,12 +173,22 @@ public abstract class PolarGrid extends SpatialGrid
 	 * \brief Computes a factor that scales the number of elements for
 	 * increasing  radius to keep element volume fairly constant.
 	 * 
-	 * @param radiusIndex - radius.
-	 * @return - a scaling factor for a given radius.
+	 * @param radiusIndex Radial coordinate of all voxels in a given shell.
+	 * @return A scaling factor for a given radius, based on the relative arc
+	 * length at this radius.
 	 */
-	private static int getFactorForShell(int shellIndex)
+	protected static int getFactorForShell(int radiusIndex)
 	{
-		return 2 * shellIndex + 1;
+		/*
+		 * The logic behind this scaling factor is that the length of an arc,
+		 * at radius r and of angle θ (in radians), is 2 θ r. Note that the
+		 * circumference of a circle is 2 π r. Since Java indices start at zero
+		 * and we want the arc length of the radial center of this shell, we
+		 * return 2*(radius + 0.5) = (2*radius) + 1
+		 * 
+		 * TODO Stefan, please check this
+		 */
+		return 2 * radiusIndex + 1;
 	}
 	
 	/**
@@ -188,7 +198,7 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param res
 	 * @return
 	 */
-	protected static double scaleResolutionForShell(int shell, double res){			
+	public static double scaleResolutionForShell(int shell, double res){			
 		return res / (N_ZERO_FACTOR * getFactorForShell(shell));
 	}
 	
@@ -201,7 +211,7 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param res
 	 * @return
 	 */
-	protected static double scaleResolutionForRing(int shell, int ring, double res){
+	public static double scaleResolutionForRing(int shell, int ring, double res){
 		/*
 		 * Scale phi to peak at π / 2 instead of s(shell), where it 
 		 * would peak for a resolution of one. This way we can use it as
@@ -224,34 +234,56 @@ public abstract class PolarGrid extends SpatialGrid
 		 * This is the number of voxels in theta for resolution one.
 		 */
 		length = N_ZERO_FACTOR 
-						+ N_ZERO_FACTOR * length * (getFactorForShell(shell) - 1);
-		
+					+ N_ZERO_FACTOR * length * (getFactorForShell(shell) - 1);
+		// TODO Rob[16Feb2016]: would this be clearer?
+		// length = N_ZERO_FACTOR * ( 1 + length*( 2 * shell ) );
 		/* Scale the resolution to account for the additional voxels */
 		return res / length;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param d
+	 * @param len_cur
+	 * @param bounds
+	 * @param bounds_nbh
+	 * @param len_nbh
+	 * @return
+	 */
 	protected static double getSharedArea(int d, double len_cur, 
-			double[] bounds, double[] bounds_nbh, double len_nbh){
-		boolean is_right, is_left, is_inBetween;
-		double sA=0;
-
-		// t1 of nbh <= t1 of cc (right, counter-clockwise)
-		double len_s;
-		if (d < 0){
-			is_right = bounds_nbh[0] <= bounds[0];
-			is_left = bounds_nbh[1] >= bounds[1];
-			is_inBetween = is_left && is_right;
+			double[] bounds, double[] bounds_nbh, double len_nbh)
+	{
+		boolean isRight, isLeft, isInBetween;
+		double sA, len_s;
+		/*
+		 * theta1 of neighbor <= theta1 of current coordinate
+		 * (right, counter-clockwise)
+		 */
+		if ( d < 0 )
+		{
+			isRight = bounds_nbh[0] <= bounds[0];
+			isLeft = bounds_nbh[1] >= bounds[1];
+			isInBetween = isLeft && isRight;
 			len_s = len_cur;
-		}else{
-			is_right = bounds_nbh[0] < bounds[0];
-			is_left = bounds_nbh[1] > bounds[1];
-			is_inBetween = !(is_left || is_right);
+		}
+		else
+		{
+			isRight = bounds_nbh[0] < bounds[0];
+			isLeft = bounds_nbh[1] > bounds[1];
+			isInBetween = ! ( isLeft || isRight );
 			len_s = len_nbh;
 		}
-
-		if (is_inBetween) sA = 1;
-		else if (is_right) sA = (bounds_nbh[1]-bounds[0])/len_s;
-		else sA = (bounds[1]-bounds_nbh[0])/len_s; // is_left
+		/* Find shared surface area based on relative position. */
+		if ( isInBetween )
+			sA = 1.0;
+		else if ( isRight )
+			sA = (bounds_nbh[1]-bounds[0])/len_s;
+		else
+		{
+			/* is_left */
+			sA = (bounds[1]-bounds_nbh[0])/len_s;
+		}
 		return sA;
 }
 

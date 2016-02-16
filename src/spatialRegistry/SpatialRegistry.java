@@ -2,6 +2,8 @@ package spatialRegistry;
 
 import java.util.List;
 
+import surface.BoundingBox;
+
 /**
  * \brief TODO
  * 
@@ -30,6 +32,20 @@ public abstract class SpatialRegistry<T>
 	public abstract List<T> cyclicsearch(double[] coords, double[] dimension);
 	
 	/**
+	 * 
+	 * @param boundingBox
+	 * @return
+	 */
+	public abstract List<T> cyclicsearch(BoundingBox boundingBox);
+	
+	/**
+	 * 
+	 * @param boundingBox
+	 * @return
+	 */
+	public abstract List<T> cyclicsearch(List<BoundingBox> boundingBoxes);
+	
+	/**
 	 * \brief TODO
 	 * 
 	 * @return
@@ -45,5 +61,11 @@ public abstract class SpatialRegistry<T>
 	 */
 	public abstract void insert(double[] coords, double[] dimensions, T entry);
 
+	/**
+	 * 
+	 * @param boundingBox
+	 * @param entry
+	 */
+	public abstract void insert(BoundingBox boundingBox, T entry);
 
 }

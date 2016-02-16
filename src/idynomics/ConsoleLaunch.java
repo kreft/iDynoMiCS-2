@@ -53,6 +53,12 @@ public class ConsoleLaunch {
 		 * construct the full simulation from the previously loaded xmlDoc
 		 */
 		XmlLoad.constructSimulation();
+		
+		/**
+		 * Start timing just before simulation starts.
+		 */
+		double tic = System.currentTimeMillis();
+		
 		/*
 		 * Launch the simulation.
 		 */
@@ -62,6 +68,9 @@ public class ConsoleLaunch {
 		 * Print the results.
 		 */
 		Idynomics.simulator.printAll();
+		
+		Log.out(tier.QUIET, "Simulation finished in: " + 
+				(System.currentTimeMillis() - tic) * 0.001 + " seconds");
 		
 		// We may include an extensive protocol file check here and ask for
 		// additional input if needed.

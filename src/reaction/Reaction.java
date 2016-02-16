@@ -1,31 +1,42 @@
+
 package reaction;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import dataIO.XmlHandler;
 import expression.Component;
-import expression.ExpressionBuilder;
+import expression.ExpressionB;
+import generalInterfaces.XMLable;
 
 /**
+ * \brief 
  * 
- * @author baco
- * @author Robert Clegg (r.j.clegg@bham.ac.uk)
- *
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class Reaction
+public class Reaction implements XMLable
 {
 	/**
-	 * Reaction stoichiometry
+	 * Dictionary of reaction stoichiometries. Each chemical species involved
+	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
+	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private HashMap<String,Double> _stoichiometry = new HashMap<String,Double>();
-	
+	private HashMap<String,Double> _stoichiometry = 
+												new HashMap<String,Double>();
 	/**
-	 * TODO
+	 * The mathematical expression describing the rate at which this reaction
+	 * proceeds.
 	 */
 	private Component _kinetic;
-	
 	/**
-	 * 
+	 * Dictionary of mathematical expressions describing the differentiation
+	 * of {@code this._kinetic} with respect to variables, whose names are
+	 * stored as {@code Strings}.
 	 */
 	private HashMap<String, Component> _diffKinetics;
 	
@@ -33,24 +44,72 @@ public class Reaction
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public Reaction(Map<String, Double> stoichiometry, String kinetic)
+	/**
+	 * \brief Construct a reaction from an XML node;
+	 * 
+	 * @param xmlNode
+	 */
+	public Reaction(Node xmlNode)
 	{
-		/*
-		 * Lambda expressions are slow in Java, but okay if they are only used
-		 * once.
-		 */
-		stoichiometry.forEach((k,v)-> this._stoichiometry.put(k, v));
-		ExpressionBuilder e = 
-				new ExpressionBuilder(kinetic, new HashMap<String,Double>());
-		this._kinetic = e.component;
+		Element elem = (Element) xmlNode;
+		NodeList stochiometrics = XmlHandler.getAll(elem, "stochiometric");
+		for ( int i = 0; i < stochiometrics.getLength(); i++ )
+		{
+			Element temp = (Element) stochiometrics.item(i);
+			this._stoichiometry.put(
+					XmlHandler.obtainAttribute(temp, "component") , 
+					Double.valueOf(XmlHandler.obtainAttribute(
+													temp, "coefficient")));
+		}
+		this._kinetic = new ExpressionB(XmlHandler.attributeFromUniqueNode(
+				elem, "expression", "value"));
 	}
 	
-	public Reaction(String chemicalSpecies, double stoichiometry, String kinetic)
+	/**
+	 * \brief Construct a reaction from a dictionary of reactants and a
+	 * {@code Component} description of the kinetic rate. 
+	 * 
+	 * @param stoichiometry Dictionary of amounts that each reactant is
+	 * produced per reaction event (use negative values for reactants that are
+	 * consumed).
+	 * @param kinetic {@code Component} describing the rate at which this
+	 * reaction proceeds.
+	 */
+	public Reaction(Map<String, Double> stoichiometry, Component kinetic)
 	{
-		this._stoichiometry.put(chemicalSpecies, stoichiometry);
-		ExpressionBuilder e = 
-				new ExpressionBuilder(kinetic, new HashMap<String,Double>());
-		this._kinetic = e.component;
+		this._stoichiometry.putAll(stoichiometry);
+		this._kinetic = kinetic;
+	}
+	
+	/**
+	 * \brief Construct a reaction from a dictionary of reactants and a
+	 * {@code String} description of the kinetic rate.
+	 * 
+	 * @param stoichiometry Dictionary of amounts that each reactant is
+	 * produced per reaction event (use negative values for reactants that are
+	 * consumed).
+	 * @param kinetic {@code String} describing the rate at which this reaction
+	 * proceeds.
+	 */
+	public Reaction(Map<String, Double> stoichiometry, String kinetic)
+	{
+		this(stoichiometry, new ExpressionB(kinetic));
+	}
+	
+	/**
+	 * \brief Construct a reaction with a single reactant.
+	 * 
+	 * @param chemSpecies The name of the chemical species which is the sole
+	 * reactant in this reaction.
+	 * @param stoichiometry The amount of this reactant that is produced per
+	 * reaction event (use a negative value here for a reactant that is
+	 * consumed).
+	 * @param kinetic {@code String} describing the rate at which this reaction
+	 * proceeds.
+	 */
+	public Reaction(String chemSpecies, double stoichiometry, String kinetic)
+	{
+		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic));
 	}
 	
 	/*************************************************************************
@@ -58,10 +117,15 @@ public class Reaction
 	 ************************************************************************/
 	
 	/**
-	 * \brief Returns the reaction rate depending on concentrations.
+	 * \brief Calculate the reaction rate depending on concentrations.
 	 * 
-	 * @param concentrations
-	 * @return
+	 * <p>Note that this rate is in units of "reaction events" per unit time.
+	 * To find the rate of production of a particular reactant, use 
+	 * {@link #getFluxes(HashMap)}. </p>
+	 * 
+	 * @param concentrations Dictionary of concentrations of reactants.
+	 * @return The rate of this reaction.
+	 * @see #getFluxes(HashMap)
 	 */
 	public double getRate(HashMap<String, Double> concentrations)
 	{
@@ -69,19 +133,37 @@ public class Reaction
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Fetch the amount of this chemical species produced per reaction
+	 * event.
 	 * 
-	 * @param concentrations
-	 * @return
+	 * @param reactantName The name of the chemical species of interest.
+	 * @return The stoichiometry of this chemical species in this reaction.
 	 */
-	public HashMap<String, Double> getFluxes(
-									HashMap<String, Double> concentrations)
+	public double getStoichiometry(String reactantName)
 	{
-		double rate = this.getRate(concentrations);
-		HashMap<String, Double> out  = new HashMap<String,Double>();
-		for ( String name : this._stoichiometry.keySet() )
-			out.put(name, this._stoichiometry.get(name) * rate);
-		return out;
+		if ( this._stoichiometry.containsKey(reactantName) )
+			return this._stoichiometry.get(reactantName);
+		return 0.0;
+	}
+	
+	/**
+	 * \brief Calculate the production rate of a given chemical species.
+	 * 
+	 * <p>Note that the reaction rate is calculated each time this method is
+	 * called. If you are likely to want the production rates of many
+	 * reactants, call {@link #getRate(HashMap)} first, then multiply it with
+	 * {@link #getStoichiometry(String)} for each solute separately.</p>
+	 * 
+	 * @param concentrations Dictionary of concentrations of reactants.
+	 * @param reactantName The name of the chemical species of interest.
+	 * @return The rate of production (positive) or consumption (negative) of
+	 * this reactant chemical species.
+	 */
+	public double getProductionRate(HashMap<String, Double> concentrations, 
+														String reactantName)
+	{
+		return this.getStoichiometry(reactantName) * 
+											this.getRate(concentrations);
 	}
 	
 	/**
@@ -113,6 +195,41 @@ public class Reaction
 		 */
 		return this._diffKinetics.get(withRespectTo).getValue(concentrations);
 	}
-
-
+	
+	/*************************************************************************
+	 * XML-ABLE
+	 ************************************************************************/
+	
+	/**
+	 * XMLable interface implementation.
+	 * @param xmlNode
+	 * @return
+	 */
+	public static Object getNewInstance(Node xmlNode)
+	{
+		return new Reaction(xmlNode);
+	}
+	
+	/*************************************************************************
+	 * MISCELLANEOUS METHODS
+	 ************************************************************************/
+	
+	/**
+	 * \brief Get a {@code HashMap<String,Double>} initialised with a single
+	 * pair binding.
+	 * 
+	 * <p>This is necessary because
+	 * "{@code new HashMap<String,Double>().put(key, value)}" returns a
+	 * {@code Double} rather than a {@code HashMap}!</p>
+	 * 
+	 * @param key {@code String} name of the only key.
+	 * @param value {@code double} of the only value.
+	 * @return Initialised {@code HashMap<String,Double>} with this binding. 
+	 */
+	private static HashMap<String, Double> getHM(String key, double value)
+	{
+		HashMap<String,Double> out = new HashMap<String,Double>();
+		out.put(key, value);
+		return out;
+	}
 }

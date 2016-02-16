@@ -226,11 +226,10 @@ public final class Vector
 	 * @see #copy(int[] vector)
 	 * @see #copyTo(double[] destination, double[] source)
 	 */
-	public static int[] copyTo(int[] destination, int[] source)
+	public static void copyTo(int[] destination, int[] source)
 	{
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
-		return destination;
 	}
 	
 	/**
@@ -245,7 +244,9 @@ public final class Vector
 	 */
 	public static int[] copy(int[] vector)
 	{
-		return copyTo(new int[vector.length], vector);
+		int[] out = new int[vector.length];
+		copyTo(out, vector);
+		return out;
 	}
 	
 	/**
@@ -258,11 +259,10 @@ public final class Vector
 	 * @see #copy(double[] vector)
 	 * @see #copyTo(int[] destination, int[] source)
 	 */
-	public static double[] copyTo(double[] destination, double[] source)
+	public static void copyTo(double[] destination, double[] source)
 	{
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
-		return destination;
 	}
 	
 	/**
@@ -277,7 +277,40 @@ public final class Vector
 	 */
 	public static double[] copy(double[] vector)
 	{
-		return copyTo(new double[vector.length], vector);
+		double[] out = new double[vector.length];
+		copyTo(out, vector);
+		return out;
+	}
+	
+	/**
+	 * \brief Copy the <b>vector</b> given to a new boolean[] array.
+	 * 
+	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
+	 * 
+	 * @param vector One-dimensional array of booleans (preserved).
+	 * @return	boolean[] that is a copy of <b>vector</b>.
+	 * @see #copyTo(boolean[] destination, boolean[] source)
+	 */
+	public static boolean[] copy(boolean[] vector)
+	{
+		boolean[] out = new boolean[vector.length];
+		copyTo(out, vector);
+		return out;
+	}
+	
+	/**
+	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
+	 * 
+	 * @param destination boolean[] to be overwritten with the values of
+	 * <b>source</b>.
+	 * @param source boolean[] to be copied from (preserved).
+	 * @return <b>destination</b>
+	 * @see #copy(boolean[] vector)
+	 */
+	public static void copyTo(boolean[] destination, boolean[] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i];
 	}
 	
 	/**
@@ -342,6 +375,95 @@ public final class Vector
 	public static double[] reset(double[] vector)
 	{
 		return setAll(vector, 0.0);
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param vector One-dimensional array of {@code int}s (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>vector</b>.
+	 * @see #restrictMaximum(int[], int)
+	 */
+	public static void restrictMinimum(int[] vector, int newMinimum)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			if ( vector[i] < newMinimum )
+				vector[i] = newMinimum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value less
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param vector One-dimensional array of {@code int}s (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>vector</b>.
+	 * @see #restrictMinimum(int[], int)
+	 */
+	public static void restrictMaximum(int[] vector, int newMaximum)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			if ( vector[i] > newMaximum )
+				vector[i] = newMaximum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value greater
+	 * than or equal to zero.
+	 * 
+	 * @param vector One-dimensional array of {@code int}s (overwritten).
+	 * @see #restrictMinimum(int[], int)
+	 * @see #restrictMaximum(int[], int)
+	 */
+	public static void makeNonnegative(int[] vector)
+	{
+		restrictMinimum(vector, 0);
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param vector One-dimensional array of {@code double}s (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>vector</b>.
+	 * @see #restrictMaximum(double[], double)
+	 * @see #restrictMinimum(int[], int)
+	 */
+	public static void restrictMinimum(double[] vector, double newMinimum)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			if ( vector[i] < newMinimum )
+				vector[i] = newMinimum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value less
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param vector One-dimensional array of {@code double}s (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>vector</b>.
+	 * @see #restrictMinimum(double[], double)
+	 * @see #restrictMaximum(int[], int)
+	 */
+	public static void restrictMaximum(double[] vector, double newMaximum)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			if ( vector[i] > newMaximum )
+				vector[i] = newMaximum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value greater
+	 * than or equal to zero.
+	 * 
+	 * @param vector One-dimensional array of {@code double}s (overwritten).
+	 * @see #restrictMinimum(double[], double)
+	 * @see #restrictMaximum(double[], double)
+	 * @see #makeNonnegative(int[])
+	 */
+	public static void makeNonnegative(double[] vector)
+	{
+		restrictMinimum(vector, 0.0);
 	}
 	
 	/*************************************************************************

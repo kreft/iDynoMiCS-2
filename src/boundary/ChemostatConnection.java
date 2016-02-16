@@ -56,4 +56,17 @@ public class ChemostatConnection extends BoundaryConnected
 			return null;
 		return this._concentrations;
 	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param soluteName
+	 * @return
+	 */
+	public double getConcentration(String soluteName)
+	{
+		if ( this._concentrations.containsKey(soluteName) )
+			return this._concentrations.get(soluteName);
+		return 0.0;
+	}
 }

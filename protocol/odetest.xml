@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation log="DEBUG" outputfolder="../results" name="mySim">
+		<general>
+			<param name="timeStepSize" value="1.0"/>
+			<param name="endOfSimulation" value="20.0"/>
+		</general>
+		<compartment name="batch_heun">
+			<shape class="Dimensionless" volume="1.0" />
+			<solutes>
+				<solute name="solute1" concentration="2.0" />
+				<solute name="solute2" concentration="2.0" />
+			</solutes>
+			<reactions>
+				<reaction name="testReact">
+					<expression value="solute1 * 0.1" />
+					<stochiometric component="solute1" coefficient="-1.0" />
+					<stochiometric component="solute2" coefficient="0.5" />
+				</reaction>
+			</reactions>
+			<processManagers>
+				<process name="solveChemostat" class="SolveChemostat" priority="0"
+					firstStep="0.0" package="processManager.">
+					<aspect name="soluteNames" type="String[]" value="solute1,solute2" />
+					<aspect name="tolerance" type="double" value="1.0e-3" />
+					<aspect name="hMax" type="double" value="1.0e-3" />
+					<aspect name="solver" type="String" value="heun" />
+				</process>
+			</processManagers>
+		</compartment>
+		<compartment name="batch_rosenbrock">
+			<shape class="Dimensionless" volume="1.0" />
+			<solutes>
+				<solute name="solute1" concentration="2.0" />
+				<solute name="solute2" concentration="2.0" />
+			</solutes>
+			<reactions>
+				<reaction name="testReact">
+					<expression value="solute1 * 0.1" />
+					<stochiometric component="solute1" coefficient="-1.0" />
+					<stochiometric component="solute2" coefficient="0.5" />
+				</reaction>
+			</reactions>
+			<processManagers>
+				<process name="solveChemostat" class="SolveChemostat" priority="0"
+					firstStep="0.0" package="processManager.">
+					<aspect name="soluteNames" type="String[]" value="solute1,solute2" />
+					<aspect name="tolerance" type="double" value="1.0e-3" />
+					<aspect name="hMax" type="double" value="1.0e-3" />
+					<aspect name="solver" type="String" value="rosenbrock" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

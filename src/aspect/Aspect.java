@@ -27,8 +27,8 @@ public class Aspect<A>
 	 * Testing/experimenting direct access fields (to prevent excessive casting).
 	 * Worth skimming of some milliseconds here ;)
 	 */
-	final Calculated calc;
-	final Event event;
+	protected Calculated calc;
+	protected Event event;
 	
 	/**
 	 * Sets the aspect and declares type
@@ -42,19 +42,15 @@ public class Aspect<A>
 		{
 			  this.type = Aspect.aspectClass.CALCULATED;
 			  this.calc = (Calculated) aspect;
-			  this.event = null;
 		}
 		else if(aspect instanceof Event)
 		{
 			  this.type = Aspect.aspectClass.EVENT;
 			  this.event = (Event) aspect;
-			  this.calc = null;
 		}
 		else
 		{
 			  this.type = Aspect.aspectClass.PRIMARY;
-			  this.event = null;
-			  this.calc = null;
 		}
     }
 } 

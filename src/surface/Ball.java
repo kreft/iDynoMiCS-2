@@ -2,13 +2,14 @@ package surface;
 
 import utility.Copier;
 import agent.Body;
+import generalInterfaces.HasBoundingBox;
 
 /**
  * 
  * @author baco
  *
  */
-public class Ball extends Surface{
+public class Ball extends Surface implements HasBoundingBox {
 	
 	/**
 	 * The point of this sphere
@@ -18,7 +19,7 @@ public class Ball extends Surface{
     /**
      * the radius of this spehere
      */
-    private double _radius;
+    public double _radius;
 
     public Ball(Point point, double radius)
     {
@@ -50,10 +51,14 @@ public class Ball extends Surface{
 		this._radius = radius;
 	}
 	
-	//TODO
+	public BoundingBox boundingBox(double margin)
+	{
+		return new BoundingBox(_point.getPosition(),_radius, margin);
+	}
+	
 	public BoundingBox boundingBox()
 	{
-		return null;
+		return new BoundingBox(_point.getPosition(),_radius);
 	}
 
 }

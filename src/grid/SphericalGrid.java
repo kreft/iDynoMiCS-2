@@ -1,7 +1,7 @@
 package grid;
 
-import grid.ResolutionCalculator.ResCalc;
-import grid.ResolutionCalculator.ResCalcFactory;
+import grid.resolution.ResCalcFactory;
+import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
@@ -175,25 +175,25 @@ public class SphericalGrid extends PolarGrid
 		/*
 		 * check if the coordinate is valid for 2nd dimension ({@code phi})
 		 */
-		boolean is_inside_r = coords[0] >= 0 && coords[0] < rC.getNVoxel();
-		if (is_inside_r){
+		boolean is_inside_r = (coords[0] >= 0) && (coords[0] < rC.getNVoxel());
+		if ( is_inside_r )
+		{
 			rC = getResolutionCalculator(coords, 1);
 			outNVoxel[1] =  rC.getNVoxel();
 		}
-		else outNVoxel[1] = 0;
-		
+		else
+			outNVoxel[1] = 0;
 		/*
 		* check if the coordinate is valid for 3rd dimension ({@code theta})
 		*/
-		boolean is_inside_phi
-							= coords[1] >= 0 && coords[1] < rC.getNVoxel();
-		int nk = 0;
-		if (is_inside_r && is_inside_phi){
+		boolean is_inside_phi = (coords[1] >= 0)&&(coords[1] < rC.getNVoxel());
+		if ( is_inside_r && is_inside_phi )
+		{
 			rC = getResolutionCalculator(coords, 2);
 			outNVoxel[2] = rC.getNVoxel();
 		}
-		else outNVoxel[2] = 0;
-		
+		else
+			outNVoxel[2] = 0;
 		return outNVoxel;
 	}
 	

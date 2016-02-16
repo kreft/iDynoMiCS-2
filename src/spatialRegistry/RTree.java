@@ -8,6 +8,7 @@ import java.util.ListIterator;
 import java.util.Set;
 
 import shape.Shape;
+import surface.BoundingBox;
 import utility.ExtraMath;
 
 
@@ -220,7 +221,23 @@ public class RTree<T> extends SpatialRegistry<T>
 		}
 		return combinedlist;
 	}
+	
+	/**
+	 * Cyclic search using bounding box as query
+	 */
+	public List<T> cyclicsearch(BoundingBox boundingBox)
+	{
+		return cyclicsearch(boundingBox.lowerCorner(), boundingBox.ribLengths());
+	}
 
+	
+	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes)
+	{
+		List<T> entryList = new LinkedList<T>();
+		for(BoundingBox b : boundingBoxes)
+			entryList.addAll(cyclicsearch(b));
+		return entryList;
+	}
   
   /**
    * helper method that counts the number of fields with value 'true' in an array of booleans.
@@ -488,6 +505,13 @@ public class RTree<T> extends SpatialRegistry<T>
       adjustTree(l, null);
     }
   }
+  
+  	/**
+  	 * insert entry with bounding box object
+  	 */
+	public void insert(BoundingBox boundingBox, T entry) {
+		insert(boundingBox.lowerCorner(), boundingBox.ribLengths(), entry);
+	}
 
   /**
    * Convenience method for inserting a point
@@ -955,4 +979,5 @@ public class RTree<T> extends SpatialRegistry<T>
     }
     pw.println( "</div>" );
   }
+
 }

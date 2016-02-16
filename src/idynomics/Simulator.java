@@ -50,7 +50,7 @@ public class Simulator implements CanPrelaunchCheck
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.loadUniqueAtribute(child, "name", "string");
+			str = XmlHandler.attributeFromUniqueNode(child, "name", "string");
 			str = Helper.obtainInput(str, "compartment name");
 			Compartment aCompartment = this.addCompartment(str);
 			aCompartment.init(child);
@@ -113,7 +113,7 @@ public class Simulator implements CanPrelaunchCheck
 	{
 		this._compartments.forEach((s,c) -> 
 		{
-			System.out.println("COMPARTMENT: "+s);
+			Log.out(tier.QUIET,"COMPARTMENT: " + s);
 			c.printAllSoluteGrids();
 		});
 	}

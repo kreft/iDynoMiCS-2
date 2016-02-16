@@ -1,9 +1,12 @@
 package idynomics;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
 import boundary.Boundary;
+import dataIO.Log;
+import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -33,6 +36,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	protected HashMap<String, SpatialGrid> _solutes = 
 										new HashMap<String, SpatialGrid>();
+	/**
+	 * Dictionary of average solute concentrations (useful for chemostat).
+	 */
+	protected HashMap<String, Double> _averageConcns;
 	/**
 	 * Dictionary of extracellular reactions.
 	 */
@@ -102,7 +109,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	{
 		if ( this._hasInitialised )
 		{
-			throw new Error("Cannot add new solutes after the environment container has initialised!");
+			throw new Error("Cannot add new solutes after the environment"+
+												" container has initialised!");
 		}
 		/*
 		 * TODO safety: check if solute already in hashmap
@@ -112,6 +120,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 											this._defaultResolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
+		Log.out(tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
 	}
 	
 	/*************************************************************************
@@ -134,13 +143,56 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * FIXME: this is really a property of the compartment but we otherwise
-	 * cannot access this information from the process manager, consider refact.
+	 * \brief Get a list of this {@code Compartment}'s extracellular reactions.
+	 * 
 	 * @return
 	 */
-	public double[] getEdgeLengths()
+	public Collection<Reaction> getReactions()
 	{
-		return _shape.getDimensionLengths();
+		return this._reactions.values();
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param reaction
+	 * @param name
+	 */
+	public void addReaction(Reaction reaction, String name)
+	{
+		this._reactions.put(name, reaction);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param soluteName
+	 * @return
+	 */
+	public double getAverageConcentration(String soluteName)
+	{
+		return this._solutes.get(soluteName).getAverage(ArrayType.CONCN);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param soluteName
+	 * @param newConcn
+	 */
+	public void setAllConcentration(String soluteName, double newConcn)
+	{
+		this._solutes.get(soluteName).setAllTo(ArrayType.CONCN, newConcn);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public Collection<Boundary> getOtherBoundaries()
+	{
+		return this._shape.getOtherBoundaries();
 	}
 	
 	/*************************************************************************
@@ -149,8 +201,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	
 	public void printSolute(String soluteName)
 	{
-		System.out.println(soluteName+":");
-		System.out.println(this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
+		Log.out(tier.QUIET, soluteName+":");
+		Log.out(tier.QUIET, this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
 	}
 	
 	public void printAllSolutes()

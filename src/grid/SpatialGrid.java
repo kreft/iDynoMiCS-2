@@ -1,10 +1,9 @@
 package grid;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.GridBoundary.GridMethod;
-import grid.ResolutionCalculator.ResCalc;
+import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -398,15 +397,18 @@ public abstract class SpatialGrid
 	 * @param coords Discrete coordinates of a voxel on this grid.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
-	public int[] updateCurrentNVoxel(){
+	public int[] updateCurrentNVoxel()
+	{
 		return getNVoxel(this._currentCoord, this._currentNVoxel);
 	}
 	
-	public int[] getCurrentNVoxel(){
+	public int[] getCurrentNVoxel()
+	{
 		return this._currentNVoxel;
 	}
 	
-	public int[] getNVoxel(int[] coords){
+	public int[] getNVoxel(int[] coords)
+	{
 		return getNVoxel(coords, null);
 	}
 	
@@ -686,6 +688,17 @@ public abstract class SpatialGrid
 	public double getMin(ArrayType type)
 	{
 		return Array.min(this._array.get(type));
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public double getAverage(ArrayType type)
+	{
+		return Array.meanArith(this._array.get(type));
 	}
 	
 	/*************************************************************************
