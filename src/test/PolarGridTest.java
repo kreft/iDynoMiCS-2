@@ -54,7 +54,7 @@ public class PolarGridTest
 		
 		/* standard constructors */
 		
-		double[] totalLength = new double[]{3, 2 * Math.PI , 1};
+		double[] totalLength = new double[]{10, 2 * Math.PI , 1};
 		double resolution = 1;
 //		
 //	    CartesianGrid grid = new CartesianGrid(totalLength, resolution);		
@@ -128,10 +128,10 @@ public class PolarGridTest
 //		testMemoryAndIteratorSpeed(grid);
 //		testIterator(grid);
 //		testNbhIterator(grid);
-		SpatialGridPlot3D plot = createGraphics(grid,null,ArrayType.CONCN, 
-													true, Vector.vector(3, 0.5));
+//		SpatialGridPlot3D plot = createGraphics(grid,null,ArrayType.CONCN, 
+//													true, Vector.vector(3, 0.5));
 //		plotVoxelVolumes(grid);
-//		twoDimRisePDETest();
+		twoDimRisePDETest();
 
 		keyboard.close();
 	}
@@ -311,9 +311,10 @@ public class PolarGridTest
 		SpatialGrid riseGrid = (SpatialGrid) aCompartment.getSolute("rise");
 		SpatialGridPlot3D plot = createGraphics(riseGrid, Vector.zerosDbl(3), 
 												ArrayType.CONCN, false, null);
+		plot.setTransparency(VoxelTarget.ALL, riseGrid, ArrayType.CONCN, 1);
 		plot.setPolygonMode(VoxelTarget.ALL, riseGrid, ArrayType.CONCN, true);
-		plot.setColor(Branch.Voxels, VoxelTarget.ALL, riseGrid, ArrayType.CONCN, new Color3f(1f,0f,0f));
-//		plot.plotCurrentConcentrations(riseGrid);
+		plot.setColor(Branch.Voxels, VoxelTarget.ALL, riseGrid, ArrayType.CONCN, 
+														new Color3f(0f,0f,1f));
 		long t;
 		System.out.println("press enter to start PDE");
 		keyboard.nextLine();

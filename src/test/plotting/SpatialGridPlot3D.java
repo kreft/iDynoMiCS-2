@@ -1,14 +1,10 @@
 package test.plotting;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
@@ -20,36 +16,28 @@ import javax.media.j3d.GeometryArray;
 import javax.media.j3d.Material;
 import javax.media.j3d.PolygonAttributes;
 import javax.media.j3d.QuadArray;
-import javax.media.j3d.RenderingError;
-import javax.media.j3d.RenderingErrorListener;
-import javax.media.j3d.ShaderError;
-import javax.media.j3d.ShaderErrorListener;
 import javax.media.j3d.Shape3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
-import javax.media.j3d.VirtualUniverse;
+import javax.media.j3d.View;
 import javax.swing.JFrame;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
-import com.sun.j3d.internal.HashCodeUtil;
 import com.sun.j3d.utils.behaviors.vp.OrbitBehavior;
 import com.sun.j3d.utils.geometry.GeometryInfo;
 import com.sun.j3d.utils.geometry.NormalGenerator;
 import com.sun.j3d.utils.geometry.Sphere;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 
-import boundary.Boundary;
-import boundary.BoundaryCyclic;
 import grid.CylindricalGrid;
+import grid.PolarGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.SphericalGrid;
-import grid.GridBoundary.GridMethod;
-import grid.PolarGrid;
 import linearAlgebra.Vector;
 import test.PolarGridTest;
 
@@ -90,7 +78,10 @@ public class SpatialGridPlot3D{
 		B.setReverseZoom(true);
 		B.setSchedulingBounds(bounds);
 		universe.getViewingPlatform().setViewPlatformBehavior(B);
-		universe.getViewer().getView().setBackClipDistance(1000);
+		View view = universe.getViewer().getView();
+		view.setBackClipDistance(1000);
+		/* wow, took a time to figure out that this not default.. */
+		view.setTransparencySortingPolicy(View.TRANSPARENCY_SORT_GEOMETRY);
 		
 		grids = new HashMap<SpatialGrid,HashMap<ArrayType,GridGraph>>();
 		
@@ -141,22 +132,29 @@ public class SpatialGridPlot3D{
 		long t, min_pause = 500;
 		GridGraph graph = getGraph(grid, ArrayType.CONCN);
 		VoxelProperties cur_prop = new VoxelProperties();
-		cur_prop.target = POLYMODE | COLOR;
+		cur_prop.target = TRANSPARENCY | COLOR;
 		cur_prop.color = RED;
-		cur_prop.fillOrVec = true;
+		cur_prop.alpha = 0;
 		VoxelProperties nbh_prop = new VoxelProperties();
-		nbh_prop.target = POLYMODE | COLOR;
+		nbh_prop.target = TRANSPARENCY | COLOR;
 		nbh_prop.color = BLUE;
-		nbh_prop.fillOrVec = true;
+		nbh_prop.alpha = 0;
 		VoxelProperties reset_prop = new VoxelProperties();
-		reset_prop.target = POLYMODE | COLOR;
+		reset_prop.alpha = 1;
+		reset_prop.target = TRANSPARENCY | COLOR;
+		setPolygonMode(VoxelTarget.ALL, grid, type, true);
+		setTransparency(VoxelTarget.ALL, grid, type, 1);
+		View view = universe.getCanvas().getView();
 		int[] cur;
         for ( cur = grid.resetIterator(); grid.isIteratorValid(); 
         		cur = grid.iteratorNext())
         {
+        	
         	t=System.currentTimeMillis();
         	setPerVoxelProperty(cur_prop, graph, cur);
         	setCurrentNbhsProperty(nbh_prop, grid, graph);
+        	/* force displaying after setting up all voxels */
+        	view.startView(); 
         	auto: if (auto_step)	
         		sleepUnsave(t, min_pause);
         	else {
@@ -168,34 +166,37 @@ public class SpatialGridPlot3D{
         		try {
         			step_per_sec = Double.valueOf(line);
         		}catch (NumberFormatException e){break auto;}
+        		System.out.println("entering automatic step mode with " 
+        								+step_per_sec + " steps per second");
         		min_pause = (long) (1000L / step_per_sec);
         		auto_step = true;
         	}
+        	/* do not display resetting to make visualization smoother for high
+        	 * steps per second */
+        	view.stopView();
         	setCurrentNbhsProperty(reset_prop, grid, graph);
         	setPerVoxelProperty(reset_prop, graph, cur);
         }
     }
 	
+	/** polygon mode should be set to fill before calling this.
+	 * @param grid
+	 */
 	public void plotCurrentConcentrations(SpatialGrid grid){
 		int [] current;
 		GridGraph graph = getGraph(grid, ArrayType.CONCN);
 		VoxelProperties prop = new VoxelProperties();
-//		prop.target = POLYMODE | TRANSPARENCY | COLOR;
+		View view = universe.getCanvas().getView();
 		prop.target = TRANSPARENCY;
-		universe.getCanvas().stopRenderer();
+		view.stopView();
         for ( current=grid.resetIterator(); grid.isIteratorValid();
         		current=grid.iteratorNext())
         {
         	float alpha = (float)(1 - grid.getValueAtCurrent(ArrayType.CONCN));
-        	alpha = Math.min(Math.max(0, alpha), 1);
-//        	System.out.println(grid.getValueAtCurrent(type);
-//        	prop.fillOrVec = alpha < 1;
-        	prop.alpha = alpha;
-//        	prop.color = alpha < 1 ? BLUE : GRAY;
+        	prop.alpha = Math.min(Math.max(0, alpha), 1);
         	setPerVoxelProperty(prop, graph, current);
         }
-        universe.getCanvas().swap();
-        universe.getCanvas().startRenderer();
+        view.startView();
 	}
 	
 	
@@ -286,7 +287,13 @@ public class SpatialGridPlot3D{
 		boolean fillOrVec = false; 
 		Color3f color = GRAY; 
 		float alpha = 1;  
-		
+//		public VoxelProperties(){};
+//		public VoxelProperties(VoxelProperties other) {
+//			target = other.target;
+//			fillOrVec = other.fillOrVec;
+//			color = new Color3f(other.color);
+//			alpha = other.alpha;
+//		}
 //		@Override
 //		public boolean equals(Object obj) {
 //			boolean out = false;
@@ -315,25 +322,16 @@ public class SpatialGridPlot3D{
 	
 	private void setPerVoxelProperty(VoxelProperties prop, GridGraph graph, int[] coord){
 		int idx = graph.getIdx(coord);			
-		
-//		if (graph.props[idx] != null && graph.props[idx].equals(prop)){
-//				return;
-//		}
-		
+
 		Shape3D shape = (Shape3D) graph.getVoxelsBranch().getChild(idx);
-		if ((prop.target & POLYMODE) == POLYMODE){
-			PolygonAttributes pa = shape.getAppearance().getPolygonAttributes();
-			pa.setPolygonMode((boolean) prop.fillOrVec ? 
+		Appearance ap = shape.getAppearance();
+		if ((prop.target & POLYMODE) == POLYMODE)
+			ap.getPolygonAttributes().setPolygonMode(prop.fillOrVec ? 
 					PolygonAttributes.POLYGON_FILL : PolygonAttributes.POLYGON_LINE);
-		}
-		if ((prop.target & COLOR) == COLOR){
-			Material m = shape.getAppearance().getMaterial();
-			m.setAmbientColor((Color3f) prop.color);
-		}
-		if ((prop.target & TRANSPARENCY) == TRANSPARENCY){
-			TransparencyAttributes ta = shape.getAppearance().getTransparencyAttributes();		
-			ta.setTransparency((float) prop.alpha);
-		}
+		if ((prop.target & COLOR) == COLOR)
+			ap.getMaterial().setAmbientColor(prop.color);
+		if ((prop.target & TRANSPARENCY) == TRANSPARENCY)
+			ap.getTransparencyAttributes().setTransparency(prop.alpha);
 	}
 
 	private void setCurrentNbhsProperty(VoxelProperties prop, SpatialGrid grid, GridGraph graph){
@@ -342,13 +340,8 @@ public class SpatialGridPlot3D{
 				nbh=grid.nbhIteratorNext()){
 			if (grid.nbhIteratorIsOutside() == null){
 				setPerVoxelProperty(prop, graph, nbh);
-			}else {
-				GridMethod m = grid.nbhIteratorIsOutside();
-				if (m instanceof BoundaryCyclic){
-					BoundaryCyclic c = (BoundaryCyclic) m;
-					//TODO: what to do here?
-				}
-			}
+			}else ;
+			//TODO: what to do here?
 		}
 	}
 	
@@ -486,14 +479,15 @@ public class SpatialGridPlot3D{
 		GeometryArray ga = gi.getGeometryArray();
 
 		Shape3D shape = new Shape3D(ga, makeMutableVecAppearance());
-//		shape.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+		shape.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+		shape.setCapabilityIsFrequent(Shape3D.ALLOW_APPEARANCE_WRITE);
 		return shape;
 	}
 	
-	private static void sleepUnsave(long start, long millis){
+	private static void sleepUnsave(long start, long min_millis){
 		try 
     	{
-    		Thread.sleep(Math.max(0, 1000-System.currentTimeMillis()+start));
+    		Thread.sleep(Math.max(0, min_millis-System.currentTimeMillis()+start));
     	} catch (InterruptedException e) {
     		// TODO Auto-generated catch block
     		e.printStackTrace();
@@ -507,15 +501,13 @@ public class SpatialGridPlot3D{
 	}
 	
 	private class GridGraph{	
-		
-		VoxelProperties[] props;
 		BranchGroup branches;
 		double[] loc;
 		/* to map 3D-coordinates to indices */
-		private HashMap<Vector3f,Integer> coord2idx; 
+		private HashMap<String,Integer> coord2idx; 
 		
 		GridGraph(SpatialGrid grid, ArrayType type, double[] global_pos) {
-			coord2idx = new HashMap<Vector3f,Integer>();
+			coord2idx = new HashMap<String,Integer>();
 			
 			/* create transform for world position */
 			if (global_pos == null) 
@@ -535,9 +527,9 @@ public class SpatialGridPlot3D{
 			for ( int idx = 0, cur[] = grid.resetIterator(); 
 					grid.isIteratorValid(); cur = grid.iteratorNext(), idx++){
 				/* to have nice hashCode() implementation */
-				Vector3f vec = new Vector3f();
-				vec.x = cur[0]; vec.y = cur[1]; vec.z = cur[2];
-				coord2idx.put(vec, idx);
+//				Vector3f vec = new Vector3f();
+//				vec.x = cur[0]; vec.y = cur[1]; vec.z = cur[2];
+				coord2idx.put(Arrays.toString(cur), idx);
 				voxels.addChild(createGridCellShape(grid, cur));
 			}
 			
@@ -575,9 +567,9 @@ public class SpatialGridPlot3D{
 		}
 		
 		int getIdx(int[] coord){ 
-			Vector3f vec = new Vector3f();
-			vec.x = coord[0]; vec.y = coord[1]; vec.z = coord[2];
-			return coord2idx.get(vec);
+//			Vector3f vec = new Vector3f();
+//			vec.x = coord[0]; vec.y = coord[1]; vec.z = coord[2];
+			return coord2idx.get(Arrays.toString(coord));
 		}
 	}
 }
