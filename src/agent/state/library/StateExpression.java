@@ -14,6 +14,7 @@ import expression.ExpressionB;
 public class StateExpression extends Calculated {
 	
 	private ExpressionB expression;
+	private HashMap<String, Double> variables = new HashMap<String, Double>();
 
 	@Override
 	public void setInput(String input)
@@ -26,7 +27,7 @@ public class StateExpression extends Calculated {
 	 */
 	public Object get(AspectInterface aspectOwner)
 	{
-		HashMap<String, Double> variables = new HashMap<String, Double>();
+		variables.clear();
 		for(String var : expression._variables)
 			variables.put(var, aspectOwner.getDouble(var));
 		return expression.getValue(variables);

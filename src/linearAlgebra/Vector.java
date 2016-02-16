@@ -226,11 +226,10 @@ public final class Vector
 	 * @see #copy(int[] vector)
 	 * @see #copyTo(double[] destination, double[] source)
 	 */
-	public static int[] copyTo(int[] destination, int[] source)
+	public static void copyTo(int[] destination, int[] source)
 	{
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
-		return destination;
 	}
 	
 	/**
@@ -245,7 +244,9 @@ public final class Vector
 	 */
 	public static int[] copy(int[] vector)
 	{
-		return copyTo(new int[vector.length], vector);
+		int[] out = new int[vector.length];
+		copyTo(out, vector);
+		return out;
 	}
 	
 	/**
@@ -258,11 +259,10 @@ public final class Vector
 	 * @see #copy(double[] vector)
 	 * @see #copyTo(int[] destination, int[] source)
 	 */
-	public static double[] copyTo(double[] destination, double[] source)
+	public static void copyTo(double[] destination, double[] source)
 	{
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
-		return destination;
 	}
 	
 	/**
@@ -277,7 +277,9 @@ public final class Vector
 	 */
 	public static double[] copy(double[] vector)
 	{
-		return copyTo(new double[vector.length], vector);
+		double[] out = new double[vector.length];
+		copyTo(out, vector);
+		return out;
 	}
 	
 	/**
@@ -291,7 +293,9 @@ public final class Vector
 	 */
 	public static boolean[] copy(boolean[] vector)
 	{
-		return copyTo(new boolean[vector.length], vector);
+		boolean[] out = new boolean[vector.length];
+		copyTo(out, vector);
+		return out;
 	}
 	
 	/**
@@ -303,11 +307,10 @@ public final class Vector
 	 * @return <b>destination</b>
 	 * @see #copy(boolean[] vector)
 	 */
-	public static boolean[] copyTo(boolean[] destination, boolean[] source)
+	public static void copyTo(boolean[] destination, boolean[] source)
 	{
 		for ( int i = 0; i < destination.length; i++ )
 			destination[i] = source[i];
-		return destination;
 	}
 	
 	/**

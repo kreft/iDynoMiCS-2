@@ -25,7 +25,8 @@ public abstract interface AspectInterface {
 	 * @param aspectReg
 	 * @param xmlNode
 	 */
-	public static void loadAspects(AspectInterface aspectInterface, Node xmlNode)
+	public static void loadAspects(AspectInterface aspectInterface, 
+			Node xmlNode)
 	{
 		Element e = (Element) xmlNode;
 		@SuppressWarnings("unchecked")
@@ -104,7 +105,8 @@ public abstract interface AspectInterface {
 	 */
 	default boolean checkAspect(String aspect)
 	{
-		return reg().isGlobalAspect(aspect) && reg().getValue(this, aspect) != null;
+		return reg().isGlobalAspect(aspect) && reg().getValue(this, aspect) 
+				!= null;
 	}
 	
 	/**
@@ -115,7 +117,8 @@ public abstract interface AspectInterface {
 	 */
 	public default Double getDouble(String aspect)
 	{
-		return (checkAspect(aspect) ? (double) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (double) reg().getValue(this, aspect) 
+				: null);
 	}
 	
 	/**
@@ -126,7 +129,8 @@ public abstract interface AspectInterface {
 	 */
 	public default String getString(String aspect)
 	{
-		return (checkAspect(aspect) ? (String) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (String) reg().getValue(this, aspect) 
+				: null);
 	}
 	
 	/**
@@ -137,18 +141,22 @@ public abstract interface AspectInterface {
 	 */
 	public default Integer getInt(String aspect)
 	{
-		return (checkAspect(aspect) ? (int) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (int) reg().getValue(this, aspect) 
+				: null);
 	}
 	
 	/**
 	 * check, cast and return aspect, return null if the aspect does not exist
-	 * or is equal to null
+	 * or is equal to null.
+	 * NOTE: floats are not used within iDynoMiCS, yet available to combine with
+	 * external packages / models that require floats.
 	 * @param aspect
 	 * @return
 	 */
 	public default Float getFloat(String aspect)
 	{
-		return (checkAspect(aspect) ? (float) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (float) reg().getValue(this, aspect) 
+				: null);
 	}
 	
 	/**
@@ -159,7 +167,8 @@ public abstract interface AspectInterface {
 	 */
 	public default Boolean getBoolean(String aspect)
 	{
-		return (checkAspect(aspect) ? (boolean) reg().getValue(this, aspect): null);
+		return (checkAspect(aspect) ? (boolean) reg().getValue(this, aspect)
+				: null);
 	}
 	
 	/**
@@ -170,7 +179,8 @@ public abstract interface AspectInterface {
 	 */
 	public default Event getEvent(String aspect)
 	{
-		return (checkAspect(aspect) ? (Event) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (Event) reg().getValue(this, aspect) 
+				: null);
 	}
 	
 	/**
@@ -181,7 +191,8 @@ public abstract interface AspectInterface {
 	 */
 	public default Calculated getCalculated(String aspect)
 	{
-		return (checkAspect(aspect) ? (Calculated) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (Calculated) reg().getValue(this, aspect) 
+				: null);
 	}
 	
 	/**
@@ -192,7 +203,8 @@ public abstract interface AspectInterface {
 	 */
 	public default String[] getStringA(String aspect)
 	{
-		return (checkAspect(aspect) ? (String[]) reg().getValue(this, aspect) : null);
+		return (checkAspect(aspect) ? (String[]) reg().getValue(this, aspect) 
+				: null);
 	}
 
 }

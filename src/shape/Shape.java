@@ -95,8 +95,8 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 				catch (IllegalArgumentException e)
 				{
 					Log.out(tier.CRITICAL, "Warning: input Dimension not "
-							+ "recognised by shape " + this.getClass().getName() +
-							", use: " + Helper.enumToString(DimName.class));
+							+ "recognised by shape " + this.getClass().getName()
+							+ ", use: " + Helper.enumToString(DimName.class));
 				}
 			}
 			this.getDimension(dimName).init(dimensionElement);
