@@ -200,6 +200,9 @@ public class Compartment implements CanPrelaunchCheck
 	{
 		aProcessManager.showBoundaries(this._shape.getOtherBoundaries());
 		this._processes.add(aProcessManager);
+		// Stefan [13Feb2016]: added this to have sorted processes in first step
+		// TODO: have I initialized something wrong or do we need it?
+		Collections.sort(_processes, _procComp);
 	}
 	
 	/**

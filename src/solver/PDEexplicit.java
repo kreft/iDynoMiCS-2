@@ -66,7 +66,7 @@ public class PDEexplicit extends PDEsolver
 		/*
 		 * 
 		 */
-		//System.out.println("Using ministep size "+dt); //bughunt
+//		System.out.println("Using ministep size "+dt); //bughunt
 		for ( int iter = 0; iter < nIter; iter++ )
 		{
 			//System.out.println("Ministep "+iter+": "+(iter+1)*dt); //bughunt

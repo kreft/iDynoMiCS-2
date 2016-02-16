@@ -113,4 +113,10 @@ public class DummyGrid extends SpatialGrid
 	{
 		return 0.0;
 	}
+
+	@Override
+	public double getTotalLength(int dim) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }

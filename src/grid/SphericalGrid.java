@@ -42,14 +42,15 @@ public class SphericalGrid extends PolarGrid
 	 * 		resolutions, some dependencies between the number of voxels
 	 * 		were implemented:
 	 *  * The number of voxels along the polar dimension (η_φ) 
-	 *  	is dependent on the radius r: η_φ(r)=ires[2]*s(r) with s(r)=2*r+1;
+	 *  	is dependent on the radius r: η_φ(r)= N₀ * s(r) with s(r)=2*r+1;
 	 * 	* The number of voxels along the azimuthal dimension (η_θ) 
 	 * 		is dependent on the radius r and the polar angle φ.
-	 *    This dependency is actually a sine with the domain scaled from [0,π]
-	 *    to [0,η_φ(r)-1] and the co-domain scaled from [0,1] so that it peaks 
-	 *    with a value of ires[1]*s(r) at the equator.  	  
+	 *    This dependency is actually a sine with the 
+	 *    	- domain scaled from [0,π] to [0, η_φ(r) - 1] and the 
+	 *    	- co-domain scaled from [0,1] so that it peaks with a value of 	
+	 *    			η_φ(r) - 0.5 at the equator.  	  
 	 * 
-	 * <p>For example, a sphere (-> ires[1]=4, ires[2]=2) with radius 2  
+	 * <p>For example, a sphere (-> N₀_θ = 4, N₀_φ = 2) with radius 2  
 	 * 			and resolution 1 would have:
 	 * 		_nVoxel = [ [[2]], [[2],[6]], [[4,4],[4,12,20,20,12,4]] ].
 	 *		_res = ...
@@ -75,11 +76,21 @@ public class SphericalGrid extends PolarGrid
 		
 		this._resCalc = resCalc;
 		
+		/* handle periodicity here or in another place? */
+		if (getTotalLength(1) < 0 || getTotalLength(1) > Math.PI)
+			throw new IndexOutOfBoundsException(
+										"0 <= totalLength <= π not satisfied");
+		
+		if (getTotalLength(2) < 0 || getTotalLength(2) > 2 * Math.PI)
+			throw new IndexOutOfBoundsException(
+										"0 <= totalLength <= 2π not satisfied");
+		
 		/* add cyclic boundaries to phi's max and min if we have a half circle*/
 		if (getTotalLength(1) == Math.PI) {
 			_dimBoundaries[1][0] = new GridBoundary.Cyclic();
 			_dimBoundaries[1][1] = new GridBoundary.Cyclic();
 		}
+		
 		/* 
 		 * add cyclic boundaries to theta's max and min if we have a full circle
 		 */
@@ -142,23 +153,12 @@ public class SphericalGrid extends PolarGrid
 	}
 	
 	@Override
-	public boolean[] getSignificantAxes()
+	public double getNbhSharedSurfaceArea()
 	{
-		boolean[] out = new boolean[3];
-		out[0] = ( this._resCalc[0][0][0].getNVoxel() > 1 );  
-		out[1] = ( this.getTotalLength(1) > 0.0 );
-		out[2] = ( this.getTotalLength(2) > 0.0 );
-		return out;
-	}
-
-	@Override
-	public int numSignificantAxes()
-	{
-		int out = 0;
-		out += (this._resCalc[0][0][0].getNVoxel() > 1 ) ? 1 : 0;
-		out += (this.getTotalLength(1) > 0) ? 1 : 0;
-		out += (this.getTotalLength(2) > 0) ? 1 : 0;
-		return out;
+		// TODO Auto-generated method stub
+//		System.err.println(
+//				"tried to call unimplemented method getNbhSharedSurfaceArea()");
+		return 1;
 	}
 	
 	@Override
@@ -213,9 +213,10 @@ public class SphericalGrid extends PolarGrid
 		}
 	}
 	
-	protected double getTotalLength(int axis)
+	@Override
+	public double getTotalLength(int dim)
 	{
-		return this._resCalc[axis][0][0].getTotalLength();
+		return this._resCalc[dim][0][0].getTotalLength();
 	}
 	
 	/*************************************************************************
