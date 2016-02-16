@@ -45,19 +45,10 @@ public class Reaction implements XMLable, Copyable
 	
 	/**
 	 * reaction name
+	 * NOTE Bas: if you indeed would like agents to write reactions to a grid
+	 * they can only do so if they can refer to it by a name
 	 */
 	public String _name;
-	
-	@Override
-	public Object copy() {
-		HashMap<String,Double> sto = 
-				new HashMap<String,Double>();
-		for(String key : _stoichiometry.keySet())
-			sto.put(key, (double) Copier.copy(_stoichiometry.get(key)));
-		// NOTE: _kinetic is not copyable, this will become an issue of you
-		// want to do evo addaptation simulations
-		return new Reaction(sto, _kinetic, _name);
-	}
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -131,6 +122,19 @@ public class Reaction implements XMLable, Copyable
 	public Reaction(String chemSpecies, double stoichiometry, String kinetic, String name)
 	{
 		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
+	}
+	
+	/**
+	 * Copyable implementation
+	 */
+	public Object copy() {
+		HashMap<String,Double> sto = 
+				new HashMap<String,Double>();
+		for(String key : _stoichiometry.keySet())
+			sto.put(key, (double) Copier.copy(_stoichiometry.get(key)));
+		// NOTE: _kinetic is not copyable, this will become an issue of you
+		// want to do evo addaptation simulations
+		return new Reaction(sto, _kinetic, _name);
 	}
 	
 	/*************************************************************************
