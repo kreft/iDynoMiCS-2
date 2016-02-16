@@ -91,13 +91,14 @@ public class SolveChemostat extends ProcessManager
 		/*
 		 * Initialise the solver.
 		 */
-		String solverName = Helper.setIfNone(getString("solver"),"rosenbrock");
-		double hMax = Helper.setIfNone(getDouble("hMax"), 1.0e-6);
+		String solverName = this.getString("solver");
+		solverName = Helper.setIfNone(solverName, "rosenbrock");
+		double hMax = Helper.setIfNone(this.getDouble("hMax"), 1.0e-6);
 		if ( solverName.equals("heun") )
 			this._solver = new ODEheunsmethod(soluteNames, false, hMax);
 		else
 		{
-			double tol = Helper.setIfNone(getDouble("tolerance"), 1.0e-6);
+			double tol = Helper.setIfNone(this.getDouble("tolerance"), 1.0e-6);
 			this._solver = new ODErosenbrock(soluteNames, false, tol, hMax);
 		}
 		/*
