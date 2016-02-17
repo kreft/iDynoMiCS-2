@@ -61,8 +61,8 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="0.0">
-					<vox coord="0,0,0" value="15.0" /> <!-- please make a method to load entire grids -->
+				<solute name="solute1" concentration="2.0">
+					<vox coord="0,0,0" value="0.0" /> <!-- please make a method to load entire grids -->
 				</solute>
 				<solute name="solute2" concentration="2.0" />
 			</solutes>
@@ -119,6 +119,10 @@
 				<process name="prepareSolutes" class="PrepareSoluteGrids" priority="0"
 					firstStep="0.0" package="processManager.">
 					<aspect name="timerStepSize" type="double" value="9999999999999999.9" /> <!--  this is a work around, nicify -->
+				</process>
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="1"
+					firstStep="0.0" package="processManager.">	
+					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
 				</process>
 				<process name="productionRateGrids" class="ConstructProductRateGrids" priority="0"
 					firstStep="0.0" package="processManager.">	

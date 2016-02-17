@@ -157,12 +157,11 @@ public class SolveDiffusionTransient extends ProcessManager
 						 */
 						
 						@SuppressWarnings("unchecked")
-						List<String> reactions = 
-								(List<String>) agent.get("reactions");
+						List<Reaction> reactions = 
+								(List<Reaction>) agent.get("reactions");
 
-						for (String reaction : reactions)
+						for (Reaction reaction : reactions)
 						{
-							environment.getReaction(reaction);
 							System.out.println(reaction.toString());
 						}
 					}

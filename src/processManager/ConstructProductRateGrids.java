@@ -159,14 +159,19 @@ public class ConstructProductRateGrids extends ProcessManager
 				for ( Reaction r : reactions )
 				{
 					/* Build the dictionary of variable values. */
+					// NOTE this used to ignore reactants that do not effect the rate
+					for ( String reactant : r.getStoichiometry().keySet())
+					{
+						aSG = environment.getSoluteGrid(reactant);
+						concentrations.put(reactant, 
+								aSG.getValueAt(ArrayType.CONCN, coord));
+						// NOTE: getting strange [16,0,0] coord values here (index out of bounds)
+					}
 					for ( String varName : r.variableNames )
 					{
 						if ( environment.isSoluteName(varName) )
 						{
-							aSG = environment.getSoluteGrid(varName);
-							concentrations.put(varName, 
-									aSG.getValueAt(ArrayType.CONCN, coord));
-							// NOTE: getting strange [16,0,0] coord values here (index out of bounds)
+							// handled in prefious for loop
 						}
 						else if ( a.checkAspect(varName) )
 						{
@@ -182,13 +187,19 @@ public class ConstructProductRateGrids extends ProcessManager
 						}
 					}
 					double rate = r.getRate(concentrations);
+					
+					// NOTE this used to ignore reactants that do not effect the rate
+					for ( String reactant : r.getStoichiometry().keySet())
+					{
+						aSG = environment.getSoluteGrid(reactant);
+						aSG.addValueAt(ArrayType.PRODUCTIONRATE, coord, 
+								rate * r.getStoichiometry(reactant));	
+					}
 					for ( String varName : r.variableNames )
 					{
 						if ( environment.isSoluteName(varName) )
 						{
-							aSG = environment.getSoluteGrid(varName);
-							aSG.addValueAt(ArrayType.PRODUCTIONRATE, coord, 
-									rate * r.getStoichiometry(varName));
+							// handled in previous for loop
 						}
 						else if ( a.checkAspect(varName) )
 						{

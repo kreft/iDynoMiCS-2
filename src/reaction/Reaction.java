@@ -177,6 +177,11 @@ public class Reaction implements XMLable, Copyable
 		return 0.0;
 	}
 	
+	public HashMap<String,Double> getStoichiometry()
+	{
+		return this._stoichiometry;
+	}
+	
 	/**
 	 * \brief Calculate the production rate of a given chemical species.
 	 * 
