@@ -1,11 +1,15 @@
 package grid;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import grid.GridBoundary.GridMethod;
 import grid.resolution.ResolutionCalculator.ResCalc;
+import grid.subgrid.SubgridPoint;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
 
 /**
@@ -228,8 +232,8 @@ public abstract class SpatialGrid
 		boolean[] out = new boolean[3];
 		for ( int dim = 0; dim < 3; dim++ )
 		{
-			out[dim] = ( this._dimBoundaries[dim][0] != null ||
-										this._dimBoundaries[dim][1] != null );
+			out[dim] = this.isBoundaryDefined(dim, 0) || 
+												this.isBoundaryDefined(dim, 1);
 		}
 		return out;
 	}
@@ -244,8 +248,8 @@ public abstract class SpatialGrid
 	{
 		int out = 0;
 		for ( int dim = 0; dim < 3; dim++ )
-			if ( this._dimBoundaries[dim][0] != null ||
-									this._dimBoundaries[dim][1] != null )
+			if ( this.isBoundaryDefined(dim, 0) || 
+											this.isBoundaryDefined(dim, 1) )
 			{
 				out++;
 			}
@@ -390,6 +394,23 @@ public abstract class SpatialGrid
 	}
 	
 	/**
+	 * \brief Get the side lengths of the voxel given by the <b>coord</b>.
+	 * Write the result into <b>destination</b>.
+	 * 
+	 * @param destination
+	 * @param coord
+	 */
+	public void getVoxelSideLengthsTo(double[] destination, int[] coord)
+	{
+		ResCalc rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			rC = this.getResolutionCalculator(coord, dim);
+			destination[dim] = rC.getResolution(coord[dim]);
+		}
+	}
+	
+	/**
 	 * \brief Get the number of voxels in each dimension for the current
 	 * coordinates.
 	 * 
@@ -477,6 +498,32 @@ public abstract class SpatialGrid
 		{
 			this._dimBoundaries[dimIndex][index] = method;
 		}
+	}
+	
+	/**
+	 * \brief Checks if the given boundary is defined, i.e. not {@code null}.
+	 * 
+	 * @param dim TODO
+	 * @param index
+	 * @return
+	 */
+	public boolean isBoundaryDefined(int dim, int index)
+	{
+		return this._dimBoundaries[dim][index] != null;
+	}
+	
+	/**
+	 * \brief Checks if the given boundary is cyclic.
+	 * 
+	 * TODO We shouldn't need index here, but check this.
+	 * 
+	 * @param dim TODO
+	 * @param index
+	 * @return
+	 */
+	public boolean isBoundaryCyclic(int dim, int index)
+	{
+		return this._dimBoundaries[dim][index] instanceof CyclicGrid;
 	}
 	
 	/**
@@ -869,7 +916,8 @@ public abstract class SpatialGrid
 	{
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[dim]--;
-		return (this._currentNeighbor[dim] >= 0) || (this._dimBoundaries[dim][0] != null);
+		
+		return (this._currentNeighbor[dim] >= 0) || this.isBoundaryDefined(dim, 0);
 	}
 	
 	/**
@@ -889,7 +937,7 @@ public abstract class SpatialGrid
 			ResCalc rC = this.getResolutionCalculator(
 												   this._currentNeighbor, dim);
 			if ( this._currentCoord[dim] < rC.getNVoxel() - 1 || 
-										this._dimBoundaries[dim][1] != null )
+											this.isBoundaryDefined(dim, 1) )
 			{
 				this._currentNeighbor[dim] = this._currentCoord[dim] + 1;
 				return true;
@@ -949,6 +997,59 @@ public abstract class SpatialGrid
 			//System.out.println("method: "+flux); //bughunt
 			return flux;
 		}
+	}
+	
+	/*************************************************************************
+	 * SUBGRID POINTS
+	 ************************************************************************/
+	
+	/**
+	 * \brief List of sub-grid points at the current coordinate.
+	 * 
+	 * <p>Useful for distributing agent-mediated reactions over the grid.</p>
+	 * 
+	 * @param targetRes
+	 * @return
+	 */
+	public List<SubgridPoint> getCurrentSubgridPoints(double targetRes)
+	{
+		ArrayList<SubgridPoint> out = new ArrayList<SubgridPoint>();
+		out.add(new SubgridPoint());
+		
+		
+		int nP, nPCount;
+		ResCalc rC;
+		SubgridPoint nbh;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			// TODO Rob[17Feb2016]: This will need improving for polar grids...
+			// I think maybe would should introduce a subclass of Dimension for
+			// angular dimensions.
+			rC = this.getResolutionCalculator(this._currentCoord, dim);
+			nP = (int) (rC.getResolution(this._currentCoord[dim])/targetRes);
+			nPCount = nP;
+			if ( rC.getNVoxel() == 1 || this.isBoundaryCyclic(dim, 0) )
+				nPCount++;
+			int nCurrent = out.size();
+			for ( double i = 1.0; i < nPCount; i++ )
+				for ( int j = 0; j < nCurrent; j++ )
+				{
+					nbh = out.get(j).getNeighbor(dim, i/nP);
+					nbh.realLocation = this.getLocation(this._currentCoord,
+														nbh.internalLocation);
+					
+					out.add(nbh);
+				}
+			
+		}
+		/* Now all points have their internal locations, make these real. */
+		for ( SubgridPoint aSgP : out )
+		{
+			aSgP.realLocation = 
+				this.getLocation(this._currentCoord, aSgP.internalLocation);
+		}
+		
+		return out;
 	}
 	
 	/*************************************************************************
