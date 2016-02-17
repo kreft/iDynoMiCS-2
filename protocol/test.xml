@@ -34,6 +34,7 @@
 				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
+				<aspect name="surfaces"			type="calculated"	class="AgentSurfaces"			input="body"		package="agent.state.library."  />
 				<aspect name="morphology" 		type="String" 		value="coccoid" />
 				<aspect name="coccoidCenter" 	type="calculated" 	class="CoccoidCenter" 			input="body" />
 				<aspect name="joints" 			type="calculated" 	class="JointsState" 			input="body" />
@@ -59,6 +60,12 @@
 					<extreme name="max" position="16.0"/>
 				</dimension> 
 			</shape>
+			<solutes>
+				<solute name="solute1" concentration="0.0">
+					<vox coord="0,0,0" value="15.0" /> <!-- please make a method to load entire grids -->
+				</solute>
+				<solute name="solute2" concentration="2.0" />
+			</solutes>
 			<agents>
 				<agent>
 					<aspect name="volumeDistribution" type="HashMap">
@@ -74,7 +81,7 @@
 						<point position="12.2, 12.2" />
 					</aspect>
 				</agent>
-				<agent>
+	<!--			<agent>
 					<aspect name="species" type="String" value="AOB" />
 					<aspect name="mass" type="double" value="0.2" />
 					<aspect name="density" type="double" value="1" />
@@ -93,7 +100,7 @@
 					<aspect name="body" type="body">
 						<point position="5.3, 12.2" />
 					</aspect>
-				</agent>
+				</agent>   -->
 			</agents>
 			<processManagers>
 				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
@@ -108,6 +115,14 @@
 					firstStep="0.0" package="processManager.">
 					<aspect name="maxMovement" type="double" value="0.05" />
 					<aspect name="relaxationMethod" type="String" value="SHOVE" />
+				</process>
+				<process name="prepareSolutes" class="PrepareSoluteGrids" priority="0"
+					firstStep="0.0" package="processManager.">
+					<aspect name="timerStepSize" type="double" value="9999999999999999.9" /> <!--  this is a work around, nicify -->
+				</process>
+				<process name="productionRateGrids" class="ConstructProductRateGrids" priority="0"
+					firstStep="0.0" package="processManager.">	
+					<aspect name="ProductionGrids" type="String[]" value="solute1,solute2" /> <!--  init -->
 				</process>
 			</processManagers>
 		</compartment>

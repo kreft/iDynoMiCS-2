@@ -14,7 +14,9 @@ import idynomics.NameRef;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import surface.Ball;
+import surface.Collision;
 import surface.Surface;
+import utility.Copier;
 
 public class ConstructProductRateGrids extends ProcessManager
 {
@@ -67,10 +69,16 @@ public class ConstructProductRateGrids extends ProcessManager
 				/* Find all agents that overlap with this voxel. */
 				origin = solute.getVoxelOrigin(coord);
 				solute.getVoxelSideLengthsTo(dimension, coord);
-				neighbors = agents._agentTree.cyclicsearch(origin, dimension);
+				/* NOTE the agent tree is always the amount of actual dimension */
+				neighbors = agents._agentTree.cyclicsearch(
+							  Vector.subset(origin,agents.getNumDims()),
+							  Vector.subset(dimension,agents.getNumDims()));
 				/* If there are none, move onto the next voxel. */
 				if ( neighbors.isEmpty() )
+				{
+					coord = solute.iteratorNext();
 					continue;
+				}
 				/* Filter the agents for those with reactions. */
 				neighbors.removeIf(noReacFilter);
 				/* 
@@ -99,9 +107,11 @@ public class ConstructProductRateGrids extends ProcessManager
 					
 					sgLoop: for ( SubgridPoint p : sgPoints )
 					{
-						Ball b = new Ball(p.realLocation, 0.0);
+						/* NOTE only give coords in actual dimensions */
+						Ball b = new Ball(Vector.subset(p.realLocation,agents.getNumDims()), 0.0);
+						b.init(new Collision(null, agents.getShape()));
 						for( Surface s : surfaces )
-							if ( s.distanceTo(b) < 0.0 )
+							if ( b.distanceTo(s) < 0.0 )
 							{
 								/*
 								 * If this is not the first time the agent has
@@ -111,7 +121,8 @@ public class ConstructProductRateGrids extends ProcessManager
 								double newVolume = p.volume;
 								if ( distributionMap.containsKey(coord) )
 									newVolume += distributionMap.get(coord);
-								distributionMap.put(coord, newVolume);
+								distributionMap.put((int[]) Copier.copy(coord), newVolume);
+								// NOTE copy since otherwise you update the in the hahsmap to when iteratorNext()!
 								/*
 								 * We only want to count this point once, even
 								 * if other surfaces of the same agent hit it.
@@ -155,6 +166,7 @@ public class ConstructProductRateGrids extends ProcessManager
 							aSG = environment.getSoluteGrid(varName);
 							concentrations.put(varName, 
 									aSG.getValueAt(ArrayType.CONCN, coord));
+							// NOTE: getting strange [16,0,0] coord values here (index out of bounds)
 						}
 						else if ( a.checkAspect(varName) )
 						{
