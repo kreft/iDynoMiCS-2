@@ -4,6 +4,7 @@
 package expression;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * \brief TODO
@@ -36,5 +37,10 @@ public class Constant extends ComponentSimple
 	public Component differentiate(String withRespectTo)
 	{
 		return Expression.zero();
+	}
+	
+	public void appendVariablesNames(List<String> names)
+	{
+		/* Do nothing! */
 	}
 }
