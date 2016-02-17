@@ -3,7 +3,9 @@
  */
 package expression;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author cleggrj
@@ -30,4 +32,18 @@ public abstract class Component
 	{
 		this._isNegative = ! this._isNegative;
 	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public List<String> getAllVariablesNames()
+	{
+		List<String> names = new ArrayList<String>();
+		this.appendVariablesNames(names);
+		return names;
+	}
+	
+	protected abstract void appendVariablesNames(List<String> names);
 }
