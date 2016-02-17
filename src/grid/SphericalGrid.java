@@ -5,6 +5,7 @@ import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
 

@@ -46,7 +46,7 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param dim
 	 * @return
 	 */
-	protected boolean isOnBoundary(int[] coord, int dim){
+	protected boolean isOnBoundary(int[] coord, int dim)
 		ResCalc rC = this.getResolutionCalculator(coord, dim);
 		if ( coord[dim] < 0 )
 				return true;

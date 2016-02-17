@@ -6,6 +6,7 @@ package processManager;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Predicate;
 
 import agent.Agent;
 import grid.SpatialGrid;
