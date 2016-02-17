@@ -90,7 +90,7 @@ public class ConstructProductRateGrids extends ProcessManager {
 			{
 				SpatialGrid aGrid = environment.getSoluteGrid(productionGridFromKey?);
 				HashMap<int[],Double> distributionMap = 
-						(HashMap<int[],Double>) a.getValue("volumeDistribution");
+						(HashMap<int[],Double>) a.getValue("volumeDistribution"); // Bas I will make a secondary state that calculates the exact agent mass for each int[]
 				for(int[] coord : distributionMap.keySet())
 					aGrid.addValueAt(ArrayType.PRODUCTIONRATE, coord, distributionMap.get(coord) * productRateMap.get(key));
 			}
