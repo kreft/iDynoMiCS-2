@@ -127,6 +127,15 @@ public class SolveDiffusionTransient extends ProcessManager
 					// agent.get returns null if the state does not exist!
 					if (agent.aspectRegistry.isGlobalAspect("reactions"))
 					{
+						/**
+						 * TODO Bas: actually this would work better if the agent
+						 * maintains a hashmap of activities for it's reactions
+						 * this way it can regulate it's own rate and this can
+						 * be transfered to a grid with a simple expression
+						 * biomass * activity = active biomass in grid cell
+						 * (the X in your rate expression)
+						 */
+						
 						@SuppressWarnings("unchecked")
 						List<String> reactions = 
 								(List<String>) agent.get("reactions");
