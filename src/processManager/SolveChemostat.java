@@ -276,8 +276,8 @@ public class SolveChemostat extends ProcessManager
 		double rate = aReac.getRate(concns);
 		for ( int i = 0; i < this.n(); i++ )
 		{
-			destination[i] +=
-					aReac.getProductionRate(concns, this._soluteNames[i]);
+			destination[i] += rate * 
+							aReac.getStoichiometry(this._soluteNames[i]);
 		}
 	}
 }

@@ -11,8 +11,10 @@ import java.util.function.Predicate;
 import agent.Agent;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
+import grid.subgrid.SubgridPoint;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import linearAlgebra.Vector;
 import reaction.Reaction;
 import solver.PDEexplicit;
 import solver.PDEsolver;
@@ -108,6 +110,38 @@ public class SolveDiffusionTransient extends ProcessManager
 			
 			public void prestep(HashMap<String, SpatialGrid> variables)
 			{
+				SpatialGrid solute;
+				int[] coord;
+				double[] origin;
+				double[] dimension = new double[3];
+				List<Agent> localAgents;
+				double subRes;
+				List<SubgridPoint> sgPoints;
+				for ( String soluteName : variables.keySet() )
+				{
+					solute = variables.get(soluteName);
+					for ( coord = solute.resetIterator();
+												solute.isIteratorValid();
+												coord = solute.iteratorNext() )
+					{
+						/* Find all agents that overlap with this voxel. */
+						origin = solute.getVoxelOrigin(coord);
+						solute.getVoxelSideLengthsTo(dimension, coord);
+						localAgents = 
+							  agents._agentTree.cyclicsearch(origin, dimension);
+						/* If there are none, move onto the next voxel. */
+						if ( localAgents.isEmpty() )
+							continue;
+						/* Filter the agents for those with reactions. */
+						localAgents.removeIf(hasNoReactions());
+						/* Subgrid resolution from the smallest agent. */
+						// TODO Job for Bas
+						subRes = Vector.min(dimension) * 0.25;
+						/* Get the subgrid points and query the agents. */
+						
+					}
+				}
+				
 				/*
 				 * 
 				 */
@@ -137,5 +171,14 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		this._solver.setUpdater(updater);
 		this._solver.solve(environment.getSolutes(), this._timeStepSize);
+	}
+	
+	/**
+	 * \brief Helper method for filtering local agent lists, so that they only
+	 * include those that have reactions.
+	 */
+	private static Predicate<Agent> hasNoReactions()
+	{
+		return a -> ! a.aspectRegistry.isGlobalAspect("reactions");
 	}
 }
