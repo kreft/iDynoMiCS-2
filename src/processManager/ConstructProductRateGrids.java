@@ -119,11 +119,24 @@ public class ConstructProductRateGrids extends ProcessManager
 				coord = solute.iteratorNext();
 			}
 		}
-		
-		
+		/*
+		 * Now loop over all agents, applying their reactions to the relevant
+		 * solute grids, in the voxels calculated before.
+		 */
 		for ( Agent a : agents.getAllLocatedAgents() )
 		{
 			List<Reaction> reactions = (List<Reaction>) a.get("reactions");
+			HashMap<int[],Double> distributionMap = 
+					(HashMap<int[],Double>) a.getValue("volumeDistribution");
+			/*
+			 * Calculate the total volume covered by this agent, according to
+			 * the distribution map. This is likely to be slightly different to
+			 * the agent volume calculated directly.
+			 */
+			double totalVoxVol = 0.0;
+			for ( double voxVol : distributionMap.values() )
+				totalVoxVol += voxVol;
+			
 			
 			HashMap<String,Double> productRateMap = new HashMap<String,Double>();
 			for(Reaction r : reactions)
@@ -138,8 +151,7 @@ public class ConstructProductRateGrids extends ProcessManager
 			for(String key : productRateMap.keySet())
 			{
 				SpatialGrid aGrid = environment.getSoluteGrid(productionGridFromKey?);
-				HashMap<int[],Double> distributionMap = 
-						(HashMap<int[],Double>) a.getValue("volumeDistribution"); // Bas I will make a secondary state that calculates the exact agent mass for each int[]
+				 // Bas I will make a secondary state that calculates the exact agent mass for each int[]
 				for(int[] coord : distributionMap.keySet())
 					aGrid.addValueAt(ArrayType.PRODUCTIONRATE, coord, distributionMap.get(coord) * productRateMap.get(key));
 			}

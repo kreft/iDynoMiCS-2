@@ -4,6 +4,7 @@
 package expression;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author cleggrj
@@ -37,5 +38,11 @@ public abstract class ComponentSimple extends Component
 			else
 				return "-"+Double.toString(-out);
 		return Double.toString(out);
+	}
+	
+	public void appendVariablesNames(List<String> names)
+	{
+		if ( ! names.contains(this._name) )
+			names.add(this._name);
 	}
 }

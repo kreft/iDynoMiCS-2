@@ -1,6 +1,7 @@
 package expression;
 
 import java.util.HashMap;
+import java.util.List;
 
 public abstract class ComponentSingle extends Component
 {
@@ -36,4 +37,9 @@ public abstract class ComponentSingle extends Component
 	}
 	
 	protected abstract Component getDifferential(String withRespectTo);
+	
+	public void appendVariablesNames(List<String> names)
+	{
+		this._a.appendVariablesNames(names);
+	}
 }
