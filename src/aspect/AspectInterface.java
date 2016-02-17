@@ -87,6 +87,8 @@ public abstract interface AspectInterface {
 			{
 				case "body" :
 					return Body.getNewInstance(s);
+				case "reaction" :
+					return Reaction.getNewInstance(XmlHandler.loadUnique(s, "reaction"));
 				case "List" :
 					List<Object> temp = new LinkedList<Object>();
 					items = XmlHandler.getAll(s, "item");

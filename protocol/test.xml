@@ -16,6 +16,17 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="AOB">
+				<aspect name="reactions" type="List" >
+					<item type="reaction">
+						<reaction name="testReact">
+							<expression value="solute1 * k">
+								<constant name="k" value="0.1" />
+							</expression>
+							<stochiometric component="solute1" coefficient="-1.0" />
+							<stochiometric component="solute2" coefficient="0.5" />
+						</reaction>
+					</item>
+				</aspect>
 				<aspect name="pigment" type="String" value="GREEN" />
 				<!-- this has not been made yet, use a static growthrate for now -->
 				<aspect name="growthRate" type="double" value="0.08" />

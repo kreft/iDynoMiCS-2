@@ -94,17 +94,17 @@ public class SphericalGrid extends PolarGrid
 			this.addBoundary(DimName.PHI, 0, new CyclicGrid());
 			this.addBoundary(DimName.PHI, 1, new CyclicGrid());
 		}
+		
 		/* 
+		 * 
 		 * Add cyclic boundaries for theta if we have a full circle.
-		 */
+		*/
 		// TODO More robust definition of tolerance here.
 		if ( ExtraMath.areEqual(this.getTotalLength(2), 2 * Math.PI, 1E-10))
 		{
 			this.addBoundary(DimName.THETA, 0, new CyclicGrid());
 			this.addBoundary(DimName.THETA, 1, new CyclicGrid());
 		}
-		resetIterator();
-		resetNbhIterator();
 	}
 	
 	public SphericalGrid(double[] totalLength, double res)

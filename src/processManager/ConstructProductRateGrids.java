@@ -81,7 +81,14 @@ public class ConstructProductRateGrids extends ProcessManager
 				 * get the list of sub-grid points.
 				 */
 				// TODO This is a quick-fix... job for Bas
-				double subRes = Vector.min(dimension) * 0.25;
+				double minRadius = Double.MAX_VALUE;
+				for(Agent a : agents.getAllLocatedAgents())
+				{
+					if(a.reg().isGlobalAspect(NameRef.agentReactions) && 
+							a.getDouble(NameRef.bodyRadius) < minRadius)
+						minRadius = a.getDouble(NameRef.bodyRadius);		
+				}
+				double subRes = Vector.min(dimension) * 0.25 * minRadius;
 				sgPoints = solute.getCurrentSubgridPoints(subRes);
 				/* 
 				 * Get the subgrid points and query the agents.
@@ -92,14 +99,18 @@ public class ConstructProductRateGrids extends ProcessManager
 									(List<Surface>) a.get(NameRef.surfaceList);
 					distributionMap = (HashMap<int[],Double>) 
 											a.getValue("volumeDistribution");
+					
 					sgLoop: for ( SubgridPoint p : sgPoints )
 					{
-						Ball b = new Ball(p.realLocation,0.0);
+						Ball b = new Ball(p.realLocation, 0.0);
 						for( Surface s : surfaces )
-						{
 							if ( s.distanceTo(b) < 0.0 )
 							{
-								
+								/*
+								 * If this is not the first time the agent has
+								 * seen this coordinate, we need to add the
+								 * volume rather than overwriting it.
+								 */
 								double newVolume = p.volume;
 								if ( distributionMap.containsKey(coord) )
 									newVolume += distributionMap.get(coord);
@@ -110,7 +121,6 @@ public class ConstructProductRateGrids extends ProcessManager
 								 */
 								continue sgLoop;
 							}
-						}
 					}
 				}
 				coord = solute.iteratorNext();

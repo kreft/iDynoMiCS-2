@@ -78,12 +78,11 @@ public class CylindricalGrid extends PolarGrid
 		/* 
 		 * Add cyclic boundaries for theta if we have a full circle.
 		 */
-		// TODO More robust definition of tolerance here.
-		if ( ExtraMath.areEqual(this.getTotalLength(2), 2 * Math.PI, 1E-10))
-		{
-			this.addBoundary(DimName.THETA, 0, new CyclicGrid());
-			this.addBoundary(DimName.THETA, 1, new CyclicGrid());
+		if (getTotalLength(1) == 2 * Math.PI) {
+			_dimBoundaries[1][0] = new GridBoundary.Cyclic();
+			_dimBoundaries[1][1] = new GridBoundary.Cyclic();
 		}
+		
 		resetIterator();
 		resetNbhIterator();
 	}
