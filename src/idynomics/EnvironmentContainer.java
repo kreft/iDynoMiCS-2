@@ -153,6 +153,16 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	}
 	
 	/**
+	 * get specific reaction 
+	 * @param reaction
+	 * @return
+	 */
+	public Reaction getReaction(String reaction)
+	{
+		return _reactions.get(reaction);
+	}
+	
+	/**
 	 * \brief TODO
 	 * 
 	 * @param reaction

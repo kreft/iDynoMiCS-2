@@ -16,6 +16,7 @@ import reaction.Reaction;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEsolver.Updater;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -67,6 +68,15 @@ public class SolveDiffusionTransient extends ProcessManager
 			this._diffusivity.put(sName, 1.0);
 	}
 	
+	public void init()
+	{
+		this.init(getStringA("solutes"));
+	}
+	
+	/**
+	 * Bas please add commenting on the function and approach of this process
+	 * manager
+	 */
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
@@ -98,25 +108,23 @@ public class SolveDiffusionTransient extends ProcessManager
 			public void prestep(HashMap<String, SpatialGrid> variables)
 			{
 				/*
-				 * TODO agents put reaction rates on grids.
+				 * 
 				 */
 				for ( Agent agent : agents.getAllLocatedAgents() )
 				{
-					// FIXME Bas[3NOV2015]: removed dependence on depreciated class
-//					for (Object aState : agent.getStates(HasReactions.tester))
-
-					// TODO Bas [09.12.15] don't use getState unless you want
-					// to obtain the State (object) from the agent. Use 
-					// agent.get to retrieve the value from the agent state
-					// agent.get returns null if the state does not exist!
 					if (agent.aspectRegistry.isGlobalAspect("reactions"))
 					{
+						/**
+						 * 
+						 */
+						
 						@SuppressWarnings("unchecked")
-						List<Reaction> reactions = 
-								(List<Reaction>) agent.get("reactions");
-						for (Reaction reaction : reactions)
+						List<String> reactions = 
+								(List<String>) agent.get("reactions");
+
+						for (String reaction : reactions)
 						{
-							// testing
+							environment.getReaction(reaction);
 							System.out.println(reaction.toString());
 						}
 					}

@@ -3,8 +3,10 @@ package utility;
 import linearAlgebra.Vector;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import dataIO.Log;
 import dataIO.Log.tier;
@@ -20,11 +22,12 @@ public final class Copier {
 	/**
 	 * Attempts to create a deep copy of any input object
 	 * @param <T>
+	 * @param <K>
 	 * @param copyable
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> Object copy(Object copyable)
+	public static <T, K> Object copy(Object copyable)
 	{
 		if (copyable == null)
 		{
@@ -68,6 +71,13 @@ public final class Copier {
 			List<T> spawn = new LinkedList<T>();
 			for(int i = 0; i < ((List<?>) copyable).size(); i++)
 				spawn.add((T) Copier.copy(((List<?>) copyable).get(i)));	
+			return spawn;
+		}
+		if (copyable instanceof HashMap<?,?>)
+		{
+			Map<K,T> spawn = new HashMap<K,T>();
+			for(Object key : ((Map<?,?>) copyable).keySet())
+				spawn.put((K) key, (T) Copier.copy(((Map<?,?>) copyable).get((K) key)));	
 			return spawn;
 		}
 		if (copyable instanceof Copyable)
