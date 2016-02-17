@@ -4,6 +4,7 @@
 package expression;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * \brief TODO
@@ -36,5 +37,11 @@ public class Variable extends ComponentSimple
 		if ( withRespectTo.equals(this._name) )
 			return Expression.one();
 		return new Variable("d("+this._name+")/d("+withRespectTo+")");
+	}
+	
+	public void appendVariablesNames(List<String> names)
+	{
+		if ( ! names.contains(this._name) )
+			names.add(this._name);
 	}
 }

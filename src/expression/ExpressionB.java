@@ -513,4 +513,8 @@ public class ExpressionB extends Component {
 		return _a.differentiate(withRespectTo);
 	}
 	
+	public void appendVariablesNames(List<String> names)
+	{
+		this._a.appendVariablesNames(names);
+	}
 }

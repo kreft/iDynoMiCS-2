@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 
-import com.sun.j3d.utils.geometry.Sphere;
-
 import agent.Agent;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -16,7 +14,6 @@ import idynomics.NameRef;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import surface.Ball;
-import surface.Collision;
 import surface.Surface;
 
 public class ConstructProductRateGrids extends ProcessManager
@@ -126,29 +123,71 @@ public class ConstructProductRateGrids extends ProcessManager
 				coord = solute.iteratorNext();
 			}
 		}
-		
-		
+		/*
+		 * Now loop over all agents, applying their reactions to the relevant
+		 * solute grids, in the voxels calculated before.
+		 */
+		HashMap<String,Double> concentrations = new HashMap<String,Double>();
+		SpatialGrid aSG;
 		for ( Agent a : agents.getAllLocatedAgents() )
 		{
 			List<Reaction> reactions = (List<Reaction>) a.get("reactions");
+			HashMap<int[],Double> distributionMap = 
+					(HashMap<int[],Double>) a.getValue("volumeDistribution");
+			/*
+			 * Calculate the total volume covered by this agent, according to
+			 * the distribution map. This is likely to be slightly different to
+			 * the agent volume calculated directly.
+			 */
+			double totalVoxVol = 0.0;
+			for ( double voxVol : distributionMap.values() )
+				totalVoxVol += voxVol;
 			
-			HashMap<String,Double> productRateMap = new HashMap<String,Double>();
-			for(Reaction r : reactions)
+			for ( int[] coord : distributionMap.keySet() )
 			{
-				double reactionRate = r.getRate(agentSpecificConcentrationHashmap??);
-				if(productRateMap.containsKey(r.getStoichiometry(reactant)));
+				for ( Reaction r : reactions )
 				{
-					productRateMap.put(recatant, productRateMap.get(reactant) + r.getStoichiometry(reactant) * reactionRate);
+					/* Build the dictionary of variable values. */
+					for ( String varName : r.variableNames )
+					{
+						if ( environment.isSoluteName(varName) )
+						{
+							aSG = environment.getSoluteGrid(varName);
+							concentrations.put(varName, 
+									aSG.getValueAt(ArrayType.CONCN, coord));
+						}
+						else if ( a.checkAspect(varName) )
+						{
+							// TODO divide by the voxel volume here?
+							concentrations.put(varName, 
+									a.getDouble(varName) * 
+									(distributionMap.get(coord)/totalVoxVol));
+						}
+						else
+						{
+							// TODO safety?
+							concentrations.put(varName, 0.0);
+						}
+					}
+					double rate = r.getRate(concentrations);
+					for ( String varName : r.variableNames )
+					{
+						if ( environment.isSoluteName(varName) )
+						{
+							aSG = environment.getSoluteGrid(varName);
+							aSG.addValueAt(ArrayType.PRODUCTIONRATE, coord, 
+									rate * r.getStoichiometry(varName));
+						}
+						else if ( a.checkAspect(varName) )
+						{
+							// TODO tell the agent that it's growing?
+						}
+						else
+						{
+							// TODO safety?
+						}
+					}
 				}
-			}
-			
-			for(String key : productRateMap.keySet())
-			{
-				SpatialGrid aGrid = environment.getSoluteGrid(productionGridFromKey?);
-				HashMap<int[],Double> distributionMap = 
-						(HashMap<int[],Double>) a.getValue("volumeDistribution"); // Bas I will make a secondary state that calculates the exact agent mass for each int[]
-				for(int[] coord : distributionMap.keySet())
-					aGrid.addValueAt(ArrayType.PRODUCTIONRATE, coord, distributionMap.get(coord) * productRateMap.get(key));
 			}
 		}
 	}

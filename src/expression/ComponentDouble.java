@@ -1,6 +1,7 @@
 package expression;
 
 import java.util.HashMap;
+import java.util.List;
 
 import dataIO.Log;
 import dataIO.Log.tier;
@@ -40,5 +41,11 @@ public abstract class ComponentDouble extends Component
 	{
 		Log.out(tier.CRITICAL,"WARNING! Infinite value: " + this.getName() + 
 										" = " + this.reportValue(variables));
+	}
+	
+	public void appendVariablesNames(List<String> names)
+	{
+		this._a.appendVariablesNames(names);
+		this._b.appendVariablesNames(names);
 	}
 }

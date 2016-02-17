@@ -2,8 +2,8 @@
 package reaction;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -50,6 +50,11 @@ public class Reaction implements XMLable, Copyable
 	 */
 	public String _name;
 	
+	/**
+	 * TODO
+	 */
+	public List<String> variableNames;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -73,6 +78,7 @@ public class Reaction implements XMLable, Copyable
 													temp, "coefficient")));
 		}
 		this._kinetic = new ExpressionB(XmlHandler.loadUnique(elem, "expression"));
+		this.variableNames = this._kinetic.getAllVariablesNames();
 	}
 	
 	/**
@@ -90,6 +96,7 @@ public class Reaction implements XMLable, Copyable
 		this._name = name;
 		this._stoichiometry.putAll(stoichiometry);
 		this._kinetic = kinetic;
+		this.variableNames = this._kinetic.getAllVariablesNames();
 	}
 	
 	/**
