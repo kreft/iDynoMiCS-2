@@ -92,14 +92,18 @@ public class ConstructProductRateGrids extends ProcessManager
 									(List<Surface>) a.get(NameRef.surfaceList);
 					distributionMap = (HashMap<int[],Double>) 
 											a.getValue("volumeDistribution");
+					
 					sgLoop: for ( SubgridPoint p : sgPoints )
 					{
-						Ball b = new Ball(p.realLocation,0.0);
+						Ball b = new Ball(p.realLocation, 0.0);
 						for( Surface s : surfaces )
-						{
 							if ( s.distanceTo(b) < 0.0 )
 							{
-								
+								/*
+								 * If this is not the first time the agent has
+								 * seen this coordinate, we need to add the
+								 * volume rather than overwriting it.
+								 */
 								double newVolume = p.volume;
 								if ( distributionMap.containsKey(coord) )
 									newVolume += distributionMap.get(coord);
@@ -110,7 +114,6 @@ public class ConstructProductRateGrids extends ProcessManager
 								 */
 								continue sgLoop;
 							}
-						}
 					}
 				}
 				coord = solute.iteratorNext();

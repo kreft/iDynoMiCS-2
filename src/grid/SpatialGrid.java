@@ -1013,13 +1013,18 @@ public abstract class SpatialGrid
 	 */
 	public List<SubgridPoint> getCurrentSubgridPoints(double targetRes)
 	{
+		/* 
+		 * Initialise the list and add a point at the origin.
+		 */
 		ArrayList<SubgridPoint> out = new ArrayList<SubgridPoint>();
-		out.add(new SubgridPoint());
-		
-		
-		int nP, nPCount;
+		SubgridPoint current = new SubgridPoint();
+		out.add(current);
+		/*
+		 * For each dimension, work out how many new points are needed and get
+		 * these for each point already in the list.
+		 */
+		int nP, nCurrent;
 		ResCalc rC;
-		SubgridPoint nbh;
 		for ( int dim = 0; dim < 3; dim++ )
 		{
 			// TODO Rob[17Feb2016]: This will need improving for polar grids...
@@ -1027,28 +1032,27 @@ public abstract class SpatialGrid
 			// angular dimensions.
 			rC = this.getResolutionCalculator(this._currentCoord, dim);
 			nP = (int) (rC.getResolution(this._currentCoord[dim])/targetRes);
-			nPCount = nP;
-			if ( rC.getNVoxel() == 1 || this.isBoundaryCyclic(dim, 0) )
-				nPCount++;
-			int nCurrent = out.size();
-			for ( double i = 1.0; i < nPCount; i++ )
-				for ( int j = 0; j < nCurrent; j++ )
-				{
-					nbh = out.get(j).getNeighbor(dim, i/nP);
-					nbh.realLocation = this.getLocation(this._currentCoord,
-														nbh.internalLocation);
-					
-					out.add(nbh);
-				}
-			
+			nCurrent = out.size();
+			for ( int j = 0; j < nCurrent; j++ )
+			{
+				current = out.get(j);
+				/* Shift this point up by half a sub-resolution. */
+				current.internalLocation[dim] += (0.5/nP);
+				/* Now add extra points at sub-resolution distances. */
+				for ( double i = 1.0; i < nP; i++ )
+					out.add(current.getNeighbor(dim, i/nP));
+			}
 		}
-		/* Now all points have their internal locations, make these real. */
+		/* Now find the real locations and scale the volumes. */
+		// TODO this probably needs to be slightly different in polar grids
+		// to be completely accurate
+		double volume = this.getVoxelVolume(this._currentCoord) / out.size();
 		for ( SubgridPoint aSgP : out )
 		{
-			aSgP.realLocation = 
-				this.getLocation(this._currentCoord, aSgP.internalLocation);
+			aSgP.realLocation = this.getLocation(this._currentCoord,
+													aSgP.internalLocation);
+			aSgP.volume = volume;
 		}
-		
 		return out;
 	}
 	
