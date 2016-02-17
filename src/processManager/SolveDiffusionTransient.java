@@ -73,6 +73,10 @@ public class SolveDiffusionTransient extends ProcessManager
 		this.init(getStringA("solutes"));
 	}
 	
+	/**
+	 * Bas please add commenting on the function and approach of this process
+	 * manager
+	 */
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
@@ -90,9 +94,6 @@ public class SolveDiffusionTransient extends ProcessManager
 					 * creating them if they do not already exist.
 					 * 
 					 * TODO use a diffusion setter
-					 * FIXME Bas: why not one grid with reaction rate and salvage
-					 * the production/consumption rate directly from the reaction
-					 * stochiometry??
 					 */
 					sg.newArray(ArrayType.PRODUCTIONRATE);
 					sg.newArray(ArrayType.DIFFUSIVITY, 
@@ -107,46 +108,23 @@ public class SolveDiffusionTransient extends ProcessManager
 			public void prestep(HashMap<String, SpatialGrid> variables)
 			{
 				/*
-				 * FIXME Bas: what is this methods supposed to provide?
-				 * TODO agents put reaction rates on grids.
-				 * Bas [17.02.16] for consistency sake please choose something
-				 * consistent it make total sense to simply scale the reactions
-				 * with the amount of catalyst (biomass) in a grid cell, this
-				 * is the convention, or if you want to let the agents perform
-				 * their own reaction (less fast but oke). Don't simply copy
-				 * stuff around, I don't like hard coded spaghetti. 
+				 * 
 				 */
 				for ( Agent agent : agents.getAllLocatedAgents() )
 				{
-					// FIXME Bas[3NOV2015]: removed dependence on depreciated class
-//					for (Object aState : agent.getStates(HasReactions.tester))
-
-					// TODO Bas [09.12.15] don't use getState unless you want
-					// to obtain the State (object) from the agent. Use 
-					// agent.get to retrieve the value from the agent state
-					// agent.get returns null if the state does not exist!
 					if (agent.aspectRegistry.isGlobalAspect("reactions"))
 					{
 						/**
-						 * TODO Bas: actually this would work better if the agent
-						 * maintains a hashmap of activities for it's reactions
-						 * this way it can regulate it's own rate and this can
-						 * be transfered to a grid with a simple expression
-						 * biomass * activity = active biomass in grid cell
-						 * (the X in your rate expression)
+						 * 
 						 */
 						
 						@SuppressWarnings("unchecked")
 						List<String> reactions = 
 								(List<String>) agent.get("reactions");
-						// NOTE Bas: I rather not copy identical Reaction objects'
-						// to every single agent that performs it if you can
-						// refer to them in a list
+
 						for (String reaction : reactions)
 						{
 							environment.getReaction(reaction);
-							//TODO whatever is required from this method -> please comment
-							// testing
 							System.out.println(reaction.toString());
 						}
 					}
