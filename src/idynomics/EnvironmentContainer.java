@@ -137,6 +137,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return this._solutes.get(soluteName);
 	}
 	
+	public boolean isSoluteName(String name)
+	{
+		return this._solutes.containsKey(name);
+	}
+	
 	public HashMap<String, SpatialGrid> getSolutes()
 	{
 		return this._solutes;
