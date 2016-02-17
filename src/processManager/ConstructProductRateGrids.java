@@ -65,7 +65,7 @@ public class ConstructProductRateGrids extends ProcessManager {
 							{
 								HashMap<int[],Double> distributionMap = 
 										(HashMap<int[],Double>) a.getValue("volumeDistribution");
-								distributionMap.put(p.getCoord(), p.getVolume());
+								distributionMap.put(p.getCoord(), p.getVolume()); // FIXME volume should be added, not overridden
 							}
 				coords = aGrid.iteratorNext();
 			}
@@ -90,7 +90,7 @@ public class ConstructProductRateGrids extends ProcessManager {
 			{
 				SpatialGrid aGrid = environment.getSoluteGrid(productionGridFromKey?);
 				HashMap<int[],Double> distributionMap = 
-						(HashMap<int[],Double>) a.getValue("volumeDistribution"); // Bas I will make a secondary state that calculates the exact agent mass for each int[]
+						(HashMap<int[],Double>) a.getValue("volumeDistribution"); // Bas I will make a secondary state that distributes the actual agent mass over the volumes
 				for(int[] coord : distributionMap.keySet())
 					aGrid.addValueAt(ArrayType.PRODUCTIONRATE, coord, distributionMap.get(coord) * productRateMap.get(key));
 			}

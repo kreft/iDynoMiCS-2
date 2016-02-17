@@ -72,8 +72,7 @@ public class Reaction implements XMLable, Copyable
 					Double.valueOf(XmlHandler.obtainAttribute(
 													temp, "coefficient")));
 		}
-		this._kinetic = new ExpressionB(XmlHandler.attributeFromUniqueNode(
-				elem, "expression", "value"));
+		this._kinetic = new ExpressionB(XmlHandler.loadUnique(elem, "expression"));
 	}
 	
 	/**
