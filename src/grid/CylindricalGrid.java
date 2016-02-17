@@ -5,6 +5,7 @@ import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
 
@@ -74,15 +75,15 @@ public class CylindricalGrid extends PolarGrid
 		if (getTotalLength(1) < 0 || getTotalLength(1) > 2 * Math.PI)
 			throw new IndexOutOfBoundsException(
 										"0 <= totalLength <= 2π not satisfied");
-		
 		/* 
-		 * add cyclic boundaries to theta's max and min if we have a full circle
+		 * Add cyclic boundaries for theta if we have a full circle.
 		 */
-		if (getTotalLength(1) == 2 * Math.PI) {
-			_dimBoundaries[1][0] = new GridBoundary.Cyclic();
-			_dimBoundaries[1][1] = new GridBoundary.Cyclic();
+		// TODO More robust definition of tolerance here.
+		if ( ExtraMath.areEqual(this.getTotalLength(2), 2 * Math.PI, 1E-10))
+		{
+			this.addBoundary(DimName.THETA, 0, new CyclicGrid());
+			this.addBoundary(DimName.THETA, 1, new CyclicGrid());
 		}
-		
 		resetIterator();
 		resetNbhIterator();
 	}

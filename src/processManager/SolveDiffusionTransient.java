@@ -138,7 +138,7 @@ public class SolveDiffusionTransient extends ProcessManager
 						// TODO Job for Bas
 						subRes = Vector.min(dimension) * 0.25;
 						/* Get the subgrid points and query the agents. */
-						sgPoints = solute.
+						
 					}
 				}
 				
