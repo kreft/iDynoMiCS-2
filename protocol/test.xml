@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="mySim" outputfolder="../../Simulations"
+	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<general>
 			<param name="timeStepSize" value="1.0" />
@@ -50,6 +50,9 @@
 			</shape>
 			<agents>
 				<agent>
+					<aspect name="volumeDistribution" type="HashMap">
+						<item key="0,0,0" keyType="int[]" value="0.0" type="double" />
+					</aspect>				
 					<aspect name="species" type="String" value="AOB" />
 					<aspect name="mass" type="double" value="0.2" />
 					<aspect name="density" type="double" value="1" />
