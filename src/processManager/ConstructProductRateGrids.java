@@ -123,6 +123,7 @@ public class ConstructProductRateGrids extends ProcessManager
 		 * Now loop over all agents, applying their reactions to the relevant
 		 * solute grids, in the voxels calculated before.
 		 */
+		HashMap<String,Double> concentrations = new HashMap<String,Double>();
 		for ( Agent a : agents.getAllLocatedAgents() )
 		{
 			List<Reaction> reactions = (List<Reaction>) a.get("reactions");
@@ -136,6 +137,8 @@ public class ConstructProductRateGrids extends ProcessManager
 			double totalVoxVol = 0.0;
 			for ( double voxVol : distributionMap.values() )
 				totalVoxVol += voxVol;
+			
+			
 			
 			
 			HashMap<String,Double> productRateMap = new HashMap<String,Double>();

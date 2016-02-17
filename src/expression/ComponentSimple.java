@@ -39,10 +39,4 @@ public abstract class ComponentSimple extends Component
 				return "-"+Double.toString(-out);
 		return Double.toString(out);
 	}
-	
-	public void appendVariablesNames(List<String> names)
-	{
-		if ( ! names.contains(this._name) )
-			names.add(this._name);
-	}
 }
