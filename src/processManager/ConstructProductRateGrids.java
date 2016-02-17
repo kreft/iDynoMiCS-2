@@ -81,7 +81,14 @@ public class ConstructProductRateGrids extends ProcessManager
 				 * get the list of sub-grid points.
 				 */
 				// TODO This is a quick-fix... job for Bas
-				double subRes = Vector.min(dimension) * 0.25;
+				double minRadius = Double.MAX_VALUE;
+				for(Agent a : agents.getAllLocatedAgents())
+				{
+					if(a.reg().isGlobalAspect(NameRef.agentReactions) && 
+							a.getDouble(NameRef.bodyRadius) < minRadius)
+						minRadius = a.getDouble(NameRef.bodyRadius);		
+				}
+				double subRes = Vector.min(dimension) * 0.25 * minRadius;
 				sgPoints = solute.getCurrentSubgridPoints(subRes);
 				/* 
 				 * Get the subgrid points and query the agents.

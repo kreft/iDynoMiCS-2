@@ -75,4 +75,9 @@ public class NameRef {
 	 * biomass/biofilm is represented
 	 */
 	public static String defaultBiomassGrid = "biomass";
+	
+	/**
+	 * list with reactions owned by the agent
+	 */
+	public static String agentReactions = "reactions";
 }
