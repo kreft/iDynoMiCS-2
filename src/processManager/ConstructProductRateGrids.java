@@ -34,7 +34,6 @@ public class ConstructProductRateGrids extends ProcessManager
 		
 		/* Collision evaluation object */
 		Collision collisionEval = new Collision(null, agents.getShape());
-		
 		/**
 		 * First clear them agent vol distribs
 		 */
@@ -192,6 +191,10 @@ public class ConstructProductRateGrids extends ProcessManager
 							concentrations.put(varName, 0.0);
 						}
 					}
+					/*
+					 * Calculate the reaction rate based on the variables just
+					 * retrieved.
+					 */
 					double rate = r.getRate(concentrations);
 					/* 
 					 * Now that we have the reaction rate, we can distribute
