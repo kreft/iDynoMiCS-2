@@ -158,20 +158,23 @@ public class ConstructProductRateGrids extends ProcessManager
 			{
 				for ( Reaction r : reactions )
 				{
-					/* Build the dictionary of variable values. */
-					// NOTE this used to ignore reactants that do not effect the rate
-					for ( String reactant : r.getStoichiometry().keySet())
-					{
-						aSG = environment.getSoluteGrid(reactant);
-						concentrations.put(reactant, 
-								aSG.getValueAt(ArrayType.CONCN, coord));
-						// NOTE: was getting strange [16,0,0] coord values here (index out of bounds)
-					}
+					/* 
+					 * Build the dictionary of variable values. Note that these
+					 * will likely overlap with the names in the reaction
+					 * stoichiometry (handled after the reaction rate), but 
+					 * will not always be the same. Here we are interested in
+					 * those that affect the reaction, and not those that are
+					 * affected by it.
+					 */
 					for ( String varName : r.variableNames )
 					{
 						if ( environment.isSoluteName(varName) )
 						{
-							// handled in prefious for loop
+							aSG = environment.getSoluteGrid(varName);
+							concentrations.put(varName, 
+									aSG.getValueAt(ArrayType.CONCN, coord));
+							// FIXME: was getting strange [16,0,0] coord values
+							// here (index out of bounds)
 						}
 						else if ( a.checkAspect(varName) )
 						{
@@ -186,37 +189,51 @@ public class ConstructProductRateGrids extends ProcessManager
 							concentrations.put(varName, 0.0);
 						}
 					}
+					/*
+					 * Calculate the reaction rate based on the variables just
+					 * retrieved.
+					 */
 					double rate = r.getRate(concentrations);
-					
-					// NOTE this used to ignore reactants that do not effect the rate
-					for ( String reactant : r.getStoichiometry().keySet())
+					/* 
+					 * Now that we have the reaction rate, we can distribute
+					 * the effects of the reaction. Note again that the names
+					 * in the stoichiometry may not be the same as those in the
+					 * reaction variables (although there is likely to be a
+					 * large overlap).
+					 */
+					double productionRate;
+					for ( String productName : r.getStoichiometry().keySet())
 					{
-						aSG = environment.getSoluteGrid(reactant);
-						aSG.addValueAt(ArrayType.PRODUCTIONRATE, coord, 
-								rate * r.getStoichiometry(reactant));	
-					}
-					for ( String varName : r.variableNames )
-					{
-						if ( environment.isSoluteName(varName) )
+						productionRate = rate * r.getStoichiometry(productName);
+						if ( environment.isSoluteName(productName) )
 						{
-							// handled in previous for loop
+							aSG = environment.getSoluteGrid(productName);
+							aSG.addValueAt(ArrayType.PRODUCTIONRATE, coord, 
+															productionRate);
 						}
-						else if ( a.checkAspect(varName) )
+						else if ( a.checkAspect(productName) )
 						{
-							// TODO tell the agent that it's growing?
-							/* put this here as example, though it may be nicer
-							 * to launch a separate agent growth process manager
-							 * here */
-							double growthRate = 0.0;
-							/* the average growth rate for the entire agent, 
-							 * not just for the part that is in one grid cell 
-							 * later this may be specific separate expressions
-							 * that control the growth of separate parts of the
-							 * agent (eg lipids/ other storage compounds) */
+							/* 
+							 * NOTE Bas [17Feb2016]: Put this here as example,
+							 * though it may be nicer to launch a separate 
+							 * agent growth process manager here.
+							 */
+							/* 
+							 * NOTE Bas [17Feb2016]: The average growth rate
+							 * for the entire agent, not just for the part that
+							 * is in one grid cell later this may be specific
+							 * separate expressions that control the growth of
+							 * separate parts of the agent (eg lipids/ other
+							 * storage compounds)
+							 */
+							productionRate += (double) a.getDouble("growthRate");
+							a.set("growthRate", productionRate);
+							
+							/* Timespan of growth event */
+							// TODO Rob[18Feb2016]: Surely this should happen
+							// at the very end? 
 							double dt = 0.0;
-							/* timespan of growth event */
-							a.set("growthRate", growthRate);
-							a.event("growth",dt);
+							a.event("growth", dt * productionRate);
 						}
 						else
 						{
