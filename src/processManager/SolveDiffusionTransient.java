@@ -98,7 +98,8 @@ public class SolveDiffusionTransient extends ProcessManager
 					 * 
 					 * TODO use a diffusion setter
 					 */
-					sg.newArray(ArrayType.PRODUCTIONRATE);
+					// FIXME this was nullifying all the work don by the ConstructProductRateGrids
+//					sg.newArray(ArrayType.PRODUCTIONRATE);
 					sg.newArray(ArrayType.DIFFUSIVITY, 
 												_diffusivity.get(soluteName));
 					/*

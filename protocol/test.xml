@@ -4,7 +4,7 @@
 		comment="this is a file for testing purposes only.">
 		<general>
 			<param name="timeStepSize" value="1.0" />
-			<param name="endOfSimulation" value="60.0" />
+			<param name="endOfSimulation" value="5.0" />
 		</general>
 
 		<speciesLib>

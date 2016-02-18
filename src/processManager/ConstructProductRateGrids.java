@@ -165,7 +165,7 @@ public class ConstructProductRateGrids extends ProcessManager
 						aSG = environment.getSoluteGrid(reactant);
 						concentrations.put(reactant, 
 								aSG.getValueAt(ArrayType.CONCN, coord));
-						// NOTE: getting strange [16,0,0] coord values here (index out of bounds)
+						// NOTE: was getting strange [16,0,0] coord values here (index out of bounds)
 					}
 					for ( String varName : r.variableNames )
 					{
@@ -204,6 +204,19 @@ public class ConstructProductRateGrids extends ProcessManager
 						else if ( a.checkAspect(varName) )
 						{
 							// TODO tell the agent that it's growing?
+							/* put this here as example, though it may be nicer
+							 * to launch a separate agent growth process manager
+							 * here */
+							double growthRate = 0.0;
+							/* the average growth rate for the entire agent, 
+							 * not just for the part that is in one grid cell 
+							 * later this may be specific separate expressions
+							 * that control the growth of separate parts of the
+							 * agent (eg lipids/ other storage compounds) */
+							double dt = 0.0;
+							/* timespan of growth event */
+							a.set("growthRate", growthRate);
+							a.event("growth",dt);
 						}
 						else
 						{
