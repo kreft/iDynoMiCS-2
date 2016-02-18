@@ -1,6 +1,5 @@
 package processManager;
 
-import java.util.HashMap;
 import java.util.List;
 
 import agent.Agent;
@@ -12,12 +11,28 @@ import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import utility.Helper;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class WriteAgentsSvg extends ProcessManager
 {
-	
-	//FIXME: very quick and dirty, this ProcessManager really needs more
-	// information than it can get from the environment and agents...
+	/**
+	 * the svg exporter
+	 */
 	protected SvgExport svg = new SvgExport();
+	
+	/**
+	 * the concentration value, this will be the max value of the color gradient
+	 * when indicating concentration
+	 */
+	protected double _maxConcn = 2.0;
+	
+	/**
+	 * if any, the solute that is used to draw the solute gradient
+	 */
+	protected String _solute = "solute1";
 	
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
@@ -32,22 +47,29 @@ public class WriteAgentsSvg extends ProcessManager
 		svg.rectangle(Vector.zerosDbl(agents.getNumDims()),
 				agents.getShape().getDimensionLengths(), "GRAY");
 		
-		/*  */
-		SpatialGrid solute = environment.getSoluteGrid("solute2");
+		/* draw solute grid for specified solute  */
+		SpatialGrid solute = environment.getSoluteGrid(_solute);
 		int[] coord = solute.resetIterator();
 		double[] origin;
 		double[] dimension = new double[3];
 		while ( solute.isIteratorValid() )
 		{
+			/* identify exact voxel location and size */
 			origin = solute.getVoxelOrigin(coord);
 			solute.getVoxelSideLengthsTo(dimension, coord);
-			double conc = solute.getValueAtCurrent(ArrayType.CONCN) * 255.0/2.0;
+			
+			/* scale the solute concentration for coloring */
+			double conc = solute.getValueAtCurrent(ArrayType.CONCN) * 255.0/_maxConcn;
 			conc = Math.min(conc, 255.0);
 			conc = Math.max(conc, 0.0);
 			int c = 255 - Math.round((float) conc);
+			
+			/* write the solute square */
 			svg.rectangle(Vector.subset(origin,agents.getNumDims()), 
 					Vector.subset(dimension,agents.getNumDims()), "rgb(" + c 
 					+ "," + c + "," + c + ")");
+			
+			/* go to next voxel */
 			solute.iteratorNext();
 		}
 
