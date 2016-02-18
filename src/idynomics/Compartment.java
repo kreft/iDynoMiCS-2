@@ -144,13 +144,16 @@ public class Compartment implements CanPrelaunchCheck
 		/*
 		 * Give it extracellular reactions.
 		 */
-		NodeList reactions = XmlHandler.getAll(elem, "reaction");
-		for ( int i = 0; i < reactions.getLength(); i++ )
-			this._environment.addReaction((Reaction) Reaction.getNewInstance(
-					reactions.item(i)),XmlHandler.obtainAttribute(
-					(Element) reactions.item(i),"name"));
-
-			
+		Element reactionsElem = XmlHandler.loadUnique(elem, "reactions");
+		if (reactionsElem != null)
+		{
+			NodeList reactions = XmlHandler.getAll(reactionsElem, "reaction");
+			for ( int i = 0; i < reactions.getLength(); i++ )
+				this._environment.addReaction((Reaction) Reaction.getNewInstance(
+						reactions.item(i)),XmlHandler.obtainAttribute(
+						(Element) reactions.item(i),"name"));
+		}
+		
 		/*
 		 * Finally, finish off the initialisation as standard.
 		 */

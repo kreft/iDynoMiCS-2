@@ -5,8 +5,11 @@ import aspect.AspectInterface;
 import aspect.Calculated;
 import generalInterfaces.Quizable;
 
-public class agentSurfaces extends Calculated {
+public class AgentSurfaces extends Calculated {
 	
+	/**
+	 * input body
+	 */
 	public Object get(AspectInterface aspectOwner)
 	{
 		Quizable agent = (Quizable) aspectOwner;

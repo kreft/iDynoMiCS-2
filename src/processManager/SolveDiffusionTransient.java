@@ -98,7 +98,8 @@ public class SolveDiffusionTransient extends ProcessManager
 					 * 
 					 * TODO use a diffusion setter
 					 */
-					sg.newArray(ArrayType.PRODUCTIONRATE);
+					// FIXME this was nullifying all the work don by the ConstructProductRateGrids
+//					sg.newArray(ArrayType.PRODUCTIONRATE);
 					sg.newArray(ArrayType.DIFFUSIVITY, 
 												_diffusivity.get(soluteName));
 					/*
@@ -127,8 +128,11 @@ public class SolveDiffusionTransient extends ProcessManager
 						/* Find all agents that overlap with this voxel. */
 						origin = solute.getVoxelOrigin(coord);
 						solute.getVoxelSideLengthsTo(dimension, coord);
-						localAgents = 
-							  agents._agentTree.cyclicsearch(origin, dimension);
+						
+						/* NOTE the agent tree is always the amount of actual dimension */
+						localAgents = agents._agentTree.cyclicsearch(
+									  Vector.subset(origin,agents.getNumDims()),
+									  Vector.subset(dimension,agents.getNumDims()));
 						/* If there are none, move onto the next voxel. */
 						if ( localAgents.isEmpty() )
 							continue;
@@ -154,12 +158,11 @@ public class SolveDiffusionTransient extends ProcessManager
 						 */
 						
 						@SuppressWarnings("unchecked")
-						List<String> reactions = 
-								(List<String>) agent.get("reactions");
+						List<Reaction> reactions = 
+								(List<Reaction>) agent.get("reactions");
 
-						for (String reaction : reactions)
+						for (Reaction reaction : reactions)
 						{
-							environment.getReaction(reaction);
 							System.out.println(reaction.toString());
 						}
 					}

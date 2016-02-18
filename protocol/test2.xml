@@ -49,7 +49,7 @@
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="0.0">
-					<vox coord="0,0,0" value="15.0" /> <!-- derp please make a method to load entire grids -->
+					<vox coord="0,0,0" value="15.0" /> <!-- please make a method to load entire grids -->
 				</solute>
 				<solute name="solute2" concentration="2.0" />
 			</solutes>
