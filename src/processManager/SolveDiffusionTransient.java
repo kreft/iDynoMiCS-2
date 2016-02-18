@@ -94,6 +94,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * Bas please add commenting on the function and approach of this process
 	 * manager
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
@@ -117,15 +118,103 @@ public class SolveDiffusionTransient extends ProcessManager
 			/*
 			 * Set up the agent biomass distribution maps.
 			 */
-			refreshAgentDistributionMaps(solute, agents);
+			for ( Agent a : agents.getAllLocatedAgents() )
+			{
+				HashMap<int[],Double> distributionMap = new HashMap<int[],Double>();
+				a.set("volumeDistribution", distributionMap);
+			}
+			/*
+			 * Now fill these agent biomass distribution maps.
+			 */
+			double[] location;
+			double[] dimension = new double[3];
+			List<Agent> neighbors;
+			List<SubgridPoint> sgPoints;
+			HashMap<int[],Double> distributionMap;
+			Collision collision = new Collision(null, agents.getShape());
+			for ( int[] coord = solute.resetIterator(); 
+					solute.isIteratorValid(); coord = solute.iteratorNext())
+			{
+				/* Find all agents that overlap with this voxel. */
+				location = solute.getVoxelOrigin(coord);
+				solute.getVoxelSideLengthsTo(dimension, coord);
+				/* NOTE the agent tree is always the amount of actual dimension */
+				neighbors = agents._agentTree.cyclicsearch(
+							  Vector.subset(location,agents.getNumDims()),
+							  Vector.subset(dimension,agents.getNumDims()));
+				/* If there are none, move onto the next voxel. */
+				if ( neighbors.isEmpty() )
+					continue;
+				/* Filter the agents for those with reactions. */
+				neighbors.removeIf(NO_REAC_FILTER);
+				/* 
+				 * Find the sub-grid resolution from the smallest agent, and
+				 * get the list of sub-grid points.
+				 */
+				// TODO the scaling factor of a quarter is chosen arbitrarily
+				double minRad = Vector.min(dimension);
+				for ( Agent a : agents.getAllLocatedAgents() )
+					if ( a.checkAspect(NameRef.bodyRadius) )
+					{
+						minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
+					}
+				sgPoints = solute.getCurrentSubgridPoints(0.25 * minRad);
+				/* 
+				 * Get the subgrid points and query the agents.
+				 */
+				for ( Agent a : neighbors )
+				{
+					if ( ! a.checkAspect(NameRef.agentReactions) )
+						continue;
+					List<Surface> surfaces = 
+									(List<Surface>) a.get(NameRef.surfaceList);
+					distributionMap = (HashMap<int[],Double>) 
+											a.getValue("volumeDistribution");
+					
+					sgLoop: for ( SubgridPoint p : sgPoints )
+					{
+						/* Only give location in actual dimensions. */
+						// NOTE Rob [18Feb2016]: out of curiosity, why do we make a
+						// Ball and not a Point?
+						Ball b = new Ball(
+								Vector.subset(p.realLocation,agents.getNumDims()),
+								0.0);
+						b.init(collision);
+						for ( Surface s : surfaces )
+							if ( b.distanceTo(s) < 0.0 )
+							{
+								/*
+								 * If this is not the first time the agent has seen
+								 * this coordinate, we need to add the volume
+								 * rather than overwriting it.
+								 * 
+								 * Note that we need to copy the coord vector so
+								 * that it does not change when the SpatialGrid
+								 * iterator moves on!
+								 */
+								double newVolume = p.volume;
+								if ( distributionMap.containsKey(coord) )
+									newVolume += distributionMap.get(coord);
+								distributionMap.put(Vector.copy(coord), newVolume);
+								/*
+								 * We only want to count this point once, even
+								 * if other surfaces of the same agent hit it.
+								 */
+								continue sgLoop;
+							}
+					}
+				}
+			}
 		}
+		/*
+		 * Make the updater method
+		 */
 		PDEupdater updater = new PDEupdater()
 		{
-			/**
+			/*
 			 * This is the updater method that the PDEsolver will use before
 			 * each mini-timestep.
 			 */
-			@SuppressWarnings("unchecked")
 			public void prestep(HashMap<String, SpatialGrid> variables)
 			{
 				/*
@@ -262,90 +351,5 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		this._solver.setUpdater(updater);
 		this._solver.solve(environment.getSolutes(), this._timeStepSize);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private static void refreshAgentDistributionMaps(SpatialGrid solute,
-														AgentContainer agents)
-	{
-		double[] location;
-		double[] dimension = new double[3];
-		List<Agent> neighbors;
-		List<SubgridPoint> sgPoints;
-		HashMap<int[],Double> distributionMap;
-		Collision collision = new Collision(null, agents.getShape());
-		for ( int[] coord = solute.resetIterator(); 
-				solute.isIteratorValid(); coord = solute.iteratorNext())
-		{
-			/* Find all agents that overlap with this voxel. */
-			location = solute.getVoxelOrigin(coord);
-			solute.getVoxelSideLengthsTo(dimension, coord);
-			/* NOTE the agent tree is always the amount of actual dimension */
-			neighbors = agents._agentTree.cyclicsearch(
-						  Vector.subset(location,agents.getNumDims()),
-						  Vector.subset(dimension,agents.getNumDims()));
-			/* If there are none, move onto the next voxel. */
-			if ( neighbors.isEmpty() )
-				continue;
-			/* Filter the agents for those with reactions. */
-			neighbors.removeIf(NO_REAC_FILTER);
-			/* 
-			 * Find the sub-grid resolution from the smallest agent, and
-			 * get the list of sub-grid points.
-			 */
-			// TODO the scaling factor of a quarter is chosen arbitrarily
-			double minRad = Vector.min(dimension);
-			for ( Agent a : agents.getAllLocatedAgents() )
-				if ( a.checkAspect(NameRef.bodyRadius) )
-				{
-					minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
-				}
-			sgPoints = solute.getCurrentSubgridPoints(0.25 * minRad);
-			/* 
-			 * Get the subgrid points and query the agents.
-			 */
-			for ( Agent a : neighbors )
-			{
-				if ( ! a.checkAspect(NameRef.agentReactions) )
-					continue;
-				List<Surface> surfaces = 
-								(List<Surface>) a.get(NameRef.surfaceList);
-				distributionMap = (HashMap<int[],Double>) 
-										a.getValue("volumeDistribution");
-				
-				sgLoop: for ( SubgridPoint p : sgPoints )
-				{
-					/* Only give location in actual dimensions. */
-					// NOTE Rob [18Feb2016]: out of curiosity, why do we make a
-					// Ball and not a Point?
-					Ball b = new Ball(
-							Vector.subset(p.realLocation,agents.getNumDims()),
-							0.0);
-					b.init(collision);
-					for ( Surface s : surfaces )
-						if ( b.distanceTo(s) < 0.0 )
-						{
-							/*
-							 * If this is not the first time the agent has seen
-							 * this coordinate, we need to add the volume
-							 * rather than overwriting it.
-							 * 
-							 * Note that we need to copy the coord vector so
-							 * that it does not change when the SpatialGrid
-							 * iterator moves on!
-							 */
-							double newVolume = p.volume;
-							if ( distributionMap.containsKey(coord) )
-								newVolume += distributionMap.get(coord);
-							distributionMap.put(Vector.copy(coord), newVolume);
-							/*
-							 * We only want to count this point once, even
-							 * if other surfaces of the same agent hit it.
-							 */
-							continue sgLoop;
-						}
-				}
-			}
-		}
 	}
 }
