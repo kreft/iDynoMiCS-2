@@ -106,6 +106,7 @@
 				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="comparmentName" type="String" value="second" />
+					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
 				<process name="agentGrowth" class="AgentGrowth" priority="0"
 					firstStep="0.0" package="processManager." />
@@ -123,10 +124,12 @@
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="1"
 					firstStep="0.0" package="processManager.">	
 					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
+					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
 				<process name="productionRateGrids" class="ConstructProductRateGrids" priority="0"
 					firstStep="0.0" package="processManager.">	
 					<aspect name="ProductionGrids" type="String[]" value="solute1,solute2" /> <!--  init -->
+					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
 			</processManagers>
 		</compartment>
