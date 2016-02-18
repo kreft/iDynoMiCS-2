@@ -4,7 +4,7 @@
 		comment="this is a file for testing purposes only.">
 		<general>
 			<param name="timeStepSize" value="1.0" />
-			<param name="endOfSimulation" value="60.0" />
+			<param name="endOfSimulation" value="150.0" />
 		</general>
 
 		<speciesLib>
@@ -67,6 +67,12 @@
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>
+				<reaction name="slowInflow">
+					<expression value="1.0 * inflow">
+						<constant name="inflow" value="0.0001" />
+					</expression>
+					<stochiometric component="solute1" coefficient="1.0" />
+				</reaction>
 			</reactions>
 			<agents>
 				<agent>
@@ -128,8 +134,8 @@
 				</process>
 				<!-- <process name="agentGrowth" class="AgentGrowth" priority="0"
 					firstStep="0.0" package="processManager." />  -->
-				<process name="agentMove" class="AgentStochasticMove"
-					priority="1" firstStep="0.0" package="processManager." />
+				<!-- <process name="agentMove" class="AgentStochasticMove"
+					priority="1" firstStep="0.0" package="processManager." /> -->
 				<process name="agentRelax" class="AgentRelaxation" priority="2"
 					firstStep="0.0" package="processManager.">
 					<aspect name="maxMovement" type="double" value="0.05" />
