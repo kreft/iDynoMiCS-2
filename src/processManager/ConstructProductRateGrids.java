@@ -61,12 +61,12 @@ public class ConstructProductRateGrids extends ProcessManager
 			/*
 			 * Iterate over all voxels, checking if there are agents nearby.
 			 */
-			int[] coord = solute.resetIterator();
 			double[] origin;
 			double[] dimension = new double[3];
 			List<Agent> neighbors;
 			HashMap<int[],Double> distributionMap;
-			while ( solute.isIteratorValid() )
+			for ( int[] coord = solute.resetIterator(); 
+					solute.isIteratorValid(); coord = solute.iteratorNext())
 			{
 				/* Find all agents that overlap with this voxel. */
 				origin = solute.getVoxelOrigin(coord);
@@ -77,10 +77,7 @@ public class ConstructProductRateGrids extends ProcessManager
 							  Vector.subset(dimension,agents.getNumDims()));
 				/* If there are none, move onto the next voxel. */
 				if ( neighbors.isEmpty() )
-				{
-					coord = solute.iteratorNext();
 					continue;
-				}
 				/* Filter the agents for those with reactions. */
 				neighbors.removeIf(noReacFilter);
 				/* 
@@ -133,7 +130,6 @@ public class ConstructProductRateGrids extends ProcessManager
 							}
 					}
 				}
-				coord = solute.iteratorNext();
 			}
 		}
 		/*
