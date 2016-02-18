@@ -1,0 +1,62 @@
+[2016.02.18 16:23:30] iDynoMiCS 2.0 alpha build 2016.02.04
+Output level is DEBUG, starting at [2016.02.18 16:23:30] 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+[2016.02.18 16:23:30] this is a file for testing purposes only.
+[2016.02.18 16:23:30] storing results in Simulations/mySim/
+[2016.02.18 16:23:30] Added solute "solute1" to environment
+[2016.02.18 16:23:30] Added solute "solute2" to environment
+[2016.02.18 16:23:30] Warning: could not identify reactions node, make sure your file contains all required elements. Attempt to continue with 'null' node.
+[2016.02.18 16:23:30] Writing new file: Simulations/mySim/second/second0000.svg
+[2016.02.18 16:23:30] Writing new file: Simulations/mySim/second/second0001.svg
+[2016.02.18 16:23:30] Writing new file: Simulations/mySim/second/second0002.svg
+[2016.02.18 16:23:30] Writing new file: Simulations/mySim/second/second0003.svg
+[2016.02.18 16:23:30] Writing new file: Simulations/mySim/second/second0004.svg
+[2016.02.18 16:23:30] Writing new file: Simulations/mySim/second/second0005.svg
+[2016.02.18 16:23:31] Writing new file: Simulations/mySim/second/second0006.svg
+[2016.02.18 16:23:31] Writing new file: Simulations/mySim/second/second0007.svg
+[2016.02.18 16:23:31] Writing new file: Simulations/mySim/second/second0008.svg
+[2016.02.18 16:23:31] Writing new file: Simulations/mySim/second/second0009.svg
+[2016.02.18 16:23:31] Writing new file: Simulations/mySim/second/second0010.svg
+[2016.02.18 16:23:32] Writing new file: Simulations/mySim/second/second0011.svg
+[2016.02.18 16:23:32] Writing new file: Simulations/mySim/second/second0012.svg
+[2016.02.18 16:23:32] Writing new file: Simulations/mySim/second/second0013.svg
+[2016.02.18 16:23:33] Writing new file: Simulations/mySim/second/second0014.svg
+[2016.02.18 16:23:33] Writing new file: Simulations/mySim/second/second0015.svg
+[2016.02.18 16:23:34] Writing new file: Simulations/mySim/second/second0016.svg
+[2016.02.18 16:23:34] Writing new file: Simulations/mySim/second/second0017.svg
+[2016.02.18 16:23:35] Writing new file: Simulations/mySim/second/second0018.svg
+[2016.02.18 16:23:36] Writing new file: Simulations/mySim/second/second0019.svg
+[2016.02.18 16:23:37] Writing new file: Simulations/mySim/second/second0020.svg
+[2016.02.18 16:23:38] Writing new file: Simulations/mySim/second/second0021.svg
+[2016.02.18 16:23:39] Writing new file: Simulations/mySim/second/second0022.svg
+[2016.02.18 16:23:39] Writing new file: Simulations/mySim/second/second0023.svg
+[2016.02.18 16:23:40] Writing new file: Simulations/mySim/second/second0024.svg
+[2016.02.18 16:23:41] Writing new file: Simulations/mySim/second/second0025.svg
+[2016.02.18 16:23:43] Writing new file: Simulations/mySim/second/second0026.svg
+[2016.02.18 16:23:44] Writing new file: Simulations/mySim/second/second0027.svg
+[2016.02.18 16:23:45] Writing new file: Simulations/mySim/second/second0028.svg
+[2016.02.18 16:23:47] Writing new file: Simulations/mySim/second/second0029.svg
+[2016.02.18 16:23:48] Writing new file: Simulations/mySim/second/second0030.svg
+[2016.02.18 16:23:50] Writing new file: Simulations/mySim/second/second0031.svg
+[2016.02.18 16:23:52] Writing new file: Simulations/mySim/second/second0032.svg
+[2016.02.18 16:23:54] Writing new file: Simulations/mySim/second/second0033.svg
+[2016.02.18 16:23:57] Writing new file: Simulations/mySim/second/second0034.svg
+[2016.02.18 16:24:00] Writing new file: Simulations/mySim/second/second0035.svg
+[2016.02.18 16:24:04] Writing new file: Simulations/mySim/second/second0036.svg
+[2016.02.18 16:24:09] Writing new file: Simulations/mySim/second/second0037.svg
+[2016.02.18 16:24:13] Writing new file: Simulations/mySim/second/second0038.svg
+[2016.02.18 16:24:18] Writing new file: Simulations/mySim/second/second0039.svg
+[2016.02.18 16:24:24] Writing new file: Simulations/mySim/second/second0040.svg
+[2016.02.18 16:24:30] Writing new file: Simulations/mySim/second/second0041.svg
+[2016.02.18 16:24:36] Writing new file: Simulations/mySim/second/second0042.svg
+[2016.02.18 16:24:43] Writing new file: Simulations/mySim/second/second0043.svg
+[2016.02.18 16:24:52] Writing new file: Simulations/mySim/second/second0044.svg
+[2016.02.18 16:25:03] Writing new file: Simulations/mySim/second/second0045.svg
+[2016.02.18 16:25:16] Writing new file: Simulations/mySim/second/second0046.svg
+[2016.02.18 16:25:28] Writing new file: Simulations/mySim/second/second0047.svg
+[2016.02.18 16:25:42] Writing new file: Simulations/mySim/second/second0048.svg
+[2016.02.18 16:25:56] Writing new file: Simulations/mySim/second/second0049.svg
+[2016.02.18 16:26:10] Writing new file: Simulations/mySim/second/second0050.svg
+[2016.02.18 16:26:26] Writing new file: Simulations/mySim/second/second0051.svg
+[2016.02.18 16:26:44] Writing new file: Simulations/mySim/second/second0052.svg
+[2016.02.18 16:27:09] Writing new file: Simulations/mySim/second/second0053.svg
