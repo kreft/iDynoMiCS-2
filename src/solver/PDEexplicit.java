@@ -55,7 +55,7 @@ public class PDEexplicit extends PDEsolver
 		{
 			var = variables.get(varName);
 			dt = Math.min(dt, 0.1 * var.getMinVoxVoxResSq() /
-										   var.getMin(ArrayType.DIFFUSIVITY));
+					 var.getMin(ArrayType.DIFFUSIVITY));
 			//System.out.println(varName+" ministep size "+dt); //bughunt
 		}
 		if ( dt < tFinal )

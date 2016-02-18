@@ -33,7 +33,7 @@ public class WriteAgentsSvg extends ProcessManager
 				agents.getShape().getDimensionLengths(), "GRAY");
 		
 		/*  */
-		SpatialGrid solute = environment.getSoluteGrid("solute1");
+		SpatialGrid solute = environment.getSoluteGrid("solute2");
 		int[] coord = solute.resetIterator();
 		double[] origin;
 		double[] dimension = new double[3];
@@ -41,10 +41,10 @@ public class WriteAgentsSvg extends ProcessManager
 		{
 			origin = solute.getVoxelOrigin(coord);
 			solute.getVoxelSideLengthsTo(dimension, coord);
-			double conc = solute.getValueAtCurrent(ArrayType.CONCN);
+			double conc = solute.getValueAtCurrent(ArrayType.CONCN) * 255.0/2.0;
 			conc = Math.min(conc, 255.0);
 			conc = Math.max(conc, 0.0);
-			int c = Math.round((float) conc);
+			int c = 255 - Math.round((float) conc);
 			svg.rectangle(Vector.subset(origin,agents.getNumDims()), 
 					Vector.subset(dimension,agents.getNumDims()), "rgb(" + c 
 					+ "," + c + "," + c + ")");

@@ -32,6 +32,9 @@ public class ConstructProductRateGrids extends ProcessManager
 	@Override
 	protected void internalStep(EnvironmentContainer environment, AgentContainer agents) {
 		
+		/* Collision evaluation object */
+		Collision collisionEval = new Collision(null, agents.getShape());
+		
 		/**
 		 * First clear them agent vol distribs
 		 */
@@ -109,7 +112,7 @@ public class ConstructProductRateGrids extends ProcessManager
 					{
 						/* NOTE only give coords in actual dimensions */
 						Ball b = new Ball(Vector.subset(p.realLocation,agents.getNumDims()), 0.0);
-						b.init(new Collision(null, agents.getShape()));
+						b.init(collisionEval);
 						for( Surface s : surfaces )
 							if ( b.distanceTo(s) < 0.0 )
 							{
