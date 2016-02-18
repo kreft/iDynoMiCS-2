@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
+	<simulation name="mySim" outputfolder="Simulations" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<general>
 			<param name="timeStepSize" value="1.0" />
@@ -141,18 +141,9 @@
 					<aspect name="maxMovement" type="double" value="0.05" />
 					<aspect name="relaxationMethod" type="String" value="EULER" />
 				</process>
-				<process name="prepareSolutes" class="PrepareSoluteGrids" priority="0"
-					firstStep="0.0" package="processManager.">
-					<aspect name="timerStepSize" type="double" value="9999999999999999.9" /> <!--  this is a work around, nicify -->
-				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="1"
 					firstStep="0.0" package="processManager.">	
 					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
-					<aspect name="timerStepSize" type="double" value="1.0" />
-				</process>
-				<process name="productionRateGrids" class="ConstructProductRateGrids" priority="0"
-					firstStep="0.0" package="processManager.">	
-					<aspect name="ProductionGrids" type="String[]" value="solute1,solute2" /> <!--  init -->
 					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
 			</processManagers>
