@@ -4,7 +4,7 @@
 		comment="this is a file for testing purposes only.">
 		<general>
 			<param name="timeStepSize" value="1.0" />
-			<param name="endOfSimulation" value="5.0" />
+			<param name="endOfSimulation" value="60.0" />
 		</general>
 
 		<speciesLib>
@@ -20,7 +20,7 @@
 					<item type="reaction">
 						<reaction name="testReact">
 							<expression value="solute1 * k">
-								<constant name="k" value="0.1" />
+								<constant name="k" value="0.01" />
 							</expression>
 							<stochiometric component="solute1" coefficient="-1.0" />
 							<stochiometric component="solute2" coefficient="0.5" />
@@ -62,14 +62,14 @@
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="2.0">
-					<vox coord="0,0,0" value="0.0" /> <!-- please make a method to load entire grids -->
+					 <!-- <vox coord="0,0,0" value="0.0" /> please make a method to load entire grids -->
 				</solute>
-				<solute name="solute2" concentration="2.0" />
+				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<agents>
 				<agent>
 					<aspect name="volumeDistribution" type="HashMap">
-						<item key="0,0,0" keyType="int[]" value="0.0" type="double" />
+						<!--   <item key="0,0,0" keyType="int[]" value="0.0" type="double" /> -->
 					</aspect>				
 					<aspect name="species" type="String" value="AOB" />
 					<aspect name="mass" type="double" value="0.2" />
