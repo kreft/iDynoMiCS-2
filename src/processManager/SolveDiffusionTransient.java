@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import agent.Agent;
+import dataIO.Log;
+import dataIO.Log.tier;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.subgrid.SubgridPoint;
@@ -163,7 +165,7 @@ public class SolveDiffusionTransient extends ProcessManager
 
 						for (Reaction reaction : reactions)
 						{
-							System.out.println(reaction.toString());
+							Log.out(tier.BULK, reaction.toString());
 						}
 					}
 				}
