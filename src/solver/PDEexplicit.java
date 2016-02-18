@@ -3,12 +3,10 @@
  */
 package solver;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import utility.ExtraMath;
 
 /**
  * \brief TODO
@@ -42,8 +40,6 @@ public class PDEexplicit extends PDEsolver
 	@Override
 	public void solve(HashMap<String, SpatialGrid> variables, double tFinal)
 	{
-		//System.out.println("PDE solver being called "); //bughunt
-		this._updater.presolve(variables);
 		/*
 		 * Find the largest time step that suits all variables.
 		 */
