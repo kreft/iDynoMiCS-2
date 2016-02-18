@@ -3,8 +3,6 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import dataIO.Log.*;
-import dataIO.XmlLoad;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -96,7 +94,7 @@ public class Agent implements Quizable, AspectInterface
 	{
 		aspectRegistry.set(key, aspect);
 	}
-
+	
 	/**
 	 * return the compartment the agent is registered to
 	 * @return
