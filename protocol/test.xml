@@ -20,8 +20,9 @@
 					<item type="reaction">
 						<reaction name="testReact">
 							<expression value="solute1 * k">
-								<constant name="k" value="0.001" />
+								<constant name="k" value="0.0005" />
 							</expression>
+							<stochiometric component="AOB" coefficient="0.1" />
 							<stochiometric component="solute1" coefficient="-1.0" />
 							<stochiometric component="solute2" coefficient="0.5" />
 						</reaction>
@@ -62,7 +63,6 @@
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="2.0">
-					 <!-- <vox coord="0,0,0" value="0.0" /> please make a method to load entire grids -->
 				</solute>
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
@@ -71,7 +71,6 @@
 			<agents>
 				<agent>
 					<aspect name="volumeDistribution" type="HashMap">
-						<!--   <item key="0,0,0" keyType="int[]" value="0.0" type="double" /> -->
 					</aspect>				
 					<aspect name="species" type="String" value="AOB" />
 					<aspect name="mass" type="double" value="0.2" />
@@ -127,8 +126,8 @@
 					<aspect name="timerStepSize" type="double" value="1.0" />
 					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
 				</process>
-				<process name="agentGrowth" class="AgentGrowth" priority="0"
-					firstStep="0.0" package="processManager." />
+				<!-- <process name="agentGrowth" class="AgentGrowth" priority="0"
+					firstStep="0.0" package="processManager." />  -->
 				<process name="agentMove" class="AgentStochasticMove"
 					priority="1" firstStep="0.0" package="processManager." />
 				<process name="agentRelax" class="AgentRelaxation" priority="2"
