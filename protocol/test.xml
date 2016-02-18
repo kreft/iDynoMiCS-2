@@ -20,8 +20,9 @@
 					<item type="reaction">
 						<reaction name="testReact">
 							<expression value="solute1 * k">
-								<constant name="k" value="0.01" />
+								<constant name="k" value="0.0005" />
 							</expression>
+							<stochiometric component="AOB" coefficient="0.1" />
 							<stochiometric component="solute1" coefficient="-1.0" />
 							<stochiometric component="solute2" coefficient="0.5" />
 						</reaction>
@@ -62,14 +63,14 @@
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="2.0">
-					 <!-- <vox coord="0,0,0" value="0.0" /> please make a method to load entire grids -->
 				</solute>
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
+			<reactions>
+			</reactions>
 			<agents>
 				<agent>
 					<aspect name="volumeDistribution" type="HashMap">
-						<!--   <item key="0,0,0" keyType="int[]" value="0.0" type="double" /> -->
 					</aspect>				
 					<aspect name="species" type="String" value="AOB" />
 					<aspect name="mass" type="double" value="0.2" />
@@ -81,7 +82,7 @@
 						<point position="12.2, 12.2" />
 					</aspect>
 				</agent>
-	<!--			<agent>
+				<agent>
 					<aspect name="species" type="String" value="AOB" />
 					<aspect name="mass" type="double" value="0.2" />
 					<aspect name="density" type="double" value="1" />
@@ -100,22 +101,39 @@
 					<aspect name="body" type="body">
 						<point position="5.3, 12.2" />
 					</aspect>
-				</agent>   -->
+				</agent> 
 			</agents>
 			<processManagers>
 				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
 					firstStep="0.0" package="processManager.">
-					<aspect name="comparmentName" type="String" value="second" />
+					<aspect name="prefix" type="String" value="out_solute1" />
+					<aspect name="maxConcentration" type="double" value="2.0" />
+					<aspect name="solute" type="String" value="solute1" />
 					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
-				<process name="agentGrowth" class="AgentGrowth" priority="0"
-					firstStep="0.0" package="processManager." />
+				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
+					firstStep="0.0" package="processManager.">
+					<aspect name="prefix" type="String" value="out_solute2" />
+					<aspect name="maxConcentration" type="double" value="2.0" />
+					<aspect name="solute" type="String" value="solute2" />
+					<aspect name="timerStepSize" type="double" value="1.0" />
+				</process>
+				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
+					firstStep="0.0" package="processManager.">
+					<aspect name="prefix" type="String" value="rate_solute2" />
+					<aspect name="maxConcentration" type="double" value="2.0" />
+					<aspect name="solute" type="String" value="solute2" />
+					<aspect name="timerStepSize" type="double" value="1.0" />
+					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
+				</process>
+				<!-- <process name="agentGrowth" class="AgentGrowth" priority="0"
+					firstStep="0.0" package="processManager." />  -->
 				<process name="agentMove" class="AgentStochasticMove"
 					priority="1" firstStep="0.0" package="processManager." />
 				<process name="agentRelax" class="AgentRelaxation" priority="2"
 					firstStep="0.0" package="processManager.">
 					<aspect name="maxMovement" type="double" value="0.05" />
-					<aspect name="relaxationMethod" type="String" value="SHOVE" />
+					<aspect name="relaxationMethod" type="String" value="EULER" />
 				</process>
 				<process name="prepareSolutes" class="PrepareSoluteGrids" priority="0"
 					firstStep="0.0" package="processManager.">

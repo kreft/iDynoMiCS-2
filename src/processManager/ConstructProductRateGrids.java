@@ -32,6 +32,9 @@ public class ConstructProductRateGrids extends ProcessManager
 	@Override
 	protected void internalStep(EnvironmentContainer environment, AgentContainer agents) {
 		
+		/* Collision evaluation object */
+		Collision collisionEval = new Collision(null, agents.getShape());
+		
 		/**
 		 * First clear them agent vol distribs
 		 */
@@ -109,7 +112,7 @@ public class ConstructProductRateGrids extends ProcessManager
 					{
 						/* NOTE only give coords in actual dimensions */
 						Ball b = new Ball(Vector.subset(p.realLocation,agents.getNumDims()), 0.0);
-						b.init(new Collision(null, agents.getShape()));
+						b.init(collisionEval);
 						for( Surface s : surfaces )
 							if ( b.distanceTo(s) < 0.0 )
 							{
@@ -162,9 +165,16 @@ public class ConstructProductRateGrids extends ProcessManager
 					// NOTE this used to ignore reactants that do not effect the rate
 					for ( String reactant : r.getStoichiometry().keySet())
 					{
+						/* quick fix to skip reactant that is biomass */
+						try {
 						aSG = environment.getSoluteGrid(reactant);
 						concentrations.put(reactant, 
 								aSG.getValueAt(ArrayType.CONCN, coord));
+						}
+						catch(NullPointerException e)
+						{
+							
+						}
 						// NOTE: was getting strange [16,0,0] coord values here (index out of bounds)
 					}
 					for ( String varName : r.variableNames )
@@ -187,13 +197,31 @@ public class ConstructProductRateGrids extends ProcessManager
 						}
 					}
 					double rate = r.getRate(concentrations);
-					
+					double growthRate = 0.0;
 					// NOTE this used to ignore reactants that do not effect the rate
 					for ( String reactant : r.getStoichiometry().keySet())
 					{
+						/* quick and dirty fix to handle biomass */
+						try
+						{
 						aSG = environment.getSoluteGrid(reactant);
 						aSG.addValueAt(ArrayType.PRODUCTIONRATE, coord, 
 								rate * r.getStoichiometry(reactant));	
+						}
+						catch(NullPointerException e)
+						{
+							if(reactant.equals(a.getString("species")))
+							{
+								/* testing */
+								growthRate = rate * r.getStoichiometry(reactant);
+								double dt = this._timeStepSize;
+								/* timespan of growth event */
+								a.set("growthRate", growthRate);
+								a.event("growth",dt);
+								a.event("divide", _timeStepSize);
+							}
+						}
+
 					}
 					for ( String varName : r.variableNames )
 					{
@@ -207,13 +235,13 @@ public class ConstructProductRateGrids extends ProcessManager
 							/* put this here as example, though it may be nicer
 							 * to launch a separate agent growth process manager
 							 * here */
-							double growthRate = 0.0;
+
 							/* the average growth rate for the entire agent, 
 							 * not just for the part that is in one grid cell 
 							 * later this may be specific separate expressions
 							 * that control the growth of separate parts of the
 							 * agent (eg lipids/ other storage compounds) */
-							double dt = 0.0;
+							double dt = this._timeStepSize;
 							/* timespan of growth event */
 							a.set("growthRate", growthRate);
 							a.event("growth",dt);

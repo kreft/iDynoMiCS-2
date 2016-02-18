@@ -107,7 +107,7 @@ public abstract interface AspectInterface {
 					return hMap;
 			}
 		}
-		Log.out(tier.CRITICAL, "Aspect interface encountered unidentified object type");
+		Log.out(tier.CRITICAL, "Aspect interface encountered unidentified object type: " + type);
 		return null;
 	}
 	
