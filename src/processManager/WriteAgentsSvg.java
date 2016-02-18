@@ -32,7 +32,26 @@ public class WriteAgentsSvg extends ProcessManager
 	/**
 	 * if any, the solute that is used to draw the solute gradient
 	 */
-	protected String _solute = "solute1";
+	protected String _solute;
+	
+	/**
+	 * the prefix for the svg file output
+	 */
+	protected String _prefix;
+	
+	/**
+	 * 
+	 */
+	protected ArrayType _arrayType;
+	
+	public void init()
+	{
+		this._solute = getString("solute");
+		this._maxConcn = getDouble("maxConcentration");
+		this._prefix = getString("prefix");
+		this._arrayType = (checkAspect("arrayType") ? ArrayType.valueOf(
+				getString("arrayType")) : ArrayType.CONCN);
+	}
 	
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
@@ -40,8 +59,7 @@ public class WriteAgentsSvg extends ProcessManager
 	{
 		
 		/* initiate new file */
-		svg.newSvg(Helper.obtainInput((String) reg().getValue(this, 
-				"comparmentName"), "svg writer misses compartment name"));
+		svg.newSvg(this._prefix);
 		
 		/* draw computational domain rectangle */		
 		svg.rectangle(Vector.zerosDbl(agents.getNumDims()),
@@ -59,7 +77,8 @@ public class WriteAgentsSvg extends ProcessManager
 			solute.getVoxelSideLengthsTo(dimension, coord);
 			
 			/* scale the solute concentration for coloring */
-			double conc = solute.getValueAtCurrent(ArrayType.CONCN) * 255.0/_maxConcn;
+			double conc = solute.getValueAtCurrent(_arrayType) * 
+					255.0 / _maxConcn;
 			conc = Math.min(conc, 255.0);
 			conc = Math.max(conc, 0.0);
 			int c = 255 - Math.round((float) conc);
@@ -78,7 +97,8 @@ public class WriteAgentsSvg extends ProcessManager
 			@SuppressWarnings("unchecked")
 			List<double[]> joints = (List<double[]>) a.get("joints");
 			for (int i = 0; joints.size() > i; i++)
-				svg.circle(joints.get(i), a.getDouble("radius"), a.getString("pigment"));
+				svg.circle(joints.get(i), a.getDouble("radius"), 
+						a.getString("pigment"));
 		}
 		
 		/* close svg file */

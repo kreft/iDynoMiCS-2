@@ -107,8 +107,25 @@
 			<processManagers>
 				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
 					firstStep="0.0" package="processManager.">
-					<aspect name="comparmentName" type="String" value="second" />
+					<aspect name="prefix" type="String" value="out_solute1" />
+					<aspect name="maxConcentration" type="double" value="2.0" />
+					<aspect name="solute" type="String" value="solute1" />
 					<aspect name="timerStepSize" type="double" value="1.0" />
+				</process>
+				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
+					firstStep="0.0" package="processManager.">
+					<aspect name="prefix" type="String" value="out_solute2" />
+					<aspect name="maxConcentration" type="double" value="2.0" />
+					<aspect name="solute" type="String" value="solute2" />
+					<aspect name="timerStepSize" type="double" value="1.0" />
+				</process>
+				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
+					firstStep="0.0" package="processManager.">
+					<aspect name="prefix" type="String" value="rate_solute2" />
+					<aspect name="maxConcentration" type="double" value="2.0" />
+					<aspect name="solute" type="String" value="solute2" />
+					<aspect name="timerStepSize" type="double" value="1.0" />
+					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
 				</process>
 				<process name="agentGrowth" class="AgentGrowth" priority="0"
 					firstStep="0.0" package="processManager." />
@@ -117,7 +134,7 @@
 				<process name="agentRelax" class="AgentRelaxation" priority="2"
 					firstStep="0.0" package="processManager.">
 					<aspect name="maxMovement" type="double" value="0.05" />
-					<aspect name="relaxationMethod" type="String" value="SHOVE" />
+					<aspect name="relaxationMethod" type="String" value="EULER" />
 				</process>
 				<process name="prepareSolutes" class="PrepareSoluteGrids" priority="0"
 					firstStep="0.0" package="processManager.">
