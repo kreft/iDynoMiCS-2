@@ -50,7 +50,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * include those that have reactions.
 	 */
 	protected final static Predicate<Agent> NO_REAC_FILTER = 
-								(a -> ! a.checkAspect(NameRef.agentReactions));
+								(a -> ! a.isAspect(NameRef.agentReactions));
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -155,7 +155,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				// TODO the scaling factor of a quarter is chosen arbitrarily
 				double minRad = Vector.min(dimension);
 				for ( Agent a : agents.getAllLocatedAgents() )
-					if ( a.checkAspect(NameRef.bodyRadius) )
+					if ( a.isAspect(NameRef.bodyRadius) )
 					{
 						minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
 					}
@@ -165,7 +165,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				 */
 				for ( Agent a : neighbors )
 				{
-					if ( ! a.checkAspect(NameRef.agentReactions) )
+					if ( ! a.isAspect(NameRef.agentReactions) )
 						continue;
 					List<Surface> surfaces = 
 									(List<Surface>) a.get(NameRef.surfaceList);
@@ -229,7 +229,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				HashMap<int[],Double> distributionMap;
 				for ( Agent a : agents.getAllLocatedAgents() )
 				{
-					if ( ! a.checkAspect(NameRef.agentReactions) )
+					if ( ! a.isAspect(NameRef.agentReactions) )
 						continue;
 					reactions = (List<Reaction>) a.get("reactions");
 					distributionMap = (HashMap<int[],Double>)
@@ -270,7 +270,7 @@ public class SolveDiffusionTransient extends ProcessManager
 									// FIXME: was getting strange [16,0,0] 
 									// coord values here (index out of bounds)
 								}
-								else if ( a.checkAspect(varName) )
+								else if ( a.isAspect(varName) )
 								{
 									// TODO divide by the voxel volume here?
 									concn = a.getDouble(varName); 
@@ -310,7 +310,7 @@ public class SolveDiffusionTransient extends ProcessManager
 									aSG.addValueAt(ArrayType.PRODUCTIONRATE, 
 														coord, productionRate);
 								}
-								else if ( a.checkAspect(productName) )
+								else if ( a.isAspect(productName) )
 								{
 									/* 
 									 * NOTE Bas [17Feb2016]: Put this here as 

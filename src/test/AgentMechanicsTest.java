@@ -95,7 +95,7 @@ public class AgentMechanicsTest {
 		Log.out(tier.NORMAL, "Time: " + agentRelax.getTimeForNextStep());
 		// write initial state
 //		pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
-		svg.writepov(testcompartment.name, testcompartment.agents);
+//		svg.writepov(testcompartment.name, testcompartment.agents);
 		for ( ; nStep > 0; nStep-- )
 		{
 			// step the process manager
@@ -105,7 +105,7 @@ public class AgentMechanicsTest {
 			
 			// write output
 //			pov.writepov(testcompartment.name, testcompartment.agents.getAllLocatedAgents());
-			svg.writepov(testcompartment.name, testcompartment.agents);
+//			svg.writepov(testcompartment.name, testcompartment.agents);
 			Log.out(tier.NORMAL, mStep-nStep + " Time: " + agentRelax.getTimeForNextStep());
 		}
 		Log.out(tier.QUIET,"finished");

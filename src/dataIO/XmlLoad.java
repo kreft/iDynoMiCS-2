@@ -40,7 +40,7 @@ public class XmlLoad
 		/*
 		 * Find the name of this compartment and its shape.
 		 */
-		String compName = xmlCompartment.getAttribute("name");
+		String compName = xmlCompartment.getAttribute(XmlLabel.nameAttribute);
 		compName = Helper.obtainInput(compName, "comparment name");
 		Compartment comp = Idynomics.simulator.addCompartment(compName);
 		comp.init(xmlCompartment);
@@ -48,10 +48,10 @@ public class XmlLoad
 		/**
 		 * Load agents and agent container
 		 */
-		Element agents = XmlHandler.loadUnique(xmlCompartment,"agents");
+		Element agents = XmlHandler.loadUnique(xmlCompartment,XmlLabel.agents);
 		if(agents != null)
 		{
-			NodeList agentNodes = agents.getElementsByTagName("agent");
+			NodeList agentNodes = agents.getElementsByTagName(XmlLabel.agent);
 			for (int j = 0; j < agentNodes.getLength(); j++) 
 				comp.addAgent(new Agent(agentNodes.item(j)));
 		}
@@ -62,10 +62,11 @@ public class XmlLoad
 		 * Process managers
 		 */
 		Element processManagers = XmlHandler.loadUnique(
-				xmlCompartment,"processManagers");
+				xmlCompartment,XmlLabel.processManagers);
 		if(processManagers != null)
 		{
-			NodeList pNodes = processManagers.getElementsByTagName("process");
+			NodeList pNodes = processManagers.getElementsByTagName(
+					XmlLabel.process);
 			for (int j = 0; j < pNodes.getLength(); j++) 
 			{
 				comp.addProcessManager( ProcessManager.getNewInstance(
@@ -79,7 +80,6 @@ public class XmlLoad
 			Helper.abort(3000);
 		}
 	}
-	
 	
 	/**
 	 * build up simulation from xml file.
@@ -99,19 +99,17 @@ public class XmlLoad
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
 		Idynomics.simulator.speciesLibrary.setAll( XmlHandler.loadUnique(
-				Param.xmlDoc, "speciesLib"));
+				Param.xmlDoc, XmlLabel.speciesLibrary));
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = 
-				Param.xmlDoc.getElementsByTagName("compartment");
+				Param.xmlDoc.getElementsByTagName(XmlLabel.compartment);
 		for (int i = 0; i < compartmentNodes.getLength(); i++) 
 		{
 			constructCompartment(compartmentNodes.item(i));
 		}
 	}
 
-
-	
 	/**
 	 * Load speciesModules is used to obtain all speciesModules from an XML node
 	 * and load the corresponding speciesModules into the speciesModules List of
@@ -124,7 +122,8 @@ public class XmlLoad
 	{
 		Element xmlSpecies = (Element) xmlNode;
 		
-		NodeList nodes = xmlSpecies.getElementsByTagName("speciesModule");
+		NodeList nodes = xmlSpecies.getElementsByTagName(
+				XmlLabel.speciesModule);
 		for (int j = 0; j < nodes.getLength(); j++) 
 		{
 			Element s = (Element) nodes.item(j);
@@ -135,7 +134,7 @@ public class XmlLoad
 			 * species here.
 			 * @param name
 			 */
-			species.reg().addSubModule(s.getAttribute("name"), 
+			species.reg().addSubModule(s.getAttribute(XmlLabel.nameAttribute), 
 					Idynomics.simulator.speciesLibrary);
 		}
 	}
@@ -153,9 +152,11 @@ public class XmlLoad
 		 */
 		Param.xmlDoc = XmlHandler.loadDocument(Param.protocolFile);
 		Element sim = XmlHandler.loadUnique((Element) Param.xmlDoc, 
-				"simulation");
-		Param.simulationName = XmlHandler.obtainAttribute(sim, "name");
-		Param.outputRoot = XmlHandler.obtainAttribute(sim, "outputfolder");
+				XmlLabel.simulation);
+		Param.simulationName = XmlHandler.obtainAttribute(sim, 
+				XmlLabel.nameAttribute);
+		Param.outputRoot = XmlHandler.obtainAttribute(sim, 
+				XmlLabel.outputFolder);
 		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + 
 				"/";
 		tier t = null;
@@ -163,7 +164,8 @@ public class XmlLoad
 		{
 			try
 			{
-				t = tier.valueOf(XmlHandler.obtainAttribute(sim,"log"));
+				t = tier.valueOf(XmlHandler.obtainAttribute(sim,
+						XmlLabel.logLevel));
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -172,7 +174,8 @@ public class XmlLoad
 			}
 		}
 		Log.set(t);
-		Param.simulationComment = XmlHandler.gatherAttribute(sim,"comment");
+		Param.simulationComment = XmlHandler.gatherAttribute(sim,
+				XmlLabel.commentAttribute);
 	}
 	
 	/**
@@ -180,10 +183,12 @@ public class XmlLoad
 	 */
 	public static void loadGeneralParameters()
 	{
-		NodeList general = XmlHandler.getAll(Param.xmlDoc,"general");
+		NodeList general = XmlHandler.getAll(Param.xmlDoc,
+				XmlLabel.generalParams);
 		for (int i = 0; i < general.getLength(); i++) 
 		{
-			NodeList paramNodes = XmlHandler.getAll(general.item(i),"param");
+			NodeList paramNodes = XmlHandler.getAll(general.item(i),
+					XmlLabel.parameter);
 			for (int j = 0; j < paramNodes.getLength(); j++) 
 			{
 				Element s = (Element) paramNodes.item(j);

@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import boundary.Boundary;
+import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -58,7 +59,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
 		AspectInterface.loadAspects(proc, xmlNode);
 		
-		proc.setName( p.getAttribute( NameRef.xmlName ));
+		proc.setName( p.getAttribute( XmlLabel.nameAttribute ));
 		proc.setPriority( Integer.valueOf( 
 				p.getAttribute( NameRef.processPriority) ));
 		proc.setTimeForNextStep( Double.valueOf(

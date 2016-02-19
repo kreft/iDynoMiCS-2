@@ -141,8 +141,9 @@ public class XmlHandler {
 	public static void setStaticField(Class<?> c, Element element)
 	{
 		try {
-			Field f = c.getDeclaredField(element.getAttribute("name"));
-			f.set(c, element.getAttribute("value"));
+			Field f = c.getDeclaredField(
+					element.getAttribute(XmlLabel.nameAttribute));
+			f.set(c, element.getAttribute(XmlLabel.valueAttribute));
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -151,7 +152,8 @@ public class XmlHandler {
 			// is initiated (the log it self is start from a general 
 			// param
 			System.err.println("Warning: attempting to set non existend"
-					+ " general paramater: " + element.getAttribute("name") );
+					+ " general paramater: " + 
+					element.getAttribute(XmlLabel.nameAttribute) );
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -228,7 +230,7 @@ public class XmlHandler {
 	public static void display(String prefix, Element element)
 	{
 		String ln = " " + element.getTagName() + " " 
-				+ element.getAttribute("name");
+				+ element.getAttribute(XmlLabel.nameAttribute);
 		if (prefix == null) 
 			System.out.println(ln);
 		else
