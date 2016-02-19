@@ -177,6 +177,11 @@ public class SolveDiffusionTransient extends ProcessManager
 						/* Only give location in actual dimensions. */
 						// NOTE Rob [18Feb2016]: out of curiosity, why do we make a
 						// Ball and not a Point?
+						// Bas [19.02.16] since a point is not a surface object
+						// but an element of a surface object, a surface can 
+						// be build up out of multiple points, a Ball has a
+						// single point, with a radius of 0.0 it is basically a
+						// point but also a surface object
 						Ball b = new Ball(
 								Vector.subset(p.realLocation,agents.getNumDims()),
 								0.0);
