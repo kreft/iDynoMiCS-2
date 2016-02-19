@@ -5,6 +5,7 @@ package processManager;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import agent.Agent;
@@ -221,8 +222,52 @@ public class SolveDiffusionTransient extends ProcessManager
 			 * This is the updater method that the PDEsolver will use before
 			 * each mini-timestep.
 			 */
-			public void prestep(HashMap<String, SpatialGrid> variables, double dt)
+			public void prestep(HashMap<String, SpatialGrid> variables, 
+					double dt)
 			{
+				/** gather a defaultGrid to iterate over */
+				SpatialGrid defaultGrid = environment.getSoluteGrid(environment.
+						getSolutes().keySet().iterator().next());
+				
+				SpatialGrid solute;
+				for ( int[] coord = defaultGrid.resetIterator(); 
+						defaultGrid.isIteratorValid(); 
+							coord = defaultGrid.iteratorNext())
+				{
+					/* iterate over all compartment reactions */
+					for (Reaction r : environment.getReactions() )
+					{
+						
+						/* obtain concentrations in gridCell */
+						HashMap<String,Double> concentrations = 
+								new HashMap<String,Double>();
+						for ( String varName : r.variableNames )
+						{
+							if ( environment.isSoluteName(varName) )
+							{
+								solute = environment.getSoluteGrid(varName);
+								concentrations.put(varName, solute.getValueAt(
+										ArrayType.CONCN, coord));
+							}
+						}
+						
+						/* obtain rate of the reaction */
+						double rate = r.getRate(concentrations);
+						double productionRate;
+						for ( String product : r.getStoichiometry().keySet())
+						{
+							productionRate = rate * r.getStoichiometry(product);
+							if ( environment.isSoluteName(product) )
+							{
+								/* write rate for each product to grid */
+								solute = environment.getSoluteGrid(product);
+								solute.addValueAt(ArrayType.PRODUCTIONRATE, 
+										coord, productionRate);
+							}
+						}
+					}
+				}
+				
 				/*
 				 * Loop over all agents, applying their reactions to the
 				 * relevant solute grids, in the voxels calculated before the 
