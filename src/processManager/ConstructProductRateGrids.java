@@ -231,7 +231,7 @@ public class ConstructProductRateGrids extends ProcessManager
 							// TODO Rob[18Feb2016]: Surely this should happen
 							// at the very end? 
 							double dt = this._timeStepSize;
-							a.event("growth", dt * productionRate);
+							a.event("growth", dt);
 							a.event("divide", _timeStepSize);
 						}
 						else

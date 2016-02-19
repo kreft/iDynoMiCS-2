@@ -14,6 +14,7 @@ import grid.subgrid.SubgridPoint;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
+import idynomics.Timer;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import solver.PDEexplicit;
@@ -215,7 +216,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			 * This is the updater method that the PDEsolver will use before
 			 * each mini-timestep.
 			 */
-			public void prestep(HashMap<String, SpatialGrid> variables)
+			public void prestep(HashMap<String, SpatialGrid> variables, double dt)
 			{
 				/*
 				 * Loop over all agents, applying their reactions to the
@@ -326,15 +327,18 @@ public class SolveDiffusionTransient extends ProcessManager
 									 * separate parts of the agent (eg lipids/
 									 * other storage compounds)
 									 */
-									productionRate += (double) 
-													a.getDouble("growthRate");
+								}
+								else if ( a.getString("species").equals(productName))
+								{
+									//NOTE: getXXX does not need casting
 									a.set("growthRate", productionRate);
 									
 									/* Timespan of growth event */
-									// TODO Rob[18Feb2016]: Surely this should
-									// happen at the very end?
-									double dt = 0.0;
-									a.event("growth", dt * productionRate);
+									// TODO Rob[18Feb2016]: Surely this should happen
+									// at the very end? 
+									// FIXME quickfix since timestepsize is no longer available as local par
+									a.event("growth", dt);
+									a.event("divide");
 								}
 								else
 								{

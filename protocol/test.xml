@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="mySim" outputfolder="Simulations" log="DEBUG"
+	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<general>
 			<param name="timeStepSize" value="1.0" />
@@ -22,7 +22,7 @@
 							<expression value="solute1 * k">
 								<constant name="k" value="0.0005" />
 							</expression>
-							<stochiometric component="AOB" coefficient="0.1" />
+							<stochiometric component="AOB" coefficient="1.0" />
 							<stochiometric component="solute1" coefficient="-1.0" />
 							<stochiometric component="solute2" coefficient="0.5" />
 						</reaction>

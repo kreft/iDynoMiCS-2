@@ -66,7 +66,7 @@ public class PDEexplicit extends PDEsolver
 		for ( int iter = 0; iter < nIter; iter++ )
 		{
 			//System.out.println("Ministep "+iter+": "+(iter+1)*dt); //bughunt
-			this._updater.prestep(variables);
+			this._updater.prestep(variables, dt);
 			for ( String varName : this._variableNames )
 			{
 				var = variables.get(varName);
