@@ -13,6 +13,7 @@ import boundary.Boundary;
 import boundary.BoundaryConnected;
 import dataIO.Log;
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
@@ -109,32 +110,36 @@ public class Compartment implements CanPrelaunchCheck
 		Element elem = (Element) xmlNode;
 
 		this.setShape((Shape) Shape.getNewInstance(
-				XmlHandler.attributeFromUniqueNode(elem, "shape", "class")));
-		this._shape.init(XmlHandler.loadUnique(elem, "shape"));
+				XmlHandler.attributeFromUniqueNode(elem, 
+				XmlLabel.compartmentShape, XmlLabel.classAttribute)));
+		this._shape.init(XmlHandler.loadUnique(elem, 
+				XmlLabel.compartmentShape));
 		
 		/*
 		 * Give it solutes.
 		 * NOTE: wouldn't we want to pass initial grid values to? It would also
 		 * be possible for the grids to be Xmlable
 		 */
-		NodeList solutes = XmlHandler.getAll(elem, "solute");
+		NodeList solutes = XmlHandler.getAll(elem, XmlLabel.solute);
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
 			String soluteName = XmlHandler.obtainAttribute((Element) 
-					solutes.item(i), "name");
-			this.addSolute(soluteName, Double.valueOf(XmlHandler.obtainAttribute(
-					(Element) solutes.item(i), "concentration")));
+					solutes.item(i), XmlLabel.nameAttribute);
+			this.addSolute(soluteName, Double.valueOf(
+					XmlHandler.obtainAttribute((Element) solutes.item(i), 
+					XmlLabel.concentration)));
 			
 			// FIXME please provide standard methods to load entire solute grids
 			SpatialGrid myGrid = this.getSolute(soluteName);
-			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), "vox");
+			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
+					XmlLabel.voxel);
 			for (int j = 0; j < voxelvalues.getLength(); j++)
 			{
 				myGrid.setValueAt(ArrayType.CONCN, Vector.intFromString(
 						XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
-						, "coord")) , Double.valueOf( XmlHandler
-						.obtainAttribute((Element) voxelvalues.item(j), "value"
-						)));
+						, XmlLabel.coordinates)) , Double.valueOf( XmlHandler
+						.obtainAttribute((Element) voxelvalues.item(j), 
+						XmlLabel.valueAttribute)));
 			}
 		}
 			
@@ -144,14 +149,15 @@ public class Compartment implements CanPrelaunchCheck
 		/*
 		 * Give it extracellular reactions.
 		 */
-		Element reactionsElem = XmlHandler.loadUnique(elem, "reactions");
+		Element reactionsElem = XmlHandler.loadUnique(elem, XmlLabel.reactions);
 		if (reactionsElem != null)
 		{
-			NodeList reactions = XmlHandler.getAll(reactionsElem, "reaction");
+			NodeList reactions = XmlHandler.getAll(reactionsElem, 
+					XmlLabel.reaction);
 			for ( int i = 0; i < reactions.getLength(); i++ )
 				this._environment.addReaction((Reaction) Reaction.getNewInstance(
 						reactions.item(i)),XmlHandler.obtainAttribute(
-						(Element) reactions.item(i),"name"));
+						(Element) reactions.item(i), XmlLabel.nameAttribute));
 		}
 		
 		/*

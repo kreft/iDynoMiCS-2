@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 
 /**
  * 
@@ -82,14 +83,17 @@ public class ExpressionB extends Component {
 		Element elem = (Element) xmlNode;
 		
 		HashMap<String,Double> constantsMap = new HashMap<String,Double>();
-		NodeList constants = XmlHandler.getAll(elem, "constant");
+		NodeList constants = XmlHandler.getAll(elem, XmlLabel.constant);
 		for ( int i = 0; i < constants.getLength(); i++ )
 		{
-			constantsMap.put(XmlHandler.gatherAttribute(constants.item(i), "name"),
-					Double.valueOf(XmlHandler.gatherAttribute(constants.item(i), "value")));
+			constantsMap.put(XmlHandler.gatherAttribute(constants.item(i), 
+					XmlLabel.nameAttribute),
+					Double.valueOf(XmlHandler.gatherAttribute(constants.item(i),
+					XmlLabel.valueAttribute)));
 		}
 				
-		this.expression = XmlHandler.obtainAttribute(elem, "value").replaceAll("\\s+","");
+		this.expression = XmlHandler.obtainAttribute(elem, 
+				XmlLabel.valueAttribute).replaceAll("\\s+","");
 		this._constants = constantsMap;
 		this._a = build(expression, constantsMap);
 	}

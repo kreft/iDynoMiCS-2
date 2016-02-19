@@ -7,6 +7,7 @@ import agent.Agent;
 import dataIO.Log;
 import dataIO.Log.tier;
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
@@ -50,13 +51,13 @@ public class DiffusivitySetter {
 		Element elem = (Element) xmlNode;
 
 		this._defaultDiffusivity = Double.valueOf(XmlHandler.obtainAttribute(
-				elem, "defaultDiffusivity"));
+				elem, XmlLabel.defaultDiffusivity));
 		
 		this._biofilmDiffusivity = Double.valueOf(XmlHandler.obtainAttribute(
-				elem, "biofilmDiffusivity"));
+				elem, XmlLabel.biofilmDiffusivity));
 		
 		this._threshold = Double.valueOf(XmlHandler.obtainAttribute(elem, 
-				"threshold"));
+				XmlLabel.threshold));
 	}
 
 	/**

@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.Log;
+import dataIO.XmlLabel;
 import dataIO.Log.tier;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -48,12 +49,13 @@ public class BoundaryLayer implements IsDomainSetter
 	{
 		// TODO Check this, maybe making use of XMLable interface
 		Element elem = (Element) xmlNode;
-		if ( elem.hasAttribute("value") )
-			this._value = Double.parseDouble(elem.getAttribute("value"));
-		if ( elem.hasAttribute("layerThickness") )
+		if ( elem.hasAttribute(XmlLabel.valueAttribute) )
+			this._value = Double.parseDouble(elem.getAttribute(
+					XmlLabel.valueAttribute));
+		if ( elem.hasAttribute(XmlLabel.layerThickness) )
 		{
 			this._layerThickness = 
-			Double.parseDouble(elem.getAttribute("layerThickness"));
+			Double.parseDouble(elem.getAttribute(XmlLabel.layerThickness));
 		}
 		else
 		{
@@ -82,7 +84,8 @@ public class BoundaryLayer implements IsDomainSetter
 			/**
 			 * find all closeby agents
 			 */
-			neighbors = agents._agentTree.cyclicsearch(gridSphere.boundingBox());
+			neighbors = agents._agentTree.cyclicsearch(
+					gridSphere.boundingBox());
 			for ( Agent a : neighbors )
 				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList))
 					

@@ -1,12 +1,6 @@
 package dataIO;
 
-import generalInterfaces.Quizable;
-import grid.SpatialGrid;
-import idynomics.AgentContainer;
 import idynomics.Param;
-
-import java.util.List;
-import agent.Agent;
 import dataIO.Log.tier;
 import linearAlgebra.Vector;
 
@@ -21,6 +15,11 @@ public class SvgExport {
 	public double scalar = 25.0;
 	public double spacer = 25.0;
 	
+	/**
+	 * handles incrementing file numbering
+	 * @param filenr
+	 * @return
+	 */
 	private String DigitFilenr(int filenr) {
 		String apzero = String.valueOf(filenr);
 		for(int i = 0; i < 4-String.valueOf(filenr).length(); i++)
@@ -28,6 +27,11 @@ public class SvgExport {
 		return apzero;
 	}
 	
+	/**
+	 * writes circle center position in svg format
+	 * @param vector
+	 * @return
+	 */
 	private String toSvg(double[] vector)
 	{
 		double[] v = Vector.zerosDbl(2);
@@ -40,6 +44,10 @@ public class SvgExport {
 		return " cx=\"" + Double.toString(spacer+scalar*v[0]) + "\" cy=\"" + Double.toString(spacer+scalar*v[1]) + "\" ";
 	}
 	
+	/**
+	 * create a new svg file with prefix in appropriate folder
+	 * @param prefix
+	 */
 	public void newSvg(String prefix)
 	{
 		String fileString = Param.outputLocation + prefix + "/" 
@@ -50,6 +58,9 @@ public class SvgExport {
 		svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
 	}
 	
+	/**
+	 * close the svg file and increment file number for next file
+	 */
 	public void closeSvg()
 	{
 		svgFile.write("</svg>\n");
@@ -57,46 +68,30 @@ public class SvgExport {
 		filewriterfilenr++;
 	}
 	
-	public void writepov(String prefix, AgentContainer agentContainer) 
-	{
-		/* initiate new file */
-		newSvg(prefix);
-		
-		/* draw computational domain rectangle */
-		rectangle(Vector.zerosDbl(agentContainer.getNumDims()),
-				agentContainer.getShape().getDimensionLengths(), "GRAY");
-		
-		/*  */
-		SpatialGrid solute;
-		
-		/* draw agents NOTE currently only coccoid */
-		for (Agent a: agentContainer.getAllLocatedAgents()) {	
-			@SuppressWarnings("unchecked")
-			List<double[]> joints = (List<double[]>) a.get("joints");
-			for (int i = 0; joints.size() > i; i++)
-			{
-				circle(joints.get(i), a.getDouble("radius"), a.getString("pigment"));
-			}
-		}
-		
-		/* close svg file */
-		closeSvg();
-	}
-	
 	/**
 	 * Work in progress, dynamic graphical output
 	 *
 	 */
-		
+	
+	/**
+	 * draw a circle
+	 * @param center
+	 * @param radius
+	 * @param pigment
+	 */
 	public void circle(double[] center, double radius, String pigment)
 	{
-
 		svgFile.write("<circle " + toSvg(center) + "r=\"" +
 				scalar * radius + "\" fill=\"" + pigment
 				+ "\" />\n" );
-	
 	}
 	
+	/**
+	 * draw a rectangle
+	 * @param location
+	 * @param dimensions
+	 * @param pigment
+	 */
 	public void rectangle(double[] location, double[] dimensions, String pigment)
 	{
 		svgFile.write("<rect x=\"" + (spacer + scalar*location[0]) + "\" y=\"" + 
@@ -105,9 +100,14 @@ public class SvgExport {
 				"\" fill=\"" + pigment + "\" />\n");
 	}
 	
-	private void line(FileHandler File, Quizable q)
+	/**
+	 * draw a line
+	 * @param File
+	 * @param q
+	 */
+	public void line(double[] positionA, double[] positionB, String pigment)
 	{
-		
+		// TODO
 	}
 }
 

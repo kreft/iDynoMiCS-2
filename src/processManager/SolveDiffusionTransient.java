@@ -14,6 +14,7 @@ import grid.subgrid.SubgridPoint;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
+import idynomics.Timer;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import solver.PDEexplicit;
@@ -49,7 +50,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * include those that have reactions.
 	 */
 	protected final static Predicate<Agent> NO_REAC_FILTER = 
-								(a -> ! a.checkAspect(NameRef.agentReactions));
+								(a -> ! a.isAspect(NameRef.agentReactions));
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -154,7 +155,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				// TODO the scaling factor of a quarter is chosen arbitrarily
 				double minRad = Vector.min(dimension);
 				for ( Agent a : agents.getAllLocatedAgents() )
-					if ( a.checkAspect(NameRef.bodyRadius) )
+					if ( a.isAspect(NameRef.bodyRadius) )
 					{
 						minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
 					}
@@ -164,7 +165,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				 */
 				for ( Agent a : neighbors )
 				{
-					if ( ! a.checkAspect(NameRef.agentReactions) )
+					if ( ! a.isAspect(NameRef.agentReactions) )
 						continue;
 					List<Surface> surfaces = 
 									(List<Surface>) a.get(NameRef.surfaceList);
@@ -176,6 +177,11 @@ public class SolveDiffusionTransient extends ProcessManager
 						/* Only give location in actual dimensions. */
 						// NOTE Rob [18Feb2016]: out of curiosity, why do we make a
 						// Ball and not a Point?
+						// Bas [19.02.16] since a point is not a surface object
+						// but an element of a surface object, a surface can 
+						// be build up out of multiple points, a Ball has a
+						// single point, with a radius of 0.0 it is basically a
+						// point but also a surface object
 						Ball b = new Ball(
 								Vector.subset(p.realLocation,agents.getNumDims()),
 								0.0);
@@ -215,7 +221,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			 * This is the updater method that the PDEsolver will use before
 			 * each mini-timestep.
 			 */
-			public void prestep(HashMap<String, SpatialGrid> variables)
+			public void prestep(HashMap<String, SpatialGrid> variables, double dt)
 			{
 				/*
 				 * Loop over all agents, applying their reactions to the
@@ -228,7 +234,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				HashMap<int[],Double> distributionMap;
 				for ( Agent a : agents.getAllLocatedAgents() )
 				{
-					if ( ! a.checkAspect(NameRef.agentReactions) )
+					if ( ! a.isAspect(NameRef.agentReactions) )
 						continue;
 					reactions = (List<Reaction>) a.get("reactions");
 					distributionMap = (HashMap<int[],Double>)
@@ -269,7 +275,7 @@ public class SolveDiffusionTransient extends ProcessManager
 									// FIXME: was getting strange [16,0,0] 
 									// coord values here (index out of bounds)
 								}
-								else if ( a.checkAspect(varName) )
+								else if ( a.isAspect(varName) )
 								{
 									// TODO divide by the voxel volume here?
 									concn = a.getDouble(varName); 
@@ -309,7 +315,7 @@ public class SolveDiffusionTransient extends ProcessManager
 									aSG.addValueAt(ArrayType.PRODUCTIONRATE, 
 														coord, productionRate);
 								}
-								else if ( a.checkAspect(productName) )
+								else if ( a.isAspect(productName) )
 								{
 									/* 
 									 * NOTE Bas [17Feb2016]: Put this here as 
@@ -326,15 +332,18 @@ public class SolveDiffusionTransient extends ProcessManager
 									 * separate parts of the agent (eg lipids/
 									 * other storage compounds)
 									 */
-									productionRate += (double) 
-													a.getDouble("growthRate");
+								}
+								else if ( a.getString("species").equals(productName))
+								{
+									//NOTE: getXXX does not need casting
 									a.set("growthRate", productionRate);
 									
 									/* Timespan of growth event */
-									// TODO Rob[18Feb2016]: Surely this should
-									// happen at the very end?
-									double dt = 0.0;
-									a.event("growth", dt * productionRate);
+									// TODO Rob[18Feb2016]: Surely this should happen
+									// at the very end? 
+									// FIXME quickfix since timestepsize is no longer available as local par
+									a.event("growth", dt);
+									a.event("divide");
 								}
 								else
 								{

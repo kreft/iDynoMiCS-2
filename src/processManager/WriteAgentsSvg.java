@@ -49,7 +49,7 @@ public class WriteAgentsSvg extends ProcessManager
 		this._solute = getString("solute");
 		this._maxConcn = getDouble("maxConcentration");
 		this._prefix = getString("prefix");
-		this._arrayType = (checkAspect("arrayType") ? ArrayType.valueOf(
+		this._arrayType = (isAspect("arrayType") ? ArrayType.valueOf(
 				getString("arrayType")) : ArrayType.CONCN);
 	}
 	

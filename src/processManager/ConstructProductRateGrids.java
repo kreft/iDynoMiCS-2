@@ -174,7 +174,7 @@ public class ConstructProductRateGrids extends ProcessManager
 							// FIXME: was getting strange [16,0,0] coord values
 							// here (index out of bounds)
 						}
-						else if ( a.checkAspect(varName) )
+						else if ( a.isAspect(varName) )
 						{
 							// TODO divide by the voxel volume here?
 							concentrations.put(varName, 
@@ -209,7 +209,7 @@ public class ConstructProductRateGrids extends ProcessManager
 							aSG.addValueAt(ArrayType.PRODUCTIONRATE, coord, 
 															productionRate);
 						}
-						else if ( a.checkAspect(productName) )
+						else if ( a.isAspect(productName) )
 						{
 							/* 
 							 * NOTE Bas [17Feb2016]: Put this here as example,
@@ -231,7 +231,7 @@ public class ConstructProductRateGrids extends ProcessManager
 							// TODO Rob[18Feb2016]: Surely this should happen
 							// at the very end? 
 							double dt = this._timeStepSize;
-							a.event("growth", dt * productionRate);
+							a.event("growth", dt);
 							a.event("divide", _timeStepSize);
 						}
 						else

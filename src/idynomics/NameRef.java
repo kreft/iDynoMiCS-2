@@ -7,11 +7,6 @@ public class NameRef {
 	 */
 	
 	/**
-	 * The name for the object
-	 */
-	public static String xmlName = "name";
-	
-	/**
 	 * Process manager references
 	 */
 	public static String processPriority = "priority";
@@ -24,11 +19,6 @@ public class NameRef {
 	/**
 	 * Agent state references
 	 */
-	
-	/**
-	 * The agent species
-	 */
-	public static String species = "species";
 	
 	/**
 	 * 
@@ -54,6 +44,11 @@ public class NameRef {
 	 * 
 	 */
 	public static String bodyLength = "#bodyLength";
+	
+	/**
+	 * 
+	 */
+	public static String isLocated = "#isLocated";
 	
 	/**
 	 * 

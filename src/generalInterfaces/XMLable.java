@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 
 import dataIO.Log;
 import dataIO.Log.tier;
+import dataIO.XmlLabel;
 import idynomics.Idynomics;
 
 /**
@@ -88,13 +89,14 @@ public interface XMLable
 	public static Object getNewInstance(Node xmlNode)
 	{
 		Element E = (Element) xmlNode;
-		if(! E.hasAttribute("class"))
+		if(! E.hasAttribute(XmlLabel.classAttribute))
 			Log.out(tier.CRITICAL, "no className devined in: " + 
 					E.getTagName());
-		else if(! E.hasAttribute("package"))
-			return getNewInstance(xmlNode, E.getAttribute("class"));
-		return getNewInstance(E.getAttribute("class") , 
-				E.getAttribute("package"));
+		else if(! E.hasAttribute(XmlLabel.packageAttribute))
+			return getNewInstance(xmlNode, E.getAttribute(
+					XmlLabel.classAttribute));
+		return getNewInstance(E.getAttribute(XmlLabel.classAttribute) , 
+				E.getAttribute(XmlLabel.packageAttribute));
 	}
 	
 	/**
