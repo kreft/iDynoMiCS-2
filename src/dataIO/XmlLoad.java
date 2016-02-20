@@ -173,7 +173,8 @@ public class XmlLoad
 						Helper.enumToString(tier.class));
 			}
 		}
-		Log.set(t);
+		if(!Log.isSet())
+			Log.set(t);
 		Param.simulationComment = XmlHandler.gatherAttribute(sim,
 				XmlLabel.commentAttribute);
 	}

@@ -3,6 +3,7 @@ package dataIO;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 import idynomics.Param;
 
@@ -61,6 +62,11 @@ public class Log {
 	 */
 	private static SimpleDateFormat st = new SimpleDateFormat("[HH:mm] ");
 	
+	public static boolean isSet()
+	{
+		return (outputLevel == null ? false : true);
+	}
+	
 	/**
 	 * Set the output level and create the log file. This method should be
 	 * called before any output is created. If output is written before set is
@@ -111,6 +117,8 @@ public class Log {
 			else
 				System.out.println(st.format(new Date()) + message);
 			logFile.write(ft.format(new Date()) + message + "\n");
+			GuiLaunch.guiWrite(st.format(new Date()) + message + "\n");
+
 		}
 	}
 }

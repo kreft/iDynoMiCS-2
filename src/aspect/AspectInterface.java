@@ -273,8 +273,8 @@ public abstract interface AspectInterface {
 	}
 	
 	/**
-	 * check, cast and return aspect, return null if the aspect does not exist
-	 * or is equal to null
+	 * check, cast and return the event object, return null if the aspect does 
+	 * not exist or is equal to null
 	 * @param aspect
 	 * @return
 	 */
@@ -285,8 +285,8 @@ public abstract interface AspectInterface {
 	}
 	
 	/**
-	 * check, cast and return aspect, return null if the aspect does not exist
-	 * or is equal to null
+	 * check, cast and return the calculated state object, return null if the 
+	 * aspect does not exist or is equal to null
 	 * @param aspect
 	 * @return
 	 */
