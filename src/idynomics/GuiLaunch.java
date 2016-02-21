@@ -2,6 +2,7 @@ package idynomics;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,10 +34,13 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import dataIO.Log;
 import dataIO.Log.tier;
+import glRender.AgentMediator;
+import glRender.CommandMediator;
+import glRender.Render;
 import utility.Helper;
 
 
-public class GuiLaunch {
+public class GuiLaunch implements Runnable {
 	
 	private static JTextArea guiTextArea = new JTextArea(15, 60);
 
@@ -53,11 +57,11 @@ public class GuiLaunch {
 	}
   
 	public GuiLaunch() {
-		openGui();
+		run();
 	}
 			    	  
    
-	public void openGui()
+	public void run()
 	{
 		try 
 		{
@@ -123,6 +127,13 @@ public class GuiLaunch {
 				"Open existing protocol file");
 		menu.add(menuItem);
 
+		menuItem = new JMenuItem(new RenderThis());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_R, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Open existing protocol file");
+		menu.add(menuItem);
+
 		menu.addSeparator();
 		cbMenuItem = new JCheckBoxMenuItem("placeholder");
 		cbMenuItem.setMnemonic(KeyEvent.VK_C);
@@ -160,6 +171,26 @@ public class GuiLaunch {
 	    	Param.protocolFile = chooseFile().getAbsolutePath();
 
 	    	guiTextArea.setText(Param.protocolFile + " \n");
+	    }
+	}
+	
+	public class RenderThis extends AbstractAction {
+		
+		public RenderThis() {
+	        super("Render");
+		}
+	
+	    public void actionPerformed(ActionEvent e) {
+	    	if(Idynomics.simulator._compartments.keySet().size() == 0)
+	    		guiTextArea.append("no compartments available \n");
+	    	else
+	    	{
+			Render myRender = new Render((CommandMediator) new AgentMediator(
+					Idynomics.simulator._compartments.get(Idynomics.simulator.
+							_compartments.keySet().toArray()[0]).agents));
+			
+			EventQueue.invokeLater(myRender);
+	    	}
 	    }
 	}
 	
