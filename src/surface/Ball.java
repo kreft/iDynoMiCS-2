@@ -2,14 +2,16 @@ package surface;
 
 import utility.Copier;
 import agent.Body;
+import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
+import linearAlgebra.Vector;
 
 /**
  * 
  * @author baco
  *
  */
-public class Ball extends Surface implements HasBoundingBox {
+public class Ball extends Surface implements HasBoundingBox, Copyable {
 	
 	/**
 	 * The point of this sphere
@@ -70,6 +72,12 @@ public class Ball extends Surface implements HasBoundingBox {
 	public BoundingBox boundingBox()
 	{
 		return new BoundingBox(_point.getPosition(),_radius);
+	}
+
+
+	@Override
+	public Object copy() {
+		return new Ball(new Point(Vector.copy(this._point.getPosition())),(double) Copier.copy(_radius));
 	}
 
 }

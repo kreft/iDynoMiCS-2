@@ -30,7 +30,13 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 
+import idynomics.Idynomics;
 
+/**
+ * 
+ * @author baco
+ *
+ */
 public class Render implements GLEventListener, Runnable {
 	private static GraphicsEnvironment graphicsEnvironment;
 	private static boolean isFullScreen = false;
@@ -52,11 +58,20 @@ public class Render implements GLEventListener, Runnable {
     
     private CommandMediator _commandMediator;
 
+    /**
+     * this is what refreshes what is rendered on the screen
+     */
 	@Override
 	public void display(GLAutoDrawable drawable) {
+		/**
+		 * the open GL2 drawable
+		 */
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 		
+		/**
+		 * switch lighting and alpha blending
+		 */
 		if(light)
 			gl.glEnable(GL2.GL_LIGHTING);
 		else
@@ -72,21 +87,30 @@ public class Render implements GLEventListener, Runnable {
 			gl.glDisable(GL2.GL_BLEND);
 		}
 		
-		gl.glTranslatef(0.0f,0.0f,zoom);           // Zoom Into The Screen (Using The Value In 'zoom')
-        gl.glRotatef(tilt,1.0f,0.0f,0.0f);         // Tilt The View (Using The Value In 'tilt')
-
-		
+		/**
+		 * ask commandMediator to draw what it draws, tilt and zoom only work
+		 * if implemented by commandMediator
+		 */
 		this._commandMediator.draw(drawable, zoom, tilt);
-
 		gl.glFlush();
+		
+		/**
+		 * this is recursive!
+		 */
 	}
 
+	/**
+	 * currently unused interface method
+	 */
 	@Override
 	public void dispose(GLAutoDrawable arg0) {
-		// TODO Auto-generated method stub
-		
+	
 	}
 
+	/**
+	 * Initiate the open GL environment, set shader model, lighting, smoothing
+	 * etc
+	 */
 	@Override
 	public void init(GLAutoDrawable drawable) {
 		final GL2 gl = drawable.getGL().getGL2();
@@ -99,23 +123,25 @@ public class Render implements GLEventListener, Runnable {
 		gl.glClearDepth(1.0f);
 		gl.glEnable(GL2.GL_DEPTH_TEST);
 		gl.glDepthFunc(GL2.GL_LEQUAL);
-		gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);
+		gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
 		
 		/* light */
-		
 		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, this.lightAmbient, 0);
 		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, this.LightDiffuse, 0);
 		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_POSITION, this.lightPosition, 0);
-		
 		gl.glEnable(GL2.GL_LIGHT1);
 		gl.glEnable(GL2.GL_LIGHTING);
 		
 		this.light = true;
-		gl.glColor4f(1f, 1f, 1f, 0.5f); // 50% alpha
-		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
 		
+		/* alpha blend */
+		gl.glColor4f(1f, 1f, 1f, 0.5f); // 50% alpha
+		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);	
 	}
 
+	/**
+	 * act opon rashaping of the render window
+	 */
 	@Override
 	public void reshape(GLAutoDrawable drawable , int x, int y, int width, 
 			int height) {
@@ -132,11 +158,17 @@ public class Render implements GLEventListener, Runnable {
 		gl.glLoadIdentity();
 	}
 	
-	
+	/**
+	 * Create a new Render object associated with it's mediator
+	 * @param mediator
+	 */
 	public Render(CommandMediator mediator) {
 		this._commandMediator = mediator;
 	}
 
+	/**
+	 * Render is runnable to prevent the gui to become unresponsive
+	 */
 	@Override
 	public void run() {
 		final GLProfile profile = GLProfile.get(GLProfile.GL2);
@@ -147,14 +179,24 @@ public class Render implements GLEventListener, Runnable {
 		Render r = new Render(_commandMediator);
 		glcanvas.addGLEventListener(r);
 		
+		/**
+		 * demensions of the initial window
+		 */
 		Dimension myDim = new Dimension();
 		myDim.setSize(500, 500);
 		glcanvas.setSize(myDim);
 		
-		final FPSAnimator animator = new FPSAnimator(glcanvas, 60, true);
+		/**
+		 * set the animator and its Frames per second
+		 */
+		final FPSAnimator animator = new FPSAnimator(glcanvas, 30, true);
 		
+		/* window name */
 		final JFrame frame = new JFrame ("Live render");
 		
+		/* add the canvas to the JFrame and set the window close action to stop
+		 * rendering
+		 */
 		frame.getContentPane().add(glcanvas);
 		frame.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e) {
@@ -165,26 +207,28 @@ public class Render implements GLEventListener, Runnable {
 		
 		frame.setSize(frame.getContentPane().getPreferredSize());
 		
+		/* detect and set graphics dephices */
 		graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice[] devices = graphicsEnvironment.getScreenDevices();
-		
-		dm_old = devices[0].getDisplayMode();
-		dm = dm_old;
+		dm = devices[0].getDisplayMode();
 
+		/* set the frame's initial position and make it visable */
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		
+		/* add aditional 0 by 0 JPanel with key bindings */
 		JPanel p = new JPanel();
 		p.setPreferredSize(new Dimension(0,0));
 		frame.add(p, BorderLayout.SOUTH);
-				
 		keyBindings(p, frame, r);
 		
+		/* start the animator */
 		animator.start();
-
 	}
 
-	
+	/**
+	 *  switch between fullScreen and windowed 
+	 */
 	protected static void fullScreen(JFrame f) {
 		if(!isFullScreen)
 		{
@@ -211,6 +255,9 @@ public class Render implements GLEventListener, Runnable {
 		}
 	}
 	
+	/*
+	 * The key bindings available for the JFrame
+	 */
 	private static void keyBindings(JPanel p, JFrame frame, Render r) 
 	{
 		ActionMap actionMap = p.getActionMap();
@@ -219,7 +266,6 @@ public class Render implements GLEventListener, Runnable {
 		/* fullscreen */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "fullscreen");
 		actionMap.put("fullscreen", new AbstractAction(){
-//			
 			private static final long serialVersionUID = 346448974654345823L;
 
 			@Override
@@ -232,8 +278,7 @@ public class Render implements GLEventListener, Runnable {
 		/* up */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "UP");
 		actionMap.put("UP", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
 			@Override
 			public void actionPerformed(ActionEvent b) {
 				System.out.println("up");
@@ -244,8 +289,7 @@ public class Render implements GLEventListener, Runnable {
 		/* down */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "DOWN");
 		actionMap.put("DOWN", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
 			@Override
 			public void actionPerformed(ActionEvent c) {
 				System.out.println("down");
@@ -256,8 +300,8 @@ public class Render implements GLEventListener, Runnable {
 		/* left */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0), "LEFT");
 		actionMap.put("LEFT", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
+			
 			@Override
 			public void actionPerformed(ActionEvent d) {
 				System.out.println("left");
@@ -268,8 +312,8 @@ public class Render implements GLEventListener, Runnable {
 		/* right */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0), "RIGHT") ;
 		actionMap.put("RIGHT", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
+			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("right");
@@ -280,8 +324,8 @@ public class Render implements GLEventListener, Runnable {
 		/* filter */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0), "filter") ;
 		actionMap.put("filter", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
+			
 			@Override
 			public void actionPerformed(ActionEvent f) {
 				System.out.println("filter");
@@ -292,8 +336,8 @@ public class Render implements GLEventListener, Runnable {
 		/* light */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_L, 0), "lights") ;
 		actionMap.put("lights", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
+			
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("lights");
@@ -305,8 +349,8 @@ public class Render implements GLEventListener, Runnable {
 		/* alpha */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "blend") ;
 		actionMap.put("blend", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
+			
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("blend");
@@ -314,11 +358,11 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});
 		
-		/* twinkle */
+		/* tilt down */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_U, 0), "tiltdown") ;
 		actionMap.put("tiltdown", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
+			
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltdown");
@@ -326,11 +370,11 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});
 		
-		/* twinkle */
+		/* tilt up */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0), "tiltup") ;
 		actionMap.put("tiltup", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
+			
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltup");
@@ -338,11 +382,11 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});
 		
-		/* twinkle */
+		/* zoom out */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 0), "out") ;
 		actionMap.put("out", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
+			
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("out");
@@ -350,11 +394,11 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});
 		
-		/* twinkle */
+		/* zoom in */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "in") ;
 		actionMap.put("in", new AbstractAction(){
-//			private static final long serialVersionUID = -3464489746543823L;
-
+			private static final long serialVersionUID = 346448974654345823L;
+			
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("in");

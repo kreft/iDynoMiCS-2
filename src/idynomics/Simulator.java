@@ -24,6 +24,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 	 * contains all species for this simulation
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -86,10 +87,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 		 * cells that have tried to cross connected boundaries. 
 		 */
 		this._compartments.forEach((s,c) -> {c.pushAllOutboundAgents();});
+		
 		/*
 		 * 
 		 */
 		Timer.step();
+
 	}
 	
 	public void run()

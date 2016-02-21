@@ -39,16 +39,28 @@ import glRender.CommandMediator;
 import glRender.Render;
 import utility.Helper;
 
-
+/**
+ * 
+ * @author baco
+ *
+ */
 public class GuiLaunch implements Runnable {
 	
 	private static JTextArea guiTextArea = new JTextArea(15, 60);
 
+	/**
+	 * Launch with gui
+	 * @param args
+	 */
 	public static void main(String[] args) 
 	{
 		new GuiLaunch();
 	}
   
+	/**
+	 * append a message to the output textarea and update the line position
+	 * @param message
+	 */
   	public static void guiWrite(String message)
 	{
   		guiTextArea.append(message);
@@ -56,11 +68,18 @@ public class GuiLaunch implements Runnable {
   		guiTextArea.update(GuiLaunch.guiTextArea.getGraphics());
 	}
   
-	public GuiLaunch() {
+  	/**
+  	 * create the gui and run it
+  	 */
+	public GuiLaunch() 
+	{
 		run();
 	}
 			    	  
-   
+   /**
+    * The gui is runnable otherwise it will become unresponsive until the
+    * simulation finishes
+    */
 	public void run()
 	{
 		try 
@@ -71,9 +90,12 @@ public class GuiLaunch implements Runnable {
 			  | InstantiationException  | IllegalAccessException e) {
 		}
 		
+		/* when running in gui we want dialog input instead of command line 
+		 * input */
 		Helper.gui = true;
 		JFrame gui = new JFrame();
 		
+		/* set the output textArea */
 		guiTextArea.setEditable(false);
 		guiTextArea.setBackground(new Color(38, 45, 48));
 		guiTextArea.setForeground(Color.LIGHT_GRAY);
@@ -81,15 +103,19 @@ public class GuiLaunch implements Runnable {
 		Font font = new Font("consolas", Font.PLAIN, 15);
 		guiTextArea.setFont(font);
 		
+		/* set the window size, position, title and its close operation */
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gui.setTitle("iDynoMiCS 2.0");
 		gui.setSize(800,800);
 		gui.setLocationRelativeTo(null);
+		
+		/* add the text area and button to the gui */
 		gui.add(new JScrollPane(guiTextArea, 
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 		JButton launchSim = new JButton("Run!");
 		
+		/* set an cation for the button (run the simulation */
 		launchSim.addActionListener(new ActionListener()
 		{
 			@Override
@@ -100,19 +126,18 @@ public class GuiLaunch implements Runnable {
 					Timer._now = 0.0;
 					ConsoleLaunch.runXml();
 				}
-					
 			}
 		});
-		
 		gui.add(launchSim,BorderLayout.SOUTH);
 
+		/* construct the menu bar */
 		JMenuBar menuBar;
 		JMenu menu, submenu;
 		JMenuItem menuItem;
 		JRadioButtonMenuItem rbMenuItem;
 		JCheckBoxMenuItem cbMenuItem;
 
-		/* menu bar */
+		/* File menu */
 		menuBar = new JMenuBar();
 
 		menu = new JMenu("File");
@@ -120,6 +145,7 @@ public class GuiLaunch implements Runnable {
 		menu.getAccessibleContext().setAccessibleDescription("File options");
 		menuBar.add(menu);
 
+		/* file open */
 		menuItem = new JMenuItem(new FileOpen());
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_O, ActionEvent.CTRL_MASK));
@@ -127,6 +153,7 @@ public class GuiLaunch implements Runnable {
 				"Open existing protocol file");
 		menu.add(menuItem);
 
+		/* open render frame */
 		menuItem = new JMenuItem(new RenderThis());
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_R, ActionEvent.CTRL_MASK));
@@ -134,6 +161,7 @@ public class GuiLaunch implements Runnable {
 				"Open existing protocol file");
 		menu.add(menuItem);
 
+		/* we can do switches or toggles later */
 		menu.addSeparator();
 		cbMenuItem = new JCheckBoxMenuItem("placeholder");
 		cbMenuItem.setMnemonic(KeyEvent.VK_C);
@@ -153,6 +181,8 @@ public class GuiLaunch implements Runnable {
 		}
 
 		menu.add(submenu);
+		
+		/* at the menu bar to the gui and make everything visible */
 		gui.setJMenuBar(menuBar);
 		gui.setVisible(true);
 	}
@@ -174,6 +204,10 @@ public class GuiLaunch implements Runnable {
 	    }
 	}
 	
+	/**
+	 * create a new Render object and invoke it (the Render object handles it's
+	 * own JFrame)
+	 */
 	public class RenderThis extends AbstractAction {
 		
 		public RenderThis() {

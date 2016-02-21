@@ -7,15 +7,27 @@ import com.jogamp.opengl.GLAutoDrawable;
 
 import agent.Agent;
 import idynomics.AgentContainer;
-import idynomics.Idynomics;
 import idynomics.NameRef;
 import surface.Ball;
 import surface.Surface;
 
+
+/**
+ * Very quick and dirty initial attempt at live simulation rendering, this
+ * object construct a openGL 3D scene when it is called by the Render object
+ * to prevent concurrent operation it suspends the simulator while it is writing
+ * the 3d scene.
+ * @author baco
+ *
+ */
 public class AgentMediator implements CommandMediator {
 	protected AgentContainer agents;
 	private double tic;
 	
+	/**
+	 * assign agent container via the constructor
+	 * @param agents
+	 */
 	public AgentMediator(AgentContainer agents)
 	{
 		this.agents = agents;
@@ -24,22 +36,15 @@ public class AgentMediator implements CommandMediator {
 	@Override
 	public void draw(GLAutoDrawable drawable) {
 		draw(drawable, 0.0f, 0.0f);
-		
 	}
 
 	@Override
 	public void draw(GLAutoDrawable drawable, float zoom, float tilt) {
 		final GL2 gl = drawable.getGL().getGL2();
 
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
 		/** prevent concurrent access! */
-		Idynomics.simThread.suspend();
+//		Idynomics.simThread.suspend();
 		try {
 			Thread.sleep(5);
 		} catch (InterruptedException e) {
@@ -50,7 +55,7 @@ public class AgentMediator implements CommandMediator {
 		double[] domainLengths = agents.getShape().getDimensionLengths();
 		
 		gl.glLoadIdentity();
-		gl.glTranslated(-domainLengths[0]*1.5,-domainLengths[0]*1.5,0.0);              // Move Right And Into The Screen
+		gl.glTranslated(-domainLengths[0]*1.5,-domainLengths[0]*1.5, zoom);              // Move Right And Into The Screen
 		gl.glRotatef(tilt,1.0f,0f,0f);            // Rotate The Cube On X, Y & Z
 		gl.glBegin(GL2.GL_QUADS);                  // Start Drawing The Cube
 		gl.glColor3f(1.0f,0.0f,0.0f);    
@@ -60,9 +65,9 @@ public class AgentMediator implements CommandMediator {
 		    gl.glVertex3d(0.0,0.0,  -80.0);              // Bottom Left
 		gl.glEnd();
 		
-		for ( Agent a : this.agents.getAllLocatedAgents() )
-			for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList))
-			{
+			for ( Agent a : this.agents.getAllLocatedAgents() )
+				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList))
+				{
 				if(s instanceof Ball)
 				{
 					Ball ball = (Ball) s;
@@ -104,9 +109,10 @@ public class AgentMediator implements CommandMediator {
 		       }
 		       
 			}
+			
 		}
 		
-		Idynomics.simThread.resume();
+//		Idynomics.simThread.resume();
 	}
 
 }
