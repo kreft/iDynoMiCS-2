@@ -88,9 +88,13 @@ public final class PolarArray
 			throw e;
 		if ( a[0][0].length != b[0][0].length )
 			throw e;
-		for ( int i = 0; i < a.length; i++ )
+		for ( int i = 0; i < a.length; i++ ){
 			if ( a[i].length != b[i].length )
 				throw e;
+			for ( int j = 0; j < a[i].length; j++ )
+				if ( a[i][j].length != b[i][j].length )
+					throw e;
+		}
 	}
 	
 	/**
