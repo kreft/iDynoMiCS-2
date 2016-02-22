@@ -16,7 +16,7 @@ import utility.ExtraMath;
  * Implementation of an arbitrary-dimension RTree. Based on R-Trees: A Dynamic
  * Index Structure for Spatial Searching (Antonn Guttmann, 1984)
  * 
- * This class is not thread-safe.
+ * NOTE switched to synchronized public method's for thread safety
  * 
  * Copyright 2010 Russ Weeks rweeks@newbrightidea.com Licensed under the GNU
  * LGPL License details here: http://www.gnu.org/licenses/lgpl-3.0.txt
@@ -110,8 +110,6 @@ public class RTree<T> extends SpatialRegistry<T>
   {
     this(50, 2, 2, SeedPicker.LINEAR);
   }
-
-
 
 /**
    * @return the maximum number of entries per node
