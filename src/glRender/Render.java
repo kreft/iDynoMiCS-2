@@ -33,9 +33,12 @@ import com.jogamp.opengl.util.FPSAnimator;
 import idynomics.Idynomics;
 
 /**
- * 
+ * openGL Render class, manages openGL settings, output frame and it's own
+ * key bindings, requires a command mediator to draw up the 3D scene
  * @author baco
- *
+ * 
+ * based on:
+ * http://nehe.gamedev.net/tutorial/creating_an_opengl_window_win32/13001/
  */
 public class Render implements GLEventListener, Runnable {
 	private static GraphicsEnvironment graphicsEnvironment;

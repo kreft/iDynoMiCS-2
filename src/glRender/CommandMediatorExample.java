@@ -3,6 +3,11 @@ package glRender;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 
+/**
+ * Test case command mediator that draws a new random sphere every second
+ * @author baco
+ *
+ */
 public class CommandMediatorExample implements CommandMediator
 {
 	protected double tic = 0.0;
