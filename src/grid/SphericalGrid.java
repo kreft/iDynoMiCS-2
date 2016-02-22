@@ -5,6 +5,7 @@ import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
 
@@ -84,23 +85,26 @@ public class SphericalGrid extends PolarGrid
 		if (getTotalLength(2) < 0 || getTotalLength(2) > 2 * Math.PI)
 			throw new IndexOutOfBoundsException(
 										"0 <= totalLength <= 2π not satisfied");
-		
-		/* add cyclic boundaries to phi's max and min if we have a half circle*/
-		if (getTotalLength(1) == Math.PI) {
-			_dimBoundaries[1][0] = new GridBoundary.Cyclic();
-			_dimBoundaries[1][1] = new GridBoundary.Cyclic();
+		/* 
+		 * Add cyclic boundaries for phi if we have a half circle.
+		 */
+		// TODO More robust definition of tolerance here.
+		if (getTotalLength(1) == Math.PI)
+		{
+			this.addBoundary(DimName.PHI, 0, new CyclicGrid());
+			this.addBoundary(DimName.PHI, 1, new CyclicGrid());
 		}
 		
 		/* 
-		 * add cyclic boundaries to theta's max and min if we have a full circle
-		 */
-		if (getTotalLength(2) == 2 * Math.PI) {
-			_dimBoundaries[2][0] = new GridBoundary.Cyclic();
-			_dimBoundaries[2][1] = new GridBoundary.Cyclic();
+		 * 
+		 * Add cyclic boundaries for theta if we have a full circle.
+		*/
+		// TODO More robust definition of tolerance here.
+		if ( ExtraMath.areEqual(this.getTotalLength(2), 2 * Math.PI, 1E-10))
+		{
+			this.addBoundary(DimName.THETA, 0, new CyclicGrid());
+			this.addBoundary(DimName.THETA, 1, new CyclicGrid());
 		}
-		
-		resetIterator();
-		resetNbhIterator();
 	}
 	
 	public SphericalGrid(double[] totalLength, double res)

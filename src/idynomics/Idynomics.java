@@ -22,7 +22,7 @@ public class Idynomics
 	/**
 	 * Version description
 	 */
-	public static String version_description = "alpha build 2016.02.04";
+	public static String version_description = "alpha build 2016.02.19";
 	
 	/**
 	 * Simulator

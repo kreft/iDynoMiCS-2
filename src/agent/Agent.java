@@ -3,12 +3,10 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import dataIO.Log.*;
-import dataIO.XmlLoad;
+import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import idynomics.NameRef;
 
 /**
  * 
@@ -44,6 +42,10 @@ public class Agent implements Quizable, AspectInterface
 
 	}
 	
+	/**
+	 * Agent xml constructor
+	 * @param xmlNode
+	 */
 	public Agent(Node xmlNode)
 	{
 		AspectInterface.loadAspects(this, xmlNode);
@@ -63,14 +65,13 @@ public class Agent implements Quizable, AspectInterface
 	}
 	
 	/**
-	 * 
+	 * Assign the correct species from the species library
 	 */
 	public void init()
 	{
-		aspectRegistry.addSubModule( 
-				(Species) Idynomics.simulator.speciesLibrary.get(
-						aspectRegistry.isGlobalAspect(NameRef.species) ? 
-				(String) get(NameRef.species) : ""));
+		aspectRegistry.addSubModule( (Species) 
+				Idynomics.simulator.speciesLibrary.get( 
+				isAspect(XmlLabel.species) ? getString(XmlLabel.species) : ""));
 	}
 
 
@@ -78,6 +79,9 @@ public class Agent implements Quizable, AspectInterface
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 
+	/**
+	 * Allows for direct access to the aspect registry
+	 */
 	public AspectReg<?> reg() {
 		return aspectRegistry;
 	}
@@ -96,7 +100,7 @@ public class Agent implements Quizable, AspectInterface
 	{
 		aspectRegistry.set(key, aspect);
 	}
-
+	
 	/**
 	 * return the compartment the agent is registered to
 	 * @return

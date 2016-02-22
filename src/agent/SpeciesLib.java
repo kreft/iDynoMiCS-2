@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.tier;
+import dataIO.XmlLabel;
 import dataIO.XmlLoad;
 import generalInterfaces.Quizable;
 
@@ -23,7 +24,8 @@ public class SpeciesLib implements Quizable {
 	/**
 	 * Contains all known species
 	 */
-	protected HashMap<String, AspectInterface> _species = new HashMap<String, AspectInterface>();
+	protected HashMap<String, AspectInterface> _species = 
+			new HashMap<String, AspectInterface>();
 	
 	/**
 	 * void species, returned if no species is set.
@@ -39,7 +41,7 @@ public class SpeciesLib implements Quizable {
 			{
 			// cycle trough all species and add them to the species Lib
 				NodeList speciesNodes = 
-						speciesNode.getElementsByTagName("species");
+						speciesNode.getElementsByTagName(XmlLabel.species);
 			
 			/*
 			 * Loading species aspects
@@ -47,7 +49,7 @@ public class SpeciesLib implements Quizable {
 			for (int i = 0; i < speciesNodes.getLength(); i++) 
 			{
 				Element xmlSpecies = (Element) speciesNodes.item(i);
-				set(xmlSpecies.getAttribute("name"), 
+				set(xmlSpecies.getAttribute(XmlLabel.nameAttribute), 
 						new Species(speciesNodes.item(i)));
 			}
 			
@@ -58,7 +60,8 @@ public class SpeciesLib implements Quizable {
 			{
 				Element xmlSpecies = (Element) speciesNodes.item(i);
 				XmlLoad.loadSpeciesModules( get(
-						xmlSpecies.getAttribute("name")),speciesNodes.item(i)); 
+						xmlSpecies.getAttribute(XmlLabel.nameAttribute)),
+						speciesNodes.item(i)); 
 			}
 		}
 		else
@@ -97,6 +100,7 @@ public class SpeciesLib implements Quizable {
 		if (_species.containsKey(name))
 			return _species.get(name);
 		else
-			return voidSpecies; //return the void species if species is not defined.
+			return voidSpecies; 
+		/* return the void species if species is not defined. */
 	}
 }

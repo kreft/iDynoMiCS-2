@@ -5,6 +5,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import dataIO.XmlHandler;
+import dataIO.XmlLabel;
+
 /**
  * 
  * @author baco
@@ -68,13 +75,41 @@ public class ExpressionB extends Component {
 	}
 	
 	/**
+	 * TODO
+	 * @param xmlNode
+	 */
+	public ExpressionB(Node xmlNode)
+	{
+		Element elem = (Element) xmlNode;
+		
+		HashMap<String,Double> constantsMap = new HashMap<String,Double>();
+		NodeList constants = XmlHandler.getAll(elem, XmlLabel.constant);
+		for ( int i = 0; i < constants.getLength(); i++ )
+		{
+			constantsMap.put(XmlHandler.gatherAttribute(constants.item(i), 
+					XmlLabel.nameAttribute),
+					Double.valueOf(XmlHandler.gatherAttribute(constants.item(i),
+					XmlLabel.valueAttribute)));
+		}
+				
+		this.expression = XmlHandler.obtainAttribute(elem, 
+				XmlLabel.valueAttribute).replaceAll("\\s+","");
+		this._constants = constantsMap;
+		this._a = build(expression, constantsMap);
+	}
+	
+	/**
 	 * 
 	 * @param expression
-	 * @param terms
+	 * @param constants
 	 * @return 
 	 */
-	public Component build(String expression, HashMap<String, Double> terms)
+	public Component build(String expression, HashMap<String, Double> constants)
 	{	
+		/**
+		 * constant value's
+		 */
+		this._constants = constants;
 		/**
 		 * evaluation tree (strings)
 		 */
@@ -215,7 +250,7 @@ public class ExpressionB extends Component {
 				 */
 				for(String key : _constants.keySet())
 				{
-					if(key == t)
+					if(key.equals(t))
 					{
 						_calc.put(i, new Constant(t, _constants.get(key)));
 						isConstant = true;
@@ -482,4 +517,8 @@ public class ExpressionB extends Component {
 		return _a.differentiate(withRespectTo);
 	}
 	
+	public void appendVariablesNames(List<String> names)
+	{
+		this._a.appendVariablesNames(names);
+	}
 }

@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import dataIO.XmlLabel;
 import surface.*;
 
 public class Body implements Copyable, XMLable {
@@ -121,12 +122,12 @@ public class Body implements Copyable, XMLable {
 		Element s = (Element) xmlNode;
 		//FIXME: not finished only accounts for simple coccoids
 		List<Point> pointList = new LinkedList<Point>();
-		NodeList pointNodes = s.getElementsByTagName("point");
+		NodeList pointNodes = s.getElementsByTagName(XmlLabel.point);
 		for (int k = 0; k < pointNodes.getLength(); k++) 
 		{
 			Element point = (Element) pointNodes.item(k);
 			pointList.add(new Point(Vector.dblFromString(
-					point.getAttribute("position"))));
+					point.getAttribute(XmlLabel.position))));
 		}
 		return new Body(pointList);
 		// Bas [01.02.16] TODO: currently only agents can have a
@@ -180,6 +181,11 @@ public class Body implements Copyable, XMLable {
 	public Surface getSurface()
 	{
 		return this.surfaces.get(0);
+	}
+	
+	public List<Surface> getSurfaces()
+	{
+		return this.surfaces;
 	}
 	
 	public List<BoundingBox> getBoxes(double margin)

@@ -137,6 +137,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return this._solutes.get(soluteName);
 	}
 	
+	public boolean isSoluteName(String name)
+	{
+		return this._solutes.containsKey(name);
+	}
+	
 	public HashMap<String, SpatialGrid> getSolutes()
 	{
 		return this._solutes;
@@ -150,6 +155,16 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public Collection<Reaction> getReactions()
 	{
 		return this._reactions.values();
+	}
+	
+	/**
+	 * get specific reaction 
+	 * @param reaction
+	 * @return
+	 */
+	public Reaction getReaction(String reaction)
+	{
+		return _reactions.get(reaction);
 	}
 	
 	/**

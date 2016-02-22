@@ -8,11 +8,13 @@ import org.w3c.dom.Node;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import boundary.Boundary;
+import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import idynomics.Timer;
+import utility.Helper;
 
 public abstract class ProcessManager implements XMLable, AspectInterface
 {
@@ -55,14 +57,16 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 	{
 		Element p = (Element) xmlNode;
 		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
+		AspectInterface.loadAspects(proc, xmlNode);
 		
-		proc.setName( p.getAttribute( NameRef.xmlName ));
+		proc.setName( p.getAttribute( XmlLabel.nameAttribute ));
 		proc.setPriority( Integer.valueOf( 
 				p.getAttribute( NameRef.processPriority) ));
 		proc.setTimeForNextStep( Double.valueOf(
 				p.getAttribute( NameRef.initialStep )));
-		proc.setTimeStepSize( Timer.getTimeStepSize() );
-		AspectInterface.loadAspects(proc, xmlNode);
+		proc.setTimeStepSize( Helper.setIfNone(proc.getDouble("timerStepSize"), 
+				Timer.getTimeStepSize())); // TODO: Bas [16,02,16] this is a work around, nicefy
+
 		
 		proc.init();
 		return proc;

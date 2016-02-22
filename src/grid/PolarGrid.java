@@ -63,7 +63,8 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param dim
 	 * @return
 	 */
-	protected boolean isOnBoundary(int[] coord, int dim){
+	protected boolean isOnBoundary(int[] coord, int dim)
+	{
 		if ( coord[dim] < 0 )
 				return true;
 		if ( coord[dim] >= this.getResolutionCalculator(coord, dim).getNVoxel())
@@ -77,11 +78,12 @@ public abstract class PolarGrid extends SpatialGrid
 	 * @param dim
 	 * @return
 	 */
-	protected boolean isOnUndefinedBoundary(int[] coord, int dim){
+	protected boolean isOnUndefinedBoundary(int[] coord, int dim)
+	{
 		if ( coord[dim] < 0 )
-            return  (this._dimBoundaries[dim][0] == null);
+            return  this.isBoundaryDefined(dim, 0);
         if ( coord[dim] >= this.getResolutionCalculator(coord, dim).getNVoxel())
-            return (this._dimBoundaries[dim][1] == null);
+            return this.isBoundaryDefined(dim, 1);
         return false;
 	}
 	
@@ -161,7 +163,7 @@ public abstract class PolarGrid extends SpatialGrid
 		
 		/* If increasing would push us over a null boundary, return false */
 		if ( this._currentNeighbor[dim] == rC.getNVoxel() - 1)
-			if ( this._dimBoundaries[dim][1] == null )
+			if ( this.isBoundaryDefined(dim, 1) )
 				return false;
 
 		/*

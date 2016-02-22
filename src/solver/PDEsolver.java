@@ -1,6 +1,5 @@
 package solver;
 
-import java.util.Arrays;
 import java.util.HashMap;
 
 import grid.GridBoundary.GridMethod;
@@ -16,42 +15,17 @@ import grid.SpatialGrid.ArrayType;
  */
 public abstract class PDEsolver extends Solver
 {
-	/*************************************************************************
-	 * UPDATER METHODS
-	 ************************************************************************/
-	
-	public interface Updater
-	{
-		/**
-		 * \brief Method to be applied to the variables before the solver
-		 * starts.
-		 * 
-		 * @param variables
-		 */
-		default void presolve(HashMap<String, SpatialGrid> variables)
-		{ }
-		
-		/**
-		 * \brief Method to be applied to the variables before each mini time
-		 * step.
-		 * 
-		 * @param variables
-		 */
-		default void prestep(HashMap<String, SpatialGrid> variables)
-		{ }
-	}
-	
 	/**
 	 * TODO
 	 */
-	protected Updater _updater;
+	protected PDEupdater _updater;
 	
 	/**
 	 * \brief TODO
 	 * 
 	 * @param updater
 	 */
-	public void setUpdater(Updater updater)
+	public void setUpdater(PDEupdater updater)
 	{
 		this._updater = updater;
 	}

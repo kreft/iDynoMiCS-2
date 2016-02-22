@@ -125,7 +125,8 @@ public class AgentContainer
 	{
 		//FIXME: #isLocated simplified for now, was an over extensive operation
 		// for a simple check.
-		if (agent.get("#isLocated") == null || !((boolean) agent.get("#isLocated")) )
+		if (agent.get(NameRef.isLocated) == null || 
+				!(agent.getBoolean(NameRef.isLocated)))
 			this._agentList.add(agent);
 		else
 			this.addLocatedAgent(agent);

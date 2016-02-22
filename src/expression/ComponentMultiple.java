@@ -5,6 +5,7 @@ package expression;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * 
@@ -75,5 +76,11 @@ public abstract class ComponentMultiple extends Component
 	public ArrayList<Component> getAllComponents()
 	{
 		return this._components;
+	}
+	
+	public void appendVariablesNames(List<String> names)
+	{
+		for ( Component c : this._components )
+			c.appendVariablesNames(names);
 	}
 }

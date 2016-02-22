@@ -6,6 +6,7 @@ package grid.domainSetter;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import dataIO.XmlLabel;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
@@ -30,8 +31,9 @@ public class AllSame implements IsDomainSetter
 	{
 		// TODO Check this, maybe making use of XMLable interface
 		Element elem = (Element) xmlNode;
-		if ( elem.hasAttribute("value") )
-			this._value = Double.parseDouble(elem.getAttribute("value"));
+		if ( elem.hasAttribute(XmlLabel.valueAttribute) )
+			this._value = Double.parseDouble(elem.getAttribute(
+					XmlLabel.valueAttribute));
 	}
 	
 	@Override
