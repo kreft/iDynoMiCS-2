@@ -202,7 +202,7 @@ handled by the object's XMLable implementation (see paragraph XMLable interface)
 <aspect name="body" type="body">
 	<point position="12.2, 12.2" />
 </aspect>
-`
+```
 
 #### calulated
 Calculated aspects are used to calculate a property that depends on other 
@@ -245,12 +245,17 @@ agent states. For example create a new sibling and adjusting the cell sizes when
 a coccoid cell divides:
 
 ``` XML
-<aspect name="divide" type="event" class="CoccoidDivision" input="mass,radius,body" package="agent.event.library." />
+<aspect name="divide" type="event" class="CoccoidDivision" input="mass,radius,body"
+package="agent.event.library." />
 ```
 
 As can be seen in the above expression aspects of the event type can be defined
-in a simmilar way as calculated states where the only difference is that the
+in a similar way as calculated states where the only difference is that the
 'name' attribute now reads event rather than 'calculated'.
+
+Note that, if the object that implements the aspect interface is Copyable all
+of it's aspects should be Copyable to (the Copier.copy(Object) should be able
+to return a deep copy of the aspect).
 
 ### Using aspects in your object
 Only one thing is required to use aspect with your java object. Your object
@@ -258,7 +263,8 @@ needs to implement the AspectInteface. This interface requires you to add one
 field and one method to your class
 
 ``` java
-/* The aspect registry */
+/* The aspect registry can be used to store any java object: <Object>, but can
+* also be use to store more specific objects types: <Double> */
 public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
     
 /* Allows for direct access to the aspect registry  */
@@ -266,6 +272,27 @@ public AspectReg<?> reg() {
 	return aspectRegistry;
 }
 ```
+
+The aspect interface itself implements all methods to further work with aspects,
+the following three are essential when working with aspects:
+
+``` java
+void loadAspects(Node xmlNode)
+```
+This method loads all aspects from the given parent node
+
+``` java
+boolean isAspect(String aspect)
+```
+This method returns true if the aspect exists in the root registry or in any of
+it's branches (see branched aspect registries)
+
+``` java
+Object getValue(String aspect)
+```
+This method returns any aspect as java object if the aspect exists in the root 
+registry or in any of it's branches (see branched aspect registries). If the
+aspect cannot be identified it will return null.
 
 #### classes currently implementing the aspect interface
 - Agent

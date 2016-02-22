@@ -34,12 +34,11 @@ public abstract interface AspectInterface {
 	 * @param aspectReg
 	 * @param xmlNode
 	 */
-	public static void loadAspects(AspectInterface aspectInterface, 
-			Node xmlNode)
+	public default void loadAspects(Node xmlNode)
 	{
 		Element e = (Element) xmlNode;
 		@SuppressWarnings("unchecked")
-		AspectReg<Object> aspectReg = (AspectReg<Object>) aspectInterface.reg();
+		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
 		
 		NodeList stateNodes = e.getElementsByTagName(XmlLabel.aspect);
 		for (int j = 0; j < stateNodes.getLength(); j++) 
