@@ -170,9 +170,10 @@ public class SolveDiffusionTransient extends ProcessManager
 				{
 					if ( ! a.isAspect(NameRef.agentReactions) )
 						continue;
-					List<Surface> surfaces = (List<Surface>) (a.isAspect(
-							NameRef.surfaceList) ? a.get(NameRef.surfaceList) :
-							new LinkedList<Surface>());
+					if (! a.isAspect(NameRef.surfaceList) )
+						continue;
+					List<Surface> surfaces = (List<Surface>) 
+							a.get(NameRef.surfaceList);
 					/* NOTE introduce some safties */
 					distributionMap = (HashMap<int[],Double>) 
 											a.getValue("volumeDistribution");
