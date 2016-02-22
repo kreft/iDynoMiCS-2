@@ -1,5 +1,7 @@
 package grid;
 
+import java.util.Arrays;
+
 import grid.resolution.ResCalcFactory;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
@@ -36,7 +38,7 @@ public class CylindricalGrid extends PolarGrid
 	 * <ul>
 	 * <li> The array has three rows, one for each dimension.</li>
 	 * <li> A row may contain a single value or a vector.</li>
-	 * <li> _resCalc[0] is the radial angle and has length 1 (single value).</li>
+	 * <li> _resCalc[0] is the radius and has length 1 (single value).</li>
 	 * <li> _resCalc[1] is the azimuthal angle.</li>
 	 * <li> _resCalc[2] is the z-dimension.</li>
 	 * <li> The number of voxels along the azimuthal dimension {@code η_θ} 
@@ -159,38 +161,48 @@ public class CylindricalGrid extends PolarGrid
 		}
 		/* 
 		 * Determine minimal squared resolution in theta (axis 1).
-		 * 
-		 * TODO This doesn't account for partially-overlapping voxel-voxel
-		 * interfaces. 
 		 */ 
-//		for ( int shell = 0; shell < this._resCalc[1].length; shell++ )
-//		{
-//			rC = this._resCalc[1][shell];
-//			for ( int i = 0; i < rC.getNVoxel() - 1; i++ )
-//				m = Math.min(m, rC.getResolution(i) * rC.getResolution(i+1));
-//		}
+		for (resetIterator(); isIteratorValid(); iteratorNext())
+			for (resetNbhIterator(); isNbhIteratorValid(); nbhIteratorNext() )
+				//TODO: Stefan[21Feb2016]: what to do at boundaries?
+				if (nbhIteratorIsOutside() == null 
+						&& this._currentCoord[0] != this._currentNeighbor[0])
+					m=Math.min(m, Math.pow(getNbhSharedArcLength(1), 2));
+//		m = Math.max(m, Math.pow(this.MIN_NBH_ANGLE_DIFF, 2));
 		System.out.println(m);
+		
 		this._minVoxVoxDist = m;
 	}
-	
+
 	@Override
 	public double getNbhSharedSurfaceArea()
 	{
-//		int absDiff = 0, cumulativeAbsDiff = 0;
-//		double area = 1.0;
-//		ResCalc rC;
-//		for ( int i = 0; i < 3; i++ )
-//		{
-//			absDiff = Math.abs(this._currentCoord[i] - this._currentNeighbor[i]);
-//			if ( absDiff == 0 ){
-//				rC = this.getResolutionCalculator(this._currentCoord,i);
-//				area *= rC.getResolution(this._currentCoord[i]);
-//			}
-//			else
-//				cumulativeAbsDiff += absDiff;
-//		}
-//		return ( cumulativeAbsDiff == 1 ) ? area : 0.0;
-		return 1;
+		int[] cur = this._currentCoord;
+		int[] nbh = this._currentNeighbor;
+		
+//		//TODO: Stefan[20Feb2016]: What to return at boundaries ?
+//		if (nbhIteratorIsOutside() != null)
+//			return 1;
+		
+		double area = 1.0;
+
+		if (nbh[0] != cur[0]) {
+			area *= getNbhSharedArcLength(1);
+			area *= getResolutionCalculator(cur, 2).getResolution(cur[2]);
+		}else{
+			ResCalc rC;
+			for ( int i = 0; i < 3; i += 2 )
+			{
+				if ( Math.abs(cur[i] - nbh[i]) == 0 ){
+					rC = getResolutionCalculator(cur, i);
+					area *= rC.getResolution(cur[i]);
+				}
+			}			
+		}
+//		if (area==0) throw new RuntimeException(
+//					"undefined error, possibly missing or corrupted neighbor"); 
+//		System.out.println(area);
+		return area;
 	}
 	
 	@Override

@@ -47,14 +47,19 @@ import test.PolarGridTest;
  *
  */
 public class SpatialGridPlot3D{
+	/* flags for mutuable voxel properties */
 	public final int POLYMODE = 1 << 0, COLOR = 1 << 1, TRANSPARENCY = 1 << 2; 
+	/* used to define the domain property functions should operate on */
 	public enum VoxelTarget{ NBH, ALL}
+	/* used to define the branch graph property functions should operate on */
 	public enum Branch {Voxels, InVoxelPoints}
 	
 	private JFrame frame;
 	Transform3D camera_pos;	
+	/* the branch graph map for all objects on the frame */
 	HashMap<SpatialGrid,HashMap<ArrayType,GridGraph>> grids;
 	SimpleUniverse universe;
+	/* visualization bounds (max 1000 meters atm)*/
 	Bounds bounds;
 	final Color3f RED=new Color3f(1f, 0f, 0f), 
 			BLUE=new Color3f(0f, 0f, 1f), 
@@ -88,7 +93,11 @@ public class SpatialGridPlot3D{
 		frame.setVisible(true);
 	}
 	
-	/** Adds the spatial grid if it is not already in the branch graph.
+	/** 
+	 * \brief Changes the world position of this grid. 
+	 * 
+	 * Adds the spatial grid if it is not already in the branch graph.
+	 * 
 	 * @param grid
 	 * @param type
 	 * @param pos
@@ -100,11 +109,14 @@ public class SpatialGridPlot3D{
 		getGraph(grid, type).loc = pos;
 	}
 
+	/**
+	 * \brief Used to focus all objects in first dimension (where the
+	 * totalLength is the max radius for PolarGrids)
+	 * 
+	 * Adds the spatial grid if it is not already in the branch graph.
+	 */
 	public void autoSetCamera(){
 			camera_pos = new Transform3D();
-			/* focus the object in first dimension (where the totalLength is 
-			 * the max radius for PolarGrids)
-			 */
 			if (grids.keySet().isEmpty()) 
 				return;
 			double max_length = Double.MIN_VALUE, min_start = Double.MAX_VALUE;
@@ -127,23 +139,38 @@ public class SpatialGridPlot3D{
 						.getViewPlatformTransform().setTransform(camera_pos);
 		}
 
+	/**
+	 * \brief This will create a visualization of the grid's iterator.
+	 * 
+	 * Steps can be increased manually or automatic, depending on user-input.
+	 *
+	 * Adds the spatial grid if it is not already in the branch graph.
+	 *  
+	 * @param grid
+	 * @param type
+	 */
 	public void startIterator(SpatialGrid grid, ArrayType type){
 		boolean auto_step = false;
 		long t, min_pause = 500;
-		GridGraph graph = getGraph(grid, ArrayType.CONCN);
+		/* get or add the grid graph */
+		GridGraph graph = getGraph(grid, type);
+		
+		/* red opaque voxels for current */ 
 		VoxelProperties cur_prop = new VoxelProperties();
-		cur_prop.target = TRANSPARENCY | COLOR;
+		cur_prop.target = TRANSPARENCY | COLOR | POLYMODE;
 		cur_prop.color = RED;
-		cur_prop.alpha = 0;
+		cur_prop.alpha = 1;
+		cur_prop.fillOrVec = true;
+		/* blue opaque voxels for nbhs */
 		VoxelProperties nbh_prop = new VoxelProperties();
-		nbh_prop.target = TRANSPARENCY | COLOR;
+		nbh_prop.target = TRANSPARENCY | COLOR | POLYMODE;
 		nbh_prop.color = BLUE;
-		nbh_prop.alpha = 0;
+		nbh_prop.alpha = 1;
+		nbh_prop.fillOrVec = true;
+		/* gray transparent voxels for others */
 		VoxelProperties reset_prop = new VoxelProperties();
-		reset_prop.alpha = 1;
-		reset_prop.target = TRANSPARENCY | COLOR;
-		setPolygonMode(VoxelTarget.ALL, grid, type, true);
-		setTransparency(VoxelTarget.ALL, grid, type, 1);
+		reset_prop.target = TRANSPARENCY | COLOR | POLYMODE;
+
 		View view = universe.getCanvas().getView();
 		int[] cur;
         for ( cur = grid.resetIterator(); grid.isIteratorValid(); 
@@ -151,7 +178,9 @@ public class SpatialGridPlot3D{
         {
         	
         	t=System.currentTimeMillis();
+        	/* set current */
         	setPerVoxelProperty(cur_prop, graph, cur);
+        	/* set nbhs */
         	setCurrentNbhsProperty(nbh_prop, grid, graph);
         	/* force displaying after setting up all voxels */
         	view.startView(); 
@@ -179,20 +208,27 @@ public class SpatialGridPlot3D{
         }
     }
 	
-	/** polygon mode should be set to fill before calling this.
+	/** 
+	 * \brief Plots the current concentrations (i.e. ArrayType CONCN) of the 
+	 * given spatial grid. 
+	 *  
+	 * Polygon mode should be set to 'fill' (true) before calling this.
+	 * 
+	 * Adds the spatial grid if it is not already in the branch graph.
+	 * 
 	 * @param grid
 	 */
 	public void plotCurrentConcentrations(SpatialGrid grid){
 		int [] current;
 		GridGraph graph = getGraph(grid, ArrayType.CONCN);
 		VoxelProperties prop = new VoxelProperties();
-		View view = universe.getCanvas().getView();
 		prop.target = TRANSPARENCY;
+		View view = universe.getCanvas().getView();
 		view.stopView();
         for ( current=grid.resetIterator(); grid.isIteratorValid();
         		current=grid.iteratorNext())
         {
-        	float alpha = (float)(1 - grid.getValueAtCurrent(ArrayType.CONCN));
+        	float alpha = (float)grid.getValueAtCurrent(ArrayType.CONCN);
         	prop.alpha = Math.min(Math.max(0, alpha), 1);
         	setPerVoxelProperty(prop, graph, current);
         }
@@ -200,6 +236,15 @@ public class SpatialGridPlot3D{
 	}
 	
 	
+	/** 
+	 * \brief Used to set voxel properties of either all voxels or the 
+	 * current neighborhood.
+	 * 
+	 * @param prop The voxel properties structure.
+	 * @param targets The domain to be operated on (enum VoxelTarget).
+	 * @param grid 
+	 * @param type
+	 */
 	public void setProperty(VoxelProperties prop, VoxelTarget targets, SpatialGrid grid, 
 							ArrayType type)
 	{
@@ -213,6 +258,13 @@ public class SpatialGridPlot3D{
 		}
 	}
 	
+	/**
+	 * @param targets The domain to be operated on (enum VoxelTarget).
+	 * @param grid 
+	 * @param type
+	 * @param fillOrVec Boolean defining filled (true) or vector-based (false)
+	 * 					polygon mode. 
+	 */
 	public void setPolygonMode(VoxelTarget targets, SpatialGrid grid, 
 							ArrayType type, boolean fillOrVec)
 	{
@@ -221,6 +273,12 @@ public class SpatialGridPlot3D{
 		setProperty(prop, targets, grid, type);
 	}
 	
+	/**
+	 * @param targets The domain to be operated on (enum VoxelTarget).
+	 * @param grid
+	 * @param type
+	 * @param alpha The alpha value in the range 0 (transparent) and 1 (opaque)
+	 */
 	public void setTransparency(VoxelTarget targets, SpatialGrid grid, 
 			ArrayType type, float alpha)
 	{
@@ -230,6 +288,13 @@ public class SpatialGridPlot3D{
 		setProperty(prop, targets, grid, type);
 	}
 	
+	/**
+	 * @param branch The branch graph (enum SpatialGridPlot3D.Branch).
+	 * @param targets The domain to be operated on (enum VoxelTarget).
+	 * @param grid
+	 * @param type
+	 * @param color 
+	 */
 	public void setColor(Branch branch, VoxelTarget targets, SpatialGrid grid, 
 							ArrayType type, Color3f color){
 		switch (branch){
@@ -244,6 +309,14 @@ public class SpatialGridPlot3D{
 		}
 	}
 			
+	/**
+	 * \brief Adds points inside every voxel on the grid 
+	 * (i.e. for voxel centers set in_voxel_loc = new double[]{0.5, 0.5, 0.5})
+	 * 
+	 * @param grid
+	 * @param type
+	 * @param in_voxel_location A relative location inside a voxel (range [0 1]).
+	 */
 	public void addPoints(SpatialGrid grid, ArrayType type, 
 													double[] in_voxel_location){
 		GridGraph graph = getGraph(grid, type);
@@ -271,55 +344,51 @@ public class SpatialGridPlot3D{
 		}
 	}
 	
+	/**
+	 * Removes all in-voxel locations (for example center points).
+	 * 
+	 * @param grid
+	 * @param type
+	 */
 	public void removePoints(SpatialGrid grid, ArrayType type){
 		getGraph(grid, type).getLocationsBranch().removeAllChildren();
 	}
 	
 	/**
+	 * \brief Used to define property-targets and their respective arguments.</br>
+	 * 
+	 * Targets can be ORed, i.e. target = COLOR | POLYMODE will set the color and 
+	 * polygon mode to the values defined by the fields color and fillOrVec, while
+	 * ignoring the field alpha.</br> 
+	 * 
+	 * </br>
+	 * Targets can be: </br>
+	 *  POLYMODE (fillOrVec)
+	 *   			true: filled polygons, false: lines connecting edges. </br>
+	 *  COLOR (color)</br>
+	 *  TRANSPARENCY (alpha) 	</br> 
+	 *  </br>
+	 * 
 	 * Default values:</br>
-	 * prop = POLYMODE </br>
+	 * target = -1 (none) </br>
 	 * fillOrVec = false</br>
 	 * color = GRAY </br>
 	 * alpha = 1 (opaque)
 	 */
 	private class VoxelProperties{
-		int target = POLYMODE; 
+		int target = -1; 
 		boolean fillOrVec = false; 
 		Color3f color = GRAY; 
 		float alpha = 1;  
-//		public VoxelProperties(){};
-//		public VoxelProperties(VoxelProperties other) {
-//			target = other.target;
-//			fillOrVec = other.fillOrVec;
-//			color = new Color3f(other.color);
-//			alpha = other.alpha;
-//		}
-//		@Override
-//		public boolean equals(Object obj) {
-//			boolean out = false;
-//			if (obj instanceof VoxelProperties){
-//				VoxelProperties other = (VoxelProperties) obj;
-//				out = true;
-//				if(( target & POLYMODE ) == POLYMODE){
-//					if (( other.target & POLYMODE ) == POLYMODE )
-//						out &= other.fillOrVec == fillOrVec;
-//					else out &= false;
-//				}
-//				if (out && ( target & COLOR ) == COLOR){
-//					if (( other.target & COLOR ) == COLOR )
-//						out &= other.color.equals(color);
-//					else out &= false;
-//				}
-//				if (out && ( target & TRANSPARENCY ) == TRANSPARENCY){
-//					if (( other.target & TRANSPARENCY ) == TRANSPARENCY )
-//						out &= other.alpha == alpha;
-//					else out &= false;
-//				}
-//			}
-//			return out;
-//		}
 	}
 	
+	/**
+	 * \brief used to change several properties defined in prop for a single voxel.
+	 * 
+	 * @param prop A VoxelProperties structure.
+	 * @param graph The voxel branch graph of a spatial grid.
+	 * @param coord
+	 */
 	private void setPerVoxelProperty(VoxelProperties prop, GridGraph graph, int[] coord){
 		int idx = graph.getIdx(coord);			
 
@@ -331,9 +400,17 @@ public class SpatialGridPlot3D{
 		if ((prop.target & COLOR) == COLOR)
 			ap.getMaterial().setAmbientColor(prop.color);
 		if ((prop.target & TRANSPARENCY) == TRANSPARENCY)
-			ap.getTransparencyAttributes().setTransparency(prop.alpha);
+			ap.getTransparencyAttributes().setTransparency(1 - prop.alpha);
 	}
 
+	/**
+	 * \brief Used to change several properties defined in prop for 
+	 *			the current neighborhood.
+	 * 
+	 * @param prop
+	 * @param grid
+	 * @param graph
+	 */
 	private void setCurrentNbhsProperty(VoxelProperties prop, SpatialGrid grid, GridGraph graph){
 		int[] nbh;
 		for ( nbh=grid.resetNbhIterator(); grid.isNbhIteratorValid();
@@ -345,12 +422,28 @@ public class SpatialGridPlot3D{
 		}
 	}
 	
+	/**	
+	 * \brief Used to change several properties defined in prop for 
+	 *			all voxels on the grid.
+	 *
+	 * @param prop
+	 * @param grid
+	 * @param graph
+	 */
 	private void setVoxelAllProperty(VoxelProperties prop, SpatialGrid grid, GridGraph graph){
 		for ( int cur[]=grid.resetIterator(); grid.isIteratorValid();
 				cur=grid.iteratorNext())
 			setPerVoxelProperty(prop, graph, cur);
 	}
 	
+	/**
+	 * 
+	 * Used to set the color of all points on the grid (i.e. center points) 
+	 * 
+	 * @param grid
+	 * @param type
+	 * @param color
+	 */
 	private void setPointsColor(SpatialGrid grid, ArrayType type, Color3f color)
 	{
 		GridGraph graph = getGraph(grid, type);
@@ -383,6 +476,16 @@ public class SpatialGridPlot3D{
 		return grids.get(grid).get(type);
 	}
 
+	/**
+	 * Converts the coordinate and the relative location inside this coordinate 
+	 * into a location, and transforms the results to a Cartesian coordinate 
+	 * system if necessary (evaluated by the grid type).
+	 * 
+	 * @param grid
+	 * @param coords
+	 * @param inside
+	 * @return
+	 */
 	private double[] getCartLoc(SpatialGrid grid, int[] coords, double[] inside)
 	{
 		double[] loc = grid.getLocation(coords, inside);
@@ -393,15 +496,23 @@ public class SpatialGridPlot3D{
 		return loc;
 	}
 	
+	/**
+	 * Creates an appearance where only the color can be overridden.
+	 * 
+	 * @return
+	 */
 	private static Appearance makeMutableColorAppearance(){
 		Appearance ap = new Appearance();
 		Material m = new Material();
-		m.setCapability(Material.ALLOW_COMPONENT_READ);
 		m.setCapability(Material.ALLOW_COMPONENT_WRITE);
 		ap.setMaterial(m);
     	return ap;
 	}
 	
+	/** Creates an appearance where the polygon mode, the color, and the 
+	 * transparency attributes can be overridden.
+	 * @return
+	 */
 	private static Appearance makeMutableVecAppearance(){
 		Appearance ap = new Appearance();
 		PolygonAttributes pa = new PolygonAttributes(
@@ -423,6 +534,14 @@ public class SpatialGridPlot3D{
     	return ap;
 	}
 	
+	/**
+	 * Creates a 3D shape for a voxel. Polar voxels are approximated with 
+	 * Cartesian cuboids.
+	 * 
+	 * @param grid
+	 * @param coord
+	 * @return
+	 */
 	private Shape3D createGridCellShape(SpatialGrid grid, int[] coord)
 	{
 		QuadArray qa = new QuadArray(24,QuadArray.COORDINATES);
@@ -484,6 +603,14 @@ public class SpatialGridPlot3D{
 		return shape;
 	}
 	
+	/**
+	 * Forces the current Thread to sleep minimum 'min_millis' milliseconds.
+	 * 
+	 * Throws an exception if interrupted.
+	 * 
+	 * @param start
+	 * @param min_millis
+	 */
 	private static void sleepUnsave(long start, long min_millis){
 		try 
     	{
@@ -500,8 +627,14 @@ public class SpatialGridPlot3D{
 		return light;
 	}
 	
+	/**
+	 * Stores all information necessary to visualize a SpatialGrid.
+	 *
+	 */
 	private class GridGraph{	
+		/* the different branches, voxels and points inside that voxels so far */
 		BranchGroup branches;
+		/* the global world position of the grid */
 		double[] loc;
 		/* to map 3D-coordinates to indices */
 		private HashMap<String,Integer> coord2idx; 
@@ -526,34 +659,30 @@ public class SpatialGridPlot3D{
 			BranchGroup voxels = new BranchGroup();
 			for ( int idx = 0, cur[] = grid.resetIterator(); 
 					grid.isIteratorValid(); cur = grid.iteratorNext(), idx++){
-				/* to have nice hashCode() implementation */
-//				Vector3f vec = new Vector3f();
-//				vec.x = cur[0]; vec.y = cur[1]; vec.z = cur[2];
+				/* use string to have working hashCode() implementation */
 				coord2idx.put(Arrays.toString(cur), idx);
 				voxels.addChild(createGridCellShape(grid, cur));
 			}
 			
-//			props = new VoxelProperties[voxels.numChildren()];
-			
 			/* reset, to don't disturb calling function */
 			grid.resetIterator();
+			/* add voxels to the branch group */
 			world_pos.addChild(voxels);
 			
-			/* create (empty) branchgraph for in-voel-points 
+			/* create (empty) branch graph for in-voxel-points 
 			 * (i.e. origin or center) */
 			BranchGroup points = new BranchGroup();
 			points.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
 			points.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
 			world_pos.addChild(points);
 			
+			/* transform everything to right world location */
 			branches = new BranchGroup();
 			branches.addChild(world_pos);
 			branches.addChild(brightAmbientLight());
 			
 			/* register in universe */
 			universe.addBranchGraph(branches);
-			
-//			setColor(Branch.Voxels, VoxelTarget.ALL, grid, type, GRAY);
 		}
 		
 		BranchGroup getVoxelsBranch(){ 
@@ -567,8 +696,6 @@ public class SpatialGridPlot3D{
 		}
 		
 		int getIdx(int[] coord){ 
-//			Vector3f vec = new Vector3f();
-//			vec.x = coord[0]; vec.y = coord[1]; vec.z = coord[2];
 			return coord2idx.get(Arrays.toString(coord));
 		}
 	}
