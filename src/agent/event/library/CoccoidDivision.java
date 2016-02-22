@@ -70,6 +70,8 @@ public class CoccoidDivision extends Event {
 						daughterBody.getSurface() } , 1.7 ));
 			}
 			daughter.registerBirth();
+			mother.event("updateBody");
+			daughter.event("updateBody");
 			Log.out(tier.BULK, "CoccoidDivision added daughter cell");
 		}
 	}

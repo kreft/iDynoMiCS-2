@@ -158,10 +158,10 @@ public class Point implements Copyable
 		{
 			// anti deadlock
 			if ( Vector.normEuclid(getForce()) < 0.2 )
-				Vector.addEquals(p, Vector.times(getForce(), 5.0* radius)); 
+				Vector.addEquals(p, Vector.times(getForce(), 3.0* radius)); 
 			// anti catapult
 			else
-				Vector.addEquals(p, Vector.times(getForce(), 0.7* radius));
+				Vector.addEquals(p, Vector.times(getForce(), 0.5* radius));
 		}
 		this.resetForce();
 	}
