@@ -981,14 +981,42 @@ public abstract class SpatialGrid
 			/*
 			 * Then multiply this by the average diffusivity.
 			 */
-			out *= 0.5 * (this.getValueAtCurrent(ArrayType.DIFFUSIVITY) +
-			   this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor));
+			out *= meanDiffusivity(
+				this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+				this.getValueAt(ArrayType.DIFFUSIVITY, this._currentNeighbor));
 			/*
 			 * Finally, multiply by the surface are the two voxels share (in
 			 * square microns).
 			 */
+			// TODO Rob: I need to change this
 			out /= this.getNbhSharedSurfaceArea();
-			//System.out.println("normal: "+out); //bughunt
+			return out;
+		}
+		else if ( aMethod instanceof CyclicGrid )
+		{
+			/*
+			 * Use the cyclic-transformed voxel coordinate for 
+			 */
+			int[] cyclicNbh = this.cyclicTransform(this._currentNeighbor);
+			/*
+			 * First find the difference in concentration.
+			 */
+			double out = this.getValueAt(ArrayType.CONCN, cyclicNbh)
+					- this.getValueAtCurrent(ArrayType.CONCN);
+			/*
+			 * Then multiply this by the average diffusivity.
+			 */
+			out *= meanDiffusivity(
+							this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+							this.getValueAt(ArrayType.DIFFUSIVITY, cyclicNbh));
+			/*
+			 * Finally, multiply by the surface are the two voxels share (in
+			 * square microns).
+			 * 
+			 * Note that we use the ghost coordinate outside the grid for this.
+			 */
+			// TODO Rob: I need to change this
+			out /= this.getNbhSharedSurfaceArea();
 			return out;
 		}
 		else
@@ -997,6 +1025,21 @@ public abstract class SpatialGrid
 			//System.out.println("method: "+flux); //bughunt
 			return flux;
 		}
+	}
+	
+	private static double meanDiffusivity(double a, double b)
+	{
+		if ( a == 0.0 || b == 0.0 )
+			return 0.0;
+		if ( a == Double.POSITIVE_INFINITY )
+			return b;
+		if ( b == Double.POSITIVE_INFINITY )
+			return a;
+		/*
+		 * This is a computationally nicer way of getting the harmonic mean:
+		 * 2 / ( (1/a) + (1/b))
+		 */
+		return 2.0 * ( a * b ) / ( a + b );
 	}
 	
 	/*************************************************************************

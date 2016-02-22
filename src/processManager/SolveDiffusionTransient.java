@@ -30,6 +30,7 @@ import surface.Surface;
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author baco
  */
 public class SolveDiffusionTransient extends ProcessManager
 {
@@ -228,7 +229,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			public void prestep(HashMap<String, SpatialGrid> variables, 
 					double dt)
 			{
-				/** gather a defaultGrid to iterate over */
+				/* Gather a defaultGrid to iterate over. */
 				SpatialGrid defaultGrid = environment.getSoluteGrid(environment.
 						getSolutes().keySet().iterator().next());
 				
@@ -237,11 +238,10 @@ public class SolveDiffusionTransient extends ProcessManager
 						defaultGrid.isIteratorValid(); 
 							coord = defaultGrid.iteratorNext())
 				{
-					/* iterate over all compartment reactions */
+					/* Iterate over all compartment reactions. */
 					for (Reaction r : environment.getReactions() )
 					{
-						
-						/* obtain concentrations in gridCell */
+						/* Obtain concentrations in gridCell. */
 						HashMap<String,Double> concentrations = 
 								new HashMap<String,Double>();
 						for ( String varName : r.variableNames )
@@ -253,8 +253,7 @@ public class SolveDiffusionTransient extends ProcessManager
 										ArrayType.CONCN, coord));
 							}
 						}
-						
-						/* obtain rate of the reaction */
+						/* Obtain rate of the reaction. */
 						double rate = r.getRate(concentrations);
 						double productionRate;
 						for ( String product : r.getStoichiometry().keySet())
@@ -262,7 +261,7 @@ public class SolveDiffusionTransient extends ProcessManager
 							productionRate = rate * r.getStoichiometry(product);
 							if ( environment.isSoluteName(product) )
 							{
-								/* write rate for each product to grid */
+								/* Write rate for each product to grid. */
 								solute = environment.getSoluteGrid(product);
 								solute.addValueAt(ArrayType.PRODUCTIONRATE, 
 										coord, productionRate);
@@ -387,8 +386,7 @@ public class SolveDiffusionTransient extends ProcessManager
 									a.set("growthRate", productionRate);
 									
 									/* Timespan of growth event */
-									// TODO Rob[18Feb2016]: Surely this should happen
-									// at the very end? 
+									// FIXME quickfix since timestepsize is no longer available as local par
 									a.event("growth", dt);
 									a.event("divide");
 								}
