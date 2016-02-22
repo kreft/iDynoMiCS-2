@@ -37,8 +37,8 @@ public class AllSame implements IsWellmixedSetter
 	}
 	
 	@Override
-	public void updateDomain(SpatialGrid aGrid, AgentContainer agents)
+	public void updateWellmixed(SpatialGrid aGrid, AgentContainer agents)
 	{
-		aGrid.newArray(ArrayType.DOMAIN, this._value);
+		aGrid.newArray(ArrayType.WELLMIXED, this._value);
 	}
 }
