@@ -64,7 +64,7 @@ public class Log {
 	
 	public static boolean isSet()
 	{
-		return (outputLevel == null ? false : true);
+		return (outputLevel != null);
 	}
 	
 	/**
