@@ -6,7 +6,6 @@ package processManager;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import agent.Agent;
@@ -16,7 +15,6 @@ import grid.subgrid.SubgridPoint;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
-import idynomics.Timer;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import solver.PDEexplicit;
