@@ -2,7 +2,6 @@ package solver;
 
 import java.util.HashMap;
 
-import grid.GridBoundary.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 
@@ -93,61 +92,4 @@ public abstract class PDEsolver extends Solver
 			grid.addValueAt(ArrayType.LOPERATOR, current, lop);
 		}
 	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * <p>Requires the arrays "domain", "diffusivity" and "diffReac" to be
-	 * pre-filled in <b>solute</b>.</p>
-	 * 
-	 * @param solute 
-	 * @param arrayName
-	 */
-	protected void divideByDiffLOperator(String sName, SpatialGrid solute, ArrayType arrayType)
-	{
-		/*
-		 * Coordinates of the current position and of the current neighbor. 
-		 */
-		int[] current, nbh;
-		/*
-		 * The GridMethod to use if the current neighbor crosses a boundary.
-		 */
-		GridMethod gMethod;
-		/*
-		 * Solute diffusivity at the current grid coordinates and at the
-		 * current neighbor coordinates.
-		 */
-		double currDiff, nbhDiff;
-		/*
-		 * Temporary storage for the derivative of the L-Operator.
-		 */
-		double dLop;
-		/*
-		 * Iterate over all core voxels calculating the derivative of the 
-		 * L-Operator. 
-		 */
-		for ( current = solute.resetIterator(); solute.isIteratorValid();
-											  current = solute.iteratorNext())
-		{
-			if ( solute.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
-				continue;
-			dLop = 0.0;
-			currDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, current);
-			for ( nbh = solute.resetNbhIterator(); 
-					solute.isNbhIteratorValid(); nbh = solute.nbhIteratorNext() )
-			{
-				gMethod = solute.nbhIteratorIsOutside();
-				if ( gMethod == null )
-				{
-					nbhDiff = solute.getValueAt(ArrayType.DIFFUSIVITY, nbh);
-					dLop += 0.5*(nbhDiff + currDiff);
-					// TODO
-				}
-				else
-					dLop += gMethod.getBoundaryFlux(solute);
-			}
-			dLop += solute.getValueAt(ArrayType.DIFFPRODUCTIONRATE, current);
-			solute.timesValueAt(arrayType, current, 1.0/dLop);
-		}
-	}	
 }
