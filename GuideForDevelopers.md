@@ -159,6 +159,43 @@ Math.floorMod(5, 3) ; // = 2
 Math.floorMod(-2, 3) ; // = 1
 ```
 
+## Using aspects
+
+### what is an aspect (and why)?
+Aspects are introduced to have a flexible way of handling and storing properties
+and behavior of the java object that hosts them, as well as to ensure sub-models
+always work with up-to-date information. An aspect can be any java
+object, yet when creating an aspect (stored in an Aspect<A> object) a
+distinction is made between three different types: PRIMARY, CALCULATED and EVENT.
+
+Primary aspects store information or properties and are preferable the only place this
+information is stored (such as a double that represents an Agents mass or a
+String that tells an output writer what solute should be displayed). Calculated
+aspects are used to calculate a property that depends on other aspects. For
+example calculated aspect may define an agents volume based on it's mass and 
+density. There are two way's of defining a calculated aspect: 1) calling a
+premade calculated aspect 
+``` XML
+<aspect name="surfaces"			type="calculated"	class="AgentSurfaces"			input="body"		package="agent.state.library."  />
+```
+Calculated aspects do not store any information except for on what primary aspects they
+depend 
+
+### classes currently implementing the aspect interface
+- Agent
+- Species
+- ProcessManager
+
+## Using the helper class
+
+## Using XmlHandler and XmlLoad classes
+
+## Using NameReferences
+
+## using expressions
+
+## using reactions
+
 # Testing
 
 Useful links:
