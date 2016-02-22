@@ -185,7 +185,7 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 	
 	public static Object getNewInstance(String className)
 	{
-		return XMLable.getNewInstance(className, "boundary");
+		return XMLable.getNewInstance(className, "boundary.");
 	}
 	
 }

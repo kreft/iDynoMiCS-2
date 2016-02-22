@@ -89,7 +89,7 @@ public class SphericalGrid extends PolarGrid
 		 * Add cyclic boundaries for phi if we have a half circle.
 		 */
 		// TODO More robust definition of tolerance here.
-		if (getTotalLength(1) == Math.PI)
+		if ( ExtraMath.areEqual(this.getTotalLength(1), Math.PI, 1E-10) )
 		{
 			this.addBoundary(DimName.PHI, 0, new CyclicGrid());
 			this.addBoundary(DimName.PHI, 1, new CyclicGrid());
@@ -100,7 +100,7 @@ public class SphericalGrid extends PolarGrid
 		 * Add cyclic boundaries for theta if we have a full circle.
 		*/
 		// TODO More robust definition of tolerance here.
-		if ( ExtraMath.areEqual(this.getTotalLength(2), 2 * Math.PI, 1E-10))
+		if ( ExtraMath.areEqual(this.getTotalLength(2), 2 * Math.PI, 1E-10) )
 		{
 			this.addBoundary(DimName.THETA, 0, new CyclicGrid());
 			this.addBoundary(DimName.THETA, 1, new CyclicGrid());
