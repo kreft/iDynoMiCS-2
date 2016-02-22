@@ -235,7 +235,7 @@ expressions). Whenever this calculated state is called it will always evaluate
 this expression with the up-to-date value's and thus return an up to date double
 value.
 
-NOTE: the input aspects of an expression states should always be or castable as
+NOTE: the input aspects of an StateExpression should always be or castable as
 java double value.
 
 #### event
@@ -363,7 +363,48 @@ public void event(aspectObject compliant, double timestep, String event)
 	aspectRegistry.doEvent(this, compliant, timestep, event);
 }
 ```
-	
+
+Some aspect interface implementing objects deliberately have no set method since
+they are not intended to be mutated (for example species).
+
+### Creating custom aspects
+In order to create a custom calculated state (apart from a direct 
+StateExpression calculated state) you need to create a new method extending
+the Calculated class. Any calculated state only needs one method:
+
+``` java
+public Object get(AspectInterface aspectOwner)
+{
+	return someOperation(input[0], input[1])
+}
+```
+
+hence a calculated state has excess to all of the agent's other aspects, but
+only call's the ones that are specifically assigned in the protocol file 
+(available as String[] input). NOTE: this may be changed to be a hashMap instead
+in the future.
+
+Like calculated aspects also Event aspects only require the extending the Event
+class and implementing a single method:
+
+``` java
+public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
+	{
+		/* do some event here /*
+	}
+```
+
+Note that it may be useful to cast the initiator and compliant to their native
+object class if you want to call methods that are specific for those objects,
+(or the set method). For example:
+
+``` java
+Agent mother = (Agent) initiator;
+Agent daughter = (Agent) compliant;
+
+mother.set(input[0], initiator.getDouble(input[0])/2.0);
+/* etc. */
+```
 
 #### classes currently implementing the aspect interface
 - Agent
