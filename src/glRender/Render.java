@@ -189,7 +189,7 @@ public class Render implements GLEventListener, Runnable {
 		/**
 		 * set the animator and its Frames per second
 		 */
-		final FPSAnimator animator = new FPSAnimator(glcanvas, 30, true);
+		final FPSAnimator animator = new FPSAnimator(glcanvas, 60, true);
 		
 		/* window name */
 		final JFrame frame = new JFrame ("Live render");

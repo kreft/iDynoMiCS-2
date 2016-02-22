@@ -23,6 +23,7 @@
 				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
+				<aspect name="surfaces"			type="calculated"	class="AgentSurfaces"			input="body"		package="agent.state.library."  />
 				<aspect name="morphology" 		type="String" 		value="coccoid" />
 				<aspect name="coccoidCenter" 	type="calculated" 	class="CoccoidCenter" 			input="body" />
 				<aspect name="joints" 			type="calculated" 	class="JointsState" 			input="body" />
