@@ -4,7 +4,7 @@
 		comment="this is a file for testing purposes only.">
 		<general>
 			<param name="timeStepSize" value="1.0" />
-			<param name="endOfSimulation" value="150.0" />
+			<param name="endOfSimulation" value="50.0" />
 		</general>
 
 		<speciesLib>
@@ -20,7 +20,7 @@
 					<item type="reaction">
 						<reaction name="testReact">
 							<expression value="solute1 * k">
-								<constant name="k" value="0.001" />
+								<constant name="k" value="0.0001" />
 							</expression>
 							<stochiometric component="AOB" coefficient="1.0" />
 							<stochiometric component="solute1" coefficient="-1.0" />
@@ -68,7 +68,7 @@
 			<reactions>
 				<reaction name="slowInflow">
 					<expression value="1.0 * inflow">
-						<constant name="inflow" value="0.0001" />
+						<constant name="inflow" value="0.04" />
 					</expression>
 					<stochiometric component="solute1" coefficient="1.0" />
 				</reaction>

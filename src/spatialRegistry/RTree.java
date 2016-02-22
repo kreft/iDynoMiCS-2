@@ -16,7 +16,7 @@ import utility.ExtraMath;
  * Implementation of an arbitrary-dimension RTree. Based on R-Trees: A Dynamic
  * Index Structure for Spatial Searching (Antonn Guttmann, 1984)
  * 
- * This class is not thread-safe.
+ * NOTE switched to synchronized public method's for thread safety
  * 
  * Copyright 2010 Russ Weeks rweeks@newbrightidea.com Licensed under the GNU
  * LGPL License details here: http://www.gnu.org/licenses/lgpl-3.0.txt
@@ -111,8 +111,6 @@ public class RTree<T> extends SpatialRegistry<T>
     this(50, 2, 2, SeedPicker.LINEAR);
   }
 
-
-
 /**
    * @return the maximum number of entries per node
    */
@@ -158,7 +156,7 @@ public class RTree<T> extends SpatialRegistry<T>
    * @return a list of objects whose rectangles overlap with the given
    *         rectangle.
    */
-  public List<T> search(double[] coords, double[] dimensions)
+  public synchronized List<T> search(double[] coords, double[] dimensions)
   {
     assert (coords.length == numDims);
     assert (dimensions.length == numDims);
@@ -167,7 +165,7 @@ public class RTree<T> extends SpatialRegistry<T>
     return results;
   }
 
-  private void search(double[] coords, double[] dimensions, Node n,
+  private synchronized void search(double[] coords, double[] dimensions, Node n,
       LinkedList<T> results)
   {
     if (n.leaf)
@@ -209,7 +207,7 @@ public class RTree<T> extends SpatialRegistry<T>
    * @return a list of objects whose rectangles overlap with the given
    *         rectangle.
    */
-	public List<T> cyclicsearch(double[] coords, double[] dimensions)  {
+	public synchronized List<T> cyclicsearch(double[] coords, double[] dimensions)  {
 		LinkedList<T> combinedlist = new LinkedList<T>();
 		LinkedList<double[]> boxList = _shape.getCyclicPoints(coords);
 
@@ -225,13 +223,13 @@ public class RTree<T> extends SpatialRegistry<T>
 	/**
 	 * Cyclic search using bounding box as query
 	 */
-	public List<T> cyclicsearch(BoundingBox boundingBox)
+	public synchronized List<T> cyclicsearch(BoundingBox boundingBox)
 	{
 		return cyclicsearch(boundingBox.lowerCorner(), boundingBox.ribLengths());
 	}
 
 	
-	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes)
+	public synchronized List<T> cyclicsearch(List<BoundingBox> boundingBoxes)
 	{
 		List<T> entryList = new LinkedList<T>();
 		for(BoundingBox b : boundingBoxes)
@@ -257,7 +255,7 @@ public class RTree<T> extends SpatialRegistry<T>
    * Returns every entry from the tree
    * @return A list with every entry from the tree.
    */
-  public List<T> all()
+  public synchronized List<T> all()
   {
     LinkedList<T> results = new LinkedList<T>();
     all(root, results);
@@ -282,7 +280,7 @@ public class RTree<T> extends SpatialRegistry<T>
    * added for idynomics 1.0 compatability
    * @return returns random entry from tree
    */
-  public T getRandom()
+  public synchronized T getRandom()
   {
     LinkedList<T> results = new LinkedList<T>();
     all(root, results);
@@ -301,7 +299,7 @@ public class RTree<T> extends SpatialRegistry<T>
    *          the entry to delete
    * @return true iff the entry was deleted from the RTree.
    */
-  public boolean delete(double[] coords, double[] dimensions, T entry)
+  public synchronized boolean delete(double[] coords, double[] dimensions, T entry)
   {
     assert (coords.length == numDims);
     assert (dimensions.length == numDims);
@@ -346,7 +344,7 @@ public class RTree<T> extends SpatialRegistry<T>
    *          the entry to delete
    * @return true iff the entry was deleted from the RTree.
    */
-  public boolean delete(T entry)
+  public synchronized boolean delete(T entry)
   {
     Node l = root;
     ListIterator<Node> li = l.children.listIterator();
@@ -374,7 +372,7 @@ public class RTree<T> extends SpatialRegistry<T>
     return (removed != null);
   }
 
-  public boolean delete(double[] coords, T entry)
+  public synchronized boolean delete(double[] coords, T entry)
   {
     return delete(coords, pointDims, entry);
   }
@@ -468,7 +466,7 @@ public class RTree<T> extends SpatialRegistry<T>
   /**
    * Empties the RTree
    */
-  public void clear()
+  public synchronized void clear()
   {
     root = buildRoot(true);
     // let the GC take care of the rest.
@@ -486,7 +484,7 @@ public class RTree<T> extends SpatialRegistry<T>
    * @param entry
    *          the entry to insert
    */
-  public void insert(double[] coords, double[] dimensions, T entry)
+  public synchronized void insert(double[] coords, double[] dimensions, T entry)
   {
     assert (coords.length == numDims);
     assert (dimensions.length == numDims);
@@ -509,7 +507,7 @@ public class RTree<T> extends SpatialRegistry<T>
   	/**
   	 * insert entry with bounding box object
   	 */
-	public void insert(BoundingBox boundingBox, T entry) {
+	public synchronized void insert(BoundingBox boundingBox, T entry) {
 		insert(boundingBox.lowerCorner(), boundingBox.ribLengths(), entry);
 	}
 
@@ -518,7 +516,7 @@ public class RTree<T> extends SpatialRegistry<T>
    * @param coords
    * @param entry
    */
-  public void insert(double[] coords, T entry)
+  public synchronized void insert(double[] coords, T entry)
   {
     insert(coords, pointDims, entry);
   }

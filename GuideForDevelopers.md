@@ -159,6 +159,268 @@ Math.floorMod(5, 3) ; // = 2
 Math.floorMod(-2, 3) ; // = 1
 ```
 
+## Using aspects
+
+### what is an aspect (and why)?
+Aspects are introduced to have a flexible way of handling and storing properties
+and behavior of the java object that hosts them, as well as to ensure sub-models
+always work with up-to-date information. An aspect can be any java object, yet 
+when creating an aspect (stored in an Aspect<A> object) a distinction is made 
+between three different types: PRIMARY, CALCULATED and EVENT.
+
+
+#### primary
+Primary aspects store information or properties and are preferable the only 
+place this information is stored (such as a double that represents an Agents 
+mass or a String that tells an output writer what solute should be displayed).
+The following example shows the creation of a simple primary state in xml:
+
+``` XML
+<aspect name="pigment" type="String" value="RED" />
+```
+
+Here 'name' is the name other aspects use to refer to this aspect. 'type'
+indicates what type of aspect should be created and stored, value is the String
+representation of the content of the stored object. This is generally the
+scenario to store simple objects like primitive types or simple java objects
+that are easily represented in a string. including simple arrays (see example
+bellow).
+
+``` XML
+<aspect name="exampleState" type="double[]" value="2.0, 5.1" />
+```
+
+when storing arrays (indicated with the appended []) the individual array 
+value's are always comma separated.
+
+More complex objects may also be stored as a primary aspect, when such an object
+is stored no value is indicated but instead the child nodes of the parent node
+are passed to the java object. These child nodes are object specific and are
+handled by the object's XMLable implementation (see paragraph XMLable interface).
+
+``` XML
+<aspect name="body" type="body">
+	<point position="12.2, 12.2" />
+</aspect>
+```
+
+#### calulated
+Calculated aspects are used to calculate a property that depends on other 
+aspects. For example calculated aspect may define an agents volume based on it's
+mass and density. Calculated aspects do not store any information except for on what primary 
+aspects they depend on. There are two way's of defining a calculated aspect: 1) 
+calling a pre-made calculated aspect:
+
+``` XML
+<aspect name="surfaces"	type="calculated" class="AgentSurfaces" input="body" package="agent.state.library." />
+```
+Here 'name' is the name other aspects use to refer to this aspect. 'type'
+indicates what type of aspect should be created. 'class' indicates what the
+java class name of the calculated object is that should be created. 'input'
+set the required input aspects and 'package' indicate the java package in which
+this java class is stored. When the java class has been added to the 
+general/classLibrary.xml no package specification is required in the protocol
+file.
+
+2) defining the calculated state as a mathematical expression:
+
+``` XML
+<aspect name="volume" type="calculated" class="StateExpression" input="mass/density" />
+```
+
+This type of calculated aspect always has "StateExpression" as it's defined
+class, yet in stead of defining it's input as a comma separated list of aspects
+it's input is directly defined as a mathematical expression (see paragraph Using
+expressions). Whenever this calculated state is called it will always evaluate
+this expression with the up-to-date value's and thus return an up to date double
+value.
+
+NOTE: the input aspects of an StateExpression should always be or castable as
+java double value.
+
+#### event
+The third type of aspects are event aspects. This type of aspect does not store
+or return any information, but instead when it is called it can mutate primary
+agent states. For example create a new sibling and adjusting the cell sizes when
+a coccoid cell divides:
+
+``` XML
+<aspect name="divide" type="event" class="CoccoidDivision" input="mass,radius,body"
+package="agent.event.library." />
+```
+
+As can be seen in the above expression aspects of the event type can be defined
+in a similar way as calculated states where the only difference is that the
+'name' attribute now reads event rather than 'calculated'.
+
+Note that, if the object that implements the aspect interface is Copyable all
+of it's aspects should be Copyable to (the Copier.copy(Object) should be able
+to return a deep copy of the aspect).
+
+### The aspect interface - Using aspects in your object
+Only one thing is required to use aspect with your java object. Your object
+needs to implement the AspectInteface. This interface requires you to add one
+field and one method to your class
+
+``` java
+/* The aspect registry can be used to store any java object: <Object>, but can
+* also be use to store more specific objects types: <Double> */
+public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+    
+/* Allows for direct access to the aspect registry  */
+public AspectReg<?> reg() {
+	return aspectRegistry;
+}
+```
+
+The aspect interface itself implements all methods to further work with aspects,
+the following three are essential when working with aspects:
+
+``` java
+void loadAspects(Node xmlNode)
+```
+This method loads all aspects from the given parent node, this method should be
+called where you implement the XMLable interface.
+
+``` java
+boolean isAspect(String aspect)
+```
+This method returns true if the aspect exists in the root registry or in any of
+it's branches (see branched aspect registries). Since every agent/aspect owner
+may be unique check whether the called aspect is defined in this aspect registry
+or in one of it's branches
+
+``` java
+Object getValue(String aspect)
+```
+This method returns any aspect as java object if the aspect exists in the root 
+registry or in any of it's branches (see branched aspect registries). If the
+aspect cannot be identified it will return null.
+
+Apart from the getValue method there is a set of methods that directly return's
+(or attempts to) in the specified form (thus it does no longer require additional
+casting). These method's work for any primary or calculated aspect that can be
+returned in the requested form.
+
+``` java
+Double getDouble(String aspect)
+Double[] getDoubleA(String aspect)
+
+String getString(String aspect)
+String[] getStringA(String aspect)
+
+Integer getInt(String aspect)
+Integer[] getIntA(String aspect)
+
+Float getFloat(String aspect)
+Float[] getFloatA(String aspect)
+
+Boolean getBoolean(String aspect)
+Boolean[] getBooleanA(String aspect)
+```
+
+### The aspect registry
+The aspect registry is what hold's the aspect's linked to a key (String), an
+aspect registry can also have modules or branches. These are additional aspect
+registries which are included in the root aspect registry. This approach is
+used to allow direct access of species aspect's trough an agent. Any aspect
+registry can have any number of branches with any number of branches out of
+those branches, though agents will always have only a single branch/module
+which is the species aspect registry, this species aspect registry may than
+have any additional species modules which are handy to store specific behavior 
+and parameters in a single place.
+
+Typical species modules would be: the behavior of a coccoid cell, the 
+metabolism of this subgroup, or specific features/changes of a mutant strain.
+
+There is one GOLDEN RULE concerning branched aspect registry, when duplicate
+named aspects exist within the aspect tree the aspect closest to the root will
+override the further branch, but if two separate, independent branches use the
+same aspect name the first one encountered will be used, hence:
+
+You can overrule aspects of submodules, but individual submodules cannot 
+override each other!
+
+This approach can be used for example if an agent wants to vary it's individual
+parameter from what is defined in the species aspect registry. Or, when you want
+to implement a species submodule which fit's you needs except for a single
+parameter or behavior.
+
+Typically you should not interact with the aspect registry directly unless:
+you are all are creating a new AspectInterface implementing object which has
+mutable aspects, in that scenario you would implements:
+
+``` java
+/* setting an aspect in the root aspect registry */
+public void set(String key, Object aspect)
+{
+	aspectRegistry.set(key, aspect);
+}
+
+/* performing an event (which may result in mutating aspects in the root registry */
+public void event(aspectObject compliant, double timestep, String event)
+{
+	aspectRegistry.doEvent(this, compliant, timestep, event);
+}
+```
+
+Some aspect interface implementing objects deliberately have no set method since
+they are not intended to be mutated (for example species).
+
+### Creating custom aspects
+In order to create a custom calculated state (apart from a direct 
+StateExpression calculated state) you need to create a new method extending
+the Calculated class. Any calculated state only needs one method:
+
+``` java
+public Object get(AspectInterface aspectOwner)
+{
+	return someOperation(input[0], input[1])
+}
+```
+
+hence a calculated state has excess to all of the agent's other aspects, but
+only call's the ones that are specifically assigned in the protocol file 
+(available as String[] input). NOTE: this may be changed to be a hashMap instead
+in the future.
+
+Like calculated aspects also Event aspects only require the extending the Event
+class and implementing a single method:
+
+``` java
+public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
+	{
+		/* do some event here /*
+	}
+```
+
+Note that it may be useful to cast the initiator and compliant to their native
+object class if you want to call methods that are specific for those objects,
+(or the set method). For example:
+
+``` java
+Agent mother = (Agent) initiator;
+Agent daughter = (Agent) compliant;
+
+mother.set(input[0], initiator.getDouble(input[0])/2.0);
+/* etc. */
+```
+
+#### classes currently implementing the aspect interface
+- Agent
+- Species
+- ProcessManager
+
+## Using the helper class
+
+## Using XmlHandler and XmlLoad classes
+
+## Using NameReferences
+
+## using expressions
+
+## using reactions
+
 # Testing
 
 Useful links:

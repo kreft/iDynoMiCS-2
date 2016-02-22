@@ -4,6 +4,7 @@
 package processManager;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -29,6 +30,7 @@ import surface.Surface;
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author baco
  */
 public class SolveDiffusionTransient extends ProcessManager
 {
@@ -168,8 +170,11 @@ public class SolveDiffusionTransient extends ProcessManager
 				{
 					if ( ! a.isAspect(NameRef.agentReactions) )
 						continue;
-					List<Surface> surfaces = 
-									(List<Surface>) a.get(NameRef.surfaceList);
+					if (! a.isAspect(NameRef.surfaceList) )
+						continue;
+					List<Surface> surfaces = (List<Surface>) 
+							a.get(NameRef.surfaceList);
+					/* NOTE introduce some safties */
 					distributionMap = (HashMap<int[],Double>) 
 											a.getValue("volumeDistribution");
 					
@@ -265,6 +270,7 @@ public class SolveDiffusionTransient extends ProcessManager
 						}
 					}
 				}
+				
 				/*
 				 * Loop over all agents, applying their reactions to the
 				 * relevant solute grids, in the voxels calculated before the 

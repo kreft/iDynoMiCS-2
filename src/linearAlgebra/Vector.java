@@ -33,7 +33,7 @@ import utility.ExtraMath;
  * </ul>  
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
- * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
 */
 
 public final class Vector
