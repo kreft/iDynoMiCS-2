@@ -60,10 +60,10 @@ public class AgentMediator implements CommandMediator {
 		gl.glRotatef(tilt,1.0f,0f,0f);            // Rotate The Cube On X, Y & Z
 		gl.glBegin(GL2.GL_QUADS);                  // Start Drawing The Cube
 		gl.glColor3f(1.0f,0.0f,0.0f);    
-			gl.glVertex3d(0.0, domainLengths[1]*3, -80.0);              // Top Left
-		    gl.glVertex3d( domainLengths[0]*3, domainLengths[1]*3,  -80.0);              // Top Right
-		    gl.glVertex3d( domainLengths[0]*3,0.0,  -80.0);              // Bottom Right
-		    gl.glVertex3d(0.0,0.0,  -80.0);              // Bottom Left
+			gl.glVertex3d(0.0, domainLengths[1]*3, -5.0*domainLengths[0]);              // Top Left
+		    gl.glVertex3d( domainLengths[0]*3, domainLengths[1]*3,  -5.0*domainLengths[0]);              // Top Right
+		    gl.glVertex3d( domainLengths[0]*3,0.0,  -5.0*domainLengths[0]);              // Bottom Right
+		    gl.glVertex3d(0.0,0.0,  -5.0*domainLengths[0]);              // Bottom Left
 		gl.glEnd();
 		
 		/* get the surfaces from the agents */
@@ -90,7 +90,7 @@ public class AgentMediator implements CommandMediator {
 		          gl.glLoadIdentity();
 		          double[] p = ball._point.getPosition();
 		          /** currently hard coded domain, scaling, no radius scaling */
-		          gl.glTranslated(3.0* p[0] -domainLengths[0]*1.5, 3.0* p[1] -domainLengths[1]*1.5, - 80.0 + (p.length == 3 ? p[2] : 1)
+		          gl.glTranslated(3.0* p[0] -domainLengths[0]*1.5, 3.0* p[1] -domainLengths[1]*1.5, -5.0*domainLengths[0] + (p.length == 3 ? p[2] : 1)
 		        		  + zoom);
 		          
 			        float[] rgba = {0.3f, 0.5f, 1f};

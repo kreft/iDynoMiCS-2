@@ -3,7 +3,7 @@ package glRender;
 import java.awt.EventQueue;
 
 
-public class caller {
+public class Caller {
 
 	public static void main(String[] args) {
 		

@@ -1,27 +1,28 @@
 package processManager;
 
 import surface.Collision;
-import surface.Link;
 import surface.Point;
 import surface.Surface;
 import utility.Helper;
+import utility.ParWorker;
 import linearAlgebra.Vector;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 
-import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 import agent.Agent;
 import agent.Body;
-import dataIO.Log;
-import dataIO.Log.tier;
+
 
 	////////////////////////
 	// WORK IN PROGRESS, initial version
 	////////////////////////
 
 public class AgentRelaxation extends ProcessManager {
+	private static ForkJoinPool pool = new ForkJoinPool(4);
+	private boolean concurrent = false;
 	
 	/**
 	 * Available relaxation methods
@@ -81,50 +82,54 @@ public class AgentRelaxation extends ProcessManager {
 		 * Updated bodies thus update spatial tree
 		 */
 		agents.refreshSpatialRegistry();
-		Collision iterator = new Collision(null, agents.getShape());
-		
-		// Calculate forces
-		for(Agent agent: agents.getAllLocatedAgents()) 
+		if(concurrent)
+			pool.invoke(new ParWorker(agents));
+		else
 		{
-			List<Link> links = ((Body) agent.get(NameRef.agentBody))._links;
-			for (int i = 0; i < links.size(); i++)
+			Collision iterator = new Collision(null, agents.getShape());
+			
+			// Calculate forces
+			for(Agent agent: agents.getAllLocatedAgents()) 
 			{
-				if (links.get(i).evaluate(iterator))
+//				List<Link> links = ((Body) agent.get(NameRef.agentBody))._links;
+//				for (int i = 0; i < links.size(); i++)
+//				{
+//					if (links.get(i).evaluate(iterator))
+//					{
+//						Log.out(tier.BULK, "Fillial link breakage due to "
+//								+ "over extending maximum link length.");
+//						links.remove(i);
+//					}
+//				}
+				
+				/**
+				 * NOTE: currently missing internal springs for rod cells.
+				 */
+				
+				/**
+				 * perform neighborhood search and perform collision detection and
+				 * response FIXME: this has not been adapted to multi surface
+				 * objects!
+				 * TODO Add optional extra margin for pulls!!!
+				 */
+				for(Agent neighbour: agents._agentTree.cyclicsearch(
+						((Body) agent.get(NameRef.agentBody)).getBoxes(0.0)))
 				{
-					Log.out(tier.BULK, "Fillial link breakage due to "
-							+ "over extending maximum link length.");
-					links.remove(i);
+					if (agent.identity() > neighbour.identity())
+					{
+						iterator.collision((Surface) agent.get("surface"), 
+								(Surface) neighbour.get("surface"));
+					}
+				}
+				
+				/*
+				 * Boundary collisions
+				 */
+				for(Surface s : agents.getShape().getSurfaces())
+				{
+					iterator.collision(s, (Surface) agent.get("surface"));
 				}
 			}
-			
-			/**
-			 * NOTE: currently missing internal springs for rod cells.
-			 */
-			
-			/**
-			 * perform neighborhood search and perform collision detection and
-			 * response FIXME: this has not been adapted to multi surface
-			 * objects!
-			 * TODO Add optional extra margin for pulls!!!
-			 */
-			for(Agent neighbour: agents._agentTree.cyclicsearch(
-					((Body) agent.get(NameRef.agentBody)).getBoxes(0.0)))
-			{
-				if (agent.identity() > neighbour.identity())
-				{
-					iterator.collision((Surface) agent.get("surface"), 
-							(Surface) neighbour.get("surface"));
-				}
-			}
-			
-			/*
-			 * Boundary collisions
-			 */
-			for(Surface s : agents.getShape().getSurfaces())
-			{
-				iterator.collision(s, (Surface) agent.get("surface"));
-			}
-			
 		}
 	}
 

@@ -389,7 +389,6 @@ public class SolveDiffusionTransient extends ProcessManager
 									/* Timespan of growth event */
 									// TODO Rob[18Feb2016]: Surely this should happen
 									// at the very end? 
-									// FIXME quickfix since timestepsize is no longer available as local par
 									a.event("growth", dt);
 									a.event("divide");
 								}

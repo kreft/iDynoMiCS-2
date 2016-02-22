@@ -136,6 +136,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 		{
 			Log.out(tier.QUIET,"COMPARTMENT: " + s);
 			c.printAllSoluteGrids();
+			Log.out(tier.QUIET,c.agents.getAllAgents().size() + " agents");
 		});
 	}
 	
