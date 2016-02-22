@@ -24,7 +24,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="C:/Users/baco/Desktop/jogamp-all-platforms/jar/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="C:/Users/baco/Desktop/jogamp-all-platforms/jar/jogl-all.jar"/>
-	<classpathentry kind="lib" path="jogl/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="jogl/jogl-all.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -4,6 +4,7 @@
 package processManager;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -168,8 +169,10 @@ public class SolveDiffusionTransient extends ProcessManager
 				{
 					if ( ! a.isAspect(NameRef.agentReactions) )
 						continue;
-					List<Surface> surfaces = 
-									(List<Surface>) a.get(NameRef.surfaceList);
+					List<Surface> surfaces = (List<Surface>) (a.isAspect(
+							NameRef.surfaceList) ? a.get(NameRef.surfaceList) :
+							new LinkedList<Surface>());
+					/* NOTE introduce some safties */
 					distributionMap = (HashMap<int[],Double>) 
 											a.getValue("volumeDistribution");
 					

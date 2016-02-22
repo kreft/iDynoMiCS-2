@@ -92,6 +92,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 		 * 
 		 */
 		Timer.step();
+		/* we should say something when an iter step is finished */
+		Log.out(tier.NORMAL, "iter time: " + Timer._now);
 
 	}
 	

@@ -2,6 +2,7 @@ package idynomics;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -13,10 +14,12 @@ import java.io.File;
 
 
 import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.ButtonGroup;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
@@ -24,6 +27,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -115,6 +119,7 @@ public class GuiLaunch implements Runnable {
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 		JButton launchSim = new JButton("Run!");
 		
+		
 		/* set an cation for the button (run the simulation */
 		launchSim.addActionListener(new ActionListener()
 		{
@@ -184,7 +189,34 @@ public class GuiLaunch implements Runnable {
 		
 		/* at the menu bar to the gui and make everything visible */
 		gui.setJMenuBar(menuBar);
+		
+		JPanel p = new JPanel();
+		p.setPreferredSize(new Dimension(0,0));
+		gui.add(p, BorderLayout.NORTH);
+		
+		keyBindings(p,gui);
 		gui.setVisible(true);
+	}
+	
+	private static void keyBindings(JPanel p, JFrame frame) 
+	{
+		ActionMap actionMap = p.getActionMap();
+		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "run");
+		actionMap.put("run", new AbstractAction(){
+
+			private static final long serialVersionUID = 346448974654345823L;
+
+			@Override
+			public void actionPerformed(ActionEvent a) {
+				if(Param.protocolFile != null)
+				{
+					Timer._now = 0.0;
+					ConsoleLaunch.runXml();
+				}
+			}
+		});
 	}
 
 	

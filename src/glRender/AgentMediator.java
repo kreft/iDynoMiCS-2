@@ -1,5 +1,6 @@
 package glRender;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import com.jogamp.opengl.GL2;
@@ -38,6 +39,7 @@ public class AgentMediator implements CommandMediator {
 		draw(drawable, 0.0f, 0.0f);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void draw(GLAutoDrawable drawable, float zoom, float tilt) {
 		final GL2 gl = drawable.getGL().getGL2();
@@ -66,7 +68,9 @@ public class AgentMediator implements CommandMediator {
 		gl.glEnd();
 		
 			for ( Agent a : this.agents.getAllLocatedAgents() )
-				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList))
+				for ( Surface s : (List<Surface>) (a.isAspect(
+						NameRef.surfaceList) ? a.get(NameRef.surfaceList) :
+						new LinkedList<Surface>()))
 				{
 				if(s instanceof Ball)
 				{
