@@ -52,9 +52,9 @@ public class Render implements GLEventListener, Runnable {
 	private float tilt = 0.0f, zoom = 0.0f;
 	
 	/* Light sources */
-    private float[] lightPosition = {-3.0f, 3.0f, 2.0f, 1f};
+    private float[] lightPosition = {-4.0f, 4.0f, 4.0f, 1f};
     private float[] lightAmbient = {0.5f, 0.5f, 0.5f, 1f};
-    private float[] LightDiffuse = {0.8f, 0.8f, 0.8f, 1f};
+    private float[] LightDiffuse = {0.5f, 0.5f, 0.5f, 1f};
     
     private CommandMediator _commandMediator;
 

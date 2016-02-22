@@ -24,7 +24,8 @@ import surface.Surface;
  */
 public class AgentMediator implements CommandMediator {
 	protected AgentContainer agents;
-	private double tic;
+	private String pigment;
+	private float[] rgba;
 	
 	/**
 	 * assign agent container via the constructor
@@ -56,10 +57,14 @@ public class AgentMediator implements CommandMediator {
 		
 		/* draw the domain square */
 		gl.glLoadIdentity();
-		gl.glTranslated(-domainLengths[0]*1.5,-domainLengths[0]*1.5, zoom);              // Move Right And Into The Screen
+		gl.glTranslated(-domainLengths[0]*1.5,-domainLengths[0]*1.5, zoom);
+		rgba = new float[] {0.2f, 0.2f, 0.2f};
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
+        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
+        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
 		gl.glRotatef(tilt,1.0f,0f,0f);            // Rotate The Cube On X, Y & Z
 		gl.glBegin(GL2.GL_QUADS);                  // Start Drawing The Cube
-		gl.glColor3f(1.0f,0.0f,0.0f);    
+		gl.glColor3f(rgba[0],rgba[1],rgba[2]);    
 			gl.glVertex3d(0.0, domainLengths[1]*3, -5.0*domainLengths[0]);              // Top Left
 		    gl.glVertex3d( domainLengths[0]*3, domainLengths[1]*3,  -5.0*domainLengths[0]);              // Top Right
 		    gl.glVertex3d( domainLengths[0]*3,0.0,  -5.0*domainLengths[0]);              // Bottom Right
@@ -72,6 +77,7 @@ public class AgentMediator implements CommandMediator {
 						NameRef.surfaceList) ? a.get(NameRef.surfaceList) :
 						new LinkedList<Surface>()))
 				{
+				pigment = a.getString("pigment");
 				if(s instanceof Ball)
 				{
 					Ball ball = (Ball) s;
@@ -90,14 +96,28 @@ public class AgentMediator implements CommandMediator {
 		          gl.glLoadIdentity();
 		          double[] p = ball._point.getPosition();
 		          /** currently hard coded domain, scaling, no radius scaling */
-		          gl.glTranslated(3.0* p[0] -domainLengths[0]*1.5, 3.0* p[1] -domainLengths[1]*1.5, -5.0*domainLengths[0] + (p.length == 3 ? p[2] : 1)
+		          gl.glTranslated(3.0* p[0] -domainLengths[0]*1.5, 3.0* p[1] -domainLengths[1]*1.5, -5.0*domainLengths[0] + (p.length == 3 ? p[2] : 0)
 		        		  + zoom);
-		          
-			        float[] rgba = {0.3f, 0.5f, 1f};
+		          switch (pigment)
+		          {
+		          case "GREEN" :
+		        	  rgba = new float[] {0.1f, 1f, 0.1f};
+		        	  break;
+		          case "RED" :
+		        	  rgba = new float[] {1f, 0.1f, 0.1f};
+		        	  break;
+		          case "BLUE" :
+		        	  rgba = new float[] {0.1f, 0.1f, 1f};
+		        	  break;
+		          default :
+		        	  rgba = new float[] {1f, 1f, 1f};
+		        	  break;
+		          }
+			        
 			        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
 			        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
 			        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-		          gl.glColor3f(0.5f,0.5f,0.2f);
+		          gl.glColor3f(rgba[0],rgba[1],rgba[2]);
 		          gl.glBegin(gl.GL_QUAD_STRIP);
 		          for(j = 0; j <= longs; j++) {
 		              double lng = 2 * Math.PI * (double) (j - 1) / longs;
