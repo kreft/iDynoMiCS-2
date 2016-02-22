@@ -257,7 +257,7 @@ Note that, if the object that implements the aspect interface is Copyable all
 of it's aspects should be Copyable to (the Copier.copy(Object) should be able
 to return a deep copy of the aspect).
 
-### Using aspects in your object
+### The aspect interface - Using aspects in your object
 Only one thing is required to use aspect with your java object. Your object
 needs to implement the AspectInteface. This interface requires you to add one
 field and one method to your class
@@ -279,13 +279,16 @@ the following three are essential when working with aspects:
 ``` java
 void loadAspects(Node xmlNode)
 ```
-This method loads all aspects from the given parent node
+This method loads all aspects from the given parent node, this method should be
+called where you implement the XMLable interface.
 
 ``` java
 boolean isAspect(String aspect)
 ```
 This method returns true if the aspect exists in the root registry or in any of
-it's branches (see branched aspect registries)
+it's branches (see branched aspect registries). Since every agent/aspect owner
+may be unique check whether the called aspect is defined in this aspect registry
+or in one of it's branches
 
 ``` java
 Object getValue(String aspect)
@@ -293,6 +296,74 @@ Object getValue(String aspect)
 This method returns any aspect as java object if the aspect exists in the root 
 registry or in any of it's branches (see branched aspect registries). If the
 aspect cannot be identified it will return null.
+
+Apart from the getValue method there is a set of methods that directly return's
+(or attempts to) in the specified form (thus it does no longer require additional
+casting). These method's work for any primary or calculated aspect that can be
+returned in the requested form.
+
+``` java
+Double getDouble(String aspect)
+Double[] getDoubleA(String aspect)
+
+String getString(String aspect)
+String[] getStringA(String aspect)
+
+Integer getInt(String aspect)
+Integer[] getIntA(String aspect)
+
+Float getFloat(String aspect)
+Float[] getFloatA(String aspect)
+
+Boolean getBoolean(String aspect)
+Boolean[] getBooleanA(String aspect)
+```
+
+### The aspect registry
+The aspect registry is what hold's the aspect's linked to a key (String), an
+aspect registry can also have modules or branches. These are additional aspect
+registries which are included in the root aspect registry. This approach is
+used to allow direct access of species aspect's trough an agent. Any aspect
+registry can have any number of branches with any number of branches out of
+those branches, though agents will always have only a single branch/module
+which is the species aspect registry, this species aspect registry may than
+have any additional species modules which are handy to store specific behavior 
+and parameters in a single place.
+
+Typical species modules would be: the behavior of a coccoid cell, the 
+metabolism of this subgroup, or specific features/changes of a mutant strain.
+
+There is one GOLDEN RULE concerning branched aspect registry, when duplicate
+named aspects exist within the aspect tree the aspect closest to the root will
+override the further branch, but if two separate, independent branches use the
+same aspect name the first one encountered will be used, hence:
+
+You can overrule aspects of submodules, but individual submodules cannot 
+override each other!
+
+This approach can be used for example if an agent wants to vary it's individual
+parameter from what is defined in the species aspect registry. Or, when you want
+to implement a species submodule which fit's you needs except for a single
+parameter or behavior.
+
+Typically you should not interact with the aspect registry directly unless:
+you are all are creating a new AspectInterface implementing object which has
+mutable aspects, in that scenario you would implements:
+
+``` java
+/* setting an aspect in the root aspect registry */
+public void set(String key, Object aspect)
+{
+	aspectRegistry.set(key, aspect);
+}
+
+/* performing an event (which may result in mutating aspects in the root registry */
+public void event(aspectObject compliant, double timestep, String event)
+{
+	aspectRegistry.doEvent(this, compliant, timestep, event);
+}
+```
+	
 
 #### classes currently implementing the aspect interface
 - Agent

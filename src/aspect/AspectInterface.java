@@ -271,27 +271,29 @@ public abstract interface AspectInterface {
 				: null);
 	}
 	
-	/**
-	 * check, cast and return the event object, return null if the aspect does 
-	 * not exist or is equal to null
-	 * @param aspect
-	 * @return
-	 */
-	public default Event getEvent(String aspect)
-	{
-		return (isAspect(aspect) ? (Event) reg().getValue(this, aspect) 
-				: null);
-	}
 	
-	/**
-	 * check, cast and return the calculated state object, return null if the 
-	 * aspect does not exist or is equal to null
-	 * @param aspect
-	 * @return
-	 */
-	public default Calculated getCalculated(String aspect)
-	{
-		return (isAspect(aspect) ? (Calculated) reg().getValue(this, aspect) 
-				: null);
-	}
+// this is the aspect registries own bussiness
+//	/**
+//	 * check, cast and return the event object, return null if the aspect does 
+//	 * not exist or is equal to null
+//	 * @param aspect
+//	 * @return
+//	 */
+//	public default Event getEvent(String aspect)
+//	{
+//		return (isAspect(aspect) ? (Event) reg().getValue(this, aspect) 
+//				: null);
+//	}
+//	
+//	/**
+//	 * check, cast and return the calculated state object, return null if the 
+//	 * aspect does not exist or is equal to null
+//	 * @param aspect
+//	 * @return
+//	 */
+//	public default Calculated getCalculated(String aspect)
+//	{
+//		return (isAspect(aspect) ? (Calculated) reg().getValue(this, aspect) 
+//				: null);
+//	}
 }
