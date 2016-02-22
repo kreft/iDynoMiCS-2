@@ -103,7 +103,7 @@ public class Dimension implements CanPrelaunchCheck
 			if ( str != null && str != "")
 				this.setExtreme(Double.valueOf(str), index);
 			/* Set the boundary, if given (not always necessary). */
-			bndNodes = XmlHandler.getAll(elem, "boundary");
+			bndNodes = XmlHandler.getAll(extElem, "boundary");
 			if ( bndNodes.getLength() > 1 )
 			{
 				Log.out(tier.CRITICAL, 
