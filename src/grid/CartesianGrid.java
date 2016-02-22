@@ -299,6 +299,7 @@ public class CartesianGrid extends SpatialGrid
 			else
 				cumulativeAbsDiff += absDiff;
 		}
+		//TODO Stefan [20Feb2016] Why do we need this check? 
 		return ( cumulativeAbsDiff == 1 ) ? area : 0.0;
 	}
 

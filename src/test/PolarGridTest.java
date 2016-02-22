@@ -54,7 +54,7 @@ public class PolarGridTest
 		
 		/* standard constructors */
 		
-		double[] totalLength = new double[]{10, 2 * Math.PI , 1};
+		double[] totalLength = new double[]{20, 2 * Math.PI , 1};
 		double resolution = 1;
 //		
 //	    CartesianGrid grid = new CartesianGrid(totalLength, resolution);		
@@ -201,6 +201,18 @@ public class PolarGridTest
 		}
 	}
 	
+	/**
+	 * \brief Creates a graphical visualization of a spatial grid's array. 
+	 * 
+	 * @param grid the spatial grid.
+	 * @param loc The world position of that grid (can be null).
+	 * @param type The ArrayType.
+	 * @param create_iterator Start an interactive iterator visualization.
+	 * @param in_voxel_location Plot points into the voxels 
+	 * 				(i.e. new double[]{0.5, 0.5, 0.5} for center points),
+	 * 				can be null (no points).
+	 * @return The SpatialGridPlot reference.
+	 */
 	public static SpatialGridPlot3D createGraphics(SpatialGrid grid, double[] loc,
 		ArrayType type, boolean create_iterator, double[] in_voxel_location)
 	{
@@ -311,7 +323,7 @@ public class PolarGridTest
 		SpatialGrid riseGrid = (SpatialGrid) aCompartment.getSolute("rise");
 		SpatialGridPlot3D plot = createGraphics(riseGrid, Vector.zerosDbl(3), 
 												ArrayType.CONCN, false, null);
-		plot.setTransparency(VoxelTarget.ALL, riseGrid, ArrayType.CONCN, 1);
+		plot.setTransparency(VoxelTarget.ALL, riseGrid, ArrayType.CONCN, 0);
 		plot.setPolygonMode(VoxelTarget.ALL, riseGrid, ArrayType.CONCN, true);
 		plot.setColor(Branch.Voxels, VoxelTarget.ALL, riseGrid, ArrayType.CONCN, 
 														new Color3f(0f,0f,1f));

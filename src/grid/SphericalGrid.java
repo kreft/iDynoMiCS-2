@@ -34,7 +34,7 @@ public class SphericalGrid extends PolarGrid
 	 * Notes:
 	 * - The array has three rows, one for each dimension.
 	 * - A row may contain a single value, a vector or a matrix.
-	 * - _resCalc[0] is the radial distance and has length 1 (single value).
+	 * - _resCalc[0] is the radius and has length 1 (single value).
 	 * - _resCalc[1] is the polar angle φ.
 	 * - _resCalc[2] is the azimuthal angle θ.
 	 * 
@@ -155,10 +155,30 @@ public class SphericalGrid extends PolarGrid
 	@Override
 	public double getNbhSharedSurfaceArea()
 	{
-		// TODO Auto-generated method stub
-//		System.err.println(
-//				"tried to call unimplemented method getNbhSharedSurfaceArea()");
-		return 1;
+		int[] cur = this._currentCoord;
+		int[] nbh = this._currentNeighbor;
+		
+		ResCalc rcCur;
+		
+		double area = 1.0;
+
+		if (nbh[2] != cur[2]) {
+			rcCur = getResolutionCalculator(cur, 0);
+			area *= rcCur.getResolution(cur[0]);
+			rcCur = getResolutionCalculator(cur, 1);
+			area *= rcCur.getResolution(cur[1]);
+		}
+		else{
+			area *= getNbhSharedArcLength(2);
+			if (nbh[0] != cur[0]) {
+				area *= getNbhSharedArcLength(1);
+				
+			}else {
+				rcCur = getResolutionCalculator(cur, 0);
+				area *= rcCur.getResolution(cur[0]);
+			}
+		}
+		return area;
 	}
 	
 	@Override
