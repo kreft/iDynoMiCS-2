@@ -168,6 +168,8 @@ always work with up-to-date information. An aspect can be any java object, yet
 when creating an aspect (stored in an Aspect<A> object) a distinction is made 
 between three different types: PRIMARY, CALCULATED and EVENT.
 
+
+#### primary
 Primary aspects store information or properties and are preferable the only 
 place this information is stored (such as a double that represents an Agents 
 mass or a String that tells an output writer what solute should be displayed).
@@ -200,31 +202,72 @@ handled by the object's XMLable implementation (see paragraph XMLable interface)
 <aspect name="body" type="body">
 	<point position="12.2, 12.2" />
 </aspect>
-```
+`
 
+#### calulated
 Calculated aspects are used to calculate a property that depends on other 
 aspects. For example calculated aspect may define an agents volume based on it's
-mass and density. There are two way's of defining a calculated aspect: 1) 
+mass and density. Calculated aspects do not store any information except for on what primary 
+aspects they depend on. There are two way's of defining a calculated aspect: 1) 
 calling a pre-made calculated aspect:
 
 ``` XML
 <aspect name="surfaces"	type="calculated" class="AgentSurfaces" input="body" package="agent.state.library." />
 ```
 Here 'name' is the name other aspects use to refer to this aspect. 'type'
-indicates what type of aspect should be created
-
+indicates what type of aspect should be created. 'class' indicates what the
+java class name of the calculated object is that should be created. 'input'
+set the required input aspects and 'package' indicate the java package in which
+this java class is stored. When the java class has been added to the 
+general/classLibrary.xml no package specification is required in the protocol
+file.
 
 2) defining the calculated state as a mathematical expression:
 
 ``` XML
-<aspect name="volume" type="calculated" class="StateExpression"
-input="mass/density" />
+<aspect name="volume" type="calculated" class="StateExpression" input="mass/density" />
 ```
 
-Calculated aspects do not store any information except for on what primary aspects they
-depend 
+This type of calculated aspect always has "StateExpression" as it's defined
+class, yet in stead of defining it's input as a comma separated list of aspects
+it's input is directly defined as a mathematical expression (see paragraph Using
+expressions). Whenever this calculated state is called it will always evaluate
+this expression with the up-to-date value's and thus return an up to date double
+value.
 
-### classes currently implementing the aspect interface
+NOTE: the input aspects of an expression states should always be or castable as
+java double value.
+
+#### event
+The third type of aspects are event aspects. This type of aspect does not store
+or return any information, but instead when it is called it can mutate primary
+agent states. For example create a new sibling and adjusting the cell sizes when
+a coccoid cell divides:
+
+``` XML
+<aspect name="divide" type="event" class="CoccoidDivision" input="mass,radius,body" package="agent.event.library." />
+```
+
+As can be seen in the above expression aspects of the event type can be defined
+in a simmilar way as calculated states where the only difference is that the
+'name' attribute now reads event rather than 'calculated'.
+
+### Using aspects in your object
+Only one thing is required to use aspect with your java object. Your object
+needs to implement the AspectInteface. This interface requires you to add one
+field and one method to your class
+
+``` java
+/* The aspect registry */
+public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+    
+/* Allows for direct access to the aspect registry  */
+public AspectReg<?> reg() {
+	return aspectRegistry;
+}
+```
+
+#### classes currently implementing the aspect interface
 - Agent
 - Species
 - ProcessManager
