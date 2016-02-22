@@ -176,7 +176,6 @@ public class SphericalGrid extends PolarGrid
 			area *= getNbhSharedArcLength(2);
 			if (nbh[0] != cur[0]) {
 				area *= getNbhSharedArcLength(1);
-				
 			}else {
 				rcCur = getResolutionCalculator(cur, 0);
 				area *= rcCur.getResolution(cur[0]);

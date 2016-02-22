@@ -147,32 +147,31 @@ public class CylindricalGrid extends PolarGrid
 	@Override
 	public void calcMinVoxVoxResSq()
 	{
-//		// TODO cyclic boundaries (if any)
-//		double m = Double.MAX_VALUE;
-//		ResCalc rC;
-//		/* 
-//		 * Determine minimal squared resolution in r and z (axes 0 and 2). 
-//		 */ 
-//		for ( int axis = 0; axis < 3; axis += 2 )
-//		{
-//			rC = this._resCalc[axis][0];
-//			for ( int i = 0; i < rC.getNVoxel() - 1; i++ )
-//				m = Math.min(m, rC.getResolution(i) * rC.getResolution(i+1));
-//		}
-//		/* 
-//		 * Determine minimal squared resolution in theta (axis 1).
-//		 */ 
-//		for (resetIterator(); isIteratorValid(); iteratorNext())
-//			for (resetNbhIterator(); isNbhIteratorValid(); nbhIteratorNext() )
-//				//TODO: Stefan[21Feb2016]: what to do at boundaries?
-//				if (nbhIteratorIsOutside() == null 
-//						&& this._currentCoord[0] != this._currentNeighbor[0])
-//					m=Math.min(m, Math.pow(getNbhSharedArcLength(1), 2));
-////		m = Math.max(m, Math.pow(this.MIN_NBH_ANGLE_DIFF, 2));
-//		System.out.println(m);
-//		
-//		this._minVoxVoxDist = m;
-		this._minVoxVoxDist = 0.1;
+		// TODO cyclic boundaries (if any)
+		double m = Double.MAX_VALUE;
+		ResCalc rC;
+		/* 
+		 * Determine minimal squared resolution in r and z (axes 0 and 2). 
+		 */ 
+		for ( int axis = 0; axis < 3; axis += 2 )
+		{
+			rC = this._resCalc[axis][0];
+			for ( int i = 0; i < rC.getNVoxel() - 1; i++ )
+				m = Math.min(m, rC.getResolution(i) * rC.getResolution(i+1));
+		}
+		/* 
+		 * Determine minimal squared resolution in theta (axis 1).
+		 */ 
+		for (resetIterator(); isIteratorValid(); iteratorNext())
+			for (resetNbhIterator(); isNbhIteratorValid(); nbhIteratorNext() )
+				//TODO: Stefan[21Feb2016]: what to do at boundaries?
+				if (nbhIteratorIsOutside() == null 
+						&& this._currentCoord[0] != this._currentNeighbor[0])
+					m=Math.min(m, Math.pow(getNbhSharedArcLength(1), 2));
+//		m = Math.max(m, Math.pow(this.MIN_NBH_ANGLE_DIFF, 2));
+		System.out.println(m);
+		
+		this._minVoxVoxDist = m;
 	}
 
 	@Override
