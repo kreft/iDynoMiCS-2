@@ -1,7 +1,7 @@
 /**
  * 
  */
-package grid.domainSetter;
+package grid.wellmixedSetter;
 
 import java.util.List;
 
@@ -16,7 +16,6 @@ import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.NameRef;
-import linearAlgebra.Vector;
 import surface.Ball;
 import surface.Collision;
 import surface.Surface;
@@ -29,7 +28,7 @@ import surface.Surface;
  * @author baco
  * @since January 2016
  */
-public class BoundaryLayer implements IsDomainSetter
+public class BoundaryLayer implements IsWellmixedSetter
 {
 	/**
 	 * Value to set all voxels of the domain array of the given grid.
@@ -64,6 +63,7 @@ public class BoundaryLayer implements IsDomainSetter
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public void updateDomain(SpatialGrid aGrid, AgentContainer agents)
 	{

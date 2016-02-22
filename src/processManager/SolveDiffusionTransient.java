@@ -5,7 +5,6 @@ package processManager;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import agent.Agent;
@@ -15,7 +14,6 @@ import grid.subgrid.SubgridPoint;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
-import idynomics.Timer;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import solver.PDEexplicit;
@@ -29,6 +27,7 @@ import surface.Surface;
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * 
  */
 public class SolveDiffusionTransient extends ProcessManager
 {

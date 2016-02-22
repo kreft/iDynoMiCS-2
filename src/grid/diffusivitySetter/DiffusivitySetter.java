@@ -1,4 +1,4 @@
-package grid.domainSetter;
+package grid.diffusivitySetter;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,8 +23,8 @@ import idynomics.NameRef;
  * @author baco
  *
  */
-public class DiffusivitySetter {
-
+public class DiffusivitySetter
+{
 	/**
 	 * Diffusivity for the suspension
 	 */
