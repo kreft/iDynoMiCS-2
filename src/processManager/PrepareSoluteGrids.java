@@ -42,7 +42,7 @@ public class PrepareSoluteGrids extends ProcessManager
 		{
 			environment.getSoluteGrid(sName).newArray(ArrayType.PRODUCTIONRATE);
 			//environment.getSoluteGrid(sName).newArray(ArrayType.DIFFPRODUCTIONRATE);
-			environment.getSoluteGrid(sName).newArray(ArrayType.DOMAIN);
+			environment.getSoluteGrid(sName).newArray(ArrayType.WELLMIXED);
 			environment.getSoluteGrid(sName).newArray(ArrayType.DIFFUSIVITY);
 		}
 		/*

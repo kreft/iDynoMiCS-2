@@ -14,5 +14,5 @@ import idynomics.AgentContainer;
  */
 public interface IsWellmixedSetter
 {
-	public void updateDomain(SpatialGrid aGrid, AgentContainer agents);
+	public void updateWellmixed(SpatialGrid aGrid, AgentContainer agents);
 }

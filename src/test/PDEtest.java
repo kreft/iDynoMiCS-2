@@ -280,14 +280,14 @@ public class PDEtest
 			}
 			sg.newArray(ArrayType.DIFFUSIVITY);
 			sg.setAllTo(ArrayType.DIFFUSIVITY, D);
-			sg.newArray(ArrayType.DOMAIN);
-			sg.setAllTo(ArrayType.DOMAIN, 1.0);
+			sg.newArray(ArrayType.WELLMIXED);
+			sg.setAllTo(ArrayType.WELLMIXED, 1.0);
 			sg.newArray(ArrayType.PRODUCTIONRATE);
 			sg.newArray(ArrayType.DIFFPRODUCTIONRATE);
 			coords[0] = 1;
 			coords[1] = 1;
 			sg.setValueAt(ArrayType.CONCN, coords, 1.0);
-			sg.setValueAt(ArrayType.DOMAIN, coords, 0.0);
+			sg.setValueAt(ArrayType.WELLMIXED, coords, 0.0);
 		}
 		/*
 		 * Dummy AgentContainer will be empty

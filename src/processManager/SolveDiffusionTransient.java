@@ -4,7 +4,6 @@
 package processManager;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -12,6 +11,7 @@ import agent.Agent;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import grid.subgrid.SubgridPoint;
+import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
@@ -28,7 +28,7 @@ import surface.Surface;
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class SolveDiffusionTransient extends ProcessManager
 {
@@ -40,6 +40,10 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * The names of all solutes this solver is responsible for.
 	 */
 	protected String[] _soluteNames;
+	/**
+	 * 
+	 */
+	protected HashMap<String,IsWellmixedSetter> _wellmixed;
 	/**
 	 * TODO this may need to be generalised to some method for setting
 	 * diffusivities, e.g. lower inside biofilm.
@@ -116,7 +120,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			solute.newArray(ArrayType.DIFFUSIVITY, 
 										_diffusivity.get(soluteName));
 			// TODO use a DomainSetter
-			solute.newArray(ArrayType.DOMAIN, 1.0);
+			solute.newArray(ArrayType.WELLMIXED, 1.0);
 			/*
 			 * Set up the agent biomass distribution maps.
 			 */
@@ -172,7 +176,6 @@ public class SolveDiffusionTransient extends ProcessManager
 						continue;
 					List<Surface> surfaces = (List<Surface>) 
 							a.get(NameRef.surfaceList);
-					/* NOTE introduce some safties */
 					distributionMap = (HashMap<int[],Double>) 
 											a.getValue("volumeDistribution");
 					
