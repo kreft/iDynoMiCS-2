@@ -164,20 +164,63 @@ Math.floorMod(-2, 3) ; // = 1
 ### what is an aspect (and why)?
 Aspects are introduced to have a flexible way of handling and storing properties
 and behavior of the java object that hosts them, as well as to ensure sub-models
-always work with up-to-date information. An aspect can be any java
-object, yet when creating an aspect (stored in an Aspect<A> object) a
-distinction is made between three different types: PRIMARY, CALCULATED and EVENT.
+always work with up-to-date information. An aspect can be any java object, yet 
+when creating an aspect (stored in an Aspect<A> object) a distinction is made 
+between three different types: PRIMARY, CALCULATED and EVENT.
 
-Primary aspects store information or properties and are preferable the only place this
-information is stored (such as a double that represents an Agents mass or a
-String that tells an output writer what solute should be displayed). Calculated
-aspects are used to calculate a property that depends on other aspects. For
-example calculated aspect may define an agents volume based on it's mass and 
-density. There are two way's of defining a calculated aspect: 1) calling a
-premade calculated aspect 
+Primary aspects store information or properties and are preferable the only 
+place this information is stored (such as a double that represents an Agents 
+mass or a String that tells an output writer what solute should be displayed).
+The following example shows the creation of a simple primary state in xml:
+
 ``` XML
-<aspect name="surfaces"			type="calculated"	class="AgentSurfaces"			input="body"		package="agent.state.library."  />
+<aspect name="pigment" type="String" value="RED" />
 ```
+
+Here 'name' is the name other aspects use to refer to this aspect. 'type'
+indicates what type of aspect should be created and stored, value is the String
+representation of the content of the stored object. This is generally the
+scenario to store simple objects like primitive types or simple java objects
+that are easily represented in a string. including simple arrays (see example
+bellow).
+
+``` XML
+<aspect name="exampleState" type="double[]" value="2.0, 5.1" />
+```
+
+when storing arrays (indicated with the appended []) the individual array 
+value's are always comma separated.
+
+More complex objects may also be stored as a primary aspect, when such an object
+is stored no value is indicated but instead the child nodes of the parent node
+are passed to the java object. These child nodes are object specific and are
+handled by the object's XMLable implementation (see paragraph XMLable interface).
+
+``` XML
+<aspect name="body" type="body">
+	<point position="12.2, 12.2" />
+</aspect>
+```
+
+Calculated aspects are used to calculate a property that depends on other 
+aspects. For example calculated aspect may define an agents volume based on it's
+mass and density. There are two way's of defining a calculated aspect: 1) 
+calling a pre-made calculated aspect:
+
+``` XML
+<aspect name="surfaces"	type="calculated" class="AgentSurfaces" input="body" package="agent.state.library." />
+```
+Here 'name' is the name other aspects use to refer to this aspect. 'type'
+indicates what type of aspect should be created
+
+
+2) defining the calculated state as a mathematical expression:
+
+``` XML
+<aspect name="volume" type="calculated" class="StateExpression"
+input="mass/density" />
+```
+
 Calculated aspects do not store any information except for on what primary aspects they
 depend 
 
