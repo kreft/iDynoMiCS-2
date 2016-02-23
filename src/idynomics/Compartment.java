@@ -8,6 +8,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.thoughtworks.xstream.core.util.XmlHeaderAwareReader;
+
 import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
@@ -123,11 +125,13 @@ public class Compartment implements CanPrelaunchCheck
 		NodeList solutes = XmlHandler.getAll(elem, XmlLabel.solute);
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
-			String soluteName = XmlHandler.obtainAttribute((Element) 
-					solutes.item(i), XmlLabel.nameAttribute);
-			this.addSolute(soluteName, Double.valueOf(
+			Element soluteE = (Element) solutes.item(i);
+			String soluteName = XmlHandler.obtainAttribute(soluteE, XmlLabel.nameAttribute);
+			double conc = Double.valueOf(
 					XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					XmlLabel.concentration)));
+					XmlLabel.concentration));
+			Element resolutions = XmlHandler.loadUnique(soluteE, XmlLabel.resolutions);
+			this.addSolute(soluteName, conc, resolutions);
 			
 			// FIXME please provide standard methods to load entire solute grids
 			SpatialGrid myGrid = this.getSolute(soluteName);
@@ -239,18 +243,18 @@ public class Compartment implements CanPrelaunchCheck
 	 * 
 	 * @param soluteName
 	 */
-	public void addSolute(String soluteName)
+	public void addSolute(String soluteName, Element resolution)
 	{
-		this._environment.addSolute(soluteName);
+		this._environment.addSolute(soluteName, resolution);
 	}
 	
 	/**
 	 * 
 	 * @param soluteName
 	 */
-	public void addSolute(String soluteName, double initialConcentration)
+	public void addSolute(String soluteName, double initialConcentration, Element resolution)
 	{
-		this._environment.addSolute(soluteName, initialConcentration);
+		this._environment.addSolute(soluteName, initialConcentration, resolution);
 	}
 	
 	/**

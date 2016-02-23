@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.w3c.dom.Element;
+
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.Log.tier;
@@ -94,9 +96,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 * 
 	 * @param soluteName
 	 */
-	public void addSolute(String soluteName)
+	public void addSolute(String soluteName, Element resolution)
 	{
-		this.addSolute(soluteName, 0.0);
+		this.addSolute(soluteName, 0.0, resolution);
 	}
 	
 	/**
@@ -105,7 +107,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 * @param soluteName
 	 * @param initialConcn
 	 */
-	public void addSolute(String soluteName, double initialConcn)
+	public void addSolute(String soluteName, double initialConcn, 
+															Element resolution)
 	{
 		if ( this._hasInitialised )
 		{
@@ -115,9 +118,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		/*
 		 * TODO safety: check if solute already in hashmap
 		 */
+		
 		SpatialGrid sg = this._shape.gridGetter().newGrid(
-											this._shape.getDimensionLengths(),
-											this._defaultResolution);
+				this._shape.getDimensionLengths(), resolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
 		Log.out(tier.DEBUG, "Added solute \""+soluteName+"\" to environment");

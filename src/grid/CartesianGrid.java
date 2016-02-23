@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.w3c.dom.Node;
+
 import grid.resolution.ResCalcFactory;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
@@ -33,6 +35,28 @@ public class CartesianGrid extends SpatialGrid
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
+	public CartesianGrid(double[] totalLength, Node node){
+		/* Dimension names for a CartesianGrid. */
+		this._dimName[0] = DimName.X;
+		this._dimName[1] = DimName.Y;
+		this._dimName[2] = DimName.Z;
+
+		/* create appropriate ResCalc Objects for dimension combinations*/
+		ResCalcFactory rcf = new ResCalcFactory();
+		rcf.init(node);
+		if (!Arrays.equals(this._dimName, rcf.getDimNames()))
+			//TODO: break cleaner
+			throw new IllegalArgumentException(
+					"tried to set inappropriate resolution calculator");
+		//TODO: getNewInstance?
+		Object[] resCalc = rcf.createResCalcForDimensions(
+				totalLength);
+
+		/* cast to correct data type and update the array */
+		for (int i=0; i<3; ++i)
+			_resCalc[i] = (ResCalc) resCalc[i];
+	}
+	
 	/**
 	 * \brief Construct a CartesianGrid from a 3-vector of total dimension
 	 * sizes and corresponding methods for calculating voxel resolutions. 
@@ -40,14 +64,15 @@ public class CartesianGrid extends SpatialGrid
 	 * @param totalSize 3-vector of total side lengths of each dimension.
 	 * @param resCalc 
 	 */
-	public CartesianGrid(ResCalc[] resCalc)
+	public CartesianGrid(Object resCalc)
 	{
 		/* Dimension names for a CartesianGrid. */
 		this._dimName[0] = DimName.X;
 		this._dimName[1] = DimName.Y;
 		this._dimName[2] = DimName.Z;
 		
-		this._resCalc = resCalc;
+		//TODO: safety
+		this._resCalc = (ResCalc[]) resCalc;
 		
 		/* in the cartesian grid we have to call this method only once here */
 		updateCurrentNVoxel();
@@ -57,22 +82,6 @@ public class CartesianGrid extends SpatialGrid
 		 * neighboring voxels.
 		 */
 		this.calcMinVoxelVoxelSurfaceArea();
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param nVoxel
-	 * @param resolution
-	 */
-	public CartesianGrid(double[] totalLength, double resolution)
-	{
-		this( ResCalcFactory.createUniformResCalcForCube(totalLength, resolution));
-	}
-
-	public CartesianGrid()
-	{
-		this( Vector.onesDbl(3), 1.0);
 	}
 	
 	@Override
@@ -365,9 +374,9 @@ public class CartesianGrid extends SpatialGrid
 		return new GridGetter()
 		{
 			@Override
-			public SpatialGrid newGrid(double[] totalLength, double resolution) 
+			public SpatialGrid newGrid(double[] totalLength, Node node) 
 			{
-				return new CartesianGrid(totalLength, resolution);
+				return new CartesianGrid(totalLength, node);
 			}
 		};
 	}

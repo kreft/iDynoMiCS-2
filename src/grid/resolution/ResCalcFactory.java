@@ -5,9 +5,16 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.function.DoubleFunction;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import dataIO.XmlHandler;
+import dataIO.XmlLabel;
+import expression.ExpressionB;
+import generalInterfaces.XMLable;
 import grid.PolarGrid;
 import grid.resolution.ResolutionCalculator.ResCalc;
-import grid.resolution.ResolutionCalculator.UniformResolution;
 import shape.ShapeConventions.DimName;
 
 /**
@@ -17,255 +24,315 @@ import shape.ShapeConventions.DimName;
  * spatial grids.
  *
  */
-public final class ResCalcFactory
+public final class ResCalcFactory implements XMLable
 {
+	Class<?>[] res_classes = new Class<?>[3];
+	DimName[] dimNames = new DimName[3];
+	Object[] resObjects = new Object[3];
 	
-	/**********************************************************************/
-	/*********************** STANDARD CREATOR  ****************************/
-	/**********************************************************************/
-
-	/* Uniform resolution in all dimensions */
-
-	/**
-	 * \brief Creates a uniformly distributed resolution calculator array 
-	 * valid for a Cube. 
-	 * 
-	 * @param totalLength
-	 * @param resolution
-	 * @return
-	 */
-	public static ResCalc[] createUniformResCalcForCube(
-			double[] totalLength, double resolution){
-		return createResCalcForCube(
-				totalLength,
-				resolution,
-				UniformResolution.class);
+	@Override
+	public void init(Node xmlNode) {
+		//TODO use aspect registry?
+		Element E = (Element) xmlNode;
+		NodeList resList = XmlHandler.getAll(E, XmlLabel.resolution);
+		Element resE;
+		
+		for (int i=0; i<resList.getLength(); ++i){
+			resE = (Element) resList.item(i);
+			
+			String[] dimensions = XmlHandler.gatherAttribute(resE,
+					XmlLabel.dimensionNamesAttribute).split(",");
+			
+			//TODO: at least one dimension must be set
+			for (int j = 0; j < dimensions.length; ++j){
+				
+				//TODO: safety
+				dimNames[i] = DimName.valueOf(dimensions[i]);
+				
+				String class_name = XmlHandler.gatherAttribute(resE,
+						XmlLabel.classAttribute);
+				if (!class_name.isEmpty()){
+					/* create default instance to be sure the class exists */
+					res_classes[i] = XMLable.getNewInstance(class_name).getClass();
+				}
+				//TODO: else uniform resolution default
+				
+				Element res_val = XmlHandler.loadUnique(resE, XmlLabel.parameter);
+				if (res_val != null){
+					//TODO: do we have a standard method for this?
+					String name = XmlHandler.gatherAttribute(
+											res_val, XmlLabel.nameAttribute);
+					String value = XmlHandler.gatherAttribute(
+											res_val, XmlLabel.valueAttribute);
+					if (name.equals("targetResolution")){
+						resObjects[i] = Double.valueOf(value);
+						//TODO: allow double[] here?
+						//TODO: safety or default method
+					}
+					//TODO: else safety
+				}
+				else{
+					ExpressionB ex = new ExpressionB(
+							XmlHandler.loadUnique(resE, XmlLabel.expression));
+					//TODO: move from DoubleFunction to expression.
+				}
+				
+			}
+			
+			
+		}
 	}
-
-	/**
-	 * \brief Creates a uniformly distributed resolution calculator array 
-	 * valid for a Cylinder. 
-	 * 
-	 * @param totalLength
-	 * @param resolution
-	 * @return
-	 */
-	public static ResCalc[][] createUniformResCalcForCylinder(
-			double[] totalLength, double resolution){
-		return createResCalcForCylinder(
-				totalLength,
-				resolution,
-				UniformResolution.class);
+	
+	public DimName[] getDimNames(){
+		return dimNames;
 	}
-
-	/**
-	 * \brief Creates a uniformly distributed resolution calculator array 
-	 * valid for a Sphere. 
-	 * 
-	 * @param totalLength
-	 * @param resolution
-	 * @return
-	 */
-	public static ResCalc[][][] createUniformResCalcForSphere(
-			double[] totalLength, double resolution){
-		return createResCalcForSphere(
-				totalLength,
-				resolution,
-				UniformResolution.class);
-	}
-
-	/**********************************************************************/
-	/**************************** SECOND LEVEL ****************************/
-	/**********************************************************************/
-
-	/* generic for resolution calculator, 
-	 * 	but all of the same class in the three dimensions */
-
-	//TODO: determine resCalc class automatically if null argument.
-
-	/**
-	 * \brief Creates a resolution calculator Array for a resolution object
-	 * and any specified resolution calculator class.
-	 * 
-	 * The resolution Object has to be one of {@code double},
-	 *  {@code double[]}, {@code DoubleFunction<Double>}
-	 * 
-	 * @param totalLength The totalLength of the grid in each dimension.
-	 * @param res A valid resolution object used for all dimension.
-	 * @param resCalcClasses The desired ResCalc class to use for all dimensions.
-	 * @return A resolution calculator array valid for a Cube.
-	 */
-	public static ResCalc[] createResCalcForCube(
-			double[] totalLength,
-			Object res,
-			Class<?> resCalcClass)
-	{
-		return createResCalcForCube(
-				totalLength, 
-				new Object[]{res, res, res},
-				new Class[]{resCalcClass, resCalcClass, resCalcClass});
-	}
-
-	/**
-	 * \brief Creates a resolution calculator Array for a resolution object
-	 * and any specified resolution calculator class.
-	 * 
-	 * The resolution Object has to be one of {@code double},
-	 *  {@code double[]}, {@code DoubleFunction<Double>}
-	 * 
-	 * @param totalLength The totalLength of the grid in each dimension.
-	 * @param res A valid resolution object used for all dimension.
-	 * @param resCalcClasses The desired ResCalc class to use for all dimensions.
-	 * @return A resolution calculator array valid for a Cylinder.
-	 */
-	public static ResCalc[][] createResCalcForCylinder(
-			double[] totalLength,
-			Object res,
-			Class<?> resCalcClass)
-	{
-		return createResCalcForCylinder(
-				totalLength, 
-				new Object[]{res, res, res},
-				new Class[]{resCalcClass, resCalcClass, resCalcClass}
-				);
-	}
-
-	/**
-	 * \brief Creates a resolution calculator Array for a resolution object
-	 * and any specified resolution calculator class.
-	 * 
-	 * The resolution Object has to be one of {@code double},
-	 *  {@code double[]}, {@code DoubleFunction<Double>}
-	 * 
-	 * @param totalLength The totalLength of the grid in each dimension.
-	 * @param res A valid resolution object used for all dimension.
-	 * @param resCalcClasses The desired ResCalc class to use for all dimensions.
-	 * @return A resolution calculator array valid for a Sphere.
-	 */
-	public static ResCalc[][][] createResCalcForSphere(
-			double[] totalLength,
-			Object res,
-			Class<?> resCalcClass)
-	{
-		return createResCalcForSphere(
-				totalLength, 
-				new Object[]{res, res, res},
-				new Class[]{resCalcClass, resCalcClass, resCalcClass});
-	}
-
-	/**********************************************************************/
-	/***************************** THIRD LEVEL ****************************/
-	/**********************************************************************/
-
-	/* generic for resolution calculator */
-
-	//TODO: determine resCalc class automatically if null argument.
-
-	/**
-	 * \brief Creates a resolution calculator Array for a resolution object
-	 * and any specified resolution calculator class.
-	 * 
-	 * The resolution Object has to be one of {@code double},
-	 *  {@code double[]}, {@code DoubleFunction<Double>}
-	 * 
-	 * @param totalLength The totalLength of the grid in each dimension.
-	 * @param res A valid resolution object for each dimension.
-	 * @param resCalcClasses The desired ResCalc class in each dimension.
-	 * @return A resolution calculator array valid for a Cube.
-	 */
-	public static ResCalc[] createResCalcForCube(
-			double[] totalLength,
-			Object[] res, 
-			Class<?>[] resCalcClasses)
-	{
-		/* define ResCalc array and names for the three dimensions */
-		ResCalc[] out = new ResCalc[3];
-		DimName[] dims = new DimName[]{DimName.X,DimName.Y,DimName.Z};
-
-		/* create appropriate ResCalc Objects for dimension combinations*/
-		Object[] resCalc = createResCalcForDimensions(dims,
-				totalLength, res, resCalcClasses);
-
-		/* cast to correct data type and update the array */
-		for (int i=0; i<3; ++i)
-			out[i] = (ResCalc) resCalc[i];
-
-		return out;
-	}
-
-	/**
-	 * \brief Creates a resolution calculator Array for a resolution object
-	 * and any specified resolution calculator class.
-	 * 
-	 * The resolution Object has to be one of {@code double},
-	 *  {@code double[]}, {@code DoubleFunction<Double>}
-	 * 
-	 * @param totalLength The totalLength of the grid in each dimension.
-	 * @param res A valid resolution object for each dimension.
-	 * @param resCalcClasses The desired ResCalc class in each dimension.
-	 * @return A resolution calculator array valid for a Cylinder.
-	 */
-	public static ResCalc[][] createResCalcForCylinder(
-			double[] totalLength,
-			Object[] res, 
-			Class<?>[] resCalcClasses)
-	{
-		/* define ResCalc array */
-		ResCalc[][] out = new ResCalc[3][];
-		out[0] = new ResCalc[1];
-		out[2] = new ResCalc[1];
-
-		/* initialize names for the three dimensions */
-		DimName[] dims = new DimName[]{DimName.R,DimName.THETA,DimName.Z};
-
-		/* create appropriate ResCalc Objects for dimension combinations*/
-		Object[] resCalc = createResCalcForDimensions(dims,
-				totalLength, res, resCalcClasses);
-
-		/* cast to correct data type and update the array */
-		out[0][0] = (ResCalc) resCalc[0];
-		out[1] = (ResCalc[]) resCalc[1];
-		out[2][0] = (ResCalc) resCalc[2];
-
-		return out;
-	}
-
-	/**
-	 * \brief Creates a resolution calculator Array for a resolution object
-	 * and any specified resolution calculator class.
-	 * 
-	 * The resolution Object has to be one of {@code double},
-	 *  {@code double[]}, {@code DoubleFunction<Double>}
-	 * 
-	 * @param totalLength The totalLength of the grid in each dimension.
-	 * @param res A valid resolution object for each dimension.
-	 * @param resCalcClasses The desired ResCalc class in each dimension.
-	 * @return A resolution calculator array valid for a Sphere.
-	 */
-	public static ResCalc[][][] createResCalcForSphere(
-			double[] totalLength,
-			Object[] res, 
-			Class<?>[] resCalcClasses)
-	{
-		/* define ResCalc array */
-		ResCalc[][][] out = new ResCalc[3][][];
-		out[0] = new ResCalc[1][1];
-		out[1] = new ResCalc[1][];
-
-		/* initialize names for the three dimensions */
-		DimName[] dims = new DimName[]{DimName.R,DimName.PHI,DimName.THETA};
-
-		/* create appropriate ResCalc Objects for dimension combinations*/
-		Object[] resCalc = createResCalcForDimensions(dims,
-				totalLength, res, resCalcClasses);
-
-		/* cast to correct data type and update the array */
-		out[0][0][0] = (ResCalc) resCalc[0];
-		out[1][0] = (ResCalc[]) resCalc[1];
-		out[2] = (ResCalc[][]) resCalc[2];
-
-		return out;
-	}
+	
+//	/**********************************************************************/
+//	/*********************** STANDARD CREATOR  ****************************/
+//	/**********************************************************************/
+//
+//	/* Uniform resolution in all dimensions */
+//
+//	/**
+//	 * \brief Creates a uniformly distributed resolution calculator array 
+//	 * valid for a Cube. 
+//	 * 
+//	 * @param totalLength
+//	 * @param resolution
+//	 * @return
+//	 */
+//	public static ResCalc[] createUniformResCalcForCube(
+//			double[] totalLength, double resolution){
+//		return createResCalcForCube(
+//				totalLength,
+//				resolution,
+//				UniformResolution.class);
+//	}
+//
+//	/**
+//	 * \brief Creates a uniformly distributed resolution calculator array 
+//	 * valid for a Cylinder. 
+//	 * 
+//	 * @param totalLength
+//	 * @param resolution
+//	 * @return
+//	 */
+//	public static ResCalc[][] createUniformResCalcForCylinder(
+//			double[] totalLength, double resolution){
+//		return createResCalcForCylinder(
+//				totalLength,
+//				resolution,
+//				UniformResolution.class);
+//	}
+//
+//	/**
+//	 * \brief Creates a uniformly distributed resolution calculator array 
+//	 * valid for a Sphere. 
+//	 * 
+//	 * @param totalLength
+//	 * @param resolution
+//	 * @return
+//	 */
+//	public static ResCalc[][][] createUniformResCalcForSphere(
+//			double[] totalLength, double resolution){
+//		return createResCalcForSphere(
+//				totalLength,
+//				resolution,
+//				UniformResolution.class);
+//	}
+//
+//	/**********************************************************************/
+//	/**************************** SECOND LEVEL ****************************/
+//	/**********************************************************************/
+//
+//	/* generic for resolution calculator, 
+//	 * 	but all of the same class in the three dimensions */
+//
+//	//TODO: determine resCalc class automatically if null argument.
+//
+//	/**
+//	 * \brief Creates a resolution calculator Array for a resolution object
+//	 * and any specified resolution calculator class.
+//	 * 
+//	 * The resolution Object has to be one of {@code double},
+//	 *  {@code double[]}, {@code DoubleFunction<Double>}
+//	 * 
+//	 * @param totalLength The totalLength of the grid in each dimension.
+//	 * @param res A valid resolution object used for all dimension.
+//	 * @param resCalcClasses The desired ResCalc class to use for all dimensions.
+//	 * @return A resolution calculator array valid for a Cube.
+//	 */
+//	public static ResCalc[] createResCalcForCube(
+//			double[] totalLength,
+//			Object res,
+//			Class<?> resCalcClass)
+//	{
+//		return createResCalcForCube(
+//				totalLength, 
+//				new Object[]{res, res, res},
+//				new Class[]{resCalcClass, resCalcClass, resCalcClass});
+//	}
+//
+//	/**
+//	 * \brief Creates a resolution calculator Array for a resolution object
+//	 * and any specified resolution calculator class.
+//	 * 
+//	 * The resolution Object has to be one of {@code double},
+//	 *  {@code double[]}, {@code DoubleFunction<Double>}
+//	 * 
+//	 * @param totalLength The totalLength of the grid in each dimension.
+//	 * @param res A valid resolution object used for all dimension.
+//	 * @param resCalcClasses The desired ResCalc class to use for all dimensions.
+//	 * @return A resolution calculator array valid for a Cylinder.
+//	 */
+//	public static ResCalc[][] createResCalcForCylinder(
+//			double[] totalLength,
+//			Object res,
+//			Class<?> resCalcClass)
+//	{
+//		return createResCalcForCylinder(
+//				totalLength, 
+//				new Object[]{res, res, res},
+//				new Class[]{resCalcClass, resCalcClass, resCalcClass}
+//				);
+//	}
+//
+//	/**
+//	 * \brief Creates a resolution calculator Array for a resolution object
+//	 * and any specified resolution calculator class.
+//	 * 
+//	 * The resolution Object has to be one of {@code double},
+//	 *  {@code double[]}, {@code DoubleFunction<Double>}
+//	 * 
+//	 * @param totalLength The totalLength of the grid in each dimension.
+//	 * @param res A valid resolution object used for all dimension.
+//	 * @param resCalcClasses The desired ResCalc class to use for all dimensions.
+//	 * @return A resolution calculator array valid for a Sphere.
+//	 */
+//	public static ResCalc[][][] createResCalcForSphere(
+//			double[] totalLength,
+//			Object res,
+//			Class<?> resCalcClass)
+//	{
+//		return createResCalcForSphere(
+//				totalLength, 
+//				new Object[]{res, res, res},
+//				new Class[]{resCalcClass, resCalcClass, resCalcClass});
+//	}
+//
+//	/**********************************************************************/
+//	/***************************** THIRD LEVEL ****************************/
+//	/**********************************************************************/
+//
+//	/* generic for resolution calculator */
+//
+//	//TODO: determine resCalc class automatically if null argument.
+//
+//	/**
+//	 * \brief Creates a resolution calculator Array for a resolution object
+//	 * and any specified resolution calculator class.
+//	 * 
+//	 * The resolution Object has to be one of {@code double},
+//	 *  {@code double[]}, {@code DoubleFunction<Double>}
+//	 * 
+//	 * @param totalLength The totalLength of the grid in each dimension.
+//	 * @param res A valid resolution object for each dimension.
+//	 * @param resCalcClasses The desired ResCalc class in each dimension.
+//	 * @return A resolution calculator array valid for a Cube.
+//	 */
+//	public static ResCalc[] createResCalcForCube(
+//			double[] totalLength,
+//			Object[] res, 
+//			Class<?>[] resCalcClasses)
+//	{
+//		/* define ResCalc array and names for the three dimensions */
+//		ResCalc[] out = new ResCalc[3];
+//		DimName[] dims = new DimName[]{DimName.X,DimName.Y,DimName.Z};
+//
+//		/* create appropriate ResCalc Objects for dimension combinations*/
+//		Object[] resCalc = createResCalcForDimensions(dims,
+//				totalLength, res, resCalcClasses);
+//
+//		/* cast to correct data type and update the array */
+//		for (int i=0; i<3; ++i)
+//			out[i] = (ResCalc) resCalc[i];
+//
+//		return out;
+//	}
+//
+//	/**
+//	 * \brief Creates a resolution calculator Array for a resolution object
+//	 * and any specified resolution calculator class.
+//	 * 
+//	 * The resolution Object has to be one of {@code double},
+//	 *  {@code double[]}, {@code DoubleFunction<Double>}
+//	 * 
+//	 * @param totalLength The totalLength of the grid in each dimension.
+//	 * @param res A valid resolution object for each dimension.
+//	 * @param resCalcClasses The desired ResCalc class in each dimension.
+//	 * @return A resolution calculator array valid for a Cylinder.
+//	 */
+//	public static ResCalc[][] createResCalcForCylinder(
+//			double[] totalLength,
+//			Object[] res, 
+//			Class<?>[] resCalcClasses)
+//	{
+//		/* define ResCalc array */
+//		ResCalc[][] out = new ResCalc[3][];
+//		out[0] = new ResCalc[1];
+//		out[2] = new ResCalc[1];
+//
+//		/* initialize names for the three dimensions */
+//		DimName[] dims = new DimName[]{DimName.R,DimName.THETA,DimName.Z};
+//
+//		/* create appropriate ResCalc Objects for dimension combinations*/
+//		Object[] resCalc = createResCalcForDimensions(dims,
+//				totalLength, res, resCalcClasses);
+//
+//		/* cast to correct data type and update the array */
+//		out[0][0] = (ResCalc) resCalc[0];
+//		out[1] = (ResCalc[]) resCalc[1];
+//		out[2][0] = (ResCalc) resCalc[2];
+//
+//		return out;
+//	}
+//
+//	/**
+//	 * \brief Creates a resolution calculator Array for a resolution object
+//	 * and any specified resolution calculator class.
+//	 * 
+//	 * The resolution Object has to be one of {@code double},
+//	 *  {@code double[]}, {@code DoubleFunction<Double>}
+//	 * 
+//	 * @param totalLength The totalLength of the grid in each dimension.
+//	 * @param res A valid resolution object for each dimension.
+//	 * @param resCalcClasses The desired ResCalc class in each dimension.
+//	 * @return A resolution calculator array valid for a Sphere.
+//	 */
+//	public static ResCalc[][][] createResCalcForSphere(
+//			double[] totalLength,
+//			Object[] res, 
+//			Class<?>[] resCalcClasses)
+//	{
+//		/* define ResCalc array */
+//		ResCalc[][][] out = new ResCalc[3][][];
+//		out[0] = new ResCalc[1][1];
+//		out[1] = new ResCalc[1][];
+//
+//		/* initialize names for the three dimensions */
+//		DimName[] dims = new DimName[]{DimName.R,DimName.PHI,DimName.THETA};
+//
+//		/* create appropriate ResCalc Objects for dimension combinations*/
+//		Object[] resCalc = createResCalcForDimensions(dims,
+//				totalLength, res, resCalcClasses);
+//
+//		/* cast to correct data type and update the array */
+//		out[0][0][0] = (ResCalc) resCalc[0];
+//		out[1][0] = (ResCalc[]) resCalc[1];
+//		out[2] = (ResCalc[][]) resCalc[2];
+//
+//		return out;
+//	}
 
 	/**********************************************************************/
 	/************************* DIMENSION LEVEL ****************************/
@@ -289,11 +356,7 @@ public final class ResCalcFactory
 	 * @param resCalcClasses The desired ResCalc class in each dimension.
 	 * @return
 	 */
-	public static Object[] createResCalcForDimensions(
-			DimName[] dims,
-			double[] totalLength,
-			Object[] res, 
-			Class<?>[] resCalcClasses)
+	public Object[] createResCalcForDimensions(double[] totalLength)
 	{
 		Object[] out = new Object[3];
 		ArrayList<Object> dimArgs = new ArrayList<>();
@@ -303,18 +366,18 @@ public final class ResCalcFactory
 			 * This has to be done because in polar grids resolutions in one
 			 * dimension depend on their preceding dimension(s).
 			 */
-			if (dims[dim]==DimName.THETA || dims[dim]==DimName.PHI)
+			if (dimNames[dim]==DimName.THETA || dimNames[dim]==DimName.PHI)
 				dimArgs.add(out[dim-1]);
 			/* 
 			 * create the appropriate ResCalc object for the current 
 			 * dimension 
 			 */ 
 			out[dim] = createResCalcForDimension(
-							dims[dim],
+							dimNames[dim],
 							dimArgs,
 							(dim < totalLength.length ?  totalLength[dim] : 1),
-							res[dim], 
-							resCalcClasses[dim]);
+							resObjects[dim], 
+							res_classes[dim]);
 
 		}
 		return out;

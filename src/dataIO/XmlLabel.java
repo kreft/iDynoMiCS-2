@@ -57,6 +57,16 @@ public class XmlLabel {
 	public static String solute = "solute";
 	
 	/**
+	 * indicates a resolution element of a solute.
+	 */
+	public static String resolution = "resolution";
+	
+	/**
+	 * indicates an expression.
+	 */
+	public static String expression = "expression";
+	
+	/**
 	 * indicates a voxel
 	 */
 	public static String voxel = "vox";
@@ -103,6 +113,11 @@ public class XmlLabel {
 	 * encapsulates all reactions in the compartment
 	 */
 	public static String reactions = "reactions";
+	
+	/**
+	 * encapsulates resolutions for the (up to) three dimensions.
+	 */
+	public static String resolutions = "reactions";
 
 	/**
 	 * encapsulates all agents for one compartment
@@ -156,6 +171,11 @@ public class XmlLabel {
 	 * attribute can hold a comment (has no simulation effects)
 	 */
 	public static String commentAttribute = "comment";
+	
+	/**
+	 * attribute can hold (up to three) dimension names 
+	 */
+	public static String dimensionNamesAttribute = "dimensions";
 	
 	/**
 	 * indicates output folder (set as simulation attribute)
