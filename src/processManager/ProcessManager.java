@@ -43,9 +43,26 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 		
 	}
 	
-	public void init()
+	public void init(Node xmlNode)
 	{
+		//FIXME quick fix: cut/paste from
+		//"public static ProcessManager getNewInstance(Node xmlNode)"
 		
+		this.loadAspects(xmlNode);
+		
+		Element p = (Element) xmlNode;
+		
+		this.setName( p.getAttribute( XmlLabel.nameAttribute ));
+		
+		this.setPriority(
+					Integer.valueOf(p.getAttribute( NameRef.processPriority)));
+		
+		this.setTimeForNextStep( Double.valueOf(
+									p.getAttribute( NameRef.initialStep )));
+		
+		// TODO: Bas [16,02,16] this is a work around, nicefy
+		this.setTimeStepSize( Helper.setIfNone(
+					this.getDouble("timerStepSize"),Timer.getTimeStepSize())); 
 	}
 
 	/**
@@ -55,20 +72,8 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 	 */
 	public static ProcessManager getNewInstance(Node xmlNode)
 	{
-		Element p = (Element) xmlNode;
 		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		proc.loadAspects(xmlNode);
-		
-		proc.setName( p.getAttribute( XmlLabel.nameAttribute ));
-		proc.setPriority( Integer.valueOf( 
-				p.getAttribute( NameRef.processPriority) ));
-		proc.setTimeForNextStep( Double.valueOf(
-				p.getAttribute( NameRef.initialStep )));
-		proc.setTimeStepSize( Helper.setIfNone(proc.getDouble("timerStepSize"), 
-				Timer.getTimeStepSize())); // TODO: Bas [16,02,16] this is a work around, nicefy
-
-		
-		proc.init();
+		proc.init(xmlNode);
 		return proc;
 	}
 	

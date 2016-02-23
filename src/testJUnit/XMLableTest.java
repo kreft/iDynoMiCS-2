@@ -4,6 +4,8 @@
 package testJUnit;
 
 import org.junit.Test;
+import org.w3c.dom.Node;
+
 import static org.junit.Assert.assertTrue;
 
 import generalInterfaces.XMLable;
@@ -18,6 +20,11 @@ public class XMLableTest
 	public static class TestXMLable implements XMLable
 	{
 		private int x = 1;
+		
+		public void init(Node xmlNode)
+		{
+			// TODO
+		}
 		
 		public void setX(int x)
 		{

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package grid.domainSetter;
+package grid.wellmixedSetter;
 
 import java.util.List;
 
@@ -16,7 +16,6 @@ import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.NameRef;
-import linearAlgebra.Vector;
 import surface.Ball;
 import surface.Collision;
 import surface.Surface;
@@ -29,7 +28,7 @@ import surface.Surface;
  * @author baco
  * @since January 2016
  */
-public class BoundaryLayer implements IsDomainSetter
+public class BoundaryLayer implements IsWellmixedSetter
 {
 	/**
 	 * Value to set all voxels of the domain array of the given grid.
@@ -49,9 +48,13 @@ public class BoundaryLayer implements IsDomainSetter
 	{
 		// TODO Check this, maybe making use of XMLable interface
 		Element elem = (Element) xmlNode;
+		String temp;
 		if ( elem.hasAttribute(XmlLabel.valueAttribute) )
+		{
+			
 			this._value = Double.parseDouble(elem.getAttribute(
 					XmlLabel.valueAttribute));
+		}
 		if ( elem.hasAttribute(XmlLabel.layerThickness) )
 		{
 			this._layerThickness = 
@@ -64,39 +67,37 @@ public class BoundaryLayer implements IsDomainSetter
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
-	public void updateDomain(SpatialGrid aGrid, AgentContainer agents)
+	public void updateWellmixed(SpatialGrid aGrid, AgentContainer agents)
 	{
 		/*
 		 * Reset the domain array.
 		 */
-		aGrid.newArray(ArrayType.DOMAIN);
+		aGrid.newArray(ArrayType.WELLMIXED);
 		/*
 		 * Iterate over all voxels, checking if there are agents nearby.
 		 */
 		int[] coords = aGrid.resetIterator();
 		List<Agent> neighbors;
+		Collision collision = new Collision(null, agents.getShape());
 		while ( aGrid.isIteratorValid() )
 		{
 			Ball gridSphere = new Ball(aGrid.getVoxelCentre(coords), 
-					this._layerThickness);
-			gridSphere.init(new Collision(null, agents.getShape()));
-			/**
-			 * find all closeby agents
+														this._layerThickness);
+			gridSphere.init(collision);
+			/*
+			 * Find all nearby agents. Set the grid to _value if an agent is
+			 * within the grid's sphere
 			 */
-			neighbors = agents._agentTree.cyclicsearch(
-					gridSphere.boundingBox());
+			neighbors = 
+					agents._agentTree.cyclicsearch(gridSphere.boundingBox());
 			for ( Agent a : neighbors )
-				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList))
-					
-					/**
-					 * Set the grid to _value if an agent is within the grid's
-					 * sphere
-					 */
+				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList) )
 					if ( gridSphere.distanceTo(s) < 0.0 )
 						{
-							aGrid.setValueAt(ArrayType.DOMAIN, coords, 
-									this._value);
+							aGrid.setValueAt(ArrayType.WELLMIXED, coords, 
+																this._value);
 							break;
 						}
 			coords = aGrid.iteratorNext();

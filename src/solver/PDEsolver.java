@@ -73,7 +73,7 @@ public abstract class PDEsolver extends Solver
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 											  current = grid.iteratorNext())
 		{
-			if ( grid.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
+			if ( grid.getValueAt(ArrayType.WELLMIXED, current) == 0.0 )
 				continue;
 			lop = 0.0;
 			for ( grid.resetNbhIterator(); 
