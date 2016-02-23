@@ -12,10 +12,11 @@ import dataIO.XmlLabel;
 import idynomics.Idynomics;
 
 /**
- * 
+ * \brief Implementations of this interface will be able to instanciate and
+ * initialise from a XML protocol file.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public interface XMLable
 {
@@ -23,6 +24,11 @@ public interface XMLable
 	 * OBJECT INITIALISATION
 	 ************************************************************************/
 	
+	/**
+	 * \brief Initialise this object from an XML node.
+	 * 
+	 * @param xmlNode XML node from a protocol file.
+	 */
 	public void init(Node xmlNode);
 	
 	/*************************************************************************

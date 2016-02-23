@@ -1,13 +1,10 @@
 package processManager;
 
-import java.util.Collection;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import boundary.Boundary;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
@@ -131,16 +128,6 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 	public void debugMode()
 	{
 		this._debugMode = true;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param boundaries
-	 */
-	public void showBoundaries(Collection<Boundary> boundaries)
-	{
-		
 	}
 	
 	/*************************************************************************
