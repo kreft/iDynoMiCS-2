@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import dataIO.XmlLoad;
+import utility.Helper;
 import dataIO.Log;
 import dataIO.Log.tier;
 
@@ -37,6 +38,12 @@ public class ConsoleLaunch {
 			Param.protocolFile = args[0];
 		}
 		
+		runXml();
+		
+	}
+	
+	public static void runXml()
+	{
 		/*
 		 * Report and initiate our protocol file
 		 */
@@ -50,31 +57,17 @@ public class ConsoleLaunch {
 				Param.outputLocation);
 		
 		/**
+		 * reset the simulator to prevent loading old simulator
 		 * construct the full simulation from the previously loaded xmlDoc
 		 */
+		Idynomics.simulator = new Simulator();
 		XmlLoad.constructSimulation();
-		
-		/**
-		 * Start timing just before simulation starts.
-		 */
-		double tic = System.currentTimeMillis();
 		
 		/*
 		 * Launch the simulation.
 		 */
-		Idynomics.simulator.launch();
-		
-		/*
-		 * Print the results.
-		 */
-		Idynomics.simulator.printAll();
-		
-		Log.out(tier.QUIET, "Simulation finished in: " + 
-				(System.currentTimeMillis() - tic) * 0.001 + " seconds");
-		
-		// We may include an extensive protocol file check here and ask for
-		// additional input if needed.
-		
+        Idynomics.simThread = new Thread(Idynomics.simulator);
+        Idynomics.simThread.start();
 	}
 
 }

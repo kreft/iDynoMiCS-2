@@ -14,9 +14,9 @@ import generalInterfaces.CanPrelaunchCheck;
 import utility.*;
 
 
-public class Simulator implements CanPrelaunchCheck
+public class Simulator implements CanPrelaunchCheck, Runnable
 {
-	
+
 	protected HashMap<String, Compartment> _compartments = 
 										   new HashMap<String, Compartment>();
 	
@@ -24,6 +24,7 @@ public class Simulator implements CanPrelaunchCheck
 	 * contains all species for this simulation
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -86,14 +87,23 @@ public class Simulator implements CanPrelaunchCheck
 		 * cells that have tried to cross connected boundaries. 
 		 */
 		this._compartments.forEach((s,c) -> {c.pushAllOutboundAgents();});
+		
 		/*
 		 * 
 		 */
 		Timer.step();
+		/* we should say something when an iter step is finished */
+		Log.out(tier.NORMAL, "iter time: " + Timer._now);
+
 	}
 	
-	public void launch()
+	public void run()
 	{
+		/**
+		 * Start timing just before simulation starts.
+		 */
+		double tic = System.currentTimeMillis();
+		
 		if ( ! isReadyForLaunch() )
 		{
 			Log.out(tier.CRITICAL, "Simulator not ready to launch!");
@@ -103,6 +113,17 @@ public class Simulator implements CanPrelaunchCheck
 		{
 			this.step();
 		}
+		
+		/**
+		 * print the simulation results
+		 */
+		Idynomics.simulator.printAll();
+		
+		/**
+		 * report simulation time
+		 */
+		Log.out(tier.QUIET, "Simulation finished in: " + 
+				(System.currentTimeMillis() - tic) * 0.001 + " seconds");
 	}
 	
 	/*************************************************************************
@@ -115,6 +136,7 @@ public class Simulator implements CanPrelaunchCheck
 		{
 			Log.out(tier.QUIET,"COMPARTMENT: " + s);
 			c.printAllSoluteGrids();
+			Log.out(tier.QUIET,c.agents.getAllAgents().size() + " agents");
 		});
 	}
 	
@@ -152,4 +174,5 @@ public class Simulator implements CanPrelaunchCheck
 		
 		return true;
 	}
+
 }

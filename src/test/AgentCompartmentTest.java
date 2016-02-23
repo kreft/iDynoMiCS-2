@@ -144,7 +144,7 @@ public class AgentCompartmentTest
 		/*
 		 * Launch the simulation.
 		 */
-		aSim.launch();
+		aSim.run();
 		/*
 		 * Print the results.
 		 */

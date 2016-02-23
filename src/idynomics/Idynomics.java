@@ -30,6 +30,11 @@ public class Idynomics
 	public static Simulator simulator = new Simulator();
 	
 	/**
+	 * Simulator thread
+	 */
+	public static Thread simThread;
+	
+	/**
 	 * Contains all predefined className package association for easy class
 	 * initiation from xml file.
 	 */

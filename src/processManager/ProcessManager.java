@@ -57,7 +57,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 	{
 		Element p = (Element) xmlNode;
 		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		AspectInterface.loadAspects(proc, xmlNode);
+		proc.loadAspects(xmlNode);
 		
 		proc.setName( p.getAttribute( XmlLabel.nameAttribute ));
 		proc.setPriority( Integer.valueOf( 

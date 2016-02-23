@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import dataIO.Log;
 import dataIO.Log.tier;
+import idynomics.GuiLaunch;
 
 /**
  * 
@@ -11,6 +12,7 @@ import dataIO.Log.tier;
  *
  */
 public class Helper {
+	public static boolean gui = false;
 
 	/**
 	 * Assisting with badly written protocol files.
@@ -19,17 +21,25 @@ public class Helper {
 	{
 		if ( input == null || input == "" )
 		{
-			@SuppressWarnings("resource")
-			Scanner user_input = new Scanner( System.in );
-			
 			String msg = "Additional input argument required: " + 
 					description + ", please enter a value: ";
+			
+			if(! gui)
+			{
+			@SuppressWarnings("resource")
+			Scanner user_input = new Scanner( System.in );
+
 			if(noLog)
 				System.out.println(msg);
 			else
 				Log.out(tier.CRITICAL, msg);
-			
+						
 			input = user_input.next( );
+			} 
+			else
+			{
+				input = GuiLaunch.requestInput(msg);
+			}
 			
 			msg = "Aquired input: " + input;
 			if(noLog)

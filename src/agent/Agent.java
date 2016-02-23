@@ -48,7 +48,7 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public Agent(Node xmlNode)
 	{
-		AspectInterface.loadAspects(this, xmlNode);
+		loadAspects(xmlNode);
 		this.init();
 	}
 	

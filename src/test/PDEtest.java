@@ -42,7 +42,7 @@ public class PDEtest
 		/*
 		 * Launch the simulation.
 		 */
-		aSimulator.launch();
+		aSimulator.run();
 		/*
 		 * Print the results.
 		 */

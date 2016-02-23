@@ -145,7 +145,7 @@ public class AgentContainer
 			this._agentTree.insert(b, anAgent);
 	}
 	
-	public void refreshSpatialRegistry()
+	public synchronized void refreshSpatialRegistry()
 	{
 		List<Agent> agentList = this._agentTree.all();
 		this.makeAgentTree();
@@ -153,7 +153,7 @@ public class AgentContainer
 			this.addLocatedAgent(anAgent);
 	}
 	
-	public LinkedList<Agent> getAllLocatedAgents()
+	public synchronized LinkedList<Agent> getAllLocatedAgents()
 	{
 		LinkedList<Agent> out = new LinkedList<Agent>();
 		out.addAll(_agentTree.all());

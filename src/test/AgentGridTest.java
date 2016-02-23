@@ -60,7 +60,7 @@ public class AgentGridTest
 		 * Launch the simulation.
 		 */
 		aCompartment.init();
-		aSim.launch();
+		aSim.run();
 		/*
 		 * Print the results.
 		 */

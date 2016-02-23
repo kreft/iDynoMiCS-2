@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation log="DEBUG" name="mySim" outputfolder="../../Simulations"
+	<simulation log="DEBUG" name="relaxTest" outputfolder="../../Simulations"
 		comment="this is a file for testing purposes only.">
 		<general>
 			<param name="timeStepSize" value="1.0" />
-			<param name="endOfSimulation" value="60.0" />
+			<param name="endOfSimulation" value="95.0" />
 		</general>
 
 		<speciesLib>
@@ -20,7 +20,6 @@
 				<!-- this has not been made yet, use a static growthrate for now -->
 				<aspect name="growthRate" type="double" value="0.08" />
 				<speciesModule name="coccoid" />
-				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
 				<aspect name="surfaces"			type="calculated"	class="AgentSurfaces"			input="body"		package="agent.state.library."  />
@@ -34,32 +33,19 @@
 				<aspect name="surface" 			type="calculated" 	class="SimpleSurface" 			input="body" />
 				<aspect name="updateBody" 		type="event" 		class="UpdateBody" 				input="body,radius,length" 	package="agent.event.library." />
 			</species>
-			<species name="stochasticMover">
-				<aspect name="stochasticStep" type="double" value="0.1" />
-				<aspect name="stochasticMove" type="event" class="StochasticMove" package="agent.event.library." input="body,stochasticStep" />
-			</species>
 		</speciesLib>
 		<compartment name="second">
 			<shape class="Rectangle">
 				<dimension name="X" isCyclic="true">
-					<extreme name="max" position="16.0"/>
+					<extreme name="max" position="100.0"/>
 				</dimension> 
 				<dimension name="Y" isCyclic="true">
-					<extreme name="max" position="16.0"/>
+					<extreme name="max" position="100.0"/>
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="0.0">
-					<vox coord="0,0,0" value="15.0" /> <!-- please make a method to load entire grids -->
-				</solute>
-				<solute name="solute2" concentration="2.0" />
 			</solutes>
 			<reactions>
-				<reaction name="testReact">
-					<expression value="solute1 * 0.1" />
-					<stochiometric component="solute1" coefficient="-1.0" />
-					<stochiometric component="solute2" coefficient="0.5" />
-				</reaction>
 			</reactions>
 			<agents>
 				<agent>
@@ -68,7 +54,6 @@
 					<aspect name="density" type="double" value="1" />
 					<aspect name="#isLocated" type="boolean" value="true" />
 					<aspect name="pigment" type="String" value="RED" />
-					<!--<state name="filialLinker" type="boolean" value="true" /> -->
 					<aspect name="body" type="body">
 						<point position="12.2, 12.2" />
 					</aspect>
@@ -95,26 +80,12 @@
 				</agent>
 			</agents>
 			<processManagers>
-			<!-- 	<process name="svgWriter" class="WriteAgentsSvg" priority="3"
-					firstStep="0.0" package="processManager.">
-					<aspect name="comparmentName" type="String" value="second" />
-				</process>-->
 				<process name="agentGrowth" class="AgentGrowth" priority="0"
 					firstStep="0.0" package="processManager." />
-				<process name="agentMove" class="AgentStochasticMove"
-					priority="1" firstStep="0.0" package="processManager." />
 				<process name="agentRelax" class="AgentRelaxation" priority="2"
 					firstStep="0.0" package="processManager.">
 					<aspect name="maxMovement" type="double" value="0.05" />
 					<aspect name="relaxationMethod" type="String" value="SHOVE" />
-				</process>
-				<process name="prepareSolutes" class="PrepareSoluteGrids" priority="0"
-					firstStep="0.0" package="processManager.">
-					<aspect name="timerStepSize" type="double" value="9999999999999999.9" /> <!--  this is a work around, nicify -->
-				</process>
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="0"
-					firstStep="0.0" package="processManager.">	
-					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
 				</process>
 			</processManagers>
 		</compartment>
