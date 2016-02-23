@@ -143,7 +143,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				location = solute.getVoxelOrigin(coord);
 				solute.getVoxelSideLengthsTo(dimension, coord);
 				/* NOTE the agent tree is always the amount of actual dimension */
-				neighbors = agents._agentTree.cyclicsearch(
+				neighbors = agents.treeSearch(
 							  Vector.subset(location,agents.getNumDims()),
 							  Vector.subset(dimension,agents.getNumDims()));
 				/* If there are none, move onto the next voxel. */
@@ -175,6 +175,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					List<Surface> surfaces = (List<Surface>) 
 							a.get(NameRef.surfaceList);
 					/* NOTE introduce some safties */
+					//TODO! FIXME! fine tune by scaling to the agents current mass
 					distributionMap = (HashMap<int[],Double>) 
 											a.getValue("volumeDistribution");
 					
@@ -188,12 +189,9 @@ public class SolveDiffusionTransient extends ProcessManager
 						// be build up out of multiple points, a Ball has a
 						// single point, with a radius of 0.0 it is basically a
 						// point but also a surface object
-						Ball b = new Ball(
-								Vector.subset(p.realLocation,agents.getNumDims()),
-								0.0);
-						b.init(collision);
 						for ( Surface s : surfaces )
-							if ( b.distanceTo(s) < 0.0 )
+							if ( collision.distance(s, Vector.subset( 
+									p.realLocation,agents.getNumDims())) < 0.0 )
 							{
 								/*
 								 * If this is not the first time the agent has seen

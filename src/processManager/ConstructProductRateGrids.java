@@ -72,7 +72,7 @@ public class ConstructProductRateGrids extends ProcessManager
 				origin = solute.getVoxelOrigin(coord);
 				solute.getVoxelSideLengthsTo(dimension, coord);
 				/* NOTE the agent tree is always the amount of actual dimension */
-				neighbors = agents._agentTree.cyclicsearch(
+				neighbors = agents.treeSearch(
 							  Vector.subset(origin,agents.getNumDims()),
 							  Vector.subset(dimension,agents.getNumDims()));
 				/* If there are none, move onto the next voxel. */

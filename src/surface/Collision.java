@@ -223,6 +223,20 @@ public class Collision {
 		
 	}
 	
+	public double distance(Surface a, double[] p)
+	{
+		switch (a.type())
+		{
+		case SPHERE :
+			return spherePoint((Ball) a, p);
+		case ROD :
+			return rodPoint((Rod) a, p);
+		case PLANE:
+			return planePoint((Plane) a, p);
+		}
+		return 0.0;
+	}
+	
 	
 	/**
 	 * Work in progress, stores the vector that points the shortest distance
@@ -246,6 +260,12 @@ public class Collision {
 		setPeriodicDistanceVector(p, q);
 //		Vector.minusTo(dP, p, q);
 		return Vector.normEuclid(dP);
+	}
+	
+	public double spherePoint(Ball a, double[] p)
+	{
+		return pointPoint(a._point.getPosition(),
+				p) - a.getRadius();
 	}
 	
 	public double sphereSphere(Ball a, Ball b)
@@ -289,6 +309,12 @@ public class Collision {
 		Vector.addEquals(dP, p0);
 		Vector.minusEquals(dP, q0);
 		return Vector.normEuclid(dP);
+	}
+	
+	public double rodPoint(Rod a, double[] p)
+	{
+		return linesegPoint(a._points[0].getPosition(), 
+				a._points[1].getPosition(), p) - a.getRadius();
 	}
 	
 	public double rodSphere(Rod a, Ball b)
@@ -374,6 +400,11 @@ public class Collision {
 	public double planePoint(double[] normal, double d, double[] point)
 	{
 		return Vector.dotProduct(normal, point) - d;
+	}
+	
+	public double planePoint(Plane plane, double[] point)
+	{
+		return Vector.dotProduct(plane.normal, point) - plane.d;
 	}
 	
 	public double planeSphere(Plane plane, Ball sphere)

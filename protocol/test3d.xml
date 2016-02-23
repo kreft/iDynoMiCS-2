@@ -87,7 +87,7 @@
 					<aspect name="pigment" type="String" value="RED" />
 					<!--<state name="filialLinker" type="boolean" value="true" /> -->
 					<aspect name="body" type="body">
-						<point position="8.2, 8.2, 8.2" />
+						<point position="1.2, 1.2, 8.2" />
 					</aspect>
 				</agent>
 				<agent>
@@ -97,7 +97,7 @@
 					<aspect name="#isLocated" type="boolean" value="true" />
 					<aspect name="pigment" type="String" value="BLUE" />
 					<aspect name="body" type="body">
-						<point position="8.0, 7.3, 8.3" />
+						<point position="1.0, 1.3, 8.3" />
 					</aspect>
 				</agent>
 				<agent>
@@ -107,7 +107,7 @@
 					<aspect name="#isLocated" type="boolean" value="true" />
 					<aspect name="pigment" type="String" value="GREEN" />
 					<aspect name="body" type="body">
-						<point position="8.3, 8.2, 7.2" />
+						<point position="1.3, 1.2, 7.2" />
 					</aspect>
 				</agent> 
 			</agents>

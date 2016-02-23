@@ -84,7 +84,7 @@ public class BoundaryLayer implements IsDomainSetter
 			/**
 			 * find all closeby agents
 			 */
-			neighbors = agents._agentTree.cyclicsearch(
+			neighbors = agents.treeSearch(
 					gridSphere.boundingBox());
 			for ( Agent a : neighbors )
 				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList))

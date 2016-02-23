@@ -93,7 +93,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 		 */
 		Timer.step();
 		/* we should say something when an iter step is finished */
-		Log.out(tier.NORMAL, "iter time: " + Timer._now);
+		Log.out(tier.NORMAL, "Step: " + Timer._now);
+		this._compartments.forEach((s,c) -> 
+		{
+			Log.out(tier.QUIET,"COMPARTMENT: " + s);
+			Log.out(tier.QUIET,c.agents.getAllAgents().size() + " agents");
+		});
 
 	}
 	

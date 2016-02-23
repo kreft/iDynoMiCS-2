@@ -112,7 +112,7 @@ public class AgentRelaxation extends ProcessManager {
 				 * objects!
 				 * TODO Add optional extra margin for pulls!!!
 				 */
-				for(Agent neighbour: agents._agentTree.cyclicsearch(
+				for(Agent neighbour: agents.treeSearch(
 						((Body) agent.get(NameRef.agentBody)).getBoxes(0.0)))
 				{
 					if (agent.identity() > neighbour.identity())
