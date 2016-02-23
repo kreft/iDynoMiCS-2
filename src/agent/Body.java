@@ -135,6 +135,22 @@ public class Body implements Copyable, XMLable {
 		// able to have a body
 	}
 
+	public void init(Node xmlNode)
+	{
+		//FIXME quick fix: copy/pasted from
+		//"public static Body getNewInstance(Node xmlNode)"
+		Element s = (Element) xmlNode;
+		//FIXME: not finished only accounts for simple coccoids
+		NodeList pointNodes = s.getElementsByTagName(XmlLabel.point);
+		for (int k = 0; k < pointNodes.getLength(); k++) 
+		{
+			Element point = (Element) pointNodes.item(k);
+			this.points.add(new Point(Vector.dblFromString(
+					point.getAttribute(XmlLabel.position))));
+		}
+		
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/

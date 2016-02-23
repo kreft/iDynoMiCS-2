@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.function.DoubleFunction;
 
-import generalInterfaces.XMLable;
 import grid.PolarGrid;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import grid.resolution.ResolutionCalculator.UniformResolution;
@@ -18,7 +17,8 @@ import shape.ShapeConventions.DimName;
  * spatial grids.
  *
  */
-public final class ResCalcFactory implements XMLable{
+public final class ResCalcFactory
+{
 	
 	/**********************************************************************/
 	/*********************** STANDARD CREATOR  ****************************/

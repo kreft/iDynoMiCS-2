@@ -49,8 +49,13 @@ public abstract class Event implements Copyable, XMLable {
 	public static Object getNewInstance(Node xmlNode)
 	{
 		Event obj = (Event) XMLable.getNewInstance(xmlNode);
-		obj.setInput(XmlHandler.gatherAttribute(xmlNode, "input"));
+		obj.init(xmlNode);
 		return obj;
+	}
+	
+	public void init(Node xmlNode)
+	{
+		this.setInput(XmlHandler.gatherAttribute(xmlNode, "input"));
 	}
 	
 	/**
