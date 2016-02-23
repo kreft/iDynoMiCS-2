@@ -28,9 +28,13 @@ import surface.Ball;
 import surface.Surface;
 import utility.Helper;
 /**
+ * \brief Abstract class for all shape objects.
+ * 
+ * <p>These are typically used by {@code Compartment}s; cell shapes are
+ * currently described using {@code Body} and {@code Surface} objects.</p>
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
- * @autho Baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public abstract class Shape implements CanPrelaunchCheck, XMLable
 {
