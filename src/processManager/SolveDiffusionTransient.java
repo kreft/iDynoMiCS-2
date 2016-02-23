@@ -16,13 +16,11 @@ import grid.subgrid.SubgridPoint;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
-import idynomics.Timer;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEupdater;
-import surface.Ball;
 import surface.Collision;
 import surface.Surface;
 
