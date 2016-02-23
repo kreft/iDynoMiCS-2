@@ -3,12 +3,9 @@ package idynomics;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.thoughtworks.xstream.core.util.XmlHeaderAwareReader;
 
 import agent.Agent;
 import boundary.Boundary;
@@ -294,8 +291,8 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	public void step()
 	{
 		ProcessManager currentProcess = this._processes.getFirst();
-		this._localTime = currentProcess.getTimeForNextStep();
-		while ( this._localTime < Timer.getEndOfCurrentIteration() )
+		while ( (this._localTime = currentProcess.getTimeForNextStep()) < 
+											Timer.getEndOfCurrentIteration() )
 		{
 			/*
 			 * First process on the list does its thing. This should then
@@ -310,7 +307,6 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 			 * Choose the new first process for the next iteration.
 			 */
 			currentProcess = this._processes.getFirst();
-			this._localTime = currentProcess.getTimeForNextStep();
 		}
 	}
 	
