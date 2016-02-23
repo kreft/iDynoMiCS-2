@@ -246,14 +246,14 @@ public class GuiLaunch implements Runnable {
 	        super("Render");
 		}
 	
-	    public void actionPerformed(ActionEvent e) {
-	    	if(Idynomics.simulator._compartments.keySet().size() == 0)
-	    		guiTextArea.append("no compartments available \n");
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	if ( Idynomics.simulator._compartments.size() == 0 )
+	    		guiTextArea.append("No compartments available!\n");
 	    	else
 	    	{
 			Render myRender = new Render((CommandMediator) new AgentMediator(
-					Idynomics.simulator._compartments.get(Idynomics.simulator.
-							_compartments.keySet().toArray()[0]).agents));
+					Idynomics.simulator._compartments.getFirst().agents));
 			
 			EventQueue.invokeLater(myRender);
 	    	}

@@ -1,7 +1,6 @@
 package idynomics;
 
-import java.util.HashMap;
-
+import java.util.LinkedList;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -11,17 +10,27 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
+import generalInterfaces.XMLable;
 import utility.*;
 
-
-public class Simulator implements CanPrelaunchCheck, Runnable
+/**
+ * \brief Simulator manages all compartments, making sure they synchronise at
+ * the correct times. 
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
+public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 {
-
-	protected HashMap<String, Compartment> _compartments = 
-										   new HashMap<String, Compartment>();
-	
-	/*
-	 * contains all species for this simulation
+	/**
+	 * \brief List of {@code Compartment}s in this {@code Simulator}.
+	 * 
+	 * Order is irrelevant, and each {@code Compartment} knows its own name.
+	 */
+	protected LinkedList<Compartment> _compartments = 
+										   		new LinkedList<Compartment>();
+	/**
+	 * Contains information about all species for this simulation.
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
 
@@ -39,15 +48,15 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 	public void init(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
-		String str;
 		NodeList children;
-		Element child;
-		
 		children = XmlHandler.getAll(elem, "compartment");
 		if ( children.getLength() == 0 )
 		{
-			// TODO
+			Log.out(tier.CRITICAL, 
+				   "Warning: Simulator initialised without any compartments!");
 		}
+		Element child;
+		String str;
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
@@ -62,14 +71,39 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	/**
+	 * \brief Add a {@code Compartment} with the given name, checking for
+	 * uniqueness.
+	 * 
+	 * @param name {@code String} name for the {@code Compartment}.
+	 * @return The new {@code Compartment} created.
+	 */
 	public Compartment addCompartment(String name)
 	{
-		if ( this._compartments.containsKey(name) )
-			Log.out(tier.CRITICAL, "Warning: overwriting compartment "+name);
+		if ( this.hasCompartment(name) )
+		{
+			Log.out(tier.CRITICAL, 
+				"Warning: simulator already has a compartment called "+name);
+		}
 		Compartment aCompartment = new Compartment();
 		aCompartment.name = name;
-		this._compartments.put(name, aCompartment);
+		this._compartments.add(aCompartment);
 		return aCompartment;
+	}
+	
+	/**
+	 * \brief Check if this has a {@code Compartment} called by the given name.
+	 * 
+	 * @param name {@code String} name for the {@code Compartment}.
+	 * @return {@code boolean} true if this has a {@code Compartment} with the
+	 * given <b>name</b>, false if it does not.
+	 */
+	public boolean hasCompartment(String name)
+	{
+		for ( Compartment c : this._compartments )
+			if ( name.equals(c.name) )
+				return true;
+		return false;
 	}
 	
 	/*************************************************************************
@@ -81,13 +115,14 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 		/*
 		 * Loop through all compartments, calling their internal steps. 
 		 */
-		this._compartments.forEach((s,c) -> {c.step();});
+		for ( Compartment c : this._compartments )
+			c.step();
 		/*
 		 * Once this is done loop through all again, this time exchanging
 		 * cells that have tried to cross connected boundaries. 
 		 */
-		this._compartments.forEach((s,c) -> {c.pushAllOutboundAgents();});
-		
+		for ( Compartment c : this._compartments )
+			c.pushAllOutboundAgents();
 		/*
 		 * 
 		 */
@@ -99,31 +134,26 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 	
 	public void run()
 	{
-		/**
-		 * Start timing just before simulation starts.
-		 */
-		double tic = System.currentTimeMillis();
-		
-		if ( ! isReadyForLaunch() )
+		if ( ! this.isReadyForLaunch() )
 		{
 			Log.out(tier.CRITICAL, "Simulator not ready to launch!");
 			return;
 		}
+		/*
+		 * Start timing just before simulation starts.
+		 */
+		double tic = System.currentTimeMillis();
 		while ( Timer.isRunning() )
-		{
 			this.step();
-		}
-		
-		/**
-		 * print the simulation results
+		/*
+		 * Print the simulation results.
 		 */
 		Idynomics.simulator.printAll();
-		
-		/**
-		 * report simulation time
+		/*
+		 * Report simulation time.
 		 */
-		Log.out(tier.QUIET, "Simulation finished in: " + 
-				(System.currentTimeMillis() - tic) * 0.001 + " seconds");
+		tic = (System.currentTimeMillis() - tic) * 0.001;
+		Log.out(tier.QUIET, "Simulation finished in " + tic + " seconds");
 	}
 	
 	/*************************************************************************
@@ -132,12 +162,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 	
 	public void printAll()
 	{
-		this._compartments.forEach((s,c) -> 
+		for ( Compartment c : this._compartments ) 
 		{
-			Log.out(tier.QUIET,"COMPARTMENT: " + s);
+			Log.out(tier.QUIET, "COMPARTMENT: " + c.name);
 			c.printAllSoluteGrids();
-			Log.out(tier.QUIET,c.agents.getAllAgents().size() + " agents");
-		});
+			Log.out(tier.QUIET, c.agents.getNumAllAgents() + " agents");
+		}
 	}
 	
 	/*************************************************************************
@@ -161,7 +191,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 			return false;
 		}
 		/* If any compartments are not ready, then stop. */
-		for ( Compartment c : this._compartments.values() )
+		for ( Compartment c : this._compartments )
 		{
 			if ( ! c.isReadyForLaunch() )
 			{
@@ -170,8 +200,6 @@ public class Simulator implements CanPrelaunchCheck, Runnable
 				return false;
 			}
 		}
-		
-		
 		return true;
 	}
 

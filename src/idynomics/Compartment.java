@@ -18,6 +18,7 @@ import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.tier;
 import generalInterfaces.CanPrelaunchCheck;
+import generalInterfaces.XMLable;
 import grid.*;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
@@ -25,48 +26,52 @@ import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
-import utility.Helper;
+import utility.ExtraMath;
 
-public class Compartment implements CanPrelaunchCheck
+/**
+ * 
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ *     Friedrich-Schiller University Jena, Germany
+ */
+public class Compartment implements CanPrelaunchCheck, XMLable
 {
 	/**
-	 * The Compartment is now aware of its own name.
-	 * 
-	 * TODO Rob [12Jan2016]: I'd rather it didn't, but this is low priority.
+	 * This has a name for reporting purposes.
 	 */
 	public String name;
-	
 	/**
-	 * TODO
+	 * Shape describes the geometry and size.
+	 * 
+	 * TODO also the resolution calculators?
 	 */
 	protected Shape _shape;
-	
 	/**
-	 * AgentContainer deals with TODO
-	 * 
+	 * AgentContainer deals with all agents, whether they have spatial location
+	 * or not.
 	 */
 	public AgentContainer agents;
-	
 	/**
-	 * TODO
+	 * EnvironmentContainer deals with all solutes.
 	 */
 	public EnvironmentContainer _environment;
-	
 	/**
-	 * 
+	 * ProcessManagers handle the interactions between agents and solutes.
+	 * The order of the list is important.
 	 */
 	protected LinkedList<ProcessManager> _processes = 
 											new LinkedList<ProcessManager>();
-	
 	/**
 	 * ProcessComparator orders Process Managers by their time priority.
 	 */
 	protected ProcessComparator _procComp = new ProcessComparator();
-	
 	/**
-	 * 
+	 * Local time should always be between {@code Timer.getCurrentTime()} and
+	 * {@code Timer.getEndOfCurrentTime()}.
 	 */
-	protected Double _localTime = 0.0;
+	protected double _localTime = Timer.getCurrentTime();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -162,14 +167,10 @@ public class Compartment implements CanPrelaunchCheck
 						reactions.item(i)),XmlHandler.obtainAttribute(
 						(Element) reactions.item(i), XmlLabel.nameAttribute));
 		}
-		
 		/*
 		 * Finally, finish off the initialisation as standard.
 		 */
 		this.init();
-		
-
-
 	}
 	
 	public void init()
@@ -182,10 +183,7 @@ public class Compartment implements CanPrelaunchCheck
 		 * sideLengths, etc).
 		 */
 		this._shape.setSurfaces();
-		
 		this._environment.init();
-		
-		
 	}
 	
 	/*************************************************************************
@@ -225,17 +223,15 @@ public class Compartment implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Add the given {@code ProcessManager} to the list, making sure
+	 * that it is in the correct place.
 	 * 
 	 * @param aProcessManager
 	 */
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
-		aProcessManager.showBoundaries(this._shape.getOtherBoundaries());
 		this._processes.add(aProcessManager);
-		// Stefan [13Feb2016]: added this to have sorted processes in first step
-		// TODO: have I initialized something wrong or do we need it?
-		Collections.sort(_processes, _procComp);
+		Collections.sort(this._processes, this._procComp);
 	}
 	
 	/**
@@ -289,11 +285,10 @@ public class Compartment implements CanPrelaunchCheck
 	 */
 	public void step()
 	{
-		ProcessManager currentProcess = _processes.getFirst();
-		while ( currentProcess.getTimeForNextStep() < 
+		ProcessManager currentProcess = this._processes.getFirst();
+		while ( (this._localTime = currentProcess.getTimeForNextStep()) < 
 											Timer.getEndOfCurrentIteration() )
 		{
-			_localTime = currentProcess.getTimeForNextStep();
 			/*
 			 * First process on the list does its thing. This should then
 			 * increase its next step time.
@@ -302,39 +297,34 @@ public class Compartment implements CanPrelaunchCheck
 			/*
 			 * Reinsert this process at the appropriate position in the list.
 			 */
-			Collections.sort(_processes, _procComp);
+			Collections.sort(this._processes, this._procComp);
 			/*
 			 * Choose the new first process for the next iteration.
 			 */
-			currentProcess = _processes.getFirst();
+			currentProcess = this._processes.getFirst();
 		}
 	}
 	
 	/**
-	 * 
-	 * 
+	 * \brief Helper for ordering {@code ProcessManager}s 
 	 */
 	protected static class ProcessComparator 
 										implements Comparator<ProcessManager>
 	{
 		@Override
-		public int compare(ProcessManager manager1, ProcessManager manager2) 
+		public int compare(ProcessManager pm1, ProcessManager pm2) 
 		{
-			Double temp = manager1.getTimeForNextStep() -
-												manager2.getTimeForNextStep();
-			/*
-			 * TODO Should deal with numerical rounding errors here, rather
-			 * than just checking for zero. 
-			 */
-			if ( temp == 0.0 )
-				return manager1.getPriority() - manager2.getPriority();
+			Double temp = pm1.getTimeForNextStep() - pm2.getTimeForNextStep();
+			if ( ExtraMath.areEqual(temp, 0.0, 1.0E-10) )
+				return pm1.getPriority() - pm2.getPriority();
 			else
 				return temp.intValue();
 		}
 	}
 	
 	/**
-	 * TODO
+	 * \brief Tell all agents queued to leave the {@code Compartment} to move
+	 * now.
 	 */
 	public void pushAllOutboundAgents()
 	{
