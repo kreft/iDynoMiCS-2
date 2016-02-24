@@ -26,16 +26,16 @@ public class PDEexplicit extends PDEsolver
 		
 	}
 	
-	
-	
 	/**
-	 * 
 	 * <p>Requires the arrays "diffusivity" and "concentration" to
 	 * be pre-filled in each SpatialGrid.</p>
 	 * 
 	 * <p><b>[Rob 13Aug2015]</b> Time step is at most 10% of dx<sup>2</sup>/D,
 	 * as this works well in tests.</p>
 	 * 
+	 * 
+	 * TODO Rob[23Feb2016]: Jan has suggested that we check for variables
+	 * converging and then focus on the variables that are still changing.
 	 */
 	@Override
 	public void solve(HashMap<String, SpatialGrid> variables, double tFinal)
