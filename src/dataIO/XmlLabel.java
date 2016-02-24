@@ -113,11 +113,6 @@ public class XmlLabel {
 	 * encapsulates all reactions in the compartment
 	 */
 	public static String reactions = "reactions";
-	
-	/**
-	 * encapsulates resolutions for the (up to) three dimensions.
-	 */
-	public static String resolutions = "reactions";
 
 	/**
 	 * encapsulates all agents for one compartment
@@ -176,6 +171,11 @@ public class XmlLabel {
 	 * attribute can hold (up to three) dimension names 
 	 */
 	public static String dimensionNamesAttribute = "dimensions";
+	
+	/**
+	 * attribute can hold a target resolution as double
+	 */
+	public static String targetResolutionAttribute = "targetResolution";
 	
 	/**
 	 * indicates output folder (set as simulation attribute)

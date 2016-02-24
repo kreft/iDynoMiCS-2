@@ -3,6 +3,8 @@
  */
 package grid;
 
+import org.w3c.dom.Node;
+
 import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
@@ -59,7 +61,7 @@ public class DummyGrid extends SpatialGrid
 		return new GridGetter()
 		{
 			@Override
-			public SpatialGrid newGrid(double[] totalSize, double resolution)
+			public SpatialGrid newGrid(double[] totalLength, Node node)
 			{
 				return new DummyGrid(volume);
 			}

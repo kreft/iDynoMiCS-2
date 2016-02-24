@@ -130,8 +130,7 @@ public class Compartment implements CanPrelaunchCheck
 			double conc = Double.valueOf(
 					XmlHandler.obtainAttribute((Element) solutes.item(i), 
 					XmlLabel.concentration));
-			Element resolutions = XmlHandler.loadUnique(soluteE, XmlLabel.resolutions);
-			this.addSolute(soluteName, conc, resolutions);
+			this.addSolute(soluteName, conc, soluteE);
 			
 			// FIXME please provide standard methods to load entire solute grids
 			SpatialGrid myGrid = this.getSolute(soluteName);
@@ -238,6 +237,15 @@ public class Compartment implements CanPrelaunchCheck
 		// TODO: have I initialized something wrong or do we need it?
 		Collections.sort(_processes, _procComp);
 	}
+	
+	/**
+	 * 
+	 * @param soluteName
+	 */
+	public void addSolute(String soluteName)
+	{
+		this._environment.addSolute(soluteName, null);
+	}	
 	
 	/**
 	 * 

@@ -92,6 +92,24 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	}
 	
 	/**
+	 * @param soluteName
+	 */
+	public void addSolute(String soluteName)
+	{
+		this.addSolute(soluteName, 0.0, null);
+	}
+	
+
+	/**
+	 * @param soluteName
+	 * @param initialConcn
+	 */
+	public void addSolute(String soluteName, double initialConcn)
+	{
+		this.addSolute(soluteName, 0.0, null);
+	}
+	
+	/**
 	 * \brief TODO
 	 * 
 	 * @param soluteName
