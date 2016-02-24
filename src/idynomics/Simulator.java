@@ -2,7 +2,6 @@ package idynomics;
 
 import java.util.LinkedList;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
@@ -55,6 +54,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		/*
 		 * Set up the compartments.
 		 */
+		Log.out(tier.NORMAL, "Loading compartments...");
 		NodeList children;
 		children = XmlHandler.getAll(xmlElem, "compartment");
 		if ( children.getLength() == 0 )
@@ -67,11 +67,13 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.attributeFromUniqueNode(child, "name", "string");
+			str = XmlHandler.gatherAttribute(child, "name");
+			Log.out(tier.NORMAL, "\t\tMaking "+str);
 			str = Helper.obtainInput(str, "compartment name");
 			Compartment aCompartment = this.addCompartment(str);
 			aCompartment.init(child);
 		}
+		Log.out(tier.NORMAL, "\tCompartments loaded");
 	}
 	
 	/*************************************************************************
@@ -141,11 +143,6 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 	
 	public void run()
 	{
-		if ( ! this.isReadyForLaunch() )
-		{
-			Log.out(tier.CRITICAL, "Simulator not ready to launch!");
-			return;
-		}
 		/*
 		 * Start timing just before simulation starts.
 		 */

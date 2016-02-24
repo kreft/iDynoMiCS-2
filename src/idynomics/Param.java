@@ -1,7 +1,6 @@
 package idynomics;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
@@ -12,11 +11,16 @@ import utility.Helper;
 /**
  * Class holds global parameters typically used throughout multiple compartments
  * and classes.
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Param
 {
+	/**************************************************************************
+	 * GENERAL PARAMETERS 
+	 * all directly loaded from xml file as string.
+	 *************************************************************************/
+	
 	/**
 	 * Simulation name.
 	 */
@@ -47,19 +51,27 @@ public class Param
 	 */
 	public static String simulationComment;
 	
-	/***************************************************************************
-	 * GENERAL PARAMETERS 
-	 * all directly loaded from xml file as string.
+	/**
+	 * 
 	 */
-	
 	public static String timeStepSize;
 	
+	/**
+	 * 
+	 */
 	public static String endOfSimulation;
 	
+	/**************************************************************************
+	 * LOADING
+	 *************************************************************************/
 	
-	public static void init(Node xmlNode)
+	/**
+	 * \brief Method for loading the 
+	 * 
+	 * @param elem
+	 */
+	public static void init(Element elem)
 	{
-		Element elem = (Element) xmlNode;
 		/*
 		 *   
 		 */

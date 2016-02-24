@@ -120,7 +120,7 @@ public class GuiLaunch implements Runnable
 			public void actionPerformed(ActionEvent event)
 			{
 				if ( Param.protocolFile != null )
-					Idynomics.runXml();
+					Idynomics.setupCheckLaunch(Param.protocolFile);
 			}
 		});
 		gui.add(launchSim,BorderLayout.SOUTH);
@@ -202,7 +202,7 @@ public class GuiLaunch implements Runnable
 			public void actionPerformed(ActionEvent a)
 			{
 				if ( Param.protocolFile != null )
-					Idynomics.runXml();
+					Idynomics.setupCheckLaunch(Param.protocolFile);
 			}
 		});
 	}

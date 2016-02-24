@@ -22,9 +22,9 @@ public class ConsoleLaunch
 		// TODO Rob[24Fec2016]: Is is a problem that we don't close this?
 		Scanner user_input = new Scanner( System.in );
 		System.out.print("Enter protocol file path: ");
-		Param.protocolFile = user_input.next();
+		String protocolPath = user_input.next();
 		/* Now run the simulation with the given protocol file. */
-		Idynomics.runXml();
+		Idynomics.setupCheckLaunch(protocolPath);
 		//user_input.close();
 	}
 }

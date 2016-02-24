@@ -10,7 +10,7 @@ import idynomics.EnvironmentContainer;
 
 /**
  * 
- * 
+ * TODO delete?
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) 
  */
