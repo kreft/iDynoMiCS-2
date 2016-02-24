@@ -1,7 +1,5 @@
 package linearAlgebra;
 
-import utility.ExtraMath;
-
 /**
  * 
  * <p>By convention:<ul><li>a method <i>function(matrix)</i> returns a new
@@ -466,8 +464,7 @@ public final class Matrix
 	public static void copyTo(int[][] destination, int[][] matrix)
 	{
 		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				destination[i][j] = matrix[i][j];
+			Vector.copyTo(destination[i], matrix[i]);
 	}
 	
 	/**
@@ -498,8 +495,7 @@ public final class Matrix
 	public static void copyTo(double[][] destination, double[][] matrix)
 	{
 		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				destination[i][j] = matrix[i][j];
+			Vector.copyTo(destination[i], matrix[i]);
 	}
 	
 	/**
@@ -529,9 +525,8 @@ public final class Matrix
 	 */
 	public static void setAll(int[][] matrix, int value)
 	{
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				matrix[i][j] = value;
+		for ( int[] row : matrix )
+			Vector.setAll(row, value);
 	}
 	
 	/**
@@ -544,9 +539,8 @@ public final class Matrix
 	 */
 	public static void setAll(double[][] matrix, double value)
 	{
-		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				matrix[i][j] = value;
+		for ( double[] row : matrix )
+			Vector.setAll(row, value);
 	}
 	
 	/*************************************************************************
@@ -748,9 +742,8 @@ public final class Matrix
 	public static boolean isZero(int[][] matrix)
 	{
 		for ( int[] row : matrix )
-			for ( int element : row )
-				if ( element != 0 )
-					return false;
+			if ( ! Vector.isZero(row) )
+				return false;
 		return true;
 	}
 	
@@ -772,9 +765,8 @@ public final class Matrix
 	public static boolean isZero(double[][] matrix)
 	{
 		for ( double[] row : matrix )
-			for ( double element : row )
-				if ( element != 0.0 )
-					return false;
+			if ( ! Vector.isZero(row) )
+				return false;
 		return true;
 	}
 	
@@ -797,9 +789,8 @@ public final class Matrix
 	public static boolean isZero(double[][] matrix, double tolerance)
 	{
 		for ( double[] row : matrix )
-			for ( double element : row )
-				if ( Math.abs(element) > tolerance )
-					return false;
+			if ( ! Vector.isZero(row, tolerance) )
+				return false;
 		return true;
 	}
 	
@@ -816,9 +807,8 @@ public final class Matrix
 	public static boolean isNonnegative(int[][] matrix)
 	{
 		for ( int[] row : matrix )
-			for ( int element : row )
-				if ( element < 0 )
-					return false;
+			if ( ! Vector.isNonnegative(row) )
+				return false;
 		return true;
 	}
 	
@@ -836,9 +826,8 @@ public final class Matrix
 	public static boolean isNonnegative(double[][] matrix)
 	{
 		for ( double[] row : matrix )
-			for ( double element : row )
-				if ( element < 0.0 )
-					return false;
+			if ( ! Vector.isNonnegative(row) )
+				return false;
 		return true;
 	}
 	
@@ -856,9 +845,8 @@ public final class Matrix
 	{
 		checkDimensionsSame(a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				if ( a[i][j] != b[i][j] )
-					return false;
+			if ( ! Vector.areSame(a[i], b[i]) )
+				return false;
 		return true;
 	}
 	
@@ -883,9 +871,8 @@ public final class Matrix
 	{
 		checkDimensionsSame(a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				if ( a[i][j] != b[i][j] )
-					return false;
+			if ( ! Vector.areSame(a[i], b[i]) )
+				return false;
 		return true;
 	}
 	
@@ -911,9 +898,8 @@ public final class Matrix
 	{
 		checkDimensionsSame(a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				if ( Math.abs(a[i][j] - b[i][j]) > tolerance )
-					return false;
+			if ( ! Vector.areSame(a[i], b[i], tolerance) )
+				return false;
 		return true;
 	}
 	
@@ -941,8 +927,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] + value;
+			Vector.addTo(destination[i], matrix[i], value);
 	}
 	
 	/**
@@ -1001,8 +986,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] + value;
+			Vector.addTo(destination[i], matrix[i], value);
 	}
 	
 	/**
@@ -1057,9 +1041,8 @@ public final class Matrix
 	public static void addTo(int[][] destination, int[][] a, int[][] b)
 	{
 		checkDimensionsSame(destination, a, b);
-		for ( int i = 0; i < rowDim(destination); i++ )
-			for ( int j = 0; j < colDim(destination); j++ )
-				destination[i][j] = a[i][j] + b[i][j];
+		for ( int i = 0; i < rowDim(a); i++ )
+			Vector.addTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1113,9 +1096,8 @@ public final class Matrix
 	public static void addTo(double[][] destination, double[][] a, double[][] b)
 	{
 		checkDimensionsSame(destination, a, b);
-		for ( int i = 0; i < rowDim(destination); i++ )
-			for ( int j = 0; j < colDim(destination); j++ )
-				destination[i][j] = a[i][j] + b[i][j];
+		for ( int i = 0; i < rowDim(a); i++ )
+			Vector.addTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1174,8 +1156,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				destination[i][j] = a[i][j] - b[i][j];
+			Vector.minusTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1234,8 +1215,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				destination[i][j] = a[i][j] - b[i][j];
+			Vector.minusTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1297,8 +1277,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] * value;
+			Vector.timesTo(destination[i], matrix[i], value);
 	}
 	
 	/**
@@ -1357,8 +1336,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] * value;
+			Vector.timesTo(destination[i], matrix[i], value);
 	}
 	
 	/**
@@ -1416,8 +1394,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(b); j++ )
-				destination[i][j] = a[i][j] + b[i][j];
+			Vector.timesTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1478,8 +1455,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(b); j++ )
-				destination[i][j] = a[i][j] + b[i][j];
+			Vector.timesTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1718,28 +1694,6 @@ public final class Matrix
 	 * <p>Matrices must have same dimensions.</p>
 	 * 
 	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemDivide({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @return int[][] array of <b>a</b> divided by <b>b</b> element-wise.
-	 */
-	public static int[][] elemDivide(int[][] a, int[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] /= b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Divide one matrix by another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
 	 * <i>elemDivide({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
 	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
 	 * 
@@ -1747,7 +1701,7 @@ public final class Matrix
 	 * @param b Two-dimensional array of doubles.
 	 * @return double[][] array of <b>a</b> divided by <b>b</b> element-wise.
 	 */
-	public static double[][] elemDivide(double[][] a, double[][] b)
+	public static double[][] elemDivideEquals(double[][] a, double[][] b)
 	{
 		checkDimensionsSame(a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
@@ -2485,10 +2439,9 @@ public final class Matrix
 	 */
 	public static double[][] random(int m, int n)
 	{
-		double[][] out = new double[m][n];
+		double[][] out = new double[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ExtraMath.getUniRandDbl();
+			out[i] = Vector.randomZeroOne(n);
 		return out;
 	}
 	
@@ -2543,11 +2496,9 @@ public final class Matrix
 	public static int[][] toInt(double[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
+		int[][] out = new int[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) matrix[i][j];
+			out[i] = Vector.toInt(matrix[i]);
 		return out;
 	}
 	
@@ -2565,11 +2516,9 @@ public final class Matrix
 	public static int[][] round(double[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
+		int[][] out = new int[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) Math.round(matrix[i][j]);
+			out[i] = Vector.round(matrix[i]);
 		return out;
 	}
 	
@@ -2587,11 +2536,9 @@ public final class Matrix
 	public static int[][] floor(double[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
+		int[][] out = new int[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) Math.floor(matrix[i][j]);
+			out[i] = Vector.floor(matrix[i]);
 		return out;
 	}
 	
@@ -2609,11 +2556,9 @@ public final class Matrix
 	public static int[][] ceil(double[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
+		int[][] out = new int[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) Math.ceil(matrix[i][j]);
+			out[i] = Vector.ceil(matrix[i]);
 		return out;
 	}
 	
@@ -2631,11 +2576,9 @@ public final class Matrix
 	public static double[][] toDbl(int[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		double[][] out = new double[m][n];
+		double[][] out = new double[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (double) matrix[i][j];
+			out[i] = Vector.toDbl(matrix[i]);
 		return out;
 	}
 	
