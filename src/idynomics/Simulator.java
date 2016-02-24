@@ -41,15 +41,22 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 	
 	public Simulator()
 	{
-		//TODO fully implement MTRandom
+		//TODO fully implement MTRandom (reading in random seed)
 		ExtraMath.initialiseRandomNumberGenerator();
 	}
 	
-	public void init(Node xmlNode)
+	public void init(Element xmlElem)
 	{
-		Element elem = (Element) xmlNode;
+		/*
+		 * Set up the Timer.
+		 */
+		// TODO change protocol files accordingly
+		Timer.init( XmlHandler.loadUnique(xmlElem, "timer") );
+		/*
+		 * Set up the compartments.
+		 */
 		NodeList children;
-		children = XmlHandler.getAll(elem, "compartment");
+		children = XmlHandler.getAll(xmlElem, "compartment");
 		if ( children.getLength() == 0 )
 		{
 			Log.out(tier.CRITICAL, 
@@ -128,7 +135,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		 */
 		Timer.step();
 		/* we should say something when an iter step is finished */
-		Log.out(tier.NORMAL, "iter time: " + Timer._now);
+		Log.out(tier.NORMAL, "iter time: " + Timer.getCurrentTime());
 
 	}
 	
@@ -148,7 +155,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		/*
 		 * Print the simulation results.
 		 */
-		Idynomics.simulator.printAll();
+		this.printAll();
 		/*
 		 * Report simulation time.
 		 */

@@ -108,34 +108,35 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	/**
 	 * \brief Initialise this {@code Compartment} from an XML node. 
 	 * 
-	 * @param xmlNode An XML node from a protocol file.
+	 * @param xmlElem An XML element from a protocol file.
 	 */
-	public void init(Node xmlNode)
+	public void init(Element xmlElem)
 	{
-		Element elem = (Element) xmlNode;
-
-		this.setShape((Shape) Shape.getNewInstance(
-				XmlHandler.attributeFromUniqueNode(elem, 
-				XmlLabel.compartmentShape, XmlLabel.classAttribute)));
-		this._shape.init(XmlHandler.loadUnique(elem, 
-				XmlLabel.compartmentShape));
-		
+		Element elem;
+		String str;
+		/*
+		 * Set up the shape.
+		 */
+		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.compartmentShape);
+		str = XmlHandler.gatherAttribute(elem, XmlLabel.classAttribute);
+		this.setShape( (Shape) Shape.getNewInstance(str) );
+		this._shape.init( elem );
 		/*
 		 * Give it solutes.
 		 * NOTE: wouldn't we want to pass initial grid values to? It would also
 		 * be possible for the grids to be Xmlable
 		 */
-		NodeList solutes = XmlHandler.getAll(elem, XmlLabel.solute);
+		NodeList solutes = XmlHandler.getAll(xmlElem, XmlLabel.solute);
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
-			String soluteName = XmlHandler.obtainAttribute((Element) 
-					solutes.item(i), XmlLabel.nameAttribute);
-			this.addSolute(soluteName, Double.valueOf(
-					XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					XmlLabel.concentration)));
+			elem = (Element) solutes.item(i);
+			str = XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
+			this.addSolute(str, Double.valueOf(
+					XmlHandler.obtainAttribute(elem, XmlLabel.concentration)));
+			
 			
 			// FIXME please provide standard methods to load entire solute grids
-			SpatialGrid myGrid = this.getSolute(soluteName);
+			SpatialGrid myGrid = this.getSolute(str);
 			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
 					XmlLabel.voxel);
 			for (int j = 0; j < voxelvalues.getLength(); j++)
@@ -154,15 +155,24 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		/*
 		 * Give it extracellular reactions.
 		 */
-		Element reactionsElem = XmlHandler.loadUnique(elem, XmlLabel.reactions);
-		if (reactionsElem != null)
+		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.reactions);
+		Element rElem;
+		Reaction reac;
+		if ( elem != null )
 		{
-			NodeList reactions = XmlHandler.getAll(reactionsElem, 
-					XmlLabel.reaction);
+			NodeList reactions = XmlHandler.getAll(elem, XmlLabel.reaction);
 			for ( int i = 0; i < reactions.getLength(); i++ )
-				this._environment.addReaction((Reaction) Reaction.getNewInstance(
-						reactions.item(i)),XmlHandler.obtainAttribute(
-						(Element) reactions.item(i), XmlLabel.nameAttribute));
+			{
+				rElem = (Element) reactions.item(i);
+				/* Name of the solute, e.g. glucose */
+				str = XmlHandler.obtainAttribute(rElem, XmlLabel.nameAttribute);
+				/* Construct and intialise the reaction. */
+				reac = (Reaction) Reaction.getNewInstance(rElem);
+				reac.init(rElem);
+				/* Add it to the environment. */
+				this._environment.addReaction(reac, str);
+			}
+				
 		}
 		/*
 		 * Finally, finish off the initialisation as standard.
@@ -172,13 +182,6 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	
 	public void init()
 	{
-		/*
-		 * NOTE: Bas [06.02.16] this may be set elsewhere as long as it is after
-		 * the Dimensions and sideLengths are set.
-		 * 
-		 * NOTE: Rob [8Feb2016] here is fine (_environment also needs
-		 * sideLengths, etc).
-		 */
 		this._shape.setSurfaces();
 		this._environment.init();
 	}

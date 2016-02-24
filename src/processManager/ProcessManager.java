@@ -40,14 +40,14 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 		
 	}
 	
-	public void init(Node xmlNode)
+	public void init(Element xmlElem)
 	{
 		//FIXME quick fix: cut/paste from
 		//"public static ProcessManager getNewInstance(Node xmlNode)"
 		
-		this.loadAspects(xmlNode);
+		this.loadAspects(xmlElem);
 		
-		Element p = (Element) xmlNode;
+		Element p = (Element) xmlElem;
 		
 		this.setName( p.getAttribute( XmlLabel.nameAttribute ));
 		
@@ -70,7 +70,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 	public static ProcessManager getNewInstance(Node xmlNode)
 	{
 		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		proc.init(xmlNode);
+		proc.init((Element) xmlNode);
 		return proc;
 	}
 	

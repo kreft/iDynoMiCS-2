@@ -7,12 +7,8 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import java.awt.event.KeyEvent;
-
 import java.io.File;
-
-
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.ButtonGroup;
@@ -22,7 +18,6 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -35,7 +30,6 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-
 import dataIO.Log;
 import dataIO.Log.tier;
 import glRender.AgentMediator;
@@ -45,15 +39,16 @@ import utility.Helper;
 
 /**
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class GuiLaunch implements Runnable {
+public class GuiLaunch implements Runnable
+{
 	
 	private static JTextArea guiTextArea = new JTextArea(15, 60);
 
 	/**
-	 * Launch with gui
+	 * \brief Launch with a Graphical User Interface (GUI).
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) 
@@ -62,8 +57,10 @@ public class GuiLaunch implements Runnable {
 	}
   
 	/**
-	 * append a message to the output textarea and update the line position
-	 * @param message
+	 * \brief Append a message to the output text area and update the line
+	 * position
+	 * 
+	 * @param message {@code String} message to write to the text area.
 	 */
   	public static void guiWrite(String message)
 	{
@@ -73,7 +70,7 @@ public class GuiLaunch implements Runnable {
 	}
   
   	/**
-  	 * create the gui and run it
+  	 * \brief Construct the GUI and run it.
   	 */
 	public GuiLaunch() 
 	{
@@ -81,8 +78,8 @@ public class GuiLaunch implements Runnable {
 	}
 			    	  
    /**
-    * The gui is runnable otherwise it will become unresponsive until the
-    * simulation finishes
+    * \brief The GUI is runnable otherwise it will become unresponsive until
+    * the simulation finishes.
     */
 	public void run()
 	{
@@ -94,43 +91,36 @@ public class GuiLaunch implements Runnable {
 			  | InstantiationException  | IllegalAccessException e) {
 		}
 		
-		/* when running in gui we want dialog input instead of command line 
+		/* When running in GUI we want dialog input instead of command line 
 		 * input */
 		Helper.gui = true;
 		JFrame gui = new JFrame();
 		
-		/* set the output textArea */
+		/* Set the output textArea. */
 		guiTextArea.setEditable(false);
 		guiTextArea.setBackground(new Color(38, 45, 48));
 		guiTextArea.setForeground(Color.LIGHT_GRAY);
 		guiTextArea.setLineWrap(true);
 		Font font = new Font("consolas", Font.PLAIN, 15);
 		guiTextArea.setFont(font);
-		
-		/* set the window size, position, title and its close operation */
+		/* Set the window size, position, title and its close operation. */
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		gui.setTitle("iDynoMiCS 2.0");
 		gui.setSize(800,800);
 		gui.setLocationRelativeTo(null);
-		
-		/* add the text area and button to the gui */
+		/* Add the text area and button to the GUI. */
 		gui.add(new JScrollPane(guiTextArea, 
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 		JButton launchSim = new JButton("Run!");
-		
-		
-		/* set an cation for the button (run the simulation */
+		/* Set an action for the button (run the simulation). */
 		launchSim.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				if(Param.protocolFile != null)
-				{
-					Timer._now = 0.0;
-					ConsoleLaunch.runXml();
-				}
+				if ( Param.protocolFile != null )
+					Idynomics.runXml();
 			}
 		});
 		gui.add(launchSim,BorderLayout.SOUTH);
@@ -209,12 +199,10 @@ public class GuiLaunch implements Runnable {
 			private static final long serialVersionUID = 346448974654345823L;
 
 			@Override
-			public void actionPerformed(ActionEvent a) {
-				if(Param.protocolFile != null)
-				{
-					Timer._now = 0.0;
-					ConsoleLaunch.runXml();
-				}
+			public void actionPerformed(ActionEvent a)
+			{
+				if ( Param.protocolFile != null )
+					Idynomics.runXml();
 			}
 		});
 	}

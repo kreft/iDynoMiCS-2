@@ -4,9 +4,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import linearAlgebra.Vector;
 import processManager.ProcessManager;
-import shape.ShapeConventions.DimName;
 import utility.Helper;
 import agent.Agent;
 import aspect.AspectInterface;
@@ -15,7 +13,6 @@ import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Timer;
-
 
 /**
  * 

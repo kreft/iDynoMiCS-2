@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
@@ -77,14 +76,13 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * 
 	 * @param xmlNode
 	 */
-	public void init(Node xmlNode)
+	public void init(Element xmlElem)
 	{
-		Element elem = (Element) xmlNode;
 		Element dimensionElement;
 		DimName dimName;
 		
 		/* Set up the dimensions. */
-		NodeList dimensionNodes = XmlHandler.getAll(elem, "dimension");
+		NodeList dimensionNodes = XmlHandler.getAll(xmlElem, "dimension");
 		for ( int i = 0; i < dimensionNodes.getLength(); i++ )
 		{
 			dimensionElement = (Element) dimensionNodes.item(i);

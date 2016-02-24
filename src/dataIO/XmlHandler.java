@@ -165,6 +165,7 @@ public class XmlHandler {
 
 	/**
 	 * Checks for unique node exists and whether it is unique, than returns it.
+	 * 
 	 * @param xmlElement
 	 * @param tagName
 	 * @return
@@ -281,7 +282,7 @@ public class XmlHandler {
 	public static void displayAllChildNodes(String prefix, Element element, 
 			Boolean attributes)
 	{
-		if (element.hasChildNodes()) 
+		if ( element.hasChildNodes() ) 
 		{
 			NodeList childNodes = element.getChildNodes();
 			for (int i = 0; i < childNodes.getLength(); i++) 
