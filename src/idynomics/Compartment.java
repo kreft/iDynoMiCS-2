@@ -291,8 +291,8 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	public void step()
 	{
 		ProcessManager currentProcess = this._processes.getFirst();
-		while ( (this._localTime = currentProcess.getTimeForNextStep()) < 
-											Timer.getEndOfCurrentIteration() )
+		this._localTime = currentProcess.getTimeForNextStep();
+		while ( this._localTime < Timer.getEndOfCurrentIteration() )
 		{
 			/*
 			 * First process on the list does its thing. This should then
@@ -307,6 +307,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 			 * Choose the new first process for the next iteration.
 			 */
 			currentProcess = this._processes.getFirst();
+			this._localTime = currentProcess.getTimeForNextStep();
 		}
 	}
 	
