@@ -271,6 +271,13 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		agent.setCompartment(this);
 	}
 	
+	/**
+	 * \brief Get the {@code SpatialGrid} for the given solute name.
+	 * 
+	 * @param soluteName {@code String} name of the solute required.
+	 * @return The {@code SpatialGrid} for that solute, or {@code null} if it
+	 * does not exist.
+	 */
 	public SpatialGrid getSolute(String soluteName)
 	{
 		return this._environment.getSoluteGrid(soluteName);
@@ -281,13 +288,14 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	 ************************************************************************/
 	
 	/**
-	 * 
+	 * \brief Iterate over the process managers until the local time would
+	 * exceed the global time step.
 	 */
 	public void step()
 	{
 		ProcessManager currentProcess = this._processes.getFirst();
-		while ( (this._localTime = currentProcess.getTimeForNextStep()) < 
-											Timer.getEndOfCurrentIteration() )
+		this._localTime = currentProcess.getTimeForNextStep();
+		while ( this._localTime < Timer.getEndOfCurrentIteration() )
 		{
 			/*
 			 * First process on the list does its thing. This should then
@@ -302,11 +310,14 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 			 * Choose the new first process for the next iteration.
 			 */
 			currentProcess = this._processes.getFirst();
+			this._localTime = currentProcess.getTimeForNextStep();
 		}
 	}
 	
 	/**
-	 * \brief Helper for ordering {@code ProcessManager}s 
+	 * \brief Helper for ordering {@code ProcessManager}s: time for next step
+	 * is the key metric for ordering, but we use the priority value in case
+	 * of a draw.
 	 */
 	protected static class ProcessComparator 
 										implements Comparator<ProcessManager>
