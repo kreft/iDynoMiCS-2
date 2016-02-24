@@ -5,15 +5,16 @@ package solver;
 
 import java.util.HashMap;
 
+import dataIO.Log;
+import static dataIO.Log.tier.*;
 import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
+import static grid.SpatialGrid.ArrayType.*;
 
 /**
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) Centre for Computational
  * Biology, University of Birmingham, U.K.
- * @since August 2015
  */
 public class PDEexplicit extends PDEsolver
 {
@@ -44,36 +45,37 @@ public class PDEexplicit extends PDEsolver
 		 * Find the largest time step that suits all variables.
 		 */
 		double dt = tFinal;
-		//System.out.println("Starting with ministep size "+dt); //bughunt
+		Log.out(DEBUG, "PDEexplicit starting with ministep size "+dt);
 		SpatialGrid var;
 		int nIter = 1;
 		for ( String varName : this._variableNames )
 		{
 			var = variables.get(varName);
 			dt = Math.min(dt, 0.1 * var.getMinVoxVoxResSq() /
-					 var.getMin(ArrayType.DIFFUSIVITY));
-			//System.out.println(varName+" ministep size "+dt); //bughunt
+					 var.getMin(DIFFUSIVITY));
 		}
+		/* If the mini-timestep is less than tFinal, split it up evenly. */
 		if ( dt < tFinal )
 		{
 			nIter = (int) Math.ceil(tFinal/dt);
 			dt = tFinal/nIter;
 		}
+		Log.out(DEBUG, "PDEexplicit using ministep size "+dt);
 		/*
-		 * 
+		 * Iterate over all mini-timesteps.
 		 */
-//		System.out.println("Using ministep size "+dt); //bughunt
 		for ( int iter = 0; iter < nIter; iter++ )
 		{
-			//System.out.println("Ministep "+iter+": "+(iter+1)*dt); //bughunt
+			Log.out(BULK, "Ministep "+iter+": "+(iter+1)*dt);
 			this._updater.prestep(variables, dt);
 			for ( String varName : this._variableNames )
 			{
 				var = variables.get(varName);
-				var.newArray(ArrayType.LOPERATOR);
-				addLOperator(varName, var);
-				var.timesAll(ArrayType.LOPERATOR, dt);
-				var.addArrayToArray(ArrayType.CONCN, ArrayType.LOPERATOR);
+				var.newArray(LOPERATOR);
+				addFluxes(varName, var);
+				var.addArrayToArray(LOPERATOR, PRODUCTIONRATE);
+				var.timesAll(LOPERATOR, dt);
+				var.addArrayToArray(CONCN, LOPERATOR);
 			}
 		}
 	}

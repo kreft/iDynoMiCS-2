@@ -36,6 +36,18 @@ public class AllSame implements IsWellmixedSetter
 					XmlLabel.valueAttribute));
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO remove once 
+	 * 
+	 * @param value
+	 */
+	public void setValue(double value)
+	{
+		this._value = value;
+	}
+	
 	@Override
 	public void updateWellmixed(SpatialGrid aGrid, AgentContainer agents)
 	{

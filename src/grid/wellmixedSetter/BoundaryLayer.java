@@ -13,7 +13,7 @@ import dataIO.Log;
 import dataIO.XmlLabel;
 import dataIO.Log.tier;
 import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
+import static grid.SpatialGrid.ArrayType.*;
 import idynomics.AgentContainer;
 import idynomics.NameRef;
 import surface.Ball;
@@ -74,7 +74,7 @@ public class BoundaryLayer implements IsWellmixedSetter
 		/*
 		 * Reset the domain array.
 		 */
-		aGrid.newArray(ArrayType.WELLMIXED);
+		aGrid.newArray(WELLMIXED);
 		/*
 		 * Iterate over all voxels, checking if there are agents nearby.
 		 */
@@ -96,8 +96,7 @@ public class BoundaryLayer implements IsWellmixedSetter
 				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList) )
 					if ( gridSphere.distanceTo(s) < 0.0 )
 						{
-							aGrid.setValueAt(ArrayType.WELLMIXED, coords, 
-																this._value);
+							aGrid.setValueAt(WELLMIXED, coords, this._value);
 							break;
 						}
 			coords = aGrid.iteratorNext();
