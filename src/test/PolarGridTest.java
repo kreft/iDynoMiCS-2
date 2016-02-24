@@ -55,11 +55,10 @@ public class PolarGridTest
 		/* standard constructors */
 		
 		double[] totalLength = new double[]{20, 2 * Math.PI , 1};
-		double resolution = 1;
 //		
-//	    CartesianGrid grid = new CartesianGrid(totalLength, resolution);		
-	    CylindricalGrid grid = new CylindricalGrid(totalLength, resolution);
-//		SphericalGrid grid = new SphericalGrid(totalLength, resolution);
+//	    CartesianGrid grid = new CartesianGrid(totalLength);		
+	    CylindricalGrid grid = new CylindricalGrid(totalLength);
+//		SphericalGrid grid = new SphericalGrid(totalLength);
 
 		
 		/* resolution objects */

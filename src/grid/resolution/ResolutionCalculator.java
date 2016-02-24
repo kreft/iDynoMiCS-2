@@ -14,7 +14,7 @@ import utility.ExtraMath;
  * 
  * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
  */
-public class ResolutionCalculator
+public class ResolutionCalculator 
 {
 	public static abstract class ResCalc
 	{

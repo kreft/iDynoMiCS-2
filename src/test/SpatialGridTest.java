@@ -36,12 +36,11 @@ public class SpatialGridTest
 	{
 		int nDim = 2;
 		int sideLength = 3;
-		double resolution = 1.0;
 		
-		double[] nVoxel = Vector.onesDbl(3);
+		double[] totalLength = Vector.onesDbl(3);
 		for ( int i = 0; i < nDim; i++ )
-			nVoxel[i] = sideLength;
-		CartesianGrid grid = new CartesianGrid(nVoxel, resolution);
+			totalLength[i] = sideLength;
+		CartesianGrid grid = new CartesianGrid(totalLength);
 		
 		int[] coord = grid.resetIterator();
 		int[] nbh;

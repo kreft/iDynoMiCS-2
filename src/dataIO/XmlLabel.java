@@ -57,6 +57,16 @@ public class XmlLabel {
 	public static String solute = "solute";
 	
 	/**
+	 * indicates a resolution element of a solute.
+	 */
+	public static String resolution = "resolution";
+	
+	/**
+	 * indicates an expression.
+	 */
+	public static String expression = "expression";
+	
+	/**
 	 * indicates a voxel
 	 */
 	public static String voxel = "vox";
@@ -156,6 +166,16 @@ public class XmlLabel {
 	 * attribute can hold a comment (has no simulation effects)
 	 */
 	public static String commentAttribute = "comment";
+	
+	/**
+	 * attribute can hold (up to three) dimension names 
+	 */
+	public static String dimensionNamesAttribute = "dimensions";
+	
+	/**
+	 * attribute can hold a target resolution as double
+	 */
+	public static String targetResolutionAttribute = "targetResolution";
 	
 	/**
 	 * indicates output folder (set as simulation attribute)

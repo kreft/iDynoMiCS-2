@@ -1,5 +1,9 @@
 package grid;
 
+import java.util.Arrays;
+
+import org.w3c.dom.Node;
+
 import grid.resolution.ResCalcFactory;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
@@ -63,19 +67,42 @@ public class SphericalGrid extends PolarGrid
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
+	public SphericalGrid(double[] totalLength){
+		this(totalLength, null);
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
 	 * @param totalLength
 	 * @param res
 	 */
-	public SphericalGrid(ResCalc[][][] resCalc)
+	public SphericalGrid(double[] totalLength, Node node)
 	{
 		super();
 		this._dimName[1] = DimName.PHI;
 		this._dimName[2] = DimName.THETA;
 		
-		this._resCalc = resCalc;
+		/* define ResCalc array */
+		this._resCalc = new ResCalc[3][][];
+		this._resCalc[0] = new ResCalc[1][1];
+		this._resCalc[1] = new ResCalc[1][];
+		
+		/* create appropriate ResCalc Objects for dimension combinations*/
+		ResCalcFactory rcf = new ResCalcFactory(this._dimName);
+		rcf.init(node);
+		/* check for dim name equality and right order (this should usually 
+		 * be ensured by the init(Node) function of ResCalcFactory) */ 
+		if (!Arrays.equals(this._dimName, rcf.getDimNames()))
+			//TODO: break cleaner
+			throw new IllegalArgumentException(
+					"tried to set inappropriate resolution calculator");
+		Object[] resCalc = rcf.createResCalcForDimensions(totalLength);
+
+		/* cast to correct data type and update the array */
+		this._resCalc[0][0][0] = (ResCalc) resCalc[0];
+		this._resCalc[1][0] = (ResCalc[]) resCalc[1];
+		this._resCalc[2] = (ResCalc[][]) resCalc[2];
 		
 		/* handle periodicity here or in another place? */
 		if (getTotalLength(1) < 0 || getTotalLength(1) > Math.PI)
@@ -105,11 +132,6 @@ public class SphericalGrid extends PolarGrid
 			this.addBoundary(DimName.THETA, 0, new CyclicGrid());
 			this.addBoundary(DimName.THETA, 1, new CyclicGrid());
 		}
-	}
-	
-	public SphericalGrid(double[] totalLength, double res)
-	{
-		this(ResCalcFactory.createUniformResCalcForSphere(totalLength, res));
 	}
 	
 	@Override
@@ -423,9 +445,9 @@ public class SphericalGrid extends PolarGrid
 		return new GridGetter()
 		{
 			@Override
-			public SpatialGrid newGrid(double[] totalLength, double resolution) 
+			public SpatialGrid newGrid(double[] totalLength, Node node) 
 			{
-				return new SphericalGrid(totalLength,resolution);
+				return new SphericalGrid(totalLength, node);
 			}
 		};
 	}
