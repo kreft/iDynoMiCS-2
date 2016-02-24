@@ -18,6 +18,10 @@ import surface.Collision;
 import surface.Surface;
 import utility.Copier;
 
+/**
+ * TODO delete?
+ * 
+ */
 public class ConstructProductRateGrids extends ProcessManager
 {
 	

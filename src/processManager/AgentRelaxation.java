@@ -1,27 +1,38 @@
 package processManager;
 
+import java.util.concurrent.ForkJoinPool;
+
+import agent.Agent;
+import agent.Body;
+import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
+import idynomics.NameRef;
+import linearAlgebra.Vector;
 import surface.Collision;
 import surface.Point;
 import surface.Surface;
 import utility.Helper;
 import utility.ParWorker;
-import linearAlgebra.Vector;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
-import idynomics.NameRef;
 
-import java.util.concurrent.ForkJoinPool;
+////////////////////////
+// WORK IN PROGRESS, initial version
+////////////////////////
 
-import agent.Agent;
-import agent.Body;
-
-
-	////////////////////////
-	// WORK IN PROGRESS, initial version
-	////////////////////////
-
-public class AgentRelaxation extends ProcessManager {
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
+public class AgentRelaxation extends ProcessManager
+{
+	/**
+	 * TODO
+	 */
 	private static ForkJoinPool pool = new ForkJoinPool(4);
+	
+	/**
+	 * TODO
+	 */
 	private boolean concurrent = false;
 	
 	/**

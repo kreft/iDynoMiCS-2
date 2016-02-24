@@ -15,21 +15,31 @@ import utility.Helper;
 
 public abstract class ProcessManager implements XMLable, AspectInterface
 {
-	protected String _name;
-	
-	protected int _priority;
-	
-	protected double _timeForNextStep = 0.0;
-	
-	protected double _timeStepSize;
-	
-	protected boolean _debugMode = false;
-	
 	/**
-     * The aspect registry
+	 * The name of this {@code ProcessManager}, for reporting.
+	 */
+	protected String _name;
+	/**
+	 * In the event of a time-clash between {@code ProcessManager}s, the one
+	 * with greater priority goes first.
+	 */
+	protected int _priority;
+	/**
+	 * The time at which this should next perform its step.
+	 */
+	protected double _timeForNextStep = 0.0;
+	/**
+	 * How often this should perform its step.
+	 */
+	protected double _timeStepSize;
+	/**
+	 * Set to true for extra system output.
+	 */
+	protected boolean _debugMode = false;
+	/**
+     * The aspect registry... TODO
      */
     public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
-	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -63,7 +73,8 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 	}
 
 	/**
-	 * implements XMLable interface, return new instance from xml Node
+	 * Implements XMLable interface, return new instance from xml Node.
+	 * 
 	 * @param xmlNode
 	 * @return
 	 */
@@ -79,22 +90,41 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 	 ************************************************************************/
 	
 	/**
-	 * return the aspect registry (implementation of aspect interface).
+	 * \brief Return the aspect registry (implementation of aspect interface).
 	 */
-	public AspectReg<?> reg() {
+	public AspectReg<?> reg()
+	{
 		return aspectRegistry;
 	}
 	
+	/**
+	 * \brief Get this {@code ProcessManager}'s name.
+	 * 
+	 * @return {@code String} name.
+	 */
 	public String getName()
 	{
 		return this._name;
 	}
 	
+	/**
+	 * \brief Set this {@code ProcessManager}'s name.
+	 * 
+	 * @param {@code String} name.
+	 */
 	public void setName(String name)
 	{
 		this._name = name;
 	}
 	
+	/**
+	 * \brief Set the priority of this {@code ProcessManager}.
+	 * 
+	 * <p>A higher priority {@code ProcessManager} goes first if two have a
+	 * time clash in the {@code Compartment} they belong to.</p>
+	 * 
+	 * @param priority Any integer value.
+	 */
 	public void setPriority(int priority)
 	{
 		this._priority = priority;
@@ -136,25 +166,27 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 	
 	public void step(EnvironmentContainer environment, AgentContainer agents)
 	{
-		//System.out.println("STEP");//bughunt
-		//System.out.println("timeForNextStep = "+_timeForNextStep);//bughunt
-		//System.out.println("timeStepSize = "+_timeStepSize);//bughunt
 		/*
 		 * This is where subclasses of Mechanism do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
 		 */
 		this.internalStep(environment, agents);
 		/*
-		 * Increase the 
+		 * Move the time for next step forward by the step size.
 		 */
 		this._timeForNextStep += this._timeStepSize;
-		
-		if (_debugMode)
-			System.out.println(getName() + " timeForNextStep = "+_timeForNextStep); 
+		/*
+		 * Report if in debugging mode.
+		 */
+		if ( this._debugMode )
+		{
+			System.out.println(this.getName() + 
+								" timeForNextStep = "+this._timeForNextStep);
+		}
 	}
 	
-	protected abstract void internalStep(EnvironmentContainer environment,
-											AgentContainer agents);
+	protected abstract void internalStep(
+					EnvironmentContainer environment, AgentContainer agents);
 	
 	/*************************************************************************
 	 * REPORTING

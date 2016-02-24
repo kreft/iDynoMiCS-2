@@ -58,7 +58,7 @@ public class XmlHandler {
 	 */
 	public static String gatherAttribute(Element xmlElement, String attribute)
 	{
-		if(xmlElement.hasAttribute(attribute))
+		if ( xmlElement.hasAttribute(attribute) )
 			return xmlElement.getAttribute(attribute);
 		else
 			return "";
@@ -86,13 +86,23 @@ public class XmlHandler {
 			return  xmlElement.getAttribute(attribute);
 		else
 		{
-		@SuppressWarnings("resource")
-		Scanner user_input = new Scanner( System.in );
-		//NOTE put this here since output line order was sometimes swapped.
-		Helper.pause(50);
-		System.out.print(xmlElement.getNodeName() + " misses the "
-				+ "attribute: \"" + attribute + "\", please enter a value: " );
-		return user_input.next( );
+			@SuppressWarnings("resource")
+			Scanner user_input = new Scanner( System.in );
+			//NOTE put this here since output line order was sometimes swapped.
+			Helper.pause(50);
+			System.out.println(xmlElement.getNodeName() + " misses the "
+									+ "attribute: \"" + attribute + "\"" );
+			/* Tell the user what attribute it did find. */
+			System.out.println("\tAttributes found:");
+			NamedNodeMap nnm = xmlElement.getAttributes();
+			for ( int i = 0; i < nnm.getLength(); i++ )
+			{
+				Node n = nnm.item(i);
+				System.out.println("\t\t"+n.getNodeName()+", "+n.getNodeValue());
+			}
+			/* Ask for the missing one. */
+			System.out.print("Please enter a value for "+attribute+": ");
+			return user_input.next( );
 		}
 	}
 	

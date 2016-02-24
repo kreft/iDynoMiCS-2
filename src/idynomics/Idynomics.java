@@ -11,13 +11,12 @@
 */
 package idynomics;
 
-import dataIO.Log;
-import dataIO.XmlHandler;
-import dataIO.XmlLabel;
 import org.w3c.dom.Element;
 
+import dataIO.Log;
 import static dataIO.Log.tier.*;
-import dataIO.XmlLoad;
+import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 
 /**
  * 
@@ -30,7 +29,7 @@ public class Idynomics
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.
 	*/
-	public static Double version_number = 2.0;
+	public static String version_number = "2.0";
 	
 	/**
 	 * Version description.
@@ -61,81 +60,61 @@ public class Idynomics
 	public static void main(String[] args)
 	{
 		for ( String a : args )
-		{
-			setupSimulator(a);
-			if ( ! simulator.isReadyForLaunch() )
-			{
-				System.out.println("Protocol file incomplete! Skipping "+a);
-				continue;
-			}
-			launch();
-		}
+			setupCheckLaunch(a);
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set up a simulation from protocol file, check it is ready to
+	 * launch, and then launch it.
 	 * 
-	 * @param protocolPath
+	 * @param protocolPath Path to the XML protocol file.
+	 */
+	public static void setupCheckLaunch(String protocolPath)
+	{
+		setupSimulator(protocolPath);
+		if ( ! simulator.isReadyForLaunch() )
+		{
+			System.out.println(
+					"Protocol file incomplete! Skipping "+protocolPath);
+			return;
+		}
+		launchSimulator();
+	}
+	
+	/**
+	 * \brief Set up a simulation from XML protocol file.
+	 * 
+	 * @param protocolPath Path to the XML protocol file.
 	 */
 	public static void setupSimulator(String protocolPath)
 	{
 		System.out.print("Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
-		XmlLoad.xmlInit(protocolPath);
-		Log.out(NORMAL, Param.simulationComment);
-		Log.out(NORMAL, "storing results in " + Param.outputLocation);
-		/* Load the protocol file and find the elements we need. */
+		/* 
+		 * Load the protocol file and find the elements we need
+		 */
 		Element idynoElem = XmlHandler.loadDocument(protocolPath);
 		Element simElem = XmlHandler.loadUnique(idynoElem, XmlLabel.simulation);
-		/* Create a new Simulator object and intialise it. */
+		/*
+		 * Initialise the global parameters.
+		 */
+		Param.init(simElem);
+		Log.out(NORMAL, Param.simulationComment);
+		Log.out(NORMAL, "storing results in " + Param.outputLocation);
+		/*
+		 * Create a new Simulator object and intialise it.
+		 */
 		simulator = new Simulator();
 		simulator.init(simElem);
 	}
 	
 	/**
-	 * \brief TODO
-	 *
+	 * \brief Launch the simulator in a new {@code Thread}.
 	 */
-	public static void launch()
+	public static void launchSimulator()
 	{
 		simThread = new Thread(simulator);
 	    simThread.start();
 	}
-	
-	/**
-	 * \brief TODO
-	 *
-	 */
-	public static void runXml()
-	{
-		/*
-		 * Report and initiate our protocol file.
-		 */
-		System.out.print("Initiating from: " + Param.protocolFile + 
-				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
-		
-		XmlLoad.xmlInit(Param.protocolFile);
-		Log.out(NORMAL, Param.simulationComment);
-		Log.out(NORMAL, "storing results in " + Param.outputLocation);
-		
-		/*
-		 * Reset the simulator and Timer to prevent continuation of previous.
-		 * Construct the full simulation from the previously loaded xmlDoc.
-		 */
-		Timer.reset();
-		simulator = new Simulator();
-		simulator.init(Param.xmlDoc);
-		XmlLoad.constructSimulation();
-		//Idynomics.simulator.init(xmlNode);
-		
-		/*
-		 * Launch the simulation.
-		 */
-	    simThread = new Thread(simulator);
-	    simThread.start();
-	}
-	
-	
 }

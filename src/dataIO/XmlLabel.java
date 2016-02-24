@@ -6,7 +6,8 @@ package dataIO;
  * @author baco
  *
  */
-public class XmlLabel {
+public class XmlLabel
+{
 	
 	/* Nodes  */
 	////////////
@@ -167,6 +168,16 @@ public class XmlLabel {
 	 * verbosity of log messages
 	 */
 	public static String logLevel = "log";
+	
+	/**
+	 * The size of time step that the global {@code Timer} will take.
+	 */
+	public static String timerStepSize = "stepSize";
+	
+	/**
+	 * The time point at which the simulation will end.
+	 */
+	public static String endOfSimulation = "endOfSimulation";
 	
 	/**
 	 * comma separated string of doubles that indicates a specific position in

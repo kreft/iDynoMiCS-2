@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
-		comment="this is a file for testing purposes only.">
-		<general>
-			<param name="timeStepSize" value="1.0" />
-			<param name="endOfSimulation" value="50.0" />
-		</general>
-
+						comment="this is a file for testing purposes only.">
+		
+		<timer stepSize="1.0" endOfSimulation="50.0" />
+		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 

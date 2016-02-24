@@ -2,6 +2,10 @@ package idynomics;
 
 import org.w3c.dom.Node;
 
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.XmlLabel;
+import dataIO.Log.tier;
 import utility.Helper;
 
 public class Timer
@@ -20,18 +24,22 @@ public class Timer
 	
 	public static void init(Node xmlNode)
 	{
+		Log.out(tier.NORMAL, "Loading timer...");
 		String s;
 		double d;
 		/* Get the time step. */
-		s = Helper.obtainInput(Param.timeStepSize, "Timer time step size");
+		s = XmlHandler.gatherAttribute(xmlNode, XmlLabel.timerStepSize);
+		s = Helper.obtainInput(s, "Timer time step size");
 		d = Double.valueOf(s);
 		// TODO safety
 		setTimeStepSize(d);
 		/* Get the total time span. */
-		s = Helper.obtainInput(Param.timeStepSize, "Timer time step size");
+		s = XmlHandler.gatherAttribute(xmlNode, XmlLabel.endOfSimulation);
+		s = Helper.obtainInput(s, "End of simulation");
 		d = Double.valueOf(s);
 		// TODO safety
 		setTimeStepSize(d);
+		Log.out(tier.NORMAL, "\tTimer loaded");
 	}
 	
 	public static void reset()

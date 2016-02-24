@@ -4,24 +4,27 @@ import agent.Agent;
 import agent.Body;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.NameRef;
 import surface.Point;
 
-public class AgentStochasticMove extends ProcessManager {
-
-
-	protected void internalStep(EnvironmentContainer environment, AgentContainer agents) {
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
+public class AgentStochasticMove extends ProcessManager
+{
+	protected void internalStep(
+					EnvironmentContainer environment, AgentContainer agents)
+	{
 		for ( Agent agent : agents.getAllLocatedAgents() )
 		{
 			agent.event("stochasticMove", _timeStepSize);
-			
-			/**
-			 * Save agents that stochastically move out of the domain
-			 * NOTE: still some agents seem to end up just outside
-			 */
-			for (Point point: ((Body) agent.get("body")).getPoints())
-			{
-				agents.getShape().applyBoundaries(point.getPosition());
-			}
+			/* Save agents that stochastically move out of the domain. */
+			// FIXME still some agents seem to end up just outside
+			Body body = ((Body) agent.get(NameRef.agentBody));
+			for ( Point point: body.getPoints() )
+				agents.getShape().applyBoundaries( point.getPosition() );
 		}
 	}
 	
