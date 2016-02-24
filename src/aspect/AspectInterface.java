@@ -3,7 +3,6 @@ package aspect;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -15,22 +14,27 @@ import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import linearAlgebra.Vector;
 import reaction.Reaction;
-import surface.BoundingBox;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
  * allows for direct interaction with the aspect registry and easy loading of 
  * aspects from xml.
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract interface AspectInterface {
-	
+public abstract interface AspectInterface
+{
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public AspectReg<?> reg();
 	
 	/**
-	 * Loads all states from xmlNode into anything that implements the
+	 * \brief Load all states from xmlNode into anything that implements the
 	 * StateObject interface.
+	 * 
 	 * @param aspectReg
 	 * @param xmlNode
 	 */
@@ -270,30 +274,4 @@ public abstract interface AspectInterface {
 		return (isAspect(aspect) ? (Boolean[]) reg().getValue(this, aspect)
 				: null);
 	}
-	
-	
-// this is the aspect registries own bussiness
-//	/**
-//	 * check, cast and return the event object, return null if the aspect does 
-//	 * not exist or is equal to null
-//	 * @param aspect
-//	 * @return
-//	 */
-//	public default Event getEvent(String aspect)
-//	{
-//		return (isAspect(aspect) ? (Event) reg().getValue(this, aspect) 
-//				: null);
-//	}
-//	
-//	/**
-//	 * check, cast and return the calculated state object, return null if the 
-//	 * aspect does not exist or is equal to null
-//	 * @param aspect
-//	 * @return
-//	 */
-//	public default Calculated getCalculated(String aspect)
-//	{
-//		return (isAspect(aspect) ? (Calculated) reg().getValue(this, aspect) 
-//				: null);
-//	}
 }

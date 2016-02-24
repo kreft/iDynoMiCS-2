@@ -11,7 +11,11 @@ import idynomics.GuiLaunch;
  * @author baco
  *
  */
-public class Helper {
+public class Helper
+{
+	/**
+	 * 
+	 */
 	public static boolean gui = false;
 
 	/**
@@ -24,25 +28,23 @@ public class Helper {
 			String msg = "Additional input argument required: " + 
 					description + ", please enter a value: ";
 			
-			if(! gui)
+			if ( gui )
 			{
-			@SuppressWarnings("resource")
-			Scanner user_input = new Scanner( System.in );
-
-			if(noLog)
-				System.out.println(msg);
-			else
-				Log.out(tier.CRITICAL, msg);
-						
-			input = user_input.next( );
+				input = GuiLaunch.requestInput(msg);
 			} 
 			else
 			{
-				input = GuiLaunch.requestInput(msg);
+				@SuppressWarnings("resource")
+				Scanner user_input = new Scanner( System.in );
+
+				if ( noLog )
+					System.out.println(msg);
+				else
+					Log.out(tier.CRITICAL, msg);
+				input = user_input.next( );
 			}
-			
 			msg = "Aquired input: " + input;
-			if(noLog)
+			if ( noLog )
 				System.out.println(msg);
 			else
 				Log.out(tier.CRITICAL, msg);
@@ -89,8 +91,8 @@ public class Helper {
 	{
 		Object[] enums = anEnum.getEnumConstants();
 		String out = "";
-		for(int i = 0; i < enums.length; i++)
-			out += enums[i].toString() + " ";	
+		for ( Object o : enums )
+			out += o.toString()+" ";
 		return out;	
 	}
 }

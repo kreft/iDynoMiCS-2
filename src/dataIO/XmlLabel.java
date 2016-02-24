@@ -87,6 +87,7 @@ public class XmlLabel {
 	/**
 	 * encapsulates all simulation wide parameters
 	 */
+	// TODO remove?
 	public static String generalParams = "general";
 	
 	/**

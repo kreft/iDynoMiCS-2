@@ -1,65 +1,83 @@
 package idynomics;
 
+import org.w3c.dom.Node;
+
+import utility.Helper;
+
 public class Timer
 {
-	protected static int _iteration;
+	private static int iteration;
 	
-	protected static double _now;
+	private static double now;
 	
-	protected static double _endOfSimulation;
+	private static double endOfSimulation;
 	
-	protected static double _timeStepSize;
-	
-	/*************************************************************************
-	 * CONSTRUCTORS
-	 ************************************************************************/
-	
-	public Timer()
-	{
-		
-	}
-	
-	public void init()
-	{
-		
-	}
+	private static double timeStepSize;
 	
 	/*************************************************************************
 	 * BASIC METHODS
 	 ************************************************************************/
 	
-	public static void setTimeStepSize(double timeStepSize)
+	public static void init(Node xmlNode)
 	{
-		_timeStepSize = timeStepSize;
+		String s;
+		double d;
+		/* Get the time step. */
+		s = Helper.obtainInput(Param.timeStepSize, "Timer time step size");
+		d = Double.valueOf(s);
+		// TODO safety
+		setTimeStepSize(d);
+		/* Get the total time span. */
+		s = Helper.obtainInput(Param.timeStepSize, "Timer time step size");
+		d = Double.valueOf(s);
+		// TODO safety
+		setTimeStepSize(d);
+	}
+	
+	public static void reset()
+	{
+		now = 0.0;
+		iteration = 0;
+	}
+	
+	public static void setTimeStepSize(double stepSize)
+	{
+		timeStepSize = stepSize;
 	}
 	
 	public static double getCurrentTime()
 	{
-		return _now;
+		return now;
+	}
+	
+	public static int getCurrentIteration()
+	{
+		return iteration;
 	}
 	
 	public static double getTimeStepSize()
 	{
-		return _timeStepSize;
+		return timeStepSize;
 	}
 	
 	public static double getEndOfCurrentIteration()
 	{
-		return _now + _timeStepSize;
+		return now + timeStepSize;
 	}
 	
 	public static void step()
 	{
-		_now += _timeStepSize;
+		now += timeStepSize;
+		iteration++;
 	}
 	
-	public static void setEndOfSimulation(double endOfSimulation)
+	public static void setEndOfSimulation(double timeToStopAt)
 	{
-		_endOfSimulation = endOfSimulation;
+		endOfSimulation = timeToStopAt;
 	}
 	
 	public static boolean isRunning()
 	{
-		return _now < _endOfSimulation;
+		return now < endOfSimulation;
 	}
 }

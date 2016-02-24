@@ -27,9 +27,9 @@ public interface XMLable
 	/**
 	 * \brief Initialise this object from an XML node.
 	 * 
-	 * @param xmlNode XML node from a protocol file.
+	 * @param xmlElem XML element from a protocol file.
 	 */
-	public void init(Node xmlNode);
+	public void init(Element xmlElem);
 	
 	/*************************************************************************
 	 * CLASS INSTANCIATION

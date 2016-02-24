@@ -4,7 +4,6 @@
 package shape;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
@@ -38,10 +37,10 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void init(Node xmlNode)
+		public void init(Element xmlElem)
 		{
-			Element elem = (Element) xmlNode;
-			String str = XmlHandler.attributeFromUniqueNode(elem,"volume","string");
+			String str = 
+				XmlHandler.attributeFromUniqueNode(xmlElem,"volume","string");
 			this._volume = Double.parseDouble(str);
 		}
 		

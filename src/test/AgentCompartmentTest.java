@@ -1,7 +1,6 @@
 package test;
 
 import agent.Agent;
-import agent.event.library.MassToGrid;
 import dataIO.Log;
 import dataIO.Log.tier;
 import grid.SpatialGrid;

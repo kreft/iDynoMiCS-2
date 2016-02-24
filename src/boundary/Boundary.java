@@ -60,13 +60,12 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 		
 	}
 	
-	public void init(Node xmlNode)
+	public void init(Element xmlElem)
 	{
-		Element xmlBoundary = (Element) xmlNode;
 		Element xmlGrid;
 		String variableName, className;
 		GridMethod aGridMethod;
-		NodeList gridNodes = xmlBoundary.getElementsByTagName("gridMethods");
+		NodeList gridNodes = xmlElem.getElementsByTagName("gridMethods");
 		for ( int i = 0; i < gridNodes.getLength(); i++ )
 		{
 			xmlGrid = (Element) gridNodes.item(i);
