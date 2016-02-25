@@ -1,44 +1,74 @@
 package testJUnit;
 
 import java.util.HashMap;
-
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 import expression.ExpressionB;
+import utility.ExtraMath;
 
-public class RateExpressionTest {
+import static testJUnit.AllTests.TOLERANCE;
 
+/**
+ * 
+ * 
+ */
+public class RateExpressionTest
+{
+	
 	@Test
-	public void express()
+	public void shouldBuildCorrectExpressionsFromString()
 	{
-		ExpressionB exp = new ExpressionB("25.0 * 3.0", null);
-		ExpressionB exp2 = new ExpressionB("#e^1.0 / 5.0EXP(1.0 + 0.5)", null);
-		ExpressionB exp3 = new ExpressionB("(-22.0 * (1.0 * (1.0 * 5.5)) - 2.0)"
-				+ " + 1.0 / (8.1 * 5.0)", null);
-		ExpressionB exp4 = new ExpressionB("mu * S / (K + S)", null);
-		
-		HashMap<String,Double> components = new HashMap<String,Double>();
-		components.put("mu", 0.1);
-		components.put("S", 3.0);
-		components.put("K", 1.0);
-		
-		exp.printEval();
-		System.out.println(exp.getName() + " = " + exp.getValue(
-				new HashMap<String,Double>()));
-		System.out.println();
-		
-		exp2.printEval();
-		System.out.println(exp2.getName() + " = " + exp2.getValue(
-				new HashMap<String,Double>()));
-		System.out.println();
-		
-		exp3.printEval();
-		System.out.println(exp3.getName() + " = " + exp3.getValue(
-				new HashMap<String,Double>()));
-		System.out.println();
-		
-		exp4.printEval();
-		System.out.println(exp4.getName() + " = " + exp4.getValue(
-				components));
+		ExpressionB expr;
+		String str;
+		HashMap<String,Double> vars = new HashMap<String,Double>();
+		double calculated, correct;
+		/*
+		 * Start with a simple one.
+		 */
+		str = "25.0 * 3.0";
+		correct = 25.0 * 3.0;
+		expr = new ExpressionB(str);
+		expr.printEval();
+		System.out.println(expr.getName());
+		System.out.println("");
+		calculated = expr.getValue(vars);
+		assertTrue(str, ExtraMath.areEqual(calculated, correct, TOLERANCE));
+		/*
+		 * A little more complicated.
+		 */
+		str = "#e^1.0 / 5.0EXP(1.0 + 0.5)";
+		correct = Math.E / (5.0 * Math.pow(10.0,(1.0 + 0.5)));
+		expr = new ExpressionB(str);
+		expr.printEval();
+		System.out.println(expr.getName());
+		System.out.println("");
+		calculated = expr.getValue(vars);
+		assertTrue(str, ExtraMath.areEqual(calculated, correct, TOLERANCE));
+		/*
+		 * Lots of terms.
+		 */
+		str = "(-22.0 * (1.0 * (1.0 * 5.5)) - 2.0) + 1.0 / (8.1 * 5.0)";
+		correct = (-22.0 * (1.0 * (1.0 * 5.5)) - 2.0) + 1.0 / (8.1 * 5.0);
+		expr = new ExpressionB(str);
+		expr.printEval();
+		System.out.println(expr.getName());
+		System.out.println("");
+		calculated = expr.getValue(vars);
+		assertTrue(str, ExtraMath.areEqual(calculated, correct, TOLERANCE));
+		/*
+		 * Simple Michaelis-Menten kinetic.
+		 */
+		vars.put("mu", 0.1);
+		vars.put("S", 3.0);
+		vars.put("K", 1.0);
+		str = "mu * S / (K + S)";
+		correct = 0.1 * 3.0 / (1.0 + 3.0);
+		expr = new ExpressionB(str);
+		expr.printEval();
+		System.out.println(expr.getName());
+		System.out.println("");
+		calculated = expr.getValue(vars);
+		assertTrue(str, ExtraMath.areEqual(calculated, correct, TOLERANCE));
 	}
 }
