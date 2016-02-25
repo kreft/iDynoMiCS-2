@@ -503,8 +503,8 @@ public class ExpressionB extends Component {
 	}
 
 	@Override
-	public String reportValue(HashMap<String, Double> variables) {
-		return _a.reportValue(variables);
+	public String reportEvaluation(HashMap<String, Double> variables) {
+		return _a.reportEvaluation(variables);
 	}
 
 	@Override

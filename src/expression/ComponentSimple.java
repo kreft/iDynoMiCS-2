@@ -6,21 +6,29 @@ package expression;
 import java.util.HashMap;
 
 /**
- * @author cleggrj
- *
+ * \brief The most basic component of a mathematical expression.
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ComponentSimple extends Component
 {
+	/**
+	 * Name of this component: used both for reporting and for evaluation of
+	 * the entire mathematical expression.
+	 */
 	protected String _name;
 	
-	/**\brief TODO
+	/**
+	 * \brief Construct a component from its name.
 	 * 
+	 * @param name {@code String} name for this simple component.
 	 */
 	public ComponentSimple(String name)
 	{
 		this._name = name;
 	}
 	
+	@Override
 	public String getName()
 	{
 		String out = this._name;
@@ -28,7 +36,7 @@ public abstract class ComponentSimple extends Component
 	}
 	
 	@Override
-	public String reportValue(HashMap<String, Double> variables)
+	public String reportEvaluation(HashMap<String, Double> variables)
 	{
 		double out = this.getValue(variables);
 		if ( isNegative() )
