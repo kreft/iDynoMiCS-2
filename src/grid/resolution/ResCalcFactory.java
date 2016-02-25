@@ -41,17 +41,17 @@ public final class ResCalcFactory implements XMLable
 	}
 	
 	@Override
-	public void init(Node xmlNode) {	
+	public void init(Element xmlElem)
+	{	
 		HashSet<DimName> dimNames = new HashSet<DimName>();
-		Element E = (Element) xmlNode;
 		String resolution_val = "";
 		/* try to fetch targetResolution from solutes element */
-		if (xmlNode != null)
+		if ( xmlElem != null )
 			resolution_val = XmlHandler.gatherAttribute(
-									E, XmlLabel.targetResolutionAttribute);
+							xmlElem, XmlLabel.targetResolutionAttribute);
 
 		/* If no solutes node is given, or targetResolutionAttribute undefined */
-		if (xmlNode == null || resolution_val == "")
+		if (xmlElem == null || resolution_val == "")
 			/* create a uniform resolution with res=1 in all dimensions */
 			resolution_val = "1";
 		
@@ -63,7 +63,7 @@ public final class ResCalcFactory implements XMLable
 		}
 		
 		NodeList resList = null;
-		resList = XmlHandler.getAll(E, XmlLabel.resolution);
+		resList = XmlHandler.getAll(xmlElem, XmlLabel.resolution);
 		
 		/* If no resolution elements are defined at all, we are done */
 		if (resList.getLength() == 0)
