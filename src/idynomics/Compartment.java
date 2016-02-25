@@ -326,7 +326,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		{
 			Double temp = pm1.getTimeForNextStep() - pm2.getTimeForNextStep();
 			if ( ExtraMath.areEqual(temp, 0.0, 1.0E-10) )
-				return pm1.getPriority() - pm2.getPriority();
+				return pm2.getPriority() - pm1.getPriority();
 			else
 				return temp.intValue();
 		}

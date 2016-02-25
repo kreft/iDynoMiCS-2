@@ -1,106 +1,78 @@
 package agent;
 
 import java.util.HashMap;
-
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.tier;
 import dataIO.XmlLabel;
-import dataIO.XmlLoad;
 import generalInterfaces.Quizable;
 
 /**
- * The species library maintains a hashmap of all species known in this 
- * simulation
- * @author baco
- *
+ * \brief Stores information about all species relevant to a simulation.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements Quizable {
-	
+public class SpeciesLib implements Quizable
+{
 	/**
-	 * Contains all known species
+	 * Contains all known species.
 	 */
 	protected HashMap<String, AspectInterface> _species = 
-			new HashMap<String, AspectInterface>();
+										new HashMap<String, AspectInterface>();
 	
 	/**
-	 * void species, returned if no species is set.
+	 * Void species, returned if no species is set.
 	 */
-	protected Species voidSpecies = new Species();
+	protected Species _voidSpecies = new Species();
 	
 	/**
-	 * obtains species from Nod.e NOTE: not sure to put it here or in XmlLoad
+	 * \brief TODO
+	 * 
+	 * @param xmlElem
 	 */
-	public void setAll(Element speciesNode)
+	public void init(Element xmlElem)
 	{
-		if(speciesNode != null)
-			{
-			// cycle trough all species and add them to the species Lib
-				NodeList speciesNodes = 
-						speciesNode.getElementsByTagName(XmlLabel.species);
-			
-			/*
-			 * Loading species aspects
-			 */
-			for (int i = 0; i < speciesNodes.getLength(); i++) 
-			{
-				Element xmlSpecies = (Element) speciesNodes.item(i);
-				set(xmlSpecies.getAttribute(XmlLabel.nameAttribute), 
-						new Species(speciesNodes.item(i)));
-			}
-			
-			/*
-			 * Loading species modules
-			 */
-			for (int i = 0; i < speciesNodes.getLength(); i++) 
-			{
-				Element xmlSpecies = (Element) speciesNodes.item(i);
-				XmlLoad.loadSpeciesModules( get(
-						xmlSpecies.getAttribute(XmlLabel.nameAttribute)),
-						speciesNodes.item(i)); 
-			}
-		}
-		else
+		/* Cycle through all species and add them to the library. */ 
+		NodeList nodes = xmlElem.getElementsByTagName(XmlLabel.species);
+		String name;
+		Element speciesElem;
+		for ( int i = 0; i < nodes.getLength(); i++ ) 
 		{
-			Log.out(tier.EXPRESSIVE, "No species library defined");
+			speciesElem = (Element) nodes.item(i);
+			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			Log.out(tier.EXPRESSIVE, "Loading "+name+" into species library");
+			this.set(name, new Species(speciesElem));
 		}
 	}
 	
-	public void setAll(Node speciesNode)
-	{
-		setAll((Element) speciesNode);
-	}
-	
 	/**
-	 * Add a new species to the species library (or overwrite if the species
-	 * already exists).
-	 * @param name
-	 * @param spiecies
-	 * @return
+	 * \brief Add a new species to the species library (or overwrite if the
+	 * species already exists).
+	 * 
+	 * @param name Species name.
+	 * @param species Information about the species.
 	 */
-	public AspectInterface set(String name, AspectInterface spiecies)
+	public void set(String name, AspectInterface species)
 	{
-		if ( _species.containsKey(name) )
-			System.out.println("Warning: overwriting species module "+name);
-		_species.put(name, spiecies);
-		return spiecies;
+		if ( this._species.containsKey(name) )
+			Log.out(tier.EXPRESSIVE, "Warning: overwriting species "+name);
+		this._species.put(name, species);
 	}
 	
 	/**
-	 * Get a species from the species library
-	 * @param name
-	 * @return
+	 * \brief Get a species from the species library.
+	 * 
+	 * @param name Species name.
+	 * @return Information about the species if it is found. If it cannot be
+	 * found, returns the void species instead.
 	 */
 	public AspectInterface get(String name)
 	{
-		if (_species.containsKey(name))
-			return _species.get(name);
-		else
-			return voidSpecies; 
-		/* return the void species if species is not defined. */
+		return ( this._species.containsKey(name) ) ? 
+				this._species.get(name) : this._voidSpecies;
 	}
 }

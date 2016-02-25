@@ -52,6 +52,10 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		// TODO change protocol files accordingly
 		Timer.init( XmlHandler.loadUnique(xmlElem, "timer") );
 		/*
+		 * Set up the species library.
+		 */
+		this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, "species") );
+		/*
 		 * Set up the compartments.
 		 */
 		Log.out(tier.NORMAL, "Loading compartments...");

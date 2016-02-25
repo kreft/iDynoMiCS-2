@@ -83,6 +83,7 @@ public class XmlLoad
 	 * NOTE: if you want to make changes to the iDynomics documents setup this
 	 * is probably your starting point
 	 */
+	@Deprecated
 	public static void constructSimulation()
 	{
 		loadGeneralParameters();
@@ -95,7 +96,7 @@ public class XmlLoad
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
-		Idynomics.simulator.speciesLibrary.setAll( XmlHandler.loadUnique(
+		Idynomics.simulator.speciesLibrary.init( XmlHandler.loadUnique(
 				Param.xmlDoc, XmlLabel.speciesLibrary));
 		
 		// cycle trough all compartments
@@ -179,6 +180,7 @@ public class XmlLoad
 	/**
 	 * loads all general parameters
 	 */
+	@Deprecated
 	public static void loadGeneralParameters()
 	{
 		NodeList general = XmlHandler.getAll(Param.xmlDoc,

@@ -54,11 +54,13 @@ public class Param
 	/**
 	 * 
 	 */
+	@Deprecated
 	public static String timeStepSize;
 	
 	/**
 	 * 
 	 */
+	@Deprecated
 	public static String endOfSimulation;
 	
 	/**************************************************************************
@@ -77,7 +79,8 @@ public class Param
 		 */
 		// TODO safety: check the root exists, and the name is acceptable
 		outputRoot = XmlHandler.obtainAttribute(elem, XmlLabel.outputFolder);
-		simulationName = XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
+		simulationName = 
+					XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
 		outputLocation = outputRoot + "/" + simulationName + "/";
 		/* 
 		 * Set up the log file.
@@ -103,7 +106,7 @@ public class Param
 		/* 
 		 * 
 		 */
-		simulationComment = XmlHandler.gatherAttribute(elem,
-												XmlLabel.commentAttribute);
+		simulationComment = 
+				XmlHandler.gatherAttribute(elem, XmlLabel.commentAttribute);
 	}
 }

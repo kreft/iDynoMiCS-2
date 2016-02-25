@@ -514,6 +514,8 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	/**
 	 * \brief TODO
 	 * 
+	 * <p><b>a</b> - <b>b</b>, i.e. the vector from <b>b</b> to <b>a</b>.</p>
+	 * 
 	 * @param a
 	 * @param b
 	 * @return

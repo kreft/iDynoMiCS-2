@@ -14,10 +14,10 @@ import dataIO.XmlLabel;
 
 /**
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class ExpressionB extends Component {
+public class ExpressionB extends Component
+{
 	
 	/**
 	 * expression string

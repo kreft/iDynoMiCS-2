@@ -11,11 +11,11 @@ import static testJUnit.AllTests.TOLERANCE;
 
 /**
  * 
- * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class RateExpressionTest
 {
-	
 	@Test
 	public void shouldBuildCorrectExpressionsFromString()
 	{
