@@ -22,6 +22,7 @@ import utility.Copier;
  * TODO delete?
  * 
  */
+@Deprecated
 public class ConstructProductRateGrids extends ProcessManager
 {
 	

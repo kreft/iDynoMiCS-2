@@ -92,6 +92,14 @@ public class AgentContainer
 			this.addAgent(new Agent(agentNodes.item(i)));
 	}
 	
+	public void setAllAgentsCompartment(Compartment aCompartment)
+	{
+		for ( Agent a : this._agentList )
+			a.setCompartment(aCompartment);
+		for ( Agent a : this._agentTree.all() )
+			a.setCompartment(aCompartment);
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/

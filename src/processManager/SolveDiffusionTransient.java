@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
@@ -97,8 +99,10 @@ public class SolveDiffusionTransient extends ProcessManager
 			this._diffusivity.put(sName, 1.0);
 	}
 	
-	public void init()
+	public void init(Element xmlElem)
 	{
+		super.init(xmlElem);
+		
 		this.init(getStringA("solutes"));
 	}
 	

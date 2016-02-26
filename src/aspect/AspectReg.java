@@ -149,8 +149,7 @@ public class AspectReg<A>
 			for ( AspectInterface m : this._modules )
 				if ( m.reg().isGlobalAspect(key) )
 					return (Aspect<?>) m.reg().getAspect(key);
-		
-		Log.out(Tier.DEBUG, "Warning: could not find aspect: " + key);
+		Log.out(Tier.BULK, "Warning: could not find aspect \"" + key+"\"");
 		return null;
 	}
 	
@@ -176,6 +175,10 @@ public class AspectReg<A>
 		this._aspects.clear();
 		this._modules.clear();
 	}
+	
+	/*************************************************************************
+	 * REPORTING
+	 ************************************************************************/
 	
 	/**
 	 * \brief Compile a list of all aspect names in this registry.

@@ -144,13 +144,13 @@ public abstract interface AspectInterface
 				return true;
 			else
 			{
-				Log.out(Tier.DEBUG, "Aspect \""+aspect+"\" found but null");
+				Log.out(Tier.BULK, "Aspect \""+aspect+"\" found but null");
 				return false;
 			}
 		}
 		else
 		{
-			Log.out(Tier.DEBUG, "Aspect \""+aspect+"\" not found");
+			Log.out(Tier.BULK, "Aspect \""+aspect+"\" not found");
 			return false;
 		}
 	}

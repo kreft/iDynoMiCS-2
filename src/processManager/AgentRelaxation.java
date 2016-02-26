@@ -2,6 +2,8 @@ package processManager;
 
 import java.util.concurrent.ForkJoinPool;
 
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import agent.Body;
 import idynomics.AgentContainer;
@@ -62,8 +64,10 @@ public class AgentRelaxation extends ProcessManager
 	method _method		= method.EULER;
 	boolean timeLeap	= true;
 	
-	public void init()
+	@Override
+	public void init(Element xmlElem)
 	{
+		super.init(xmlElem);
 		/**
 		 * Obtaining relaxation parameters
 		 */

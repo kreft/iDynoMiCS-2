@@ -187,6 +187,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		{
 			NodeList agents = elem.getElementsByTagName(XmlLabel.agent);
 			this.agents.readAgents(agents);
+			this.agents.setAllAgentsCompartment(this);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 							" initialised with "+agents.getLength()+" agents");
 			
@@ -338,6 +339,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		while ( (this._localTime = currentProcess.getTimeForNextStep()) 
 										< Timer.getEndOfCurrentIteration() )
 		{
+			Log.out(Tier.EXPRESSIVE, "");
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 								" running process "+currentProcess.getName()+
 								" at local time "+this._localTime);

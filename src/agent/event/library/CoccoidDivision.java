@@ -17,9 +17,10 @@ import idynomics.NameRef;
  * Simple coccoid division class, divides mother cell in two with a random
  * moves mother and daughter in a random opposing direction and registers the
  * daughter cell to the compartment
- * @author baco
- *
+ * 
  * NOTE: inputs 0 "mass" 1 "radius" 2 "body"
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class CoccoidDivision extends Event {
 
@@ -32,12 +33,12 @@ public class CoccoidDivision extends Event {
 		Agent daughter = (Agent) compliant;
 		//TODO check phase 
 		double momMass =(double) mother.get(input[0]);
-		if (momMass > 0.2)
+		if ( momMass > 0.2 )
 		{
 			Body momBody = (Body) mother.get(input[2]);
 
 			// FIXME change for settable random factor
-			if (daughter == null)
+			if ( daughter == null )
 				daughter = new Agent(mother); // the copy constructor
 			double randM = ExtraMath.getUniRandDbl(momMass*0.5, momMass*0.55);
 			mother.set(input[0], momMass-randM);

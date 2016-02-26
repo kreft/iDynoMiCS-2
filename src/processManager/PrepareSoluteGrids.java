@@ -14,6 +14,7 @@ import idynomics.EnvironmentContainer;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) 
  */
+@Deprecated
 public class PrepareSoluteGrids extends ProcessManager
 {
 	/**

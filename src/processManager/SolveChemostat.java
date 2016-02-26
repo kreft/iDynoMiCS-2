@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
@@ -72,12 +74,19 @@ public class SolveChemostat extends ProcessManager
 
 	}
 	
+	@Override
+	public void init(Element xmlElem)
+	{
+		super.init(xmlElem);
+		this.init();
+	}
+	
 	/**
 	 * TODO
 	 */
 	public void init()
 	{
-		init((String[]) reg().getValue(this, "soluteNames"));
+		this.init((String[]) reg().getValue(this, "soluteNames"));
 	}
 
 	/**

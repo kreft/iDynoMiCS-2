@@ -29,6 +29,7 @@ public class XmlLoad
 	/**
 	 * TODO: compartment has no xml node constructor, quick fix
 	 */
+	@Deprecated
 	public static void constructCompartment(Node compartmentNode)
 	{
 		// NOTE: misses construction from xml, quick fix
@@ -116,6 +117,7 @@ public class XmlLoad
 	 * @param species
 	 * @param xmlNode
 	 */
+	@Deprecated
 	public static void loadSpeciesModules(AspectInterface species, Node xmlNode)
 	{
 		Element xmlSpecies = (Element) xmlNode;
@@ -142,6 +144,7 @@ public class XmlLoad
 	 * loads the first essential information
 	 * @param xmlNode
 	 */
+	@Deprecated
 	public static void xmlInit(String document)
 	{
 		/*

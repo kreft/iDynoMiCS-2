@@ -75,7 +75,6 @@ public class Agent implements Quizable, AspectInterface
 		if ( this.isAspect(XmlLabel.species) )
 		{
 			species = this.getString(XmlLabel.species);
-			
 			Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
 		}
 		else
@@ -171,7 +170,10 @@ public class Agent implements Quizable, AspectInterface
 	 * note that the compartment field of the agent is set by the compartment
 	 * itself.
 	 */
-	public void registerBirth() {
+	public void registerBirth()
+	{
+		Log.out(Tier.DEBUG, "Compartment \""+this.compartment.name+
+												"\" registering agent birth");
 		compartment.addAgent(this);
 	}
 
