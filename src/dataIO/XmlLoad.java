@@ -8,7 +8,7 @@ import processManager.ProcessManager;
 import utility.Helper;
 import agent.Agent;
 import aspect.AspectInterface;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
@@ -53,7 +53,7 @@ public class XmlLoad
 				comp.addAgent(new Agent(agentNodes.item(j)));
 		}
 		else
-			Log.out(tier.NORMAL, "Warning: starting simulation without agents");
+			Log.out(Tier.NORMAL, "Warning: starting simulation without agents");
 		
 		/**
 		 * Process managers
@@ -72,7 +72,7 @@ public class XmlLoad
 		}
 		else
 		{
-			Log.out(tier.CRITICAL, "Warning: attempt to start simulation"
+			Log.out(Tier.CRITICAL, "Warning: attempt to start simulation"
 					+ "without process managers, aborting..");
 			Helper.abort(3000);
 		}
@@ -157,18 +157,18 @@ public class XmlLoad
 				XmlLabel.outputFolder);
 		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + 
 				"/";
-		tier t = null;
+		Tier t = null;
 		while (t == null) 
 		{
 			try
 			{
-				t = tier.valueOf(XmlHandler.obtainAttribute(sim,
+				t = Tier.valueOf(XmlHandler.obtainAttribute(sim,
 						XmlLabel.logLevel));
 			}
 			catch (IllegalArgumentException e)
 			{
 				System.out.println("log level not recognized, use: " + 
-						Helper.enumToString(tier.class));
+						Helper.enumToString(Tier.class));
 			}
 		}
 		if( ! Log.isSet() )

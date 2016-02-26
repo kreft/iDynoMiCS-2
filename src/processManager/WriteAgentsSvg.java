@@ -5,7 +5,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.SvgExport;
 import grid.SpatialGrid;
@@ -85,7 +85,7 @@ public class WriteAgentsSvg extends ProcessManager
 		/* Draw solute grid for specified solute, if any. */
 		if ( ! environment.isSoluteName(this._solute) )
 		{
-			Log.out(tier.CRITICAL,
+			Log.out(Tier.CRITICAL,
 						"Warning! "+this._name+" can't find solute "+
 						this._solute+" in the environment");
 		}
@@ -135,7 +135,7 @@ public class WriteAgentsSvg extends ProcessManager
 			}
 			else
 			{
-				tier level = tier.CRITICAL;
+				Tier level = Tier.CRITICAL;
 				Log.out(level, "Couldn't find joints in located agent!");
 				Log.out(level, "Aspects found: ");
 				for ( String name : a.aspectRegistry.getAllAspectNames() )

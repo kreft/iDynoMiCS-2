@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import shape.ShapeConventions.BoundaryCyclic;
 import utility.Helper;
@@ -95,7 +95,7 @@ public class Dimension implements CanPrelaunchCheck
 				index = 1;
 			else
 			{
-				Log.out(tier.CRITICAL, 
+				Log.out(Tier.CRITICAL, 
 						"Warning! Dimension extreme must be min or max: "+str);
 			}
 			/* Set the position, if given (not always necessary). */
@@ -106,7 +106,7 @@ public class Dimension implements CanPrelaunchCheck
 			bndNodes = XmlHandler.getAll(extElem, "boundary");
 			if ( bndNodes.getLength() > 1 )
 			{
-				Log.out(tier.CRITICAL, 
+				Log.out(Tier.CRITICAL, 
 					  "Warning: Dimension extreme must have 0 or 1 boundary!");
 			}
 			else if ( bndNodes.getLength() == 1 )

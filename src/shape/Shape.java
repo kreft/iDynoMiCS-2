@@ -15,7 +15,7 @@ import boundary.Boundary;
 import boundary.BoundaryConnected;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
@@ -96,7 +96,7 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 				}
 				catch (IllegalArgumentException e)
 				{
-					Log.out(tier.CRITICAL, "Warning: input Dimension not "
+					Log.out(Tier.CRITICAL, "Warning: input Dimension not "
 							+ "recognised by shape " + this.getClass().getName()
 							+ ", use: " + Helper.enumToString(DimName.class));
 				}

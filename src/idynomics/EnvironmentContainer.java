@@ -10,7 +10,7 @@ import boundary.Boundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -143,7 +143,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 				this._shape.getDimensionLengths(), resolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
-		Log.out(tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
+		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
 	}
 	
 	/**
@@ -292,8 +292,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	
 	public void printSolute(String soluteName)
 	{
-		Log.out(tier.QUIET, soluteName+":");
-		Log.out(tier.QUIET, this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
+		Log.out(Tier.QUIET, soluteName+":");
+		Log.out(Tier.QUIET, this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
 	}
 	
 	public void printAllSolutes()

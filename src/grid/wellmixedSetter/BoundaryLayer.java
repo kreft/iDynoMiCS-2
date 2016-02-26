@@ -11,7 +11,7 @@ import org.w3c.dom.Node;
 import agent.Agent;
 import dataIO.Log;
 import dataIO.XmlLabel;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
 import idynomics.AgentContainer;
@@ -62,7 +62,7 @@ public class BoundaryLayer implements IsWellmixedSetter
 		}
 		else
 		{
-			Log.out(tier.CRITICAL,"Boundary layer thickness must be set!");
+			Log.out(Tier.CRITICAL,"Boundary layer thickness must be set!");
 			System.exit(-1);
 		}
 	}

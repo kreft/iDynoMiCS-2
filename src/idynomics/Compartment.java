@@ -12,7 +12,7 @@ import boundary.BoundaryConnected;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.*;
@@ -180,14 +180,14 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.agents);
 		if ( elem == null )
 		{
-			Log.out(tier.EXPRESSIVE,
+			Log.out(Tier.EXPRESSIVE,
 					"Compartment "+this.name+" initialised without agents");
 		}
 		else
 		{
 			NodeList agents = elem.getElementsByTagName(XmlLabel.agent);
 			this.agents.readAgents(agents);
-			Log.out(tier.EXPRESSIVE, "Compartment "+this.name+
+			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 							" initialised with "+agents.getLength()+" agents");
 			
 		}
@@ -198,20 +198,20 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		Element procElem;
 		if ( elem == null )
 		{
-			Log.out(tier.CRITICAL, "Compartment "+this.name+
+			Log.out(Tier.CRITICAL, "Compartment "+this.name+
 									" initialised without process managers");
 		}
 		else
 		{
 			NodeList processNodes = elem.getElementsByTagName(XmlLabel.process);
-			Log.out(tier.EXPRESSIVE, "Compartment "+this.name+
+			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 									" initialised with process managers:");
 			for ( int i = 0; i < processNodes.getLength(); i++ )
 			{
 				procElem = (Element) processNodes.item(i);
 				str = XmlHandler.gatherAttribute(procElem,
 													XmlLabel.nameAttribute);
-				Log.out(tier.EXPRESSIVE, "\t"+str);
+				Log.out(Tier.EXPRESSIVE, "\t"+str);
 				this.addProcessManager(ProcessManager.getNewInstance(procElem));
 			}
 		}
@@ -338,7 +338,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		while ( (this._localTime = currentProcess.getTimeForNextStep()) 
 										< Timer.getEndOfCurrentIteration() )
 		{
-			Log.out(tier.EXPRESSIVE, "Compartment "+this.name+
+			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 								" running process "+currentProcess.getName()+
 								" at local time "+this._localTime);
 			/*
@@ -394,7 +394,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	{
 		if ( this._shape == null )
 		{
-			Log.out(tier.CRITICAL, "Compartment shape is undefined!");
+			Log.out(Tier.CRITICAL, "Compartment shape is undefined!");
 			return false;
 		}
 		if ( ! this._shape.isReadyForLaunch() )

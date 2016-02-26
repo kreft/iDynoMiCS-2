@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import dataIO.Log;
-import static dataIO.Log.tier.*;
+import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
 

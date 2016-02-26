@@ -3,7 +3,7 @@ package expression;
 import java.util.HashMap;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 
 /**
  * \brief A component of a mathematical expression composed of the logarithm
@@ -29,7 +29,7 @@ public class Logarithm extends ComponentDouble
 		if ( this._b instanceof Constant )
 		{
 			if ( B == 1.0 || B == 0.0 )
-				Log.out(tier.CRITICAL,"WARNING! Infinite value: log base "+B);
+				Log.out(Tier.CRITICAL,"WARNING! Infinite value: log base "+B);
 		}
 	}
 	

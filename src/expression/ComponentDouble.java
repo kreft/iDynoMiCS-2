@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import dataIO.Log;
-import static dataIO.Log.tier.CRITICAL;
+import static dataIO.Log.Tier.CRITICAL;
 
 /**
  * \brief A component of a mathematical expression composed of strictly two

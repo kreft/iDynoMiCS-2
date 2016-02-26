@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 
 /**
  * Handles file operations, create folders and files, write output.

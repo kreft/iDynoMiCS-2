@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import expression.ExpressionB;
@@ -87,7 +87,7 @@ public final class ResCalcFactory implements XMLable
 				DimName dimName = DimName.valueOf(dimensions[j]);
 				/* test if dimension was already set  */
 				if (dimNames.contains(dimName)){
-					Log.out(tier.CRITICAL, "Tried to set resolution of dimension "
+					Log.out(Tier.CRITICAL, "Tried to set resolution of dimension "
 							+dimName+" twice, ignoring last value.");
 					continue;
 				}
@@ -98,7 +98,7 @@ public final class ResCalcFactory implements XMLable
 					name_is_def_in_shape = this.dimNames[i].equals(dimName);
 
 				if (! name_is_def_in_shape){
-					Log.out(tier.CRITICAL, "Tried to set resolution of "
+					Log.out(Tier.CRITICAL, "Tried to set resolution of "
 							+"dimension "+dimName+", but the dimension is not "
 							+"present in the current shape, ignoring");	
 					continue;
@@ -115,7 +115,7 @@ public final class ResCalcFactory implements XMLable
 					} catch (ClassNotFoundException e) {
 						 /* remember that res_classes is already initialized 
 						  * with uniform resolutions by default*/
-						Log.out(tier.CRITICAL, "Resolution calculator class "
+						Log.out(Tier.CRITICAL, "Resolution calculator class "
 								+ class_name + " not found. continuing with "
 								+"uniform resolution calculator in dimension "
 								+ dimensions[j] + " for now");
@@ -139,7 +139,7 @@ public final class ResCalcFactory implements XMLable
 					}else{
 						// ... more resolution objects can be added here
 					}
-					Log.out(tier.CRITICAL, "Tried to set a resolution that is"
+					Log.out(Tier.CRITICAL, "Tried to set a resolution that is"
 							+ "not parsable as double - using default value");
 				}
 			}

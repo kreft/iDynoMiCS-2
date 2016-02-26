@@ -8,7 +8,7 @@ import agent.Agent;
 import boundary.Boundary;
 import boundary.ChemostatConnection;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
@@ -182,7 +182,7 @@ public class SolveChemostat extends ProcessManager
 		 */
 		try { this._y = this._solver.solve(this._y, this._timeStepSize); }
 		catch ( Exception e) { e.printStackTrace();}
-		Log.out(tier.DEBUG, "y is now "+Arrays.toString(this._y));
+		Log.out(Tier.DEBUG, "y is now "+Arrays.toString(this._y));
 		updateEnvironment(environment);
 	}
 	

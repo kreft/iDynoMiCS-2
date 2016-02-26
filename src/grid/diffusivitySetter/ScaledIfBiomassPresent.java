@@ -5,7 +5,7 @@ import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import grid.SpatialGrid;
@@ -95,7 +95,7 @@ public class ScaledIfBiomassPresent implements IsDiffusivitySetter
 			}
 			catch (IllegalArgumentException e)
 			{
-				Log.out(tier.CRITICAL, "unable to write diffusivity grid"
+				Log.out(Tier.CRITICAL, "unable to write diffusivity grid"
 						+ "input grids");
 			}
 			/*

@@ -3,7 +3,7 @@ package utility;
 import java.util.Scanner;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import idynomics.GuiLaunch;
 
 /**
@@ -40,14 +40,14 @@ public class Helper
 				if ( noLog )
 					System.out.println(msg);
 				else
-					Log.out(tier.CRITICAL, msg);
+					Log.out(Tier.CRITICAL, msg);
 				input = user_input.next( );
 			}
 			msg = "Aquired input: " + input;
 			if ( noLog )
 				System.out.println(msg);
 			else
-				Log.out(tier.CRITICAL, msg);
+				Log.out(Tier.CRITICAL, msg);
 		}
 		return input;
 	}
@@ -73,7 +73,7 @@ public class Helper
 	 * @param delay
 	 */
 	public static void abort(int delay) {
-		Log.out(tier.CRITICAL, "Aborting..");
+		Log.out(Tier.CRITICAL, "Aborting..");
 		pause(delay);
 		System.exit(0);
 	}

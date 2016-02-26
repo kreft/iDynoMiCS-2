@@ -5,7 +5,7 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import utility.Helper;
 
 /**
@@ -87,18 +87,18 @@ public class Param
 		 */
 		// TODO check that this will be a new log file if we're running
 		// multiple simulations.
-		tier t = null;
+		Tier t = null;
 		while ( t == null ) 
 		{
 			try
 			{
-				t = tier.valueOf(
+				t = Tier.valueOf(
 						XmlHandler.obtainAttribute(elem, XmlLabel.logLevel));
 			}
 			catch (IllegalArgumentException e)
 			{
 				System.out.println("log level not recognized, use: " + 
-						Helper.enumToString(tier.class));
+						Helper.enumToString(Tier.class));
 			}
 		}
 		if ( ! Log.isSet() )

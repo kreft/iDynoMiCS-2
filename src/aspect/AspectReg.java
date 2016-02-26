@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.Quizable;
 import utility.Copier;
 
@@ -53,7 +53,7 @@ public class AspectReg<A>
 	{
 		if( this._aspects.containsKey(key) )
 		{
-			Log.out(tier.DEBUG, "attempt to add aspect " + key + 
+			Log.out(Tier.DEBUG, "attempt to add aspect " + key + 
 					" which already exists in this aspect registry");
 		}
 		else
@@ -106,7 +106,7 @@ public class AspectReg<A>
 		{
 		case PRIMARY: return a.aspect;
 		case CALCULATED: return a.calc.get(rootRegistry);
-		case EVENT: Log.out(tier.CRITICAL, "Attempt to get event" +
+		case EVENT: Log.out(Tier.CRITICAL, "Attempt to get event" +
 				key + "as Value!");
 		}
     	return null;
@@ -124,12 +124,12 @@ public class AspectReg<A>
 	{
 		Aspect<?> a = getAspect(key);
 		if ( a == null )
-			Log.out(tier.DEBUG, "Warning: aspepct registry does not"
+			Log.out(Tier.DEBUG, "Warning: aspepct registry does not"
 					+ " contain event:" + key);
 		
 		else if ( a.type != Aspect.aspectClass.EVENT )
 		{
-			Log.out(tier.CRITICAL, "Attempt to initiate non event "
+			Log.out(Tier.CRITICAL, "Attempt to initiate non event "
 					+ "aspect" + key + "as event!");
 		}
 		else
@@ -150,7 +150,7 @@ public class AspectReg<A>
 				if ( m.reg().isGlobalAspect(key) )
 					return (Aspect<?>) m.reg().getAspect(key);
 		
-		Log.out(tier.DEBUG, "Warning: could not find aspect: " + key);
+		Log.out(Tier.DEBUG, "Warning: could not find aspect: " + key);
 		return null;
 	}
 	

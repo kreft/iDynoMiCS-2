@@ -31,7 +31,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import glRender.AgentMediator;
 import glRender.CommandMediator;
 import glRender.Render;
@@ -168,7 +168,7 @@ public class GuiLaunch implements Runnable
 		submenu.setMnemonic(KeyEvent.VK_L);
 
 		ButtonGroup group = new ButtonGroup();
-		for(Log.tier t : Log.tier.values())
+		for(Log.Tier t : Log.Tier.values())
 		{
 			rbMenuItem = new JRadioButtonMenuItem(new LogTier(t));
 			group.add(rbMenuItem);
@@ -252,9 +252,9 @@ public class GuiLaunch implements Runnable
 	 * Action for the set Log tier buttons
 	 */
 	public class LogTier extends AbstractAction {
-		private tier _tier;
+		private Tier _tier;
 
-		public LogTier(Log.tier tier) {
+		public LogTier(Log.Tier tier) {
 			super(tier.toString());
 			this._tier = tier;
 		}

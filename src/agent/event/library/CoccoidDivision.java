@@ -10,7 +10,7 @@ import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import idynomics.NameRef;
 
 /**
@@ -60,7 +60,7 @@ public class CoccoidDivision extends Event {
 			if (mother.get(NameRef.fillialLinker) == null || !(boolean) 
 					mother.get(NameRef.fillialLinker))
 			{
-				Log.out(tier.BULK, "Agent does not create fillial "
+				Log.out(Tier.BULK, "Agent does not create fillial "
 						+ "links");
 			}
 			else
@@ -70,7 +70,7 @@ public class CoccoidDivision extends Event {
 						daughterBody.getSurface() } , 1.7 ));
 			}
 			daughter.registerBirth();
-			Log.out(tier.BULK, "CoccoidDivision added daughter cell");
+			Log.out(Tier.BULK, "CoccoidDivision added daughter cell");
 		}
 	}
 }

@@ -7,7 +7,7 @@ import org.w3c.dom.NodeList;
 import agent.SpeciesLib;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import utility.*;
@@ -58,12 +58,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		/*
 		 * Set up the compartments.
 		 */
-		Log.out(tier.NORMAL, "Compartments loading...");
+		Log.out(Tier.NORMAL, "Compartments loading...");
 		NodeList children;
 		children = XmlHandler.getAll(xmlElem, "compartment");
 		if ( children.getLength() == 0 )
 		{
-			Log.out(tier.CRITICAL, 
+			Log.out(Tier.CRITICAL, 
 				   "Warning: Simulator initialised without any compartments!");
 		}
 		Element child;
@@ -72,12 +72,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		{
 			child = (Element) children.item(i);
 			str = XmlHandler.gatherAttribute(child, "name");
-			Log.out(tier.NORMAL, "Making "+str);
+			Log.out(Tier.NORMAL, "Making "+str);
 			str = Helper.obtainInput(str, "compartment name");
 			Compartment aCompartment = this.addCompartment(str);
 			aCompartment.init(child);
 		}
-		Log.out(tier.NORMAL, "Compartments loaded!\n");
+		Log.out(Tier.NORMAL, "Compartments loaded!\n");
 	}
 	
 	/*************************************************************************
@@ -95,7 +95,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 	{
 		if ( this.hasCompartment(name) )
 		{
-			Log.out(tier.CRITICAL, 
+			Log.out(Tier.CRITICAL, 
 				"Warning: simulator already has a compartment called "+name);
 		}
 		Compartment aCompartment = new Compartment();
@@ -141,13 +141,13 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		 */
 		Timer.step();
 		/* we should say something when an iter step is finished */
-		Log.out(tier.NORMAL, "iter time: " + Timer.getCurrentTime());
+		Log.out(Tier.NORMAL, "iter time: " + Timer.getCurrentTime());
 
 	}
 	
 	public void run()
 	{
-		Log.out(tier.NORMAL, "Launching simulation!");
+		Log.out(Tier.NORMAL, "Launching simulation!");
 		/*
 		 * Start timing just before simulation starts.
 		 */
@@ -162,7 +162,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		 * Report simulation time.
 		 */
 		tic = (System.currentTimeMillis() - tic) * 0.001;
-		Log.out(tier.QUIET, "Simulation finished in " + tic + " seconds");
+		Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds");
 	}
 	
 	/*************************************************************************
@@ -173,9 +173,9 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 	{
 		for ( Compartment c : this._compartments ) 
 		{
-			Log.out(tier.QUIET, "COMPARTMENT: " + c.name);
+			Log.out(Tier.QUIET, "COMPARTMENT: " + c.name);
 			c.printAllSoluteGrids();
-			Log.out(tier.QUIET, c.agents.getNumAllAgents() + " agents");
+			Log.out(Tier.QUIET, c.agents.getNumAllAgents() + " agents");
 		}
 	}
 	
@@ -190,13 +190,13 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		/* Check the random number generator is initialised. */
 		if ( ExtraMath.random == null )
 		{
-			Log.out(tier.CRITICAL,"Random number generator not initialised!");
+			Log.out(Tier.CRITICAL,"Random number generator not initialised!");
 			return false;
 		}
 		/* Check we have at least one compartment. */
 		if ( this._compartments.isEmpty() )
 		{
-			Log.out(tier.CRITICAL,"No compartment(s) specified!");
+			Log.out(Tier.CRITICAL,"No compartment(s) specified!");
 			return false;
 		}
 		/* If any compartments are not ready, then stop. */
@@ -204,7 +204,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		{
 			if ( ! c.isReadyForLaunch() )
 			{
-				Log.out(tier.CRITICAL,"Compartment " + c.name + " not ready for"
+				Log.out(Tier.CRITICAL,"Compartment " + c.name + " not ready for"
 						+ " launch!");
 				return false;
 			}

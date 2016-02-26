@@ -2,7 +2,7 @@ package test;
 
 import agent.Agent;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
@@ -27,7 +27,7 @@ public class AgentCompartmentTest
 		Timer.setEndOfSimulation(25.0);
 		
 		Simulator aSim = new Simulator();
-		Log.set(tier.DEBUG);
+		Log.set(Tier.DEBUG);
 		Param.simulationName = "test";
 		Param.outputLocation = "../results/test";
 		

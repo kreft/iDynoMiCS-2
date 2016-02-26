@@ -14,7 +14,7 @@ package idynomics;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
-import static dataIO.Log.tier.*;
+import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 

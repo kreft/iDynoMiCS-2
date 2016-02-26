@@ -8,7 +8,7 @@ import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log;
 import dataIO.XmlLabel;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import idynomics.Idynomics;
 
 /**
@@ -55,7 +55,7 @@ public class Species implements AspectInterface
 		{
 			Element s = (Element) nodes.item(i);
 			name = s.getAttribute(XmlLabel.nameAttribute);
-			Log.out(tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
+			Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
 			this._aspectRegistry.addSubModule(name, 
 										Idynomics.simulator.speciesLibrary);
 		}

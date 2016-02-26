@@ -6,7 +6,7 @@ import org.w3c.dom.NodeList;
 
 import aspect.AspectInterface;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 
@@ -36,7 +36,7 @@ public class SpeciesLib implements Quizable
 	 */
 	public void init(Element xmlElem)
 	{
-		Log.out(tier.NORMAL, "Species Library loading...");
+		Log.out(Tier.NORMAL, "Species Library loading...");
 		/* 
 		 * Cycle through all species and add them to the library.
 		 */ 
@@ -58,11 +58,11 @@ public class SpeciesLib implements Quizable
 			speciesElem = (Element) nodes.item(i);
 			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
 			Species s = (Species) this._species.get(name);
-			Log.out(tier.EXPRESSIVE,
+			Log.out(Tier.EXPRESSIVE,
 					"Species \""+name+"\" loaded into Species Library");
 			s.findSpeciesModules(speciesElem);
 		}
-		Log.out(tier.NORMAL, "Species Library loaded!\n");
+		Log.out(Tier.NORMAL, "Species Library loaded!\n");
 	}
 	
 	/**
@@ -75,7 +75,7 @@ public class SpeciesLib implements Quizable
 	public void set(String name, AspectInterface species)
 	{
 		if ( this._species.containsKey(name) )
-			Log.out(tier.EXPRESSIVE, "Warning: overwriting species "+name);
+			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
 		this._species.put(name, species);
 	}
 	
@@ -90,12 +90,12 @@ public class SpeciesLib implements Quizable
 	{
 		if ( this._species.containsKey(name) )
 		{
-			Log.out(tier.BULK, "Species Library found \""+name+"\"");
+			Log.out(Tier.BULK, "Species Library found \""+name+"\"");
 			return this._species.get(name);
 		}
 		else
 		{
-			Log.out(tier.DEBUG, "Species Library could not find \""+name+
+			Log.out(Tier.DEBUG, "Species Library could not find \""+name+
 												"\", returning void species");
 			return this._voidSpecies;
 		}

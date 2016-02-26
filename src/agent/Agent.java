@@ -5,7 +5,7 @@ import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log;
 import dataIO.XmlLabel;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -76,12 +76,12 @@ public class Agent implements Quizable, AspectInterface
 		{
 			species = this.getString(XmlLabel.species);
 			
-			Log.out(tier.DEBUG, "Agent belongs to species \""+species+"\"");
+			Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
 		}
 		else
 		{
 			species = "";
-			Log.out(tier.DEBUG, "Agent belongs to void species");
+			Log.out(Tier.DEBUG, "Agent belongs to void species");
 		}
 		aspectRegistry.addSubModule( (Species) 
 							Idynomics.simulator.speciesLibrary.get(species));

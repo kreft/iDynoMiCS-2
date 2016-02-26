@@ -18,7 +18,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import utility.Helper;
 
 /**
@@ -185,12 +185,12 @@ public class XmlHandler {
 		NodeList nodes =  xmlElement.getElementsByTagName(tagName);
 		if (nodes.getLength() > 1)
 		{
-			Log.out(tier.NORMAL,"Warning: document contains more than 1"
+			Log.out(Tier.NORMAL,"Warning: document contains more than 1"
 					+ tagName + " nodes, loading first simulation node...");
 		}
 		else if (nodes.getLength() == 0)
 		{
-			Log.out(tier.NORMAL,"Warning: could not identify " + tagName + 
+			Log.out(Tier.NORMAL,"Warning: could not identify " + tagName + 
 					" node, make sure your file contains all required elements."
 					+ " Attempt to continue with 'null' node.");
 			return null;

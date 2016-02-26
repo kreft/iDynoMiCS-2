@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import idynomics.Idynomics;
 
@@ -90,7 +90,7 @@ public interface XMLable
 		}
 		catch ( Exception e )
 		{
-			Log.out(tier.CRITICAL,
+			Log.out(Tier.CRITICAL,
 					"ERROR! Problem in XMLable.getNewInstance("+className+")");
 			e.printStackTrace();
 		}
@@ -110,7 +110,7 @@ public interface XMLable
 	{
 		Element E = (Element) xmlNode;
 		if ( ! E.hasAttribute(XmlLabel.classAttribute) )
-			Log.out(tier.CRITICAL, "No className defined in: "+E.getTagName());
+			Log.out(Tier.CRITICAL, "No className defined in: "+E.getTagName());
 		else if ( ! E.hasAttribute(XmlLabel.packageAttribute) )
 		{
 			return getNewInstance(xmlNode, 

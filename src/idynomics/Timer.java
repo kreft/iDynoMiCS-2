@@ -5,7 +5,7 @@ import org.w3c.dom.Node;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import utility.Helper;
 
 public class Timer
@@ -24,7 +24,7 @@ public class Timer
 	
 	public static void init(Node xmlNode)
 	{
-		Log.out(tier.NORMAL, "Timer loading...");
+		Log.out(Tier.NORMAL, "Timer loading...");
 		String s;
 		double d;
 		/* Get the time step. */
@@ -39,8 +39,8 @@ public class Timer
 		d = Double.valueOf(s);
 		// TODO safety
 		setEndOfSimulation(d);
-		report(tier.NORMAL);
-		Log.out(tier.NORMAL, "Timer loaded!\n");
+		report(Tier.NORMAL);
+		Log.out(Tier.NORMAL, "Timer loaded!\n");
 	}
 	
 	public static void reset()
@@ -87,12 +87,12 @@ public class Timer
 	
 	public static boolean isRunning()
 	{
-		Log.out(tier.DEBUG, "Timer.isRunning()? now = "+now+", end = "+
+		Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+now+", end = "+
 								endOfSimulation+", so "+(now<endOfSimulation)); 
 		return now < endOfSimulation;
 	}
 	
-	public static void report(tier outputLevel)
+	public static void report(Tier outputLevel)
 	{
 		Log.out(outputLevel, "Timer: time is   = "+now);
 		Log.out(outputLevel, "       iteration = "+iteration);

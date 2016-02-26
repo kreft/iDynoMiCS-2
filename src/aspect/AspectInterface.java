@@ -9,7 +9,7 @@ import org.w3c.dom.NodeList;
 
 import agent.Body;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import linearAlgebra.Vector;
@@ -51,7 +51,7 @@ public abstract interface AspectInterface
 			name = s.getAttribute(XmlLabel.nameAttribute);
 			aspectReg.add(name, loadAspectObject(s, XmlLabel.valueAttribute,
 													XmlLabel.typeAttribute));
-			Log.out(tier.BULK, "Aspects loaded for \""+name+"\"");
+			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 		}
 	}
 	
@@ -120,7 +120,7 @@ public abstract interface AspectInterface
 					return hMap;
 			}
 		}
-		Log.out(tier.CRITICAL, "Aspect interface encountered unidentified "
+		Log.out(Tier.CRITICAL, "Aspect interface encountered unidentified "
 				+ "object type: " + type);
 		return null;
 	}
@@ -144,13 +144,13 @@ public abstract interface AspectInterface
 				return true;
 			else
 			{
-				Log.out(tier.DEBUG, "Aspect \""+aspect+"\" found but null");
+				Log.out(Tier.DEBUG, "Aspect \""+aspect+"\" found but null");
 				return false;
 			}
 		}
 		else
 		{
-			Log.out(tier.DEBUG, "Aspect \""+aspect+"\" not found");
+			Log.out(Tier.DEBUG, "Aspect \""+aspect+"\" not found");
 			return false;
 		}
 	}

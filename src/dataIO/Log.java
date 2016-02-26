@@ -15,15 +15,15 @@ import idynomics.Param;
  * @author baco
  *
  */
-public class Log {
-	
+public class Log
+{
 	/**
 	 * levels of log expressiveness, a Feedback level setting will also include
 	 * messages of all lower level settings.
 	 * @author baco
 	 *
 	 */
-	public enum tier
+	public enum Tier
 	{
 		/**
 		 * Should generate no messages: no message should have this output
@@ -60,7 +60,7 @@ public class Log {
 	/**
 	 * current output level setting
 	 */
-	private static tier outputLevel;
+	private static Tier outputLevel;
 	
 	/**
 	 * logFile handler
@@ -89,13 +89,13 @@ public class Log {
 	 * called the level will be set to NORMAL.
 	 * @param level
 	 */
-	public static void set(tier level)
+	public static void set(Tier level)
 	{
 		//FIXME for some reason this sometimes fails with user provided location
 		logFile.fnew(Param.outputLocation + "/log.txt");
 		logFile.flushAll = true;
 		outputLevel = level;
-		out(tier.QUIET, "iDynoMiCS " + 
+		out(Tier.QUIET, "iDynoMiCS " + 
 		Idynomics.version_number  + " "	+ Idynomics.version_description + 
 				"\nOutput level is " + outputLevel.toString() + ", starting at " + 
 				ft.format(new Date()) + "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -108,7 +108,7 @@ public class Log {
 	 */
 	public static void set(String level)
 	{
-		set(tier.valueOf(level));
+		set(Tier.valueOf(level));
 	}
 	
 	/**
@@ -120,7 +120,7 @@ public class Log {
 	 * @param message
 	 * @param level
 	 */
-	public static void out(tier level, String message)
+	public static void out(Tier level, String message)
 	{
 		if (outputLevel == null)
 		{
@@ -128,7 +128,7 @@ public class Log {
 		}
 		else if (level.compareTo(outputLevel) < 1)
 		{
-			if (level == tier.CRITICAL)
+			if (level == Tier.CRITICAL)
 				System.err.println(st.format(new Date()) + message);
 			else
 				System.out.println(st.format(new Date()) + message);
