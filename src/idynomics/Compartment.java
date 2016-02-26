@@ -125,6 +125,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		 * be possible for the grids to be Xmlable
 		 */
 		NodeList solutes = XmlHandler.getAll(xmlElem, XmlLabel.solute);
+		
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
 			Element soluteE = (Element) solutes.item(i);
@@ -172,6 +173,47 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 				this._environment.addReaction(reac, str);
 			}
 				
+		}
+		/*
+		 * Read in agents.
+		 */
+		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.agents);
+		if ( elem == null )
+		{
+			Log.out(tier.EXPRESSIVE,
+					"Compartment "+this.name+" initialised without agents");
+		}
+		else
+		{
+			NodeList agents = elem.getElementsByTagName(XmlLabel.agent);
+			this.agents.readAgents(agents);
+			Log.out(tier.EXPRESSIVE, "Compartment "+this.name+
+							" initialised with "+agents.getLength()+" agents");
+			
+		}
+		/*
+		 * Read in process managers.
+		 */
+		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.processManagers);
+		Element procElem;
+		if ( elem == null )
+		{
+			Log.out(tier.CRITICAL, "Compartment "+this.name+
+									" initialised without process managers");
+		}
+		else
+		{
+			NodeList processNodes = elem.getElementsByTagName(XmlLabel.process);
+			Log.out(tier.EXPRESSIVE, "Compartment "+this.name+
+									" initialised with process managers:");
+			for ( int i = 0; i < processNodes.getLength(); i++ )
+			{
+				procElem = (Element) processNodes.item(i);
+				str = XmlHandler.gatherAttribute(procElem,
+													XmlLabel.nameAttribute);
+				Log.out(tier.EXPRESSIVE, "\t"+str);
+				this.addProcessManager(ProcessManager.getNewInstance(procElem));
+			}
 		}
 		/*
 		 * Finally, finish off the initialisation as standard.
@@ -293,9 +335,12 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	public void step()
 	{
 		ProcessManager currentProcess = this._processes.getFirst();
-		this._localTime = currentProcess.getTimeForNextStep();
-		while ( this._localTime < Timer.getEndOfCurrentIteration() )
+		while ( (this._localTime = currentProcess.getTimeForNextStep()) 
+										< Timer.getEndOfCurrentIteration() )
 		{
+			Log.out(tier.EXPRESSIVE, "Compartment "+this.name+
+								" running process "+currentProcess.getName()+
+								" at local time "+this._localTime);
 			/*
 			 * First process on the list does its thing. This should then
 			 * increase its next step time.
@@ -309,7 +354,6 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 			 * Choose the new first process for the next iteration.
 			 */
 			currentProcess = this._processes.getFirst();
-			this._localTime = currentProcess.getTimeForNextStep();
 		}
 	}
 	

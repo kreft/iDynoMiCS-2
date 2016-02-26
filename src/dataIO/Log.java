@@ -23,22 +23,38 @@ public class Log {
 	 * @author baco
 	 *
 	 */
-	public enum tier {
-		SILENT, 
-		// Should generate no messages, no message should have this output level
+	public enum tier
+	{
+		/**
+		 * Should generate no messages: no message should have this output
+		 * level.
+		 */
+		SILENT,
+		/**
+		 * Only for critical (error) messages.
+		 */
 		CRITICAL,
-		// Only critical (error) messages
-		QUIET, 
-		// minimal simulation information.
-		NORMAL, 
-		// Messages for a normal simulation
-		EXPRESSIVE, 
-		// Elaborate information of the simulation
-		DEBUG, 
-		// Debug messages
-		BULK 
-		// Bulk messages that are probably not needed, the messages that would 
-		// create too much bulk for normal debug mode.
+		/**
+		 * Minimal simulation information.
+		 */
+		QUIET,
+		/**
+		 * Messages for a normal simulation.
+		 */
+		NORMAL,
+		/**
+		 * Elaborate information of the simulation.
+		 */
+		EXPRESSIVE,
+		/**
+		 * Debug messages.
+		 */
+		DEBUG,
+		/**
+		 * Bulk messages that are probably not needed, the messages that would
+		 * create too much bulk for normal debug mode.
+		 */
+		BULK
 	}
 	
 	/**

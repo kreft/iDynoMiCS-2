@@ -54,11 +54,11 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		/*
 		 * Set up the species library.
 		 */
-		this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, "species") );
+		this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, "speciesLib") );
 		/*
 		 * Set up the compartments.
 		 */
-		Log.out(tier.NORMAL, "Loading compartments...");
+		Log.out(tier.NORMAL, "Compartments loading...");
 		NodeList children;
 		children = XmlHandler.getAll(xmlElem, "compartment");
 		if ( children.getLength() == 0 )
@@ -72,12 +72,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		{
 			child = (Element) children.item(i);
 			str = XmlHandler.gatherAttribute(child, "name");
-			Log.out(tier.NORMAL, "\t\tMaking "+str);
+			Log.out(tier.NORMAL, "Making "+str);
 			str = Helper.obtainInput(str, "compartment name");
 			Compartment aCompartment = this.addCompartment(str);
 			aCompartment.init(child);
 		}
-		Log.out(tier.NORMAL, "\tCompartments loaded");
+		Log.out(tier.NORMAL, "Compartments loaded!\n");
 	}
 	
 	/*************************************************************************
@@ -147,6 +147,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 	
 	public void run()
 	{
+		Log.out(tier.NORMAL, "Launching simulation!");
 		/*
 		 * Start timing just before simulation starts.
 		 */

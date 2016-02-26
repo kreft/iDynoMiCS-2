@@ -59,6 +59,11 @@ public class Idynomics
 	*/
 	public static void main(String[] args)
 	{
+		if ( args.length == 0 )
+		{
+			System.out.println("Running test protocol");
+			setupCheckLaunch("protocol/test.xml");
+		}
 		for ( String a : args )
 			setupCheckLaunch(a);
 	}
@@ -101,7 +106,7 @@ public class Idynomics
 		 */
 		Param.init(simElem);
 		Log.out(NORMAL, Param.simulationComment);
-		Log.out(NORMAL, "storing results in " + Param.outputLocation);
+		Log.out(NORMAL, "Storing results in " + Param.outputLocation+"\n");
 		/*
 		 * Create a new Simulator object and intialise it.
 		 */

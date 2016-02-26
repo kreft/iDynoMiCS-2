@@ -43,14 +43,15 @@ public abstract interface AspectInterface
 		Element e = (Element) xmlNode;
 		@SuppressWarnings("unchecked")
 		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
-		
+		String  name;
 		NodeList stateNodes = e.getElementsByTagName(XmlLabel.aspect);
 		for (int j = 0; j < stateNodes.getLength(); j++) 
 		{
 			Element s = (Element) stateNodes.item(j);
-			aspectReg.add(s.getAttribute(XmlLabel.nameAttribute), 
-					loadAspectObject(s,XmlLabel.valueAttribute,
-					XmlLabel.typeAttribute));
+			name = s.getAttribute(XmlLabel.nameAttribute);
+			aspectReg.add(name, loadAspectObject(s, XmlLabel.valueAttribute,
+													XmlLabel.typeAttribute));
+			Log.out(tier.BULK, "Aspects loaded for \""+name+"\"");
 		}
 	}
 	
@@ -137,8 +138,21 @@ public abstract interface AspectInterface
 	 */
 	default boolean isAspect(String aspect)
 	{
-		return reg().isGlobalAspect(aspect) && reg().getValue(this, aspect) 
-				!= null;
+		if ( reg().isGlobalAspect(aspect) )
+		{
+			if ( reg().getValue(this, aspect) != null )
+				return true;
+			else
+			{
+				Log.out(tier.DEBUG, "Aspect \""+aspect+"\" found but null");
+				return false;
+			}
+		}
+		else
+		{
+			Log.out(tier.DEBUG, "Aspect \""+aspect+"\" not found");
+			return false;
+		}
 	}
 	
 	/**

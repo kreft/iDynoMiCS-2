@@ -3,6 +3,7 @@ package idynomics;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Body;
@@ -80,6 +81,17 @@ public class AgentContainer
 			this._agentTree = new RTree<Agent>(8, 2, this._shape);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param xmlElem
+	 */
+	public void readAgents(NodeList agentNodes)
+	{
+		for ( int i = 0; i < agentNodes.getLength(); i++ ) 
+			this.addAgent(new Agent(agentNodes.item(i)));
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
@@ -125,9 +137,11 @@ public class AgentContainer
 	{
 		//FIXME: #isLocated simplified for now, was an over extensive operation
 		// for a simple check.
-		if (agent.get(NameRef.isLocated) == null || 
-				!(agent.getBoolean(NameRef.isLocated)))
+		if ( ( agent.get(NameRef.isLocated) == null ) || 
+									( ! agent.getBoolean(NameRef.isLocated) ) )
+		{
 			this._agentList.add(agent);
+		}
 		else
 			this.addLocatedAgent(agent);
 		

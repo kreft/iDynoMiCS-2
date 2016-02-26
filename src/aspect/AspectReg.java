@@ -2,6 +2,7 @@ package aspect;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 import dataIO.Log;
 import dataIO.Log.tier;
@@ -11,35 +12,36 @@ import utility.Copier;
 
 /**
  * Work in progress, reworking aspectReg
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @param <A>
  */
-public class AspectReg<A> {
+public class AspectReg<A>
+{
 	
 	/**
 	 * The aspect HashMap stores all aspects (primary, secondary states and 
 	 * events).
 	 */
 	protected HashMap<String, Aspect<?>> _aspects = 
-			new HashMap<String, Aspect<?>>();
+											new HashMap<String, Aspect<?>>();
 	
 	/**
 	 * Contains all (sub) modules
 	 */
 	protected LinkedList<AspectInterface> _modules = 
-			new LinkedList<AspectInterface>();
+											new LinkedList<AspectInterface>();
 	
 	/**
 	 * returns true if the key is found in the aspect tree
 	 */
 	public boolean isGlobalAspect(String key)
 	{
-		if (_aspects.containsKey(key))
+		if ( this._aspects.containsKey(key) )
 			return true;
 		else
-			for (AspectInterface m : _modules)
-				if(m.reg().isGlobalAspect(key) == true)
+			for ( AspectInterface m : this._modules )
+				if ( m.reg().isGlobalAspect(key) )
 					return true;
 		return false;
 	}
@@ -49,9 +51,11 @@ public class AspectReg<A> {
 	 */
 	public void add(String key, A aspect)
 	{
-		if(_aspects.containsKey(key))
+		if( this._aspects.containsKey(key) )
+		{
 			Log.out(tier.DEBUG, "attempt to add aspect " + key + 
 					" which already exists in this aspect registry");
+		}
 		else
 			set(key,aspect);
 	}
@@ -61,7 +65,7 @@ public class AspectReg<A> {
 	 */
 	public void set(String key, A aspect)
 	{
-		_aspects.put(key, new Aspect<A>(aspect));
+		this._aspects.put(key, new Aspect<A>(aspect));
 	}
 	
 	/**
@@ -69,7 +73,7 @@ public class AspectReg<A> {
 	 */
 	public void remove(String key)
 	{
-		_aspects.remove(key);
+		this._aspects.remove(key);
 	}
 	
 	/**
@@ -78,7 +82,7 @@ public class AspectReg<A> {
 	 */
 	public void addSubModule(AspectInterface module)
 	{
-		_modules.add(module);
+		this._modules.add(module);
 	}
 	
 	/**
@@ -96,15 +100,15 @@ public class AspectReg<A> {
 	public Object getValue(AspectInterface rootRegistry, String key)
 	{
 		Aspect<?> a = getAspect(key);
-		if (a == null)
+		if ( a == null )
 			return null;
-    	switch (a.type)
-    	{
-    	case PRIMARY: return a.aspect;
-    	case CALCULATED: return a.calc.get(rootRegistry);
-    	case EVENT: Log.out(tier.CRITICAL, "Attempt to get event" +
-    			key + "as Value!");
-    	}
+		switch (a.type)
+		{
+		case PRIMARY: return a.aspect;
+		case CALCULATED: return a.calc.get(rootRegistry);
+		case EVENT: Log.out(tier.CRITICAL, "Attempt to get event" +
+				key + "as Value!");
+		}
     	return null;
 	}
 	
@@ -119,13 +123,15 @@ public class AspectReg<A> {
 			double timeStep, String key)
 	{
 		Aspect<?> a = getAspect(key);
-		if (a == null)
+		if ( a == null )
 			Log.out(tier.DEBUG, "Warning: aspepct registry does not"
 					+ " contain event:" + key);
 		
-		else if (a.type != Aspect.aspectClass.EVENT)
+		else if ( a.type != Aspect.aspectClass.EVENT )
+		{
 			Log.out(tier.CRITICAL, "Attempt to initiate non event "
 					+ "aspect" + key + "as event!");
+		}
 		else
 			a.event.start(initiator, compliant, timeStep);
 	}
@@ -137,14 +143,14 @@ public class AspectReg<A> {
 	 */
 	private Aspect<?> getAspect(String key)
 	{
-		if (_aspects.containsKey(key))
-			return _aspects.get(key);
+		if ( this._aspects.containsKey(key) )
+			return this._aspects.get(key);
 		else
-			for (AspectInterface m : _modules)
-				if(m.reg().isGlobalAspect(key) == true)
+			for ( AspectInterface m : this._modules )
+				if ( m.reg().isGlobalAspect(key) )
 					return (Aspect<?>) m.reg().getAspect(key);
 		
-		Log.out(tier.BULK, "Warning: could not find aspect: " + key);
+		Log.out(tier.DEBUG, "Warning: could not find aspect: " + key);
 		return null;
 	}
 	
@@ -163,11 +169,35 @@ public class AspectReg<A> {
 	}
 
 	/**
-	 * clear all
+	 * Clear all aspects and modules from this registry.
 	 */
 	public void clear()
 	{
 		this._aspects.clear();
 		this._modules.clear();
+	}
+	
+	/**
+	 * \brief Compile a list of all aspect names in this registry.
+	 * 
+	 * @return
+	 */
+	public List<String> getAllAspectNames()
+	{
+		LinkedList<String> names = new LinkedList<String>();
+		this.addAllAspectNames(names);
+		return names;
+	}
+	
+	/**
+	 * \brief Helper method for {@link #getAllAspectNames()}.
+	 * 
+	 * @param names
+	 */
+	public void addAllAspectNames(List<String> names)
+	{
+		names.addAll(this._aspects.keySet());
+		for ( AspectInterface ai : this._modules )
+			ai.reg().addAllAspectNames(names);
 	}
 }

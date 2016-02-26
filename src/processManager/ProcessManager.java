@@ -11,8 +11,11 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import idynomics.Timer;
-import utility.Helper;
 
+/**
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public abstract class ProcessManager implements XMLable, AspectInterface
 {
 	/**
@@ -56,22 +59,28 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 		//"public static ProcessManager getNewInstance(Node xmlNode)"
 		
 		this.loadAspects(xmlElem);
-		
+		/*
+		 * Read in the process attributes. 
+		 */
 		Element p = (Element) xmlElem;
-		
 		this.setName( p.getAttribute( XmlLabel.nameAttribute ));
-		
-		this.setPriority(
-					Integer.valueOf(p.getAttribute( NameRef.processPriority)));
-		
-		this.setTimeForNextStep( Double.valueOf(
-									p.getAttribute( NameRef.initialStep )));
-		
-		// TODO: Bas [16,02,16] this is a work around, nicefy
-		this.setTimeStepSize( Helper.setIfNone(
-					this.getDouble("timerStepSize"),Timer.getTimeStepSize())); 
+		/* Process priority - default is zero. */
+		int priority = 0;
+		if ( p.hasAttribute(NameRef.processPriority) )
+			priority = Integer.valueOf(p.getAttribute(NameRef.processPriority));
+		this.setPriority(priority);
+		/* Initial time to step. */
+		double time = Timer.getCurrentTime();
+		if ( p.hasAttribute(NameRef.initialStep) )
+			time = Double.valueOf( p.getAttribute(NameRef.initialStep) );
+		this.setTimeForNextStep(time);
+		/* Time step size. */
+		time = Timer.getTimeStepSize();
+		if ( p.hasAttribute("timerStepSize") )
+			time = Double.valueOf( p.getAttribute("timerStepSize") );
+		this.setTimeStepSize(time);
 	}
-
+	
 	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 

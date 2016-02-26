@@ -24,7 +24,7 @@ public class Timer
 	
 	public static void init(Node xmlNode)
 	{
-		Log.out(tier.NORMAL, "Loading timer...");
+		Log.out(tier.NORMAL, "Timer loading...");
 		String s;
 		double d;
 		/* Get the time step. */
@@ -38,8 +38,9 @@ public class Timer
 		s = Helper.obtainInput(s, "End of simulation");
 		d = Double.valueOf(s);
 		// TODO safety
-		setTimeStepSize(d);
-		Log.out(tier.NORMAL, "\tTimer loaded");
+		setEndOfSimulation(d);
+		report(tier.NORMAL);
+		Log.out(tier.NORMAL, "Timer loaded!\n");
 	}
 	
 	public static void reset()
@@ -86,6 +87,16 @@ public class Timer
 	
 	public static boolean isRunning()
 	{
+		Log.out(tier.DEBUG, "Timer.isRunning()? now = "+now+", end = "+
+								endOfSimulation+", so "+(now<endOfSimulation)); 
 		return now < endOfSimulation;
+	}
+	
+	public static void report(tier outputLevel)
+	{
+		Log.out(outputLevel, "Timer: time is   = "+now);
+		Log.out(outputLevel, "       iteration = "+iteration);
+		Log.out(outputLevel, "       step size = "+timeStepSize);
+		Log.out(outputLevel, "       end time  = "+endOfSimulation);
 	}
 }

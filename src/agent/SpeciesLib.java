@@ -36,7 +36,10 @@ public class SpeciesLib implements Quizable
 	 */
 	public void init(Element xmlElem)
 	{
-		/* Cycle through all species and add them to the library. */ 
+		Log.out(tier.NORMAL, "Species Library loading...");
+		/* 
+		 * Cycle through all species and add them to the library.
+		 */ 
 		NodeList nodes = xmlElem.getElementsByTagName(XmlLabel.species);
 		String name;
 		Element speciesElem;
@@ -44,9 +47,22 @@ public class SpeciesLib implements Quizable
 		{
 			speciesElem = (Element) nodes.item(i);
 			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
-			Log.out(tier.EXPRESSIVE, "Loading "+name+" into species library");
 			this.set(name, new Species(speciesElem));
 		}
+		/* 
+		 * Now that all species are loaded, loop through again to find the 
+		 * species modules. 
+		 */
+		for ( int i = 0; i < nodes.getLength(); i++ ) 
+		{
+			speciesElem = (Element) nodes.item(i);
+			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			Species s = (Species) this._species.get(name);
+			Log.out(tier.EXPRESSIVE,
+					"Species \""+name+"\" loaded into Species Library");
+			s.findSpeciesModules(speciesElem);
+		}
+		Log.out(tier.NORMAL, "Species Library loaded!\n");
 	}
 	
 	/**
@@ -72,7 +88,16 @@ public class SpeciesLib implements Quizable
 	 */
 	public AspectInterface get(String name)
 	{
-		return ( this._species.containsKey(name) ) ? 
-				this._species.get(name) : this._voidSpecies;
+		if ( this._species.containsKey(name) )
+		{
+			Log.out(tier.BULK, "Species Library found \""+name+"\"");
+			return this._species.get(name);
+		}
+		else
+		{
+			Log.out(tier.DEBUG, "Species Library could not find \""+name+
+												"\", returning void species");
+			return this._voidSpecies;
+		}
 	}
 }

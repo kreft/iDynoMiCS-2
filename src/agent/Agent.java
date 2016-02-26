@@ -3,7 +3,9 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import dataIO.Log;
 import dataIO.XmlLabel;
+import dataIO.Log.tier;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -48,7 +50,7 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public Agent(Node xmlNode)
 	{
-		loadAspects(xmlNode);
+		this.loadAspects(xmlNode);
 		this.init();
 	}
 	
@@ -69,9 +71,20 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public void init()
 	{
+		String species;
+		if ( this.isAspect(XmlLabel.species) )
+		{
+			species = this.getString(XmlLabel.species);
+			
+			Log.out(tier.DEBUG, "Agent belongs to species \""+species+"\"");
+		}
+		else
+		{
+			species = "";
+			Log.out(tier.DEBUG, "Agent belongs to void species");
+		}
 		aspectRegistry.addSubModule( (Species) 
-				Idynomics.simulator.speciesLibrary.get( 
-				isAspect(XmlLabel.species) ? getString(XmlLabel.species) : ""));
+							Idynomics.simulator.speciesLibrary.get(species));
 	}
 
 

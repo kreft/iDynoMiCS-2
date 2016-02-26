@@ -19,7 +19,7 @@ public class AgentStochasticMove extends ProcessManager
 	{
 		for ( Agent agent : agents.getAllLocatedAgents() )
 		{
-			agent.event("stochasticMove", _timeStepSize);
+			agent.event("stochasticMove", this._timeStepSize);
 			/* Save agents that stochastically move out of the domain. */
 			// FIXME still some agents seem to end up just outside
 			Body body = ((Body) agent.get(NameRef.agentBody));
