@@ -3,7 +3,7 @@ package dataIO;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import idynomics.GuiLaunch;
+import guiTools.GuiConsole;
 import idynomics.Idynomics;
 import idynomics.Param;
 import utility.Helper;
@@ -176,9 +176,9 @@ public class Log
 		if ( Helper.gui )
 		{
 			if ( isError )
-				GuiLaunch.writeErr(message + "\n");
+				GuiConsole.writeErr(message + "\n");
 			else
-				GuiLaunch.writeOut(message + "\n");
+				GuiConsole.writeOut(message + "\n");
 		}
 		else
 		{

@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.GuiLaunch;
+import guiTools.GuiConsole;
 
 /**
  * 
@@ -30,7 +30,7 @@ public class Helper
 			
 			if ( gui )
 			{
-				input = GuiLaunch.requestInput(msg);
+				input = GuiConsole.requestInput(msg);
 			} 
 			else
 			{
