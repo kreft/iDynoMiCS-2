@@ -2,30 +2,18 @@ package idynomics;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.ButtonGroup;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
+import java.util.HashMap;
+
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import dataIO.Log;
 import guiTools.GuiActions;
 import guiTools.GuiConsole;
+import guiTools.GuiMenu;
+import guiTools.GuiSplash;
 import utility.Helper;
 
 /**
@@ -40,6 +28,20 @@ import utility.Helper;
  */
 public class GuiLaunch implements Runnable
 {
+	public enum ViewType
+	{
+		SPLASH,
+		
+		CONSOLE,
+		
+		RENDER,
+		
+		GRAPH
+	}
+	
+	private static JFrame masterFrame;
+	
+	private static HashMap<ViewType,JComponent> views;
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -79,114 +81,42 @@ public class GuiLaunch implements Runnable
 		 * input.
 		 */
 		Helper.gui = true;
-		JFrame gui = new JFrame();
+		masterFrame = new JFrame();
 		/* 
 		 * Set the window size, position, title and its close operation.
 		 */
-		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gui.setTitle(Idynomics.fullDescription());
-		gui.setSize(800, 800);
-		gui.setLocationRelativeTo(null);
-		gui.add(new JScrollPane(GuiConsole.getConsole(), 
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		masterFrame.setTitle(Idynomics.fullDescription());
+		masterFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		masterFrame.setLocationRelativeTo(null);
+		/*
+		 * Construct the views and add them to the HashMap.
+		 * Need to make the frame visible already, so we can find the size.
+		 */
+		masterFrame.setVisible(true);
+		int width = masterFrame.getWidth();
+		int height = masterFrame.getHeight();
+		views = new HashMap<ViewType,JComponent>();
+		views.put(ViewType.SPLASH, GuiSplash.getSplashScreen(width, height));
+		views.put(ViewType.CONSOLE, GuiConsole.getConsole());
+		setView(ViewType.SPLASH);
 		/* 
 		 * Set an action for the button (run the simulation).
 		 */
-		JButton launchSim = new JButton("Run!");
-		launchSim.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				if ( Param.protocolFile != null )
-					Idynomics.setupCheckLaunch(Param.protocolFile);
-			}
-		});
-		gui.add(launchSim, BorderLayout.SOUTH);
-		/* 
-		 * Construct the menu bar.
-		 */
-		JMenuBar menuBar;
-		JMenu menu, submenu;
-		JMenuItem menuItem;
-		JRadioButtonMenuItem rbMenuItem;
-		JCheckBoxMenuItem cbMenuItem;
-		/* 
-		 * File menu.
-		 */
-		menuBar = new JMenuBar();
-		menu = new JMenu("File");
-		menu.setMnemonic(KeyEvent.VK_F);
-		menu.getAccessibleContext().setAccessibleDescription("File options");
-		menuBar.add(menu);
-		/* 
-		 * Open a protocol file.
-		 */
-		menuItem = new JMenuItem(new GuiActions.FileOpen());
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_O, ActionEvent.CTRL_MASK));
-		menuItem.getAccessibleContext().setAccessibleDescription(
-				"Open existing protocol file");
-		menu.add(menuItem);
-		/*
-		 * Open render frame: draw the agents in a compartment.
-		 */
-		menuItem = new JMenuItem(new GuiActions.RenderThis());
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_R, ActionEvent.CTRL_MASK));
-		menuItem.getAccessibleContext().setAccessibleDescription(
-				"Render a spatial compartment");
-		menu.add(menuItem);
-		/* 
-		 * Template for further development: we can do switches or toggles
-		 * later.
-		 */
-		menu.addSeparator();
-		cbMenuItem = new JCheckBoxMenuItem("placeholder");
-		cbMenuItem.setMnemonic(KeyEvent.VK_C);
-		menu.add(cbMenuItem);
-		/*
-		 * Output level.
-		 */
-		menu.addSeparator();
-		submenu = new JMenu("OutputLevel");
-		submenu.setMnemonic(KeyEvent.VK_L);
-		ButtonGroup group = new ButtonGroup();
-		for ( Log.Tier t : Log.Tier.values() )
-		{
-			rbMenuItem = new JRadioButtonMenuItem(new GuiActions.LogTier(t));
-			group.add(rbMenuItem);
-			submenu.add(rbMenuItem);
-		}
-		menu.add(submenu);
+		masterFrame.add(GuiActions.runButton(), BorderLayout.SOUTH);
 		/* 
 		 * Add the menu bar to the GUI and make everything visible.
 		 */
-		gui.setJMenuBar(menuBar);
+		masterFrame.setJMenuBar(GuiMenu.getMenuBar());
 		JPanel p = new JPanel();
 		p.setPreferredSize(new Dimension(0, 0));
-		gui.add(p, BorderLayout.NORTH);
-		keyBindings(p, gui);
-		gui.setVisible(true);
+		masterFrame.add(p, BorderLayout.NORTH);
+		GuiActions.keyBindings(p, masterFrame);
+		masterFrame.setVisible(true);
 	}
 	
-  	private static void keyBindings(JPanel p, JFrame frame) 
-  	{
-  		ActionMap actionMap = p.getActionMap();
-  		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-  		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "run");
-  		actionMap.put("run", new AbstractAction()
-  		{
-  			private static final long serialVersionUID = 346448974654345823L;
-
-  			@Override
-  			public void actionPerformed(ActionEvent a)
-  			{
-  				if ( Param.protocolFile != null )
-  					Idynomics.setupCheckLaunch(Param.protocolFile);
-  			}
-  		});
-  	}
+	public static void setView(ViewType vType)
+	{
+		masterFrame.add(views.get(vType));
+	}
  }

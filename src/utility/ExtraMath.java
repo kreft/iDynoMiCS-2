@@ -137,6 +137,19 @@ public final class ExtraMath
 	{
 		return Math.abs(x - y) < absTol;
 	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static final double division(int x, int y)
+	{
+		return ((double) x) / ((double) y);
+	}
+	
 	/**
 	 * \brief TODO
 	 * 

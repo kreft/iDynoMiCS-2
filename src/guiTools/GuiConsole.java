@@ -103,6 +103,8 @@ public final class GuiConsole
 		return a;
 	}
 	
+	// TODO Let the user change the styles?
+	
 	/*************************************************************************
 	 * HANDLING TEXT
 	 ************************************************************************/
