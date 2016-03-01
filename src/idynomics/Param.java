@@ -101,7 +101,8 @@ public class Param
 						Helper.enumToString(Tier.class));
 			}
 		}
-		// TODO Presumably, if the tier was set by GUI then 
+		// TODO Presumably, if the tier was set by GUI then we don't want to
+		// override it?
 		if ( ! Log.isSet() )
 			Log.set(t);
 		/* 

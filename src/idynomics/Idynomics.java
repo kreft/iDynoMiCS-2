@@ -14,6 +14,8 @@ package idynomics;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
+
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
@@ -79,7 +81,7 @@ public class Idynomics
 		setupSimulator(protocolPath);
 		if ( ! simulator.isReadyForLaunch() )
 		{
-			System.out.println(
+			Log.out(Tier.CRITICAL,
 					"Protocol file incomplete! Skipping "+protocolPath);
 			return;
 		}
@@ -93,7 +95,12 @@ public class Idynomics
 	 */
 	public static void setupSimulator(String protocolPath)
 	{
-		System.out.print("Initiating from: " + protocolPath + 
+		if ( protocolPath == null )
+		{
+			Log.out(Tier.CRITICAL, "No protocol path set!");
+			return;
+		}
+		Log.out(Tier.NORMAL, "Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		/* 

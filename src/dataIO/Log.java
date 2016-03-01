@@ -62,7 +62,6 @@ public class Log
 	/**
 	 * Current output level setting.
 	 */
-	// FIXME set to NORMAL by default here?
 	private static Tier outputLevel;
 	
 	/**
@@ -136,8 +135,11 @@ public class Log
 		/* Try writing to screen and to the log file. */
 		if ( outputLevel == null )
 		{
+			 outputLevel = Tier.NORMAL;
+			 printToScreen(
+					 "No output level set, so using NORMAL be default", true);
 			// FIXME this response contradicts the javadoc to set(Tier)
-			printToScreen("Error: attempt to write log before it is set", true);
+			//printToScreen("Error: attempt to write log before it is set", true);
 		}
 		else if ( level.compareTo(outputLevel) < 1 )
 		{
@@ -156,7 +158,7 @@ public class Log
 		logFile.fnew(Param.outputLocation + "/log.txt");
 		logFile.flushAll = true;
 		out(Tier.QUIET, Idynomics.fullDescription() + 
-				"\nOutput level is " + outputLevel.toString() +
+				"\nOutput level is " + outputLevel +
 				", starting at " + ft.format(new Date()) + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
@@ -171,9 +173,13 @@ public class Log
 	// TODO move this method to Helper?
 	public static void printToScreen(String message, boolean isError)
 	{
-		// FIXME capitalising errors in the GUI is not ideal... replace!
 		if ( Helper.gui )
-			GuiLaunch.guiWrite((isError ? message.toUpperCase():message)+"\n");
+		{
+			if ( isError )
+				GuiLaunch.writeErr(message + "\n");
+			else
+				GuiLaunch.writeOut(message + "\n");
+		}
 		else
 		{
 			if ( isError )

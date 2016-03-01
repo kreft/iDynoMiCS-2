@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -25,10 +24,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -52,7 +56,71 @@ public class GuiLaunch implements Runnable
 	/**
 	 * Box in the GUI that displays text like a console would.
 	 */
-	private static JTextArea guiTextArea = new JTextArea(15, 60);
+	private static JTextPane console = new JTextPane();
+	/**
+	 * Background color of the console pane.
+	 */
+	private static Color consoleBackground = new Color(38, 45, 48);
+	/**
+	 * Text style for normal output messages.
+	 */
+	private static SimpleAttributeSet outStyle = defaultOutStyle();
+	/**
+	 * Text style for error output messages.
+	 */
+	private static SimpleAttributeSet errorStyle = defaultErrorStyle();
+	
+	/*************************************************************************
+	 * DEFAULTS
+	 ************************************************************************/
+	
+	/**
+	 * \brief Helper method for all default text styles.
+	 * 
+	 * @return
+	 */
+	private static SimpleAttributeSet defaultStyle()
+	{
+		SimpleAttributeSet a = new SimpleAttributeSet();
+		/*
+		 * Go through possible attributes in alphabetical order. See
+		 * https://docs.oracle.com/javase/7/docs/api/javax/swing/text/StyleConstants.html
+		 */
+		StyleConstants.setAlignment(a, StyleConstants.ALIGN_LEFT);
+		/* Background not set here: see GuiLaunch.consoleBackground. */
+		/* Bold not set here. */
+		StyleConstants.setFontFamily(a, "consolas");
+		StyleConstants.setFontSize(a, 15);
+		/* Foreground not set here. */
+		StyleConstants.setItalic(a, false);
+		return a;
+	}
+	
+	/**
+	 * \brief Default style set for output text.
+	 * 
+	 * @return
+	 */
+	private static SimpleAttributeSet defaultOutStyle()
+	{
+		SimpleAttributeSet a = defaultStyle();
+		StyleConstants.setBold(a, false);
+		StyleConstants.setForeground(a, Color.LIGHT_GRAY);
+		return a;
+	}
+	
+	/**
+	 * \brief Default style set for error text.
+	 * 
+	 * @return
+	 */
+	private static SimpleAttributeSet defaultErrorStyle()
+	{
+		SimpleAttributeSet a = defaultStyle();
+		StyleConstants.setBold(a, true);
+		StyleConstants.setForeground(a, Color.RED);
+		return a;
+	}
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -100,12 +168,12 @@ public class GuiLaunch implements Runnable
 		/* 
 		 * Set the output textArea.
 		 */
-		guiTextArea.setEditable(false);
-		guiTextArea.setBackground(new Color(38, 45, 48));
-		guiTextArea.setForeground(Color.LIGHT_GRAY);
-		guiTextArea.setLineWrap(true);
-		Font font = new Font("consolas", Font.PLAIN, 15);
-		guiTextArea.setFont(font);
+		//console.setEditable(false);
+		console.setBackground(consoleBackground);
+		//console.setForeground(Color.LIGHT_GRAY);
+		//guiTextArea.setLineWrap(true);
+		//Font font = new Font("consolas", Font.PLAIN, 15);
+		//console.setFont(font);
 		/* 
 		 * Set the window size, position, title and its close operation.
 		 */
@@ -113,7 +181,7 @@ public class GuiLaunch implements Runnable
 		gui.setTitle(Idynomics.fullDescription());
 		gui.setSize(800, 800);
 		gui.setLocationRelativeTo(null);
-		gui.add(new JScrollPane(guiTextArea, 
+		gui.add(new JScrollPane(console, 
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
 		/* 
@@ -130,19 +198,6 @@ public class GuiLaunch implements Runnable
 			}
 		});
 		gui.add(launchSim, BorderLayout.SOUTH);
-		
-		JButton stopSim = new JButton("Stop!");
-		stopSim.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				if ( Param.protocolFile != null )
-					Idynomics.setupCheckLaunch(Param.protocolFile);
-			}
-		});
-		gui.add(stopSim, BorderLayout.SOUTH);
-		
 		/* 
 		 * Construct the menu bar.
 		 */
@@ -175,7 +230,7 @@ public class GuiLaunch implements Runnable
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_R, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
-				"Open existing protocol file");
+				"Render a spatial compartment");
 		menu.add(menuItem);
 		/* 
 		 * Template for further development: we can do switches or toggles
@@ -210,20 +265,6 @@ public class GuiLaunch implements Runnable
 		gui.setVisible(true);
 	}
 	
-	
-	/**
-	 * \brief Append a message to the output text area and update the line
-	 * position
-	 * 
-	 * @param message {@code String} message to write to the text area.
-	 */
-  	public static void guiWrite(String message)
-	{
-  		guiTextArea.append(message);
-  		guiTextArea.setCaretPosition(guiTextArea.getText().length());
-  		guiTextArea.update(GuiLaunch.guiTextArea.getGraphics());
-	}
-  	
   	private static void keyBindings(JPanel p, JFrame frame) 
   	{
   		ActionMap actionMap = p.getActionMap();
@@ -242,6 +283,100 @@ public class GuiLaunch implements Runnable
   			}
   		});
   	}
+	
+	/**
+	 * \brief Method to select protocol files from a file selection dialog
+	 * 
+	 * @return XML file selected from the dialog box.
+	 */
+	public static File chooseFile() 
+	{
+		/* Open a FileChooser window in the current directory. */
+		JFileChooser chooser = new JFileChooser("" +
+				System.getProperty("user.dir")+"/protocol");
+		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		// TODO Allow the user to select multiple files.
+		chooser.setMultiSelectionEnabled(false);
+		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
+		{
+			return chooser.getSelectedFile();
+		}
+		else
+		{
+			return null;
+		}
+	}
+	
+	/*************************************************************************
+	 * HANDLING TEXT
+	 ************************************************************************/
+	
+	/**
+	 * \brief Append an output message to the output text area and update the
+	 * line position.
+	 * 
+	 * @param message {@code String} message to write to the text area.
+	 */
+  	public static void writeOut(String message)
+	{
+  		write(message, outStyle);
+	}
+  	
+  	/**
+  	 * \brief Append an error message to the output text area and update the
+  	 * line position.
+	 * 
+	 * @param message {@code String} message to write to the text area.
+  	 */
+  	public static void writeErr(String message)
+  	{
+  		write(message, errorStyle);
+  	}
+  	
+  	/**
+  	 * \brief Helper method for writing messages to the GUI console.
+  	 * 
+  	 * @param message
+  	 * @param a
+  	 */
+  	private static void write(String message, AttributeSet a)
+  	{
+  		Document doc =	console.getDocument();
+  		try
+  		{
+  			doc.insertString(doc.getLength(), message, a);
+  		}
+  		catch ( BadLocationException e )
+  		{
+  			// TODO
+  		}
+  		// TODO disable this if the user tries to scroll up?
+  		console.setCaretPosition(doc.getLength());
+  	}
+	
+	/**
+	 * \brief User input in the GUI text area.
+	 * 
+	 * @param description
+	 * @return
+	 */
+	public static String requestInput(String description)
+	{
+		JFrame frame = new JFrame();
+		String s = (String) JOptionPane.showInputDialog(
+		                    frame,
+		                    description,
+		                    "Customized Dialog",
+		                    JOptionPane.PLAIN_MESSAGE,
+		                    null, null,
+		                    "");
+
+		return s;
+	}
+	
+	/*************************************************************************
+	 * BUTTON ACTIONS
+	 ************************************************************************/
 	
 	public class FileOpen extends AbstractAction
 	{
@@ -262,12 +397,12 @@ public class GuiLaunch implements Runnable
 	    	if ( f == null )
 	    	{
 	    		Param.protocolFile = null;
-	    		guiTextArea.setText("Please choose a protocol file\n");
+	    		writeOut("Please choose a protocol file\n");
 	    	}
 	    	else
 	    	{
 	    		Param.protocolFile = f.getAbsolutePath();
-	    		guiTextArea.setText(Param.protocolFile + " \n");
+	    		writeOut(Param.protocolFile + " \n");
 	    	}
 	    }
 	}
@@ -291,13 +426,13 @@ public class GuiLaunch implements Runnable
 	    	if ( Idynomics.simulator == null || 
 	    					! Idynomics.simulator.hasSpatialCompartments() )
 	    	{
-	    		guiTextArea.append("No spatial compartments available!\n");
+	    		//guiTextArea.append();
+	    		writeErr("No spatial compartments available!\n");
 	    	}
 	    	else
 	    	{
 	    		Compartment c = Idynomics.simulator.get1stSpatialCompartment();
 	    		CommandMediator cm = new AgentMediator(c.agents);
-	    		
 	    		Render myRender = new Render(cm);
 				EventQueue.invokeLater(myRender);
 	    	}
@@ -328,48 +463,4 @@ public class GuiLaunch implements Runnable
 			Log.set(this._tier);
 		}
 	}
-  
-	/**
-	 * \brief Method to select protocol files from a file selection dialog
-	 * 
-	 * @return XML file selected from the dialog box.
-	 */
-	public static File chooseFile() 
-	{
-		/* Open a FileChooser window in the current directory. */
-		JFileChooser chooser = new JFileChooser("" +
-				System.getProperty("user.dir")+"/protocol");
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		// TODO Allow the user to select multiple files.
-		chooser.setMultiSelectionEnabled(false);
-		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
-		{
-			return chooser.getSelectedFile();
-		}
-		else
-		{
-			return null;
-		}
-	}
-	
-	/**
-	 * \brief User input in the GUI text area.
-	 * 
-	 * @param description
-	 * @return
-	 */
-	public static String requestInput(String description)
-	{
-		JFrame frame = new JFrame();
-		String s = (String) JOptionPane.showInputDialog(
-		                    frame,
-		                    description,
-		                    "Customized Dialog",
-		                    JOptionPane.PLAIN_MESSAGE,
-		                    null, null,
-		                    "");
-
-		return s;
-	}
-	  
 }
