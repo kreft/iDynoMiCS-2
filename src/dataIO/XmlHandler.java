@@ -26,10 +26,11 @@ import utility.Helper;
  * @author baco
  *
  */
-public class XmlHandler {
-
+public class XmlHandler
+{
 	/**
-	 * Returns specified document as xml Element
+	 * \brief Returns specified document as xml Element
+	 * 
 	 * @param document
 	 * @return
 	 */
@@ -53,7 +54,7 @@ public class XmlHandler {
 	}
 
 	/**
-	 * Gathers non critical attributes, returns "" if the attribute is not
+	 * \brief Gathers non critical attributes, returns "" if the attribute is not
 	 * defined. This method does not ask the user for any information.
 	 */
 	public static String gatherAttribute(Element xmlElement, String attribute)
@@ -65,7 +66,7 @@ public class XmlHandler {
 	}
 	
 	/**
-	 * Gathers non critical attributes, returns "" if the attribute is not
+	 * \brief Gathers non critical attributes, returns "" if the attribute is not
 	 * defined. This method does not ask the user for any information.
 	 * @param xmlElement
 	 * @param attribute
@@ -77,7 +78,7 @@ public class XmlHandler {
 	}
 
 	/**
-	 * This method gets an attribute from an element, if the element does not
+	 * \brief This method gets an attribute from an element, if the element does not
 	 * have this attribute it will ask the user.
 	 */
 	public static String obtainAttribute(Element xmlElement, String attribute)
@@ -107,7 +108,7 @@ public class XmlHandler {
 	}
 	
 	/**
-	 * Enquires attributes from parent's child nodes identified by tag.
+	 * \brief Enquires attributes from parent's child nodes identified by tag.
 	 * @param parent
 	 * @param tag
 	 * @param attributes
@@ -130,7 +131,7 @@ public class XmlHandler {
 	}
 	
 	/**
-	 * returning all child nodes identified by tag from parent node or element
+	 * \brief returning all child nodes identified by tag from parent node or element
 	 */
 	public static NodeList getAll(Node parent, String tag)
 	{
@@ -138,7 +139,7 @@ public class XmlHandler {
 	}
 	
 	/**
-	 * returning all child nodes identified by tag from parent node or element
+	 * \brief returning all child nodes identified by tag from parent node or element
 	 */
 	public static NodeList getAll(Element parent, String tag)
 	{
@@ -146,7 +147,7 @@ public class XmlHandler {
 	}
 	
 	/**
-	 * Directly writes attributes from xml node to static field
+	 * \brief Directly writes attributes from xml node to static field
 	 */
 	public static void setStaticField(Class<?> c, Element element)
 	{
@@ -174,7 +175,7 @@ public class XmlHandler {
 	}
 
 	/**
-	 * Checks for unique node exists and whether it is unique, than returns it.
+	 * \brief Checks for unique node exists and whether it is unique, than returns it.
 	 * 
 	 * @param xmlElement
 	 * @param tagName
@@ -199,7 +200,7 @@ public class XmlHandler {
 	}		
 	
 	/**
-	 * Loads attribute from a unique node
+	 * \brief Loads attribute from a unique node
 	 * @param xmlElement
 	 * @param tagName
 	 * @param attribute
@@ -260,13 +261,14 @@ public class XmlHandler {
 	{
 		display(prefix, element);
 		NamedNodeMap a = element.getAttributes();
-		for (int i = 0; i < a.getLength(); i++) {
-			String ln = " |" + a.item(i).getNodeName() + " : " 
+		for ( int i = 0; i < a.getLength(); i++ )
+		{
+			String ln = " | " + a.item(i).getNodeName() + " : " 
 					+ a.item(i).getNodeValue();
-			if (prefix == null) 
-				System.out.println(ln);
+			if ( prefix == null )
+				Log.printToScreen(ln, false);
 			else
-				System.out.println(prefix + ln);
+				Log.printToScreen(prefix + ln, false);
 		}
 	}
 	

@@ -38,14 +38,26 @@ import glRender.Render;
 import utility.Helper;
 
 /**
+ * \brief General class to launch simulation from a Graphical User Interface
+ * (GUI).
+ * 
+ * <p>User can select a protocol file from a window and launch the
+ * simulator.</p>
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class GuiLaunch implements Runnable
 {
-	
+	/**
+	 * Box in the GUI that displays text like a console would.
+	 */
 	private static JTextArea guiTextArea = new JTextArea(15, 60);
-
+	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
+	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
 	 * 
@@ -55,20 +67,7 @@ public class GuiLaunch implements Runnable
 	{
 		new GuiLaunch();
 	}
-  
-	/**
-	 * \brief Append a message to the output text area and update the line
-	 * position
-	 * 
-	 * @param message {@code String} message to write to the text area.
-	 */
-  	public static void guiWrite(String message)
-	{
-  		guiTextArea.append(message);
-  		guiTextArea.setCaretPosition(guiTextArea.getText().length());
-  		guiTextArea.update(GuiLaunch.guiTextArea.getGraphics());
-	}
-  
+	
   	/**
   	 * \brief Construct the GUI and run it.
   	 */
@@ -88,32 +87,39 @@ public class GuiLaunch implements Runnable
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} 
 		catch (UnsupportedLookAndFeelException | ClassNotFoundException 
-			  | InstantiationException  | IllegalAccessException e) {
+			  | InstantiationException  | IllegalAccessException e)
+		{
+			// TODO? Or do nothing?
 		}
-		
-		/* When running in GUI we want dialog input instead of command line 
-		 * input */
+		/* 
+		 * When running in GUI we want dialog input instead of command line 
+		 * input.
+		 */
 		Helper.gui = true;
 		JFrame gui = new JFrame();
-		
-		/* Set the output textArea. */
+		/* 
+		 * Set the output textArea.
+		 */
 		guiTextArea.setEditable(false);
 		guiTextArea.setBackground(new Color(38, 45, 48));
 		guiTextArea.setForeground(Color.LIGHT_GRAY);
 		guiTextArea.setLineWrap(true);
 		Font font = new Font("consolas", Font.PLAIN, 15);
 		guiTextArea.setFont(font);
-		/* Set the window size, position, title and its close operation. */
+		/* 
+		 * Set the window size, position, title and its close operation.
+		 */
 		gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		gui.setTitle("iDynoMiCS 2.0");
-		gui.setSize(800,800);
+		gui.setTitle(Idynomics.fullDescription());
+		gui.setSize(800, 800);
 		gui.setLocationRelativeTo(null);
-		/* Add the text area and button to the GUI. */
 		gui.add(new JScrollPane(guiTextArea, 
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		/* 
+		 * Set an action for the button (run the simulation).
+		 */
 		JButton launchSim = new JButton("Run!");
-		/* Set an action for the button (run the simulation). */
 		launchSim.addActionListener(new ActionListener()
 		{
 			@Override
@@ -123,144 +129,203 @@ public class GuiLaunch implements Runnable
 					Idynomics.setupCheckLaunch(Param.protocolFile);
 			}
 		});
-		gui.add(launchSim,BorderLayout.SOUTH);
-
-		/* construct the menu bar */
+		gui.add(launchSim, BorderLayout.SOUTH);
+		
+		JButton stopSim = new JButton("Stop!");
+		stopSim.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
+				if ( Param.protocolFile != null )
+					Idynomics.setupCheckLaunch(Param.protocolFile);
+			}
+		});
+		gui.add(stopSim, BorderLayout.SOUTH);
+		
+		/* 
+		 * Construct the menu bar.
+		 */
 		JMenuBar menuBar;
 		JMenu menu, submenu;
 		JMenuItem menuItem;
 		JRadioButtonMenuItem rbMenuItem;
 		JCheckBoxMenuItem cbMenuItem;
-
-		/* File menu */
+		/* 
+		 * File menu.
+		 */
 		menuBar = new JMenuBar();
-
 		menu = new JMenu("File");
 		menu.setMnemonic(KeyEvent.VK_F);
 		menu.getAccessibleContext().setAccessibleDescription("File options");
 		menuBar.add(menu);
-
-		/* file open */
+		/* 
+		 * Open a protocol file.
+		 */
 		menuItem = new JMenuItem(new FileOpen());
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Open existing protocol file");
 		menu.add(menuItem);
-
-		/* open render frame */
+		/*
+		 * Open render frame: draw the agents in a compartment.
+		 */
 		menuItem = new JMenuItem(new RenderThis());
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_R, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Open existing protocol file");
 		menu.add(menuItem);
-
-		/* we can do switches or toggles later */
+		/* 
+		 * Template for further development: we can do switches or toggles
+		 * later.
+		 */
 		menu.addSeparator();
 		cbMenuItem = new JCheckBoxMenuItem("placeholder");
 		cbMenuItem.setMnemonic(KeyEvent.VK_C);
 		menu.add(cbMenuItem);
-
-		/* output level */
+		/*
+		 * Output level.
+		 */
 		menu.addSeparator();
 		submenu = new JMenu("OutputLevel");
 		submenu.setMnemonic(KeyEvent.VK_L);
-
 		ButtonGroup group = new ButtonGroup();
-		for(Log.Tier t : Log.Tier.values())
+		for ( Log.Tier t : Log.Tier.values() )
 		{
 			rbMenuItem = new JRadioButtonMenuItem(new LogTier(t));
 			group.add(rbMenuItem);
 			submenu.add(rbMenuItem);
 		}
-
 		menu.add(submenu);
-		
-		/* at the menu bar to the gui and make everything visible */
+		/* 
+		 * Add the menu bar to the GUI and make everything visible.
+		 */
 		gui.setJMenuBar(menuBar);
-		
 		JPanel p = new JPanel();
-		p.setPreferredSize(new Dimension(0,0));
+		p.setPreferredSize(new Dimension(0, 0));
 		gui.add(p, BorderLayout.NORTH);
-		
 		keyBindings(p,gui);
 		gui.setVisible(true);
 	}
 	
-	private static void keyBindings(JPanel p, JFrame frame) 
-	{
-		ActionMap actionMap = p.getActionMap();
-		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-		
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "run");
-		actionMap.put("run", new AbstractAction(){
-
-			private static final long serialVersionUID = 346448974654345823L;
-
-			@Override
-			public void actionPerformed(ActionEvent a)
-			{
-				if ( Param.protocolFile != null )
-					Idynomics.setupCheckLaunch(Param.protocolFile);
-			}
-		});
-	}
-
 	
 	/**
-	 * action for the file open button
+	 * \brief Append a message to the output text area and update the line
+	 * position
+	 * 
+	 * @param message {@code String} message to write to the text area.
 	 */
-	public class FileOpen extends AbstractAction {
+  	public static void guiWrite(String message)
+	{
+  		guiTextArea.append(message);
+  		guiTextArea.setCaretPosition(guiTextArea.getText().length());
+  		guiTextArea.update(GuiLaunch.guiTextArea.getGraphics());
+	}
+  	
+  	private static void keyBindings(JPanel p, JFrame frame) 
+  	{
+  		ActionMap actionMap = p.getActionMap();
+  		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+  		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "run");
+  		actionMap.put("run", new AbstractAction()
+  		{
+  			private static final long serialVersionUID = 346448974654345823L;
+
+  			@Override
+  			public void actionPerformed(ActionEvent a)
+  			{
+  				if ( Param.protocolFile != null )
+  					Idynomics.setupCheckLaunch(Param.protocolFile);
+  			}
+  		});
+  	}
 	
-		public FileOpen() {
+	public class FileOpen extends AbstractAction
+	{
+		private static final long serialVersionUID = 2247122248926681550L;
+		
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public FileOpen()
+		{
 	        super("Open..");
 		}
-	
-	    public void actionPerformed(ActionEvent e) {
-	    	Param.protocolFile = chooseFile().getAbsolutePath();
-
-	    	guiTextArea.setText(Param.protocolFile + " \n");
+		
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	File f = chooseFile();
+	    	/* Don't crash if the user has clicked cancel. */
+	    	if ( f == null )
+	    	{
+	    		Param.protocolFile = null;
+	    		guiTextArea.setText("Please choose a protocol file\n");
+	    	}
+	    	else
+	    	{
+	    		Param.protocolFile = f.getAbsolutePath();
+	    		guiTextArea.setText(Param.protocolFile + " \n");
+	    	}
 	    }
 	}
 	
-	/**
-	 * create a new Render object and invoke it (the Render object handles it's
-	 * own JFrame)
-	 */
-	public class RenderThis extends AbstractAction {
-		
-		public RenderThis() {
+	public class RenderThis extends AbstractAction
+	{
+		private static final long serialVersionUID = 974971035938028563L;
+
+		/**
+		 * Create a new {@code Render} object and invoke it.
+		 * 
+		 *  <p>The {@code Render} object handles its own {@code JFrame}.</p>
+		 */
+		public RenderThis()
+		{
 	        super("Render");
 		}
 	
 	    public void actionPerformed(ActionEvent e)
 	    {
-	    	if ( Idynomics.simulator._compartments.size() == 0 )
-	    		guiTextArea.append("No compartments available!\n");
+	    	if ( Idynomics.simulator == null || 
+	    					! Idynomics.simulator.hasSpatialCompartments() )
+	    	{
+	    		guiTextArea.append("No spatial compartments available!\n");
+	    	}
 	    	else
 	    	{
-			Render myRender = new Render((CommandMediator) new AgentMediator(
-					Idynomics.simulator._compartments.getFirst().agents));
-			
-			EventQueue.invokeLater(myRender);
+	    		Compartment c = Idynomics.simulator.get1stSpatialCompartment();
+	    		CommandMediator cm = new AgentMediator(c.agents);
+	    		
+	    		Render myRender = new Render(cm);
+				EventQueue.invokeLater(myRender);
 	    	}
 	    }
 	}
 	
-	/**
-	 * Action for the set Log tier buttons
-	 */
-	public class LogTier extends AbstractAction {
+	public class LogTier extends AbstractAction
+	{
+		private static final long serialVersionUID = 2660256074849177100L;
+		
+		/**
+		 * The output level {@code Tier} for the log file that this button
+		 * represents.
+		 */
 		private Tier _tier;
-
-		public LogTier(Log.Tier tier) {
+		
+		/**
+		 * Action for the set Log Tier sub-menu.
+		 */
+		public LogTier(Log.Tier tier)
+		{
 			super(tier.toString());
 			this._tier = tier;
 		}
 		
-		public void actionPerformed(ActionEvent e) {
-			Log.set(_tier);
+		public void actionPerformed(ActionEvent e)
+		{
+			Log.set(this._tier);
 		}
 	}
   
@@ -271,25 +336,32 @@ public class GuiLaunch implements Runnable
 	 */
 	public static File chooseFile() 
 	{
-		// Open a FileChooser window in the current directory
+		/* Open a FileChooser window in the current directory. */
 		JFileChooser chooser = new JFileChooser("" +
 				System.getProperty("user.dir")+"/protocol");
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		// Allow the user to select multiple files.
+		// TODO Allow the user to select multiple files.
 		chooser.setMultiSelectionEnabled(false);
-		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION ) { }
-		return chooser.getSelectedFile();
+		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
+		{
+			return chooser.getSelectedFile();
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
 	/**
-	 * Gui user input
+	 * \brief User input in the GUI text area.
+	 * 
 	 * @param description
 	 * @return
 	 */
 	public static String requestInput(String description)
 	{
 		JFrame frame = new JFrame();
-		String s = (String)JOptionPane.showInputDialog(
+		String s = (String) JOptionPane.showInputDialog(
 		                    frame,
 		                    description,
 		                    "Customized Dialog",

@@ -2,58 +2,71 @@ package dataIO;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
-
-import dataIO.Log.Tier;
 
 /**
- * Handles file operations, create folders and files, write output.
- * @author baco
- *
+ * \brief Handles file operations, create folders and files, write output.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class FileHandler {
-	BufferedWriter output;
-	int filewriterfilenr;
-	
-	/*
-	 * set to true if each line needs to be written to file immediately (for
-	 * instance for the log file.
+public class FileHandler
+{
+	/**
+	 * The file output stream.
 	 */
-	public boolean flushAll = false;
-
-// FIXME Bas [07.02.2016] what are the use cases for this?
-//	/**
-//	 * Decimal format used in logging simulation messages.
-//	 */
-//	private static DecimalFormat _decimalFormat = new DecimalFormat("0.0");
+	private BufferedWriter _output;
 	
 	/**
-	 * Creates directory if it does not exist
-	 * @param dir
-	 * @return
+	 * TODO
 	 */
+	// FIXME Does this do anything?
+	int filewriterfilenr;
+	
+	/**
+	 * Set to true if each line needs to be written to file immediately (for
+	 * instance for the log file).
+	 */
+	public boolean flushAll = false;
+	
+	/**
+	 * \brief Creates directory if it does not exist.
+	 * 
+	 * @param dir Path to the directory.
+	 * @return true if the directory was made new, false if it already exists
+	 * or there was a problem creating it. 
+	 */
+	// TODO what is the purpose of the boolean returned?
 	private boolean dirMake(String dir)
 	{
 		File base = new File(dir);
-		boolean result = false;
-		if (!base.exists()) {
-			try{
+		if ( base.exists() )
+			return false;
+		else
+		{
+			try
+			{
 				base.mkdir();
-		        result = true;
 		        // NOTE Do not write log before output dir is created
-		        System.out.println("new dir created " + base.getAbsolutePath());
+				Log.printToScreen(
+					"New directory created " + base.getAbsolutePath(), false);
+		        return true;
 		    } 
-		    catch(SecurityException se){
-		    	// NOTE Do not write log before output dir is created
-		    	System.err.println("unable to create dir: " + dir + "\n" + se);
-		    }        
+		    catch(SecurityException se)
+			{
+		    	// NOTE Do not write log before output dir is created.
+		    	// NOTE do not print this as an error, as this would cause
+		    	// problems in the GUI
+		    	Log.printToScreen("Unable to create dir: "+dir+"\n"+se, false);
+		    	return false;
+		    }
 		}
-		return result;
 	}
 	
 	/**
 	 * Create (if applicable) and open directory
+	 * 
 	 * @param dir
 	 * @return
 	 */
@@ -63,7 +76,8 @@ public class FileHandler {
 	}
 	
 	/**
-	 * Walks trough folder structure to create the full path
+	 * Walks through folder structure to create the full path
+	 * 
 	 * @param dir
 	 * @param min
 	 * @return
@@ -73,7 +87,7 @@ public class FileHandler {
 		String[] folders = dir.split("/");
 		String path = "";
 		boolean result = false;
-		for (int i = 0; i < folders.length - min; i++)
+		for ( int i = 0; i < folders.length - min; i++ )
 		{
 			path = path + folders[i] + "/";
 			result = dirMake(path);
@@ -94,45 +108,65 @@ public class FileHandler {
 	 */
 	public void fnew(String file)
 	{
-		if(file.split("/").length > 1)
-			dir(file,1);
-		try {
+		if ( file.split("/").length > 1 )
+			dir(file, 1);
+		try
+		{
 			File f = new File(file);
+			// TODO This is not the right way to go about things!
+			// Look at how it was done in iDyno 1
 			f.delete();
-			java.io.FileWriter fstream;
-			fstream = new java.io.FileWriter(f, true);
-			output = new BufferedWriter(fstream);
-		} catch (IOException e) {
-			// catch
-			e.printStackTrace();
+			FileWriter fstream = new FileWriter(f, true);
+			this._output = new BufferedWriter(fstream);
+		}
+		catch (IOException e)
+		{
+			Log.printToScreen(e.toString(), false);
 		}
 	}
 	
 	/**
-	 * write line to file
+	 * \brief Write line to file.
+	 * 
 	 * @param line
 	 */
 	public void write(String line)
 	{
-		try {
-			output.write(line);
-			if(flushAll)
-				output.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
+		try
+		{
+			this._output.write(line);
+			if ( this.flushAll )
+				this._output.flush();
+		}
+		catch (IOException e)
+		{
+			Log.printToScreen(e.toString(), false);
 		}
 	}
 	
 	/**
 	 * close file
 	 */
-	public void fclose() {
-		try {
-			output.flush();
-			output.close();
-		} catch (IOException e) {
-			// catch
-			e.printStackTrace();
+	public void fclose()
+	{
+		try
+		{
+			this._output.flush();
+			this._output.close();
 		}
+		catch (IOException e)
+		{
+			Log.printToScreen(e.toString(), false);
+		}
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public boolean isReady()
+	{
+		return ( this._output != null );
 	}
 }

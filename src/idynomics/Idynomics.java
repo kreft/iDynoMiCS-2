@@ -100,6 +100,7 @@ public class Idynomics
 		 * Load the protocol file and find the elements we need
 		 */
 		Element idynoElem = XmlHandler.loadDocument(protocolPath);
+		Param.protocolFile = protocolPath;
 		Element simElem = XmlHandler.loadUnique(idynoElem, XmlLabel.simulation);
 		/*
 		 * Initialise the global parameters.
@@ -121,5 +122,16 @@ public class Idynomics
 	{
 		simThread = new Thread(simulator);
 	    simThread.start();
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public static String fullDescription()
+	{
+		return "iDynoMiCS "+Idynomics.version_number+
+				" ("+Idynomics.version_description+")";
 	}
 }

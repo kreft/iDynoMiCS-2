@@ -101,6 +101,7 @@ public class Param
 						Helper.enumToString(Tier.class));
 			}
 		}
+		// TODO Presumably, if the tier was set by GUI then 
 		if ( ! Log.isSet() )
 			Log.set(t);
 		/* 

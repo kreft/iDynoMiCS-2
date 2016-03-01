@@ -1,6 +1,8 @@
 package idynomics;
 
 import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -117,6 +119,61 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 			if ( name.equals(c.name) )
 				return true;
 		return false;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public List<String> getCompartmentNames()
+	{
+		LinkedList<String> names = new LinkedList<String>();
+		for ( Compartment c : this._compartments )
+			names.add(c.name);
+		return names;
+	}
+	
+	/**
+	 * \brief Check if this contains any {@code Compartment}s.
+	 * 
+	 * @return {@code boolean}: true if there is at least one
+	 * {@code Compartment} in this {@code Simulator}, false if there is none.
+	 */
+	public boolean hasCompartments()
+	{
+		return ! this._compartments.isEmpty();
+	}
+	
+	/**
+	 * \brief Check if this contains any {@code Compartment}s with at least one
+	 * spatial dimension.
+	 * 
+	 * @return {@code boolean}: true if there is at least one
+	 * {@code Compartment} with at least spatial dimension in this
+	 * {@code Simulator}, false if there are no {@code Compartment}s or if all
+	 * {@code Compartment}s are dimensionless.
+	 */
+	public boolean hasSpatialCompartments()
+	{
+		for ( Compartment c : this._compartments )
+			if ( ! c.isDimensionless() )
+				return true;
+		return false;
+	}
+	
+	/**
+	 * \brief Get the first {@code Compartment} in this {@code Simulator} that
+	 * has at least one spatial dimension.
+	 * 
+	 * @return A {@code Compartment} if possible, {@code null} if not.
+	 */
+	public Compartment get1stSpatialCompartment()
+	{
+		for ( Compartment c : this._compartments )
+			if ( ! c.isDimensionless() )
+				return c;
+		return null;
 	}
 	
 	/*************************************************************************
