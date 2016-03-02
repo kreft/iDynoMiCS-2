@@ -1,5 +1,10 @@
 package aspect;
 
+import java.util.function.Predicate;
+
+import dataIO.Log;
+import dataIO.Log.Tier;
+
 /**
  * \brief Very general class that acts as a wrapper for other Objects.
  * 
@@ -55,6 +60,15 @@ public class Aspect<A>
 	protected Event event;
 	
 	/**
+	 * TODO
+	 */
+	public String description;
+	
+	private Predicate<A> _restriction;
+	
+	private String _restrictionExplanation;
+	
+	/**
 	 * \brief Construct and Aspect by setting the aspect and declares type
 	 * 
 	 * @param <A>
@@ -79,11 +93,24 @@ public class Aspect<A>
 		}
     }
     
+    /**
+     * \brief TODO
+     * 
+     * @param newAspect
+     */
     protected void updateAspect(A newAspect)
     {
     	if ( newAspect.getClass() != this.aspect.getClass() )
     	{
     		// TODO safety
+    	}
+    	/* Check that the restriction is satisfied, if there is one. */
+    	if ( this.isRestrictionBroken() )
+    	{
+    		if ( this._restrictionExplanation == null )
+    			Log.out(Tier.CRITICAL, "Aspect restriction broken!");
+    		else
+    			Log.out(Tier.CRITICAL, this._restrictionExplanation);
     	}
     	this.aspect = newAspect;
     	/* Update the direct access fields, if appropriate. */
@@ -91,5 +118,28 @@ public class Aspect<A>
     		this.calc = (Calculated) this.aspect;
     	if ( this.type == AspectClass.EVENT )
     		this.event = (Event) this.aspect;
+    }
+    
+    public void setRestriction(Predicate<A> restriction)
+    {
+    	this._restriction = restriction;
+    }
+    
+    public void setRestiction(Predicate<A> restriction, String explanation)
+    {
+    	this.setRestriction(restriction);
+    	this._restrictionExplanation = explanation;
+    }
+    
+    public boolean isRestrictionBroken()
+    {
+    	if ( this._restriction == null )
+    		return false;
+    	return ( ! this._restriction.test(this.aspect) );
+    }
+    
+    public String getRestrictionExplanation()
+    {
+    	return this._restrictionExplanation;
     }
 } 

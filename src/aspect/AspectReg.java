@@ -121,6 +121,27 @@ public class AspectReg<A>
     	return null;
 	}
 	
+	public Object getPrimaryValue(String key)
+	{
+		Aspect<?> a = getAspect(key);
+		if ( a == null )
+			return null;
+		switch (a.type)
+		{
+		case PRIMARY: 
+			return a.aspect;
+		case CALCULATED:
+			Log.out(Tier.CRITICAL, "Attempt to get calculated" +
+					key + "as primary value!");
+			break;
+		case EVENT:
+			Log.out(Tier.CRITICAL, "Attempt to get event" +
+					key + "as primary value!");
+			break;
+		}
+    	return null;
+	}
+	
 	/**
 	 * perform event
 	 * @param initiator
