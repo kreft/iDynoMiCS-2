@@ -5,7 +5,7 @@ package guiTools;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-
+import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -15,6 +15,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 
 /**
  * 
@@ -48,7 +49,7 @@ public final class GuiMenu
 		/*
 		 * Add the option of opening a protocol file.
 		 */
-		menuItem = new JMenuItem(new GuiActions.FileOpen());
+		menuItem = new JMenuItem(new GuiMenu.FileOpen());
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_O, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
@@ -57,7 +58,7 @@ public final class GuiMenu
 		/*
 		 * Add the option of rendering a compartment.
 		 */
-		menuItem = new JMenuItem(new GuiActions.RenderThis());
+		menuItem = new JMenuItem(new GuiMenu.RenderThis());
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_R, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
@@ -80,7 +81,7 @@ public final class GuiMenu
 		ButtonGroup group = new ButtonGroup();
 		for ( Log.Tier t : Log.Tier.values() )
 		{
-			rbMenuItem = new JRadioButtonMenuItem(new GuiActions.LogTier(t));
+			rbMenuItem = new JRadioButtonMenuItem(new GuiMenu.LogTier(t));
 			group.add(rbMenuItem);
 			submenu.add(rbMenuItem);
 		}
@@ -90,4 +91,72 @@ public final class GuiMenu
 		 */
 		return menu;
 	}
+	
+	/*************************************************************************
+	 * 
+	 ************************************************************************/
+	
+	public static class FileOpen extends AbstractAction
+	{
+		private static final long serialVersionUID = 2247122248926681550L;
+		
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public FileOpen()
+		{
+	        super("Open..");
+		}
+		
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	GuiActions.chooseFile();
+	    }
+	}
+	
+	public static class RenderThis extends AbstractAction
+	{
+		private static final long serialVersionUID = 974971035938028563L;
+	
+		/**
+		 * Create a new {@code Render} object and invoke it.
+		 * 
+		 *  <p>The {@code Render} object handles its own {@code JFrame}.</p>
+		 */
+		public RenderThis()
+		{
+	        super("Render");
+		}
+	
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	GuiActions.render();
+	    }
+	}
+	
+	public static class LogTier extends AbstractAction
+	{
+		private static final long serialVersionUID = 2660256074849177100L;
+		
+		/**
+		 * The output level {@code Tier} for the log file that this button
+		 * represents.
+		 */
+		private Tier _tier;
+		
+		/**
+		 * Action for the set Log Tier sub-menu.
+		 */
+		public LogTier(Log.Tier tier)
+		{
+			super(tier.toString());
+			this._tier = tier;
+		}
+		
+		public void actionPerformed(ActionEvent e)
+		{
+			Log.set(this._tier);
+		}
+	}
+	
 }

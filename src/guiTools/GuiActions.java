@@ -17,16 +17,15 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
 import glRender.AgentMediator;
 import glRender.CommandMediator;
 import glRender.Render;
 import idynomics.Compartment;
 import idynomics.GuiLaunch;
-import idynomics.GuiLaunch.ViewType;
 import idynomics.Idynomics;
 import idynomics.Param;
+import idynomics.Timer;
+import idynomics.GuiLaunch.ViewType;
 
 /**
  * 
@@ -45,7 +44,7 @@ public final class GuiActions
 	 * 
 	 * @return XML file selected from the dialog box.
 	 */
-	public static File chooseFile() 
+	public static void chooseFile() 
 	{
 		/* Open a FileChooser window in the current directory. */
 		JFileChooser chooser = new JFileChooser("" +
@@ -53,107 +52,92 @@ public final class GuiActions
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		// TODO Allow the user to select multiple files.
 		chooser.setMultiSelectionEnabled(false);
+		File f = null;
 		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
+			f = chooser.getSelectedFile();
+		
+		GuiLaunch.setView(ViewType.CONSOLE);
+    	/* Don't crash if the user has clicked cancel. */
+    	if ( f == null )
+    	{
+    		Param.protocolFile = null;
+    		GuiConsole.writeOut("Please choose a protocol file\n");
+    	}
+    	else
+    	{
+    		Param.protocolFile = f.getAbsolutePath();
+    		GuiConsole.writeOut(Param.protocolFile + " \n");
+    	}
+	}
+	
+	public static void checkProtocol()
+	{
+		GuiLaunch.setView(ViewType.CONSOLE);
+		if ( Param.protocolFile == null )
 		{
-			return chooser.getSelectedFile();
+			GuiConsole.writeErr("Please open a protocol file to check");
 		}
 		else
 		{
-			return null;
+			Idynomics.setupSimulator(Param.protocolFile);
+			if ( Idynomics.simulator.isReadyForLaunch() )
+				GuiConsole.writeOut("Protocol is ready to launch...");
+			else
+				GuiConsole.writeErr("Problem in protocol file!");
 		}
 	}
 	
-	public static class FileOpen extends AbstractAction
+	/*************************************************************************
+	 * SIMULATION CONTROL
+	 ************************************************************************/
+	
+	public static void runSimulation()
 	{
-		private static final long serialVersionUID = 2247122248926681550L;
-		
-		/**
-		 * Action for the file open sub-menu.
-		 */
-		public FileOpen()
+		GuiLaunch.setView(ViewType.CONSOLE);
+		if ( Param.protocolFile != null )
+			Idynomics.setupCheckLaunch(Param.protocolFile);
+	}
+	
+	public static void pauseSimulation()
+	{
+		if ( Idynomics.simulator == null )
+			return;
+		try
 		{
-	        super("Open..");
+			// TODO This doesn't work yet...
+			Idynomics.simulator.wait();
+		} 
+		catch (InterruptedException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		
-	    public void actionPerformed(ActionEvent e)
-	    {
-	    	File f = chooseFile();
-	    	GuiLaunch.setView(ViewType.CONSOLE);
-	    	/* Don't crash if the user has clicked cancel. */
-	    	if ( f == null )
-	    	{
-	    		Param.protocolFile = null;
-	    		GuiConsole.writeOut("Please choose a protocol file\n");
-	    	}
-	    	else
-	    	{
-	    		Param.protocolFile = f.getAbsolutePath();
-	    		GuiConsole.writeOut(Param.protocolFile + " \n");
-	    	}
-	    }
+	}
+	
+	public static void stopSimulation()
+	{
+		if ( Idynomics.simulator == null )
+			return;
+		Timer.setEndOfSimulation(Timer.getEndOfCurrentIteration());
 	}
 	
 	/*************************************************************************
 	 * RENDERING IMAGES
 	 ************************************************************************/
 	
-	public static class RenderThis extends AbstractAction
+	public static void render()
 	{
-		private static final long serialVersionUID = 974971035938028563L;
-
-		/**
-		 * Create a new {@code Render} object and invoke it.
-		 * 
-		 *  <p>The {@code Render} object handles its own {@code JFrame}.</p>
-		 */
-		public RenderThis()
+		if ( Idynomics.simulator == null || 
+				! Idynomics.simulator.hasSpatialCompartments() )
 		{
-	        super("Render");
+			GuiConsole.writeErr("No spatial compartments available!\n");
 		}
-	
-	    public void actionPerformed(ActionEvent e)
-	    {
-	    	if ( Idynomics.simulator == null || 
-	    					! Idynomics.simulator.hasSpatialCompartments() )
-	    	{
-	    		GuiConsole.writeErr("No spatial compartments available!\n");
-	    	}
-	    	else
-	    	{
-	    		Compartment c = Idynomics.simulator.get1stSpatialCompartment();
-	    		CommandMediator cm = new AgentMediator(c.agents);
-	    		Render myRender = new Render(cm);
-				EventQueue.invokeLater(myRender);
-	    	}
-	    }
-	}
-	
-	/*************************************************************************
-	 * CHOOSING LOG OUTPUT LEVEL
-	 ************************************************************************/
-	
-	public static class LogTier extends AbstractAction
-	{
-		private static final long serialVersionUID = 2660256074849177100L;
-		
-		/**
-		 * The output level {@code Tier} for the log file that this button
-		 * represents.
-		 */
-		private Tier _tier;
-		
-		/**
-		 * Action for the set Log Tier sub-menu.
-		 */
-		public LogTier(Log.Tier tier)
+		else
 		{
-			super(tier.toString());
-			this._tier = tier;
-		}
-		
-		public void actionPerformed(ActionEvent e)
-		{
-			Log.set(this._tier);
+			Compartment c = Idynomics.simulator.get1stSpatialCompartment();
+			CommandMediator cm = new AgentMediator(c.agents);
+			Render myRender = new Render(cm);
+			EventQueue.invokeLater(myRender);
 		}
 	}
 	
