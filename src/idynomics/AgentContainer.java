@@ -11,6 +11,7 @@ import reaction.Reaction;
 import shape.Shape;
 import spatialRegistry.*;
 import surface.BoundingBox;
+import utility.ExtraMath;
 
 /**
  * \brief Manages the agents in a {@code Compartment}.
@@ -122,13 +123,6 @@ public class AgentContainer
 	 */
 	public LinkedList<Agent> getAllAgents()
 	{
-		/*
-		 * Bas: I think the list should only be shuffled when needed or assumed
-		 * needed since shuffling may become expensive with a high number of
-	 	 * agents.
-	 	 * 
-	 	 * Rob [3Feb2016]: That's fine with me.
-		 */
 		LinkedList<Agent> out = new LinkedList<Agent>();
 		out.addAll(this._agentList);
 		out.addAll(this._agentTree.all());
@@ -192,6 +186,24 @@ public class AgentContainer
 	public int getNumAllAgents()
 	{
 		return this._agentList.size() + this._agentTree.all().size();
+	}
+	
+	public Agent extractRandomAgent()
+	{
+		Agent out;
+		int i = ExtraMath.getUniRandInt(this.getNumAllAgents());
+		if ( i > this._agentList.size() )
+		{
+			// Located agent
+			out = this._agentTree.getRandom();
+			this._agentTree.delete(out);
+		}
+		else
+		{
+			// Unlocated agent
+			out = this._agentList.remove(i);
+		}
+		return out;
 	}
 	
 	/*************************************************************************

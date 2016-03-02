@@ -59,6 +59,6 @@ public abstract class Solver
 	 */
 	public int nVar()
 	{
-		return this._variableNames.length;
+		return this._variableNames == null ? 0 : this._variableNames.length;
 	}
 }

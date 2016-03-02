@@ -335,6 +335,8 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	 */
 	public void step()
 	{
+		if ( this._processes.isEmpty() )
+			return;
 		ProcessManager currentProcess = this._processes.getFirst();
 		while ( (this._localTime = currentProcess.getTimeForNextStep()) 
 										< Timer.getEndOfCurrentIteration() )

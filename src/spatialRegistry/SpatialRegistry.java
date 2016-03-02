@@ -67,5 +67,17 @@ public abstract class SpatialRegistry<T>
 	 * @param entry
 	 */
 	public abstract void insert(BoundingBox boundingBox, T entry);
-
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public abstract T getRandom();
+	
+	/**
+	 * 
+	 * @param entry
+	 * @return
+	 */
+	public abstract boolean delete(T entry);
 }

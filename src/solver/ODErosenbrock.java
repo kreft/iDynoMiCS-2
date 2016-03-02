@@ -134,6 +134,8 @@ public class ODErosenbrock extends ODEsolver
 												double absTol, double hMax)
 	{
 		super.init(names, allowNegatives);
+		if ( this.nVar() == 0 )
+			return;
 		/* Doubles */
 		this._absTol = absTol;
 		// NOTE Bas [12.02.16] seems ODErosenbrock does not like absTol < hMax
@@ -171,6 +173,9 @@ public class ODErosenbrock extends ODEsolver
 		 * Jacobian method to be set.
 		 */
 		super.solve(y, tFinal);
+		
+		if ( this.nVar() == 0 )
+			return y;
 		/*
 		 * Control statement in case the maximum timestep size, hMax, is too
 		 * large.
