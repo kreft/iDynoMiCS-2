@@ -1,18 +1,19 @@
 package idynomics;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.util.HashMap;
 
+import javax.swing.GroupLayout;
+import javax.swing.GroupLayout.ParallelGroup;
+import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import guiTools.GuiActions;
 import guiTools.GuiConsole;
 import guiTools.GuiMenu;
+import guiTools.GuiSimControl;
 import guiTools.GuiSplash;
 import utility.Helper;
 
@@ -39,9 +40,13 @@ public class GuiLaunch implements Runnable
 		GRAPH
 	}
 	
-	private static JFrame masterFrame;
+	private static JFrame masterFrame  = new JFrame();
 	
 	private static HashMap<ViewType,JComponent> views;
+	
+	private static JComponent currentView;
+	
+	private GroupLayout layout = new GroupLayout(masterFrame.getContentPane());
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -81,7 +86,6 @@ public class GuiLaunch implements Runnable
 		 * input.
 		 */
 		Helper.gui = true;
-		masterFrame = new JFrame();
 		/* 
 		 * Set the window size, position, title and its close operation.
 		 */
@@ -89,34 +93,83 @@ public class GuiLaunch implements Runnable
 		masterFrame.setTitle(Idynomics.fullDescription());
 		masterFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		masterFrame.setLocationRelativeTo(null);
-		/*
-		 * Construct the views and add them to the HashMap.
-		 * Need to make the frame visible already, so we can find the size.
-		 */
-		masterFrame.setVisible(true);
-		int width = masterFrame.getWidth();
-		int height = masterFrame.getHeight();
-		views = new HashMap<ViewType,JComponent>();
-		views.put(ViewType.SPLASH, GuiSplash.getSplashScreen(width, height));
-		views.put(ViewType.CONSOLE, GuiConsole.getConsole());
-		setView(ViewType.SPLASH);
 		/* 
-		 * Set an action for the button (run the simulation).
-		 */
-		masterFrame.add(GuiActions.runButton(), BorderLayout.SOUTH);
-		/* 
-		 * Add the menu bar to the GUI and make everything visible.
+		 * Add the menu bar. This is independent of the layout of the rest of
+		 * the GUI.
 		 */
 		masterFrame.setJMenuBar(GuiMenu.getMenuBar());
-		JPanel p = new JPanel();
-		p.setPreferredSize(new Dimension(0, 0));
-		masterFrame.add(p, BorderLayout.NORTH);
-		GuiActions.keyBindings(p, masterFrame);
+		/*
+		 * Set up the layout manager and its groups.
+		 */
+		masterFrame.getContentPane().setLayout(layout);
+		this.layout.setAutoCreateGaps(true);
+		this.layout.setAutoCreateContainerGaps(true);
+		SequentialGroup verticalLayoutGroup = layout.createSequentialGroup();
+		ParallelGroup horizontalLayoutGroup = layout.createParallelGroup();
+		/*
+		 * Just below the menu bar, make the bar of simulation control buttons.
+		 */
+		SequentialGroup buttonHoriz = layout.createSequentialGroup();
+		ParallelGroup buttonVert = layout.createParallelGroup();
+		JButton button;
+		/* Check the simulation. */
+		button = GuiSimControl.checkButton();
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		/* Run the simulation. */
+		button = GuiSimControl.runButton();
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		/* Pause the simulation. */
+		// TODO This doesn't work yet...
+		//button = GuiSimControl.pauseButton();
+		//buttonHoriz.addComponent(button);
+		//buttonVert.addComponent(button);
+		/* Stop the simulation. */
+		button = GuiSimControl.stopButton();
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		/* Add these to the layout. */
+		verticalLayoutGroup.addGroup(buttonVert);
+		horizontalLayoutGroup.addGroup(buttonHoriz);
+		/*
+		 * Construct the views and add them to the HashMap.
+		 */
+		views = new HashMap<ViewType,JComponent>();
+		views.put(ViewType.SPLASH, GuiSplash.getSplashScreen());
+		views.put(ViewType.CONSOLE, GuiConsole.getConsole());
+		/*
+		 * Use the splash view to start with.
+		 */
+		currentView = views.get(ViewType.SPLASH);
+		/*
+		 * Add this to the layout.
+		 */
+		horizontalLayoutGroup.addComponent(currentView, 
+											GroupLayout.DEFAULT_SIZE, 
+											GroupLayout.DEFAULT_SIZE,
+											Short.MAX_VALUE);
+		verticalLayoutGroup.addComponent(currentView, 
+											GroupLayout.DEFAULT_SIZE, 
+											GroupLayout.DEFAULT_SIZE,
+											Short.MAX_VALUE);
+		/* 
+		 * Apply the layout and build the GUI.
+		 */
+		layout.setVerticalGroup(verticalLayoutGroup);
+		layout.setHorizontalGroup(horizontalLayoutGroup);
 		masterFrame.setVisible(true);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param vType
+	 */
 	public static void setView(ViewType vType)
 	{
-		masterFrame.add(views.get(vType));
+		GroupLayout l = (GroupLayout) masterFrame.getContentPane().getLayout();
+		l.replace(currentView, views.get(vType));
+		currentView = views.get(vType);
 	}
  }

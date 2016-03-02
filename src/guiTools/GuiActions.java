@@ -5,14 +5,12 @@ package guiTools;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -80,6 +78,7 @@ public final class GuiActions
 	    public void actionPerformed(ActionEvent e)
 	    {
 	    	File f = chooseFile();
+	    	GuiLaunch.setView(ViewType.CONSOLE);
 	    	/* Don't crash if the user has clicked cancel. */
 	    	if ( f == null )
 	    	{
@@ -159,24 +158,8 @@ public final class GuiActions
 	}
 	
 	/*************************************************************************
-	 * RUNNING SIMULATION
+	 * MISC
 	 ************************************************************************/
-	
-	public static JButton runButton()
-	{
-		JButton launchSim = new JButton("Run!");
-		launchSim.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				GuiLaunch.setView(ViewType.CONSOLE);
-				if ( Param.protocolFile != null )
-					Idynomics.setupCheckLaunch(Param.protocolFile);
-			}
-		});
-		return launchSim;
-	}
 	
 	// TODO What does this do? When I click enter, nothing happens...
 	public static void keyBindings(JPanel p, JFrame frame) 
