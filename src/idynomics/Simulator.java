@@ -219,7 +219,9 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		 * Report simulation time.
 		 */
 		tic = (System.currentTimeMillis() - tic) * 0.001;
-		Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds");
+		Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds\n"+
+				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	}
 	
 	/*************************************************************************

@@ -67,6 +67,7 @@ public final class GuiActions
     	{
     		Param.protocolFile = f.getAbsolutePath();
     		GuiConsole.writeOut(Param.protocolFile + " \n");
+    		Timer.reset();
     	}
 	}
 	
