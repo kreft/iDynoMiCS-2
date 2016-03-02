@@ -13,14 +13,13 @@ import utility.Copier;
 /**
  * Work in progress, reworking aspectReg
  * 
- * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @param <A>
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class AspectReg<A>
 {
-	
 	/**
-	 * The aspect HashMap stores all aspects (primary, secondary states and 
+	 * The _aspects HashMap stores all aspects (primary, secondary states and 
 	 * events).
 	 */
 	protected HashMap<String, Aspect<?>> _aspects = 
@@ -51,25 +50,33 @@ public class AspectReg<A>
 	 */
 	public void add(String key, A aspect)
 	{
-		if( this._aspects.containsKey(key) )
+		if ( this._aspects.containsKey(key) )
 		{
-			Log.out(Tier.DEBUG, "attempt to add aspect " + key + 
+			Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
 					" which already exists in this aspect registry");
 		}
 		else
-			set(key,aspect);
+			this._aspects.put(key, new Aspect<A>(aspect));
 	}
 	
 	/**
 	 * same as add but intend is to overwrite
 	 */
+	@SuppressWarnings("unchecked")
 	public void set(String key, A aspect)
 	{
-		this._aspects.put(key, new Aspect<A>(aspect));
+		Aspect<A> a;
+		if ( this._aspects.containsKey(key) )
+		{
+			a = (Aspect<A>) this._aspects.get(key);
+			a.updateAspect(aspect);
+		}
+		else
+			this._aspects.put(key, new Aspect<A>(aspect));
 	}
 	
 	/**
-	 * remove aspect from this registry
+	 * Remove aspect from this registry.
 	 */
 	public void remove(String key)
 	{
@@ -78,6 +85,7 @@ public class AspectReg<A>
 	
 	/**
 	 * Add subModule (implementing AspectInterface)
+	 * 
 	 * @param module
 	 */
 	public void addSubModule(AspectInterface module)
@@ -87,6 +95,7 @@ public class AspectReg<A>
 	
 	/**
 	 * Add subModule from quizable Library
+	 * 
 	 * @param name
 	 */
 	public void addSubModule(String name, Quizable library)
@@ -127,7 +136,7 @@ public class AspectReg<A>
 			Log.out(Tier.DEBUG, "Warning: aspepct registry does not"
 					+ " contain event:" + key);
 		
-		else if ( a.type != Aspect.aspectClass.EVENT )
+		else if ( a.type != Aspect.AspectClass.EVENT )
 		{
 			Log.out(Tier.CRITICAL, "Attempt to initiate non event "
 					+ "aspect" + key + "as event!");
