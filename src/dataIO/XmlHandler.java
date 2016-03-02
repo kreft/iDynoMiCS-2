@@ -22,12 +22,36 @@ import dataIO.Log.Tier;
 import utility.Helper;
 
 /**
- * handles xml files
- * @author baco
- *
+ * \brief Helper class for working with XML files.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class XmlHandler
 {
+	/**
+	 * \brief Make a new {@code Document}.
+	 * 
+	 * @return
+	 */
+	public static Document newDocument()
+	{
+		try 
+		{
+			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
+			Document doc = dBuilder.newDocument();
+			return doc;
+		}
+		catch (ParserConfigurationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
 	/**
 	 * \brief Returns specified document as xml Element
 	 * 
