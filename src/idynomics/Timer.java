@@ -41,6 +41,9 @@ public class Timer
 		setEndOfSimulation(d);
 		report(Tier.NORMAL);
 		Log.out(Tier.NORMAL, "Timer loaded!\n");
+		
+		if ( Helper.gui )
+			GuiLaunch.resetProgressBar();
 	}
 	
 	public static void reset()
@@ -78,11 +81,18 @@ public class Timer
 	{
 		now += timeStepSize;
 		iteration++;
+		if ( Helper.gui )
+			GuiLaunch.updateProgressBar();
 	}
 	
 	public static void setEndOfSimulation(double timeToStopAt)
 	{
 		endOfSimulation = timeToStopAt;
+	}
+	
+	public static int estimateLastIteration()
+	{
+		return (int) (endOfSimulation / timeStepSize);
 	}
 	
 	public static boolean isRunning()

@@ -8,6 +8,7 @@ import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JProgressBar;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -47,6 +48,8 @@ public class GuiLaunch implements Runnable
 	private static JComponent currentView;
 	
 	private GroupLayout layout = new GroupLayout(masterFrame.getContentPane());
+	
+	private static JProgressBar progressBar;
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -129,6 +132,11 @@ public class GuiLaunch implements Runnable
 		button = GuiSimControl.stopButton();
 		buttonHoriz.addComponent(button);
 		buttonVert.addComponent(button);
+		/* Add a progress bar to the button row. */
+		progressBar  = new JProgressBar();
+		progressBar.setStringPainted(true);
+		buttonHoriz.addComponent(progressBar);
+		buttonVert.addComponent(progressBar);
 		/* Add these to the layout. */
 		verticalLayoutGroup.addGroup(buttonVert);
 		horizontalLayoutGroup.addGroup(buttonHoriz);
@@ -171,5 +179,23 @@ public class GuiLaunch implements Runnable
 		GroupLayout l = (GroupLayout) masterFrame.getContentPane().getLayout();
 		l.replace(currentView, views.get(vType));
 		currentView = views.get(vType);
+	}
+	
+	/**
+	 * \brief Reset the simulation progress bar to 0%.
+	 */
+	public static void resetProgressBar()
+	{
+		progressBar.setMinimum(Timer.getCurrentIteration());
+		progressBar.setValue(Timer.getCurrentIteration());
+		progressBar.setMaximum(Timer.estimateLastIteration());
+	}
+	
+	/**
+	 * \brief Move the simulation progress bar along with the Timer. 
+	 */
+	public static void updateProgressBar()
+	{
+		progressBar.setValue(Timer.getCurrentIteration());
 	}
  }
