@@ -8,6 +8,7 @@ import java.awt.Color;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -46,9 +47,11 @@ public final class GuiConsole
 	
 	public static JComponent getConsole()
 	{
-		console  = new JTextPane();
+		console = new JTextPane();
 		console.setBackground(consoleBackground);
-		return console;
+		return new JScrollPane(console,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
 	
 	/*************************************************************************
