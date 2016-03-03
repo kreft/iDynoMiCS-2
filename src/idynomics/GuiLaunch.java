@@ -184,6 +184,11 @@ public class GuiLaunch implements Runnable
 	 */
 	public static void setView(ViewType vType)
 	{
+		if ( ! views.containsKey(vType) )
+		{
+			// TODO safety
+			return;
+		}
 		GroupLayout l = (GroupLayout) masterFrame.getContentPane().getLayout();
 		l.replace(currentView, views.get(vType));
 		currentView = views.get(vType);
