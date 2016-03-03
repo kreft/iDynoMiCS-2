@@ -121,6 +121,12 @@ public class AspectReg<A>
     	return null;
 	}
 	
+	/**
+	 * \brief Get an Aspect's value, assuming it is a primary state.
+	 * 
+	 * @param key
+	 * @return
+	 */
 	public Object getPrimaryValue(String key)
 	{
 		Aspect<?> a = getAspect(key);
@@ -140,6 +146,20 @@ public class AspectReg<A>
 			break;
 		}
     	return null;
+	}
+	
+	/**
+	 * \brief Get a description of the Aspect called by the given key.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public String getDescription(String key)
+	{
+		Aspect<?> a = getAspect(key);
+		if ( a == null )
+			return null;
+		return a.description;
 	}
 	
 	/**
