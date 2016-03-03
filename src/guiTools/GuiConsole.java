@@ -4,7 +4,10 @@
 package guiTools;
 
 import java.awt.Color;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -40,6 +43,8 @@ public final class GuiConsole
 	 * Text style for error output messages.
 	 */
 	private static SimpleAttributeSet errorStyle = defaultErrorStyle();
+	
+	private static boolean autoScroll = true;
 	
 	/*************************************************************************
 	 * CONSTRUCTOR
@@ -151,8 +156,8 @@ public final class GuiConsole
   		{
   			// TODO
   		}
-  		// TODO disable this if the user tries to scroll up?
-  		console.setCaretPosition(doc.getLength());
+  		if ( autoScroll )
+  			console.setCaretPosition(doc.getLength());
   	}
 	
 	/**
@@ -173,5 +178,22 @@ public final class GuiConsole
 		                    "");
 
 		return s;
+	}
+	
+	
+	public static JCheckBox autoScrollCheckBox()
+	{
+		JCheckBox out = new JCheckBox("Autoscroll");
+		out.setSelected(autoScroll);
+		out.addItemListener(new ItemListener()
+		{
+			@Override
+			public void itemStateChanged(ItemEvent e)
+			{
+				int state = e.getStateChange();
+				GuiConsole.autoScroll = (state == ItemEvent.SELECTED);
+			}
+		});
+		return out;
 	}
 }

@@ -6,6 +6,7 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JProgressBar;
@@ -41,13 +42,13 @@ public class GuiLaunch implements Runnable
 		GRAPH
 	}
 	
-	private static JFrame masterFrame  = new JFrame();
+	private static JFrame masterFrame;
 	
 	private static HashMap<ViewType,JComponent> views;
 	
 	private static JComponent currentView;
 	
-	private GroupLayout layout = new GroupLayout(masterFrame.getContentPane());
+	private static GroupLayout layout;
 	
 	private static JProgressBar progressBar;
 	
@@ -66,6 +67,10 @@ public class GuiLaunch implements Runnable
   	 */
 	public GuiLaunch() 
 	{
+		masterFrame = new JFrame();
+		layout = new GroupLayout(masterFrame.getContentPane());
+		masterFrame.getContentPane().setLayout(layout);
+		
 		run();
 	}
 			    	  
@@ -104,9 +109,8 @@ public class GuiLaunch implements Runnable
 		/*
 		 * Set up the layout manager and its groups.
 		 */
-		masterFrame.getContentPane().setLayout(layout);
-		this.layout.setAutoCreateGaps(true);
-		this.layout.setAutoCreateContainerGaps(true);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
 		SequentialGroup verticalLayoutGroup = layout.createSequentialGroup();
 		ParallelGroup horizontalLayoutGroup = layout.createParallelGroup();
 		/*
@@ -137,6 +141,10 @@ public class GuiLaunch implements Runnable
 		progressBar.setStringPainted(true);
 		buttonHoriz.addComponent(progressBar);
 		buttonVert.addComponent(progressBar);
+		/* Add a checkbox for the GuiConsole autoscrolling. */
+		JCheckBox autoscroll = GuiConsole.autoScrollCheckBox();
+		buttonHoriz.addComponent(autoscroll);
+		buttonVert.addComponent(autoscroll);
 		/* Add these to the layout. */
 		verticalLayoutGroup.addGroup(buttonVert);
 		horizontalLayoutGroup.addGroup(buttonHoriz);
