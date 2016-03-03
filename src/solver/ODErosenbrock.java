@@ -89,10 +89,6 @@ public class ODErosenbrock extends ODEsolver
 	 */
 	private double[][] W;
 	/**
-	 * The identity matrix, of size (nVar x nVar).
-	 */
-	private double[][] identity;
-	/**
 	 * {@code double} set and used by the solver.
 	 */
 	private double t, error, tNext, h, test;
@@ -155,7 +151,6 @@ public class ODErosenbrock extends ODEsolver
 		/* Matrices */
 		dFdY  = Matrix.zerosDbl(this.nVar());
 		W     = Matrix.zerosDbl(this.nVar());
-		identity = Matrix.identityDbl(this.nVar());
 	}
 	
 	// TODO init from xml node?
@@ -229,7 +224,8 @@ public class ODErosenbrock extends ODEsolver
 					 * W = I - h * d * dFdY
 					 */
 					Matrix.timesTo(W, dFdY, - h * d);
-					Matrix.addEquals(W, identity);
+					for ( int i = 0; i < this.nVar(); i++ )
+						W[i][i]++;
 					test = Matrix.condition(W);
 					if ( test > 10.0)
 					{ 

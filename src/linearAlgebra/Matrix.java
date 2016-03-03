@@ -1727,12 +1727,11 @@ public final class Matrix
 	 */
 	public static int[][] submatrix(int[][] matrix, int[] rows, int[] cols)
 	{
-		int[][] out = new int[rows.length][cols.length];
+		int[][] out = new int[rows.length][];
 		try
 		{
 			for ( int i = 0; i < rows.length; i++ )
-				for ( int j = 0; j < cols.length; j++ )
-					out[i][j] = matrix[rows[i]][cols[j]];
+				out[i] = Vector.subset(matrix[i], cols);
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
@@ -1762,8 +1761,7 @@ public final class Matrix
 		try
 		{
 			for ( int i = 0; i < rows.length; i++ )
-				for ( int j = 0; j < cols.length; j++ )
-					out[i][j] = matrix[rows[i]][cols[j]];
+				out[i] = Vector.subset(matrix[i], cols);
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
@@ -1882,8 +1880,7 @@ public final class Matrix
 	public static double[][] transpose(double[] vector)
 	{
 		double[][] out = new double[1][vector.length];
-		for ( int i = 0; i < vector.length; i++ )
-			out[0][i] = vector[i];
+		out[0] = Vector.copy(vector);
 		return out;
 	}
 	
@@ -2095,7 +2092,7 @@ public final class Matrix
 	{
 		int out = 0;
 		int min = minDim(matrix);
-		for (int i = 0; i < min; i++)
+		for ( int i = 0; i < min; i++ )
 	         out += matrix[i][i];
 	    return out;
 	}
@@ -2114,7 +2111,7 @@ public final class Matrix
 	{
 		double out = 0;
 		int min = minDim(matrix);
-		for (int i = 0; i < min; i++)
+		for ( int i = 0; i < min; i++ )
 	         out += matrix[i][i];
 	    return out;
 	}
@@ -2135,7 +2132,7 @@ public final class Matrix
 	 */
 	public static int max(int[][] matrix)
 	{
-		int out = matrix[0][0];
+		int out = Integer.MIN_VALUE;
 		for ( int[] row : matrix )
 			out = Math.max(out, Vector.max(row));
 		return out;
@@ -2159,7 +2156,7 @@ public final class Matrix
 	 */
 	public static double max(double[][] matrix)
 	{
-		double out = matrix[0][0];
+		double out = Double.MIN_VALUE;
 		for ( double[] row : matrix )
 			out = Math.max(out, Vector.max(row));
 		return out;
@@ -2181,7 +2178,7 @@ public final class Matrix
 	 */
 	public static int min(int[][] matrix)
 	{
-		int out = matrix[0][0];
+		int out = Integer.MAX_VALUE;
 		for ( int[] row : matrix )
 			out = Math.max(out, Vector.min(row));
 		return out;
@@ -2204,7 +2201,7 @@ public final class Matrix
 	 */
 	public static double min(double[][] matrix)
 	{
-		double out = matrix[0][0];
+		double out = Double.MAX_VALUE;
 		for ( double[] row : matrix )
 			out = Math.max(out, Vector.min(row));
 		return out;
@@ -2223,10 +2220,16 @@ public final class Matrix
 	 */
 	public static int maxColumnSum(int[][] matrix)
 	{
-		int n = colDim(matrix);
-		int out = 0;
-		for ( int j = 0; j < n; j++ )
-			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
+		int out = Integer.MAX_VALUE;
+		int temp;
+		/* Do this the long-hand way to avoid copying columns to vectors. */
+		for ( int i = 0; i < rowDim(matrix); i++ )
+		{
+			temp = 0;
+			for ( int j = 0; j < colDim(matrix); j++ )
+				temp += matrix[i][j];
+			out = Math.max(out, temp);
+		}		
 		return out;
 	}
 	
@@ -2243,9 +2246,16 @@ public final class Matrix
 	 */
 	public static double maxColumnSum(double[][] matrix)
 	{
-		double out = 0.0;
-		for ( int j = 0; j < colDim(matrix); j++ )
-			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
+		double out = Double.MIN_VALUE;
+		double temp;
+		/* Do this the long-hand way to avoid copying columns to vectors. */
+		for ( int i = 0; i < rowDim(matrix); i++ )
+		{
+			temp = 0.0;
+			for ( int j = 0; j < colDim(matrix); j++ )
+				temp += matrix[i][j];
+			out = Math.max(out, temp);
+		}		
 		return out;
 	}
 	
@@ -2262,10 +2272,16 @@ public final class Matrix
 	 */
 	public static int minColumnSum(int[][] matrix)
 	{
-		int n = colDim(matrix);
-		int out = 0;
-		for ( int j = 0; j < n; j++ )
-			out = Math.min(out, Vector.sum(getColumn(matrix, j)));
+		int out = Integer.MAX_VALUE;
+		int temp;
+		/* Do this the long-hand way to avoid copying columns to vectors. */
+		for ( int i = 0; i < rowDim(matrix); i++ )
+		{
+			temp = 0;
+			for ( int j = 0; j < colDim(matrix); j++ )
+				temp += matrix[i][j];
+			out = Math.min(out, temp);
+		}		
 		return out;
 	}
 	
@@ -2282,9 +2298,16 @@ public final class Matrix
 	 */
 	public static double minColumnSum(double[][] matrix)
 	{
-		double out = 0.0;
-		for ( int j = 0; j < colDim(matrix); j++ )
-			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
+		double out = Double.MAX_VALUE;
+		double temp;
+		/* Do this the long-hand way to avoid copying columns to vectors. */
+		for ( int i = 0; i < rowDim(matrix); i++ )
+		{
+			temp = 0.0;
+			for ( int j = 0; j < colDim(matrix); j++ )
+				temp += matrix[i][j];
+			out = Math.min(out, temp);
+		}		
 		return out;
 	}
 	
@@ -2301,7 +2324,7 @@ public final class Matrix
 	 */
 	public static int maxRowSum(int[][] matrix)
 	{
-		int out = 0;
+		int out = Integer.MIN_VALUE;
 		for ( int[] row : matrix )
 			out = Math.max(out, Vector.sum(row));
 		return out;
@@ -2320,7 +2343,7 @@ public final class Matrix
 	 */
 	public static double maxRowSum(double[][] matrix)
 	{
-		double out = 0.0;
+		double out = Double.MIN_VALUE;
 		for ( double[] row : matrix )
 			out = Math.max(out, Vector.sum(row));
 		return out;
@@ -2339,7 +2362,7 @@ public final class Matrix
 	 */
 	public static int minRowSum(int[][] matrix)
 	{
-		int out = 0;
+		int out = Integer.MAX_VALUE;
 		for ( int[] row : matrix )
 			out = Math.min(out, Vector.sum(row));
 		return out;
@@ -2358,7 +2381,7 @@ public final class Matrix
 	 */
 	public static double minRowSum(double[][] matrix)
 	{
-		double out = 0.0;
+		double out = Double.MAX_VALUE;
 		for ( double[] row : matrix )
 			out = Math.min(out, Vector.sum(row));
 		return out;
@@ -2386,9 +2409,9 @@ public final class Matrix
 		 * may be quicker, but riskier. 
 		 */
 		double out = 0.0;
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				out = Math.hypot(out, matrix[i][j]);
+		for ( int[] row : matrix )
+			for ( int elem : row )
+				out = Math.hypot(out, elem);
 		return out;
 	}
 	

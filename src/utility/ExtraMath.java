@@ -647,7 +647,7 @@ public final class ExtraMath
 	 */
 	public static double getUniRandAngle()
 	{
-		return 2 * Math.PI * random.nextDouble();
+		return 2 * Math.PI * getUniRandDbl();
 	}
 	
 	/**
@@ -695,7 +695,7 @@ public final class ExtraMath
 	 */
 	public static double getUniRand(double lBound, double hBound)
 	{
-		return random.nextDouble()*(hBound-lBound) + lBound;
+		return getUniRandDbl()*(hBound-lBound) + lBound;
 	}
 	
 	/**
