@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.AgentBoundary.AgentMethod;
+import dataIO.XmlLabel;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
@@ -60,7 +61,7 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 		for ( int i = 0; i < gridNodes.getLength(); i++ )
 		{
 			xmlGrid = (Element) gridNodes.item(i);
-			className = xmlGrid.getAttribute("class");
+			className = xmlGrid.getAttribute(XmlLabel.classAttribute);
 			try
 			{
 				aGridMethod = (GridMethod) Class.forName(className).newInstance();
