@@ -5,29 +5,20 @@ package boundary;
 
 import java.util.HashMap;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import agent.AgentBoundary.AgentMethod;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
-import shape.Shape;
 
 /**
- * \brief Abstract class of boundary for a Compartment.
+ * \brief General class of boundary for a {@code Shape}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public class Boundary implements CanPrelaunchCheck, XMLable
 {
-	/**
-	 * The shape this Boundary takes (e.g. Plane, Sphere).
-	 * 
-	 * FIXME this should change to surface
-	 */
-	protected Shape _shape;
-	
 	/**
 	 * The grid method this boundary should use for any variable that is not
 	 * named in the dictionary {@link #_gridMethods}. 
@@ -98,26 +89,6 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public Shape getShape()
-	{
-		return this._shape;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param aShape
-	 */
-	public void setShape(Shape aShape)
-	{
-		this._shape = aShape;
-	}
 	
 	/**
 	 * \brief TODO

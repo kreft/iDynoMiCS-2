@@ -366,14 +366,19 @@ public class Dimension implements CanPrelaunchCheck
 	
 	public boolean isReadyForLaunch()
 	{
-		//FIXME temporary disabled to allow testing, re-enable when boundaries
-		// are functional
-//		for ( int i = 0; i < 2; i++ )
-//			if ( this._required[i] && this._boundaries[i] == null )
-//			{
-//				// TODO check boundary is ready to launch?
-//				return false;
-//			}
+		for ( int i = 0; i < 2; i++ )
+		{
+			if ( this._boundary[i] == null )
+			{
+				if ( this._required[i] )
+					return false;
+			}
+			else
+			{
+				if ( ! this._boundary[i].isReadyForLaunch() )
+					return false;
+			}
+		}
 		return true;
 	}
 }
