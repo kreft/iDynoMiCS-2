@@ -51,14 +51,13 @@ public class BoundaryLayer implements IsWellmixedSetter
 		String temp;
 		if ( elem.hasAttribute(XmlLabel.valueAttribute) )
 		{
-			
-			this._value = Double.parseDouble(elem.getAttribute(
-					XmlLabel.valueAttribute));
+			temp = elem.getAttribute(XmlLabel.valueAttribute);
+			this._value = Double.parseDouble(temp);
 		}
 		if ( elem.hasAttribute(XmlLabel.layerThickness) )
 		{
-			this._layerThickness = 
-			Double.parseDouble(elem.getAttribute(XmlLabel.layerThickness));
+			temp = elem.getAttribute(XmlLabel.layerThickness);
+			this._layerThickness = Double.parseDouble(temp);
 		}
 		else
 		{

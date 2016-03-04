@@ -10,8 +10,6 @@ import static org.junit.Assert.assertFalse;
 
 import static testJUnit.AllTests.TOLERANCE;
 
-import java.util.Arrays;
-
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import utility.ExtraMath;
