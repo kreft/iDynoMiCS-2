@@ -11,7 +11,6 @@ import idynomics.Simulator;
 import idynomics.Timer;
 import processManager.AgentGrowth;
 import processManager.AgentRelaxation;
-import processManager.PrepareSoluteGrids;
 import processManager.ProcessManager;
 import processManager.RefreshMassGrids;
 import processManager.SolveDiffusionTransient;
@@ -71,16 +70,6 @@ public class AgentCompartmentTest
 		{
 			bm.setValueAt(ArrayType.CONCN, coords, 0.0);
 		}
-		
-		/*
-		 * The solute grids will need prepping before the solver can get to work.
-		 */
-		
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aPrep.setTimeForNextStep(0.0);
-		aPrep.setTimeStepSize(Double.MAX_VALUE);
-		aCompartment.addProcessManager(aPrep);
-		
 		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */

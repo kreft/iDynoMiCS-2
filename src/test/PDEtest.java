@@ -16,7 +16,6 @@ import idynomics.EnvironmentContainer;
 import idynomics.Simulator;
 import idynomics.Timer;
 import linearAlgebra.Vector;
-import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeLibrary;
@@ -88,11 +87,6 @@ public class PDEtest
 		aCompartment.addBoundary(DimName.X, 1, xmax);
 		//TODO diffusivities
 		aCompartment.init();
-		/*
-		 * The solute grids will need prepping before the solver can get to work.
-		 */
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aCompartment.addProcessManager(aPrep);
 		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
@@ -167,12 +161,6 @@ public class PDEtest
 			sg.setValueAt(ArrayType.CONCN, coords, Math.random());
 		}
 		/*
-		 * The solute grids will need prepping before the solver can get to work.
-		 */
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aPrep.setTimeStepSize(Double.MAX_VALUE);
-		aCompartment.addProcessManager(aPrep);
-		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
@@ -222,12 +210,6 @@ public class PDEtest
 		{
 			sg.setValueAt(ArrayType.CONCN, coords, Math.random());
 		}
-		/*
-		 * The solute grids will need prepping before the solver can get to work.
-		 */
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aPrep.setTimeStepSize(Double.MAX_VALUE);
-		aCompartment.addProcessManager(aPrep);
 		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */

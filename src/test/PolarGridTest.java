@@ -29,7 +29,6 @@ import idynomics.Compartment;
 import idynomics.Simulator;
 import idynomics.Timer;
 import linearAlgebra.Vector;
-import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
@@ -305,11 +304,6 @@ public class PolarGridTest
 		aCompartment.addBoundary(DimName.R, 1, rmax);
 		
 		aCompartment.init();
-		/*
-		 * The solute grids will need prepping before the solver can get to work.
-		 */
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aCompartment.addProcessManager(aPrep);
 		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
