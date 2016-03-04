@@ -10,6 +10,8 @@ import static org.junit.Assert.assertFalse;
 
 import static testJUnit.AllTests.TOLERANCE;
 
+import java.util.Arrays;
+
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import utility.ExtraMath;
@@ -40,13 +42,14 @@ public class LinearAlgebraTest
 		a[0][0] = 1.0; a[0][1] = 2.0; a[0][2] = 3.0;
 		a[1][0] = 0.0; a[1][1] = 1.0; a[1][2] = 4.0;
 		a[2][0] = 5.0; a[2][1] = 6.0; a[2][2] = 0.0;
+		double[][] inverseA = Matrix.invert(a);
 		/* Analytic solution */
 		double[][] b = Matrix.zerosDbl(3);
 		b[0][0] = -24.0; b[0][1] =  18.0; b[0][2] =  5.0;
 		b[1][0] =  20.0; b[1][1] = -15.0; b[1][2] = -4.0;
 		b[2][0] = - 5.0; b[2][1] =   4.0; b[2][2] = 1.0;
 		/* Assert */
-		assertTrue("m", Matrix.areSame(Matrix.invert(a), b, TOLERANCE));
+		assertTrue("m", Matrix.areSame(inverseA, b, TOLERANCE));
 	}
 	
 	/**

@@ -1731,7 +1731,7 @@ public final class Matrix
 		try
 		{
 			for ( int i = 0; i < rows.length; i++ )
-				out[i] = Vector.subset(matrix[i], cols);
+				out[i] = Vector.subset(matrix[rows[i]], cols);
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
@@ -1757,11 +1757,11 @@ public final class Matrix
 	public static double[][] submatrix(double[][] matrix, int[] rows,
 																int[] cols)
 	{
-		double[][] out = new double[rows.length][cols.length];
+		double[][] out = new double[rows.length][];
 		try
 		{
 			for ( int i = 0; i < rows.length; i++ )
-				out[i] = Vector.subset(matrix[i], cols);
+				out[i] = Vector.subset(matrix[rows[i]], cols);
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
