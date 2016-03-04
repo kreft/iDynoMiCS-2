@@ -800,7 +800,7 @@ public final class Array
 	{
 		double out = array[0][0][0];
 		for ( double[][] row : array )
-			out = Math.max(out, Matrix.min(row));
+			out = Math.min(out, Matrix.min(row));
 		return out;
 	}
 	

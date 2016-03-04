@@ -53,6 +53,9 @@ public class PDEexplicit extends PDEsolver
 			var = variables.get(varName);
 			dt = Math.min(dt, 0.1 * var.getMinVoxVoxResSq() /
 					 var.getMin(DIFFUSIVITY));
+			Log.out(DEBUG, "PDEexplicit: variable \""+varName+
+					"\" has min flux "+var.getMinVoxVoxResSq()+
+					" and diffusivity "+var.getMin(DIFFUSIVITY));
 		}
 		/* If the mini-timestep is less than tFinal, split it up evenly. */
 		if ( dt < tFinal )

@@ -97,14 +97,12 @@ public class Param
 			}
 			catch (IllegalArgumentException e)
 			{
-				System.out.println("log level not recognized, use: " + 
+				System.out.println("Log level not recognized, use: " + 
 						Helper.enumToString(Tier.class));
 			}
 		}
-		// TODO Presumably, if the tier was set by GUI then we don't want to
-		// override it?
-		if ( ! Log.isSet() )
-			Log.set(t);
+		// TODO Don't do this if it's in a GUI and the user has set the level
+		Log.set(t);
 		/* 
 		 * 
 		 */
