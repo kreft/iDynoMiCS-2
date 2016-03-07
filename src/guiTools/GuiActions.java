@@ -38,6 +38,12 @@ public final class GuiActions
 	 * DEALING WITH FILES
 	 ************************************************************************/
 	
+	public static void newFile()
+	{
+		GuiLaunch.setView(ViewType.PROTOCOLMAKER);
+		GuiProtocol.newFile();
+	}
+	
 	/**
 	 * \brief Method to select protocol files from a file selection dialog
 	 * 
