@@ -60,7 +60,7 @@ public class SpeciesLib implements Quizable
 			Species s = (Species) this._species.get(name);
 			Log.out(Tier.EXPRESSIVE,
 					"Species \""+name+"\" loaded into Species Library");
-			s.findSpeciesModules(speciesElem);
+			s.loadSpeciesModules(speciesElem);
 		}
 		Log.out(Tier.NORMAL, "Species Library loaded!\n");
 	}

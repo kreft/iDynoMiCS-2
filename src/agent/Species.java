@@ -47,7 +47,7 @@ public class Species implements AspectInterface
 		this.loadAspects(xmlNode);
 	}
 	
-	public void findSpeciesModules(Element xmlElem)
+	public void loadSpeciesModules(Element xmlElem)
 	{
 		NodeList nodes = xmlElem.getElementsByTagName(XmlLabel.speciesModule);
 		String name;

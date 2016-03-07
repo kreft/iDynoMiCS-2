@@ -238,7 +238,7 @@ public class AspectReg<A>
 	public List<String> getAllAspectNames()
 	{
 		LinkedList<String> names = new LinkedList<String>();
-		this.addAllAspectNames(names);
+		this.appendAllAspectNamesTo(names);
 		return names;
 	}
 	
@@ -247,10 +247,10 @@ public class AspectReg<A>
 	 * 
 	 * @param names
 	 */
-	public void addAllAspectNames(List<String> names)
+	public void appendAllAspectNamesTo(List<String> names)
 	{
 		names.addAll(this._aspects.keySet());
 		for ( AspectInterface ai : this._modules )
-			ai.reg().addAllAspectNames(names);
+			ai.reg().appendAllAspectNamesTo(names);
 	}
 }

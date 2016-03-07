@@ -19,10 +19,10 @@ public class FileHandler
 	private BufferedWriter _output;
 	
 	/**
-	 * TODO
+	 * TODO Intended usage: giving files in a series unique and sequential
+	 * numbers for easy identification.  
 	 */
-	// FIXME Does this do anything?
-	int filewriterfilenr;
+	int fileWriterFileNumber;
 	
 	/**
 	 * Set to true if each line needs to be written to file immediately (for
