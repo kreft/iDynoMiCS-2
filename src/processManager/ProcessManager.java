@@ -9,8 +9,8 @@ import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import idynomics.NameRef;
-import idynomics.Timer;
 
 /**
  * 
@@ -70,12 +70,12 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 			priority = Integer.valueOf(p.getAttribute(NameRef.processPriority));
 		this.setPriority(priority);
 		/* Initial time to step. */
-		double time = Timer.getCurrentTime();
+		double time = Idynomics.simulator.timer.getCurrentTime();
 		if ( p.hasAttribute(NameRef.initialStep) )
 			time = Double.valueOf( p.getAttribute(NameRef.initialStep) );
 		this.setTimeForNextStep(time);
 		/* Time step size. */
-		time = Timer.getTimeStepSize();
+		time = Idynomics.simulator.timer.getTimeStepSize();
 		if ( p.hasAttribute("timerStepSize") )
 			time = Double.valueOf( p.getAttribute("timerStepSize") );
 		this.setTimeStepSize(time);

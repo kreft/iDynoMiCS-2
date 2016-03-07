@@ -74,7 +74,7 @@ public final class GuiProtocol
 		
 		// NOTE Temporary fix until we make Simulator an AspectInterface
 		Element timeElem = protocolDoc.createElement("timer");
-		simElem.appendChild(simElem);
+		simElem.appendChild(timeElem);
 		
 		//for ( String aspectName : Timer.reg().getAllAspectNames() )
 	}

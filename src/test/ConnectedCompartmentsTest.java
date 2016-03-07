@@ -6,7 +6,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Simulator;
-import idynomics.Timer;
 import processManager.SolveChemostat;
 import shape.ShapeLibrary.Dimensionless;
 
@@ -17,9 +16,9 @@ public class ConnectedCompartmentsTest
 		/*
 		 * Set up the Simulator and the Timer.
 		 */
-		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(10.0);
 		Simulator sim = new Simulator();
+		sim.timer.setTimeStepSize(1.0);
+		sim.timer.setEndOfSimulation(10.0);
 		Log.set(Tier.EXPRESSIVE);
 		/*
 		 * The connection between the two Compartments.

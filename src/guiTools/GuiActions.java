@@ -24,7 +24,6 @@ import idynomics.Compartment;
 import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 import idynomics.Param;
-import idynomics.Timer;
 import idynomics.GuiLaunch.ViewType;
 
 /**
@@ -67,7 +66,7 @@ public final class GuiActions
     	{
     		Param.protocolFile = f.getAbsolutePath();
     		GuiConsole.writeOut(Param.protocolFile + " \n");
-    		Timer.reset();
+    		Idynomics.simulator.timer.reset();
     	}
 	}
 	
@@ -119,7 +118,9 @@ public final class GuiActions
 	{
 		if ( Idynomics.simulator == null )
 			return;
-		Timer.setEndOfSimulation(Timer.getEndOfCurrentIteration());
+		// TODO this can probably be made a lot cleaner!
+		Idynomics.simulator.timer.setEndOfSimulation(
+				Idynomics.simulator.timer.getEndOfCurrentIteration());
 	}
 	
 	/*************************************************************************

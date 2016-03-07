@@ -12,7 +12,6 @@ import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
-import idynomics.Timer;
 
 /**
  * 
@@ -90,10 +89,12 @@ public class XmlLoad
 		loadGeneralParameters();
 		
 		// NOTE: misses construction from xml, quick fix
-		Timer.setTimeStepSize(Double.valueOf( Helper.obtainInput( 
-				Param.timeStepSize,"Timer time step size")));
-		Timer.setEndOfSimulation( Double.valueOf( Helper.obtainInput(
-				Param.endOfSimulation,"End of simulation")));
+		Idynomics.simulator.timer.setTimeStepSize(
+				Double.valueOf( Helper.obtainInput( 
+						Param.timeStepSize,"Timer time step size")));
+		Idynomics.simulator.timer.setEndOfSimulation(
+				Double.valueOf( Helper.obtainInput(
+						Param.endOfSimulation,"End of simulation")));
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		

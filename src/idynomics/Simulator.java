@@ -34,7 +34,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 	 * Contains information about all species for this simulation.
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
-
+	
+	public Timer timer;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -52,7 +53,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		 * Set up the Timer.
 		 */
 		// TODO change protocol files accordingly
-		Timer.init( XmlHandler.loadUnique(xmlElem, "timer") );
+		this.timer = new Timer();
+		this.timer.init( XmlHandler.loadUnique(xmlElem, "timer") );
 		/*
 		 * Set up the species library.
 		 */
@@ -196,9 +198,9 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		/*
 		 * 
 		 */
-		Timer.step();
+		this.timer.step();
 		/* we should say something when an iter step is finished */
-		Log.out(Tier.NORMAL, "iter time: " + Timer.getCurrentTime());
+		Log.out(Tier.NORMAL, "iter time: " + this.timer.getCurrentTime());
 
 	}
 	
@@ -209,7 +211,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		 * Start timing just before simulation starts.
 		 */
 		double tic = System.currentTimeMillis();
-		while ( Timer.isRunning() )
+		while ( this.timer.isRunning() )
 			this.step();
 		/*
 		 * Print the simulation results.

@@ -1,6 +1,6 @@
 package idynomics;
 
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 import aspect.Aspect;
 import aspect.AspectInterface;
@@ -9,28 +9,26 @@ import aspect.AspectRestrictionsLibrary;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
+import generalInterfaces.XMLable;
 import dataIO.Log.Tier;
 import utility.Helper;
 
-public class Timer implements AspectInterface
+public class Timer implements AspectInterface, XMLable
 {
-	private static int iteration;
+	private int iteration;
 	
-	private static double now;
+	private double now;
 	
-	private static AspectReg<Object> aspectRegistry = defaultValues();
+	private AspectReg<Object> aspectRegistry;
 	
-	/*************************************************************************
-	 * BASIC METHODS
-	 ************************************************************************/
-	
-	@Override
-	public AspectReg<?> reg()
+	public Timer()
 	{
-		return aspectRegistry;
+		this.iteration = 0;
+		this.now = 0.0;
+		this.aspectRegistry = defaultValues();
 	}
 	
-	public static AspectReg<Object> defaultValues()
+	private static AspectReg<Object> defaultValues()
 	{
 		AspectReg<Object> out = new AspectReg<Object>();
 		/* The time step size is required. */
@@ -46,7 +44,7 @@ public class Timer implements AspectInterface
 		return out;
 	}
 	
-	public static void init(Node xmlNode)
+	public void init(Element xmlNode)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");
 		String s;
@@ -70,38 +68,48 @@ public class Timer implements AspectInterface
 			GuiLaunch.resetProgressBar();
 	}
 	
-	public static void reset()
+	/*************************************************************************
+	 * BASIC METHODS
+	 ************************************************************************/
+	
+	@Override
+	public AspectReg<?> reg()
+	{
+		return aspectRegistry;
+	}
+	
+	public void reset()
 	{
 		now = 0.0;
 		iteration = 0;
 	}
 	
-	public static void setTimeStepSize(double stepSize)
+	public void setTimeStepSize(double stepSize)
 	{
 		aspectRegistry.set(XmlLabel.timerStepSize, stepSize);
 	}
 	
-	public static double getCurrentTime()
+	public double getCurrentTime()
 	{
 		return now;
 	}
 	
-	public static int getCurrentIteration()
+	public int getCurrentIteration()
 	{
 		return iteration;
 	}
 	
-	public static double getTimeStepSize()
+	public double getTimeStepSize()
 	{
-		return (double) aspectRegistry.getPrimaryValue(XmlLabel.timerStepSize);
+		return (double) aspectRegistry.getValue(this, XmlLabel.timerStepSize);
 	}
 	
-	public static double getEndOfCurrentIteration()
+	public double getEndOfCurrentIteration()
 	{
 		return now + getTimeStepSize();
 	}
 	
-	public static void step()
+	public void step()
 	{
 		now += getTimeStepSize();
 		iteration++;
@@ -109,29 +117,29 @@ public class Timer implements AspectInterface
 			GuiLaunch.updateProgressBar();
 	}
 	
-	public static double getEndOfSimulation()
+	public double getEndOfSimulation()
 	{
-		return (double) aspectRegistry.getPrimaryValue(XmlLabel.endOfSimulation);
+		return (double) aspectRegistry.getValue(this, XmlLabel.endOfSimulation);
 	}
 	
-	public static void setEndOfSimulation(double timeToStopAt)
+	public void setEndOfSimulation(double timeToStopAt)
 	{
 		aspectRegistry.set(XmlLabel.endOfSimulation, timeToStopAt);
 	}
 	
-	public static int estimateLastIteration()
+	public int estimateLastIteration()
 	{
 		return (int) (getEndOfSimulation() / getTimeStepSize());
 	}
 	
-	public static boolean isRunning()
+	public boolean isRunning()
 	{
 		Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+now+", end = "+
 				getEndOfSimulation()+", so "+(now<getEndOfSimulation())); 
 		return now < getEndOfSimulation();
 	}
 	
-	public static void report(Tier outputLevel)
+	public void report(Tier outputLevel)
 	{
 		Log.out(outputLevel, "Timer: time is   = "+now);
 		Log.out(outputLevel, "       iteration = "+iteration);

@@ -14,7 +14,6 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Simulator;
-import idynomics.Timer;
 import linearAlgebra.Vector;
 import processManager.SolveDiffusionTransient;
 import shape.Shape;
@@ -27,10 +26,9 @@ public class PDEtest
 	
 	public static void main(String[] args)
 	{
-		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(10.0);
-		
 		Simulator aSimulator = new Simulator();
+		aSimulator.timer.setTimeStepSize(1.0);
+		aSimulator.timer.setEndOfSimulation(10.0);
 		/*
 		 * Add the test compartments.
 		 */
@@ -93,7 +91,7 @@ public class PDEtest
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(soluteNames);
 		aProcess.setTimeForNextStep(0.0);
-		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aProcess.setTimeStepSize(aSim.timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
 	}
 	
@@ -166,7 +164,7 @@ public class PDEtest
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(soluteNames);
 		aProcess.setTimeForNextStep(0.0);
-		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aProcess.setTimeStepSize(aSim.timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
 	}
 	
@@ -216,7 +214,7 @@ public class PDEtest
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(soluteNames);
 		aProcess.setTimeForNextStep(0.0);
-		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aProcess.setTimeStepSize(aSim.timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
 	}
 	

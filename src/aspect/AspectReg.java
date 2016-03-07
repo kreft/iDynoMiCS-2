@@ -122,33 +122,6 @@ public class AspectReg<A>
 	}
 	
 	/**
-	 * \brief Get an Aspect's value, assuming it is a primary state.
-	 * 
-	 * @param key
-	 * @return
-	 */
-	public Object getPrimaryValue(String key)
-	{
-		Aspect<?> a = getAspect(key);
-		if ( a == null )
-			return null;
-		switch (a.type)
-		{
-		case PRIMARY: 
-			return a.aspect;
-		case CALCULATED:
-			Log.out(Tier.CRITICAL, "Attempt to get calculated" +
-					key + "as primary value!");
-			break;
-		case EVENT:
-			Log.out(Tier.CRITICAL, "Attempt to get event" +
-					key + "as primary value!");
-			break;
-		}
-    	return null;
-	}
-	
-	/**
 	 * \brief Get a description of the Aspect called by the given key.
 	 * 
 	 * @param key

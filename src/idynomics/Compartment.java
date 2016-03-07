@@ -67,7 +67,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	 * Local time should always be between {@code Timer.getCurrentTime()} and
 	 * {@code Timer.getEndOfCurrentTime()}.
 	 */
-	protected double _localTime = Timer.getCurrentTime();
+	protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -339,7 +339,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 			return;
 		ProcessManager currentProcess = this._processes.getFirst();
 		while ( (this._localTime = currentProcess.getTimeForNextStep()) 
-										< Timer.getEndOfCurrentIteration() )
+					< Idynomics.simulator.timer.getEndOfCurrentIteration() )
 		{
 			Log.out(Tier.EXPRESSIVE, "");
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+

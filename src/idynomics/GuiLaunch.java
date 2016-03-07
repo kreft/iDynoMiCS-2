@@ -15,6 +15,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import guiTools.GuiConsole;
 import guiTools.GuiMenu;
+import guiTools.GuiProtocol;
 import guiTools.GuiSimControl;
 import guiTools.GuiSplash;
 import utility.Helper;
@@ -38,6 +39,8 @@ public class GuiLaunch implements Runnable
 		CONSOLE,
 		
 		RENDER,
+		
+		PROTOCOLMAKER,
 		
 		GRAPH
 	}
@@ -186,8 +189,15 @@ public class GuiLaunch implements Runnable
 	{
 		if ( ! views.containsKey(vType) )
 		{
-			// TODO safety
-			return;
+			switch (vType)
+			{
+			case PROTOCOLMAKER:
+				views.put(ViewType.PROTOCOLMAKER, GuiProtocol.getProtocolEditor());
+				break;
+			// TODO 
+			default:
+				return;
+			}
 		}
 		GroupLayout l = (GroupLayout) masterFrame.getContentPane().getLayout();
 		l.replace(currentView, views.get(vType));
@@ -199,9 +209,9 @@ public class GuiLaunch implements Runnable
 	 */
 	public static void resetProgressBar()
 	{
-		progressBar.setMinimum(Timer.getCurrentIteration());
-		progressBar.setValue(Timer.getCurrentIteration());
-		progressBar.setMaximum(Timer.estimateLastIteration());
+		progressBar.setMinimum(Idynomics.simulator.timer.getCurrentIteration());
+		progressBar.setValue(Idynomics.simulator.timer.getCurrentIteration());
+		progressBar.setMaximum(Idynomics.simulator.timer.estimateLastIteration());
 	}
 	
 	/**
@@ -209,6 +219,6 @@ public class GuiLaunch implements Runnable
 	 */
 	public static void updateProgressBar()
 	{
-		progressBar.setValue(Timer.getCurrentIteration());
+		progressBar.setValue(Idynomics.simulator.timer.getCurrentIteration());
 	}
  }

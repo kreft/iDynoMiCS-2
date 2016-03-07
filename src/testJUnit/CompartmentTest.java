@@ -30,10 +30,11 @@ public class CompartmentTest
 		 * Put some dummy ProcessManagers into a Compartment, and check they
 		 * are stepped in the correct order.
 		 */
+		Timer timer = new Timer();
 		Compartment c = new Compartment();
 		ProcessManager pm;
-		Timer.setTimeStepSize(4.5);
-		Timer.setEndOfSimulation(4.5);
+		timer.setTimeStepSize(4.5);
+		timer.setEndOfSimulation(4.5);
 		/* Frequent, low priority. */
 		pm = new DummyProcess();
 		pm.setTimeForNextStep(0.0);
