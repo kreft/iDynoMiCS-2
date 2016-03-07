@@ -1,5 +1,6 @@
 package idynomics;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,11 +8,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
+import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
+import guiTools.GuiProtocol.ModuleRequirement;
 import utility.*;
 
 /**
@@ -45,6 +48,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 	{
 		//TODO fully implement MTRandom (reading in random seed)
 		ExtraMath.initialiseRandomNumberGenerator();
+		this.timer = new Timer();
 	}
 	
 	public void init(Element xmlElem)
@@ -52,8 +56,6 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		/*
 		 * Set up the Timer.
 		 */
-		// TODO change protocol files accordingly
-		this.timer = new Timer();
 		this.timer.init( XmlHandler.loadUnique(xmlElem, "timer") );
 		/*
 		 * Set up the species library.
@@ -278,5 +280,17 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		}
 		return true;
 	}
-
+	
+	
+	public HashMap<AspectInterface,ModuleRequirement> getModules()
+	{
+		HashMap<AspectInterface,ModuleRequirement> out =
+				new HashMap<AspectInterface,ModuleRequirement>();
+		
+		out.put(this.timer, ModuleRequirement.EXACTLY_ONE);
+		// FIXME how do we make this possible?
+		//out.put(this.speciesLibrary, ModuleRequirement.ZERO_OR_ONE);
+		//out.put(this._compartments, ModuleRequirement.ONE_TO_MANY);
+		return out;
+	}
 }
