@@ -21,18 +21,18 @@ public class Link {
 		this._snap = snapDistance;
 	}
 	
-	public boolean evaluate(Collision collisionDomain)
-	{
-		double d = collisionDomain.sphereSphere( (Ball) _surfaces[0], 
-				(Ball) _surfaces[1]);
-		if (d < 0)
-			return false;
-		else if (d > _snap)
-			return true;
-		else
-		{
-			collisionDomain.pull(_surfaces[0], _surfaces[1]);
-			return false;
-		}
-	}
+//	public boolean evaluate(Collision collisionDomain)
+//	{
+//		double d = collisionDomain.sphereSphere( (Ball) _surfaces[0], 
+//				(Ball) _surfaces[1]);
+//		if (d < 0)
+//			return false;
+//		else if (d > _snap)
+//			return true;
+//		else
+//		{
+//			collisionDomain.pull(_surfaces[0], _surfaces[1]);
+//			return false;
+//		}
+//	}
 }

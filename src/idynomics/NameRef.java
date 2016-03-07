@@ -28,12 +28,12 @@ public class NameRef {
 	/**
 	 * 
 	 */
-	public static String boundingLower = "#boundingLower";
+	public static String agentPulldistance = "pullDistance";
 	
 	/**
 	 * 
 	 */
-	public static String boundingSides = "#boundingSides";
+	public static String agentPullStrength = "pullStrength";
 	
 	/**
 	 * 

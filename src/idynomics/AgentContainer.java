@@ -175,9 +175,17 @@ public class AgentContainer
 		treeInsert(anAgent);
 	}
 	
+	/**
+	 * NOTE the agent bounding box should encapsulate the entire influence
+	 * region of the agent (thus also pull distance)
+	 * @param anAgent
+	 */
 	protected void treeInsert(Agent anAgent)
 	{
-		for(BoundingBox b: ((Body) anAgent.get(NameRef.agentBody)).getBoxes(0.0))
+		for(BoundingBox b: ((Body) anAgent.get(NameRef.agentBody)).getBoxes(
+				(anAgent.isAspect(NameRef.agentPulldistance) ?
+				anAgent.getDouble(NameRef.agentPulldistance) :
+				0.0)))
 			this._agentTree.insert(b, anAgent);
 	}
 	

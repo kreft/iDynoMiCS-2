@@ -4,9 +4,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import linearAlgebra.Vector;
 import processManager.ProcessManager;
-import shape.ShapeConventions.DimName;
 import utility.Helper;
 import agent.Agent;
 import aspect.AspectInterface;
@@ -53,7 +51,7 @@ public class XmlLoad
 		{
 			NodeList agentNodes = agents.getElementsByTagName(XmlLabel.agent);
 			for (int j = 0; j < agentNodes.getLength(); j++) 
-				comp.addAgent(new Agent(agentNodes.item(j)));
+				comp.addAgent(new Agent(agentNodes.item(j),comp));
 		}
 		else
 			Log.out(tier.NORMAL, "Warning: starting simulation without agents");

@@ -48,5 +48,7 @@ public class Param {
 	public static String timeStepSize;
 	
 	public static String endOfSimulation;
+
+	public static String idynomicsRoot = "";
 	
 }

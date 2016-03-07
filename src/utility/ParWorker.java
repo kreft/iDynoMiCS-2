@@ -70,13 +70,13 @@ public class ParWorker  extends RecursiveAction
 					{
 						if (agent.identity() > neighbour.identity())
 						{
-							iterator.collision((Surface) agent.get("surface"), 
-									(Surface) neighbour.get("surface"));
+//							iterator.collision((Surface) agent.get("surface"), 
+//									(Surface) neighbour.get("surface"));
 						}
 					}
 					for(Surface s : _agentContainer.getShape().getSurfaces())
 					{
-						iterator.collision(s, (Surface) agent.get("surface"));
+//						iterator.collision(s, (Surface) agent.get("surface"));
 					}
 				}
 			}

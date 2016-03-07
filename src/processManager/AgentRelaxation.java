@@ -4,7 +4,6 @@ import surface.Collision;
 import surface.Point;
 import surface.Surface;
 import utility.Helper;
-import utility.ParWorker;
 import linearAlgebra.Vector;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -14,6 +13,8 @@ import java.util.concurrent.ForkJoinPool;
 
 import agent.Agent;
 import agent.Body;
+import dataIO.Log;
+import dataIO.Log.tier;
 
 
 	////////////////////////
@@ -83,7 +84,8 @@ public class AgentRelaxation extends ProcessManager {
 		 */
 		agents.refreshSpatialRegistry();
 		if(concurrent)
-			pool.invoke(new ParWorker(agents));
+			Log.out(tier.DEBUG, "concurent agent relax currently dissabled");
+//			pool.invoke(new ParWorker(agents));
 		else
 		{
 			Collision iterator = new Collision(null, agents.getShape());
@@ -106,6 +108,10 @@ public class AgentRelaxation extends ProcessManager {
 				 * NOTE: currently missing internal springs for rod cells.
 				 */
 				
+				double pullDist = (agent.isAspect(NameRef.agentPulldistance) ?
+						agent.getDouble(NameRef.agentPulldistance) :
+						0.0);
+				
 				/**
 				 * perform neighborhood search and perform collision detection and
 				 * response FIXME: this has not been adapted to multi surface
@@ -113,12 +119,17 @@ public class AgentRelaxation extends ProcessManager {
 				 * TODO Add optional extra margin for pulls!!!
 				 */
 				for(Agent neighbour: agents.treeSearch(
-						((Body) agent.get(NameRef.agentBody)).getBoxes(0.0)))
+
+						((Body) agent.get(NameRef.agentBody)).getBoxes(
+								pullDist)))
 				{
 					if (agent.identity() > neighbour.identity())
 					{
 						iterator.collision((Surface) agent.get("surface"), 
-								(Surface) neighbour.get("surface"));
+								(Surface) neighbour.get("surface"), pullDist +
+								(neighbour.isAspect(NameRef.agentPulldistance) ?
+								neighbour.getDouble(NameRef.agentPulldistance) :
+								0.0));
 					}
 				}
 				
@@ -127,7 +138,7 @@ public class AgentRelaxation extends ProcessManager {
 				 */
 				for(Surface s : agents.getShape().getSurfaces())
 				{
-					iterator.collision(s, (Surface) agent.get("surface"));
+					iterator.collision(s, (Surface) agent.get("surface"), 0.0);
 				}
 			}
 		}
@@ -210,6 +221,8 @@ public class AgentRelaxation extends ProcessManager {
 				for (Point point: ((Body) agent.get("body")).getPoints())
 				{
 					agents.getShape().applyBoundaries(point.getPosition());
+					if (agent.isAspect("stochasticStep"))
+						agent.event("stochasticMove", dtMech);
 				}
 			nstep++;
 		}
