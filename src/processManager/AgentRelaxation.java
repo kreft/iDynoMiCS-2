@@ -14,17 +14,8 @@ import surface.Collision;
 import surface.Point;
 import surface.Surface;
 import utility.Helper;
-import linearAlgebra.Vector;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
-import idynomics.NameRef;
-
-import java.util.concurrent.ForkJoinPool;
-
-import agent.Agent;
-import agent.Body;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 
 
 	////////////////////////
@@ -109,7 +100,7 @@ public class AgentRelaxation extends ProcessManager
 		 */
 		agents.refreshSpatialRegistry();
 		if(concurrent)
-			Log.out(tier.DEBUG, "concurent agent relax currently dissabled");
+			Log.out(Tier.DEBUG, "concurent agent relax currently dissabled");
 //			pool.invoke(new ParWorker(agents));
 		else
 		{

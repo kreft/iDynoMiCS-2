@@ -201,11 +201,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		this.timer.step();
 		/* we should say something when an iter step is finished */
 		Log.out(Tier.NORMAL, "iter time: " + this.timer.getCurrentTime());
-		this._compartments.forEach((s,c) -> 
-		{
-		//	Log.out(tier.QUIET,"COMPARTMENT: " + s);
-			Log.out(tier.QUIET,c.agents.getAllAgents().size() + " agents");
-		});
+		// TODO re-implement agent reporting
+//		this._compartments.forEach((s,c) -> 
+//		{
+//			Log.out(tier.QUIET,"COMPARTMENT: " + s);
+//			Log.out(tier.QUIET,c.agents.getAllAgents().size() + " agents");
+//		});
 
 	}
 	

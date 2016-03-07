@@ -157,7 +157,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				location = solute.getVoxelOrigin(coord);
 				solute.getVoxelSideLengthsTo(dimension, coord);
 				/* NOTE the agent tree is always the amount of actual dimension */
-				neighbors = agents._agentTree.cyclicsearch(
+				neighbors = agents.treeSearch(
 							  					Vector.subset(location, nDim),
 							  					Vector.subset(dimension, nDim));
 				/* If there are none, move onto the next voxel. */
