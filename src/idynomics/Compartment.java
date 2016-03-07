@@ -1,7 +1,6 @@
 package idynomics;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -18,11 +17,11 @@ import generalInterfaces.XMLable;
 import grid.*;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
+import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
-import utility.ExtraMath;
 
 /**
  * 
@@ -358,25 +357,6 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 			 * Choose the new first process for the next iteration.
 			 */
 			currentProcess = this._processes.getFirst();
-		}
-	}
-	
-	/**
-	 * \brief Helper for ordering {@code ProcessManager}s: time for next step
-	 * is the key metric for ordering, but we use the priority value in case
-	 * of a draw.
-	 */
-	protected static class ProcessComparator 
-										implements Comparator<ProcessManager>
-	{
-		@Override
-		public int compare(ProcessManager pm1, ProcessManager pm2) 
-		{
-			Double temp = pm1.getTimeForNextStep() - pm2.getTimeForNextStep();
-			if ( ExtraMath.areEqual(temp, 0.0, 1.0E-10) )
-				return pm2.getPriority() - pm1.getPriority();
-			else
-				return temp.intValue();
 		}
 	}
 	
