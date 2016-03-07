@@ -126,7 +126,10 @@ public final class GuiProtocol
 		// TODO Name of the AspectInterface, e.g Timer?
 		for ( String aspectName : anAI.reg().getAllAspectNames() )
 		{
-			Aspect<?> anAspect = (Aspect<?>) anAI.reg().getValue(anAI, aspectName);
+			// TODO Something's not quite right here... getValue should be
+			// returning the value, not the Aspect object
+			Aspect<?> anAspect = 
+						(Aspect<?>) anAI.reg().getValue(anAI, aspectName);
 			Object value = anAspect.value();
 			String description = anAspect.description;
 			/* Create and add layout groups for this Aspect. */
@@ -164,6 +167,8 @@ public final class GuiProtocol
 				vertAspect.addComponent(descLabel);
 				horizAspect.addComponent(descLabel);
 			}
+			// FIXME make it so that aspect values are updated when this is
+			// saved!
 		}
 	}
 }
