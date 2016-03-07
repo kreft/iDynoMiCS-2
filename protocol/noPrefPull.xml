@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
+	<simulation name="noPrefPull" outputfolder="../results" log="DEBUG"
 		comment="this is a file for testing purposes only.">
-		
-		<timer stepSize="1.0" endOfSimulation="50.0" />
+		<timer stepSize="1.0" endOfSimulation="1000.0" />
+		<general>
+			<param name="timeStepSize" value="1.0" />
+			<param name="endOfSimulation" value="1000.0" />
+		</general>
 
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -13,22 +16,21 @@
 				does allow you to overwrite states on agent level. Thus if a state is defined 
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
-			<species name="AOB">
+			<species name="species1">
 				<aspect name="reactions" type="List" >
 					<item type="reaction">
 						<reaction name="testReact">
 							<expression value="solute1 * k">
 								<constant name="k" value="0.0001" />
 							</expression>
-							<stochiometric component="AOB" coefficient="1.0" />
+							<stochiometric component="species1" coefficient="1.0" />
 							<stochiometric component="solute1" coefficient="-1.0" />
-							<stochiometric component="solute2" coefficient="0.5" />
 						</reaction>
 					</item>
 				</aspect>
 				<aspect name="pigment" type="String" value="GREEN" />
-				<!-- this has not been made yet, use a static growthrate for now -->
-				<aspect name="growthRate" type="double" value="0.08" />
+				<!-- this has not been made yet, use a static growthrate for now
+				<aspect name="growthRate" type="double" value="0.08" /> -->
 				<speciesModule name="coccoid" />
 				<speciesModule name="stochasticMover" />
 			</species>
@@ -45,28 +47,27 @@
 				<aspect name="updateBody" 		type="event" 		class="UpdateBody" 				input="body,radius,length" 	package="agent.event.library." />
 			</species>
 			<species name="stochasticMover">
-				<aspect name="stochasticStep" type="double" value="0.1" />
+				<aspect name="stochasticStep" type="double" value="2.4" />
 				<aspect name="stochasticMove" type="event" class="StochasticMove" package="agent.event.library." input="body,stochasticStep" />
 			</species>
 		</speciesLib>
 
-		<compartment name="second">
+		<compartment name="noPrefPull">
 			<shape class="Rectangle">
 				<dimension name="X" isCyclic="true">
-					<extreme name="max" position="16.0"/>
+					<extreme name="max" position="40.0"/>
 				</dimension> 
 				<dimension name="Y" isCyclic="true">
-					<extreme name="max" position="16.0"/>
+					<extreme name="max" position="40.0"/>
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="2.0" targetResolution="0.5"/>
-				<solute name="solute2" concentration="0.0" targetResolution="0.5"/>	
+				<solute name="solute1" concentration="0.0" />
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">
 					<expression value="1.0 * inflow">
-						<constant name="inflow" value="0.04" />
+						<constant name="inflow" value="0.0004" />
 					</expression>
 					<stochiometric component="solute1" coefficient="1.0" />
 				</reaction>
@@ -74,73 +75,63 @@
 			<agents>
 				<agent>
 					<aspect name="volumeDistribution" type="HashMap">
-					</aspect>				
-					<aspect name="species" type="String" value="AOB" />
-					<aspect name="mass" type="double" value="0.2" />
+					</aspect>
+					<aspect name="pullDistance" type="double"	value="0.03" />
+					<aspect name="species" type="String" value="species1" />
+					<aspect name="mass" type="double" value="0.15" />
 					<aspect name="density" type="double" value="1" />
 					<aspect name="#isLocated" type="boolean" value="true" />
 					<aspect name="pigment" type="String" value="RED" />
 					<!--<state name="filialLinker" type="boolean" value="true" /> -->
-					<aspect name="body" type="body">
-						<point position="12.2, 12.2" />
-					</aspect>
+					<spawn number="10.0" domain="40.0,40.0" />
 				</agent>
 				<agent>
-					<aspect name="species" type="String" value="AOB" />
-					<aspect name="mass" type="double" value="0.2" />
+					<aspect name="pullDistance" type="double"	value="0.01" />
+					<aspect name="species" type="String" value="species1" />
+					<aspect name="mass" type="double" value="0.15" />
 					<aspect name="density" type="double" value="1" />
 					<aspect name="#isLocated" type="boolean" value="true" />
 					<aspect name="pigment" type="String" value="BLUE" />
-					<aspect name="body" type="body">
-						<point position="12.0, 5.3" />
-					</aspect>
+					<spawn number="10.0" domain="40.0,40.0" />
 				</agent>
-				<agent>
-					<aspect name="species" type="String" value="AOB" />
-					<aspect name="mass" type="double" value="0.2" />
+			<!--	<agent>
+					<aspect name="species" type="String" value="species1" />
+					<aspect name="mass" type="double" value="0.15" />
 					<aspect name="density" type="double" value="1" />
 					<aspect name="#isLocated" type="boolean" value="true" />
 					<aspect name="pigment" type="String" value="GREEN" />
-					<aspect name="body" type="body">
-						<point position="5.3, 12.2" />
-					</aspect>
-				</agent> 
+					<spawn number="10.0" domain="50.0,50.0" />
+				</agent>   -->
 			</agents>
 			<processManagers>
-				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
+				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="prefix" type="String" value="out_solute1" />
 					<aspect name="maxConcentration" type="double" value="2.0" />
 					<aspect name="solute" type="String" value="solute1" />
 					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
-				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
+				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
 					firstStep="0.0" package="processManager.">
-					<aspect name="prefix" type="String" value="out_solute2" />
+					<aspect name="prefix" type="String" value="rate_solute1" />
 					<aspect name="maxConcentration" type="double" value="2.0" />
-					<aspect name="solute" type="String" value="solute2" />
-					<aspect name="timerStepSize" type="double" value="1.0" />
-				</process>
-				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
-					firstStep="0.0" package="processManager.">
-					<aspect name="prefix" type="String" value="rate_solute2" />
-					<aspect name="maxConcentration" type="double" value="2.0" />
-					<aspect name="solute" type="String" value="solute2" />
+					<aspect name="solute" type="String" value="solute1" />
 					<aspect name="timerStepSize" type="double" value="1.0" />
 					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
 				</process>
-				<!-- <process name="agentGrowth" class="AgentGrowth"  priority="-0"
-					firstStep="0.0" package="processManager." />  -->
 				<!-- <process name="agentMove" class="AgentStochasticMove"
-					 priority="-1" firstStep="0.0" package="processManager." /> -->
-				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
+					priority="0" firstStep="0.0" package="processManager." >
+					<aspect name="timerStepSize" type="double" value="0.1" />
+				</process> -->
+				<process name="agentRelax" class="AgentRelaxation" priority="-2"
 					firstStep="0.0" package="processManager.">
 					<aspect name="maxMovement" type="double" value="0.05" />
 					<aspect name="relaxationMethod" type="String" value="EULER" />
+					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
 					firstStep="0.0" package="processManager.">	
-					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
+					<aspect name="solutes" type="String[]" value="solute1" /> <!--  init -->
 					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
 			</processManagers>

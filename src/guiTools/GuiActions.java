@@ -66,7 +66,7 @@ public final class GuiActions
     	{
     		Param.protocolFile = f.getAbsolutePath();
     		GuiConsole.writeOut(Param.protocolFile + " \n");
-    		Idynomics.simulator.timer.reset();
+//    		Idynomics.simulator.timer.reset();
     	}
 	}
 	

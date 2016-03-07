@@ -102,7 +102,7 @@ public class GuiLaunch implements Runnable
 		 */
 		masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		masterFrame.setTitle(Idynomics.fullDescription());
-		masterFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		masterFrame.setSize(800,800);
 		masterFrame.setLocationRelativeTo(null);
 		/* 
 		 * Add the menu bar. This is independent of the layout of the rest of

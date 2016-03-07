@@ -50,7 +50,7 @@ public class XmlLoad
 		{
 			NodeList agentNodes = agents.getElementsByTagName(XmlLabel.agent);
 			for (int j = 0; j < agentNodes.getLength(); j++) 
-				comp.addAgent(new Agent(agentNodes.item(j)));
+				comp.addAgent(new Agent(agentNodes.item(j),comp));
 		}
 		else
 			Log.out(Tier.NORMAL, "Warning: starting simulation without agents");

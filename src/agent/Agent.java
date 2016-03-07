@@ -1,14 +1,20 @@
 package agent;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import idynomics.NameRef;
+import linearAlgebra.Vector;
+import surface.Point;
 
 /**
  * 
@@ -45,12 +51,58 @@ public class Agent implements Quizable, AspectInterface
 	}
 	
 	/**
-	 * Agent xml constructor
+	 * @deprecated
 	 * @param xmlNode
 	 */
 	public Agent(Node xmlNode)
 	{
+		this(xmlNode, new Compartment());
+	}
+	
+	/**
+	 * Agent xml constructor allowing for multiple randomized initial agents
+	 * @param xmlNode
+	 */
+	public Agent(Node xmlNode, Compartment comp)
+	{
+		/* initiate all random agents */
+		NodeList temp = XmlHandler.getAll(xmlNode, "spawn");
+		if(temp.getLength() > 0)
+		{
+			for(int i = 0; i < temp.getLength(); i++)
+			{
+				/* TODO this is a cheat, make a standard method for this */
+				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute((Element) 
+						temp.item(i), "number")));
+				double[] domain = Vector.dblFromString(XmlHandler.
+						obtainAttribute((Element) temp.item(i), "domain"));
+				for(int j = 0; j < n-1; j++)
+				{
+					Agent extra = new Agent(xmlNode, randBody(domain));
+					extra.compartment = comp;
+					extra.registerBirth();
+				}
+				this.loadAspects(xmlNode);
+				this.set(NameRef.agentBody, randBody(domain));
+			}
+		}
+		else
+		{
+			loadAspects(xmlNode);
+		}
+		this.init();
+	}
+	
+	public Body randBody(double[] domain)
+	{
+		return new Body(new Point(Vector.
+				times(Vector.randomZeroOne(domain), domain)), 0.0);
+	}
+	
+	public Agent(Node xmlNode, Body body)
+	{
 		this.loadAspects(xmlNode);
+		this.set(NameRef.agentBody, body);
 		this.init();
 	}
 	

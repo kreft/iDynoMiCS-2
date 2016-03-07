@@ -20,7 +20,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
@@ -29,8 +28,6 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
-
-import idynomics.Idynomics;
 
 /**
  * openGL Render class, manages openGL settings, output frame and it's own
@@ -51,28 +48,32 @@ public class Render implements GLEventListener, Runnable {
 	
 	private boolean light;
 	private boolean blend;
+	private float h;
 	
-	private float tilt = 0.0f, zoom = 0.0f;
+	private float tilt = 0.0f, zoom = 0.0f, angle = 0.0f;
+	private float x = 0f, y = 0f /* , z = 0f */;
+
 	
 	/* Light sources */
-    private float[] lightPosition = {-4.0f, 4.0f, 4.0f, 1f};
-    private float[] lightAmbient = {0.5f, 0.5f, 0.5f, 1f};
-    private float[] LightDiffuse = {0.5f, 0.5f, 0.5f, 1f};
+    private float[] lightPosition = {-40.0f, -40.0f, 80.0f, 1f};
+    private float[] lightAmbient = {0.25f, 0.25f, 0.25f, 1f};
+    private float[] LightDiffuse = {0.25f, 0.25f, 0.25f, 1f};
     
     private CommandMediator _commandMediator;
 
-    /**
+    /*
      * this is what refreshes what is rendered on the screen
      */
 	@Override
 	public void display(GLAutoDrawable drawable) {
-		/**
+		/*
 		 * the open GL2 drawable
 		 */
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-		
-		/**
+	
+		gl.glLoadIdentity();
+		/*
 		 * switch lighting and alpha blending
 		 */
 		if(light)
@@ -90,14 +91,29 @@ public class Render implements GLEventListener, Runnable {
 			gl.glDisable(GL2.GL_BLEND);
 		}
 		
-		/**
+		/*
 		 * ask commandMediator to draw what it draws, tilt and zoom only work
 		 * if implemented by commandMediator
 		 */
-		this._commandMediator.draw(drawable, zoom, tilt);
+		this._commandMediator.draw(drawable);
+		
+		/*
+		 * adjust the camera settings to the size of the drawable and the user
+		 * defined camera setting adjustments (zoom, tilt, x, y)
+		 */
+		double dist = _commandMediator.kickback() - zoom;
+		double hDist = Math.sin(tilt+0.0001) * dist;
+		gl.glMatrixMode(GL2.GL_PROJECTION);
+		gl.glLoadIdentity();
+		glu.gluPerspective(45.0f, h, 1.0, _commandMediator.kickback()+50.0);
+		glu.gluLookAt(x + hDist* Math.cos(angle) , y + hDist * Math.sin(angle), 
+				Math.cos(tilt+0.0001) * dist, x, y, 0, Math.cos(angle), Math.sin(angle)
+				, 0);
+		gl.glMatrixMode(GL2.GL_MODELVIEW);
+		
 		gl.glFlush();
 		
-		/**
+		/*
 		 * this is recursive!
 		 */
 	}
@@ -110,7 +126,7 @@ public class Render implements GLEventListener, Runnable {
 	
 	}
 
-	/**
+	/*
 	 * Initiate the open GL environment, set shader model, lighting, smoothing
 	 * etc
 	 */
@@ -152,11 +168,12 @@ public class Render implements GLEventListener, Runnable {
 		
 		if(height <= 0 )
 			height = 1;
-		final float h = (float) width / (float) height;
+		h = (float) width / (float) height;
 		gl.glViewport(0, 0, width, height);
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
 		glu.gluPerspective(45.0f, h, 1.0, 500.0);
+		glu.gluLookAt(0, 0, 0, 0, 0, -80, 0, 1, 0);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
 	}
@@ -182,17 +199,17 @@ public class Render implements GLEventListener, Runnable {
 		Render r = new Render(_commandMediator);
 		glcanvas.addGLEventListener(r);
 		
-		/**
+		/*
 		 * demensions of the initial window
 		 */
 		Dimension myDim = new Dimension();
 		myDim.setSize(500, 500);
 		glcanvas.setSize(myDim);
 		
-		/**
+		/*
 		 * set the animator and its Frames per second
 		 */
-		final FPSAnimator animator = new FPSAnimator(glcanvas, 60, true);
+		final FPSAnimator animator = new FPSAnimator(glcanvas, 15, true);
 		
 		/* window name */
 		final JFrame frame = new JFrame ("Live render");
@@ -285,7 +302,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent b) {
 				System.out.println("up");
-
+				r.x -= 1f;
 			}
 		});
 		
@@ -296,7 +313,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent c) {
 				System.out.println("down");
-
+				r.x += 1f;
 			}
 		});
 		
@@ -308,7 +325,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent d) {
 				System.out.println("left");
-		
+				r.y -= 1f;
 			}
 		});
 		
@@ -320,7 +337,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("right");
-		
+				r.y += 1f;
 			}
 		});
 		
@@ -362,26 +379,28 @@ public class Render implements GLEventListener, Runnable {
 		});
 		
 		/* tilt down */
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_U, 0), "tiltdown") ;
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), "tiltdown") ;
 		actionMap.put("tiltdown", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
 			
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltdown");
-				r.tilt -= 0.8f;
+				if(r.tilt > -1.47)
+					r.tilt -= 0.1f;
 			}
 		});
 		
 		/* tilt up */
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0), "tiltup") ;
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0), "tiltup") ;
 		actionMap.put("tiltup", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
 			
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltup");
-				r.tilt += 0.8f;
+				if(r.tilt < 1.47)
+					r.tilt += 0.1f;
 			}
 		});
 		
@@ -393,7 +412,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("out");
-				r.zoom -= 0.2f;
+				r.zoom -= 0.3f;
 			}
 		});
 		
@@ -405,7 +424,31 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("in");
-				r.zoom += 0.2f;
+				r.zoom += 0.3f;
+			}
+		});
+		
+		/* zoom out */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0), "clockwise") ;
+		actionMap.put("clockwise", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("clockwise");
+				r.angle -= 0.1f;
+			}
+		});
+		
+		/* zoom in */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), "counterclockwise") ;
+		actionMap.put("counterclockwise", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("counterclockwise");
+				r.angle += 0.1f;
 			}
 		});
 		

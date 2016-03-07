@@ -1,12 +1,16 @@
 package idynomics;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Body;
+import linearAlgebra.Vector;
 import reaction.Reaction;
 import shape.Shape;
 import spatialRegistry.*;
@@ -28,7 +32,20 @@ public class AgentContainer
 	/**
 	 * All agents with a spatial location are stored in here (e.g. an RTree).
 	 */
-	public SpatialRegistry<Agent> _agentTree;
+	private SpatialRegistry<Agent> _agentTree;
+	
+	/**
+	 * Synchronized list, list is cheaper to access than an agent tree
+	 * (iterating over all agents), synchronized for thread safety
+	 */
+	List<Agent> _locatedAgentList = Collections.synchronizedList(
+			new ArrayList<Agent>());
+	
+	/**
+	 * Synchronized iterator (check whether this wokrs correctly)
+	 */
+	Iterator<Agent> locatedAgentIterator;
+	
 	/**
 	 * All agents without a spatial location are stored in here.
 	 */
@@ -87,10 +104,10 @@ public class AgentContainer
 	 * 
 	 * @param xmlElem
 	 */
-	public void readAgents(NodeList agentNodes)
+	public void readAgents(NodeList agentNodes, Compartment comp)
 	{
 		for ( int i = 0; i < agentNodes.getLength(); i++ ) 
-			this.addAgent(new Agent(agentNodes.item(i)));
+			this.addAgent(new Agent(agentNodes.item(i), comp));
 	}
 	
 	public void setAllAgentsCompartment(Compartment aCompartment)
@@ -125,8 +142,28 @@ public class AgentContainer
 	{
 		LinkedList<Agent> out = new LinkedList<Agent>();
 		out.addAll(this._agentList);
-		out.addAll(this._agentTree.all());
+		out.addAll(this._locatedAgentList);
 		return out;
+	}
+	
+	public List<Agent> treeSearch(BoundingBox boundingBox)
+	{
+		return _agentTree.cyclicsearch(boundingBox);
+	}
+	
+	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
+	{
+		return _agentTree.cyclicsearch(boundingBoxes);
+	}
+	
+	public List<Agent> treeSearch(double[] location, double[] dimensions)
+	{
+		return _agentTree.cyclicsearch(location, dimensions);
+	}
+	
+	public List<Agent> treeSearch(double[] pointLocation)
+	{
+		return treeSearch(pointLocation, Vector.zeros(pointLocation));
 	}
 	
 	/**
@@ -157,22 +194,39 @@ public class AgentContainer
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
-		for(BoundingBox b: ((Body) anAgent.get(NameRef.agentBody)).getBoxes(0.0))
+		_locatedAgentList.add(anAgent);
+		treeInsert(anAgent);
+	}
+	
+	/**
+	 * NOTE the agent bounding box should encapsulate the entire influence
+	 * region of the agent (thus also pull distance)
+	 * @param anAgent
+	 */
+	protected void treeInsert(Agent anAgent)
+	{
+		for(BoundingBox b: ((Body) anAgent.get(NameRef.agentBody)).getBoxes(
+				(anAgent.isAspect(NameRef.agentPulldistance) ?
+				anAgent.getDouble(NameRef.agentPulldistance) :
+				0.0)))
 			this._agentTree.insert(b, anAgent);
 	}
 	
-	public synchronized void refreshSpatialRegistry()
+	public void refreshSpatialRegistry()
 	{
-		List<Agent> agentList = this._agentTree.all();
 		this.makeAgentTree();
-		for ( Agent anAgent : agentList )
-			this.addLocatedAgent(anAgent);
+		  synchronized (_locatedAgentList) {
+		      locatedAgentIterator = _locatedAgentList.iterator();
+		      while (locatedAgentIterator.hasNext())
+		    	  this.treeInsert(locatedAgentIterator.next());
+		  }
+			
 	}
 	
-	public synchronized LinkedList<Agent> getAllLocatedAgents()
+	public List<Agent> getAllLocatedAgents()
 	{
-		LinkedList<Agent> out = new LinkedList<Agent>();
-		out.addAll(_agentTree.all());
+		List<Agent> out = new LinkedList<Agent>();
+		out.addAll(_locatedAgentList);
 		return out;
 	}
 	

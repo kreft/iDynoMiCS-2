@@ -2,7 +2,10 @@ package dataIO;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.URLDecoder;
+import java.security.CodeSource;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -18,6 +21,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import idynomics.Idynomics;
+import idynomics.Param;
 import dataIO.Log.Tier;
 import utility.Helper;
 
@@ -61,6 +66,7 @@ public class XmlHandler
 	public static Element loadDocument(String document)
 	{
 		try {
+
 			File fXmlFile = new File(document);
 			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
@@ -76,6 +82,56 @@ public class XmlHandler
 			return loadDocument(document);
 		}
 	}
+	
+	/**
+	 * quick method to allow appending the current path in front of the resource
+	 * before reading the document. (there were issues loading resources after
+	 * constructing a runnable .jar file).
+	 * @param resource
+	 * @return
+	 */
+	public static Element loadResource(String resource)
+	{
+		try {
+			String current = new java.io.File( "" ).getCanonicalPath();
+			File fXmlFile = new File(current + "/" + Param.idynomicsRoot + "/" + resource);
+			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
+			Document doc;
+			doc = dBuilder.parse(fXmlFile);
+			doc.getDocumentElement().normalize();
+			return doc.getDocumentElement();
+		} catch (SAXException | IOException | ParserConfigurationException e) {
+			System.err.println("Error while loading: " + resource + "\n"
+					+ "error message: " + e.getMessage());
+			resource = Helper.obtainInput(null, "Atempt to re-obtain document",
+					true);
+			return loadResource(resource);
+		}
+	}
+	
+	/**
+	 * FIXME TESTING
+	 * TODO find a way to get the jar path in both Linux, windows and mac
+	 * @return
+	 * @throws Exception
+	 */
+	public static String getJarContainingFolder() throws Exception {
+		  CodeSource codeSource = Idynomics.class.getProtectionDomain().getCodeSource();
+
+		  File jarFile;
+
+		  if (codeSource.getLocation() != null) {
+		    jarFile = new File(codeSource.getLocation().toURI());
+		  }
+		  else {
+		    String path = Idynomics.class.getResource(Idynomics.class.getSimpleName() + ".class").getPath();
+		    String jarFilePath = path.substring(path.indexOf(":") + 1, path.indexOf("!"));
+		    jarFilePath = URLDecoder.decode(jarFilePath, "UTF-8");
+		    jarFile = new File(jarFilePath);
+		  }
+		  return jarFile.getParentFile().getAbsolutePath();
+		}
 
 	/**
 	 * \brief Gathers non critical attributes, returns "" if the attribute is not

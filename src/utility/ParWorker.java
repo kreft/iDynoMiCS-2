@@ -20,7 +20,7 @@ public class ParWorker  extends RecursiveAction
 	private static final long serialVersionUID = 1L;
 	private AgentContainer _agentContainer;
 	private int t, s, e;
-	private int workSize = 600;
+	private int workSize = 200;
 	
 	/**
 	 * create new worker with subset of tasks
@@ -65,18 +65,18 @@ public class ParWorker  extends RecursiveAction
 						_agentContainer.getShape());
 				for(Agent agent: _agentContainer.getAllLocatedAgents().subList(s, e))
 				{
-					for(Agent neighbour: _agentContainer._agentTree.cyclicsearch(
+					for(Agent neighbour: _agentContainer.treeSearch(
 							((Body) agent.get(NameRef.agentBody)).getBoxes(0.0)))
 					{
 						if (agent.identity() > neighbour.identity())
 						{
-							iterator.collision((Surface) agent.get("surface"), 
-									(Surface) neighbour.get("surface"));
+//							iterator.collision((Surface) agent.get("surface"), 
+//									(Surface) neighbour.get("surface"));
 						}
 					}
 					for(Surface s : _agentContainer.getShape().getSurfaces())
 					{
-						iterator.collision(s, (Surface) agent.get("surface"));
+//						iterator.collision(s, (Surface) agent.get("surface"));
 					}
 				}
 			}

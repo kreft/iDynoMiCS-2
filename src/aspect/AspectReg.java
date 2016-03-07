@@ -34,7 +34,7 @@ public class AspectReg<A>
 	/**
 	 * returns true if the key is found in the aspect tree
 	 */
-	public boolean isGlobalAspect(String key)
+	public synchronized boolean isGlobalAspect(String key)
 	{
 		if ( this._aspects.containsKey(key) )
 			return true;
@@ -48,7 +48,7 @@ public class AspectReg<A>
 	/**
 	 * add an aspect to this registry
 	 */
-	public void add(String key, A aspect)
+	public synchronized void add(String key, A aspect)
 	{
 		if ( this._aspects.containsKey(key) )
 		{
@@ -63,7 +63,7 @@ public class AspectReg<A>
 	 * same as add but intend is to overwrite
 	 */
 	@SuppressWarnings("unchecked")
-	public void set(String key, A aspect)
+	public synchronized void set(String key, A aspect)
 	{
 		Aspect<A> a;
 		if ( this._aspects.containsKey(key) )
@@ -78,7 +78,7 @@ public class AspectReg<A>
 	/**
 	 * Remove aspect from this registry.
 	 */
-	public void remove(String key)
+	public synchronized void remove(String key)
 	{
 		this._aspects.remove(key);
 	}
@@ -88,7 +88,7 @@ public class AspectReg<A>
 	 * 
 	 * @param module
 	 */
-	public void addSubModule(AspectInterface module)
+	public synchronized void addSubModule(AspectInterface module)
 	{
 		this._modules.add(module);
 	}
@@ -98,7 +98,7 @@ public class AspectReg<A>
 	 * 
 	 * @param name
 	 */
-	public void addSubModule(String name, Quizable library)
+	public synchronized void addSubModule(String name, Quizable library)
 	{
 		addSubModule((AspectInterface) library.get(name));
 	}
@@ -106,7 +106,7 @@ public class AspectReg<A>
 	/**
 	 * get value if the aspect is a primary or calculated state
 	 */
-	public Object getValue(AspectInterface rootRegistry, String key)
+	public synchronized Object getValue(AspectInterface rootRegistry, String key)
 	{
 		Aspect<?> a = getAspect(key);
 		if ( a == null )
@@ -142,7 +142,7 @@ public class AspectReg<A>
 	 * @param timeStep
 	 * TODO: some proper testing
 	 */
-	public void doEvent(AspectInterface initiator, AspectInterface compliant, 
+	public synchronized void doEvent(AspectInterface initiator, AspectInterface compliant, 
 			double timeStep, String key)
 	{
 		Aspect<?> a = getAspect(key);
@@ -164,7 +164,7 @@ public class AspectReg<A>
 	 * NOTE if multiple aspect registry modules have an aspect with the same key
 	 * the first encountered aspect with that key will be returned.
 	 */
-	private Aspect<?> getAspect(String key)
+	private synchronized Aspect<?> getAspect(String key)
 	{
 		if ( this._aspects.containsKey(key) )
 			return this._aspects.get(key);
@@ -180,7 +180,7 @@ public class AspectReg<A>
 	 * copies all aspects and submodule from donor into this aspect registry
 	 */
 	@SuppressWarnings("unchecked")
-	public void duplicate(AspectInterface donor)
+	public synchronized void duplicate(AspectInterface donor)
 	{
 		this.clear();
 		AspectReg<?> donorReg = donor.reg();
@@ -193,7 +193,7 @@ public class AspectReg<A>
 	/**
 	 * Clear all aspects and modules from this registry.
 	 */
-	public void clear()
+	public synchronized void clear()
 	{
 		this._aspects.clear();
 		this._modules.clear();

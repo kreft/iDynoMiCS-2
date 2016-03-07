@@ -31,11 +31,11 @@ public class Collision {
 		public double[] interactionForce(double distance, double[] dP)
 		{
 			double c;
-			double fPull 		= -0.6;		// pull force scalar
+			double fPull 		= -0.9;		// pull force scalar
 			distance 			-= 0.001;	// added margin
 			
-			// Repulsion
-			if (distance > 0.0) 
+			// Attraction
+			if (distance > 0.0 && distance < pull) 
 			{
 				c = Math.abs(fPull * distance); //linear
 				Vector.normaliseEuclidEquals(dP, c);
@@ -52,7 +52,7 @@ public class Collision {
 			double c;
 			double fPush 		= 6.0;			// push force scalar
 			
-			distance 			-= 0.001;	// added margin
+			distance 			+= 0.001;	// added margin
 			
 			// Repulsion
 			if (distance < 0.0) 
@@ -90,6 +90,11 @@ public class Collision {
 	private double t = 0;
 	
 	/**
+	 * 
+	 */
+	private double pull = 0.0;
+	
+	/**
 	 * flip if the force needs to be added to b and subtracted from a
 	 */
 	private boolean flip = false;
@@ -98,7 +103,8 @@ public class Collision {
 	{
 		if (collisionFunction != null)
 			this.collisionFun = collisionFunction;
-		this.collisionFun = DefaultCollision;
+		else
+			this.collisionFun = DefaultCollision;
 		this.computationalDomain = compartmentShape;
 		this.dP = Vector.zerosDbl(compartmentShape.getNumberOfDimensions());
 		
@@ -109,44 +115,49 @@ public class Collision {
 	/**
 	 * apply a collision force on a and b if applicable
 	 */
-	public void collision(Surface a, Surface b)
+	public void collision(Surface a, Surface b, double pullDistance)
 	{
+		pull = pullDistance;
+		double dist = distance(a,b);
 		
-		//TODO check all the flipin' flipping here
-		double[] force = collisionFun.interactionForce(distance(a,b), 
-				(flip ? Vector.times(this.dP,-1.0) : this.dP));
-
-		if(flip)
+		/* Pushing */
+		if (dist < 0.0)
 		{
-			applyForce(b, force,s);
-			applyForce(a, Vector.times(force,-1.0), t);
-		} 
-		else
-		{
-			applyForce(a, force,s);
-			applyForce(b, Vector.times(force,-1.0), t);
-		}
-	}
+			double[] force = collisionFun.interactionForce(dist, 
+					(flip ? Vector.times(this.dP,-1.0) : this.dP));
 	
-	//FIXME temporary for testing
-	public void pull(Surface a, Surface b)
-	{
-		
-		//TODO check all the flipin' flipping here
-		double[] force = pullFun.interactionForce(distance(a,b), 
-				(flip ? Vector.times(this.dP,-1.0) : this.dP));
-
-		if(flip)
-		{
-			applyForce(a, force,s);
-			applyForce(b, Vector.times(force,-1.0), t);
-		} 
-		else
-		{
-			applyForce(b, force,s);
-			applyForce(a, Vector.times(force,-1.0), t);
+			if(flip)
+			{
+				applyForce(b, force,s);
+				applyForce(a, Vector.times(force,-1.0), t);
+			} 
+			else
+			{
+				applyForce(a, force,s);
+				applyForce(b, Vector.times(force,-1.0), t);
+			}
 		}
+		else
+		/* Pulling */
+		{
+			double[] force = pullFun.interactionForce(distance(a,b), 
+					(flip ? Vector.times(this.dP,-1.0) : this.dP));
+
+			if(flip)
+			{
+				applyForce(a, force,s);
+				applyForce(b, Vector.times(force,-1.0), t);
+			} 
+			else
+			{
+				applyForce(b, force,s);
+				applyForce(a, Vector.times(force,-1.0), t);
+			}
+		}
+		/* reset pull dist, very important! */
+		pull = 0.0;
 	}
+
 	
 	public void applyForce(Surface surf, double[] force, double intersect)
 	{
@@ -223,6 +234,20 @@ public class Collision {
 		
 	}
 	
+	public double distance(Surface a, double[] p)
+	{
+		switch (a.type())
+		{
+		case SPHERE :
+			return spherePoint((Ball) a, p);
+		case ROD :
+			return rodPoint((Rod) a, p);
+		case PLANE:
+			return planePoint((Plane) a, p);
+		}
+		return 0.0;
+	}
+	
 	
 	/**
 	 * Work in progress, stores the vector that points the shortest distance
@@ -246,6 +271,12 @@ public class Collision {
 		setPeriodicDistanceVector(p, q);
 //		Vector.minusTo(dP, p, q);
 		return Vector.normEuclid(dP);
+	}
+	
+	public double spherePoint(Ball a, double[] p)
+	{
+		return pointPoint(a._point.getPosition(),
+				p) - a.getRadius();
 	}
 	
 	public double sphereSphere(Ball a, Ball b)
@@ -289,6 +320,12 @@ public class Collision {
 		Vector.addEquals(dP, p0);
 		Vector.minusEquals(dP, q0);
 		return Vector.normEuclid(dP);
+	}
+	
+	public double rodPoint(Rod a, double[] p)
+	{
+		return linesegPoint(a._points[0].getPosition(), 
+				a._points[1].getPosition(), p) - a.getRadius();
 	}
 	
 	public double rodSphere(Rod a, Ball b)
@@ -374,6 +411,11 @@ public class Collision {
 	public double planePoint(double[] normal, double d, double[] point)
 	{
 		return Vector.dotProduct(normal, point) - d;
+	}
+	
+	public double planePoint(Plane plane, double[] point)
+	{
+		return Vector.dotProduct(plane.normal, point) - plane.d;
 	}
 	
 	public double planeSphere(Plane plane, Ball sphere)

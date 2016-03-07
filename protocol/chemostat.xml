@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation log="DEBUG" outputfolder="../results" name="mySim">
+	<timer stepSize="1.0" endOfSimulation="50.0" />
 		<general>
 			<param name="timeStepSize" value="1.0"/>
 			<param name="endOfSimulation" value="60.0"/>

@@ -62,6 +62,8 @@ public class Param
 	 */
 	@Deprecated
 	public static String endOfSimulation;
+
+	public static String idynomicsRoot = "";
 	
 	/**************************************************************************
 	 * LOADING

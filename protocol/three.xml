@@ -1,5 +1,6 @@
 <document>
 	<simulation>
+	<timer stepSize="1.0" endOfSimulation="50.0" />
 		<compartment />
 	</simulation>
 </document>

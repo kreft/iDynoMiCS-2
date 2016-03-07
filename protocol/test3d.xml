@@ -2,8 +2,11 @@
 <document>
 	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
 		comment="this is a file for testing purposes only.">
-		
 		<timer stepSize="1.0" endOfSimulation="50.0" />
+		<general>
+			<param name="timeStepSize" value="1.0" />
+			<param name="endOfSimulation" value="90.0" />
+		</general>
 
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -51,17 +54,20 @@
 		</speciesLib>
 
 		<compartment name="second">
-			<shape class="Rectangle">
+			<shape class="Cuboid">
 				<dimension name="X" isCyclic="true">
 					<extreme name="max" position="16.0"/>
 				</dimension> 
 				<dimension name="Y" isCyclic="true">
 					<extreme name="max" position="16.0"/>
 				</dimension> 
+				<dimension name="Z" isCyclic="true">
+					<extreme name="max" position="16.0"/>
+				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="2.0" targetResolution="0.5"/>
-				<solute name="solute2" concentration="0.0" targetResolution="0.5"/>	
+				<solute name="solute1" concentration="2.0" />
+				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">
@@ -82,7 +88,7 @@
 					<aspect name="pigment" type="String" value="RED" />
 					<!--<state name="filialLinker" type="boolean" value="true" /> -->
 					<aspect name="body" type="body">
-						<point position="12.2, 12.2" />
+						<point position="1.2, 1.2, 8.2" />
 					</aspect>
 				</agent>
 				<agent>
@@ -92,7 +98,7 @@
 					<aspect name="#isLocated" type="boolean" value="true" />
 					<aspect name="pigment" type="String" value="BLUE" />
 					<aspect name="body" type="body">
-						<point position="12.0, 5.3" />
+						<point position="1.0, 1.3, 8.3" />
 					</aspect>
 				</agent>
 				<agent>
@@ -102,26 +108,26 @@
 					<aspect name="#isLocated" type="boolean" value="true" />
 					<aspect name="pigment" type="String" value="GREEN" />
 					<aspect name="body" type="body">
-						<point position="5.3, 12.2" />
+						<point position="1.3, 1.2, 7.2" />
 					</aspect>
 				</agent> 
 			</agents>
 			<processManagers>
-				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
+				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="prefix" type="String" value="out_solute1" />
 					<aspect name="maxConcentration" type="double" value="2.0" />
 					<aspect name="solute" type="String" value="solute1" />
 					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
-				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
+				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="prefix" type="String" value="out_solute2" />
 					<aspect name="maxConcentration" type="double" value="2.0" />
 					<aspect name="solute" type="String" value="solute2" />
 					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
-				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
+				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="prefix" type="String" value="rate_solute2" />
 					<aspect name="maxConcentration" type="double" value="2.0" />
@@ -129,16 +135,16 @@
 					<aspect name="timerStepSize" type="double" value="1.0" />
 					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
 				</process>
-				<!-- <process name="agentGrowth" class="AgentGrowth"  priority="-0"
+				<!-- <process name="agentGrowth" class="AgentGrowth" priority="-0"
 					firstStep="0.0" package="processManager." />  -->
 				<!-- <process name="agentMove" class="AgentStochasticMove"
-					 priority="-1" firstStep="0.0" package="processManager." /> -->
-				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
+					priority="1" firstStep="0.0" package="processManager." /> -->
+				<process name="agentRelax" class="AgentRelaxation" priority="-2"
 					firstStep="0.0" package="processManager.">
 					<aspect name="maxMovement" type="double" value="0.05" />
 					<aspect name="relaxationMethod" type="String" value="EULER" />
 				</process>
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
 					firstStep="0.0" package="processManager.">	
 					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
 					<aspect name="timerStepSize" type="double" value="1.0" />

@@ -1,5 +1,6 @@
 package idynomics;
 
+
 import java.util.HashMap;
 import java.util.List;
 import org.w3c.dom.Element;
@@ -24,12 +25,13 @@ public class XMLableLibrary {
 	public XMLableLibrary()
 	{
 		Element classLibrary = 
-				XmlHandler.loadDocument("general/classLibrary.xml");
+				XmlHandler.loadResource("general/classLibrary.xml");
 		List<String[]> tempLib = XmlHandler.gatherAtributesFrom( classLibrary, 
 				"classDef", new String[]{"name", "package"});
 		for(String[] c : tempLib)
 			set(c[0], c[1]);
 	}
+
 	
 	/*
 	 * Retrieve package name from class

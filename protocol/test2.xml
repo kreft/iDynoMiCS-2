@@ -2,6 +2,7 @@
 <document>
 	<simulation log="DEBUG" name="mySim" outputfolder="../../Simulations"
 		comment="this is a file for testing purposes only.">
+		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<general>
 			<param name="timeStepSize" value="1.0" />
 			<param name="endOfSimulation" value="60.0" />
@@ -49,9 +50,7 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="0.0">
-					<vox coord="0,0,0" value="15.0" /> <!-- please make a method to load entire grids -->
-				</solute>
+				<solute name="solute1" concentration="0.0" />
 				<solute name="solute2" concentration="2.0" />
 			</solutes>
 			<reactions>
@@ -95,24 +94,20 @@
 				</agent>
 			</agents>
 			<processManagers>
-			<!-- 	<process name="svgWriter" class="WriteAgentsSvg" priority="3"
+			<!-- 	<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="comparmentName" type="String" value="second" />
 				</process>-->
-				<process name="agentGrowth" class="AgentGrowth" priority="0"
+				<process name="agentGrowth" class="AgentGrowth"  priority="-0"
 					firstStep="0.0" package="processManager." />
 				<process name="agentMove" class="AgentStochasticMove"
-					priority="1" firstStep="0.0" package="processManager." />
-				<process name="agentRelax" class="AgentRelaxation" priority="2"
+					 priority="-1" firstStep="0.0" package="processManager." />
+				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0" package="processManager.">
 					<aspect name="maxMovement" type="double" value="0.05" />
 					<aspect name="relaxationMethod" type="String" value="SHOVE" />
 				</process>
-				<process name="prepareSolutes" class="PrepareSoluteGrids" priority="0"
-					firstStep="0.0" package="processManager.">
-					<aspect name="timerStepSize" type="double" value="9999999999999999.9" /> <!--  this is a work around, nicify -->
-				</process>
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="0"
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-0"
 					firstStep="0.0" package="processManager.">	
 					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
 				</process>

@@ -23,7 +23,6 @@ import reaction.Reaction;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEupdater;
-import surface.Ball;
 import surface.Collision;
 import surface.Surface;
 
@@ -158,7 +157,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				location = solute.getVoxelOrigin(coord);
 				solute.getVoxelSideLengthsTo(dimension, coord);
 				/* NOTE the agent tree is always the amount of actual dimension */
-				neighbors = agents._agentTree.cyclicsearch(
+				neighbors = agents.treeSearch(
 							  					Vector.subset(location, nDim),
 							  					Vector.subset(dimension, nDim));
 				/* If there are none, move onto the next voxel. */
@@ -200,10 +199,9 @@ public class SolveDiffusionTransient extends ProcessManager
 						 * does. By getting a Ball with zero radius, it is
 						 * essentially a Point with a Surface.  
 						 */
-						Ball b = new Ball( p.getRealLocation(nDim) );
-						b.init(collision);
 						for ( Surface s : surfaces )
-							if ( b.distanceTo(s) < 0.0 )
+							if ( collision.distance(s, Vector.subset( 
+									p.realLocation,agents.getNumDims())) < 0.0 )
 							{
 								/*
 								 * If this is not the first time the agent has seen

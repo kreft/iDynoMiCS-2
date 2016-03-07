@@ -9,17 +9,12 @@ import com.jogamp.opengl.GLAutoDrawable;
  */
 public interface CommandMediator {
 
+	public abstract float kickback();
+
 	/**
 	 * simple drawing without zoom and tilt options
 	 * @param drawable
 	 */
 	public abstract void draw(GLAutoDrawable drawable);
 
-	/**
-	 * drawing that adjusts to tilt and zoom commands
-	 * @param drawable
-	 * @param zoom
-	 * @param tilt
-	 */
-	public abstract void draw(GLAutoDrawable drawable, float zoom, float tilt);
 }

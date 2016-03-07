@@ -90,7 +90,7 @@ public class BoundaryLayer implements IsWellmixedSetter
 			 * within the grid's sphere
 			 */
 			neighbors = 
-					agents._agentTree.cyclicsearch(gridSphere.boundingBox());
+					agents.treeSearch(gridSphere.boundingBox());
 			for ( Agent a : neighbors )
 				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList) )
 					if ( gridSphere.distanceTo(s) < 0.0 )
