@@ -105,6 +105,9 @@ public class FileHandler
 	
 	/**
 	 * Create file (overwrites if file already exists)
+	 * 
+	 * TODO instead of overwriting, we should be using fileWriterFileNumber to
+	 * make a new file with unique name.
 	 */
 	public void fnew(String file)
 	{
@@ -113,8 +116,6 @@ public class FileHandler
 		try
 		{
 			File f = new File(file);
-			// TODO This is not the right way to go about things!
-			// Look at how it was done in iDyno 1
 			f.delete();
 			FileWriter fstream = new FileWriter(f, true);
 			this._output = new BufferedWriter(fstream);
