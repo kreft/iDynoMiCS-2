@@ -58,4 +58,16 @@ public class DummyTree<T> extends SpatialRegistry<T>
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public T getRandom()
+	{
+		return null;
+	}
+	
+	@Override
+	public boolean delete(T entry)
+	{
+		return false;
+	}
 }

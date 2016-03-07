@@ -11,23 +11,37 @@
 */
 package idynomics;
 
+import org.w3c.dom.Element;
+
+import dataIO.Log;
+import dataIO.Log.Tier;
+
+import static dataIO.Log.Tier.*;
+import dataIO.XmlHandler;
+import dataIO.XmlLabel;
+
+/**
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public class Idynomics
 {
 	/**
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.
 	*/
-	public static Double version_number = 2.0;
+	public static String version_number = "2.0";
 	
 	/**
-	 * Version description
+	 * Version description.
 	 */
 	public static String version_description = "alpha build 2016.02.19";
 	
 	/**
-	 * Simulator
+	 * {@code Simulator} object: there can only be one. 
 	 */
-	public static Simulator simulator = new Simulator();
+	public static Simulator simulator;
 	
 	/**
 	 * Simulator thread
@@ -43,10 +57,91 @@ public class Idynomics
 	/**
 	* \brief Main method used to start iDynoMiCS.
 	* 
-	* @param args Simulation arguments passed from the command line
+	* @param args Protocol file paths passed from the command line.
 	*/
 	public static void main(String[] args)
 	{
-		
+		if ( args.length == 0 )
+		{
+			System.out.println("Running test protocol");
+			setupCheckLaunch("protocol/test.xml");
+		}
+		for ( String a : args )
+			setupCheckLaunch(a);
+	}
+	
+	/**
+	 * \brief Set up a simulation from protocol file, check it is ready to
+	 * launch, and then launch it.
+	 * 
+	 * @param protocolPath Path to the XML protocol file.
+	 */
+	public static void setupCheckLaunch(String protocolPath)
+	{
+		setupSimulator(protocolPath);
+		if ( ! simulator.isReadyForLaunch() )
+		{
+			/* prevent writing logFile before tier and location is set */
+			Log.printToScreen(
+					"Protocol file incomplete! Skipping "+protocolPath);
+			return;
+		}
+		launchSimulator();
+	}
+	
+	/**
+	 * \brief Set up a simulation from XML protocol file.
+	 * 
+	 * @param protocolPath Path to the XML protocol file.
+	 */
+	public static void setupSimulator(String protocolPath)
+	{
+		if ( protocolPath == null )
+		{
+			/* prevent writing logFile before tier and location is set */
+			Log.printToScreen("No protocol path set!");
+			return;
+		}
+		/* prevent writing logFile before tier and location is set */
+			Log.printToScreen("Initiating from: " + protocolPath + 
+				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		/* 
+		 * Load the protocol file and find the elements we need
+		 */
+		Element idynoElem = XmlHandler.loadDocument(protocolPath);
+		Param.protocolFile = protocolPath;
+		Element simElem = XmlHandler.loadUnique(idynoElem, XmlLabel.simulation);
+		/*
+		 * Initialise the global parameters.
+		 */
+		Param.init(simElem);
+		Log.out(NORMAL, Param.simulationComment);
+		Log.out(NORMAL, "Storing results in " + Param.outputLocation+"\n");
+		/*
+		 * Create a new Simulator object and intialise it.
+		 */
+		simulator = new Simulator();
+		simulator.init(simElem);
+	}
+	
+	/**
+	 * \brief Launch the simulator in a new {@code Thread}.
+	 */
+	public static void launchSimulator()
+	{
+		simThread = new Thread(simulator);
+	    simThread.start();
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public static String fullDescription()
+	{
+		return "iDynoMiCS "+Idynomics.version_number+
+				" ("+Idynomics.version_description+")";
 	}
 }

@@ -1,7 +1,6 @@
 package test;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -27,9 +26,7 @@ import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
 import idynomics.Simulator;
-import idynomics.Timer;
 import linearAlgebra.Vector;
-import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
@@ -276,8 +273,8 @@ public class PolarGridTest
 	private static void twoDimRisePDETest()
 	{
 		Simulator aSim = new Simulator();
-		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(50);
+		aSim.timer.setTimeStepSize(1.0);
+		aSim.timer.setEndOfSimulation(50);
 
 		Compartment aCompartment = aSim.addCompartment("twoDimRise");
 		Shape aShape = (Shape) Shape.getNewInstance("circle");
@@ -306,16 +303,11 @@ public class PolarGridTest
 		
 		aCompartment.init();
 		/*
-		 * The solute grids will need prepping before the solver can get to work.
-		 */
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aCompartment.addProcessManager(aPrep);
-		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(soluteNames);
-		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aProcess.setTimeStepSize(aSim.timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
 		
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
@@ -329,7 +321,7 @@ public class PolarGridTest
 		long t;
 		System.out.println("press enter to start PDE");
 		keyboard.nextLine();
-		while ( Timer.isRunning() )
+		while ( aSim.timer.isRunning() )
 		{
 			t = System.currentTimeMillis();
 			System.out.print("solving PDE step...");

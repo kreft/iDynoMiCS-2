@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import grid.resolution.ResCalcFactory;
@@ -54,7 +55,7 @@ public class CartesianGrid extends SpatialGrid
 
 		/* create appropriate ResCalc Objects for dimension combinations*/
 		ResCalcFactory rcf = new ResCalcFactory(this._dimName);
-		rcf.init(node);
+		rcf.init((Element) node);
 		if (!Arrays.equals(this._dimName, rcf.getDimNames()))
 			//TODO: break cleaner
 			throw new IllegalArgumentException(

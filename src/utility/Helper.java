@@ -3,15 +3,19 @@ package utility;
 import java.util.Scanner;
 
 import dataIO.Log;
-import dataIO.Log.tier;
-import idynomics.GuiLaunch;
+import dataIO.Log.Tier;
+import guiTools.GuiConsole;
 
 /**
  * 
  * @author baco
  *
  */
-public class Helper {
+public class Helper
+{
+	/**
+	 * 
+	 */
 	public static boolean gui = false;
 
 	/**
@@ -24,28 +28,26 @@ public class Helper {
 			String msg = "Additional input argument required: " + 
 					description + ", please enter a value: ";
 			
-			if(! gui)
+			if ( gui )
 			{
-			@SuppressWarnings("resource")
-			Scanner user_input = new Scanner( System.in );
-
-			if(noLog)
-				System.out.println(msg);
-			else
-				Log.out(tier.CRITICAL, msg);
-						
-			input = user_input.next( );
+				input = GuiConsole.requestInput(msg);
 			} 
 			else
 			{
-				input = GuiLaunch.requestInput(msg);
+				@SuppressWarnings("resource")
+				Scanner user_input = new Scanner( System.in );
+
+				if ( noLog )
+					System.out.println(msg);
+				else
+					Log.out(Tier.CRITICAL, msg);
+				input = user_input.next( );
 			}
-			
 			msg = "Aquired input: " + input;
-			if(noLog)
+			if ( noLog )
 				System.out.println(msg);
 			else
-				Log.out(tier.CRITICAL, msg);
+				Log.out(Tier.CRITICAL, msg);
 		}
 		return input;
 	}
@@ -71,7 +73,7 @@ public class Helper {
 	 * @param delay
 	 */
 	public static void abort(int delay) {
-		Log.out(tier.CRITICAL, "Aborting..");
+		Log.out(Tier.CRITICAL, "Aborting..");
 		pause(delay);
 		System.exit(0);
 	}
@@ -89,8 +91,8 @@ public class Helper {
 	{
 		Object[] enums = anEnum.getEnumConstants();
 		String out = "";
-		for(int i = 0; i < enums.length; i++)
-			out += enums[i].toString() + " ";	
+		for ( Object o : enums )
+			out += o.toString()+" ";
 		return out;	
 	}
 }

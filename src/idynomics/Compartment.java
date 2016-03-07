@@ -3,12 +3,8 @@ package idynomics;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
-
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import com.thoughtworks.xstream.core.util.XmlHeaderAwareReader;
 
 import agent.Agent;
 import boundary.Boundary;
@@ -16,8 +12,9 @@ import boundary.BoundaryConnected;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import generalInterfaces.XMLable;
 import grid.*;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
@@ -25,48 +22,52 @@ import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
-import utility.Helper;
+import utility.ExtraMath;
 
-public class Compartment implements CanPrelaunchCheck
+/**
+ * 
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ *     Friedrich-Schiller University Jena, Germany
+ */
+public class Compartment implements CanPrelaunchCheck, XMLable
 {
 	/**
-	 * The Compartment is now aware of its own name.
-	 * 
-	 * TODO Rob [12Jan2016]: I'd rather it didn't, but this is low priority.
+	 * This has a name for reporting purposes.
 	 */
 	public String name;
-	
 	/**
-	 * TODO
+	 * Shape describes the geometry and size.
+	 * 
+	 * TODO also the resolution calculators?
 	 */
 	protected Shape _shape;
-	
 	/**
-	 * AgentContainer deals with TODO
-	 * 
+	 * AgentContainer deals with all agents, whether they have spatial location
+	 * or not.
 	 */
 	public AgentContainer agents;
-	
 	/**
-	 * TODO
+	 * EnvironmentContainer deals with all solutes.
 	 */
 	public EnvironmentContainer _environment;
-	
 	/**
-	 * 
+	 * ProcessManagers handle the interactions between agents and solutes.
+	 * The order of the list is important.
 	 */
 	protected LinkedList<ProcessManager> _processes = 
 											new LinkedList<ProcessManager>();
-	
 	/**
 	 * ProcessComparator orders Process Managers by their time priority.
 	 */
 	protected ProcessComparator _procComp = new ProcessComparator();
-	
 	/**
-	 * 
+	 * Local time should always be between {@code Timer.getCurrentTime()} and
+	 * {@code Timer.getEndOfCurrentTime()}.
 	 */
-	protected Double _localTime = 0.0;
+	protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -105,24 +106,26 @@ public class Compartment implements CanPrelaunchCheck
 	/**
 	 * \brief Initialise this {@code Compartment} from an XML node. 
 	 * 
-	 * @param xmlNode An XML node from a protocol file.
+	 * @param xmlElem An XML element from a protocol file.
 	 */
-	public void init(Node xmlNode)
+	public void init(Element xmlElem)
 	{
-		Element elem = (Element) xmlNode;
-
-		this.setShape((Shape) Shape.getNewInstance(
-				XmlHandler.attributeFromUniqueNode(elem, 
-				XmlLabel.compartmentShape, XmlLabel.classAttribute)));
-		this._shape.init(XmlHandler.loadUnique(elem, 
-				XmlLabel.compartmentShape));
-		
+		Element elem;
+		String str;
+		/*
+		 * Set up the shape.
+		 */
+		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.compartmentShape);
+		str = XmlHandler.gatherAttribute(elem, XmlLabel.classAttribute);
+		this.setShape( (Shape) Shape.getNewInstance(str) );
+		this._shape.init( elem );
 		/*
 		 * Give it solutes.
 		 * NOTE: wouldn't we want to pass initial grid values to? It would also
 		 * be possible for the grids to be Xmlable
 		 */
-		NodeList solutes = XmlHandler.getAll(elem, XmlLabel.solute);
+		NodeList solutes = XmlHandler.getAll(xmlElem, XmlLabel.solute);
+		
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
 			Element soluteE = (Element) solutes.item(i);
@@ -133,7 +136,7 @@ public class Compartment implements CanPrelaunchCheck
 			this.addSolute(soluteName, conc, soluteE);
 			
 			// FIXME please provide standard methods to load entire solute grids
-			SpatialGrid myGrid = this.getSolute(soluteName);
+			SpatialGrid myGrid = this.getSolute(str);
 			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
 					XmlLabel.voxel);
 			for (int j = 0; j < voxelvalues.getLength(); j++)
@@ -152,40 +155,77 @@ public class Compartment implements CanPrelaunchCheck
 		/*
 		 * Give it extracellular reactions.
 		 */
-		Element reactionsElem = XmlHandler.loadUnique(elem, XmlLabel.reactions);
-		if (reactionsElem != null)
+		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.reactions);
+		Element rElem;
+		Reaction reac;
+		if ( elem != null )
 		{
-			NodeList reactions = XmlHandler.getAll(reactionsElem, 
-					XmlLabel.reaction);
+			NodeList reactions = XmlHandler.getAll(elem, XmlLabel.reaction);
 			for ( int i = 0; i < reactions.getLength(); i++ )
-				this._environment.addReaction((Reaction) Reaction.getNewInstance(
-						reactions.item(i)),XmlHandler.obtainAttribute(
-						(Element) reactions.item(i), XmlLabel.nameAttribute));
+			{
+				rElem = (Element) reactions.item(i);
+				/* Name of the solute, e.g. glucose */
+				str = XmlHandler.obtainAttribute(rElem, XmlLabel.nameAttribute);
+				/* Construct and intialise the reaction. */
+				reac = (Reaction) Reaction.getNewInstance(rElem);
+				reac.init(rElem);
+				/* Add it to the environment. */
+				this._environment.addReaction(reac, str);
+			}
+				
 		}
-		
+		/*
+		 * Read in agents.
+		 */
+		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.agents);
+		if ( elem == null )
+		{
+			Log.out(Tier.EXPRESSIVE,
+					"Compartment "+this.name+" initialised without agents");
+		}
+		else
+		{
+			NodeList agents = elem.getElementsByTagName(XmlLabel.agent);
+			this.agents.readAgents(agents);
+			this.agents.setAllAgentsCompartment(this);
+			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
+							" initialised with "+agents.getLength()+" agents");
+			
+		}
+		/*
+		 * Read in process managers.
+		 */
+		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.processManagers);
+		Element procElem;
+		if ( elem == null )
+		{
+			Log.out(Tier.CRITICAL, "Compartment "+this.name+
+									" initialised without process managers");
+		}
+		else
+		{
+			NodeList processNodes = elem.getElementsByTagName(XmlLabel.process);
+			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
+									" initialised with process managers:");
+			for ( int i = 0; i < processNodes.getLength(); i++ )
+			{
+				procElem = (Element) processNodes.item(i);
+				str = XmlHandler.gatherAttribute(procElem,
+													XmlLabel.nameAttribute);
+				Log.out(Tier.EXPRESSIVE, "\t"+str);
+				this.addProcessManager(ProcessManager.getNewInstance(procElem));
+			}
+		}
 		/*
 		 * Finally, finish off the initialisation as standard.
 		 */
 		this.init();
-		
-
-
 	}
 	
 	public void init()
 	{
-		/*
-		 * NOTE: Bas [06.02.16] this may be set elsewhere as long as it is after
-		 * the Dimensions and sideLengths are set.
-		 * 
-		 * NOTE: Rob [8Feb2016] here is fine (_environment also needs
-		 * sideLengths, etc).
-		 */
 		this._shape.setSurfaces();
-		
 		this._environment.init();
-		
-		
 	}
 	
 	/*************************************************************************
@@ -225,17 +265,15 @@ public class Compartment implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Add the given {@code ProcessManager} to the list, making sure
+	 * that it is in the correct place.
 	 * 
 	 * @param aProcessManager
 	 */
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
-		aProcessManager.showBoundaries(this._shape.getOtherBoundaries());
 		this._processes.add(aProcessManager);
-		// Stefan [13Feb2016]: added this to have sorted processes in first step
-		// TODO: have I initialized something wrong or do we need it?
-		Collections.sort(_processes, _procComp);
+		Collections.sort(this._processes, this._procComp);
 	}
 	
 	/**
@@ -275,6 +313,13 @@ public class Compartment implements CanPrelaunchCheck
 		agent.setCompartment(this);
 	}
 	
+	/**
+	 * \brief Get the {@code SpatialGrid} for the given solute name.
+	 * 
+	 * @param soluteName {@code String} name of the solute required.
+	 * @return The {@code SpatialGrid} for that solute, or {@code null} if it
+	 * does not exist.
+	 */
 	public SpatialGrid getSolute(String soluteName)
 	{
 		return this._environment.getSoluteGrid(soluteName);
@@ -285,15 +330,21 @@ public class Compartment implements CanPrelaunchCheck
 	 ************************************************************************/
 	
 	/**
-	 * 
+	 * \brief Iterate over the process managers until the local time would
+	 * exceed the global time step.
 	 */
 	public void step()
 	{
-		ProcessManager currentProcess = _processes.getFirst();
-		while ( currentProcess.getTimeForNextStep() < 
-											Timer.getEndOfCurrentIteration() )
+		if ( this._processes.isEmpty() )
+			return;
+		ProcessManager currentProcess = this._processes.getFirst();
+		while ( (this._localTime = currentProcess.getTimeForNextStep()) 
+					< Idynomics.simulator.timer.getEndOfCurrentIteration() )
 		{
-			_localTime = currentProcess.getTimeForNextStep();
+			Log.out(Tier.EXPRESSIVE, "");
+			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
+								" running process "+currentProcess.getName()+
+								" at local time "+this._localTime);
 			/*
 			 * First process on the list does its thing. This should then
 			 * increase its next step time.
@@ -302,39 +353,36 @@ public class Compartment implements CanPrelaunchCheck
 			/*
 			 * Reinsert this process at the appropriate position in the list.
 			 */
-			Collections.sort(_processes, _procComp);
+			Collections.sort(this._processes, this._procComp);
 			/*
 			 * Choose the new first process for the next iteration.
 			 */
-			currentProcess = _processes.getFirst();
+			currentProcess = this._processes.getFirst();
 		}
 	}
 	
 	/**
-	 * 
-	 * 
+	 * \brief Helper for ordering {@code ProcessManager}s: time for next step
+	 * is the key metric for ordering, but we use the priority value in case
+	 * of a draw.
 	 */
 	protected static class ProcessComparator 
 										implements Comparator<ProcessManager>
 	{
 		@Override
-		public int compare(ProcessManager manager1, ProcessManager manager2) 
+		public int compare(ProcessManager pm1, ProcessManager pm2) 
 		{
-			Double temp = manager1.getTimeForNextStep() -
-												manager2.getTimeForNextStep();
-			/*
-			 * TODO Should deal with numerical rounding errors here, rather
-			 * than just checking for zero. 
-			 */
-			if ( temp == 0.0 )
-				return manager1.getPriority() - manager2.getPriority();
+			Double temp = pm1.getTimeForNextStep() - pm2.getTimeForNextStep();
+			if ( ExtraMath.areEqual(temp, 0.0, 1.0E-10) )
+				return pm2.getPriority() - pm1.getPriority();
 			else
 				return temp.intValue();
 		}
 	}
 	
 	/**
-	 * TODO
+	 * \brief Tell all agents queued to leave the {@code Compartment} to move
+	 * now.
 	 */
 	public void pushAllOutboundAgents()
 	{
@@ -350,7 +398,7 @@ public class Compartment implements CanPrelaunchCheck
 	{
 		if ( this._shape == null )
 		{
-			Log.out(tier.CRITICAL, "Compartment shape is undefined!");
+			Log.out(Tier.CRITICAL, "Compartment shape is undefined!");
 			return false;
 		}
 		if ( ! this._shape.isReadyForLaunch() )

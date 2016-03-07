@@ -7,22 +7,33 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * \brief TODO
+ * \brief A component of a mathematical expression whose value varies, and so
+ * must be given whenever the expression is to be evaluated.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
  */
 public class Variable extends ComponentSimple
 {
-	
+	/**
+	 * \brief Construct a variable from its name.
+	 * 
+	 * @param name {@code String} name for this variable.
+	 */
 	public Variable(String name)
 	{
 		super(name);
 	}
 	
 	@Override
-	public String reportValue(HashMap<String, Double> variables)
+	public String reportEvaluation(HashMap<String, Double> variables)
 	{
-		return Double.toString(this.getValue(variables));
+		if ( variables.containsKey(this._name) )
+			return Double.toString(this.getValue(variables));
+		else
+		{
+			/* Returning a bunch of question marks should help debugging. */
+			return "???";
+		}
 	}
 	
 	@Override
@@ -39,6 +50,7 @@ public class Variable extends ComponentSimple
 		return new Variable("d("+this._name+")/d("+withRespectTo+")");
 	}
 	
+	@Override
 	public void appendVariablesNames(List<String> names)
 	{
 		if ( ! names.contains(this._name) )

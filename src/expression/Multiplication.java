@@ -7,18 +7,32 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
+ * \brief A component of a mathematical expression composed of the
+ * multiplication of two or more sub-components.
  * 
- * @author Robert Clegg (r.j.clegg@bham.ac.uk)
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class Multiplication extends ComponentMultiple
 {
-	
+	/**
+	 * \brief Construct a multiplication component of a mathematical
+	 * expression from a list of sub-components.
+	 * 
+	 * @param a List of sub-components to multiply.
+	 */
 	public Multiplication(ArrayList<Component> a)
 	{
 		super(a);
 		this._expr = "*";
 	}
 	
+	/**
+	 * \brief Construct a multiplication component of a mathematical expression
+	 * from two sub-components.
+	 * 
+	 * @param a One of the two sub-components.
+	 * @param b The other sub-component.
+	 */
 	public Multiplication(Component a, Component b)
 	{
 		super(a, b);

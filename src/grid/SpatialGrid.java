@@ -1,17 +1,12 @@
 package grid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 import org.w3c.dom.Node;
 
-import com.jogamp.nativewindow.util.Dimension;
-
-import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
-import grid.resolution.ResCalcFactory;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import grid.subgrid.SubgridPoint;
 import linearAlgebra.Array;

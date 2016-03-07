@@ -35,7 +35,6 @@ import utility.ExtraMath;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
 */
-
 public final class Vector
 {
 	/*************************************************************************
@@ -90,6 +89,22 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief A new double vector of length <b>n</b>, and all elements set to
+	 * zero.
+	 * 
+	 * @param n	Length of the vector to create.
+	 * @return	double[] array of length <b>n</b>, with all elements set to
+	 * zero.
+	 * @see #zeros(double[])
+	 * @see #onesDbl(int)
+	 * @see #zerosInt(int)
+	 */
+	public static double[] zerosDbl(int n)
+	{
+		return vector(n, 0.0);
+	}
+	
+	/**
 	 * \brief A new integer vector of same length as <b>vector</b>, and all
 	 * elements set to zero.
 	 * 
@@ -104,22 +119,6 @@ public final class Vector
 	public static int[] zeros(int[] vector)
 	{
 		return zerosInt(vector.length);
-	}
-
-	/**
-	 * \brief A new double vector of length <b>n</b>, and all elements set to
-	 * zero.
-	 * 
-	 * @param n	Length of the vector to create.
-	 * @return	double[] array of length <b>n</b>, with all elements set to
-	 * zero.
-	 * @see #zeros(double[])
-	 * @see #onesDbl(int)
-	 * @see #zerosInt(int)
-	 */
-	public static double[] zerosDbl(int n)
-	{
-		return vector(n, 0.0);
 	}
 	
 	/**
@@ -233,6 +232,22 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
+	 * 
+	 * @param destination double[] to be overwritten with the values of
+	 * <b>source</b>.
+	 * @param source double[] to be copied from (preserved).
+	 * @return <b>destination</b>
+	 * @see #copy(double[] vector)
+	 * @see #copyTo(int[] destination, int[] source)
+	 */
+	public static void copyTo(double[] destination, double[] source)
+	{
+		for ( int i = 0; i < destination.length; i++ )
+			destination[i] = source[i];
+	}
+	
+	/**
 	 * \brief Copy the <b>vector</b> given to a new int[] array.
 	 * 
 	 * <p>Note that <b>vector</b> will be unaffected by this method.</p>
@@ -247,22 +262,6 @@ public final class Vector
 		int[] out = new int[vector.length];
 		copyTo(out, vector);
 		return out;
-	}
-	
-	/**
-	 * \brief Copy the values of <b>source</b> into <b>destination</b>.
-	 * 
-	 * @param destination double[] to be overwritten with the values of
-	 * <b>source</b>.
-	 * @param source double[] to be copied from (preserved).
-	 * @return <b>destination</b>
-	 * @see #copy(double[] vector)
-	 * @see #copyTo(int[] destination, int[] source)
-	 */
-	public static void copyTo(double[] destination, double[] source)
-	{
-		for ( int i = 0; i < destination.length; i++ )
-			destination[i] = source[i];
 	}
 	
 	/**
@@ -291,6 +290,8 @@ public final class Vector
 	 * @return	boolean[] that is a copy of <b>vector</b>.
 	 * @see #copyTo(boolean[] destination, boolean[] source)
 	 */
+	// NOTE Rob[3Mar2016]: Not sure this is the right place for boolean arrays,
+	// but it's not urgent to move them.
 	public static boolean[] copy(boolean[] vector)
 	{
 		boolean[] out = new boolean[vector.length];
@@ -332,20 +333,6 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief Reset all elements of the given <b>vector</b> to zero.
-	 * 
-	 * @param vector One-dimensional array of integers (overwritten).
-	 * @return	Given <b>vector</b>, with all elements set to zero.
-	 * @see #setAll(int[] vector, int value)
-	 * @see #zerosInt(int n)
-	 * @see #reset(double[] vector)
-	 */
-	public static int[] reset(int[] vector)
-	{
-		return setAll(vector, 0);
-	}
-	
-	/**
 	 * \brief Set all elements of the given <b>vector</b> to the double
 	 * <b>value</b> given.
 	 * 
@@ -361,6 +348,20 @@ public final class Vector
 		for ( int i = 0; i < vector.length; i++ )
 			vector[i] = value;
 		return vector;
+	}
+	
+	/**
+	 * \brief Reset all elements of the given <b>vector</b> to zero.
+	 * 
+	 * @param vector One-dimensional array of integers (overwritten).
+	 * @return	Given <b>vector</b>, with all elements set to zero.
+	 * @see #setAll(int[] vector, int value)
+	 * @see #zerosInt(int n)
+	 * @see #reset(double[] vector)
+	 */
+	public static int[] reset(int[] vector)
+	{
+		return setAll(vector, 0);
 	}
 	
 	/**
@@ -393,34 +394,6 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief Force all elements in this <b>vector</b> to take a value less
-	 * than or equal to <b>newMinimum</b>.
-	 * 
-	 * @param vector One-dimensional array of {@code int}s (overwritten).
-	 * @param newMaximum New maximum value for all elements in <b>vector</b>.
-	 * @see #restrictMinimum(int[], int)
-	 */
-	public static void restrictMaximum(int[] vector, int newMaximum)
-	{
-		for ( int i = 0; i < vector.length; i++ )
-			if ( vector[i] > newMaximum )
-				vector[i] = newMaximum;
-	}
-	
-	/**
-	 * \brief Force all elements in this <b>vector</b> to take a value greater
-	 * than or equal to zero.
-	 * 
-	 * @param vector One-dimensional array of {@code int}s (overwritten).
-	 * @see #restrictMinimum(int[], int)
-	 * @see #restrictMaximum(int[], int)
-	 */
-	public static void makeNonnegative(int[] vector)
-	{
-		restrictMinimum(vector, 0);
-	}
-	
-	/**
 	 * \brief Force all elements in this <b>vector</b> to take a value greater
 	 * than or equal to <b>newMinimum</b>.
 	 * 
@@ -440,6 +413,21 @@ public final class Vector
 	 * \brief Force all elements in this <b>vector</b> to take a value less
 	 * than or equal to <b>newMinimum</b>.
 	 * 
+	 * @param vector One-dimensional array of {@code int}s (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>vector</b>.
+	 * @see #restrictMinimum(int[], int)
+	 */
+	public static void restrictMaximum(int[] vector, int newMaximum)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			if ( vector[i] > newMaximum )
+				vector[i] = newMaximum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value less
+	 * than or equal to <b>newMinimum</b>.
+	 * 
 	 * @param vector One-dimensional array of {@code double}s (overwritten).
 	 * @param newMaximum New maximum value for all elements in <b>vector</b>.
 	 * @see #restrictMinimum(double[], double)
@@ -450,6 +438,19 @@ public final class Vector
 		for ( int i = 0; i < vector.length; i++ )
 			if ( vector[i] > newMaximum )
 				vector[i] = newMaximum;
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>vector</b> to take a value greater
+	 * than or equal to zero.
+	 * 
+	 * @param vector One-dimensional array of {@code int}s (overwritten).
+	 * @see #restrictMinimum(int[], int)
+	 * @see #restrictMaximum(int[], int)
+	 */
+	public static void makeNonnegative(int[] vector)
+	{
+		restrictMinimum(vector, 0);
 	}
 	
 	/**
@@ -596,24 +597,6 @@ public final class Vector
 	 * \brief Check that the two given vectors are not null, and have the same
 	 * length.
 	 * 
-	 * @param a One-dimensional array of integers (preserved).
-	 * @param b One-dimensional array of integers (preserved).
-	 * @param c One-dimensional array of integers (preserved).
-	 * @exception IllegalArgumentException Null vector given.
-	 * @exception IllegalArgumentException Vectors must be the same length.
-	 * @see #checkLengths(int[], int[])
-	 * @see #checkLengths(double[], double[], double[])
-	 */
-	public static void checkLengths(int[] a, int[] b, int[] c)
-	{
-		checkLengths(a, b);
-		checkLengths(b, c);
-	}
-	
-	/**
-	 * \brief Check that the two given vectors are not null, and have the same
-	 * length.
-	 * 
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @exception IllegalArgumentException Null vector given.
@@ -634,24 +617,6 @@ public final class Vector
 	 * length.
 	 * 
 	 * @param a One-dimensional array of doubles (preserved).
-	 * @param b One-dimensional array of doubles (preserved).
-	 * @param c One-dimensional array of doubles (preserved).
-	 * @exception IllegalArgumentException Null vector given.
-	 * @exception IllegalArgumentException Vectors must be the same length.
-	 * @see #checkLengths(double[], double[])
-	 * @see #checkLengths(int[], int[], int[])
-	 */
-	public static void checkLengths(double[] a, double[] b, double[] c)
-	{
-		checkLengths(a, b);
-		checkLengths(b, c);
-	}
-	
-	/**
-	 * \brief Check that the two given vectors are not null, and have the same
-	 * length.
-	 * 
-	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of integers (preserved).
 	 * @exception IllegalArgumentException Null vector given.
 	 * @exception IllegalArgumentException Vectors must be the same length.
@@ -664,6 +629,42 @@ public final class Vector
 			throw new IllegalArgumentException("Null vector given.");
 		if ( a.length != b.length )
 			throw new IllegalArgumentException("Vectors must be the same length.");
+	}
+	
+	/**
+	 * \brief Check that the two given vectors are not null, and have the same
+	 * length.
+	 * 
+	 * @param a One-dimensional array of integers (preserved).
+	 * @param b One-dimensional array of integers (preserved).
+	 * @param c One-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Null vector given.
+	 * @exception IllegalArgumentException Vectors must be the same length.
+	 * @see #checkLengths(int[], int[])
+	 * @see #checkLengths(double[], double[], double[])
+	 */
+	public static void checkLengths(int[] a, int[] b, int[] c)
+	{
+		checkLengths(a, b);
+		checkLengths(b, c);
+	}
+	
+	/**
+	 * \brief Check that the two given vectors are not null, and have the same
+	 * length.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @param c One-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Null vector given.
+	 * @exception IllegalArgumentException Vectors must be the same length.
+	 * @see #checkLengths(double[], double[])
+	 * @see #checkLengths(int[], int[], int[])
+	 */
+	public static void checkLengths(double[] a, double[] b, double[] c)
+	{
+		checkLengths(a, b);
+		checkLengths(b, c);
 	}
 	
 	/**
@@ -1373,55 +1374,18 @@ public final class Vector
 	/* Subset */
 	
 	/**
-	 * \brief Take a subset of the given <b>vector</b> and return it as a new
-	 * vector.
+	 * \brief Take a subset of the given <b>vector</b> and write the result
+	 * into <b>destination</b>.
 	 * 
-	 * @param vector One-dimensional array of integers (preserved).
-	 * @param start int index of <b>vector</b> to start at (inclusive).
-	 * @param stop int index of <b>vector</b> to stop at (exclusive).
-	 * @return int[] array subset of <b>vector</b>: [start, start+1, ...,
-	 * stop-2, stop-1]
+	 * @param destination One-dimensional array of {@code int}s (overwritten).
+	 * @param vector One-dimensional array of {@code int}s (preserved).
+	 * @param indices {@code int[]} array of indices to use.
 	 */
-	public static int[] subset(int[] vector, int start, int stop)
+	public static void subsetTo(int[] destination, int[] vector, int[] indices)
 	{
-		int[] out = new int[stop-start];
-		for ( int i = 0; i < out.length; i++ )
-			out[i] = vector[i + start];
-		return out;
-	}
-	
-	/**
-	 * \brief Take a subset of the given <b>vector</b> and return it as a new
-	 * vector.
-	 * 
-	 * @param vector One-dimensional array of integers (preserved).
-	 * @param indices int[] array of indices to use.
-	 * @return integer[] array subset of <b>vector</b>.
-	 */
-	public static int[] subset(int[] vector, int[] indices)
-	{
-		int[] out = new int[indices.length];
-		for ( int i = 0; i < out.length; i++ )
-			out[i] = vector[indices[i]];
-		return out;
-	}
-
-	/**
-	 * \brief Take a subset of the given <b>vector</b> and return it as a new
-	 * vector.
-	 * 
-	 * @param vector One-dimensional array of doubles (preserved).
-	 * @param start int index of <b>vector</b> to start at (inclusive).
-	 * @param stop int index of <b>vector</b> to stop at (exclusive).
-	 * @return double[] array subset of <b>vector</b>: [start, start+1, ...,
-	 * stop-2, stop-1]
-	 */
-	public static double[] subset(double[] vector, int start, int stop)
-	{
-		double[] out = new double[stop-start];
-		for ( int i = 0; i < out.length; i++ )
-			out[i] = vector[i + start];
-		return out;
+		checkLengths(destination, indices);
+		for ( int i = 0; i < indices.length; i++ )
+			destination[i] = vector[indices[i]];
 	}
 	
 	/**
@@ -1444,6 +1408,21 @@ public final class Vector
 	 * \brief Take a subset of the given <b>vector</b> and return it as a new
 	 * vector.
 	 * 
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @param indices int[] array of indices to use.
+	 * @return integer[] array subset of <b>vector</b>.
+	 */
+	public static int[] subset(int[] vector, int[] indices)
+	{
+		int[] out = new int[indices.length];
+		subsetTo(out, vector, indices);
+		return out;
+	}
+	
+	/**
+	 * \brief Take a subset of the given <b>vector</b> and return it as a new
+	 * vector.
+	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @param indices int[] array of indices to use.
 	 * @return double[] array subset of <b>vector</b>.
@@ -1456,20 +1435,130 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Take a subset of the given <b>vector</b> and write the result
+	 * into <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of {@code int}s (overwritten).
+	 * @param vector One-dimensional array of {@code int}s (preserved).
+	 * @param start int index of <b>vector</b> to start at (inclusive).
+	 * @param stop int index of <b>vector</b> to stop at (exclusive).
+	 */
+	public static void subsetTo(int[] destination, int[] vector,
+														int start, int stop)
+	{
+		for ( int i = start; i < stop; i++ )
+			destination[i-start] = vector[i];
+	}
+	
+	/**
+	 * \brief Take a subset of the given <b>vector</b> and write the result
+	 * into <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of {@code double}s (overwritten).
+	 * @param vector One-dimensional array of {@code double}s (preserved).
+	 * @param start int index of <b>vector</b> to start at (inclusive).
+	 * @param stop int index of <b>vector</b> to stop at (exclusive).
+	 */
+	public static void subsetTo(double[] destination, double[] vector,
+														int start, int stop)
+	{
+		for ( int i = start; i < stop; i++ )
+			destination[i-start] = vector[i];
+	}
+	
+	/**
+	 * \brief Take a subset of the given <b>vector</b> and return it as a new
+	 * vector.
+	 * 
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @param start int index of <b>vector</b> to start at (inclusive).
+	 * @param stop int index of <b>vector</b> to stop at (exclusive).
+	 * @return int[] array subset of <b>vector</b>: [start, start+1, ...,
+	 * stop-2, stop-1]
+	 */
+	public static int[] subset(int[] vector, int start, int stop)
+	{
+		int[] out = new int[stop-start];
+		subsetTo(out, vector, start, stop);
+		return out;
+	}
+
+	/**
+	 * \brief Take a subset of the given <b>vector</b> and return it as a new
+	 * vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param start int index of <b>vector</b> to start at (inclusive).
+	 * @param stop int index of <b>vector</b> to stop at (exclusive).
+	 * @return double[] array subset of <b>vector</b>: [start, start+1, ...,
+	 * stop-2, stop-1]
+	 */
+	public static double[] subset(double[] vector, int start, int stop)
+	{
+		double[] out = new double[stop-start];
+		subsetTo(out, vector, start, stop);
+		return out;
+	}
+	
+	/**
+	 * \brief Take a subset of the given <b>vector</b> and write the result
+	 * into <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of {@code int}s (overwritten).
+	 * @param vector One-dimensional array of {@code int}s (preserved).
+	 * @param stop int index of <b>vector</b> to stop at (exclusive).
+	 */
+	public static void subsetTo(int[] destination, int[] vector, int stop)
+	{
+		subsetTo(destination, vector, 0, stop);
+	}
+	
+	/**
+	 * \brief Take a subset of the given <b>vector</b> and write the result
+	 * into <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of {@code double}s (overwritten).
+	 * @param vector One-dimensional array of {@code double}s (preserved).
+	 * @param stop int index of <b>vector</b> to stop at (exclusive).
+	 * 
+	 */
+	public static void subsetTo(double[] destination, double[] vector, int stop)
+	{
+		subsetTo(destination, vector, 0, stop);
+	}
+	
+	/**
 	 * \brief Take a subset of the given <b>vector</b> and return it as a new
 	 * vector.
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @param stop int index of <b>vector</b> to stop at (exclusive).
 	 * @return New double array of <b>vector</b>[0, ..., stop-1].
+	 * @see #subsetTo(int[], int[], int)
+	 * @see #subset(int[], int[])
+	 * @see #subset(int[], int, int)
+	 * @see #subset(double[], int)
+	 */
+	public static int[] subset(int[] vector, int stop)
+	{
+		return subset(vector, 0, stop);
+	}
+	
+	/**
+	 * \brief Take a subset of the given <b>vector</b> and return it as a new
+	 * vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param stop int index of <b>vector</b> to stop at (exclusive).
+	 * @return New double array of <b>vector</b>[0, ..., stop-1].
+	 * @see #subsetTo(double[], double[], int)
+	 * @see #subset(double[], double[])
+	 * @see #subset(double[], double, double)
+	 * @see #subset(int[], double)
 	 */
 	public static double[] subset(double[] vector, int stop)
 	{
-		// TODO safety if stop > vector.length?
-		double[] out = new double[stop];
-		for ( int i = 0; i < out.length; i++ )
-			out[i] = vector[i];
-		return out;
+		return subset(vector, 0, stop);
 	}
 	
 	/* Flip */
@@ -1529,13 +1618,13 @@ public final class Vector
 	 */
 	public static void flipEquals(int[] vector)
 	{
-		int n = (int) 0.5 * vector.length;
-		int temp;
 		int j = vector.length;
+		int n = (int) (0.5 * j);
+		int temp;
 		for ( int i = 0; i < n; i++ )
 		{
 			temp = vector[i];
-			vector[i] = vector[j--];
+			vector[i] = vector[--j];
 			vector[j] = temp;
 		}
 	}
@@ -1595,13 +1684,13 @@ public final class Vector
 	 */
 	public static void flipEquals(double[] vector)
 	{
-		int n = (int) 0.5 * vector.length;
-		double temp;
 		int j = vector.length;
+		int n = (int) (0.5 * j);
+		double temp;
 		for ( int i = 0; i < n; i++ )
 		{
 			temp = vector[i];
-			vector[i] = vector[j--];
+			vector[i] = vector[--j];
 			vector[j] = temp;
 		}
 	}
@@ -2017,6 +2106,25 @@ public final class Vector
 	 * NEW RANDOM VECTORS
 	 * Any input should be unaffected.
 	 ************************************************************************/
+	
+	/**
+	 * \brief A new {@code int} vector of length <b>n</b>, where each element
+	 * is randomly chosen from a uniform distribution in [min, max).
+	 * 
+	 * @param n Length of the vector to create.
+	 * @param min Lower bound of random numbers (inclusive).
+	 * @param max Upper bound of random numbers (exclusive).
+	 * @return {@code int[]} array of length <b>n</b>, with all elements
+	 * randomly chosen from a uniform distribution between <b>min</b>
+	 * (inclusive) and <b>max</b> (exclusive).
+	 */
+	public static int[] randomInts(int n, int min, int max)
+	{
+		int[] out = new int[n];
+		for ( int i = 0; i < n; i++ )
+			out[i] = ExtraMath.getUniRandInt(min, max);
+		return out;
+	}
 	
 	/**
 	 * \brief A new double vector of length <b>n</b>, where each element is
@@ -2495,7 +2603,7 @@ public final class Vector
 	 */
 	public static double[] toCylindrical(double[] cartesian) 
 	{
-		if(cartesian.length == 3)
+		if ( cartesian.length == 3 )
 		{
 			double[] p = toPolar(Vector.subset(cartesian, 2));
 			return new double[] {p[0], p[1], cartesian[2]};
@@ -2512,9 +2620,8 @@ public final class Vector
 	 */
 	public static double[] cylindricalToCartesian(double[] cylindrical)
 	{
-		if(cylindrical.length == 3)
+		if ( cylindrical.length == 3 )
 		{
-			
 			double[] p = toCartesian(Vector.subset(cylindrical, 2));
 			return new double[] {p[0], p[1], cylindrical[2]};
 		}

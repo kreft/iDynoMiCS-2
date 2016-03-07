@@ -6,7 +6,6 @@ package test;
 import boundary.*;
 import idynomics.Compartment;
 import idynomics.Simulator;
-import idynomics.Timer;
 import processManager.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
@@ -23,14 +22,12 @@ public class AgentGridTest
 		double endTime = 10 * tStep;
 		double topConcn = 1.0;
 		/*
-		 * Set the timestep and total simulation time.
-		 */
-		Timer.setTimeStepSize(tStep);
-		Timer.setEndOfSimulation(endTime);
-		/*
-		 * Make a simulator and give it one 9x9 compartment.
+		 * Make a simulator, set the timestep and total simulation time, and
+		 * give it one 9x9 compartment.
 		 */
 		Simulator aSim = new Simulator();
+		aSim.timer.setTimeStepSize(tStep);
+		aSim.timer.setEndOfSimulation(endTime);
 		Compartment aCompartment = aSim.addCompartment("myCompartment");
 		Shape aShape = (Shape) Shape.getNewInstance("rectangle");
 		aShape.setDimensionLengths(new double[] {9.0, 9.0, 1.0});

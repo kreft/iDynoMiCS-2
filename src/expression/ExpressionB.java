@@ -14,10 +14,10 @@ import dataIO.XmlLabel;
 
 /**
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class ExpressionB extends Component {
+public class ExpressionB extends Component
+{
 	
 	/**
 	 * expression string
@@ -503,8 +503,8 @@ public class ExpressionB extends Component {
 	}
 
 	@Override
-	public String reportValue(HashMap<String, Double> variables) {
-		return _a.reportValue(variables);
+	public String reportEvaluation(HashMap<String, Double> variables) {
+		return _a.reportEvaluation(variables);
 	}
 
 	@Override

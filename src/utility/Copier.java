@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
 
 /**
@@ -31,7 +31,7 @@ public final class Copier {
 	{
 		if (copyable == null)
 		{
-			Log.out(tier.DEBUG, "Copier returns a null object");
+			Log.out(Tier.DEBUG, "Copier returns a null object");
 			return null;
 		}
 		if (copyable instanceof Double || copyable.getClass() == double.class)
@@ -86,7 +86,7 @@ public final class Copier {
 		} 
 		else 
 		{
-			Log.out(tier.DEBUG,"WARNING: Attempting to deep copy unkown object"
+			Log.out(Tier.DEBUG,"WARNING: Attempting to deep copy unkown object"
 					+ "of type" + copyable.getClass().getName() + " causion!");
 			try {
 				T duplicate = (T) copyable.getClass().newInstance();
@@ -97,11 +97,11 @@ public final class Copier {
 				}
 				return duplicate;				
 			} catch (InstantiationException e) {
-				Log.out(tier.CRITICAL, "failed to create new instance of " + 
+				Log.out(Tier.CRITICAL, "failed to create new instance of " + 
 						copyable.getClass().getName());
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				Log.out(tier.CRITICAL, "Copier could not acces object of type: "
+				Log.out(Tier.CRITICAL, "Copier could not acces object of type: "
 						+ copyable.getClass().getName());
 				e.printStackTrace();
 			} catch (SecurityException e) {

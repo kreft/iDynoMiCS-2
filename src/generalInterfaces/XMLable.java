@@ -7,15 +7,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import idynomics.Idynomics;
 
 /**
- * 
+ * \brief Implementations of this interface will be able to instanciate and
+ * initialise from a XML protocol file.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public interface XMLable
 {
@@ -23,7 +24,12 @@ public interface XMLable
 	 * OBJECT INITIALISATION
 	 ************************************************************************/
 	
-	public void init(Node xmlNode);
+	/**
+	 * \brief Initialise this object from an XML node.
+	 * 
+	 * @param xmlElem XML element from a protocol file.
+	 */
+	public void init(Element xmlElem);
 	
 	/*************************************************************************
 	 * CLASS INSTANCIATION
@@ -84,7 +90,7 @@ public interface XMLable
 		}
 		catch ( Exception e )
 		{
-			Log.out(tier.CRITICAL,
+			Log.out(Tier.CRITICAL,
 					"ERROR! Problem in XMLable.getNewInstance("+className+")");
 			e.printStackTrace();
 		}
@@ -104,7 +110,7 @@ public interface XMLable
 	{
 		Element E = (Element) xmlNode;
 		if ( ! E.hasAttribute(XmlLabel.classAttribute) )
-			Log.out(tier.CRITICAL, "No className defined in: "+E.getTagName());
+			Log.out(Tier.CRITICAL, "No className defined in: "+E.getTagName());
 		else if ( ! E.hasAttribute(XmlLabel.packageAttribute) )
 		{
 			return getNewInstance(xmlNode, 

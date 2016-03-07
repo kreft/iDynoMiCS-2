@@ -1,6 +1,7 @@
 package idynomics;
 
-public class NameRef {
+public class NameRef
+{
 	
 	/**
 	 * General xml name references

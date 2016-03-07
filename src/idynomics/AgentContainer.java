@@ -3,6 +3,7 @@ package idynomics;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Body;
@@ -10,6 +11,7 @@ import reaction.Reaction;
 import shape.Shape;
 import spatialRegistry.*;
 import surface.BoundingBox;
+import utility.ExtraMath;
 
 /**
  * \brief Manages the agents in a {@code Compartment}.
@@ -80,6 +82,25 @@ public class AgentContainer
 			this._agentTree = new RTree<Agent>(8, 2, this._shape);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param xmlElem
+	 */
+	public void readAgents(NodeList agentNodes)
+	{
+		for ( int i = 0; i < agentNodes.getLength(); i++ ) 
+			this.addAgent(new Agent(agentNodes.item(i)));
+	}
+	
+	public void setAllAgentsCompartment(Compartment aCompartment)
+	{
+		for ( Agent a : this._agentList )
+			a.setCompartment(aCompartment);
+		for ( Agent a : this._agentTree.all() )
+			a.setCompartment(aCompartment);
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
@@ -102,13 +123,6 @@ public class AgentContainer
 	 */
 	public LinkedList<Agent> getAllAgents()
 	{
-		/*
-		 * Bas: I think the list should only be shuffled when needed or assumed
-		 * needed since shuffling may become expensive with a high number of
-	 	 * agents.
-	 	 * 
-	 	 * Rob [3Feb2016]: That's fine with me.
-		 */
 		LinkedList<Agent> out = new LinkedList<Agent>();
 		out.addAll(this._agentList);
 		out.addAll(this._agentTree.all());
@@ -125,9 +139,11 @@ public class AgentContainer
 	{
 		//FIXME: #isLocated simplified for now, was an over extensive operation
 		// for a simple check.
-		if (agent.get(NameRef.isLocated) == null || 
-				!(agent.getBoolean(NameRef.isLocated)))
+		if ( ( agent.get(NameRef.isLocated) == null ) || 
+									( ! agent.getBoolean(NameRef.isLocated) ) )
+		{
 			this._agentList.add(agent);
+		}
 		else
 			this.addLocatedAgent(agent);
 		
@@ -170,6 +186,24 @@ public class AgentContainer
 	public int getNumAllAgents()
 	{
 		return this._agentList.size() + this._agentTree.all().size();
+	}
+	
+	public Agent extractRandomAgent()
+	{
+		Agent out;
+		int i = ExtraMath.getUniRandInt(this.getNumAllAgents());
+		if ( i > this._agentList.size() )
+		{
+			// Located agent
+			out = this._agentTree.getRandom();
+			this._agentTree.delete(out);
+		}
+		else
+		{
+			// Unlocated agent
+			out = this._agentList.remove(i);
+		}
+		return out;
 	}
 	
 	/*************************************************************************

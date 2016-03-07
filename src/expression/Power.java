@@ -2,10 +2,22 @@ package expression;
 
 import java.util.HashMap;
 
+/**
+ * \brief A component of a mathematical expression composed of one component 
+ * raised to the power of another.
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public class Power extends ComponentDouble
 {
 	/**
-	 * <b>a<sup>b</sup></b>
+	 * \brief Construct a power component of a mathematical expression
+	 * from two sub-components.
+	 * 
+	 * <p><b>a<sup>b</sup></b></p>
+	 * 
+	 * @param a The main number.
+	 * @param b The exponent.
 	 */
 	public Power(Component a, Component b)
 	{
@@ -20,10 +32,10 @@ public class Power extends ComponentDouble
 	}
 	
 	@Override
-	public String reportValue(HashMap<String, Double> variables)
+	public String reportEvaluation(HashMap<String, Double> variables)
 	{
-		return this._a.reportValue(variables) + this._expr + "{" +
-										this._b.reportValue(variables) + "}";
+		return this._a.reportEvaluation(variables) + this._expr + "{" +
+									this._b.reportEvaluation(variables) + "}";
 	}
 	
 	@Override
@@ -31,6 +43,7 @@ public class Power extends ComponentDouble
 	{
 		double a = this._a.getValue(variables);
 		double b = this._b.getValue(variables);
+		/* Can't divide by zero! */
 		if ( a == 0.0 && b < 0.0 )
 			this.infiniteValueWarning(variables);
 		return Math.pow(a, b);

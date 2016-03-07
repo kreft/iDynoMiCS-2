@@ -2,6 +2,8 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
+
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
 
@@ -11,11 +13,11 @@ import dataIO.XmlHandler;
  * this calculated states when queried and are intended to prevent errors due to
  * state values that have not been updated, and they reduce memory capacity 
  * since the can be set on species level rather than agent level.
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Calculated implements Copyable, XMLable {
-	
+public abstract class Calculated implements Copyable, XMLable
+{
 	/**
 	 * input states
 	 */
@@ -56,13 +58,13 @@ public abstract class Calculated implements Copyable, XMLable {
 	public static Object getNewInstance(Node xmlNode)
 	{
 		Calculated obj = (Calculated) XMLable.getNewInstance(xmlNode);
-		obj.init(xmlNode);
+		obj.init((Element) xmlNode);
 		return obj;
 	}
 	
-	public void init(Node xmlNode)
+	public void init(Element xmlElem)
 	{
-		this.setInput(XmlHandler.gatherAttribute(xmlNode, "input"));
+		this.setInput(XmlHandler.gatherAttribute(xmlElem, "input"));
 	}
 	
 	/**

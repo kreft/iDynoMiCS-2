@@ -1,38 +1,48 @@
 package processManager;
 
-import java.util.Collection;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import boundary.Boundary;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import idynomics.NameRef;
-import idynomics.Timer;
-import utility.Helper;
 
+/**
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public abstract class ProcessManager implements XMLable, AspectInterface
 {
-	protected String _name;
-	
-	protected int _priority;
-	
-	protected double _timeForNextStep = 0.0;
-	
-	protected double _timeStepSize;
-	
-	protected boolean _debugMode = false;
-	
 	/**
-     * The aspect registry
+	 * The name of this {@code ProcessManager}, for reporting.
+	 */
+	protected String _name;
+	/**
+	 * In the event of a time-clash between {@code ProcessManager}s, the one
+	 * with greater priority goes first.
+	 */
+	protected int _priority;
+	/**
+	 * The time at which this should next perform its step.
+	 */
+	protected double _timeForNextStep = 0.0;
+	/**
+	 * How often this should perform its step.
+	 */
+	protected double _timeStepSize;
+	/**
+	 * Set to true for extra system output.
+	 */
+	protected boolean _debugMode = false;
+	/**
+     * The aspect registry... TODO
      */
     public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
-	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -43,37 +53,44 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 		
 	}
 	
-	public void init(Node xmlNode)
+	public void init(Element xmlElem)
 	{
 		//FIXME quick fix: cut/paste from
 		//"public static ProcessManager getNewInstance(Node xmlNode)"
 		
-		this.loadAspects(xmlNode);
-		
-		Element p = (Element) xmlNode;
-		
+		this.loadAspects(xmlElem);
+		/*
+		 * Read in the process attributes. 
+		 */
+		Element p = (Element) xmlElem;
 		this.setName( p.getAttribute( XmlLabel.nameAttribute ));
-		
-		this.setPriority(
-					Integer.valueOf(p.getAttribute( NameRef.processPriority)));
-		
-		this.setTimeForNextStep( Double.valueOf(
-									p.getAttribute( NameRef.initialStep )));
-		
-		// TODO: Bas [16,02,16] this is a work around, nicefy
-		this.setTimeStepSize( Helper.setIfNone(
-					this.getDouble("timerStepSize"),Timer.getTimeStepSize())); 
+		/* Process priority - default is zero. */
+		int priority = 0;
+		if ( p.hasAttribute(NameRef.processPriority) )
+			priority = Integer.valueOf(p.getAttribute(NameRef.processPriority));
+		this.setPriority(priority);
+		/* Initial time to step. */
+		double time = Idynomics.simulator.timer.getCurrentTime();
+		if ( p.hasAttribute(NameRef.initialStep) )
+			time = Double.valueOf( p.getAttribute(NameRef.initialStep) );
+		this.setTimeForNextStep(time);
+		/* Time step size. */
+		time = Idynomics.simulator.timer.getTimeStepSize();
+		if ( p.hasAttribute("timerStepSize") )
+			time = Double.valueOf( p.getAttribute("timerStepSize") );
+		this.setTimeStepSize(time);
 	}
-
+	
 	/**
-	 * implements XMLable interface, return new instance from xml Node
+	 * Implements XMLable interface, return new instance from xml Node.
+	 * 
 	 * @param xmlNode
 	 * @return
 	 */
 	public static ProcessManager getNewInstance(Node xmlNode)
 	{
 		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		proc.init(xmlNode);
+		proc.init((Element) xmlNode);
 		return proc;
 	}
 	
@@ -82,22 +99,41 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 	 ************************************************************************/
 	
 	/**
-	 * return the aspect registry (implementation of aspect interface).
+	 * \brief Return the aspect registry (implementation of aspect interface).
 	 */
-	public AspectReg<?> reg() {
+	public AspectReg<?> reg()
+	{
 		return aspectRegistry;
 	}
 	
+	/**
+	 * \brief Get this {@code ProcessManager}'s name.
+	 * 
+	 * @return {@code String} name.
+	 */
 	public String getName()
 	{
 		return this._name;
 	}
 	
+	/**
+	 * \brief Set this {@code ProcessManager}'s name.
+	 * 
+	 * @param {@code String} name.
+	 */
 	public void setName(String name)
 	{
 		this._name = name;
 	}
 	
+	/**
+	 * \brief Set the priority of this {@code ProcessManager}.
+	 * 
+	 * <p>A higher priority {@code ProcessManager} goes first if two have a
+	 * time clash in the {@code Compartment} they belong to.</p>
+	 * 
+	 * @param priority Any integer value.
+	 */
 	public void setPriority(int priority)
 	{
 		this._priority = priority;
@@ -133,41 +169,33 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 		this._debugMode = true;
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param boundaries
-	 */
-	public void showBoundaries(Collection<Boundary> boundaries)
-	{
-		
-	}
-	
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
 	
 	public void step(EnvironmentContainer environment, AgentContainer agents)
 	{
-		//System.out.println("STEP");//bughunt
-		//System.out.println("timeForNextStep = "+_timeForNextStep);//bughunt
-		//System.out.println("timeStepSize = "+_timeStepSize);//bughunt
 		/*
 		 * This is where subclasses of Mechanism do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
 		 */
 		this.internalStep(environment, agents);
 		/*
-		 * Increase the 
+		 * Move the time for next step forward by the step size.
 		 */
 		this._timeForNextStep += this._timeStepSize;
-		
-		if (_debugMode)
-			System.out.println(getName() + " timeForNextStep = "+_timeForNextStep); 
+		/*
+		 * Report if in debugging mode.
+		 */
+		if ( this._debugMode )
+		{
+			System.out.println(this.getName() + 
+								" timeForNextStep = "+this._timeForNextStep);
+		}
 	}
 	
-	protected abstract void internalStep(EnvironmentContainer environment,
-											AgentContainer agents);
+	protected abstract void internalStep(
+					EnvironmentContainer environment, AgentContainer agents);
 	
 	/*************************************************************************
 	 * REPORTING

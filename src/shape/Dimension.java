@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import shape.ShapeConventions.BoundaryCyclic;
 import utility.Helper;
@@ -95,7 +95,7 @@ public class Dimension implements CanPrelaunchCheck
 				index = 1;
 			else
 			{
-				Log.out(tier.CRITICAL, 
+				Log.out(Tier.CRITICAL, 
 						"Warning! Dimension extreme must be min or max: "+str);
 			}
 			/* Set the position, if given (not always necessary). */
@@ -106,7 +106,7 @@ public class Dimension implements CanPrelaunchCheck
 			bndNodes = XmlHandler.getAll(extElem, "boundary");
 			if ( bndNodes.getLength() > 1 )
 			{
-				Log.out(tier.CRITICAL, 
+				Log.out(Tier.CRITICAL, 
 					  "Warning: Dimension extreme must have 0 or 1 boundary!");
 			}
 			else if ( bndNodes.getLength() == 1 )
@@ -366,14 +366,19 @@ public class Dimension implements CanPrelaunchCheck
 	
 	public boolean isReadyForLaunch()
 	{
-		//FIXME temporary disabled to allow testing, re-enable when boundaries
-		// are functional
-//		for ( int i = 0; i < 2; i++ )
-//			if ( this._required[i] && this._boundaries[i] == null )
-//			{
-//				// TODO check boundary is ready to launch?
-//				return false;
-//			}
+		for ( int i = 0; i < 2; i++ )
+		{
+			if ( this._boundary[i] == null )
+			{
+				if ( this._required[i] )
+					return false;
+			}
+			else
+			{
+				if ( ! this._boundary[i].isReadyForLaunch() )
+					return false;
+			}
+		}
 		return true;
 	}
 }

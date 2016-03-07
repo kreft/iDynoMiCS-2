@@ -3,10 +3,13 @@ package dataIO;
 /**
  * Single class that holds the naming of all xml tags and attributes, one
  * structured place to add or make changes.
+ * 
  * @author baco
- *
  */
-public class XmlLabel {
+// FIXME Rob[2Mar2016]: What is the difference between this and
+// idynomics.NameRef?
+public class XmlLabel
+{
 	
 	/* Nodes  */
 	////////////
@@ -87,6 +90,7 @@ public class XmlLabel {
 	/**
 	 * encapsulates all simulation wide parameters
 	 */
+	// TODO remove?
 	public static String generalParams = "general";
 	
 	/**
@@ -186,6 +190,16 @@ public class XmlLabel {
 	 * verbosity of log messages
 	 */
 	public static String logLevel = "log";
+	
+	/**
+	 * The size of time step that the global {@code Timer} will take.
+	 */
+	public static String timerStepSize = "stepSize";
+	
+	/**
+	 * The time point at which the simulation will end.
+	 */
+	public static String endOfSimulation = "endOfSimulation";
 	
 	/**
 	 * comma separated string of doubles that indicates a specific position in

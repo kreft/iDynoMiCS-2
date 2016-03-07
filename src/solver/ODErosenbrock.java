@@ -4,7 +4,7 @@
 package solver;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 
@@ -89,10 +89,6 @@ public class ODErosenbrock extends ODEsolver
 	 */
 	private double[][] W;
 	/**
-	 * The identity matrix, of size (nVar x nVar).
-	 */
-	private double[][] identity;
-	/**
 	 * {@code double} set and used by the solver.
 	 */
 	private double t, error, tNext, h, test;
@@ -114,7 +110,7 @@ public class ODErosenbrock extends ODEsolver
 													double absTol, double hMax)
 	{
 		this.init(soluteNames, allowNegatives, absTol, hMax);
-		Log.out(tier.DEBUG, "ODErosenbrock: " + allowNegatives +  " " +  absTol 
+		Log.out(Tier.DEBUG, "ODErosenbrock: " + allowNegatives +  " " +  absTol 
 				+  " " +  hMax);
 	}
 	
@@ -134,6 +130,8 @@ public class ODErosenbrock extends ODEsolver
 												double absTol, double hMax)
 	{
 		super.init(names, allowNegatives);
+		if ( this.nVar() == 0 )
+			return;
 		/* Doubles */
 		this._absTol = absTol;
 		// NOTE Bas [12.02.16] seems ODErosenbrock does not like absTol < hMax
@@ -153,7 +151,6 @@ public class ODErosenbrock extends ODEsolver
 		/* Matrices */
 		dFdY  = Matrix.zerosDbl(this.nVar());
 		W     = Matrix.zerosDbl(this.nVar());
-		identity = Matrix.identityDbl(this.nVar());
 	}
 	
 	// TODO init from xml node?
@@ -171,6 +168,9 @@ public class ODErosenbrock extends ODEsolver
 		 * Jacobian method to be set.
 		 */
 		super.solve(y, tFinal);
+		
+		if ( this.nVar() == 0 )
+			return y;
 		/*
 		 * Control statement in case the maximum timestep size, hMax, is too
 		 * large.
@@ -224,11 +224,12 @@ public class ODErosenbrock extends ODEsolver
 					 * W = I - h * d * dFdY
 					 */
 					Matrix.timesTo(W, dFdY, - h * d);
-					Matrix.addEquals(W, identity);
+					for ( int i = 0; i < this.nVar(); i++ )
+						W[i][i]++;
 					test = Matrix.condition(W);
 					if ( test > 10.0)
 					{ 
-						Log.out(tier.CRITICAL,
+						Log.out(Tier.CRITICAL,
 							"Warning (ODEsolver): Condition of W is "+test);
 					}
 					/*
@@ -293,7 +294,7 @@ public class ODErosenbrock extends ODEsolver
 				}
 				catch (Exception e)
 				{
-					Log.out(tier.CRITICAL, "Problem in Rosenbrock step" + e);
+					Log.out(Tier.CRITICAL, "Problem in Rosenbrock step" + e);
 				}
 				/*
 				 * The solution is accepted if the weighted error is less than

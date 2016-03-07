@@ -2,6 +2,7 @@ package grid;
 
 import java.util.Arrays;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import grid.resolution.ResCalcFactory;
@@ -90,7 +91,7 @@ public class SphericalGrid extends PolarGrid
 		
 		/* create appropriate ResCalc Objects for dimension combinations*/
 		ResCalcFactory rcf = new ResCalcFactory(this._dimName);
-		rcf.init(node);
+		rcf.init((Element) node);
 		/* check for dim name equality and right order (this should usually 
 		 * be ensured by the init(Node) function of ResCalcFactory) */ 
 		if (!Arrays.equals(this._dimName, rcf.getDimNames()))
