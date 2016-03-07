@@ -20,7 +20,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
@@ -29,8 +28,6 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
-
-import idynomics.Idynomics;
 
 /**
  * openGL Render class, manages openGL settings, output frame and it's own
@@ -54,7 +51,7 @@ public class Render implements GLEventListener, Runnable {
 	private float h;
 	
 	private float tilt = 0.0f, zoom = 0.0f, angle = 0.0f;
-	private float x = 0f, y = 0f, z = 0f;
+	private float x = 0f, y = 0f /* , z = 0f */;
 
 	
 	/* Light sources */
@@ -305,7 +302,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent b) {
 				System.out.println("up");
-				r.x += 1f;
+				r.x -= 1f;
 			}
 		});
 		
@@ -316,7 +313,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent c) {
 				System.out.println("down");
-				r.x -= 1f;
+				r.x += 1f;
 			}
 		});
 		
