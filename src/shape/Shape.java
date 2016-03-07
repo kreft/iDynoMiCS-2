@@ -15,6 +15,7 @@ import boundary.Boundary;
 import boundary.BoundaryConnected;
 import dataIO.Log;
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
@@ -78,33 +79,40 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 */
 	public void init(Element xmlElem)
 	{
-		Element dimensionElement;
-		DimName dimName;
-		
+		NodeList childNodes;
+		Element childElem;
+		String str;
 		/* Set up the dimensions. */
-		NodeList dimensionNodes = XmlHandler.getAll(xmlElem, "dimension");
-		for ( int i = 0; i < dimensionNodes.getLength(); i++ )
+		DimName dimName;
+		childNodes = XmlHandler.getAll(xmlElem, "dimension");
+		for ( int i = 0; i < childNodes.getLength(); i++ )
 		{
-			dimensionElement = (Element) dimensionNodes.item(i);
-			dimName = null;
-			while (dimName == null) 
+			childElem = (Element) childNodes.item(i);
+			try
 			{
-				try
-				{
-				dimName = DimName.valueOf(XmlHandler.obtainAttribute(
-						dimensionElement, "name"));
-				}
-				catch (IllegalArgumentException e)
-				{
-					Log.out(Tier.CRITICAL, "Warning: input Dimension not "
-							+ "recognised by shape " + this.getClass().getName()
-							+ ", use: " + Helper.enumToString(DimName.class));
-				}
+				str = XmlHandler.obtainAttribute(childElem,
+												XmlLabel.nameAttribute);
+				dimName = DimName.valueOf(str);
+				this.getDimension(dimName).init(childElem);
 			}
-			this.getDimension(dimName).init(dimensionElement);
+			catch (IllegalArgumentException e)
+			{
+				Log.out(Tier.CRITICAL, "Warning: input Dimension not "
+						+ "recognised by shape " + this.getClass().getName()
+						+ ", use: " + Helper.enumToString(DimName.class));
+			}
 		}
 		/* Set up any other boundaries. */
-		// TODO
+		Boundary aBoundary;
+		childNodes = XmlHandler.getAll(xmlElem, "boundary");
+		for ( int i = 0; i < childNodes.getLength(); i++ )
+		{
+			childElem = (Element) childNodes.item(i);
+			str = childElem.getAttribute(XmlLabel.classAttribute);
+			aBoundary = (Boundary) Boundary.getNewInstance(str);
+			aBoundary.init(childElem);
+			this.addOtherBoundary(aBoundary);
+		}
 	}
 	
 	/*************************************************************************
