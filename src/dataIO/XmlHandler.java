@@ -83,6 +83,13 @@ public class XmlHandler
 		}
 	}
 	
+	/**
+	 * quick method to allow appending the current path in front of the resource
+	 * before reading the document. (there were issues loading resources after
+	 * constructing a runnable .jar file).
+	 * @param resource
+	 * @return
+	 */
 	public static Element loadResource(String resource)
 	{
 		try {
@@ -104,6 +111,7 @@ public class XmlHandler
 	}
 	
 	/**
+	 * FIXME TESTING
 	 * TODO find a way to get the jar path in both Linux, windows and mac
 	 * @return
 	 * @throws Exception

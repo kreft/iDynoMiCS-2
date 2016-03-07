@@ -3,7 +3,7 @@
 	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
 						comment="this is a file for testing purposes only.">
 		
-		<timer stepSize="1.0" endOfSimulation="50.0" />
+		  priority="--
 		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -107,21 +107,21 @@
 				</agent> 
 			</agents>
 			<processManagers>
-				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
+				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="prefix" type="String" value="out_solute1" />
 					<aspect name="maxConcentration" type="double" value="2.0" />
 					<aspect name="solute" type="String" value="solute1" />
 					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
-				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
+				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="prefix" type="String" value="out_solute2" />
 					<aspect name="maxConcentration" type="double" value="2.0" />
 					<aspect name="solute" type="String" value="solute2" />
 					<aspect name="timerStepSize" type="double" value="1.0" />
 				</process>
-				<process name="svgWriter" class="WriteAgentsSvg" priority="3"
+				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="prefix" type="String" value="rate_solute2" />
 					<aspect name="maxConcentration" type="double" value="2.0" />
@@ -129,16 +129,16 @@
 					<aspect name="timerStepSize" type="double" value="1.0" />
 					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
 				</process>
-				<!-- <process name="agentGrowth" class="AgentGrowth" priority="0"
+				<!-- <process name="agentGrowth" class="AgentGrowth"  priority="-0"
 					firstStep="0.0" package="processManager." />  -->
 				<!-- <process name="agentMove" class="AgentStochasticMove"
-					priority="1" firstStep="0.0" package="processManager." /> -->
-				<process name="agentRelax" class="AgentRelaxation" priority="2"
+					 priority="-1" firstStep="0.0" package="processManager." /> -->
+				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0" package="processManager.">
 					<aspect name="maxMovement" type="double" value="0.05" />
 					<aspect name="relaxationMethod" type="String" value="EULER" />
 				</process>
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="1"
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
 					firstStep="0.0" package="processManager.">	
 					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
 					<aspect name="timerStepSize" type="double" value="1.0" />
