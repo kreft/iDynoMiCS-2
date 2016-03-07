@@ -50,6 +50,15 @@ public final class GuiMenu
 		menu.setMnemonic(KeyEvent.VK_F);
 		menu.getAccessibleContext().setAccessibleDescription("File options");
 		/*
+		 * Add the option of making a new protocol file.
+		 */
+		menuItem = new JMenuItem(new GuiMenu.NewFile());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Make a new protocol file");
+		menu.add(menuItem);
+		/*
 		 * Add the option of opening a protocol file.
 		 */
 		menuItem = new JMenuItem(new GuiMenu.FileOpen());
@@ -125,6 +134,24 @@ public final class GuiMenu
 	/*************************************************************************
 	 * 
 	 ************************************************************************/
+	
+	public static class NewFile extends AbstractAction
+	{
+		private static final long serialVersionUID = 8931286266304166474L;
+		
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public NewFile()
+		{
+	        super("New protocol file");
+		}
+		
+	    public void actionPerformed(ActionEvent e)
+	    {
+	    	GuiActions.newFile();
+	    }
+	}
 	
 	public static class FileOpen extends AbstractAction
 	{

@@ -5,6 +5,7 @@ import boundary.ChemostatConnection;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
+import idynomics.Idynomics;
 import idynomics.Simulator;
 import processManager.SolveChemostat;
 import shape.ShapeLibrary.Dimensionless;
@@ -16,9 +17,9 @@ public class ConnectedCompartmentsTest
 		/*
 		 * Set up the Simulator and the Timer.
 		 */
-		Simulator sim = new Simulator();
-		sim.timer.setTimeStepSize(1.0);
-		sim.timer.setEndOfSimulation(10.0);
+		Idynomics.simulator = new Simulator();
+		Idynomics.simulator.timer.setTimeStepSize(1.0);
+		Idynomics.simulator.timer.setEndOfSimulation(10.0);
 		Log.set(Tier.EXPRESSIVE);
 		/*
 		 * The connection between the two Compartments.
@@ -37,7 +38,7 @@ public class ConnectedCompartmentsTest
 		/*
 		 * First compartment.
 		 */
-		Compartment c1 = sim.addCompartment("first");
+		Compartment c1 = Idynomics.simulator.addCompartment("first");
 		Dimensionless s1 = new Dimensionless();
 		s1.setVolume(1.0);
 		s1.addOtherBoundary(b1);
@@ -49,7 +50,7 @@ public class ConnectedCompartmentsTest
 		/*
 		 * Second compartment.
 		 */
-		Compartment c2 = sim.addCompartment("second");
+		Compartment c2 = Idynomics.simulator.addCompartment("second");
 		Dimensionless s2 = new Dimensionless();
 		s2.setVolume(1.0);
 		s2.addOtherBoundary(b2);
@@ -70,6 +71,6 @@ public class ConnectedCompartmentsTest
 		/*
 		 * 
 		 */
-		sim.run();
+		Idynomics.simulator.run();
 	}
 }

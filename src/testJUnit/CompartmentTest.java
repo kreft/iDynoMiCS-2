@@ -5,7 +5,8 @@ import org.junit.Test;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
-import idynomics.Timer;
+import idynomics.Idynomics;
+import idynomics.Simulator;
 import processManager.ProcessManager;
 
 public class CompartmentTest
@@ -30,11 +31,11 @@ public class CompartmentTest
 		 * Put some dummy ProcessManagers into a Compartment, and check they
 		 * are stepped in the correct order.
 		 */
-		Timer timer = new Timer();
+		Idynomics.simulator = new Simulator();
 		Compartment c = new Compartment();
 		ProcessManager pm;
-		timer.setTimeStepSize(4.5);
-		timer.setEndOfSimulation(4.5);
+		Idynomics.simulator.timer.setTimeStepSize(4.5);
+		Idynomics.simulator.timer.setEndOfSimulation(4.5);
 		/* Frequent, low priority. */
 		pm = new DummyProcess();
 		pm.setTimeForNextStep(0.0);
