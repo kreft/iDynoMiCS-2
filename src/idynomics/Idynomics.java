@@ -14,7 +14,6 @@ package idynomics;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
-import dataIO.Log.Tier;
 
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
@@ -83,7 +82,7 @@ public class Idynomics
 		{
 			/* prevent writing logFile before tier and location is set */
 			Log.printToScreen(
-					"Protocol file incomplete! Skipping "+protocolPath);
+					"Protocol file incomplete! Skipping "+protocolPath, true);
 			return;
 		}
 		launchSimulator();
@@ -99,13 +98,13 @@ public class Idynomics
 		if ( protocolPath == null )
 		{
 			/* prevent writing logFile before tier and location is set */
-			Log.printToScreen("No protocol path set!");
+			Log.printToScreen("No protocol path set!", true);
 			return;
 		}
 		/* prevent writing logFile before tier and location is set */
 			Log.printToScreen("Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n", false);
 		/* 
 		 * Load the protocol file and find the elements we need
 		 */
