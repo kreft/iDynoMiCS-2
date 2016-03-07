@@ -4,15 +4,17 @@
 package processManager;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
+
+import org.w3c.dom.Element;
 
 import agent.Agent;
 import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
+import static grid.SpatialGrid.ArrayType.*;
 import grid.subgrid.SubgridPoint;
+import grid.wellmixedSetter.AllSame;
+import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
@@ -28,7 +30,7 @@ import surface.Surface;
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class SolveDiffusionTransient extends ProcessManager
 {
@@ -40,6 +42,10 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * The names of all solutes this solver is responsible for.
 	 */
 	protected String[] _soluteNames;
+	/**
+	 * 
+	 */
+	protected HashMap<String,IsWellmixedSetter> _wellmixed;
 	/**
 	 * TODO this may need to be generalised to some method for setting
 	 * diffusivities, e.g. lower inside biofilm.
@@ -77,14 +83,25 @@ public class SolveDiffusionTransient extends ProcessManager
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
+		
+		// TODO quick fix for now
+		this._wellmixed = new HashMap<String,IsWellmixedSetter>();
+		for ( String soluteName : this._soluteNames )
+		{
+			AllSame mixer = new AllSame();
+			mixer.setValue(1.0);
+			this._wellmixed.put(soluteName, mixer);
+		}
 		// TODO enter a diffusivity other than one!
 		this._diffusivity = new HashMap<String,Double>();
 		for ( String sName : soluteNames )
 			this._diffusivity.put(sName, 1.0);
 	}
 	
-	public void init()
+	public void init(Element xmlElem)
 	{
+		super.init(xmlElem);
+		
 		this.init(getStringA("solutes"));
 	}
 	
@@ -101,6 +118,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
+		int nDim = agents.getNumDims();
 		/*
 		 * Set up the solute grids and the agents before we start to solve.
 		 */
@@ -111,12 +129,10 @@ public class SolveDiffusionTransient extends ProcessManager
 			/*
 			 * Set up the relevant arrays in each of our solute grids.
 			 */
-			solute.newArray(ArrayType.PRODUCTIONRATE);
+			solute.newArray(PRODUCTIONRATE);
 			// TODO use a diffusion setter
-			solute.newArray(ArrayType.DIFFUSIVITY, 
-										_diffusivity.get(soluteName));
-			// TODO use a DomainSetter
-			solute.newArray(ArrayType.DOMAIN, 1.0);
+			solute.newArray(DIFFUSIVITY, _diffusivity.get(soluteName));
+			this._wellmixed.get(soluteName).updateWellmixed(solute, agents);
 			/*
 			 * Set up the agent biomass distribution maps.
 			 */
@@ -141,9 +157,9 @@ public class SolveDiffusionTransient extends ProcessManager
 				location = solute.getVoxelOrigin(coord);
 				solute.getVoxelSideLengthsTo(dimension, coord);
 				/* NOTE the agent tree is always the amount of actual dimension */
-				neighbors = agents.treeSearch(
-							  Vector.subset(location,agents.getNumDims()),
-							  Vector.subset(dimension,agents.getNumDims()));
+				neighbors = agents._agentTree.cyclicsearch(
+							  					Vector.subset(location, nDim),
+							  					Vector.subset(dimension, nDim));
 				/* If there are none, move onto the next voxel. */
 				if ( neighbors.isEmpty() )
 					continue;
@@ -172,21 +188,17 @@ public class SolveDiffusionTransient extends ProcessManager
 						continue;
 					List<Surface> surfaces = (List<Surface>) 
 							a.get(NameRef.surfaceList);
-					/* NOTE introduce some safties */
-					//TODO! FIXME! fine tune by scaling to the agents current mass
 					distributionMap = (HashMap<int[],Double>) 
 											a.getValue("volumeDistribution");
 					
 					sgLoop: for ( SubgridPoint p : sgPoints )
 					{
-						/* Only give location in actual dimensions. */
-						// NOTE Rob [18Feb2016]: out of curiosity, why do we make a
-						// Ball and not a Point?
-						// Bas [19.02.16] since a point is not a surface object
-						// but an element of a surface object, a surface can 
-						// be build up out of multiple points, a Ball has a
-						// single point, with a radius of 0.0 it is basically a
-						// point but also a surface object
+						/* 
+						 * Only give location in actual dimensions. Note that a
+						 * Point does not have a Surface object, whereas a Ball
+						 * does. By getting a Ball with zero radius, it is
+						 * essentially a Point with a Surface.  
+						 */
 						for ( Surface s : surfaces )
 							if ( collision.distance(s, Vector.subset( 
 									p.realLocation,agents.getNumDims())) < 0.0 )
@@ -246,8 +258,8 @@ public class SolveDiffusionTransient extends ProcessManager
 							if ( environment.isSoluteName(varName) )
 							{
 								solute = environment.getSoluteGrid(varName);
-								concentrations.put(varName, solute.getValueAt(
-										ArrayType.CONCN, coord));
+								concentrations.put(varName,
+											solute.getValueAt(CONCN, coord));
 							}
 						}
 						/* Obtain rate of the reaction. */
@@ -260,8 +272,8 @@ public class SolveDiffusionTransient extends ProcessManager
 							{
 								/* Write rate for each product to grid. */
 								solute = environment.getSoluteGrid(product);
-								solute.addValueAt(ArrayType.PRODUCTIONRATE, 
-										coord, productionRate);
+								solute.addValueAt(PRODUCTIONRATE, 
+													coord, productionRate);
 							}
 						}
 					}
@@ -314,8 +326,7 @@ public class SolveDiffusionTransient extends ProcessManager
 								if ( environment.isSoluteName(varName) )
 								{
 									aSG = environment.getSoluteGrid(varName);
-									concn = aSG.getValueAt(ArrayType.CONCN,
-															coord);
+									concn = aSG.getValueAt(CONCN, coord);
 									// FIXME: was getting strange [16,0,0] 
 									// coord values here (index out of bounds)
 								}
@@ -356,7 +367,7 @@ public class SolveDiffusionTransient extends ProcessManager
 								if ( environment.isSoluteName(productName) )
 								{
 									aSG = environment.getSoluteGrid(productName);
-									aSG.addValueAt(ArrayType.PRODUCTIONRATE, 
+									aSG.addValueAt(PRODUCTIONRATE, 
 														coord, productionRate);
 								}
 								else if ( a.isAspect(productName) )

@@ -2,6 +2,9 @@ package boundary;
 
 import java.util.HashMap;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
+
 public class ChemostatConnection extends BoundaryConnected
 {
 	/**
@@ -10,6 +13,8 @@ public class ChemostatConnection extends BoundaryConnected
 	protected double _flowRate;
 	
 	protected HashMap<String, Double> _concentrations;
+	
+	protected double _agentsToDiluteTally;
 	
 	public ChemostatConnection()
 	{
@@ -68,5 +73,37 @@ public class ChemostatConnection extends BoundaryConnected
 		if ( this._concentrations.containsKey(soluteName) )
 			return this._concentrations.get(soluteName);
 		return 0.0;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public double getAgentsToDiluteTally()
+	{
+		return this._agentsToDiluteTally;
+	}
+	
+	/**
+	 * 
+	 * @param timeStep
+	 */
+	public void updateAgentsToDiluteTally(double timeStep)
+	{
+		/* Remember to subtract, since flow rate out is negative. */
+		this._agentsToDiluteTally -= this._flowRate * timeStep;
+	}
+	
+	public void knockDownAgentsToDiluteTally()
+	{
+		this._agentsToDiluteTally--;
+	}
+	
+	/**
+	 * 
+	 */
+	public void resetAgentsToDiluteTally()
+	{
+		this._agentsToDiluteTally = 0.0;
 	}
 }

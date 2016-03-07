@@ -14,9 +14,7 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Simulator;
-import idynomics.Timer;
 import linearAlgebra.Vector;
-import processManager.PrepareSoluteGrids;
 import processManager.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeLibrary;
@@ -28,10 +26,9 @@ public class PDEtest
 	
 	public static void main(String[] args)
 	{
-		Timer.setTimeStepSize(1.0);
-		Timer.setEndOfSimulation(10.0);
-		
 		Simulator aSimulator = new Simulator();
+		aSimulator.timer.setTimeStepSize(1.0);
+		aSimulator.timer.setEndOfSimulation(10.0);
 		/*
 		 * Add the test compartments.
 		 */
@@ -89,17 +86,12 @@ public class PDEtest
 		//TODO diffusivities
 		aCompartment.init();
 		/*
-		 * The solute grids will need prepping before the solver can get to work.
-		 */
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aCompartment.addProcessManager(aPrep);
-		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(soluteNames);
 		aProcess.setTimeForNextStep(0.0);
-		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aProcess.setTimeStepSize(aSim.timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
 	}
 	
@@ -167,18 +159,12 @@ public class PDEtest
 			sg.setValueAt(ArrayType.CONCN, coords, Math.random());
 		}
 		/*
-		 * The solute grids will need prepping before the solver can get to work.
-		 */
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aPrep.setTimeStepSize(Double.MAX_VALUE);
-		aCompartment.addProcessManager(aPrep);
-		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(soluteNames);
 		aProcess.setTimeForNextStep(0.0);
-		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aProcess.setTimeStepSize(aSim.timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
 	}
 	
@@ -223,18 +209,12 @@ public class PDEtest
 			sg.setValueAt(ArrayType.CONCN, coords, Math.random());
 		}
 		/*
-		 * The solute grids will need prepping before the solver can get to work.
-		 */
-		PrepareSoluteGrids aPrep = new PrepareSoluteGrids();
-		aPrep.setTimeStepSize(Double.MAX_VALUE);
-		aCompartment.addProcessManager(aPrep);
-		/*
 		 * Set up the transient diffusion-reaction solver.
 		 */
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(soluteNames);
 		aProcess.setTimeForNextStep(0.0);
-		aProcess.setTimeStepSize(Timer.getTimeStepSize());
+		aProcess.setTimeStepSize(aSim.timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
 	}
 	
@@ -280,14 +260,14 @@ public class PDEtest
 			}
 			sg.newArray(ArrayType.DIFFUSIVITY);
 			sg.setAllTo(ArrayType.DIFFUSIVITY, D);
-			sg.newArray(ArrayType.DOMAIN);
-			sg.setAllTo(ArrayType.DOMAIN, 1.0);
+			sg.newArray(ArrayType.WELLMIXED);
+			sg.setAllTo(ArrayType.WELLMIXED, 1.0);
 			sg.newArray(ArrayType.PRODUCTIONRATE);
 			sg.newArray(ArrayType.DIFFPRODUCTIONRATE);
 			coords[0] = 1;
 			coords[1] = 1;
 			sg.setValueAt(ArrayType.CONCN, coords, 1.0);
-			sg.setValueAt(ArrayType.DOMAIN, coords, 0.0);
+			sg.setValueAt(ArrayType.WELLMIXED, coords, 0.0);
 		}
 		/*
 		 * Dummy AgentContainer will be empty

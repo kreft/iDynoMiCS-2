@@ -6,8 +6,10 @@ package testJUnit;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import static testJUnit.AllTests.TOLERANCE;
+
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import utility.ExtraMath;
@@ -38,13 +40,14 @@ public class LinearAlgebraTest
 		a[0][0] = 1.0; a[0][1] = 2.0; a[0][2] = 3.0;
 		a[1][0] = 0.0; a[1][1] = 1.0; a[1][2] = 4.0;
 		a[2][0] = 5.0; a[2][1] = 6.0; a[2][2] = 0.0;
+		double[][] inverseA = Matrix.invert(a);
 		/* Analytic solution */
 		double[][] b = Matrix.zerosDbl(3);
 		b[0][0] = -24.0; b[0][1] =  18.0; b[0][2] =  5.0;
 		b[1][0] =  20.0; b[1][1] = -15.0; b[1][2] = -4.0;
 		b[2][0] = - 5.0; b[2][1] =   4.0; b[2][2] = 1.0;
 		/* Assert */
-		assertTrue("m", Matrix.areSame(Matrix.invert(a), b, TOLERANCE));
+		assertTrue("m", Matrix.areSame(inverseA, b, TOLERANCE));
 	}
 	
 	/**
@@ -187,10 +190,45 @@ public class LinearAlgebraTest
 	}
 	
 	@Test
+	public void vectorFlip()
+	{
+		ExtraMath.initialiseRandomNumberGenerator();
+		checkFlipDbl(100);
+		checkFlipDbl(101);
+		checkFlipInt(100);
+		checkFlipInt(101);
+	}
+	
+	private void checkFlipDbl(int nVar)
+	{
+		String oddEven = ((nVar%2) == 0) ? "even" : "odd";
+		double[] u = Vector.randomZeroOne(nVar);
+		double[] v = Vector.flip(u);
+		assertFalse("Flipped not the same (double "+oddEven+")", Vector.areSame(u, v));
+		double[] w = new double[nVar];
+		Vector.flipTo(w, u);
+		assertTrue("flipTo same as flip (double "+oddEven+")", Vector.areSame(v, w));
+		Vector.flipEquals(v);
+		assertTrue("Flip is reversible (double "+oddEven+")", Vector.areSame(u, v));
+	}
+	
+	private void checkFlipInt(int nVar)
+	{
+		String oddEven = ((nVar%2) == 0) ? "even" : "odd";
+		int[] u = Vector.randomInts(nVar, -10, 10);
+		int[] v = Vector.flip(u);
+		assertFalse("Flipped not the same (int "+oddEven+")", Vector.areSame(u, v));
+		int[] w = new int[nVar];
+		Vector.flipTo(w, u);
+		assertTrue("flipTo same as flip (int "+oddEven+")", Vector.areSame(v, w));
+		Vector.flipEquals(v);
+		assertTrue("Flip is reversible (int "+oddEven+")", Vector.areSame(u, v));
+	}
+	
+	@Test
 	public void cartesianPolarExercises()
 	{
-		double[] cartesianOriginal, cartesianReturned,
-					polarOriginal, polarReturned;
+		double[] cartesianOriginal, cartesianReturned, polarOriginal;
 		/* **************** Cartesian -> polar -> Cartesian **************** */
 		/* 1D
 		 * Note that a negative input is nonsensical here.
@@ -225,8 +263,7 @@ public class LinearAlgebraTest
 	@Test
 	public void cylinderCartesianExercises()
 	{
-		double[] cartesianOriginal, cartesianReturned,
-					cylindricalOriginal, cylindricalReturned;
+		double[] cartesianOriginal, cartesianReturned, cylindricalOriginal;
 		/*
 		 * 
 		 */

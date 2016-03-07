@@ -6,7 +6,9 @@ import org.w3c.dom.NodeList;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.XmlHandler;
+import dataIO.Log;
 import dataIO.XmlLabel;
+import dataIO.Log.Tier;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -75,7 +77,7 @@ public class Agent implements Quizable, AspectInterface
 					extra.compartment = comp;
 					extra.registerBirth();
 				}
-				loadAspects(xmlNode);
+				this.loadAspects(xmlNode);
 				this.set(NameRef.agentBody, randBody(domain));
 			}
 		}
@@ -94,7 +96,7 @@ public class Agent implements Quizable, AspectInterface
 	
 	public Agent(Node xmlNode, Body body)
 	{
-		loadAspects(xmlNode);
+		this.loadAspects(xmlNode);
 		this.set(NameRef.agentBody, body);
 		this.init();
 	}
@@ -116,9 +118,19 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public void init()
 	{
+		String species;
+		if ( this.isAspect(XmlLabel.species) )
+		{
+			species = this.getString(XmlLabel.species);
+			Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
+		}
+		else
+		{
+			species = "";
+			Log.out(Tier.DEBUG, "Agent belongs to void species");
+		}
 		aspectRegistry.addSubModule( (Species) 
-				Idynomics.simulator.speciesLibrary.get( 
-				isAspect(XmlLabel.species) ? getString(XmlLabel.species) : ""));
+							Idynomics.simulator.speciesLibrary.get(species));
 	}
 
 
@@ -205,7 +217,10 @@ public class Agent implements Quizable, AspectInterface
 	 * note that the compartment field of the agent is set by the compartment
 	 * itself.
 	 */
-	public void registerBirth() {
+	public void registerBirth()
+	{
+		Log.out(Tier.DEBUG, "Compartment \""+this.compartment.name+
+												"\" registering agent birth");
 		compartment.addAgent(this);
 	}
 

@@ -21,20 +21,45 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import dataIO.Log.tier;
 import idynomics.Idynomics;
 import idynomics.Param;
+import dataIO.Log.Tier;
 import utility.Helper;
 
 /**
- * handles xml files
- * @author baco
- *
+ * \brief Helper class for working with XML files.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class XmlHandler {
-
+public class XmlHandler
+{
 	/**
-	 * Returns specified document as xml Element
+	 * \brief Make a new {@code Document}.
+	 * 
+	 * @return
+	 */
+	public static Document newDocument()
+	{
+		try 
+		{
+			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
+			Document doc = dBuilder.newDocument();
+			return doc;
+		}
+		catch (ParserConfigurationException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
+	/**
+	 * \brief Returns specified document as xml Element
+	 * 
 	 * @param document
 	 * @return
 	 */
@@ -101,19 +126,19 @@ public class XmlHandler {
 		}
 
 	/**
-	 * Gathers non critical attributes, returns "" if the attribute is not
+	 * \brief Gathers non critical attributes, returns "" if the attribute is not
 	 * defined. This method does not ask the user for any information.
 	 */
 	public static String gatherAttribute(Element xmlElement, String attribute)
 	{
-		if(xmlElement.hasAttribute(attribute))
+		if ( xmlElement.hasAttribute(attribute) )
 			return xmlElement.getAttribute(attribute);
 		else
 			return "";
 	}
 	
 	/**
-	 * Gathers non critical attributes, returns "" if the attribute is not
+	 * \brief Gathers non critical attributes, returns "" if the attribute is not
 	 * defined. This method does not ask the user for any information.
 	 * @param xmlElement
 	 * @param attribute
@@ -125,7 +150,7 @@ public class XmlHandler {
 	}
 
 	/**
-	 * This method gets an attribute from an element, if the element does not
+	 * \brief This method gets an attribute from an element, if the element does not
 	 * have this attribute it will ask the user.
 	 */
 	public static String obtainAttribute(Element xmlElement, String attribute)
@@ -134,18 +159,28 @@ public class XmlHandler {
 			return  xmlElement.getAttribute(attribute);
 		else
 		{
-		@SuppressWarnings("resource")
-		Scanner user_input = new Scanner( System.in );
-		//NOTE put this here since output line order was sometimes swapped.
-		Helper.pause(50);
-		System.out.print(xmlElement.getNodeName() + " misses the "
-				+ "attribute: \"" + attribute + "\", please enter a value: " );
-		return user_input.next( );
+			@SuppressWarnings("resource")
+			Scanner user_input = new Scanner( System.in );
+			//NOTE put this here since output line order was sometimes swapped.
+			Helper.pause(50);
+			System.out.println(xmlElement.getNodeName() + " misses the "
+									+ "attribute: \"" + attribute + "\"" );
+			/* Tell the user what attribute it did find. */
+			System.out.println("\tAttributes found:");
+			NamedNodeMap nnm = xmlElement.getAttributes();
+			for ( int i = 0; i < nnm.getLength(); i++ )
+			{
+				Node n = nnm.item(i);
+				System.out.println("\t\t"+n.getNodeName()+", "+n.getNodeValue());
+			}
+			/* Ask for the missing one. */
+			System.out.print("Please enter a value for "+attribute+": ");
+			return user_input.next( );
 		}
 	}
 	
 	/**
-	 * Enquires attributes from parent's child nodes identified by tag.
+	 * \brief Enquires attributes from parent's child nodes identified by tag.
 	 * @param parent
 	 * @param tag
 	 * @param attributes
@@ -168,7 +203,7 @@ public class XmlHandler {
 	}
 	
 	/**
-	 * returning all child nodes identified by tag from parent node or element
+	 * \brief returning all child nodes identified by tag from parent node or element
 	 */
 	public static NodeList getAll(Node parent, String tag)
 	{
@@ -176,7 +211,7 @@ public class XmlHandler {
 	}
 	
 	/**
-	 * returning all child nodes identified by tag from parent node or element
+	 * \brief returning all child nodes identified by tag from parent node or element
 	 */
 	public static NodeList getAll(Element parent, String tag)
 	{
@@ -184,7 +219,7 @@ public class XmlHandler {
 	}
 	
 	/**
-	 * Directly writes attributes from xml node to static field
+	 * \brief Directly writes attributes from xml node to static field
 	 */
 	public static void setStaticField(Class<?> c, Element element)
 	{
@@ -212,7 +247,8 @@ public class XmlHandler {
 	}
 
 	/**
-	 * Checks for unique node exists and whether it is unique, than returns it.
+	 * \brief Checks for unique node exists and whether it is unique, than returns it.
+	 * 
 	 * @param xmlElement
 	 * @param tagName
 	 * @return
@@ -222,12 +258,12 @@ public class XmlHandler {
 		NodeList nodes =  xmlElement.getElementsByTagName(tagName);
 		if (nodes.getLength() > 1)
 		{
-			Log.out(tier.NORMAL,"Warning: document contains more than 1"
+			Log.out(Tier.NORMAL,"Warning: document contains more than 1"
 					+ tagName + " nodes, loading first simulation node...");
 		}
 		else if (nodes.getLength() == 0)
 		{
-			Log.out(tier.NORMAL,"Warning: could not identify " + tagName + 
+			Log.out(Tier.NORMAL,"Warning: could not identify " + tagName + 
 					" node, make sure your file contains all required elements."
 					+ " Attempt to continue with 'null' node.");
 			return null;
@@ -236,7 +272,7 @@ public class XmlHandler {
 	}		
 	
 	/**
-	 * Loads attribute from a unique node
+	 * \brief Loads attribute from a unique node
 	 * @param xmlElement
 	 * @param tagName
 	 * @param attribute
@@ -297,13 +333,14 @@ public class XmlHandler {
 	{
 		display(prefix, element);
 		NamedNodeMap a = element.getAttributes();
-		for (int i = 0; i < a.getLength(); i++) {
-			String ln = " |" + a.item(i).getNodeName() + " : " 
+		for ( int i = 0; i < a.getLength(); i++ )
+		{
+			String ln = " | " + a.item(i).getNodeName() + " : " 
 					+ a.item(i).getNodeValue();
-			if (prefix == null) 
-				System.out.println(ln);
+			if ( prefix == null )
+				Log.printToScreen(ln, false);
 			else
-				System.out.println(prefix + ln);
+				Log.printToScreen(prefix + ln, false);
 		}
 	}
 	
@@ -329,7 +366,7 @@ public class XmlHandler {
 	public static void displayAllChildNodes(String prefix, Element element, 
 			Boolean attributes)
 	{
-		if (element.hasChildNodes()) 
+		if ( element.hasChildNodes() ) 
 		{
 			NodeList childNodes = element.getChildNodes();
 			for (int i = 0; i < childNodes.getLength(); i++) 

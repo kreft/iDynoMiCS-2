@@ -130,6 +130,24 @@ public class Reaction implements XMLable, Copyable
 		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
 	}
 	
+	public void init(Element xmlElem)
+	{
+		// FIXME quick fix: copy/pasted from "public Reaction(Node xmlNode)"
+		this._name = XmlHandler.obtainAttribute(xmlElem, "name");
+		NodeList stochiometrics = XmlHandler.getAll(xmlElem, "stochiometric");
+		for ( int i = 0; i < stochiometrics.getLength(); i++ )
+		{
+			Element temp = (Element) stochiometrics.item(i);
+			this._stoichiometry.put(
+					XmlHandler.obtainAttribute(temp, "component") , 
+					Double.valueOf(XmlHandler.obtainAttribute(
+													temp, "coefficient")));
+		}
+		this._kinetic = new ExpressionB(
+								XmlHandler.loadUnique(xmlElem, "expression"));
+		this.variableNames = this._kinetic.getAllVariablesNames();
+	}
+	
 	/**
 	 * Copyable implementation
 	 */

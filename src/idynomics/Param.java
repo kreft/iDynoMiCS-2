@@ -2,16 +2,27 @@ package idynomics;
 
 import org.w3c.dom.Element;
 
+import dataIO.Log;
+import dataIO.XmlHandler;
+import dataIO.XmlLabel;
+import dataIO.Log.Tier;
+import utility.Helper;
+
 /**
  * Class holds global parameters typically used throughout multiple compartments
  * and classes.
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Param {
+public class Param
+{
+	/**************************************************************************
+	 * GENERAL PARAMETERS 
+	 * all directly loaded from xml file as string.
+	 *************************************************************************/
 	
 	/**
-	 * Simulation name
+	 * Simulation name.
 	 */
 	public static String simulationName;
 	
@@ -40,15 +51,64 @@ public class Param {
 	 */
 	public static String simulationComment;
 	
-	/***************************************************************************
-	 * GENERAL PARAMETERS 
-	 * all directly loaded from xml file as string.
+	/**
+	 * 
 	 */
-	
+	@Deprecated
 	public static String timeStepSize;
 	
+	/**
+	 * 
+	 */
+	@Deprecated
 	public static String endOfSimulation;
 
 	public static String idynomicsRoot = "";
 	
+	/**************************************************************************
+	 * LOADING
+	 *************************************************************************/
+	
+	/**
+	 * \brief Method for loading the 
+	 * 
+	 * @param elem
+	 */
+	public static void init(Element elem)
+	{
+		/*
+		 *   
+		 */
+		// TODO safety: check the root exists, and the name is acceptable
+		outputRoot = XmlHandler.obtainAttribute(elem, XmlLabel.outputFolder);
+		simulationName = 
+					XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
+		outputLocation = outputRoot + "/" + simulationName + "/";
+		/* 
+		 * Set up the log file.
+		 */
+		// TODO check that this will be a new log file if we're running
+		// multiple simulations.
+		Tier t = null;
+		while ( t == null ) 
+		{
+			try
+			{
+				t = Tier.valueOf(
+						XmlHandler.obtainAttribute(elem, XmlLabel.logLevel));
+			}
+			catch (IllegalArgumentException e)
+			{
+				System.out.println("Log level not recognized, use: " + 
+						Helper.enumToString(Tier.class));
+			}
+		}
+		// TODO Don't do this if it's in a GUI and the user has set the level
+		Log.set(t);
+		/* 
+		 * 
+		 */
+		simulationComment = 
+				XmlHandler.gatherAttribute(elem, XmlLabel.commentAttribute);
+	}
 }

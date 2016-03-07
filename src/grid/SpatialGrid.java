@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.w3c.dom.Node;
+
 import grid.GridBoundary.GridMethod;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import grid.subgrid.SubgridPoint;
@@ -41,7 +43,7 @@ public abstract class SpatialGrid
 	 */
 	public interface GridGetter
 	{
-		SpatialGrid newGrid(double[] totalSize, double resolution);
+		SpatialGrid newGrid(double[] totalLength, Node node);
 		
 		// TODO
 		//SpatialGrid newGrid(ResCalc[] resolutionCalculator);
@@ -55,35 +57,27 @@ public abstract class SpatialGrid
 		/**
 		 * The concentration of, e.g., a solute.
 		 */
-		CONCN, 
-		
+		CONCN,
 		/**
 		 * The diffusion coefficient of a solute. For example, this may be
 		 * lower inside a biofilm than in the surrounding water.
 		 */
 		DIFFUSIVITY,
-		
 		/**
-		 * NOTE: Bas [18.02.16] DOMAIN is a very general term for something that
-		 * indicates only the diffusion domain, please consider renaming
-		 * The domain dictates where the diffusion is actually happening. For
-		 * example, when modelling a biofilm it may be assumed that liquid
-		 * outside the boundary layer is well-mixed.
+		 * A measure of how well-mixed a solute is. A diffusion-reaction should
+		 * ignore where this is above a certain threshold.   
 		 */
-		DOMAIN, 
-		
+		WELLMIXED,
 		/**
 		 * The rate of production of this solute. Consumption is described by
 		 * negative production.
 		 */
 		PRODUCTIONRATE,
-		
 		/**
 		 * The differential of production rate with respect to its
 		 * concentration.
 		 */
 		DIFFPRODUCTIONRATE,
-		
 		/**
 		 * Laplacian operator.
 		 */

@@ -3,6 +3,7 @@ package aspect;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
@@ -12,23 +13,27 @@ import dataIO.XmlHandler;
  * include mutations of agent states, interactions with the environment or with
  * other agents. An event does not store any information other than the agent
  * states it interacts with.
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Event implements Copyable, XMLable {
-	
+public abstract class Event implements Copyable, XMLable
+{
 	/**
-	 * input states
+	 * Ordered list of the names of input states.
 	 */
 	protected String[] input;
 
 	/**
-	 * method that sets the input from a comma separated String.
-	 * @param input
+	 * \brief Set the input from a comma separated String.
+	 * 
+	 * @param input {@code String} ordered list of input names, separated by
+	 * commas.
 	 */
 	public void setInput(String input)
 	{
+		/* Strip all whitespace. */
 		input.replaceAll("\\s+","");
+		/* Read in the inputs. */
 		this.input = input.split(",");
 	}
 	
@@ -49,8 +54,13 @@ public abstract class Event implements Copyable, XMLable {
 	public static Object getNewInstance(Node xmlNode)
 	{
 		Event obj = (Event) XMLable.getNewInstance(xmlNode);
-		obj.setInput(XmlHandler.gatherAttribute(xmlNode, "input"));
+		obj.init((Element) xmlNode);
 		return obj;
+	}
+	
+	public void init(Element xmlElem)
+	{
+		this.setInput(XmlHandler.gatherAttribute(xmlElem, "input"));
 	}
 	
 	/**
@@ -65,7 +75,8 @@ public abstract class Event implements Copyable, XMLable {
 	/**
 	 * Events are general behavior patterns, copy returns this
 	 */
-	public Object copy() {
+	public Object copy()
+	{
 		return this;
 	}
 }

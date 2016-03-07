@@ -15,8 +15,8 @@ import org.w3c.dom.NodeList;
 import dataIO.XmlLabel;
 import surface.*;
 
-public class Body implements Copyable, XMLable {
-	
+public class Body implements Copyable, XMLable
+{
     /**
      * The 'body' of the agent is represented by sphere-swept volumes of a 
      * collection of points connected by springs of length lengths. This results
@@ -135,6 +135,21 @@ public class Body implements Copyable, XMLable {
 		// able to have a body
 	}
 
+	public void init(Element xmlElem)
+	{
+		//FIXME quick fix: copy/pasted from
+		//"public static Body getNewInstance(Node xmlNode)"
+		//FIXME: not finished only accounts for simple coccoids
+		NodeList pointNodes = xmlElem.getElementsByTagName(XmlLabel.point);
+		for (int k = 0; k < pointNodes.getLength(); k++) 
+		{
+			Element point = (Element) pointNodes.item(k);
+			this.points.add(new Point(Vector.dblFromString(
+					point.getAttribute(XmlLabel.position))));
+		}
+		
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/

@@ -7,18 +7,34 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import idynomics.Idynomics;
 
 /**
- * 
+ * \brief Implementations of this interface will be able to instanciate and
+ * initialise from a XML protocol file.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public interface XMLable
 {
+	/*************************************************************************
+	 * OBJECT INITIALISATION
+	 ************************************************************************/
+	
+	/**
+	 * \brief Initialise this object from an XML node.
+	 * 
+	 * @param xmlElem XML element from a protocol file.
+	 */
+	public void init(Element xmlElem);
+	
+	/*************************************************************************
+	 * CLASS INSTANCIATION
+	 ************************************************************************/
+	
 	/**
 	 * \brief External method for creating a new instance.
 	 * 
@@ -74,7 +90,7 @@ public interface XMLable
 		}
 		catch ( Exception e )
 		{
-			Log.out(tier.CRITICAL,
+			Log.out(Tier.CRITICAL,
 					"ERROR! Problem in XMLable.getNewInstance("+className+")");
 			e.printStackTrace();
 		}
@@ -82,30 +98,38 @@ public interface XMLable
 	}
 	
 	/**
-	 * General constructor from xmlNodes, returns a new instance directly from
-	 * an xml node. Overwrite this method in implementing class if the class
-	 * needs constructor arguments (they should be stored within the Node).
+	 * \brief General constructor from xmlNodes, returns a new instance
+	 * directly from an XML node.
+	 * 
+	 * <p>Overwrite this method in implementing class if the class needs
+	 * constructor arguments (they should be stored within the Node).</p>
+	 * 
+	 * @param xmlNode Input from protocol file.
 	 */
 	public static Object getNewInstance(Node xmlNode)
 	{
 		Element E = (Element) xmlNode;
-		if(! E.hasAttribute(XmlLabel.classAttribute))
-			Log.out(tier.CRITICAL, "no className devined in: " + 
-					E.getTagName());
-		else if(! E.hasAttribute(XmlLabel.packageAttribute))
-			return getNewInstance(xmlNode, E.getAttribute(
-					XmlLabel.classAttribute));
+		if ( ! E.hasAttribute(XmlLabel.classAttribute) )
+			Log.out(Tier.CRITICAL, "No className defined in: "+E.getTagName());
+		else if ( ! E.hasAttribute(XmlLabel.packageAttribute) )
+		{
+			return getNewInstance(xmlNode, 
+									E.getAttribute(XmlLabel.classAttribute));
+		}
 		return getNewInstance(E.getAttribute(XmlLabel.classAttribute) , 
-				E.getAttribute(XmlLabel.packageAttribute));
+									E.getAttribute(XmlLabel.packageAttribute));
 	}
 	
 	/**
-	 * General constructor from xmlNodes, attempts to resolve package from
-	 * className
+	 * \brief General constructor from xmlNodes, attempts to resolve package
+	 * from <b>className</b>.
+	 * 
+	 * @param xmlNode Input from protocol file.
+	 * @param className 
 	 */
 	public static Object getNewInstance(Node xmlNode, String className)
 	{
 		return getNewInstance(className, 
-				Idynomics.xmlPackageLibrary.get(className));
+								Idynomics.xmlPackageLibrary.get(className));
 	}
 }

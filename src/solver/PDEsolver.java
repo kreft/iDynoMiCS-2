@@ -1,9 +1,12 @@
 package solver;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
+import dataIO.Log;
+import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
+import static grid.SpatialGrid.ArrayType.*;
 
 /**
  * \brief TODO
@@ -57,39 +60,32 @@ public abstract class PDEsolver extends Solver
 	 * @param grid
 	 * @param destType
 	 */
-	protected void addLOperator(String varName, SpatialGrid grid)
+	protected void addFluxes(String varName, SpatialGrid grid)
 	{
-		/*
-		 * Coordinates of the current position. 
-		 */
+		/* Coordinates of the current position. */
 		int[] current;
-		/*
-		 * Temporary storage for the Laplace operator.
-		 */
-		double lop;
+		/* Temporary storage. */
+		double flux;
 		/*
 		 * Iterate over all core voxels calculating the Laplace operator. 
 		 */
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 											  current = grid.iteratorNext())
 		{
-			if ( grid.getValueAt(ArrayType.DOMAIN, current) == 0.0 )
+			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
 				continue;
-			lop = 0.0;
+			flux = 0.0;
 			for ( grid.resetNbhIterator(); 
 						grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
 			{
-				lop += grid.getFluxWithNeighbor(varName);
+				flux += grid.getFluxWithNeighbor(varName);
 			}
-			/*
-			 * Add on any reactions.
-			 */
-			lop += grid.getValueAt(ArrayType.PRODUCTIONRATE, current);
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
-			//System.out.println(Arrays.toString(current)+": val = "+grid.getValueAtCurrent(ArrayType.CONCN)+", lop = "+lop); //bughunt
-			grid.addValueAt(ArrayType.LOPERATOR, current, lop);
+			Log.out(BULK, Arrays.toString(current)+": val = "+
+							grid.getValueAtCurrent(CONCN)+", lop = "+flux);
+			grid.addValueAt(LOPERATOR, current, flux);
 		}
 	}
 }

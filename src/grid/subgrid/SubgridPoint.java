@@ -31,4 +31,8 @@ public class SubgridPoint
 		return new SubgridPoint(newLoc);
 	}
 	
+	public double[] getRealLocation(int numberOfDimensions)
+	{
+		return Vector.subset(this.realLocation, numberOfDimensions);
+	}
 }

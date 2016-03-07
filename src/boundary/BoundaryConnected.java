@@ -100,5 +100,13 @@ public abstract class BoundaryConnected extends Boundary
 		this._departureLounge.clear();
 	}
 	
+	public LinkedList<Agent> getAllInboundAgents()
+	{
+		return this._arrivalsLounge;
+	}
 	
+	public void clearArrivalsLoungue()
+	{
+		this._arrivalsLounge.clear();
+	}
 }

@@ -54,7 +54,7 @@ public class ShapesTest
 		a = Vector.vector(2, 0.9);
 		b = Vector.vector(2, 0.1);
 		diff = aShape.getMinDifference(a, b);
-		correct = new double[]{0.2, -0.8};
+		correct = new double[]{-0.2, 0.8};
 		assertTrue("rectangle, 1 cyclic",
 									Vector.areSame(correct, diff, TOLERANCE));
 		/*

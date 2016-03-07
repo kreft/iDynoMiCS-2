@@ -2,6 +2,9 @@ package grid;
 
 import java.util.Arrays;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import grid.resolution.ResCalcFactory;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
@@ -57,12 +60,16 @@ public class CylindricalGrid extends PolarGrid
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
+	public CylindricalGrid(double[] totalLength){
+		this(totalLength, null);
+	}
+	
 	/**
 	 * @param totalLength - length in each dimension
 	 * @param res -  Array of length 3 defining constant resolution
 	 *  in each dimension 
 	 */
-	public CylindricalGrid(ResCalc[][] resCalc)
+	public CylindricalGrid(double[] totalLength, Node node)
 	{
 		/*
 		 * Set up members of super class.
@@ -71,7 +78,27 @@ public class CylindricalGrid extends PolarGrid
 		this._dimName[1] = DimName.THETA;
 		this._dimName[2] = DimName.Z;
 		
-		this._resCalc = resCalc;
+		/* define ResCalc array */
+		ResCalc[][] out = new ResCalc[3][];
+		out[0] = new ResCalc[1];
+		out[2] = new ResCalc[1];
+
+		/* create appropriate ResCalc Objects for dimension combinations*/
+		ResCalcFactory rcf = new ResCalcFactory(this._dimName);
+		rcf.init((Element) node);
+		/* check for dim name equality and right order (this should usually 
+		 * be ensured by the init(Node) function of ResCalcFactory) */ 
+		if (!Arrays.equals(this._dimName, rcf.getDimNames()))
+			//TODO: break cleaner
+			throw new IllegalArgumentException(
+					"tried to set inappropriate resolution calculator");
+		/* create appropriate ResCalc Objects for dimension combinations*/
+		Object[] resCalc = rcf.createResCalcForDimensions(totalLength);
+
+		/* cast to correct data type and update the array */
+		out[0][0] = (ResCalc) resCalc[0];
+		out[1] = (ResCalc[]) resCalc[1];
+		out[2][0] = (ResCalc) resCalc[2];
 		
 		/* handle periodicity here or in another place? */
 		if (getTotalLength(1) < 0 || getTotalLength(1) > 2 * Math.PI)
@@ -88,21 +115,6 @@ public class CylindricalGrid extends PolarGrid
 		
 		resetIterator();
 		resetNbhIterator();
-	}
-	
-	/**
-	 * @param totalLength - length in each dimension
-	 * @param res -  Array of length 3 defining constant resolution
-	 *  in each dimension 
-	 */
-	public CylindricalGrid(double[] totalLength, double resolution)
-	{
-		this(ResCalcFactory.createUniformResCalcForCylinder(totalLength, resolution));
-	}
-
-	public CylindricalGrid()
-	{
-		this(new double[]{1.0, Math.PI / 2.0, 1.0}, 1.0);
 	}
 		
 	@Override
@@ -362,10 +374,9 @@ public class CylindricalGrid extends PolarGrid
 		return new GridGetter()
 		{			
 			@Override
-			public CylindricalGrid newGrid(double[] totalLength,
-															double resolution) 
+			public CylindricalGrid newGrid(double[] totalLength, Node node) 
 			{
-				return new CylindricalGrid(totalLength, resolution);
+				return new CylindricalGrid(totalLength, node);
 			}
 		};
 	}

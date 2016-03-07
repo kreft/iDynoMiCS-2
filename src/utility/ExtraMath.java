@@ -125,9 +125,46 @@ public final class ExtraMath
 	
 	/* ----------------------- Simple calculations ------------------------ */
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param x
+	 * @param y
+	 * @param absTol
+	 * @return
+	 */
 	public static final boolean areEqual(double x, double y, double absTol)
 	{
 		return Math.abs(x - y) < absTol;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static final double division(int x, int y)
+	{
+		return ((double) x) / ((double) y);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param x Any real number.
+	 * @param min Minimum value permitted.
+	 * @param max Maximum value permitted
+	 * @return <b>x</b> restricted to the interval [<b>min</b>, <b>max</b>].
+	 */
+	public static final double restrict(double x, double min, double max)
+	{
+		if ( x < min )
+			return min;
+		if ( x > max )
+			return max;
+		return x;
 	}
 	
 	/**
@@ -610,7 +647,7 @@ public final class ExtraMath
 	 */
 	public static double getUniRandAngle()
 	{
-		return 2 * Math.PI * random.nextDouble();
+		return 2 * Math.PI * getUniRandDbl();
 	}
 	
 	/**
@@ -658,7 +695,7 @@ public final class ExtraMath
 	 */
 	public static double getUniRand(double lBound, double hBound)
 	{
-		return random.nextDouble()*(hBound-lBound) + lBound;
+		return getUniRandDbl()*(hBound-lBound) + lBound;
 	}
 	
 	/**

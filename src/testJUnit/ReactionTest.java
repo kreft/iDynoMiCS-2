@@ -6,7 +6,6 @@ import org.junit.Test;
 
 import expression.Addition;
 import expression.Component;
-import expression.ComponentSimple;
 import expression.Constant;
 import expression.Division;
 import expression.Variable;
@@ -21,7 +20,12 @@ import zArchivedClasses.Reaction;
 import zArchivedClasses.SimpleInhibition;
 import zArchivedClasses.ZeroOrder;
 
-public class reactionTest {
+/**
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
+public class ReactionTest
+{
 
 	@Test
 	public void testReaction()

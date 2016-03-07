@@ -1,7 +1,7 @@
 /**
  * 
  */
-package grid.domainSetter;
+package grid.wellmixedSetter;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,7 +20,7 @@ import idynomics.AgentContainer;
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @since January 2016
  */
-public class AllSame implements IsDomainSetter
+public class AllSame implements IsWellmixedSetter
 {
 	/**
 	 * Value to set all voxels of the domain array of the given grid.
@@ -36,9 +36,21 @@ public class AllSame implements IsDomainSetter
 					XmlLabel.valueAttribute));
 	}
 	
-	@Override
-	public void updateDomain(SpatialGrid aGrid, AgentContainer agents)
+	/**
+	 * \brief TODO
+	 * 
+	 * TODO remove once 
+	 * 
+	 * @param value
+	 */
+	public void setValue(double value)
 	{
-		aGrid.newArray(ArrayType.DOMAIN, this._value);
+		this._value = value;
+	}
+	
+	@Override
+	public void updateWellmixed(SpatialGrid aGrid, AgentContainer agents)
+	{
+		aGrid.newArray(ArrayType.WELLMIXED, this._value);
 	}
 }
