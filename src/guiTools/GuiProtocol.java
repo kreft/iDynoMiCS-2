@@ -128,10 +128,9 @@ public final class GuiProtocol
 		{
 			// TODO Something's not quite right here... getValue should be
 			// returning the value, not the Aspect object
-			Aspect<?> anAspect = 
-						(Aspect<?>) anAI.reg().getValue(anAI, aspectName);
-			Object value = anAspect.value();
-			String description = anAspect.description;
+			Object value = 
+						(Object) anAI.reg().getValue(anAI, aspectName);
+//			String description = anAspect.description;
 			/* Create and add layout groups for this Aspect. */
 			ParallelGroup vertAspect = layout.createParallelGroup();
 			vertAI.addGroup(vertAspect);
@@ -160,13 +159,13 @@ public final class GuiProtocol
 			vertAspect.addComponent(valueField, 30, 30, 30);
 			horizAspect.addComponent(valueField, 60, 60, 60);
 			/* Aspect description. */
-			if ( description != null )
-			{
-				JLabel descLabel = new JLabel(description);
-				descLabel.setFont(new Font("arial", Font.ITALIC, 15));
-				vertAspect.addComponent(descLabel);
-				horizAspect.addComponent(descLabel);
-			}
+//			if ( description != null )
+//			{
+//				JLabel descLabel = new JLabel(description);
+//				descLabel.setFont(new Font("arial", Font.ITALIC, 15));
+//				vertAspect.addComponent(descLabel);
+//				horizAspect.addComponent(descLabel);
+//			}
 			// FIXME make it so that aspect values are updated when this is
 			// saved!
 		}
