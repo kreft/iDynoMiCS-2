@@ -32,13 +32,13 @@ public class Timer implements AspectInterface, XMLable
 	{
 		AspectReg<Object> out = new AspectReg<Object>();
 		/* The time step size is required. */
-		Aspect<Double> tStep = new Aspect<Double>(null);
-		tStep.description = "Timer time step size";
-		tStep.setRestriction(AspectRestrictionsLibrary.positiveDbl());
+		Double tStep = null;
+//		tStep.description = "Timer time step size";
+//		tStep.setRestriction(AspectRestrictionsLibrary.positiveDbl());
 		out.add(XmlLabel.timerStepSize, tStep);
 		/* The simulation end time is required. */
-		Aspect<Double> endT = new Aspect<Double>(null);
-		endT.description = "End of simulation";
+		Double endT = null;
+//		endT.description = "End of simulation";
 		out.add(XmlLabel.endOfSimulation, endT);
 		/* Return the default values. */
 		return out;

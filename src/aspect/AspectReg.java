@@ -62,16 +62,16 @@ public class AspectReg<A>
 	/**
 	 * same as add but intend is to overwrite
 	 */
-	@SuppressWarnings("unchecked")
+//	@SuppressWarnings("unchecked")
 	public synchronized void set(String key, A aspect)
 	{
-		Aspect<A> a;
-		if ( this._aspects.containsKey(key) )
-		{
-			a = (Aspect<A>) this._aspects.get(key);
-			a.updateAspect(aspect);
-		}
-		else
+//		Aspect<A> a;
+//		if ( this._aspects.containsKey(key) )
+//		{
+//			a = (Aspect<A>) this._aspects.get(key);
+//			a.updateAspect(aspect);
+//		}
+//		else
 			this._aspects.put(key, new Aspect<A>(aspect));
 	}
 	
