@@ -104,10 +104,10 @@ public class AgentContainer
 	 * 
 	 * @param xmlElem
 	 */
-	public void readAgents(NodeList agentNodes)
+	public void readAgents(NodeList agentNodes, Compartment comp)
 	{
 		for ( int i = 0; i < agentNodes.getLength(); i++ ) 
-			this.addAgent(new Agent(agentNodes.item(i)));
+			this.addAgent(new Agent(agentNodes.item(i), comp));
 	}
 	
 	public void setAllAgentsCompartment(Compartment aCompartment)

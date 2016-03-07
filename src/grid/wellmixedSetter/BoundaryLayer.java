@@ -1,419 +1,104 @@
 /**
  * 
  */
-package processManager;
+package grid.wellmixedSetter;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.function.Predicate;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import agent.Agent;
+import dataIO.Log;
+import dataIO.XmlLabel;
+import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
-import grid.subgrid.SubgridPoint;
-import grid.wellmixedSetter.AllSame;
-import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
-import linearAlgebra.Vector;
-import reaction.Reaction;
-import solver.PDEexplicit;
-import solver.PDEsolver;
-import solver.PDEupdater;
 import surface.Ball;
 import surface.Collision;
 import surface.Surface;
 
 /**
- * \brief TODO
+ * \brief A domain setter that includes voxels on the domain array of the given
+ * grid that are within a set distance of any agents.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
- * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author baco
+ * @since January 2016
  */
-public class SolveDiffusionTransient extends ProcessManager
+public class BoundaryLayer implements IsWellmixedSetter
 {
 	/**
-	 * Instance of a subclass of {@code PDEsolver}, e.g. {@code PDEexplicit}.
+	 * Value to set all voxels of the domain array of the given grid.
 	 */
-	protected PDEsolver _solver;
-	/**
-	 * The names of all solutes this solver is responsible for.
-	 */
-	protected String[] _soluteNames;
-	/**
-	 * 
-	 */
-	protected HashMap<String,IsWellmixedSetter> _wellmixed;
-	/**
-	 * TODO this may need to be generalised to some method for setting
-	 * diffusivities, e.g. lower inside biofilm.
-	 */
-	protected HashMap<String,Double> _diffusivity;
+	protected double _value = 1.0;
 	
 	/**
-	 * Helper method for filtering local agent lists, so that they only
-	 * include those that have reactions.
+	 * the thickness of the pure diffusion film (sorry no flow currently)
 	 */
-	protected final static Predicate<Agent> NO_REAC_FILTER = 
-								(a -> ! a.isAspect(NameRef.agentReactions));
-	
-	/*************************************************************************
-	 * CONSTRUCTORS
-	 ************************************************************************/
+	protected double _layerThickness;
 	
 	/**
-	 * \brief TODO
-	 * 
+	 * initiation from xml node attributes: value, layerthickness
+	 * @param xmlNode
 	 */
-	public SolveDiffusionTransient()
+	public void init(Node xmlNode)
 	{
-		// TODO Auto-generated constructor stub
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteNames
-	 */
-	public void init(String[] soluteNames)
-	{
-		this._soluteNames = soluteNames;
-		// TODO Let the user choose which ODEsolver to use.
-		this._solver = new PDEexplicit();
-		this._solver.init(this._soluteNames, false);
-		
-		// TODO quick fix for now
-		this._wellmixed = new HashMap<String,IsWellmixedSetter>();
-		for ( String soluteName : this._soluteNames )
+		// TODO Check this, maybe making use of XMLable interface
+		Element elem = (Element) xmlNode;
+		String temp;
+		if ( elem.hasAttribute(XmlLabel.valueAttribute) )
 		{
-			AllSame mixer = new AllSame();
-			mixer.setValue(1.0);
-			this._wellmixed.put(soluteName, mixer);
+			temp = elem.getAttribute(XmlLabel.valueAttribute);
+			this._value = Double.parseDouble(temp);
 		}
-		// TODO enter a diffusivity other than one!
-		this._diffusivity = new HashMap<String,Double>();
-		for ( String sName : soluteNames )
-			this._diffusivity.put(sName, 1.0);
+		if ( elem.hasAttribute(XmlLabel.layerThickness) )
+		{
+			temp = elem.getAttribute(XmlLabel.layerThickness);
+			this._layerThickness = Double.parseDouble(temp);
+		}
+		else
+		{
+			Log.out(Tier.CRITICAL,"Boundary layer thickness must be set!");
+			System.exit(-1);
+		}
 	}
 	
-	public void init(Element xmlElem)
-	{
-		super.init(xmlElem);
-		
-		this.init(getStringA("solutes"));
-	}
-	
-	/*************************************************************************
-	 * STEPPING
-	 ************************************************************************/
-	
-	/**
-	 * Bas please add commenting on the function and approach of this process
-	 * manager
-	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
-														AgentContainer agents)
+	public void updateWellmixed(SpatialGrid aGrid, AgentContainer agents)
 	{
-		int nDim = agents.getNumDims();
 		/*
-		 * Set up the solute grids and the agents before we start to solve.
+		 * Reset the domain array.
 		 */
-		SpatialGrid solute;
-		for ( String soluteName : _soluteNames )
+		aGrid.newArray(WELLMIXED);
+		/*
+		 * Iterate over all voxels, checking if there are agents nearby.
+		 */
+		int[] coords = aGrid.resetIterator();
+		List<Agent> neighbors;
+		Collision collision = new Collision(null, agents.getShape());
+		while ( aGrid.isIteratorValid() )
 		{
-			solute = environment.getSoluteGrid(soluteName);
+			Ball gridSphere = new Ball(aGrid.getVoxelCentre(coords), 
+														this._layerThickness);
+			gridSphere.init(collision);
 			/*
-			 * Set up the relevant arrays in each of our solute grids.
+			 * Find all nearby agents. Set the grid to _value if an agent is
+			 * within the grid's sphere
 			 */
-			solute.newArray(PRODUCTIONRATE);
-			// TODO use a diffusion setter
-			solute.newArray(DIFFUSIVITY, _diffusivity.get(soluteName));
-			this._wellmixed.get(soluteName).updateWellmixed(solute, agents);
-			/*
-			 * Set up the agent biomass distribution maps.
-			 */
-			for ( Agent a : agents.getAllLocatedAgents() )
-			{
-				HashMap<int[],Double> distributionMap = new HashMap<int[],Double>();
-				a.set("volumeDistribution", distributionMap);
-			}
-			/*
-			 * Now fill these agent biomass distribution maps.
-			 */
-			double[] location;
-			double[] dimension = new double[3];
-			List<Agent> neighbors;
-			List<SubgridPoint> sgPoints;
-			HashMap<int[],Double> distributionMap;
-			Collision collision = new Collision(null, agents.getShape());
-			for ( int[] coord = solute.resetIterator(); 
-					solute.isIteratorValid(); coord = solute.iteratorNext())
-			{
-				/* Find all agents that overlap with this voxel. */
-				location = solute.getVoxelOrigin(coord);
-				solute.getVoxelSideLengthsTo(dimension, coord);
-				/* NOTE the agent tree is always the amount of actual dimension */
-				neighbors = agents._agentTree.cyclicsearch(
-							  					Vector.subset(location, nDim),
-							  					Vector.subset(dimension, nDim));
-				/* If there are none, move onto the next voxel. */
-				if ( neighbors.isEmpty() )
-					continue;
-				/* Filter the agents for those with reactions. */
-				neighbors.removeIf(NO_REAC_FILTER);
-				/* 
-				 * Find the sub-grid resolution from the smallest agent, and
-				 * get the list of sub-grid points.
-				 */
-				// TODO the scaling factor of a quarter is chosen arbitrarily
-				double minRad = Vector.min(dimension);
-				for ( Agent a : agents.getAllLocatedAgents() )
-					if ( a.isAspect(NameRef.bodyRadius) )
-					{
-						minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
-					}
-				sgPoints = solute.getCurrentSubgridPoints(0.25 * minRad);
-				/* 
-				 * Get the subgrid points and query the agents.
-				 */
-				for ( Agent a : neighbors )
-				{
-					if ( ! a.isAspect(NameRef.agentReactions) )
-						continue;
-					if (! a.isAspect(NameRef.surfaceList) )
-						continue;
-					List<Surface> surfaces = (List<Surface>) 
-							a.get(NameRef.surfaceList);
-					distributionMap = (HashMap<int[],Double>) 
-											a.getValue("volumeDistribution");
-					
-					sgLoop: for ( SubgridPoint p : sgPoints )
-					{
-						/* 
-						 * Only give location in actual dimensions. Note that a
-						 * Point does not have a Surface object, whereas a Ball
-						 * does. By getting a Ball with zero radius, it is
-						 * essentially a Point with a Surface.  
-						 */
-						Ball b = new Ball( p.getRealLocation(nDim) );
-						b.init(collision);
-						for ( Surface s : surfaces )
-							if ( b.distanceTo(s) < 0.0 )
-							{
-								/*
-								 * If this is not the first time the agent has seen
-								 * this coordinate, we need to add the volume
-								 * rather than overwriting it.
-								 * 
-								 * Note that we need to copy the coord vector so
-								 * that it does not change when the SpatialGrid
-								 * iterator moves on!
-								 */
-								double newVolume = p.volume;
-								if ( distributionMap.containsKey(coord) )
-									newVolume += distributionMap.get(coord);
-								distributionMap.put(Vector.copy(coord), newVolume);
-								/*
-								 * We only want to count this point once, even
-								 * if other surfaces of the same agent hit it.
-								 */
-								continue sgLoop;
-							}
-					}
-				}
-			}
+			neighbors = 
+					agents.treeSearch(gridSphere.boundingBox());
+			for ( Agent a : neighbors )
+				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList) )
+					if ( gridSphere.distanceTo(s) < 0.0 )
+						{
+							aGrid.setValueAt(WELLMIXED, coords, this._value);
+							break;
+						}
+			coords = aGrid.iteratorNext();
 		}
-		/*
-		 * Make the updater method
-		 */
-		PDEupdater updater = new PDEupdater()
-		{
-			/*
-			 * This is the updater method that the PDEsolver will use before
-			 * each mini-timestep.
-			 */
-			public void prestep(HashMap<String, SpatialGrid> variables, 
-					double dt)
-			{
-				/* Gather a defaultGrid to iterate over. */
-				SpatialGrid defaultGrid = environment.getSoluteGrid(environment.
-						getSolutes().keySet().iterator().next());
-				
-				SpatialGrid solute;
-				for ( int[] coord = defaultGrid.resetIterator(); 
-						defaultGrid.isIteratorValid(); 
-							coord = defaultGrid.iteratorNext())
-				{
-					/* Iterate over all compartment reactions. */
-					for (Reaction r : environment.getReactions() )
-					{
-						/* Obtain concentrations in gridCell. */
-						HashMap<String,Double> concentrations = 
-								new HashMap<String,Double>();
-						for ( String varName : r.variableNames )
-						{
-							if ( environment.isSoluteName(varName) )
-							{
-								solute = environment.getSoluteGrid(varName);
-								concentrations.put(varName,
-											solute.getValueAt(CONCN, coord));
-							}
-						}
-						/* Obtain rate of the reaction. */
-						double rate = r.getRate(concentrations);
-						double productionRate;
-						for ( String product : r.getStoichiometry().keySet())
-						{
-							productionRate = rate * r.getStoichiometry(product);
-							if ( environment.isSoluteName(product) )
-							{
-								/* Write rate for each product to grid. */
-								solute = environment.getSoluteGrid(product);
-								solute.addValueAt(PRODUCTIONRATE, 
-													coord, productionRate);
-							}
-						}
-					}
-				}
-				
-				/*
-				 * Loop over all agents, applying their reactions to the
-				 * relevant solute grids, in the voxels calculated before the 
-				 * updater method was set.
-				 */
-				HashMap<String,Double> concns = new HashMap<String,Double>();
-				SpatialGrid aSG;
-				List<Reaction> reactions;
-				HashMap<int[],Double> distributionMap;
-				for ( Agent a : agents.getAllLocatedAgents() )
-				{
-					if ( ! a.isAspect(NameRef.agentReactions) )
-						continue;
-					reactions = (List<Reaction>) a.get("reactions");
-					distributionMap = (HashMap<int[],Double>)
-											a.getValue("volumeDistribution");
-					/*
-					 * Calculate the total volume covered by this agent,
-					 * according to the distribution map. This is likely to be
-					 * slightly different to the agent volume calculated 
-					 * directly.
-					 */
-					double totalVoxVol = 0.0;
-					for ( double voxVol : distributionMap.values() )
-						totalVoxVol += voxVol;
-					/*
-					 * Now look at all the voxels this agent covers.
-					 */
-					double concn;
-					for ( int[] coord : distributionMap.keySet() )
-					{
-						for ( Reaction r : reactions )
-						{
-							/* 
-							 * Build the dictionary of variable values. Note
-							 * that these will likely overlap with the names in
-							 * the reaction stoichiometry (handled after the
-							 * reaction rate), but will not always be the same.
-							 * Here we are interested in those that affect the
-							 * reaction, and not those that are affected by it.
-							 */
-							concns.clear();
-							for ( String varName : r.variableNames )
-							{
-								if ( environment.isSoluteName(varName) )
-								{
-									aSG = environment.getSoluteGrid(varName);
-									concn = aSG.getValueAt(CONCN, coord);
-									// FIXME: was getting strange [16,0,0] 
-									// coord values here (index out of bounds)
-								}
-								else if ( a.isAspect(varName) )
-								{
-									// TODO divide by the voxel volume here?
-									concn = a.getDouble(varName); 
-									concn *= distributionMap.get(coord);
-									concn /= totalVoxVol;
-								}
-								else
-								{
-									// TODO safety?
-									concn = 0.0;
-								}
-								concns.put(varName, concn);
-							}
-							/*
-							 * Calculate the reaction rate based on the 
-							 * variables just retrieved.
-							 */
-							double rate = r.getRate(concns);
-							/* 
-							 * Now that we have the reaction rate, we can 
-							 * distribute the effects of the reaction. Note
-							 * again that the names in the stoichiometry may
-							 * not be the same as those in the reaction
-							 * variables (although there is likely to be a
-							 * large overlap).
-							 */
-							// TODO move this part to a "poststep" updater method?
-							double productionRate;
-							for ( String productName : 
-												r.getStoichiometry().keySet())
-							{
-								productionRate = rate * 
-											r.getStoichiometry(productName);
-								if ( environment.isSoluteName(productName) )
-								{
-									aSG = environment.getSoluteGrid(productName);
-									aSG.addValueAt(PRODUCTIONRATE, 
-														coord, productionRate);
-								}
-								else if ( a.isAspect(productName) )
-								{
-									/* 
-									 * NOTE Bas [17Feb2016]: Put this here as 
-									 * example, though it may be nicer to
-									 * launch a separate agent growth process
-									 * manager here.
-									 */
-									/* 
-									 * NOTE Bas [17Feb2016]: The average growth
-									 * rate for the entire agent, not just for
-									 * the part that is in one grid cell later
-									 * this may be specific separate
-									 * expressions that control the growth of
-									 * separate parts of the agent (eg lipids/
-									 * other storage compounds)
-									 */
-								}
-								else if ( a.getString("species").equals(productName))
-								{
-									//NOTE: getXXX does not need casting
-									a.set("growthRate", productionRate);
-									
-									/* Timespan of growth event */
-									// FIXME quickfix since timestepsize is no longer available as local par
-									a.event("growth", dt);
-									a.event("divide");
-								}
-								else
-								{
-									// TODO safety?
-								}
-							}
-						}
-					}
-				}
-			}
-		};
-		/*
-		 * Set the updater method and solve.
-		 */
-		this._solver.setUpdater(updater);
-		this._solver.solve(environment.getSolutes(), this._timeStepSize);
 	}
 }

@@ -50,17 +50,22 @@ public class Agent implements Quizable, AspectInterface
 
 	}
 	
-	public Agent(Node xmlNode) /** depricated */
+	/**
+	 * @deprecated
+	 * @param xmlNode
+	 */
+	public Agent(Node xmlNode)
 	{
-
+		this(xmlNode, new Compartment());
 	}
 	
 	/**
-	 * Agent xml constructor
+	 * Agent xml constructor allowing for multiple randomized initial agents
 	 * @param xmlNode
 	 */
 	public Agent(Node xmlNode, Compartment comp)
 	{
+		/* initiate all random agents */
 		NodeList temp = XmlHandler.getAll(xmlNode, "spawn");
 		if(temp.getLength() > 0)
 		{

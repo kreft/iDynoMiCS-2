@@ -186,7 +186,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		else
 		{
 			NodeList agents = elem.getElementsByTagName(XmlLabel.agent);
-			this.agents.readAgents(agents);
+			this.agents.readAgents(agents, this);
 			this.agents.setAllAgentsCompartment(this);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 							" initialised with "+agents.getLength()+" agents");

@@ -22,7 +22,7 @@ public final class GuiSplash
 	/**
 	 * Where to find the splash screen logo.
 	 */
-	private final static String IMAGE_PATH = "icons/iDynoMiCS_logo.png";
+	private final static String IMAGE_PATH = "icons/iDynoMiCS_logo_medium.png";
 	
 	/**
 	 * \brief Load in the image from the {@link #IMAGE_PATH}.

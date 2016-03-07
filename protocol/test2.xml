@@ -2,6 +2,7 @@
 <document>
 	<simulation log="DEBUG" name="mySim" outputfolder="../../Simulations"
 		comment="this is a file for testing purposes only.">
+		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<general>
 			<param name="timeStepSize" value="1.0" />
 			<param name="endOfSimulation" value="60.0" />
@@ -49,9 +50,7 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="0.0">
-					<vox coord="0,0,0" value="15.0" /> <!-- please make a method to load entire grids -->
-				</solute>
+				<solute name="solute1" concentration="0.0" />
 				<solute name="solute2" concentration="2.0" />
 			</solutes>
 			<reactions>
