@@ -6,6 +6,7 @@ import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
+import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Simulator;
 import processManager.AgentGrowth;
@@ -21,14 +22,15 @@ public class AgentCompartmentTest
 {
 	public static void main(String[] args)
 	{
-		Simulator aSim = new Simulator();
-		aSim.timer.setTimeStepSize(1.0);
-		aSim.timer.setEndOfSimulation(25.0);
+		Idynomics.simulator = new Simulator();
+		Idynomics.simulator.timer.setTimeStepSize(1.0);
+		Idynomics.simulator.timer.setEndOfSimulation(25.0);
 		Log.set(Tier.DEBUG);
 		Param.simulationName = "test";
 		Param.outputLocation = "../results/test";
 		
-		Compartment aCompartment = aSim.addCompartment("myCompartment");
+		Compartment aCompartment = 
+					Idynomics.simulator.addCompartment("myCompartment");
 		Shape aShape = (Shape) Shape.getNewInstance("rectangle");
 		aShape.setDimensionLengths(new double[] {9.0, 9.0, 1.0});
 		aCompartment.setShape(aShape);
@@ -74,7 +76,7 @@ public class AgentCompartmentTest
 		SolveDiffusionTransient aProcess = new SolveDiffusionTransient();
 		aProcess.init(new String[]{"solute"});
 		aProcess.setTimeForNextStep(0.0);
-		aProcess.setTimeStepSize(aSim.timer.getTimeStepSize());
+		aProcess.setTimeStepSize(Idynomics.simulator.timer.getTimeStepSize());
 		aCompartment.addProcessManager(aProcess);
 		
 		Agent ezAgent = new Agent();
@@ -83,7 +85,7 @@ public class AgentCompartmentTest
 		
 		ProcessManager agentMassGrid = new RefreshMassGrids();
 		agentMassGrid.setTimeForNextStep(0.0);
-		agentMassGrid.setTimeStepSize(aSim.timer.getTimeStepSize());
+		agentMassGrid.setTimeStepSize(Idynomics.simulator.timer.getTimeStepSize());
 		aCompartment.addProcessManager(agentMassGrid);
 		
 		ezAgent.init();
@@ -95,7 +97,7 @@ public class AgentCompartmentTest
 		//agentGrowth.debugMode();
 		agentGrowth.setPriority(0);
 		agentGrowth.setTimeForNextStep(0.0);
-		agentGrowth.setTimeStepSize(aSim.timer.getTimeStepSize());
+		agentGrowth.setTimeStepSize(Idynomics.simulator.timer.getTimeStepSize());
 		aCompartment.addProcessManager(agentGrowth);
 		
 		ProcessManager agentRelax = new AgentRelaxation();
@@ -103,7 +105,7 @@ public class AgentCompartmentTest
 		agentRelax.debugMode();
 		agentRelax.setPriority(1);
 		agentRelax.setTimeForNextStep(0.0);
-		agentRelax.setTimeStepSize(aSim.timer.getTimeStepSize());
+		agentRelax.setTimeStepSize(Idynomics.simulator.timer.getTimeStepSize());
 		aCompartment.addProcessManager(agentRelax);
 		
 
@@ -111,11 +113,11 @@ public class AgentCompartmentTest
 		/*
 		 * Launch the simulation.
 		 */
-		aSim.run();
+		Idynomics.simulator.run();
 		/*
 		 * Print the results.
 		 */
-		aSim.printAll();
+		Idynomics.simulator.printAll();
 	}
 
 }

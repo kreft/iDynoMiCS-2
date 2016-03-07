@@ -23,7 +23,7 @@ public class AgentMechanicsTest {
 		// Loading initial state from xml
 		////////////////////////
 
-		Simulator sim = new Simulator();
+		Idynomics.simulator = new Simulator();
 		Compartment testcompartment = null;
 		Log.set(Tier.EXPRESSIVE);
 		
@@ -51,7 +51,8 @@ public class AgentMechanicsTest {
 		for (int i = 0; i < compartmentNodes.getLength(); i++) 
 		{
 			Element xmlCompartment = (Element) compartmentNodes.item(i);
-			Compartment comp = testcompartment = sim.addCompartment(
+			Compartment comp = testcompartment = 
+					Idynomics.simulator.addCompartment(
 										xmlCompartment.getAttribute("name"));
 			comp.init(xmlCompartment);
 						
