@@ -81,7 +81,8 @@ public class Idynomics
 		setupSimulator(protocolPath);
 		if ( ! simulator.isReadyForLaunch() )
 		{
-			Log.out(Tier.CRITICAL,
+			/* prevent writing logFile before tier and location is set */
+			Log.printToScreen(
 					"Protocol file incomplete! Skipping "+protocolPath);
 			return;
 		}
@@ -97,10 +98,12 @@ public class Idynomics
 	{
 		if ( protocolPath == null )
 		{
-			Log.out(Tier.CRITICAL, "No protocol path set!");
+			/* prevent writing logFile before tier and location is set */
+			Log.printToScreen("No protocol path set!");
 			return;
 		}
-		Log.out(Tier.NORMAL, "Initiating from: " + protocolPath + 
+		/* prevent writing logFile before tier and location is set */
+			Log.printToScreen("Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		/* 
