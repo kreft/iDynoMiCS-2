@@ -120,6 +120,11 @@ public class Aspect<A>
     		this.event = (Event) this.aspect;
     }
     
+    public A value()
+    {
+    	return this.aspect;
+    }
+    
     public void setRestriction(Predicate<A> restriction)
     {
     	this._restriction = restriction;
