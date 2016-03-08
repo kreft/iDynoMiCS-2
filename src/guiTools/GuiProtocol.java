@@ -70,20 +70,21 @@ public final class GuiProtocol
 	 */
 	public static JComponent getProtocolEditor()
 	{
-		mainView = new JPanel();
-		layout = new GroupLayout(mainView);
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
-		verticalLayoutGroup = layout.createSequentialGroup();
-		horizontalLayoutGroup = layout.createParallelGroup();
-		layout.setVerticalGroup(verticalLayoutGroup);
-		layout.setHorizontalGroup(horizontalLayoutGroup);
-		mainView.setLayout(layout);
-		mainView.setVisible(true);
-		
-		return new JScrollPane(mainView,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+//		mainView = new JPanel();
+//		layout = new GroupLayout(mainView);
+//		layout.setAutoCreateGaps(true);
+//		layout.setAutoCreateContainerGaps(true);
+//		verticalLayoutGroup = layout.createSequentialGroup();
+//		horizontalLayoutGroup = layout.createParallelGroup();
+//		layout.setVerticalGroup(verticalLayoutGroup);
+//		layout.setHorizontalGroup(horizontalLayoutGroup);
+//		mainView.setLayout(layout);
+//		mainView.setVisible(true);
+//		
+//		return new JScrollPane(mainView,
+//				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+//				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		return new ProtocolTree();
 	}
 	
 	/**
@@ -105,7 +106,7 @@ public final class GuiProtocol
 		
 		
 		Agent aAgent = new Agent();
-		appendAspectInterface(aAgent);
+		//appendAspectInterface(aAgent);
 	}
 	
 	/**
