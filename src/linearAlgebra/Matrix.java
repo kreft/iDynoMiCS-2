@@ -591,24 +591,24 @@ public final class Matrix
 	 * \brief TODO
 	 * 
 	 * @param matrix
-	 * @param newMinimum
+	 * @param newMaximum
 	 */
-	public static void restrictMaximum(int[][] matrix, int newMinimum)
+	public static void restrictMaximum(int[][] matrix, int newMaximum)
 	{
 		for ( int[] row : matrix )
-			Vector.restrictMaximum(row, newMinimum);
+			Vector.restrictMaximum(row, newMaximum);
 	}
 	
 	/**
 	 * \brief TODO
 	 * 
 	 * @param matrix
-	 * @param newMinimum
+	 * @param newMaximum
 	 */
-	public static void restrictMaximum(double[][] matrix, double newMinimum)
+	public static void restrictMaximum(double[][] matrix, double newMaximum)
 	{
 		for ( double[] row : matrix )
-			Vector.restrictMaximum(row, newMinimum);
+			Vector.restrictMaximum(row, newMaximum);
 	}
 	
 	/**
