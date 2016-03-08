@@ -56,6 +56,20 @@ public abstract interface AspectInterface
 	}
 	
 	/**
+	 * quick method to load simple aspects from user input
+	 * @param name
+	 * @param input
+	 * @param type
+	 */
+	public default void loadAspect(String name, String input, String type)
+	{
+		@SuppressWarnings("unchecked")
+		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
+		aspectReg.add(name, loadAspectObjectFromString(input, type));
+		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
+	}
+	
+	/**
 	 * Identifies appropriate loading method for aspect or item and applies this
 	 * method to return a new object of the approriate type
 	 * @param s
@@ -119,6 +133,65 @@ public abstract interface AspectInterface
 					}
 					return hMap;
 			}
+		}
+		Log.out(Tier.CRITICAL, "Aspect interface encountered unidentified "
+				+ "object type: " + type);
+		return null;
+	}
+	
+	/**
+	 * quick method to return simple aspects from user input
+	 * @param input
+	 * @param type
+	 * @return
+	 */
+	public static Object loadAspectObjectFromString(String input, String type)
+	{
+		switch (type) 
+		{
+		/* state node with just attributes */
+			case "boolean" : 
+				return Boolean.valueOf(input);
+			case "int" : 
+				return Integer.valueOf(input);
+			case "int[]" : 
+				return Vector.intFromString(input);
+			case "double" : 
+				return Double.valueOf(input);
+			case "double[]" : 
+				return Vector.dblFromString(input);
+			case "String" : 
+				return input;
+			case "String[]" : 
+				return input.split(",");
+//			case "calculated" : 
+//				return Calculated.getNewInstance(s);
+//			case "event" :
+//				return Event.getNewInstance(s);
+//			case "body" :
+//				return Body.getNewInstance(s);
+//			case "reaction" :
+//				return Reaction.getNewInstance( XmlHandler.loadUnique(s, 
+//						"reaction"));
+//			case "List" :
+//				List<Object> temp = new LinkedList<Object>();
+//				items = XmlHandler.getAll(s, XmlLabel.item);
+//				for ( int i = 0; i < items.getLength(); i++ )
+//					temp.add((Object) loadAspectObject(
+//							(Element) items.item(i), value, type));
+//				return temp;
+//			case "HashMap" :
+//				HashMap<Object,Object> hMap = new HashMap<Object,Object>();
+//				items = XmlHandler.getAll(s, XmlLabel.item);
+//				for ( int i = 0; i < items.getLength(); i++ )
+//				{
+//					hMap.put((Object) loadAspectObject((Element) 
+//							items.item(i), XmlLabel.keyAttribute ,
+//							XmlLabel.keyTypeAttribute ), 
+//							(Object) loadAspectObject((Element) 
+//							items.item(i), value, type ));
+//				}
+//				return hMap;
 		}
 		Log.out(Tier.CRITICAL, "Aspect interface encountered unidentified "
 				+ "object type: " + type);
