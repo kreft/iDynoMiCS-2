@@ -1,6 +1,10 @@
 package agent;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+
+import javax.swing.AbstractAction;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -9,6 +13,8 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelRequirement;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -16,7 +22,7 @@ import generalInterfaces.Quizable;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements Quizable
+public class SpeciesLib implements IsSubmodel, Quizable
 {
 	/**
 	 * Contains all known species.
@@ -99,5 +105,28 @@ public class SpeciesLib implements Quizable
 												"\", returning void species");
 			return this._voidSpecies;
 		}
+	}
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public LinkedHashMap<String, Class<?>> getAttributes()
+	{
+		/* No attributes to set. */
+		return new LinkedHashMap<String, Class<?>>();
+	}
+	
+	public LinkedHashMap<AbstractAction,SubmodelRequirement>
+													getAllSubmodelMakers()
+	{
+		// TODO implement submodels
+		return new LinkedHashMap<AbstractAction,SubmodelRequirement>();
+	}
+
+	public IsSubmodel getLastMadeSubmodel()
+	{
+		// TODO implement submodels
+		return null;
 	}
 }
