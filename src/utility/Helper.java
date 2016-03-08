@@ -95,4 +95,18 @@ public class Helper
 			out += o.toString()+" ";
 		return out;	
 	}
+	
+	public static String StringAToString(String[] array)
+	{
+		String out = "";
+		if (array != null)
+		{
+			for ( String o : array )
+				out += o+",";
+			return out.substring(0, out.length()-1);
+		}
+		else
+			 return out;
+		
+	}
 }

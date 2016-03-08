@@ -65,6 +65,8 @@ public abstract interface AspectInterface
 													XmlLabel.typeAttribute));
 			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 		}
+		
+		reg().getXml();
 	}
 	
 	/**
@@ -130,7 +132,7 @@ public abstract interface AspectInterface
 					items = XmlHandler.getAll(s, XmlLabel.item);
 					for ( int i = 0; i < items.getLength(); i++ )
 						temp.add((Object) loadAspectObject(
-								(Element) items.item(i), value, type));
+								(Element) items.item(i), XmlLabel.valueAttribute, XmlLabel.typeAttribute));
 					return temp;
 				case "HashMap" :
 					HashMap<Object,Object> hMap = new HashMap<Object,Object>();
