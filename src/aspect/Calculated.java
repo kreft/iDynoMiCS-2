@@ -62,13 +62,25 @@ public abstract class Calculated implements Copyable, XMLable
 		return obj;
 	}
 	
+
+	public static Object getNewInstance(String input) {
+		Calculated obj = (Calculated) XMLable.getNewInstance(input);
+		obj.init(input);
+		return obj;
+	}
+
 	public void init(Element xmlElem)
 	{
 		this.setInput(XmlHandler.gatherAttribute(xmlElem, "input"));
+	}
+	
+	private void init(String input) {
+		this.setInput(input);
 	}
 	
 	/**
 	 * return the current (up-to-date) value of the secondary state.
 	 */
 	public abstract Object get(AspectInterface registry);
+
 }
