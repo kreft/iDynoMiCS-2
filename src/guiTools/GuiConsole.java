@@ -33,8 +33,9 @@ public final class GuiConsole
 	private static JTextPane console;
 	/**
 	 * Background color of the console pane.
+	 * TODO move this to something like a "GuiStyle" class?
 	 */
-	private static Color consoleBackground = new Color(38, 45, 48);
+	public static Color consoleBackground = new Color(38, 45, 48);
 	/**
 	 * Text style for normal output messages.
 	 */
