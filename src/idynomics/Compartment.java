@@ -1,7 +1,12 @@
 package idynomics;
 
+import java.awt.event.ActionEvent;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
+
+import javax.swing.AbstractAction;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -17,6 +22,8 @@ import generalInterfaces.XMLable;
 import grid.*;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelRequirement;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
@@ -31,7 +38,7 @@ import shape.ShapeConventions.DimName;
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, XMLable
+public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -67,6 +74,8 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	 * {@code Timer.getEndOfCurrentTime()}.
 	 */
 	protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
+	
+	private IsSubmodel _lastMadeSubmodel;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -398,5 +407,67 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	public void printAllSoluteGrids()
 	{
 		this._environment.printAllSolutes();
+	}
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public LinkedHashMap<String, Class<?>> getAttributes()
+	{
+		/* No attributes to set. */
+		return new LinkedHashMap<String, Class<?>>();
+	}
+	
+	public LinkedHashMap<AbstractAction,SubmodelRequirement>
+														getAllSubmodelMakers()
+	{
+		LinkedHashMap<AbstractAction,SubmodelRequirement> out = 
+				new LinkedHashMap<AbstractAction,SubmodelRequirement>();
+		out.put(new ShapeMaker(), SubmodelRequirement.EXACTLY_ONE);
+		out.put(new ProcessMaker(), SubmodelRequirement.ZERO_TO_MANY);
+		return out;
+	}
+	
+	public IsSubmodel getLastMadeSubmodel()
+	{
+		return this._lastMadeSubmodel;
+	}
+	
+	private class ShapeMaker extends AbstractAction
+	{
+		private static final long serialVersionUID = 1486068039985317593L;
+		
+		public ShapeMaker()
+		{
+			super("Make the shape");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			_shape = Shape.getNewInstance(e.getActionCommand());
+			_lastMadeSubmodel = _shape;
+		}
+	}
+	
+	private class ProcessMaker extends AbstractAction
+	{
+		private static final long serialVersionUID = -126858198160234919L;
+		
+		public ProcessMaker()
+		{
+			super("Make a new process manager");
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			ProcessManager newProcess =
+					ProcessManager.getNewInstance(e.getActionCommand());
+			
+			_processes.add(newProcess);
+			_lastMadeSubmodel = newProcess;
+		}
 	}
 }
