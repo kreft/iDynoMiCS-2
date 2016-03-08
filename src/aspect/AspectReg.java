@@ -320,79 +320,96 @@ public class AspectReg<A>
 			}
 	    }
 	    
+	    public String specString(Object obj, String typeLabel, String valLabel)
+	    {
+	    	String simpleName = obj.getClass().getSimpleName();
+	    	String out = "";
+	    	if (obj instanceof XMLable)
+    		{
+    			XMLable x = (XMLable) obj;
+    			out = out + " " + typeLabel + "=\"" + simpleName + "\">\n" + 
+    			x.getXml();
+    		}
+    		else
+    		{
+		    	switch (simpleName)
+	    		{
+	    		case "String[]":
+	    			out = out + " " + typeLabel + "=\"" + simpleName+ "\" " + valLabel
+	    					+ "=\"" + Helper.StringAToString((String[]) obj) 
+	    					+ "\"";
+	    			break;
+	    		default:
+	    			out = out + " " + typeLabel + "=\"" + simpleName+ "\" " + valLabel
+	    					+ "=\"" + obj.toString() + "\"";
+	    		}
+    		}
+	    	return out;
+	    }
+	    
+	    public String primaryFactory(Object obj, String prePend)
+	    {
+	    	String out = "";	    	
+	    	String simpleName = obj.getClass().getSimpleName();
+	    	switch (simpleName)
+    		{
+    		case "HashMap":
+    			@SuppressWarnings("unchecked")
+				HashMap<Object,Object> h = (HashMap<Object,Object>) obj;
+    			out = out + prePend + " type=\"" + simpleName + "\">\n";
+    			for(Object hKey : h.keySet())
+    			{
+    				out = out + "<" + XmlLabel.item + " " +
+    						specString(hKey, XmlLabel.keyTypeAttribute,  XmlLabel.keyAttribute) +
+    						specString(h, XmlLabel.typeAttribute, XmlLabel.valueAttribute)
+    						+ (h instanceof XMLable ? "</" + XmlLabel.item + ">\n" : "/>\n");
+
+    			}
+    			out = out + "</" + XmlLabel.aspect + ">\n";
+    			break;
+    		case "LinkedList":
+    			@SuppressWarnings("unchecked")
+				LinkedList<Object> l = (LinkedList<Object>) obj;
+    			out = out + prePend + " type=\"" + simpleName + "\">\n";
+    			for(Object o : l)
+    			{
+    				out = out + "<" + XmlLabel.item + " " +
+    						specString(o, XmlLabel.typeAttribute,
+    						XmlLabel.valueAttribute) + (o instanceof XMLable ? 
+    						"</" + XmlLabel.item + ">\n" : "/>\n");
+
+    			}
+    			out = out + "</" + XmlLabel.aspect + ">\n";
+    			break;
+    		default:
+    			out = out + prePend + specString(obj, 
+    					XmlLabel.typeAttribute, XmlLabel.valueAttribute)
+    					+ (obj instanceof XMLable ? "</" + XmlLabel.item + ">\n"
+    					: "/>\n");
+    		}
+    		
+	    	return out;
+	    }
+	    
 	    public String getXml(String key) 
 	    {
 	    	String out = "";
-	    	out = out + "<" + XmlLabel.aspect + " name=\"" + key + "\"";
-	    	
+	    	String prePend = "<" + XmlLabel.aspect + " name=\"" + key + "\"";
 	    	String simpleName = this.aspect.getClass().getSimpleName();
 	    	switch (this.type)
 	    	{
 	    	case CALCULATED:
-	    		out = out + " type=\"" + "CALCULATED" + "\" class=\"" + 
+	    		out = out + prePend + " type=\"" + "CALCULATED" + "\" class=\"" + 
 	    				simpleName + "\" input=\"" + 
 	    				Helper.StringAToString(this.calc.input) + "\" />\n";
 	    		break;
 	    	case EVENT:
-	    		out = out + " type=\"" + "EVENT" + "\" class=\"" + 
+	    		out = out + prePend +  " type=\"" + "EVENT" + "\" class=\"" + 
 	    				simpleName + "\" input=\"" + 
 	    				Helper.StringAToString(this.event.input) + "\" />\n";
 	    		break;
 	    	default:
-	    		if (this.aspect instanceof XMLable)
-	    		{
-	    			XMLable x = (XMLable) this.aspect;
-	    			out = out + " type=\"" + simpleName + "\">\n" + x.getXml()
-	    			+ "</" + XmlLabel.aspect + ">\n";
-	    		}
-	    		else
-		    		switch (simpleName)
-		    		{
-		    		case "HashMap":
-		    			@SuppressWarnings("unchecked")
-						HashMap<Object,Object> h = (HashMap<Object,Object>) this.aspect;
-		    			out = out + " type=\"" + simpleName + "\">\n";
-		    			for(Object hKey : h.keySet())
-		    			{
-		    				out = out + "<" + XmlLabel.item + " " 
-		    						+ XmlLabel.keyAttribute + "=\"" + 
-		    						hKey.toString() + "\" "
-		    						+ XmlLabel.keyTypeAttribute + "=\"" +
-		    						hKey.getClass().toString() + "\" "
-		    						+ XmlLabel.valueAttribute + "=\"" +
-		    						h.get(hKey).toString() + "\" "
-		    						+  XmlLabel.typeAttribute + "=\"" +
-		    						h.get(hKey).getClass().toString() + "\" "
-		    						+  ">\n";
-
-		    			}
-		    			out = out + "</" + XmlLabel.aspect + ">\n";
-		    			break;
-		    		case "LinkedList":
-		    			@SuppressWarnings("unchecked")
-						LinkedList<Object> l = (LinkedList<Object>) this.aspect;
-		    			out = out + " type=\"" + simpleName + "\">\n";
-		    			for(Object o : l)
-		    			{
-		    				out = out + "<" + XmlLabel.item + " " 
-		    						+ XmlLabel.valueAttribute + "=\"" + 
-		    						o.toString() + "\" "
-		    						+ XmlLabel.typeAttribute + "=\"" +
-		    						o.getClass().toString() + "\" "
-		    						+  ">\n";
-
-		    			}
-		    			out = out + "</" + XmlLabel.aspect + ">\n";
-		    			break;
-		    		case "String[]":
-		    			out = out + " type=\"" + simpleName + "\" value=\"" + 
-			    				Helper.StringAToString((String[]) this.aspect) 
-		    					+ "\" />\n";
-		    			break;
-		    		default:
-		    		out = out + " type=\"" + simpleName + "\" value=\"" + 
-		    				this.aspect.toString() + "\" />\n";
-		    		}
+	    		out = out + primaryFactory(this.aspect, prePend);
 	    	}
 
 			return out;
