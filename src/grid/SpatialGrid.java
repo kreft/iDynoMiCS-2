@@ -678,6 +678,16 @@ public abstract class SpatialGrid
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 */
+	public void makeNonnegative(ArrayType type)
+	{
+		Array.makeNonnegative(this._array.get(type));
+	}
+	
+	/**
 	 * \brief Increase all values in the array specified by the <b>value</b>
 	 * given.
 	 * 
