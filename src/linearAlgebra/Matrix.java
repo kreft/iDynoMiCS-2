@@ -907,6 +907,21 @@ public final class Matrix
 	 * BASIC ARTHIMETIC
 	 ************************************************************************/
 	
+	/*
+	 * 
+	 * FIXME Commenting
+	 */
+	public static void makeNonnegative(double[][] matrix)
+	{
+		restrictMinimum(matrix, 0);
+	}
+	
+	public static void restrictMinimum(double[][] matrix, double newMinimum)
+	{
+		for ( int i = 0; i < rowDim(matrix); i++ )
+			Vector.restrictMinimum(matrix[i], newMinimum);
+	}
+	
 	/* Adding */
 	
 	/**

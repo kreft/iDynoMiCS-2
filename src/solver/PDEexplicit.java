@@ -8,6 +8,9 @@ import java.util.HashMap;
 import dataIO.Log;
 import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
+import linearAlgebra.Matrix;
+import linearAlgebra.Vector;
+
 import static grid.SpatialGrid.ArrayType.*;
 
 /**

@@ -111,14 +111,14 @@ public final class GuiProtocol
 				valueField.setText(value.toString());
 			}
 			/* Aspect description. */
-			String description = anAI.reg().getDescription(aspectName);
-			if ( description != null )
-			{
-				JLabel descLabel = new JLabel(aspectName);
-				descLabel.setFont(new Font("arial", Font.ITALIC, 15));
-				vertAspect.addComponent(descLabel);
-				horizAspect.addComponent(descLabel);
-			}
+//			String description = anAI.reg().getDescription(aspectName);
+//			if ( description != null )
+//			{
+//				JLabel descLabel = new JLabel(aspectName);
+//				descLabel.setFont(new Font("arial", Font.ITALIC, 15));
+//				vertAspect.addComponent(descLabel);
+//				horizAspect.addComponent(descLabel);
+//			}
 			/* Append the Aspect layouts to the AspectInterface layouts. */
 			vertAI.addGroup(vertAspect);
 			horizAI.addGroup(horizAspect);
