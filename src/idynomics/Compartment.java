@@ -223,8 +223,29 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 	
 	@Override
 	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
+		String out = "<" + XmlLabel.compartment + " " + XmlLabel.nameAttribute +
+				"=\"" + this.name + "\">\n";
+		out = out + this._shape.getXml();
+		
+		/* solutes, reactions */
+		out = out + this.agents.getXml();
+		
+		out = out + "<" + XmlLabel.processManagers + ">";
+		for(ProcessManager p : this._processes)
+		{
+			out = out + "<" + XmlLabel.process + " " + XmlLabel.nameAttribute +
+					"=\"" + p.getName() + "\" " + XmlLabel.classAttribute + 
+					"=\"" + p.getClass().getSimpleName() + "\" " +
+					XmlLabel.processPriority + "=\"" + p.getPriority() + "\" " +
+					XmlLabel.processFirstStep + "=\"" + p.getTimeForNextStep() +
+					"\" " + XmlLabel.packageAttribute + "=\"processManager.\"" +
+					">\n"
+					+ p.reg().getXml() + "</" + XmlLabel.process + ">\n";
+		}
+		out = out + "</" + XmlLabel.processManagers + ">\n";
+		
+		out = out + "</" + XmlLabel.compartment + ">\n";
+		return out;
 	}
 	
 	public void init()

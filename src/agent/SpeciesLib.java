@@ -71,10 +71,10 @@ public class SpeciesLib implements Quizable, XMLable
 				for (String key :_species.keySet())
 				{
 					out = out + "<" + XmlLabel.species + " name=\"" +
-					key + "\">" + _species.get(key).getXml() +
-					"</" + XmlLabel.species + ">";
+					key + "\">\n" + _species.get(key).getXml() +
+					"</" + XmlLabel.species + ">\n";
 				}
-				out = out + "</" + XmlLabel.speciesLibrary + ">";
+				out = out + "</" + XmlLabel.speciesLibrary + ">\n";
 		return out;
 	}
 	
@@ -89,6 +89,7 @@ public class SpeciesLib implements Quizable, XMLable
 	{
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
+		species.reg().identity = name;
 		this._species.put(name, species);
 	}
 	

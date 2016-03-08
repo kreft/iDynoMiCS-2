@@ -238,4 +238,8 @@ public class XmlLabel
 	 */
 	public static String concentration = "concentration";
 
+	public static String processPriority = "priority";
+
+	public static String processFirstStep = "firstStep";
+
 }

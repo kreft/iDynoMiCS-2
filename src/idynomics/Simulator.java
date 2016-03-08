@@ -85,12 +85,15 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 			aCompartment.init(child);
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
+		
+		//FIXME testing
+		System.out.println(getXml());
 	}
 	
 	public String getXml()
 	{
 		String out = "<document> \n <" + XmlLabel.simulation + " " + 
-				XmlLabel.nameAttribute + "=\"" + Param.simulationName + "\"" + 
+				XmlLabel.nameAttribute + "=\"" + Param.simulationName + "\" " + 
 				XmlLabel.outputFolder + "=\"" + Param.outputLocation + "\" " + 
 				XmlLabel.logLevel + "=\"" + Log.level() + "\" " + 
 				XmlLabel.commentAttribute + "=\"" + Param.simulationComment + 
@@ -100,10 +103,9 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		out = out + this.speciesLibrary.getXml();
 		/* currently not including general params */
 		for ( Compartment c : this._compartments )
-			c.getXml();
+			out = out + c.getXml();
 		
-		out = out + "  </" + XmlLabel.simulation + ">\n " +
-					"</document>\n";
+		out = out + "  </" + XmlLabel.simulation + ">\n" + "</document>\n";
 		return out;
 	}
 	
