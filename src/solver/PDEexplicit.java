@@ -8,8 +8,6 @@ import java.util.HashMap;
 import dataIO.Log;
 import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
-import linearAlgebra.Matrix;
-import linearAlgebra.Vector;
 
 import static grid.SpatialGrid.ArrayType.*;
 
@@ -82,6 +80,8 @@ public class PDEexplicit extends PDEsolver
 				var.addArrayToArray(LOPERATOR, PRODUCTIONRATE);
 				var.timesAll(LOPERATOR, dt);
 				var.addArrayToArray(CONCN, LOPERATOR);
+				if ( ! this._allowNegatives )
+					var.makeNonnegative(CONCN);
 			}
 		}
 	}

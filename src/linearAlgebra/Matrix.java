@@ -543,6 +543,94 @@ public final class Matrix
 			Vector.setAll(row, value);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 */
+	public static void reset(int[][] matrix)
+	{
+		setAll(matrix, 0);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 */
+	public static void reset(double[][] matrix)
+	{
+		setAll(matrix, 0.0);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 * @param newMinimum
+	 */
+	public static void restrictMinimum(int[][] matrix, int newMinimum)
+	{
+		for ( int[] row : matrix )
+			Vector.restrictMinimum(row, newMinimum);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 * @param newMinimum
+	 */
+	public static void restrictMinimum(double[][] matrix, double newMinimum)
+	{
+		for ( double[] row : matrix )
+			Vector.restrictMinimum(row, newMinimum);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 * @param newMaximum
+	 */
+	public static void restrictMaximum(int[][] matrix, int newMaximum)
+	{
+		for ( int[] row : matrix )
+			Vector.restrictMaximum(row, newMaximum);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 * @param newMaximum
+	 */
+	public static void restrictMaximum(double[][] matrix, double newMaximum)
+	{
+		for ( double[] row : matrix )
+			Vector.restrictMaximum(row, newMaximum);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 */
+	public static void makeNonnegative(int[][] matrix)
+	{
+		restrictMinimum(matrix, 0);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 */
+	public static void makeNonnegative(double[][] matrix)
+	{
+		restrictMinimum(matrix, 0.0);
+	}
+	
 	/*************************************************************************
 	 * CHECKING METHODS
 	 ************************************************************************/
