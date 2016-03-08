@@ -8,6 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -21,6 +23,8 @@ import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelRequirement;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Point;
@@ -36,7 +40,7 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Shape implements CanPrelaunchCheck, XMLable
+public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 {
 	/**
 	 * Ordered dictionary of dimensions for this shape.
@@ -576,8 +580,31 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * XML-ABLE
 	 ************************************************************************/
 	
-	public static Object getNewInstance(String className)
+	public static Shape getNewInstance(String className)
 	{
-		return XMLable.getNewInstance(className, "shape.ShapeLibrary$");
+		return (Shape) XMLable.getNewInstance(className, "shape.ShapeLibrary$");
+	}
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public LinkedHashMap<String, Class<?>> getAttributes()
+	{
+		// TODO
+		return new LinkedHashMap<String, Class<?>>();
+	}
+	
+	public LinkedHashMap<AbstractAction,SubmodelRequirement>
+														getAllSubmodelMakers()
+	{
+		// TODO
+		return new LinkedHashMap<AbstractAction,SubmodelRequirement>();
+	}
+	
+	public IsSubmodel getLastMadeSubmodel()
+	{
+		// TODO
+		return null;
 	}
 }

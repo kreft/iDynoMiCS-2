@@ -1,18 +1,19 @@
 package idynomics;
 
+import java.util.LinkedHashMap;
+import javax.swing.AbstractAction;
 import org.w3c.dom.Element;
 
-import aspect.AspectInterface;
-import aspect.AspectReg;
-import aspect.AspectRestrictionsLibrary;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelRequirement;
 import dataIO.Log.Tier;
 import utility.Helper;
 
-public class Timer implements XMLable
+public class Timer implements IsSubmodel, XMLable
 {
 	private int iteration;
 	
@@ -136,5 +137,27 @@ public class Timer implements XMLable
 		Log.out(outputLevel, "       step size = "+getTimeStepSize());
 		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
 	}	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
 	
+	public LinkedHashMap<String, Class<?>> getAttributes()
+	{
+		LinkedHashMap<String, Class<?>> out = 
+				new LinkedHashMap<String, Class<?>>();
+		out.put("timerStepSize", Double.class);
+		out.put("endOfSimulation", Double.class);
+		return out;
+	}
+	
+	public LinkedHashMap<AbstractAction,SubmodelRequirement>
+													getAllSubmodelMakers()
+	{
+		return new LinkedHashMap<AbstractAction,SubmodelRequirement>();
+	}
+
+	public IsSubmodel getLastMadeSubmodel()
+	{
+		return null;
+	}
 }
