@@ -136,7 +136,8 @@ public class Timer implements IsSubmodel, XMLable
 		Log.out(outputLevel, "       iteration = "+iteration);
 		Log.out(outputLevel, "       step size = "+getTimeStepSize());
 		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
-	}	
+	}
+	
 	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
