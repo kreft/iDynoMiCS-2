@@ -115,6 +115,12 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 		}
 	}
 	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/*************************************************************************
 	 * DIMENSIONS
 	 ************************************************************************/

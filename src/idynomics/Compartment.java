@@ -221,6 +221,12 @@ public class Compartment implements CanPrelaunchCheck, XMLable
 		this.init();
 	}
 	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	public void init()
 	{
 		this._shape.setSurfaces();

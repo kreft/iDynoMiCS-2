@@ -264,6 +264,12 @@ public class Reaction implements XMLable, Copyable
 		return new Reaction(xmlNode);
 	}
 	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/*************************************************************************
 	 * MISCELLANEOUS METHODS
 	 ************************************************************************/

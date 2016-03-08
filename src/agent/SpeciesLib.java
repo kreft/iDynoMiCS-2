@@ -9,6 +9,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
+import generalInterfaces.XMLable;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -16,7 +17,7 @@ import generalInterfaces.Quizable;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements Quizable
+public class SpeciesLib implements Quizable, XMLable
 {
 	/**
 	 * Contains all known species.
@@ -63,6 +64,18 @@ public class SpeciesLib implements Quizable
 			s.loadSpeciesModules(speciesElem);
 		}
 		Log.out(Tier.NORMAL, "Species Library loaded!\n");
+	}
+	
+	public String getXml() {
+		String out = "<" + XmlLabel.speciesLibrary + ">\n";
+				for (String key :_species.keySet())
+				{
+					out = out + "<" + XmlLabel.species + " name=\"" +
+					key + "\">" + _species.get(key).getXml() +
+					"</" + XmlLabel.species + ">";
+				}
+				out = out + "</" + XmlLabel.speciesLibrary + ">";
+		return out;
 	}
 	
 	/**

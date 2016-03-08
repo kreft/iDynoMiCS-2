@@ -23,6 +23,7 @@ public abstract class Event implements Copyable, XMLable
 	 */
 	protected String[] input;
 
+
 	/**
 	 * \brief Set the input from a comma separated String.
 	 * 
@@ -44,6 +45,12 @@ public abstract class Event implements Copyable, XMLable
 	public String[] getInput()
 	{
 		return this.input;
+	}
+	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	/**

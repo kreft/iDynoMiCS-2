@@ -178,6 +178,12 @@ public final class ResCalcFactory implements XMLable
 		}
 	}
 	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	public DimName[] getDimNames()
 	{
 		return _dimNames;

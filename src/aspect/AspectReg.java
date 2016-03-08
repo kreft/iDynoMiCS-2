@@ -5,8 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import agent.Species;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import utility.Copier;
 
@@ -19,6 +21,13 @@ import utility.Copier;
  */
 public class AspectReg<A>
 {
+	
+	/**
+	 * quick fix for xmling
+	 * 
+	 */
+	public String identity;
+	
 	/**
 	 * \brief Recognised aspect types.
 	 * 
@@ -53,6 +62,24 @@ public class AspectReg<A>
 	 */
 	protected LinkedList<AspectInterface> _modules = 
 											new LinkedList<AspectInterface>();
+	
+
+	/**
+	 * FIXME this can go cleaner
+	 * @return
+	 */
+	public String getXml() {
+		String out = "";
+		for (AspectInterface a : _modules)
+		{
+			out = out + "<" + XmlLabel.speciesModule
+					+ " name=\"" + a.reg().identity + "\" />\n";
+		}
+		for (String key : _aspects.keySet())
+			out = out + "<" + XmlLabel.aspect + "name=\"" + key +
+			"type=\"" + "aspectclass!!";
+		return null;
+	} 
 	
 	/**
 	 * returns true if the key is found in the aspect tree
@@ -339,5 +366,6 @@ public class AspectReg<A>
 	    {
 	    	return this._restrictionExplanation;
 	    }
-	} 
+	}
+
 }

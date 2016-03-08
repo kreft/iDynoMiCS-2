@@ -11,6 +11,7 @@ import agent.SpeciesLib;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
@@ -84,6 +85,26 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 			aCompartment.init(child);
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
+	}
+	
+	public String getXml()
+	{
+		String out = "<document> \n <" + XmlLabel.simulation + " " + 
+				XmlLabel.nameAttribute + "=\"" + Param.simulationName + "\"" + 
+				XmlLabel.outputFolder + "=\"" + Param.outputLocation + "\" " + 
+				XmlLabel.logLevel + "=\"" + Log.level() + "\" " + 
+				XmlLabel.commentAttribute + "=\"" + Param.simulationComment + 
+				"\">\n";
+		
+		out = out + this.timer.getXml();
+		out = out + this.speciesLibrary.getXml();
+		/* currently not including general params */
+		for ( Compartment c : this._compartments )
+			c.getXml();
+		
+		out = out + "  </" + XmlLabel.simulation + ">\n " +
+					"</document>\n";
+		return out;
 	}
 	
 	/*************************************************************************

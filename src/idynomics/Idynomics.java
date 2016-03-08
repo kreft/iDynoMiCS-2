@@ -91,6 +91,7 @@ public class Idynomics
 	/**
 	 * \brief Set up a simulation from XML protocol file.
 	 * 
+	 * FIXME: why is setupSimulator part of Idynomics rather than Simulator?
 	 * @param protocolPath Path to the XML protocol file.
 	 */
 	public static void setupSimulator(String protocolPath)

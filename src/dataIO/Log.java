@@ -90,6 +90,11 @@ public class Log
 		return ( outputLevel != null );
 	}
 	
+	public static String level()
+	{
+		return String.valueOf(outputLevel);
+	}
+	
 	/**
 	 * Set the output level and create the log file. This method should be
 	 * called before any output is created. If output is written before set is

@@ -74,6 +74,12 @@ public abstract class Calculated implements Copyable, XMLable
 		this.setInput(XmlHandler.gatherAttribute(xmlElem, "input"));
 	}
 	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	private void init(String input) {
 		this.setInput(input);
 	}

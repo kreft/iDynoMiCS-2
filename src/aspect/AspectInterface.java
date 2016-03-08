@@ -36,7 +36,12 @@ public abstract interface AspectInterface
 	 * 
 	 * @return
 	 */
-	public AspectReg<?> reg();
+	public AspectReg<?> reg();	
+
+	public default String getXml()
+	{
+		return reg().getXml();
+	}
 	
 	/**
 	 * \brief Load all states from xmlNode into anything that implements the
