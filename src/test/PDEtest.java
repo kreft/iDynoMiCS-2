@@ -13,6 +13,7 @@ import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import idynomics.Simulator;
 import linearAlgebra.Vector;
 import processManager.SolveDiffusionTransient;
@@ -26,24 +27,24 @@ public class PDEtest
 	
 	public static void main(String[] args)
 	{
-		Simulator aSimulator = new Simulator();
-		aSimulator.timer.setTimeStepSize(1.0);
-		aSimulator.timer.setEndOfSimulation(10.0);
+		Idynomics.simulator = new Simulator();
+		Idynomics.simulator.timer.setTimeStepSize(1.0);
+		Idynomics.simulator.timer.setEndOfSimulation(10.0);
 		/*
 		 * Add the test compartments.
 		 */
-		oneDimRiseFallComp(aSimulator);
-		twoDimRandInitDiagBndrs(aSimulator);
-		twoDimRandInitCyclBndrs(aSimulator);
+		oneDimRiseFallComp(Idynomics.simulator);
+		twoDimRandInitDiagBndrs(Idynomics.simulator);
+		twoDimRandInitCyclBndrs(Idynomics.simulator);
 		//TODO twoDimIncompleteDomain(nStep, stepSize);
 		/*
 		 * Launch the simulation.
 		 */
-		aSimulator.run();
+		Idynomics.simulator.run();
 		/*
 		 * Print the results.
 		 */
-		aSimulator.printAll();
+		Idynomics.simulator.printAll();
 	}
 	
 	private static void oneDimRiseFallComp(Simulator aSim)
