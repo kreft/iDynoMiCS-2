@@ -95,19 +95,6 @@ public final class GuiProtocol
 		rootElem.appendChild(simElem);
 		
 		Simulator aSim = new Simulator();
-//		HashMap<AspectInterface,ModuleRequirement> modules = aSim.getModules();
-//		for (AspectInterface anAI : modules.keySet() )
-//		{
-//			switch (modules.get(anAI))
-//			{
-//				case EXACTLY_ONE:
-//					appendAspectInterface(anAI);
-//					break;
-//				// TODO
-//				default:
-//					break;
-//			}
-//		}
 	}
 	
 	/**
