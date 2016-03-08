@@ -58,9 +58,23 @@ public abstract class Event implements Copyable, XMLable
 		return obj;
 	}
 	
+
+	public static Object getNewInstance(String input) {
+		Event obj = (Event) XMLable.getNewInstance(input);
+		obj.init(input);
+		return obj;
+	}
+
+
 	public void init(Element xmlElem)
 	{
 		this.setInput(XmlHandler.gatherAttribute(xmlElem, "input"));
+	}
+	
+	
+	private void init(String input) 
+	{
+		this.setInput(input);
 	}
 	
 	/**
@@ -79,4 +93,5 @@ public abstract class Event implements Copyable, XMLable
 	{
 		return this;
 	}
+
 }

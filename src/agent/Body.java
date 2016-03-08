@@ -134,6 +134,17 @@ public class Body implements Copyable, XMLable
 		// body, look into this if other things alos need to be
 		// able to have a body
 	}
+	
+	/**
+	 * quick solution to create body from string, currently only coccoid
+	 * @param input
+	 * @return
+	 */
+	public static Object getNewInstance(String input) {
+		List<Point> pointList = new LinkedList<Point>();
+		pointList.add(new Point(Vector.dblFromString(input)));
+		return new Body(pointList);
+	}
 
 	public void init(Element xmlElem)
 	{
