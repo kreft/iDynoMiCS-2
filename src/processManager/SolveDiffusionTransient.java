@@ -194,10 +194,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					sgLoop: for ( SubgridPoint p : sgPoints )
 					{
 						/* 
-						 * Only give location in actual dimensions. Note that a
-						 * Point does not have a Surface object, whereas a Ball
-						 * does. By getting a Ball with zero radius, it is
-						 * essentially a Point with a Surface.  
+						 * Only give location in actual dimensions.
 						 */
 						for ( Surface s : surfaces )
 							if ( collision.distance(s, Vector.subset( 

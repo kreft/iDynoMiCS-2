@@ -280,17 +280,4 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		}
 		return true;
 	}
-	
-	
-	public HashMap<AspectInterface,ModuleRequirement> getModules()
-	{
-		HashMap<AspectInterface,ModuleRequirement> out =
-				new HashMap<AspectInterface,ModuleRequirement>();
-		
-		out.put(this.timer, ModuleRequirement.EXACTLY_ONE);
-		// FIXME how do we make this possible?
-		//out.put(this.speciesLibrary, ModuleRequirement.ZERO_OR_ONE);
-		//out.put(this._compartments, ModuleRequirement.ONE_TO_MANY);
-		return out;
-	}
 }

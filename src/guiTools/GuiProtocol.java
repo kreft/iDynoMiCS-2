@@ -19,9 +19,10 @@ import javax.swing.GroupLayout.SequentialGroup;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import aspect.Aspect;
+import agent.Agent;
 import aspect.AspectInterface;
 import dataIO.XmlHandler;
+import idynomics.Compartment;
 import idynomics.Simulator;
 
 /**
@@ -96,19 +97,8 @@ public final class GuiProtocol
 		rootElem.appendChild(simElem);
 		
 		Simulator aSim = new Simulator();
-		HashMap<AspectInterface,ModuleRequirement> modules = aSim.getModules();
-		for (AspectInterface anAI : modules.keySet() )
-		{
-			switch (modules.get(anAI))
-			{
-				case EXACTLY_ONE:
-					appendAspectInterface(anAI);
-					break;
-				// TODO
-				default:
-					break;
-			}
-		}
+		Agent aAgent = new Agent();
+		appendAspectInterface(aAgent);
 	}
 	
 	/**
@@ -123,6 +113,55 @@ public final class GuiProtocol
 		verticalLayoutGroup.addGroup(vertAI);
 		ParallelGroup horizAI = layout.createParallelGroup();
 		horizontalLayoutGroup.addGroup(horizAI);
+		
+		/* click button to open this */
+		if(true) {
+		/*
+		 * quick and dirty adding aspects 
+		 */
+		ParallelGroup vertAspect = layout.createParallelGroup();
+		vertAI.addGroup(vertAspect);
+		SequentialGroup horizAspect = layout.createSequentialGroup();
+		horizAI.addGroup(horizAspect);
+		/* Aspect name. */
+		JTextArea nameLabel = new JTextArea();
+		nameLabel.setFont(new Font("arial", Font.BOLD, 20));
+		nameLabel.setBackground(Color.RED);
+		/* FIXME put text over area */
+		nameLabel.setText("aspect Name");
+		vertAspect.addComponent(nameLabel);
+		horizAspect.addComponent(nameLabel);
+		vertAspect.addComponent(nameLabel, 30, 30, 30);
+		horizAspect.addComponent(nameLabel, 60, 60, 60);
+		
+		/* Aspect type FIXME selection box */
+		JTextArea aspectType = new JTextArea();
+		aspectType.setFont(new Font("arial", Font.BOLD, 20));
+		aspectType.setBackground(Color.RED);
+		aspectType.setText("aspect Type");
+		vertAspect.addComponent(aspectType);
+		horizAspect.addComponent(aspectType);
+		vertAspect.addComponent(aspectType, 30, 30, 30);
+		horizAspect.addComponent(aspectType, 60, 60, 60);
+		
+		/* Aspect value. */
+		JTextArea valueField = new JTextArea();
+		valueField.setForeground(Color.BLACK);
+		valueField.setBackground(Color.RED);
+		valueField.setText("aspect value");
+		vertAspect.addComponent(valueField);
+		horizAspect.addComponent(valueField);
+		vertAspect.addComponent(valueField, 30, 30, 30);
+		horizAspect.addComponent(valueField, 60, 60, 60);
+		/* Aspect description. */
+
+		vertAI.addGroup(vertAspect);
+		horizAI.addGroup(horizAspect);
+		
+		/* FIXME add button that passes the fields to the aspect interface */
+		}		
+		
+		
 		// TODO Name of the AspectInterface, e.g Timer?
 		for ( String aspectName : anAI.reg().getAllAspectNames() )
 		{
@@ -159,15 +198,19 @@ public final class GuiProtocol
 			vertAspect.addComponent(valueField, 30, 30, 30);
 			horizAspect.addComponent(valueField, 60, 60, 60);
 			/* Aspect description. */
+//			String description = anAI.reg().getDescription(aspectName);
 //			if ( description != null )
 //			{
-//				JLabel descLabel = new JLabel(description);
+//				JLabel descLabel = new JLabel(aspectName);
 //				descLabel.setFont(new Font("arial", Font.ITALIC, 15));
 //				vertAspect.addComponent(descLabel);
 //				horizAspect.addComponent(descLabel);
 //			}
-			// FIXME make it so that aspect values are updated when this is
-			// saved!
+			/* Append the Aspect layouts to the AspectInterface layouts. */
+			vertAI.addGroup(vertAspect);
+			horizAI.addGroup(horizAspect);
 		}
+		verticalLayoutGroup.addGroup(vertAI);
+		horizontalLayoutGroup.addGroup(horizAI);
 	}
 }

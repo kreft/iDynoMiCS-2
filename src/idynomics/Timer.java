@@ -2,7 +2,6 @@ package idynomics;
 
 import org.w3c.dom.Element;
 
-import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import aspect.AspectRestrictionsLibrary;
@@ -13,37 +12,22 @@ import generalInterfaces.XMLable;
 import dataIO.Log.Tier;
 import utility.Helper;
 
-public class Timer implements AspectInterface, XMLable
+public class Timer implements XMLable
 {
 	private int iteration;
 	
 	private double now;
 	
-	private AspectReg<Object> aspectRegistry;
+	protected double timerStepSize;
+	
+	protected double endOfSimulation;
 	
 	public Timer()
 	{
 		this.iteration = 0;
 		this.now = 0.0;
-		this.aspectRegistry = defaultValues();
 	}
-	
-	private static AspectReg<Object> defaultValues()
-	{
-		AspectReg<Object> out = new AspectReg<Object>();
-		/* The time step size is required. */
-		Double tStep = null;
-//		tStep.description = "Timer time step size";
-//		tStep.setRestriction(AspectRestrictionsLibrary.positiveDbl());
-		out.add(XmlLabel.timerStepSize, tStep);
-		/* The simulation end time is required. */
-		Double endT = null;
-//		endT.description = "End of simulation";
-		out.add(XmlLabel.endOfSimulation, endT);
-		/* Return the default values. */
-		return out;
-	}
-	
+
 	public void init(Element xmlNode)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");
@@ -71,12 +55,7 @@ public class Timer implements AspectInterface, XMLable
 	/*************************************************************************
 	 * BASIC METHODS
 	 ************************************************************************/
-	
-	@Override
-	public AspectReg<?> reg()
-	{
-		return aspectRegistry;
-	}
+
 	
 	public void reset()
 	{
@@ -86,7 +65,7 @@ public class Timer implements AspectInterface, XMLable
 	
 	public void setTimeStepSize(double stepSize)
 	{
-		aspectRegistry.set(XmlLabel.timerStepSize, stepSize);
+		this.timerStepSize = stepSize;
 	}
 	
 	public double getCurrentTime()
@@ -101,7 +80,7 @@ public class Timer implements AspectInterface, XMLable
 	
 	public double getTimeStepSize()
 	{
-		return (double) aspectRegistry.getValue(this, XmlLabel.timerStepSize);
+		return this.timerStepSize;
 	}
 	
 	public double getEndOfCurrentIteration()
@@ -119,12 +98,12 @@ public class Timer implements AspectInterface, XMLable
 	
 	public double getEndOfSimulation()
 	{
-		return (double) aspectRegistry.getValue(this, XmlLabel.endOfSimulation);
+		return this.endOfSimulation;
 	}
 	
 	public void setEndOfSimulation(double timeToStopAt)
 	{
-		aspectRegistry.set(XmlLabel.endOfSimulation, timeToStopAt);
+		this.endOfSimulation = timeToStopAt;
 	}
 	
 	public int estimateLastIteration()
