@@ -279,17 +279,16 @@ public class XmlHandler
 		return (Element) nodes.item(0);
 	}		
 	
+	/**
+	 * returns true if a node tagName exists as childNode of xmlElement
+	 * @param xmlElement
+	 * @param tagName
+	 * @return
+	 */
 	public static boolean hasNode(Element xmlElement, String tagName)
 	{
 		NodeList nodes = xmlElement.getElementsByTagName(tagName);
-		if (nodes.getLength() > 0)
-		{
-			return true;
-		}
-		else 
-		{
-			return false;
-		}
+		return ( nodes.getLength() > 0 );
 	}
 	
 	/**

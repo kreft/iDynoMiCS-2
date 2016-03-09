@@ -83,6 +83,11 @@ public abstract interface AspectInterface
 		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 	}
 	
+	/**
+	 * load standard aspect object (use labeling as defined by XmlLabel class).
+	 * @param s
+	 * @return
+	 */
 	public static Object loadAspectObject(Element s)
 	{
 		return loadAspectObject(s, XmlLabel.valueAttribute, 
@@ -91,7 +96,8 @@ public abstract interface AspectInterface
 	
 	/**
 	 * Identifies appropriate loading method for aspect or item and applies this
-	 * method to return a new object of the approriate type
+	 * method to return a new object of the appropriate type. Uses Element as
+	 * input
 	 * @param s
 	 * @return
 	 */
@@ -133,7 +139,9 @@ public abstract interface AspectInterface
 	}
 	
 	/**
-	 * quick method to return simple aspects from user input
+	 * Identifies appropriate loading method for aspect or item and applies this
+	 * method to return a new object of the appropriate type, uses String as
+	 * input
 	 * @param input
 	 * @param type
 	 * @return
@@ -175,6 +183,11 @@ public abstract interface AspectInterface
 		return null;
 	}
 	
+	/**
+	 * Construct a LinkedList from an xml element
+	 * @param s
+	 * @return
+	 */
 	public static LinkedList<?> xmlList(Element s)
 	{
 		NodeList items;
@@ -186,6 +199,11 @@ public abstract interface AspectInterface
 		return temp;
 	}
 	
+	/**
+	 * construct a LinkedList from a String formated xml element
+	 * @param s
+	 * @return
+	 */
 	public static LinkedList<?> xmlList(String s)
 	{
 		NodeList items;
@@ -198,6 +216,11 @@ public abstract interface AspectInterface
 		return temp;
 	}
 	
+	/**
+	 * construct a HashMap from a xml element
+	 * @param s
+	 * @return
+	 */
 	public static HashMap<?,?> xmlHashMap(Element s)
 	{
 		NodeList items;
@@ -213,6 +236,11 @@ public abstract interface AspectInterface
 		return hMap;
 	}
 	
+	/**
+	 * construct a HahMap from a String formated xml element
+	 * @param s
+	 * @return
+	 */
 	public static HashMap<?,?> xmlHashMap(String s)
 	{
 		NodeList items;
