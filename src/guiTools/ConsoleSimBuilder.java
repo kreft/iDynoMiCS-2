@@ -11,10 +11,10 @@ import idynomics.Idynomics;
 import idynomics.Simulator;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelRequirement;
 
 public class ConsoleSimBuilder
 {
+	
 	public static void makeSimulation()
 	{
 		GuiLaunch.setView(ViewType.CONSOLE);
@@ -43,28 +43,39 @@ public class ConsoleSimBuilder
 		List<SubmodelMaker> makers = aSubmodel.getSubmodelMakers();
 		for ( SubmodelMaker aMaker : makers )
 		{
-			GuiConsole.writeOut("Need to \""+aMaker.getName()+"\"\n");
-			if ( aMaker.makeImmediately() )
+			GuiConsole.writeOut("Maker: \""+aMaker.getName()+"\"\n");
+			while ( aMaker.mustMakeMore() )
 			{
-				aMaker.actionPerformed(null);
-				buildSubmodel(aMaker.getLastMadeSubmodel());
-				if (aMaker.getRequirement() == SubmodelRequirement.EXACTLY_ONE)
-					continue;
+				makeSubmodel(aMaker);
 			}
-			String[] options = aMaker.getClassNameOptions();
-			if ( options != null )
+			while ( aMaker.canMakeMore() &&
+					GuiConsole.requestInputBoolean(aMaker.getName()+"?"))
 			{
-				GuiConsole.writeOut("\tPossible options are:\n");
-				for ( int i = 0; i < options.length; i++ )
-					GuiConsole.writeOut("\t\t["+i+"] "+options[i]+"\n");
-				String value = GuiConsole.requestInput(
-									"Please choose an option by number: ");
-				int i = Integer.valueOf(value);
-				String optionToUse = options[i];
-				aMaker.actionPerformed(new ActionEvent(aMaker, 0, optionToUse));
-				buildSubmodel(aMaker.getLastMadeSubmodel());
+				makeSubmodel(aMaker);
 			}
 		}
 	}
 	
+	private static void makeSubmodel(SubmodelMaker aMaker)
+	{
+		if ( aMaker.makeImmediately() )
+		{
+			aMaker.actionPerformed(null);
+			buildSubmodel(aMaker.getLastMadeSubmodel());
+			return;
+		}
+		String[] options = aMaker.getClassNameOptions();
+		if ( options != null )
+		{
+			GuiConsole.writeOut("\tPossible options are:\n");
+			for ( int i = 0; i < options.length; i++ )
+				GuiConsole.writeOut("\t\t["+i+"] "+options[i]+"\n");
+			String value = GuiConsole.requestInput(
+								"Please choose an option by number: ");
+			int i = Integer.valueOf(value);
+			String optionToUse = options[i];
+			aMaker.actionPerformed(new ActionEvent(aMaker, 0, optionToUse));
+			buildSubmodel(aMaker.getLastMadeSubmodel());
+		}
+	}
 }
