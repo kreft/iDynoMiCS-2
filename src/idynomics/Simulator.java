@@ -1,21 +1,24 @@
 package idynomics;
 
+import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
-import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import guiTools.GuiProtocol.ModuleRequirement;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelRequirement;
 import utility.*;
 
 /**
@@ -25,7 +28,7 @@ import utility.*;
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
+public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLable
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
@@ -270,6 +273,114 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 			Log.out(Tier.QUIET, "COMPARTMENT: " + c.name);
 			c.printAllSoluteGrids();
 			Log.out(Tier.QUIET, c.agents.getNumAllAgents() + " agents");
+		}
+	}
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public Map<String, Class<?>> getParameters()
+	{
+		/* No parameters to set. */
+		return new HashMap<String, Class<?>>();
+	}
+	
+	public void setParameter(String name, String value)
+	{
+		/* No parameters to set. */
+		//return true;
+	}
+	
+	public List<SubmodelMaker> getSubmodelMakers()
+	{
+		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		out.add(new TimerMaker());
+		out.add(new SpeciesLibMaker());
+		out.add(new CompartmentMaker());
+		return out;
+	}
+	
+	private class TimerMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = 1486068039985317593L;
+		
+		public TimerMaker()
+		{
+			super("Make timer");
+		}
+		
+		public SubmodelRequirement getRequirement()
+		{
+			return SubmodelRequirement.EXACTLY_ONE;
+		}
+		
+		public boolean makeImmediately()
+		{
+			return true;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			timer = new Timer();
+			this.setLastMadeSubmodel(timer);
+		}
+	}
+	
+	private class SpeciesLibMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = -6601262340075573910L;
+		
+		public SpeciesLibMaker()
+		{
+			super("Make the species library");
+		}
+		
+		public SubmodelRequirement getRequirement()
+		{
+			return SubmodelRequirement.ZERO_OR_ONE;
+		}
+		
+		public boolean makeImmediately()
+		{
+			return false;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			speciesLibrary = new SpeciesLib();
+			this.setLastMadeSubmodel(speciesLibrary);
+		}
+	}
+	
+	private class CompartmentMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = -6545954286337098173L;
+		
+		public CompartmentMaker()
+		{
+			super("Make a new compartment");
+		}
+		
+		public SubmodelRequirement getRequirement()
+		{
+			return SubmodelRequirement.ONE_TO_MANY;
+		}
+		
+		public boolean makeImmediately()
+		{
+			return true;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			// TODO use e.getActionCommand() to get the shape, or set later?
+			Compartment newCompartment = new Compartment();
+			_compartments.add(newCompartment);
+			this.setLastMadeSubmodel(newCompartment);
 		}
 	}
 	

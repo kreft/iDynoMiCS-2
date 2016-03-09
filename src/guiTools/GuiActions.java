@@ -34,6 +34,11 @@ import idynomics.GuiLaunch.ViewType;
  */
 public final class GuiActions
 {
+	public static void newSimulation()
+	{
+		GuiLaunch.setView(ViewType.SIMULATIONMAKER);
+	}
+	
 	/*************************************************************************
 	 * DEALING WITH FILES
 	 ************************************************************************/

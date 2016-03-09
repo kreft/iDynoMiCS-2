@@ -1,6 +1,10 @@
 package agent;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -10,6 +14,8 @@ import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -17,7 +23,7 @@ import generalInterfaces.XMLable;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements Quizable, XMLable
+public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 {
 	/**
 	 * Contains all known species.
@@ -113,5 +119,26 @@ public class SpeciesLib implements Quizable, XMLable
 												"\", returning void species");
 			return this._voidSpecies;
 		}
+	}
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public Map<String, Class<?>> getParameters()
+	{
+		/* No attributes to set. */
+		return new HashMap<String, Class<?>>();
+	}
+	
+	public void setParameter(String name, String value)
+	{
+		
+	}
+	
+	public List<SubmodelMaker> getSubmodelMakers()
+	{
+		// TODO implement submodels
+		return new LinkedList<SubmodelMaker>();
 	}
 }
