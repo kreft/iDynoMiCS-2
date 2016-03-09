@@ -13,7 +13,6 @@ import idynomics.Idynomics;
 import idynomics.Simulator;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelRequirement;
 
 //WORK IN PROGRESS, MAY NEVER BE USED
 public class GuiSimBuilder
@@ -93,8 +92,8 @@ public class GuiSimBuilder
 				//vertGroup.addComponent(smp);
 				//horizGroup.addComponent(smp);
 				layout.addLayoutComponent("", smp);
-				if (aMaker.getRequirement() == SubmodelRequirement.EXACTLY_ONE)
-					continue;
+				//if (aMaker.getRequirement() == SubmodelRequirement.EXACTLY_ONE)
+				//	continue;
 			}
 			if ( aMaker.getClassNameOptions() != null )
 			{
