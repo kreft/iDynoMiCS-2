@@ -181,6 +181,21 @@ public final class GuiConsole
 		return s;
 	}
 	
+	/**
+	 * 
+	 * @param description
+	 * @return
+	 */
+	public static boolean requestInputBoolean(String description)
+	{
+		JFrame frame = new JFrame();
+		int i = JOptionPane.showConfirmDialog(
+				frame,
+				description,
+				"Customized Dialog",
+				JOptionPane.YES_NO_OPTION);
+		return (i==JOptionPane.YES_OPTION);
+	}
 	
 	public static JCheckBox autoScrollCheckBox()
 	{

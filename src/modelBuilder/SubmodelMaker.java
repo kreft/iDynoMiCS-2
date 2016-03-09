@@ -9,17 +9,38 @@ public abstract class SubmodelMaker extends AbstractAction
 	
 	private IsSubmodel _lastMadeSubmodel;
 	
-	public SubmodelMaker(String name)
+	private int _nMade = 0;
+	
+	private int _minToMake;
+	
+	private int _maxToMake;
+	
+	public SubmodelMaker(String name, int minToMake, int maxToMake)
 	{
 		super(name);
+		this._minToMake = minToMake;
+		this._maxToMake = maxToMake;
+	}
+	
+	protected void increaseMakeCounter()
+	{
+		this._nMade++;
+	}
+	
+	public boolean mustMakeMore()
+	{
+		return this._nMade < this._minToMake;
+	}
+	
+	public boolean canMakeMore()
+	{
+		return this._nMade < this._maxToMake;
 	}
 	
 	public String getName()
 	{
 		return (String) this.getValue(Action.NAME);
 	}
-	
-	public abstract SubmodelRequirement getRequirement();
 	
 	public abstract boolean makeImmediately();
 	
