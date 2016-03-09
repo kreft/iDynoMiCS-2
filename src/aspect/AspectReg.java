@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import dataIO.Log;
+import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
