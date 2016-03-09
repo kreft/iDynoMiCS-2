@@ -4,6 +4,10 @@
 package boundary;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -12,13 +16,15 @@ import dataIO.XmlLabel;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public class Boundary implements CanPrelaunchCheck, XMLable
+public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 {
 	/**
 	 * The grid method this boundary should use for any variable that is not
@@ -163,6 +169,30 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 	public static Object getNewInstance(String className)
 	{
 		return XMLable.getNewInstance(className, "boundary.");
+	}
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	@Override
+	public Map<String, Class<?>> getParameters()
+	{
+		/* No parameters here. */
+		return new HashMap<String, Class<?>>();
+	}
+
+	@Override
+	public void setParameter(String name, String value)
+	{
+		/* No parameters here. */
+	}
+
+	@Override
+	public List<SubmodelMaker> getSubmodelMakers()
+	{
+		// TODO GridMethod, AgentMethod
+		return new LinkedList<SubmodelMaker>();
 	}
 	
 }

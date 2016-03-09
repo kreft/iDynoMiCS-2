@@ -3,6 +3,7 @@
  */
 package shape;
 
+import java.awt.event.ActionEvent;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -604,8 +605,11 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	
 	public List<SubmodelMaker> getSubmodelMakers()
 	{
-		// TODO
-		return new LinkedList<SubmodelMaker>();
+		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		for ( DimName d : this._dimensions.keySet() )
+			out.add(new DimensionMaker(d));
+		// TODO other boundaries
+		return out;
 	}
 	
 	public static String[] getAllOptions()
@@ -622,5 +626,33 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 			out[i] = str.substring(dollarIndex+1);
 		}
 		return out;
+	}
+	
+	private class DimensionMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = 3442712062864593527L;
+		
+		private DimName _dimName;
+		
+		public DimensionMaker(DimName dimName)
+		{
+			super("Make shape dimension: "+dimName.toString(), 1, 1);
+			this._dimName = dimName;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			Dimension dim = new Dimension();
+			_dimensions.put(this._dimName, dim);
+			this.setLastMadeSubmodel(dim);
+			this.increaseMakeCounter();
+		}
+		
+		@Override
+		public boolean makeImmediately()
+		{
+			return true;
+		}
 	}
 }

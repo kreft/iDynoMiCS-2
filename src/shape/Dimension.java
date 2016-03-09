@@ -3,6 +3,12 @@
  */
 package shape;
 
+import java.awt.event.ActionEvent;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -12,6 +18,8 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
 import shape.ShapeConventions.BoundaryCyclic;
 import utility.Helper;
 
@@ -22,7 +30,7 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author baco
  */
-public class Dimension implements CanPrelaunchCheck
+public class Dimension implements CanPrelaunchCheck, IsSubmodel
 {
 	/**
 	 * If we need to put a point just inside the maximum extreme, use this
@@ -380,5 +388,73 @@ public class Dimension implements CanPrelaunchCheck
 			}
 		}
 		return true;
+	}
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public Map<String, Class<?>> getParameters()
+	{
+		Map<String, Class<?>> out = new HashMap<String, Class<?>>();
+		out.put("isCyclic", Boolean.class);
+		return out;
+	}
+	
+	public void setParameter(String name, String value)
+	{
+		if ( name.equals("isCyclic") && Boolean.parseBoolean(value) )
+			setCyclic();
+		// TODO
+	}
+	
+	public List<SubmodelMaker> getSubmodelMakers()
+	{
+		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		// NOTE I've put the cyclic stuff in both places, just in case.
+		// This can probably be removed in one of them once things are clearer.
+		if ( ! isCyclic() )
+		{
+			System.out.println("Not cyclic, so trying to make boundaries");
+			out.add(new BoundaryMaker(0));
+			out.add(new BoundaryMaker(1));
+		}
+		return out;
+	}
+	
+	private class BoundaryMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = 6401917989904415580L;
+		
+		private int _minMax;
+		
+		public BoundaryMaker(int minMax)
+		{
+			super("Boundary on dimension "+
+						((minMax==0)?"minimum":"maximum")+" extreme", 1, 1);
+			System.out.println(this.getName());
+			this._minMax = minMax;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			String bndryName;
+			if ( e == null )
+				bndryName = "";
+			else
+				bndryName = e.getActionCommand();
+			Boundary bndry = (Boundary) Boundary.getNewInstance(bndryName);
+			setBoundary(bndry, this._minMax);
+			this.setLastMadeSubmodel(bndry);
+			this.increaseMakeCounter();
+		}
+		
+		@Override
+		public boolean makeImmediately()
+		{
+			return false;
+		}
+		
 	}
 }

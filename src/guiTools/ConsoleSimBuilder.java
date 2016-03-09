@@ -32,11 +32,22 @@ public class ConsoleSimBuilder
 		Map<String, Class<?>> parameters = aSubmodel.getParameters();
 		for ( String name : parameters.keySet() )
 		{
-			String className = parameters.get(name).getSimpleName();
-			String value = GuiConsole.requestInput("Please enter \""+className+
-						"\" value for "+subName+" parameter \""+name+"\": ");
-			aSubmodel.setParameter(name, value);
-			GuiConsole.writeOut("\t"+subName+" accepts \""+value+"\" as "+name+"\n");
+			Class<?> classType = parameters.get(name);
+			if ( classType.equals(Boolean.class) )
+			{
+				Boolean value = GuiConsole.requestInputBoolean("Do you want "+
+												subName+" to be "+name+"?");
+				aSubmodel.setParameter(name, value.toString());
+				GuiConsole.writeOut("\t"+subName+" is "+(value?"":"not ")+name+"\n");
+			}
+			else
+			{
+				String className = classType.getSimpleName();
+				String value = GuiConsole.requestInput("Please enter \""+className+
+							"\" value for "+subName+" parameter \""+name+"\": ");
+				aSubmodel.setParameter(name, value);
+				GuiConsole.writeOut("\t"+subName+" accepts \""+value+"\" as "+name+"\n");
+			}
 		}
 		
 		/* Now go through the sub-sub-models. */
@@ -48,12 +59,17 @@ public class ConsoleSimBuilder
 			{
 				makeSubmodel(aMaker);
 			}
-			while ( aMaker.canMakeMore() &&
-					GuiConsole.requestInputBoolean(aMaker.getName()+"?"))
+			while ( shouldMakeMore(aMaker) )
 			{
 				makeSubmodel(aMaker);
 			}
 		}
+	}
+	
+	private static boolean shouldMakeMore(SubmodelMaker aMaker)
+	{
+		return aMaker.canMakeMore() &&
+				GuiConsole.requestInputBoolean(aMaker.getName()+"?");
 	}
 	
 	private static void makeSubmodel(SubmodelMaker aMaker)
