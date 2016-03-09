@@ -255,4 +255,6 @@ public class XmlLabel
 	 */
 	public static String timer = "timer";
 
+	public static String inputAttribute = "input";
+
 }

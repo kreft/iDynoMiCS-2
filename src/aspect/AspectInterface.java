@@ -1,26 +1,13 @@
 package aspect;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import agent.Body;
 import dataIO.Log;
+import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import dataIO.XmlHandler;
 import dataIO.XmlLabel;
-import linearAlgebra.Vector;
-import reaction.Reaction;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -61,7 +48,7 @@ public abstract interface AspectInterface
 		{
 			Element s = (Element) stateNodes.item(j);
 			name = s.getAttribute(XmlLabel.nameAttribute);
-			aspectReg.add(name, loadAspectObject(s, XmlLabel.valueAttribute,
+			aspectReg.add(name, ObjectFactory.loadObject(s, XmlLabel.valueAttribute,
 													XmlLabel.typeAttribute));
 			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 		}
@@ -79,201 +66,8 @@ public abstract interface AspectInterface
 	{
 		@SuppressWarnings("unchecked")
 		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
-		aspectReg.add(name, loadAspectObjectFromString(input, type));
+		aspectReg.add(name, ObjectFactory.loadObject(input, type));
 		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
-	}
-	
-	/**
-	 * load standard aspect object (use labeling as defined by XmlLabel class).
-	 * @param s
-	 * @return
-	 */
-	public static Object loadAspectObject(Element s)
-	{
-		return loadAspectObject(s, XmlLabel.valueAttribute, 
-				XmlLabel.typeAttribute);
-	}
-	
-	/**
-	 * Identifies appropriate loading method for aspect or item and applies this
-	 * method to return a new object of the appropriate type. Uses Element as
-	 * input
-	 * @param s
-	 * @return
-	 */
-	public static Object loadAspectObject(Element s, String value, String type)
-	{
-		switch (s.getAttribute(type)) 
-		{
-		/* state node with just attributes */
-			case "Boolean" : 
-				return Boolean.valueOf(s.getAttribute(value));
-			case "Integer" : 
-				return Integer.valueOf(s.getAttribute(value));
-			case "Integer[]" : 
-				return Vector.intFromString(s.getAttribute(value));
-			case "Double" : 
-				return Double.valueOf(s.getAttribute(value));
-			case "Double[]" : 
-				return Vector.dblFromString(s.getAttribute(value));
-			case "String" : 
-				return s.getAttribute(value);
-			case "String[]" : 
-				return s.getAttribute(value).split(",");
-			case "CALCULATED" : 
-				return Calculated.getNewInstance(s);
-			case "EVENT" :
-				return Event.getNewInstance(s);
-			case "Body" :
-				return Body.getNewInstance(s);
-			case "Reaction" :
-				return Reaction.getNewInstance(s);
-			case "LinkedList" :
-				return xmlList(s);
-			case "HashMap" :
-				return xmlHashMap(s);
-		}
-		Log.out(Tier.CRITICAL, "Aspect interface encountered unidentified "
-				+ "object type: " + s.getAttribute(type));
-		return null;
-	}
-	
-	/**
-	 * Identifies appropriate loading method for aspect or item and applies this
-	 * method to return a new object of the appropriate type, uses String as
-	 * input
-	 * @param input
-	 * @param type
-	 * @return
-	 */
-	public static Object loadAspectObjectFromString(String input, String type)
-	{
-		switch (type) 
-		{
-		/* state node with just attributes */
-			case "Boolean" : 
-				return Boolean.valueOf(input);
-			case "Integer" : 
-				return Integer.valueOf(input);
-			case "Integer[]" : 
-				return Vector.intFromString(input);
-			case "Double" : 
-				return Double.valueOf(input);
-			case "Double[]" : 
-				return Vector.dblFromString(input);
-			case "String" : 
-				return input;
-			case "String[]" : 
-				return input.split(",");
-			case "CALCULATED" : 
-				return Calculated.getNewInstance(input);
-			case "EVENT" :
-				return Event.getNewInstance(input);
-			case "Body" :
-				return Body.getNewInstance(input);
-			case "Reaction" :
-				return Reaction.getNewInstance(complexAspectLoading(input));
-			case "LinkedList" :
-				return xmlList(input);
-			case "HashMap" :
-				return xmlHashMap(input);
-		}
-		Log.out(Tier.CRITICAL, "Aspect interface encountered unidentified "
-				+ "object type: " + type);
-		return null;
-	}
-	
-	/**
-	 * Construct a LinkedList from an xml element
-	 * @param s
-	 * @return
-	 */
-	public static LinkedList<?> xmlList(Element s)
-	{
-		NodeList items;
-		LinkedList<Object> temp = new LinkedList<Object>();
-		items = XmlHandler.getAll(s, XmlLabel.item);
-		for ( int i = 0; i < items.getLength(); i++ )
-			temp.add((Object) loadAspectObject((Element) items.item(i), 
-					XmlLabel.valueAttribute, XmlLabel.typeAttribute));
-		return temp;
-	}
-	
-	/**
-	 * construct a LinkedList from a String formated xml element
-	 * @param s
-	 * @return
-	 */
-	public static LinkedList<?> xmlList(String s)
-	{
-		NodeList items;
-		LinkedList<Object> temp = new LinkedList<Object>();
-		items = XmlHandler.getAll(complexAspectLoading(s), 
-				XmlLabel.item);
-		for ( int i = 0; i < items.getLength(); i++ )
-			temp.add((Object) loadAspectObject((Element) items.item(i), 
-					XmlLabel.valueAttribute, XmlLabel.typeAttribute));
-		return temp;
-	}
-	
-	/**
-	 * construct a HashMap from a xml element
-	 * @param s
-	 * @return
-	 */
-	public static HashMap<?,?> xmlHashMap(Element s)
-	{
-		NodeList items;
-		HashMap<Object,Object> hMap = new HashMap<Object,Object>();
-		items = XmlHandler.getAll(s, XmlLabel.item);
-		for ( int i = 0; i < items.getLength(); i++ )
-		{
-			hMap.put((Object) loadAspectObject((Element) items.item(i), 
-					XmlLabel.keyAttribute , XmlLabel.keyTypeAttribute ), 
-					(Object) loadAspectObject((Element) items.item(i), 
-					XmlLabel.valueAttribute, XmlLabel.typeAttribute ));
-		}
-		return hMap;
-	}
-	
-	/**
-	 * construct a HahMap from a String formated xml element
-	 * @param s
-	 * @return
-	 */
-	public static HashMap<?,?> xmlHashMap(String s)
-	{
-		NodeList items;
-		HashMap<Object,Object> hMap = new HashMap<Object,Object>();
-		items = XmlHandler.getAll(complexAspectLoading(s), XmlLabel.item);
-		for ( int i = 0; i < items.getLength(); i++ )
-		{
-			hMap.put((Object) loadAspectObject((Element) items.item(i), 
-					XmlLabel.keyAttribute , XmlLabel.keyTypeAttribute ), 
-					(Object) loadAspectObject((Element) items.item(i), 
-					XmlLabel.valueAttribute, XmlLabel.typeAttribute ));
-		}
-		return hMap;
-	}
-	
-	/**
-	 * enables loading of aspects with complex structure in the gui by allowing
-	 * xml formatted input
-	 * @param input
-	 * @return
-	 */
-	static Node complexAspectLoading(String input)
-	{
-		Node node = null;
-		try {
-			node = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-				    .parse(new ByteArrayInputStream(input.getBytes()))
-				    .getDocumentElement();
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return node;
 	}
 	
 	/**************************************************************************
