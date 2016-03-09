@@ -36,13 +36,14 @@ public class ConsoleSimBuilder
 			String value = GuiConsole.requestInput("Please enter \""+className+
 						"\" value for "+subName+" parameter \""+name+"\": ");
 			aSubmodel.setParameter(name, value);
-			GuiConsole.writeOut("\t"+subName+" accepts \""+value+" as "+name+"\n");
+			GuiConsole.writeOut("\t"+subName+" accepts \""+value+"\" as "+name+"\n");
 		}
 		
 		/* Now go through the sub-sub-models. */
 		List<SubmodelMaker> makers = aSubmodel.getSubmodelMakers();
 		for ( SubmodelMaker aMaker : makers )
 		{
+			GuiConsole.writeOut("Need to \""+aMaker.getName()+"\"\n");
 			if ( aMaker.makeImmediately() )
 			{
 				aMaker.actionPerformed(null);
@@ -57,13 +58,12 @@ public class ConsoleSimBuilder
 				for ( int i = 0; i < options.length; i++ )
 					GuiConsole.writeOut("\t\t["+i+"] "+options[i]+"\n");
 				String value = GuiConsole.requestInput(
-						"Please choose an option by number: ");
+									"Please choose an option by number: ");
 				int i = Integer.valueOf(value);
 				String optionToUse = options[i];
-				// TODO this is where it breaks!
-				aMaker.actionPerformed(new ActionEvent(null, 0, optionToUse));
+				aMaker.actionPerformed(new ActionEvent(aMaker, 0, optionToUse));
+				buildSubmodel(aMaker.getLastMadeSubmodel());
 			}
-			
 		}
 	}
 	
