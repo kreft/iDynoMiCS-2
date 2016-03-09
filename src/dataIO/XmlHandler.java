@@ -279,6 +279,19 @@ public class XmlHandler
 		return (Element) nodes.item(0);
 	}		
 	
+	public static boolean hasNode(Element xmlElement, String tagName)
+	{
+		NodeList nodes = xmlElement.getElementsByTagName(tagName);
+		if (nodes.getLength() > 0)
+		{
+			return true;
+		}
+		else 
+		{
+			return false;
+		}
+	}
+	
 	/**
 	 * \brief Loads attribute from a unique node
 	 * @param xmlElement

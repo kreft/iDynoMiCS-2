@@ -57,17 +57,19 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.init( XmlHandler.loadUnique(xmlElem, "timer") );
+		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlLabel.timer ));
 		/*
 		 * Set up the species library.
 		 */
-		this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, "speciesLib") );
+		if (XmlHandler.hasNode(Param.xmlDoc, XmlLabel.speciesLibrary))
+				this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, 
+						XmlLabel.speciesLibrary ));
 		/*
 		 * Set up the compartments.
 		 */
 		Log.out(Tier.NORMAL, "Compartments loading...");
 		NodeList children;
-		children = XmlHandler.getAll(xmlElem, "compartment");
+		children = XmlHandler.getAll( xmlElem, XmlLabel.compartment );
 		if ( children.getLength() == 0 )
 		{
 			Log.out(Tier.CRITICAL, 
@@ -78,7 +80,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.gatherAttribute(child, "name");
+			str = XmlHandler.gatherAttribute(child, XmlLabel.nameAttribute);
 			Log.out(Tier.NORMAL, "Making "+str);
 			str = Helper.obtainInput(str, "compartment name");
 			Compartment aCompartment = this.addCompartment(str);

@@ -83,6 +83,12 @@ public abstract interface AspectInterface
 		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 	}
 	
+	public static Object loadAspectObject(Element s)
+	{
+		return loadAspectObject(s, XmlLabel.valueAttribute, 
+				XmlLabel.typeAttribute);
+	}
+	
 	/**
 	 * Identifies appropriate loading method for aspect or item and applies this
 	 * method to return a new object of the approriate type
@@ -91,65 +97,38 @@ public abstract interface AspectInterface
 	 */
 	public static Object loadAspectObject(Element s, String value, String type)
 	{
-		NodeList items;
-		if (! s.hasChildNodes())	
+		switch (s.getAttribute(type)) 
 		{
-			switch (s.getAttribute(type)) 
-			{
-			/* state node with just attributes */
-				case "boolean" : 
-					return Boolean.valueOf(s.getAttribute(value));
-				case "int" : 
-					return Integer.valueOf(s.getAttribute(value));
-				case "int[]" : 
-					return Vector.intFromString(s.getAttribute(value));
-				case "double" : 
-					return Double.valueOf(s.getAttribute(value));
-				case "double[]" : 
-					return Vector.dblFromString(s.getAttribute(value));
-				case "String" : 
-					return s.getAttribute(value);
-				case "String[]" : 
-					return s.getAttribute(value).split(",");
-				case "calculated" : 
-					return Calculated.getNewInstance(s);
-				case "event" :
-					return Event.getNewInstance(s);
-			}
-		}
-		else	
-		{
-			/* state node with attributes and child nodes */
-			switch (s.getAttribute(type)) 
-			{
-				case "body" :
-					return Body.getNewInstance(s);
-				case "reaction" :
-					return Reaction.getNewInstance( XmlHandler.loadUnique(s, 
-							"reaction"));
-				case "List" :
-					List<Object> temp = new LinkedList<Object>();
-					items = XmlHandler.getAll(s, XmlLabel.item);
-					for ( int i = 0; i < items.getLength(); i++ )
-						temp.add((Object) loadAspectObject(
-								(Element) items.item(i), XmlLabel.valueAttribute, XmlLabel.typeAttribute));
-					return temp;
-				case "HashMap" :
-					HashMap<Object,Object> hMap = new HashMap<Object,Object>();
-					items = XmlHandler.getAll(s, XmlLabel.item);
-					for ( int i = 0; i < items.getLength(); i++ )
-					{
-						hMap.put((Object) loadAspectObject((Element) 
-								items.item(i), XmlLabel.keyAttribute ,
-								XmlLabel.keyTypeAttribute ), 
-								(Object) loadAspectObject((Element) 
-								items.item(i), value, type ));
-					}
-					return hMap;
-			}
+		/* state node with just attributes */
+			case "Boolean" : 
+				return Boolean.valueOf(s.getAttribute(value));
+			case "Integer" : 
+				return Integer.valueOf(s.getAttribute(value));
+			case "Integer[]" : 
+				return Vector.intFromString(s.getAttribute(value));
+			case "Double" : 
+				return Double.valueOf(s.getAttribute(value));
+			case "Double[]" : 
+				return Vector.dblFromString(s.getAttribute(value));
+			case "String" : 
+				return s.getAttribute(value);
+			case "String[]" : 
+				return s.getAttribute(value).split(",");
+			case "CALCULATED" : 
+				return Calculated.getNewInstance(s);
+			case "EVENT" :
+				return Event.getNewInstance(s);
+			case "Body" :
+				return Body.getNewInstance(s);
+			case "Reaction" :
+				return Reaction.getNewInstance(s);
+			case "LinkedList" :
+				return xmlList(s);
+			case "HashMap" :
+				return xmlHashMap(s);
 		}
 		Log.out(Tier.CRITICAL, "Aspect interface encountered unidentified "
-				+ "object type: " + type);
+				+ "object type: " + s.getAttribute(type));
 		return null;
 	}
 	
@@ -161,57 +140,92 @@ public abstract interface AspectInterface
 	 */
 	public static Object loadAspectObjectFromString(String input, String type)
 	{
-		NodeList items;
 		switch (type) 
 		{
 		/* state node with just attributes */
-			case "boolean" : 
+			case "Boolean" : 
 				return Boolean.valueOf(input);
-			case "int" : 
+			case "Integer" : 
 				return Integer.valueOf(input);
-			case "int[]" : 
+			case "Integer[]" : 
 				return Vector.intFromString(input);
-			case "double" : 
+			case "Double" : 
 				return Double.valueOf(input);
-			case "double[]" : 
+			case "Double[]" : 
 				return Vector.dblFromString(input);
 			case "String" : 
 				return input;
 			case "String[]" : 
 				return input.split(",");
-			case "calculated" : 
+			case "CALCULATED" : 
 				return Calculated.getNewInstance(input);
-			case "event" :
+			case "EVENT" :
 				return Event.getNewInstance(input);
-			case "body" :
+			case "Body" :
 				return Body.getNewInstance(input);
-			case "reaction" :
+			case "Reaction" :
 				return Reaction.getNewInstance(complexAspectLoading(input));
-			case "List" :
-				List<Object> temp = new LinkedList<Object>();
-				items = XmlHandler.getAll(complexAspectLoading(input), 
-						XmlLabel.item);
-				for ( int i = 0; i < items.getLength(); i++ )
-					temp.add((Object) loadAspectObject(
-							(Element) items.item(i), XmlLabel.valueAttribute, 
-							XmlLabel.typeAttribute));
-				return temp;
+			case "LinkedList" :
+				return xmlList(input);
 			case "HashMap" :
-				HashMap<Object,Object> hMap = new HashMap<Object,Object>();
-				items = XmlHandler.getAll(complexAspectLoading(input), XmlLabel.item);
-				for ( int i = 0; i < items.getLength(); i++ )
-				{
-					hMap.put((Object) loadAspectObject((Element) 
-							items.item(i), XmlLabel.keyAttribute ,
-							XmlLabel.keyTypeAttribute ), 
-							(Object) loadAspectObject((Element) 
-							items.item(i), XmlLabel.valueAttribute, XmlLabel.typeAttribute));
-				}
-				return hMap;
+				return xmlHashMap(input);
 		}
 		Log.out(Tier.CRITICAL, "Aspect interface encountered unidentified "
 				+ "object type: " + type);
 		return null;
+	}
+	
+	public static LinkedList<?> xmlList(Element s)
+	{
+		NodeList items;
+		LinkedList<Object> temp = new LinkedList<Object>();
+		items = XmlHandler.getAll(s, XmlLabel.item);
+		for ( int i = 0; i < items.getLength(); i++ )
+			temp.add((Object) loadAspectObject((Element) items.item(i), 
+					XmlLabel.valueAttribute, XmlLabel.typeAttribute));
+		return temp;
+	}
+	
+	public static LinkedList<?> xmlList(String s)
+	{
+		NodeList items;
+		LinkedList<Object> temp = new LinkedList<Object>();
+		items = XmlHandler.getAll(complexAspectLoading(s), 
+				XmlLabel.item);
+		for ( int i = 0; i < items.getLength(); i++ )
+			temp.add((Object) loadAspectObject((Element) items.item(i), 
+					XmlLabel.valueAttribute, XmlLabel.typeAttribute));
+		return temp;
+	}
+	
+	public static HashMap<?,?> xmlHashMap(Element s)
+	{
+		NodeList items;
+		HashMap<Object,Object> hMap = new HashMap<Object,Object>();
+		items = XmlHandler.getAll(s, XmlLabel.item);
+		for ( int i = 0; i < items.getLength(); i++ )
+		{
+			hMap.put((Object) loadAspectObject((Element) items.item(i), 
+					XmlLabel.keyAttribute , XmlLabel.keyTypeAttribute ), 
+					(Object) loadAspectObject((Element) items.item(i), 
+					XmlLabel.valueAttribute, XmlLabel.typeAttribute ));
+		}
+		return hMap;
+	}
+	
+	public static HashMap<?,?> xmlHashMap(String s)
+	{
+		NodeList items;
+		HashMap<Object,Object> hMap = new HashMap<Object,Object>();
+		items = XmlHandler.getAll(complexAspectLoading(s), XmlLabel.item);
+		for ( int i = 0; i < items.getLength(); i++ )
+		{
+			hMap.put((Object) loadAspectObject((Element) items.item(i), 
+					XmlLabel.keyAttribute , XmlLabel.keyTypeAttribute ), 
+					(Object) loadAspectObject((Element) items.item(i), 
+					XmlLabel.valueAttribute, XmlLabel.typeAttribute ));
+		}
+		return hMap;
 	}
 	
 	/**

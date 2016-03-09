@@ -109,9 +109,10 @@ public class Idynomics
 		/* 
 		 * Load the protocol file and find the elements we need
 		 */
-		Element idynoElem = XmlHandler.loadDocument(protocolPath);
 		Param.protocolFile = protocolPath;
-		Element simElem = XmlHandler.loadUnique(idynoElem, XmlLabel.simulation);
+		Param.xmlDoc = XmlHandler.loadDocument(protocolPath);
+		
+		Element simElem = XmlHandler.loadUnique(Param.xmlDoc, XmlLabel.simulation);
 		/*
 		 * Initialise the global parameters.
 		 */

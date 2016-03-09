@@ -74,8 +74,8 @@ public class AspectReg<A>
 		String out = "";
 		for (AspectInterface a : _modules)
 		{
-			out = out + "<" + XmlLabel.speciesModule
-					+ " name=\"" + a.reg().identity + "\" />\n";
+			out = out + "<" + XmlLabel.speciesModule + " " + 
+					XmlLabel.nameAttribute + "=\"" + a.reg().identity + "\" />\n";
 		}
 		for (String key : _aspects.keySet())
 		{
@@ -117,7 +117,10 @@ public class AspectReg<A>
 	 */
 	public synchronized void set(String key, A aspect)
 	{
-		this._aspects.put(key, new Aspect<A>(aspect));
+		if(_aspects.containsKey(key))
+			this.getAspect(key).set(aspect);
+		else
+			this._aspects.put(key, new Aspect<A>(aspect));
 	}
 	
 	/**
@@ -277,7 +280,7 @@ public class AspectReg<A>
 		/**
 		 * The type of object this Aspect wraps.
 		 */
-		final AspectReg.AspectClass type;
+		protected AspectReg.AspectClass type;
 		
 		/**
 		 * Direct access field for a {@code Calculated} aspect (to prevent
@@ -303,7 +306,13 @@ public class AspectReg<A>
 		 */
 	    public Aspect(A aspect)
 	    {
-	    	this.aspect = aspect;
+	    	set(aspect);
+	    }
+	    
+	    @SuppressWarnings("unchecked")
+		public void set(Object aspect)
+	    {
+	    	this.aspect = (A) aspect;
 			if ( this.aspect instanceof Calculated )
 			{
 				  this.type = AspectReg.AspectClass.CALCULATED;

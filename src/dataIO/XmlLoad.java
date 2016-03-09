@@ -98,8 +98,9 @@ public class XmlLoad
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
-		Idynomics.simulator.speciesLibrary.init( XmlHandler.loadUnique(
-				Param.xmlDoc, XmlLabel.speciesLibrary));
+		if (XmlHandler.hasNode(Param.xmlDoc, XmlLabel.speciesLibrary))
+			Idynomics.simulator.speciesLibrary.init( XmlHandler.loadUnique(
+					Param.xmlDoc, XmlLabel.speciesLibrary));
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = 
