@@ -43,6 +43,8 @@ public class Render implements GLEventListener, Runnable {
 	public static DisplayMode dm, dm_old;
 	private static Dimension xgraphic;
 	private static Point point = new  Point(0,0);
+
+	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
 	
 	private GLU glu = new GLU();
 	

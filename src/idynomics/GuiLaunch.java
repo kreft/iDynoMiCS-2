@@ -13,6 +13,7 @@ import javax.swing.GroupLayout;
 import javax.swing.InputMap;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -75,6 +76,8 @@ public class GuiLaunch implements Runnable
 	private static Dimension xgraphic;
 	
 	private static Point point = new Point(0,0);
+	
+	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -203,14 +206,20 @@ public class GuiLaunch implements Runnable
 		 * structure is gone.
 		 */
 		keyBindings(progressBar, masterFrame);
+		
+		ImageIcon img = new ImageIcon(ICON_PATH);
+
+		masterFrame.setIconImage(img.getImage());
+		
 		masterFrame.setVisible(true);
 	}
 
-	// TODO Rob: What does this do? When I click enter, nothing happens...
-	// Bas [09.03.16] hint revert back to original version to find out...
-	
 	/**
 	 * KeyBindings hosts a collection of actions which are initiate on key press
+	 * 
+	 * TODO What does this do? When I click enter, nothing happens...
+ 	 * Bas [09.03.16] after something is broken after changing it please compare
+ 	 * with previous version.
 	 * @param p
 	 * @param frame
 	 */
@@ -224,7 +233,6 @@ public class GuiLaunch implements Runnable
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0), "run");
 		actionMap.put("run", new AbstractAction()
 		{
-
 			@Override
 			public void actionPerformed(ActionEvent a)
 			{
@@ -232,12 +240,13 @@ public class GuiLaunch implements Runnable
 			}
 		});
 		
-		/* fullscreen */
+		/* full screen */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "fullscreen");
-		actionMap.put("fullscreen", new AbstractAction(){
-
+		actionMap.put("fullscreen", new AbstractAction()
+		{
 			@Override
-			public void actionPerformed(ActionEvent a) {
+			public void actionPerformed(ActionEvent a) 
+			{
 				System.out.println("f1");
 				fullScreen(frame);
 			}
