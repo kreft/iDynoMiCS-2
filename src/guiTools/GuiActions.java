@@ -148,7 +148,7 @@ public final class GuiActions
 		else
 		{
 			Compartment c = Idynomics.simulator.get1stSpatialCompartment();
-			CommandMediator cm = new AgentMediator(c.agents);
+			CommandMediator cm = new AgentMediator(c.agents, c._environment);
 			Render myRender = new Render(cm);
 			EventQueue.invokeLater(myRender);
 		}

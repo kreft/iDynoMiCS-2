@@ -5,34 +5,32 @@ import java.util.List;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.glu.GLUquadric;
+//import com.jogamp.opengl.glu.GLU;
 
 import agent.Agent;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
+import linearAlgebra.Vector;
 import surface.Ball;
 import surface.Surface;
-import utility.Helper;
 
 
 /**
- * Very quick and dirty initial attempt at live simulation rendering, this
- * object construct a openGL 3D scene when it is called by the Render object
- * to prevent concurrent agentTree access, the agentTree now implements
- * synchronized public methods
- * TODO proper radius scaling, other shapes
- * @author baco
+ * Agent mediator, draws agents and plane / cube indication the computational
+ * domain
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
 public class AgentMediator implements CommandMediator {
 	protected AgentContainer agents;
+	protected EnvironmentContainer environment;
 	private String pigment;
 	private float[] rgba;
-	private GLU glu = new GLU();
+//	private GLU glu = new GLU();
 	public float kickback;
 	private GL2 gl;
-	
+
 	/**
 	 * used to set up the open gl camera
 	 */
@@ -45,9 +43,10 @@ public class AgentMediator implements CommandMediator {
 	 * assign agent container via the constructor
 	 * @param agents
 	 */
-	public AgentMediator(AgentContainer agents)
+	public AgentMediator(AgentContainer agents, EnvironmentContainer environment)
 	{
 		this.agents = agents;
+		this.environment = environment;
 	}
 
 	/**
@@ -67,49 +66,53 @@ public class AgentMediator implements CommandMediator {
 		
         if(domain[2] != 0.0f)
         	domainCube(drawable,domain);
-		
-		/* draw the domain square */
-		domainPlane(drawable,domain);
-		
+        
 		/* get the surfaces from the agents */
-			for ( Agent a : this.agents.getAllLocatedAgents() )
-			{
+		for ( Agent a : this.agents.getAllLocatedAgents() )
+		{
 
-				for ( Surface s : (List<Surface>) (a.isAspect(
-						NameRef.surfaceList) ? a.get(NameRef.surfaceList) :
-						new LinkedList<Surface>()))
-				{
+			for ( Surface s : (List<Surface>) (a.isAspect(
+					NameRef.surfaceList) ? a.get(NameRef.surfaceList) :
+					new LinkedList<Surface>()))
+			{
 				pigment = a.getString("pigment");
 				if(s instanceof Ball)
 				{
-				Ball ball = (Ball) s;
-
-		          switch (pigment)
-		          {
-		          case "GREEN" :
-		        	  rgba = new float[] {0.1f, 1f, 0.1f};
-		        	  break;
-		          case "RED" :
-		        	  rgba = new float[] {1f, 0.1f, 0.1f};
-		        	  break;
-		          case "BLUE" :
-		        	  rgba = new float[] {0.1f, 0.1f, 1f};
-		        	  break;
-		          default :
-		        	  rgba = new float[] {1f, 1f, 1f};
-		        	  break;
-		          }
-		          sphere(drawable, domain, ball._point.getPosition(), 
-		        		  ball._radius);
-		       }
-		       
+					Ball ball = (Ball) s;
+	
+					switch (pigment)
+					{
+					case "GREEN" :
+						  rgba = new float[] {0.1f, 1f, 0.1f};
+						  break;
+					case "RED" :
+						  rgba = new float[] {1f, 0.1f, 0.1f};
+						  break;
+					case "BLUE" :
+						  rgba = new float[] {0.1f, 0.1f, 1f};
+						  break;
+					default :
+						  rgba = new float[] {1f, 1f, 1f};
+						  break;
+					}
+					sphere(drawable, domain, ball._point.getPosition(), 
+	        		ball._radius);
+				}
 			}
-			
 		}
+		
+		/* draw the domain square */
+		plane(drawable,domain);
 		
 	}
 	
-	
+	/**
+	 * draw a scaled sphere positioned relative to the domain
+	 * @param drawable
+	 * @param domain
+	 * @param pos
+	 * @param radius
+	 */
 	private void sphere(GLAutoDrawable drawable, double[] domain, double[] pos, 
 			double radius) 
 	{
@@ -137,7 +140,7 @@ public class AgentMediator implements CommandMediator {
 			gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
 			gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
 			gl.glColor3f(rgba[0], rgba[1], rgba[2]);
-			gl.glBegin(gl.GL_QUAD_STRIP);
+			gl.glBegin(GL2.GL_QUAD_STRIP);
 			for(j = 0; j <= longs; j++) 
 			{
 				double lng = 2 * Math.PI * (double) (j - 1) / longs;
@@ -154,23 +157,65 @@ public class AgentMediator implements CommandMediator {
 	
 	}
 	
-	private void domainPlane(GLAutoDrawable drawable, double[] domain) 
+	/**
+	 * draw a domain plane
+	 * @param drawable
+	 * @param domain
+	 */
+	private void plane(GLAutoDrawable drawable, double[] domain) 
+	{
+		rgba = new float[] {0.3f, 0.3f, 0.3f};
+		plane(drawable, domain, Vector.zeros(domain), Vector.onesDbl(domain.length), rgba, false);
+	}
+	
+	/**
+	 * draw a standard plane positioned and scaled relative to the domain
+	 * @param drawable
+	 * @param domain
+	 * @param origin
+	 * @param lengths
+	 * @param color
+	 * @param lighting
+	 */
+	private void plane(GLAutoDrawable drawable, double[] domain, double[] origin
+			, double[] lengths ,float[] color, boolean lighting)
 	{
 		gl.glLoadIdentity();
+		gl.glTranslated(origin[0], origin[1], origin[2]);
 		gl.glScaled(domain[0]*0.5, domain[1]*0.5, domain[2]*0.5);
-		rgba = new float[] {0.2f, 0.2f, 0.2f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
-        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
+		gl.glScaled(lengths[0], lengths[1], lengths[2]);
+		if (lighting)
+		{
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, color, 0);
+	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, color, 0);
+	        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
+		}
+		else
+		{
+			gl.glDisable(GL2.GL_LIGHTING);
+		}
 		gl.glBegin(GL2.GL_QUADS);             
-		gl.glColor3f(rgba[0],rgba[1],rgba[2]);    
+		gl.glColor3f(color[0],color[1],color[2]);    
 			gl.glVertex3d(-1.0, 1.0, -1.0); 
 		    gl.glVertex3d( 1.0, 1.0, -1.0);
 		    gl.glVertex3d( 1.0, -1.0, -1.0);  
 		    gl.glVertex3d(-1.0, -1.0, -1.0); 
 		gl.glEnd();
+		if (lighting)
+		{
+			
+		}
+		else
+		{
+			gl.glEnable(GL2.GL_LIGHTING);
+		}
 	}
 	
+	/**
+	 * draw a alpha blend domain cube (for 3D simulations)
+	 * @param drawable
+	 * @param domain
+	 */
 	private void domainCube(GLAutoDrawable drawable, double[] domain) 
 	{
 		
