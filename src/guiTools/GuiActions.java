@@ -153,28 +153,4 @@ public final class GuiActions
 			EventQueue.invokeLater(myRender);
 		}
 	}
-	
-	/*************************************************************************
-	 * MISC
-	 ************************************************************************/
-	
-	// TODO What does this do? When I click enter, nothing happens...
-	public static void keyBindings(JPanel p, JFrame frame) 
-	{
-		ActionMap actionMap = p.getActionMap();
-		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "run");
-		actionMap.put("run", new AbstractAction()
-		{
-			private static final long serialVersionUID = 346448974654345823L;
-
-			@Override
-			public void actionPerformed(ActionEvent a)
-			{
-				if ( Param.protocolFile != null )
-					Idynomics.setupCheckLaunch(Param.protocolFile);
-			}
-		});
-	}
 }

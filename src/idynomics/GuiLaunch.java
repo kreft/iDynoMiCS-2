@@ -1,19 +1,30 @@
 package idynomics;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.GroupLayout;
+import javax.swing.InputMap;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import guiTools.ConsoleSimBuilder;
+import guiTools.GuiActions;
 import guiTools.GuiConsole;
 import guiTools.GuiMenu;
 import guiTools.GuiProtocol;
@@ -58,6 +69,12 @@ public class GuiLaunch implements Runnable
 	private static GroupLayout layout;
 	
 	private static JProgressBar progressBar;
+	
+	private static boolean isFullScreen = false;
+	
+	private static Dimension xgraphic;
+	
+	private static Point point = new Point(0,0);
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -181,7 +198,79 @@ public class GuiLaunch implements Runnable
 		 */
 		layout.setVerticalGroup(verticalLayoutGroup);
 		layout.setHorizontalGroup(horizontalLayoutGroup);
+		
+		/* Bas: quick fix, coupled this to progress bar for now since old
+		 * structure is gone.
+		 */
+		keyBindings(progressBar, masterFrame);
 		masterFrame.setVisible(true);
+	}
+
+	// TODO Rob: What does this do? When I click enter, nothing happens...
+	// Bas [09.03.16] hint revert back to original version to find out...
+	
+	/**
+	 * KeyBindings hosts a collection of actions which are initiate on key press
+	 * @param p
+	 * @param frame
+	 */
+	@SuppressWarnings("serial")
+	public static void keyBindings(JComponent p, JFrame frame) 
+	{
+		ActionMap actionMap = p.getActionMap();
+		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+		/* Run simulation */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0), "run");
+		actionMap.put("run", new AbstractAction()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent a)
+			{
+				GuiActions.runSimulation();
+			}
+		});
+		
+		/* fullscreen */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "fullscreen");
+		actionMap.put("fullscreen", new AbstractAction(){
+
+			@Override
+			public void actionPerformed(ActionEvent a) {
+				System.out.println("f1");
+				fullScreen(frame);
+			}
+		});
+	}
+	
+	/**
+	 *  switch between fullScreen and windowed 
+	 */
+	protected static void fullScreen(JFrame f) {
+		if(!isFullScreen)
+		{
+			f.dispose();
+			f.setUndecorated(true);
+			f.setVisible(true);
+			f.setResizable(false);
+			xgraphic = f.getSize();
+			point = f.getLocation();
+			f.setLocation(0, 0);
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			f.setSize((int) screenSize.getWidth(), (int) screenSize.getHeight());
+			isFullScreen = true;
+		}
+		else
+		{
+			f.dispose();
+			f.setUndecorated(false);
+			f.setResizable(true);
+			f.setLocation(point);
+			f.setSize(xgraphic);
+			f.setVisible(true);
+			isFullScreen = false;	
+		}
 	}
 	
 	/**
