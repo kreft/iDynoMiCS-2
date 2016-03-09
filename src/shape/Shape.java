@@ -4,9 +4,11 @@
 package shape;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -588,10 +590,10 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public LinkedHashMap<String, Class<?>> getParameters()
+	public Map<String, Class<?>> getParameters()
 	{
 		// TODO
-		return new LinkedHashMap<String, Class<?>>();
+		return new HashMap<String, Class<?>>();
 	}
 	
 	public void setParameter(String name, String value)

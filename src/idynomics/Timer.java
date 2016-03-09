@@ -3,6 +3,7 @@ package idynomics;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 
@@ -144,10 +145,9 @@ public class Timer implements IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public LinkedHashMap<String, Class<?>> getParameters()
+	public Map<String, Class<?>> getParameters()
 	{
-		LinkedHashMap<String, Class<?>> out = 
-				new LinkedHashMap<String, Class<?>>();
+		Map<String, Class<?>> out = new LinkedHashMap<String, Class<?>>();
 		out.put(XmlLabel.timerStepSize, Double.class);
 		out.put(XmlLabel.endOfSimulation, Double.class);
 		return out;
