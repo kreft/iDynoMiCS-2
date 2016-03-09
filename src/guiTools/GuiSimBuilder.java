@@ -9,6 +9,7 @@ import javax.swing.GroupLayout.Group;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
 
+import dataIO.Log;
 import idynomics.Idynomics;
 import idynomics.Simulator;
 import modelBuilder.IsSubmodel;
@@ -148,6 +149,11 @@ public class GuiSimBuilder
 	private static JComboBox<String> makeSelector(SubmodelMaker maker)
 	{
 		String[] names = maker.getClassNameOptions();
+		if ( names.length == 0 )
+		{
+			Log.printToScreen("Empty list of class names!", true);
+			return null;
+		}
 		JComboBox<String> out = new JComboBox<String>(names);
 		out.setAction(maker);
 		out.setEditable(false);

@@ -83,6 +83,11 @@ public class ConsoleSimBuilder
 		String[] options = aMaker.getClassNameOptions();
 		if ( options != null )
 		{
+			if ( options.length == 0 )
+			{
+				Log.printToScreen("Empty list of class names!", true);
+				return;
+			}
 			GuiConsole.writeOut("\tPossible options are:\n");
 			for ( int i = 0; i < options.length; i++ )
 				GuiConsole.writeOut("\t\t["+i+"] "+options[i]+"\n");

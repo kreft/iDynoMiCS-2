@@ -450,6 +450,11 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 			this.increaseMakeCounter();
 		}
 		
+		public String[] getClassNameOptions()
+		{
+			return Boundary.getAllOptions();
+		}
+		
 		@Override
 		public boolean makeImmediately()
 		{
