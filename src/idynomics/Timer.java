@@ -1,18 +1,22 @@
 package idynomics;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.w3c.dom.Element;
 
-import aspect.AspectInterface;
-import aspect.AspectReg;
-import aspect.AspectRestrictionsLibrary;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
 import dataIO.Log.Tier;
 import utility.Helper;
 
-public class Timer implements XMLable
+public class Timer implements IsSubmodel, XMLable
 {
 	private int iteration;
 	
@@ -135,6 +139,30 @@ public class Timer implements XMLable
 		Log.out(outputLevel, "       iteration = "+iteration);
 		Log.out(outputLevel, "       step size = "+getTimeStepSize());
 		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
-	}	
+	}
 	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public Map<String, Class<?>> getParameters()
+	{
+		Map<String, Class<?>> out = new LinkedHashMap<String, Class<?>>();
+		out.put(XmlLabel.timerStepSize, Double.class);
+		out.put(XmlLabel.endOfSimulation, Double.class);
+		return out;
+	}
+	
+	public void setParameter(String name, String value)
+	{
+		if ( name.equals(XmlLabel.timerStepSize) )
+			this.setTimeStepSize(Double.valueOf(value));
+		if ( name.equals(XmlLabel.endOfSimulation) )
+			this.setEndOfSimulation(Double.valueOf(value));
+	}
+	
+	public List<SubmodelMaker> getSubmodelMakers()
+	{
+		return new LinkedList<SubmodelMaker>();
+	}
 }

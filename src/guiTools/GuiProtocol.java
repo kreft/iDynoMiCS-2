@@ -5,16 +5,18 @@ package guiTools;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.util.HashMap;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.GroupLayout;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.GroupLayout.Group;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.JButton;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,7 +24,6 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import aspect.AspectInterface;
 import dataIO.XmlHandler;
-import idynomics.Compartment;
 import idynomics.Simulator;
 
 /**
@@ -31,6 +32,7 @@ import idynomics.Simulator;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
+@Deprecated
 public final class GuiProtocol
 {
 	/**
@@ -58,6 +60,10 @@ public final class GuiProtocol
 	
 	private static Document protocolDoc;
 	
+	// TODO quick fix, needs doing better
+	private static int vertSize = 30;
+	private static int horizSize = GroupLayout.DEFAULT_SIZE;
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -65,20 +71,21 @@ public final class GuiProtocol
 	 */
 	public static JComponent getProtocolEditor()
 	{
-		mainView = new JPanel();
-		layout = new GroupLayout(mainView);
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
-		verticalLayoutGroup = layout.createSequentialGroup();
-		horizontalLayoutGroup = layout.createParallelGroup();
-		layout.setVerticalGroup(verticalLayoutGroup);
-		layout.setHorizontalGroup(horizontalLayoutGroup);
-		mainView.setLayout(layout);
-		mainView.setVisible(true);
-		
-		return new JScrollPane(mainView,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+//		mainView = new JPanel();
+//		layout = new GroupLayout(mainView);
+//		layout.setAutoCreateGaps(true);
+//		layout.setAutoCreateContainerGaps(true);
+//		verticalLayoutGroup = layout.createSequentialGroup();
+//		horizontalLayoutGroup = layout.createParallelGroup();
+//		layout.setVerticalGroup(verticalLayoutGroup);
+//		layout.setHorizontalGroup(horizontalLayoutGroup);
+//		mainView.setLayout(layout);
+//		mainView.setVisible(true);
+//		
+//		return new JScrollPane(mainView,
+//				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
+//				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		return new ProtocolTree();
 	}
 	
 	/**
@@ -97,8 +104,10 @@ public final class GuiProtocol
 		rootElem.appendChild(simElem);
 		
 		Simulator aSim = new Simulator();
+		
+		
 		Agent aAgent = new Agent();
-		appendAspectInterface(aAgent);
+		//appendAspectInterface(aAgent);
 	}
 	
 	/**
@@ -114,103 +123,106 @@ public final class GuiProtocol
 		ParallelGroup horizAI = layout.createParallelGroup();
 		horizontalLayoutGroup.addGroup(horizAI);
 		
+		System.out.println("vert "+vertAI);
+		System.out.println("horiz "+horizAI);
+		
 		/* click button to open this */
-		if(true) {
-		/*
-		 * quick and dirty adding aspects 
-		 */
-		ParallelGroup vertAspect = layout.createParallelGroup();
-		vertAI.addGroup(vertAspect);
-		SequentialGroup horizAspect = layout.createSequentialGroup();
-		horizAI.addGroup(horizAspect);
-		/* Aspect name. */
-		JTextArea nameLabel = new JTextArea();
-		nameLabel.setFont(new Font("arial", Font.BOLD, 20));
-		nameLabel.setBackground(Color.RED);
-		/* FIXME put text over area */
-		nameLabel.setText("aspect Name");
-		vertAspect.addComponent(nameLabel);
-		horizAspect.addComponent(nameLabel);
-		vertAspect.addComponent(nameLabel, 30, 30, 30);
-		horizAspect.addComponent(nameLabel, 60, 60, 60);
+		JButton addAspect = newAspectButton(vertAI, horizAI);
+		vertAI.addComponent(addAspect);
+		horizAI.addComponent(addAspect);
 		
-		/* Aspect type FIXME selection box */
-		JTextArea aspectType = new JTextArea();
-		aspectType.setFont(new Font("arial", Font.BOLD, 20));
-		aspectType.setBackground(Color.RED);
-		aspectType.setText("aspect Type");
-		vertAspect.addComponent(aspectType);
-		horizAspect.addComponent(aspectType);
-		vertAspect.addComponent(aspectType, 30, 30, 30);
-		horizAspect.addComponent(aspectType, 60, 60, 60);
+		// NOTE dummy new aspect until I get the button working
+		addNewAspectTo(vertAI, horizAI);
 		
-		/* Aspect value. */
-		JTextArea valueField = new JTextArea();
-		valueField.setForeground(Color.BLACK);
-		valueField.setBackground(Color.RED);
-		valueField.setText("aspect value");
-		vertAspect.addComponent(valueField);
-		horizAspect.addComponent(valueField);
-		vertAspect.addComponent(valueField, 30, 30, 30);
-		horizAspect.addComponent(valueField, 60, 60, 60);
-		/* Aspect description. */
-
-		vertAI.addGroup(vertAspect);
-		horizAI.addGroup(horizAspect);
-		
-		/* FIXME add button that passes the fields to the aspect interface */
-		}		
-		
-		
-		// TODO Name of the AspectInterface, e.g Timer?
-		for ( String aspectName : anAI.reg().getAllAspectNames() )
-		{
-			// TODO Something's not quite right here... getValue should be
-			// returning the value, not the Aspect object
-			Object value = 
-						(Object) anAI.reg().getValue(anAI, aspectName);
-//			String description = anAspect.description;
-			/* Create and add layout groups for this Aspect. */
-			ParallelGroup vertAspect = layout.createParallelGroup();
-			vertAI.addGroup(vertAspect);
-			SequentialGroup horizAspect = layout.createSequentialGroup();
-			horizAI.addGroup(horizAspect);
-			/* Aspect name. */
-			JLabel nameLabel = new JLabel(aspectName);
-			nameLabel.setFont(new Font("arial", Font.BOLD, 20));
-			vertAspect.addComponent(nameLabel);
-			horizAspect.addComponent(nameLabel);
-			/* Aspect value. */
-			JTextArea valueField = new JTextArea();
-			valueField.setForeground(Color.BLACK);
-			// TODO incorporate aspect restrictions
-			if ( value == null )
-			{
-				valueField.setBackground(Color.RED);
-				valueField.setText("");
-			}
-			else
-			{
-				valueField.setBackground(Color.WHITE);
-				valueField.setText(value.toString());
-			}
-			// TODO set the valueField preferred sizes here
-			vertAspect.addComponent(valueField, 30, 30, 30);
-			horizAspect.addComponent(valueField, 60, 60, 60);
-			/* Aspect description. */
-//			String description = anAI.reg().getDescription(aspectName);
-//			if ( description != null )
-//			{
-//				JLabel descLabel = new JLabel(aspectName);
-//				descLabel.setFont(new Font("arial", Font.ITALIC, 15));
-//				vertAspect.addComponent(descLabel);
-//				horizAspect.addComponent(descLabel);
-//			}
-			/* Append the Aspect layouts to the AspectInterface layouts. */
-			vertAI.addGroup(vertAspect);
-			horizAI.addGroup(horizAspect);
-		}
 		verticalLayoutGroup.addGroup(vertAI);
 		horizontalLayoutGroup.addGroup(horizAI);
+	}
+	
+	private static class AspectListener implements ActionListener
+	{
+		private Group vertical;
+		private Group horizontal;
+		
+		AspectListener(Group vert, Group horiz)
+		{
+			super();
+			this.vertical = vert;
+			this.horizontal = horiz;
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent event)
+		{
+			// FIXME this doesn't work yet
+			addNewAspectTo(this.vertical, this.horizontal);
+			// FIXME this approach does add new Aspect boxes, but they creep
+			// down the screen!
+			//mainView.repaint();
+			mainView.validate();
+		}
+	}
+	
+	public static JButton newAspectButton(Group vert, Group horiz)
+	{
+		JButton addAspect = new JButton("Add new aspect");
+		addAspect.addActionListener(new AspectListener(vert, horiz));
+		return addAspect;
+	}
+	
+	public static void addNewAspectTo(Group vert, Group horiz)
+	{
+		// TODO for testing only, remove when working
+		System.out.println("Adding new aspect to ");
+		System.out.println("vert "+vert);
+		System.out.println("horiz "+horiz);
+		/* Set up the layout. */
+		ParallelGroup vertAspect = layout.createParallelGroup();
+		vert.addGroup(vertAspect);
+		SequentialGroup horizAspect = layout.createSequentialGroup();
+		horiz.addGroup(horizAspect);
+		/* Aspect name. */
+		JTextField nameLabel = newLabel();
+		nameLabel.setText("Aspect name:");
+		vertAspect.addComponent(nameLabel, vertSize, vertSize, vertSize);
+		horizAspect.addComponent(nameLabel, horizSize, horizSize, horizSize);
+		JTextField nameField = newField();
+		vertAspect.addComponent(nameField, vertSize, vertSize, vertSize);
+		horizAspect.addComponent(nameField, horizSize, horizSize, horizSize);
+		/* Aspect type */
+		// FIXME selection box
+		// TODO Presumably, the options should be "primary", "calculated", etc?
+		JTextField typeLabel = newLabel();
+		typeLabel.setText("type");
+		vertAspect.addComponent(typeLabel, vertSize, vertSize, vertSize);
+		horizAspect.addComponent(typeLabel, horizSize, horizSize, horizSize);
+		JTextField typeField = newField();
+		vertAspect.addComponent(typeField, vertSize, vertSize, vertSize);
+		horizAspect.addComponent(typeField, horizSize, horizSize, horizSize);
+		/* Aspect value. */
+		JTextField valueLabel = newLabel();
+		valueLabel.setText("value");
+		vertAspect.addComponent(valueLabel, vertSize, vertSize, vertSize);
+		horizAspect.addComponent(valueLabel, horizSize, horizSize, horizSize);
+		JTextField valueField = newField();
+		vertAspect.addComponent(valueField, vertSize, vertSize, vertSize);
+		horizAspect.addComponent(valueField, horizSize, horizSize, horizSize);
+		// FIXME add button that passes the fields to the aspect interface
+	}
+	
+	private static JTextField newLabel()
+	{
+		JTextField label = new JTextField();
+		label.setEditable(false);
+		label.setBackground(Color.LIGHT_GRAY);
+		label.setFont(new Font("arial", Font.BOLD, 20));
+		return label;
+	}
+	
+	private static JTextField newField()
+	{
+		JTextField field = new JTextField();
+		field.setEditable(true);
+		field.setFont(new Font("arial", Font.PLAIN, 20));
+		return field;
 	}
 }

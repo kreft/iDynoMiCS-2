@@ -4,8 +4,11 @@
 package shape;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -21,6 +24,8 @@ import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Point;
@@ -36,7 +41,7 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Shape implements CanPrelaunchCheck, XMLable
+public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 {
 	/**
 	 * Ordered dictionary of dimensions for this shape.
@@ -576,8 +581,46 @@ public abstract class Shape implements CanPrelaunchCheck, XMLable
 	 * XML-ABLE
 	 ************************************************************************/
 	
-	public static Object getNewInstance(String className)
+	public static Shape getNewInstance(String className)
 	{
-		return XMLable.getNewInstance(className, "shape.ShapeLibrary$");
+		return (Shape) XMLable.getNewInstance(className, "shape.ShapeLibrary$");
+	}
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public Map<String, Class<?>> getParameters()
+	{
+		// TODO
+		return new HashMap<String, Class<?>>();
+	}
+	
+	public void setParameter(String name, String value)
+	{
+		/* No parameters to set. */
+		//return true;
+	}
+	
+	public List<SubmodelMaker> getSubmodelMakers()
+	{
+		// TODO
+		return new LinkedList<SubmodelMaker>();
+	}
+	
+	public static String[] getAllOptions()
+	{
+		Class<?>[] classNames = ShapeLibrary.class.getDeclaredClasses();
+		int num = classNames.length;
+		String[] out = new String[num];
+		String str;
+		int dollarIndex;
+		for ( int i = 0; i < num; i++ )
+		{
+			str = classNames[i].getName();
+			dollarIndex = str.indexOf("$");
+			out[i] = str.substring(dollarIndex+1);
+		}
+		return out;
 	}
 }
