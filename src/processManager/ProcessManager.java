@@ -1,8 +1,9 @@
 package processManager;
 
 import java.util.LinkedHashMap;
-
-import javax.swing.AbstractAction;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,7 +17,7 @@ import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import idynomics.NameRef;
 import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelRequirement;
+import modelBuilder.SubmodelMaker;
 
 /**
  * 
@@ -223,17 +224,26 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public LinkedHashMap<String, Class<?>> getAttributes()
+	public Map<String, Class<?>> getParameters()
 	{
-		// TODO
-		return new LinkedHashMap<String, Class<?>>();
+		Map<String, Class<?>> out = new LinkedHashMap<String, Class<?>>();
+		out.put(XmlLabel.nameAttribute, String.class);
+		out.put("priority", Integer.class);
+		return out;
 	}
 	
-	public LinkedHashMap<AbstractAction,SubmodelRequirement>
-														getAllSubmodelMakers()
+	public void setParameter(String name, String value)
+	{
+		if ( name.equals(XmlLabel.nameAttribute) )
+			this._name = value;
+		if ( name.equals("priority") )
+			this._priority = Integer.valueOf(value);
+	}
+	
+	public List<SubmodelMaker> getSubmodelMakers()
 	{
 		// TODO
-		return new LinkedHashMap<AbstractAction,SubmodelRequirement>();
+		return new LinkedList<SubmodelMaker>();
 	}
 	
 	public IsSubmodel getLastMadeSubmodel()

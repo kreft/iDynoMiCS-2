@@ -16,6 +16,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import guiTools.GuiConsole;
 import guiTools.GuiMenu;
 import guiTools.GuiProtocol;
+import guiTools.GuiSimBuilder;
 import guiTools.GuiSimControl;
 import guiTools.GuiSplash;
 import utility.Helper;
@@ -41,6 +42,8 @@ public class GuiLaunch implements Runnable
 		RENDER,
 		
 		PROTOCOLMAKER,
+		
+		SIMULATIONMAKER,
 		
 		GRAPH
 	}
@@ -193,6 +196,9 @@ public class GuiLaunch implements Runnable
 			{
 			case PROTOCOLMAKER:
 				views.put(ViewType.PROTOCOLMAKER, GuiProtocol.getProtocolEditor());
+				break;
+			case SIMULATIONMAKER:
+				views.put(ViewType.SIMULATIONMAKER, GuiSimBuilder.getSimulationBuilder());
 				break;
 			// TODO 
 			default:

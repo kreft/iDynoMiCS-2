@@ -1,11 +1,10 @@
 package idynomics;
 
 import java.awt.event.ActionEvent;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.AbstractAction;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -17,6 +16,7 @@ import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelRequirement;
 import utility.*;
 
@@ -42,8 +42,6 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public SpeciesLib speciesLibrary = new SpeciesLib();
 	
 	public Timer timer;
-	
-	private IsSubmodel _lastMadeSubmodel;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -257,30 +255,28 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public LinkedHashMap<String, Class<?>> getAttributes()
+	public Map<String, Class<?>> getParameters()
 	{
-		/* No attributes to set. */
-		return new LinkedHashMap<String, Class<?>>();
+		/* No parameters to set. */
+		return new HashMap<String, Class<?>>();
 	}
 	
-	public LinkedHashMap<AbstractAction,SubmodelRequirement>
-														getAllSubmodelMakers()
+	public void setParameter(String name, String value)
 	{
-		LinkedHashMap<AbstractAction,SubmodelRequirement> out = 
-				new LinkedHashMap<AbstractAction,SubmodelRequirement>();
-		out.put(new TimerMaker(), SubmodelRequirement.EXACTLY_ONE);
-		out.put(new SpeciesLibMaker(), SubmodelRequirement.ZERO_OR_ONE);
-		out.put(new CompartmentMaker(), SubmodelRequirement.ONE_TO_MANY);
-		
+		/* No parameters to set. */
+		//return true;
+	}
+	
+	public List<SubmodelMaker> getSubmodelMakers()
+	{
+		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		out.add(new TimerMaker());
+		out.add(new SpeciesLibMaker());
+		out.add(new CompartmentMaker());
 		return out;
 	}
 	
-	public IsSubmodel getLastMadeSubmodel()
-	{
-		return this._lastMadeSubmodel;
-	}
-	
-	private class TimerMaker extends AbstractAction
+	private class TimerMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = 1486068039985317593L;
 		
@@ -289,15 +285,25 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			super("Make timer");
 		}
 		
+		public SubmodelRequirement getRequirement()
+		{
+			return SubmodelRequirement.EXACTLY_ONE;
+		}
+		
+		public boolean makeImmediately()
+		{
+			return true;
+		}
+		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			timer = new Timer();
-			_lastMadeSubmodel = timer;
+			this.setLastMadeSubmodel(timer);
 		}
 	}
 	
-	private class SpeciesLibMaker extends AbstractAction
+	private class SpeciesLibMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = -6601262340075573910L;
 		
@@ -306,15 +312,25 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			super("Make the species library");
 		}
 		
+		public SubmodelRequirement getRequirement()
+		{
+			return SubmodelRequirement.ZERO_OR_ONE;
+		}
+		
+		public boolean makeImmediately()
+		{
+			return false;
+		}
+		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			speciesLibrary = new SpeciesLib();
-			_lastMadeSubmodel = speciesLibrary;
+			this.setLastMadeSubmodel(speciesLibrary);
 		}
 	}
 	
-	private class CompartmentMaker extends AbstractAction
+	private class CompartmentMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = -6545954286337098173L;
 		
@@ -323,13 +339,23 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			super("Make a new compartment");
 		}
 		
+		public SubmodelRequirement getRequirement()
+		{
+			return SubmodelRequirement.ONE_TO_MANY;
+		}
+		
+		public boolean makeImmediately()
+		{
+			return true;
+		}
+		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			// TODO use e.getActionCommand() to get the shape, or set later?
 			Compartment newCompartment = new Compartment();
 			_compartments.add(newCompartment);
-			_lastMadeSubmodel = newCompartment;
+			this.setLastMadeSubmodel(newCompartment);
 		}
 	}
 	
