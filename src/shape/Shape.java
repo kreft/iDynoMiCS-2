@@ -6,9 +6,8 @@ package shape;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
-
-import javax.swing.AbstractAction;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -24,7 +23,7 @@ import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelRequirement;
+import modelBuilder.SubmodelMaker;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Point;
@@ -589,22 +588,37 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public LinkedHashMap<String, Class<?>> getAttributes()
+	public LinkedHashMap<String, Class<?>> getParameters()
 	{
 		// TODO
 		return new LinkedHashMap<String, Class<?>>();
 	}
 	
-	public LinkedHashMap<AbstractAction,SubmodelRequirement>
-														getAllSubmodelMakers()
+	public void setParameter(String name, String value)
 	{
-		// TODO
-		return new LinkedHashMap<AbstractAction,SubmodelRequirement>();
+		/* No parameters to set. */
+		//return true;
 	}
 	
-	public IsSubmodel getLastMadeSubmodel()
+	public List<SubmodelMaker> getSubmodelMakers()
 	{
 		// TODO
-		return null;
+		return new LinkedList<SubmodelMaker>();
+	}
+	
+	public static String[] getAllOptions()
+	{
+		Class<?>[] classNames = ShapeLibrary.class.getDeclaredClasses();
+		int num = classNames.length;
+		String[] out = new String[num];
+		String str;
+		int dollarIndex;
+		for ( int i = 0; i < num; i++ )
+		{
+			str = classNames[i].getName();
+			dollarIndex = str.indexOf("$");
+			out[i] = str.substring(dollarIndex+1);
+		}
+		return out;
 	}
 }

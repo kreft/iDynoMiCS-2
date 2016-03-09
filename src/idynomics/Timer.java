@@ -1,7 +1,9 @@
 package idynomics;
 
 import java.util.LinkedHashMap;
-import javax.swing.AbstractAction;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 
 import dataIO.Log;
@@ -9,7 +11,7 @@ import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelRequirement;
+import modelBuilder.SubmodelMaker;
 import dataIO.Log.Tier;
 import utility.Helper;
 
@@ -142,23 +144,25 @@ public class Timer implements IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public LinkedHashMap<String, Class<?>> getAttributes()
+	public LinkedHashMap<String, Class<?>> getParameters()
 	{
 		LinkedHashMap<String, Class<?>> out = 
 				new LinkedHashMap<String, Class<?>>();
-		out.put("timerStepSize", Double.class);
-		out.put("endOfSimulation", Double.class);
+		out.put(XmlLabel.timerStepSize, Double.class);
+		out.put(XmlLabel.endOfSimulation, Double.class);
 		return out;
 	}
 	
-	public LinkedHashMap<AbstractAction,SubmodelRequirement>
-													getAllSubmodelMakers()
+	public void setParameter(String name, String value)
 	{
-		return new LinkedHashMap<AbstractAction,SubmodelRequirement>();
+		if ( name.equals(XmlLabel.timerStepSize) )
+			this.setTimeStepSize(Double.valueOf(value));
+		if ( name.equals(XmlLabel.endOfSimulation) )
+			this.setEndOfSimulation(Double.valueOf(value));
 	}
-
-	public IsSubmodel getLastMadeSubmodel()
+	
+	public List<SubmodelMaker> getSubmodelMakers()
 	{
-		return null;
+		return new LinkedList<SubmodelMaker>();
 	}
 }

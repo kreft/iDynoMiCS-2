@@ -4,8 +4,8 @@ import java.awt.event.ActionEvent;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
-
-import javax.swing.AbstractAction;
+import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -23,6 +23,7 @@ import grid.*;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
 import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelRequirement;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
@@ -74,8 +75,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * {@code Timer.getEndOfCurrentTime()}.
 	 */
 	protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
-	
-	private IsSubmodel _lastMadeSubmodel;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -440,28 +439,29 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public LinkedHashMap<String, Class<?>> getAttributes()
+	public Map<String, Class<?>> getParameters()
 	{
-		/* No attributes to set. */
-		return new LinkedHashMap<String, Class<?>>();
-	}
-	
-	public LinkedHashMap<AbstractAction,SubmodelRequirement>
-														getAllSubmodelMakers()
-	{
-		LinkedHashMap<AbstractAction,SubmodelRequirement> out = 
-				new LinkedHashMap<AbstractAction,SubmodelRequirement>();
-		out.put(new ShapeMaker(), SubmodelRequirement.EXACTLY_ONE);
-		out.put(new ProcessMaker(), SubmodelRequirement.ZERO_TO_MANY);
+		Map<String, Class<?>> out = new LinkedHashMap<String, Class<?>>();
+		out.put(XmlLabel.nameAttribute, String.class);
 		return out;
 	}
 	
-	public IsSubmodel getLastMadeSubmodel()
+	public void setParameter(String name, String value)
 	{
-		return this._lastMadeSubmodel;
+		if ( name.equals(XmlLabel.nameAttribute) )
+			this.name = value;
 	}
 	
-	private class ShapeMaker extends AbstractAction
+	public List<SubmodelMaker> getSubmodelMakers()
+	{
+		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		out.add(new ShapeMaker());
+		out.add(new ProcessMaker());
+		// TODO agents, solutes, diffusivity, reactions
+		return out;
+	}
+	
+	private class ShapeMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = 1486068039985317593L;
 		
@@ -470,21 +470,53 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 			super("Make the shape");
 		}
 		
+		public SubmodelRequirement getRequirement()
+		{
+			return SubmodelRequirement.EXACTLY_ONE;
+		}
+		
+		@Override
+		public boolean makeImmediately()
+		{
+			return false;
+		}
+		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			_shape = Shape.getNewInstance(e.getActionCommand());
-			_lastMadeSubmodel = _shape;
+			String shapeName;
+			if ( e == null )
+				shapeName = "";
+			else
+				shapeName = e.getActionCommand();
+			_shape = Shape.getNewInstance(shapeName);
+			this.setLastMadeSubmodel(_shape);
+		}
+		
+		public String[] getClassNameOptions()
+		{
+			return Shape.getAllOptions();
 		}
 	}
 	
-	private class ProcessMaker extends AbstractAction
+	private class ProcessMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = -126858198160234919L;
 		
 		public ProcessMaker()
 		{
 			super("Make a new process manager");
+		}
+		
+		public SubmodelRequirement getRequirement()
+		{
+			return SubmodelRequirement.ZERO_TO_MANY;
+		}
+		
+		@Override
+		public boolean makeImmediately()
+		{
+			return false;
 		}
 		
 		@Override
@@ -494,7 +526,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 					ProcessManager.getNewInstance(e.getActionCommand());
 			
 			_processes.add(newProcess);
-			_lastMadeSubmodel = newProcess;
+			this.setLastMadeSubmodel(newProcess);
 		}
 	}
 }

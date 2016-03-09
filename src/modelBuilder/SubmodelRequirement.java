@@ -1,5 +1,7 @@
 package modelBuilder;
 
+// TODO make this part of SubmodelMaker? Could set minimum and maximum number
+// that must be made
 public enum SubmodelRequirement
 {
 	EXACTLY_ONE,

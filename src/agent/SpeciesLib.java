@@ -2,8 +2,8 @@ package agent;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-
-import javax.swing.AbstractAction;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -15,7 +15,7 @@ import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
 import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelRequirement;
+import modelBuilder.SubmodelMaker;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -125,22 +125,20 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public LinkedHashMap<String, Class<?>> getAttributes()
+	public LinkedHashMap<String, Class<?>> getParameters()
 	{
 		/* No attributes to set. */
 		return new LinkedHashMap<String, Class<?>>();
 	}
 	
-	public LinkedHashMap<AbstractAction,SubmodelRequirement>
-													getAllSubmodelMakers()
+	public void setParameter(String name, String value)
 	{
-		// TODO implement submodels
-		return new LinkedHashMap<AbstractAction,SubmodelRequirement>();
+		
 	}
-
-	public IsSubmodel getLastMadeSubmodel()
+	
+	public List<SubmodelMaker> getSubmodelMakers()
 	{
 		// TODO implement submodels
-		return null;
+		return new LinkedList<SubmodelMaker>();
 	}
 }

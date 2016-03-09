@@ -59,6 +59,13 @@ public final class GuiMenu
 				"Make a new protocol file");
 		menu.add(menuItem);
 		/*
+		 * Add the option of making a new simulation.
+		 */
+		menuItem = new JMenuItem(new GuiMenu.NewSimulation());
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Make a new simulation");
+		menu.add(menuItem);
+		/*
 		 * Add the option of opening a protocol file.
 		 */
 		menuItem = new JMenuItem(new GuiMenu.FileOpen());
@@ -144,13 +151,31 @@ public final class GuiMenu
 		 */
 		public NewFile()
 		{
-	        super("New protocol file");
+			super("New protocol file");
 		}
 		
-	    public void actionPerformed(ActionEvent e)
-	    {
-	    	GuiActions.newFile();
-	    }
+		public void actionPerformed(ActionEvent e)
+		{
+			GuiActions.newFile();
+		}
+	}
+
+	public static class NewSimulation extends AbstractAction
+	{
+		private static final long serialVersionUID = 8401347291057616616L;
+		
+		/**
+		 * Action for the file open sub-menu.
+		 */
+		public NewSimulation()
+		{
+			super("New simulation");
+		}
+		
+		public void actionPerformed(ActionEvent e)
+		{
+			GuiActions.newSimulation();
+		}
 	}
 	
 	public static class FileOpen extends AbstractAction
