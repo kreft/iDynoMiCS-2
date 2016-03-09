@@ -36,8 +36,7 @@ public final class GuiActions
 {
 	public static void newSimulation()
 	{
-		//GuiLaunch.setView(ViewType.SIMULATIONMAKER);
-		ConsoleSimBuilder.makeSimulation();
+		GuiLaunch.setView(ViewType.SIMULATIONMAKER);
 	}
 	
 	/*************************************************************************

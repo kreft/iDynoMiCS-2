@@ -15,6 +15,7 @@ import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelRequirement;
 
+//WORK IN PROGRESS, MAY NEVER BE USED
 public class GuiSimBuilder
 {
 	

@@ -20,6 +20,7 @@ import javax.swing.tree.TreeSelectionModel;
  * </p>
  * 
  */
+// WORK IN PROGRESS, MAY NEVER BE USED
 public class ProtocolTree extends JSplitPane implements TreeSelectionListener
 {
 	private static final long serialVersionUID = 9051301816462464424L;

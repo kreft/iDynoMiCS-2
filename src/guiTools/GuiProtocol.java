@@ -32,6 +32,7 @@ import idynomics.Simulator;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
+@Deprecated
 public final class GuiProtocol
 {
 	/**

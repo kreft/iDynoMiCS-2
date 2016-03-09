@@ -13,6 +13,7 @@ import javax.swing.JProgressBar;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import guiTools.ConsoleSimBuilder;
 import guiTools.GuiConsole;
 import guiTools.GuiMenu;
 import guiTools.GuiProtocol;
@@ -198,7 +199,8 @@ public class GuiLaunch implements Runnable
 				views.put(ViewType.PROTOCOLMAKER, GuiProtocol.getProtocolEditor());
 				break;
 			case SIMULATIONMAKER:
-				views.put(ViewType.SIMULATIONMAKER, GuiSimBuilder.getSimulationBuilder());
+				//views.put(ViewType.SIMULATIONMAKER, GuiSimBuilder.getSimulationBuilder());
+				ConsoleSimBuilder.makeSimulation();
 				break;
 			// TODO 
 			default:

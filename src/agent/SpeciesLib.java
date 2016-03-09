@@ -1,9 +1,9 @@
 package agent;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -125,10 +125,10 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public LinkedHashMap<String, Class<?>> getParameters()
+	public Map<String, Class<?>> getParameters()
 	{
 		/* No attributes to set. */
-		return new LinkedHashMap<String, Class<?>>();
+		return new HashMap<String, Class<?>>();
 	}
 	
 	public void setParameter(String name, String value)
