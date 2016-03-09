@@ -18,6 +18,7 @@ import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import shape.ShapeLibrary;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
@@ -195,4 +196,11 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		return new LinkedList<SubmodelMaker>();
 	}
 	
+	public static String[] getAllOptions()
+	{
+		// FIXME this is harder to do with classes in a package than in a
+		// final class... and I don't even know if we're going to keep the
+		// boundaries the way they are. Quick fix for now:
+		return new String[]{"Boundary"};
+	}
 }
