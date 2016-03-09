@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
@@ -261,7 +262,17 @@ public class Reaction implements XMLable, Copyable
 	 */
 	public static Object getNewInstance(Node xmlNode)
 	{
+		if (XmlHandler.hasNode((Element) xmlNode, XmlLabel.reaction))
+		{
+			xmlNode = XmlHandler.loadUnique((Element) xmlNode, XmlLabel.reaction);
+		}
 		return new Reaction(xmlNode);
+	}
+	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	/*************************************************************************

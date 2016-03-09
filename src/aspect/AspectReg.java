@@ -7,8 +7,12 @@ import java.util.function.Predicate;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
+import generalInterfaces.XMLable;
+import linearAlgebra.Vector;
 import utility.Copier;
+import utility.Helper;
 
 
 /**
@@ -19,6 +23,13 @@ import utility.Copier;
  */
 public class AspectReg<A>
 {
+	
+	/**
+	 * quick fix for xmling
+	 * 
+	 */
+	public String identity;
+	
 	/**
 	 * \brief Recognised aspect types.
 	 * 
@@ -54,6 +65,25 @@ public class AspectReg<A>
 	protected LinkedList<AspectInterface> _modules = 
 											new LinkedList<AspectInterface>();
 	
+
+	/**
+	 * FIXME this can go cleaner
+	 * @return
+	 */
+	public String getXml() {
+		String out = "";
+		for (AspectInterface a : _modules)
+		{
+			out = out + "<" + XmlLabel.speciesModule + " " + 
+					XmlLabel.nameAttribute + "=\"" + a.reg().identity + "\" />\n";
+		}
+		for (String key : _aspects.keySet())
+		{
+			out = out + _aspects.get(key).getXml(key);
+		}
+		return out;
+	} 
+	
 	/**
 	 * returns true if the key is found in the aspect tree
 	 */
@@ -87,7 +117,10 @@ public class AspectReg<A>
 	 */
 	public synchronized void set(String key, A aspect)
 	{
-		this._aspects.put(key, new Aspect<A>(aspect));
+		if(_aspects.containsKey(key))
+			this.getAspect(key).set(aspect);
+		else
+			this._aspects.put(key, new Aspect<A>(aspect));
 	}
 	
 	/**
@@ -247,7 +280,7 @@ public class AspectReg<A>
 		/**
 		 * The type of object this Aspect wraps.
 		 */
-		final AspectReg.AspectClass type;
+		protected AspectReg.AspectClass type;
 		
 		/**
 		 * Direct access field for a {@code Calculated} aspect (to prevent
@@ -273,7 +306,17 @@ public class AspectReg<A>
 		 */
 	    public Aspect(A aspect)
 	    {
-	    	this.aspect = aspect;
+	    	set(aspect);
+	    }
+	    
+	    /**
+	     * Set passed object as aspect for existing aspect object
+	     * @param aspect
+	     */
+	    @SuppressWarnings("unchecked")
+		public void set(Object aspect)
+	    {
+	    	this.aspect = (A) aspect;
 			if ( this.aspect instanceof Calculated )
 			{
 				  this.type = AspectReg.AspectClass.CALCULATED;
@@ -291,6 +334,122 @@ public class AspectReg<A>
 	    }
 	    
 	    /**
+	     * TODO work in progress
+	     * return partial xml specification of the input object, XMLables are
+	     * included as child node, simple objects are include in the value
+	     * attribute.
+	     * @param obj
+	     * @param typeLabel
+	     * @param valLabel
+	     * @return
+	     */
+	    public String specString(Object obj, String typeLabel, String valLabel)
+	    {
+	    	String simpleName = obj.getClass().getSimpleName();
+	    	String out = "";
+	    	if (obj instanceof XMLable)
+    		{
+    			XMLable x = (XMLable) obj;
+    			out = out + " " + typeLabel + "=\"" + simpleName + "\">\n" + 
+    			x.getXml();
+    		}
+    		else
+    		{
+		    	switch (simpleName)
+	    		{
+	    		case "String[]":
+	    			out = out + " " + typeLabel + "=\"" + simpleName+ "\" " + valLabel
+	    					+ "=\"" + Helper.StringAToString((String[]) obj) 
+	    					+ "\"";
+	    			break;
+	    		default:
+	    			out = out + " " + typeLabel + "=\"" + simpleName+ "\" " + valLabel
+	    					+ "=\"" + obj.toString() + "\"";
+	    		}
+    		}
+	    	return out;
+	    }
+	    
+	    /**
+	     * Return the partial aspect xml specification for a given primary 
+	     * aspect object
+	     * @param obj
+	     * @param prePend
+	     * @return
+	     */
+	    public String primaryFactory(Object obj)
+	    {
+	    	String out = "";	    	
+	    	String simpleName = obj.getClass().getSimpleName();
+	    	switch (simpleName)
+    		{
+    		case "HashMap":
+    			@SuppressWarnings("unchecked")
+				HashMap<Object,Object> h = (HashMap<Object,Object>) obj;
+    			out = out + " type=\"" + simpleName + "\">\n";
+    			for(Object hKey : h.keySet())
+    			{
+    				out = out + "<" + XmlLabel.item + " " +
+    						specString(hKey, XmlLabel.keyTypeAttribute,  XmlLabel.keyAttribute) +
+    						specString(h, XmlLabel.typeAttribute, XmlLabel.valueAttribute)
+    						+ (h instanceof XMLable ? "</" + XmlLabel.item + ">\n" : "/>\n");
+
+    			}
+    			out = out + "</" + XmlLabel.aspect + ">\n";
+    			break;
+    		case "LinkedList":
+    			@SuppressWarnings("unchecked")
+				LinkedList<Object> l = (LinkedList<Object>) obj;
+    			out = out + " type=\"" + simpleName + "\">\n";
+    			for(Object o : l)
+    			{
+    				out = out + "<" + XmlLabel.item + " " +
+    						specString(o, XmlLabel.typeAttribute,
+    						XmlLabel.valueAttribute) + (o instanceof XMLable ? 
+    						"</" + XmlLabel.item + ">\n" : "/>\n");
+
+    			}
+    			out = out + "</" + XmlLabel.aspect + ">\n";
+    			break;
+    		default:
+    			out = out + specString(obj, 
+    					XmlLabel.typeAttribute, XmlLabel.valueAttribute)
+    					+ (obj instanceof XMLable ? "</" + XmlLabel.item + ">\n"
+    					: "/>\n");
+    		}
+    		
+	    	return out;
+	    }
+	    
+	    /**
+	     * return the full aspect xml specification of the aspect.
+	     * @param key
+	     * @return
+	     */
+	    public String getXml(String key) 
+	    {
+	    	String out = "<" + XmlLabel.aspect + " name=\"" + key + "\"";
+	    	String simpleName = this.aspect.getClass().getSimpleName();
+	    	switch (this.type)
+	    	{
+	    	case CALCULATED:
+	    		out = out + " type=\"" + "CALCULATED" + "\" class=\"" + 
+	    				simpleName + "\" input=\"" + 
+	    				Helper.StringAToString(this.calc.input) + "\" />\n";
+	    		break;
+	    	case EVENT:
+	    		out = out+  " type=\"" + "EVENT" + "\" class=\"" + 
+	    				simpleName + "\" input=\"" + 
+	    				Helper.StringAToString(this.event.input) + "\" />\n";
+	    		break;
+	    	default:
+	    		out = out + primaryFactory(this.aspect);
+	    	}
+
+			return out;
+		}
+
+		/**
 	     * \brief TODO
 	     * 
 	     * @param newAspect
@@ -339,5 +498,6 @@ public class AspectReg<A>
 	    {
 	    	return this._restrictionExplanation;
 	    }
-	} 
+	}
+
 }

@@ -55,6 +55,12 @@ public interface XMLable
 	}
 	
 	/**
+	 * Return self in xml format
+	 * @return
+	 */
+	public String getXml();
+
+	/**
 	 * \brief Internal method for creating a new instance.
 	 * 
 	 * <p><b>IMPORTANT:</b> This method should only be called by the class that

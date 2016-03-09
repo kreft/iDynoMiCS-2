@@ -238,4 +238,21 @@ public class XmlLabel
 	 */
 	public static String concentration = "concentration";
 
+	//////////// NOT sorted yet
+	
+	/**
+	 * priority of process manager
+	 */
+	public static String processPriority = "priority";
+
+	/**
+	 * time for the first following timestep
+	 */
+	public static String processFirstStep = "firstStep";
+
+	/**
+	 * Timer node
+	 */
+	public static String timer = "timer";
+
 }

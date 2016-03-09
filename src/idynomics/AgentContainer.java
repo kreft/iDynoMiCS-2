@@ -10,6 +10,7 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Body;
+import dataIO.XmlLabel;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import shape.Shape;
@@ -257,6 +258,18 @@ public class AgentContainer
 			// Unlocated agent
 			out = this._agentList.remove(i);
 		}
+		return out;
+	}
+
+	public String getXml() {
+		String out = "<" + XmlLabel.agents + ">\n";
+		
+		for(Agent a : this.getAllAgents())
+		{
+			out = out + "<" + XmlLabel.agent + ">\n"
+					+ a.reg().getXml() + "</" + XmlLabel.agent + ">\n";
+		}
+		out = out + "</" + XmlLabel.agents + ">\n";
 		return out;
 	}
 	

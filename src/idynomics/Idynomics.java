@@ -91,6 +91,7 @@ public class Idynomics
 	/**
 	 * \brief Set up a simulation from XML protocol file.
 	 * 
+	 * FIXME: why is setupSimulator part of Idynomics rather than Simulator?
 	 * @param protocolPath Path to the XML protocol file.
 	 */
 	public static void setupSimulator(String protocolPath)
@@ -108,9 +109,10 @@ public class Idynomics
 		/* 
 		 * Load the protocol file and find the elements we need
 		 */
-		Element idynoElem = XmlHandler.loadDocument(protocolPath);
 		Param.protocolFile = protocolPath;
-		Element simElem = XmlHandler.loadUnique(idynoElem, XmlLabel.simulation);
+		Param.xmlDoc = XmlHandler.loadDocument(protocolPath);
+		
+		Element simElem = XmlHandler.loadUnique(Param.xmlDoc, XmlLabel.simulation);
 		/*
 		 * Initialise the global parameters.
 		 */

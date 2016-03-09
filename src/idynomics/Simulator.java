@@ -11,6 +11,7 @@ import agent.SpeciesLib;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
@@ -56,17 +57,19 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.init( XmlHandler.loadUnique(xmlElem, "timer") );
+		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlLabel.timer ));
 		/*
 		 * Set up the species library.
 		 */
-		this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, "speciesLib") );
+		if (XmlHandler.hasNode(Param.xmlDoc, XmlLabel.speciesLibrary))
+				this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, 
+						XmlLabel.speciesLibrary ));
 		/*
 		 * Set up the compartments.
 		 */
 		Log.out(Tier.NORMAL, "Compartments loading...");
 		NodeList children;
-		children = XmlHandler.getAll(xmlElem, "compartment");
+		children = XmlHandler.getAll( xmlElem, XmlLabel.compartment );
 		if ( children.getLength() == 0 )
 		{
 			Log.out(Tier.CRITICAL, 
@@ -77,13 +80,35 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.gatherAttribute(child, "name");
+			str = XmlHandler.gatherAttribute(child, XmlLabel.nameAttribute);
 			Log.out(Tier.NORMAL, "Making "+str);
 			str = Helper.obtainInput(str, "compartment name");
 			Compartment aCompartment = this.addCompartment(str);
 			aCompartment.init(child);
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
+		
+		//FIXME testing
+		System.out.println(getXml());
+	}
+	
+	public String getXml()
+	{
+		String out = "<document> \n <" + XmlLabel.simulation + " " + 
+				XmlLabel.nameAttribute + "=\"" + Param.simulationName + "\" " + 
+				XmlLabel.outputFolder + "=\"" + Param.outputLocation + "\" " + 
+				XmlLabel.logLevel + "=\"" + Log.level() + "\" " + 
+				XmlLabel.commentAttribute + "=\"" + Param.simulationComment + 
+				"\">\n";
+		
+		out = out + this.timer.getXml();
+		out = out + this.speciesLibrary.getXml();
+		/* currently not including general params */
+		for ( Compartment c : this._compartments )
+			out = out + c.getXml();
+		
+		out = out + "  </" + XmlLabel.simulation + ">\n" + "</document>\n";
+		return out;
 	}
 	
 	/*************************************************************************

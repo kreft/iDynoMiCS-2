@@ -81,6 +81,12 @@ public abstract class ProcessManager implements XMLable, AspectInterface
 		this.setTimeStepSize(time);
 	}
 	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 

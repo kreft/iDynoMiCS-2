@@ -51,6 +51,17 @@ public class Timer implements XMLable
 		if ( Helper.gui )
 			GuiLaunch.resetProgressBar();
 	}
+
+	/**
+	 * 
+	 * TODO: all need to come from XmlLabel
+	 */
+	public String getXml() {
+		String out = "<timer setpSize=\"" + this.timerStepSize +
+				"\" endOfSimulation=\"" + this.endOfSimulation +
+				"\" />\n";
+		return out;
+	}
 	
 	/*************************************************************************
 	 * BASIC METHODS
@@ -124,7 +135,6 @@ public class Timer implements XMLable
 		Log.out(outputLevel, "       iteration = "+iteration);
 		Log.out(outputLevel, "       step size = "+getTimeStepSize());
 		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
-	}
-	
+	}	
 	
 }

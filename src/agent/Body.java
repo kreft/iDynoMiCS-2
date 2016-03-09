@@ -243,4 +243,10 @@ public class Body implements Copyable, XMLable
 			return null;
 		}
 	}
+
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

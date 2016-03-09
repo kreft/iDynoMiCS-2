@@ -40,6 +40,12 @@ public class XMLableTest
 		{
 			return XMLable.getNewInstance(className, "testJUnit.XMLableTest$");
 		}
+		
+		@Override
+		public String getXml() {
+			// TODO Auto-generated method stub
+			return null;
+		}
 	}
 	
 	@Test

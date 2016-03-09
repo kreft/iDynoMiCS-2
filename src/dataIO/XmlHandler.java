@@ -280,6 +280,18 @@ public class XmlHandler
 	}		
 	
 	/**
+	 * returns true if a node tagName exists as childNode of xmlElement
+	 * @param xmlElement
+	 * @param tagName
+	 * @return
+	 */
+	public static boolean hasNode(Element xmlElement, String tagName)
+	{
+		NodeList nodes = xmlElement.getElementsByTagName(tagName);
+		return ( nodes.getLength() > 0 );
+	}
+	
+	/**
 	 * \brief Loads attribute from a unique node
 	 * @param xmlElement
 	 * @param tagName
