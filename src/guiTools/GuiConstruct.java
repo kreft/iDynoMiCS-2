@@ -202,7 +202,7 @@ public class GuiConstruct {
 					species.insertItemAt(name, i++);
 				species.setSelectedIndex(0);
 				
-				GuiLaunch.setView(ViewType.SIMCONSTRUCT);
+				GuiLaunch.setView(ViewType.SIMULATIONBUILDER);
 			}
 			catch(NullPointerException | IllegalArgumentException e)
 			{

@@ -46,26 +46,27 @@ import utility.Helper;
  */
 public class GuiLaunch implements Runnable
 {
+	
 	public enum ViewType
 	{
 		SPLASH,
 		
 		CONSOLE,
 		
-		RENDER,
+//		RENDER,
 		
 		PROTOCOLMAKER,
 		
 		SIMULATIONMAKER,
 		
-		GRAPH, 
+//		GRAPH, 
 		
-		SIMCONSTRUCT
+		SIMULATIONBUILDER
 	}
 	
 	private static JFrame masterFrame;
 	
-	private static HashMap<ViewType,JComponent> views;
+//	private static HashMap<ViewType,JComponent> views;
 	
 	private static JComponent currentView;
 	
@@ -128,7 +129,7 @@ public class GuiLaunch implements Runnable
 		 */
 		masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		masterFrame.setTitle(Idynomics.fullDescription());
-		masterFrame.setSize(800,800);
+		masterFrame.setSize(1000,800);
 		masterFrame.setLocationRelativeTo(null);
 		/* 
 		 * Add the menu bar. This is independent of the layout of the rest of
@@ -177,17 +178,11 @@ public class GuiLaunch implements Runnable
 		/* Add these to the layout. */
 		verticalLayoutGroup.addGroup(buttonVert);
 		horizontalLayoutGroup.addGroup(buttonHoriz);
-		/*
-		 * Construct the views and add them to the HashMap.
-		 */
-		views = new HashMap<ViewType,JComponent>();
-		views.put(ViewType.SPLASH, GuiSplash.getSplashScreen());
-		views.put(ViewType.CONSOLE, GuiConsole.getConsole());
-		views.put(ViewType.SIMCONSTRUCT, GuiConstruct.getConstructor());
+
 		/*
 		 * Use the splash view to start with.
 		 */
-		currentView = views.get(ViewType.SPLASH);
+		currentView = GuiSplash.getSplashScreen();
 		/*
 		 * 
 		 * Add this to the layout.
@@ -294,25 +289,32 @@ public class GuiLaunch implements Runnable
 	 */
 	public static void setView(ViewType vType)
 	{
-		if ( ! views.containsKey(vType) )
-		{
-			switch (vType)
-			{
-			case PROTOCOLMAKER:
-				views.put(ViewType.PROTOCOLMAKER, GuiProtocol.getProtocolEditor());
-				break;
-			case SIMULATIONMAKER:
-				//views.put(ViewType.SIMULATIONMAKER, GuiSimBuilder.getSimulationBuilder());
-				ConsoleSimBuilder.makeSimulation();
-				break;
-			// TODO 
-			default:
-				return;
-			}
-		}
 		GroupLayout l = (GroupLayout) masterFrame.getContentPane().getLayout();
-		l.replace(currentView, views.get(vType));
-		currentView = views.get(vType);
+		JComponent newView = null;
+		switch (vType)
+		{
+		case PROTOCOLMAKER:
+			newView = GuiProtocol.getProtocolEditor();
+			break;
+		case SIMULATIONMAKER:
+			//views.put(ViewType.SIMULATIONMAKER, GuiSimBuilder.getSimulationBuilder());
+			ConsoleSimBuilder.makeSimulation();
+			break;
+		case SPLASH:
+			newView = GuiSplash.getSplashScreen();
+			break;
+		case CONSOLE:
+			newView = GuiConsole.getConsole();
+			break;
+		case SIMULATIONBUILDER:
+			newView = GuiConstruct.getConstructor();
+			break;
+		default:
+			return;
+		}
+		l.replace(currentView, newView);
+		currentView = newView;
+
 	}
 	
 	/**
