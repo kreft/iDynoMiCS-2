@@ -57,7 +57,7 @@ public final class GuiActions
 		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
 			f = chooser.getSelectedFile();
 		
-//		GuiLaunch.setView(ViewType.CONSOLE);
+		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
     	/* Don't crash if the user has clicked cancel. */
     	if ( f == null )
     	{
