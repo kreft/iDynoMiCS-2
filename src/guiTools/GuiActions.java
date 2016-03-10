@@ -96,6 +96,7 @@ public final class GuiActions
 	public static void runSimulation()
 	{
 		GuiLaunch.setView(ViewType.CONSOLE);
+		GuiLaunch.resetProgressBar();
 		// we dont need a protocol if we are launching from gui
 //		if ( Param.protocolFile != null )
 			Idynomics.launchSimulator();

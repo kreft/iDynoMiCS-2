@@ -1,6 +1,7 @@
 package guiTools;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -26,7 +27,6 @@ import idynomics.GuiLaunch.ViewType;
 public class GuiConstruct {
 
 	public static JComponent getConstructor() {
-
 		
 		/* The tabs pane */
 		JPanel panel = new JPanel();
@@ -34,23 +34,19 @@ public class GuiConstruct {
 
 		/* simulator pane */
 		JPanel simulatorPane = new JPanel();
-		simulatorPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		simulatorPane.setMaximumSize(new Dimension(600, 600));
+		simulatorPane.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
 		
 		/* simulator pane */
 		JPanel speciesPane = new JPanel();
-		speciesPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		speciesPane.setMaximumSize(new Dimension(600, 600));
+		speciesPane.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
 		
 		/* compartments */
 		JPanel compartmentPane = new JPanel();
-		compartmentPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		compartmentPane.setMaximumSize(new Dimension(600, 600));
-				
+		compartmentPane.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
+
 		/* start pane */
 		JPanel startPane = new JPanel();
-		startPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		startPane.setMaximumSize(new Dimension(600, 600));
+		startPane.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
 		
 		/* simulation pane */
 		simulatorPane.add(textPanel("Timer settings"));
@@ -145,25 +141,25 @@ public class GuiConstruct {
 		}
 		));
 		
-//		compartmentPane.add(actionButton("", new JButton("refresh"), new ActionListener()
-//		{
-//			@Override
-//			public void actionPerformed(ActionEvent event)
-//			{
-//				try
-//				{
-//					int i = 0;
-//					box.removeAllItems();
-//					for(String name : Idynomics.simulator.getCompartmentNames())
-//						box.insertItemAt(name, i++);
-//				}
-//				catch(NullPointerException e)
-//				{
-//
-//				}	
-//			}
-//		}
-//		));
+		compartmentPane.add(actionButton("", new JButton("refresh"), new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
+				try
+				{
+					int i = 0;
+					box.removeAllItems();
+					for(String name : Idynomics.simulator.getCompartmentNames())
+						box.insertItemAt(name, i++);
+				}
+				catch(NullPointerException e)
+				{
+
+				}	
+			}
+		}
+		));
 		
 		/* start pane content */
 		
