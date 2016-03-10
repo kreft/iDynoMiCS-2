@@ -228,23 +228,31 @@ public class GuiSimConstruct {
 		/* 
 		 * the tabs 
 		 */
+		
 		tabbedPane.addTab("start", null, startPane,
                 "create new or start from file");
-		tabbedPane.setMnemonicAt(0, KeyEvent.VK_0);
 
 		tabbedPane.addTab("Simulator", null, simulatorPane,
 		                  "Simulator settings");
-		tabbedPane.setMnemonicAt(1, KeyEvent.VK_1);
-		tabbedPane.setEnabledAt(1, false);
 
 		tabbedPane.addTab("Species Library", null, speciesPane,
 		                  "Species Library");
-		tabbedPane.setMnemonicAt(2, KeyEvent.VK_2);
-		tabbedPane.setEnabledAt(2, false);
 
 		tabbedPane.addTab("Compartments", null, compartmentPane,
 		                  "The compartments");
-		tabbedPane.setMnemonicAt(3, KeyEvent.VK_3);
+		
+		// TODO alternative to having views hidden in menu bar
+//		tabbedPane.addTab("console", null, GuiConsole.getConsole(),
+//              "The Console");
+		
+		/* gets removed, probably due to setView */
+//		tabbedPane.addTab("console", null, GuiLaunch.console,
+//                "create new or start from file");
+		
+		
+		tabbedPane.setSelectedIndex(0);
+		tabbedPane.setEnabledAt(1, false);
+		tabbedPane.setEnabledAt(2, false);
 		tabbedPane.setEnabledAt(3, false);
 		
 		panel.add(tabbedPane);

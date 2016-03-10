@@ -18,18 +18,20 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import guiTools.ConsoleSimBuilder;
 import guiTools.GuiActions;
 import guiTools.GuiConsole;
-import guiTools.GuiSimConstruct;
 import guiTools.GuiMenu;
 import guiTools.GuiProtocol;
 import guiTools.GuiSimBuilder;
+import guiTools.GuiSimConstruct;
 import guiTools.GuiSimControl;
 import guiTools.GuiSplash;
 import utility.Helper;
@@ -46,6 +48,7 @@ import utility.Helper;
  */
 public class GuiLaunch implements Runnable
 {
+	
 	public enum ViewType
 	{
 		SPLASH,
@@ -65,7 +68,7 @@ public class GuiLaunch implements Runnable
 	
 	private static JFrame masterFrame;
 	
-	private static HashMap<ViewType,JComponent> views;
+//	private static HashMap<ViewType,JComponent> views;
 	
 	private static JComponent currentView;
 	
@@ -80,6 +83,19 @@ public class GuiLaunch implements Runnable
 	private static Point point = new Point(0,0);
 	
 	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
+	
+	private static JComponent edit;
+
+	private static JComponent splash;
+	
+	public static JComponent console;
+	
+	private static JComponent construct;
+	
+	public static JPanel contentPane;
+	
+	public static SequentialGroup verticalLayoutGroup;
+	public static ParallelGroup horizontalLayoutGroup;
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -97,8 +113,9 @@ public class GuiLaunch implements Runnable
 	public GuiLaunch() 
 	{
 		masterFrame = new JFrame();
-		layout = new GroupLayout(masterFrame.getContentPane());
-		masterFrame.getContentPane().setLayout(layout);
+		contentPane = new JPanel();
+		layout = new GroupLayout(contentPane);
+		contentPane.setLayout(layout);
 		
 		run();
 	}
@@ -130,6 +147,19 @@ public class GuiLaunch implements Runnable
 		masterFrame.setTitle(Idynomics.fullDescription());
 		masterFrame.setSize(800,800);
 		masterFrame.setLocationRelativeTo(null);
+		
+		ImageIcon img = new ImageIcon(ICON_PATH);
+
+		masterFrame.setIconImage(img.getImage());
+		
+		/**
+		 * create views
+		 */
+		edit = GuiProtocol.getProtocolEditor();
+		splash = GuiSplash.getSplashScreen();
+		console = GuiConsole.getConsole();
+		construct = GuiSimConstruct.getConstructor();
+		
 		/* 
 		 * Add the menu bar. This is independent of the layout of the rest of
 		 * the GUI.
@@ -138,84 +168,10 @@ public class GuiLaunch implements Runnable
 		/*
 		 * Set up the layout manager and its groups.
 		 */
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
-		SequentialGroup verticalLayoutGroup = layout.createSequentialGroup();
-		ParallelGroup horizontalLayoutGroup = layout.createParallelGroup();
-		/*
-		 * Just below the menu bar, make the bar of simulation control buttons.
-		 */
-		SequentialGroup buttonHoriz = layout.createSequentialGroup();
-		ParallelGroup buttonVert = layout.createParallelGroup();
-		JButton button;
-		/* Check the simulation. */
-		button = GuiSimControl.checkButton();
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
-		/* Run the simulation. */
-		button = GuiSimControl.runButton();
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
-		/* Pause the simulation. */
-		// TODO This doesn't work yet...
-		//button = GuiSimControl.pauseButton();
-		//buttonHoriz.addComponent(button);
-		//buttonVert.addComponent(button);
-		/* Stop the simulation. */
-		button = GuiSimControl.stopButton();
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
-		/* Add a progress bar to the button row. */
-		progressBar  = new JProgressBar();
-		progressBar.setStringPainted(true);
-		buttonHoriz.addComponent(progressBar);
-		buttonVert.addComponent(progressBar);
-		/* Add a checkbox for the GuiConsole autoscrolling. */
-		JCheckBox autoscroll = GuiConsole.autoScrollCheckBox();
-		buttonHoriz.addComponent(autoscroll);
-		buttonVert.addComponent(autoscroll);
-		/* Add these to the layout. */
-		verticalLayoutGroup.addGroup(buttonVert);
-		horizontalLayoutGroup.addGroup(buttonHoriz);
-		/*
-		 * Construct the views and add them to the HashMap.
-		 */
-		views = new HashMap<ViewType,JComponent>();
-		views.put(ViewType.SPLASH, GuiSplash.getSplashScreen());
-		views.put(ViewType.CONSOLE, GuiConsole.getConsole());
-		views.put(ViewType.SIMULATIONBUILDER, GuiSimConstruct.getConstructor());
-		/*
-		 * Use the splash view to start with.
-		 */
-		currentView = views.get(ViewType.SPLASH);
-		/*
-		 * 
-		 * Add this to the layout.
-		 */
-		horizontalLayoutGroup.addComponent(currentView, 
-											GroupLayout.DEFAULT_SIZE, 
-											GroupLayout.DEFAULT_SIZE,
-											Short.MAX_VALUE);
-		verticalLayoutGroup.addComponent(currentView, 
-											GroupLayout.DEFAULT_SIZE, 
-											GroupLayout.DEFAULT_SIZE,
-											Short.MAX_VALUE);
-		/* 
-		 * Apply the layout and build the GUI.
-		 */
-		layout.setVerticalGroup(verticalLayoutGroup);
-		layout.setHorizontalGroup(horizontalLayoutGroup);
-		
-		/* Bas: quick fix, coupled this to progress bar for now since old
-		 * structure is gone.
-		 */
-		keyBindings(progressBar, masterFrame);
-		
-		ImageIcon img = new ImageIcon(ICON_PATH);
-
-		masterFrame.setIconImage(img.getImage());
+		setView(ViewType.SPLASH);
 		
 		masterFrame.setVisible(true);
+
 	}
 
 	/**
@@ -294,25 +250,98 @@ public class GuiLaunch implements Runnable
 	 */
 	public static void setView(ViewType vType)
 	{
-		if ( ! views.containsKey(vType) )
+		contentPane.removeAll();
+		
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		verticalLayoutGroup = layout.createSequentialGroup();
+		horizontalLayoutGroup = layout.createParallelGroup();
+		
+		switch (vType)
 		{
-			switch (vType)
-			{
-			case PROTOCOLMAKER:
-				views.put(ViewType.PROTOCOLMAKER, GuiProtocol.getProtocolEditor());
-				break;
-			case SIMULATIONMAKER:
-				//views.put(ViewType.SIMULATIONMAKER, GuiSimBuilder.getSimulationBuilder());
-				ConsoleSimBuilder.makeSimulation();
-				break;
-			// TODO 
-			default:
-				return;
-			}
+		case PROTOCOLMAKER:
+			drawButtons();
+			currentView = edit;
+			break;
+		case SIMULATIONMAKER:
+			ConsoleSimBuilder.makeSimulation();
+			break;
+		case SPLASH:
+			currentView = splash;
+			break;
+		case CONSOLE:
+			drawButtons();
+			currentView = console;
+			break;
+		case SIMULATIONBUILDER:
+			drawButtons();
+			currentView = construct;
+			break;
+		default:
+			return;
 		}
-		GroupLayout l = (GroupLayout) masterFrame.getContentPane().getLayout();
-		l.replace(currentView, views.get(vType));
-		currentView = views.get(vType);
+		
+		horizontalLayoutGroup.addComponent(currentView, 
+				GroupLayout.DEFAULT_SIZE, 
+				GroupLayout.DEFAULT_SIZE,
+				Short.MAX_VALUE);
+		
+		verticalLayoutGroup.addComponent(currentView, 
+						GroupLayout.DEFAULT_SIZE, 
+						GroupLayout.DEFAULT_SIZE,
+						Short.MAX_VALUE);
+		/* 
+		* Apply the layout and build the GUI.
+		*/
+		layout.setVerticalGroup(verticalLayoutGroup);
+		layout.setHorizontalGroup(horizontalLayoutGroup);
+		
+
+		/* Bas: quick fix, coupled this to progress bar for now since old
+		 * structure is gone.
+		 */
+		keyBindings(contentPane, masterFrame);
+		
+		masterFrame.add(contentPane);
+	}
+	
+	public static void drawButtons() 
+	{
+		/*
+		 * Just below the menu bar, make the bar of simulation control buttons.
+		 */
+		SequentialGroup buttonHoriz = layout.createSequentialGroup();
+		ParallelGroup buttonVert = layout.createParallelGroup();
+		JButton button;
+		/* Check the simulation. */
+		button = GuiSimControl.checkButton();
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		/* Run the simulation. */
+		button = GuiSimControl.runButton();
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		/* Pause the simulation. */
+		// TODO This doesn't work yet...
+		//button = GuiSimControl.pauseButton();
+		//buttonHoriz.addComponent(button);
+		//buttonVert.addComponent(button);
+		/* Stop the simulation. */
+		button = GuiSimControl.stopButton();
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		/* Add a progress bar to the button row. */
+		progressBar  = new JProgressBar();
+		progressBar.setStringPainted(true);
+		buttonHoriz.addComponent(progressBar);
+		buttonVert.addComponent(progressBar);
+		/* Add a checkbox for the GuiConsole autoscrolling. */
+		JCheckBox autoscroll = GuiConsole.autoScrollCheckBox();
+		buttonHoriz.addComponent(autoscroll);
+		buttonVert.addComponent(autoscroll);
+		/* Add these to the layout. */
+		verticalLayoutGroup.addGroup(buttonVert);
+		horizontalLayoutGroup.addGroup(buttonHoriz);
 	}
 	
 	/**
