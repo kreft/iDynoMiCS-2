@@ -17,7 +17,7 @@ public class ConsoleSimBuilder
 {
 	public static void makeSimulation()
 	{
-		GuiLaunch.setView(ViewType.CONSOLE);
+//		GuiLaunch.setView(ViewType.CONSOLE);
 		Log.printToScreen("~~~~~~~~~~~~~~~~~~~~~", false);
 		Log.printToScreen("Making new simulation", false);
 		Log.printToScreen("~~~~~~~~~~~~~~~~~~~~~", false);

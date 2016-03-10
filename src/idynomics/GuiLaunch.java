@@ -152,7 +152,38 @@ public class GuiLaunch implements Runnable
 		/*
 		 * Set up the layout manager and its groups.
 		 */
-		setView(ViewType.SPLASH);
+		contentPane.removeAll();
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
+		verticalLayoutGroup = layout.createSequentialGroup();
+		horizontalLayoutGroup = layout.createParallelGroup();
+
+		drawButtons();
+		currentView = GuiSimConstruct.getConstructor();
+		
+		horizontalLayoutGroup.addComponent(currentView, 
+				GroupLayout.DEFAULT_SIZE, 
+				GroupLayout.DEFAULT_SIZE,
+				Short.MAX_VALUE);
+		
+		verticalLayoutGroup.addComponent(currentView, 
+						GroupLayout.DEFAULT_SIZE, 
+						GroupLayout.DEFAULT_SIZE,
+						Short.MAX_VALUE);
+		/* 
+		* Apply the layout and build the GUI.
+		*/
+		layout.setVerticalGroup(verticalLayoutGroup);
+		layout.setHorizontalGroup(horizontalLayoutGroup);
+		
+		/* Bas: quick fix, coupled this to contentPane for now since old
+		 * structure is gone.
+		 */
+		keyBindings(contentPane, masterFrame);
+		
+		/** Checked this and works correctly, masterFrame stays at one component
+		 * the contentPane  */
+		masterFrame.add(contentPane);
 		
 		masterFrame.setVisible(true);
 
@@ -185,67 +216,6 @@ public class GuiLaunch implements Runnable
 		});
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param vType
-	 */
-	public static void setView(ViewType vType)
-	{	
-		contentPane.removeAll();
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
-		verticalLayoutGroup = layout.createSequentialGroup();
-		horizontalLayoutGroup = layout.createParallelGroup();
-		
-		switch (vType)
-		{
-		case PROTOCOLMAKER:
-			drawButtons();
-			currentView = GuiProtocol.getProtocolEditor();
-			break;
-		case SIMULATIONMAKER:
-			ConsoleSimBuilder.makeSimulation();
-			break;
-		case SPLASH:
-			currentView = GuiSplash.getSplashScreen();
-			break;
-		case CONSOLE:
-			drawButtons();
-			currentView = GuiConsole.getConsole();
-			break;
-		case SIMULATIONBUILDER:
-			drawButtons();
-			currentView = GuiSimConstruct.getConstructor();
-			break;
-		default:
-			return;
-		}
-		
-		horizontalLayoutGroup.addComponent(currentView, 
-				GroupLayout.DEFAULT_SIZE, 
-				GroupLayout.DEFAULT_SIZE,
-				Short.MAX_VALUE);
-		
-		verticalLayoutGroup.addComponent(currentView, 
-						GroupLayout.DEFAULT_SIZE, 
-						GroupLayout.DEFAULT_SIZE,
-						Short.MAX_VALUE);
-		/* 
-		* Apply the layout and build the GUI.
-		*/
-		layout.setVerticalGroup(verticalLayoutGroup);
-		layout.setHorizontalGroup(horizontalLayoutGroup);
-		
-		/* Bas: quick fix, coupled this to contentPane for now since old
-		 * structure is gone.
-		 */
-		keyBindings(contentPane, masterFrame);
-		
-		/** Checked this and works correctly, masterFrame stays at one component
-		 * the contentPane  */
-		masterFrame.add(contentPane);
-	}
 	
 	public static void drawButtons() 
 	{

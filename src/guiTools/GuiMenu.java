@@ -32,7 +32,7 @@ public final class GuiMenu
 	{
 		menuBar = new JMenuBar();
 		menuBar.add(fileMenu());
-		menuBar.add(viewMenu());
+//		menuBar.add(viewMenu());
 		return menuBar;
 	}
 	
@@ -111,32 +111,32 @@ public final class GuiMenu
 		return menu;
 	}
 	
-	private static JMenu viewMenu()
-	{
-		JMenu menu;
-		JRadioButtonMenuItem rbMenuItem;
-		/*
-		 * 
-		 */
-		menu = new JMenu("View");
-		menu.setMnemonic(KeyEvent.VK_V);
-		menu.getAccessibleContext().setAccessibleDescription("View options");
-		/*
-		 * 
-		 */
-		// TODO Update the button group if the view is changed elsewhere
-		ButtonGroup group = new ButtonGroup();
-		for ( GuiLaunch.ViewType v : GuiLaunch.ViewType.values() )
-		{
-			rbMenuItem = new JRadioButtonMenuItem(new GuiView(v));
-			group.add(rbMenuItem);
-			menu.add(rbMenuItem);
-		}
-		/*
-		 * Finally, return the View menu.
-		 */
-		return menu;
-	}
+//	private static JMenu viewMenu()
+//	{
+//		JMenu menu;
+//		JRadioButtonMenuItem rbMenuItem;
+//		/*
+//		 * 
+//		 */
+//		menu = new JMenu("View");
+//		menu.setMnemonic(KeyEvent.VK_V);
+//		menu.getAccessibleContext().setAccessibleDescription("View options");
+//		/*
+//		 * 
+//		 */
+//		// TODO Update the button group if the view is changed elsewhere
+//		ButtonGroup group = new ButtonGroup();
+//		for ( GuiLaunch.ViewType v : GuiLaunch.ViewType.values() )
+//		{
+//			rbMenuItem = new JRadioButtonMenuItem(new GuiView(v));
+//			group.add(rbMenuItem);
+//			menu.add(rbMenuItem);
+//		}
+//		/*
+//		 * Finally, return the View menu.
+//		 */
+//		return menu;
+//	}
 	
 	/*************************************************************************
 	 * 
@@ -241,21 +241,21 @@ public final class GuiMenu
 		}
 	}
 	
-	public static class GuiView extends AbstractAction
-	{
-		private static final long serialVersionUID = 8725075624293930079L;
-		
-		private ViewType _view;
-		
-		public GuiView(ViewType view)
-		{
-			super(view.toString());
-			this._view = view;
-		}
-		
-		public void actionPerformed(ActionEvent e)
-		{
-			GuiLaunch.setView(this._view);
-		}
-	}
+//	public static class GuiView extends AbstractAction
+//	{
+//		private static final long serialVersionUID = 8725075624293930079L;
+//		
+//		private ViewType _view;
+//		
+//		public GuiView(ViewType view)
+//		{
+//			super(view.toString());
+//			this._view = view;
+//		}
+//		
+//		public void actionPerformed(ActionEvent e)
+//		{
+//			GuiLaunch.setView(this._view);
+//		}
+//	}
 }

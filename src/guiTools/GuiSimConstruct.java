@@ -33,6 +33,10 @@ import idynomics.GuiLaunch.ViewType;
 public class GuiSimConstruct {
 	
 	protected static JComponent component = setComponent();
+	
+	protected static JTabbedPane tabbedPane;
+	
+	final static int CONSOLEPANE = 0;
 
 	public static JComponent getConstructor() 
 	{
@@ -45,7 +49,8 @@ public class GuiSimConstruct {
 		
 		/* The tabs pane */
 		JPanel panel = new JPanel();
-		JTabbedPane tabbedPane = new JTabbedPane();
+		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		tabbedPane = new JTabbedPane();
 
 		/* simulator pane */
 		JPanel simulatorPane = new JPanel();
@@ -88,24 +93,24 @@ public class GuiSimConstruct {
 		}
 		));
 		
-		simulatorPane.add(actionButton("load current timer settings", new JButton("load"), new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				try
-				{
-					timestep.setText(String.valueOf(Idynomics.simulator.timer.getTimeStepSize()));
-					timeend.setText(String.valueOf(Idynomics.simulator.timer.getEndOfSimulation()));
-				}
-				catch(NullPointerException e)
-				{
-//					timestep.setText("1");
-//					timeend.setText("100");
-				}	
-			}
-		}
-		));
+//		simulatorPane.add(actionButton("load current timer settings", new JButton("load"), new ActionListener()
+//		{
+//			@Override
+//			public void actionPerformed(ActionEvent event)
+//			{
+//				try
+//				{
+//					timestep.setText(String.valueOf(Idynomics.simulator.timer.getTimeStepSize()));
+//					timeend.setText(String.valueOf(Idynomics.simulator.timer.getEndOfSimulation()));
+//				}
+//				catch(NullPointerException e)
+//				{
+////					timestep.setText("1");
+////					timeend.setText("100");
+//				}	
+//			}
+//		}
+//		));
 		
 		/* 
 		 * species lib pane content 
@@ -186,6 +191,9 @@ public class GuiSimConstruct {
 		/* 
 		 * start pane content 
 		 */
+		
+		startPane.add(textPanel(""));
+		
 		startPane.add(actionButton("Open from file", new JButton("open"), new ActionListener()
 		{
 			@Override
@@ -211,7 +219,6 @@ public class GuiSimConstruct {
 					species.insertItemAt(name, i++);
 				species.setSelectedIndex(0);
 				
-				GuiLaunch.setView(ViewType.SIMULATIONBUILDER);
 			}
 			catch(NullPointerException | IllegalArgumentException e)
 			{
@@ -233,11 +240,21 @@ public class GuiSimConstruct {
 			}
 		}
 		));
+		
+		startPane.add(textPanel(""));
+
+		startPane.add(textPanel(""));
+		
+		startPane.add(GuiSplash.getSplashScreen());
 
 		/* 
 		 * the tabs 
 		 * TODO: disable tabs while simulation is running
 		 */
+		// TODO alternative to having views hidden in menu bar
+		tabbedPane.addTab("console", null, GuiConsole.getConsole(),
+              "The Console");
+		
 		tabbedPane.addTab("start", null, startPane,
                 "create new or start from file");
 
@@ -250,9 +267,7 @@ public class GuiSimConstruct {
 		tabbedPane.addTab("Compartments", null, compartmentPane,
 		                  "The compartments");
 		
-		// TODO alternative to having views hidden in menu bar
-//		tabbedPane.addTab("console", null, GuiConsole.getConsole(),
-//              "The Console");
+
 		
 		
 		tabbedPane.setSelectedIndex(findComponentIndex(tabbedPane, startPane));
@@ -262,6 +277,11 @@ public class GuiSimConstruct {
 		
 		panel.add(tabbedPane);
 		return (JComponent) tabbedPane;
+	}
+	
+	public static void togglePane(int paneNumber)
+	{
+		tabbedPane.setSelectedIndex(paneNumber);
 	}
 	
 	public static void tabEnabled(JTabbedPane tabbedPane, Component component, boolean bool)

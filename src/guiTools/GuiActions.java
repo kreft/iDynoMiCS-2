@@ -27,7 +27,7 @@ public final class GuiActions
 {
 	public static void newSimulation()
 	{
-		GuiLaunch.setView(ViewType.SIMULATIONMAKER);
+		ConsoleSimBuilder.makeSimulation();
 	}
 	
 	/*************************************************************************
@@ -36,7 +36,7 @@ public final class GuiActions
 	
 	public static void newFile()
 	{
-		GuiLaunch.setView(ViewType.PROTOCOLMAKER);
+		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
 		GuiProtocol.newFile();
 	}
 	
@@ -74,6 +74,7 @@ public final class GuiActions
 	
 	public static void checkProtocol()
 	{
+		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
 //		GuiLaunch.setView(ViewType.CONSOLE);
 		if ( Param.protocolFile == null )
 		{
@@ -95,7 +96,8 @@ public final class GuiActions
 	
 	public static void runSimulation()
 	{
-		GuiLaunch.setView(ViewType.CONSOLE);
+		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
+//		GuiLaunch.setView(ViewType.CONSOLE);
 		// we dont need a protocol if we are launching from gui
 //		if ( Param.protocolFile != null )
 			Idynomics.launchSimulator();
