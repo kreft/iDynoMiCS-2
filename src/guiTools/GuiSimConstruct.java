@@ -30,11 +30,17 @@ import idynomics.GuiLaunch.ViewType;
  *
  */
 public class GuiSimConstruct {
+	
+	protected static JComponent component = setComponent();
 
+	public static JComponent getConstructor() 
+	{
+		return component;
+	}
 	/*
 	 * The JComponent set in the gui
 	 */
-	public static JComponent getConstructor() {
+	public static JComponent setComponent() {
 		
 		/* The tabs pane */
 		JPanel panel = new JPanel();
@@ -242,12 +248,9 @@ public class GuiSimConstruct {
 		                  "The compartments");
 		
 		// TODO alternative to having views hidden in menu bar
-//		tabbedPane.addTab("console", null, GuiConsole.getConsole(),
-//              "The Console");
+		tabbedPane.addTab("console", null, GuiConsole.getConsole(),
+              "The Console");
 		
-		/* gets removed, probably due to setView */
-//		tabbedPane.addTab("console", null, GuiLaunch.console,
-//                "create new or start from file");
 		
 		
 		tabbedPane.setSelectedIndex(0);

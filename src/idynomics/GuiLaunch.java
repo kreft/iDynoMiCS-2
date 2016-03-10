@@ -84,14 +84,6 @@ public class GuiLaunch implements Runnable
 	
 	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
 	
-	private static JComponent edit;
-
-	private static JComponent splash;
-	
-	public static JComponent console;
-	
-	private static JComponent construct;
-	
 	public static JPanel contentPane;
 	
 	public static SequentialGroup verticalLayoutGroup;
@@ -152,14 +144,6 @@ public class GuiLaunch implements Runnable
 
 		masterFrame.setIconImage(img.getImage());
 		
-		/**
-		 * create views
-		 */
-		edit = GuiProtocol.getProtocolEditor();
-		splash = GuiSplash.getSplashScreen();
-		console = GuiConsole.getConsole();
-		construct = GuiSimConstruct.getConstructor();
-		
 		/* 
 		 * Add the menu bar. This is independent of the layout of the rest of
 		 * the GUI.
@@ -199,48 +183,6 @@ public class GuiLaunch implements Runnable
 				GuiActions.runSimulation();
 			}
 		});
-		
-		/* full screen */
-		inputMap.put(KeyStroke.getKeyStroke(
-				KeyEvent.VK_ENTER, ActionEvent.ALT_MASK), "fullscreen");
-		actionMap.put("fullscreen", new AbstractAction()
-		{
-			@Override
-			public void actionPerformed(ActionEvent a) 
-			{
-				System.out.println("f1");
-				fullScreen(frame);
-			}
-		});
-	}
-	
-	/**
-	 *  switch between fullScreen and windowed 
-	 */
-	protected static void fullScreen(JFrame f) {
-		if(!isFullScreen)
-		{
-			f.dispose();
-			f.setUndecorated(true);
-			f.setVisible(true);
-			f.setResizable(false);
-			xgraphic = f.getSize();
-			point = f.getLocation();
-			f.setLocation(0, 0);
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-			f.setSize((int) screenSize.getWidth(), (int) screenSize.getHeight());
-			isFullScreen = true;
-		}
-		else
-		{
-			f.dispose();
-			f.setUndecorated(false);
-			f.setResizable(true);
-			f.setLocation(point);
-			f.setSize(xgraphic);
-			f.setVisible(true);
-			isFullScreen = false;	
-		}
 	}
 	
 	/**
@@ -249,9 +191,8 @@ public class GuiLaunch implements Runnable
 	 * @param vType
 	 */
 	public static void setView(ViewType vType)
-	{
+	{	
 		contentPane.removeAll();
-		
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
 		verticalLayoutGroup = layout.createSequentialGroup();
@@ -261,21 +202,21 @@ public class GuiLaunch implements Runnable
 		{
 		case PROTOCOLMAKER:
 			drawButtons();
-			currentView = edit;
+			currentView = GuiProtocol.getProtocolEditor();
 			break;
 		case SIMULATIONMAKER:
 			ConsoleSimBuilder.makeSimulation();
 			break;
 		case SPLASH:
-			currentView = splash;
+			currentView = GuiSplash.getSplashScreen();
 			break;
 		case CONSOLE:
 			drawButtons();
-			currentView = console;
+			currentView = GuiConsole.getConsole();
 			break;
 		case SIMULATIONBUILDER:
 			drawButtons();
-			currentView = construct;
+			currentView = GuiSimConstruct.getConstructor();
 			break;
 		default:
 			return;
@@ -296,12 +237,13 @@ public class GuiLaunch implements Runnable
 		layout.setVerticalGroup(verticalLayoutGroup);
 		layout.setHorizontalGroup(horizontalLayoutGroup);
 		
-
-		/* Bas: quick fix, coupled this to progress bar for now since old
+		/* Bas: quick fix, coupled this to contentPane for now since old
 		 * structure is gone.
 		 */
 		keyBindings(contentPane, masterFrame);
 		
+		/** Checked this and works correctly, masterFrame stays at one component
+		 * the contentPane  */
 		masterFrame.add(contentPane);
 	}
 	

@@ -64,12 +64,18 @@ public final class GuiProtocol
 	private static int vertSize = 30;
 	private static int horizSize = GroupLayout.DEFAULT_SIZE;
 	
+	protected static JComponent component = setComponent();
+	
+	public static JComponent getProtocolEditor()
+	{
+		return component;
+	}
 	/**
 	 * \brief TODO
 	 * 
 	 * @return
 	 */
-	public static JComponent getProtocolEditor()
+	public static JComponent setComponent()
 	{
 //		mainView = new JPanel();
 //		layout = new GroupLayout(mainView);

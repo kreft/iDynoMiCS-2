@@ -298,7 +298,7 @@ public class Render implements GLEventListener, Runnable {
 
 			@Override
 			public void actionPerformed(ActionEvent a) {
-				System.out.println("f1");
+				System.out.println("fullscreen");
 				fullScreen(frame);
 			}
 		});

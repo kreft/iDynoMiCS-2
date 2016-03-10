@@ -24,6 +24,8 @@ public final class GuiSplash
 	 */
 	private final static String IMAGE_PATH = "icons/iDynoMiCS_logo_medium.png";
 	
+	protected static JComponent component = setComponent();
+	
 	/**
 	 * \brief Load in the image from the {@link #IMAGE_PATH}.
 	 * 
@@ -49,7 +51,7 @@ public final class GuiSplash
 	 * 
 	 * @return {@code JComponent} with the logo image.
 	 */
-	public static JComponent getSplashScreen()
+	public static JComponent setComponent()
 	{
 		/* Load the image. */
 		Image img = loadImage();
@@ -57,5 +59,10 @@ public final class GuiSplash
 		 * Package the image up into a JComponent and return.
 		 */
 		return new JLabel(new ImageIcon(img), JLabel.CENTER);
+	}
+	
+	public static JComponent getSplashScreen()
+	{
+		return component;
 	}
 }
