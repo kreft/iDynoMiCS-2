@@ -2,6 +2,7 @@ package guiTools;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -9,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -39,15 +41,19 @@ public class GuiConstruct {
 		
 		/* simulator pane */
 		JPanel simulatorPane = new JPanel();
+		simulatorPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 
 		/* simulator pane */
 		JPanel speciesPane = new JPanel();
+		speciesPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		
 		/* compartments */
 		JPanel compartmentPane = new JPanel();
+		compartmentPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 				
 		/* start pane */
 		JPanel startPane = new JPanel();
+		startPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		
 		/* simulation pane */
 		simulatorPane.add(textPanel("Timer settings"));
@@ -214,21 +220,21 @@ public class GuiConstruct {
 		
 		tabbedPane.addTab("start", null, startPane,
                 "Does nothing");
-		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+		tabbedPane.setMnemonicAt(0, KeyEvent.VK_0);
 
 		tabbedPane.addTab("Simulator", null, simulatorPane,
 		                  "Does nothing");
-		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+		tabbedPane.setMnemonicAt(1, KeyEvent.VK_1);
 		tabbedPane.setEnabledAt(1, false);
 
 		tabbedPane.addTab("Species Library", null, speciesPane,
 		                  "Does twice as much nothing");
-		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+		tabbedPane.setMnemonicAt(2, KeyEvent.VK_2);
 		tabbedPane.setEnabledAt(2, false);
 
 		tabbedPane.addTab("Compartments", null, compartmentPane,
 		                  "Still does nothing");
-		tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
+		tabbedPane.setMnemonicAt(3, KeyEvent.VK_3);
 		tabbedPane.setEnabledAt(3, false);
 		
 		panel.add(tabbedPane);
@@ -238,7 +244,6 @@ public class GuiConstruct {
 	protected static JPanel inputPanel(String description, JTextArea inputArea)
 	{
 		JPanel panel = new JPanel();
-		panel.setBounds(10, 10, 10, 10);
 		panel.setLayout(new BorderLayout());
 		panel.setSize(600, 30);
 		
@@ -253,7 +258,6 @@ public class GuiConstruct {
 	
 	protected static JComponent textPanel(String text) {
         JPanel panel = new JPanel();
-        panel.setBounds(10, 10, 10, 10);
 		panel.setLayout(new BorderLayout());
 		panel.setSize(600, 30);
         JLabel filler = new JLabel(text);
@@ -264,7 +268,6 @@ public class GuiConstruct {
 	
 	protected static JComponent selectPanel(JComboBox box) {
         JPanel panel = new JPanel();
-        panel.setBounds(10, 10, 10, 10);
 		panel.setLayout(new BorderLayout());
 		panel.setSize(600, 30);
 		
@@ -276,7 +279,6 @@ public class GuiConstruct {
 	protected static JComponent actionButton(String description, String text, ActionListener actionListner)
 	{
 		JPanel panel = new JPanel();
-        panel.setBounds(10, 10, 10, 10);
 		panel.setLayout(new BorderLayout());
 		panel.setSize(600, 30);
 		
