@@ -23,9 +23,17 @@ import idynomics.Simulator;
 import shape.Shape;
 import idynomics.GuiLaunch.ViewType;
 
-
+/**
+ * tabbed interface that allows the user to change parameters of a simulator
+ * allows the creation of new simulators or loading from file.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class GuiConstruct {
 
+	/*
+	 * The JComponent set in the gui
+	 */
 	public static JComponent getConstructor() {
 		
 		/* The tabs pane */
@@ -48,7 +56,10 @@ public class GuiConstruct {
 		JPanel startPane = new JPanel();
 		startPane.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
 		
-		/* simulation pane */
+		
+		/*
+		 *  simulation pane content 
+		 */
 		simulatorPane.add(textPanel("Timer settings"));
 		
 		JTextArea timestep = new JTextArea();
@@ -89,7 +100,9 @@ public class GuiConstruct {
 		}
 		));
 		
-		/* species lib pane content */
+		/* 
+		 * species lib pane content 
+		 */
 		JComboBox species = new JComboBox();
 		speciesPane.add(selectPanel(species));
 		
@@ -114,7 +127,9 @@ public class GuiConstruct {
 		));
 		
 		
-		/* compartment pane content */
+		/* 
+		 * compartment pane content 
+		 */
 		compartmentPane.add(textPanel("compartments"));
 		
 		JComboBox box = new JComboBox(new String[]{});
@@ -161,8 +176,9 @@ public class GuiConstruct {
 		}
 		));
 		
-		/* start pane content */
-		
+		/* 
+		 * start pane content 
+		 */
 		startPane.add(actionButton("Open from file", new JButton("open"), new ActionListener()
 		{
 			@Override
@@ -209,24 +225,25 @@ public class GuiConstruct {
 		}
 		));
 
-		/* the tabs */
-		
+		/* 
+		 * the tabs 
+		 */
 		tabbedPane.addTab("start", null, startPane,
-                "Does nothing");
+                "create new or start from file");
 		tabbedPane.setMnemonicAt(0, KeyEvent.VK_0);
 
 		tabbedPane.addTab("Simulator", null, simulatorPane,
-		                  "Does nothing");
+		                  "Simulator settings");
 		tabbedPane.setMnemonicAt(1, KeyEvent.VK_1);
 		tabbedPane.setEnabledAt(1, false);
 
 		tabbedPane.addTab("Species Library", null, speciesPane,
-		                  "Does twice as much nothing");
+		                  "Species Library");
 		tabbedPane.setMnemonicAt(2, KeyEvent.VK_2);
 		tabbedPane.setEnabledAt(2, false);
 
 		tabbedPane.addTab("Compartments", null, compartmentPane,
-		                  "Still does nothing");
+		                  "The compartments");
 		tabbedPane.setMnemonicAt(3, KeyEvent.VK_3);
 		tabbedPane.setEnabledAt(3, false);
 		
@@ -234,6 +251,9 @@ public class GuiConstruct {
 		return (JComponent) tabbedPane;
 	}
 	
+	/*
+	 * return a formated JPanel with textPanel and with description
+	 */
 	protected static JPanel inputPanel(String description, JTextArea inputArea)
 	{
 		JPanel panel = new JPanel();
@@ -249,6 +269,9 @@ public class GuiConstruct {
 		return panel;
 	}
 	
+	/*
+	 * return a formated JPanel with JLabel
+	 */
 	protected static JComponent textPanel(String text) {
         JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -259,6 +282,9 @@ public class GuiConstruct {
         return panel;
     }
 	
+	/*
+	 * return a formated JPanel with Combobox
+	 */
 	protected static JComponent selectPanel(JComboBox box) {
         JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -269,6 +295,9 @@ public class GuiConstruct {
         return panel;
     }
 	
+	/*
+	 * return a formated JPanel with JButton, eventListner and description
+	 */
 	protected static JComponent actionButton(String description, JButton actionButton, ActionListener actionListner)
 	{
 		JPanel panel = new JPanel();

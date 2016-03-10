@@ -24,7 +24,6 @@ import surface.Surface;
  */
 public class AgentMediator implements CommandMediator {
 	protected AgentContainer agents;
-	protected EnvironmentContainer environment;
 	private String pigment;
 	private float[] rgba;
 //	private GLU glu = new GLU();
@@ -43,10 +42,9 @@ public class AgentMediator implements CommandMediator {
 	 * assign agent container via the constructor
 	 * @param agents
 	 */
-	public AgentMediator(AgentContainer agents, EnvironmentContainer environment)
+	public AgentMediator(AgentContainer agents)
 	{
 		this.agents = agents;
-		this.environment = environment;
 	}
 
 	/**
