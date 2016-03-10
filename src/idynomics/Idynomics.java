@@ -78,8 +78,9 @@ public class Idynomics
 	 * launch, and then launch it.
 	 * 
 	 * @param protocolPath Path to the XML protocol file.
+	 * TODO: change this to return a boolean? check exact usage of this method
 	 */
-	public static void setupCheckLaunch(String protocolPath)
+	public static void checkLaunch(String protocolPath)
 	{
 		if ( ! simulator.isReadyForLaunch() )
 		{
