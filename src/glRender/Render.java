@@ -291,7 +291,8 @@ public class Render implements GLEventListener, Runnable {
 		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		
 		/* fullscreen */
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "fullscreen");
+		inputMap.put(KeyStroke.getKeyStroke(
+				KeyEvent.VK_ENTER, ActionEvent.ALT_MASK), "fullscreen");
 		actionMap.put("fullscreen", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
 

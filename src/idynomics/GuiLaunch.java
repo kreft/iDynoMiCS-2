@@ -234,7 +234,7 @@ public class GuiLaunch implements Runnable
 		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 
 		/* Run simulation */
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0), "run");
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "run");
 		actionMap.put("run", new AbstractAction()
 		{
 			@Override
@@ -245,7 +245,8 @@ public class GuiLaunch implements Runnable
 		});
 		
 		/* full screen */
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "fullscreen");
+		inputMap.put(KeyStroke.getKeyStroke(
+				KeyEvent.VK_ENTER, ActionEvent.ALT_MASK), "fullscreen");
 		actionMap.put("fullscreen", new AbstractAction()
 		{
 			@Override

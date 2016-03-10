@@ -3,14 +3,11 @@ package guiTools;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
-import javax.swing.BoxLayout;
-import javax.swing.GroupLayout;
+
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -18,15 +15,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.SpringLayout;
-
-import agent.SpeciesLib;
 import idynomics.Compartment;
 import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 import idynomics.Simulator;
 import shape.Shape;
-import utility.Helper;
 import idynomics.GuiLaunch.ViewType;
 
 
@@ -38,22 +31,26 @@ public class GuiConstruct {
 		/* The tabs pane */
 		JPanel panel = new JPanel();
 		JTabbedPane tabbedPane = new JTabbedPane();
-		
-		/* simulator pane */
-		JPanel simulatorPane = new JPanel();
-		simulatorPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 
 		/* simulator pane */
+		JPanel simulatorPane = new JPanel();
+		simulatorPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		simulatorPane.setMaximumSize(new Dimension(600, 600));
+		
+		/* simulator pane */
 		JPanel speciesPane = new JPanel();
-		speciesPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		speciesPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		speciesPane.setMaximumSize(new Dimension(600, 600));
 		
 		/* compartments */
 		JPanel compartmentPane = new JPanel();
-		compartmentPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		compartmentPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		compartmentPane.setMaximumSize(new Dimension(600, 600));
 				
 		/* start pane */
 		JPanel startPane = new JPanel();
-		startPane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		startPane.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		startPane.setMaximumSize(new Dimension(600, 600));
 		
 		/* simulation pane */
 		simulatorPane.add(textPanel("Timer settings"));
@@ -64,7 +61,7 @@ public class GuiConstruct {
 		JTextArea timeend = new JTextArea();
 		simulatorPane.add(inputPanel("end of simulation", timeend));
 		
-		simulatorPane.add(actionButton("set timer", "set", new ActionListener()
+		simulatorPane.add(actionButton("set timer", new JButton("set"), new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent event)
@@ -77,7 +74,7 @@ public class GuiConstruct {
 		}
 		));
 		
-		simulatorPane.add(actionButton("load current timer settings", "load", new ActionListener()
+		simulatorPane.add(actionButton("load current timer settings", new JButton("load"), new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent event)
@@ -100,7 +97,7 @@ public class GuiConstruct {
 		JComboBox species = new JComboBox();
 		speciesPane.add(selectPanel(species));
 		
-		speciesPane.add(actionButton("refresh species list", "refresh", new ActionListener()
+		speciesPane.add(actionButton("refresh species list", new JButton("refresh"), new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent event)
@@ -135,7 +132,7 @@ public class GuiConstruct {
 		JComboBox shape = new JComboBox(Shape.getAllOptions());
 		compartmentPane.add(selectPanel(shape));
 		
-		compartmentPane.add(actionButton("add compartment", "add", new ActionListener()
+		compartmentPane.add(actionButton("add compartment", new JButton("add"), new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent event)
@@ -148,29 +145,29 @@ public class GuiConstruct {
 		}
 		));
 		
-		compartmentPane.add(actionButton("refresh compartment list", "refresh", new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				try
-				{
-					int i = 0;
-					box.removeAllItems();
-					for(String name : Idynomics.simulator.getCompartmentNames())
-						box.insertItemAt(name, i++);
-				}
-				catch(NullPointerException e)
-				{
-
-				}	
-			}
-		}
-		));
+//		compartmentPane.add(actionButton("", new JButton("refresh"), new ActionListener()
+//		{
+//			@Override
+//			public void actionPerformed(ActionEvent event)
+//			{
+//				try
+//				{
+//					int i = 0;
+//					box.removeAllItems();
+//					for(String name : Idynomics.simulator.getCompartmentNames())
+//						box.insertItemAt(name, i++);
+//				}
+//				catch(NullPointerException e)
+//				{
+//
+//				}	
+//			}
+//		}
+//		));
 		
 		/* start pane content */
 		
-		startPane.add(actionButton("Open from file", "open", new ActionListener()
+		startPane.add(actionButton("Open from file", new JButton("open"), new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent event)
@@ -195,7 +192,7 @@ public class GuiConstruct {
 				
 				GuiLaunch.setView(ViewType.SIMCONSTRUCT);
 			}
-			catch(NullPointerException e)
+			catch(NullPointerException | IllegalArgumentException e)
 			{
 
 			}	
@@ -203,7 +200,7 @@ public class GuiConstruct {
 		}
 		));
 	
-		startPane.add(actionButton("Construct new simulation", "construct", new ActionListener()
+		startPane.add(actionButton("Construct new simulation", new JButton("construct"), new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent event)
@@ -276,7 +273,7 @@ public class GuiConstruct {
         return panel;
     }
 	
-	protected static JComponent actionButton(String description, String text, ActionListener actionListner)
+	protected static JComponent actionButton(String description, JButton actionButton, ActionListener actionListner)
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -285,11 +282,10 @@ public class GuiConstruct {
 		JLabel filler = new JLabel(description);
         filler.setPreferredSize(new Dimension(500,30));
         panel.add(filler,BorderLayout.WEST);
-        
-		JButton action = new JButton(text);
-		action.setPreferredSize(new Dimension(100,30));
-		action.addActionListener(actionListner);
-		panel.add(action,BorderLayout.EAST);
+
+		actionButton.setPreferredSize(new Dimension(100,30));
+		actionButton.addActionListener(actionListner);
+		panel.add(actionButton,BorderLayout.EAST);
 		return panel;
 	}
 
