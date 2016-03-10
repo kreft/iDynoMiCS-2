@@ -64,12 +64,12 @@ public class Idynomics
 		{
 			System.out.println("Running test protocol");
 			setupSimulator("protocol/test.xml");
-			setupCheckLaunch("protocol/test.xml");
+			launchSimulator();
 		}
 		for ( String a : args )
 		{
 			setupSimulator(a);
-			setupCheckLaunch(a);
+			launchSimulator();
 		}
 	}
 	
@@ -88,7 +88,7 @@ public class Idynomics
 					"Protocol file incomplete! Skipping "+protocolPath, true);
 			return;
 		}
-		launchSimulator();
+		
 	}
 	
 	/**

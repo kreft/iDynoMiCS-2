@@ -43,6 +43,7 @@ import utility.Helper;
  */
 public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 {
+
 	/**
 	 * Ordered dictionary of dimensions for this shape.
 	 */
@@ -608,6 +609,12 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		return new LinkedList<SubmodelMaker>();
 	}
 	
+	
+	/**
+	 * 
+	 * @return
+	 * Bas: why not just use an enum in the first place
+	 */
 	public static String[] getAllOptions()
 	{
 		Class<?>[] classNames = ShapeLibrary.class.getDeclaredClasses();

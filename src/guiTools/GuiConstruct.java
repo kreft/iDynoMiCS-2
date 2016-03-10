@@ -14,9 +14,12 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
+import idynomics.Compartment;
 import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 import idynomics.Simulator;
+import shape.Shape;
+import utility.Helper;
 import idynomics.GuiLaunch.ViewType;
 
 
@@ -86,15 +89,19 @@ public class GuiConstruct {
 		JComboBox box = new JComboBox(new String[]{});
 		compartmentPane.add(selectPanel(box));
 		
-		JTextArea comp = new JTextArea();
-		compartmentPane.add(inputPanel("compartment name", comp));
+		JTextArea comp = new JTextArea("compartment name");
+		compartmentPane.add(inputPanel("", comp));
+
+		JComboBox shape = new JComboBox(Shape.getAllOptions());
+		compartmentPane.add(selectPanel(shape));
 		
 		compartmentPane.add(actionButton("add compartment", "add", new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				Idynomics.simulator.addCompartment(comp.getText());
+				Compartment c = Idynomics.simulator.addCompartment(comp.getText());
+				c.setShape(Shape.getNewInstance(shape.getSelectedItem().toString()));
 				box.insertItemAt(comp.getText(), box.getItemCount());
 				box.setSelectedIndex(box.getItemCount()-1);
 			}
