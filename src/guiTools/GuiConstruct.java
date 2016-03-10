@@ -14,8 +14,10 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
+import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 import idynomics.Simulator;
+import idynomics.GuiLaunch.ViewType;
 
 
 public class GuiConstruct {
@@ -138,7 +140,7 @@ public class GuiConstruct {
 				for(String name : Idynomics.simulator.getCompartmentNames())
 					box.insertItemAt(name, i++);
 				box.setSelectedIndex(0);
-				
+				GuiLaunch.setView(ViewType.SIMCONSTRUCT);
 			}
 			catch(NullPointerException e)
 			{
