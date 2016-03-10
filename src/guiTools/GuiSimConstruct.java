@@ -29,7 +29,7 @@ import idynomics.GuiLaunch.ViewType;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class GuiConstruct {
+public class GuiSimConstruct {
 
 	/*
 	 * The JComponent set in the gui

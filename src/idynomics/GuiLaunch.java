@@ -26,7 +26,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import guiTools.ConsoleSimBuilder;
 import guiTools.GuiActions;
 import guiTools.GuiConsole;
-import guiTools.GuiConstruct;
+import guiTools.GuiSimConstruct;
 import guiTools.GuiMenu;
 import guiTools.GuiProtocol;
 import guiTools.GuiSimBuilder;
@@ -46,7 +46,6 @@ import utility.Helper;
  */
 public class GuiLaunch implements Runnable
 {
-	
 	public enum ViewType
 	{
 		SPLASH,
@@ -66,7 +65,7 @@ public class GuiLaunch implements Runnable
 	
 	private static JFrame masterFrame;
 	
-//	private static HashMap<ViewType,JComponent> views;
+	private static HashMap<ViewType,JComponent> views;
 	
 	private static JComponent currentView;
 	
@@ -129,7 +128,7 @@ public class GuiLaunch implements Runnable
 		 */
 		masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		masterFrame.setTitle(Idynomics.fullDescription());
-		masterFrame.setSize(1000,800);
+		masterFrame.setSize(800,800);
 		masterFrame.setLocationRelativeTo(null);
 		/* 
 		 * Add the menu bar. This is independent of the layout of the rest of
@@ -178,11 +177,17 @@ public class GuiLaunch implements Runnable
 		/* Add these to the layout. */
 		verticalLayoutGroup.addGroup(buttonVert);
 		horizontalLayoutGroup.addGroup(buttonHoriz);
-
+		/*
+		 * Construct the views and add them to the HashMap.
+		 */
+		views = new HashMap<ViewType,JComponent>();
+		views.put(ViewType.SPLASH, GuiSplash.getSplashScreen());
+		views.put(ViewType.CONSOLE, GuiConsole.getConsole());
+		views.put(ViewType.SIMULATIONBUILDER, GuiSimConstruct.getConstructor());
 		/*
 		 * Use the splash view to start with.
 		 */
-		currentView = GuiSplash.getSplashScreen();
+		currentView = views.get(ViewType.SPLASH);
 		/*
 		 * 
 		 * Add this to the layout.
@@ -289,32 +294,25 @@ public class GuiLaunch implements Runnable
 	 */
 	public static void setView(ViewType vType)
 	{
-		GroupLayout l = (GroupLayout) masterFrame.getContentPane().getLayout();
-		JComponent newView = null;
-		switch (vType)
+		if ( ! views.containsKey(vType) )
 		{
-		case PROTOCOLMAKER:
-			newView = GuiProtocol.getProtocolEditor();
-			break;
-		case SIMULATIONMAKER:
-			//views.put(ViewType.SIMULATIONMAKER, GuiSimBuilder.getSimulationBuilder());
-			ConsoleSimBuilder.makeSimulation();
-			break;
-		case SPLASH:
-			newView = GuiSplash.getSplashScreen();
-			break;
-		case CONSOLE:
-			newView = GuiConsole.getConsole();
-			break;
-		case SIMULATIONBUILDER:
-			newView = GuiConstruct.getConstructor();
-			break;
-		default:
-			return;
+			switch (vType)
+			{
+			case PROTOCOLMAKER:
+				views.put(ViewType.PROTOCOLMAKER, GuiProtocol.getProtocolEditor());
+				break;
+			case SIMULATIONMAKER:
+				//views.put(ViewType.SIMULATIONMAKER, GuiSimBuilder.getSimulationBuilder());
+				ConsoleSimBuilder.makeSimulation();
+				break;
+			// TODO 
+			default:
+				return;
+			}
 		}
-		l.replace(currentView, newView);
-		currentView = newView;
-
+		GroupLayout l = (GroupLayout) masterFrame.getContentPane().getLayout();
+		l.replace(currentView, views.get(vType));
+		currentView = views.get(vType);
 	}
 	
 	/**
