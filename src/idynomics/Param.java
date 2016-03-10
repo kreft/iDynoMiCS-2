@@ -103,8 +103,8 @@ public class Param
 						Helper.enumToString(Tier.class));
 			}
 		}
-		// TODO Don't do this if it's in a GUI and the user has set the level
-		Log.set(t);
+		if( ! Log.isSet() )
+			Log.set(t);
 		/* 
 		 * 
 		 */

@@ -87,10 +87,10 @@ public final class GuiMenu
 		 * Template for further development: we can do switches or toggles
 		 * later.
 		 */
-		menu.addSeparator();
-		cbMenuItem = new JCheckBoxMenuItem("placeholder");
-		cbMenuItem.setMnemonic(KeyEvent.VK_C);
-		menu.add(cbMenuItem);
+//		menu.addSeparator();
+//		cbMenuItem = new JCheckBoxMenuItem("placeholder");
+//		cbMenuItem.setMnemonic(KeyEvent.VK_C);
+//		menu.add(cbMenuItem);
 		/*
 		 * Output level.
 		 */

@@ -63,10 +63,14 @@ public class Idynomics
 		if ( args.length == 0 )
 		{
 			System.out.println("Running test protocol");
+			setupSimulator("protocol/test.xml");
 			setupCheckLaunch("protocol/test.xml");
 		}
 		for ( String a : args )
+		{
+			setupSimulator(a);
 			setupCheckLaunch(a);
+		}
 	}
 	
 	/**
@@ -77,7 +81,6 @@ public class Idynomics
 	 */
 	public static void setupCheckLaunch(String protocolPath)
 	{
-		setupSimulator(protocolPath);
 		if ( ! simulator.isReadyForLaunch() )
 		{
 			/* prevent writing logFile before tier and location is set */

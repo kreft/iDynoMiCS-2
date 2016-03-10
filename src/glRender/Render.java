@@ -14,6 +14,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -243,6 +244,10 @@ public class Render implements GLEventListener, Runnable {
 		p.setPreferredSize(new Dimension(0,0));
 		frame.add(p, BorderLayout.SOUTH);
 		keyBindings(p, frame, r);
+		
+		ImageIcon img = new ImageIcon(ICON_PATH);
+
+		frame.setIconImage(img.getImage());
 		
 		/* start the animator */
 		animator.start();

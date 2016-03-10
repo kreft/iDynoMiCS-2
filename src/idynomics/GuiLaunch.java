@@ -18,7 +18,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
@@ -27,6 +26,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import guiTools.ConsoleSimBuilder;
 import guiTools.GuiActions;
 import guiTools.GuiConsole;
+import guiTools.GuiConstruct;
 import guiTools.GuiMenu;
 import guiTools.GuiProtocol;
 import guiTools.GuiSimBuilder;
@@ -58,7 +58,9 @@ public class GuiLaunch implements Runnable
 		
 		SIMULATIONMAKER,
 		
-		GRAPH
+		GRAPH, 
+		
+		SIMCONSTRUCT
 	}
 	
 	private static JFrame masterFrame;
@@ -181,11 +183,13 @@ public class GuiLaunch implements Runnable
 		views = new HashMap<ViewType,JComponent>();
 		views.put(ViewType.SPLASH, GuiSplash.getSplashScreen());
 		views.put(ViewType.CONSOLE, GuiConsole.getConsole());
+		views.put(ViewType.SIMCONSTRUCT, GuiConstruct.getConstructor());
 		/*
 		 * Use the splash view to start with.
 		 */
 		currentView = views.get(ViewType.SPLASH);
 		/*
+		 * 
 		 * Add this to the layout.
 		 */
 		horizontalLayoutGroup.addComponent(currentView, 
