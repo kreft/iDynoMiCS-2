@@ -227,11 +227,11 @@ public class GuiSimConstruct {
 					species.insertItemAt(name, i++);
 				species.setSelectedIndex(0);
 				
-			}
-			catch(NullPointerException | IllegalArgumentException e)
-			{
-
-			}	
+				}
+				catch(NullPointerException | IllegalArgumentException e)
+				{
+	
+				}	
 			}
 		}
 		));

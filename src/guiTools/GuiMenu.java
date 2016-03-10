@@ -18,6 +18,8 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.GuiLaunch;
 import idynomics.GuiLaunch.ViewType;
+import idynomics.Idynomics;
+import idynomics.Simulator;
 
 /**
  * 
@@ -151,12 +153,17 @@ public final class GuiMenu
 		 */
 		public NewFile()
 		{
-			super("New protocol file");
+			super("Make new protocol");
 		}
 		
 		public void actionPerformed(ActionEvent e)
 		{
-			GuiActions.newFile();
+//			GuiActions.newFile();
+			Idynomics.simulator = new Simulator();
+			GuiSimConstruct.togglePane(GuiSimConstruct.SIMULATORPANE);
+			GuiSimConstruct.tabEnabled(GuiSimConstruct.SIMULATORPANE, true);
+			GuiSimConstruct.tabEnabled(GuiSimConstruct.COMPARTMENTPANE, true);
+			GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, true);
 		}
 	}
 
