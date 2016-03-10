@@ -4,18 +4,9 @@
 package guiTools;
 
 import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
-
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
+
 
 import glRender.AgentMediator;
 import glRender.CommandMediator;
@@ -36,7 +27,7 @@ public final class GuiActions
 {
 	public static void newSimulation()
 	{
-		GuiLaunch.setView(ViewType.SIMULATIONMAKER);
+		ConsoleSimBuilder.makeSimulation();
 	}
 	
 	/*************************************************************************
@@ -45,7 +36,7 @@ public final class GuiActions
 	
 	public static void newFile()
 	{
-		GuiLaunch.setView(ViewType.PROTOCOLMAKER);
+		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
 		GuiProtocol.newFile();
 	}
 	
@@ -66,7 +57,7 @@ public final class GuiActions
 		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
 			f = chooser.getSelectedFile();
 		
-		GuiLaunch.setView(ViewType.CONSOLE);
+		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
     	/* Don't crash if the user has clicked cancel. */
     	if ( f == null )
     	{
@@ -77,13 +68,18 @@ public final class GuiActions
     	{
     		Param.protocolFile = f.getAbsolutePath();
     		GuiConsole.writeOut(Param.protocolFile + " \n");
-//    		Idynomics.simulator.timer.reset();
+    		checkProtocol();
     	}
+
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.COMPARTMENTPANE, true);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, true);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.SIMULATORPANE, true);
 	}
 	
 	public static void checkProtocol()
 	{
-		GuiLaunch.setView(ViewType.CONSOLE);
+		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
+//		GuiLaunch.setView(ViewType.CONSOLE);
 		if ( Param.protocolFile == null )
 		{
 			GuiConsole.writeErr("Please open a protocol file to check");
@@ -104,9 +100,14 @@ public final class GuiActions
 	
 	public static void runSimulation()
 	{
-		GuiLaunch.setView(ViewType.CONSOLE);
-		if ( Param.protocolFile != null )
-			Idynomics.setupCheckLaunch(Param.protocolFile);
+		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.COMPARTMENTPANE, false);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, false);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.SIMULATORPANE, false);
+//		GuiLaunch.setView(ViewType.CONSOLE);
+		// we dont need a protocol if we are launching from gui
+//		if ( Param.protocolFile != null )
+			Idynomics.launchSimulator();
 	}
 	
 	public static void pauseSimulation()
@@ -152,29 +153,5 @@ public final class GuiActions
 			Render myRender = new Render(cm);
 			EventQueue.invokeLater(myRender);
 		}
-	}
-	
-	/*************************************************************************
-	 * MISC
-	 ************************************************************************/
-	
-	// TODO What does this do? When I click enter, nothing happens...
-	public static void keyBindings(JPanel p, JFrame frame) 
-	{
-		ActionMap actionMap = p.getActionMap();
-		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "run");
-		actionMap.put("run", new AbstractAction()
-		{
-			private static final long serialVersionUID = 346448974654345823L;
-
-			@Override
-			public void actionPerformed(ActionEvent a)
-			{
-				if ( Param.protocolFile != null )
-					Idynomics.setupCheckLaunch(Param.protocolFile);
-			}
-		});
 	}
 }

@@ -268,7 +268,6 @@ public class AspectReg<A>
 	 * @param <A> Class of the Aspect.
 	 * 
 	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
-	 * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
 	 */
 	@SuppressWarnings("hiding")
 	private class Aspect<A>
@@ -294,10 +293,6 @@ public class AspectReg<A>
 		 * casting).
 		 */
 		protected Event event;
-		
-		private Predicate<A> _restriction;
-		
-		private String _restrictionExplanation;
 		
 		/**
 		 * \brief Construct and Aspect by setting the aspect and declares type
@@ -361,59 +356,7 @@ public class AspectReg<A>
 	    		out = out + ObjectFactory.nodeFactory(this.aspect, 
 	    				XmlLabel.aspect, key);
 	    	}
-
 			return out;
 		}
-
-//		/**
-//	     * \brief TODO
-//	     * 
-//	     * @param newAspect
-//	     */
-//	    protected void updateAspect(A newAspect)
-//	    {
-//	    	if ( newAspect.getClass() != this.aspect.getClass() )
-//	    	{
-//	    		// TODO safety
-//	    	}
-//	    	/* Check that the restriction is satisfied, if there is one. */
-//	    	if ( this.isRestrictionBroken() )
-//	    	{
-//	    		if ( this._restrictionExplanation == null )
-//	    			Log.out(Tier.CRITICAL, "Aspect restriction broken!");
-//	    		else
-//	    			Log.out(Tier.CRITICAL, this._restrictionExplanation);
-//	    	}
-//	    	this.aspect = newAspect;
-//	    	/* Update the direct access fields, if appropriate. */
-//	    	if ( this.type == AspectReg.AspectClass.CALCULATED )
-//	    		this.calc = (Calculated) this.aspect;
-//	    	if ( this.type == AspectReg.AspectClass.EVENT )
-//	    		this.event = (Event) this.aspect;
-//	    }
-	    
-	    public void setRestriction(Predicate<A> restriction)
-	    {
-	    	this._restriction = restriction;
-	    }
-	    
-	    public void setRestiction(Predicate<A> restriction, String explanation)
-	    {
-	    	this.setRestriction(restriction);
-	    	this._restrictionExplanation = explanation;
-	    }
-	    
-	    public boolean isRestrictionBroken()
-	    {
-	    	if ( this._restriction == null )
-	    		return false;
-	    	return ( ! this._restriction.test(this.aspect) );
-	    }
-	    
-	    public String getRestrictionExplanation()
-	    {
-	    	return this._restrictionExplanation;
-	    }
 	}
-
 }

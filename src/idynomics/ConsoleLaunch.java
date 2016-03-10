@@ -32,7 +32,8 @@ public class ConsoleLaunch
 			protocolPath = args[0];
 		}
 		/* Now run the simulation with the given protocol file. */
-		Idynomics.setupCheckLaunch(protocolPath);
+		Idynomics.setupSimulator(protocolPath);
+		Idynomics.launchSimulator();
 		//user_input.close();
 	}
 }

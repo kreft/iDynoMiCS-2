@@ -36,6 +36,18 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 	 */
 	protected Species _voidSpecies = new Species();
 	
+	public String[] getAllSpeciesNames()
+	{
+		String[] names = new String[_species.size()];
+		int i = 0;
+		for(String name : _species.keySet())
+		{
+			names[i] = name;
+			i++;
+		}
+		return names;
+	}
+	
 	/**
 	 * \brief TODO
 	 * 

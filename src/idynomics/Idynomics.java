@@ -63,10 +63,14 @@ public class Idynomics
 		if ( args.length == 0 )
 		{
 			System.out.println("Running test protocol");
-			setupCheckLaunch("protocol/test.xml");
+			setupSimulator("protocol/test.xml");
+			launchSimulator();
 		}
 		for ( String a : args )
-			setupCheckLaunch(a);
+		{
+			setupSimulator(a);
+			launchSimulator();
+		}
 	}
 	
 	/**
@@ -74,10 +78,10 @@ public class Idynomics
 	 * launch, and then launch it.
 	 * 
 	 * @param protocolPath Path to the XML protocol file.
+	 * TODO: change this to return a boolean? check exact usage of this method
 	 */
-	public static void setupCheckLaunch(String protocolPath)
+	public static void checkLaunch(String protocolPath)
 	{
-		setupSimulator(protocolPath);
 		if ( ! simulator.isReadyForLaunch() )
 		{
 			/* prevent writing logFile before tier and location is set */
@@ -85,7 +89,7 @@ public class Idynomics
 					"Protocol file incomplete! Skipping "+protocolPath, true);
 			return;
 		}
-		launchSimulator();
+		
 	}
 	
 	/**

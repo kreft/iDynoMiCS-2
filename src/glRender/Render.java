@@ -14,6 +14,7 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
+import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -43,6 +44,8 @@ public class Render implements GLEventListener, Runnable {
 	public static DisplayMode dm, dm_old;
 	private static Dimension xgraphic;
 	private static Point point = new  Point(0,0);
+
+	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
 	
 	private GLU glu = new GLU();
 	
@@ -242,6 +245,10 @@ public class Render implements GLEventListener, Runnable {
 		frame.add(p, BorderLayout.SOUTH);
 		keyBindings(p, frame, r);
 		
+		ImageIcon img = new ImageIcon(ICON_PATH);
+
+		frame.setIconImage(img.getImage());
+		
 		/* start the animator */
 		animator.start();
 	}
@@ -284,13 +291,14 @@ public class Render implements GLEventListener, Runnable {
 		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		
 		/* fullscreen */
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "fullscreen");
+		inputMap.put(KeyStroke.getKeyStroke(
+				KeyEvent.VK_ENTER, ActionEvent.ALT_MASK), "fullscreen");
 		actionMap.put("fullscreen", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
 
 			@Override
 			public void actionPerformed(ActionEvent a) {
-				System.out.println("f1");
+				System.out.println("fullscreen");
 				fullScreen(frame);
 			}
 		});

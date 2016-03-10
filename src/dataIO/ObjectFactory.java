@@ -185,7 +185,6 @@ public class ObjectFactory {
 				+ "object type: " + s.getAttribute(type));
 		return null;
 	}
-	
 
 	/**
 	 * load standard aspect object (use labeling as defined by XmlLabel class).

@@ -298,7 +298,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	
 	public void printAllSolutes()
 	{
-		this._solutes.forEach((s,g) -> {this.printSolute(s);;});
+		for(String s : this.getSoluteNames())
+			this.printSolute(s);
 	}
 	
 	/*************************************************************************

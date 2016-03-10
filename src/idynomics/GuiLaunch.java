@@ -1,23 +1,37 @@
 package idynomics;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.GroupLayout;
+import javax.swing.InputMap;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import guiTools.ConsoleSimBuilder;
+import guiTools.GuiActions;
 import guiTools.GuiConsole;
 import guiTools.GuiMenu;
 import guiTools.GuiProtocol;
 import guiTools.GuiSimBuilder;
+import guiTools.GuiSimConstruct;
 import guiTools.GuiSimControl;
 import guiTools.GuiSplash;
 import utility.Helper;
@@ -34,30 +48,46 @@ import utility.Helper;
  */
 public class GuiLaunch implements Runnable
 {
+	
 	public enum ViewType
 	{
 		SPLASH,
 		
 		CONSOLE,
 		
-		RENDER,
+//		RENDER,
 		
 		PROTOCOLMAKER,
 		
 		SIMULATIONMAKER,
 		
-		GRAPH
+//		GRAPH, 
+		
+		SIMULATIONBUILDER
 	}
 	
 	private static JFrame masterFrame;
 	
-	private static HashMap<ViewType,JComponent> views;
+//	private static HashMap<ViewType,JComponent> views;
 	
 	private static JComponent currentView;
 	
 	private static GroupLayout layout;
 	
 	private static JProgressBar progressBar;
+	
+	private static boolean isFullScreen = false;
+	
+	private static Dimension xgraphic;
+	
+	private static Point point = new Point(0,0);
+	
+	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
+	
+	public static JPanel contentPane;
+	
+	public static SequentialGroup verticalLayoutGroup;
+	public static ParallelGroup horizontalLayoutGroup;
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -75,8 +105,9 @@ public class GuiLaunch implements Runnable
 	public GuiLaunch() 
 	{
 		masterFrame = new JFrame();
-		layout = new GroupLayout(masterFrame.getContentPane());
-		masterFrame.getContentPane().setLayout(layout);
+		contentPane = new JPanel();
+		layout = new GroupLayout(contentPane);
+		contentPane.setLayout(layout);
 		
 		run();
 	}
@@ -108,6 +139,11 @@ public class GuiLaunch implements Runnable
 		masterFrame.setTitle(Idynomics.fullDescription());
 		masterFrame.setSize(800,800);
 		masterFrame.setLocationRelativeTo(null);
+		
+		ImageIcon img = new ImageIcon(ICON_PATH);
+
+		masterFrame.setIconImage(img.getImage());
+		
 		/* 
 		 * Add the menu bar. This is independent of the layout of the rest of
 		 * the GUI.
@@ -116,10 +152,73 @@ public class GuiLaunch implements Runnable
 		/*
 		 * Set up the layout manager and its groups.
 		 */
+		contentPane.removeAll();
 		layout.setAutoCreateGaps(true);
 		layout.setAutoCreateContainerGaps(true);
-		SequentialGroup verticalLayoutGroup = layout.createSequentialGroup();
-		ParallelGroup horizontalLayoutGroup = layout.createParallelGroup();
+		verticalLayoutGroup = layout.createSequentialGroup();
+		horizontalLayoutGroup = layout.createParallelGroup();
+
+		drawButtons();
+		currentView = GuiSimConstruct.getConstructor();
+		
+		horizontalLayoutGroup.addComponent(currentView, 
+				GroupLayout.DEFAULT_SIZE, 
+				GroupLayout.DEFAULT_SIZE,
+				Short.MAX_VALUE);
+		
+		verticalLayoutGroup.addComponent(currentView, 
+						GroupLayout.DEFAULT_SIZE, 
+						GroupLayout.DEFAULT_SIZE,
+						Short.MAX_VALUE);
+		/* 
+		* Apply the layout and build the GUI.
+		*/
+		layout.setVerticalGroup(verticalLayoutGroup);
+		layout.setHorizontalGroup(horizontalLayoutGroup);
+		
+		/* Bas: quick fix, coupled this to contentPane for now since old
+		 * structure is gone.
+		 */
+		keyBindings(contentPane, masterFrame);
+		
+		/** Checked this and works correctly, masterFrame stays at one component
+		 * the contentPane  */
+		masterFrame.add(contentPane);
+		
+		masterFrame.setVisible(true);
+
+	}
+
+	/**
+	 * KeyBindings hosts a collection of actions which are initiate on key press
+	 * 
+	 * TODO What does this do? When I click enter, nothing happens...
+ 	 * Bas [09.03.16] after something is broken after changing it please compare
+ 	 * with previous version.
+	 * @param p
+	 * @param frame
+	 */
+	@SuppressWarnings("serial")
+	public static void keyBindings(JComponent p, JFrame frame) 
+	{
+		ActionMap actionMap = p.getActionMap();
+		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+		/* Run simulation */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0), "run");
+		actionMap.put("run", new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent a)
+			{
+				GuiActions.runSimulation();
+			}
+		});
+	}
+	
+	
+	public static void drawButtons() 
+	{
 		/*
 		 * Just below the menu bar, make the bar of simulation control buttons.
 		 */
@@ -155,61 +254,6 @@ public class GuiLaunch implements Runnable
 		/* Add these to the layout. */
 		verticalLayoutGroup.addGroup(buttonVert);
 		horizontalLayoutGroup.addGroup(buttonHoriz);
-		/*
-		 * Construct the views and add them to the HashMap.
-		 */
-		views = new HashMap<ViewType,JComponent>();
-		views.put(ViewType.SPLASH, GuiSplash.getSplashScreen());
-		views.put(ViewType.CONSOLE, GuiConsole.getConsole());
-		/*
-		 * Use the splash view to start with.
-		 */
-		currentView = views.get(ViewType.SPLASH);
-		/*
-		 * Add this to the layout.
-		 */
-		horizontalLayoutGroup.addComponent(currentView, 
-											GroupLayout.DEFAULT_SIZE, 
-											GroupLayout.DEFAULT_SIZE,
-											Short.MAX_VALUE);
-		verticalLayoutGroup.addComponent(currentView, 
-											GroupLayout.DEFAULT_SIZE, 
-											GroupLayout.DEFAULT_SIZE,
-											Short.MAX_VALUE);
-		/* 
-		 * Apply the layout and build the GUI.
-		 */
-		layout.setVerticalGroup(verticalLayoutGroup);
-		layout.setHorizontalGroup(horizontalLayoutGroup);
-		masterFrame.setVisible(true);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param vType
-	 */
-	public static void setView(ViewType vType)
-	{
-		if ( ! views.containsKey(vType) )
-		{
-			switch (vType)
-			{
-			case PROTOCOLMAKER:
-				views.put(ViewType.PROTOCOLMAKER, GuiProtocol.getProtocolEditor());
-				break;
-			case SIMULATIONMAKER:
-				//views.put(ViewType.SIMULATIONMAKER, GuiSimBuilder.getSimulationBuilder());
-				ConsoleSimBuilder.makeSimulation();
-				break;
-			// TODO 
-			default:
-				return;
-			}
-		}
-		GroupLayout l = (GroupLayout) masterFrame.getContentPane().getLayout();
-		l.replace(currentView, views.get(vType));
-		currentView = views.get(vType);
 	}
 	
 	/**

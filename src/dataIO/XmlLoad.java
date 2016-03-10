@@ -91,10 +91,10 @@ public class XmlLoad
 		// NOTE: misses construction from xml, quick fix
 		Idynomics.simulator.timer.setTimeStepSize(
 				Double.valueOf( Helper.obtainInput( 
-						Param.timeStepSize,"Timer time step size")));
+						XmlLabel.timerStepSize,"Timer time step size")));
 		Idynomics.simulator.timer.setEndOfSimulation(
 				Double.valueOf( Helper.obtainInput(
-						Param.endOfSimulation,"End of simulation")));
+						XmlLabel.endOfSimulation,"End of simulation")));
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
