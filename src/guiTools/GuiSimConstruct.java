@@ -37,6 +37,14 @@ public class GuiSimConstruct {
 	protected static JTabbedPane tabbedPane;
 	
 	final static int CONSOLEPANE = 0;
+	
+	final static int STARTPANE = 1;
+	
+	final static int SIMULATORPANE = 2;
+	
+	final static int SPECIESPANE = 3;
+	
+	final static int COMPARTMENTPANE = 4;
 
 	public static JComponent getConstructor() 
 	{
@@ -93,24 +101,24 @@ public class GuiSimConstruct {
 		}
 		));
 		
-//		simulatorPane.add(actionButton("load current timer settings", new JButton("load"), new ActionListener()
-//		{
-//			@Override
-//			public void actionPerformed(ActionEvent event)
-//			{
-//				try
-//				{
-//					timestep.setText(String.valueOf(Idynomics.simulator.timer.getTimeStepSize()));
-//					timeend.setText(String.valueOf(Idynomics.simulator.timer.getEndOfSimulation()));
-//				}
-//				catch(NullPointerException e)
-//				{
-////					timestep.setText("1");
-////					timeend.setText("100");
-//				}	
-//			}
-//		}
-//		));
+		simulatorPane.add(actionButton("load current timer settings", new JButton("load"), new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
+				try
+				{
+					timestep.setText(String.valueOf(Idynomics.simulator.timer.getTimeStepSize()));
+					timeend.setText(String.valueOf(Idynomics.simulator.timer.getEndOfSimulation()));
+				}
+				catch(NullPointerException e)
+				{
+//					timestep.setText("1");
+//					timeend.setText("100");
+				}	
+			}
+		}
+		));
 		
 		/* 
 		 * species lib pane content 
@@ -282,6 +290,11 @@ public class GuiSimConstruct {
 	public static void togglePane(int paneNumber)
 	{
 		tabbedPane.setSelectedIndex(paneNumber);
+	}
+	
+	public static void tabEnabled(int paneNumber, boolean bool)
+	{
+		tabbedPane.setEnabledAt(paneNumber, bool);
 	}
 	
 	public static void tabEnabled(JTabbedPane tabbedPane, Component component, boolean bool)

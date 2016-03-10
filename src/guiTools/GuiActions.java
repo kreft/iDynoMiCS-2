@@ -70,6 +70,10 @@ public final class GuiActions
     		GuiConsole.writeOut(Param.protocolFile + " \n");
     		checkProtocol();
     	}
+
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.COMPARTMENTPANE, true);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, true);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.SIMULATORPANE, true);
 	}
 	
 	public static void checkProtocol()
@@ -97,6 +101,9 @@ public final class GuiActions
 	public static void runSimulation()
 	{
 		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.COMPARTMENTPANE, false);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, false);
+		GuiSimConstruct.tabEnabled(GuiSimConstruct.SIMULATORPANE, false);
 //		GuiLaunch.setView(ViewType.CONSOLE);
 		// we dont need a protocol if we are launching from gui
 //		if ( Param.protocolFile != null )
