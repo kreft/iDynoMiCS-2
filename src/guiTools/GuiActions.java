@@ -57,7 +57,7 @@ public final class GuiActions
 		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
 			f = chooser.getSelectedFile();
 		
-		GuiLaunch.setView(ViewType.CONSOLE);
+//		GuiLaunch.setView(ViewType.CONSOLE);
     	/* Don't crash if the user has clicked cancel. */
     	if ( f == null )
     	{
@@ -74,7 +74,7 @@ public final class GuiActions
 	
 	public static void checkProtocol()
 	{
-		GuiLaunch.setView(ViewType.CONSOLE);
+//		GuiLaunch.setView(ViewType.CONSOLE);
 		if ( Param.protocolFile == null )
 		{
 			GuiConsole.writeErr("Please open a protocol file to check");

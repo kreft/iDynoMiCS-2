@@ -1,6 +1,7 @@
 package guiTools;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -193,11 +194,13 @@ public class GuiSimConstruct {
 				GuiActions.chooseFile();
 				try
 				{
-				tabbedPane.setEnabledAt(1, true);
+
 				timestep.setText(String.valueOf(Idynomics.simulator.timer.getTimeStepSize()));
 				timeend.setText(String.valueOf(Idynomics.simulator.timer.getEndOfSimulation()));
-				tabbedPane.setEnabledAt(2, true);
-				tabbedPane.setEnabledAt(3, true);
+				
+				tabEnabled(tabbedPane, simulatorPane, true);
+				tabEnabled(tabbedPane, speciesPane, true);
+				tabEnabled(tabbedPane, compartmentPane, true);
 				int i = 0;
 				for(String name : Idynomics.simulator.getCompartmentNames())
 					box.insertItemAt(name, i++);
@@ -224,17 +227,17 @@ public class GuiSimConstruct {
 			public void actionPerformed(ActionEvent event)
 			{
 				Idynomics.simulator = new Simulator();
-				tabbedPane.setEnabledAt(1, true);
-				tabbedPane.setEnabledAt(2, true);
-				tabbedPane.setEnabledAt(3, true);
+				tabEnabled(tabbedPane, simulatorPane, true);
+				tabEnabled(tabbedPane, speciesPane, true);
+				tabEnabled(tabbedPane, compartmentPane, true);
 			}
 		}
 		));
 
 		/* 
 		 * the tabs 
+		 * TODO: disable tabs while simulation is running
 		 */
-		
 		tabbedPane.addTab("start", null, startPane,
                 "create new or start from file");
 
@@ -248,18 +251,34 @@ public class GuiSimConstruct {
 		                  "The compartments");
 		
 		// TODO alternative to having views hidden in menu bar
-		tabbedPane.addTab("console", null, GuiConsole.getConsole(),
-              "The Console");
+//		tabbedPane.addTab("console", null, GuiConsole.getConsole(),
+//              "The Console");
 		
 		
-		
-		tabbedPane.setSelectedIndex(0);
-		tabbedPane.setEnabledAt(1, false);
-		tabbedPane.setEnabledAt(2, false);
-		tabbedPane.setEnabledAt(3, false);
+		tabbedPane.setSelectedIndex(findComponentIndex(tabbedPane, startPane));
+		tabEnabled(tabbedPane, simulatorPane, false);
+		tabEnabled(tabbedPane, speciesPane, false);
+		tabEnabled(tabbedPane, compartmentPane, false);
 		
 		panel.add(tabbedPane);
 		return (JComponent) tabbedPane;
+	}
+	
+	public static void tabEnabled(JTabbedPane tabbedPane, Component component, boolean bool)
+	{
+		tabbedPane.setEnabledAt(findComponentIndex(tabbedPane, component), bool);
+	}
+	
+	public static int findComponentIndex(JTabbedPane tabbedPane, Component component)
+	{
+		int totalTabs = tabbedPane.getTabCount();
+		for(int i = 0; i < totalTabs; i++)
+		{
+		   Component c = tabbedPane.getComponentAt(i);
+		   if(c.equals(component))
+			   return i;
+		}
+		return -1;
 	}
 	
 	/*
