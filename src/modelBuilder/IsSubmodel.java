@@ -20,6 +20,7 @@ public interface IsSubmodel
 	 * 
 	 * @return
 	 */
+	// TODO merge this with getSubmodelMakers()?
 	public Map<String, Class<?>> getParameters();
 	
 	/**
@@ -35,6 +36,7 @@ public interface IsSubmodel
 	 * 
 	 * @return
 	 */
+	// TODO merge this with getParameters()?
 	public List<SubmodelMaker> getSubmodelMakers();
 	
 	// TODO getAspects?

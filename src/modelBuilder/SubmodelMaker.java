@@ -5,8 +5,11 @@ import java.util.LinkedList;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import dataIO.XmlLabel;
-
+/**
+ * \brief TODO
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public abstract class SubmodelMaker extends AbstractAction
 {
 	private static final long serialVersionUID = 8084478264008177752L;

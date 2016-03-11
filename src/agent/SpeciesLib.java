@@ -1,5 +1,6 @@
 package agent;
 
+import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -150,16 +151,32 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 	
 	public List<SubmodelMaker> getSubmodelMakers()
 	{
-		// TODO implement submodels
+		// TODO implement species
 		return new LinkedList<SubmodelMaker>();
 	}
 	
 	public void acceptInput(String name, Object input)
 	{
-		if ( input instanceof AspectInterface )
+		if ( input instanceof Species )
 		{
-			this._species.put(name, (AspectInterface) input);
+			this._species.put(name, (Species) input);
 			// TODO void species?
+		}
+	}
+	
+	public static class SpeciesLibMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = -6601262340075573910L;
+		
+		public SpeciesLibMaker(Requirement req, IsSubmodel target)
+		{
+			super("species library", req, target);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			this.addSubmodel(new SpeciesLib());
 		}
 	}
 }

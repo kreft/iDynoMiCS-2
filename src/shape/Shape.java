@@ -28,6 +28,7 @@ import linearAlgebra.Vector;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
+import shape.Dimension.DimensionMaker;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Point;
@@ -646,24 +647,30 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 	}
 	
-	public class DimensionMaker extends SubmodelMaker
+	public static class ShapeMaker extends SubmodelMaker
 	{
-		private static final long serialVersionUID = 3442712062864593527L;
-		
-		private DimName _dimName;
-		
-		public DimensionMaker(DimName dimName, Requirement req, IsSubmodel target)
+		private static final long serialVersionUID = 1486068039985317593L;
+
+		public ShapeMaker(Requirement req, IsSubmodel target)
 		{
-			super(dimName.toString(), req, target);
-			this._dimName = dimName;
+			super("shape", req, target);
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			Dimension dim = new Dimension();
-			_dimensions.put(this._dimName, dim);
-			this.addSubmodel(dim);
+			// TODO do safety properly
+			String shapeName;
+			if ( e == null )
+				shapeName = "";
+			else
+				shapeName = e.getActionCommand();
+			this.addSubmodel(Shape.getNewInstance(shapeName));
+		}
+		
+		public String[] getClassNameOptions()
+		{
+			return Shape.getAllOptions();
 		}
 	}
 }

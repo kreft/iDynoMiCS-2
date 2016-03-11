@@ -27,8 +27,10 @@ import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
+import processManager.ProcessManager.ProcessMaker;
 import reaction.Reaction;
 import shape.Shape;
+import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
 
 /**
@@ -463,52 +465,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		return out;
 	}
 	
-	public class ShapeMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = 1486068039985317593L;
-		
-		public ShapeMaker(Requirement req, IsSubmodel target)
-		{
-			super("shape", req, target);
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			// TODO do safety properly
-			String shapeName;
-			if ( e == null )
-				shapeName = "";
-			else
-				shapeName = e.getActionCommand();
-			this.addSubmodel(Shape.getNewInstance(shapeName));
-		}
-		
-		public String[] getClassNameOptions()
-		{
-			return Shape.getAllOptions();
-		}
-	}
-	
-	public class ProcessMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -126858198160234919L;
-		
-		public ProcessMaker(Requirement req, IsSubmodel target)
-		{
-			super("process manager", req, target);
-		}
-		
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			ProcessManager newProcess =
-					ProcessManager.getNewInstance(e.getActionCommand());
-			this.addSubmodel(newProcess);
-		}
-	}
-	
 	public void acceptInput(String name, Object input)
 	{
 		/* Parameters */
@@ -519,5 +475,21 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 			this._shape = (Shape) input;
 		if ( input instanceof ProcessManager )
 			this._processes.add((ProcessManager) input);
+	}
+	
+	public static class CompartmentMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = -6545954286337098173L;
+		
+		public CompartmentMaker(Requirement req, IsSubmodel target)
+		{
+			super("compartment", req, target);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			this.addSubmodel(new Compartment());
+		}
 	}
 }
