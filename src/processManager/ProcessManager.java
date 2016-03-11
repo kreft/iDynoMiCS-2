@@ -1,10 +1,8 @@
 package processManager;
 
 import java.awt.event.ActionEvent;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -237,7 +235,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	{
 		List<InputSetter> out = new LinkedList<InputSetter>();
 		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
-		out.add(new ParameterSetter("priority", this, "Integer"));
+		out.add(new ParameterSetter(NameRef.processPriority, this, "Integer"));
 		return out;
 	}
 	
@@ -246,7 +244,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	{
 		if ( name.equals(XmlLabel.nameAttribute) )
 			this._name = (String) input;
-		if ( name.equals("priority") )
+		if ( name.equals(NameRef.processPriority) )
 			this._priority = (Integer) input;
 	}
 	
