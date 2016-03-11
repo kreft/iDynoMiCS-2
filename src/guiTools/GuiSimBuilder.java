@@ -86,7 +86,7 @@ public class GuiSimBuilder
 		JPanel smp;
 		for ( SubmodelMaker aMaker : makers )
 		{
-			if ( aMaker.makeImmediately() )
+			if ( aMaker.getClassNameOptions() == null )
 			{
 				aMaker.actionPerformed(null);
 				smp = renderSubmodel(aMaker.getLastMadeSubmodel());
@@ -96,7 +96,7 @@ public class GuiSimBuilder
 				//if (aMaker.getRequirement() == SubmodelRequirement.EXACTLY_ONE)
 				//	continue;
 			}
-			if ( aMaker.getClassNameOptions() != null )
+			else
 			{
 				JComboBox<String> jcb = makeSelector(aMaker);
 				//vertGroup.addComponent(jcb);

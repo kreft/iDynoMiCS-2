@@ -16,9 +16,11 @@ import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
+import idynomics.Simulator.TimerMaker;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import shape.Shape;
+import modelBuilder.SubmodelMaker.Requirement;
 import utility.*;
 
 /**
@@ -295,25 +297,22 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public List<SubmodelMaker> getSubmodelMakers()
 	{
 		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
-		out.add(new TimerMaker());
-		out.add(new SpeciesLibMaker());
-		out.add(new CompartmentMaker());
+		/* We must have exactly one Timer. */
+		out.add(new TimerMaker(Requirement.EXACTLY_ONE));
+		/* No need for a species library, but maximum of one allowed. */
+		out.add(new SpeciesLibMaker(Requirement.ZERO_OR_ONE));
+		/* Must have at least one compartment. */
+		out.add(new CompartmentMaker(Requirement.ONE_TO_MANY));
 		return out;
 	}
 	
-	private class TimerMaker extends SubmodelMaker
+	public class TimerMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = 1486068039985317593L;
-		
-		public TimerMaker()
+	
+		public TimerMaker(Requirement req)
 		{
-			/* We must have exactly one Timer. */
-			super("Make timer", 1, 1);
-		}
-		
-		public boolean makeImmediately()
-		{
-			return true;
+			super("timer", req);
 		}
 		
 		@Override
@@ -321,7 +320,6 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		{
 			timer = new Timer();
 			this.setLastMadeSubmodel(timer);
-			this.increaseMakeCounter();
 		}
 	}
 	
@@ -329,23 +327,17 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	{
 		private static final long serialVersionUID = -6601262340075573910L;
 		
-		public SpeciesLibMaker()
+		public SpeciesLibMaker(Requirement req)
 		{
-			/* No need for a species library, but maximum of one allowed. */
-			super("Make the species library", 0, 1);
+			super("species library", req);
 		}
 		
-		public boolean makeImmediately()
-		{
-			return false;
-		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
 			speciesLibrary = new SpeciesLib();
 			this.setLastMadeSubmodel(speciesLibrary);
-			this.increaseMakeCounter();
 		}
 	}
 	
@@ -353,15 +345,9 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	{
 		private static final long serialVersionUID = -6545954286337098173L;
 		
-		public CompartmentMaker()
+		public CompartmentMaker(Requirement req)
 		{
-			/* Must have at least one compartment. */
-			super("Make a new compartment", 1, Integer.MAX_VALUE);
-		}
-		
-		public boolean makeImmediately()
-		{
-			return true;
+			super("compartment", req);
 		}
 		
 		@Override
@@ -371,10 +357,10 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			Compartment newCompartment = new Compartment();
 			_compartments.add(newCompartment);
 			this.setLastMadeSubmodel(newCompartment);
-			this.increaseMakeCounter();
 		}
 	}
 	
+
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK
 	 ************************************************************************/

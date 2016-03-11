@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import dataIO.Log;
-import idynomics.GuiLaunch;
-import idynomics.GuiLaunch.ViewType;
 import idynomics.Idynomics;
 import idynomics.Simulator;
 import modelBuilder.IsSubmodel;
@@ -74,14 +72,13 @@ public class ConsoleSimBuilder
 	
 	private static void makeSubmodel(SubmodelMaker aMaker)
 	{
-		if ( aMaker.makeImmediately() )
+		String[] options = aMaker.getClassNameOptions();
+		if ( options == null )
 		{
 			aMaker.actionPerformed(null);
 			buildSubmodel(aMaker.getLastMadeSubmodel());
-			return;
 		}
-		String[] options = aMaker.getClassNameOptions();
-		if ( options != null )
+		else
 		{
 			if ( options.length == 0 )
 			{

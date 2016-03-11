@@ -27,6 +27,7 @@ import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Point;
@@ -608,7 +609,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	{
 		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
 		for ( DimName d : this._dimensions.keySet() )
-			out.add(new DimensionMaker(d));
+			out.add(new DimensionMaker(d, Requirement.EXACTLY_ONE));
 		// TODO other boundaries
 		return out;
 	}
@@ -635,15 +636,15 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		return out;
 	}
 	
-	private class DimensionMaker extends SubmodelMaker
+	public class DimensionMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = 3442712062864593527L;
 		
 		private DimName _dimName;
 		
-		public DimensionMaker(DimName dimName)
+		public DimensionMaker(DimName dimName, Requirement req)
 		{
-			super("Make shape dimension: "+dimName.toString(), 1, 1);
+			super("dimension: "+dimName.toString(), req);
 			this._dimName = dimName;
 		}
 		
@@ -653,13 +654,6 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 			Dimension dim = new Dimension();
 			_dimensions.put(this._dimName, dim);
 			this.setLastMadeSubmodel(dim);
-			this.increaseMakeCounter();
-		}
-		
-		@Override
-		public boolean makeImmediately()
-		{
-			return true;
 		}
 	}
 }
