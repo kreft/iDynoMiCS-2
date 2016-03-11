@@ -24,6 +24,7 @@ import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
@@ -454,26 +455,21 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	public List<SubmodelMaker> getSubmodelMakers()
 	{
 		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
-		out.add(new ShapeMaker());
-		out.add(new ProcessMaker());
+		/* We must have exactly one Shape. */
+		out.add(new ShapeMaker(Requirement.EXACTLY_ONE));
+		/* Any number of process managers is allowed, including none. */
+		out.add(new ProcessMaker(Requirement.ZERO_TO_MANY));
 		// TODO agents, solutes, diffusivity, reactions
 		return out;
 	}
 	
-	private class ShapeMaker extends SubmodelMaker
+	public class ShapeMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = 1486068039985317593L;
 		
-		public ShapeMaker()
+		public ShapeMaker(Requirement req)
 		{
-			/* We must have exactly one Shape. */
-			super("Make the shape", 1, 1);
-		}
-		
-		@Override
-		public boolean makeImmediately()
-		{
-			return false;
+			super("shape", req);
 		}
 		
 		@Override
@@ -486,7 +482,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 				shapeName = e.getActionCommand();
 			_shape = Shape.getNewInstance(shapeName);
 			this.setLastMadeSubmodel(_shape);
-			this.increaseMakeCounter();
 		}
 		
 		public String[] getClassNameOptions()
@@ -495,21 +490,15 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 	}
 	
-	private class ProcessMaker extends SubmodelMaker
+	public class ProcessMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = -126858198160234919L;
 		
-		public ProcessMaker()
+		public ProcessMaker(Requirement req)
 		{
-			/* Any number of process managers is allowed, including none. */
-			super("Make a new process manager", 0, Integer.MAX_VALUE);
+			super("process manager", req);
 		}
 		
-		@Override
-		public boolean makeImmediately()
-		{
-			return false;
-		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -519,7 +508,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 			
 			_processes.add(newProcess);
 			this.setLastMadeSubmodel(newProcess);
-			this.increaseMakeCounter();
 		}
 	}
 }

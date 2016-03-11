@@ -20,6 +20,7 @@ import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 import shape.ShapeConventions.BoundaryCyclic;
 import utility.Helper;
 
@@ -411,31 +412,28 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	public List<SubmodelMaker> getSubmodelMakers()
 	{
 		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
-		// NOTE I've put the cyclic stuff in both places, just in case.
-		// This can probably be removed in one of them once things are clearer.
 		if ( ! isCyclic() )
 		{
 			System.out.println("Not cyclic, so trying to make boundaries");
-			out.add(new BoundaryMaker(0));
-			out.add(new BoundaryMaker(1));
+			out.add(new BoundaryMaker(0, Requirement.EXACTLY_ONE));
+			out.add(new BoundaryMaker(1, Requirement.EXACTLY_ONE));
 		}
 		return out;
 	}
 	
-	private class BoundaryMaker extends SubmodelMaker
+	public class BoundaryMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = 6401917989904415580L;
 		
 		private int _minMax;
 		
-		public BoundaryMaker(int minMax)
+		public BoundaryMaker(int minMax, Requirement req)
 		{
-			super("Boundary on dimension "+
-						((minMax==0)?"minimum":"maximum")+" extreme", 1, 1);
-			System.out.println(this.getName());
+			super("boundary at "+((minMax==0)?"minimum":"maximum")+" extreme",
+																		 req);
 			this._minMax = minMax;
 		}
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
@@ -447,19 +445,11 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 			Boundary bndry = (Boundary) Boundary.getNewInstance(bndryName);
 			setBoundary(bndry, this._minMax);
 			this.setLastMadeSubmodel(bndry);
-			this.increaseMakeCounter();
 		}
 		
 		public String[] getClassNameOptions()
 		{
 			return Boundary.getAllOptions();
 		}
-		
-		@Override
-		public boolean makeImmediately()
-		{
-			return false;
-		}
-		
 	}
 }
