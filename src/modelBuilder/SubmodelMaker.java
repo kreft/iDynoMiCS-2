@@ -2,19 +2,14 @@ package modelBuilder;
 
 import java.util.LinkedList;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-
 /**
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class SubmodelMaker extends AbstractAction
+public abstract class SubmodelMaker extends InputSetter
 {
 	private static final long serialVersionUID = 8084478264008177752L;
-	
-	private IsSubmodel _target;
 	
 	/**
 	 * List of all sub-models made by this maker, in the order they were made.
@@ -27,10 +22,9 @@ public abstract class SubmodelMaker extends AbstractAction
 	
 	public SubmodelMaker(String name, Requirement req, IsSubmodel target)
 	{
-		super(name);
+		super(name, target);
 		this._minToMake = req._min;
 		this._maxToMake = req._max;
-		this._target = target;
 		this._submodelsMade = new LinkedList<IsSubmodel>();
 	}
 	
@@ -42,11 +36,6 @@ public abstract class SubmodelMaker extends AbstractAction
 	public boolean canMakeMore()
 	{
 		return this._submodelsMade.size() < this._maxToMake;
-	}
-	
-	public String getName()
-	{
-		return (String) this.getValue(Action.NAME);
 	}
 	
 	public String[] getClassNameOptions()
@@ -61,7 +50,7 @@ public abstract class SubmodelMaker extends AbstractAction
 	
 	protected void addSubmodel(IsSubmodel aSubmodel)
 	{
-		this._target.acceptInput(this.getName(), aSubmodel);
+		this.addInput(aSubmodel);
 		this._submodelsMade.add(aSubmodel);
 	}
 	

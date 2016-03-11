@@ -15,6 +15,7 @@ import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 
@@ -149,10 +150,10 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		
 	}
 	
-	public List<SubmodelMaker> getSubmodelMakers()
+	public List<InputSetter> getRequiredInputs()
 	{
 		// TODO implement species
-		return new LinkedList<SubmodelMaker>();
+		return new LinkedList<InputSetter>();
 	}
 	
 	public void acceptInput(String name, Object input)

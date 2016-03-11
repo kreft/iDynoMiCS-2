@@ -1,10 +1,8 @@
 package idynomics;
 
 import java.awt.event.ActionEvent;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 
@@ -12,7 +10,9 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
+import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
 import dataIO.Log.Tier;
 import utility.Helper;
@@ -146,31 +146,16 @@ public class Timer implements IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		Map<String, Class<?>> out = new LinkedHashMap<String, Class<?>>();
-		out.put(XmlLabel.timerStepSize, Double.class);
-		out.put(XmlLabel.endOfSimulation, Double.class);
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		out.add(new ParameterSetter(XmlLabel.timerStepSize, this, "Double"));
+		out.add(new ParameterSetter(XmlLabel.endOfSimulation, this, "Double"));
 		return out;
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		// TODO this should be replaced by acceptInput()
-		if ( name.equals(XmlLabel.timerStepSize) )
-			this.setTimeStepSize(Double.valueOf(value));
-		if ( name.equals(XmlLabel.endOfSimulation) )
-			this.setEndOfSimulation(Double.valueOf(value));
-	}
-	
-	public List<SubmodelMaker> getSubmodelMakers()
-	{
-		return new LinkedList<SubmodelMaker>();
 	}
 	
 	public void acceptInput(String name, Object input)
 	{
-		// TODO this should replace setParameter()
 		if ( input instanceof Double )
 		{
 			Double dbl = (Double) input;
@@ -197,6 +182,4 @@ public class Timer implements IsSubmodel, XMLable
 			this.addSubmodel(new Timer());
 		}
 	}
-	
-	
 }

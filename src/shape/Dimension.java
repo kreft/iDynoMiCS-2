@@ -19,6 +19,7 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
@@ -397,23 +398,9 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		Map<String, Class<?>> out = new HashMap<String, Class<?>>();
-		out.put("isCyclic", Boolean.class);
-		return out;
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		if ( name.equals("isCyclic") && Boolean.parseBoolean(value) )
-			setCyclic();
-		// TODO
-	}
-	
-	public List<SubmodelMaker> getSubmodelMakers()
-	{
-		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		List<InputSetter> out = new LinkedList<InputSetter>();
 		Requirement req;
 		if ( ! isCyclic() )
 			for ( int i = 0; i < 2; i++ )

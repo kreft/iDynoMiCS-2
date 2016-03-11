@@ -2,10 +2,8 @@ package idynomics;
 
 import java.awt.event.ActionEvent;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -22,7 +20,9 @@ import generalInterfaces.XMLable;
 import grid.*;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
+import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
 import processManager.ProcessComparator;
@@ -441,22 +441,10 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		Map<String, Class<?>> out = new LinkedHashMap<String, Class<?>>();
-		out.put(XmlLabel.nameAttribute, String.class);
-		return out;
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		if ( name.equals(XmlLabel.nameAttribute) )
-			this.name = value;
-	}
-	
-	public List<SubmodelMaker> getSubmodelMakers()
-	{
-		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
 		/* We must have exactly one Shape. */
 		out.add(new ShapeMaker(Requirement.EXACTLY_ONE, this));
 		/* Any number of process managers is allowed, including none. */
