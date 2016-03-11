@@ -155,6 +155,7 @@ public class Timer implements IsSubmodel, XMLable
 	
 	public void setParameter(String name, String value)
 	{
+		// TODO this should be replaced by acceptInput()
 		if ( name.equals(XmlLabel.timerStepSize) )
 			this.setTimeStepSize(Double.valueOf(value));
 		if ( name.equals(XmlLabel.endOfSimulation) )
@@ -164,5 +165,18 @@ public class Timer implements IsSubmodel, XMLable
 	public List<SubmodelMaker> getSubmodelMakers()
 	{
 		return new LinkedList<SubmodelMaker>();
+	}
+	
+	public void acceptInput(String name, Object input)
+	{
+		// TODO this should replace setParameter()
+		if ( input instanceof Double )
+		{
+			Double dbl = (Double) input;
+			if ( name.equals(XmlLabel.timerStepSize) )
+				this.setTimeStepSize(dbl);
+			if ( name.equals(XmlLabel.endOfSimulation) )
+				this.setEndOfSimulation(dbl);
+		}
 	}
 }
