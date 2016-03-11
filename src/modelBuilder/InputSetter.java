@@ -1,5 +1,8 @@
 package modelBuilder;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
@@ -36,4 +39,20 @@ public abstract class InputSetter extends AbstractAction
 		this._target.acceptInput(this.getName(), input);
 	}
 	
+	public void performAction(String str)
+	{
+		this.actionPerformed(new ActionEvent(this, 0, str));
+	}
+	
+	public ActionListener getActionListener(String str)
+	{
+		return new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				performAction(str);
+			}
+		};
+	}
 }

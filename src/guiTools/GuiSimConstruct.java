@@ -2,13 +2,10 @@ package guiTools;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -18,11 +15,9 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import idynomics.Compartment;
-import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 import idynomics.Simulator;
 import shape.Shape;
-import idynomics.GuiLaunch.ViewType;
 
 /**
  * tabbed interface that allows the user to change parameters of a simulator
@@ -30,7 +25,10 @@ import idynomics.GuiLaunch.ViewType;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class GuiSimConstruct {
+public class GuiSimConstruct
+{
+	
+	protected static boolean insidePanel = false;
 	
 	protected static JComponent component = setComponent();
 	
@@ -284,7 +282,11 @@ public class GuiSimConstruct {
 		tabEnabled(tabbedPane, compartmentPane, false);
 		
 		panel.add(tabbedPane);
-		return (JComponent) tabbedPane;
+		if ( insidePanel )
+			return panel;
+		else
+			return (JComponent) tabbedPane;
+		
 	}
 	
 	public static void togglePane(int paneNumber)
