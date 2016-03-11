@@ -12,10 +12,12 @@ import javax.swing.GroupLayout.SequentialGroup;
 import dataIO.Log;
 import idynomics.Idynomics;
 import idynomics.Simulator;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 
 //WORK IN PROGRESS, MAY NEVER BE USED
+@Deprecated
 public class GuiSimBuilder
 {
 	
@@ -75,17 +77,19 @@ public class GuiSimBuilder
 		smPanel.setVisible(true);
 		
 		/* Add the requested attributes for this sub-model. */
-		Map<String, Class<?>> parameters = aSubmodel.getParameters();
-		for ( String param : parameters.keySet() )
-		{
-			
-		}
+//		Map<String, Class<?>> parameters = aSubmodel.getParameters();
+//		for ( String param : parameters.keySet() )
+//		{
+//			
+//		}
 		/* Now go through the sub-sub-models. */
-		List<SubmodelMaker> makers = aSubmodel.getSubmodelMakers();
+		List<InputSetter> makers = aSubmodel.getRequiredInputs();
 		
 		JPanel smp;
-		for ( SubmodelMaker aMaker : makers )
+		for ( InputSetter aSetter : makers )
 		{
+			// FIXME quick fix, needs doing properly
+			SubmodelMaker aMaker = (SubmodelMaker) aSetter;
 			if ( aMaker.getClassNameOptions() == null )
 			{
 				aMaker.actionPerformed(null);

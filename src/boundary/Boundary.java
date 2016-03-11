@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -17,10 +16,9 @@ import dataIO.XmlLabel;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelMaker.Requirement;
-import shape.ShapeLibrary;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
@@ -179,23 +177,10 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 ************************************************************************/
 	
 	@Override
-	public Map<String, Class<?>> getParameters()
-	{
-		/* No parameters here. */
-		return new HashMap<String, Class<?>>();
-	}
-
-	@Override
-	public void setParameter(String name, String value)
-	{
-		/* No parameters here. */
-	}
-
-	@Override
-	public List<SubmodelMaker> getSubmodelMakers()
+	public List<InputSetter> getRequiredInputs()
 	{
 		// TODO GridMethod, AgentMethod
-		return new LinkedList<SubmodelMaker>();
+		return new LinkedList<InputSetter>();
 	}
 	
 	public static String[] getAllOptions()

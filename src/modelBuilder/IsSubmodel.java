@@ -1,12 +1,9 @@
 package modelBuilder;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * \brief TODO
- * 
- * 
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
@@ -15,31 +12,16 @@ public interface IsSubmodel
 	/**
 	 * \brief TODO
 	 * 
-	 * <p>Note: make {@code Map}s instances of {@code LinkedHashMap} if the
-	 * order is important. Otherwise, {@code HashMap} will suffice.</p>
-	 * 
 	 * @return
 	 */
-	// TODO merge this with getSubmodelMakers()?
-	public Map<String, Class<?>> getParameters();
+	
+	public List<InputSetter> getRequiredInputs();
 	
 	/**
 	 * \brief TODO
 	 * 
 	 * @param name
-	 * @param value
+	 * @param input
 	 */
-	// TODO replace this with acceptInput()
-	public void setParameter(String name, String value);
-	
-	/**
-	 * 
-	 * @return
-	 */
-	// TODO merge this with getParameters()?
-	public List<SubmodelMaker> getSubmodelMakers();
-	
-	// TODO getAspects?
-	
 	public void acceptInput(String name, Object input);
 }

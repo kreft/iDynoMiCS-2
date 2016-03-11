@@ -25,6 +25,7 @@ import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
@@ -594,21 +595,9 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		// TODO
-		return new HashMap<String, Class<?>>();
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		/* No parameters to set. */
-		//return true;
-	}
-	
-	public List<SubmodelMaker> getSubmodelMakers()
-	{
-		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		List<InputSetter> out = new LinkedList<InputSetter>();
 		for ( DimName d : this._dimensions.keySet() )
 			out.add(new DimensionMaker(d, Requirement.EXACTLY_ONE, this));
 		// TODO other boundaries
@@ -668,6 +657,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 			this.addSubmodel(Shape.getNewInstance(shapeName));
 		}
 		
+		@Override
 		public String[] getClassNameOptions()
 		{
 			return Shape.getAllOptions();

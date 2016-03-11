@@ -18,8 +18,8 @@ import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import idynomics.Compartment.CompartmentMaker;
 import idynomics.Timer.TimerMaker;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
 import utility.*;
 
@@ -282,21 +282,9 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		/* No parameters to set. */
-		return new HashMap<String, Class<?>>();
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		/* No parameters to set. */
-		//return true;
-	}
-	
-	public List<SubmodelMaker> getSubmodelMakers()
-	{
-		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		List<InputSetter> out = new LinkedList<InputSetter>();
 		/* We must have exactly one Timer. */
 		out.add(new TimerMaker(Requirement.EXACTLY_ONE, this));
 		/* No need for a species library, but maximum of one allowed. */
