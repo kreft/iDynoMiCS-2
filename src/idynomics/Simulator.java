@@ -294,6 +294,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	
 	public void acceptInput(String name, Object input)
 	{
+		// TODO Log level?
+		// TODO Random number seed?
 		// NOTE this is probably overkill, could just use instanceof
 		if ( name.equals(XmlLabel.timer) && (input instanceof Timer) )
 			timer = (Timer) input;
