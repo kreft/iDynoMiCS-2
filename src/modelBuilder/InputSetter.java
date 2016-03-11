@@ -7,7 +7,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 /**
- * \brief TODO
+ * \brief Abstract action class that controls the setting of input to model
+ * components.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
@@ -15,43 +16,76 @@ public abstract class InputSetter extends AbstractAction
 {
 	private static final long serialVersionUID = 8870528967030074657L;
 	
+	/**
+	 * The model component that will be given this input.
+	 */
 	private IsSubmodel _target;
 	
 	// TODO description
 	
 	// TODO flexible options/restrictions setter & getter
 	
-	// TODO default value
-	
+	/**
+	 * \brief Abstract constructor for an {@code AbstractAction} with a model
+	 * component attached to it.
+	 * 
+	 *  @param name Name for this input, often taken from the XmlLabel class.
+	 * @param target The sub-model destined to accept this input.
+	 */
 	public InputSetter(String name, IsSubmodel target)
 	{
 		super(name);
 		this._target = target;
 	}
 	
+	/**
+	 * \brief Get the name of this action, that was set during construction.
+	 * 
+	 * @return {@code String} name.
+	 */
 	public String getName()
 	{
 		return (String) this.getValue(Action.NAME);
 	}
 	
-	protected void addInput(Object input)
+	/**
+	 * \brief Process an {@code Object} as input. 
+	 * 
+	 * @param input An input to be passed to the sub-model this setter
+	 * represents.
+	 */
+	protected void acceptInput(Object input)
 	{
 		this._target.acceptInput(this.getName(), input);
 	}
 	
-	public void performAction(String str)
+	/**
+	 * \brief Call the {@code actionPerformed()} method from
+	 * {@code AbstractAction} when there is only a {@code String}, and no
+	 * {@code ActionEvent} to give it.
+	 * 
+	 * @param command {@code String} representation of the input {@code Object}.
+	 */
+	public void performAction(String command)
 	{
-		this.actionPerformed(new ActionEvent(this, 0, str));
+		this.actionPerformed(new ActionEvent(this, 0, command));
 	}
 	
-	public ActionListener getActionListener(String str)
+	/**
+	 * \brief Construct an {@code ActionListener} that will trigger this
+	 * setting action.
+	 * 
+	 * @param command {@code String} representation of the input {@code Object}.
+	 * @return New {@code ActionListener} based on this <b>command</b>.
+	 */
+	public ActionListener getActionListener(String command)
 	{
 		return new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				performAction(str);
+				performAction(command);
 			}
 		};
 	}

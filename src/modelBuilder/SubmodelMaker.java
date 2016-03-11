@@ -3,7 +3,12 @@ package modelBuilder;
 import java.util.LinkedList;
 
 /**
- * \brief TODO
+ * \brief An abstract Action that controls the creation of a sub-model, i.e.
+ * some part of a more general model.
+ * 
+ * <p>Builds on {@code InputSetter} by keeping a record of all inputs (i.e.
+ * sub-model instances) it has created, so that it can control their numbers by
+ * use of {@code Requirement}.</p>
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
@@ -16,10 +21,19 @@ public abstract class SubmodelMaker extends InputSetter
 	 */
 	private LinkedList<IsSubmodel> _submodelsMade;
 	
-	private int _minToMake;
+	/**
+	 * Minimum/maximum limits on the number of sub-model instances this maker
+	 * is allowed to make.
+	 */
+	private int _minToMake, _maxToMake;
 	
-	private int _maxToMake;
-	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @param req
+	 * @param target
+	 */
 	public SubmodelMaker(String name, Requirement req, IsSubmodel target)
 	{
 		super(name, target);
@@ -28,29 +42,66 @@ public abstract class SubmodelMaker extends InputSetter
 		this._submodelsMade = new LinkedList<IsSubmodel>();
 	}
 	
+	/**
+	 * \brief Check if more instances of this maker's sub-model <b>must</b> be
+	 * made.
+	 * 
+	 * @return {@code boolean}: true if more are required, false if enough have
+	 * been made already.
+	 */
 	public boolean mustMakeMore()
 	{
 		return this._submodelsMade.size() < this._minToMake;
 	}
 	
+	/**
+	 * \brief Check if more instances of this maker's sub-model <b>may</b> be
+	 * made.
+	 * 
+	 * @return {@code boolean}: true if more are permitted, false if the
+	 * maximum have been made already.
+	 */
 	public boolean canMakeMore()
 	{
 		return this._submodelsMade.size() < this._maxToMake;
 	}
 	
+	/**
+	 * \brief Get a list of all possible class names for the sub-model this
+	 * creates.
+	 * 
+	 * <p>Note that this method should be overridden by extensions that want
+	 * to give a list of options. If no options are given, the constructor must
+	 * be hard-coded into the actionPerformed() method.</p>
+	 * 
+	 * @return List of class names to be used as arguments in
+	 * {@code XmlAble.getNewInstance(String)}, or null if the only option is
+	 * hard-coded.
+	 */
 	public String[] getClassNameOptions()
 	{
 		return null;
 	}
 	
+	/**
+	 * \brief Get the last sub-model instance to be made by this maker.
+	 * 
+	 * @return {@code IsSubmodel} instance.
+	 */
 	public IsSubmodel getLastMadeSubmodel()
 	{
 		return this._submodelsMade.getLast();
 	}
 	
+	/**
+	 * \brief Add a newly-created instance of this sub-model to the target
+	 * model, and to the list of sub-models created by this maker.
+	 * 
+	 * @param aSubmodel Newly-created instance of this sub-model.
+	 */
 	protected void addSubmodel(IsSubmodel aSubmodel)
 	{
-		this.addInput(aSubmodel);
+		this.acceptInput(aSubmodel);
 		this._submodelsMade.add(aSubmodel);
 	}
 	
@@ -60,13 +111,32 @@ public abstract class SubmodelMaker extends InputSetter
 	 */
 	public static enum Requirement
 	{
+		/**
+		 * Exactly one instance of this sub-model may be made: no more, no fewer.
+		 */
 		EXACTLY_ONE(1, 1),
-		
+		/**
+		 * This submodel is optional, but if it is made then only one instance
+		 * is permitted.
+		 */
 		ZERO_OR_ONE(0, 1),
-		
+		/**
+		 * There must be at least one instance of this sub-model made, but there
+		 * is no upper limit.
+		 */
 		ONE_TO_MANY(1, Integer.MAX_VALUE),
-		
+		/**
+		 * Any number of instances of this sub-model are permitted, even none at
+		 * all.
+		 */
 		ZERO_TO_MANY(0, Integer.MAX_VALUE);
+		
+		/*
+		 * Note that the use of Integer.MAX_VALUE is due to the lack of an
+		 * "infinity" in Integers (as exists in Double). However, at a value of 
+		 * (2^31 - 1) > 2 billion, Integer.MAX_VALUE is should survive most
+		 * usages.
+		 */
 		
 		private final int _min, _max;
 		
