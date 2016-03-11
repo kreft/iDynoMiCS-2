@@ -5,6 +5,9 @@ import surface.Point;
 import surface.Surface;
 import utility.ExtraMath;
 import linearAlgebra.Vector;
+
+import java.util.LinkedList;
+
 import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
@@ -27,19 +30,18 @@ public class CoccoidDivision extends Event {
 	/**
 	 * Method that initiates the division
 	 */
+	@SuppressWarnings("unchecked")
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
 		Agent mother = (Agent) initiator;
-		Agent daughter = (Agent) compliant;
+		
 		//TODO check phase 
 		double momMass =(double) mother.get(input[0]);
 		if ( momMass > 0.2 )
 		{
 			Body momBody = (Body) mother.get(input[2]);
 
-			// FIXME change for settable random factor
-			if ( daughter == null )
-				daughter = new Agent(mother); // the copy constructor
+			Agent daughter = new Agent(mother); // the copy constructor
 			double randM = ExtraMath.getUniRandDbl(momMass*0.5, momMass*0.55);
 			mother.set(input[0], momMass-randM);
 			daughter.set(input[0], randM);
@@ -58,17 +60,19 @@ public class CoccoidDivision extends Event {
 			
 			
 			//TODO work in progress, currently testing fillial links
-			if (mother.get(NameRef.fillialLinker) == null || !(boolean) 
-					mother.get(NameRef.fillialLinker))
+			if (! mother.isAspect("linkerDist"))
 			{
 				Log.out(Tier.BULK, "Agent does not create fillial "
 						+ "links");
 			}
 			else
 			{
-				momBody._links.add( new Link( new Point[]{ p , q } , 
-						new Surface[]{ momBody.getSurface(),
-						daughterBody.getSurface() } , 1.7 ));
+				LinkedList<Integer> linkers = 
+						(mother.isAspect("linkedAgents") ? (LinkedList
+						<Integer>) mother.getValue("linkedAgents") :
+						new LinkedList<Integer>());
+				linkers.add(daughter.identity());
+				mother.set("linkedAgents", linkers);
 			}
 			daughter.registerBirth();
 			mother.event("updateBody");

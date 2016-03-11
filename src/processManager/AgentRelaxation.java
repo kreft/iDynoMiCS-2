@@ -64,10 +64,10 @@ public class AgentRelaxation extends ProcessManager
 	/**
 	 * Relaxation parameters (overwritten by init)
 	 */
-	double dtBase		= 0.01;	
-	double maxMovement	= 0.1;	
-	method _method		= method.EULER;
-	boolean timeLeap	= true;
+	double dtBase;	
+	double maxMovement;	
+	method _method;
+	boolean timeLeap;
 	
 	@Override
 	public void init(Element xmlElem)
@@ -127,9 +127,8 @@ public class AgentRelaxation extends ProcessManager
 				 * NOTE: currently missing internal springs for rod cells.
 				 */
 				
-				double pullDist = (agent.isAspect(NameRef.agentPulldistance) ?
-						agent.getDouble(NameRef.agentPulldistance) :
-						0.0);
+				double searchDist = (agent.isAspect("searchDist") ?
+						agent.getDouble("searchDist") : 0.0);
 				
 				/**
 				 * perform neighborhood search and perform collision detection and
@@ -140,15 +139,19 @@ public class AgentRelaxation extends ProcessManager
 				for(Agent neighbour: agents.treeSearch(
 
 						((Body) agent.get(NameRef.agentBody)).getBoxes(
-								pullDist)))
+								searchDist)))
 				{
 					if (agent.identity() > neighbour.identity())
 					{
+						
+						agent.event("evaluatePull", neighbour);
+						Double pull = agent.getDouble("#curPullDist");
+						
+						if (pull.isNaN())
+							pull = 0.0;
+						
 						iterator.collision((Surface) agent.get("surface"), 
-								(Surface) neighbour.get("surface"), pullDist +
-								(neighbour.isAspect(NameRef.agentPulldistance) ?
-								neighbour.getDouble(NameRef.agentPulldistance) :
-								0.0));
+								(Surface) neighbour.get("surface"), pull);
 					}
 				}
 				

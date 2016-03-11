@@ -1,5 +1,7 @@
 package aspect;
 
+import java.lang.reflect.TypeVariable;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -20,10 +22,11 @@ public abstract interface AspectInterface
 {
 	/**
 	 * \brief TODO
+	 * @param <A>
 	 * 
 	 * @return
 	 */
-	public AspectReg<?> reg();	
+	public <A> AspectReg<A> reg();	
 
 	public default String getXml()
 	{
@@ -98,6 +101,11 @@ public abstract interface AspectInterface
 			Log.out(Tier.BULK, "Aspect \""+aspect+"\" not found");
 			return false;
 		}
+	}
+	
+	public default void set(String key, Object aspect)
+	{
+		reg().set(key, aspect);
 	}
 	
 	/**
