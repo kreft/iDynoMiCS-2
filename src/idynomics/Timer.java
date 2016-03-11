@@ -58,12 +58,12 @@ public class Timer implements IsSubmodel, XMLable
 
 	/**
 	 * 
-	 * TODO: all need to come from XmlLabel
+	 * 
 	 */
 	public String getXml() {
-		String out = "<timer setpSize=\"" + this.timerStepSize +
-				"\" endOfSimulation=\"" + this.endOfSimulation +
-				"\" />\n";
+		String out = "<" + XmlLabel.timer + " " + XmlLabel.timerStepSize + 
+				" =\"" + this.timerStepSize + "\" " + XmlLabel.endOfSimulation +
+				"=\"" + this.endOfSimulation + "\" />\n";
 		return out;
 	}
 	

@@ -19,6 +19,7 @@ import generalInterfaces.XMLable;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelRequirement;
+import shape.Shape;
 import utility.*;
 
 /**
