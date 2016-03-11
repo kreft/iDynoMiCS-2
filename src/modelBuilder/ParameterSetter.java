@@ -15,7 +15,7 @@ public class ParameterSetter extends InputSetter
 		super(name, target);
 		this._classType = classType;
 	}
-
+	
 	@Override
 	public void actionPerformed(ActionEvent e)
 	{
