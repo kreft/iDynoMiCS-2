@@ -1,5 +1,6 @@
 package processManager;
 
+import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -259,5 +260,23 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 			this._name = (String) input;
 		if ( name.equals("priority") )
 			this._priority = (Integer) input;
+	}
+	
+	public static class ProcessMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = -126858198160234919L;
+		
+		public ProcessMaker(Requirement req, IsSubmodel target)
+		{
+			super("process manager", req, target);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			ProcessManager newProcess =
+					ProcessManager.getNewInstance(e.getActionCommand());
+			this.addSubmodel(newProcess);
+		}
 	}
 }

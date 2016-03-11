@@ -3,6 +3,7 @@
  */
 package boundary;
 
+import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +19,7 @@ import generalInterfaces.XMLable;
 import grid.GridBoundary.GridMethod;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 import shape.ShapeLibrary;
 
 /**
@@ -206,6 +208,45 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	
 	public void acceptInput(String name, Object input)
 	{
+		// TODO
+	}
+	
+	public static String extremeToString(int minMax)
+	{
+		return minMax == 0 ? "minimum" : "maximum";
+	}
+	
+	public static int extremeToInt(String minMax)
+	{
+		return ( minMax.equals("minimum") ) ? 0 : 1;
+			
+	}
+	
+	public static class BoundaryMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = 6401917989904415580L;
 		
+		public BoundaryMaker(int minMax, Requirement req, IsSubmodel target)
+		{
+			super(extremeToString(minMax), req, target);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			// TODO safety properly
+			String bndryName;
+			if ( e == null )
+				bndryName = "";
+			else
+				bndryName = e.getActionCommand();
+			Boundary bndry = (Boundary) Boundary.getNewInstance(bndryName);
+			this.addSubmodel(bndry);
+		}
+		
+		public String[] getClassNameOptions()
+		{
+			return Boundary.getAllOptions();
+		}
 	}
 }

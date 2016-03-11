@@ -1,6 +1,5 @@
 package idynomics;
 
-import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,12 +9,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
+import agent.SpeciesLib.SpeciesLibMaker;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
+import idynomics.Compartment.CompartmentMaker;
+import idynomics.Timer.TimerMaker;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import shape.Shape;
@@ -303,55 +305,6 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		/* Must have at least one compartment. */
 		out.add(new CompartmentMaker(Requirement.ONE_TO_MANY, this));
 		return out;
-	}
-	
-	public class TimerMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = 1486068039985317593L;
-		
-		public TimerMaker(Requirement req, IsSubmodel target)
-		{
-			super(XmlLabel.timer, req, target);
-			
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			this.addSubmodel(new Timer());
-		}
-	}
-	
-	private class SpeciesLibMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -6601262340075573910L;
-		
-		public SpeciesLibMaker(Requirement req, IsSubmodel target)
-		{
-			super("species library", req, target);
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			this.addSubmodel(new SpeciesLib());
-		}
-	}
-	
-	public class CompartmentMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -6545954286337098173L;
-		
-		public CompartmentMaker(Requirement req, IsSubmodel target)
-		{
-			super("compartment", req, target);
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			this.addSubmodel(new Compartment());
-		}
 	}
 	
 	public void acceptInput(String name, Object input)

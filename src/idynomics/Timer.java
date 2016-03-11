@@ -1,5 +1,6 @@
 package idynomics;
 
+import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -179,4 +180,23 @@ public class Timer implements IsSubmodel, XMLable
 				this.setEndOfSimulation(dbl);
 		}
 	}
+	
+	public static class TimerMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = 1486068039985317593L;
+		
+		public TimerMaker(Requirement req, IsSubmodel target)
+		{
+			super(XmlLabel.timer, req, target);
+			
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			this.addSubmodel(new Timer());
+		}
+	}
+	
+	
 }
