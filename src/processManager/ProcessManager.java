@@ -252,9 +252,12 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		return new LinkedList<SubmodelMaker>();
 	}
 	
-	public IsSubmodel getLastMadeSubmodel()
+	
+	public void acceptInput(String name, Object input)
 	{
-		// TODO
-		return null;
+		if ( name.equals(XmlLabel.nameAttribute) )
+			this._name = (String) input;
+		if ( name.equals("priority") )
+			this._priority = (Integer) input;
 	}
 }

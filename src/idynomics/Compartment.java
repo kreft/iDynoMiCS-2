@@ -456,9 +456,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	{
 		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
 		/* We must have exactly one Shape. */
-		out.add(new ShapeMaker(Requirement.EXACTLY_ONE));
+		out.add(new ShapeMaker(Requirement.EXACTLY_ONE, this));
 		/* Any number of process managers is allowed, including none. */
-		out.add(new ProcessMaker(Requirement.ZERO_TO_MANY));
+		out.add(new ProcessMaker(Requirement.ZERO_TO_MANY, this));
 		// TODO agents, solutes, diffusivity, reactions
 		return out;
 	}
@@ -467,21 +467,21 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	{
 		private static final long serialVersionUID = 1486068039985317593L;
 		
-		public ShapeMaker(Requirement req)
+		public ShapeMaker(Requirement req, IsSubmodel target)
 		{
-			super("shape", req);
+			super("shape", req, target);
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
+			// TODO do safety properly
 			String shapeName;
 			if ( e == null )
 				shapeName = "";
 			else
 				shapeName = e.getActionCommand();
-			_shape = Shape.getNewInstance(shapeName);
-			this.setLastMadeSubmodel(_shape);
+			this.addSubmodel(Shape.getNewInstance(shapeName));
 		}
 		
 		public String[] getClassNameOptions()
@@ -494,9 +494,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	{
 		private static final long serialVersionUID = -126858198160234919L;
 		
-		public ProcessMaker(Requirement req)
+		public ProcessMaker(Requirement req, IsSubmodel target)
 		{
-			super("process manager", req);
+			super("process manager", req, target);
 		}
 		
 		
@@ -505,9 +505,19 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		{
 			ProcessManager newProcess =
 					ProcessManager.getNewInstance(e.getActionCommand());
-			
-			_processes.add(newProcess);
-			this.setLastMadeSubmodel(newProcess);
+			this.addSubmodel(newProcess);
 		}
+	}
+	
+	public void acceptInput(String name, Object input)
+	{
+		/* Parameters */
+		if ( name.equals(XmlLabel.nameAttribute) )
+			this.name = (String) input;
+		/* Sub-models */
+		if ( input instanceof Shape )
+			this._shape = (Shape) input;
+		if ( input instanceof ProcessManager )
+			this._processes.add((ProcessManager) input);
 	}
 }

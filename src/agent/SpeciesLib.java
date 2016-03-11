@@ -153,4 +153,13 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		// TODO implement submodels
 		return new LinkedList<SubmodelMaker>();
 	}
+	
+	public void acceptInput(String name, Object input)
+	{
+		if ( input instanceof AspectInterface )
+		{
+			this._species.put(name, (AspectInterface) input);
+			// TODO void species?
+		}
+	}
 }

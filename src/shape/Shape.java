@@ -609,7 +609,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	{
 		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
 		for ( DimName d : this._dimensions.keySet() )
-			out.add(new DimensionMaker(d, Requirement.EXACTLY_ONE));
+			out.add(new DimensionMaker(d, Requirement.EXACTLY_ONE, this));
 		// TODO other boundaries
 		return out;
 	}
@@ -636,15 +636,25 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		return out;
 	}
 	
+	public void acceptInput(String name, Object input)
+	{
+		if ( input instanceof Dimension )
+		{
+			Dimension dim = (Dimension) input;
+			DimName dN = DimName.valueOf(name);
+			this._dimensions.put(dN, dim);
+		}
+	}
+	
 	public class DimensionMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = 3442712062864593527L;
 		
 		private DimName _dimName;
 		
-		public DimensionMaker(DimName dimName, Requirement req)
+		public DimensionMaker(DimName dimName, Requirement req, IsSubmodel target)
 		{
-			super("dimension: "+dimName.toString(), req);
+			super(dimName.toString(), req, target);
 			this._dimName = dimName;
 		}
 		
@@ -653,7 +663,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		{
 			Dimension dim = new Dimension();
 			_dimensions.put(this._dimName, dim);
-			this.setLastMadeSubmodel(dim);
+			this.addSubmodel(dim);
 		}
 	}
 }

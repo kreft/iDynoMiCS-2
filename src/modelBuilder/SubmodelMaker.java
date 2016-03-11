@@ -5,9 +5,13 @@ import java.util.LinkedList;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import dataIO.XmlLabel;
+
 public abstract class SubmodelMaker extends AbstractAction
 {
 	private static final long serialVersionUID = 8084478264008177752L;
+	
+	private IsSubmodel _target;
 	
 	/**
 	 * List of all sub-models made by this maker, in the order they were made.
@@ -18,11 +22,12 @@ public abstract class SubmodelMaker extends AbstractAction
 	
 	private int _maxToMake;
 	
-	public SubmodelMaker(String name, Requirement req)
+	public SubmodelMaker(String name, Requirement req, IsSubmodel target)
 	{
 		super(name);
 		this._minToMake = req._min;
 		this._maxToMake = req._max;
+		this._target = target;
 		this._submodelsMade = new LinkedList<IsSubmodel>();
 	}
 	
@@ -51,8 +56,9 @@ public abstract class SubmodelMaker extends AbstractAction
 		return this._submodelsMade.getLast();
 	}
 	
-	protected void setLastMadeSubmodel(IsSubmodel aSubmodel)
+	protected void addSubmodel(IsSubmodel aSubmodel)
 	{
+		this._target.acceptInput(this.getName(), aSubmodel);
 		this._submodelsMade.add(aSubmodel);
 	}
 	

@@ -28,6 +28,7 @@ public interface IsSubmodel
 	 * @param name
 	 * @param value
 	 */
+	// TODO replace this with acceptInput()
 	public void setParameter(String name, String value);
 	
 	/**
@@ -37,4 +38,6 @@ public interface IsSubmodel
 	public List<SubmodelMaker> getSubmodelMakers();
 	
 	// TODO getAspects?
+	
+	public void acceptInput(String name, Object input);
 }

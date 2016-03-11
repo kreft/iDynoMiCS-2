@@ -415,10 +415,26 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		if ( ! isCyclic() )
 		{
 			System.out.println("Not cyclic, so trying to make boundaries");
-			out.add(new BoundaryMaker(0, Requirement.EXACTLY_ONE));
-			out.add(new BoundaryMaker(1, Requirement.EXACTLY_ONE));
+			out.add(new BoundaryMaker(0, Requirement.EXACTLY_ONE, this));
+			out.add(new BoundaryMaker(1, Requirement.EXACTLY_ONE, this));
 		}
 		return out;
+	}
+	
+	public void acceptInput(String name, Object input)
+	{
+		if ( input instanceof Boundary )
+		{
+			Boundary bndry = (Boundary) input;
+			// FIXME there is probably a better way of doing this
+			if ( name.equals("min") || name.equals("mimimum") || 
+					name.equals("0"))
+			{
+				this.setBoundary(bndry, 0);
+			}
+			else
+				this.setBoundary(bndry, 1);
+		}
 	}
 	
 	public class BoundaryMaker extends SubmodelMaker
@@ -427,10 +443,10 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		
 		private int _minMax;
 		
-		public BoundaryMaker(int minMax, Requirement req)
+		public BoundaryMaker(int minMax, Requirement req, IsSubmodel target)
 		{
 			super("boundary at "+((minMax==0)?"minimum":"maximum")+" extreme",
-																		 req);
+																req, target);
 			this._minMax = minMax;
 		}
 		
@@ -444,12 +460,14 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 				bndryName = e.getActionCommand();
 			Boundary bndry = (Boundary) Boundary.getNewInstance(bndryName);
 			setBoundary(bndry, this._minMax);
-			this.setLastMadeSubmodel(bndry);
+			this.addSubmodel(bndry);
 		}
 		
 		public String[] getClassNameOptions()
 		{
 			return Boundary.getAllOptions();
 		}
+		
+		
 	}
 }

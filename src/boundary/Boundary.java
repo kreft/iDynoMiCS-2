@@ -203,4 +203,9 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		// boundaries the way they are. Quick fix for now:
 		return new String[]{"Boundary"};
 	}
+	
+	public void acceptInput(String name, Object input)
+	{
+		
+	}
 }

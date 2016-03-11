@@ -16,7 +16,6 @@ import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import idynomics.Simulator.TimerMaker;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
@@ -297,28 +296,28 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	{
 		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
 		/* We must have exactly one Timer. */
-		out.add(new TimerMaker(Requirement.EXACTLY_ONE));
+		out.add(new TimerMaker(Requirement.EXACTLY_ONE, this));
 		/* No need for a species library, but maximum of one allowed. */
-		out.add(new SpeciesLibMaker(Requirement.ZERO_OR_ONE));
+		out.add(new SpeciesLibMaker(Requirement.ZERO_OR_ONE, this));
 		/* Must have at least one compartment. */
-		out.add(new CompartmentMaker(Requirement.ONE_TO_MANY));
+		out.add(new CompartmentMaker(Requirement.ONE_TO_MANY, this));
 		return out;
 	}
 	
 	public class TimerMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = 1486068039985317593L;
-	
-		public TimerMaker(Requirement req)
+		
+		public TimerMaker(Requirement req, IsSubmodel target)
 		{
-			super("timer", req);
+			super(XmlLabel.timer, req, target);
+			
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			timer = new Timer();
-			this.setLastMadeSubmodel(timer);
+			this.addSubmodel(new Timer());
 		}
 	}
 	
@@ -326,39 +325,44 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	{
 		private static final long serialVersionUID = -6601262340075573910L;
 		
-		public SpeciesLibMaker(Requirement req)
+		public SpeciesLibMaker(Requirement req, IsSubmodel target)
 		{
-			super("species library", req);
+			super("species library", req, target);
 		}
-		
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			speciesLibrary = new SpeciesLib();
-			this.setLastMadeSubmodel(speciesLibrary);
+			this.addSubmodel(new SpeciesLib());
 		}
 	}
 	
-	private class CompartmentMaker extends SubmodelMaker
+	public class CompartmentMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = -6545954286337098173L;
 		
-		public CompartmentMaker(Requirement req)
+		public CompartmentMaker(Requirement req, IsSubmodel target)
 		{
-			super("compartment", req);
+			super("compartment", req, target);
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			// TODO use e.getActionCommand() to get the shape, or set later?
-			Compartment newCompartment = new Compartment();
-			_compartments.add(newCompartment);
-			this.setLastMadeSubmodel(newCompartment);
+			this.addSubmodel(new Compartment());
 		}
 	}
 	
+	public void acceptInput(String name, Object input)
+	{
+		// NOTE this is probably overkill, could just use instanceof
+		if ( name.equals(XmlLabel.timer) && (input instanceof Timer) )
+			timer = (Timer) input;
+		if(name.equals(XmlLabel.speciesLibrary) && input instanceof SpeciesLib)
+			this.speciesLibrary = (SpeciesLib) input;
+		if ( name.equals(XmlLabel.compartment) && input instanceof Compartment)
+			this._compartments.add((Compartment) input);
+	}
 
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK
