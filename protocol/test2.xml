@@ -4,8 +4,6 @@
 		comment="this is a file for testing purposes only.">
 		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<general>
-			<param name="timeStepSize" value="1.0" />
-			<param name="endOfSimulation" value="60.0" />
 		</general>
 
 		<speciesLib>

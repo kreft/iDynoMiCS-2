@@ -1,0 +1,79 @@
+package concurentTasks;
+
+import agent.Agent;
+import agent.Body;
+import idynomics.AgentContainer;
+import idynomics.NameRef;
+import surface.Collision;
+import surface.Surface;
+
+/**
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
+public class AgentInteraction implements ConcurrentTask
+{
+
+	private AgentContainer _agentContainer;
+	private Collision iterator;
+
+	public AgentInteraction(AgentContainer agents)
+	{
+		this._agentContainer = agents;
+		iterator = new Collision(null, agents.getShape());
+	}
+
+	@Override
+	public void task(int start, int end) {
+		// Calculate forces
+		for(Agent agent: _agentContainer.getAllLocatedAgents().subList(start, end)) 
+		{
+			
+			/**
+			 * NOTE: currently missing internal springs for rod cells.
+			 */
+			
+			double searchDist = (agent.isAspect("searchDist") ?
+					agent.getDouble("searchDist") : 0.0);
+			
+			/**
+			 * perform neighborhood search and perform collision detection and
+			 * response FIXME: this has not been adapted to multi surface
+			 * objects!
+			 */
+			for(Agent neighbour: _agentContainer.treeSearch(
+
+					((Body) agent.get(NameRef.agentBody)).getBoxes(
+							searchDist)))
+			{
+				if (agent.identity() > neighbour.identity())
+				{
+					
+					agent.event("evaluatePull", neighbour);
+					Double pull = agent.getDouble("#curPullDist");
+					
+					if (pull == null || pull.isNaN())
+						pull = 0.0;
+					
+					iterator.collision((Surface) agent.get("surface"), 
+							(Surface) neighbour.get("surface"), pull);
+				}
+			}
+			
+			/*
+			 * Boundary collisions
+			 */
+			for(Surface s : _agentContainer.getShape().getSurfaces())
+			{
+				iterator.collision(s, (Surface) agent.get("surface"), 0.0);
+			}
+		}
+	}
+
+	@Override
+	public int size() {
+		return _agentContainer.getAllLocatedAgents().size();
+	}
+
+}

@@ -32,7 +32,7 @@ public class ExcreteEPS   extends Event {
 					// TODO Joints state will be removed
 					double[] originalPos = ((Body) initiator.getValue(NameRef.agentBody)).getJoints().get(0);
 					double[] shift = Vector.randomPlusMinus(originalPos.length, 
-							0.5 * initiator.getDouble(NameRef.bodyRadius));
+							0.6 * initiator.getDouble(NameRef.bodyRadius));
 					double[] epsPos = Vector.minus(originalPos, shift);
 					
 					// FIXME this is not correct, calculate with density
