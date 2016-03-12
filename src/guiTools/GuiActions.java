@@ -12,10 +12,8 @@ import glRender.AgentMediator;
 import glRender.CommandMediator;
 import glRender.Render;
 import idynomics.Compartment;
-import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 import idynomics.Param;
-import idynomics.GuiLaunch.ViewType;
 
 /**
  * 
@@ -33,12 +31,6 @@ public final class GuiActions
 	/*************************************************************************
 	 * DEALING WITH FILES
 	 ************************************************************************/
-	
-	public static void newFile()
-	{
-		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
-		GuiProtocol.newFile();
-	}
 	
 	/**
 	 * \brief Method to select protocol files from a file selection dialog
