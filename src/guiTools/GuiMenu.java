@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -16,8 +15,6 @@ import javax.swing.KeyStroke;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.GuiLaunch;
-import idynomics.GuiLaunch.ViewType;
 import idynomics.Idynomics;
 import idynomics.Simulator;
 
@@ -34,7 +31,6 @@ public final class GuiMenu
 	{
 		menuBar = new JMenuBar();
 		menuBar.add(fileMenu());
-//		menuBar.add(viewMenu());
 		return menuBar;
 	}
 	
@@ -44,22 +40,12 @@ public final class GuiMenu
 		JMenu menu, submenu;
 		JMenuItem menuItem;
 		JRadioButtonMenuItem rbMenuItem;
-		JCheckBoxMenuItem cbMenuItem;
 		/* 
 		 * Set up the File menu.
 		 */
 		menu = new JMenu("File");
 		menu.setMnemonic(KeyEvent.VK_F);
 		menu.getAccessibleContext().setAccessibleDescription("File options");
-		/*
-		 * Add the option of making a new protocol file.
-		 */
-		menuItem = new JMenuItem(new GuiMenu.NewFile());
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_N, ActionEvent.CTRL_MASK));
-		menuItem.getAccessibleContext().setAccessibleDescription(
-				"Make a new protocol file");
-		menu.add(menuItem);
 		/*
 		 * Add the option of making a new simulation.
 		 */
@@ -85,14 +71,6 @@ public final class GuiMenu
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Render a spatial compartment");
 		menu.add(menuItem);
-		/* 
-		 * Template for further development: we can do switches or toggles
-		 * later.
-		 */
-//		menu.addSeparator();
-//		cbMenuItem = new JCheckBoxMenuItem("placeholder");
-//		cbMenuItem.setMnemonic(KeyEvent.VK_C);
-//		menu.add(cbMenuItem);
 		/*
 		 * Output level.
 		 */
@@ -112,33 +90,6 @@ public final class GuiMenu
 		 */
 		return menu;
 	}
-	
-//	private static JMenu viewMenu()
-//	{
-//		JMenu menu;
-//		JRadioButtonMenuItem rbMenuItem;
-//		/*
-//		 * 
-//		 */
-//		menu = new JMenu("View");
-//		menu.setMnemonic(KeyEvent.VK_V);
-//		menu.getAccessibleContext().setAccessibleDescription("View options");
-//		/*
-//		 * 
-//		 */
-//		// TODO Update the button group if the view is changed elsewhere
-//		ButtonGroup group = new ButtonGroup();
-//		for ( GuiLaunch.ViewType v : GuiLaunch.ViewType.values() )
-//		{
-//			rbMenuItem = new JRadioButtonMenuItem(new GuiView(v));
-//			group.add(rbMenuItem);
-//			menu.add(rbMenuItem);
-//		}
-//		/*
-//		 * Finally, return the View menu.
-//		 */
-//		return menu;
-//	}
 	
 	/*************************************************************************
 	 * 
@@ -181,7 +132,8 @@ public final class GuiMenu
 		
 		public void actionPerformed(ActionEvent e)
 		{
-			GuiActions.newSimulation();
+			// TODO 
+			//GuiActions.newSimulation();
 		}
 	}
 	
