@@ -385,6 +385,20 @@ public class SolveDiffusionTransient extends ProcessManager
 									 * other storage compounds)
 									 */
 								}
+								else if ( a.isAspect("internalProduction"))
+								{
+									HashMap<String,Double> internalProduction = 
+											(HashMap<String,Double>) a.getValue("internalProduction");
+									for( String p : internalProduction.keySet())
+									{
+										if(p.equals(productName))
+										{
+											internalProduction.put(productName, productionRate);
+										}
+									}
+									a.event("produce", dt);
+									a.event("epsExcretion");
+								} 
 								else if ( a.getString("species").equals(productName))
 								{
 									//NOTE: getXXX does not need casting

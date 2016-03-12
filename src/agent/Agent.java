@@ -106,6 +106,21 @@ public class Agent implements Quizable, AspectInterface
 		this.init();
 	}
 	
+	public Agent(String species, Compartment comp)
+	{
+		set(XmlLabel.species,species);
+		this.compartment = comp;
+		init();
+	}
+	
+	public Agent(String species, Body body, Compartment comp)
+	{
+		set(XmlLabel.species, species);
+		this.set(NameRef.agentBody, body);
+		this.compartment = comp;
+		init();
+	}
+	
 	/**
 	 * NOTE: this is a copy constructor, keep up to date, make deep copies
 	 * uid is the unique identifier and should always be unique

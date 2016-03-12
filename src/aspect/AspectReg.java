@@ -182,7 +182,7 @@ public class AspectReg<A>
 	{
 		Aspect<?> a = getAspect(key);
 		if ( a == null )
-			Log.out(Tier.DEBUG, "Warning: aspepct registry does not"
+			Log.out(Tier.BULK, "Warning: aspepct registry does not"
 					+ " contain event:" + key);
 		
 		else if ( a.type != AspectReg.AspectClass.EVENT )
