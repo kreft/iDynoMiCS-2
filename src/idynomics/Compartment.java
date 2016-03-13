@@ -24,7 +24,6 @@ import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelRequirement;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
@@ -467,12 +466,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		
 		public ShapeMaker()
 		{
-			super("Make the shape");
-		}
-		
-		public SubmodelRequirement getRequirement()
-		{
-			return SubmodelRequirement.EXACTLY_ONE;
+			/* We must have exactly one Shape. */
+			super("Make the shape", 1, 1);
 		}
 		
 		@Override
@@ -491,6 +486,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 				shapeName = e.getActionCommand();
 			_shape = Shape.getNewInstance(shapeName);
 			this.setLastMadeSubmodel(_shape);
+			this.increaseMakeCounter();
 		}
 		
 		public String[] getClassNameOptions()
@@ -505,12 +501,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		
 		public ProcessMaker()
 		{
-			super("Make a new process manager");
-		}
-		
-		public SubmodelRequirement getRequirement()
-		{
-			return SubmodelRequirement.ZERO_TO_MANY;
+			/* Any number of process managers is allowed, including none. */
+			super("Make a new process manager", 0, Integer.MAX_VALUE);
 		}
 		
 		@Override
@@ -527,6 +519,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 			
 			_processes.add(newProcess);
 			this.setLastMadeSubmodel(newProcess);
+			this.increaseMakeCounter();
 		}
 	}
 }

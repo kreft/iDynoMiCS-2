@@ -18,7 +18,6 @@ import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelRequirement;
 import shape.Shape;
 import utility.*;
 
@@ -308,12 +307,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		
 		public TimerMaker()
 		{
-			super("Make timer");
-		}
-		
-		public SubmodelRequirement getRequirement()
-		{
-			return SubmodelRequirement.EXACTLY_ONE;
+			/* We must have exactly one Timer. */
+			super("Make timer", 1, 1);
 		}
 		
 		public boolean makeImmediately()
@@ -326,6 +321,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		{
 			timer = new Timer();
 			this.setLastMadeSubmodel(timer);
+			this.increaseMakeCounter();
 		}
 	}
 	
@@ -335,12 +331,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		
 		public SpeciesLibMaker()
 		{
-			super("Make the species library");
-		}
-		
-		public SubmodelRequirement getRequirement()
-		{
-			return SubmodelRequirement.ZERO_OR_ONE;
+			/* No need for a species library, but maximum of one allowed. */
+			super("Make the species library", 0, 1);
 		}
 		
 		public boolean makeImmediately()
@@ -353,6 +345,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		{
 			speciesLibrary = new SpeciesLib();
 			this.setLastMadeSubmodel(speciesLibrary);
+			this.increaseMakeCounter();
 		}
 	}
 	
@@ -362,12 +355,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		
 		public CompartmentMaker()
 		{
-			super("Make a new compartment");
-		}
-		
-		public SubmodelRequirement getRequirement()
-		{
-			return SubmodelRequirement.ONE_TO_MANY;
+			/* Must have at least one compartment. */
+			super("Make a new compartment", 1, Integer.MAX_VALUE);
 		}
 		
 		public boolean makeImmediately()
@@ -382,6 +371,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			Compartment newCompartment = new Compartment();
 			_compartments.add(newCompartment);
 			this.setLastMadeSubmodel(newCompartment);
+			this.increaseMakeCounter();
 		}
 	}
 	
@@ -418,3 +408,4 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		return true;
 	}
 }
+
