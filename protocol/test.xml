@@ -3,7 +3,7 @@
 	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
 						comment="this is a file for testing purposes only.">
 		
-		<timer stepSize="1.0" endOfSimulation="30.0" />
+		<timer stepSize="1.0" endOfSimulation="25.0" />
 		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -17,8 +17,8 @@
 				<aspect name="reactions" type="LinkedList" >
 					<item type="Reaction">
 						<reaction name="testReact">
-							<expression value="solute1 * k">
-								<constant name="k" value="0.0001" />
+							<expression value="mass * solute1 * k">
+								<constant name="k" value="0.1" />
 							</expression>
 							<stochiometric component="AOB" coefficient="1.0" />
 							<stochiometric component="solute1" coefficient="-1.0" />
@@ -60,7 +60,7 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="2.0" />
+				<solute name="solute1" concentration="1.0" />
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>

@@ -22,7 +22,7 @@ public class ConcurrentWorker  extends RecursiveAction
 
 	private ConcurrentTask task;
 
-	private boolean noSplit = false;
+	private boolean concurrent = true;
 
 	public ConcurrentWorker(ConcurrentTask task)
 	{
@@ -42,10 +42,15 @@ public class ConcurrentWorker  extends RecursiveAction
 	public void executeTask(ConcurrentTask task)
 	{
 		setTask(task);
-		if ( this.noSplit )
+		if (! this.concurrent )
 			task.task();
 		else
 			pool.invoke(new ConcurrentWorker(this.task));
+	}
+	
+	public void concurrentEnabled(boolean bool)
+	{
+		this.concurrent = bool;
 	}
 
 	/**

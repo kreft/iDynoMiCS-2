@@ -23,8 +23,8 @@ public class SimpleGrowth extends Event {
 		// this method is just for testing purposes.
 		// simple ask the agents at what rate they grow, they should than figure
 		// this out from their local conditions
-		double newMass = (double) agent.get(input[1]) * 
-		(double) agent.get(input[0]) * timeStep + (double) agent.get(input[0]);
+		double newMass = (double) agent.get(input[1]) * // (double) agent.get(input[0]) * 
+				timeStep + (double) agent.get(input[0]);
 		agent.set(input[0], newMass);
 	}
 }

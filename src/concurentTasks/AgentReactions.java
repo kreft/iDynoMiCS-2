@@ -171,7 +171,8 @@ public class AgentReactions implements ConcurrentTask
 						else if ( a.getString("species").equals(productName))
 						{
 							double curRate = a.getDouble("growthRate");
-							a.set("growthRate", curRate + productionRate);
+							a.set("growthRate", curRate + productionRate * 
+									distributionMap.get(coord) / totalVoxVol);
 
 							
 						}
@@ -186,7 +187,7 @@ public class AgentReactions implements ConcurrentTask
 								{
 									internalProduction.put(productName, 
 											internalProduction.get(productName) 
-											+ productionRate * totalVoxVol);
+											+ productionRate * distributionMap.get(coord) / totalVoxVol);
 								}
 							}
 

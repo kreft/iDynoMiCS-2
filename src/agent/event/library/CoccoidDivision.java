@@ -77,6 +77,12 @@ public class CoccoidDivision extends Event {
 			daughter.registerBirth();
 			mother.event("updateBody");
 			daughter.event("updateBody");
+			
+			// if either is still larger than the div size they need to devide
+			// again
+			mother.event("divide");
+			daughter.event("divide");
+			
 			Log.out(Tier.BULK, "CoccoidDivision added daughter cell");
 		}
 	}

@@ -24,9 +24,9 @@
 				<aspect name="reactions" type="LinkedList" >
 					<item type="Reaction">
 						<reaction name="testReact">
-							<expression value="mumax *(solute1 / (solute1 + k) )">
+							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.0001" />
-								<constant name="mumax" value="0.0001" />
+								<constant name="mumax" value="0.1" />
 							</expression>
 							<stochiometric component="species1" coefficient="1.0" />
 							<stochiometric component="solute1" coefficient="-1.0" />
@@ -42,7 +42,7 @@
 				<aspect name="reactions" type="LinkedList" >
 					<item type="Reaction">
 						<reaction name="testReact">
-							<expression value="mumax *(solute1 / (solute1 + k) )">
+							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.0001" />
 								<constant name="mumax" value="0.0001" />
 							</expression>

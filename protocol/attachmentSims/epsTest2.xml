@@ -24,13 +24,13 @@
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="LinkedList" >
 					<item type="Reaction">
-						<reaction name="testReact">
-							<expression value="mumax *(solute1 / (solute1 + k) )">
-								<constant name="k" value="0.01" />
-								<constant name="mumax" value="0.001" />
+						<reaction name="testReact" comment="biomass specific growth rate">
+							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
+								<constant name="k" value="0.001" />
+								<constant name="mumax" value="1.0" />
 							</expression>
 							<stochiometric component="species1" coefficient="1.0" />
-							<stochiometric component="eps" coefficient="0.01" />
+							<stochiometric component="eps" coefficient="0.1" />
 							<stochiometric component="solute1" coefficient="-1.0" />
 						</reaction>
 					</item>
@@ -45,8 +45,8 @@
 					<item type="Reaction">
 						<reaction name="testReact">
 							<expression value="mumax *(solute1 / (solute1 + k) )">
-								<constant name="k" value="0.0001" />
-								<constant name="mumax" value="0.0001" />
+								<constant name="k" value="0.001" />
+								<constant name="mumax" value="500.0" />
 							</expression>
 							<stochiometric component="species2" coefficient="1.0" />
 							<stochiometric component="solute1" coefficient="-1.0" />
@@ -79,11 +79,11 @@
 			<species name="producer">
 				<aspect name="produce" type="EVENT"	class="InternalProduction" 	package="agent.event.library." />
 				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPS" 	package="agent.event.library." />
-				<aspect  name="maxInternalEPS" type="Double" value="0.004" />
+				<aspect  name="maxInternalEPS" type="Double" value="0.01" />
 				<aspect  name="epsSpecies" type="String" value="particleEPS" />
 			</species>
 			<species name="particleEPS">
-				<aspect name="pullDistance" type="Double"	value="0.05" />
+				<aspect name="pullDistance" type="Double"	value="0.01" />
 				<aspect name="density" type="Double" value="1" />
 				<aspect name="pigment" type="String" value="GREEN" />
 				<aspect name="#isLocated" type="Boolean" value="true" />
