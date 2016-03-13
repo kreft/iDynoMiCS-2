@@ -1,32 +1,43 @@
 package concurentTasks;
 
+import java.util.List;
+
 import agent.Agent;
 import idynomics.AgentContainer;
-import idynomics.NameRef;
 
 public class UpdateAgentBody implements ConcurrentTask
 {
 
-	private AgentContainer _agentContainer;
+	private List<Agent> agentList;
 
 	public UpdateAgentBody(AgentContainer agents)
 	{
-		this._agentContainer = agents;
+		this.agentList = agents.getAllLocatedAgents();
+	}
+	
+	public UpdateAgentBody(List<Agent> cList)
+	{
+		agentList = cList;
 	}
 
-	@Override
-	public void task(int start, int end) {
-		for(Agent agent: _agentContainer.getAllLocatedAgents().subList(start, end)) 
+	public ConcurrentTask part(int start, int end)
+	{
+		return new UpdateAgentBody(agentList.subList(start,end));
+	}
+
+	public void task() 
+	{
+		for(Agent agent: agentList) 
 		{
-			agent.event(NameRef.bodyUpdate);
+			agent.event("updateBody");
 			agent.event("divide");
 			agent.event("epsExcretion");
 		}
 	}
 
-	@Override
-	public int size() {
-		return _agentContainer.getAllLocatedAgents().size();
+	public int size() 
+	{
+		return agentList.size();
 	}
 
 }

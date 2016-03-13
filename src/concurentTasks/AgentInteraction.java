@@ -1,5 +1,7 @@
 package concurentTasks;
 
+import java.util.List;
+
 import agent.Agent;
 import agent.Body;
 import idynomics.AgentContainer;
@@ -12,28 +14,40 @@ import surface.Surface;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class AgentInteraction implements ConcurrentTask
+public class AgentInteraction  implements ConcurrentTask
 {
 
 	private AgentContainer _agentContainer;
 	private Collision iterator;
+	private List<Agent> agentList;
 
 	public AgentInteraction(AgentContainer agents)
 	{
 		this._agentContainer = agents;
+		agentList = _agentContainer.getAllLocatedAgents();
 		iterator = new Collision(null, agents.getShape());
 	}
+	
+	public AgentInteraction(List<Agent> agentList, AgentContainer agents)
+	{
+		this._agentContainer = agents;
+		this.agentList = agentList;
+		iterator = new Collision(null, agents.getShape());
+	}
+	
+	public ConcurrentTask part(int start, int end) 
+	{
+		return new AgentInteraction(agentList.subList(start, end), 
+				_agentContainer);
+	}
 
-	@Override
-	public void task(int start, int end) {
-		// Calculate forces
-		for(Agent agent: _agentContainer.getAllLocatedAgents().subList(start, end)) 
+	public void task() {
+		for(Agent agent: agentList) 
 		{
 			
 			/**
 			 * NOTE: currently missing internal springs for rod cells.
 			 */
-			
 			double searchDist = (agent.isAspect("searchDist") ?
 					agent.getDouble("searchDist") : 0.0);
 			
@@ -71,9 +85,10 @@ public class AgentInteraction implements ConcurrentTask
 		}
 	}
 
-	@Override
-	public int size() {
-		return _agentContainer.getAllLocatedAgents().size();
+	public int size() 
+	{
+		return agentList.size();
 	}
+
 
 }

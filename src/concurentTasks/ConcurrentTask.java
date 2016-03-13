@@ -10,7 +10,9 @@ package concurentTasks;
  */
 public interface ConcurrentTask {
 	
-	public void task(int start, int end);
+	public void task();
+	
+	public ConcurrentTask part(int start, int end);
 	
 	public int size();
 }

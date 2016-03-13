@@ -99,65 +99,65 @@ public class AgentRelaxation extends ProcessManager
 //		AgentInteraction interact = new AgentInteraction(agents);
 //		interact.task(0, interact.size());
 
-		worker.executeTask(new AgentInteraction(agents));
+//		worker.executeTask(new AgentInteraction(agents));
 		/* FIXME This could also be created once if the AgentContainer would be 
 		 * available with the initiation of the processManager
 		 */
-//		Collision iterator = new Collision(null, agents.getShape());
-//		// Calculate forces
-//		for(Agent agent: agents.getAllLocatedAgents()) 
-//		{
-////				List<Link> links = ((Body) agent.get(NameRef.agentBody))._links;
-////				for (int i = 0; i < links.size(); i++)
-////				{
-////					if (links.get(i).evaluate(iterator))
-////					{
-////						Log.out(tier.BULK, "Fillial link breakage due to "
-////								+ "over extending maximum link length.");
-////						links.remove(i);
-////					}
-////				}
-//			
-//			/**
-//			 * NOTE: currently missing internal springs for rod cells.
-//			 */
-//			
-//			double searchDist = (agent.isAspect("searchDist") ?
-//					agent.getDouble("searchDist") : 0.0);
-//			
-//			/**
-//			 * perform neighborhood search and perform collision detection and
-//			 * response FIXME: this has not been adapted to multi surface
-//			 * objects!
-//			 * TODO Add optional extra margin for pulls!!!
-//			 */
-//			for(Agent neighbour: agents.treeSearch(
-//
-//					((Body) agent.get(NameRef.agentBody)).getBoxes(
-//							searchDist)))
-//			{
-//				if (agent.identity() > neighbour.identity())
+		Collision iterator = new Collision(null, agents.getShape());
+		// Calculate forces
+		for(Agent agent: agents.getAllLocatedAgents()) 
+		{
+//				List<Link> links = ((Body) agent.get(NameRef.agentBody))._links;
+//				for (int i = 0; i < links.size(); i++)
 //				{
-//					
-//					agent.event("evaluatePull", neighbour);
-//					Double pull = agent.getDouble("#curPullDist");
-//					
-//					if (pull == null || pull.isNaN())
-//						pull = 0.0;
-//					
-//					iterator.collision((Surface) agent.get("surface"), 
-//							(Surface) neighbour.get("surface"), pull);
+//					if (links.get(i).evaluate(iterator))
+//					{
+//						Log.out(tier.BULK, "Fillial link breakage due to "
+//								+ "over extending maximum link length.");
+//						links.remove(i);
+//					}
 //				}
-//			}
-//			
-//			/*
-//			 * Boundary collisions
-//			 */
-//			for(Surface s : agents.getShape().getSurfaces())
-//			{
-//				iterator.collision(s, (Surface) agent.get("surface"), 0.0);
-//			}
-//		}
+			
+			/**
+			 * NOTE: currently missing internal springs for rod cells.
+			 */
+			
+			double searchDist = (agent.isAspect("searchDist") ?
+					agent.getDouble("searchDist") : 0.0);
+			
+			/**
+			 * perform neighborhood search and perform collision detection and
+			 * response FIXME: this has not been adapted to multi surface
+			 * objects!
+			 * TODO Add optional extra margin for pulls!!!
+			 */
+			for(Agent neighbour: agents.treeSearch(
+
+					((Body) agent.get(NameRef.agentBody)).getBoxes(
+							searchDist)))
+			{
+				if (agent.identity() > neighbour.identity())
+				{
+					
+					agent.event("evaluatePull", neighbour);
+					Double pull = agent.getDouble("#curPullDist");
+					
+					if (pull == null || pull.isNaN())
+						pull = 0.0;
+					
+					iterator.collision((Surface) agent.get("surface"), 
+							(Surface) neighbour.get("surface"), pull);
+				}
+			}
+			
+			/*
+			 * Boundary collisions
+			 */
+			for(Surface s : agents.getShape().getSurfaces())
+			{
+				iterator.collision(s, (Surface) agent.get("surface"), 0.0);
+			}
+		}
 	}
 	
 
@@ -167,17 +167,17 @@ public class AgentRelaxation extends ProcessManager
 		/**
 		 * Update agent body now required
 		 */
-//		for(Agent agent: agents.getAllLocatedAgents()) 
-//		{
-//			agent.event(NameRef.bodyUpdate);
-//			agent.event("divide");
-//			agent.event("epsExcretion");
-//		}
+		for(Agent agent: agents.getAllLocatedAgents()) 
+		{
+			agent.event(NameRef.bodyUpdate);
+			agent.event("divide");
+			agent.event("epsExcretion");
+		}
 		
 		/* FIXME This could also be created once if the AgentContainer would be 
 		 * available with the initiation of the processManager
 		 */
-		worker.executeTask(new UpdateAgentBody(agents));
+//		worker.executeTask(new UpdateAgentBody(agents));
 
 		int nstep	= 0;
 		tMech		= 0.0;

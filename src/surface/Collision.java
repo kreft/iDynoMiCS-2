@@ -159,7 +159,7 @@ public class Collision {
 	}
 
 	
-	public synchronized void applyForce(Surface surf, double[] force, double intersect)
+	public void applyForce(Surface surf, double[] force, double intersect)
 	{
 		switch (surf.type())
 		{

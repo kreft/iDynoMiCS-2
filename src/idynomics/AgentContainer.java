@@ -39,8 +39,7 @@ public class AgentContainer
 	 * Synchronized list, list is cheaper to access than an agent tree
 	 * (iterating over all agents), synchronized for thread safety
 	 */
-	List<Agent> _locatedAgentList = Collections.synchronizedList(
-			new ArrayList<Agent>());
+	List<Agent> _locatedAgentList = new ArrayList<Agent>();
 	
 	/**
 	 * Synchronized iterator (check whether this wokrs correctly)
@@ -216,12 +215,10 @@ public class AgentContainer
 	public void refreshSpatialRegistry()
 	{
 		this.makeAgentTree();
-		  synchronized (_locatedAgentList) {
-		      locatedAgentIterator = _locatedAgentList.iterator();
-		      while (locatedAgentIterator.hasNext())
-		    	  this.treeInsert(locatedAgentIterator.next());
-		  }
-			
+		for(Agent a : getAllLocatedAgents())
+		{
+			this.treeInsert(a);
+		}	
 	}
 	
 	public List<Agent> getAllLocatedAgents()

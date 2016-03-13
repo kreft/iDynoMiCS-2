@@ -5,7 +5,8 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 
 /**
- * 
+ * work in progress, most iDynomics elements are not suitable (yet) for
+ * concurrent acces
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
@@ -16,29 +17,14 @@ public class ConcurrentWorker  extends RecursiveAction
 	 */
 	private static final long serialVersionUID = 6134110076222352391L;
 
-	private static ForkJoinPool pool = new ForkJoinPool(8);
-	private static int workSize = 30;
+	final static ForkJoinPool pool = new ForkJoinPool(8);
+	final static int workSize = 6;
 
-	protected ConcurrentTask task;
-	protected int s, e;
+	private ConcurrentTask task;
 
-	
-	/**
-	 * create new worker with subset of tasks
-	 * @param agentList
-	 * @param agentContainer
-	 * @param type
-	 */
 	public ConcurrentWorker(ConcurrentTask task)
 	{
 		set(task);
-	}
-	
-	private ConcurrentWorker(ConcurrentTask task, int s, int e)
-	{
-		this.task = task;
-		this.s = s;
-		this.e = e;
 	}
 	
 	public ConcurrentWorker()
@@ -49,20 +35,12 @@ public class ConcurrentWorker  extends RecursiveAction
 	public void set(ConcurrentTask task)
 	{
 		this.task = task;
-		this.s = 0;
-		this.e = task.size();	
-	}
-	
-	public void executeTask()
-	{
-		pool.invoke(new ConcurrentWorker(task, s, e));
 	}
 	
 	public void executeTask(ConcurrentTask task)
 	{
 		set(task);
-		executeTask();
-//		task.task(s, e);
+		pool.invoke(new ConcurrentWorker(this.task));
 	}
 
 	/**
@@ -72,24 +50,19 @@ public class ConcurrentWorker  extends RecursiveAction
 	protected void compute() 
 	{
 		if (worksplitter()) 
-			task.task(s, e);
+			task.task();
 	}
 	
 	/**
 	 * worker splits up task when it exceeds the limit
-	 * @param type
-	 * @param lim
-	 * @return
 	 */
 	private boolean worksplitter() 
 	{
-		int listSize = s-e;
+		int listSize = task.size();
 		if ( listSize > workSize) 
 		{
-			ConcurrentWorker a = new ConcurrentWorker(task, s, s+listSize/3);
-			ConcurrentWorker b = new ConcurrentWorker(task, (listSize/3)+1, 
-					listSize);
-			invokeAll(a,b);
+			invokeAll(new ConcurrentWorker(task.part(0, listSize/2)),
+					new ConcurrentWorker(task.part((listSize/2)+1, listSize)));
 			return false;
 		}
 		return true;

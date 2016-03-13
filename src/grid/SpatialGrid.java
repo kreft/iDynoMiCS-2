@@ -2,6 +2,7 @@ package grid;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Node;
@@ -13,6 +14,7 @@ import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
+import utility.Copier;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.
@@ -877,6 +879,22 @@ public abstract class SpatialGrid
 	public void setValueAtCurrent(ArrayType type, double value)
 	{
 		this.setValueAt(type, this.iteratorCurrent(), value);
+	}
+	
+	/**
+	 * return all voxel coordinates for this solute grid.
+	 * @return
+	 */
+	public LinkedList<int[]> getAllCoords()
+	{
+		LinkedList<int[]> coords = new LinkedList<int[]>();
+		for ( int[] coord = resetIterator(); 
+				isIteratorValid(); 
+					coord = iteratorNext())
+		{
+			coords.add((int[]) Copier.copy(coord));
+		}
+		return coords;
 	}
 	
 	/*************************************************************************

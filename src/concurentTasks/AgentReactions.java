@@ -18,23 +18,37 @@ import reaction.Reaction;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class AgentReactions  implements ConcurrentTask
+public class AgentReactions implements ConcurrentTask
 {
 
-	private AgentContainer _agentContainer;
+	private List<Agent> agentList;
 	private EnvironmentContainer environment;
 	private double dt;
 
-	public AgentReactions(AgentContainer agents, EnvironmentContainer environment, double dt)
+	public AgentReactions(AgentContainer agents, EnvironmentContainer 
+			environment, double dt)
 	{
-		this._agentContainer = agents;
 		this.environment = environment;
+		this.agentList = agents.getAllLocatedAgents();
 		this.dt = dt;
+	}
+	
+	public AgentReactions(List<Agent> agents, EnvironmentContainer environment, 
+			double dt)
+	{
+		this.environment = environment;
+		this.agentList = agents;
+		this.dt = dt;
+	}
+	
+	public ConcurrentTask part(int start, int end) 
+	{		
+		return new AgentReactions(agentList.subList(start, end), 
+				environment, dt);
 	}
 
 	@SuppressWarnings("unchecked")
-	@Override
-	public void task(int start, int end) {
+	public void task() {
 		// Calculate forces
 		/*
 		 * Loop over all agents, applying their reactions to the
@@ -45,7 +59,7 @@ public class AgentReactions  implements ConcurrentTask
 		SpatialGrid aSG;
 		List<Reaction> reactions;
 		HashMap<int[],Double> distributionMap;
-		for ( Agent a : _agentContainer.getAllLocatedAgents().subList(start, end) )
+		for ( Agent a : agentList)
 		{
 			if ( ! a.isAspect(NameRef.agentReactions) )
 				continue;
@@ -147,23 +161,23 @@ public class AgentReactions  implements ConcurrentTask
 						}
 						else if ( a.getString("species").equals(productName))
 						{
-							//NOTE: getXXX does not need casting
 							a.set("growthRate", productionRate);
 							
 							/* Timespan of growth event */
-							// FIXME quickfix since timestepsize is no longer available as local par
 							a.event("growth", dt);
 							
 						}
 						else if ( a.isAspect("internalProduction"))
 						{
 							HashMap<String,Double> internalProduction = 
-									(HashMap<String,Double>) a.getValue("internalProduction");
+									(HashMap<String,Double>) 
+									a.getValue("internalProduction");
 							for( String p : internalProduction.keySet())
 							{
 								if(p.equals(productName))
 								{
-									internalProduction.put(productName, productionRate);
+									internalProduction.put(productName, 
+											productionRate);
 								}
 							}
 							a.event("produce", dt);
@@ -179,9 +193,9 @@ public class AgentReactions  implements ConcurrentTask
 		}
 	}
 
-	@Override
-	public int size() {
-		return _agentContainer.getAllLocatedAgents().size();
+	public int size() 
+	{
+		return agentList.size();
 	}
 
 }
