@@ -76,7 +76,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * Local time should always be between {@code Timer.getCurrentTime()} and
 	 * {@code Timer.getEndOfCurrentTime()}.
 	 */
-	protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
+	// TODO temporary fix, reassess
+	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
+	protected double _localTime;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -371,6 +373,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 */
 	public void step()
 	{
+		// TODO temporary fix, reassess
+		this._localTime = Idynomics.simulator.timer.getCurrentTime();
+		
 		if ( this._processes.isEmpty() )
 			return;
 		ProcessManager currentProcess = this._processes.getFirst();
@@ -448,7 +453,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		/* We must have exactly one Shape. */
 		out.add(new ShapeMaker(Requirement.EXACTLY_ONE, this));
 		/* Any number of process managers is allowed, including none. */
-		out.add(new ProcessMaker(Requirement.ZERO_TO_MANY, this));
+		// TODO temporarily removed, reinstate
+		//out.add(new ProcessMaker(Requirement.ZERO_TO_MANY, this));
 		// TODO agents, solutes, diffusivity, reactions
 		return out;
 	}

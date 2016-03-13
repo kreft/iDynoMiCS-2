@@ -10,12 +10,13 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
-import idynomics.Idynomics;
+import idynomics.Simulator;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
@@ -32,40 +33,56 @@ import modelBuilder.SubmodelMaker;
  */
 public class GuiSimMake
 {
-	protected static JComponent component = 
-								setComponent(Idynomics.simulator, false);
+	protected JFrame frame;
 	
-	protected static JTabbedPane tabbedPane;
-	
-	public static JComponent getConstructor() 
+	public void makeNewSimulation()
 	{
-		return component;
+		Simulator sim = new Simulator();
+		frame = getConstructor(sim);
+		// TODO save to XML button?
+		// TODO run simulation button?
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("test");
+		frame.setSize(800, 800);
+		frame.setVisible(true);
+	}
+	
+	public JFrame getConstructor(IsSubmodel aSubmodel) 
+	{
+		JFrame out = new JFrame();
+		//out.setContentPane(setComponent(aSubmodel));
+		out.add(setComponent(aSubmodel));
+		return out;
 	}
 	
 	/**
 	 * \brief The JComponent set in the GUI
 	 */
-	public static JComponent setComponent(
-								IsSubmodel aSubmodel, boolean insidePanel)
+	public JComponent setComponent(IsSubmodel aSubmodel)
 	{
 		/* Info about the submodel. */
 		String subName = aSubmodel.getClass().getSimpleName();
 		List<InputSetter> inputs = aSubmodel.getRequiredInputs();
 		
 		/* The tabs pane */
-		tabbedPane = new JTabbedPane();
+		JTabbedPane tabbedPane = new JTabbedPane();
 		
 		/* Pane for the current submodel. */
 		JPanel mainPane = newTab();
 		mainPane.add(textPanel(subName));
+		tabbedPane.add(subName, mainPane);
+		tabEnabled(tabbedPane, mainPane, true);
 		JButton saveButton = new JButton("Save");
+		
 		
 		for ( InputSetter aSetter : inputs )
 		{
 			String inputName = aSetter.getName();
+			System.out.println("Looking at "+inputName);
 			if ( aSetter instanceof SubmodelMaker )
 			{
 				SubmodelMaker smMaker = (SubmodelMaker) aSetter;
+				/* Make the tab for this maker. */
 				JPanel smPane = getTabFor(smMaker);
 				tabbedPane.addTab(inputName, null, smPane, inputName);
 				tabEnabled(tabbedPane, smPane, true);
@@ -84,32 +101,29 @@ public class GuiSimMake
 				// TODO safety? Similar to ParameterSetter?
 			}
 		}
+		/* Add the save button to the main pane only if it does anything. */
+		if ( saveButton.getActionListeners().length > 0 )
+			mainPane.add(saveButton);
 		
-		if ( insidePanel )
-		{
-			JPanel panel = newTab();
-			panel.add(tabbedPane);
-			return panel;
-		}
-		else
-			return tabbedPane;
+		return tabbedPane;
 	}
+	
+	
 	
 	
 	/**************************************************************************
 	 * MAKER-TAB METHODS
 	 *************************************************************************/
 	
-	protected static JPanel getTabFor(SubmodelMaker smMaker)
+	protected JPanel getTabFor(SubmodelMaker smMaker)
 	{
 		JPanel smTab = newTab();
 		String smName = smMaker.getName();
 		smTab.add(textPanel(smName));
-		
-		while ( smMaker.mustMakeMore() )
-		{
-			makeMaker(smTab, smMaker);
-		}
+//		if ( smMaker.mustMakeMore() )
+//		{
+//			makeMaker(smTab, smMaker);
+//		}
 		if ( smMaker.canMakeMore() )
 		{
 			makeMaker(smTab, smMaker);
@@ -118,7 +132,7 @@ public class GuiSimMake
 	}
 	
 	
-	protected static void makeMaker(JPanel smTab, SubmodelMaker smMaker)
+	protected void makeMaker(JPanel smTab, SubmodelMaker smMaker)
 	{
 		
 		JButton makeButton = new JButton("Make new "+smMaker.getName());
@@ -126,7 +140,10 @@ public class GuiSimMake
 		String[] options = smMaker.getClassNameOptions();
 		if ( options == null )
 		{
-			makeButton.addActionListener(smMaker.getActionListener(null));
+			//makeButton.addActionListener(smMaker.getActionListener(null));
+			smMaker.actionPerformed(null);
+			IsSubmodel sm = smMaker.getLastMadeSubmodel();
+			smTab.add(setComponent(sm));
 		}
 		else
 		{
