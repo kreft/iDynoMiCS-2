@@ -3,6 +3,7 @@ package idynomics;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
@@ -27,6 +28,7 @@ import guiTools.GuiConsole;
 import guiTools.GuiMenu;
 import guiTools.GuiSimConstruct;
 import guiTools.GuiSimControl;
+import guiTools.GuiSimMake;
 import utility.Helper;
 
 /**
@@ -248,6 +250,21 @@ public class GuiLaunch implements Runnable
 		button = GuiSimControl.stopButton();
 		buttonHoriz.addComponent(button);
 		buttonVert.addComponent(button);
+		///////////////////////////////////////////////////////////////////////
+		// TODO TESTING ONLY
+		button = new JButton("Make sim (test)");
+		button.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				GuiSimMake gsm = new GuiSimMake();
+				gsm.makeNewSimulation();
+			}
+		});
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		///////////////////////////////////////////////////////////////////////
 		/* Add a progress bar to the button row. */
 		progressBar  = new JProgressBar();
 		progressBar.setStringPainted(true);
