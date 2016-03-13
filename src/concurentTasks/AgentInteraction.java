@@ -35,19 +35,21 @@ public class AgentInteraction  implements ConcurrentTask
 		iterator = new Collision(null, agents.getShape());
 	}
 	
-	public ConcurrentTask part(int start, int end) 
-	{
-		return new AgentInteraction(agentList.subList(start, end), 
-				_agentContainer);
+
+	@Override
+	public ConcurrentTask part(int start, int end) {
+		return new AgentInteraction(agentList.subList(start, end), _agentContainer);
 	}
 
 	public void task() {
+		// Calculate forces
 		for(Agent agent: agentList) 
 		{
 			
 			/**
 			 * NOTE: currently missing internal springs for rod cells.
 			 */
+			
 			double searchDist = (agent.isAspect("searchDist") ?
 					agent.getDouble("searchDist") : 0.0);
 			
@@ -85,8 +87,7 @@ public class AgentInteraction  implements ConcurrentTask
 		}
 	}
 
-	public int size() 
-	{
+	public int size() {
 		return agentList.size();
 	}
 

@@ -22,9 +22,11 @@ public class ConcurrentWorker  extends RecursiveAction
 
 	private ConcurrentTask task;
 
+	private boolean noSplit = false;
+
 	public ConcurrentWorker(ConcurrentTask task)
 	{
-		set(task);
+		setTask(task);
 	}
 	
 	public ConcurrentWorker()
@@ -32,15 +34,18 @@ public class ConcurrentWorker  extends RecursiveAction
 		
 	}
 	
-	public void set(ConcurrentTask task)
+	public void setTask(ConcurrentTask task)
 	{
 		this.task = task;
 	}
 	
 	public void executeTask(ConcurrentTask task)
 	{
-		set(task);
-		pool.invoke(new ConcurrentWorker(this.task));
+		setTask(task);
+		if ( this.noSplit )
+			task.task();
+		else
+			pool.invoke(new ConcurrentWorker(this.task));
 	}
 
 	/**
@@ -49,7 +54,7 @@ public class ConcurrentWorker  extends RecursiveAction
 	@Override
 	protected void compute() 
 	{
-		if (worksplitter()) 
+		if ( worksplitter() ) 
 			task.task();
 	}
 	

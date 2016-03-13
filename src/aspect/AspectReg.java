@@ -116,7 +116,7 @@ public class AspectReg<A>
 	/**
 	 * same as add but intend is to overwrite
 	 */
-	public void set(String key, A aspect)
+	public synchronized void set(String key, A aspect)
 	{
 		if(_aspects.containsKey(key))
 			this.getAspect(key).set(aspect);
@@ -155,7 +155,7 @@ public class AspectReg<A>
 	/**
 	 * get value if the aspect is a primary or calculated state
 	 */
-	public Object getValue(AspectInterface rootRegistry, String key)
+	public synchronized Object getValue(AspectInterface rootRegistry, String key)
 	{
 		Aspect<?> a = getAspect(key);
 		if ( a == null )
@@ -177,7 +177,7 @@ public class AspectReg<A>
 	 * @param timeStep
 	 * TODO: some proper testing
 	 */
-	public void doEvent(AspectInterface initiator, AspectInterface compliant, 
+	public synchronized void doEvent(AspectInterface initiator, AspectInterface compliant, 
 			double timeStep, String key)
 	{
 		Aspect<?> a = getAspect(key);

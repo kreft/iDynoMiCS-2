@@ -10,7 +10,6 @@ import agent.Agent;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import idynomics.NameRef;
 import reaction.Reaction;
 
 /**
@@ -61,11 +60,21 @@ public class AgentReactions implements ConcurrentTask
 		HashMap<int[],Double> distributionMap;
 		for ( Agent a : agentList)
 		{
-			if ( ! a.isAspect(NameRef.agentReactions) )
+			if ( ! a.isAspect("reactions") )
 				continue;
-			reactions = (List<Reaction>) a.get("reactions");
+			reactions = (List<Reaction>) a.getValue("reactions");
 			distributionMap = (HashMap<int[],Double>)
 									a.getValue("volumeDistribution");
+			
+			a.set("growthRate",0.0);
+			if (a.isAspect("internalProduction"))
+			{
+				HashMap<String,Double> internalProduction = 
+						(HashMap<String,Double>) 
+						a.getValue("internalProduction");
+				for (String key : internalProduction.keySet())
+					internalProduction.put(key, 0.0);
+			}
 			/*
 			 * Calculate the total volume covered by this agent,
 			 * according to the distribution map. This is likely to be
@@ -98,8 +107,6 @@ public class AgentReactions implements ConcurrentTask
 						{
 							aSG = environment.getSoluteGrid(varName);
 							concn = aSG.getValueAt(CONCN, coord);
-							// FIXME: was getting strange [16,0,0] 
-							// coord values here (index out of bounds)
 						}
 						else if ( a.isAspect(varName) )
 						{
@@ -143,6 +150,8 @@ public class AgentReactions implements ConcurrentTask
 						}
 						else if ( a.isAspect(productName) )
 						{
+							System.out.println("agent reaction catched " + 
+									productName);
 							/* 
 							 * NOTE Bas [17Feb2016]: Put this here as 
 							 * example, though it may be nicer to
@@ -161,10 +170,9 @@ public class AgentReactions implements ConcurrentTask
 						}
 						else if ( a.getString("species").equals(productName))
 						{
-							a.set("growthRate", productionRate);
-							
-							/* Timespan of growth event */
-							a.event("growth", dt);
+							double curRate = a.getDouble("growthRate");
+							a.set("growthRate", curRate + productionRate);
+
 							
 						}
 						else if ( a.isAspect("internalProduction"))
@@ -177,19 +185,23 @@ public class AgentReactions implements ConcurrentTask
 								if(p.equals(productName))
 								{
 									internalProduction.put(productName, 
-											productionRate);
+											internalProduction.get(productName) 
+											+ productionRate * totalVoxVol);
 								}
 							}
-							a.event("produce", dt);
-							
+
 						} 
 						else
 						{
+							System.out.println("agent reaction catched " + 
+									productName);
 							// TODO safety?
 						}
 					}
 				}
 			}
+			a.event("growth", dt);
+			a.event("produce", dt);
 		}
 	}
 

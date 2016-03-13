@@ -6,9 +6,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
-import concurentTasks.AgentInteraction;
-import concurentTasks.ConcurrentWorker;
-import concurentTasks.UpdateAgentBody;
+
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
@@ -17,8 +15,7 @@ import surface.Collision;
 import surface.Point;
 import surface.Surface;
 import utility.Helper;
-import dataIO.Log;
-import dataIO.Log.Tier;
+
 
 
 	////////////////////////
@@ -64,7 +61,7 @@ public class AgentRelaxation extends ProcessManager
 	method _method;
 	boolean timeLeap;
 	
-	ConcurrentWorker worker = new ConcurrentWorker();
+//	ConcurrentWorker worker = new ConcurrentWorker();
 	
 	@Override
 	public void init(Element xmlElem)
@@ -231,7 +228,7 @@ public class AgentRelaxation extends ProcessManager
 					/// Euler's method
 					for(Agent agent: agents.getAllLocatedAgents())
 						for (Point point: ((Body) agent.get("body")).getPoints())
-							point.euStep(dtMech, (double) agent.get("radius"));
+							point.euStep(dtMech, agent.getDouble("radius"));
 					tMech += dtMech;
 					break;
 				

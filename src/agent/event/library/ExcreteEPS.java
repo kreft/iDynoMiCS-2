@@ -26,8 +26,10 @@ public class ExcreteEPS   extends Event {
 			
 			if (internalProducts.containsKey("eps"))
 			{
+				double maxEPS = (double) initiator.getValue("maxInternalEPS");
+				double epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.getNormRand();
 				double eps = internalProducts.get("eps");
-				if (eps > initiator.getDouble("maxInternalEPS"))
+				while (eps > epsBlob)
 				{
 					// TODO Joints state will be removed
 					double[] originalPos = ((Body) initiator.getValue(NameRef.agentBody)).getJoints().get(0);
@@ -37,15 +39,18 @@ public class ExcreteEPS   extends Event {
 					
 					// FIXME this is not correct, calculate with density
 					compliant = new Agent(initiator.getString("epsSpecies"), 
-							new Body(new Point(epsPos),ExtraMath.radiusOfASphere(eps)),
-							((Agent) initiator).getCompartment()); // the copy constructor
-					compliant.set("mass", eps);
-					internalProducts.put("eps",0.0);
+							new Body(new Point(epsPos),0.0),
+							((Agent) initiator).getCompartment()); 
+					compliant.set("mass", epsBlob);
+					compliant.reg().doEvent(compliant, null, 0.0, "updateBody");
+					internalProducts.put("eps", eps-epsBlob);
 					((Agent) compliant).registerBirth();
 					
 					initiator.set("internalProducts", internalProducts);
 
 					Log.out(Tier.BULK, "EPS particle created");
+					epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.getNormRand();
+					eps = internalProducts.get("eps");
 				}
 			}
 		}

@@ -8,7 +8,7 @@ import surface.BoundingBox;
 /**
  * A dummy spatial registry for dimensionless compartments.
  */
-public class DummyTree<T> extends SpatialRegistry<T>
+public class DummyTree<T> implements SpatialRegistry<T>
 {
 	private List<T> _emptyList;
 	

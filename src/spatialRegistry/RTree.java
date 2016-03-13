@@ -28,7 +28,7 @@ import utility.ExtraMath;
  * @author Russ Weeks rweeks@newbrightidea.com
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class RTree<T> extends SpatialRegistry<T>
+public class RTree<T> implements SpatialRegistry<T>
 {
   public enum SeedPicker { LINEAR, QUADRATIC }
 

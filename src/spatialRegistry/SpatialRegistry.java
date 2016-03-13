@@ -11,7 +11,7 @@ import surface.BoundingBox;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public abstract class SpatialRegistry<T>
+public interface SpatialRegistry<T>
 {	
 	/**
 	 * \brief TODO
