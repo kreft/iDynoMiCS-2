@@ -200,20 +200,18 @@ public class GuiSimMake
 	{
 		
 		JButton makeButton = new JButton("Make new "+smMaker.getName());
+		makeButton.addActionListener(smMaker);
 		Object options = smMaker.getOptions();
 		if ( options == null )
 		{
-			makeButton.addActionListener(smMaker);
-			//makeButton.addActionListener(smMaker.getActionListener(null));
+			// TODO do nothing?
 		}
 		else if ( options instanceof String[] )
 		{
 			String[] strOptions = (String[]) options;
 			JComboBox<String> selecter = new JComboBox<String>(strOptions);
 			smPanel.add(selectPanel(selecter));
-			makeButton.addActionListener(
-					smMaker.getActionListener(
-							selecter.getSelectedItem().toString()));
+			makeButton.setActionCommand(selecter.getSelectedItem().toString());
 		}
 		else
 		{
@@ -229,7 +227,6 @@ public class GuiSimMake
 				if ( ! smMaker.canMakeMore() )
 					smPanel.remove(makeButton);
 			}
-			
 		});
 		smPanel.add(makeButton);
 	}
