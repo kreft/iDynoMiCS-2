@@ -61,7 +61,7 @@ public class StochasticMove extends Event {
 			}
 			else
 			{
-				/* perform the stochastic move, unly for coccoid now */
+				/* perform the stochastic move, only for coccoid now */
 				for (Point p : points)
 				{
 					p.setPosition(Vector.add(p.getPosition(), move ));
@@ -72,9 +72,9 @@ public class StochasticMove extends Event {
 		else
 		{
 			/* evaluate a new stochastic move */
-			if(ExtraMath.random.nextDouble() < 0.1)
+			if(ExtraMath.random.nextDouble() < 0.2)
 			{
-				agent.set("stochasticPause", timeStep);
+				agent.set("stochasticPause", 1.0);
 			}
 			else
 			{

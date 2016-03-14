@@ -260,8 +260,8 @@ public class SolveDiffusionTransient extends ProcessManager
 					double dt)
 			{
 				/* Gather a defaultGrid to iterate over. */
-				SpatialGrid defaultGrid = environment.getSoluteGrid(environment.
-						getSolutes().keySet().iterator().next());
+				SpatialGrid defaultGrid = environment.getSoluteGrid(
+						environment.getSolutes().keySet().iterator().next());
 				
 				//FIXME seems to be pretty thread unsafe 
 //				worker.executeTask(new EnvironmentReactions(
@@ -397,8 +397,9 @@ public class SolveDiffusionTransient extends ProcessManager
 							 * not be the same as those in the reaction
 							 * variables (although there is likely to be a
 							 * large overlap).
+							 * TODO move this part to a "poststep" updater 
+							 * method?
 							 */
-							// TODO move this part to a "poststep" updater method?
 							double productionRate;
 							for ( String productName : 
 												r.getStoichiometry().keySet())

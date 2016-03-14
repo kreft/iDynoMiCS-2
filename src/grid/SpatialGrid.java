@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.w3c.dom.Node;
 
+import dataIO.ObjectFactory;
 import grid.GridBoundary.GridMethod;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import grid.subgrid.SubgridPoint;
@@ -14,7 +15,6 @@ import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
-import utility.Copier;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.
@@ -892,7 +892,7 @@ public abstract class SpatialGrid
 				isIteratorValid(); 
 					coord = iteratorNext())
 		{
-			coords.add((int[]) Copier.copy(coord));
+			coords.add((int[]) ObjectFactory.copy(coord));
 		}
 		return coords;
 	}
