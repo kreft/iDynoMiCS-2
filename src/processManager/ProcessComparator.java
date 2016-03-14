@@ -25,7 +25,7 @@ public class ProcessComparator implements Comparator<ProcessManager>
 		if ( ExtraMath.areEqual(temp, 0.0, 1.0E-10) )
 			out = pm2.getPriority() - pm1.getPriority();
 		else
-			out = (int) Math.floor(temp);
+			out = (int) Math.signum(temp);
 		Log.out(Tier.DEBUG, "ProcessComparator: "+pm1._name+" vs "+pm2._name+
 				" has tDiff "+temp+", so out = "+out);
 		return out;
