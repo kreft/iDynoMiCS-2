@@ -139,6 +139,11 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
+	public String getName()
+	{
+		return "Species Library";
+	}
+	
 	public Map<String, Class<?>> getParameters()
 	{
 		/* No attributes to set. */

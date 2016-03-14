@@ -32,7 +32,12 @@ public class Timer implements IsSubmodel, XMLable
 		this.iteration = 0;
 		this.now = 0.0;
 	}
-
+	
+	public String getName()
+	{
+		return "Timer";
+	}
+	
 	public void init(Element xmlNode)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");

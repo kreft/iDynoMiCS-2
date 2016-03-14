@@ -63,6 +63,16 @@ public abstract class InputSetter extends AbstractAction
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public boolean hasOptions()
+	{
+		return this.getOptions() != null;
+	}
+	
+	/**
 	 * \brief Process an {@code Object} as input. 
 	 * 
 	 * @param input An input to be passed to the sub-model this setter
