@@ -172,8 +172,9 @@ public class GuiSimMake
 		{
 			if ( smMaker.mustMakeMore() )
 			{
-				makeMaker(smTab, smMaker);
+				smTab.add(textPanel("Must make a "+smMaker.getName()));
 			}
+			makeMaker(smTab, smMaker);
 		}
 		else
 		{
@@ -186,10 +187,6 @@ public class GuiSimMake
 				makeMaker(smTab, smMaker);
 			}
 		}
-//		if ( smMaker.canMakeMore() )
-//		{
-//			makeMaker(smTab, smMaker);
-//		}
 		return smTab;
 	}
 	
