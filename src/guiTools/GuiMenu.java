@@ -117,7 +117,7 @@ public final class GuiMenu
 			GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, true);
 		}
 	}
-
+	
 	public static class NewSimulation extends AbstractAction
 	{
 		private static final long serialVersionUID = 8401347291057616616L;
