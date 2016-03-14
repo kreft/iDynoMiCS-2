@@ -1,5 +1,8 @@
 package linearAlgebra;
 
+import java.util.HashMap;
+import java.util.Set;
+
 import utility.ExtraMath;
 
 /**
@@ -722,6 +725,34 @@ public final class Vector
 			if ( ! ExtraMath.areEqual(a[i], b[i], absTol) )
 				return false;
 		return true;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param set
+	 * @param vector
+	 * @return
+	 */
+	public static boolean contains(Set<int[]> set, int[] vector)
+	{
+		for ( int[] v : set )
+			if ( areSame(v, vector) )
+				return true;
+		return false;
+	}
+	
+	/**
+	 * \brief See if the given {@code HashMap} contains the given {@code int[]}
+	 * vector among its keys.
+	 * 
+	 * @param hm
+	 * @param vector
+	 * @return
+	 */
+	public static boolean containsKey(HashMap<int[], ?> hm, int[] vector)
+	{
+		return contains(hm.keySet(), vector);
 	}
 	
 	/*************************************************************************

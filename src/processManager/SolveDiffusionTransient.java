@@ -156,8 +156,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			location = solute.getVoxelOrigin(coord);
 			solute.getVoxelSideLengthsTo(dimension, coord);
 			/* NOTE the agent tree is always the amount of actual dimension */
-			neighbors = agents.treeSearch(
-						  					Vector.subset(location, nDim),
+			neighbors = agents.treeSearch(Vector.subset(location, nDim),
 						  					Vector.subset(dimension, nDim));
 			/* If there are none, move onto the next voxel. */
 			if ( neighbors.isEmpty() )
@@ -171,37 +170,38 @@ public class SolveDiffusionTransient extends ProcessManager
 			// TODO the scaling factor of a quarter is chosen arbitrarily
 			double minRad = Vector.min(dimension);
 			
-			/** FIXME maybe an expensive way to figure out the smallest agent, 
-			 * the smallest agents may even lack their own reactions (eps part)
-			 */
-			for ( Agent a : agents.getAllLocatedAgents() )
+			// FIXME maybe an expensive way to figure out the smallest agent, 
+			//the smallest agents may even lack their own reactions (eps part)
+			// Rob [14Mar2016]: agents without reactions will already have been
+			// removed (see line 166) but you're right that we don't need to
+			// look at all agents. I've changed it to only look at neighbors.
+			for ( Agent a : neighbors )
 				if ( a.isAspect(NameRef.bodyRadius) )
-				{
 					minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
-				}
 			sgPoints = solute.getCurrentSubgridPoints(0.25 * minRad);
 			/* 
 			 * Get the subgrid points and query the agents.
 			 */
 			for ( Agent a : neighbors )
 			{
+				/* Should have been removed, but doesn't hurt to check. */
 				if ( ! a.isAspect(NameRef.agentReactions) )
 					continue;
-				if (! a.isAspect(NameRef.surfaceList) )
+				if ( ! a.isAspect(NameRef.surfaceList) )
 					continue;
-				List<Surface> surfaces = (List<Surface>) 
-						a.get(NameRef.surfaceList);
+				List<Surface> surfaces =
+									(List<Surface>) a.get(NameRef.surfaceList);
 				distributionMap = (HashMap<int[],Double>) 
 										a.getValue("volumeDistribution");
-				
+				double[] pLoc;
 				sgLoop: for ( SubgridPoint p : sgPoints )
 				{
 					/* 
 					 * Only give location in actual dimensions.
 					 */
+					pLoc = p.getRealLocation(nDim);
 					for ( Surface s : surfaces )
-						if ( collision.distance(s, Vector.subset( 
-								p.realLocation,agents.getNumDims())) < 0.0 )
+						if ( collision.distance(s, pLoc) < 0.0 )
 						{
 							/*
 							 * If this is not the first time the agent has seen
@@ -213,22 +213,16 @@ public class SolveDiffusionTransient extends ProcessManager
 							 * iterator moves on!
 							 */
 							// NOTE discovered strange hashmap behavior
-							double newVolume = p.volume;
-							boolean hit = false;
-							for (int[] key : distributionMap.keySet())
+							int[] coordCopy = Vector.copy(coord);
+							if ( Vector.containsKey(distributionMap, coord) )
 							{
-								if(Vector.areSame(key, coord))
-								{
-									distributionMap.put(key, distributionMap.get(key) + newVolume);
-									hit = true;
-								}
+								distributionMap.put(coordCopy,
+										distributionMap.get(coord) + p.volume);
 							}
-							
-							if ( ! hit )
+							else
 							{
-								distributionMap.put(Vector.copy(coord), newVolume);
+								distributionMap.put(coordCopy, p.volume);
 							}
-
 							/*
 							 * We only want to count this point once, even
 							 * if other surfaces of the same agent hit it.
