@@ -666,4 +666,16 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 			return Shape.getAllOptions();
 		}
 	}
+	
+	public static abstract class Polar extends Shape
+	{
+		public Polar()
+		{
+			super();
+			/* There is no need for an r-min boundary. */
+			Dimension dim = new Dimension();
+			dim.setBoundaryOptional(0);
+			this._dimensions.put(DimName.R, dim);
+		}
+	}
 }

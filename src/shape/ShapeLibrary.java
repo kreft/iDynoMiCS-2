@@ -161,19 +161,7 @@ public final class ShapeLibrary
 	 * SHAPES WITH ROUND EDGES
 	 ************************************************************************/
 	
-	public static abstract class Polar extends Shape
-	{
-		public Polar()
-		{
-			super();
-			/* There is no need for an r-min boundary. */
-			Dimension dim = new Dimension();
-			dim.setBoundaryOptional(0);
-			this._dimensions.put(DimName.R, dim);
-		}
-	}
-	
-	public static class Circle extends Polar
+	public static class Circle extends Shape.Polar
 	{
 		public Circle()
 		{
@@ -238,7 +226,7 @@ public final class ShapeLibrary
 		}
 	}
 	
-	public static class Sphere extends Polar
+	public static class Sphere extends Shape.Polar
 	{
 		public Sphere()
 		{
