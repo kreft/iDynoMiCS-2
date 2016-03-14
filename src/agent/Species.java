@@ -1,5 +1,6 @@
 package agent;
 
+import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
 
 /**
  * \brief TODO
@@ -98,5 +100,29 @@ public class Species implements AspectInterface, IsSubmodel
 	public void acceptInput(String name, Object input)
 	{
 		// TODO
+	}
+	
+	public static class SpeciesMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = -128102479980440674L;
+		
+		/**\brief TODO
+		 * 
+		 * @param name
+		 * @param req
+		 * @param target
+		 */
+		public SpeciesMaker(Requirement req, IsSubmodel target)
+		{
+			super("species", req, target);
+		}
+		
+		@Override
+		protected void doAction(ActionEvent e)
+		{
+			System.out.println("Making species");
+			this.addSubmodel(new Species());
+		}
+		
 	}
 }
