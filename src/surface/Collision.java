@@ -23,21 +23,26 @@ public class Collision {
 	
 	public interface CollisionFunction
 	{
+		public double forceScalar();
 		public double[] interactionForce(double distance, double[] dP);
 	}
 	
 	public CollisionFunction PullFunction = new CollisionFunction()
 	{
+		public double forceScalar()
+		{
+			return -1;		// pull force scalar
+		}
+		
 		public double[] interactionForce(double distance, double[] dP)
 		{
 			double c;
-			double fPull 		= -0.9;		// pull force scalar
 			distance 			-= 0.001;	// added margin
 			
 			// Attraction
-			if (distance > 0.0 && distance < pull) 
+			if (distance > 0.0 && distance < pullRange) 
 			{
-				c = Math.abs(fPull * distance); //linear
+				c = Math.abs(forceScalar() * distance); //linear
 				Vector.normaliseEuclidEquals(dP, c);
 				return dP;
 			} 
@@ -47,17 +52,22 @@ public class Collision {
 	
 	public CollisionFunction DefaultCollision = new CollisionFunction()
 	{
+		public double forceScalar()
+		{
+			return 6.0;		// push force scalar
+		}
+		
 		public double[] interactionForce(double distance, double[] dP)
 		{
 			double c;
-			double fPush 		= 6.0;			// push force scalar
+			
 			
 			distance 			+= 0.001;	// added margin
 			
 			// Repulsion
 			if (distance < 0.0) 
 			{
-				c = Math.abs(fPush * distance); //linear
+				c = Math.abs(forceScalar() * distance); //linear
 				Vector.normaliseEuclidEquals(dP, c);
 				return dP;
 			} 
@@ -92,12 +102,18 @@ public class Collision {
 	/**
 	 * 
 	 */
-	private double pull = 0.0;
+	private double pullRange = 0.0;
 	
 	/**
 	 * flip if the force needs to be added to b and subtracted from a
 	 */
 	private boolean flip = false;
+	
+	public double getMaxForceScalar()
+	{
+		return Math.max(Math.abs(this.collisionFun.forceScalar()), 
+				Math.abs(this.pullFun.forceScalar()));
+	}
 	
 	public Collision(CollisionFunction collisionFunction, Shape compartmentShape)
 	{
@@ -117,7 +133,7 @@ public class Collision {
 	 */
 	public void collision(Surface a, Surface b, double pullDistance)
 	{
-		pull = pullDistance;
+		pullRange = pullDistance;
 		double dist = distance(a,b);
 		
 		/* Pushing */
@@ -155,7 +171,7 @@ public class Collision {
 			}
 		}
 		/* reset pull dist, very important! */
-		pull = 0.0;
+		pullRange = 0.0;
 	}
 
 	

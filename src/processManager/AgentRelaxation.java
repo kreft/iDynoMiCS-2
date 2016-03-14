@@ -61,6 +61,8 @@ public class AgentRelaxation extends ProcessManager
 	method _method;
 	boolean timeLeap;
 	
+	Collision iterator;
+	
 //	ConcurrentWorker worker = new ConcurrentWorker();
 	
 	@Override
@@ -93,14 +95,12 @@ public class AgentRelaxation extends ProcessManager
 		 */
 		agents.refreshSpatialRegistry();
 		
-//		AgentInteraction interact = new AgentInteraction(agents);
-//		interact.task(0, interact.size());
-
 //		worker.executeTask(new AgentInteraction(agents));
-		/* FIXME This could also be created once if the AgentContainer would be 
+		/* FIXME This could also be created just once if the AgentContainer would be 
 		 * available with the initiation of the processManager
 		 */
-		Collision iterator = new Collision(null, agents.getShape());
+		iterator = new Collision(null, agents.getShape());
+		
 		// Calculate forces
 		for(Agent agent: agents.getAllLocatedAgents()) 
 		{
@@ -124,9 +124,7 @@ public class AgentRelaxation extends ProcessManager
 			
 			/**
 			 * perform neighborhood search and perform collision detection and
-			 * response FIXME: this has not been adapted to multi surface
-			 * objects!
-			 * TODO Add optional extra margin for pulls!!!
+			 * response 
 			 */
 			for(Agent neighbour: agents.treeSearch(
 
@@ -207,11 +205,17 @@ public class AgentRelaxation extends ProcessManager
 			// time Leaping set the time step to match a max traveling distance
 			// divined by 'maxMovement', for a 'fast' run.
 			if(timeLeap) 
-				dtMech = maxMovement / (Math.sqrt(vSquare)*3.0+0.001);   // this 3.0 should match the fPush of Volume.. needs to be constructed out of protocol file.
+				dtMech = maxMovement / (Math.sqrt(vSquare)*iterator.getMaxForceScalar()+0.001);   
 			
 			// prevent to relaxing longer than the global _timeStepSize
 			if(dtMech > _timeStepSize-tMech)
 				dtMech = _timeStepSize-tMech;
+			
+			for(Agent agent: agents.getAllLocatedAgents())
+			{
+				if (agent.isAspect("stochasticStep"))
+					agent.event("stochasticMove", dtMech);
+			}
 			
 			// perform the step using (method)
 			switch (_method)
@@ -251,8 +255,6 @@ public class AgentRelaxation extends ProcessManager
 				for (Point point: ((Body) agent.get("body")).getPoints())
 				{
 					agents.getShape().applyBoundaries(point.getPosition());
-					if (agent.isAspect("stochasticStep"))
-						agent.event("stochasticMove", dtMech);
 				}
 			nstep++;
 		}

@@ -44,7 +44,7 @@
 				<aspect name="reactions" type="LinkedList" >
 					<item type="Reaction">
 						<reaction name="testReact">
-							<expression value="mumax *(solute1 / (solute1 + k) )">
+							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
 								<constant name="mumax" value="500.0" />
 							</expression>
@@ -79,7 +79,7 @@
 			<species name="producer">
 				<aspect name="produce" type="EVENT"	class="InternalProduction" 	package="agent.event.library." />
 				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPS" 	package="agent.event.library." />
-				<aspect  name="maxInternalEPS" type="Double" value="0.01" />
+				<aspect  name="maxInternalEPS" type="Double" value="0.003" />
 				<aspect  name="epsSpecies" type="String" value="particleEPS" />
 			</species>
 			<species name="particleEPS">

@@ -211,22 +211,33 @@ public class SolveDiffusionTransient extends ProcessManager
 							 * Note that we need to copy the coord vector so
 							 * that it does not change when the SpatialGrid
 							 * iterator moves on!
+							 * NOTE discovered strange hashmap behavior
+							 * previously distributionMap.containsKey(coord) was
+							 * used, however even though the coordinates in the 
+							 * HashMap (key) and the those in coord would be 
+							 * identical for every evaluation a new hashmap 
+							 * entry would be created since (probably) key and 
+							 * coord are not the same object (but only contain 
+							 * identical information), this forloop is there to 
+							 * prevent this from happening.
 							 */
-							// NOTE discovered strange hashmap behavior
 							double newVolume = p.volume;
 							boolean hit = false;
 							for (int[] key : distributionMap.keySet())
 							{
 								if(Vector.areSame(key, coord))
 								{
-									distributionMap.put(key, distributionMap.get(key) + newVolume);
+									distributionMap.put(key, 
+											distributionMap.get(key) + 
+											newVolume);
 									hit = true;
 								}
 							}
 							
 							if ( ! hit )
 							{
-								distributionMap.put(Vector.copy(coord), newVolume);
+								distributionMap.put(Vector.copy(coord), 
+										newVolume);
 							}
 
 							/*
@@ -266,8 +277,8 @@ public class SolveDiffusionTransient extends ProcessManager
 					double dt)
 			{
 				/* Gather a defaultGrid to iterate over. */
-				SpatialGrid defaultGrid = environment.getSoluteGrid(environment.
-						getSolutes().keySet().iterator().next());
+				SpatialGrid defaultGrid = environment.getSoluteGrid(
+						environment.getSolutes().keySet().iterator().next());
 				
 				//FIXME seems to be pretty thread unsafe 
 //				worker.executeTask(new EnvironmentReactions(
@@ -403,8 +414,9 @@ public class SolveDiffusionTransient extends ProcessManager
 							 * not be the same as those in the reaction
 							 * variables (although there is likely to be a
 							 * large overlap).
+							 * TODO move this part to a "poststep" updater 
+							 * method?
 							 */
-							// TODO move this part to a "poststep" updater method?
 							double productionRate;
 							for ( String productName : 
 												r.getStoichiometry().keySet())
