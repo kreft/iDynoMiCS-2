@@ -611,7 +611,6 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	/**
 	 * 
 	 * @return
-	 * Bas: why not just use an enum in the first place
 	 */
 	public static String[] getAllOptions()
 	{

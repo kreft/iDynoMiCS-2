@@ -231,7 +231,10 @@ public class GuiSimMake
 		smMaker.actionPerformed(null);
 		IsSubmodel sm = smMaker.getLastMadeSubmodel();
 		if ( smMaker.canMakeMultiples() )
-			smTab.add(tabbedView(sm));
+		{
+			//smTab.add(tabbedView(sm));
+			smTab.add(simpleView(sm));
+		}
 		else
 			smTab.add(simpleView(sm));
 	}

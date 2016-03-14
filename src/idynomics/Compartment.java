@@ -455,7 +455,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		List<InputSetter> out = new LinkedList<InputSetter>();
 		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
 		/* We must have exactly one Shape. */
-		//out.add(new ShapeMaker(Requirement.EXACTLY_ONE, this));
+		out.add(new ShapeMaker(Requirement.EXACTLY_ONE, this));
 		/* Any number of process managers is allowed, including none. */
 		// TODO temporarily removed, reinstate
 		//out.add(new ProcessMaker(Requirement.ZERO_TO_MANY, this));
@@ -469,8 +469,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		if ( name.equals(XmlLabel.nameAttribute) )
 			this.name = (String) input;
 		/* Sub-models */
-		//if ( input instanceof Shape )
-		//	this._shape = (Shape) input;
+		if ( input instanceof Shape )
+			this._shape = (Shape) input;
 		if ( input instanceof ProcessManager )
 			this._processes.add((ProcessManager) input);
 	}
@@ -487,18 +487,13 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		@Override
 		public void doAction(ActionEvent e)
 		{
-			String shapeName;
-			if ( e == null )
-				shapeName = "";
-			else
-				shapeName = e.getActionCommand();
-			this.addSubmodel(new Compartment(shapeName));
+			this.addSubmodel(new Compartment());
 		}
 		
 		@Override
 		public Object getOptions()
 		{
-			return Shape.getAllOptions();
+			return null;
 		}
 	}
 }
