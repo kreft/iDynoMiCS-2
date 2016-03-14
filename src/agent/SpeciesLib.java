@@ -8,6 +8,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import agent.Species.SpeciesMaker;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -17,6 +18,7 @@ import generalInterfaces.XMLable;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -146,7 +148,9 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 	public List<InputSetter> getRequiredInputs()
 	{
 		// TODO implement species
-		return new LinkedList<InputSetter>();
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		out.add(new SpeciesMaker(Requirement.ZERO_TO_MANY, this));
+		return out;
 	}
 	
 	public void acceptInput(String name, Object input)
