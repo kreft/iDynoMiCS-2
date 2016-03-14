@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -142,17 +141,6 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 	public String getName()
 	{
 		return "Species Library";
-	}
-	
-	public Map<String, Class<?>> getParameters()
-	{
-		/* No attributes to set. */
-		return new HashMap<String, Class<?>>();
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		
 	}
 	
 	public List<InputSetter> getRequiredInputs()
