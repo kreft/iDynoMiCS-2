@@ -76,6 +76,14 @@ public final class Vector
 		return setAll(vector, value);
 	}
 	
+	public static double[] vector(Double[] object)
+	{
+		double[] vector = new double[object.length];
+		for(int i = 0; i < object.length; i++)
+			vector[i] = object[i];
+		return vector;
+	}
+	
 	/**
 	 * \brief A new integer vector of length <b>n</b>, and all elements set to
 	 * zero.
@@ -2202,7 +2210,8 @@ public final class Vector
 		double[] out = new double[n];
 		for ( int i = 0; i < n; i++ )
 		{
-			out[i] = ExtraMath.getUniRandDbl();
+//			out[i] = ExtraMath.getUniRandDbl();
+			out[i] = ExtraMath.random.nextDouble();
 			if ( ExtraMath.getRandBool() )
 				out[i] *= -1;
 		}

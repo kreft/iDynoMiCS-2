@@ -27,7 +27,7 @@
 					<item type="Reaction">
 						<reaction name="testReact">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
-								<constant name="k" value="0.0001" />
+								<constant name="k" value="0.1" />
 								<constant name="mumax" value="0.1" />
 							</expression>
 							<stochiometric component="species1" coefficient="1.0" />

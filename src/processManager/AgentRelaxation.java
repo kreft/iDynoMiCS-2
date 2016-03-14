@@ -73,7 +73,7 @@ public class AgentRelaxation extends ProcessManager
 		 * Obtaining relaxation parameters
 		 */
 		dtBase		= Helper.setIfNone(getDouble("dtBase"),0.002);	
-		maxMovement	= Helper.setIfNone(getDouble("maxMovement"),0.1);	
+		maxMovement	= Helper.setIfNone(getDouble("maxMovement"),0.01);	
 		_method		= method.valueOf(Helper.obtainInput(getString(
 				"relaxationMethod"), "agent relaxation misses relaxation method"
 				+ " (SHOVE,EULER,HEUN)"));
@@ -198,14 +198,27 @@ public class AgentRelaxation extends ProcessManager
 			/// obtain current highest particle velocity
 			vSquare = 0.0;
 			for(Agent agent: agents.getAllLocatedAgents())
+			{
 				for (Point point: ((Body) agent.get("body")).getPoints())
 					if ( Vector.normSquare(point.dxdt((double) agent.get("radius"))) > vSquare )
-						vSquare = Vector.normSquare(point.dxdt((double) agent.get("radius")));
+						vSquare = Vector.normSquare(point.dxdt((double) agent.get("radius")));			
+			}
 			
+			// FIXME this assumes linear force scaling improve..
+			vSquare = vSquare * Math.pow(iterator.getMaxForceScalar(), 2.0);
+			
+			for(Agent agent: agents.getAllLocatedAgents())
+			{
+				if (agent.isAspect("stochasticDirection"))
+				{
+					double[] move = (double[]) agent.get("stochasticDirection");
+					vSquare = Math.max(Vector.dotProduct(move,move), vSquare);
+				}
+			}
 			// time Leaping set the time step to match a max traveling distance
 			// divined by 'maxMovement', for a 'fast' run.
 			if(timeLeap) 
-				dtMech = maxMovement / (Math.sqrt(vSquare)*iterator.getMaxForceScalar()+0.001);   
+				dtMech = maxMovement / (Math.sqrt(vSquare)+0.001);   
 			
 			// prevent to relaxing longer than the global _timeStepSize
 			if(dtMech > _timeStepSize-tMech)

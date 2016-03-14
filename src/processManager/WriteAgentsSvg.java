@@ -106,7 +106,7 @@ public class WriteAgentsSvg extends ProcessManager
 				 * First, map the concentration to the real interval [0, 1].
 				 */
 				double concn = solute.getValueAtCurrent(this._arrayType);
-				concn /= this._maxConcn;
+				concn /= Math.abs(this._maxConcn);
 				concn = ExtraMath.restrict(concn, 0.0, 1.0);
 				/* Flip this, so that higher concentration is darker. */
 				if ( this._higherIsDarker )

@@ -27,7 +27,7 @@ public class ExcreteEPS   extends Event {
 			if (internalProducts.containsKey("eps"))
 			{
 				double maxEPS = (double) initiator.getValue("maxInternalEPS");
-				double epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.getUniRandDbl();
+				double epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.random.nextDouble();
 				double eps = internalProducts.get("eps");
 				while (eps > epsBlob)
 				{
