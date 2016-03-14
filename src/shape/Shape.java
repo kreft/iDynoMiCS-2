@@ -25,8 +25,11 @@ import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
+import shape.Dimension.DimensionMaker;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Point;
@@ -592,23 +595,11 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		// TODO
-		return new HashMap<String, Class<?>>();
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		/* No parameters to set. */
-		//return true;
-	}
-	
-	public List<SubmodelMaker> getSubmodelMakers()
-	{
-		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		List<InputSetter> out = new LinkedList<InputSetter>();
 		for ( DimName d : this._dimensions.keySet() )
-			out.add(new DimensionMaker(d));
+			out.add(new DimensionMaker(d, Requirement.EXACTLY_ONE, this));
 		// TODO other boundaries
 		return out;
 	}
@@ -635,31 +626,41 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		return out;
 	}
 	
-	private class DimensionMaker extends SubmodelMaker
+	public void acceptInput(String name, Object input)
 	{
-		private static final long serialVersionUID = 3442712062864593527L;
-		
-		private DimName _dimName;
-		
-		public DimensionMaker(DimName dimName)
+		if ( input instanceof Dimension )
 		{
-			super("Make shape dimension: "+dimName.toString(), 1, 1);
-			this._dimName = dimName;
+			Dimension dim = (Dimension) input;
+			DimName dN = DimName.valueOf(name);
+			this._dimensions.put(dN, dim);
+		}
+	}
+	
+	public static class ShapeMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = 1486068039985317593L;
+
+		public ShapeMaker(Requirement req, IsSubmodel target)
+		{
+			super("shape", req, target);
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			Dimension dim = new Dimension();
-			_dimensions.put(this._dimName, dim);
-			this.setLastMadeSubmodel(dim);
-			this.increaseMakeCounter();
+			// TODO do safety properly
+			String shapeName;
+			if ( e == null )
+				shapeName = "";
+			else
+				shapeName = e.getActionCommand();
+			this.addSubmodel(Shape.getNewInstance(shapeName));
 		}
 		
 		@Override
-		public boolean makeImmediately()
+		public String[] getClassNameOptions()
 		{
-			return true;
+			return Shape.getAllOptions();
 		}
 	}
 }

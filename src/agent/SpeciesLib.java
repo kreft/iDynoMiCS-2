@@ -1,5 +1,6 @@
 package agent;
 
+import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +15,7 @@ import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 
@@ -148,9 +150,34 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		
 	}
 	
-	public List<SubmodelMaker> getSubmodelMakers()
+	public List<InputSetter> getRequiredInputs()
 	{
-		// TODO implement submodels
-		return new LinkedList<SubmodelMaker>();
+		// TODO implement species
+		return new LinkedList<InputSetter>();
+	}
+	
+	public void acceptInput(String name, Object input)
+	{
+		if ( input instanceof Species )
+		{
+			this._species.put(name, (Species) input);
+			// TODO void species?
+		}
+	}
+	
+	public static class SpeciesLibMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = -6601262340075573910L;
+		
+		public SpeciesLibMaker(Requirement req, IsSubmodel target)
+		{
+			super("species library", req, target);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			this.addSubmodel(new SpeciesLib());
+		}
 	}
 }

@@ -1,9 +1,8 @@
 package processManager;
 
-import java.util.LinkedHashMap;
+import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,7 +15,9 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import idynomics.NameRef;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
+import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
 
 /**
@@ -230,31 +231,38 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		Map<String, Class<?>> out = new LinkedHashMap<String, Class<?>>();
-		out.put(XmlLabel.nameAttribute, String.class);
-		out.put("priority", Integer.class);
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
+		out.add(new ParameterSetter(NameRef.processPriority, this, "Integer"));
 		return out;
 	}
 	
-	public void setParameter(String name, String value)
+	
+	public void acceptInput(String name, Object input)
 	{
 		if ( name.equals(XmlLabel.nameAttribute) )
-			this._name = value;
-		if ( name.equals("priority") )
-			this._priority = Integer.valueOf(value);
+			this._name = (String) input;
+		if ( name.equals(NameRef.processPriority) )
+			this._priority = (Integer) input;
 	}
 	
-	public List<SubmodelMaker> getSubmodelMakers()
+	public static class ProcessMaker extends SubmodelMaker
 	{
-		// TODO
-		return new LinkedList<SubmodelMaker>();
-	}
-	
-	public IsSubmodel getLastMadeSubmodel()
-	{
-		// TODO
-		return null;
+		private static final long serialVersionUID = -126858198160234919L;
+		
+		public ProcessMaker(Requirement req, IsSubmodel target)
+		{
+			super("process manager", req, target);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			ProcessManager newProcess =
+					ProcessManager.getNewInstance(e.getActionCommand());
+			this.addSubmodel(newProcess);
+		}
 	}
 }

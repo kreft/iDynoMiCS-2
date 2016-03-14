@@ -2,6 +2,8 @@ package processManager;
 
 import java.util.Comparator;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import utility.ExtraMath;
 
 /**
@@ -18,10 +20,14 @@ public class ProcessComparator implements Comparator<ProcessManager>
 	@Override
 	public int compare(ProcessManager pm1, ProcessManager pm2) 
 	{
+		int out;
 		Double temp = pm1.getTimeForNextStep() - pm2.getTimeForNextStep();
 		if ( ExtraMath.areEqual(temp, 0.0, 1.0E-10) )
-			return pm2.getPriority() - pm1.getPriority();
+			out = pm2.getPriority() - pm1.getPriority();
 		else
-			return temp.intValue();
+			out = (int) Math.floor(temp);
+		Log.out(Tier.DEBUG, "ProcessComparator: "+pm1._name+" vs "+pm2._name+
+				" has tDiff "+temp+", so out = "+out);
+		return out;
 	}
 }
