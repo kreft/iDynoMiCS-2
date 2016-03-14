@@ -107,7 +107,7 @@
 				</agent> 
 			</agents>
 			<processManagers>
-				<!-- <process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
+				 <process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="prefix" type="String" value="out_solute1" />
 					<aspect name="maxConcentration" type="Double" value="2.0" />
@@ -128,7 +128,7 @@
 					<aspect name="solute" type="String" value="solute2" />
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
-				</process>-->
+				</process>
 				<!-- <process name="agentGrowth" class="AgentGrowth"  priority="-0"
 					firstStep="0.0" package="processManager." />  -->
 				<!-- <process name="agentMove" class="AgentStochasticMove"
