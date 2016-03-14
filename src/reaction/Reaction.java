@@ -8,13 +8,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
-import utility.Copier;
 
 /**
  * \brief 
@@ -156,7 +156,7 @@ public class Reaction implements XMLable, Copyable
 		HashMap<String,Double> sto = 
 				new HashMap<String,Double>();
 		for(String key : _stoichiometry.keySet())
-			sto.put(key, (double) Copier.copy(_stoichiometry.get(key)));
+			sto.put(key, (double) ObjectFactory.copy(_stoichiometry.get(key)));
 		// NOTE: _kinetic is not copyable, this will become an issue of you
 		// want to do evo addaptation simulations
 		return new Reaction(sto, _kinetic, _name);

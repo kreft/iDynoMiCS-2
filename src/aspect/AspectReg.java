@@ -12,7 +12,6 @@ import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
 import linearAlgebra.Vector;
-import utility.Copier;
 import utility.Helper;
 
 
@@ -220,7 +219,7 @@ public class AspectReg<A>
 		this.clear();
 		AspectReg<?> donorReg = donor.reg();
 		for (String key : donorReg._aspects.keySet())
-			add(key, (A) Copier.copy(donorReg.getAspect(key).aspect));
+			add(key, (A) ObjectFactory.copy(donorReg.getAspect(key).aspect));
 		for (AspectInterface m : donorReg._modules)
 			addSubModule(m);
 	}
