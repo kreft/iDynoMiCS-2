@@ -14,13 +14,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
+import boundary.Boundary.BoundaryMaker;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 import shape.ShapeConventions.BoundaryCyclic;
+import shape.ShapeConventions.DimName;
 import utility.Helper;
 
 /**
@@ -394,72 +398,45 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		Map<String, Class<?>> out = new HashMap<String, Class<?>>();
-		out.put("isCyclic", Boolean.class);
-		return out;
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		if ( name.equals("isCyclic") && Boolean.parseBoolean(value) )
-			setCyclic();
-		// TODO
-	}
-	
-	public List<SubmodelMaker> getSubmodelMakers()
-	{
-		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
-		// NOTE I've put the cyclic stuff in both places, just in case.
-		// This can probably be removed in one of them once things are clearer.
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		Requirement req;
 		if ( ! isCyclic() )
-		{
-			System.out.println("Not cyclic, so trying to make boundaries");
-			out.add(new BoundaryMaker(0));
-			out.add(new BoundaryMaker(1));
-		}
+			for ( int i = 0; i < 2; i++ )
+			{
+				req = ( this._required[i] ) ? Requirement.EXACTLY_ONE :
+												Requirement.ZERO_OR_ONE;
+				out.add(new BoundaryMaker(i, req, this));
+			}
 		return out;
 	}
 	
-	private class BoundaryMaker extends SubmodelMaker
+	public void acceptInput(String name, Object input)
 	{
-		private static final long serialVersionUID = 6401917989904415580L;
+		/* Parameters. */
+		if ( name.equals("isCyclic") && ((Boolean) input) )
+			setCyclic();
+		/* Submodels. */
+		if ( input instanceof Boundary )
+			this.setBoundary((Boundary) input, Boundary.extremeToInt(name));
+	}
+	
+	public static class DimensionMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = 3442712062864593527L;
 		
-		private int _minMax;
-		
-		public BoundaryMaker(int minMax)
+		public DimensionMaker(DimName dimName, Requirement req, IsSubmodel target)
 		{
-			super("Boundary on dimension "+
-						((minMax==0)?"minimum":"maximum")+" extreme", 1, 1);
-			System.out.println(this.getName());
-			this._minMax = minMax;
+			super(dimName.toString(), req, target);
 		}
-
+		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			String bndryName;
-			if ( e == null )
-				bndryName = "";
-			else
-				bndryName = e.getActionCommand();
-			Boundary bndry = (Boundary) Boundary.getNewInstance(bndryName);
-			setBoundary(bndry, this._minMax);
-			this.setLastMadeSubmodel(bndry);
-			this.increaseMakeCounter();
+			this.addSubmodel(new Dimension());
 		}
-		
-		public String[] getClassNameOptions()
-		{
-			return Boundary.getAllOptions();
-		}
-		
-		@Override
-		public boolean makeImmediately()
-		{
-			return false;
-		}
-		
 	}
+	
+	
 }

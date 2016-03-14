@@ -1,24 +1,24 @@
 package idynomics;
 
-import java.awt.event.ActionEvent;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
+import agent.SpeciesLib.SpeciesLibMaker;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
+import idynomics.Compartment.CompartmentMaker;
+import idynomics.Timer.TimerMaker;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelMaker;
-import shape.Shape;
+import modelBuilder.SubmodelMaker.Requirement;
 import utility.*;
 
 /**
@@ -280,101 +280,31 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		/* No parameters to set. */
-		return new HashMap<String, Class<?>>();
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		/* No parameters to set. */
-		//return true;
-	}
-	
-	public List<SubmodelMaker> getSubmodelMakers()
-	{
-		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
-		out.add(new TimerMaker());
-		out.add(new SpeciesLibMaker());
-		out.add(new CompartmentMaker());
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		/* We must have exactly one Timer. */
+		out.add(new TimerMaker(Requirement.EXACTLY_ONE, this));
+		/* No need for a species library, but maximum of one allowed. */
+		out.add(new SpeciesLibMaker(Requirement.ZERO_OR_ONE, this));
+		/* Must have at least one compartment. */
+		out.add(new CompartmentMaker(Requirement.ONE_TO_MANY, this));
 		return out;
 	}
 	
-	private class TimerMaker extends SubmodelMaker
+	public void acceptInput(String name, Object input)
 	{
-		private static final long serialVersionUID = 1486068039985317593L;
-		
-		public TimerMaker()
-		{
-			/* We must have exactly one Timer. */
-			super("Make timer", 1, 1);
-		}
-		
-		public boolean makeImmediately()
-		{
-			return true;
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			timer = new Timer();
-			this.setLastMadeSubmodel(timer);
-			this.increaseMakeCounter();
-		}
+		// TODO Log level?
+		// TODO Random number seed?
+		// NOTE this is probably overkill, could just use instanceof
+		if ( name.equals(XmlLabel.timer) && (input instanceof Timer) )
+			timer = (Timer) input;
+		if(name.equals(XmlLabel.speciesLibrary) && input instanceof SpeciesLib)
+			this.speciesLibrary = (SpeciesLib) input;
+		if ( name.equals(XmlLabel.compartment) && input instanceof Compartment)
+			this._compartments.add((Compartment) input);
 	}
-	
-	private class SpeciesLibMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -6601262340075573910L;
-		
-		public SpeciesLibMaker()
-		{
-			/* No need for a species library, but maximum of one allowed. */
-			super("Make the species library", 0, 1);
-		}
-		
-		public boolean makeImmediately()
-		{
-			return false;
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			speciesLibrary = new SpeciesLib();
-			this.setLastMadeSubmodel(speciesLibrary);
-			this.increaseMakeCounter();
-		}
-	}
-	
-	private class CompartmentMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -6545954286337098173L;
-		
-		public CompartmentMaker()
-		{
-			/* Must have at least one compartment. */
-			super("Make a new compartment", 1, Integer.MAX_VALUE);
-		}
-		
-		public boolean makeImmediately()
-		{
-			return true;
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			// TODO use e.getActionCommand() to get the shape, or set later?
-			Compartment newCompartment = new Compartment();
-			_compartments.add(newCompartment);
-			this.setLastMadeSubmodel(newCompartment);
-			this.increaseMakeCounter();
-		}
-	}
-	
+
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK
 	 ************************************************************************/

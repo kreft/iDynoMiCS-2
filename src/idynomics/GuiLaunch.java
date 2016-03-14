@@ -2,10 +2,9 @@ package idynomics;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -21,19 +20,15 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import guiTools.ConsoleSimBuilder;
 import guiTools.GuiActions;
 import guiTools.GuiConsole;
 import guiTools.GuiMenu;
-import guiTools.GuiProtocol;
-import guiTools.GuiSimBuilder;
 import guiTools.GuiSimConstruct;
 import guiTools.GuiSimControl;
-import guiTools.GuiSplash;
+import guiTools.GuiSimMake;
 import utility.Helper;
 
 /**
@@ -48,46 +43,54 @@ import utility.Helper;
  */
 public class GuiLaunch implements Runnable
 {
-	
-	public enum ViewType
-	{
-		SPLASH,
-		
-		CONSOLE,
-		
-//		RENDER,
-		
-		PROTOCOLMAKER,
-		
-		SIMULATIONMAKER,
-		
-//		GRAPH, 
-		
-		SIMULATIONBUILDER
-	}
-	
+	/**
+	 * 
+	 */
 	private static JFrame masterFrame;
-	
-//	private static HashMap<ViewType,JComponent> views;
-	
+	/**
+	 * 
+	 */
 	private static JComponent currentView;
-	
+	/**
+	 * 
+	 */
 	private static GroupLayout layout;
-	
+	/**
+	 * 
+	 */
+	public static SequentialGroup verticalLayoutGroup;
+	/**
+	 * 
+	 */
+	public static ParallelGroup horizontalLayoutGroup;
+	/**
+	 * 
+	 */
 	private static JProgressBar progressBar;
-	
+	/**
+	 * Flag telling this GUI whether to be full screen (true) or not (false).
+	 */
 	private static boolean isFullScreen = false;
-	
+	/**
+	 * 
+	 */
+	//TODO What is this for?
 	private static Dimension xgraphic;
-	
+	/**
+	 * 
+	 */
+	//TODO What is this for?
 	private static Point point = new Point(0,0);
-	
+	/**
+	 * System file path to the iDynoMiCS logo.
+	 */
 	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
-	
+	/**
+	 * 
+	 */
 	public static JPanel contentPane;
 	
-	public static SequentialGroup verticalLayoutGroup;
-	public static ParallelGroup horizontalLayoutGroup;
+	
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -137,7 +140,10 @@ public class GuiLaunch implements Runnable
 		 */
 		masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		masterFrame.setTitle(Idynomics.fullDescription());
-		masterFrame.setSize(800,800);
+		if ( isFullScreen )
+			masterFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		else
+			masterFrame.setSize(800,800);
 		masterFrame.setLocationRelativeTo(null);
 		
 		ImageIcon img = new ImageIcon(ICON_PATH);
@@ -181,8 +187,10 @@ public class GuiLaunch implements Runnable
 		 */
 		keyBindings(contentPane, masterFrame);
 		
-		/** Checked this and works correctly, masterFrame stays at one component
-		 * the contentPane  */
+		/* 
+		 * Checked this and works correctly, masterFrame stays at one component
+		 * the contentPane
+		 */
 		masterFrame.add(contentPane);
 		
 		masterFrame.setVisible(true);
@@ -242,6 +250,21 @@ public class GuiLaunch implements Runnable
 		button = GuiSimControl.stopButton();
 		buttonHoriz.addComponent(button);
 		buttonVert.addComponent(button);
+		///////////////////////////////////////////////////////////////////////
+		// TODO TESTING ONLY
+		button = new JButton("Make sim (test)");
+		button.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				GuiSimMake gsm = new GuiSimMake();
+				gsm.makeNewSimulation();
+			}
+		});
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		///////////////////////////////////////////////////////////////////////
 		/* Add a progress bar to the button row. */
 		progressBar  = new JProgressBar();
 		progressBar.setStringPainted(true);

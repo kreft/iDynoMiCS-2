@@ -1,40 +1,36 @@
 package modelBuilder;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * \brief TODO
- * 
- * 
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public interface IsSubmodel
 {
 	/**
-	 * \brief TODO
+	 * \brief Get a list of setter actions for all input arguments needed by
+	 * this model component.
 	 * 
-	 * <p>Note: make {@code Map}s instances of {@code LinkedHashMap} if the
-	 * order is important. Otherwise, {@code HashMap} will suffice.</p>
+	 * <p>This is ordered (i.e. a list, not a set), although this is not
+	 * expected to be relevant in most cases. Examples of inputs include a
+	 * name, parameter values, and sub-model components.</p>
 	 * 
-	 * @return
+	 * @return List of all relevant input setters.
 	 */
-	public Map<String, Class<?>> getParameters();
+	public List<InputSetter> getRequiredInputs();
 	
 	/**
-	 * \brief TODO
+	 * \brief Accept an {@code Object} as input for a named parameter,
+	 * sub-model, etc.
 	 * 
-	 * @param name
-	 * @param value
-	 */
-	public void setParameter(String name, String value);
-	
-	/**
+	 * <p>Expected inputs are those listed in {@link #getRequiredInputs()}:
+	 * implementers of this interface are strongly advised to keep these two
+	 * methods adjacent in the code.</p>
 	 * 
-	 * @return
+	 * @param name Name of a parameter, often from the {@code XmlLabel} class.
+	 * @param input Input {@code Object}.
 	 */
-	public List<SubmodelMaker> getSubmodelMakers();
-	
-	// TODO getAspects?
+	public void acceptInput(String name, Object input);
 }

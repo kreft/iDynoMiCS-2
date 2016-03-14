@@ -2,10 +2,8 @@ package idynomics;
 
 import java.awt.event.ActionEvent;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -22,12 +20,17 @@ import generalInterfaces.XMLable;
 import grid.*;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
+import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
+import processManager.ProcessManager.ProcessMaker;
 import reaction.Reaction;
 import shape.Shape;
+import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
 
 /**
@@ -73,7 +76,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * Local time should always be between {@code Timer.getCurrentTime()} and
 	 * {@code Timer.getEndOfCurrentTime()}.
 	 */
-	protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
+	// TODO temporary fix, reassess
+	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
+	protected double _localTime;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -368,6 +373,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 */
 	public void step()
 	{
+		// TODO temporary fix, reassess
+		this._localTime = Idynomics.simulator.timer.getCurrentTime();
+		
 		if ( this._processes.isEmpty() )
 			return;
 		ProcessManager currentProcess = this._processes.getFirst();
@@ -438,88 +446,44 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
-	public Map<String, Class<?>> getParameters()
+	public List<InputSetter> getRequiredInputs()
 	{
-		Map<String, Class<?>> out = new LinkedHashMap<String, Class<?>>();
-		out.put(XmlLabel.nameAttribute, String.class);
-		return out;
-	}
-	
-	public void setParameter(String name, String value)
-	{
-		if ( name.equals(XmlLabel.nameAttribute) )
-			this.name = value;
-	}
-	
-	public List<SubmodelMaker> getSubmodelMakers()
-	{
-		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
-		out.add(new ShapeMaker());
-		out.add(new ProcessMaker());
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
+		/* We must have exactly one Shape. */
+		out.add(new ShapeMaker(Requirement.EXACTLY_ONE, this));
+		/* Any number of process managers is allowed, including none. */
+		// TODO temporarily removed, reinstate
+		//out.add(new ProcessMaker(Requirement.ZERO_TO_MANY, this));
 		// TODO agents, solutes, diffusivity, reactions
 		return out;
 	}
 	
-	private class ShapeMaker extends SubmodelMaker
+	public void acceptInput(String name, Object input)
 	{
-		private static final long serialVersionUID = 1486068039985317593L;
-		
-		public ShapeMaker()
-		{
-			/* We must have exactly one Shape. */
-			super("Make the shape", 1, 1);
-		}
-		
-		@Override
-		public boolean makeImmediately()
-		{
-			return false;
-		}
-		
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			String shapeName;
-			if ( e == null )
-				shapeName = "";
-			else
-				shapeName = e.getActionCommand();
-			_shape = Shape.getNewInstance(shapeName);
-			this.setLastMadeSubmodel(_shape);
-			this.increaseMakeCounter();
-		}
-		
-		public String[] getClassNameOptions()
-		{
-			return Shape.getAllOptions();
-		}
+		/* Parameters */
+		if ( name.equals(XmlLabel.nameAttribute) )
+			this.name = (String) input;
+		/* Sub-models */
+		if ( input instanceof Shape )
+			this._shape = (Shape) input;
+		if ( input instanceof ProcessManager )
+			this._processes.add((ProcessManager) input);
 	}
 	
-	private class ProcessMaker extends SubmodelMaker
+	public static class CompartmentMaker extends SubmodelMaker
 	{
-		private static final long serialVersionUID = -126858198160234919L;
+		private static final long serialVersionUID = -6545954286337098173L;
 		
-		public ProcessMaker()
+		public CompartmentMaker(Requirement req, IsSubmodel target)
 		{
-			/* Any number of process managers is allowed, including none. */
-			super("Make a new process manager", 0, Integer.MAX_VALUE);
-		}
-		
-		@Override
-		public boolean makeImmediately()
-		{
-			return false;
+			super("compartment", req, target);
 		}
 		
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			ProcessManager newProcess =
-					ProcessManager.getNewInstance(e.getActionCommand());
-			
-			_processes.add(newProcess);
-			this.setLastMadeSubmodel(newProcess);
-			this.increaseMakeCounter();
+			this.addSubmodel(new Compartment());
 		}
 	}
 }
