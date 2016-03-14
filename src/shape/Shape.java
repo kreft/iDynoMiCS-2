@@ -649,7 +649,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			// TODO do safety properly
 			String shapeName;

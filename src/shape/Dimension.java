@@ -436,7 +436,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			this.addSubmodel(new Dimension());
 		}

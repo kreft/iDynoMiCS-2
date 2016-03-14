@@ -6,9 +6,11 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeListener;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -60,7 +62,7 @@ public class GuiSimMake
 		JTabbedPane tabbedPane = new JTabbedPane();
 		
 		/* Pane for the current submodel. */
-		JPanel mainPane = newTab();
+		JPanel mainPane = newPanel();
 		mainPane.add(textPanel(subName));
 		tabbedPane.add(subName, mainPane);
 		tabEnabled(tabbedPane, mainPane, true);
@@ -74,7 +76,7 @@ public class GuiSimMake
 			{
 				SubmodelMaker smMaker = (SubmodelMaker) aSetter;
 				/* Make the tab for this maker. */
-				JPanel smPane = getTabFor(smMaker);
+				JPanel smPane = getPanelForSubmodelMaker(smMaker);
 				tabbedPane.addTab(inputName, null, smPane, inputName);
 				tabEnabled(tabbedPane, smPane, true);
 			}
@@ -99,8 +101,48 @@ public class GuiSimMake
 		return tabbedPane;
 	}
 	
+	protected JComponent simpleView(IsSubmodel aSubmodel)
+	{
+		/* Info about the submodel. */
+		String subName = aSubmodel.getName();
+		List<InputSetter> inputs = aSubmodel.getRequiredInputs();
+		/* Pane for the current submodel. */
+		JPanel mainPane = newPanel();
+		mainPane.add(textPanel(subName));
+		JButton saveButton = new JButton("Save");
+		mainPane.add(saveButton);
+		for ( InputSetter aSetter : inputs )
+		{
+			String inputName = aSetter.getName();
+			System.out.println("Looking at "+inputName);
+			if ( aSetter instanceof SubmodelMaker )
+			{
+				SubmodelMaker smMaker = (SubmodelMaker) aSetter;
+				/* Make the tab for this maker. */
+				JPanel smPane = getPanelForSubmodelMaker(smMaker);
+				mainPane.add(smPane);
+			}
+			else if ( aSetter instanceof ParameterSetter )
+			{
+				/* Add an input box for this parameter. */
+				JTextArea inputArea = new JTextArea();
+				mainPane.add(inputPanel(inputName, inputArea));
+				/* Tell the save button to set this parameter when clicked. */
+				saveButton.addActionListener(
+						aSetter.getActionListener(inputArea.getText()));
+			}
+			else
+			{
+				// TODO safety? Similar to ParameterSetter?
+			}
+		}
+		/* Add the save button to the main pane only if it does anything. */
+		if ( saveButton.getActionListeners().length == 0 )
+			mainPane.remove(saveButton);
+		return mainPane;
+	}
 	
-	protected List<ParameterSetter> getParameters(IsSubmodel aSubmodel)
+	private List<ParameterSetter> getParameters(IsSubmodel aSubmodel)
 	{
 		List<InputSetter> inputs = aSubmodel.getRequiredInputs();
 		List<ParameterSetter> out = new LinkedList<ParameterSetter>();
@@ -110,7 +152,7 @@ public class GuiSimMake
 		return out;
 	}
 	
-	protected List<SubmodelMaker> getSubmodels(IsSubmodel aSubmodel)
+	private List<SubmodelMaker> getSubmodels(IsSubmodel aSubmodel)
 	{
 		List<InputSetter> inputs = aSubmodel.getRequiredInputs();
 		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
@@ -124,9 +166,9 @@ public class GuiSimMake
 	 * MAKER-TAB METHODS
 	 *************************************************************************/
 	
-	protected JPanel getTabFor(SubmodelMaker smMaker)
+	protected JPanel getPanelForSubmodelMaker(SubmodelMaker smMaker)
 	{
-		JPanel smTab = newTab();
+		JPanel smTab = newPanel();
 		
 		if ( smMaker.hasOptions() )
 		{
@@ -143,7 +185,7 @@ public class GuiSimMake
 			}
 			if ( smMaker.canMakeMore() )
 			{
-				
+				makeMaker(smTab, smMaker);
 			}
 		}
 //		if ( smMaker.canMakeMore() )
@@ -154,36 +196,52 @@ public class GuiSimMake
 	}
 	
 	
-	protected void makeMaker(JPanel smTab, SubmodelMaker smMaker)
+	protected void makeMaker(JPanel smPanel, SubmodelMaker smMaker)
 	{
 		
 		JButton makeButton = new JButton("Make new "+smMaker.getName());
 		Object options = smMaker.getOptions();
 		if ( options == null )
 		{
-			makeImmediately(smTab, smMaker);
+			makeButton.addActionListener(smMaker);
+			//makeButton.addActionListener(smMaker.getActionListener(null));
 		}
 		else if ( options instanceof String[] )
 		{
 			String[] strOptions = (String[]) options;
 			JComboBox<String> selecter = new JComboBox<String>(strOptions);
-			smTab.add(selectPanel(selecter));
+			smPanel.add(selectPanel(selecter));
 			makeButton.addActionListener(
 					smMaker.getActionListener(
 							selecter.getSelectedItem().toString()));
-			smTab.add(makeButton);
 		}
 		else
 		{
 			// TODO
 		}
+		smMaker.addListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				IsSubmodel lastMade = smMaker.getLastMadeSubmodel();
+				smPanel.add(simpleView(lastMade));
+				if ( ! smMaker.canMakeMore() )
+					smPanel.remove(makeButton);
+			}
+			
+		});
+		smPanel.add(makeButton);
 	}
 	
 	protected void makeImmediately(JPanel smTab, SubmodelMaker smMaker)
 	{
 		smMaker.actionPerformed(null);
 		IsSubmodel sm = smMaker.getLastMadeSubmodel();
-		smTab.add(tabbedView(sm));
+		if ( smMaker.canMakeMultiples() )
+			smTab.add(tabbedView(sm));
+		else
+			smTab.add(simpleView(sm));
 	}
 	
 	protected JButton makerButton(SubmodelMaker smMaker)
@@ -199,7 +257,7 @@ public class GuiSimMake
 				{
 					
 				}
-				//JFrame newFrame = getConstructor(smMaker);
+				
 			}
 
 		});
@@ -250,7 +308,7 @@ public class GuiSimMake
 	 * 
 	 * @return
 	 */
-	protected static JPanel newTab()
+	protected static JPanel newPanel()
 	{
 		JPanel out = new JPanel();
 		out.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));

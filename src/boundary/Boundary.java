@@ -223,7 +223,7 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			// TODO safety properly
 			String bndryName;

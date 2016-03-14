@@ -182,7 +182,7 @@ public class Timer implements IsSubmodel, XMLable
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			this.addSubmodel(new Timer());
 		}

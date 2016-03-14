@@ -180,8 +180,9 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
+			System.out.println("Making speciesLib");
 			this.addSubmodel(new SpeciesLib());
 		}
 	}
