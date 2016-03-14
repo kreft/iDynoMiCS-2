@@ -211,17 +211,32 @@ public class SolveDiffusionTransient extends ProcessManager
 							 * Note that we need to copy the coord vector so
 							 * that it does not change when the SpatialGrid
 							 * iterator moves on!
+							 * 
+							 *  NOTE discovered strange hashmap behavior
+							 * previously distributionMap.containsKey(coord) was
+							 * used, however even though the coordinates in the 
+							 * HashMap (key) and the those in coord would be 
+							 * identical for every evaluation a new hashmap 
+							 * entry would be created since (probably) key and 
+							 * coord are not the same object (but only contain 
+							 * identical information), this forloop is there to 
+							 * prevent this from happening.
 							 */
-							// NOTE discovered strange hashmap behavior
-							int[] coordCopy = Vector.copy(coord);
-							if ( Vector.containsKey(distributionMap, coord) )
+							boolean hit = false;
+							/* See if this coord has been found already. */
+							for ( int[] key : distributionMap.keySet() )
 							{
-								distributionMap.put(coordCopy,
-										distributionMap.get(coord) + p.volume);
+								if ( Vector.areSame(key, coord) )
+								{
+									distributionMap.put(key,
+											distributionMap.get(key) + p.volume);
+									hit = true;
+								}
 							}
-							else
+							/* If not, entry it new. */
+							if ( ! hit )
 							{
-								distributionMap.put(coordCopy, p.volume);
+								distributionMap.put(Vector.copy(coord), p.volume);
 							}
 							/*
 							 * We only want to count this point once, even
