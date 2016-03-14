@@ -10,6 +10,9 @@ import java.util.function.Predicate;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import concurentTasks.AgentReactions;
+import concurentTasks.ConcurrentWorker;
+import concurentTasks.EnvironmentReactions;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
 import grid.subgrid.SubgridPoint;
@@ -34,6 +37,8 @@ import surface.Surface;
  */
 public class SolveDiffusionTransient extends ProcessManager
 {
+
+	ConcurrentWorker worker = new ConcurrentWorker();
 	/**
 	 * Instance of a subclass of {@code PDEsolver}, e.g. {@code PDEexplicit}.
 	 */
@@ -123,6 +128,127 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * Set up the solute grids and the agents before we start to solve.
 		 */
 		SpatialGrid solute;
+		
+		
+		
+		solute = environment.getSoluteGrid(_soluteNames[0]);
+		/*
+		 * Set up the agent biomass distribution maps.
+		 */
+		for ( Agent a : agents.getAllLocatedAgents() )
+		{
+			HashMap<int[],Double> distributionMap = new HashMap<int[],Double>();
+			a.set("volumeDistribution", distributionMap);
+		}
+		/*
+		 * Now fill these agent biomass distribution maps.
+		 */
+		double[] location;
+		double[] dimension = new double[3];
+		List<Agent> neighbors;
+		List<SubgridPoint> sgPoints;
+		HashMap<int[],Double> distributionMap;
+		Collision collision = new Collision(null, agents.getShape());
+		for ( int[] coord = solute.resetIterator(); 
+				solute.isIteratorValid(); coord = solute.iteratorNext())
+		{
+			/* Find all agents that overlap with this voxel. */
+			location = solute.getVoxelOrigin(coord);
+			solute.getVoxelSideLengthsTo(dimension, coord);
+			/* NOTE the agent tree is always the amount of actual dimension */
+			neighbors = agents.treeSearch(Vector.subset(location, nDim),
+						  					Vector.subset(dimension, nDim));
+			/* If there are none, move onto the next voxel. */
+			if ( neighbors.isEmpty() )
+				continue;
+			/* Filter the agents for those with reactions. */
+			neighbors.removeIf(NO_REAC_FILTER);
+			/* 
+			 * Find the sub-grid resolution from the smallest agent, and
+			 * get the list of sub-grid points.
+			 */
+			// TODO the scaling factor of a quarter is chosen arbitrarily
+			double minRad = Vector.min(dimension);
+			
+			// FIXME maybe an expensive way to figure out the smallest agent, 
+			//the smallest agents may even lack their own reactions (eps part)
+			// Rob [14Mar2016]: agents without reactions will already have been
+			// removed (see line 166) but you're right that we don't need to
+			// look at all agents. I've changed it to only look at neighbors.
+			for ( Agent a : neighbors )
+				if ( a.isAspect(NameRef.bodyRadius) )
+					minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
+			sgPoints = solute.getCurrentSubgridPoints(0.25 * minRad);
+			/* 
+			 * Get the subgrid points and query the agents.
+			 */
+			for ( Agent a : neighbors )
+			{
+				/* Should have been removed, but doesn't hurt to check. */
+				if ( ! a.isAspect(NameRef.agentReactions) )
+					continue;
+				if ( ! a.isAspect(NameRef.surfaceList) )
+					continue;
+				List<Surface> surfaces =
+									(List<Surface>) a.get(NameRef.surfaceList);
+				distributionMap = (HashMap<int[],Double>) 
+										a.getValue("volumeDistribution");
+				double[] pLoc;
+				sgLoop: for ( SubgridPoint p : sgPoints )
+				{
+					/* 
+					 * Only give location in actual dimensions.
+					 */
+					pLoc = p.getRealLocation(nDim);
+					for ( Surface s : surfaces )
+						if ( collision.distance(s, pLoc) < 0.0 )
+						{
+							/*
+							 * If this is not the first time the agent has seen
+							 * this coordinate, we need to add the volume
+							 * rather than overwriting it.
+							 * 
+							 * Note that we need to copy the coord vector so
+							 * that it does not change when the SpatialGrid
+							 * iterator moves on!
+							 * 
+							 *  NOTE discovered strange hashmap behavior
+							 * previously distributionMap.containsKey(coord) was
+							 * used, however even though the coordinates in the 
+							 * HashMap (key) and the those in coord would be 
+							 * identical for every evaluation a new hashmap 
+							 * entry would be created since (probably) key and 
+							 * coord are not the same object (but only contain 
+							 * identical information), this forloop is there to 
+							 * prevent this from happening.
+							 */
+							boolean hit = false;
+							/* See if this coord has been found already. */
+							for ( int[] key : distributionMap.keySet() )
+							{
+								if ( Vector.areSame(key, coord) )
+								{
+									distributionMap.put(key,
+											distributionMap.get(key) + p.volume);
+									hit = true;
+								}
+							}
+							/* If not, entry it new. */
+							if ( ! hit )
+							{
+								distributionMap.put(Vector.copy(coord), p.volume);
+							}
+							/*
+							 * We only want to count this point once, even
+							 * if other surfaces of the same agent hit it.
+							 */
+							continue sgLoop;
+						}
+				}
+			}
+		}
+		
+		
 		for ( String soluteName : _soluteNames )
 		{
 			solute = environment.getSoluteGrid(soluteName);
@@ -133,95 +259,8 @@ public class SolveDiffusionTransient extends ProcessManager
 			// TODO use a diffusion setter
 			solute.newArray(DIFFUSIVITY, _diffusivity.get(soluteName));
 			this._wellmixed.get(soluteName).updateWellmixed(solute, agents);
-			/*
-			 * Set up the agent biomass distribution maps.
-			 */
-			for ( Agent a : agents.getAllLocatedAgents() )
-			{
-				HashMap<int[],Double> distributionMap = new HashMap<int[],Double>();
-				a.set("volumeDistribution", distributionMap);
-			}
-			/*
-			 * Now fill these agent biomass distribution maps.
-			 */
-			double[] location;
-			double[] dimension = new double[3];
-			List<Agent> neighbors;
-			List<SubgridPoint> sgPoints;
-			HashMap<int[],Double> distributionMap;
-			Collision collision = new Collision(null, agents.getShape());
-			for ( int[] coord = solute.resetIterator(); 
-					solute.isIteratorValid(); coord = solute.iteratorNext())
-			{
-				/* Find all agents that overlap with this voxel. */
-				location = solute.getVoxelOrigin(coord);
-				solute.getVoxelSideLengthsTo(dimension, coord);
-				/* NOTE the agent tree is always the amount of actual dimension */
-				neighbors = agents.treeSearch(
-							  					Vector.subset(location, nDim),
-							  					Vector.subset(dimension, nDim));
-				/* If there are none, move onto the next voxel. */
-				if ( neighbors.isEmpty() )
-					continue;
-				/* Filter the agents for those with reactions. */
-				neighbors.removeIf(NO_REAC_FILTER);
-				/* 
-				 * Find the sub-grid resolution from the smallest agent, and
-				 * get the list of sub-grid points.
-				 */
-				// TODO the scaling factor of a quarter is chosen arbitrarily
-				double minRad = Vector.min(dimension);
-				for ( Agent a : agents.getAllLocatedAgents() )
-					if ( a.isAspect(NameRef.bodyRadius) )
-					{
-						minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
-					}
-				sgPoints = solute.getCurrentSubgridPoints(0.25 * minRad);
-				/* 
-				 * Get the subgrid points and query the agents.
-				 */
-				for ( Agent a : neighbors )
-				{
-					if ( ! a.isAspect(NameRef.agentReactions) )
-						continue;
-					if (! a.isAspect(NameRef.surfaceList) )
-						continue;
-					List<Surface> surfaces = (List<Surface>) 
-							a.get(NameRef.surfaceList);
-					distributionMap = (HashMap<int[],Double>) 
-											a.getValue("volumeDistribution");
-					
-					sgLoop: for ( SubgridPoint p : sgPoints )
-					{
-						/* 
-						 * Only give location in actual dimensions.
-						 */
-						for ( Surface s : surfaces )
-							if ( collision.distance(s, Vector.subset( 
-									p.realLocation,agents.getNumDims())) < 0.0 )
-							{
-								/*
-								 * If this is not the first time the agent has seen
-								 * this coordinate, we need to add the volume
-								 * rather than overwriting it.
-								 * 
-								 * Note that we need to copy the coord vector so
-								 * that it does not change when the SpatialGrid
-								 * iterator moves on!
-								 */
-								double newVolume = p.volume;
-								if ( distributionMap.containsKey(coord) )
-									newVolume += distributionMap.get(coord);
-								distributionMap.put(Vector.copy(coord), newVolume);
-								/*
-								 * We only want to count this point once, even
-								 * if other surfaces of the same agent hit it.
-								 */
-								continue sgLoop;
-							}
-					}
-				}
-			}
+
+
 		}
 		/*
 		 * Make the updater method
@@ -236,10 +275,15 @@ public class SolveDiffusionTransient extends ProcessManager
 					double dt)
 			{
 				/* Gather a defaultGrid to iterate over. */
-				SpatialGrid defaultGrid = environment.getSoluteGrid(environment.
-						getSolutes().keySet().iterator().next());
+				SpatialGrid defaultGrid = environment.getSoluteGrid(
+						environment.getSolutes().keySet().iterator().next());
 				
+				//FIXME seems to be pretty thread unsafe 
+//				worker.executeTask(new EnvironmentReactions(
+//						defaultGrid.getAllCoords(),environment,agents));
+
 				SpatialGrid solute;
+
 				for ( int[] coord = defaultGrid.resetIterator(); 
 						defaultGrid.isIteratorValid(); 
 							coord = defaultGrid.iteratorNext())
@@ -276,6 +320,13 @@ public class SolveDiffusionTransient extends ProcessManager
 					}
 				}
 				
+				
+				
+//				worker.concurrentEnabled(true);
+				//FIXME also seems thread unsafe
+//				worker.executeTask(new AgentReactions(agents,environment,dt));
+
+				
 				/*
 				 * Loop over all agents, applying their reactions to the
 				 * relevant solute grids, in the voxels calculated before the 
@@ -287,11 +338,21 @@ public class SolveDiffusionTransient extends ProcessManager
 				HashMap<int[],Double> distributionMap;
 				for ( Agent a : agents.getAllLocatedAgents() )
 				{
-					if ( ! a.isAspect(NameRef.agentReactions) )
+					if ( ! a.isAspect("reactions") )
 						continue;
-					reactions = (List<Reaction>) a.get("reactions");
+					reactions = (List<Reaction>) a.getValue("reactions");
 					distributionMap = (HashMap<int[],Double>)
 											a.getValue("volumeDistribution");
+					
+					a.set("growthRate",0.0);
+					if (a.isAspect("internalProduction"))
+					{
+						HashMap<String,Double> internalProduction = 
+								(HashMap<String,Double>) 
+								a.getValue("internalProduction");
+						for (String key : internalProduction.keySet())
+							internalProduction.put(key, 0.0);
+					}
 					/*
 					 * Calculate the total volume covered by this agent,
 					 * according to the distribution map. This is likely to be
@@ -324,8 +385,6 @@ public class SolveDiffusionTransient extends ProcessManager
 								{
 									aSG = environment.getSoluteGrid(varName);
 									concn = aSG.getValueAt(CONCN, coord);
-									// FIXME: was getting strange [16,0,0] 
-									// coord values here (index out of bounds)
 								}
 								else if ( a.isAspect(varName) )
 								{
@@ -353,8 +412,9 @@ public class SolveDiffusionTransient extends ProcessManager
 							 * not be the same as those in the reaction
 							 * variables (although there is likely to be a
 							 * large overlap).
+							 * TODO move this part to a "poststep" updater 
+							 * method?
 							 */
-							// TODO move this part to a "poststep" updater method?
 							double productionRate;
 							for ( String productName : 
 												r.getStoichiometry().keySet())
@@ -369,6 +429,8 @@ public class SolveDiffusionTransient extends ProcessManager
 								}
 								else if ( a.isAspect(productName) )
 								{
+									System.out.println("agent reaction catched " + 
+											productName);
 									/* 
 									 * NOTE Bas [17Feb2016]: Put this here as 
 									 * example, though it may be nicer to
@@ -387,22 +449,40 @@ public class SolveDiffusionTransient extends ProcessManager
 								}
 								else if ( a.getString("species").equals(productName))
 								{
-									//NOTE: getXXX does not need casting
-									a.set("growthRate", productionRate);
+									double curRate = a.getDouble("growthRate");
+									a.set("growthRate", curRate + productionRate * 
+											distributionMap.get(coord) / totalVoxVol);
+
 									
-									/* Timespan of growth event */
-									// FIXME quickfix since timestepsize is no longer available as local par
-									a.event("growth", dt);
-									a.event("divide");
 								}
+								else if ( a.isAspect("internalProduction"))
+								{
+									HashMap<String,Double> internalProduction = 
+											(HashMap<String,Double>) 
+											a.getValue("internalProduction");
+									for( String p : internalProduction.keySet())
+									{
+										if(p.equals(productName))
+										{
+											internalProduction.put(productName, 
+													internalProduction.get(productName) 
+													+ productionRate * distributionMap.get(coord) / totalVoxVol);
+										}
+									}
+
+								} 
 								else
 								{
+									System.out.println("agent reaction catched " + 
+											productName);
 									// TODO safety?
 								}
 							}
 						}
 					}
-				}
+					a.event("growth", dt);
+					a.event("produce", dt);
+			}
 			}
 		};
 		/*

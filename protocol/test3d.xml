@@ -20,8 +20,8 @@
 				<aspect name="reactions" type="LinkedList" >
 					<item type="Reaction">
 						<reaction name="testReact">
-							<expression value="solute1 * k">
-								<constant name="k" value="0.0001" />
+							<expression value="mass * solute1 * k">
+								<constant name="k" value="0.1" />
 							</expression>
 							<stochiometric component="AOB" coefficient="1.0" />
 							<stochiometric component="solute1" coefficient="-1.0" />
@@ -33,7 +33,6 @@
 				<!-- this has not been made yet, use a static growthrate for now -->
 				<aspect name="growthRate" type="Double" value="0.08" />
 				<speciesModule name="coccoid" />
-				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		package="agent.state.library."  />

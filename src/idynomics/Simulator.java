@@ -18,6 +18,7 @@ import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import shape.Shape;
 import utility.*;
 
 /**
@@ -407,3 +408,4 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		return true;
 	}
 }
+

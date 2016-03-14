@@ -12,7 +12,6 @@ import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
 import linearAlgebra.Vector;
-import utility.Copier;
 import utility.Helper;
 
 
@@ -88,7 +87,7 @@ public class AspectReg<A>
 	/**
 	 * returns true if the key is found in the aspect tree
 	 */
-	public synchronized boolean isGlobalAspect(String key)
+	public boolean isGlobalAspect(String key)
 	{
 		if ( this._aspects.containsKey(key) )
 			return true;
@@ -102,7 +101,7 @@ public class AspectReg<A>
 	/**
 	 * add an aspect to this registry
 	 */
-	public synchronized void add(String key, A aspect)
+	public void add(String key, A aspect)
 	{
 		if ( this._aspects.containsKey(key) )
 		{
@@ -127,7 +126,7 @@ public class AspectReg<A>
 	/**
 	 * Remove aspect from this registry.
 	 */
-	public synchronized void remove(String key)
+	public void remove(String key)
 	{
 		this._aspects.remove(key);
 	}
@@ -137,7 +136,7 @@ public class AspectReg<A>
 	 * 
 	 * @param module
 	 */
-	public synchronized void addSubModule(AspectInterface module)
+	public void addSubModule(AspectInterface module)
 	{
 		this._modules.add(module);
 	}
@@ -147,7 +146,7 @@ public class AspectReg<A>
 	 * 
 	 * @param name
 	 */
-	public synchronized void addSubModule(String name, Quizable library)
+	public void addSubModule(String name, Quizable library)
 	{
 		addSubModule((AspectInterface) library.get(name));
 	}
@@ -182,7 +181,7 @@ public class AspectReg<A>
 	{
 		Aspect<?> a = getAspect(key);
 		if ( a == null )
-			Log.out(Tier.DEBUG, "Warning: aspepct registry does not"
+			Log.out(Tier.BULK, "Warning: aspepct registry does not"
 					+ " contain event:" + key);
 		
 		else if ( a.type != AspectReg.AspectClass.EVENT )
@@ -199,7 +198,7 @@ public class AspectReg<A>
 	 * NOTE if multiple aspect registry modules have an aspect with the same key
 	 * the first encountered aspect with that key will be returned.
 	 */
-	private synchronized Aspect<?> getAspect(String key)
+	private Aspect<?> getAspect(String key)
 	{
 		if ( this._aspects.containsKey(key) )
 			return this._aspects.get(key);
@@ -215,12 +214,12 @@ public class AspectReg<A>
 	 * copies all aspects and submodule from donor into this aspect registry
 	 */
 	@SuppressWarnings("unchecked")
-	public synchronized void duplicate(AspectInterface donor)
+	public void duplicate(AspectInterface donor)
 	{
 		this.clear();
 		AspectReg<?> donorReg = donor.reg();
 		for (String key : donorReg._aspects.keySet())
-			add(key, (A) Copier.copy(donorReg.getAspect(key).aspect));
+			add(key, (A) ObjectFactory.copy(donorReg.getAspect(key).aspect));
 		for (AspectInterface m : donorReg._modules)
 			addSubModule(m);
 	}
@@ -228,7 +227,7 @@ public class AspectReg<A>
 	/**
 	 * Clear all aspects and modules from this registry.
 	 */
-	public synchronized void clear()
+	public void clear()
 	{
 		this._aspects.clear();
 		this._modules.clear();

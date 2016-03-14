@@ -1,6 +1,6 @@
 package surface;
 
-import utility.Copier;
+import dataIO.ObjectFactory;
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
 import linearAlgebra.Vector;
@@ -38,8 +38,8 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
      */
 	public Ball(Ball sphere)
 	{
-		this._point = (Point) Copier.copy(sphere._point);
-		this._radius = (double) Copier.copy(sphere._radius);
+		this._point = (Point) ObjectFactory.copy(sphere._point);
+		this._radius = (double) ObjectFactory.copy(sphere._radius);
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 	public Object copy()
 	{
 		Point p = new Point(Vector.copy(this._point.getPosition()));
-		double r = (double) Copier.copy(this._radius);
+		double r = (double) ObjectFactory.copy(this._radius);
 		return new Ball(p, r);
 	}
 

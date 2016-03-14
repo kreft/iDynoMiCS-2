@@ -234,7 +234,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 				"=\"" + this.name + "\">\n";
 		out = out + this._shape.getXml();
 		
-		/* solutes, reactions */
+		/* TODO solutes, reactions */
 		out = out + this.agents.getXml();
 		
 		out = out + "<" + XmlLabel.processManagers + ">";

@@ -59,6 +59,11 @@ public class Point implements Copyable
 		this(Vector.dblFromString(vectorString));
 	}
 	
+	public Point(Point q) {
+		this.setPosition(Vector.copy(q.p));
+		this.setForce(Vector.zeros(p));
+	}
+
 	public void setC(int size)
 	{
 		c = new double[size][p.length];

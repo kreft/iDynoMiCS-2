@@ -2,10 +2,12 @@ package grid;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Node;
 
+import dataIO.ObjectFactory;
 import grid.GridBoundary.GridMethod;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import grid.subgrid.SubgridPoint;
@@ -877,6 +879,22 @@ public abstract class SpatialGrid
 	public void setValueAtCurrent(ArrayType type, double value)
 	{
 		this.setValueAt(type, this.iteratorCurrent(), value);
+	}
+	
+	/**
+	 * return all voxel coordinates for this solute grid.
+	 * @return
+	 */
+	public LinkedList<int[]> getAllCoords()
+	{
+		LinkedList<int[]> coords = new LinkedList<int[]>();
+		for ( int[] coord = resetIterator(); 
+				isIteratorValid(); 
+					coord = iteratorNext())
+		{
+			coords.add((int[]) ObjectFactory.copy(coord));
+		}
+		return coords;
 	}
 	
 	/*************************************************************************
