@@ -258,7 +258,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			ProcessManager newProcess =
 					ProcessManager.getNewInstance(e.getActionCommand());

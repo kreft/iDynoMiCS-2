@@ -107,8 +107,8 @@ public abstract class SubmodelMaker extends InputSetter
 	 */
 	protected void addSubmodel(IsSubmodel aSubmodel)
 	{
-		this.acceptInput(aSubmodel);
 		this._submodelsMade.add(aSubmodel);
+		this.acceptInput(aSubmodel);
 	}
 	
 	/**
