@@ -1,6 +1,7 @@
 package modelBuilder;
 
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * \brief An abstract Action that controls the creation of a sub-model, i.e.
@@ -67,20 +68,25 @@ public abstract class SubmodelMaker extends InputSetter
 	}
 	
 	/**
-	 * \brief Get a list of all possible class names for the sub-model this
-	 * creates.
+	 * \brief Check if it is possible to make multiple sub-models through this
+	 * maker.
 	 * 
-	 * <p>Note that this method should be overridden by extensions that want
-	 * to give a list of options. If no options are given, the constructor must
-	 * be hard-coded into the actionPerformed() method.</p>
-	 * 
-	 * @return List of class names to be used as arguments in
-	 * {@code XmlAble.getNewInstance(String)}, or null if the only option is
-	 * hard-coded.
+	 * @return {@code boolean}: true if multiple sub-model instances permitted,
+	 * false if not.
 	 */
-	public String[] getClassNameOptions()
+	public boolean canMakeMultiples()
 	{
-		return null;
+		return this._maxToMake > 1;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public List<IsSubmodel> getAllSubmodelsMade()
+	{
+		return this._submodelsMade;
 	}
 	
 	/**

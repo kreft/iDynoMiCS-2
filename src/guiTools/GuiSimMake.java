@@ -136,8 +136,7 @@ public class GuiSimMake
 	{
 		
 		JButton makeButton = new JButton("Make new "+smMaker.getName());
-		
-		String[] options = smMaker.getClassNameOptions();
+		Object options = smMaker.getOptions();
 		if ( options == null )
 		{
 			//makeButton.addActionListener(smMaker.getActionListener(null));
@@ -145,13 +144,18 @@ public class GuiSimMake
 			IsSubmodel sm = smMaker.getLastMadeSubmodel();
 			smTab.add(setComponent(sm));
 		}
-		else
+		else if ( options instanceof String[] )
 		{
-			JComboBox<String> selecter = new JComboBox<String>(options);
+			String[] strOptions = (String[]) options;
+			JComboBox<String> selecter = new JComboBox<String>(strOptions);
 			smTab.add(selectPanel(selecter));
 			makeButton.addActionListener(
 					smMaker.getActionListener(
 							selecter.getSelectedItem().toString()));
+		}
+		else
+		{
+			// TODO
 		}
 	}
 	
