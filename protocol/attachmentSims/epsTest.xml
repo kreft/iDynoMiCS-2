@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="GranSim" outputfolder="../results" log="DEBUG"
+	<simulation name="epsTest" outputfolder="../results" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<timer stepSize="1.0" endOfSimulation="1000.0" />
 		<general>
@@ -46,7 +46,7 @@
 						<reaction name="testReact">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.0001" />
-								<constant name="mumax" value="0.0001" />
+								<constant name="mumax" value="0.1" />
 							</expression>
 							<stochiometric component="species2" coefficient="1.0" />
 							<stochiometric component="solute1" coefficient="-1.0" />
@@ -79,7 +79,7 @@
 			<species name="producer">
 				<aspect name="produce" type="EVENT"	class="InternalProduction" 	package="agent.event.library." />
 				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPS" 	package="agent.event.library." />
-				<aspect  name="maxInternalEPS" type="Double" value="0.01" />
+				<aspect  name="maxInternalEPS" type="Double" value="0.003" />
 				<aspect  name="epsSpecies" type="String" value="particleEPS" />
 			</species>
 			<species name="particleEPS">
@@ -128,14 +128,14 @@
 					</aspect>
 					<aspect name="mass" type="Double" value="0.15" />
 					<!--<state name="filialLinker" type="Boolean" value="true" /> -->
-					<spawn number="50.0" domain="30.0,30.0" />
+					<spawn number="30.0" domain="30.0,30.0" />
 				</agent>
-				<!-- <agent>
+				<agent>
 					<aspect name="species" type="String" value="species2" />
 					<aspect name="mass" type="Double" value="0.15" />
 					<aspect name="density" type="Double" value="1" />
-					<spawn number="50.0" domain="30.0,30.0" />
-				</agent> -->
+					<spawn number="30.0" domain="30.0,30.0" />
+				</agent>
 			<!--	<agent>
 					<aspect name="species" type="String" value="species1" />
 					<aspect name="mass" type="Double" value="0.15" />
