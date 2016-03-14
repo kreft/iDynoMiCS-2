@@ -49,6 +49,20 @@ public abstract class InputSetter extends AbstractAction
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * <p>Note that this method should be overridden by extensions that want
+	 * to give a list of options. If no options are given, the constructor must
+	 * be hard-coded into the actionPerformed() method.</p>
+	 * 
+	 * @return
+	 */
+	public Object getOptions()
+	{
+		return null;
+	}
+	
+	/**
 	 * \brief Process an {@code Object} as input. 
 	 * 
 	 * @param input An input to be passed to the sub-model this setter

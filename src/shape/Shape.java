@@ -5,11 +5,9 @@ package shape;
 
 import java.awt.event.ActionEvent;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -658,7 +656,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 		
 		@Override
-		public String[] getClassNameOptions()
+		public Object getOptions()
 		{
 			return Shape.getAllOptions();
 		}
