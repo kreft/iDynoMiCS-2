@@ -393,6 +393,11 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	public String getName()
+	{
+		return this.getClass().getSimpleName();
+	}
+	
 	/**
 	 * \brief TODO
 	 * 

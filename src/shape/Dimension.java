@@ -4,10 +4,8 @@
 package shape;
 
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -397,6 +395,12 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
+	
+	public String getName()
+	{
+		return "Dimension";
+		// TODO return DimName?
+	}
 	
 	public List<InputSetter> getRequiredInputs()
 	{

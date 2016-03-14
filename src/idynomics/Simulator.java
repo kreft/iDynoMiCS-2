@@ -56,6 +56,12 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		this.timer = new Timer();
 	}
 	
+	public String getName()
+	{
+		return (Param.simulationName == null) ?
+										"Simuator" : Param.simulationName;
+	}
+	
 	public void init(Element xmlElem)
 	{
 		/*

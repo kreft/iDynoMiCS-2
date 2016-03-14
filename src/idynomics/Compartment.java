@@ -27,7 +27,6 @@ import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
-import processManager.ProcessManager.ProcessMaker;
 import reaction.Reaction;
 import shape.Shape;
 import shape.Shape.ShapeMaker;
@@ -269,6 +268,11 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
+	
+	public String getName()
+	{
+		return this.name;
+	}
 	
 	public Shape getShape()
 	{

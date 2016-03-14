@@ -104,6 +104,12 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	public String getName()
+	{
+		return "Boundary";
+		// TODO return dimension and min/max?
+	}
+	
 	/**
 	 * \brief TODO
 	 * 

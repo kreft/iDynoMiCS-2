@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -38,30 +40,20 @@ public class GuiSimMake
 	public void makeNewSimulation()
 	{
 		Simulator sim = new Simulator();
-		frame = getConstructor(sim);
+		frame = newFrame(800, "Make a new simulation");
+		frame.add(tabbedView(sim));
 		// TODO save to XML button?
 		// TODO run simulation button?
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setTitle("test");
-		frame.setSize(800, 800);
 		frame.setVisible(true);
-	}
-	
-	public JFrame getConstructor(IsSubmodel aSubmodel) 
-	{
-		JFrame out = new JFrame();
-		//out.setContentPane(setComponent(aSubmodel));
-		out.add(setComponent(aSubmodel));
-		return out;
 	}
 	
 	/**
 	 * \brief The JComponent set in the GUI
 	 */
-	public JComponent setComponent(IsSubmodel aSubmodel)
+	protected JComponent tabbedView(IsSubmodel aSubmodel)
 	{
 		/* Info about the submodel. */
-		String subName = aSubmodel.getClass().getSimpleName();
+		String subName = aSubmodel.getName();
 		List<InputSetter> inputs = aSubmodel.getRequiredInputs();
 		
 		/* The tabs pane */
@@ -73,8 +65,7 @@ public class GuiSimMake
 		tabbedPane.add(subName, mainPane);
 		tabEnabled(tabbedPane, mainPane, true);
 		JButton saveButton = new JButton("Save");
-		
-		
+		mainPane.add(saveButton);
 		for ( InputSetter aSetter : inputs )
 		{
 			String inputName = aSetter.getName();
@@ -102,14 +93,32 @@ public class GuiSimMake
 			}
 		}
 		/* Add the save button to the main pane only if it does anything. */
-		if ( saveButton.getActionListeners().length > 0 )
-			mainPane.add(saveButton);
+		if ( saveButton.getActionListeners().length == 0 )
+			mainPane.remove(saveButton);
 		
 		return tabbedPane;
 	}
 	
 	
+	protected List<ParameterSetter> getParameters(IsSubmodel aSubmodel)
+	{
+		List<InputSetter> inputs = aSubmodel.getRequiredInputs();
+		List<ParameterSetter> out = new LinkedList<ParameterSetter>();
+		for ( InputSetter aSetter : inputs )
+			if ( aSetter instanceof ParameterSetter )
+				out.add((ParameterSetter) aSetter);
+		return out;
+	}
 	
+	protected List<SubmodelMaker> getSubmodels(IsSubmodel aSubmodel)
+	{
+		List<InputSetter> inputs = aSubmodel.getRequiredInputs();
+		List<SubmodelMaker> out = new LinkedList<SubmodelMaker>();
+		for ( InputSetter aSetter : inputs )
+			if ( aSetter instanceof SubmodelMaker )
+				out.add((SubmodelMaker) aSetter);
+		return out;
+	}
 	
 	/**************************************************************************
 	 * MAKER-TAB METHODS
@@ -118,16 +127,29 @@ public class GuiSimMake
 	protected JPanel getTabFor(SubmodelMaker smMaker)
 	{
 		JPanel smTab = newTab();
-		String smName = smMaker.getName();
-		smTab.add(textPanel(smName));
-//		if ( smMaker.mustMakeMore() )
+		
+		if ( smMaker.hasOptions() )
+		{
+			if ( smMaker.mustMakeMore() )
+			{
+				makeMaker(smTab, smMaker);
+			}
+		}
+		else
+		{
+			while ( smMaker.mustMakeMore() )
+			{
+				makeImmediately(smTab, smMaker);
+			}
+			if ( smMaker.canMakeMore() )
+			{
+				
+			}
+		}
+//		if ( smMaker.canMakeMore() )
 //		{
 //			makeMaker(smTab, smMaker);
 //		}
-		if ( smMaker.canMakeMore() )
-		{
-			makeMaker(smTab, smMaker);
-		}
 		return smTab;
 	}
 	
@@ -139,10 +161,7 @@ public class GuiSimMake
 		Object options = smMaker.getOptions();
 		if ( options == null )
 		{
-			//makeButton.addActionListener(smMaker.getActionListener(null));
-			smMaker.actionPerformed(null);
-			IsSubmodel sm = smMaker.getLastMadeSubmodel();
-			smTab.add(setComponent(sm));
+			makeImmediately(smTab, smMaker);
 		}
 		else if ( options instanceof String[] )
 		{
@@ -152,6 +171,7 @@ public class GuiSimMake
 			makeButton.addActionListener(
 					smMaker.getActionListener(
 							selecter.getSelectedItem().toString()));
+			smTab.add(makeButton);
 		}
 		else
 		{
@@ -159,9 +179,45 @@ public class GuiSimMake
 		}
 	}
 	
+	protected void makeImmediately(JPanel smTab, SubmodelMaker smMaker)
+	{
+		smMaker.actionPerformed(null);
+		IsSubmodel sm = smMaker.getLastMadeSubmodel();
+		smTab.add(tabbedView(sm));
+	}
+	
+	protected JButton makerButton(SubmodelMaker smMaker)
+	{
+		JButton button = new JButton("Make a new "+smMaker.getName());
+		button.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Object options = smMaker.getOptions();
+				if ( options == null )
+				{
+					
+				}
+				//JFrame newFrame = getConstructor(smMaker);
+			}
+
+		});
+		return button;
+	}
+	
 	/**************************************************************************
 	 * HELPER METHODS
 	 *************************************************************************/
+	
+	protected JFrame newFrame(int sideLength, String title)
+	{
+		JFrame out = new JFrame();
+		out.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		out.setTitle(title);
+		out.setSize(sideLength, sideLength);
+		return out;
+	}
 	
 	public static void tabEnabled(
 					JTabbedPane tabbedPane, Component component, boolean bool)
