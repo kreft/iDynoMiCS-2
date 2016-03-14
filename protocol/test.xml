@@ -3,7 +3,7 @@
 	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
 						comment="this is a file for testing purposes only.">
 		
-		<timer stepSize="1.0" endOfSimulation="25.0" />
+		<timer stepSize="1.0" endOfSimulation="30.0" />
 		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
