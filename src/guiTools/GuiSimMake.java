@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
+import dataIO.XmlLabel;
 import idynomics.Simulator;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -178,7 +179,7 @@ public class GuiSimMake
 		}
 		else
 		{
-			while ( smMaker.mustMakeMore() )
+			while ( smMaker.mustMakeMore() && ! smMaker.canMakeMultiples() )
 			{
 				makeImmediately(smTab, smMaker);
 			}
@@ -193,7 +194,6 @@ public class GuiSimMake
 	
 	protected void makeMaker(JPanel smPanel, SubmodelMaker smMaker)
 	{
-		
 		JButton makeButton = new JButton("Make new "+smMaker.getName());
 		makeButton.addActionListener(smMaker);
 		Object options = smMaker.getOptions();
@@ -212,17 +212,40 @@ public class GuiSimMake
 		{
 			// TODO
 		}
-		smMaker.addListener(new ActionListener()
+		
+		if ( smMaker.canMakeMultiples() )
 		{
-			@Override
-			public void actionPerformed(ActionEvent e)
+			JTextArea inputArea = new JTextArea();
+			JPanel namePanel = inputPanel(XmlLabel.nameAttribute, inputArea);
+			smPanel.add(namePanel);
+			smMaker.addListener(new ActionListener()
 			{
-				IsSubmodel lastMade = smMaker.getLastMadeSubmodel();
-				smPanel.add(simpleView(lastMade));
-				if ( ! smMaker.canMakeMore() )
-					smPanel.remove(makeButton);
-			}
-		});
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					IsSubmodel lastMade = smMaker.getLastMadeSubmodel();
+					lastMade.acceptInput(XmlLabel.nameAttribute, inputArea.getText());
+					smPanel.add(tabbedView(lastMade));
+					if ( ! smMaker.canMakeMore() )
+						smPanel.remove(makeButton);
+				}
+			});
+		}
+		else
+		{
+			smMaker.addListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					IsSubmodel lastMade = smMaker.getLastMadeSubmodel();
+					smPanel.add(simpleView(lastMade));
+					if ( ! smMaker.canMakeMore() )
+						smPanel.remove(makeButton);
+				}
+			});
+		}
+		
 		smPanel.add(makeButton);
 	}
 	
