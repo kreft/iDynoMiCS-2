@@ -6,7 +6,7 @@ package shape;
 import org.w3c.dom.Element;
 
 import boundary.Boundary;
-import boundary.grid.GridBoundary;
+import boundary.grid.GridMethod;
 import grid.SpatialGrid;
 
 /**
@@ -44,7 +44,7 @@ public final class ShapeConventions
 		}
 	}
 	
-	public static class CyclicGrid extends GridBoundary
+	public static class CyclicGrid extends GridMethod
 	{
 		@Override
 		public void init(Element xmlNode)

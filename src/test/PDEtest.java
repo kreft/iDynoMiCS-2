@@ -6,8 +6,8 @@ package test;
 import org.w3c.dom.Element;
 
 import boundary.*;
-import boundary.grid.GridBoundary;
-import boundary.grid.GridBoundaryLibrary.*;
+import boundary.grid.GridMethod;
+import boundary.grid.GridMethodLibrary.*;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
@@ -121,7 +121,7 @@ public class PDEtest
 		/*
 		 * Set the boundary methods and initialise the compartment.
 		 */
-		class TempBndry extends GridBoundary
+		class TempBndry extends GridMethod
 		{
 			@Override
 			public void init(Element xmlNode)
@@ -133,7 +133,7 @@ public class PDEtest
 			public double getBoundaryFlux(SpatialGrid grid)
 			{
 				int[] current = grid.iteratorCurrent();
-				return GridBoundary.calcFlux(
+				return GridMethod.calcFlux(
 								Vector.sum(current)/4.0, 
 								grid.getValueAtCurrent(ArrayType.CONCN),
 								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),

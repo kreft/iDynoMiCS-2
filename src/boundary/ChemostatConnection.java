@@ -2,9 +2,6 @@ package boundary;
 
 import java.util.HashMap;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
-
 public class ChemostatConnection extends BoundaryConnected
 {
 	/**

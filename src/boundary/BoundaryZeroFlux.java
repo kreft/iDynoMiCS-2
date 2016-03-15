@@ -1,6 +1,6 @@
 package boundary;
 
-import boundary.grid.GridBoundaryLibrary.ZeroFlux;
+import boundary.grid.GridMethodLibrary.ZeroFlux;
 
 public class BoundaryZeroFlux extends BoundaryExternal
 {

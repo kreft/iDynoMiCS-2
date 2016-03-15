@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
-import boundary.grid.GridBoundary;
+import boundary.grid.GridMethod;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import modelBuilder.InputSetter;
@@ -19,7 +19,7 @@ import modelBuilder.ParameterSetter;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public final class GridBoundaryLibrary
+public final class GridMethodLibrary
 {
 
 	/**
@@ -28,7 +28,7 @@ public final class GridBoundaryLibrary
 	 * 
 	 * <p>This value is zero by default.</p>
 	 */
-	public static class ConstantDirichlet extends GridBoundary
+	public static class ConstantDirichlet extends GridMethod
 	{
 		private double _value = 0.0;
 		
@@ -39,7 +39,7 @@ public final class GridBoundaryLibrary
 		
 		public double getBoundaryFlux(SpatialGrid grid)
 		{
-			return GridBoundary.calcFlux(_value, 
+			return GridMethod.calcFlux(_value, 
 					grid.getValueAtCurrent(ArrayType.CONCN),
 					grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),
 					grid.getNbhSharedSurfaceArea());
@@ -63,7 +63,7 @@ public final class GridBoundaryLibrary
 		public List<InputSetter> getRequiredInputs()
 		{
 			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter("value", this, "Double", 0.0));
+			out.add(new ParameterSetter("value", this, "Double", this._value));
 			return out;
 		}
 		
@@ -80,7 +80,7 @@ public final class GridBoundaryLibrary
 	 * 
 	 * <p>This value is zero by default.</p>
 	 */
-	public static class ConstantNeumann extends GridBoundary
+	public static class ConstantNeumann extends GridMethod
 	{
 		private double _gradient = 0.0;
 		
@@ -112,7 +112,7 @@ public final class GridBoundaryLibrary
 		public List<InputSetter> getRequiredInputs()
 		{
 			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter("gradient", this, "Double", 0.0));
+			out.add(new ParameterSetter("gradient", this, "Double", this._gradient));
 			return out;
 		}
 		
@@ -124,7 +124,7 @@ public final class GridBoundaryLibrary
 	}
 	
 	
-	public static class ZeroFlux extends GridBoundary
+	public static class ZeroFlux extends GridMethod
 	{
 		public void init(Element xmlNode)
 		{

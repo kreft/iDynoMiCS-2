@@ -18,7 +18,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class GridBoundary implements IsSubmodel, XMLable
+public abstract class GridMethod implements IsSubmodel, XMLable
 {
 	/**
 	 * Interface detailing what should be done at a boundary. Typical examples
@@ -52,10 +52,10 @@ public abstract class GridBoundary implements IsSubmodel, XMLable
 	 * XML-ABLE
 	 ************************************************************************/
 	
-	public static GridBoundary getNewInstance(String className)
+	public static GridMethod getNewInstance(String className)
 	{
-		return (GridBoundary) XMLable.getNewInstance(className, 
-									"boundary.grid.GridBoundaryLibrary$");
+		return (GridMethod) XMLable.getNewInstance(className, 
+									"boundary.grid.GridMethodLibrary$");
 	}
 	
 	/*************************************************************************
@@ -82,12 +82,14 @@ public abstract class GridBoundary implements IsSubmodel, XMLable
 	public static String[] getAllOptions()
 	{
 		return Helper.getClassNamesSimple(
-				GridBoundaryLibrary.class.getDeclaredClasses());
+				GridMethodLibrary.class.getDeclaredClasses());
 	}
 	
-	public static class GridBoundaryMaker extends SubmodelMaker
+	public static class GridMethodMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = -2794244870765785699L;
+		
+		// TODO give this a name?
 		
 		/**\brief TODO
 		 * 
@@ -95,7 +97,7 @@ public abstract class GridBoundary implements IsSubmodel, XMLable
 		 * @param req
 		 * @param target
 		 */
-		public GridBoundaryMaker(String name, Requirement req, IsSubmodel target)
+		public GridMethodMaker(String name, Requirement req, IsSubmodel target)
 		{
 			super(name, req, target);
 		}
@@ -108,7 +110,7 @@ public abstract class GridBoundary implements IsSubmodel, XMLable
 				name = "";
 			else
 				name = e.getActionCommand();
-			this.addSubmodel(GridBoundary.getNewInstance(name));
+			this.addSubmodel(GridMethod.getNewInstance(name));
 		}
 		
 		public Object getOptions()
