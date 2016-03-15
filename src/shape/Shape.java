@@ -614,18 +614,8 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 */
 	public static String[] getAllOptions()
 	{
-		Class<?>[] classNames = ShapeLibrary.class.getDeclaredClasses();
-		int num = classNames.length;
-		String[] out = new String[num];
-		String str;
-		int dollarIndex;
-		for ( int i = 0; i < num; i++ )
-		{
-			str = classNames[i].getName();
-			dollarIndex = str.indexOf("$");
-			out[i] = str.substring(dollarIndex+1);
-		}
-		return out;
+		return Helper.getClassNamesSimple(
+									ShapeLibrary.class.getDeclaredClasses());
 	}
 	
 	public void acceptInput(String name, Object input)

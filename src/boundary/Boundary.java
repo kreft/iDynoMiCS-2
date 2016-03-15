@@ -11,11 +11,11 @@ import java.util.List;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import agent.AgentBoundary.AgentMethod;
+import boundary.agent.AgentBoundary.AgentMethod;
+import boundary.grid.GridBoundary;
 import dataIO.XmlLabel;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import grid.GridBoundary.GridMethod;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
@@ -31,15 +31,15 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * The grid method this boundary should use for any variable that is not
 	 * named in the dictionary {@link #_gridMethods}. 
 	 */
-	protected GridMethod _defaultGridMethod;
+	protected GridBoundary _defaultGridMethod;
 	
 	/**
 	 * Dictionary of grid methods that this boundary should use for each
 	 * variable (e.g. a solute). If a variable is not in this list, use the
 	 * default, {@link #_defaultGridMethod}, instead.
 	 */
-	protected HashMap<String,GridMethod> _gridMethods = 
-											new HashMap<String,GridMethod>();
+	protected HashMap<String,GridBoundary> _gridMethods = 
+										new HashMap<String,GridBoundary>();
 	
 	/**
 	 * The agent method this boundary should use for any agent. 
@@ -63,7 +63,7 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	{
 		Element xmlGrid;
 		String variableName, className;
-		GridMethod aGridMethod;
+		GridBoundary aGridMethod;
 		NodeList gridNodes = xmlElem.getElementsByTagName("gridMethods");
 		for ( int i = 0; i < gridNodes.getLength(); i++ )
 		{
@@ -71,7 +71,7 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 			className = xmlGrid.getAttribute(XmlLabel.classAttribute);
 			try
 			{
-				aGridMethod = (GridMethod) Class.forName(className).newInstance();
+				aGridMethod = (GridBoundary) Class.forName(className).newInstance();
 				aGridMethod.init(xmlGrid);
 				if ( xmlGrid.hasAttribute("variable") )
 				{
@@ -116,7 +116,7 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * @param soluteName
 	 * @param aMethod
 	 */
-	public void setGridMethod(String soluteName, GridMethod aMethod)
+	public void setGridMethod(String soluteName, GridBoundary aMethod)
 	{
 		this._gridMethods.put(soluteName, aMethod);
 	}
@@ -127,7 +127,7 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * @param soluteName
 	 * @return
 	 */
-	public GridMethod getGridMethod(String soluteName)
+	public GridBoundary getGridMethod(String soluteName)
 	{
 		//System.out.println("Looking for "+soluteName); //bughunt
 		if ( this._gridMethods.containsKey(soluteName) )

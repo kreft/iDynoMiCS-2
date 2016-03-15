@@ -7,9 +7,10 @@ import java.util.Arrays;
 
 import boundary.Boundary;
 import boundary.BoundaryFixed;
+import boundary.grid.GridBoundaryLibrary;
+import boundary.grid.GridBoundaryLibrary.ConstantDirichlet;
 import grid.CartesianGrid;
 import grid.SpatialGrid;
-import grid.GridBoundary.ConstantDirichlet;
 import idynomics.Compartment;
 import linearAlgebra.Vector;
 
@@ -67,12 +68,12 @@ public class SpatialGridTest
 		Compartment aCompartment = new Compartment("rectangle");
 		/* Set up the dimensions and boundaries. */
 		Boundary xmin = new BoundaryFixed();
-		ConstantDirichlet testXmin = new ConstantDirichlet();
+		GridBoundaryLibrary.ConstantDirichlet testXmin = new GridBoundaryLibrary.ConstantDirichlet();
 		testXmin.setValue(1.0);
 		xmin.setGridMethod("test", testXmin);
 		aCompartment.getShape().setBoundary("X", xmin, 0);
 		Boundary xmax = new BoundaryFixed();
-		ConstantDirichlet testXmax = new ConstantDirichlet();
+		GridBoundaryLibrary.ConstantDirichlet testXmax = new GridBoundaryLibrary.ConstantDirichlet();
 		testXmax.setValue(0.0);
 		xmax.setGridMethod("test", testXmax);
 		aCompartment.getShape().setBoundary("X", xmax, 1);

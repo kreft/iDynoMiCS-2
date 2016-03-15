@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.w3c.dom.Node;
 
+import boundary.grid.GridBoundary;
 import dataIO.ObjectFactory;
-import grid.GridBoundary.GridMethod;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import grid.subgrid.SubgridPoint;
 import linearAlgebra.Array;
@@ -107,7 +107,7 @@ public abstract class SpatialGrid
 	 * elements in each row correspond to the minimum (0) and maximum (1)
 	 * extremes of each dimension.
 	 */
-	protected GridMethod[][] _dimBoundaries = new GridMethod[3][2];
+	protected GridBoundary[][] _dimBoundaries = new GridBoundary[3][2];
 	
 	/**
 	 * Smallest distance between the centres of two neighbouring voxels in
@@ -479,7 +479,7 @@ public abstract class SpatialGrid
 	 * the maximum extreme.
 	 * @param method The grid method to use at this boundary.
 	 */
-	public void addBoundary(DimName dim, int index, GridMethod method)
+	public void addBoundary(DimName dim, int index, GridBoundary method)
 	{
 		int dimIndex = indexFor(dim);
 		if ( dimIndex == -1 )
@@ -530,10 +530,10 @@ public abstract class SpatialGrid
 	 * @return A @{@code GridMethod} to use if the coordinates are outside this
 	 * grid. {@code null} if the coordinates are inside.
 	 */ 
-	protected GridMethod isOutside(int[] coord)
+	protected GridBoundary isOutside(int[] coord)
 	{
 		int[] nVoxel = this.getNVoxel(coord);
-		GridMethod out = null;
+		GridBoundary out = null;
 		int c, n;
 		/*
 		 * For each dimension, check if the coordinate lies outside the grid.
@@ -979,7 +979,7 @@ public abstract class SpatialGrid
 	
 	//public abstract double getCurrentNbhResSq();
 	
-	public GridMethod nbhIteratorIsOutside()
+	public GridBoundary nbhIteratorIsOutside()
 	{
 		return this.isOutside(this._currentNeighbor);
 	}
@@ -992,7 +992,7 @@ public abstract class SpatialGrid
 	 */
 	public double getFluxWithNeighbor(String soluteName)
 	{
-		GridMethod aMethod = this.nbhIteratorIsOutside();
+		GridBoundary aMethod = this.nbhIteratorIsOutside();
 		if( aMethod == null )
 		{
 			/*

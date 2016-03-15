@@ -20,8 +20,9 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import boundary.Boundary;
 import boundary.BoundaryFixed;
+import boundary.grid.GridBoundaryLibrary;
+import boundary.grid.GridBoundaryLibrary.ConstantDirichlet;
 import grid.CylindricalGrid;
-import grid.GridBoundary.ConstantDirichlet;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
@@ -290,13 +291,13 @@ public class PolarGridTest
 			aCompartment.addSolute(aSoluteName);
 			
 		Boundary rmin = new BoundaryFixed();
-		ConstantDirichlet fallRMin = new ConstantDirichlet();
+		GridBoundaryLibrary.ConstantDirichlet fallRMin = new GridBoundaryLibrary.ConstantDirichlet();
 		fallRMin.setValue(1.0);
 		rmin.setGridMethod("fall", fallRMin);
 		aCompartment.addBoundary(DimName.R, 0, rmin);
 	
 		Boundary rmax = new BoundaryFixed();
-		ConstantDirichlet riseRMax = new ConstantDirichlet();
+		GridBoundaryLibrary.ConstantDirichlet riseRMax = new GridBoundaryLibrary.ConstantDirichlet();
 		riseRMax.setValue(1.0);
 		rmax.setGridMethod("rise", riseRMax);
 		aCompartment.addBoundary(DimName.R, 1, rmax);

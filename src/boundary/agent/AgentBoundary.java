@@ -1,7 +1,7 @@
 /**
  * 
  */
-package agent;
+package boundary.agent;
 
 import org.w3c.dom.Node;
 
