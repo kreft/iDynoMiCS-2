@@ -19,6 +19,7 @@ import generalInterfaces.XMLable;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import utility.Helper;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
@@ -45,6 +46,8 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * The agent method this boundary should use for any agent. 
 	 */
 	protected AgentMethod _agentMethod;
+	
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -136,28 +139,6 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 			return this._defaultGridMethod;
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param speciesName
-	 * @param aMethod
-	 */
-	public void setAgentMethod(AgentMethod aMethod)
-	{
-		this._agentMethod = aMethod;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param speciesName
-	 * @return
-	 */
-	public AgentMethod getAgentMethod()
-	{
-		return this._agentMethod;
-	}
-	
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK
 	 ************************************************************************/
@@ -173,14 +154,21 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * XML-ABLE
 	 ************************************************************************/
 	
-	public static Object getNewInstance(String className)
+	public static Boundary getNewInstance(String className)
 	{
-		return XMLable.getNewInstance(className, "boundary.");
+		return (Boundary) XMLable.getNewInstance(className,
+											"boundary.BoundaryLibrary$");
 	}
 	
 	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
+	
+	public static String[] getAllOptions()
+	{
+		return Helper.getClassNamesSimple(
+								BoundaryLibrary.class.getDeclaredClasses());
+	}
 	
 	@Override
 	public List<InputSetter> getRequiredInputs()
@@ -189,13 +177,6 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		return new LinkedList<InputSetter>();
 	}
 	
-	public static String[] getAllOptions()
-	{
-		// FIXME this is harder to do with classes in a package than in a
-		// final class... and I don't even know if we're going to keep the
-		// boundaries the way they are. Quick fix for now:
-		return new String[]{"Boundary"};
-	}
 	
 	public void acceptInput(String name, Object input)
 	{
@@ -235,7 +216,7 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 			this.addSubmodel(bndry);
 		}
 		
-		public String[] getClassNameOptions()
+		public Object getOptions()
 		{
 			return Boundary.getAllOptions();
 		}

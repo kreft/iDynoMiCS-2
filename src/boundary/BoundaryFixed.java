@@ -2,7 +2,7 @@ package boundary;
 
 import boundary.grid.GridMethodLibrary.ConstantDirichlet;
 
-public class BoundaryFixed extends BoundaryExternal
+public class BoundaryFixed extends Boundary
 {
 	public BoundaryFixed()
 	{

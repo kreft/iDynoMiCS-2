@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import boundary.agent.AgentMethodLibrary.*;
 import boundary.grid.GridMethod.GridMethodMaker;
 import boundary.grid.GridMethodLibrary.*;
 import boundary.agent.AgentMethod;
@@ -70,8 +71,13 @@ public final class BoundaryLibrary
 		public SolidBoundary()
 		{
 			this._defaultGridMethod = new ZeroFlux();
-			//this._agentMethod = TODO
+			this._agentMethod = new SolidSurface();
 		}
+	}
+	
+	public static class BulkBLBoundary extends Boundary
+	{
+		// TODO
 	}
 	
 	/**************************************************************************

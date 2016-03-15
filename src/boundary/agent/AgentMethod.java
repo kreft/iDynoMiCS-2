@@ -4,7 +4,9 @@
 package boundary.agent;
 
 import java.awt.event.ActionEvent;
+import java.util.LinkedList;
 
+import agent.Agent;
 import generalInterfaces.XMLable;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
@@ -19,7 +21,17 @@ import utility.Helper;
 public abstract class AgentMethod implements IsSubmodel, XMLable
 {
 	
+	/**
+	 * List of Agents that are leaving this compartment via this boundary, and
+	 * so need to travel to the connected compartment.
+	 */
+	protected LinkedList<Agent> _departureLounge = new LinkedList<Agent>();
 	
+	/**
+	 * List of Agents that have travelled here from the connected compartment
+	 * and need to be entered into this compartment.
+	 */
+	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
 	
 	
 	public static String[] getAllOptions()
