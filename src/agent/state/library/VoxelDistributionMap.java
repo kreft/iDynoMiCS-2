@@ -4,8 +4,12 @@ import java.util.HashMap;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
+import idynomics.NameRef;
 
 public class VoxelDistributionMap extends Calculated {
+	
+	public String MASS = NameRef.agentMass;
+	public String DISTRIBUTIONMAP = NameRef.agentVolumeDistributionMap;
 	
 	/**
 	 * input mass, volumeDistribution
@@ -21,7 +25,7 @@ public class VoxelDistributionMap extends Calculated {
 		 * obtain volume distribution map
 		 */
 		@SuppressWarnings("unchecked")
-		HashMap<int[],Double> distrib = (HashMap<int[],Double>) aspectOwner.getValue(input[1]);
+		HashMap<int[],Double> distrib = (HashMap<int[],Double>) aspectOwner.getValue(DISTRIBUTIONMAP);
 		double totalVol = 0.0;
 		
 		/**
@@ -33,7 +37,7 @@ public class VoxelDistributionMap extends Calculated {
 		/**
 		 * calculate hypothetical density
 		 */
-		double mv =  aspectOwner.getDouble(input[0]) / totalVol;
+		double mv =  aspectOwner.getDouble(MASS) / totalVol;
 		
 		/**
 		 * assign appropriate mass portions to grid cells

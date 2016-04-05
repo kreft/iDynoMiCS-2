@@ -76,4 +76,30 @@ public class NameRef
 	 * list with reactions owned by the agent
 	 */
 	public static String agentReactions = "reactions";
+
+	public static String agentMass = "mass";
+
+	public static String agentLinks = "linkedAgents";
+
+	public static String linkerDistance = "linkerDist";
+
+	public static String agentUpdateBody = "updateBody";
+
+	public static String agentDivide = "divide";
+
+	public static String agentVolumeDistributionMap = "volumeDistribution";
+
+	public static String agentDensity = "density";
+
+	public static String agentVolume = "volume";
+
+	public static String internalProducts = "internalProducts";
+
+	public static String productEPS = "eps";
+
+	public static String maxInternalEPS = "maxInternalEPS";
+
+	public static String epsSpecies = "epsSpecies";
+
+	public static String internalProduction = "internalProduction";
 }

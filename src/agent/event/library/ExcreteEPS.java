@@ -15,20 +15,27 @@ import surface.Point;
 import utility.ExtraMath;
 
 public class ExcreteEPS extends Event {
+	
+	public String INTERNAL_PRODUCTS = NameRef.internalProducts;
+	public String EPS = NameRef.productEPS;
+	public String MAX_INTERNAL_EPS = NameRef.maxInternalEPS;
+	public String EPS_SPECIES = NameRef.epsSpecies;
+	public String MASS = NameRef.agentMass;
+	public String UPDATE_BODY = NameRef.agentUpdateBody;
 
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
-		if ( initiator.isAspect("internalProducts"))
+		if ( initiator.isAspect(INTERNAL_PRODUCTS))
 		{
 			@SuppressWarnings("unchecked")
 			HashMap<String,Double> internalProducts = 
-					(HashMap<String,Double>) initiator.getValue("internalProducts");
+					(HashMap<String,Double>) initiator.getValue(INTERNAL_PRODUCTS);
 			
-			if (internalProducts.containsKey("eps"))
+			if (internalProducts.containsKey(EPS))
 			{
-				double maxEPS = (double) initiator.getValue("maxInternalEPS");
+				double maxEPS = (double) initiator.getValue(MAX_INTERNAL_EPS);
 				double epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.random.nextDouble();
-				double eps = internalProducts.get("eps");
+				double eps = internalProducts.get(EPS);
 				while (eps > epsBlob)
 				{
 					// TODO Joints state will be removed
@@ -38,19 +45,19 @@ public class ExcreteEPS extends Event {
 					double[] epsPos = Vector.minus(originalPos, shift);
 					
 					// FIXME this is not correct, calculate with density
-					compliant = new Agent(initiator.getString("epsSpecies"), 
+					compliant = new Agent(initiator.getString(EPS_SPECIES), 
 							new Body(new Point(epsPos),0.0),
 							((Agent) initiator).getCompartment()); 
-					compliant.set("mass", epsBlob);
-					compliant.reg().doEvent(compliant, null, 0.0, "updateBody");
-					internalProducts.put("eps", eps-epsBlob);
+					compliant.set(MASS, epsBlob);
+					compliant.reg().doEvent(compliant, null, 0.0, UPDATE_BODY);
+					internalProducts.put(EPS, eps-epsBlob);
 					((Agent) compliant).registerBirth();
 					
-					initiator.set("internalProducts", internalProducts);
+					initiator.set(INTERNAL_PRODUCTS, internalProducts);
 
 					Log.out(Tier.BULK, "EPS particle created");
 					epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.getNormRand();
-					eps = internalProducts.get("eps");
+					eps = internalProducts.get(EPS);
 				}
 			}
 		}

@@ -2,6 +2,7 @@ package agent.state.library;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
+import idynomics.NameRef;
 import utility.ExtraMath;
 
 /**
@@ -11,6 +12,8 @@ import utility.ExtraMath;
  */
 public class CoccoidRadius extends Calculated {
 	
+	public String VOLUME = NameRef.agentVolume;
+	
 	public CoccoidRadius()
 	{
 		setInput("volume");
@@ -18,7 +21,7 @@ public class CoccoidRadius extends Calculated {
 
 	public Object get(AspectInterface aspectOwner)
 	{
-		return ExtraMath.radiusOfASphere(aspectOwner.getDouble(input[0]));
+		return ExtraMath.radiusOfASphere(aspectOwner.getDouble(VOLUME));
 	}
 
 }
