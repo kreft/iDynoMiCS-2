@@ -256,5 +256,10 @@ public class XmlLabel
 	public static String timer = "timer";
 
 	public static String inputAttribute = "input";
+	
+	/**
+	 * setable fields
+	 */
+	public static String fields = "fields";
 
 }

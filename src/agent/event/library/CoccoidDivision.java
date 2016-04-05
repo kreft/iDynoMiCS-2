@@ -26,6 +26,12 @@ import idynomics.NameRef;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class CoccoidDivision extends Event {
+	
+	
+	public CoccoidDivision()
+	{
+		setInput("mass,radius,body");
+	}
 
 	/**
 	 * Method that initiates the division

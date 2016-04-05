@@ -3,6 +3,8 @@ package aspect;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 
+import java.util.HashMap;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -23,6 +25,16 @@ public abstract class Event implements Copyable, XMLable
 	 */
 	protected String[] input;
 
+	public void setField(String field, String value)
+	{
+		try {
+		if (this.getClass().getField(field).getClass().equals(String.class))
+			this.getClass().getField(field).set(this, value);
+		} catch (IllegalArgumentException | IllegalAccessException | 
+				NoSuchFieldException | SecurityException e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * \brief Set the input from a comma separated String.
@@ -75,7 +87,9 @@ public abstract class Event implements Copyable, XMLable
 
 	public void init(Element xmlElem)
 	{
-		this.setInput(XmlHandler.gatherAttribute(xmlElem, "input"));
+		String input = XmlHandler.gatherAttribute(xmlElem, "input");
+		if (input != "")
+			this.setInput(input);
 	}
 	
 	

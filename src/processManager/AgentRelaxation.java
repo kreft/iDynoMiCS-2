@@ -1,5 +1,6 @@
 package processManager;
 
+import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
 import org.w3c.dom.Element;
@@ -140,8 +141,13 @@ public class AgentRelaxation extends ProcessManager
 					if (pull == null || pull.isNaN())
 						pull = 0.0;
 					
-					iterator.collision((Surface) agent.get("surface"), 
-							(Surface) neighbour.get("surface"), pull);
+					for (Surface s : ((Body) agent.get("body")).getSurfaces())
+					{
+						for (Surface t : ((Body) neighbour.get("body")).getSurfaces())
+						{
+							iterator.collision(s, t, pull);
+						}
+					}
 				}
 			}
 			
@@ -150,7 +156,10 @@ public class AgentRelaxation extends ProcessManager
 			 */
 			for(Surface s : agents.getShape().getSurfaces())
 			{
-				iterator.collision(s, (Surface) agent.get("surface"), 0.0);
+				for (Surface t : ((Body) agent.get("body")).getSurfaces())
+				{
+					iterator.collision(s, t, 0.0);
+				}
 			}
 		}
 	}

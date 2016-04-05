@@ -15,6 +15,11 @@ import aspect.Event;
  * NOTE: input "mass" "growthRate"
  */
 public class SimpleGrowth extends Event {
+	
+	public SimpleGrowth()
+	{
+		setInput("mass,growthRate");
+	}
 
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{

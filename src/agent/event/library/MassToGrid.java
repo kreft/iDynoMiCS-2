@@ -14,6 +14,11 @@ import grid.SpatialGrid.ArrayType;
  * NOTE: input "mass","targetGrid","CoccoidCenter"
  */
 public class MassToGrid  extends Event {
+	
+	public MassToGrid()
+	{
+		setInput("mass,targetGrid,CoccoidCenter");
+	}
 
 	/**
 	 * write mass to target grid.

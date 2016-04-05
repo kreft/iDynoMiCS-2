@@ -12,6 +12,11 @@ import linearAlgebra.Vector;
  */
 public class ComponentVolumeState extends Calculated {
 	
+	public ComponentVolumeState()
+	{
+		setInput("mass,density");
+	}
+	
 	public Object get(AspectInterface aspectOwner)
 	{
 		Quizable agent = (Quizable) aspectOwner;

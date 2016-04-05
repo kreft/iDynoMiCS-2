@@ -3,7 +3,7 @@ package agent.state.library;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Calculated;
-import generalInterfaces.Quizable;
+import idynomics.NameRef;
 
 /**
  * input body
@@ -11,12 +11,15 @@ import generalInterfaces.Quizable;
  *
  */
 public class CoccoidCenter extends Calculated {
+	
+	public CoccoidCenter()
+	{
+		setInput(NameRef.agentBody);
+	}
 
 	public Object get(AspectInterface aspectOwner)
 	{
-		Quizable agent = (Quizable) aspectOwner;
-		// V = 4/3 Pi r^3
-		return ((Body) agent.get(input[0])).getJoints().get(0);
+		return ((Body) aspectOwner.getValue(input[0])).getJoints().get(0);
 	}
 
 }

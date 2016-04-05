@@ -20,6 +20,11 @@ import utility.Helper;
  */
 public class StochasticMove extends Event {
 	
+	public StochasticMove()
+	{
+		setInput("body,stochasticStep");
+	}
+	
 	/**
 	 * Perform one stochastic move (uniRand) scaled by the time step) NOTE: for
 	 * testing purposes only, incorrect method

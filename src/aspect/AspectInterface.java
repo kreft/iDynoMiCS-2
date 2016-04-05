@@ -34,7 +34,7 @@ public abstract interface AspectInterface
 	}
 	
 	/**
-	 * \brief Load all states from xmlNode into anything that implements the
+	 * \brief Load all aspects from xmlNode into anything that implements the
 	 * StateObject interface.
 	 * 
 	 * @param aspectReg

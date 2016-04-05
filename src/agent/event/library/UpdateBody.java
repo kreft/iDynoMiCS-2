@@ -6,6 +6,11 @@ import aspect.AspectInterface;
 import aspect.Event;
 
 public class UpdateBody extends Event {
+	
+	public UpdateBody()
+	{
+		setInput("body,radius,length");
+	}
 
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{

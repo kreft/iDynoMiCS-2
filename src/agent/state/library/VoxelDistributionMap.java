@@ -10,6 +10,11 @@ public class VoxelDistributionMap extends Calculated {
 	/**
 	 * input mass, volumeDistribution
 	 */
+	public VoxelDistributionMap()
+	{
+		setInput("mass,volumeDistribution");
+	}
+	
 	public Object get(AspectInterface aspectOwner)
 	{
 		/**

@@ -38,7 +38,7 @@ public class XMLableLibrary {
 	 */
 	public String get(String key)
 	{
-		if(_lib.containsKey(key))
+		if(has(key))
 			return _lib.get(key);
 		else
 		{
@@ -46,8 +46,19 @@ public class XMLableLibrary {
 					+ " XMLableLibrary");
 			return null;
 		}
-		
-
+	}
+	
+	/**
+	 * return false if XMLableLibrary does not contain key.
+	 * @param key
+	 * @return
+	 */
+	public boolean has(String key)
+	{
+		if(_lib.containsKey(key))
+			return true;
+		else 
+			return false;
 	}
 	
 	/*

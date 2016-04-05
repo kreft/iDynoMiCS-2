@@ -10,6 +10,11 @@ import utility.ExtraMath;
  *
  */
 public class CoccoidRadius extends Calculated {
+	
+	public CoccoidRadius()
+	{
+		setInput("volume");
+	}
 
 	public Object get(AspectInterface aspectOwner)
 	{

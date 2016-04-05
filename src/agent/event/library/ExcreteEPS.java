@@ -14,7 +14,7 @@ import linearAlgebra.Vector;
 import surface.Point;
 import utility.ExtraMath;
 
-public class ExcreteEPS   extends Event {
+public class ExcreteEPS extends Event {
 
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{

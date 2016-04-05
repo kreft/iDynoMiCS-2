@@ -11,6 +11,11 @@ import generalInterfaces.Quizable;
  */
 public class SimpleVolumeState extends Calculated {
 	
+	public SimpleVolumeState()
+	{
+		setInput("mass, density");
+	}
+	
 	public Object get(AspectInterface aspectOwner)
 	{
 		Quizable agent = (Quizable) aspectOwner;
