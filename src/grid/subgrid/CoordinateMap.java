@@ -20,7 +20,8 @@ import java.util.Set;
 public class CoordinateMap
 {
 	/**
-	 * 
+	 * Map of coordinates to values. Use {@code List<Integer>} instead of
+	 * {@code int[]} as it is behaves under hash code generation.
 	 */
 	private HashMap<List<Integer>,Double> _map = 
 										new HashMap<List<Integer>,Double>();
@@ -30,9 +31,11 @@ public class CoordinateMap
 	 ************************************************************************/
 	
 	/**
+	 * \brief Check if this map contains the coordinate <b>key</b> given.
 	 * 
-	 * @param coord
-	 * @return
+	 * @param coord One-dimensional array of {@code int}s, of any length.
+	 * @return {@code boolean}: true if the <b>key</b> is recognised, false if
+	 * it is not.
 	 */
 	public boolean containsKey(int[] coord)
 	{
@@ -40,9 +43,11 @@ public class CoordinateMap
 	}
 	
 	/**
+	 * \brief Get the value to which the given coordinate is mapped, or
+	 * {@code null} if it is not in the key set.
 	 * 
-	 * @param coord
-	 * @return
+	 * @param coord One-dimensional array of {@code int}s, of any length.
+	 * @return The {@code double} value mapped to this coordinate.
 	 */
 	public double get(int[] coord)
 	{
@@ -50,19 +55,23 @@ public class CoordinateMap
 	}
 	
 	/**
+	 * \brief Create a mapping from the given coordinate to the given value.
 	 * 
-	 * @param coord
-	 * @param value
+	 * <p>Note that this will overwrite any existing value mapped to
+	 * <b>coord</b> - use {@link #increase(int[],double)} to increase the
+	 * value at the coordinate.</p>
+	 * 
+	 * @param coord One-dimensional array of {@code int}s, of any length.
+	 * @param value The {@code double} value to be mapped to this coordinate.
+	 * @see #increase(int[], double)
 	 */
 	public void put(int[] coord, double value)
 	{
 		this._map.put(getKey(coord), value);
 	}
 	
-	
-	
 	/**
-	 * 
+	 * Remove all keys and values from this map.
 	 */
 	public void clear()
 	{
@@ -70,8 +79,10 @@ public class CoordinateMap
 	}
 	
 	/**
+	 * \brief Get the set of keys for this map, i.e. every coordinate that has
+	 * had a value entered.
 	 * 
-	 * @return
+	 * @return Set of all coordinate keys.
 	 */
 	public Set<int[]> keySet()
 	{
@@ -86,9 +97,14 @@ public class CoordinateMap
 	 ************************************************************************/
 	
 	/**
+	 * \brief Add the given <b>incrementValue</b> to the existing value
+	 * associated with this coordinate. If the coordinate is not recognised,
+	 * simply puts <b>incrementValue</b> as the value (i.e. assumes we start at
+	 * zero).
 	 * 
-	 * @param coord
-	 * @param incrementValue
+	 * @param coord One-dimensional array of {@code int}s, of any length.
+	 * @param incrementValue Value by which to increase the value associated
+	 * with <b>coord</b>.
 	 */
 	public void increase(int[] coord, double incrementValue)
 	{
@@ -100,8 +116,9 @@ public class CoordinateMap
 	}
 	
 	/**
+	 * \brief Calculates and returns the total of all values in this map.
 	 * 
-	 * @return
+	 * @return the total of all values in this map.
 	 */
 	public double getTotal()
 	{
@@ -112,8 +129,11 @@ public class CoordinateMap
 	}
 	
 	/**
+	 * \brief Scales all values in this map so that their sum is equal to
+	 * <b>newTotal</b>, but their relative sizes stay the same.
 	 * 
-	 * @param newTotal
+	 * @param newTotal New total value for this map.
+	 * @see #scale()
 	 */
 	public void scale(double newTotal)
 	{
@@ -128,7 +148,10 @@ public class CoordinateMap
 	}
 	
 	/**
+	 * \brief Scales all values in this map so that their sum is equal to
+	 * one, but their relative sizes stay the same.
 	 * 
+	 * @see #scale(double)
 	 */
 	public void scale()
 	{
@@ -140,9 +163,12 @@ public class CoordinateMap
 	 ************************************************************************/
 	
 	/**
+	 * \brief Generate a hash-friendly key for the given coordinate.
 	 * 
-	 * @param coord
-	 * @return
+	 * @param coord One-dimensional array of {@code int}s, of any length.
+	 * @return {@code List} of {@code Integer}s, with the property that two
+	 * such lists containing identical integers in the same order will have the
+	 * same hash code.
 	 */
 	private static List<Integer> getKey(int[] coord)
 	{
@@ -153,9 +179,11 @@ public class CoordinateMap
 	}
 	
 	/**
+	 * \brief Returns the integer array coordinate for the given map <b>key</b>.
 	 * 
-	 * @param key
-	 * @return
+	 * @param key {@code List} of {@code Integer}s used as an internal key.
+	 * @return One-dimensional array of {@code int}s, with the same elements as
+	 * in <b>key</b>.
 	 */
 	private static int[] getCoord(List<Integer> key)
 	{
