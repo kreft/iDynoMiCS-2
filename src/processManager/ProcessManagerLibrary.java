@@ -70,7 +70,7 @@ public final class ProcessManagerLibrary
 		protected void internalStep(
 					EnvironmentContainer environment, AgentContainer agents)
 		{
-			ProcessManagerTools.setupAgentDistributionMaps(environment, agents);
+			PMToolsDiffuseReact.setupAgentDistributionMaps(environment, agents);
 			/*
 			 * Reset the solute grids.
 			 */
@@ -88,7 +88,7 @@ public final class ProcessManagerLibrary
 			 * Make the updater method
 			 */
 			PDEupdater updater = 
-					ProcessManagerTools.standardUpdater(environment, agents);
+					PMToolsDiffuseReact.standardUpdater(environment, agents);
 			/*
 			 * Set the updater method and solve.
 			 */

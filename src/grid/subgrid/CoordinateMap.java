@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import generalInterfaces.Copyable;
+
 /**
  * \brief Map of coordinates to {@code double} values, that is more
  * user-friendly than using {@code HashMap<int[],Double>}.
@@ -17,7 +19,7 @@ import java.util.Set;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class CoordinateMap
+public class CoordinateMap implements Copyable
 {
 	/**
 	 * Map of coordinates to values. Use {@code List<Integer>} instead of
@@ -25,6 +27,24 @@ public class CoordinateMap
 	 */
 	private HashMap<List<Integer>,Double> _map = 
 										new HashMap<List<Integer>,Double>();
+	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
+	
+	public CoordinateMap()
+	{
+		
+	}
+	
+	@Override
+	public Object copy()
+	{
+		CoordinateMap out = new CoordinateMap();
+		for ( List<Integer> key : this._map.keySet() )
+			out._map.put(key, new Double((double) this._map.get(key)));
+		return null;
+	}
 	
 	/*************************************************************************
 	 * MAP METHODS
