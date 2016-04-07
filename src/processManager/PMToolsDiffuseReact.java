@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 
 import agent.Agent;
 import grid.SpatialGrid;
+import grid.subgrid.CoordinateMap;
 import grid.subgrid.SubgridPoint;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -19,7 +20,7 @@ import solver.PDEupdater;
 import surface.Collision;
 import surface.Surface;
 
-public final class ProcessManagerTools
+public final class PMToolsDiffuseReact
 {
 	private static final Predicate<Agent> NO_REAC_FILTER = 
 							(a -> ! a.isAspect(NameRef.agentReactions));
@@ -34,10 +35,16 @@ public final class ProcessManagerTools
 	public static void setupAgentDistributionMaps(
 					EnvironmentContainer environment, AgentContainer agents)
 	{
-		int nDim = agents.getNumDims();
 		String vdTag = "volumeDistribution";
-		
-		
+		/*
+		 * Reset the agent biomass distribution maps.
+		 */
+		CoordinateMap distributionMap;
+		for ( Agent a : agents.getAllLocatedAgents() )
+		{
+			distributionMap = new CoordinateMap();
+			a.set(vdTag, distributionMap);
+		}
 		/*
 		 * Set up the solute grids and the agents before we start to solve.
 		 */
@@ -45,21 +52,13 @@ public final class ProcessManagerTools
 		String firstSolute = environment.getSoluteNames().iterator().next();
 		SpatialGrid solute = environment.getSoluteGrid(firstSolute);
 		/*
-		 * Set up the agent biomass distribution maps.
-		 */
-		for ( Agent a : agents.getAllLocatedAgents() )
-		{
-			HashMap<int[],Double> distributionMap = new HashMap<int[],Double>();
-			a.set(vdTag, distributionMap);
-		}
-		/*
 		 * Now fill these agent biomass distribution maps.
 		 */
+		int nDim = agents.getNumDims();
 		double[] location;
 		double[] dimension = new double[3];
 		List<Agent> neighbors;
 		List<SubgridPoint> sgPoints;
-		HashMap<int[],Double> distributionMap;
 		double[] pLoc;
 		Collision collision = new Collision(null, agents.getShape());
 		for ( int[] coord = solute.resetIterator(); 
@@ -91,14 +90,11 @@ public final class ProcessManagerTools
 			 */
 			for ( Agent a : neighbors )
 			{
-				/* Should have been removed, but doesn't hurt to check. */
-				if ( ! a.isAspect(NameRef.agentReactions) )
-					continue;
 				if ( ! a.isAspect(NameRef.surfaceList) )
 					continue;
 				List<Surface> surfaces =
 									(List<Surface>) a.get(NameRef.surfaceList);
-				distributionMap = (HashMap<int[],Double>) a.getValue(vdTag);
+				distributionMap = (CoordinateMap) a.getValue(vdTag);
 				sgLoop: for ( SubgridPoint p : sgPoints )
 				{
 					/* Only give location in significant dimensions. */
@@ -106,41 +102,7 @@ public final class ProcessManagerTools
 					for ( Surface s : surfaces )
 						if ( collision.distance(s, pLoc) < 0.0 )
 						{
-							/*
-							 * If this is not the first time the agent has seen
-							 * this coordinate, we need to add the volume
-							 * rather than overwriting it.
-							 * 
-							 * Note that we need to copy the coord vector so
-							 * that it does not change when the SpatialGrid
-							 * iterator moves on!
-							 * 
-							 *  NOTE discovered strange hashmap behavior
-							 * previously distributionMap.containsKey(coord) was
-							 * used, however even though the coordinates in the 
-							 * HashMap (key) and the those in coord would be 
-							 * identical for every evaluation a new hashmap 
-							 * entry would be created since (probably) key and 
-							 * coord are not the same object (but only contain 
-							 * identical information), this forloop is there to 
-							 * prevent this from happening.
-							 */
-							boolean hit = false;
-							/* See if this coord has been found already. */
-							for ( int[] key : distributionMap.keySet() )
-							{
-								if ( Vector.areSame(key, coord) )
-								{
-									distributionMap.put(key,
-											distributionMap.get(key) + p.volume);
-									hit = true;
-								}
-							}
-							/* If not, entry it new. */
-							if ( ! hit )
-							{
-								distributionMap.put(Vector.copy(coord), p.volume);
-							}
+							distributionMap.increase(coord, p.volume);
 							/*
 							 * We only want to count this point once, even
 							 * if other surfaces of the same agent hit it.
@@ -214,6 +176,7 @@ public final class ProcessManagerTools
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static void applyAgentReactions(
 			EnvironmentContainer environment, AgentContainer agents)
 	{
@@ -225,13 +188,13 @@ public final class ProcessManagerTools
 		 * updater method was set.
 		 */
 		List<Reaction> reactions;
-		HashMap<int[],Double> distributionMap;
+		CoordinateMap distributionMap;
 		List<Agent> agentList = agents.getAllLocatedAgents();
 		agentList.removeIf(NO_REAC_FILTER);
 		for ( Agent a : agentList )
 		{
 			reactions = (List<Reaction>) a.getValue("reactions");
-			distributionMap = (HashMap<int[],Double>)
+			distributionMap = (CoordinateMap)
 					a.getValue("volumeDistribution");
 			a.set("growthRate",0.0);
 			if (a.isAspect("internalProduction"))
@@ -243,14 +206,9 @@ public final class ProcessManagerTools
 					internalProduction.put(key, 0.0);
 			}
 			/*
-			 * Calculate the total volume covered by this agent,
-			 * according to the distribution map. This is likely to be
-			 * slightly different to the agent volume calculated 
-			 * directly.
+			 * Scale the distribution map so that its contents sum up to one.
 			 */
-			double totalVoxVol = 0.0;
-			for ( double voxVol : distributionMap.values() )
-				totalVoxVol += voxVol;
+			distributionMap.scale();
 			/*
 			 * Now look at all the voxels this agent covers.
 			 */
@@ -280,7 +238,6 @@ public final class ProcessManagerTools
 							// TODO divide by the voxel volume here?
 							concn = a.getDouble(varName); 
 							concn *= distributionMap.get(coord);
-							concn /= totalVoxVol;
 						}
 						else
 						{
@@ -305,8 +262,7 @@ public final class ProcessManagerTools
 					 * method?
 					 */
 					double productionRate;
-					for ( String productName : 
-						r.getStoichiometry().keySet())
+					for ( String productName : r.getStoichiometry().keySet())
 					{
 						productionRate = rate * 
 								r.getStoichiometry(productName);
@@ -336,27 +292,22 @@ public final class ProcessManagerTools
 							 * other storage compounds)
 							 */
 						}
-						else if ( a.getString("species").equals(productName))
+						else if ( a.getString("species").equals(productName) )
 						{
 							double curRate = a.getDouble("growthRate");
 							a.set("growthRate", curRate + productionRate * 
-									distributionMap.get(coord) / totalVoxVol);
+									distributionMap.get(coord));
 						}
-						else if ( a.isAspect("internalProduction"))
+						else if ( a.isAspect("internalProduction") )
 						{
 							HashMap<String,Double> internalProduction = 
 									(HashMap<String,Double>) 
 									a.getValue("internalProduction");
-							for( String p : internalProduction.keySet())
-							{
-								if(p.equals(productName))
-								{
-									internalProduction.put(productName, 
-											internalProduction.get(productName) 
-											+ productionRate * distributionMap.get(coord) / totalVoxVol);
-								}
-							}
-
+							double curRate = productionRate * 
+													distributionMap.get(coord);
+							if ( internalProduction.containsKey(productName) )
+								curRate += internalProduction.get(productName);
+							internalProduction.put(productName, curRate);
 						} 
 						else
 						{
