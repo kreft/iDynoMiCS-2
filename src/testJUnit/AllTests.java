@@ -16,7 +16,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ LinearAlgebraTest.class,
 				XMLableTest.class,
-				RateExpressionTest.class })
+				RateExpressionTest.class,
+				CoordinateMapTest.class})
 public class AllTests
 {
 	final static double TOLERANCE = 1E-6;

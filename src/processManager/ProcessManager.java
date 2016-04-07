@@ -9,6 +9,8 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import boundary.Boundary;
+import boundary.BoundaryLibrary;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
@@ -19,6 +21,8 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
+import shape.Shape;
+import utility.Helper;
 
 /**
  * 
@@ -110,7 +114,10 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	
 	public static ProcessManager getNewInstance(String className)
 	{
-		return (ProcessManager) XMLable.getNewInstance(className);
+		//return (ProcessManager) XMLable.getNewInstance(className);
+		
+		return (ProcessManager) XMLable.getNewInstance(className, 
+				"processManager.ProcessManagerLibrary$");
 	}
 	
 	/*************************************************************************
@@ -228,8 +235,24 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	}
 	
 	/*************************************************************************
+	 * XML-ABLE
+	 ************************************************************************/
+	
+	/*public static ProcessManager getNewInstance(String className)
+	{
+		return (ProcessManager) XMLable.getNewInstance(className, 
+									"processManager.ProcessManagerLibrary$");
+	}*/
+	
+	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
+	
+	public static String[] getAllOptions()
+	{
+		return Helper.getClassNamesSimple(
+							ProcessManagerLibrary.class.getDeclaredClasses());
+	}
 	
 	public List<InputSetter> getRequiredInputs()
 	{
@@ -263,6 +286,11 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 			ProcessManager newProcess =
 					ProcessManager.getNewInstance(e.getActionCommand());
 			this.addSubmodel(newProcess);
+		}
+		
+		public Object getOptions()
+		{
+			return ProcessManager.getAllOptions();
 		}
 	}
 }
