@@ -9,7 +9,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 
 import agent.Agent;
 import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
 import surface.Ball;
@@ -19,8 +18,8 @@ import surface.Surface;
 /**
  * Agent mediator, draws agents and plane / cube indication the computational
  * domain
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
- *
  */
 public class AgentMediator implements CommandMediator {
 	protected AgentContainer agents;

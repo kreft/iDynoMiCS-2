@@ -3,7 +3,7 @@ package linearAlgebra;
 import utility.ExtraMath;
 
 /**
- * 
+ * \brief TODO
  * 
  * <p>Note on terminology: 
  * <ul><li>Rows are 2D horizontal "slices" through the array, with their

@@ -10,9 +10,7 @@ import java.util.function.Predicate;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import concurentTasks.AgentReactions;
 import concurentTasks.ConcurrentWorker;
-import concurentTasks.EnvironmentReactions;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
 import grid.subgrid.SubgridPoint;
@@ -35,6 +33,7 @@ import surface.Surface;
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
+// TODO delete now that this has been moved into ProcessManagerLibrary
 public class SolveDiffusionTransient extends ProcessManager
 {
 

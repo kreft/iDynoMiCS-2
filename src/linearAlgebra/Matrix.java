@@ -1,6 +1,7 @@
 package linearAlgebra;
 
 /**
+ * \brief TODO
  * 
  * <p>By convention:<ul><li>a method <i>function(matrix)</i> returns a new
  * matrix,</li><li>the equivalent <i>functionEquals(matrix)</i> overwrites the
@@ -24,7 +25,7 @@ package linearAlgebra;
  *   <li>advanced methods</li>
  * </ul>
  * 
- * <p>Credit to the JAMA package</p>
+ * TODO Credit to the JAMA package
  * 
  * <p>Note that all arrays from the <b>array.Vector</b> class are treated here
  * as column vectors. These may be converted to row vectors here using the 

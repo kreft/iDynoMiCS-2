@@ -1,8 +1,9 @@
 package linearAlgebra;
 
 /**
+ * \brief TODO
  * 
- * <p>Credit to the JAMA package</p>
+ * TODO Credit to the JAMA package
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  *

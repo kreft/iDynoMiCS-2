@@ -1,7 +1,5 @@
 package linearAlgebra;
 
-import java.util.Arrays;
-
 import grid.resolution.ResolutionCalculator.ResCalc;
 
 /**

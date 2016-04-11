@@ -6,11 +6,14 @@ import aspect.Calculated;
 import generalInterfaces.Quizable;
 
 /**
+ * \brief TODO
  * 
- * @param input: body
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
+ * Input: body.
  */
-public class SimpleSurface extends Calculated {
-	
+public class SimpleSurface extends Calculated
+{
 	public Object get(AspectInterface aspectOwner)
 	{
 		Quizable agent = (Quizable) aspectOwner;

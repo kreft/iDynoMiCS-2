@@ -27,12 +27,12 @@ import reaction.Reaction;
 import utility.Helper;
 
 /**
- * General object loading from xml or string
+ * \brief General object loading from XML or string.
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
- *
  */
-public class ObjectFactory {
-	
+public class ObjectFactory
+{
 	///////////////////////////////////
 	// Object loading
 	///////////////////////////////////

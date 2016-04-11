@@ -13,6 +13,9 @@ import idynomics.EnvironmentContainer;
  */
 public class AllSame implements IsDiffusivitySetter
 {
+	/**
+	 * TODO
+	 */
 	protected double _diffusivity;
 	
 	/**
@@ -24,11 +27,12 @@ public class AllSame implements IsDiffusivitySetter
 		// TODO Auto-generated constructor stub
 	}
 	
-	
-	
 	@Override
-	public void updateDiffusivity(SpatialGrid diffusivityGrid, SpatialGrid[] concentrationGrids,
-			EnvironmentContainer env, AgentContainer agents) {
+	public void updateDiffusivity(SpatialGrid diffusivityGrid,
+			SpatialGrid[] concentrationGrids,
+			EnvironmentContainer env,
+			AgentContainer agents)
+	{
 		// TODO Auto-generated method stub
 		
 	}

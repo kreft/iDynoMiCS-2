@@ -4,7 +4,7 @@ package dataIO;
  * Single class that holds the naming of all xml tags and attributes, one
  * structured place to add or make changes.
  * 
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 // FIXME Rob[2Mar2016]: What is the difference between this and
 // idynomics.NameRef?

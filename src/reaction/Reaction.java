@@ -17,7 +17,7 @@ import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 
 /**
- * \brief 
+ * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.

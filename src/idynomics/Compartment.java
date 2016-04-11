@@ -33,7 +33,7 @@ import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
 
 /**
- * 
+ * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark

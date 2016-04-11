@@ -2,6 +2,7 @@ package boundary;
 
 import boundary.grid.GridMethodLibrary.ConstantDirichlet;
 
+// TODO Delete this class once ChemostatConnection is moved into BoundaryLibrary
 public class BoundaryFixed extends Boundary
 {
 	public BoundaryFixed()

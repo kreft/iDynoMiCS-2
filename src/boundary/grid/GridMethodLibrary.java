@@ -21,7 +21,6 @@ import modelBuilder.ParameterSetter;
  */
 public final class GridMethodLibrary
 {
-
 	/**
 	 * \brief Grid boundary method where the variable is kept at a constant
 	 * value.

@@ -3,6 +3,7 @@ package grid.subgrid;
 import linearAlgebra.Vector;
 
 /**
+ * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */

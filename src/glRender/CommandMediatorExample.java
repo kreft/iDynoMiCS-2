@@ -4,9 +4,10 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 
 /**
- * Test case command mediator that draws a new random sphere every second
- * @author baco
- *
+ * \brief Test case command mediator that draws a new random sphere every
+ * second.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class CommandMediatorExample implements CommandMediator
 {

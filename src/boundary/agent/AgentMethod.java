@@ -15,7 +15,7 @@ import utility.Helper;
 /**
  * \brief TODO
  * 
- * @author Bastiaan Cockx
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public abstract class AgentMethod implements IsSubmodel, XMLable
@@ -46,8 +46,6 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 		return (AgentMethod) XMLable.getNewInstance(className, 
 										"boundary.agent.AgentMethodLibrary$");
 	}
-	
-	
 	
 	
 	public static class AgentMethodMaker extends SubmodelMaker

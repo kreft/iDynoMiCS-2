@@ -15,6 +15,7 @@ import modelBuilder.SubmodelMaker;
 import utility.Helper;
 
 /**
+ * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
@@ -24,7 +25,6 @@ public abstract class GridMethod implements IsSubmodel, XMLable
 	 * Interface detailing what should be done at a boundary. Typical examples
 	 * include Dirichlet and Neumann boundary conditions. 
 	 */
-	
 	public abstract double getBoundaryFlux(SpatialGrid grid);
 	
 	/*************************************************************************

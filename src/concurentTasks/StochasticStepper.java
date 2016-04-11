@@ -3,10 +3,13 @@ package concurentTasks;
 import java.util.List;
 
 import agent.Agent;
-import agent.Body;
 import idynomics.AgentContainer;
-import surface.Point;
 
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
 public class StochasticStepper implements ConcurrentTask
 {
 	private List<Agent> agentList;

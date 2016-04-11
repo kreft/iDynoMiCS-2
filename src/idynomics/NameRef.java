@@ -1,12 +1,12 @@
 package idynomics;
 
+/**
+ * \brief General XML name references.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
 public class NameRef
 {
-	
-	/**
-	 * General xml name references
-	 */
-	
 	/**
 	 * Process manager references
 	 */

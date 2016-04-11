@@ -4,7 +4,11 @@ package processManager;
 import agent.Agent;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-
+/**
+ * 
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
 public class AgentGrowth extends ProcessManager
 {
 	protected void internalStep(
@@ -16,6 +20,4 @@ public class AgentGrowth extends ProcessManager
 			agent.event("divide", this._timeStepSize);
 		}
 	}
-	
-	
 }

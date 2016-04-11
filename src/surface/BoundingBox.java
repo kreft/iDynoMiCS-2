@@ -4,11 +4,11 @@ import linearAlgebra.Vector;
 
 /**
  * This class constructs and holds the bounding box for sphere swept volumes
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class BoundingBox {
-	
+public class BoundingBox
+{	
 	protected double[] dimensions;
 	protected double[] lower;
 	

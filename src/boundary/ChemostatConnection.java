@@ -2,6 +2,7 @@ package boundary;
 
 import java.util.HashMap;
 
+// TODO Move into BoundaryLibrary and delete
 public class ChemostatConnection extends BoundaryConnected
 {
 	/**

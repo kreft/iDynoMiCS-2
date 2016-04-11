@@ -15,7 +15,7 @@ import linearAlgebra.Vector;
 import utility.ExtraMath;
 
 /**
- * 
+ * \brief Set of tests for the linear algebra package.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */

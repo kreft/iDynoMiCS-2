@@ -17,10 +17,10 @@ import linearAlgebra.Vector;
  * with points. this way other objects such as biomass carriers or tubes
  * can be implemented.
  * 
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Collision {
-	
+public class Collision
+{
 	public interface CollisionFunction
 	{
 		public double forceScalar();

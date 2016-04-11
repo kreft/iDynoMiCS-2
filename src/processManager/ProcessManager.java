@@ -9,8 +9,6 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import boundary.Boundary;
-import boundary.BoundaryLibrary;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
@@ -21,7 +19,6 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
-import shape.Shape;
 import utility.Helper;
 
 /**
@@ -127,6 +124,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	/**
 	 * \brief Return the aspect registry (implementation of aspect interface).
 	 */
+	@SuppressWarnings("unchecked")
 	public AspectReg<?> reg()
 	{
 		return aspectRegistry;

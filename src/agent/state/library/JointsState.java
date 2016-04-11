@@ -6,12 +6,14 @@ import aspect.Calculated;
 import generalInterfaces.Quizable;
 
 /**
- * input: body
- * @author baco
- *
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
+ * Input: body.
  */
-public class JointsState extends Calculated {
-	
+public class JointsState extends Calculated
+{
 	public Object get(AspectInterface aspectOwner)
 	{
 		Quizable agent = (Quizable) aspectOwner;

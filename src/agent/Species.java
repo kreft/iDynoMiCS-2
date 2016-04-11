@@ -29,11 +29,11 @@ public class Species implements AspectInterface, IsSubmodel
 	 * TODO
 	 */
 	protected AspectReg<Object> _aspectRegistry = new AspectReg<Object>();
-	
-    /*************************************************************************
+
+	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief TODO
 	 *
@@ -42,7 +42,7 @@ public class Species implements AspectInterface, IsSubmodel
 	{
 		// Do nothing!
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -53,7 +53,7 @@ public class Species implements AspectInterface, IsSubmodel
 		/* Load the primary aspects of this Species. */
 		this.loadAspects(xmlNode);
 	}
-	
+
 	public void loadSpeciesModules(Element xmlElem)
 	{
 		NodeList nodes = xmlElem.getElementsByTagName(XmlLabel.speciesModule);
@@ -64,14 +64,14 @@ public class Species implements AspectInterface, IsSubmodel
 			name = s.getAttribute(XmlLabel.nameAttribute);
 			Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
 			this._aspectRegistry.addSubModule(name, 
-										Idynomics.simulator.speciesLibrary);
+					Idynomics.simulator.speciesLibrary);
 		}
 	}
-	
+
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
+
 	/**
 	 * Get this {@code Species}' aspect registry.
 	 */
@@ -79,33 +79,33 @@ public class Species implements AspectInterface, IsSubmodel
 	{
 		return this._aspectRegistry;
 	}
-	
+
 	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
-	
+
 	@Override
 	public String getName()
 	{
 		return "Species";
 	}
-	
+
 	@Override
 	public List<InputSetter> getRequiredInputs()
 	{
 		return new LinkedList<InputSetter>();
 	}
-	
+
 	@Override
 	public void acceptInput(String name, Object input)
 	{
 		// TODO
 	}
-	
+
 	public static class SpeciesMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = -128102479980440674L;
-		
+
 		/**\brief TODO
 		 * 
 		 * @param name
@@ -116,13 +116,13 @@ public class Species implements AspectInterface, IsSubmodel
 		{
 			super("species", req, target);
 		}
-		
+
 		@Override
 		protected void doAction(ActionEvent e)
 		{
 			System.out.println("Making species");
 			this.addSubmodel(new Species());
 		}
-		
+
 	}
 }

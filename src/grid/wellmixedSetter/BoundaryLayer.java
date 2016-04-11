@@ -25,8 +25,7 @@ import surface.Surface;
  * grid that are within a set distance of any agents.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
- * @author baco
- * @since January 2016
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class BoundaryLayer implements IsWellmixedSetter
 {

@@ -28,9 +28,8 @@ import utility.Helper;
 /**
  * \brief TODO
  * 
- * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Dimension implements CanPrelaunchCheck, IsSubmodel
 {
