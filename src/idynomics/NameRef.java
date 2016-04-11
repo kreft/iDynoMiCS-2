@@ -1,24 +1,12 @@
 package idynomics;
 
 /**
- * \brief General XML name references.
+ * \brief Aspect name references.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class NameRef
 {
-	/**
-	 * Process manager references
-	 */
-	// FIXME what is the difference between this and XmlLabel.processPriority?
-	public static String processPriority = "priority";
-	
-	/**
-	 * Process manager initial step
-	 */
-	// FIXME what is the difference between this and XmlLabel.processFirstStep?
-	public static String initialStep = "firstStep";
-
 	/**
 	 * Agent state references
 	 */
