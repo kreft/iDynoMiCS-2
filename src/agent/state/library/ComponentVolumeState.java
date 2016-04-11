@@ -6,12 +6,14 @@ import generalInterfaces.Quizable;
 import linearAlgebra.Vector;
 
 /**
- * input mass, density
- * @author baco
- *
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
+ * Input: mass, density.
  */
-public class ComponentVolumeState extends Calculated {
-	
+public class ComponentVolumeState extends Calculated
+{	
 	public Object get(AspectInterface aspectOwner)
 	{
 		Quizable agent = (Quizable) aspectOwner;

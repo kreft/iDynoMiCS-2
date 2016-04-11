@@ -17,7 +17,7 @@ import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 
 /**
- * \brief 
+ * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
@@ -177,7 +177,7 @@ public class Reaction implements XMLable, Copyable
 	 * @return The rate of this reaction.
 	 * @see #getFluxes(HashMap)
 	 */
-	public double getRate(HashMap<String, Double> concentrations)
+	public double getRate(Map<String, Double> concentrations)
 	{
 		return this._kinetic.getValue(concentrations);
 	}
@@ -196,7 +196,7 @@ public class Reaction implements XMLable, Copyable
 		return 0.0;
 	}
 	
-	public HashMap<String,Double> getStoichiometry()
+	public Map<String,Double> getStoichiometry()
 	{
 		return this._stoichiometry;
 	}
@@ -214,7 +214,7 @@ public class Reaction implements XMLable, Copyable
 	 * @return The rate of production (positive) or consumption (negative) of
 	 * this reactant chemical species.
 	 */
-	public double getProductionRate(HashMap<String, Double> concentrations, 
+	public double getProductionRate(Map<String, Double> concentrations, 
 														String reactantName)
 	{
 		return this.getStoichiometry(reactantName) * 

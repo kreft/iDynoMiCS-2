@@ -5,12 +5,14 @@ import aspect.Calculated;
 import generalInterfaces.Quizable;
 
 /**
- * input mass, density
- * @author baco
- *
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
+ * Input: mass, density.
  */
-public class SimpleVolumeState extends Calculated {
-	
+public class SimpleVolumeState extends Calculated
+{
 	public Object get(AspectInterface aspectOwner)
 	{
 		Quizable agent = (Quizable) aspectOwner;

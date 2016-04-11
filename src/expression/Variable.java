@@ -3,7 +3,7 @@
  */
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -25,7 +25,7 @@ public class Variable extends ComponentSimple
 	}
 	
 	@Override
-	public String reportEvaluation(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
 		if ( variables.containsKey(this._name) )
 			return Double.toString(this.getValue(variables));
@@ -37,7 +37,7 @@ public class Variable extends ComponentSimple
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		return variables.get(this._name); 
 	}

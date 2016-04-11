@@ -17,39 +17,38 @@ import linearAlgebra.Vector;
 import surface.Point;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Agent implements Quizable, AspectInterface
 {
-
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
 	 * the constructor.
 	 */
 	protected static int UNIQUE_ID = 0;
-    final int uid = ++UNIQUE_ID;
-    
-    /**
-     * The compartment the agent is currently in
-     */
-    protected Compartment compartment;
-    
-    /**
-     * The aspect registry
-     */
-    public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
-    
-    /*************************************************************************
+	final int uid = ++UNIQUE_ID;
+
+	/**
+	 * The compartment the agent is currently in
+	 */
+	protected Compartment compartment;
+
+	/**
+	 * The aspect registry
+	 */
+	public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+
+	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-	
+
 	public Agent()
 	{
 
 	}
-	
+
 	/**
 	 * @deprecated
 	 * @param xmlNode
@@ -58,7 +57,7 @@ public class Agent implements Quizable, AspectInterface
 	{
 		this(xmlNode, new Compartment());
 	}
-	
+
 	/**
 	 * Agent xml constructor allowing for multiple randomized initial agents
 	 * @param xmlNode
@@ -92,27 +91,27 @@ public class Agent implements Quizable, AspectInterface
 		}
 		this.init();
 	}
-	
+
 	public Body randBody(double[] domain)
 	{
 		return new Body(new Point(Vector.
 				times(Vector.randomZeroOne(domain), domain)), 0.0);
 	}
-	
+
 	public Agent(Node xmlNode, Body body)
 	{
 		this.loadAspects(xmlNode);
 		this.set(NameRef.agentBody, body);
 		this.init();
 	}
-	
+
 	public Agent(String species, Compartment comp)
 	{
 		set(XmlLabel.species,species);
 		this.compartment = comp;
 		init();
 	}
-	
+
 	public Agent(String species, Body body, Compartment comp)
 	{
 		set(XmlLabel.species, species);
@@ -120,7 +119,7 @@ public class Agent implements Quizable, AspectInterface
 		this.compartment = comp;
 		init();
 	}
-	
+
 	/**
 	 * NOTE: this is a copy constructor, keep up to date, make deep copies
 	 * uid is the unique identifier and should always be unique
@@ -132,7 +131,7 @@ public class Agent implements Quizable, AspectInterface
 		this.init();
 		this.compartment = agent.getCompartment();
 	}
-	
+
 	/**
 	 * Assign the correct species from the species library
 	 */
@@ -150,7 +149,7 @@ public class Agent implements Quizable, AspectInterface
 			Log.out(Tier.DEBUG, "Agent belongs to void species");
 		}
 		aspectRegistry.addSubModule( (Species) 
-							Idynomics.simulator.speciesLibrary.get(species));
+				Idynomics.simulator.speciesLibrary.get(species));
 	}
 
 
@@ -165,7 +164,7 @@ public class Agent implements Quizable, AspectInterface
 	public AspectReg<?> reg() {
 		return aspectRegistry;
 	}
-	
+
 	/*
 	 * returns object stored in Agent state with name "name". If the state is
 	 * not found it will look for the Species state with "name". If this state
@@ -175,7 +174,7 @@ public class Agent implements Quizable, AspectInterface
 	{
 		return aspectRegistry.getValue(this, key);
 	}
-	
+
 	/**
 	 * return the compartment the agent is registered to
 	 * @return
@@ -184,7 +183,7 @@ public class Agent implements Quizable, AspectInterface
 	{
 		return compartment;
 	}
-	
+
 	/**
 	 * Set the compartment of this agent.
 	 * NOTE: this method should only be called from the compartment when it
@@ -195,11 +194,11 @@ public class Agent implements Quizable, AspectInterface
 	{
 		this.compartment = compartment;
 	}
-	
+
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
-	
+
 	/**
 	 * Perform an event.
 	 * @param event
@@ -208,22 +207,22 @@ public class Agent implements Quizable, AspectInterface
 	{
 		event(event, null, 0.0);
 	}
-	
+
 	public void event(String event, Double timestep)
 	{
 		event(event, null, timestep);
 	}
-	
+
 	public void event(String event, Agent compliant)
 	{
 		event(event, compliant, 0.0);
 	}
-	
+
 	public void event(String event, Agent compliant, Double timestep)
 	{
 		aspectRegistry.doEvent(this,compliant,timestep,event);
 	}
-	
+
 	/*************************************************************************
 	 * general methods
 	 ************************************************************************/
@@ -236,7 +235,7 @@ public class Agent implements Quizable, AspectInterface
 	public void registerBirth()
 	{
 		Log.out(Tier.DEBUG, "Compartment \""+this.compartment.name+
-												"\" registering agent birth");
+				"\" registering agent birth");
 		compartment.addAgent(this);
 	}
 
@@ -248,9 +247,9 @@ public class Agent implements Quizable, AspectInterface
 		return uid;
 	}
 
-	
+
 	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/
-	
+
 }

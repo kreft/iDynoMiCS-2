@@ -18,6 +18,7 @@ import idynomics.Compartment.CompartmentMaker;
 import idynomics.Timer.TimerMaker;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
+import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker.Requirement;
 import utility.*;
 
@@ -53,6 +54,12 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		//TODO fully implement MTRandom (reading in random seed)
 		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
+	}
+	
+	public String getName()
+	{
+		return (Param.simulationName == null) ?
+										"Simuator" : Param.simulationName;
 	}
 	
 	public void init(Element xmlElem)
@@ -283,6 +290,12 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public List<InputSetter> getRequiredInputs()
 	{
 		List<InputSetter> out = new LinkedList<InputSetter>();
+		/* Required parameters */
+		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
+		out.add(new ParameterSetter(XmlLabel.outputFolder, this, "String"));
+		// TODO log level?
+		// TODO Random number seed?
+		// TODO comment?
 		/* We must have exactly one Timer. */
 		out.add(new TimerMaker(Requirement.EXACTLY_ONE, this));
 		/* No need for a species library, but maximum of one allowed. */
@@ -294,8 +307,19 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	
 	public void acceptInput(String name, Object input)
 	{
+		if ( input instanceof String )
+		{
+			String str = (String) input;
+			// TODO need to be very careful that we're not changing the
+			// settings of a running simulation!
+			if ( str.equals(XmlLabel.nameAttribute) )
+				Param.simulationName = str;
+			else if (str.equals(XmlLabel.outputFolder) )
+				Param.outputRoot = str;
+		}
 		// TODO Log level?
 		// TODO Random number seed?
+		// TODO comment?
 		// NOTE this is probably overkill, could just use instanceof
 		if ( name.equals(XmlLabel.timer) && (input instanceof Timer) )
 			timer = (Timer) input;

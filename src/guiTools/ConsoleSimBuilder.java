@@ -2,7 +2,6 @@ package guiTools;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.Map;
 
 import dataIO.Log;
 import idynomics.Idynomics;
@@ -76,28 +75,33 @@ public class ConsoleSimBuilder
 	
 	private static void makeSubmodel(SubmodelMaker aMaker)
 	{
-		String[] options = aMaker.getClassNameOptions();
+		Object options = aMaker.getOptions();
 		if ( options == null )
 		{
 			aMaker.actionPerformed(null);
 			buildSubmodel(aMaker.getLastMadeSubmodel());
 		}
-		else
+		else if ( options instanceof String[] )
 		{
-			if ( options.length == 0 )
+			String[] strOptions = (String[]) options;
+			if ( strOptions.length == 0 )
 			{
 				Log.printToScreen("Empty list of class names!", true);
 				return;
 			}
 			GuiConsole.writeOut("\tPossible options are:\n");
-			for ( int i = 0; i < options.length; i++ )
-				GuiConsole.writeOut("\t\t["+i+"] "+options[i]+"\n");
+			for ( int i = 0; i < strOptions.length; i++ )
+				GuiConsole.writeOut("\t\t["+i+"] "+strOptions[i]+"\n");
 			String value = GuiConsole.requestInput(
 								"Please choose an option by number: ");
 			int i = Integer.valueOf(value);
-			String optionToUse = options[i];
+			String optionToUse = strOptions[i];
 			aMaker.actionPerformed(new ActionEvent(aMaker, 0, optionToUse));
 			buildSubmodel(aMaker.getLastMadeSubmodel());
+		}
+		else
+		{
+			// TODO
 		}
 	}
 }

@@ -107,7 +107,7 @@
 				</agent> 
 			</agents>
 			<processManagers>
-				 <process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
+				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" package="processManager.">
 					<aspect name="prefix" type="String" value="out_solute1" />
 					<aspect name="maxConcentration" type="Double" value="2.0" />
@@ -139,7 +139,7 @@
 					<aspect name="relaxationMethod" type="String" value="EULER" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
-					firstStep="0.0" package="processManager." timerStepSize="0.5">	
+					firstStep="0.0" package="processManager.ProcessManagerLibrary$" timerStepSize="0.5">
 					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 				</process>

@@ -5,10 +5,15 @@ import aspect.AspectInterface;
 import aspect.Calculated;
 import generalInterfaces.Quizable;
 
-public class AgentSurfaces extends Calculated {
-	
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
+public class AgentSurfaces extends Calculated
+{
 	/**
-	 * input body
+	 * Input body.
 	 */
 	public Object get(AspectInterface aspectOwner)
 	{

@@ -1,8 +1,6 @@
 package agent.event.library;
 
-import surface.Link;
 import surface.Point;
-import surface.Surface;
 import utility.ExtraMath;
 import linearAlgebra.Vector;
 
@@ -14,7 +12,6 @@ import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.NameRef;
 
 /**
  * Simple coccoid division class, divides mother cell in two with a random
@@ -34,7 +31,7 @@ public class CoccoidDivision extends Event {
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
 		Agent mother = (Agent) initiator;
-		
+
 		//TODO check phase 
 		double momMass =(double) mother.get(input[0]);
 		if ( momMass > 0.2 )
@@ -45,20 +42,20 @@ public class CoccoidDivision extends Event {
 			double randM = ExtraMath.getUniRandDbl(momMass*0.5, momMass*0.55);
 			mother.set(input[0], momMass-randM);
 			daughter.set(input[0], randM);
-			
+
 			// TODO Joints state will be removed
 			double[] originalPos = momBody.getJoints().get(0);
 			double[] shift = Vector.randomPlusMinus(originalPos.length, 
 					0.5*(double) mother.get(input[1]));
-			
+
 			Point p = momBody.getPoints().get(0);
 			p.setPosition(Vector.add(originalPos, shift));
-			
+
 			Body daughterBody = (Body) daughter.get(input[2]);
 			Point q = daughterBody.getPoints().get(0);
 			q.setPosition(Vector.minus(originalPos, shift));
-			
-			
+
+
 			//TODO work in progress, currently testing fillial links
 			if (! mother.isAspect("linkerDist"))
 			{
@@ -69,20 +66,20 @@ public class CoccoidDivision extends Event {
 			{
 				LinkedList<Integer> linkers = 
 						(mother.isAspect("linkedAgents") ? (LinkedList
-						<Integer>) mother.getValue("linkedAgents") :
-						new LinkedList<Integer>());
+								<Integer>) mother.getValue("linkedAgents") :
+									new LinkedList<Integer>());
 				linkers.add(daughter.identity());
 				mother.set("linkedAgents", linkers);
 			}
 			daughter.registerBirth();
 			mother.event("updateBody");
 			daughter.event("updateBody");
-			
+
 			// if either is still larger than the div size they need to devide
 			// again
 			mother.event("divide");
 			daughter.event("divide");
-			
+
 			Log.out(Tier.BULK, "CoccoidDivision added daughter cell");
 		}
 	}

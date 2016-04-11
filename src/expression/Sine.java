@@ -3,7 +3,7 @@
  */
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * \brief Component of a mathematical expression that is the sine of another
@@ -32,7 +32,7 @@ public class Sine extends ComponentSingle
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		return Math.sin(this._a.getValue(variables));
 	}

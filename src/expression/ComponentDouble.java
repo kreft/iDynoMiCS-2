@@ -1,6 +1,6 @@
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 import dataIO.Log;
@@ -45,7 +45,7 @@ public abstract class ComponentDouble extends Component
 	}
 	
 	@Override
-	public String reportEvaluation(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
 		String out = this._a.reportEvaluation(variables) + this._expr +
 											this._b.reportEvaluation(variables);
@@ -65,7 +65,7 @@ public abstract class ComponentDouble extends Component
 	 * @param variables Dictionary of variable names with associated values
 	 * that triggered the infinite value.
 	 */
-	protected void infiniteValueWarning(HashMap<String, Double> variables)
+	protected void infiniteValueWarning(Map<String, Double> variables)
 	{
 		Log.out(CRITICAL,"WARNING! Infinite value: " + this.getName() + 
 									" = " + this.reportEvaluation(variables));

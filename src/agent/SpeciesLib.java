@@ -4,11 +4,11 @@ import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import agent.Species.SpeciesMaker;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -18,6 +18,7 @@ import generalInterfaces.XMLable;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -31,13 +32,13 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 	 * Contains all known species.
 	 */
 	protected HashMap<String, AspectInterface> _species = 
-										new HashMap<String, AspectInterface>();
-	
+			new HashMap<String, AspectInterface>();
+
 	/**
 	 * Void species, returned if no species is set.
 	 */
 	protected Species _voidSpecies = new Species();
-	
+
 	public String[] getAllSpeciesNames()
 	{
 		String[] names = new String[_species.size()];
@@ -49,7 +50,7 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		}
 		return names;
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -85,19 +86,19 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		}
 		Log.out(Tier.NORMAL, "Species Library loaded!\n");
 	}
-	
+
 	public String getXml() {
 		String out = "<" + XmlLabel.speciesLibrary + ">\n";
-				for (String key :_species.keySet())
-				{
-					out = out + "<" + XmlLabel.species + " name=\"" +
+		for (String key :_species.keySet())
+		{
+			out = out + "<" + XmlLabel.species + " name=\"" +
 					key + "\">\n" + _species.get(key).getXml() +
 					"</" + XmlLabel.species + ">\n";
-				}
-				out = out + "</" + XmlLabel.speciesLibrary + ">\n";
+		}
+		out = out + "</" + XmlLabel.speciesLibrary + ">\n";
 		return out;
 	}
-	
+
 	/**
 	 * \brief Add a new species to the species library (or overwrite if the
 	 * species already exists).
@@ -112,7 +113,7 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		species.reg().identity = name;
 		this._species.put(name, species);
 	}
-	
+
 	/**
 	 * \brief Get a species from the species library.
 	 * 
@@ -130,32 +131,28 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		else
 		{
 			Log.out(Tier.DEBUG, "Species Library could not find \""+name+
-												"\", returning void species");
+					"\", returning void species");
 			return this._voidSpecies;
 		}
 	}
-	
+
 	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
-	
-	public Map<String, Class<?>> getParameters()
+
+	public String getName()
 	{
-		/* No attributes to set. */
-		return new HashMap<String, Class<?>>();
+		return "Species Library";
 	}
-	
-	public void setParameter(String name, String value)
-	{
-		
-	}
-	
+
 	public List<InputSetter> getRequiredInputs()
 	{
 		// TODO implement species
-		return new LinkedList<InputSetter>();
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		out.add(new SpeciesMaker(Requirement.ZERO_TO_MANY, this));
+		return out;
 	}
-	
+
 	public void acceptInput(String name, Object input)
 	{
 		if ( input instanceof Species )
@@ -164,19 +161,20 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 			// TODO void species?
 		}
 	}
-	
+
 	public static class SpeciesLibMaker extends SubmodelMaker
 	{
 		private static final long serialVersionUID = -6601262340075573910L;
-		
+
 		public SpeciesLibMaker(Requirement req, IsSubmodel target)
 		{
 			super("species library", req, target);
 		}
-		
+
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
+			System.out.println("Making speciesLib");
 			this.addSubmodel(new SpeciesLib());
 		}
 	}

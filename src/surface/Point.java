@@ -7,7 +7,7 @@ import linearAlgebra.Vector;
 /**
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
  * 
- * @author Bastiaan Cockx, DTU (baco@env.dtu.dk)
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Point implements Copyable
 {

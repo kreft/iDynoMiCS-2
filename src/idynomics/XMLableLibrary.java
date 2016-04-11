@@ -10,56 +10,61 @@ import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 
 /**
- * library used to store packages associated with common classes, allows for
- * quick class assignment in xml files
- * @author baco
- *
+ * \brief Library used to store packages associated with common classes, allows
+ * for quick class assignment in XML files.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class XMLableLibrary {
-
-	/*
+public class XMLableLibrary
+{
+	/**
 	 * Hashmap that stores all Class,package associations
 	 */
 	private HashMap<String, String> _lib = new HashMap<String, String>();
 	
+	/**
+	 * \brief TODO
+	 */
 	public XMLableLibrary()
 	{
 		Element classLibrary = 
 				XmlHandler.loadResource("general/classLibrary.xml");
 		List<String[]> tempLib = XmlHandler.gatherAtributesFrom( classLibrary, 
 				"classDef", new String[]{"name", "package"});
-		for(String[] c : tempLib)
-			set(c[0], c[1]);
+		for ( String[] c : tempLib )
+			this.set(c[0], c[1]);
 	}
 
-	
-	/*
-	 * Retrieve package name from class
+	/**
+	 * \brief Retrieve package name from class.
+	 * 
+	 * @param key
+	 * @return
 	 */
 	public String get(String key)
 	{
-		if(_lib.containsKey(key))
-			return _lib.get(key);
+		if ( this._lib.containsKey(key) )
+			return this._lib.get(key);
 		else
 		{
-			Log.out(Tier.CRITICAL, "Could not obtain " + key + " from"
-					+ " XMLableLibrary");
+			Log.out(Tier.CRITICAL, 
+						"Could not obtain " + key + " from XMLableLibrary");
 			return null;
 		}
 		
 
 	}
 	
-	/*
+	/**
 	 * class sets className , package associations
 	 */
 	public void set(String className, String classPackage)
 	{
-		if(_lib.containsKey(className))
+		if ( this._lib.containsKey(className) )
 		{
 			Log.out(Tier.DEBUG, "Overwriting class,package association"
 					+ className + " , " + classPackage);
 		}
-		_lib.put(className, classPackage);
+		this._lib.put(className, classPackage);
 	}
 }

@@ -15,9 +15,9 @@ import idynomics.Param;
 
 /**
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
+@Deprecated
 public class XmlLoad
 {
 	

@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.w3c.dom.Node;
 
+import boundary.grid.GridMethod;
 import dataIO.ObjectFactory;
-import grid.GridBoundary.GridMethod;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import grid.subgrid.SubgridPoint;
 import linearAlgebra.Array;
@@ -34,7 +34,7 @@ import shape.ShapeConventions.DimName;
  * 
  * <p>On the boundaries of the grid, </p>
  * 
- * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class SpatialGrid
 {

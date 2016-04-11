@@ -4,7 +4,7 @@ package dataIO;
  * Single class that holds the naming of all xml tags and attributes, one
  * structured place to add or make changes.
  * 
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 // FIXME Rob[2Mar2016]: What is the difference between this and
 // idynomics.NameRef?
@@ -114,7 +114,8 @@ public class XmlLabel
 	public static String species = "species";
 	
 	/**
-	 * encapsulates all reactions in the compartment
+	 * Tag for all extra-cellular reactions in the compartment, i.e. those
+	 * that are not controlled by an {@code Agent}.
 	 */
 	public static String reactions = "reactions";
 
@@ -243,11 +244,13 @@ public class XmlLabel
 	/**
 	 * priority of process manager
 	 */
+	// FIXME what is the difference between this and NameRef.processPriority?
 	public static String processPriority = "priority";
 
 	/**
 	 * time for the first following timestep
 	 */
+	// FIXME what is the difference between this and NameRef.initialStep?
 	public static String processFirstStep = "firstStep";
 
 	/**

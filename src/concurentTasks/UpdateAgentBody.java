@@ -5,6 +5,11 @@ import java.util.List;
 import agent.Agent;
 import idynomics.AgentContainer;
 
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
 public class UpdateAgentBody implements ConcurrentTask
 {
 

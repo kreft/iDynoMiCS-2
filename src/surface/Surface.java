@@ -3,9 +3,9 @@ package surface;
 import java.util.HashMap;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public abstract class Surface
 {

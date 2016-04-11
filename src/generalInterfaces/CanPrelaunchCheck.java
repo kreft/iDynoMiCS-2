@@ -4,7 +4,8 @@
 package generalInterfaces;
 
 /**
- * 
+ * \brief Interface supporting a check that everything is ready to run, before
+ * actually launching.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */

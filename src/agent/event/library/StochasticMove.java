@@ -9,17 +9,17 @@ import aspect.Event;
 import linearAlgebra.Vector;
 import surface.Point;
 import utility.ExtraMath;
-import utility.Helper;
 
 /**
  * TODO: this method is simplified and not correct
  * Simple testing method for stochastic movement
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
  * NOTE: input "body", scale
  */
-public class StochasticMove extends Event {
-	
+public class StochasticMove extends Event
+{	
 	/**
 	 * Perform one stochastic move (uniRand) scaled by the time step) NOTE: for
 	 * testing purposes only, incorrect method

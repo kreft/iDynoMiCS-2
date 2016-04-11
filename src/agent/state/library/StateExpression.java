@@ -7,9 +7,9 @@ import aspect.Calculated;
 import expression.ExpressionB;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class StateExpression extends Calculated {
 	

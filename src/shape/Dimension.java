@@ -4,10 +4,8 @@
 package shape;
 
 import java.awt.event.ActionEvent;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,9 +28,8 @@ import utility.Helper;
 /**
  * \brief TODO
  * 
- * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
- * @author baco
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Dimension implements CanPrelaunchCheck, IsSubmodel
 {
@@ -398,6 +395,12 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
 	
+	public String getName()
+	{
+		return "Dimension";
+		// TODO return DimName?
+	}
+	
 	public List<InputSetter> getRequiredInputs()
 	{
 		List<InputSetter> out = new LinkedList<InputSetter>();
@@ -432,7 +435,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			this.addSubmodel(new Dimension());
 		}

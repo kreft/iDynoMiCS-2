@@ -5,14 +5,27 @@ import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class SvgExport {
+public class SvgExport
+{
+	/**
+	 * TODO
+	 */
 	int filewriterfilenr = 0;
+	/**
+	 * TODO
+	 */
 	FileHandler svgFile = new FileHandler();
+	/**
+	 * TODO
+	 */
 	public double scalar = 25.0;
+	/**
+	 * TODO
+	 */
 	public double spacer = 25.0;
 	
 	/**

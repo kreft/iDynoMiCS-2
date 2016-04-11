@@ -5,11 +5,9 @@ package shape;
 
 import java.awt.event.ActionEvent;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -395,6 +393,11 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	public String getName()
+	{
+		return this.getClass().getSimpleName();
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -608,22 +611,11 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	/**
 	 * 
 	 * @return
-	 * Bas: why not just use an enum in the first place
 	 */
 	public static String[] getAllOptions()
 	{
-		Class<?>[] classNames = ShapeLibrary.class.getDeclaredClasses();
-		int num = classNames.length;
-		String[] out = new String[num];
-		String str;
-		int dollarIndex;
-		for ( int i = 0; i < num; i++ )
-		{
-			str = classNames[i].getName();
-			dollarIndex = str.indexOf("$");
-			out[i] = str.substring(dollarIndex+1);
-		}
-		return out;
+		return Helper.getClassNamesSimple(
+									ShapeLibrary.class.getDeclaredClasses());
 	}
 	
 	public void acceptInput(String name, Object input)
@@ -646,7 +638,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			// TODO do safety properly
 			String shapeName;
@@ -658,9 +650,21 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 		
 		@Override
-		public String[] getClassNameOptions()
+		public Object getOptions()
 		{
 			return Shape.getAllOptions();
+		}
+	}
+	
+	public static abstract class Polar extends Shape
+	{
+		public Polar()
+		{
+			super();
+			/* There is no need for an r-min boundary. */
+			Dimension dim = new Dimension();
+			dim.setBoundaryOptional(0);
+			this._dimensions.put(DimName.R, dim);
 		}
 	}
 }

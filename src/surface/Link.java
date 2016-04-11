@@ -2,8 +2,8 @@ package surface;
 
 /**
  * Some testing class will likely be removed or get an other form
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Link {
 	

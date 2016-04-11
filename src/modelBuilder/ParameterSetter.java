@@ -62,7 +62,7 @@ public class ParameterSetter extends InputSetter
 	}
 	
 	@Override
-	public void actionPerformed(ActionEvent e)
+	public void doAction(ActionEvent e)
 	{
 		if ( e == null )
 		{

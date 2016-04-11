@@ -18,6 +18,7 @@ import surface.Point;
 import surface.Ball;
 
 /**
+ * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
@@ -28,6 +29,11 @@ public final class ShapeLibrary
 	 * DUMMY SHAPE (for chemostats, etc)
 	 ************************************************************************/
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * 
+	 */
 	public static class Dimensionless extends Shape
 	{
 		protected double _volume = 0.0;
@@ -92,6 +98,11 @@ public final class ShapeLibrary
 	 * SHAPES WITH STRAIGHT EDGES
 	 ************************************************************************/
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * 
+	 */
 	public static class Line extends Shape
 	{
 		public Line()
@@ -123,6 +134,11 @@ public final class ShapeLibrary
 		}
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * 
+	 */
 	public static class Rectangle extends Line
 	{
 		public Rectangle()
@@ -140,6 +156,11 @@ public final class ShapeLibrary
 		}
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * 
+	 */
 	public static class Cuboid extends Rectangle
 	{
 		public Cuboid()
@@ -161,19 +182,12 @@ public final class ShapeLibrary
 	 * SHAPES WITH ROUND EDGES
 	 ************************************************************************/
 	
-	public static abstract class Polar extends Shape
-	{
-		public Polar()
-		{
-			super();
-			/* There is no need for an r-min boundary. */
-			Dimension dim = new Dimension();
-			dim.setBoundaryOptional(0);
-			this._dimensions.put(DimName.R, dim);
-		}
-	}
-	
-	public static class Circle extends Polar
+	/**
+	 * \brief TODO
+	 * 
+	 * 
+	 */
+	public static class Circle extends Shape.Polar
 	{
 		public Circle()
 		{
@@ -209,6 +223,11 @@ public final class ShapeLibrary
 		}
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * 
+	 */
 	public static class Cylinder extends Circle
 	{
 		public Cylinder()
@@ -238,7 +257,12 @@ public final class ShapeLibrary
 		}
 	}
 	
-	public static class Sphere extends Polar
+	/**
+	 * \brief TODO
+	 * 
+	 * 
+	 */
+	public static class Sphere extends Shape.Polar
 	{
 		public Sphere()
 		{

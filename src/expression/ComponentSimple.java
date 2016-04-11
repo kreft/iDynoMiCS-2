@@ -3,7 +3,7 @@
  */
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * \brief The most basic component of a mathematical expression.
@@ -36,7 +36,7 @@ public abstract class ComponentSimple extends Component
 	}
 	
 	@Override
-	public String reportEvaluation(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
 		double out = this.getValue(variables);
 		if ( isNegative() )
