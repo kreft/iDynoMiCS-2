@@ -8,7 +8,8 @@ import aspect.Event;
 import idynomics.NameRef;
 
 /**
- * \brief Method that initiates the division.
+ * \brief Event that resolves current interaction distance/pull distance of
+ * initiator with compliant and saves it as an aspect (#curPullDist).
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */

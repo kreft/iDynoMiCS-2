@@ -114,9 +114,9 @@ public class XmlLabel
 	public static String species = "species";
 	
 	/**
-	 * encapsulates all reactions in the compartment
+	 * Tag for all extra-cellular reactions in the compartment, i.e. those
+	 * that are not controlled by an {@code Agent}.
 	 */
-	// FIXME what is the difference between this and NameRef.agentReactions?
 	public static String reactions = "reactions";
 
 	/**
