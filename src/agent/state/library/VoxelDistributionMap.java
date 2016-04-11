@@ -28,7 +28,7 @@ public class VoxelDistributionMap extends Calculated
 		 */
 		double totalVol = 0.0;
 		for(int[] key : distrib.keySet())
-			totalVol = distrib.get(key);
+			totalVol += distrib.get(key);
 		/*
 		 * Calculate hypothetical density.
 		 */
