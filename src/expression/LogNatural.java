@@ -3,7 +3,7 @@
  */
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * \brief Component of a mathematical expression that is the natural logartihm
@@ -26,7 +26,7 @@ public class LogNatural extends ComponentSingle
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		return Math.log(this._a.getValue(variables));
 	}

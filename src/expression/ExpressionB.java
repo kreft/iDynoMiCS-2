@@ -1,6 +1,7 @@
 package expression;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
@@ -35,7 +36,7 @@ public class ExpressionB extends Component
 	/**
 	 * Names and values of constants in this expression.
 	 */
-	public HashMap<String, Double> _constants;
+	public Map<String, Double> _constants;
 	
 	/**
 	 * Names of variables in this expression.
@@ -56,7 +57,7 @@ public class ExpressionB extends Component
 	 * @param expression
 	 * @param constants
 	 */
-	public ExpressionB(String expression, HashMap<String, Double> constants)
+	public ExpressionB(String expression, Map<String, Double> constants)
 	{
 		/* Remove all whitespace. */
 		this.expression = expression.replaceAll("\\s+","");
@@ -112,7 +113,7 @@ public class ExpressionB extends Component
 	 * @param constants
 	 * @return 
 	 */
-	public Component build(String expression, HashMap<String, Double> constants)
+	public Component build(String expression, Map<String, Double> constants)
 	{	
 		/* Constant values */
 		this._constants = constants;
@@ -462,12 +463,12 @@ public class ExpressionB extends Component
 	}
 
 	@Override
-	public String reportEvaluation(HashMap<String, Double> variables) {
+	public String reportEvaluation(Map<String, Double> variables) {
 		return _a.reportEvaluation(variables);
 	}
 
 	@Override
-	public double getValue(HashMap<String, Double> variables) {
+	public double getValue(Map<String, Double> variables) {
 		return _a.getValue(variables);
 	}
 

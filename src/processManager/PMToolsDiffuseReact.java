@@ -3,11 +3,14 @@ package processManager;
 import static grid.SpatialGrid.ArrayType.CONCN;
 import static grid.SpatialGrid.ArrayType.PRODUCTIONRATE;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import agent.Agent;
+import dataIO.XmlLabel;
 import grid.SpatialGrid;
 import grid.subgrid.CoordinateMap;
 import grid.subgrid.SubgridPoint;
@@ -20,22 +23,49 @@ import solver.PDEupdater;
 import surface.Collision;
 import surface.Surface;
 
+/**
+ * \brief Tool set for {@code ProcessManager}s that control diffusion-reaction
+ * like processes in a {@code Compartment}.
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, UK
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
 public final class PMToolsDiffuseReact
 {
+	/**
+	 * Useful filter for removing non-reactive agents from a list.
+	 */
 	private static final Predicate<Agent> NO_REAC_FILTER = 
 							(a -> ! a.isAspect(NameRef.agentReactions));
+	/**
+	 * When choosing an appropriate sub-voxel resolution for building agents'
+	 * {@code coordinateMap}s, the smallest agent radius is multiplied by this
+	 * factor to ensure it is fine enough.
+	 */
+	// NOTE the value of a quarter is chosen arbitrarily
+	private static double SUBGRID_FACTOR = 0.25;
+	/**
+	 * Aspect name for the {@code coordinateMap} used for establishing which
+	 * voxels a located {@code Agent} covers.
+	 */
+	// TODO Consider moving this to NameRef or XmlLabel?
+	private static final String VD_TAG = "volumeDistribution";
+	// TODO Consider moving this to NameRef or XmlLabel?
+	private static final String IP_TAG = "internalProduction";
+	// TODO Consider moving this to NameRef or XmlLabel?
+	private static final String GR_TAG = "growthRate";
 	
 	/**
-	 * \brief TODO
+	 * \brief Loop through all located {@code Agent}s with reactions,
+	 * estimating how much of their body overlaps with nearby grid voxels.
 	 * 
-	 * @param environment
-	 * @param agents
+	 * @param environment The environment of a {@code Compartment}.
+	 * @param agents The agents of a {@code Compartment}.
 	 */
 	@SuppressWarnings("unchecked")
 	public static void setupAgentDistributionMaps(
 					EnvironmentContainer environment, AgentContainer agents)
 	{
-		String vdTag = "volumeDistribution";
 		/*
 		 * Reset the agent biomass distribution maps.
 		 */
@@ -43,7 +73,7 @@ public final class PMToolsDiffuseReact
 		for ( Agent a : agents.getAllLocatedAgents() )
 		{
 			distributionMap = new CoordinateMap();
-			a.set(vdTag, distributionMap);
+			a.set(VD_TAG, distributionMap);
 		}
 		/*
 		 * Set up the solute grids and the agents before we start to solve.
@@ -69,7 +99,7 @@ public final class PMToolsDiffuseReact
 			solute.getVoxelSideLengthsTo(dimension, coord);
 			/* NOTE the agent tree is always the amount of actual dimension */
 			neighbors = agents.treeSearch(Vector.subset(location, nDim),
-						  					Vector.subset(dimension, nDim));
+											Vector.subset(dimension, nDim));
 			/* Filter the agents for those with reactions. */
 			neighbors.removeIf(NO_REAC_FILTER);
 			/* If there are none, move onto the next voxel. */
@@ -79,12 +109,11 @@ public final class PMToolsDiffuseReact
 			 * Find the sub-grid resolution from the smallest agent, and
 			 * get the list of sub-grid points.
 			 */
-			// TODO the scaling factor of a quarter is chosen arbitrarily
 			double minRad = Vector.min(dimension);
 			for ( Agent a : neighbors )
 				if ( a.isAspect(NameRef.bodyRadius) )
 					minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
-			sgPoints = solute.getCurrentSubgridPoints(0.25 * minRad);
+			sgPoints = solute.getCurrentSubgridPoints(SUBGRID_FACTOR * minRad);
 			/* 
 			 * Get the subgrid points and query the agents.
 			 */
@@ -94,7 +123,7 @@ public final class PMToolsDiffuseReact
 					continue;
 				List<Surface> surfaces =
 									(List<Surface>) a.get(NameRef.surfaceList);
-				distributionMap = (CoordinateMap) a.getValue(vdTag);
+				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
 				sgLoop: for ( SubgridPoint p : sgPoints )
 				{
 					/* Only give location in significant dimensions. */
@@ -114,6 +143,12 @@ public final class PMToolsDiffuseReact
 		}
 	}
 	
+	/**
+	 * 
+	 * @param environment
+	 * @param agents
+	 * @return
+	 */
 	public static PDEupdater standardUpdater(
 					EnvironmentContainer environment, AgentContainer agents)
 	{
@@ -128,54 +163,74 @@ public final class PMToolsDiffuseReact
 			{
 				applyEnvReactions(environment);
 				applyAgentReactions(environment, agents);
-				agentsGrow(agents, dt);
+				PMToolsAgentEvents.agentsGrow(agents, dt);
 			}
 		};
 	}
 	
+	/**
+	 * \brief Iterate over all solute grids, applying any reactions that occur
+	 * in the environment to the grids' PRODUCTIONRATE arrays.
+	 * 
+	 * @param environment The environment container of a {@code Compartment}.
+	 */
 	private static void applyEnvReactions(EnvironmentContainer environment)
 	{
+		Collection<Reaction> reactions = environment.getReactions();
+		if ( reactions.isEmpty() )
+			return;
 		// FIXME this is a temporary fix until we unify all grid resolutions.
 		String firstSolute = environment.getSoluteNames().iterator().next();
 		SpatialGrid defaultGrid = environment.getSoluteGrid(firstSolute);
+		/*
+		 * Iterate over the spatial discretisation of the environment, applying
+		 * extracellular reactions as required.
+		 */
+		Set<String> soluteNames = environment.getSoluteNames();
 		SpatialGrid solute;
 		HashMap<String,Double> concns = new HashMap<String,Double>();
+		Set<String> productNames;
 		for ( int[] coord = defaultGrid.resetIterator(); 
 				defaultGrid.isIteratorValid(); 
 				coord = defaultGrid.iteratorNext())
 		{
-			/* Iterate over all compartment reactions. */
-			for (Reaction r : environment.getReactions() )
+			/* Get concentrations in grid voxel. */
+			concns.clear();
+			for ( String soluteName : soluteNames )
 			{
-				/* Obtain concentrations in gridCell. */
-				concns.clear();
-				for ( String varName : r.variableNames )
-				{
-					if ( environment.isSoluteName(varName) )
-					{
-						solute = environment.getSoluteGrid(varName);
-						concns.put(varName,
-									solute.getValueAt(CONCN, coord));
-					}
-				}
-				/* Obtain rate of the reaction. */
+				solute = environment.getSoluteGrid(soluteName);
+				concns.put(soluteName, solute.getValueAt(CONCN, coord));
+			}	
+			/* Iterate over each compartment reactions. */
+			for ( Reaction r : reactions )
+			{
+				productNames = r.getStoichiometry().keySet();
+				/* Calculate rate of the reaction. */
 				double rate = r.getRate(concns);
-				double productionRate;
-				for ( String product : r.getStoichiometry().keySet())
-				{
-					productionRate = rate * r.getStoichiometry(product);
+				/* Write rate for each product to grid. */
+				double productRate;
+				for ( String product : productNames )
 					if ( environment.isSoluteName(product) )
 					{
-						/* Write rate for each product to grid. */
+						productRate = rate * r.getStoichiometry(product);
 						solute = environment.getSoluteGrid(product);
-						solute.addValueAt(PRODUCTIONRATE, 
-								coord, productionRate);
+						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
 					}
-				}
 			}
 		}
 	}
 	
+	/**
+	 * \brief 
+	 * 
+	 * <p><b>NOTE</b>: this method assumes that the volume distribution maps
+	 * of all relevant agents have already been calculated. This is typically
+	 * done just once per process manager step, rather than at every PDE solver
+	 * mini-timestep.</p>
+	 * 
+	 * @param environment
+	 * @param agents
+	 */
 	@SuppressWarnings("unchecked")
 	private static void applyAgentReactions(
 			EnvironmentContainer environment, AgentContainer agents)
@@ -193,15 +248,13 @@ public final class PMToolsDiffuseReact
 		agentList.removeIf(NO_REAC_FILTER);
 		for ( Agent a : agentList )
 		{
-			reactions = (List<Reaction>) a.getValue("reactions");
-			distributionMap = (CoordinateMap)
-					a.getValue("volumeDistribution");
-			a.set("growthRate",0.0);
-			if (a.isAspect("internalProduction"))
+			reactions = (List<Reaction>) a.getValue(XmlLabel.reactions);
+			distributionMap = (CoordinateMap) a.getValue(VD_TAG);
+			a.set(GR_TAG, 0.0);
+			if ( a.isAspect(IP_TAG) )
 			{
 				HashMap<String,Double> internalProduction = 
-						(HashMap<String,Double>) 
-						a.getValue("internalProduction");
+								(HashMap<String,Double>) a.getValue(IP_TAG);
 				for (String key : internalProduction.keySet())
 					internalProduction.put(key, 0.0);
 			}
@@ -292,17 +345,17 @@ public final class PMToolsDiffuseReact
 							 * other storage compounds)
 							 */
 						}
-						else if ( a.getString("species").equals(productName) )
+						else if ( 
+							a.getString(XmlLabel.species).equals(productName) )
 						{
-							double curRate = a.getDouble("growthRate");
-							a.set("growthRate", curRate + productionRate * 
+							double curRate = a.getDouble(GR_TAG);
+							a.set(GR_TAG, curRate + productionRate * 
 									distributionMap.get(coord));
 						}
-						else if ( a.isAspect("internalProduction") )
+						else if ( a.isAspect(IP_TAG) )
 						{
 							HashMap<String,Double> internalProduction = 
-									(HashMap<String,Double>) 
-									a.getValue("internalProduction");
+									(HashMap<String,Double>) a.getValue(IP_TAG);
 							double curRate = productionRate * 
 													distributionMap.get(coord);
 							if ( internalProduction.containsKey(productName) )
@@ -318,17 +371,7 @@ public final class PMToolsDiffuseReact
 					}
 				}
 			}
-		}
-	}
-	
-	private static void agentsGrow(AgentContainer agents, double dt)
-	{
-		for ( Agent a : agents.getAllLocatedAgents() )
-		{
-			// TODO these strings are important, so should probably be in
-			// XmlLabel or NameRef. What is "produce"?
-			a.event("growth", dt);
-			a.event("produce", dt);
+			// TODO clear the volumeDistribution map? Saves copying at division
 		}
 	}
 }

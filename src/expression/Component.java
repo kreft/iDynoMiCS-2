@@ -4,8 +4,8 @@
 package expression;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * \brief Abstract class for any component of a mathematical expression.
@@ -43,7 +43,7 @@ public abstract class Component
 	 * @return {@code String} description of the evaluation of this
 	 * mathematical expression.
 	 */
-	public abstract String reportEvaluation(HashMap<String, Double> variables);
+	public abstract String reportEvaluation(Map<String, Double> variables);
 	
 	/**
 	 * \brief Evaluate this mathematical expression.
@@ -52,7 +52,7 @@ public abstract class Component
 	 * @return Real number value of the evaluation of this mathematical
 	 * expression.
 	 */
-	public abstract double getValue(HashMap<String, Double> variables);
+	public abstract double getValue(Map<String, Double> variables);
 	
 	/**
 	 * \brief Differentiate this mathematical expression with respect to the

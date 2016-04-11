@@ -3,7 +3,7 @@
  */
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * \brief Component of a mathematical expression that is the cosine of another
@@ -29,7 +29,7 @@ public class Cosine extends ComponentSingle
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		return Math.cos(this._a.getValue(variables));
 	}

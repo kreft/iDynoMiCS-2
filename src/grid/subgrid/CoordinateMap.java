@@ -41,9 +41,19 @@ public class CoordinateMap implements Copyable
 	public Object copy()
 	{
 		CoordinateMap out = new CoordinateMap();
+		/*
+		 * Making deep copies of all keys and values is probably a little
+		 * excessive, but "better safe than sorry".
+		 */
+		List<Integer> copyKey;
 		for ( List<Integer> key : this._map.keySet() )
-			out._map.put(key, new Double((double) this._map.get(key)));
-		return null;
+		{
+			copyKey = new ArrayList<Integer>();
+			for ( Integer i : key )
+				copyKey.add(new Integer((int) i));
+			out._map.put(copyKey, new Double((double) this._map.get(key)));
+		}
+		return out;
 	}
 	
 	/*************************************************************************

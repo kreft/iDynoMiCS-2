@@ -4,7 +4,7 @@
 package expression;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * \brief A component of a mathematical expression composed of the
@@ -40,7 +40,7 @@ public class Multiplication extends ComponentMultiple
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		double out = 1.0;
 		for ( Component c : this._components )

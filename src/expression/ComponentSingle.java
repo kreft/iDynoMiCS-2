@@ -1,6 +1,6 @@
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -39,7 +39,7 @@ public abstract class ComponentSingle extends Component
 	}
 
 	@Override
-	public String reportEvaluation(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
 		String out = this._expr+"("+this._a.reportEvaluation(variables)+")";
 		return ( isNegative() ) ? "-"+out : out; 

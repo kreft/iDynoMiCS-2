@@ -116,6 +116,7 @@ public class XmlLabel
 	/**
 	 * encapsulates all reactions in the compartment
 	 */
+	// FIXME what is the difference between this and NameRef.agentReactions?
 	public static String reactions = "reactions";
 
 	/**
@@ -243,11 +244,13 @@ public class XmlLabel
 	/**
 	 * priority of process manager
 	 */
+	// FIXME what is the difference between this and NameRef.processPriority?
 	public static String processPriority = "priority";
 
 	/**
 	 * time for the first following timestep
 	 */
+	// FIXME what is the difference between this and NameRef.initialStep?
 	public static String processFirstStep = "firstStep";
 
 	/**

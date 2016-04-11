@@ -4,7 +4,7 @@
 package expression;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -59,7 +59,7 @@ public abstract class ComponentMultiple extends Component
 	}
 	
 	@Override
-	public String reportEvaluation(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
 		String out = this._components.get(0).reportEvaluation(variables);
 		for ( int i = 1; i < this._components.size(); i++ )

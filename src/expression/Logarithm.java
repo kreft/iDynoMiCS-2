@@ -1,6 +1,6 @@
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -41,7 +41,7 @@ public class Logarithm extends ComponentDouble
 	}
 	
 	@Override
-	public String reportEvaluation(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
 		String out = "log_{" + this._b.reportEvaluation(variables) + "}("+
 										this._a.reportEvaluation(variables)+")";
@@ -49,7 +49,7 @@ public class Logarithm extends ComponentDouble
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		double a = this._a.getValue(variables);
 		double b = this._b.getValue(variables);

@@ -10,11 +10,13 @@ public class NameRef
 	/**
 	 * Process manager references
 	 */
+	// FIXME what is the difference between this and XmlLabel.processPriority?
 	public static String processPriority = "priority";
 	
 	/**
 	 * Process manager initial step
 	 */
+	// FIXME what is the difference between this and XmlLabel.processFirstStep?
 	public static String initialStep = "firstStep";
 
 	/**
@@ -59,7 +61,7 @@ public class NameRef
 	/**
 	 * NOTE: linker springs will be reworked later, subject to change.
 	 */
-	public static String fillialLinker = "filialLinker";
+	public static String filialLinker = "filialLinker";
 
 	/**
 	 * List with all surface objects associated with the object
@@ -75,5 +77,6 @@ public class NameRef
 	/**
 	 * list with reactions owned by the agent
 	 */
+	// FIXME what is the difference between this and XmlLabel.reactions?
 	public static String agentReactions = "reactions";
 }

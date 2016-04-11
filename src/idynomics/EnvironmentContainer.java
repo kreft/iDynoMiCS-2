@@ -2,6 +2,7 @@ package idynomics;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -263,6 +264,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public double getAverageConcentration(String soluteName)
 	{
 		return this._solutes.get(soluteName).getAverage(ArrayType.CONCN);
+	}
+	
+	public Map<String,Double> getAverageConcentrations()
+	{
+		Map<String,Double> out = new HashMap<String,Double>();
+		for ( String name : this.getSoluteNames() )
+			out.put(name, this.getAverageConcentration(name));
+		return out;
 	}
 	
 	/**
