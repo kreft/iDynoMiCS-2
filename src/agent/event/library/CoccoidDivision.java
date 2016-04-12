@@ -12,6 +12,7 @@ import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import idynomics.NameRef;
 
 /**
  * Simple coccoid division class, divides mother cell in two with a random

@@ -27,6 +27,8 @@ public class ExcreteEPS extends Event
 	public String EPS_SPECIES = NameRef.epsSpecies;
 	public String MASS = NameRef.agentMass;
 	public String UPDATE_BODY = NameRef.agentUpdateBody;
+	public String BODY = NameRef.agentBody;
+	public String RADIUS = NameRef.bodyRadius;
 
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
@@ -41,12 +43,13 @@ public class ExcreteEPS extends Event
 				double maxEPS = (double) initiator.getValue(MAX_INTERNAL_EPS);
 				double epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.getUniRandDbl(); // check whether UniRandDbl works properly random.nextDouble();
 				double eps = internalProducts.get(EPS);
+				Body body = (Body) initiator.getValue(BODY);
 				while ( eps > epsBlob )
 				{
 					// TODO Joints state will be removed
 					double[] originalPos = body.getJoints().get(0);
 					double[] shift = Vector.randomPlusMinus(originalPos.length, 
-							0.6 * initiator.getDouble(NameRef.bodyRadius));
+							0.6 * initiator.getDouble(RADIUS));
 					double[] epsPos = Vector.minus(originalPos, shift);
 					// FIXME this is not correct, calculate with density
 					compliant = new Agent(initiator.getString(EPS_SPECIES), 

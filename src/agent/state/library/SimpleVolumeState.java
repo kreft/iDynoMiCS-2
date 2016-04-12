@@ -24,8 +24,7 @@ public class SimpleVolumeState extends Calculated {
 	
 	public Object get(AspectInterface aspectOwner)
 	{
-		Quizable agent = (Quizable) aspectOwner;
-		return  (double) agent.get(MASS) / (double) agent.get(DENSITY);
+		return aspectOwner.getDouble(MASS) / aspectOwner.getDouble(DENSITY);
 	}
 
 }
