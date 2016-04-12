@@ -7,9 +7,10 @@ import dataIO.Log.Tier;
 import guiTools.GuiConsole;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class Helper
 {
@@ -108,5 +109,26 @@ public class Helper
 		else
 			 return out;
 		
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param classes
+	 * @return
+	 */
+	public static String[] getClassNamesSimple(Class<?>[] classes)
+	{
+		int num = classes.length;
+		String[] out = new String[num];
+		String str;
+		int dollarIndex;
+		for ( int i = 0; i < num; i++ )
+		{
+			str = classes[i].getName();
+			dollarIndex = str.indexOf("$");
+			out[i] = str.substring(dollarIndex+1);
+		}
+		return out;
 	}
 }

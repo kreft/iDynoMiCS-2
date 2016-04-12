@@ -1,7 +1,6 @@
 package agent.event.library;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
 import agent.Agent;
 import agent.Body;
@@ -14,7 +13,13 @@ import linearAlgebra.Vector;
 import surface.Point;
 import utility.ExtraMath;
 
-public class ExcreteEPS extends Event {
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
+public class ExcreteEPS extends Event
+{
 	
 	public String INTERNAL_PRODUCTS = NameRef.internalProducts;
 	public String EPS = NameRef.productEPS;
@@ -34,16 +39,15 @@ public class ExcreteEPS extends Event {
 			if (internalProducts.containsKey(EPS))
 			{
 				double maxEPS = (double) initiator.getValue(MAX_INTERNAL_EPS);
-				double epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.random.nextDouble();
+				double epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.getUniRandDbl(); // check whether UniRandDbl works properly random.nextDouble();
 				double eps = internalProducts.get(EPS);
-				while (eps > epsBlob)
+				while ( eps > epsBlob )
 				{
 					// TODO Joints state will be removed
-					double[] originalPos = ((Body) initiator.getValue(NameRef.agentBody)).getJoints().get(0);
+					double[] originalPos = body.getJoints().get(0);
 					double[] shift = Vector.randomPlusMinus(originalPos.length, 
 							0.6 * initiator.getDouble(NameRef.bodyRadius));
 					double[] epsPos = Vector.minus(originalPos, shift);
-					
 					// FIXME this is not correct, calculate with density
 					compliant = new Agent(initiator.getString(EPS_SPECIES), 
 							new Body(new Point(epsPos),0.0),
@@ -61,6 +65,5 @@ public class ExcreteEPS extends Event {
 				}
 			}
 		}
-		
 	}
 }

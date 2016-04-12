@@ -5,11 +5,15 @@ import agent.Agent;
 import linearAlgebra.Vector;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class PovExport {
+public class PovExport
+{
+	/**
+	 * TODO
+	 */
 	int filewriterfilenr = 0;
 	
 	/**

@@ -6,9 +6,11 @@ import idynomics.NameRef;
 import utility.ExtraMath;
 
 /**
- * input volume
- * @author baco
- *
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
+ * Input: volume
  */
 public class CoccoidRadius extends Calculated {
 	

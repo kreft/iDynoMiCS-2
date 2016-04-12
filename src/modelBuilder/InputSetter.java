@@ -2,6 +2,8 @@ package modelBuilder;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -20,6 +22,9 @@ public abstract class InputSetter extends AbstractAction
 	 * The model component that will be given this input.
 	 */
 	private IsSubmodel _target;
+	
+	private List<ActionListener> _subsequentListeners = 
+											new LinkedList<ActionListener>();
 	
 	// TODO description
 	
@@ -49,6 +54,40 @@ public abstract class InputSetter extends AbstractAction
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * <p>Note that this method should be overridden by extensions that want
+	 * to give a list of options. If no options are given, the constructor must
+	 * be hard-coded into the actionPerformed() method.</p>
+	 * 
+	 * @return
+	 */
+	public Object getOptions()
+	{
+		return null;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public boolean hasOptions()
+	{
+		return this.getOptions() != null;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e)
+	{
+		this.doAction(e);
+		for ( ActionListener al : this._subsequentListeners )
+			al.actionPerformed(e);
+	}
+	
+	protected abstract void doAction(ActionEvent e);
+	
+	/**
 	 * \brief Process an {@code Object} as input. 
 	 * 
 	 * @param input An input to be passed to the sub-model this setter
@@ -57,6 +96,11 @@ public abstract class InputSetter extends AbstractAction
 	protected void acceptInput(Object input)
 	{
 		this._target.acceptInput(this.getName(), input);
+	}
+	
+	public void addListener(ActionListener al)
+	{
+		this._subsequentListeners.add(al);
 	}
 	
 	/**

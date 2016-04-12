@@ -17,6 +17,11 @@ import modelBuilder.SubmodelMaker;
 import dataIO.Log.Tier;
 import utility.Helper;
 
+/**
+ * \brief TODO
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public class Timer implements IsSubmodel, XMLable
 {
 	private int iteration;
@@ -32,7 +37,12 @@ public class Timer implements IsSubmodel, XMLable
 		this.iteration = 0;
 		this.now = 0.0;
 	}
-
+	
+	public String getName()
+	{
+		return "Timer";
+	}
+	
 	public void init(Element xmlNode)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");
@@ -177,7 +187,7 @@ public class Timer implements IsSubmodel, XMLable
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			this.addSubmodel(new Timer());
 		}

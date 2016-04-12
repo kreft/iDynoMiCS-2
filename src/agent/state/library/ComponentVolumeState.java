@@ -7,9 +7,11 @@ import idynomics.NameRef;
 import linearAlgebra.Vector;
 
 /**
- * input mass, density
- * @author baco
- *
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
+ * Input: mass, density.
  */
 public class ComponentVolumeState extends Calculated {
 	

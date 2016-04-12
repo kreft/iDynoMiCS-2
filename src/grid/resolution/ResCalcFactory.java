@@ -14,7 +14,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
-import expression.ExpressionB;
 import generalInterfaces.XMLable;
 import grid.PolarGrid;
 import grid.resolution.ResolutionCalculator.ResCalc;
@@ -152,7 +151,7 @@ public final class ResCalcFactory implements XMLable
 					else
 					{
 						//TODO: move from DoubleFunction to expression.
-						ExpressionB ex = new ExpressionB(resE);
+						//ExpressionB ex = new ExpressionB(resE);
 						// ... not used at the moment.
 					}
 					Log.out(Tier.CRITICAL, "Tried to set a resolution that is"

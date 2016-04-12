@@ -3,15 +3,12 @@ package aspect;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Predicate;
 
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
-import generalInterfaces.XMLable;
-import linearAlgebra.Vector;
 import utility.Helper;
 
 
@@ -198,6 +195,7 @@ public class AspectReg<A>
 	 * NOTE if multiple aspect registry modules have an aspect with the same key
 	 * the first encountered aspect with that key will be returned.
 	 */
+	@SuppressWarnings("unchecked")
 	private Aspect<?> getAspect(String key)
 	{
 		if ( this._aspects.containsKey(key) )
@@ -211,7 +209,7 @@ public class AspectReg<A>
 	}
 	
 	/**
-	 * copies all aspects and submodule from donor into this aspect registry
+	 * Copies all aspects and submodule from donor into this aspect registry.
 	 */
 	@SuppressWarnings("unchecked")
 	public void duplicate(AspectInterface donor)

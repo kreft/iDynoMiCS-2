@@ -1,6 +1,6 @@
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * \brief A component of a mathematical expression composed of one component 
@@ -32,14 +32,14 @@ public class Power extends ComponentDouble
 	}
 	
 	@Override
-	public String reportEvaluation(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
 		return this._a.reportEvaluation(variables) + this._expr + "{" +
 									this._b.reportEvaluation(variables) + "}";
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		double a = this._a.getValue(variables);
 		double b = this._b.getValue(variables);

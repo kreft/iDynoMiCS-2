@@ -1,8 +1,6 @@
 package agent.event.library;
 
-import surface.Link;
 import surface.Point;
-import surface.Surface;
 import utility.ExtraMath;
 import linearAlgebra.Vector;
 
@@ -14,7 +12,6 @@ import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.NameRef;
 
 /**
  * Simple coccoid division class, divides mother cell in two with a random
@@ -47,7 +44,7 @@ public class CoccoidDivision extends Event {
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
 		Agent mother = (Agent) initiator;
-		
+
 		//TODO check phase 
 		double momMass =(double) mother.get(MASS);
 		if ( momMass > 0.2 )
@@ -70,8 +67,8 @@ public class CoccoidDivision extends Event {
 			Body daughterBody = (Body) daughter.get(BODY);
 			Point q = daughterBody.getPoints().get(0);
 			q.setPosition(Vector.minus(originalPos, shift));
-			
-			
+
+
 			//TODO work in progress, currently testing fillial links
 			if (! mother.isAspect(LINKER_DIST))
 			{

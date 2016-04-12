@@ -3,15 +3,16 @@
  */
 package shape;
 
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 import boundary.Boundary;
-import grid.GridBoundary.GridMethod;
+import boundary.grid.GridMethod;
 import grid.SpatialGrid;
 
 /**
- * @author cleggrj
- *
+ * \brief TODO
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public final class ShapeConventions
 {
@@ -43,10 +44,10 @@ public final class ShapeConventions
 		}
 	}
 	
-	public static class CyclicGrid implements GridMethod
+	public static class CyclicGrid extends GridMethod
 	{
 		@Override
-		public void init(Node xmlNode)
+		public void init(Element xmlNode)
 		{
 			/* Do nothing here. */ 
 		}
@@ -58,5 +59,14 @@ public final class ShapeConventions
 			return 0;
 		}
 		
+		@Override
+		public String getXml()
+		{
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
 	}
+	
+	
 }

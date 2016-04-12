@@ -27,14 +27,13 @@ import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
-import processManager.ProcessManager.ProcessMaker;
 import reaction.Reaction;
 import shape.Shape;
 import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
 
 /**
- * 
+ * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
@@ -270,6 +269,11 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	public String getName()
+	{
+		return this.name;
+	}
+	
 	public Shape getShape()
 	{
 		return this._shape;
@@ -481,9 +485,15 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			this.addSubmodel(new Compartment());
+		}
+		
+		@Override
+		public Object getOptions()
+		{
+			return null;
 		}
 	}
 }

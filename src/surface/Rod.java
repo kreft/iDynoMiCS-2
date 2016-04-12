@@ -5,9 +5,9 @@ import generalInterfaces.HasBoundingBox;
 import surface.BoundingBox;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Rod extends Surface implements HasBoundingBox {
 	

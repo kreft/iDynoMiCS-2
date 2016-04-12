@@ -4,8 +4,8 @@ import java.awt.EventQueue;
 
 /**
  * Example of how to invoke a Render object giving it a CommandMediator
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Caller {
 

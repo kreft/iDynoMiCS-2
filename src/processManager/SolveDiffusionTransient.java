@@ -10,9 +10,7 @@ import java.util.function.Predicate;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import concurentTasks.AgentReactions;
 import concurentTasks.ConcurrentWorker;
-import concurentTasks.EnvironmentReactions;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
 import grid.subgrid.SubgridPoint;
@@ -35,6 +33,7 @@ import surface.Surface;
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
+// TODO delete now that this has been moved into ProcessManagerLibrary
 public class SolveDiffusionTransient extends ProcessManager
 {
 
@@ -277,16 +276,16 @@ public class SolveDiffusionTransient extends ProcessManager
 				/* Gather a defaultGrid to iterate over. */
 				SpatialGrid defaultGrid = environment.getSoluteGrid(
 						environment.getSolutes().keySet().iterator().next());
-				
+
 				//FIXME seems to be pretty thread unsafe 
-//				worker.executeTask(new EnvironmentReactions(
-//						defaultGrid.getAllCoords(),environment,agents));
+				//				worker.executeTask(new EnvironmentReactions(
+				//						defaultGrid.getAllCoords(),environment,agents));
 
 				SpatialGrid solute;
 
 				for ( int[] coord = defaultGrid.resetIterator(); 
 						defaultGrid.isIteratorValid(); 
-							coord = defaultGrid.iteratorNext())
+						coord = defaultGrid.iteratorNext())
 				{
 					/* Iterate over all compartment reactions. */
 					for (Reaction r : environment.getReactions() )
@@ -300,7 +299,7 @@ public class SolveDiffusionTransient extends ProcessManager
 							{
 								solute = environment.getSoluteGrid(varName);
 								concentrations.put(varName,
-											solute.getValueAt(CONCN, coord));
+										solute.getValueAt(CONCN, coord));
 							}
 						}
 						/* Obtain rate of the reaction. */
@@ -314,19 +313,19 @@ public class SolveDiffusionTransient extends ProcessManager
 								/* Write rate for each product to grid. */
 								solute = environment.getSoluteGrid(product);
 								solute.addValueAt(PRODUCTIONRATE, 
-													coord, productionRate);
+										coord, productionRate);
 							}
 						}
 					}
 				}
-				
-				
-				
-//				worker.concurrentEnabled(true);
-				//FIXME also seems thread unsafe
-//				worker.executeTask(new AgentReactions(agents,environment,dt));
 
-				
+
+
+				//				worker.concurrentEnabled(true);
+				//FIXME also seems thread unsafe
+				//				worker.executeTask(new AgentReactions(agents,environment,dt));
+
+
 				/*
 				 * Loop over all agents, applying their reactions to the
 				 * relevant solute grids, in the voxels calculated before the 
@@ -342,8 +341,8 @@ public class SolveDiffusionTransient extends ProcessManager
 						continue;
 					reactions = (List<Reaction>) a.getValue("reactions");
 					distributionMap = (HashMap<int[],Double>)
-											a.getValue("volumeDistribution");
-					
+							a.getValue("volumeDistribution");
+
 					a.set("growthRate",0.0);
 					if (a.isAspect("internalProduction"))
 					{
@@ -417,15 +416,15 @@ public class SolveDiffusionTransient extends ProcessManager
 							 */
 							double productionRate;
 							for ( String productName : 
-												r.getStoichiometry().keySet())
+								r.getStoichiometry().keySet())
 							{
 								productionRate = rate * 
-											r.getStoichiometry(productName);
+										r.getStoichiometry(productName);
 								if ( environment.isSoluteName(productName) )
 								{
 									aSG = environment.getSoluteGrid(productName);
 									aSG.addValueAt(PRODUCTIONRATE, 
-														coord, productionRate);
+											coord, productionRate);
 								}
 								else if ( a.isAspect(productName) )
 								{
@@ -453,7 +452,7 @@ public class SolveDiffusionTransient extends ProcessManager
 									a.set("growthRate", curRate + productionRate * 
 											distributionMap.get(coord) / totalVoxVol);
 
-									
+
 								}
 								else if ( a.isAspect("internalProduction"))
 								{
@@ -482,7 +481,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					}
 					a.event("growth", dt);
 					a.event("produce", dt);
-			}
+				}
 			}
 			
 		};

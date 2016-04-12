@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface IsSubmodel
 {
+	public String getName();
+	
 	/**
 	 * \brief Get a list of setter actions for all input arguments needed by
 	 * this model component.

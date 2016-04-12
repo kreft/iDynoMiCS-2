@@ -14,11 +14,11 @@ import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import idynomics.NameRef;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
+import utility.Helper;
 
 /**
  * 
@@ -74,13 +74,13 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		this.setName( p.getAttribute( XmlLabel.nameAttribute ));
 		/* Process priority - default is zero. */
 		int priority = 0;
-		if ( p.hasAttribute(NameRef.processPriority) )
-			priority = Integer.valueOf(p.getAttribute(NameRef.processPriority));
+		if ( p.hasAttribute(XmlLabel.processPriority) )
+			priority = Integer.valueOf(p.getAttribute(XmlLabel.processPriority));
 		this.setPriority(priority);
 		/* Initial time to step. */
 		double time = Idynomics.simulator.timer.getCurrentTime();
-		if ( p.hasAttribute(NameRef.initialStep) )
-			time = Double.valueOf( p.getAttribute(NameRef.initialStep) );
+		if ( p.hasAttribute(XmlLabel.processFirstStep) )
+			time = Double.valueOf( p.getAttribute(XmlLabel.processFirstStep) );
 		this.setTimeForNextStep(time);
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
@@ -110,7 +110,10 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	
 	public static ProcessManager getNewInstance(String className)
 	{
-		return (ProcessManager) XMLable.getNewInstance(className);
+		//return (ProcessManager) XMLable.getNewInstance(className);
+		
+		return (ProcessManager) XMLable.getNewInstance(className, 
+				"processManager.ProcessManagerLibrary$");
 	}
 	
 	/*************************************************************************
@@ -120,6 +123,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	/**
 	 * \brief Return the aspect registry (implementation of aspect interface).
 	 */
+	@SuppressWarnings("unchecked")
 	public AspectReg<?> reg()
 	{
 		return aspectRegistry;
@@ -228,14 +232,30 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	}
 	
 	/*************************************************************************
+	 * XML-ABLE
+	 ************************************************************************/
+	
+	/*public static ProcessManager getNewInstance(String className)
+	{
+		return (ProcessManager) XMLable.getNewInstance(className, 
+									"processManager.ProcessManagerLibrary$");
+	}*/
+	
+	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
+	
+	public static String[] getAllOptions()
+	{
+		return Helper.getClassNamesSimple(
+							ProcessManagerLibrary.class.getDeclaredClasses());
+	}
 	
 	public List<InputSetter> getRequiredInputs()
 	{
 		List<InputSetter> out = new LinkedList<InputSetter>();
 		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
-		out.add(new ParameterSetter(NameRef.processPriority, this, "Integer"));
+		out.add(new ParameterSetter(XmlLabel.processPriority, this, "Integer"));
 		return out;
 	}
 	
@@ -244,7 +264,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	{
 		if ( name.equals(XmlLabel.nameAttribute) )
 			this._name = (String) input;
-		if ( name.equals(NameRef.processPriority) )
+		if ( name.equals(XmlLabel.processPriority) )
 			this._priority = (Integer) input;
 	}
 	
@@ -258,11 +278,16 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		}
 		
 		@Override
-		public void actionPerformed(ActionEvent e)
+		public void doAction(ActionEvent e)
 		{
 			ProcessManager newProcess =
 					ProcessManager.getNewInstance(e.getActionCommand());
 			this.addSubmodel(newProcess);
+		}
+		
+		public Object getOptions()
+		{
+			return ProcessManager.getAllOptions();
 		}
 	}
 }

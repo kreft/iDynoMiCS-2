@@ -4,6 +4,7 @@
 package test;
 
 import boundary.*;
+import boundary.BoundaryLibrary.SolidBoundary;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Simulator;
@@ -37,10 +38,10 @@ public class AgentGridTest
 		/*
 		 * Set the boundary methods.
 		 */
-		aCompartment.addBoundary(DimName.X, 0, new BoundaryZeroFlux());
+		aCompartment.addBoundary(DimName.X, 0, new SolidBoundary());
 		aCompartment.addBoundary(DimName.X, 1, new BoundaryFixed(topConcn));
-		aCompartment.addBoundary(DimName.Y, 0, new BoundaryZeroFlux());
-		aCompartment.addBoundary(DimName.Y, 1, new BoundaryZeroFlux());
+		aCompartment.addBoundary(DimName.Y, 0, new SolidBoundary());
+		aCompartment.addBoundary(DimName.Y, 1, new SolidBoundary());
 		/*
 		 * We just have one solute, but need to give it to the process manager
 		 * in an array.

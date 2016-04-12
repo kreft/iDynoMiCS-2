@@ -1,7 +1,5 @@
 package aspect;
 
-import java.lang.reflect.TypeVariable;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -43,7 +41,6 @@ public abstract interface AspectInterface
 	public default void loadAspects(Node xmlNode)
 	{
 		Element e = (Element) xmlNode;
-		@SuppressWarnings("unchecked")
 		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
 		String  name;
 		NodeList stateNodes = e.getElementsByTagName(XmlLabel.aspect);
@@ -67,7 +64,6 @@ public abstract interface AspectInterface
 	 */
 	public default void loadAspect(String name, String input, String type)
 	{
-		@SuppressWarnings("unchecked")
 		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
 		aspectReg.add(name, ObjectFactory.loadObject(input, type));
 		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");

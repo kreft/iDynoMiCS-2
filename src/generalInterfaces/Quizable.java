@@ -1,7 +1,12 @@
 package generalInterfaces;
 
-public interface Quizable {
-
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
+public interface Quizable
+{
 	/**
 	 * Implemented by implementing the get("string") paradigm, answering with
 	 * an Object.

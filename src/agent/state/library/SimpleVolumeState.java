@@ -6,9 +6,11 @@ import generalInterfaces.Quizable;
 import idynomics.NameRef;
 
 /**
- * input mass, density
- * @author baco
- *
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * 
+ * Input: mass, density.
  */
 public class SimpleVolumeState extends Calculated {
 	

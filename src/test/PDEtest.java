@@ -3,11 +3,11 @@
  */
 package test;
 
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 import boundary.*;
-import grid.GridBoundary;
-import grid.GridBoundary.*;
+import boundary.grid.GridMethod;
+import boundary.grid.GridMethodLibrary.*;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
@@ -121,10 +121,10 @@ public class PDEtest
 		/*
 		 * Set the boundary methods and initialise the compartment.
 		 */
-		
-		GridMethod aGridMethod = new GridMethod()
+		class TempBndry extends GridMethod
 		{
-			public void init(Node xmlNode)
+			@Override
+			public void init(Element xmlNode)
 			{
 				
 			}
@@ -133,19 +133,26 @@ public class PDEtest
 			public double getBoundaryFlux(SpatialGrid grid)
 			{
 				int[] current = grid.iteratorCurrent();
-				return GridBoundary.calcFlux(
+				return GridMethod.calcFlux(
 								Vector.sum(current)/4.0, 
 								grid.getValueAtCurrent(ArrayType.CONCN),
 								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),
 								grid.getNbhSharedSurfaceArea());
 			}
 			
-		};
+			@Override
+			public String getXml()
+			{
+				// TODO Auto-generated method stub
+				return null;
+			}
+			
+		}
 		for ( DimName dim : aCompartment.getShape().getDimensionNames() )
 			for ( int i = 0; i < 2; i++ )
 			{
 				Boundary bndry = new Boundary();
-				bndry.setGridMethod("solute", aGridMethod);
+				bndry.setGridMethod("solute", new TempBndry());
 				aCompartment.addBoundary(dim, i, bndry);
 			}
 		//TODO diffusivities

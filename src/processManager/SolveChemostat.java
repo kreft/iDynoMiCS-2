@@ -29,6 +29,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
+// TODO delete now that this has been moved into ProcessManagerLibrary
 public class SolveChemostat extends ProcessManager
 {
 	/**

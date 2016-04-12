@@ -11,6 +11,11 @@ import linearAlgebra.Vector;
 
 import shape.Shape;
 
+/**
+ * \brief TODO
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public class ShapesTest
 {
 	@Test
