@@ -2210,8 +2210,7 @@ public final class Vector
 		double[] out = new double[n];
 		for ( int i = 0; i < n; i++ )
 		{
-//			out[i] = ExtraMath.getUniRandDbl();
-			out[i] = ExtraMath.random.nextDouble();
+			out[i] = ExtraMath.getUniRandDbl();
 			if ( ExtraMath.getRandBool() )
 				out[i] *= -1;
 		}
