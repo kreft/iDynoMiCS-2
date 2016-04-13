@@ -3,7 +3,7 @@ package agent.state.library;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Calculated;
-import generalInterfaces.Quizable;
+import idynomics.NameRef;
 
 /**
  * \brief TODO
@@ -12,13 +12,13 @@ import generalInterfaces.Quizable;
  */
 public class AgentSurfaces extends Calculated
 {
+	public String BODY = NameRef.agentBody;
 	/**
 	 * Input body.
 	 */
 	public Object get(AspectInterface aspectOwner)
 	{
-		Quizable agent = (Quizable) aspectOwner;
-		return ((Body) agent.get(input[0])).getSurfaces();
+		return ((Body) aspectOwner.getValue(BODY)).getSurfaces();
 	}
 
 }

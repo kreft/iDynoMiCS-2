@@ -1,5 +1,8 @@
 package processManager;
 
+import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -71,7 +74,7 @@ public class AgentRelaxation extends ProcessManager
 		 * Obtaining relaxation parameters
 		 */
 		dtBase		= Helper.setIfNone(getDouble("dtBase"),0.002);	
-		maxMovement	= Helper.setIfNone(getDouble("maxMovement"),0.1);	
+		maxMovement	= Helper.setIfNone(getDouble("maxMovement"),0.01);	
 		_method		= method.valueOf(Helper.obtainInput(getString(
 				"relaxationMethod"), "agent relaxation misses relaxation method"
 				+ " (SHOVE,EULER,HEUN)"));
@@ -138,8 +141,13 @@ public class AgentRelaxation extends ProcessManager
 					if (pull == null || pull.isNaN())
 						pull = 0.0;
 					
-					iterator.collision((Surface) agent.get("surface"), 
-							(Surface) neighbour.get("surface"), pull);
+					for (Surface s : ((Body) agent.get("body")).getSurfaces())
+					{
+						for (Surface t : ((Body) neighbour.get("body")).getSurfaces())
+						{
+							iterator.collision(s, t, pull);
+						}
+					}
 				}
 			}
 			
@@ -148,7 +156,10 @@ public class AgentRelaxation extends ProcessManager
 			 */
 			for(Surface s : agents.getShape().getSurfaces())
 			{
-				iterator.collision(s, (Surface) agent.get("surface"), 0.0);
+				for (Surface t : ((Body) agent.get("body")).getSurfaces())
+				{
+					iterator.collision(s, t, 0.0);
+				}
 			}
 		}
 	}
@@ -196,14 +207,27 @@ public class AgentRelaxation extends ProcessManager
 			/// obtain current highest particle velocity
 			vSquare = 0.0;
 			for(Agent agent: agents.getAllLocatedAgents())
+			{
 				for (Point point: ((Body) agent.get("body")).getPoints())
 					if ( Vector.normSquare(point.dxdt((double) agent.get("radius"))) > vSquare )
-						vSquare = Vector.normSquare(point.dxdt((double) agent.get("radius")));
+						vSquare = Vector.normSquare(point.dxdt((double) agent.get("radius")));			
+			}
 			
+			// FIXME this assumes linear force scaling improve..
+			vSquare = vSquare * Math.pow(iterator.getMaxForceScalar(), 2.0);
+			
+			for(Agent agent: agents.getAllLocatedAgents())
+			{
+				if (agent.isAspect("stochasticDirection"))
+				{
+					double[] move = (double[]) agent.get("stochasticDirection");
+					vSquare = Math.max(Vector.dotProduct(move,move), vSquare);
+				}
+			}
 			// time Leaping set the time step to match a max traveling distance
 			// divined by 'maxMovement', for a 'fast' run.
 			if(timeLeap) 
-				dtMech = maxMovement / (Math.sqrt(vSquare)*iterator.getMaxForceScalar()+0.001);   
+				dtMech = maxMovement / (Math.sqrt(vSquare)+0.001);   
 			
 			// prevent to relaxing longer than the global _timeStepSize
 			if(dtMech > _timeStepSize-tMech)

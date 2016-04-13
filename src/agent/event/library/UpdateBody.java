@@ -4,6 +4,7 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
+import idynomics.NameRef;
 
 /**
  * \brief TODO
@@ -12,11 +13,19 @@ import aspect.Event;
  */
 public class UpdateBody extends Event
 {
-	public void start(AspectInterface initiator,
-							AspectInterface compliant, Double timeStep)
+	
+	public String BODY = NameRef.agentBody;
+	public String RADIUS = NameRef.agentRadius;
+	
+	public UpdateBody()
 	{
-		Agent agent = (Agent) initiator;
-		Body body = (Body) agent.get(input[0]);
-		body.update((double) agent.get(input[1]), 0.0);
+		setInput("body,radius,length");
+	}
+
+	public void start(AspectInterface initiator,
+			AspectInterface compliant, Double timeStep)
+	{
+		Body body = (Body) initiator.getValue(BODY);
+		body.update( initiator.getDouble(RADIUS), 0.0);
 	}
 }

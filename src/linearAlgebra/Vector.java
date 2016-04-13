@@ -77,6 +77,19 @@ public final class Vector
 	}
 	
 	/**
+	 * \brief Create a double vector from an existing Double[] (capital D)
+	 * @param object
+	 * @return double[] array obtained from Double[] object
+	 */
+	public static double[] vector(Double[] object)
+	{
+		double[] vector = new double[object.length];
+		for(int i = 0; i < object.length; i++)
+			vector[i] = object[i];
+		return vector;
+	}
+	
+	/**
 	 * \brief A new integer vector of length <b>n</b>, and all elements set to
 	 * zero.
 	 * 

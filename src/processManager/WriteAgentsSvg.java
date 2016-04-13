@@ -5,6 +5,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import agent.Body;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.SvgExport;
@@ -107,7 +108,7 @@ public class WriteAgentsSvg extends ProcessManager
 				 * First, map the concentration to the real interval [0, 1].
 				 */
 				double concn = solute.getValueAtCurrent(this._arrayType);
-				concn /= this._maxConcn;
+				concn /= Math.abs(this._maxConcn);
 				concn = ExtraMath.restrict(concn, 0.0, 1.0);
 				/* Flip this, so that higher concentration is darker. */
 				if ( this._higherIsDarker )
@@ -123,25 +124,15 @@ public class WriteAgentsSvg extends ProcessManager
 		/* Draw all located agents. */
 		// NOTE currently only coccoid
 		for ( Agent a: agents.getAllLocatedAgents() )
-			if ( a.isAspect("joints") )
+			if ( a.isAspect("body") )
 			{
-				@SuppressWarnings("unchecked")
-				List<double[]> joints = (List<double[]>) a.get("joints");
+				List<double[]> joints = ((Body) a.get("body")).getJoints();
 				for ( int i = 0; joints.size() > i; i++ )
 				{
 					this._svg.circle(joints.get(i), 
 							a.getDouble("radius"), 
 							a.getString("pigment"));
 				}
-			}
-			else
-			{
-				Tier level = Tier.CRITICAL;
-				Log.out(level, "Couldn't find joints in located agent!");
-				Log.out(level, "Aspects found: ");
-				for ( String name : a.aspectRegistry.getAllAspectNames() )
-					Log.out(level, "\t"+name);
-				System.exit(-1);
 			}
 		/* Close the SVG file */
 		this._svg.closeSvg();

@@ -6,6 +6,7 @@ import generalInterfaces.XMLable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 
 /**
  * Calculated/Secondary states contain a description of how secondary states 
@@ -31,6 +32,16 @@ public abstract class Calculated implements Copyable, XMLable
 	{
 		input.replaceAll("\\s+","");
 		this.input = input.split(",");
+	}
+	
+	public void setField(String field, String value)
+	{
+		try {
+			this.getClass().getField(field).set(this, value);
+		} catch (IllegalArgumentException | IllegalAccessException | 
+				NoSuchFieldException | SecurityException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -71,7 +82,22 @@ public abstract class Calculated implements Copyable, XMLable
 
 	public void init(Element xmlElem)
 	{
-		this.setInput(XmlHandler.gatherAttribute(xmlElem, "input"));
+		String input = XmlHandler.gatherAttribute(xmlElem, "input");
+		if (input != "")
+			this.setInput(input);
+		
+		String fields = XmlHandler.gatherAttribute(xmlElem, XmlLabel.fields);
+		String[] f = null;
+		if (fields != "")
+		{
+			f = fields.split(",");
+			for (String field : f)
+			{
+				String[] value;
+				value = field.split("=");
+				this.setField(value[0], value[1]);
+			}
+		}
 	}
 	
 	@Override

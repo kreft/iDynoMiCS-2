@@ -31,7 +31,7 @@ public class Collision
 	{
 		public double forceScalar()
 		{
-			return -1;		// pull force scalar
+			return -2.0;		// pull force scalar
 		}
 		
 		public double[] interactionForce(double distance, double[] dP)

@@ -15,6 +15,15 @@ import idynomics.NameRef;
  */
 public class ResolveInteractionDistance extends Event
 {
+	
+	public String PULL_DIST = NameRef.agentPulldistance;
+	public String PREF_DIST = NameRef.agentPreferencedistance;
+	public String PREF_ID = NameRef.agentPreferenceIdentifier;
+	public String PREFERENCE = NameRef.agentAttachmentPreference;
+	public String LINKED = NameRef.agentLinks;
+	public String LINKER_DIST = NameRef.linkerDistance;
+	public String CURRENT_PULL_DIST = NameRef.agentCurrentPulldistance;
+	
 	@SuppressWarnings("unchecked")
 	public void start(AspectInterface initiator, 
 								AspectInterface compliant, Double timeStep)
@@ -27,47 +36,49 @@ public class ResolveInteractionDistance extends Event
 				compliant.getDouble(NameRef.agentPulldistance) : 0.0;
 		
 		// NOTE they are currently not added up
-		if ( initiator.isAspect("prefDist") )
+		if ( initiator.isAspect(PREF_DIST) )
 		{
-			if ( initiator.getInt("preference").equals(compliant.getInt("prefIdentifier")) )
+			if ( initiator.getInt(PREFERENCE).equals(compliant.getInt(PREF_ID)))
 			{
-				pullDist = Math.max(initiator.getDouble("prefDist"), pullDist);
+				pullDist = Math.max(initiator.getDouble(PREF_DIST), pullDist);
 			}
 		}
-		else if(compliant.isAspect("prefDist"))
+		else if(compliant.isAspect(PREF_DIST))
 		{
-			if(compliant.getInt("preference").equals(initiator.getInt("prefIdentifier")))
+			if(compliant.getInt(PREFERENCE).equals(initiator.getInt(PREF_ID)))
 			{
-				pullDist = Math.max(initiator.getDouble("prefDist"), pullDist);
+				pullDist = Math.max(initiator.getDouble(PREF_DIST), pullDist);
 			}
 		}
 		
 		// TODO correct behavior for filial link breakage
-		if ( initiator.isAspect("linkerDist") )
+		if ( initiator.isAspect(LINKER_DIST) )
 		{
-			if ( initiator.isAspect("linkedAgents") )
+			if ( initiator.isAspect(LINKED) )
 			{
 				LinkedList<Integer> linkers = (LinkedList<Integer>) 
-						initiator.getValue("linkedAgents");
+						initiator.getValue(LINKED);
 				if ( linkers.contains(((Agent) compliant).identity()) )
 				{
-					pullDist = Math.max(initiator.getDouble("linkerDist"), pullDist);
+					pullDist = Math.max(initiator.getDouble(LINKER_DIST), 
+							pullDist);
 				}
 			}
 		}
-		if ( compliant.isAspect("linkerDist") )
+		if ( compliant.isAspect(LINKER_DIST) )
 		{
-			if ( compliant.isAspect("linkedAgents") )
+			if ( compliant.isAspect(LINKED) )
 			{
 				LinkedList<Integer> linkers = (LinkedList<Integer>) 
-						compliant.getValue("linkedAgents");
+						compliant.getValue(LINKED);
 				if ( linkers.contains(((Agent) initiator).identity()) )
 				{
-					pullDist = Math.max(compliant.getDouble("linkerDist"), pullDist);
+					pullDist = Math.max(compliant.getDouble(LINKER_DIST), 
+							pullDist);
 				}
 			}
 		}
 		
-		initiator.set("#curPullDist", pullDist);
+		initiator.set(CURRENT_PULL_DIST, pullDist);
 	}
 }

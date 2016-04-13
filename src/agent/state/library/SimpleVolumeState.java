@@ -3,6 +3,7 @@ package agent.state.library;
 import aspect.AspectInterface;
 import aspect.Calculated;
 import generalInterfaces.Quizable;
+import idynomics.NameRef;
 
 /**
  * \brief TODO
@@ -11,12 +12,19 @@ import generalInterfaces.Quizable;
  * 
  * Input: mass, density.
  */
-public class SimpleVolumeState extends Calculated
-{
+public class SimpleVolumeState extends Calculated {
+	
+	public String MASS = NameRef.agentMass;
+	public String DENSITY = NameRef.agentDensity;
+	
+	public SimpleVolumeState()
+	{
+		setInput("mass, density");
+	}
+	
 	public Object get(AspectInterface aspectOwner)
 	{
-		Quizable agent = (Quizable) aspectOwner;
-		return  (double) agent.get(input[0]) / (double) agent.get(input[1]);
+		return aspectOwner.getDouble(MASS) / aspectOwner.getDouble(DENSITY);
 	}
 
 }

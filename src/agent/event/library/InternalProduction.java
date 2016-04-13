@@ -4,27 +4,31 @@ import java.util.HashMap;
 
 import aspect.AspectInterface;
 import aspect.Event;
+import idynomics.NameRef;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class InternalProduction extends Event
+public class InternalProduction  extends Event
 {
-	public void start(AspectInterface initiator, 
-									AspectInterface compliant, Double timeStep)
+	
+	public String INTERNAL_PRODUCTS = NameRef.internalProducts;
+	public String INTERNAL_PRODUCTION = NameRef.internalProduction;
+
+	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
-		if ( initiator.isAspect("internalProduction") )
+		if ( initiator.isAspect(INTERNAL_PRODUCTION))
 		{
 			@SuppressWarnings("unchecked")
 			HashMap<String,Double> internalProduction = 
-					(HashMap<String,Double>) initiator.getValue("internalProduction");
+					(HashMap<String,Double>) initiator.getValue(INTERNAL_PRODUCTION);
 			
 			@SuppressWarnings("unchecked")
 			HashMap<String,Double> internalProducts = 
-					(initiator.isAspect("internalProducts") ? (HashMap<String,
-					Double>) initiator.getValue("internalProducts") :
+					(initiator.isAspect(INTERNAL_PRODUCTS) ? (HashMap<String,
+					Double>) initiator.getValue(INTERNAL_PRODUCTS) :
 					new HashMap<String,Double>());
 			for( String p : internalProduction.keySet() )
 			{
@@ -33,7 +37,7 @@ public class InternalProduction extends Event
 				double rate = internalProduction.get(p); 
 				internalProducts.put(p, product + rate * timeStep);
 			}
-			initiator.set("internalProducts", internalProducts);
+			initiator.set(INTERNAL_PRODUCTS, internalProducts);
 		}
 	}
 }

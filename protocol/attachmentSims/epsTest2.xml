@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="GranSim" outputfolder="../results" log="DEBUG"
+	<simulation name="epsTest2" outputfolder="../results" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<timer stepSize="1.0" endOfSimulation="1000.0" />
 		<general>
@@ -46,7 +46,7 @@
 						<reaction name="testReact">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
-								<constant name="mumax" value="500.0" />
+								<constant name="mumax" value="0.1" />
 							</expression>
 							<stochiometric component="species2" coefficient="1.0" />
 							<stochiometric component="solute1" coefficient="-1.0" />
