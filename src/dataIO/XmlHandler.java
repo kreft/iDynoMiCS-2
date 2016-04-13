@@ -2,6 +2,7 @@ package dataIO;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.security.CodeSource;
@@ -83,21 +84,18 @@ public class XmlHandler
 	}
 	
 	/**
-	 * quick method to allow appending the current path in front of the resource
-	 * before reading the document. (there were issues loading resources after
-	 * constructing a runnable .jar file).
+	 * Load resource from within .jar file
 	 * @param resource
 	 * @return
 	 */
 	public static Element loadResource(String resource)
 	{
 		try {
-			String current = new java.io.File( "" ).getCanonicalPath();
-			File fXmlFile = new File(current + "/" + Param.idynomicsRoot + "/" + resource);
 			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
 			Document doc;
-			doc = dBuilder.parse(fXmlFile);
+			InputStream input = String.class.getResourceAsStream(resource);
+			doc = dBuilder.parse(input);
 			doc.getDocumentElement().normalize();
 			return doc.getDocumentElement();
 		} catch (SAXException | IOException | ParserConfigurationException e) {
@@ -105,7 +103,32 @@ public class XmlHandler
 					+ "error message: " + e.getMessage());
 			resource = Helper.obtainInput(null, "Atempt to re-obtain document",
 					true);
-			return loadResource(resource);
+			return null;
+		}
+	}
+	
+	/**
+	 * quick method to allow appending the current path in front of the resource
+	 * before reading the document.
+	 * @param document
+	 */
+	public static Element loadDocumentCanonicial(String document)
+	{
+		try {
+			String current = new java.io.File( "" ).getCanonicalPath();
+			File fXmlFile = new File(current + "/" + Param.idynomicsRoot + "/" + document);
+			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
+			Document doc;
+			doc = dBuilder.parse(fXmlFile);
+			doc.getDocumentElement().normalize();
+			return doc.getDocumentElement();
+		} catch (SAXException | IOException | ParserConfigurationException e) {
+			System.err.println("Error while loading: " + document + "\n"
+					+ "error message: " + e.getMessage());
+			document = Helper.obtainInput(null, "Atempt to re-obtain document",
+					true);
+			return loadResource(document);
 		}
 	}
 	

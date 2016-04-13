@@ -28,7 +28,7 @@ public class XMLableLibrary
 	public XMLableLibrary()
 	{
 		Element classLibrary = 
-				XmlHandler.loadResource("general/classLibrary.xml");
+				XmlHandler.loadResource("/general/classLibrary.xml");
 		List<String[]> tempLib = XmlHandler.gatherAtributesFrom( classLibrary, 
 				"classDef", new String[]{"name", "package"});
 		for ( String[] c : tempLib )
@@ -43,8 +43,8 @@ public class XMLableLibrary
 	 */
 	public String get(String key)
 	{
-		if(has(key))
-			return _lib.get(key);
+		if( this.has(key) )
+			return this._lib.get(key);
 		else
 		{
 			Log.out(Tier.CRITICAL, 
@@ -60,10 +60,7 @@ public class XMLableLibrary
 	 */
 	public boolean has(String key)
 	{
-		if(_lib.containsKey(key))
-			return true;
-		else 
-			return false;
+		return this._lib.containsKey(key);
 	}
 	
 	/**

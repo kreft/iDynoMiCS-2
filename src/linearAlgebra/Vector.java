@@ -76,6 +76,11 @@ public final class Vector
 		return setAll(vector, value);
 	}
 	
+	/**
+	 * \brief Create a double vector from an existing Double[] (capital D)
+	 * @param object
+	 * @return double[] array obtained from Double[] object
+	 */
 	public static double[] vector(Double[] object)
 	{
 		double[] vector = new double[object.length];
