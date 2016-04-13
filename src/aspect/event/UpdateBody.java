@@ -1,6 +1,5 @@
-package agent.event.library;
+package aspect.event;
 
-import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;

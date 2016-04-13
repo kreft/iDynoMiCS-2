@@ -1,4 +1,4 @@
-package agent.event.library;
+package aspect.event;
 
 //FIXME this class is for testing purposes only!!!
 import agent.Agent;

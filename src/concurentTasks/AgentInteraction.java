@@ -55,8 +55,7 @@ public class AgentInteraction  implements ConcurrentTask
 			
 			/**
 			 * perform neighborhood search and perform collision detection and
-			 * response FIXME: this has not been adapted to multi surface
-			 * objects!
+			 * response 
 			 */
 			for(Agent neighbour: _agentContainer.treeSearch(
 
@@ -72,8 +71,13 @@ public class AgentInteraction  implements ConcurrentTask
 					if (pull == null || pull.isNaN())
 						pull = 0.0;
 					
-					iterator.collision((Surface) agent.get("surface"), 
-							(Surface) neighbour.get("surface"), pull);
+					for (Surface s : ((Body) agent.get("body")).getSurfaces())
+					{
+						for (Surface t : ((Body) neighbour.get("body")).getSurfaces())
+						{
+							iterator.collision(s, t, pull);
+						}
+					}
 				}
 			}
 			
@@ -82,7 +86,10 @@ public class AgentInteraction  implements ConcurrentTask
 			 */
 			for(Surface s : _agentContainer.getShape().getSurfaces())
 			{
-				iterator.collision(s, (Surface) agent.get("surface"), 0.0);
+				for (Surface t : ((Body) agent.get("body")).getSurfaces())
+				{
+					iterator.collision(s, t, 0.0);
+				}
 			}
 		}
 	}
