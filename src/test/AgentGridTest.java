@@ -8,7 +8,7 @@ import boundary.BoundaryLibrary.SolidBoundary;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Simulator;
-import processManager.SolveDiffusionTransient;
+import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 

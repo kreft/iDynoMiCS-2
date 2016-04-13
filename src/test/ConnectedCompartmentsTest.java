@@ -7,7 +7,7 @@ import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Simulator;
-import processManager.SolveChemostat;
+import processManager.library.SolveChemostat;
 import shape.ShapeLibrary.Dimensionless;
 
 public class ConnectedCompartmentsTest

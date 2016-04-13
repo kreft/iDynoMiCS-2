@@ -1,9 +1,10 @@
-package processManager;
+package processManager.library;
 
 //FIXME this class is for testing purposes only!!!
 import agent.Agent;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import processManager.ProcessManager;
 /**
  * 
  * 

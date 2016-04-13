@@ -12,7 +12,7 @@ import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
-import processManager.SolveChemostat;
+import processManager.library.SolveChemostat;
 import shape.ShapeLibrary;
 import shape.ShapeLibrary.Dimensionless;
 import utility.ExtraMath;

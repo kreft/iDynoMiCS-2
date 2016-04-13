@@ -1,4 +1,4 @@
-package processManager;
+package processManager.library;
 
 import java.util.List;
 
@@ -14,6 +14,7 @@ import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
+import processManager.ProcessManager;
 import utility.ExtraMath;
 
 /**

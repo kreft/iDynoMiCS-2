@@ -1,4 +1,4 @@
-package processManager;
+package processManager.library;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +16,7 @@ import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
+import processManager.ProcessManager;
 import reaction.Reaction;
 import solver.ODEderivatives;
 import solver.ODEheunsmethod;

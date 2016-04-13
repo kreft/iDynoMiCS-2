@@ -21,7 +21,7 @@
 			</reactions>
 			<processManagers>
 				<process name="solveChemostat" class="SolveChemostat" priority="0"
-					firstStep="0.0" package="processManager.">
+					firstStep="0.0" >
 					<aspect name="soluteNames" type="String[]" value="solute1,solute2" />
 					<aspect name="tolerance" type="Double" value="1.0e-3" />
 					<aspect name="hMax" type="Double" value="1.0e-3" />

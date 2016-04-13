@@ -11,7 +11,7 @@ public class ScanPackageTest {
 
 	public static void main(String[] args) 
 	{
-		for (String s : getClassNamesFromPackage("agent.state"))
+		for (String s : getClassNamesFromPackage("processManager"))
 		{
 			System.out.println(s);
 		}
