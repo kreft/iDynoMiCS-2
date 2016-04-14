@@ -21,6 +21,7 @@ import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker.Requirement;
 import utility.*;
+import nodeFactory.*;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at
@@ -29,7 +30,7 @@ import utility.*;
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLable
+public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLable, NodeConstructor
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
@@ -44,6 +45,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public SpeciesLib speciesLibrary = new SpeciesLib();
 	
 	public Timer timer;
+	
+	public ModelNode modelNode;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -139,8 +142,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			Log.out(Tier.CRITICAL, 
 				"Warning: simulator already has a compartment called "+name);
 		}
-		Compartment aCompartment = new Compartment();
-		aCompartment.name = name;
+		Compartment aCompartment = new Compartment(name);
 		this._compartments.add(aCompartment);
 		return aCompartment;
 	}
@@ -253,6 +255,10 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		/*
 		 * Start timing just before simulation starts.
 		 */
+		
+		// testing purposes
+		Log.out(Tier.NORMAL, "getNode Demo \n" + getNode().getXML());
+		
 		double tic = System.currentTimeMillis();
 		while ( this.timer.isRunning() )
 			this.step();
@@ -360,6 +366,53 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public ModelNode getNode() {
+		if (modelNode == null)
+		{
+			/* create simulation node */
+			ModelNode myNode = new ModelNode(XmlLabel.simulation, this);
+			myNode.unique = true;
+			
+			/* add attributes */
+			myNode.add( new ModelAttribute(XmlLabel.nameAttribute, 
+					Param.simulationName, null, false ));
+			myNode.add(new ModelAttribute(XmlLabel.outputFolder, 
+					Param.outputRoot, null, false ));
+			myNode.add(new ModelAttribute(XmlLabel.logLevel, 
+					Log.level(), Helper.enumToString(Tier.class).split(","), true ));
+			myNode.add(new ModelAttribute(XmlLabel.commentAttribute, 
+					Param.simulationComment, null, true ));
+			
+			/* add timer node */
+			myNode.add(timer.getNode());
+	
+			/* add compartment nodes */
+			for ( Compartment c : this._compartments )
+				myNode.add(c.getNode());
+			modelNode = myNode;
+		}
+		
+		/* return node */
+		return modelNode;
+	}
+	
+	public void setNode()
+	{
+		setNode(this.modelNode);
+	}
+	
+	public void setNode(ModelNode node)
+	{
+		this.modelNode = node;
+		Param.simulationName = node.getAttribute(XmlLabel.nameAttribute).value;
+		Param.outputRoot = node.getAttribute(XmlLabel.outputFolder).value;
+		Log.set(node.getAttribute(XmlLabel.logLevel).value);
+		
+		for(ModelNode n : node.childNodes)
+			n.constructor.setNode(n);
 	}
 }
 

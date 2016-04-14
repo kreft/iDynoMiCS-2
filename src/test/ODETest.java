@@ -17,6 +17,10 @@ import shape.ShapeLibrary;
 import shape.ShapeLibrary.Dimensionless;
 import utility.ExtraMath;
 
+/**
+ * 
+ * @deprecated
+ */
 public class ODETest
 {
 	public static void main(String[] args)

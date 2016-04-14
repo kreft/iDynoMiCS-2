@@ -62,7 +62,7 @@ public class GuiSimConstruct
 		JPanel simulatorPane = new JPanel();
 		simulatorPane.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
 		
-		/* simulator pane */
+		/* species pane */
 		JPanel speciesPane = new JPanel();
 		speciesPane.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
 		

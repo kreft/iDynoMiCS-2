@@ -25,6 +25,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import guiTools.GuiActions;
 import guiTools.GuiConsole;
+import guiTools.GuiEditor;
+import guiTools.GuiMain;
 import guiTools.GuiMenu;
 import guiTools.GuiSimConstruct;
 import guiTools.GuiSimControl;
@@ -165,7 +167,8 @@ public class GuiLaunch implements Runnable
 		horizontalLayoutGroup = layout.createParallelGroup();
 
 		drawButtons();
-		currentView = GuiSimConstruct.getConstructor();
+//		currentView = GuiSimConstruct.getConstructor();
+		currentView = GuiMain.getConstructor();
 		
 		horizontalLayoutGroup.addComponent(currentView, 
 				GroupLayout.DEFAULT_SIZE, 
@@ -234,7 +237,7 @@ public class GuiLaunch implements Runnable
 		ParallelGroup buttonVert = layout.createParallelGroup();
 		JButton button;
 		/* Check the simulation. */
-		button = GuiSimControl.checkButton();
+		button = GuiSimControl.openButton();
 		buttonHoriz.addComponent(button);
 		buttonVert.addComponent(button);
 		/* Run the simulation. */

@@ -20,18 +20,19 @@ import javax.swing.JButton;
  */
 public final class GuiSimControl
 {
-	public static JButton checkButton()
+	public static JButton openButton()
 	{
-		JButton checkProtocol = new JButton("Check");
-		checkProtocol.addActionListener(new ActionListener()
+		JButton openProtocol = new JButton("Open");
+		openProtocol.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				GuiActions.checkProtocol();
+				GuiActions.chooseFile();
 			}
 		});
-		return checkProtocol;
+		return openProtocol;
+		
 	}
 	
 	public static JButton runButton()

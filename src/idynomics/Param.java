@@ -50,18 +50,6 @@ public class Param
 	 * If a comment is defined in the protocol file it will be stored here.
 	 */
 	public static String simulationComment;
-	
-	/**
-	 * 
-	 */
-	@Deprecated
-	public static String timeStepSize;
-	
-	/**
-	 * 
-	 */
-	@Deprecated
-	public static String endOfSimulation;
 
 	public static String idynomicsRoot = "";
 	

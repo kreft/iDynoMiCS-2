@@ -14,6 +14,9 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
 import dataIO.Log.Tier;
 import utility.Helper;
 
@@ -22,7 +25,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class Timer implements IsSubmodel, XMLable
+public class Timer implements IsSubmodel, XMLable, NodeConstructor
 {
 	private int iteration;
 	
@@ -31,6 +34,8 @@ public class Timer implements IsSubmodel, XMLable
 	protected double timerStepSize;
 	
 	protected double endOfSimulation;
+	
+	public ModelNode modelNode;
 	
 	public Timer()
 	{
@@ -191,5 +196,31 @@ public class Timer implements IsSubmodel, XMLable
 		{
 			this.addSubmodel(new Timer());
 		}
+	}
+	
+	public ModelNode getNode() {
+		
+		if (modelNode == null)
+		{
+			
+		ModelNode myNode = new ModelNode(XmlLabel.timer, this);
+		myNode.unique = true;
+		
+		myNode.add(new ModelAttribute(XmlLabel.timerStepSize, 
+				String.valueOf(this.timerStepSize), null, true ));
+		myNode.add(new ModelAttribute(XmlLabel.endOfSimulation, 
+				String.valueOf(this.endOfSimulation), null, true ));
+		modelNode = myNode;
+		}
+		return modelNode;
+	}
+
+	public void setNode(ModelNode node)
+	{
+		modelNode = node;
+		this.setTimeStepSize( Double.valueOf( 
+				node.getAttribute( XmlLabel.timerStepSize ).value ));
+		this.setEndOfSimulation( Double.valueOf( 
+				node.getAttribute( XmlLabel.endOfSimulation ).value ));
 	}
 }

@@ -25,6 +25,9 @@ import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
@@ -40,7 +43,7 @@ import shape.ShapeConventions.DimName;
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
+public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -88,14 +91,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		
 	}
 	
-	public Compartment(Shape aShape)
+	public Compartment(String name)
 	{
-		this.setShape(aShape);
-	}
-	
-	public Compartment(String aShapeName)
-	{
-		this((Shape) Shape.getNewInstance(aShapeName));
+		this.name = name;
 	}
 	
 	/**
@@ -495,5 +493,20 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		{
 			return null;
 		}
+	}
+	
+	public ModelNode getNode()
+	{
+		ModelNode myNode = new ModelNode(XmlLabel.compartment, this);
+		myNode.unique = false;
+		
+		myNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+				this.getName(), null, true ));
+		return myNode;
+		
+	}
+
+	public void setNode(ModelNode node) {
+		this.name = node.getAttribute(XmlLabel.nameAttribute).value;
 	}
 }

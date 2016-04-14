@@ -49,7 +49,6 @@ public final class GuiActions
 		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
 			f = chooser.getSelectedFile();
 		
-		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
     	/* Don't crash if the user has clicked cancel. */
     	if ( f == null )
     	{
@@ -62,16 +61,11 @@ public final class GuiActions
     		GuiConsole.writeOut(Param.protocolFile + " \n");
     		checkProtocol();
     	}
-
-		GuiSimConstruct.tabEnabled(GuiSimConstruct.COMPARTMENTPANE, true);
-		GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, true);
-		GuiSimConstruct.tabEnabled(GuiSimConstruct.SIMULATORPANE, true);
+    	GuiEditor.addComponent(Idynomics.simulator.getNode());
 	}
 	
 	public static void checkProtocol()
 	{
-		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
-//		GuiLaunch.setView(ViewType.CONSOLE);
 		if ( Param.protocolFile == null )
 		{
 			GuiConsole.writeErr("Please open a protocol file to check");
@@ -92,14 +86,8 @@ public final class GuiActions
 	
 	public static void runSimulation()
 	{
-		GuiSimConstruct.togglePane(GuiSimConstruct.CONSOLEPANE);
-		GuiSimConstruct.tabEnabled(GuiSimConstruct.COMPARTMENTPANE, false);
-		GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, false);
-		GuiSimConstruct.tabEnabled(GuiSimConstruct.SIMULATORPANE, false);
-//		GuiLaunch.setView(ViewType.CONSOLE);
-		// we dont need a protocol if we are launching from gui
-//		if ( Param.protocolFile != null )
-			Idynomics.launchSimulator();
+		Idynomics.simulator.setNode();
+		Idynomics.launchSimulator();
 	}
 	
 	public static void pauseSimulation()
