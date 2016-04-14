@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import dataIO.ObjectRef;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
@@ -254,8 +255,8 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	public List<InputSetter> getRequiredInputs()
 	{
 		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
-		out.add(new ParameterSetter(XmlLabel.processPriority, this, "Integer"));
+		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
+		out.add(new ParameterSetter(XmlLabel.processPriority,this,ObjectRef.INT));
 		return out;
 	}
 	

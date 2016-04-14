@@ -7,6 +7,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
+import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
@@ -160,8 +161,8 @@ public class Timer implements IsSubmodel, XMLable
 	public List<InputSetter> getRequiredInputs()
 	{
 		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.timerStepSize, this, "Double"));
-		out.add(new ParameterSetter(XmlLabel.endOfSimulation, this, "Double"));
+		out.add(new ParameterSetter(XmlLabel.timerStepSize,this,ObjectRef.DBL));
+		out.add(new ParameterSetter(XmlLabel.endOfSimulation,this,ObjectRef.DBL));
 		return out;
 	}
 	

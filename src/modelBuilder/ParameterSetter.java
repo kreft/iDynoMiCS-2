@@ -86,5 +86,15 @@ public class ParameterSetter extends InputSetter
 		return this._currentValue;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public String getClassType()
+	{
+		return this._classType;
+	}
+	
 	// TODO refresh current value?
 }
