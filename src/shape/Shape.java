@@ -27,6 +27,9 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
 import shape.Dimension.DimensionMaker;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
@@ -43,7 +46,8 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
+public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
+
 {
 
 	/**
@@ -63,6 +67,8 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 */
 	protected Collection<Surface> _surfaces = new LinkedList<Surface>();
 	
+	public ModelNode modelNode;
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -74,6 +80,41 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 */
 	public Shape()
 	{
+		
+	}
+	
+
+	@Override
+	public ModelNode getNode() {
+		if (modelNode == null)
+		{
+		ModelNode myNode = new ModelNode(XmlLabel.compartmentShape, this);
+		myNode.unique = true;
+		
+		myNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+				this.getName(), null, false ));
+		
+		modelNode = myNode;
+		}
+		
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public NodeConstructor newBlank() {
+		return (Shape) Shape.getNewInstance(
+				Helper.obtainInput(this.getAllOptions(), "Shape class", false));
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+		// TODO Auto-generated method stub
 		
 	}
 	

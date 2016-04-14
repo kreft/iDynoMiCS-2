@@ -77,7 +77,7 @@ public class XmlHandler
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			System.err.println("Error while loading: " + document + "\n"
 					+ "error message: " + e.getMessage());
-			document = Helper.obtainInput(null, "Atempt to re-obtain document",
+			document = Helper.obtainInput("", "Atempt to re-obtain document",
 					true);
 			return loadDocument(document);
 		}
@@ -101,7 +101,7 @@ public class XmlHandler
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			System.err.println("Error while loading: " + resource + "\n"
 					+ "error message: " + e.getMessage());
-			resource = Helper.obtainInput(null, "Atempt to re-obtain document",
+			resource = Helper.obtainInput("", "Atempt to re-obtain document",
 					true);
 			return null;
 		}
@@ -126,7 +126,7 @@ public class XmlHandler
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			System.err.println("Error while loading: " + document + "\n"
 					+ "error message: " + e.getMessage());
-			document = Helper.obtainInput(null, "Atempt to re-obtain document",
+			document = Helper.obtainInput("", "Atempt to re-obtain document",
 					true);
 			return loadResource(document);
 		}

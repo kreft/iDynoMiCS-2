@@ -53,6 +53,36 @@ public class Helper
 		return input;
 	}
 	
+	public static String obtainInput(String[] options, String description, boolean noLog)
+	{
+		String input;
+		String msg = "Additional input argument required: " + 
+				description + ", please select a value: ";
+		
+		if ( gui )
+		{
+			input = GuiConsole.requestInput(options, msg);
+		} 
+		else
+		{
+			@SuppressWarnings("resource")
+			Scanner user_input = new Scanner( System.in );
+
+			if ( noLog )
+				System.out.println(msg);
+			else
+				Log.out(Tier.CRITICAL, msg);
+			input = user_input.next( );
+		}
+		msg = "Aquired input: " + input;
+		if ( noLog )
+			System.out.println(msg);
+		else
+			Log.out(Tier.CRITICAL, msg);
+	
+	return input;
+	}
+	
 	public static String obtainInput(String input, String description)
 	{
 		return obtainInput(input, description, false);

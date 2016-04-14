@@ -188,6 +188,19 @@ public final class GuiConsole
 		return s;
 	}
 	
+	public static String requestInput(String[] options, String description)
+	{
+		JFrame frame = new JFrame();
+		String s = (String) JOptionPane.showInputDialog(
+		                    frame,
+		                    description,
+		                    "Customized Dialog",
+		                    JOptionPane.PLAIN_MESSAGE,
+		                    null, options,
+		                    "");
+		return s;
+	}
+	
 	/**
 	 * 
 	 * @param description

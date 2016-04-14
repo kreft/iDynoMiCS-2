@@ -54,7 +54,6 @@ public class GuiEditor
 					node.add(newNode.getNode());
 					addComponent(newNode.getNode());
 					node.add(newNode);
-					
 				}
 			}
 			));

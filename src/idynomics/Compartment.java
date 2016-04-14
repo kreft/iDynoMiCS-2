@@ -34,6 +34,7 @@ import reaction.Reaction;
 import shape.Shape;
 import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
+import shape.ShapeLibrary;
 import utility.Helper;
 
 /**
@@ -102,8 +103,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	public NodeConstructor newBlank()
 	{
 		Compartment newComp = new Compartment();
-		newComp.setShape( (Shape) Shape.getNewInstance(
-				Helper.obtainInput(null, "Shape class")) );
 		return newComp;
 	}
 	
@@ -517,7 +516,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		myNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 				this.getName(), null, true ));
 		
-//		myNode.childConstructors.put(new Shape(), ModelNode.Requirement.ZERO_TO_MANY);
+		// kind of a work around
+		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), ModelNode.Requirement.ZERO_TO_MANY);
 		
 		modelNode = myNode;
 		}
@@ -532,6 +532,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 
 	@Override
 	public void addChildObject(NodeConstructor childObject) {
-
+		if( childObject instanceof Shape)
+			this.setShape((Shape) childObject); 
 	}
 }
