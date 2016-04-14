@@ -40,7 +40,7 @@ public class Timer implements IsSubmodel, XMLable
 	
 	public String getName()
 	{
-		return "Timer";
+		return XmlLabel.timer;
 	}
 	
 	public void init(Element xmlNode)
@@ -71,7 +71,8 @@ public class Timer implements IsSubmodel, XMLable
 	 * 
 	 * 
 	 */
-	public String getXml() {
+	public String getXml()
+	{
 		String out = "<" + XmlLabel.timer + " " + XmlLabel.timerStepSize + 
 				" =\"" + this.timerStepSize + "\" " + XmlLabel.endOfSimulation +
 				"=\"" + this.endOfSimulation + "\" />\n";

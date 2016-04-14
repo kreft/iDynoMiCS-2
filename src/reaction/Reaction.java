@@ -68,18 +68,7 @@ public class Reaction implements XMLable, Copyable
 	public Reaction(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
-		this._name = XmlHandler.obtainAttribute(elem, "name");
-		NodeList stochiometrics = XmlHandler.getAll(elem, "stochiometric");
-		for ( int i = 0; i < stochiometrics.getLength(); i++ )
-		{
-			Element temp = (Element) stochiometrics.item(i);
-			this._stoichiometry.put(
-					XmlHandler.obtainAttribute(temp, "component") , 
-					Double.valueOf(XmlHandler.obtainAttribute(
-													temp, "coefficient")));
-		}
-		this._kinetic = new ExpressionB(XmlHandler.loadUnique(elem, "expression"));
-		this.variableNames = this._kinetic.getAllVariablesNames();
+		this.init(elem);
 	}
 	
 	/**
@@ -126,26 +115,37 @@ public class Reaction implements XMLable, Copyable
 	 * @param kinetic {@code String} describing the rate at which this reaction
 	 * proceeds.
 	 */
-	public Reaction(String chemSpecies, double stoichiometry, String kinetic, String name)
+	public Reaction(String chemSpecies, double stoichiometry, 
+											String kinetic, String name)
 	{
 		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
 	}
 	
 	public void init(Element xmlElem)
 	{
-		// FIXME quick fix: copy/pasted from "public Reaction(Node xmlNode)"
-		this._name = XmlHandler.obtainAttribute(xmlElem, "name");
-		NodeList stochiometrics = XmlHandler.getAll(xmlElem, "stochiometric");
-		for ( int i = 0; i < stochiometrics.getLength(); i++ )
+		this._name = XmlHandler.obtainAttribute(xmlElem, XmlLabel.nameAttribute);
+		/*
+		 * Build the stoichiometric map.
+		 */
+		NodeList stoichs = XmlHandler.getAll(xmlElem, XmlLabel.stoichiometry);
+		String str;
+		double coeff;
+		for ( int i = 0; i < stoichs.getLength(); i++ )
 		{
-			Element temp = (Element) stochiometrics.item(i);
-			this._stoichiometry.put(
-					XmlHandler.obtainAttribute(temp, "component") , 
-					Double.valueOf(XmlHandler.obtainAttribute(
-													temp, "coefficient")));
+			Element temp = (Element) stoichs.item(i);
+			/* Get the coefficient. */
+			str = XmlHandler.obtainAttribute(temp, XmlLabel.coefficient);
+			coeff = Double.valueOf(str);
+			/* Get the component name. */
+			str = XmlHandler.obtainAttribute(temp, XmlLabel.component);
+			/* Enter these into the stoichiometry. */
+			this._stoichiometry.put(str, coeff);
 		}
-		this._kinetic = new ExpressionB(
-								XmlHandler.loadUnique(xmlElem, "expression"));
+		/*
+		 * Build the reaction rate expression.
+		 */
+		this._kinetic = new 
+			ExpressionB(XmlHandler.loadUnique(xmlElem, XmlLabel.expression));
 		this.variableNames = this._kinetic.getAllVariablesNames();
 	}
 	

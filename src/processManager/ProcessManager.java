@@ -274,7 +274,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		
 		public ProcessMaker(Requirement req, IsSubmodel target)
 		{
-			super("process manager", req, target);
+			super(XmlLabel.process, req, target);
 		}
 		
 		@Override

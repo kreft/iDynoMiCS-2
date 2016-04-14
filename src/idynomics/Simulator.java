@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 import agent.SpeciesLib;
 import agent.SpeciesLib.SpeciesLibMaker;
 import dataIO.Log;
+import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
@@ -59,7 +60,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public String getName()
 	{
 		return (Param.simulationName == null) ?
-										"Simuator" : Param.simulationName;
+									XmlLabel.simulation : Param.simulationName;
 	}
 	
 	public void init(Element xmlElem)
@@ -291,8 +292,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	{
 		List<InputSetter> out = new LinkedList<InputSetter>();
 		/* Required parameters */
-		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
-		out.add(new ParameterSetter(XmlLabel.outputFolder, this, "String"));
+		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
+		out.add(new ParameterSetter(XmlLabel.outputFolder,this,ObjectRef.STR));
 		// TODO log level?
 		// TODO Random number seed?
 		// TODO comment?

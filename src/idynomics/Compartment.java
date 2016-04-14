@@ -481,7 +481,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		
 		public CompartmentMaker(Requirement req, IsSubmodel target)
 		{
-			super("compartment", req, target);
+			super(XmlLabel.compartment, req, target);
 		}
 		
 		@Override
