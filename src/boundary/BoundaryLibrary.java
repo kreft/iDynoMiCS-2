@@ -12,6 +12,7 @@ import boundary.grid.GridMethod.GridMethodMaker;
 import boundary.grid.GridMethodLibrary.*;
 import boundary.agent.AgentMethod;
 import boundary.grid.GridMethod;
+import dataIO.ObjectRef;
 import dataIO.XmlLabel;
 import modelBuilder.InputSetter;
 import modelBuilder.ParameterSetter;
@@ -94,7 +95,7 @@ public final class BoundaryLibrary
 		public List<InputSetter> getRequiredInputs()
 		{
 			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter("flowRate", this, "Double"));
+			out.add(new ParameterSetter("flowRate", this, ObjectRef.DBL));
 			// TODO concentrations? AspectRegistry?
 			return out;
 		}
@@ -119,9 +120,10 @@ public final class BoundaryLibrary
 		public List<InputSetter> getRequiredInputs()
 		{
 			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
-			out.add(new ParameterSetter("flowRate", this, "Double"));
-			out.add(new ParameterSetter("partnerName", this, "String"));
+			out.add(new 
+				ParameterSetter(XmlLabel.nameAttribute, this, ObjectRef.STR));
+			out.add(new ParameterSetter("flowRate", this, ObjectRef.DBL));
+			out.add(new ParameterSetter("partnerName", this, ObjectRef.STR));
 			//out.add(new GridMethodMaker(Requirement.ONE_TO_MANY));
 			//out.add(new AgentMethodMaker(Requirement.EXACTLY_ONE));
 			return out;
@@ -139,7 +141,7 @@ public final class BoundaryLibrary
 					this._partnerName = str;
 			}
 			
-			if (name.equals("flowRate") && input instanceof Double)
+			if ( name.equals("flowRate") && input instanceof Double )
 				this._flowRate = (Double) input;
 		}
 	}

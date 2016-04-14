@@ -109,7 +109,7 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	
 	public String getName()
 	{
-		return "Boundary";
+		return XmlLabel.dimensionBoundary;
 		// TODO return dimension and min/max?
 	}
 	

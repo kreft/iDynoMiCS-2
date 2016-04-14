@@ -6,6 +6,7 @@ package shape;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
+import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.CartesianGrid;
@@ -46,8 +47,9 @@ public final class ShapeLibrary
 		@Override
 		public void init(Element xmlElem)
 		{
-			String str = 
-				XmlHandler.attributeFromUniqueNode(xmlElem,"volume","string");
+			// TODO read in as a Double
+			String str = XmlHandler.attributeFromUniqueNode(
+										xmlElem, "volume", ObjectRef.STR);
 			this._volume = Double.parseDouble(str);
 		}
 		

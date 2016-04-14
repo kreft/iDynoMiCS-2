@@ -92,7 +92,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		String str;
 		/* Set up the dimensions. */
 		DimName dimName;
-		childNodes = XmlHandler.getAll(xmlElem, "dimension");
+		childNodes = XmlHandler.getAll(xmlElem, XmlLabel.shapeDimension);
 		for ( int i = 0; i < childNodes.getLength(); i++ )
 		{
 			childElem = (Element) childNodes.item(i);
@@ -112,7 +112,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 		/* Set up any other boundaries. */
 		Boundary aBoundary;
-		childNodes = XmlHandler.getAll(xmlElem, "boundary");
+		childNodes = XmlHandler.getAll(xmlElem, XmlLabel.dimensionBoundary);
 		for ( int i = 0; i < childNodes.getLength(); i++ )
 		{
 			childElem = (Element) childNodes.item(i);
@@ -634,7 +634,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable
 
 		public ShapeMaker(Requirement req, IsSubmodel target)
 		{
-			super("shape", req, target);
+			super(XmlLabel.compartmentShape, req, target);
 		}
 		
 		@Override

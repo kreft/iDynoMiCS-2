@@ -9,6 +9,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import boundary.grid.GridMethod;
+import dataIO.ObjectRef;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import modelBuilder.InputSetter;
@@ -62,7 +63,7 @@ public final class GridMethodLibrary
 		public List<InputSetter> getRequiredInputs()
 		{
 			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter("value", this, "Double", this._value));
+			out.add(new ParameterSetter("value", this, ObjectRef.DBL, this._value));
 			return out;
 		}
 		
@@ -111,7 +112,8 @@ public final class GridMethodLibrary
 		public List<InputSetter> getRequiredInputs()
 		{
 			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter("gradient", this, "Double", this._gradient));
+			out.add(new ParameterSetter(
+						"gradient", this, ObjectRef.DBL, this._gradient));
 			return out;
 		}
 		
