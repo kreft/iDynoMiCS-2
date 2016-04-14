@@ -51,12 +51,17 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-	
+		
 	public Simulator()
 	{
 		//TODO fully implement MTRandom (reading in random seed)
 		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
+	}
+
+	public NodeConstructor newBlank()
+	{
+		return new Simulator();
 	}
 	
 	public String getName()
@@ -376,6 +381,10 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			ModelNode myNode = new ModelNode(XmlLabel.simulation, this);
 			myNode.unique = true;
 			
+			Param.init();
+			if(! Log.isSet())
+				Log.set(Tier.NORMAL);
+			
 			/* add attributes */
 			myNode.add( new ModelAttribute(XmlLabel.nameAttribute, 
 					Param.simulationName, null, false ));
@@ -392,6 +401,9 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			/* add compartment nodes */
 			for ( Compartment c : this._compartments )
 				myNode.add(c.getNode());
+			
+			myNode.childConstructors.put(new Compartment(), ModelNode.Requirement.ZERO_TO_MANY);
+			
 			modelNode = myNode;
 		}
 		
@@ -413,6 +425,12 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		
 		for(ModelNode n : node.childNodes)
 			n.constructor.setNode(n);
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+		if (childObject instanceof Compartment)
+			this._compartments.add((Compartment) childObject);
 	}
 }
 

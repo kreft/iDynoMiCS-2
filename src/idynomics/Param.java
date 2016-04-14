@@ -39,7 +39,7 @@ public class Param
 	/**
 	 * the simulation folder will be placed in this folder
 	 */
-	public static String outputRoot = "../../Simulations/";
+	public static String outputRoot;
 	
 	/**
 	 * All output is written to this folder and sub-folders
@@ -56,6 +56,16 @@ public class Param
 	/**************************************************************************
 	 * LOADING
 	 *************************************************************************/
+	
+	public static void init()
+	{
+	// TODO safety: check the root exists, and the name is acceptable
+			outputRoot = Helper.obtainInput(Param.outputRoot, "Required " + 
+					XmlLabel.outputFolder, true);
+			simulationName = Helper.obtainInput(Param.simulationName, "Required"
+					+ " simulation name", true);
+			outputLocation = outputRoot + "/" + simulationName + "/";
+	}
 	
 	/**
 	 * \brief Method for loading the 

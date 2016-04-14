@@ -43,6 +43,11 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 		this.now = 0.0;
 	}
 	
+	public NodeConstructor newBlank()
+	{
+		return new Timer();
+	}
+	
 	public String getName()
 	{
 		return "Timer";
@@ -222,5 +227,10 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 				node.getAttribute( XmlLabel.timerStepSize ).value ));
 		this.setEndOfSimulation( Double.valueOf( 
 				node.getAttribute( XmlLabel.endOfSimulation ).value ));
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+
 	}
 }

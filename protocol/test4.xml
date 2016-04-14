@@ -40,6 +40,37 @@
 			</species>
 		</speciesLib>
 
+		<compartment name="a">
+		<shape class="Rectangle">
+				<dimension name="X" isCyclic="true">
+					<extreme name="max" position="16.0"/>
+				</dimension> 
+				<dimension name="Y" isCyclic="true">
+					<extreme name="max" position="16.0"/>
+				</dimension> 
+			</shape>
+		</compartment>
+		<compartment name="b">
+		<shape class="Rectangle">
+				<dimension name="X" isCyclic="true">
+					<extreme name="max" position="16.0"/>
+				</dimension> 
+				<dimension name="Y" isCyclic="true">
+					<extreme name="max" position="16.0"/>
+				</dimension> 
+			</shape>
+		</compartment>
+		<compartment name="c">
+		<shape class="Rectangle">
+				<dimension name="X" isCyclic="true">
+					<extreme name="max" position="16.0"/>
+				</dimension> 
+				<dimension name="Y" isCyclic="true">
+					<extreme name="max" position="16.0"/>
+				</dimension> 
+			</shape>
+		</compartment>
+		
 		<compartment name="second">
 			<shape class="Rectangle">
 				<dimension name="X" isCyclic="true">

@@ -34,6 +34,7 @@ import reaction.Reaction;
 import shape.Shape;
 import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -82,6 +83,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	protected double _localTime;
 	
+	public ModelNode modelNode;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -94,6 +97,14 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	public Compartment(String name)
 	{
 		this.name = name;
+	}
+	
+	public NodeConstructor newBlank()
+	{
+		Compartment newComp = new Compartment();
+		newComp.setShape( (Shape) Shape.getNewInstance(
+				Helper.obtainInput(null, "Shape class")) );
+		return newComp;
 	}
 	
 	/**
@@ -119,14 +130,15 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	public void init(Element xmlElem)
 	{
 		Element elem;
-		String str;
+		String str = null;
 		/*
 		 * Set up the shape.
 		 */
 		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.compartmentShape);
-		str = XmlHandler.gatherAttribute(elem, XmlLabel.classAttribute);
+		str = XmlHandler.obtainAttribute(elem, XmlLabel.classAttribute);
 		this.setShape( (Shape) Shape.getNewInstance(str) );
 		this._shape.init( elem );
+		
 		/*
 		 * Give it solutes.
 		 * NOTE: wouldn't we want to pass initial grid values to? It would also
@@ -259,7 +271,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	
 	public void init()
 	{
-		this._shape.setSurfaces();
+		
 		this._environment.init();
 	}
 	
@@ -497,16 +509,29 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	
 	public ModelNode getNode()
 	{
+		if (modelNode == null)
+		{
 		ModelNode myNode = new ModelNode(XmlLabel.compartment, this);
 		myNode.unique = false;
 		
 		myNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 				this.getName(), null, true ));
-		return myNode;
+		
+//		myNode.childConstructors.put(new Shape(), ModelNode.Requirement.ZERO_TO_MANY);
+		
+		modelNode = myNode;
+		}
+		
+		return modelNode;
 		
 	}
 
 	public void setNode(ModelNode node) {
 		this.name = node.getAttribute(XmlLabel.nameAttribute).value;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+
 	}
 }

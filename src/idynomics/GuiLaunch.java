@@ -236,10 +236,29 @@ public class GuiLaunch implements Runnable
 		SequentialGroup buttonHoriz = layout.createSequentialGroup();
 		ParallelGroup buttonVert = layout.createParallelGroup();
 		JButton button;
+		
 		/* Check the simulation. */
 		button = GuiSimControl.openButton();
 		buttonHoriz.addComponent(button);
 		buttonVert.addComponent(button);
+		
+		/* new simulation */
+		button = new JButton("new");
+		{
+			button.addActionListener(new ActionListener()
+			{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
+				Idynomics.simulator = new Simulator();
+				GuiEditor.addComponent(Idynomics.simulator.getNode());
+			}
+		}
+		);
+		}
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		
 		/* Run the simulation. */
 		button = GuiSimControl.runButton();
 		buttonHoriz.addComponent(button);
@@ -255,6 +274,7 @@ public class GuiLaunch implements Runnable
 		buttonVert.addComponent(button);
 		///////////////////////////////////////////////////////////////////////
 		// TODO TESTING ONLY
+	
 		button = new JButton("Make sim (test)");
 		button.addActionListener(new ActionListener()
 		{
