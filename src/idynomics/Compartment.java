@@ -516,6 +516,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		myNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 				this.getName(), null, true ));
 		
+		if ( this._shape !=null )
+			myNode.add(_shape.getNode());
+		
 		// kind of a work around
 		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), ModelNode.Requirement.ZERO_TO_MANY);
 		
