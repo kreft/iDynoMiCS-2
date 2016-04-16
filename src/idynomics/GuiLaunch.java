@@ -52,7 +52,7 @@ public class GuiLaunch implements Runnable
 	/**
 	 * 
 	 */
-	private static JComponent currentView;
+	public static JComponent currentView;
 	/**
 	 * 
 	 */
@@ -167,7 +167,7 @@ public class GuiLaunch implements Runnable
 		horizontalLayoutGroup = layout.createParallelGroup();
 
 		drawButtons();
-//		currentView = GuiSimConstruct.getConstructor();
+		
 		currentView = GuiMain.getConstructor();
 		
 		horizontalLayoutGroup.addComponent(currentView, 
@@ -251,7 +251,9 @@ public class GuiLaunch implements Runnable
 			public void actionPerformed(ActionEvent event)
 			{
 				Idynomics.simulator = new Simulator();
-				GuiEditor.addComponent(Idynomics.simulator.getNode());
+				Idynomics.global = new Param();
+				GuiMain.getConstructor();
+				GuiEditor.addComponent(Idynomics.simulator.getNode(), GuiMain.tabbedPane);
 			}
 		}
 		);

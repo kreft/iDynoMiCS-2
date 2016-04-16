@@ -27,6 +27,7 @@ import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
@@ -511,7 +512,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		if (modelNode == null)
 		{
 		ModelNode myNode = new ModelNode(XmlLabel.compartment, this);
-		myNode.unique = false;
+		myNode.requirement = Requirements.ZERO_TO_FEW;
 		
 		myNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 				this.getName(), null, true ));
@@ -519,8 +520,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		if ( this._shape !=null )
 			myNode.add(_shape.getNode());
 		
-		// kind of a work around
-		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), ModelNode.Requirement.ZERO_TO_MANY);
+		// Work around
+		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), ModelNode.Requirements.EXACTLY_ONE);
 		
 		modelNode = myNode;
 		}
@@ -537,5 +538,10 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	public void addChildObject(NodeConstructor childObject) {
 		if( childObject instanceof Shape)
 			this.setShape((Shape) childObject); 
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		return XmlLabel.compartment;
 	}
 }

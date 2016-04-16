@@ -47,18 +47,14 @@ public final class GuiConsole
 	
 	private static boolean autoScroll = true;
 	
-	protected static JComponent component = setComponent();
+
 	
 	/*************************************************************************
 	 * CONSTRUCTOR
 	 ************************************************************************/
+
 	
 	public static JComponent getConsole()
-	{
-		return component;
-	}
-	
-	public static JComponent setComponent()
 	{
 		console = new JTextPane();
 		console.setBackground(consoleBackground);

@@ -10,4 +10,6 @@ public interface NodeConstructor {
 	
 	public void addChildObject(NodeConstructor childObject);
 
+	public String defaultXmlTag();
+
 }

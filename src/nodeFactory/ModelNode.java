@@ -15,7 +15,7 @@ public class ModelNode {
 	 * \brief Clear way of specifying exactly how many sub-model instances may
 	 * be made.
 	 */
-	public static enum Requirement
+	public static enum Requirements
 	{
 		/**
 		 * Exactly one instance of this sub-model may be made: no more, no fewer.
@@ -35,7 +35,10 @@ public class ModelNode {
 		 * Any number of instances of this sub-model are permitted, even none at
 		 * all.
 		 */
-		ZERO_TO_MANY(0, Integer.MAX_VALUE);
+		ZERO_TO_MANY(0, Integer.MAX_VALUE),
+		
+		ZERO_TO_FEW(0, Integer.MAX_VALUE);
+		
 		
 		/*
 		 * Note that the use of Integer.MAX_VALUE is due to the lack of an
@@ -46,18 +49,23 @@ public class ModelNode {
 		
 		private final int _min, _max;
 		
-		Requirement(int min, int max)
+		Requirements(int min, int max)
 		{
 			_min = min;
 			_max = max;
 		}
+		
+		public boolean maxOne()
+		{
+			return (_max == 1);
+		}
 	}
 	
 	public String tag;
-	public boolean unique;
+	public Requirements requirement;
 	public NodeConstructor constructor;
-	public HashMap<NodeConstructor,Requirement> childConstructors = 
-			new HashMap<NodeConstructor,Requirement>();
+	public HashMap<NodeConstructor,Requirements> childConstructors = 
+			new HashMap<NodeConstructor,Requirements>();
 	public List<ModelNode> childNodes;
 	public List<ModelAttribute> attributes;
 	

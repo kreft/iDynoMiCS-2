@@ -3,14 +3,23 @@ package guiTools;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.EventListener;
 import java.util.HashMap;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
+import idynomics.GuiLaunch;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 
 
@@ -22,41 +31,52 @@ import nodeFactory.NodeConstructor;
  */
 public class GuiEditor
 {
+	static HashMap<ModelAttribute,JTextArea> attributes = new HashMap<ModelAttribute,JTextArea>();
+	
+	public static void setAttributes()
+	{
+		for ( ModelAttribute a : attributes.keySet())
+			a.value = attributes.get(a).getText();
+	}
+	
 	/*
 	 * The JComponent set in the gui
 	 */
-	public static void addComponent(ModelNode node) {
+	public static void addComponent(ModelNode node, JComponent parent) {
 		
+		JTabbedPane tabs = GuiComponent.newPane();
 		JPanel component = new JPanel();
-		component.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
-		
-		HashMap<String,JTextArea> attributes = new HashMap<String,JTextArea>();
-		
-		component.add(GuiMain.actionButton("set", new JButton("set"), new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				for ( String key : attributes.keySet())
-					node.getAttribute(key).value = attributes.get(key).getText();
-			}
-		}
-		));
-		
+		tabs.addTab(node.tag, component);
+		component.setLayout(new WrapLayout(FlowLayout.LEFT, 0, 0));
+		JPanel attr = new JPanel();
+		attr.setLayout(new WrapLayout(FlowLayout.LEFT, 5, 5));
 		for(NodeConstructor c : node.childConstructors.keySet())
 		{
-			component.add(GuiMain.actionButton("add", new JButton("add"), new ActionListener()
+			if(node.childConstructors.get(c) == Requirements.EXACTLY_ONE && node.getChildNodes(c.defaultXmlTag()).isEmpty())
 			{
-				@Override
-				public void actionPerformed(ActionEvent event)
-				{
-					NodeConstructor newNode = c.newBlank();
-					node.add(newNode.getNode());
-					addComponent(newNode.getNode());
-					node.add(newNode);
-				}
+				NodeConstructor newNode = c.newBlank();
+				node.add(newNode.getNode());
+				node.add(newNode);
 			}
-			));
+			else if(node.childConstructors.get(c) == Requirements.EXACTLY_ONE)
+			{
+				// childNode already present
+			}
+			else
+			{
+				attr.add(GuiComponent.actionButton(c.defaultXmlTag(), new JButton("add"), new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent event)
+					{
+						NodeConstructor newNode = c.newBlank();
+						node.add(newNode.getNode());
+						addComponent(newNode.getNode(), component);
+						node.add(newNode);
+					}
+				}
+				));
+			}
 		}
 		
 		for(ModelAttribute a : node.attributes)
@@ -64,14 +84,27 @@ public class GuiEditor
 			JTextArea input = new JTextArea();
 			input.setText(a.value);
 			input.setEditable(a.editable);
-			component.add(GuiMain.inputPanel(a.tag, input));
-			attributes.put(a.tag, input);
+			attr.add(GuiComponent.inputPanel(a.tag, input));
+			attributes.put(a, input);
+		}
+		component.add(attr);
+		
+		if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
+		{
+			parent.add(component, null);
+			parent.revalidate();
+		}
+		else if( node.requirement == Requirements.ZERO_TO_FEW)
+		{
+			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), node.tag, tabs, "");
+		} 
+		else
+		{
+			GuiComponent.addTab((JTabbedPane) parent, node.tag, tabs, "");
 		}
 		
 		
-		
-		GuiMain.addTab(node.tag, component, "");
 		for(ModelNode n : node.childNodes)
-			addComponent(n);
+			addComponent(n, component);
 	}
 }

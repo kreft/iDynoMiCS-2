@@ -1,5 +1,6 @@
 package dataIO;
 
+import idynomics.Idynomics;
 import idynomics.Param;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
@@ -63,7 +64,7 @@ public class SvgExport
 	 */
 	public void newSvg(String prefix)
 	{
-		String fileString = Param.outputLocation + prefix + "/" 
+		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ prefix + DigitFilenr(filewriterfilenr) + ".svg";
 		svgFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);

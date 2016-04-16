@@ -116,7 +116,7 @@ public class XmlHandler
 	{
 		try {
 			String current = new java.io.File( "" ).getCanonicalPath();
-			File fXmlFile = new File(current + "/" + Param.idynomicsRoot + "/" + document);
+			File fXmlFile = new File(current + "/" + Idynomics.global.idynomicsRoot + "/" + document);
 			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
 			Document doc;

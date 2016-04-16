@@ -27,6 +27,7 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
+import nodeFactory.ModelNode.Requirements;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -89,7 +90,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 		if (modelNode == null)
 		{
 		ModelNode myNode = new ModelNode(XmlLabel.compartmentShape, this);
-		myNode.unique = true;
+		myNode.requirement = Requirements.EXACTLY_ONE;
 		
 		myNode.add(new ModelAttribute(XmlLabel.classAttribute, 
 				this.getName(), null, false ));
@@ -116,6 +117,11 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	public void addChildObject(NodeConstructor childObject) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public String defaultXmlTag()
+	{
+		return XmlLabel.compartmentShape;
 	}
 	
 	/**

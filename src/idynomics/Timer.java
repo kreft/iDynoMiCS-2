@@ -16,6 +16,7 @@ import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 import dataIO.Log.Tier;
 import utility.Helper;
@@ -209,7 +210,7 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 		{
 			
 		ModelNode myNode = new ModelNode(XmlLabel.timer, this);
-		myNode.unique = true;
+		myNode.requirement = Requirements.EXACTLY_ONE;
 		
 		myNode.add(new ModelAttribute(XmlLabel.timerStepSize, 
 				String.valueOf(this.timerStepSize), null, true ));
@@ -232,5 +233,10 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 	@Override
 	public void addChildObject(NodeConstructor childObject) {
 
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		return XmlLabel.timer;
 	}
 }
