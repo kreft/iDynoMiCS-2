@@ -13,11 +13,11 @@ Each compartment has four main components:
 - an **agent container** (this holds any agents - be they live or inert - modelled as discrete particles)
 - an ordered list of **process managers**.
 
-![compartment structure](https://github.com/roughhawkbit/iDynoMiCS-2/blob/master/ReadMeFigs/Slide2.png)
+![compartment structure](ReadMeFigs/Slide2.png)
 
 **Figure 1. General structure of iDynoMiCS 2.**
 
-**Note** Need to talk about time-stepping here.
+Within each simulation time-step, each compartment functions as a self-contained unit. Agents that were queued to enter the compartment in the previous time-step are dealt with first, then the processes are executed without any reference to other compartments. When all compartments have been iterated over, all outgoing agents are pushed to their destined compartments and the simulation moves on to the next time-step.
 
 ### Compartment shape
 Compartment shapes must be drawn from a list of pre-defined shapes; users are encouraged to define further shapes in Java source code if necessary, but should not attempt to define them in protocol files alone. Different compartment shapes have different requirements regarding boundaries, and will specify different SpatialGrid types depending on what is appropriate (there may be some choice in this; see Table 1). Note that one-dimensional shapes are not typically well suited to agent-based modeling, and are included so that the user may run a population-based model (typically a set of partial differential equations, or PDEs) for comparison.
@@ -33,7 +33,7 @@ Compartment shapes must be drawn from a list of pre-defined shapes; users are en
 | Sphere        | 3          | (*RMIN*), RMAX, (*THETAMIN, THETAMAX*), (*PHIMIN, PHIMAX*) | SphericalGrid                 |
 | Cylinder      | 3          | (*RMIN*), RMAX, (*THETAMIN, THETAMAX*), ZMIN, ZMAX         | CylindricalGrid               |
 
-**Table 1. Compartment shapes available.** Note that extra boundaries may be permitted: those shown here are only those required. For instance, either a batch culture and a chemostat compartment would take a *dimensionless* shape, but the difference between the two would be in the extra boundaries of a chemostat compartment describing flow in and out. Note also that all compartments must have a volume, and so the user may need to specify the size of dimensions that are not explicitly modelled.
+**Table 1. Compartment shapes available.**
 
 Boundaries must contain two types of method: one relating to the agents, and one for each solute. In simpler cases (e.g. zero flux) the method may be identical for each solute, but for generality we keep open the option of setting each solute separately. The agent methods are then passed to the agent container, and the solute methods to the environment container (on the correct boundary side). The logic behind this is that the agents do not need to know what is happening to the solutes at these boundaries, and vice versa.
 
