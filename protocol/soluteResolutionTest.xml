@@ -20,9 +20,9 @@
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.1" />
 							</expression>
-							<stochiometric component="AOB" coefficient="1.0" />
-							<stochiometric component="solute1" coefficient="-1.0" />
-							<stochiometric component="solute2" coefficient="0.5" />
+							<stoichiometric component="AOB" coefficient="1.0" />
+							<stoichiometric component="solute1" coefficient="-1.0" />
+							<stoichiometric component="solute2" coefficient="0.5" />
 						</reaction>
 					</item>
 				</aspect>
@@ -68,7 +68,7 @@
 					<expression value="1.0 * inflow">
 						<constant name="inflow" value="0.04" />
 					</expression>
-					<stochiometric component="solute1" coefficient="1.0" />
+					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>
 			</reactions>
 			<agents>

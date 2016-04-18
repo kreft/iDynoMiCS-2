@@ -28,9 +28,9 @@
 								<constant name="k" value="0.001" />
 								<constant name="mumax" value="1.0" />
 							</expression>
-							<stochiometric component="species1" coefficient="1.0" />
-							<stochiometric component="eps" coefficient="0.1" />
-							<stochiometric component="solute1" coefficient="-1.0" />
+							<stoichiometric component="species1" coefficient="1.0" />
+							<stoichiometric component="eps" coefficient="0.1" />
+							<stoichiometric component="solute1" coefficient="-1.0" />
 						</reaction>
 					</item>
 				</aspect>
@@ -45,8 +45,8 @@
 								<constant name="k" value="0.001" />
 								<constant name="mumax" value="1.0" />
 							</expression>
-							<stochiometric component="species2" coefficient="1.0" />
-							<stochiometric component="solute1" coefficient="-1.0" />
+							<stoichiometric component="species2" coefficient="1.0" />
+							<stoichiometric component="solute1" coefficient="-1.0" />
 						</reaction>
 					</item>
 				</aspect>
@@ -109,7 +109,7 @@
 					<expression value="1.0 * inflow">
 						<constant name="inflow" value="0.0001" />
 					</expression>
-					<stochiometric component="solute1" coefficient="1.0" />
+					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>
 			</reactions>
 			<agents>

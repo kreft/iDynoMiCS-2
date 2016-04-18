@@ -54,8 +54,8 @@
 			<reactions>
 				<reaction name="testReact">
 					<expression value="solute1 * 0.1" />
-					<stochiometric component="solute1" coefficient="-1.0" />
-					<stochiometric component="solute2" coefficient="0.5" />
+					<stoichiometric component="solute1" coefficient="-1.0" />
+					<stoichiometric component="solute2" coefficient="0.5" />
 				</reaction>
 			</reactions>
 			<agents>
