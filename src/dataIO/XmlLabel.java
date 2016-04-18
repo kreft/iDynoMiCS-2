@@ -1,13 +1,12 @@
 package dataIO;
 
 /**
- * Single class that holds the naming of all xml tags and attributes, one
- * structured place to add or make changes.
+ * \brief Single class that holds the naming of all XML tags and attributes,
+ * one structured place to add or make changes.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-// FIXME Rob[2Mar2016]: What is the difference between this and
-// idynomics.NameRef?
 public class XmlLabel
 {
 	
@@ -15,103 +14,136 @@ public class XmlLabel
 	////////////
 	
 	/**
-	 * aspect loaded by aspect interface
+	 * Aspect loaded by aspect interface.
 	 */
 	public static String aspect = "aspect";
 	
 	/**
-	 * and item in list or hashmap
+	 * An item in a list or a hashmap.
 	 */
 	public static String item = "item";
 	
 	/**
-	 * agent node
+	 * Agent node.
 	 */
 	public static String agent = "agent";
 	
 	/**
-	 * process manager node
+	 * Process manager node.
 	 */
 	public static String process = "process";
 	
 	/**
-	 * assigns species module to be part of species description
+	 * Assigns species module to be part of species description.
 	 */
 	public static String speciesModule = "speciesModule";
 	
 	/**
-	 * parameter node, used to set general parameters
+	 * Parameter node, used to set general parameters.
 	 */
 	public static String parameter = "param";
 	
 	/**
-	 * indicates surface.Point object
+	 * Indicates {@code surface.Point} object.
 	 */
 	public static String point = "point";
 	
 	/**
-	 * indicates constant in expression
+	 * Indicates constant in expression.
 	 */
 	public static String constant = "constant";
 	
 	/**
-	 * indicates a solute
+	 * Indicates a solute.
 	 */
 	public static String solute = "solute";
 	
 	/**
-	 * indicates a resolution element of a solute.
+	 * Indicates a resolution element of a solute.
 	 */
+	// TODO change javadoc to "... of a shape."?
 	public static String resolution = "resolution";
 	
 	/**
-	 * indicates an expression.
+	 * Indicates an mathematical expression.
 	 */
 	public static String expression = "expression";
 	
 	/**
-	 * indicates a voxel
+	 * Indicates a grid voxel.
 	 */
 	public static String voxel = "vox";
 	
 	/**
-	 * indicates a reaction
+	 * Indicates a reaction.
 	 */
+	// TODO clarify: agent-based reaction, environmental reaction, or either?
 	public static String reaction = "reaction";
+	
+	/**
+	 * Tag for the stoichiometry of a reaction.
+	 */
+	public static String stoichiometry = "stoichiometric";
+	
+	/**
+	 * Tag for a component of a reaction.
+	 */
+	public static String component = "component";
+	
+	/**
+	 * Tag for a stoichiometric constant of a component of a reaction.
+	 */
+	public static String coefficient = "coefficient";
 	
 	/* Container Nodes */
 	/////////////////////
 	
 	/**
-	 * encapsulates the entire simulation
+	 * Encapsulates the entire simulation.
 	 */
 	public static String simulation = "simulation";
 	
 	/**
-	 * encapsulates all simulation wide parameters
+	 * Timer node.
+	 */
+	public static String timer = "timer";
+	
+	/**
+	 * Encapsulates all simulation-wide parameters.
 	 */
 	// TODO remove?
+	@Deprecated
 	public static String generalParams = "general";
 	
 	/**
-	 * encapsulates all species definitions for simulation
+	 * Encapsulates all species definitions for a simulation.
 	 */
 	public static String speciesLibrary = "speciesLib";
 	
 	/**
-	 * encapsulates all child nodes defining the compartment shape
+	 * An agent species.
 	 */
-	public static String compartmentShape = "shape";
+	public static String species = "species";
 	
 	/**
-	 * encapsulates all content associated with a single compartment
+	 * Encapsulates all content associated with a single compartment.
 	 */
 	public static String compartment = "compartment";
 	
 	/**
-	 * The agent species
+	 * Encapsulates the child node defining the shape of a compartment.
 	 */
-	public static String species = "species";
+	public static String compartmentShape = "shape";
+	
+	/**
+	 * Encapsulates the child node for each dimension of a shape.
+	 */
+	public static String shapeDimension = "dimension";
+	
+	/**
+	 * Encapsulates the child node for a dimension boundary.
+	 */
+	public static String dimensionBoundary = "boundary";
 	
 	/**
 	 * Tag for all extra-cellular reactions in the compartment, i.e. those
@@ -120,12 +152,12 @@ public class XmlLabel
 	public static String reactions = "reactions";
 
 	/**
-	 * encapsulates all agents for one compartment
+	 * Encapsulates all agents for one compartment.
 	 */
 	public static String agents = "agents";
 	
 	/**
-	 * encapsulates all process managers for one compartment
+	 * Encapsulates all process managers for one compartment.
 	 */
 	public static String processManagers = "processManagers";
 	
@@ -133,62 +165,64 @@ public class XmlLabel
 	////////////////
 	
 	/**
-	 * general name attribute
+	 * General name attribute.
 	 */
 	public static String nameAttribute = "name";
 	
 	/**
-	 * general value attribute
+	 * General value attribute.
 	 */
 	public static String valueAttribute = "value";
 	
 	/**
-	 * type indicates object type for aspect nodes
+	 * Type indicates object type for aspect nodes.
 	 */
 	public static String typeAttribute = "type";
 	
 	/**
-	 * indicates XMLable java class
+	 * Indicates XMLable java class.
 	 */
 	public static String classAttribute = "class";
 	
 	/**
-	 * indicates package of XMLable java class
+	 * Indicates package of XMLable java class.
 	 */
 	public static String packageAttribute = "package";
 	
 	/**
-	 * indicates key for hashmap
+	 * Indicates key for hashmap.
 	 */
 	public static String keyAttribute = "key";
 	
 	/**
-	 * indicates object type for the hashmap key
+	 * Indicates object type for the hashmap key.
 	 */
 	public static String keyTypeAttribute = "keyType";
 	
 	/**
-	 * attribute can hold a comment (has no simulation effects)
+	 * Attribute can hold a comment (has no simulation effects).
 	 */
 	public static String commentAttribute = "comment";
 	
 	/**
-	 * attribute can hold (up to three) dimension names 
+	 * Attribute can hold (up to three) dimension names. 
 	 */
+	// TODO check this fits in with current model building practice
 	public static String dimensionNamesAttribute = "dimensions";
 	
 	/**
-	 * attribute can hold a target resolution as double
+	 * Attribute can hold a target resolution as a {@code double}.
 	 */
 	public static String targetResolutionAttribute = "targetResolution";
 	
 	/**
-	 * indicates output folder (set as simulation attribute)
+	 * Indicates output folder (set as simulation attribute).
 	 */
+	// TODO change to "outputFolder"?
 	public static String outputFolder = "outputfolder";
 	
 	/**
-	 * verbosity of log messages
+	 * Verbosity of log messages.
 	 */
 	public static String logLevel = "log";
 	
@@ -203,42 +237,42 @@ public class XmlLabel
 	public static String endOfSimulation = "endOfSimulation";
 	
 	/**
-	 * comma separated string of doubles that indicates a specific position in
-	 * the compartment
+	 * Comma separated string of {@code double}s that indicates a spatial
+	 * point position in the compartment.
 	 */
 	public static String position = "position";
 	
 	/**
-	 * comma separated string of ints that indicates a specific position in
-	 * the compartment
+	 * Comma separated string of {@code int}s that indicates a grid voxel in
+	 * the compartment.
 	 */
 	public static String coordinates = "coord";
 
 	/**
-	 * indicates film layer thickness for diffusion of chemical species
+	 * Indicates film layer thickness for diffusion of chemical species.
 	 */
 	public static String layerThickness = "layerThickness";
 	
 	/**
-	 * "default" diffusivity in the bulk/ solute
+	 * The "default" diffusivity in the bulk/solute.
 	 */
 	public static String defaultDiffusivity = "defaultDiffusivity";
 	
 	/**
-	 * diffusivity in the biofilm
+	 * Diffusivity in the biofilm.
 	 */
 	public static String biofilmDiffusivity = "biofilmDiffusivity";
 	
 	/**
-	 * indicates a threshold double value
+	 * Indicates a threshold double value.
 	 */
 	public static String threshold = "threshold";
 	
 	/**
-	 * indicates a concentration
+	 * Indicates a solute concentration.
 	 */
 	public static String concentration = "concentration";
-
+	
 	//////////// NOT sorted yet
 	
 	/**
@@ -252,12 +286,7 @@ public class XmlLabel
 	 */
 	// FIXME what is the difference between this and NameRef.initialStep?
 	public static String processFirstStep = "firstStep";
-
-	/**
-	 * Timer node
-	 */
-	public static String timer = "timer";
-
+	
 	public static String inputAttribute = "input";
 	
 	/**

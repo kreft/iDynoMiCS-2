@@ -47,54 +47,50 @@ public class ObjectFactory
 	 */
 	public static Object loadObject(String input, String type)
 	{
-		switch (type) 
+		switch ( type ) 
 		{
 		/* state node with just attributes */
-			case "Boolean" : 
+			case ObjectRef.BOOL : 
 				return Boolean.valueOf(input);
-			case "Integer" : 
+			case ObjectRef.INT : 
 				try{
 					return Integer.valueOf(input);
 				}
 				catch(NumberFormatException e)
 				{
-					Log.out(Tier.CRITICAL, "Error could not load input as "
-							+ "Integer");
+					printReadError(input, ObjectRef.INT);
 					return null;
 				}
-			case "Integer[]" : 
+			case ObjectRef.INT_VECT : 
 				try{
 					return Vector.intFromString(input);
 				}
 				catch(NumberFormatException e)
 				{
-					Log.out(Tier.CRITICAL, "Error could not load input as "
-							+ "Integer");
+					printReadError(input, ObjectRef.INT_VECT);
 					return null;
 				}
-			case "Double" : 
+			case ObjectRef.DBL : 
 				try{
 					return Double.valueOf(input);
 				}
 				catch(NumberFormatException e)
 				{
-					Log.out(Tier.CRITICAL, "Error could not load input as "
-							+ "Double");
+					printReadError(input, ObjectRef.DBL);
 					return null;
 				}
-			case "Double[]" : 
+			case ObjectRef.DBL_VECT : 
 				try{
 					return Vector.dblFromString(input);
 				}
 				catch(NumberFormatException e)
 				{
-					Log.out(Tier.CRITICAL, "Error could not load input as "
-							+ "Double");
+					printReadError(input, ObjectRef.DBL_VECT);
 					return null;
 				}
-			case "String" : 
+			case ObjectRef.STR : 
 				return input;
-			case "String[]" : 
+			case ObjectRef.STR_VECT : 
 				return input.split(",");
 			case "CALCULATED" : 
 				return Calculated.getNewInstance(input);
@@ -109,7 +105,7 @@ public class ObjectFactory
 			case "HashMap" :
 				return ObjectFactory.xmlHashMap(input);
 		}
-		Log.out(Tier.CRITICAL, "Aspect interface encountered unidentified "
+		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
 				+ "object type: " + type);
 		return null;
 	}
@@ -123,49 +119,46 @@ public class ObjectFactory
 	 */
 	public static Object loadObject(Element s, String value, String type)
 	{
-		switch (s.getAttribute(type)) 
+		String sType = s.getAttribute(type);
+		switch ( sType )
 		{
 		/* state node with just attributes */
-			case "Boolean" : 
+			case ObjectRef.BOOL : 
 				return Boolean.valueOf(s.getAttribute(value));
-			case "Integer" : 
+			case ObjectRef.INT : 
 				try{
 					return Integer.valueOf(s.getAttribute(value));
 				}
 				catch(NumberFormatException e)
 				{
-					Log.out(Tier.CRITICAL, "Error could not load input as "
-							+ "Integer");
+					printReadError(s.getAttribute(value), ObjectRef.INT);
 					return null;
 				}
-			case "Integer[]" : 
+			case ObjectRef.INT_VECT : 
 				try{
 					return Vector.intFromString(s.getAttribute(value));
 				}
 				catch(NumberFormatException e)
 				{
-					Log.out(Tier.CRITICAL, "Error could not load input as "
-							+ "Integer");
+					printReadError(s.getAttribute(value), ObjectRef.INT_VECT);
 					return null;
 				}
-			case "Double" : 
+			case ObjectRef.DBL : 
 				try{
 					return Double.valueOf(s.getAttribute(value));
 				}
 				catch(NumberFormatException e)
 				{
-					Log.out(Tier.CRITICAL, "Error could not load input as "
-							+ "Double");
+					printReadError(s.getAttribute(value), ObjectRef.DBL);
 					return null;
 				}
-			case "Double[]" : 
+			case ObjectRef.DBL_VECT : 
 				try{
 					return Vector.dblFromString(s.getAttribute(value));
 				}
 				catch(NumberFormatException e)
 				{
-					Log.out(Tier.CRITICAL, "Error could not load input as "
-							+ "Double");
+					printReadError(s.getAttribute(value), ObjectRef.DBL_VECT);
 					return null;
 				}
 			case "String" : 
@@ -185,11 +178,23 @@ public class ObjectFactory
 			case "HashMap" :
 				return ObjectFactory.xmlHashMap(s);
 		}
-		Log.out(Tier.CRITICAL, "Aspect interface encountered unidentified "
-				+ "object type: " + s.getAttribute(type));
+		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
+				+ "object type: " + sType);
 		return null;
 	}
-
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param input
+	 * @param type
+	 */
+	private static void printReadError(String input, String type)
+	{
+		Log.out(Tier.CRITICAL, "Error could not load input as "
+				+type+": "+input);
+	}
+	
 	/**
 	 * load standard aspect object (use labeling as defined by XmlLabel class).
 	 * @param s

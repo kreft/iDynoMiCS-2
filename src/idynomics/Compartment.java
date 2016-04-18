@@ -12,6 +12,7 @@ import agent.Agent;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
 import dataIO.Log;
+import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
@@ -463,7 +464,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	public List<InputSetter> getRequiredInputs()
 	{
 		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
+		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
 		/* We must have exactly one Shape. */
 		out.add(new ShapeMaker(Requirement.EXACTLY_ONE, this));
 		/* Any number of process managers is allowed, including none. */
@@ -491,7 +492,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		
 		public CompartmentMaker(Requirement req, IsSubmodel target)
 		{
-			super("compartment", req, target);
+			super(XmlLabel.compartment, req, target);
 		}
 		
 		@Override

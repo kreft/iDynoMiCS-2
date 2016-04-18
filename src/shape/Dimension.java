@@ -15,6 +15,7 @@ import boundary.Boundary;
 import boundary.Boundary.BoundaryMaker;
 import dataIO.Log;
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import modelBuilder.InputSetter;
@@ -33,6 +34,12 @@ import utility.Helper;
  */
 public class Dimension implements CanPrelaunchCheck, IsSubmodel
 {
+	/**
+	 * Tag for the boolean denoting whether this dimension is cyclic (true) or
+	 * not (false).
+	 */
+	// TODO consider moving this to XmlLabel, etc
+	public final static String IS_CYCLIC = "isCyclic";
 	/**
 	 * If we need to put a point just inside the maximum extreme, use this
 	 * number multiplied by the dimension length as the small amount less than
@@ -85,7 +92,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		 * TODO check that str is "false" and not a typo of "true" 
 		 * (e.g. "truw")
 		 */
-		str = XmlHandler.gatherAttribute(elem, "isCyclic");
+		str = XmlHandler.gatherAttribute(elem, IS_CYCLIC);
 		if ( Boolean.valueOf(str) )
 			this.setCyclic();
 		/* 
@@ -95,7 +102,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		for ( int i = 0; i < extNodes.getLength(); i++ )
 		{
 			extElem = (Element) extNodes.item(i);
-			str = XmlHandler.gatherAttribute(extElem, "name");
+			str = XmlHandler.gatherAttribute(extElem, XmlLabel.nameAttribute);
 			str = Helper.obtainInput(str, "dimension extreme (min/max)");
 			str = str.toLowerCase();
 			if ( str.equals("min") )
@@ -108,11 +115,11 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 						"Warning! Dimension extreme must be min or max: "+str);
 			}
 			/* Set the position, if given (not always necessary). */
-			str = XmlHandler.gatherAttribute(extElem, "position");
+			str = XmlHandler.gatherAttribute(extElem, XmlLabel.position);
 			if ( str != null && str != "")
 				this.setExtreme(Double.valueOf(str), index);
 			/* Set the boundary, if given (not always necessary). */
-			bndNodes = XmlHandler.getAll(extElem, "boundary");
+			bndNodes = XmlHandler.getAll(extElem, XmlLabel.dimensionBoundary);
 			if ( bndNodes.getLength() > 1 )
 			{
 				Log.out(Tier.CRITICAL, 
@@ -121,7 +128,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 			else if ( bndNodes.getLength() == 1 )
 			{
 				bndElem = (Element) bndNodes.item(0);
-				str = bndElem.getAttribute("class");
+				str = bndElem.getAttribute(XmlLabel.classAttribute);
 				aBoundary = (Boundary) Boundary.getNewInstance(str);
 				aBoundary.init(bndElem);
 				this.setBoundary(aBoundary, index);
@@ -397,7 +404,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	
 	public String getName()
 	{
-		return "Dimension";
+		return XmlLabel.shapeDimension;
 		// TODO return DimName?
 	}
 	
@@ -418,7 +425,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	public void acceptInput(String name, Object input)
 	{
 		/* Parameters. */
-		if ( name.equals("isCyclic") && ((Boolean) input) )
+		if ( name.equals(IS_CYCLIC) && ((Boolean) input) )
 			setCyclic();
 		/* Submodels. */
 		if ( input instanceof Boundary )
@@ -431,6 +438,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		
 		public DimensionMaker(DimName dimName, Requirement req, IsSubmodel target)
 		{
+			// TODO change name to XmlLabel.dimension?
 			super(dimName.toString(), req, target);
 		}
 		

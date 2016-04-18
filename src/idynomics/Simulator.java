@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 import agent.SpeciesLib;
 import agent.SpeciesLib.SpeciesLibMaker;
 import dataIO.Log;
+import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
@@ -68,7 +69,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public String getName()
 	{
 		return (Idynomics.global.simulationName == null) ?
-										"Simuator" : Idynomics.global.simulationName;
+										XmlLabel.simulation : Idynomics.global.simulationName;
 	}
 	
 	public void init(Element xmlElem)
@@ -148,7 +149,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			Log.out(Tier.CRITICAL, 
 				"Warning: simulator already has a compartment called "+name);
 		}
-		Compartment aCompartment = new Compartment(name);
+		Compartment aCompartment = new Compartment();
+		aCompartment.name = name;
 		this._compartments.add(aCompartment);
 		return aCompartment;
 	}
@@ -261,10 +263,6 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		/*
 		 * Start timing just before simulation starts.
 		 */
-		
-		// testing purposes
-		Log.out(Tier.NORMAL, "getNode Demo \n" + getNode().getXML());
-		
 		double tic = System.currentTimeMillis();
 		while ( this.timer.isRunning() )
 			this.step();
@@ -303,8 +301,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	{
 		List<InputSetter> out = new LinkedList<InputSetter>();
 		/* Required parameters */
-		out.add(new ParameterSetter(XmlLabel.nameAttribute, this, "String"));
-		out.add(new ParameterSetter(XmlLabel.outputFolder, this, "String"));
+		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
+		out.add(new ParameterSetter(XmlLabel.outputFolder,this,ObjectRef.STR));
 		// TODO log level?
 		// TODO Random number seed?
 		// TODO comment?
