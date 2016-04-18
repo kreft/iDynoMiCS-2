@@ -1,8 +1,7 @@
-package agent.state.library;
+package aspect.calculated;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
-import generalInterfaces.Quizable;
 import idynomics.NameRef;
 
 /**

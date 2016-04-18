@@ -1,7 +1,7 @@
 /**
  * 
  */
-package processManager;
+package processManager.library;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +20,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
+import processManager.ProcessManager;
 import reaction.Reaction;
 import solver.PDEexplicit;
 import solver.PDEsolver;

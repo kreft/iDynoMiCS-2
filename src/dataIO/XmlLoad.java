@@ -98,13 +98,13 @@ public class XmlLoad
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
-		if (XmlHandler.hasNode(Param.xmlDoc, XmlLabel.speciesLibrary))
+		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlLabel.speciesLibrary))
 			Idynomics.simulator.speciesLibrary.init( XmlHandler.loadUnique(
-					Param.xmlDoc, XmlLabel.speciesLibrary));
+					Idynomics.global.xmlDoc, XmlLabel.speciesLibrary));
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = 
-				Param.xmlDoc.getElementsByTagName(XmlLabel.compartment);
+				Idynomics.global.xmlDoc.getElementsByTagName(XmlLabel.compartment);
 		for (int i = 0; i < compartmentNodes.getLength(); i++) 
 		{
 			constructCompartment(compartmentNodes.item(i));
@@ -153,14 +153,14 @@ public class XmlLoad
 		 * This method contains System.err in stead of normal logging since it
 		 * is called before logging is initiated.
 		 */
-		Param.xmlDoc = XmlHandler.loadDocument(Param.protocolFile);
-		Element sim = XmlHandler.loadUnique((Element) Param.xmlDoc, 
+		Idynomics.global.xmlDoc = XmlHandler.loadDocument(Idynomics.global.protocolFile);
+		Element sim = XmlHandler.loadUnique((Element) Idynomics.global.xmlDoc, 
 				XmlLabel.simulation);
-		Param.simulationName = XmlHandler.obtainAttribute(sim, 
+		Idynomics.global.simulationName = XmlHandler.obtainAttribute(sim, 
 				XmlLabel.nameAttribute);
-		Param.outputRoot = XmlHandler.obtainAttribute(sim, 
+		Idynomics.global.outputRoot = XmlHandler.obtainAttribute(sim, 
 				XmlLabel.outputFolder);
-		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + 
+		Idynomics.global.outputLocation = Idynomics.global.outputRoot + "/" + Idynomics.global.simulationName + 
 				"/";
 		Tier t = null;
 		while (t == null) 
@@ -178,7 +178,7 @@ public class XmlLoad
 		}
 		if( ! Log.isSet() )
 			Log.set(t);
-		Param.simulationComment = XmlHandler.gatherAttribute(sim,
+		Idynomics.global.simulationComment = XmlHandler.gatherAttribute(sim,
 				XmlLabel.commentAttribute);
 	}
 	
@@ -188,7 +188,7 @@ public class XmlLoad
 	@Deprecated
 	public static void loadGeneralParameters()
 	{
-		NodeList general = XmlHandler.getAll(Param.xmlDoc,
+		NodeList general = XmlHandler.getAll(Idynomics.global.xmlDoc,
 				XmlLabel.generalParams);
 		for (int i = 0; i < general.getLength(); i++) 
 		{

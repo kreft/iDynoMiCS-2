@@ -44,6 +44,11 @@ public class Idynomics
 	public static Simulator simulator;
 	
 	/**
+	 * global parameters
+	 */
+	public static Param global = new Param();
+	
+	/**
 	 * Simulator thread
 	 */
 	public static Thread simThread;
@@ -114,16 +119,16 @@ public class Idynomics
 		/* 
 		 * Load the protocol file and find the elements we need
 		 */
-		Param.protocolFile = protocolPath;
-		Param.xmlDoc = XmlHandler.loadDocument(protocolPath);
+		Idynomics.global.protocolFile = protocolPath;
+		Idynomics.global.xmlDoc = XmlHandler.loadDocument(protocolPath);
 		
-		Element simElem = XmlHandler.loadUnique(Param.xmlDoc, XmlLabel.simulation);
+		Element simElem = XmlHandler.loadUnique(Idynomics.global.xmlDoc, XmlLabel.simulation);
 		/*
 		 * Initialise the global parameters.
 		 */
 		Param.init(simElem);
-		Log.out(NORMAL, Param.simulationComment);
-		Log.out(NORMAL, "Storing results in " + Param.outputLocation+"\n");
+		Log.out(NORMAL, Idynomics.global.simulationComment);
+		Log.out(NORMAL, "Storing results in " + Idynomics.global.outputLocation+"\n");
 		/*
 		 * Create a new Simulator object and intialise it.
 		 */

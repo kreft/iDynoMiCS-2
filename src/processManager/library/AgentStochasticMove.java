@@ -1,10 +1,11 @@
-package processManager;
+package processManager.library;
 
 import agent.Agent;
 import agent.Body;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
+import processManager.ProcessManager;
 import surface.Point;
 
 /**

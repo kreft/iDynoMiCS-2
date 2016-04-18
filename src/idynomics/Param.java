@@ -24,50 +24,48 @@ public class Param
 	/**
 	 * Simulation name.
 	 */
-	public static String simulationName;
+	public String simulationName;
 	
 	/**
 	 * String is set to the location of the protocol file
 	 */
-	public static String protocolFile;
+	public String protocolFile;
 	
 	/**
 	 * xml document root element.
 	 */
-	public static Element xmlDoc;
+	public Element xmlDoc;
 	
 	/**
 	 * the simulation folder will be placed in this folder
 	 */
-	public static String outputRoot = "../../Simulations/";
+	public String outputRoot;
 	
 	/**
 	 * All output is written to this folder and sub-folders
 	 */
-	public static String outputLocation;
+	public String outputLocation;
 
 	/**
 	 * If a comment is defined in the protocol file it will be stored here.
 	 */
-	public static String simulationComment;
-	
-	/**
-	 * 
-	 */
-	@Deprecated
-	public static String timeStepSize;
-	
-	/**
-	 * 
-	 */
-	@Deprecated
-	public static String endOfSimulation;
+	public String simulationComment;
 
-	public static String idynomicsRoot = "";
+	public String idynomicsRoot = "";
 	
 	/**************************************************************************
 	 * LOADING
 	 *************************************************************************/
+	
+	public static void init()
+	{
+	// TODO safety: check the root exists, and the name is acceptable
+			Idynomics.global.outputRoot = Helper.obtainInput(Idynomics.global.outputRoot, "Required " + 
+					XmlLabel.outputFolder, true);
+			Idynomics.global.simulationName = Helper.obtainInput(Idynomics.global.simulationName, "Required"
+					+ " simulation name", true);
+			Idynomics.global.outputLocation = Idynomics.global.outputRoot + "/" + Idynomics.global.simulationName + "/";
+	}
 	
 	/**
 	 * \brief Method for loading the 
@@ -80,10 +78,10 @@ public class Param
 		 *   
 		 */
 		// TODO safety: check the root exists, and the name is acceptable
-		outputRoot = XmlHandler.obtainAttribute(elem, XmlLabel.outputFolder);
-		simulationName = 
+		Idynomics.global.outputRoot = XmlHandler.obtainAttribute(elem, XmlLabel.outputFolder);
+		Idynomics.global.simulationName = 
 					XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
-		outputLocation = outputRoot + "/" + simulationName + "/";
+		Idynomics.global.outputLocation = Idynomics.global.outputRoot + "/" + Idynomics.global.simulationName + "/";
 		/* 
 		 * Set up the log file.
 		 */
@@ -108,7 +106,7 @@ public class Param
 		/* 
 		 * 
 		 */
-		simulationComment = 
+		Idynomics.global.simulationComment = 
 				XmlHandler.gatherAttribute(elem, XmlLabel.commentAttribute);
 	}
 }

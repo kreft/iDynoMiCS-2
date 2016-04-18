@@ -16,7 +16,7 @@ import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import idynomics.Simulator;
 import linearAlgebra.Vector;
-import processManager.SolveDiffusionTransient;
+import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeLibrary;
 import shape.ShapeConventions.DimName;

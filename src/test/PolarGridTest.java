@@ -28,7 +28,7 @@ import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
 import idynomics.Simulator;
 import linearAlgebra.Vector;
-import processManager.SolveDiffusionTransient;
+import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 import test.plotting.SpatialGridPlot3D;

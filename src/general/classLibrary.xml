@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 <!-- agent.state.library -->
-	<classRef>
-		<classDef name="StateExpression" package="agent.state.library." />
-		<classDef name="CoccoidCenter" package="agent.state.library." />
-		<classDef name="CoccoidRadius" package="agent.state.library." />
-		<classDef name="ComponentVolumeState" package="agent.state.library." />
-		<classDef name="DimensionsBoundingBox" package="agent.state.library." />
-		<classDef name="JointsState" package="agent.state.library." />
-		<classDef name="LowerBoundingBox" package="agent.state.library." />
-		<classDef name="SimpleSurface" package="agent.state.library." />
-		<classDef name="SimpleVolumeState" package="agent.state.library." />
-	</classRef>
+	<classDef package="aspect.calculated." name="AgentSurfaces" />
+	<classDef package="aspect.calculated." name="CoccoidRadius" />
+	<classDef package="aspect.calculated." name="ComponentVolumeState" />
+	<classDef package="aspect.calculated." name="SimpleVolumeState" />
+	<classDef package="aspect.calculated." name="StateExpression" />
+	<classDef package="aspect.calculated." name="VoxelDistributionMap" />
+<!-- agent.event.library -->
+	<classDef package="aspect.event." name="CoccoidDivision" />
+	<classDef package="aspect.event." name="ExcreteEPS" />
+	<classDef package="aspect.event." name="InternalProduction" />
+	<classDef package="aspect.event." name="ResolveInteractionDistance" />
+	<classDef package="aspect.event." name="SimpleGrowth" />
+	<classDef package="aspect.event." name="StochasticMove" />
+	<classDef package="aspect.event." name="UpdateBody" />
+<!-- processManager -->
+	<classDef package="processManager.library." name="AgentGrowth" />
+	<classDef package="processManager.library." name="AgentRelaxation" />
+	<classDef package="processManager.library." name="AgentStochasticMove" />
+	<classDef package="processManager.library." name="RefreshMassGrids" />
+	<classDef package="processManager.library." name="SolveChemostat" />
+	<classDef package="processManager.library." name="SolveDiffusionTransient" />
+	<classDef package="processManager.library." name="StepAllAgents" />
+	<classDef package="processManager.library." name="WriteAgentsSvg" />
 </document>

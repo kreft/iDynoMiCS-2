@@ -108,7 +108,7 @@ public class Log
 	public static void set(Tier level)
 	{
 		outputLevel = level;
-		if ( Param.outputLocation != null &&  ! logFile.isReady() )
+		if ( Idynomics.global.outputLocation != null &&  ! logFile.isReady() )
 			setupFile();
 	}
 	
@@ -160,7 +160,7 @@ public class Log
 	private static void setupFile()
 	{
 		//FIXME for some reason this sometimes fails with user provided location
-		logFile.fnew(Param.outputLocation + "/log.txt");
+		logFile.fnew(Idynomics.global.outputLocation + "/log.txt");
 		logFile.flushAll = true;
 		out(Tier.QUIET, Idynomics.fullDescription() + 
 				"\nOutput level is " + outputLevel +

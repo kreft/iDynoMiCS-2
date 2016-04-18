@@ -17,6 +17,7 @@ import linearAlgebra.Vector;
 /**
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk)
+ * @deprecated
  */
 public class SpatialGridTest
 {

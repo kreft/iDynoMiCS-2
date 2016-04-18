@@ -10,6 +10,10 @@ import dataIO.XmlLoad;
 import idynomics.Compartment;
 import utility.ExtraMath;
 
+/**
+ * 
+ * @deprecated
+ */
 public class XmlTest {
 
 	public static void main(String[] args)

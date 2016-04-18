@@ -23,9 +23,9 @@
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.1" />
 							</expression>
-							<stochiometric component="AOB" coefficient="1.0" />
-							<stochiometric component="solute1" coefficient="-1.0" />
-							<stochiometric component="solute2" coefficient="0.5" />
+							<stoichiometric component="AOB" coefficient="1.0" />
+							<stoichiometric component="solute1" coefficient="-1.0" />
+							<stoichiometric component="solute2" coefficient="0.5" />
 						</reaction>
 					</item>
 				</aspect>
@@ -35,20 +35,20 @@
 				<speciesModule name="coccoid" />
 			</species>
 			<species name="coccoid">
-				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		package="agent.state.library."  />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
 				<aspect name="morphology" 		type="String" 		value="coccoid" />
-				<aspect name="coccoidCenter" 	type="CALCULATED" 	class="CoccoidCenter" 			input="body" />
-				<aspect name="joints" 			type="CALCULATED" 	class="JointsState" 			input="body" />
+
+
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
-				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,growthRate" 	package="agent.event.library." />
-				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"			input="mass,radius,body" 	package="agent.event.library." />
-				<aspect name="surface" 			type="CALCULATED" 	class="SimpleSurface" 			input="body" />
-				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	package="agent.event.library." />
+				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,growthRate" 	 />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"			input="mass,radius,body" 	 />
+
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />
 			</species>
 			<species name="stochasticMover">
 				<aspect name="stochasticStep" type="Double" value="0.1" />
-				<aspect name="stochasticMove" type="EVENT" class="StochasticMove" package="agent.event.library." input="body,stochasticStep" />
+				<aspect name="stochasticMove" type="EVENT" class="StochasticMove"  input="body,stochasticStep" />
 			</species>
 		</speciesLib>
 
@@ -73,7 +73,7 @@
 					<expression value="1.0 * inflow">
 						<constant name="inflow" value="0.04" />
 					</expression>
-					<stochiometric component="solute1" coefficient="1.0" />
+					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>
 			</reactions>
 			<agents>
@@ -113,21 +113,21 @@
 			</agents>
 			<processManagers>
 				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
-					firstStep="0.0" package="processManager.">
+					firstStep="0.0" >
 					<aspect name="prefix" type="String" value="out_solute1" />
 					<aspect name="maxConcentration" type="Double" value="2.0" />
 					<aspect name="solute" type="String" value="solute1" />
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 				</process>
 				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
-					firstStep="0.0" package="processManager.">
+					firstStep="0.0" >
 					<aspect name="prefix" type="String" value="out_solute2" />
 					<aspect name="maxConcentration" type="Double" value="2.0" />
 					<aspect name="solute" type="String" value="solute2" />
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 				</process>
 				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
-					firstStep="0.0" package="processManager.">
+					firstStep="0.0" >
 					<aspect name="prefix" type="String" value="rate_solute2" />
 					<aspect name="maxConcentration" type="Double" value="2.0" />
 					<aspect name="solute" type="String" value="solute2" />
@@ -135,16 +135,16 @@
 					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
 				</process>
 				<!-- <process name="agentGrowth" class="AgentGrowth" priority="-0"
-					firstStep="0.0" package="processManager." />  -->
+					firstStep="0.0"  />  -->
 				<!-- <process name="agentMove" class="AgentStochasticMove"
-					priority="1" firstStep="0.0" package="processManager." /> -->
+					priority="1" firstStep="0.0"  /> -->
 				<process name="agentRelax" class="AgentRelaxation" priority="-2"
-					firstStep="0.0" package="processManager.">
+					firstStep="0.0" >
 					<aspect name="maxMovement" type="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="String" value="EULER" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
-					firstStep="0.0" package="processManager.">	
+					firstStep="0.0" >	
 					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 				</process>

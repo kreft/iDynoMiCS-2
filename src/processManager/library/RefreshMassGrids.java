@@ -1,8 +1,9 @@
-package processManager;
+package processManager.library;
 
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import processManager.ProcessManager;
 import agent.Agent;
 
 /**

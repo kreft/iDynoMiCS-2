@@ -9,11 +9,11 @@ import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Simulator;
-import processManager.AgentGrowth;
-import processManager.AgentRelaxation;
 import processManager.ProcessManager;
-import processManager.RefreshMassGrids;
-import processManager.SolveDiffusionTransient;
+import processManager.library.AgentGrowth;
+import processManager.library.AgentRelaxation;
+import processManager.library.RefreshMassGrids;
+import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
@@ -26,8 +26,8 @@ public class AgentCompartmentTest
 		Idynomics.simulator.timer.setTimeStepSize(1.0);
 		Idynomics.simulator.timer.setEndOfSimulation(25.0);
 		Log.set(Tier.DEBUG);
-		Param.simulationName = "test";
-		Param.outputLocation = "../results/test";
+		Idynomics.global.simulationName = "test";
+		Idynomics.global.outputLocation = "../results/test";
 		
 		Compartment aCompartment = 
 					Idynomics.simulator.addCompartment("myCompartment");

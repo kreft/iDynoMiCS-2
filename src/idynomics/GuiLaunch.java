@@ -25,6 +25,8 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import guiTools.GuiActions;
 import guiTools.GuiConsole;
+import guiTools.GuiEditor;
+import guiTools.GuiMain;
 import guiTools.GuiMenu;
 import guiTools.GuiSimConstruct;
 import guiTools.GuiSimControl;
@@ -50,7 +52,7 @@ public class GuiLaunch implements Runnable
 	/**
 	 * 
 	 */
-	private static JComponent currentView;
+	public static JComponent currentView;
 	/**
 	 * 
 	 */
@@ -165,7 +167,8 @@ public class GuiLaunch implements Runnable
 		horizontalLayoutGroup = layout.createParallelGroup();
 
 		drawButtons();
-		currentView = GuiSimConstruct.getConstructor();
+		
+		currentView = GuiMain.getConstructor();
 		
 		horizontalLayoutGroup.addComponent(currentView, 
 				GroupLayout.DEFAULT_SIZE, 
@@ -233,10 +236,31 @@ public class GuiLaunch implements Runnable
 		SequentialGroup buttonHoriz = layout.createSequentialGroup();
 		ParallelGroup buttonVert = layout.createParallelGroup();
 		JButton button;
+		
 		/* Check the simulation. */
-		button = GuiSimControl.checkButton();
+		button = GuiSimControl.openButton();
 		buttonHoriz.addComponent(button);
 		buttonVert.addComponent(button);
+		
+		/* new simulation */
+		button = new JButton("new");
+		{
+			button.addActionListener(new ActionListener()
+			{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
+				Idynomics.simulator = new Simulator();
+				Idynomics.global = new Param();
+				GuiMain.getConstructor();
+				GuiEditor.addComponent(Idynomics.simulator.getNode(), GuiMain.tabbedPane);
+			}
+		}
+		);
+		}
+		buttonHoriz.addComponent(button);
+		buttonVert.addComponent(button);
+		
 		/* Run the simulation. */
 		button = GuiSimControl.runButton();
 		buttonHoriz.addComponent(button);
@@ -252,6 +276,7 @@ public class GuiLaunch implements Runnable
 		buttonVert.addComponent(button);
 		///////////////////////////////////////////////////////////////////////
 		// TODO TESTING ONLY
+	
 		button = new JButton("Make sim (test)");
 		button.addActionListener(new ActionListener()
 		{

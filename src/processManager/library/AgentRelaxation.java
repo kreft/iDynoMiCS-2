@@ -1,7 +1,4 @@
-package processManager;
-
-import java.util.List;
-import java.util.concurrent.ForkJoinPool;
+package processManager.library;
 
 import org.w3c.dom.Element;
 
@@ -12,6 +9,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
+import processManager.ProcessManager;
 import surface.Collision;
 import surface.Point;
 import surface.Surface;

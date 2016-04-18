@@ -2,6 +2,7 @@ package idynomics;
 
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import org.w3c.dom.Element;
 
@@ -51,6 +52,22 @@ public class XMLableLibrary
 						"Could not obtain " + key + " from XMLableLibrary");
 			return null;
 		}
+	}
+	
+	/**
+	 * List all known classes (from classLibrary.xml) in given package
+	 * @param PackageDefinition
+	 * @return
+	 */
+	public List<String> getAll(String PackageDefinition)
+	{
+		List<String> out = new LinkedList<String>();
+		for (String key : _lib.keySet())
+		{
+			if( get(key).equals(PackageDefinition) )
+				out.add(key);
+		}
+		return out;
 	}
 	
 	/**

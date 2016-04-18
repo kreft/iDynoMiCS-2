@@ -15,13 +15,13 @@
 			<reactions>
 				<reaction name="testReact">
 					<expression value="solute1 * 0.1" />
-					<stochiometric component="solute1" coefficient="-1.0" />
-					<stochiometric component="solute2" coefficient="0.5" />
+					<stoichiometric component="solute1" coefficient="-1.0" />
+					<stoichiometric component="solute2" coefficient="0.5" />
 				</reaction>
 			</reactions>
 			<processManagers>
 				<process name="solveChemostat" class="SolveChemostat" priority="0"
-					firstStep="0.0" package="processManager.">
+					firstStep="0.0" >
 					<aspect name="soluteNames" type="String[]" value="solute1,solute2" />
 					<aspect name="tolerance" type="Double" value="1.0e-3" />
 					<aspect name="hMax" type="Double" value="1.0e-3" />

@@ -26,12 +26,18 @@ import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
+import nodeFactory.NodeConstructor;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
 import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
+import shape.ShapeLibrary;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -41,7 +47,7 @@ import shape.ShapeConventions.DimName;
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
+public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -80,6 +86,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	protected double _localTime;
 	
+	public ModelNode modelNode;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -89,14 +97,15 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		
 	}
 	
-	public Compartment(Shape aShape)
+	public Compartment(String name)
 	{
-		this.setShape(aShape);
+		this.name = name;
 	}
 	
-	public Compartment(String aShapeName)
+	public NodeConstructor newBlank()
 	{
-		this((Shape) Shape.getNewInstance(aShapeName));
+		Compartment newComp = new Compartment();
+		return newComp;
 	}
 	
 	/**
@@ -122,14 +131,15 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	public void init(Element xmlElem)
 	{
 		Element elem;
-		String str;
+		String str = null;
 		/*
 		 * Set up the shape.
 		 */
 		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.compartmentShape);
-		str = XmlHandler.gatherAttribute(elem, XmlLabel.classAttribute);
+		str = XmlHandler.obtainAttribute(elem, XmlLabel.classAttribute);
 		this.setShape( (Shape) Shape.getNewInstance(str) );
 		this._shape.init( elem );
+		
 		/*
 		 * Give it solutes.
 		 * NOTE: wouldn't we want to pass initial grid values to? It would also
@@ -262,7 +272,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 	
 	public void init()
 	{
-		this._shape.setSurfaces();
+		
 		this._environment.init();
 	}
 	
@@ -496,5 +506,43 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable
 		{
 			return null;
 		}
+	}
+	
+	public ModelNode getNode()
+	{
+		if (modelNode == null)
+		{
+		ModelNode myNode = new ModelNode(XmlLabel.compartment, this);
+		myNode.requirement = Requirements.ZERO_TO_FEW;
+		
+		myNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+				this.getName(), null, true ));
+		
+		if ( this._shape !=null )
+			myNode.add(_shape.getNode());
+		
+		// Work around
+		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), ModelNode.Requirements.EXACTLY_ONE);
+		
+		modelNode = myNode;
+		}
+		
+		return modelNode;
+		
+	}
+
+	public void setNode(ModelNode node) {
+		this.name = node.getAttribute(XmlLabel.nameAttribute).value;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+		if( childObject instanceof Shape)
+			this.setShape((Shape) childObject); 
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		return XmlLabel.compartment;
 	}
 }

@@ -77,7 +77,7 @@ public class XmlHandler
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			System.err.println("Error while loading: " + document + "\n"
 					+ "error message: " + e.getMessage());
-			document = Helper.obtainInput(null, "Atempt to re-obtain document",
+			document = Helper.obtainInput("", "Atempt to re-obtain document",
 					true);
 			return loadDocument(document);
 		}
@@ -101,7 +101,7 @@ public class XmlHandler
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			System.err.println("Error while loading: " + resource + "\n"
 					+ "error message: " + e.getMessage());
-			resource = Helper.obtainInput(null, "Atempt to re-obtain document",
+			resource = Helper.obtainInput("", "Atempt to re-obtain document",
 					true);
 			return null;
 		}
@@ -116,7 +116,7 @@ public class XmlHandler
 	{
 		try {
 			String current = new java.io.File( "" ).getCanonicalPath();
-			File fXmlFile = new File(current + "/" + Param.idynomicsRoot + "/" + document);
+			File fXmlFile = new File(current + "/" + Idynomics.global.idynomicsRoot + "/" + document);
 			DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
 			Document doc;
@@ -126,7 +126,7 @@ public class XmlHandler
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			System.err.println("Error while loading: " + document + "\n"
 					+ "error message: " + e.getMessage());
-			document = Helper.obtainInput(null, "Atempt to re-obtain document",
+			document = Helper.obtainInput("", "Atempt to re-obtain document",
 					true);
 			return loadResource(document);
 		}
@@ -189,23 +189,8 @@ public class XmlHandler
 			return  xmlElement.getAttribute(attribute);
 		else
 		{
-			@SuppressWarnings("resource")
-			Scanner user_input = new Scanner( System.in );
-			//NOTE put this here since output line order was sometimes swapped.
-			Helper.pause(50);
-			System.out.println(xmlElement.getNodeName() + " misses the "
-									+ "attribute: \"" + attribute + "\"" );
-			/* Tell the user what attribute it did find. */
-			System.out.println("\tAttributes found:");
-			NamedNodeMap nnm = xmlElement.getAttributes();
-			for ( int i = 0; i < nnm.getLength(); i++ )
-			{
-				Node n = nnm.item(i);
-				System.out.println("\t\t"+n.getNodeName()+", "+n.getNodeValue());
-			}
-			/* Ask for the missing one. */
-			System.out.print("Please enter a value for "+attribute+": ");
-			return user_input.next( );
+			return Helper.obtainInput(null, "Required " + attribute +
+					" from missing xml node: " + xmlElement.getLocalName());
 		}
 	}
 	
