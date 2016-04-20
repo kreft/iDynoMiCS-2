@@ -36,6 +36,11 @@ package linearAlgebra;
  */
 public final class Matrix
 {
+	/**
+	 * Character that separates rows of a matrix in {@code String} format.
+	 */
+	public final static String DELIMITER = ";";
+	
 	/*************************************************************************
 	 * STANDARD NEW MATRICES
 	 ************************************************************************/
@@ -319,6 +324,100 @@ public final class Matrix
 	public static double[][] identity(double[][] matrix)
 	{
 		return identityDbl(rowDim(matrix), colDim(matrix));
+	}
+	
+	/**
+	 * \brief Gets a new matrix of integers from a string.
+	 * 
+	 * @param matrixString String containing a matrix of integers.
+	 * @return int[][] matrix of integers from this string.
+	 * @see #dblFromString(String)
+	 */
+	public static int[][] intFromString(String matrixString)
+	{
+		String[] rows = matrixString.split(DELIMITER);
+		int[][] matrix = new int[rows.length][];
+		for ( int i = 0; i < rows.length; i++ )
+			matrix[i] = Vector.intFromString(rows[i]);
+		return matrix;
+	}
+	
+	/**
+	 * \brief Gets a new matrix of doubles from a string.
+	 * 
+	 * @param matrixString String containing a matrix of doubles.
+	 * @return int[][] matrix of doubles from this string.
+	 * @see #intFromString(String)
+	 */
+	public static double[][] dblFromString(String matrixString)
+	{
+		String[] rows = matrixString.split(DELIMITER);
+		double[][] matrix = new double[rows.length][];
+		for ( int i = 0; i < rows.length; i++ )
+			matrix[i] = Vector.dblFromString(rows[i]);
+		return matrix;
+	}
+	
+	/**
+	 * \brief Returns integer matrix in string format.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @return String representation of this <b>matrix</b>.
+	 */
+	public static String toString(int[][] matrix)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(matrix, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Returns double matrix in string format.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return String representation of this <b>matrix</b>.
+	 */
+	public static String toString(double[][] matrix)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(matrix, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Converts the given <b>matrix</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(int[][] matrix, StringBuffer buffer)
+	{
+		int n = matrix.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Vector.toString(matrix[i], buffer);
+			buffer.append(DELIMITER);
+		}
+		Vector.toString(matrix[n], buffer);
+	}
+	
+	/**
+	 * \brief Converts the given <b>matrix</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(double[][] matrix, StringBuffer buffer)
+	{
+		int n = matrix.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Vector.toString(matrix[i], buffer);
+			buffer.append(DELIMITER);
+		}
+		Vector.toString(matrix[n], buffer);
 	}
 	
 	/*************************************************************************

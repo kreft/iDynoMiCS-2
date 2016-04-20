@@ -24,17 +24,33 @@ public final class ObjectRef
 	 */
 	public final static String INT = "Integer";
 	/**
-	 * Integer array, i.e. a list of whole numbers.
+	 * Integer vector, i.e. a list of whole numbers.
 	 */
 	public final static String INT_VECT = INT+"[]";
+	/**
+	 * Integer matrix, i.e. a 2-dimensional collection of whole numbers.
+	 */
+	public final static String INT_MATR = INT_VECT+"[]";
+	/**
+	 * Integer array, i.e. a 3-dimensional collection of whole numbers.
+	 */
+	public final static String INT_ARRY = INT_MATR+"[]";
 	/**
 	 * Double, i.e. a real number.
 	 */
 	public final static String DBL = "Double";
 	/**
-	 * Double array, i.e. a list of real numbers.
+	 * Double vector, i.e. a list of real numbers.
 	 */
 	public final static String DBL_VECT = DBL+"[]";
+	/**
+	 * Double matrix, i.e. a 2-dimensional collection of real numbers.
+	 */
+	public final static String DBL_MATR = DBL_VECT+"[]";
+	/**
+	 * Double array, i.e. a 3-dimensional collection of real numbers.
+	 */
+	public final static String DBL_ARRY = DBL_MATR+"[]";
 	
 	// TODO HashMap, LinkedList, etc?
 }

@@ -62,8 +62,8 @@ public class BoundingBox
 	 */
 	public String getReport()
 	{
-		return "lower: " + Vector.dblToString(lower) + " dimensions: " + 
-				Vector.dblToString(dimensions);
+		return "lower: " + Vector.toString(lower) + " dimensions: " + 
+				Vector.toString(dimensions);
 	}
 	
 	/**

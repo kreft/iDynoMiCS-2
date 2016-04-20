@@ -16,6 +16,11 @@ import utility.ExtraMath;
  */
 public final class Array
 {
+	/**
+	 * Character that separates matrices of an array in {@code String} format.
+	 */
+	public final static String DELIMITER = "|";
+	
 	/*************************************************************************
 	 * STANDARD NEW ARRAYS
 	 ************************************************************************/
@@ -1407,5 +1412,99 @@ public final class Array
 	
 	
 	
-
+	
+	
+	/**
+	 * \brief Gets a new array of integers from a string.
+	 * 
+	 * @param arrayString String containing a array of integers.
+	 * @return int[][][] array of integers from this string.
+	 * @see #dblFromString(String)
+	 */
+	public static int[][][] intFromString(String arrayString)
+	{
+		String[] matrices = arrayString.split(DELIMITER);
+		int[][][] array = new int[matrices.length][][];
+		for ( int i = 0; i < matrices.length; i++ )
+			array[i] = Matrix.intFromString(matrices[i]);
+		return array;
+	}
+	
+	/**
+	 * \brief Gets a new matrix of doubles from a string.
+	 * 
+	 * @param arrayString String containing a matrix of doubles.
+	 * @return int[][] matrix of doubles from this string.
+	 * @see #intFromString(String)
+	 */
+	public static double[][][] dblFromString(String arrayString)
+	{
+		String[] matrices = arrayString.split(DELIMITER);
+		double[][][] array = new double[matrices.length][][];
+		for ( int i = 0; i < matrices.length; i++ )
+			array[i] = Matrix.dblFromString(matrices[i]);
+		return array;
+	}
+	
+	/**
+	 * \brief Returns integer array in string format.
+	 * 
+	 * @param array Three-dimensional array of integers (preserved).
+	 * @return String representation of this <b>matrix</b>.
+	 */
+	public static String toString(int[][][] array)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(array, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Returns double array in string format.
+	 * 
+	 * @param array Three-dimensional array of doubles (preserved).
+	 * @return String representation of this <b>matrix</b>.
+	 */
+	public static String toString(double[][][] array)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(array, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Converts the given <b>array</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param array Three-dimensional array of integers (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(int[][][] array, StringBuffer buffer)
+	{
+		int n = array.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Matrix.toString(array[i], buffer);
+			buffer.append(DELIMITER);
+		}
+		Matrix.toString(array[n], buffer);
+	}
+	
+	/**
+	 * \brief Converts the given <b>array</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param array Three-dimensional array of doubles (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(double[][][] array, StringBuffer buffer)
+	{
+		int n = array.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Matrix.toString(array[i], buffer);
+			buffer.append(DELIMITER);
+		}
+		Matrix.toString(array[n], buffer);
+	}
 }
