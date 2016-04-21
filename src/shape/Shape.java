@@ -5,6 +5,7 @@ package shape;
 
 import java.awt.event.ActionEvent;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,7 @@ import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
+import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Vector;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -50,7 +52,6 @@ import utility.Helper;
 public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
 
 {
-
 	/**
 	 * Ordered dictionary of dimensions for this shape.
 	 */
@@ -69,6 +70,32 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	protected Collection<Surface> _surfaces = new LinkedList<Surface>();
 	
 	public ModelNode modelNode;
+	
+	/**
+	 * Current coordinate considered by the internal iterator.
+	 */
+	protected int[] _currentCoord;
+	/**
+	 * Current neighbour coordinate considered by the neighbor iterator.
+	 */
+	protected int[] _currentNeighbor;
+	/**
+	 * Whether the neighbor iterator is currently valid (true) or invalid
+	 * (false).
+	 */
+	protected boolean _nbhValid;
+	/**
+	 * A helper vector for finding the location of the origin of a voxel.
+	 */
+	protected final static double[] VOXEL_ORIGIN_HELPER = Vector.vector(3, 0.0);
+	/**
+	 * A helper vector for finding the location of the centre of a voxel.
+	 */
+	protected final static double[] VOXEL_CENTRE_HELPER = Vector.vector(3, 0.5);
+	/**
+	 * A helper vector for finding the 'upper most' location of a voxel.
+	 */
+	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3, 1.0);
 	
 	
 	/*************************************************************************
@@ -110,7 +137,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	@Override
 	public NodeConstructor newBlank() {
 		return (Shape) Shape.getNewInstance(
-				Helper.obtainInput(this.getAllOptions(), "Shape class", false));
+				Helper.obtainInput(getAllOptions(), "Shape class", false));
 	}
 
 	@Override
@@ -175,6 +202,26 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
+	
+	public String getName()
+	{
+		return this.getClass().getSimpleName();
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public abstract GridGetter gridGetter();
+	
+	protected abstract double[] getLocalPosition(double[] cartesian);
+	
+	protected abstract double[] getGlobalLocation(double[] local);
 	
 	/*************************************************************************
 	 * DIMENSIONS
@@ -308,6 +355,8 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 		}
 	}
 	
+	public abstract void setDimensionResolution(DimName dName, ResCalc resC);
+	
 	/**
 	 * TODO Method to replace setSurfaces()
 	 * 
@@ -436,25 +485,14 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 		return this._dimensions.keySet();
 	}
 	
-	/*************************************************************************
-	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
-	
-	public String getName()
-	{
-		return this.getClass().getSimpleName();
-	}
-	
 	/**
 	 * \brief TODO
 	 * 
+	 * @param coord
+	 * @param axis
 	 * @return
 	 */
-	public abstract GridGetter gridGetter();
-	
-	protected abstract double[] getLocalPosition(double[] cartesian);
-	
-	protected abstract double[] getGlobalLocation(double[] local);
+	protected abstract ResCalc getResolutionCalculator(int[] coord, int axis);
 	
 	/*************************************************************************
 	 * BOUNDARIES
@@ -612,6 +650,70 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	}
 	
 	/*************************************************************************
+	 * VOXELS
+	 ************************************************************************/
+	
+	/**
+	 * \brief Converts a coordinate in the grid's array to a location in simulated 
+	 * space. 
+	 * 
+	 * 'Subcoordinates' can be transformed using the 'inside' array.
+	 * For example type getLocation(coord, new double[]{0.5,0.5,0.5})
+	 * to get the center point of the grid cell defined by 'coord'.
+	 * 
+	 * @param coord - a coordinate in the grid's array.
+	 * @param inside - relative position inside the grid cell.
+	 * @return - the location in simulation space.
+	 */
+	public double[] getLocation(int[] coord, double[] inside)
+	{
+		double[] loc = Vector.copy(inside);
+		ResCalc rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			rC = this.getResolutionCalculator(coord, dim);
+			loc[dim] *= rC.getResolution(coord[dim]);
+			loc[dim] += rC.getCumulativeResolution(coord[dim] - 1);
+		}
+		return loc;
+	}
+	
+	/**
+	 * \brief Find the location of the lower corner of the voxel specified by
+	 * the given coordinates.
+	 * 
+	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @return Continuous location of the lower corner of this voxel.
+	 */
+	public double[] getVoxelOrigin(int[] coord)
+	{
+		return getLocation(coord, VOXEL_ORIGIN_HELPER);
+	}
+	
+	/**
+	 * \brief Find the location of the centre of the voxel specified by the
+	 * given coordinates.
+	 * 
+	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @return Continuous location of the centre of this voxel.
+	 */
+	public double[] getVoxelCentre(int[] coord)
+	{
+		return getLocation(coord, VOXEL_CENTRE_HELPER);
+	}
+	
+	/**
+	 * \brief Get the corner farthest from the origin of the voxel specified. 
+	 * 
+	 * @param coord
+	 * @return
+	 */
+	protected double[] getVoxelUpperCorner(int[] coord)
+	{
+		return getLocation(coord, VOXEL_All_ONE_HELPER);
+	}
+	
+	/*************************************************************************
 	 * PRE-LAUNCH CHECK
 	 ************************************************************************/
 	
@@ -705,6 +807,12 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	
 	public static abstract class Polar extends Shape
 	{
+		/**
+		 * TODO
+		 */
+		protected HashMap<DimName,ResCalc> _rcStorage =
+											new HashMap<DimName,ResCalc>();
+		
 		public Polar()
 		{
 			super();
@@ -712,6 +820,19 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 			Dimension dim = new Dimension();
 			dim.setBoundaryOptional(0);
 			this._dimensions.put(DimName.R, dim);
+		}
+		
+		/**
+		 * \brief Try to initialise a resolution calculator from storage, for a
+		 * dimension that is dependent on another.
+		 * 
+		 * @param dName Name of the dimension to try.
+		 */
+		protected void trySetDimRes(DimName dName)
+		{
+			ResCalc rC = this._rcStorage.get(dName);
+			if ( rC != null )
+				this.setDimensionResolution(dName, rC);
 		}
 	}
 }
