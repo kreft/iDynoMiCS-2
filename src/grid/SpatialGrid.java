@@ -67,7 +67,7 @@ public abstract class SpatialGrid
 		DIFFUSIVITY,
 		/**
 		 * A measure of how well-mixed a solute is. A diffusion-reaction should
-		 * ignore where this is above a certain threshold.   
+		 * ignore where this is above a certain threshold.
 		 */
 		WELLMIXED,
 		/**

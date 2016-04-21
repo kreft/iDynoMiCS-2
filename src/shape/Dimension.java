@@ -18,6 +18,7 @@ import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import grid.resolution.ResolutionCalculator.ResCalc;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
@@ -73,6 +74,8 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 * If this is a cyclic dimension, different rules apply.
 	 */
 	protected boolean _isCyclic = false;
+	
+	protected ResCalc _resCalc;
 	
 	/**************************************************************************
 	 * CONSTRUCTORS
@@ -449,5 +452,23 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		}
 	}
 	
+	/*************************************************************************
+	 * ANGULAR DIMENSION
+	 ************************************************************************/
 	
+	public ResCalc getResCalc()
+	{
+		return this._resCalc;
+	}
+	
+	public static class AngularDimension extends Dimension
+	{
+		public ResCalc getResCalc(double radius)
+		{
+			ResCalc out = (ResCalc) this._resCalc.copy();
+			
+			
+			return out;
+		}
+	}
 }
