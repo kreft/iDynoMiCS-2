@@ -17,10 +17,11 @@ import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
 import surface.Point;
+import surface.Rod;
 import surface.Ball;
 
 /**
- * \brief TODO
+ * \brief Collection of instanciable {@code Shape} classes.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Stefan Lang, Friedrich-Schiller University Jena
@@ -34,9 +35,10 @@ public final class ShapeLibrary
 	 ************************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief A zero-dimensional shape, which only has a volume.
 	 * 
-	 * 
+	 * <p>Used by {@code Compartment}s without spatial structure, e.g. a
+	 * chemostat.</p>
 	 */
 	public static class Dimensionless extends Shape
 	{
@@ -56,6 +58,11 @@ public final class ShapeLibrary
 			this._volume = Double.parseDouble(str);
 		}
 		
+		/**
+		 * \brief Set this dimensionless shape's volume.
+		 * 
+		 * @param volume New volume to use.
+		 */
 		public void setVolume(double volume)
 		{
 			this._volume = volume;
@@ -68,11 +75,13 @@ public final class ShapeLibrary
 			return DummyGrid.dimensionlessGetter(this._volume);
 		}
 		
+		@Override
 		public double[] getLocalPosition(double[] location)
 		{
 			return location;
 		}
 		
+		@Override
 		public double[] getGlobalLocation(double[] local)
 		{
 			return local;
@@ -80,9 +89,7 @@ public final class ShapeLibrary
 		
 		public void setSurfs()
 		{
-			/*
-			 * Do nothing!
-			 */
+			/* Do nothing! */
 		}
 		
 		public boolean isReadyForLaunch()
@@ -99,15 +106,14 @@ public final class ShapeLibrary
 		}
 
 		@Override
-		public void setDimensionResolution(DimName dName, ResCalc resC) {
-			// TODO Auto-generated method stub
-			
+		public void setDimensionResolution(DimName dName, ResCalc resC)
+		{
+			/* Do nothing! */
 		}
 
 		@Override
 		protected ResCalc getResolutionCalculator(int[] coord, int axis)
 		{
-			// TODO Auto-generated method stub
 			return null;
 		}
 	}
@@ -117,12 +123,13 @@ public final class ShapeLibrary
 	 ************************************************************************/
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * 
+	 * \brief One-dimensional, straight {@code Shape} class.
 	 */
 	public static class Line extends Shape
 	{
+		/**
+		 * Array of resolution calculators used by all linear {@code Shape}s.
+		 */
 		protected ResCalc[] _resCalc;
 		
 		public Line()
@@ -139,16 +146,19 @@ public final class ShapeLibrary
 			return CartesianGrid.standardGetter();
 		}
 		
+		@Override
 		public double[] getLocalPosition(double[] location)
 		{
 			return location;
 		}
 		
+		@Override
 		public double[] getGlobalLocation(double[] local)
 		{
 			return local;
 		}
 		
+		@Override
 		public void setSurfs()
 		{
 			this.setPlanarSurfaces(DimName.X);
@@ -170,9 +180,7 @@ public final class ShapeLibrary
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * 
+	 * \brief Two-dimensional, straight {@code Shape} class.
 	 */
 	public static class Rectangle extends Line
 	{
@@ -182,6 +190,7 @@ public final class ShapeLibrary
 			this._dimensions.put(DimName.Y, new Dimension());
 		}
 		
+		@Override
 		public void setSurfs()
 		{
 			/* Do the X dimension. */
@@ -192,9 +201,7 @@ public final class ShapeLibrary
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * 
+	 * \brief Three-dimensional, straight {@code Shape} class.
 	 */
 	public static class Cuboid extends Rectangle
 	{
@@ -218,9 +225,8 @@ public final class ShapeLibrary
 	 ************************************************************************/
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * 
+	 * \brief Two-dimensional, round {@code Shape} class with an assumed linear
+	 * thickness.
 	 */
 	public static class Circle extends Shape.Polar
 	{
@@ -257,7 +263,14 @@ public final class ShapeLibrary
 		
 		public void setSurfs()
 		{
-			// TODO
+			int nDim = this.getNumberOfDimensions();
+			Dimension radiusDim = this.getDimension(DimName.R);
+			double[] pointA = Vector.zerosDbl(nDim);
+			double[] pointB = Vector.zerosDbl(nDim);
+			// TODO need to calculate pointB!
+			double radius = radiusDim.getExtreme(1);
+			Rod rod = new Rod(pointA, pointB, radius);
+			this._surfaces.add(rod);
 		}
 
 		@Override
@@ -314,9 +327,8 @@ public final class ShapeLibrary
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * 
+	 * \brief Three-dimensional, round {@code Shape} class with a linear third
+	 * dimension.
 	 */
 	public static class Cylinder extends Circle
 	{
@@ -348,12 +360,14 @@ public final class ShapeLibrary
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * 
+	 * \brief Three-dimensional, round {@code Shape} class with both second and
+	 * third dimensions angular.
 	 */
 	public static class Sphere extends Shape.Polar
 	{
+		/**
+		 * Collection of resolution calculators for each dimension.
+		 */
 		protected ResCalc[][][] _resCalc;
 		
 		public Sphere()
@@ -370,7 +384,9 @@ public final class ShapeLibrary
 			dim.setCyclic();
 			dim.setLength(2 * Math.PI);
 			this._dimensions.put(DimName.THETA, dim);
-			
+			/*
+			 * Set up the array of resolution calculators.
+			 */
 			this._resCalc = new ResCalc[3][][];
 			/* radius */
 			this._resCalc[0] = new ResCalc[1][];
@@ -386,11 +402,13 @@ public final class ShapeLibrary
 			return null;
 		}
 		
+		@Override
 		public double[] getLocalPosition(double[] location)
 		{
 			return Vector.toPolar(location);
 		}
 		
+		@Override
 		public double[] getGlobalLocation(double[] local)
 		{
 			return Vector.toCartesian(local);

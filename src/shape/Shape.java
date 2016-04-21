@@ -355,6 +355,13 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 		}
 	}
 	
+	/**
+	 * \brief Set the resolution calculator for the given dimension, taking
+	 * care to resolve any dependencies on other dimensions.
+	 * 
+	 * @param dName The name of the dimension to set for.
+	 * @param resC A resolution calculator.
+	 */
 	public abstract void setDimensionResolution(DimName dName, ResCalc resC);
 	
 	/**
@@ -363,6 +370,11 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	 */
 	public abstract void setSurfs();
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param aDimName
+	 */
 	protected void setPlanarSurfaces(DimName aDimName)
 	{
 		Dimension dim = this.getDimension(aDimName);
