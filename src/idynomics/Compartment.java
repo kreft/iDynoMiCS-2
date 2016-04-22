@@ -521,8 +521,10 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		if ( this._shape !=null )
 			myNode.add(_shape.getNode());
 		
-		// Work around
-		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), ModelNode.Requirements.EXACTLY_ONE);
+		/* Work around: we need an object in order to call the newBlank method
+		 * from TODO investigate a cleaner way of doing this  */
+		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), 
+				ModelNode.Requirements.EXACTLY_ONE);
 		
 		modelNode = myNode;
 		}
