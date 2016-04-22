@@ -31,8 +31,16 @@ import nodeFactory.NodeConstructor;
  */
 public class GuiEditor
 {
-	static HashMap<ModelAttribute,JTextArea> attributes = new HashMap<ModelAttribute,JTextArea>();
+	/**
+	 * Hashmap of all gui TextAreas associated with their ModelAttribute
+	 */
+	static HashMap<ModelAttribute,JTextArea> attributes = 
+			new HashMap<ModelAttribute,JTextArea>();
 	
+	/**
+	 * Obtain all attribute textarea values and set them in the modelAttribute
+	 * objects.
+	 */
 	public static void setAttributes()
 	{
 		for ( ModelAttribute a : attributes.keySet())
@@ -50,9 +58,14 @@ public class GuiEditor
 		component.setLayout(new WrapLayout(FlowLayout.LEFT, 0, 0));
 		JPanel attr = new JPanel();
 		attr.setLayout(new WrapLayout(FlowLayout.LEFT, 5, 5));
+		
+		/* loop trough child constructors */
 		for(NodeConstructor c : node.childConstructors.keySet())
 		{
-			if(node.childConstructors.get(c) == Requirements.EXACTLY_ONE && node.getChildNodes(c.defaultXmlTag()).isEmpty())
+			/* add child to interface if exactly one is required and the node
+			 * is not present yet */
+			if(node.childConstructors.get(c) == Requirements.EXACTLY_ONE && 
+					node.getChildNodes(c.defaultXmlTag()).isEmpty())
 			{
 				NodeConstructor newNode = c.newBlank();
 				node.add(newNode.getNode());
@@ -60,11 +73,13 @@ public class GuiEditor
 			}
 			else if(node.childConstructors.get(c) == Requirements.EXACTLY_ONE)
 			{
-				// childNode already present
+				// required unique childNode is already present: do nothing
 			}
 			else
 			{
-				attr.add(GuiComponent.actionButton(c.defaultXmlTag(), new JButton("add"), new ActionListener()
+				/* add button for optional childnode(s) */
+				attr.add(GuiComponent.actionButton(c.defaultXmlTag(), 
+						new JButton("add"), new ActionListener()
 				{
 					@Override
 					public void actionPerformed(ActionEvent event)
@@ -79,6 +94,7 @@ public class GuiEditor
 			}
 		}
 		
+		/* add textareas for this ModelNode's attributes */
 		for(ModelAttribute a : node.attributes)
 		{
 			JTextArea input = new JTextArea();
@@ -89,21 +105,27 @@ public class GuiEditor
 		}
 		component.add(attr);
 		
+		/* placement of this ModelNode in the gui */
 		if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
 		{
+			/* exactly one: append this component to the parent component */
 			parent.add(component, null);
 			parent.revalidate();
 		}
 		else if( node.requirement == Requirements.ZERO_TO_FEW)
 		{
-			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), node.tag, tabs, "");
+			/* exception for compartments add component as tab next to the
+			 * parent tab (simulation) */
+			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
+					node.tag, tabs, "");
 		} 
 		else
 		{
+			/* else add component as Child tab of parent */
 			GuiComponent.addTab((JTabbedPane) parent, node.tag, tabs, "");
 		}
 		
-		
+		/* add childnodes of this component to the gui */
 		for(ModelNode n : node.childNodes)
 			addComponent(n, component);
 	}
