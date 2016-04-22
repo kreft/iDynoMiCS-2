@@ -49,50 +49,60 @@ public class GuiLaunch implements Runnable
 	 * 
 	 */
 	private static JFrame masterFrame;
+	
 	/**
 	 * 
 	 */
 	public static JComponent currentView;
+	
 	/**
 	 * 
 	 */
 	private static GroupLayout layout;
+	
 	/**
 	 * 
 	 */
 	public static SequentialGroup verticalLayoutGroup;
+	
 	/**
 	 * 
 	 */
 	public static ParallelGroup horizontalLayoutGroup;
+	
 	/**
 	 * 
 	 */
 	private static JProgressBar progressBar;
+	
 	/**
 	 * Flag telling this GUI whether to be full screen (true) or not (false).
 	 */
 	private static boolean isFullScreen = false;
+	
 	/**
-	 * 
+	 * For storing the dimension of the gui window in order to toggle between
+	 * full screen and previous size TODO seems the related code has been
+	 * removed, is this feature unwanted or should we restore?
 	 */
-	//TODO What is this for?
-	private static Dimension xgraphic;
+	private static Dimension windowedDimension;
+	
 	/**
-	 * 
+	 * For storing the position of the gui window in order to toggle between
+	 * full screen and previous state TODO seems the related code has been
+	 * removed, is this feature unwanted or should we restore?
 	 */
-	//TODO What is this for?
 	private static Point point = new Point(0,0);
+	
 	/**
 	 * System file path to the iDynoMiCS logo.
 	 */
 	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
+	
 	/**
 	 * 
 	 */
 	public static JPanel contentPane;
-	
-	
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -188,7 +198,7 @@ public class GuiLaunch implements Runnable
 		/* Bas: quick fix, coupled this to contentPane for now since old
 		 * structure is gone.
 		 */
-		keyBindings(contentPane, masterFrame);
+		keyBindings(contentPane);
 		
 		/* 
 		 * Checked this and works correctly, masterFrame stays at one component
@@ -202,15 +212,11 @@ public class GuiLaunch implements Runnable
 
 	/**
 	 * KeyBindings hosts a collection of actions which are initiate on key press
-	 * 
-	 * TODO What does this do? When I click enter, nothing happens...
- 	 * Bas [09.03.16] after something is broken after changing it please compare
- 	 * with previous version.
-	 * @param p
+	 * @param JComponent p, the component the keybingings will be asociated with
 	 * @param frame
 	 */
 	@SuppressWarnings("serial")
-	public static void keyBindings(JComponent p, JFrame frame) 
+	public static void keyBindings(JComponent p) 
 	{
 		ActionMap actionMap = p.getActionMap();
 		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -227,7 +233,9 @@ public class GuiLaunch implements Runnable
 		});
 	}
 	
-	
+	/**
+	 * TODO clean-up and comment
+	 */
 	public static void drawButtons() 
 	{
 		/*
