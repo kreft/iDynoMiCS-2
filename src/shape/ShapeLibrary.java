@@ -263,14 +263,42 @@ public final class ShapeLibrary
 		
 		public void setSurfs()
 		{
+			/*
+			 * The ends of the Rod axis.
+			 */
 			int nDim = this.getNumberOfDimensions();
-			Dimension radiusDim = this.getDimension(DimName.R);
 			double[] pointA = Vector.zerosDbl(nDim);
 			double[] pointB = Vector.zerosDbl(nDim);
-			// TODO need to calculate pointB!
-			double radius = radiusDim.getExtreme(1);
-			Rod rod = new Rod(pointA, pointB, radius);
-			this._surfaces.add(rod);
+			/*
+			 * Check if we need to use the Z dimension.
+			 */
+			// TODO move this into Cylinder somehow?
+			if ( this._dimensions.containsKey(DimName.Z) )
+			{
+				Dimension zDim = this.getDimension(DimName.Z);
+				pointA[2] = zDim.getExtreme(0);
+				pointB[2] = zDim.getExtreme(1);
+			}
+			/*
+			 * Find the radii and add the rod(s).
+			 */
+			Dimension radiusDim = this.getDimension(DimName.R);
+			/* If there is an inner radius, use it. */
+			double radius = radiusDim.getExtreme(0);
+			if ( radius > 0.0 )
+				this._surfaces.add(new Rod(pointA, pointB, radius));
+			/* We always use the outer radius. */
+			radius = radiusDim.getExtreme(1);
+			this._surfaces.add(new Rod(pointA, pointB, radius));
+			/*
+			 * If theta is not cyclic, we need to add two planes.
+			 */
+			Dimension thetaDim = this.getDimension(DimName.THETA);
+			if ( ! thetaDim.isCyclic() )
+			{
+				// TODO can we use Shape.setPlanarSurfaces() here?
+				// Probably depends on which coordinate system we use.
+			}
 		}
 
 		@Override
