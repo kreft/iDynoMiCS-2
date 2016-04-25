@@ -126,32 +126,37 @@ public final class ExtraMath
 	/* ----------------------- Simple calculations ------------------------ */
 	
 	/**
-	 * \brief TODO
+	 * \brief Check if the two {@code double}s are equal, with some tolerance.
 	 * 
-	 * @param x
-	 * @param y
-	 * @param absTol
-	 * @return
+	 * @param x Any real number.
+	 * @param y Any real number.
+	 * @param absTol The absolute tolerance (must be non-negative).
+	 * @throws IllegalArgumentException Negative tolerance.
+	 * @return True if <b>x</b> and <b>y</b> are sufficiently similar, false
+	 * if they are too different.
 	 */
 	public static final boolean areEqual(double x, double y, double absTol)
 	{
+		if ( absTol < 0.0 )
+			throw new IllegalArgumentException("Negative tolerance: "+absTol);
 		return Math.abs(x - y) < absTol;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the {@code double}-style division of two {@code int}s.
 	 * 
-	 * @param x
-	 * @param y
-	 * @return
+	 * @param numerator The number to divide.
+	 * @param denominator The number by which to divide.
+	 * @return <b>numerator</b> / <b>denominator</b>
 	 */
-	public static final double division(int x, int y)
+	public static final double division(int numerator, int denominator)
 	{
-		return ((double) x) / ((double) y);
+		return ((double) numerator) / ((double) denominator);
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force the given {@code double}, <b>x</b>, into the range
+	 * [<b>min</b>, <b>max</b>].
 	 * 
 	 * @param x Any real number.
 	 * @param min Minimum value permitted.
@@ -165,6 +170,30 @@ public final class ExtraMath
 		if ( x > max )
 			return max;
 		return x;
+	}
+	
+	/**
+	 * \brief Calculates the floor modulus of the {@code double} arguments.
+	 * 
+	 * <p>The floor modulus has the same sign as the <b>divisor</b>. Java's
+	 * native modulo operator, {@code %}, returns a result with the same sign
+	 * as the <b>dividend</b>. Where the two arguments have the same sign, the
+	 * result will be identical.</p>
+	 * 
+	 * <p>This is the equivalent of {@code Math.floorMod(int, int)} for real
+	 * numbers.</b>
+	 * 
+	 * @param dividend The dividend.
+	 * @param divisor The divisor.
+	 * @return The floor modulus.
+	 * @throws ArithmeticException if the <b>divisor</b> is zero.
+	 */
+	public static double floorMod(double dividend, double divisor)
+	{
+		double out = dividend % divisor;
+		if ( ! sameSign(out, divisor) )
+			out += divisor;
+		return out;
 	}
 	
 	/**
