@@ -88,7 +88,7 @@ public final class ShapeLibrary
 			return local;
 		}
 		
-		public void setSurfs()
+		public void setSurfaces()
 		{
 			/* Do nothing! */
 		}
@@ -172,7 +172,7 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void setSurfs()
+		public void setSurfaces()
 		{
 			this.setPlanarSurfaces(DimName.X);
 		}
@@ -224,10 +224,10 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void setSurfs()
+		public void setSurfaces()
 		{
 			/* Do the X dimension. */
-			super.setSurfs();
+			super.setSurfaces();
 			/* Now the Y dimension. */
 			this.setPlanarSurfaces(DimName.Y);
 		}
@@ -244,10 +244,10 @@ public final class ShapeLibrary
 			this._dimensions.put(DimName.Z, new Dimension());
 		}
 		
-		public void setSurfs()
+		public void setSurfaces()
 		{
 			/* Do the X and Y dimensions. */
-			super.setSurfs();
+			super.setSurfaces();
 			/* Now the Z dimension. */
 			this.setPlanarSurfaces(DimName.Z);
 		}
@@ -294,7 +294,7 @@ public final class ShapeLibrary
 			return Vector.toCartesian(local);
 		}
 		
-		public void setSurfs()
+		public void setSurfaces()
 		{
 			/*
 			 * The ends of the Rod axis.
@@ -454,10 +454,10 @@ public final class ShapeLibrary
 			return Vector.cylindricalToCartesian(local);
 		}
 		
-		public void setSurfs()
+		public void setSurfaces()
 		{
 			/* Do the R and THETA dimensions. */
-			super.setSurfs();
+			super.setSurfaces();
 			/* Now the Z dimension. */
 			this.setPlanarSurfaces(DimName.Z);
 		}
@@ -518,7 +518,7 @@ public final class ShapeLibrary
 			return Vector.toCartesian(local);
 		}
 		
-		public void setSurfs()
+		public void setSurfaces()
 		{
 			Dimension dim = this.getDimension(DimName.R);
 			double[] centre = Vector.zerosDbl(this.getNumberOfDimensions());

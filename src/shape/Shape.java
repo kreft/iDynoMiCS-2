@@ -38,8 +38,6 @@ import nodeFactory.NodeConstructor;
 import shape.Dimension.DimensionMaker;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
-import surface.Point;
-import surface.Ball;
 import surface.Surface;
 import utility.Helper;
 /**
@@ -51,7 +49,8 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
+public abstract class Shape implements
+					CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
 
 {
 	/**
@@ -72,7 +71,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	/**
 	 * TODO
 	 */
-	public ModelNode modelNode;
+	protected ModelNode _modelNode;
 	/**
 	 * Current coordinate considered by the internal iterator.
 	 */
@@ -110,25 +109,24 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	 ************************************************************************/
 	
 	@Override
-	public ModelNode getNode() {
-		if (modelNode == null)
+	public ModelNode getNode()
+	{
+		if ( this._modelNode == null )
 		{
-		ModelNode myNode = new ModelNode(XmlLabel.compartmentShape, this);
-		myNode.requirement = Requirements.EXACTLY_ONE;
-		
-		myNode.add(new ModelAttribute(XmlLabel.classAttribute, 
-				this.getName(), null, false ));
-		
-		modelNode = myNode;
+			ModelNode myNode = new ModelNode(XmlLabel.compartmentShape, this);
+			myNode.requirement = Requirements.EXACTLY_ONE;
+			myNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+											this.getName(), null, false ));
+			this._modelNode = myNode;
 		}
-		
-		return modelNode;
+		return this._modelNode;
 	}
 
 	@Override
 	public void setNode(ModelNode node)
 	{
-		// TODO Auto-generated method stub
+		// TODO check if a node is being overwritten?
+		this._modelNode = node;
 	}
 
 	@Override
@@ -144,9 +142,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 		// TODO Auto-generated method stub
 	}
 	
-	/**
-	 * @return TODO
-	 */
+	@Override
 	public String defaultXmlTag()
 	{
 		return XmlLabel.compartmentShape;
@@ -160,6 +156,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	 * 
 	 * @param xmlNode
 	 */
+	// TODO remove once ModelNode, etc is working
 	public void init(Element xmlElem)
 	{
 		NodeList childNodes;
@@ -369,22 +366,29 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	public abstract void setDimensionResolution(DimName dName, ResCalc resC);
 	
 	/**
-	 * TODO Method to replace setSurfaces()
+	 * \brief Set up this {@code Shape}'s surfaces.
 	 * 
+	 * <p>Surfaces are used by {@code Agent}s in collision detection.</p>
 	 */
-	public abstract void setSurfs();
+	public abstract void setSurfaces();
 	
 	/**
-	 * \brief TODO
+	 * \brief Set a flat surface at each extreme of the given dimension.
 	 * 
-	 * @param aDimName
+	 * @param aDimName The name of the dimension required.
 	 */
 	protected void setPlanarSurfaces(DimName aDimName)
 	{
 		Dimension dim = this.getDimension(aDimName);
-		// TODO safety if dim == null
+		/* Safety. */
+		if ( dim == null )
+			throw new IllegalArgumentException("Dimension not recognised");
+		/* Cyclic behaviour is handled elsewhere. */
 		if ( dim.isCyclic() )
 			return;
+		/*
+		 * Create planar surfaces at each extreme.
+		 */
 		int index = this.getDimensionIndex(aDimName);
 		double[] normal = Vector.zerosDbl( this.getNumberOfDimensions() );
 		Plane p;
@@ -399,84 +403,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	}
 	
 	/**
-	 * Set the collision surface object
-	 * 
-	 * NOTE: this would be a lot cleaner if the dimensions would be aware of 
-	 * their dimension (returning their own surface objects), but I could only 
-	 * found these information as the keyset of the hashmap.
-	 * FIXME Shape currently does not allow to set a starting point of the
-	 * domain.. this would be nice and necessary if we want to have an R minimum
-	 * hard boundary.. Imagine a biofilm growing on a particle.
-	 * TODO: cylinders, PHI, THETA planes, min surfaces that can be set.  
-	 */
-	public void setSurfaces()
-	{
-		for( DimName d : this._dimensions.keySet())
-		{
-			if(! this._dimensions.get(d)._isCyclic)
-			{
-				double[] normal = Vector.zerosDbl( this._dimensions.size() );
-				double[] min = Vector.zerosDbl( this._dimensions.size() );
-				switch (d)
-				{
-				case X:
-					normal[0] = 1.0;
-					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct( 
-							normal, min)));
-					normal[0] = -1.0;
-					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct(
-							normal, this.getDimensionLengths() )));
-					break;
-				case Y:
-					normal[1] = 1.0;
-					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct( 
-							normal, min )));
-					normal[1] = -1.0;
-					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct(
-							normal , this.getDimensionLengths() )));
-					break;
-				case Z:
-					normal[2] = 1.0;
-					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct( 
-							normal, min)));
-					normal[2] = -1.0;
-					_surfaces.add( new Plane( Vector.copy(normal) , Vector.dotProduct( 
-							normal , this.getDimensionLengths() )));
-					/*
-					 * FIXME the Cylinder has two dimensions but the second is
-					 * stored as Z does we have to make an exception for it...
-					 * or better, make the shape aware of its shape (enum?)
-					 * allows to create a switch case based on shape rather than
-					 * dimensions
-					 */
-					break;
-				case R:
-					/*
-					 * FIXME Shape currently does not allow to set a minimum R
-					 * thus we cannot set an Rmin hard boundary
-					 * TODO does the shape know whether it is of sphere type
-					 * or cylinder type otherwise we have to check whether
-					 * both R and PHI/THETA?/X?/Y?/Z? exists before we start the 
-					 * switch case. This should be stored somewhere since always 
-					 * reverse engineering this does not make a a lot of sense.
-					 */
-					Ball outbound = new Ball( new Point(min) ,
-							this._dimensions.get(d).getLength() );
-					outbound.bounding = true;
-					_surfaces.add(outbound);
-					break;
-				case PHI:
-					// TODO
-					break;
-				case THETA:
-					// TODO
-				}
-			}
-		}
-	}
-	
-	/**
-	 * returns the surfaces set for this shape
+	 * @return The set of {@code Surface}s for this {@code Shape}.
 	 */
 	public Collection<Surface> getSurfaces()
 	{
@@ -491,11 +418,15 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	 * 
 	 * @return {@code int} number of dimensions for this shape.
 	 */
+	// TODO clarify javadoc when dimensions restructured.
 	public int getNumberOfDimensions()
 	{
 		return this._dimensions.size();
 	}
 	
+	/**
+	 * @return The set of dimension names for this {@code Shape}.
+	 */
 	public Set<DimName> getDimensionNames()
 	{
 		return this._dimensions.keySet();
@@ -758,7 +689,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	}
 	
 	/*************************************************************************
-	 * SUBGRID POINTS
+	 * SUBVOXEL POINTS
 	 ************************************************************************/
 	
 	/**
@@ -947,6 +878,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/
+	// TODO remove all this once ModelNode, etc is working
 	
 	public List<InputSetter> getRequiredInputs()
 	{
@@ -1006,10 +938,22 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 		}
 	}
 	
+	/*************************************************************************
+	 * POLAR SHAPE
+	 ************************************************************************/
+	
+	/**
+	 * \brief Subclass of {@code Shape} that has at least one angular
+	 * dimension.
+	 * 
+	 * <p>Note that the size of voxels in angular dimensions will depend on
+	 * other dimensions.</p>
+	 */
 	public static abstract class Polar extends Shape
 	{
 		/**
-		 * TODO
+		 * Storage container for dimensions that this {@code Shape} is not yet
+		 * ready to initialise.
 		 */
 		protected HashMap<DimName,ResCalc> _rcStorage =
 											new HashMap<DimName,ResCalc>();
