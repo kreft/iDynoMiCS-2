@@ -1,7 +1,7 @@
 /**
  * 
  */
-package grid.resolution;
+package shape.resolution;
 
 import java.util.ArrayList;
 import java.util.function.DoubleFunction;

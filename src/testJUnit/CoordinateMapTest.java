@@ -2,7 +2,7 @@ package testJUnit;
 
 import org.junit.Test;
 
-import grid.subgrid.CoordinateMap;
+import shape.subgrid.CoordinateMap;
 import utility.ExtraMath;
 
 import static org.junit.Assert.assertTrue;

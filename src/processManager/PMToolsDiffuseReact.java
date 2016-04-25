@@ -12,14 +12,14 @@ import java.util.function.Predicate;
 import agent.Agent;
 import dataIO.XmlLabel;
 import grid.SpatialGrid;
-import grid.subgrid.CoordinateMap;
-import grid.subgrid.SubgridPoint;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import shape.Shape;
+import shape.subgrid.CoordinateMap;
+import shape.subgrid.SubvoxelPoint;
 import solver.PDEupdater;
 import surface.Collision;
 import surface.Surface;
@@ -88,7 +88,7 @@ public final class PMToolsDiffuseReact
 		double[] location;
 		double[] dimension = new double[3];
 		List<Agent> neighbors;
-		List<SubgridPoint> sgPoints;
+		List<SubvoxelPoint> sgPoints;
 		double[] pLoc;
 		Collision collision = new Collision(null, agents.getShape());
 		for ( int[] coord = shape.resetIterator(); 
@@ -124,7 +124,7 @@ public final class PMToolsDiffuseReact
 				List<Surface> surfaces =
 									(List<Surface>) a.get(NameRef.surfaceList);
 				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
-				sgLoop: for ( SubgridPoint p : sgPoints )
+				sgLoop: for ( SubvoxelPoint p : sgPoints )
 				{
 					/* Only give location in significant dimensions. */
 					pLoc = p.getRealLocation(nDim);

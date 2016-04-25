@@ -24,8 +24,6 @@ import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
-import grid.resolution.ResolutionCalculator.ResCalc;
-import grid.subgrid.SubgridPoint;
 import linearAlgebra.Vector;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -36,6 +34,8 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import shape.Dimension.DimensionMaker;
+import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.subgrid.SubvoxelPoint;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Surface;
@@ -700,13 +700,13 @@ public abstract class Shape implements
 	 * @param targetRes
 	 * @return
 	 */
-	public List<SubgridPoint> getCurrentSubvoxelPoints(double targetRes)
+	public List<SubvoxelPoint> getCurrentSubvoxelPoints(double targetRes)
 	{
 		/* 
 		 * Initialise the list and add a point at the origin.
 		 */
-		ArrayList<SubgridPoint> out = new ArrayList<SubgridPoint>();
-		SubgridPoint current = new SubgridPoint();
+		ArrayList<SubvoxelPoint> out = new ArrayList<SubvoxelPoint>();
+		SubvoxelPoint current = new SubvoxelPoint();
 		out.add(current);
 		/*
 		 * For each dimension, work out how many new points are needed and get
@@ -736,7 +736,7 @@ public abstract class Shape implements
 		// TODO this probably needs to be slightly different in polar grids
 		// to be completely accurate
 		double volume = this.getVoxelVolume(this._currentCoord) / out.size();
-		for ( SubgridPoint aSgP : out )
+		for ( SubvoxelPoint aSgP : out )
 		{
 			aSgP.realLocation = this.getLocation(this._currentCoord,
 													aSgP.internalLocation);

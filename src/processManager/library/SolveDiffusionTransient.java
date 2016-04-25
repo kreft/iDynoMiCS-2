@@ -13,7 +13,6 @@ import agent.Agent;
 import concurentTasks.ConcurrentWorker;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
-import grid.subgrid.SubgridPoint;
 import grid.wellmixedSetter.AllSame;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
@@ -22,6 +21,7 @@ import idynomics.NameRef;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import reaction.Reaction;
+import shape.subgrid.SubvoxelPoint;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEupdater;
@@ -146,7 +146,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		double[] location;
 		double[] dimension = new double[3];
 		List<Agent> neighbors;
-		List<SubgridPoint> sgPoints;
+		List<SubvoxelPoint> sgPoints;
 		HashMap<int[],Double> distributionMap;
 		Collision collision = new Collision(null, agents.getShape());
 		for ( int[] coord = solute.resetIterator(); 
@@ -194,7 +194,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				distributionMap = (HashMap<int[],Double>) 
 										a.getValue("volumeDistribution");
 				double[] pLoc;
-				sgLoop: for ( SubgridPoint p : sgPoints )
+				sgLoop: for ( SubvoxelPoint p : sgPoints )
 				{
 					/* 
 					 * Only give location in actual dimensions.
