@@ -18,6 +18,7 @@ import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
 import surface.Point;
 import surface.Rod;
+import utility.ExtraMath;
 import surface.Ball;
 
 /**
@@ -116,6 +117,18 @@ public final class ShapeLibrary
 		{
 			return null;
 		}
+		
+		protected void getNVoxel(int[] coords, int[] outNVoxel)
+		{
+			/* Dimensionless shapes have no voxels. */
+			Vector.reset(outNVoxel);
+		}
+		
+		@Override
+		public double getVoxelVolume(int[] coord)
+		{
+			return this._volume;
+		}
 	}
 	
 	/*************************************************************************
@@ -176,6 +189,26 @@ public final class ShapeLibrary
 		{
 			/* Coordinate is irrelevant here. */
 			return this._resCalc[axis];
+		}
+		
+		protected void getNVoxel(int[] coords, int[] outNVoxel)
+		{
+			for ( int dim = 0; dim < this.getNumberOfDimensions(); dim++ )
+				outNVoxel[dim] = this._resCalc[dim].getNVoxel();
+		}
+		
+		@Override
+		public double getVoxelVolume(int[] coord)
+		{
+			double out = 1.0;
+			ResCalc rC;
+			// TODO handle y, z dimensions
+			for ( int dim = 0; dim < 3; dim++ )
+			{
+				rC = this.getResolutionCalculator(coord, dim);
+				out *= rC.getResolution(coord[dim]);
+			}
+			return out;
 		}
 	}
 	
@@ -348,9 +381,52 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		protected ResCalc getResolutionCalculator(int[] coord, int axis)
+		protected ResCalc getResolutionCalculator(int[] coord, int dim)
 		{
-			return this._resCalc[axis][(axis == 1) ? coord[0] : 0];
+			int index = 0;
+			if ( dim == 1 )
+			{
+				index = coord[0];
+				// TODO check if valid?
+			}
+			return this._resCalc[dim][index];
+		}
+		
+		@Override
+		protected void getNVoxel(int[] coord, int[] outNVoxel)
+		{
+			int nDim = this.getNumberOfDimensions();
+			/* Initialise the out vector if necessary. */
+			if ( outNVoxel == null )
+				outNVoxel = Vector.zerosInt(nDim);
+			
+			ResCalc rC;
+			for ( int dim = 0; dim < nDim; dim++ )
+			{
+				// TODO check if coord is valid?
+				rC = this.getResolutionCalculator(coord, dim);
+				outNVoxel[dim] = rC.getNVoxel();
+			}
+		}
+		
+		@Override
+		public double getVoxelVolume(int[] coord)
+		{
+			double[] origin = this.getVoxelOrigin(coord);
+			double[] upper = this.getVoxelUpperCorner(coord);
+			/* 
+			 * r: pi times this number would be the area of a ring. 
+			 */
+			double volume = ExtraMath.sq(upper[0]) - ExtraMath.sq(origin[0]);
+			/* 
+			 * theta: this number divided by pi would be the arc length.
+			 */
+			volume *= (upper[1] - origin[1]) * 0.5;
+			/* 
+			 * z: height. 
+			 */
+			volume *= (upper[2] - origin[2]);
+			return volume;
 		}
 	}
 	
@@ -578,6 +654,28 @@ public final class ShapeLibrary
 				// TODO throw an exception?
 				default: return null;
 			}
+		}
+
+		@Override
+		protected void getNVoxel(int[] coords, int[] outNVoxel)
+		{
+			// TODO
+		}
+		
+		@Override
+		public double getVoxelVolume(int[] coord)
+		{
+			//TODO: wrong
+			// mathematica: Integrate[r^2 sin p,{p,p1,p2},{t,t1,t2},{r,r1,r2}] 
+			double[] loc1 = getVoxelOrigin(coord);
+			double[] loc2 = getVoxelUpperCorner(coord);
+			/* r */
+			double out = ExtraMath.cube(loc1[0]) - ExtraMath.cube(loc2[0]);
+			/* phi */
+			out *= loc1[1] - loc2[1];
+			/* theta */
+			out *= Math.cos(loc1[2]) - Math.cos(loc2[2]);
+			return out / 3.0;
 		}
 	}
 }

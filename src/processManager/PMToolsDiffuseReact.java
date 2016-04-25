@@ -19,6 +19,7 @@ import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
 import reaction.Reaction;
+import shape.Shape;
 import solver.PDEupdater;
 import surface.Collision;
 import surface.Surface;
@@ -78,9 +79,8 @@ public final class PMToolsDiffuseReact
 		/*
 		 * Set up the solute grids and the agents before we start to solve.
 		 */
-		// FIXME this is a temporary fix until we unify all grid resolutions.
-		String firstSolute = environment.getSoluteNames().iterator().next();
-		SpatialGrid solute = environment.getSoluteGrid(firstSolute);
+		
+		Shape shape = environment.getShape();
 		/*
 		 * Now fill these agent biomass distribution maps.
 		 */
@@ -91,12 +91,12 @@ public final class PMToolsDiffuseReact
 		List<SubgridPoint> sgPoints;
 		double[] pLoc;
 		Collision collision = new Collision(null, agents.getShape());
-		for ( int[] coord = solute.resetIterator(); 
-				solute.isIteratorValid(); coord = solute.iteratorNext())
+		for ( int[] coord = shape.resetIterator(); 
+				shape.isIteratorValid(); coord = shape.iteratorNext())
 		{
 			/* Find all agents that overlap with this voxel. */
-			location = solute.getVoxelOrigin(coord);
-			solute.getVoxelSideLengthsTo(dimension, coord);
+			location = shape.getVoxelOrigin(coord);
+			shape.getVoxelSideLengthsTo(dimension, coord);
 			/* NOTE the agent tree is always the amount of actual dimension */
 			neighbors = agents.treeSearch(Vector.subset(location, nDim),
 											Vector.subset(dimension, nDim));
@@ -113,7 +113,7 @@ public final class PMToolsDiffuseReact
 			for ( Agent a : neighbors )
 				if ( a.isAspect(NameRef.bodyRadius) )
 					minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
-			sgPoints = solute.getCurrentSubgridPoints(SUBGRID_FACTOR * minRad);
+			sgPoints = shape.getCurrentSubvoxelPoints(SUBGRID_FACTOR * minRad);
 			/* 
 			 * Get the subgrid points and query the agents.
 			 */
