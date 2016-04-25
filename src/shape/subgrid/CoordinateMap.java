@@ -1,4 +1,4 @@
-package grid.subgrid;
+package shape.subgrid;
 
 import java.util.ArrayList;
 import java.util.HashMap;

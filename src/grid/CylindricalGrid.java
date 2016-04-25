@@ -5,11 +5,11 @@ import java.util.Arrays;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import grid.resolution.ResCalcFactory;
-import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.resolution.ResCalcFactory;
+import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
