@@ -1,4 +1,4 @@
-package shape.subgrid;
+package shape.subvoxel;
 
 import java.util.ArrayList;
 import java.util.HashMap;

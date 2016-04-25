@@ -1,4 +1,4 @@
-package shape.subgrid;
+package shape.subvoxel;
 
 import linearAlgebra.Vector;
 
