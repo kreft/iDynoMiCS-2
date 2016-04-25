@@ -35,7 +35,7 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import shape.Dimension.DimensionMaker;
 import shape.resolution.ResolutionCalculator.ResCalc;
-import shape.subgrid.SubvoxelPoint;
+import shape.subvoxel.SubvoxelPoint;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Surface;

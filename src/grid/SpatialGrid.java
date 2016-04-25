@@ -12,9 +12,9 @@ import dataIO.ObjectFactory;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.subvoxel.SubvoxelPoint;
 import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
-import shape.subgrid.SubvoxelPoint;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.

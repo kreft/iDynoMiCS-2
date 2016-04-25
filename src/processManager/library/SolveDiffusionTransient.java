@@ -21,7 +21,7 @@ import idynomics.NameRef;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import reaction.Reaction;
-import shape.subgrid.SubvoxelPoint;
+import shape.subvoxel.SubvoxelPoint;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEupdater;
