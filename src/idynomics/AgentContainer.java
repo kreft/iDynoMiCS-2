@@ -123,12 +123,12 @@ public class AgentContainer
 	
 	public int getNumDims()
 	{
-		return _shape.getNumberOfDimensions();
+		return this._shape.getNumberOfDimensions();
 	}
 	
 	public Shape getShape()
 	{
-		return _shape;
+		return this._shape;
 	}
 	
 	/**
@@ -147,22 +147,22 @@ public class AgentContainer
 	
 	public List<Agent> treeSearch(BoundingBox boundingBox)
 	{
-		return _agentTree.cyclicsearch(boundingBox);
+		return this._agentTree.cyclicsearch(boundingBox);
 	}
 	
 	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
 	{
-		return _agentTree.cyclicsearch(boundingBoxes);
+		return this._agentTree.cyclicsearch(boundingBoxes);
 	}
 	
 	public List<Agent> treeSearch(double[] location, double[] dimensions)
 	{
-		return _agentTree.cyclicsearch(location, dimensions);
+		return this._agentTree.cyclicsearch(location, dimensions);
 	}
 	
 	public List<Agent> treeSearch(double[] pointLocation)
 	{
-		return treeSearch(pointLocation, Vector.zeros(pointLocation));
+		return this.treeSearch(pointLocation, Vector.zeros(pointLocation));
 	}
 	
 	/**
@@ -182,7 +182,6 @@ public class AgentContainer
 		}
 		else
 			this.addLocatedAgent(agent);
-		
 	}
 	
 	/**
@@ -193,8 +192,8 @@ public class AgentContainer
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
-		_locatedAgentList.add(anAgent);
-		treeInsert(anAgent);
+		this._locatedAgentList.add(anAgent);
+		this.treeInsert(anAgent);
 	}
 	
 	/**
@@ -204,22 +203,29 @@ public class AgentContainer
 	 */
 	protected void treeInsert(Agent anAgent)
 	{
-		for(BoundingBox b: ((Body) anAgent.get(NameRef.agentBody)).getBoxes(
-				(anAgent.isAspect(NameRef.agentPulldistance) ?
+		Body body = ((Body) anAgent.get(NameRef.agentBody));
+		double dist = (anAgent.isAspect(NameRef.agentPulldistance) ?
 				anAgent.getDouble(NameRef.agentPulldistance) :
-				0.0)))
+				0.0);
+		List<BoundingBox> boxes = body.getBoxes(dist);
+		for ( BoundingBox b: boxes )
 			this._agentTree.insert(b, anAgent);
 	}
 	
+	/**
+	 * \brief Rebuild the spatial registry, by removing and then re-inserting 
+	 * all located agents.
+	 */
 	public void refreshSpatialRegistry()
 	{
 		this.makeAgentTree();
-		for(Agent a : getAllLocatedAgents())
-		{
+		for ( Agent a : this.getAllLocatedAgents() )
 			this.treeInsert(a);
-		}	
 	}
 	
+	/**
+	 * @return A list of all {@code Agent}s which have a location.
+	 */
 	public List<Agent> getAllLocatedAgents()
 	{
 		List<Agent> out = new LinkedList<Agent>();
@@ -227,40 +233,60 @@ public class AgentContainer
 		return out;
 	}
 	
-	public LinkedList<Agent> getAllUnlocatedAgents()
+	/**
+	 * @return A list of all {@code Agent}s which do not have a location.
+	 */
+	public List<Agent> getAllUnlocatedAgents()
 	{
-		LinkedList<Agent> out = new LinkedList<Agent>();
+		List<Agent> out = new LinkedList<Agent>();
 		out.addAll(_agentList);
 		return out;
 	}
 	
+	/**
+	 * @return A count of all {@code Agent}s, including both located and
+	 * non-located.
+	 */
 	public int getNumAllAgents()
 	{
 		return this._agentList.size() + this._agentTree.all().size();
 	}
 	
+	/**
+	 * @return A randomly chosen {@code Agent}, who is removed from this
+	 * container.
+	 */
 	public Agent extractRandomAgent()
 	{
+		// TODO safety if there are no agents.
 		Agent out;
 		int i = ExtraMath.getUniRandInt(this.getNumAllAgents());
 		if ( i > this._agentList.size() )
 		{
-			// Located agent
+			/* Located agent. */
 			out = this._agentTree.getRandom();
 			this._agentTree.delete(out);
 		}
 		else
 		{
-			// Unlocated agent
+			/* Unlocated agent. */
 			out = this._agentList.remove(i);
 		}
 		return out;
 	}
-
-	public String getXml() {
+	
+	/*************************************************************************
+	 * REPORTING
+	 ************************************************************************/
+	
+	/**
+	 * @return XML-format description of all {@code Agent}s.
+	 */
+	public String getXml()
+	{
+		// TODO using a StringBuffer would be quicker.
 		String out = "<" + XmlLabel.agents + ">\n";
-		
-		for(Agent a : this.getAllAgents())
+		for ( Agent a : this.getAllAgents() )
 		{
 			out = out + "<" + XmlLabel.agent + ">\n"
 					+ a.reg().getXml() + "</" + XmlLabel.agent + ">\n";
@@ -268,16 +294,4 @@ public class AgentContainer
 		out = out + "</" + XmlLabel.agents + ">\n";
 		return out;
 	}
-	
-	/*************************************************************************
-	 * NEIGHBOURHOOD GETTERS
-	 ************************************************************************/
-	
-	
-	
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
-	
-	
 }
