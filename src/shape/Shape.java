@@ -4,6 +4,7 @@
 package shape;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -24,6 +25,7 @@ import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
 import grid.resolution.ResolutionCalculator.ResCalc;
+import grid.subgrid.SubgridPoint;
 import linearAlgebra.Vector;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -63,18 +65,23 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	 */
 	protected Collection<Boundary> _otherBoundaries = 
 													new LinkedList<Boundary>();
-	
 	/**
 	 * Surface Object for collision detection methods
 	 */
 	protected Collection<Surface> _surfaces = new LinkedList<Surface>();
-	
+	/**
+	 * TODO
+	 */
 	public ModelNode modelNode;
-	
 	/**
 	 * Current coordinate considered by the internal iterator.
 	 */
 	protected int[] _currentCoord;
+	/**
+	 * The number of voxels, in each dimension, for the current coordinate of
+	 * the internal iterator.
+	 */
+	protected int[] _currentNVoxel;
 	/**
 	 * Current neighbour coordinate considered by the neighbor iterator.
 	 */
@@ -87,31 +94,21 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	/**
 	 * A helper vector for finding the location of the origin of a voxel.
 	 */
-	protected final static double[] VOXEL_ORIGIN_HELPER = Vector.vector(3, 0.0);
+	protected final static double[] VOXEL_ORIGIN_HELPER = Vector.vector(3,0.0);
 	/**
 	 * A helper vector for finding the location of the centre of a voxel.
 	 */
-	protected final static double[] VOXEL_CENTRE_HELPER = Vector.vector(3, 0.5);
+	protected final static double[] VOXEL_CENTRE_HELPER = Vector.vector(3,0.5);
 	/**
 	 * A helper vector for finding the 'upper most' location of a voxel.
 	 */
-	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3, 1.0);
+	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3,1.0);
 	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	/**
-	 * \brief TODO
-	 *
-	 */
-	public Shape()
-	{
-		
-	}
-	
-
 	@Override
 	public ModelNode getNode() {
 		if (modelNode == null)
@@ -129,30 +126,34 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	}
 
 	@Override
-	public void setNode(ModelNode node) {
+	public void setNode(ModelNode node)
+	{
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	public NodeConstructor newBlank() {
+	public NodeConstructor newBlank()
+	{
 		return (Shape) Shape.getNewInstance(
 				Helper.obtainInput(getAllOptions(), "Shape class", false));
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(NodeConstructor childObject)
+	{
 		// TODO Auto-generated method stub
-		
 	}
 	
+	/**
+	 * @return TODO
+	 */
 	public String defaultXmlTag()
 	{
 		return XmlLabel.compartmentShape;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Initialise from an XML element.
 	 * 
 	 * <p>Note that all subclasses of Shape use this for initialisation,
 	 * except for Dimensionless.</p>
@@ -198,7 +199,8 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	}
 	
 	@Override
-	public String getXml() {
+	public String getXml()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -213,9 +215,7 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @return
+	 * @return The grid-getter object for this shape.
 	 */
 	public abstract GridGetter gridGetter();
 	
@@ -239,10 +239,8 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @param dimension
-	 * @return
+	 * @param dimension The name of the dimension requested.
+	 * @return The {@code Dimension} object.
 	 */
 	public Dimension getDimension(DimName dimension)
 	{
@@ -270,6 +268,12 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 		return -1;
 	}
 	
+	/**
+	 * \brief Get the requested {@code Dimension} in a safe way.
+	 * 
+	 * @param dimension The name of the dimension requested.
+	 * @return The {@code Dimension} object.
+	 */
 	protected Dimension getDimensionSafe(DimName dimension)
 	{
 		if ( this._dimensions.containsKey(dimension) )
@@ -498,13 +502,14 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the Resolution Calculator for the given dimension, at the
+	 * given coordinate.
 	 * 
-	 * @param coord
-	 * @param axis
-	 * @return
+	 * @param coord 
+	 * @param dim 
+	 * @return 
 	 */
-	protected abstract ResCalc getResolutionCalculator(int[] coord, int axis);
+	protected abstract ResCalc getResolutionCalculator(int[] coord, int dim);
 	
 	/*************************************************************************
 	 * BOUNDARIES
@@ -680,8 +685,9 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	public double[] getLocation(int[] coord, double[] inside)
 	{
 		double[] loc = Vector.copy(inside);
+		int nDim = this.getNumberOfDimensions();
 		ResCalc rC;
-		for ( int dim = 0; dim < 3; dim++ )
+		for ( int dim = 0; dim < nDim; dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
 			loc[dim] *= rC.getResolution(coord[dim]);
@@ -724,6 +730,189 @@ public abstract class Shape implements CanPrelaunchCheck, IsSubmodel, XMLable, N
 	{
 		return getLocation(coord, VOXEL_All_ONE_HELPER);
 	}
+	
+	/**
+	 * \brief Calculate the volume of the voxel specified by the given
+	 * coordinates.
+	 * 
+	 * @param coord Discrete coordinates of a voxel on this grid.
+	 * @return Volume of this voxel.
+	 */
+	public abstract double getVoxelVolume(int[] coord);
+	
+	/**
+	 * \brief Get the side lengths of the voxel given by the <b>coord</b>.
+	 * Write the result into <b>destination</b>.
+	 * 
+	 * @param destination
+	 * @param coord
+	 */
+	public void getVoxelSideLengthsTo(double[] destination, int[] coord)
+	{
+		ResCalc rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			rC = this.getResolutionCalculator(coord, dim);
+			destination[dim] = rC.getResolution(coord[dim]);
+		}
+	}
+	
+	/*************************************************************************
+	 * SUBGRID POINTS
+	 ************************************************************************/
+	
+	/**
+	 * \brief List of sub-voxel points at the current coordinate.
+	 * 
+	 * <p>Useful for distributing agent-mediated reactions over the grid.</p>
+	 * 
+	 * @param targetRes
+	 * @return
+	 */
+	public List<SubgridPoint> getCurrentSubvoxelPoints(double targetRes)
+	{
+		/* 
+		 * Initialise the list and add a point at the origin.
+		 */
+		ArrayList<SubgridPoint> out = new ArrayList<SubgridPoint>();
+		SubgridPoint current = new SubgridPoint();
+		out.add(current);
+		/*
+		 * For each dimension, work out how many new points are needed and get
+		 * these for each point already in the list.
+		 */
+		int nP, nCurrent;
+		ResCalc rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			// TODO Rob[17Feb2016]: This will need improving for polar grids...
+			// I think maybe would should introduce a subclass of Dimension for
+			// angular dimensions.
+			rC = this.getResolutionCalculator(this._currentCoord, dim);
+			nP = (int) (rC.getResolution(this._currentCoord[dim])/targetRes);
+			nCurrent = out.size();
+			for ( int j = 0; j < nCurrent; j++ )
+			{
+				current = out.get(j);
+				/* Shift this point up by half a sub-resolution. */
+				current.internalLocation[dim] += (0.5/nP);
+				/* Now add extra points at sub-resolution distances. */
+				for ( double i = 1.0; i < nP; i++ )
+					out.add(current.getNeighbor(dim, i/nP));
+			}
+		}
+		/* Now find the real locations and scale the volumes. */
+		// TODO this probably needs to be slightly different in polar grids
+		// to be completely accurate
+		double volume = this.getVoxelVolume(this._currentCoord) / out.size();
+		for ( SubgridPoint aSgP : out )
+		{
+			aSgP.realLocation = this.getLocation(this._currentCoord,
+													aSgP.internalLocation);
+			aSgP.volume = volume;
+		}
+		return out;
+	}
+	
+	/*************************************************************************
+	 * COORDINATE ITERATOR
+	 ************************************************************************/
+	
+	/**
+	 * \brief Return the coordinate iterator to its initial state.
+	 * 
+	 * @return The value of the coordinate iterator.
+	 */
+	public int[] resetIterator()
+	{
+		if ( this._currentCoord == null )
+			this._currentCoord = Vector.zerosInt(this.getNumberOfDimensions());
+		else
+			Vector.reset(this._currentCoord);
+		return this._currentCoord;
+	}
+	
+	/**
+	 * \brief Determine whether the current coordinate of the iterator is
+	 * outside the grid in the dimension specified.
+	 * 
+	 * @param dim Index of the dimension to look at.
+	 * @return Whether the coordinate iterator is inside (false) or outside
+	 * (true) the grid along this dimension.
+	 */
+	protected boolean iteratorExceeds(int dim)
+	{
+		return this._currentCoord[dim] >= this._currentNVoxel[dim];
+	}
+	
+	/**
+	 * \brief Check if the current coordinate of the internal iterator is
+	 * valid.
+	 * 
+	 * @return True if is valid, false if it is invalid.
+	 */
+	public boolean isIteratorValid()
+	{
+		int nDim = this.getNumberOfDimensions();
+		for ( int dim = 0; dim < nDim; dim++ )
+			if ( this.iteratorExceeds(dim) )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief Step the coordinate iterator forward once.
+	 * 
+	 * @return The new value of the coordinate iterator.
+	 */
+	public int[] iteratorNext()
+	{
+		/*
+		 * We have to step through last dimension first, because we use jagged 
+		 * arrays in the PolarGrids.
+		 */
+		_currentCoord[2]++;
+		if ( this.iteratorExceeds(2) )
+		{
+			_currentCoord[2] = 0;
+			_currentCoord[1]++;
+			if ( this.iteratorExceeds(1) )
+			{
+				_currentCoord[1] = 0;
+				_currentCoord[0]++;
+			}
+		}
+		return _currentCoord;
+	}
+	
+	/**
+	 * \brief Get the number of voxels in each dimension for the current
+	 * coordinates.
+	 * 
+	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
+	 * irrelevant, but it will make a difference in the polar grids.</p>
+	 * 
+	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @return A 3-vector of the number of voxels in each dimension.
+	 */
+	public int[] updateCurrentNVoxel()
+	{
+		this.getNVoxel(this._currentCoord, this._currentNVoxel);
+		return this._currentNVoxel;
+	}
+	
+	/**
+	 * \brief Get the number of voxels in each dimension for the given
+	 * coordinates.
+	 * 
+	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
+	 * irrelevant, but it will make a difference in the polar grids.</p>
+	 * 
+	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @return A 3-vector of the number of voxels in each dimension.
+	 */
+	// TODO update javadoc
+	protected abstract void getNVoxel(int[] coords, int[] outNVoxel);
 	
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK

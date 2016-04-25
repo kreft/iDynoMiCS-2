@@ -36,8 +36,6 @@ import reaction.Reaction;
 import shape.Shape;
 import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
-import shape.ShapeLibrary;
-import utility.Helper;
 
 /**
  * \brief TODO
