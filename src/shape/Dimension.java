@@ -1,6 +1,3 @@
-/**
- * TODO
- */
 package shape;
 
 import java.awt.event.ActionEvent;
@@ -22,13 +19,13 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
-import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.ShapeConventions.BoundaryCyclic;
 import shape.ShapeConventions.DimName;
+import utility.ExtraMath;
 import utility.Helper;
 
 /**
- * \brief TODO
+ * \brief Dimension of a {@code Shape}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
@@ -74,8 +71,6 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 * If this is a cyclic dimension, different rules apply.
 	 */
 	protected boolean _isCyclic = false;
-	
-	protected ResCalc _resCalc;
 	
 	/**************************************************************************
 	 * CONSTRUCTORS
@@ -209,8 +204,10 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	}
 	
 	/**
-	 * \brief TODO
-	 *
+	 * \brief Set this dimension to be cyclic.
+	 * 
+	 * <p>Anything crossing one extreme of this dimension will re-emerge on the
+	 * other extreme.</p>
 	 */
 	public void setCyclic()
 	{
@@ -267,8 +264,8 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	{
 		if ( this._isCyclic )
 		{
-			// TODO
-			//throw new Exception();
+			throw new IllegalArgumentException(
+							"Cannot set the boundary of a cyclic dimension!");
 		}
 		else
 			this._boundary[index] = aBoundary;
@@ -348,8 +345,8 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 */
 	public double periodicLocation(double a)
 	{
-		return this._extreme[0] + ( (a - this._extreme[0]) % this.getLength() + 
-				(a < 0 ? this.getLength() : 0) );
+		return this._extreme[0] + 
+				ExtraMath.floorMod(a - this._extreme[0], this.getLength());
 	}
 	
 	/**
@@ -362,9 +359,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	public double getInside(double a)
 	{
 		if ( this._isCyclic )
-		{
-			return periodicLocation(a);
-		}
+			return this.periodicLocation(a);
 		else
 		{
 			/*
@@ -449,26 +444,6 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		public void doAction(ActionEvent e)
 		{
 			this.addSubmodel(new Dimension());
-		}
-	}
-	
-	/*************************************************************************
-	 * ANGULAR DIMENSION
-	 ************************************************************************/
-	
-	public ResCalc getResCalc()
-	{
-		return this._resCalc;
-	}
-	
-	public static class AngularDimension extends Dimension
-	{
-		public ResCalc getResCalc(double radius)
-		{
-			ResCalc out = (ResCalc) this._resCalc.copy();
-			
-			
-			return out;
 		}
 	}
 }
