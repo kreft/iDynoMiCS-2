@@ -105,10 +105,10 @@ public final class ShapeLibrary
 			return this._volume;
 		}
 		
-		protected void getNVoxel(int[] coords, int[] outNVoxel)
+		protected void nVoxelTo(int[] destination, int[] coords)
 		{
 			/* Dimensionless shapes have no voxels. */
-			Vector.reset(outNVoxel);
+			Vector.reset(destination);
 		}
 		
 		@Override

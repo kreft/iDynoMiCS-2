@@ -274,7 +274,7 @@ public abstract class Shape implements
 	{
 		return this._dimensions.get(dimension);
 	}
-
+	
 	/**
 	 * @return The set of dimension names for this {@code Shape}.
 	 */
@@ -293,7 +293,7 @@ public abstract class Shape implements
 	 * {@code Shape}.
 	 * @return Index of the dimension, if present; {@code -1}, if not.
 	 */
-	public int getDimensionIndex(DimName dimension)
+	protected int getDimensionIndex(DimName dimension)
 	{
 		int out = 0;
 		for ( DimName d : this._dimensions.keySet() )
@@ -303,6 +303,24 @@ public abstract class Shape implements
 			out++;
 		}
 		return -1;
+	}
+	
+	/**
+	 * \brief Find the name for the dimension with the given <b>index</b>.
+	 * 
+	 * @param index Index of the dimension required.
+	 * @return Name of the dimension required.
+	 */
+	protected DimName getDimensionName(int index)
+	{
+		int counter = 0;
+		for ( DimName d : this._dimensions.keySet() )
+		{
+			if ( counter == index )
+				return d;
+			counter++;
+		}
+		return null;
 	}
 	
 	/**
@@ -805,10 +823,11 @@ public abstract class Shape implements
 	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
 	 * irrelevant, but it will make a difference in the polar shapes.</p>
 	 * 
+	 * @param destination Integer vector to write the result into.
 	 * @param coords Discrete coordinates of a voxel on this shape.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
-	protected abstract void getNVoxel(int[] coords, int[] outNVoxel);
+	protected abstract void nVoxelTo(int[] destination, int[] coords);
 	
 	/*************************************************************************
 	 * SUBVOXEL POINTS
@@ -882,6 +901,7 @@ public abstract class Shape implements
 			this._currentCoord = Vector.zerosInt(this.getNumberOfDimensions());
 		else
 			Vector.reset(this._currentCoord);
+		this.updateCurrentNVoxel();	
 		return this._currentCoord;
 	}
 	
@@ -935,6 +955,7 @@ public abstract class Shape implements
 				_currentCoord[0]++;
 			}
 		}
+		this.updateCurrentNVoxel();	
 		return _currentCoord;
 	}
 	
@@ -950,7 +971,7 @@ public abstract class Shape implements
 	 */
 	public int[] updateCurrentNVoxel()
 	{
-		this.getNVoxel(this._currentCoord, this._currentNVoxel);
+		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
 		return this._currentNVoxel;
 	}
 	
