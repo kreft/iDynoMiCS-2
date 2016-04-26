@@ -8,11 +8,11 @@ import java.util.Arrays;
 import boundary.Boundary;
 import boundary.BoundaryFixed;
 import boundary.grid.GridMethodLibrary;
-import boundary.grid.GridMethodLibrary.ConstantDirichlet;
 import grid.CartesianGrid;
 import grid.SpatialGrid;
 import idynomics.Compartment;
 import linearAlgebra.Vector;
+import shape.ShapeConventions.DimName;
 
 /**
  * 
@@ -72,12 +72,12 @@ public class SpatialGridTest
 		GridMethodLibrary.ConstantDirichlet testXmin = new GridMethodLibrary.ConstantDirichlet();
 		testXmin.setValue(1.0);
 		xmin.setGridMethod("test", testXmin);
-		aCompartment.getShape().setBoundary("X", xmin, 0);
+		aCompartment.getShape().setBoundary(DimName.X, 0, xmin);
 		Boundary xmax = new BoundaryFixed();
 		GridMethodLibrary.ConstantDirichlet testXmax = new GridMethodLibrary.ConstantDirichlet();
 		testXmax.setValue(0.0);
 		xmax.setGridMethod("test", testXmax);
-		aCompartment.getShape().setBoundary("X", xmax, 1);
+		aCompartment.getShape().setBoundary(DimName.X, 1, xmax);
 		aCompartment.setSideLengths(new double[] {3.0, 3.0, 1.0});
 		aCompartment.addSolute("test");
 		aCompartment.init();

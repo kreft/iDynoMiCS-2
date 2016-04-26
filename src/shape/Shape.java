@@ -51,7 +51,6 @@ import utility.Helper;
  */
 public abstract class Shape implements
 					CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
-
 {
 	/**
 	 * Ordered dictionary of dimensions for this shape.
@@ -297,24 +296,18 @@ public abstract class Shape implements
 		this.getDimensionSafe(dimension).setCyclic();
 	}
 	
+	/**
+	 * \brief Set a boundary of a given dimension.
+	 * 
+	 * @param dimension Name of the dimension to use.
+	 * @param index Index of the extreme of this dimension to set the boundary
+	 * to: should be 0 or 1. See {@code Boundary} for more information.
+	 * @param bndry The {@code Boundary} to set.
+	 */
 	public void setBoundary(DimName dimension, int index, Boundary bndry)
 	{
 		this.getDimensionSafe(dimension).setBoundary(bndry, index);
 	}
-	
-	
-	/**
-	 * \brief Set the minimum and maximum boundaries for the given dimension.
-	 * 
-	 * @param dimensionName {@code String} name of the dimension.
-	 * @param bndry
-	 * @param setMin
-	 */
-	public void setBoundary(String dimension, Boundary bndry, int index)
-	{
-		this.setBoundary(DimName.valueOf(dimension), index, bndry);
-	}
-	
 	
 	/**
 	 * \brief Gets the side lengths of only the significant dimensions.
@@ -436,9 +429,9 @@ public abstract class Shape implements
 	 * \brief Get the Resolution Calculator for the given dimension, at the
 	 * given coordinate.
 	 * 
-	 * @param coord 
-	 * @param dim 
-	 * @return 
+	 * @param coord Voxel coordinate.
+	 * @param dim Dimension index (e.g., for a cuboid: X = 0, Y = 1, Z = 2).
+	 * @return The relevant Resolution Calculator.
 	 */
 	protected abstract ResCalc getResolutionCalculator(int[] coord, int dim);
 	
@@ -488,8 +481,8 @@ public abstract class Shape implements
 	/**
 	 * \brief Check if a given location is inside this shape.
 	 * 
-	 * @param location 
-	 * @return
+	 * @param location A spatial location in global coordinates.
+	 * @return True if it is inside this shape, false if it is outside.
 	 */
 	public boolean isInside(double[] location)
 	{
@@ -568,7 +561,7 @@ public abstract class Shape implements
 		LinkedList<double[]> out = new LinkedList<double[]>();
 		for ( double[] p : localPoints )
 			out.add(this.getGlobalLocation(p));
-		return localPoints;
+		return out;
 	}
 	
 	/**
