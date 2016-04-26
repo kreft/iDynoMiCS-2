@@ -82,6 +82,8 @@ public abstract class Shape implements
 	 */
 	protected HashMap<DimName,ResCalc> _rcStorage =
 												new HashMap<DimName,ResCalc>();
+	
+	protected Double _maxFluxPotential = null;
 	/**
 	 * Surface Object for collision detection methods
 	 */
@@ -125,7 +127,7 @@ public abstract class Shape implements
 	
 	
 	/*************************************************************************
-	 * CONSTRUCTORS
+	 * CONSTRUCTION
 	 ************************************************************************/
 	
 	@Override
@@ -713,6 +715,81 @@ public abstract class Shape implements
 	}
 	
 	/**
+	 * TODO
+	 * 
+	 * @param coord
+	 * @param dim
+	 * @return
+	 */
+	protected boolean isOnBoundary(int[] coord, int dim)
+	{
+		if ( coord[dim] < 0 )
+				return true;
+		if (coord[dim] >= this.getResolutionCalculator(coord, dim).getNVoxel())
+				return true;
+		return false;
+	}
+	
+	/**
+	 * \brief Check if the given coordinate is on a defined boundary in the
+	 * given dimension.
+	 * 
+	 * @param coord
+	 * @param dim
+	 * @return
+	 */
+	protected boolean isOnDefinedBoundary(int[] coord, DimName dimName)
+	{
+		Dimension dim = this.getDimension(dimName);
+		int index = this.getDimensionIndex(dimName);
+		if ( coord[index] < 0 )
+			return dim.isBoundaryDefined(0);
+		int nVox = this.getResolutionCalculator(coord, index).getNVoxel();
+		if ( coord[index] >= nVox )
+			return dim.isBoundaryDefined(1);
+		return false;
+	}
+	
+	/**
+	 * \brief Check if the given coordinate is on an undefined boundary in the
+	 * given dimension.
+	 * 
+	 * @param coord
+	 * @param dim
+	 * @return
+	 */
+	protected boolean isOnUndefinedBoundary(int[] coord, DimName dimName)
+	{
+		Dimension dim = this.getDimension(dimName);
+		int index = this.getDimensionIndex(dimName);
+		if ( coord[index] < 0 )
+			return ! dim.isBoundaryDefined(0);
+		int nVox = this.getResolutionCalculator(coord, index).getNVoxel();
+		if ( coord[index] >= nVox )
+			return ! dim.isBoundaryDefined(1);
+		return false;
+	}
+	
+	/**
+	 * TODO
+	 * @return
+	 */
+	public double getMaxFluxPotential()
+	{
+		if ( this._maxFluxPotential == null )
+			this.calcMaxFluxPotential();
+		return this._maxFluxPotential;
+	}
+	
+	/**
+	 * TODO
+	 */
+	protected void calcMaxFluxPotential()
+	{
+		// TODO
+	}
+	
+	/**
 	 * \brief Calculate the volume of the voxel specified by the given
 	 * coordinates.
 	 * 
@@ -720,6 +797,18 @@ public abstract class Shape implements
 	 * @return Volume of this voxel.
 	 */
 	public abstract double getVoxelVolume(int[] coord);
+
+	/**
+	 * \brief Get the number of voxels in each dimension for the given
+	 * coordinates.
+	 * 
+	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
+	 * irrelevant, but it will make a difference in the polar shapes.</p>
+	 * 
+	 * @param coords Discrete coordinates of a voxel on this shape.
+	 * @return A 3-vector of the number of voxels in each dimension.
+	 */
+	protected abstract void getNVoxel(int[] coords, int[] outNVoxel);
 	
 	/*************************************************************************
 	 * SUBVOXEL POINTS
@@ -865,19 +954,6 @@ public abstract class Shape implements
 		return this._currentNVoxel;
 	}
 	
-	/**
-	 * \brief Get the number of voxels in each dimension for the given
-	 * coordinates.
-	 * 
-	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
-	 * irrelevant, but it will make a difference in the polar grids.</p>
-	 * 
-	 * @param coords Discrete coordinates of a voxel on this grid.
-	 * @return A 3-vector of the number of voxels in each dimension.
-	 */
-	// TODO update javadoc
-	protected abstract void getNVoxel(int[] coords, int[] outNVoxel);
-	
 	/*************************************************************************
 	 * NEIGHBOR ITERATOR
 	 ************************************************************************/
@@ -891,14 +967,25 @@ public abstract class Shape implements
 	 */
 	public int[] resetNbhIterator()
 	{
+		/* Set the neighbor to the current coordinate. */
 		if ( this._currentNeighbor == null )
 			this._currentNeighbor = Vector.copy(this._currentCoord);
 		else
 			Vector.copyTo(this._currentNeighbor, this._currentCoord);
-		/* Do the shape-specific resetting. */
+		/* Find the first neighbor by shape type. */
 		this.resetNbhIter();
 		/* Return the current neighbour coordinate. */
 		return this._currentNeighbor;
+	}
+	
+	/**
+	 * \brief Check if the neighbor iterator takes a valid coordinate.
+	 * 
+	 * @return {@code boolean true} if it is valid, {@code false} if it is not.
+	 */
+	public boolean isNbhIteratorValid()
+	{
+		return this._nbhValid;
 	}
 	
 	/**
@@ -910,9 +997,10 @@ public abstract class Shape implements
 	protected boolean moveNbhToMinus(DimName dim)
 	{
 		int index = this.getDimensionIndex(dim);
+		/* Move to the coordinate just belong the current one. */
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[index]--;
-		
+		/* Check that this coordinate is acceptable. */
 		return (this._currentNeighbor[index] >= 0) || 
 							this._dimensions.get(dim).isBoundaryDefined(0);
 	}
@@ -952,6 +1040,11 @@ public abstract class Shape implements
 	 * implemented by subclasses.
 	 */
 	protected abstract void resetNbhIter();
+	
+	/**
+	 * @return The next neighbor iterator coordinate.
+	 */
+	public abstract int[] nbhIteratorNext();
 	
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK

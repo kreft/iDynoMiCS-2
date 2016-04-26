@@ -6,6 +6,8 @@ import java.util.HashMap;
 import dataIO.Log;
 import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
+import shape.Shape;
+
 import static grid.SpatialGrid.ArrayType.*;
 
 /**
@@ -75,6 +77,35 @@ public abstract class PDEsolver extends Solver
 			flux = 0.0;
 			for ( grid.resetNbhIterator(); 
 						grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
+			{
+				flux += grid.getFluxWithNeighbor(varName);
+			}
+			/*
+			 * Finally, apply this to the relevant array.
+			 */
+			Log.out(BULK, Arrays.toString(current)+": val = "+
+							grid.getValueAtCurrent(CONCN)+", lop = "+flux);
+			grid.addValueAt(LOPERATOR, current, flux);
+		}
+	}
+	
+	protected void addFluxes(Shape aShape, String varName, SpatialGrid grid)
+	{
+		/* Coordinates of the current position. */
+		int[] current;
+		/* Temporary storage. */
+		double flux;
+		/*
+		 * Iterate over all core voxels calculating the Laplace operator. 
+		 */
+		for ( current = aShape.resetIterator(); aShape.isIteratorValid();
+											  current = aShape.iteratorNext())
+		{
+			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
+				continue;
+			flux = 0.0;
+			for ( aShape.resetNbhIterator(); 
+					aShape.isNbhIteratorValid(); aShape.nbhIteratorNext() )
 			{
 				flux += grid.getFluxWithNeighbor(varName);
 			}
