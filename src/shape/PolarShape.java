@@ -6,8 +6,6 @@ import shape.resolution.ResolutionCalculator.ResCalc;
 
 public abstract class PolarShape extends Shape
 {
-
-	
 	/**
 	 * \brief Used to move neighbor iterator into a new shell.
 	 * 
@@ -20,7 +18,6 @@ public abstract class PolarShape extends Shape
 	 */
 	protected boolean setNbhFirstInNewShell(int shellIndex)
 	{
-		//TODO: does sometimes start a bit too early (?) (possibly rounding...)
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[0] = shellIndex;
 		/*
@@ -38,23 +35,43 @@ public abstract class PolarShape extends Shape
 		 */
 		rC = this.getResolutionCalculator(this._currentCoord, 1);
 		double cur_min = rC.getCumulativeResolution(this._currentCoord[1] - 1);
-		//double cur_max = rC.getCumulativeResolution(this._currentCoord[1]);
 		rC = this.getResolutionCalculator(this._currentNeighbor, 1);
 		int new_index = rC.getVoxelIndex(cur_min);
-		// FIXME is this really necessary?
-//		double nbh_max = rC.getCumulativeResolution(new_index);
-//		
-//		/* if we do not overlap 'enough', try to take next */
-//		double th = getCurrentArcLengthDiffCutoff();
-//		if (cur_min >= nbh_max - th)
-//		{
-//			/* nbh_max is actually nbh_min now */
-//			if (cur_max - th >= nbh_max)
-//				new_index++;
-//			else 
-//				return false;
-//		}
 		this._currentNeighbor[1] = new_index;
+		return true;
+	}
+	
+	/**
+	 * \brief Try to increase the neighbor iterator by one in the given
+	 * dimension.
+	 * 
+	 * @param dim Name of the dimension required.
+	 * @return True is this was successful, false if it was not.
+	 */
+	protected boolean increaseNbhByOnePolar(DimName dim)
+	{
+		int index = this.getDimensionIndex(dim);
+		Dimension dimension = this.getDimension(dim);
+		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, index);
+		/* If we are already on the maximum boundary, we cannot go further. */
+		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 )
+				return false;
+		/* Do not allow the neighbor to be on an undefined maximum boundary. */
+		if ( this._currentNeighbor[index] == rC.getNVoxel() - 1 )
+			if ( ! dimension.isBoundaryDefined(1) )
+				return false;
+		/*
+		 * If increasing would mean we no longer overlap, report failure.
+		 */
+		double nbhMax = rC.getCumulativeResolution(this._currentNeighbor[index]);
+		rC = this.getResolutionCalculator(this._currentCoord, index);
+		double curMax = rC.getCumulativeResolution(this._currentCoord[index]);
+		if ( nbhMax >= curMax )
+			return false;
+		/*
+		 * All checks have passed, so increase and report success.
+		 */
+		this._currentNeighbor[index]++;
 		return true;
 	}
 }

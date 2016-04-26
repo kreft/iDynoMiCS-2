@@ -108,10 +108,10 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	protected void getNVoxel(int[] coords, int[] outNVoxel)
+	protected void nVoxelTo(int[] destination, int[] coords)
 	{
 		for ( int dim = 0; dim < this.getNumberOfDimensions(); dim++ )
-			outNVoxel[dim] = this._resCalc[dim].getNVoxel();
+			destination[dim] = this._resCalc[dim].getNVoxel();
 	}
 	
 	/*************************************************************************
@@ -148,7 +148,23 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		// TODO
-		return null;
+		int nbhIndex = this.getDimensionIndex(this._nbhDirection);
+		if ( ! this.nbhJumpOverCurrent(this._nbhDirection))
+		{
+			/*
+			 * If we're in X or Y, try to move up one.
+			 * If we're already in Z, then stop.
+			 */
+			nbhIndex++;
+			if ( nbhIndex < 3 )
+			{
+				this._nbhDirection = this.getDimensionName(nbhIndex);
+				if ( ! moveNbhToMinus(this._nbhDirection) )
+					return nbhIteratorNext();
+			}
+			else
+				this._nbhValid = false;
+		}
+		return this._currentNeighbor;
 	}
 }
