@@ -46,33 +46,52 @@ import utility.Helper;
  * <p>These are typically used by {@code Compartment}s; cell shapes are
  * currently described using {@code Body} and {@code Surface} objects.</p>
  * 
+ * <p>This file is structured like so:<ul>
+ * <li>Construction</li>
+ * <li>Basic setters & getters</li>
+ * <li>Dimensions</li>
+ * <li>Surfaces</li>
+ * <li>Boundaries</li>
+ * <li>Voxels</li>
+ * <li>Sub-voxel points</li>
+ * <li>Coordinate iterator</li>
+ * <li>Neighbor iterator</li>
+ * </ul></p>
+ * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  * 								Friedrich-Schiller University Jena, Germany 
  */
+// TODO remove the last three sections by incorporation into Node construction.
 public abstract class Shape implements
 					CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
 {
+	/**
+	 * TODO
+	 */
+	protected ModelNode _modelNode;
 	/**
 	 * Ordered dictionary of dimensions for this shape.
 	 */
 	protected LinkedHashMap<DimName, Dimension> _dimensions = 
 									new LinkedHashMap<DimName, Dimension>();
 	/**
-	 * List of boundaries in a dimensionless compartment, or internal
-	 * boundaries in a dimensional compartment.
+	 * Storage container for dimensions that this {@code Shape} is not yet
+	 * ready to initialise.
 	 */
-	protected Collection<Boundary> _otherBoundaries = 
-													new LinkedList<Boundary>();
+	protected HashMap<DimName,ResCalc> _rcStorage =
+												new HashMap<DimName,ResCalc>();
 	/**
 	 * Surface Object for collision detection methods
 	 */
 	protected Collection<Surface> _surfaces = new LinkedList<Surface>();
 	/**
-	 * TODO
+	 * List of boundaries in a dimensionless compartment, or internal
+	 * boundaries in a dimensional compartment.
 	 */
-	protected ModelNode _modelNode;
+	protected Collection<Boundary> _otherBoundaries = 
+													new LinkedList<Boundary>();
 	/**
 	 * Current coordinate considered by the internal iterator.
 	 */
@@ -216,6 +235,9 @@ public abstract class Shape implements
 	 * @return The grid-getter object for this shape.
 	 */
 	public abstract GridGetter gridGetter();
+	// TODO replace with this:
+	//public abstract SpatialGrid getNewGrid();
+	
 	
 	protected abstract double[] getLocalPosition(double[] cartesian);
 	
@@ -224,16 +246,22 @@ public abstract class Shape implements
 	/*************************************************************************
 	 * DIMENSIONS
 	 ************************************************************************/
-	
+
 	/**
-	 * \brief Make the given dimension cyclic.
+	 * \brief Return the number of "true" dimensions this shape has.
 	 * 
-	 * @param dimensionName {@code String} name of the dimension. Lower/upper
-	 * case is irrelevant.
+	 * <p>Note that even 0-, 1- and 2-dimensional shapes will have a nonzero 
+	 * thickness on their "missing" dimension(s).</p>
+	 * 
+	 * @return {@code int} number of significant dimensions for this shape.
 	 */
-	public void makeCyclic(String dimensionName)
+	public int getNumberOfDimensions()
 	{
-		this.makeCyclic(DimName.valueOf(dimensionName.toUpperCase()));
+		int out = 0;
+		for ( Dimension dim : this._dimensions.values() )
+			if ( dim.isSignificant() )
+				out++;
+		return out;
 	}
 	
 	/**
@@ -243,6 +271,15 @@ public abstract class Shape implements
 	public Dimension getDimension(DimName dimension)
 	{
 		return this._dimensions.get(dimension);
+	}
+
+	/**
+	 * @return The set of dimension names for this {@code Shape}.
+	 */
+	// TODO change to significant dimensions only?
+	public Set<DimName> getDimensionNames()
+	{
+		return this._dimensions.keySet();
 	}
 	
 	/**
@@ -267,25 +304,24 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief Get the requested {@code Dimension} in a safe way.
+	 * \brief Make the given dimension cyclic.
 	 * 
-	 * @param dimension The name of the dimension requested.
-	 * @return The {@code Dimension} object.
+	 * @param dimensionName {@code String} name of the dimension. Lower/upper
+	 * case is irrelevant.
 	 */
-	protected Dimension getDimensionSafe(DimName dimension)
+	public void makeCyclic(String dimensionName)
 	{
-		if ( this._dimensions.containsKey(dimension) )
-		{
-			Dimension dim = this._dimensions.get(dimension);
-			if ( dim == null )
-				this._dimensions.put(dimension, (dim = new Dimension()));
-			return dim;
-		}
-		else
-		{
-			// TODO safety
-			return this.getDimension(dimension);
-		}
+		this.makeCyclic(DimName.valueOf(dimensionName.toUpperCase()));
+	}
+	
+	/**
+	 * \brief Set the given dimension to be significant.
+	 * 
+	 * @param dim Name o
+	 */
+	protected void setSignificant(DimName dim)
+	{
+		this._dimensions.get(dim).setSignificant();
 	}
 	
 	/**
@@ -295,7 +331,7 @@ public abstract class Shape implements
 	 */
 	public void makeCyclic(DimName dimension)
 	{
-		this.getDimensionSafe(dimension).setCyclic();
+		this.getDimension(dimension).setCyclic();
 	}
 	
 	/**
@@ -308,7 +344,7 @@ public abstract class Shape implements
 	 */
 	public void setBoundary(DimName dimension, int index, Boundary bndry)
 	{
-		this.getDimensionSafe(dimension).setBoundary(bndry, index);
+		this.getDimension(dimension).setBoundary(bndry, index);
 	}
 	
 	/**
@@ -332,10 +368,10 @@ public abstract class Shape implements
 	/**
 	 * \brief Set the dimension lengths of this shape.
 	 * 
-	 * <p>NOTE: If <b>lengths</b> has more than elements than this shape has
-	 * dimensions, the extra elements will be ignored. If <b>lengths</b> has
-	 * fewer elements than this shape has dimensions, the remaining dimensions
-	 * will be given length zero.</p>
+	 * <p><b>Note</b>: If <b>lengths</b> has more than elements than this shape
+	 * has dimensions, the extra elements will be ignored. If <b>lengths</b> 
+	 * has fewer elements than this shape has dimensions, the remaining 
+	 * dimensions will be given length zero.</p>
 	 * 
 	 * @param lengths {@code double} array of dimension lengths.
 	 */
@@ -345,10 +381,23 @@ public abstract class Shape implements
 		Dimension dim;
 		for ( DimName d : this._dimensions.keySet() )
 		{
-			dim = this.getDimensionSafe(d);
+			dim = this.getDimension(d);
 			dim.setLength(( i < lengths.length ) ? lengths[i] : 0.0);
 			i++;
 		}
+	}
+	
+	/**
+	 * \brief Try to initialise a resolution calculator from storage, for a
+	 * dimension that is dependent on another.
+	 * 
+	 * @param dName Name of the dimension to try.
+	 */
+	protected void trySetDimRes(DimName dName)
+	{
+		ResCalc rC = this._rcStorage.get(dName);
+		if ( rC != null )
+			this.setDimensionResolution(dName, rC);
 	}
 	
 	/**
@@ -359,6 +408,20 @@ public abstract class Shape implements
 	 * @param resC A resolution calculator.
 	 */
 	public abstract void setDimensionResolution(DimName dName, ResCalc resC);
+	
+	/**
+	 * \brief Get the Resolution Calculator for the given dimension, at the
+	 * given coordinate.
+	 * 
+	 * @param coord Voxel coordinate.
+	 * @param dim Dimension index (e.g., for a cuboid: X = 0, Y = 1, Z = 2).
+	 * @return The relevant Resolution Calculator.
+	 */
+	protected abstract ResCalc getResolutionCalculator(int[] coord, int dim);
+	
+	/*************************************************************************
+	 * SURFACES
+	 ************************************************************************/
 	
 	/**
 	 * \brief Set up this {@code Shape}'s surfaces.
@@ -405,38 +468,6 @@ public abstract class Shape implements
 		return this._surfaces;
 	}
 	
-	/**
-	 * \brief Return the number of "true" dimensions this shape has.
-	 * 
-	 * <p>Note that even 0-, 1- and 2-dimensional shapes may have a nonzero 
-	 * thickness on their "missing" dimension(s).</p>
-	 * 
-	 * @return {@code int} number of dimensions for this shape.
-	 */
-	// TODO clarify javadoc when dimensions restructured.
-	public int getNumberOfDimensions()
-	{
-		return this._dimensions.size();
-	}
-	
-	/**
-	 * @return The set of dimension names for this {@code Shape}.
-	 */
-	public Set<DimName> getDimensionNames()
-	{
-		return this._dimensions.keySet();
-	}
-	
-	/**
-	 * \brief Get the Resolution Calculator for the given dimension, at the
-	 * given coordinate.
-	 * 
-	 * @param coord Voxel coordinate.
-	 * @param dim Dimension index (e.g., for a cuboid: X = 0, Y = 1, Z = 2).
-	 * @return The relevant Resolution Calculator.
-	 */
-	protected abstract ResCalc getResolutionCalculator(int[] coord, int dim);
-	
 	/*************************************************************************
 	 * BOUNDARIES
 	 ************************************************************************/
@@ -453,9 +484,7 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @return
+	 * @return Collection of all connected boundaries.
 	 */
 	public Collection<BoundaryConnected> getConnectedBoundaries()
 	{
@@ -471,9 +500,7 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @return
+	 * @return Collection of all boundaries that do not belong to a dimension.
 	 */
 	public Collection<Boundary> getOtherBoundaries()
 	{
@@ -489,29 +516,33 @@ public abstract class Shape implements
 	public boolean isInside(double[] location)
 	{
 		double[] position = this.getLocalPosition(location);
+		int nDim = location.length;
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
 			if ( ! dim.isInside(position[i]) )
 				return false;
-			i++;
+			if ( ++i >= nDim )
+				break;
 		}
 		return true;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force the given location to be inside this shape.
 	 * 
-	 * @param location
+	 * @param location A spatial location in global coordinates.
 	 */
 	public void applyBoundaries(double[] location)
 	{
 		double[] position = this.getLocalPosition(location);
+		int nDim = location.length;
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
 			position[i] = dim.getInside(position[i]);
-			i++;
+			if ( ++i >= nDim )
+				break;
 		}
 		Vector.copyTo(location, this.getGlobalLocation(position));
 	}
@@ -521,20 +552,21 @@ public abstract class Shape implements
 	 * 
 	 * <p>For use by the R-Tree.</p>
 	 * 
-	 * @param location
-	 * @return
+	 * @param location A spatial location in global coordinates.
+	 * @return List of nearby spatial locations, in global coordinates, that 
+	 * map to <b>location</b> under cyclic transformation.
 	 */
 	public LinkedList<double[]> getCyclicPoints(double[] location)
 	{
-		// TODO safety with vector length
 		/*
-		 * Find all the cyclic points in 
+		 * Find all the cyclic points in local coordinates.
 		 */
 		double[] position = this.getLocalPosition(location);
 		LinkedList<double[]> localPoints = new LinkedList<double[]>();
 		localPoints.add(position);
 		LinkedList<double[]> temp = new LinkedList<double[]>();
 		double[] newPoint;
+		int nDim = location.length;
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
@@ -557,7 +589,8 @@ public abstract class Shape implements
 				temp.clear();
 			}
 			/* Increment the dimension iterator, even if this isn't cyclic. */
-			i++;
+			if ( ++i >= nDim )
+				break;
 		}
 		/* Convert everything back into global coordinates and return. */
 		LinkedList<double[]> out = new LinkedList<double[]>();
@@ -567,13 +600,14 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the smallest distance between two points, once cyclic
+	 * dimensions are accounted for.
 	 * 
 	 * <p><b>a</b> - <b>b</b>, i.e. the vector from <b>b</b> to <b>a</b>.</p>
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * @param a A spatial location in global coordinates.
+	 * @param b A spatial location in global coordinates.
+	 * @return The smallest distance between them.
 	 */
 	public double[] getMinDifference(double[] a, double[] b)
 	{
@@ -582,12 +616,14 @@ public abstract class Shape implements
 		Vector.checkLengths(a, b);
 		double[] aLocal = this.getLocalPosition(a);
 		double[] bLocal = this.getLocalPosition(b);
-		double[] diffLocal = new double[a.length];
+		int nDim = a.length;
+		double[] diffLocal = new double[nDim];
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
 			diffLocal[i] = dim.getShortest(aLocal[i], bLocal[i]);
-			i++;
+			if ( ++i >= nDim )
+				break;
 		}
 		return this.getGlobalLocation(diffLocal);
 	}
@@ -610,8 +646,9 @@ public abstract class Shape implements
 	 */
 	public double[] getLocation(int[] coord, double[] inside)
 	{
+		Vector.checkLengths(inside, coord);
 		double[] loc = Vector.copy(inside);
-		int nDim = this.getNumberOfDimensions();
+		int nDim = coord.length;
 		ResCalc rC;
 		for ( int dim = 0; dim < nDim; dim++ )
 		{
@@ -649,22 +686,14 @@ public abstract class Shape implements
 	/**
 	 * \brief Get the corner farthest from the origin of the voxel specified. 
 	 * 
-	 * @param coord
-	 * @return
+	 * @param coord Discrete coordinates of a voxel on this grid.
+	 * @return Continuous location of the corner of this voxel that is furthest
+	 * from its origin.
 	 */
 	protected double[] getVoxelUpperCorner(int[] coord)
 	{
 		return getLocation(coord, VOXEL_All_ONE_HELPER);
 	}
-	
-	/**
-	 * \brief Calculate the volume of the voxel specified by the given
-	 * coordinates.
-	 * 
-	 * @param coord Discrete coordinates of a voxel on this grid.
-	 * @return Volume of this voxel.
-	 */
-	public abstract double getVoxelVolume(int[] coord);
 	
 	/**
 	 * \brief Get the side lengths of the voxel given by the <b>coord</b>.
@@ -682,6 +711,15 @@ public abstract class Shape implements
 			destination[dim] = rC.getResolution(coord[dim]);
 		}
 	}
+	
+	/**
+	 * \brief Calculate the volume of the voxel specified by the given
+	 * coordinates.
+	 * 
+	 * @param coord Discrete coordinates of a voxel on this grid.
+	 * @return Volume of this voxel.
+	 */
+	public abstract double getVoxelVolume(int[] coord);
 	
 	/*************************************************************************
 	 * SUBVOXEL POINTS
@@ -815,10 +853,10 @@ public abstract class Shape implements
 	 * \brief Get the number of voxels in each dimension for the current
 	 * coordinates.
 	 * 
-	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
-	 * irrelevant, but it will make a difference in the polar grids.</p>
+	 * <p>For Cartesian shapes the value of <b>coords</b> will be
+	 * irrelevant, but it will make a difference in Polar shapes.</p>
 	 * 
-	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @param coords Discrete coordinates of a voxel on this shape.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
 	public int[] updateCurrentNVoxel()
@@ -839,6 +877,81 @@ public abstract class Shape implements
 	 */
 	// TODO update javadoc
 	protected abstract void getNVoxel(int[] coords, int[] outNVoxel);
+	
+	/*************************************************************************
+	 * NEIGHBOR ITERATOR
+	 ************************************************************************/
+	
+	/**
+	 * \brief Reset the neighbor iterator.
+	 * 
+	 * <p>Typically used just after the coordinate iterator has moved.</p>
+	 * 
+	 * @return The current neighbor coordinate.
+	 */
+	public int[] resetNbhIterator()
+	{
+		if ( this._currentNeighbor == null )
+			this._currentNeighbor = Vector.copy(this._currentCoord);
+		else
+			Vector.copyTo(this._currentNeighbor, this._currentCoord);
+		/* Do the shape-specific resetting. */
+		this.resetNbhIter();
+		/* Return the current neighbour coordinate. */
+		return this._currentNeighbor;
+	}
+	
+	/**
+	 * \brief Move the neighbor iterator to the current coordinate, 
+	 * and make the index at <b>dim</b> one less.
+	 * 
+	 * @return {@code boolean} reporting whether this is valid.
+	 */
+	protected boolean moveNbhToMinus(DimName dim)
+	{
+		int index = this.getDimensionIndex(dim);
+		Vector.copyTo(this._currentNeighbor, this._currentCoord);
+		this._currentNeighbor[index]--;
+		
+		return (this._currentNeighbor[index] >= 0) || 
+							this._dimensions.get(dim).isBoundaryDefined(0);
+	}
+	
+	/**
+	 * \brief Try to increase the neighbor iterator from the minus-side of the
+	 * current coordinate to the plus-side.
+	 * 
+	 * <p>For use on linear dimensions (X, Y, Z, R) and not on angular ones
+	 * (THETA, PHI).</p>
+	 * 
+	 * @param dim Index of the dimension to move in.
+	 * @return Whether the increase was successful (true) or a failure (false).
+	 */
+	protected boolean nbhJumpOverCurrent(DimName dim)
+	{
+		int index = this.getDimensionIndex(dim);
+		this.updateCurrentNVoxel();
+		/* Check we are behind the current coordinate. */
+		if ( this._currentNeighbor[index] < this._currentCoord[index] )
+		{
+			/* Check there is space on the other side. */
+			if ( this._currentCoord[index] < this._currentNVoxel[index] - 1 || 
+								this.getDimension(dim).isBoundaryDefined(1) )
+			{
+				/* Jump and report success. */
+				this._currentNeighbor[index] = this._currentCoord[index] + 1;
+				return true;
+			}
+		}
+		/* Report failure. */
+		return false;
+	}
+	
+	/**
+	 * \brief Helper method for resetting the neighbor iterator, to be
+	 * implemented by subclasses.
+	 */
+	protected abstract void resetNbhIter();
 	
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK
@@ -930,49 +1043,6 @@ public abstract class Shape implements
 		public Object getOptions()
 		{
 			return Shape.getAllOptions();
-		}
-	}
-	
-	/*************************************************************************
-	 * POLAR SHAPE
-	 ************************************************************************/
-	
-	/**
-	 * \brief Subclass of {@code Shape} that has at least one angular
-	 * dimension.
-	 * 
-	 * <p>Note that the size of voxels in angular dimensions will depend on
-	 * other dimensions.</p>
-	 */
-	public static abstract class Polar extends Shape
-	{
-		/**
-		 * Storage container for dimensions that this {@code Shape} is not yet
-		 * ready to initialise.
-		 */
-		protected HashMap<DimName,ResCalc> _rcStorage =
-											new HashMap<DimName,ResCalc>();
-		
-		public Polar()
-		{
-			super();
-			/* There is no need for an r-min boundary. */
-			Dimension dim = new Dimension();
-			dim.setBoundaryOptional(0);
-			this._dimensions.put(DimName.R, dim);
-		}
-		
-		/**
-		 * \brief Try to initialise a resolution calculator from storage, for a
-		 * dimension that is dependent on another.
-		 * 
-		 * @param dName Name of the dimension to try.
-		 */
-		protected void trySetDimRes(DimName dName)
-		{
-			ResCalc rC = this._rcStorage.get(dName);
-			if ( rC != null )
-				this.setDimensionResolution(dName, rC);
 		}
 	}
 }
