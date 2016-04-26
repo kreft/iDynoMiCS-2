@@ -15,20 +15,13 @@ public abstract class SphericalShape extends Shape
 	 */
 	protected ResCalc[][][] _resCalc;
 	
+	/*************************************************************************
+	 * CONSTRUCTION
+	 ************************************************************************/
+	
 	public SphericalShape()
 	{
 		super();
-		/*
-		 * Set full angular dimensions by default, can be overwritten later.
-		 */
-		Dimension dim = new Dimension();
-		dim.setCyclic();
-		dim.setLength(Math.PI);
-		this._dimensions.put(DimName.PHI, dim);
-		dim = new Dimension();
-		dim.setCyclic();
-		dim.setLength(2 * Math.PI);
-		this._dimensions.put(DimName.THETA, dim);
 		/*
 		 * Set up the array of resolution calculators.
 		 */
@@ -38,7 +31,31 @@ public abstract class SphericalShape extends Shape
 		this._resCalc[0][0] = new ResCalc[1];
 		/* phi */
 		this._resCalc[1] = new ResCalc[1][];
+		/* theta will depend on phi, so leave for now. */
+		/*
+		 * Set up the dimensions.
+		 */
+		Dimension dim;
+		/* There is no need for an r-min boundary. */
+		dim = new Dimension();
+		dim.setBoundaryOptional(0);
+		this._dimensions.put(DimName.R, dim);
+		/*
+		 * Set full angular dimensions by default, can be overwritten later.
+		 */
+		dim = new Dimension();
+		dim.setCyclic();
+		dim.setLength(Math.PI);
+		this._dimensions.put(DimName.PHI, dim);
+		dim = new Dimension();
+		dim.setCyclic();
+		dim.setLength(2 * Math.PI);
+		this._dimensions.put(DimName.THETA, dim);
 	}
+	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
 	
 	@Override
 	public GridGetter gridGetter()
@@ -59,27 +76,10 @@ public abstract class SphericalShape extends Shape
 		return Vector.toCartesian(local);
 	}
 	
-	public void setSurfaces()
-	{
-		Dimension dim = this.getDimension(DimName.R);
-		double[] centre = Vector.zerosDbl(this.getNumberOfDimensions());
-		Ball outbound;
-		double radius;
-		/* Inner radius, if it exists. */
-		radius = dim.getExtreme(0);
-		if ( radius > 0.0 )
-		{
-			outbound = new Ball( new Point(centre) , radius);
-			outbound.bounding = false;
-			this._surfaces.add(outbound);
-		}
-		/* Outer radius always exists. */
-		radius = dim.getExtreme(1);
-		outbound = new Ball( new Point(centre) , radius);
-		outbound.bounding = true;
-		this._surfaces.add(outbound);
-	}
-
+	/*************************************************************************
+	 * DIMENSIONS
+	 ************************************************************************/
+	
 	@Override
 	public void setDimensionResolution(DimName dName, ResCalc resC)
 	{
@@ -196,12 +196,39 @@ public abstract class SphericalShape extends Shape
 			default: return null;
 		}
 	}
-
-	@Override
-	protected void getNVoxel(int[] coords, int[] outNVoxel)
+	
+	/*************************************************************************
+	 * SURFACES
+	 ************************************************************************/
+	
+	public void setSurfaces()
 	{
-		// TODO
+		Dimension dim = this.getDimension(DimName.R);
+		double[] centre = Vector.zerosDbl(this.getNumberOfDimensions());
+		Ball outbound;
+		double radius;
+		/* Inner radius, if it exists. */
+		radius = dim.getExtreme(0);
+		if ( radius > 0.0 )
+		{
+			outbound = new Ball( new Point(centre) , radius);
+			outbound.bounding = false;
+			this._surfaces.add(outbound);
+		}
+		/* Outer radius always exists. */
+		radius = dim.getExtreme(1);
+		outbound = new Ball( new Point(centre) , radius);
+		outbound.bounding = true;
+		this._surfaces.add(outbound);
 	}
+	
+	/*************************************************************************
+	 * BOUNDARIES
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * VOXELS
+	 ************************************************************************/
 	
 	@Override
 	public double getVoxelVolume(int[] coord)
@@ -219,8 +246,34 @@ public abstract class SphericalShape extends Shape
 		return out / 3.0;
 	}
 	
+	@Override
+	protected void getNVoxel(int[] coords, int[] outNVoxel)
+	{
+		// TODO
+	}
+	
+	/*************************************************************************
+	 * SUBVOXEL POINTS
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * COORDINATE ITERATOR
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * NEIGHBOR ITERATOR
+	 ************************************************************************/
+	
+	@Override
 	protected void resetNbhIter()
 	{
 		
+	}
+	
+	@Override
+	public int[] nbhIteratorNext()
+	{
+		// TODO
+		return null;
 	}
 }

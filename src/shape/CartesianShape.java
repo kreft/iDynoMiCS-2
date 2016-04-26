@@ -22,12 +22,20 @@ public abstract class CartesianShape extends Shape
 	
 	protected DimName _nbhDirection;
 	
+	/*************************************************************************
+	 * CONSTRUCTION
+	 ************************************************************************/
+	
 	public CartesianShape()
 	{
 		this._resCalc = new ResCalc[3];
 		for ( DimName d : new DimName[]{DimName.X, DimName.Y, DimName.Z} )
 			this._dimensions.put(d, new Dimension(false));
 	}
+	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
 	
 	@Override
 	public GridGetter gridGetter()
@@ -48,6 +56,28 @@ public abstract class CartesianShape extends Shape
 		return local;
 	}
 	
+	/*************************************************************************
+	 * DIMENSIONS
+	 ************************************************************************/
+	
+	@Override
+	public void setDimensionResolution(DimName dName, ResCalc resC)
+	{
+		int index = this.getDimensionIndex(dName);
+		this._resCalc[index] = resC;
+	}
+	
+	@Override
+	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	{
+		/* Coordinate is irrelevant here. */
+		return this._resCalc[axis];
+	}
+	
+	/*************************************************************************
+	 * SURFACES
+	 ************************************************************************/
+	
 	@Override
 	public void setSurfaces()
 	{
@@ -55,6 +85,46 @@ public abstract class CartesianShape extends Shape
 			if ( this._dimensions.get(dim).isSignificant() )
 				this.setPlanarSurfaces(dim);
 	}
+	
+	/*************************************************************************
+	 * BOUNDARIES
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * VOXELS
+	 ************************************************************************/
+	
+	@Override
+	public double getVoxelVolume(int[] coord)
+	{
+		double out = 1.0;
+		ResCalc rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			rC = this.getResolutionCalculator(coord, dim);
+			out *= rC.getResolution(coord[dim]);
+		}
+		return out;
+	}
+	
+	@Override
+	protected void getNVoxel(int[] coords, int[] outNVoxel)
+	{
+		for ( int dim = 0; dim < this.getNumberOfDimensions(); dim++ )
+			outNVoxel[dim] = this._resCalc[dim].getNVoxel();
+	}
+	
+	/*************************************************************************
+	 * SUBVOXEL POINTS
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * COORDINATE ITERATOR
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * NEIGHBOR ITERATOR
+	 ************************************************************************/
 	
 	@Override
 	protected void resetNbhIter()
@@ -76,36 +146,9 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	public void setDimensionResolution(DimName dName, ResCalc resC)
+	public int[] nbhIteratorNext()
 	{
-		int index = this.getDimensionIndex(dName);
-		this._resCalc[index] = resC;
-	}
-
-	@Override
-	protected ResCalc getResolutionCalculator(int[] coord, int axis)
-	{
-		/* Coordinate is irrelevant here. */
-		return this._resCalc[axis];
-	}
-	
-	protected void getNVoxel(int[] coords, int[] outNVoxel)
-	{
-		for ( int dim = 0; dim < this.getNumberOfDimensions(); dim++ )
-			outNVoxel[dim] = this._resCalc[dim].getNVoxel();
-	}
-	
-	@Override
-	public double getVoxelVolume(int[] coord)
-	{
-		double out = 1.0;
-		ResCalc rC;
-		// TODO handle y, z dimensions
-		for ( int dim = 0; dim < 3; dim++ )
-		{
-			rC = this.getResolutionCalculator(coord, dim);
-			out *= rC.getResolution(coord[dim]);
-		}
-		return out;
+		// TODO
+		return null;
 	}
 }

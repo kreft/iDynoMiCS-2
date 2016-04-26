@@ -14,7 +14,14 @@ import utility.ExtraMath;
  */
 public abstract class CylindricalShape extends Shape
 {
+	/**
+	 * Collection of resolution calculators for each dimension.
+	 */
 	protected ResCalc[][] _resCalc;
+	
+	/*************************************************************************
+	 * CONSTRUCTION
+	 ************************************************************************/
 	
 	public CylindricalShape()
 	{
@@ -41,6 +48,10 @@ public abstract class CylindricalShape extends Shape
 		this._dimensions.put(DimName.Z, dim);
 	}
 	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
+	
 	@Override
 	public GridGetter gridGetter()
 	{
@@ -60,46 +71,10 @@ public abstract class CylindricalShape extends Shape
 		return Vector.cylindricalToCartesian(local);
 	}
 	
-	public void setSurfaces()
-	{
-		/*
-		 * The ends of the Rod axis.
-		 */
-		int nDim = this.getNumberOfDimensions();
-		double[] pointA = Vector.zerosDbl(nDim);
-		double[] pointB = Vector.zerosDbl(nDim);
-		/*
-		 * Check if we need to use the Z dimension.
-		 */
-		// TODO move this into Cylinder somehow?
-		Dimension zDim = this.getDimension(DimName.Z);
-		if ( zDim.isSignificant() )
-		{
-			pointA[2] = zDim.getExtreme(0);
-			pointB[2] = zDim.getExtreme(1);
-		}
-		/*
-		 * Find the radii and add the rod(s).
-		 */
-		Dimension radiusDim = this.getDimension(DimName.R);
-		/* If there is an inner radius, use it. */
-		double radius = radiusDim.getExtreme(0);
-		if ( radius > 0.0 )
-			this._surfaces.add(new Rod(pointA, pointB, radius));
-		/* We always use the outer radius. */
-		radius = radiusDim.getExtreme(1);
-		this._surfaces.add(new Rod(pointA, pointB, radius));
-		/*
-		 * If theta is not cyclic, we need to add two planes.
-		 */
-		Dimension thetaDim = this.getDimension(DimName.THETA);
-		if ( ! thetaDim.isCyclic() )
-		{
-			// TODO can we use Shape.setPlanarSurfaces() here?
-			// Probably depends on which coordinate system we use.
-		}
-	}
-
+	/*************************************************************************
+	 * DIMENSIONS
+	 ************************************************************************/
+	
 	@Override
 	public void setDimensionResolution(DimName dName, ResCalc resC)
 	{
@@ -146,15 +121,6 @@ public abstract class CylindricalShape extends Shape
 		}
 	}
 	
-
-
-	@Override
-	protected void resetNbhIter()
-	{
-		// TODO Auto-generated method stub
-		
-	}
-	
 	@Override
 	protected ResCalc getResolutionCalculator(int[] coord, int dim)
 	{
@@ -167,22 +133,57 @@ public abstract class CylindricalShape extends Shape
 		return this._resCalc[dim][index];
 	}
 	
-	@Override
-	protected void getNVoxel(int[] coord, int[] outNVoxel)
+	/*************************************************************************
+	 * SURFACES
+	 ************************************************************************/
+	
+	public void setSurfaces()
 	{
+		/*
+		 * The ends of the Rod axis.
+		 */
 		int nDim = this.getNumberOfDimensions();
-		/* Initialise the out vector if necessary. */
-		if ( outNVoxel == null )
-			outNVoxel = Vector.zerosInt(nDim);
-		
-		ResCalc rC;
-		for ( int dim = 0; dim < nDim; dim++ )
+		double[] pointA = Vector.zerosDbl(nDim);
+		double[] pointB = Vector.zerosDbl(nDim);
+		/*
+		 * Check if we need to use the Z dimension.
+		 */
+		// TODO move this into Cylinder somehow?
+		Dimension zDim = this.getDimension(DimName.Z);
+		if ( zDim.isSignificant() )
 		{
-			// TODO check if coord is valid?
-			rC = this.getResolutionCalculator(coord, dim);
-			outNVoxel[dim] = rC.getNVoxel();
+			pointA[2] = zDim.getExtreme(0);
+			pointB[2] = zDim.getExtreme(1);
+		}
+		/*
+		 * Find the radii and add the rod(s).
+		 */
+		Dimension radiusDim = this.getDimension(DimName.R);
+		/* If there is an inner radius, use it. */
+		double radius = radiusDim.getExtreme(0);
+		if ( radius > 0.0 )
+			this._surfaces.add(new Rod(pointA, pointB, radius));
+		/* We always use the outer radius. */
+		radius = radiusDim.getExtreme(1);
+		this._surfaces.add(new Rod(pointA, pointB, radius));
+		/*
+		 * If theta is not cyclic, we need to add two planes.
+		 */
+		Dimension thetaDim = this.getDimension(DimName.THETA);
+		if ( ! thetaDim.isCyclic() )
+		{
+			// TODO can we use Shape.setPlanarSurfaces() here?
+			// Probably depends on which coordinate system we use.
 		}
 	}
+	
+	/*************************************************************************
+	 * BOUNDARIES
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * VOXELS
+	 ************************************************************************/
 	
 	@Override
 	public double getVoxelVolume(int[] coord)
@@ -202,5 +203,47 @@ public abstract class CylindricalShape extends Shape
 		 */
 		volume *= (upper[2] - origin[2]);
 		return volume;
+	}
+	
+	@Override
+	protected void getNVoxel(int[] coord, int[] outNVoxel)
+	{
+		int nDim = this.getNumberOfDimensions();
+		/* Initialise the out vector if necessary. */
+		if ( outNVoxel == null )
+			outNVoxel = Vector.zerosInt(nDim);
+		
+		ResCalc rC;
+		for ( int dim = 0; dim < nDim; dim++ )
+		{
+			// TODO check if coord is valid?
+			rC = this.getResolutionCalculator(coord, dim);
+			outNVoxel[dim] = rC.getNVoxel();
+		}
+	}
+	
+	/*************************************************************************
+	 * SUBVOXEL POINTS
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * COORDINATE ITERATOR
+	 ************************************************************************/
+	
+	/*************************************************************************
+	 * NEIGHBOR ITERATOR
+	 ************************************************************************/
+	
+	@Override
+	protected void resetNbhIter()
+	{
+		//TODO
+	}
+	
+	@Override
+	public int[] nbhIteratorNext()
+	{
+		// TODO
+		return null;
 	}
 }

@@ -82,15 +82,45 @@ public final class ShapeLibrary
 			return local;
 		}
 		
+		@Override
+		protected ResCalc getResolutionCalculator(int[] coord, int axis)
+		{
+			return null;
+		}
+		
+		@Override
+		public void setDimensionResolution(DimName dName, ResCalc resC)
+		{
+			/* Do nothing! */
+		}
+		
 		public void setSurfaces()
 		{
 			/* Do nothing! */
 		}
 		
 		@Override
+		public double getVoxelVolume(int[] coord)
+		{
+			return this._volume;
+		}
+		
+		protected void getNVoxel(int[] coords, int[] outNVoxel)
+		{
+			/* Dimensionless shapes have no voxels. */
+			Vector.reset(outNVoxel);
+		}
+		
+		@Override
 		protected void resetNbhIter()
 		{
 			/* Do nothing! */
+		}
+		
+		@Override
+		public int[] nbhIteratorNext()
+		{
+			return null;
 		}
 		
 		public boolean isReadyForLaunch()
@@ -104,30 +134,6 @@ public final class ShapeLibrary
 				return false;
 			}
 			return true;
-		}
-
-		@Override
-		public void setDimensionResolution(DimName dName, ResCalc resC)
-		{
-			/* Do nothing! */
-		}
-
-		@Override
-		protected ResCalc getResolutionCalculator(int[] coord, int axis)
-		{
-			return null;
-		}
-		
-		protected void getNVoxel(int[] coords, int[] outNVoxel)
-		{
-			/* Dimensionless shapes have no voxels. */
-			Vector.reset(outNVoxel);
-		}
-		
-		@Override
-		public double getVoxelVolume(int[] coord)
-		{
-			return this._volume;
 		}
 	}
 	
