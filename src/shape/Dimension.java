@@ -70,10 +70,27 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 * If this is a cyclic dimension, different rules apply.
 	 */
 	protected boolean _isCyclic = false;
+	/**
+	 * TODO
+	 */
+	protected boolean _isSignificant = true;
 	
 	/**************************************************************************
 	 * CONSTRUCTORS
 	 *************************************************************************/
+	
+	public Dimension()
+	{
+		
+	}
+	
+	public Dimension(boolean isSignificant)
+	{
+		if ( isSignificant )
+			this.setSignificant();
+		else
+			this.setInsignificant();
+	}
 	
 	public void init(Node xmlNode)
 	{
@@ -225,16 +242,45 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		return this._isCyclic;
 	}
 	
+	/**
+	 * TODO
+	 */
+	public void setSignificant()
+	{
+		this._isSignificant = true;
+	}
+	
+	/**
+	 * TODO
+	 */
+	public void setInsignificant()
+	{
+		this._isSignificant = false;
+		this.setBoundariesOptional();
+	}
+	
+	/**
+	 * TODO
+	 * @return
+	 */
+	public boolean isSignificant()
+	{
+		return this._isSignificant;
+	}
+	
 	/**************************************************************************
 	 * BOUNDARIES
 	 *************************************************************************/
 	
 	/**
-	 * \brief Tell this dimension that the boundary at the minimum extreme may
-	 * not be specified. Meaningless in cyclic dimensions.
+	 * \brief Tell this dimension that the boundary at the given extreme may
+	 * not be specified.
 	 * 
-	 * @param index Which boundary to set: 0 for minimum, 1 for maximum.
-	 * @see #setBoundariesRequired()
+	 * <p>Meaningless in cyclic dimensions.</p>
+	 * 
+	 * @param index Which extreme to set: 0 for minimum, 1 for maximum.
+	 * @see #setBoundariesOptional()
+	 * @see #setBoundaryRequired(int)
 	 */
 	public void setBoundaryOptional(int index)
 	{
@@ -243,16 +289,47 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	
 	/**
 	 * \brief Tell this dimension that both boundaries may not be specified.
-	 * Meaningless in cyclic dimensions.
 	 * 
-	 * @see #setMinBoundaryRequired()
-	 * @see #setMAxBoundaryRequired()
+	 * <p>Meaningless in cyclic dimensions.</p>
+	 * 
+	 * @see #setBoundaryOptional(int)
+	 * @see #setBoundariesRequired()
 	 */
 	public void setBoundariesOptional()
 	{
 		this.setBoundaryOptional(0);
 		this.setBoundaryOptional(1);
 	}
+	
+	/**
+	 * \brief Tell this dimension that the boundary at the given extreme must
+	 * be specified.
+	 * 
+	 * <p>Meaningless in cyclic dimensions.</p>
+	 * 
+	 * @param index Which extreme to set: 0 for minimum, 1 for maximum.
+	 * @see #setBoundariesRequired()
+	 * @see #setBoundaryOptional(int)
+	 */
+	public void setBoundaryRequired(int index)
+	{
+		this._required[index] = true;
+	}
+	
+	/**
+	 * \brief Tell this dimension that both boundaries must be specified.
+	 * 
+	 * <p>Meaningless in cyclic dimensions.</p>
+	 * 
+	 * @see #setBoundaryRequired(int)
+	 * @see #setBoundariesOptional()
+	 */
+	public void setBoundariesRequired()
+	{
+		this.setBoundaryRequired(0);
+		this.setBoundaryRequired(1);
+	}
+	
 	/**
 	 * \brief Set both the minimum and maximum boundaries.
 	 * 
@@ -273,8 +350,6 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	/**
 	 * \brief Set both the minimum and maximum boundaries.
 	 * 
-	 * @param minBndry
-	 * @param maxBndry
 	 * @param minBndry {@code Boundary} to set at the minimum extreme.
 	 * @param maxBndry {@code Boundary} to set at the maximum extreme.
 	 */
@@ -298,6 +373,17 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	public Boundary[] getBoundaries()
 	{
 		return this._boundary;
+	}
+	
+	/**
+	 * \brief Report whether the boundary on the given extreme is defined.
+	 * 
+	 * @param extreme Which extreme to check: 0 for minimum, 1 for maximum.
+	 * @return True if the boundary is defined, null if it is not.
+	 */
+	public boolean isBoundaryDefined(int extreme)
+	{
+		return this._boundary[extreme] != null;
 	}
 	
 	/**************************************************************************
