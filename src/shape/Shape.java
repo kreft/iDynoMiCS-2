@@ -48,6 +48,8 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ * 								Friedrich-Schiller University Jena, Germany 
  */
 public abstract class Shape implements
 					CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
@@ -56,7 +58,7 @@ public abstract class Shape implements
 	 * Ordered dictionary of dimensions for this shape.
 	 */
 	protected LinkedHashMap<DimName, Dimension> _dimensions = 
-								 	   new LinkedHashMap<DimName, Dimension>();
+									new LinkedHashMap<DimName, Dimension>();
 	/**
 	 * List of boundaries in a dimensionless compartment, or internal
 	 * boundaries in a dimensional compartment.

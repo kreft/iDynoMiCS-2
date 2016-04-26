@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import boundary.Boundary;
 import boundary.grid.GridMethod;
 import grid.SpatialGrid;
+import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
  * \brief TODO
@@ -30,6 +31,48 @@ public final class ShapeConventions
 		PHI;
 	}
 	
+	/**
+	 * \brief Dummy resolution calculator that always has exactly one voxel.
+	 */
+	// NOTE exploratory work, may not be used
+	public static class SingleVoxel extends ResCalc
+	{
+		public SingleVoxel()
+		{
+			this._nVoxel = 1;
+			this._length = 1.0;
+		}
+		
+		@Override
+		public void setLength(double length)
+		{
+			this._length = length;
+		}
+
+		@Override
+		public double getMinResolution()
+		{
+			return this._length;
+		}
+
+		@Override
+		public double getResolution(int voxelIndex)
+		{
+			return this._length;
+		}
+
+		@Override
+		public double getCumulativeResolution(int voxelIndex)
+		{
+			return this._length;
+		}
+
+		@Override
+		public int getVoxelIndex(double location)
+		{
+			return 0;
+		}
+	}
 	
 	/**
 	 * \brief Dummy class for cyclic dimensions.
