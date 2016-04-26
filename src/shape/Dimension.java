@@ -55,8 +55,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	protected double[] _extreme = new double[]{0.0, Double.MIN_VALUE};
 	
 	/**
-	 * Boundary objects at the minimum (0) and maximum (1). Meaningless in
-	 * cyclic dimensions.
+	 * Boundary objects at the minimum (0) and maximum (1).
 	 */
 	protected Boundary[] _boundary = new Boundary[2];
 	
@@ -338,12 +337,12 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		return this._isCyclic ||
 					(( a >= this._extreme[0] ) && ( a < this._extreme[1] ));
 	}
-	
 	/**
-	 * returns the periodic (in Frame) location in this dimension, returns input
-	 * if the location is already in Frame.
+	 * @param a Any point along this dimension, whether inside or outside.
+	 * @return <b>a</b> if it is inside the extremes, or the corresponding 
+	 * point inside the extremes if <b>a</b> is outside.
 	 */
-	public double periodicLocation(double a)
+	private double periodicLocation(double a)
 	{
 		return this._extreme[0] + 
 				ExtraMath.floorMod(a - this._extreme[0], this.getLength());
