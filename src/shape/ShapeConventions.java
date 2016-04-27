@@ -23,12 +23,24 @@ public final class ShapeConventions
 	 */
 	public enum DimName
 	{
-		X,
-		Y,
-		Z,
-		R,
-		THETA,
-		PHI;
+		X(false),
+		Y(false),
+		Z(false),
+		R(false),
+		THETA(true),
+		PHI(true);
+		
+		private boolean _isAngular;
+		
+		DimName(boolean isAngular)
+		{
+			this._isAngular = isAngular;
+		}
+		
+		public boolean isAngular()
+		{
+			return this._isAngular;
+		}
 	}
 	
 	/**

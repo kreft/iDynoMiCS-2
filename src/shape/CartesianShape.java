@@ -167,4 +167,34 @@ public abstract class CartesianShape extends Shape
 		}
 		return this._currentNeighbor;
 	}
+	
+	@Override
+	public double nbhCurrDistance()
+	{
+		int i = this.getDimensionIndex(this._nbhDirection);
+		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
+		double out = rC.getPosition(this._currentCoord[i], 0.5);
+		out -= rC.getPosition(this._currentNeighbor[i], 0.5);
+		return Math.abs(out);
+	}
+	
+	@Override
+	public double nbhCurrSharedArea()
+	{
+		double area = 1.0;
+		int nDim = this.getNumberOfDimensions();
+		ResCalc rC;
+		int index;
+		for ( DimName dim : this.getDimensionNames() )
+		{
+			if ( dim.equals(this._nbhDirection) )
+				continue;
+			index = this.getDimensionIndex(dim);
+			rC = this.getResolutionCalculator(this._currentCoord, index);
+			/* Need to be careful about insignificant axes. */
+			area *= ( index >= nDim ) ? rC.getResolution(0) :
+								rC.getResolution(this._currentCoord[index]);
+		}
+		return area;
+	}
 }

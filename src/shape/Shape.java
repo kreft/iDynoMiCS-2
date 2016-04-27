@@ -39,6 +39,7 @@ import shape.subvoxel.SubvoxelPoint;
 import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Surface;
+import utility.ExtraMath;
 import utility.Helper;
 /**
  * \brief Abstract class for all shape objects.
@@ -82,8 +83,11 @@ public abstract class Shape implements
 	 */
 	protected HashMap<DimName,ResCalc> _rcStorage =
 												new HashMap<DimName,ResCalc>();
-	
-	protected Double _maxFluxPotential = null;
+	/**
+	 * The greatest potential flux between neighboring voxels. Multiply by 
+	 * diffusivity to become actual flux.
+	 */
+	protected Double _maxFluxPotentl = null;
 	/**
 	 * Surface Object for collision detection methods
 	 */
@@ -335,13 +339,23 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief Set the given dimension to be significant.
+	 * \brief Set the first <b>n</b> dimensions as significant.
 	 * 
-	 * @param dim Name o
+	 * <p>This method is safer that setting dimensions directly.</p>
+	 * 
+	 * @param n Number of dimensions to make significant.
 	 */
-	protected void setSignificant(DimName dim)
+	protected void setSignificant(int n)
 	{
-		this._dimensions.get(dim).setSignificant();
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			if ( i >= n )
+				return;
+			dim.setSignificant();
+			// TODO need to clarify setting boundaries optional/required
+			i++;
+		}
 	}
 	
 	/**
@@ -789,22 +803,61 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * TODO
-	 * @return
+	 * \brief Calculate the greatest potential flux between neighboring voxels.
+	 * 
+	 * <p>This is useful in estimating the timestep of a PDE solver.</p>
+	 * 
+	 * <p>Units: area<sup>-1</sup>.</p>
+	 * 
+	 * @return Greatest potential flux between neighboring voxels.
 	 */
 	public double getMaxFluxPotential()
 	{
-		if ( this._maxFluxPotential == null )
+		if ( this._maxFluxPotentl == null )
 			this.calcMaxFluxPotential();
-		return this._maxFluxPotential;
+		return this._maxFluxPotentl;
 	}
 	
 	/**
-	 * TODO
+	 * \brief Helper method to calculate the maximum flux potential.
+	 * 
+	 * <p>This value will not change unless the resolutions do.</p>
 	 */
-	protected void calcMaxFluxPotential()
+	private void calcMaxFluxPotential()
 	{
-		// TODO
+		/*
+		 * Store the two iterators, in case we're in the middle of an
+		 * iteration.
+		 */
+		int[] storeIter = null;
+		int[] storeNbh = null;
+		if ( this._currentCoord != null )
+			storeIter = Vector.copy(this._currentCoord);
+		if ( this._currentNeighbor != null )
+			storeNbh = Vector.copy(this._currentNeighbor);
+		/*
+		 * Loop over all voxels, finding the greatest flux potential.
+		 */
+		double volume;
+		double max;
+		double temp = 0.0;
+		for ( this.resetIterator(); this.isIteratorValid(); this.iteratorNext())
+		{
+			volume = this.getVoxelVolume(this._currentCoord);
+			max  = 0.0;
+			for ( this.resetNbhIter();
+						this.isNbhIteratorValid(); this.nbhIteratorNext() )
+			{
+				temp = this.nbhCurrSharedArea() / this.nbhCurrDistance();
+				max = Math.max(max, temp);
+			}
+			this._maxFluxPotentl = Math.max(this._maxFluxPotentl, max/volume);
+		}
+		/*
+		 * Put the iterators back to their stored values.
+		 */
+		this._currentCoord = (storeIter == null) ? null:Vector.copy(storeIter);
+		this._currentNeighbor = (storeNbh==null) ? null:Vector.copy(storeNbh);
 	}
 	
 	/**
@@ -1010,6 +1063,29 @@ public abstract class Shape implements
 	}
 	
 	/**
+	 * \brief Calculates the overlap between the current iterator voxel and the
+	 * neighbor voxel, in the dimension given by <b>index</b>.
+	 * 
+	 * @param index Index of the required dimension.
+	 * @return Overlap length between the two voxels.
+	 */
+	protected double getNbhSharedLength(int index)
+	{
+		ResCalc rC;
+		double curMin, curMax, nbhMin, nbhMax;
+		/* Current voxel of the main iterator. */
+		rC = this.getResolutionCalculator(this._currentCoord, index);
+		curMin = rC.getCumulativeResolution(this._currentCoord[index] - 1);
+		curMax = rC.getCumulativeResolution(this._currentCoord[index]);
+		/* Current voxel of the neighbor iterator. */
+		rC = this.getResolutionCalculator(this._currentNeighbor, index);
+		nbhMin = rC.getCumulativeResolution(this._currentNeighbor[index] - 1);
+		nbhMax = rC.getCumulativeResolution(this._currentNeighbor[index]);
+		/* Find the overlap. */
+		return ExtraMath.overlap(curMin, curMax, nbhMin, nbhMax);
+	}
+	
+	/**
 	 * \brief Move the neighbor iterator to the current coordinate, 
 	 * and make the index at <b>dim</b> one less.
 	 * 
@@ -1066,6 +1142,18 @@ public abstract class Shape implements
 	 * @return The next neighbor iterator coordinate.
 	 */
 	public abstract int[] nbhIteratorNext();
+	
+	/**
+	 * @return The centre-centre distance between the current iterator voxel
+	 * and the neighbor voxel.
+	 */
+	public abstract double nbhCurrDistance();
+	
+	/**
+	 * @return The shared surface area between the current iterator voxel
+	 * and the neighbor voxel.
+	 */
+	public abstract double nbhCurrSharedArea();
 	
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK
