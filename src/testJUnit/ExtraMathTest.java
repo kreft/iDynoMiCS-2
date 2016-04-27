@@ -1,7 +1,9 @@
 package testJUnit;
 
 import static testJUnit.AllTests.TOLERANCE;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -81,5 +83,43 @@ public class ExtraMathTest
 		calc = ExtraMath.floorMod(1.5, -5.2);
 		answ = -3.7;
 		assertTrue(ExtraMath.areEqual(calc, answ, TOLERANCE));
+	}
+	
+	@Test
+	public void overlapShouldBehave()
+	{
+		double calc;
+		/* Simple. */ 
+		calc = ExtraMath.overlap(1.0, 3.0, 2.0, 4.0);
+		assertTrue(ExtraMath.areEqual(1.0, calc, TOLERANCE));
+		calc = ExtraMath.overlap(2.0, 3.0, 2.0, 4.0);
+		assertTrue(ExtraMath.areEqual(1.0, calc, TOLERANCE));
+		calc = ExtraMath.overlap(0.0, 1.5, 0.0, 2.7);
+		assertTrue(ExtraMath.areEqual(1.5, calc, TOLERANCE));
+		/* Negatives. */
+		calc = ExtraMath.overlap(-3.4, -1.6, -5.0, 4.0);
+		assertTrue(ExtraMath.areEqual(1.8, calc, TOLERANCE));
+		/* No overlap. */
+		calc = ExtraMath.overlap(1.0, 2.0, 3.0, 4.0);
+		assertTrue(ExtraMath.areEqual(0.0, calc, TOLERANCE));
+		/* Illegal arguments. */
+		try
+		{
+			calc = ExtraMath.overlap(2.0, 1.0, 3.0, 4.0);
+			fail("Expected IllegalArgumentException");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Minimum > Maximum!");
+		}
+		try
+		{
+			calc = ExtraMath.overlap(1.0, 2.0, 4.0, 3.0);
+			fail("Expected IllegalArgumentException");
+		}
+		catch (IllegalArgumentException e)
+		{
+			assertEquals(e.getMessage(), "Minimum > Maximum!");
+		}
 	}
 }
