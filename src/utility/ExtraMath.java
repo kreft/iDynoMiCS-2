@@ -407,6 +407,27 @@ public final class ExtraMath
 		return out;
 	}
 	
+	/**
+	 * \brief Calculate the overlap between two ranges,
+	 * [<b>xMin</b>, <b>xMax</b>] and [<b>yMin</b>, <b>yMax</b>].
+	 * 
+	 * <p>Note that this will return zero if there is no overlap.</p>
+	 * 
+	 * @param xMin The minimum of the first range.
+	 * @param xMax The maximum of the first range.
+	 * @param yMin The minimum of the second range.
+	 * @param yMax The maximum of the second range.
+	 * @throws IllegalArgumentException "Minimum > Maximum!"
+	 * @return The overlap between the two ranges.
+	 */
+	public static final double
+					overlap(double xMin, double xMax, double yMin, double yMax)
+	{
+		if ( xMin > xMax || yMin > yMax )
+			throw new IllegalArgumentException("Minimum > Maximum!");
+		return Math.max(0.0, Math.min(xMax, yMax) - Math.max(xMin, yMin));
+	}
+	
 	/*  ----------------------------- Shapes  ----------------------------- */
 	
 	/**
