@@ -1,11 +1,80 @@
 package shape;
 
+import static shape.ShapeConventions.DimName.R;
+
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 public abstract class PolarShape extends Shape
 {
+	
+	@Override
+	public double nbhCurrDistance()
+	{
+		int nDim = this.getNumberOfDimensions();
+		double distance = 0.0;
+		double temp;
+		DimName dim;
+		ResCalc rC;
+		/*
+		 * Find the average radius, as this will be useful in calculating arc
+		 * lengths of angular differences.
+		 */
+		double meanR = this.meanNbhCurrRadius();
+		/*
+		 * Loop over all dimensions, increasing the distance accordingly.
+		 */
+		for ( int i = 0; i < nDim; i++ )
+		{
+			dim = this.getDimensionName(i);
+			rC = this.getResolutionCalculator(this._currentCoord, i);
+			temp = rC.getPosition(this._currentCoord[i], 0.5);
+			rC = this.getResolutionCalculator(this._currentNeighbor, i);
+			temp -= rC.getPosition(this._currentNeighbor[i], 0.5);
+			/* We need the arc length for angular dimensions. */
+			if ( dim.isAngular() )
+				temp *= meanR;
+			/* Use Pythagoras to update the distance. */
+			distance = Math.hypot(distance, temp);
+		}
+		return distance;
+	}
+	
+	@Override
+	public double nbhCurrSharedArea()
+	{
+		double area = 1.0;
+		double meanR = this.meanNbhCurrRadius();
+		int nDim = this.getNumberOfDimensions();
+		ResCalc rC;
+		double temp;
+		int index = 0;
+		for ( DimName dim : this.getDimensionNames() )
+		{
+			index = this.getDimensionIndex(dim);
+			rC = this.getResolutionCalculator(this._currentCoord, index);
+			
+			temp = ( index >= nDim ) ? rC.getResolution(0) :
+										this.getNbhSharedLength(index);
+			/* We need the arc length for angular dimensions. */
+			if ( dim.isAngular() )
+				temp *= meanR;
+			area *= temp;
+		}
+		return area;
+	}
+	
+	/**
+	 * @return Average radius of the current iterator voxel and of the neighbor
+	 * voxel.
+	 */
+	private double meanNbhCurrRadius()
+	{
+		int i = this.getDimensionIndex(R);
+		return 0.5 * (this._currentCoord[i] + this._currentNeighbor[i]);
+	}
+	
 	/**
 	 * \brief Used to move neighbor iterator into a new shell.
 	 * 

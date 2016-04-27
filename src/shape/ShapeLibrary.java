@@ -135,6 +135,18 @@ public final class ShapeLibrary
 			}
 			return true;
 		}
+
+		@Override
+		public double nbhCurrDistance()
+		{
+			return 0.0;
+		}
+
+		@Override
+		public double nbhCurrSharedArea()
+		{
+			return 0.0;
+		}
 	}
 	
 	/*************************************************************************
@@ -149,7 +161,7 @@ public final class ShapeLibrary
 		public Line()
 		{
 			super();
-			this.setSignificant(DimName.X);
+			this.setSignificant(1);
 		}
 	}
 	
@@ -161,8 +173,7 @@ public final class ShapeLibrary
 		public Rectangle()
 		{
 			super();
-			this.setSignificant(DimName.X);
-			this.setSignificant(DimName.Y);
+			this.setSignificant(2);
 		}
 	}
 	
@@ -174,9 +185,7 @@ public final class ShapeLibrary
 		public Cuboid()
 		{
 			super();
-			this.setSignificant(DimName.X);
-			this.setSignificant(DimName.Y);
-			this.setSignificant(DimName.Z);
+			this.setSignificant(3);
 		}
 	}
 	
@@ -193,7 +202,7 @@ public final class ShapeLibrary
 		public Circle()
 		{
 			super();
-			this.setSignificant(DimName.THETA);
+			this.setSignificant(2);
 		}
 	}
 	
@@ -206,8 +215,7 @@ public final class ShapeLibrary
 		public Cylinder()
 		{
 			super();
-			this.setSignificant(DimName.THETA);
-			this.setSignificant(DimName.Z);
+			this.setSignificant(3);
 		}
 		
 		
@@ -235,7 +243,7 @@ public final class ShapeLibrary
 		public Sphere()
 		{
 			super();
-			
+			this.setSignificant(3);
 		}
 	}
 }

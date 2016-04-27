@@ -38,16 +38,14 @@ public abstract class CylindricalShape extends PolarShape
 		/*
 		 * Set to a full circle by default, let it be overwritten later.
 		 */
-		dim = new Dimension();
+		dim = new Dimension(false);
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
-		dim.setInsignificant();
 		this._dimensions.put(THETA, dim);
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
-		dim = new Dimension();
-		dim.setInsignificant();
+		dim = new Dimension(false);
 		this._dimensions.put(Z, dim);
 	}
 	
