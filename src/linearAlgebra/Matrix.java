@@ -25,12 +25,19 @@ package linearAlgebra;
  *   <li>advanced methods</li>
  * </ul>
  * 
- * TODO Credit to the JAMA package
- * 
  * <p>Note that all arrays from the <b>array.Vector</b> class are treated here
  * as column vectors. These may be converted to row vectors here using the 
  * {@link #transpose(int[] vector)} or {@link #transpose(double[] vector)}
  * methods.</p> 
+ * 
+ * <p>Parts of this class are adapted from the JAMA package by Robert Clegg.</p>
+ * 
+ * <p><b>JAMA Copyright Notice</b>: This software is a cooperative product of 
+ * The MathWorks and the National Institute of Standards and Technology (NIST) 
+ * which has been released to the public domain. Neither The MathWorks nor NIST
+ * assumes any responsibility whatsoever for its use by other parties, and 
+ * makes no guarantees, expressed or implied, about its quality, reliability, 
+ * or any other characteristic.</p>
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
@@ -578,8 +585,9 @@ public final class Matrix
 	 */
 	public static int[][] copy(int[][] matrix)
 	{
-		int[][] out = new int[matrix.length][matrix[0].length];
-		copyTo(out, matrix);
+		int[][] out = new int[matrix.length][];
+		for ( int i = 0; i < matrix.length; i++ )
+			out[i] = Vector.copy(matrix[i]);
 		return out;
 	}
 	
@@ -609,8 +617,9 @@ public final class Matrix
 	 */
 	public static double[][] copy(double[][] matrix)
 	{
-		double[][] out = new double[matrix.length][matrix[0].length];
-		copyTo(out, matrix);
+		double[][] out = new double[matrix.length][];
+		for ( int i = 0; i < matrix.length; i++ )
+			out[i] = Vector.copy(matrix[i]);
 		return out;
 	}
 	
@@ -644,9 +653,9 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set all elements of the given <b>matrix</b> to zero.
 	 * 
-	 * @param matrix
+	 * @param matrix Two-dimensional array of integers (overwritten).
 	 */
 	public static void reset(int[][] matrix)
 	{
@@ -654,9 +663,9 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set all elements of the given <b>matrix</b> to zero.
 	 * 
-	 * @param matrix
+	 * @param matrix Two-dimensional array of doubles (overwritten).
 	 */
 	public static void reset(double[][] matrix)
 	{
@@ -664,10 +673,11 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
 	 * 
-	 * @param matrix
-	 * @param newMinimum
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>matrix</b>.
 	 */
 	public static void restrictMinimum(int[][] matrix, int newMinimum)
 	{
@@ -676,10 +686,11 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
 	 * 
-	 * @param matrix
-	 * @param newMinimum
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>matrix</b>.
 	 */
 	public static void restrictMinimum(double[][] matrix, double newMinimum)
 	{
@@ -688,10 +699,11 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix</b> to take a value less
+	 * than or equal to <b>newMaximum</b>.
 	 * 
-	 * @param matrix
-	 * @param newMaximum
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>matrix</b>.
 	 */
 	public static void restrictMaximum(int[][] matrix, int newMaximum)
 	{
@@ -700,10 +712,11 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix</b> to take a value less
+	 * than or equal to <b>newMaximum</b>.
 	 * 
-	 * @param matrix
-	 * @param newMaximum
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>matrix</b>.
 	 */
 	public static void restrictMaximum(double[][] matrix, double newMaximum)
 	{
@@ -712,9 +725,10 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix/b> to take a value greater
+	 * than or equal to zero.
 	 * 
-	 * @param matrix
+	 * @param matrix Two-dimensional array of integers (overwritten).
 	 */
 	public static void makeNonnegative(int[][] matrix)
 	{
@@ -722,9 +736,10 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix/b> to take a value greater
+	 * than or equal to zero.
 	 * 
-	 * @param matrix
+	 * @param matrix Two-dimensional array of doubles (overwritten).
 	 */
 	public static void makeNonnegative(double[][] matrix)
 	{
