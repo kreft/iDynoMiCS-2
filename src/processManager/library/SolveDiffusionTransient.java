@@ -13,7 +13,7 @@ import agent.Agent;
 import concurentTasks.ConcurrentWorker;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
-import grid.wellmixedSetter.AllSame;
+import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -93,7 +93,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		this._wellmixed = new HashMap<String,IsWellmixedSetter>();
 		for ( String soluteName : this._soluteNames )
 		{
-			AllSame mixer = new AllSame();
+			AllSameMixing mixer = new AllSameMixing();
 			mixer.setValue(1.0);
 			this._wellmixed.put(soluteName, mixer);
 		}

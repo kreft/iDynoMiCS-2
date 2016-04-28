@@ -667,74 +667,128 @@ public abstract class Shape implements
 	 ************************************************************************/
 	
 	/**
-	 * \brief Converts a coordinate in the grid's array to a location in simulated 
-	 * space. 
+	 * \brief For a voxel given by its coordinates, find the global location
+	 * of a point inside it and write this location to <b>destination</b>.
 	 * 
-	 * 'Subcoordinates' can be transformed using the 'inside' array.
-	 * For example type getLocation(coord, new double[]{0.5,0.5,0.5})
-	 * to get the center point of the grid cell defined by 'coord'.
+	 * <p>All elements of the vector <b>inside</b> should be in the range
+	 * [0,1]. For example, if all are 0.5 then this method will find the centre
+	 * of the voxel.</p>
 	 * 
-	 * @param coord - a coordinate in the grid's array.
-	 * @param inside - relative position inside the grid cell.
-	 * @return - the location in simulation space.
+	 * @param destination Vector that will be overwritten with the result.
+	 * @param coords Discrete coordinates of a voxel in this shape.
+	 * @param inside Relative position inside the voxel.
 	 */
-	public double[] getLocation(int[] coord, double[] inside)
+	public void locationTo(double[] destination, int[] coord, double[] inside)
 	{
 		Vector.checkLengths(inside, coord);
-		double[] loc = Vector.copy(inside);
+		Vector.copyTo(destination, inside);
 		int nDim = coord.length;
 		ResCalc rC;
 		for ( int dim = 0; dim < nDim; dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
-			loc[dim] *= rC.getResolution(coord[dim]);
-			loc[dim] += rC.getCumulativeResolution(coord[dim] - 1);
+			destination[dim] *= rC.getResolution(coord[dim]);
+			destination[dim] += rC.getCumulativeResolution(coord[dim] - 1);
 		}
-		return loc;
+	}
+	
+	/**
+	 * \brief For a voxel given by its coordinates, find the global location
+	 * of a point inside it.
+	 * 
+	 * <p>All elements of the vector <b>inside</b> should be in the range
+	 * [0,1]. For example, if all are 0.5 then this method will find the centre
+	 * of the voxel.</p>
+	 * 
+	 * @param coords Discrete coordinates of a voxel in this shape.
+	 * @param inside Relative position inside the voxel.
+	 * @return Location in global coordinates.
+	 */
+	public double[] getLocation(int[] coord, double[] inside)
+	{
+		double[] destination = new double[coord.length];
+		this.locationTo(destination, coord, inside);
+		return destination;
+	}
+	
+	/**
+	 * \brief Find the location of the lower corner of the voxel specified by
+	 * the given coordinates and write this location to <b>destination</b>.
+	 * 
+	 * @param destination Vector that will be overwritten with the result.
+	 * @param coords Discrete coordinates of a voxel in this shape.
+	 */
+	public void voxelOriginTo(double[] destination, int[] coord)
+	{
+		this.locationTo(destination, coord, VOXEL_ORIGIN_HELPER);
 	}
 	
 	/**
 	 * \brief Find the location of the lower corner of the voxel specified by
 	 * the given coordinates.
 	 * 
-	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @param coords Discrete coordinates of a voxel in this shape.
 	 * @return Continuous location of the lower corner of this voxel.
 	 */
 	public double[] getVoxelOrigin(int[] coord)
 	{
-		return getLocation(coord, VOXEL_ORIGIN_HELPER);
+		return this.getLocation(coord, VOXEL_ORIGIN_HELPER);
+	}
+	
+	/**
+	 * \brief Find the location of the centre of the voxel specified by the
+	 * given coordinates, and write this to <b>destination</b>.
+	 * 
+	 * @param destination Vector that will be overwritten with the result.
+	 * @param coords Discrete coordinates of a voxel in this shape.
+	 */
+	public void voxelCentreTo(double[] destination, int[] coord)
+	{
+		this.locationTo(destination, coord, VOXEL_CENTRE_HELPER);
 	}
 	
 	/**
 	 * \brief Find the location of the centre of the voxel specified by the
 	 * given coordinates.
 	 * 
-	 * @param coords Discrete coordinates of a voxel on this grid.
+	 * @param coords Discrete coordinates of a voxel in this shape.
 	 * @return Continuous location of the centre of this voxel.
 	 */
 	public double[] getVoxelCentre(int[] coord)
 	{
-		return getLocation(coord, VOXEL_CENTRE_HELPER);
+		return this.getLocation(coord, VOXEL_CENTRE_HELPER);
+	}
+	
+	/**
+	 * \brief Get the corner farthest from the origin of the voxel specified,
+	 * and write this location to <b>destination</b>.
+	 * 
+	 * @param destination Vector that will be overwritten with the result.
+	 * @param coords Discrete coordinates of a voxel in this shape.
+	 */
+	public void voxelUpperCornerTo(double[] destination, int[] coord)
+	{
+		this.locationTo(destination, coord, VOXEL_All_ONE_HELPER);
 	}
 	
 	/**
 	 * \brief Get the corner farthest from the origin of the voxel specified. 
 	 * 
-	 * @param coord Discrete coordinates of a voxel on this grid.
+	 * @param coords Discrete coordinates of a voxel in this shape.
 	 * @return Continuous location of the corner of this voxel that is furthest
 	 * from its origin.
 	 */
 	protected double[] getVoxelUpperCorner(int[] coord)
 	{
-		return getLocation(coord, VOXEL_All_ONE_HELPER);
+		return this.getLocation(coord, VOXEL_All_ONE_HELPER);
 	}
 	
 	/**
-	 * \brief Get the side lengths of the voxel given by the <b>coord</b>.
-	 * Write the result into <b>destination</b>.
+	 * \brief Get the side lengths of the voxel given by the <b>coord</b>, and
+	 * write the result into <b>destination</b>.
 	 * 
-	 * @param destination
-	 * @param coord
+	 * @param destination Vector that will be overwritten with the result.
+	 * @param coords Discrete coordinates of a voxel in this shape.
 	 */
 	public void getVoxelSideLengthsTo(double[] destination, int[] coord)
 	{
@@ -749,7 +803,7 @@ public abstract class Shape implements
 	/**
 	 * TODO
 	 * 
-	 * @param coord
+	 * @param coords Discrete coordinates of a voxel in this shape.
 	 * @param dim
 	 * @return
 	 */
@@ -766,7 +820,7 @@ public abstract class Shape implements
 	 * \brief Check if the given coordinate is on a defined boundary in the
 	 * given dimension.
 	 * 
-	 * @param coord
+	 * @param coords Discrete coordinates of a voxel in this shape.
 	 * @param dim
 	 * @return
 	 */
@@ -786,7 +840,7 @@ public abstract class Shape implements
 	 * \brief Check if the given coordinate is on an undefined boundary in the
 	 * given dimension.
 	 * 
-	 * @param coord
+	 * @param coords Discrete coordinates of a voxel in this shape.
 	 * @param dim
 	 * @return
 	 */

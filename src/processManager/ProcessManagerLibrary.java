@@ -1,11 +1,11 @@
 package processManager;
 
-import static grid.SpatialGrid.ArrayType.DIFFUSIVITY;
 import static grid.SpatialGrid.ArrayType.PRODUCTIONRATE;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 
@@ -13,7 +13,9 @@ import boundary.ChemostatConnection;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import grid.wellmixedSetter.AllSame;
+import grid.diffusivitySetter.AllSameDiffuse;
+import grid.diffusivitySetter.IsDiffusivitySetter;
+import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -47,12 +49,12 @@ public final class ProcessManagerLibrary
 		/**
 		 * 
 		 */
-		protected HashMap<String,IsWellmixedSetter> _wellmixed;
+		protected Map<String,IsWellmixedSetter> _wellmixed;
 		/**
 		 * TODO this may need to be generalised to some method for setting
 		 * diffusivities, e.g. lower inside biofilm.
 		 */
-		protected HashMap<String,Double> _diffusivity;
+		protected Map<String,IsDiffusivitySetter> _diffusivity;
 		
 		public void init(Element xmlElem)
 		{
@@ -72,14 +74,14 @@ public final class ProcessManagerLibrary
 			this._wellmixed = new HashMap<String,IsWellmixedSetter>();
 			for ( String soluteName : this._soluteNames )
 			{
-				AllSame mixer = new AllSame();
+				AllSameMixing mixer = new AllSameMixing();
 				mixer.setValue(1.0);
 				this._wellmixed.put(soluteName, mixer);
 			}
 			// TODO enter a diffusivity other than one!
-			this._diffusivity = new HashMap<String,Double>();
+			this._diffusivity = new HashMap<String,IsDiffusivitySetter>();
 			for ( String sName : soluteNames )
-				this._diffusivity.put(sName, 1.0);
+				this._diffusivity.put(sName, new AllSameDiffuse(1.0));
 		}
 		
 		@Override
@@ -96,8 +98,8 @@ public final class ProcessManagerLibrary
 				solute = environment.getSoluteGrid(soluteName);
 				/* Set up the relevant arrays in each of our solute grids.*/
 				solute.newArray(PRODUCTIONRATE);
-				// TODO use a diffusion setter
-				solute.newArray(DIFFUSIVITY, _diffusivity.get(soluteName));
+				this._diffusivity.get(soluteName).updateDiffusivity(
+												solute, environment, agents);
 				this._wellmixed.get(soluteName).updateWellmixed(solute, agents);
 			}
 			/*
