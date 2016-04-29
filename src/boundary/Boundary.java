@@ -11,6 +11,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import agent.Agent;
 import boundary.agent.AgentMethod;
 import boundary.grid.GridMethod;
 import dataIO.XmlLabel;
@@ -26,14 +27,16 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
+public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 {
+	// TODO move this to XmlLabel?
+	public final static String DEFAULT_GM = "defaultGridMethod";
+	
 	/**
 	 * The grid method this boundary should use for any variable that is not
 	 * named in the dictionary {@link #_gridMethods}. 
 	 */
 	protected GridMethod _defaultGridMethod;
-	
 	/**
 	 * Dictionary of grid methods that this boundary should use for each
 	 * variable (e.g. a solute). If a variable is not in this list, use the
@@ -41,13 +44,29 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 */
 	protected HashMap<String,GridMethod> _gridMethods = 
 										new HashMap<String,GridMethod>();
-	
 	/**
 	 * The agent method this boundary should use for any agent. 
 	 */
 	protected AgentMethod _agentMethod;
+	/**
+	 * The boundary this is connected with - not necessarily set.
+	 */
+	protected Boundary _partner;
+	/**
+	 * 
+	 */
+	protected String _partnerCompartmentName;
+	/**
+	 * List of Agents that are leaving this compartment via this boundary, and
+	 * so need to travel to the connected compartment.
+	 */
+	protected List<Agent> _departureLounge = new LinkedList<Agent>();
 	
-	
+	/**
+	 * List of Agents that have travelled here from the connected compartment
+	 * and need to be entered into this compartment.
+	 */
+	protected List<Agent> _arrivalsLounge = new LinkedList<Agent>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -121,7 +140,11 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 */
 	public void setGridMethod(String soluteName, GridMethod aMethod)
 	{
-		this._gridMethods.put(soluteName, aMethod);
+		// TODO safety if overwriting the default?
+		if ( soluteName.equals(DEFAULT_GM) )
+			this._defaultGridMethod = aMethod;
+		else
+			this._gridMethods.put(soluteName, aMethod);
 	}
 	
 	/**
@@ -137,6 +160,79 @@ public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 			return this._gridMethods.get(soluteName);
 		else
 			return this._defaultGridMethod;
+	}
+	
+	public void setPartner(Boundary partner)
+	{
+		this._partner = partner;
+	}
+	
+	public boolean needsPartner()
+	{
+		return ( this._partnerCompartmentName != null ) &&
+				( this._partner == null );
+	}
+	
+	public String getPartnerCompartmentName()
+	{
+		return this._partnerCompartmentName;
+	}
+	
+	public abstract Boundary makePartnerBoundary();
+	
+	/*************************************************************************
+	 * AGENT TRANSFERS
+	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param agent
+	 */
+	public void addOutboundAgent(Agent agent)
+	{
+		// TODO Safety: check if agent is already in list?
+		this._departureLounge.add(agent);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param agents
+	 */
+	public void acceptInboundAgents(List<Agent> agents)
+	{
+		for ( Agent traveller : agents )
+			this._arrivalsLounge.add(traveller);
+	}
+	
+	/**
+	 * 
+	 */
+	public void pushAllOutboundAgents()
+	{
+		if ( this._partner == null )
+		{
+			if ( ! this._departureLounge.isEmpty() )
+			{
+				// TODO throw exception? Error message to log?
+			}
+		}
+		else
+		{
+			this._partner.acceptInboundAgents(this._departureLounge);
+			this._departureLounge.clear();
+		}
+	}
+	
+	public List<Agent> getAllInboundAgents()
+	{
+		return this._arrivalsLounge;
+	}
+	
+	public void clearArrivalsLoungue()
+	{
+		this._arrivalsLounge.clear();
 	}
 	
 	/*************************************************************************

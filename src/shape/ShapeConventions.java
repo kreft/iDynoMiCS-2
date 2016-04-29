@@ -95,7 +95,16 @@ public final class ShapeConventions
 	{
 		public BoundaryCyclic()
 		{
-			_defaultGridMethod = new CyclicGrid();
+			this._defaultGridMethod = new CyclicGrid();
+		}
+
+		@Override
+		public Boundary makePartnerBoundary()
+		{
+			BoundaryCyclic out = new BoundaryCyclic();
+			out._partner = this;
+			this._partner = out;
+			return out;
 		}
 	}
 	

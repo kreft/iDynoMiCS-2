@@ -16,7 +16,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
-import boundary.BoundaryConnected;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
@@ -518,19 +517,30 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * @return Collection of all connected boundaries.
+	 * @return Collection of connected boundaries.
 	 */
-	public Collection<BoundaryConnected> getConnectedBoundaries()
+	public Collection<Boundary> getAllBoundaries()
 	{
-		LinkedList<BoundaryConnected> cB = new LinkedList<BoundaryConnected>();
-		for ( Dimension dim : this._dimensions.values() )
-				for ( Boundary b : dim.getBoundaries() )
-					if ( b instanceof BoundaryConnected )
-						cB.add((BoundaryConnected) b);
+		Collection<Boundary> out = new LinkedList<Boundary>();
+		for ( Dimension d : this._dimensions.values() )
+			for ( Boundary b : d.getBoundaries() )
+				if ( b != null )
+					out.add(b);
 		for ( Boundary b : this._otherBoundaries )
-			if ( b instanceof BoundaryConnected )
-				cB.add((BoundaryConnected) b);
-		return cB;
+			out.add(b);
+		return out;
+	}
+	
+	
+	/**
+	 * @return List of boundaries that need a partner boundary, but no not have
+	 * one set.
+	 */
+	public Collection<Boundary> getDisconnectedBoundaries()
+	{
+		Collection<Boundary> out = this.getAllBoundaries();
+		out.removeIf(b -> { return ! b.needsPartner();});
+		return out;
 	}
 	
 	/**

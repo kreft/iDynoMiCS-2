@@ -10,7 +10,6 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import boundary.Boundary;
-import boundary.BoundaryConnected;
 import dataIO.Log;
 import dataIO.ObjectRef;
 import dataIO.XmlHandler;
@@ -383,6 +382,35 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 ************************************************************************/
 	
 	/**
+	 * 
+	 * @param compartments
+	 */
+	// TODO temporary work, still in progress!
+	public void checkBoundaryConnections(List<Compartment> compartments)
+	{
+		for ( Boundary b : this._shape.getDisconnectedBoundaries() )
+		{
+			String name = b.getPartnerCompartmentName();
+			Compartment comp = null;
+			for ( Compartment c : compartments )
+				if ( c.getName().equals(name) )
+				{
+					comp = c;
+					break;
+				}
+			if ( comp == null )
+			{
+				// TODO safety
+			}
+			else
+			{
+				Boundary partner = b.makePartnerBoundary();
+				comp.getShape().addOtherBoundary(partner);
+			}
+		}
+	}
+	
+	/**
 	 * \brief Iterate over the process managers until the local time would
 	 * exceed the global time step.
 	 */
@@ -423,7 +451,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void pushAllOutboundAgents()
 	{
-		for ( BoundaryConnected b : this._shape.getConnectedBoundaries() )
+		for ( Boundary b : this._shape.getAllBoundaries() )
 			b.pushAllOutboundAgents();
 	}
 	

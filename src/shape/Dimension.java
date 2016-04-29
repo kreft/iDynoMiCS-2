@@ -228,7 +228,9 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	public void setCyclic()
 	{
 		this._isCyclic = true;
-		this.setBoundaries(new BoundaryCyclic(), new BoundaryCyclic());
+		Boundary b1 = new BoundaryCyclic();
+		Boundary b2 = b1.makePartnerBoundary();
+		this.setBoundaries(b1, b2);
 	}
 	
 	/**
