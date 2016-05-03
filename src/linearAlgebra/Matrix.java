@@ -2651,6 +2651,26 @@ public final class Matrix
 	 ************************************************************************/
 	
 	/**
+	 * \brief A new <b>m</b>-by-<b>n</b> {@code int} matrix, where each element
+	 * is randomly chosen from a uniform distribution in [min, max).
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @param min Lower bound of random numbers (inclusive).
+	 * @param max Upper bound of random numbers (exclusive).
+	 * @return Two-dimensional array of integers, with elements drawn from a 
+	 * uniform distribution between <b>min</b> (inclusive) and <b>max</b>
+	 * (exclusive).
+	 */
+	public static int[][] randomInts(int m, int n, int min, int max)
+	{
+		int[][] out = new int[m][];
+		for ( int i = 0; i < m; i++ )
+			out[i] = Vector.randomInts(n, min, max);
+		return out;
+	}
+	
+	/**
 	 * \brief Create a new <b>m</b>-by-<b>n</b> matrix with random elements.
 	 * 
 	 * <p>Random numbers are drawn from a uniform distribution over
@@ -2660,10 +2680,10 @@ public final class Matrix
 	 * @param n Number of columns.
 	 * @return Two-dimensional array of doubles with elements drawn from a 
 	 * uniform distribution.
-	 * @see #random(int)
-	 * @see #random(double[][])
+	 * @see #randomZeroOne(int)
+	 * @see #randomZeroOne(double[][])
 	 */
-	public static double[][] random(int m, int n)
+	public static double[][] randomZeroOne(int m, int n)
 	{
 		double[][] out = new double[m][];
 		for ( int i = 0; i < m; i++ )
@@ -2680,12 +2700,12 @@ public final class Matrix
 	 * @param mn Number of rows = number of columns.
 	 * @return Two-dimensional array of doubles with elements drawn from a 
 	 * uniform distribution.
-	 * @see #random(int, int)
-	 * @see #random(double[][])
+	 * @see #randomZeroOne(int, int)
+	 * @see #randomZeroOne(double[][])
 	 */
-	public static double[][] random(int mn)
+	public static double[][] randomZeroOne(int mn)
 	{
-		return random(mn, mn);
+		return randomZeroOne(mn, mn);
 	}
 	
 	/**
@@ -2697,13 +2717,65 @@ public final class Matrix
 	 * @param matrix Two-dimensional array of {@code double}s (preserved).
 	 * @return Two-dimensional array of random {@code double}s with the same
 	 *    number of rows and of columns as <b>matrix</b>.
-	 * @see #random(int, int)
-	 * @see #random(int)
+	 * @see #randomZeroOne(int, int)
+	 * @see #randomZeroOne(int)
 	 */
-	public static double[][] random(double[][] matrix)
+	public static double[][] randomZeroOne(double[][] matrix)
 	{
-		return random(rowDim(matrix), colDim(matrix));
+		return randomZeroOne(rowDim(matrix), colDim(matrix));
 	}
+	
+	/**
+	 * \brief A new <b>m</b>-by-<b>n</b> matrix, where each element is
+	 * randomly chosen from a uniform distribution in (-1.0, 1.0).
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @return Two-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus one and plus one 
+	 * (exclusive).
+	 */
+	public static double[][] randomPlusMinus(int m, int n)
+	{
+		double[][] out = new double[m][];
+		for ( int i = 0; i < m; i++ )
+			out[i] = Vector.randomPlusMinus(n);
+		return out;
+	}
+	
+	/**
+	 * \brief A new square matrix, where each element is randomly chosen from a
+	 * uniform distribution in (-1.0, 1.0).
+	 * 
+	 * @param mn Number of rows = number of columns.
+	 * @return Two-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus one and plus one 
+	 * (exclusive).
+	 */
+	public static double[][] randomPlusMinus(int mn)
+	{
+		return randomPlusMinus(mn, mn);
+	}
+	
+	/**
+	 * \brief A new <b>m</b>-by-<b>n</b> matrix, where each element is
+	 * randomly chosen from a uniform distribution in (-<b>scale</b>, 
+	 * <b>scale</b>).
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @param scale Magnitude of largest number possible in a matrix element.
+	 * @return Two-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus <b>scale</b> and 
+	 * <b>scale</b> (exclusive).
+	 */
+	public static double[][] randomPlusMinus(int m, int n, double scale)
+	{
+		double[][] out = randomPlusMinus(m, n);
+		timesEquals(out, scale);
+		return out;
+	}
+	
 	/*************************************************************************
 	 * CONVERTING BETWEEN INTEGER AND DOUBLE
 	 ************************************************************************/
