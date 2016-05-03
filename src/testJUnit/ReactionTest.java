@@ -73,9 +73,9 @@ public class ReactionTest
 				new Monod(0.07), new Monod(0.05), 
 				new SimpleInhibition(0.01), new ZeroOrder(0.08)}));
 		
-		System.out.println(Vector.dblToString(AMXgrowth.ode(new double[]{
+		System.out.println(Vector.toString(AMXgrowth.ode(new double[]{
 				1.0, 1.0, 1.0, 0.0, 0.0, 0.0}, Reaction.ode.EULER, t, tstep)));
-		System.out.println(Vector.dblToString(AMXgrowth.ode(new double[]{
+		System.out.println(Vector.toString(AMXgrowth.ode(new double[]{
 				1.0, 1.0, 1.0, 1.0, 0.0, 0.0}, Reaction.ode.EULER, t, tstep)));
 		
 		System.out.println(AMXgrowth.reaction());

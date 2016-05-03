@@ -33,13 +33,18 @@ import utility.ExtraMath;
  *   <li>converting between integer and double</li>
  *   <li>rescaling vectors</li>
  *   <li>geometry</li>
- * </ul>  
+ * </ul>
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
 */
 public final class Vector
 {
+	/**
+	 * Character that separates elements of a vector in {@code String} format.
+	 */
+	public final static String DELIMITER = ",";
+	
 	/*************************************************************************
 	 * STANDARD NEW VECTORS
 	 ************************************************************************/
@@ -204,9 +209,9 @@ public final class Vector
 	 */
 	public static int[] intFromString(String vectorString)
 	{
-		String[] fields = vectorString.split(",");
+		String[] fields = vectorString.split(DELIMITER);
 		int[] vector = new int[fields.length];
-		for (int i = 0; i < fields.length; i++)		
+		for ( int i = 0; i < fields.length; i++ )		
 			vector[i] = Integer.valueOf(fields[i]);
 		return vector;
 	}
@@ -220,11 +225,73 @@ public final class Vector
 	 */
 	public static double[] dblFromString(String vectorString)
 	{
-		String[] fields = vectorString.split(",");
+		String[] fields = vectorString.split(DELIMITER);
 		double[] vector = new double[fields.length];
-		for (int i = 0; i < fields.length; i++)		
+		for ( int i = 0; i < fields.length; i++ )		
 			vector[i] = Double.valueOf(fields[i]);
 		return vector;
+	}
+	
+	/**
+	 * \brief Returns integer vector in string format.
+	 * 
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @return String representation of this <b>vector</b>.
+	 */
+	public static String toString(int[] vector)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(vector, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Returns double vector in string format.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @return String representation of this <b>vector</b>.
+	 */
+	public static String toString(double[] vector)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(vector, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Converts the given <b>vector</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(int[] vector, StringBuffer buffer)
+	{
+		int n = vector.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			buffer.append(vector[i]);
+			buffer.append(DELIMITER);
+		}
+		buffer.append(vector[n]);
+	}
+	
+	/**
+	 * \brief Converts the given <b>vector</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(double[] vector, StringBuffer buffer)
+	{
+		int n = vector.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			buffer.append(vector[i]);
+			buffer.append(DELIMITER);
+		}
+		buffer.append(vector[n]);
 	}
 	
 	/*************************************************************************
@@ -2671,18 +2738,5 @@ public final class Vector
 		}
 		System.out.println("ERROR: Vector.cylindricalToCartesian only accepts 3D input!"); 
 		return null;
-	}
-	
-	/**
-	 * returns double vector in string format
-	 * @param vector
-	 * @return
-	 */
-	public static String dblToString(double[] vector)
-	{
-		String out = "";
-		for(int i = 0; i < vector.length; i++)
-			out = out + Double.toString(vector[i]) + " \t";
-		return out;
 	}
 }

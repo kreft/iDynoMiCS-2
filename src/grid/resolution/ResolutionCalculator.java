@@ -6,6 +6,7 @@ package grid.resolution;
 import java.util.ArrayList;
 import java.util.function.DoubleFunction;
 
+import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import utility.ExtraMath;
 
@@ -16,7 +17,7 @@ import utility.ExtraMath;
  */
 public class ResolutionCalculator 
 {
-	public static abstract class ResCalc
+	public static abstract class ResCalc implements Copyable
 	{
 		/**
 		 * Total number of voxels along this dimension.
@@ -63,6 +64,22 @@ public class ResolutionCalculator
 		 * @throws IllegalArgumentException if location is outside [0, length)
 		 */
 		public abstract int getVoxelIndex(double location);
+		
+		public Object copy()
+		{
+			ResCalc out = null;
+			try
+			{
+				out = this.getClass().newInstance();
+				out._nVoxel = this._nVoxel;
+				out._length = this._length;
+			}
+			catch (InstantiationException | IllegalAccessException e)
+			{
+				e.printStackTrace();
+			}
+			return out;
+		}
 	}
 
 	public static abstract class SameRes extends ResCalc
@@ -107,6 +124,13 @@ public class ResolutionCalculator
 				throw new IllegalArgumentException("Voxel index out of range");
 			}
 			return (int) (location / this._resolution);
+		}
+		
+		public Object copy()
+		{
+			SameRes out = (SameRes) super.copy();
+			out._resolution = this._resolution;
+			return out;
 		}
 	}
 
@@ -157,6 +181,13 @@ public class ResolutionCalculator
 			int out = 0;
 			while ( location > this._cumulativeRes[out] )
 				out++;
+			return out;
+		}
+		
+		public Object copy()
+		{
+			VariableRes out = (VariableRes) super.copy();
+			out._resolution = this._resolution;
 			return out;
 		}
 	}
