@@ -8,7 +8,11 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
+import idynomics.AgentContainer;
+import idynomics.Compartment;
+import idynomics.EnvironmentContainer;
 import modelBuilder.InputSetter;
+import surface.Surface;
 
 /**
  * \brief TODO
@@ -50,6 +54,49 @@ public class AgentMethodLibrary
 			return null;
 		}
 		
+		@Override
+		public void agentsArrive(Compartment comp, Surface surf)
+		{
+			/* Do nothing. */
+		}
 	}
 	
+	public static class BoundaryLayer extends AgentMethod
+	{
+		@Override
+		public String getName() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public List<InputSetter> getRequiredInputs() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void acceptInput(String name, Object input) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void init(Element xmlElem) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public String getXml() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+		@Override
+		public void agentsArrive(Compartment comp, Surface surf)
+		{
+			
+		}
+	}
 }

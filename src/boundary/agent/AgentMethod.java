@@ -8,8 +8,12 @@ import java.util.LinkedList;
 
 import agent.Agent;
 import generalInterfaces.XMLable;
+import idynomics.AgentContainer;
+import idynomics.Compartment;
+import idynomics.EnvironmentContainer;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import surface.Surface;
 import utility.Helper;
 
 /**
@@ -33,6 +37,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 	 */
 	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
 	
+	public abstract void agentsArrive(Compartment comp, Surface surf);
 	
 	public static String[] getAllOptions()
 	{
