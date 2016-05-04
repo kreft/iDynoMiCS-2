@@ -48,6 +48,7 @@ public class CoccoidDivision extends Event {
 
 		//TODO check phase 
 		double momMass =(double) mother.get(MASS);
+		// TODO set a non-arbitrary threshold here
 		if ( momMass > 0.2 )
 		{
 			Body momBody = (Body) mother.get(BODY);
