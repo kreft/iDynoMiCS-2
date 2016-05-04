@@ -676,7 +676,7 @@ public abstract class SpatialGrid
 	 */
 	public void setTo(ArrayType type, double[][][] array)
 	{
-		Array.setAll(this._array.get(type), array);
+		Array.copyTo(this._array.get(type), array);
 	}
 	
 	/**

@@ -33,7 +33,7 @@ import utility.ExtraMath;
  *   <li>converting between integer and double</li>
  *   <li>rescaling vectors</li>
  *   <li>geometry</li>
- * </ul>  
+ * </ul>
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
