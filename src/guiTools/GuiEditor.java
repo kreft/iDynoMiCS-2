@@ -7,6 +7,7 @@ import java.util.EventListener;
 import java.util.HashMap;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -38,6 +39,12 @@ public class GuiEditor
 			new HashMap<ModelAttribute,JTextArea>();
 	
 	/**
+	 * Hashmap of all gui TextAreas associated with their ModelAttribute
+	 */
+	static HashMap<ModelAttribute,JComboBox> attributeSelectors = 
+			new HashMap<ModelAttribute,JComboBox>();
+	
+	/**
 	 * Obtain all attribute textarea values and set them in the modelAttribute
 	 * objects.
 	 */
@@ -45,6 +52,9 @@ public class GuiEditor
 	{
 		for ( ModelAttribute a : attributes.keySet())
 			a.value = attributes.get(a).getText();
+		
+		for ( ModelAttribute a : attributeSelectors.keySet())
+			a.value = (String) attributeSelectors.get(a).getSelectedItem();
 	}
 	
 	/*
@@ -97,11 +107,24 @@ public class GuiEditor
 		/* add textareas for this ModelNode's attributes */
 		for(ModelAttribute a : node.attributes)
 		{
-			JTextArea input = new JTextArea();
-			input.setText(a.value);
-			input.setEditable(a.editable);
-			attr.add(GuiComponent.inputPanel(a.tag, input));
-			attributes.put(a, input);
+			if ( a.options == null)
+			{
+				/* input field */
+				JTextArea input = new JTextArea();
+				input.setText(a.value);
+				input.setEditable(a.editable);
+				attr.add(GuiComponent.inputPanel(a.tag, input));
+				attributes.put(a, input);
+			}
+			else
+			{
+				/* options box */
+				JComboBox<String> input = new JComboBox<String>(a.options);
+				input.setSelectedItem(a.value);
+				input.setEditable(a.editable);
+				attr.add(GuiComponent.selectPanel(a.tag, input));
+				attributeSelectors.put(a, input);
+			}
 		}
 		component.add(attr);
 		

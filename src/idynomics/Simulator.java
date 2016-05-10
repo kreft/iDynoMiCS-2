@@ -390,7 +390,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			myNode.add(new ModelAttribute(XmlLabel.outputFolder, 
 					Idynomics.global.outputRoot, null, false ));
 			myNode.add(new ModelAttribute(XmlLabel.logLevel, 
-					Log.level(), Helper.enumToString(Tier.class).split(","), true ));
+					Log.level(), Helper.enumToString(Tier.class).split(" "), true ));
 			myNode.add(new ModelAttribute(XmlLabel.commentAttribute, 
 					Idynomics.global.simulationComment, null, true ));
 			

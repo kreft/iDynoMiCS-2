@@ -117,14 +117,18 @@ public class GuiComponent {
 	/*
 	 * return a formated JPanel with Combobox
 	 */
-	public static JComponent selectPanel(JComboBox box) {
-        JPanel panel = new JPanel();
+	public static JComponent selectPanel(String description, JComboBox box) {
+		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.setSize(600, 30);
 		
-		box.setPreferredSize(new Dimension(600,30));
-        panel.add(box,BorderLayout.CENTER);
-        return panel;
+		JLabel descriptionLabel = new JLabel(description);
+		descriptionLabel.setPreferredSize(new Dimension(200,30));
+		panel.add(descriptionLabel,BorderLayout.WEST);
+		
+		box.setPreferredSize(new Dimension(400,30));
+		panel.add(box,BorderLayout.EAST);
+		return panel;
     }
 	
 	/*
