@@ -2,8 +2,11 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
+
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
+import dataIO.XmlLabel;
 
 /**
  * Calculated/Secondary states contain a description of how secondary states 
@@ -11,11 +14,11 @@ import dataIO.XmlHandler;
  * this calculated states when queried and are intended to prevent errors due to
  * state values that have not been updated, and they reduce memory capacity 
  * since the can be set on species level rather than agent level.
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Calculated implements Copyable, XMLable {
-	
+public abstract class Calculated implements Copyable, XMLable
+{
 	/**
 	 * input states
 	 */
@@ -29,6 +32,16 @@ public abstract class Calculated implements Copyable, XMLable {
 	{
 		input.replaceAll("\\s+","");
 		this.input = input.split(",");
+	}
+	
+	public void setField(String field, String value)
+	{
+		try {
+			this.getClass().getField(field).set(this, value);
+		} catch (IllegalArgumentException | IllegalAccessException | 
+				NoSuchFieldException | SecurityException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -56,17 +69,50 @@ public abstract class Calculated implements Copyable, XMLable {
 	public static Object getNewInstance(Node xmlNode)
 	{
 		Calculated obj = (Calculated) XMLable.getNewInstance(xmlNode);
-		obj.init(xmlNode);
+		obj.init((Element) xmlNode);
 		return obj;
 	}
 	
-	public void init(Node xmlNode)
+
+	public static Object getNewInstance(String input) {
+		Calculated obj = (Calculated) XMLable.getNewInstance(input);
+		obj.init(input);
+		return obj;
+	}
+
+	public void init(Element xmlElem)
 	{
-		this.setInput(XmlHandler.gatherAttribute(xmlNode, "input"));
+		String input = XmlHandler.gatherAttribute(xmlElem, "input");
+		if (input != "")
+			this.setInput(input);
+		
+		String fields = XmlHandler.gatherAttribute(xmlElem, XmlLabel.fields);
+		String[] f = null;
+		if (fields != "")
+		{
+			f = fields.split(",");
+			for (String field : f)
+			{
+				String[] value;
+				value = field.split("=");
+				this.setField(value[0], value[1]);
+			}
+		}
+	}
+	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	private void init(String input) {
+		this.setInput(input);
 	}
 	
 	/**
 	 * return the current (up-to-date) value of the secondary state.
 	 */
 	public abstract Object get(AspectInterface registry);
+
 }

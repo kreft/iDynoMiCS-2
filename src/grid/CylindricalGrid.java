@@ -2,13 +2,14 @@ package grid;
 
 import java.util.Arrays;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import grid.resolution.ResCalcFactory;
-import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
+import shape.resolution.ResCalcFactory;
+import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
@@ -28,7 +29,7 @@ import utility.ExtraMath;
  * 
  * @author Stefan Lang, Friedrich-Schiller University Jena
  * (stefan.lang@uni-jena.de)
- * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class CylindricalGrid extends PolarGrid
 {
@@ -84,7 +85,7 @@ public class CylindricalGrid extends PolarGrid
 
 		/* create appropriate ResCalc Objects for dimension combinations*/
 		ResCalcFactory rcf = new ResCalcFactory(this._dimName);
-		rcf.init(node);
+		rcf.init((Element) node);
 		/* check for dim name equality and right order (this should usually 
 		 * be ensured by the init(Node) function of ResCalcFactory) */ 
 		if (!Arrays.equals(this._dimName, rcf.getDimNames()))

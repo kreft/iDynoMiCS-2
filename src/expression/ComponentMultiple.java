@@ -4,25 +4,44 @@
 package expression;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 /**
+ * \brief A component of a mathematical expression composed of two or more
+ * sub-components.
  * 
- * 
- * @author Robert Clegg (r.j.clegg@bham.ac.uk)
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ComponentMultiple extends Component
 {
+	/**
+	 * {@code String} description of the expression 
+	 */
 	protected String _expr;
-	
+	/**
+	 * List of all sub-components.
+	 */
 	protected ArrayList<Component> _components; 
 	
+	/**
+	 * \brief Construct a component of a mathematical expression from a list of
+	 * sub-components.
+	 * 
+	 * @param components List of sub-components.
+	 */
 	public ComponentMultiple(ArrayList<Component> components)
 	{
 		this._components = components;
 	}
 	
+	/**
+	 * \brief Construct a component of a mathematical expression from two
+	 * sub-components.
+	 * 
+	 * @param a One of the two sub-components.
+	 * @param b The other sub-component.
+	 */
 	public ComponentMultiple(Component a, Component b)
 	{
 		this._components = new ArrayList<Component>();
@@ -40,18 +59,22 @@ public abstract class ComponentMultiple extends Component
 	}
 	
 	@Override
-	public String reportValue(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
-		String out = this._components.get(0).reportValue(variables);
+		String out = this._components.get(0).reportEvaluation(variables);
 		for ( int i = 1; i < this._components.size(); i++ )
-			out += this._expr+this._components.get(i).reportValue(variables);
+			out += this._expr+this._components.get(i).reportEvaluation(variables);
 		return ( isNegative() ) ? "-("+out+")" : out;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Add a sub-component to the start of this
+	 * {@code ComponentMultiple}'s list.
 	 * 
-	 * @param component
+	 * <p>Note that the list order matters only for readability, and should 
+	 * makes no difference to the evaluation.</p>
+	 * 
+	 * @param component Sub-component to add.
 	 */
 	protected void prependComponent(Component component)
 	{
@@ -59,9 +82,10 @@ public abstract class ComponentMultiple extends Component
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Add a sub-component to the end of this
+	 * {@code ComponentMultiple}'s list.
 	 * 
-	 * @param component
+	 * @param component Sub-component to add.
 	 */
 	protected void appendComponent(Component component)
 	{
@@ -69,15 +93,17 @@ public abstract class ComponentMultiple extends Component
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the list of all sub-components that comprise this
+	 * {@code ComponentMultiple}.
 	 * 
-	 * @return
+	 * @return List of {@code Component}s.
 	 */
 	public ArrayList<Component> getAllComponents()
 	{
 		return this._components;
 	}
 	
+	@Override
 	public void appendVariablesNames(List<String> names)
 	{
 		for ( Component c : this._components )

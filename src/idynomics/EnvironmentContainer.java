@@ -2,13 +2,16 @@ package idynomics;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
-
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.XmlHandler;
+import dataIO.XmlLabel;
+import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -141,12 +144,70 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 				this._shape.getDimensionLengths(), resolution);
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
-		Log.out(tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
+		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * NOTE Rob[26Feb2016]: not yet used, work in progress
+	 * 
+	 * TODO Get general solutes from Param?
+	 * 
+	 * @param soluteNodes
+	 */
+	public void readSolutes(NodeList soluteNodes)
+	{
+		Element elem;
+		String name, concn;
+		double concentration;
+		for ( int i = 0; i < soluteNodes.getLength(); i++)
+		{
+			elem = (Element) soluteNodes.item(i);
+			name = XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
+			/* Try to read in the concentration, using zero by default. */
+			concn = XmlHandler.gatherAttribute(elem, XmlLabel.concentration);
+			concentration = ( concn.equals("") ) ? 0.0 : Double.valueOf(concn);
+			/* Finally, add the solute to the list. */
+			this.addSolute(name, concentration);
+		}
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * NOTE Rob[26Feb2016]: not yet used, work in progress
+	 * 
+	 * TODO Get general reactions from Param?
+	 * 
+	 * @param reactionNodes
+	 */
+	public void readReactions(NodeList reactionNodes)
+	{
+		Element elem;
+		String name;
+		Reaction reac;
+		for ( int i = 0; i < reactionNodes.getLength(); i++)
+		{
+			elem = (Element) reactionNodes.item(i);
+			// TODO does a reaction need to have a name?
+			name = XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
+			/* Construct and intialise the reaction. */
+			reac = (Reaction) Reaction.getNewInstance(elem);
+			reac.init(elem);
+			/* Add it to the environment. */
+			this.addReaction(reac, name);
+		}
 	}
 	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
+	
+	public Shape getShape()
+	{
+		return this._shape;
+	}
 	
 	public Set<String> getSoluteNames()
 	{
@@ -210,6 +271,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return this._solutes.get(soluteName).getAverage(ArrayType.CONCN);
 	}
 	
+	public Map<String,Double> getAverageConcentrations()
+	{
+		Map<String,Double> out = new HashMap<String,Double>();
+		for ( String name : this.getSoluteNames() )
+			out.put(name, this.getAverageConcentration(name));
+		return out;
+	}
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -237,13 +306,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	
 	public void printSolute(String soluteName)
 	{
-		Log.out(tier.QUIET, soluteName+":");
-		Log.out(tier.QUIET, this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
+		Log.out(Tier.QUIET, soluteName+":");
+		Log.out(Tier.QUIET, this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
 	}
 	
 	public void printAllSolutes()
 	{
-		this._solutes.forEach((s,g) -> {this.printSolute(s);;});
+		for(String s : this.getSoluteNames())
+			this.printSolute(s);
 	}
 	
 	/*************************************************************************

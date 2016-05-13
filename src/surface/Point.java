@@ -7,7 +7,7 @@ import linearAlgebra.Vector;
 /**
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
  * 
- * @author Bastiaan Cockx, DTU (baco@env.dtu.dk)
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Point implements Copyable
 {
@@ -59,6 +59,11 @@ public class Point implements Copyable
 		this(Vector.dblFromString(vectorString));
 	}
 	
+	public Point(Point q) {
+		this.setPosition(Vector.copy(q.p));
+		this.setForce(Vector.zeros(p));
+	}
+
 	public void setC(int size)
 	{
 		c = new double[size][p.length];
@@ -158,10 +163,10 @@ public class Point implements Copyable
 		{
 			// anti deadlock
 			if ( Vector.normEuclid(getForce()) < 0.2 )
-				Vector.addEquals(p, Vector.times(getForce(), 5.0* radius)); 
+				Vector.addEquals(p, Vector.times(getForce(), 3.0* radius)); 
 			// anti catapult
 			else
-				Vector.addEquals(p, Vector.times(getForce(), 0.7* radius));
+				Vector.addEquals(p, Vector.times(getForce(), 0.5* radius));
 		}
 		this.resetForce();
 	}

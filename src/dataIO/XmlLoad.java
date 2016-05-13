@@ -4,24 +4,20 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import linearAlgebra.Vector;
 import processManager.ProcessManager;
-import shape.ShapeConventions.DimName;
 import utility.Helper;
 import agent.Agent;
 import aspect.AspectInterface;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Param;
-import idynomics.Timer;
-
 
 /**
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
+@Deprecated
 public class XmlLoad
 {
 	
@@ -32,6 +28,7 @@ public class XmlLoad
 	/**
 	 * TODO: compartment has no xml node constructor, quick fix
 	 */
+	@Deprecated
 	public static void constructCompartment(Node compartmentNode)
 	{
 		// NOTE: misses construction from xml, quick fix
@@ -53,10 +50,10 @@ public class XmlLoad
 		{
 			NodeList agentNodes = agents.getElementsByTagName(XmlLabel.agent);
 			for (int j = 0; j < agentNodes.getLength(); j++) 
-				comp.addAgent(new Agent(agentNodes.item(j)));
+				comp.addAgent(new Agent(agentNodes.item(j),comp));
 		}
 		else
-			Log.out(tier.NORMAL, "Warning: starting simulation without agents");
+			Log.out(Tier.NORMAL, "Warning: starting simulation without agents");
 		
 		/**
 		 * Process managers
@@ -75,7 +72,7 @@ public class XmlLoad
 		}
 		else
 		{
-			Log.out(tier.CRITICAL, "Warning: attempt to start simulation"
+			Log.out(Tier.CRITICAL, "Warning: attempt to start simulation"
 					+ "without process managers, aborting..");
 			Helper.abort(3000);
 		}
@@ -86,24 +83,28 @@ public class XmlLoad
 	 * NOTE: if you want to make changes to the iDynomics documents setup this
 	 * is probably your starting point
 	 */
+	@Deprecated
 	public static void constructSimulation()
 	{
 		loadGeneralParameters();
 		
 		// NOTE: misses construction from xml, quick fix
-		Timer.setTimeStepSize(Double.valueOf( Helper.obtainInput( 
-				Param.timeStepSize,"Timer time step size")));
-		Timer.setEndOfSimulation( Double.valueOf( Helper.obtainInput(
-				Param.endOfSimulation,"End of simulation")));
+		Idynomics.simulator.timer.setTimeStepSize(
+				Double.valueOf( Helper.obtainInput( 
+						XmlLabel.timerStepSize,"Timer time step size")));
+		Idynomics.simulator.timer.setEndOfSimulation(
+				Double.valueOf( Helper.obtainInput(
+						XmlLabel.endOfSimulation,"End of simulation")));
 
 		// NOTE: simulator now made by Idynomics class, may be changed later.
 		
-		Idynomics.simulator.speciesLibrary.setAll( XmlHandler.loadUnique(
-				Param.xmlDoc, XmlLabel.speciesLibrary));
+		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlLabel.speciesLibrary))
+			Idynomics.simulator.speciesLibrary.init( XmlHandler.loadUnique(
+					Idynomics.global.xmlDoc, XmlLabel.speciesLibrary));
 		
 		// cycle trough all compartments
 		NodeList compartmentNodes = 
-				Param.xmlDoc.getElementsByTagName(XmlLabel.compartment);
+				Idynomics.global.xmlDoc.getElementsByTagName(XmlLabel.compartment);
 		for (int i = 0; i < compartmentNodes.getLength(); i++) 
 		{
 			constructCompartment(compartmentNodes.item(i));
@@ -118,6 +119,7 @@ public class XmlLoad
 	 * @param species
 	 * @param xmlNode
 	 */
+	@Deprecated
 	public static void loadSpeciesModules(AspectInterface species, Node xmlNode)
 	{
 		Element xmlSpecies = (Element) xmlNode;
@@ -144,47 +146,49 @@ public class XmlLoad
 	 * loads the first essential information
 	 * @param xmlNode
 	 */
+	@Deprecated
 	public static void xmlInit(String document)
 	{
 		/*
 		 * This method contains System.err in stead of normal logging since it
 		 * is called before logging is initiated.
 		 */
-		Param.xmlDoc = XmlHandler.loadDocument(Param.protocolFile);
-		Element sim = XmlHandler.loadUnique((Element) Param.xmlDoc, 
+		Idynomics.global.xmlDoc = XmlHandler.loadDocument(Idynomics.global.protocolFile);
+		Element sim = XmlHandler.loadUnique((Element) Idynomics.global.xmlDoc, 
 				XmlLabel.simulation);
-		Param.simulationName = XmlHandler.obtainAttribute(sim, 
+		Idynomics.global.simulationName = XmlHandler.obtainAttribute(sim, 
 				XmlLabel.nameAttribute);
-		Param.outputRoot = XmlHandler.obtainAttribute(sim, 
+		Idynomics.global.outputRoot = XmlHandler.obtainAttribute(sim, 
 				XmlLabel.outputFolder);
-		Param.outputLocation = Param.outputRoot + "/" + Param.simulationName + 
+		Idynomics.global.outputLocation = Idynomics.global.outputRoot + "/" + Idynomics.global.simulationName + 
 				"/";
-		tier t = null;
+		Tier t = null;
 		while (t == null) 
 		{
 			try
 			{
-				t = tier.valueOf(XmlHandler.obtainAttribute(sim,
+				t = Tier.valueOf(XmlHandler.obtainAttribute(sim,
 						XmlLabel.logLevel));
 			}
 			catch (IllegalArgumentException e)
 			{
 				System.out.println("log level not recognized, use: " + 
-						Helper.enumToString(tier.class));
+						Helper.enumToString(Tier.class));
 			}
 		}
 		if( ! Log.isSet() )
 			Log.set(t);
-		Param.simulationComment = XmlHandler.gatherAttribute(sim,
+		Idynomics.global.simulationComment = XmlHandler.gatherAttribute(sim,
 				XmlLabel.commentAttribute);
 	}
 	
 	/**
 	 * loads all general parameters
 	 */
+	@Deprecated
 	public static void loadGeneralParameters()
 	{
-		NodeList general = XmlHandler.getAll(Param.xmlDoc,
+		NodeList general = XmlHandler.getAll(Idynomics.global.xmlDoc,
 				XmlLabel.generalParams);
 		for (int i = 0; i < general.getLength(); i++) 
 		{

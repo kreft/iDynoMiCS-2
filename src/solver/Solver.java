@@ -6,9 +6,7 @@ package solver;
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) Centre for Computational
- * Biology, University of Birmingham, U.K.
- * @since August 2015
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class Solver
 {
@@ -59,6 +57,6 @@ public abstract class Solver
 	 */
 	public int nVar()
 	{
-		return this._variableNames.length;
+		return this._variableNames == null ? 0 : this._variableNames.length;
 	}
 }

@@ -1,21 +1,18 @@
 package grid;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Node;
 
-import com.jogamp.nativewindow.util.Dimension;
-
-import generalInterfaces.XMLable;
-import grid.GridBoundary.GridMethod;
-import grid.resolution.ResCalcFactory;
-import grid.resolution.ResolutionCalculator.ResCalc;
-import grid.subgrid.SubgridPoint;
+import boundary.grid.GridMethod;
+import dataIO.ObjectFactory;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.subvoxel.SubvoxelPoint;
 import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
 
@@ -37,7 +34,7 @@ import shape.ShapeConventions.DimName;
  * 
  * <p>On the boundaries of the grid, </p>
  * 
- * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class SpatialGrid
 {
@@ -70,7 +67,7 @@ public abstract class SpatialGrid
 		DIFFUSIVITY,
 		/**
 		 * A measure of how well-mixed a solute is. A diffusion-reaction should
-		 * ignore where this is above a certain threshold.   
+		 * ignore where this is above a certain threshold.
 		 */
 		WELLMIXED,
 		/**
@@ -679,7 +676,17 @@ public abstract class SpatialGrid
 	 */
 	public void setTo(ArrayType type, double[][][] array)
 	{
-		Array.setAll(this._array.get(type), array);
+		Array.copyTo(this._array.get(type), array);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 */
+	public void makeNonnegative(ArrayType type)
+	{
+		Array.makeNonnegative(this._array.get(type));
 	}
 	
 	/**
@@ -874,6 +881,22 @@ public abstract class SpatialGrid
 		this.setValueAt(type, this.iteratorCurrent(), value);
 	}
 	
+	/**
+	 * return all voxel coordinates for this solute grid.
+	 * @return
+	 */
+	public LinkedList<int[]> getAllCoords()
+	{
+		LinkedList<int[]> coords = new LinkedList<int[]>();
+		for ( int[] coord = resetIterator(); 
+				isIteratorValid(); 
+					coord = iteratorNext())
+		{
+			coords.add((int[]) ObjectFactory.copy(coord));
+		}
+		return coords;
+	}
+	
 	/*************************************************************************
 	 * NEIGHBOR ITERATOR
 	 ************************************************************************/
@@ -1053,13 +1076,13 @@ public abstract class SpatialGrid
 	 * @param targetRes
 	 * @return
 	 */
-	public List<SubgridPoint> getCurrentSubgridPoints(double targetRes)
+	public List<SubvoxelPoint> getCurrentSubgridPoints(double targetRes)
 	{
 		/* 
 		 * Initialise the list and add a point at the origin.
 		 */
-		ArrayList<SubgridPoint> out = new ArrayList<SubgridPoint>();
-		SubgridPoint current = new SubgridPoint();
+		ArrayList<SubvoxelPoint> out = new ArrayList<SubvoxelPoint>();
+		SubvoxelPoint current = new SubvoxelPoint();
 		out.add(current);
 		/*
 		 * For each dimension, work out how many new points are needed and get
@@ -1089,7 +1112,7 @@ public abstract class SpatialGrid
 		// TODO this probably needs to be slightly different in polar grids
 		// to be completely accurate
 		double volume = this.getVoxelVolume(this._currentCoord) / out.size();
-		for ( SubgridPoint aSgP : out )
+		for ( SubvoxelPoint aSgP : out )
 		{
 			aSgP.realLocation = this.getLocation(this._currentCoord,
 													aSgP.internalLocation);

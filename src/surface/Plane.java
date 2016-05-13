@@ -4,8 +4,8 @@ import linearAlgebra.Vector;
 
 /**
  * The constant-normal form of the (infinite) plane
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Plane extends Surface {
 

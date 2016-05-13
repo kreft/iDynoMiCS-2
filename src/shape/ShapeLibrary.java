@@ -4,30 +4,37 @@
 package shape;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import dataIO.Log;
+import dataIO.ObjectRef;
 import dataIO.XmlHandler;
-import dataIO.Log.tier;
-import grid.CartesianGrid;
-import grid.CylindricalGrid;
+import dataIO.Log.Tier;
 import grid.DummyGrid;
 import grid.SpatialGrid.GridGetter;
 import linearAlgebra.Vector;
+import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.ShapeConventions.DimName;
-import surface.Point;
-import surface.Ball;
 
 /**
+ * \brief Collection of instanciable {@code Shape} classes.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Stefan Lang, Friedrich-Schiller University Jena
+ * (stefan.lang@uni-jena.de)
  */
 public final class ShapeLibrary
 {
+	
 	/*************************************************************************
 	 * DUMMY SHAPE (for chemostats, etc)
 	 ************************************************************************/
 	
+	/**
+	 * \brief A zero-dimensional shape, which only has a volume.
+	 * 
+	 * <p>Used by {@code Compartment}s without spatial structure, e.g. a
+	 * chemostat.</p>
+	 */
 	public static class Dimensionless extends Shape
 	{
 		protected double _volume = 0.0;
@@ -38,13 +45,19 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void init(Node xmlNode)
+		public void init(Element xmlElem)
 		{
-			Element elem = (Element) xmlNode;
-			String str = XmlHandler.attributeFromUniqueNode(elem,"volume","string");
+			// TODO read in as a Double
+			String str = XmlHandler.attributeFromUniqueNode(
+										xmlElem, "volume", ObjectRef.STR);
 			this._volume = Double.parseDouble(str);
 		}
 		
+		/**
+		 * \brief Set this dimensionless shape's volume.
+		 * 
+		 * @param volume New volume to use.
+		 */
 		public void setVolume(double volume)
 		{
 			this._volume = volume;
@@ -53,25 +66,61 @@ public final class ShapeLibrary
 		@Override
 		public GridGetter gridGetter()
 		{
-			Log.out(tier.DEBUG, "Dimensionless shape volume is "+this._volume);
+			Log.out(Tier.DEBUG, "Dimensionless shape volume is "+this._volume);
 			return DummyGrid.dimensionlessGetter(this._volume);
 		}
 		
+		@Override
 		public double[] getLocalPosition(double[] location)
 		{
 			return location;
 		}
 		
+		@Override
 		public double[] getGlobalLocation(double[] local)
 		{
 			return local;
 		}
 		
-		public void setSurfs()
+		@Override
+		protected ResCalc getResolutionCalculator(int[] coord, int axis)
 		{
-			/*
-			 * Do nothing!
-			 */
+			return null;
+		}
+		
+		@Override
+		public void setDimensionResolution(DimName dName, ResCalc resC)
+		{
+			/* Do nothing! */
+		}
+		
+		public void setSurfaces()
+		{
+			/* Do nothing! */
+		}
+		
+		@Override
+		public double getVoxelVolume(int[] coord)
+		{
+			return this._volume;
+		}
+		
+		protected void nVoxelTo(int[] destination, int[] coords)
+		{
+			/* Dimensionless shapes have no voxels. */
+			Vector.reset(destination);
+		}
+		
+		@Override
+		protected void resetNbhIter()
+		{
+			/* Do nothing! */
+		}
+		
+		@Override
+		public int[] nbhIteratorNext()
+		{
+			return null;
 		}
 		
 		public boolean isReadyForLaunch()
@@ -80,11 +129,23 @@ public final class ShapeLibrary
 				return false;
 			if ( this._volume <= 0.0 )
 			{
-				Log.out(tier.CRITICAL,
+				Log.out(Tier.CRITICAL,
 							"Dimensionless shape must have positive volume!");
 				return false;
 			}
 			return true;
+		}
+
+		@Override
+		public double nbhCurrDistance()
+		{
+			return 0.0;
+		}
+
+		@Override
+		public double nbhCurrSharedArea()
+		{
+			return 0.0;
 		}
 	}
 	
@@ -92,206 +153,97 @@ public final class ShapeLibrary
 	 * SHAPES WITH STRAIGHT EDGES
 	 ************************************************************************/
 	
-	public static class Line extends Shape
+	/**
+	 * \brief One-dimensional, straight {@code Shape} class.
+	 */
+	public static class Line extends CartesianShape
 	{
 		public Line()
 		{
 			super();
-			this._dimensions.put(DimName.X, new Dimension());
-		}
-		
-		@Override
-		public GridGetter gridGetter()
-		{
-			// TODO Make 1D, 2D, and 3D getters?
-			return CartesianGrid.standardGetter();
-		}
-		
-		public double[] getLocalPosition(double[] location)
-		{
-			return location;
-		}
-		
-		public double[] getGlobalLocation(double[] local)
-		{
-			return local;
-		}
-		
-		public void setSurfs()
-		{
-			this.setPlanarSurfaces(DimName.X);
+			this.setSignificant(1);
 		}
 	}
 	
-	public static class Rectangle extends Line
+	/**
+	 * \brief Two-dimensional, straight {@code Shape} class.
+	 */
+	public static class Rectangle extends CartesianShape
 	{
 		public Rectangle()
 		{
 			super();
-			this._dimensions.put(DimName.Y, new Dimension());
-		}
-		
-		public void setSurfs()
-		{
-			/* Do the X dimension. */
-			super.setSurfs();
-			/* Now the Y dimension. */
-			this.setPlanarSurfaces(DimName.Y);
+			this.setSignificant(2);
 		}
 	}
 	
-	public static class Cuboid extends Rectangle
+	/**
+	 * \brief Three-dimensional, straight {@code Shape} class.
+	 */
+	public static class Cuboid extends CartesianShape
 	{
 		public Cuboid()
 		{
 			super();
-			this._dimensions.put(DimName.Z, new Dimension());
+			this.setSignificant(3);
+		}
+	}
+	
+	/*************************************************************************
+	 * CYLINDRICAL SHAPES
+	 ************************************************************************/
+	
+	/**
+	 * \brief Two-dimensional, round {@code Shape} class with an assumed linear
+	 * thickness.
+	 */
+	public static class Circle extends CylindricalShape
+	{
+		public Circle()
+		{
+			super();
+			this.setSignificant(2);
+		}
+	}
+	
+	/**
+	 * \brief Three-dimensional, round {@code Shape} class with a linear third
+	 * dimension.
+	 */
+	public static class Cylinder extends Circle
+	{
+		public Cylinder()
+		{
+			super();
+			this.setSignificant(3);
 		}
 		
-		public void setSurfs()
+		
+		public void setSurfaces()
 		{
-			/* Do the X and Y dimensions. */
-			super.setSurfs();
+			/* Do the R and THETA dimensions. */
+			super.setSurfaces();
 			/* Now the Z dimension. */
 			this.setPlanarSurfaces(DimName.Z);
 		}
 	}
 	
 	/*************************************************************************
-	 * SHAPES WITH ROUND EDGES
+	 * SPHERICAL SHAPES
 	 ************************************************************************/
 	
-	public static abstract class Polar extends Shape
-	{
-		public Polar()
-		{
-			super();
-			/* There is no need for an r-min boundary. */
-			Dimension dim = new Dimension();
-			dim.setBoundaryOptional(0);
-			this._dimensions.put(DimName.R, dim);
-		}
-	}
+	// TODO SphereRadius, SphereSlice?
 	
-	public static class Circle extends Polar
-	{
-		public Circle()
-		{
-			super();
-			/*
-			 * Set to a full circle by default, let it be overwritten later.
-			 */
-			Dimension dim = new Dimension();
-			dim.setCyclic();
-			dim.setLength(2 * Math.PI);
-			this._dimensions.put(DimName.THETA, dim);
-		}
-		
-		@Override
-		public GridGetter gridGetter()
-		{
-			return CylindricalGrid.standardGetter();
-		}
-		
-		public double[] getLocalPosition(double[] location)
-		{
-			return Vector.toPolar(location);
-		}
-		
-		public double[] getGlobalLocation(double[] local)
-		{
-			return Vector.toCartesian(local);
-		}
-		
-		public void setSurfs()
-		{
-			// TODO
-		}
-	}
-	
-	public static class Cylinder extends Circle
-	{
-		public Cylinder()
-		{
-			super();
-			this._dimensions.put(DimName.Z, new Dimension());
-		}
-		
-		@Override
-		public double[] getLocalPosition(double[] location)
-		{
-			return Vector.toCylindrical(location);
-		}
-		
-		@Override
-		public double[] getGlobalLocation(double[] local)
-		{
-			return Vector.cylindricalToCartesian(local);
-		}
-		
-		public void setSurfs()
-		{
-			/* Do the R and THETA dimensions. */
-			super.setSurfs();
-			/* Now the Z dimension. */
-			this.setPlanarSurfaces(DimName.Z);
-		}
-	}
-	
-	public static class Sphere extends Polar
+	/**
+	 * \brief Three-dimensional, round {@code Shape} class with both second and
+	 * third dimensions angular.
+	 */
+	public static class Sphere extends SphericalShape
 	{
 		public Sphere()
 		{
 			super();
-			/*
-			 * Set full angular dimensions by default, can be overwritten later.
-			 */
-			Dimension dim = new Dimension();
-			dim.setCyclic();
-			dim.setLength(Math.PI);
-			this._dimensions.put(DimName.PHI, dim);
-			dim = new Dimension();
-			dim.setCyclic();
-			dim.setLength(2 * Math.PI);
-			this._dimensions.put(DimName.THETA, dim);
-		}
-		
-		@Override
-		public GridGetter gridGetter()
-		{
-			// TODO Make getter for SphericalGrid
-			return null;
-		}
-		
-		public double[] getLocalPosition(double[] location)
-		{
-			return Vector.toPolar(location);
-		}
-		
-		public double[] getGlobalLocation(double[] local)
-		{
-			return Vector.toCartesian(local);
-		}
-		
-		public void setSurfs()
-		{
-			Dimension dim = this.getDimension(DimName.R);
-			double[] centre = Vector.zerosDbl(this.getNumberOfDimensions());
-			Ball outbound;
-			double radius;
-			/* Inner radius, if it exists. */
-			radius = dim.getExtreme(0);
-			if ( radius > 0.0 )
-			{
-				outbound = new Ball( new Point(centre) , radius);
-				outbound.bounding = false;
-				this._surfaces.add(outbound);
-			}
-			/* Outer radius always exists. */
-			radius = dim.getExtreme(1);
-			outbound = new Ball( new Point(centre) , radius);
-			outbound.bounding = true;
-			this._surfaces.add(outbound);
+			this.setSignificant(3);
 		}
 	}
 }

@@ -3,19 +3,21 @@
  */
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 
 /**
+ * \brief Component of a mathematical expression that is the natural logartihm
+ * of another component.
  * 
- * 
- * @author Robert Clegg (r.j.clegg@bham.ac.uk)
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class LogNatural extends ComponentSingle
 {
-
-	/**\brief TODO
+	/**
+	 * \brief Construct a natural logarithm component of a mathematical
+	 * expression from a sub-component.
 	 * 
-	 * @param a
+	 * @param a {@code Component} whose cosine will be evaluated.
 	 */
 	public LogNatural(Component a)
 	{
@@ -24,7 +26,7 @@ public class LogNatural extends ComponentSingle
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		return Math.log(this._a.getValue(variables));
 	}
@@ -34,5 +36,4 @@ public class LogNatural extends ComponentSingle
 	{
 		return new Division(this._a.differentiate(withRespectTo), this._a);
 	}
-
 }

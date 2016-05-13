@@ -4,20 +4,28 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 
 /**
- * Test case command mediator that draws a new random sphere every second
- * @author baco
- *
+ * \brief Test case command mediator that draws a new random sphere every
+ * second.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class CommandMediatorExample implements CommandMediator
 {
 	protected double tic = 0.0;
 	protected double x = 0, y = 0, z = 0;
+	public float kickback;
+	
+
+	@Override
+	public float kickback() {
+		return kickback;
+	}
    /**
     * Draws the object (sphere)
     * 
     * @param glDrawable The GLDrawable to draw objects on.
     */
-    public void draw(GLAutoDrawable drawable, float zoom, float tilt) {
+    public void draw(GLAutoDrawable drawable, float zoom) {
     	if(tic == 0.0)
     		 tic = System.currentTimeMillis();
     	else if (System.currentTimeMillis() - tic > 1000)
@@ -42,7 +50,7 @@ public class CommandMediatorExample implements CommandMediator
 
            gl.glLoadIdentity();
            gl.glTranslated(x,y, - 10.0 + z + zoom);
-           gl.glRotatef(tilt,1.0f,0.0f,0.0f); 
+           gl.glRotatef(0.0f,1.0f,0.0f,0.0f); 
 	        float[] rgba = {0.3f, 0.5f, 1f};
 	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
 	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
@@ -65,7 +73,7 @@ public class CommandMediatorExample implements CommandMediator
      }
 
 	public void draw(GLAutoDrawable drawable) {
-		draw(drawable, 0f,0f);
+		draw(drawable, 0f);
 		
 	}
 }

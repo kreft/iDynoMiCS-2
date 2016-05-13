@@ -125,9 +125,75 @@ public final class ExtraMath
 	
 	/* ----------------------- Simple calculations ------------------------ */
 	
+	/**
+	 * \brief Check if the two {@code double}s are equal, with some tolerance.
+	 * 
+	 * @param x Any real number.
+	 * @param y Any real number.
+	 * @param absTol The absolute tolerance (must be non-negative).
+	 * @throws IllegalArgumentException Negative tolerance.
+	 * @return True if <b>x</b> and <b>y</b> are sufficiently similar, false
+	 * if they are too different.
+	 */
 	public static final boolean areEqual(double x, double y, double absTol)
 	{
+		if ( absTol < 0.0 )
+			throw new IllegalArgumentException("Negative tolerance: "+absTol);
 		return Math.abs(x - y) < absTol;
+	}
+	
+	/**
+	 * \brief Calculate the {@code double}-style division of two {@code int}s.
+	 * 
+	 * @param numerator The number to divide.
+	 * @param denominator The number by which to divide.
+	 * @return <b>numerator</b> / <b>denominator</b>
+	 */
+	public static final double division(int numerator, int denominator)
+	{
+		return ((double) numerator) / ((double) denominator);
+	}
+	
+	/**
+	 * \brief Force the given {@code double}, <b>x</b>, into the range
+	 * [<b>min</b>, <b>max</b>].
+	 * 
+	 * @param x Any real number.
+	 * @param min Minimum value permitted.
+	 * @param max Maximum value permitted
+	 * @return <b>x</b> restricted to the interval [<b>min</b>, <b>max</b>].
+	 */
+	public static final double restrict(double x, double min, double max)
+	{
+		if ( x < min )
+			return min;
+		if ( x > max )
+			return max;
+		return x;
+	}
+	
+	/**
+	 * \brief Calculates the floor modulus of the {@code double} arguments.
+	 * 
+	 * <p>The floor modulus has the same sign as the <b>divisor</b>. Java's
+	 * native modulo operator, {@code %}, returns a result with the same sign
+	 * as the <b>dividend</b>. Where the two arguments have the same sign, the
+	 * result will be identical.</p>
+	 * 
+	 * <p>This is the equivalent of {@code Math.floorMod(int, int)} for real
+	 * numbers.</b>
+	 * 
+	 * @param dividend The dividend.
+	 * @param divisor The divisor.
+	 * @return The floor modulus.
+	 * @throws ArithmeticException if the <b>divisor</b> is zero.
+	 */
+	public static double floorMod(double dividend, double divisor)
+	{
+		double out = dividend % divisor;
+		if ( ! sameSign(out, divisor) )
+			out += divisor;
+		return out;
 	}
 	
 	/**
@@ -339,6 +405,27 @@ public final class ExtraMath
 			num.div(2*a);
 		}
 		return out;
+	}
+	
+	/**
+	 * \brief Calculate the overlap between two ranges,
+	 * [<b>xMin</b>, <b>xMax</b>] and [<b>yMin</b>, <b>yMax</b>].
+	 * 
+	 * <p>Note that this will return zero if there is no overlap.</p>
+	 * 
+	 * @param xMin The minimum of the first range.
+	 * @param xMax The maximum of the first range.
+	 * @param yMin The minimum of the second range.
+	 * @param yMax The maximum of the second range.
+	 * @throws IllegalArgumentException "Minimum > Maximum!"
+	 * @return The overlap between the two ranges.
+	 */
+	public static final double
+					overlap(double xMin, double xMax, double yMin, double yMax)
+	{
+		if ( xMin > xMax || yMin > yMax )
+			throw new IllegalArgumentException("Minimum > Maximum!");
+		return Math.max(0.0, Math.min(xMax, yMax) - Math.max(xMin, yMin));
 	}
 	
 	/*  ----------------------------- Shapes  ----------------------------- */
@@ -610,7 +697,7 @@ public final class ExtraMath
 	 */
 	public static double getUniRandAngle()
 	{
-		return 2 * Math.PI * random.nextDouble();
+		return 2 * Math.PI * getUniRandDbl();
 	}
 	
 	/**
@@ -658,7 +745,7 @@ public final class ExtraMath
 	 */
 	public static double getUniRand(double lBound, double hBound)
 	{
-		return random.nextDouble()*(hBound-lBound) + lBound;
+		return getUniRandDbl()*(hBound-lBound) + lBound;
 	}
 	
 	/**

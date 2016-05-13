@@ -7,23 +7,27 @@ import java.util.HashMap;
 
 import boundary.ChemostatConnection;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
-import processManager.SolveChemostat;
+import processManager.library.SolveChemostat;
 import shape.ShapeLibrary;
 import shape.ShapeLibrary.Dimensionless;
 import utility.ExtraMath;
 
+/**
+ * 
+ * @deprecated
+ */
 public class ODETest
 {
 	public static void main(String[] args)
 	{
 		// Make sure the random number generator is up and running.
 		ExtraMath.initialiseRandomNumberGenerator();
-		Log.set(tier.DEBUG);
+		Log.set(Tier.DEBUG);
 		/*
 		 * Setting a time step of ln(2) means that the difference between the
 		 * chemostat concentrations and the respective inflow concentrations

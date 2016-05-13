@@ -1,8 +1,7 @@
 package linearAlgebra;
 
-import utility.ExtraMath;
-
 /**
+ * \brief TODO
  * 
  * <p>By convention:<ul><li>a method <i>function(matrix)</i> returns a new
  * matrix,</li><li>the equivalent <i>functionEquals(matrix)</i> overwrites the
@@ -26,17 +25,29 @@ import utility.ExtraMath;
  *   <li>advanced methods</li>
  * </ul>
  * 
- * <p>Credit to the JAMA package</p>
- * 
  * <p>Note that all arrays from the <b>array.Vector</b> class are treated here
  * as column vectors. These may be converted to row vectors here using the 
  * {@link #transpose(int[] vector)} or {@link #transpose(double[] vector)}
  * methods.</p> 
  * 
+ * <p>Parts of this class are adapted from the JAMA package by Robert Clegg.</p>
+ * 
+ * <p><b>JAMA Copyright Notice</b>: This software is a cooperative product of 
+ * The MathWorks and the National Institute of Standards and Technology (NIST) 
+ * which has been released to the public domain. Neither The MathWorks nor NIST
+ * assumes any responsibility whatsoever for its use by other parties, and 
+ * makes no guarantees, expressed or implied, about its quality, reliability, 
+ * or any other characteristic.</p>
+ * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public final class Matrix
 {
+	/**
+	 * Character that separates rows of a matrix in {@code String} format.
+	 */
+	public final static String DELIMITER = ";";
+	
 	/*************************************************************************
 	 * STANDARD NEW MATRICES
 	 ************************************************************************/
@@ -322,6 +333,100 @@ public final class Matrix
 		return identityDbl(rowDim(matrix), colDim(matrix));
 	}
 	
+	/**
+	 * \brief Gets a new matrix of integers from a string.
+	 * 
+	 * @param matrixString String containing a matrix of integers.
+	 * @return int[][] matrix of integers from this string.
+	 * @see #dblFromString(String)
+	 */
+	public static int[][] intFromString(String matrixString)
+	{
+		String[] rows = matrixString.split(DELIMITER);
+		int[][] matrix = new int[rows.length][];
+		for ( int i = 0; i < rows.length; i++ )
+			matrix[i] = Vector.intFromString(rows[i]);
+		return matrix;
+	}
+	
+	/**
+	 * \brief Gets a new matrix of doubles from a string.
+	 * 
+	 * @param matrixString String containing a matrix of doubles.
+	 * @return int[][] matrix of doubles from this string.
+	 * @see #intFromString(String)
+	 */
+	public static double[][] dblFromString(String matrixString)
+	{
+		String[] rows = matrixString.split(DELIMITER);
+		double[][] matrix = new double[rows.length][];
+		for ( int i = 0; i < rows.length; i++ )
+			matrix[i] = Vector.dblFromString(rows[i]);
+		return matrix;
+	}
+	
+	/**
+	 * \brief Returns integer matrix in string format.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @return String representation of this <b>matrix</b>.
+	 */
+	public static String toString(int[][] matrix)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(matrix, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Returns double matrix in string format.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return String representation of this <b>matrix</b>.
+	 */
+	public static String toString(double[][] matrix)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(matrix, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Converts the given <b>matrix</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(int[][] matrix, StringBuffer buffer)
+	{
+		int n = matrix.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Vector.toString(matrix[i], buffer);
+			buffer.append(DELIMITER);
+		}
+		Vector.toString(matrix[n], buffer);
+	}
+	
+	/**
+	 * \brief Converts the given <b>matrix</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(double[][] matrix, StringBuffer buffer)
+	{
+		int n = matrix.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Vector.toString(matrix[i], buffer);
+			buffer.append(DELIMITER);
+		}
+		Vector.toString(matrix[n], buffer);
+	}
+	
 	/*************************************************************************
 	 * DIMENSIONS
 	 ************************************************************************/
@@ -466,8 +571,7 @@ public final class Matrix
 	public static void copyTo(int[][] destination, int[][] matrix)
 	{
 		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				destination[i][j] = matrix[i][j];
+			Vector.copyTo(destination[i], matrix[i]);
 	}
 	
 	/**
@@ -481,8 +585,9 @@ public final class Matrix
 	 */
 	public static int[][] copy(int[][] matrix)
 	{
-		int[][] out = new int[matrix.length][matrix[0].length];
-		copyTo(out, matrix);
+		int[][] out = new int[matrix.length][];
+		for ( int i = 0; i < matrix.length; i++ )
+			out[i] = Vector.copy(matrix[i]);
 		return out;
 	}
 	
@@ -498,8 +603,7 @@ public final class Matrix
 	public static void copyTo(double[][] destination, double[][] matrix)
 	{
 		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				destination[i][j] = matrix[i][j];
+			Vector.copyTo(destination[i], matrix[i]);
 	}
 	
 	/**
@@ -513,8 +617,9 @@ public final class Matrix
 	 */
 	public static double[][] copy(double[][] matrix)
 	{
-		double[][] out = new double[matrix.length][matrix[0].length];
-		copyTo(out, matrix);
+		double[][] out = new double[matrix.length][];
+		for ( int i = 0; i < matrix.length; i++ )
+			out[i] = Vector.copy(matrix[i]);
 		return out;
 	}
 	
@@ -529,9 +634,8 @@ public final class Matrix
 	 */
 	public static void setAll(int[][] matrix, int value)
 	{
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				matrix[i][j] = value;
+		for ( int[] row : matrix )
+			Vector.setAll(row, value);
 	}
 	
 	/**
@@ -544,9 +648,102 @@ public final class Matrix
 	 */
 	public static void setAll(double[][] matrix, double value)
 	{
-		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				matrix[i][j] = value;
+		for ( double[] row : matrix )
+			Vector.setAll(row, value);
+	}
+	
+	/**
+	 * \brief Set all elements of the given <b>matrix</b> to zero.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 */
+	public static void reset(int[][] matrix)
+	{
+		setAll(matrix, 0);
+	}
+	
+	/**
+	 * \brief Set all elements of the given <b>matrix</b> to zero.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 */
+	public static void reset(double[][] matrix)
+	{
+		setAll(matrix, 0.0);
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>matrix</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>matrix</b>.
+	 */
+	public static void restrictMinimum(int[][] matrix, int newMinimum)
+	{
+		for ( int[] row : matrix )
+			Vector.restrictMinimum(row, newMinimum);
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>matrix</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>matrix</b>.
+	 */
+	public static void restrictMinimum(double[][] matrix, double newMinimum)
+	{
+		for ( double[] row : matrix )
+			Vector.restrictMinimum(row, newMinimum);
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>matrix</b> to take a value less
+	 * than or equal to <b>newMaximum</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>matrix</b>.
+	 */
+	public static void restrictMaximum(int[][] matrix, int newMaximum)
+	{
+		for ( int[] row : matrix )
+			Vector.restrictMaximum(row, newMaximum);
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>matrix</b> to take a value less
+	 * than or equal to <b>newMaximum</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>matrix</b>.
+	 */
+	public static void restrictMaximum(double[][] matrix, double newMaximum)
+	{
+		for ( double[] row : matrix )
+			Vector.restrictMaximum(row, newMaximum);
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>matrix/b> to take a value greater
+	 * than or equal to zero.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 */
+	public static void makeNonnegative(int[][] matrix)
+	{
+		restrictMinimum(matrix, 0);
+	}
+	
+	/**
+	 * \brief Force all elements in this <b>matrix/b> to take a value greater
+	 * than or equal to zero.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 */
+	public static void makeNonnegative(double[][] matrix)
+	{
+		restrictMinimum(matrix, 0.0);
 	}
 	
 	/*************************************************************************
@@ -748,9 +945,8 @@ public final class Matrix
 	public static boolean isZero(int[][] matrix)
 	{
 		for ( int[] row : matrix )
-			for ( int element : row )
-				if ( element != 0 )
-					return false;
+			if ( ! Vector.isZero(row) )
+				return false;
 		return true;
 	}
 	
@@ -772,9 +968,8 @@ public final class Matrix
 	public static boolean isZero(double[][] matrix)
 	{
 		for ( double[] row : matrix )
-			for ( double element : row )
-				if ( element != 0.0 )
-					return false;
+			if ( ! Vector.isZero(row) )
+				return false;
 		return true;
 	}
 	
@@ -797,9 +992,8 @@ public final class Matrix
 	public static boolean isZero(double[][] matrix, double tolerance)
 	{
 		for ( double[] row : matrix )
-			for ( double element : row )
-				if ( Math.abs(element) > tolerance )
-					return false;
+			if ( ! Vector.isZero(row, tolerance) )
+				return false;
 		return true;
 	}
 	
@@ -816,9 +1010,8 @@ public final class Matrix
 	public static boolean isNonnegative(int[][] matrix)
 	{
 		for ( int[] row : matrix )
-			for ( int element : row )
-				if ( element < 0 )
-					return false;
+			if ( ! Vector.isNonnegative(row) )
+				return false;
 		return true;
 	}
 	
@@ -836,9 +1029,8 @@ public final class Matrix
 	public static boolean isNonnegative(double[][] matrix)
 	{
 		for ( double[] row : matrix )
-			for ( double element : row )
-				if ( element < 0.0 )
-					return false;
+			if ( ! Vector.isNonnegative(row) )
+				return false;
 		return true;
 	}
 	
@@ -856,9 +1048,8 @@ public final class Matrix
 	{
 		checkDimensionsSame(a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				if ( a[i][j] != b[i][j] )
-					return false;
+			if ( ! Vector.areSame(a[i], b[i]) )
+				return false;
 		return true;
 	}
 	
@@ -883,9 +1074,8 @@ public final class Matrix
 	{
 		checkDimensionsSame(a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				if ( a[i][j] != b[i][j] )
-					return false;
+			if ( ! Vector.areSame(a[i], b[i]) )
+				return false;
 		return true;
 	}
 	
@@ -911,16 +1101,15 @@ public final class Matrix
 	{
 		checkDimensionsSame(a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				if ( Math.abs(a[i][j] - b[i][j]) > tolerance )
-					return false;
+			if ( ! Vector.areSame(a[i], b[i], tolerance) )
+				return false;
 		return true;
 	}
 	
 	/*************************************************************************
 	 * BASIC ARTHIMETIC
 	 ************************************************************************/
-	
+		
 	/* Adding */
 	
 	/**
@@ -941,8 +1130,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] + value;
+			Vector.addTo(destination[i], matrix[i], value);
 	}
 	
 	/**
@@ -1001,8 +1189,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] + value;
+			Vector.addTo(destination[i], matrix[i], value);
 	}
 	
 	/**
@@ -1057,9 +1244,8 @@ public final class Matrix
 	public static void addTo(int[][] destination, int[][] a, int[][] b)
 	{
 		checkDimensionsSame(destination, a, b);
-		for ( int i = 0; i < rowDim(destination); i++ )
-			for ( int j = 0; j < colDim(destination); j++ )
-				destination[i][j] = a[i][j] + b[i][j];
+		for ( int i = 0; i < rowDim(a); i++ )
+			Vector.addTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1113,9 +1299,8 @@ public final class Matrix
 	public static void addTo(double[][] destination, double[][] a, double[][] b)
 	{
 		checkDimensionsSame(destination, a, b);
-		for ( int i = 0; i < rowDim(destination); i++ )
-			for ( int j = 0; j < colDim(destination); j++ )
-				destination[i][j] = a[i][j] + b[i][j];
+		for ( int i = 0; i < rowDim(a); i++ )
+			Vector.addTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1174,8 +1359,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				destination[i][j] = a[i][j] - b[i][j];
+			Vector.minusTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1234,8 +1418,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				destination[i][j] = a[i][j] - b[i][j];
+			Vector.minusTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1297,8 +1480,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] * value;
+			Vector.timesTo(destination[i], matrix[i], value);
 	}
 	
 	/**
@@ -1357,8 +1539,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, matrix);
 		for ( int i = 0; i < rowDim(matrix); i++ )
-			for ( int j = 0; j < colDim(matrix); j++ )
-				destination[i][j] = matrix[i][j] * value;
+			Vector.timesTo(destination[i], matrix[i], value);
 	}
 	
 	/**
@@ -1416,8 +1597,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(b); j++ )
-				destination[i][j] = a[i][j] + b[i][j];
+			Vector.timesTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1478,8 +1658,7 @@ public final class Matrix
 	{
 		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(b); j++ )
-				destination[i][j] = a[i][j] + b[i][j];
+			Vector.timesTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
@@ -1718,28 +1897,6 @@ public final class Matrix
 	 * <p>Matrices must have same dimensions.</p>
 	 * 
 	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemDivide({@link #copy(int[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of integers.
-	 * @param b Two-dimensional array of integers.
-	 * @return int[][] array of <b>a</b> divided by <b>b</b> element-wise.
-	 */
-	public static int[][] elemDivide(int[][] a, int[][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] /= b[i][j];
-		return a;
-	}
-	
-	/**
-	 * \brief Divide one matrix by another, element-by-element.
-	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
 	 * <i>elemDivide({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
 	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
 	 * 
@@ -1747,7 +1904,7 @@ public final class Matrix
 	 * @param b Two-dimensional array of doubles.
 	 * @return double[][] array of <b>a</b> divided by <b>b</b> element-wise.
 	 */
-	public static double[][] elemDivide(double[][] a, double[][] b)
+	public static double[][] elemDivideEquals(double[][] a, double[][] b)
 	{
 		checkDimensionsSame(a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
@@ -1773,12 +1930,11 @@ public final class Matrix
 	 */
 	public static int[][] submatrix(int[][] matrix, int[] rows, int[] cols)
 	{
-		int[][] out = new int[rows.length][cols.length];
+		int[][] out = new int[rows.length][];
 		try
 		{
 			for ( int i = 0; i < rows.length; i++ )
-				for ( int j = 0; j < cols.length; j++ )
-					out[i][j] = matrix[rows[i]][cols[j]];
+				out[i] = Vector.subset(matrix[rows[i]], cols);
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
@@ -1804,12 +1960,11 @@ public final class Matrix
 	public static double[][] submatrix(double[][] matrix, int[] rows,
 																int[] cols)
 	{
-		double[][] out = new double[rows.length][cols.length];
+		double[][] out = new double[rows.length][];
 		try
 		{
 			for ( int i = 0; i < rows.length; i++ )
-				for ( int j = 0; j < cols.length; j++ )
-					out[i][j] = matrix[rows[i]][cols[j]];
+				out[i] = Vector.subset(matrix[rows[i]], cols);
 		}
 		catch (ArrayIndexOutOfBoundsException e)
 		{
@@ -1928,8 +2083,7 @@ public final class Matrix
 	public static double[][] transpose(double[] vector)
 	{
 		double[][] out = new double[1][vector.length];
-		for ( int i = 0; i < vector.length; i++ )
-			out[0][i] = vector[i];
+		out[0] = Vector.copy(vector);
 		return out;
 	}
 	
@@ -2141,7 +2295,7 @@ public final class Matrix
 	{
 		int out = 0;
 		int min = minDim(matrix);
-		for (int i = 0; i < min; i++)
+		for ( int i = 0; i < min; i++ )
 	         out += matrix[i][i];
 	    return out;
 	}
@@ -2160,7 +2314,7 @@ public final class Matrix
 	{
 		double out = 0;
 		int min = minDim(matrix);
-		for (int i = 0; i < min; i++)
+		for ( int i = 0; i < min; i++ )
 	         out += matrix[i][i];
 	    return out;
 	}
@@ -2181,7 +2335,7 @@ public final class Matrix
 	 */
 	public static int max(int[][] matrix)
 	{
-		int out = matrix[0][0];
+		int out = Integer.MIN_VALUE;
 		for ( int[] row : matrix )
 			out = Math.max(out, Vector.max(row));
 		return out;
@@ -2205,7 +2359,7 @@ public final class Matrix
 	 */
 	public static double max(double[][] matrix)
 	{
-		double out = matrix[0][0];
+		double out = Double.MIN_VALUE;
 		for ( double[] row : matrix )
 			out = Math.max(out, Vector.max(row));
 		return out;
@@ -2227,7 +2381,7 @@ public final class Matrix
 	 */
 	public static int min(int[][] matrix)
 	{
-		int out = matrix[0][0];
+		int out = Integer.MAX_VALUE;
 		for ( int[] row : matrix )
 			out = Math.max(out, Vector.min(row));
 		return out;
@@ -2250,7 +2404,7 @@ public final class Matrix
 	 */
 	public static double min(double[][] matrix)
 	{
-		double out = matrix[0][0];
+		double out = Double.MAX_VALUE;
 		for ( double[] row : matrix )
 			out = Math.max(out, Vector.min(row));
 		return out;
@@ -2269,10 +2423,16 @@ public final class Matrix
 	 */
 	public static int maxColumnSum(int[][] matrix)
 	{
-		int n = colDim(matrix);
-		int out = 0;
-		for ( int j = 0; j < n; j++ )
-			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
+		int out = Integer.MAX_VALUE;
+		int temp;
+		/* Do this the long-hand way to avoid copying columns to vectors. */
+		for ( int i = 0; i < rowDim(matrix); i++ )
+		{
+			temp = 0;
+			for ( int j = 0; j < colDim(matrix); j++ )
+				temp += matrix[i][j];
+			out = Math.max(out, temp);
+		}		
 		return out;
 	}
 	
@@ -2289,9 +2449,16 @@ public final class Matrix
 	 */
 	public static double maxColumnSum(double[][] matrix)
 	{
-		double out = 0.0;
-		for ( int j = 0; j < colDim(matrix); j++ )
-			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
+		double out = Double.MIN_VALUE;
+		double temp;
+		/* Do this the long-hand way to avoid copying columns to vectors. */
+		for ( int i = 0; i < rowDim(matrix); i++ )
+		{
+			temp = 0.0;
+			for ( int j = 0; j < colDim(matrix); j++ )
+				temp += matrix[i][j];
+			out = Math.max(out, temp);
+		}		
 		return out;
 	}
 	
@@ -2308,10 +2475,16 @@ public final class Matrix
 	 */
 	public static int minColumnSum(int[][] matrix)
 	{
-		int n = colDim(matrix);
-		int out = 0;
-		for ( int j = 0; j < n; j++ )
-			out = Math.min(out, Vector.sum(getColumn(matrix, j)));
+		int out = Integer.MAX_VALUE;
+		int temp;
+		/* Do this the long-hand way to avoid copying columns to vectors. */
+		for ( int i = 0; i < rowDim(matrix); i++ )
+		{
+			temp = 0;
+			for ( int j = 0; j < colDim(matrix); j++ )
+				temp += matrix[i][j];
+			out = Math.min(out, temp);
+		}		
 		return out;
 	}
 	
@@ -2328,9 +2501,16 @@ public final class Matrix
 	 */
 	public static double minColumnSum(double[][] matrix)
 	{
-		double out = 0.0;
-		for ( int j = 0; j < colDim(matrix); j++ )
-			out = Math.max(out, Vector.sum(getColumn(matrix, j)));
+		double out = Double.MAX_VALUE;
+		double temp;
+		/* Do this the long-hand way to avoid copying columns to vectors. */
+		for ( int i = 0; i < rowDim(matrix); i++ )
+		{
+			temp = 0.0;
+			for ( int j = 0; j < colDim(matrix); j++ )
+				temp += matrix[i][j];
+			out = Math.min(out, temp);
+		}		
 		return out;
 	}
 	
@@ -2347,7 +2527,7 @@ public final class Matrix
 	 */
 	public static int maxRowSum(int[][] matrix)
 	{
-		int out = 0;
+		int out = Integer.MIN_VALUE;
 		for ( int[] row : matrix )
 			out = Math.max(out, Vector.sum(row));
 		return out;
@@ -2366,7 +2546,7 @@ public final class Matrix
 	 */
 	public static double maxRowSum(double[][] matrix)
 	{
-		double out = 0.0;
+		double out = Double.MIN_VALUE;
 		for ( double[] row : matrix )
 			out = Math.max(out, Vector.sum(row));
 		return out;
@@ -2385,7 +2565,7 @@ public final class Matrix
 	 */
 	public static int minRowSum(int[][] matrix)
 	{
-		int out = 0;
+		int out = Integer.MAX_VALUE;
 		for ( int[] row : matrix )
 			out = Math.min(out, Vector.sum(row));
 		return out;
@@ -2404,7 +2584,7 @@ public final class Matrix
 	 */
 	public static double minRowSum(double[][] matrix)
 	{
-		double out = 0.0;
+		double out = Double.MAX_VALUE;
 		for ( double[] row : matrix )
 			out = Math.min(out, Vector.sum(row));
 		return out;
@@ -2432,9 +2612,9 @@ public final class Matrix
 		 * may be quicker, but riskier. 
 		 */
 		double out = 0.0;
-		for ( int i = 0; i < matrix.length; i++ )
-			for ( int j = 0; j < matrix[0].length; j++ )
-				out = Math.hypot(out, matrix[i][j]);
+		for ( int[] row : matrix )
+			for ( int elem : row )
+				out = Math.hypot(out, elem);
 		return out;
 	}
 	
@@ -2485,10 +2665,9 @@ public final class Matrix
 	 */
 	public static double[][] random(int m, int n)
 	{
-		double[][] out = new double[m][n];
+		double[][] out = new double[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ExtraMath.getUniRandDbl();
+			out[i] = Vector.randomZeroOne(n);
 		return out;
 	}
 	
@@ -2543,11 +2722,9 @@ public final class Matrix
 	public static int[][] toInt(double[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
+		int[][] out = new int[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) matrix[i][j];
+			out[i] = Vector.toInt(matrix[i]);
 		return out;
 	}
 	
@@ -2565,11 +2742,9 @@ public final class Matrix
 	public static int[][] round(double[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
+		int[][] out = new int[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) Math.round(matrix[i][j]);
+			out[i] = Vector.round(matrix[i]);
 		return out;
 	}
 	
@@ -2587,11 +2762,9 @@ public final class Matrix
 	public static int[][] floor(double[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
+		int[][] out = new int[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) Math.floor(matrix[i][j]);
+			out[i] = Vector.floor(matrix[i]);
 		return out;
 	}
 	
@@ -2609,11 +2782,9 @@ public final class Matrix
 	public static int[][] ceil(double[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		int[][] out = new int[m][n];
+		int[][] out = new int[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (int) Math.ceil(matrix[i][j]);
+			out[i] = Vector.ceil(matrix[i]);
 		return out;
 	}
 	
@@ -2631,11 +2802,9 @@ public final class Matrix
 	public static double[][] toDbl(int[][] matrix)
 	{
 		int m = rowDim(matrix);
-		int n = colDim(matrix);
-		double[][] out = new double[m][n];
+		double[][] out = new double[m][];
 		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = (double) matrix[i][j];
+			out[i] = Vector.toDbl(matrix[i]);
 		return out;
 	}
 	

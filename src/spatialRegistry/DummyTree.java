@@ -7,8 +7,10 @@ import surface.BoundingBox;
 
 /**
  * A dummy spatial registry for dimensionless compartments.
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class DummyTree<T> extends SpatialRegistry<T>
+public class DummyTree<T> implements SpatialRegistry<T>
 {
 	private List<T> _emptyList;
 	
@@ -57,5 +59,17 @@ public class DummyTree<T> extends SpatialRegistry<T>
 	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	@Override
+	public T getRandom()
+	{
+		return null;
+	}
+	
+	@Override
+	public boolean delete(T entry)
+	{
+		return false;
 	}
 }

@@ -1,8 +1,6 @@
 package linearAlgebra;
 
-import java.util.Arrays;
-
-import grid.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
  * \brief Utility class for PolarGrids.

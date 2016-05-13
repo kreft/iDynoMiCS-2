@@ -4,23 +4,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import grid.resolution.ResCalcFactory;
-import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import shape.resolution.ResCalcFactory;
+import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.ShapeConventions.DimName;
 
 /**
  * \brief Subclass of SpatialGrid that discretises space into rectilinear
  * voxels. Uses the (X, Y, Z) dimension system.
  * 
- * @author Robert Clegg, University of Birmingham (r.j.clegg@bham.ac.uk)
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class CartesianGrid extends SpatialGrid
 {
-
 	/**
 	 * TODO
 	 */
@@ -54,7 +54,7 @@ public class CartesianGrid extends SpatialGrid
 
 		/* create appropriate ResCalc Objects for dimension combinations*/
 		ResCalcFactory rcf = new ResCalcFactory(this._dimName);
-		rcf.init(node);
+		rcf.init((Element) node);
 		if (!Arrays.equals(this._dimName, rcf.getDimNames()))
 			//TODO: break cleaner
 			throw new IllegalArgumentException(

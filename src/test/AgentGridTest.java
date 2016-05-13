@@ -4,10 +4,11 @@
 package test;
 
 import boundary.*;
+import boundary.BoundaryLibrary.SolidBoundary;
 import idynomics.Compartment;
+import idynomics.Idynomics;
 import idynomics.Simulator;
-import idynomics.Timer;
-import processManager.SolveDiffusionTransient;
+import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 
@@ -23,25 +24,24 @@ public class AgentGridTest
 		double endTime = 10 * tStep;
 		double topConcn = 1.0;
 		/*
-		 * Set the timestep and total simulation time.
+		 * Make a simulator, set the timestep and total simulation time, and
+		 * give it one 9x9 compartment.
 		 */
-		Timer.setTimeStepSize(tStep);
-		Timer.setEndOfSimulation(endTime);
-		/*
-		 * Make a simulator and give it one 9x9 compartment.
-		 */
-		Simulator aSim = new Simulator();
-		Compartment aCompartment = aSim.addCompartment("myCompartment");
+		Idynomics.simulator = new Simulator();
+		Idynomics.simulator.timer.setTimeStepSize(tStep);
+		Idynomics.simulator.timer.setEndOfSimulation(endTime);
+		Compartment aCompartment = 
+					Idynomics.simulator.addCompartment("myCompartment");
 		Shape aShape = (Shape) Shape.getNewInstance("rectangle");
 		aShape.setDimensionLengths(new double[] {9.0, 9.0, 1.0});
 		aCompartment.setShape(aShape);
 		/*
 		 * Set the boundary methods.
 		 */
-		aCompartment.addBoundary(DimName.X, 0, new BoundaryZeroFlux());
+		aCompartment.addBoundary(DimName.X, 0, new SolidBoundary());
 		aCompartment.addBoundary(DimName.X, 1, new BoundaryFixed(topConcn));
-		aCompartment.addBoundary(DimName.Y, 0, new BoundaryZeroFlux());
-		aCompartment.addBoundary(DimName.Y, 1, new BoundaryZeroFlux());
+		aCompartment.addBoundary(DimName.Y, 0, new SolidBoundary());
+		aCompartment.addBoundary(DimName.Y, 1, new SolidBoundary());
 		/*
 		 * We just have one solute, but need to give it to the process manager
 		 * in an array.
@@ -60,10 +60,10 @@ public class AgentGridTest
 		 * Launch the simulation.
 		 */
 		aCompartment.init();
-		aSim.run();
+		Idynomics.simulator.run();
 		/*
 		 * Print the results.
 		 */
-		aSim.printAll();
+		Idynomics.simulator.printAll();
 	}
 }

@@ -15,26 +15,31 @@ import org.w3c.dom.NodeList;
 import dataIO.XmlLabel;
 import surface.*;
 
-public class Body implements Copyable, XMLable {
-	
-    /**
-     * The 'body' of the agent is represented by sphere-swept volumes of a 
-     * collection of points connected by springs of length lengths. This results
-     * in a single sphere for coccoid-type agents or a tube for agents described
-     * by multiple points.
-     */
-    protected List<Point> points = new LinkedList<Point>();
-    
-    /**
-     * The surfaces describe the different segments of the agents body.
-     */
-    protected List<Surface> surfaces = new LinkedList<Surface>();
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
+public class Body implements Copyable, XMLable
+{
+	/**
+	 * The 'body' of the agent is represented by sphere-swept volumes of a 
+	 * collection of points connected by springs of length lengths. This results
+	 * in a single sphere for coccoid-type agents or a tube for agents described
+	 * by multiple points.
+	 */
+	protected List<Point> points = new LinkedList<Point>();
+
+	/**
+	 * The surfaces describe the different segments of the agents body.
+	 */
+	protected List<Surface> surfaces = new LinkedList<Surface>();
 
 	/**
 	 * Rest angles of torsion springs for multi-segment agents
 	 */
 	protected double[] _angles;
-	
+
 	/**
 	 * NOTE: work in progress, subject to change
 	 * Links with other agents/bodies owned by this body
@@ -42,12 +47,12 @@ public class Body implements Copyable, XMLable {
 	 * body
 	 */
 	public LinkedList<Link> _links = new LinkedList<Link>();
-	
-	
-    /*************************************************************************
+
+
+	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-	
+
 	/**
 	 * Coccoid
 	 */
@@ -56,13 +61,13 @@ public class Body implements Copyable, XMLable {
 		this.points.add(point);
 		this.surfaces.add(new Ball(point, radius));
 	}
-	
+
 	public Body(Ball sphere)
 	{
 		this.points.add(sphere._point);
 		this.surfaces.add(sphere);
 	}
-	
+
 	/**
 	 * Rod
 	 * @param rod
@@ -73,14 +78,14 @@ public class Body implements Copyable, XMLable {
 		this.points.add(points[1]);
 		this.surfaces.add(new Rod(points, spineLength, radius));
 	}
-	
+
 	public Body(Rod rod)
 	{
 		this.points.add(rod._points[0]);
 		this.points.add(rod._points[1]);
 		this.surfaces.add(rod);
 	}
-	
+
 	/**
 	 * NOTE: work in progress
 	 * Hybrid: Coccoid, Rod, rods, TODO Chain
@@ -101,7 +106,7 @@ public class Body implements Copyable, XMLable {
 			}
 		}
 	}
-	
+
 	/**
 	 * this method can only be used if the body.update(radius, length) method
 	 * is called before the body is used.
@@ -111,7 +116,7 @@ public class Body implements Copyable, XMLable {
 	{
 		this(points, 0.0, 0.0);
 	}
-	
+
 	/**
 	 * First implementation of xmlable, not finished but functional
 	 * @param xmlNode
@@ -135,22 +140,32 @@ public class Body implements Copyable, XMLable {
 		// able to have a body
 	}
 
-	public void init(Node xmlNode)
+	/**
+	 * quick solution to create body from string, currently only coccoid
+	 * @param input
+	 * @return
+	 */
+	public static Object getNewInstance(String input) {
+		List<Point> pointList = new LinkedList<Point>();
+		pointList.add(new Point(Vector.dblFromString(input)));
+		return new Body(pointList);
+	}
+
+	public void init(Element xmlElem)
 	{
 		//FIXME quick fix: copy/pasted from
 		//"public static Body getNewInstance(Node xmlNode)"
-		Element s = (Element) xmlNode;
 		//FIXME: not finished only accounts for simple coccoids
-		NodeList pointNodes = s.getElementsByTagName(XmlLabel.point);
+		NodeList pointNodes = xmlElem.getElementsByTagName(XmlLabel.point);
 		for (int k = 0; k < pointNodes.getLength(); k++) 
 		{
 			Element point = (Element) pointNodes.item(k);
 			this.points.add(new Point(Vector.dblFromString(
 					point.getAttribute(XmlLabel.position))));
 		}
-		
+
 	}
-	
+
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
@@ -172,8 +187,8 @@ public class Body implements Copyable, XMLable {
 	{
 		return this.points;
 	}
-	
-	
+
+
 	/**
 	 * TODO if we want bodies with various spineLengths update..
 	 * @param radius
@@ -184,7 +199,7 @@ public class Body implements Copyable, XMLable {
 		for(Surface s: surfaces)
 			s.set(radius, spineLength);
 	}
-	
+
 	//TODO: method will be replaced
 	public List<double[]> getJoints()
 	{
@@ -192,18 +207,18 @@ public class Body implements Copyable, XMLable {
 		points.forEach( (p) -> joints.add(p.getPosition()) );
 		return joints;
 	}
-	
+
 	//FIXME only for testing purposes
 	public Surface getSurface()
 	{
 		return this.surfaces.get(0);
 	}
-	
+
 	public List<Surface> getSurfaces()
 	{
 		return this.surfaces;
 	}
-	
+
 	public List<BoundingBox> getBoxes(double margin)
 	{
 		List<BoundingBox> boxes = new LinkedList<BoundingBox>();
@@ -211,11 +226,11 @@ public class Body implements Copyable, XMLable {
 			boxes.add( ((HasBoundingBox) s).boundingBox(margin) );
 		return boxes;
 	}
-	
+
 	/*************************************************************************
 	 * general methods
 	 ************************************************************************/
-	
+
 	/**
 	 * returns a copy of this body and registers a new agent NOTE: does
 	 * not set the agent's body state!
@@ -232,5 +247,11 @@ public class Body implements Copyable, XMLable {
 		default:
 			return null;
 		}
+	}
+
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

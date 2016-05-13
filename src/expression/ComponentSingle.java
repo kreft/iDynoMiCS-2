@@ -1,14 +1,31 @@
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
+/**
+ * \brief Component of a mathematical expression that is a function of one
+ * other component.
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public abstract class ComponentSingle extends Component
 {
-	protected String _expr = "";
-	
+	/**
+	 * {@code String} description of the function used. 
+	 */
+	protected String _expr;
+	/**
+	 * The sub-component.
+	 */
 	protected Component _a;
 	
+	/**
+	 * \brief Construct a component of a mathematical expression from a single
+	 * sub-component.
+	 * 
+	 * @param a The sub-component.
+	 */
 	public ComponentSingle(Component a)
 	{
 		this._a = a;
@@ -22,9 +39,9 @@ public abstract class ComponentSingle extends Component
 	}
 
 	@Override
-	public String reportValue(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
-		String out = this._expr+"("+this._a.reportValue(variables)+")";
+		String out = this._expr+"("+this._a.reportEvaluation(variables)+")";
 		return ( isNegative() ) ? "-"+out : out; 
 	}
 	

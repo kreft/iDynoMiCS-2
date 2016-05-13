@@ -1,18 +1,32 @@
 package dataIO;
 
+import idynomics.Idynomics;
 import idynomics.Param;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class SvgExport {
+public class SvgExport
+{
+	/**
+	 * TODO
+	 */
 	int filewriterfilenr = 0;
+	/**
+	 * TODO
+	 */
 	FileHandler svgFile = new FileHandler();
+	/**
+	 * TODO
+	 */
 	public double scalar = 25.0;
+	/**
+	 * TODO
+	 */
 	public double spacer = 25.0;
 	
 	/**
@@ -50,10 +64,10 @@ public class SvgExport {
 	 */
 	public void newSvg(String prefix)
 	{
-		String fileString = Param.outputLocation + prefix + "/" 
+		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ prefix + DigitFilenr(filewriterfilenr) + ".svg";
 		svgFile.fnew(fileString);
-		Log.out(tier.EXPRESSIVE, "Writing new file: " + fileString);
+		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 
 		svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
 	}

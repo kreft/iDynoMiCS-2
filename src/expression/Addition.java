@@ -4,20 +4,35 @@
 package expression;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
- * @author cleggrj
- *
+ * \brief A component of a mathematical expression composed of the addition of
+ * two or more sub-components.
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class Addition extends ComponentMultiple
 {
+	/**
+	 * \brief Construct an addition component of a mathematical expression from
+	 * a list of sub-components.
+	 * 
+	 * @param a List of sub-components to add.
+	 */
 	public Addition(ArrayList<Component> a)
 	{
 		super(a);
 		this._expr = "+";
 	}
 	
+	/**
+	 * \brief Construct an addition component of a mathematical expression from
+	 * two sub-components.
+	 * 
+	 * @param a One of the two sub-components.
+	 * @param b The other sub-component.
+	 */
 	public Addition(Component a, Component b)
 	{
 		super(a, b);
@@ -25,7 +40,7 @@ public class Addition extends ComponentMultiple
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		double out = 0.0;
 		for ( Component c : this._components )

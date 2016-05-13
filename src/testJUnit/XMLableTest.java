@@ -4,7 +4,7 @@
 package testJUnit;
 
 import org.junit.Test;
-import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 import static org.junit.Assert.assertTrue;
 
@@ -21,7 +21,7 @@ public class XMLableTest
 	{
 		private int x = 1;
 		
-		public void init(Node xmlNode)
+		public void init(Element xmlElem)
 		{
 			// TODO
 		}
@@ -39,6 +39,12 @@ public class XMLableTest
 		public static Object getNewInstance(String className)
 		{
 			return XMLable.getNewInstance(className, "testJUnit.XMLableTest$");
+		}
+		
+		@Override
+		public String getXml() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

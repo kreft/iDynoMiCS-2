@@ -11,7 +11,7 @@ import surface.BoundingBox;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public abstract class SpatialRegistry<T>
+public interface SpatialRegistry<T>
 {	
 	/**
 	 * \brief TODO
@@ -67,5 +67,17 @@ public abstract class SpatialRegistry<T>
 	 * @param entry
 	 */
 	public abstract void insert(BoundingBox boundingBox, T entry);
-
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public abstract T getRandom();
+	
+	/**
+	 * 
+	 * @param entry
+	 * @return
+	 */
+	public abstract boolean delete(T entry);
 }

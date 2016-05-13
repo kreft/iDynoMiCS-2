@@ -1,123 +1,72 @@
 package aspect;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import agent.Body;
 import dataIO.Log;
-import dataIO.Log.tier;
-import dataIO.XmlHandler;
+import dataIO.ObjectFactory;
+import dataIO.Log.Tier;
 import dataIO.XmlLabel;
-import linearAlgebra.Vector;
-import reaction.Reaction;
-import surface.BoundingBox;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
  * allows for direct interaction with the aspect registry and easy loading of 
  * aspects from xml.
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract interface AspectInterface {
-	
-	public AspectReg<?> reg();
+public abstract interface AspectInterface
+{
+	/**
+	 * \brief TODO
+	 * @param <A>
+	 * 
+	 * @return
+	 */
+	public <A> AspectReg<A> reg();	
+
+	public default String getXml()
+	{
+		return reg().getXml();
+	}
 	
 	/**
-	 * Loads all states from xmlNode into anything that implements the
+	 * \brief Load all aspects from xmlNode into anything that implements the
 	 * StateObject interface.
+	 * 
 	 * @param aspectReg
 	 * @param xmlNode
 	 */
 	public default void loadAspects(Node xmlNode)
 	{
 		Element e = (Element) xmlNode;
-		@SuppressWarnings("unchecked")
 		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
-		
+		String  name;
 		NodeList stateNodes = e.getElementsByTagName(XmlLabel.aspect);
 		for (int j = 0; j < stateNodes.getLength(); j++) 
 		{
 			Element s = (Element) stateNodes.item(j);
-			aspectReg.add(s.getAttribute(XmlLabel.nameAttribute), 
-					loadAspectObject(s,XmlLabel.valueAttribute,
-					XmlLabel.typeAttribute));
+			name = s.getAttribute(XmlLabel.nameAttribute);
+			aspectReg.add(name, ObjectFactory.loadObject(s, XmlLabel.valueAttribute,
+													XmlLabel.typeAttribute));
+			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 		}
+		
+		reg().getXml();
 	}
 	
 	/**
-	 * Identifies appropriate loading method for aspect or item and applies this
-	 * method to return a new object of the approriate type
-	 * @param s
-	 * @return
+	 * quick method to load simple aspects from user input
+	 * @param name
+	 * @param input
+	 * @param type
 	 */
-	public static Object loadAspectObject(Element s, String value, String type)
+	public default void loadAspect(String name, String input, String type)
 	{
-		NodeList items;
-		if (! s.hasChildNodes())	
-		{
-			switch (s.getAttribute(type)) 
-			{
-			/* state node with just attributes */
-				case "boolean" : 
-					return Boolean.valueOf(s.getAttribute(value));
-				case "int" : 
-					return Integer.valueOf(s.getAttribute(value));
-				case "int[]" : 
-					return Vector.intFromString(s.getAttribute(value));
-				case "double" : 
-					return Double.valueOf(s.getAttribute(value));
-				case "double[]" : 
-					return Vector.dblFromString(s.getAttribute(value));
-				case "String" : 
-					return s.getAttribute(value);
-				case "String[]" : 
-					return s.getAttribute(value).split(",");
-				case "calculated" : 
-					return Calculated.getNewInstance(s);
-				case "event" :
-					return Event.getNewInstance(s);
-			}
-		}
-		else	
-		{
-			/* state node with attributes and child nodes */
-			switch (s.getAttribute(type)) 
-			{
-				case "body" :
-					return Body.getNewInstance(s);
-				case "reaction" :
-					return Reaction.getNewInstance( XmlHandler.loadUnique(s, 
-							"reaction"));
-				case "List" :
-					List<Object> temp = new LinkedList<Object>();
-					items = XmlHandler.getAll(s, XmlLabel.item);
-					for ( int i = 0; i < items.getLength(); i++ )
-						temp.add((Object) loadAspectObject(
-								(Element) items.item(i), value, type));
-					return temp;
-				case "HashMap" :
-					HashMap<Object,Object> hMap = new HashMap<Object,Object>();
-					items = XmlHandler.getAll(s, XmlLabel.item);
-					for ( int i = 0; i < items.getLength(); i++ )
-					{
-						hMap.put((Object) loadAspectObject((Element) 
-								items.item(i), XmlLabel.keyAttribute ,
-								XmlLabel.keyTypeAttribute ), 
-								(Object) loadAspectObject((Element) 
-								items.item(i), value, type ));
-					}
-					return hMap;
-			}
-		}
-		Log.out(tier.CRITICAL, "Aspect interface encountered unidentified "
-				+ "object type: " + type);
-		return null;
+		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
+		aspectReg.add(name, ObjectFactory.loadObject(input, type));
+		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 	}
 	
 	/**************************************************************************
@@ -133,8 +82,26 @@ public abstract interface AspectInterface {
 	 */
 	default boolean isAspect(String aspect)
 	{
-		return reg().isGlobalAspect(aspect) && reg().getValue(this, aspect) 
-				!= null;
+		if ( reg().isGlobalAspect(aspect) )
+		{
+			if ( reg().getValue(this, aspect) != null )
+				return true;
+			else
+			{
+				Log.out(Tier.BULK, "Aspect \""+aspect+"\" found but null");
+				return false;
+			}
+		}
+		else
+		{
+			Log.out(Tier.BULK, "Aspect \""+aspect+"\" not found");
+			return false;
+		}
+	}
+	
+	public default void set(String key, Object aspect)
+	{
+		reg().set(key, aspect);
 	}
 	
 	/**
@@ -270,30 +237,4 @@ public abstract interface AspectInterface {
 		return (isAspect(aspect) ? (Boolean[]) reg().getValue(this, aspect)
 				: null);
 	}
-	
-	
-// this is the aspect registries own bussiness
-//	/**
-//	 * check, cast and return the event object, return null if the aspect does 
-//	 * not exist or is equal to null
-//	 * @param aspect
-//	 * @return
-//	 */
-//	public default Event getEvent(String aspect)
-//	{
-//		return (isAspect(aspect) ? (Event) reg().getValue(this, aspect) 
-//				: null);
-//	}
-//	
-//	/**
-//	 * check, cast and return the calculated state object, return null if the 
-//	 * aspect does not exist or is equal to null
-//	 * @param aspect
-//	 * @return
-//	 */
-//	public default Calculated getCalculated(String aspect)
-//	{
-//		return (isAspect(aspect) ? (Calculated) reg().getValue(this, aspect) 
-//				: null);
-//	}
 }

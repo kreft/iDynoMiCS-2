@@ -1,106 +1,181 @@
 package agent;
 
+import java.awt.event.ActionEvent;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import agent.Species.SpeciesMaker;
 import aspect.AspectInterface;
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import dataIO.XmlLabel;
-import dataIO.XmlLoad;
 import generalInterfaces.Quizable;
+import generalInterfaces.XMLable;
+import modelBuilder.InputSetter;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 
 /**
- * The species library maintains a hashmap of all species known in this 
- * simulation
- * @author baco
- *
+ * \brief Stores information about all species relevant to a simulation.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements Quizable {
-	
+public class SpeciesLib implements IsSubmodel, Quizable, XMLable
+{
 	/**
-	 * Contains all known species
+	 * Contains all known species.
 	 */
 	protected HashMap<String, AspectInterface> _species = 
 			new HashMap<String, AspectInterface>();
-	
+
 	/**
-	 * void species, returned if no species is set.
+	 * Void species, returned if no species is set.
 	 */
-	protected Species voidSpecies = new Species();
-	
-	/**
-	 * obtains species from Nod.e NOTE: not sure to put it here or in XmlLoad
-	 */
-	public void setAll(Element speciesNode)
+	protected Species _voidSpecies = new Species();
+
+	public String[] getAllSpeciesNames()
 	{
-		if(speciesNode != null)
-			{
-			// cycle trough all species and add them to the species Lib
-				NodeList speciesNodes = 
-						speciesNode.getElementsByTagName(XmlLabel.species);
-			
-			/*
-			 * Loading species aspects
-			 */
-			for (int i = 0; i < speciesNodes.getLength(); i++) 
-			{
-				Element xmlSpecies = (Element) speciesNodes.item(i);
-				set(xmlSpecies.getAttribute(XmlLabel.nameAttribute), 
-						new Species(speciesNodes.item(i)));
-			}
-			
-			/*
-			 * Loading species modules
-			 */
-			for (int i = 0; i < speciesNodes.getLength(); i++) 
-			{
-				Element xmlSpecies = (Element) speciesNodes.item(i);
-				XmlLoad.loadSpeciesModules( get(
-						xmlSpecies.getAttribute(XmlLabel.nameAttribute)),
-						speciesNodes.item(i)); 
-			}
-		}
-		else
+		String[] names = new String[_species.size()];
+		int i = 0;
+		for(String name : _species.keySet())
 		{
-			Log.out(tier.EXPRESSIVE, "No species library defined");
+			names[i] = name;
+			i++;
 		}
+		return names;
 	}
-	
-	public void setAll(Node speciesNode)
-	{
-		setAll((Element) speciesNode);
-	}
-	
+
 	/**
-	 * Add a new species to the species library (or overwrite if the species
-	 * already exists).
-	 * @param name
-	 * @param spiecies
-	 * @return
+	 * \brief TODO
+	 * 
+	 * @param xmlElem
 	 */
-	public AspectInterface set(String name, AspectInterface spiecies)
+	public void init(Element xmlElem)
 	{
-		if ( _species.containsKey(name) )
-			System.out.println("Warning: overwriting species module "+name);
-		_species.put(name, spiecies);
-		return spiecies;
+		Log.out(Tier.NORMAL, "Species Library loading...");
+		/* 
+		 * Cycle through all species and add them to the library.
+		 */ 
+		NodeList nodes = xmlElem.getElementsByTagName(XmlLabel.species);
+		String name;
+		Element speciesElem;
+		for ( int i = 0; i < nodes.getLength(); i++ ) 
+		{
+			speciesElem = (Element) nodes.item(i);
+			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			this.set(name, new Species(speciesElem));
+		}
+		/* 
+		 * Now that all species are loaded, loop through again to find the 
+		 * species modules. 
+		 */
+		for ( int i = 0; i < nodes.getLength(); i++ ) 
+		{
+			speciesElem = (Element) nodes.item(i);
+			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			Species s = (Species) this._species.get(name);
+			Log.out(Tier.EXPRESSIVE,
+					"Species \""+name+"\" loaded into Species Library");
+			s.loadSpeciesModules(speciesElem);
+		}
+		Log.out(Tier.NORMAL, "Species Library loaded!\n");
 	}
-	
+
+	public String getXml() {
+		String out = "<" + XmlLabel.speciesLibrary + ">\n";
+		for (String key :_species.keySet())
+		{
+			out = out + "<" + XmlLabel.species + " name=\"" +
+					key + "\">\n" + _species.get(key).getXml() +
+					"</" + XmlLabel.species + ">\n";
+		}
+		out = out + "</" + XmlLabel.speciesLibrary + ">\n";
+		return out;
+	}
+
 	/**
-	 * Get a species from the species library
-	 * @param name
-	 * @return
+	 * \brief Add a new species to the species library (or overwrite if the
+	 * species already exists).
+	 * 
+	 * @param name Species name.
+	 * @param species Information about the species.
+	 */
+	public void set(String name, AspectInterface species)
+	{
+		if ( this._species.containsKey(name) )
+			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
+		species.reg().identity = name;
+		this._species.put(name, species);
+	}
+
+	/**
+	 * \brief Get a species from the species library.
+	 * 
+	 * @param name Species name.
+	 * @return Information about the species if it is found. If it cannot be
+	 * found, returns the void species instead.
 	 */
 	public AspectInterface get(String name)
 	{
-		if (_species.containsKey(name))
-			return _species.get(name);
+		if ( this._species.containsKey(name) )
+		{
+			Log.out(Tier.BULK, "Species Library found \""+name+"\"");
+			return this._species.get(name);
+		}
 		else
-			return voidSpecies; 
-		/* return the void species if species is not defined. */
+		{
+			Log.out(Tier.DEBUG, "Species Library could not find \""+name+
+					"\", returning void species");
+			return this._voidSpecies;
+		}
+	}
+
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+
+	public String getName()
+	{
+		return "Species Library";
+	}
+
+	public List<InputSetter> getRequiredInputs()
+	{
+		// TODO implement species
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		out.add(new SpeciesMaker(Requirement.ZERO_TO_MANY, this));
+		return out;
+	}
+
+	public void acceptInput(String name, Object input)
+	{
+		if ( input instanceof Species )
+		{
+			this._species.put(name, (Species) input);
+			// TODO void species?
+		}
+	}
+
+	public static class SpeciesLibMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = -6601262340075573910L;
+
+		public SpeciesLibMaker(Requirement req, IsSubmodel target)
+		{
+			super("species library", req, target);
+		}
+
+		@Override
+		public void doAction(ActionEvent e)
+		{
+			System.out.println("Making speciesLib");
+			this.addSubmodel(new SpeciesLib());
+		}
 	}
 }

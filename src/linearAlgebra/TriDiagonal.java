@@ -1,5 +1,9 @@
 package linearAlgebra;
-
+/**
+ * \brief TODO
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public final class TriDiagonal
 {
 	/**
@@ -121,7 +125,6 @@ public final class TriDiagonal
 		double temp = tridiag[0][1];
 		double gamma = tridiag[0][2] / temp ;
 		double rho = vector[0] / temp;
-		//matrix[0][1] = 1.0;
 		tridiag[0][2] = gamma;
 		vector[0] = rho;
 		/*
@@ -133,8 +136,6 @@ public final class TriDiagonal
 			temp = (tridiag[i][1] - tridiag[i][0]*gamma);
 			rho = (vector[i] - tridiag[i][0]*rho) / temp;
 			gamma = tridiag[i][2] / temp;
-			//matrix[i][0] = 0.0;
-			//matrix[i][1] = 1.0;
 			tridiag[i][2] = gamma;
 			vector[i] = rho;
 		}
@@ -143,10 +144,7 @@ public final class TriDiagonal
 		 * storing the system solution in vector.
 		 */
 		for ( int i = m - 1; i > 0; i-- )
-		{
 			vector[i-1] -= tridiag[i-1][2] * vector[i];
-			//matrix[i-1][2] = 0.0;
-		}
 		return vector;
 	}
 	

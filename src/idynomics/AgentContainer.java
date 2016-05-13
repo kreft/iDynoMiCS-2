@@ -1,15 +1,21 @@
 package idynomics;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Body;
+import dataIO.XmlLabel;
+import linearAlgebra.Vector;
 import reaction.Reaction;
 import shape.Shape;
 import spatialRegistry.*;
 import surface.BoundingBox;
+import utility.ExtraMath;
 
 /**
  * \brief Manages the agents in a {@code Compartment}.
@@ -26,7 +32,19 @@ public class AgentContainer
 	/**
 	 * All agents with a spatial location are stored in here (e.g. an RTree).
 	 */
-	public SpatialRegistry<Agent> _agentTree;
+	private SpatialRegistry<Agent> _agentTree;
+	
+	/**
+	 * Synchronized list, list is cheaper to access than an agent tree
+	 * (iterating over all agents), synchronized for thread safety
+	 */
+	List<Agent> _locatedAgentList = new ArrayList<Agent>();
+	
+	/**
+	 * Synchronized iterator (check whether this wokrs correctly)
+	 */
+	Iterator<Agent> locatedAgentIterator;
+	
 	/**
 	 * All agents without a spatial location are stored in here.
 	 */
@@ -80,18 +98,37 @@ public class AgentContainer
 			this._agentTree = new RTree<Agent>(8, 2, this._shape);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param xmlElem
+	 */
+	public void readAgents(NodeList agentNodes, Compartment comp)
+	{
+		for ( int i = 0; i < agentNodes.getLength(); i++ ) 
+			this.addAgent(new Agent(agentNodes.item(i), comp));
+	}
+	
+	public void setAllAgentsCompartment(Compartment aCompartment)
+	{
+		for ( Agent a : this._agentList )
+			a.setCompartment(aCompartment);
+		for ( Agent a : this._agentTree.all() )
+			a.setCompartment(aCompartment);
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
 	public int getNumDims()
 	{
-		return _shape.getNumberOfDimensions();
+		return this._shape.getNumberOfDimensions();
 	}
 	
 	public Shape getShape()
 	{
-		return _shape;
+		return this._shape;
 	}
 	
 	/**
@@ -102,17 +139,30 @@ public class AgentContainer
 	 */
 	public LinkedList<Agent> getAllAgents()
 	{
-		/*
-		 * Bas: I think the list should only be shuffled when needed or assumed
-		 * needed since shuffling may become expensive with a high number of
-	 	 * agents.
-	 	 * 
-	 	 * Rob [3Feb2016]: That's fine with me.
-		 */
 		LinkedList<Agent> out = new LinkedList<Agent>();
 		out.addAll(this._agentList);
-		out.addAll(this._agentTree.all());
+		out.addAll(this._locatedAgentList);
 		return out;
+	}
+	
+	public List<Agent> treeSearch(BoundingBox boundingBox)
+	{
+		return this._agentTree.cyclicsearch(boundingBox);
+	}
+	
+	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
+	{
+		return this._agentTree.cyclicsearch(boundingBoxes);
+	}
+	
+	public List<Agent> treeSearch(double[] location, double[] dimensions)
+	{
+		return this._agentTree.cyclicsearch(location, dimensions);
+	}
+	
+	public List<Agent> treeSearch(double[] pointLocation)
+	{
+		return this.treeSearch(pointLocation, Vector.zeros(pointLocation));
 	}
 	
 	/**
@@ -125,12 +175,13 @@ public class AgentContainer
 	{
 		//FIXME: #isLocated simplified for now, was an over extensive operation
 		// for a simple check.
-		if (agent.get(NameRef.isLocated) == null || 
-				!(agent.getBoolean(NameRef.isLocated)))
+		if ( ( agent.get(NameRef.isLocated) == null ) || 
+									( ! agent.getBoolean(NameRef.isLocated) ) )
+		{
 			this._agentList.add(agent);
+		}
 		else
 			this.addLocatedAgent(agent);
-		
 	}
 	
 	/**
@@ -141,46 +192,106 @@ public class AgentContainer
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
-		for(BoundingBox b: ((Body) anAgent.get(NameRef.agentBody)).getBoxes(0.0))
+		this._locatedAgentList.add(anAgent);
+		this.treeInsert(anAgent);
+	}
+	
+	/**
+	 * NOTE the agent bounding box should encapsulate the entire influence
+	 * region of the agent (thus also pull distance)
+	 * @param anAgent
+	 */
+	protected void treeInsert(Agent anAgent)
+	{
+		Body body = ((Body) anAgent.get(NameRef.agentBody));
+		double dist = (anAgent.isAspect(NameRef.agentPulldistance) ?
+				anAgent.getDouble(NameRef.agentPulldistance) :
+				0.0);
+		List<BoundingBox> boxes = body.getBoxes(dist);
+		for ( BoundingBox b: boxes )
 			this._agentTree.insert(b, anAgent);
 	}
 	
-	public synchronized void refreshSpatialRegistry()
+	/**
+	 * \brief Rebuild the spatial registry, by removing and then re-inserting 
+	 * all located agents.
+	 */
+	public void refreshSpatialRegistry()
 	{
-		List<Agent> agentList = this._agentTree.all();
 		this.makeAgentTree();
-		for ( Agent anAgent : agentList )
-			this.addLocatedAgent(anAgent);
+		for ( Agent a : this.getAllLocatedAgents() )
+			this.treeInsert(a);
 	}
 	
-	public synchronized LinkedList<Agent> getAllLocatedAgents()
+	/**
+	 * @return A list of all {@code Agent}s which have a location.
+	 */
+	public List<Agent> getAllLocatedAgents()
 	{
-		LinkedList<Agent> out = new LinkedList<Agent>();
-		out.addAll(_agentTree.all());
+		List<Agent> out = new LinkedList<Agent>();
+		out.addAll(_locatedAgentList);
 		return out;
 	}
 	
-	public LinkedList<Agent> getAllUnlocatedAgents()
+	/**
+	 * @return A list of all {@code Agent}s which do not have a location.
+	 */
+	public List<Agent> getAllUnlocatedAgents()
 	{
-		LinkedList<Agent> out = new LinkedList<Agent>();
+		List<Agent> out = new LinkedList<Agent>();
 		out.addAll(_agentList);
 		return out;
 	}
 	
+	/**
+	 * @return A count of all {@code Agent}s, including both located and
+	 * non-located.
+	 */
 	public int getNumAllAgents()
 	{
 		return this._agentList.size() + this._agentTree.all().size();
 	}
 	
-	/*************************************************************************
-	 * NEIGHBOURHOOD GETTERS
-	 ************************************************************************/
-	
-	
+	/**
+	 * @return A randomly chosen {@code Agent}, who is removed from this
+	 * container.
+	 */
+	public Agent extractRandomAgent()
+	{
+		// TODO safety if there are no agents.
+		Agent out;
+		int i = ExtraMath.getUniRandInt(this.getNumAllAgents());
+		if ( i > this._agentList.size() )
+		{
+			/* Located agent. */
+			out = this._agentTree.getRandom();
+			this._agentTree.delete(out);
+		}
+		else
+		{
+			/* Unlocated agent. */
+			out = this._agentList.remove(i);
+		}
+		return out;
+	}
 	
 	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/
 	
-	
+	/**
+	 * @return XML-format description of all {@code Agent}s.
+	 */
+	public String getXml()
+	{
+		// TODO using a StringBuffer would be quicker.
+		String out = "<" + XmlLabel.agents + ">\n";
+		for ( Agent a : this.getAllAgents() )
+		{
+			out = out + "<" + XmlLabel.agent + ">\n"
+					+ a.reg().getXml() + "</" + XmlLabel.agent + ">\n";
+		}
+		out = out + "</" + XmlLabel.agents + ">\n";
+		return out;
+	}
 }

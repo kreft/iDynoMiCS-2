@@ -1,14 +1,26 @@
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 
+/**
+ * \brief A component of a mathematical expression composed of the logarithm
+ * of one component to the base of another.
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public class Logarithm extends ComponentDouble
 {
 	/**
-	 * log<sub><b>b</b></sub>(<b>a</b>)
+	 * \brief Construct a logarithm component of a mathematical expression
+	 * from two sub-components.
+	 * 
+	 * <p>log<sub><b>b</b></sub>(<b>a</b>)</p>
+	 * 
+	 * @param a The sub-component inside the brackets.
+	 * @param b The base of the logarithm.
 	 */
 	public Logarithm(Component a, Component b)
 	{
@@ -17,7 +29,7 @@ public class Logarithm extends ComponentDouble
 		if ( this._b instanceof Constant )
 		{
 			if ( B == 1.0 || B == 0.0 )
-				Log.out(tier.CRITICAL,"WARNING! Infinite value: log base "+B);
+				Log.out(Tier.CRITICAL,"WARNING! Infinite value: log base "+B);
 		}
 	}
 	
@@ -29,15 +41,15 @@ public class Logarithm extends ComponentDouble
 	}
 	
 	@Override
-	public String reportValue(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
-		String out = "log_{" + this._b.reportValue(variables) + "}("+
-										this._a.reportValue(variables)+")";
+		String out = "log_{" + this._b.reportEvaluation(variables) + "}("+
+										this._a.reportEvaluation(variables)+")";
 		return ( isNegative() ) ? "-"+out : out; 
 	}
 	
 	@Override
-	public double getValue(HashMap<String, Double> variables)
+	public double getValue(Map<String, Double> variables)
 	{
 		double a = this._a.getValue(variables);
 		double b = this._b.getValue(variables);

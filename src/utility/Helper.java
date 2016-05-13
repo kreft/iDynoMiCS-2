@@ -3,15 +3,20 @@ package utility;
 import java.util.Scanner;
 
 import dataIO.Log;
-import dataIO.Log.tier;
-import idynomics.GuiLaunch;
+import dataIO.Log.Tier;
+import guiTools.GuiConsole;
 
 /**
+ * \brief TODO
  * 
- * @author baco
- *
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class Helper {
+public class Helper
+{
+	/**
+	 * 
+	 */
 	public static boolean gui = false;
 
 	/**
@@ -24,30 +29,58 @@ public class Helper {
 			String msg = "Additional input argument required: " + 
 					description + ", please enter a value: ";
 			
-			if(! gui)
+			if ( gui )
 			{
-			@SuppressWarnings("resource")
-			Scanner user_input = new Scanner( System.in );
-
-			if(noLog)
-				System.out.println(msg);
-			else
-				Log.out(tier.CRITICAL, msg);
-						
-			input = user_input.next( );
+				input = GuiConsole.requestInput(msg);
 			} 
 			else
 			{
-				input = GuiLaunch.requestInput(msg);
+				@SuppressWarnings("resource")
+				Scanner user_input = new Scanner( System.in );
+
+				if ( noLog )
+					System.out.println(msg);
+				else
+					Log.out(Tier.CRITICAL, msg);
+				input = user_input.next( );
 			}
-			
 			msg = "Aquired input: " + input;
-			if(noLog)
+			if ( noLog )
 				System.out.println(msg);
 			else
-				Log.out(tier.CRITICAL, msg);
+				Log.out(Tier.CRITICAL, msg);
 		}
 		return input;
+	}
+	
+	public static String obtainInput(String[] options, String description, boolean noLog)
+	{
+		String input;
+		String msg = "Additional input argument required: " + 
+				description + ", please select a value: ";
+		
+		if ( gui )
+		{
+			input = GuiConsole.requestInput(options, msg);
+		} 
+		else
+		{
+			@SuppressWarnings("resource")
+			Scanner user_input = new Scanner( System.in );
+
+			if ( noLog )
+				System.out.println(msg);
+			else
+				Log.out(Tier.CRITICAL, msg);
+			input = user_input.next( );
+		}
+		msg = "Aquired input: " + input;
+		if ( noLog )
+			System.out.println(msg);
+		else
+			Log.out(Tier.CRITICAL, msg);
+	
+	return input;
 	}
 	
 	public static String obtainInput(String input, String description)
@@ -71,7 +104,7 @@ public class Helper {
 	 * @param delay
 	 */
 	public static void abort(int delay) {
-		Log.out(tier.CRITICAL, "Aborting..");
+		Log.out(Tier.CRITICAL, "Aborting..");
 		pause(delay);
 		System.exit(0);
 	}
@@ -89,8 +122,43 @@ public class Helper {
 	{
 		Object[] enums = anEnum.getEnumConstants();
 		String out = "";
-		for(int i = 0; i < enums.length; i++)
-			out += enums[i].toString() + " ";	
+		for ( Object o : enums )
+			out += o.toString()+" ";
 		return out;	
+	}
+	
+	public static String StringAToString(String[] array)
+	{
+		String out = "";
+		if (array != null)
+		{
+			for ( String o : array )
+				out += o+",";
+			return out.substring(0, out.length()-1);
+		}
+		else
+			 return out;
+		
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param classes
+	 * @return
+	 */
+	public static String[] getClassNamesSimple(Class<?>[] classes)
+	{
+		int num = classes.length;
+		String[] out = new String[num];
+		String str;
+		int dollarIndex;
+		for ( int i = 0; i < num; i++ )
+		{
+			str = classes[i].getName();
+			dollarIndex = str.indexOf("$");
+			out[i] = str.substring(dollarIndex+1);
+		}
+		return out;
 	}
 }

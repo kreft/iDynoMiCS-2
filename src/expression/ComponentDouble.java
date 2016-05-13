@@ -1,21 +1,36 @@
 package expression;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 import dataIO.Log;
-import dataIO.Log.tier;
+import static dataIO.Log.Tier.CRITICAL;
 
 /**
+ * \brief A component of a mathematical expression composed of strictly two
+ * sub-components.
  * 
- * @author Robert Clegg (r.j.clegg@bham.ac.uk)
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ComponentDouble extends Component
 {
+	/**
+	 * {@code String} description of the expression 
+	 */
 	protected String _expr;
 	
+	/**
+	 * One of the two sub-components.
+	 */
 	protected Component _a, _b;
 	
+	/**
+	 * \brief Construct a component of a mathematical expression from two
+	 * sub-components.
+	 * 
+	 * @param a One of the two sub-components.
+	 * @param b The other sub-components.
+	 */
 	public ComponentDouble(Component a, Component b)
 	{
 		this._a = a;
@@ -30,22 +45,29 @@ public abstract class ComponentDouble extends Component
 	}
 	
 	@Override
-	public String reportValue(HashMap<String, Double> variables)
+	public String reportEvaluation(Map<String, Double> variables)
 	{
-		String out = this._a.reportValue(variables) + this._expr +
-											this._b.reportValue(variables);
+		String out = this._a.reportEvaluation(variables) + this._expr +
+											this._b.reportEvaluation(variables);
 		return ( isNegative() ) ? "-("+out+")" : out;
 	}
 	
-	protected void infiniteValueWarning(HashMap<String, Double> variables)
-	{
-		Log.out(tier.CRITICAL,"WARNING! Infinite value: " + this.getName() + 
-										" = " + this.reportValue(variables));
-	}
-	
+	@Override
 	public void appendVariablesNames(List<String> names)
 	{
 		this._a.appendVariablesNames(names);
 		this._b.appendVariablesNames(names);
+	}
+	
+	/**
+	 * \brief Helper method for sub-classes that may encounter infinite values.
+	 * 
+	 * @param variables Dictionary of variable names with associated values
+	 * that triggered the infinite value.
+	 */
+	protected void infiniteValueWarning(Map<String, Double> variables)
+	{
+		Log.out(CRITICAL,"WARNING! Infinite value: " + this.getName() + 
+									" = " + this.reportEvaluation(variables));
 	}
 }

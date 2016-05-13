@@ -11,9 +11,9 @@ import org.w3c.dom.Node;
 import agent.Agent;
 import dataIO.Log;
 import dataIO.XmlLabel;
-import dataIO.Log.tier;
+import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
+import static grid.SpatialGrid.ArrayType.*;
 import idynomics.AgentContainer;
 import idynomics.NameRef;
 import surface.Ball;
@@ -25,8 +25,7 @@ import surface.Surface;
  * grid that are within a set distance of any agents.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
- * @author baco
- * @since January 2016
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class BoundaryLayer implements IsWellmixedSetter
 {
@@ -51,18 +50,17 @@ public class BoundaryLayer implements IsWellmixedSetter
 		String temp;
 		if ( elem.hasAttribute(XmlLabel.valueAttribute) )
 		{
-			
-			this._value = Double.parseDouble(elem.getAttribute(
-					XmlLabel.valueAttribute));
+			temp = elem.getAttribute(XmlLabel.valueAttribute);
+			this._value = Double.parseDouble(temp);
 		}
 		if ( elem.hasAttribute(XmlLabel.layerThickness) )
 		{
-			this._layerThickness = 
-			Double.parseDouble(elem.getAttribute(XmlLabel.layerThickness));
+			temp = elem.getAttribute(XmlLabel.layerThickness);
+			this._layerThickness = Double.parseDouble(temp);
 		}
 		else
 		{
-			Log.out(tier.CRITICAL,"Boundary layer thickness must be set!");
+			Log.out(Tier.CRITICAL,"Boundary layer thickness must be set!");
 			System.exit(-1);
 		}
 	}
@@ -74,7 +72,7 @@ public class BoundaryLayer implements IsWellmixedSetter
 		/*
 		 * Reset the domain array.
 		 */
-		aGrid.newArray(ArrayType.WELLMIXED);
+		aGrid.newArray(WELLMIXED);
 		/*
 		 * Iterate over all voxels, checking if there are agents nearby.
 		 */
@@ -91,13 +89,12 @@ public class BoundaryLayer implements IsWellmixedSetter
 			 * within the grid's sphere
 			 */
 			neighbors = 
-					agents._agentTree.cyclicsearch(gridSphere.boundingBox());
+					agents.treeSearch(gridSphere.boundingBox());
 			for ( Agent a : neighbors )
 				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList) )
 					if ( gridSphere.distanceTo(s) < 0.0 )
 						{
-							aGrid.setValueAt(ArrayType.WELLMIXED, coords, 
-																this._value);
+							aGrid.setValueAt(WELLMIXED, coords, this._value);
 							break;
 						}
 			coords = aGrid.iteratorNext();

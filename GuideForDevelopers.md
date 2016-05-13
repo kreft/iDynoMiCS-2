@@ -2,6 +2,7 @@
 
 Useful links:
 - [Java code conventions (Oracle)](http://www.oracle.com/technetwork/java/codeconventions-150003.pdf)
+- [SOLID principles for object-oriented design](https://en.wikipedia.org/wiki/SOLID_(object-oriented_design))
 
 ## General tips
 A few extra **spaces** can make a huge difference to how human-readable code is. For example, this
@@ -158,6 +159,8 @@ Math.floorMod(1, 3) ; // = 1
 Math.floorMod(5, 3) ; // = 2
 Math.floorMod(-2, 3) ; // = 1
 ```
+
+The `Math.floorMod(x,y)` method only works for `int`s, so for `double`s use `ExtraMath.floorMod(x,y)` in the `utility` package.
 
 ## Using aspects
 

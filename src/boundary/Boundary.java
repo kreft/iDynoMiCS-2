@@ -3,31 +3,31 @@
  */
 package boundary;
 
+import java.awt.event.ActionEvent;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import agent.AgentBoundary.AgentMethod;
+import boundary.agent.AgentMethod;
+import boundary.grid.GridMethod;
+import dataIO.XmlLabel;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import grid.GridBoundary.GridMethod;
-import shape.Shape;
+import modelBuilder.InputSetter;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
+import utility.Helper;
 
 /**
- * \brief Abstract class of boundary for a Compartment.
+ * \brief General class of boundary for a {@code Shape}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public class Boundary implements CanPrelaunchCheck, XMLable
+public class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 {
-	/**
-	 * The shape this Boundary takes (e.g. Plane, Sphere).
-	 * 
-	 * FIXME this should change to surface
-	 */
-	protected Shape _shape;
-	
 	/**
 	 * The grid method this boundary should use for any variable that is not
 	 * named in the dictionary {@link #_gridMethods}. 
@@ -40,12 +40,14 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 	 * default, {@link #_defaultGridMethod}, instead.
 	 */
 	protected HashMap<String,GridMethod> _gridMethods = 
-											new HashMap<String,GridMethod>();
+										new HashMap<String,GridMethod>();
 	
 	/**
 	 * The agent method this boundary should use for any agent. 
 	 */
 	protected AgentMethod _agentMethod;
+	
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -60,17 +62,16 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 		
 	}
 	
-	public void init(Node xmlNode)
+	public void init(Element xmlElem)
 	{
-		Element xmlBoundary = (Element) xmlNode;
 		Element xmlGrid;
 		String variableName, className;
 		GridMethod aGridMethod;
-		NodeList gridNodes = xmlBoundary.getElementsByTagName("gridMethods");
+		NodeList gridNodes = xmlElem.getElementsByTagName("gridMethods");
 		for ( int i = 0; i < gridNodes.getLength(); i++ )
 		{
 			xmlGrid = (Element) gridNodes.item(i);
-			className = xmlGrid.getAttribute("class");
+			className = xmlGrid.getAttribute(XmlLabel.classAttribute);
 			try
 			{
 				aGridMethod = (GridMethod) Class.forName(className).newInstance();
@@ -96,28 +97,20 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 		}
 	}
 	
+	@Override
+	public String getXml() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @return
-	 */
-	public Shape getShape()
+	public String getName()
 	{
-		return this._shape;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param aShape
-	 */
-	public void setShape(Shape aShape)
-	{
-		this._shape = aShape;
+		return XmlLabel.dimensionBoundary;
+		// TODO return dimension and min/max?
 	}
 	
 	/**
@@ -146,28 +139,6 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 			return this._defaultGridMethod;
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param speciesName
-	 * @param aMethod
-	 */
-	public void setAgentMethod(AgentMethod aMethod)
-	{
-		this._agentMethod = aMethod;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param speciesName
-	 * @return
-	 */
-	public AgentMethod getAgentMethod()
-	{
-		return this._agentMethod;
-	}
-	
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK
 	 ************************************************************************/
@@ -183,9 +154,71 @@ public class Boundary implements CanPrelaunchCheck, XMLable
 	 * XML-ABLE
 	 ************************************************************************/
 	
-	public static Object getNewInstance(String className)
+	public static Boundary getNewInstance(String className)
 	{
-		return XMLable.getNewInstance(className, "boundary.");
+		return (Boundary) XMLable.getNewInstance(className,
+											"boundary.BoundaryLibrary$");
 	}
 	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public static String[] getAllOptions()
+	{
+		return Helper.getClassNamesSimple(
+								BoundaryLibrary.class.getDeclaredClasses());
+	}
+	
+	@Override
+	public List<InputSetter> getRequiredInputs()
+	{
+		// TODO GridMethod, AgentMethod
+		return new LinkedList<InputSetter>();
+	}
+	
+	
+	public void acceptInput(String name, Object input)
+	{
+		// TODO
+	}
+	
+	public static String extremeToString(int minMax)
+	{
+		return minMax == 0 ? "minimum" : "maximum";
+	}
+	
+	public static int extremeToInt(String minMax)
+	{
+		return ( minMax.equals("minimum") ) ? 0 : 1;
+			
+	}
+	
+	public static class BoundaryMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = 6401917989904415580L;
+		
+		public BoundaryMaker(int minMax, Requirement req, IsSubmodel target)
+		{
+			super(extremeToString(minMax), req, target);
+		}
+		
+		@Override
+		public void doAction(ActionEvent e)
+		{
+			// TODO safety properly
+			String bndryName;
+			if ( e == null )
+				bndryName = "";
+			else
+				bndryName = e.getActionCommand();
+			Boundary bndry = (Boundary) Boundary.getNewInstance(bndryName);
+			this.addSubmodel(bndry);
+		}
+		
+		public Object getOptions()
+		{
+			return Boundary.getAllOptions();
+		}
+	}
 }

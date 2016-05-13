@@ -4,11 +4,11 @@ import linearAlgebra.Vector;
 
 /**
  * This class constructs and holds the bounding box for sphere swept volumes
- * @author baco
- *
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class BoundingBox {
-	
+public class BoundingBox
+{	
 	protected double[] dimensions;
 	protected double[] lower;
 	
@@ -62,8 +62,8 @@ public class BoundingBox {
 	 */
 	public String getReport()
 	{
-		return "lower: " + Vector.dblToString(lower) + " dimensions: " + 
-				Vector.dblToString(dimensions);
+		return "lower: " + Vector.toString(lower) + " dimensions: " + 
+				Vector.toString(dimensions);
 	}
 	
 	/**
