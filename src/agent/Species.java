@@ -17,18 +17,24 @@ import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Species implements AspectInterface, IsSubmodel
+public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 {
 	/**
 	 * TODO
 	 */
 	protected AspectReg<Object> _aspectRegistry = new AspectReg<Object>();
+	
+
+	private ModelNode modelNode;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -123,6 +129,41 @@ public class Species implements AspectInterface, IsSubmodel
 			System.out.println("Making species");
 			this.addSubmodel(new Species());
 		}
+	}
 
+	@Override
+	public ModelNode getNode() 
+	{
+		if(modelNode == null)
+		{
+			modelNode = new ModelNode(XmlLabel.species, this);
+			modelNode.requirement = Requirements.ZERO_TO_MANY;
+			/* TODO: add aspects */
+		}
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node) 
+	{
+		
+	}
+
+	@Override
+	public NodeConstructor newBlank() 
+	{
+		return new Species();
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) 
+	{
+		// TODO 
+	}
+
+	@Override
+	public String defaultXmlTag() 
+	{
+		return XmlLabel.species;
 	}
 }

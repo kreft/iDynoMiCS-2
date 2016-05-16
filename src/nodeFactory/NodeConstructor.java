@@ -22,6 +22,7 @@ public interface NodeConstructor {
 	
 	/**
 	 * Create a new minimal object of this class and return it
+	 * TODO: we may want to merge this with the xmlable interface
 	 * @return
 	 */
 	public NodeConstructor newBlank();
@@ -34,6 +35,7 @@ public interface NodeConstructor {
 
 	/**
 	 * return the default XMLtag for the XML node of this object
+	 * TODO: we may want to merge this with the xmlable interface
 	 * @return
 	 */
 	public String defaultXmlTag();

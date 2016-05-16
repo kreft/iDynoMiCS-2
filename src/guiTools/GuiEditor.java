@@ -17,6 +17,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import dataIO.XmlLabel;
 import idynomics.GuiLaunch;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -129,7 +130,14 @@ public class GuiEditor
 		component.add(attr);
 		
 		/* placement of this ModelNode in the gui */
-		if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
+		if(node.tag == XmlLabel.speciesLibrary)
+		{
+			/* exception for speciesLib add component as tab next to the
+			 * parent tab (simulation) */
+			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
+					node.tag, tabs, "");
+		}
+		else if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
 		{
 			/* exactly one: append this component to the parent component */
 			parent.add(component, null);
@@ -140,6 +148,12 @@ public class GuiEditor
 			/* exception for compartments add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
+					node.tag, tabs, "");
+		} 
+		else if( node.requirement == Requirements.ZERO_TO_MANY)
+		{
+			/* species, agents, TODO: changes to spinner */
+			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
 					node.tag, tabs, "");
 		} 
 		else

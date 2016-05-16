@@ -396,6 +396,9 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			
 			/* add timer node */
 			myNode.add(timer.getNode());
+			
+			/* add species lib */
+			myNode.add(speciesLibrary.getNode());
 	
 			/* add compartment nodes */
 			for ( Compartment c : this._compartments )

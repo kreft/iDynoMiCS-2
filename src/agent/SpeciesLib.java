@@ -15,10 +15,15 @@ import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
+import idynomics.Compartment;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
+import shape.Shape;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -26,8 +31,11 @@ import modelBuilder.SubmodelMaker.Requirement;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements IsSubmodel, Quizable, XMLable
+public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructor
 {
+	
+	private ModelNode modelNode;
+	
 	/**
 	 * Contains all known species.
 	 */
@@ -177,5 +185,38 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 			System.out.println("Making speciesLib");
 			this.addSubmodel(new SpeciesLib());
 		}
+	}
+
+	@Override
+	public ModelNode getNode() {
+		if(modelNode == null)
+		{
+			modelNode = new ModelNode(XmlLabel.speciesLibrary, this);
+			modelNode.requirement = Requirements.EXACTLY_ONE;
+			modelNode.childConstructors.put(new Species(), 
+					ModelNode.Requirements.ZERO_TO_MANY);
+		}
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node) {
+		
+	}
+
+	@Override
+	public NodeConstructor newBlank() {
+		return new SpeciesLib();
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		return XmlLabel.speciesLibrary;
 	}
 }
