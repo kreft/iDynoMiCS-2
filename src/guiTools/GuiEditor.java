@@ -1,5 +1,6 @@
 package guiTools;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -115,6 +116,8 @@ public class GuiEditor
 				JTextArea input = new JTextArea();
 				input.setText(a.value);
 				input.setEditable(a.editable);
+				if (! a.editable)
+					input.setForeground(Color.gray);
 				attr.add(GuiComponent.inputPanel(a.tag, input));
 				attributes.put(a, input);
 			}

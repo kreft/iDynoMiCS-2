@@ -287,7 +287,7 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 		modelNode.title = this._name;
 		
 		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-				this._name, null, true ));
+				this._name, null, false ));
 		
 		modelNode.add(((ExpressionB) _kinetic).getNode());
 		
@@ -295,9 +295,10 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	}
 	
 	@Override
-	public void setNode(ModelNode node) {
-		// TODO Auto-generated method stub
-		
+	public void setNode(ModelNode node) 
+	{
+		for(ModelNode n : node.childNodes)
+			n.constructor.setNode(n);
 	}
 
 	@Override

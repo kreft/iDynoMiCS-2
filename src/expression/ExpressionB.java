@@ -28,7 +28,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * Expression string.
 	 */
-	final String expression;
+	protected String expression;
 	
 	/**
 	 * Recognized operators, in order of evaluation TODO: currently hashtagging
@@ -51,7 +51,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * The component object.
 	 */
-	final Component _a;
+	protected Component _a;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -490,16 +490,17 @@ public class ExpressionB extends Component implements NodeConstructor
 	@Override
 	public ModelNode getNode() {
 		ModelNode modelNode = new ModelNode(XmlLabel.expression, 
-				new ExpressionB("1.0"));
+				this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
 		modelNode.add(new ModelAttribute(XmlLabel.expression, this.expression, null, true));
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node) {
-		// TODO Auto-generated method stub
-		
+	public void setNode(ModelNode node) 
+	{
+		this.expression = node.getAttribute(XmlLabel.expression).value;
+		this._a = build(expression, _constants);
 	}
 
 	@Override

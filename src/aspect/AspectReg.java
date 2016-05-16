@@ -12,6 +12,7 @@ import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
+import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -154,6 +155,11 @@ public class AspectReg<A>
 	public void addSubModule(String name, Quizable library)
 	{
 		addSubModule((AspectInterface) library.get(name));
+	}
+	
+	public LinkedList<AspectInterface> getSubModules()
+	{
+		return _modules;
 	}
 	
 	/**
@@ -450,8 +456,21 @@ public class AspectReg<A>
 				modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
 						this.type.toString(), null, true ));
 				
+				String pack = null;
+				switch (this.type)
+		    	{
+		    	case CALCULATED:
+		    		pack = "aspect.calculated.";
+		    		break;
+		    	case EVENT: 
+		    		pack = "aspect.event.";
+		    		break;
+				default:
+					break;
+				}
+				
 				modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
-						simpleName, null, true ));
+						simpleName, Helper.ListToArray(Idynomics.xmlPackageLibrary.getAll(pack)), false ));
 				
 				if (simpleName.equals(StateExpression.class.getSimpleName()))
 				{
