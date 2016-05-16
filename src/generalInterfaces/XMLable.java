@@ -53,7 +53,7 @@ public interface XMLable
 	 */
 	public static Object getNewInstance(String className)
 	{
-		return getNewInstance(className, null);
+		return getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
 	}
 	
 	/**

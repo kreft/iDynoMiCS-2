@@ -52,7 +52,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	/**
      * The aspect registry... TODO
      */
-    public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+    public AspectReg aspectRegistry = new AspectReg();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -131,8 +131,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	/**
 	 * \brief Return the aspect registry (implementation of aspect interface).
 	 */
-	@SuppressWarnings("unchecked")
-	public AspectReg<?> reg()
+	public AspectReg reg()
 	{
 		return aspectRegistry;
 	}

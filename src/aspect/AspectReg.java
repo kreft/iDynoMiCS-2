@@ -24,10 +24,9 @@ import utility.Helper;
 /**
  * Work in progress, reworking aspectReg
  * 
- * @param <A>
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class AspectReg<A>
+public class AspectReg
 {
 	
 	/**
@@ -62,8 +61,8 @@ public class AspectReg<A>
 	 * The _aspects HashMap stores all aspects (primary, secondary states and 
 	 * events).
 	 */
-	protected HashMap<String, Aspect<?>> _aspects = 
-											new HashMap<String, Aspect<?>>();
+	protected HashMap<String, Aspect> _aspects = 
+											new HashMap<String, Aspect>();
 	
 	/**
 	 * Contains all (sub) modules
@@ -107,7 +106,7 @@ public class AspectReg<A>
 	/**
 	 * add an aspect to this registry
 	 */
-	public void add(String key, A aspect)
+	public void add(String key, Object aspect)
 	{
 		if ( this._aspects.containsKey(key) )
 		{
@@ -115,18 +114,18 @@ public class AspectReg<A>
 					" which already exists in this aspect registry");
 		}
 		else
-			this._aspects.put(key, new Aspect<A>(aspect, key, this));
+			this._aspects.put(key, new Aspect(aspect, key, this));
 	}
 	
 	/**
 	 * same as add but intend is to overwrite
 	 */
-	public void set(String key, A aspect)
+	public void set(String key, Object aspect)
 	{
 		if(_aspects.containsKey(key))
 			this.getAspect(key).set(aspect, key);
 		else
-			this._aspects.put(key, new Aspect<A>(aspect, key, this));
+			this._aspects.put(key, new Aspect(aspect, key, this));
 	}
 	
 	/**
@@ -167,7 +166,7 @@ public class AspectReg<A>
 	 */
 	public synchronized Object getValue(AspectInterface rootRegistry, String key)
 	{
-		Aspect<?> a = getAspect(key);
+		Aspect a = getAspect(key);
 		if ( a == null )
 			return null;
 		switch (a.type)
@@ -190,7 +189,7 @@ public class AspectReg<A>
 	public synchronized void doEvent(AspectInterface initiator, AspectInterface compliant, 
 			double timeStep, String key)
 	{
-		Aspect<?> a = getAspect(key);
+		Aspect a = getAspect(key);
 		if ( a == null )
 			Log.out(Tier.BULK, "Warning: aspepct registry does not"
 					+ " contain event:" + key);
@@ -209,15 +208,14 @@ public class AspectReg<A>
 	 * NOTE if multiple aspect registry modules have an aspect with the same key
 	 * the first encountered aspect with that key will be returned.
 	 */
-	@SuppressWarnings("unchecked")
-	private Aspect<?> getAspect(String key)
+	private Aspect getAspect(String key)
 	{
 		if ( this._aspects.containsKey(key) )
 			return this._aspects.get(key);
 		else
 			for ( AspectInterface m : this._modules )
 				if ( m.reg().isGlobalAspect(key) )
-					return (Aspect<?>) m.reg().getAspect(key);
+					return (Aspect) m.reg().getAspect(key);
 		Log.out(Tier.BULK, "Warning: could not find aspect \"" + key+"\"");
 		return null;
 	}
@@ -225,13 +223,12 @@ public class AspectReg<A>
 	/**
 	 * Copies all aspects and submodule from donor into this aspect registry.
 	 */
-	@SuppressWarnings("unchecked")
 	public void duplicate(AspectInterface donor)
 	{
 		this.clear();
-		AspectReg<?> donorReg = donor.reg();
+		AspectReg donorReg = donor.reg();
 		for (String key : donorReg._aspects.keySet())
-			add(key, (A) ObjectFactory.copy(donorReg.getAspect(key).aspect));
+			add(key, (Object) ObjectFactory.copy(donorReg.getAspect(key).aspect));
 		for (AspectInterface m : donorReg._modules)
 			addSubModule(m);
 	}
@@ -295,17 +292,15 @@ public class AspectReg<A>
 	/**
 	 * \brief Very general class that acts as a wrapper for other Objects.
 	 * 
-	 * @param <A> Class of the Aspect.
 	 * 
 	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
 	 */
-	@SuppressWarnings("hiding")
-	protected class Aspect<A> implements NodeConstructor
+	public class Aspect implements NodeConstructor
 	{
 		/**
 		 * The object this Aspect wraps.
 		 */
-		protected A aspect;
+		protected Object aspect;
 		
 		/**
 		 * 
@@ -315,7 +310,7 @@ public class AspectReg<A>
 		/**
 		 * 
 		 */
-		protected AspectReg<?> registry;
+		protected AspectReg registry;
 		
 		/**
 		 * The type of object this Aspect wraps.
@@ -337,23 +332,28 @@ public class AspectReg<A>
 		/**
 		 * \brief Construct and Aspect by setting the aspect and declares type
 		 * 
-		 * @param <A>
 		 * @param aspect
+		 * @param key
+		 * @param registry
 		 */
-	    public Aspect(A aspect, String key, AspectReg registry)
+	    public Aspect(Object aspect, String key, AspectReg registry)
 	    {
 	    	this.registry = registry;
 	    	set(aspect, key);
+	    }
+	    
+	    public Aspect(AspectReg registry)
+	    {
+	    	this.registry = registry;
 	    }
 	    
 	    /**
 	     * Set passed object as aspect for existing aspect object
 	     * @param aspect
 	     */
-	    @SuppressWarnings("unchecked")
 		public void set(Object aspect, String key)
 	    {
-	    	this.aspect = (A) aspect;
+	    	this.aspect = (Object) aspect;
 	    	this.key = key;
 			if ( this.aspect instanceof Calculated )
 			{
@@ -420,7 +420,10 @@ public class AspectReg<A>
 			if(this.type.equals(AspectReg.AspectClass.PRIMARY))
 			{
 				modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
-						simpleName, null, true ));
+						this.type.toString(), null, false ));
+				
+				modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+						simpleName, null, false ));
 				
 				
 		    	switch (simpleName)
@@ -454,28 +457,15 @@ public class AspectReg<A>
 			else
 			{
 				modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
-						this.type.toString(), null, true ));
-				
-				String pack = null;
-				switch (this.type)
-		    	{
-		    	case CALCULATED:
-		    		pack = "aspect.calculated.";
-		    		break;
-		    	case EVENT: 
-		    		pack = "aspect.event.";
-		    		break;
-				default:
-					break;
-				}
-				
+						this.type.toString(), null, false ));
+
 				modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
-						simpleName, Helper.ListToArray(Idynomics.xmlPackageLibrary.getAll(pack)), false ));
+						simpleName, null , false ));
 				
 				if (simpleName.equals(StateExpression.class.getSimpleName()))
 				{
 					modelNode.add(new ModelAttribute(XmlLabel.inputAttribute, 
-							((Calculated) this.aspect).getInput()[0], null, true ));
+							((Calculated) this.aspect).getInput()[0], null, false ));
 				}
 			}
 
@@ -489,8 +479,8 @@ public class AspectReg<A>
 			ModelNode modelNode = new ModelNode("item", this);
 			modelNode.requirement = Requirements.ZERO_TO_MANY;
 			
-			modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
-					h.get(key).getClass().getSimpleName(), null, true ));
+			modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+					h.get(key).getClass().getSimpleName(), null, false ));
 			
 			return modelNode;
 		}
@@ -505,7 +495,8 @@ public class AspectReg<A>
 //				
 				this.set(ObjectFactory.loadObject(
 						node.getAttribute(XmlLabel.valueAttribute).value, 
-						node.getAttribute(XmlLabel.typeAttribute).value), key);
+						node.getAttribute(XmlLabel.typeAttribute).value,
+						node.getAttribute(XmlLabel.classAttribute).value), key);
 			}
 			
 			for(ModelNode n : node.childNodes)
@@ -514,8 +505,29 @@ public class AspectReg<A>
 
 		@Override
 		public NodeConstructor newBlank() {
-			// TODO Auto-generated method stub
-			return null;
+			String name = "";
+			name = Helper.obtainInput(name, "aspect name");
+			String type = Helper.obtainInput(Helper.enumToString(AspectReg.AspectClass.class).split(" "), "aspect type", false);
+			String pack = "";
+			String classType = "";
+			switch (type)
+	    	{
+	    	case "CALCULATED":
+	    		pack = "aspect.calculated.";
+	    		classType = Helper.obtainInput(Helper.ListToArray(Idynomics.xmlPackageLibrary.getAll(pack)), "aspect class", false);
+				
+	    		break;
+	    	case "EVENT": 
+	    		pack = "aspect.event.";
+	    		classType = Helper.obtainInput(Helper.ListToArray(Idynomics.xmlPackageLibrary.getAll(pack)), "aspect class", false);
+				
+	    		break;
+			default:
+				classType = Helper.obtainInput(classType, "primary type");
+				break;
+			}
+			registry.add(name, ObjectFactory.loadObject("0", type, classType));
+			return registry.getAspect(name);
 		}
 
 		@Override
@@ -531,11 +543,9 @@ public class AspectReg<A>
 		}
 	}
 
-
-	@SuppressWarnings("unchecked")
 	public void rename(String key, String newKey )
 	{
-		A a = (A) this.getAspect(key);
+		Object a = (Object) this.getAspect(key);
 		this.remove(key);
 		this.add(newKey, a);
 	}

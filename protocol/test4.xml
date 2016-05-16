@@ -14,8 +14,8 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="AOB">
-				<aspect name="reactions" type="LinkedList" >
-					<item type="Reaction">
+				<aspect name="reactions" class="LinkedList" >
+					<item class="Reaction">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k ">
 								<constant name="k" value="0.1" />
@@ -26,14 +26,14 @@
 						</reaction>
 					</item>
 				</aspect>
-				<aspect name="test" type="LinkedList" >
-					<item type="Double"  value="5.0" />
+				<aspect name="test" class="LinkedList" >
+					<item class="Double"  value="5.0" />
 				</aspect>
-				<aspect name="density" type="Double" value="1" />
+				<aspect name="density" class="Double" value="1" />
 				<speciesModule name="coccoid" />
 			</species>
 			<species name="coccoid">
-				<aspect name="#isLocated" type="Boolean" 			value="true" />
+				<aspect name="#isLocated" class="Boolean" 			value="true" />
 				<aspect name="surfaces"	type="CALCULATED"		class="AgentSurfaces"	fields="BODY=body" />
 				<aspect name="volume" 		type="CALCULATED" 	class="StateExpression" input="mass/density" />
 				<aspect name="radius" 		type="CALCULATED" 	class="CoccoidRadius" 	 />
@@ -67,28 +67,28 @@
 			</reactions>
 			<agents>
 				<agent>
-					<aspect name="volumeDistribution" type="HashMap">
+					<aspect name="volumeDistribution" class="HashMap">
 					</aspect>				
-					<aspect name="species" type="String" value="AOB" />
-					<aspect name="mass" type="Double" value="0.2" />
-					<aspect name="pigment" type="String" value="RED" />
-					<aspect name="body" type="Body">
+					<aspect name="species" class="String" value="AOB" />
+					<aspect name="mass" class="Double" value="0.2" />
+					<aspect name="pigment" class="String" value="RED" />
+					<aspect name="body" class="Body">
 						<point position="12.2, 12.2" />
 					</aspect>
 				</agent>
 				<agent>
-					<aspect name="species" type="String" value="AOB" />
-					<aspect name="mass" type="Double" value="0.2" />
-					<aspect name="pigment" type="String" value="BLUE" />
-					<aspect name="body" type="Body">
+					<aspect name="species" class="String" value="AOB" />
+					<aspect name="mass" class="Double" value="0.2" />
+					<aspect name="pigment" class="String" value="BLUE" />
+					<aspect name="body" class="Body">
 						<point position="12.0, 5.3" />
 					</aspect>
 				</agent>
 				<agent>
-					<aspect name="species" type="String" value="AOB" />
-					<aspect name="mass" type="Double" value="0.2" />
-					<aspect name="pigment" type="String" value="GREEN" />
-					<aspect name="body" type="Body">
+					<aspect name="species" class="String" value="AOB" />
+					<aspect name="mass" class="Double" value="0.2" />
+					<aspect name="pigment" class="String" value="GREEN" />
+					<aspect name="body" class="Body">
 						<point position="5.3, 12.2" />
 					</aspect>
 				</agent> 
@@ -96,39 +96,43 @@
 			<processManagers>
 				 <process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0">
-					<aspect name="prefix" type="String" value="out_solute1" />
-					<aspect name="maxConcentration" type="Double" value="2.0" />
-					<aspect name="solute" type="String" value="solute1" />
-					<aspect name="timerStepSize" type="Double" value="1.0" />
+					<aspect name="prefix" class="String" value="out_solute1" />
+					<aspect name="maxConcentration" class="Double" value="2.0" />
+					<aspect name="solute" class="String" value="solute1" />
+					<aspect name="timerStepSize" class="Double" value="1.0" />
 				</process>
 				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" >
-					<aspect name="prefix" type="String" value="out_solute2" />
-					<aspect name="maxConcentration" type="Double" value="2.0" />
-					<aspect name="solute" type="String" value="solute2" />
-					<aspect name="timerStepSize" type="Double" value="1.0" />
+					<aspect name="prefix" class="String" value="out_solute2" />
+					<aspect name="maxConcentration" class="Double" value="2.0" />
+					<aspect name="solute" class="String" value="solute2" />
+					<aspect name="timerStepSize" class="Double" value="1.0" />
 				</process>
 				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" >
-					<aspect name="prefix" type="String" value="rate_solute2" />
-					<aspect name="maxConcentration" type="Double" value="2.0" />
-					<aspect name="solute" type="String" value="solute2" />
-					<aspect name="timerStepSize" type="Double" value="1.0" />
-					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
+					<aspect name="prefix" class="String" value="rate_solute2" />
+					<aspect name="maxConcentration" class="Double" value="2.0" />
+					<aspect name="solute" class="String" value="solute2" />
+					<aspect name="timerStepSize" class="Double" value="1.0" />
+					<aspect name="arrayType" class="String" value="PRODUCTIONRATE" />
 				</process>
 				<process name="xvgWriter" class="writeXmlOutput"  priority="-3"
 					firstStep="0.0" >
-					<aspect name="prefix" type="String" value="mySim" />
+					<aspect name="prefix" class="String" value="mySim" />
 				</process>
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
-					<aspect name="maxMovement" type="Double" value="0.05" />
-					<aspect name="relaxationMethod" type="String" value="EULER" />
+					<aspect name="maxMovement" class="Double" value="0.05" />
+					<aspect name="relaxationMethod" class="String" value="EULER" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
 					firstStep="0.0"  timerStepSize="0.5">	
-					<aspect name="solutes" type="String[]" value="solute1,solute2" /> <!--  init -->
-					<aspect name="timerStepSize" type="Double" value="1.0" />
+					<aspect name="solutes" class="String[]" value="solute1,solute2" /> <!--  init -->
+					<aspect name="timerStepSize" class="Double" value="1.0" />
+				</process>
+				<process name="agentMove" class="AgentStochasticMove"
+					priority="0" firstStep="0.0"  >
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="0.1" />
 				</process>
 			</processManagers>
 		</compartment>

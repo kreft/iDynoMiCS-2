@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
+import agent.Species;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
 import dataIO.Log;
@@ -514,7 +515,12 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		{
 		modelNode = new ModelNode(XmlLabel.compartment, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
-		modelNode.title = this.getName();
+		
+		modelNode.childConstructors.put(new Agent(this), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		if (this.getName() != null)
+			modelNode.title = this.getName();
 		
 		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 				this.getName(), null, true ));
@@ -522,8 +528,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		if ( this._shape !=null )
 			modelNode.add(_shape.getNode());
 		
-		for ( Agent a : this.agents.getAllAgents() )
-			modelNode.add(a.getNode());
+		if ( this.agents != null)
+			for ( Agent a : this.agents.getAllAgents() )
+				modelNode.add(a.getNode());
 		
 		/* Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  */

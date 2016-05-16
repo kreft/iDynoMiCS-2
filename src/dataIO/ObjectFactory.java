@@ -42,72 +42,76 @@ public class ObjectFactory
 	 * method to return a new object of the appropriate type, uses String as
 	 * input
 	 * @param input
-	 * @param type
+	 * @param classType
 	 * @return
 	 */
-	public static Object loadObject(String input, String type)
+	public static Object loadObject(String input, String type, String classType)
 	{
 		switch ( type ) 
 		{
-		/* state node with just attributes */
-			case ObjectRef.BOOL : 
-				return Boolean.valueOf(input);
-			case ObjectRef.INT : 
-				try{
-					return Integer.valueOf(input);
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(input, ObjectRef.INT);
-					return null;
-				}
-			case ObjectRef.INT_VECT : 
-				try{
-					return Vector.intFromString(input);
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(input, ObjectRef.INT_VECT);
-					return null;
-				}
-			case ObjectRef.DBL : 
-				try{
-					return Double.valueOf(input);
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(input, ObjectRef.DBL);
-					return null;
-				}
-			case ObjectRef.DBL_VECT : 
-				try{
-					return Vector.dblFromString(input);
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(input, ObjectRef.DBL_VECT);
-					return null;
-				}
-			case ObjectRef.STR : 
-				return input;
-			case ObjectRef.STR_VECT : 
-				return input.split(",");
-			case "CALCULATED" : 
-				return Calculated.getNewInstance(input);
-			case "EVENT" :
-				return Event.getNewInstance(input);
-			case "Body" :
-				return Body.getNewInstance(input);
-			case "Reaction" :
-				return Reaction.getNewInstance(ObjectFactory.stringToNode(input));
-			case "LinkedList" :
-				return ObjectFactory.xmlList(input);
-			case "HashMap" :
-				return ObjectFactory.xmlHashMap(input);
+		case "CALCULATED" : 
+			return Calculated.getNewInstance(classType);
+		case "EVENT" :
+			return Event.getNewInstance(classType);
+		default:
+			switch ( classType ) 
+			{
+			/* state node with just attributes */
+				case ObjectRef.BOOL : 
+					return Boolean.valueOf(input);
+				case ObjectRef.INT : 
+					try{
+						return Integer.valueOf(input);
+					}
+					catch(NumberFormatException e)
+					{
+						printReadError(input, ObjectRef.INT);
+						return null;
+					}
+				case ObjectRef.INT_VECT : 
+					try{
+						return Vector.intFromString(input);
+					}
+					catch(NumberFormatException e)
+					{
+						printReadError(input, ObjectRef.INT_VECT);
+						return null;
+					}
+				case ObjectRef.DBL : 
+					try{
+						return Double.valueOf(input);
+					}
+					catch(NumberFormatException e)
+					{
+						printReadError(input, ObjectRef.DBL);
+						return null;
+					}
+				case ObjectRef.DBL_VECT : 
+					try{
+						return Vector.dblFromString(input);
+					}
+					catch(NumberFormatException e)
+					{
+						printReadError(input, ObjectRef.DBL_VECT);
+						return null;
+					}
+				case ObjectRef.STR : 
+					return input;
+				case ObjectRef.STR_VECT : 
+					return input.split(",");
+				case "Body" :
+					return Body.getNewInstance(input);
+				case "Reaction" :
+					return Reaction.getNewInstance(ObjectFactory.stringToNode(input));
+				case "LinkedList" :
+					return ObjectFactory.xmlList(input);
+				case "HashMap" :
+					return ObjectFactory.xmlHashMap(input);
+			}
+			Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
+					+ "object type: " + classType);
+			return null;
 		}
-		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
-				+ "object type: " + type);
-		return null;
 	}
 
 	/**
@@ -117,71 +121,87 @@ public class ObjectFactory
 	 * @param s
 	 * @return
 	 */
-	public static Object loadObject(Element s, String value, String type)
+	public static Object loadObject(Element s, String value, String classType)
 	{
-		String sType = s.getAttribute(type);
-		switch ( sType )
+		String sType = s.getAttribute(classType);
+		String aType = s.getAttribute(XmlLabel.typeAttribute);
+		switch ( aType )
 		{
-		/* state node with just attributes */
-			case ObjectRef.BOOL : 
-				return Boolean.valueOf(s.getAttribute(value));
-			case ObjectRef.INT : 
-				try{
-					return Integer.valueOf(s.getAttribute(value));
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(s.getAttribute(value), ObjectRef.INT);
-					return null;
-				}
-			case ObjectRef.INT_VECT : 
-				try{
-					return Vector.intFromString(s.getAttribute(value));
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(s.getAttribute(value), ObjectRef.INT_VECT);
-					return null;
-				}
-			case ObjectRef.DBL : 
-				try{
-					return Double.valueOf(s.getAttribute(value));
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(s.getAttribute(value), ObjectRef.DBL);
-					return null;
-				}
-			case ObjectRef.DBL_VECT : 
-				try{
-					return Vector.dblFromString(s.getAttribute(value));
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(s.getAttribute(value), ObjectRef.DBL_VECT);
-					return null;
-				}
-			case "String" : 
-				return s.getAttribute(value);
-			case "String[]" : 
-				return s.getAttribute(value).split(",");
-			case "CALCULATED" : 
-				return Calculated.getNewInstance(s);
-			case "EVENT" :
-				return Event.getNewInstance(s);
-			case "Body" :
-				return Body.getNewInstance(s);
-			case "Reaction" :
-				return Reaction.getNewInstance(s);
-			case "LinkedList" :
-				return ObjectFactory.xmlList(s);
-			case "HashMap" :
-				return ObjectFactory.xmlHashMap(s);
+		case "CALCULATED" : 
+			return Calculated.getNewInstance(s);
+		case "EVENT" :
+			return Event.getNewInstance(s);
+		default:
+			switch ( sType )
+			{
+			/* state node with just attributes */
+				case ObjectRef.BOOL : 
+					return Boolean.valueOf(s.getAttribute(value));
+				case ObjectRef.INT : 
+					try{
+						return Integer.valueOf(s.getAttribute(value));
+					}
+					catch(NumberFormatException e)
+					{
+						printReadError(s.getAttribute(value), ObjectRef.INT);
+						return null;
+					}
+				case ObjectRef.INT_VECT : 
+					try{
+						return Vector.intFromString(s.getAttribute(value));
+					}
+					catch(NumberFormatException e)
+					{
+						printReadError(s.getAttribute(value), ObjectRef.INT_VECT);
+						return null;
+					}
+				case ObjectRef.DBL : 
+					try{
+						return Double.valueOf(s.getAttribute(value));
+					}
+					catch(NumberFormatException e)
+					{
+						printReadError(s.getAttribute(value), ObjectRef.DBL);
+						return null;
+					}
+				case ObjectRef.DBL_VECT : 
+					try{
+						return Vector.dblFromString(s.getAttribute(value));
+					}
+					catch(NumberFormatException e)
+					{
+						printReadError(s.getAttribute(value), ObjectRef.DBL_VECT);
+						return null;
+					}
+				case "String" : 
+					return s.getAttribute(value);
+				case "String[]" : 
+					return s.getAttribute(value).split(",");
+				case "Body" :
+					return Body.getNewInstance(s);
+				case "Reaction" :
+					return Reaction.getNewInstance(s);
+				case "LinkedList" :
+					return ObjectFactory.xmlList(s);
+				case "HashMap" :
+					return ObjectFactory.xmlHashMap(s);
+			}
+			Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
+					+ "object type: " + sType);
+			return null;
 		}
-		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
-				+ "object type: " + sType);
-		return null;
 	}
+	
+	/**
+	 * load standard aspect object (use labeling as defined by XmlLabel class).
+	 * @param s
+	 * @return
+	 */
+	public static Object loadObject(Element s)
+	{
+		return loadObject(s, XmlLabel.valueAttribute, XmlLabel.classAttribute);
+	}
+
 	
 	/**
 	 * \brief TODO
@@ -195,16 +215,6 @@ public class ObjectFactory
 				+type+": "+input);
 	}
 	
-	/**
-	 * load standard aspect object (use labeling as defined by XmlLabel class).
-	 * @param s
-	 * @return
-	 */
-	public static Object loadObject(Element s)
-	{
-		return loadObject(s, XmlLabel.valueAttribute, 
-				XmlLabel.typeAttribute);
-	}
 
 	/**
 	 * Helper method that converts string to xml node for complex objects
@@ -237,8 +247,7 @@ public class ObjectFactory
 		LinkedList<Object> temp = new LinkedList<Object>();
 		items = XmlHandler.getAll(s, XmlLabel.item);
 		for ( int i = 0; i < items.getLength(); i++ )
-			temp.add((Object) loadObject((Element) items.item(i), 
-					XmlLabel.valueAttribute, XmlLabel.typeAttribute));
+			temp.add((Object) loadObject((Element) items.item(i)));
 		return temp;
 	}
 
@@ -254,8 +263,7 @@ public class ObjectFactory
 		items = XmlHandler.getAll(ObjectFactory.stringToNode(s), 
 				XmlLabel.item);
 		for ( int i = 0; i < items.getLength(); i++ )
-			temp.add((Object) loadObject((Element) items.item(i), 
-					XmlLabel.valueAttribute, XmlLabel.typeAttribute));
+			temp.add((Object) loadObject((Element) items.item(i)));
 		return temp;
 	}
 
@@ -293,8 +301,7 @@ public class ObjectFactory
 		{
 			hMap.put((Object) loadObject((Element) items.item(i), 
 					XmlLabel.keyAttribute , XmlLabel.keyTypeAttribute ), 
-					(Object) loadObject((Element) items.item(i), 
-					XmlLabel.valueAttribute, XmlLabel.typeAttribute ));
+					(Object) loadObject((Element) items.item(i)));
 		}
 		return hMap;
 	}

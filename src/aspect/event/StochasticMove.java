@@ -93,7 +93,7 @@ public class StochasticMove extends Event {
 			{
 				/* set random directions */
 				double [] randDir = Vector.randomPlusMinus(agentBody.nDim(), 
-						(double) agent.getDouble(input[1]));
+						(double) agent.getDouble(NameRef.agentStochasticStep));
 				agent.set(STOCHASTIC_DIRECTION, randDir);
 				
 				/* calculate stochasticDistance */

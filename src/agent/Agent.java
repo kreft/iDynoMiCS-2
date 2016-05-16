@@ -5,6 +5,7 @@ import org.w3c.dom.NodeList;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import aspect.AspectReg.Aspect;
 import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.XmlLabel;
@@ -45,7 +46,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	/**
 	 * The aspect registry
 	 */
-	public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+	public AspectReg aspectRegistry = new AspectReg();
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -54,6 +55,12 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	public Agent()
 	{
 
+	}
+	
+	/* used by gui, dummy agent */
+	public Agent(Compartment comp)
+	{
+		this.compartment = comp;
 	}
 
 	/**
@@ -169,8 +176,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	/**
 	 * Allows for direct access to the aspect registry
 	 */
-	@SuppressWarnings("unchecked")
-	public AspectReg<?> reg() {
+	public AspectReg reg() {
 		return aspectRegistry;
 	}
 
@@ -272,6 +278,10 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 			
 			for ( String key : this.reg().getLocalAspectNames() )
 				modelNode.add(reg().getAspectNode(key));
+			
+			modelNode.childConstructors.put(reg().new Aspect(reg()), 
+					ModelNode.Requirements.ZERO_TO_MANY);
+			
 		}
 		return modelNode;
 	}
@@ -286,8 +296,9 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	@Override
 	public NodeConstructor newBlank() 
 	{
-		Agent newBlank = new Agent();
+		Agent newBlank = new Agent(this.compartment);
 		newBlank.reg().identity = String.valueOf(newBlank.identity());
+		newBlank.registerBirth();
 		return newBlank;
 	}
 

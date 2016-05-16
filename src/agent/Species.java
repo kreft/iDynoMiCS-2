@@ -34,7 +34,7 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	/**
 	 * TODO
 	 */
-	protected AspectReg<Object> _aspectRegistry = new AspectReg<Object>();
+	protected AspectReg _aspectRegistry = new AspectReg();
 	
 
 	private ModelNode modelNode;
@@ -85,7 +85,7 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	 * Get this {@code Species}' aspect registry.
 	 */
 	@SuppressWarnings("unchecked")
-	public AspectReg<?> reg()
+	public AspectReg reg()
 	{
 		return this._aspectRegistry;
 	}
@@ -152,6 +152,9 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 			modelNode.add(new ModelAttribute(XmlLabel.speciesModule, 
 					mod.reg().identity , null, false ));
 			}
+			
+			modelNode.childConstructors.put(_aspectRegistry.new Aspect(_aspectRegistry), 
+					ModelNode.Requirements.ZERO_TO_MANY);
 			
 			/* TODO: add aspects */
 			
