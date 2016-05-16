@@ -17,14 +17,14 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="AOB">
-				<aspect name="pigment" type="String" value="GREEN" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<!-- this has not been made yet, use a static growthrate for now -->
-				<aspect name="specGrowthRate" type="Double" value="0.08" />
+				<aspect name="specGrowthRate" type="PRIMARY" class="Double" value="0.08" />
 				<speciesModule name="coccoid" />
 			</species>
 			<species name="coccoid">
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
-				<aspect name="morphology" 		type="String" 		value="coccoid" />
+				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
 
 
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
@@ -50,32 +50,32 @@
 			</reactions>
 			<agents>
 				<agent>
-					<aspect name="species" type="String" value="AOB" />
-					<aspect name="mass" type="Double" value="0.2" />
-					<aspect name="density" type="Double" value="1" />
-					<aspect name="#isLocated" type="Boolean" value="true" />
-					<aspect name="pigment" type="String" value="RED" />
-					<aspect name="body" type="Body">
+					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="12.2, 12.2" />
 					</aspect>
 				</agent>
 				<agent>
-					<aspect name="species" type="String" value="AOB" />
-					<aspect name="mass" type="Double" value="0.2" />
-					<aspect name="density" type="Double" value="1" />
-					<aspect name="#isLocated" type="Boolean" value="true" />
-					<aspect name="pigment" type="String" value="BLUE" />
-					<aspect name="body" type="Body">
+					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="12.0, 5.3" />
 					</aspect>
 				</agent>
 				<agent>
-					<aspect name="species" type="String" value="AOB" />
-					<aspect name="mass" type="Double" value="0.2" />
-					<aspect name="density" type="Double" value="1" />
-					<aspect name="#isLocated" type="Boolean" value="true" />
-					<aspect name="pigment" type="String" value="GREEN" />
-					<aspect name="body" type="Body">
+					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="5.3, 12.2" />
 					</aspect>
 				</agent>
@@ -85,8 +85,8 @@
 					firstStep="0.0"  />
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0" >
-					<aspect name="maxMovement" type="Double" value="0.05" />
-					<aspect name="relaxationMethod" type="String" value="SHOVE" />
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
 				</process>
 			</processManagers>
 		</compartment>
