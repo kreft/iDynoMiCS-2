@@ -136,7 +136,7 @@ public class NameRef
 	/**
 	 * TODO
 	 */
-	public static String growthRate = "growthRate";
+	public static String growthRate = "specGrowthRate";
 
 	/**
 	 * TODO

@@ -344,7 +344,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					distributionMap = (HashMap<int[],Double>)
 							a.getValue("volumeDistribution");
 
-					a.set("growthRate",0.0);
+					a.set("specGrowthRate",0.0);
 					if (a.isAspect("internalProduction"))
 					{
 						HashMap<String,Double> internalProduction = 
@@ -449,8 +449,8 @@ public class SolveDiffusionTransient extends ProcessManager
 								}
 								else if ( a.getString("species").equals(productName))
 								{
-									double curRate = a.getDouble("growthRate");
-									a.set("growthRate", curRate + productionRate * 
+									double curRate = a.getDouble("specGrowthRate");
+									a.set("specGrowthRate", curRate + productionRate * 
 											distributionMap.get(coord) / totalVoxVol);
 
 
