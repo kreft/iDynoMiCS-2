@@ -49,6 +49,12 @@ public final class ShapeConventions
 	// NOTE exploratory work, may not be used
 	public static class SingleVoxel extends ResCalc
 	{
+		@Override
+		public void init(double targetResolution, double totalLength) {
+			this._nVoxel = 1;
+			this._length = 1.0;
+		}
+		
 		public SingleVoxel()
 		{
 			this._nVoxel = 1;

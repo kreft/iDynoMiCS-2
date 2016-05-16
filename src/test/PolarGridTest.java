@@ -134,7 +134,7 @@ public class PolarGridTest
 	/******************************** METHODS *********************************/
 	/**************************************************************************/
 	
-	public static void testMemoryAndIteratorSpeed(SpatialGrid grid){
+	public static void testMemoryAndIteratorSpeed(Shape grid){
 		long t_start = System.currentTimeMillis();
 		long mem_start = (Runtime.getRuntime().totalMemory() 
 				- Runtime.getRuntime().freeMemory());
@@ -150,6 +150,7 @@ public class PolarGridTest
 		
 		t_start = System.currentTimeMillis();
 //		int last_idx=0;
+		grid.resetIterator();
 		while (grid.isIteratorValid()) grid.iteratorNext();
 		System.out.println("time needed to iterate through grid: "
 				+(System.currentTimeMillis()-t_start)+" ms");	

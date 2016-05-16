@@ -3,9 +3,6 @@
  */
 package shape.resolution;
 
-import java.util.ArrayList;
-import java.util.function.DoubleFunction;
-
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import utility.ExtraMath;
@@ -29,8 +26,7 @@ public class ResolutionCalculator
 		protected double _length;
 
 		// TODO void init(Node xmlNode);
-
-		//		abstract void init(Object targetResolution, double totalLength);
+		public abstract void init(double targetResolution, double totalLength);
 
 		public int getNVoxel()
 		{
@@ -231,6 +227,7 @@ public class ResolutionCalculator
 	{
 		protected double _targetRes;
 		
+		@Override
 		public void init(double targetResolution, double totalLength)
 		{
 			this._targetRes = targetResolution;
@@ -261,6 +258,7 @@ public class ResolutionCalculator
 	{
 		protected double _targetRes;
 		
+		@Override
 		public void init(double targetResolution, double totalLength)
 		{
 			this._targetRes = targetResolution;
@@ -281,57 +279,6 @@ public class ResolutionCalculator
 				this._resolution = altRes;
 				altRes = totalLength / altNVoxel;
 			}
-			this._length = this.getCumulativeResolution(this._nVoxel - 1);
-		}
-		
-		@Override
-		public void setLength(double length)
-		{
-			this.init(this._targetRes, length);
-		}
-	}
-
-	public static class SimpleVaryingResolution extends VariableRes
-	{
-		protected double[] _targetRes;
-		
-		public void init(double[] targetResolution,	double totalLength)
-		{
-			this._targetRes = targetResolution;
-			this._resolution = targetResolution;
-			this._nVoxel = targetResolution.length;
-			this._length = getCumulativeResolution(this._nVoxel - 1);
-			double diff_per_voxel = (this._length - totalLength) / this._nVoxel;
-			Vector.addEquals(this._resolution, diff_per_voxel);
-		}
-		
-		@Override
-		public void setLength(double length)
-		{
-			this.init(this._targetRes, length);
-		}
-	}
-	
-	public static class ResolutionFunction extends VariableRes
-	{
-		protected DoubleFunction<Double> _targetRes;
-		
-		public void init(DoubleFunction<Double> targetResolution, double totalLength)
-		{
-			this._targetRes = targetResolution;
-			double length = 0.0;
-			ArrayList<Double> res = new ArrayList<>();
-			while ( length < totalLength )
-			{
-				double r =  targetResolution.apply(length / totalLength);
-				res.add(r);
-				length += r;
-				this._nVoxel++;
-			}
-			double diff_per_voxel = (totalLength - length) / this._nVoxel;
-			this._resolution = new double[_nVoxel];
-			for ( int i = 0; i < this._nVoxel; i++ )
-				this._resolution[i] = res.get(i) - diff_per_voxel;
 			this._length = this.getCumulativeResolution(this._nVoxel - 1);
 		}
 		
