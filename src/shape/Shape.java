@@ -18,9 +18,9 @@ import org.w3c.dom.NodeList;
 import boundary.Boundary;
 import boundary.BoundaryConnected;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
-import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid.GridGetter;
@@ -29,14 +29,15 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
-import nodeFactory.ModelNode.Requirements;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 import shape.Dimension.DimensionMaker;
+import shape.ShapeConventions.DimName;
+import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.subvoxel.SubvoxelPoint;
-import shape.ShapeConventions.DimName;
 import surface.Plane;
 import surface.Surface;
 import utility.ExtraMath;
@@ -190,7 +191,10 @@ public abstract class Shape implements
 		String str;
 		/* Set up the dimensions. */
 		DimName dimName;
+		Dimension dim;
 		childNodes = XmlHandler.getAll(xmlElem, XmlLabel.shapeDimension);
+		ResCalc rC;
+		
 		for ( int i = 0; i < childNodes.getLength(); i++ )
 		{
 			childElem = (Element) childNodes.item(i);
@@ -199,7 +203,20 @@ public abstract class Shape implements
 				str = XmlHandler.obtainAttribute(childElem,
 												XmlLabel.nameAttribute);
 				dimName = DimName.valueOf(str);
-				this.getDimension(dimName).init(childElem);
+				dim = this.getDimension(dimName);
+				dim.init(childElem);
+				
+				str = XmlHandler.gatherAttribute(childElem,
+						XmlLabel.targetResolutionAttribute);
+				//TODO[Stefan13.05.16]:
+				// we could also use the length as default resolution
+				// (one grid cell per default)  
+				double tRes = 1; 
+				if (str != "") tRes = Double.valueOf(str);
+				rC = new ResolutionCalculator.UniformResolution();
+				//TODO[Stefan13.05.16]: is extreme(1) > extreme(0) ensured here?
+				rC.init(tRes, dim.getExtreme(1) - dim.getExtreme(0));
+				this.setDimensionResolution(dimName, rC);				
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -1005,7 +1022,10 @@ public abstract class Shape implements
 	public int[] resetIterator()
 	{
 		if ( this._currentCoord == null )
+		{
 			this._currentCoord = Vector.zerosInt(this.getNumberOfDimensions());
+			this._currentNVoxel = Vector.zerosInt(this.getNumberOfDimensions());
+		}
 		else
 			Vector.reset(this._currentCoord);
 		this.updateCurrentNVoxel();	

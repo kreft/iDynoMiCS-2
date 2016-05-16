@@ -239,6 +239,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		 * Finally, finish off the initialisation as standard.
 		 */
 		this.init();
+		
+		test.PolarGridTest.testMemoryAndIteratorSpeed(this._shape);
 	}
 	
 	@Override

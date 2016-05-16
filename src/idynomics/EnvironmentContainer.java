@@ -79,16 +79,16 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public void init()
 	{
 		SpatialGrid aSG;
-		Boundary[] boundaries;
+//		Boundary[] boundaries;
 		for ( DimName dimName : this._shape.getDimensionNames() )
 		{
-			boundaries = this._shape.getDimension(dimName).getBoundaries();
+//			boundaries = this._shape.getDimension(dimName).getBoundaries();
 			for ( int i = 0; i < 2; i++ )
 				for ( String soluteName : this._solutes.keySet() )
 				{
 					aSG = this._solutes.get(soluteName);
-					aSG.addBoundary(dimName, i,
-									boundaries[i].getGridMethod(soluteName));
+//					aSG.addBoundary(dimName, i,
+//									boundaries[i].getGridMethod(soluteName));
 				}
 		}
 		this._hasInitialised = true;
