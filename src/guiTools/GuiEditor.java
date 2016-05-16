@@ -130,11 +130,23 @@ public class GuiEditor
 		component.add(attr);
 		
 		/* placement of this ModelNode in the gui */
-		if(node.tag == XmlLabel.speciesLibrary)
+		if(node.tag == XmlLabel.speciesLibrary )
 		{
 			/* exception for speciesLib add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
+					node.tag, tabs, "");
+		}
+		else if( node.tag == XmlLabel.compartment )
+		{
+			/* exception for compartments add component as tab next to the
+			 * parent tab (simulation) */
+			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
+					node.tag, tabs, "");
+		} 
+		else if(node.tag == XmlLabel.aspect )
+		{
+			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
 					node.tag, tabs, "");
 		}
 		else if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
@@ -143,13 +155,6 @@ public class GuiEditor
 			parent.add(component, null);
 			parent.revalidate();
 		}
-		else if( node.requirement == Requirements.ZERO_TO_FEW)
-		{
-			/* exception for compartments add component as tab next to the
-			 * parent tab (simulation) */
-			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
-					node.tag, tabs, "");
-		} 
 		else if( node.requirement == Requirements.ZERO_TO_MANY)
 		{
 			/* species, agents, TODO: changes to spinner */

@@ -113,6 +113,10 @@
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
 				</process>
+				<process name="xvgWriter" class="writeXmlOutput"  priority="-3"
+					firstStep="0.0" >
+					<aspect name="prefix" type="String" value="mySim" />
+				</process>
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
 					<aspect name="maxMovement" type="Double" value="0.05" />

@@ -3,12 +3,19 @@ package aspect;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+import aspect.calculated.StateExpression;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
+import generalInterfaces.XMLable;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
+import nodeFactory.NodeConstructor;
 import utility.Helper;
 
 
@@ -106,18 +113,18 @@ public class AspectReg<A>
 					" which already exists in this aspect registry");
 		}
 		else
-			this._aspects.put(key, new Aspect<A>(aspect));
+			this._aspects.put(key, new Aspect<A>(aspect, key));
 	}
 	
 	/**
 	 * same as add but intend is to overwrite
 	 */
-	public synchronized void set(String key, A aspect)
+	public void set(String key, A aspect)
 	{
 		if(_aspects.containsKey(key))
-			this.getAspect(key).set(aspect);
+			this.getAspect(key).set(aspect, key);
 		else
-			this._aspects.put(key, new Aspect<A>(aspect));
+			this._aspects.put(key, new Aspect<A>(aspect, key));
 	}
 	
 	/**
@@ -259,6 +266,25 @@ public class AspectReg<A>
 			ai.reg().appendAllAspectNamesTo(names);
 	}
 	
+	public Set<String> getLocalAspectNames()
+	{
+		return this._aspects.keySet();
+	}
+	
+	public String getAspectString(String key)
+	{
+		if ( this._aspects.containsKey(key) )
+			return this._aspects.get(key).getXml(key);
+		else
+			return "";
+	}
+	
+	public ModelNode getAspectNode(String key)
+	{
+		return this._aspects.get(key).getNode();
+	}
+	
+	
 	/**
 	 * \brief Very general class that acts as a wrapper for other Objects.
 	 * 
@@ -267,12 +293,17 @@ public class AspectReg<A>
 	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
 	 */
 	@SuppressWarnings("hiding")
-	private class Aspect<A>
+	protected class Aspect<A> implements NodeConstructor
 	{
 		/**
 		 * The object this Aspect wraps.
 		 */
 		protected A aspect;
+		
+		/**
+		 * 
+		 */
+		protected String key;
 		
 		/**
 		 * The type of object this Aspect wraps.
@@ -297,9 +328,9 @@ public class AspectReg<A>
 		 * @param <A>
 		 * @param aspect
 		 */
-	    public Aspect(A aspect)
+	    public Aspect(A aspect, String key)
 	    {
-	    	set(aspect);
+	    	set(aspect, key);
 	    }
 	    
 	    /**
@@ -307,9 +338,10 @@ public class AspectReg<A>
 	     * @param aspect
 	     */
 	    @SuppressWarnings("unchecked")
-		public void set(Object aspect)
+		public void set(Object aspect, String key)
 	    {
 	    	this.aspect = (A) aspect;
+	    	this.key = key;
 			if ( this.aspect instanceof Calculated )
 			{
 				  this.type = AspectReg.AspectClass.CALCULATED;
@@ -330,6 +362,7 @@ public class AspectReg<A>
 	     * return the full aspect xml specification of the aspect.
 	     * @param key
 	     * @return
+	     * @deprecated
 	     */
 	    public String getXml(String key) 
 	    {
@@ -354,6 +387,126 @@ public class AspectReg<A>
 	    				XmlLabel.aspect, key);
 	    	}
 			return out;
+		}
+	    
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public ModelNode getNode() 
+		{
+			ModelNode modelNode = new ModelNode(XmlLabel.aspect, this);
+			modelNode.requirement = Requirements.ZERO_TO_FEW;
+			
+			modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+					this.key, null, true ));
+			
+			String simpleName = this.aspect.getClass().getSimpleName();
+			
+			/* Primaries */
+			if(this.type.equals(AspectReg.AspectClass.PRIMARY))
+			{
+				modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
+						simpleName, null, true ));
+				
+				
+		    	switch (simpleName)
+				{
+				case "HashMap":
+					HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
+					for (Object k : h.keySet())
+						modelNode.add(HashMapNode(k));
+					break;
+				case "LinkedList":
+					LinkedList<Object> l = (LinkedList<Object>) aspect;
+					for (Object i : l)
+						modelNode.add(LinkedListNode(i));
+					break;
+				default:
+					if (aspect instanceof XMLable)
+					{
+						XMLable x = (XMLable) aspect;
+						x.getXml();
+						// TODO x.getNode(); etc..
+					}
+					else
+					{
+						modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, 
+								aspect.toString(), null, true ));
+					}
+				}
+			}
+			/* events and calculated */
+			else
+			{
+				modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
+						this.type.toString(), null, true ));
+				
+				modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+						simpleName, null, true ));
+				
+				if (simpleName.equals(StateExpression.class.getSimpleName()))
+				{
+					modelNode.add(new ModelAttribute(XmlLabel.inputAttribute, 
+							((Calculated) this.aspect).getInput()[0], null, true ));
+				}
+			}
+
+			return modelNode;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public ModelNode HashMapNode(Object key) 
+		{
+			HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
+			ModelNode modelNode = new ModelNode("item", this);
+			modelNode.requirement = Requirements.ZERO_TO_MANY;
+			
+			modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
+					h.get(key).getClass().getSimpleName(), null, true ));
+			
+			return modelNode;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public ModelNode LinkedListNode(Object i) 
+		{
+			LinkedList<Object> l = (LinkedList<Object>) aspect;
+			ModelNode modelNode = new ModelNode("item", this);
+			modelNode.requirement = Requirements.ZERO_TO_MANY;
+			
+			modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
+					i.getClass().getSimpleName(), null, true ));
+			
+			if (i instanceof XMLable)
+			{
+				modelNode.add(((XMLable) i).getNode()); 
+			}
+			
+			return modelNode;
+		}
+
+		@Override
+		public void setNode(ModelNode node) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public NodeConstructor newBlank() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void addChildObject(NodeConstructor childObject) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public String defaultXmlTag() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 }

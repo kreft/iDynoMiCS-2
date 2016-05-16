@@ -19,6 +19,7 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelNode;
 import utility.Helper;
 
 /**
@@ -93,6 +94,12 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	@Override
 	public String getXml() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	// TODO required from xmlable interface
+	public ModelNode getNode()
+	{
 		return null;
 	}
 	

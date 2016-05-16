@@ -132,8 +132,7 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 	 */
 	public void set(AspectInterface species)
 	{
-		String name = "";
-		Helper.obtainInput(name, "Species name");
+		String name = species.reg().identity;
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
 		species.reg().identity = name;

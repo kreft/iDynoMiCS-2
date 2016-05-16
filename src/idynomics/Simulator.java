@@ -109,7 +109,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
 		
 		//FIXME testing
-		System.out.println(getXml());
+//		System.out.println(getXml());
 	}
 	
 	public String getXml()

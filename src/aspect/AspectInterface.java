@@ -1,5 +1,7 @@
 package aspect;
 
+import java.util.Set;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -8,6 +10,10 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
+import shape.Shape;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -53,7 +59,7 @@ public abstract interface AspectInterface
 			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 		}
 		
-		reg().getXml();
+//		reg().getXml();
 	}
 	
 	/**

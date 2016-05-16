@@ -18,6 +18,7 @@ import generalInterfaces.XMLable;
 import grid.PolarGrid;
 import grid.resolution.ResolutionCalculator.ResCalc;
 import grid.resolution.ResolutionCalculator.UniformResolution;
+import nodeFactory.ModelNode;
 import shape.ShapeConventions.DimName;
 
 /**
@@ -432,6 +433,12 @@ public final class ResCalcFactory implements XMLable
 			double r = (double) res;
 			return PolarGrid.scaleResolutionForRing(shell, ring, r);
 		}
+		return null;
+	}
+
+	@Override
+	public ModelNode getNode() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 }

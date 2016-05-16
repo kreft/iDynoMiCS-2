@@ -13,13 +13,16 @@ import aspect.AspectReg;
 import dataIO.Log;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
+import idynomics.Compartment;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -139,7 +142,14 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 		{
 			modelNode = new ModelNode(XmlLabel.species, this);
 			modelNode.requirement = Requirements.ZERO_TO_MANY;
+			
+			modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+					this.reg().identity, null, true ));
+			
 			/* TODO: add aspects */
+			
+			for ( String key : this.reg().getLocalAspectNames() )
+				modelNode.add(reg().getAspectNode(key));
 		}
 		return modelNode;
 	}
@@ -153,7 +163,12 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	@Override
 	public NodeConstructor newBlank() 
 	{
-		return new Species();
+		
+		String name = "";
+		name = Helper.obtainInput(name, "Species name");
+		Species newBlank = new Species();
+		newBlank.reg().identity = name;
+		return newBlank;
 	}
 
 	@Override

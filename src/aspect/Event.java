@@ -2,6 +2,7 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
+import nodeFactory.ModelNode;
 
 import java.util.HashMap;
 
@@ -62,6 +63,12 @@ public abstract class Event implements Copyable, XMLable
 	@Override
 	public String getXml() {
 		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	// TODO required from xmlable interface
+	public ModelNode getNode()
+	{
 		return null;
 	}
 	

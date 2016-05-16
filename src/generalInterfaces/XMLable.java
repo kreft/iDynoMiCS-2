@@ -10,6 +10,8 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import idynomics.Idynomics;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
 
 /**
  * \brief Implementations of this interface will be able to instanciate and
@@ -138,4 +140,6 @@ public interface XMLable
 		return getNewInstance(className, 
 								Idynomics.xmlPackageLibrary.get(className));
 	}
+
+	public ModelNode getNode();
 }
