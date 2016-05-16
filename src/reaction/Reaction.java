@@ -284,10 +284,12 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	{
 		ModelNode modelNode = new ModelNode(XmlLabel.reaction, this);
 		modelNode.requirement = Requirements.ZERO_OR_ONE;
+		modelNode.title = this._name;
 		
 		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 				this._name, null, true ));
 		
+		modelNode.add(((ExpressionB) _kinetic).getNode());
 		
 		return modelNode;
 	}
@@ -313,7 +315,7 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	@Override
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
-		return null;
+		return XmlLabel.reaction;
 	}
 	
 	/*************************************************************************

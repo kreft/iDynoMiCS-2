@@ -402,6 +402,52 @@ public class ObjectFactory
 		
     	return out;
     }
+    
+    public static String nodeFactoryInner(Object obj)
+    {
+    	String out = "";
+    	String simpleName = obj.getClass().getSimpleName();
+    	switch (simpleName)
+		{
+		case "HashMap":
+			@SuppressWarnings("unchecked")
+			HashMap<Object,Object> h = (HashMap<Object,Object>) obj;
+			for(Object hKey : h.keySet())
+			{
+				out = out + "<" + XmlLabel.item + " " + 
+						specString( 
+								hKey, 
+								XmlLabel.keyTypeAttribute, 
+								XmlLabel.keyAttribute) +
+						specString(
+								h, 
+								XmlLabel.typeAttribute, 
+								XmlLabel.valueAttribute)
+						+ (h instanceof XMLable ? "</" + XmlLabel.item + ">\n" :
+								"/>\n");
+
+			}
+			break;
+		case "LinkedList":
+			@SuppressWarnings("unchecked")
+			LinkedList<Object> l = (LinkedList<Object>) obj;
+			for(Object o : l)
+			{
+				out = out + "<" + XmlLabel.item + " " +
+						specString(o, XmlLabel.typeAttribute,
+						XmlLabel.valueAttribute) + (o instanceof XMLable ? 
+						"</" + XmlLabel.item + ">\n" : "/>\n");
+
+			}
+			break;
+		default:
+			out = out + specString(obj, 
+					XmlLabel.typeAttribute, XmlLabel.valueAttribute)
+					+ (obj instanceof XMLable ? "</" + XmlLabel.item + ">\n"
+					: "/>\n");
+		}
+    	return out;
+    }
 
 	/**
 	 * Attempts to create a deep copy of any input object

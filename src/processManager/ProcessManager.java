@@ -144,7 +144,12 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	 */
 	public String getName()
 	{
-		return this._name;
+		if (this._name == null)
+			return "";
+		else
+			return this._name;
+
+			
 	}
 	
 	/**

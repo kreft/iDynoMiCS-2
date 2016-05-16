@@ -26,6 +26,9 @@
 						</reaction>
 					</item>
 				</aspect>
+				<aspect name="test" type="LinkedList" >
+					<item type="Double"  value="5.0" />
+				</aspect>
 				<aspect name="density" type="Double" value="1" />
 				<speciesModule name="coccoid" />
 			</species>

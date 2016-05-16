@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -135,19 +136,19 @@ public class GuiEditor
 			/* exception for speciesLib add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
-					node.tag, tabs, "");
+					node.tag , tabs, "");
 		}
 		else if( node.tag == XmlLabel.compartment )
 		{
 			/* exception for compartments add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
-					node.tag, tabs, "");
+					node.tag + " " + node.title, tabs, "");
 		} 
 		else if(node.tag == XmlLabel.aspect )
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
-					node.tag, tabs, "");
+					node.tag + " " + node.title, tabs, "");
 		}
 		else if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
 		{
@@ -159,7 +160,7 @@ public class GuiEditor
 		{
 			/* species, agents, TODO: changes to spinner */
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
-					node.tag, tabs, "");
+					node.tag + " " + node.title, tabs, "");
 		} 
 		else
 		{

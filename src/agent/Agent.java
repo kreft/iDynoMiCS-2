@@ -14,14 +14,19 @@ import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 import surface.Point;
+import utility.Helper;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements Quizable, AspectInterface
+public class Agent implements Quizable, AspectInterface, NodeConstructor
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
@@ -34,6 +39,8 @@ public class Agent implements Quizable, AspectInterface
 	 * The compartment the agent is currently in
 	 */
 	protected Compartment compartment;
+	
+	protected ModelNode modelNode;
 
 	/**
 	 * The aspect registry
@@ -247,6 +254,53 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public int identity() {
 		return uid;
+	}
+	
+	@Override
+	public ModelNode getNode() 
+	{
+		if(modelNode == null)
+		{
+			modelNode = new ModelNode(XmlLabel.agent, this);
+			modelNode.requirement = Requirements.ZERO_TO_MANY;
+			modelNode.title = String.valueOf(this.identity());
+			
+			modelNode.add(new ModelAttribute("identity", 
+					String.valueOf(this.identity()), null, false ));
+			
+			/* TODO: add aspects */
+			
+			for ( String key : this.reg().getLocalAspectNames() )
+				modelNode.add(reg().getAspectNode(key));
+		}
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node) 
+	{
+		for(ModelNode n : node.childNodes)
+			n.constructor.setNode(n);
+	}
+
+	@Override
+	public NodeConstructor newBlank() 
+	{
+		Agent newBlank = new Agent();
+		newBlank.reg().identity = String.valueOf(newBlank.identity());
+		return newBlank;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) 
+	{
+		// TODO 
+	}
+
+	@Override
+	public String defaultXmlTag() 
+	{
+		return XmlLabel.agent;
 	}
 
 

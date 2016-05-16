@@ -221,7 +221,8 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 
 	@Override
 	public void setNode(ModelNode node) {
-		
+		for(ModelNode n : node.childNodes)
+			n.constructor.setNode(n);
 	}
 
 	@Override

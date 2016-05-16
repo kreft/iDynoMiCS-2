@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.SpinnerNumberModel;
 
 public class GuiComponent {
@@ -86,6 +87,21 @@ public class GuiComponent {
 		
 		inputArea.setPreferredSize(new Dimension(400,30));
 		panel.add(inputArea,BorderLayout.EAST);
+		return panel;
+	}
+	
+	public static JPanel inputPanelLarge(String description, JTextPane inputPane)
+	{
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.setSize(600, 30);
+		
+		JLabel descriptionLabel = new JLabel(description);
+		descriptionLabel.setPreferredSize(new Dimension(200,30));
+		panel.add(descriptionLabel,BorderLayout.WEST);
+		
+		inputPane.setPreferredSize(new Dimension(400,90));
+		panel.add(inputPane,BorderLayout.EAST);
 		return panel;
 	}
 	

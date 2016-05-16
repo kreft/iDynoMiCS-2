@@ -512,21 +512,24 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	{
 		if (modelNode == null)
 		{
-		ModelNode myNode = new ModelNode(XmlLabel.compartment, this);
-		myNode.requirement = Requirements.ZERO_TO_FEW;
+		modelNode = new ModelNode(XmlLabel.compartment, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		modelNode.title = this.getName();
 		
-		myNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 				this.getName(), null, true ));
 		
 		if ( this._shape !=null )
-			myNode.add(_shape.getNode());
+			modelNode.add(_shape.getNode());
+		
+		for ( Agent a : this.agents.getAllAgents() )
+			modelNode.add(a.getNode());
 		
 		/* Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  */
-		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), 
+		modelNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), 
 				ModelNode.Requirements.EXACTLY_ONE);
-		
-		modelNode = myNode;
+
 		}
 		
 		return modelNode;
@@ -536,6 +539,9 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	public void setNode(ModelNode node) 
 	{
 		this.name = node.getAttribute(XmlLabel.nameAttribute).value;
+		
+		for(ModelNode n : node.childNodes)
+			n.constructor.setNode(n);
 	}
 
 	@Override

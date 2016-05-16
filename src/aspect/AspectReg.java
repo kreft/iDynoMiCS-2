@@ -16,6 +16,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
+import nodeFactory.primarySetters.LinkedListSetter;
 import utility.Helper;
 
 
@@ -113,7 +114,7 @@ public class AspectReg<A>
 					" which already exists in this aspect registry");
 		}
 		else
-			this._aspects.put(key, new Aspect<A>(aspect, key));
+			this._aspects.put(key, new Aspect<A>(aspect, key, this));
 	}
 	
 	/**
@@ -124,7 +125,7 @@ public class AspectReg<A>
 		if(_aspects.containsKey(key))
 			this.getAspect(key).set(aspect, key);
 		else
-			this._aspects.put(key, new Aspect<A>(aspect, key));
+			this._aspects.put(key, new Aspect<A>(aspect, key, this));
 	}
 	
 	/**
@@ -306,6 +307,11 @@ public class AspectReg<A>
 		protected String key;
 		
 		/**
+		 * 
+		 */
+		protected AspectReg<?> registry;
+		
+		/**
 		 * The type of object this Aspect wraps.
 		 */
 		protected AspectReg.AspectClass type;
@@ -328,8 +334,9 @@ public class AspectReg<A>
 		 * @param <A>
 		 * @param aspect
 		 */
-	    public Aspect(A aspect, String key)
+	    public Aspect(A aspect, String key, AspectReg registry)
 	    {
+	    	this.registry = registry;
 	    	set(aspect, key);
 	    }
 	    
@@ -396,6 +403,7 @@ public class AspectReg<A>
 		{
 			ModelNode modelNode = new ModelNode(XmlLabel.aspect, this);
 			modelNode.requirement = Requirements.ZERO_TO_FEW;
+			modelNode.title = this.key;
 			
 			modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 					this.key, null, true ));
@@ -417,15 +425,16 @@ public class AspectReg<A>
 						modelNode.add(HashMapNode(k));
 					break;
 				case "LinkedList":
-					LinkedList<Object> l = (LinkedList<Object>) aspect;
-					for (Object i : l)
-						modelNode.add(LinkedListNode(i));
+//					modelNode.add(ObjectFactory.nodeFactoryInner(aspect));
+					// TODO work in progress
+					LinkedList<Object> linkedList = (LinkedList<Object>) aspect;
+					for (Object o : linkedList)
+						modelNode.add(new LinkedListSetter(o).getNode());
 					break;
 				default:
 					if (aspect instanceof XMLable)
 					{
 						XMLable x = (XMLable) aspect;
-						x.getXml();
 						// TODO x.getNode(); etc..
 					}
 					else
@@ -466,29 +475,22 @@ public class AspectReg<A>
 			
 			return modelNode;
 		}
-		
-		@SuppressWarnings("unchecked")
-		public ModelNode LinkedListNode(Object i) 
-		{
-			LinkedList<Object> l = (LinkedList<Object>) aspect;
-			ModelNode modelNode = new ModelNode("item", this);
-			modelNode.requirement = Requirements.ZERO_TO_MANY;
-			
-			modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
-					i.getClass().getSimpleName(), null, true ));
-			
-			if (i instanceof XMLable)
-			{
-				modelNode.add(((XMLable) i).getNode()); 
-			}
-			
-			return modelNode;
-		}
+
 
 		@Override
-		public void setNode(ModelNode node) {
-			// TODO Auto-generated method stub
+		public void setNode(ModelNode node) 
+		{
+			if(node.getAttribute(XmlLabel.valueAttribute) != null)
+			{
+//				this.registry.rename(key, node.getAttribute(XmlLabel.nameAttribute).value);
+//				
+				this.set(ObjectFactory.loadObject(
+						node.getAttribute(XmlLabel.valueAttribute).value, 
+						node.getAttribute(XmlLabel.typeAttribute).value), key);
+			}
 			
+			for(ModelNode n : node.childNodes)
+				n.constructor.setNode(n);
 		}
 
 		@Override
@@ -506,7 +508,16 @@ public class AspectReg<A>
 		@Override
 		public String defaultXmlTag() {
 			// TODO Auto-generated method stub
-			return null;
+			return XmlLabel.aspect;
 		}
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public void rename(String key, String newKey )
+	{
+		A a = (A) this.getAspect(key);
+		this.remove(key);
+		this.add(newKey, a);
 	}
 }

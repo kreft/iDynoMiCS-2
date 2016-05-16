@@ -62,7 +62,7 @@
 
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
-				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,growthRate" 	 />
+				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,specGrowthRate" 	 />
 				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"			input="mass,radius,body" 	 />
 
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />

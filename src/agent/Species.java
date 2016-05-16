@@ -142,6 +142,7 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 		{
 			modelNode = new ModelNode(XmlLabel.species, this);
 			modelNode.requirement = Requirements.ZERO_TO_MANY;
+			modelNode.title = this.reg().identity;
 			
 			modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 					this.reg().identity, null, true ));
@@ -157,7 +158,8 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	@Override
 	public void setNode(ModelNode node) 
 	{
-		
+		for(ModelNode n : node.childNodes)
+			n.constructor.setNode(n);
 	}
 
 	@Override

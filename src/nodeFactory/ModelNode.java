@@ -68,6 +68,11 @@ public class ModelNode {
 	public String tag;
 	
 	/**
+	 * Title (if applicable)
+	 */
+	public String title = "";
+	
+	/**
 	 * Requirement of node one, many etc
 	 */
 	public Requirements requirement;
@@ -133,6 +138,7 @@ public class ModelNode {
 		constructor.addChildObject(childObject);
 	}
 	
+	
 	/**
 	 * Get attribute identified by String
 	 * @param attribute
@@ -178,7 +184,7 @@ public class ModelNode {
 		/* child nodes */
 		if ( childNodes.isEmpty() )
 		{
-			out += " />\n";
+			out += " />\n ";
 		}
 		else
 		{

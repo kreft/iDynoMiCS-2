@@ -12,13 +12,17 @@ import org.w3c.dom.NodeList;
 
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class ExpressionB extends Component
+public class ExpressionB extends Component implements NodeConstructor
 {
 	
 	/**
@@ -481,5 +485,38 @@ public class ExpressionB extends Component
 	public void appendVariablesNames(List<String> names)
 	{
 		this._a.appendVariablesNames(names);
+	}
+
+	@Override
+	public ModelNode getNode() {
+		ModelNode modelNode = new ModelNode(XmlLabel.expression, 
+				new ExpressionB("1.0"));
+		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.add(new ModelAttribute(XmlLabel.expression, this.expression, null, true));
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public NodeConstructor newBlank() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
