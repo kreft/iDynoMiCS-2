@@ -16,6 +16,7 @@ import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
 import idynomics.Compartment;
+import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
@@ -24,6 +25,7 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
 import shape.Shape;
+import utility.Helper;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -121,6 +123,22 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 		species.reg().identity = name;
 		this._species.put(name, species);
 	}
+	
+	/**
+	 * \brief Add a new species to the species library using the interface
+	 * (or overwrite if the species already exists).
+	 * 
+	 * @param species Information about the species.
+	 */
+	public void set(AspectInterface species)
+	{
+		String name = "";
+		Helper.obtainInput(name, "Species name");
+		if ( this._species.containsKey(name) )
+			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
+		species.reg().identity = name;
+		this._species.put(name, species);
+	}
 
 	/**
 	 * \brief Get a species from the species library.
@@ -195,6 +213,9 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 			modelNode.requirement = Requirements.EXACTLY_ONE;
 			modelNode.childConstructors.put(new Species(), 
 					ModelNode.Requirements.ZERO_TO_MANY);
+			
+			for ( String s : this._species.keySet() )
+				modelNode.add(((Species) _species.get(s)).getNode());
 		}
 		return modelNode;
 	}
@@ -206,13 +227,14 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 
 	@Override
 	public NodeConstructor newBlank() {
-		return new SpeciesLib();
+		return Idynomics.simulator.speciesLibrary;
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
-		// TODO Auto-generated method stub
-		
+	public void addChildObject(NodeConstructor childObject) 
+	{
+		if (childObject instanceof Species)
+			this.set((Species) childObject);
 	}
 
 	@Override

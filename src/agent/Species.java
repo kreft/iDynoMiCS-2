@@ -81,6 +81,7 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	/**
 	 * Get this {@code Species}' aspect registry.
 	 */
+	@SuppressWarnings("unchecked")
 	public AspectReg<?> reg()
 	{
 		return this._aspectRegistry;

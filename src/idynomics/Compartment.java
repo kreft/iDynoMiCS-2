@@ -533,18 +533,21 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		
 	}
 
-	public void setNode(ModelNode node) {
+	public void setNode(ModelNode node) 
+	{
 		this.name = node.getAttribute(XmlLabel.nameAttribute).value;
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(NodeConstructor childObject) 
+	{
 		if( childObject instanceof Shape)
 			this.setShape((Shape) childObject); 
 	}
 
 	@Override
-	public String defaultXmlTag() {
+	public String defaultXmlTag() 
+	{
 		return XmlLabel.compartment;
 	}
 }

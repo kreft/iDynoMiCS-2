@@ -430,7 +430,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(NodeConstructor childObject) 
+	{
 		if (childObject instanceof Compartment)
 			this._compartments.add((Compartment) childObject);
 	}
