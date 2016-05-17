@@ -25,8 +25,8 @@ public abstract class Surface
 	/**
 	 * Unique identifier for each surface.
 	 */
-	static int UNIQUE_ID = 0;
-	protected int uid = ++UNIQUE_ID;
+	private static int UNIQUE_ID = 0;
+	protected int _uid = ++UNIQUE_ID;
 
 	/**
 	 * TODO

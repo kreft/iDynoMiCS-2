@@ -6,23 +6,36 @@ import linearAlgebra.Vector;
  * This class constructs and holds the bounding box for sphere swept volumes
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class BoundingBox
 {	
-	protected double[] dimensions;
-	protected double[] lower;
+	/**
+	 * TODO
+	 */
+	protected double[] _dimensions;
+	/**
+	 * TODO
+	 */
+	protected double[] _lower;
+	
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
 	
 	/**
 	 * construct from a matrix of locations, a sphere radius for the sphere-
 	 * swept volume and an optional margin.
+	 * 
 	 * @param p
 	 * @param radius
 	 * @param margin
 	 */
 	public BoundingBox(double[][] p, double radius, double margin)
 	{
-		this.dimensions = dimensions(p,radius+margin);
-		this.lower = lower(p,radius+margin);	
+		double size = radius + margin;
+		this._dimensions = dimensions(p, size);
+		this._lower = lower(p, size);	
 	}
 	
 	/**
@@ -32,7 +45,7 @@ public class BoundingBox
 	 */
 	public BoundingBox(double[][] p, double radius)
 	{
-		this(p,radius,0);
+		this(p, radius, 0.0);
 	}
 	
 	/**
@@ -53,8 +66,12 @@ public class BoundingBox
 	 */
 	public BoundingBox(double[] p, double radius)
 	{
-		this(p, radius, 0);
+		this(p, radius, 0.0);
 	}
+	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
 	
 	/**
 	 * return the box as report string
@@ -62,8 +79,8 @@ public class BoundingBox
 	 */
 	public String getReport()
 	{
-		return "lower: " + Vector.toString(lower) + " dimensions: " + 
-				Vector.toString(dimensions);
+		return "lower: " + Vector.toString(this._lower) + " dimensions: " + 
+				Vector.toString(this._dimensions);
 	}
 	
 	/**
@@ -72,83 +89,45 @@ public class BoundingBox
 	 */
 	public double[] ribLengths()
 	{
-		return dimensions;
+		return this._dimensions;
 	}
 	
 	/**
-	 * return the lowser corner of the bounding box
+	 * return the lower corner of the bounding box
 	 * @return
 	 */
 	public double[] lowerCorner()
 	{
-		return lower;
+		return this._lower;
 	}
 
-	/**************************************************************************
-	 * Single point (Sphere) bounding box methods
-	 */
-	
-	/**
-	 * returns the lower corner of the bounding box
-	 * @param p
-	 * @param radius
-	 * @return
-	 */
-	private double[] lower(double[] p, double radius) 
-	{
-		double[] coord = new double[p.length];
-		for (int i = 0; i < p.length; i++) 
-			coord[i] = p[i] - radius;
-		return coord;
-	}
-	
-	/**
-	 * returns the rib lengths of the bounding box
-	 * @param p
-	 * @param radius
-	 * @return
-	 */
-	private double[] dimensions(double[] p, double radius) 
-	{
-		double[] dimensions = new double[p.length];
-		for (int i = 0; i < p.length; i++) 
-			dimensions[i] = radius * 2.0;
-		return dimensions;
-	}
-	
-	/**
-	 * returns the upper corner of the bounding box
-	 * @param p
-	 * @param radius
-	 * @return
-	 */
-	private double[] upper(double[] p, double radius) 
-	{
-		double[] coord = new double[p.length];
-		for (int i = 0; i < p.length; i++) 
-			coord[i] = p[i] + radius;
-		return coord;
-	}
-	
-	/**************************************************************************
-	 * multiple point bounding box (assuming sphere swept volumes with constant
-	 * radius.
-	 */
+	/*************************************************************************
+	 * STATIC HELPER METHODS
+	 ************************************************************************/
 	
 	/**
 	 * returns the lower corner of the bounding box
 	 * @param radius
 	 * @return coordinates of lower corner of bounding box
 	 */
-	private double[] lower(double[][] points, double radius) 
+	private static double[] lower(double[][] points, double radius) 
 	{
-		double[] coord = lower(points[0], radius);
-		if(points.length == 1)
-			return coord;
-		for (double[] o: points)  
-			for ( int i = 0; i < points[0].length; i++ ) 
-				coord[i] = Math.min( coord[i], lower(o, radius)[i] );
-		return coord;
+		/*
+		 * First find the lowest position in each dimension.
+		 */
+		double[] out = points[0];
+		double[] point;
+		for ( int pointIndex = 1; pointIndex < points.length; pointIndex++ )
+		{
+			point = points[pointIndex];
+			for ( int dim = 0; dim < out.length; dim++ )
+				out[dim] = Math.min(out[dim], point[dim]);
+		}
+		/*
+		 * Subtract the radius from this in each dimension.
+		 */
+		Vector.addEquals(out, - radius);
+		return out;
 	}
 	
 	/**
@@ -156,13 +135,24 @@ public class BoundingBox
 	 * @param radius
 	 * @return coordinates of upper corner of bounding box
 	 */
-	private double[] upper(double[][] points, Double radius) 
+	private static double[] upper(double[][] points, double radius) 
 	{
-		double[] upper = new double[points[0].length];
-		for (double[] o: points) 
-			for ( int i = 0; i < points[0].length; i++ ) 
-				upper[i] = Math.max( upper[i], upper(o,radius)[i] );
-		return upper;
+		/*
+		 * First find the greatest position in each dimension.
+		 */
+		double[] out = points[0];
+		double[] point;
+		for ( int pointIndex = 1; pointIndex < points.length; pointIndex++ )
+		{
+			point = points[pointIndex];
+			for ( int dim = 0; dim < out.length; dim++ )
+				out[dim] = Math.max(out[dim], point[dim]);
+		}
+		/*
+		 * Add the radius to this in each dimension.
+		 */
+		Vector.addEquals(out, radius);
+		return out;
 	}
 	
 	/**
@@ -170,15 +160,10 @@ public class BoundingBox
 	 * @param radius
 	 * @return dimensions of the bounding box
 	 */
-	private double[] dimensions(double[][] points, Double radius) 
+	private static double[] dimensions(double[][] points, double radius) 
 	{
-		if(points.length == 1)
-			return dimensions(points[0], radius);
-		double[] coord 		= lower(points, radius);
-		double[] upper 		= upper(points, radius);
-		double[] dimensions	= new double[points[0].length];
-		for (int i = 0; i < points[0].length; i++)
-			dimensions[i] = upper[i] - coord[i];
-		return dimensions;
+		if ( points.length == 1 )
+			return Vector.vector(points[0].length, 2 * radius);
+		return Vector.minus(upper(points, radius), lower(points, radius));
 	}
 }

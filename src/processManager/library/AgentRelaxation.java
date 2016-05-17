@@ -191,7 +191,7 @@ public class AgentRelaxation extends ProcessManager
 			case HEUN :
 				for(Agent agent: agents.getAllLocatedAgents())
 					for (Point point: ((Body) agent.get("body")).getPoints())
-						point.setC(2);
+						point.initialiseC(2);
 				break;
 		default:
 			break;
