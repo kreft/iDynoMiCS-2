@@ -8,9 +8,7 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
-import idynomics.AgentContainer;
 import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
 import modelBuilder.InputSetter;
 import surface.Surface;
 

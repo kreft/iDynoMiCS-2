@@ -72,6 +72,14 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 		return Surface.Type.SPHERE;
 	}
 	
+	/**
+	 * @return Location vector of the center of this sphere.
+	 */
+	public double[] getCenter()
+	{
+		return this._point.getPosition();
+	}
+	
 	public double getRadius()
 	{
 		return _radius;
