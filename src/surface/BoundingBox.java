@@ -1,6 +1,7 @@
 package surface;
 
 import linearAlgebra.Vector;
+import utility.ExtraMath;
 
 /**
  * This class constructs and holds the bounding box for sphere swept volumes
@@ -69,6 +70,19 @@ public class BoundingBox
 		this(p, radius, 0.0);
 	}
 	
+	/**
+	 * \brief Construct a bounding box directly.
+	 * 
+	 * @param dimensions
+	 * @param lower
+	 */
+	public BoundingBox(double[] dimensions, double[] lower)
+	{
+		Vector.checkLengths(dimensions, lower);
+		this._dimensions = dimensions;
+		this._lower = lower;
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
@@ -101,6 +115,39 @@ public class BoundingBox
 		return this._lower;
 	}
 
+	/*************************************************************************
+	 * RANDOM POSITION
+	 ************************************************************************/
+	
+	/**
+	 * @return Random position inside this bounding box.
+	 */
+	public double[] getRandomInside()
+	{
+		double[] out = Vector.randomZeroOne(this._dimensions);
+		Vector.timesEquals(out, this._dimensions);
+		Vector.addEquals(out, this._lower);
+		return out;
+	}
+	
+	/**
+	 * @return Random position on the surface of this bounding box.
+	 */
+	public double[] getRandomOnPeriphery()
+	{
+		/* Get a random point inside this bounding box. */
+		double[] out = getRandomInside();
+		/*
+		 * Choose a random dimension, and force the position to one of the two
+		 * extremes in that dimension.
+		 */
+		int dim = ExtraMath.getUniRandInt(out.length);
+		out[dim] = this._lower[dim];
+		if ( ExtraMath.getRandBool() )
+			out[dim] += this._dimensions[dim];
+		return out;
+	}
+	
 	/*************************************************************************
 	 * STATIC HELPER METHODS
 	 ************************************************************************/
