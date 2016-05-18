@@ -127,7 +127,7 @@ public class AgentRelaxation extends ProcessManager
 			 * perform neighborhood search and perform collision detection and
 			 * response 
 			 */
-			for ( Agent neighbour: agents.treeSearch(body.getBoxes(searchDist)) )
+			for ( Agent neighbour: agents.treeSearch(agent, searchDist) )
 			{
 				if (agent.identity() > neighbour.identity())
 				{

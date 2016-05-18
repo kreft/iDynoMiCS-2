@@ -1,6 +1,7 @@
 package idynomics;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -198,6 +199,36 @@ public class AgentContainer
 	{
 		return this.treeSearch(pointLocation, Vector.zeros(pointLocation));
 	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param anAgent
+	 * @param searchDist
+	 * @return
+	 */
+	public Collection<Agent> treeSearch(Agent anAgent, double searchDist)
+	{
+		// TODO not sure if this is the best response
+		if ( ! isLocated(anAgent) )
+			return new LinkedList<Agent>();
+		/*
+		 * Find all nearby agents.
+		 */
+		Body body = (Body) anAgent.get(NameRef.agentBody);
+		List<BoundingBox> boxes = body.getBoxes(searchDist);
+		Collection<Agent> out = this.treeSearch(boxes);
+		/* 
+		 * Remove the focal agent from this list.
+		 */
+		out.removeIf((a) -> {return a == anAgent;});
+		return out;
+	}
+	
+//	public Collection<Boundary> surfaceSearch(Agent anAgent, double searchDist)
+//	{
+//		
+//	}
 	
 	/**
 	 * \brief Helper method to check if an {@code Agent} is located.

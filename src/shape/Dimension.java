@@ -57,7 +57,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	/**
 	 * Boundary objects at the minimum (0) and maximum (1).
 	 */
-	protected Boundary[] _boundary = new Boundary[2];
+	private Boundary[] _boundary = new Boundary[2];
 	
 	/**
 	 * Whether boundaries are required (true) or optional (false) at the
@@ -368,17 +368,22 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	/**
 	 * \brief Get an array of boundaries. 
 	 * 
-	 * <p>Note that this will return an empty array if the dimension is cyclic.
-	 * Otherwise, this will be a 2-array with the minimum boundary at position
-	 * 0 and the maximum boundary at position 1 (optional boundaries may be
-	 * {@code null} objects).</p>
-	 * 
-	 * @return Array of {@code Boundary} objects: empty array if this is
-	 * cyclic, a 2-array otherwise.
+	 * @return 2-array of {@code Boundary} objects.
 	 */
 	public Boundary[] getBoundaries()
 	{
 		return this._boundary;
+	}
+	
+	/**
+	 * \brief Get the {@code Boundary} at the required extreme.
+	 * 
+	 * @param extreme Which extreme to check: 0 for minimum, 1 for maximum.
+	 * @return The {@code Boundary} at the required extreme.
+	 */
+	public Boundary getBoundary(int extreme)
+	{
+		return this._boundary[extreme];
 	}
 	
 	/**

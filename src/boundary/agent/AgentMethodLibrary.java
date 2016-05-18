@@ -67,14 +67,20 @@ public class AgentMethodLibrary
 			this.placeAgentsRandom(agentCont, dimN, extreme);
 			Shape shape = agentCont.getShape();
 			Collection<Surface> shapeSurfs = shape.getSurfaces();
+			Collection<Agent> nbhAgents;
+			Collection<Surface> nbhSurfs;
 			Collision collision = new Collision(null, shape);
 			Body body;
 			List<BoundingBox> boxes;
+			boolean hasCollided = false;
 			for ( Agent anAgent : this._arrivalsLounge )
 			{
 				if ( AgentContainer.isLocated(anAgent) )
 				{
 					body = (Body) anAgent.get(NameRef.agentBody);
+					nbhAgents = agentCont.treeSearch(anAgent, this._layerThickness);
+					if ( ! nbhAgents.isEmpty() )
+						hasCollided = true;
 					
 				}
 			}

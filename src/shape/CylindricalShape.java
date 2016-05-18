@@ -9,6 +9,7 @@ import static shape.ShapeConventions.DimName.THETA;
 import static shape.ShapeConventions.DimName.Z;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Rod;
+import surface.Surface;
 import utility.ExtraMath;
 
 /**
@@ -163,10 +164,14 @@ public abstract class CylindricalShape extends PolarShape
 		/* If there is an inner radius, use it. */
 		double radius = radiusDim.getExtreme(0);
 		if ( radius > 0.0 )
-			this._surfaces.add(new Rod(pointA, pointB, radius));
+		{
+			Surface rod = new Rod(pointA, pointB, radius);
+			this._surfaces.put(rod, radiusDim.getBoundary(0));
+		}
 		/* We always use the outer radius. */
 		radius = radiusDim.getExtreme(1);
-		this._surfaces.add(new Rod(pointA, pointB, radius));
+		Surface rod = new Rod(pointA, pointB, radius);
+		this._surfaces.put(rod, radiusDim.getBoundary(1));
 		/*
 		 * If theta is not cyclic, we need to add two planes.
 		 */

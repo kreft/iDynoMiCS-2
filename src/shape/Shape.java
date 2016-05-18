@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -88,9 +89,11 @@ public abstract class Shape implements
 	 */
 	protected Double _maxFluxPotentl = null;
 	/**
-	 * Surface Object for collision detection methods
+	 * Surfaces for collision detection methods.
 	 */
-	protected Collection<Surface> _surfaces = new LinkedList<Surface>();
+	protected Map<Surface,Boundary> _surfaces = 
+			new HashMap<Surface,Boundary>();
+	
 	/**
 	 * List of boundaries in a dimensionless compartment, or internal
 	 * boundaries in a dimensional compartment.
@@ -514,17 +517,22 @@ public abstract class Shape implements
 		/* The minimum extreme. */
 		normal[index] = 1.0;
 		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
-		this._surfaces.add( p );
+		this._surfaces.put(p, dim.getBoundary(0));
 		/* The maximum extreme. */
 		normal[index] = -1.0;
 		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
-		this._surfaces.add( p );
+		this._surfaces.put(p, dim.getBoundary(1));
 	}
 	
 	/**
 	 * @return The set of {@code Surface}s for this {@code Shape}.
 	 */
 	public Collection<Surface> getSurfaces()
+	{
+		return this._surfaces.keySet();
+	}
+	
+	public Map<Surface, Boundary> getSurfaceBounds()
 	{
 		return this._surfaces;
 	}
