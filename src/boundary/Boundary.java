@@ -162,6 +162,11 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 			return this._defaultGridMethod;
 	}
 	
+	public AgentMethod getAgentMethod()
+	{
+		return this._agentMethod;
+	}
+	
 	public void setPartner(Boundary partner)
 	{
 		this._partner = partner;

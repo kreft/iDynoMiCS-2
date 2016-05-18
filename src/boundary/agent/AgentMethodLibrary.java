@@ -4,18 +4,10 @@
 package boundary.agent;
 
 import java.util.Collection;
-import java.util.List;
 
 import agent.Agent;
-import agent.Body;
 import idynomics.AgentContainer;
-import idynomics.NameRef;
-import shape.Shape;
 import shape.ShapeConventions.DimName;
-import surface.BoundingBox;
-import surface.Collision;
-import surface.Surface;
-
 /**
  * \brief TODO
  * 
@@ -51,8 +43,11 @@ public class AgentMethodLibrary
 	
 	public static class BoundaryLayer extends AgentMethod
 	{
+		/**
+		 * Boundary layer thickness.
+		 */
 		// TODO set this!
-		private double _layerThickness = 10.0;
+		private double _layerTh = 10.0;
 		
 		@Override
 		public String getName()
@@ -65,23 +60,27 @@ public class AgentMethodLibrary
 				AgentContainer agentCont, DimName dimN, int extreme)
 		{
 			this.placeAgentsRandom(agentCont, dimN, extreme);
-			Shape shape = agentCont.getShape();
-			Collection<Surface> shapeSurfs = shape.getSurfaces();
 			Collection<Agent> nbhAgents;
-			Collection<Surface> nbhSurfs;
-			Collision collision = new Collision(null, shape);
-			Body body;
-			List<BoundingBox> boxes;
+			Collection<AgentMethod> boundaries;
 			boolean hasCollided = false;
 			for ( Agent anAgent : this._arrivalsLounge )
 			{
-				if ( AgentContainer.isLocated(anAgent) )
+				if ( ! AgentContainer.isLocated(anAgent) )
 				{
-					body = (Body) anAgent.get(NameRef.agentBody);
-					nbhAgents = agentCont.treeSearch(anAgent, this._layerThickness);
+					agentCont.addAgent(anAgent);
+					continue;
+				}
+				while ( ! hasCollided )
+				{
+					
+					nbhAgents = agentCont.treeSearch(anAgent, this._layerTh);
 					if ( ! nbhAgents.isEmpty() )
 						hasCollided = true;
-					
+					boundaries = agentCont.boundarySearch(anAgent, this._layerTh);
+					if ( ! boundaries.isEmpty() )
+					{
+						// TODO
+					}
 				}
 			}
 			this._arrivalsLounge.clear();

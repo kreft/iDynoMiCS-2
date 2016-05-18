@@ -3,6 +3,8 @@
  */
 package shape;
 
+import static shape.ShapeConventions.DimName.R;
+
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -456,8 +458,49 @@ public abstract class Shape implements
 	protected abstract ResCalc getResolutionCalculator(int[] coord, int dim);
 	
 	/*************************************************************************
-	 * RANDOM LOCATIONS
+	 * LOCATIONS
 	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param pos Current location (overwritten).
+	 * @param dimN Name of the {@code Dimension} along which to move.
+	 * @param dist Distance to move (can be negative).
+	 */
+	public void moveAlongDimension(double[] pos, DimName dimN, double dist)
+	{
+		if ( ! this._dimensions.keySet().contains(dimN) )
+		{
+			// TODO safety
+		}
+		double[] local = this.getLocalPosition(pos);
+		if ( dimN.isAngular() )
+		{
+			double radius = local[this.getDimensionIndex(R)];
+			if ( radius == 0.0 )
+				return;
+			double angle = dist/radius;
+			this.moveAlongDim(local, dimN, angle);
+		}
+		else
+			this.moveAlongDim(local, dimN, dist);
+		pos = this.getGlobalLocation(local);
+	}
+	
+	/**
+	 * \brief Internal helper method for the
+	 * {@link #moveAlongDimension(double[], DimName, double)} method.
+	 * 
+	 * @param loc Current location (overwritten).
+	 * @param dimN Name of the {@code Dimension} along which to move.
+	 * @param dist Distance to move (can be negative).
+	 */
+	protected void moveAlongDim(double[] loc, DimName dimN, double dist)
+	{
+		int dimIndex = this.getDimensionIndex(dimN);
+		loc[dimIndex] += dist;
+	}
 	
 	/**
 	 * \brief Get a random location on a boundary of this shape.

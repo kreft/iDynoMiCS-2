@@ -147,6 +147,12 @@ public final class ShapeLibrary
 		{
 			return 0.0;
 		}
+		
+		@Override
+		public void moveAlongDimension(double[] loc, DimName dimN, double dist)
+		{
+			/* Do nothing! */
+		}
 	}
 	
 	/*************************************************************************

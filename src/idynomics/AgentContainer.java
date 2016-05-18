@@ -10,12 +10,16 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Body;
+import boundary.agent.AgentMethod;
 import dataIO.XmlLabel;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import shape.Shape;
+import shape.ShapeConventions.DimName;
 import spatialRegistry.*;
 import surface.BoundingBox;
+import surface.Collision;
+import surface.Surface;
 import utility.ExtraMath;
 
 /**
@@ -225,11 +229,48 @@ public class AgentContainer
 		return out;
 	}
 	
-//	public Collection<Boundary> surfaceSearch(Agent anAgent, double searchDist)
-//	{
-//		
-//	}
+	/**
+	 * \brief TODO
+	 * 
+	 * @param anAgent
+	 * @param searchDist
+	 * @return
+	 */
+	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
+	{
+		Collection<Surface> out = this._shape.getSurfaces();
+		Collision collision = new Collision(this._shape);
+		Collection<Surface> agentSurfs = 
+				((Body) anAgent.get(NameRef.agentBody)).getSurfaces();
+		out.removeIf((s) -> 
+		{
+			for (Surface a : agentSurfs )
+				if ( collision.distance(a, s) < searchDist )
+					return false;
+			return true;
+		});
+		return out;
+	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param anAgent
+	 * @param searchDist
+	 * @return
+	 */
+	public Collection<AgentMethod> boundarySearch(Agent anAgent, double searchDist)
+	{
+		Collection<AgentMethod> out = new LinkedList<AgentMethod>();
+		for ( Surface s : this.surfaceSearch(anAgent, searchDist) )
+			out.add(this._shape.getSurfaceBounds().get(s).getAgentMethod());
+		return out;
+	}
+	
+	/*************************************************************************
+	 * AGENT LOCATION
+	 ************************************************************************/
+
 	/**
 	 * \brief Helper method to check if an {@code Agent} is located.
 	 * 
@@ -248,6 +289,23 @@ public class AgentContainer
 		// for a simple check.
 		return ( anAgent.get(NameRef.isLocated) != null ) && 
 				( anAgent.getBoolean(NameRef.isLocated) );
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param anAgent
+	 * @param dimN
+	 * @param dist
+	 */
+	public void moveAlongDimension(Agent anAgent, DimName dimN, double dist)
+	{
+		if ( ! isLocated(anAgent) )
+			return;
+		Body body = (Body) anAgent.get(NameRef.agentBody);
+		double[] newLoc = body.getPoints().get(0).getPosition();
+		this._shape.moveAlongDimension(newLoc, dimN, dist);
+		body.relocate(0, newLoc);
 	}
 	
 	/*************************************************************************

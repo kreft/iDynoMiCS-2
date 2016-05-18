@@ -183,6 +183,11 @@ public class Collision
 		this._pullFun = PullFunction;
 	}
 
+	public Collision(Shape aShape)
+	{
+		this(null, aShape);
+	}
+	
 	/*************************************************************************
 	 * FORCE METHODS
 	 ************************************************************************/
