@@ -130,6 +130,36 @@ public class AgentContainer
 	{
 		return this._shape;
 	}
+
+	/**
+	 * @return A count of all {@code Agent}s, including both located and
+	 * non-located.
+	 */
+	public int getNumAllAgents()
+	{
+		return this._agentList.size() + this._locatedAgentList.size();
+	}
+	
+	
+	/**
+	 * @return A list of all {@code Agent}s which have a location.
+	 */
+	public List<Agent> getAllLocatedAgents()
+	{
+		List<Agent> out = new LinkedList<Agent>();
+		out.addAll(this._locatedAgentList);
+		return out;
+	}
+	
+	/**
+	 * @return A list of all {@code Agent}s which do not have a location.
+	 */
+	public List<Agent> getAllUnlocatedAgents()
+	{
+		List<Agent> out = new LinkedList<Agent>();
+		out.addAll(this._agentList);
+		return out;
+	}
 	
 	/**
 	 * \brief Get a list of all {@code Agent}s.
@@ -144,6 +174,10 @@ public class AgentContainer
 		out.addAll(this._locatedAgentList);
 		return out;
 	}
+	
+	/*************************************************************************
+	 * LOCATED SEARCHES
+	 ************************************************************************/
 	
 	public List<Agent> treeSearch(BoundingBox boundingBox)
 	{
@@ -166,6 +200,30 @@ public class AgentContainer
 	}
 	
 	/**
+	 * \brief Helper method to check if an {@code Agent} is located.
+	 * 
+	 * @param anAgent {@code Agent} to check.
+	 * @return Whether it is located (true) or not located (false).
+	 */
+	public static boolean isLocated(Agent anAgent)
+	{
+		/*
+		 * If there is no flag saying this agent is located, assume it is not.
+		 * 
+		 * Note of terminology: this is known as the closed-world assumption.
+		 * https://en.wikipedia.org/wiki/Closed-world_assumption
+		 */
+		//FIXME: #isLocated simplified for now, was an over extensive operation
+		// for a simple check.
+		return ( anAgent.get(NameRef.isLocated) != null ) && 
+				( anAgent.getBoolean(NameRef.isLocated) );
+	}
+	
+	/*************************************************************************
+	 * ADDING & REMOVING AGENTS
+	 ************************************************************************/
+	
+	/**
 	 * \brief Add the given <b>agent</b> to the appropriate list.
 	 * 
 	 * @param agent {@code Agent} object to be accepted into this
@@ -173,15 +231,10 @@ public class AgentContainer
 	 */
 	public void addAgent(Agent agent)
 	{
-		//FIXME: #isLocated simplified for now, was an over extensive operation
-		// for a simple check.
-		if ( ( agent.get(NameRef.isLocated) == null ) || 
-									( ! agent.getBoolean(NameRef.isLocated) ) )
-		{
-			this._agentList.add(agent);
-		}
-		else
+		if ( isLocated(agent) )
 			this.addLocatedAgent(agent);
+		else
+			this._agentList.add(agent);
 	}
 	
 	/**
@@ -221,35 +274,6 @@ public class AgentContainer
 		this.makeAgentTree();
 		for ( Agent a : this.getAllLocatedAgents() )
 			this.treeInsert(a);
-	}
-	
-	/**
-	 * @return A list of all {@code Agent}s which have a location.
-	 */
-	public List<Agent> getAllLocatedAgents()
-	{
-		List<Agent> out = new LinkedList<Agent>();
-		out.addAll(_locatedAgentList);
-		return out;
-	}
-	
-	/**
-	 * @return A list of all {@code Agent}s which do not have a location.
-	 */
-	public List<Agent> getAllUnlocatedAgents()
-	{
-		List<Agent> out = new LinkedList<Agent>();
-		out.addAll(_agentList);
-		return out;
-	}
-	
-	/**
-	 * @return A count of all {@code Agent}s, including both located and
-	 * non-located.
-	 */
-	public int getNumAllAgents()
-	{
-		return this._agentList.size() + this._agentTree.all().size();
 	}
 	
 	/**

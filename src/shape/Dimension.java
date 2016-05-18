@@ -203,6 +203,10 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		this.checkExtremes();
 	}
 	
+	/**
+	 * @param index Index of the extreme: must be 0 or 1.
+	 * @return Position in space of the required extreme.
+	 */
 	public double getExtreme(int index)
 	{
 		return this._extreme[index];
@@ -459,6 +463,15 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 				return this._extreme[0];
 			return a;
 		}
+	}
+	
+	/**
+	 * @return Position between the two extremes, chosen with a uniform
+	 * random distribution.
+	 */
+	public double getRandomInside()
+	{
+		return ExtraMath.getUniRand(this._extreme[0], this._extreme[1]);
 	}
 	
 	/**************************************************************************

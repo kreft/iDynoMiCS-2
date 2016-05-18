@@ -5,13 +5,20 @@ package boundary.agent;
 
 import java.awt.event.ActionEvent;
 import java.util.LinkedList;
+import java.util.List;
+
+import org.w3c.dom.Element;
 
 import agent.Agent;
+import agent.Body;
 import generalInterfaces.XMLable;
-import idynomics.Compartment;
+import idynomics.AgentContainer;
+import idynomics.NameRef;
+import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
-import surface.Surface;
+import shape.Shape;
+import shape.ShapeConventions.DimName;
 import utility.Helper;
 
 /**
@@ -35,7 +42,79 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 	 */
 	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
 	
-	public abstract void agentsArrive(Compartment comp, Surface surf);
+	/*************************************************************************
+	 * ARRIVALS & DEPARTURES
+	 ************************************************************************/
+	
+	/**
+	 * \brief Enter the {@code Agent}s waiting in the arrivals lounge to the
+	 * {@code AgentContainer}, using the spatial information given.
+	 * 
+	 * @param agentCont The {@code AgentContainer} that should accept the 
+	 * {@code Agent}s.
+	 * @param dimN Name of the dimension whose boundary we are on.
+	 * @param extreme Index of the dimension's extremes - must be 0 or 1.
+	 */
+	public abstract void agentsArrive(
+			AgentContainer agentCont, DimName dimN, int extreme);
+	
+	/**
+	 * \brief Enter the {@code Agent}s waiting in the arrivals lounge to the
+	 * {@code AgentContainer}, without spatial information.
+	 * 
+	 * @param agentCont The {@code AgentContainer} that should accept the 
+	 * {@code Agent}s.
+	 */
+	public abstract void agentsArrive(AgentContainer agentCont);
+	
+	protected void placeAgentsRandom(
+			AgentContainer agentCont, DimName dimN, int extreme)
+	{
+		Shape aShape = agentCont.getShape();
+		double[] newLoc;
+		for ( Agent anAgent : this._arrivalsLounge )
+		{
+			if ( AgentContainer.isLocated(anAgent) )
+			{
+				newLoc = aShape.getRandomLocationOnBoundary(dimN, extreme);
+				Body body = (Body) anAgent.get(NameRef.agentBody);
+				body.relocate(0, newLoc);
+			}
+			agentCont.addAgent(anAgent);
+		}
+	}
+	
+	/*************************************************************************
+	 * methods to move into library, here for now
+	 ************************************************************************/
+	
+	@Override
+	public List<InputSetter> getRequiredInputs()
+	{
+		return new LinkedList<InputSetter>();
+	}
+	
+	@Override
+	public void acceptInput(String name, Object input)
+	{
+		/* Do nothing. */
+	}
+	
+	@Override
+	public void init(Element xmlElem)
+	{
+		
+	}
+	
+	@Override
+	public String getXml()
+	{
+		return null;
+	}
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
 	
 	public static String[] getAllOptions()
 	{

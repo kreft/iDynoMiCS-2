@@ -1,9 +1,11 @@
 package surface;
 
-import shape.Shape;
+import java.util.Collection;
+
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
+import shape.Shape;
 
 /**
  * NOTE: this class is not thread-safe.
@@ -246,6 +248,21 @@ public class Collision
 		pullRange = 0.0;
 	}
 
+	/**
+	 * \brief TODO
+	 * 
+	 * @param allA
+	 * @param allB
+	 * @param pullDistance
+	 */
+	public void collision(
+			Collection<Surface> allA, Collection<Surface> allB, double pullDistance)
+	{
+		for ( Surface a : allA )
+			for ( Surface b : allB )
+				this.collision(a, b, pullDistance);
+	}
+	
 	/**
 	 * \brief TODO
 	 * 

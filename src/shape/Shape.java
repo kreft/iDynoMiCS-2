@@ -453,6 +453,34 @@ public abstract class Shape implements
 	protected abstract ResCalc getResolutionCalculator(int[] coord, int dim);
 	
 	/*************************************************************************
+	 * RANDOM LOCATIONS
+	 ************************************************************************/
+	
+	/**
+	 * \brief Get a random location on a boundary of this shape.
+	 * 
+	 * @param dimN Name of the dimension used to find the boundary.
+	 * @param extreme Index of the extreme of this dimension - must be 0 or 1.
+	 * @return 
+	 */
+	public double[] getRandomLocationOnBoundary(DimName dimN, int extreme)
+	{
+		int nDim = this.getNumberOfDimensions();
+		double[] out = new double[nDim];
+		int i = 0;
+		for ( DimName d : this._dimensions.keySet() )
+		{
+			Dimension dim = this.getDimension(d);
+			if ( d.equals(dimN) )
+				out[i] = dim.getExtreme(extreme);
+			else
+				out[i] = dim.getRandomInside();
+			i++;
+		}
+		return this.getGlobalLocation(out);
+	}
+	
+	/*************************************************************************
 	 * SURFACES
 	 ************************************************************************/
 	

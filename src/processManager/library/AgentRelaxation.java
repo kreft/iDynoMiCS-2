@@ -1,5 +1,8 @@
 package processManager.library;
 
+import java.util.List;
+import java.util.Collection;
+
 import org.w3c.dom.Element;
 
 import agent.Agent;
@@ -99,10 +102,12 @@ public class AgentRelaxation extends ProcessManager
 		 * available with the initiation of the processManager
 		 */
 		iterator = new Collision(null, agents.getShape());
-		
+		Collection<Surface> shapeSurfs = agents.getShape().getSurfaces();
 		// Calculate forces
-		for(Agent agent: agents.getAllLocatedAgents()) 
+		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
+			Body body = (Body) agent.get(NameRef.agentBody);
+			List<Surface> agentSurfs = body.getSurfaces();
 //				List<Link> links = ((Body) agent.get(NameRef.agentBody))._links;
 //				for (int i = 0; i < links.size(); i++)
 //				{
@@ -114,10 +119,7 @@ public class AgentRelaxation extends ProcessManager
 //					}
 //				}
 			
-			/**
-			 * NOTE: currently missing internal springs for rod cells.
-			 */
-			
+			// NOTE: currently missing internal springs for rod cells.
 			double searchDist = (agent.isAspect("searchDist") ?
 					agent.getDouble("searchDist") : 0.0);
 			
@@ -125,40 +127,24 @@ public class AgentRelaxation extends ProcessManager
 			 * perform neighborhood search and perform collision detection and
 			 * response 
 			 */
-			for(Agent neighbour: agents.treeSearch(
-
-					((Body) agent.get(NameRef.agentBody)).getBoxes(
-							searchDist)))
+			for ( Agent neighbour: agents.treeSearch(body.getBoxes(searchDist)) )
 			{
 				if (agent.identity() > neighbour.identity())
 				{
-					
 					agent.event("evaluatePull", neighbour);
 					Double pull = agent.getDouble("#curPullDist");
 					
 					if (pull == null || pull.isNaN())
 						pull = 0.0;
 					
-					for (Surface s : ((Body) agent.get("body")).getSurfaces())
-					{
-						for (Surface t : ((Body) neighbour.get("body")).getSurfaces())
-						{
-							iterator.collision(s, t, pull);
-						}
-					}
+					List<Surface> t = ((Body) neighbour.get("body")).getSurfaces();
+					iterator.collision(agentSurfs, t, pull);
 				}
 			}
-			
 			/*
 			 * Boundary collisions
 			 */
-			for(Surface s : agents.getShape().getSurfaces())
-			{
-				for (Surface t : ((Body) agent.get("body")).getSurfaces())
-				{
-					iterator.collision(s, t, 0.0);
-				}
-			}
+			iterator.collision(shapeSurfs, agentSurfs, 0.0);
 		}
 	}
 	
