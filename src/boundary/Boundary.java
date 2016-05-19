@@ -56,17 +56,6 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * 
 	 */
 	protected String _partnerCompartmentName;
-	/**
-	 * List of Agents that are leaving this compartment via this boundary, and
-	 * so need to travel to the connected compartment.
-	 */
-	protected List<Agent> _departureLounge = new LinkedList<Agent>();
-	
-	/**
-	 * List of Agents that have travelled here from the connected compartment
-	 * and need to be entered into this compartment.
-	 */
-	protected List<Agent> _arrivalsLounge = new LinkedList<Agent>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -194,10 +183,9 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 * 
 	 * @param agent
 	 */
-	public void addOutboundAgent(Agent agent)
+	public void addOutboundAgent(Agent anAgent)
 	{
-		// TODO Safety: check if agent is already in list?
-		this._departureLounge.add(agent);
+		this._agentMethod.addOutboundAgent(anAgent);
 	}
 	
 	/**
@@ -207,8 +195,7 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	 */
 	public void acceptInboundAgents(List<Agent> agents)
 	{
-		for ( Agent traveller : agents )
-			this._arrivalsLounge.add(traveller);
+		this._agentMethod.acceptInboundAgents(agents);
 	}
 	
 	/**
@@ -218,26 +205,28 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	{
 		if ( this._partner == null )
 		{
-			if ( ! this._departureLounge.isEmpty() )
+			if ( this._agentMethod.hasOutboundAgents() )
 			{
 				// TODO throw exception? Error message to log?
 			}
 		}
 		else
 		{
-			this._partner.acceptInboundAgents(this._departureLounge);
-			this._departureLounge.clear();
+			AgentMethod partnerMethod = this._partner.getAgentMethod();
+			this._agentMethod.pushOutboundAgents(partnerMethod);
 		}
 	}
 	
+	// TODO delete once agent method gets full control of agent transfers
 	public List<Agent> getAllInboundAgents()
 	{
-		return this._arrivalsLounge;
+		return this._agentMethod.getAllInboundAgents();
 	}
 	
+	// TODO delete once agent method gets full control of agent transfers
 	public void clearArrivalsLoungue()
 	{
-		this._arrivalsLounge.clear();
+		this._agentMethod.clearArrivalsLoungue();
 	}
 	
 	/*************************************************************************

@@ -241,20 +241,17 @@ public class Body implements Copyable, XMLable
 	 * given, then move all other {@code Point}s so that the overall body shape
 	 * stays the same.
 	 * 
-	 * @param pointIndex
 	 * @param newLocation
 	 */
-	public void relocate(int pointIndex, double[] newLocation)
+	public void relocate(double[] newLocation)
 	{
-		// NOTE Not sure if this is the best response, reconsider.
-		if ( this._points.size() <= pointIndex || pointIndex < 0 )
-			return;
-		
 		// TODO This can probably be done better using the links approach,
 		// once this is completed.
 		// TODO this won't currently work if newLocation has different length
 		// to the number of dimensions the body has currently.
-		Point focus = this._points.get(pointIndex);
+		// TODO the assumption that we use the first point is the simplest, but
+		// probably not the best
+		Point focus = this._points.get(0);
 		HashMap<Point,double[]> relDiffs = new HashMap<Point,double[]>();
 		double[] vector;
 		for ( Point p : this._points )

@@ -305,7 +305,7 @@ public class AgentContainer
 		Body body = (Body) anAgent.get(NameRef.agentBody);
 		double[] newLoc = body.getPoints().get(0).getPosition();
 		this._shape.moveAlongDimension(newLoc, dimN, dist);
-		body.relocate(0, newLoc);
+		body.relocate(newLoc);
 	}
 	
 	/*************************************************************************
