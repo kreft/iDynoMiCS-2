@@ -108,9 +108,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	/**
 	 * \brief
 	 * 
-	 * TODO This should go back to being private once tests are based on XML
-	 * protocols.
-	 * 
 	 * @param aShape
 	 */
 	public void setShape(Shape aShape)
@@ -118,6 +115,17 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		this._shape = aShape;
 		this._environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param shapeName
+	 */
+	public void setShape(String shapeName)
+	{
+		Shape aShape = Shape.getNewInstance(shapeName);
+		this.setShape(aShape);
 	}
 	
 	/**
@@ -408,6 +416,11 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 				comp.getShape().addOtherBoundary(partner);
 			}
 		}
+	}
+	
+	public void agentsArrive()
+	{
+		this.agents.agentsArrive();
 	}
 	
 	/**

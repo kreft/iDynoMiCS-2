@@ -522,6 +522,8 @@ public abstract class Shape implements
 			else
 				out[i] = dim.getRandomInside();
 			i++;
+			if ( i >= nDim )
+				break;
 		}
 		return this.getGlobalLocation(out);
 	}

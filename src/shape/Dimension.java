@@ -169,10 +169,10 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 */
 	protected void checkExtremes()
 	{
-		if ( this._extreme[1] <= this._extreme[0] )
+		if ( this._extreme[1] < this._extreme[0] )
 		{
 			throw new 
-					IllegalArgumentException("Dimension length must be >= 0");
+					IllegalArgumentException("Dimension length must be > 0");
 		}
 	}
 	

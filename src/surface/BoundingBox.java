@@ -36,7 +36,7 @@ public class BoundingBox
 	{
 		double size = radius + margin;
 		this._dimensions = dimensions(p, size);
-		this._lower = lower(p, size);	
+		this._lower = lower(p, size);
 	}
 	
 	/**
@@ -162,7 +162,7 @@ public class BoundingBox
 		/*
 		 * First find the lowest position in each dimension.
 		 */
-		double[] out = points[0];
+		double[] out = Vector.copy(points[0]);
 		double[] point;
 		for ( int pointIndex = 1; pointIndex < points.length; pointIndex++ )
 		{
@@ -187,7 +187,7 @@ public class BoundingBox
 		/*
 		 * First find the greatest position in each dimension.
 		 */
-		double[] out = points[0];
+		double[] out = Vector.copy(points[0]);
 		double[] point;
 		for ( int pointIndex = 1; pointIndex < points.length; pointIndex++ )
 		{

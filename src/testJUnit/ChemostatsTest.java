@@ -3,11 +3,8 @@ package testJUnit;
 import org.junit.Test;
 
 import boundary.BoundaryLibrary.ChemostatOutflow;
-import dataIO.Log;
-import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import idynomics.Simulator;
 import processManager.ProcessManagerLibrary.SolveChemostat;
 import shape.ShapeLibrary.Dimensionless;
 
@@ -29,10 +26,7 @@ public class ChemostatsTest
 		/*
 		 * Set up the Simulator and the Timer.
 		 */
-		Idynomics.simulator = new Simulator();
-		Idynomics.simulator.timer.setTimeStepSize(tStep);
-		Idynomics.simulator.timer.setEndOfSimulation(tMax);
-		Log.set(Tier.EXPRESSIVE);
+		AllTests.setupSimulatorForTest(tStep, tMax);
 		/* Compartment. */
 		Compartment comp;
 		/* Boundary connections. */
@@ -41,6 +35,7 @@ public class ChemostatsTest
 		 * The waste compartment.
 		 */
 		comp = Idynomics.simulator.addCompartment("waste");
+		comp.setShape("dimensionless");
 		comp._environment.addSolute(soluteName);
 		/*
 		 * 
@@ -49,11 +44,11 @@ public class ChemostatsTest
 		cOut.setFlowRate(flowRate);
 		cOut.setPartnerCompartment(comp);
 		comp = Idynomics.simulator.addCompartment("chemostat");
-		comp._environment.addSolute(soluteName);
 		Dimensionless shape = new Dimensionless();
 		shape.setVolume(1.0);
 		shape.addOtherBoundary(cOut);
 		comp.setShape(shape);
+		comp._environment.addSolute(soluteName);
 		SolveChemostat p1 = new SolveChemostat();
 		p1.init();
 		p1.setTimeStepSize(tStep);
@@ -64,6 +59,7 @@ public class ChemostatsTest
 		cOut = new ChemostatOutflow();
 		cOut.setFlowRate(flowRate);
 		comp = Idynomics.simulator.addCompartment("feed");
+		comp.setShape("dimensionless");
 		comp._environment.addSolute(soluteName);
 		
 	}

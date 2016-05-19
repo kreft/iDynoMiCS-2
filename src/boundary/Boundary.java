@@ -191,6 +191,16 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	/**
 	 * \brief TODO
 	 * 
+	 * @param anAgent
+	 */
+	public void acceptInboundAgent(Agent anAgent)
+	{
+		this._agentMethod.acceptInboundAgent(anAgent);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
 	 * @param agents
 	 */
 	public void acceptInboundAgents(List<Agent> agents)

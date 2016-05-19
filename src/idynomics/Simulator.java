@@ -232,6 +232,11 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public void step()
 	{
 		/*
+		 * TODO
+		 */
+		for ( Compartment c : this._compartments )
+			c.agentsArrive();
+		/*
 		 * Loop through all compartments, calling their internal steps. 
 		 */
 		for ( Compartment c : this._compartments )

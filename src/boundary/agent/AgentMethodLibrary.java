@@ -6,6 +6,8 @@ package boundary.agent;
 import java.util.Collection;
 
 import agent.Agent;
+import dataIO.Log.Tier;
+import dataIO.Log;
 import idynomics.AgentContainer;
 import shape.ShapeConventions.DimName;
 /**
@@ -54,6 +56,7 @@ public class AgentMethodLibrary
 	 * \brief 
 	 * 
 	 */
+	// TODO rename to something more agent-specific?
 	public static class BoundaryLayer extends AgentMethod
 	{
 		/**
@@ -78,6 +81,11 @@ public class AgentMethodLibrary
 			boolean hasCollided = false;
 			for ( Agent anAgent : this._arrivalsLounge )
 			{
+				Log.out(Tier.DEBUG, "Moving agent (UID: "+anAgent.identity()+
+						") to top of boundary layer");
+				
+				
+				
 				if ( ! AgentContainer.isLocated(anAgent) )
 				{
 					agentCont.addAgent(anAgent);
@@ -100,8 +108,10 @@ public class AgentMethodLibrary
 						
 					}
 					// TODO Rob [19/5/2016]: the value of 0.1 is arbitrary.
-					agentCont.moveAlongDimension(
-							anAgent, dimN, 0.1*this._layerTh);
+					double dist = 0.1*this._layerTh;
+					if ( extreme == 1 )
+						dist = -dist;
+					agentCont.moveAlongDimension(anAgent, dimN, dist);
 				}
 			}
 			this._arrivalsLounge.clear();

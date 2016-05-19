@@ -10,10 +10,14 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Body;
+import boundary.Boundary;
 import boundary.agent.AgentMethod;
+import dataIO.Log;
 import dataIO.XmlLabel;
+import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import reaction.Reaction;
+import shape.Dimension;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
 import spatialRegistry.*;
@@ -306,6 +310,8 @@ public class AgentContainer
 		double[] newLoc = body.getPoints().get(0).getPosition();
 		this._shape.moveAlongDimension(newLoc, dimN, dist);
 		body.relocate(newLoc);
+		Log.out(Tier.DEBUG, "Moving agent (UID: "+anAgent.identity()+
+				") along dimension "+dimN+" to "+Vector.toString(newLoc));
 	}
 	
 	/*************************************************************************
@@ -386,6 +392,26 @@ public class AgentContainer
 			out = this._agentList.remove(i);
 		}
 		return out;
+	}
+	
+	public void agentsArrive()
+	{
+		Log.out(Tier.DEBUG, "Agents arriving into compartment...");
+		Dimension dim;
+		AgentMethod method;
+		for ( DimName dimN : this._shape.getDimensionNames() )
+		{
+			dim = this._shape.getDimension(dimN);
+			for ( int extreme = 0; extreme < 2; extreme++ )
+			{
+				if ( ! dim.isBoundaryDefined(extreme) )
+					continue;
+				method = dim.getBoundary(extreme).getAgentMethod();
+				method.agentsArrive(this, dimN, extreme);
+			}
+		}
+		for ( Boundary bndry : this._shape.getOtherBoundaries() )
+			bndry.getAgentMethod().agentsArrive(this);
 	}
 	
 	/*************************************************************************

@@ -94,12 +94,16 @@ public final class BoundaryLibrary
 	
 	public static class BulkBLBoundary extends Boundary
 	{
-		// TODO
+		public BulkBLBoundary()
+		{
+			//this._defaultGridMethod = new ZeroFlux();
+			this._agentMethod = new BoundaryLayer();
+		}
 		
 		@Override
 		public Boundary makePartnerBoundary()
 		{
-			// TODO?
+			// TODO 
 			return null;
 		}
 	}

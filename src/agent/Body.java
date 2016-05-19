@@ -69,6 +69,11 @@ public class Body implements Copyable, XMLable
 		this._points.add(sphere._point);
 		this._surfaces.add(sphere);
 	}
+	
+	public Body(double[] position, double radius)
+	{
+		this(new Point(position), radius);
+	}
 
 	/**
 	 * Rod
