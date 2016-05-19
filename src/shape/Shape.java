@@ -248,9 +248,22 @@ public abstract class Shape implements
 	// TODO replace with this:
 	//public abstract SpatialGrid getNewGrid();
 	
-	
+	/**
+	 * \brief Convert a spatial position from global (Cartesian) coordinates to
+	 * a new vector in the local coordinate scheme. 
+	 * 
+	 * @param cartesian
+	 * @return
+	 * @see #getGlobalLocation(double[])
+	 */
 	protected abstract double[] getLocalPosition(double[] cartesian);
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param local
+	 * @return
+	 */
 	protected abstract double[] getGlobalLocation(double[] local);
 	
 	/*************************************************************************

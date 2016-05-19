@@ -1332,9 +1332,8 @@ public final class Vector
 	 * {@link #reverse(double[] vector, double value)} to write the results into a
 	 * new double[].</li></ul>
 	 * 
-	 * @param vector One-dimensional array of doubles.
-	 * @return	Given <b>vector</b>, where all elements have their sign
-	 * changed.
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param vector One-dimensional array of doubles (preserved).
 	 */
 	public static void reverseTo(double[] destination, double[] source)
 	{
@@ -2707,36 +2706,123 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in Cartesian coordinates, to
+	 * cylindrical coordinates: write the result into <b>destination</b>.
 	 * 
-	 * @param cartesian
-	 * @return
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param cartesian One-dimensional array of doubles, assumed to be in
+	 * Cartesian coordinates (preserved).
 	 */
-	public static double[] toCylindrical(double[] cartesian) 
+	public static void cylindrifyTo(double[] destination, double[] cartesian)
 	{
-		if ( cartesian.length == 3 )
+		checkLengths(destination, cartesian);
+		switch ( cartesian.length ) 
 		{
-			double[] p = toPolar(Vector.subset(cartesian, 2));
-			return new double[] {p[0], p[1], cartesian[2]};
+			case 3 :
+				destination[2] = cartesian[2];
+			case 2 : 
+			{
+				/* 
+				 * Calculate angle & radius first, then set, so we can use
+				 * this method for cylindrfyEquals.
+				 */
+				double angle = Math.atan2(cartesian[1], cartesian[0]);
+				double radius = Math.hypot(cartesian[1], cartesian[0]);
+				destination[1] = angle;
+				destination[0] = radius;
+				break;
+			}
+			case 1 :
+				destination[0] = cartesian[0];
 		}
-		System.out.println("ERROR: Vector.toCylindrical only accepts 3D input!"); 
-		return null;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in <b>cylindrical</b> coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
 	 * 
-	 * @param cylindrical
-	 * @return
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>cartesian</b> converted to cylindrical coordinates.
 	 */
-	public static double[] cylindricalToCartesian(double[] cylindrical)
+	public static double[] cylindrify(double[] cartesian)
 	{
-		if ( cylindrical.length == 3 )
+		double[] cylindrical = new double[cartesian.length];
+		cylindrifyTo(cylindrical, cartesian);
+		return cylindrical;
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cartesian</b> coordinates, to
+	 *  cylindrical coordinates: write the result into a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in Cartesian coordinates but then in
+	 * cylindrical coordinates.
+	 */
+	public static void cylindrifyEquals(double[] vector)
+	{
+		cylindrifyTo(vector, vector);
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cylindrical</b> coordinates, to
+	 * Cartesian coordinates: write the result into <b>destination</b>.
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param cylindrical One-dimensional array of doubles, assumed to be in
+	 * cylindrical coordinates (preserved).
+	 */
+	public static void uncylindrifyTo(double[] destination, double[] cylindrical)
+	{
+		checkLengths(destination, cylindrical);
+		switch ( cylindrical.length ) 
 		{
-			double[] p = toCartesian(Vector.subset(cylindrical, 2));
-			return new double[] {p[0], p[1], cylindrical[2]};
+			case 3 :
+				destination[2] = cylindrical[2];
+			case 2 : 
+			{
+				/* 
+				 * Calculate angle & radius first, then set, so we can use
+				 * this method for uncylindrfyEquals.
+				 */
+				double angle = cylindrical[1];
+				double radius = cylindrical[0];
+				destination[1] = radius * Math.sin(angle);
+				destination[0] = radius * Math.cos(angle);
+				break;
+			}
+			case 1 :
+				destination[0] = cylindrical[0];
 		}
-		System.out.println("ERROR: Vector.cylindricalToCartesian only accepts 3D input!"); 
-		return null;
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cylindrical</b> coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * @param cylindrical One-dimensional array of doubles, assumed to be in
+	 * cylindrical coordinates (preserved).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>cylindrical</b> converted to Cartesian coordinates.
+	 */
+	public static double[] uncylindrify(double[] cylindrical)
+	{
+		double[] cartesian = new double[cylindrical.length];
+		uncylindrifyTo(cartesian, cylindrical);
+		return cartesian;
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cylindrical</b> coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in cylindrical coordinates but then in
+	 * Cartesian coordinates.
+	 */
+	public static void uncylindrifyEquals(double[] vector)
+	{
+		uncylindrifyTo(vector, vector);
 	}
 }

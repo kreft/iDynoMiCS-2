@@ -64,13 +64,13 @@ public abstract class CylindricalShape extends PolarShape
 	@Override
 	public double[] getLocalPosition(double[] location)
 	{
-		return Vector.toCylindrical(location);
+		return Vector.cylindrify(location);
 	}
 	
 	@Override
 	public double[] getGlobalLocation(double[] local)
 	{
-		return Vector.cylindricalToCartesian(local);
+		return Vector.uncylindrify(local);
 	}
 	
 	/*************************************************************************

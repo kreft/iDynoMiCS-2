@@ -265,28 +265,45 @@ public class LinearAlgebraTest
 	{
 		double[] cartesianOriginal, cartesianReturned, cylindricalOriginal;
 		/*
-		 * 
+		 * Some 3D vector conversions where the outcome is known in advance.
 		 */
 		cylindricalOriginal = new double[]{1.0, Math.PI, 0.0};
 		cartesianOriginal = new double[]{-1.0, 0.0, 0.0};
-		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		cartesianReturned = Vector.uncylindrify(cylindricalOriginal);
 		assertTrue("cyl(1,pi,0) -> car(-1,0,0)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		
 		cylindricalOriginal[1] = 0.5 * Math.PI;
 		cartesianOriginal[0] = 0.0; cartesianOriginal[1] = 1.0;
-		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		cartesianReturned = Vector.uncylindrify(cylindricalOriginal);
 		assertTrue("cyl(1,pi/2,0) -> car(0,1,0)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		
 		cylindricalOriginal[1] = 1.5 * Math.PI;
 		cartesianOriginal[0] = 0.0; cartesianOriginal[1] = -1.0;
-		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		cartesianReturned = Vector.uncylindrify(cylindricalOriginal);
 		assertTrue("cyl(1,3pi/2,0) -> car(0,-1,0)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		
 		cylindricalOriginal[0] = Math.sqrt(2.0);
 		cylindricalOriginal[1] = 0.25 * Math.PI;
 		cartesianOriginal[0] = 1.0; cartesianOriginal[1] = 1.0;
-		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		cartesianReturned = Vector.uncylindrify(cylindricalOriginal);
 		assertTrue("cyl(sqrt2,pi/4,0) -> car(1,1,0)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		
+		/*
+		 * A bunch of randomly-generated vectors, in 1D, 2D and 3D.
+		 */
+		ExtraMath.initialiseRandomNumberGenerator();
+		double[] cartOrig, cylindrical, cartCopy;
+		for ( int i = 0; i < 10; i++ )
+			for ( int nDim = 1; nDim <= 3; nDim++ )
+			{
+				cartOrig = Vector.randomZeroOne(nDim);
+				cylindrical = Vector.cylindrify(cartOrig);
+				cartCopy = Vector.uncylindrify(cylindrical);
+				assertTrue(Vector.areSame(cartOrig, cartCopy, TOLERANCE));
+			}
 	}
 }

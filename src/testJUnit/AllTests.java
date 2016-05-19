@@ -14,10 +14,12 @@ import idynomics.Idynomics;
 import idynomics.Simulator;
 
 @RunWith(Suite.class)
-@SuiteClasses({ LinearAlgebraTest.class,
-				XMLableTest.class,
+@SuiteClasses({ BoundaryTest.class,
+				ChemostatsTest.class,
+				CoordinateMapTest.class,
+				LinearAlgebraTest.class,
 				RateExpressionTest.class,
-				CoordinateMapTest.class})
+				XMLableTest.class})
 public class AllTests
 {
 	/**

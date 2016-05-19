@@ -492,7 +492,7 @@ public class SpatialGridPlot3D{
 		if (grid instanceof SphericalGrid)
 			loc = Vector.toCartesian(loc);
 		if (grid instanceof CylindricalGrid)
-			loc = Vector.cylindricalToCartesian(loc);
+			Vector.uncylindrifyEquals(loc);
 		return loc;
 	}
 	
