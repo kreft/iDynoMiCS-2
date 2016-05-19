@@ -17,8 +17,10 @@ import idynomics.Simulator;
 @SuiteClasses({ BoundaryTest.class,
 				ChemostatsTest.class,
 				CoordinateMapTest.class,
+				ExtraMathTest.class,
 				LinearAlgebraTest.class,
 				RateExpressionTest.class,
+				ShapesTest.class,
 				XMLableTest.class})
 public class AllTests
 {
