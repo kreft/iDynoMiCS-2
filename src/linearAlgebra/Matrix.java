@@ -2046,6 +2046,46 @@ public final class Matrix
 		return out;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param source
+	 * @param pivot
+	 */
+	public static void reorderRowsTo(
+			int[][] destination, int[][] source, int[] pivot)
+	{
+		checkDimensionsSame(destination, source);
+		if ( source.length != pivot.length )
+		{
+			throw new IllegalArgumentException(
+					"Pivot must have as many elements ar matrix has rows");
+		}
+		for ( int i = 0; i < pivot.length; i++ )
+			Vector.copyTo(destination[pivot[i]], source[i]);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param source
+	 * @param pivot
+	 */
+	public static void reorderRowsTo(
+			double[][] destination, double[][] source, int[] pivot)
+	{
+		checkDimensionsSame(destination, source);
+		if ( source.length != pivot.length )
+		{
+			throw new IllegalArgumentException(
+					"Pivot must have as many elements ar matrix has rows");
+		}
+		for ( int i = 0; i < pivot.length; i++ )
+			Vector.copyTo(destination[pivot[i]], source[i]);
+	}
+	
 	/*************************************************************************
 	 * MATRIX-VECTOR CONVERSIONS
 	 ************************************************************************/
@@ -2100,6 +2140,7 @@ public final class Matrix
 	 */
 	public static int[][] transpose(int[][] matrix)
 	{
+		checkDimensions(matrix);
 		int[][] out = new int[colDim(matrix)][rowDim(matrix)];
 		for ( int i = 0; i < matrix.length; i++ )
 			for ( int j = 0; j < matrix[0].length; j++ )
@@ -2121,6 +2162,7 @@ public final class Matrix
 	 */
 	public static double[][] transpose(double[][] matrix)
 	{
+		checkDimensions(matrix);
 		double[][] out = new double[matrix[0].length][matrix.length];
 		for ( int i = 0; i < matrix.length; i++ )
 			for ( int j = 0; j < matrix[0].length; j++ )

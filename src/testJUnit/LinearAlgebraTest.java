@@ -11,6 +11,7 @@ import static org.junit.Assert.assertFalse;
 import static testJUnit.AllTests.TOLERANCE;
 
 import linearAlgebra.Array;
+import linearAlgebra.LUDecomposition;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import utility.ExtraMath;
@@ -337,5 +338,25 @@ public class LinearAlgebraTest
 		str = Array.toString(aDblOrig);
 		double[][][] aDblCopy = Array.dblFromString(str);
 		assertTrue(Array.areSame(aDblOrig, aDblCopy));
+	}
+	
+	@Test
+	public void luDecomposition()
+	{
+		/*
+		 * Example taken from
+		 * http://nucinkis-lab.cc.ic.ac.uk/HELM/workbooks/workbook_30/30_3_lu_decomposition.pdf
+		 */
+		double[][] mOrig = new double[3][3];
+		mOrig[0][0] = 1.0; mOrig[0][1] = 2.0; mOrig[0][2] = 4.0;
+		mOrig[1][0] = 3.0; mOrig[1][1] = 8.0; mOrig[1][2] = 14.0;
+		mOrig[2][0] = 2.0; mOrig[2][1] = 6.0; mOrig[2][2] = 13.0;
+		LUDecomposition luD = new LUDecomposition(mOrig);
+		double[][] l = luD.getL();
+		double[][] u = luD.getU();
+		int[] piv = luD.getPivot();
+		double[][] mCopy = Matrix.zeros(mOrig);
+		Matrix.reorderRowsTo(mCopy, Matrix.times(l, u), piv);
+		assertTrue(Matrix.areSame(mOrig, mCopy, TOLERANCE));
 	}
 }
