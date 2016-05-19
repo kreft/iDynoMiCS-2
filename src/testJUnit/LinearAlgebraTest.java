@@ -10,6 +10,7 @@ import static org.junit.Assert.assertFalse;
 
 import static testJUnit.AllTests.TOLERANCE;
 
+import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import utility.ExtraMath;
@@ -305,5 +306,53 @@ public class LinearAlgebraTest
 				cartCopy = Vector.uncylindrify(cylindrical);
 				assertTrue(Vector.areSame(cartOrig, cartCopy, TOLERANCE));
 			}
+	}
+	
+	@Test
+	public void readWriteString()
+	{
+		String str;
+		/*
+		 * Integer vector.
+		 */
+		int[] vIntOrig = Vector.randomInts(10, -10, 10);
+		str = Vector.toString(vIntOrig);
+		int[] vIntCopy = Vector.intFromString(str);
+		assertTrue(Vector.areSame(vIntOrig, vIntCopy));
+		/*
+		 * Double vector.
+		 */
+		double[] vDblOrig = Vector.randomPlusMinus(10, 10.0);
+		str = Vector.toString(vDblOrig);
+		double[] vDblCopy = Vector.dblFromString(str);
+		assertTrue(Vector.areSame(vDblOrig, vDblCopy));
+		/*
+		 * Integer matrix.
+		 */
+		int[][] mIntOrig = Matrix.randomInts(10, 10, -10, 10);
+		str = Matrix.toString(mIntOrig);
+		int[][] mIntCopy = Matrix.intFromString(str);
+		assertTrue(Matrix.areSame(mIntOrig, mIntCopy));
+		/*
+		 * Double matrix.
+		 */
+		double[][] mDblOrig = Matrix.randomPlusMinus(10, 10, 10.0);
+		str = Matrix.toString(mDblOrig);
+		double[][] mDblCopy = Matrix.dblFromString(str);
+		assertTrue(Matrix.areSame(mDblOrig, mDblCopy));
+		/*
+		 * Integer array.
+		 */
+		int[][][] aIntOrig = Array.randomInts(2, 2, 2, -10, 10);
+		str = Array.toString(aIntOrig);
+		int[][][] aIntCopy = Array.intFromString(str);
+		assertTrue(Array.areSame(aIntOrig, aIntCopy));
+		/*
+		 * Double array.
+		 */
+		double[][][] aDblOrig = Array.randomPlusMinus(10, 10, 10, 10.0);
+		str = Array.toString(aDblOrig);
+		double[][][] aDblCopy = Array.dblFromString(str);
+		assertTrue(Array.areSame(aDblOrig, aDblCopy));
 	}
 }
