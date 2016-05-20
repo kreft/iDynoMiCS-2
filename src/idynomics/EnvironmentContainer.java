@@ -95,41 +95,22 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
 	 * @param soluteName
 	 */
 	public void addSolute(String soluteName)
 	{
-		this.addSolute(soluteName, 0.0, null);
+		this.addSolute(soluteName, 0.0);
 	}
 	
-
 	/**
+	 * \brief TODO
+	 * 
 	 * @param soluteName
 	 * @param initialConcn
 	 */
 	public void addSolute(String soluteName, double initialConcn)
-	{
-		this.addSolute(soluteName, 0.0, null);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName, Element resolution)
-	{
-		this.addSolute(soluteName, 0.0, resolution);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 * @param initialConcn
-	 */
-	public void addSolute(String soluteName, double initialConcn, 
-															Element resolution)
 	{
 		if ( this._hasInitialised )
 		{
@@ -140,8 +121,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		 * TODO safety: check if solute already in hashmap
 		 */
 		
-		SpatialGrid sg = this._shape.gridGetter().newGrid(
-				this._shape.getDimensionLengths(), resolution);
+		SpatialGrid sg = this._shape.getNewGrid();
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
 		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");

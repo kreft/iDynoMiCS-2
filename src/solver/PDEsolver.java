@@ -62,6 +62,7 @@ public abstract class PDEsolver extends Solver
 	 */
 	protected void addFluxes(String varName, SpatialGrid grid)
 	{
+		Shape shape = grid.getShape();
 		/* Coordinates of the current position. */
 		int[] current;
 		/* Temporary storage. */
@@ -69,14 +70,14 @@ public abstract class PDEsolver extends Solver
 		/*
 		 * Iterate over all core voxels calculating the Laplace operator. 
 		 */
-		for ( current = grid.resetIterator(); grid.isIteratorValid();
-											  current = grid.iteratorNext())
+		for ( current = shape.resetIterator(); shape.isIteratorValid();
+											  current = shape.iteratorNext())
 		{
 			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
 				continue;
 			flux = 0.0;
-			for ( grid.resetNbhIterator(); 
-						grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
+			for ( shape.resetNbhIterator(); 
+						shape.isNbhIteratorValid(); shape.nbhIteratorNext() )
 			{
 				flux += grid.getFluxWithNeighbor(varName);
 			}

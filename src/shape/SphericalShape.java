@@ -1,11 +1,14 @@
 package shape;
 
-import grid.SpatialGrid.GridGetter;
+import static shape.ShapeConventions.DimName.PHI;
+import static shape.ShapeConventions.DimName.R;
+import static shape.ShapeConventions.DimName.THETA;
+
+import grid.SpatialGrid;
+import grid.SphericalGrid;
+import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
-import static shape.ShapeConventions.DimName.R;
-import static shape.ShapeConventions.DimName.PHI;
-import static shape.ShapeConventions.DimName.THETA;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Ball;
 import surface.Point;
@@ -56,16 +59,19 @@ public abstract class SphericalShape extends PolarShape
 		this._dimensions.put(THETA, dim);
 	}
 	
+	@Override
+	public double[][][] getNewArray(double initialValue) {
+		return PolarArray.createSphere(this._resCalc, initialValue);
+	}
+	
+	@Override
+	public SpatialGrid getNewGrid() {
+		return new SphericalGrid(this);
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
-	@Override
-	public GridGetter gridGetter()
-	{
-		// TODO Make getter for SphericalGrid
-		return null;
-	}
 	
 	@Override
 	public double[] getLocalPosition(double[] location)
@@ -89,7 +95,6 @@ public abstract class SphericalShape extends PolarShape
 		int index = this.getDimensionIndex(dName);
 		ResCalc radiusC = this._resCalc[0][0][0];
 		int nShell;
-		double arcLength;
 		ResCalc focalResCalc;
 		/*
 		 * How we initialise this resolution calculator depends on the
@@ -113,17 +118,10 @@ public abstract class SphericalShape extends PolarShape
 			}
 			nShell = radiusC.getNVoxel();
 			this._resCalc[1][0] = new ResCalc[nShell];
-			double phiLen = this.getDimension(PHI).getLength();
 			for ( int i = 0; i < nShell; i++ )
 			{
-				/* Find the arc length along the mid-point of this shell. */
-				arcLength = radiusC.getPosition(i, 0.5) * phiLen;
-				/*
-				 * Now use this arc length as the total length of
-				 * the resolution calculator in this ring.
-				 */
 				focalResCalc = (ResCalc) resC.copy();
-				focalResCalc.setLength(arcLength);
+				focalResCalc.setLength(scaleResolutionForShell(i, resC.getResolution(0)));
 				this._resCalc[1][0][i] = focalResCalc;
 			}
 			/* Check if theta is waiting for phi before returning. */
@@ -144,35 +142,18 @@ public abstract class SphericalShape extends PolarShape
 			 */
 			nShell = radiusC.getNVoxel();
 			this._resCalc[2] = new ResCalc[nShell][];
-			/* Find some useful angle values in advance. */
-			double thetaLen = this.getDimension(THETA).getLength();
-			double phiMin = this.getDimension(PHI).getExtreme(0);
-			double phiLen = this.getDimension(PHI).getLength();
 			/* Iterate over the shells. */
 			int nRing;
-			double radius, phiAngle;
 			for ( int shell = 0; shell < nShell; shell++ )
 			{
-				/* Find the mid-point of this shell. */
-				radius = radiusC.getPosition(shell, 0.5);
 				/* Prepare the array of ResCalcs for this shell. */
 				nRing = phiC[shell].getNVoxel();
 				this._resCalc[2][shell] = new ResCalc[nRing];
 				/* Iterate over the rings in this shell. */
 				for ( int ring = 0; ring < nRing; ring++ )
 				{
-					/*
-					 * Calculate the angle and then the arc length
-					 * along the centre-line of this ring.
-					 */
-					phiAngle = phiMin + (phiLen * (ring+0.5)/nRing);
-					arcLength = radius * thetaLen * Math.sin(phiAngle);
-					/*
-					 * Now use this arc length as the total length of
-					 * the resolution calculator in this ring.
-					 */
 					focalResCalc = (ResCalc) resC.copy();
-					focalResCalc.setLength(arcLength);
+					focalResCalc.setLength(scaleResolutionForRing(shell, ring, resC.getResolution(0)));
 					this._resCalc[2][shell][ring] = focalResCalc;
 				}
 			}
@@ -249,12 +230,6 @@ public abstract class SphericalShape extends PolarShape
 		return out / 3.0;
 	}
 	
-	@Override
-	protected void nVoxelTo(int[] destination, int[] coords)
-	{
-		// TODO
-	}
-	
 	/*************************************************************************
 	 * SUBVOXEL POINTS
 	 ************************************************************************/
@@ -272,36 +247,40 @@ public abstract class SphericalShape extends PolarShape
 	{
 		this._nbhValid = true;
 		/* See if we can use the inside r-shell. */
-		if ( this.setNbhFirstInNewShell( this._currentCoord[0] - 1 ) )
-			if ( this.setNbhFirstInNewRing( this._currentNeighbor[1] ) )
-				return;
+		if ( this.setNbhFirstInNewShell( this._currentCoord[0] - 1 ) 
+			&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) ) ;
 		/* 
 		 * See if we can take one of the phi-minus-neighbors of the current 
 		 * r-shell. 
 		 */
-		if ( this.setNbhFirstInNewShell( this._currentCoord[0]) )
-			if ( this.setNbhFirstInNewRing( this._currentCoord[1] - 1) )
-			return;
+		else if ( this.setNbhFirstInNewShell( this._currentCoord[0]) 
+					&& this.setNbhFirstInNewRing( this._currentCoord[1] - 1) ) ;
 		/* 
 		 * See if we can take one of the theta-neighbors in the current r-shell.
 		 */
-		if ( this.moveNbhToMinus(THETA) || this.nbhJumpOverCurrent(THETA) )
-			return;
+		else if ( this.moveNbhToMinus(THETA) || this.nbhJumpOverCurrent(THETA) ) ;
 		/* See if we can take one of the phi-plus-neighbors. */
-		if ( this.setNbhFirstInNewRing( this._currentCoord[1] + 1) )
-			return;
+		else if ( this.setNbhFirstInNewRing( this._currentCoord[1] + 1) ) ;
 		
 		/* See if we can use the outside r-shell. */
-		if ( this.setNbhFirstInNewShell( this._currentCoord[0] + 1 ) )
-			if ( this.setNbhFirstInNewRing( this._currentNeighbor[1] ) )
-				return;
+		else if ( this.setNbhFirstInNewShell( this._currentCoord[0] + 1 ) 
+					&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) ) ;
 		/* There are no valid neighbors. */
+		else this._nbhValid = false;
+		
+		if (this._nbhValid){
+			transformNbhCyclic();
+			return;
+		}
+		
+		this._nbhOnDefBoundary = false;
 		this._nbhValid = false;
 	}
 	
 	@Override
 	public int[] nbhIteratorNext()
 	{
+		this.reTransformNbhCyclic();
 		/*
 		 * In the spherical shape, we start the TODO
 		 */
@@ -408,6 +387,7 @@ public abstract class SphericalShape extends PolarShape
 					this._nbhValid = false;
 				}
 		}
+		this.transformNbhCyclic();
 		return this._currentNeighbor;
 	}
 	
@@ -442,6 +422,13 @@ public abstract class SphericalShape extends PolarShape
 		rC = this.getResolutionCalculator(this._currentNeighbor, 2);
 		
 		this._currentNeighbor[2] = rC.getVoxelIndex(theta);
+		
+		this._nbhDimName = this._currentCoord[1] == this._currentNeighbor[1] ?
+				DimName.THETA : DimName.PHI;
+		int dimIdx = getDimensionIndex(this._nbhDimName);
+		this._nbhDirection = 
+				this._currentCoord[dimIdx]
+						< this._currentNeighbor[dimIdx] ? 1 : 0;
 		return true;
 	}
 }

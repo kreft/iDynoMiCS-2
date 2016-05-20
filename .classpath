@@ -8,7 +8,7 @@
 	<classpathentry kind="lib" path="src/lib/j3dcore.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/iDynoMiCS-2/Docs/java3d-1_5-spec.zip!/java3d-1_5-spec"/>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="iDynoMiCS-2/natives/windows-amd64"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/Dropbox/Masterarbeit/CD/Modell/lib/j3d-1_5_2-windows-amd64/j3d-jre/bin"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="src/lib/j3dutils.jar">

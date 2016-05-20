@@ -3,6 +3,10 @@
  */
 package processManager.library;
 
+import static grid.SpatialGrid.ArrayType.CONCN;
+import static grid.SpatialGrid.ArrayType.DIFFUSIVITY;
+import static grid.SpatialGrid.ArrayType.PRODUCTIONRATE;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
@@ -12,7 +16,6 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import concurentTasks.ConcurrentWorker;
 import grid.SpatialGrid;
-import static grid.SpatialGrid.ArrayType.*;
 import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
@@ -21,6 +24,7 @@ import idynomics.NameRef;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import reaction.Reaction;
+import shape.Shape;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEexplicit;
 import solver.PDEsolver;
@@ -128,10 +132,12 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * Set up the solute grids and the agents before we start to solve.
 		 */
 		SpatialGrid solute;
-		
+		Shape shape;
 		
 		
 		solute = environment.getSoluteGrid(_soluteNames[0]);
+		shape = environment.getShape();
+		
 		/*
 		 * Set up the agent biomass distribution maps.
 		 */
@@ -149,12 +155,12 @@ public class SolveDiffusionTransient extends ProcessManager
 		List<SubvoxelPoint> sgPoints;
 		HashMap<int[],Double> distributionMap;
 		Collision collision = new Collision(null, agents.getShape());
-		for ( int[] coord = solute.resetIterator(); 
-				solute.isIteratorValid(); coord = solute.iteratorNext())
+		for ( int[] coord = shape.resetIterator(); 
+				shape.isIteratorValid(); coord = shape.iteratorNext())
 		{
 			/* Find all agents that overlap with this voxel. */
-			location = solute.getVoxelOrigin(coord);
-			solute.getVoxelSideLengthsTo(dimension, coord);
+			location = shape.getVoxelOrigin(coord);
+			shape.getVoxelSideLengthsTo(dimension, coord);
 			/* NOTE the agent tree is always the amount of actual dimension */
 			neighbors = agents.treeSearch(Vector.subset(location, nDim),
 						  					Vector.subset(dimension, nDim));
@@ -178,7 +184,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			for ( Agent a : neighbors )
 				if ( a.isAspect(NameRef.bodyRadius) )
 					minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
-			sgPoints = solute.getCurrentSubgridPoints(0.25 * minRad);
+			sgPoints = shape.getCurrentSubvoxelPoints(0.25 * minRad);
 			/* 
 			 * Get the subgrid points and query the agents.
 			 */
@@ -275,8 +281,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					double dt)
 			{
 				/* Gather a defaultGrid to iterate over. */
-				SpatialGrid defaultGrid = environment.getSoluteGrid(
-						environment.getSolutes().keySet().iterator().next());
+				Shape shape = environment.getShape();
 
 				//FIXME seems to be pretty thread unsafe 
 				//				worker.executeTask(new EnvironmentReactions(
@@ -284,9 +289,9 @@ public class SolveDiffusionTransient extends ProcessManager
 
 				SpatialGrid solute;
 
-				for ( int[] coord = defaultGrid.resetIterator(); 
-						defaultGrid.isIteratorValid(); 
-						coord = defaultGrid.iteratorNext())
+				for ( int[] coord = shape.resetIterator(); 
+						shape.isIteratorValid(); 
+						coord = shape.iteratorNext())
 				{
 					/* Iterate over all compartment reactions. */
 					for (Reaction r : environment.getReactions() )

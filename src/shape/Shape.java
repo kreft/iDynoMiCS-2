@@ -17,13 +17,14 @@ import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
 import boundary.BoundaryConnected;
+import boundary.grid.GridMethod;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import grid.SpatialGrid.GridGetter;
+import grid.SpatialGrid;
 import linearAlgebra.Vector;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -118,6 +119,24 @@ public abstract class Shape implements
 	 */
 	protected boolean _nbhValid;
 	/**
+	 * the dimension name the current neighbor is moving in
+	 */
+	protected DimName _nbhDimName;
+	/**
+	 * Integer indicating positive (1) or negative (0) relative position
+	 * to the current coordinate.
+	 */
+	protected int _nbhDirection;
+	
+	/**
+	 * Indicates that the current neighbor is on any boundary.
+	 * Note that _nbhDimName and _nbhDirection store the exact boundary 
+	 * location.
+	 */
+	protected boolean _nbhOnDefBoundary;
+	
+	protected GridMethod _currentBoundary;
+	/**
 	 * A helper vector for finding the location of the origin of a voxel.
 	 */
 	protected final static double[] VOXEL_ORIGIN_HELPER = Vector.vector(3,0.0);
@@ -208,14 +227,12 @@ public abstract class Shape implements
 				
 				str = XmlHandler.gatherAttribute(childElem,
 						XmlLabel.targetResolutionAttribute);
-				//TODO[Stefan13.05.16]:
-				// we could also use the length as default resolution
-				// (one grid cell per default)  
-				double tRes = 1; 
+				//TODO[Stefan13.05.16]: is extreme(1) > extreme(0) ensured here?
+				double length = dim.getExtreme(1) - dim.getExtreme(0);
+				double tRes = length; 
 				if (str != "") tRes = Double.valueOf(str);
 				rC = new ResolutionCalculator.UniformResolution();
-				//TODO[Stefan13.05.16]: is extreme(1) > extreme(0) ensured here?
-				rC.init(tRes, dim.getExtreme(1) - dim.getExtreme(0));
+				rC.init(tRes, length);
 				this.setDimensionResolution(dimName, rC);				
 			}
 			catch (IllegalArgumentException e)
@@ -225,6 +242,7 @@ public abstract class Shape implements
 						+ ", use: " + Helper.enumToString(DimName.class));
 			}
 		}
+		
 		/* Set up any other boundaries. */
 		Boundary aBoundary;
 		childNodes = XmlHandler.getAll(xmlElem, XmlLabel.dimensionBoundary);
@@ -254,13 +272,9 @@ public abstract class Shape implements
 		return this.getClass().getSimpleName();
 	}
 	
-	/**
-	 * @return The grid-getter object for this shape.
-	 */
-	public abstract GridGetter gridGetter();
-	// TODO replace with this:
-	//public abstract SpatialGrid getNewGrid();
-	
+	public abstract SpatialGrid getNewGrid();
+		
+	public abstract double[][][] getNewArray(double initialValue);
 	
 	protected abstract double[] getLocalPosition(double[] cartesian);
 	
@@ -684,6 +698,43 @@ public abstract class Shape implements
 	 ************************************************************************/
 	
 	/**
+	 * \brief Find the coordinates of the voxel that encloses the given
+	 * <b>location</b>.
+	 * 
+	 * @param location Continuous location within the shape.
+	 * @return Discrete coordinates within this grid.
+	 */
+	public int[] getCoords(double[] loc)
+	{
+		return getCoords(loc, null);
+	}
+	
+	/**
+	 * \brief Transforms a given location into array-coordinates and 
+	 * computes sub-coordinates inside the grid element if inside != null. 
+	 * 
+	 * @param loc - a location in simulated space.
+	 * @param inside - array to write sub-coordinates into, can be null.
+	 * @return - the array coordinates corresponding to location loc.
+	 */
+	public int[] getCoords(double[] loc, double[] inside)
+	{
+		int[] coord = new int[3];
+		ResCalc rC;
+		for ( int dim = 0; dim < 3; dim++ )
+		{
+			rC = this.getResolutionCalculator(coord, dim);
+			coord[dim] = rC.getVoxelIndex(loc[dim]);
+			if ( inside != null )
+			{
+				inside[dim] = loc[dim] - 
+								rC.getCumulativeResolution(coord[dim] - 1);
+			}
+		}
+		return coord;
+	}
+	
+	/**
 	 * \brief For a voxel given by its coordinates, find the global location
 	 * of a point inside it and write this location to <b>destination</b>.
 	 * 
@@ -699,7 +750,7 @@ public abstract class Shape implements
 	{
 		Vector.checkLengths(inside, coord);
 		Vector.copyTo(destination, inside);
-		int nDim = coord.length;
+		int nDim = getNumberOfDimensions();
 		ResCalc rC;
 		for ( int dim = 0; dim < nDim; dim++ )
 		{
@@ -810,7 +861,7 @@ public abstract class Shape implements
 	public void getVoxelSideLengthsTo(double[] destination, int[] coord)
 	{
 		ResCalc rC;
-		for ( int dim = 0; dim < 3; dim++ )
+		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
 			destination[dim] = rC.getResolution(coord[dim]);
@@ -1023,8 +1074,8 @@ public abstract class Shape implements
 	{
 		if ( this._currentCoord == null )
 		{
-			this._currentCoord = Vector.zerosInt(this.getNumberOfDimensions());
-			this._currentNVoxel = Vector.zerosInt(this.getNumberOfDimensions());
+			this._currentCoord = Vector.zerosInt(this._dimensions.size());
+			this._currentNVoxel = Vector.zerosInt(this._dimensions.size());
 		}
 		else
 			Vector.reset(this._currentCoord);
@@ -1060,6 +1111,10 @@ public abstract class Shape implements
 		return true;
 	}
 	
+	public int[] iteratorCurrent(){
+		return _currentCoord;
+	}
+	
 	/**
 	 * \brief Step the coordinate iterator forward once.
 	 * 
@@ -1082,7 +1137,7 @@ public abstract class Shape implements
 				_currentCoord[0]++;
 			}
 		}
-		this.updateCurrentNVoxel();	
+		if ( this.isIteratorValid()) this.updateCurrentNVoxel();	
 		return _currentCoord;
 	}
 	
@@ -1098,6 +1153,8 @@ public abstract class Shape implements
 	 */
 	public int[] updateCurrentNVoxel()
 	{
+		if (this._currentNVoxel == null)
+			this._currentNVoxel = Vector.zerosInt(3);
 		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
 		return this._currentNVoxel;
 	}
@@ -1126,6 +1183,10 @@ public abstract class Shape implements
 		return this._currentNeighbor;
 	}
 	
+	public int[] nbhIteratorCurrent(){
+		return _currentNeighbor;
+	}
+	
 	/**
 	 * \brief Check if the neighbor iterator takes a valid coordinate.
 	 * 
@@ -1134,6 +1195,19 @@ public abstract class Shape implements
 	public boolean isNbhIteratorValid()
 	{
 		return this._nbhValid;
+	}
+	
+	/**
+	 * \brief Check if the neighbor iterator is on a defined boundary.
+	 * 
+	 * @return The respective boundary or null if the nbh iterator is inside.
+	 */
+	public Boundary nbhIteratorOutside()
+	{
+		if (this._nbhOnDefBoundary)
+			return getDimension(this._nbhDimName)
+					.getBoundaries()[this._nbhDirection];
+		return null;
 	}
 	
 	/**
@@ -1159,9 +1233,34 @@ public abstract class Shape implements
 		return ExtraMath.overlap(curMin, curMax, nbhMin, nbhMax);
 	}
 	
+	
+	protected void transformNbhCyclic(){
+		Dimension dim = getDimension(this._nbhDimName);
+		if (this._nbhOnDefBoundary && dim.isCyclic()){
+			int dimIdx = getDimensionIndex(_nbhDimName);
+			int nVoxel = this.getResolutionCalculator(
+					this._currentCoord, dimIdx).getNVoxel();
+			this._currentNeighbor[dimIdx] 
+					= this._nbhDirection == 0 ? nVoxel - 1 : 0; 
+		}
+	}
+	
+	protected void reTransformNbhCyclic(){
+		Dimension dim = getDimension(this._nbhDimName);
+		if (this._nbhOnDefBoundary && dim.isCyclic()){
+			int dimIdx = getDimensionIndex(_nbhDimName);
+			int nVoxel = this.getResolutionCalculator(
+					this._currentCoord, dimIdx).getNVoxel();
+			this._currentNeighbor[dimIdx] 
+					= this._nbhDirection == 0 ? - 1 : nVoxel; 
+		}
+	}
+	
 	/**
 	 * \brief Move the neighbor iterator to the current coordinate, 
 	 * and make the index at <b>dim</b> one less.
+	 * If successful, sets <b>_nbhDirection</b> to 1 (lower than current coord)
+	 * If Outside, but on defined boundary, sets <b>_nbhOnBoundary</b> to true.
 	 * 
 	 * @return {@code boolean} reporting whether this is valid.
 	 */
@@ -1172,8 +1271,13 @@ public abstract class Shape implements
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[index]--;
 		/* Check that this coordinate is acceptable. */
-		return (this._currentNeighbor[index] >= 0) || 
-							this._dimensions.get(dim).isBoundaryDefined(0);
+		boolean inside = this._currentNeighbor[index] >= 0;
+		this._nbhOnDefBoundary = ! inside && this._dimensions.get(dim)
+														.isBoundaryDefined(0);
+		boolean valid = inside || this._nbhOnDefBoundary;
+		this._nbhDirection = 0;
+		this._nbhDimName = dim;
+		return ( valid );
 	}
 	
 	/**
@@ -1193,16 +1297,25 @@ public abstract class Shape implements
 		/* Check we are behind the current coordinate. */
 		if ( this._currentNeighbor[index] < this._currentCoord[index] )
 		{
+			boolean inside = this._currentCoord[index] 
+											< this._currentNVoxel[index] - 1;
+			
+			boolean bMaxDef = this.getDimension(dim).isBoundaryDefined(1);
+			
 			/* Check there is space on the other side. */
-			if ( this._currentCoord[index] < this._currentNVoxel[index] - 1 || 
-								this.getDimension(dim).isBoundaryDefined(1) )
+			if ( inside || bMaxDef )
 			{
 				/* Jump and report success. */
+				this._nbhDirection = 1;
+				/* can only be on boundary here if not inside*/
+				this._nbhOnDefBoundary = ! inside;
 				this._currentNeighbor[index] = this._currentCoord[index] + 1;
 				return true;
 			}
 		}
 		/* Report failure. */
+		this._nbhDirection = -1;
+		this._nbhOnDefBoundary = false;
 		return false;
 	}
 	

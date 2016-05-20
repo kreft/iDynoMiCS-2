@@ -30,8 +30,11 @@ public final class PolarArray
 	public static double[][][] createCylinder(ResCalc[][] resCalc, double val)
 	{
 		int nr, nz;
+		if (resCalc[0][0] == null || resCalc[1][0] == null)
+			throw new IllegalArgumentException(
+					"A cylindrical array needs at least 2 dimensions");
 		nr = resCalc[0][0].getNVoxel();
-		nz = resCalc[2][0].getNVoxel();
+		nz = resCalc[2][0] == null ? 0 : resCalc[2][0].getNVoxel();
 		double[][][] a = new double[nr][][];
 		for ( int i = 0; i < nr; i++ )
 			a[i] = Matrix.matrix(resCalc[1][i].getNVoxel(), nz, val);
@@ -58,6 +61,11 @@ public final class PolarArray
 	 */
 	public static double[][][] createSphere(ResCalc[][][] resCalc, double val)
 	{
+		if (resCalc[0][0] == null || resCalc[1][0] == null 
+													|| resCalc[2][0] == null)
+			throw new IllegalArgumentException(
+					"A spherical array needs 3 dimensions");
+		
 		int nR = resCalc[0][0][0].getNVoxel();
 		int nPhi;
 		double[][][] a = new double[nR][][];
@@ -93,38 +101,5 @@ public final class PolarArray
 				if ( a[i][j].length != b[i][j].length )
 					throw e;
 		}
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * TODO Not currently used
-	 * 
-	 * @param r
-	 * @param theta0
-	 * @param theta1
-	 * @param phi0
-	 * @param phi1
-	 * @return
-	 */
-	public static double area(double r, double theta0, double theta1,
-											double phi0, double phi1)
-	{
-		return r * r * (theta1 - theta0) * (Math.cos(phi0)-Math.cos(phi1));
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * TODO Not currently used
-	 * 
-	 * @param r
-	 * @param theta0
-	 * @param theta1
-	 * @return
-	 */
-	public static double arcLength(double r, double theta0, double theta1)
-	{
-		return r * (theta1 - theta0);
 	}
 }

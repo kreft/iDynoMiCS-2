@@ -33,12 +33,12 @@ import com.sun.j3d.utils.geometry.NormalGenerator;
 import com.sun.j3d.utils.geometry.Sphere;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 
-import grid.CylindricalGrid;
-import grid.PolarGrid;
-import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import grid.SphericalGrid;
 import linearAlgebra.Vector;
+import shape.CylindricalShape;
+import shape.PolarShape;
+import shape.Shape;
+import shape.SphericalShape;
 import test.PolarGridTest;
 
 /**
@@ -57,7 +57,7 @@ public class SpatialGridPlot3D{
 	private JFrame frame;
 	Transform3D camera_pos;	
 	/* the branch graph map for all objects on the frame */
-	HashMap<SpatialGrid,HashMap<ArrayType,GridGraph>> grids;
+	HashMap<Shape,HashMap<ArrayType,GridGraph>> grids;
 	SimpleUniverse universe;
 	/* visualization bounds (max 1000 meters atm)*/
 	Bounds bounds;
@@ -88,7 +88,7 @@ public class SpatialGridPlot3D{
 		/* wow, took a time to figure out that this not default.. */
 		view.setTransparencySortingPolicy(View.TRANSPARENCY_SORT_GEOMETRY);
 		
-		grids = new HashMap<SpatialGrid,HashMap<ArrayType,GridGraph>>();
+		grids = new HashMap<Shape,HashMap<ArrayType,GridGraph>>();
 		
 		frame.setVisible(true);
 	}
@@ -102,7 +102,7 @@ public class SpatialGridPlot3D{
 	 * @param type
 	 * @param pos
 	 */
-	public void setWorldPosition(SpatialGrid grid, ArrayType type, double[] pos)
+	public void setWorldPosition(Shape grid, ArrayType type, double[] pos)
 	{
 		if (pos == null)
 			pos = Vector.zerosDbl(3);
@@ -120,14 +120,14 @@ public class SpatialGridPlot3D{
 			if (grids.keySet().isEmpty()) 
 				return;
 			double max_length = Double.MIN_VALUE, min_start = Double.MAX_VALUE;
-			for ( SpatialGrid grid : grids.keySet()){
+			for ( Shape grid : grids.keySet()){
 				GridGraph graph = getGraph(grid, ArrayType.CONCN);
 	
-				double length = grid.getTotalLength(0);
-				double start = grid instanceof PolarGrid ? 
+				double length = grid.getDimensionLengths()[0];
+				double start = grid instanceof PolarShape ? 
 						graph.loc[0] - length : graph.loc[0];
-						length = grid instanceof PolarGrid ? 
-								grid.getTotalLength(0) : grid.getTotalLength(0);
+						length = grid instanceof PolarShape ? 
+								grid.getDimensionLengths()[0] : grid.getDimensionLengths()[0];
 	
 								min_start = Math.min(start, min_start);
 								max_length = Math.max(length, max_length);
@@ -149,7 +149,7 @@ public class SpatialGridPlot3D{
 	 * @param grid
 	 * @param type
 	 */
-	public void startIterator(SpatialGrid grid, ArrayType type){
+	public void startIterator(Shape grid, ArrayType type){
 		boolean auto_step = false;
 		long t, min_pause = 500;
 		/* get or add the grid graph */
@@ -218,21 +218,21 @@ public class SpatialGridPlot3D{
 	 * 
 	 * @param grid
 	 */
-	public void plotCurrentConcentrations(SpatialGrid grid){
-		int [] current;
-		GridGraph graph = getGraph(grid, ArrayType.CONCN);
-		VoxelProperties prop = new VoxelProperties();
-		prop.target = TRANSPARENCY;
-		View view = universe.getCanvas().getView();
-		view.stopView();
-        for ( current=grid.resetIterator(); grid.isIteratorValid();
-        		current=grid.iteratorNext())
-        {
-        	float alpha = (float)grid.getValueAtCurrent(ArrayType.CONCN);
-        	prop.alpha = Math.min(Math.max(0, alpha), 1);
-        	setPerVoxelProperty(prop, graph, current);
-        }
-        view.startView();
+	public void plotCurrentConcentrations(Shape grid){
+//		int [] current;
+//		GridGraph graph = getGraph(grid, ArrayType.CONCN);
+//		VoxelProperties prop = new VoxelProperties();
+//		prop.target = TRANSPARENCY;
+//		View view = universe.getCanvas().getView();
+//		view.stopView();
+//        for ( current=grid.resetIterator(); grid.isIteratorValid();
+//        		current=grid.iteratorNext())
+//        {
+//        	float alpha = (float)grid.getValueAtCurrent(ArrayType.CONCN);
+//        	prop.alpha = Math.min(Math.max(0, alpha), 1);
+//        	setPerVoxelProperty(prop, graph, current);
+//        }
+//        view.startView();
 	}
 	
 	
@@ -245,7 +245,7 @@ public class SpatialGridPlot3D{
 	 * @param grid 
 	 * @param type
 	 */
-	public void setProperty(VoxelProperties prop, VoxelTarget targets, SpatialGrid grid, 
+	public void setProperty(VoxelProperties prop, VoxelTarget targets, Shape grid, 
 							ArrayType type)
 	{
 		GridGraph graph = getGraph(grid, type);
@@ -265,7 +265,7 @@ public class SpatialGridPlot3D{
 	 * @param fillOrVec Boolean defining filled (true) or vector-based (false)
 	 * 					polygon mode. 
 	 */
-	public void setPolygonMode(VoxelTarget targets, SpatialGrid grid, 
+	public void setPolygonMode(VoxelTarget targets, Shape grid, 
 							ArrayType type, boolean fillOrVec)
 	{
 		VoxelProperties prop = new VoxelProperties();
@@ -279,7 +279,7 @@ public class SpatialGridPlot3D{
 	 * @param type
 	 * @param alpha The alpha value in the range 0 (transparent) and 1 (opaque)
 	 */
-	public void setTransparency(VoxelTarget targets, SpatialGrid grid, 
+	public void setTransparency(VoxelTarget targets, Shape grid, 
 			ArrayType type, float alpha)
 	{
 		VoxelProperties prop = new VoxelProperties();
@@ -295,7 +295,7 @@ public class SpatialGridPlot3D{
 	 * @param type
 	 * @param color 
 	 */
-	public void setColor(Branch branch, VoxelTarget targets, SpatialGrid grid, 
+	public void setColor(Branch branch, VoxelTarget targets, Shape grid, 
 							ArrayType type, Color3f color){
 		switch (branch){
 		case Voxels:
@@ -317,7 +317,7 @@ public class SpatialGridPlot3D{
 	 * @param type
 	 * @param in_voxel_location A relative location inside a voxel (range [0 1]).
 	 */
-	public void addPoints(SpatialGrid grid, ArrayType type, 
+	public void addPoints(Shape grid, ArrayType type, 
 													double[] in_voxel_location){
 		GridGraph graph = getGraph(grid, type);
 		BranchGroup branch = graph.getLocationsBranch();
@@ -350,7 +350,7 @@ public class SpatialGridPlot3D{
 	 * @param grid
 	 * @param type
 	 */
-	public void removePoints(SpatialGrid grid, ArrayType type){
+	public void removePoints(Shape grid, ArrayType type){
 		getGraph(grid, type).getLocationsBranch().removeAllChildren();
 	}
 	
@@ -411,11 +411,11 @@ public class SpatialGridPlot3D{
 	 * @param grid
 	 * @param graph
 	 */
-	private void setCurrentNbhsProperty(VoxelProperties prop, SpatialGrid grid, GridGraph graph){
+	private void setCurrentNbhsProperty(VoxelProperties prop, Shape grid, GridGraph graph){
 		int[] nbh;
 		for ( nbh=grid.resetNbhIterator(); grid.isNbhIteratorValid();
 				nbh=grid.nbhIteratorNext()){
-			if (grid.nbhIteratorIsOutside() == null){
+			if (grid.isNbhIteratorValid()){
 				setPerVoxelProperty(prop, graph, nbh);
 			}else ;
 			//TODO: what to do here?
@@ -430,7 +430,7 @@ public class SpatialGridPlot3D{
 	 * @param grid
 	 * @param graph
 	 */
-	private void setVoxelAllProperty(VoxelProperties prop, SpatialGrid grid, GridGraph graph){
+	private void setVoxelAllProperty(VoxelProperties prop, Shape grid, GridGraph graph){
 		for ( int cur[]=grid.resetIterator(); grid.isIteratorValid();
 				cur=grid.iteratorNext())
 			setPerVoxelProperty(prop, graph, cur);
@@ -444,7 +444,7 @@ public class SpatialGridPlot3D{
 	 * @param type
 	 * @param color
 	 */
-	private void setPointsColor(SpatialGrid grid, ArrayType type, Color3f color)
+	private void setPointsColor(Shape grid, ArrayType type, Color3f color)
 	{
 		GridGraph graph = getGraph(grid, type);
 		BranchGroup branch = graph.getLocationsBranch();
@@ -465,7 +465,7 @@ public class SpatialGridPlot3D{
 	 * @param type
 	 * @return
 	 */
-	private GridGraph getGraph(SpatialGrid grid, ArrayType type)
+	private GridGraph getGraph(Shape grid, ArrayType type)
 	{
 		if (!grids.containsKey(grid)) 
 			grids.put(grid, new HashMap<ArrayType, GridGraph>());
@@ -486,12 +486,12 @@ public class SpatialGridPlot3D{
 	 * @param inside
 	 * @return
 	 */
-	private double[] getCartLoc(SpatialGrid grid, int[] coords, double[] inside)
+	private double[] getCartLoc(Shape grid, int[] coords, double[] inside)
 	{
 		double[] loc = grid.getLocation(coords, inside);
-		if (grid instanceof SphericalGrid)
+		if (grid instanceof SphericalShape)
 			loc = Vector.toCartesian(loc);
-		if (grid instanceof CylindricalGrid)
+		if (grid instanceof CylindricalShape)
 			loc = Vector.cylindricalToCartesian(loc);
 		return loc;
 	}
@@ -542,7 +542,7 @@ public class SpatialGridPlot3D{
 	 * @param coord
 	 * @return
 	 */
-	private Shape3D createGridCellShape(SpatialGrid grid, int[] coord)
+	private Shape3D createGridCellShape(Shape grid, int[] coord)
 	{
 		QuadArray qa = new QuadArray(24,QuadArray.COORDINATES);
 
@@ -639,7 +639,7 @@ public class SpatialGridPlot3D{
 		/* to map 3D-coordinates to indices */
 		private HashMap<String,Integer> coord2idx; 
 		
-		GridGraph(SpatialGrid grid, ArrayType type, double[] global_pos) {
+		GridGraph(Shape grid, ArrayType type, double[] global_pos) {
 			coord2idx = new HashMap<String,Integer>();
 			
 			/* create transform for world position */

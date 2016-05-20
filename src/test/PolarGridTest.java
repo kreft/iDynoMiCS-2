@@ -154,12 +154,13 @@ public class PolarGridTest
 		t_start = System.currentTimeMillis();
 //		int last_idx=0;
 		grid.resetIterator();
+		grid.resetNbhIterator();
 		while (grid.isIteratorValid()) grid.iteratorNext();
 		System.out.println("time needed to iterate through grid: "
 				+(System.currentTimeMillis()-t_start)+" ms");	
 	}
 
-	public static void testIterator(SpatialGrid grid)
+	public static void testIterator(Shape grid)
 	{
 		int[] current;
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
@@ -168,23 +169,21 @@ public class PolarGridTest
 			System.out.println("current: "+Arrays.toString(current)+
 					"\torigin: "+Arrays.toString(
 							grid.getVoxelOrigin(Vector.copy(current)))
-					+"\tcoord: "+Arrays.toString(
-							grid.getCoords(Vector.copy(
-							grid.getVoxelOrigin(Vector.copy(current)))))
+//					+"\tcoord: "+Arrays.toString(
+//							grid.getCoords(Vector.copy(
+//							grid.getVoxelOrigin(Vector.copy(current)))))
 					+"\tvolume: "+grid.getVoxelVolume(current)
 			);
 			System.out.println();
 		}
 	}
 	
-	public static void testNbhIterator(SpatialGrid grid)
+	public static void testNbhIterator(Shape grid)
 	{
 		int[] current;
 		for ( current = grid.resetIterator(); grid.isIteratorValid();
 				current = grid.iteratorNext())
 		{
-			System.out.println("grid size: "
-					+Arrays.toString(grid.getCurrentNVoxel()));
 			int[] nbh;
 			System.out.println("current: "+Arrays.toString(current));
 			for ( nbh = grid.resetNbhIterator(); 
@@ -193,7 +192,7 @@ public class PolarGridTest
 			{
 				System.out.print("\tnbh: "+Arrays.toString(nbh));
 				System.out.println(
-						",\tshared area: "+grid.getNbhSharedSurfaceArea());
+						",\tshared area: "+grid.nbhCurrSharedArea());
 			}
 			System.out.println();
 		}
@@ -211,7 +210,7 @@ public class PolarGridTest
 	 * 				can be null (no points).
 	 * @return The SpatialGridPlot reference.
 	 */
-	public static SpatialGridPlot3D createGraphics(SpatialGrid grid, double[] loc,
+	public static SpatialGridPlot3D createGraphics(Shape grid, double[] loc,
 		ArrayType type, boolean create_iterator, double[] in_voxel_location)
 	{
 		SpatialGridPlot3D plot = new SpatialGridPlot3D();
