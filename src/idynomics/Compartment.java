@@ -239,9 +239,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		 * Finally, finish off the initialisation as standard.
 		 */
 		this.init();
-		
-		test.PolarGridTest.createGraphics(this._shape, null, ArrayType.CONCN, true, new double[]{0.5,0.5,0.5});
-//		test.PolarGridTest.testNbhIterator(this._shape);
 	}
 	
 	@Override

@@ -62,7 +62,7 @@ public final class ShapeConventions
 		}
 		
 		@Override
-		public void setLength(double length)
+		public void setResolution(double length)
 		{
 			this._length = length;
 		}

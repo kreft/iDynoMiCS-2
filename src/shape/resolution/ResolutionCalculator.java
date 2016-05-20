@@ -38,7 +38,7 @@ public class ResolutionCalculator
 			return _length;
 		}
 		
-		public abstract void setLength(double length);
+		public abstract void setResolution(double length);
 
 		public abstract double getMinResolution();
 
@@ -244,9 +244,9 @@ public class ResolutionCalculator
 		}
 		
 		@Override
-		public void setLength(double length)
+		public void setResolution(double targetResolution)
 		{
-			this.init(length, this._length);
+			this.init(targetResolution, this._length);
 		}
 		
 		public Object copy()
@@ -290,9 +290,9 @@ public class ResolutionCalculator
 		}
 		
 		@Override
-		public void setLength(double length)
+		public void setResolution(double targetResolution)
 		{
-			this.init(this._targetRes, length);
+			this.init(targetResolution, this._length);
 		}
 		
 		public Object copy()

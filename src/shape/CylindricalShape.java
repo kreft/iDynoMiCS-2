@@ -112,7 +112,7 @@ public abstract class CylindricalShape extends PolarShape
 					/* since we so not allow initialization with varying 
 					 * resolutions, they should all be the same here 
 					 */
-					shellResCalc.setLength(scaleResolutionForShell(i, resC.getResolution(0)));
+					shellResCalc.setResolution(scaleResolutionForShell(i, resC.getResolution(0)));
 					this._resCalc[index][i] = shellResCalc;
 				}
 			}
