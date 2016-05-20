@@ -177,9 +177,4 @@ public class NameRef
 	 * TODO
 	 */
 	public static String agentStochasticDistance = "stochasticDistance";
-
-	/**
-	 * TODO
-	 */
-	public static String agentRadius = "radius";
 }

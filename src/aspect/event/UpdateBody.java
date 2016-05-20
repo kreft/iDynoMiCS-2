@@ -14,7 +14,7 @@ public class UpdateBody extends Event
 {
 	
 	public String BODY = NameRef.agentBody;
-	public String RADIUS = NameRef.agentRadius;
+	public String RADIUS = NameRef.bodyRadius;
 	
 	public UpdateBody()
 	{
