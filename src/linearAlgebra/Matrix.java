@@ -1,5 +1,7 @@
 package linearAlgebra;
 
+import utility.ExtraMath;
+
 /**
  * \brief TODO
  * 
@@ -1103,6 +1105,72 @@ public final class Matrix
 		for ( int i = 0; i < rowDim(a); i++ )
 			if ( ! Vector.areSame(a[i], b[i], tolerance) )
 				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(int[][] matrix)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( matrix[i][j] != matrix[j][i] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(double[][] matrix)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( matrix[i][j] != matrix[j][i] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param tolerance {@code double} value for the absolute tolerance, i.e.
+	 * |a<sub>i,j</sub> - a<sub>j,i</sub>| <= tolerance will be accepted
+	 * as close enough to zero (helps avoid numerical issues). 
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(double[][] matrix, double absTol)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( ! ExtraMath.areEqual(matrix[i][j], matrix[j][i], absTol) )
+					return false;
 		return true;
 	}
 	

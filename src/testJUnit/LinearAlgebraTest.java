@@ -11,6 +11,7 @@ import static org.junit.Assert.assertFalse;
 import static testJUnit.AllTests.TOLERANCE;
 
 import linearAlgebra.Array;
+import linearAlgebra.CholeskyDecomposition;
 import linearAlgebra.LUDecomposition;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
@@ -344,6 +345,8 @@ public class LinearAlgebraTest
 	public void luDecomposition()
 	{
 		/*
+		 * Decompose a matrix, then put it back again.
+		 * 
 		 * Example taken from
 		 * http://nucinkis-lab.cc.ic.ac.uk/HELM/workbooks/workbook_30/30_3_lu_decomposition.pdf
 		 */
@@ -358,5 +361,45 @@ public class LinearAlgebraTest
 		double[][] mCopy = Matrix.zeros(mOrig);
 		Matrix.reorderRowsTo(mCopy, Matrix.times(l, u), piv);
 		assertTrue(Matrix.areSame(mOrig, mCopy, TOLERANCE));
+		/*
+		 * Solve a system of algebraic equations
+		 */
+		double[] b = new double[3];
+		b[0] = 1.0; b[1] = 2.3; b[2] = 3.0;
+		double[] x = luD.solve(b);
+		double[] bCopy = Matrix.times(mOrig, x);
+		assertTrue(Vector.areSame(b, bCopy, TOLERANCE));
+	}
+	
+	@Test
+	public void choleskyDecomposition()
+	{
+		ExtraMath.initialiseRandomNumberGenerator();
+		/*
+		 * Example taken from
+		 * http://www.seas.ucla.edu/~vandenbe/103/lectures/chol.pdf
+		 */
+		double[][] a = new double[3][3];
+		double[][] L = Matrix.zeros(a);
+		a[0][0] = 25.0; a[0][1] = 15.0; a[0][2] = -5.0;
+		a[1][0] = 15.0; a[1][1] = 18.0; a[1][2] =  0.0;
+		a[2][0] = -5.0; a[2][1] =  0.0; a[2][2] = 11.0;
+		L[0][0] =  5.0;
+		L[1][0] =  3.0; L[1][1] =  3.0;
+		L[2][0] = -1.0; L[2][1] =  1.0; L[2][2] =  3.0;
+		
+		CholeskyDecomposition cD = new CholeskyDecomposition(a);
+		assertTrue(cD.isSymmetricPositiveDefinite());
+		assertTrue(Matrix.areSame(L, cD.getL(), TOLERANCE));
+		
+//		double[][] b = Matrix.randomPlusMinus(3, 1, 10.0);
+//		double[][] x = cD.solve(b);
+//		double[][] D = Matrix.times(a, x);
+//		assertTrue(Matrix.areSame(b, D, TOLERANCE));
+		
+		double[] b = Vector.randomPlusMinus(3, 10.0);
+		double[] x = cD.solve(b);
+		double[] D = Matrix.times(a, x);
+		assertTrue(Vector.areSame(b, D, TOLERANCE));
 	}
 }
