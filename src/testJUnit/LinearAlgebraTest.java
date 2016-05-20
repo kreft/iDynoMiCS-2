@@ -12,6 +12,7 @@ import static testJUnit.AllTests.TOLERANCE;
 
 import linearAlgebra.Array;
 import linearAlgebra.CholeskyDecomposition;
+import linearAlgebra.EigenvalueDecomposition;
 import linearAlgebra.LUDecomposition;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
@@ -401,5 +402,21 @@ public class LinearAlgebraTest
 		double[] x = cD.solve(b);
 		double[] D = Matrix.times(a, x);
 		assertTrue(Vector.areSame(b, D, TOLERANCE));
+	}
+	
+	@Test
+	public void eigenvalueDecomposition()
+	{
+		// TODO more robust tests
+		double[][] matrix = new double[3][3];
+		matrix[0][0] = 1.0; matrix[0][1] = 2.0; matrix[0][2] = 4.0;
+		matrix[1][0] = 3.0; matrix[1][1] = 8.0; matrix[1][2] = 14.0;
+		matrix[2][0] = 2.0; matrix[2][1] = 6.0; matrix[2][2] = 13.0;
+		EigenvalueDecomposition eD = new EigenvalueDecomposition(matrix);
+		double[][] v = eD.getV();
+		double[][] d = eD.getD();
+		double[][] av = Matrix.times(matrix, v);
+		double[][] vd = Matrix.times(v, d);
+		assertTrue(Matrix.areSame(av, vd, TOLERANCE));
 	}
 }

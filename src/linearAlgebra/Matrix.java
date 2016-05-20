@@ -216,6 +216,22 @@ public final class Matrix
 	/* Identity */
 	
 	/**
+	 * \brief Overwrite the given <b>matrix</b> with an identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 */
+	public static void identityTo(int[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[i].length; j++ )
+				matrix[i][j] = ( i == j ) ? 1 : 0;
+	}
+	
+	/**
 	 * \brief A new identity matrix.
 	 * 
 	 * <p>An identity matrix is filled with zeros, except on the main diagonal
@@ -232,9 +248,7 @@ public final class Matrix
 	public static int[][] identityInt(int m, int n)
 	{
 		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1 : 0;
+		identityTo(out);
 		return out;
 	}
 	
@@ -275,6 +289,24 @@ public final class Matrix
 		return identityInt(rowDim(matrix), colDim(matrix));
 	}
 	
+
+	/**
+	 * \brief Overwrite the given <b>matrix</b> with an identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 */
+	public static void identityTo(double[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[i].length; j++ )
+				matrix[i][j] = ( i == j ) ? 1.0 : 0.0;
+	}
+	
+	
 	/**
 	 * \brief A new identity matrix.
 	 * 
@@ -292,9 +324,7 @@ public final class Matrix
 	public static double[][] identityDbl(int m, int n)
 	{
 		double[][] out = new double[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1.0 : 0.0;
+		identityTo(out);
 		return out;
 	}
 	
@@ -746,6 +776,34 @@ public final class Matrix
 	public static void makeNonnegative(double[][] matrix)
 	{
 		restrictMinimum(matrix, 0.0);
+	}
+	
+	/**
+	 * \brief Set all elements in the column of a given <b>matrix</b> to a new
+	 * value.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param index {@code int} index of the column required.
+	 * @param value Fill the column with this integer value.
+	 */
+	public static void setColumnTo(int[][] matrix, int index, int value)
+	{
+		for ( int[] row : matrix )
+			row[index] = value;
+	}
+	
+	/**
+	 * \brief Set all elements in the column of a given <b>matrix</b> to a new
+	 * value.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param index {@code int} index of the column required.
+	 * @param value Fill the column with this double value.
+	 */
+	public static void setColumnTo(double[][] matrix, int index, double value)
+	{
+		for ( double[] row : matrix )
+			row[index] = value;
 	}
 	
 	/*************************************************************************
