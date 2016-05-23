@@ -163,6 +163,9 @@ public abstract class SpatialGrid
 	 * \brief Initialise an array of the given <b>type</b> and fill all voxels
 	 * with <b>initialValues</b>.
 	 * 
+	 * <p>If the array is already initialised, this simply fills it with
+	 * <b>initialValues</b>.</p>
+	 * 
 	 * @param type {@code ArrayType} for the new array.
 	 * @param initialValues {@code double} for every voxel to take.
 	 */
@@ -171,6 +174,8 @@ public abstract class SpatialGrid
 	/**
 	 * \brief Initialise an array of the given <b>type</b> and fill it with
 	 * zeros.
+	 * 
+	 * <p>If the array is already initialised, this simply resets it.</p>
 	 * 
 	 * @param type {@code ArrayType} for the new array.
 	 */
