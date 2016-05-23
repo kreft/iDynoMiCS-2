@@ -54,17 +54,9 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="1.0" />
+				<solute name="solute1" concentration="0.000001" />
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
-			<reactions>
-				<reaction name="slowInflow">
-					<expression value="1.0 * inflow">
-						<constant name="inflow" value="0.04" />
-					</expression>
-					<stoichiometric component="solute1" coefficient="1.0" />
-				</reaction>
-			</reactions>
 			<agents>
 				<agent>
 					<aspect name="volumeDistribution" class="HashMap">
