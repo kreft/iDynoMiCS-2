@@ -9,6 +9,8 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import dataIO.Log.Tier;
+import dataIO.Log;
 import dataIO.ObjectRef;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
@@ -23,6 +25,7 @@ import nodeFactory.ModelNode;
 import utility.Helper;
 
 /**
+ * \brief Abstract class for managing a process within a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
@@ -46,10 +49,6 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	 */
 	protected double _timeStepSize;
 	/**
-	 * Set to true for extra system output.
-	 */
-	protected boolean _debugMode = false;
-	/**
      * The aspect registry... TODO
      */
     public AspectReg aspectRegistry = new AspectReg();
@@ -58,11 +57,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public ProcessManager()
-	{
-		
-	}
-	
+	@Override
 	public void init(Element xmlElem)
 	{
 		//FIXME quick fix: cut/paste from
@@ -174,44 +169,68 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		this._priority = priority;
 	}
 	
+	/**
+	 * @return The priority of this {@code ProcessManager}.
+	 */
 	public int getPriority()
 	{
 		return this._priority;
 	}
 	
+	/**]
+	 * \brief Set the time point at which this will next step: useful for
+	 * testing.
+	 * 
+	 * @param newTime The time point at which this should next step.
+	 */
 	public void setTimeForNextStep(double newTime)
 	{
 		this._timeForNextStep = newTime;
 	}
 	
+	/**
+	 * @return The time point at which this will next step.
+	 */
 	public double getTimeForNextStep()
 	{
 		return this._timeForNextStep;
 	}
 	
+	/**
+	 * \brief Set the time step directly: useful for testing.
+	 * 
+	 * @param newStepSize Time step to use.
+	 */
 	public void setTimeStepSize(double newStepSize)
 	{
 		this._timeStepSize = newStepSize;
 	}
 	
+	/**
+	 * @return The local time step.
+	 */
 	public double getTimeStepSize()
 	{
 		return this._timeStepSize;
-	}
-	
-	public void debugMode()
-	{
-		this._debugMode = true;
 	}
 	
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
 	
+	/**
+	 * \brief Perform the step of this process manager, also updating its local
+	 * time manager.
+	 * 
+	 * @param environment The {@code EnvironmentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param agents The {@code AgentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 */
 	public void step(EnvironmentContainer environment, AgentContainer agents)
 	{
 		/*
-		 * This is where subclasses of Mechanism do their step. Note that
+		 * This is where subclasses of ProcessManager do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
 		 */
 		this.internalStep(environment, agents);
@@ -219,39 +238,21 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		 * Move the time for next step forward by the step size.
 		 */
 		this._timeForNextStep += this._timeStepSize;
-		/*
-		 * Report if in debugging mode.
-		 */
-		if ( this._debugMode )
-		{
-			System.out.println(this.getName() + 
-								" timeForNextStep = "+this._timeForNextStep);
-		}
+		Log.out(Tier.DEBUG,
+				this._name+": timeForNextStep = "+this._timeForNextStep);
 	}
 	
+	/**
+	 * \brief Perform the internal step for this process manager: this will be
+	 * implemented by each sub-class of {@code ProcessManager}.
+	 * 
+	 * @param environment The {@code EnvironmentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param agents The {@code AgentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 */
 	protected abstract void internalStep(
 					EnvironmentContainer environment, AgentContainer agents);
-	
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
-	
-	public StringBuffer report()
-	{
-		StringBuffer out = new StringBuffer();
-		
-		return out;
-	}
-	
-	/*************************************************************************
-	 * XML-ABLE
-	 ************************************************************************/
-	
-	/*public static ProcessManager getNewInstance(String className)
-	{
-		return (ProcessManager) XMLable.getNewInstance(className, 
-									"processManager.ProcessManagerLibrary$");
-	}*/
 	
 	/*************************************************************************
 	 * SUBMODEL BUILDING

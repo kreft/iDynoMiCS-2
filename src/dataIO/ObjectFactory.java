@@ -22,6 +22,8 @@ import aspect.Event;
 import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
+import linearAlgebra.Array;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import reaction.Reaction;
 import utility.Helper;
@@ -49,6 +51,7 @@ public class ObjectFactory
 	{
 		switch ( type ) 
 		{
+
 		case "CALCULATED" : 
 			return Calculated.getNewInstance(classType);
 		case "EVENT" :
@@ -75,6 +78,24 @@ public class ObjectFactory
 					catch(NumberFormatException e)
 					{
 						printReadError(input, ObjectRef.INT_VECT);
+					return null;
+				}
+			case ObjectRef.INT_MATR :
+				try{
+					return Matrix.intFromString(input);
+				}
+				catch(NumberFormatException e)
+				{
+					printReadError(input, ObjectRef.INT_MATR);
+					return null;
+				}
+			case ObjectRef.INT_ARRY :
+				try{
+					return Array.intFromString(input);
+				}
+				catch(NumberFormatException e)
+				{
+					printReadError(input, ObjectRef.INT_ARRY);
 						return null;
 					}
 				case ObjectRef.DBL : 
@@ -93,6 +114,24 @@ public class ObjectFactory
 					catch(NumberFormatException e)
 					{
 						printReadError(input, ObjectRef.DBL_VECT);
+					return null;
+				}
+			case ObjectRef.DBL_MATR :
+				try{
+					return Matrix.dblFromString(input);
+				}
+				catch(NumberFormatException e)
+				{
+					printReadError(input, ObjectRef.DBL_MATR);
+					return null;
+				}
+			case ObjectRef.DBL_ARRY :
+				try{
+					return Array.dblFromString(input);
+				}
+				catch(NumberFormatException e)
+				{
+					printReadError(input, ObjectRef.DBL_ARRY);
 						return null;
 					}
 				case ObjectRef.STR : 
@@ -153,6 +192,24 @@ public class ObjectFactory
 					catch(NumberFormatException e)
 					{
 						printReadError(s.getAttribute(value), ObjectRef.INT_VECT);
+					return null;
+				}
+			case ObjectRef.INT_MATR :
+				try{
+					return Matrix.intFromString(s.getAttribute(value));
+				}
+				catch(NumberFormatException e)
+				{
+					printReadError(s.getAttribute(value), ObjectRef.INT_MATR);
+					return null;
+				}
+			case ObjectRef.INT_ARRY :
+				try{
+					return Array.intFromString(s.getAttribute(value));
+				}
+				catch(NumberFormatException e)
+				{
+					printReadError(s.getAttribute(value), ObjectRef.INT_ARRY);
 						return null;
 					}
 				case ObjectRef.DBL : 
@@ -171,6 +228,24 @@ public class ObjectFactory
 					catch(NumberFormatException e)
 					{
 						printReadError(s.getAttribute(value), ObjectRef.DBL_VECT);
+					return null;
+				}
+			case ObjectRef.DBL_MATR :
+				try{
+					return Matrix.dblFromString(s.getAttribute(value));
+				}
+				catch(NumberFormatException e)
+				{
+					printReadError(s.getAttribute(value), ObjectRef.DBL_MATR);
+					return null;
+				}
+			case ObjectRef.DBL_ARRY :
+				try{
+					return Array.dblFromString(s.getAttribute(value));
+				}
+				catch(NumberFormatException e)
+				{
+					printReadError(s.getAttribute(value), ObjectRef.DBL_ARRY);
 						return null;
 					}
 				case "String" : 

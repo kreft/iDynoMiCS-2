@@ -7,7 +7,6 @@ import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import idynomics.Param;
 import idynomics.Simulator;
 import processManager.ProcessManager;
 import processManager.library.AgentGrowth;
@@ -102,7 +101,6 @@ public class AgentCompartmentTest
 		
 		ProcessManager agentRelax = new AgentRelaxation();
 		agentRelax.setName("agentRelax");
-		agentRelax.debugMode();
 		agentRelax.setPriority(1);
 		agentRelax.setTimeForNextStep(0.0);
 		agentRelax.setTimeStepSize(Idynomics.simulator.timer.getTimeStepSize());

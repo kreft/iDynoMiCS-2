@@ -1,0 +1,75 @@
+\begin{thebibliography}{10}
+
+\bibitem{Ferrer2008}
+Ferrer J, Prats C, L{\'o}pez D.
+\newblock Individual-based modelling: an essential tool for microbiology.
+\newblock Journal of Biological Physics. 2008;34(1-2):19--37.
+
+\bibitem{Joppa2013}
+Joppa LN, McInerny G, Harper R, Salido L, Takeda K, O'Hara K, et~al.
+\newblock Troubling trends in scientific software use.
+\newblock Science. 2013;340(6134):814--815.
+
+\bibitem{Adamson2013}
+Adamson M, Morozov AY.
+\newblock When can we trust our model predictions? Unearthing structural
+  sensitivity in biological systems.
+\newblock Proceedings of the Royal Society A. 2013;469(2149):20120500.
+
+\bibitem{Kreft1998}
+Kreft JU, Booth G, Wimpenny JW.
+\newblock BacSim, a simulator for individual-based modelling of bacterial
+  colony growth.
+\newblock Microbiology. 1998;144(12):3275--3287.
+
+\bibitem{Lardon2011}
+Lardon LA, Merkey BV, Martins S, D{\"o}tsch A, Picioreanu C, Kreft JU, et~al.
+\newblock iDynoMiCS: next-generation individual-based modelling of biofilms.
+\newblock Environmental Microbiology. 2011;13(9):2416--2434.
+
+\bibitem{Storck2014}
+Storck T, Picioreanu C, Virdis B, Batstone D.
+\newblock Variable cell morphology approach for individual-based modeling of
+  microbial communities.
+\newblock Biophysical Journal. 2014;106(9):2037--2048.
+
+\bibitem{Grimm2006}
+Grimm V, Berger U, Bastiansen F, Eliassen S, Ginot V, Giske J, et~al.
+\newblock A standard protocol for describing individual-based and agent-based
+  models.
+\newblock Ecological Modelling. 2006;198(1):115--126.
+
+\bibitem{Grimm2010}
+Grimm V, Berger U, DeAngelis DL, Polhill JG, Giske J, Railsback SF.
+\newblock The ODD protocol: a review and first update.
+\newblock Ecological Modelling. 2010;221(23):2760--2768.
+
+\bibitem{Hucka2003}
+Hucka M, Finney A, Sauro HM, Bolouri H, Doyle JC, Kitano H, et~al.
+\newblock The systems biology markup language (SBML): a medium for
+  representation and exchange of biochemical network models.
+\newblock Bioinformatics. 2003;19(4):524--531.
+
+\bibitem{Cuellar2003}
+Cuellar AA, Lloyd CM, Nielsen PF, Bullivant DP, Nickerson DP, Hunter PJ.
+\newblock An overview of CellML 1.1, a biological model description language.
+\newblock Simulation. 2003;79(12):740--747.
+
+\bibitem{wanner1986}
+Wanner O, Gujer W.
+\newblock A multispecies biofilm model.
+\newblock Biotechnology and Bioengineering. 1986;28(3):314--328.
+
+\bibitem{Grimm_robustness_2016}
+Grimm V, Berger U.
+\newblock Robustness analysis: deconstructing computational models for
+  ecological theory and applications.
+\newblock Ecological Modelling. 2016;326:162--167.
+
+\bibitem{Wood_supersensitivity_1999}
+Wood SN, Thomas MB.
+\newblock Super–sensitivity to structure in biological models.
+\newblock Proceedings of the Royal Society of London B.
+  1999;266(1419):565--570.
+
+\end{thebibliography}

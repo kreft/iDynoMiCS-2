@@ -1,5 +1,7 @@
 package linearAlgebra;
 
+import utility.ExtraMath;
+
 /**
  * \brief TODO
  * 
@@ -25,17 +27,29 @@ package linearAlgebra;
  *   <li>advanced methods</li>
  * </ul>
  * 
- * TODO Credit to the JAMA package
- * 
  * <p>Note that all arrays from the <b>array.Vector</b> class are treated here
  * as column vectors. These may be converted to row vectors here using the 
  * {@link #transpose(int[] vector)} or {@link #transpose(double[] vector)}
  * methods.</p> 
  * 
+ * <p>Parts of this class are adapted from the JAMA package by Robert Clegg.</p>
+ * 
+ * <p><b>JAMA Copyright Notice</b>: This software is a cooperative product of 
+ * The MathWorks and the National Institute of Standards and Technology (NIST) 
+ * which has been released to the public domain. Neither The MathWorks nor NIST
+ * assumes any responsibility whatsoever for its use by other parties, and 
+ * makes no guarantees, expressed or implied, about its quality, reliability, 
+ * or any other characteristic.</p>
+ * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public final class Matrix
 {
+	/**
+	 * Character that separates rows of a matrix in {@code String} format.
+	 */
+	public final static String DELIMITER = ";";
+	
 	/*************************************************************************
 	 * STANDARD NEW MATRICES
 	 ************************************************************************/
@@ -202,6 +216,22 @@ public final class Matrix
 	/* Identity */
 	
 	/**
+	 * \brief Overwrite the given <b>matrix</b> with an identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 */
+	public static void identityTo(int[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[i].length; j++ )
+				matrix[i][j] = ( i == j ) ? 1 : 0;
+	}
+	
+	/**
 	 * \brief A new identity matrix.
 	 * 
 	 * <p>An identity matrix is filled with zeros, except on the main diagonal
@@ -218,9 +248,7 @@ public final class Matrix
 	public static int[][] identityInt(int m, int n)
 	{
 		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1 : 0;
+		identityTo(out);
 		return out;
 	}
 	
@@ -261,6 +289,24 @@ public final class Matrix
 		return identityInt(rowDim(matrix), colDim(matrix));
 	}
 	
+
+	/**
+	 * \brief Overwrite the given <b>matrix</b> with an identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 */
+	public static void identityTo(double[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[i].length; j++ )
+				matrix[i][j] = ( i == j ) ? 1.0 : 0.0;
+	}
+	
+	
 	/**
 	 * \brief A new identity matrix.
 	 * 
@@ -278,9 +324,7 @@ public final class Matrix
 	public static double[][] identityDbl(int m, int n)
 	{
 		double[][] out = new double[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1.0 : 0.0;
+		identityTo(out);
 		return out;
 	}
 	
@@ -319,6 +363,100 @@ public final class Matrix
 	public static double[][] identity(double[][] matrix)
 	{
 		return identityDbl(rowDim(matrix), colDim(matrix));
+	}
+	
+	/**
+	 * \brief Gets a new matrix of integers from a string.
+	 * 
+	 * @param matrixString String containing a matrix of integers.
+	 * @return int[][] matrix of integers from this string.
+	 * @see #dblFromString(String)
+	 */
+	public static int[][] intFromString(String matrixString)
+	{
+		String[] rows = matrixString.split(DELIMITER);
+		int[][] matrix = new int[rows.length][];
+		for ( int i = 0; i < rows.length; i++ )
+			matrix[i] = Vector.intFromString(rows[i]);
+		return matrix;
+	}
+	
+	/**
+	 * \brief Gets a new matrix of doubles from a string.
+	 * 
+	 * @param matrixString String containing a matrix of doubles.
+	 * @return int[][] matrix of doubles from this string.
+	 * @see #intFromString(String)
+	 */
+	public static double[][] dblFromString(String matrixString)
+	{
+		String[] rows = matrixString.split(DELIMITER);
+		double[][] matrix = new double[rows.length][];
+		for ( int i = 0; i < rows.length; i++ )
+			matrix[i] = Vector.dblFromString(rows[i]);
+		return matrix;
+	}
+	
+	/**
+	 * \brief Returns integer matrix in string format.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @return String representation of this <b>matrix</b>.
+	 */
+	public static String toString(int[][] matrix)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(matrix, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Returns double matrix in string format.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return String representation of this <b>matrix</b>.
+	 */
+	public static String toString(double[][] matrix)
+	{
+		StringBuffer out = new StringBuffer();
+		toString(matrix, out);
+		return out.toString();
+	}
+	
+	/**
+	 * \brief Converts the given <b>matrix</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(int[][] matrix, StringBuffer buffer)
+	{
+		int n = matrix.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Vector.toString(matrix[i], buffer);
+			buffer.append(DELIMITER);
+		}
+		Vector.toString(matrix[n], buffer);
+	}
+	
+	/**
+	 * \brief Converts the given <b>matrix</b> to {@code String}
+	 * format, and appends it to the given <b>buffer</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @param buffer String buffer (faster than String).
+	 */
+	public static void toString(double[][] matrix, StringBuffer buffer)
+	{
+		int n = matrix.length - 1;
+		for ( int i = 0; i < n; i++ )
+		{
+			Vector.toString(matrix[i], buffer);
+			buffer.append(DELIMITER);
+		}
+		Vector.toString(matrix[n], buffer);
 	}
 	
 	/*************************************************************************
@@ -479,8 +617,9 @@ public final class Matrix
 	 */
 	public static int[][] copy(int[][] matrix)
 	{
-		int[][] out = new int[matrix.length][matrix[0].length];
-		copyTo(out, matrix);
+		int[][] out = new int[matrix.length][];
+		for ( int i = 0; i < matrix.length; i++ )
+			out[i] = Vector.copy(matrix[i]);
 		return out;
 	}
 	
@@ -510,8 +649,9 @@ public final class Matrix
 	 */
 	public static double[][] copy(double[][] matrix)
 	{
-		double[][] out = new double[matrix.length][matrix[0].length];
-		copyTo(out, matrix);
+		double[][] out = new double[matrix.length][];
+		for ( int i = 0; i < matrix.length; i++ )
+			out[i] = Vector.copy(matrix[i]);
 		return out;
 	}
 	
@@ -545,9 +685,9 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set all elements of the given <b>matrix</b> to zero.
 	 * 
-	 * @param matrix
+	 * @param matrix Two-dimensional array of integers (overwritten).
 	 */
 	public static void reset(int[][] matrix)
 	{
@@ -555,9 +695,9 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set all elements of the given <b>matrix</b> to zero.
 	 * 
-	 * @param matrix
+	 * @param matrix Two-dimensional array of doubles (overwritten).
 	 */
 	public static void reset(double[][] matrix)
 	{
@@ -565,10 +705,11 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
 	 * 
-	 * @param matrix
-	 * @param newMinimum
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>matrix</b>.
 	 */
 	public static void restrictMinimum(int[][] matrix, int newMinimum)
 	{
@@ -577,10 +718,11 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix</b> to take a value greater
+	 * than or equal to <b>newMinimum</b>.
 	 * 
-	 * @param matrix
-	 * @param newMinimum
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param newMinimum New minimum value for all elements in <b>matrix</b>.
 	 */
 	public static void restrictMinimum(double[][] matrix, double newMinimum)
 	{
@@ -589,10 +731,11 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix</b> to take a value less
+	 * than or equal to <b>newMaximum</b>.
 	 * 
-	 * @param matrix
-	 * @param newMaximum
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>matrix</b>.
 	 */
 	public static void restrictMaximum(int[][] matrix, int newMaximum)
 	{
@@ -601,10 +744,11 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix</b> to take a value less
+	 * than or equal to <b>newMaximum</b>.
 	 * 
-	 * @param matrix
-	 * @param newMaximum
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param newMaximum New maximum value for all elements in <b>matrix</b>.
 	 */
 	public static void restrictMaximum(double[][] matrix, double newMaximum)
 	{
@@ -613,9 +757,10 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix/b> to take a value greater
+	 * than or equal to zero.
 	 * 
-	 * @param matrix
+	 * @param matrix Two-dimensional array of integers (overwritten).
 	 */
 	public static void makeNonnegative(int[][] matrix)
 	{
@@ -623,13 +768,42 @@ public final class Matrix
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Force all elements in this <b>matrix/b> to take a value greater
+	 * than or equal to zero.
 	 * 
-	 * @param matrix
+	 * @param matrix Two-dimensional array of doubles (overwritten).
 	 */
 	public static void makeNonnegative(double[][] matrix)
 	{
 		restrictMinimum(matrix, 0.0);
+	}
+	
+	/**
+	 * \brief Set all elements in the column of a given <b>matrix</b> to a new
+	 * value.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param index {@code int} index of the column required.
+	 * @param value Fill the column with this integer value.
+	 */
+	public static void setColumnTo(int[][] matrix, int index, int value)
+	{
+		for ( int[] row : matrix )
+			row[index] = value;
+	}
+	
+	/**
+	 * \brief Set all elements in the column of a given <b>matrix</b> to a new
+	 * value.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param index {@code int} index of the column required.
+	 * @param value Fill the column with this double value.
+	 */
+	public static void setColumnTo(double[][] matrix, int index, double value)
+	{
+		for ( double[] row : matrix )
+			row[index] = value;
 	}
 	
 	/*************************************************************************
@@ -989,6 +1163,72 @@ public final class Matrix
 		for ( int i = 0; i < rowDim(a); i++ )
 			if ( ! Vector.areSame(a[i], b[i], tolerance) )
 				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(int[][] matrix)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( matrix[i][j] != matrix[j][i] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(double[][] matrix)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( matrix[i][j] != matrix[j][i] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param tolerance {@code double} value for the absolute tolerance, i.e.
+	 * |a<sub>i,j</sub> - a<sub>j,i</sub>| <= tolerance will be accepted
+	 * as close enough to zero (helps avoid numerical issues). 
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(double[][] matrix, double absTol)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( ! ExtraMath.areEqual(matrix[i][j], matrix[j][i], absTol) )
+					return false;
 		return true;
 	}
 	
@@ -1932,6 +2172,46 @@ public final class Matrix
 		return out;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param source
+	 * @param pivot
+	 */
+	public static void reorderRowsTo(
+			int[][] destination, int[][] source, int[] pivot)
+	{
+		checkDimensionsSame(destination, source);
+		if ( source.length != pivot.length )
+		{
+			throw new IllegalArgumentException(
+					"Pivot must have as many elements ar matrix has rows");
+		}
+		for ( int i = 0; i < pivot.length; i++ )
+			Vector.copyTo(destination[pivot[i]], source[i]);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param source
+	 * @param pivot
+	 */
+	public static void reorderRowsTo(
+			double[][] destination, double[][] source, int[] pivot)
+	{
+		checkDimensionsSame(destination, source);
+		if ( source.length != pivot.length )
+		{
+			throw new IllegalArgumentException(
+					"Pivot must have as many elements ar matrix has rows");
+		}
+		for ( int i = 0; i < pivot.length; i++ )
+			Vector.copyTo(destination[pivot[i]], source[i]);
+	}
+	
 	/*************************************************************************
 	 * MATRIX-VECTOR CONVERSIONS
 	 ************************************************************************/
@@ -1986,6 +2266,7 @@ public final class Matrix
 	 */
 	public static int[][] transpose(int[][] matrix)
 	{
+		checkDimensions(matrix);
 		int[][] out = new int[colDim(matrix)][rowDim(matrix)];
 		for ( int i = 0; i < matrix.length; i++ )
 			for ( int j = 0; j < matrix[0].length; j++ )
@@ -2007,6 +2288,7 @@ public final class Matrix
 	 */
 	public static double[][] transpose(double[][] matrix)
 	{
+		checkDimensions(matrix);
 		double[][] out = new double[matrix[0].length][matrix.length];
 		for ( int i = 0; i < matrix.length; i++ )
 			for ( int j = 0; j < matrix[0].length; j++ )
@@ -2537,6 +2819,26 @@ public final class Matrix
 	 ************************************************************************/
 	
 	/**
+	 * \brief A new <b>m</b>-by-<b>n</b> {@code int} matrix, where each element
+	 * is randomly chosen from a uniform distribution in [min, max).
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @param min Lower bound of random numbers (inclusive).
+	 * @param max Upper bound of random numbers (exclusive).
+	 * @return Two-dimensional array of integers, with elements drawn from a 
+	 * uniform distribution between <b>min</b> (inclusive) and <b>max</b>
+	 * (exclusive).
+	 */
+	public static int[][] randomInts(int m, int n, int min, int max)
+	{
+		int[][] out = new int[m][];
+		for ( int i = 0; i < m; i++ )
+			out[i] = Vector.randomInts(n, min, max);
+		return out;
+	}
+	
+	/**
 	 * \brief Create a new <b>m</b>-by-<b>n</b> matrix with random elements.
 	 * 
 	 * <p>Random numbers are drawn from a uniform distribution over
@@ -2546,10 +2848,10 @@ public final class Matrix
 	 * @param n Number of columns.
 	 * @return Two-dimensional array of doubles with elements drawn from a 
 	 * uniform distribution.
-	 * @see #random(int)
-	 * @see #random(double[][])
+	 * @see #randomZeroOne(int)
+	 * @see #randomZeroOne(double[][])
 	 */
-	public static double[][] random(int m, int n)
+	public static double[][] randomZeroOne(int m, int n)
 	{
 		double[][] out = new double[m][];
 		for ( int i = 0; i < m; i++ )
@@ -2566,12 +2868,12 @@ public final class Matrix
 	 * @param mn Number of rows = number of columns.
 	 * @return Two-dimensional array of doubles with elements drawn from a 
 	 * uniform distribution.
-	 * @see #random(int, int)
-	 * @see #random(double[][])
+	 * @see #randomZeroOne(int, int)
+	 * @see #randomZeroOne(double[][])
 	 */
-	public static double[][] random(int mn)
+	public static double[][] randomZeroOne(int mn)
 	{
-		return random(mn, mn);
+		return randomZeroOne(mn, mn);
 	}
 	
 	/**
@@ -2583,13 +2885,65 @@ public final class Matrix
 	 * @param matrix Two-dimensional array of {@code double}s (preserved).
 	 * @return Two-dimensional array of random {@code double}s with the same
 	 *    number of rows and of columns as <b>matrix</b>.
-	 * @see #random(int, int)
-	 * @see #random(int)
+	 * @see #randomZeroOne(int, int)
+	 * @see #randomZeroOne(int)
 	 */
-	public static double[][] random(double[][] matrix)
+	public static double[][] randomZeroOne(double[][] matrix)
 	{
-		return random(rowDim(matrix), colDim(matrix));
+		return randomZeroOne(rowDim(matrix), colDim(matrix));
 	}
+	
+	/**
+	 * \brief A new <b>m</b>-by-<b>n</b> matrix, where each element is
+	 * randomly chosen from a uniform distribution in (-1.0, 1.0).
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @return Two-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus one and plus one 
+	 * (exclusive).
+	 */
+	public static double[][] randomPlusMinus(int m, int n)
+	{
+		double[][] out = new double[m][];
+		for ( int i = 0; i < m; i++ )
+			out[i] = Vector.randomPlusMinus(n);
+		return out;
+	}
+	
+	/**
+	 * \brief A new square matrix, where each element is randomly chosen from a
+	 * uniform distribution in (-1.0, 1.0).
+	 * 
+	 * @param mn Number of rows = number of columns.
+	 * @return Two-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus one and plus one 
+	 * (exclusive).
+	 */
+	public static double[][] randomPlusMinus(int mn)
+	{
+		return randomPlusMinus(mn, mn);
+	}
+	
+	/**
+	 * \brief A new <b>m</b>-by-<b>n</b> matrix, where each element is
+	 * randomly chosen from a uniform distribution in (-<b>scale</b>, 
+	 * <b>scale</b>).
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @param scale Magnitude of largest number possible in a matrix element.
+	 * @return Two-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus <b>scale</b> and 
+	 * <b>scale</b> (exclusive).
+	 */
+	public static double[][] randomPlusMinus(int m, int n, double scale)
+	{
+		double[][] out = randomPlusMinus(m, n);
+		timesEquals(out, scale);
+		return out;
+	}
+	
 	/*************************************************************************
 	 * CONVERTING BETWEEN INTEGER AND DOUBLE
 	 ************************************************************************/

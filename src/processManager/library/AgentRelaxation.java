@@ -4,7 +4,8 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
-
+import dataIO.Log;
+import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
@@ -278,8 +279,8 @@ public class AgentRelaxation extends ProcessManager
 				}
 			nstep++;
 		}
-		if(this._debugMode)
-			System.out.println(agents.getNumAllAgents() + " after " + nstep
-				+ " iterations");
-	}	
+		Log.out(Tier.DEBUG,
+				"Relaxed "+agents.getNumAllAgents()+" agents after "+
+				nstep+" iterations");
+	}
 }
