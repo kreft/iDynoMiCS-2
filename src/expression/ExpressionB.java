@@ -518,6 +518,6 @@ public class ExpressionB extends Component implements NodeConstructor
 	@Override
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
-		return null;
+		return XmlLabel.expression;
 	}
 }

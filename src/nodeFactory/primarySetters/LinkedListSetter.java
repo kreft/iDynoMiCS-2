@@ -1,7 +1,5 @@
 package nodeFactory.primarySetters;
 
-import java.util.LinkedList;
-
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import nodeFactory.ModelAttribute;
@@ -23,7 +21,7 @@ public class LinkedListSetter implements NodeConstructor {
 		ModelNode modelNode = new ModelNode("item", this);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		
-		modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
+		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
 				listObject.getClass().getSimpleName(), null, true ));
 		
 		if (listObject instanceof XMLable)

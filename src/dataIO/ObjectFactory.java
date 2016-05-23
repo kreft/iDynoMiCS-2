@@ -109,7 +109,7 @@ public class ObjectFactory
 					return ObjectFactory.xmlHashMap(input);
 			}
 			Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
-					+ "object type: " + classType);
+					+ "object type: " + type + " class " + classType);
 			return null;
 		}
 	}
@@ -187,7 +187,7 @@ public class ObjectFactory
 					return ObjectFactory.xmlHashMap(s);
 			}
 			Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
-					+ "object type: " + sType);
+					+ "object type: " + aType + " class " + sType);
 			return null;
 		}
 	}
@@ -282,7 +282,7 @@ public class ObjectFactory
 			hMap.put((Object) loadObject((Element) items.item(i), 
 					XmlLabel.keyAttribute , XmlLabel.keyTypeAttribute ), 
 					(Object) loadObject((Element) items.item(i), 
-					XmlLabel.valueAttribute, XmlLabel.typeAttribute ));
+					XmlLabel.valueAttribute, XmlLabel.classAttribute ));
 		}
 		return hMap;
 	}
@@ -316,11 +316,11 @@ public class ObjectFactory
      * included as child node, simple objects are include in the value
      * attribute.
      * @param obj
-     * @param typeLabel
+     * @param classLabel
      * @param valLabel
      * @return
      */
-    public static String specString(Object obj, String typeLabel, 
+    public static String specString(Object obj, String classLabel, 
     		String valLabel)
     {
     	String simpleName = obj.getClass().getSimpleName();
@@ -328,7 +328,7 @@ public class ObjectFactory
     	if (obj instanceof XMLable)
 		{
 			XMLable x = (XMLable) obj;
-			out = out + " " + typeLabel + "=\"" + simpleName + "\">\n" + 
+			out = out + " " + classLabel + "=\"" + simpleName + "\">\n" + 
 			x.getXml();
 		}
 		else
@@ -336,12 +336,12 @@ public class ObjectFactory
 	    	switch (simpleName)
     		{
     		case "String[]":
-    			out = out + " " + typeLabel + "=\"" + simpleName+ "\" " + 
+    			out = out + " " + classLabel + "=\"" + simpleName+ "\" " + 
     					valLabel + "=\"" + Helper.StringAToString(
     					(String[]) obj) + "\"";
     			break;
     		default:
-    			out = out + " " + typeLabel + "=\"" + simpleName+ "\" " + 
+    			out = out + " " + classLabel + "=\"" + simpleName+ "\" " + 
     					valLabel + "=\"" + obj.toString() + "\"";
     		}
 		}
@@ -349,6 +349,7 @@ public class ObjectFactory
     }
     
     /**
+     * TODO: this needs a cleanup
      * Return a node with xmlTag as tag from input object, name attribute is
      * optional.
      * @param obj
@@ -367,18 +368,18 @@ public class ObjectFactory
 		case "HashMap":
 			@SuppressWarnings("unchecked")
 			HashMap<Object,Object> h = (HashMap<Object,Object>) obj;
-			out = out + " " + XmlLabel.typeAttribute + "=\"" + simpleName + 
+			out = out + " " + XmlLabel.classAttribute + "=\"" + simpleName + 
 					"\">\n";
 			for(Object hKey : h.keySet())
 			{
 				out = out + "<" + XmlLabel.item + " " + 
 						specString( 
 								hKey, 
-								XmlLabel.keyTypeAttribute, 
+								XmlLabel.keyTypeAttribute, //TODO replace with class attr
 								XmlLabel.keyAttribute) +
 						specString(
 								h, 
-								XmlLabel.typeAttribute, 
+								XmlLabel.classAttribute, 
 								XmlLabel.valueAttribute)
 						+ (h instanceof XMLable ? "</" + XmlLabel.item + ">\n" :
 								"/>\n");
@@ -389,11 +390,11 @@ public class ObjectFactory
 		case "LinkedList":
 			@SuppressWarnings("unchecked")
 			LinkedList<Object> l = (LinkedList<Object>) obj;
-			out = out + " type=\"" + simpleName + "\">\n";
+			out = out + " " + XmlLabel.classAttribute + "=\"" + simpleName + "\">\n";
 			for(Object o : l)
 			{
 				out = out + "<" + XmlLabel.item + " " +
-						specString(o, XmlLabel.typeAttribute,
+						specString(o, XmlLabel.classAttribute,
 						XmlLabel.valueAttribute) + (o instanceof XMLable ? 
 						"</" + XmlLabel.item + ">\n" : "/>\n");
 
@@ -402,7 +403,7 @@ public class ObjectFactory
 			break;
 		default:
 			out = out + specString(obj, 
-					XmlLabel.typeAttribute, XmlLabel.valueAttribute)
+					XmlLabel.classAttribute, XmlLabel.valueAttribute)
 					+ (obj instanceof XMLable ? "</" + XmlLabel.item + ">\n"
 					: "/>\n");
 		}
@@ -428,7 +429,7 @@ public class ObjectFactory
 								XmlLabel.keyAttribute) +
 						specString(
 								h, 
-								XmlLabel.typeAttribute, 
+								XmlLabel.classAttribute, 
 								XmlLabel.valueAttribute)
 						+ (h instanceof XMLable ? "</" + XmlLabel.item + ">\n" :
 								"/>\n");
@@ -441,7 +442,7 @@ public class ObjectFactory
 			for(Object o : l)
 			{
 				out = out + "<" + XmlLabel.item + " " +
-						specString(o, XmlLabel.typeAttribute,
+						specString(o, XmlLabel.classAttribute,
 						XmlLabel.valueAttribute) + (o instanceof XMLable ? 
 						"</" + XmlLabel.item + ">\n" : "/>\n");
 
@@ -449,7 +450,7 @@ public class ObjectFactory
 			break;
 		default:
 			out = out + specString(obj, 
-					XmlLabel.typeAttribute, XmlLabel.valueAttribute)
+					XmlLabel.classAttribute, XmlLabel.valueAttribute)
 					+ (obj instanceof XMLable ? "</" + XmlLabel.item + ">\n"
 					: "/>\n");
 		}

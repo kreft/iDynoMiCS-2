@@ -374,41 +374,37 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 
 	@Override
 	public ModelNode getNode() {
-		if (modelNode == null)
-		{
-			/* create simulation node */
-			ModelNode myNode = new ModelNode(XmlLabel.simulation, this);
-			myNode.requirement = Requirements.EXACTLY_ONE;
-			
-			Param.init();
-			if(! Log.isSet())
-				Log.set(Tier.NORMAL);
-			
-			/* add attributes */
-			myNode.add( new ModelAttribute(XmlLabel.nameAttribute, 
-					Idynomics.global.simulationName, null, false ));
-			myNode.add(new ModelAttribute(XmlLabel.outputFolder, 
-					Idynomics.global.outputRoot, null, false ));
-			myNode.add(new ModelAttribute(XmlLabel.logLevel, 
-					Log.level(), Helper.enumToString(Tier.class).split(" "), true ));
-			myNode.add(new ModelAttribute(XmlLabel.commentAttribute, 
-					Idynomics.global.simulationComment, null, true ));
-			
-			/* add timer node */
-			myNode.add(timer.getNode());
-			
-			/* add species lib */
-			myNode.add(speciesLibrary.getNode());
-	
-			/* add compartment nodes */
-			for ( Compartment c : this._compartments )
-				myNode.add(c.getNode());
-			
-			myNode.childConstructors.put(new Compartment(), ModelNode.Requirements.ZERO_TO_FEW);
-			
-			modelNode = myNode;
-		}
+		/* create simulation node */
+		ModelNode modelNode = new ModelNode(XmlLabel.simulation, this);
+		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
+		Param.init();
+		if(! Log.isSet())
+			Log.set(Tier.NORMAL);
+		
+		/* add attributes */
+		modelNode.add( new ModelAttribute(XmlLabel.nameAttribute, 
+				Idynomics.global.simulationName, null, false ));
+		modelNode.add(new ModelAttribute(XmlLabel.outputFolder, 
+				Idynomics.global.outputRoot, null, false ));
+		modelNode.add(new ModelAttribute(XmlLabel.logLevel, 
+				Log.level(), Helper.enumToString(Tier.class).split(" "), true ));
+		modelNode.add(new ModelAttribute(XmlLabel.commentAttribute, 
+				Idynomics.global.simulationComment, null, true ));
+		
+		/* add timer node */
+		modelNode.add(timer.getNode());
+		
+		/* add species lib */
+		modelNode.add(speciesLibrary.getNode());
+
+		/* add compartment nodes */
+		for ( Compartment c : this._compartments )
+			modelNode.add(c.getNode());
+		
+		modelNode.childConstructors.put(new Compartment(), ModelNode.Requirements.ZERO_TO_FEW);
+
+		this.modelNode = modelNode;
 		/* return node */
 		return modelNode;
 	}

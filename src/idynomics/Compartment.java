@@ -511,8 +511,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	
 	public ModelNode getNode()
 	{
-		if (modelNode == null)
-		{
+
 		modelNode = new ModelNode(XmlLabel.compartment, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 		
@@ -536,8 +535,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		 * from TODO investigate a cleaner way of doing this  */
 		modelNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), 
 				ModelNode.Requirements.EXACTLY_ONE);
-
-		}
 		
 		return modelNode;
 		

@@ -430,8 +430,8 @@ public class AspectReg
 				{
 				case "HashMap":
 					HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
-					for (Object k : h.keySet())
-						modelNode.add(HashMapNode(k));
+//					for (Object k : h.keySet())
+//						modelNode.add(HashMapNode(k));
 					break;
 				case "LinkedList":
 //					modelNode.add(ObjectFactory.nodeFactoryInner(aspect));

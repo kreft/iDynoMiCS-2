@@ -14,6 +14,7 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="AOB">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
 					<item type="PRIMARY" class="Reaction">
 						<reaction name="testReact">
@@ -79,7 +80,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
-					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+					
 					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
 					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="12.2, 12.2" />
