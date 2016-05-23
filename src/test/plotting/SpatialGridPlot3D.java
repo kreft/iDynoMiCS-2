@@ -490,7 +490,7 @@ public class SpatialGridPlot3D{
 	{
 		double[] loc = grid.getLocation(coords, inside);
 		if (grid instanceof SphericalGrid)
-			loc = Vector.toCartesian(loc);
+			Vector.unspherifyEquals(loc);
 		if (grid instanceof CylindricalGrid)
 			Vector.uncylindrifyEquals(loc);
 		return loc;

@@ -70,13 +70,13 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	public double[] getLocalPosition(double[] location)
 	{
-		return Vector.toPolar(location);
+		return Vector.unspherify(location);
 	}
 	
 	@Override
 	public double[] getGlobalLocation(double[] local)
 	{
-		return Vector.toCartesian(local);
+		return Vector.spherify(local);
 	}
 	
 	/*************************************************************************
