@@ -48,10 +48,9 @@ public class CoccoidDivision extends Event {
 
 		//TODO check phase 
 		double momMass =(double) mother.get(MASS);
-		if ( momMass > 0.2 )
+		if ( momMass > 0.2 ) //TODO make this an aspect
 		{
 			Body momBody = (Body) mother.get(BODY);
-
 			Agent daughter = new Agent(mother); // the copy constructor
 			double randM = ExtraMath.getUniRandDbl(momMass*0.5, momMass*0.55);
 			mother.set(MASS, momMass-randM);
