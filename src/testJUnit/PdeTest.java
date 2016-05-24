@@ -34,7 +34,7 @@ public class PdeTest
 		
 		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
 		comp.setShape("line");
-		comp.setSideLengths(new double[]{compartmentLength});
+		//comp.setSideLengths(new double[]{compartmentLength});
 		/* Make both boundaries solid. */
 		comp.addBoundary(DimName.X, 0, new SolidBoundary());
 		comp.addBoundary(DimName.X, 1, new SolidBoundary());
@@ -44,9 +44,10 @@ public class PdeTest
 		resCalc.setLength(compartmentLength);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
-		
+		/*
+		 * Add the solute and fill it with random values.
+		 */
 		String soluteName = "solute";
-		// FIXME crashes here because the grid can't find a ResolutionCalculator
 		comp.addSolute(soluteName);
 		SpatialGrid sG = comp.getSolute(soluteName);
 		for ( int[] c = shape.resetIterator(); 
@@ -58,11 +59,22 @@ public class PdeTest
 		double average = sG.getAverage(ArrayType.CONCN);
 		Log.out(Tier.DEBUG, "Average concn is "+average+" to start");
 		
+		/*
+		 * Set up the diffusion solver.
+		 */
 		SolveDiffusionTransient pm = new SolveDiffusionTransient();
+		pm.setName("DR solver");
+		pm.init(new String[]{soluteName});
 		pm.setTimeForNextStep(0.0);
 		pm.setTimeStepSize(tStep);
 		pm.setPriority(1);
 		comp.addProcessManager(pm);
 		
+		double[][][] oldConcns, newConcns;
+		
+		oldConcns = sG.getArray(ArrayType.CONCN);
+		Idynomics.simulator.step();
+		newConcns = sG.getArray(ArrayType.CONCN);
+		Log.out(Tier.DEBUG, "New average: "+sG.getAverage(ArrayType.CONCN));
 	}
 }

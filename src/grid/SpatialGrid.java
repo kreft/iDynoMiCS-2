@@ -127,8 +127,9 @@ public class SpatialGrid
 		return this._array.containsKey(type);
 	}
 
-	public Shape getShape(){
-		return _shape;
+	public Shape getShape()
+	{
+		return this._shape;
 	}
 
 	/**
@@ -361,7 +362,8 @@ public class SpatialGrid
 	public double getFluxWithNeighbor(String soluteName)
 	{
 		Shape shape = this._shape;
-		if( shape.isNbhIteratorValid() )
+		// FIXME an invalid neighbor is not the same as one on the boundary!!!
+		if ( shape.isNbhIteratorValid() )
 		{
 			/*
 			 * First find the difference in concentration.

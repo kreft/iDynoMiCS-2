@@ -1075,16 +1075,24 @@ public abstract class Shape implements
 		double volume;
 		double max;
 		double temp = 0.0;
+		this._maxFluxPotentl = Double.NEGATIVE_INFINITY;
 		for ( this.resetIterator(); this.isIteratorValid(); this.iteratorNext())
 		{
 			volume = this.getVoxelVolume(this._currentCoord);
-			max  = 0.0;
+			Log.out(Tier.DEBUG, "Coord "+Vector.toString(this._currentCoord)+
+					" has volume "+volume);
+			max = 0.0;
 			for ( this.resetNbhIter();
 						this.isNbhIteratorValid(); this.nbhIteratorNext() )
 			{
 				temp = this.nbhCurrSharedArea() / this.nbhCurrDistance();
+				Log.out(Tier.DEBUG, "   nbh "+
+						Vector.toString(this._currentNeighbor)+
+						" has shared area "+this.nbhCurrSharedArea()+
+						" and distance "+this.nbhCurrDistance());
 				max = Math.max(max, temp);
 			}
+			
 			this._maxFluxPotentl = Math.max(this._maxFluxPotentl, max/volume);
 		}
 		/*
@@ -1393,8 +1401,8 @@ public abstract class Shape implements
 		this._currentNeighbor[index]--;
 		/* Check that this coordinate is acceptable. */
 		boolean inside = this._currentNeighbor[index] >= 0;
-		this._nbhOnDefBoundary = ! inside && this._dimensions.get(dim)
-														.isBoundaryDefined(0);
+		this._nbhOnDefBoundary = (! inside) && 
+				this._dimensions.get(dim).isBoundaryDefined(0);
 		boolean valid = inside || this._nbhOnDefBoundary;
 		this._nbhDirection = 0;
 		this._nbhDimName = dim;
