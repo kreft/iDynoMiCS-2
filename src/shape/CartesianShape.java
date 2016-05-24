@@ -168,7 +168,7 @@ public abstract class CartesianShape extends Shape
 			nbhIndex++;
 			if ( nbhIndex < 3 )
 			{
-//				this._nbhDimName = this.getDimensionName(nbhIndex);
+				this._nbhDimName = this.getDimensionName(nbhIndex);
 				if ( ! moveNbhToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
 			}
