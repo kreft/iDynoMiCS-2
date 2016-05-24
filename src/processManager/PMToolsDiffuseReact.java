@@ -178,9 +178,7 @@ public final class PMToolsDiffuseReact
 		Collection<Reaction> reactions = environment.getReactions();
 		if ( reactions.isEmpty() )
 			return;
-		// FIXME this is a temporary fix until we unify all grid resolutions.
-		String firstSolute = environment.getSoluteNames().iterator().next();
-		SpatialGrid defaultGrid = environment.getSoluteGrid(firstSolute);
+		Shape shape = environment.getShape();
 		/*
 		 * Iterate over the spatial discretisation of the environment, applying
 		 * extracellular reactions as required.
@@ -189,9 +187,9 @@ public final class PMToolsDiffuseReact
 		SpatialGrid solute;
 		HashMap<String,Double> concns = new HashMap<String,Double>();
 		Set<String> productNames;
-		for ( int[] coord = defaultGrid.resetIterator(); 
-				defaultGrid.isIteratorValid(); 
-				coord = defaultGrid.iteratorNext())
+		for ( int[] coord = shape.resetIterator(); 
+				shape.isIteratorValid(); 
+				coord = shape.iteratorNext())
 		{
 			/* Get concentrations in grid voxel. */
 			concns.clear();

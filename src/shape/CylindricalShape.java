@@ -1,12 +1,14 @@
 package shape;
 
-import grid.CylindricalGrid;
-import grid.SpatialGrid.GridGetter;
-import linearAlgebra.Vector;
-import shape.ShapeConventions.DimName;
 import static shape.ShapeConventions.DimName.R;
 import static shape.ShapeConventions.DimName.THETA;
 import static shape.ShapeConventions.DimName.Z;
+
+import grid.CylindricalGrid;
+import grid.SpatialGrid;
+import linearAlgebra.PolarArray;
+import linearAlgebra.Vector;
+import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Rod;
 import surface.Surface;
@@ -36,10 +38,11 @@ public abstract class CylindricalShape extends PolarShape
 		dim = new Dimension();
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
+		this._resCalc[getDimensionIndex(R)] = new ResCalc[1];
 		/*
 		 * Set to a full circle by default, let it be overwritten later.
 		 */
-		dim = new Dimension(false);
+		dim = new Dimension();
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
 		this._dimensions.put(THETA, dim);
@@ -48,17 +51,22 @@ public abstract class CylindricalShape extends PolarShape
 		 */
 		dim = new Dimension(false);
 		this._dimensions.put(Z, dim);
+		this._resCalc[getDimensionIndex(Z)] = new ResCalc[1];
+	}
+	
+	@Override
+	public double[][][] getNewArray(double initialValue) {
+		return PolarArray.createCylinder(this._resCalc, initialValue);
+	}
+	
+	@Override
+	public SpatialGrid getNewGrid() {
+		return new CylindricalGrid(this);
 	}
 	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
-	@Override
-	public GridGetter gridGetter()
-	{
-		return CylindricalGrid.standardGetter();
-	}
 	
 
 	@Override
@@ -98,17 +106,18 @@ public abstract class CylindricalShape extends PolarShape
 			{
 				int nShell = radiusC.getNVoxel();
 				this._resCalc[index] = new ResCalc[nShell];
-				double shellRadius;
 				ResCalc shellResCalc;
 				for ( int i = 0; i < nShell; i++ )
 				{
-					/* Find the mid-point of this shell. */
-					shellRadius = radiusC.getPosition(i, 0.5);
 					shellResCalc = (ResCalc) resC.copy();
-					shellResCalc.setLength(shellRadius);
+					/* since we so not allow initialization with varying 
+					 * resolutions, they should all be the same here 
+					 */
+					shellResCalc.setLength(scaleResolutionForShell(i, resC.getResolution(0)));
 					this._resCalc[index][i] = shellResCalc;
 				}
 			}
+			return;
 		}
 		case Z:
 		{
@@ -215,23 +224,6 @@ public abstract class CylindricalShape extends PolarShape
 		return volume;
 	}
 	
-	@Override
-	protected void nVoxelTo(int[] destination, int[] coord)
-	{
-		int nDim = this.getNumberOfDimensions();
-		/* Initialise the out vector if necessary. */
-		if ( destination == null )
-			destination = Vector.zerosInt(nDim);
-		
-		ResCalc rC;
-		for ( int dim = 0; dim < nDim; dim++ )
-		{
-			// TODO check if coord is valid?
-			rC = this.getResolutionCalculator(coord, dim);
-			destination[dim] = rC.getNVoxel();
-		}
-	}
-	
 	/*************************************************************************
 	 * SUBVOXEL POINTS
 	 ************************************************************************/
@@ -249,24 +241,29 @@ public abstract class CylindricalShape extends PolarShape
 	{
 		this._nbhValid = true;
 		/* See if we can use the inside r-shell. */
-		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) )
-			return;
+		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) ) ;
 		/* See if we can take one of the theta-neighbors. */
-		if (this.moveNbhToMinus(THETA)||this.nbhJumpOverCurrent(THETA))
-			return;
+		else if (this.moveNbhToMinus(THETA)||this.nbhJumpOverCurrent(THETA)) ;
 		/* See if we can take one of the z-neighbors. */
-		if (this.moveNbhToMinus(Z)||this.nbhJumpOverCurrent(Z))
-			return;
+		else if (this.moveNbhToMinus(Z)||this.nbhJumpOverCurrent(Z)) ;
 		/* See if we can use the outside r-shell. */
-		if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
-			return;
+		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) ) ;
 		/* There are no valid neighbors. */
+		else this._nbhValid = false;
+		
+		if (this._nbhValid){
+			transformNbhCyclic();
+			return;
+		}
+		
+		this._nbhOnDefBoundary = false;
 		this._nbhValid = false;
 	}
 	
 	@Override
 	public int[] nbhIteratorNext()
 	{
+		this.reTransformNbhCyclic();
 		/*
 		 * In the cylindrical grid, we start the TODO
 		 */
@@ -317,6 +314,7 @@ public abstract class CylindricalShape extends PolarShape
 			if ( ! this.increaseNbhByOnePolar(THETA) )
 				this._nbhValid = false;
 		}
+		this.transformNbhCyclic();
 		return this._currentNeighbor;
 	}
 	

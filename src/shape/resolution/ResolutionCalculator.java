@@ -246,7 +246,14 @@ public class ResolutionCalculator
 		@Override
 		public void setLength(double length)
 		{
-			this.init(this._targetRes, length);
+			this.init(length, this._length);
+		}
+		
+		public Object copy()
+		{
+			UniformResolution out = (UniformResolution) super.copy();
+			out._targetRes = this._targetRes;
+			return out;
 		}
 	}
 
@@ -286,6 +293,13 @@ public class ResolutionCalculator
 		public void setLength(double length)
 		{
 			this.init(this._targetRes, length);
+		}
+		
+		public Object copy()
+		{
+			UniformResolution out = (UniformResolution) super.copy();
+			out._targetRes = this._targetRes;
+			return out;
 		}
 	}
 }
