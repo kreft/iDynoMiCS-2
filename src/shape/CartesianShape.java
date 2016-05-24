@@ -179,6 +179,7 @@ public abstract class CartesianShape extends Shape
 				this._nbhValid = false;
 		}
 		this.transformNbhCyclic();
+		this._whereIsNbh = this.whereIsNhb();
 		return this._currentNeighbor;
 	}
 	

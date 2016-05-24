@@ -363,7 +363,7 @@ public class SpatialGrid
 	{
 		Shape shape = this._shape;
 		// FIXME an invalid neighbor is not the same as one on the boundary!!!
-		if ( shape.isNbhIteratorValid() )
+		if ( shape.isNhbIteratorInside() )
 		{
 			/*
 			 * First find the difference in concentration.

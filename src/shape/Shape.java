@@ -1032,6 +1032,22 @@ public abstract class Shape implements
 		return this.whereIs(this._currentNeighbor, dimName);
 	}
 	
+	protected WhereAmI whereIsNhb()
+	{
+		this._whereIsNbh = INSIDE;
+		WhereAmI where;
+		for ( DimName dim : this._dimensions.keySet() )
+			if ( this._dimensions.get(dim).isSignificant() )
+			{
+				where = this.whereIsNhb(dim);
+				if ( where == UNDEFINED )
+					return (this._whereIsNbh = UNDEFINED);
+				if ( this._whereIsNbh == INSIDE && where == DEFINED )
+					this._whereIsNbh = DEFINED;
+			}
+		return this._whereIsNbh;
+	}
+	
 	/**
 	 * \brief Calculate the greatest potential flux between neighboring voxels.
 	 * 
@@ -1234,7 +1250,8 @@ public abstract class Shape implements
 		return true;
 	}
 	
-	public int[] iteratorCurrent(){
+	public int[] iteratorCurrent()
+	{
 		return _currentCoord;
 	}
 	
@@ -1260,7 +1277,8 @@ public abstract class Shape implements
 				_currentCoord[0]++;
 			}
 		}
-		if ( this.isIteratorValid()) this.updateCurrentNVoxel();	
+		if ( this.isIteratorValid() )
+			this.updateCurrentNVoxel();
 		return _currentCoord;
 	}
 	
@@ -1320,7 +1338,14 @@ public abstract class Shape implements
 	 */
 	public boolean isNbhIteratorValid()
 	{
+		Log.out(Tier.DEBUG, "Nhb iter at "+
+				Vector.toString(this._currentNeighbor)+": "+this._whereIsNbh);
 		return this._nbhValid;
+	}
+	
+	public boolean isNhbIteratorInside()
+	{
+		return (this._whereIsNbh == INSIDE);
 	}
 	
 	/**
@@ -1466,6 +1491,7 @@ public abstract class Shape implements
 		/* Report failure. */
 		// TODO is it appropriate to use a meaningless direction here?
 		this._nbhDirection = -1;
+		this._whereIsNbh = this.whereIsNhb(dim);
 		return false;
 	}
 	
