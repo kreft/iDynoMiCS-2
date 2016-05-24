@@ -26,9 +26,7 @@ import linearAlgebra.Vector;
 import processManager.PMToolsAgentEvents;
 import processManager.ProcessManager;
 import reaction.Reaction;
-
 import shape.subvoxel.CoordinateMap;
-
 import shape.Shape;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEexplicit;

@@ -280,6 +280,11 @@ public abstract class Shape implements
 		return this.getClass().getSimpleName();
 	}
 	
+	
+	public abstract SpatialGrid getNewGrid();
+		
+	public abstract double[][][] getNewArray(double initialValue);
+	
 	/**
 	 * \brief Convert a spatial position from global (Cartesian) coordinates to
 	 * a new vector in the local coordinate scheme. 
@@ -288,12 +293,6 @@ public abstract class Shape implements
 	 * @return
 	 * @see #getGlobalLocation(double[])
 	 */
-
-	public abstract SpatialGrid getNewGrid();
-		
-	public abstract double[][][] getNewArray(double initialValue);
-	
-
 	protected abstract double[] getLocalPosition(double[] cartesian);
 	
 	/**
