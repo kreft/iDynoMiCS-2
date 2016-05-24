@@ -6,14 +6,15 @@ package shape;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectRef;
 import dataIO.XmlHandler;
-import dataIO.Log.Tier;
 import grid.DummyGrid;
-import grid.SpatialGrid.GridGetter;
+import grid.SpatialGrid;
+import linearAlgebra.Array;
 import linearAlgebra.Vector;
-import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.ShapeConventions.DimName;
+import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
  * \brief Collection of instanciable {@code Shape} classes.
@@ -45,6 +46,16 @@ public final class ShapeLibrary
 		}
 		
 		@Override
+		public SpatialGrid getNewGrid() {
+			return new DummyGrid(this, this._volume);
+		}
+
+		@Override
+		public double[][][] getNewArray(double initialValue) {
+			return Array.array(1, initialValue);
+		}
+		
+		@Override
 		public void init(Element xmlElem)
 		{
 			// TODO read in as a Double
@@ -61,13 +72,6 @@ public final class ShapeLibrary
 		public void setVolume(double volume)
 		{
 			this._volume = volume;
-		}
-		
-		@Override
-		public GridGetter gridGetter()
-		{
-			Log.out(Tier.DEBUG, "Dimensionless shape volume is "+this._volume);
-			return DummyGrid.dimensionlessGetter(this._volume);
 		}
 		
 		@Override

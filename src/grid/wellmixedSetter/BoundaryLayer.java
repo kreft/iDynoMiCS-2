@@ -3,6 +3,8 @@
  */
 package grid.wellmixedSetter;
 
+import static grid.SpatialGrid.ArrayType.WELLMIXED;
+
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -10,12 +12,12 @@ import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.Log;
-import dataIO.XmlLabel;
 import dataIO.Log.Tier;
+import dataIO.XmlLabel;
 import grid.SpatialGrid;
-import static grid.SpatialGrid.ArrayType.*;
 import idynomics.AgentContainer;
 import idynomics.NameRef;
+import shape.Shape;
 import surface.Ball;
 import surface.Collision;
 import surface.Surface;
@@ -69,6 +71,7 @@ public class BoundaryLayer implements IsWellmixedSetter
 	@Override
 	public void updateWellmixed(SpatialGrid aGrid, AgentContainer agents)
 	{
+		Shape aShape = aGrid.getShape();
 		/*
 		 * Reset the domain array.
 		 */
@@ -76,12 +79,12 @@ public class BoundaryLayer implements IsWellmixedSetter
 		/*
 		 * Iterate over all voxels, checking if there are agents nearby.
 		 */
-		int[] coords = aGrid.resetIterator();
+		int[] coords = aShape.resetIterator();
 		List<Agent> neighbors;
 		Collision collision = new Collision(null, agents.getShape());
-		while ( aGrid.isIteratorValid() )
+		while ( aShape.isIteratorValid() )
 		{
-			Ball gridSphere = new Ball(aGrid.getVoxelCentre(coords), 
+			Ball gridSphere = new Ball(aShape.getVoxelCentre(coords), 
 														this._layerThickness);
 			gridSphere.init(collision);
 			/*
@@ -97,7 +100,7 @@ public class BoundaryLayer implements IsWellmixedSetter
 							aGrid.setValueAt(WELLMIXED, coords, this._value);
 							break;
 						}
-			coords = aGrid.iteratorNext();
+			coords = aShape.iteratorNext();
 		}
 	}
 }

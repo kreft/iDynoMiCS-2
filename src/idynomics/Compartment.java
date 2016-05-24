@@ -152,7 +152,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 			double conc = Double.valueOf(
 					XmlHandler.obtainAttribute((Element) solutes.item(i), 
 					XmlLabel.concentration));
-			this.addSolute(soluteName, conc, soluteE);
+			this.addSolute(soluteName, conc);
 			
 			// FIXME please provide standard methods to load entire solute grids
 			SpatialGrid myGrid = this.getSolute(str);
@@ -335,25 +335,16 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void addSolute(String soluteName)
 	{
-		this._environment.addSolute(soluteName, null);
+		this._environment.addSolute(soluteName);
 	}	
 	
 	/**
 	 * 
 	 * @param soluteName
 	 */
-	public void addSolute(String soluteName, Element resolution)
+	public void addSolute(String soluteName, double initialConcentration)
 	{
-		this._environment.addSolute(soluteName, resolution);
-	}
-	
-	/**
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName, double initialConcentration, Element resolution)
-	{
-		this._environment.addSolute(soluteName, initialConcentration, resolution);
+		this._environment.addSolute(soluteName, initialConcentration);
 	}
 	
 	/**

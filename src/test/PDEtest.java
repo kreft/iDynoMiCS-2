@@ -132,7 +132,7 @@ public class PDEtest
 			@Override
 			public double getBoundaryFlux(SpatialGrid grid)
 			{
-				int[] current = grid.iteratorCurrent();
+				int[] current = grid.getShape().iteratorCurrent();
 				return GridMethod.calcFlux(
 								Vector.sum(current)/4.0, 
 								grid.getValueAtCurrent(ArrayType.CONCN),
@@ -161,8 +161,9 @@ public class PDEtest
 		 * Initialise the concentration array with random values.
 		 */
 		SpatialGrid sg = aCompartment.getSolute("solute");
-		for ( int[] coords = sg.resetIterator() ; sg.isIteratorValid();
-												coords = sg.iteratorNext() )
+		Shape shape = aCompartment.getShape();
+		for ( int[] coords = shape.resetIterator() ; shape.isIteratorValid();
+												coords = shape.iteratorNext() )
 		{
 			sg.setValueAt(ArrayType.CONCN, coords, Math.random());
 		}
@@ -211,8 +212,9 @@ public class PDEtest
 		 * Initialise the concentration array with random values.
 		 */
 		SpatialGrid sg = aCompartment.getSolute("solute");
-		for ( int[] coords = sg.resetIterator() ; sg.isIteratorValid();
-				coords = sg.iteratorNext() )
+		Shape shape = aCompartment.getShape();
+		for ( int[] coords = shape.resetIterator() ; shape.isIteratorValid();
+				coords = shape.iteratorNext() )
 		{
 			sg.setValueAt(ArrayType.CONCN, coords, Math.random());
 		}

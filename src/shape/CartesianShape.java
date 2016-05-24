@@ -1,7 +1,10 @@
 package shape;
 
+import java.util.Arrays;
+
 import grid.CartesianGrid;
-import grid.SpatialGrid.GridGetter;
+import grid.SpatialGrid;
+import linearAlgebra.Array;
 import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
@@ -20,8 +23,6 @@ public abstract class CartesianShape extends Shape
 	 */
 	protected ResCalc[] _resCalc;
 	
-	protected DimName _nbhDirection;
-	
 	/*************************************************************************
 	 * CONSTRUCTION
 	 ************************************************************************/
@@ -33,16 +34,19 @@ public abstract class CartesianShape extends Shape
 			this._dimensions.put(d, new Dimension(false));
 	}
 	
+	@Override
+	public double[][][] getNewArray(double initialValue) {
+		return Array.array(this.updateCurrentNVoxel(), initialValue);
+	}
+	
+	@Override
+	public SpatialGrid getNewGrid() {
+		return new CartesianGrid(this);
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
-	@Override
-	public GridGetter gridGetter()
-	{
-		// TODO Make 1D, 2D, and 3D getters?
-		return CartesianGrid.standardGetter();
-	}
 	
 	@Override
 	public double[] getLocalPosition(double[] location)
@@ -99,7 +103,7 @@ public abstract class CartesianShape extends Shape
 	{
 		double out = 1.0;
 		ResCalc rC;
-		for ( int dim = 0; dim < 3; dim++ )
+		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
 			out *= rC.getResolution(coord[dim]);
@@ -138,7 +142,8 @@ public abstract class CartesianShape extends Shape
 			/* See if we can take one of the neighbors. */
 			if ( this.moveNbhToMinus(dim) || this.nbhJumpOverCurrent(dim) )
 			{
-				this._nbhDirection = dim;
+				this._nbhDimName = dim;
+				this.transformNbhCyclic();
 				return;
 			}
 		}
@@ -148,8 +153,9 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		int nbhIndex = this.getDimensionIndex(this._nbhDirection);
-		if ( ! this.nbhJumpOverCurrent(this._nbhDirection))
+		this.reTransformNbhCyclic();
+		int nbhIndex = this.getDimensionIndex(this._nbhDimName);
+		if ( ! this.nbhJumpOverCurrent(this._nbhDimName))
 		{
 			/*
 			 * If we're in X or Y, try to move up one.
@@ -158,20 +164,21 @@ public abstract class CartesianShape extends Shape
 			nbhIndex++;
 			if ( nbhIndex < 3 )
 			{
-				this._nbhDirection = this.getDimensionName(nbhIndex);
-				if ( ! moveNbhToMinus(this._nbhDirection) )
+				this._nbhDimName = this.getDimensionName(nbhIndex);
+				if ( ! moveNbhToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
 			}
 			else
 				this._nbhValid = false;
 		}
+		this.transformNbhCyclic();
 		return this._currentNeighbor;
 	}
 	
 	@Override
 	public double nbhCurrDistance()
 	{
-		int i = this.getDimensionIndex(this._nbhDirection);
+		int i = this.getDimensionIndex(this._nbhDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
 		double out = rC.getPosition(this._currentCoord[i], 0.5);
 		out -= rC.getPosition(this._currentNeighbor[i], 0.5);
@@ -187,7 +194,8 @@ public abstract class CartesianShape extends Shape
 		int index;
 		for ( DimName dim : this.getDimensionNames() )
 		{
-			if ( dim.equals(this._nbhDirection) )
+			if ( dim.equals(this._nbhDimName) 
+					|| !this.getDimension(dim).isSignificant() )
 				continue;
 			index = this.getDimensionIndex(dim);
 			rC = this.getResolutionCalculator(this._currentCoord, index);
