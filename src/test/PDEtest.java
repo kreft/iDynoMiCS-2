@@ -15,6 +15,8 @@ import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import idynomics.Simulator;
+import linearAlgebra.Array;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
@@ -137,7 +139,7 @@ public class PDEtest
 								Vector.sum(current)/4.0, 
 								grid.getValueAtCurrent(ArrayType.CONCN),
 								grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),
-								grid.getNbhSharedSurfaceArea());
+								grid.getShape().nbhCurrSharedArea());
 			}
 			
 			@Override
@@ -304,29 +306,10 @@ public class PDEtest
 	
 	private static void printSoluteGrid(SpatialGrid sg)
 	{
-		/* Stefan [11Feb2016]: assumes CartesianGrid (same nVoxel in all dims)*/
-		int[] dims = Vector.copy(sg.getCurrentNVoxel());
-		int[] start = Vector.zeros(dims);
-		boolean[] sig = sg.getSignificantAxes();
-		int[] coords = Vector.zeros(dims);
-		for ( int i = 0; i < 3; i++ )
-			if ( sig[i] )
-				start[i]--;
-		for ( int i = start[0]; i < dims[0]; i++ )
-		{
-			coords[0] = i;
-			for ( int j = start[1]; j < dims[1]; j++ )
-			{
-				coords[1] = j;
-				for ( int k = start[2]; k < dims[2]; k++ )
-				{
-					coords[2] = k;
-					System.out.printf("%.5f, ", sg.getValueAt(ArrayType.CONCN, coords));
-				}
-			}
-			System.out.println("");
-		}
-		
-		
+		String str = Array.toString(sg.getArray(ArrayType.CONCN));
+		str.replace(Matrix.DELIMITER, "\n");
+		str.replace(Array.DELIMITER, "\n\n");
+		System.out.println(str);
+		System.out.println("");
 	}
 }
