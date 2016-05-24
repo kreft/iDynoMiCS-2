@@ -1312,7 +1312,8 @@ public abstract class Shape implements
 		return this._currentNeighbor;
 	}
 	
-	public int[] nbhIteratorCurrent(){
+	public int[] nbhIteratorCurrent()
+	{
 		return _currentNeighbor;
 	}
 	
@@ -1333,9 +1334,11 @@ public abstract class Shape implements
 	 */
 	public Boundary nbhIteratorOutside()
 	{
-		if (this._nbhOnDefBoundary)
+		if ( this._nbhOnDefBoundary )
+		{
 			return getDimension(this._nbhDimName)
 					.getBoundaries()[this._nbhDirection];
+		}
 		return null;
 	}
 	
@@ -1362,26 +1365,54 @@ public abstract class Shape implements
 		return ExtraMath.overlap(curMin, curMax, nbhMin, nbhMax);
 	}
 	
-	
-	protected void transformNbhCyclic(){
+	/**
+	 * \brief Transform the coordinates of the neighbor iterator, in the
+	 * current neighbor direction, so that that they lie within the array.
+	 * 
+	 * <p>This should be reversed using {@link #untransformNbhCyclic()}.</p>
+	 */
+	protected void transformNbhCyclic()
+	{
 		Dimension dim = getDimension(this._nbhDimName);
-		if (this._nbhOnDefBoundary && dim.isCyclic()){
-			int dimIdx = getDimensionIndex(_nbhDimName);
+		if ( this._nbhOnDefBoundary && dim.isCyclic() )
+		{
+			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			int nVoxel = this.getResolutionCalculator(
 					this._currentCoord, dimIdx).getNVoxel();
-			this._currentNeighbor[dimIdx] 
-					= this._nbhDirection == 0 ? nVoxel - 1 : 0; 
+			if ( this._nbhDirection == 0 )
+			{
+				/* Direction 0: the neighbor wraps below, to the highest. */
+				this._currentNeighbor[dimIdx] = nVoxel - 1;
+			}
+			else
+			{
+				/* Direction 1: the neighbor wraps above, to zero. */
+				this._currentNeighbor[dimIdx] = 0;
+			}
 		}
 	}
 	
-	protected void reTransformNbhCyclic(){
-		Dimension dim = getDimension(this._nbhDimName);
-		if (this._nbhOnDefBoundary && dim.isCyclic()){
-			int dimIdx = getDimensionIndex(_nbhDimName);
-			int nVoxel = this.getResolutionCalculator(
-					this._currentCoord, dimIdx).getNVoxel();
-			this._currentNeighbor[dimIdx] 
-					= this._nbhDirection == 0 ? - 1 : nVoxel; 
+	/**
+	 * \brief Reverses the transformation of {@link #transformNbhCyclic()},
+	 * putting the coordinates of the neighbor iterator that wrap around a
+	 * cyclic dimension back where they were.
+	 */
+	protected void untransformNbhCyclic()
+	{
+		Dimension dim = this.getDimension(this._nbhDimName);
+		if ( this._nbhOnDefBoundary && dim.isCyclic() )
+		{
+			int dimIdx = this.getDimensionIndex(this._nbhDimName);
+			if ( this._nbhDirection == 0 )
+			{
+				/* Direction 0: the neighbor should be below. */
+				this._currentNeighbor[dimIdx] = this._currentCoord[dimIdx] - 1;
+			}
+			else
+			{
+				/* Direction 1: the neighbor should be above. */
+				this._currentNeighbor[dimIdx] = this._currentCoord[dimIdx] + 1;
+			}
 		}
 	}
 	

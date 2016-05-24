@@ -160,7 +160,7 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		this.reTransformNbhCyclic();
+		this.untransformNbhCyclic();
 		int nbhIndex = this.getDimensionIndex(this._nbhDimName);
 		if ( ! this.nbhJumpOverCurrent(this._nbhDimName))
 		{

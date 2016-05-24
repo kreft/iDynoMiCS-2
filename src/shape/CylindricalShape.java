@@ -256,7 +256,7 @@ public abstract class CylindricalShape extends PolarShape
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		this.reTransformNbhCyclic();
+		this.untransformNbhCyclic();
 		/*
 		 * In the cylindrical grid, we start the TODO
 		 */

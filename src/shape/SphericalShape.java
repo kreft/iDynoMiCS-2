@@ -277,7 +277,7 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		this.reTransformNbhCyclic();
+		this.untransformNbhCyclic();
 		/*
 		 * In the spherical shape, we start the TODO
 		 */
