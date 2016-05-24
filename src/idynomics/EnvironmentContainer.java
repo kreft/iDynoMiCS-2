@@ -79,57 +79,38 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public void init()
 	{
 		SpatialGrid aSG;
-		Boundary[] boundaries;
+//		Boundary[] boundaries;
 		for ( DimName dimName : this._shape.getDimensionNames() )
 		{
-			boundaries = this._shape.getDimension(dimName).getBoundaries();
+//			boundaries = this._shape.getDimension(dimName).getBoundaries();
 			for ( int i = 0; i < 2; i++ )
 				for ( String soluteName : this._solutes.keySet() )
 				{
 					aSG = this._solutes.get(soluteName);
-					aSG.addBoundary(dimName, i,
-									boundaries[i].getGridMethod(soluteName));
+//					aSG.addBoundary(dimName, i,
+//									boundaries[i].getGridMethod(soluteName));
 				}
 		}
 		this._hasInitialised = true;
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
 	 * @param soluteName
 	 */
 	public void addSolute(String soluteName)
 	{
-		this.addSolute(soluteName, 0.0, null);
+		this.addSolute(soluteName, 0.0);
 	}
 	
-
 	/**
+	 * \brief TODO
+	 * 
 	 * @param soluteName
 	 * @param initialConcn
 	 */
 	public void addSolute(String soluteName, double initialConcn)
-	{
-		this.addSolute(soluteName, 0.0, null);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName, Element resolution)
-	{
-		this.addSolute(soluteName, 0.0, resolution);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 * @param initialConcn
-	 */
-	public void addSolute(String soluteName, double initialConcn, 
-															Element resolution)
 	{
 		if ( this._hasInitialised )
 		{
@@ -140,8 +121,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		 * TODO safety: check if solute already in hashmap
 		 */
 		
-		SpatialGrid sg = this._shape.gridGetter().newGrid(
-				this._shape.getDimensionLengths(), resolution);
+		SpatialGrid sg = this._shape.getNewGrid();
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
 		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");

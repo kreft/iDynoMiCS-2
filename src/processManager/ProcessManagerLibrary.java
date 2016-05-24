@@ -17,7 +17,6 @@ import utility.Helper;
 
 public final class ProcessManagerLibrary
 {
-	
 	/**
 	 * \brief TODO
 	 * 

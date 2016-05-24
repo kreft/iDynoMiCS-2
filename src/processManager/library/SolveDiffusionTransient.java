@@ -3,6 +3,10 @@
  */
 package processManager.library;
 
+import static grid.SpatialGrid.ArrayType.CONCN;
+import static grid.SpatialGrid.ArrayType.DIFFUSIVITY;
+import static grid.SpatialGrid.ArrayType.PRODUCTIONRATE;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +17,6 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import dataIO.XmlLabel;
 import grid.SpatialGrid;
-import static grid.SpatialGrid.ArrayType.*;
 import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
@@ -24,6 +27,7 @@ import processManager.PMToolsAgentEvents;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.subvoxel.CoordinateMap;
+import shape.Shape;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEexplicit;
 import solver.PDEsolver;
@@ -134,9 +138,6 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * STEPPING
 	 ************************************************************************/
 	
-	/*
-	 * TODO describe function
-	 */
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
@@ -191,14 +192,9 @@ public class SolveDiffusionTransient extends ProcessManager
 			a.set(VD_TAG, distributionMap);
 		}
 		/*
-		 * Set up the solute grids and the agents before we start to solve.
-		 */
-		// FIXME this is a temporary fix until we unify all grid resolutions.
-		String firstSolute = environment.getSoluteNames().iterator().next();
-		SpatialGrid solute = environment.getSoluteGrid(firstSolute);
-		/*
 		 * Now fill these agent biomass distribution maps.
 		 */
+		Shape shape = environment.getShape();
 		int nDim = agents.getNumDims();
 		double[] location;
 		double[] dimension = new double[3];
@@ -206,14 +202,14 @@ public class SolveDiffusionTransient extends ProcessManager
 		List<Agent> nhbs;
 		List<Surface> surfaces;
 		double[] pLoc;
-		Collision collision = new Collision(null, agents.getShape());
-		for ( int[] coord = solute.resetIterator(); 
-				solute.isIteratorValid(); coord = solute.iteratorNext())
+		Collision collision = new Collision(null, shape);
+		for ( int[] coord = shape.resetIterator(); 
+				shape.isIteratorValid(); coord = shape.iteratorNext())
 		{
 			/* Find all agents that overlap with this voxel. */
 			// TODO a method for getting a voxel's bounding box directly?
-			location = Vector.subset(solute.getVoxelOrigin(coord), nDim);
-			solute.getVoxelSideLengthsTo(dimension, coord);
+			location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
+			shape.getVoxelSideLengthsTo(dimension, coord);
 			/* NOTE the agent tree is always the amount of actual dimension */
 			nhbs = agents.treeSearch(location, Vector.subset(dimension, nDim));
 			/* Filter the agents for those with reactions, radius & surface. */
@@ -229,7 +225,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			double minRad = Vector.min(dimension);
 			for ( Agent a : nhbs )
 				minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
-			sgPoints = solute.getCurrentSubgridPoints(SUBGRID_FACTOR * minRad);
+			sgPoints = shape.getCurrentSubvoxelPoints(SUBGRID_FACTOR * minRad);
 			/* Get the sub-voxel points and query the agents. */
 			for ( Agent a : nhbs )
 			{
@@ -300,13 +296,11 @@ public class SolveDiffusionTransient extends ProcessManager
 		Collection<Reaction> reactions = environment.getReactions();
 		if ( reactions.isEmpty() )
 			return;
-		// FIXME this is a temporary fix until we unify all grid resolutions.
-		String firstSolute = environment.getSoluteNames().iterator().next();
-		SpatialGrid defaultGrid = environment.getSoluteGrid(firstSolute);
 		/*
 		 * Iterate over the spatial discretization of the environment, applying
 		 * extracellular reactions as required.
 		 */
+		Shape shape = environment.getShape();
 		Set<String> soluteNames = environment.getSoluteNames();
 		SpatialGrid solute;
 		HashMap<String,Double> concns = new HashMap<String,Double>();
@@ -314,9 +308,8 @@ public class SolveDiffusionTransient extends ProcessManager
 			concns.put(soluteName, 0.0);
 		Set<String> productNames;
 		double rate, productRate;
-		for ( int[] coord = defaultGrid.resetIterator(); 
-				defaultGrid.isIteratorValid(); 
-				coord = defaultGrid.iteratorNext())
+		for ( int[] coord = shape.resetIterator(); 
+				shape.isIteratorValid(); coord = shape.iteratorNext() )
 		{
 			/* Get concentrations in grid voxel. */
 			for ( String soluteName : soluteNames )
@@ -346,7 +339,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	/**
 	 * \brief 
 	 * 
-	 * <p><b>NOTE</b>: this method assumes that the volume distribution maps
+	 * <p><b>Note</b>: this method assumes that the volume distribution maps
 	 * of all relevant agents have already been calculated. This is typically
 	 * done just once per process manager step, rather than at every PDE solver
 	 * mini-timestep.</p>

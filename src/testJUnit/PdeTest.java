@@ -8,6 +8,7 @@ import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.SolveDiffusionTransient;
+import shape.Shape;
 import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
 
@@ -39,8 +40,13 @@ public class PdeTest
 		// FIXME crashes here because the grid can't find a ResolutionCalculator
 		comp.addSolute(soluteName);
 		SpatialGrid sG = comp.getSolute(soluteName);
-		for ( int[] c : sG.getAllCoords() )
+		Shape shape = sG.getShape();
+		for ( int[] c = shape.resetIterator(); 
+				shape.isIteratorValid(); 
+				shape.iteratorNext() )
+		{
 			sG.setValueAt(ArrayType.CONCN, c, 2.0 * ExtraMath.getUniRandDbl());
+		}
 		double average = sG.getAverage(ArrayType.CONCN);
 		
 		SolveDiffusionTransient pm = new SolveDiffusionTransient();

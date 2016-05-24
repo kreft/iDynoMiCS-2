@@ -6,8 +6,8 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
-import dataIO.Log.Tier;
 import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.SvgExport;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -15,6 +15,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import shape.Shape;
 import utility.ExtraMath;
 
 /**
@@ -94,16 +95,18 @@ public class WriteAgentsSvg extends ProcessManager
 		}
 		else
 		{
+			Shape shape = environment.getShape();
 			SpatialGrid solute = environment.getSoluteGrid(_solute);
+			
 			int nDim = agents.getNumDims();
 			double[] origin;
 			double[] dimension = new double[3];
-			for ( int[] coord = solute.resetIterator(); 
-					solute.isIteratorValid(); coord = solute.iteratorNext() )
+			for ( int[] coord = shape.resetIterator(); 
+					shape.isIteratorValid(); coord = shape.iteratorNext() )
 			{
 				/* Identify exact voxel location and size. */
-				origin = solute.getVoxelOrigin(coord);
-				solute.getVoxelSideLengthsTo(dimension, coord);
+				origin = shape.getVoxelOrigin(coord);
+				shape.getVoxelSideLengthsTo(dimension, coord);
 				/*
 				 * Scale the solute concentration for coloring.
 				 * First, map the concentration to the real interval [0, 1].
