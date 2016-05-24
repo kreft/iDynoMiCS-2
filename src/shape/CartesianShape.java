@@ -1,5 +1,7 @@
 package shape;
 
+import static shape.Shape.WhereAmI.UNDEFINED;
+
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -140,7 +142,7 @@ public abstract class CartesianShape extends Shape
 	{
 		if ( this._currentNeighbor == null )
 			this._currentNeighbor = Vector.zerosInt(3);
-		this._nbhValid = true;
+		this._whereIsNbh = UNDEFINED;
 		for ( DimName dim : this._dimensions.keySet() )
 		{
 			/* Skip insignificant dimensions. */
@@ -154,7 +156,6 @@ public abstract class CartesianShape extends Shape
 				return;
 			}
 		}
-		this._nbhValid = false;
 	}
 	
 	@Override
@@ -175,8 +176,6 @@ public abstract class CartesianShape extends Shape
 				if ( ! moveNbhToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
 			}
-			else
-				this._nbhValid = false;
 		}
 		this.transformNbhCyclic();
 		this._whereIsNbh = this.whereIsNhb();

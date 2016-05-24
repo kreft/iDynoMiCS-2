@@ -244,7 +244,6 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	protected void resetNbhIter()
 	{
-		this._nbhValid = true;
 		/* See if we can use the inside r-shell. */
 		if ( this.setNbhFirstInNewShell( this._currentCoord[0] - 1 ) 
 			&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) ) ;
@@ -265,16 +264,13 @@ public abstract class SphericalShape extends PolarShape
 		else if ( this.setNbhFirstInNewShell( this._currentCoord[0] + 1 ) 
 					&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) ) ;
 		/* There are no valid neighbors. */
-		else this._nbhValid = false;
-		
-		if ( this._nbhValid )
+		else
+			this._whereIsNbh = UNDEFINED;
+		if ( this.isNbhIteratorValid() )
 		{
 			transformNbhCyclic();
 			return;
 		}
-		
-		this._whereIsNbh = UNDEFINED;
-		this._nbhValid = false;
 	}
 	
 	@Override
@@ -367,7 +363,7 @@ public abstract class SphericalShape extends PolarShape
 							if (!this.increaseNbhByOnePolar(PHI) ||
 									! this.setNbhFirstInNewRing(nbhPhi) )
 							{
-								this._nbhValid = false;
+								this._whereIsNbh = UNDEFINED;
 							}
 						}
 					}
@@ -384,7 +380,7 @@ public abstract class SphericalShape extends PolarShape
 				if ( ! this.increaseNbhByOnePolar(PHI) ||
 						! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
 				{
-					this._nbhValid = false;
+					this._whereIsNbh = UNDEFINED;
 				}
 		}
 		this.transformNbhCyclic();

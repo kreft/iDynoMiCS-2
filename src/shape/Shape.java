@@ -136,11 +136,6 @@ public abstract class Shape implements
 	 */
 	protected int[] _currentNeighbor;
 	/**
-	 * Whether the neighbor iterator is currently valid (true) or invalid
-	 * (false).
-	 */
-	protected boolean _nbhValid;
-	/**
 	 * the dimension name the current neighbor is moving in
 	 */
 	protected DimName _nbhDimName;
@@ -1037,14 +1032,13 @@ public abstract class Shape implements
 		this._whereIsNbh = INSIDE;
 		WhereAmI where;
 		for ( DimName dim : this._dimensions.keySet() )
-			if ( this._dimensions.get(dim).isSignificant() )
-			{
-				where = this.whereIsNhb(dim);
-				if ( where == UNDEFINED )
-					return (this._whereIsNbh = UNDEFINED);
-				if ( this._whereIsNbh == INSIDE && where == DEFINED )
-					this._whereIsNbh = DEFINED;
-			}
+		{
+			where = this.whereIsNhb(dim);
+			if ( where == UNDEFINED )
+				return (this._whereIsNbh = UNDEFINED);
+			if ( this._whereIsNbh == INSIDE && where == DEFINED )
+				this._whereIsNbh = DEFINED;
+		}
 		return this._whereIsNbh;
 	}
 	
@@ -1334,15 +1328,23 @@ public abstract class Shape implements
 	/**
 	 * \brief Check if the neighbor iterator takes a valid coordinate.
 	 * 
+	 * <p>Valid coordinates are either inside the array, or on a defined
+	 * boundary.</p>
+	 * 
 	 * @return {@code boolean true} if it is valid, {@code false} if it is not.
 	 */
 	public boolean isNbhIteratorValid()
 	{
-		Log.out(Tier.DEBUG, "Nhb iter at "+
-				Vector.toString(this._currentNeighbor)+": "+this._whereIsNbh);
-		return this._nbhValid;
+		return (this._whereIsNbh == INSIDE) || (this._whereIsNbh == DEFINED);
 	}
 	
+	/**
+	 * \brief Check if the neighbor iterator takes a coordinate inside the
+	 * array.
+	 * 
+	 * @return {@code boolean true} if it is inside, {@code false} if it is
+	 * on a boundary (defined or undefined).
+	 */
 	public boolean isNhbIteratorInside()
 	{
 		return (this._whereIsNbh == INSIDE);
