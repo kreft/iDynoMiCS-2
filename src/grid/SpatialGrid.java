@@ -75,7 +75,8 @@ public class SpatialGrid
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public SpatialGrid(Shape shape) {
+	public SpatialGrid(Shape shape)
+	{
 		this._shape = shape;
 	}
 	

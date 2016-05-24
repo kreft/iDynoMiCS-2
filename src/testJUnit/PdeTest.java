@@ -3,6 +3,8 @@ package testJUnit;
 import org.junit.Test;
 
 import boundary.BoundaryLibrary.SolidBoundary;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
@@ -48,6 +50,7 @@ public class PdeTest
 			sG.setValueAt(ArrayType.CONCN, c, 2.0 * ExtraMath.getUniRandDbl());
 		}
 		double average = sG.getAverage(ArrayType.CONCN);
+		Log.out(Tier.DEBUG, "Average concn is "+average+" to start");
 		
 		SolveDiffusionTransient pm = new SolveDiffusionTransient();
 		pm.setTimeForNextStep(0.0);

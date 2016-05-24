@@ -227,21 +227,20 @@ public abstract class Shape implements
 				dim = this.getDimension(dimName);
 				dim.init(childElem);
 				
-				str = XmlHandler.gatherAttribute(childElem,
-						XmlLabel.targetResolutionAttribute);
-				
 				/* calculate length from dimension extremes */
-				//TODO[Stefan13.05.16]: is extreme(1) > extreme(0) ensured here?
 				double length = dim.getLength();
 				
 				/* fetch target resolution (or use length as default) */
+				str = XmlHandler.gatherAttribute(childElem,
+						XmlLabel.targetResolutionAttribute);
 				double tRes = length; 
-				if (str != "") tRes = Double.valueOf(str);
+				if ( str != "" )
+					tRes = Double.valueOf(str);
 				
 				/* init resolution calculators */
 				rC = new ResolutionCalculator.UniformResolution();
 				rC.init(tRes, length);
-				this.setDimensionResolution(dimName, rC);				
+				this.setDimensionResolution(dimName, rC);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -1108,14 +1107,21 @@ public abstract class Shape implements
 	 * \brief Get the number of voxels in each dimension for the given
 	 * coordinates.
 	 * 
-	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
-	 * irrelevant, but it will make a difference in the polar shapes.</p>
-	 * 
 	 * @param destination Integer vector to write the result into.
 	 * @param coords Discrete coordinates of a voxel on this shape.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
-	protected abstract void nVoxelTo(int[] destination, int[] coords);
+	protected void nVoxelTo(int[] destination, int[] coords)
+	{
+		Vector.checkLengths(destination, coords);
+		int n = Math.min(coords.length, 3);
+		ResCalc rC;
+		for ( int dim = 0; dim < n; dim++ )
+		{
+			rC = this.getResolutionCalculator(coords, dim);
+			destination[dim] = rC.getNVoxel();
+		}
+	}
 	
 	/*************************************************************************
 	 * SUBVOXEL POINTS
@@ -1266,8 +1272,10 @@ public abstract class Shape implements
 	 */
 	public int[] updateCurrentNVoxel()
 	{
-		if (this._currentNVoxel == null)
+		if ( this._currentNVoxel == null )
 			this._currentNVoxel = Vector.zerosInt(3);
+		if ( this._currentCoord == null )
+			this.resetIterator();
 		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
 		return this._currentNVoxel;
 	}

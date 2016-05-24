@@ -112,6 +112,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void setShape(Shape aShape)
 	{
+		Log.out(Tier.EXPRESSIVE, "Compartment \""+this.name+
+				"\" taking shape \""+aShape.getName()+"\"");
 		this._shape = aShape;
 		this._environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
@@ -242,10 +244,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 				this.addProcessManager(ProcessManager.getNewInstance(procElem));
 			}
 		}
-		/*
-		 * Finally, finish off the initialisation as standard.
-		 */
-		this.init();
 	}
 	
 	@Override
@@ -273,12 +271,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		
 		out = out + "</" + XmlLabel.compartment + ">\n";
 		return out;
-	}
-	
-	public void init()
-	{
-		
-		this._environment.init();
 	}
 	
 	/*************************************************************************

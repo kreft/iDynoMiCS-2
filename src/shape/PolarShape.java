@@ -85,19 +85,6 @@ public abstract class PolarShape extends Shape
 		return 0.5 * (this._currentCoord[i] + this._currentNeighbor[i]);
 	}
 	
-	@Override
-	protected void nVoxelTo(int[] destination, int[] coord)
-	{
-		int nDim = this.getNumberOfDimensions();
-		ResCalc rC;
-		for ( int dim = 0; dim < nDim; dim++ )
-		{
-			// TODO check if coord is valid?
-			rC = this.getResolutionCalculator(coord, dim);
-			destination[dim] = rC.getNVoxel();
-		}
-	}
-	
 	/**
 	 * \brief Used to move neighbor iterator into a new shell.
 	 * 

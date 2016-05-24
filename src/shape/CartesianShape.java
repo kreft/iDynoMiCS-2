@@ -31,7 +31,8 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	public double[][][] getNewArray(double initialValue) {
+	public double[][][] getNewArray(double initialValue)
+	{
 		return Array.array(this.updateCurrentNVoxel(), initialValue);
 	}
 	
@@ -104,13 +105,6 @@ public abstract class CartesianShape extends Shape
 			out *= rC.getResolution(coord[dim]);
 		}
 		return out;
-	}
-	
-	@Override
-	protected void nVoxelTo(int[] destination, int[] coords)
-	{
-		for ( int dim = 0; dim < this.getNumberOfDimensions(); dim++ )
-			destination[dim] = this._resCalc[dim].getNVoxel();
 	}
 	
 	/*************************************************************************

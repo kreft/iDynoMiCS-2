@@ -109,6 +109,7 @@ public final class ShapeLibrary
 			return this._volume;
 		}
 		
+		@Override
 		protected void nVoxelTo(int[] destination, int[] coords)
 		{
 			/* Dimensionless shapes have no voxels. */
