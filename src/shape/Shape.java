@@ -232,7 +232,7 @@ public abstract class Shape implements
 				
 				/* calculate length from dimension extremes */
 				//TODO[Stefan13.05.16]: is extreme(1) > extreme(0) ensured here?
-				double length = dim.getExtreme(1) - dim.getExtreme(0);
+				double length = dim.getLength();
 				
 				/* fetch target resolution (or use length as default) */
 				double tRes = length; 
@@ -1265,7 +1265,7 @@ public abstract class Shape implements
 	public int[] updateCurrentNVoxel()
 	{
 		if (this._currentNVoxel == null)
-			this._currentNVoxel = Vector.zerosInt(3);
+			this._currentNVoxel = Vector.onesInt(3);
 		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
 		return this._currentNVoxel;
 	}
