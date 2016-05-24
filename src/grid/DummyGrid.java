@@ -5,9 +5,9 @@ package grid;
 
 import org.w3c.dom.Node;
 
-import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
  * \brief A dummy grid for use by dimensionless shapes (e.g. for a chemostat).

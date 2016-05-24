@@ -19,7 +19,7 @@ import idynomics.AgentContainer;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class AllSame implements IsWellmixedSetter
+public class AllSameMixing implements IsWellmixedSetter
 {
 	/**
 	 * Value to set all voxels of the domain array of the given grid.

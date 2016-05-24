@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import org.w3c.dom.Element;
 
-import boundary.ChemostatConnection;
+import boundary.BoundaryLibrary.ChemostatOutflow;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
@@ -36,8 +36,8 @@ public final class ProcessManagerLibrary
 		/**
 		 * 
 		 */
-		protected LinkedList<ChemostatConnection> _outflows = 
-										new LinkedList<ChemostatConnection>();
+		protected LinkedList<ChemostatOutflow> _outflows = 
+										new LinkedList<ChemostatOutflow>();
 		
 		/**
 		 * Temporary vector of solute concentrations in the same order as

@@ -9,8 +9,8 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import boundary.Boundary;
-import boundary.BoundaryConnected;
-import boundary.ChemostatConnection;
+import boundary.BoundaryLibrary.ChemostatInflow;
+import boundary.BoundaryLibrary.ChemostatOutflow;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
@@ -56,8 +56,8 @@ public class SolveChemostat extends ProcessManager
 	/**
 	 * 
 	 */
-	protected LinkedList<ChemostatConnection> _outflows = 
-									new LinkedList<ChemostatConnection>();
+	protected LinkedList<ChemostatOutflow> _outflows = 
+									new LinkedList<ChemostatOutflow>();
 	
 	/**
 	 * Temporary dictionary of all solute concentrations in the environment,
@@ -150,14 +150,11 @@ public class SolveChemostat extends ProcessManager
 		/*
 		 * Accept any inbound agents
 		 */
-		BoundaryConnected aBC;
 		for ( Boundary aBoundary : environment.getOtherBoundaries() )
-			if ( aBoundary instanceof BoundaryConnected )
 			{
-				aBC = (BoundaryConnected) aBoundary;
-				for ( Agent anAgent : aBC.getAllInboundAgents() )
+				for ( Agent anAgent : aBoundary.getAllInboundAgents() )
 					agents.addAgent(anAgent);
-				aBC.clearArrivalsLoungue();
+				aBoundary.clearArrivalsLoungue();
 			}
 		/*
 		 * Update information that depends on the environment.
@@ -229,35 +226,29 @@ public class SolveChemostat extends ProcessManager
 	{
 		/* Reset counters */
 		Vector.reset(this._dYdTinflow);
-		double inRate = 0.0, outRate = 0.0;
+		double outRate = 0.0;
 		this._outflows.clear();
 		/*
 		 * Loop over all chemostat connections.
 		 */
-		double rate, sIn;
-		ChemostatConnection aChemoConnect;
-		String soluteName;
 		for ( Boundary aBoundary : environment.getOtherBoundaries() )
-			if ( aBoundary instanceof ChemostatConnection )
+		{
+			if ( aBoundary instanceof ChemostatInflow )
 			{
-				aChemoConnect = (ChemostatConnection) aBoundary;
-				rate = aChemoConnect.getFlowRate();
-				if ( rate > 0.0 )
+				ChemostatInflow cIn = (ChemostatInflow) aBoundary;
+				for ( int i = 0; i < this.n(); i++ )
 				{
-					inRate += rate;
-					for ( int i = 0; i < this.n(); i++ )
-					{
-						soluteName = this._soluteNames[i];
-						sIn = aChemoConnect.getConcentration(soluteName);
-						this._dYdTinflow[i] += rate * sIn;
-					}
-				}
-				else
-				{
-					outRate -= rate;
-					this._outflows.add(aChemoConnect);
+					this._dYdTinflow[i] += cIn.getFlowRate() * 
+									cIn.getConcentration(this._soluteNames[i]);
 				}
 			}
+			else if ( aBoundary instanceof ChemostatOutflow )
+			{
+				ChemostatOutflow cOut = (ChemostatOutflow) aBoundary;
+				outRate += cOut.getFlowRate();
+				this._outflows.add(cOut);
+			}
+		}
 		/*
 		 * If the in- and out-rates don't match then the volume would change.
 		 * 
@@ -321,10 +312,10 @@ public class SolveChemostat extends ProcessManager
 		 * connection. 
 		 */
 		double tally = 0.0;
-		for ( ChemostatConnection aChemoConnect : this._outflows )
+		for ( ChemostatOutflow cOut : this._outflows )
 		{
-			aChemoConnect.updateAgentsToDiluteTally(this._timeStepSize);
-			tally += aChemoConnect.getAgentsToDiluteTally();
+			cOut.updateAgentsToDiluteTally(this._timeStepSize);
+			tally += cOut.getAgentsToDiluteTally();
 		}
 		Log.out(Tier.EXPRESSIVE, "Chemostat contains "+agents.getNumAllAgents()
 						+" agents; diluting a maximum of "+tally
@@ -360,20 +351,20 @@ public class SolveChemostat extends ProcessManager
 	 */
 	private boolean areOutflowsToDiluteAgents()
 	{
-		for ( ChemostatConnection aChemoConnect : this._outflows )
-			if ( aChemoConnect.getAgentsToDiluteTally() >= 1.0 )
+		for ( ChemostatOutflow cOut : this._outflows )
+			if ( cOut.getAgentsToDiluteTally() >= 1.0 )
 				return true;
 		return false;
 	}
 	
-	private ChemostatConnection getNextOutflow()
+	private ChemostatOutflow getNextOutflow()
 	{
 		double tallyTotal = 0.0;
-		for ( ChemostatConnection aChemoConnect : this._outflows )
+		for ( ChemostatOutflow aChemoConnect : this._outflows )
 			if ( aChemoConnect.getAgentsToDiluteTally() > 1.0 )
 				tallyTotal += aChemoConnect.getAgentsToDiluteTally();
 		tallyTotal *= ExtraMath.getUniRandDbl();
-		for ( ChemostatConnection aChemoConnect : this._outflows )
+		for ( ChemostatOutflow aChemoConnect : this._outflows )
 			if ( aChemoConnect.getAgentsToDiluteTally() >= 1.0 )
 			{
 				tallyTotal -= aChemoConnect.getAgentsToDiluteTally();

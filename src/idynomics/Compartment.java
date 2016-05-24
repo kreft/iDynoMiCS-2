@@ -10,7 +10,6 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import boundary.Boundary;
-import boundary.BoundaryConnected;
 import dataIO.Log;
 import dataIO.ObjectRef;
 import dataIO.XmlHandler;
@@ -36,8 +35,6 @@ import reaction.Reaction;
 import shape.Shape;
 import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
-import shape.ShapeLibrary;
-import utility.Helper;
 
 /**
  * \brief TODO
@@ -111,9 +108,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	/**
 	 * \brief
 	 * 
-	 * TODO This should go back to being private once tests are based on XML
-	 * protocols.
-	 * 
 	 * @param aShape
 	 */
 	public void setShape(Shape aShape)
@@ -121,6 +115,17 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		this._shape = aShape;
 		this._environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param shapeName
+	 */
+	public void setShape(String shapeName)
+	{
+		Shape aShape = Shape.getNewInstance(shapeName);
+		this.setShape(aShape);
 	}
 	
 	/**
@@ -385,6 +390,40 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 ************************************************************************/
 	
 	/**
+	 * 
+	 * @param compartments
+	 */
+	// TODO temporary work, still in progress!
+	public void checkBoundaryConnections(List<Compartment> compartments)
+	{
+		for ( Boundary b : this._shape.getDisconnectedBoundaries() )
+		{
+			String name = b.getPartnerCompartmentName();
+			Compartment comp = null;
+			for ( Compartment c : compartments )
+				if ( c.getName().equals(name) )
+				{
+					comp = c;
+					break;
+				}
+			if ( comp == null )
+			{
+				// TODO safety
+			}
+			else
+			{
+				Boundary partner = b.makePartnerBoundary();
+				comp.getShape().addOtherBoundary(partner);
+			}
+		}
+	}
+	
+	public void agentsArrive()
+	{
+		this.agents.agentsArrive();
+	}
+	
+	/**
 	 * \brief Iterate over the process managers until the local time would
 	 * exceed the global time step.
 	 */
@@ -425,7 +464,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void pushAllOutboundAgents()
 	{
-		for ( BoundaryConnected b : this._shape.getConnectedBoundaries() )
+		for ( Boundary b : this._shape.getAllBoundaries() )
 			b.pushAllOutboundAgents();
 	}
 	

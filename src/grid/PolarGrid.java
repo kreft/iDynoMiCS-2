@@ -1,7 +1,7 @@
 package grid;
 
-import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Vector;
+import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.ShapeConventions.DimName;
 
 /**

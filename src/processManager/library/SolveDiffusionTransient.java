@@ -14,9 +14,7 @@ import agent.Agent;
 import dataIO.XmlLabel;
 import grid.SpatialGrid;
 import static grid.SpatialGrid.ArrayType.*;
-import grid.subgrid.CoordinateMap;
-import grid.subgrid.SubgridPoint;
-import grid.wellmixedSetter.AllSame;
+import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -25,6 +23,8 @@ import linearAlgebra.Vector;
 import processManager.PMToolsAgentEvents;
 import processManager.ProcessManager;
 import reaction.Reaction;
+import shape.subvoxel.CoordinateMap;
+import shape.subvoxel.SubvoxelPoint;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEupdater;
@@ -120,7 +120,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		this._wellmixed = new HashMap<String,IsWellmixedSetter>();
 		for ( String soluteName : this._soluteNames )
 		{
-			AllSame mixer = new AllSame();
+			AllSameMixing mixer = new AllSameMixing();
 			mixer.setValue(1.0);
 			this._wellmixed.put(soluteName, mixer);
 		}
@@ -202,8 +202,8 @@ public class SolveDiffusionTransient extends ProcessManager
 		int nDim = agents.getNumDims();
 		double[] location;
 		double[] dimension = new double[3];
+		List<SubvoxelPoint> sgPoints;
 		List<Agent> nhbs;
-		List<SubgridPoint> sgPoints;
 		List<Surface> surfaces;
 		double[] pLoc;
 		Collision collision = new Collision(null, agents.getShape());
@@ -233,9 +233,14 @@ public class SolveDiffusionTransient extends ProcessManager
 			/* Get the sub-voxel points and query the agents. */
 			for ( Agent a : nhbs )
 			{
+				/* Should have been removed, but doesn't hurt to check. */
+				if ( ! a.isAspect(NameRef.agentReactions) )
+					continue;
+				if ( ! a.isAspect(NameRef.surfaceList) )
+					continue;
 				surfaces = (List<Surface>) a.get(NameRef.surfaceList);
 				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
-				sgLoop: for ( SubgridPoint p : sgPoints )
+				sgLoop: for ( SubvoxelPoint p : sgPoints )
 				{
 					/* Only give location in significant dimensions. */
 					pLoc = p.getRealLocation(nDim);

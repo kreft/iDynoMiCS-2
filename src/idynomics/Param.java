@@ -60,11 +60,20 @@ public class Param
 	public static void init()
 	{
 	// TODO safety: check the root exists, and the name is acceptable
-			Idynomics.global.outputRoot = Helper.obtainInput(Idynomics.global.outputRoot, "Required " + 
-					XmlLabel.outputFolder, true);
-			Idynomics.global.simulationName = Helper.obtainInput(Idynomics.global.simulationName, "Required"
-					+ " simulation name", true);
-			Idynomics.global.outputLocation = Idynomics.global.outputRoot + "/" + Idynomics.global.simulationName + "/";
+			Idynomics.global.outputRoot = 
+					Helper.obtainInput(Idynomics.global.outputRoot, 
+							"Required " + XmlLabel.outputFolder, true);
+			Idynomics.global.simulationName = 
+					Helper.obtainInput(Idynomics.global.simulationName,
+							"Required simulation name", true);
+			setOutputLocation();
+	}
+	
+	public static void setOutputLocation()
+	{
+		Idynomics.global.outputLocation = 
+				Idynomics.global.outputRoot + "/" +
+				Idynomics.global.simulationName + "/";
 	}
 	
 	/**

@@ -1,9 +1,11 @@
 package surface;
 
-import shape.Shape;
+import java.util.Collection;
+
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
+import shape.Shape;
 
 /**
  * NOTE: this class is not thread-safe.
@@ -18,34 +20,70 @@ import linearAlgebra.Vector;
  * can be implemented.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class Collision
 {
+	/*************************************************************************
+	 * COLLISION FUNCTIONS
+	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 */
+	// NOTE consider moving into a subpackage
 	public interface CollisionFunction
 	{
+		/**
+		 * \brief TODO
+		 * 
+		 * @return
+		 */
 		public double forceScalar();
+		
+		/**
+		 * \brief TODO
+		 * 
+		 * @param distance
+		 * @param dP
+		 * @return
+		 */
+		// FIXME Rob [17/5/2016]: clarify what happens to dP: are its values
+		// overwritten or preserved?
 		public double[] interactionForce(double distance, double[] dP);
 	}
 	
 	public CollisionFunction PullFunction = new CollisionFunction()
 	{
+		@Override
 		public double forceScalar()
 		{
-			return -2.0;		// pull force scalar
+			/*
+			 * Pull force scalar.
+			 */
+			// TODO explain choice
+			return -2.0;
 		}
 		
+		@Override
 		public double[] interactionForce(double distance, double[] dP)
 		{
-			double c;
-			distance 			-= 0.001;	// added margin
-			
-			// Attraction
-			if (distance > 0.0 && distance < pullRange) 
+			/* Add a small margin. */
+			// TODO why?
+			distance -= 0.001;
+			/*
+			 * If distance is in the range (0, pullRange), apply the pull force.
+			 * Otherwise, return a zero vector.
+			 */
+			if ( distance > 0.0 && distance < pullRange ) 
 			{
-				c = Math.abs(forceScalar() * distance); //linear
+				/* Linear. */
+				double c = Math.abs(this.forceScalar() * distance);
+				/* dP is overwritten here. */
 				Vector.normaliseEuclidEquals(dP, c);
 				return dP;
 			} 
+			/* dP is not overwritten here. */
 			return Vector.zeros(dP);
 		}
 	};
@@ -54,32 +92,51 @@ public class Collision
 	{
 		public double forceScalar()
 		{
+			/*
+			 * Push force scalar.
+			 */
+			// TODO explain choice
 			return 6.0;		// push force scalar
 		}
 		
 		public double[] interactionForce(double distance, double[] dP)
 		{
-			double c;
-			
-			
-			distance 			+= 0.001;	// added margin
-			
-			// Repulsion
-			if (distance < 0.0) 
+			/* Add a small margin. */
+			// TODO why?
+			distance += 0.001;
+			/*
+			 * If distance is negative, apply the repulsive force.
+			 * Otherwise, return a zero vector.
+			 */
+			if ( distance < 0.0 ) 
 			{
-				c = Math.abs(forceScalar() * distance); //linear
+				/* Linear. */
+				double c = Math.abs(this.forceScalar() * distance);
+				/* dP is overwritten here. */
 				Vector.normaliseEuclidEquals(dP, c);
 				return dP;
-			} 
+			}
+			/* dP is not overwritten here. */
 			return Vector.zeros(dP);
 		}
 	};
 	
-	private CollisionFunction collisionFun;
+	/*************************************************************************
+	 * VARIABLES
+	 ************************************************************************/
 	
-	private CollisionFunction pullFun;
-	
-	private Shape computationalDomain;
+	/**
+	 * TODO
+	 */
+	private CollisionFunction _collisionFun;
+	/**
+	 * TODO
+	 */
+	private CollisionFunction _pullFun;
+	/**
+	 * TODO
+	 */
+	private Shape _computationalDomain;
 	
 	/**
 	 * Vector that represents the shortest distance between: point-point,
@@ -109,75 +166,118 @@ public class Collision
 	 */
 	private boolean flip = false;
 	
-	public double getMaxForceScalar()
-	{
-		return Math.max(Math.abs(this.collisionFun.forceScalar()), 
-				Math.abs(this.pullFun.forceScalar()));
-	}
+	/*************************************************************************
+	 * CONSTRUCTORS
+	 ************************************************************************/
 	
 	public Collision(CollisionFunction collisionFunction, Shape compartmentShape)
 	{
 		if (collisionFunction != null)
-			this.collisionFun = collisionFunction;
+			this._collisionFun = collisionFunction;
 		else
-			this.collisionFun = DefaultCollision;
-		this.computationalDomain = compartmentShape;
+			this._collisionFun = DefaultCollision;
+		this._computationalDomain = compartmentShape;
 		this.dP = Vector.zerosDbl(compartmentShape.getNumberOfDimensions());
 		
 		//FIXME testing purposes
-		this.pullFun = PullFunction;
+		this._pullFun = PullFunction;
 	}
 
+	public Collision(Shape aShape)
+	{
+		this(null, aShape);
+	}
+	
+	/*************************************************************************
+	 * FORCE METHODS
+	 ************************************************************************/
+	
 	/**
-	 * apply a collision force on a and b if applicable
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public double getMaxForceScalar()
+	{
+		return Math.max(Math.abs(this._collisionFun.forceScalar()), 
+				Math.abs(this._pullFun.forceScalar()));
+	}
+	
+	/**
+	 * \brief Apply a collision force on two surfaces, if applicable.
+	 * 
+	 * @param a
+	 * @param b
+	 * @param pullDistance
 	 */
 	public void collision(Surface a, Surface b, double pullDistance)
 	{
 		pullRange = pullDistance;
-		double dist = distance(a,b);
+		double dist = distance(a, b);
 		
 		/* Pushing */
-		if (dist < 0.0)
+		if ( dist < 0.0 )
 		{
-			double[] force = collisionFun.interactionForce(dist, 
-					(flip ? Vector.times(this.dP,-1.0) : this.dP));
+			double[] force = _collisionFun.interactionForce(dist, 
+					(this.flip ? Vector.reverse(this.dP) : this.dP));
 	
-			if(flip)
+			if( this.flip )
 			{
-				applyForce(b, force,s);
-				applyForce(a, Vector.times(force,-1.0), t);
+				this.applyForce(b, force, s);
+				this.applyForce(a, Vector.reverse(force), t);
 			} 
 			else
 			{
-				applyForce(a, force,s);
-				applyForce(b, Vector.times(force,-1.0), t);
+				this.applyForce(a, force, s);
+				this.applyForce(b, Vector.reverse(force), t);
 			}
 		}
 		else
 		/* Pulling */
 		{
-			double[] force = pullFun.interactionForce(distance(a,b), 
-					(flip ? Vector.times(this.dP,-1.0) : this.dP));
+			double[] force = _pullFun.interactionForce(distance(a,b), 
+					(this.flip ? Vector.reverse(this.dP) : this.dP));
 
-			if(flip)
+			if( this.flip )
 			{
-				applyForce(a, force,s);
-				applyForce(b, Vector.times(force,-1.0), t);
+				this.applyForce(a, force, s);
+				this.applyForce(b, Vector.reverse(force), t);
 			} 
 			else
 			{
-				applyForce(b, force,s);
-				applyForce(a, Vector.times(force,-1.0), t);
+				this.applyForce(b, force, s);
+				this.applyForce(a, Vector.reverse(force), t);
 			}
 		}
 		/* reset pull dist, very important! */
 		pullRange = 0.0;
 	}
 
-	
-	public void applyForce(Surface surf, double[] force, double intersect)
+	/**
+	 * \brief TODO
+	 * 
+	 * @param allA
+	 * @param allB
+	 * @param pullDistance
+	 */
+	public void collision(
+			Collection<Surface> allA, Collection<Surface> allB, double pullDistance)
 	{
-		switch (surf.type())
+		for ( Surface a : allA )
+			for ( Surface b : allB )
+				this.collision(a, b, pullDistance);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param surf
+	 * @param force
+	 * @param intersect
+	 */
+	private void applyForce(Surface surf, double[] force, double intersect)
+	{
+		switch ( surf.type() )
 		{
 		case SPHERE:
 			((Ball) surf)._point.addToForce(force);
@@ -191,56 +291,72 @@ public class Collision
 		}
 	}
 	
+	/*************************************************************************
+	 * KEY DISTANCE METHODS
+	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	public double distance(Surface a, Surface b)
 	{
+		/*
+		 * First check that both Surfaces exist.
+		 */
+		if ( a == null || b == null )
+			throw new IllegalArgumentException("Null surface given");
+		/*
+		 * Now give them arbitrary labels, so that we can choose the correct
+		 * method for determining the distance. 
+		 */
 		Surface first = null;
 		Surface second = null;
-
-		// plane interactions
-		if (a.type() == Surface.Type.PLANE )
+		/* Plane interactions. */
+		if ( a.type() == Surface.Type.PLANE )
 		{
 			first = a;
 			second = b;
 			flip = false;
-		} else if (b.type() == Surface.Type.PLANE )
+		}
+		else if ( b.type() == Surface.Type.PLANE )
 		{
 			first = b;
 			second = a;
 			flip = true;
 		}
-		if (second == null)
-			{}
-		else if (second.type() == Surface.Type.SPHERE)
+		// TODO plane-plane 
+		if ( second.type() == Surface.Type.SPHERE )
 			return planeSphere((Plane) first, (Ball) second);
-		else if (second.type() == Surface.Type.ROD)
-			return planeRod((Plane) first, (Rod) second);
+		if ( second.type() == Surface.Type.ROD )
+			return this.planeRod((Plane) first, (Rod) second);
 		
 		// sphere-swept-volume interactions
-		if(a.type() == Surface.Type.ROD)
+		if( a.type() == Surface.Type.ROD )
 		{
 			first = a;
 			second = b;
-			flip = false;
+			this.flip = false;
 		} else if(b.type() == Surface.Type.ROD)
 		{
 			first = b;
 			second = a;
-			flip = true;
+			this.flip = true;
 		}
-		if (second == null)
-			{}
-		else if (second.type() == Surface.Type.SPHERE)
-			return rodSphere((Rod) first, (Ball) second);
-		else if (second.type() == Surface.Type.ROD)
-			return rodRod((Rod) first, (Rod) second);
-		
-		// sphere sphere
-		if(a.type() == Surface.Type.SPHERE)
+		if ( second.type() == Surface.Type.SPHERE )
+			return this.rodSphere((Rod) first, (Ball) second);
+		if ( second.type() == Surface.Type.ROD )
+			return this.rodRod((Rod) first, (Rod) second);
+		/* Sphere-sphere interactions. */
+		if( a.type() == Surface.Type.SPHERE )
 		{
 			first = a;
 			second = b;
-			flip = false;
-			return sphereSphere((Ball) first, (Ball) second);
+			this.flip = false;
+			return this.sphereSphere((Ball) first, (Ball) second);
 		}
 		else
 		{
@@ -255,9 +371,9 @@ public class Collision
 		switch (a.type())
 		{
 		case SPHERE :
-			return spherePoint((Ball) a, p);
+			return this.spherePoint((Ball) a, p);
 		case ROD :
-			return rodPoint((Rod) a, p);
+			return this.rodPoint((Rod) a, p);
 		case PLANE:
 			return planePoint((Plane) a, p);
 		}
@@ -265,65 +381,137 @@ public class Collision
 	}
 	
 	
+	
+	/*************************************************************************
+	 * PRIVATE DISTANCE METHODS
+	 ************************************************************************/
+
 	/**
-	 * Work in progress, stores the vector that points the shortest distance
-	 * between a and b
+	 * \brief Stores the vector that points the shortest distance between two
+	 * locations.
+	 * 
+	 * @param a
+	 * @param b
 	 */
+	// NOTE Work in progress
 	private void setPeriodicDistanceVector(double[] a, double[] b)
 	{
-		this.dP = computationalDomain.getMinDifference(a,b);
+		this.dP = this._computationalDomain.getMinDifference(a,b);
 	}
 	
-	
 	/**
-	 * \brief Sphere-sphere distance.
+	 * \brief Point-point distance.
 	 * 
-	 * @param p Point of first sphere.
-	 * @param q Point of second sphere.
-	 * @return distance between the two sphere-swept volumes (spheres-sphere).
+	 * @param p First point.
+	 * @param q Second point.
+	 * @return Distance between the two points.
 	 */
-	public double pointPoint(double[] p, double[] q) 
+	private double pointPoint(double[] p, double[] q) 
 	{
-		setPeriodicDistanceVector(p, q);
+		this.setPeriodicDistanceVector(p, q);
 //		Vector.minusTo(dP, p, q);
 		return Vector.normEuclid(dP);
 	}
 	
-	public double spherePoint(Ball a, double[] p)
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param p
+	 * @return
+	 */
+	private double spherePoint(Ball a, double[] p)
 	{
-		return pointPoint(a._point.getPosition(),
-				p) - a.getRadius();
+		/*
+		 * First find the distance between the point and the centre of the
+		 * sphere. 
+		 */
+		double out = pointPoint(a.getCenter(), p);
+		/*
+		 * Subtract the sphere's radius to find the distance between the point
+		 * and the surface of the sphere.
+		 */
+		return out - a.getRadius();
 	}
 	
-	public double sphereSphere(Ball a, Ball b)
-	{
-		// a is around b
-		if (a.bounding)
-			return -pointPoint(a._point.getPosition(),
-					b._point.getPosition()) + a.getRadius() - b.getRadius();
-		
-		// b is around a
-		if (b.bounding)
-			return -pointPoint(a._point.getPosition(),
-					b._point.getPosition()) - a.getRadius() + b.getRadius();
-		
-		// normal collision
-		return pointPoint(a._point.getPosition(),
-				b._point.getPosition()) - a.getRadius() - b.getRadius();
-	}
-
 	/**
-	 * \brief sphere cylinder distance.
+	 * \brief TODO
 	 * 
-	 * (Ericson 2005, page 127) closest point on line segment to point.
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	private double sphereSphere(Ball a, Ball b)
+	{
+		double pointPoint = pointPoint(a.getCenter(), b.getCenter());
+		/* a is around b. */
+		if ( a.bounding )
+			return - pointPoint + a.getRadius() - b.getRadius();
+		/* b is around a. */
+		if ( b.bounding )
+			return - pointPoint - a.getRadius() + b.getRadius();
+		/* Normal collision. */
+		return pointPoint - a.getRadius() - b.getRadius();
+	}
+	
+	/**
+	 * \brief TODO
 	 * 
+	 * @param normal
+	 * @param d
 	 * @param p0
-	 * 			First point of rod
 	 * @param p1
-	 * 			Second point of rod
-	 * @param q0
-	 * 			Point of sphere
-	 * @return distance between the two sphere-swept volumes (sphere cylinder)
+	 * @return
+	 */
+	private double planeLineSeg(double[] normal, double d, double[] p0, double[] p1)
+	{
+		double a = planePoint(normal, d, p0);
+		double b = planePoint(normal, d, p1);
+		if ( a < b )
+		{
+			this.s = 0.0;
+			return a;
+		}
+		if ( a > b ) 
+		{
+			this.s = 1.0;
+			return b;
+		}
+		/* a = b */
+		this.s = 0.5;
+		return a;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param plane
+	 * @param rod
+	 * @return
+	 */
+	private double planeRod(Plane plane, Rod rod)
+	{
+		/*
+		 * First find the distance between the plane and the axis of the rod. 
+		 */
+		double out = planeLineSeg(plane.normal, plane.d, 
+				rod._points[0].getPosition(), rod._points[1].getPosition());
+		/*
+		 * Subtract the rod's radius to find the distance between the plane and
+		 * the rod's surface.
+		 */
+		return out - rod.getRadius();
+	}
+	
+	/**
+	 * \brief Calculates the distance between a line segment and a point.
+	 * 
+	 * <p>(Ericson 2005, page 127) closest point on line segment to point.</p>
+	 * 
+	 * @param p0 First point of rod
+	 * @param p1 Second point of rod
+	 * @param q0 Point of sphere
+	 * @return distance between the line segment and the point.
 	 */
 	public double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
@@ -338,30 +526,60 @@ public class Collision
 		return Vector.normEuclid(dP);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param p
+	 * @return
+	 */
 	public double rodPoint(Rod a, double[] p)
 	{
-		return linesegPoint(a._points[0].getPosition(), 
-				a._points[1].getPosition(), p) - a.getRadius();
-	}
-	
-	public double rodSphere(Rod a, Ball b)
-	{
-		return linesegPoint(a._points[0].getPosition(),
-				a._points[1].getPosition(),
-				b._point.getPosition()) - a.getRadius() - b.getRadius();
+		/*
+		 * First find the distance between the axis of the rod and the point. 
+		 */
+		double out = linesegPoint(a._points[0].getPosition(), 
+				a._points[1].getPosition(), p);
+		/*
+		 * Subtract the rod's radius to find the distance between the point and
+		 * the rod's surface.
+		 */
+		return out - a.getRadius();
 	}
 	
 	/**
-	 * \brief cylinder cylinder distance.
+	 * \brief TODO
 	 * 
-	 * (Ericson 2005, page 148) closest point on two line segments
+	 * @param aRod
+	 * @param aBall
+	 * @return
+	 */
+	public double rodSphere(Rod aRod, Ball aBall)
+	{
+		/*
+		 * First find the distance between the axis of the rod and the centre
+		 * of the sphere. 
+		 */
+		double out = linesegPoint(aRod._points[0].getPosition(),
+				aRod._points[1].getPosition(),
+				aBall.getCenter());
+		/*
+		 * Subtract the radii of both to find the distance between their
+		 * surfaces.
+		 */
+		return out - aRod.getRadius() - aBall.getRadius();
+	}
+	
+	/**
+	 * \brief Distance between two line segments.
+	 * 
+	 * <p>(Ericson 2005, page 148) closest point on two line segments.</p>
 	 * 
 	 * @param p0 First point of first rod.
 	 * @param p1 Second point of first rod.
 	 * @param q0 First point of second rod.
 	 * @param q1 Second point of second rod.
-	 * @return distance between the two sphere-swept volumes 
-	 * (cylinder-cylinder).
+	 * @return distance between the two line segments.
 	 */
 	public double linesegLineseg(double[] p0, double[] p1,
 												double[] q0, double[] q1) 
@@ -375,13 +593,14 @@ public class Collision
 		double f 		= Vector.dotProduct(d2, r);
 		double c 		= Vector.dotProduct(d1, r);
 		double b 		= Vector.dotProduct(d1, d2);
-		// denominator
-		double denom 	= (a * e) - (b * b);
+		double denominator 	= (a * e) - (b * b);
 		
-		// s, t = 0.0 if segments are parallel.
-		s = ( (denom != 0.0) ? clamp( (b*f-c*e) / denom ) : 0.0 );	
+		/* s, t = 0.0 if segments are parallel. */
+		s = ( (denominator != 0.0) ? clamp( (b*f-c*e) / denominator ) : 0.0 );	
 		t = (b*s + f) / e;
-		
+		/*
+		 * TODO explain
+		 */
 		if ( t < 0.0 ) 
 		{
 			t = 0.0;
@@ -392,82 +611,108 @@ public class Collision
 			t = 1.0;
 			s = clamp((b-c)/a);
 		}
-		// c1 = p0 + (d1*s)
+		/* c1 = p0 + (d1*s) */
 		double[] c1 = Vector.times(d1, s);
 		Vector.addEquals(p0, c1);
-		// c2 = q0 + (d2*t)
+		/* c2 = q0 + (d2*t) */
 		double[] c2 = Vector.times(d2, t);
 		Vector.addEquals(q0, c1);
-		// dP = c1 - c2
-		dP = Vector.minus(c1, c2);
+		/* dP = c1 - c2 */
+		this.dP = Vector.minus(c1, c2);
 		return Vector.normEuclid(dP);
 	}
 	
-	public double rodRod(Rod a, Rod b)
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
+	private double rodRod(Rod a, Rod b)
 	{
-		return linesegLineseg(a._points[0].getPosition(),
+		/*
+		 * First find the distance between the axes of the two rods. 
+		 */
+		double out = linesegLineseg(a._points[0].getPosition(),
 				a._points[1].getPosition(),
 				b._points[0].getPosition(),
-				b._points[1].getPosition()) - a.getRadius() - b.getRadius();
+				b._points[1].getPosition());
+		/*
+		 * Subtract the radii of both rods to find the distance between their
+		 * surfaces.
+		 */
+		return out - a.getRadius() - b.getRadius();
 	}
 	
+	/*************************************************************************
+	 * STATIC DISTANCE METHODS
+	 ************************************************************************/
+	
 	/**
-	 * TODO: testing
+	 * \brief Distance between a plane and a point.
+	 * 
+	 * @param plane
 	 * @param point
 	 * @return
 	 */
-	public double[] closestPointonPlane(double[] normal, double d, double[] point)
-	{
-		return Vector.times( Vector.add(point, -planePoint(normal, d, point)), d);
-	}
-	
-	/**
-	 * 
-	 */
-	public double planePoint(double[] normal, double d, double[] point)
-	{
-		return Vector.dotProduct(normal, point) - d;
-	}
-	
-	public double planePoint(Plane plane, double[] point)
+	public static double planePoint(Plane plane, double[] point)
 	{
 		return Vector.dotProduct(plane.normal, point) - plane.d;
 	}
 	
-	public double planeSphere(Plane plane, Ball sphere)
+	/**
+	 * \brief TODO: testing
+	 * 
+	 * @param normal
+	 * @param d
+	 * @param point
+	 * @return
+	 */
+	public static double[] closestPointOnPlane(double[] normal, double d, double[] point)
 	{
-		return planePoint(plane.normal, plane.d, sphere._point.getPosition()) - sphere.getRadius();
+		/*
+		 * TODO explain
+		 */
+		double[] out = Vector.add(point, -planePoint(normal, d, point));
+		Vector.timesEquals(out, d);
+		return out;
 	}
 	
 	/**
+	 * \brief TODO
 	 * 
+	 * @param plane
+	 * @param sphere
+	 * @return
 	 */
-	public double planeLineSeg(double[] normal, double d, double[] p0, double[] p1)
+	public static double planeSphere(Plane plane, Ball sphere)
 	{
-		double a = planePoint(normal, d, p0);
-		double b = planePoint(normal, d, p1);
-		if (a < b)
-		{
-			this.s = 0.0;
-			return a;
-		}
-		if (a > b) 
-		{
-			this.s = 1.0;
-			return b;
-		}
-		else
-		{
-			this.s = 0.5;
-			return a;
-		}
+		/*
+		 * First find the distance between the plane and the centre of the
+		 * sphere. 
+		 */
+		double out = planePoint(plane.normal, plane.d, sphere.getCenter());
+		/*
+		 * Subtract the rod's radius to find the distance between the plane and
+		 * the rod's surface.
+		 */
+		return out - sphere.getRadius();
 	}
 	
-	public double planeRod(Plane plane, Rod rod)
+	/**
+	 * \brief TODO
+	 * 
+	 * @param normal
+	 * @param d
+	 * @param point
+	 * @return
+	 */
+	public static double planePoint(double[] normal, double d, double[] point)
 	{
-		return planeLineSeg(plane.normal, plane.d, rod._points[0].getPosition(), rod._points[1].getPosition()) - rod.getRadius();
+		return Vector.dotProduct(normal, point) - d;
 	}
-
+	
 	/**
 	 * \brief Helper method used in line segment distance algorithms.
 	 * 
@@ -478,7 +723,7 @@ public class Collision
 	 * @param a A double number.
 	 * @return <b>a</b> constrained to the interval [0.0, 1.0].
 	 */
-	private double clamp(double a) 
+	public static double clamp(double a) 
 	{
 		return Math.max( Math.min(a, 1.0), 0.0 );
 	}
