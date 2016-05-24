@@ -1,6 +1,8 @@
 package shape;
 
 import static shape.ShapeConventions.DimName.R;
+import static shape.Shape.WhereAmI.DEFINED;
+import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -104,11 +106,12 @@ public abstract class PolarShape extends Shape
 		 * defined boundary, the angular coordinate is irrelevant.
 		 */
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
-		if ( this.isOnUndefinedBoundary(this._currentNeighbor, DimName.R) )
+		WhereAmI where = this.whereIsNhb(R);
+		if ( where == UNDEFINED )
 			return false;
-		if ( this.isOnBoundary(this._currentNeighbor, 0)){
-			this._nbhOnDefBoundary = true; 
-			this._nbhDimName = DimName.R;
+		if ( where == DEFINED )
+		{
+			this._nbhDimName = R;
 			this._nbhDirection = this._currentCoord[0] 
 									< this._currentNeighbor[0] ? 1 : 0;
 			return true;
@@ -122,7 +125,6 @@ public abstract class PolarShape extends Shape
 		rC = this.getResolutionCalculator(this._currentNeighbor, 1);
 		int new_index = rC.getVoxelIndex(cur_min);
 		this._currentNeighbor[1] = new_index;
-		this._nbhOnDefBoundary = false; 
 		/* we are always in the same z-slice as the current coordinate when
 		 * calling this method, so _nbhDimName can not be Z. 
 		 */
@@ -149,16 +151,18 @@ public abstract class PolarShape extends Shape
 		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, index);
 		/* If we are already on the maximum boundary, we cannot go further. */
 		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 )
-				return false;
+			return false;
 		/* Do not allow the neighbor to be on an undefined maximum boundary. */
 		if ( this._currentNeighbor[index] == rC.getNVoxel() - 1 )
+		{
 			if ( dimension.isBoundaryDefined(1) )
 			{
-				this._nbhOnDefBoundary = true;
+				this._whereIsNbh = DEFINED;
 				this._nbhDirection = 1;
 			}	
-			else return false;
-				
+			else
+				return false;
+		}
 		/*
 		 * If increasing would mean we no longer overlap, report failure.
 		 */

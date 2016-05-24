@@ -3,6 +3,8 @@ package shape;
 import static shape.ShapeConventions.DimName.PHI;
 import static shape.ShapeConventions.DimName.R;
 import static shape.ShapeConventions.DimName.THETA;
+import static shape.Shape.WhereAmI.INSIDE;
+import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
@@ -265,12 +267,13 @@ public abstract class SphericalShape extends PolarShape
 		/* There are no valid neighbors. */
 		else this._nbhValid = false;
 		
-		if (this._nbhValid){
+		if ( this._nbhValid )
+		{
 			transformNbhCyclic();
 			return;
 		}
 		
-		this._nbhOnDefBoundary = false;
+		this._whereIsNbh = UNDEFINED;
 		this._nbhValid = false;
 	}
 	
@@ -397,16 +400,17 @@ public abstract class SphericalShape extends PolarShape
 	protected boolean setNbhFirstInNewRing(int ringIndex)
 	{
 		this._currentNeighbor[1] = ringIndex;
-		
-		/* If we are on an invalid shell, we are definitely in the wrong place*/
-		if (isOnBoundary(this._currentNeighbor, 0))
+		/*
+		 * We must be on a ring inside the array: not even a defined boundary
+		 * will do here.
+		 */
+		if ( this.whereIsNhb(R) != INSIDE )
 			return false;
-		
 		/*
 		 * First check that the new ring is inside the grid. If we're on a
 		 * defined boundary, the theta coordinate is irrelevant.
 		 */
-		if (isOnBoundary(this._currentNeighbor, 1))
+		if ( this.whereIsNhb(THETA) != INSIDE )
 			return false;
 		
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 2);

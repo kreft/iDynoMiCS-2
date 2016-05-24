@@ -3,6 +3,7 @@ package shape;
 import static shape.ShapeConventions.DimName.R;
 import static shape.ShapeConventions.DimName.THETA;
 import static shape.ShapeConventions.DimName.Z;
+import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
@@ -242,14 +243,15 @@ public abstract class CylindricalShape extends PolarShape
 		/* See if we can use the outside r-shell. */
 		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) ) ;
 		/* There are no valid neighbors. */
-		else this._nbhValid = false;
+		else 
+			this._nbhValid = false;
 		
-		if (this._nbhValid){
+		if ( this._nbhValid )
+		{
 			transformNbhCyclic();
 			return;
 		}
-		
-		this._nbhOnDefBoundary = false;
+		this._whereIsNbh = UNDEFINED;
 		this._nbhValid = false;
 	}
 	

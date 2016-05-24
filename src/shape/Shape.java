@@ -4,6 +4,9 @@
 package shape;
 
 import static shape.ShapeConventions.DimName.R;
+import static shape.Shape.WhereAmI.DEFINED;
+import static shape.Shape.WhereAmI.INSIDE;
+import static shape.Shape.WhereAmI.UNDEFINED;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -71,6 +74,22 @@ import utility.Helper;
 public abstract class Shape implements
 					CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
 {
+	protected enum WhereAmI
+	{
+		/**
+		 * Inside the array.
+		 */
+		INSIDE,
+		/**
+		 * On a defined boundary.
+		 */
+		DEFINED,
+		/**
+		 * On an undefined boundary.
+		 */
+		UNDEFINED;
+	}
+	
 	/**
 	 * TODO
 	 */
@@ -130,13 +149,10 @@ public abstract class Shape implements
 	 * to the current coordinate.
 	 */
 	protected int _nbhDirection;
-	
 	/**
-	 * Indicates that the current neighbor is on any boundary.
-	 * Note that _nbhDimName and _nbhDirection store the exact boundary 
-	 * location.
+	 * TODO
 	 */
-	protected boolean _nbhOnDefBoundary;
+	protected WhereAmI _whereIsNbh;
 	
 	/**
 	 * A helper vector for finding the location of the origin of a voxel.
@@ -981,59 +997,39 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * TODO
+	 * \brief TODO
 	 * 
-	 * @param coords Discrete coordinates of a voxel in this shape.
-	 * @param dim
+	 * @param coord
+	 * @param dimName
 	 * @return
 	 */
-	protected boolean isOnBoundary(int[] coord, int dim)
-	{
-		if ( coord[dim] < 0 )
-				return true;
-		if (coord[dim] >= this.getResolutionCalculator(coord, dim).getNVoxel())
-				return true;
-		return false;
-	}
-	
-	/**
-	 * \brief Check if the given coordinate is on a defined boundary in the
-	 * given dimension.
-	 * 
-	 * @param coords Discrete coordinates of a voxel in this shape.
-	 * @param dim
-	 * @return
-	 */
-	protected boolean isOnDefinedBoundary(int[] coord, DimName dimName)
+	protected WhereAmI whereIs(int[] coord, DimName dimName)
 	{
 		Dimension dim = this.getDimension(dimName);
 		int index = this.getDimensionIndex(dimName);
 		if ( coord[index] < 0 )
-			return dim.isBoundaryDefined(0);
+			if ( dim.isBoundaryDefined(0) )
+				return WhereAmI.DEFINED;
+			else
+				return WhereAmI.UNDEFINED;
 		int nVox = this.getResolutionCalculator(coord, index).getNVoxel();
 		if ( coord[index] >= nVox )
-			return dim.isBoundaryDefined(1);
-		return false;
+			if ( dim.isBoundaryDefined(1) )
+				return WhereAmI.DEFINED;
+			else
+				return WhereAmI.UNDEFINED;
+		return WhereAmI.INSIDE;
 	}
 	
 	/**
-	 * \brief Check if the given coordinate is on an undefined boundary in the
-	 * given dimension.
+	 * \brief TODO
 	 * 
-	 * @param coords Discrete coordinates of a voxel in this shape.
-	 * @param dim
+	 * @param dimName
 	 * @return
 	 */
-	protected boolean isOnUndefinedBoundary(int[] coord, DimName dimName)
+	protected WhereAmI whereIsNhb(DimName dimName)
 	{
-		Dimension dim = this.getDimension(dimName);
-		int index = this.getDimensionIndex(dimName);
-		if ( coord[index] < 0 )
-			return ! dim.isBoundaryDefined(0);
-		int nVox = this.getResolutionCalculator(coord, index).getNVoxel();
-		if ( coord[index] >= nVox )
-			return ! dim.isBoundaryDefined(1);
-		return false;
+		return this.whereIs(this._currentNeighbor, dimName);
 	}
 	
 	/**
@@ -1334,7 +1330,7 @@ public abstract class Shape implements
 	 */
 	public Boundary nbhIteratorOutside()
 	{
-		if ( this._nbhOnDefBoundary )
+		if ( this._whereIsNbh == DEFINED )
 		{
 			return getDimension(this._nbhDimName)
 					.getBoundaries()[this._nbhDirection];
@@ -1374,7 +1370,7 @@ public abstract class Shape implements
 	protected void transformNbhCyclic()
 	{
 		Dimension dim = getDimension(this._nbhDimName);
-		if ( this._nbhOnDefBoundary && dim.isCyclic() )
+		if ( (this._whereIsNbh == DEFINED) && dim.isCyclic() )
 		{
 			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			int nVoxel = this.getResolutionCalculator(
@@ -1400,7 +1396,7 @@ public abstract class Shape implements
 	protected void untransformNbhCyclic()
 	{
 		Dimension dim = this.getDimension(this._nbhDimName);
-		if ( this._nbhOnDefBoundary && dim.isCyclic() )
+		if ( (this._whereIsNbh == DEFINED) && dim.isCyclic() )
 		{
 			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			if ( this._nbhDirection == 0 )
@@ -1431,13 +1427,11 @@ public abstract class Shape implements
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[index]--;
 		/* Check that this coordinate is acceptable. */
-		boolean inside = this._currentNeighbor[index] >= 0;
-		this._nbhOnDefBoundary = (! inside) && 
-				this._dimensions.get(dim).isBoundaryDefined(0);
-		boolean valid = inside || this._nbhOnDefBoundary;
+		WhereAmI where = this.whereIsNhb(dim);
+		this._whereIsNbh = where;
 		this._nbhDirection = 0;
 		this._nbhDimName = dim;
-		return ( valid );
+		return (where != UNDEFINED);
 	}
 	
 	/**
@@ -1454,28 +1448,24 @@ public abstract class Shape implements
 	{
 		int index = this.getDimensionIndex(dim);
 		this.updateCurrentNVoxel();
+		this._whereIsNbh = this.whereIsNhb(dim);
 		/* Check we are behind the current coordinate. */
 		if ( this._currentNeighbor[index] < this._currentCoord[index] )
 		{
-			boolean inside = this._currentCoord[index] 
-											< this._currentNVoxel[index] - 1;
-			
 			boolean bMaxDef = this.getDimension(dim).isBoundaryDefined(1);
-			
 			/* Check there is space on the other side. */
-			if ( inside || bMaxDef )
+			if ( this._whereIsNbh == INSIDE || bMaxDef )
 			{
 				/* Jump and report success. */
 				this._nbhDirection = 1;
-				/* can only be on boundary here if not inside*/
-				this._nbhOnDefBoundary = ! inside;
+				this._whereIsNbh = this.whereIsNhb(dim);
 				this._currentNeighbor[index] = this._currentCoord[index] + 1;
 				return true;
 			}
 		}
 		/* Report failure. */
+		// TODO is it appropriate to use a meaningless direction here?
 		this._nbhDirection = -1;
-		this._nbhOnDefBoundary = false;
 		return false;
 	}
 	
