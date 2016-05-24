@@ -2,6 +2,7 @@ package shape;
 
 import linearAlgebra.Array;
 import shape.ShapeConventions.DimName;
+import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
@@ -26,8 +27,15 @@ public abstract class CartesianShape extends Shape
 	public CartesianShape()
 	{
 		this._resCalc = new ResCalc[3];
+		for ( int i = 0; i < 3; i++ )
+		{
+			SingleVoxel sV = new SingleVoxel();
+			sV.init(0.0, 0.0);
+			this._resCalc[i] = sV;
+		}
 		for ( DimName d : new DimName[]{DimName.X, DimName.Y, DimName.Z} )
 			this._dimensions.put(d, new Dimension(false));
+		
 	}
 	
 	@Override

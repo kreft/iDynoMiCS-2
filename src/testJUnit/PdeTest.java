@@ -12,6 +12,7 @@ import idynomics.Idynomics;
 import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
 import shape.ShapeConventions.DimName;
+import shape.resolution.ResolutionCalculator.UniformResolution;
 import utility.ExtraMath;
 
 /**
@@ -38,11 +39,16 @@ public class PdeTest
 		comp.addBoundary(DimName.X, 0, new SolidBoundary());
 		comp.addBoundary(DimName.X, 1, new SolidBoundary());
 		
+		Shape shape = comp.getShape();
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(compartmentLength);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.X, resCalc);
+		
 		String soluteName = "solute";
 		// FIXME crashes here because the grid can't find a ResolutionCalculator
 		comp.addSolute(soluteName);
 		SpatialGrid sG = comp.getSolute(soluteName);
-		Shape shape = sG.getShape();
 		for ( int[] c = shape.resetIterator(); 
 				shape.isIteratorValid(); 
 				shape.iteratorNext() )
