@@ -3,14 +3,11 @@
  */
 package processManager.library;
 
-
-import java.util.Collection;
-
 import static grid.SpatialGrid.ArrayType.CONCN;
 import static grid.SpatialGrid.ArrayType.DIFFUSIVITY;
 import static grid.SpatialGrid.ArrayType.PRODUCTIONRATE;
 
-
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +30,6 @@ import reaction.Reaction;
 import shape.subvoxel.CoordinateMap;
 
 import shape.Shape;
-
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEexplicit;
 import solver.PDEsolver;
@@ -144,9 +140,6 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * STEPPING
 	 ************************************************************************/
 	
-	/*
-	 * TODO describe function
-	 */
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
@@ -217,7 +210,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		{
 			/* Find all agents that overlap with this voxel. */
 			// TODO a method for getting a voxel's bounding box directly?
-			location = shape.getVoxelOrigin(coord);
+			location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
 			shape.getVoxelSideLengthsTo(dimension, coord);
 			/* NOTE the agent tree is always the amount of actual dimension */
 			nhbs = agents.treeSearch(location, Vector.subset(dimension, nDim));
@@ -318,8 +311,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		Set<String> productNames;
 		double rate, productRate;
 		for ( int[] coord = shape.resetIterator(); 
-				shape.isIteratorValid(); 
-				coord = shape.iteratorNext())
+				shape.isIteratorValid(); coord = shape.iteratorNext() )
 		{
 			/* Get concentrations in grid voxel. */
 			for ( String soluteName : soluteNames )
@@ -349,7 +341,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	/**
 	 * \brief 
 	 * 
-	 * <p><b>NOTE</b>: this method assumes that the volume distribution maps
+	 * <p><b>Note</b>: this method assumes that the volume distribution maps
 	 * of all relevant agents have already been calculated. This is typically
 	 * done just once per process manager step, rather than at every PDE solver
 	 * mini-timestep.</p>
