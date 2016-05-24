@@ -9,12 +9,12 @@ import static grid.SpatialGrid.ArrayType.PRODUCTIONRATE;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
-
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import concurentTasks.ConcurrentWorker;
+import dataIO.XmlLabel;
 import grid.SpatialGrid;
 import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
@@ -22,6 +22,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
+import processManager.PMToolsAgentEvents;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
@@ -33,16 +34,47 @@ import surface.Collision;
 import surface.Surface;
 
 /**
- * \brief TODO
+ * \brief Simulate the diffusion of solutes and their production/consumption by
+ * reactions in a time-dependent manner, in a spatial {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-// TODO delete now that this has been moved into ProcessManagerLibrary
 public class SolveDiffusionTransient extends ProcessManager
 {
-
-	ConcurrentWorker worker = new ConcurrentWorker();
+	/**
+	 * Helper method for filtering local agent lists, so that they only
+	 * include those that have reactions.
+	 */
+	protected final static Predicate<Agent> NO_REAC_FILTER = 
+			(a -> ! a.isAspect(NameRef.agentReactions));
+	/**
+	 * Helper method for filtering local agent lists, so that they only
+	 * include those that have relevant components of a body.
+	 */
+	protected final static Predicate<Agent> NO_BODY_FILTER = 
+			(a -> (! a.isAspect(NameRef.surfaceList)) ||
+					( ! a.isAspect(NameRef.bodyRadius)));
+	/**
+	 * When choosing an appropriate sub-voxel resolution for building agents'
+	 * {@code coordinateMap}s, the smallest agent radius is multiplied by this
+	 * factor to ensure it is fine enough.
+	 */
+	// NOTE the value of a quarter is chosen arbitrarily
+	private static double SUBGRID_FACTOR = 0.25;
+	/**
+	 * Aspect name for the {@code coordinateMap} used for establishing which
+	 * voxels a located {@code Agent} covers.
+	 */
+	private static final String VD_TAG = NameRef.agentVolumeDistributionMap;
+	/**
+	 * Aspect name for the TODO
+	 */
+	private static final String IP_TAG = NameRef.internalProduction;
+	/**
+	 * Aspect name for the TODO
+	 */
+	private static final String GR_TAG = NameRef.growthRate;
 	/**
 	 * Instance of a subclass of {@code PDEsolver}, e.g. {@code PDEexplicit}.
 	 */
@@ -52,39 +84,32 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	protected String[] _soluteNames;
 	/**
-	 * 
+	 * TODO
 	 */
 	protected HashMap<String,IsWellmixedSetter> _wellmixed;
 	/**
-	 * TODO this may need to be generalised to some method for setting
-	 * diffusivities, e.g. lower inside biofilm.
+	 * TODO 
 	 */
+	// TODO replace with diffusivitySetter
 	protected HashMap<String,Double> _diffusivity;
 	
-	/**
-	 * Helper method for filtering local agent lists, so that they only
-	 * include those that have reactions.
-	 */
-	protected final static Predicate<Agent> NO_REAC_FILTER = 
-								(a -> ! a.isAspect(NameRef.agentReactions));
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	/**
-	 * \brief TODO
-	 * 
-	 */
-	public SolveDiffusionTransient()
+	@Override
+	public void init(Element xmlElem)
 	{
-		// TODO Auto-generated constructor stub
+		super.init(xmlElem);
+		this.init(getStringA("solutes"));
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Initialise this diffusion-reaction process manager with a list of
+	 * solutes it is responsible for.
 	 * 
-	 * @param soluteNames
+	 * @param soluteNames The list of solutes this is responsible for.
 	 */
 	public void init(String[] soluteNames)
 	{
@@ -107,29 +132,37 @@ public class SolveDiffusionTransient extends ProcessManager
 			this._diffusivity.put(sName, 1.0);
 	}
 	
-	public void init(Element xmlElem)
-	{
-		super.init(xmlElem);
-		
-		this.init(getStringA("solutes"));
-	}
-	
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
 	
-	/**
-	 * Bas please add commenting on the function and approach of this process
-	 * manager
+	/*
+	 * TODO describe function
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
-		int nDim = agents.getNumDims();
 		/*
-		 * Set up the solute grids and the agents before we start to solve.
+		 * Set up the agent mass distribution maps, to ensure that agent
+		 * reactions are spread over voxels appropriately.
+		 */
+		setupAgentDistributionMaps(environment, agents);
+		/*
+		 * Set up the relevant arrays in each of our solute grids: diffusivity 
+		 * & well-mixed need only be done once each process manager time step,
+		 * but production rate must be reset every time the PDE updater method
+		 * is called.
+		 */
+		for ( String soluteName : this._soluteNames )
+		{
+			SpatialGrid solute = environment.getSoluteGrid(soluteName);
+			// TODO use diffusivitySetter
+			solute.newArray(DIFFUSIVITY, this._diffusivity.get(soluteName));
+			this._wellmixed.get(soluteName).updateWellmixed(solute, agents);
+		}
+		/*
+		 * Set the updater method and solve.
 		 */
 		SpatialGrid solute;
 		Shape shape;
@@ -139,21 +172,30 @@ public class SolveDiffusionTransient extends ProcessManager
 		shape = environment.getShape();
 		
 		/*
-		 * Set up the agent biomass distribution maps.
+		 * Reset the agent biomass distribution maps.
 		 */
+		CoordinateMap distributionMap;
 		for ( Agent a : agents.getAllLocatedAgents() )
 		{
-			HashMap<int[],Double> distributionMap = new HashMap<int[],Double>();
-			a.set("volumeDistribution", distributionMap);
+			distributionMap = new CoordinateMap();
+			a.set(VD_TAG, distributionMap);
 		}
+		/*
+		 * Set up the solute grids and the agents before we start to solve.
+		 */
+		// FIXME this is a temporary fix until we unify all grid resolutions.
+		String firstSolute = environment.getSoluteNames().iterator().next();
+		SpatialGrid solute = environment.getSoluteGrid(firstSolute);
 		/*
 		 * Now fill these agent biomass distribution maps.
 		 */
+		int nDim = agents.getNumDims();
 		double[] location;
 		double[] dimension = new double[3];
-		List<Agent> neighbors;
+		List<Agent> nhbs;
 		List<SubvoxelPoint> sgPoints;
-		HashMap<int[],Double> distributionMap;
+		List<Surface> surfaces;
+		double[] pLoc;
 		Collision collision = new Collision(null, agents.getShape());
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext())
@@ -162,18 +204,17 @@ public class SolveDiffusionTransient extends ProcessManager
 			location = shape.getVoxelOrigin(coord);
 			shape.getVoxelSideLengthsTo(dimension, coord);
 			/* NOTE the agent tree is always the amount of actual dimension */
-			neighbors = agents.treeSearch(Vector.subset(location, nDim),
-						  					Vector.subset(dimension, nDim));
+			nhbs = agents.treeSearch(location, Vector.subset(dimension, nDim));
+			/* Filter the agents for those with reactions, radius & surface. */
+			nhbs.removeIf(NO_REAC_FILTER);
+			nhbs.removeIf(NO_BODY_FILTER);
 			/* If there are none, move onto the next voxel. */
-			if ( neighbors.isEmpty() )
+			if ( nhbs.isEmpty() )
 				continue;
-			/* Filter the agents for those with reactions. */
-			neighbors.removeIf(NO_REAC_FILTER);
 			/* 
-			 * Find the sub-grid resolution from the smallest agent, and
-			 * get the list of sub-grid points.
+			 * Find the sub-voxel resolution from the smallest agent, and
+			 * get the list of sub-voxel points.
 			 */
-			// TODO the scaling factor of a quarter is chosen arbitrarily
 			double minRad = Vector.min(dimension);
 			
 			// FIXME maybe an expensive way to figure out the smallest agent, 
@@ -190,60 +231,16 @@ public class SolveDiffusionTransient extends ProcessManager
 			 */
 			for ( Agent a : neighbors )
 			{
-				/* Should have been removed, but doesn't hurt to check. */
-				if ( ! a.isAspect(NameRef.agentReactions) )
-					continue;
-				if ( ! a.isAspect(NameRef.surfaceList) )
-					continue;
-				List<Surface> surfaces =
-									(List<Surface>) a.get(NameRef.surfaceList);
-				distributionMap = (HashMap<int[],Double>) 
-										a.getValue("volumeDistribution");
-				double[] pLoc;
+				surfaces = (List<Surface>) a.get(NameRef.surfaceList);
+				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
 				sgLoop: for ( SubvoxelPoint p : sgPoints )
 				{
-					/* 
-					 * Only give location in actual dimensions.
-					 */
+					/* Only give location in significant dimensions. */
 					pLoc = p.getRealLocation(nDim);
 					for ( Surface s : surfaces )
 						if ( collision.distance(s, pLoc) < 0.0 )
 						{
-							/*
-							 * If this is not the first time the agent has seen
-							 * this coordinate, we need to add the volume
-							 * rather than overwriting it.
-							 * 
-							 * Note that we need to copy the coord vector so
-							 * that it does not change when the SpatialGrid
-							 * iterator moves on!
-							 * 
-							 *  NOTE discovered strange hashmap behavior
-							 * previously distributionMap.containsKey(coord) was
-							 * used, however even though the coordinates in the 
-							 * HashMap (key) and the those in coord would be 
-							 * identical for every evaluation a new hashmap 
-							 * entry would be created since (probably) key and 
-							 * coord are not the same object (but only contain 
-							 * identical information), this forloop is there to 
-							 * prevent this from happening.
-							 */
-							boolean hit = false;
-							/* See if this coord has been found already. */
-							for ( int[] key : distributionMap.keySet() )
-							{
-								if ( Vector.areSame(key, coord) )
-								{
-									distributionMap.put(key,
-											distributionMap.get(key) + p.volume);
-									hit = true;
-								}
-							}
-							/* If not, entry it new. */
-							if ( ! hit )
-							{
-								distributionMap.put(Vector.copy(coord), p.volume);
-							}
+							distributionMap.increase(coord, p.volume);
 							/*
 							 * We only want to count this point once, even
 							 * if other surfaces of the same agent hit it.
@@ -253,25 +250,21 @@ public class SolveDiffusionTransient extends ProcessManager
 				}
 			}
 		}
-		
-		
-		for ( String soluteName : _soluteNames )
-		{
-			solute = environment.getSoluteGrid(soluteName);
-			/*
-			 * Set up the relevant arrays in each of our solute grids.
-			 */
-			solute.newArray(PRODUCTIONRATE);
-			// TODO use a diffusion setter
-			solute.newArray(DIFFUSIVITY, _diffusivity.get(soluteName));
-			this._wellmixed.get(soluteName).updateWellmixed(solute, agents);
-
-
-		}
-		/*
-		 * Make the updater method
-		 */
-		PDEupdater updater = new PDEupdater()
+	}
+	
+	/**
+	 * \brief The standard PDE updater method resets the solute
+	 * {@code PRODUCTIONRATE} arrays, applies the reactions, and then tells
+	 * {@code Agent}s to grow.
+	 * 
+	 * @param environment The environment of a {@code Compartment}.
+	 * @param agents The agents of a {@code Compartment}.
+	 * @return PDE updater method.
+	 */
+	private static PDEupdater standardUpdater(
+					EnvironmentContainer environment, AgentContainer agents)
+	{
+		return new PDEupdater()
 		{
 			/*
 			 * This is the updater method that the PDEsolver will use before
@@ -279,6 +272,117 @@ public class SolveDiffusionTransient extends ProcessManager
 			 */
 			public void prestep(HashMap<String, SpatialGrid> variables, 
 					double dt)
+			{
+				for ( String solute : variables.keySet() )
+					environment.getSoluteGrid(solute).newArray(PRODUCTIONRATE);
+				applyEnvReactions(environment);
+				applyAgentReactions(environment, agents);
+				PMToolsAgentEvents.agentsGrow(agents, dt);
+			}
+		};
+	}
+	
+	/**
+	 * \brief Iterate over all solute grids, applying any reactions that occur
+	 * in the environment to the grids' {@code PRODUCTIONRATE} arrays.
+	 * 
+	 * @param environment The environment container of a {@code Compartment}.
+	 */
+	private static void applyEnvReactions(EnvironmentContainer environment)
+	{
+		Collection<Reaction> reactions = environment.getReactions();
+		if ( reactions.isEmpty() )
+			return;
+		// FIXME this is a temporary fix until we unify all grid resolutions.
+		String firstSolute = environment.getSoluteNames().iterator().next();
+		SpatialGrid defaultGrid = environment.getSoluteGrid(firstSolute);
+		/*
+		 * Iterate over the spatial discretization of the environment, applying
+		 * extracellular reactions as required.
+		 */
+		Set<String> soluteNames = environment.getSoluteNames();
+		SpatialGrid solute;
+		HashMap<String,Double> concns = new HashMap<String,Double>();
+		for ( String soluteName : soluteNames )
+			concns.put(soluteName, 0.0);
+		Set<String> productNames;
+		double rate, productRate;
+		for ( int[] coord = defaultGrid.resetIterator(); 
+				defaultGrid.isIteratorValid(); 
+				coord = defaultGrid.iteratorNext())
+		{
+			/* Get concentrations in grid voxel. */
+			for ( String soluteName : soluteNames )
+			{
+				solute = environment.getSoluteGrid(soluteName);
+				concns.put(soluteName, solute.getValueAt(CONCN, coord));
+			}	
+			/* Iterate over each compartment reactions. */
+			for ( Reaction r : reactions )
+			{
+				rate = r.getRate(concns);
+				productNames = r.getStoichiometry().keySet();
+				/* Write rate for each product to grid. */
+				// TODO verify that all environmental reactions have
+				// only solute products, so we don't have to check here.
+				for ( String product : productNames )
+					if ( environment.isSoluteName(product) )
+					{
+						productRate = rate * r.getStoichiometry(product);
+						solute = environment.getSoluteGrid(product);
+						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+					}
+			}
+		}
+	}
+	
+	/**
+	 * \brief 
+	 * 
+	 * <p><b>NOTE</b>: this method assumes that the volume distribution maps
+	 * of all relevant agents have already been calculated. This is typically
+	 * done just once per process manager step, rather than at every PDE solver
+	 * mini-timestep.</p>
+	 * 
+	 * @param environment
+	 * @param agents
+	 */
+	@SuppressWarnings("unchecked")
+	private static void applyAgentReactions(
+			EnvironmentContainer environment, AgentContainer agents)
+	{
+		SpatialGrid solute;
+		HashMap<String,Double> concns = new HashMap<String,Double>();
+		/*
+		 * Loop over all agents, applying their reactions to the
+		 * relevant solute grids, in the voxels calculated before the 
+		 * updater method was set.
+		 */
+		List<Reaction> reactions;
+		CoordinateMap distributionMap;
+		List<Agent> agentList = agents.getAllLocatedAgents();
+		agentList.removeIf(NO_REAC_FILTER);
+		HashMap<String,Double> internalProdctn;
+		for ( Agent a : agentList )
+		{
+			reactions = (List<Reaction>) a.getValue(XmlLabel.reactions);
+			distributionMap = (CoordinateMap) a.getValue(VD_TAG);
+			a.set(GR_TAG, 0.0);
+			if ( a.isAspect(IP_TAG) )
+			{
+				internalProdctn = (HashMap<String,Double>) a.getValue(IP_TAG);
+				for (String key : internalProdctn.keySet())
+					internalProdctn.put(key, 0.0);
+			}
+			/*
+			 * Scale the distribution map so that its contents sum up to one.
+			 */
+			distributionMap.scale();
+			/*
+			 * Now look at all the voxels this agent covers.
+			 */
+			double concn, rate, productionRate;
+			for ( int[] coord : distributionMap.keySet() )
 			{
 				/* Gather a defaultGrid to iterate over. */
 				Shape shape = environment.getShape();
@@ -293,208 +397,103 @@ public class SolveDiffusionTransient extends ProcessManager
 						shape.isIteratorValid(); 
 						coord = shape.iteratorNext())
 				{
-					/* Iterate over all compartment reactions. */
-					for (Reaction r : environment.getReactions() )
+					/* 
+					 * Build the dictionary of variable values. Note
+					 * that these will likely overlap with the names in
+					 * the reaction stoichiometry (handled after the
+					 * reaction rate), but will not always be the same.
+					 * Here we are interested in those that affect the
+					 * reaction, and not those that are affected by it.
+					 */
+					concns.clear();
+					for ( String varName : r.variableNames )
 					{
-						/* Obtain concentrations in gridCell. */
-						HashMap<String,Double> concentrations = 
-								new HashMap<String,Double>();
-						for ( String varName : r.variableNames )
+						if ( environment.isSoluteName(varName) )
 						{
-							if ( environment.isSoluteName(varName) )
-							{
-								solute = environment.getSoluteGrid(varName);
-								concentrations.put(varName,
-										solute.getValueAt(CONCN, coord));
-							}
+							solute = environment.getSoluteGrid(varName);
+							concn = solute.getValueAt(CONCN, coord);
 						}
-						/* Obtain rate of the reaction. */
-						double rate = r.getRate(concentrations);
-						double productionRate;
-						for ( String product : r.getStoichiometry().keySet())
+						else if ( a.isAspect(varName) )
 						{
-							productionRate = rate * r.getStoichiometry(product);
-							if ( environment.isSoluteName(product) )
-							{
-								/* Write rate for each product to grid. */
-								solute = environment.getSoluteGrid(product);
-								solute.addValueAt(PRODUCTIONRATE, 
-										coord, productionRate);
-							}
+							// TODO divide by the voxel volume here?
+							concn = a.getDouble(varName); 
+							concn *= distributionMap.get(coord);
 						}
-					}
-				}
-
-
-
-				//				worker.concurrentEnabled(true);
-				//FIXME also seems thread unsafe
-				//				worker.executeTask(new AgentReactions(agents,environment,dt));
-
-
-				/*
-				 * Loop over all agents, applying their reactions to the
-				 * relevant solute grids, in the voxels calculated before the 
-				 * updater method was set.
-				 */
-				HashMap<String,Double> concns = new HashMap<String,Double>();
-				SpatialGrid aSG;
-				List<Reaction> reactions;
-				HashMap<int[],Double> distributionMap;
-				for ( Agent a : agents.getAllLocatedAgents() )
-				{
-					if ( ! a.isAspect("reactions") )
-						continue;
-					reactions = (List<Reaction>) a.getValue("reactions");
-					distributionMap = (HashMap<int[],Double>)
-							a.getValue("volumeDistribution");
-
-					a.set("growthRate",0.0);
-					if (a.isAspect("internalProduction"))
-					{
-						HashMap<String,Double> internalProduction = 
-								(HashMap<String,Double>) 
-								a.getValue("internalProduction");
-						for (String key : internalProduction.keySet())
-							internalProduction.put(key, 0.0);
+						else
+						{
+							// TODO safety?
+							concn = 0.0;
+						}
+						concns.put(varName, concn);
 					}
 					/*
-					 * Calculate the total volume covered by this agent,
-					 * according to the distribution map. This is likely to be
-					 * slightly different to the agent volume calculated 
-					 * directly.
+					 * Calculate the reaction rate based on the 
+					 * variables just retrieved.
 					 */
-					double totalVoxVol = 0.0;
-					for ( double voxVol : distributionMap.values() )
-						totalVoxVol += voxVol;
-					/*
-					 * Now look at all the voxels this agent covers.
+					rate = r.getRate(concns);
+					/* 
+					 * Now that we have the reaction rate, we can 
+					 * distribute the effects of the reaction. Note
+					 * again that the names in the stoichiometry may
+					 * not be the same as those in the reaction
+					 * variables (although there is likely to be a
+					 * large overlap).
 					 */
-					double concn;
-					for ( int[] coord : distributionMap.keySet() )
+					for ( String productName : r.getStoichiometry().keySet())
 					{
-						for ( Reaction r : reactions )
+						productionRate = rate * r.getStoichiometry(productName);
+						if ( environment.isSoluteName(productName) )
 						{
+							solute = environment.getSoluteGrid(productName);
+							solute.addValueAt(PRODUCTIONRATE, 
+									coord, productionRate);
+						}
+						else if ( a.isAspect(productName) )
+						{
+							System.out.println("agent reaction catched " + 
+									productName);
 							/* 
-							 * Build the dictionary of variable values. Note
-							 * that these will likely overlap with the names in
-							 * the reaction stoichiometry (handled after the
-							 * reaction rate), but will not always be the same.
-							 * Here we are interested in those that affect the
-							 * reaction, and not those that are affected by it.
+							 * NOTE Bas [17Feb2016]: Put this here as 
+							 * example, though it may be nicer to
+							 * launch a separate agent growth process
+							 * manager here.
 							 */
-							concns.clear();
-							for ( String varName : r.variableNames )
-							{
-								if ( environment.isSoluteName(varName) )
-								{
-									aSG = environment.getSoluteGrid(varName);
-									concn = aSG.getValueAt(CONCN, coord);
-								}
-								else if ( a.isAspect(varName) )
-								{
-									// TODO divide by the voxel volume here?
-									concn = a.getDouble(varName); 
-									concn *= distributionMap.get(coord);
-									concn /= totalVoxVol;
-								}
-								else
-								{
-									// TODO safety?
-									concn = 0.0;
-								}
-								concns.put(varName, concn);
-							}
-							/*
-							 * Calculate the reaction rate based on the 
-							 * variables just retrieved.
-							 */
-							double rate = r.getRate(concns);
 							/* 
-							 * Now that we have the reaction rate, we can 
-							 * distribute the effects of the reaction. Note
-							 * again that the names in the stoichiometry may
-							 * not be the same as those in the reaction
-							 * variables (although there is likely to be a
-							 * large overlap).
-							 * TODO move this part to a "poststep" updater 
-							 * method?
+							 * NOTE Bas [17Feb2016]: The average growth
+							 * rate for the entire agent, not just for
+							 * the part that is in one grid cell later
+							 * this may be specific separate
+							 * expressions that control the growth of
+							 * separate parts of the agent (eg lipids/
+							 * other storage compounds)
 							 */
-							double productionRate;
-							for ( String productName : 
-								r.getStoichiometry().keySet())
-							{
-								productionRate = rate * 
-										r.getStoichiometry(productName);
-								if ( environment.isSoluteName(productName) )
-								{
-									aSG = environment.getSoluteGrid(productName);
-									aSG.addValueAt(PRODUCTIONRATE, 
-											coord, productionRate);
-								}
-								else if ( a.isAspect(productName) )
-								{
-									System.out.println("agent reaction catched " + 
-											productName);
-									/* 
-									 * NOTE Bas [17Feb2016]: Put this here as 
-									 * example, though it may be nicer to
-									 * launch a separate agent growth process
-									 * manager here.
-									 */
-									/* 
-									 * NOTE Bas [17Feb2016]: The average growth
-									 * rate for the entire agent, not just for
-									 * the part that is in one grid cell later
-									 * this may be specific separate
-									 * expressions that control the growth of
-									 * separate parts of the agent (eg lipids/
-									 * other storage compounds)
-									 */
-								}
-								else if ( a.getString("species").equals(productName))
-								{
-									double curRate = a.getDouble("growthRate");
-									a.set("growthRate", curRate + productionRate * 
-											distributionMap.get(coord) / totalVoxVol);
-
-
-								}
-								else if ( a.isAspect("internalProduction"))
-								{
-									HashMap<String,Double> internalProduction = 
-											(HashMap<String,Double>) 
-											a.getValue("internalProduction");
-									for( String p : internalProduction.keySet())
-									{
-										if(p.equals(productName))
-										{
-											internalProduction.put(productName, 
-													internalProduction.get(productName) 
-													+ productionRate * distributionMap.get(coord) / totalVoxVol);
-										}
-									}
-
-								} 
-								else
-								{
-									System.out.println("agent reaction catched " + 
-											productName);
-									// TODO safety?
-								}
-							}
+						}
+						else if ( 
+							a.getString(XmlLabel.species).equals(productName) )
+						{
+							double curRate = a.getDouble(GR_TAG);
+							a.set(GR_TAG, curRate + productionRate * 
+									distributionMap.get(coord));
+						}
+						else if ( a.isAspect(IP_TAG) )
+						{
+							internalProdctn = 
+									(HashMap<String,Double>) a.getValue(IP_TAG);
+							double curRate = productionRate * 
+													distributionMap.get(coord);
+							if ( internalProdctn.containsKey(productName) )
+								curRate += internalProdctn.get(productName);
+							internalProdctn.put(productName, curRate);
+						} 
+						else
+						{
+							System.out.println("agent reaction catched " + 
+									productName);
+							// TODO safety?
 						}
 					}
-					a.event("growth", dt);
-					a.event("produce", dt);
 				}
 			}
-			
-		};
-		/*
-		 * Set the updater method and solve.
-		 */
-		this._solver.setUpdater(updater);
-		this._solver.solve(environment.getSolutes(), this._timeStepSize);
+		}
 	}
 }

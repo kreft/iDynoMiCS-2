@@ -1,7 +1,5 @@
 package linearAlgebra;
 
-import utility.ExtraMath;
-
 /**
  * \brief TODO
  * 
@@ -32,7 +30,9 @@ public final class Array
 	/**
 	 * Character that separates matrices of an array in {@code String} format.
 	 */
-	public final static String DELIMITER = "|";
+	// NOTE arrayString.split(DELIMITER) does not work when we use "|" here!
+	// This can change, but check it works with testJUnit.LinearAlgebraTest
+	public final static String DELIMITER = "%";
 	
 	/*************************************************************************
 	 * STANDARD NEW ARRAYS
@@ -729,6 +729,44 @@ public final class Array
 		return Math.min(Math.min(height(array), width(array)), depth(array));
 	}
 	
+	/**
+	 * \brief See if the two given arrays have the same elements, in the same
+	 * order.
+	 * 
+	 * @param a Three-dimensional array of {@code int}s (preserved).
+	 * @param b Three-dimensional array of {@code int}s (preserved).
+	 * @return {@code boolean}: true if they are the same, false if at least
+	 * one element-element pair differs.
+	 * @see #areSame(double[][][], double[][][])
+	 */
+	public static boolean areSame(int[][][] a, int[][][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < a.length; i++ )
+			if ( ! Matrix.areSame(a[i], b[i]) )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the two given arrays have the same elements, in the same
+	 * order.
+	 * 
+	 * @param a Three-dimensional array of {@code double}s (preserved).
+	 * @param b Three-dimensional array of {@code double}s (preserved).
+	 * @return {@code boolean}: true if they are the same, false if at least
+	 * one element-element pair differs.
+	 * @see #areSame(int[][][], int[][][])
+	 */
+	public static boolean areSame(double[][][] a, double[][][] b)
+	{
+		checkDimensionsSame(a, b);
+		for ( int i = 0; i < a.length; i++ )
+			if ( ! Matrix.areSame(a[i], b[i]) )
+				return false;
+		return true;
+	}
+	
 	/*************************************************************************
 	 * BASIC ARTHIMETIC
 	 ************************************************************************/
@@ -880,6 +918,26 @@ public final class Array
 	/* Multiplication. */
 	
 	/**
+	 * \brief Multiply every element of an <b>array</b> by a scalar
+	 * <b>value</b>,, writing the result into <b>destination</b>.
+	 * 
+	 * <p>Both input arrays must have the same dimensions.</p>
+	 * 
+	 * @param destination Three-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 * @param array Three-dimensional array of integers from which to take 
+	 * pre-existing values (preserved).
+	 * @param value integer value to times to all elements.
+	 */
+	public static void timesTo(
+						int[][][] destination, int[][][] array, int value)
+	{
+		checkDimensionsSame(destination, array);
+		for ( int i = 0; i < array.length; i++ )
+			Matrix.timesTo(destination[i], array[i], value);
+	}
+	
+	/**
 	 * \brief Multiply all elements in a given <b>array</b> by a given
 	 * <b>value</b>.
 	 * 
@@ -895,13 +953,42 @@ public final class Array
 	 */
 	public static int[][][] times(int[][][] array, int value)
 	{
-		for ( int i = 0; i < height(array); i++ )
-			for ( int j = 0; j < width(array); j++ )
-				for ( int k = 0; k < depth(array); k++ )
-					array[i][j][k] *= value;
-		return array;
+		int[][][] out = zeros(array);
+		timesTo(out, array, value);
+		return out;
 	}
-
+	
+	/**
+	 * \brief Multiply every element of an <b>array</b> by a scalar
+	 * <b>value</b>, overwriting the old values of <b>array</b>.
+	 * 
+	 * @param array Three-dimensional array of integers (overwritten).
+	 * @param value integer value to times to all elements.
+	 */
+	public static void timesEquals(int[][][] array, int value)
+	{
+		timesTo(array, array, value);
+	}
+	/**
+	 * \brief Multiply every element of an <b>array</b> by a scalar
+	 * <b>value</b>, writing the result into <b>destination</b>.
+	 * 
+	 * <p>Both input arrays must have the same dimensions.</p>
+	 * 
+	 * @param destination Three-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 * @param array Three-dimensional array of doubles from which to take 
+	 * pre-existing values (preserved).
+	 * @param value double value to times to all elements.
+	 */
+	public static void timesTo(
+						double[][][] destination, double[][][] array, double value)
+	{
+		checkDimensionsSame(destination, array);
+		for ( int i = 0; i < array.length; i++ )
+			Matrix.timesTo(destination[i], array[i], value);
+	}
+	
 	/**
 	 * \brief Multiply all elements in a given <b>array</b> by a given
 	 * <b>value</b>.
@@ -910,7 +997,7 @@ public final class Array
 	 * <i>times(copy(<b>array</b>), <b>value</b>)</i> to preserve the
 	 * original state of <b>array</b>.</p>
 	 * 
-	 * @param array Three-dimensional array of doubles.
+	 * @param array Three-dimensional array of doublees.
 	 * @param value Multiply every element of the <b>array</b> by this
 	 * double value.
 	 * @return Given <b>array</b> with all elements multiplied by
@@ -918,13 +1005,22 @@ public final class Array
 	 */
 	public static double[][][] times(double[][][] array, double value)
 	{
-		for ( int i = 0; i < array.length; i++ )
-			for ( int j = 0; j < array[i].length; j++ )
-				for ( int k = 0; k < array[i][j].length; k++ )
-					array[i][j][k] *= value;
-		return array;
+		double[][][] out = zeros(array);
+		timesTo(out, array, value);
+		return out;
 	}
 	
+	/**
+	 * \brief Multiply every element of an <b>array</b> by a scalar
+	 * <b>value</b>, overwriting the old values of <b>array</b>.
+	 * 
+	 * @param array Three-dimensional array of doubles (overwritten).
+	 * @param value double value to times to all elements.
+	 */
+	public static void timesEquals(double[][][] array, double value)
+	{
+		timesTo(array, array, value);
+	}
 	/**
 	 * \brief Multiply one array by another, element-by-element.
 	 * 
@@ -1278,6 +1374,26 @@ public final class Array
 	 ************************************************************************/
 	
 	/**
+	 * \brief A new ni-by-nj-by-nk {@code int} array, where each element
+	 * is randomly chosen from a uniform distribution in [min, max).
+	 * 
+	 * @param m Number of rows.
+	 * @param n Number of columns.
+	 * @param min Lower bound of random numbers (inclusive).
+	 * @param max Upper bound of random numbers (exclusive).
+	 * @return Three-dimensional array of integers, with elements drawn from a 
+	 * uniform distribution between <b>min</b> (inclusive) and <b>max</b>
+	 * (exclusive).
+	 */
+	public static int[][][] randomInts(int ni, int nj, int nk, int min, int max)
+	{
+		int[][][] out = new int[ni][][];
+		for ( int i = 0; i < ni; i++ )
+			out[i] = Matrix.randomInts(nj, nk, min, max);
+		return out;
+	}
+	
+	/**
 	 * \brief A new ni-by-nj-by-nk array of random doubles.
 	 * 
 	 * <p>Random numbers are drawn from a uniform distribution over
@@ -1289,13 +1405,11 @@ public final class Array
 	 * @return Three-dimensional array of doubles with elements drawn from a 
 	 * uniform distribution.
 	 */
-	public static double[][][] random(int ni, int nj, int nk)
+	public static double[][][] randomZeroOne(int ni, int nj, int nk)
 	{
-		double[][][] out = new double[ni][nj][nk];
+		double[][][] out = new double[ni][][];
 		for ( int i = 0; i < ni; i++ )
-			for ( int j = 0; j < nj; j++ )
-				for ( int k = 0; k < nk; k++ )
-					out[i][j][k] = ExtraMath.getUniRandDbl();
+			out[i] = Matrix.randomZeroOne(nj, nk);
 		return out;
 	}
 	
@@ -1309,9 +1423,9 @@ public final class Array
 	 * @return Three-dimensional cubic array of doubles with elements drawn
 	 * from a  uniform distribution.
 	 */
-	public static double[][][] random(int nijk)
+	public static double[][][] randomZeroOne(int nijk)
 	{
-		return random(nijk, nijk, nijk);
+		return randomZeroOne(nijk, nijk, nijk);
 	}
 	
 	/**
@@ -1323,11 +1437,76 @@ public final class Array
 	 * @return Three-dimensional array of doubles with elements drawn from a 
 	 * uniform distribution, and of same size as <b>array</b>.
 	 */
-	public static double[][][] random(double[][][] array)
+	public static double[][][] randomZeroOne(double[][][] array)
 	{
-		return random(height(array), width(array), depth(array));
+		return randomZeroOne(height(array), width(array), depth(array));
 	}
 	
+	/**
+	 * \brief A new ni-by-nj-by-nk array, where each element is
+	 * randomly chosen from a uniform distribution in (-1.0, 1.0).
+	 * 
+	 * @param ni Number of rows.
+	 * @param nj Number of columns.
+	 * @param nk Number of stacks.
+	 * @return Three-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus one and plus one 
+	 * (exclusive).
+	 */
+	public static double[][][] randomPlusMinus(int ni, int nj, int nk)
+	{
+		double[][][] out = new double[ni][][];
+		for ( int i = 0; i < ni; i++ )
+			out[i] = Matrix.randomPlusMinus(nj, nk);
+		return out;
+	}
+	
+	/**
+	 * \brief A new cubic array, where each element is
+	 * randomly chosen from a uniform distribution in (-1.0, 1.0).
+	 * 
+	 * @param nijk Number of rows = number of columns = number of stacks.
+	 * @return Three-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus one and plus one 
+	 * (exclusive).
+	 */
+	public static double[][][] randomPlusMinus(int nijk)
+	{
+		return randomPlusMinus(nijk, nijk, nijk);
+	}
+	
+	/**
+	 * \brief A new ni-by-nj-by-nk array, where each element is randomly chosen
+	 * from a uniform distribution in (-b>scale</b>, <b>scale</b>).
+	 * 
+	 * @param ni Number of rows.
+	 * @param nj Number of columns.
+	 * @param nk Number of stacks.
+	 * @return Three-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus <b>scale</b> and 
+	 * <b>scale</b> (exclusive).
+	 */
+	public static double[][][] randomPlusMinus(
+									int ni, int nj, int nk, double scale)
+	{
+		double[][][] out = randomPlusMinus(ni, nj, nk);
+		timesEquals(out, scale);
+		return out;
+	}
+	
+	/**
+	 * \brief A new cubic array, where each element is randomly chosen from a
+	 * uniform distribution in (-b>scale</b>, <b>scale</b>).
+	 * 
+	 * @param nijk Number of rows = number of columns = number of stacks.
+	 * @return Three-dimensional array of doubles, with all elements randomly
+	 * chosen from a uniform distribution between minus <b>scale</b> and 
+	 * <b>scale</b> (exclusive).
+	 */
+	public static double[][][] randomPlusMinus(int nijk, double scale)
+	{
+		return randomPlusMinus(nijk, nijk, nijk, scale);
+	}
 	
 	/*************************************************************************
 	 * CONVERTING BETWEEN INTEGER AND DOUBLE
@@ -1468,12 +1647,6 @@ public final class Array
 	/*************************************************************************
 	 * RESCALING ARRAYS
 	 ************************************************************************/
-	
-	
-	
-	
-	
-	
 	
 	/**
 	 * \brief Gets a new array of integers from a string.

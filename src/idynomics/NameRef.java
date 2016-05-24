@@ -72,7 +72,20 @@ public class NameRef
 	 * TODO
 	 */
 	public static String agentMass = "mass";
-
+	
+	/**
+	 * Agent mass that should trigger division.
+	 */
+	public static String divisionMass = "divisionMass";
+	/**
+	 * 
+	 */
+	public static String mumMassFrac = "mumMassFrac";
+	/**
+	 * 
+	 */
+	public static String mumMassFracCV = "mumMassFracCV";
+	
 	/**
 	 * TODO
 	 */
@@ -177,9 +190,4 @@ public class NameRef
 	 * TODO
 	 */
 	public static String agentStochasticDistance = "stochasticDistance";
-
-	/**
-	 * TODO
-	 */
-	public static String agentRadius = "radius";
 }

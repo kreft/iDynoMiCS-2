@@ -3,8 +3,6 @@ package aspect;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 
-import java.util.HashMap;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
