@@ -25,8 +25,7 @@ import surface.Collision;
 import surface.Surface;
 
 /**
- * \brief Tool set for {@code ProcessManager}s that control diffusion-reaction
- * like processes in a {@code Compartment}.
+ * \brief Tool set for 
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, UK
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark

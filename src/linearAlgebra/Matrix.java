@@ -1,5 +1,7 @@
 package linearAlgebra;
 
+import utility.ExtraMath;
+
 /**
  * \brief TODO
  * 
@@ -214,6 +216,22 @@ public final class Matrix
 	/* Identity */
 	
 	/**
+	 * \brief Overwrite the given <b>matrix</b> with an identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 */
+	public static void identityTo(int[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[i].length; j++ )
+				matrix[i][j] = ( i == j ) ? 1 : 0;
+	}
+	
+	/**
 	 * \brief A new identity matrix.
 	 * 
 	 * <p>An identity matrix is filled with zeros, except on the main diagonal
@@ -230,9 +248,7 @@ public final class Matrix
 	public static int[][] identityInt(int m, int n)
 	{
 		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1 : 0;
+		identityTo(out);
 		return out;
 	}
 	
@@ -273,6 +289,24 @@ public final class Matrix
 		return identityInt(rowDim(matrix), colDim(matrix));
 	}
 	
+
+	/**
+	 * \brief Overwrite the given <b>matrix</b> with an identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 */
+	public static void identityTo(double[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[i].length; j++ )
+				matrix[i][j] = ( i == j ) ? 1.0 : 0.0;
+	}
+	
+	
 	/**
 	 * \brief A new identity matrix.
 	 * 
@@ -290,9 +324,7 @@ public final class Matrix
 	public static double[][] identityDbl(int m, int n)
 	{
 		double[][] out = new double[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1.0 : 0.0;
+		identityTo(out);
 		return out;
 	}
 	
@@ -746,6 +778,34 @@ public final class Matrix
 		restrictMinimum(matrix, 0.0);
 	}
 	
+	/**
+	 * \brief Set all elements in the column of a given <b>matrix</b> to a new
+	 * value.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param index {@code int} index of the column required.
+	 * @param value Fill the column with this integer value.
+	 */
+	public static void setColumnTo(int[][] matrix, int index, int value)
+	{
+		for ( int[] row : matrix )
+			row[index] = value;
+	}
+	
+	/**
+	 * \brief Set all elements in the column of a given <b>matrix</b> to a new
+	 * value.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param index {@code int} index of the column required.
+	 * @param value Fill the column with this double value.
+	 */
+	public static void setColumnTo(double[][] matrix, int index, double value)
+	{
+		for ( double[] row : matrix )
+			row[index] = value;
+	}
+	
 	/*************************************************************************
 	 * CHECKING METHODS
 	 ************************************************************************/
@@ -1103,6 +1163,72 @@ public final class Matrix
 		for ( int i = 0; i < rowDim(a); i++ )
 			if ( ! Vector.areSame(a[i], b[i], tolerance) )
 				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(int[][] matrix)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( matrix[i][j] != matrix[j][i] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(double[][] matrix)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( matrix[i][j] != matrix[j][i] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param tolerance {@code double} value for the absolute tolerance, i.e.
+	 * |a<sub>i,j</sub> - a<sub>j,i</sub>| <= tolerance will be accepted
+	 * as close enough to zero (helps avoid numerical issues). 
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(double[][] matrix, double absTol)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( ! ExtraMath.areEqual(matrix[i][j], matrix[j][i], absTol) )
+					return false;
 		return true;
 	}
 	
@@ -2046,6 +2172,46 @@ public final class Matrix
 		return out;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param source
+	 * @param pivot
+	 */
+	public static void reorderRowsTo(
+			int[][] destination, int[][] source, int[] pivot)
+	{
+		checkDimensionsSame(destination, source);
+		if ( source.length != pivot.length )
+		{
+			throw new IllegalArgumentException(
+					"Pivot must have as many elements ar matrix has rows");
+		}
+		for ( int i = 0; i < pivot.length; i++ )
+			Vector.copyTo(destination[pivot[i]], source[i]);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param source
+	 * @param pivot
+	 */
+	public static void reorderRowsTo(
+			double[][] destination, double[][] source, int[] pivot)
+	{
+		checkDimensionsSame(destination, source);
+		if ( source.length != pivot.length )
+		{
+			throw new IllegalArgumentException(
+					"Pivot must have as many elements ar matrix has rows");
+		}
+		for ( int i = 0; i < pivot.length; i++ )
+			Vector.copyTo(destination[pivot[i]], source[i]);
+	}
+	
 	/*************************************************************************
 	 * MATRIX-VECTOR CONVERSIONS
 	 ************************************************************************/
@@ -2100,6 +2266,7 @@ public final class Matrix
 	 */
 	public static int[][] transpose(int[][] matrix)
 	{
+		checkDimensions(matrix);
 		int[][] out = new int[colDim(matrix)][rowDim(matrix)];
 		for ( int i = 0; i < matrix.length; i++ )
 			for ( int j = 0; j < matrix[0].length; j++ )
@@ -2121,6 +2288,7 @@ public final class Matrix
 	 */
 	public static double[][] transpose(double[][] matrix)
 	{
+		checkDimensions(matrix);
 		double[][] out = new double[matrix[0].length][matrix.length];
 		for ( int i = 0; i < matrix.length; i++ )
 			for ( int j = 0; j < matrix[0].length; j++ )

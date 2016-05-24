@@ -17,7 +17,7 @@ public final class PMToolsAgentEvents
 	 * @param agents
 	 * @param dt
 	 */
-	static void agentsGrow(AgentContainer agents, double dt)
+	public static void agentsGrow(AgentContainer agents, double dt)
 	{
 		for ( Agent a : agents.getAllLocatedAgents() )
 		{

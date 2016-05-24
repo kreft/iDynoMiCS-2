@@ -1976,8 +1976,8 @@ public final class Vector
 	public static int sum(int[] vector)
 	{
 		int sum = 0;
-		for ( int i = 0; i < vector.length; i++ ) 
-			sum += vector[i];
+		for ( int element : vector )
+			sum += element;
 		return sum;
 	}
 	
@@ -1993,8 +1993,50 @@ public final class Vector
 	public static double sum(double[] vector)
 	{
 		double sum = 0.0;
-		for ( int i = 0; i < vector.length; i++ ) 
-			sum += vector[i];
+		for ( double element : vector )
+			sum += element;
+		return sum;
+	}
+	
+	/**
+	 * \brief Calculates the absolute sum of all elements in the given
+	 * <b>vector</b>.
+	 * 
+	 * <p>E.g. the absolute sum of the vector <i>(a, b)</i> is
+	 * <i>|a| + |b|</i>. Note that this may be different from the absolute of
+	 * the sum, i.e. <i>|a + b|</i>.</p>
+	 * 
+	 * @param vector One-dimensional array of integer (preserved).
+	 * @return integer absolute sum of all elements in the vector.
+	 * @see #sum(int[] vector)
+	 * @see #sumAbs(double[] vector)
+	 */
+	public static int sumAbs(int[] vector)
+	{
+		int sum = 0;
+		for ( int element : vector )
+			sum += Math.abs(element);
+		return sum;
+	}
+	
+	/**
+	 * \brief Calculates the absolute sum of all elements in the given
+	 * <b>vector</b>.
+	 * 
+	 * <p>E.g. the absolute sum of the vector <i>(a, b)</i> is
+	 * <i>|a| + |b|</i>. Note that this may be different from the absolute of
+	 * the sum, i.e. <i>|a + b|</i>.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @return double absolute sum of all elements in the vector.
+	 * @see #sum(double[] vector)
+	 * @see #sumAbs(int[] vector)
+	 */
+	public static double sumAbs(double[] vector)
+	{
+		double sum = 0.0;
+		for ( double element : vector )
+			sum += Math.abs(element);
 		return sum;
 	}
 	
