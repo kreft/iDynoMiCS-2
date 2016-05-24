@@ -243,34 +243,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		 */
 		this.init();
 	}
-	
-	@Override
-	public String getXml() {
-		String out = "<" + XmlLabel.compartment + " " + XmlLabel.nameAttribute +
-				"=\"" + this.name + "\">\n";
-		out = out + this._shape.getXml();
 		
-		/* TODO solutes, reactions */
-		out = out + this.agents.getXml();
-		
-		out = out + "<" + XmlLabel.processManagers + ">";
-		for(ProcessManager p : this._processes)
-		{
-			out = out + "<" + XmlLabel.process + " " + XmlLabel.nameAttribute +
-					"=\"" + p.getName() + "\" " + XmlLabel.classAttribute + 
-					"=\"" + p.getClass().getSimpleName() + "\" " +
-					XmlLabel.processPriority + "=\"" + p.getPriority() + "\" " +
-					XmlLabel.processFirstStep + "=\"" + p.getTimeForNextStep() +
-					"\" " + XmlLabel.packageAttribute + "=\"processManager.\"" +
-					">\n"
-					+ p.reg().getXml() + "</" + XmlLabel.process + ">\n";
-		}
-		out = out + "</" + XmlLabel.processManagers + ">\n";
-		
-		out = out + "</" + XmlLabel.compartment + ">\n";
-		return out;
-	}
-	
 	public void init()
 	{
 		
@@ -561,5 +534,11 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	public String defaultXmlTag() 
 	{
 		return XmlLabel.compartment;
+	}
+
+	@Override
+	public String getXml() 
+	{
+		return getNode().getXML();
 	}
 }

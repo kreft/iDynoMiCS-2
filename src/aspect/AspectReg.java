@@ -69,26 +69,7 @@ public class AspectReg
 	 */
 	protected LinkedList<AspectInterface> _modules = 
 											new LinkedList<AspectInterface>();
-	
-
-	/**
-	 * FIXME this can go cleaner
-	 * @return
-	 */
-	public String getXml() {
-		String out = "";
-		for (AspectInterface a : _modules)
-		{
-			out = out + "<" + XmlLabel.speciesModule + " " + 
-					XmlLabel.nameAttribute + "=\"" + a.reg().identity + "\" />\n";
-		}
-		for (String key : _aspects.keySet())
-		{
-			out = out + _aspects.get(key).getXml(key);
-		}
-		return out;
-	} 
-	
+		
 	/**
 	 * returns true if the key is found in the aspect tree
 	 */
@@ -274,15 +255,7 @@ public class AspectReg
 	{
 		return this._aspects.keySet();
 	}
-	
-	public String getAspectString(String key)
-	{
-		if ( this._aspects.containsKey(key) )
-			return this._aspects.get(key).getXml(key);
-		else
-			return "";
-	}
-	
+		
 	public ModelNode getAspectNode(String key)
 	{
 		return this._aspects.get(key).getNode();
@@ -371,36 +344,36 @@ public class AspectReg
 			}
 	    }
 	    
-	    /**
-	     * return the full aspect xml specification of the aspect.
-	     * @param key
-	     * @return
-	     * @deprecated
-	     */
-	    public String getXml(String key) 
-	    {
-	    	String out = "";
-	    	String simpleName = this.aspect.getClass().getSimpleName();
-	    	switch (this.type)
-	    	{
-	    	case CALCULATED:
-	    		out = out + " " + XmlLabel.typeAttribute + "=\"" + "CALCULATED" 
-	    				+ "\" " + XmlLabel.classAttribute + "=\"" + simpleName +
-	    				"\" " + XmlLabel.inputAttribute + "=\"" + 
-	    				Helper.StringAToString(this.calc.input) + "\" />\n";
-	    		break;
-	    	case EVENT:
-	    		out = out + " " + XmlLabel.typeAttribute + "=\"" + "EVENT" 
-	    				+ "\" " + XmlLabel.classAttribute + "=\"" + simpleName +
-	    				"\" " + XmlLabel.inputAttribute + "=\"" + 
-	    				Helper.StringAToString(this.event.input) + "\" />\n";
-	    		break;
-	    	default:
-	    		out = out + ObjectFactory.nodeFactory(this.aspect, 
-	    				XmlLabel.aspect, key);
-	    	}
-			return out;
-		}
+//	    /**
+//	     * return the full aspect xml specification of the aspect.
+//	     * @param key
+//	     * @return
+//	     * @deprecated
+//	     */
+//	    public String getXml(String key) 
+//	    {
+//	    	String out = "";
+//	    	String simpleName = this.aspect.getClass().getSimpleName();
+//	    	switch (this.type)
+//	    	{
+//	    	case CALCULATED:
+//	    		out = out + " " + XmlLabel.typeAttribute + "=\"" + "CALCULATED" 
+//	    				+ "\" " + XmlLabel.classAttribute + "=\"" + simpleName +
+//	    				"\" " + XmlLabel.inputAttribute + "=\"" + 
+//	    				Helper.StringAToString(this.calc.input) + "\" />\n";
+//	    		break;
+//	    	case EVENT:
+//	    		out = out + " " + XmlLabel.typeAttribute + "=\"" + "EVENT" 
+//	    				+ "\" " + XmlLabel.classAttribute + "=\"" + simpleName +
+//	    				"\" " + XmlLabel.inputAttribute + "=\"" + 
+//	    				Helper.StringAToString(this.event.input) + "\" />\n";
+//	    		break;
+//	    	default:
+//	    		out = out + ObjectFactory.nodeFactory(this.aspect, 
+//	    				XmlLabel.aspect, key);
+//	    	}
+//			return out;
+//		}
 	    
 
 		@SuppressWarnings("unchecked")
@@ -503,6 +476,7 @@ public class AspectReg
 				n.constructor.setNode(n);
 		}
 
+		// TODO build up from general.classLib rather than hard code
 		@Override
 		public NodeConstructor newBlank() {
 			String name = "";

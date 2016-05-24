@@ -492,7 +492,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		ModelNode modelNode = new ModelNode(XmlLabel.expression, 
 				this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
-		modelNode.add(new ModelAttribute(XmlLabel.expression, this.expression, null, true));
+		modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, this.expression, null, true));
 		return modelNode;
 	}
 

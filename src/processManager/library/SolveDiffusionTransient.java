@@ -409,7 +409,6 @@ public class SolveDiffusionTransient extends ProcessManager
 							// TODO divide by the voxel volume here?
 							concn = a.getDouble(varName); 
 							concn *= distributionMap.get(coord);
-							concn /= distributionMap.getTotal();
 						}
 						else
 						{
@@ -465,14 +464,14 @@ public class SolveDiffusionTransient extends ProcessManager
 						{
 							double curRate = a.getDouble(GR_TAG);
 							a.set(GR_TAG, curRate + productionRate * 
-									distributionMap.get(coord) / distributionMap.getTotal());
+									distributionMap.get(coord));
 						}
 						else if ( a.isAspect(IP_TAG) )
 						{
 							internalProdctn = 
 									(HashMap<String,Double>) a.getValue(IP_TAG);
 							double curRate = productionRate * 
-													distributionMap.get(coord) / distributionMap.getTotal();
+													distributionMap.get(coord);
 							if ( internalProdctn.containsKey(productName) )
 								curRate += internalProdctn.get(productName);
 							internalProdctn.put(productName, curRate);

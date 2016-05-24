@@ -256,18 +256,6 @@ public class AgentContainer
 		}
 		return out;
 	}
-
-	public String getXml() {
-		String out = "<" + XmlLabel.agents + ">\n";
-		
-		for(Agent a : this.getAllAgents())
-		{
-			out = out + "<" + XmlLabel.agent + ">\n"
-					+ a.reg().getXml() + "</" + XmlLabel.agent + ">\n";
-		}
-		out = out + "</" + XmlLabel.agents + ">\n";
-		return out;
-	}
 	
 	/*************************************************************************
 	 * NEIGHBOURHOOD GETTERS

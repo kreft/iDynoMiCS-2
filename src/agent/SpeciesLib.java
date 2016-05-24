@@ -97,18 +97,6 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 		Log.out(Tier.NORMAL, "Species Library loaded!\n");
 	}
 
-	public String getXml() {
-		String out = "<" + XmlLabel.speciesLibrary + ">\n";
-		for (String key :_species.keySet())
-		{
-			out = out + "<" + XmlLabel.species + " name=\"" +
-					key + "\">\n" + _species.get(key).getXml() +
-					"</" + XmlLabel.species + ">\n";
-		}
-		out = out + "</" + XmlLabel.speciesLibrary + ">\n";
-		return out;
-	}
-
 	/**
 	 * \brief Add a new species to the species library (or overwrite if the
 	 * species already exists).
@@ -240,5 +228,11 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 	@Override
 	public String defaultXmlTag() {
 		return XmlLabel.speciesLibrary;
+	}
+
+	@Override
+	public String getXml() 
+	{
+		return getNode().getXML();
 	}
 }

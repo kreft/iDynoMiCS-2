@@ -10,7 +10,7 @@ import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 
 /**
- * 
+ * TODO this should be a general class rather than a process manager
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
