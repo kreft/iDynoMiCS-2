@@ -121,7 +121,7 @@ public abstract class SphericalShape extends PolarShape
 			for ( int i = 0; i < nShell; i++ )
 			{
 				focalResCalc = (ResCalc) resC.copy();
-				focalResCalc.setLength(scaleResolutionForShell(i, resC.getResolution(0)));
+				focalResCalc.setResolution(scaleResolutionForShell(i, resC.getResolution(0)));
 				this._resCalc[1][0][i] = focalResCalc;
 			}
 			/* Check if theta is waiting for phi before returning. */
@@ -153,7 +153,7 @@ public abstract class SphericalShape extends PolarShape
 				for ( int ring = 0; ring < nRing; ring++ )
 				{
 					focalResCalc = (ResCalc) resC.copy();
-					focalResCalc.setLength(scaleResolutionForRing(shell, ring, resC.getResolution(0)));
+					focalResCalc.setResolution(scaleResolutionForRing(shell, ring, resC.getResolution(0)));
 					this._resCalc[2][shell][ring] = focalResCalc;
 				}
 			}

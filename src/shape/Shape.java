@@ -229,10 +229,16 @@ public abstract class Shape implements
 				
 				str = XmlHandler.gatherAttribute(childElem,
 						XmlLabel.targetResolutionAttribute);
+				
+				/* calculate length from dimension extremes */
 				//TODO[Stefan13.05.16]: is extreme(1) > extreme(0) ensured here?
 				double length = dim.getExtreme(1) - dim.getExtreme(0);
+				
+				/* fetch target resolution (or use length as default) */
 				double tRes = length; 
 				if (str != "") tRes = Double.valueOf(str);
+				
+				/* init resolution calculators */
 				rC = new ResolutionCalculator.UniformResolution();
 				rC.init(tRes, length);
 				this.setDimensionResolution(dimName, rC);				
