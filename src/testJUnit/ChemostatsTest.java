@@ -26,7 +26,7 @@ public class ChemostatsTest
 		/*
 		 * Set up the Simulator and the Timer.
 		 */
-		AllTests.setupSimulatorForTest(tStep, tMax);
+		AllTests.setupSimulatorForTest(tStep, tMax, "singleChemostat");
 		/* Compartment. */
 		Compartment comp;
 		/* Boundary connections. */

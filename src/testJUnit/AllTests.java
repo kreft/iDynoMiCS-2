@@ -11,6 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
+import idynomics.Param;
 import idynomics.Simulator;
 
 @RunWith(Suite.class)
@@ -37,11 +38,15 @@ public class AllTests
 	 * @param tStep Global time step length.
 	 * @param tMax Simulation end time.
 	 */
-	public static void setupSimulatorForTest(double tStep, double tMax)
+	public static void setupSimulatorForTest(double tStep, double tMax, String name)
 	{
 		Idynomics.simulator = new Simulator();
+		Idynomics.global.outputRoot = "./unitTests";
+		Idynomics.global.simulationName = name;
+		Param.setOutputLocation();
 		Idynomics.simulator.timer.setTimeStepSize(tStep);
 		Idynomics.simulator.timer.setEndOfSimulation(tMax);
 		Log.set(Tier.DEBUG);
+		Log.setupFile();
 	}
 }

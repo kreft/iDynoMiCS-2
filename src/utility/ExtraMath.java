@@ -670,6 +670,7 @@ public final class ExtraMath
 	 * 
 	 * @return A uniformly distributed random number in [0,1).
 	 */
+	// TODO rename getUniRand()? Should be unambiguous
 	public static double getUniRandDbl()
 	{
 		return random.nextDouble();

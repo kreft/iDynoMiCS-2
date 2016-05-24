@@ -32,7 +32,7 @@ public class CompartmentTest
 		double tStep = 4.5;
 		double tMax = 4.5;
 		
-		AllTests.setupSimulatorForTest(tStep, tMax);
+		AllTests.setupSimulatorForTest(tStep, tMax, "processManagersShouldIterateInTurn");
 		/*
 		 * Put some dummy ProcessManagers into a Compartment, and check they
 		 * are stepped in the correct order.

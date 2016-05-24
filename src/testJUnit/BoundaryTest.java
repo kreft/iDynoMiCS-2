@@ -37,7 +37,7 @@ public class BoundaryTest
 		/*
 		 * Set up the Simulator, Timer, and Compartment
 		 */
-		AllTests.setupSimulatorForTest(tStep, tMax);
+		AllTests.setupSimulatorForTest(tStep, tMax, "agentInsertionBoundaryLayer");
 		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
 		comp.setShape("line");
 		comp.setSideLengths(new double[]{compartmentLength});
