@@ -1160,7 +1160,7 @@ public abstract class Shape implements
 	public int[] updateCurrentNVoxel()
 	{
 		if (this._currentNVoxel == null)
-			this._currentNVoxel = Vector.onesInt(3);
+			this._currentNVoxel = Vector.zerosInt(3);
 		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
 		return this._currentNVoxel;
 	}
