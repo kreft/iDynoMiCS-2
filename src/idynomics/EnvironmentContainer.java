@@ -204,6 +204,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	public Shape getShape()
+	{
+		return this._shape;
+	}
+	
 	public Set<String> getSoluteNames()
 	{
 		return this._solutes.keySet();

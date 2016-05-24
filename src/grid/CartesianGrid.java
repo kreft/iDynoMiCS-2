@@ -7,10 +7,10 @@ import java.util.Collections;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import grid.resolution.ResCalcFactory;
-import grid.resolution.ResolutionCalculator.ResCalc;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import shape.resolution.ResCalcFactory;
+import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.ShapeConventions.DimName;
 
 /**

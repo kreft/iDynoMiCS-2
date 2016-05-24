@@ -9,10 +9,10 @@ import org.w3c.dom.Node;
 
 import boundary.grid.GridMethod;
 import dataIO.ObjectFactory;
-import grid.resolution.ResolutionCalculator.ResCalc;
-import grid.subgrid.SubgridPoint;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.subvoxel.SubvoxelPoint;
 import shape.ShapeConventions.CyclicGrid;
 import shape.ShapeConventions.DimName;
 
@@ -67,7 +67,7 @@ public abstract class SpatialGrid
 		DIFFUSIVITY,
 		/**
 		 * A measure of how well-mixed a solute is. A diffusion-reaction should
-		 * ignore where this is above a certain threshold.   
+		 * ignore where this is above a certain threshold.
 		 */
 		WELLMIXED,
 		/**
@@ -1081,13 +1081,13 @@ public abstract class SpatialGrid
 	 * @param targetRes
 	 * @return
 	 */
-	public List<SubgridPoint> getCurrentSubgridPoints(double targetRes)
+	public List<SubvoxelPoint> getCurrentSubgridPoints(double targetRes)
 	{
 		/* 
 		 * Initialise the list and add a point at the origin.
 		 */
-		ArrayList<SubgridPoint> out = new ArrayList<SubgridPoint>();
-		SubgridPoint current = new SubgridPoint();
+		ArrayList<SubvoxelPoint> out = new ArrayList<SubvoxelPoint>();
+		SubvoxelPoint current = new SubvoxelPoint();
 		out.add(current);
 		/*
 		 * For each dimension, work out how many new points are needed and get
@@ -1117,7 +1117,7 @@ public abstract class SpatialGrid
 		// TODO this probably needs to be slightly different in polar grids
 		// to be completely accurate
 		double volume = this.getVoxelVolume(this._currentCoord) / out.size();
-		for ( SubgridPoint aSgP : out )
+		for ( SubvoxelPoint aSgP : out )
 		{
 			aSgP.realLocation = this.getLocation(this._currentCoord,
 													aSgP.internalLocation);

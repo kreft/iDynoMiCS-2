@@ -5,7 +5,6 @@ import java.util.Date;
 
 import guiTools.GuiConsole;
 import idynomics.Idynomics;
-import idynomics.Param;
 import utility.Helper;
 
 /**
@@ -157,7 +156,7 @@ public class Log
 	 * \brief TODO
 	 *
 	 */
-	private static void setupFile()
+	public static void setupFile()
 	{
 		//FIXME for some reason this sometimes fails with user provided location
 		logFile.fnew(Idynomics.global.outputLocation + "/log.txt");

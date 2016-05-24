@@ -56,7 +56,7 @@ public class Plane extends Surface {
 	}
 	
 	/**
-	 * Plane.set allows one to move the plane allong its normal
+	 * Plane.set allows one to move the plane along its normal
 	 */
 	public void set(double d, double notUsed)
 	{

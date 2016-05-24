@@ -159,12 +159,12 @@ public class LinearAlgebraTest
 		assertTrue("Q12", Vector.areSame(w, componentForm, TOLERANCE));
 		/* Question 13: unit vector with angle 2pi/3 to the positive x-axis. */
 		v[0] = 1; v[1] = 2 * Math.PI / 3;
-		u = Vector.toCartesian(v);
+		u = Vector.unspherify(v);
 		componentForm[0] = -0.5; componentForm[1] = Math.sqrt(3) / 2;
 		assertTrue("Q13", Vector.areSame(u, componentForm, TOLERANCE));
 		/* Question 14: unit vector with angle -3pi/4 to the positive x-axis.*/
 		v[0] = 1; v[1] = -3 * Math.PI / 4;
-		u = Vector.toCartesian(v);
+		u = Vector.unspherify(v);
 		componentForm[0] = -1/Math.sqrt(2); componentForm[1] = -1/Math.sqrt(2);
 		assertTrue("Q14", Vector.areSame(u, componentForm, TOLERANCE));
 		/*
@@ -238,20 +238,20 @@ public class LinearAlgebraTest
 		 * Note that a negative input is nonsensical here.
 		 */
 		cartesianOriginal = new double[]{4.6};
-		polarOriginal = Vector.toPolar(cartesianOriginal);
-		cartesianReturned = Vector.toCartesian(polarOriginal);
+		polarOriginal = Vector.spherify(cartesianOriginal);
+		cartesianReturned = Vector.unspherify(polarOriginal);
 		assertTrue("Cartesian -> Polar -> Cartesian (1D)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
 		/* 2D */
 		cartesianOriginal = new double[]{-1.0, -2.0};
-		polarOriginal = Vector.toPolar(cartesianOriginal);
-		cartesianReturned = Vector.toCartesian(polarOriginal);
+		polarOriginal = Vector.spherify(cartesianOriginal);
+		cartesianReturned = Vector.unspherify(polarOriginal);
 		assertTrue("Cartesian -> Polar -> Cartesian (2D)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
 		/* 3D */
 		cartesianOriginal = new double[]{1.0, 2.0, 3.0};
-		polarOriginal = Vector.toPolar(cartesianOriginal);
-		cartesianReturned = Vector.toCartesian(polarOriginal);
+		polarOriginal = Vector.spherify(cartesianOriginal);
+		cartesianReturned = Vector.unspherify(polarOriginal);
 		assertTrue("Cartesian -> Polar -> Cartesian (3D)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
 		
@@ -259,7 +259,7 @@ public class LinearAlgebraTest
 		
 		polarOriginal = new double[]{Math.sqrt(2.0), 0.25*Math.PI};
 		cartesianOriginal = new double[]{1.0, 1.0};
-		cartesianReturned = Vector.toCartesian(polarOriginal);
+		cartesianReturned = Vector.unspherify(polarOriginal);
 		assertTrue("pol(sqrt2,pi/4,0) -> car(1,1,0)",
 				Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
 	}
@@ -269,29 +269,46 @@ public class LinearAlgebraTest
 	{
 		double[] cartesianOriginal, cartesianReturned, cylindricalOriginal;
 		/*
-		 * 
+		 * Some 3D vector conversions where the outcome is known in advance.
 		 */
 		cylindricalOriginal = new double[]{1.0, Math.PI, 0.0};
 		cartesianOriginal = new double[]{-1.0, 0.0, 0.0};
-		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		cartesianReturned = Vector.uncylindrify(cylindricalOriginal);
 		assertTrue("cyl(1,pi,0) -> car(-1,0,0)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		
 		cylindricalOriginal[1] = 0.5 * Math.PI;
 		cartesianOriginal[0] = 0.0; cartesianOriginal[1] = 1.0;
-		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		cartesianReturned = Vector.uncylindrify(cylindricalOriginal);
 		assertTrue("cyl(1,pi/2,0) -> car(0,1,0)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		
 		cylindricalOriginal[1] = 1.5 * Math.PI;
 		cartesianOriginal[0] = 0.0; cartesianOriginal[1] = -1.0;
-		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		cartesianReturned = Vector.uncylindrify(cylindricalOriginal);
 		assertTrue("cyl(1,3pi/2,0) -> car(0,-1,0)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		
 		cylindricalOriginal[0] = Math.sqrt(2.0);
 		cylindricalOriginal[1] = 0.25 * Math.PI;
 		cartesianOriginal[0] = 1.0; cartesianOriginal[1] = 1.0;
-		cartesianReturned = Vector.cylindricalToCartesian(cylindricalOriginal);
+		cartesianReturned = Vector.uncylindrify(cylindricalOriginal);
 		assertTrue("cyl(sqrt2,pi/4,0) -> car(1,1,0)",
 			Vector.areSame(cartesianOriginal, cartesianReturned, TOLERANCE));
+		
+		/*
+		 * A bunch of randomly-generated vectors, in 1D, 2D and 3D.
+		 */
+		ExtraMath.initialiseRandomNumberGenerator();
+		double[] cartOrig, cylindrical, cartCopy;
+		for ( int i = 0; i < 10; i++ )
+			for ( int nDim = 1; nDim <= 3; nDim++ )
+			{
+				cartOrig = Vector.randomZeroOne(nDim);
+				cylindrical = Vector.cylindrify(cartOrig);
+				cartCopy = Vector.uncylindrify(cylindrical);
+				assertTrue(Vector.areSame(cartOrig, cartCopy, TOLERANCE));
+			}
 	}
 	
 	@Test

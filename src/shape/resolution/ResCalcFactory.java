@@ -1,4 +1,4 @@
-package grid.resolution;
+package shape.resolution;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,8 +16,8 @@ import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import grid.PolarGrid;
-import grid.resolution.ResolutionCalculator.ResCalc;
-import grid.resolution.ResolutionCalculator.UniformResolution;
+import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator.UniformResolution;
 import shape.ShapeConventions.DimName;
 
 /**

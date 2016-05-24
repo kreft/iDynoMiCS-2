@@ -18,10 +18,7 @@ import org.jfree.data.xy.XYDataItem;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import boundary.Boundary;
-import boundary.BoundaryFixed;
-import boundary.grid.GridMethodLibrary;
-import boundary.grid.GridMethodLibrary.ConstantDirichlet;
+import boundary.BoundaryLibrary.FixedBoundary;
 import grid.CylindricalGrid;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
@@ -290,17 +287,13 @@ public class PolarGridTest
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
 			
-		Boundary rmin = new BoundaryFixed();
-		GridMethodLibrary.ConstantDirichlet fallRMin = new GridMethodLibrary.ConstantDirichlet();
-		fallRMin.setValue(1.0);
-		rmin.setGridMethod("fall", fallRMin);
-		aCompartment.addBoundary(DimName.R, 0, rmin);
-	
-		Boundary rmax = new BoundaryFixed();
-		GridMethodLibrary.ConstantDirichlet riseRMax = new GridMethodLibrary.ConstantDirichlet();
-		riseRMax.setValue(1.0);
-		rmax.setGridMethod("rise", riseRMax);
-		aCompartment.addBoundary(DimName.R, 1, rmax);
+		FixedBoundary rMin = new FixedBoundary();
+		rMin.setValue("fall", 1.0);
+		aCompartment.addBoundary(DimName.R, 0, rMin);
+		
+		FixedBoundary rMax = new FixedBoundary();
+		rMin.setValue("rise", 1.0);
+		aCompartment.addBoundary(DimName.R, 1, rMax);
 		
 		aCompartment.init();
 		/*
