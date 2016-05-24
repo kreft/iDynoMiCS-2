@@ -499,7 +499,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	@Override
 	public void setNode(ModelNode node) 
 	{
-		this.expression = node.getAttribute(XmlLabel.expression).value;
+		this.expression = node.getAttribute(XmlLabel.valueAttribute).value;
 		this._a = build(expression, _constants);
 	}
 

@@ -170,10 +170,10 @@ public class ModelNode {
 	 * returns xml String from this ModelNode
 	 * @return
 	 */
-	public String getXML()
+	public String getXML(int tabs)
 	{
 		String out = "";
-		out += "<" + tag;
+		out += appendTabs(tabs) + "<" + tag;
 		
 		/* attributes */
 		for ( ModelAttribute a : attributes )
@@ -191,12 +191,24 @@ public class ModelNode {
 			out += " >\n";
 			for( ModelNode n : childNodes )
 			{
-				out += n.getXML();
+				out += n.getXML(tabs+1);
 			}
-			out += "</" + tag + ">\n";
+			out += appendTabs(tabs) + "</" + tag + ">\n";
 		}
 		
 		return out;
 	}
+	
+	public String getXML()
+	{
+		return getXML(0);
+	}
 
+	private String appendTabs(int tabs)
+	{
+		String out = "";
+		for( int i = 1; i < tabs; i++ )
+			out += "\t";
+		return out;
+	}
 }

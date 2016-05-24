@@ -38,7 +38,7 @@ public class XmlExport
 		xmlFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 
-		xmlFile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\t <document>\n");
+		xmlFile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<document>\n");
 	}
 	
 	/**
@@ -59,6 +59,6 @@ public class XmlExport
 	 */
 	public void writeState()
 	{
-		xmlFile.write(Idynomics.simulator.getNode().getXML());
+		xmlFile.write(Idynomics.simulator.getNode().getXML(1));
 	}
 }
