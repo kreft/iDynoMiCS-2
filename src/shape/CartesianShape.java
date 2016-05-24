@@ -1,9 +1,5 @@
 package shape;
 
-import java.util.Arrays;
-
-import grid.CartesianGrid;
-import grid.SpatialGrid;
 import linearAlgebra.Array;
 import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -37,11 +33,6 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public double[][][] getNewArray(double initialValue) {
 		return Array.array(this.updateCurrentNVoxel(), initialValue);
-	}
-	
-	@Override
-	public SpatialGrid getNewGrid() {
-		return new CartesianGrid(this);
 	}
 	
 	/*************************************************************************

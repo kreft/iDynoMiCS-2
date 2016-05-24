@@ -4,8 +4,6 @@ import static shape.ShapeConventions.DimName.PHI;
 import static shape.ShapeConventions.DimName.R;
 import static shape.ShapeConventions.DimName.THETA;
 
-import grid.SpatialGrid;
-import grid.SphericalGrid;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -62,11 +60,6 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	public double[][][] getNewArray(double initialValue) {
 		return PolarArray.createSphere(this._resCalc, initialValue);
-	}
-	
-	@Override
-	public SpatialGrid getNewGrid() {
-		return new SphericalGrid(this);
 	}
 	
 	/*************************************************************************

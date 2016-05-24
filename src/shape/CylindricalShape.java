@@ -4,8 +4,6 @@ import static shape.ShapeConventions.DimName.R;
 import static shape.ShapeConventions.DimName.THETA;
 import static shape.ShapeConventions.DimName.Z;
 
-import grid.CylindricalGrid;
-import grid.SpatialGrid;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -57,11 +55,6 @@ public abstract class CylindricalShape extends PolarShape
 	@Override
 	public double[][][] getNewArray(double initialValue) {
 		return PolarArray.createCylinder(this._resCalc, initialValue);
-	}
-	
-	@Override
-	public SpatialGrid getNewGrid() {
-		return new CylindricalGrid(this);
 	}
 	
 	/*************************************************************************

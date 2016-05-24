@@ -281,7 +281,10 @@ public abstract class Shape implements
 	}
 	
 	
-	public abstract SpatialGrid getNewGrid();
+	public SpatialGrid getNewGrid()
+	{
+		return new SpatialGrid(this);
+	}
 		
 	public abstract double[][][] getNewArray(double initialValue);
 	

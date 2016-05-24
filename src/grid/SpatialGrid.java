@@ -2,11 +2,8 @@ package grid;
 
 import java.util.HashMap;
 
-import boundary.grid.GridMethod;
-import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Array;
 import shape.Shape;
-import shape.ShapeConventions.CyclicGrid;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.
@@ -28,7 +25,7 @@ import shape.ShapeConventions.CyclicGrid;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class SpatialGrid
+public class SpatialGrid
 {	
 	/**
 	 * Label for an array. 
