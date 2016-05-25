@@ -4,9 +4,7 @@
 package shape;
 
 import static shape.ShapeConventions.DimName.R;
-import static shape.Shape.WhereAmI.DEFINED;
-import static shape.Shape.WhereAmI.INSIDE;
-import static shape.Shape.WhereAmI.UNDEFINED;
+import static shape.Shape.WhereAmI.*;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -81,6 +79,10 @@ public abstract class Shape implements
 		 * Inside the array.
 		 */
 		INSIDE,
+		/**
+		 * TODO
+		 */
+		CYCLIC,
 		/**
 		 * On a defined boundary.
 		 */
@@ -1010,14 +1012,20 @@ public abstract class Shape implements
 	protected WhereAmI whereIs(int[] coord, DimName dimName)
 	{
 		Dimension dim = this.getDimension(dimName);
-		if ( dim.isCyclic() )
-			return INSIDE;
 		int index = this.getDimensionIndex(dimName);
 		if ( coord[index] < 0 )
+		{
+			if ( dim.isCyclic() )
+				return CYCLIC;
 			return ( dim.isBoundaryDefined(0) ) ? DEFINED : UNDEFINED;
+		}
 		int nVox = this.getResolutionCalculator(coord, index).getNVoxel();
 		if ( coord[index] >= nVox )
+		{
+			if ( dim.isCyclic() )
+				return CYCLIC;
 			return ( dim.isBoundaryDefined(1) ) ? DEFINED : UNDEFINED;
+		}
 		return INSIDE;
 	}
 	
@@ -1041,7 +1049,7 @@ public abstract class Shape implements
 			where = this.whereIsNhb(dim);
 			if ( where == UNDEFINED )
 				return (this._whereIsNbh = UNDEFINED);
-			if ( this._whereIsNbh == INSIDE && where == DEFINED )
+			if ( this.isNhbIteratorInside() && where == DEFINED )
 				this._whereIsNbh = DEFINED;
 		}
 		return this._whereIsNbh;
@@ -1095,7 +1103,7 @@ public abstract class Shape implements
 			Log.out(level, "Coord "+Vector.toString(this._currentCoord)+
 					" has volume "+volume);
 			max = 0.0;
-			for ( this.resetNbhIter();
+			for ( this.resetNbhIterator();
 						this.isNbhIteratorValid(); this.nbhIteratorNext() )
 			{
 				temp = this.nbhCurrSharedArea() / this.nbhCurrDistance();
@@ -1330,6 +1338,11 @@ public abstract class Shape implements
 		return this._currentNeighbor;
 	}
 	
+	/**
+	 * \brief Current coordinates of the neighbor iterator.
+	 * 
+	 * @return 3-vector of ints.
+	 */
 	public int[] nbhIteratorCurrent()
 	{
 		return _currentNeighbor;
@@ -1345,7 +1358,7 @@ public abstract class Shape implements
 	 */
 	public boolean isNbhIteratorValid()
 	{
-		return (this._whereIsNbh == INSIDE) || (this._whereIsNbh == DEFINED);
+		return this.isNhbIteratorInside() || (this._whereIsNbh == DEFINED);
 	}
 	
 	/**
@@ -1357,7 +1370,7 @@ public abstract class Shape implements
 	 */
 	public boolean isNhbIteratorInside()
 	{
-		return (this._whereIsNbh == INSIDE);
+		return (this._whereIsNbh == INSIDE) || (this._whereIsNbh == CYCLIC);
 	}
 	
 	/**
@@ -1369,8 +1382,8 @@ public abstract class Shape implements
 	{
 		if ( this._whereIsNbh == DEFINED )
 		{
-			return getDimension(this._nbhDimName)
-					.getBoundaries()[this._nbhDirection];
+			Dimension dim = this.getDimension(this._nbhDimName);
+			return dim.getBoundary(this._nbhDirection);
 		}
 		return null;
 	}
@@ -1407,7 +1420,7 @@ public abstract class Shape implements
 	protected void transformNbhCyclic()
 	{
 		Dimension dim = getDimension(this._nbhDimName);
-		if ( (this._whereIsNbh == DEFINED) && dim.isCyclic() )
+		if ( (this._whereIsNbh == CYCLIC) && dim.isCyclic() )
 		{
 			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			int nVoxel = this.getResolutionCalculator(
@@ -1433,7 +1446,7 @@ public abstract class Shape implements
 	protected void untransformNbhCyclic()
 	{
 		Dimension dim = this.getDimension(this._nbhDimName);
-		if ( (this._whereIsNbh == DEFINED) && dim.isCyclic() )
+		if ( (this._whereIsNbh == CYCLIC) && dim.isCyclic() )
 		{
 			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			if ( this._nbhDirection == 0 )
@@ -1498,8 +1511,11 @@ public abstract class Shape implements
 			{
 				/* Jump and report success. */
 				this._nbhDirection = 1;
-				this._whereIsNbh = this.whereIsNhb(dim);
 				this._currentNeighbor[index] = this._currentCoord[index] + 1;
+				this._whereIsNbh = this.whereIsNhb(dim);
+				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
+						": result "+Vector.toString(this._currentNeighbor)+
+						" is "+this._whereIsNbh);
 				return true;
 			}
 		}
@@ -1507,6 +1523,9 @@ public abstract class Shape implements
 		// TODO is it appropriate to use a meaningless direction here?
 		this._nbhDirection = -1;
 		this._whereIsNbh = this.whereIsNhb(dim);
+		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
+				": result "+Vector.toString(this._currentNeighbor)+
+				" is "+this._whereIsNbh);
 		return false;
 	}
 	

@@ -358,6 +358,17 @@ public class SpatialGrid
 	 * \brief TODO
 	 * 
 	 * @param type
+	 * @return
+	 */
+	public double getValueAtNhb(ArrayType type)
+	{
+		return this.getValueAt(type, this._shape.nbhIteratorCurrent());
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
 	 * @param value
 	 */
 	public void setValueAtCurrent(ArrayType type, double value)
@@ -380,14 +391,14 @@ public class SpatialGrid
 			/*
 			 * First find the difference in concentration.
 			 */
-			double out = this.getValueAt(ArrayType.CONCN, shape.nbhIteratorCurrent())
+			double out = this.getValueAtNhb(ArrayType.CONCN)
 					- this.getValueAtCurrent(ArrayType.CONCN);
 			/*
 			 * Then multiply this by the average diffusivity.
 			 */
 			out *= meanDiffusivity(
 				this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
-				this.getValueAt(ArrayType.DIFFUSIVITY, shape.nbhIteratorCurrent()));
+				this.getValueAtNhb(ArrayType.DIFFUSIVITY));
 			/*
 			 * Finally, multiply by the surface are the two voxels share (in
 			 * square microns).

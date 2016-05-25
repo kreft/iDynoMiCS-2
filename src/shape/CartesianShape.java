@@ -155,6 +155,9 @@ public abstract class CartesianShape extends Shape
 			{
 				this._nbhDimName = dim;
 				this.transformNbhCyclic();
+				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
+						+Vector.toString(this._currentNeighbor)+
+						": status "+this._whereIsNbh);
 				return;
 			}
 		}
@@ -184,8 +187,13 @@ public abstract class CartesianShape extends Shape
 					return nbhIteratorNext();
 			}
 		}
+		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				": status "+this._whereIsNbh);
 		this.transformNbhCyclic();
-		this._whereIsNbh = this.whereIsNhb();
+		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				": status "+this._whereIsNbh);
 		return this._currentNeighbor;
 	}
 	
@@ -194,18 +202,22 @@ public abstract class CartesianShape extends Shape
 	{
 		int i = this.getDimensionIndex(this._nbhDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
-		// FIXME using the resolution is the neighbor voxel is out of bounds is
-		// only a quick fix
-		if ( this._currentNeighbor[i] >= 0 )
+		double out = rC.getResolution(this._currentCoord[i]);
+		if ( this.isNhbIteratorInside() )
 		{
-			double out = rC.getPosition(this._currentCoord[i], 0.5);
-			out -= rC.getPosition(this._currentNeighbor[i], 0.5);
-			return Math.abs(out);
+			/* If the neighbor is inside the array, use the mean resolution. */
+			out += rC.getResolution(this._currentNeighbor[i]);
+			return 0.5 * out;
 		}
-		else
+		if ( this.isNbhIteratorValid() )
 		{
-			return rC.getResolution(this._currentCoord[i]);
+			/* If the neighbor is on a defined boundary, use the current 
+				coord's resolution. */
+			return out;
 		}
+		/* If the neighbor is on an undefined boundary, return infinite
+			distance (this should never happen!) */
+		return Double.POSITIVE_INFINITY;
 	}
 	
 	@Override

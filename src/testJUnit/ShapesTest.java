@@ -107,6 +107,7 @@ public class ShapesTest
 		/* Check it is correct. */
 		Log.out(DEBUG, "Solid boundaries");
 		checkIteration(shp, trueNhb);
+		Log.out(DEBUG, "");
 		/*
 		 * Now try with cyclic dimensions.
 		 */
@@ -115,6 +116,7 @@ public class ShapesTest
 		Matrix.setAll(trueNhb, 4);
 		Log.out(DEBUG, "Cyclic dimensions");
 		checkIteration(shp, trueNhb);
+		Log.out(DEBUG, "");
 	}
 	
 	private void checkIteration(Shape shp, int[][] trueNhb)
