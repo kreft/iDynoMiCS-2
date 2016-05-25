@@ -1368,6 +1368,36 @@ public final class Array
 		return out;
 	}
 	
+	/**
+	 * \brief Calculates the sum of all elements in the given <b>array</b>.
+	 * 
+	 * @param array Three-dimensional array of integers (preserved).
+	 * @return int sum of all elements in the array.
+	 * @see #sum(double[][][])
+	 */
+	public static int sum(int[][][] array)
+	{
+		int out = 0;
+		for ( int[][] matrix : array )
+			out += Matrix.sum(matrix);
+		return out;
+	}
+	
+	/**
+	 * \brief Calculates the sum of all elements in the given <b>array</b>.
+	 * 
+	 * @param array Two-dimensional array of doubles (preserved).
+	 * @return double sum of all elements in the array.
+	 * @see #sum(int[][][])
+	 */
+	public static double sum(double[][][] array)
+	{
+		double out = 0.0;
+		for ( double[][] matrix : array )
+			out += Matrix.sum(matrix);
+		return out;
+	}
+	
 	/*************************************************************************
 	 * NEW RANDOM ARRAYS
 	 * Any input should be unaffected.

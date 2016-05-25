@@ -297,14 +297,26 @@ public class SpatialGrid
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the arithmetic mean value in the given array.
 	 * 
-	 * @param type
-	 * @return
+	 * @param type Type of the array to use.
+	 * @return Average value of all the elements of the array <b>type</b>.
 	 */
 	public double getAverage(ArrayType type)
 	{
 		return Array.meanArith(this._array.get(type));
+	}
+	
+	/**
+	 * \brief Get the sum of the values in the array of given <b>type</b>.
+	 * 
+	 * @param type Type of the array to use.
+	 * @return Total value of all the elements of the array <b>type</b>.
+	 */
+	// FIXME this currently ignores voxel volumes.
+	public double getTotal(ArrayType type)
+	{
+		return Array.sum(this._array.get(type));
 	}
 	
 	/*************************************************************************

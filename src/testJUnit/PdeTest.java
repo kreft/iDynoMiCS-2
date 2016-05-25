@@ -1,6 +1,9 @@
 package testJUnit;
 
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+
+import static testJUnit.AllTests.TOLERANCE;
 
 import boundary.BoundaryLibrary.SolidBoundary;
 import dataIO.Log;
@@ -24,7 +27,7 @@ import utility.ExtraMath;
 public class PdeTest
 {
 	@Test
-	public void flattenRandom()
+	public void checkMassBalanceWithoutReactions()
 	{
 		double tStep = 1.0;
 		double tMax = 10.0;
@@ -56,8 +59,6 @@ public class PdeTest
 		{
 			sG.setValueAt(ArrayType.CONCN, c, 2.0 * ExtraMath.getUniRandDbl());
 		}
-		double average = sG.getAverage(ArrayType.CONCN);
-		Log.out(Tier.DEBUG, "Average concn is "+average+" to start");
 		
 		/*
 		 * Set up the diffusion solver.
@@ -70,11 +71,17 @@ public class PdeTest
 		pm.setPriority(1);
 		comp.addProcessManager(pm);
 		
-		double[][][] oldConcns, newConcns;
-		
-		oldConcns = sG.getArray(ArrayType.CONCN);
-		Idynomics.simulator.step();
-		newConcns = sG.getArray(ArrayType.CONCN);
-		Log.out(Tier.DEBUG, "New average: "+sG.getAverage(ArrayType.CONCN));
+		double oldTotal = sG.getTotal(ArrayType.CONCN);
+		double newTotal;
+		while ( Idynomics.simulator.timer.isRunning() )
+		{
+			Idynomics.simulator.step();
+			newTotal = sG.getTotal(ArrayType.CONCN);
+			Log.out(Tier.NORMAL, "Total solute was "+oldTotal+" before, "+newTotal+" after");
+			assertTrue(ExtraMath.areEqual(oldTotal, newTotal, TOLERANCE));
+			oldTotal = newTotal;
+		}
+		// FIXME this unit test currently passes when compartmentLength = 2.0,
+		// but fails when compartmentLength = 3.0;
 	}
 }

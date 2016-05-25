@@ -21,7 +21,7 @@ import utility.ExtraMath;
  *   <li>checking methods (isZero, etc)</li>
  *   <li>basic arithmetic (+, -, *, /)</li>
  *   <li>submatrices and reordering</li>
- *   <li>scalars from matrices (sum, dot product, etc)</i>
+ *   <li>scalars from matrices (sum, min/max, etc)</i>
  *   <li>new random matrices</li>
  *   <li>converting between integer and double</li>
  *   <li>advanced methods</li>
@@ -2811,6 +2811,36 @@ public final class Matrix
 		for ( double[] row : matrix )
 			for ( double elem : row )
 				out = Math.hypot(out, elem);
+		return out;
+	}
+
+	/**
+	 * \brief Calculates the sum of all elements in the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @return int sum of all elements in the matrix.
+	 * @see #sum(double[][])
+	 */
+	public static int sum(int[][] matrix)
+	{
+		int out = 0;
+		for ( int[] row : matrix )
+			out += Vector.sum(row);
+		return out;
+	}
+	
+	/**
+	 * \brief Calculates the sum of all elements in the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return double sum of all elements in the matrix.
+	 * @see #sum(int[][])
+	 */
+	public static double sum(double[][] matrix)
+	{
+		double out = 0.0;
+		for ( double[] row : matrix )
+			out += Vector.sum(row);
 		return out;
 	}
 	
