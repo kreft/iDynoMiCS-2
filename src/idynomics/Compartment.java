@@ -248,16 +248,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		}
 	}
 		
-					XmlLabel.processFirstStep + "=\"" + p.getTimeForNextStep() +
-					"\" " + XmlLabel.packageAttribute + "=\"processManager.\"" +
-					">\n"
-					+ p.reg().getXml() + "</" + XmlLabel.process + ">\n";
-		}
-		out = out + "</" + XmlLabel.processManagers + ">\n";
-		
-		out = out + "</" + XmlLabel.compartment + ">\n";
-		return out;
-	}
 	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
