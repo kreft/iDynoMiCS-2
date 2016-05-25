@@ -119,8 +119,8 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private void updateForces(AgentContainer agents) 
 	{
-		Log.out(DEBUG, "Updating agent forces");
 		Tier level = BULK;
+		Log.out(level, "Updating agent forces");
 		/*
 		 * Updated bodies will required an updated spatial registry.
 		 */
@@ -163,6 +163,7 @@ public class AgentRelaxation extends ProcessManager
 			 */
 			this._iterator.collision(shapeSurfs, agentSurfs, 0.0);
 		}
+		Log.out(level, " Finished updating agent forces");
 	}
 
 
