@@ -20,6 +20,7 @@ import generalInterfaces.XMLable;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelNode;
 import utility.Helper;
 
 /**
@@ -320,5 +321,11 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		{
 			return Boundary.getAllOptions();
 		}
+	}
+
+	@Override
+	public ModelNode getNode() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

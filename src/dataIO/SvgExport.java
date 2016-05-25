@@ -68,7 +68,7 @@ public class SvgExport
 	public void newSvg(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + DigitFilenr(filewriterfilenr) + ".svg";
+				+ prefix + "_" + DigitFilenr(filewriterfilenr) + ".svg";
 		svgFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 

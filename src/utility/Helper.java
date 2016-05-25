@@ -1,5 +1,6 @@
 package utility;
 
+import java.util.List;
 import java.util.Scanner;
 
 import dataIO.Log;
@@ -159,6 +160,13 @@ public class Helper
 			dollarIndex = str.indexOf("$");
 			out[i] = str.substring(dollarIndex+1);
 		}
+		return out;
+	}
+
+	public static String[] ListToArray(List<String> all) {
+		String[] out = new String[all.size()];
+		for (int i = 0; i < all.size(); i++)
+			out[i] = all.get(i);
 		return out;
 	}
 }

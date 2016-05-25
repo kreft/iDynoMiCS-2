@@ -88,6 +88,15 @@ public class AgentMediator implements CommandMediator {
 					case "BLUE" :
 						  rgba = new float[] {0.1f, 0.1f, 1f};
 						  break;
+					case "PURPLE" :
+						  rgba = new float[] {1.0f, 0.0f, 1.0f};
+						  break;
+					case "ORANGE" :
+						  rgba = new float[] {1f, 0.6f, 0.1f};
+						  break;
+					case "BLACK" :
+						  rgba = new float[] {0.0f, 0.0f, 0.0f};
+						  break;
 					default :
 						  rgba = new float[] {1f, 1f, 1f};
 						  break;

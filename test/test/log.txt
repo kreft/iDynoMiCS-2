@@ -1,0 +1,26 @@
+[2016.05.16 23:42:47] iDynoMiCS 2.0 (alpha build 2016.05.10)
+Output level is NORMAL, starting at [2016.05.16 23:42:47] 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[2016.05.16 23:43:01] Aquired input: mySpecies
+[2016.05.16 23:43:11] Aquired input: pigment
+[2016.05.16 23:43:12] Aquired input: PRIMARY
+[2016.05.16 23:43:18] Aquired input: String
+[2016.05.16 23:43:34] Aquired input: Rectangle
+[2016.05.16 23:43:57] this is a file for testing purposes only.
+[2016.05.16 23:43:57] Storing results in ../results/test4/
+
+[2016.05.16 23:43:57] Timer loading...
+[2016.05.16 23:43:57] Timer: time is   = 0.0
+[2016.05.16 23:43:57]        iteration = 0
+[2016.05.16 23:43:57]        step size = 1.0
+[2016.05.16 23:43:57]        end time  = 25.0
+[2016.05.16 23:43:57] Timer loaded!
+
+[2016.05.16 23:43:57] Species Library loading...
+[2016.05.16 23:43:57] Species Library loaded!
+
+[2016.05.16 23:43:57] Compartments loading...
+[2016.05.16 23:43:57] Making second
+[2016.05.16 23:43:57] Compartments loaded!
+
