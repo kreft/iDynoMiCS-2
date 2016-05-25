@@ -1,15 +1,19 @@
 package testJUnit;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import static testJUnit.AllTests.TOLERANCE;
+import boundary.Boundary;
+import boundary.BoundaryLibrary.SolidBoundary;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-
+import static testJUnit.AllTests.TOLERANCE;
 import shape.Shape;
+import shape.ShapeConventions.DimName;
+import shape.ShapeLibrary.Rectangle;
+import shape.resolution.ResolutionCalculator.UniformResolution;
 
 /**
  * \brief TODO
@@ -71,7 +75,64 @@ public class ShapesTest
 		a[0] = 1.0; a[1] = 1.0;
 		b[0] = -1.0; b[1] = 1.0;
 		diff = aShape.getMinDifference(a, b);
-		System.out.println("diff: "+Arrays.toString(diff));
+		//System.out.println("diff: "+Vector.toString(diff));
+		// FIXME
+	}
+	
+	@Test
+	public void shouldIterateCorrectly()
+	{
 		
+		int[][] trueNhb = new int[3][3];
+		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
+		Shape shp = new Rectangle();
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(3.0);
+		resCalc.setResolution(1.0);
+		for ( DimName d : dims )
+			shp.setDimensionResolution(d, resCalc);
+		/*
+		 * Try first with solid boundaries.
+		 */
+		Boundary bndry = new SolidBoundary();
+		for ( DimName d : dims )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				shp.setBoundary(d, extreme, bndry);
+		/* Set up the array of true inside neighbor numbers. */
+		trueNhb[0][0] = 2; trueNhb[0][1] = 3; trueNhb[0][2] = 2;
+		trueNhb[1][0] = 3; trueNhb[1][1] = 4; trueNhb[1][2] = 3;
+		trueNhb[2][0] = 2; trueNhb[2][1] = 3; trueNhb[2][2] = 2;
+		/* Check it is correct. */
+		checkIteration(shp, trueNhb);
+		/*
+		 * Now try with cyclic dimensions.
+		 */
+		for ( DimName d : dims )
+			shp.makeCyclic(d);
+		Matrix.setAll(trueNhb, 4);
+		checkIteration(shp, trueNhb);
+	}
+	
+	private void checkIteration(Shape shp, int[][] trueNhb)
+	{
+		int iterCount, nhbCount;
+		int[] coord;
+		iterCount = 0;
+		for ( shp.resetIterator(); shp.isIteratorValid(); shp.iteratorNext() )
+		{
+			iterCount++;
+			nhbCount = 0;
+			for ( shp.resetNbhIterator();
+					shp.isNbhIteratorValid() && shp.isNhbIteratorInside(); 
+					shp.nbhIteratorNext() )
+			{
+				nhbCount++;
+			}
+			coord = shp.iteratorCurrent();
+			System.out.println("Coord "+Vector.toString(coord)+" has "+nhbCount+" neighbors");
+			// FIXME
+			//assertEquals(nhbCount, trueNhb[coord[0]][coord[1]]);
+		}
+		assertEquals(iterCount, 9);
 	}
 }

@@ -24,6 +24,7 @@ import org.w3c.dom.NodeList;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import generalInterfaces.CanPrelaunchCheck;
@@ -1065,6 +1066,8 @@ public abstract class Shape implements
 	 */
 	private void calcMaxFluxPotential()
 	{
+		Tier level = DEBUG;
+		Log.out(level, "Calculating maximum flux potential");
 		/*
 		 * Store the two iterators, in case we're in the middle of an
 		 * iteration.
@@ -1085,14 +1088,14 @@ public abstract class Shape implements
 		for ( this.resetIterator(); this.isIteratorValid(); this.iteratorNext())
 		{
 			volume = this.getVoxelVolume(this._currentCoord);
-			Log.out(Tier.BULK, "Coord "+Vector.toString(this._currentCoord)+
+			Log.out(level, "Coord "+Vector.toString(this._currentCoord)+
 					" has volume "+volume);
 			max = 0.0;
 			for ( this.resetNbhIter();
 						this.isNbhIteratorValid(); this.nbhIteratorNext() )
 			{
 				temp = this.nbhCurrSharedArea() / this.nbhCurrDistance();
-				Log.out(Tier.BULK, "   nbh "+
+				Log.out(level, "   nbh "+
 						Vector.toString(this._currentNeighbor)+
 						" has shared area "+this.nbhCurrSharedArea()+
 						" and distance "+this.nbhCurrDistance());
@@ -1101,6 +1104,7 @@ public abstract class Shape implements
 			
 			this._maxFluxPotentl = Math.max(this._maxFluxPotentl, max/volume);
 		}
+		Log.out(level, " Maximum flux potential is "+this._maxFluxPotentl);
 		/*
 		 * Put the iterators back to their stored values.
 		 */

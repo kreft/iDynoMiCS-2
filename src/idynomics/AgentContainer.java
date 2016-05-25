@@ -446,7 +446,7 @@ public class AgentContainer
 	 */
 	public void agentsDepart()
 	{
-		Tier level = DEBUG;
+		Tier level = BULK;
 		Log.out(level, "Pushing all outbound agents...");
 		Dimension dim;
 		for ( DimName dimN : this._shape.getDimensionNames() )
