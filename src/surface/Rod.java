@@ -37,6 +37,12 @@ public class Rod extends Surface implements HasBoundingBox {
 		this._radius = radius;
     }
 	
+	public Rod(double[] pointA, double[] pointB, double radius)
+	{
+		this._points = new Point[] { new Point(pointA), new Point(pointB)};
+		this._radius = radius;
+	}
+	
     public Rod(Point[] points)
     {
     	this._points = points;

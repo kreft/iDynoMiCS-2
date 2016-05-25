@@ -11,12 +11,12 @@ import org.w3c.dom.NodeList;
 import agent.Agent;
 import agent.Species;
 import boundary.Boundary;
-import boundary.BoundaryConnected;
 import dataIO.Log;
 import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
+import static dataIO.Log.Tier.*;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.*;
@@ -37,8 +37,6 @@ import reaction.Reaction;
 import shape.Shape;
 import shape.Shape.ShapeMaker;
 import shape.ShapeConventions.DimName;
-import shape.ShapeLibrary;
-import utility.Helper;
 
 /**
  * \brief TODO
@@ -112,16 +110,26 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	/**
 	 * \brief
 	 * 
-	 * TODO This should go back to being private once tests are based on XML
-	 * protocols.
-	 * 
 	 * @param aShape
 	 */
 	public void setShape(Shape aShape)
 	{
+		Log.out(Tier.EXPRESSIVE, "Compartment \""+this.name+
+				"\" taking shape \""+aShape.getName()+"\"");
 		this._shape = aShape;
 		this._environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param shapeName
+	 */
+	public void setShape(String shapeName)
+	{
+		Shape aShape = Shape.getNewInstance(shapeName);
+		this.setShape(aShape);
 	}
 	
 	/**
@@ -155,7 +163,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 			double conc = Double.valueOf(
 					XmlHandler.obtainAttribute((Element) solutes.item(i), 
 					XmlLabel.concentration));
-			this.addSolute(soluteName, conc, soluteE);
+			this.addSolute(soluteName, conc);
 			
 			// FIXME please provide standard methods to load entire solute grids
 			SpatialGrid myGrid = this.getSolute(str);
@@ -238,16 +246,17 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 				this.addProcessManager(ProcessManager.getNewInstance(procElem));
 			}
 		}
-		/*
-		 * Finally, finish off the initialisation as standard.
-		 */
-		this.init();
 	}
 		
-	public void init()
-	{
+					XmlLabel.processFirstStep + "=\"" + p.getTimeForNextStep() +
+					"\" " + XmlLabel.packageAttribute + "=\"processManager.\"" +
+					">\n"
+					+ p.reg().getXml() + "</" + XmlLabel.process + ">\n";
+		}
+		out = out + "</" + XmlLabel.processManagers + ">\n";
 		
-		this._environment.init();
+		out = out + "</" + XmlLabel.compartment + ">\n";
+		return out;
 	}
 	
 	/*************************************************************************
@@ -311,25 +320,16 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void addSolute(String soluteName)
 	{
-		this._environment.addSolute(soluteName, null);
+		this._environment.addSolute(soluteName);
 	}	
 	
 	/**
 	 * 
 	 * @param soluteName
 	 */
-	public void addSolute(String soluteName, Element resolution)
+	public void addSolute(String soluteName, double initialConcentration)
 	{
-		this._environment.addSolute(soluteName, resolution);
-	}
-	
-	/**
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName, double initialConcentration, Element resolution)
-	{
-		this._environment.addSolute(soluteName, initialConcentration, resolution);
+		this._environment.addSolute(soluteName, initialConcentration);
 	}
 	
 	/**
@@ -357,6 +357,40 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
+	
+	/**
+	 * 
+	 * @param compartments
+	 */
+	// TODO temporary work, still in progress!
+	public void checkBoundaryConnections(List<Compartment> compartments)
+	{
+		for ( Boundary b : this._shape.getDisconnectedBoundaries() )
+		{
+			String name = b.getPartnerCompartmentName();
+			Compartment comp = null;
+			for ( Compartment c : compartments )
+				if ( c.getName().equals(name) )
+				{
+					comp = c;
+					break;
+				}
+			if ( comp == null )
+			{
+				// TODO safety
+			}
+			else
+			{
+				Boundary partner = b.makePartnerBoundary();
+				comp.getShape().addOtherBoundary(partner);
+			}
+		}
+	}
+	
+	public void agentsArrive()
+	{
+		this.agents.agentsArrive();
+	}
 	
 	/**
 	 * \brief Iterate over the process managers until the local time would
@@ -399,8 +433,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void pushAllOutboundAgents()
 	{
-		for ( BoundaryConnected b : this._shape.getConnectedBoundaries() )
-			b.pushAllOutboundAgents();
+		this.agents.agentsDepart();
 	}
 	
 	/*************************************************************************

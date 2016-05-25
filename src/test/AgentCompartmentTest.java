@@ -49,23 +49,20 @@ public class AgentCompartmentTest
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
 		
-		//TODO diffusivities
-		aCompartment.init();
-
-		
 		/*
 		 * Initialise the concentration array with random values.
 		 */
+		Shape shape = aCompartment.getShape();
 		SpatialGrid sg = aCompartment.getSolute("solute");
-		for ( int[] coords = sg.resetIterator() ; sg.isIteratorValid();
-												coords = sg.iteratorNext() )
+		for ( int[] coords = shape.resetIterator() ; shape.isIteratorValid();
+												coords = shape.iteratorNext() )
 		{
 			sg.setValueAt(ArrayType.CONCN, coords, ExtraMath.getUniRandDbl());
 		}
 		
 		SpatialGrid bm = aCompartment.getSolute("biomass");
-		for ( int[] coords = bm.resetIterator() ; bm.isIteratorValid();
-												coords = bm.iteratorNext() )
+		for ( int[] coords = shape.resetIterator() ; shape.isIteratorValid();
+												coords = shape.iteratorNext() )
 		{
 			bm.setValueAt(ArrayType.CONCN, coords, 0.0);
 		}

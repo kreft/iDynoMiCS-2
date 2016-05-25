@@ -3,7 +3,7 @@
  */
 package test;
 
-import boundary.*;
+import boundary.BoundaryLibrary.FixedBoundary;
 import boundary.BoundaryLibrary.SolidBoundary;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -39,7 +39,7 @@ public class AgentGridTest
 		 * Set the boundary methods.
 		 */
 		aCompartment.addBoundary(DimName.X, 0, new SolidBoundary());
-		aCompartment.addBoundary(DimName.X, 1, new BoundaryFixed(topConcn));
+		aCompartment.addBoundary(DimName.X, 1, new FixedBoundary(topConcn));
 		aCompartment.addBoundary(DimName.Y, 0, new SolidBoundary());
 		aCompartment.addBoundary(DimName.Y, 1, new SolidBoundary());
 		/*
@@ -59,7 +59,6 @@ public class AgentGridTest
 		/*
 		 * Launch the simulation.
 		 */
-		aCompartment.init();
 		Idynomics.simulator.run();
 		/*
 		 * Print the results.

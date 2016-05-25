@@ -1,3 +1,5 @@
+# Morning meeting
+
 Present: Robert Clegg, Bastiaan Cockx
 
 ### Bas's visit to Newcastle
@@ -37,9 +39,23 @@ Present: Robert Clegg, Bastiaan Cockx
 - run other events?
 - change species (death, etc)
 
+# Afternoon meeting
 
-*Notes for later*
+Present: Robert Clegg, Stefan Lang
+
 ### Restructure from Grid to Shape
 - Rob started restructure, Stefan has been continuing it
 - Making great progress but not quite done yet: errors
+- Resolution calculator: scale resolution instead of setting length as arc length - Rob agrees
+- Initialise with UniformResolution by default.. should we set this in the XML?
+- Enter into XML as degrees? Or read in "pi" string? Should be sorted when we introduce units
+- Grid types: strip away old grids and make SpatialGrid non-abstract
+- Iterator has switched from `Grid` to `Shape` elsewhere in code
+- Move stuff in `linearAlgebra.PolarArray` into `CylindricalShape` and `SphericalShape`
+- Stefan will let Rob know if any of the `checkDimensions` methods in `Matrix` or `Array` are causing problems, so he can fix it.
+- Rob will check Stefan's new approach to storing current boundary in `CartesianShape`
+- Setting the number of voxels per shell/ring is still unclear, especially the `N_ZERO_FACTOR` stuff. Stefan will clarify what is going on here!
 
+### Manuscript
+- Design concepts: ODD uses grid cell to mean many things, we should use "voxel"
+- Sub-voxel points: `shape.subvoxel` package and `SolveDiffusionTransient` ~lines 150-250
