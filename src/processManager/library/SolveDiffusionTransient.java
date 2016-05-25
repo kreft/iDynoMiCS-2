@@ -186,7 +186,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					EnvironmentContainer environment, AgentContainer agents)
 	{
 		Log.out(DEBUG, "Setting up agent distribution maps");
-		Tier level = DEBUG;
+		Tier level = BULK;
 		/*
 		 * Reset the agent biomass distribution maps.
 		 */

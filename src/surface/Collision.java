@@ -309,54 +309,33 @@ public class Collision
 		 */
 		if ( a == null || b == null )
 			throw new IllegalArgumentException("Null surface given");
-		/*
-		 * Now give them arbitrary labels, so that we can choose the correct
-		 * method for determining the distance. 
-		 */
-		Surface first = null;
-		Surface second = null;
 		/* Plane interactions. */
 		if ( a.type() == Surface.Type.PLANE )
 		{
-			first = a;
-			second = b;
 			flip = false;
+			return this.assessPlane((Plane) a, b);
 		}
 		else if ( b.type() == Surface.Type.PLANE )
 		{
-			first = b;
-			second = a;
 			flip = true;
+			return this.assessPlane((Plane) b, a);
 		}
-		// TODO plane-plane 
-		if ( second.type() == Surface.Type.SPHERE )
-			return planeSphere((Plane) first, (Ball) second);
-		if ( second.type() == Surface.Type.ROD )
-			return this.planeRod((Plane) first, (Rod) second);
-		
-		// sphere-swept-volume interactions
-		if( a.type() == Surface.Type.ROD )
+		/* Sphere-swept-volume interactions. */
+		if ( a.type() == Surface.Type.ROD )
 		{
-			first = a;
-			second = b;
 			this.flip = false;
-		} else if(b.type() == Surface.Type.ROD)
-		{
-			first = b;
-			second = a;
-			this.flip = true;
+			return this.assessRod((Rod) a, b); 
 		}
-		if ( second.type() == Surface.Type.SPHERE )
-			return this.rodSphere((Rod) first, (Ball) second);
-		if ( second.type() == Surface.Type.ROD )
-			return this.rodRod((Rod) first, (Rod) second);
+		else if ( b.type() == Surface.Type.ROD )
+		{
+			this.flip = true;
+			return this.assessRod((Rod) b, a);
+		}
 		/* Sphere-sphere interactions. */
 		if( a.type() == Surface.Type.SPHERE )
 		{
-			first = a;
-			second = b;
 			this.flip = false;
-			return this.sphereSphere((Ball) first, (Ball) second);
+			return this.sphereSphere((Ball) a, (Ball) b);
 		}
 		else
 		{
@@ -368,7 +347,7 @@ public class Collision
 	
 	public double distance(Surface a, double[] p)
 	{
-		switch (a.type())
+		switch ( a.type() )
 		{
 		case SPHERE :
 			return this.spherePoint((Ball) a, p);
@@ -380,8 +359,46 @@ public class Collision
 		return 0.0;
 	}
 	
+	/*************************************************************************
+	 * PRIVATE ASSESMENT METHODS
+	 ************************************************************************/
 	
+	/**
+	 * \brief Calculate the distance between a Plane and another surface of
+	 * unknown type.
+	 * 
+	 * @param plane
+	 * @param otherSurface
+	 * @return
+	 */
+	private double assessPlane(Plane plane, Surface otherSurface)
+	{
+		// TODO plane-plane 
+		if ( otherSurface.type() == Surface.Type.SPHERE )
+			return planeSphere(plane, (Ball) otherSurface);
+		if ( otherSurface.type() == Surface.Type.ROD )
+			return this.planeRod(plane, (Rod) otherSurface);
+		// TODO safety
+		return 0.0;
+	}
 	
+	/**
+	 * \brief Calculate the distance between a Rod and another surface of
+	 * unknown type.
+	 * 
+	 * @param rod
+	 * @param otherSurface
+	 * @return
+	 */
+	private double assessRod(Rod rod, Surface otherSurface)
+	{
+		if ( otherSurface.type() == Surface.Type.SPHERE )
+			return this.rodSphere(rod, (Ball) otherSurface);
+		if ( otherSurface.type() == Surface.Type.ROD )
+			return this.rodRod(rod, (Rod) otherSurface);
+		// TODO safety
+		return 0.0;
+	}
 	/*************************************************************************
 	 * PRIVATE DISTANCE METHODS
 	 ************************************************************************/
