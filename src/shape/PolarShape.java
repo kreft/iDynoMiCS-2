@@ -9,12 +9,6 @@ import shape.resolution.ResolutionCalculator.ResCalc;
 public abstract class PolarShape extends Shape
 {
 	
-	/**
-	 * A constant factor scaling resolutions of polar grids.
-	 * Set to (π/2)<sup>-1</sup> to have quarter circles at radius 0.
-	 */
-	protected final static double N_ZERO_FACTOR = 2 / Math.PI;
-	
 	@Override
 	public double nbhCurrDistance()
 	{
@@ -187,58 +181,15 @@ public abstract class PolarShape extends Shape
 		return true;
 	}
 	
-
 	/**
-	 * \brief Computes a factor that scales the number of elements for
-	 * increasing  radius to keep element volume fairly constant.
-	 * 
-	 * @param radiusIndex Radial coordinate of all voxels in a given shell.
-	 * @return A scaling factor for a given radius, based on the relative arc
-	 * length at this radius.
-	 */
-	protected static int getFactorForShell(int radiusIndex)
-	{
-		/*
-		 * The area enclosed by two polar curves r₀(θ) and r₁(θ) and two 
-		 * polar angles θ₀ and θ₁ is:
-		 *  A(r₀, r₁, θ₀, θ₁) := 1/2 (r₁^2-r₀^2) (θ₁-θ₀)			(1)
-		 * If we set,  
-		 *  θ₀ := 0 and
-		 *  r₁ := r₀ + 1 (since java indices start at 0 and we assume res 1), 
-		 * this simplifies to:
-		 *  A(r) = (r + 1/2) θ₁
-		 * and we can determine the angle θ for which we have an area of a 
-		 *  circle at r = 1, independent from r:
-		 *  A(1) = A(r) = pi 
-		 *  -> pi = (r + 1/2) θ
-		 *	-> θ = (2 pi)/(2 r + 1).
-		 * So the factor to scale the polar angles with varying r is the 
-		 *  circumference of the circle at r = 1 divided by θ:
-		 * s(r) = (2 pi) / θ = 2 r + 1.
-		 *  
-		 */
-		return 2 * radiusIndex + 1;
-	}
-	
-	/**
-	 * \brief Converts the given resolution {@code res} to account for varying radius.
+	 * \brief Converts the given resolution {@code res} .
 	 * 
 	 * @param shell
 	 * @param res
 	 * @return
 	 */
 	protected static double scaleResolutionForShell(int shell, double res){	
-		/* 
-		 * getFactorForShell(shell) will return a scaling factor to have an area 
-		 * of A(1) = pi throughout the grid (see getFactorForShell).
-		 * 
-		 * So we first scale this factor to have an area of pi / 4 (this means
-		 * quarter circles at r = 1) throughout the grid and divide the target
-		 * resolution by this factor. 
-		 *TODO: Stefan[18Feb2016]: we could also set N_ZERO_FACTOR not to have
-		 *		quarter circles but a resolution of one throughout the grid.
-		 */
-		return res / (N_ZERO_FACTOR * getFactorForShell(shell));
+		return res * Math.PI / ( 4 * shell + 2 );
 	}
 	
 	/**	
@@ -251,38 +202,7 @@ public abstract class PolarShape extends Shape
 	 * @return
 	 */
 	protected static double scaleResolutionForRing(int shell, int ring, double res){
-		/*
-		 * The scale factor 
-		 * (<a href="http://mathworld.wolfram.com/ScaleFactor.html">here</a>)
-		 * for the azimuthal angle is r sin phi.
-		 * 
-		 * Since we assume the rings to be scaled for varying radius already 
-		 * and we do not move in between shells, it is sufficient to scale the 
-		 * number of voxels in azimuthal dimension according to a sine. 
-		 * 
-		 * So because shell and ring are given in coordinate space, we have to 
-		 * scale the ring to peak at π / 2 instead of getFactorForShell(shell), 
-		 * where it would peak for a resolution of one. 
-		 * 
-		 * (Actually we let it peak at s(shell) - 0.5 to keep
-		 * things symmetric around the equator).
-		 */
-		double ring_scale = 0.5 * Math.PI / (getFactorForShell(shell) - 0.5);
-		
-		/* Compute the sine of the scaled phi-coordinate */
-		double length = Math.sin(ring * ring_scale);
-		// TODO: check why length can be < 0 here (possibly resolutions ~ 0)
-		length = Math.max(0, length);
-		
-		/* Scale the result to be in coordinate space again:
-		 * Nₒ = number of voxels at r = 0 in θ dimension.
-		 * sin(0) = N₀
-		 * sin(π / 2) = s(shell) * N₀
-		 * sin(π) = N₀
-		 * This is the number of voxels in θ for resolution one.
-		 */
-		 length = N_ZERO_FACTOR * ( 1 + length * ( 2 * shell ) );
-		/* Scale the resolution to account for the additional voxels */
-		return res / length;
+		return res * Math.PI /(2*(2*shell*Math.sin((2*Math.PI*ring)
+					/(8*shell+1))+1));
 	}
 }
