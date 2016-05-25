@@ -15,7 +15,10 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import shape.CartesianShape;
+import shape.CylindricalShape;
 import shape.Shape;
+import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
 
 /**
@@ -82,10 +85,24 @@ public class WriteAgentsSvg extends ProcessManager
 	{
 		/* Initiate new file. */
 		this._svg.newSvg(this._prefix);
+		
+		/* grab shape from agents */
+		Shape shape = agents.getShape();
+		
 		/* Draw computational domain rectangle. */
 		// FIXME Safety: this assumes the shape is a rectangle!
-		double[] size = agents.getShape().getDimensionLengths();
-		this._svg.rectangle( Vector.zeros(size), size, "GRAY");
+		double[] size = shape.getDimensionLengths();
+		
+		/* check if this shape is cylindrical or cartesian */
+		//TODO Stefan: Maybe we should use another check?
+		if (shape instanceof CylindricalShape)
+			this._svg.rectangle( Vector.zeros(size), size, "GRAY");
+		else if (shape instanceof CartesianShape)
+			this._svg.circle(Vector.zeros(size), size, "GRAY");
+		else
+			Log.out(Tier.CRITICAL,
+					"Warning! "+this._name+" computational domain neither "
+							+ "rectangular nor circular");
 		/* Draw solute grid for specified solute, if any. */
 		if ( ! environment.isSoluteName(this._solute) )
 		{
@@ -95,7 +112,8 @@ public class WriteAgentsSvg extends ProcessManager
 		}
 		else
 		{
-			Shape shape = environment.getShape();
+			shape = environment.getShape();
+			
 			SpatialGrid solute = environment.getSoluteGrid(_solute);
 			
 			int nDim = agents.getNumDims();
@@ -120,9 +138,13 @@ public class WriteAgentsSvg extends ProcessManager
 				/* Map this to the integer interval [0, 255]. */
 				int c = (int) Math.round(255.0 * concn);
 				/* Write the solute square. */
-				this._svg.rectangle(Vector.subset(origin, nDim), 
-									Vector.subset(dimension, nDim),
-									"rgb(" + c + "," + c + "," + c + ")");
+				String pigment = "rgb(" + c + "," + c + "," + c + ")";
+				if (shape instanceof CartesianShape)
+					this._svg.rectangle(Vector.subset(origin, nDim), 
+							Vector.subset(dimension, nDim),pigment);
+				else if (shape instanceof CylindricalShape)
+					this._svg.circleElement(Vector.zerosDbl(2),
+											origin, dimension, 100, pigment);
 			}
 		}
 		/* Draw all located agents. */

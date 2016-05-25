@@ -32,7 +32,8 @@ public abstract class CartesianShape extends Shape
 	
 	@Override
 	public double[][][] getNewArray(double initialValue) {
-		return Array.array(this.updateCurrentNVoxel(), initialValue);
+		int[] nVoxel = this.updateCurrentNVoxel();
+		return Array.array(nVoxel[0], nVoxel[1], nVoxel[2], initialValue);
 	}
 	
 	/*************************************************************************
