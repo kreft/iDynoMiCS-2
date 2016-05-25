@@ -401,7 +401,7 @@ public class AgentContainer
 	 */
 	public void agentsArrive()
 	{
-		Tier level = DEBUG;
+		Tier level = BULK;
 		Log.out(level, "Agents arriving into compartment...");
 		Dimension dim;
 		AgentMethod method;
@@ -438,6 +438,49 @@ public class AgentContainer
 			bndry.getAgentMethod().agentsArrive(this);
 		}
 		Log.out(level, " All agents have now arrived");
+	}
+	
+	/**
+	 * \brief Loop over all boundaries, asking any agents waiting in their
+	 * departure lounges to leave the compartment.
+	 */
+	public void agentsDepart()
+	{
+		Tier level = DEBUG;
+		Log.out(level, "Pushing all outbound agents...");
+		Dimension dim;
+		for ( DimName dimN : this._shape.getDimensionNames() )
+		{
+			dim = this._shape.getDimension(dimN);
+			if ( dim.isCyclic() )
+			{
+				Log.out(level, "   "+dimN+" is cyclic, skipping");
+				continue;
+			}
+			if ( ! dim.isSignificant() )
+			{
+				Log.out(level, "   "+dimN+" is insignificant, skipping");
+				continue;
+			}
+			for ( int extreme = 0; extreme < 2; extreme++ )
+			{
+				Log.out(level, "Looking at "+dimN+" "+((extreme==0)?"min":"max"));
+				if ( ! dim.isBoundaryDefined(extreme) )
+				{
+					Log.out(level, "   boundary not defined");
+					continue;
+				}
+				Log.out(level, "   boundary defined, pushing agents");
+				dim.getBoundary(extreme).pushAllOutboundAgents();
+			}
+		}
+		for ( Boundary bndry : this._shape.getOtherBoundaries() )
+		{
+			Log.out(level,"   other boundary "+bndry.getName()+
+					", pushing agents");
+			bndry.pushAllOutboundAgents();
+		}
+		Log.out(level, " All agents have now departed");
 	}
 	
 	/*************************************************************************

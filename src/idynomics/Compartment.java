@@ -15,6 +15,7 @@ import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
+import static dataIO.Log.Tier.*;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.*;
@@ -447,8 +448,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void pushAllOutboundAgents()
 	{
-		for ( Boundary b : this._shape.getAllBoundaries() )
-			b.pushAllOutboundAgents();
+		this.agents.agentsDepart();
 	}
 	
 	/*************************************************************************
