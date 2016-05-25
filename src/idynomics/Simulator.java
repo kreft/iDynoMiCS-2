@@ -40,7 +40,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	 * Order is irrelevant, and each {@code Compartment} knows its own name.
 	 */
 	protected LinkedList<Compartment> _compartments = 
-										   		new LinkedList<Compartment>();
+												new LinkedList<Compartment>();
 	/**
 	 * Contains information about all species for this simulation.
 	 */
@@ -69,7 +69,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public String getName()
 	{
 		return (Idynomics.global.simulationName == null) ?
-										XmlLabel.simulation : Idynomics.global.simulationName;
+					XmlLabel.simulation : Idynomics.global.simulationName;
 	}
 	
 	public void init(Element xmlElem)
@@ -232,6 +232,11 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public void step()
 	{
 		/*
+		 * TODO
+		 */
+		for ( Compartment c : this._compartments )
+			c.agentsArrive();
+		/*
 		 * Loop through all compartments, calling their internal steps. 
 		 */
 		for ( Compartment c : this._compartments )
@@ -264,6 +269,10 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		 * Start timing just before simulation starts.
 		 */
 		double tic = System.currentTimeMillis();
+		/* Check if any boundary connections need to be made. */
+		for ( Compartment c : this._compartments )
+			c.checkBoundaryConnections(this._compartments);
+		/* Run the simulation. */
 		while ( this.timer.isRunning() )
 			this.step();
 		/*

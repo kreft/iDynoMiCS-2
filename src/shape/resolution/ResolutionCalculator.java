@@ -1,10 +1,7 @@
 /**
  * 
  */
-package grid.resolution;
-
-import java.util.ArrayList;
-import java.util.function.DoubleFunction;
+package shape.resolution;
 
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
@@ -29,18 +26,24 @@ public class ResolutionCalculator
 		protected double _length;
 
 		// TODO void init(Node xmlNode);
-
-		//		abstract void init(Object targetResolution, double totalLength);
+		public abstract void init(double targetResolution, double totalLength);
 
 		public int getNVoxel()
 		{
 			return this._nVoxel;
 		}
 
+		public void setLength(double length)
+		{
+			this._length = length;
+		}
+		
 		public double getTotalLength()
 		{
 			return _length;
 		}
+		
+		public abstract void setResolution(double length);
 
 		public abstract double getMinResolution();
 
@@ -55,7 +58,22 @@ public class ResolutionCalculator
 		 * @throws IllegalArgumentException if voxel is outside [0, nVoxel)
 		 */
 		public abstract double getCumulativeResolution(int voxelIndex);
-
+		
+		/**
+		 * \brief TODO
+		 * 
+		 * @param voxelIndex
+		 * @param inside
+		 * @return
+		 */
+		public double getPosition(int voxelIndex, double inside)
+		{
+			// TODO safety
+			double out = this.getCumulativeResolution(voxelIndex - 1);
+			out += this.getResolution(voxelIndex) * inside;
+			return out;
+		}
+		
 		/**
 		 * \brief Calculates which voxel the given location lies inside.
 		 * 
@@ -84,7 +102,6 @@ public class ResolutionCalculator
 
 	public static abstract class SameRes extends ResCalc
 	{
-		
 		/**
 		 * The resolution for every voxel. 
 		 */
@@ -106,13 +123,9 @@ public class ResolutionCalculator
 		public double getCumulativeResolution(int voxelIndex)
 		{
 			if ( voxelIndex >= this._nVoxel )
-			{
 				throw new IllegalArgumentException("Voxel index out of range");
-			}
-
-			if (voxelIndex < 0)
-				return 0;
-
+			if ( voxelIndex < 0 )
+				return 0.0;
 			return this._resolution * (voxelIndex + 1);
 		}
 
@@ -120,9 +133,7 @@ public class ResolutionCalculator
 		public int getVoxelIndex(double location)
 		{
 			if ( location < 0.0 || location >= this._length )
-			{
 				throw new IllegalArgumentException("Voxel index out of range");
-			}
 			return (int) (location / this._resolution);
 		}
 		
@@ -175,11 +186,9 @@ public class ResolutionCalculator
 		public int getVoxelIndex(double location)
 		{
 			if ( location < 0.0 || location >= this._length )
-			{
 				throw new IllegalArgumentException("Location out of range");
-			}
 			int out = 0;
-			while ( location > this._cumulativeRes[out] )
+			while ( location > this.getCumulativeResolution(out) )
 				out++;
 			return out;
 		}
@@ -188,6 +197,10 @@ public class ResolutionCalculator
 		{
 			VariableRes out = (VariableRes) super.copy();
 			out._resolution = this._resolution;
+			// NOTE Probably shouldn't copy the cumulative resolution, as the
+			// resolution itself may change and so this would need to be
+			// re-calculated
+			//out._cumulativeRes = this._cumulativeRes;
 			return out;
 		}
 	}
@@ -217,8 +230,12 @@ public class ResolutionCalculator
 	 */
 	public static class UniformResolution extends SameRes
 	{
+		protected double _targetRes;
+		
+		@Override
 		public void init(double targetResolution, double totalLength)
 		{
+			this._targetRes = targetResolution;
 			this._nVoxel = (int) (totalLength / targetResolution);
 			this._resolution = totalLength / this._nVoxel;
 			double altRes = totalLength / (this._nVoxel + 1);
@@ -228,7 +245,20 @@ public class ResolutionCalculator
 				this._nVoxel++;
 				this._resolution = altRes;
 			}
-			this._length = getCumulativeResolution(this._nVoxel - 1);
+			this._length = this.getCumulativeResolution(this._nVoxel - 1);
+		}
+		
+		@Override
+		public void setResolution(double targetResolution)
+		{
+			this.init(targetResolution, this._length);
+		}
+		
+		public Object copy()
+		{
+			UniformResolution out = (UniformResolution) super.copy();
+			out._targetRes = this._targetRes;
+			return out;
 		}
 	}
 
@@ -238,8 +268,12 @@ public class ResolutionCalculator
 	 */
 	public static class MultiGrid extends SameRes
 	{
+		protected double _targetRes;
+		
+		@Override
 		public void init(double targetResolution, double totalLength)
 		{
+			this._targetRes = targetResolution;
 			/* Single-voxel test to start with. */
 			this._nVoxel = 1;
 			this._resolution = totalLength;
@@ -257,39 +291,20 @@ public class ResolutionCalculator
 				this._resolution = altRes;
 				altRes = totalLength / altNVoxel;
 			}
-			this._length = getCumulativeResolution(this._nVoxel - 1);
+			this._length = this.getCumulativeResolution(this._nVoxel - 1);
 		}
-	}
-
-	public static class SimpleVaryingResolution extends VariableRes
-	{
-		public void init(double[] targetResolution,	double totalLength) {
-			this._length = 0;
-			this._resolution = targetResolution;
-			this._nVoxel = targetResolution.length;
-			this._length = getCumulativeResolution(this._nVoxel - 1);
-			
-			double diff_per_voxel = (this._length - totalLength) / this._nVoxel;
-			Vector.addTo(this._resolution, this._resolution, diff_per_voxel);			
+		
+		@Override
+		public void setResolution(double targetResolution)
+		{
+			this.init(targetResolution, this._length);
 		}
-	}
-	
-	public static class ResolutionFunction extends VariableRes
-	{
-		public void init(DoubleFunction<Double> targetResolution, double totalLength) {
-			double length = 0;
-			ArrayList<Double> res = new ArrayList<>();
-			while (length < totalLength){
-				double r =  targetResolution.apply(length / totalLength);
-				res.add(r);
-				length += r;
-				this._nVoxel++;
-			}
-			double diff_per_voxel = (totalLength - length) / _nVoxel;
-			_resolution = new double[_nVoxel];
-			for (int i = 0; i<_nVoxel; ++i)
-				_resolution[i] = res.get(i) - diff_per_voxel;
-			this._length = getCumulativeResolution(this._nVoxel - 1);
+		
+		public Object copy()
+		{
+			UniformResolution out = (UniformResolution) super.copy();
+			out._targetRes = this._targetRes;
+			return out;
 		}
 	}
 }

@@ -160,6 +160,8 @@ Math.floorMod(5, 3) ; // = 2
 Math.floorMod(-2, 3) ; // = 1
 ```
 
+The `Math.floorMod(x,y)` method only works for `int`s, so for `double`s use `ExtraMath.floorMod(x,y)` in the `utility` package.
+
 ## Using aspects
 
 ### what is an aspect (and why)?

@@ -373,8 +373,6 @@ public final class Vector
 	 * @return	boolean[] that is a copy of <b>vector</b>.
 	 * @see #copyTo(boolean[] destination, boolean[] source)
 	 */
-	// NOTE Rob[3Mar2016]: Not sure this is the right place for boolean arrays,
-	// but it's not urgent to move them.
 	public static boolean[] copy(boolean[] vector)
 	{
 		boolean[] out = new boolean[vector.length];
@@ -808,11 +806,16 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Check if the given <b>set</b> of vectors contains the
+	 * <b>vector</b> given.
 	 * 
-	 * @param set
-	 * @param vector
-	 * @return
+	 * <p>Note that this method is necessary because testing equivalence of 
+	 * vectors with {@code ==} is unreliable.</p>
+	 * 
+	 * @param set Unordered collection of integer vectors (preserved).
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @return {@code true} if the set contains vector, {@code false} if it
+	 * does not.
 	 */
 	public static boolean contains(Set<int[]> set, int[] vector)
 	{
@@ -1332,9 +1335,8 @@ public final class Vector
 	 * {@link #reverse(double[] vector, double value)} to write the results into a
 	 * new double[].</li></ul>
 	 * 
-	 * @param vector One-dimensional array of doubles.
-	 * @return	Given <b>vector</b>, where all elements have their sign
-	 * changed.
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param vector One-dimensional array of doubles (preserved).
 	 */
 	public static void reverseTo(double[] destination, double[] source)
 	{
@@ -2495,7 +2497,15 @@ public final class Vector
 	 * RESCALING VECTORS
 	 ************************************************************************/
 	
-	//TODO commenting 
+	/**
+	 * \brief Scale the <b>source</b> vector, so that it has different
+	 * direction but new Euclidean norm, writing the result into
+	 * <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param source One-dimensional array of doubles (preserved).
+	 * @param newNorm Intended Euclidean norm of <b>destination</b>.
+	 */
 	public static void normaliseEuclidTo(double[] destination, double[] source, 
 			double newNorm)
 	{
@@ -2505,11 +2515,27 @@ public final class Vector
 			timesTo(destination, source, newNorm/oldNorm);
 	}
 	
+	/**
+	 * \brief Scale the <b>source</b> vector, so that it has different
+	 * direction but a Euclidean norm of one, writing the result into
+	 * <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param source One-dimensional array of doubles (preserved).
+	 */
 	public static void normaliseEuclidTo(double[] destination, double[] source)
 	{
 		normaliseEuclidTo(destination, source, 1.0);
 	}
 	
+	/**
+	 * \brief Scale the <b>source</b> vector, so that it has different
+	 * direction but new Euclidean norm, writing the result into
+	 * a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param newNorm Intended Euclidean norm of <b>destination</b>.
+	 */
 	public static double[] normaliseEuclid(double[] vector, double newNorm)
 	{
 		double[] destination = new double[vector.length];
@@ -2517,6 +2543,13 @@ public final class Vector
 		return destination;
 	}
 	
+	/**
+	 * \brief Scale the <b>source</b> vector, so that it has different
+	 * direction but a Euclidean norm of one, writing the result into
+	 * a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 */
 	public static double[] normaliseEuclid(double[] vector)
 	{
 		return normaliseEuclid(vector, 1.0);
@@ -2688,97 +2721,286 @@ public final class Vector
 		return a;
 	}
 	
-	// TODO document: handling polar/spherical coordinates
-	/**
-	 *	x = r cos(theta) sin(phi)
-	 *	y = r sin(theta) sin(phi)
-	 *	z = r cos(phi)
-	 *	r = sqrt(x2+y2+z2)
-	 *	theta = atan2(y, x)
-	 *	phi = acos(z/r)
-	 */
+	
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in Cartesian coordinates, to
+	 * spherical coordinates: write the result into <b>destination</b>.
 	 * 
-	 * @param cartesian
-	 * @return
-	 */
-	public static double polarRadius(double[] cartesian)
-	{
-		return normEuclid(cartesian);
-	}
-	
-	/**
-	 * \brief TODO
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
 	 * 
-	 * @param cartesian
-	 * @return
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param cartesian One-dimensional array of doubles, assumed to be in
+	 * Cartesian coordinates (preserved).
 	 */
-	public static double[] toPolar(double[] cartesian)
+	public static void spherifyTo(double[] destination, double[] cartesian)
 	{
-		double[] p = new double[cartesian.length];
 		switch ( cartesian.length ) 
 		{
-			case 3 : p[2] = Math.acos(cartesian[2]/polarRadius(cartesian));
-			case 2 : p[1] = Math.atan2(cartesian[1], cartesian[0]);
-			case 1 : p[0] = polarRadius(cartesian);
+		case 1 :
+		{
+			destination[0] = cartesian[0];
+			return;
 		}
-		return p;
+		case 2 :
+		{
+			double radius = normEuclid(cartesian);
+			double angle = Math.atan2(cartesian[1], cartesian[0]);
+			destination[0] = radius;
+			destination[1] = angle;
+			return;
+		}
+		case 3 : 
+		{
+			double radius = normEuclid(cartesian);
+			double theta = Math.atan2(cartesian[1], cartesian[0]);
+			double phi = Math.acos(cartesian[2]/radius);
+			destination[0] = radius;
+			destination[1] = phi;
+			destination[2] = theta;
+		}
+		}
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in <b>cartesian</b> coordinates, to
+	 * spherical coordinates: write the result into a new vector.
 	 * 
-	 * @param polar
-	 * @return
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>cartesian</b> converted to spherical coordinates.
 	 */
-	public static double[] toCartesian(double[] polar)
+	public static double[] spherify(double[] cartesian)
 	{
-		double[] c = new double[polar.length];
-		double sinPhi = 1.0;
-		switch ( polar.length )
-		{
-			case 1 : return polar;
-			case 3 : c[2] = polar[0] * Math.cos(polar[2]);
-					 sinPhi  = Math.sin(polar[2]);
-		}
-		c[0] = polar[0] * Math.cos(polar[1]) * sinPhi;
-		c[1] = polar[0] * Math.sin(polar[1]) * sinPhi;
-		return c;
+		double[] spherical = new double[cartesian.length];
+		spherifyTo(spherical, cartesian);
+		return spherical;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in <b>cartesian</b> coordinates, to
+	 *  spherical coordinates: write the result into a new vector.
 	 * 
-	 * @param cartesian
-	 * @return
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in Cartesian coordinates but then in
+	 * spherical coordinates.
 	 */
-	public static double[] toCylindrical(double[] cartesian) 
+	public static void spherifyEquals(double[] vector)
 	{
-		if ( cartesian.length == 3 )
-		{
-			double[] p = toPolar(Vector.subset(cartesian, 2));
-			return new double[] {p[0], p[1], cartesian[2]};
-		}
-		System.out.println("ERROR: Vector.toCylindrical only accepts 3D input!"); 
-		return null;
+		spherifyTo(vector, vector);
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in <b>spherical</b> coordinates, to
+	 * Cartesian coordinates: write the result into <b>destination</b>.
 	 * 
-	 * @param cylindrical
-	 * @return
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param spherical One-dimensional array of doubles, assumed to be in
+	 * spherical coordinates (preserved).
 	 */
-	public static double[] cylindricalToCartesian(double[] cylindrical)
+	public static void unspherifyTo(double[] destination, double[] spherical)
 	{
-		if ( cylindrical.length == 3 )
+		checkLengths(destination, spherical);
+		/* 
+		 * Store angles & radius first, then set, so we can use
+		 * this method for unspherifyEquals.
+		 */
+		switch ( spherical.length )
 		{
-			double[] p = toCartesian(Vector.subset(cylindrical, 2));
-			return new double[] {p[0], p[1], cylindrical[2]};
+		case 1 :
+		{
+			destination[0] = spherical[0];
+			return;
 		}
-		System.out.println("ERROR: Vector.cylindricalToCartesian only accepts 3D input!"); 
-		return null;
+		case 2 :
+		{
+			double radius = spherical[0];
+			double angle = spherical[1];
+			destination[0] = radius * Math.cos(angle);
+			destination[1] = radius * Math.sin(angle);
+			return;
+		}
+		case 3 :
+		{
+			double radius = spherical[0];
+			double phi = spherical[1];
+			double theta = spherical[2];
+			destination[0] = radius * Math.cos(theta) * Math.sin(phi);
+			destination[1] = radius * Math.sin(theta) * Math.sin(phi);
+			destination[2] = radius * Math.cos(phi);
+		}
+		}
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>spherical</b> coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param spherical One-dimensional array of doubles, assumed to be in
+	 * spherical coordinates (preserved).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>spherical</b> converted to Cartesian coordinates.
+	 */
+	public static double[] unspherify(double[] spherical)
+	{
+		double[] cartesian = new double[spherical.length];
+		unspherifyTo(cartesian, spherical);
+		return cartesian;
+	}
+	
+	/**
+	 * \brief Convert the given vector, in spherical coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in spherical coordinates but then in
+	 * Cartesian coordinates.
+	 */
+	public static void unspherifyEquals(double[] vector)
+	{
+		unspherifyTo(vector, vector);
+	}
+	
+	/**
+	 * \brief Convert the given vector, in Cartesian coordinates, to
+	 * cylindrical coordinates: write the result into <b>destination</b>.
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param cartesian One-dimensional array of doubles, assumed to be in
+	 * Cartesian coordinates (preserved).
+	 */
+	public static void cylindrifyTo(double[] destination, double[] cartesian)
+	{
+		checkLengths(destination, cartesian);
+		switch ( cartesian.length ) 
+		{
+			case 3 :
+				destination[2] = cartesian[2];
+			case 2 : 
+			{
+				/* 
+				 * Calculate angle & radius first, then set, so we can use
+				 * this method for cylindrfyEquals.
+				 */
+				double angle = Math.atan2(cartesian[1], cartesian[0]);
+				double radius = Math.hypot(cartesian[1], cartesian[0]);
+				destination[1] = angle;
+				destination[0] = radius;
+				break;
+			}
+			case 1 :
+				destination[0] = cartesian[0];
+		}
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cartesian</b> coordinates, to
+	 * cylindrical coordinates: write the result into a new vector.
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>cartesian</b> converted to cylindrical coordinates.
+	 */
+	public static double[] cylindrify(double[] cartesian)
+	{
+		double[] cylindrical = new double[cartesian.length];
+		cylindrifyTo(cylindrical, cartesian);
+		return cylindrical;
+	}
+	
+	/**
+	 * \brief Convert the given vector, in cartesian coordinates, to
+	 *  cylindrical coordinates: write the result into a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in Cartesian coordinates but then in
+	 * cylindrical coordinates.
+	 */
+	public static void cylindrifyEquals(double[] vector)
+	{
+		cylindrifyTo(vector, vector);
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cylindrical</b> coordinates, to
+	 * Cartesian coordinates: write the result into <b>destination</b>.
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param cylindrical One-dimensional array of doubles, assumed to be in
+	 * cylindrical coordinates (preserved).
+	 */
+	public static void uncylindrifyTo(double[] destination, double[] cylindrical)
+	{
+		checkLengths(destination, cylindrical);
+		switch ( cylindrical.length ) 
+		{
+			case 3 :
+				destination[2] = cylindrical[2];
+			case 2 : 
+			{
+				/* 
+				 * Calculate angle & radius first, then set, so we can use
+				 * this method for uncylindrfyEquals.
+				 */
+				double angle = cylindrical[1];
+				double radius = cylindrical[0];
+				destination[1] = radius * Math.sin(angle);
+				destination[0] = radius * Math.cos(angle);
+				break;
+			}
+			case 1 :
+				destination[0] = cylindrical[0];
+		}
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cylindrical</b> coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * @param cylindrical One-dimensional array of doubles, assumed to be in
+	 * cylindrical coordinates (preserved).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>cylindrical</b> converted to Cartesian coordinates.
+	 */
+	public static double[] uncylindrify(double[] cylindrical)
+	{
+		double[] cartesian = new double[cylindrical.length];
+		uncylindrifyTo(cartesian, cylindrical);
+		return cartesian;
+	}
+	
+	/**
+	 * \brief Convert the given vector, in cylindrical coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in cylindrical coordinates but then in
+	 * Cartesian coordinates.
+	 */
+	public static void uncylindrifyEquals(double[] vector)
+	{
+		uncylindrifyTo(vector, vector);
 	}
 }

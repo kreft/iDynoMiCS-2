@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import boundary.Boundary;
 import boundary.grid.GridMethod;
 import grid.SpatialGrid;
+import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
  * \brief TODO
@@ -22,14 +23,75 @@ public final class ShapeConventions
 	 */
 	public enum DimName
 	{
-		X,
-		Y,
-		Z,
-		R,
-		THETA,
-		PHI;
+		X(false),
+		Y(false),
+		Z(false),
+		R(false),
+		THETA(true),
+		PHI(true);
+		
+		private boolean _isAngular;
+		
+		DimName(boolean isAngular)
+		{
+			this._isAngular = isAngular;
+		}
+		
+		public boolean isAngular()
+		{
+			return this._isAngular;
+		}
 	}
 	
+	/**
+	 * \brief Dummy resolution calculator that always has exactly one voxel.
+	 */
+	// NOTE exploratory work, may not be used
+	public static class SingleVoxel extends ResCalc
+	{
+		public SingleVoxel()
+		{
+			this._nVoxel = 1;
+			this._length = 1.0;
+		}
+		
+		@Override
+		public void init(double targetResolution, double totalLength)
+		{
+			this._nVoxel = 1;
+			this._length = 1.0;
+		}
+		
+		@Override
+		public void setResolution(double length)
+		{
+			this._length = length;
+		}
+
+		@Override
+		public double getMinResolution()
+		{
+			return this._length;
+		}
+
+		@Override
+		public double getResolution(int voxelIndex)
+		{
+			return this._length;
+		}
+
+		@Override
+		public double getCumulativeResolution(int voxelIndex)
+		{
+			return this._length;
+		}
+
+		@Override
+		public int getVoxelIndex(double location)
+		{
+			return 0;
+		}
+	}
 	
 	/**
 	 * \brief Dummy class for cyclic dimensions.
@@ -40,7 +102,16 @@ public final class ShapeConventions
 	{
 		public BoundaryCyclic()
 		{
-			_defaultGridMethod = new CyclicGrid();
+			this._defaultGridMethod = new CyclicGrid();
+		}
+
+		@Override
+		public Boundary makePartnerBoundary()
+		{
+			BoundaryCyclic out = new BoundaryCyclic();
+			out._partner = this;
+			this._partner = out;
+			return out;
 		}
 	}
 	

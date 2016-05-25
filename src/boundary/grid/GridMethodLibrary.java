@@ -42,7 +42,7 @@ public final class GridMethodLibrary
 			return GridMethod.calcFlux(_value, 
 					grid.getValueAtCurrent(ArrayType.CONCN),
 					grid.getValueAtCurrent(ArrayType.DIFFUSIVITY),
-					grid.getNbhSharedSurfaceArea());
+					grid.getShape().nbhCurrSharedArea());
 		}
 		
 		/* Unique methods (for testing) */

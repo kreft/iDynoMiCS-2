@@ -6,6 +6,9 @@ import java.util.HashMap;
 import dataIO.Log;
 import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
+import linearAlgebra.Vector;
+import shape.Shape;
+
 import static grid.SpatialGrid.ArrayType.*;
 
 /**
@@ -60,6 +63,43 @@ public abstract class PDEsolver extends Solver
 	 */
 	protected void addFluxes(String varName, SpatialGrid grid)
 	{
+		Shape shape = grid.getShape();
+		/* Coordinates of the current position. */
+		int[] current;
+		/* Temporary storage. */
+		double flux, temp;
+		/*
+		 * Iterate over all core voxels calculating the Laplace operator. 
+		 */
+		for ( current = shape.resetIterator(); shape.isIteratorValid();
+											  current = shape.iteratorNext())
+		{
+			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
+				continue;
+			flux = 0.0;
+			Log.out(BULK, 
+					"Coord "+Vector.toString(shape.iteratorCurrent())+
+					" (curent value "+grid.getValueAtCurrent(CONCN)+
+					"): calculating flux...");
+			for ( shape.resetNbhIterator(); 
+						shape.isNbhIteratorValid(); shape.nbhIteratorNext() )
+			{
+				temp = grid.getFluxWithNeighbor(varName);
+				flux += temp;
+				Log.out(BULK, 
+						"   nhb "+Vector.toString(shape.nbhIteratorCurrent())+
+						" contributes flux of "+temp);
+			}
+			/*
+			 * Finally, apply this to the relevant array.
+			 */
+			Log.out(BULK, " TOTAL flux = "+flux);
+			grid.addValueAt(LOPERATOR, current, flux);
+		}
+	}
+	
+	protected void addFluxes(Shape aShape, String varName, SpatialGrid grid)
+	{
 		/* Coordinates of the current position. */
 		int[] current;
 		/* Temporary storage. */
@@ -67,14 +107,14 @@ public abstract class PDEsolver extends Solver
 		/*
 		 * Iterate over all core voxels calculating the Laplace operator. 
 		 */
-		for ( current = grid.resetIterator(); grid.isIteratorValid();
-											  current = grid.iteratorNext())
+		for ( current = aShape.resetIterator(); aShape.isIteratorValid();
+											  current = aShape.iteratorNext())
 		{
 			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
 				continue;
 			flux = 0.0;
-			for ( grid.resetNbhIterator(); 
-						grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
+			for ( aShape.resetNbhIterator(); 
+					aShape.isNbhIteratorValid(); aShape.nbhIteratorNext() )
 			{
 				flux += grid.getFluxWithNeighbor(varName);
 			}

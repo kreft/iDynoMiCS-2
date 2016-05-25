@@ -6,8 +6,8 @@ import java.util.Map;
 
 import agent.Agent;
 import boundary.Boundary;
-import boundary.BoundaryConnected;
-import boundary.ChemostatConnection;
+import boundary.BoundaryLibrary.ChemostatInflow;
+import boundary.BoundaryLibrary.ChemostatOutflow;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
@@ -114,9 +114,9 @@ public final class PMToolsChemostat
 		double out = 0.0;
 		double rate;
 		for ( Boundary aBoundary : environment.getOtherBoundaries() )
-			if ( aBoundary instanceof ChemostatConnection )
+			if ( aBoundary instanceof ChemostatOutflow )
 			{
-				rate = ((ChemostatConnection) aBoundary).getFlowRate();
+				rate = ((ChemostatOutflow) aBoundary).getFlowRate();
 				if ( rate < 0.0 )
 					out -= rate;
 			}
@@ -137,21 +137,20 @@ public final class PMToolsChemostat
 	{
 		double[] out = Vector.zerosDbl(soluteNames.length);
 		double rate, sIn;
-		ChemostatConnection aChemoConnect;
+		ChemostatInflow cIn;
 		String soluteName;
 		for ( Boundary aBoundary : environment.getOtherBoundaries() )
-			if ( aBoundary instanceof ChemostatConnection )
+			if ( aBoundary instanceof ChemostatInflow )
 			{
-				aChemoConnect = (ChemostatConnection) aBoundary;
+				cIn = (ChemostatInflow) aBoundary;
 				/* Rate should be in units of 1/time. */
-				rate = aChemoConnect.getFlowRate();
-				if ( rate > 0.0 )
-					for ( int i = 0; i < soluteNames.length; i++ )
-					{
-						soluteName = soluteNames[i];
-						sIn = aChemoConnect.getConcentration(soluteName);
-						out[i] += rate * sIn;
-					}
+				rate = cIn.getFlowRate();
+				for ( int i = 0; i < soluteNames.length; i++ )
+				{
+					soluteName = soluteNames[i];
+					sIn = cIn.getConcentration(soluteName);
+					out[i] += rate * sIn;
+				}
 			}
 		return out;
 	}
@@ -225,15 +224,12 @@ public final class PMToolsChemostat
 	public static void acceptAllInboundAgents(
 			EnvironmentContainer environment, AgentContainer agents)
 	{
-		BoundaryConnected aBC;
 		for ( Boundary aBoundary : environment.getOtherBoundaries() )
-			if ( aBoundary instanceof BoundaryConnected )
-			{
-				aBC = (BoundaryConnected) aBoundary;
-				for ( Agent anAgent : aBC.getAllInboundAgents() )
-					agents.addAgent(anAgent);
-				aBC.clearArrivalsLoungue();
-			}
+		{
+			for ( Agent anAgent : aBoundary.getAllInboundAgents() )
+				agents.addAgent(anAgent);
+			aBoundary.clearArrivalsLoungue();
+		}
 	}
 	
 	/**
@@ -247,16 +243,16 @@ public final class PMToolsChemostat
 	public static void diluteAgents(double timeStepSize,
 					EnvironmentContainer environment, AgentContainer agents)
 	{
-		List<ChemostatConnection> outflows = getOutflows(environment);
+		List<ChemostatOutflow> outflows = getOutflows(environment);
 		/*
 		 * Update the tally of Agents that ought to be diluted through each
 		 * connection. 
 		 */
 		double tally = 0.0;
-		for ( ChemostatConnection aChemoConnect : outflows )
+		for ( ChemostatOutflow cOut : outflows )
 		{
-			aChemoConnect.updateAgentsToDiluteTally(timeStepSize);
-			tally += aChemoConnect.getAgentsToDiluteTally();
+			cOut.updateAgentsToDiluteTally(timeStepSize);
+			tally += cOut.getAgentsToDiluteTally();
 		}
 		Log.out(Tier.EXPRESSIVE, "Chemostat contains "+agents.getNumAllAgents()
 						+" agents; diluting a maximum of "+tally
@@ -293,18 +289,13 @@ public final class PMToolsChemostat
 	 * @param environment The environment of a {@code Compartment}.
 	 * @return A list of chemostat connection boundaries.
 	 */
-	private static List<ChemostatConnection> getOutflows(
+	private static List<ChemostatOutflow> getOutflows(
 											EnvironmentContainer environment)
 	{
-		List<ChemostatConnection> out = new LinkedList<ChemostatConnection>();
-		ChemostatConnection aChemoConnect;
+		List<ChemostatOutflow> out = new LinkedList<ChemostatOutflow>();
 		for ( Boundary aBoundary : environment.getOtherBoundaries() )
-			if ( aBoundary instanceof ChemostatConnection )
-			{
-				aChemoConnect = (ChemostatConnection) aBoundary;
-				if ( aChemoConnect.getFlowRate() < 0.0 )
-					out.add(aChemoConnect);
-			}
+			if ( aBoundary instanceof ChemostatOutflow )
+				out.add((ChemostatOutflow) aBoundary);
 		return out;
 	}
 	
@@ -316,14 +307,14 @@ public final class PMToolsChemostat
 	 * @return Whether or not we need to continue diluting agents.
 	 */
 	private static boolean areOutflowsToDiluteAgents(
-											List<ChemostatConnection> outflows)
+											List<ChemostatOutflow> outflows)
 	{
 		/*
 		 * Only connections with a tally of at least one agent are considered
 		 * viable for agent dilution.
 		 */
-		for ( ChemostatConnection aChemoConnect : outflows )
-			if ( aChemoConnect.getAgentsToDiluteTally() >= 1.0 )
+		for ( ChemostatOutflow cOut : outflows )
+			if ( cOut.getAgentsToDiluteTally() >= 1.0 )
 				return true;
 		return false;
 	}
@@ -334,28 +325,28 @@ public final class PMToolsChemostat
 	 * @param outflows List of chemostat connection boundaries.
 	 * @return A chemostat connection boundary.
 	 */
-	private static ChemostatConnection getNextOutflow(
-											List<ChemostatConnection> outflows)
+	private static ChemostatOutflow getNextOutflow(
+											List<ChemostatOutflow> outflows)
 	{
 		/*
 		 * We choose the next boundary by a weighted probability: all
 		 * viable connections are weighted by their remaining tally. A
 		 * connection is deemed viable if its tally is at least one (see 
-		 * areOutflowsToDiluteAgents(List<ChemostatConnection>)).
+		 * areOutflowsToDiluteAgents(List<ChemostatOutflow>)).
 		 */
 		double tallyTotal = 0.0;
-		for ( ChemostatConnection aChemoConnect : outflows )
-			if ( aChemoConnect.getAgentsToDiluteTally() > 1.0 )
-				tallyTotal += aChemoConnect.getAgentsToDiluteTally();
+		for ( ChemostatOutflow cOut : outflows )
+			if ( cOut.getAgentsToDiluteTally() > 1.0 )
+				tallyTotal += cOut.getAgentsToDiluteTally();
 		tallyTotal *= ExtraMath.getUniRandDbl();
-		for ( ChemostatConnection aChemoConnect : outflows )
-			if ( aChemoConnect.getAgentsToDiluteTally() >= 1.0 )
+		for ( ChemostatOutflow cOut : outflows )
+			if ( cOut.getAgentsToDiluteTally() >= 1.0 )
 			{
-				tallyTotal -= aChemoConnect.getAgentsToDiluteTally();
+				tallyTotal -= cOut.getAgentsToDiluteTally();
 				if ( tallyTotal < 0.0 )
 				{
-					aChemoConnect.knockDownAgentsToDiluteTally();
-					return aChemoConnect;
+					cOut.knockDownAgentsToDiluteTally();
+					return cOut;
 				}
 			}
 		return null;

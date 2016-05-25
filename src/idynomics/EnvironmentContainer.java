@@ -17,7 +17,6 @@ import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import reaction.Reaction;
 import shape.Shape;
-import shape.ShapeConventions.DimName;
 
 /**
  * \brief Manages the solutes in a {@code Compartment}.
@@ -50,11 +49,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	protected HashMap<String, Reaction> _reactions = 
 											new HashMap<String, Reaction>();
-	/**
-	 * Solutes can only be added while this is {@code false}, and the simulation
-	 * cannot begin until it is {@code true}.
-	 */
-	protected boolean _hasInitialised = false;
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -73,75 +68,25 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	/**
 	 * \brief TODO
 	 * 
-	 * This should be done after the shape is set up and all solutes added.
-	 * TODO make more robust. 
-	 */
-	public void init()
-	{
-		SpatialGrid aSG;
-		Boundary[] boundaries;
-		for ( DimName dimName : this._shape.getDimensionNames() )
-		{
-			boundaries = this._shape.getDimension(dimName).getBoundaries();
-			for ( int i = 0; i < 2; i++ )
-				for ( String soluteName : this._solutes.keySet() )
-				{
-					aSG = this._solutes.get(soluteName);
-					aSG.addBoundary(dimName, i,
-									boundaries[i].getGridMethod(soluteName));
-				}
-		}
-		this._hasInitialised = true;
-	}
-	
-	/**
 	 * @param soluteName
 	 */
 	public void addSolute(String soluteName)
 	{
-		this.addSolute(soluteName, 0.0, null);
+		this.addSolute(soluteName, 0.0);
 	}
 	
-
 	/**
+	 * \brief TODO
+	 * 
 	 * @param soluteName
 	 * @param initialConcn
 	 */
 	public void addSolute(String soluteName, double initialConcn)
 	{
-		this.addSolute(soluteName, 0.0, null);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName, Element resolution)
-	{
-		this.addSolute(soluteName, 0.0, resolution);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 * @param initialConcn
-	 */
-	public void addSolute(String soluteName, double initialConcn, 
-															Element resolution)
-	{
-		if ( this._hasInitialised )
-		{
-			throw new Error("Cannot add new solutes after the environment"+
-												" container has initialised!");
-		}
 		/*
 		 * TODO safety: check if solute already in hashmap
 		 */
-		
-		SpatialGrid sg = this._shape.gridGetter().newGrid(
-				this._shape.getDimensionLengths(), resolution);
+		SpatialGrid sg = this._shape.getNewGrid();
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
 		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
@@ -203,6 +148,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
+	
+	public Shape getShape()
+	{
+		return this._shape;
+	}
 	
 	public Set<String> getSoluteNames()
 	{
@@ -318,8 +268,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	@Override
 	public boolean isReadyForLaunch()
 	{
-		if ( ! this._hasInitialised )
-			return false;
 		// TODO
 		return true;
 	}
