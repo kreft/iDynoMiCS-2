@@ -1078,7 +1078,7 @@ public abstract class Shape implements
 	 */
 	private void calcMaxFluxPotential()
 	{
-		Tier level = DEBUG;
+		Tier level = BULK;
 		Log.out(level, "Calculating maximum flux potential");
 		/*
 		 * Store the two iterators, in case we're in the middle of an
