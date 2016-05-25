@@ -1151,6 +1151,8 @@ public abstract class Shape implements
 	 */
 	public List<SubvoxelPoint> getCurrentSubvoxelPoints(double targetRes)
 	{
+		if ( targetRes <= 0.0 )
+			throw new IllegalArgumentException("Target resolution must be > 0");
 		/* 
 		 * Initialise the list and add a point at the origin.
 		 */

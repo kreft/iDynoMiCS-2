@@ -71,16 +71,16 @@ public class PDEexplicit extends PDEsolver
 		 */
 		for ( int iter = 0; iter < nIter; iter++ )
 		{
-			Log.out(DEBUG, "Ministep "+iter+": "+(iter+1)*dt);
+			Log.out(BULK, "Ministep "+iter+": "+(iter+1)*dt);
 			this._updater.prestep(variables, dt);
 			for ( String varName : this._variableNames )
 			{
 				var = variables.get(varName);
 				var.newArray(LOPERATOR);
 				this.addFluxes(varName, var);
-				Log.out(DEBUG, "Total value of fluxes: "+
+				Log.out(BULK, "Total value of fluxes: "+
 						var.getTotal(PRODUCTIONRATE));
-				Log.out(DEBUG, "Total value of production rate array: "+
+				Log.out(BULK, "Total value of production rate array: "+
 						var.getTotal(PRODUCTIONRATE));
 				var.addArrayToArray(LOPERATOR, PRODUCTIONRATE);
 				var.timesAll(LOPERATOR, dt);
