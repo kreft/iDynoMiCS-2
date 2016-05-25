@@ -1085,14 +1085,14 @@ public abstract class Shape implements
 		for ( this.resetIterator(); this.isIteratorValid(); this.iteratorNext())
 		{
 			volume = this.getVoxelVolume(this._currentCoord);
-			Log.out(Tier.DEBUG, "Coord "+Vector.toString(this._currentCoord)+
+			Log.out(Tier.BULK, "Coord "+Vector.toString(this._currentCoord)+
 					" has volume "+volume);
 			max = 0.0;
 			for ( this.resetNbhIter();
 						this.isNbhIteratorValid(); this.nbhIteratorNext() )
 			{
 				temp = this.nbhCurrSharedArea() / this.nbhCurrDistance();
-				Log.out(Tier.DEBUG, "   nbh "+
+				Log.out(Tier.BULK, "   nbh "+
 						Vector.toString(this._currentNeighbor)+
 						" has shared area "+this.nbhCurrSharedArea()+
 						" and distance "+this.nbhCurrDistance());

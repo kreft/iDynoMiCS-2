@@ -53,14 +53,15 @@ public class PdeTest
 		String soluteName = "solute";
 		comp.addSolute(soluteName);
 		SpatialGrid sG = comp.getSolute(soluteName);
-		//double concn = 0.0;
+		double concn = 0.0;
 		for ( int[] c = shape.resetIterator(); 
 				shape.isIteratorValid(); 
 				shape.iteratorNext() )
 		{
-			sG.setValueAt(ArrayType.CONCN, c, 2.0 * ExtraMath.getUniRandDbl());
-			//sG.setValueAt(ArrayType.CONCN, c, concn);
-			//concn++;
+			//sG.setValueAt(ArrayType.CONCN, c, 2.0 * ExtraMath.getUniRandDbl());
+			sG.setValueAt(ArrayType.CONCN, c, concn);
+			//concn += 1.5;
+			concn += ExtraMath.getUniRandDbl();
 		}
 		/*
 		 * Set up the diffusion solver.

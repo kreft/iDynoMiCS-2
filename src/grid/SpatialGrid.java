@@ -252,7 +252,7 @@ public class SpatialGrid
 	 */
 	public void addToAll(ArrayType type, double value)
 	{
-		Array.add(this._array.get(type), value);
+		Array.addEquals(this._array.get(type), value);
 	}
 	
 	/**
@@ -267,7 +267,7 @@ public class SpatialGrid
 	 */
 	public void timesAll(ArrayType type, double value)
 	{
-		Array.times(this._array.get(type), value);
+		Array.timesEquals(this._array.get(type), value);
 	}
 	
 	/*************************************************************************

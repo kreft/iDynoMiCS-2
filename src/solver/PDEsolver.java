@@ -4,8 +4,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
+
 import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
+import linearAlgebra.Vector;
 import shape.Shape;
 
 import static grid.SpatialGrid.ArrayType.*;
@@ -66,7 +69,7 @@ public abstract class PDEsolver extends Solver
 		/* Coordinates of the current position. */
 		int[] current;
 		/* Temporary storage. */
-		double flux;
+		double flux, temp;
 		/*
 		 * Iterate over all core voxels calculating the Laplace operator. 
 		 */
@@ -76,16 +79,23 @@ public abstract class PDEsolver extends Solver
 			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
 				continue;
 			flux = 0.0;
+			Log.out(Tier.DEBUG, 
+					"Coord "+Vector.toString(shape.iteratorCurrent())+
+					" (curent value "+grid.getValueAtCurrent(CONCN)+
+					"): calculating flux...");
 			for ( shape.resetNbhIterator(); 
 						shape.isNbhIteratorValid(); shape.nbhIteratorNext() )
 			{
-				flux += grid.getFluxWithNeighbor(varName);
+				temp = grid.getFluxWithNeighbor(varName);
+				flux += temp;
+				Log.out(Tier.DEBUG, 
+						"   nhb "+Vector.toString(shape.nbhIteratorCurrent())+
+						" contributes flux of "+temp);
 			}
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
-			Log.out(BULK, Arrays.toString(current)+": val = "+
-							grid.getValueAtCurrent(CONCN)+", lop = "+flux);
+			Log.out(Tier.DEBUG, " TOTAL flux = "+flux);
 			grid.addValueAt(LOPERATOR, current, flux);
 		}
 	}
