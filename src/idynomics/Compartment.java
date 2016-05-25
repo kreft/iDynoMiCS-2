@@ -15,6 +15,7 @@ import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
+import static dataIO.Log.Tier.*;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.*;
@@ -112,6 +113,8 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void setShape(Shape aShape)
 	{
+		Log.out(Tier.EXPRESSIVE, "Compartment \""+this.name+
+				"\" taking shape \""+aShape.getName()+"\"");
 		this._shape = aShape;
 		this._environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
@@ -242,10 +245,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 				this.addProcessManager(ProcessManager.getNewInstance(procElem));
 			}
 		}
-		/*
-		 * Finally, finish off the initialisation as standard.
-		 */
-		this.init();
 	}
 	
 	@Override
@@ -273,12 +272,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		
 		out = out + "</" + XmlLabel.compartment + ">\n";
 		return out;
-	}
-	
-	public void init()
-	{
-		
-		this._environment.init();
 	}
 	
 	/*************************************************************************
@@ -455,8 +448,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void pushAllOutboundAgents()
 	{
-		for ( Boundary b : this._shape.getAllBoundaries() )
-			b.pushAllOutboundAgents();
+		this.agents.agentsDepart();
 	}
 	
 	/*************************************************************************

@@ -59,7 +59,6 @@ public class AgentGridTest
 		/*
 		 * Launch the simulation.
 		 */
-		aCompartment.init();
 		Idynomics.simulator.run();
 		/*
 		 * Print the results.

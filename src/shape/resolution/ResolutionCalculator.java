@@ -33,6 +33,11 @@ public class ResolutionCalculator
 			return this._nVoxel;
 		}
 
+		public void setLength(double length)
+		{
+			this._length = length;
+		}
+		
 		public double getTotalLength()
 		{
 			return _length;

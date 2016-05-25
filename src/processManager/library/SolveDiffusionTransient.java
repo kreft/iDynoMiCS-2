@@ -6,6 +6,7 @@ package processManager.library;
 import static grid.SpatialGrid.ArrayType.CONCN;
 import static grid.SpatialGrid.ArrayType.DIFFUSIVITY;
 import static grid.SpatialGrid.ArrayType.PRODUCTIONRATE;
+import static dataIO.Log.Tier.*;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,6 +16,8 @@ import java.util.function.Predicate;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import grid.SpatialGrid;
 import grid.wellmixedSetter.AllSameMixing;
@@ -182,6 +185,8 @@ public class SolveDiffusionTransient extends ProcessManager
 	private static void setupAgentDistributionMaps(
 					EnvironmentContainer environment, AgentContainer agents)
 	{
+		Log.out(DEBUG, "Setting up agent distribution maps");
+		Tier level = BULK;
 		/*
 		 * Reset the agent biomass distribution maps.
 		 */
@@ -198,7 +203,8 @@ public class SolveDiffusionTransient extends ProcessManager
 		int nDim = agents.getNumDims();
 		double[] location;
 		double[] dimension = new double[3];
-		List<SubvoxelPoint> sgPoints;
+		double[] sides;
+		List<SubvoxelPoint> svPoints;
 		List<Agent> nhbs;
 		List<Surface> surfaces;
 		double[] pLoc;
@@ -210,22 +216,33 @@ public class SolveDiffusionTransient extends ProcessManager
 			// TODO a method for getting a voxel's bounding box directly?
 			location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
 			shape.getVoxelSideLengthsTo(dimension, coord);
+			sides = Vector.subset(dimension, nDim);
 			/* NOTE the agent tree is always the amount of actual dimension */
-			nhbs = agents.treeSearch(location, Vector.subset(dimension, nDim));
+			nhbs = agents.treeSearch(location, sides);
 			/* Filter the agents for those with reactions, radius & surface. */
 			nhbs.removeIf(NO_REAC_FILTER);
 			nhbs.removeIf(NO_BODY_FILTER);
 			/* If there are none, move onto the next voxel. */
 			if ( nhbs.isEmpty() )
 				continue;
+			Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
+					Vector.toString(coord));
 			/* 
 			 * Find the sub-voxel resolution from the smallest agent, and
 			 * get the list of sub-voxel points.
 			 */
-			double minRad = Vector.min(dimension);
+			double minRad = Vector.min(sides);
+			double radius;
 			for ( Agent a : nhbs )
-				minRad = Math.min(a.getDouble(NameRef.bodyRadius), minRad);
-			sgPoints = shape.getCurrentSubvoxelPoints(SUBGRID_FACTOR * minRad);
+			{
+				radius = a.getDouble(NameRef.bodyRadius);
+				Log.out(level, "   agent "+a.identity()+" has radius "+radius);
+				minRad = Math.min(radius, minRad);
+			}
+			minRad *= SUBGRID_FACTOR;
+			Log.out(level, "  using a min radius of "+minRad);
+			svPoints = shape.getCurrentSubvoxelPoints(minRad);
+			Log.out(level, "  gives "+svPoints.size()+" sub-voxel points");
 			/* Get the sub-voxel points and query the agents. */
 			for ( Agent a : nhbs )
 			{
@@ -235,8 +252,10 @@ public class SolveDiffusionTransient extends ProcessManager
 				if ( ! a.isAspect(NameRef.surfaceList) )
 					continue;
 				surfaces = (List<Surface>) a.get(NameRef.surfaceList);
+				Log.out(level, "  "+"   agent "+a.identity()+" has "+
+						surfaces.size()+" surfaces");
 				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
-				sgLoop: for ( SubvoxelPoint p : sgPoints )
+				sgLoop: for ( SubvoxelPoint p : svPoints )
 				{
 					/* Only give location in significant dimensions. */
 					pLoc = p.getRealLocation(nDim);
@@ -253,6 +272,7 @@ public class SolveDiffusionTransient extends ProcessManager
 				}
 			}
 		}
+		Log.out(DEBUG, "Finished setting up agent distribution maps");
 	}
 	
 	/**
@@ -293,9 +313,13 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	private static void applyEnvReactions(EnvironmentContainer environment)
 	{
+		Log.out(DEBUG, "Applying environmental reactions");
 		Collection<Reaction> reactions = environment.getReactions();
 		if ( reactions.isEmpty() )
+		{
+			Log.out(DEBUG, "No reactions to apply, skipping");
 			return;
+		}
 		/*
 		 * Iterate over the spatial discretization of the environment, applying
 		 * extracellular reactions as required.
@@ -334,6 +358,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					}
 			}
 		}
+		Log.out(DEBUG, "Finished applying environmental reactions");
 	}
 	
 	/**
@@ -351,6 +376,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	private static void applyAgentReactions(
 			EnvironmentContainer environment, AgentContainer agents)
 	{
+		Log.out(DEBUG, "Applying agent reactions");
 		SpatialGrid solute;
 		HashMap<String,Double> concns = new HashMap<String,Double>();
 		/*
@@ -484,5 +510,6 @@ public class SolveDiffusionTransient extends ProcessManager
 				}
 			}
 		}
+		Log.out(DEBUG, "Finished applying agent reactions");
 	}
 }

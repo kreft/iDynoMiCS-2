@@ -3,6 +3,7 @@ package shape;
 import static shape.ShapeConventions.DimName.R;
 import static shape.ShapeConventions.DimName.THETA;
 import static shape.ShapeConventions.DimName.Z;
+import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
@@ -243,7 +244,6 @@ public abstract class CylindricalShape extends PolarShape
 	@Override
 	protected void resetNbhIter()
 	{
-		this._nbhValid = true;
 		/* See if we can use the inside r-shell. */
 		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) ) ;
 		/* See if we can take one of the theta-neighbors. */
@@ -253,21 +253,19 @@ public abstract class CylindricalShape extends PolarShape
 		/* See if we can use the outside r-shell. */
 		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) ) ;
 		/* There are no valid neighbors. */
-		else this._nbhValid = false;
-		
-		if (this._nbhValid){
+		else
+			this._whereIsNbh = UNDEFINED;
+		if ( this.isNbhIteratorValid() )
+		{
 			transformNbhCyclic();
 			return;
 		}
-		
-		this._nbhOnDefBoundary = false;
-		this._nbhValid = false;
 	}
 	
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		this.reTransformNbhCyclic();
+		this.untransformNbhCyclic();
 		/*
 		 * In the cylindrical grid, we start the TODO
 		 */
@@ -316,7 +314,7 @@ public abstract class CylindricalShape extends PolarShape
 			 * If we can't increase theta any more, then we've finished.
 			 */
 			if ( ! this.increaseNbhByOnePolar(THETA) )
-				this._nbhValid = false;
+				this._whereIsNbh = UNDEFINED;
 		}
 		this.transformNbhCyclic();
 		return this._currentNeighbor;
@@ -331,6 +329,6 @@ public abstract class CylindricalShape extends PolarShape
 	protected void moveNbhToOuterShell()
 	{
 		if ( ! this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
-			this._nbhValid = false;
+			this._whereIsNbh = UNDEFINED;
 	}
 }

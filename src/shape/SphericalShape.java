@@ -3,6 +3,8 @@ package shape;
 import static shape.ShapeConventions.DimName.PHI;
 import static shape.ShapeConventions.DimName.R;
 import static shape.ShapeConventions.DimName.THETA;
+import static shape.Shape.WhereAmI.INSIDE;
+import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -257,7 +259,6 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	protected void resetNbhIter()
 	{
-		this._nbhValid = true;
 		/* See if we can use the inside r-shell. */
 		if ( this.setNbhFirstInNewShell( this._currentCoord[0] - 1 ) 
 			&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) ) ;
@@ -278,21 +279,19 @@ public abstract class SphericalShape extends PolarShape
 		else if ( this.setNbhFirstInNewShell( this._currentCoord[0] + 1 ) 
 					&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) ) ;
 		/* There are no valid neighbors. */
-		else this._nbhValid = false;
-		
-		if (this._nbhValid){
+		else
+			this._whereIsNbh = UNDEFINED;
+		if ( this.isNbhIteratorValid() )
+		{
 			transformNbhCyclic();
 			return;
 		}
-		
-		this._nbhOnDefBoundary = false;
-		this._nbhValid = false;
 	}
 	
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		this.reTransformNbhCyclic();
+		this.untransformNbhCyclic();
 		/*
 		 * In the spherical shape, we start the TODO
 		 */
@@ -379,7 +378,7 @@ public abstract class SphericalShape extends PolarShape
 							if (!this.increaseNbhByOnePolar(PHI) ||
 									! this.setNbhFirstInNewRing(nbhPhi) )
 							{
-								this._nbhValid = false;
+								this._whereIsNbh = UNDEFINED;
 							}
 						}
 					}
@@ -396,7 +395,7 @@ public abstract class SphericalShape extends PolarShape
 				if ( ! this.increaseNbhByOnePolar(PHI) ||
 						! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
 				{
-					this._nbhValid = false;
+					this._whereIsNbh = UNDEFINED;
 				}
 		}
 		this.transformNbhCyclic();
@@ -412,16 +411,17 @@ public abstract class SphericalShape extends PolarShape
 	protected boolean setNbhFirstInNewRing(int ringIndex)
 	{
 		this._currentNeighbor[1] = ringIndex;
-		
-		/* If we are on an invalid shell, we are definitely in the wrong place*/
-		if (isOnBoundary(this._currentNeighbor, 0))
+		/*
+		 * We must be on a ring inside the array: not even a defined boundary
+		 * will do here.
+		 */
+		if ( this.whereIsNhb(R) != INSIDE )
 			return false;
-		
 		/*
 		 * First check that the new ring is inside the grid. If we're on a
 		 * defined boundary, the theta coordinate is irrelevant.
 		 */
-		if (isOnBoundary(this._currentNeighbor, 1))
+		if ( this.whereIsNhb(THETA) != INSIDE )
 			return false;
 		
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 2);

@@ -49,10 +49,6 @@ public class AgentCompartmentTest
 		for ( String aSoluteName : soluteNames )
 			aCompartment.addSolute(aSoluteName);
 		
-		//TODO diffusivities
-		aCompartment.init();
-
-		
 		/*
 		 * Initialise the concentration array with random values.
 		 */

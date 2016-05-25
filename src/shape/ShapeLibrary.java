@@ -109,6 +109,7 @@ public final class ShapeLibrary
 			return this._volume;
 		}
 		
+		@Override
 		protected void nVoxelTo(int[] destination, int[] coords)
 		{
 			/* Dimensionless shapes have no voxels. */
@@ -226,15 +227,6 @@ public final class ShapeLibrary
 		{
 			super();
 			this.setSignificant(3);
-		}
-		
-		
-		public void setSurfaces()
-		{
-			/* Do the R and THETA dimensions. */
-			super.setSurfaces();
-			/* Now the Z dimension. */
-			this.setPlanarSurfaces(DimName.Z);
 		}
 	}
 	

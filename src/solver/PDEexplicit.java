@@ -6,6 +6,7 @@ package solver;
 import java.util.HashMap;
 
 import dataIO.Log;
+
 import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
 import shape.Shape;
@@ -76,7 +77,11 @@ public class PDEexplicit extends PDEsolver
 			{
 				var = variables.get(varName);
 				var.newArray(LOPERATOR);
-				addFluxes(varName, var);
+				this.addFluxes(varName, var);
+				Log.out(BULK, "Total value of fluxes: "+
+						var.getTotal(PRODUCTIONRATE));
+				Log.out(BULK, "Total value of production rate array: "+
+						var.getTotal(PRODUCTIONRATE));
 				var.addArrayToArray(LOPERATOR, PRODUCTIONRATE);
 				var.timesAll(LOPERATOR, dt);
 				var.addArrayToArray(CONCN, LOPERATOR);

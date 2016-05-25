@@ -75,7 +75,8 @@ public class SpatialGrid
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public SpatialGrid(Shape shape) {
+	public SpatialGrid(Shape shape)
+	{
 		this._shape = shape;
 	}
 	
@@ -126,8 +127,9 @@ public class SpatialGrid
 		return this._array.containsKey(type);
 	}
 
-	public Shape getShape(){
-		return _shape;
+	public Shape getShape()
+	{
+		return this._shape;
 	}
 
 	/**
@@ -250,7 +252,7 @@ public class SpatialGrid
 	 */
 	public void addToAll(ArrayType type, double value)
 	{
-		Array.add(this._array.get(type), value);
+		Array.addEquals(this._array.get(type), value);
 	}
 	
 	/**
@@ -265,7 +267,7 @@ public class SpatialGrid
 	 */
 	public void timesAll(ArrayType type, double value)
 	{
-		Array.times(this._array.get(type), value);
+		Array.timesEquals(this._array.get(type), value);
 	}
 	
 	/*************************************************************************
@@ -295,14 +297,26 @@ public class SpatialGrid
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the arithmetic mean value in the given array.
 	 * 
-	 * @param type
-	 * @return
+	 * @param type Type of the array to use.
+	 * @return Average value of all the elements of the array <b>type</b>.
 	 */
 	public double getAverage(ArrayType type)
 	{
 		return Array.meanArith(this._array.get(type));
+	}
+	
+	/**
+	 * \brief Get the sum of the values in the array of given <b>type</b>.
+	 * 
+	 * @param type Type of the array to use.
+	 * @return Total value of all the elements of the array <b>type</b>.
+	 */
+	// FIXME this currently ignores voxel volumes.
+	public double getTotal(ArrayType type)
+	{
+		return Array.sum(this._array.get(type));
 	}
 	
 	/*************************************************************************
@@ -344,6 +358,17 @@ public class SpatialGrid
 	 * \brief TODO
 	 * 
 	 * @param type
+	 * @return
+	 */
+	public double getValueAtNhb(ArrayType type)
+	{
+		return this.getValueAt(type, this._shape.nbhIteratorCurrent());
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
 	 * @param value
 	 */
 	public void setValueAtCurrent(ArrayType type, double value)
@@ -360,19 +385,20 @@ public class SpatialGrid
 	public double getFluxWithNeighbor(String soluteName)
 	{
 		Shape shape = this._shape;
-		if( shape.isNbhIteratorValid() )
+		// FIXME an invalid neighbor is not the same as one on the boundary!!!
+		if ( shape.isNhbIteratorInside() )
 		{
 			/*
 			 * First find the difference in concentration.
 			 */
-			double out = this.getValueAt(ArrayType.CONCN, shape.nbhIteratorCurrent())
+			double out = this.getValueAtNhb(ArrayType.CONCN)
 					- this.getValueAtCurrent(ArrayType.CONCN);
 			/*
 			 * Then multiply this by the average diffusivity.
 			 */
 			out *= meanDiffusivity(
 				this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
-				this.getValueAt(ArrayType.DIFFUSIVITY, shape.nbhIteratorCurrent()));
+				this.getValueAtNhb(ArrayType.DIFFUSIVITY));
 			/*
 			 * Finally, multiply by the surface are the two voxels share (in
 			 * square microns).

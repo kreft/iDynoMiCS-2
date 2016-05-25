@@ -4,6 +4,7 @@
 package shape;
 
 import static shape.ShapeConventions.DimName.R;
+import static shape.Shape.WhereAmI.*;
 
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import org.w3c.dom.NodeList;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import generalInterfaces.CanPrelaunchCheck;
@@ -71,6 +73,26 @@ import utility.Helper;
 public abstract class Shape implements
 					CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
 {
+	protected enum WhereAmI
+	{
+		/**
+		 * Inside the array.
+		 */
+		INSIDE,
+		/**
+		 * TODO
+		 */
+		CYCLIC,
+		/**
+		 * On a defined boundary.
+		 */
+		DEFINED,
+		/**
+		 * On an undefined boundary.
+		 */
+		UNDEFINED;
+	}
+	
 	/**
 	 * TODO
 	 */
@@ -117,11 +139,6 @@ public abstract class Shape implements
 	 */
 	protected int[] _currentNeighbor;
 	/**
-	 * Whether the neighbor iterator is currently valid (true) or invalid
-	 * (false).
-	 */
-	protected boolean _nbhValid;
-	/**
 	 * the dimension name the current neighbor is moving in
 	 */
 	protected DimName _nbhDimName;
@@ -130,13 +147,10 @@ public abstract class Shape implements
 	 * to the current coordinate.
 	 */
 	protected int _nbhDirection;
-	
 	/**
-	 * Indicates that the current neighbor is on any boundary.
-	 * Note that _nbhDimName and _nbhDirection store the exact boundary 
-	 * location.
+	 * TODO
 	 */
-	protected boolean _nbhOnDefBoundary;
+	protected WhereAmI _whereIsNbh;
 	
 	/**
 	 * A helper vector for finding the location of the origin of a voxel.
@@ -151,6 +165,14 @@ public abstract class Shape implements
 	 */
 	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3,1.0);
 	
+	
+	/**
+	 * \brief Log file verbosity level used for debugging the neighbor iterator.
+	 * 
+	 * <ul><li>Set to {@code BULK} for normal simulations</li>
+	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
+	 */
+	protected static final Tier NHB_ITER_LEVEL = BULK;
 	
 	/*************************************************************************
 	 * CONSTRUCTION
@@ -227,21 +249,20 @@ public abstract class Shape implements
 				dim = this.getDimension(dimName);
 				dim.init(childElem);
 				
-				str = XmlHandler.gatherAttribute(childElem,
-						XmlLabel.targetResolutionAttribute);
-				
 				/* calculate length from dimension extremes */
-				//TODO[Stefan13.05.16]: is extreme(1) > extreme(0) ensured here?
 				double length = dim.getLength();
 				
 				/* fetch target resolution (or use length as default) */
+				str = XmlHandler.gatherAttribute(childElem,
+						XmlLabel.targetResolutionAttribute);
 				double tRes = length; 
-				if (str != "") tRes = Double.valueOf(str);
+				if ( str != "" )
+					tRes = Double.valueOf(str);
 				
 				/* init resolution calculators */
 				rC = new ResolutionCalculator.UniformResolution();
 				rC.init(tRes, length);
-				this.setDimensionResolution(dimName, rC);				
+				this.setDimensionResolution(dimName, rC);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -982,59 +1003,56 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * TODO
+	 * \brief TODO
 	 * 
-	 * @param coords Discrete coordinates of a voxel in this shape.
-	 * @param dim
+	 * @param coord
+	 * @param dimName
 	 * @return
 	 */
-	protected boolean isOnBoundary(int[] coord, int dim)
-	{
-		if ( coord[dim] < 0 )
-				return true;
-		if (coord[dim] >= this.getResolutionCalculator(coord, dim).getNVoxel())
-				return true;
-		return false;
-	}
-	
-	/**
-	 * \brief Check if the given coordinate is on a defined boundary in the
-	 * given dimension.
-	 * 
-	 * @param coords Discrete coordinates of a voxel in this shape.
-	 * @param dim
-	 * @return
-	 */
-	protected boolean isOnDefinedBoundary(int[] coord, DimName dimName)
+	protected WhereAmI whereIs(int[] coord, DimName dimName)
 	{
 		Dimension dim = this.getDimension(dimName);
 		int index = this.getDimensionIndex(dimName);
 		if ( coord[index] < 0 )
-			return dim.isBoundaryDefined(0);
+		{
+			if ( dim.isCyclic() )
+				return CYCLIC;
+			return ( dim.isBoundaryDefined(0) ) ? DEFINED : UNDEFINED;
+		}
 		int nVox = this.getResolutionCalculator(coord, index).getNVoxel();
 		if ( coord[index] >= nVox )
-			return dim.isBoundaryDefined(1);
-		return false;
+		{
+			if ( dim.isCyclic() )
+				return CYCLIC;
+			return ( dim.isBoundaryDefined(1) ) ? DEFINED : UNDEFINED;
+		}
+		return INSIDE;
 	}
 	
 	/**
-	 * \brief Check if the given coordinate is on an undefined boundary in the
-	 * given dimension.
+	 * \brief TODO
 	 * 
-	 * @param coords Discrete coordinates of a voxel in this shape.
-	 * @param dim
+	 * @param dimName
 	 * @return
 	 */
-	protected boolean isOnUndefinedBoundary(int[] coord, DimName dimName)
+	protected WhereAmI whereIsNhb(DimName dimName)
 	{
-		Dimension dim = this.getDimension(dimName);
-		int index = this.getDimensionIndex(dimName);
-		if ( coord[index] < 0 )
-			return ! dim.isBoundaryDefined(0);
-		int nVox = this.getResolutionCalculator(coord, index).getNVoxel();
-		if ( coord[index] >= nVox )
-			return ! dim.isBoundaryDefined(1);
-		return false;
+		return this.whereIs(this._currentNeighbor, dimName);
+	}
+	
+	protected WhereAmI whereIsNhb()
+	{
+		this._whereIsNbh = INSIDE;
+		WhereAmI where;
+		for ( DimName dim : this._dimensions.keySet() )
+		{
+			where = this.whereIsNhb(dim);
+			if ( where == UNDEFINED )
+				return (this._whereIsNbh = UNDEFINED);
+			if ( this.isNhbIteratorInside() && where == DEFINED )
+				this._whereIsNbh = DEFINED;
+		}
+		return this._whereIsNbh;
 	}
 	
 	/**
@@ -1060,6 +1078,8 @@ public abstract class Shape implements
 	 */
 	private void calcMaxFluxPotential()
 	{
+		Tier level = BULK;
+		Log.out(level, "Calculating maximum flux potential");
 		/*
 		 * Store the two iterators, in case we're in the middle of an
 		 * iteration.
@@ -1076,18 +1096,27 @@ public abstract class Shape implements
 		double volume;
 		double max;
 		double temp = 0.0;
+		this._maxFluxPotentl = Double.NEGATIVE_INFINITY;
 		for ( this.resetIterator(); this.isIteratorValid(); this.iteratorNext())
 		{
 			volume = this.getVoxelVolume(this._currentCoord);
-			max  = 0.0;
-			for ( this.resetNbhIter();
+			Log.out(level, "Coord "+Vector.toString(this._currentCoord)+
+					" has volume "+volume);
+			max = 0.0;
+			for ( this.resetNbhIterator();
 						this.isNbhIteratorValid(); this.nbhIteratorNext() )
 			{
 				temp = this.nbhCurrSharedArea() / this.nbhCurrDistance();
+				Log.out(level, "   nbh "+
+						Vector.toString(this._currentNeighbor)+
+						" has shared area "+this.nbhCurrSharedArea()+
+						" and distance "+this.nbhCurrDistance());
 				max = Math.max(max, temp);
 			}
+			
 			this._maxFluxPotentl = Math.max(this._maxFluxPotentl, max/volume);
 		}
+		Log.out(level, " Maximum flux potential is "+this._maxFluxPotentl);
 		/*
 		 * Put the iterators back to their stored values.
 		 */
@@ -1108,14 +1137,21 @@ public abstract class Shape implements
 	 * \brief Get the number of voxels in each dimension for the given
 	 * coordinates.
 	 * 
-	 * <p>For {@code CartesianGrid} the value of <b>coords</b> will be
-	 * irrelevant, but it will make a difference in the polar shapes.</p>
-	 * 
 	 * @param destination Integer vector to write the result into.
 	 * @param coords Discrete coordinates of a voxel on this shape.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
-	protected abstract void nVoxelTo(int[] destination, int[] coords);
+	protected void nVoxelTo(int[] destination, int[] coords)
+	{
+		Vector.checkLengths(destination, coords);
+		int n = Math.min(coords.length, 3);
+		ResCalc rC;
+		for ( int dim = 0; dim < n; dim++ )
+		{
+			rC = this.getResolutionCalculator(coords, dim);
+			destination[dim] = rC.getNVoxel();
+		}
+	}
 	
 	/*************************************************************************
 	 * SUBVOXEL POINTS
@@ -1131,6 +1167,8 @@ public abstract class Shape implements
 	 */
 	public List<SubvoxelPoint> getCurrentSubvoxelPoints(double targetRes)
 	{
+		if ( targetRes <= 0.0 )
+			throw new IllegalArgumentException("Target resolution must be > 0");
 		/* 
 		 * Initialise the list and add a point at the origin.
 		 */
@@ -1224,7 +1262,8 @@ public abstract class Shape implements
 		return true;
 	}
 	
-	public int[] iteratorCurrent(){
+	public int[] iteratorCurrent()
+	{
 		return _currentCoord;
 	}
 	
@@ -1250,7 +1289,8 @@ public abstract class Shape implements
 				_currentCoord[0]++;
 			}
 		}
-		if ( this.isIteratorValid()) this.updateCurrentNVoxel();	
+		if ( this.isIteratorValid() )
+			this.updateCurrentNVoxel();
 		return _currentCoord;
 	}
 	
@@ -1266,8 +1306,10 @@ public abstract class Shape implements
 	 */
 	public int[] updateCurrentNVoxel()
 	{
-		if (this._currentNVoxel == null)
+		if ( this._currentNVoxel == null )
 			this._currentNVoxel = Vector.zerosInt(3);
+		if ( this._currentCoord == null )
+			this.resetIterator();
 		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
 		return this._currentNVoxel;
 	}
@@ -1296,18 +1338,39 @@ public abstract class Shape implements
 		return this._currentNeighbor;
 	}
 	
-	public int[] nbhIteratorCurrent(){
+	/**
+	 * \brief Current coordinates of the neighbor iterator.
+	 * 
+	 * @return 3-vector of ints.
+	 */
+	public int[] nbhIteratorCurrent()
+	{
 		return _currentNeighbor;
 	}
 	
 	/**
 	 * \brief Check if the neighbor iterator takes a valid coordinate.
 	 * 
+	 * <p>Valid coordinates are either inside the array, or on a defined
+	 * boundary.</p>
+	 * 
 	 * @return {@code boolean true} if it is valid, {@code false} if it is not.
 	 */
 	public boolean isNbhIteratorValid()
 	{
-		return this._nbhValid;
+		return this.isNhbIteratorInside() || (this._whereIsNbh == DEFINED);
+	}
+	
+	/**
+	 * \brief Check if the neighbor iterator takes a coordinate inside the
+	 * array.
+	 * 
+	 * @return {@code boolean true} if it is inside, {@code false} if it is
+	 * on a boundary (defined or undefined).
+	 */
+	public boolean isNhbIteratorInside()
+	{
+		return (this._whereIsNbh == INSIDE) || (this._whereIsNbh == CYCLIC);
 	}
 	
 	/**
@@ -1317,9 +1380,11 @@ public abstract class Shape implements
 	 */
 	public Boundary nbhIteratorOutside()
 	{
-		if (this._nbhOnDefBoundary)
-			return getDimension(this._nbhDimName)
-					.getBoundaries()[this._nbhDirection];
+		if ( this._whereIsNbh == DEFINED )
+		{
+			Dimension dim = this.getDimension(this._nbhDimName);
+			return dim.getBoundary(this._nbhDirection);
+		}
 		return null;
 	}
 	
@@ -1346,26 +1411,54 @@ public abstract class Shape implements
 		return ExtraMath.overlap(curMin, curMax, nbhMin, nbhMax);
 	}
 	
-	
-	protected void transformNbhCyclic(){
+	/**
+	 * \brief Transform the coordinates of the neighbor iterator, in the
+	 * current neighbor direction, so that that they lie within the array.
+	 * 
+	 * <p>This should be reversed using {@link #untransformNbhCyclic()}.</p>
+	 */
+	protected void transformNbhCyclic()
+	{
 		Dimension dim = getDimension(this._nbhDimName);
-		if (this._nbhOnDefBoundary && dim.isCyclic()){
-			int dimIdx = getDimensionIndex(_nbhDimName);
+		if ( (this._whereIsNbh == CYCLIC) && dim.isCyclic() )
+		{
+			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			int nVoxel = this.getResolutionCalculator(
 					this._currentCoord, dimIdx).getNVoxel();
-			this._currentNeighbor[dimIdx] 
-					= this._nbhDirection == 0 ? nVoxel - 1 : 0; 
+			if ( this._nbhDirection == 0 )
+			{
+				/* Direction 0: the neighbor wraps below, to the highest. */
+				this._currentNeighbor[dimIdx] = nVoxel - 1;
+			}
+			else
+			{
+				/* Direction 1: the neighbor wraps above, to zero. */
+				this._currentNeighbor[dimIdx] = 0;
+			}
 		}
 	}
 	
-	protected void reTransformNbhCyclic(){
-		Dimension dim = getDimension(this._nbhDimName);
-		if (this._nbhOnDefBoundary && dim.isCyclic()){
-			int dimIdx = getDimensionIndex(_nbhDimName);
-			int nVoxel = this.getResolutionCalculator(
-					this._currentCoord, dimIdx).getNVoxel();
-			this._currentNeighbor[dimIdx] 
-					= this._nbhDirection == 0 ? - 1 : nVoxel; 
+	/**
+	 * \brief Reverses the transformation of {@link #transformNbhCyclic()},
+	 * putting the coordinates of the neighbor iterator that wrap around a
+	 * cyclic dimension back where they were.
+	 */
+	protected void untransformNbhCyclic()
+	{
+		Dimension dim = this.getDimension(this._nbhDimName);
+		if ( (this._whereIsNbh == CYCLIC) && dim.isCyclic() )
+		{
+			int dimIdx = this.getDimensionIndex(this._nbhDimName);
+			if ( this._nbhDirection == 0 )
+			{
+				/* Direction 0: the neighbor should be below. */
+				this._currentNeighbor[dimIdx] = this._currentCoord[dimIdx] - 1;
+			}
+			else
+			{
+				/* Direction 1: the neighbor should be above. */
+				this._currentNeighbor[dimIdx] = this._currentCoord[dimIdx] + 1;
+			}
 		}
 	}
 	
@@ -1384,13 +1477,14 @@ public abstract class Shape implements
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[index]--;
 		/* Check that this coordinate is acceptable. */
-		boolean inside = this._currentNeighbor[index] >= 0;
-		this._nbhOnDefBoundary = ! inside && this._dimensions.get(dim)
-														.isBoundaryDefined(0);
-		boolean valid = inside || this._nbhOnDefBoundary;
+		WhereAmI where = this.whereIsNhb(dim);
+		this._whereIsNbh = where;
 		this._nbhDirection = 0;
 		this._nbhDimName = dim;
-		return ( valid );
+		Log.out(NHB_ITER_LEVEL,
+				"   tried moving to minus in "+dim+": result "+
+						Vector.toString(this._currentNeighbor)+" is "+where);
+		return (where != UNDEFINED);
 	}
 	
 	/**
@@ -1407,28 +1501,31 @@ public abstract class Shape implements
 	{
 		int index = this.getDimensionIndex(dim);
 		this.updateCurrentNVoxel();
+		this._whereIsNbh = this.whereIsNhb(dim);
 		/* Check we are behind the current coordinate. */
 		if ( this._currentNeighbor[index] < this._currentCoord[index] )
 		{
-			boolean inside = this._currentCoord[index] 
-											< this._currentNVoxel[index] - 1;
-			
 			boolean bMaxDef = this.getDimension(dim).isBoundaryDefined(1);
-			
 			/* Check there is space on the other side. */
-			if ( inside || bMaxDef )
+			if ( this._whereIsNbh == INSIDE || bMaxDef )
 			{
 				/* Jump and report success. */
 				this._nbhDirection = 1;
-				/* can only be on boundary here if not inside*/
-				this._nbhOnDefBoundary = ! inside;
 				this._currentNeighbor[index] = this._currentCoord[index] + 1;
+				this._whereIsNbh = this.whereIsNhb(dim);
+				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
+						": result "+Vector.toString(this._currentNeighbor)+
+						" is "+this._whereIsNbh);
 				return true;
 			}
 		}
 		/* Report failure. */
+		// TODO is it appropriate to use a meaningless direction here?
 		this._nbhDirection = -1;
-		this._nbhOnDefBoundary = false;
+		this._whereIsNbh = this.whereIsNhb(dim);
+		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
+				": result "+Vector.toString(this._currentNeighbor)+
+				" is "+this._whereIsNbh);
 		return false;
 	}
 	

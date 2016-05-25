@@ -1,7 +1,12 @@
 package shape;
 
+import static shape.Shape.WhereAmI.*;
+
+import dataIO.Log;
 import linearAlgebra.Array;
+import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
+import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
@@ -17,7 +22,8 @@ public abstract class CartesianShape extends Shape
 	/**
 	 * Array of resolution calculators used by all linear {@code Shape}s.
 	 */
-	protected ResCalc[] _resCalc;
+	protected ResCalc[] _resCalc = new ResCalc[3];
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTION
@@ -25,9 +31,23 @@ public abstract class CartesianShape extends Shape
 	
 	public CartesianShape()
 	{
-		this._resCalc = new ResCalc[3];
+		/*
+		 * Fill the resolution calculators with dummies for now: they should
+		 * be overwritten later.
+		 */
+		for ( int i = 0; i < 3; i++ )
+		{
+			SingleVoxel sV = new SingleVoxel();
+			sV.init(1.0, 1.0);
+			this._resCalc[i] = sV;
+		}
+		/*
+		 * These are the dimension names for any Cartesian shape. Assume they
+		 * are all insignificant to begin with.
+		 */
 		for ( DimName d : new DimName[]{DimName.X, DimName.Y, DimName.Z} )
 			this._dimensions.put(d, new Dimension(false));
+		
 	}
 	
 	@Override
@@ -107,13 +127,6 @@ public abstract class CartesianShape extends Shape
 		return out;
 	}
 	
-	@Override
-	protected void nVoxelTo(int[] destination, int[] coords)
-	{
-		for ( int dim = 0; dim < this.getNumberOfDimensions(); dim++ )
-			destination[dim] = this._resCalc[dim].getNVoxel();
-	}
-	
 	/*************************************************************************
 	 * SUBVOXEL POINTS
 	 ************************************************************************/
@@ -129,7 +142,9 @@ public abstract class CartesianShape extends Shape
 	@Override
 	protected void resetNbhIter()
 	{
-		this._nbhValid = true;
+		Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
+				Vector.toString(this._currentNeighbor));
+		this._whereIsNbh = UNDEFINED;
 		for ( DimName dim : this._dimensions.keySet() )
 		{
 			/* Skip insignificant dimensions. */
@@ -140,17 +155,24 @@ public abstract class CartesianShape extends Shape
 			{
 				this._nbhDimName = dim;
 				this.transformNbhCyclic();
+				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
+						+Vector.toString(this._currentNeighbor)+
+						": status "+this._whereIsNbh);
 				return;
 			}
 		}
-		this._nbhValid = false;
 	}
 	
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		this.reTransformNbhCyclic();
+		Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
+				Vector.toString(this._currentCoord));
+		this.untransformNbhCyclic();
 		int nbhIndex = this.getDimensionIndex(this._nbhDimName);
+		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				", trying along "+this._nbhDimName);
 		if ( ! this.nbhJumpOverCurrent(this._nbhDimName))
 		{
 			/*
@@ -164,10 +186,14 @@ public abstract class CartesianShape extends Shape
 				if ( ! moveNbhToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
 			}
-			else
-				this._nbhValid = false;
 		}
+		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				": status "+this._whereIsNbh);
 		this.transformNbhCyclic();
+		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				": status "+this._whereIsNbh);
 		return this._currentNeighbor;
 	}
 	
@@ -176,9 +202,22 @@ public abstract class CartesianShape extends Shape
 	{
 		int i = this.getDimensionIndex(this._nbhDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
-		double out = rC.getPosition(this._currentCoord[i], 0.5);
-		out -= rC.getPosition(this._currentNeighbor[i], 0.5);
-		return Math.abs(out);
+		double out = rC.getResolution(this._currentCoord[i]);
+		if ( this.isNhbIteratorInside() )
+		{
+			/* If the neighbor is inside the array, use the mean resolution. */
+			out += rC.getResolution(this._currentNeighbor[i]);
+			return 0.5 * out;
+		}
+		if ( this.isNbhIteratorValid() )
+		{
+			/* If the neighbor is on a defined boundary, use the current 
+				coord's resolution. */
+			return out;
+		}
+		/* If the neighbor is on an undefined boundary, return infinite
+			distance (this should never happen!) */
+		return Double.POSITIVE_INFINITY;
 	}
 	
 	@Override

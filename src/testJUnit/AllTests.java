@@ -20,6 +20,7 @@ import idynomics.Simulator;
 				CoordinateMapTest.class,
 				ExtraMathTest.class,
 				LinearAlgebraTest.class,
+				PdeTest.class,
 				RateExpressionTest.class,
 				ShapesTest.class,
 				XMLableTest.class})
