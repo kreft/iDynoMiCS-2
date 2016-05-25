@@ -39,7 +39,7 @@ public class PdeTest
 		 * Set up the simulation with a single compartment: a line, with both
 		 * boundaries solid.
 		 */
-		AllTests.setupSimulatorForTest(tStep, tMax, "flattenRandom");
+		AllTests.setupSimulatorForTest(tStep, tMax, "checkMassBalance");
 		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
 		comp.setShape("line");
 		comp.addBoundary(DimName.X, 0, new SolidBoundary());

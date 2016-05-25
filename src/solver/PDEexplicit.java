@@ -6,7 +6,6 @@ package solver;
 import java.util.HashMap;
 
 import dataIO.Log;
-import dataIO.Log.Tier;
 
 import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
