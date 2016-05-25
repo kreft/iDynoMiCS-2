@@ -142,7 +142,7 @@ public abstract class CartesianShape extends Shape
 	@Override
 	protected void resetNbhIter()
 	{
-		Log.out(NHB_ITER_LEVEL, "  resetting nhb iter: current coord is "+
+		Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
 				Vector.toString(this._currentNeighbor));
 		this._whereIsNbh = UNDEFINED;
 		for ( DimName dim : this._dimensions.keySet() )
@@ -151,7 +151,6 @@ public abstract class CartesianShape extends Shape
 			if ( ! this.getDimension(dim).isSignificant() )
 				continue;
 			/* See if we can take one of the neighbors. */
-			Log.out(NHB_ITER_LEVEL, "    dimension "+dim+" is significant");
 			if ( this.moveNbhToMinus(dim) || this.nbhJumpOverCurrent(dim) )
 			{
 				this._nbhDimName = dim;
@@ -164,6 +163,8 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public int[] nbhIteratorNext()
 	{
+		Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
+				Vector.toString(this._currentCoord));
 		this.untransformNbhCyclic();
 		int nbhIndex = this.getDimensionIndex(this._nbhDimName);
 		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+

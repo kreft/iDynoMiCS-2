@@ -1010,19 +1010,15 @@ public abstract class Shape implements
 	protected WhereAmI whereIs(int[] coord, DimName dimName)
 	{
 		Dimension dim = this.getDimension(dimName);
+		if ( dim.isCyclic() )
+			return INSIDE;
 		int index = this.getDimensionIndex(dimName);
 		if ( coord[index] < 0 )
-			if ( dim.isBoundaryDefined(0) )
-				return WhereAmI.DEFINED;
-			else
-				return WhereAmI.UNDEFINED;
+			return ( dim.isBoundaryDefined(0) ) ? DEFINED : UNDEFINED;
 		int nVox = this.getResolutionCalculator(coord, index).getNVoxel();
 		if ( coord[index] >= nVox )
-			if ( dim.isBoundaryDefined(1) )
-				return WhereAmI.DEFINED;
-			else
-				return WhereAmI.UNDEFINED;
-		return WhereAmI.INSIDE;
+			return ( dim.isBoundaryDefined(1) ) ? DEFINED : UNDEFINED;
+		return INSIDE;
 	}
 	
 	/**
@@ -1473,7 +1469,8 @@ public abstract class Shape implements
 		this._nbhDirection = 0;
 		this._nbhDimName = dim;
 		Log.out(NHB_ITER_LEVEL,
-				"   tried moving to minus in "+dim+": result "+where);
+				"   tried moving to minus in "+dim+": result "+
+						Vector.toString(this._currentNeighbor)+" is "+where);
 		return (where != UNDEFINED);
 	}
 	
