@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import boundary.Boundary;
 import boundary.BoundaryLibrary.SolidBoundary;
+import dataIO.Log;
+import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import static testJUnit.AllTests.TOLERANCE;
@@ -82,7 +84,7 @@ public class ShapesTest
 	@Test
 	public void shouldIterateCorrectly()
 	{
-		
+		AllTests.setupSimulatorForTest(1.0, 1.0, "shapesShouldIterateProperly");
 		int[][] trueNhb = new int[3][3];
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		Shape shp = new Rectangle();
@@ -123,15 +125,14 @@ public class ShapesTest
 			iterCount++;
 			nhbCount = 0;
 			for ( shp.resetNbhIterator();
-					shp.isNbhIteratorValid() && shp.isNhbIteratorInside(); 
-					shp.nbhIteratorNext() )
+					shp.isNbhIteratorValid(); shp.nbhIteratorNext() )
 			{
-				nhbCount++;
+				if ( shp.isNhbIteratorInside() )
+					nhbCount++;
 			}
 			coord = shp.iteratorCurrent();
-			System.out.println("Coord "+Vector.toString(coord)+" has "+nhbCount+" neighbors");
-			// FIXME
-			//assertEquals(nhbCount, trueNhb[coord[0]][coord[1]]);
+			Log.out(DEBUG, "Coord "+Vector.toString(coord)+" has "+nhbCount+" neighbors");
+			assertEquals(nhbCount, trueNhb[coord[0]][coord[1]]);
 		}
 		assertEquals(iterCount, 9);
 	}

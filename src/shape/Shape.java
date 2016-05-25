@@ -164,6 +164,14 @@ public abstract class Shape implements
 	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3,1.0);
 	
 	
+	/**
+	 * \brief Log file verbosity level used for debugging the neighbor iterator.
+	 * 
+	 * <ul><li>Set to {@code BULK} for normal simulations</li>
+	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
+	 */
+	protected static final Tier NHB_ITER_LEVEL = BULK;
+	
 	/*************************************************************************
 	 * CONSTRUCTION
 	 ************************************************************************/
@@ -1464,6 +1472,8 @@ public abstract class Shape implements
 		this._whereIsNbh = where;
 		this._nbhDirection = 0;
 		this._nbhDimName = dim;
+		Log.out(NHB_ITER_LEVEL,
+				"   tried moving to minus in "+dim+": result "+where);
 		return (where != UNDEFINED);
 	}
 	

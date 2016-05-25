@@ -1,7 +1,8 @@
 package shape;
 
-import static shape.Shape.WhereAmI.UNDEFINED;
+import static shape.Shape.WhereAmI.*;
 
+import dataIO.Log;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.ShapeConventions.DimName;
@@ -22,6 +23,7 @@ public abstract class CartesianShape extends Shape
 	 * Array of resolution calculators used by all linear {@code Shape}s.
 	 */
 	protected ResCalc[] _resCalc = new ResCalc[3];
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTION
@@ -140,8 +142,8 @@ public abstract class CartesianShape extends Shape
 	@Override
 	protected void resetNbhIter()
 	{
-		if ( this._currentNeighbor == null )
-			this._currentNeighbor = Vector.zerosInt(3);
+		Log.out(NHB_ITER_LEVEL, "  resetting nhb iter: current coord is "+
+				Vector.toString(this._currentNeighbor));
 		this._whereIsNbh = UNDEFINED;
 		for ( DimName dim : this._dimensions.keySet() )
 		{
@@ -149,6 +151,7 @@ public abstract class CartesianShape extends Shape
 			if ( ! this.getDimension(dim).isSignificant() )
 				continue;
 			/* See if we can take one of the neighbors. */
+			Log.out(NHB_ITER_LEVEL, "    dimension "+dim+" is significant");
 			if ( this.moveNbhToMinus(dim) || this.nbhJumpOverCurrent(dim) )
 			{
 				this._nbhDimName = dim;
@@ -163,6 +166,9 @@ public abstract class CartesianShape extends Shape
 	{
 		this.untransformNbhCyclic();
 		int nbhIndex = this.getDimensionIndex(this._nbhDimName);
+		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				", trying along "+this._nbhDimName);
 		if ( ! this.nbhJumpOverCurrent(this._nbhDimName))
 		{
 			/*
