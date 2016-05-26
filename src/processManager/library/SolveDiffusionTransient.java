@@ -89,8 +89,10 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	protected String[] _soluteNames;
 	/**
-	 * TODO
+	 * Dictionary of well-mixed setters: one for each solute.
 	 */
+	// TODO this is probably the wrong approach: we should have the same setter
+	// for all solutes
 	protected HashMap<String,IsWellmixedSetter> _wellmixed;
 	/**
 	 * TODO 
@@ -313,11 +315,12 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	private static void applyEnvReactions(EnvironmentContainer environment)
 	{
-		Log.out(DEBUG, "Applying environmental reactions");
+		Tier level = BULK;
+		Log.out(level, "Applying environmental reactions");
 		Collection<Reaction> reactions = environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
-			Log.out(DEBUG, "No reactions to apply, skipping");
+			Log.out(level, "No reactions to apply, skipping");
 			return;
 		}
 		/*
@@ -326,6 +329,9 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		Shape shape = environment.getShape();
 		Set<String> soluteNames = environment.getSoluteNames();
+		HashMap<String,Double> totals = new HashMap<String,Double>();
+		for ( String name : soluteNames )
+			totals.put(name, 0.0);
 		SpatialGrid solute;
 		HashMap<String,Double> concns = new HashMap<String,Double>();
 		for ( String soluteName : soluteNames )
@@ -355,10 +361,13 @@ public class SolveDiffusionTransient extends ProcessManager
 						productRate = rate * r.getStoichiometry(product);
 						solute = environment.getSoluteGrid(product);
 						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+						totals.put(product, totals.get(product) + productRate);
 					}
 			}
 		}
-		Log.out(DEBUG, "Finished applying environmental reactions");
+		for ( String name : soluteNames )
+			Log.out(level, "  total "+name+" produced: "+totals.get(name));
+		Log.out(level, "Finished applying environmental reactions");
 	}
 	
 	/**
@@ -376,9 +385,11 @@ public class SolveDiffusionTransient extends ProcessManager
 	private static void applyAgentReactions(
 			EnvironmentContainer environment, AgentContainer agents)
 	{
-		Log.out(DEBUG, "Applying agent reactions");
+		Tier level = BULK;
+		Log.out(level, "Applying agent reactions");
 		SpatialGrid solute;
 		HashMap<String,Double> concns = new HashMap<String,Double>();
+		HashMap<String,Double> totals = new HashMap<String,Double>();
 		/*
 		 * Loop over all agents, applying their reactions to the
 		 * relevant solute grids, in the voxels calculated before the 
@@ -457,6 +468,9 @@ public class SolveDiffusionTransient extends ProcessManager
 					for ( String productName : r.getStoichiometry().keySet())
 					{
 						productionRate = rate * r.getStoichiometry(productName);
+						if ( ! totals.containsKey(productName) )
+							totals.put(productName, 0.0);
+						totals.put(productName, totals.get(productName) + productionRate);
 						if ( environment.isSoluteName(productName) )
 						{
 							solute = environment.getSoluteGrid(productName);
@@ -510,6 +524,8 @@ public class SolveDiffusionTransient extends ProcessManager
 				}
 			}
 		}
-		Log.out(DEBUG, "Finished applying agent reactions");
+		for ( String name : totals.keySet() )
+			Log.out(level, "   total \""+name+"\" produced: "+totals.get(name));
+		Log.out(level, "Finished applying agent reactions");
 	}
 }

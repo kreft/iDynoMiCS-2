@@ -179,7 +179,12 @@ public class Reaction implements XMLable, Copyable
 	 */
 	public double getRate(Map<String, Double> concentrations)
 	{
-		return this._kinetic.getValue(concentrations);
+		double out = this._kinetic.getValue(concentrations);
+		//String msg = "   reaction \""+this._name+"\" variables: ";
+		//for ( String name : concentrations.keySet() )
+		//	msg += name +"@"+concentrations.get(name)+" ";
+		//Log.out(Tier.DEBUG, msg+"=> rate "+out);
+		return out;
 	}
 	
 	/**
