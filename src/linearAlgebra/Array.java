@@ -983,6 +983,7 @@ public final class Array
 	
 	/* Subtraction. */
 	
+	// TODO subtractTo, subtract, subtractEquals for consistency
 
 	/**
 	 * \brief Subtract one array from another, element-by-element.
@@ -1137,6 +1138,9 @@ public final class Array
 	{
 		timesTo(array, array, value);
 	}
+	
+	// TODO elemTimesTo, elemTimes, elemTimesEquals for consistency
+	
 	/**
 	 * \brief Multiply one array by another, element-by-element.
 	 * 
@@ -1181,6 +1185,8 @@ public final class Array
 	
 	/* Division. */
 
+	// TODO elemDivideTo, elemDivide, elemDivideEquals for consistency
+	
 	/**
 	 * \brief Multiply one array by another, element-by-element.
 	 * 
@@ -1791,7 +1797,7 @@ public final class Array
 	}
 	
 	/*************************************************************************
-	 * RESCALING ARRAYS
+	 * TO/FROM STRING
 	 ************************************************************************/
 	
 	/**
