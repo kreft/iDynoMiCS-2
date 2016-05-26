@@ -45,18 +45,21 @@ public abstract class SphericalShape extends PolarShape
 		/* There is no need for an r-min boundary. */
 		dim = new Dimension();
 		dim.setBoundaryOptional(0);
-		this._dimensions.put(R, dim);
+		dim._dimName = R;
+		this._dimensions.add(dim);
 		/*
 		 * Set full angular dimensions by default, can be overwritten later.
 		 */
 		dim = new Dimension();
 		dim.setCyclic();
 		dim.setLength(Math.PI);
-		this._dimensions.put(PHI, dim);
+		dim._dimName = PHI;
+		this._dimensions.add(dim);
 		dim = new Dimension();
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
-		this._dimensions.put(THETA, dim);
+		dim._dimName = THETA;
+		this._dimensions.add(dim);
 	}
 	
 	@Override
