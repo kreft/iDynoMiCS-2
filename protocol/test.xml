@@ -100,21 +100,21 @@
 				<process name="svgWriter" class="WriteAgentsSvg"  priority="0"
 					firstStep="0.0" >
 					<aspect name="prefix" type="String" value="out_solute1" />
-					<aspect name="maxConcentration" type="Double" value="2.0" />
+					<aspect name="maxConcentration" type="Double" value="3.0" />
 					<aspect name="solute" type="String" value="solute1" />
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 				</process>
 				<process name="svgWriter" class="WriteAgentsSvg"  priority="0"
 					firstStep="0.0" >
 					<aspect name="prefix" type="String" value="out_solute2" />
-					<aspect name="maxConcentration" type="Double" value="2.0" />
+					<aspect name="maxConcentration" type="Double" value="3.0" />
 					<aspect name="solute" type="String" value="solute2" />
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 				</process>
 				<process name="svgWriter" class="WriteAgentsSvg"  priority="0"
 					firstStep="0.0" >
 					<aspect name="prefix" type="String" value="rate_solute2" />
-					<aspect name="maxConcentration" type="Double" value="2.0" />
+					<aspect name="maxConcentration" type="Double" value="3.0" />
 					<aspect name="solute" type="String" value="solute2" />
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
