@@ -80,11 +80,9 @@
 
 		<compartment name="noPrefPull">
 			<shape class="Rectangle">
-				<dimension name="X" isCyclic="true" targetResolution="1">
-					<extreme name="max" position="30.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="1" max="30.0"/>
 				</dimension> 
-				<dimension name="Y" isCyclic="true" targetResolution="1">
-					<extreme name="max" position="30.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="30.0"/>
 				</dimension> 
 			</shape>
 			<solutes>
