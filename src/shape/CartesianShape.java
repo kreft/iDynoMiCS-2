@@ -47,7 +47,7 @@ public abstract class CartesianShape extends Shape
 		 * are all insignificant to begin with.
 		 */
 		for ( DimName d : new DimName[]{DimName.X, DimName.Y, DimName.Z} )
-			this._dimensions.add(new Dimension(false, d));
+			this._dimensions.put(d, new Dimension(false, d));
 		
 	}
 	
@@ -102,9 +102,9 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public void setSurfaces()
 	{
-		for ( Dimension dim : this._dimensions )
-			if ( dim.isSignificant() )
-				this.setPlanarSurfaces(dim._dimName);
+		for ( DimName dim : this._dimensions.keySet() )
+			if ( this._dimensions.get(dim).isSignificant() )
+				this.setPlanarSurfaces(dim);
 	}
 	
 	/*************************************************************************
@@ -146,15 +146,15 @@ public abstract class CartesianShape extends Shape
 		Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
 				Vector.toString(this._currentNeighbor));
 		this._whereIsNbh = UNDEFINED;
-		for ( Dimension dim : this._dimensions )
+		for ( DimName dim : this._dimensions.keySet() )
 		{
 			/* Skip insignificant dimensions. */
-			if ( ! dim.isSignificant() )
+			if ( ! this.getDimension(dim).isSignificant() )
 				continue;
 			/* See if we can take one of the neighbors. */
-			if ( this.moveNbhToMinus(dim._dimName) || this.nbhJumpOverCurrent(dim._dimName) )
+			if ( this.moveNbhToMinus(dim) || this.nbhJumpOverCurrent(dim) )
 			{
-				this._nbhDimName = dim._dimName;
+				this._nbhDimName = dim;
 				this.transformNbhCyclic();
 				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
 						+Vector.toString(this._currentNeighbor)+

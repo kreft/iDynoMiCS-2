@@ -1,7 +1,6 @@
 package shape;
 
 import shape.Dimension.DimName;
-import shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.INSIDE;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
@@ -43,21 +42,18 @@ public abstract class SphericalShape extends PolarShape
 		/* There is no need for an r-min boundary. */
 		dim = new Dimension();
 		dim.setBoundaryOptional(0);
-		dim._dimName = DimName.R;
-		this._dimensions.add(dim);
+		this._dimensions.put(DimName.R, dim);
 		/*
 		 * Set full angular dimensions by default, can be overwritten later.
 		 */
 		dim = new Dimension();
 		dim.setCyclic();
 		dim.setLength(Math.PI);
-		dim._dimName = DimName.PHI;
-		this._dimensions.add(dim);
+		this._dimensions.put(DimName.PHI, dim);
 		dim = new Dimension();
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
-		dim._dimName = DimName.THETA;
-		this._dimensions.add(dim);
+		this._dimensions.put(DimName.THETA, dim);
 	}
 	
 	@Override

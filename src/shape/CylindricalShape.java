@@ -34,8 +34,7 @@ public abstract class CylindricalShape extends PolarShape
 		/* There is no need for an r-min boundary. */
 		dim = new Dimension();
 		dim.setBoundaryOptional(0);
-		dim._dimName = DimName.R;
-		this._dimensions.add(dim);
+		this._dimensions.put(DimName.R, dim);
 		this._resCalc[getDimensionIndex(DimName.R)] = new ResCalc[1];
 		/*
 		 * Set to a full circle by default, let it be overwritten later.
@@ -43,14 +42,12 @@ public abstract class CylindricalShape extends PolarShape
 		dim = new Dimension();
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
-		dim._dimName = DimName.THETA;
-		this._dimensions.add(dim);
+		this._dimensions.put(DimName.THETA, dim);
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
 		dim = new Dimension(false, DimName.Z);
-		dim._dimName = DimName.Z;
-		this._dimensions.add(dim);
+		this._dimensions.put(DimName.Z, dim);
 		this._resCalc[getDimensionIndex(DimName.Z)] = new ResCalc[1];
 	}
 	
