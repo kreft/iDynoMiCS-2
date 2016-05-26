@@ -148,6 +148,11 @@ public class GuiEditor
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
 					node.tag + " " + node.title, tabs, "");
 		} 
+		else if( node.tag == XmlLabel.shapeDimension )
+		{
+			parent.add(component, null);
+			parent.revalidate();
+		} 
 		else if(node.tag == XmlLabel.aspect )
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 

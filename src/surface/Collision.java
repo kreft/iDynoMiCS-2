@@ -232,7 +232,7 @@ public class Collision
 				this.applyForce(b, Vector.reverse(force), t);
 			}
 		}
-		else
+		else if (pullDistance > 0.0)
 		/* Pulling */
 		{
 			double[] force = _pullFun.interactionForce(distance(a,b), 
@@ -662,10 +662,6 @@ public class Collision
 		return out - a.getRadius() - b.getRadius();
 	}
 	
-	/*************************************************************************
-	 * STATIC DISTANCE METHODS
-	 ************************************************************************/
-	
 	/**
 	 * \brief Distance between a plane and a point.
 	 * 
@@ -673,7 +669,7 @@ public class Collision
 	 * @param point
 	 * @return
 	 */
-	public static double planePoint(Plane plane, double[] point)
+	public double planePoint(Plane plane, double[] point)
 	{
 		return Vector.dotProduct(plane.normal, point) - plane.d;
 	}
@@ -686,7 +682,7 @@ public class Collision
 	 * @param point
 	 * @return
 	 */
-	public static double[] closestPointOnPlane(double[] normal, double d, double[] point)
+	public double[] closestPointOnPlane(double[] normal, double d, double[] point)
 	{
 		/*
 		 * TODO explain
@@ -703,7 +699,7 @@ public class Collision
 	 * @param sphere
 	 * @return
 	 */
-	public static double planeSphere(Plane plane, Ball sphere)
+	public double planeSphere(Plane plane, Ball sphere)
 	{
 		/*
 		 * First find the distance between the plane and the centre of the
@@ -725,8 +721,9 @@ public class Collision
 	 * @param point
 	 * @return
 	 */
-	public static double planePoint(double[] normal, double d, double[] point)
+	public double planePoint(double[] normal, double d, double[] point)
 	{
+		this.dP = Vector.reverse(normal);
 		return Vector.dotProduct(normal, point) - d;
 	}
 	

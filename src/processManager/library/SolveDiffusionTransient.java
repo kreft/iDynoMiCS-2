@@ -463,26 +463,6 @@ public class SolveDiffusionTransient extends ProcessManager
 							solute.addValueAt(PRODUCTIONRATE, 
 									coord, productionRate);
 						}
-						else if ( a.isAspect(productName) )
-						{
-							System.out.println("agent reaction catched " + 
-									productName);
-							/* 
-							 * NOTE Bas [17Feb2016]: Put this here as 
-							 * example, though it may be nicer to
-							 * launch a separate agent growth process
-							 * manager here.
-							 */
-							/* 
-							 * NOTE Bas [17Feb2016]: The average growth
-							 * rate for the entire agent, not just for
-							 * the part that is in one grid cell later
-							 * this may be specific separate
-							 * expressions that control the growth of
-							 * separate parts of the agent (eg lipids/
-							 * other storage compounds)
-							 */
-						}
 						else if ( 
 							a.getString(XmlLabel.species).equals(productName) )
 						{

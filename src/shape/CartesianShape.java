@@ -46,7 +46,7 @@ public abstract class CartesianShape extends Shape
 		 * are all insignificant to begin with.
 		 */
 		for ( DimName d : new DimName[]{DimName.X, DimName.Y, DimName.Z} )
-			this._dimensions.put(d, new Dimension(false));
+			this._dimensions.put(d, new Dimension(false, d));
 		
 	}
 	

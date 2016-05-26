@@ -15,7 +15,6 @@ import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import idynomics.Compartment.CompartmentMaker;
 import idynomics.Timer.TimerMaker;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -32,7 +31,7 @@ import nodeFactory.ModelNode.Requirements;
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLable, NodeConstructor
+public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeConstructor
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
@@ -301,52 +300,6 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			Log.out(Tier.QUIET, c.agents.getNumAllAgents() + " agents");
 		}
 	}
-	
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
-	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		/* Required parameters */
-		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
-		out.add(new ParameterSetter(XmlLabel.outputFolder,this,ObjectRef.STR));
-		// TODO log level?
-		// TODO Random number seed?
-		// TODO comment?
-		/* We must have exactly one Timer. */
-		out.add(new TimerMaker(Requirement.EXACTLY_ONE, this));
-		/* No need for a species library, but maximum of one allowed. */
-		out.add(new SpeciesLibMaker(Requirement.ZERO_OR_ONE, this));
-		/* Must have at least one compartment. */
-		out.add(new CompartmentMaker(Requirement.ONE_TO_MANY, this));
-		return out;
-	}
-	
-	public void acceptInput(String name, Object input)
-	{
-		if ( input instanceof String )
-		{
-			String str = (String) input;
-			// TODO need to be very careful that we're not changing the
-			// settings of a running simulation!
-			if ( str.equals(XmlLabel.nameAttribute) )
-				Idynomics.global.simulationName = str;
-			else if (str.equals(XmlLabel.outputFolder) )
-				Idynomics.global.outputRoot = str;
-		}
-		// TODO Log level?
-		// TODO Random number seed?
-		// TODO comment?
-		// NOTE this is probably overkill, could just use instanceof
-		if ( name.equals(XmlLabel.timer) && (input instanceof Timer) )
-			timer = (Timer) input;
-		if(name.equals(XmlLabel.speciesLibrary) && input instanceof SpeciesLib)
-			this.speciesLibrary = (SpeciesLib) input;
-		if ( name.equals(XmlLabel.compartment) && input instanceof Compartment)
-			this._compartments.add((Compartment) input);
-	}
 
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK
@@ -397,7 +350,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		modelNode.add(new ModelAttribute(XmlLabel.outputFolder, 
 				Idynomics.global.outputRoot, null, false ));
 		modelNode.add(new ModelAttribute(XmlLabel.logLevel, 
-				Log.level(), Helper.enumToString(Tier.class).split(" "), true ));
+				Log.level(), Helper.enumToString(Tier.class).split(" "), false ));
 		modelNode.add(new ModelAttribute(XmlLabel.commentAttribute, 
 				Idynomics.global.simulationComment, null, true ));
 		

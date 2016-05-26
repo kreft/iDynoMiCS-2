@@ -48,7 +48,7 @@ public abstract class CylindricalShape extends PolarShape
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
-		dim = new Dimension(false);
+		dim = new Dimension(false, Z);
 		this._dimensions.put(Z, dim);
 		this._resCalc[getDimensionIndex(Z)] = new ResCalc[1];
 	}
