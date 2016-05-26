@@ -325,7 +325,7 @@ public class SpatialGrid
 	
 	public void addArrayToArray(ArrayType destination, ArrayType source)
 	{
-		Array.add(this._array.get(destination), this._array.get(source));
+		Array.addEquals(this._array.get(destination), this._array.get(source));
 	}
 	
 	/*************************************************************************

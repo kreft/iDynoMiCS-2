@@ -6,6 +6,7 @@ package solver;
 import java.util.HashMap;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 
 import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
@@ -43,11 +44,12 @@ public class PDEexplicit extends PDEsolver
 	@Override
 	public void solve(HashMap<String, SpatialGrid> variables, double tFinal)
 	{
+		Tier level = BULK;
 		/*
 		 * Find the largest time step that suits all variables.
 		 */
 		double dt = tFinal;
-		Log.out(DEBUG, "PDEexplicit starting with ministep size "+dt);
+		Log.out(level, "PDEexplicit starting with ministep size "+dt);
 		SpatialGrid var;
 		int nIter = 1;
 		for ( String varName : this._variableNames )
@@ -55,7 +57,7 @@ public class PDEexplicit extends PDEsolver
 			var = variables.get(varName);
 			dt = Math.min(dt, 0.1 * var.getShape().getMaxFluxPotential()  /
 					 var.getMin(DIFFUSIVITY));
-			Log.out(DEBUG, "PDEexplicit: variable \""+varName+
+			Log.out(level, "PDEexplicit: variable \""+varName+
 					"\" has min flux "+var.getShape().getMaxFluxPotential() +
 					" and diffusivity "+var.getMin(DIFFUSIVITY));
 		}
@@ -65,22 +67,23 @@ public class PDEexplicit extends PDEsolver
 			nIter = (int) Math.ceil(tFinal/dt);
 			dt = tFinal/nIter;
 		}
-		Log.out(DEBUG, "PDEexplicit using ministep size "+dt);
+		Log.out(level, "PDEexplicit using ministep size "+dt);
 		/*
 		 * Iterate over all mini-timesteps.
 		 */
 		for ( int iter = 0; iter < nIter; iter++ )
 		{
-			Log.out(BULK, "Ministep "+iter+": "+(iter+1)*dt);
+			Log.out(level, "Ministep "+iter+": "+(iter+1)*dt);
 			this._updater.prestep(variables, dt);
 			for ( String varName : this._variableNames )
 			{
+				Log.out(level, " Variable: "+varName);
 				var = variables.get(varName);
 				var.newArray(LOPERATOR);
 				this.addFluxes(varName, var);
-				Log.out(BULK, "Total value of fluxes: "+
-						var.getTotal(PRODUCTIONRATE));
-				Log.out(BULK, "Total value of production rate array: "+
+				Log.out(level, "  Total value of fluxes: "+
+						var.getTotal(LOPERATOR));
+				Log.out(level, "  Total value of production rate array: "+
 						var.getTotal(PRODUCTIONRATE));
 				var.addArrayToArray(LOPERATOR, PRODUCTIONRATE);
 				var.timesAll(LOPERATOR, dt);

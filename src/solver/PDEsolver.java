@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
+
 import static dataIO.Log.Tier.*;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
@@ -63,6 +65,7 @@ public abstract class PDEsolver extends Solver
 	 */
 	protected void addFluxes(String varName, SpatialGrid grid)
 	{
+		Tier level = BULK;
 		Shape shape = grid.getShape();
 		/* Coordinates of the current position. */
 		int[] current;
@@ -77,7 +80,7 @@ public abstract class PDEsolver extends Solver
 			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
 				continue;
 			flux = 0.0;
-			Log.out(BULK, 
+			Log.out(level, 
 					"Coord "+Vector.toString(shape.iteratorCurrent())+
 					" (curent value "+grid.getValueAtCurrent(CONCN)+
 					"): calculating flux...");
@@ -86,14 +89,15 @@ public abstract class PDEsolver extends Solver
 			{
 				temp = grid.getFluxWithNeighbor(varName);
 				flux += temp;
-				Log.out(BULK, 
+				Log.out(level, 
 						"   nhb "+Vector.toString(shape.nbhIteratorCurrent())+
+						" ("+grid.getValueAtNhb(CONCN)+") "+
 						" contributes flux of "+temp);
 			}
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
-			Log.out(BULK, " TOTAL flux = "+flux);
+			Log.out(level, " TOTAL flux = "+flux);
 			grid.addValueAt(LOPERATOR, current, flux);
 		}
 	}
