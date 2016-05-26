@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -93,9 +95,7 @@ public abstract class Shape implements
 	 * Ordered dictionary of dimensions for this shape.
 	 * TODO switch to a Shape._dimensions a Dimension[3] paradigm
 	 */
-	protected LinkedList<Dimension> _dimensions = new LinkedList<Dimension>();
-//	protected LinkedHashMap<DimName, Dimension> _dimensions = 
-//									new LinkedHashMap<DimName, Dimension>();
+	protected Set<Dimension> _dimensions = new TreeSet<Dimension>();
 	/**
 	 * Storage container for dimensions that this {@code Shape} is not yet
 	 * ready to initialise.
@@ -353,7 +353,7 @@ public abstract class Shape implements
 	{
 		for (Dimension dim : _dimensions )
 		{
-			if (dim._dimName.equals(dimension));
+			if (dim._dimName.compareTo(dimension) == 0);
 				return dim;
 		}
 		return null;
@@ -383,9 +383,9 @@ public abstract class Shape implements
 	protected int getDimensionIndex(DimName dimension)
 	{
 		int out = 0;
-		for ( Dimension dim : this._dimensions )
+		for ( Dimension d : this._dimensions )
 		{
-			if ( dim._dimName == dimension )
+			if ( d._dimName.compareTo(dimension) == 0 )
 				return out;
 			out++;
 		}
@@ -589,7 +589,7 @@ public abstract class Shape implements
 		int i = 0;
 		for ( Dimension dim : this._dimensions )
 		{
-			if ( dim.equals(dimN) )
+			if ( dim._dimName.equals(dimN) )
 				out[i] = dim.getExtreme(extreme);
 			else
 				out[i] = dim.getRandomInside();

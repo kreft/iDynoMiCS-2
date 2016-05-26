@@ -227,12 +227,12 @@ public abstract class CartesianShape extends Shape
 		int nDim = this.getNumberOfDimensions();
 		ResCalc rC;
 		int index;
-		for ( DimName dim : this.getDimensionNames() )
+		for ( Dimension dim : this._dimensions )
 		{
 			if ( dim.equals(this._nbhDimName) 
-					|| !this.getDimension(dim).isSignificant() )
+					|| !dim.isSignificant() )
 				continue;
-			index = this.getDimensionIndex(dim);
+			index = this.getDimensionIndex(dim._dimName);
 			rC = this.getResolutionCalculator(this._currentCoord, index);
 			/* Need to be careful about insignificant axes. */
 			area *= ( index >= nDim ) ? rC.getResolution(0) :

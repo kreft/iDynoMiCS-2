@@ -1,5 +1,7 @@
 package shape;
 
+import java.util.Comparator;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -27,7 +29,7 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Dimension implements CanPrelaunchCheck, NodeConstructor
+public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable<Dimension>, Comparator<Dimension>
 {
 
 	/**
@@ -537,4 +539,15 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor
 		// TODO Auto-generated method stub
 		return XmlLabel.shapeDimension;
 	}
+
+	@Override
+	public int compareTo(Dimension o) {
+		return (this._dimName).compareTo(o._dimName);
+	}
+
+	@Override
+	public int compare(Dimension a, Dimension b) {
+		return (a._dimName).compareTo(b._dimName);
+	}
+
 }
