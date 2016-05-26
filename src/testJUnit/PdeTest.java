@@ -13,8 +13,8 @@ import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.SolveDiffusionTransient;
-import shape.Dimension.Dim;
 import shape.Shape;
+import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 import utility.ExtraMath;
 
@@ -42,13 +42,13 @@ public class PdeTest
 		AllTests.setupSimulatorForTest(tStep, tMax, "checkMassBalance");
 		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
 		comp.setShape("line");
-		comp.addBoundary(Dim.X, 0, new SolidBoundary());
-		comp.addBoundary(Dim.X, 1, new SolidBoundary());
+		comp.addBoundary(DimName.X, 0, new SolidBoundary());
+		comp.addBoundary(DimName.X, 1, new SolidBoundary());
 		Shape shape = comp.getShape();
 		UniformResolution resCalc = new UniformResolution();
 		resCalc.setLength(1.0 * nVoxel);
 		resCalc.setResolution(1.0);
-		shape.setDimensionResolution(Dim.X, resCalc);
+		shape.setDimensionResolution(DimName.X, resCalc);
 		/* Add the solute and fill it with random values. */
 		String soluteName = "solute";
 		comp.addSolute(soluteName);

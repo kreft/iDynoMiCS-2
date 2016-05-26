@@ -2,10 +2,11 @@ package shape;
 
 import static shape.Shape.WhereAmI.*;
 
-import shape.Dimension.Dim;
 import dataIO.Log;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import shape.Dimension.DimName;
+import shape.Dimension.DimName.*;
 import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
@@ -45,8 +46,8 @@ public abstract class CartesianShape extends Shape
 		 * These are the dimension names for any Cartesian shape. Assume they
 		 * are all insignificant to begin with.
 		 */
-		for ( Dim d : new Dim[]{Dim.X, Dim.Y, Dim.Z} )
-			this._dimensions.add(new Dimension(false, d));
+		for ( DimName d : new DimName[]{DimName.X, DimName.Y, DimName.Z} )
+			this._dimensions.put(d, new Dimension(false, d));
 		
 	}
 	
@@ -77,7 +78,7 @@ public abstract class CartesianShape extends Shape
 	 ************************************************************************/
 	
 	@Override
-	public void setDimensionResolution(Dim dName, ResCalc resC)
+	public void setDimensionResolution(DimName dName, ResCalc resC)
 	{
 		int index = this.getDimensionIndex(dName);
 		this._resCalc[index] = resC;
@@ -101,9 +102,9 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public void setSurfaces()
 	{
-		for ( Dimension dim : this._dimensions )
-			if ( dim.isSignificant() )
-				this.setPlanarSurfaces(dim.getName());
+		for ( DimName dim : this._dimensions.keySet() )
+			if ( this._dimensions.get(dim).isSignificant() )
+				this.setPlanarSurfaces(dim);
 	}
 	
 	/*************************************************************************
@@ -145,15 +146,15 @@ public abstract class CartesianShape extends Shape
 		Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
 				Vector.toString(this._currentNeighbor));
 		this._whereIsNbh = UNDEFINED;
-		for ( Dimension dim : this._dimensions )
+		for ( DimName dim : this._dimensions.keySet() )
 		{
 			/* Skip insignificant dimensions. */
-			if ( ! dim.isSignificant() )
+			if ( ! this.getDimension(dim).isSignificant() )
 				continue;
 			/* See if we can take one of the neighbors. */
-			if ( this.moveNbhToMinus(dim.getName()) || this.nbhJumpOverCurrent(dim.getName()) )
+			if ( this.moveNbhToMinus(dim) || this.nbhJumpOverCurrent(dim) )
 			{
-				this._nbhDim = dim;
+				this._nbhDimName = dim;
 				this.transformNbhCyclic();
 				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
 						+Vector.toString(this._currentNeighbor)+
@@ -169,11 +170,11 @@ public abstract class CartesianShape extends Shape
 		Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
 				Vector.toString(this._currentCoord));
 		this.untransformNbhCyclic();
-		int nbhIndex = this.getDimensionIndex(this._nbhDim);
+		int nbhIndex = this.getDimensionIndex(this._nbhDimName);
 		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
-				", trying along "+this._nbhDim.getName());
-		if ( ! this.nbhJumpOverCurrent(this._nbhDim.getName()))
+				", trying along "+this._nbhDimName);
+		if ( ! this.nbhJumpOverCurrent(this._nbhDimName))
 		{
 			/*
 			 * If we're in X or Y, try to move up one.
@@ -182,8 +183,8 @@ public abstract class CartesianShape extends Shape
 			nbhIndex++;
 			if ( nbhIndex < 3 )
 			{
-				this._nbhDim = this.getDimension(this.getDimensionName(nbhIndex));
-				if ( ! moveNbhToMinus(this._nbhDim.getName()) )
+				this._nbhDimName = this.getDimensionName(nbhIndex);
+				if ( ! moveNbhToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
 			}
 		}
@@ -200,7 +201,7 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public double nbhCurrDistance()
 	{
-		int i = this.getDimensionIndex(this._nbhDim);
+		int i = this.getDimensionIndex(this._nbhDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
 		double out = rC.getResolution(this._currentCoord[i]);
 		if ( this.isNhbIteratorInside() )
@@ -227,9 +228,10 @@ public abstract class CartesianShape extends Shape
 		int nDim = this.getNumberOfDimensions();
 		ResCalc rC;
 		int index;
-		for ( Dimension dim : this._dimensions )
+		for ( DimName dim : this.getDimensionNames() )
 		{
-			if ( dim.equals(this._nbhDim) || !dim.isSignificant() )
+			if ( dim.equals(this._nbhDimName) 
+					|| !this.getDimension(dim).isSignificant() )
 				continue;
 			index = this.getDimensionIndex(dim);
 			rC = this.getResolutionCalculator(this._currentCoord, index);

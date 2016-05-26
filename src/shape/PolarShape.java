@@ -1,6 +1,7 @@
 package shape;
 
-import shape.Dimension.Dim;
+import shape.Dimension.DimName;
+import shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.DEFINED;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
@@ -22,7 +23,7 @@ public abstract class PolarShape extends Shape
 		int nDim = this.getNumberOfDimensions();
 		double distance = 0.0;
 		double temp;
-		Dim dim;
+		DimName dim;
 		ResCalc rC;
 		/*
 		 * Find the average radius, as this will be useful in calculating arc
@@ -57,9 +58,10 @@ public abstract class PolarShape extends Shape
 		ResCalc rC;
 		double temp;
 		int index = 0;
-		for ( Dimension dim : this._dimensions )
+		for ( DimName dim : this.getDimensionNames() )
 		{
-			if ( dim.equals(this._nbhDim) || !dim.isSignificant() )
+			if ( dim.equals(this._nbhDimName) 
+					|| !this.getDimension(dim).isSignificant() )
 				continue;
 			
 			index = this.getDimensionIndex(dim);
@@ -81,7 +83,7 @@ public abstract class PolarShape extends Shape
 	 */
 	private double meanNbhCurrRadius()
 	{
-		int i = this.getDimensionIndex(Dim.R);
+		int i = this.getDimensionIndex(DimName.R);
 		return 0.5 * (this._currentCoord[i] + this._currentNeighbor[i]);
 	}
 	
@@ -104,12 +106,12 @@ public abstract class PolarShape extends Shape
 		 * defined boundary, the angular coordinate is irrelevant.
 		 */
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
-		WhereAmI where = this.whereIsNhb(Dim.R);
+		WhereAmI where = this.whereIsNhb(DimName.R);
 		if ( where == UNDEFINED )
 			return false;
 		if ( where == DEFINED )
 		{
-			this._nbhDim = this.getDimension(Dim.R);
+			this._nbhDimName = DimName.R;
 			this._nbhDirection = this._currentCoord[0] 
 									< this._currentNeighbor[0] ? 1 : 0;
 			return true;
@@ -126,10 +128,9 @@ public abstract class PolarShape extends Shape
 		/* we are always in the same z-slice as the current coordinate when
 		 * calling this method, so _nbhDimName can not be Z. 
 		 */
-		Dim nbhDimName = this._currentCoord[0] == this._currentNeighbor[0] ?
-										Dim.THETA : Dim.R;
-		this._nbhDim = this.getDimension(nbhDimName);
-		int dimIdx = getDimensionIndex(this._nbhDim);
+		this._nbhDimName = this._currentCoord[0] == this._currentNeighbor[0] ?
+										DimName.THETA : DimName.R;
+		int dimIdx = getDimensionIndex(this._nbhDimName);
 		this._nbhDirection = 
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
@@ -143,7 +144,7 @@ public abstract class PolarShape extends Shape
 	 * @param dim Name of the dimension required.
 	 * @return True is this was successful, false if it was not.
 	 */
-	protected boolean increaseNbhByOnePolar(Dim dim)
+	protected boolean increaseNbhByOnePolar(DimName dim)
 	{
 		int index = this.getDimensionIndex(dim);
 		Dimension dimension = this.getDimension(dim);

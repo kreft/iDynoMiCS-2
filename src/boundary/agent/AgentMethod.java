@@ -21,8 +21,8 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import nodeFactory.ModelNode;
-import shape.Dimension.Dim;
 import shape.Shape;
+import shape.Dimension.DimName;
 import utility.Helper;
 
 /**
@@ -84,7 +84,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 	 * @param extreme Index of the dimension's extremes - must be 0 or 1.
 	 */
 	public abstract void agentsArrive(
-			AgentContainer agentCont, Dim dimN, int extreme);
+			AgentContainer agentCont, DimName dimN, int extreme);
 	
 	/**
 	 * \brief Enter the {@code Agent}s waiting in the arrivals lounge to the
@@ -107,7 +107,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 	 * @param extreme Index of the dimension's extremes - must be 0 or 1.
 	 */
 	protected void placeAgentsRandom(
-			AgentContainer agentCont, Dim dimN, int extreme)
+			AgentContainer agentCont, DimName dimN, int extreme)
 	{
 		Shape aShape = agentCont.getShape();
 		double[] newLoc;

@@ -5,7 +5,6 @@ package shape;
 
 import org.w3c.dom.Element;
 
-import shape.Dimension.Dim;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.ObjectRef;
@@ -14,6 +13,8 @@ import grid.DummyGrid;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import shape.Dimension.DimName;
+
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
@@ -93,7 +94,7 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void setDimensionResolution(Dim dName, ResCalc resC)
+		public void setDimensionResolution(DimName dName, ResCalc resC)
 		{
 			/* Do nothing! */
 		}
@@ -154,7 +155,7 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void moveAlongDimension(double[] loc, Dim dimN, double dist)
+		public void moveAlongDimension(double[] loc, DimName dimN, double dist)
 		{
 			/* Do nothing! */
 		}

@@ -12,9 +12,8 @@ import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import static testJUnit.AllTests.TOLERANCE;
-
-import shape.Dimension.Dim;
 import shape.Shape;
+import shape.Dimension.DimName;
 import shape.ShapeLibrary.Rectangle;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 
@@ -87,18 +86,18 @@ public class ShapesTest
 	{
 		AllTests.setupSimulatorForTest(1.0, 1.0, "shapesShouldIterateProperly");
 		int[][] trueNhb = new int[3][3];
-		Dim[] dims = new Dim[]{Dim.X, Dim.Y};
+		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		Shape shp = new Rectangle();
 		UniformResolution resCalc = new UniformResolution();
 		resCalc.setLength(3.0);
 		resCalc.setResolution(1.0);
-		for ( Dim d : dims )
+		for ( DimName d : dims )
 			shp.setDimensionResolution(d, resCalc);
 		/*
 		 * Try first with solid boundaries.
 		 */
 		Boundary bndry = new SolidBoundary();
-		for ( Dim d : dims )
+		for ( DimName d : dims )
 			for ( int extreme = 0; extreme < 2; extreme++ )
 				shp.setBoundary(d, extreme, bndry);
 		/* Set up the array of true inside neighbor numbers. */
@@ -112,7 +111,7 @@ public class ShapesTest
 		/*
 		 * Now try with cyclic dimensions.
 		 */
-		for ( Dim d : dims )
+		for ( DimName d : dims )
 			shp.makeCyclic(d);
 		Matrix.setAll(trueNhb, 4);
 		Log.out(DEBUG, "Cyclic dimensions");

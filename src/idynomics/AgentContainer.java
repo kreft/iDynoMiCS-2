@@ -18,9 +18,9 @@ import dataIO.XmlLabel;
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
 import reaction.Reaction;
-import shape.Dimension.Dim;
 import shape.Dimension;
 import shape.Shape;
+import shape.Dimension.DimName;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
@@ -303,7 +303,7 @@ public class AgentContainer
 	 * @param dimN
 	 * @param dist
 	 */
-	public void moveAlongDimension(Agent anAgent, Dim dimN, double dist)
+	public void moveAlongDimension(Agent anAgent, DimName dimN, double dist)
 	{
 		if ( ! isLocated(anAgent) )
 			return;
@@ -404,22 +404,24 @@ public class AgentContainer
 	{
 		Tier level = BULK;
 		Log.out(level, "Agents arriving into compartment...");
+		Dimension dim;
 		AgentMethod method;
-		for ( Dimension dim : this._shape.getDimensions() )
+		for ( DimName dimN : this._shape.getDimensionNames() )
 		{
+			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )
 			{
-				Log.out(level, "   "+dim.getName()+" is cyclic, skipping");
+				Log.out(level, "   "+dimN+" is cyclic, skipping");
 				continue;
 			}
 			if ( ! dim.isSignificant() )
 			{
-				Log.out(level, "   "+dim.getName()+" is insignificant, skipping");
+				Log.out(level, "   "+dimN+" is insignificant, skipping");
 				continue;
 			}
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				Log.out(level, "Looking at "+dim.getName()+" "+((extreme==0)?"min":"max"));
+				Log.out(level, "Looking at "+dimN+" "+((extreme==0)?"min":"max"));
 				if ( ! dim.isBoundaryDefined(extreme) )
 				{
 					Log.out(level, "   boundary not defined");
@@ -427,7 +429,7 @@ public class AgentContainer
 				}
 				method = dim.getBoundary(extreme).getAgentMethod();
 				Log.out(level, "   boundary defined, calling agent method");
-				method.agentsArrive(this, dim.getName(), extreme);
+				method.agentsArrive(this, dimN, extreme);
 			}
 		}
 		for ( Boundary bndry : this._shape.getOtherBoundaries() )
@@ -448,21 +450,23 @@ public class AgentContainer
 	{
 		Tier level = BULK;
 		Log.out(level, "Pushing all outbound agents...");
-		for ( Dimension dim : this._shape.getDimensions() )
+		Dimension dim;
+		for ( DimName dimN : this._shape.getDimensionNames() )
 		{
+			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )
 			{
-				Log.out(level, "   "+dim.getName()+" is cyclic, skipping");
+				Log.out(level, "   "+dimN+" is cyclic, skipping");
 				continue;
 			}
 			if ( ! dim.isSignificant() )
 			{
-				Log.out(level, "   "+dim.getName()+" is insignificant, skipping");
+				Log.out(level, "   "+dimN+" is insignificant, skipping");
 				continue;
 			}
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				Log.out(level, "Looking at "+dim.getName()+" "+((extreme==0)?"min":"max"));
+				Log.out(level, "Looking at "+dimN+" "+((extreme==0)?"min":"max"));
 				if ( ! dim.isBoundaryDefined(extreme) )
 				{
 					Log.out(level, "   boundary not defined");

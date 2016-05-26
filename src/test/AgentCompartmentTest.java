@@ -13,8 +13,8 @@ import processManager.library.AgentGrowth;
 import processManager.library.AgentRelaxation;
 import processManager.library.RefreshMassGrids;
 import processManager.library.SolveDiffusionTransient;
-import shape.Dimension.Dim;
 import shape.Shape;
+import shape.Dimension.DimName;
 import utility.ExtraMath;
 
 public class AgentCompartmentTest
@@ -37,7 +37,7 @@ public class AgentCompartmentTest
 		 * Set the boundary methods and initialise the compartment.
 		 */
 		// set 4 periodic boundaries
-		for ( Dim dim : new Dim[]{Dim.X, Dim.Y} )
+		for ( DimName dim : new DimName[]{DimName.X, DimName.Y} )
 			aCompartment.getShape().getDimension(dim).setCyclic();
 		
 		/*
