@@ -56,7 +56,7 @@ public abstract class CylindricalShape extends PolarShape
 	@Override
 	public double[][][] getNewArray(double initialValue) {
 		int nr, nz;
-		if (getNumberOfDimensions() < 3)
+		if (getNumberOfDimensions() < 2)
 			throw new IllegalArgumentException(
 					"A cylindrical array needs at least 2 dimensions");
 		nr = _resCalc[0][0].getNVoxel();
