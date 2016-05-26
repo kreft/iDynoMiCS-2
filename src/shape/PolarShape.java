@@ -1,5 +1,6 @@
 package shape;
 
+import shape.Dimension.Dim;
 import static shape.Shape.WhereAmI.DEFINED;
 import static shape.Shape.WhereAmI.UNDEFINED;
 

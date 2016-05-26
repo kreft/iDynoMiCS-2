@@ -14,7 +14,7 @@ import boundary.BoundaryLibrary.SolidBoundary;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.NameRef;
-import shape.Dim;
+import shape.Dimension.Dim;
 import utility.ExtraMath;
 
 /**

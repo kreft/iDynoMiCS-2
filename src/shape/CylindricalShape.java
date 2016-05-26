@@ -2,6 +2,7 @@ package shape;
 
 import static shape.Shape.WhereAmI.UNDEFINED;
 
+import shape.Dimension.Dim;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -31,24 +32,21 @@ public abstract class CylindricalShape extends PolarShape
 		
 		Dimension dim;
 		/* There is no need for an r-min boundary. */
-		dim = new Dimension();
+		dim = new Dimension(Dim.R);
 		dim.setBoundaryOptional(0);
-		dim._dimName = Dim.R;
 		this._dimensions.add(dim);
 		this._resCalc[getDimensionIndex(Dim.R)] = new ResCalc[1];
 		/*
 		 * Set to a full circle by default, let it be overwritten later.
 		 */
-		dim = new Dimension();
+		dim = new Dimension(Dim.THETA);
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
-		dim._dimName = Dim.THETA;
 		this._dimensions.add(dim);
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
 		dim = new Dimension(false, Dim.Z);
-		dim._dimName = Dim.Z;
 		this._dimensions.add(dim);
 		this._resCalc[getDimensionIndex(Dim.Z)] = new ResCalc[1];
 	}

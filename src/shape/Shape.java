@@ -5,6 +5,7 @@ package shape;
 
 import static shape.Shape.WhereAmI.*;
 
+import shape.Dimension.Dim;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,8 +63,8 @@ import utility.Helper;
  * 								Friedrich-Schiller University Jena, Germany 
  */
 // TODO remove the last three sections by incorporation into Node construction.
-public abstract class Shape implements
-					CanPrelaunchCheck, XMLable, NodeConstructor
+public abstract class Shape implements 
+		CanPrelaunchCheck, XMLable, NodeConstructor
 {
 	protected enum WhereAmI
 	{
@@ -95,8 +96,7 @@ public abstract class Shape implements
 	 * Storage container for dimensions that this {@code Shape} is not yet
 	 * ready to initialise.
 	 */
-	protected HashMap<Dim,ResCalc> _rcStorage =
-												new HashMap<Dim,ResCalc>();
+	protected HashMap<Dim,ResCalc> _rcStorage = new HashMap<Dim,ResCalc>();
 	/**
 	 * The greatest potential flux between neighboring voxels. Multiply by 
 	 * diffusivity to become actual flux.
@@ -167,47 +167,6 @@ public abstract class Shape implements
 	/*************************************************************************
 	 * CONSTRUCTION
 	 ************************************************************************/
-	
-	@Override
-	public ModelNode getNode()
-	{
-
-		ModelNode modelNode = new ModelNode(XmlLabel.compartmentShape, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
-		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
-										this.getName(), null, false ));
-		
-		for ( Dimension dim : this._dimensions )
-			if(dim._isSignificant)
-				modelNode.add(dim.getNode());
-		
-		return modelNode;
-	}
-
-	@Override
-	public void setNode(ModelNode node)
-	{
-
-	}
-
-	@Override
-	public NodeConstructor newBlank()
-	{
-		return (Shape) Shape.getNewInstance(
-				Helper.obtainInput(getAllOptions(), "Shape class", false));
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
-	public String defaultXmlTag()
-	{
-		return XmlLabel.compartmentShape;
-	}
 	
 	/**
 	 * \brief Initialise from an XML element.
@@ -349,7 +308,7 @@ public abstract class Shape implements
 	{
 		for (Dimension dim : _dimensions )
 		{
-			if (dim._dimName.equals(dimension))
+			if (dim.getName().equals(dimension))
 				return dim;
 		}
 		return null;
@@ -363,8 +322,16 @@ public abstract class Shape implements
 	{
 		LinkedList<Dim> dimNames = new LinkedList<Dim>();
 		for (Dimension dim : _dimensions )
-			dimNames.add(dim._dimName);
+			dimNames.add(dim.getName());
 		return dimNames;
+	}
+	
+	/**
+	 * @return The set of dimensions for this {@code Shape}.
+	 */
+	public Set<Dimension> getDimensions()
+	{
+		return this._dimensions;
 	}
 	
 	/**
@@ -381,7 +348,7 @@ public abstract class Shape implements
 		int out = 0;
 		for ( Dimension d : this._dimensions )
 		{
-			if ( d._dimName.equals(dimension))
+			if ( d.getName().equals(dimension))
 				return out;
 			out++;
 		}
@@ -419,7 +386,7 @@ public abstract class Shape implements
 		for ( Dimension d : this._dimensions )
 		{
 			if ( counter == index )
-				return d._dimName;
+				return d.getName();
 			counter++;
 		}
 		return null;
@@ -604,7 +571,7 @@ public abstract class Shape implements
 		int i = 0;
 		for ( Dimension dim : this._dimensions )
 		{
-			if ( dim._dimName.equals(dimN) )
+			if ( dim.getName().equals(dimN) )
 				out[i] = dim.getExtreme(extreme);
 			else
 				out[i] = dim.getRandomInside();
@@ -1059,7 +1026,7 @@ public abstract class Shape implements
 		WhereAmI where;
 		for ( Dimension dim : this._dimensions )
 		{
-			where = this.whereIsNhb(dim._dimName);
+			where = this.whereIsNhb(dim.getName());
 			if ( where == UNDEFINED )
 				return (this._whereIsNbh = UNDEFINED);
 			if ( this.isNhbIteratorInside() && where == DEFINED )
@@ -1600,5 +1567,45 @@ public abstract class Shape implements
 		return Helper.getClassNamesSimple(
 									ShapeLibrary.class.getDeclaredClasses());
 	}
+	
+	@Override
+	public ModelNode getNode()
+	{
+
+		ModelNode modelNode = new ModelNode(XmlLabel.compartmentShape, this);
+		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+										this.getName(), null, false ));
 		
+		for ( Dimension dim : this._dimensions )
+			if(dim._isSignificant)
+				modelNode.add(dim.getNode());
+		
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node)
+	{
+
+	}
+
+	@Override
+	public NodeConstructor newBlank()
+	{
+		return (Shape) Shape.getNewInstance(
+				Helper.obtainInput(getAllOptions(), "Shape class", false));
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject)
+	{
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
+	public String defaultXmlTag()
+	{
+		return XmlLabel.compartmentShape;
+	}
 }

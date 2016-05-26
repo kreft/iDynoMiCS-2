@@ -21,7 +21,7 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import nodeFactory.ModelNode;
-import shape.Dim;
+import shape.Dimension.Dim;
 import shape.Shape;
 import utility.Helper;
 

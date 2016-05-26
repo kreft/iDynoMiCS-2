@@ -2,6 +2,7 @@ package shape;
 
 import static shape.Shape.WhereAmI.*;
 
+import shape.Dimension.Dim;
 import dataIO.Log;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
@@ -102,7 +103,7 @@ public abstract class CartesianShape extends Shape
 	{
 		for ( Dimension dim : this._dimensions )
 			if ( dim.isSignificant() )
-				this.setPlanarSurfaces(dim._dimName);
+				this.setPlanarSurfaces(dim.getName());
 	}
 	
 	/*************************************************************************
@@ -150,7 +151,7 @@ public abstract class CartesianShape extends Shape
 			if ( ! dim.isSignificant() )
 				continue;
 			/* See if we can take one of the neighbors. */
-			if ( this.moveNbhToMinus(dim._dimName) || this.nbhJumpOverCurrent(dim._dimName) )
+			if ( this.moveNbhToMinus(dim.getName()) || this.nbhJumpOverCurrent(dim.getName()) )
 			{
 				this._nbhDim = dim;
 				this.transformNbhCyclic();
@@ -171,8 +172,8 @@ public abstract class CartesianShape extends Shape
 		int nbhIndex = this.getDimensionIndex(this._nbhDim);
 		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
-				", trying along "+this._nbhDim._dimName);
-		if ( ! this.nbhJumpOverCurrent(this._nbhDim._dimName))
+				", trying along "+this._nbhDim.getName());
+		if ( ! this.nbhJumpOverCurrent(this._nbhDim.getName()))
 		{
 			/*
 			 * If we're in X or Y, try to move up one.
@@ -182,7 +183,7 @@ public abstract class CartesianShape extends Shape
 			if ( nbhIndex < 3 )
 			{
 				this._nbhDim = this.getDimension(this.getDimensionName(nbhIndex));
-				if ( ! moveNbhToMinus(this._nbhDim._dimName) )
+				if ( ! moveNbhToMinus(this._nbhDim.getName()) )
 					return nbhIteratorNext();
 			}
 		}

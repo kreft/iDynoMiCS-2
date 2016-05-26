@@ -9,7 +9,7 @@ import agent.Agent;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import idynomics.AgentContainer;
-import shape.Dim;
+import shape.Dimension.Dim;
 /**
  * \brief Collection of commonly used methods for 
  * {@code Agent}-{@code Boundary} interactions.

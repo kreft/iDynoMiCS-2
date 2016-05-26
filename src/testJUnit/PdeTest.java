@@ -13,7 +13,7 @@ import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.SolveDiffusionTransient;
-import shape.Dim;
+import shape.Dimension.Dim;
 import shape.Shape;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 import utility.ExtraMath;

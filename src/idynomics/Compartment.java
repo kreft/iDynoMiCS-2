@@ -25,7 +25,7 @@ import nodeFactory.NodeConstructor;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
-import shape.Dim;
+import shape.Dimension.Dim;
 import shape.Shape;
 
 /**

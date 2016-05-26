@@ -13,7 +13,7 @@ import processManager.library.AgentGrowth;
 import processManager.library.AgentRelaxation;
 import processManager.library.RefreshMassGrids;
 import processManager.library.SolveDiffusionTransient;
-import shape.Dim;
+import shape.Dimension.Dim;
 import shape.Shape;
 import utility.ExtraMath;
 

@@ -3,6 +3,7 @@ package shape;
 import static shape.Shape.WhereAmI.INSIDE;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
+import shape.Dimension.Dim;
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -39,22 +40,20 @@ public abstract class SphericalShape extends PolarShape
 		 */
 		Dimension dim;
 		/* There is no need for an r-min boundary. */
-		dim = new Dimension();
+		dim = new Dimension(Dim.R);
 		dim.setBoundaryOptional(0);
-		dim._dimName = Dim.R;
 		this._dimensions.add(dim);
 		/*
 		 * Set full angular dimensions by default, can be overwritten later.
 		 */
-		dim = new Dimension();
+		dim = new Dimension(Dim.PHI);
 		dim.setCyclic();
 		dim.setLength(Math.PI);
-		dim._dimName = Dim.PHI;
 		this._dimensions.add(dim);
-		dim = new Dimension();
+		
+		dim = new Dimension(Dim.THETA);
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
-		dim._dimName = Dim.THETA;
 		this._dimensions.add(dim);
 	}
 	

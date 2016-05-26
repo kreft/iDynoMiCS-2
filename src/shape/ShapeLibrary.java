@@ -5,6 +5,7 @@ package shape;
 
 import org.w3c.dom.Element;
 
+import shape.Dimension.Dim;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.ObjectRef;

@@ -27,6 +27,33 @@ import utility.Helper;
  */
 public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable<Dimension>
 {
+	
+	/**
+	 * 
+	 * 
+	 */
+	public enum Dim
+	{
+		X(false),
+		Y(false),
+		Z(false),
+		R(false),
+		THETA(true),
+		PHI(true);
+		
+		boolean _isAngular;
+		
+		Dim(boolean isAngular)
+		{
+			this._isAngular = isAngular;
+		}
+		
+		public boolean isAngular()
+		{
+			return this._isAngular;
+		}
+	}
+	
 	/**
 	 * If we need to put a point just inside the maximum extreme, use this
 	 * number multiplied by the dimension length as the small amount less than
@@ -74,9 +101,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 	 * CONSTRUCTORS
 	 *************************************************************************/
 	
-	public Dimension()
+	public Dimension(Dim dimName)
 	{
-		
+		this._dimName = dimName;
 	}
 	
 	public Dimension(boolean isSignificant, Dim dimName)
@@ -90,7 +117,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 	
 	public boolean isAngular()
 	{
-		return this._dimName.isAngular();
+		return this.getName().isAngular();
 	}
 	
 	public void init(Node xmlNode)
@@ -504,7 +531,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-										this._dimName.name(), null, false ));
+										this.getName().name(), null, false ));
 		modelNode.add(new ModelAttribute(XmlLabel.IS_CYCLIC, 
 				String.valueOf(this._isCyclic), null, false ));
 		modelNode.add(new ModelAttribute(XmlLabel.targetResolutionAttribute, 
@@ -543,6 +570,10 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 
 	@Override
 	public int compareTo(Dimension o) {
-		return this._dimName.compareTo(o._dimName);
+		return this.getName().compareTo(o.getName());
+	}
+
+	public Dim getName() {
+		return _dimName;
 	}
 }
