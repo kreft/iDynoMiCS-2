@@ -3,10 +3,9 @@
  */
 package shape;
 
-import static shape.ShapeConventions.DimName.R;
+import shape.Dimension.DimName;
 import static shape.Shape.WhereAmI.*;
 
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.w3c.dom.Element;
@@ -35,7 +33,6 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
-import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.subvoxel.SubvoxelPoint;
@@ -95,7 +92,8 @@ public abstract class Shape implements
 	 * Ordered dictionary of dimensions for this shape.
 	 * TODO switch to a Shape._dimensions a Dimension[3] paradigm
 	 */
-	protected Set<Dimension> _dimensions = new TreeSet<Dimension>();
+	protected TreeSet<Dimension> _dimensions = 
+									new TreeSet<Dimension>();
 	/**
 	 * Storage container for dimensions that this {@code Shape} is not yet
 	 * ready to initialise.
@@ -550,7 +548,7 @@ public abstract class Shape implements
 		double[] local = this.getLocalPosition(pos);
 		if ( dimN.isAngular() )
 		{
-			double radius = local[this.getDimensionIndex(R)];
+			double radius = local[this.getDimensionIndex(DimName.R)];
 			if ( radius == 0.0 )
 				return;
 			double angle = dist/radius;

@@ -17,32 +17,7 @@ import shape.resolution.ResolutionCalculator.ResCalc;
  */
 public final class ShapeConventions
 {
-	/**
-	 * 
-	 * 
-	 */
-	public enum DimName
-	{
-		X(false),
-		Y(false),
-		Z(false),
-		R(false),
-		THETA(true),
-		PHI(true);
-		
-		private boolean _isAngular;
-		
-		DimName(boolean isAngular)
-		{
-			this._isAngular = isAngular;
-		}
-		
-		public boolean isAngular()
-		{
-			return this._isAngular;
-		}
-	}
-	
+
 	/**
 	 * \brief Dummy resolution calculator that always has exactly one voxel.
 	 */

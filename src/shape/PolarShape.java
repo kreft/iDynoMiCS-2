@@ -1,11 +1,11 @@
 package shape;
 
-import static shape.ShapeConventions.DimName.R;
+import shape.Dimension.DimName;
+import shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.DEFINED;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.Vector;
-import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 public abstract class PolarShape extends Shape
@@ -83,7 +83,7 @@ public abstract class PolarShape extends Shape
 	 */
 	private double meanNbhCurrRadius()
 	{
-		int i = this.getDimensionIndex(R);
+		int i = this.getDimensionIndex(DimName.R);
 		return 0.5 * (this._currentCoord[i] + this._currentNeighbor[i]);
 	}
 	
@@ -106,12 +106,12 @@ public abstract class PolarShape extends Shape
 		 * defined boundary, the angular coordinate is irrelevant.
 		 */
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
-		WhereAmI where = this.whereIsNhb(R);
+		WhereAmI where = this.whereIsNhb(DimName.R);
 		if ( where == UNDEFINED )
 			return false;
 		if ( where == DEFINED )
 		{
-			this._nbhDimName = R;
+			this._nbhDimName = DimName.R;
 			this._nbhDirection = this._currentCoord[0] 
 									< this._currentNeighbor[0] ? 1 : 0;
 			return true;

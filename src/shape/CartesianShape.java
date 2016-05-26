@@ -5,7 +5,8 @@ import static shape.Shape.WhereAmI.*;
 import dataIO.Log;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
+import shape.Dimension.DimName.*;
 import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
@@ -227,12 +228,12 @@ public abstract class CartesianShape extends Shape
 		int nDim = this.getNumberOfDimensions();
 		ResCalc rC;
 		int index;
-		for ( Dimension dim : this._dimensions )
+		for ( DimName dim : this.getDimensionNames() )
 		{
 			if ( dim.equals(this._nbhDimName) 
-					|| !dim.isSignificant() )
+					|| !this.getDimension(dim).isSignificant() )
 				continue;
-			index = this.getDimensionIndex(dim._dimName);
+			index = this.getDimensionIndex(dim);
 			rC = this.getResolutionCalculator(this._currentCoord, index);
 			/* Need to be careful about insignificant axes. */
 			area *= ( index >= nDim ) ? rC.getResolution(0) :

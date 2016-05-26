@@ -1,14 +1,11 @@
 package shape;
 
-import java.util.Comparator;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import agent.Agent;
+
 import boundary.Boundary;
-import boundary.Boundary.BoundaryMaker;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
@@ -19,7 +16,6 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
 import shape.ShapeConventions.BoundaryCyclic;
-import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -29,8 +25,34 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable<Dimension>, Comparator<Dimension>
+public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable<Dimension>
 {
+	/**
+	 * 
+	 * 
+	 */
+	public enum DimName
+	{
+		X(false),
+		Y(false),
+		Z(false),
+		R(false),
+		THETA(true),
+		PHI(true);
+		
+		private boolean _isAngular;
+		
+		DimName(boolean isAngular)
+		{
+			this._isAngular = isAngular;
+		}
+		
+		public boolean isAngular()
+		{
+			return this._isAngular;
+		}
+	}
+	
 
 	/**
 	 * If we need to put a point just inside the maximum extreme, use this
@@ -542,12 +564,6 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 
 	@Override
 	public int compareTo(Dimension o) {
-		return (this._dimName).compareTo(o._dimName);
+		return this._dimName.compareTo(o._dimName);
 	}
-
-	@Override
-	public int compare(Dimension a, Dimension b) {
-		return (a._dimName).compareTo(b._dimName);
-	}
-
 }

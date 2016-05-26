@@ -13,7 +13,8 @@ import grid.DummyGrid;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
+
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
