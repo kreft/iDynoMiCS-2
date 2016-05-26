@@ -3,17 +3,16 @@
  */
 package shape;
 
-import shape.Dimension.DimName;
 import static shape.Shape.WhereAmI.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -89,21 +88,21 @@ public abstract class Shape implements
 
 	/**
 	 * Ordered dictionary of dimensions for this shape.
-	 * TODO switch to a Shape._dimensions a Dimension[3] paradigm
 	 */
-	protected LinkedHashMap<DimName, Dimension> _dimensions = 
-									new LinkedHashMap<DimName, Dimension>();
+	protected TreeSet<Dimension> _dimensions = new TreeSet<Dimension>();
+	
 	/**
 	 * Storage container for dimensions that this {@code Shape} is not yet
 	 * ready to initialise.
 	 */
-	protected HashMap<DimName,ResCalc> _rcStorage =
-												new HashMap<DimName,ResCalc>();
+	protected HashMap<Dim,ResCalc> _rcStorage =
+												new HashMap<Dim,ResCalc>();
 	/**
 	 * The greatest potential flux between neighboring voxels. Multiply by 
 	 * diffusivity to become actual flux.
 	 */
 	protected Double _maxFluxPotentl = null;
+	
 	/**
 	 * Surfaces for collision detection methods.
 	 */
@@ -132,7 +131,7 @@ public abstract class Shape implements
 	/**
 	 * the dimension name the current neighbor is moving in
 	 */
-	protected DimName _nbhDimName;
+	protected Dimension _nbhDim;
 	/**
 	 * Integer indicating positive (1) or negative (0) relative position
 	 * to the current coordinate.
@@ -178,9 +177,9 @@ public abstract class Shape implements
 		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
 										this.getName(), null, false ));
 		
-		for ( DimName dim : this._dimensions.keySet() )
-			if(this._dimensions.get(dim)._isSignificant)
-				modelNode.add(this._dimensions.get(dim).getNode());
+		for ( Dimension dim : this._dimensions )
+			if(dim._isSignificant)
+				modelNode.add(dim.getNode());
 		
 		return modelNode;
 	}
@@ -225,7 +224,7 @@ public abstract class Shape implements
 		Element childElem;
 		String str;
 		/* Set up the dimensions. */
-		DimName dimName;
+		Dim dimName;
 		Dimension dim;
 		childNodes = XmlHandler.getAll(xmlElem, XmlLabel.shapeDimension);
 		ResCalc rC;
@@ -237,7 +236,7 @@ public abstract class Shape implements
 			{
 				str = XmlHandler.obtainAttribute(childElem,
 												XmlLabel.nameAttribute);
-				dimName = DimName.valueOf(str);
+				dimName = Dim.valueOf(str);
 				dim = this.getDimension(dimName);
 				dim.init(childElem);
 				
@@ -260,7 +259,7 @@ public abstract class Shape implements
 			{
 				Log.out(Tier.CRITICAL, "Warning: input Dimension not "
 						+ "recognised by shape " + this.getClass().getName()
-						+ ", use: " + Helper.enumToString(DimName.class));
+						+ ", use: " + Helper.enumToString(Dim.class));
 			}
 		}
 		
@@ -336,7 +335,7 @@ public abstract class Shape implements
 	public int getNumberOfDimensions()
 	{
 		int out = 0;
-		for ( Dimension dim : this._dimensions.values() )
+		for ( Dimension dim : this._dimensions )
 			if ( dim.isSignificant() )
 				out++;
 		return out;
@@ -346,18 +345,26 @@ public abstract class Shape implements
 	 * @param dimension The name of the dimension requested.
 	 * @return The {@code Dimension} object.
 	 */
-	public Dimension getDimension(DimName dimension)
+	public Dimension getDimension(Dim dimension)
 	{
-		return this._dimensions.get(dimension);
+		for (Dimension dim : _dimensions )
+		{
+			if (dim._dimName.equals(dimension))
+				return dim;
+		}
+		return null;
 	}
 	
 	/**
 	 * @return The set of dimension names for this {@code Shape}.
 	 */
 	// TODO change to significant dimensions only?
-	public Set<DimName> getDimensionNames()
+	public List<Dim> getDimensionNames()
 	{
-		return this._dimensions.keySet();
+		LinkedList<Dim> dimNames = new LinkedList<Dim>();
+		for (Dimension dim : _dimensions )
+			dimNames.add(dim._dimName);
+		return dimNames;
 	}
 	
 	/**
@@ -369,12 +376,31 @@ public abstract class Shape implements
 	 * {@code Shape}.
 	 * @return Index of the dimension, if present; {@code -1}, if not.
 	 */
-	protected int getDimensionIndex(DimName dimension)
+	protected int getDimensionIndex(Dim dimension)
 	{
 		int out = 0;
-		for ( DimName d : this._dimensions.keySet() )
+		for ( Dimension d : this._dimensions )
 		{
-			if ( d == dimension )
+			if ( d._dimName.equals(dimension))
+				return out;
+			out++;
+		}
+		return -1;
+	}
+	
+	/**
+	 * \brief Finds the index of the dimension.
+	 * 
+	 * 
+	 * @param dimension 
+	 * @return Index of the dimension, if present; {@code -1}, if not.
+	 */
+	protected int getDimensionIndex(Dimension dimension)
+	{
+		int out = 0;
+		for ( Dimension d : this._dimensions )
+		{
+			if ( d.equals(dimension))
 				return out;
 			out++;
 		}
@@ -387,13 +413,13 @@ public abstract class Shape implements
 	 * @param index Index of the dimension required.
 	 * @return Name of the dimension required.
 	 */
-	protected DimName getDimensionName(int index)
+	protected Dim getDimensionName(int index)
 	{
 		int counter = 0;
-		for ( DimName d : this._dimensions.keySet() )
+		for ( Dimension d : this._dimensions )
 		{
 			if ( counter == index )
-				return d;
+				return d._dimName;
 			counter++;
 		}
 		return null;
@@ -407,7 +433,7 @@ public abstract class Shape implements
 	 */
 	public void makeCyclic(String dimensionName)
 	{
-		this.makeCyclic(DimName.valueOf(dimensionName.toUpperCase()));
+		this.makeCyclic(Dim.valueOf(dimensionName.toUpperCase()));
 	}
 	
 	/**
@@ -420,7 +446,7 @@ public abstract class Shape implements
 	protected void setSignificant(int n)
 	{
 		int i = 0;
-		for ( Dimension dim : this._dimensions.values() )
+		for ( Dimension dim : this._dimensions )
 		{
 			if ( i >= n )
 				return;
@@ -435,7 +461,7 @@ public abstract class Shape implements
 	 * 
 	 * @param dimension {@code DimName} enumeration of the dimension.
 	 */
-	public void makeCyclic(DimName dimension)
+	public void makeCyclic(Dim dimension)
 	{
 		this.getDimension(dimension).setCyclic();
 	}
@@ -448,7 +474,7 @@ public abstract class Shape implements
 	 * to: should be 0 or 1. See {@code Boundary} for more information.
 	 * @param bndry The {@code Boundary} to set.
 	 */
-	public void setBoundary(DimName dimension, int index, Boundary bndry)
+	public void setBoundary(Dim dimension, int index, Boundary bndry)
 	{
 		this.getDimension(dimension).setBoundary(bndry, index);
 	}
@@ -463,7 +489,7 @@ public abstract class Shape implements
 	{
 		double[] out = new double[this._dimensions.size()];
 		int i = 0;
-		for ( Dimension dim : this._dimensions.values() )
+		for ( Dimension dim : this._dimensions )
 		{
 			out[i] = dim.getLength();
 			i++;
@@ -484,10 +510,8 @@ public abstract class Shape implements
 	public void setDimensionLengths(double[] lengths)
 	{
 		int i = 0;
-		Dimension dim;
-		for ( DimName d : this._dimensions.keySet() )
+		for ( Dimension dim : this._dimensions )
 		{
-			dim = this.getDimension(d);
 			dim.setLength(( i < lengths.length ) ? lengths[i] : 0.0);
 			i++;
 		}
@@ -499,7 +523,7 @@ public abstract class Shape implements
 	 * 
 	 * @param dName Name of the dimension to try.
 	 */
-	protected void trySetDimRes(DimName dName)
+	protected void trySetDimRes(Dim dName)
 	{
 		ResCalc rC = this._rcStorage.get(dName);
 		if ( rC != null )
@@ -513,7 +537,7 @@ public abstract class Shape implements
 	 * @param dName The name of the dimension to set for.
 	 * @param resC A resolution calculator.
 	 */
-	public abstract void setDimensionResolution(DimName dName, ResCalc resC);
+	public abstract void setDimensionResolution(Dim dName, ResCalc resC);
 	
 	/**
 	 * \brief Get the Resolution Calculator for the given dimension, at the
@@ -536,16 +560,12 @@ public abstract class Shape implements
 	 * @param dimN Name of the {@code Dimension} along which to move.
 	 * @param dist Distance to move (can be negative).
 	 */
-	public void moveAlongDimension(double[] pos, DimName dimN, double dist)
+	public void moveAlongDimension(double[] pos, Dim dimN, double dist)
 	{
-		if ( ! this._dimensions.keySet().contains(dimN) )
-		{
-			// TODO safety
-		}
 		double[] local = this.getLocalPosition(pos);
 		if ( dimN.isAngular() )
 		{
-			double radius = local[this.getDimensionIndex(DimName.R)];
+			double radius = local[this.getDimensionIndex(Dim.R)];
 			if ( radius == 0.0 )
 				return;
 			double angle = dist/radius;
@@ -558,13 +578,13 @@ public abstract class Shape implements
 	
 	/**
 	 * \brief Internal helper method for the
-	 * {@link #moveAlongDimension(double[], DimName, double)} method.
+	 * {@link #moveAlongDimension(double[], Dim, double)} method.
 	 * 
 	 * @param loc Current location (overwritten).
 	 * @param dimN Name of the {@code Dimension} along which to move.
 	 * @param dist Distance to move (can be negative).
 	 */
-	protected void moveAlongDim(double[] loc, DimName dimN, double dist)
+	protected void moveAlongDim(double[] loc, Dim dimN, double dist)
 	{
 		int dimIndex = this.getDimensionIndex(dimN);
 		loc[dimIndex] += dist;
@@ -577,15 +597,14 @@ public abstract class Shape implements
 	 * @param extreme Index of the extreme of this dimension - must be 0 or 1.
 	 * @return 
 	 */
-	public double[] getRandomLocationOnBoundary(DimName dimN, int extreme)
+	public double[] getRandomLocationOnBoundary(Dim dimN, int extreme)
 	{
 		int nDim = this.getNumberOfDimensions();
 		double[] out = new double[nDim];
 		int i = 0;
-		for ( DimName d : this._dimensions.keySet() )
+		for ( Dimension dim : this._dimensions )
 		{
-			Dimension dim = this.getDimension(d);
-			if ( d.equals(dimN) )
+			if ( dim._dimName.equals(dimN) )
 				out[i] = dim.getExtreme(extreme);
 			else
 				out[i] = dim.getRandomInside();
@@ -612,7 +631,7 @@ public abstract class Shape implements
 	 * 
 	 * @param aDimName The name of the dimension required.
 	 */
-	protected void setPlanarSurfaces(DimName aDimName)
+	protected void setPlanarSurfaces(Dim aDimName)
 	{
 		Dimension dim = this.getDimension(aDimName);
 		/* Safety. */
@@ -671,7 +690,7 @@ public abstract class Shape implements
 	public Collection<Boundary> getAllBoundaries()
 	{
 		Collection<Boundary> out = new LinkedList<Boundary>();
-		for ( Dimension d : this._dimensions.values() )
+		for ( Dimension d : this._dimensions )
 			for ( Boundary b : d.getBoundaries() )
 				if ( b != null )
 					out.add(b);
@@ -711,7 +730,7 @@ public abstract class Shape implements
 		double[] position = this.getLocalPosition(location);
 		int nDim = location.length;
 		int i = 0;
-		for ( Dimension dim : this._dimensions.values() )
+		for ( Dimension dim : this._dimensions )
 		{
 			if ( ! dim.isInside(position[i]) )
 				return false;
@@ -731,7 +750,7 @@ public abstract class Shape implements
 		double[] position = this.getLocalPosition(location);
 		int nDim = location.length;
 		int i = 0;
-		for ( Dimension dim : this._dimensions.values() )
+		for ( Dimension dim : this._dimensions )
 		{
 			position[i] = dim.getInside(position[i]);
 			if ( ++i >= nDim )
@@ -761,7 +780,7 @@ public abstract class Shape implements
 		double[] newPoint;
 		int nDim = location.length;
 		int i = 0;
-		for ( Dimension dim : this._dimensions.values() )
+		for ( Dimension dim : this._dimensions )
 		{
 			if ( dim.isCyclic() )
 			{
@@ -812,7 +831,7 @@ public abstract class Shape implements
 		int nDim = a.length;
 		double[] diffLocal = new double[nDim];
 		int i = 0;
-		for ( Dimension dim : this._dimensions.values() )
+		for ( Dimension dim : this._dimensions )
 		{
 			diffLocal[i] = dim.getShortest(aLocal[i], bLocal[i]);
 			if ( ++i >= nDim )
@@ -1003,7 +1022,7 @@ public abstract class Shape implements
 	 * @param dimName
 	 * @return
 	 */
-	protected WhereAmI whereIs(int[] coord, DimName dimName)
+	protected WhereAmI whereIs(int[] coord, Dim dimName)
 	{
 		Dimension dim = this.getDimension(dimName);
 		int index = this.getDimensionIndex(dimName);
@@ -1029,7 +1048,7 @@ public abstract class Shape implements
 	 * @param dimName
 	 * @return
 	 */
-	protected WhereAmI whereIsNhb(DimName dimName)
+	protected WhereAmI whereIsNhb(Dim dimName)
 	{
 		return this.whereIs(this._currentNeighbor, dimName);
 	}
@@ -1038,9 +1057,9 @@ public abstract class Shape implements
 	{
 		this._whereIsNbh = INSIDE;
 		WhereAmI where;
-		for ( DimName dim : this._dimensions.keySet() )
+		for ( Dimension dim : this._dimensions )
 		{
-			where = this.whereIsNhb(dim);
+			where = this.whereIsNhb(dim._dimName);
 			if ( where == UNDEFINED )
 				return (this._whereIsNbh = UNDEFINED);
 			if ( this.isNhbIteratorInside() && where == DEFINED )
@@ -1376,8 +1395,7 @@ public abstract class Shape implements
 	{
 		if ( this._whereIsNbh == DEFINED )
 		{
-			Dimension dim = this.getDimension(this._nbhDimName);
-			return dim.getBoundary(this._nbhDirection);
+			return this._nbhDim.getBoundary(this._nbhDirection);
 		}
 		return null;
 	}
@@ -1413,10 +1431,9 @@ public abstract class Shape implements
 	 */
 	protected void transformNbhCyclic()
 	{
-		Dimension dim = getDimension(this._nbhDimName);
-		if ( (this._whereIsNbh == CYCLIC) && dim.isCyclic() )
+		if ( (this._whereIsNbh == CYCLIC) && _nbhDim.isCyclic() )
 		{
-			int dimIdx = this.getDimensionIndex(this._nbhDimName);
+			int dimIdx = this.getDimensionIndex(this._nbhDim);
 			int nVoxel = this.getResolutionCalculator(
 					this._currentCoord, dimIdx).getNVoxel();
 			if ( this._nbhDirection == 0 )
@@ -1439,10 +1456,9 @@ public abstract class Shape implements
 	 */
 	protected void untransformNbhCyclic()
 	{
-		Dimension dim = this.getDimension(this._nbhDimName);
-		if ( (this._whereIsNbh == CYCLIC) && dim.isCyclic() )
+		if ( (this._whereIsNbh == CYCLIC) && this._nbhDim.isCyclic() )
 		{
-			int dimIdx = this.getDimensionIndex(this._nbhDimName);
+			int dimIdx = this.getDimensionIndex(this._nbhDim);
 			if ( this._nbhDirection == 0 )
 			{
 				/* Direction 0: the neighbor should be below. */
@@ -1464,7 +1480,7 @@ public abstract class Shape implements
 	 * 
 	 * @return {@code boolean} reporting whether this is valid.
 	 */
-	protected boolean moveNbhToMinus(DimName dim)
+	protected boolean moveNbhToMinus(Dim dim)
 	{
 		int index = this.getDimensionIndex(dim);
 		/* Move to the coordinate just belong the current one. */
@@ -1474,7 +1490,7 @@ public abstract class Shape implements
 		WhereAmI where = this.whereIsNhb(dim);
 		this._whereIsNbh = where;
 		this._nbhDirection = 0;
-		this._nbhDimName = dim;
+		this._nbhDim = this.getDimension(dim);
 		Log.out(NHB_ITER_LEVEL,
 				"   tried moving to minus in "+dim+": result "+
 						Vector.toString(this._currentNeighbor)+" is "+where);
@@ -1491,7 +1507,7 @@ public abstract class Shape implements
 	 * @param dim Index of the dimension to move in.
 	 * @return Whether the increase was successful (true) or a failure (false).
 	 */
-	protected boolean nbhJumpOverCurrent(DimName dim)
+	protected boolean nbhJumpOverCurrent(Dim dim)
 	{
 		int index = this.getDimensionIndex(dim);
 		this.updateCurrentNVoxel();
@@ -1553,7 +1569,7 @@ public abstract class Shape implements
 	public boolean isReadyForLaunch()
 	{
 		/* Check all dimensions are ready. */
-		for ( Dimension dim : this._dimensions.values() )
+		for ( Dimension dim : this._dimensions )
 			if ( ! dim.isReadyForLaunch() )
 			{
 				// TODO

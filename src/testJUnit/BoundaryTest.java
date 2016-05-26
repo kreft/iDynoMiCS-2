@@ -14,7 +14,7 @@ import boundary.BoundaryLibrary.SolidBoundary;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.NameRef;
-import shape.Dimension.DimName;
+import shape.Dim;
 import utility.ExtraMath;
 
 /**
@@ -54,7 +54,7 @@ public class BoundaryTest
 		 */
 		Boundary bL = new BulkBLBoundary();
 		bL.acceptInboundAgent(insertAgent);
-		comp.addBoundary(DimName.X, 1, bL);
+		comp.addBoundary(Dim.X, 1, bL);
 		/*
 		 * Now make a fixed agent that the insert agent should detect.
 		 */
@@ -66,7 +66,7 @@ public class BoundaryTest
 		/*
 		 * The other boundary is unimportant, but needs to be set.
 		 */
-		comp.addBoundary(DimName.X, 0, new SolidBoundary());
+		comp.addBoundary(Dim.X, 0, new SolidBoundary());
 		
 		Idynomics.simulator.run();
 		

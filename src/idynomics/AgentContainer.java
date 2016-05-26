@@ -18,9 +18,9 @@ import dataIO.XmlLabel;
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
 import reaction.Reaction;
+import shape.Dim;
 import shape.Dimension;
 import shape.Shape;
-import shape.Dimension.DimName;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
@@ -303,7 +303,7 @@ public class AgentContainer
 	 * @param dimN
 	 * @param dist
 	 */
-	public void moveAlongDimension(Agent anAgent, DimName dimN, double dist)
+	public void moveAlongDimension(Agent anAgent, Dim dimN, double dist)
 	{
 		if ( ! isLocated(anAgent) )
 			return;
@@ -406,7 +406,7 @@ public class AgentContainer
 		Log.out(level, "Agents arriving into compartment...");
 		Dimension dim;
 		AgentMethod method;
-		for ( DimName dimN : this._shape.getDimensionNames() )
+		for ( Dim dimN : this._shape.getDimensionNames() )
 		{
 			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )
@@ -451,7 +451,7 @@ public class AgentContainer
 		Tier level = BULK;
 		Log.out(level, "Pushing all outbound agents...");
 		Dimension dim;
-		for ( DimName dimN : this._shape.getDimensionNames() )
+		for ( Dim dimN : this._shape.getDimensionNames() )
 		{
 			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )

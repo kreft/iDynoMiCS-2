@@ -28,33 +28,6 @@ import utility.Helper;
 public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable<Dimension>
 {
 	/**
-	 * 
-	 * 
-	 */
-	public enum DimName
-	{
-		X(false),
-		Y(false),
-		Z(false),
-		R(false),
-		THETA(true),
-		PHI(true);
-		
-		private boolean _isAngular;
-		
-		DimName(boolean isAngular)
-		{
-			this._isAngular = isAngular;
-		}
-		
-		public boolean isAngular()
-		{
-			return this._isAngular;
-		}
-	}
-	
-
-	/**
 	 * If we need to put a point just inside the maximum extreme, use this
 	 * number multiplied by the dimension length as the small amount less than
 	 * this._extreme[1] to use.
@@ -86,6 +59,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 	 * If this is a cyclic dimension, different rules apply.
 	 */
 	protected boolean _isCyclic = false;
+	
 	/**
 	 * TODO
 	 */
@@ -94,7 +68,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 	/**
 	 * 
 	 */
-	protected DimName _dimName;
+	protected Dim _dimName;
 	
 	/**************************************************************************
 	 * CONSTRUCTORS
@@ -105,13 +79,18 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 		
 	}
 	
-	public Dimension(boolean isSignificant, DimName dimName)
+	public Dimension(boolean isSignificant, Dim dimName)
 	{
 		this._dimName = dimName;
 		if ( isSignificant )
 			this.setSignificant();
 		else
 			this.setInsignificant();
+	}
+	
+	public boolean isAngular()
+	{
+		return this._dimName.isAngular();
 	}
 	
 	public void init(Node xmlNode)

@@ -9,8 +9,7 @@ import agent.Agent;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import idynomics.AgentContainer;
-import shape.Dimension.DimName;
-import shape.Dimension.DimName.*;
+import shape.Dim;
 /**
  * \brief Collection of commonly used methods for 
  * {@code Agent}-{@code Boundary} interactions.
@@ -40,7 +39,7 @@ public class AgentMethodLibrary
 
 		@Override
 		public void agentsArrive(
-				AgentContainer agentCont, DimName dimN, int extreme)
+				AgentContainer agentCont, Dim dimN, int extreme)
 		{
 			this.placeAgentsRandom(agentCont, dimN, extreme);
 			this._arrivalsLounge.clear();
@@ -74,7 +73,7 @@ public class AgentMethodLibrary
 
 		@Override
 		public void agentsArrive(
-				AgentContainer agentCont, DimName dimN, int extreme)
+				AgentContainer agentCont, Dim dimN, int extreme)
 		{
 			this.placeAgentsRandom(agentCont, dimN, extreme);
 			Collection<Agent> nbhAgents;
@@ -142,7 +141,7 @@ public class AgentMethodLibrary
 
 		@Override
 		public void agentsArrive(
-				AgentContainer agentCont, DimName dimN, int extreme)
+				AgentContainer agentCont, Dim dimN, int extreme)
 		{
 			/*
 			 * In the unexpected case that this method is called, use the

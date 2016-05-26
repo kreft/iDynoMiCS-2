@@ -25,8 +25,8 @@ import nodeFactory.NodeConstructor;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
+import shape.Dim;
 import shape.Shape;
-import shape.Dimension.DimName;
 
 /**
  * \brief TODO
@@ -275,7 +275,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	 * @param index
 	 * @param aBoundary
 	 */
-	public void addBoundary(DimName dim, int index, Boundary aBoundary)
+	public void addBoundary(Dim dim, int index, Boundary aBoundary)
 	{
 		this._shape.setBoundary(dim, index, aBoundary);
 	}
