@@ -1,5 +1,8 @@
 <<<<<<< Upstream, based on develop
 <<<<<<< Upstream, based on develop
+<<<<<<< Upstream, based on develop
+=======
+>>>>>>> 85f8103 fix merge issues
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
 	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
@@ -139,6 +142,7 @@
 				</process>
 			</processManagers>
 		</compartment>
+<<<<<<< Upstream, based on develop
 =======
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
@@ -409,5 +413,7 @@
 			</processManagers>
 		</compartment>
 >>>>>>> 34ace86 maxConcn parameters in test.xml
+=======
+>>>>>>> 85f8103 fix merge issues
 	</simulation>
 </document>
