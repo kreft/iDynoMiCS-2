@@ -38,6 +38,7 @@
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
 				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,specGrowthRate" 	 />
 				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"			input="mass,radius,body" 	 />
+
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />
 			</species>
 			<species name="stochasticMover">
@@ -52,7 +53,7 @@
 					<gridMethod class="ConstantDirichlet" />
 				</dimension> 
 				<dimension name="Y" isCyclic="true" targetResolution="1" max="16.0">
-				</dimension>
+				</dimension> 
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="1.0" />
@@ -104,25 +105,25 @@
 			<processManagers>
 				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" >
-					<aspect name="prefix" type="String" value="out_solute1" />
-					<aspect name="maxConcentration" type="Double" value="3.0" />
-					<aspect name="solute" type="String" value="solute1" />
-					<aspect name="timerStepSize" type="Double" value="1.0" />
+					<aspect name="prefix" type="PRIMARY" class="String" value="out_solute1" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="1.0" />
 				</process>
 				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" >
-					<aspect name="prefix" type="String" value="out_solute2" />
-					<aspect name="maxConcentration" type="Double" value="3.0" />
-					<aspect name="solute" type="String" value="solute2" />
-					<aspect name="timerStepSize" type="Double" value="1.0" />
+					<aspect name="prefix" type="PRIMARY" class="String" value="out_solute2" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="1.0" />
 				</process>
 				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
 					firstStep="0.0" >
-					<aspect name="prefix" type="String" value="rate_solute2" />
-					<aspect name="maxConcentration" type="Double" value="3.0" />
-					<aspect name="solute" type="String" value="solute2" />
-					<aspect name="timerStepSize" type="Double" value="1.0" />
-					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
+					<aspect name="prefix" type="PRIMARY" class="String" value="rate_solute2" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
 				</process>
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
