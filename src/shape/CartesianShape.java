@@ -183,8 +183,14 @@ public abstract class CartesianShape extends Shape
 			if ( nbhIndex < 3 )
 			{
 				this._nbhDimName = this.getDimensionName(nbhIndex);
+				Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
+						+this._nbhDimName);
 				if ( ! moveNbhToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
+			}
+			else
+			{
+				this._whereIsNbh = UNDEFINED;
 			}
 		}
 		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
