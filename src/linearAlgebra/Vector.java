@@ -6,7 +6,7 @@ import java.util.Set;
 import utility.ExtraMath;
 
 /**
- * \brief Abstract class of useful vector functions.
+ * \brief Library of useful vector functions.
  * 
  * <p>By convention:<ul><li>a method <i>function(vector)</i> returns a new
  * vector,</li><li>the equivalent <i>functionEquals(vector)</i> overwrites the
