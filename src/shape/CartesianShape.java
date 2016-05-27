@@ -5,8 +5,7 @@ import static shape.Shape.WhereAmI.*;
 import dataIO.Log;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
-import shape.Dimension.DimName;
-import shape.Dimension.DimName.*;
+import static shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 

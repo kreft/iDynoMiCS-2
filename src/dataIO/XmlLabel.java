@@ -324,4 +324,9 @@ public class XmlLabel
 	 */
 	public static String seed = "randomSeed";
 
+	/**
+	 * Object identity number
+	 */
+	public static String identity = "identity";
+
 }

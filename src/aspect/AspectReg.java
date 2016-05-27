@@ -360,38 +360,6 @@ public class AspectReg
 				  this.type = AspectReg.AspectClass.PRIMARY;
 			}
 	    }
-	    
-//	    /**
-//	     * return the full aspect xml specification of the aspect.
-//	     * @param key
-//	     * @return
-//	     * @deprecated
-//	     */
-//	    public String getXml(String key) 
-//	    {
-//	    	String out = "";
-//	    	String simpleName = this.aspect.getClass().getSimpleName();
-//	    	switch (this.type)
-//	    	{
-//	    	case CALCULATED:
-//	    		out = out + " " + XmlLabel.typeAttribute + "=\"" + "CALCULATED" 
-//	    				+ "\" " + XmlLabel.classAttribute + "=\"" + simpleName +
-//	    				"\" " + XmlLabel.inputAttribute + "=\"" + 
-//	    				Helper.StringAToString(this.calc.input) + "\" />\n";
-//	    		break;
-//	    	case EVENT:
-//	    		out = out + " " + XmlLabel.typeAttribute + "=\"" + "EVENT" 
-//	    				+ "\" " + XmlLabel.classAttribute + "=\"" + simpleName +
-//	    				"\" " + XmlLabel.inputAttribute + "=\"" + 
-//	    				Helper.StringAToString(this.event.input) + "\" />\n";
-//	    		break;
-//	    	default:
-//	    		out = out + ObjectFactory.nodeFactory(this.aspect, 
-//	    				XmlLabel.aspect, key);
-//	    	}
-//			return out;
-//		}
-	    
 
 		@SuppressWarnings("unchecked")
 		@Override

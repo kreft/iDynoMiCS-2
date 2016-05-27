@@ -1,7 +1,6 @@
 package shape;
 
-import shape.Dimension.DimName;
-import shape.Dimension.DimName.*;
+import static shape.Dimension.DimName;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.PolarArray;

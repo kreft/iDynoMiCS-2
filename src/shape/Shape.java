@@ -3,7 +3,7 @@
  */
 package shape;
 
-import shape.Dimension.DimName;
+import static shape.Dimension.DimName;
 import static shape.Shape.WhereAmI.*;
 
 import java.util.ArrayList;
