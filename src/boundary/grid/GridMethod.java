@@ -12,7 +12,6 @@ import grid.SpatialGrid;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
-import nodeFactory.ModelNode;
 import utility.Helper;
 
 /**
@@ -57,12 +56,6 @@ public abstract class GridMethod implements IsSubmodel, XMLable
 	{
 		return (GridMethod) XMLable.getNewInstance(className, 
 									"boundary.grid.GridMethodLibrary$");
-	}
-	
-	// TODO required for xmlable interface
-	public ModelNode getNode()
-	{
-		return null;
 	}
 	
 	/*************************************************************************

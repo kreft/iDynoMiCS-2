@@ -24,9 +24,9 @@ public class DummyGrid extends SpatialGrid
 	/**
 	 * \brief New {@code DummyGrid} object, where the volume must be specified.
 	 */
-	public DummyGrid(Shape shape, double volume, String name)
+	public DummyGrid(Shape shape, double volume)
 	{
-		super(shape, name);
+		super(shape);
 		this._volume = volume;
 	}
 	

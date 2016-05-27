@@ -24,5 +24,4 @@
 	<classDef package="processManager.library." name="SolveDiffusionTransient" />
 	<classDef package="processManager.library." name="StepAllAgents" />
 	<classDef package="processManager.library." name="WriteAgentsSvg" />
-	<classDef package="processManager.library." name="WriteXmlOutput" />
 </document>

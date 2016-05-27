@@ -86,7 +86,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		/*
 		 * TODO safety: check if solute already in hashmap
 		 */
-		SpatialGrid sg = this._shape.getNewGrid(soluteName);
+		SpatialGrid sg = this._shape.getNewGrid();
 		sg.newArray(ArrayType.CONCN, initialConcn);
 		this._solutes.put(soluteName, sg);
 		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");

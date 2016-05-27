@@ -37,7 +37,6 @@ public class ModelNode {
 		 */
 		ZERO_TO_MANY(0, Integer.MAX_VALUE),
 		
-		/* temporary for gui esthetics (same as zero to many) */
 		ZERO_TO_FEW(0, Integer.MAX_VALUE);
 		
 		
@@ -62,47 +61,14 @@ public class ModelNode {
 		}
 	}
 	
-	/**
-	 * Associated xml tag
-	 */
 	public String tag;
-	
-	/**
-	 * Title (if applicable)
-	 */
-	public String title = "";
-	
-	/**
-	 * Requirement of node one, many etc
-	 */
 	public Requirements requirement;
-	
-	/**
-	 * Object associated with node
-	 */
 	public NodeConstructor constructor;
-	
-	/**
-	 * Allowed childnodes
-	 */
 	public HashMap<NodeConstructor,Requirements> childConstructors = 
 			new HashMap<NodeConstructor,Requirements>();
-	
-	/**
-	 * Existing childnodes
-	 */
 	public List<ModelNode> childNodes;
-	
-	/**
-	 * Attributes
-	 */
 	public List<ModelAttribute> attributes;
 	
-	/**
-	 * General constructor
-	 * @param tag
-	 * @param constructor
-	 */
 	public ModelNode(String tag, NodeConstructor constructor)
 	{
 		this.tag = tag;
@@ -111,39 +77,21 @@ public class ModelNode {
 		this.attributes = new LinkedList<ModelAttribute>();
 	}
 	
-	/**
-	 * Add attribute to ModelNode object
-	 * @param attribute
-	 */
 	public void add(ModelAttribute attribute)
 	{
 		this.attributes.add(attribute);
 	}
 	
-	/**
-	 * Add childnode to ModelNode object
-	 * @param childNode
-	 */
 	public void add(ModelNode childNode)
 	{
 		this.childNodes.add(childNode);
 	}
 	
-	/**
-	 * Add Object to ModelNode's 'Allowed ChildObjects list' 
-	 * @param childObject
-	 */
 	public void add(NodeConstructor childObject)
 	{
 		constructor.addChildObject(childObject);
 	}
 	
-	
-	/**
-	 * Get attribute identified by String
-	 * @param attribute
-	 * @return
-	 */
 	public ModelAttribute getAttribute(String attribute)
 	{
 		for( ModelAttribute a : attributes )
@@ -152,11 +100,13 @@ public class ModelNode {
 		return null;
 	}
 
-	/**
-	 * Get ChildNodes identified by String tag
-	 * @param tag
-	 * @return
-	 */
+	public ModelNode getChild(String child) {
+		for( ModelNode c : childNodes )
+			if (c.tag.equals(child))
+				return c;
+		return null;
+	}
+	
 	public List<ModelNode> getChildNodes(String tag)
 	{
 		List<ModelNode> out = new LinkedList<ModelNode>();
@@ -170,10 +120,10 @@ public class ModelNode {
 	 * returns xml String from this ModelNode
 	 * @return
 	 */
-	public String getXML(int tabs)
+	public String getXML()
 	{
 		String out = "";
-		out += appendTabs(tabs) + "<" + tag;
+		out += "<" + tag;
 		
 		/* attributes */
 		for ( ModelAttribute a : attributes )
@@ -184,31 +134,19 @@ public class ModelNode {
 		/* child nodes */
 		if ( childNodes.isEmpty() )
 		{
-			out += " />\n ";
+			out += " />\n";
 		}
 		else
 		{
 			out += " >\n";
 			for( ModelNode n : childNodes )
 			{
-				out += n.getXML(tabs+1);
+				out += n.getXML();
 			}
-			out += appendTabs(tabs) + "</" + tag + ">\n";
+			out += "</" + tag + ">\n";
 		}
 		
 		return out;
 	}
-	
-	public String getXML()
-	{
-		return getXML(0);
-	}
 
-	private String appendTabs(int tabs)
-	{
-		String out = "";
-		for( int i = 1; i < tabs; i++ )
-			out += "\t";
-		return out;
-	}
 }

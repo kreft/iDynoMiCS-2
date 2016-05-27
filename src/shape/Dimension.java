@@ -1,21 +1,26 @@
 package shape;
 
+import java.awt.event.ActionEvent;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
 import boundary.Boundary;
+import boundary.Boundary.BoundaryMaker;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
+import modelBuilder.InputSetter;
+import modelBuilder.IsSubmodel;
+import modelBuilder.SubmodelMaker;
+import modelBuilder.SubmodelMaker.Requirement;
 import shape.ShapeConventions.BoundaryCyclic;
+import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -25,36 +30,14 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Dimension implements CanPrelaunchCheck, NodeConstructor, 
-		Comparable<Dimension>
+public class Dimension implements CanPrelaunchCheck, IsSubmodel
 {
 	/**
-	 * 
-	 * 
+	 * Tag for the boolean denoting whether this dimension is cyclic (true) or
+	 * not (false).
 	 */
-	public enum DimName
-	{
-		X(false),
-		Y(false),
-		Z(false),
-		R(false),
-		THETA(true),
-		PHI(true);
-		
-		private boolean _isAngular;
-		
-		DimName(boolean isAngular)
-		{
-			this._isAngular = isAngular;
-		}
-		
-		public boolean isAngular()
-		{
-			return this._isAngular;
-		}
-	}
-	
-
+	// TODO consider moving this to XmlLabel, etc
+	public final static String IS_CYCLIC = "isCyclic";
 	/**
 	 * If we need to put a point just inside the maximum extreme, use this
 	 * number multiplied by the dimension length as the small amount less than
@@ -92,16 +75,6 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 */
 	protected boolean _isSignificant = true;
 	
-	/**
-	 * 
-	 */
-	protected DimName _dimName;
-
-	/**
-	 * target resolution
-	 */
-	protected Double _targetRes;
-	
 	/**************************************************************************
 	 * CONSTRUCTORS
 	 *************************************************************************/
@@ -111,9 +84,8 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		
 	}
 	
-	public Dimension(boolean isSignificant, DimName dimName)
+	public Dimension(boolean isSignificant)
 	{
-		this._dimName = dimName;
 		if ( isSignificant )
 			this.setSignificant();
 		else
@@ -134,37 +106,17 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		 * TODO check that str is "false" and not a typo of "true" 
 		 * (e.g. "truw")
 		 */
-		str = XmlHandler.gatherAttribute(elem, XmlLabel.IS_CYCLIC);
+		str = XmlHandler.gatherAttribute(elem, IS_CYCLIC);
 		if ( Boolean.valueOf(str) )
 			this.setCyclic();
-		
-		/* calculate length from dimension extremes */
-		double length = getLength();
-		
-		/* fetch target resolution (or use length as default) */
-		str = XmlHandler.gatherAttribute(elem,
-				XmlLabel.targetResolutionAttribute);
-		this._targetRes = length; 
-		if ( str != "" )
-			this._targetRes = Double.valueOf(str);
-		
 		/* 
 		 * Boundaries at the extremes.
 		 */
-		str = XmlHandler.gatherAttribute(elem, XmlLabel.min);
-		if ( str != null && str != "")
-			this.setExtreme(Double.valueOf(str), 0);
-		
-		str = XmlHandler.gatherAttribute(elem, XmlLabel.max);
-		if ( str != null && str != "")
-			this.setExtreme(Double.valueOf(str), 1);
-
-		/* Set the boundary, if given (not always necessary). */
-		bndNodes = XmlHandler.getAll(elem, XmlLabel.dimensionBoundary);
-		for ( int i = 0; i < bndNodes.getLength(); i++ )
+		extNodes = XmlHandler.getAll(elem, "extreme");
+		for ( int i = 0; i < extNodes.getLength(); i++ )
 		{
-			bndElem = (Element) bndNodes.item(i);
-			str = XmlHandler.gatherAttribute(elem, XmlLabel.nameAttribute);
+			extElem = (Element) extNodes.item(i);
+			str = XmlHandler.gatherAttribute(extElem, XmlLabel.nameAttribute);
 			str = Helper.obtainInput(str, "dimension extreme (min/max)");
 			str = str.toLowerCase();
 			if ( str.equals("min") )
@@ -176,11 +128,25 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				Log.out(Tier.CRITICAL, 
 						"Warning! Dimension extreme must be min or max: "+str);
 			}
-			
-			str = bndElem.getAttribute(XmlLabel.classAttribute);
-			aBoundary = (Boundary) Boundary.getNewInstance(str);
-			aBoundary.init(bndElem);
-			this.setBoundary(aBoundary, index);	
+			/* Set the position, if given (not always necessary). */
+			str = XmlHandler.gatherAttribute(extElem, XmlLabel.position);
+			if ( str != null && str != "")
+				this.setExtreme(Double.valueOf(str), index);
+			/* Set the boundary, if given (not always necessary). */
+			bndNodes = XmlHandler.getAll(extElem, XmlLabel.dimensionBoundary);
+			if ( bndNodes.getLength() > 1 )
+			{
+				Log.out(Tier.CRITICAL, 
+					  "Warning: Dimension extreme must have 0 or 1 boundary!");
+			}
+			else if ( bndNodes.getLength() == 1 )
+			{
+				bndElem = (Element) bndNodes.item(0);
+				str = bndElem.getAttribute(XmlLabel.classAttribute);
+				aBoundary = (Boundary) Boundary.getNewInstance(str);
+				aBoundary.init(bndElem);
+				this.setBoundary(aBoundary, index);
+			}
 		}
 	}
 	
@@ -534,53 +500,55 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		}
 		return true;
 	}
-
-	@Override
-	public ModelNode getNode() {
-		
-		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-										this._dimName.name(), null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.IS_CYCLIC, 
-				String.valueOf(this._isCyclic), null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.targetResolutionAttribute, 
-				String.valueOf(this._targetRes), null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.min, 
-				String.valueOf(this._extreme[0]), null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.max, 
-				String.valueOf(this._extreme[1]), null, false ));
-
-
-		return modelNode;
-	}
-
-	@Override
-	public void setNode(ModelNode node) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public String defaultXmlTag() {
-		// TODO Auto-generated method stub
+	
+	/*************************************************************************
+	 * SUBMODEL BUILDING
+	 ************************************************************************/
+	
+	public String getName()
+	{
 		return XmlLabel.shapeDimension;
+		// TODO return DimName?
 	}
-
-	@Override
-	public int compareTo(Dimension o) {
-		return this._dimName.compareTo(o._dimName);
+	
+	public List<InputSetter> getRequiredInputs()
+	{
+		List<InputSetter> out = new LinkedList<InputSetter>();
+		Requirement req;
+		if ( ! isCyclic() )
+			for ( int i = 0; i < 2; i++ )
+			{
+				req = ( this._required[i] ) ? Requirement.EXACTLY_ONE :
+												Requirement.ZERO_OR_ONE;
+				out.add(new BoundaryMaker(i, req, this));
+			}
+		return out;
+	}
+	
+	public void acceptInput(String name, Object input)
+	{
+		/* Parameters. */
+		if ( name.equals(IS_CYCLIC) && ((Boolean) input) )
+			setCyclic();
+		/* Submodels. */
+		if ( input instanceof Boundary )
+			this.setBoundary((Boundary) input, Boundary.extremeToInt(name));
+	}
+	
+	public static class DimensionMaker extends SubmodelMaker
+	{
+		private static final long serialVersionUID = 3442712062864593527L;
+		
+		public DimensionMaker(DimName dimName, Requirement req, IsSubmodel target)
+		{
+			// TODO change name to XmlLabel.dimension?
+			super(dimName.toString(), req, target);
+		}
+		
+		@Override
+		public void doAction(ActionEvent e)
+		{
+			this.addSubmodel(new Dimension());
+		}
 	}
 }

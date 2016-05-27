@@ -2,7 +2,6 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
-import nodeFactory.ModelNode;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -61,12 +60,6 @@ public abstract class Event implements Copyable, XMLable
 	@Override
 	public String getXml() {
 		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	// TODO required from xmlable interface
-	public ModelNode getNode()
-	{
 		return null;
 	}
 	

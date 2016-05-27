@@ -12,23 +12,19 @@ import org.w3c.dom.NodeList;
 
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class ExpressionB extends Component implements NodeConstructor
+public class ExpressionB extends Component
 {
 	
 	/**
 	 * Expression string.
 	 */
-	protected String expression;
+	final String expression;
 	
 	/**
 	 * Recognized operators, in order of evaluation TODO: currently hashtagging
@@ -51,7 +47,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * The component object.
 	 */
-	protected Component _a;
+	final Component _a;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -485,53 +481,5 @@ public class ExpressionB extends Component implements NodeConstructor
 	public void appendVariablesNames(List<String> names)
 	{
 		this._a.appendVariablesNames(names);
-	}
-
-	@Override
-	public ModelNode getNode() {
-		ModelNode modelNode = new ModelNode(XmlLabel.expression, 
-				this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
-		modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, this.expression, null, true));
-		
-		for (String con : this._constants.keySet() )
-			modelNode.add(getConstantNode(con));
-		return modelNode;
-	}
-	
-	public ModelNode getConstantNode(String constant)
-	{
-		ModelNode modelNode = new ModelNode(XmlLabel.constant, 
-				this);
-		modelNode.requirement = Requirements.ZERO_TO_FEW;
-		
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, constant, null, true));
-		modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, String.valueOf(this._constants.get(constant)), null, true));
-		return modelNode;
-	}
-
-	@Override
-	public void setNode(ModelNode node) 
-	{
-		this.expression = node.getAttribute(XmlLabel.valueAttribute).value;
-		this._a = build(expression, _constants);
-	}
-
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public String defaultXmlTag() {
-		// TODO Auto-generated method stub
-		return XmlLabel.expression;
 	}
 }

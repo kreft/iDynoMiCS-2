@@ -10,9 +10,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import idynomics.Idynomics;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import utility.Helper;
 
 /**
  * \brief Implementations of this interface will be able to instanciate and
@@ -54,7 +51,7 @@ public interface XMLable
 	 */
 	public static Object getNewInstance(String className)
 	{
-		return getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
+		return getNewInstance(className, null);
 	}
 	
 	/**
@@ -81,7 +78,9 @@ public interface XMLable
 		/*
 		 * Check the first letter is upper case.
 		 */
-		className = Helper.firstToUpper(className);
+		String firstLetter = className.substring(0, 1);
+		if ( firstLetter == firstLetter.toLowerCase() )
+			className = firstLetter.toUpperCase() + className.substring(1);
 		/*
 		 * Add the prefix, if necessary.
 		 */
@@ -139,6 +138,4 @@ public interface XMLable
 		return getNewInstance(className, 
 								Idynomics.xmlPackageLibrary.get(className));
 	}
-
-	public ModelNode getNode();
 }

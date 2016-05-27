@@ -16,3 +16,10 @@ bin/
 # Mac files
 .DS_Store
 */.DS_Store
+
+
+# Manuscript files
+manuscript/iDyno2_latex_plos.out
+manuscript/iDyno2_latex_plos.aux
+manuscript/iDyno2_latex_plos.synctex.gz
+manuscript/iDyno2_latex_plos.log

@@ -15,17 +15,10 @@ import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
-import idynomics.Compartment;
-import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
-import shape.Shape;
-import utility.Helper;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -33,11 +26,8 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructor
+public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 {
-	
-	private ModelNode modelNode;
-	
 	/**
 	 * Contains all known species.
 	 */
@@ -97,6 +87,18 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 		Log.out(Tier.NORMAL, "Species Library loaded!\n");
 	}
 
+	public String getXml() {
+		String out = "<" + XmlLabel.speciesLibrary + ">\n";
+		for (String key :_species.keySet())
+		{
+			out = out + "<" + XmlLabel.species + " name=\"" +
+					key + "\">\n" + _species.get(key).getXml() +
+					"</" + XmlLabel.species + ">\n";
+		}
+		out = out + "</" + XmlLabel.speciesLibrary + ">\n";
+		return out;
+	}
+
 	/**
 	 * \brief Add a new species to the species library (or overwrite if the
 	 * species already exists).
@@ -106,21 +108,6 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 	 */
 	public void set(String name, AspectInterface species)
 	{
-		if ( this._species.containsKey(name) )
-			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
-		species.reg().identity = name;
-		this._species.put(name, species);
-	}
-	
-	/**
-	 * \brief Add a new species to the species library using the interface
-	 * (or overwrite if the species already exists).
-	 * 
-	 * @param species Information about the species.
-	 */
-	public void set(AspectInterface species)
-	{
-		String name = species.reg().identity;
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
 		species.reg().identity = name;
@@ -190,49 +177,5 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 			System.out.println("Making speciesLib");
 			this.addSubmodel(new SpeciesLib());
 		}
-	}
-
-	@Override
-	public ModelNode getNode() {
-		if(modelNode == null)
-		{
-			modelNode = new ModelNode(XmlLabel.speciesLibrary, this);
-			modelNode.requirement = Requirements.EXACTLY_ONE;
-			modelNode.childConstructors.put(new Species(), 
-					ModelNode.Requirements.ZERO_TO_MANY);
-			
-			for ( String s : this._species.keySet() )
-				modelNode.add(((Species) _species.get(s)).getNode());
-		}
-		return modelNode;
-	}
-
-	@Override
-	public void setNode(ModelNode node) {
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
-	}
-
-	@Override
-	public NodeConstructor newBlank() {
-		return Idynomics.simulator.speciesLibrary;
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject) 
-	{
-		if (childObject instanceof Species)
-			this.set((Species) childObject);
-	}
-
-	@Override
-	public String defaultXmlTag() {
-		return XmlLabel.speciesLibrary;
-	}
-
-	@Override
-	public String getXml() 
-	{
-		return getNode().getXML();
 	}
 }

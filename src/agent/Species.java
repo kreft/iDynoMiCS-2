@@ -13,31 +13,22 @@ import aspect.AspectReg;
 import dataIO.Log;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
-import utility.Helper;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Species implements AspectInterface, IsSubmodel, NodeConstructor
+public class Species implements AspectInterface, IsSubmodel
 {
 	/**
 	 * TODO
 	 */
-	protected AspectReg _aspectRegistry = new AspectReg();
-	
-
-	private ModelNode modelNode;
+	protected AspectReg<Object> _aspectRegistry = new AspectReg<Object>();
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -84,8 +75,7 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	/**
 	 * Get this {@code Species}' aspect registry.
 	 */
-	@SuppressWarnings("unchecked")
-	public AspectReg reg()
+	public AspectReg<?> reg()
 	{
 		return this._aspectRegistry;
 	}
@@ -133,63 +123,6 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 			System.out.println("Making species");
 			this.addSubmodel(new Species());
 		}
-	}
 
-	@Override
-	public ModelNode getNode() 
-	{
-		if(modelNode == null)
-		{
-			modelNode = new ModelNode(XmlLabel.species, this);
-			modelNode.requirement = Requirements.ZERO_TO_MANY;
-			modelNode.title = this.reg().identity;
-			
-			modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-					this.reg().identity, null, true ));
-			
-			for ( AspectInterface mod : this.reg().getSubModules() )
-			{
-				modelNode.add(mod.reg().getModuleNode(this));
-			}
-
-			modelNode.childConstructors.put(_aspectRegistry.new Aspect(_aspectRegistry), 
-					ModelNode.Requirements.ZERO_TO_MANY);
-			
-			/* TODO: add aspects */
-			
-			for ( String key : this.reg().getLocalAspectNames() )
-				modelNode.add(reg().getAspectNode(key));
-		}
-		return modelNode;
-	}
-
-	@Override
-	public void setNode(ModelNode node) 
-	{
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
-	}
-
-	@Override
-	public NodeConstructor newBlank() 
-	{
-		
-		String name = "";
-		name = Helper.obtainInput(name, "Species name");
-		Species newBlank = new Species();
-		newBlank.reg().identity = name;
-		return newBlank;
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject) 
-	{
-		// TODO 
-	}
-
-	@Override
-	public String defaultXmlTag() 
-	{
-		return XmlLabel.species;
 	}
 }

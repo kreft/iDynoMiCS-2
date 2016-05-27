@@ -10,7 +10,7 @@ import idynomics.Idynomics;
 import idynomics.Simulator;
 import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
-import shape.Dimension.DimName;
+import shape.ShapeConventions.DimName;
 
 /**
  * 

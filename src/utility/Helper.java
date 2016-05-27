@@ -1,6 +1,5 @@
 package utility;
 
-import java.util.List;
 import java.util.Scanner;
 
 import dataIO.Log;
@@ -128,7 +127,7 @@ public class Helper
 		return out;	
 	}
 	
-	public static String stringAToString(String[] array)
+	public static String StringAToString(String[] array)
 	{
 		String out = "";
 		if (array != null)
@@ -140,14 +139,6 @@ public class Helper
 		else
 			 return out;
 		
-	}
-	
-	public static String firstToUpper(String string)
-	{
-		String firstLetter = string.substring(0, 1);
-		if ( firstLetter == firstLetter.toLowerCase() )
-			string = firstLetter.toUpperCase() + string.substring(1);
-		return string;
 	}
 	
 	/**
@@ -168,13 +159,6 @@ public class Helper
 			dollarIndex = str.indexOf("$");
 			out[i] = str.substring(dollarIndex+1);
 		}
-		return out;
-	}
-
-	public static String[] ListToArray(List<String> all) {
-		String[] out = new String[all.size()];
-		for (int i = 0; i < all.size(); i++)
-			out[i] = all.get(i);
 		return out;
 	}
 }
