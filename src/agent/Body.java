@@ -5,6 +5,8 @@ import generalInterfaces.XMLable;
 import generalInterfaces.HasBoundingBox;
 import linearAlgebra.Vector;
 import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
+import processManager.ProcessManager;
 
 import java.util.HashMap;
 import java.util.LinkedList;

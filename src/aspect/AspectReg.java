@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import agent.Body;
 import aspect.calculated.StateExpression;
 import dataIO.Log;
 import dataIO.ObjectFactory;
@@ -18,6 +19,7 @@ import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 import nodeFactory.primarySetters.LinkedListSetter;
+import surface.Point;
 import utility.Helper;
 
 
@@ -261,6 +263,16 @@ public class AspectReg
 		return this._aspects.get(key).getNode();
 	}
 	
+
+	public ModelNode getModuleNode(NodeConstructor constructor) {
+		ModelNode modelNode = new ModelNode(XmlLabel.speciesModule, constructor);
+		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+				this.identity, null, true ));
+		
+		return modelNode;
+	}
 	
 	/**
 	 * \brief Very general class that acts as a wrapper for other Objects.
@@ -338,43 +350,16 @@ public class AspectReg
 				  this.type = AspectReg.AspectClass.EVENT;
 				  this.event = (Event) this.aspect;
 			}
+			else if ( this.aspect == null )
+			{
+				Log.out(Tier.NORMAL, "attempt to load null object " + key +
+						" as aspect, abort");
+			}
 			else
 			{
 				  this.type = AspectReg.AspectClass.PRIMARY;
 			}
 	    }
-	    
-//	    /**
-//	     * return the full aspect xml specification of the aspect.
-//	     * @param key
-//	     * @return
-//	     * @deprecated
-//	     */
-//	    public String getXml(String key) 
-//	    {
-//	    	String out = "";
-//	    	String simpleName = this.aspect.getClass().getSimpleName();
-//	    	switch (this.type)
-//	    	{
-//	    	case CALCULATED:
-//	    		out = out + " " + XmlLabel.typeAttribute + "=\"" + "CALCULATED" 
-//	    				+ "\" " + XmlLabel.classAttribute + "=\"" + simpleName +
-//	    				"\" " + XmlLabel.inputAttribute + "=\"" + 
-//	    				Helper.StringAToString(this.calc.input) + "\" />\n";
-//	    		break;
-//	    	case EVENT:
-//	    		out = out + " " + XmlLabel.typeAttribute + "=\"" + "EVENT" 
-//	    				+ "\" " + XmlLabel.classAttribute + "=\"" + simpleName +
-//	    				"\" " + XmlLabel.inputAttribute + "=\"" + 
-//	    				Helper.StringAToString(this.event.input) + "\" />\n";
-//	    		break;
-//	    	default:
-//	    		out = out + ObjectFactory.nodeFactory(this.aspect, 
-//	    				XmlLabel.aspect, key);
-//	    	}
-//			return out;
-//		}
-	    
 
 		@SuppressWarnings("unchecked")
 		@Override
@@ -413,16 +398,21 @@ public class AspectReg
 					for (Object o : linkedList)
 						modelNode.add(new LinkedListSetter(o).getNode());
 					break;
+				case "Body":
+					Body myBody = (Body) aspect;
+					for (Point p : myBody.getPoints())
+						modelNode.add(p.getNode());
+					break;
 				default:
 					if (aspect instanceof XMLable)
 					{
 						XMLable x = (XMLable) aspect;
-						// TODO x.getNode(); etc..
+						modelNode.add(x.getNode()); 
 					}
 					else
 					{
 						modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, 
-								aspect.toString(), null, true ));
+								ObjectFactory.stringRepresentation(aspect), null, true ));
 					}
 				}
 			}
@@ -523,4 +513,5 @@ public class AspectReg
 		this.remove(key);
 		this.add(newKey, a);
 	}
+
 }

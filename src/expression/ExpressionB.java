@@ -493,6 +493,20 @@ public class ExpressionB extends Component implements NodeConstructor
 				this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
 		modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, this.expression, null, true));
+		
+		for (String con : this._constants.keySet() )
+			modelNode.add(getConstantNode(con));
+		return modelNode;
+	}
+	
+	public ModelNode getConstantNode(String constant)
+	{
+		ModelNode modelNode = new ModelNode(XmlLabel.constant, 
+				this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, constant, null, true));
+		modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, String.valueOf(this._constants.get(constant)), null, true));
 		return modelNode;
 	}
 

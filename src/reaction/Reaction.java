@@ -296,6 +296,27 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 		
 		modelNode.add(((ExpressionB) _kinetic).getNode());
 		
+		for ( String component : this._stoichiometry.keySet())
+		{
+			modelNode.add(getStoNode(this, component, 
+					getStoichiometry(component)));
+		}
+		
+		return modelNode;
+	}
+	
+	public ModelNode getStoNode(NodeConstructor constructor, String component, 
+			Double coefficient) {
+		
+		ModelNode modelNode = new ModelNode(XmlLabel.stoichiometry, constructor);
+		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		
+		modelNode.add(new ModelAttribute(XmlLabel.component, 
+				component, null, false ));
+		
+		modelNode.add(new ModelAttribute(XmlLabel.coefficient, 
+				String.valueOf(coefficient), null, false ));
+		
 		return modelNode;
 	}
 	

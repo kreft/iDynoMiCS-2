@@ -149,10 +149,9 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 			
 			for ( AspectInterface mod : this.reg().getSubModules() )
 			{
-			modelNode.add(new ModelAttribute(XmlLabel.speciesModule, 
-					mod.reg().identity , null, false ));
+				modelNode.add(mod.reg().getModuleNode(this));
 			}
-			
+
 			modelNode.childConstructors.put(_aspectRegistry.new Aspect(_aspectRegistry), 
 					ModelNode.Requirements.ZERO_TO_MANY);
 			

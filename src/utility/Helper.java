@@ -128,7 +128,7 @@ public class Helper
 		return out;	
 	}
 	
-	public static String StringAToString(String[] array)
+	public static String stringAToString(String[] array)
 	{
 		String out = "";
 		if (array != null)
@@ -140,6 +140,14 @@ public class Helper
 		else
 			 return out;
 		
+	}
+	
+	public static String firstToUpper(String string)
+	{
+		String firstLetter = string.substring(0, 1);
+		if ( firstLetter == firstLetter.toLowerCase() )
+			string = firstLetter.toUpperCase() + string.substring(1);
+		return string;
 	}
 	
 	/**

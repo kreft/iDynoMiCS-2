@@ -1,6 +1,5 @@
 package idynomics;
 
-import java.awt.event.ActionEvent;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,24 +8,16 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
-import agent.Species;
 import boundary.Boundary;
 import dataIO.Log;
-import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
-import static dataIO.Log.Tier.*;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.*;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelMaker.Requirement;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -35,8 +26,7 @@ import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
-import shape.Shape.ShapeMaker;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
 
 /**
  * \brief TODO
@@ -46,7 +36,7 @@ import shape.ShapeConventions.DimName;
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
+public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -85,7 +75,6 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	protected double _localTime;
 	
-	public ModelNode modelNode;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -159,13 +148,14 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
 			Element soluteE = (Element) solutes.item(i);
-			String soluteName = XmlHandler.obtainAttribute(soluteE, XmlLabel.nameAttribute);
-			double conc = Double.valueOf(
-					XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					XmlLabel.concentration));
-			this.addSolute(soluteName, conc);
+			String soluteName = XmlHandler.obtainAttribute(soluteE, 
+					XmlLabel.nameAttribute);
+			String conc = XmlHandler.obtainAttribute((Element) solutes.item(i), 
+					XmlLabel.concentration);
+			this.addSolute(soluteName);
+			this.getSolute(soluteName).setTo(ArrayType.CONCN, conc);
 			
-			// FIXME please provide standard methods to load entire solute grids
+
 			SpatialGrid myGrid = this.getSolute(str);
 			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
 					XmlLabel.voxel);
@@ -234,6 +224,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		}
 		else
 		{
+			
 			NodeList processNodes = elem.getElementsByTagName(XmlLabel.process);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 									" initialised with process managers:");
@@ -456,66 +447,12 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		this._environment.printAllSolutes();
 	}
 	
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
-	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
-		/* We must have exactly one Shape. */
-		out.add(new ShapeMaker(Requirement.EXACTLY_ONE, this));
-		/* Any number of process managers is allowed, including none. */
-		// TODO temporarily removed, reinstate
-		//out.add(new ProcessMaker(Requirement.ZERO_TO_MANY, this));
-		// TODO agents, solutes, diffusivity, reactions
-		return out;
-	}
-	
-	public void acceptInput(String name, Object input)
-	{
-		/* Parameters */
-		if ( name.equals(XmlLabel.nameAttribute) )
-			this.name = (String) input;
-		/* Sub-models */
-		if ( input instanceof Shape )
-			this._shape = (Shape) input;
-		if ( input instanceof ProcessManager )
-			this._processes.add((ProcessManager) input);
-	}
-	
-	public static class CompartmentMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -6545954286337098173L;
-		
-		public CompartmentMaker(Requirement req, IsSubmodel target)
-		{
-			super(XmlLabel.compartment, req, target);
-		}
-		
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			this.addSubmodel(new Compartment());
-		}
-		
-		@Override
-		public Object getOptions()
-		{
-			return null;
-		}
-	}
-	
 	public ModelNode getNode()
 	{
 
-		modelNode = new ModelNode(XmlLabel.compartment, this);
+		ModelNode modelNode = new ModelNode(XmlLabel.compartment, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
-		
-		modelNode.childConstructors.put(new Agent(this), 
-				ModelNode.Requirements.ZERO_TO_MANY);
-		
+
 		if (this.getName() != null)
 			modelNode.title = this.getName();
 		
@@ -525,9 +462,11 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		if ( this._shape !=null )
 			modelNode.add(_shape.getNode());
 		
-		if ( this.agents != null)
-			for ( Agent a : this.agents.getAllAgents() )
-				modelNode.add(a.getNode());
+		modelNode.add(this.getSolutesNode());
+		
+		modelNode.add(this.getAgentsNode());
+				
+		modelNode.add(this.getProcessNode());
 		
 		/* Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  */
@@ -537,13 +476,57 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		return modelNode;
 		
 	}
+	
+	public ModelNode getAgentsNode()
+	{
+		ModelNode modelNode = new ModelNode(XmlLabel.agents, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		
+		modelNode.childConstructors.put(new Agent(this), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		for ( Agent a : this.agents.getAllAgents() )
+			modelNode.add(a.getNode());
+		return modelNode;
+	}
+	
+	public ModelNode getProcessNode()
+	{
+		ModelNode modelNode = new ModelNode(XmlLabel.processManagers, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		
+//		modelNode.childConstructors.put(new ProcessManager(this), 
+//				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		for ( ProcessManager p : this._processes )
+			modelNode.add(p.getNode());
+		return modelNode;
+	}
+	
+	public ModelNode getSolutesNode()
+	{
+		ModelNode modelNode = new ModelNode(XmlLabel.solutes, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+
+		for ( String sol : this._environment.getSoluteNames() )
+			modelNode.add(this.getSolute(sol).getNode());
+		return modelNode;
+	}
 
 	public void setNode(ModelNode node) 
 	{
-		this.name = node.getAttribute(XmlLabel.nameAttribute).value;
-		
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
+		if (node.tag == defaultXmlTag())
+		{
+			this.name = node.getAttribute(XmlLabel.nameAttribute).value;
+			
+			for(ModelNode n : node.childNodes)
+				n.constructor.setNode(n);
+		}
+		else 
+		{
+			for(ModelNode n : node.childNodes)
+				n.constructor.setNode(n);
+		}
 	}
 
 	@Override

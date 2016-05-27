@@ -282,21 +282,7 @@ public class GuiLaunch implements Runnable
 		button = GuiSimControl.stopButton();
 		buttonHoriz.addComponent(button);
 		buttonVert.addComponent(button);
-		///////////////////////////////////////////////////////////////////////
-		// TODO TESTING ONLY
-	
-		button = new JButton("Make sim (test)");
-		button.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				GuiSimMake gsm = new GuiSimMake();
-				gsm.makeNewSimulation();
-			}
-		});
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
+
 		///////////////////////////////////////////////////////////////////////
 		/* Add a progress bar to the button row. */
 		progressBar  = new JProgressBar();

@@ -110,7 +110,7 @@ public class GuiEditor
 		/* add textareas for this ModelNode's attributes */
 		for(ModelAttribute a : node.attributes)
 		{
-			if ( a.options == null)
+			if ( a.options == null && a.value.length() < 60)
 			{
 				/* input field */
 				JTextArea input = new JTextArea();
@@ -119,6 +119,17 @@ public class GuiEditor
 				if (! a.editable)
 					input.setForeground(Color.gray);
 				attr.add(GuiComponent.inputPanel(a.tag, input));
+				attributes.put(a, input);
+			}
+			else if ( a.options == null )
+			{
+				/* input field */
+				JTextArea input = new JTextArea();
+				input.setText(a.value);
+				input.setEditable(a.editable);
+				if (! a.editable)
+					input.setForeground(Color.gray);
+				attr.add(GuiComponent.inputPanelLarge(a.tag, input));
 				attributes.put(a, input);
 			}
 			else
@@ -134,7 +145,7 @@ public class GuiEditor
 		component.add(attr);
 		
 		/* placement of this ModelNode in the gui */
-		if(node.tag == XmlLabel.speciesLibrary )
+		if(node.tag == XmlLabel.speciesLibrary  )
 		{
 			/* exception for speciesLib add component as tab next to the
 			 * parent tab (simulation) */
@@ -148,11 +159,24 @@ public class GuiEditor
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
 					node.tag + " " + node.title, tabs, "");
 		} 
-		else if(node.tag == XmlLabel.aspect )
+		else if(node.tag == XmlLabel.agents || node.tag == XmlLabel.solutes ||
+				node.tag == XmlLabel.processManagers )
+		{
+			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
+					node.tag, tabs, "");
+		}
+		else if(node.tag == XmlLabel.aspect || node.tag == XmlLabel.solute )
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
 					node.tag + " " + node.title, tabs, "");
 		}
+		else if( node.tag == XmlLabel.shapeDimension || node.tag == XmlLabel.point ||
+				node.tag == XmlLabel.stoichiometry || node.tag == XmlLabel.constant ||
+				node.tag == XmlLabel.speciesModule )
+		{
+			parent.add(component, null);
+			parent.revalidate();
+		} 
 		else if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
 		{
 			/* exactly one: append this component to the parent component */

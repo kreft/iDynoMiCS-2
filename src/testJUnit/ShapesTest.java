@@ -13,7 +13,7 @@ import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import static testJUnit.AllTests.TOLERANCE;
 import shape.Shape;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
 import shape.ShapeLibrary.Rectangle;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 

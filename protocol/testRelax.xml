@@ -37,11 +37,9 @@
 		</speciesLib>
 		<compartment name="second">
 			<shape class="Rectangle">
-				<dimension name="X" isCyclic="true">
-					<extreme name="max" position="100.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="1" max="100.0"/>
 				</dimension> 
-				<dimension name="Y" isCyclic="true">
-					<extreme name="max" position="100.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="100.0"/>
 				</dimension> 
 			</shape>
 			<solutes>

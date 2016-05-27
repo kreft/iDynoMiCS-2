@@ -46,11 +46,9 @@
 
 		<compartment name="second">
 			<shape class="Rectangle">
-				<dimension name="X" isCyclic="true">
-					<extreme name="max" position="16.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="1" max="16.0">
 				</dimension> 
-				<dimension name="Y" isCyclic="true">
-					<extreme name="max" position="16.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="16.0">
 				</dimension> 
 			</shape>
 			<solutes>
@@ -116,7 +114,7 @@
 					<aspect name="timerStepSize" class="Double" value="1.0" />
 					<aspect name="arrayType" class="String" value="PRODUCTIONRATE" />
 				</process>
-				<process name="xvgWriter" class="writeXmlOutput"  priority="-3"
+				<process name="xmlWriter" class="WriteXmlOutput"  priority="-3"
 					firstStep="0.0" >
 					<aspect name="prefix" class="String" value="mySim" />
 				</process>

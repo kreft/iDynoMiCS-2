@@ -20,7 +20,7 @@ import linearAlgebra.Vector;
 import reaction.Reaction;
 import shape.Dimension;
 import shape.Shape;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;

@@ -2,7 +2,6 @@ package dataIO;
 
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
-import linearAlgebra.Vector;
 
 public class XmlExport 
 {
@@ -60,5 +59,12 @@ public class XmlExport
 	public void writeState()
 	{
 		xmlFile.write(Idynomics.simulator.getNode().getXML(1));
+	}
+	
+	public void writeFile()
+	{
+		this.newXml(Idynomics.global.simulationName);
+		this.writeState();
+		this.closeXml();
 	}
 }

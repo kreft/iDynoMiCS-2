@@ -1,13 +1,11 @@
 package shape;
 
-import static shape.ShapeConventions.DimName.R;
-import static shape.ShapeConventions.DimName.THETA;
-import static shape.ShapeConventions.DimName.Z;
+import static shape.Dimension.DimName;
+import static shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Rod;
 import surface.Surface;
@@ -48,7 +46,7 @@ public abstract class CylindricalShape extends PolarShape
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
-		dim = new Dimension(false);
+		dim = new Dimension(false, Z);
 		this._dimensions.put(Z, dim);
 		this._resCalc[getDimensionIndex(Z)] = new ResCalc[1];
 	}

@@ -19,7 +19,7 @@
 					<item type="PRIMARY" class="Reaction">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
-								<constant name="k" value="0.1" />
+								<constant name="k" value="0.25" />
 							</expression>
 							<stoichiometric component="AOB" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
@@ -28,16 +28,12 @@
 					</item>
 				</aspect>
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
-				<!-- this has not been made yet, use a static growthrate for now -->
-				<aspect name="specGrowthRate" type="PRIMARY" class="Double" value="0.08" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
-				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
-
-
+				<aspect name="morphology" 		type="PRIMARY" 		class="String" 		value="coccoid" />
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
 				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,specGrowthRate" 	 />
@@ -53,11 +49,10 @@
 
 		<compartment name="second">
 			<shape class="Rectangle">
-				<dimension name="X" isCyclic="true">
-					<extreme name="max" position="16.0"/>
+				<dimension name="X" isCyclic="false" targetResolution="1" max="16.0">
+					<gridMethod class="ConstantDirichlet" />
 				</dimension> 
-				<dimension name="Y" isCyclic="true">
-					<extreme name="max" position="16.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="16.0">
 				</dimension> 
 			</shape>
 			<solutes>

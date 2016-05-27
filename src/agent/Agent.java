@@ -57,7 +57,9 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 
 	}
 	
-	/* used by gui, dummy agent */
+	/**
+	 * Used by GUI, dummy agent.
+	 */
 	public Agent(Compartment comp)
 	{
 		this.compartment = comp;
@@ -265,24 +267,21 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	@Override
 	public ModelNode getNode() 
 	{
-		if(modelNode == null)
-		{
-			modelNode = new ModelNode(XmlLabel.agent, this);
-			modelNode.requirement = Requirements.ZERO_TO_MANY;
-			modelNode.title = String.valueOf(this.identity());
-			
-			modelNode.add(new ModelAttribute("identity", 
-					String.valueOf(this.identity()), null, false ));
-			
-			/* TODO: add aspects */
-			
-			for ( String key : this.reg().getLocalAspectNames() )
-				modelNode.add(reg().getAspectNode(key));
-			
-			modelNode.childConstructors.put(reg().new Aspect(reg()), 
-					ModelNode.Requirements.ZERO_TO_MANY);
-			
-		}
+		modelNode = new ModelNode(XmlLabel.agent, this);
+		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.title = String.valueOf(this.identity());
+		
+		modelNode.add(new ModelAttribute(XmlLabel.identity, 
+				String.valueOf(this.identity()), null, false ));
+		
+		// TODO: test whether adding/editing aspects works, add removing aspects
+		
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
+		modelNode.childConstructors.put(reg().new Aspect(reg()), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
 		return modelNode;
 	}
 

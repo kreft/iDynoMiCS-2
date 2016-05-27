@@ -22,7 +22,7 @@ import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import nodeFactory.ModelNode;
 import shape.Shape;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
 import utility.Helper;
 
 /**

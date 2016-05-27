@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
@@ -82,26 +83,29 @@ public class GuiComponent {
 		panel.setSize(600, 30);
 		
 		JLabel descriptionLabel = new JLabel(description);
-		descriptionLabel.setPreferredSize(new Dimension(200,30));
+		descriptionLabel.setPreferredSize(new Dimension(180,25));
 		panel.add(descriptionLabel,BorderLayout.WEST);
-		
-		inputArea.setPreferredSize(new Dimension(400,30));
+	
+		inputArea.setPreferredSize(new Dimension(400,25));
+		inputArea.setFont(Font.getFont("verdana"));
 		panel.add(inputArea,BorderLayout.EAST);
 		return panel;
 	}
 	
-	public static JPanel inputPanelLarge(String description, JTextPane inputPane)
+	public static JPanel inputPanelLarge(String description, JTextArea inputArea)
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.setSize(600, 30);
 		
 		JLabel descriptionLabel = new JLabel(description);
-		descriptionLabel.setPreferredSize(new Dimension(200,30));
-		panel.add(descriptionLabel,BorderLayout.WEST);
+		descriptionLabel.setPreferredSize(new Dimension(200,25));
+		panel.add(descriptionLabel,BorderLayout.NORTH);
 		
-		inputPane.setPreferredSize(new Dimension(400,90));
-		panel.add(inputPane,BorderLayout.EAST);
+		inputArea.setPreferredSize(new Dimension(580,300));
+		inputArea.setLineWrap(true);
+		inputArea.setFont(Font.getFont("verdana"));
+		panel.add(inputArea,BorderLayout.SOUTH);
 		return panel;
 	}
 	
@@ -125,7 +129,7 @@ public class GuiComponent {
 		panel.setLayout(new BorderLayout());
 		panel.setSize(600, 30);
         JLabel filler = new JLabel(text);
-        filler.setPreferredSize(new Dimension(600,30));
+        filler.setPreferredSize(new Dimension(580,30));
         panel.add(filler,BorderLayout.CENTER);
         return panel;
     }
@@ -139,7 +143,7 @@ public class GuiComponent {
 		panel.setSize(600, 30);
 		
 		JLabel descriptionLabel = new JLabel(description);
-		descriptionLabel.setPreferredSize(new Dimension(200,30));
+		descriptionLabel.setPreferredSize(new Dimension(180,30));
 		panel.add(descriptionLabel,BorderLayout.WEST);
 		
 		box.setPreferredSize(new Dimension(400,30));
@@ -157,7 +161,7 @@ public class GuiComponent {
 		panel.setSize(600, 30);
 		
 		JLabel filler = new JLabel(description);
-        filler.setPreferredSize(new Dimension(500,30));
+        filler.setPreferredSize(new Dimension(480,30));
         panel.add(filler,BorderLayout.WEST);
 
 		actionButton.setPreferredSize(new Dimension(100,30));
