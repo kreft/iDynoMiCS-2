@@ -6,6 +6,7 @@ import dataIO.Log;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import static shape.Dimension.DimName;
+import static shape.Dimension.DimName.*;
 import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
@@ -45,7 +46,7 @@ public abstract class CartesianShape extends Shape
 		 * These are the dimension names for any Cartesian shape. Assume they
 		 * are all insignificant to begin with.
 		 */
-		for ( DimName d : new DimName[]{DimName.X, DimName.Y, DimName.Z} )
+		for ( DimName d : new DimName[]{X, Y, Z} )
 			this._dimensions.put(d, new Dimension(false, d));
 		
 	}

@@ -4,6 +4,7 @@
 package shape;
 
 import static shape.Dimension.DimName;
+import static shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.*;
 
 import java.util.ArrayList;
@@ -547,7 +548,7 @@ public abstract class Shape implements
 		double[] local = this.getLocalPosition(pos);
 		if ( dimN.isAngular() )
 		{
-			double radius = local[this.getDimensionIndex(DimName.R)];
+			double radius = local[this.getDimensionIndex(R)];
 			if ( radius == 0.0 )
 				return;
 			double angle = dist/radius;

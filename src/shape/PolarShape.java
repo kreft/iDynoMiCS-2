@@ -1,6 +1,7 @@
 package shape;
 
 import static shape.Dimension.DimName;
+import static shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.DEFINED;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
@@ -82,7 +83,7 @@ public abstract class PolarShape extends Shape
 	 */
 	private double meanNbhCurrRadius()
 	{
-		int i = this.getDimensionIndex(DimName.R);
+		int i = this.getDimensionIndex(R);
 		return 0.5 * (this._currentCoord[i] + this._currentNeighbor[i]);
 	}
 	
@@ -105,12 +106,12 @@ public abstract class PolarShape extends Shape
 		 * defined boundary, the angular coordinate is irrelevant.
 		 */
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
-		WhereAmI where = this.whereIsNhb(DimName.R);
+		WhereAmI where = this.whereIsNhb(R);
 		if ( where == UNDEFINED )
 			return false;
 		if ( where == DEFINED )
 		{
-			this._nbhDimName = DimName.R;
+			this._nbhDimName = R;
 			this._nbhDirection = this._currentCoord[0] 
 									< this._currentNeighbor[0] ? 1 : 0;
 			return true;
@@ -128,7 +129,7 @@ public abstract class PolarShape extends Shape
 		 * calling this method, so _nbhDimName can not be Z. 
 		 */
 		this._nbhDimName = this._currentCoord[0] == this._currentNeighbor[0] ?
-										DimName.THETA : DimName.R;
+										THETA : R;
 		int dimIdx = getDimensionIndex(this._nbhDimName);
 		this._nbhDirection = 
 				this._currentCoord[dimIdx]
