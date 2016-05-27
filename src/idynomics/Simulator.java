@@ -10,16 +10,12 @@ import agent.SpeciesLib;
 import agent.SpeciesLib.SpeciesLibMaker;
 import dataIO.Log;
 import dataIO.ObjectRef;
+import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import idynomics.Timer.TimerMaker;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker.Requirement;
 import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
@@ -47,7 +43,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	
 	public Timer timer;
 	
-	public ModelNode modelNode;
+	private XmlExport xmlOut;
+	private ModelNode modelNode;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -58,6 +55,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		//TODO fully implement MTRandom (reading in random seed)
 		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
+		this.xmlOut = new XmlExport();
 	}
 
 	public NodeConstructor newBlank()
@@ -250,14 +248,23 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		 * 
 		 */
 		this.timer.step();
+		
+		/*
+		 * write state to new xml file
+		 */
+		xmlOut.writeFile();
+		
 		/* we should say something when an iter step is finished */
 		Log.out(Tier.NORMAL, "iter time: " + this.timer.getCurrentTime());
-		// TODO re-implement agent reporting
-//		this._compartments.forEach((s,c) -> 
-//		{
-//			Log.out(tier.QUIET,"COMPARTMENT: " + s);
-//			Log.out(tier.QUIET,c.agents.getAllAgents().size() + " agents");
-//		});
+		
+		/*
+		 * reporting agents
+		 */
+		for (Compartment c : this._compartments)
+		{
+			Log.out(Tier.QUIET,"COMPARTMENT: " + c.getName());
+			Log.out(Tier.QUIET,c.agents.getAllAgents().size() + " agents");
+		};
 
 	}
 	
@@ -349,8 +356,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 				Idynomics.global.simulationName, null, false ));
 		modelNode.add(new ModelAttribute(XmlLabel.outputFolder, 
 				Idynomics.global.outputRoot, null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.logLevel, 
-				Log.level(), Helper.enumToString(Tier.class).split(" "), false ));
+		modelNode.add(new ModelAttribute(XmlLabel.logLevel, Log.level(), 
+				Helper.enumToString(Tier.class).split(" "), false ));
 		modelNode.add(new ModelAttribute(XmlLabel.commentAttribute, 
 				Idynomics.global.simulationComment, null, true ));
 		
@@ -364,7 +371,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		for ( Compartment c : this._compartments )
 			modelNode.add(c.getNode());
 		
-		modelNode.childConstructors.put(new Compartment(), ModelNode.Requirements.ZERO_TO_FEW);
+		modelNode.childConstructors.put(new Compartment(), 
+				ModelNode.Requirements.ZERO_TO_FEW);
 
 		this.modelNode = modelNode;
 		/* return node */

@@ -1,7 +1,5 @@
 package processManager;
 
-import java.awt.event.ActionEvent;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -9,32 +7,25 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import aspect.AspectReg.Aspect;
 import dataIO.Log.Tier;
 import dataIO.Log;
-import dataIO.ObjectRef;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import shape.Shape;
-import utility.Helper;
 
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ProcessManager implements XMLable, AspectInterface, IsSubmodel, NodeConstructor
+public abstract class ProcessManager implements XMLable, AspectInterface,
+		NodeConstructor
 {
 	/**
 	 * The name of this {@code ProcessManager}, for reporting.
@@ -247,54 +238,10 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	protected abstract void internalStep(
 					EnvironmentContainer environment, AgentContainer agents);
 	
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
-	
-	public static String[] getAllOptions()
+	public static List<String> getAllOptions()
 	{
-		return Helper.getClassNamesSimple(
-							ProcessManagerLibrary.class.getDeclaredClasses());
-	}
-	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
-		out.add(new ParameterSetter(XmlLabel.processPriority,this,ObjectRef.INT));
-		return out;
-	}
-	
-	
-	public void acceptInput(String name, Object input)
-	{
-		if ( name.equals(XmlLabel.nameAttribute) )
-			this._name = (String) input;
-		if ( name.equals(XmlLabel.processPriority) )
-			this._priority = (Integer) input;
-	}
-	
-	public static class ProcessMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -126858198160234919L;
-		
-		public ProcessMaker(Requirement req, IsSubmodel target)
-		{
-			super(XmlLabel.process, req, target);
-		}
-		
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			ProcessManager newProcess =
-					ProcessManager.getNewInstance(e.getActionCommand());
-			this.addSubmodel(newProcess);
-		}
-		
-		public Object getOptions()
-		{
-			return ProcessManager.getAllOptions();
-		}
+
+		return Idynomics.xmlPackageLibrary.getAll("processManager.library.");
 	}
 	
 	

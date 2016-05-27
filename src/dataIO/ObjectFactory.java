@@ -49,6 +49,7 @@ public class ObjectFactory
 	 */
 	public static Object loadObject(String input, String type, String classType)
 	{
+		classType = Helper.firstToUpper(classType);
 		switch ( type ) 
 		{
 
@@ -164,6 +165,7 @@ public class ObjectFactory
 	{
 		String sType = s.getAttribute(classType);
 		String aType = s.getAttribute(XmlLabel.typeAttribute);
+		sType = Helper.firstToUpper(sType);
 		switch ( aType )
 		{
 		case "CALCULATED" : 
@@ -397,16 +399,30 @@ public class ObjectFactory
      */
     public static String stringRepresentation(Object obj)
     {
-    	String simpleName = obj.getClass().getSimpleName();
+    	String simpleName = Helper.firstToUpper(obj.getClass().getSimpleName());
     	String out = "";
     	switch (simpleName)
 		{
-		case "String[]":
-			out = Helper.StringAToString( (String[]) obj );
+		case ObjectRef.STR_VECT:
+			out = Helper.stringAToString( (String[]) obj );
 			break;
 		case ObjectRef.DBL_ARRY:
-		case "double[][][]":
-			out = Array.toString( (double[][][]) obj);
+			out = Array.toString( (double[][][]) obj );
+			break;
+		case ObjectRef.DBL_MATR:
+			out = Matrix.toString( (double[][]) obj );
+			break;
+		case ObjectRef.DBL_VECT:
+			out = Vector.toString( (double[]) obj );
+			break;
+		case ObjectRef.INT_ARRY:
+			out = Array.toString( (int[][][]) obj );
+			break;
+		case ObjectRef.INT_MATR:
+			out = Matrix.toString( (int[][]) obj );
+			break;
+		case ObjectRef.INT_VECT:
+			out = Vector.toString( (int[]) obj );
 			break;
 		default:
 			out =  obj.toString();
@@ -414,115 +430,6 @@ public class ObjectFactory
 		
     	return out;
     }
-//    
-//    /**
-//     * TODO: this needs a cleanup
-//     * Return a node with xmlTag as tag from input object, name attribute is
-//     * optional.
-//     * @param obj
-//     * @param xmlTag
-//     * @param nameAttribute
-//     * @return
-//     */
-//    public static String nodeFactory(Object obj, String xmlTag, 
-//    		String nameAttribute)
-//    {
-//    	String out = "<" + xmlTag + " " + (nameAttribute != null ? 
-//    			XmlLabel.nameAttribute + "=\"" + nameAttribute + "\"" : ""); 	
-//    	String simpleName = obj.getClass().getSimpleName();
-//    	switch (simpleName)
-//		{
-//		case "HashMap":
-//			@SuppressWarnings("unchecked")
-//			HashMap<Object,Object> h = (HashMap<Object,Object>) obj;
-//			out = out + " " + XmlLabel.classAttribute + "=\"" + simpleName + 
-//					"\">\n";
-//			for(Object hKey : h.keySet())
-//			{
-//				out = out + "<" + XmlLabel.item + " " + 
-//						specString( 
-//								hKey, 
-//								XmlLabel.keyTypeAttribute, //TODO replace with class attr
-//								XmlLabel.keyAttribute) +
-//						specString(
-//								h, 
-//								XmlLabel.classAttribute, 
-//								XmlLabel.valueAttribute)
-//						+ (h instanceof XMLable ? "</" + XmlLabel.item + ">\n" :
-//								"/>\n");
-//
-//			}
-//			out = out + "</" + xmlTag + ">\n";
-//			break;
-//		case "LinkedList":
-//			@SuppressWarnings("unchecked")
-//			LinkedList<Object> l = (LinkedList<Object>) obj;
-//			out = out + " " + XmlLabel.classAttribute + "=\"" + simpleName + "\">\n";
-//			for(Object o : l)
-//			{
-//				out = out + "<" + XmlLabel.item + " " +
-//						specString(o, XmlLabel.classAttribute,
-//						XmlLabel.valueAttribute) + (o instanceof XMLable ? 
-//						"</" + XmlLabel.item + ">\n" : "/>\n");
-//
-//			}
-//			out = out + "</" + xmlTag + ">\n";
-//			break;
-//		default:
-//			out = out + specString(obj, 
-//					XmlLabel.classAttribute, XmlLabel.valueAttribute)
-//					+ (obj instanceof XMLable ? "</" + XmlLabel.item + ">\n"
-//					: "/>\n");
-//		}
-//		
-//    	return out;
-//    }
-//    
-//    public static String nodeFactoryInner(Object obj)
-//    {
-//    	String out = "";
-//    	String simpleName = obj.getClass().getSimpleName();
-//    	switch (simpleName)
-//		{
-//		case "HashMap":
-//			@SuppressWarnings("unchecked")
-//			HashMap<Object,Object> h = (HashMap<Object,Object>) obj;
-//			for(Object hKey : h.keySet())
-//			{
-//				out = out + "<" + XmlLabel.item + " " + 
-//						specString( 
-//								hKey, 
-//								XmlLabel.keyTypeAttribute, 
-//								XmlLabel.keyAttribute) +
-//						specString(
-//								h, 
-//								XmlLabel.classAttribute, 
-//								XmlLabel.valueAttribute)
-//						+ (h instanceof XMLable ? "</" + XmlLabel.item + ">\n" :
-//								"/>\n");
-//
-//			}
-//			break;
-//		case "LinkedList":
-//			@SuppressWarnings("unchecked")
-//			LinkedList<Object> l = (LinkedList<Object>) obj;
-//			for(Object o : l)
-//			{
-//				out = out + "<" + XmlLabel.item + " " +
-//						specString(o, XmlLabel.classAttribute,
-//						XmlLabel.valueAttribute) + (o instanceof XMLable ? 
-//						"</" + XmlLabel.item + ">\n" : "/>\n");
-//
-//			}
-//			break;
-//		default:
-//			out = out + specString(obj, 
-//					XmlLabel.classAttribute, XmlLabel.valueAttribute)
-//					+ (obj instanceof XMLable ? "</" + XmlLabel.item + ">\n"
-//					: "/>\n");
-//		}
-//    	return out;
-//    }
 
 	/**
 	 * Attempts to create a deep copy of any input object

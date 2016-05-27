@@ -507,10 +507,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	{
 		ModelNode modelNode = new ModelNode(XmlLabel.solutes, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
-		
-//		modelNode.childConstructors.put(new ProcessManager(this), 
-//				ModelNode.Requirements.ZERO_TO_MANY);
-		
+
 		for ( String sol : this._environment.getSoluteNames() )
 			modelNode.add(this.getSolute(sol).getNode());
 		return modelNode;
