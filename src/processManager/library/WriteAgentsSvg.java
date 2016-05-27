@@ -56,6 +56,12 @@ public class WriteAgentsSvg extends ProcessManager
 	 */
 	protected boolean _higherIsDarker = true;
 	
+	/**
+	 * defines how many polygon points should be used to approximate a curve
+	 *	TODO: make this a 'density' with respect to total dimension length. 
+	 */
+	protected int _pointsOnCurve = 10; 
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -95,9 +101,9 @@ public class WriteAgentsSvg extends ProcessManager
 		
 		/* check if this shape is cylindrical or cartesian */
 		//TODO Stefan: Maybe we should use another check?
-		if (shape instanceof CylindricalShape)
+		if (shape instanceof CartesianShape)
 			this._svg.rectangle( Vector.zeros(size), size, "GRAY");
-		else if (shape instanceof CartesianShape)
+		else if (shape instanceof CylindricalShape)
 			this._svg.circle(Vector.zeros(size), size, "GRAY");
 		else
 			Log.out(Tier.CRITICAL,
@@ -143,8 +149,8 @@ public class WriteAgentsSvg extends ProcessManager
 					this._svg.rectangle(Vector.subset(origin, nDim), 
 							Vector.subset(dimension, nDim),pigment);
 				else if (shape instanceof CylindricalShape)
-					this._svg.circleElement(Vector.zerosDbl(2),
-											origin, dimension, 100, pigment);
+					this._svg.circleElement(Vector.zerosDbl(2),	origin, 
+									dimension, this._pointsOnCurve, pigment);
 			}
 		}
 		/* Draw all located agents. */
