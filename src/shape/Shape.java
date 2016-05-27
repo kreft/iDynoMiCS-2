@@ -1144,9 +1144,8 @@ public abstract class Shape implements
 	protected void nVoxelTo(int[] destination, int[] coords)
 	{
 		Vector.checkLengths(destination, coords);
-		int n = Math.min(coords.length, 3);
 		ResCalc rC;
-		for ( int dim = 0; dim < n; dim++ )
+		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			rC = this.getResolutionCalculator(coords, dim);
 			destination[dim] = rC.getNVoxel();
@@ -1181,7 +1180,7 @@ public abstract class Shape implements
 		 */
 		int nP, nCurrent;
 		ResCalc rC;
-		for ( int dim = 0; dim < 3; dim++ )
+		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			// TODO Rob[17Feb2016]: This will need improving for polar grids...
 			// I think maybe would should introduce a subclass of Dimension for

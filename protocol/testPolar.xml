@@ -57,7 +57,6 @@
 					<extreme name="max" position="16.0"/>
 				</dimension> 
 				<dimension name="THETA">
-					<extreme name="max"/>
 				</dimension> 
 			</shape>
 			<solutes>
