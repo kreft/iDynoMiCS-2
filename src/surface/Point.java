@@ -1,7 +1,13 @@
 package surface;
 
+import dataIO.XmlLabel;
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
+import nodeFactory.NodeConstructor;
+import processManager.ProcessManager;
 
 
 /**
@@ -10,7 +16,7 @@ import linearAlgebra.Vector;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class Point implements Copyable
+public class Point implements Copyable, NodeConstructor
 {
 	/**
 	 * Unique identifier for each point.
@@ -279,5 +285,40 @@ public class Point implements Copyable
 	public void subtractFromForce(double[] forceToSubtract)
 	{
 		Vector.minusEquals(this.f, forceToSubtract);
+	}
+
+	public ModelNode getNode()
+	{
+		ModelNode modelNode = new ModelNode(XmlLabel.point, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+
+		modelNode.add(new ModelAttribute(XmlLabel.position, 
+				Vector.toString(this.p), null, true ));
+
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public NodeConstructor newBlank() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

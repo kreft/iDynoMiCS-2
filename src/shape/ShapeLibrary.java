@@ -13,7 +13,8 @@ import grid.DummyGrid;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
+
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
@@ -46,8 +47,8 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public SpatialGrid getNewGrid() {
-			return new DummyGrid(this, this._volume);
+		public SpatialGrid getNewGrid(String name) {
+			return new DummyGrid(this, this._volume, name);
 		}
 
 		@Override

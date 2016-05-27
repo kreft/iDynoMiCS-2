@@ -4,6 +4,9 @@ import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 import generalInterfaces.HasBoundingBox;
 import linearAlgebra.Vector;
+import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
+import processManager.ProcessManager;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -157,6 +160,12 @@ public class Body implements Copyable, XMLable
 		List<Point> pointList = new LinkedList<Point>();
 		pointList.add(new Point(Vector.dblFromString(input)));
 		return new Body(pointList);
+	}
+	
+	// TODO required from xmlable interface
+	public ModelNode getNode()
+	{
+		return null;
 	}
 
 	public void init(Element xmlElem)

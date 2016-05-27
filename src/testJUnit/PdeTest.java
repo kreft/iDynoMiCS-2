@@ -14,7 +14,7 @@ import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 import utility.ExtraMath;
 

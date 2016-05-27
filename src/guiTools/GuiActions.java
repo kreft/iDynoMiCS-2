@@ -24,11 +24,7 @@ import idynomics.Param;
  */
 public final class GuiActions
 {
-	public static void newSimulation()
-	{
-		ConsoleSimBuilder.makeSimulation();
-	}
-	
+
 	/*************************************************************************
 	 * DEALING WITH FILES
 	 ************************************************************************/

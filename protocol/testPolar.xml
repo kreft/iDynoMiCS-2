@@ -52,8 +52,7 @@
 
 		<compartment name="second">
 			<shape class="Sphere">
-				<dimension name="R" isCyclic="false" targetResolution = "1.0">
-					<extreme name="max" position="3.0"/>
+				<dimension name="R" isCyclic="false" targetResolution = "1.0" max="3.0"/>
 				</dimension> 
 				<dimension name="THETA" isCyclic="false" targetResolution = "1.0">
 				</dimension> 

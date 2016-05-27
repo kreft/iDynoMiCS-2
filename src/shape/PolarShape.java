@@ -1,11 +1,11 @@
 package shape;
 
-import static shape.ShapeConventions.DimName.R;
+import static shape.Dimension.DimName;
+import static shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.DEFINED;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.Vector;
-import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 public abstract class PolarShape extends Shape
@@ -129,7 +129,7 @@ public abstract class PolarShape extends Shape
 		 * calling this method, so _nbhDimName can not be Z. 
 		 */
 		this._nbhDimName = this._currentCoord[0] == this._currentNeighbor[0] ?
-										DimName.THETA : DimName.R;
+										THETA : R;
 		int dimIdx = getDimensionIndex(this._nbhDimName);
 		this._nbhDirection = 
 				this._currentCoord[dimIdx]
