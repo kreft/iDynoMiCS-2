@@ -196,27 +196,38 @@ public abstract class PolarShape extends Shape
 	/**
 	 * \brief Converts the given resolution {@code res} .
 	 * 
-	 * @param shell
-	 * @param res
-	 * @return
 	 * @param shell Index of the shell.
 	 * @param res Target resolution, in units of "quarter circles"
 	 * @return Target resolution, in radians.
 	 */
-
-	protected double scaleResolutionForShell(int shell, double res)
+	protected static double scaleResolutionForShell(int shell, double res)
 	{
-		return res * 2.0 / (2 * shell + 1);
+		/*
+		 * The number "2 * (index of the shell) + 1" represents the radius of
+		 * an imaginary arc running along the centre of the shell.
+		 */
+		double factor = ( 2 * shell + 1);
+		/*
+		 * Divide pi/2 by this number, so that the resolution is scaled to a 
+		 * quarter circle. If res is one and shell is zero (i.e. the innermost
+		 * shell), then this method will return pi/2 radians.
+		 */
+		factor = Math.PI * 0.5 / factor;
+		/*
+		 * Multiply res by this factor to convert it from "units of quarter
+		 * circle" to radians.
+		 */
+		return res * factor;
 	}
 
 	/**	
 	 * \brief Converts the given resolution {@code res} to account for varying 
 	 * radius and polar angle.
 	 * 
-	 * @param shell
-	 * @param ring
-	 * @param res
-	 * @return
+	 * @param shell Index of the shell.
+	 * @param ring Index of the ring.
+	 * @param res Target resolution, in units of "quarter circles"
+	 * @return Target resolution, in radians.
 	 */
 	protected double scaleResolutionForRing(int shell, int ring,
 												double ring_res, double res){
