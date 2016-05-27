@@ -21,6 +21,7 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelNode;
 import utility.Helper;
 
 /**
@@ -50,7 +51,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	/**
      * The aspect registry... TODO
      */
-    public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+    public AspectReg aspectRegistry = new AspectReg();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -91,6 +92,12 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		return null;
 	}
 	
+	// TODO required from xmlable interface
+	public ModelNode getNode()
+	{
+		return null;
+	}
+	
 	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 
@@ -119,8 +126,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	/**
 	 * \brief Return the aspect registry (implementation of aspect interface).
 	 */
-	@SuppressWarnings("unchecked")
-	public AspectReg<?> reg()
+	public AspectReg reg()
 	{
 		return aspectRegistry;
 	}
@@ -132,7 +138,12 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	 */
 	public String getName()
 	{
-		return this._name;
+		if (this._name == null)
+			return "";
+		else
+			return this._name;
+
+			
 	}
 	
 	/**

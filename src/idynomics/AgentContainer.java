@@ -399,6 +399,7 @@ public class AgentContainer
 	 * \brief Loop over all boundaries, asking any agents waiting in their
 	 * arrivals lounges to enter the compartment.
 	 */
+	 
 	public void agentsArrive()
 	{
 		Tier level = BULK;
@@ -444,6 +445,7 @@ public class AgentContainer
 	 * \brief Loop over all boundaries, asking any agents waiting in their
 	 * departure lounges to leave the compartment.
 	 */
+	
 	public void agentsDepart()
 	{
 		Tier level = BULK;
@@ -486,20 +488,5 @@ public class AgentContainer
 	/*************************************************************************
 	 * REPORTING
 	 ************************************************************************/
-	
-	/**
-	 * @return XML-format description of all {@code Agent}s.
-	 */
-	public String getXml()
-	{
-		// TODO using a StringBuffer would be quicker.
-		String out = "<" + XmlLabel.agents + ">\n";
-		for ( Agent a : this.getAllAgents() )
-		{
-			out = out + "<" + XmlLabel.agent + ">\n"
-					+ a.reg().getXml() + "</" + XmlLabel.agent + ">\n";
-		}
-		out = out + "</" + XmlLabel.agents + ">\n";
-		return out;
-	}
+
 }

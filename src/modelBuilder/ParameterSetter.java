@@ -71,7 +71,7 @@ public class ParameterSetter extends InputSetter
 		String cmd = e.getActionCommand();
 		Log.out(Tier.DEBUG,
 					"Setting parameter \""+this.getName()+"\" as \""+cmd+"\"");
-		this._currentValue = ObjectFactory.loadObject(cmd, this._classType);
+//		this._currentValue = ObjectFactory.loadObject(cmd, this._classType); FIXME commented out due to incompatability xml restructuring
 		this.acceptInput(this._currentValue);
 	}
 	

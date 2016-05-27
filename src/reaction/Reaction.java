@@ -15,6 +15,10 @@ import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
+import nodeFactory.NodeConstructor;
 
 /**
  * \brief TODO
@@ -22,7 +26,7 @@ import generalInterfaces.XMLable;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class Reaction implements XMLable, Copyable
+public class Reaction implements XMLable, Copyable, NodeConstructor
 {
 	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
@@ -280,6 +284,46 @@ public class Reaction implements XMLable, Copyable
 		return null;
 	}
 	
+	// TODO required from xmlable interface.. unfinished
+	public ModelNode getNode()
+	{
+		ModelNode modelNode = new ModelNode(XmlLabel.reaction, this);
+		modelNode.requirement = Requirements.ZERO_OR_ONE;
+		modelNode.title = this._name;
+		
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+				this._name, null, false ));
+		
+		modelNode.add(((ExpressionB) _kinetic).getNode());
+		
+		return modelNode;
+	}
+	
+	@Override
+	public void setNode(ModelNode node) 
+	{
+		for(ModelNode n : node.childNodes)
+			n.constructor.setNode(n);
+	}
+
+	@Override
+	public NodeConstructor newBlank() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return XmlLabel.reaction;
+	}
+	
 	/*************************************************************************
 	 * MISCELLANEOUS METHODS
 	 ************************************************************************/
@@ -302,4 +346,5 @@ public class Reaction implements XMLable, Copyable
 		out.put(key, value);
 		return out;
 	}
+
 }

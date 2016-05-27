@@ -2,6 +2,7 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
+import nodeFactory.ModelNode;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -78,6 +79,12 @@ public abstract class Calculated implements Copyable, XMLable
 		Calculated obj = (Calculated) XMLable.getNewInstance(input);
 		obj.init(input);
 		return obj;
+	}
+	
+	// TODO required from xmlable interface
+	public ModelNode getNode()
+	{
+		return null;
 	}
 
 	public void init(Element xmlElem)

@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
+import agent.Species;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.ObjectRef;
@@ -246,33 +247,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 			}
 		}
 	}
-	
-	@Override
-	public String getXml() {
-		String out = "<" + XmlLabel.compartment + " " + XmlLabel.nameAttribute +
-				"=\"" + this.name + "\">\n";
-		out = out + this._shape.getXml();
 		
-		/* TODO solutes, reactions */
-		out = out + this.agents.getXml();
-		
-		out = out + "<" + XmlLabel.processManagers + ">";
-		for(ProcessManager p : this._processes)
-		{
-			out = out + "<" + XmlLabel.process + " " + XmlLabel.nameAttribute +
-					"=\"" + p.getName() + "\" " + XmlLabel.classAttribute + 
-					"=\"" + p.getClass().getSimpleName() + "\" " +
-					XmlLabel.processPriority + "=\"" + p.getPriority() + "\" " +
-					XmlLabel.processFirstStep + "=\"" + p.getTimeForNextStep() +
-					"\" " + XmlLabel.packageAttribute + "=\"processManager.\"" +
-					">\n"
-					+ p.reg().getXml() + "</" + XmlLabel.process + ">\n";
-		}
-		out = out + "</" + XmlLabel.processManagers + ">\n";
-		
-		out = out + "</" + XmlLabel.compartment + ">\n";
-		return out;
-	}
 	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -534,39 +509,59 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	
 	public ModelNode getNode()
 	{
-		if (modelNode == null)
-		{
-		ModelNode myNode = new ModelNode(XmlLabel.compartment, this);
-		myNode.requirement = Requirements.ZERO_TO_FEW;
+
+		modelNode = new ModelNode(XmlLabel.compartment, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
 		
-		myNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+		modelNode.childConstructors.put(new Agent(this), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		if (this.getName() != null)
+			modelNode.title = this.getName();
+		
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 				this.getName(), null, true ));
 		
 		if ( this._shape !=null )
-			myNode.add(_shape.getNode());
+			modelNode.add(_shape.getNode());
 		
-		// Work around
-		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), ModelNode.Requirements.EXACTLY_ONE);
+		if ( this.agents != null)
+			for ( Agent a : this.agents.getAllAgents() )
+				modelNode.add(a.getNode());
 		
-		modelNode = myNode;
-		}
+		/* Work around: we need an object in order to call the newBlank method
+		 * from TODO investigate a cleaner way of doing this  */
+		modelNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), 
+				ModelNode.Requirements.EXACTLY_ONE);
 		
 		return modelNode;
 		
 	}
 
-	public void setNode(ModelNode node) {
+	public void setNode(ModelNode node) 
+	{
 		this.name = node.getAttribute(XmlLabel.nameAttribute).value;
+		
+		for(ModelNode n : node.childNodes)
+			n.constructor.setNode(n);
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(NodeConstructor childObject) 
+	{
 		if( childObject instanceof Shape)
 			this.setShape((Shape) childObject); 
 	}
 
 	@Override
-	public String defaultXmlTag() {
+	public String defaultXmlTag() 
+	{
 		return XmlLabel.compartment;
+	}
+
+	@Override
+	public String getXml() 
+	{
+		return getNode().getXML();
 	}
 }

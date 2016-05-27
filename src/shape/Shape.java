@@ -1500,29 +1500,24 @@ public abstract class Shape implements
 	protected boolean nbhJumpOverCurrent(DimName dim)
 	{
 		int index = this.getDimensionIndex(dim);
-		this.updateCurrentNVoxel();
-		this._whereIsNbh = this.whereIsNhb(dim);
-		/* Check we are behind the current coordinate. */
-		if ( this._currentNeighbor[index] < this._currentCoord[index] )
-		{
-			boolean bMaxDef = this.getDimension(dim).isBoundaryDefined(1);
-			/* Check there is space on the other side. */
-			if ( this._whereIsNbh == INSIDE || bMaxDef )
+		/* try to jump */
+		if (this._currentNeighbor[index] < this._currentCoord[index]){
+			this._currentNeighbor[index] = this._currentCoord[index] + 1;
+			WhereAmI new_orientation = this.whereIsNhb(dim);
+			if ( new_orientation != UNDEFINED)
 			{
 				/* Jump and report success. */
 				this._nbhDirection = 1;
-				this._currentNeighbor[index] = this._currentCoord[index] + 1;
-				this._whereIsNbh = this.whereIsNhb(dim);
+				this._nbhDimName = dim;
+				this._whereIsNbh = new_orientation;
 				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
 						": result "+Vector.toString(this._currentNeighbor)+
 						" is "+this._whereIsNbh);
 				return true;
 			}
+			this._currentNeighbor[index] = this._currentCoord[index] - 1;
 		}
 		/* Report failure. */
-		// TODO is it appropriate to use a meaningless direction here?
-		this._nbhDirection = -1;
-		this._whereIsNbh = this.whereIsNhb(dim);
 		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
 				" is "+this._whereIsNbh);

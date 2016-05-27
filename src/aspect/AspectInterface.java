@@ -1,5 +1,7 @@
 package aspect;
 
+import java.util.Set;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -8,6 +10,10 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
+import shape.Shape;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -24,12 +30,7 @@ public abstract interface AspectInterface
 	 * 
 	 * @return
 	 */
-	public <A> AspectReg<A> reg();	
-
-	public default String getXml()
-	{
-		return reg().getXml();
-	}
+	public AspectReg reg();	
 	
 	/**
 	 * \brief Load all aspects from xmlNode into anything that implements the
@@ -41,33 +42,32 @@ public abstract interface AspectInterface
 	public default void loadAspects(Node xmlNode)
 	{
 		Element e = (Element) xmlNode;
-		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
+		AspectReg aspectReg = (AspectReg) reg();
 		String  name;
 		NodeList stateNodes = e.getElementsByTagName(XmlLabel.aspect);
 		for (int j = 0; j < stateNodes.getLength(); j++) 
 		{
 			Element s = (Element) stateNodes.item(j);
 			name = s.getAttribute(XmlLabel.nameAttribute);
-			aspectReg.add(name, ObjectFactory.loadObject(s, XmlLabel.valueAttribute,
-													XmlLabel.typeAttribute));
+			aspectReg.add(name, ObjectFactory.loadObject(s));
 			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 		}
 		
-		reg().getXml();
+//		reg().getXml();
 	}
 	
-	/**
-	 * quick method to load simple aspects from user input
-	 * @param name
-	 * @param input
-	 * @param type
-	 */
-	public default void loadAspect(String name, String input, String type)
-	{
-		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
-		aspectReg.add(name, ObjectFactory.loadObject(input, type));
-		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
-	}
+//	/**
+//	 * quick method to load simple aspects from user input
+//	 * @param name
+//	 * @param input
+//	 * @param type
+//	 */
+//	public default void loadAspect(String name, String input, String type)
+//	{
+//		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
+//		aspectReg.add(name, ObjectFactory.loadObject(input, type));
+//		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
+//	}
 	
 	/**************************************************************************
 	 * Quick getter methods, making life easy and code readable, expand as new

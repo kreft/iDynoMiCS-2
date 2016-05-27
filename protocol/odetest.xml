@@ -24,10 +24,10 @@
 			<processManagers>
 				<process name="solveChemostat" class="SolveChemostat" priority="0"
 					firstStep="0.0" >
-					<aspect name="soluteNames" type="String[]" value="solute1,solute2" />
-					<aspect name="tolerance" type="Double" value="1.0e-3" />
-					<aspect name="hMax" type="Double" value="1.0e-3" />
-					<aspect name="solver" type="String" value="heun" />
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1,solute2" />
+					<aspect name="tolerance" type="PRIMARY" class="Double" value="1.0e-3" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="1.0e-3" />
+					<aspect name="solver" type="PRIMARY" class="String" value="heun" />
 				</process>
 			</processManagers>
 		</compartment>
@@ -47,10 +47,10 @@
 			<processManagers>
 				<process name="solveChemostat" class="SolveChemostat" priority="0"
 					firstStep="0.0" >
-					<aspect name="soluteNames" type="String[]" value="solute1,solute2" />
-					<aspect name="tolerance" type="Double" value="1.0e-3" />
-					<aspect name="hMax" type="Double" value="1.0e-3" />
-					<aspect name="solver" type="String" value="rosenbrock" />
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1,solute2" />
+					<aspect name="tolerance" type="PRIMARY" class="Double" value="1.0e-3" />
+					<aspect name="hMax" type="PRIMARY" class="Double" value="1.0e-3" />
+					<aspect name="solver" type="PRIMARY" class="String" value="rosenbrock" />
 				</process>
 			</processManagers>
 		</compartment>

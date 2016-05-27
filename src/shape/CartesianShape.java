@@ -51,9 +51,9 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	public double[][][] getNewArray(double initialValue)
-	{
-		return Array.array(this.updateCurrentNVoxel(), initialValue);
+	public double[][][] getNewArray(double initialValue) {
+		int[] nVoxel = this.updateCurrentNVoxel();
+		return Array.array(nVoxel[0], nVoxel[1], nVoxel[2], initialValue);
 	}
 	
 	/*************************************************************************
@@ -183,8 +183,14 @@ public abstract class CartesianShape extends Shape
 			if ( nbhIndex < 3 )
 			{
 				this._nbhDimName = this.getDimensionName(nbhIndex);
+				Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
+						+this._nbhDimName);
 				if ( ! moveNbhToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
+			}
+			else
+			{
+				this._whereIsNbh = UNDEFINED;
 			}
 		}
 		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
