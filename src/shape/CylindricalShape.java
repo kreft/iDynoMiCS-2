@@ -4,7 +4,7 @@ import static shape.Dimension.DimName;
 import static shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
-import linearAlgebra.PolarArray;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Rod;
@@ -53,7 +53,16 @@ public abstract class CylindricalShape extends PolarShape
 	
 	@Override
 	public double[][][] getNewArray(double initialValue) {
-		return PolarArray.createCylinder(this._resCalc, initialValue);
+		int nr, nz;
+		if (getNumberOfDimensions() < 2)
+			throw new IllegalArgumentException(
+					"A cylindrical array needs at least 2 dimensions");
+		nr = _resCalc[0][0].getNVoxel();
+		nz = _resCalc[2][0] == null ? 0 : _resCalc[2][0].getNVoxel();
+		double[][][] a = new double[nr][][];
+		for ( int i = 0; i < nr; i++ )
+			a[i] = Matrix.matrix(_resCalc[1][i].getNVoxel(), nz, initialValue);
+		return a;
 	}
 	
 	/*************************************************************************
@@ -102,10 +111,12 @@ public abstract class CylindricalShape extends PolarShape
 				for ( int i = 0; i < nShell; i++ )
 				{
 					shellResCalc = (ResCalc) resC.copy();
-					/* since we so not allow initialization with varying 
-					 * resolutions, they should all be the same here 
+					/* since we do not allow initialization with varying 
+					 * resolutions, resC.getResolution(x) should all be the 
+					 * same at this point. 
 					 */
-					shellResCalc.setResolution(scaleResolutionForShell(i, resC.getResolution(0)));
+					shellResCalc.setResolution(scaleResolutionForShell(i,
+							resC.getResolution(0)));
 					this._resCalc[index][i] = shellResCalc;
 				}
 			}
