@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import agent.Body;
 import aspect.calculated.StateExpression;
 import dataIO.Log;
 import dataIO.ObjectFactory;
@@ -18,6 +19,7 @@ import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 import nodeFactory.primarySetters.LinkedListSetter;
+import surface.Point;
 import utility.Helper;
 
 
@@ -428,11 +430,16 @@ public class AspectReg
 					for (Object o : linkedList)
 						modelNode.add(new LinkedListSetter(o).getNode());
 					break;
+				case "Body":
+					Body myBody = (Body) aspect;
+					for (Point p : myBody.getPoints())
+						modelNode.add(p.getNode());
+					break;
 				default:
 					if (aspect instanceof XMLable)
 					{
 						XMLable x = (XMLable) aspect;
-						// TODO x.getNode(); etc..
+						modelNode.add(x.getNode()); 
 					}
 					else
 					{

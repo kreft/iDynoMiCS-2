@@ -148,13 +148,14 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
 			Element soluteE = (Element) solutes.item(i);
-			String soluteName = XmlHandler.obtainAttribute(soluteE, XmlLabel.nameAttribute);
-			double conc = Double.valueOf(
-					XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					XmlLabel.concentration));
-			this.addSolute(soluteName, conc);
+			String soluteName = XmlHandler.obtainAttribute(soluteE, 
+					XmlLabel.nameAttribute);
+			String conc = XmlHandler.obtainAttribute((Element) solutes.item(i), 
+					XmlLabel.concentration);
+			this.addSolute(soluteName);
+			this.getSolute(soluteName).setTo(ArrayType.CONCN, conc);
 			
-			// FIXME please provide standard methods to load entire solute grids
+
 			SpatialGrid myGrid = this.getSolute(str);
 			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
 					XmlLabel.voxel);

@@ -110,7 +110,7 @@ public class GuiEditor
 		/* add textareas for this ModelNode's attributes */
 		for(ModelAttribute a : node.attributes)
 		{
-			if ( a.options == null)
+			if ( a.options == null && a.value.length() < 60)
 			{
 				/* input field */
 				JTextArea input = new JTextArea();
@@ -119,6 +119,17 @@ public class GuiEditor
 				if (! a.editable)
 					input.setForeground(Color.gray);
 				attr.add(GuiComponent.inputPanel(a.tag, input));
+				attributes.put(a, input);
+			}
+			else if ( a.options == null )
+			{
+				/* input field */
+				JTextArea input = new JTextArea();
+				input.setText(a.value);
+				input.setEditable(a.editable);
+				if (! a.editable)
+					input.setForeground(Color.gray);
+				attr.add(GuiComponent.inputPanelLarge(a.tag, input));
 				attributes.put(a, input);
 			}
 			else
@@ -159,7 +170,8 @@ public class GuiEditor
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
 					node.tag + " " + node.title, tabs, "");
 		}
-		else if( node.tag == XmlLabel.shapeDimension || node.tag == XmlLabel.stoichiometry )
+		else if( node.tag == XmlLabel.shapeDimension || node.tag == XmlLabel.point ||
+				node.tag == XmlLabel.stoichiometry )
 		{
 			parent.add(component, null);
 			parent.revalidate();

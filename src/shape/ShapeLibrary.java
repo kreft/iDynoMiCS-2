@@ -47,8 +47,8 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public SpatialGrid getNewGrid() {
-			return new DummyGrid(this, this._volume);
+		public SpatialGrid getNewGrid(String name) {
+			return new DummyGrid(this, this._volume, name);
 		}
 
 		@Override

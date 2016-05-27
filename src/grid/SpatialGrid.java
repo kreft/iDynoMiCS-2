@@ -78,13 +78,16 @@ public class SpatialGrid implements NodeConstructor
 									
 	protected Shape _shape;
 	
+	protected String _name;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public SpatialGrid(Shape shape)
+	public SpatialGrid(Shape shape, String name)
 	{
 		this._shape = shape;
+		this._name = name;
 	}
 	
 	/**
@@ -237,6 +240,18 @@ public class SpatialGrid implements NodeConstructor
 		Array.copyTo(this._array.get(type), array);
 	}
 	
+	/**
+	 * \brief set array from string
+	 * @param type
+	 * @param array
+	 */
+	public void setTo(ArrayType type, String array)
+	{
+		if (array.contains(";"))
+			setTo( type, Array.dblFromString(array) );
+		else
+			setAllTo( type, Double.valueOf(array) );
+	}
 	/**
 	 * \brief TODO
 	 * 
@@ -490,14 +505,14 @@ public class SpatialGrid implements NodeConstructor
 		ModelNode modelNode = new ModelNode(XmlLabel.solute, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 		
-		modelNode.title = "name???";
+		modelNode.title = this._name;
 		
 		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-				"name????", null, true ));
+				this._name, null, true ));
 		
 		modelNode.add(new ModelAttribute(XmlLabel.concentration, 
-				arrayAsText(ArrayType.CONCN), null, true ));
-//				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)), null, true ));
+//				arrayAsText(ArrayType.CONCN), null, true ));
+				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)), null, true ));
 		
 		return modelNode;
 	}
