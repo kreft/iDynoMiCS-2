@@ -114,7 +114,7 @@
 					<aspect name="timerStepSize" class="Double" value="1.0" />
 					<aspect name="arrayType" class="String" value="PRODUCTIONRATE" />
 				</process>
-				<process name="xvgWriter" class="writeXmlOutput"  priority="-3"
+				<process name="xmlWriter" class="WriteXmlOutput"  priority="-3"
 					firstStep="0.0" >
 					<aspect name="prefix" class="String" value="mySim" />
 				</process>

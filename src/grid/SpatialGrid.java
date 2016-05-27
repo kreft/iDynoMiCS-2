@@ -496,7 +496,8 @@ public class SpatialGrid implements NodeConstructor
 				"name????", null, true ));
 		
 		modelNode.add(new ModelAttribute(XmlLabel.concentration, 
-				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)), null, true ));
+				arrayAsText(ArrayType.CONCN), null, true ));
+//				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)), null, true ));
 		
 		return modelNode;
 	}
