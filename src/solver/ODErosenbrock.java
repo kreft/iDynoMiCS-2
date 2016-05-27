@@ -119,12 +119,14 @@ public class ODErosenbrock extends ODEsolver
 	 ************************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief Initialise this solver.
 	 * 
-	 * @param names
-	 * @param allowNegatives
-	 * @param absTol
-	 * @param hMax
+	 * @param names List of {@code String} names of the variables this solver
+	 * deals with.
+	 * @param allowNegatives {@code true} to allow negative values of
+	 * variables, {@code false} to force any negative values to zero.
+	 * @param absTol Absolute numerical tolerance of estimated error.
+	 * @param hMax Largest allowed internal time step.
 	 */
 	public void init(String[] names, boolean allowNegatives,
 												double absTol, double hMax)

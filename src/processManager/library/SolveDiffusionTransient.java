@@ -26,7 +26,6 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
-import processManager.PMToolsAgentEvents;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.subvoxel.CoordinateMap;
@@ -295,6 +294,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			 * This is the updater method that the PDEsolver will use before
 			 * each mini-timestep.
 			 */
+			@Override
 			public void prestep(HashMap<String, SpatialGrid> variables, 
 					double dt)
 			{
@@ -302,7 +302,10 @@ public class SolveDiffusionTransient extends ProcessManager
 					environment.getSoluteGrid(solute).newArray(PRODUCTIONRATE);
 				applyEnvReactions(environment);
 				applyAgentReactions(environment, agents);
-				PMToolsAgentEvents.agentsGrow(agents, dt);
+				/* Ask all agents to grow. */
+				// TODO clarify what is happening in internal production
+				for ( Agent a : agents.getAllLocatedAgents() )
+					a.event(NameRef.internalProduction, dt);
 			}
 		};
 	}
@@ -324,24 +327,31 @@ public class SolveDiffusionTransient extends ProcessManager
 			return;
 		}
 		/*
+		 * Construct the "concns" dictionary once, so that we don't have to
+		 * re-enter the solute names for every voxel coordinate.
+		 */
+		Set<String> soluteNames = environment.getSoluteNames();
+		HashMap<String,Double> concns = new HashMap<String,Double>();
+		for ( String soluteName : soluteNames )
+			concns.put(soluteName, 0.0);
+		/*
+		 * The "totals" dictionary is for reporting only.
+		 */
+		HashMap<String,Double> totals = new HashMap<String,Double>();
+		for ( String name : soluteNames )
+			totals.put(name, 0.0);
+		/*
 		 * Iterate over the spatial discretization of the environment, applying
 		 * extracellular reactions as required.
 		 */
 		Shape shape = environment.getShape();
-		Set<String> soluteNames = environment.getSoluteNames();
-		HashMap<String,Double> totals = new HashMap<String,Double>();
-		for ( String name : soluteNames )
-			totals.put(name, 0.0);
 		SpatialGrid solute;
-		HashMap<String,Double> concns = new HashMap<String,Double>();
-		for ( String soluteName : soluteNames )
-			concns.put(soluteName, 0.0);
 		Set<String> productNames;
 		double rate, productRate;
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext() )
 		{
-			/* Get concentrations in grid voxel. */
+			/* Get the solute concentrations in this grid voxel. */
 			for ( String soluteName : soluteNames )
 			{
 				solute = environment.getSoluteGrid(soluteName);
@@ -522,6 +532,7 @@ public class SolveDiffusionTransient extends ProcessManager
 						}
 					}
 				}
+			// TODO agent do event "internal production"?
 			}
 		}
 		for ( String name : totals.keySet() )

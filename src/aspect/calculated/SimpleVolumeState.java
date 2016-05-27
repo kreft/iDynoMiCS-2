@@ -11,6 +11,7 @@ import idynomics.NameRef;
  * 
  * Input: mass, density.
  */
+// TODO Rob [27May2016]: can this be deleted now we have StateExpression?
 public class SimpleVolumeState extends Calculated {
 	
 	public String MASS = NameRef.agentMass;

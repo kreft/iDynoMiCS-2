@@ -302,6 +302,7 @@ public class SpatialGrid
 	 * @param type Type of the array to use.
 	 * @return Average value of all the elements of the array <b>type</b>.
 	 */
+	// FIXME this currently ignores voxel volumes.
 	public double getAverage(ArrayType type)
 	{
 		return Array.meanArith(this._array.get(type));

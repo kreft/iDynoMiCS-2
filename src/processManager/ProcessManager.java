@@ -21,7 +21,6 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
-import utility.Helper;
 
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.
@@ -249,8 +248,9 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	
 	public static String[] getAllOptions()
 	{
-		return Helper.getClassNamesSimple(
-							ProcessManagerLibrary.class.getDeclaredClasses());
+		// FIXME almost there, just need to decide on String[] or List<String>
+		//return Idynomics.xmlPackageLibrary.getAll("processManager.library.");
+		return new String[]{};
 	}
 	
 	public List<InputSetter> getRequiredInputs()
