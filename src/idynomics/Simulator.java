@@ -1,5 +1,6 @@
 package idynomics;
 
+import java.io.ObjectOutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,6 +46,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	
 	private XmlExport xmlOut;
 	private ModelNode modelNode;
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -69,8 +71,25 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 					XmlLabel.simulation : Idynomics.global.simulationName;
 	}
 	
+	public long seed()
+	{
+		long currentSeed = ExtraMath.random.nextLong();
+		ExtraMath.intialiseRandomNumberGenerator(currentSeed);
+		return currentSeed;
+	}
+	
+	public void seed(long seed)
+	{
+		ExtraMath.intialiseRandomNumberGenerator(seed);
+	}
+	
 	public void init(Element xmlElem)
 	{
+		
+		String seed =XmlHandler.gatherAttribute(xmlElem, XmlLabel.seed);
+		if (seed != "")
+			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
+		
 		/*
 		 * Set up the Timer.
 		 */
@@ -352,6 +371,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 			Log.set(Tier.NORMAL);
 		
 		/* add attributes */
+		modelNode.add( new ModelAttribute(XmlLabel.seed,
+				String.valueOf(seed()), null, true));
 		modelNode.add( new ModelAttribute(XmlLabel.nameAttribute, 
 				Idynomics.global.simulationName, null, false ));
 		modelNode.add(new ModelAttribute(XmlLabel.outputFolder, 
@@ -390,6 +411,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		Idynomics.global.simulationName = node.getAttribute(XmlLabel.nameAttribute).value;
 		Idynomics.global.outputRoot = node.getAttribute(XmlLabel.outputFolder).value;
 		Log.set(node.getAttribute(XmlLabel.logLevel).value);
+		
+		seed(Long.valueOf(node.getAttribute(XmlLabel.seed).value));
 		
 		for(ModelNode n : node.childNodes)
 			n.constructor.setNode(n);

@@ -245,7 +245,9 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	}
 	
 	
-	// TODO required from xmlable interface
+	/**
+	 * 
+	 */
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(defaultXmlTag(), this);
@@ -276,30 +278,41 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	}
 	
 
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
+	/**
+	 * 
+	 */
+	public NodeConstructor newBlank() 
+	{
 		return null;
 	}
 	
+	/**
+	 * 
+	 */
 	public void setNode(ModelNode node) 
 	{
 		
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void addChildObject(NodeConstructor childObject) 
 	{
 
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public String defaultXmlTag() 
 	{
 		return XmlLabel.process;
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public String getXml() 
 	{
 		return getNode().getXML();

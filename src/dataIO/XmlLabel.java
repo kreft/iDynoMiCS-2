@@ -319,4 +319,9 @@ public class XmlLabel
 	 */
 	public static String solutes = "solutes";
 
+	/**
+	 * Random seed
+	 */
+	public static String seed = "randomSeed";
+
 }
