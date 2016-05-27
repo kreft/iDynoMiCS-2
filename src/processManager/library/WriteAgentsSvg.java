@@ -18,7 +18,6 @@ import processManager.ProcessManager;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Shape;
-import shape.ShapeConventions.DimName;
 import utility.ExtraMath;
 
 /**
