@@ -171,7 +171,7 @@ public class GuiEditor
 					node.tag + " " + node.title, tabs, "");
 		}
 		else if( node.tag == XmlLabel.shapeDimension || node.tag == XmlLabel.point ||
-				node.tag == XmlLabel.stoichiometry )
+				node.tag == XmlLabel.stoichiometry || node.tag == XmlLabel.constant )
 		{
 			parent.add(component, null);
 			parent.revalidate();

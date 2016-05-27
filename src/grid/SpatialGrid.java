@@ -6,6 +6,7 @@ import agent.Agent;
 import dataIO.ObjectFactory;
 import dataIO.XmlLabel;
 import linearAlgebra.Array;
+import linearAlgebra.Matrix;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -242,12 +243,13 @@ public class SpatialGrid implements NodeConstructor
 	
 	/**
 	 * \brief set array from string
+	 * FIXME ARRAY, MATRIX, VECTOR?
 	 * @param type
 	 * @param array
 	 */
 	public void setTo(ArrayType type, String array)
 	{
-		if (array.contains(";"))
+		if (array.contains(Matrix.DELIMITER))
 			setTo( type, Array.dblFromString(array) );
 		else
 			setAllTo( type, Double.valueOf(array) );
