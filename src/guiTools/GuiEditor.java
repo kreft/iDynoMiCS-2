@@ -134,7 +134,7 @@ public class GuiEditor
 		component.add(attr);
 		
 		/* placement of this ModelNode in the gui */
-		if(node.tag == XmlLabel.speciesLibrary )
+		if(node.tag == XmlLabel.speciesLibrary  )
 		{
 			/* exception for speciesLib add component as tab next to the
 			 * parent tab (simulation) */
@@ -148,16 +148,22 @@ public class GuiEditor
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
 					node.tag + " " + node.title, tabs, "");
 		} 
-		else if( node.tag == XmlLabel.shapeDimension )
+		else if(node.tag == XmlLabel.agents || node.tag == XmlLabel.solutes ||
+				node.tag == XmlLabel.processManagers )
 		{
-			parent.add(component, null);
-			parent.revalidate();
-		} 
-		else if(node.tag == XmlLabel.aspect )
+			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
+					node.tag, tabs, "");
+		}
+		else if(node.tag == XmlLabel.aspect || node.tag == XmlLabel.solute )
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
 					node.tag + " " + node.title, tabs, "");
 		}
+		else if( node.tag == XmlLabel.shapeDimension || node.tag == XmlLabel.stoichiometry )
+		{
+			parent.add(component, null);
+			parent.revalidate();
+		} 
 		else if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
 		{
 			/* exactly one: append this component to the parent component */

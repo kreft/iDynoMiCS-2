@@ -384,44 +384,36 @@ public class ObjectFactory
 //	///////////////////////////////////
 //	// Xml writing
 //	///////////////////////////////////
-//    
-//    /**
-//     * TODO work in progress
-//     * return partial xml specification of the input object, XMLables are
-//     * included as child node, simple objects are include in the value
-//     * attribute.
-//     * @param obj
-//     * @param classLabel
-//     * @param valLabel
-//     * @return
-//     */
-//    public static String specString(Object obj, String classLabel, 
-//    		String valLabel)
-//    {
-//    	String simpleName = obj.getClass().getSimpleName();
-//    	String out = "";
-//    	if (obj instanceof XMLable)
-//		{
-//			XMLable x = (XMLable) obj;
-//			out = out + " " + classLabel + "=\"" + simpleName + "\">\n" + 
-//			x.getXml();
-//		}
-//		else
-//		{
-//	    	switch (simpleName)
-//    		{
-//    		case "String[]":
-//    			out = out + " " + classLabel + "=\"" + simpleName+ "\" " + 
-//    					valLabel + "=\"" + Helper.StringAToString(
-//    					(String[]) obj) + "\"";
-//    			break;
-//    		default:
-//    			out = out + " " + classLabel + "=\"" + simpleName+ "\" " + 
-//    					valLabel + "=\"" + obj.toString() + "\"";
-//    		}
-//		}
-//    	return out;
-//    }
+    
+    /**
+     * TODO work in progress
+     * return partial xml specification of the input object, XMLables are
+     * included as child node, simple objects are include in the value
+     * attribute.
+     * @param obj
+     * @param classLabel
+     * @param valLabel
+     * @return
+     */
+    public static String stringRepresentation(Object obj)
+    {
+    	String simpleName = obj.getClass().getSimpleName();
+    	String out = "";
+    	switch (simpleName)
+		{
+		case "String[]":
+			out = Helper.StringAToString( (String[]) obj );
+			break;
+		case ObjectRef.DBL_ARRY:
+		case "double[][][]":
+			out = Array.toString( (double[][][]) obj);
+			break;
+		default:
+			out =  obj.toString();
+		}
+		
+    	return out;
+    }
 //    
 //    /**
 //     * TODO: this needs a cleanup

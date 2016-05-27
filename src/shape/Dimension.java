@@ -25,7 +25,8 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable<Dimension>
+public class Dimension implements CanPrelaunchCheck, NodeConstructor, 
+		Comparable<Dimension>
 {
 	/**
 	 * 
@@ -95,6 +96,11 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 	 * 
 	 */
 	protected DimName _dimName;
+
+	/**
+	 * target resolution
+	 */
+	protected Double _targetRes;
 	
 	/**************************************************************************
 	 * CONSTRUCTORS
@@ -131,6 +137,16 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 		str = XmlHandler.gatherAttribute(elem, XmlLabel.IS_CYCLIC);
 		if ( Boolean.valueOf(str) )
 			this.setCyclic();
+		
+		/* calculate length from dimension extremes */
+		double length = getLength();
+		
+		/* fetch target resolution (or use length as default) */
+		str = XmlHandler.gatherAttribute(elem,
+				XmlLabel.targetResolutionAttribute);
+		this._targetRes = length; 
+		if ( str != "" )
+			this._targetRes = Double.valueOf(str);
 		
 		/* 
 		 * Boundaries at the extremes.
@@ -529,11 +545,12 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor, Comparable
 		modelNode.add(new ModelAttribute(XmlLabel.IS_CYCLIC, 
 				String.valueOf(this._isCyclic), null, false ));
 		modelNode.add(new ModelAttribute(XmlLabel.targetResolutionAttribute, 
-				"target resolution???", null, false ));
+				String.valueOf(this._targetRes), null, false ));
 		modelNode.add(new ModelAttribute(XmlLabel.min, 
 				String.valueOf(this._extreme[0]), null, false ));
 		modelNode.add(new ModelAttribute(XmlLabel.max, 
 				String.valueOf(this._extreme[1]), null, false ));
+
 
 		return modelNode;
 	}

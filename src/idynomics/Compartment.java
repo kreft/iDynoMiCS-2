@@ -75,7 +75,6 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	protected double _localTime;
 	
-	public ModelNode modelNode;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -224,6 +223,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		}
 		else
 		{
+			
 			NodeList processNodes = elem.getElementsByTagName(XmlLabel.process);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 									" initialised with process managers:");
@@ -449,12 +449,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	public ModelNode getNode()
 	{
 
-		modelNode = new ModelNode(XmlLabel.compartment, this);
+		ModelNode modelNode = new ModelNode(XmlLabel.compartment, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
-		
-		modelNode.childConstructors.put(new Agent(this), 
-				ModelNode.Requirements.ZERO_TO_MANY);
-		
+
 		if (this.getName() != null)
 			modelNode.title = this.getName();
 		
@@ -464,9 +461,11 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		if ( this._shape !=null )
 			modelNode.add(_shape.getNode());
 		
-		if ( this.agents != null)
-			for ( Agent a : this.agents.getAllAgents() )
-				modelNode.add(a.getNode());
+		modelNode.add(this.getSolutesNode());
+		
+		modelNode.add(this.getAgentsNode());
+				
+		modelNode.add(this.getProcessNode());
 		
 		/* Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  */
@@ -476,13 +475,60 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		return modelNode;
 		
 	}
+	
+	public ModelNode getAgentsNode()
+	{
+		ModelNode modelNode = new ModelNode(XmlLabel.agents, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		
+		modelNode.childConstructors.put(new Agent(this), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		for ( Agent a : this.agents.getAllAgents() )
+			modelNode.add(a.getNode());
+		return modelNode;
+	}
+	
+	public ModelNode getProcessNode()
+	{
+		ModelNode modelNode = new ModelNode(XmlLabel.processManagers, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		
+//		modelNode.childConstructors.put(new ProcessManager(this), 
+//				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		for ( ProcessManager p : this._processes )
+			modelNode.add(p.getNode());
+		return modelNode;
+	}
+	
+	public ModelNode getSolutesNode()
+	{
+		ModelNode modelNode = new ModelNode(XmlLabel.solutes, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		
+//		modelNode.childConstructors.put(new ProcessManager(this), 
+//				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		for ( String sol : this._environment.getSoluteNames() )
+			modelNode.add(this.getSolute(sol).getNode());
+		return modelNode;
+	}
 
 	public void setNode(ModelNode node) 
 	{
-		this.name = node.getAttribute(XmlLabel.nameAttribute).value;
-		
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
+		if (node.tag == defaultXmlTag())
+		{
+			this.name = node.getAttribute(XmlLabel.nameAttribute).value;
+			
+			for(ModelNode n : node.childNodes)
+				n.constructor.setNode(n);
+		}
+		else 
+		{
+			for(ModelNode n : node.childNodes)
+				n.constructor.setNode(n);
+		}
 	}
 
 	@Override

@@ -170,6 +170,12 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		this._solver.setUpdater(standardUpdater(environment, agents));
 		this._solver.solve(environment.getSolutes(), this._timeStepSize);
+		
+		/*
+		 * clear distribution maps, prevent unneeded clutter in xml output
+		 */
+		for ( Agent a : agents.getAllLocatedAgents() )
+			a.reg().remove(VD_TAG);
 	}
 	
 	/*************************************************************************

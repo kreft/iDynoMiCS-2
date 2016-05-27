@@ -9,6 +9,7 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import aspect.AspectReg.Aspect;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.ObjectRef;
@@ -21,7 +22,11 @@ import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
 import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
+import shape.Shape;
 import utility.Helper;
 
 /**
@@ -29,7 +34,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ProcessManager implements XMLable, AspectInterface, IsSubmodel
+public abstract class ProcessManager implements XMLable, AspectInterface, IsSubmodel, NodeConstructor
 {
 	/**
 	 * The name of this {@code ProcessManager}, for reporting.
@@ -85,19 +90,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 			time = Double.valueOf( p.getAttribute("timerStepSize") );
 		this.setTimeStepSize(time);
 	}
-	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	// TODO required from xmlable interface
-	public ModelNode getNode()
-	{
-		return null;
-	}
-	
+
 	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 
@@ -302,5 +295,66 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		{
 			return ProcessManager.getAllOptions();
 		}
+	}
+	
+	
+	// TODO required from xmlable interface
+	public ModelNode getNode()
+	{
+		ModelNode modelNode = new ModelNode(defaultXmlTag(), this);
+		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.title = String.valueOf(this._name);
+		
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+						this._name, null, true ));
+		
+		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+				this.getClass().getSimpleName(), null, true ));
+		
+		modelNode.add(new ModelAttribute(XmlLabel.processPriority, 
+				String.valueOf(this._priority), null, true ));
+		
+		modelNode.add(new ModelAttribute(XmlLabel.processFirstStep, 
+				String.valueOf(this._timeForNextStep), null, true ));
+		
+		/* TODO: add aspects */
+		
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
+		modelNode.childConstructors.put(reg().new Aspect(reg()), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		return modelNode;
+	}
+	
+
+	@Override
+	public NodeConstructor newBlank() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public void setNode(ModelNode node) 
+	{
+		
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) 
+	{
+
+	}
+
+	@Override
+	public String defaultXmlTag() 
+	{
+		return XmlLabel.process;
+	}
+
+	@Override
+	public String getXml() 
+	{
+		return getNode().getXML();
 	}
 }

@@ -261,6 +261,16 @@ public class AspectReg
 		return this._aspects.get(key).getNode();
 	}
 	
+
+	public ModelNode getModuleNode(NodeConstructor constructor) {
+		ModelNode modelNode = new ModelNode(XmlLabel.speciesModule, constructor);
+		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+				this.identity, null, true ));
+		
+		return modelNode;
+	}
 	
 	/**
 	 * \brief Very general class that acts as a wrapper for other Objects.
@@ -337,6 +347,11 @@ public class AspectReg
 			{
 				  this.type = AspectReg.AspectClass.EVENT;
 				  this.event = (Event) this.aspect;
+			}
+			else if ( this.aspect == null )
+			{
+				Log.out(Tier.NORMAL, "attempt to load null object " + key +
+						" as aspect, abort");
 			}
 			else
 			{
@@ -422,7 +437,7 @@ public class AspectReg
 					else
 					{
 						modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, 
-								aspect.toString(), null, true ));
+								ObjectFactory.stringRepresentation(aspect), null, true ));
 					}
 				}
 			}
@@ -523,4 +538,5 @@ public class AspectReg
 		this.remove(key);
 		this.add(newKey, a);
 	}
+
 }

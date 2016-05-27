@@ -241,19 +241,9 @@ public abstract class Shape implements
 				dim = this.getDimension(dimName);
 				dim.init(childElem);
 				
-				/* calculate length from dimension extremes */
-				double length = dim.getLength();
-				
-				/* fetch target resolution (or use length as default) */
-				str = XmlHandler.gatherAttribute(childElem,
-						XmlLabel.targetResolutionAttribute);
-				double tRes = length; 
-				if ( str != "" )
-					tRes = Double.valueOf(str);
-				
 				/* init resolution calculators */
 				rC = new ResolutionCalculator.UniformResolution();
-				rC.init(tRes, length);
+				rC.init(dim._targetRes, dim.getLength());
 				this.setDimensionResolution(dimName, rC);
 			}
 			catch (IllegalArgumentException e)

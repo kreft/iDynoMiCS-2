@@ -314,4 +314,9 @@ public class XmlLabel
 	 */
 	public static String max = "max";
 
+	/**
+	 * TODO
+	 */
+	public static String solutes = "solutes";
+
 }
