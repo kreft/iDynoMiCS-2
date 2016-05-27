@@ -89,6 +89,11 @@ public class Log
 		return ( outputLevel != null );
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public static String level()
 	{
 		return String.valueOf(outputLevel);
