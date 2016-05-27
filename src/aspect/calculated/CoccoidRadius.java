@@ -23,6 +23,7 @@ public class CoccoidRadius extends Calculated {
 
 	public Object get(AspectInterface aspectOwner)
 	{
+		// FIXME is this appropriate in 1D & 2D compartments?
 		return ExtraMath.radiusOfASphere(aspectOwner.getDouble(VOLUME));
 	}
 

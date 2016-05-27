@@ -5,7 +5,7 @@ import org.junit.Test;
 import boundary.BoundaryLibrary.ChemostatOutflow;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import processManager.ProcessManagerLibrary.SolveChemostat;
+import processManager.library.SolveChemostat;
 import shape.ShapeLibrary.Dimensionless;
 
 /**

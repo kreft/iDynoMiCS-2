@@ -6,28 +6,24 @@ package solver;
 import linearAlgebra.Vector;
 
 /**
- * \brief TODO
+ * \brief Abstract class of solver for set of Ordinary Differential Equations
+ * (ODEs). 
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public abstract class ODEsolver extends Solver 
 {
 	/**
-	 * TODO
+	 * Method for calculating the derivatives of the variables, with respect to
+	 * the common in dependent variable (e.g. time).
 	 */
 	protected ODEderivatives _deriv;
 	
 	/**
+	 * Set the method for calculating the derivatives of the variables, with
+	 * respect to the common in dependent variable (e.g. time).
 	 * 
-	 */
-	public void init(String[] variableNames, boolean allowNegatives)
-	{
-		super.init(variableNames, allowNegatives);
-	}
-	
-	/**
-	 * 
-	 * @param deriv
+	 * @param deriv Sub-class of the abstract class {@code ODEderivatives}.
 	 */
 	public void setDerivatives(ODEderivatives deriv)
 	{

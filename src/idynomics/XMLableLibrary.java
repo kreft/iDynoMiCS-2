@@ -44,7 +44,7 @@ public class XMLableLibrary
 	 */
 	public String get(String key)
 	{
-		if( this.has(key) )
+		if ( this.has(key) )
 			return this._lib.get(key);
 		else
 		{
@@ -62,11 +62,9 @@ public class XMLableLibrary
 	public List<String> getAll(String PackageDefinition)
 	{
 		List<String> out = new LinkedList<String>();
-		for (String key : _lib.keySet())
-		{
-			if( get(key).equals(PackageDefinition) )
+		for ( String key : this._lib.keySet() )
+			if ( get(key).equals(PackageDefinition) )
 				out.add(key);
-		}
 		return out;
 	}
 	

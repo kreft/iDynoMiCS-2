@@ -216,6 +216,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return this._solutes.get(soluteName).getAverage(ArrayType.CONCN);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public Map<String,Double> getAverageConcentrations()
 	{
 		Map<String,Double> out = new HashMap<String,Double>();
