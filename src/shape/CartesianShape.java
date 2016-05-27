@@ -5,7 +5,8 @@ import static shape.Shape.WhereAmI.*;
 import dataIO.Log;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
-import shape.ShapeConventions.DimName;
+import static shape.Dimension.DimName;
+import static shape.Dimension.DimName.*;
 import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
@@ -45,15 +46,15 @@ public abstract class CartesianShape extends Shape
 		 * These are the dimension names for any Cartesian shape. Assume they
 		 * are all insignificant to begin with.
 		 */
-		for ( DimName d : new DimName[]{DimName.X, DimName.Y, DimName.Z} )
-			this._dimensions.put(d, new Dimension(false));
+		for ( DimName d : new DimName[]{X, Y, Z} )
+			this._dimensions.put(d, new Dimension(false, d));
 		
 	}
 	
 	@Override
-	public double[][][] getNewArray(double initialValue)
-	{
-		return Array.array(this.updateCurrentNVoxel(), initialValue);
+	public double[][][] getNewArray(double initialValue) {
+		int[] nVoxel = this.updateCurrentNVoxel();
+		return Array.array(nVoxel[0], nVoxel[1], nVoxel[2], initialValue);
 	}
 	
 	/*************************************************************************
@@ -183,8 +184,14 @@ public abstract class CartesianShape extends Shape
 			if ( nbhIndex < 3 )
 			{
 				this._nbhDimName = this.getDimensionName(nbhIndex);
+				Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
+						+this._nbhDimName);
 				if ( ! moveNbhToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
+			}
+			else
+			{
+				this._whereIsNbh = UNDEFINED;
 			}
 		}
 		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+

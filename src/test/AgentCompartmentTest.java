@@ -14,7 +14,7 @@ import processManager.library.AgentRelaxation;
 import processManager.library.RefreshMassGrids;
 import processManager.library.SolveDiffusionTransient;
 import shape.Shape;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
 import utility.ExtraMath;
 
 public class AgentCompartmentTest

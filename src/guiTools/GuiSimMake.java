@@ -37,17 +37,7 @@ import modelBuilder.SubmodelMaker;
 public class GuiSimMake
 {
 	protected JFrame frame;
-	
-	public void makeNewSimulation()
-	{
-		Simulator sim = new Simulator();
-		frame = newFrame(800, "Make a new simulation");
-		frame.add(tabbedView(sim));
-		// TODO save to XML button?
-		// TODO run simulation button?
-		frame.setVisible(true);
-	}
-	
+
 	/**
 	 * \brief The JComponent set in the GUI
 	 */

@@ -20,8 +20,9 @@ import linearAlgebra.Vector;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelNode;
 import shape.Shape;
-import shape.ShapeConventions.DimName;
+import shape.Dimension.DimName;
 import utility.Helper;
 
 /**
@@ -222,6 +223,11 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 										"boundary.agent.AgentMethodLibrary$");
 	}
 	
+	// TODO required from xmlable interface
+	public ModelNode getNode()
+	{
+		return null;
+	}
 	
 	public static class AgentMethodMaker extends SubmodelMaker
 	{

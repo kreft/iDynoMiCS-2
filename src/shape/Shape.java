@@ -3,10 +3,10 @@
  */
 package shape;
 
-import static shape.ShapeConventions.DimName.R;
+import static shape.Dimension.DimName;
+import static shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.*;
 
-import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,16 +29,10 @@ import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelMaker.Requirement;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
-import shape.Dimension.DimensionMaker;
-import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.subvoxel.SubvoxelPoint;
@@ -71,7 +65,7 @@ import utility.Helper;
  */
 // TODO remove the last three sections by incorporation into Node construction.
 public abstract class Shape implements
-					CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
+					CanPrelaunchCheck, XMLable, NodeConstructor
 {
 	protected enum WhereAmI
 	{
@@ -93,12 +87,10 @@ public abstract class Shape implements
 		UNDEFINED;
 	}
 	
-	/**
-	 * TODO
-	 */
-	protected ModelNode _modelNode;
+
 	/**
 	 * Ordered dictionary of dimensions for this shape.
+	 * TODO switch to a Shape._dimensions a Dimension[3] paradigm
 	 */
 	protected LinkedHashMap<DimName, Dimension> _dimensions = 
 									new LinkedHashMap<DimName, Dimension>();
@@ -181,22 +173,23 @@ public abstract class Shape implements
 	@Override
 	public ModelNode getNode()
 	{
-		if ( this._modelNode == null )
-		{
-			ModelNode myNode = new ModelNode(XmlLabel.compartmentShape, this);
-			myNode.requirement = Requirements.EXACTLY_ONE;
-			myNode.add(new ModelAttribute(XmlLabel.classAttribute, 
-											this.getName(), null, false ));
-			this._modelNode = myNode;
-		}
-		return this._modelNode;
+
+		ModelNode modelNode = new ModelNode(XmlLabel.compartmentShape, this);
+		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+										this.getName(), null, false ));
+		
+		for ( Dimension dim : this._dimensions.values() )
+			if(dim._isSignificant)
+				modelNode.add(dim.getNode());
+		
+		return modelNode;
 	}
 
 	@Override
 	public void setNode(ModelNode node)
 	{
-		// TODO check if a node is being overwritten?
-		this._modelNode = node;
+
 	}
 
 	@Override
@@ -249,19 +242,9 @@ public abstract class Shape implements
 				dim = this.getDimension(dimName);
 				dim.init(childElem);
 				
-				/* calculate length from dimension extremes */
-				double length = dim.getLength();
-				
-				/* fetch target resolution (or use length as default) */
-				str = XmlHandler.gatherAttribute(childElem,
-						XmlLabel.targetResolutionAttribute);
-				double tRes = length; 
-				if ( str != "" )
-					tRes = Double.valueOf(str);
-				
 				/* init resolution calculators */
 				rC = new ResolutionCalculator.UniformResolution();
-				rC.init(tRes, length);
+				rC.init(dim._targetRes, dim.getLength());
 				this.setDimensionResolution(dimName, rC);
 			}
 			catch (IllegalArgumentException e)
@@ -283,6 +266,8 @@ public abstract class Shape implements
 			aBoundary.init(childElem);
 			this.addOtherBoundary(aBoundary);
 		}
+		
+		this.setSurfaces();
 	}
 	
 	@Override
@@ -302,9 +287,9 @@ public abstract class Shape implements
 	}
 	
 	
-	public SpatialGrid getNewGrid()
+	public SpatialGrid getNewGrid(String name)
 	{
-		return new SpatialGrid(this);
+		return new SpatialGrid(this, name);
 	}
 		
 	public abstract double[][][] getNewArray(double initialValue);
@@ -379,6 +364,18 @@ public abstract class Shape implements
 	{
 		int out = 0;
 		for ( DimName d : this._dimensions.keySet() )
+		{
+			if ( d == dimension )
+				return out;
+			out++;
+		}
+		return -1;
+	}
+	
+	protected int getDimensionIndex(Dimension dimension)
+	{
+		int out = 0;
+		for ( Dimension d : this._dimensions.values() )
 		{
 			if ( d == dimension )
 				return out;
@@ -1144,9 +1141,8 @@ public abstract class Shape implements
 	protected void nVoxelTo(int[] destination, int[] coords)
 	{
 		Vector.checkLengths(destination, coords);
-		int n = Math.min(coords.length, 3);
 		ResCalc rC;
-		for ( int dim = 0; dim < n; dim++ )
+		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			rC = this.getResolutionCalculator(coords, dim);
 			destination[dim] = rC.getNVoxel();
@@ -1181,7 +1177,7 @@ public abstract class Shape implements
 		 */
 		int nP, nCurrent;
 		ResCalc rC;
-		for ( int dim = 0; dim < 3; dim++ )
+		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			// TODO Rob[17Feb2016]: This will need improving for polar grids...
 			// I think maybe would should introduce a subclass of Dimension for
@@ -1500,29 +1496,24 @@ public abstract class Shape implements
 	protected boolean nbhJumpOverCurrent(DimName dim)
 	{
 		int index = this.getDimensionIndex(dim);
-		this.updateCurrentNVoxel();
-		this._whereIsNbh = this.whereIsNhb(dim);
-		/* Check we are behind the current coordinate. */
-		if ( this._currentNeighbor[index] < this._currentCoord[index] )
-		{
-			boolean bMaxDef = this.getDimension(dim).isBoundaryDefined(1);
-			/* Check there is space on the other side. */
-			if ( this._whereIsNbh == INSIDE || bMaxDef )
+		/* try to jump */
+		if (this._currentNeighbor[index] < this._currentCoord[index]){
+			this._currentNeighbor[index] = this._currentCoord[index] + 1;
+			WhereAmI new_orientation = this.whereIsNhb(dim);
+			if ( new_orientation != UNDEFINED)
 			{
 				/* Jump and report success. */
 				this._nbhDirection = 1;
-				this._currentNeighbor[index] = this._currentCoord[index] + 1;
-				this._whereIsNbh = this.whereIsNhb(dim);
+				this._nbhDimName = dim;
+				this._whereIsNbh = new_orientation;
 				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
 						": result "+Vector.toString(this._currentNeighbor)+
 						" is "+this._whereIsNbh);
 				return true;
 			}
+			this._currentNeighbor[index] = this._currentCoord[index] - 1;
 		}
 		/* Report failure. */
-		// TODO is it appropriate to use a meaningless direction here?
-		this._nbhDirection = -1;
-		this._whereIsNbh = this.whereIsNhb(dim);
 		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
 				" is "+this._whereIsNbh);
@@ -1581,23 +1572,7 @@ public abstract class Shape implements
 	{
 		return (Shape) XMLable.getNewInstance(className, "shape.ShapeLibrary$");
 	}
-	
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
-	// TODO remove all this once ModelNode, etc is working
-	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		for ( DimName d : this._dimensions.keySet() )
-			out.add(new DimensionMaker(d, Requirement.EXACTLY_ONE, this));
-		// TODO other boundaries
-		return out;
-	}
-	
-	
-	/**
+		/**
 	 * 
 	 * @return
 	 */
@@ -1606,42 +1581,5 @@ public abstract class Shape implements
 		return Helper.getClassNamesSimple(
 									ShapeLibrary.class.getDeclaredClasses());
 	}
-	
-	public void acceptInput(String name, Object input)
-	{
-		if ( input instanceof Dimension )
-		{
-			Dimension dim = (Dimension) input;
-			DimName dN = DimName.valueOf(name);
-			this._dimensions.put(dN, dim);
-		}
-	}
-	
-	public static class ShapeMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = 1486068039985317593L;
-
-		public ShapeMaker(Requirement req, IsSubmodel target)
-		{
-			super(XmlLabel.compartmentShape, req, target);
-		}
 		
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			// TODO do safety properly
-			String shapeName;
-			if ( e == null )
-				shapeName = "";
-			else
-				shapeName = e.getActionCommand();
-			this.addSubmodel(Shape.getNewInstance(shapeName));
-		}
-		
-		@Override
-		public Object getOptions()
-		{
-			return Shape.getAllOptions();
-		}
-	}
 }

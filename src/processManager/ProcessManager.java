@@ -1,7 +1,5 @@
 package processManager;
 
-import java.awt.event.ActionEvent;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -11,23 +9,23 @@ import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
-import dataIO.ObjectRef;
 import dataIO.XmlLabel;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ProcessManager implements XMLable, AspectInterface, IsSubmodel
+public abstract class ProcessManager implements XMLable, AspectInterface,
+		NodeConstructor
 {
 	/**
 	 * The name of this {@code ProcessManager}, for reporting.
@@ -49,7 +47,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	/**
      * The aspect registry... TODO
      */
-    public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+    public AspectReg aspectRegistry = new AspectReg();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -84,12 +82,6 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		this.setTimeStepSize(time);
 	}
 	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 
@@ -118,8 +110,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	/**
 	 * \brief Return the aspect registry (implementation of aspect interface).
 	 */
-	@SuppressWarnings("unchecked")
-	public AspectReg<?> reg()
+	public AspectReg reg()
 	{
 		return aspectRegistry;
 	}
@@ -131,6 +122,9 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	 */
 	public String getName()
 	{
+		if (this._name == null)
+			return "";
+		else
 		return this._name;
 	}
 	
@@ -242,54 +236,82 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	protected abstract void internalStep(
 					EnvironmentContainer environment, AgentContainer agents);
 	
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
-	
-	public static String[] getAllOptions()
+	public static List<String> getAllOptions()
 	{
-		// FIXME almost there, just need to decide on String[] or List<String>
-		//return Idynomics.xmlPackageLibrary.getAll("processManager.library.");
-		return new String[]{};
-	}
-	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
-		out.add(new ParameterSetter(XmlLabel.processPriority,this,ObjectRef.INT));
-		return out;
+		return Idynomics.xmlPackageLibrary.getAll("processManager.library.");
 	}
 	
 	
-	public void acceptInput(String name, Object input)
+	/**
+	 * 
+	 */
+	public ModelNode getNode()
 	{
-		if ( name.equals(XmlLabel.nameAttribute) )
-			this._name = (String) input;
-		if ( name.equals(XmlLabel.processPriority) )
-			this._priority = (Integer) input;
+		ModelNode modelNode = new ModelNode(defaultXmlTag(), this);
+		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.title = String.valueOf(this._name);
+		
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+						this._name, null, true ));
+		
+		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+				this.getClass().getSimpleName(), null, true ));
+		
+		modelNode.add(new ModelAttribute(XmlLabel.processPriority, 
+				String.valueOf(this._priority), null, true ));
+		
+		modelNode.add(new ModelAttribute(XmlLabel.processFirstStep, 
+				String.valueOf(this._timeForNextStep), null, true ));
+		
+		/* TODO: add aspects */
+		
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
+		modelNode.childConstructors.put(reg().new Aspect(reg()), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		return modelNode;
 	}
 	
-	public static class ProcessMaker extends SubmodelMaker
+	
+	/**
+	 * 
+	 */
+	public NodeConstructor newBlank() 
 	{
-		private static final long serialVersionUID = -126858198160234919L;
+		return null;
+	}
+	
+	/**
+	 * 
+	 */
+	public void setNode(ModelNode node) 
+	{
 		
-		public ProcessMaker(Requirement req, IsSubmodel target)
+	}
+
+	/**
+	 * 
+	 */
+	public void addChildObject(NodeConstructor childObject) 
 		{
-			super(XmlLabel.process, req, target);
+
 		}
 		
-		@Override
-		public void doAction(ActionEvent e)
+	/**
+	 * 
+	 */
+	public String defaultXmlTag() 
 		{
-			ProcessManager newProcess =
-					ProcessManager.getNewInstance(e.getActionCommand());
-			this.addSubmodel(newProcess);
+		return XmlLabel.process;
 		}
 		
-		public Object getOptions()
+	/**
+	 * 
+	 */
+	public String getXml() 
 		{
-			return ProcessManager.getAllOptions();
-		}
+		return getNode().getXML();
 	}
 }
