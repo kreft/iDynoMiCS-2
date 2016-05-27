@@ -5,6 +5,7 @@ import org.w3c.dom.NodeList;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import aspect.AspectReg.Aspect;
 import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.XmlLabel;
@@ -14,14 +15,19 @@ import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 import surface.Point;
+import utility.Helper;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements Quizable, AspectInterface
+public class Agent implements Quizable, AspectInterface, NodeConstructor
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
@@ -34,11 +40,13 @@ public class Agent implements Quizable, AspectInterface
 	 * The compartment the agent is currently in
 	 */
 	protected Compartment compartment;
+	
+	protected ModelNode modelNode;
 
 	/**
 	 * The aspect registry
 	 */
-	public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+	public AspectReg aspectRegistry = new AspectReg();
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -47,6 +55,12 @@ public class Agent implements Quizable, AspectInterface
 	public Agent()
 	{
 
+	}
+	
+	/* used by gui, dummy agent */
+	public Agent(Compartment comp)
+	{
+		this.compartment = comp;
 	}
 
 	/**
@@ -162,8 +176,7 @@ public class Agent implements Quizable, AspectInterface
 	/**
 	 * Allows for direct access to the aspect registry
 	 */
-	@SuppressWarnings("unchecked")
-	public AspectReg<?> reg() {
+	public AspectReg reg() {
 		return aspectRegistry;
 	}
 
@@ -247,6 +260,55 @@ public class Agent implements Quizable, AspectInterface
 	 */
 	public int identity() {
 		return uid;
+	}
+	
+	@Override
+	public ModelNode getNode() 
+	{
+		modelNode = new ModelNode(XmlLabel.agent, this);
+		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.title = String.valueOf(this.identity());
+		
+		modelNode.add(new ModelAttribute("identity", 
+				String.valueOf(this.identity()), null, false ));
+		
+		/* TODO: add aspects */
+		
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
+		modelNode.childConstructors.put(reg().new Aspect(reg()), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node) 
+	{
+		for(ModelNode n : node.childNodes)
+			n.constructor.setNode(n);
+	}
+
+	@Override
+	public NodeConstructor newBlank() 
+	{
+		Agent newBlank = new Agent(this.compartment);
+		newBlank.reg().identity = String.valueOf(newBlank.identity());
+		newBlank.registerBirth();
+		return newBlank;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) 
+	{
+		// TODO 
+	}
+
+	@Override
+	public String defaultXmlTag() 
+	{
+		return XmlLabel.agent;
 	}
 
 

@@ -141,6 +141,13 @@ public class XmlLabel
 	public static String shapeDimension = "dimension";
 	
 	/**
+	 * Tag for the boolean denoting whether this dimension is cyclic (true) or
+	 * not (false).
+	 */
+
+	public static String IS_CYCLIC = "isCyclic";
+	
+	/**
 	 * Encapsulates the child node for a dimension boundary.
 	 */
 	public static String dimensionBoundary = "boundary";
@@ -287,11 +294,34 @@ public class XmlLabel
 	// FIXME what is the difference between this and NameRef.initialStep?
 	public static String processFirstStep = "firstStep";
 	
+	/**
+	 * TODO
+	 */
 	public static String inputAttribute = "input";
 	
 	/**
 	 * setable fields
 	 */
 	public static String fields = "fields";
+
+	/**
+	 * extreme min
+	 */
+	public static String min = "min";
+	
+	/**
+	 * extreme max
+	 */
+	public static String max = "max";
+
+	/**
+	 * TODO
+	 */
+	public static String solutes = "solutes";
+
+	/**
+	 * Random seed
+	 */
+	public static String seed = "randomSeed";
 
 }

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="epsTest11Fast" outputfolder="../results" log="DEBUG"
+		comment="this is a file for testing purposes only.">
+		<timer stepSize="0.1" endOfSimulation="1000.0" />
+		<general>
+		</general>
+
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test -->
+			<species name="species1">
+				<aspect name="pullDistance" type="PRIMARY" class="Double"	value="0.01" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<speciesModule name="coccoid" />
+				<speciesModule name="stochasticMover" />
+				<speciesModule name="producer" />
+				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
+					<item type="PRIMARY" class="Reaction">
+						<reaction name="species1React">
+							<expression value="mass * mumax *(solute2 / (solute2 + k) ) * (kinh / (kinh + solute1)">
+								<constant name="k" value="0.01" />
+								<constant name="kinh" value="0.0002" />
+								<constant name="mumax" value="1.0" />
+							</expression>
+							<stoichiometric component="species1" coefficient="1.0" />
+							<stoichiometric component="solute2" coefficient="-1.0" />
+						</reaction>
+					</item>
+					<item type="PRIMARY" class="Reaction">
+						<reaction name="epsReact">
+							<expression value="mass * mumax *(solute2 / (solute2 + k) )">
+								<constant name="k" value="0.01" />
+								<constant name="mumax" value="1.0" />
+							</expression>
+							<stoichiometric component="eps" coefficient="0.1" />
+							<stoichiometric component="solute2" coefficient="-0.1" />
+						</reaction>
+					</item>
+				</aspect>
+			</species>
+			<species name="species2">
+				<aspect name="pullDistance" type="PRIMARY" class="Double"	value="0.01" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+				<speciesModule name="coccoid" />
+				<speciesModule name="stochasticMover" />
+				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
+					<item type="PRIMARY" class="Reaction">
+						<reaction name="species2React">
+							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
+								<constant name="k" value="0.01" />
+								<constant name="mumax" value="1.0" />
+							</expression>
+							<stoichiometric component="species2" coefficient="1.0" />
+							<stoichiometric component="solute1" coefficient="-1.0" />
+						</reaction>
+					</item>
+				</aspect>
+			</species>
+
+			<species name="coccoid">
+				<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
+				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
+
+
+				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
+				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,specGrowthRate" 	 />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"			input="mass,radius,body" 	 />
+
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />
+				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
+				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.05"  />
+			</species>
+			<species name="stochasticMover">
+				<aspect name="stochasticStep" type="PRIMARY" class="Double" value="8.0" />
+				<aspect name="stochasticMove" type="EVENT" class="StochasticMove"  input="body,stochasticStep" />
+			</species>
+			
+			<species name="producer">
+				<aspect name="produce" type="EVENT"	class="InternalProduction" 	 />
+				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPS" 	 />
+				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="0.003" />
+				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />
+			</species>
+			<species name="particleEPS">
+				<aspect name="pullDistance" type="PRIMARY" class="Double"	value="0.04" />
+				<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
+				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
+
+
+				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
+
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />
+				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
+				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.05"  />
+			</species>
+		</speciesLib>
+
+		<compartment name="noPrefPull">
+			<shape class="Rectangle">
+				<dimension name="X" isCyclic="true" targetResolution="1" max="20.0"/>
+				</dimension> 
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="20.0"/>
+				</dimension> 
+			</shape>
+			<solutes>
+				<solute name="solute1" concentration="0.04" />
+				<solute name="solute2" concentration="0.04" />
+			</solutes>
+			<reactions>
+				<reaction name="slowInflow">
+					<expression value="1.0 * inflow">
+						<constant name="inflow" value="0.0015" />
+					</expression>
+					<stoichiometric component="solute1" coefficient="1.0" />
+					<stoichiometric component="solute2" coefficient="1.0" />
+				</reaction>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="species1" />
+					<aspect name="internalProduction" type="PRIMARY" class="HashMap">
+						<item keyType="String" key="eps"  type="PRIMARY" class="Double" value="0.0" />
+					</aspect>
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
+					<spawn number="3.0" domain="20.0,20.0" />
+				</agent>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="species2" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<spawn number="3.0" domain="20.0,20.0" />
+				</agent>
+			<!--	<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="species1" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+					<spawn number="10.0" domain="50.0,50.0" />
+				</agent>   -->
+			</agents>
+			<processManagers>
+				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
+					firstStep="0.0" >
+					<aspect name="prefix" type="PRIMARY" class="String" value="out_solute1" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="0.5" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="0.1" />
+				</process>
+				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
+					firstStep="0.0" >
+					<aspect name="prefix" type="PRIMARY" class="String" value="out_solute2" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="0.5" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="0.1" />
+				</process>
+			<!-- <process name="svgWriter" class="WriteAgentsSvg" priority="-3"
+					firstStep="0.0" >
+					<aspect name="prefix" type="PRIMARY" class="String" value="rate_solute1" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
+				</process>
+				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
+					firstStep="0.0" >
+					<aspect name="prefix" type="PRIMARY" class="String" value="rate_solute2" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
+				</process> -->
+				<process name="agentRelax" class="AgentRelaxation" priority="-2"
+					firstStep="0.0" >
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.015" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="0.1" />
+				</process>
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
+					firstStep="0.0" >	
+					<aspect name="solutes" type="PRIMARY" class="String[]" value="solute1,solute2" /> <!--  init -->
+					<aspect name="timerStepSize" type="PRIMARY" class="Double" value="0.1" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

@@ -1,13 +1,11 @@
 package shape;
 
-import static shape.ShapeConventions.DimName.R;
-import static shape.ShapeConventions.DimName.THETA;
-import static shape.ShapeConventions.DimName.Z;
+import shape.Dimension.DimName;
+import shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
-import shape.ShapeConventions.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Rod;
 import surface.Surface;
@@ -36,21 +34,21 @@ public abstract class CylindricalShape extends PolarShape
 		/* There is no need for an r-min boundary. */
 		dim = new Dimension();
 		dim.setBoundaryOptional(0);
-		this._dimensions.put(R, dim);
-		this._resCalc[getDimensionIndex(R)] = new ResCalc[1];
+		this._dimensions.put(DimName.R, dim);
+		this._resCalc[getDimensionIndex(DimName.R)] = new ResCalc[1];
 		/*
 		 * Set to a full circle by default, let it be overwritten later.
 		 */
 		dim = new Dimension();
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
-		this._dimensions.put(THETA, dim);
+		this._dimensions.put(DimName.THETA, dim);
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
-		dim = new Dimension(false);
-		this._dimensions.put(Z, dim);
-		this._resCalc[getDimensionIndex(Z)] = new ResCalc[1];
+		dim = new Dimension(false, DimName.Z);
+		this._dimensions.put(DimName.Z, dim);
+		this._resCalc[getDimensionIndex(DimName.Z)] = new ResCalc[1];
 	}
 	
 	@Override
@@ -88,7 +86,7 @@ public abstract class CylindricalShape extends PolarShape
 		case R:
 		{
 			this._resCalc[index][0] = resC;
-			this.trySetDimRes(THETA);
+			this.trySetDimRes(DimName.THETA);
 			return;
 		}
 		case THETA:
@@ -158,7 +156,7 @@ public abstract class CylindricalShape extends PolarShape
 		 * Check if we need to use the Z dimension.
 		 */
 		// TODO move this into Cylinder somehow?
-		Dimension zDim = this.getDimension(Z);
+		Dimension zDim = this.getDimension(DimName.Z);
 		if ( zDim.isSignificant() )
 		{
 			pointA[2] = zDim.getExtreme(0);
@@ -167,7 +165,7 @@ public abstract class CylindricalShape extends PolarShape
 		/*
 		 * Find the radii and add the rod(s).
 		 */
-		Dimension radiusDim = this.getDimension(R);
+		Dimension radiusDim = this.getDimension(DimName.R);
 		/* If there is an inner radius, use it. */
 		double radius = radiusDim.getExtreme(0);
 		if ( radius > 0.0 )
@@ -182,7 +180,7 @@ public abstract class CylindricalShape extends PolarShape
 		/*
 		 * If theta is not cyclic, we need to add two planes.
 		 */
-		Dimension thetaDim = this.getDimension(THETA);
+		Dimension thetaDim = this.getDimension(DimName.THETA);
 		if ( ! thetaDim.isCyclic() )
 		{
 			// TODO can we use Shape.setPlanarSurfaces() here?
@@ -236,9 +234,9 @@ public abstract class CylindricalShape extends PolarShape
 		/* See if we can use the inside r-shell. */
 		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) ) ;
 		/* See if we can take one of the theta-neighbors. */
-		else if (this.moveNbhToMinus(THETA)||this.nbhJumpOverCurrent(THETA)) ;
+		else if (this.moveNbhToMinus(DimName.THETA)||this.nbhJumpOverCurrent(DimName.THETA)) ;
 		/* See if we can take one of the z-neighbors. */
-		else if (this.moveNbhToMinus(Z)||this.nbhJumpOverCurrent(Z)) ;
+		else if (this.moveNbhToMinus(DimName.Z)||this.nbhJumpOverCurrent(DimName.Z)) ;
 		/* See if we can use the outside r-shell. */
 		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) ) ;
 		/* There are no valid neighbors. */
@@ -265,8 +263,8 @@ public abstract class CylindricalShape extends PolarShape
 			 * Try increasing theta by one voxel. If this fails, move out to
 			 * the next shell. If this fails, call this method again.
 			 */
-			if ( ! this.increaseNbhByOnePolar(THETA) )
-				if ( ! this.moveNbhToMinus(THETA) )
+			if ( ! this.increaseNbhByOnePolar(DimName.THETA) )
+				if ( ! this.moveNbhToMinus(DimName.THETA) )
 					return this.nbhIteratorNext();
 					
 		}
@@ -283,11 +281,11 @@ public abstract class CylindricalShape extends PolarShape
 				 * coordinate. If you can't, try switching to the z-minus
 				 * voxel.
 				 */
-				if ( ! this.nbhJumpOverCurrent(THETA) )
-					if ( ! this.moveNbhToMinus(Z) )
+				if ( ! this.nbhJumpOverCurrent(DimName.THETA) )
+					if ( ! this.moveNbhToMinus(DimName.Z) )
 						return this.nbhIteratorNext();
 			}
-			else if ( ! this.nbhJumpOverCurrent(Z) )
+			else if ( ! this.nbhJumpOverCurrent(DimName.Z) )
 			{
 				/*
 				 * We tried to move to the z-plus side of the current
@@ -302,7 +300,7 @@ public abstract class CylindricalShape extends PolarShape
 			 * We're in the r-shell just outside that of the current coordinate.
 			 * If we can't increase theta any more, then we've finished.
 			 */
-			if ( ! this.increaseNbhByOnePolar(THETA) )
+			if ( ! this.increaseNbhByOnePolar(DimName.THETA) )
 				this._whereIsNbh = UNDEFINED;
 		}
 		this.transformNbhCyclic();

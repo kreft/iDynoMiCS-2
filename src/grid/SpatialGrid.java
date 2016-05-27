@@ -2,7 +2,15 @@ package grid;
 
 import java.util.HashMap;
 
+import agent.Agent;
+import dataIO.ObjectFactory;
+import dataIO.XmlLabel;
 import linearAlgebra.Array;
+import linearAlgebra.Matrix;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 import shape.Shape;
 
 /**
@@ -25,7 +33,7 @@ import shape.Shape;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpatialGrid
+public class SpatialGrid implements NodeConstructor
 {	
 	/**
 	 * Label for an array. 
@@ -71,13 +79,16 @@ public class SpatialGrid
 									
 	protected Shape _shape;
 	
+	protected String _name;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public SpatialGrid(Shape shape)
+	public SpatialGrid(Shape shape, String name)
 	{
 		this._shape = shape;
+		this._name = name;
 	}
 	
 	/**
@@ -230,6 +241,19 @@ public class SpatialGrid
 		Array.copyTo(this._array.get(type), array);
 	}
 	
+	/**
+	 * \brief set array from string
+	 * FIXME ARRAY, MATRIX, VECTOR?
+	 * @param type
+	 * @param array
+	 */
+	public void setTo(ArrayType type, String array)
+	{
+		if (array.contains(Matrix.DELIMITER))
+			setTo( type, Array.dblFromString(array) );
+		else
+			setAllTo( type, Double.valueOf(array) );
+	}
 	/**
 	 * \brief TODO
 	 * 
@@ -476,5 +500,46 @@ public class SpatialGrid
 	public String arrayAsText(ArrayType type)
 	{
 		return this.arrayAsBuffer(type).toString();
+	}
+
+	@Override
+	public ModelNode getNode() {
+		ModelNode modelNode = new ModelNode(XmlLabel.solute, this);
+		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		
+		modelNode.title = this._name;
+		
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+				this._name, null, true ));
+		
+		modelNode.add(new ModelAttribute(XmlLabel.concentration, 
+//				arrayAsText(ArrayType.CONCN), null, true ));
+				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)), null, true ));
+		
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public NodeConstructor newBlank() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
