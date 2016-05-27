@@ -3,7 +3,7 @@ package linearAlgebra;
 import utility.ExtraMath;
 
 /**
- * \brief TODO
+ * \brief Library of useful matrix functions.
  * 
  * <p>By convention:<ul><li>a method <i>function(matrix)</i> returns a new
  * matrix,</li><li>the equivalent <i>functionEquals(matrix)</i> overwrites the

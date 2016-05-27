@@ -1,7 +1,7 @@
 package linearAlgebra;
 
 /**
- * \brief TODO
+ * \brief Library of useful array functions.
  * 
  * <p>Note on terminology: 
  * <ul><li>Rows are 2D horizontal "slices" through the array, with their
@@ -983,54 +983,94 @@ public final class Array
 	
 	/* Subtraction. */
 	
-	// TODO subtractTo, subtract, subtractEquals for consistency
+	/**
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into <b>destination</b>.
+	 * 
+	 * <p><b>destination</b> = <b>a</b> - <b>b</b>.</p>
+	 * 
+	 * @param destination Three-dimensional array of integers (overwritten)
+	 * @param a Three-dimensional array of integers (preserved).
+	 * @param b Three-dimensional array of integers (preserved).
+	 */
+	public static void minusTo(int[][][] destination, int[][][] a, int[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			Matrix.minusTo(destination[i], a[i], b[i]);
+	}
+	
+	/**
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into a new array.
+	 * 
+	 * @param a Three-dimensional array of integers (preserved).
+	 * @param b Three-dimensional array of integers (preserved).
+	 * @return new int[][][] array of <b>a</b> - <b>b</b>.
+	 */
+	public static int[][][] minus(int[][][] a, int[][][] b)
+	{
+		int[][][] out = zeros(a);
+		minusTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into the first array given (<b>a</b>).
+	 * 
+	 * @param a Three-dimensional array of integers (overwritten).
+	 * @param b Three-dimensional array of integers (preserved).
+	 */
+	public static void minusEquals(int[][][] a, int[][][] b)
+	{
+		minusTo(a, a, b);
+	}
 
 	/**
-	 * \brief Subtract one array from another, element-by-element.
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into <b>destination</b>.
 	 * 
-	 * <p>Arrays must have same dimensions.</p>
+	 * <p><b>destination</b> = <b>a</b> - <b>b</b>.</p>
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>subtract({@link #copy(int[][][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Three-dimensional array of integers.
-	 * @param b Three-dimensional array of integers.
-	 * @return int[][][] array of <b>a</b>-<b>b</b>.
+	 * @param destination Three-dimensional array of doubles (overwritten)
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
 	 */
-	public static int[][][] subtract(int[][][] a, int[][][] b)
+	public static void minusTo(
+			double[][][] destination, double[][][] a, double[][][] b)
 	{
-		checkDimensionsSame(a, b);
+		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < a.length; i++ )
-			for ( int j = 0; j < a[i].length; j++ )
-				for ( int k = 0; k < a[i][j].length; k++ )
-					a[i][j][k] -= b[i][j][k];
-		return a;
+			Matrix.minusTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
-	 * \brief Subtract one array from another, element-by-element.
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into a new array.
 	 * 
-	 * <p>Arrays must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>subtract({@link #copy(double[][][] a)}, <b>b</b>)</i> to preserve
-	 * the original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Three-dimensional array of doubles.
-	 * @param b Three-dimensional array of doubles.
-	 * @return int[][][] array of <b>a</b>-<b>b</b>.
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 * @return new double[][][] array of <b>a</b> - <b>b</b>.
 	 */
-	public static double[][][] subtract(double[][][] a, double[][][] b)
+	public static double[][][] minus(double[][][] a, double[][][] b)
 	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < a.length; i++ )
-			for ( int j = 0; j < a[i].length; j++ )
-				for ( int k = 0; k < a[i][j].length; k++ )
-					a[i][j][k] -= b[i][j][k];
-		return a;
+		double[][][] out = zeros(a);
+		minusTo(out, a, b);
+		return out;
 	}
 	
+	/**
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into the first array given (<b>a</b>).
+	 * 
+	 * @param a Three-dimensional array of doubles (overwritten).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 */
+	public static void minusEquals(double[][][] a, double[][][] b)
+	{
+		minusTo(a, a, b);
+	}
 	
 	/* Multiplication. */
 	
