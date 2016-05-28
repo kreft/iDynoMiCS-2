@@ -88,7 +88,7 @@ public class Point implements Copyable, NodeConstructor
 
 	public int nDim()
 	{
-		return p.length;
+		return this.p.length;
 	}
 	
 	public double[] getPosition()
@@ -128,7 +128,7 @@ public class Point implements Copyable, NodeConstructor
 	
 	public void initialiseC(int size)
 	{
-		this.c = new double[size][p.length];
+		this.c = new double[size][this.p.length];
 	}
 
 	
@@ -136,13 +136,13 @@ public class Point implements Copyable, NodeConstructor
 	 * \brief performs one Euler step for the mechanical relaxation.
 	 * The velocity is expressed as v = (sum forces) / (3 Pi diameter viscosity)
 	 * Currently the viscosity of water is assumed.
+	 * 
 	 * @param vSquare Highest squared velocity in the system
 	 * @param dt Current timestep of the mechanical relaxation
 	 * @param radius Radius of the Point
 	 * @return vSquare, if the squared velocity of this point is higher vSquare
 	 * is updated.
 	 */
-	// TODO Rob [17May2016]: isn't a Point with a radius a Ball?
 	public void euStep(double dt, double radius) 
 	{
 		// TODO for (longer) rod segments we cannot simply use the radius or
@@ -171,7 +171,7 @@ public class Point implements Copyable, NodeConstructor
 		this.c[1] = Vector.copy(diff);
 		/* Move the location and reset the force. */
 		Vector.timesEquals(diff, dt);
-		Vector.addEquals(p, diff);
+		Vector.addEquals(this.p, diff);
 		this.resetForce();
 	}
 
@@ -198,7 +198,7 @@ public class Point implements Copyable, NodeConstructor
 	 * \brief Find the velocity of this point.
 	 * 
 	 * <p>The drag on this point from the surrounding fluid is calculated using
-	 * Stoke's Law:</p>
+	 * Stoke's Law for the drag on a sphere:</p>
 	 * <p><i>v = sum(forces) / ( 3 * pi * diameter * viscosity)</i></p>
 	 * 
 	 * <p>See<ul>
