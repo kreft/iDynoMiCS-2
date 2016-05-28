@@ -2,7 +2,6 @@ package grid;
 
 import java.util.HashMap;
 
-import agent.Agent;
 import dataIO.ObjectFactory;
 import dataIO.XmlLabel;
 import linearAlgebra.Array;

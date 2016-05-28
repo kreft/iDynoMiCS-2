@@ -45,6 +45,12 @@ public final class Vector
 	 */
 	public final static String DELIMITER = ",";
 	
+	/**
+	 * The value that is returned whenever the average value of a vector,
+	 * matrix or array cannot be defined.
+	 */
+	public final static double UNDEFINED_AVERAGE = Double.NaN;
+	
 	/*************************************************************************
 	 * STANDARD NEW VECTORS
 	 ************************************************************************/
@@ -1441,8 +1447,7 @@ public final class Vector
 	 */
 	public static void timesTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] * b[i];
 	}
@@ -1478,6 +1483,66 @@ public final class Vector
 	public static void timesEquals(double[] a, double[] b)
 	{
 		timesTo(a, a, b);
+	}
+	
+	/* Division */
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, and write the result into
+	 * the <b>destination</b> vector.
+	 * 
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 */
+	public static void divideTo(double[] destination, double[] a, double[] b)
+	{
+		checkLengths(destination, a, b);
+		for ( int i = 0; i < a.length; i++ ) 
+			destination[i] = a[i] / b[i];
+	}
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, and write the result into
+	 * a new vector.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return New one-dimensional array of doubles.
+	 */
+	public static double[] divide(double[] a, double[] b)
+	{
+		double[] out = new double[a.length];
+		divideTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, overwriting the element of
+	 * <b>a</b> with the result.
+	 * 
+	 * @param a One-dimensional array of doubles (overwritten).
+	 * @param b One-dimensional array of doubles (preserved).
+	 */
+	public static void divideEqualsA(double[]a, double[]b)
+	{
+		divideTo(a, a, b);
+	}
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, overwriting the element of
+	 * <b>b</b> with the result.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (overwritten).
+	 */
+	public static void divideEqualsB(double[]a, double[]b)
+	{
+		divideTo(b, a, b);
 	}
 	
 	/*************************************************************************
@@ -2045,14 +2110,14 @@ public final class Vector
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
-	 * returns Double.NaN</p>
+	 * returns {@link #UNDEFINED_AVERAGE}.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of arithmetic mean of elements in <b>vector</b>.
-	 * @see #meanGeo(double[] vector)
-	 * @see #meanHar(double[] vector)
+	 * @see #meanGeo(double[])
+	 * @see #meanHar(double[])
 	 */
-	public static double meanAri(double[] vector)
+	public static double meanArith(double[] vector)
 	{
 		double out = 0.0;
 		double n = 0.0;
@@ -2076,12 +2141,12 @@ public final class Vector
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
-	 * returns zero</p>
+	 * returns {@link #UNDEFINED_AVERAGE}.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of geometric mean of elements in <b>vector</b>.
-	 * @see #meanAri(double[] vector)
-	 * @see #meanHar(double[] vector)
+	 * @see #meanArith(double[])
+	 * @see #meanHar(double[])
 	 */
 	public static double meanGeo(double[] vector)
 	{
@@ -2098,7 +2163,7 @@ public final class Vector
 		 * zero.
 		 */
 		if ( n == 0.0 )
-			return 0.0;
+			return UNDEFINED_AVERAGE;
 		return Math.pow(out, 1/n);
 	}
 	
@@ -2107,12 +2172,12 @@ public final class Vector
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
-	 * returns positive infinity</p>
+	 * returns {@link #UNDEFINED_AVERAGE}.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of harmonic mean of elements in <b>vector</b>.
-	 * @see #meanAri(double[] vector)
-	 * @see #meanGeo(double[] vector)
+	 * @see #meanArith(double[])
+	 * @see #meanGeo(double[])
 	 */
 	public static double meanHar(double[] vector)
 	{
@@ -2129,7 +2194,7 @@ public final class Vector
 		 * zero.
 		 */
 		if ( out == 0.0 )
-			return Double.POSITIVE_INFINITY;
+			return UNDEFINED_AVERAGE;
 		return 1/out;
 	}
 	
@@ -2148,7 +2213,7 @@ public final class Vector
 	 */
 	public static double stdDev(double[] vector, boolean fromSample)
 	{
-		double mean = meanAri(vector);
+		double mean = meanArith(vector);
 		if ( mean == Double.NaN )
 			return mean;
 		double out = 0.0;
