@@ -69,9 +69,7 @@ public class EigenvalueDecomposition
 	 ************************************************************************/
 
 	/**
-	 * \brief TODO
-	 * 
-	 * @param A
+	 * @param matrix Square matrix of {@code double} values.
 	 */
 	public EigenvalueDecomposition(double[][] A)
 	{
