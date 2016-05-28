@@ -386,7 +386,9 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public double getValueAtNhb(ArrayType type)
 	{
-		return this.getValueAt(type, this._shape.nbhIteratorCurrent());
+		if (this._shape.isNhbIteratorInside())
+			return this.getValueAt(type, this._shape.nbhIteratorCurrent());
+		return Double.NaN;
 	}
 	
 	/**
