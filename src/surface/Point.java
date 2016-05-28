@@ -7,8 +7,6 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
-import processManager.ProcessManager;
-
 
 /**
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
@@ -190,27 +188,42 @@ public class Point implements Copyable, NodeConstructor
 		 * -> c0 is the old position
 		 * -> c1 is the old velocity
 		 */
-		Vector.addTo(this.p, dxdt(radius), this.c[1]);
+		Vector.addTo(this.p, this.dxdt(radius), this.c[1]);
 		Vector.timesEquals(this.p, dt/2.0);
 		Vector.addEquals(this.p, this.c[0]);
 		this.resetForce();
 	}
 
 	/**
-	 * \brief TODO
+	 * \brief Find the velocity of this point.
 	 * 
-	 * @param radius
-	 * @return
+	 * <p>The drag on this point from the surrounding fluid is calculated using
+	 * Stoke's Law:</p>
+	 * <p><i>v = sum(forces) / ( 3 * pi * diameter * viscosity)</i></p>
+	 * 
+	 * <p>See<ul>
+	 * <li>Berg HC. Random walks in biology (Expanded edition). Princeton
+	 * University Press; 1993. Pages 75-77</li>
+	 * <li>Purcell EM. Life at low Reynolds number. <i>American Journal of
+	 * Physics</i>. 1977;45: 3–11.</li>
+	 * </ul></p>
+	 * 
+	 * <p>For the purposes of the viscosity constant, we currently assume
+	 * the surrounding fluid to be water at 25 C (298.15 K). This gives us a
+	 * viscosity of FIXME Rob [28May2016]: Bas, please give value and units</p>
+	 * 
+	 * @param radius The radius of the sphere-swept volume this point belongs
+	 * to will affect the drag on it by the surrounding fluid.
+	 * @return Vector describing the velocity of this point in FIXME units?
 	 */
 	public double[] dxdt(double radius)
 	{
+		
 		/*
 		 * 53.05 = 1/0.01885
 		 * 0.01885 = 3 * pi * (viscosity of water)
 		 */
 		// TODO calculate from user divined viscosity
-		// FIXME Is this from Stoke's Law? Being mysterious is not a virtue
-		// when it comes to programming.
 		return Vector.times(this.getForce(), 53.05/radius);
 	}
 
