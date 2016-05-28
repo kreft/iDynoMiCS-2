@@ -2018,25 +2018,62 @@ public final class Matrix
 	/* Division */
 	
 	/**
-	 * \brief Divide one matrix by another, element-by-element.
+	 * \brief For each element of a matrix <b>a</b>, divide by the
+	 * corresponding element of matrix <b>b</b>, and write the result into
+	 * the <b>destination</b> matrix.
 	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemDivide({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return double[][] array of <b>a</b> divided by <b>b</b> element-wise.
+	 * @param destination Two-dimensional array of doubles (overwritten).
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
 	 */
-	public static double[][] elemDivideEquals(double[][] a, double[][] b)
+	public static void elemDivideTo(
+			double[][] destination, double[][] a, double[][] b)
 	{
-		checkDimensionsSame(a, b);
+		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] /= b[i][j];
-		return a;
+			Vector.divideTo(destination[i], a[i], b[i]);
+	}
+	
+	/**
+	 * \brief For each element of a matrix <b>a</b>, divide by the
+	 * corresponding element of matrix <b>b</b>, and write the result into
+	 * a new matrix.
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @return New two-dimensional array of doubles.
+	 */
+	public static double[][] elemDivide(double[][] a, double[][] b)
+	{
+		double[][] out = zeros(a);
+		elemDivideTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief For each element of a matrix <b>a</b>, divide by the
+	 * corresponding element of matrix <b>b</b>, overwriting the element of
+	 * <b>a</b> with the result.
+	 * 
+	 * @param a Two-dimensional array of doubles (overwritten).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 */
+	public static void elemDivideEqualsA(double[][] a, double[][] b)
+	{
+		elemDivideTo(a, a, b);
+	}
+
+	/**
+	 * \brief For each element of a matrix <b>a</b>, divide by the
+	 * corresponding element of matrix <b>b</b>, overwriting the element of
+	 * <b>b</b> with the result.
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (overwritten).
+	 */
+	public static void elemDivideEqualsB(double[][] a, double[][] b)
+	{
+		elemDivideTo(b, a, b);
 	}
 	
 	/*************************************************************************
@@ -2842,6 +2879,38 @@ public final class Matrix
 		for ( double[] row : matrix )
 			out += Vector.sum(row);
 		return out;
+	}
+	
+	/**
+	 * \brief Calculates the arithmetic mean average element in the given 
+	 * <b>matrix</b>.
+	 * 
+	 * <p>Only includes finite elements of <b>matrix</b>. If there are none,
+	 * returns {@code Vector.UNDEFINED_AVERAGE}.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return double value of arithmetic mean of elements in <b>matrix</b>.
+	 * @see #meanGeo(double[][] matrix)
+	 * @see #meanHar(double[][] matrix)
+	 */
+	public static double meanArith(double[][] matrix)
+	{
+		double out = 0.0;
+		double n = 0.0;
+		for ( double[] row : matrix )
+			for ( double elem : row )
+				if ( Double.isFinite(elem) )
+				{
+					out += elem;
+					n++;
+				}
+		/*
+		 * Check the array contains valid entries before trying to divide by
+		 * zero.
+		 */
+		if ( n == 0.0 )
+			return Vector.UNDEFINED_AVERAGE;
+		return out/n;
 	}
 	
 	/*************************************************************************
