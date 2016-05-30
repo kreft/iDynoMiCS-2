@@ -671,6 +671,7 @@ public class Collision
 	 */
 	public double planePoint(Plane plane, double[] point)
 	{
+		this.dP = Vector.reverse(plane.normal);
 		return Vector.dotProduct(plane.normal, point) - plane.d;
 	}
 	
