@@ -170,6 +170,7 @@ public class SpatialGrid implements NodeConstructor
 		if ( this._array.containsKey(type) )
 			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
 		else
+			//TODO: safety?
 			return Double.NaN;
 	}
 	

@@ -1,13 +1,10 @@
 package shape;
 
-import static shape.Shape.WhereAmI.INSIDE;
-import static shape.Shape.WhereAmI.UNDEFINED;
-
-import java.util.Arrays;
-
 import static shape.Dimension.DimName.PHI;
 import static shape.Dimension.DimName.R;
 import static shape.Dimension.DimName.THETA;
+import static shape.Shape.WhereAmI.INSIDE;
+import static shape.Shape.WhereAmI.UNDEFINED;
 
 import dataIO.Log;
 import linearAlgebra.Vector;
@@ -237,18 +234,18 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	public double getVoxelVolume(int[] coord)
 	{
-		// mathematica: Integrate[r^2 sin p,{p,p1,p2},{t,t1,t2},{r,r1,r2}] 
+		// mathematica: Integrate[r^2 sin p,{p,p1,p1+dp},{t,t1,t1+dt},{r,r1,r1+dr}] 
 		double[] loc1 = getVoxelOrigin(coord);
 		double[] loc2 = getVoxelUpperCorner(coord);
-		double[] dl = new double[3];
-		Vector.minusTo(dl, loc2, loc1);
-		/* r */
-		double out = 2 * dl[0] * dl[2] * Math.sin(dl[1] / 2);
-		/* phi */
-		out *= 3 * loc1[0] * loc1[0] + 3 * loc1[0] * dl[0] + dl[0] * dl[0];
+		double[] dloc = new double[3];
+		Vector.minusTo(dloc, loc2, loc1);
 		/* theta */
-		out *= Math.sin(loc1[1] + dl[1] / 2);
-		return out / 3;
+		double out = dloc[0] * dloc[2];
+		/* r */
+		out *= 3 * loc1[0] * loc1[0] + 3 * loc1[0] * dloc[0] + dloc[0] * dloc[0];
+		/* phi */
+		out *= Math.sin(dloc[1] / 2) * Math.sin(loc1[1] + dloc[1] / 2);
+		return out * 2 / 3;
 	}
 	
 	/*************************************************************************
@@ -308,7 +305,6 @@ public abstract class SphericalShape extends PolarShape
 			 * We're in the r-shell just inside that of the current coordinate.
 			 */
 			int curR = this._currentCoord[0];
-			int nbhPhi = this._currentNeighbor[1];
 			/* Try increasing theta by one voxel. */
 			if ( ! this.increaseNbhByOnePolar(THETA) )
 			{
