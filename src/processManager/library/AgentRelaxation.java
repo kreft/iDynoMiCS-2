@@ -95,16 +95,6 @@ public class AgentRelaxation extends ProcessManager
 	public void init(Element xmlElem)
 	{
 		super.init(xmlElem);
-		/*
-		 * Obtaining relaxation parameters.
-		 */
-		this._dtBase = Helper.setIfNone(getDouble("dtBase"), 0.002);	
-		this._maxMovement = Helper.setIfNone(getDouble("maxMovement"), 0.01);	
-		this._method = Method.valueOf(
-				Helper.obtainInput(getString("relaxationMethod"),
-				"agent relaxation misses relaxation method (SHOVE,EULER,HEUN)"));
-		this._timeLeap	= true;
-
 	}
 
 	/*************************************************************************
@@ -170,6 +160,14 @@ public class AgentRelaxation extends ProcessManager
 	protected void internalStep(EnvironmentContainer environment,
 			AgentContainer agents)
 	{
+		/*
+		 * Obtaining relaxation parameters.
+		 */
+		this._dtBase = Helper.setIfNone( getDouble("dtBase"), 0.002 );	
+		this._maxMovement = Helper.setIfNone( getDouble("maxMovement"), 0.01 );	
+		this._method = Method.valueOf( Helper.setIfNone(
+				getString("relaxationMethod"), Method.EULER.toString() ) );
+		this._timeLeap	= true;
 		
 		this._iterator = new Collision(null, agents.getShape());
 		/**

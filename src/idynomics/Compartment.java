@@ -465,13 +465,14 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		modelNode.add(this.getSolutesNode());
 		
 		modelNode.add(this.getAgentsNode());
-				
+		
 		modelNode.add(this.getProcessNode());
 		
 		/* Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  */
 		modelNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), 
 				ModelNode.Requirements.EXACTLY_ONE);
+		
 		
 		return modelNode;
 		
@@ -496,8 +497,10 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		ModelNode modelNode = new ModelNode(XmlLabel.processManagers, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 		
-//		modelNode.childConstructors.put(new ProcessManager(this), 
-//				ModelNode.Requirements.ZERO_TO_MANY);
+		/* Work around: we need an object in order to call the newBlank method
+		 * from TODO investigate a cleaner way of doing this  */
+		modelNode.childConstructors.put( ProcessManager.getNewInstance(
+				"AgentGrowth"), ModelNode.Requirements.ZERO_TO_MANY);
 		
 		for ( ProcessManager p : this._processes )
 			modelNode.add(p.getNode());
@@ -536,7 +539,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	public void addChildObject(NodeConstructor childObject) 
 	{
 		if( childObject instanceof Shape)
-			this.setShape((Shape) childObject); 
+			this.setShape( (Shape) childObject); 
+		if( childObject instanceof ProcessManager)
+			this.addProcessManager( (ProcessManager) childObject); 
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
+import utility.Helper;
 import nodeFactory.ModelNode.Requirements;
 
 /**
@@ -100,7 +101,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 		//return (ProcessManager) XMLable.getNewInstance(className);
 		
 		return (ProcessManager) XMLable.getNewInstance(className, 
-				"processManager.ProcessManagerLibrary$");
+				Idynomics.xmlPackageLibrary.get(className));
 	}
 	
 	/*************************************************************************
@@ -283,7 +284,9 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	 */
 	public NodeConstructor newBlank() 
 	{
-		return null;
+		String input = Helper.obtainInput(ProcessManager.getAllOptions(), 
+				"process manager", false);
+		return  ProcessManager.getNewInstance(input);
 	}
 	
 	/**
