@@ -199,13 +199,8 @@ public abstract class CartesianShape extends Shape
 				this._whereIsNbh = UNDEFINED;
 			}
 		}
-		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNbh);
+		
 		this.transformNbhCyclic();
-		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNbh);
 		return this._currentNeighbor;
 	}
 	

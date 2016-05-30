@@ -1,11 +1,19 @@
 package shape;
 
-import static shape.Dimension.DimName;
-import static shape.Dimension.DimName.*;
+import static shape.Dimension.DimName.R;
+import static shape.Dimension.DimName.THETA;
 import static shape.Shape.WhereAmI.DEFINED;
 import static shape.Shape.WhereAmI.UNDEFINED;
+import static shape.Shape.WhereAmI.INSIDE;
+
+import java.util.Arrays;
+
+import dataIO.Log;
+
+import static shape.Shape.WhereAmI.CYCLIC;
 
 import linearAlgebra.Vector;
+import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 public abstract class PolarShape extends Shape
@@ -93,8 +101,11 @@ public abstract class PolarShape extends Shape
 	 */
 	protected boolean setNbhFirstInNewShell(int shellIndex)
 	{
+		Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new shell "+
+				shellIndex);
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[0] = shellIndex;
+		this._nbhDimName = R;
 		/*
 		 * First check that the new shell is inside the grid. If we're on a
 		 * defined boundary, the angular coordinate is irrelevant.
@@ -103,11 +114,12 @@ public abstract class PolarShape extends Shape
 		WhereAmI where = this.whereIsNhb(R);
 		if ( where == UNDEFINED )
 			return false;
-		if ( where == DEFINED )
+		if ( where == DEFINED || where == CYCLIC)
 		{
 			this._nbhDimName = R;
 			this._nbhDirection = this._currentCoord[0] 
 									< this._currentNeighbor[0] ? 1 : 0;
+			this._whereIsNbh = where;
 			return true;
 		}
 		/*
@@ -128,6 +140,7 @@ public abstract class PolarShape extends Shape
 		this._nbhDirection = 
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
+		this._whereIsNbh = WhereAmI.INSIDE;
 		return true;
 	}
 	
@@ -140,7 +153,12 @@ public abstract class PolarShape extends Shape
 	 */
 	protected boolean increaseNbhByOnePolar(DimName dim)
 	{
+		Log.out(NHB_ITER_LEVEL, "  trying to increase neighbor "
+			  + Arrays.toString(this._currentNeighbor)+" by one polar in "+dim);
+		/* avoid increasing on any boundaries */
 		int index = this.getDimensionIndex(dim);
+		if (whereIsNhb(this._nbhDimName) != INSIDE) 
+			return false;
 		Dimension dimension = this.getDimension(dim);
 		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, index);
 		/* If we are already on the maximum boundary, we cannot go further. */
@@ -153,6 +171,9 @@ public abstract class PolarShape extends Shape
 			{
 				this._whereIsNbh = DEFINED;
 				this._nbhDirection = 1;
+				this._nbhDimName = dim;
+				this._currentNeighbor[index]++;
+				return true;
 			}	
 			else
 				return false;
@@ -171,18 +192,23 @@ public abstract class PolarShape extends Shape
 		this._currentNeighbor[index]++;
 		return true;
 	}
-	
+
 	/**
 	 * \brief Converts the given resolution {@code res} .
 	 * 
 	 * @param shell
 	 * @param res
 	 * @return
+	 * @param shell Index of the shell.
+	 * @param res Target resolution, in units of "quarter circles"
+	 * @return Target resolution, in radians.
 	 */
-	protected static double scaleResolutionForShell(int shell, double res){	
-		return res * Math.PI / ( 4 * shell + 2 );
+
+	protected double scaleResolutionForShell(int shell, double res)
+	{
+		return res * 2.0 / (2 * shell + 1);
 	}
-	
+
 	/**	
 	 * \brief Converts the given resolution {@code res} to account for varying 
 	 * radius and polar angle.
@@ -192,8 +218,10 @@ public abstract class PolarShape extends Shape
 	 * @param res
 	 * @return
 	 */
-	protected static double scaleResolutionForRing(int shell, int ring, double res){
-		return res * Math.PI /(2*(2*shell*Math.sin((2*Math.PI*ring)
-					/(8*shell+1))+1));
+	protected double scaleResolutionForRing(int shell, int ring,
+												double ring_res, double res){
+		/* scale theta resolution to have a volume of one for resolution one */
+		return res * 3.0 / ((1 + 3 * shell * (1 + shell)) 
+			* (Math.cos(ring * ring_res) - Math.cos((1.0 + ring) * ring_res)));
 	}
 }

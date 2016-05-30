@@ -8,6 +8,7 @@ import static shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -1009,6 +1010,8 @@ public abstract class Shape implements
 	protected WhereAmI whereIs(int[] coord, DimName dimName)
 	{
 		Dimension dim = this.getDimension(dimName);
+		if (!dim.isSignificant())
+			return UNDEFINED;
 		int index = this.getDimensionIndex(dimName);
 		if ( coord[index] < 0 )
 		{
@@ -1415,6 +1418,9 @@ public abstract class Shape implements
 	 */
 	protected void transformNbhCyclic()
 	{
+		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				": status "+this._whereIsNbh);
 		Dimension dim = getDimension(this._nbhDimName);
 		if ( (this._whereIsNbh == CYCLIC) && dim.isCyclic() )
 		{
@@ -1432,6 +1438,9 @@ public abstract class Shape implements
 				this._currentNeighbor[dimIdx] = 0;
 			}
 		}
+		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				": status "+this._whereIsNbh);
 	}
 	
 	/**
@@ -1517,6 +1526,7 @@ public abstract class Shape implements
 		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
 				" is "+this._whereIsNbh);
+		
 		return false;
 	}
 	
