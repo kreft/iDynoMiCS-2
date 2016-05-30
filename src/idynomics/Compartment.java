@@ -485,8 +485,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		modelNode.childConstructors.put(new Agent(this), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
-		for ( Agent a : this.agents.getAllAgents() )
-			modelNode.add(a.getNode());
+		if( this.agents != null )
+			for ( Agent a : this.agents.getAllAgents() )
+				modelNode.add(a.getNode());
 		return modelNode;
 	}
 	
