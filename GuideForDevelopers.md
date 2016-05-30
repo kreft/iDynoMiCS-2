@@ -32,7 +32,7 @@ import idynomics.Compartment;
 ## Line lengths
 Please keep line lengths to a maximum of 80 characters wherever possible. This makes it easier to reading code on small screens, and to compare code side-by-side on one wider screen. To make this easier, you can set up Eclipse to show a margin guide:
 
-![Eclipse editor margin column](Docs/EclipseEditorMarginColumn.png)
+![Eclipse editor margin column](https://raw.githubusercontent.com/roughhawkbit/iDynoMiCS-2/master/Docs/EclipseEditorMarginColumn.png?token=ADJGIVtgUNEqXX8-vHyR2xguEIWLl8LRks5Wvg4xwA%3D%3D)
 
 
 TODO wrapping lines
@@ -471,7 +471,7 @@ GitHub enables discussion of issues and aspects of specific code, but there's no
 Please set the git configuration setting `core.autocrlf` to `false` for contributing to iDynoMiCS 2. It's generally a good idea to do this for your global settings if you are working on projects that are developed in both Windows and in Unix (Mac/Linux) environments. This only needs to be set once. 
 
 To set this in Eclipse with eGit installed, go to *Preferences > Team > Git > Configuration*:
-![eGit line endings](Docs/eGit_line_endings.png)
+![eGit line endings](https://raw.githubusercontent.com/roughhawkbit/iDynoMiCS-2/master/Docs/eGit_line_endings.png?token=ADJGISle9ZPOp__NbvEDcHhg7ZJNePxqks5Wvg4WwA%3D%3D)
 
 In the command line, this is done like so:
 ``` bash

@@ -55,11 +55,8 @@
 		<compartment name="second">
 			<shape class="Cuboid">
 				<dimension name="X" isCyclic="true" targetResolution="1" max="16.0"/>
-				</dimension> 
 				<dimension name="Y" isCyclic="true" targetResolution="1" max="16.0"/>
-				</dimension> 
 				<dimension name="Z" isCyclic="true" targetResolution="1" max="16.0"/>
-				</dimension> 
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="2.0" />

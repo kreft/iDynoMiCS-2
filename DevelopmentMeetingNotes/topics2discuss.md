@@ -2,6 +2,3 @@ XMLoutput doesn't make sense as a compartment-specific process manager... give s
 
 
 How should agents grow? Internal products?
-
-
-[Licencing info](../Docs/LicenceNotes.md)

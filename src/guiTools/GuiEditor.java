@@ -110,7 +110,7 @@ public class GuiEditor
 		/* add textareas for this ModelNode's attributes */
 		for(ModelAttribute a : node.attributes)
 		{
-			if ( a.options == null && a.value.length() < 60)
+			if ( a.options == null && a.value != null && a.value.length() < 60)
 			{
 				/* input field */
 				JTextArea input = new JTextArea();

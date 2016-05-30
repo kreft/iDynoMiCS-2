@@ -4,6 +4,7 @@ import shape.Dimension.DimName;
 import static shape.Shape.WhereAmI.INSIDE;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
+import linearAlgebra.PolarArray;
 import linearAlgebra.Vector;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Ball;
@@ -57,23 +58,7 @@ public abstract class SphericalShape extends PolarShape
 	
 	@Override
 	public double[][][] getNewArray(double initialValue) {
-		if (getNumberOfDimensions() != 3)
-			throw new IllegalArgumentException(
-					"A spherical array needs 3 dimensions");
-
-		int nR = _resCalc[0][0][0].getNVoxel();
-		int nPhi;
-		double[][][] a = new double[nR][][];
-		for ( int r = 0; r < nR; r++ )
-		{
-			nPhi = _resCalc[1][0][r].getNVoxel();
-			a[r] = new double[nPhi][];
-			for ( int p = 0; p < nPhi; p++ ){
-				a[r][p] = Vector.vector(_resCalc[2][r][p].getNVoxel(),
-																initialValue);
-			}
-		}
-		return a;
+		return PolarArray.createSphere(this._resCalc, initialValue);
 	}
 	
 	/*************************************************************************

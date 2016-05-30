@@ -2,9 +2,6 @@ package dataIO;
 
 import idynomics.Idynomics;
 import idynomics.Param;
-
-import org.junit.Assume;
-
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 
@@ -101,70 +98,6 @@ public class SvgExport
 		svgFile.write("<circle " + toSvg(center) + "r=\"" +
 				scalar * radius + "\" fill=\"" + pigment
 				+ "\" />\n" );
-	}
-	
-	/**
-	 * draw a non-full circle.
-	 * @param center
-	 * @param dimension The length in each dimension.
-	 * @param pigment
-	 */
-	public void circle(double[] center, double[] dimension, String pigment)
-	{
-		circleElement(center, Vector.zeros(center), dimension, 100, pigment);
-	}
-	
-	/**
-	 * converts the (polar) rectangle defined by <b>origin</b> and 
-	 * <b>dimension</b> into a cartesian polygon.
-	 * Approximates curves with numPointsOnArc - 1 lines.
-	 * 
-	 * TODO find better names
-	 * @param r0
-	 * @param r1
-	 * @param theta0
-	 * @param theta1
-	 * @param pigment
-	 */
-	public void circleElement(double[] circle_center, double[] element_origin, 
-			double[] dimension ,double numPointsOnArc, String pigment)
-	{
-		/* create new polygon */
-		StringBuilder sb = new StringBuilder("<polygon points=\"");
-		/* first point is the origin */
-		double[] cur_polar = new double[]{element_origin[0], element_origin[1]};
-		double[] cur_cartesian = Vector.uncylindrify(cur_polar);
-		/* append first point (origin)*/
-		sb.append(cur_cartesian[0] + "," + cur_cartesian[1]);
-		/* step size in degree: arc length divided by number of points */
-		double step = element_origin[0] * dimension[1] / numPointsOnArc;
-		/* append arc points along r0*/
-		for (int i=0; i<numPointsOnArc; ++i){
-			cur_polar[1] += step;
-			Vector.uncylindrifyTo(cur_cartesian, cur_polar);
-			sb.append(" " + cur_cartesian[0] + "," + cur_cartesian[1]);
-		}
-		/* cur_polar[1] should be theta1 here, so just switch to r1 shell */
-		cur_polar[0] = element_origin[0] + dimension[0];
-		/* append theta max point */
-		cur_cartesian = Vector.uncylindrify(cur_polar);
-		sb.append(cur_cartesian[0] + "," + cur_cartesian[1]);
-		/* step size in degree: arc length divided by number of points */
-		step = cur_polar[0] * dimension[1] / numPointsOnArc;
-		/* append arc points along r1*/
-		for (int i=0; i<numPointsOnArc; ++i){
-			cur_polar[1] += step;
-			Vector.uncylindrifyTo(cur_cartesian, cur_polar);
-			sb.append(" " + cur_cartesian[0] + "," + cur_cartesian[1]);
-		}
-		
-		/* finish points list */
-		sb.append("\"");
-		/* transform to 'real' location and end xml tag*/
-		sb.append(" transform=\"translate(" + circle_center[0] + " " + circle_center[1]
-																	+ ")\"/>");
-		/* write to file */
-		svgFile.write(sb.toString());
 	}
 	
 	/**
