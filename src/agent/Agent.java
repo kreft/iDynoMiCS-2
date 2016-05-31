@@ -5,7 +5,6 @@ import org.w3c.dom.NodeList;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import aspect.AspectReg.Aspect;
 import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.XmlLabel;
@@ -20,7 +19,6 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
 import surface.Point;
-import utility.Helper;
 
 /**
  * \brief TODO
@@ -245,17 +243,31 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 ************************************************************************/
 
 	/**
-	 * \brief: Registers the birth of a new agent with the agentContainer.
-	 * note that the compartment field of the agent is set by the compartment
-	 * itself.
+	 * \brief Registers the birth of a new agent with the agentContainer.
+	 * 
+	 * <p>Note that the compartment field of the agent is set by the
+	 * compartment itself.</p>
 	 */
 	public void registerBirth()
 	{
 		Log.out(Tier.DEBUG, "Compartment \""+this.compartment.name+
 				"\" registering agent birth");
 		compartment.addAgent(this);
+		this.set(NameRef.birthday, Idynomics.simulator.timer.getCurrentTime());
 	}
 
+	/**
+	 * \brief Registers the death of an agent with the agentContainer.
+	 * 
+	 * <p>Note that death is different from detachment/dilution/etc, which
+	 * instead transfers the agent to another compartment.</p>
+	 */
+	public void registerDeath()
+	{
+		
+		this.set(NameRef.deathday, Idynomics.simulator.timer.getCurrentTime());
+	}
+	
 	/**
 	 * return the unique identifier of the agent.
 	 * @return

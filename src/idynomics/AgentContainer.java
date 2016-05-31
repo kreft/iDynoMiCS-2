@@ -2,7 +2,6 @@ package idynomics;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,10 +13,8 @@ import boundary.Boundary;
 import boundary.agent.AgentMethod;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
-import reaction.Reaction;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
@@ -59,11 +56,12 @@ public class AgentContainer
 	 * All agents without a spatial location are stored in here.
 	 */
 	protected LinkedList<Agent> _agentList = new LinkedList<Agent>();
+	
 	/**
-	 * All reactions performed by agents.
-	 * TODO Check this is the best way of going about things!
+	 * All dead agents waiting for their death to be recorded as output before
+	 * they can be removed from memory.
 	 */
-	protected HashMap<String, Reaction> _agentReactions;
+	protected List<Agent> _deadAgents = new LinkedList<Agent>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -385,6 +383,7 @@ public class AgentContainer
 		{
 			/* Located agent. */
 			out = this._agentTree.getRandom();
+			// TODO remove from this._locatedAgentList?
 			this._agentTree.delete(out);
 		}
 		else
@@ -393,6 +392,25 @@ public class AgentContainer
 			out = this._agentList.remove(i);
 		}
 		return out;
+	}
+	
+	/**
+	 * \brief Move the given agent into the death list.
+	 * 
+	 * @param anAgent Agent to kill.
+	 */
+	// TODO unify method for removing a located agent? See extractRandomAgent
+	// above
+	public void killAgent(Agent anAgent)
+	{
+		if ( isLocated(anAgent) )
+		{
+			this._locatedAgentList.remove(anAgent);
+			this._agentTree.delete(anAgent);
+		}
+		else
+			this._agentList.remove(anAgent);
+		this._deadAgents.add(anAgent);
 	}
 	
 	/**
@@ -466,7 +484,8 @@ public class AgentContainer
 			}
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				Log.out(level, "Looking at "+dimN+" "+((extreme==0)?"min":"max"));
+				Log.out(level, 
+						"Looking at "+dimN+" "+((extreme==0)?"min":"max"));
 				if ( ! dim.isBoundaryDefined(extreme) )
 				{
 					Log.out(level, "   boundary not defined");
@@ -483,6 +502,30 @@ public class AgentContainer
 			bndry.pushAllOutboundAgents();
 		}
 		Log.out(level, " All agents have now departed");
+	}
+	
+	/**
+	 * @return {@code true} is this has any dead agents to report and destroy.
+	 */
+	public boolean hasDeadAgents()
+	{
+		return ( ! this._deadAgents.isEmpty());
+	}
+	
+	/**
+	 * \brief Report all dead agents as an XML string for output, then delete
+	 * these agents from memory.
+	 * 
+	 * @return String report of accumulated dead agents.
+	 */
+	public String reportDestroyDeadAgents()
+	{
+		String out = "";
+		// FIXME this gap needs filling
+		//for ( Agent anAgent : this._deadAgents )
+		//	out += anAgent.getXML();
+		this._deadAgents.clear();
+		return out;
 	}
 	
 	/*************************************************************************
