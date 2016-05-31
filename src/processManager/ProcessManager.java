@@ -14,17 +14,10 @@ import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-<<<<<<< Upstream, based on develop
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-=======
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker;
->>>>>>> 5f5e9d2 tidying process managers
 
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.
@@ -247,22 +240,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	
 	public static List<String> getAllOptions()
 	{
-<<<<<<< Upstream, based on develop
-
 		return Idynomics.xmlPackageLibrary.getAll("processManager.library.");
-=======
-		// FIXME almost there, just need to decide on String[] or List<String>
-		//return Idynomics.xmlPackageLibrary.getAll("processManager.library.");
-		return new String[]{};
-	}
-	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
-		out.add(new ParameterSetter(XmlLabel.processPriority,this,ObjectRef.INT));
-		return out;
->>>>>>> 5f5e9d2 tidying process managers
 	}
 	
 	
