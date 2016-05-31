@@ -8,7 +8,6 @@ import static shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;

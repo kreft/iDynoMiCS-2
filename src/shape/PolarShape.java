@@ -9,6 +9,7 @@ import static shape.Shape.WhereAmI.INSIDE;
 import java.util.Arrays;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 
 import static shape.Shape.WhereAmI.CYCLIC;
 
@@ -22,6 +23,10 @@ public abstract class PolarShape extends Shape
 	@Override
 	public double nbhCurrDistance()
 	{
+		Tier level = Tier.DEBUG;
+		Log.out(level, "  calculating distance between voxels "+
+				Vector.toString(this._currentCoord)+" and "+
+				Vector.toString(this._currentNeighbor));
 		int nDim = this.getNumberOfDimensions();
 		double distance = 0.0;
 		double temp;
@@ -48,6 +53,7 @@ public abstract class PolarShape extends Shape
 			/* Use Pythagoras to update the distance. */
 			distance = Math.hypot(distance, temp);
 		}
+		Log.out(level, "    distance is "+distance);
 		return distance;
 	}
 	

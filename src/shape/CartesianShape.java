@@ -3,6 +3,7 @@ package shape;
 import static shape.Shape.WhereAmI.*;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import static shape.Dimension.DimName;
@@ -207,6 +208,10 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public double nbhCurrDistance()
 	{
+		Tier level = Tier.BULK;
+		Log.out(level, "  calculating distance between voxels "+
+				Vector.toString(this._currentCoord)+" and "+
+				Vector.toString(this._currentNeighbor));
 		int i = this.getDimensionIndex(this._nbhDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
 		double out = rC.getResolution(this._currentCoord[i]);
@@ -220,10 +225,12 @@ public abstract class CartesianShape extends Shape
 		{
 			/* If the neighbor is on a defined boundary, use the current 
 				coord's resolution. */
+			Log.out(level, "    distance is "+out);
 			return out;
 		}
 		/* If the neighbor is on an undefined boundary, return infinite
 			distance (this should never happen!) */
+		Log.out(level, "    undefined distance!");
 		return Double.POSITIVE_INFINITY;
 	}
 	
