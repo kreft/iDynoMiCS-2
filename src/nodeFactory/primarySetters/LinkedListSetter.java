@@ -24,9 +24,9 @@ public class LinkedListSetter implements NodeConstructor {
 		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
 				listObject.getClass().getSimpleName(), null, true ));
 		
-		if (listObject instanceof XMLable)
+		if (listObject instanceof NodeConstructor)
 		{
-			modelNode.add(((XMLable) listObject).getNode()); 
+			modelNode.add(((NodeConstructor) listObject).getNode()); 
 		}
 		else
 		{

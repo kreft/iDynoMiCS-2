@@ -106,12 +106,6 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 	}
 	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
@@ -321,11 +315,5 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		{
 			return Boundary.getAllOptions();
 		}
-	}
-
-	@Override
-	public ModelNode getNode() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

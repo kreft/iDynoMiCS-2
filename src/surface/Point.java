@@ -100,6 +100,8 @@ public class Point implements Copyable, NodeConstructor
 
 	public void setPosition(double[] position)
 	{
+		if ( Double.isNaN(position[0]))
+			System.out.println(p);
 		this.p = position;
 	}
 	
@@ -254,44 +256,16 @@ public class Point implements Copyable, NodeConstructor
 		this.resetForce();
 	}
 
-	/*************************************************************************
-	 * REDUNDANT METHODS...?
-	 ************************************************************************/
-
-	public double[] coord(double radius) 
-	{
-		double[] coord = new double[p.length];
-		for (int i = 0; i < p.length; i++) 
-			coord[i] = p[i] - radius;
-		return coord;
-	}
-
-	public double[] dimensions(double radius) 
-	{
-		double[] dimensions = new double[p.length];
-		for (int i = 0; i < p.length; i++) 
-			dimensions[i] = radius * 2.0;
-		return dimensions;
-	}
-
-	public double[] upper(double radius) 
-	{
-		double[] coord = new double[p.length];
-		for (int i = 0; i < p.length; i++) 
-			coord[i] = p[i] + radius;
-		return coord;
-	}
-	
-	public void subtractFromForce(double[] forceToSubtract)
-	{
-		Vector.minusEquals(this.f, forceToSubtract);
-	}
-
+	/**
+	 * Retrieve the up to date model node
+	 */
 	public ModelNode getNode()
 	{
+		/* point node */
 		ModelNode modelNode = new ModelNode(XmlLabel.point, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 
+		/* position attribute */
 		modelNode.add(new ModelAttribute(XmlLabel.position, 
 				Vector.toString(this.p), null, true ));
 

@@ -26,6 +26,7 @@ public class SimpleGrowth extends Event {
 		setInput("mass,growthRate");
 	}
 
+	// TODO switch over to the internal production paradigm
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
 		Agent agent = (Agent) initiator;

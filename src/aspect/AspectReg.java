@@ -407,9 +407,9 @@ public class AspectReg
 						modelNode.add(p.getNode() );
 					break;
 				default:
-					if (aspect instanceof XMLable)
+					if (aspect instanceof NodeConstructor)
 					{
-						XMLable x = (XMLable) aspect;
+						NodeConstructor x = (NodeConstructor) aspect;
 						modelNode.add(x.getNode() ); 
 					}
 					else

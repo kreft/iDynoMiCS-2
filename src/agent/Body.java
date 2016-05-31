@@ -3,6 +3,7 @@ package agent;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 import generalInterfaces.HasBoundingBox;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -151,21 +152,18 @@ public class Body implements Copyable, XMLable
 	}
 
 	/**
-	 * quick solution to create body from string, currently only coccoid
+	 * quick solution to create body from string
 	 * @param input
 	 * @return
 	 */
 	public static Object getNewInstance(String input)
 	{
 		List<Point> pointList = new LinkedList<Point>();
-		pointList.add(new Point(Vector.dblFromString(input)));
+		String[] points = input.split(Matrix.DELIMITER);
+		for (String s : points)
+			pointList.add(new Point(Vector.dblFromString(s)));
+
 		return new Body(pointList);
-	}
-	
-	// TODO required from xmlable interface
-	public ModelNode getNode()
-	{
-		return null;
 	}
 
 	public void init(Element xmlElem)
@@ -298,11 +296,5 @@ public class Body implements Copyable, XMLable
 		default:
 			return null;
 		}
-	}
-
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

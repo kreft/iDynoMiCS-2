@@ -199,13 +199,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 	{
 		
 	}
-	
-	@Override
-	public String getXml()
-	{
-		return null;
-	}
-	
+
 	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/

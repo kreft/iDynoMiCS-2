@@ -39,5 +39,15 @@ public interface NodeConstructor {
 	 * @return
 	 */
 	public String defaultXmlTag();
+	
+	
+	/**
+	 * Return self in xml format
+	 * @return
+	 */
+	public default String getXml()
+	{
+		return this.getNode().getXML();
+	}
 
 }

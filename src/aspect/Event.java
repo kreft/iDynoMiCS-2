@@ -58,18 +58,6 @@ public abstract class Event implements Copyable, XMLable
 		return this.input;
 	}
 	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	// TODO required from xmlable interface
-	public ModelNode getNode()
-	{
-		return null;
-	}
-	
 	/**
 	 * General constructor from xmlNodes, returns a new instance directly from
 	 * an xml node. Overwrite this method in implementing class if the class

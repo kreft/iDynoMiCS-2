@@ -80,12 +80,6 @@ public abstract class Calculated implements Copyable, XMLable
 		obj.init(input);
 		return obj;
 	}
-	
-	// TODO required from xmlable interface
-	public ModelNode getNode()
-	{
-		return null;
-	}
 
 	public void init(Element xmlElem)
 	{
@@ -105,12 +99,6 @@ public abstract class Calculated implements Copyable, XMLable
 				this.setField(value[0], value[1]);
 			}
 		}
-	}
-	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 	
 	private void init(String input) {

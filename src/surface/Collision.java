@@ -61,7 +61,7 @@ public class Collision
 			/*
 			 * Pull force scalar.
 			 */
-			// TODO explain choice
+			// TODO implement as aspect
 			return -2.0;
 		}
 		
@@ -69,7 +69,7 @@ public class Collision
 		public double[] interactionForce(double distance, double[] dP)
 		{
 			/* Add a small margin. */
-			// TODO why?
+			// TODO implement as aspect, a negligible distance may be neglected
 			distance -= 0.001;
 			/*
 			 * If distance is in the range (0, pullRange), apply the pull force.
@@ -95,14 +95,14 @@ public class Collision
 			/*
 			 * Push force scalar.
 			 */
-			// TODO explain choice
+			// TODO implement as aspect
 			return 6.0;		// push force scalar
 		}
 		
 		public double[] interactionForce(double distance, double[] dP)
 		{
 			/* Add a small margin. */
-			// TODO why?
+			// TODO implement as aspect, a negligible distance may be neglected
 			distance += 0.001;
 			/*
 			 * If distance is negative, apply the repulsive force.
@@ -482,6 +482,7 @@ public class Collision
 	 */
 	private double planeLineSeg(double[] normal, double d, double[] p0, double[] p1)
 	{
+		dP = Vector.reverse(normal);
 		double a = planePoint(normal, d, p0);
 		double b = planePoint(normal, d, p1);
 		if ( a < b )
@@ -628,12 +629,15 @@ public class Collision
 			t = 1.0;
 			s = clamp((b-c)/a);
 		}
+		
 		/* c1 = p0 + (d1*s) */
 		double[] c1 = Vector.times(d1, s);
-		Vector.addEquals(p0, c1);
+		Vector.addEquals(c1, p0);
+		
 		/* c2 = q0 + (d2*t) */
 		double[] c2 = Vector.times(d2, t);
-		Vector.addEquals(q0, c1);
+		Vector.addEquals(c2, q0);
+
 		/* dP = c1 - c2 */
 		this.dP = Vector.minus(c1, c2);
 		return Vector.normEuclid(dP);
@@ -653,8 +657,8 @@ public class Collision
 		 */
 		double out = linesegLineseg(a._points[0].getPosition(),
 				a._points[1].getPosition(),
-				b._points[0].getPosition(),
-				b._points[1].getPosition());
+				b._points[1].getPosition(),
+				b._points[0].getPosition());
 		/*
 		 * Subtract the radii of both rods to find the distance between their
 		 * surfaces.

@@ -12,6 +12,7 @@ import idynomics.AgentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
 import surface.Ball;
+import surface.Rod;
 import surface.Surface;
 
 
@@ -73,36 +74,49 @@ public class AgentMediator implements CommandMediator {
 					new LinkedList<Surface>()))
 			{
 				pigment = a.getString("pigment");
+				switch (pigment)
+				{
+				case "GREEN" :
+					  rgba = new float[] {0.1f, 1f, 0.1f};
+					  break;
+				case "RED" :
+					  rgba = new float[] {1f, 0.1f, 0.1f};
+					  break;
+				case "BLUE" :
+					  rgba = new float[] {0.1f, 0.1f, 1f};
+					  break;
+				case "PURPLE" :
+					  rgba = new float[] {1.0f, 0.0f, 1.0f};
+					  break;
+				case "ORANGE" :
+					  rgba = new float[] {1f, 0.6f, 0.1f};
+					  break;
+				case "BLACK" :
+					  rgba = new float[] {0.0f, 0.0f, 0.0f};
+					  break;
+				default :
+					  rgba = new float[] {1f, 1f, 1f};
+					  break;
+				}
+				
 				if(s instanceof Ball)
 				{
 					Ball ball = (Ball) s;
-	
-					switch (pigment)
-					{
-					case "GREEN" :
-						  rgba = new float[] {0.1f, 1f, 0.1f};
-						  break;
-					case "RED" :
-						  rgba = new float[] {1f, 0.1f, 0.1f};
-						  break;
-					case "BLUE" :
-						  rgba = new float[] {0.1f, 0.1f, 1f};
-						  break;
-					case "PURPLE" :
-						  rgba = new float[] {1.0f, 0.0f, 1.0f};
-						  break;
-					case "ORANGE" :
-						  rgba = new float[] {1f, 0.6f, 0.1f};
-						  break;
-					case "BLACK" :
-						  rgba = new float[] {0.0f, 0.0f, 0.0f};
-						  break;
-					default :
-						  rgba = new float[] {1f, 1f, 1f};
-						  break;
-					}
 					sphere(drawable, domain, ball._point.getPosition(), 
 	        		ball._radius);
+				} 
+				else if ( s instanceof Rod )
+				{
+					Rod rod = (Rod) s;
+					sphere(drawable, domain, rod._points[0].getPosition(), rod._radius);
+					sphere(drawable, domain, rod._points[1].getPosition(), rod._radius);
+					
+					// TODO cylinder
+					rgba = new float[] {0.1f, 1f, 0.1f};
+//					
+					sphere(drawable, domain, Vector.midPoint(
+							rod._points[0].getPosition(),
+							rod._points[1].getPosition()), rod._radius);
 				}
 			}
 		}

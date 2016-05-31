@@ -17,7 +17,9 @@ import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import surface.Collision;
 import surface.Point;
+import surface.Rod;
 import surface.Surface;
+import utility.ExtraMath;
 import utility.Helper;
 
 
@@ -87,6 +89,10 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	Collision _iterator;
 	
+	public String BODY = NameRef.agentBody;
+	public String RADIUS = NameRef.bodyRadius;
+	public String VOLUME = NameRef.agentVolume;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -123,6 +129,37 @@ public class AgentRelaxation extends ProcessManager
 			Body body = (Body) agent.get(NameRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
 			// NOTE: currently missing internal springs for rod cells.
+			
+			for ( Surface s : agentSurfs )
+			{
+				if ( s instanceof Rod )
+				{
+					double l = 0.0;
+					
+					// TODO cleanup
+					if ( body.getJoints().size() > 1 )
+					{
+						double r = agent.getDouble(RADIUS);
+						double v = agent.getDouble(VOLUME) - 
+								ExtraMath.volumeOfASphere( r );
+						l = ExtraMath.lengthOfACylinder( v, r );
+					}
+					
+					Point a 		= ((Rod) s)._points[0];
+					Point b 		= ((Rod) s)._points[1];
+					double[] diff 	= Vector.minus( a.getPosition() , 
+							b.getPosition() );
+					double dn 		= Vector.normEuclid(diff);
+					// 0.1 is spine stiffness, TODO implement properly
+					double[] Fs 	= Vector.add( diff , 0.1 * ( Math.abs( dn - 
+							l ) * (dn - l) ) );
+				
+					b.setForce( Vector.add( b.getForce(), Fs ) );
+					a.setForce( Vector.add( a.getForce(), 
+							Vector.reverse( Fs ) ) );
+				}
+			}
+			
 			double searchDist = (agent.isAspect("searchDist") ?
 					agent.getDouble("searchDist") : 0.0);
 			
@@ -179,11 +216,6 @@ public class AgentRelaxation extends ProcessManager
 			agent.event("divide");
 			agent.event("epsExcretion");
 		}
-
-		/* FIXME This could also be created once if the AgentContainer would be 
-		 * available with the initiation of the processManager
-		 */
-		//		worker.executeTask(new UpdateAgentBody(agents));
 
 		int nstep	= 0;
 		_tMech		= 0.0;

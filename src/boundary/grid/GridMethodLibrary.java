@@ -53,13 +53,6 @@ public final class GridMethodLibrary
 			this._value = value;
 		}
 		
-		@Override
-		public String getXml()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
 		public List<InputSetter> getRequiredInputs()
 		{
 			List<InputSetter> out = new LinkedList<InputSetter>();
@@ -102,13 +95,6 @@ public final class GridMethodLibrary
 			this._gradient = gradient;
 		}
 		
-		@Override
-		public String getXml()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
 		public List<InputSetter> getRequiredInputs()
 		{
 			List<InputSetter> out = new LinkedList<InputSetter>();
@@ -135,13 +121,6 @@ public final class GridMethodLibrary
 		public double getBoundaryFlux(SpatialGrid grid)
 		{
 			return 0.0;
-		}
-		
-		@Override
-		public String getXml()
-		{
-			// TODO Auto-generated method stub
-			return null;
 		}
 	}
 }

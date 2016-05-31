@@ -163,9 +163,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 			{
 				myGrid.setValueAt(ArrayType.CONCN, Vector.intFromString(
 						XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
-						, XmlLabel.coordinates)) , Double.valueOf( XmlHandler
+						, XmlLabel.coordinates) ) , Double.valueOf( XmlHandler
 						.obtainAttribute((Element) voxelvalues.item(j), 
-						XmlLabel.valueAttribute)));
+						XmlLabel.valueAttribute) ));
 			}
 		}
 			
@@ -234,7 +234,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 				str = XmlHandler.gatherAttribute(procElem,
 													XmlLabel.nameAttribute);
 				Log.out(Tier.EXPRESSIVE, "\t"+str);
-				this.addProcessManager(ProcessManager.getNewInstance(procElem));
+				this.addProcessManager(ProcessManager.getNewInstance(procElem) );
 			}
 		}
 	}
@@ -385,7 +385,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		if ( this._processes.isEmpty() )
 			return;
 		ProcessManager currentProcess = this._processes.getFirst();
-		while ( (this._localTime = currentProcess.getTimeForNextStep()) 
+		while ( (this._localTime = currentProcess.getTimeForNextStep() ) 
 					< Idynomics.simulator.timer.getEndOfCurrentIteration() )
 		{
 			Log.out(Tier.EXPRESSIVE, "");
@@ -447,103 +447,165 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		this._environment.printAllSolutes();
 	}
 	
+	
+	/*************************************************************************
+	 * Model Node factory
+	 ************************************************************************/
+	
+	/**
+	 * retrieve the current model node
+	 */
 	public ModelNode getNode()
 	{
 
+		/* the compartment node */
 		ModelNode modelNode = new ModelNode(XmlLabel.compartment, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 
+		/* set title for gui interface */
 		if (this.getName() != null)
 			modelNode.title = this.getName();
 		
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-				this.getName(), null, true ));
+		/* add the name attribute */
+		modelNode.add( new ModelAttribute(XmlLabel.nameAttribute, 
+				this.getName(), null, true ) );
 		
-		if ( this._shape !=null )
-			modelNode.add(_shape.getNode());
-		
-		modelNode.add(this.getSolutesNode());
-		
-		modelNode.add(this.getAgentsNode());
-		
-		modelNode.add(this.getProcessNode());
+		/* add the shape if it exists */
+		if ( this._shape != null )
+			modelNode.add( _shape.getNode() );
 		
 		/* Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  */
 		modelNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), 
 				ModelNode.Requirements.EXACTLY_ONE);
 		
+		/* add the solutes node */
+		modelNode.add(this.getSolutesNode() );
 		
-		return modelNode;
+		/* add the agents node */
+		modelNode.add(this.getAgentsNode() );
 		
+		/* add the process managers node */
+		modelNode.add(this.getProcessNode() );
+		
+		return modelNode;	
 	}
 	
+	/**
+	 * retrieve the agents node, handled by compartment
+	 * @return
+	 */
 	public ModelNode getAgentsNode()
 	{
-		ModelNode modelNode = new ModelNode(XmlLabel.agents, this);
-		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		/* the agents node */
+		ModelNode modelNode = new ModelNode( XmlLabel.agents, this);
+		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
-		modelNode.childConstructors.put(new Agent(this), 
-				ModelNode.Requirements.ZERO_TO_MANY);
+		/* add the agent childConstrutor, allows adding of additional agents */
+		modelNode.childConstructors.put( new Agent(this), 
+				ModelNode.Requirements.ZERO_TO_MANY );
 		
+		/* if there are agents, add them as child nodes */
 		if( this.agents != null )
 			for ( Agent a : this.agents.getAllAgents() )
-				modelNode.add(a.getNode());
+				modelNode.add( a.getNode() );
+		
 		return modelNode;
 	}
 	
+	/**
+	 * retrieve the process manager node, handled by compartment
+	 * @return
+	 */
 	public ModelNode getProcessNode()
 	{
+		/* the process managers node */
 		ModelNode modelNode = new ModelNode(XmlLabel.processManagers, this);
-		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
-		/* Work around: we need an object in order to call the newBlank method
-		 * from TODO investigate a cleaner way of doing this  */
+		/* 
+		 * Work around: we need an object in order to call the newBlank method
+		 * from TODO investigate a cleaner way of doing this  
+		 */
 		modelNode.childConstructors.put( ProcessManager.getNewInstance(
 				"AgentGrowth"), ModelNode.Requirements.ZERO_TO_MANY);
 		
+		/* add existing process managers as child nodes */
 		for ( ProcessManager p : this._processes )
-			modelNode.add(p.getNode());
+			modelNode.add(p.getNode() );
+		
 		return modelNode;
 	}
 	
+	/**
+	 * retrieve the solutes node, handled by compartment
+	 * @return
+	 */
 	public ModelNode getSolutesNode()
 	{
+		/* the solutes node */
 		ModelNode modelNode = new ModelNode(XmlLabel.solutes, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 
-		/* add solute nodes if difined */
+		/* 
+		 * add solute nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later 
+		 */
 		if ( this._environment != null )
 			for ( String sol : this._environment.getSoluteNames() )
-				modelNode.add(this.getSolute(sol).getNode());
+				modelNode.add(this.getSolute(sol).getNode() );
+		
 		return modelNode;
 	}
 
+	/**
+	 * update any values that are newly set or modified
+	 */
 	public void setNode(ModelNode node) 
 	{
-		if (node.tag == defaultXmlTag())
+		/* set the modelNode for compartment */
+		if ( node.tag == defaultXmlTag() )
 		{
-			this.name = node.getAttribute(XmlLabel.nameAttribute).value;
+			/* update the name */
+			this.name = node.getAttribute( XmlLabel.nameAttribute ).value;
 			
-			for(ModelNode n : node.childNodes)
+			/* set the child nodes */
+			for( ModelNode n : node.childNodes )
 				n.constructor.setNode(n);
 		}
 		else 
 		{
-			for(ModelNode n : node.childNodes)
+			/* 
+			 * agents, process managers and solutes are container nodes, only
+			 * child nodes need to be set here
+			 */
+			for( ModelNode n : node.childNodes )
 				n.constructor.setNode(n);
 		}
 	}
 	
+	/**
+	 * Handle object added via the gui
+	 */
 	@Override
 	public void addChildObject(NodeConstructor childObject) 
 	{
+		/* set the shape */
 		if( childObject instanceof Shape)
 			this.setShape( (Shape) childObject); 
+		
+		/* add processManagers */
 		if( childObject instanceof ProcessManager)
 			this.addProcessManager( (ProcessManager) childObject); 
+		
+		/* NOTE agents register themselves to the compartment (register birth) 
+		*/
 	}
 
+
+	/**
+	 * return the xml tag of this node constructor (compartment)
+	 */
 	@Override
 	public String defaultXmlTag() 
 	{
