@@ -57,9 +57,9 @@ public class StochasticMove extends Event
 		/* Check if we are stochastically moving. */
 		else if ( agent.isAspect(STOCHASTIC_DIRECTION) )
 		{
-			/* Calculate the move. */
-			double[] move = (double[]) agent.get(STOCHASTIC_DIRECTION);
-			Vector.timesEquals(move, timeStep);
+			/* calculate the move */
+			double[] move = Vector.times((double[]) 
+					agent.get(STOCHASTIC_DIRECTION), timeStep);
 			double dist = agent.getDouble(STOCHASTIC_DISTANCE)
 					- Vector.normEuclid(move);
 			if ( dist < 0.0 )
