@@ -534,7 +534,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 				n.constructor.setNode(n);
 		}
 	}
-
+	
 	@Override
 	public void addChildObject(NodeConstructor childObject) 
 	{

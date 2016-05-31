@@ -233,12 +233,13 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
-
+	public String defaultXmlTag() {
+		return XmlLabel.timer;
 	}
 
 	@Override
-	public String defaultXmlTag() {
-		return XmlLabel.timer;
+	public void addChildObject(NodeConstructor childObject) {
+		// TODO Auto-generated method stub
+		
 	}
 }
