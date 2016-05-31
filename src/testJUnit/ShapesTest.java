@@ -1,5 +1,6 @@
 package testJUnit;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -27,28 +28,64 @@ public class ShapesTest
 	@Test
 	public void numberOfCyclicPointsShouldBeCorrect()
 	{
+		/* test cartesian */
 		String[] shapeNames = new String[]{"line", "rectangle", "cuboid"};
 		String[] sideNames = new String[] {"X", "Y", "Z"};
+		Shape aShape;
+		LinkedList<double[]> cyclics;
+		int correct;
 		for ( int i = 1; i < 4; i++ )
 		{
 			/* Make the shape. */
-			Shape aShape = (Shape) Shape.getNewInstance(shapeNames[i-1]);
+			aShape = (Shape) Shape.getNewInstance(shapeNames[i-1]);
 			/* Set up the cyclic dimensions. */
 			for ( int dim = 0; dim < i; dim++ )
 				aShape.makeCyclic(sideNames[dim]);
 			aShape.setDimensionLengths(Vector.onesDbl(i));
 			/* Check we get the correct number of cyclic points. */
 			double[] location = Vector.vector(i, 0.5);
-			LinkedList<double[]> cyclics = aShape.getCyclicPoints(location);
+			cyclics = aShape.getCyclicPoints(location);
 			/*
 			 * The correct result is 3 to the power of the number of dimensions.
 			 */
-			int correct = 1;
+			correct = 1;
 			for ( int j = 0; j < i; j++ )
 				correct *= 3;
 			assertEquals("#cyclics = "+correct+" ("+i+"D)",
 										cyclics.size(), correct);
 		}
+		
+		/* circle */
+		correct = 3;
+		aShape = (Shape) Shape.getNewInstance("circle");
+		aShape.makeCyclic("THETA");
+		aShape.setDimensionLengths(new double[]{1, Math.PI / 2});
+		/* lets take local coord (0.5, pi/4) ~ (0.3535, 0.3535) global. */
+		cyclics = aShape.getCyclicPoints(
+													Vector.vector(2, 0.3535));
+		assertEquals("#cyclics = "+correct+" ("+2+"D)",
+				cyclics.size(), correct);
+		
+		/* cylinder */
+		correct = 9;
+		aShape = (Shape) Shape.getNewInstance("cylinder");
+		aShape.makeCyclic("THETA");
+		aShape.makeCyclic("Z");
+		aShape.setDimensionLengths(new double[]{1, Math.PI / 2, 1});
+		/* local coord (0.5, pi/4, 0.5) ~ (0.3535, 0.3535, 0.5) global. */
+		cyclics = aShape.getCyclicPoints(new double[]{0.3535, 0.3535, 0.5});
+		assertEquals("#cyclics = "+correct+" ("+3+"D)",
+				cyclics.size(), correct);
+		
+		/* sphere */
+		correct = 3;
+		aShape = (Shape) Shape.getNewInstance("sphere");
+		aShape.makeCyclic("THETA");
+		aShape.setDimensionLengths(new double[]{1, Math.PI / 2, Math.PI / 2});
+		/* local coord (0.5, pi/4, pi/4) ~ (0.25, 0.25, 0.3535) global. */
+		cyclics = aShape.getCyclicPoints(new double[]{0.25, 0.25, 0.3535});
+		assertEquals("#cyclics = "+correct+" ("+3+"D)",
+				cyclics.size(), correct);
 	}
 	
 	@Test

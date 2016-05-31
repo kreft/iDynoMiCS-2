@@ -10,6 +10,7 @@ import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Rod;
 import surface.Surface;
 import utility.ExtraMath;
+import utility.MTRandom;
 
 /**
  * 
@@ -60,8 +61,10 @@ public abstract class CylindricalShape extends PolarShape
 		nr = _resCalc[0][0].getNVoxel();
 		nz = _resCalc[2][0] == null ? 0 : _resCalc[2][0].getNVoxel();
 		double[][][] a = new double[nr][][];
-		for ( int i = 0; i < nr; i++ )
+		for ( int i = 0; i < nr; i++ ){
 			a[i] = Matrix.matrix(_resCalc[1][i].getNVoxel(), nz, initialValue);
+			System.out.println(_resCalc[1][i].getNVoxel());
+		}
 		return a;
 	}
 	
@@ -259,6 +262,19 @@ public abstract class CylindricalShape extends PolarShape
 			return;
 		}
 	}
+	
+	//TODO: does it even make sense to cross the r boundary ? 
+	// Or should we just forbid cyclic r (and phi in the sphere) dimensions? 
+//	@Override
+//	protected void transformNbhCyclic() {
+//		super.transformNbhCyclic();
+//		/* lets (additionally) choose a random location on the other side of 
+//		 * the shape when crossing the radial boundary.
+//		 * This will be always zero when moving from max to min */
+//		if (this._nbhDimName == R)
+//			this._currentNeighbor[1] = ExtraMath.random.nextInt(
+//				this._resCalc[1][this._currentNeighbor[0]].getNVoxel());
+//	}
 	
 	@Override
 	public int[] nbhIteratorNext()

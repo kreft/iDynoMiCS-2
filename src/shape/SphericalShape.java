@@ -12,6 +12,7 @@ import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Ball;
 import surface.Point;
+import utility.ExtraMath;
 
 public abstract class SphericalShape extends PolarShape
 {
@@ -242,7 +243,8 @@ public abstract class SphericalShape extends PolarShape
 		/* theta */
 		double out = dloc[0] * dloc[2];
 		/* r */
-		out *= 3 * loc1[0] * loc1[0] + 3 * loc1[0] * dloc[0] + dloc[0] * dloc[0];
+		out *= 3 * ExtraMath.sq(loc1[0]) + 3 * loc1[0] * dloc[0] 
+														+ ExtraMath.sq(dloc[0]);
 		/* phi */
 		out *= Math.sin(dloc[1] / 2) * Math.sin(loc1[1] + dloc[1] / 2);
 		return out * 2 / 3;

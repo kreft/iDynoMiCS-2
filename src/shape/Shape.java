@@ -1010,7 +1010,7 @@ public abstract class Shape implements
 	protected WhereAmI whereIs(int[] coord, DimName dimName)
 	{
 		Dimension dim = this.getDimension(dimName);
-		if (!dim.isSignificant())
+		if ( ! dim.isSignificant() )
 			return UNDEFINED;
 		int index = this.getDimensionIndex(dimName);
 		if ( coord[index] < 0 )
