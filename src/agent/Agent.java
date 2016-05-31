@@ -64,14 +64,16 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	}
 
 	/**
-	 * @deprecated
+	 * \brief Construct an {@code Agent} with unknown {@code Compartment}.
+	 * 
+	 * <p>This is useful for agent introduction by a {@code ProcessManager}.
+	 * </p>
+	 * 
 	 * @param xmlNode
 	 */
 	public Agent(Node xmlNode)
 	{
-		this(xmlNode, new Compartment());
-	
-
+		this.loadAspects(xmlNode);
 	}
 
 	/**
@@ -93,7 +95,8 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 						obtainAttribute((Element) temp.item(i), "domain"));
 				for(int j = 0; j < n-1; j++)
 				{
-					Agent extra = new Agent(xmlNode, randBody(domain));
+					Agent extra = new Agent(xmlNode);
+					extra.set(NameRef.agentBody, randBody(domain));
 					extra.compartment = comp;
 					extra.registerBirth();
 				}
@@ -103,7 +106,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 		}
 		else
 		{
-			loadAspects(xmlNode);
+			this.loadAspects(xmlNode);
 		}
 		this.init();
 	}

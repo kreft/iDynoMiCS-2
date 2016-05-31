@@ -13,7 +13,6 @@ import aspect.AspectReg;
 import dataIO.Log;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -84,7 +83,6 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	/**
 	 * Get this {@code Species}' aspect registry.
 	 */
-	@SuppressWarnings("unchecked")
 	public AspectReg reg()
 	{
 		return this._aspectRegistry;

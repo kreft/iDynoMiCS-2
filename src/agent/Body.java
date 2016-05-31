@@ -1,13 +1,5 @@
 package agent;
 
-import generalInterfaces.Copyable;
-import generalInterfaces.XMLable;
-import generalInterfaces.HasBoundingBox;
-import linearAlgebra.Vector;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
-import processManager.ProcessManager;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,6 +9,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dataIO.XmlLabel;
+import generalInterfaces.Copyable;
+import generalInterfaces.XMLable;
+import generalInterfaces.HasBoundingBox;
+import linearAlgebra.Vector;
+import nodeFactory.ModelNode;
 import surface.*;
 
 /**

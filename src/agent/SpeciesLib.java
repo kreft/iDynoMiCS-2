@@ -15,7 +15,6 @@ import dataIO.Log.Tier;
 import dataIO.XmlLabel;
 import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
-import idynomics.Compartment;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -24,8 +23,6 @@ import modelBuilder.SubmodelMaker.Requirement;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import shape.Shape;
-import utility.Helper;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
