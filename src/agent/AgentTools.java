@@ -61,6 +61,7 @@ public final class AgentTools
 	 * 
 	 * @param agents The agents of a {@code Compartment}.
 	 */
+	// TODO Consider moving this to AgentContainer instead?
 	@SuppressWarnings("unchecked")
 	public static void setupAgentDistributionMaps(AgentContainer agents)
 	{
