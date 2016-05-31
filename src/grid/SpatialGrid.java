@@ -1,5 +1,6 @@
 package grid;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import agent.Agent;
@@ -170,6 +171,7 @@ public class SpatialGrid implements NodeConstructor
 		if ( this._array.containsKey(type) )
 			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
 		else
+			//TODO: safety?
 			return Double.NaN;
 	}
 	
@@ -386,7 +388,15 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public double getValueAtNhb(ArrayType type)
 	{
-		return this.getValueAt(type, this._shape.nbhIteratorCurrent());
+		if (this._shape.isNhbIteratorInside())
+			return this.getValueAt(type, this._shape.nbhIteratorCurrent());
+		else
+			throw new IndexOutOfBoundsException(
+					"tried to get grid value at neighbour"
+							+ Arrays.toString(this._shape.nbhIteratorCurrent())
+							+ " of current coordinate "
+							+ Arrays.toString(this._shape.iteratorCurrent())
+							+ ". But the neighbour is not inside the grid");
 	}
 	
 	/**

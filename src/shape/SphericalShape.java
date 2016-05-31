@@ -1,10 +1,14 @@
 package shape;
 
-import shape.Dimension.DimName;
+import static shape.Dimension.DimName.PHI;
+import static shape.Dimension.DimName.R;
+import static shape.Dimension.DimName.THETA;
 import static shape.Shape.WhereAmI.INSIDE;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
+import dataIO.Log;
 import linearAlgebra.Vector;
+import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Ball;
 import surface.Point;
@@ -41,18 +45,17 @@ public abstract class SphericalShape extends PolarShape
 		/* There is no need for an r-min boundary. */
 		dim = new Dimension();
 		dim.setBoundaryOptional(0);
-		this._dimensions.put(DimName.R, dim);
+		this._dimensions.put(R, dim);
 		/*
 		 * Set full angular dimensions by default, can be overwritten later.
 		 */
 		dim = new Dimension();
-		dim.setCyclic();
 		dim.setLength(Math.PI);
-		this._dimensions.put(DimName.PHI, dim);
+		this._dimensions.put(PHI, dim);
 		dim = new Dimension();
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
-		this._dimensions.put(DimName.THETA, dim);
+		this._dimensions.put(THETA, dim);
 	}
 	
 	@Override
@@ -67,11 +70,11 @@ public abstract class SphericalShape extends PolarShape
 		for ( int r = 0; r < nR; r++ )
 		{
 			nPhi = _resCalc[1][0][r].getNVoxel();
+			
 			a[r] = new double[nPhi][];
-			for ( int p = 0; p < nPhi; p++ ){
+			for ( int p = 0; p < nPhi; p++ )
 				a[r][p] = Vector.vector(_resCalc[2][r][p].getNVoxel(),
 																initialValue);
-			}
 		}
 		return a;
 	}
@@ -83,6 +86,7 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	public double[] getLocalPosition(double[] location)
 	{
+//		System.out.println(Arrays.toString(location) + "  "+Arrays.toString(Vector.unspherify(location)));
 		return Vector.unspherify(location);
 	}
 	
@@ -113,7 +117,7 @@ public abstract class SphericalShape extends PolarShape
 		{
 			this._resCalc[index][0][0] = resC;
 			/* Check if phi is waiting for the radius before returning. */
-			trySetDimRes(DimName.PHI);
+			trySetDimRes(PHI);
 			return;
 		}
 		case PHI:
@@ -132,7 +136,7 @@ public abstract class SphericalShape extends PolarShape
 				this._resCalc[1][0][i] = focalResCalc;
 			}
 			/* Check if theta is waiting for phi before returning. */
-			trySetDimRes(DimName.THETA);
+			trySetDimRes(THETA);
 			return;
 		}
 		case THETA:
@@ -160,7 +164,10 @@ public abstract class SphericalShape extends PolarShape
 				for ( int ring = 0; ring < nRing; ring++ )
 				{
 					focalResCalc = (ResCalc) resC.copy();
-					focalResCalc.setResolution(scaleResolutionForRing(shell, ring, resC.getResolution(0)));
+					/* For varying resolution this will not work anymore */
+					focalResCalc.setResolution(scaleResolutionForRing(shell,
+							ring, phiC[shell].getResolution(0),
+							resC.getResolution(0)));
 					this._resCalc[2][shell][ring] = focalResCalc;
 				}
 			}
@@ -198,7 +205,7 @@ public abstract class SphericalShape extends PolarShape
 	
 	public void setSurfaces()
 	{
-		Dimension dim = this.getDimension(DimName.R);
+		Dimension dim = this.getDimension(R);
 		double[] centre = Vector.zerosDbl(this.getNumberOfDimensions());
 		Ball outbound;
 		double radius;
@@ -228,17 +235,19 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	public double getVoxelVolume(int[] coord)
 	{
-		//TODO: wrong
-		// mathematica: Integrate[r^2 sin p,{p,p1,p2},{t,t1,t2},{r,r1,r2}] 
+		// mathematica: Integrate[r^2 sin p,{p,p1,p1+dp},{t,t1,t1+dt},{r,r1,r1+dr}] 
 		double[] loc1 = getVoxelOrigin(coord);
 		double[] loc2 = getVoxelUpperCorner(coord);
-		/* r */
-		double out = ExtraMath.cube(loc1[0]) - ExtraMath.cube(loc2[0]);
-		/* phi */
-		out *= loc1[1] - loc2[1];
+		double[] dloc = new double[3];
+		Vector.minusTo(dloc, loc2, loc1);
 		/* theta */
-		out *= Math.cos(loc1[2]) - Math.cos(loc2[2]);
-		return out / 3.0;
+		double out = dloc[0] * dloc[2];
+		/* r */
+		out *= 3 * ExtraMath.sq(loc1[0]) + 3 * loc1[0] * dloc[0] 
+														+ ExtraMath.sq(dloc[0]);
+		/* phi */
+		out *= Math.sin(dloc[1] / 2) * Math.sin(loc1[1] + dloc[1] / 2);
+		return out * 2 / 3;
 	}
 	
 	/*************************************************************************
@@ -268,7 +277,7 @@ public abstract class SphericalShape extends PolarShape
 		/* 
 		 * See if we can take one of the theta-neighbors in the current r-shell.
 		 */
-		else if ( this.moveNbhToMinus(DimName.THETA) || this.nbhJumpOverCurrent(DimName.THETA) ) ;
+		else if ( this.moveNbhToMinus(THETA) || this.nbhJumpOverCurrent(THETA) ) ;
 		/* See if we can take one of the phi-plus-neighbors. */
 		else if ( this.setNbhFirstInNewRing( this._currentCoord[1] + 1) ) ;
 		
@@ -298,20 +307,21 @@ public abstract class SphericalShape extends PolarShape
 			 * We're in the r-shell just inside that of the current coordinate.
 			 */
 			int curR = this._currentCoord[0];
-			int nbhPhi = this._currentNeighbor[1];
 			/* Try increasing theta by one voxel. */
-			if ( ! this.increaseNbhByOnePolar(DimName.THETA) )
+			if ( ! this.increaseNbhByOnePolar(THETA) )
 			{
 				/* Try moving out to the next ring. This must exist! */
-				if ( ! this.increaseNbhByOnePolar(DimName.PHI) ||
-										! this.setNbhFirstInNewRing(nbhPhi) )
+				if ( ! this.increaseNbhByOnePolar(PHI) ||
+										! this.setNbhFirstInNewRing(
+												this._currentNeighbor[1]) )
 				{
 					/* 
 					 * The current coordinate must be the only voxel in that 
 					 * ring. If that fails, try the phi-minus ring.
 					 */
 					if ( ! this.setNbhFirstInNewShell(curR) || 
-									! this.setNbhFirstInNewRing(nbhPhi - 1) )
+									! this.setNbhFirstInNewRing(
+											this._currentNeighbor[1] ) )
 					{
 						/*
 						 * If this fails, the phi-ring must be invalid, so try
@@ -319,7 +329,7 @@ public abstract class SphericalShape extends PolarShape
 						 * phi-ring.
 						 * If this fails call this method again.
 						 */
-						if ( ! this.moveNbhToMinus(DimName.THETA) )
+						if ( ! this.moveNbhToMinus(THETA) )
 							return this.nbhIteratorNext();
 					}
 				}
@@ -338,8 +348,8 @@ public abstract class SphericalShape extends PolarShape
 				 * Try increasing theta by one voxel. If this fails, move out
 				 * to the next ring. If this fails, call this method again.
 				 */
-				if ( ! this.increaseNbhByOnePolar(DimName.THETA) )
-					if ( ! this.moveNbhToMinus(DimName.THETA) )
+				if ( ! this.increaseNbhByOnePolar(THETA) )
+					if ( ! this.moveNbhToMinus(THETA) )
 						return this.nbhIteratorNext();
 			}
 			else if ( this._currentNeighbor[1] == this._currentCoord[1] )
@@ -350,7 +360,7 @@ public abstract class SphericalShape extends PolarShape
 				 * coordinate. If you can't, try switching to the phi-plus
 				 * ring.
 				 */
-				if ( ! this.nbhJumpOverCurrent(DimName.THETA) )
+				if ( ! this.nbhJumpOverCurrent(THETA) )
 					if ( ! this.setNbhFirstInNewRing(this._currentCoord[1]+1) )
 						return this.nbhIteratorNext();
 			}
@@ -361,19 +371,21 @@ public abstract class SphericalShape extends PolarShape
 				 * coordinate. 
 				 */
 				int rPlus = this._currentCoord[0] + 1;
-				int nbhPhi = this._currentNeighbor[1];
+				int nbhPhi = this._currentCoord[1] + 1;
 				/* Try increasing theta by one voxel. */
-				if ( ! this.increaseNbhByOnePolar(DimName.THETA) )
+				if ( ! this.increaseNbhByOnePolar(THETA) )
 				{
 					/* Move out to the next shell or the next rings. */
 					if (! this.setNbhFirstInNewShell(rPlus) ||
 									! this.setNbhFirstInNewRing(nbhPhi) )
 					{
-						if ( ! this.increaseNbhByOnePolar(DimName.PHI) ||
-								! this.setNbhFirstInNewRing(nbhPhi) )
+						if ( ! this.increaseNbhByOnePolar(PHI) ||
+								! this.setNbhFirstInNewRing(
+										this._currentNeighbor[1]) )
 						{
-							if (!this.increaseNbhByOnePolar(DimName.PHI) ||
-									! this.setNbhFirstInNewRing(nbhPhi) )
+							if (!this.increaseNbhByOnePolar(PHI) ||
+									! this.setNbhFirstInNewRing(
+											this._currentNeighbor[1]) )
 							{
 								this._whereIsNbh = UNDEFINED;
 							}
@@ -388,8 +400,8 @@ public abstract class SphericalShape extends PolarShape
 			 * We're in the r-shell just outside that of the current coordinate.
 			 * If we can't increase phi and theta any more, then we've finished.
 			 */
-			if ( ! this.increaseNbhByOnePolar(DimName.THETA) )
-				if ( ! this.increaseNbhByOnePolar(DimName.PHI) ||
+			if ( ! this.increaseNbhByOnePolar(THETA) )
+				if ( ! this.increaseNbhByOnePolar(PHI) ||
 						! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
 				{
 					this._whereIsNbh = UNDEFINED;
@@ -407,20 +419,26 @@ public abstract class SphericalShape extends PolarShape
 	 */
 	protected boolean setNbhFirstInNewRing(int ringIndex)
 	{
+		Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new ring "+
+				ringIndex);
 		this._currentNeighbor[1] = ringIndex;
 		/*
 		 * We must be on a ring inside the array: not even a defined boundary
 		 * will do here.
 		 */
-		if ( this.whereIsNhb(DimName.R) != INSIDE )
+		if ( this.whereIsNhb(R) != INSIDE )
 			return false;
 		/*
 		 * First check that the new ring is inside the grid. If we're on a
 		 * defined boundary, the theta coordinate is irrelevant.
 		 */
-		if ( this.whereIsNhb(DimName.THETA) != INSIDE )
-			return false;
-		
+		if ( (this._whereIsNbh = this.whereIsNhb(PHI)) != INSIDE ){
+			this._nbhDimName = PHI;
+			if (this.whereIsNhb(PHI) != UNDEFINED)
+				return true;
+			else return false;
+		}
+
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 2);
 		/*
 		 * We're on an intermediate ring, so find the voxel which has the
@@ -430,10 +448,15 @@ public abstract class SphericalShape extends PolarShape
 		
 		rC = this.getResolutionCalculator(this._currentNeighbor, 2);
 		
-		this._currentNeighbor[2] = rC.getVoxelIndex(theta);
+		int new_index = rC.getVoxelIndex(theta);
+		if (new_index == this._currentCoord[2])
+			return false;
+		
+		this._currentNeighbor[2] = new_index;
 		
 		this._nbhDimName = this._currentCoord[1] == this._currentNeighbor[1] ?
-				DimName.THETA : DimName.PHI;
+					THETA : PHI;
+		
 		int dimIdx = getDimensionIndex(this._nbhDimName);
 		this._nbhDirection = 
 				this._currentCoord[dimIdx]

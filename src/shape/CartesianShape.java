@@ -36,6 +36,8 @@ public abstract class CartesianShape extends Shape
 		 * Fill the resolution calculators with dummies for now: they should
 		 * be overwritten later.
 		 */
+		//TODO Stefan: Why do we need this?
+		// 			   Shouldn't ResCalc be null if no dimension is specified?
 		for ( int i = 0; i < 3; i++ )
 		{
 			SingleVoxel sV = new SingleVoxel();
@@ -54,7 +56,10 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public double[][][] getNewArray(double initialValue) {
 		int[] nVoxel = this.updateCurrentNVoxel();
-		return Array.array(nVoxel[0], nVoxel[1], nVoxel[2], initialValue);
+		/* we need at least length 1 in each dimension for the array */
+		return Array.array(nVoxel[0] == 0 ? 1 : nVoxel[0], 
+							nVoxel[1] == 0 ? 1 : nVoxel[1], 
+							nVoxel[2] == 0 ? 1 : nVoxel[2], initialValue);
 	}
 	
 	/*************************************************************************
@@ -194,13 +199,8 @@ public abstract class CartesianShape extends Shape
 				this._whereIsNbh = UNDEFINED;
 			}
 		}
-		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNbh);
+		
 		this.transformNbhCyclic();
-		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNbh);
 		return this._currentNeighbor;
 	}
 	

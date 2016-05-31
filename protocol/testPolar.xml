@@ -52,12 +52,9 @@
 		</speciesLib>
 
 		<compartment name="second">
-			<shape class="Circle">
-				<dimension name="R" isCyclic="true">
-					<extreme name="max" position="16.0"/>
-				</dimension> 
-				<dimension name="THETA">
-				</dimension> 
+			<shape class="Circle" >
+				<dimension name="R" isCyclic="false" targetResolution="1" max="10"/>
+				<dimension name="THETA" targetResolution="1"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="1.0" />
