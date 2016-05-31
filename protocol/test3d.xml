@@ -21,7 +21,7 @@
 					<item type="PRIMARY" class="Reaction">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
-								<constant name="k" value="0.1" />
+								<constant name="k" value="0.2" />
 							</expression>
 							<stoichiometric component="mySpecies" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
@@ -36,9 +36,7 @@
 			</species>
 			<species name="coccoid">
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
-				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
-
-
+				<aspect name="morphology" 		type="PRIMARY" 		class="String" 					value="coccoid" />
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
 				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,specGrowthRate" 	 />
@@ -54,21 +52,21 @@
 
 		<compartment name="second">
 			<shape class="Cuboid">
-				<dimension name="X" isCyclic="true" targetResolution="1" max="16.0"/>
-				<dimension name="Y" isCyclic="true" targetResolution="1" max="16.0"/>
-				<dimension name="Z" isCyclic="true" targetResolution="1" max="16.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="2" max="16.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="2" max="16.0"/>
+				<dimension name="Z" isCyclic="true" targetResolution="2" max="16.0"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="2.0" />
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>
-				<reaction name="slowInflow">
+			<!-- <reaction name="slowInflow">
 					<expression value="1.0 * inflow">
 						<constant name="inflow" value="0.04" />
 					</expression>
 					<stoichiometric component="solute1" coefficient="1.0" />
-				</reaction>
+				</reaction> -->	
 			</reactions>
 			<agents>
 				<agent>

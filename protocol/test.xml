@@ -37,7 +37,7 @@
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
 				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,specGrowthRate" 	 />
 				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"			input="mass,radius,body" 	 />
-
+				<aspect name="#isLocated" 		type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />
 			</species>
 			<species name="stochasticMover">
@@ -73,9 +73,7 @@
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
-					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
-					
-					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
+					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="12.2, 12.2" />
 					</aspect>
@@ -84,7 +82,6 @@
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
-					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="12.0, 5.3" />
@@ -94,7 +91,6 @@
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
-					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="5.3, 12.2" />

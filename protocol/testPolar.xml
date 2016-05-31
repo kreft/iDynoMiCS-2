@@ -52,9 +52,9 @@
 
 		<compartment name="second">
 			<shape class="Sphere">
-				<dimension name="R" isCyclic="false" targetResolution = "1.0" max="3.0"/>
-				<dimension name="THETA" isCyclic="false" targetResolution = "1.0">
-				<dimension name="PHI" isCyclic="false" targetResolution = "1.0">
+				<dimension name="R" isCyclic="false" targetResolution = "1.0" max="3.0" />
+				<dimension name="THETA" isCyclic="false" targetResolution = "1.0" />
+				<dimension name="PHI" isCyclic="false" targetResolution = "1.0" />
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="1.0" />

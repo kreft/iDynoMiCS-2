@@ -74,13 +74,18 @@ public class XmlHandler
 			doc = dBuilder.parse(fXmlFile);
 			doc.getDocumentElement().normalize();
 			return doc.getDocumentElement();
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			System.err.println("Error while loading: " + document + "\n"
-					+ "error message: " + e.getMessage());
+		} catch ( ParserConfigurationException | IOException e) {
+			Log.printToScreen("Error while loading: " + document + "\n"
+					+ "error message: " + e.getMessage(), true);
 			document = Helper.obtainInput("", "Atempt to re-obtain document",
 					true);
 			return loadDocument(document);
-		}
+		} catch ( SAXException e ) {
+			Log.printToScreen("Error while loading: " + document + "\n"
+				+ "error message: " + e.getMessage(), true);
+			return null;
+		}			
+		
 	}
 	
 	/**
