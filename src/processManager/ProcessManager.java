@@ -81,7 +81,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 			time = Double.valueOf( p.getAttribute("timerStepSize") );
 		this.setTimeStepSize(time);
 	}
-
+	
 	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 
@@ -125,9 +125,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 		if (this._name == null)
 			return "";
 		else
-			return this._name;
-
-			
+		return this._name;
 	}
 	
 	/**
@@ -276,7 +274,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 		return modelNode;
 	}
 	
-
+	
 	/**
 	 * 
 	 */
@@ -297,23 +295,23 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	 * 
 	 */
 	public void addChildObject(NodeConstructor childObject) 
-	{
+		{
 
-	}
-
+		}
+		
 	/**
 	 * 
 	 */
 	public String defaultXmlTag() 
-	{
+		{
 		return XmlLabel.process;
-	}
-
+		}
+		
 	/**
 	 * 
 	 */
 	public String getXml() 
-	{
+		{
 		return getNode().getXML();
 	}
 }
