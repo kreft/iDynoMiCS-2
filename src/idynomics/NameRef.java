@@ -147,6 +147,12 @@ public class NameRef
 	public static String internalProduction = "internalProduction";
 
 	/**
+	 * Reference tag for the growth event.
+	 */
+	// NOTE This may be merged with internalProduction.
+	public static String growth = "growth";
+	
+	/**
 	 * TODO
 	 */
 	public static String growthRate = "specGrowthRate";

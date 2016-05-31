@@ -311,7 +311,10 @@ public class SolveDiffusionTransient extends ProcessManager
 				/* Ask all agents to grow. */
 				// TODO clarify what is happening in internal production
 				for ( Agent a : agents.getAllLocatedAgents() )
+				{
+					a.event(NameRef.growth, dt);
 					a.event(NameRef.internalProduction, dt);
+				}
 			}
 		};
 	}
