@@ -7,11 +7,13 @@ import idynomics.NameRef;
 /**
  * \brief TODO
  * 
+ * <p>Note that this could be calculated using StateExpression, but this is
+ * quicker.</p>
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * 
  * Input: mass, density.
  */
-// TODO Rob [27May2016]: can this be deleted now we have StateExpression?
 public class SimpleVolumeState extends Calculated {
 	
 	public String MASS = NameRef.agentMass;
