@@ -61,10 +61,8 @@ public abstract class CylindricalShape extends PolarShape
 		nr = _resCalc[0][0].getNVoxel();
 		nz = _resCalc[2][0] == null ? 0 : _resCalc[2][0].getNVoxel();
 		double[][][] a = new double[nr][][];
-		for ( int i = 0; i < nr; i++ ){
+		for ( int i = 0; i < nr; i++ )
 			a[i] = Matrix.matrix(_resCalc[1][i].getNVoxel(), nz, initialValue);
-			System.out.println(_resCalc[1][i].getNVoxel());
-		}
 		return a;
 	}
 	
