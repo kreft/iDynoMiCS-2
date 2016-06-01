@@ -1,9 +1,18 @@
 package linearAlgebra;
 
 /**
- * \brief TODO
+ * \brief LU Decomposition is a method for breaking a matrix into two.
+ * This is useful for solving systems of linear equations.
  * 
+ * <p>For an m-by-n matrix A with m >= n, the LU decomposition is an m-by-n 
+ * unit lower triangular matrix L, an n-by-n upper triangular matrix U, and a
+ * permutation vector piv of length m so that A(piv,:) = L*U. If m < n, then L
+ * is m-by-m and U is m-by-n.</p>
  * 
+ * <p>The LU decompostion with pivoting always exists, even if the matrix is
+ * singular, so the constructor will never fail.  The primary use of the
+ * LU decomposition is in the solution of square systems of simultaneous
+ * linear equations.  This will fail if isNonsingular() returns false.</p>
  * 
  * <p>This class is largely taken from the JAMA package, and merely modified by
  * Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.</p>

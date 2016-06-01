@@ -3208,8 +3208,6 @@ public final class Matrix
 	 * m<sub>b</sub>). The output matrix, x, will be a new
 	 * n<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
 	 * 
-	 * TODO JAMA code uses QRDecomposition if matrices are non-square.
-	 * 
 	 * @param a Two-dimensional array of {@code double}s (preserved).
 	 * @param b Two-dimensional array of {@code double}s (preserved).
 	 *  @return New two-dimensional array of {@code double}s, x, such that
@@ -3217,7 +3215,10 @@ public final class Matrix
 	 */
 	public static double[][] solve(double[][] a, double[][] b)
 	{
-		return (new LUDecomposition(a)).solve(b);
+		if ( isSquare(a) )
+			return (new LUDecomposition(a)).solve(b);
+		else
+			return (new QRDecomposition(a)).solve(b);
 	}
 	
 	/**

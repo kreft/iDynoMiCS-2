@@ -13,17 +13,13 @@ package linearAlgebra;
  * decomposition and sets an internal flag that may be queried by the isSPD()
  * method.</p>
  * 
- * <p>
- * A matrix is 
- * <ul>
+ * <p>A matrix is <ul>
  * <li>symmetric if it is equal to its transpose: A = A<sup>T</sup></li>
  * <li>positive definite if the scalar z<sup>T</sup>*A*z is positive for every
  * non-zero column vector z of real numbers</li>
- * </ul>
- * Cholesky Decomposition is useful, e.g., for efficient numerics of Monte
+ * </ul>Cholesky Decomposition is useful, e.g., for efficient numerics of Monte
  * Carlo simulations: it is roughly twice as efficient as LU Decomposition.
- * <i>(Source: Wikipedia)</i>
- * </p>
+ * <i>(Source: Wikipedia)</i></p>
  * 
  * <p>This class is largely taken from the JAMA package, and merely modified by
  * Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.</p>
