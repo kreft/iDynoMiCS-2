@@ -81,29 +81,32 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public Agent(Node xmlNode, Compartment comp)
 	{
-		/* Initiate all random agents. */
+		
 		NodeList temp = XmlHandler.getAll(xmlNode, "spawn");
 		if ( temp.getLength() > 0 )
 		{
+			/* Initiate all "extra" random agents. */
 			for ( int i = 0; i < temp.getLength(); i++ )
 			{
 				String str;
-				/* TODO this is a cheat, make a standard method for this */
 				/*
 				 * Find the number of Agents to create.
 				 */
 				str = XmlHandler.obtainAttribute(temp.item(i), "number");
 				int n = Integer.valueOf(str);
 				/*
-				 * Find the domain.
+				 * Find the domain, i.e. the physical region of space in which
+				 * to randomly place new Agents.
 				 */
-				// TODO What does this mean?
 				str = XmlHandler.obtainAttribute(temp.item(i), "domain");
 				double[] domain = Vector.dblFromString(str);
-				// TODO why "n-1" and not just "n"?
+				/* Create n - 1 agents, as one has already been made. */
+				// TODO give the agents a body shape specified in the protocol
+				// file, rather than assuming it to be coccoid.
 				for ( int j = 0; j < n - 1; j++ )
 				{
 					Agent extra = new Agent(xmlNode);
+					extra.setCompartment(comp);
 					extra.set(NameRef.agentBody, this.randBody(domain));
 					extra.registerBirth();
 				}
@@ -113,13 +116,15 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 		}
 		else
 		{
+			/* No "extra" agents, just this one. */
 			this.loadAspects(xmlNode);
 		}
 		this.init();
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Quick fix to get a coccoid body at a random location in the
+	 * region of physical space specified by domain.
 	 * 
 	 * @param domain
 	 * @return
@@ -195,7 +200,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public AspectReg reg()
 	{
-		return _aspectRegistry;
+		return this._aspectRegistry;
 	}
 
 	/*
@@ -270,7 +275,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	{
 		Log.out(Tier.DEBUG, "Compartment \""+this._compartment.name+
 				"\" registering agent birth");
-		_compartment.addAgent(this);
+		this._compartment.addAgent(this);
 		this.set(NameRef.birthday, Idynomics.simulator.timer.getCurrentTime());
 	}
 
