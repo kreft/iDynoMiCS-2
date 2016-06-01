@@ -1,6 +1,5 @@
 package idynomics;
 
-import java.io.ObjectOutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,9 +7,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
-import agent.SpeciesLib.SpeciesLibMaker;
 import dataIO.Log;
-import dataIO.ObjectRef;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;

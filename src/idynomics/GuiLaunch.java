@@ -28,9 +28,7 @@ import guiTools.GuiConsole;
 import guiTools.GuiEditor;
 import guiTools.GuiMain;
 import guiTools.GuiMenu;
-import guiTools.GuiSimConstruct;
 import guiTools.GuiSimControl;
-import guiTools.GuiSimMake;
 import utility.Helper;
 
 /**

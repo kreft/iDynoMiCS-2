@@ -12,9 +12,7 @@ import glRender.AgentMediator;
 import glRender.CommandMediator;
 import glRender.Render;
 import idynomics.Compartment;
-import idynomics.GuiLaunch;
 import idynomics.Idynomics;
-import idynomics.Param;
 
 /**
  * 

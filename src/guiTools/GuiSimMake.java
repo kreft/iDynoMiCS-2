@@ -19,7 +19,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import dataIO.XmlLabel;
-import idynomics.Simulator;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.ParameterSetter;
