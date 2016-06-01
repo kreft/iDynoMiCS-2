@@ -1878,6 +1878,24 @@ public final class Vector
 	 * Any input vectors should be unaffected.
 	 ************************************************************************/
 	
+	/**
+	 * \brief Count the number of times a given <b>value</b> appears in a
+	 * <b>vector</b>.
+	 * 
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @param value Integer value to search for.
+	 * @return Number of times this value appears in the vector. This will be
+	 * zero if it does not appear.
+	 */
+	public static int countInstances(int[] vector, int value)
+	{
+		int out = 0;
+		for ( int elem : vector )
+			if ( elem == value )
+				out++;
+		return out;
+	}
+	
 	/* Maximum/minimum */
 	
 	/**
