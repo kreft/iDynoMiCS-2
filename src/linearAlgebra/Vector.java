@@ -2329,7 +2329,8 @@ public final class Vector
 	
 	/**
 	 * \brief A new {@code int} vector of length <b>n</b>, where each element
-	 * is randomly chosen from a uniform distribution in [min, max).
+	 * is randomly and independently chosen from a uniform distribution in
+	 * [min, max).
 	 * 
 	 * @param n Length of the vector to create.
 	 * @param min Lower bound of random numbers (inclusive).
@@ -2345,6 +2346,47 @@ public final class Vector
 			out[i] = ExtraMath.getUniRandInt(min, max);
 		return out;
 	}
+	
+	/**
+	 * \brief A new {@code int} vector of length <b>n</b>, where each element
+	 * is randomly chosen from chosen from a uniform distribution in [min, max)
+	 * without replacement.
+	 * 
+	 * <p><i>Without replacement</i> means that every element is unique, i.e.
+	 * no number appears twice.</p>
+	 * 
+	 * @param n Length of the vector to create.
+	 * @param min Lower bound of random numbers (inclusive).
+	 * @param max Upper bound of random numbers (exclusive).
+	 * @return {@code int[]} array of length <b>n</b>, with all elements
+	 * randomly chosen from a uniform distribution between <b>min</b>
+	 * (inclusive) and <b>max</b> (exclusive).
+	 * @throws IllegalArgumentException Cannot sample more times than there are
+	 * possibilities.
+	 */
+	public static int[] randomIntsNoReplacement(int n, int min, int max)
+	{
+		if ( n > (max - min) )
+		{
+			throw new IllegalArgumentException(
+					"Cannot sample more times than there are possibilities.");
+		}
+		int[] out = new int[n];
+		boolean resample;
+		for ( int i = 0; i < n; i++ )
+		{
+			do 
+			{
+				out[i] = ExtraMath.getUniRandInt(min, max);
+				resample = false;
+				for ( int j = 0; j < i; j++ )
+					if ( out[i] == out[j] )
+						resample = true;
+			} while ( resample );
+		}
+		return out;
+	}
+	
 	
 	/**
 	 * \brief A new double vector of length <b>n</b>, where each element is
