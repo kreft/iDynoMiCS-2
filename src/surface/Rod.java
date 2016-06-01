@@ -16,7 +16,7 @@ public class Rod extends Surface implements HasBoundingBox {
     /**
      * Rest length of internal springs connecting the points.
      */
-    private double _length;
+    public double _length;
 	
 	/**
 	 * 

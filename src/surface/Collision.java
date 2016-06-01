@@ -416,6 +416,11 @@ public class Collision
 		this.dP = this._computationalDomain.getMinDifference(a,b);
 	}
 	
+	private double[] minDistance(double[] a, double[] b)
+	{
+		return this._computationalDomain.getMinDifference(a,b);
+	}
+	
 	/**
 	 * \brief Point-point distance.
 	 * 
@@ -534,7 +539,7 @@ public class Collision
 	public double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
 		// ab = p1 - p0
-		Vector.minusTo(dP, p1, p0);
+		this.setPeriodicDistanceVector(p1, p0);
 		s  = clamp( Vector.dotProduct( Vector.minus(q0, p0), dP) 
 													/ Vector.normSquare(dP) );
 		// dP = (ab*s) + p0 - q0 
@@ -603,9 +608,9 @@ public class Collision
 												double[] q0, double[] q1) 
 	{		
 
-		double[] r      = Vector.minus(p0, q0);
-		double[] d1     = Vector.minus(p1, p0);
-		double[] d2     = Vector.minus(q1, q0);
+		double[] r      = minDistance(p0, q0);
+		double[] d1     = minDistance(p1, p0);
+		double[] d2     = minDistance(q1, q0);
 		double a 		= Vector.normSquare(d1);
 		double e 		= Vector.normSquare(d2);
 		double f 		= Vector.dotProduct(d2, r);
@@ -639,7 +644,7 @@ public class Collision
 		Vector.addEquals(c2, q0);
 
 		/* dP = c1 - c2 */
-		this.dP = Vector.minus(c1, c2);
+		this.setPeriodicDistanceVector(c1, c2);
 		return Vector.normEuclid(dP);
 	}
 	

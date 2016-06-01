@@ -15,6 +15,7 @@ import idynomics.EnvironmentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import shape.Shape;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;
@@ -117,12 +118,13 @@ public class AgentRelaxation extends ProcessManager
 	{
 		Tier level = BULK;
 		Log.out(level, "Updating agent forces");
+		Shape shape = agents.getShape();
 		/*
 		 * Updated bodies will required an updated spatial registry.
 		 */
 		agents.refreshSpatialRegistry();
 		// TODO Move this into internalStep() and make shapeSurfs a class variable?
-		Collection<Surface> shapeSurfs = agents.getShape().getSurfaces();
+		Collection<Surface> shapeSurfs = shape.getSurfaces();
 		/* Calculate forces. */
 		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
@@ -140,23 +142,18 @@ public class AgentRelaxation extends ProcessManager
 					 * total volume - sphere volume = cylinder volume ->
 					 * cylinder length = rest length
 					 */
-					double l = 0.0;
-					if ( body.getJoints().size() > 1 )
-					{
-						double r = agent.getDouble(RADIUS);
-						double v = agent.getDouble(VOLUME) - 
-								ExtraMath.volumeOfASphere( r );
-						l = ExtraMath.lengthOfACylinder( v, r );
-					}
-					
+					double l = ((Rod) s)._length;
+
 					/*
 					 * calculate current length of spine spring
 					 */
 					Point a 		= ((Rod) s)._points[0];
 					Point b 		= ((Rod) s)._points[1];
-					double[] diff 	= Vector.minus( a.getPosition() , 
+					double[] diff 	= shape.getMinDifference(a.getPosition() , 
 							b.getPosition() );
 					double dn 		= Vector.normEuclid(diff);
+					if (dn > 2.0 )
+						System.out.println(dn);
 					
 					/*
 					 * Hooke's law: spring stiffness * displacement

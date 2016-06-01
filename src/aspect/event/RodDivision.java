@@ -3,8 +3,10 @@ package aspect.event;
 import surface.Point;
 import utility.ExtraMath;
 import linearAlgebra.Vector;
+import shape.Shape;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import agent.Agent;
 import agent.Body;
@@ -44,6 +46,8 @@ public class RodDivision extends Event {
 	{
 		Agent mother = (Agent) initiator;
 
+		Shape shape = mother.getCompartment().getShape();
+		
 		//TODO check phase 
 		double momMass =(double) mother.get(MASS);
 		if ( momMass > 0.2 )
@@ -55,10 +59,26 @@ public class RodDivision extends Event {
 			mother.set(MASS, momMass-randM);
 			daughter.set(MASS, randM);
 			
-			// TODO Joints state will be removed
+			// FIXME think of something more robust
+			List<double[]> cyclicPoints = 
+					shape.getCyclicPoints(momBody.getJoints().get(0));
 			
-			double[] midPos = Vector.midPoint(momBody.getJoints().get(0), 
-					momBody.getJoints().get(1));
+			double[] c = cyclicPoints.get(0);
+			double dist = Vector.distanceEuclid(momBody.getJoints().get(1), c);
+			double dDist;
+			for ( double[] d : cyclicPoints )
+			{
+				dDist = Vector.distanceEuclid( momBody.getJoints().get(1), d);
+			
+				if ( dDist < dist)
+				{
+					c = d;
+					dist = dDist;
+				}
+			}
+			
+			double[] midPos = Vector.midPoint(c, momBody.getJoints().get(1));
+			
 			double[] shift = Vector.randomPlusMinus(midPos.length, 
 					0.5*(double) mother.get(RADIUS));
 			
