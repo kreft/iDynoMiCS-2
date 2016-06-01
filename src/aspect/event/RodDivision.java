@@ -15,11 +15,9 @@ import dataIO.Log.Tier;
 import idynomics.NameRef;
 
 /**
- * Simple coccoid division class, divides mother cell in two with a random
- * moves mother and daughter in a random opposing direction and registers the
- * daughter cell to the compartment
  * 
- * NOTE: inputs 0 "mass" 1 "radius" 2 "body"
+ * FIXME VERY DIRTY port of coccoid division class, take some time to think
+ * trough and make a beautiful new class
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
@@ -96,7 +94,7 @@ public class RodDivision extends Event {
 			mother.event(DIVIDE);
 			daughter.event(DIVIDE);
 			
-			Log.out(Tier.BULK, "CoccoidDivision added daughter cell");
+			Log.out(Tier.BULK, "RodDivision added daughter cell");
 		}
 	}
 }

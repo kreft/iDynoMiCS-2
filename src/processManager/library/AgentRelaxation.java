@@ -128,15 +128,19 @@ public class AgentRelaxation extends ProcessManager
 		{
 			Body body = (Body) agent.get(NameRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
-			// NOTE: currently missing internal springs for rod cells.
-			
+
+			/* surface operations */
 			for ( Surface s : agentSurfs )
 			{
+				/* rod surfs */
 				if ( s instanceof Rod )
 				{
+					/*
+					 * calculate rest length of rod cell spine spring
+					 * total volume - sphere volume = cylinder volume ->
+					 * cylinder length = rest length
+					 */
 					double l = 0.0;
-					
-					// TODO cleanup
 					if ( body.getJoints().size() > 1 )
 					{
 						double r = agent.getDouble(RADIUS);
@@ -145,16 +149,25 @@ public class AgentRelaxation extends ProcessManager
 						l = ExtraMath.lengthOfACylinder( v, r );
 					}
 					
+					/*
+					 * calculate current length of spine spring
+					 */
 					Point a 		= ((Rod) s)._points[0];
 					Point b 		= ((Rod) s)._points[1];
 					double[] diff 	= Vector.minus( a.getPosition() , 
 							b.getPosition() );
 					double dn 		= Vector.normEuclid(diff);
 					
-					// 0.1 is spine stiffness, TODO implement properly
+					/*
+					 * Hooke's law: spring stiffness * displacement
+					 * TODO implement stiffness properly in xml
+					 */
 					double f 		= 20.0 * ( dn - l );
 					double[] fV		= Vector.times(diff, f);
 				
+					/*
+					 * apply forces
+					 */
 					Vector.addEquals( b.getForce(), fV ) ;
 					Vector.addEquals( a.getForce(), Vector.reverse( fV ) ) ;
 				}
