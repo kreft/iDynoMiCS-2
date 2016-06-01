@@ -60,8 +60,7 @@ public class LUDecomposition
 				tempRow[j] = tempCol[i] -= sum;
 			}
 			/*
-			 * Find pivot and exchange if necessary. (Parallel assignment, as
-			 * in e.g. Python, would be more elegant when swapping values).
+			 * Find pivot and exchange if necessary.
 			 */
 			int p = j;
 			for ( int i = j+1; i < this.m; i++ )

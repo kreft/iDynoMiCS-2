@@ -12,6 +12,16 @@ public class NameRef
 	 */
 	
 	/**
+	 * The time when an agent was born.
+	 */
+	public static String birthday = "birthday";
+	
+	/**
+	 * The time at which an agent died.
+	 */
+	public static String deathday = "deathday";
+	
+	/**
 	 * TODO
 	 */
 	public static String agentBody = "body";
@@ -146,6 +156,12 @@ public class NameRef
 	 */
 	public static String internalProduction = "internalProduction";
 
+	/**
+	 * Reference tag for the growth event.
+	 */
+	// NOTE This may be merged with internalProduction.
+	public static String growth = "growth";
+	
 	/**
 	 * TODO
 	 */

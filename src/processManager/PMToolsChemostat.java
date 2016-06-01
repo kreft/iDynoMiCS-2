@@ -25,11 +25,7 @@ import utility.ExtraMath;
  */
 public final class PMToolsChemostat
 {
-	// TODO This tool set needs to incorporate chemostat-biofilm interactions,
-	// i.e. solute flows and agent migrations.
 	
-	// TODO this tool set needs to update the solute concentrations of 
-	// out-flowing connection boundaries.
 	
 	/*************************************************************************
 	 * SOLUTE DYNAMICS
@@ -213,24 +209,6 @@ public final class PMToolsChemostat
 	/*************************************************************************
 	 * AGENT MIGRATIONS
 	 ************************************************************************/
-	
-	/**
-	 * \brief Accept all inbound {@code Agent}s on connecting boundaries, 
-	 * simply adding them to the {@code AgentContainer}.
-	 * 
-	 * @param environment The environment of a {@code Compartment}.
-	 * @param agents The agents of a {@code Compartment}.
-	 */
-	public static void acceptAllInboundAgents(
-			EnvironmentContainer environment, AgentContainer agents)
-	{
-		for ( Boundary aBoundary : environment.getOtherBoundaries() )
-		{
-			for ( Agent anAgent : aBoundary.getAllInboundAgents() )
-				agents.addAgent(anAgent);
-			aBoundary.clearArrivalsLoungue();
-		}
-	}
 	
 	/**
 	 * \brief Perform the dilution of agents from a chemostat 

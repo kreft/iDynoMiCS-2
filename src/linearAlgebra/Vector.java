@@ -6,7 +6,7 @@ import java.util.Set;
 import utility.ExtraMath;
 
 /**
- * \brief Abstract class of useful vector functions.
+ * \brief Library of useful vector functions.
  * 
  * <p>By convention:<ul><li>a method <i>function(vector)</i> returns a new
  * vector,</li><li>the equivalent <i>functionEquals(vector)</i> overwrites the
@@ -44,6 +44,12 @@ public final class Vector
 	 * Character that separates elements of a vector in {@code String} format.
 	 */
 	public final static String DELIMITER = ",";
+	
+	/**
+	 * The value that is returned whenever the average value of a vector,
+	 * matrix or array cannot be defined.
+	 */
+	public final static double UNDEFINED_AVERAGE = Double.NaN;
 	
 	/*************************************************************************
 	 * STANDARD NEW VECTORS
@@ -1441,8 +1447,7 @@ public final class Vector
 	 */
 	public static void timesTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] * b[i];
 	}
@@ -1478,6 +1483,66 @@ public final class Vector
 	public static void timesEquals(double[] a, double[] b)
 	{
 		timesTo(a, a, b);
+	}
+	
+	/* Division */
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, and write the result into
+	 * the <b>destination</b> vector.
+	 * 
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 */
+	public static void divideTo(double[] destination, double[] a, double[] b)
+	{
+		checkLengths(destination, a, b);
+		for ( int i = 0; i < a.length; i++ ) 
+			destination[i] = a[i] / b[i];
+	}
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, and write the result into
+	 * a new vector.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return New one-dimensional array of doubles.
+	 */
+	public static double[] divide(double[] a, double[] b)
+	{
+		double[] out = new double[a.length];
+		divideTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, overwriting the element of
+	 * <b>a</b> with the result.
+	 * 
+	 * @param a One-dimensional array of doubles (overwritten).
+	 * @param b One-dimensional array of doubles (preserved).
+	 */
+	public static void divideEqualsA(double[]a, double[]b)
+	{
+		divideTo(a, a, b);
+	}
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, overwriting the element of
+	 * <b>b</b> with the result.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (overwritten).
+	 */
+	public static void divideEqualsB(double[]a, double[]b)
+	{
+		divideTo(b, a, b);
 	}
 	
 	/*************************************************************************
@@ -2045,14 +2110,14 @@ public final class Vector
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
-	 * returns Double.NaN</p>
+	 * returns {@link #UNDEFINED_AVERAGE}.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of arithmetic mean of elements in <b>vector</b>.
-	 * @see #meanGeo(double[] vector)
-	 * @see #meanHar(double[] vector)
+	 * @see #meanGeo(double[])
+	 * @see #meanHar(double[])
 	 */
-	public static double meanAri(double[] vector)
+	public static double meanArith(double[] vector)
 	{
 		double out = 0.0;
 		double n = 0.0;
@@ -2076,12 +2141,12 @@ public final class Vector
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
-	 * returns zero</p>
+	 * returns {@link #UNDEFINED_AVERAGE}.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of geometric mean of elements in <b>vector</b>.
-	 * @see #meanAri(double[] vector)
-	 * @see #meanHar(double[] vector)
+	 * @see #meanArith(double[])
+	 * @see #meanHar(double[])
 	 */
 	public static double meanGeo(double[] vector)
 	{
@@ -2098,7 +2163,7 @@ public final class Vector
 		 * zero.
 		 */
 		if ( n == 0.0 )
-			return 0.0;
+			return UNDEFINED_AVERAGE;
 		return Math.pow(out, 1/n);
 	}
 	
@@ -2107,12 +2172,12 @@ public final class Vector
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
-	 * returns positive infinity</p>
+	 * returns {@link #UNDEFINED_AVERAGE}.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of harmonic mean of elements in <b>vector</b>.
-	 * @see #meanAri(double[] vector)
-	 * @see #meanGeo(double[] vector)
+	 * @see #meanArith(double[])
+	 * @see #meanGeo(double[])
 	 */
 	public static double meanHar(double[] vector)
 	{
@@ -2129,7 +2194,7 @@ public final class Vector
 		 * zero.
 		 */
 		if ( out == 0.0 )
-			return Double.POSITIVE_INFINITY;
+			return UNDEFINED_AVERAGE;
 		return 1/out;
 	}
 	
@@ -2148,7 +2213,7 @@ public final class Vector
 	 */
 	public static double stdDev(double[] vector, boolean fromSample)
 	{
-		double mean = meanAri(vector);
+		double mean = meanArith(vector);
 		if ( mean == Double.NaN )
 			return mean;
 		double out = 0.0;
@@ -2264,7 +2329,8 @@ public final class Vector
 	
 	/**
 	 * \brief A new {@code int} vector of length <b>n</b>, where each element
-	 * is randomly chosen from a uniform distribution in [min, max).
+	 * is randomly and independently chosen from a uniform distribution in
+	 * [min, max).
 	 * 
 	 * @param n Length of the vector to create.
 	 * @param min Lower bound of random numbers (inclusive).
@@ -2280,6 +2346,47 @@ public final class Vector
 			out[i] = ExtraMath.getUniRandInt(min, max);
 		return out;
 	}
+	
+	/**
+	 * \brief A new {@code int} vector of length <b>n</b>, where each element
+	 * is randomly chosen from chosen from a uniform distribution in [min, max)
+	 * without replacement.
+	 * 
+	 * <p><i>Without replacement</i> means that every element is unique, i.e.
+	 * no number appears twice.</p>
+	 * 
+	 * @param n Length of the vector to create.
+	 * @param min Lower bound of random numbers (inclusive).
+	 * @param max Upper bound of random numbers (exclusive).
+	 * @return {@code int[]} array of length <b>n</b>, with all elements
+	 * randomly chosen from a uniform distribution between <b>min</b>
+	 * (inclusive) and <b>max</b> (exclusive).
+	 * @throws IllegalArgumentException Cannot sample more times than there are
+	 * possibilities.
+	 */
+	public static int[] randomIntsNoReplacement(int n, int min, int max)
+	{
+		if ( n > (max - min) )
+		{
+			throw new IllegalArgumentException(
+					"Cannot sample more times than there are possibilities.");
+		}
+		int[] out = new int[n];
+		boolean resample;
+		for ( int i = 0; i < n; i++ )
+		{
+			do 
+			{
+				out[i] = ExtraMath.getUniRandInt(min, max);
+				resample = false;
+				for ( int j = 0; j < i; j++ )
+					if ( out[i] == out[j] )
+						resample = true;
+			} while ( resample );
+		}
+		return out;
+	}
+	
 	
 	/**
 	 * \brief A new double vector of length <b>n</b>, where each element is

@@ -29,15 +29,6 @@ public abstract class ODEderivatives
 	private double _delta = 1E-6;
 	
 	/*************************************************************************
-	 * CONSTRUCTORS
-	 ************************************************************************/
-	
-	public ODEderivatives()
-	{
-		
-	}
-	
-	/*************************************************************************
 	 * SIMPLE SETTERS
 	 ************************************************************************/
 	
@@ -81,7 +72,7 @@ public abstract class ODEderivatives
 		 * Get the first time derivative at this y. 
 		 */
 		double[] dYdT = new double[y.length];
-		firstDeriv(dYdT, y);
+		this.firstDeriv(dYdT, y);
 		/*
 		 * yNext = y + (deltaT * dYdT)
 		 */
@@ -90,7 +81,7 @@ public abstract class ODEderivatives
 		/*
 		 * dFdT = ( dYdT(ynext) - dYdT(y) )/tdel
 		 */
-		firstDeriv(destination, ynext);
+		this.firstDeriv(destination, ynext);
 		Vector.minusEquals(destination, dYdT);
 		Vector.timesEquals(destination, 1.0/this._delta);
 	};
