@@ -61,7 +61,7 @@ public class AgentContainer
 	 * All dead agents waiting for their death to be recorded as output before
 	 * they can be removed from memory.
 	 */
-	protected List<Agent> _deadAgents = new LinkedList<Agent>();
+	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -401,7 +401,7 @@ public class AgentContainer
 	 */
 	// TODO unify method for removing a located agent? See extractRandomAgent
 	// above
-	public void killAgent(Agent anAgent)
+	public void registerRemoveAgent(Agent anAgent)
 	{
 		if ( isLocated(anAgent) )
 		{
@@ -410,7 +410,7 @@ public class AgentContainer
 		}
 		else
 			this._agentList.remove(anAgent);
-		this._deadAgents.add(anAgent);
+		this._agentsToRegisterRemoved.add(anAgent);
 	}
 	
 	/**
@@ -509,7 +509,7 @@ public class AgentContainer
 	 */
 	public boolean hasDeadAgents()
 	{
-		return ( ! this._deadAgents.isEmpty());
+		return ( ! this._agentsToRegisterRemoved.isEmpty());
 	}
 	
 	/**
@@ -524,7 +524,7 @@ public class AgentContainer
 		// FIXME this gap needs filling
 		//for ( Agent anAgent : this._deadAgents )
 		//	out += anAgent.getXML();
-		this._deadAgents.clear();
+		this._agentsToRegisterRemoved.clear();
 		return out;
 	}
 	

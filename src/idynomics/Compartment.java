@@ -331,7 +331,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	public void killAgent(Agent agent)
 	{
 		agent.setCompartment(null);
-		this.agents.killAgent(agent);
+		this.agents.registerRemoveAgent(agent);
 	}
 	
 	/**
