@@ -395,9 +395,9 @@ public class AgentContainer
 	}
 	
 	/**
-	 * \brief Move the given agent into the death list.
+	 * \brief Move the given agent into the list to report and remove.
 	 * 
-	 * @param anAgent Agent to kill.
+	 * @param anAgent Agent to remove.
 	 */
 	// TODO unify method for removing a located agent? See extractRandomAgent
 	// above
@@ -505,20 +505,20 @@ public class AgentContainer
 	}
 	
 	/**
-	 * @return {@code true} is this has any dead agents to report and destroy.
+	 * @return {@code true} is this has any agents to report and destroy.
 	 */
-	public boolean hasDeadAgents()
+	public boolean hasAgentsToRegisterRemoved()
 	{
 		return ( ! this._agentsToRegisterRemoved.isEmpty());
 	}
 	
 	/**
-	 * \brief Report all dead agents as an XML string for output, then delete
-	 * these agents from memory.
+	 * \brief Report all agents registered for removal as an XML string for
+	 * output, then delete these agents from memory.
 	 * 
-	 * @return String report of accumulated dead agents.
+	 * @return String report of accumulated agents to remove.
 	 */
-	public String reportDestroyDeadAgents()
+	public String reportDestroyRemovedAgents()
 	{
 		String out = "";
 		// FIXME this gap needs filling

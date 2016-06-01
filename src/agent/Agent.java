@@ -79,6 +79,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 * Agent xml constructor allowing for multiple randomized initial agents
 	 * @param xmlNode
 	 */
+	// TODO this method needs tidying and clarification
 	public Agent(Node xmlNode, Compartment comp)
 	{
 		
