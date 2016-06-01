@@ -6,12 +6,15 @@ import java.util.List;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 //import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLU;
 
 import agent.Agent;
 import idynomics.AgentContainer;
 import idynomics.NameRef;
 import linearAlgebra.Vector;
+import shape.Shape;
 import surface.Ball;
+import surface.Point;
 import surface.Rod;
 import surface.Surface;
 
@@ -23,10 +26,11 @@ import surface.Surface;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public class AgentMediator implements CommandMediator {
-	protected AgentContainer agents;
+	protected AgentContainer _agents;
+	protected Shape _shape;
 	private String pigment;
 	private float[] rgba;
-//	private GLU glu = new GLU();
+	private GLU glu = new GLU();
 	public float kickback;
 	private GL2 gl;
 
@@ -44,7 +48,8 @@ public class AgentMediator implements CommandMediator {
 	 */
 	public AgentMediator(AgentContainer agents)
 	{
-		this.agents = agents;
+		this._agents = agents;
+		this._shape = agents.getShape();
 	}
 
 	/**
@@ -56,7 +61,7 @@ public class AgentMediator implements CommandMediator {
 		gl = drawable.getGL().getGL2();
 
 		/* get the domain lengths to draw itself and scaling */
-		double[] domainLengths = agents.getShape().getDimensionLengths();
+		double[] domainLengths = _agents.getShape().getDimensionLengths();
 		double[] domain = new double[]{ domainLengths[0], domainLengths[1],
 				(domainLengths.length > 2 ? domainLengths[2] : 0.0)};
 		
@@ -66,7 +71,7 @@ public class AgentMediator implements CommandMediator {
         	domainCube(drawable,domain);
         
 		/* get the surfaces from the agents */
-		for ( Agent a : this.agents.getAllLocatedAgents() )
+		for ( Agent a : this._agents.getAllLocatedAgents() )
 		{
 
 			for ( Surface s : (List<Surface>) (a.isAspect(
@@ -112,11 +117,12 @@ public class AgentMediator implements CommandMediator {
 					sphere(drawable, domain, rod._points[1].getPosition(), rod._radius);
 					
 					// TODO cylinder
-					rgba = new float[] {0.1f, 1f, 0.1f};
-//					
-					sphere(drawable, domain, Vector.midPoint(
-							rod._points[0].getPosition(),
-							rod._points[1].getPosition()), rod._radius);
+//					rgba = new float[] {0.1f, 1f, 0.1f};
+					cylinder(drawable, domain, rod._points[0].getPosition(),
+							rod._points[1].getPosition(), rod._radius);
+//					sphere(drawable, domain, Vector.midPoint(
+//							rod._points[0].getPosition(),
+//							rod._points[1].getPosition()), rod._radius);
 				}
 			}
 		}
@@ -175,6 +181,82 @@ public class AgentMediator implements CommandMediator {
 			gl.glEnd();
 		}
 	
+	}
+	
+	/**
+	 * draw gl cylinder... FIXME ok I am lost this class needs additional work
+	 * @param drawable
+	 * @param domain
+	 * @param pos
+	 * @param posb
+	 * @param radius
+	 */
+	private void cylinder(GLAutoDrawable drawable, double[] domain, double[] pos, 
+			double[] posb, double radius) 
+	{
+		double slices = 16;
+		
+		// FIXME think of something more robust
+		List<double[]> cyclicPoints = 
+				_shape.getCyclicPoints(pos);
+		
+		double[] c = cyclicPoints.get(0);
+		double dist = Vector.distanceEuclid(posb, c);
+		double dDist;
+		for ( double[] d : cyclicPoints )
+		{
+			dDist = Vector.distanceEuclid( posb, d);
+		
+			if ( dDist < dist)
+			{
+				c = d;
+				dist = dDist;
+			}
+		}
+		
+		pos = Vector.midPoint(c, posb);
+		
+		// FIXME by lack of a better way for now draw a 3th sphere in the middle
+		sphere(drawable, domain, pos, radius);
+		
+		// FIXME the following part is in the good direction but still problems
+		// with proper rotating and scaling
+		/*
+		double l = Vector.distanceEuclid(pos, posb);
+		double[] p = new double[]{ pos[0], pos[1], 
+				(pos.length > 2 ? pos[2] : 0.0)};
+		     	gl.glLoadIdentity();
+		gl.glTranslated(p[0] - domain[0] * 0.5, p[1] - domain[1] * 0.5, 
+				p[2] - domain[2] * 0.5);
+     	gl.glScaled(l, radius, radius);
+     	
+     	gl.glRotated(Math.toDegrees(Vector.cosAngle(pos, posb)), 0.0, 0.0, 1.0);
+		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
+		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
+		gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
+		gl.glColor3f(rgba[0], rgba[1], rgba[2]);
+		gl.glBegin(GL2.GL_QUAD_STRIP);
+
+		double s0, s1, c0, c1;
+		for (int i = 0; (i <= slices); i++)
+        {
+			s0 = Math.sin(Math.PI / (slices/2) * i);
+			s1 = Math.sin(Math.PI / (slices/2) * (i + 1));
+			c0 = Math.cos(Math.PI / (slices/2) * i);
+			c1 = Math.cos(Math.PI / (slices/2) * (i + 1));
+
+			gl.glNormal3d(1, s0, c0);
+			gl.glVertex3d(1, s0, c0);
+			gl.glNormal3d(1, s1, c1);
+			gl.glVertex3d(1, s1, c1);
+			gl.glNormal3d(-1, s0, c0);
+			gl.glVertex3d(-1, s0, c0);
+			gl.glNormal3d(-1, s1, c1);
+			gl.glVertex3d(-1, s1, c1);
+        }
+		
+		gl.glEnd();
+		*/
 	}
 	
 	/**
