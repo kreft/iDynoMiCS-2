@@ -8,8 +8,6 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
-import nodeFactory.ModelAttribute;
-
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
