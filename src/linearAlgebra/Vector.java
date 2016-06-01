@@ -2724,7 +2724,7 @@ public final class Vector
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @return Cosine of the angle between the two given vectors.
-	 * @see #cosAngle(double[] a, double[] b)
+	 * @see #angle(double[], double[])
 	 */
 	public static double cosAngle(double[] a, double[] b)
 	{
@@ -2743,7 +2743,7 @@ public final class Vector
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @return The angle between the two given vectors (in radians).
-	 * @see #cosAngle(double[] a, double[] b)
+	 * @see #cosAngle(double[], double[])
 	 */
 	public static double angle(double[] a, double[] b)
 	{
