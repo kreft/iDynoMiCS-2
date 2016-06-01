@@ -60,6 +60,12 @@ public class RodDivision extends Event {
 			daughter.set(MASS, randM);
 			
 			// FIXME think of something more robust
+			// Does this create artifacts when passing two cyclic boundaries?
+			/*
+			 * find the closest distance between the two mass points of the rod
+			 * agent and assumes this is the correct length, preventing rods being
+			 * stretched out over the entire domain
+			 */
 			List<double[]> cyclicPoints = 
 					shape.getCyclicPoints(momBody.getJoints().get(0));
 			
