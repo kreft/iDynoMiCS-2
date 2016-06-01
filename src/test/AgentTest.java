@@ -56,7 +56,7 @@ public class AgentTest {
 					getElementsByTagName("agent");
 			
 			for (int j = 0; j < agentNodes.getLength(); j++) 
-				comp.addAgent(new Agent(agentNodes.item(j)));
+				comp.addAgent(new Agent(agentNodes.item(j), comp));
 			
 			System.out.println("writing output for compartment: " + comp.name);	
 			
