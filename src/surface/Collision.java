@@ -283,8 +283,8 @@ public class Collision
 			((Ball) surf)._point.addToForce(force);
 			break;
 		case ROD:
-			((Rod) surf)._points[0].addToForce(Vector.times(force,intersect));
-			((Rod) surf)._points[1].addToForce(Vector.times(force,1.0-intersect));
+			((Rod) surf)._points[0].addToForce(Vector.times(force,1.0-intersect));
+			((Rod) surf)._points[1].addToForce(Vector.times(force,intersect));
 			break;
 		case PLANE:
 			Log.out(Tier.BULK,"WARNING: Surface Plane does not accept force");
@@ -657,8 +657,8 @@ public class Collision
 		 */
 		double out = linesegLineseg(a._points[0].getPosition(),
 				a._points[1].getPosition(),
-				b._points[1].getPosition(),
-				b._points[0].getPosition());
+				b._points[0].getPosition(),
+				b._points[1].getPosition());
 		/*
 		 * Subtract the radii of both rods to find the distance between their
 		 * surfaces.

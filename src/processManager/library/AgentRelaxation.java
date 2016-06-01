@@ -150,12 +150,13 @@ public class AgentRelaxation extends ProcessManager
 					double[] diff 	= Vector.minus( a.getPosition() , 
 							b.getPosition() );
 					double dn 		= Vector.normEuclid(diff);
+					
 					// 0.1 is spine stiffness, TODO implement properly
-					double[] Fs 	= Vector.add( diff , 0.1 * ( dn - 
-							l ) * ( dn - l ) );
+					double f 		= 20.0 * ( dn - l );
+					double[] fV		= Vector.times(diff, f);
 				
-					Vector.addEquals( b.getForce(), Fs ) ;
-					Vector.addEquals( a.getForce(), Vector.reverse( Fs ) ) ;
+					Vector.addEquals( b.getForce(), fV ) ;
+					Vector.addEquals( a.getForce(), Vector.reverse( fV ) ) ;
 				}
 			}
 			
