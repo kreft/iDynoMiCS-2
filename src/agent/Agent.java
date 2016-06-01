@@ -1,5 +1,4 @@
 package agent;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -32,19 +31,19 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 * the constructor.
 	 */
 	protected static int UNIQUE_ID = 0;
-	final int uid = ++UNIQUE_ID;
+	final int _uid = ++UNIQUE_ID;
 
 	/**
 	 * The compartment the agent is currently in
 	 */
-	protected Compartment compartment;
+	protected Compartment _compartment;
 	
-	protected ModelNode modelNode;
+	protected ModelNode _modelNode;
 
 	/**
 	 * The aspect registry
 	 */
-	public AspectReg aspectRegistry = new AspectReg();
+	protected AspectReg _aspectRegistry = new AspectReg();
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -60,7 +59,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public Agent(Compartment comp)
 	{
-		this.compartment = comp;
+		this._compartment = comp;
 	}
 
 	/**
@@ -82,26 +81,34 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public Agent(Node xmlNode, Compartment comp)
 	{
-		/* initiate all random agents */
+		/* Initiate all random agents. */
 		NodeList temp = XmlHandler.getAll(xmlNode, "spawn");
-		if(temp.getLength() > 0)
+		if ( temp.getLength() > 0 )
 		{
-			for(int i = 0; i < temp.getLength(); i++)
+			for ( int i = 0; i < temp.getLength(); i++ )
 			{
+				String str;
 				/* TODO this is a cheat, make a standard method for this */
-				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute((Element) 
-						temp.item(i), "number")));
-				double[] domain = Vector.dblFromString(XmlHandler.
-						obtainAttribute((Element) temp.item(i), "domain"));
-				for(int j = 0; j < n-1; j++)
+				/*
+				 * Find the number of Agents to create.
+				 */
+				str = XmlHandler.obtainAttribute(temp.item(i), "number");
+				int n = Integer.valueOf(str);
+				/*
+				 * Find the domain.
+				 */
+				// TODO What does this mean?
+				str = XmlHandler.obtainAttribute(temp.item(i), "domain");
+				double[] domain = Vector.dblFromString(str);
+				// TODO why "n-1" and not just "n"?
+				for ( int j = 0; j < n - 1; j++ )
 				{
 					Agent extra = new Agent(xmlNode);
-					extra.set(NameRef.agentBody, randBody(domain));
-					extra.compartment = comp;
+					extra.set(NameRef.agentBody, this.randBody(domain));
 					extra.registerBirth();
 				}
 				this.loadAspects(xmlNode);
-				this.set(NameRef.agentBody, randBody(domain));
+				this.set(NameRef.agentBody, this.randBody(domain));
 			}
 		}
 		else
@@ -110,11 +117,18 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 		}
 		this.init();
 	}
-
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param domain
+	 * @return
+	 */
 	public Body randBody(double[] domain)
 	{
-		return new Body(new Point(Vector.
-				times(Vector.randomZeroOne(domain), domain)), 0.0);
+		double[] v = Vector.randomZeroOne(domain);
+		Vector.timesEquals(v, domain);
+		return new Body(new Point(v), 0.0);
 	}
 
 	public Agent(Node xmlNode, Body body)
@@ -127,7 +141,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	public Agent(String species, Compartment comp)
 	{
 		set(XmlLabel.species,species);
-		this.compartment = comp;
+		this._compartment = comp;
 		init();
 	}
 
@@ -135,7 +149,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	{
 		set(XmlLabel.species, species);
 		this.set(NameRef.agentBody, body);
-		this.compartment = comp;
+		this._compartment = comp;
 		init();
 	}
 
@@ -146,9 +160,9 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public Agent(Agent agent)
 	{
-		this.aspectRegistry.duplicate(agent);
+		this._aspectRegistry.duplicate(agent);
 		this.init();
-		this.compartment = agent.getCompartment();
+		this._compartment = agent.getCompartment();
 	}
 
 	/**
@@ -167,7 +181,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 			species = "";
 			Log.out(Tier.DEBUG, "Agent belongs to void species");
 		}
-		aspectRegistry.addSubModule( (Species) 
+		this._aspectRegistry.addSubModule( (Species) 
 				Idynomics.simulator.speciesLibrary.get(species));
 	}
 
@@ -179,8 +193,9 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	/**
 	 * Allows for direct access to the aspect registry
 	 */
-	public AspectReg reg() {
-		return aspectRegistry;
+	public AspectReg reg()
+	{
+		return _aspectRegistry;
 	}
 
 	/*
@@ -190,7 +205,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public Object get(String key)
 	{
-		return aspectRegistry.getValue(this, key);
+		return _aspectRegistry.getValue(this, key);
 	}
 
 	/**
@@ -199,7 +214,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public Compartment getCompartment()
 	{
-		return compartment;
+		return this._compartment;
 	}
 
 	/**
@@ -210,7 +225,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public void setCompartment(Compartment compartment)
 	{
-		this.compartment = compartment;
+		this._compartment = compartment;
 	}
 
 	/*************************************************************************
@@ -223,22 +238,22 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public void event(String event)
 	{
-		event(event, null, 0.0);
+		this.event(event, null, 0.0);
 	}
 
 	public void event(String event, Double timestep)
 	{
-		event(event, null, timestep);
+		this.event(event, null, timestep);
 	}
 
 	public void event(String event, Agent compliant)
 	{
-		event(event, compliant, 0.0);
+		this.event(event, compliant, 0.0);
 	}
 
 	public void event(String event, Agent compliant, Double timestep)
 	{
-		aspectRegistry.doEvent(this,compliant,timestep,event);
+		this._aspectRegistry.doEvent(this, compliant, timestep, event);
 	}
 
 	/*************************************************************************
@@ -253,9 +268,9 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public void registerBirth()
 	{
-		Log.out(Tier.DEBUG, "Compartment \""+this.compartment.name+
+		Log.out(Tier.DEBUG, "Compartment \""+this._compartment.name+
 				"\" registering agent birth");
-		compartment.addAgent(this);
+		_compartment.addAgent(this);
 		this.set(NameRef.birthday, Idynomics.simulator.timer.getCurrentTime());
 	}
 
@@ -267,50 +282,50 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 */
 	public void registerDeath()
 	{
-		
+		// TODO Rob [1June2016]: This method is not yet finished.
 		this.set(NameRef.deathday, Idynomics.simulator.timer.getCurrentTime());
 	}
 	
 	/**
-	 * return the unique identifier of the agent.
-	 * @return
+	 * @return The unique identifier of this agent.
 	 */
-	public int identity() {
-		return uid;
+	public int identity()
+	{
+		return this._uid;
 	}
 	
 	@Override
 	public ModelNode getNode() 
 	{
-		modelNode = new ModelNode(XmlLabel.agent, this);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
-		modelNode.title = String.valueOf(this.identity());
+		this._modelNode = new ModelNode(XmlLabel.agent, this);
+		this._modelNode.requirement = Requirements.ZERO_TO_MANY;
+		this._modelNode.title = String.valueOf(this.identity());
 		
-		modelNode.add(new ModelAttribute(XmlLabel.identity, 
+		this._modelNode.add(new ModelAttribute(XmlLabel.identity, 
 				String.valueOf(this.identity()), null, false ));
 		
 		// TODO: test whether adding/editing aspects works, add removing aspects
 		
 		for ( String key : this.reg().getLocalAspectNames() )
-			modelNode.add(reg().getAspectNode(key));
+			this._modelNode.add(reg().getAspectNode(key));
 		
-		modelNode.childConstructors.put(reg().new Aspect(reg()), 
+		this._modelNode.childConstructors.put(reg().new Aspect(reg()), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
-		return modelNode;
+		return this._modelNode;
 	}
 
 	@Override
 	public void setNode(ModelNode node) 
 	{
-		for(ModelNode n : node.childNodes)
+		for ( ModelNode n : node.childNodes )
 			n.constructor.setNode(n);
 	}
 
 	@Override
 	public NodeConstructor newBlank() 
 	{
-		Agent newBlank = new Agent(this.compartment);
+		Agent newBlank = new Agent(this._compartment);
 		newBlank.reg().identity = String.valueOf(newBlank.identity());
 		newBlank.registerBirth();
 		return newBlank;
