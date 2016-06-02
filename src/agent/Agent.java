@@ -80,7 +80,7 @@ public class Agent implements AspectInterface, NodeConstructor
 	public Agent(Node xmlNode, Compartment comp)
 	{
 		
-		NodeList temp = XmlHandler.getAll(xmlNode, "spawn");
+		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
 		if ( temp.getLength() > 0 )
 		{
 			/* Initiate all "extra" random agents. */
@@ -90,13 +90,13 @@ public class Agent implements AspectInterface, NodeConstructor
 				/*
 				 * Find the number of Agents to create.
 				 */
-				str = XmlHandler.obtainAttribute(temp.item(i), "number");
+				str = XmlHandler.obtainAttribute(temp.item(i), XmlRef.numberOfAgents);
 				int n = Integer.valueOf(str);
 				/*
 				 * Find the domain, i.e. the physical region of space in which
 				 * to randomly place new Agents.
 				 */
-				str = XmlHandler.obtainAttribute(temp.item(i), "domain");
+				str = XmlHandler.obtainAttribute(temp.item(i), XmlRef.spawnDomain);
 				double[] domain = Vector.dblFromString(str);
 				/* Create n - 1 agents, as one has already been made. */
 				// TODO give the agents a body shape specified in the protocol
@@ -119,40 +119,6 @@ public class Agent implements AspectInterface, NodeConstructor
 		}
 		this.init();
 	}
-	
-//	/**
-//	 * Agent xml constructor allowing for multiple randomized initial agents
-//	 * @param xmlNode
-//	 */
-//	public Agent(Node xmlNode, Compartment comp)
-//	{
-//		/* initiate all random agents */
-//		NodeList temp = XmlHandler.getAll(xmlNode, "spawn");
-//		if(temp.getLength() > 0)
-//		{
-//			for(int i = 0; i < temp.getLength(); i++)
-//			{
-//				/* TODO this is a cheat, make a standard method for this */
-//				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute(
-//						temp.item(i), "number")));
-//				double[] domain = Vector.dblFromString(XmlHandler.
-//						obtainAttribute(temp.item(i), "domain"));
-//				for(int j = 0; j < n-1; j++)
-//				{
-//					Agent extra = new Agent(xmlNode, randBody(domain));
-//					extra._compartment = comp;
-//					extra.registerBirth();
-//				}
-//				this.loadAspects(xmlNode);
-//				this.set(AspectRef.agentBody, randBody(domain));
-//			}
-//		}
-//		else
-//		{
-//			loadAspects(xmlNode);
-//		}
-//		this.init();
-//	}
 	
 	/**
 	 * \brief Quick fix to get a coccoid body at a random location in the

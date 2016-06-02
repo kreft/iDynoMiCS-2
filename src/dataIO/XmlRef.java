@@ -344,5 +344,20 @@ public class XmlRef
 	 */
 	public static String variable = "variable";
 
+	/**
+	 * TODO
+	 */
+	public static String spawnNode = "spawn";
+
+	/**
+	 * TODO
+	 */
+	public static String numberOfAgents = "number";
+
+	/**
+	 * TODO
+	 */
+	public static String spawnDomain = "domain";
+
 
 }
