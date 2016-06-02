@@ -136,7 +136,6 @@ public class ODErosenbrock extends ODEsolver
 			return;
 		/* Doubles */
 		this._absTol = absTol;
-
 		this._hMax = hMax;
 		/* Vectors */
 		ynext = Vector.zerosDbl(this.nVar());

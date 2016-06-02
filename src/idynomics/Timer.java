@@ -1,9 +1,5 @@
 package idynomics;
 
-import java.awt.event.ActionEvent;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Element;
 
 import dataIO.Log;

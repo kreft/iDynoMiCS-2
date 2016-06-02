@@ -9,7 +9,6 @@ import org.w3c.dom.Element;
 import static org.junit.Assert.assertTrue;
 
 import generalInterfaces.XMLable;
-import nodeFactory.ModelNode;
 
 /**
  * 

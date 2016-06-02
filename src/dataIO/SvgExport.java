@@ -1,7 +1,7 @@
 package dataIO;
 
-import idynomics.Idynomics;
 import dataIO.Log.Tier;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
 /**

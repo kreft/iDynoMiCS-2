@@ -16,7 +16,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import idynomics.Simulator;
 import shape.Shape;
 
 /**
