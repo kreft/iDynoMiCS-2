@@ -36,7 +36,7 @@ public class Idynomics
 	/**
 	 * Version description.
 	 */
-	public final static String version_description = "alpha build 2016.05.10";
+	public final static String version_description = "alpha build 2016.06.02";
 	
 	/**
 	 * {@code Simulator} object: there can only be one. 
