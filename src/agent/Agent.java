@@ -40,8 +40,6 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 * The compartment the agent is currently in
 	 */
 	protected Compartment compartment;
-	
-	protected ModelNode modelNode;
 
 	/**
 	 * The aspect registry
@@ -73,7 +71,6 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	{
 		this(xmlNode, new Compartment());
 	
-
 	}
 
 	/**
@@ -264,27 +261,45 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 		return uid;
 	}
 	
+	/*************************************************************************
+	 * Model Node factory
+	 ************************************************************************/
+	
+	/**
+	 * retrieve the current model node
+	 */
 	@Override
 	public ModelNode getNode() 
 	{
-		modelNode = new ModelNode(XmlLabel.agent, this);
+		/* create the agent node */
+		ModelNode modelNode = new ModelNode(XmlLabel.agent, this);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		
+		/* use the identifier as agent title in gui */
 		modelNode.title = String.valueOf(this.identity());
 		
+		/* 
+		 * store the identity as attribute, note identity cannot be overwritten
+		*/
 		modelNode.add(new ModelAttribute(XmlLabel.identity, 
 				String.valueOf(this.identity()), null, false ));
 		
-		// TODO: test whether adding/editing aspects works, add removing aspects
-		
+		// TODO:  add removing aspects
+		/* add the agents aspects as childNodes */
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
+		/* allow adding of new aspects */
 		modelNode.childConstructors.put(reg().new Aspect(reg()), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
 	}
 
+	/**
+	 * update the values of the child nodes (aspects) with the entered values
+	 * from the gui
+	 */
 	@Override
 	public void setNode(ModelNode node) 
 	{
@@ -292,6 +307,10 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 			n.constructor.setNode(n);
 	}
 
+	/**
+	 * create and return a new agent when the add agent button is hit in the
+	 * gui
+	 */
 	@Override
 	public NodeConstructor newBlank() 
 	{
@@ -301,12 +320,9 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 		return newBlank;
 	}
 
-	@Override
-	public void addChildObject(NodeConstructor childObject) 
-	{
-		// TODO 
-	}
-
+	/** 
+	 * the default xml label of this class (agent)
+	 */
 	@Override
 	public String defaultXmlTag() 
 	{

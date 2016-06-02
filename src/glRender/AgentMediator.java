@@ -185,15 +185,14 @@ public class AgentMediator implements CommandMediator {
 	
 	/**
 	 * draw gl cylinder... FIXME ok I am lost this class needs additional work
-	 * 
-	 * @param drawable TODO
-	 * @param domain TODO
-	 * @param posA Position of the one end of the cylinder.
-	 * @param posB Position of the other end of the cylinder.
-	 * @param radius Cylinder radius
+	 * @param drawable
+	 * @param domain
+	 * @param pos
+	 * @param posb
+	 * @param radius
 	 */
-	private void cylinder(GLAutoDrawable drawable, double[] domain, 
-			double[] posA, double[] posB, double radius) 
+	private void cylinder(GLAutoDrawable drawable, double[] domain, double[] pos, 
+			double[] posb, double radius) 
 	{
 		/* fineness of the cylinder */
 		double slices = 16;
@@ -202,15 +201,12 @@ public class AgentMediator implements CommandMediator {
 		 * find the closest distance between the two mass points of the rod
 		 * agent and assumes this is the correct length, preventing rods being
 		 * stretched out over the entire domain
-		 * 
-		 * Here we assume that posB will stay fixed, so we are looking for a
-		 * candidate position for the "A" end of the cylinder.
 		 */
-		List<double[]> cyclicPoints = this._shape.getCyclicPoints(posA);
+		List<double[]> cyclicPoints = _shape.getCyclicPoints(pos);
 		double[] c = cyclicPoints.get(0);
 		
 		/* distance between the two mass points */
-		double dist = Vector.distanceEuclid(posB, c);
+		double dist = Vector.distanceEuclid(posb, c);
 		double dDist;
 		/* 
 		 * find the closest 'shadow' point, use the original point if all
@@ -218,7 +214,7 @@ public class AgentMediator implements CommandMediator {
 		 */
 		for ( double[] d : cyclicPoints )
 		{
-			dDist = Vector.distanceEuclid( posB, d);
+			dDist = Vector.distanceEuclid( posb, d);
 			if ( dDist < dist)
 			{
 				c = d;
@@ -227,73 +223,66 @@ public class AgentMediator implements CommandMediator {
 		}
 		
 		/* use the middle point to place the cylinder */
-		//posA = Vector.midPoint(c, posB);
+		pos = Vector.midPoint(c, posb);
 		
 		// FIXME by lack of a better way for now draw a 3th sphere in the middle
-		//sphere(drawable, domain, posA, radius);
+		sphere(drawable, domain, pos, radius);
 		
 		// FIXME the following part is in the good direction but still problems
 		// with proper rotating and scaling
+//		
+//		/* distance between the mass points equals the lenght of the cylinder */
+//		double l = Vector.distanceEuclid(pos, posb);
+//		/* set 3th dimension to 0.0 for 2d simulations */
+//		double[] p = new double[]{ pos[0], pos[1], 
+//				(pos.length > 2 ? pos[2] : 0.0)};
+//		
+//		/* start openGL object description */
+//		gl.glLoadIdentity();
+//		
+//		/* correct position for the domain */
+//		gl.glTranslated(p[0] - domain[0] * 0.5, p[1] - domain[1] * 0.5, 
+//				p[2] - domain[2] * 0.5);
+//		
+//		/* scale the cylinder */
+//     	gl.glScaled(l, radius, radius);
+//     	
+//     	/* rotate the cylinder */
+//     	gl.glRotated(Math.toDegrees(Vector.angle(pos, posb)), 0.0, 0.0, 1.0);
+//     	
+//     	/* lighting */
+//		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
+//		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
+//		gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
+//		
+//		/* color */
+//		gl.glColor3f(rgba[0], rgba[1], rgba[2]);
+//		
+//		/* begin quad description: vertexes normals etc */
+//		gl.glBegin(GL2.GL_QUAD_STRIP);
+//
+//		/* iterate through every vertex of the cylinder */
+//		double s0, s1, c0, c1;
+//		for (int i = 0; (i <= slices); i++)
+//        {
+//			s0 = Math.sin(Math.PI / (slices/2) * i);
+//			s1 = Math.sin(Math.PI / (slices/2) * (i + 1));
+//			c0 = Math.cos(Math.PI / (slices/2) * i);
+//			c1 = Math.cos(Math.PI / (slices/2) * (i + 1));
+//
+//			gl.glNormal3d(1, s0, c0);
+//			gl.glVertex3d(1, s0, c0);
+//			gl.glNormal3d(1, s1, c1);
+//			gl.glVertex3d(1, s1, c1);
+//			gl.glNormal3d(-1, s0, c0);
+//			gl.glVertex3d(-1, s0, c0);
+//			gl.glNormal3d(-1, s1, c1);
+//			gl.glVertex3d(-1, s1, c1);
+//        }
+//		
+//		/* finalise object */
+//		gl.glEnd();
 		
-		/* distance between the mass points equals the lenght of the cylinder */
-		// TODO Isn't this the same as dist we already calculated?
-		double l = Vector.distanceEuclid(posA, posB);
-		/* set 3th dimension to 0.0 for 2d simulations */
-		double[] p = new double[] { c[0], c[1],
-				(posA.length > 2 ? c[2] : 0.0)};
-		//double[] p = new double[]{ posA[0], posA[1], 
-		//		(posA.length > 2 ? posA[2] : 0.0)};
-
-		/* start openGL object description */
-		gl.glLoadIdentity();
-
-		/* correct position for the domain */
-		gl.glTranslated(p[0] - domain[0] * 0.5,
-						p[1] - domain[1] * 0.5, 
-						p[2] - domain[2] * 0.5);
-
-		/* scale the cylinder */
-		gl.glScaled(l, radius, radius);
-
-		/* rotate the cylinder */
-		double angleRad = Vector.angle(p, posB);
-		gl.glRotated(Math.toDegrees(angleRad), 0.0, 0.0, 1.0);
-		//gl.glRotated(Math.toDegrees(Vector.cosAngle(c, posB)), 0.0, 0.0, 1.0);
-
-		/* lighting */
-		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
-		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
-		gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-
-		/* color */
-		gl.glColor3f(rgba[0], rgba[1], rgba[2]);
-
-		/* begin quad description: vertexes normals etc */
-		gl.glBegin(GL2.GL_QUAD_STRIP);
-
-		/* iterate through every vertex of the cylinder */
-		// FIXME Rob[1June2016]: I don't understand this... what are these slices?
-		double s0, s1, c0, c1;
-		for (int i = 0; (i <= slices); i++)
-		{
-			s0 = Math.sin(Math.PI / (slices/2) * i);
-			s1 = Math.sin(Math.PI / (slices/2) * (i + 1));
-			c0 = Math.cos(Math.PI / (slices/2) * i);
-			c1 = Math.cos(Math.PI / (slices/2) * (i + 1));
-
-			gl.glNormal3d(1, s0, c0);
-			gl.glVertex3d(1, s0, c0);
-			gl.glNormal3d(1, s1, c1);
-			gl.glVertex3d(1, s1, c1);
-			gl.glNormal3d(-1, s0, c0);
-			gl.glVertex3d(-1, s0, c0);
-			gl.glNormal3d(-1, s1, c1);
-			gl.glVertex3d(-1, s1, c1);
-		}
-
-		/* finalise object */
-		gl.glEnd();
-
 	}
 	
 	/**
