@@ -72,50 +72,88 @@ public class Agent implements AspectInterface, NodeConstructor
 		this.loadAspects(xmlNode);
 	}
 
+	
+	//FIXME breaks protocols with random spawn
+//	/**
+//	 * Agent xml constructor allowing for multiple randomized initial agents
+//	 * @param xmlNode
+//	 */
+//	// TODO this method needs tidying and clarification
+//	public Agent(Node xmlNode, Compartment comp)
+//	{
+//		
+//		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
+//		if ( temp.getLength() > 0 )
+//		{
+//			/* Initiate all "extra" random agents. */
+//			for ( int i = 0; i < temp.getLength(); i++ )
+//			{
+//				String str;
+//				/*
+//				 * Find the number of Agents to create.
+//				 */
+//				str = XmlHandler.obtainAttribute(temp.item(i), XmlRef.numberOfAgents);
+//				int n = Integer.valueOf(str);
+//				/*
+//				 * Find the domain, i.e. the physical region of space in which
+//				 * to randomly place new Agents.
+//				 */
+//				str = XmlHandler.obtainAttribute(temp.item(i), XmlRef.spawnDomain);
+//				double[] domain = Vector.dblFromString(str);
+//				/* Create n - 1 agents, as one has already been made. */
+//				// TODO give the agents a body shape specified in the protocol
+//				// file, rather than assuming it to be coccoid.
+//				for ( int j = 0; j < n - 1; j++ )
+//				{
+//					Agent extra = new Agent(xmlNode);
+//					extra.setCompartment(comp);
+//					extra.set(AspectRef.agentBody, this.randBody(domain));
+//					extra.registerBirth();
+//				}
+//				this.loadAspects(xmlNode);
+//				this.set(AspectRef.agentBody, this.randBody(domain));
+//			}
+//		}
+//		else
+//		{
+//			/* No "extra" agents, just this one. */
+//			this.loadAspects(xmlNode);
+//		}
+//		this.init();
+//	}
+	
 	/**
+	 * FIXME temporarily restored old method, sort out what breaks the 
+	 * tidied version
 	 * Agent xml constructor allowing for multiple randomized initial agents
 	 * @param xmlNode
 	 */
-	// TODO this method needs tidying and clarification
 	public Agent(Node xmlNode, Compartment comp)
 	{
-		
+		/* initiate all random agents */
 		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
-		if ( temp.getLength() > 0 )
+		if(temp.getLength() > 0)
 		{
-			/* Initiate all "extra" random agents. */
-			for ( int i = 0; i < temp.getLength(); i++ )
+			for(int i = 0; i < temp.getLength(); i++)
 			{
-				String str;
-				/*
-				 * Find the number of Agents to create.
-				 */
-				str = XmlHandler.obtainAttribute(temp.item(i), XmlRef.numberOfAgents);
-				int n = Integer.valueOf(str);
-				/*
-				 * Find the domain, i.e. the physical region of space in which
-				 * to randomly place new Agents.
-				 */
-				str = XmlHandler.obtainAttribute(temp.item(i), XmlRef.spawnDomain);
-				double[] domain = Vector.dblFromString(str);
-				/* Create n - 1 agents, as one has already been made. */
-				// TODO give the agents a body shape specified in the protocol
-				// file, rather than assuming it to be coccoid.
-				for ( int j = 0; j < n - 1; j++ )
+				/* TODO this is a cheat, make a standard method for this */
+				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute(
+						temp.item(i), XmlRef.numberOfAgents)));
+				double[] domain = Vector.dblFromString(XmlHandler.
+						obtainAttribute(temp.item(i), XmlRef.spawnDomain));
+				for(int j = 0; j < n-1; j++)
 				{
-					Agent extra = new Agent(xmlNode);
-					extra.setCompartment(comp);
-					extra.set(AspectRef.agentBody, this.randBody(domain));
+					Agent extra = new Agent(xmlNode, randBody(domain));
+					extra._compartment = comp;
 					extra.registerBirth();
 				}
 				this.loadAspects(xmlNode);
-				this.set(AspectRef.agentBody, this.randBody(domain));
+				this.set(AspectRef.agentBody, randBody(domain));
 			}
 		}
 		else
 		{
-			/* No "extra" agents, just this one. */
-			this.loadAspects(xmlNode);
+			loadAspects(xmlNode);
 		}
 		this.init();
 	}
