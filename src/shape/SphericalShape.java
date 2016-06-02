@@ -42,17 +42,20 @@ public abstract class SphericalShape extends PolarShape
 		 * Set up the dimensions.
 		 */
 		Dimension dim;
-		/* There is no need for an r-min boundary. */
-		dim = new Dimension();
+		/* There is no need for an r-min boundary. 
+		 * R must always be significant and non-cyclic */
+		dim = new Dimension(true, R); 
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
 		/*
 		 * Set full angular dimensions by default, can be overwritten later.
+		 * Phi must always be significant and non-cyclic.
 		 */
-		dim = new Dimension();
+		dim = new Dimension(true, PHI);
 		dim.setLength(Math.PI);
 		this._dimensions.put(PHI, dim);
-		dim = new Dimension();
+		
+		dim = new Dimension(false, THETA);
 		dim.setCyclic();
 		dim.setLength(2 * Math.PI);
 		this._dimensions.put(THETA, dim);
@@ -448,6 +451,13 @@ public abstract class SphericalShape extends PolarShape
 		rC = this.getResolutionCalculator(this._currentNeighbor, 2);
 		
 		int new_index = rC.getVoxelIndex(theta);
+
+		/* increase the index if it has exactly the same theta location as the
+		 * current coordinate */
+		if (rC.getCumulativeResolution(new_index) == theta)
+			new_index++;
+		
+		/* if we stepped onto the current coord, we went too far*/
 		if (new_index == this._currentCoord[2])
 			return false;
 		

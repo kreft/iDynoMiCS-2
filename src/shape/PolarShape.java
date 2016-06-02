@@ -23,65 +23,99 @@ public abstract class PolarShape extends Shape
 	@Override
 	public double nbhCurrDistance()
 	{
-		Tier level = Tier.DEBUG;
+		Tier level = Tier.BULK;
 		Log.out(level, "  calculating distance between voxels "+
 				Vector.toString(this._currentCoord)+" and "+
 				Vector.toString(this._currentNeighbor));
-		int nDim = this.getNumberOfDimensions();
+		
 		double distance = 0.0;
-		double temp;
-		DimName dim;
 		ResCalc rC;
-		/*
-		 * Find the average radius, as this will be useful in calculating arc
-		 * lengths of angular differences.
-		 */
-		double meanR = this.meanNbhCurrRadius();
-		/*
-		 * Loop over all dimensions, increasing the distance accordingly.
-		 */
-		for ( int i = 0; i < nDim; i++ )
+		
+		if ( this.isNhbIteratorInside() )
 		{
-			dim = this.getDimensionName(i);
-			rC = this.getResolutionCalculator(this._currentCoord, i);
-			temp = rC.getPosition(this._currentCoord[i], 0.5);
-			rC = this.getResolutionCalculator(this._currentNeighbor, i);
-			temp -= rC.getPosition(this._currentNeighbor[i], 0.5);
-			/* We need the arc length for angular dimensions. */
-			if ( dim.isAngular() )
-				temp *= meanR;
-			/* Use Pythagoras to update the distance. */
-			distance = Math.hypot(distance, temp);
+			int nDim = this.getNumberOfDimensions();
+			double temp;
+			DimName dim;
+			/*
+			 * Find the average radius, as this will be useful in calculating arc
+			 * lengths of angular differences.
+			 */
+			double meanR = this.meanNbhCurrRadius();
+			/*
+			 * Loop over all dimensions, increasing the distance accordingly.
+			 */
+			for ( int i = 0; i < nDim; i++ )
+			{
+				dim = this.getDimensionName(i);
+				rC = this.getResolutionCalculator(this._currentCoord, i);
+				temp = rC.getPosition(this._currentCoord[i], 0.5);
+				rC = this.getResolutionCalculator(this._currentNeighbor, i);
+				temp -= rC.getPosition(this._currentNeighbor[i], 0.5);
+				/* We need the arc length for angular dimensions. */
+				if ( dim.isAngular() )
+					temp *= meanR;
+				/* Use Pythagoras to update the distance. */
+				distance = Math.hypot(distance, temp);
+			}
+			Log.out(level, "    distance is "+distance);
+			return distance;
 		}
-		Log.out(level, "    distance is "+distance);
-		return distance;
+		if ( this.isNbhIteratorValid() )
+		{
+			/* If the neighbor is on a defined boundary, use the current 
+				coord's resolution along the neighbors direction. */
+			int i = this.getDimensionIndex(this._nbhDimName);
+			rC = this.getResolutionCalculator(this._currentNeighbor, i);
+			distance = rC.getResolution(this._currentCoord[i]);
+			Log.out(level, "    distance is "+distance);
+			return distance;
+		}
+		/* If the neighbor is on an undefined boundary, return infinite
+			distance (this should never happen!) */
+		Log.out(level, "    undefined distance!");
+		return Double.POSITIVE_INFINITY;
 	}
 	
 	@Override
 	public double nbhCurrSharedArea()
 	{
+		Tier level = Tier.BULK;
 		double area = 1.0;
-		double meanR = this.meanNbhCurrRadius();
-		int nDim = this.getNumberOfDimensions();
-		ResCalc rC;
 		double temp;
-		int index = 0;
-		for ( DimName dim : this.getDimensionNames() )
+		DimName dimName;
+		double meanR = this.meanNbhCurrRadius();
+		Log.out(level, "calculated meanR "+ meanR +" for current coord"
+				+ Arrays.toString(this._currentCoord) + " and nhb "
+				+ Arrays.toString(this._currentNeighbor));
+		for ( int i = 0; i < this.getNumberOfDimensions(); ++i )
 		{
-			if ( dim.equals(this._nbhDimName) 
-					|| !this.getDimension(dim).isSignificant() )
+			/* continue if the neighbor is moving along dimension i  */
+			if (Math.abs(this._currentCoord[i] - this._currentNeighbor[i]) == 1)
 				continue;
+			dimName = this.getDimensionName(i);
+			/* we are on a defined boundary, so take the length of the
+			 * current coordinate */
+			if ((this._whereIsNbh == DEFINED || this._whereIsNbh == CYCLIC)
+					&& this._nbhDimName == dimName)
+				temp = getResolutionCalculator(this._currentCoord, i)
+							.getResolution(this._currentCoord[i]);
+			else
+				//TODO: security if on undefined boundary?
+				temp = this.getNbhSharedLength(i);
 			
-			index = this.getDimensionIndex(dim);
-			rC = this.getResolutionCalculator(this._currentCoord, index);
-			
-			temp = ( index >= nDim ) ? rC.getResolution(0) :
-										this.getNbhSharedLength(index);
 			/* We need the arc length for angular dimensions. */
-			if ( dim.isAngular() )
+			if ( dimName.isAngular() )
 				temp *= meanR;
+			/* this can happen in the sphere when we overlap only in one polar
+			 * dimension 
+			 */
+			if (temp==0) 
+				continue;
+			Log.out(level, " Shared length for dim "+this.getDimensionName(i)
+					+" is " + temp);
 			area *= temp;
 		}
+		Log.out(level, " returning area "+area);
 		return area;
 	}
 	
@@ -91,8 +125,27 @@ public abstract class PolarShape extends Shape
 	 */
 	private double meanNbhCurrRadius()
 	{
+		/* 
+		 * the average radius is the origin radius of the current coordinate if 
+		 * the neighbor's direction is towards negative.
+		 * If the direction is positive, the average radius is the upper
+		 * radius of the current coordinate.
+		 */
 		int i = this.getDimensionIndex(R);
-		return 0.5 * (this._currentCoord[i] + this._currentNeighbor[i]);
+		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
+		if (this.isNhbIteratorInside()){
+			if (this._currentCoord[i] > this._currentNeighbor[i])
+				return rC.getCumulativeResolution(this._currentCoord[i] - 1);
+			if (this._currentCoord[i] == this._currentNeighbor[i])
+				return rC.getPosition(this._currentCoord[i], 0.5);
+		}
+		if (this.isNbhIteratorValid())
+			/* If the neighbor is inside with same radius as the current coord 
+			 * or on a defined boundary, return the current coordinates radius*/
+			return rC.getCumulativeResolution(this._currentCoord[i]);
+		/* If the neighbor is on an undefined boundary, return NaN radius
+		(this should never happen!) */
+		return Double.NaN;
 	}
 	
 	/**
@@ -136,6 +189,13 @@ public abstract class PolarShape extends Shape
 		double cur_min = rC.getCumulativeResolution(this._currentCoord[1] - 1);
 		rC = this.getResolutionCalculator(this._currentNeighbor, 1);
 		int new_index = rC.getVoxelIndex(cur_min);
+		/* increase the index if it has exactly the same theta location as the
+		 * current coordinate */
+		if (rC.getCumulativeResolution(new_index) == cur_min)
+			new_index++;
+		/* if we stepped onto the current coord, we went too far*/
+		if (new_index == this._currentCoord[1])
+			return false;
 		this._currentNeighbor[1] = new_index;
 		/* we are always in the same z-slice as the current coordinate when
 		 * calling this method, so _nbhDimName can not be Z. 

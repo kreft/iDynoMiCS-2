@@ -1405,7 +1405,7 @@ public abstract class Shape implements
 		rC = this.getResolutionCalculator(this._currentNeighbor, index);
 		nbhMin = rC.getCumulativeResolution(this._currentNeighbor[index] - 1);
 		nbhMax = rC.getCumulativeResolution(this._currentNeighbor[index]);
-		/* Find the overlap. */
+		/* Find the overlap. */		
 		return ExtraMath.overlap(curMin, curMax, nbhMin, nbhMax);
 	}
 	

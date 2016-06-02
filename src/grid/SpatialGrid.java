@@ -3,6 +3,10 @@ package grid;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import javax.rmi.CORBA.Tie;
+
+import dataIO.Log.Tier;
+import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlLabel;
 import linearAlgebra.Array;
@@ -80,6 +84,10 @@ public class SpatialGrid implements NodeConstructor
 	protected Shape _shape;
 	
 	protected String _name;
+	
+	protected final Tier GET_VALUE_LEVEL = Tier.BULK;
+	protected final Tier SET_VALUE_LEVEL = Tier.BULK;
+	protected final Tier GET_FLUX_WITH_NHB_LEVEL = Tier.BULK;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -167,11 +175,18 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public double getValueAt(ArrayType type, int[] coord)
 	{
-		if ( this._array.containsKey(type) )
+		Log.out(SET_VALUE_LEVEL, "trying to get value at coordinate "
+				+ Arrays.toString(coord) + " in "+ type);
+		if ( this._array.containsKey(type) ){
+			Log.out(GET_VALUE_LEVEL, "   returning " 
+					+ this._array.get(type)[coord[0]][coord[1]][coord[2]]);
 			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
-		else
+		}
+		else{
 			//TODO: safety?
+			Log.out(GET_VALUE_LEVEL, "   returning " + Double.NaN);
 			return Double.NaN;
+		}
 	}
 	
 	/**
@@ -183,9 +198,10 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public void setValueAt(ArrayType type, int[] coord, double value)
 	{
+		Log.out(SET_VALUE_LEVEL, "trying to set value at coordinate "
+				+ Arrays.toString(coord) + " in "+ type + " to "+value);
 		if ( this._array.containsKey(type) )
 			this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
-		// TODO safety?
 	}
 	
 	/**
@@ -197,6 +213,8 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public void addValueAt(ArrayType type, int[] coord, double value)
 	{
+		Log.out(SET_VALUE_LEVEL, "trying to add " + value + " at coordinate "
+				+ Arrays.toString(coord) + " in "+ type);
 		if ( this._array.containsKey(type) )
 			this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
 		// TODO safety?
@@ -211,6 +229,9 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public void timesValueAt(ArrayType type, int[] coord, double value)
 	{
+		Log.out(SET_VALUE_LEVEL, "trying to multiply with " + value 
+				+ " at coordinate "
+				+ Arrays.toString(coord) + " in "+ type);
 		if ( this._array.containsKey(type) )
 			this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
 		// TODO safety?
@@ -419,7 +440,6 @@ public class SpatialGrid implements NodeConstructor
 	public double getFluxWithNeighbor(String soluteName)
 	{
 		Shape shape = this._shape;
-		// FIXME an invalid neighbor is not the same as one on the boundary!!!
 		if ( shape.isNhbIteratorInside() )
 		{
 			/*
@@ -439,13 +459,19 @@ public class SpatialGrid implements NodeConstructor
 			 */
 			// TODO Rob: I need to change this
 			out /= shape.nbhCurrSharedArea();
+			Log.out(GET_FLUX_WITH_NHB_LEVEL, "flux with nbh " 
+					+ Arrays.toString(this._shape.nbhIteratorCurrent())
+					+ " is "+ out);
 			return out;
 		}
 		else
 		{
+			/* throws null pointer if the neighbor is invalid */
 			double flux = shape.nbhIteratorOutside()
 							.getGridMethod(soluteName).getBoundaryFlux(this);
-			//System.out.println("method: "+flux); //bughunt
+			Log.out(GET_VALUE_LEVEL, "flux with boundary nbh " 
+							+ Arrays.toString(this._shape.nbhIteratorCurrent())
+							+ " is "+flux);
 			return flux;
 		}
 	}
