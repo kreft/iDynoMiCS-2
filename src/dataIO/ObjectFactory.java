@@ -163,7 +163,7 @@ public class ObjectFactory
 	public static Object loadObject(Element s, String value, String classType)
 	{
 		String sType = s.getAttribute(classType);
-		String aType = s.getAttribute(XMLRef.typeAttribute);
+		String aType = s.getAttribute(XmlRef.typeAttribute);
 		sType = Helper.firstToUpper(sType);
 		switch ( aType )
 		{
@@ -275,7 +275,7 @@ public class ObjectFactory
 	 */
 	public static Object loadObject(Element s)
 	{
-		return loadObject(s, XMLRef.valueAttribute, XMLRef.classAttribute);
+		return loadObject(s, XmlRef.valueAttribute, XmlRef.classAttribute);
 	}
 
 	
@@ -321,7 +321,7 @@ public class ObjectFactory
 	{
 		NodeList items;
 		LinkedList<Object> temp = new LinkedList<Object>();
-		items = XmlHandler.getAll(s, XMLRef.item);
+		items = XmlHandler.getAll(s, XmlRef.item);
 		for ( int i = 0; i < items.getLength(); i++ )
 			temp.add((Object) loadObject((Element) items.item(i)));
 		return temp;
@@ -337,7 +337,7 @@ public class ObjectFactory
 		NodeList items;
 		LinkedList<Object> temp = new LinkedList<Object>();
 		items = XmlHandler.getAll(ObjectFactory.stringToNode(s), 
-				XMLRef.item);
+				XmlRef.item);
 		for ( int i = 0; i < items.getLength(); i++ )
 			temp.add((Object) loadObject((Element) items.item(i)));
 		return temp;
@@ -352,13 +352,13 @@ public class ObjectFactory
 	{
 		NodeList items;
 		HashMap<Object,Object> hMap = new HashMap<Object,Object>();
-		items = XmlHandler.getAll(s, XMLRef.item);
+		items = XmlHandler.getAll(s, XmlRef.item);
 		for ( int i = 0; i < items.getLength(); i++ )
 		{
 			hMap.put((Object) loadObject((Element) items.item(i), 
-					XMLRef.keyAttribute , XMLRef.keyTypeAttribute ), 
+					XmlRef.keyAttribute , XmlRef.keyTypeAttribute ), 
 					(Object) loadObject((Element) items.item(i), 
-					XMLRef.valueAttribute, XMLRef.classAttribute ));
+					XmlRef.valueAttribute, XmlRef.classAttribute ));
 		}
 		return hMap;
 	}
@@ -372,11 +372,11 @@ public class ObjectFactory
 	{
 		NodeList items;
 		HashMap<Object,Object> hMap = new HashMap<Object,Object>();
-		items = XmlHandler.getAll(ObjectFactory.stringToNode(s), XMLRef.item);
+		items = XmlHandler.getAll(ObjectFactory.stringToNode(s), XmlRef.item);
 		for ( int i = 0; i < items.getLength(); i++ )
 		{
 			hMap.put((Object) loadObject((Element) items.item(i), 
-					XMLRef.keyAttribute , XMLRef.keyTypeAttribute ), 
+					XmlRef.keyAttribute , XmlRef.keyTypeAttribute ), 
 					(Object) loadObject((Element) items.item(i)));
 		}
 		return hMap;

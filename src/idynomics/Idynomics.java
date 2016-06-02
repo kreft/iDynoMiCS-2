@@ -17,7 +17,7 @@ import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 
 /**
  * \brief TODO
@@ -122,7 +122,7 @@ public class Idynomics
 		Idynomics.global.protocolFile = protocolPath;
 		Idynomics.global.xmlDoc = XmlHandler.loadDocument(protocolPath);
 		
-		Element simElem = XmlHandler.loadUnique(Idynomics.global.xmlDoc, XMLRef.simulation);
+		Element simElem = XmlHandler.loadUnique(Idynomics.global.xmlDoc, XmlRef.simulation);
 		/*
 		 * Initialise the global parameters.
 		 */

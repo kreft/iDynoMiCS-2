@@ -8,7 +8,7 @@ import org.w3c.dom.Node;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 import idynomics.Idynomics;
 import utility.Helper;
 
@@ -108,15 +108,15 @@ public interface XMLable
 	public static Object getNewInstance(Node xmlNode)
 	{
 		Element E = (Element) xmlNode;
-		if ( ! E.hasAttribute(XMLRef.classAttribute) )
+		if ( ! E.hasAttribute(XmlRef.classAttribute) )
 			Log.out(Tier.CRITICAL, "No className defined in: "+E.getTagName());
-		else if ( ! E.hasAttribute(XMLRef.packageAttribute) )
+		else if ( ! E.hasAttribute(XmlRef.packageAttribute) )
 		{
 			return getNewInstance(xmlNode, 
-									E.getAttribute(XMLRef.classAttribute));
+									E.getAttribute(XmlRef.classAttribute));
 		}
-		return getNewInstance(E.getAttribute(XMLRef.classAttribute) , 
-									E.getAttribute(XMLRef.packageAttribute));
+		return getNewInstance(E.getAttribute(XmlRef.classAttribute) , 
+									E.getAttribute(XmlRef.packageAttribute));
 	}
 	
 	/**

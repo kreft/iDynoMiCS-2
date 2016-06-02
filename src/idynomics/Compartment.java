@@ -11,7 +11,7 @@ import agent.Agent;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
@@ -133,8 +133,8 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		/*
 		 * Set up the shape.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XMLRef.compartmentShape);
-		str = XmlHandler.obtainAttribute(elem, XMLRef.classAttribute);
+		elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
+		str = XmlHandler.obtainAttribute(elem, XmlRef.classAttribute);
 		this.setShape( (Shape) Shape.getNewInstance(str) );
 		this._shape.init( elem );
 		
@@ -143,29 +143,29 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		 * NOTE: wouldn't we want to pass initial grid values to? It would also
 		 * be possible for the grids to be Xmlable
 		 */
-		NodeList solutes = XmlHandler.getAll(xmlElem, XMLRef.solute);
+		NodeList solutes = XmlHandler.getAll(xmlElem, XmlRef.solute);
 		
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
 			Element soluteE = (Element) solutes.item(i);
 			String soluteName = XmlHandler.obtainAttribute(soluteE, 
-					XMLRef.nameAttribute);
+					XmlRef.nameAttribute);
 			String conc = XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					XMLRef.concentration);
+					XmlRef.concentration);
 			this.addSolute(soluteName);
 			this.getSolute(soluteName).setTo(ArrayType.CONCN, conc);
 			
 
 			SpatialGrid myGrid = this.getSolute(str);
 			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
-					XMLRef.voxel);
+					XmlRef.voxel);
 			for (int j = 0; j < voxelvalues.getLength(); j++)
 			{
 				myGrid.setValueAt(ArrayType.CONCN, Vector.intFromString(
 						XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
-						, XMLRef.coordinates) ) , Double.valueOf( XmlHandler
+						, XmlRef.coordinates) ) , Double.valueOf( XmlHandler
 						.obtainAttribute((Element) voxelvalues.item(j), 
-						XMLRef.valueAttribute) ));
+						XmlRef.valueAttribute) ));
 			}
 		}
 			
@@ -175,17 +175,17 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		/*
 		 * Give it extracellular reactions.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XMLRef.reactions);
+		elem = XmlHandler.loadUnique(xmlElem, XmlRef.reactions);
 		Element rElem;
 		Reaction reac;
 		if ( elem != null )
 		{
-			NodeList reactions = XmlHandler.getAll(elem, XMLRef.reaction);
+			NodeList reactions = XmlHandler.getAll(elem, XmlRef.reaction);
 			for ( int i = 0; i < reactions.getLength(); i++ )
 			{
 				rElem = (Element) reactions.item(i);
 				/* Name of the solute, e.g. glucose */
-				str = XmlHandler.obtainAttribute(rElem, XMLRef.nameAttribute);
+				str = XmlHandler.obtainAttribute(rElem, XmlRef.nameAttribute);
 				/* Construct and intialise the reaction. */
 				reac = (Reaction) Reaction.getNewInstance(rElem);
 				reac.init(rElem);
@@ -197,7 +197,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		/*
 		 * Read in agents.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XMLRef.agents);
+		elem = XmlHandler.loadUnique(xmlElem, XmlRef.agents);
 		if ( elem == null )
 		{
 			Log.out(Tier.EXPRESSIVE,
@@ -205,7 +205,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		}
 		else
 		{
-			NodeList agents = elem.getElementsByTagName(XMLRef.agent);
+			NodeList agents = elem.getElementsByTagName(XmlRef.agent);
 			this.agents.readAgents(agents, this);
 			this.agents.setAllAgentsCompartment(this);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
@@ -215,7 +215,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		/*
 		 * Read in process managers.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XMLRef.processManagers);
+		elem = XmlHandler.loadUnique(xmlElem, XmlRef.processManagers);
 		Element procElem;
 		if ( elem == null )
 		{
@@ -225,14 +225,14 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		else
 		{
 			
-			NodeList processNodes = elem.getElementsByTagName(XMLRef.process);
+			NodeList processNodes = elem.getElementsByTagName(XmlRef.process);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 									" initialised with process managers:");
 			for ( int i = 0; i < processNodes.getLength(); i++ )
 			{
 				procElem = (Element) processNodes.item(i);
 				str = XmlHandler.gatherAttribute(procElem,
-													XMLRef.nameAttribute);
+													XmlRef.nameAttribute);
 				Log.out(Tier.EXPRESSIVE, "\t"+str);
 				this.addProcessManager(ProcessManager.getNewInstance(procElem) );
 			}
@@ -470,7 +470,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	{
 
 		/* the compartment node */
-		ModelNode modelNode = new ModelNode(XMLRef.compartment, this);
+		ModelNode modelNode = new ModelNode(XmlRef.compartment, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 
 		/* set title for gui interface */
@@ -478,7 +478,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 			modelNode.title = this.getName();
 		
 		/* add the name attribute */
-		modelNode.add( new ModelAttribute(XMLRef.nameAttribute, 
+		modelNode.add( new ModelAttribute(XmlRef.nameAttribute, 
 				this.getName(), null, true ) );
 		
 		/* add the shape if it exists */
@@ -509,7 +509,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	public ModelNode getAgentsNode()
 	{
 		/* the agents node */
-		ModelNode modelNode = new ModelNode( XMLRef.agents, this);
+		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
 		/* add the agent childConstrutor, allows adding of additional agents */
@@ -531,7 +531,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	public ModelNode getProcessNode()
 	{
 		/* the process managers node */
-		ModelNode modelNode = new ModelNode(XMLRef.processManagers, this);
+		ModelNode modelNode = new ModelNode(XmlRef.processManagers, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
 		/* 
@@ -555,7 +555,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	public ModelNode getSolutesNode()
 	{
 		/* the solutes node */
-		ModelNode modelNode = new ModelNode(XMLRef.solutes, this);
+		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 
 		/* 
@@ -578,7 +578,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		if ( node.tag == defaultXmlTag() )
 		{
 			/* update the name */
-			this.name = node.getAttribute( XMLRef.nameAttribute ).value;
+			this.name = node.getAttribute( XmlRef.nameAttribute ).value;
 			
 			/* set the child nodes */
 			for( ModelNode n : node.childNodes )
@@ -620,7 +620,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	@Override
 	public String defaultXmlTag() 
 	{
-		return XMLRef.compartment;
+		return XmlRef.compartment;
 	}
 
 	@Override

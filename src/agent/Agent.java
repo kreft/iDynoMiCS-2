@@ -7,7 +7,7 @@ import aspect.AspectReg;
 import aspect.AspectRef;
 import dataIO.XmlHandler;
 import dataIO.Log;
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -177,14 +177,14 @@ public class Agent implements AspectInterface, NodeConstructor
 
 	public Agent(String species, Compartment comp)
 	{
-		set(XMLRef.species,species);
+		set(XmlRef.species,species);
 		this._compartment = comp;
 		init();
 	}
 
 	public Agent(String species, Body body, Compartment comp)
 	{
-		set(XMLRef.species, species);
+		set(XmlRef.species, species);
 		this.set(AspectRef.agentBody, body);
 		this._compartment = comp;
 		init();
@@ -208,9 +208,9 @@ public class Agent implements AspectInterface, NodeConstructor
 	public void init()
 	{
 		String species;
-		if ( this.isAspect(XMLRef.species) )
+		if ( this.isAspect(XmlRef.species) )
 		{
-			species = this.getString(XMLRef.species);
+			species = this.getString(XmlRef.species);
 			Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
 		}
 		else
@@ -343,7 +343,7 @@ public class Agent implements AspectInterface, NodeConstructor
 	public ModelNode getNode() 
 	{
 		/* create the agent node */
-		ModelNode modelNode = new ModelNode(XMLRef.agent, this);
+		ModelNode modelNode = new ModelNode(XmlRef.agent, this);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		
 		/* use the identifier as agent title in gui */
@@ -352,7 +352,7 @@ public class Agent implements AspectInterface, NodeConstructor
 		/* 
 		 * store the identity as attribute, note identity cannot be overwritten
 		*/
-		modelNode.add(new ModelAttribute(XMLRef.identity, 
+		modelNode.add(new ModelAttribute(XmlRef.identity, 
 				String.valueOf(this.identity()), null, false ));
 		
 		// TODO:  add removing aspects
@@ -399,7 +399,7 @@ public class Agent implements AspectInterface, NodeConstructor
 	@Override
 	public String defaultXmlTag() 
 	{
-		return XMLRef.agent;
+		return XmlRef.agent;
 	}
 
 

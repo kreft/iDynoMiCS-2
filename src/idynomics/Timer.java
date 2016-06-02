@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 import generalInterfaces.XMLable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -52,7 +52,7 @@ public class Timer implements XMLable, NodeConstructor
 	
 	public String getName()
 	{
-		return XMLRef.timer;
+		return XmlRef.timer;
 	}
 	
 	public void init(Element xmlNode)
@@ -61,13 +61,13 @@ public class Timer implements XMLable, NodeConstructor
 		String s;
 		double d;
 		/* Get the time step. */
-		s = XmlHandler.gatherAttribute(xmlNode, XMLRef.timerStepSize);
+		s = XmlHandler.gatherAttribute(xmlNode, XmlRef.timerStepSize);
 		s = Helper.obtainInput(s, "Timer time step size");
 		d = Double.valueOf(s);
 		// TODO safety
 		setTimeStepSize(d);
 		/* Get the total time span. */
-		s = XmlHandler.gatherAttribute(xmlNode, XMLRef.endOfSimulation);
+		s = XmlHandler.gatherAttribute(xmlNode, XmlRef.endOfSimulation);
 		s = Helper.obtainInput(s, "End of simulation");
 		d = Double.valueOf(s);
 		// TODO safety
@@ -164,15 +164,15 @@ public class Timer implements XMLable, NodeConstructor
 	public ModelNode getNode() {
 
 		/* the timer node */
-		ModelNode modelNode = new ModelNode(XMLRef.timer, this);
+		ModelNode modelNode = new ModelNode(XmlRef.timer, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
 		/* time step size */
-		modelNode.add(new ModelAttribute(XMLRef.timerStepSize, 
+		modelNode.add(new ModelAttribute(XmlRef.timerStepSize, 
 				String.valueOf(this._timerStepSize), null, true ));
 		
 		/* end of simulation */
-		modelNode.add(new ModelAttribute(XMLRef.endOfSimulation, 
+		modelNode.add(new ModelAttribute(XmlRef.endOfSimulation, 
 				String.valueOf(this._endOfSimulation), null, true ));
 		
 		return modelNode;
@@ -187,11 +187,11 @@ public class Timer implements XMLable, NodeConstructor
 	{
 		/* time step size */
 		this.setTimeStepSize( Double.valueOf( 
-				node.getAttribute( XMLRef.timerStepSize ).value ));
+				node.getAttribute( XmlRef.timerStepSize ).value ));
 		
 		/* end of simulation */
 		this.setEndOfSimulation( Double.valueOf( 
-				node.getAttribute( XMLRef.endOfSimulation ).value ));
+				node.getAttribute( XmlRef.endOfSimulation ).value ));
 	}
 	
 	/**
@@ -209,6 +209,6 @@ public class Timer implements XMLable, NodeConstructor
 	 */
 	@Override
 	public String defaultXmlTag() {
-		return XMLRef.timer;
+		return XmlRef.timer;
 	}
 }

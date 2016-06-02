@@ -12,7 +12,7 @@ import org.w3c.dom.NodeList;
 import agent.Agent;
 import boundary.agent.AgentMethod;
 import boundary.grid.GridMethod;
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import utility.Helper;
@@ -70,18 +70,18 @@ public abstract class Boundary implements CanPrelaunchCheck, XMLable
 		Element xmlGrid;
 		String variableName, className;
 		GridMethod aGridMethod;
-		NodeList gridNodes = xmlElem.getElementsByTagName(XMLRef.gridMethod);
+		NodeList gridNodes = xmlElem.getElementsByTagName(XmlRef.gridMethod);
 		for ( int i = 0; i < gridNodes.getLength(); i++ )
 		{
 			xmlGrid = (Element) gridNodes.item(i);
-			className = xmlGrid.getAttribute(XMLRef.classAttribute);
+			className = xmlGrid.getAttribute(XmlRef.classAttribute);
 			try
 			{
 				aGridMethod = (GridMethod) Class.forName(className).newInstance();
 				aGridMethod.init(xmlGrid);
-				if ( xmlGrid.hasAttribute(XMLRef.variable) )
+				if ( xmlGrid.hasAttribute(XmlRef.variable) )
 				{
-					variableName = xmlGrid.getAttribute(XMLRef.variable);
+					variableName = xmlGrid.getAttribute(XmlRef.variable);
 					this._gridMethods.put(variableName, aGridMethod);
 				}
 				else
@@ -110,7 +110,7 @@ public abstract class Boundary implements CanPrelaunchCheck, XMLable
 	 */
 	public String getName()
 	{
-		return XMLRef.dimensionBoundary;
+		return XmlRef.dimensionBoundary;
 		// TODO return dimension and min/max?
 	}
 	

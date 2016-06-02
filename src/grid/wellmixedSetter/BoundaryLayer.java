@@ -14,7 +14,7 @@ import agent.Agent;
 import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import shape.Shape;
@@ -50,14 +50,14 @@ public class BoundaryLayer implements IsWellmixedSetter
 		// TODO Check this, maybe making use of XMLable interface
 		Element elem = (Element) xmlNode;
 		String temp;
-		if ( elem.hasAttribute(XMLRef.valueAttribute) )
+		if ( elem.hasAttribute(XmlRef.valueAttribute) )
 		{
-			temp = elem.getAttribute(XMLRef.valueAttribute);
+			temp = elem.getAttribute(XmlRef.valueAttribute);
 			this._value = Double.parseDouble(temp);
 		}
-		if ( elem.hasAttribute(XMLRef.layerThickness) )
+		if ( elem.hasAttribute(XmlRef.layerThickness) )
 		{
-			temp = elem.getAttribute(XMLRef.layerThickness);
+			temp = elem.getAttribute(XmlRef.layerThickness);
 			this._layerThickness = Double.parseDouble(temp);
 		}
 		else

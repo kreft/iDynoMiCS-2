@@ -11,7 +11,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dataIO.XmlHandler;
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -93,17 +93,17 @@ public class ExpressionB extends Component implements NodeConstructor
 		Element elem = (Element) xmlNode;
 		
 		HashMap<String,Double> constantsMap = new HashMap<String,Double>();
-		NodeList constants = XmlHandler.getAll(elem, XMLRef.constant);
+		NodeList constants = XmlHandler.getAll(elem, XmlRef.constant);
 		for ( int i = 0; i < constants.getLength(); i++ )
 		{
 			constantsMap.put(XmlHandler.gatherAttribute(constants.item(i), 
-					XMLRef.nameAttribute),
+					XmlRef.nameAttribute),
 					Double.valueOf(XmlHandler.gatherAttribute(constants.item(i),
-					XMLRef.valueAttribute)));
+					XmlRef.valueAttribute)));
 		}
 				
 		this._expression = XmlHandler.obtainAttribute(elem, 
-				XMLRef.valueAttribute).replaceAll("\\s+","");
+				XmlRef.valueAttribute).replaceAll("\\s+","");
 		this._constants = constantsMap;
 		this._a = build(_expression, constantsMap);
 	}
@@ -489,10 +489,10 @@ public class ExpressionB extends Component implements NodeConstructor
 
 	@Override
 	public ModelNode getNode() {
-		ModelNode modelNode = new ModelNode(XMLRef.expression, 
+		ModelNode modelNode = new ModelNode(XmlRef.expression, 
 				this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
-		modelNode.add(new ModelAttribute(XMLRef.valueAttribute, this._expression, null, true));
+		modelNode.add(new ModelAttribute(XmlRef.valueAttribute, this._expression, null, true));
 		
 		for (String con : this._constants.keySet() )
 			modelNode.add(getConstantNode(con));
@@ -501,19 +501,19 @@ public class ExpressionB extends Component implements NodeConstructor
 	
 	public ModelNode getConstantNode(String constant)
 	{
-		ModelNode modelNode = new ModelNode(XMLRef.constant, 
+		ModelNode modelNode = new ModelNode(XmlRef.constant, 
 				this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 		
-		modelNode.add(new ModelAttribute(XMLRef.nameAttribute, constant, null, true));
-		modelNode.add(new ModelAttribute(XMLRef.valueAttribute, String.valueOf(this._constants.get(constant)), null, true));
+		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, constant, null, true));
+		modelNode.add(new ModelAttribute(XmlRef.valueAttribute, String.valueOf(this._constants.get(constant)), null, true));
 		return modelNode;
 	}
 
 	@Override
 	public void setNode(ModelNode node) 
 	{
-		this._expression = node.getAttribute(XMLRef.valueAttribute).value;
+		this._expression = node.getAttribute(XmlRef.valueAttribute).value;
 		this._a = build(_expression, _constants);
 	}
 
@@ -532,6 +532,6 @@ public class ExpressionB extends Component implements NodeConstructor
 	@Override
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
-		return XMLRef.expression;
+		return XmlRef.expression;
 	}
 }

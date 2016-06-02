@@ -6,7 +6,7 @@ package grid.wellmixedSetter;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
@@ -30,9 +30,9 @@ public class AllSameMixing implements IsWellmixedSetter
 	{
 		// TODO Check this, maybe making use of XMLable interface
 		Element elem = (Element) xmlNode;
-		if ( elem.hasAttribute(XMLRef.valueAttribute) )
+		if ( elem.hasAttribute(XmlRef.valueAttribute) )
 			this._value = Double.parseDouble(elem.getAttribute(
-					XMLRef.valueAttribute));
+					XmlRef.valueAttribute));
 	}
 	
 	/**

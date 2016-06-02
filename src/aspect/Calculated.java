@@ -5,7 +5,7 @@ import generalInterfaces.XMLable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
-import dataIO.XMLRef;
+import dataIO.XmlRef;
 
 /**
  * Calculated/Secondary states contain a description of how secondary states 
@@ -85,7 +85,7 @@ public abstract class Calculated implements Copyable, XMLable
 		if (input != "")
 			this.setInput(input);
 		
-		String fields = XmlHandler.gatherAttribute(xmlElem, XMLRef.fields);
+		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
 		String[] f = null;
 		if (fields != "")
 		{

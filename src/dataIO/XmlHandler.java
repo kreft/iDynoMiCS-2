@@ -255,8 +255,8 @@ public class XmlHandler
 	{
 		try {
 			Field f = c.getDeclaredField(
-					element.getAttribute(XMLRef.nameAttribute));
-			f.set(c, element.getAttribute(XMLRef.valueAttribute));
+					element.getAttribute(XmlRef.nameAttribute));
+			f.set(c, element.getAttribute(XmlRef.valueAttribute));
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -266,7 +266,7 @@ public class XmlHandler
 			// param
 			System.err.println("Warning: attempting to set non existend"
 					+ " general paramater: " + 
-					element.getAttribute(XMLRef.nameAttribute) );
+					element.getAttribute(XmlRef.nameAttribute) );
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -356,7 +356,7 @@ public class XmlHandler
 	public static void display(String prefix, Element element)
 	{
 		String ln = " " + element.getTagName() + " " 
-				+ element.getAttribute(XMLRef.nameAttribute);
+				+ element.getAttribute(XmlRef.nameAttribute);
 		if (prefix == null) 
 			System.out.println(ln);
 		else
