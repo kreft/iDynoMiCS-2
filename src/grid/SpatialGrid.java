@@ -8,7 +8,7 @@ import javax.rmi.CORBA.Tie;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.ObjectFactory;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import nodeFactory.ModelAttribute;
@@ -540,15 +540,15 @@ public class SpatialGrid implements NodeConstructor
 
 	@Override
 	public ModelNode getNode() {
-		ModelNode modelNode = new ModelNode(XmlLabel.solute, this);
+		ModelNode modelNode = new ModelNode(XmlRef.solute, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 		
 		modelNode.title = this._name;
 		
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 				this._name, null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlLabel.concentration, 
+		modelNode.add(new ModelAttribute(XmlRef.concentration, 
 //				arrayAsText(ArrayType.CONCN), null, true ));
 				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)), null, true ));
 		

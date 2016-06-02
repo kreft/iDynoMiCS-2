@@ -136,9 +136,7 @@ public class ODErosenbrock extends ODEsolver
 			return;
 		/* Doubles */
 		this._absTol = absTol;
-		// NOTE Bas [12.02.16] seems ODErosenbrock does not like absTol < hMax
-		// TODO Rob [15Feb2016]: any more info? Website URL?
-		this._hMax = ( absTol > hMax ? hMax : absTol);
+		this._hMax = hMax;
 		/* Vectors */
 		ynext = Vector.zerosDbl(this.nVar());
 		dYdT  = Vector.zerosDbl(this.nVar());

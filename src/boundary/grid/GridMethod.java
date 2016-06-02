@@ -3,16 +3,8 @@
  */
 package boundary.grid;
 
-import java.awt.event.ActionEvent;
-import java.util.LinkedList;
-import java.util.List;
-
 import generalInterfaces.XMLable;
 import grid.SpatialGrid;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelMaker;
-import nodeFactory.ModelNode;
 import utility.Helper;
 
 /**
@@ -20,7 +12,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class GridMethod implements IsSubmodel, XMLable
+public abstract class GridMethod implements XMLable
 {
 	/**
 	 * Interface detailing what should be done at a boundary. Typical examples
@@ -38,16 +30,17 @@ public abstract class GridMethod implements IsSubmodel, XMLable
 		return "Grid Boundary";
 	}
 	
-	public List<InputSetter> getRequiredInputs()
-	{
-		// TODO quick fix, do properly
-		return new LinkedList<InputSetter>();
-	}
-	
-	public void acceptInput(String name, Object input)
-	{
-		// TODO quick fix, do properly
-	}
+	//FIXME to be replaced by modelnode paradigm?
+//	public List<InputSetter> getRequiredInputs()
+//	{
+//		// TODO quick fix, do properly
+//		return new LinkedList<InputSetter>();
+//	}
+//	
+//	public void acceptInput(String name, Object input)
+//	{
+//		// TODO quick fix, do properly
+//	}
 	
 	/*************************************************************************
 	 * XML-ABLE
@@ -58,13 +51,7 @@ public abstract class GridMethod implements IsSubmodel, XMLable
 		return (GridMethod) XMLable.getNewInstance(className, 
 									"boundary.grid.GridMethodLibrary$");
 	}
-	
-	// TODO required for xmlable interface
-	public ModelNode getNode()
-	{
-		return null;
-	}
-	
+		
 	/*************************************************************************
 	 * USEFUL SUBMETHODS
 	 ************************************************************************/
@@ -92,37 +79,38 @@ public abstract class GridMethod implements IsSubmodel, XMLable
 				GridMethodLibrary.class.getDeclaredClasses());
 	}
 	
-	public static class GridMethodMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -2794244870765785699L;
-		
-		// TODO give this a name?
-		
-		/**\brief TODO
-		 * 
-		 * @param name
-		 * @param req
-		 * @param target
-		 */
-		public GridMethodMaker(String name, Requirement req, IsSubmodel target)
-		{
-			super(name, req, target);
-		}
-		
-		@Override
-		protected void doAction(ActionEvent e)
-		{
-			String name;
-			if ( e == null )
-				name = "";
-			else
-				name = e.getActionCommand();
-			this.addSubmodel(GridMethod.getNewInstance(name));
-		}
-		
-		public Object getOptions()
-		{
-			return getAllOptions();
-		}
-	}
+	//FIXME to be replaced by modelnode paradigm?
+//	public static class GridMethodMaker extends SubmodelMaker
+//	{
+//		private static final long serialVersionUID = -2794244870765785699L;
+//		
+//		// TODO give this a name?
+//		
+//		/**\brief TODO
+//		 * 
+//		 * @param name
+//		 * @param req
+//		 * @param target
+//		 */
+//		public GridMethodMaker(String name, Requirement req, IsSubmodel target)
+//		{
+//			super(name, req, target);
+//		}
+//		
+//		@Override
+//		protected void doAction(ActionEvent e)
+//		{
+//			String name;
+//			if ( e == null )
+//				name = "";
+//			else
+//				name = e.getActionCommand();
+//			this.addSubmodel(GridMethod.getNewInstance(name));
+//		}
+//		
+//		public Object getOptions()
+//		{
+//			return getAllOptions();
+//		}
+//	}
 }

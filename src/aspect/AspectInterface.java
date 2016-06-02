@@ -7,9 +7,7 @@ import org.w3c.dom.NodeList;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
-import nodeFactory.ModelAttribute;
-
+import dataIO.XmlRef;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -40,30 +38,17 @@ public abstract interface AspectInterface
 		Element e = (Element) xmlNode;
 		AspectReg aspectReg = (AspectReg) reg();
 		String  name;
-		NodeList stateNodes = e.getElementsByTagName(XmlLabel.aspect);
+		NodeList stateNodes = e.getElementsByTagName(XmlRef.aspect);
 		for (int j = 0; j < stateNodes.getLength(); j++) 
 		{
 			Element s = (Element) stateNodes.item(j);
-			name = s.getAttribute(XmlLabel.nameAttribute);
+			name = s.getAttribute(XmlRef.nameAttribute);
 			aspectReg.add(name, ObjectFactory.loadObject(s));
 			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 		}
 		
-//		reg().getXml();
 	}
 	
-//	/**
-//	 * quick method to load simple aspects from user input
-//	 * @param name
-//	 * @param input
-//	 * @param type
-//	 */
-//	public default void loadAspect(String name, String input, String type)
-//	{
-//		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
-//		aspectReg.add(name, ObjectFactory.loadObject(input, type));
-//		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
-//	}
 	
 	/**************************************************************************
 	 * Quick getter methods, making life easy and code readable, expand as new

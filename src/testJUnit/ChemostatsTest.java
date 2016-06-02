@@ -36,7 +36,7 @@ public class ChemostatsTest
 		 */
 		comp = Idynomics.simulator.addCompartment("waste");
 		comp.setShape("dimensionless");
-		comp._environment.addSolute(soluteName);
+		comp.environment.addSolute(soluteName);
 		/*
 		 * 
 		 */
@@ -48,7 +48,7 @@ public class ChemostatsTest
 		shape.setVolume(1.0);
 		shape.addOtherBoundary(cOut);
 		comp.setShape(shape);
-		comp._environment.addSolute(soluteName);
+		comp.environment.addSolute(soluteName);
 		SolveChemostat p1 = new SolveChemostat();
 		p1.init();
 		p1.setTimeStepSize(tStep);
@@ -60,7 +60,7 @@ public class ChemostatsTest
 		cOut.setFlowRate(flowRate);
 		comp = Idynomics.simulator.addCompartment("feed");
 		comp.setShape("dimensionless");
-		comp._environment.addSolute(soluteName);
+		comp.environment.addSolute(soluteName);
 		
 	}
 	

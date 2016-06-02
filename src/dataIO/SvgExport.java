@@ -1,11 +1,7 @@
 package dataIO;
 
-import idynomics.Idynomics;
-import idynomics.Param;
-
-import org.junit.Assume;
-
 import dataIO.Log.Tier;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
 /**
@@ -18,19 +14,19 @@ public class SvgExport
 	/**
 	 * TODO
 	 */
-	int filewriterfilenr = 0;
+	protected int _filewriterfilenr = 0;
 	/**
 	 * TODO
 	 */
-	FileHandler svgFile = new FileHandler();
+	protected FileHandler _svgFile = new FileHandler();
 	/**
 	 * TODO
 	 */
-	public double scalar = 25.0;
+	protected double _scalar = 25.0;
 	/**
 	 * TODO
 	 */
-	public double spacer = 25.0;
+	protected double _spacer = 25.0;
 	
 	/**
 	 * handles incrementing file numbering
@@ -58,7 +54,7 @@ public class SvgExport
 		/**
 		 * work out how to do scaling and domain properly and consistently
 		 */
-		return " cx=\"" + Double.toString(spacer+scalar*v[0]) + "\" cy=\"" + Double.toString(spacer+scalar*v[1]) + "\" ";
+		return " cx=\"" + Double.toString(_spacer+_scalar*v[0]) + "\" cy=\"" + Double.toString(_spacer+_scalar*v[1]) + "\" ";
 	}
 	
 	/**
@@ -68,11 +64,11 @@ public class SvgExport
 	public void newSvg(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + DigitFilenr(filewriterfilenr) + ".svg";
-		svgFile.fnew(fileString);
+				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".svg";
+		_svgFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 
-		svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
+		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
 	}
 	
 	/**
@@ -80,9 +76,9 @@ public class SvgExport
 	 */
 	public void closeSvg()
 	{
-		svgFile.write("</svg>\n");
-		svgFile.fclose();
-		filewriterfilenr++;
+		_svgFile.write("</svg>\n");
+		_svgFile.fclose();
+		_filewriterfilenr++;
 	}
 	
 	/**
@@ -98,8 +94,8 @@ public class SvgExport
 	 */
 	public void circle(double[] center, double radius, String pigment)
 	{
-		svgFile.write("<circle " + toSvg(center) + "r=\"" +
-				scalar * radius + "\" fill=\"" + pigment
+		_svgFile.write("<circle " + toSvg(center) + "r=\"" +
+				_scalar * radius + "\" fill=\"" + pigment
 				+ "\" />\n" );
 	}
 	
@@ -164,7 +160,7 @@ public class SvgExport
 		sb.append(" transform=\"translate(" + circle_center[0] + " " + circle_center[1]
 																	+ ")\"/>");
 		/* write to file */
-		svgFile.write(sb.toString());
+		_svgFile.write(sb.toString());
 	}
 	
 	/**
@@ -175,9 +171,9 @@ public class SvgExport
 	 */
 	public void rectangle(double[] location, double[] dimensions, String pigment)
 	{
-		svgFile.write("<rect x=\"" + (spacer + scalar*location[0]) + "\" y=\"" + 
-				(spacer + scalar*location[1]) + "\" width=\"" + dimensions[0] * 
-				scalar + "\" height=\"" + dimensions[1] * scalar + 
+		_svgFile.write("<rect x=\"" + (_spacer + _scalar*location[0]) + "\" y=\"" + 
+				(_spacer + _scalar*location[1]) + "\" width=\"" + dimensions[0] * 
+				_scalar + "\" height=\"" + dimensions[1] * _scalar + 
 				"\" fill=\"" + pigment + "\" />\n");
 	}
 	

@@ -11,11 +11,11 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -119,7 +119,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 				newLoc = aShape.getRandomLocationOnBoundary(dimN, extreme);
 				Log.out(Tier.DEBUG, "Placing agent (UID: "+anAgent.identity()+
 						") at random location: "+Vector.toString(newLoc));
-				body = (Body) anAgent.get(NameRef.agentBody);
+				body = (Body) anAgent.get(AspectRef.agentBody);
 				body.relocate(newLoc);
 			}
 			agentCont.addAgent(anAgent);
@@ -178,6 +178,31 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 		this._departureLounge.clear();
 	}
 	
+	/**
+	 * \brief Get the number of agents that this boundary wants to remove
+	 * from the compartment and put into its departures lounge.
+	 * 
+	 * @param agentCont The {@code AgentContainer} that contains the 
+	 * {@code Agent}s for selection.
+	 * @param timeStep Length of the time period.
+	 * @return Number of agents this boundary wants to remove.
+	 */
+	public abstract int agentsToGrab(AgentContainer agentCont, double timeStep);
+	
+	/**
+	 * \brief Compile a list of the agents that this boundary wants to remove
+	 * from the compartment and put into its departures lounge.
+	 * 
+	 * @param agentCont The {@code AgentContainer} that contains the 
+	 * {@code Agent}s for selection.
+	 * @param dimN Name of the dimension whose boundary we are on.
+	 * @param extreme Index of the dimension's extremes - must be 0 or 1.
+	 * @param timeStep Length of the time period.
+	 * @return List of agents for removal.
+	 */
+	public abstract List<Agent> agentsToGrab(AgentContainer agentCont,
+			DimName dimN, int extreme, double timeStep);
+	
 	/*************************************************************************
 	 * methods to move into library, here for now
 	 ************************************************************************/
@@ -199,13 +224,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 	{
 		
 	}
-	
-	@Override
-	public String getXml()
-	{
-		return null;
-	}
-	
+
 	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/

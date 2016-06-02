@@ -8,12 +8,14 @@ import static org.junit.Assert.assertTrue;
 
 import agent.Agent;
 import agent.Body;
+import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.BoundaryLibrary.BulkBLBoundary;
 import boundary.BoundaryLibrary.SolidBoundary;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import idynomics.NameRef;
 import shape.Dimension.DimName;
 import utility.ExtraMath;
 
@@ -47,8 +49,8 @@ public class BoundaryTest
 		 */
 		Agent insertAgent = new Agent();
 		Body iBody = new Body(new double[]{-12345.6}, agentRadius);
-		insertAgent.set(NameRef.agentBody, iBody);
-		insertAgent.set(NameRef.isLocated, new Boolean(true));
+		insertAgent.set(AspectRef.agentBody, iBody);
+		insertAgent.set(AspectRef.isLocated, new Boolean(true));
 		/*
 		 * Add the agent to the boundary layer, and this to the compartment.
 		 */
@@ -58,10 +60,11 @@ public class BoundaryTest
 		/*
 		 * Now make a fixed agent that the insert agent should detect.
 		 */
-		Agent fixedAgent = new Agent();
+		Agent fixedAgent = new Agent(comp);
 		Body fBody = new Body(new double[]{1.0}, 1.0);
-		fixedAgent.set(NameRef.agentBody, fBody);
-		fixedAgent.set(NameRef.isLocated, new Boolean(true));
+		Log.out(Tier.DEBUG, "Agent (UID: "+fixedAgent.identity()+") at x = 1.0");
+		fixedAgent.set(AspectRef.agentBody, fBody);
+		fixedAgent.set(AspectRef.isLocated, new Boolean(true));
 		comp.addAgent(fixedAgent);
 		/*
 		 * The other boundary is unimportant, but needs to be set.
@@ -74,6 +77,7 @@ public class BoundaryTest
 		 * 
 		 */
 		double found = iBody.getPoints().get(0).getPosition()[0];
+		Log.out(Tier.DEBUG, "Agent (UID: "+insertAgent.identity()+") at x = "+found);
 		double expected = compartmentLength - boundaryLayerThickness + 3*agentRadius;
 		assertTrue(ExtraMath.areEqual(found, expected, 0.1*boundaryLayerThickness));
 	}

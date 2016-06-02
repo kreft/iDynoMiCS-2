@@ -130,7 +130,7 @@ public class ModelNode {
 	}
 	
 	/**
-	 * Add Object to ModelNode's 'Allowed ChildObjects list' 
+	 * Adding a child object, action performed on clicking add button in gui
 	 * @param childObject
 	 */
 	public void add(NodeConstructor childObject)

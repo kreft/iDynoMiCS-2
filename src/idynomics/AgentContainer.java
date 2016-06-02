@@ -2,13 +2,13 @@ package idynomics;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Body;
+import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.agent.AgentMethod;
 import dataIO.Log;
@@ -45,12 +45,7 @@ public class AgentContainer
 	 * Synchronized list, list is cheaper to access than an agent tree
 	 * (iterating over all agents), synchronized for thread safety
 	 */
-	List<Agent> _locatedAgentList = new ArrayList<Agent>();
-	
-	/**
-	 * Synchronized iterator (check whether this wokrs correctly)
-	 */
-	Iterator<Agent> locatedAgentIterator;
+	private List<Agent> _locatedAgentList = new ArrayList<Agent>();
 	
 	/**
 	 * All agents without a spatial location are stored in here.
@@ -222,7 +217,7 @@ public class AgentContainer
 		/*
 		 * Find all nearby agents.
 		 */
-		Body body = (Body) anAgent.get(NameRef.agentBody);
+		Body body = (Body) anAgent.get(AspectRef.agentBody);
 		List<BoundingBox> boxes = body.getBoxes(searchDist);
 		Collection<Agent> out = this.treeSearch(boxes);
 		/* 
@@ -244,7 +239,7 @@ public class AgentContainer
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
 		Collection<Surface> agentSurfs = 
-				((Body) anAgent.get(NameRef.agentBody)).getSurfaces();
+				((Body) anAgent.get(AspectRef.agentBody)).getSurfaces();
 		out.removeIf((s) -> 
 		{
 			for (Surface a : agentSurfs )
@@ -290,8 +285,8 @@ public class AgentContainer
 		 */
 		//FIXME: #isLocated simplified for now, was an over extensive operation
 		// for a simple check.
-		return ( anAgent.get(NameRef.isLocated) != null ) && 
-				( anAgent.getBoolean(NameRef.isLocated) );
+		return ( anAgent.get(AspectRef.isLocated) != null ) && 
+				( anAgent.getBoolean(AspectRef.isLocated) );
 	}
 	
 	/**
@@ -305,7 +300,7 @@ public class AgentContainer
 	{
 		if ( ! isLocated(anAgent) )
 			return;
-		Body body = (Body) anAgent.get(NameRef.agentBody);
+		Body body = (Body) anAgent.get(AspectRef.agentBody);
 		double[] newLoc = body.getPoints().get(0).getPosition();
 		this._shape.moveAlongDimension(newLoc, dimN, dist);
 		body.relocate(newLoc);
@@ -350,9 +345,9 @@ public class AgentContainer
 	 */
 	protected void treeInsert(Agent anAgent)
 	{
-		Body body = ((Body) anAgent.get(NameRef.agentBody));
-		double dist = (anAgent.isAspect(NameRef.agentPulldistance) ?
-				anAgent.getDouble(NameRef.agentPulldistance) :
+		Body body = ((Body) anAgent.get(AspectRef.agentBody));
+		double dist = (anAgent.isAspect(AspectRef.agentPulldistance) ?
+				anAgent.getDouble(AspectRef.agentPulldistance) :
 				0.0);
 		List<BoundingBox> boxes = body.getBoxes(dist);
 		for ( BoundingBox b: boxes )
@@ -371,14 +366,49 @@ public class AgentContainer
 	}
 	
 	/**
+	 * @return A random {@code Agent}, without removing it from this container.
+	 * @see #extractRandomAgent()
+	 */
+	public Agent chooseRandomAgent()
+	{
+		Tier level = Tier.BULK;
+		int nAgents = this.getNumAllAgents();
+		/* Safety if there are no agents. */
+		if ( nAgents == 0 )
+		{
+			Log.out(level, "No agents in this container, so cannot choose "+
+					"one: returning null");
+			return null;
+		}/* Now find an agent. */
+		int i = ExtraMath.getUniRandInt(nAgents);
+		Agent out = (i > this._agentList.size()) ?
+				/* Located agent. */
+				this._agentTree.getRandom() :
+				/* Unlocated agent. */
+				this._agentList.get(i);
+		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
+				out.identity()+" was chosen randomly");
+		return out; 
+	}
+	
+	/**
 	 * @return A randomly chosen {@code Agent}, who is removed from this
 	 * container.
+	 * @see #chooseRandomAgent()
 	 */
 	public Agent extractRandomAgent()
 	{
-		// TODO safety if there are no agents.
+		Tier level = Tier.BULK;
+		int nAgents = this.getNumAllAgents();
+		/* Safety if there are no agents. */
+		if ( nAgents == 0 )
+		{
+			Log.out(level, "No agents in this container, so cannot extract "+
+					"one: returning null");
+			return null;
+		}/* Now find an agent. */
+		int i = ExtraMath.getUniRandInt(nAgents);
 		Agent out;
-		int i = ExtraMath.getUniRandInt(this.getNumAllAgents());
 		if ( i > this._agentList.size() )
 		{
 			/* Located agent. */
@@ -391,7 +421,9 @@ public class AgentContainer
 			/* Unlocated agent. */
 			out = this._agentList.remove(i);
 		}
-		return out;
+		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
+				out.identity()+" was extracted randomly");
+		return out; 
 	}
 	
 	/**

@@ -9,10 +9,10 @@ import static dataIO.Log.Tier.DEBUG;
 import java.util.List;
 import java.util.function.Predicate;
 
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import shape.Shape;
 import shape.subvoxel.CoordinateMap;
@@ -33,14 +33,14 @@ public final class AgentTools
 	 * include those that have reactions.
 	 */
 	protected final static Predicate<Agent> NO_REAC_FILTER = 
-			(a -> ! a.isAspect(NameRef.agentReactions));
+			(a -> ! a.isAspect(AspectRef.agentReactions));
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have relevant components of a body.
 	 */
 	protected final static Predicate<Agent> NO_BODY_FILTER = 
-			(a -> (! a.isAspect(NameRef.surfaceList)) ||
-					( ! a.isAspect(NameRef.bodyRadius)));
+			(a -> (! a.isAspect(AspectRef.surfaceList)) ||
+					( ! a.isAspect(AspectRef.bodyRadius)));
 	/**
 	 * When choosing an appropriate sub-voxel resolution for building agents'
 	 * {@code coordinateMap}s, the smallest agent radius is multiplied by this
@@ -52,7 +52,7 @@ public final class AgentTools
 	 * Aspect name for the {@code coordinateMap} used for establishing which
 	 * voxels a located {@code Agent} covers.
 	 */
-	private static final String VD_TAG = NameRef.agentVolumeDistributionMap;
+	private static final String VD_TAG = AspectRef.agentVolumeDistributionMap;
 	
 	
 	/**
@@ -115,7 +115,7 @@ public final class AgentTools
 			double radius;
 			for ( Agent a : nhbs )
 			{
-				radius = a.getDouble(NameRef.bodyRadius);
+				radius = a.getDouble(AspectRef.bodyRadius);
 				Log.out(level, "   agent "+a.identity()+" has radius "+radius);
 				minRad = Math.min(radius, minRad);
 			}
@@ -127,11 +127,11 @@ public final class AgentTools
 			for ( Agent a : nhbs )
 			{
 				/* Should have been removed, but doesn't hurt to check. */
-				if ( ! a.isAspect(NameRef.agentReactions) )
+				if ( ! a.isAspect(AspectRef.agentReactions) )
 					continue;
-				if ( ! a.isAspect(NameRef.surfaceList) )
+				if ( ! a.isAspect(AspectRef.surfaceList) )
 					continue;
-				surfaces = (List<Surface>) a.get(NameRef.surfaceList);
+				surfaces = (List<Surface>) a.get(AspectRef.surfaceList);
 				Log.out(level, "  "+"   agent "+a.identity()+" has "+
 						surfaces.size()+" surfaces");
 				distributionMap = (CoordinateMap) a.getValue(VD_TAG);

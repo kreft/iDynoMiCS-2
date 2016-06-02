@@ -9,10 +9,9 @@ import agent.Body;
 import aspect.calculated.StateExpression;
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import dataIO.ObjectRef;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
-import generalInterfaces.Quizable;
-import generalInterfaces.XMLable;
+import dataIO.XmlRef;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -35,7 +34,7 @@ public class AspectReg
 	 * quick fix for xmling
 	 * 
 	 */
-	public String identity;
+	protected String _identity;
 	
 	/**
 	 * \brief Recognised aspect types.
@@ -71,6 +70,22 @@ public class AspectReg
 	 */
 	protected LinkedList<AspectInterface> _modules = 
 											new LinkedList<AspectInterface>();
+	
+	/**
+	 * get the identity of this aspectReg
+	 * @return
+	 */
+	public String getIdentity() {
+		return _identity;
+	}
+
+	/**
+	 * set the identity of this apspectReg
+	 * @param _identity
+	 */
+	public void setIdentity(String _identity) {
+		this._identity = _identity;
+	}
 		
 	/**
 	 * returns true if the key is found in the aspect tree
@@ -97,7 +112,7 @@ public class AspectReg
 					" which already exists in this aspect registry");
 		}
 		else
-			this._aspects.put(key, new Aspect(aspect, key, this));
+			this._aspects.put(key, new Aspect(aspect, key, this) );
 	}
 	
 	/**
@@ -105,10 +120,10 @@ public class AspectReg
 	 */
 	public void set(String key, Object aspect)
 	{
-		if(_aspects.containsKey(key))
+		if(_aspects.containsKey(key) )
 			this.getAspect(key).set(aspect, key);
 		else
-			this._aspects.put(key, new Aspect(aspect, key, this));
+			this._aspects.put(key, new Aspect(aspect, key, this) );
 	}
 	
 	/**
@@ -134,9 +149,9 @@ public class AspectReg
 	 * 
 	 * @param name
 	 */
-	public void addSubModule(String name, Quizable library)
+	public void addSubModule(String name, AspectInterface library)
 	{
-		addSubModule((AspectInterface) library.get(name));
+		addSubModule( (AspectInterface) library.getValue(name) );
 	}
 	
 	public LinkedList<AspectInterface> getSubModules()
@@ -147,7 +162,8 @@ public class AspectReg
 	/**
 	 * get value if the aspect is a primary or calculated state
 	 */
-	public synchronized Object getValue(AspectInterface rootRegistry, String key)
+	public synchronized Object getValue( AspectInterface rootRegistry, 
+			String key )
 	{
 		Aspect a = getAspect(key);
 		if ( a == null )
@@ -156,8 +172,8 @@ public class AspectReg
 		{
 		case PRIMARY: return a.aspect;
 		case CALCULATED: return a.calc.get(rootRegistry);
-		case EVENT: Log.out(Tier.CRITICAL, "Attempt to get event" +
-				key + "as Value!");
+		case EVENT: Log.out(Tier.CRITICAL, "Attempt to get event " +
+				key + " as Value!");
 		}
     	return null;
 	}
@@ -169,8 +185,8 @@ public class AspectReg
 	 * @param timeStep
 	 * TODO: some proper testing
 	 */
-	public synchronized void doEvent(AspectInterface initiator, AspectInterface compliant, 
-			double timeStep, String key)
+	public synchronized void doEvent(AspectInterface initiator, 
+			AspectInterface compliant, double timeStep, String key)
 	{
 		Aspect a = getAspect(key);
 		if ( a == null )
@@ -180,7 +196,7 @@ public class AspectReg
 		else if ( a.type != AspectReg.AspectClass.EVENT )
 		{
 			Log.out(Tier.CRITICAL, "Attempt to initiate non event "
-					+ "aspect" + key + "as event!");
+					+ " aspect " + key + " as event!");
 		}
 		else
 			a.event.start(initiator, compliant, timeStep);
@@ -210,8 +226,9 @@ public class AspectReg
 	{
 		this.clear();
 		AspectReg donorReg = donor.reg();
-		for (String key : donorReg._aspects.keySet())
-			add(key, (Object) ObjectFactory.copy(donorReg.getAspect(key).aspect));
+		for ( String key : donorReg._aspects.keySet() )
+			add( key, (Object) ObjectFactory.copy(
+					donorReg.getAspect(key).aspect ) );
 		for (AspectInterface m : donorReg._modules)
 			addSubModule(m);
 	}
@@ -248,32 +265,57 @@ public class AspectReg
 	 */
 	public void appendAllAspectNamesTo(List<String> names)
 	{
-		names.addAll(this._aspects.keySet());
+		names.addAll(this._aspects.keySet() );
 		for ( AspectInterface ai : this._modules )
 			ai.reg().appendAllAspectNamesTo(names);
 	}
 	
+	/**
+	 * TODO
+	 * @return
+	 */
 	public Set<String> getLocalAspectNames()
 	{
 		return this._aspects.keySet();
 	}
-		
+	
+	/**
+	 * TODO
+	 * @param key
+	 * @return
+	 */
 	public ModelNode getAspectNode(String key)
 	{
 		return this._aspects.get(key).getNode();
 	}
 	
-
+	/**
+	 * TODO
+	 * @param constructor
+	 * @return
+	 */
 	public ModelNode getModuleNode(NodeConstructor constructor) {
-		ModelNode modelNode = new ModelNode(XmlLabel.speciesModule, constructor);
+		ModelNode modelNode = new ModelNode(XmlRef.speciesModule,constructor);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-				this.identity, null, true ));
+		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+				this.getIdentity(), null, true ) );
 		
 		return modelNode;
 	}
-	
+
+	/**
+	 * TODO
+	 * @param key
+	 * @param newKey
+	 */
+	public void rename(String key, String newKey )
+	{
+		Object a = (Object) this.getAspect(key);
+		this.remove(key);
+		this.add(newKey, a);
+	}
+
 	/**
 	 * \brief Very general class that acts as a wrapper for other Objects.
 	 * 
@@ -361,80 +403,90 @@ public class AspectReg
 			}
 	    }
 
+		/**
+		 * Get the ModelNode object for this Aspect object
+		 * @return ModelNode
+		 */
 		@SuppressWarnings("unchecked")
 		@Override
 		public ModelNode getNode() 
 		{
-			ModelNode modelNode = new ModelNode(XmlLabel.aspect, this);
+			ModelNode modelNode = new ModelNode(XmlRef.aspect, this);
 			modelNode.requirement = Requirements.ZERO_TO_FEW;
 			modelNode.title = this.key;
 			
-			modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-					this.key, null, true ));
+			modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+					this.key, null, true ) );
 			
 			String simpleName = this.aspect.getClass().getSimpleName();
 			
 			/* Primaries */
-			if(this.type.equals(AspectReg.AspectClass.PRIMARY))
+			if(this.type.equals(AspectReg.AspectClass.PRIMARY) )
 			{
-				modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
-						this.type.toString(), null, false ));
+				modelNode.add(new ModelAttribute(XmlRef.typeAttribute, 
+						this.type.toString(), null, false ) );
 				
-				modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
-						simpleName, null, false ));
+				modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+						simpleName, null, false ) );
 				
 				
 		    	switch (simpleName)
 				{
 				case "HashMap":
 					HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
-//					for (Object k : h.keySet())
-//						modelNode.add(HashMapNode(k));
+//					for (Object k : h.keySet() )
+//						modelNode.add(HashMapNode(k) );
 					break;
 				case "LinkedList":
-//					modelNode.add(ObjectFactory.nodeFactoryInner(aspect));
+//					modelNode.add(ObjectFactory.nodeFactoryInner(aspect) );
 					// TODO work in progress
 					LinkedList<Object> linkedList = (LinkedList<Object>) aspect;
 					for (Object o : linkedList)
-						modelNode.add(new LinkedListSetter(o).getNode());
+						modelNode.add(new LinkedListSetter(o).getNode() );
 					break;
 				case "Body":
 					Body myBody = (Body) aspect;
-					for (Point p : myBody.getPoints())
-						modelNode.add(p.getNode());
+					for (Point p : myBody.getPoints() )
+						modelNode.add(p.getNode() );
 					break;
 				default:
-					if (aspect instanceof XMLable)
+					if (aspect instanceof NodeConstructor)
 					{
-						XMLable x = (XMLable) aspect;
-						modelNode.add(x.getNode()); 
+						NodeConstructor x = (NodeConstructor) aspect;
+						modelNode.add(x.getNode() ); 
 					}
 					else
 					{
-						modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, 
-								ObjectFactory.stringRepresentation(aspect), null, true ));
+						modelNode.add(new ModelAttribute(XmlRef.valueAttribute, 
+								ObjectFactory.stringRepresentation(aspect), 
+								null, true ) );
 					}
 				}
 			}
 			/* events and calculated */
 			else
 			{
-				modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
-						this.type.toString(), null, false ));
+				modelNode.add(new ModelAttribute(XmlRef.typeAttribute, 
+						this.type.toString(), null, false ) );
 
-				modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
-						simpleName, null , false ));
+				modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+						simpleName, null , false ) );
 				
-				if (simpleName.equals(StateExpression.class.getSimpleName()))
+				if (simpleName.equals( StateExpression.class.getSimpleName() ) )
 				{
-					modelNode.add(new ModelAttribute(XmlLabel.inputAttribute, 
-							((Calculated) this.aspect).getInput()[0], null, false ));
+					modelNode.add(new ModelAttribute(XmlRef.inputAttribute, 
+							( (Calculated) this.aspect ).getInput()[0], 
+							null, false ) );
 				}
 			}
 
 			return modelNode;
 		}
 		
+		/**
+		 * Get the ModelNode object for a Hashmap TODO to be replaced
+		 * @return ModelNode
+		 */
 		@SuppressWarnings("unchecked")
 		public ModelNode HashMapNode(Object key) 
 		{
@@ -442,24 +494,26 @@ public class AspectReg
 			ModelNode modelNode = new ModelNode("item", this);
 			modelNode.requirement = Requirements.ZERO_TO_MANY;
 			
-			modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
-					h.get(key).getClass().getSimpleName(), null, false ));
+			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+					h.get(key).getClass().getSimpleName(), null, false ) );
 			
 			return modelNode;
 		}
 
-
+		/**
+		 * Load and interpret the values of the given ModelNode to this 
+		 * NodeConstructor object
+		 * @param node
+		 */
 		@Override
 		public void setNode(ModelNode node) 
 		{
-			if(node.getAttribute(XmlLabel.valueAttribute) != null)
+			if(node.getAttribute(XmlRef.valueAttribute) != null)
 			{
-//				this.registry.rename(key, node.getAttribute(XmlLabel.nameAttribute).value);
-//				
 				this.set(ObjectFactory.loadObject(
-						node.getAttribute(XmlLabel.valueAttribute).value, 
-						node.getAttribute(XmlLabel.typeAttribute).value,
-						node.getAttribute(XmlLabel.classAttribute).value), key);
+						node.getAttribute(XmlRef.valueAttribute).value, 
+						node.getAttribute(XmlRef.typeAttribute).value,
+						node.getAttribute(XmlRef.classAttribute).value), key);
 			}
 			
 			for(ModelNode n : node.childNodes)
@@ -467,51 +521,54 @@ public class AspectReg
 		}
 
 		// TODO build up from general.classLib rather than hard code
+		/**
+		 * Create a new minimal object of this class and return it, used by the gui
+		 * to add new
+		 * @return NodeConstructor
+		 */
 		@Override
 		public NodeConstructor newBlank() {
 			String name = "";
 			name = Helper.obtainInput(name, "aspect name");
-			String type = Helper.obtainInput(Helper.enumToString(AspectReg.AspectClass.class).split(" "), "aspect type", false);
+			String type = Helper.obtainInput( Helper.enumToString(
+					AspectReg.AspectClass.class).split(" "), 
+					"aspect type", false);
 			String pack = "";
 			String classType = "";
 			switch (type)
 	    	{
 	    	case "CALCULATED":
 	    		pack = "aspect.calculated.";
-	    		classType = Helper.obtainInput(Helper.ListToArray(Idynomics.xmlPackageLibrary.getAll(pack)), "aspect class", false);
+	    		classType = Helper.obtainInput( Helper.ListToArray(
+	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
+	    				"aspect class", false);
 				
 	    		break;
 	    	case "EVENT": 
 	    		pack = "aspect.event.";
-	    		classType = Helper.obtainInput(Helper.ListToArray(Idynomics.xmlPackageLibrary.getAll(pack)), "aspect class", false);
+	    		classType = Helper.obtainInput( Helper.ListToArray(
+	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
+	    				"aspect class", false);
 				
 	    		break;
 			default:
-				classType = Helper.obtainInput(classType, "primary type");
+				classType = Helper.obtainInput( ObjectRef.getAllOptions(), 
+						"Primary type", false);
 				break;
 			}
-			registry.add(name, ObjectFactory.loadObject("0", type, classType));
+			registry.add( name, ObjectFactory.loadObject( Helper.obtainInput(
+					"", "Primary value"), type, classType) );
 			return registry.getAspect(name);
 		}
 
-		@Override
-		public void addChildObject(NodeConstructor childObject) {
-			// TODO Auto-generated method stub
-			
-		}
-
+		/**
+		 * return the default XMLtag for the XML node of this object
+		 * @return String xmlTag
+		 */
 		@Override
 		public String defaultXmlTag() {
 			// TODO Auto-generated method stub
-			return XmlLabel.aspect;
+			return XmlRef.aspect;
 		}
 	}
-
-	public void rename(String key, String newKey )
-	{
-		Object a = (Object) this.getAspect(key);
-		this.remove(key);
-		this.add(newKey, a);
-	}
-
 }

@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.SpatialGrid;
@@ -109,9 +109,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		for ( int i = 0; i < soluteNodes.getLength(); i++)
 		{
 			elem = (Element) soluteNodes.item(i);
-			name = XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
+			name = XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute);
 			/* Try to read in the concentration, using zero by default. */
-			concn = XmlHandler.gatherAttribute(elem, XmlLabel.concentration);
+			concn = XmlHandler.gatherAttribute(elem, XmlRef.concentration);
 			concentration = ( concn.equals("") ) ? 0.0 : Double.valueOf(concn);
 			/* Finally, add the solute to the list. */
 			this.addSolute(name, concentration);
@@ -136,7 +136,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		{
 			elem = (Element) reactionNodes.item(i);
 			// TODO does a reaction need to have a name?
-			name = XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
+			name = XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute);
 			/* Construct and intialise the reaction. */
 			reac = (Reaction) Reaction.getNewInstance(elem);
 			reac.init(elem);

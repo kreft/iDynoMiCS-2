@@ -8,12 +8,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 import generalInterfaces.HasBoundingBox;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import nodeFactory.ModelNode;
 import surface.*;
 
 /**
@@ -48,7 +48,7 @@ public class Body implements Copyable, XMLable
 	 * NOTE: this list does not contain links with this body owned by an other
 	 * body
 	 */
-	public LinkedList<Link> links = new LinkedList<Link>();
+	protected LinkedList<Link> _links = new LinkedList<Link>();
 
 
 	/*************************************************************************
@@ -134,12 +134,12 @@ public class Body implements Copyable, XMLable
 		Element s = (Element) xmlNode;
 		//FIXME: not finished only accounts for simple coccoids
 		List<Point> pointList = new LinkedList<Point>();
-		NodeList pointNodes = s.getElementsByTagName(XmlLabel.point);
+		NodeList pointNodes = s.getElementsByTagName(XmlRef.point);
 		for (int k = 0; k < pointNodes.getLength(); k++) 
 		{
 			Element point = (Element) pointNodes.item(k);
 			pointList.add(new Point(Vector.dblFromString(
-					point.getAttribute(XmlLabel.position))));
+					point.getAttribute(XmlRef.position))));
 		}
 		return new Body(pointList);
 		// Bas [01.02.16] TODO: currently only agents can have a
@@ -148,21 +148,18 @@ public class Body implements Copyable, XMLable
 	}
 
 	/**
-	 * quick solution to create body from string, currently only coccoid
+	 * quick solution to create body from string
 	 * @param input
 	 * @return
 	 */
 	public static Object getNewInstance(String input)
 	{
 		List<Point> pointList = new LinkedList<Point>();
-		pointList.add(new Point(Vector.dblFromString(input)));
+		String[] points = input.split(Matrix.DELIMITER);
+		for (String s : points)
+			pointList.add(new Point(Vector.dblFromString(s)));
+
 		return new Body(pointList);
-	}
-	
-	// TODO required from xmlable interface
-	public ModelNode getNode()
-	{
-		return null;
 	}
 
 	public void init(Element xmlElem)
@@ -170,12 +167,12 @@ public class Body implements Copyable, XMLable
 		//FIXME quick fix: copy/pasted from
 		//"public static Body getNewInstance(Node xmlNode)"
 		//FIXME: not finished only accounts for simple coccoids
-		NodeList pointNodes = xmlElem.getElementsByTagName(XmlLabel.point);
+		NodeList pointNodes = xmlElem.getElementsByTagName(XmlRef.point);
 		for (int k = 0; k < pointNodes.getLength(); k++) 
 		{
 			Element point = (Element) pointNodes.item(k);
 			this._points.add(new Point(Vector.dblFromString(
-					point.getAttribute(XmlLabel.position))));
+					point.getAttribute(XmlRef.position))));
 		}
 
 	}
@@ -295,11 +292,5 @@ public class Body implements Copyable, XMLable
 		default:
 			return null;
 		}
-	}
-
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

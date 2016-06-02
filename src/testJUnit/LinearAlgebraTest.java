@@ -4,9 +4,11 @@
 package testJUnit;
 
 import org.junit.Test;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import static testJUnit.AllTests.TOLERANCE;
 
@@ -357,6 +359,73 @@ public class LinearAlgebraTest
 		str = Array.toString(aDblOrig);
 		double[][][] aDblCopy = Array.dblFromString(str);
 		assertTrue(Array.areSame(aDblOrig, aDblCopy));
+	}
+	
+	@Test
+	public void intSamplingIsUnique()
+	{
+		int[] sample;
+		int n, min, max, count;
+		/*
+		 * Check when min = 0 and n < max.
+		 */
+		n = 5;
+		min = 0;
+		max = 6;
+		sample = Vector.randomIntsNoReplacement(n, min, max);
+		for ( int i = min; i < max; i++ )
+		{
+			count = Vector.countInstances(sample, i);
+			assertTrue(count < 2);
+		}
+		/*
+		 * Check when min != 0 and n < (max - min).
+		 */
+		n = 5;
+		min = 3;
+		max = 9;
+		sample = Vector.randomIntsNoReplacement(n, min, max);
+		for ( int i = min; i < max; i++ )
+		{
+			count = Vector.countInstances(sample, i);
+			assertTrue(count < 2);
+		}
+		n = 5;
+		min = -4;
+		max = 2;
+		sample = Vector.randomIntsNoReplacement(n, min, max);
+		for ( int i = min; i < max; i++ )
+		{
+			count = Vector.countInstances(sample, i);
+			assertTrue(count < 2);
+		}
+		/*
+		 * Check when min = 0 and n = (max - min).
+		 */
+		n = 4;
+		min = 2;
+		max = 6;
+		sample = Vector.randomIntsNoReplacement(n, min, max);
+		for ( int i = min; i < max; i++ )
+		{
+			count = Vector.countInstances(sample, i);
+			assertTrue(count < 2);
+		}
+		/*
+		 * Check that it throws an exception when asked to do the impossible.
+		 */
+		n = 5;
+		min = 0;
+		max = 4;
+		try
+		{
+			sample = Vector.randomIntsNoReplacement(n, min, max);
+			fail("Managed to resample more times than possible");
+		}
+		catch ( IllegalArgumentException e)
+		{
+			
+		}
 	}
 	
 	@Test

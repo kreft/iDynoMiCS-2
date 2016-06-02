@@ -1,6 +1,5 @@
 package idynomics;
 
-import java.io.ObjectOutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,12 +7,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
-import agent.SpeciesLib.SpeciesLibMaker;
 import dataIO.Log;
-import dataIO.ObjectRef;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
@@ -42,10 +39,22 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
 	
+	/**
+	 * The timer
+	 */
 	public Timer timer;
 	
-	private XmlExport xmlOut;
-	private ModelNode modelNode;
+	/**
+	 * Xml output writer
+	 */
+	private XmlExport _xmlOut;
+	
+	/**
+	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
+	 * within that all child nodes, simulator is the exception to the rule not
+	 * storing ModelNodes
+	 */
+	private ModelNode _modelNode;
 
 	
 	/*************************************************************************
@@ -57,20 +66,23 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		//TODO fully implement MTRandom (reading in random seed)
 		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
-		this.xmlOut = new XmlExport();
+		this._xmlOut = new XmlExport();
 	}
 
-	public NodeConstructor newBlank()
-	{
-		return new Simulator();
-	}
-	
+	/**
+	 * return the name of the current simulation
+	 * @return
+	 */
 	public String getName()
 	{
 		return (Idynomics.global.simulationName == null) ?
-					XmlLabel.simulation : Idynomics.global.simulationName;
+					XmlRef.simulation : Idynomics.global.simulationName;
 	}
 	
+	/**
+	 * get the current seed, used to create intermediate restartable save points
+	 * @return
+	 */
 	public long seed()
 	{
 		long currentSeed = ExtraMath.random.nextLong();
@@ -78,6 +90,10 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		return currentSeed;
 	}
 	
+	/**
+	 * Initiate random number generator with given seed
+	 * @param seed
+	 */
 	public void seed(long seed)
 	{
 		ExtraMath.intialiseRandomNumberGenerator(seed);
@@ -85,27 +101,30 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	
 	public void init(Element xmlElem)
 	{
-		
-		String seed =XmlHandler.gatherAttribute(xmlElem, XmlLabel.seed);
+		/* 
+		 * retrieve seed from xml file and initiate random number generator with
+		 * that seed
+		 */
+		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
 		if (seed != "")
 			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlLabel.timer ));
+		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlRef.timer ));
 		/*
 		 * Set up the species library.
 		 */
-		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlLabel.speciesLibrary))
+		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 				this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, 
-						XmlLabel.speciesLibrary ));
+						XmlRef.speciesLibrary ));
 		/*
 		 * Set up the compartments.
 		 */
 		Log.out(Tier.NORMAL, "Compartments loading...");
 		NodeList children;
-		children = XmlHandler.getAll( xmlElem, XmlLabel.compartment );
+		children = XmlHandler.getAll( xmlElem, XmlRef.compartment );
 		if ( children.getLength() == 0 )
 		{
 			Log.out(Tier.CRITICAL, 
@@ -116,7 +135,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.gatherAttribute(child, XmlLabel.nameAttribute);
+			str = XmlHandler.gatherAttribute(child, XmlRef.nameAttribute);
 			Log.out(Tier.NORMAL, "Making "+str);
 			str = Helper.obtainInput(str, "compartment name");
 			Compartment aCompartment = this.addCompartment(str);
@@ -124,28 +143,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
 		
-		//FIXME testing
-//		System.out.println(getXml());
 	}
 	
-	public String getXml()
-	{
-		String out = "<document> \n <" + XmlLabel.simulation + " " + 
-				XmlLabel.nameAttribute + "=\"" + Idynomics.global.simulationName + "\" " + 
-				XmlLabel.outputFolder + "=\"" + Idynomics.global.outputLocation + "\" " + 
-				XmlLabel.logLevel + "=\"" + Log.level() + "\" " + 
-				XmlLabel.commentAttribute + "=\"" + Idynomics.global.simulationComment + 
-				"\">\n";
-		
-		out = out + this.timer.getXml();
-		out = out + this.speciesLibrary.getXml();
-		/* currently not including general params */
-		for ( Compartment c : this._compartments )
-			out = out + c.getXml();
-		
-		out = out + "  </" + XmlLabel.simulation + ">\n" + "</document>\n";
-		return out;
-	}
 	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -271,7 +270,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		/*
 		 * write state to new xml file
 		 */
-		xmlOut.writeFile();
+		_xmlOut.writeFile();
 		
 		/* we should say something when an iter step is finished */
 		Log.out(Tier.NORMAL, "iter time: " + this.timer.getCurrentTime());
@@ -341,12 +340,14 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 			Log.out(Tier.CRITICAL,"Random number generator not initialised!");
 			return false;
 		}
+		
 		/* Check we have at least one compartment. */
 		if ( this._compartments.isEmpty() )
 		{
 			Log.out(Tier.CRITICAL,"No compartment(s) specified!");
 			return false;
 		}
+		
 		/* If any compartments are not ready, then stop. */
 		for ( Compartment c : this._compartments )
 		{
@@ -360,10 +361,14 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		return true;
 	}
 
+	/**
+	 * return the model node with all current, up to date state parameters, used
+	 * for xml output and gui fields.
+	 */
 	@Override
 	public ModelNode getNode() {
 		/* create simulation node */
-		ModelNode modelNode = new ModelNode(XmlLabel.simulation, this);
+		ModelNode modelNode = new ModelNode(XmlRef.simulation, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
 		Param.init();
@@ -371,15 +376,24 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 			Log.set(Tier.NORMAL);
 		
 		/* add attributes */
-		modelNode.add( new ModelAttribute(XmlLabel.seed,
+		/* the current random seed */
+		modelNode.add( new ModelAttribute(XmlRef.seed,
 				String.valueOf(seed()), null, true));
-		modelNode.add( new ModelAttribute(XmlLabel.nameAttribute, 
+		
+		/* the simulation name */
+		modelNode.add( new ModelAttribute(XmlRef.nameAttribute, 
 				Idynomics.global.simulationName, null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.outputFolder, 
+		
+		/* the output folder */
+		modelNode.add(new ModelAttribute(XmlRef.outputFolder, 
 				Idynomics.global.outputRoot, null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.logLevel, Log.level(), 
+		
+		/* the log level */
+		modelNode.add(new ModelAttribute(XmlRef.logLevel, Log.level(), 
 				Helper.enumToString(Tier.class).split(" "), false ));
-		modelNode.add(new ModelAttribute(XmlLabel.commentAttribute, 
+		
+		/* the optional comment */
+		modelNode.add(new ModelAttribute(XmlRef.commentAttribute, 
 				Idynomics.global.simulationComment, null, true ));
 		
 		/* add timer node */
@@ -392,32 +406,58 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		for ( Compartment c : this._compartments )
 			modelNode.add(c.getNode());
 		
+		/* add child constructor (adds add compartment button to gui */
 		modelNode.childConstructors.put(new Compartment(), 
 				ModelNode.Requirements.ZERO_TO_FEW);
 
-		this.modelNode = modelNode;
+		/* Safe this modelNode locally for model run without having to have save 
+		 * all button */
+		this._modelNode = modelNode;
+		
 		/* return node */
 		return modelNode;
 	}
 	
+	/**
+	 * Additional setNode method for simulation, allows for emediate simulation
+	 * kick-off
+	 */
 	public void setNode()
 	{
-		setNode(this.modelNode);
+		setNode(this._modelNode);
 	}
 	
+	/**
+	 * update current value's with the value's from the modelNode
+	 */
 	public void setNode(ModelNode node)
 	{
-		this.modelNode = node;
-		Idynomics.global.simulationName = node.getAttribute(XmlLabel.nameAttribute).value;
-		Idynomics.global.outputRoot = node.getAttribute(XmlLabel.outputFolder).value;
-		Log.set(node.getAttribute(XmlLabel.logLevel).value);
+		/* set local node */
+		this._modelNode = node;
 		
-		seed(Long.valueOf(node.getAttribute(XmlLabel.seed).value));
+		/* update simulation name */
+		Idynomics.global.simulationName = 
+				node.getAttribute(XmlRef.nameAttribute).value;
 		
+		/* update output root folder */
+		Idynomics.global.outputRoot = 
+				node.getAttribute(XmlRef.outputFolder).value;
+		
+		/* set output level */
+		Log.set(node.getAttribute(XmlRef.logLevel).value);
+		
+		/* set random seed */
+		seed(Long.valueOf(node.getAttribute(XmlRef.seed).value));
+		
+		/* set value's for all child nodes */
 		for(ModelNode n : node.childNodes)
 			n.constructor.setNode(n);
 	}
 
+	/**
+	 * Method is called when "add" button is hit in gui, options are set in
+	 * child constructor hashMap of model node.
+	 */
 	@Override
 	public void addChildObject(NodeConstructor childObject) 
 	{
@@ -425,9 +465,26 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 			this._compartments.add((Compartment) childObject);
 	}
 
+	/**
+	 * the default xml tag of this object.
+	 */
 	@Override
 	public String defaultXmlTag() {
-		return XmlLabel.simulation;
+		return XmlRef.simulation;
+	}
+	
+	/**
+	 * returns an "empty" Node constructor object.
+	 */
+	public NodeConstructor newBlank()
+	{
+		return new Simulator();
+	}
+
+	@Override
+	public String getXml() 
+	{
+		return this._modelNode.getXML();
 	}
 }
 

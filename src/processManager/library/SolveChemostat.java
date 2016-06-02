@@ -7,6 +7,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.BoundaryLibrary.ChemostatInflow;
 import boundary.BoundaryLibrary.ChemostatOutflow;
@@ -36,6 +37,13 @@ import utility.Helper;
 // out-flowing connection boundaries.
 public class SolveChemostat extends ProcessManager
 {
+	
+	public static String SOLUTE_NAMES = AspectRef.soluteNames;
+	public static String SOLVER = AspectRef.solver;
+	public static String HMAX = AspectRef.solverhMax;
+	public static String TOLERANCE = AspectRef.solverTolerance;
+	public static String REACTIONS = AspectRef.agentReactions;
+	
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
 	 */
@@ -94,7 +102,7 @@ public class SolveChemostat extends ProcessManager
 	 */
 	public void init()
 	{
-		this.init((String[]) reg().getValue(this, "soluteNames"));
+		this.init((String[]) reg().getValue(this, SOLUTE_NAMES));
 	}
 
 	/**
@@ -109,14 +117,14 @@ public class SolveChemostat extends ProcessManager
 		 * Initialise the solver.
 		 */
 		// TODO This should be done better
-		String solverName = this.getString("solver");
+		String solverName = this.getString(SOLVER);
 		solverName = Helper.setIfNone(solverName, "rosenbrock");
-		double hMax = Helper.setIfNone(this.getDouble("hMax"), 1.0e-6);
+		double hMax = Helper.setIfNone(this.getDouble(HMAX), 1.0e-6);
 		if ( solverName.equals("heun") )
 			this._solver = new ODEheunsmethod(soluteNames, false, hMax);
 		else
 		{
-			double tol = Helper.setIfNone(this.getDouble("tolerance"), 1.0e-6);
+			double tol = Helper.setIfNone(this.getDouble(TOLERANCE), 1.0e-6);
 			this._solver = new ODErosenbrock(soluteNames, false, tol, hMax);
 		}
 		/*
@@ -224,7 +232,7 @@ public class SolveChemostat extends ProcessManager
 				{
 					@SuppressWarnings("unchecked")
 					List<Reaction> reactions = 
-									(List<Reaction>) agent.get("reactions");
+									(List<Reaction>) agent.get(REACTIONS);
 					if ( reactions == null )
 						continue;
 					// TODO get agent biomass concentrations?

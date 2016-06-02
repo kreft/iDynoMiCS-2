@@ -1,6 +1,5 @@
 package testJUnit;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;

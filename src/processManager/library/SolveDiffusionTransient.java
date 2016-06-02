@@ -17,15 +17,15 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.AgentTools;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import grid.SpatialGrid;
 import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import idynomics.NameRef;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.subvoxel.CoordinateMap;
@@ -48,27 +48,27 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * include those that have reactions.
 	 */
 	protected final static Predicate<Agent> NO_REAC_FILTER = 
-			(a -> ! a.isAspect(NameRef.agentReactions));
+			(a -> ! a.isAspect(AspectRef.agentReactions));
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have relevant components of a body.
 	 */
 	protected final static Predicate<Agent> NO_BODY_FILTER = 
-			(a -> (! a.isAspect(NameRef.surfaceList)) ||
-					( ! a.isAspect(NameRef.bodyRadius)));
+			(a -> (! a.isAspect(AspectRef.surfaceList)) ||
+					( ! a.isAspect(AspectRef.bodyRadius)));
 	/**
 	 * Aspect name for the {@code coordinateMap} used for establishing which
 	 * voxels a located {@code Agent} covers.
 	 */
-	private static final String VD_TAG = NameRef.agentVolumeDistributionMap;
+	private static String VOLUME_DISTRIBUTION_MAP = AspectRef.agentVolumeDistributionMap;
 	/**
 	 * Aspect name for the TODO
 	 */
-	private static final String IP_TAG = NameRef.internalProduction;
+	private static String INTERNAL_PRODUCTION_RATE = AspectRef.internalProductionRate;
 	/**
 	 * Aspect name for the TODO
 	 */
-	private static final String GR_TAG = NameRef.growthRate;
+	private static String GROWTH_RATE = AspectRef.growthRate;
 	/**
 	 * Instance of a subclass of {@code PDEsolver}, e.g. {@code PDEexplicit}.
 	 */
@@ -164,7 +164,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * clear distribution maps, prevent unneeded clutter in xml output
 		 */
 		for ( Agent a : agents.getAllLocatedAgents() )
-			a.reg().remove(VD_TAG);
+			a.reg().remove(VOLUME_DISTRIBUTION_MAP);
 	}
 	
 	/*************************************************************************
@@ -198,11 +198,10 @@ public class SolveDiffusionTransient extends ProcessManager
 				applyEnvReactions(environment);
 				applyAgentReactions(environment, agents);
 				/* Ask all agents to grow. */
-				// TODO clarify what is happening in internal production
 				for ( Agent a : agents.getAllLocatedAgents() )
 				{
-					a.event(NameRef.growth, dt);
-					a.event(NameRef.internalProduction, dt);
+					a.event(AspectRef.growth, dt);
+					a.event(AspectRef.internalProduction, dt);
 				}
 			}
 		};
@@ -310,12 +309,12 @@ public class SolveDiffusionTransient extends ProcessManager
 		HashMap<String,Double> internalProdctn;
 		for ( Agent a : agentList )
 		{
-			reactions = (List<Reaction>) a.getValue(XmlLabel.reactions);
-			distributionMap = (CoordinateMap) a.getValue(VD_TAG);
-			a.set(GR_TAG, 0.0);
-			if ( a.isAspect(IP_TAG) )
+			reactions = (List<Reaction>) a.getValue(XmlRef.reactions);
+			distributionMap = (CoordinateMap) a.getValue(VOLUME_DISTRIBUTION_MAP);
+			a.set(GROWTH_RATE, 0.0);
+			if ( a.isAspect(INTERNAL_PRODUCTION_RATE) )
 			{
-				internalProdctn = (HashMap<String,Double>) a.getValue(IP_TAG);
+				internalProdctn = (HashMap<String,Double>) a.getValue(INTERNAL_PRODUCTION_RATE);
 				for (String key : internalProdctn.keySet())
 					internalProdctn.put(key, 0.0);
 			}
@@ -386,16 +385,16 @@ public class SolveDiffusionTransient extends ProcessManager
 									coord, productionRate);
 						}
 						else if ( 
-							a.getString(XmlLabel.species).equals(productName) )
+							a.getString(XmlRef.species).equals(productName) )
 						{
-							double curRate = a.getDouble(GR_TAG);
-							a.set(GR_TAG, curRate + productionRate * 
+							double curRate = a.getDouble(GROWTH_RATE);
+							a.set(GROWTH_RATE, curRate + productionRate * 
 									distributionMap.get(coord));
 						}
-						else if ( a.isAspect(IP_TAG) )
+						else if ( a.isAspect(INTERNAL_PRODUCTION_RATE) )
 						{
 							internalProdctn = 
-									(HashMap<String,Double>) a.getValue(IP_TAG);
+									(HashMap<String,Double>) a.getValue(INTERNAL_PRODUCTION_RATE);
 							double curRate = productionRate * 
 													distributionMap.get(coord);
 							if ( internalProdctn.containsKey(productName) )

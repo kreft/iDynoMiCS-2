@@ -2,6 +2,7 @@ package processManager.library;
 
 //FIXME this class is for testing purposes only!!!
 import agent.Agent;
+import aspect.AspectRef;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
@@ -12,13 +13,17 @@ import processManager.ProcessManager;
  */
 public class AgentGrowth extends ProcessManager
 {
+	
+	public static String AGENT_GROWTH = AspectRef.growth;
+	public static String AGENT_DIVISION = AspectRef.agentDivision;
+	
 	protected void internalStep(
 					EnvironmentContainer environment, AgentContainer agents)
 	{
 		for ( Agent agent : agents.getAllAgents() )
 		{
-			agent.event("growth", this._timeStepSize);
-			agent.event("divide", this._timeStepSize);
+			agent.event(AGENT_GROWTH, this._timeStepSize);
+			agent.event(AGENT_DIVISION, this._timeStepSize);
 		}
 	}
 }

@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.SvgExport;
@@ -28,6 +29,16 @@ import utility.ExtraMath;
  */
 public class WriteAgentsSvg extends ProcessManager
 {
+	
+	public static String BODY = AspectRef.agentBody;
+	public static String RADIUS = AspectRef.bodyRadius;
+	public static String PIGMENT = AspectRef.agentPigment;
+	
+	public static String ARRAY_TYPE = AspectRef.gridArrayType;
+	public static String MAX_VALUE = AspectRef.visualOutMaxValue;
+	public static String SOLUTE_NAME = AspectRef.soluteName;
+	public static String FILE_PREFIX = AspectRef.filePrefix;
+	
 	/**
 	 * The SVG exporter.
 	 */
@@ -70,14 +81,14 @@ public class WriteAgentsSvg extends ProcessManager
 	{
 		super.init(xmlElem);
 		
-		this._solute = this.getString("solute");
-		this._maxConcn = ( this.isAspect("maxConcentration") ? 
-									this.getDouble("maxConcentration") : 2.0);
-		this._prefix = this.getString("prefix");
+		this._solute = this.getString(SOLUTE_NAME);
+		this._maxConcn = ( this.isAspect(MAX_VALUE) ? 
+									this.getDouble(MAX_VALUE) : 2.0);
+		this._prefix = this.getString(FILE_PREFIX);
 		
 		this._arrayType = ArrayType.CONCN;
-		if ( this.isAspect("arrayType") ) 
-			this._arrayType = ArrayType.valueOf(this.getString("arrayType"));
+		if ( this.isAspect(ARRAY_TYPE) ) 
+			this._arrayType = ArrayType.valueOf(this.getString(ARRAY_TYPE));
 	}
 	
 	/*************************************************************************
@@ -101,7 +112,7 @@ public class WriteAgentsSvg extends ProcessManager
 		/* check if this shape is cylindrical or cartesian */
 		//TODO Stefan: Maybe we should use another check?
 		if (shape instanceof CartesianShape)
-			this._svg.rectangle( Vector.zeros(size), size, "GRAY");
+		this._svg.rectangle( Vector.zeros(size), size, "GRAY");
 		else if (shape instanceof CylindricalShape)
 			this._svg.circle(Vector.zeros(size), size, "GRAY");
 		else
@@ -145,7 +156,7 @@ public class WriteAgentsSvg extends ProcessManager
 				/* Write the solute square. */
 				String pigment = "rgb(" + c + "," + c + "," + c + ")";
 				if (shape instanceof CartesianShape)
-					this._svg.rectangle(Vector.subset(origin, nDim), 
+				this._svg.rectangle(Vector.subset(origin, nDim), 
 							Vector.subset(dimension, nDim),pigment);
 				else if (shape instanceof CylindricalShape)
 					this._svg.circleElement(Vector.zerosDbl(2),	origin, 
@@ -155,14 +166,14 @@ public class WriteAgentsSvg extends ProcessManager
 		/* Draw all located agents. */
 		// NOTE currently only coccoid
 		for ( Agent a: agents.getAllLocatedAgents() )
-			if ( a.isAspect("body") )
+			if ( a.isAspect(BODY) )
 			{
-				List<double[]> joints = ((Body) a.get("body")).getJoints();
+				List<double[]> joints = ((Body) a.get(BODY)).getJoints();
 				for ( int i = 0; joints.size() > i; i++ )
 				{
 					this._svg.circle(joints.get(i), 
-							a.getDouble("radius"), 
-							a.getString("pigment"));
+							a.getDouble(RADIUS), 
+							a.getString(PIGMENT));
 				}
 			}
 		/* Close the SVG file */

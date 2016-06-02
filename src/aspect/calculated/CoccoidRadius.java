@@ -2,7 +2,7 @@ package aspect.calculated;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
-import idynomics.NameRef;
+import aspect.AspectRef;
 import utility.ExtraMath;
 
 /**
@@ -14,7 +14,7 @@ import utility.ExtraMath;
  */
 public class CoccoidRadius extends Calculated {
 	
-	public String VOLUME = NameRef.agentVolume;
+	public String VOLUME = AspectRef.agentVolume;
 	
 	public CoccoidRadius()
 	{

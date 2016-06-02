@@ -24,7 +24,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid;
@@ -174,9 +174,9 @@ public abstract class Shape implements
 	public ModelNode getNode()
 	{
 
-		ModelNode modelNode = new ModelNode(XmlLabel.compartmentShape, this);
+		ModelNode modelNode = new ModelNode(XmlRef.compartmentShape, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
-		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
 										this.getName(), null, false ));
 		
 		for ( Dimension dim : this._dimensions.values() )
@@ -208,7 +208,7 @@ public abstract class Shape implements
 	@Override
 	public String defaultXmlTag()
 	{
-		return XmlLabel.compartmentShape;
+		return XmlRef.compartmentShape;
 	}
 	
 	/**
@@ -228,7 +228,7 @@ public abstract class Shape implements
 		/* Set up the dimensions. */
 		DimName dimName;
 		Dimension dim;
-		childNodes = XmlHandler.getAll(xmlElem, XmlLabel.shapeDimension);
+		childNodes = XmlHandler.getAll(xmlElem, XmlRef.shapeDimension);
 		ResCalc rC;
 		
 		for ( int i = 0; i < childNodes.getLength(); i++ )
@@ -237,7 +237,7 @@ public abstract class Shape implements
 			try
 			{
 				str = XmlHandler.obtainAttribute(childElem,
-												XmlLabel.nameAttribute);
+												XmlRef.nameAttribute);
 				dimName = DimName.valueOf(str);
 				dim = this.getDimension(dimName);
 				dim.init(childElem);
@@ -257,11 +257,11 @@ public abstract class Shape implements
 		
 		/* Set up any other boundaries. */
 		Boundary aBoundary;
-		childNodes = XmlHandler.getAll(xmlElem, XmlLabel.dimensionBoundary);
+		childNodes = XmlHandler.getAll(xmlElem, XmlRef.dimensionBoundary);
 		for ( int i = 0; i < childNodes.getLength(); i++ )
 		{
 			childElem = (Element) childNodes.item(i);
-			str = childElem.getAttribute(XmlLabel.classAttribute);
+			str = childElem.getAttribute(XmlRef.classAttribute);
 			aBoundary = (Boundary) Boundary.getNewInstance(str);
 			aBoundary.init(childElem);
 			this.addOtherBoundary(aBoundary);
@@ -1143,8 +1143,9 @@ public abstract class Shape implements
 	protected void nVoxelTo(int[] destination, int[] coords)
 	{
 		Vector.checkLengths(destination, coords);
+		int n = Math.min(coords.length, 3);
 		ResCalc rC;
-		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
+		for ( int dim = 0; dim < n; dim++ )
 		{
 			rC = this.getResolutionCalculator(coords, dim);
 			destination[dim] = rC.getNVoxel();
@@ -1179,7 +1180,7 @@ public abstract class Shape implements
 		 */
 		int nP, nCurrent;
 		ResCalc rC;
-		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
+		for ( int dim = 0; dim < 3; dim++ )
 		{
 			// TODO Rob[17Feb2016]: This will need improving for polar grids...
 			// I think maybe would should introduce a subclass of Dimension for
@@ -1504,24 +1505,29 @@ public abstract class Shape implements
 	protected boolean nbhJumpOverCurrent(DimName dim)
 	{
 		int index = this.getDimensionIndex(dim);
-		/* try to jump */
-		if (this._currentNeighbor[index] < this._currentCoord[index]){
-			this._currentNeighbor[index] = this._currentCoord[index] + 1;
-			WhereAmI new_orientation = this.whereIsNhb(dim);
-			if ( new_orientation != UNDEFINED)
+		this.updateCurrentNVoxel();
+		this._whereIsNbh = this.whereIsNhb(dim);
+		/* Check we are behind the current coordinate. */
+		if ( this._currentNeighbor[index] < this._currentCoord[index] )
+		{
+			boolean bMaxDef = this.getDimension(dim).isBoundaryDefined(1);
+			/* Check there is space on the other side. */
+			if ( this._whereIsNbh == INSIDE || bMaxDef )
 			{
 				/* Jump and report success. */
 				this._nbhDirection = 1;
-				this._nbhDimName = dim;
-				this._whereIsNbh = new_orientation;
+				this._currentNeighbor[index] = this._currentCoord[index] + 1;
+				this._whereIsNbh = this.whereIsNhb(dim);
 				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
 						": result "+Vector.toString(this._currentNeighbor)+
 						" is "+this._whereIsNbh);
 				return true;
 			}
-			this._currentNeighbor[index] = this._currentCoord[index] - 1;
 		}
 		/* Report failure. */
+		// TODO is it appropriate to use a meaningless direction here?
+		this._nbhDirection = -1;
+		this._whereIsNbh = this.whereIsNhb(dim);
 		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
 				" is "+this._whereIsNbh);
