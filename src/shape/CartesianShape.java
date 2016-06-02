@@ -3,6 +3,7 @@ package shape;
 import static shape.Shape.WhereAmI.*;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import static shape.Dimension.DimName;
@@ -36,6 +37,8 @@ public abstract class CartesianShape extends Shape
 		 * Fill the resolution calculators with dummies for now: they should
 		 * be overwritten later.
 		 */
+		//TODO Stefan: Why do we need this?
+		// 			   Shouldn't ResCalc be null if no dimension is specified?
 		for ( int i = 0; i < 3; i++ )
 		{
 			SingleVoxel sV = new SingleVoxel();
@@ -54,7 +57,10 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public double[][][] getNewArray(double initialValue) {
 		int[] nVoxel = this.updateCurrentNVoxel();
-		return Array.array(nVoxel[0], nVoxel[1], nVoxel[2], initialValue);
+		/* we need at least length 1 in each dimension for the array */
+		return Array.array(nVoxel[0] == 0 ? 1 : nVoxel[0], 
+							nVoxel[1] == 0 ? 1 : nVoxel[1], 
+							nVoxel[2] == 0 ? 1 : nVoxel[2], initialValue);
 	}
 	
 	/*************************************************************************
@@ -194,19 +200,18 @@ public abstract class CartesianShape extends Shape
 				this._whereIsNbh = UNDEFINED;
 			}
 		}
-		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNbh);
+		
 		this.transformNbhCyclic();
-		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNbh);
 		return this._currentNeighbor;
 	}
 	
 	@Override
 	public double nbhCurrDistance()
 	{
+		Tier level = Tier.BULK;
+		Log.out(level, "  calculating distance between voxels "+
+				Vector.toString(this._currentCoord)+" and "+
+				Vector.toString(this._currentNeighbor));
 		int i = this.getDimensionIndex(this._nbhDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
 		double out = rC.getResolution(this._currentCoord[i]);
@@ -220,10 +225,12 @@ public abstract class CartesianShape extends Shape
 		{
 			/* If the neighbor is on a defined boundary, use the current 
 				coord's resolution. */
+			Log.out(level, "    distance is "+out);
 			return out;
 		}
 		/* If the neighbor is on an undefined boundary, return infinite
 			distance (this should never happen!) */
+		Log.out(level, "    undefined distance!");
 		return Double.POSITIVE_INFINITY;
 	}
 	

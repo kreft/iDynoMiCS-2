@@ -14,6 +14,7 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="AOB">
+				<aspect name="pigment" class="String" value="RED" />
 				<aspect name="reactions" type="LinkedList" >
 					<item type="Reaction">
 						<reaction name="testReact">
@@ -51,10 +52,9 @@
 		</speciesLib>
 
 		<compartment name="second">
-			<shape class="Sphere">
-				<dimension name="R" isCyclic="false" targetResolution = "1.0" max="3.0" />
-				<dimension name="THETA" isCyclic="false" targetResolution = "1.0" />
-				<dimension name="PHI" isCyclic="false" targetResolution = "1.0" />
+			<shape class="Circle" >
+				<dimension name="R" isCyclic="false" targetResolution="1" max="10"/>
+				<dimension name="THETA" targetResolution="1"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="1.0" />
@@ -126,10 +126,6 @@
 					<aspect name="timerStepSize" type="Double" value="1.0" />
 					<aspect name="arrayType" type="String" value="PRODUCTIONRATE" />
 				</process>
-				<!-- <process name="agentGrowth" class="AgentGrowth"  priority="-0"
-					firstStep="0.0"  />  -->
-				<!-- <process name="agentMove" class="AgentStochasticMove"
-					 priority="-1" firstStep="0.0"  /> -->
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
 					<aspect name="maxMovement" type="Double" value="0.05" />

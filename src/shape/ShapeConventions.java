@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import boundary.Boundary;
 import boundary.grid.GridMethod;
 import grid.SpatialGrid;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator.SameRes;
 
 /**
  * \brief TODO
@@ -22,7 +22,7 @@ public final class ShapeConventions
 	 * \brief Dummy resolution calculator that always has exactly one voxel.
 	 */
 	// NOTE exploratory work, may not be used
-	public static class SingleVoxel extends ResCalc
+	public static class SingleVoxel extends SameRes
 	{
 		public SingleVoxel()
 		{
@@ -38,9 +38,9 @@ public final class ShapeConventions
 		}
 		
 		@Override
-		public void setResolution(double length)
+		public void setResolution(double targetResolution)
 		{
-			this._length = length;
+			this._resolution = targetResolution;
 		}
 
 		@Override

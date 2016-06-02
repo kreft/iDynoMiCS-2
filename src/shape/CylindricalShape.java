@@ -260,6 +260,19 @@ public abstract class CylindricalShape extends PolarShape
 		}
 	}
 	
+	//TODO: does it even make sense to cross the r boundary ? 
+	// Or should we just forbid cyclic r (and phi in the sphere) dimensions? 
+//	@Override
+//	protected void transformNbhCyclic() {
+//		super.transformNbhCyclic();
+//		/* lets (additionally) choose a random location on the other side of 
+//		 * the shape when crossing the radial boundary.
+//		 * This will be always zero when moving from max to min */
+//		if (this._nbhDimName == R)
+//			this._currentNeighbor[1] = ExtraMath.random.nextInt(
+//				this._resCalc[1][this._currentNeighbor[0]].getNVoxel());
+//	}
+	
 	@Override
 	public int[] nbhIteratorNext()
 	{

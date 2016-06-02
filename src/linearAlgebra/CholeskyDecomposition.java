@@ -50,6 +50,14 @@ public class CholeskyDecomposition
 	 */
 	private boolean isspd;
 	
+	/*************************************************************************
+	 * CONSTRUCTOR
+	 ************************************************************************/
+	
+	/**
+	 * @param matrix Rectangular matrix of {@code double} values: works best if
+	 * <b>matrix</b> is square.
+	 */
 	public CholeskyDecomposition (double[][] matrix)
 	{
 		this.L = Matrix.zeros(matrix);

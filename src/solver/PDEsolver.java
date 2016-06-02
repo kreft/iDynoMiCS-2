@@ -89,10 +89,19 @@ public abstract class PDEsolver extends Solver
 			{
 				temp = grid.getFluxWithNeighbor(varName);
 				flux += temp;
-				Log.out(level, 
+				/* to get the value we must be inside, the flux can be obtained
+				 * from boundary.
+				 */
+				if (shape.isNhbIteratorInside())
+					Log.out(level, 
 						"   nhb "+Vector.toString(shape.nbhIteratorCurrent())+
 						" ("+grid.getValueAtNhb(CONCN)+") "+
 						" contributes flux of "+temp);
+				else
+					Log.out(level, 
+							" boundary nhb "+Vector.toString(
+									shape.nbhIteratorCurrent())
+							+ " contributes flux of "+temp);
 			}
 			/*
 			 * Finally, apply this to the relevant array.

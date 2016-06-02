@@ -7,6 +7,9 @@ import idynomics.NameRef;
 /**
  * \brief TODO
  * 
+ * <p>Note that this could be calculated using StateExpression, but this is
+ * quicker.</p>
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * 
  * Input: mass, density.

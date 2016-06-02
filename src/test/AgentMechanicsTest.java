@@ -67,7 +67,7 @@ public class AgentMechanicsTest {
 					getElementsByTagName("agents").item(0)).
 					getElementsByTagName("agent");
 			for (int j = 0; j < agentNodes.getLength(); j++) 
-				comp.addAgent(new Agent(agentNodes.item(j)));
+				comp.addAgent(new Agent(agentNodes.item(j), comp));
 		}
 		
 		////////////////////////

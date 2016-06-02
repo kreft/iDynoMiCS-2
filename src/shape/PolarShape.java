@@ -1,9 +1,14 @@
 package shape;
 
+import java.util.Arrays;
+
+import dataIO.Log;
+import dataIO.Log.Tier;
+
 import static shape.Dimension.DimName;
 import static shape.Dimension.DimName.*;
-import static shape.Shape.WhereAmI.DEFINED;
-import static shape.Shape.WhereAmI.UNDEFINED;
+import static shape.Shape.WhereAmI.*;
+
 
 import linearAlgebra.Vector;
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -11,15 +16,13 @@ import shape.resolution.ResolutionCalculator.ResCalc;
 public abstract class PolarShape extends Shape
 {
 	
-	/**
-	 * A constant factor scaling resolutions of polar grids.
-	 * Set to (π/2)<sup>-1</sup> to have quarter circles at radius 0.
-	 */
-	protected final static double N_ZERO_FACTOR = 2 / Math.PI;
-	
 	@Override
 	public double nbhCurrDistance()
 	{
+		Tier level = Tier.DEBUG;
+		Log.out(level, "  calculating distance between voxels "+
+				Vector.toString(this._currentCoord)+" and "+
+				Vector.toString(this._currentNeighbor));
 		int nDim = this.getNumberOfDimensions();
 		double distance = 0.0;
 		double temp;
@@ -46,6 +49,7 @@ public abstract class PolarShape extends Shape
 			/* Use Pythagoras to update the distance. */
 			distance = Math.hypot(distance, temp);
 		}
+		Log.out(level, "    distance is "+distance);
 		return distance;
 	}
 	
@@ -99,8 +103,11 @@ public abstract class PolarShape extends Shape
 	 */
 	protected boolean setNbhFirstInNewShell(int shellIndex)
 	{
+		Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new shell "+
+				shellIndex);
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[0] = shellIndex;
+		this._nbhDimName = R;
 		/*
 		 * First check that the new shell is inside the grid. If we're on a
 		 * defined boundary, the angular coordinate is irrelevant.
@@ -109,11 +116,12 @@ public abstract class PolarShape extends Shape
 		WhereAmI where = this.whereIsNhb(R);
 		if ( where == UNDEFINED )
 			return false;
-		if ( where == DEFINED )
+		if ( where == DEFINED || where == CYCLIC)
 		{
 			this._nbhDimName = R;
 			this._nbhDirection = this._currentCoord[0] 
 									< this._currentNeighbor[0] ? 1 : 0;
+			this._whereIsNbh = where;
 			return true;
 		}
 		/*
@@ -134,6 +142,7 @@ public abstract class PolarShape extends Shape
 		this._nbhDirection = 
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
+		this._whereIsNbh = WhereAmI.INSIDE;
 		return true;
 	}
 	
@@ -146,7 +155,12 @@ public abstract class PolarShape extends Shape
 	 */
 	protected boolean increaseNbhByOnePolar(DimName dim)
 	{
+		Log.out(NHB_ITER_LEVEL, "  trying to increase neighbor "
+			  + Arrays.toString(this._currentNeighbor)+" by one polar in "+dim);
+		/* avoid increasing on any boundaries */
 		int index = this.getDimensionIndex(dim);
+		if (whereIsNhb(this._nbhDimName) != INSIDE) 
+			return false;
 		Dimension dimension = this.getDimension(dim);
 		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, index);
 		/* If we are already on the maximum boundary, we cannot go further. */
@@ -159,6 +173,9 @@ public abstract class PolarShape extends Shape
 			{
 				this._whereIsNbh = DEFINED;
 				this._nbhDirection = 1;
+				this._nbhDimName = dim;
+				this._currentNeighbor[index]++;
+				return true;
 			}	
 			else
 				return false;
@@ -177,103 +194,47 @@ public abstract class PolarShape extends Shape
 		this._currentNeighbor[index]++;
 		return true;
 	}
-	
 
 	/**
-	 * \brief Computes a factor that scales the number of elements for
-	 * increasing  radius to keep element volume fairly constant.
+	 * \brief Converts the given resolution {@code res} .
 	 * 
-	 * @param radiusIndex Radial coordinate of all voxels in a given shell.
-	 * @return A scaling factor for a given radius, based on the relative arc
-	 * length at this radius.
+	 * @param shell Index of the shell.
+	 * @param res Target resolution, in units of "quarter circles"
+	 * @return Target resolution, in radians.
 	 */
-	protected static int getFactorForShell(int radiusIndex)
+	protected static double scaleResolutionForShell(int shell, double res)
 	{
 		/*
-		 * The area enclosed by two polar curves r₀(θ) and r₁(θ) and two 
-		 * polar angles θ₀ and θ₁ is:
-		 *  A(r₀, r₁, θ₀, θ₁) := 1/2 (r₁^2-r₀^2) (θ₁-θ₀)			(1)
-		 * If we set,  
-		 *  θ₀ := 0 and
-		 *  r₁ := r₀ + 1 (since java indices start at 0 and we assume res 1), 
-		 * this simplifies to:
-		 *  A(r) = (r + 1/2) θ₁
-		 * and we can determine the angle θ for which we have an area of a 
-		 *  circle at r = 1, independent from r:
-		 *  A(1) = A(r) = pi 
-		 *  -> pi = (r + 1/2) θ
-		 *	-> θ = (2 pi)/(2 r + 1).
-		 * So the factor to scale the polar angles with varying r is the 
-		 *  circumference of the circle at r = 1 divided by θ:
-		 * s(r) = (2 pi) / θ = 2 r + 1.
-		 *  
+		 * The number "2 * (index of the shell) + 1" represents the radius of
+		 * an imaginary arc running along the centre of the shell.
 		 */
-		return 2 * radiusIndex + 1;
-	}
-	
-	/**
-	 * \brief Converts the given resolution {@code res} to account for varying radius.
-	 * 
-	 * @param shell
-	 * @param res
-	 * @return
-	 */
-	protected static double scaleResolutionForShell(int shell, double res){	
-		/* 
-		 * getFactorForShell(shell) will return a scaling factor to have an area 
-		 * of A(1) = pi throughout the grid (see getFactorForShell).
-		 * 
-		 * So we first scale this factor to have an area of pi / 4 (this means
-		 * quarter circles at r = 1) throughout the grid and divide the target
-		 * resolution by this factor. 
-		 *TODO: Stefan[18Feb2016]: we could also set N_ZERO_FACTOR not to have
-		 *		quarter circles but a resolution of one throughout the grid.
+		double factor = ( 2 * shell + 1);
+		/*
+		 * Divide pi/2 by this number, so that the resolution is scaled to a 
+		 * quarter circle. If res is one and shell is zero (i.e. the innermost
+		 * shell), then this method will return pi/2 radians.
 		 */
-		return res / (N_ZERO_FACTOR * getFactorForShell(shell));
+		factor = Math.PI * 0.5 / factor;
+		/*
+		 * Multiply res by this factor to convert it from "units of quarter
+		 * circle" to radians.
+		 */
+		return res * factor;
 	}
-	
+
 	/**	
 	 * \brief Converts the given resolution {@code res} to account for varying 
 	 * radius and polar angle.
 	 * 
-	 * @param shell
-	 * @param ring
-	 * @param res
-	 * @return
+	 * @param shell Index of the shell.
+	 * @param ring Index of the ring.
+	 * @param res Target resolution, in units of "quarter circles"
+	 * @return Target resolution, in radians.
 	 */
-	protected static double scaleResolutionForRing(int shell, int ring, double res){
-		/*
-		 * The scale factor 
-		 * (<a href="http://mathworld.wolfram.com/ScaleFactor.html">here</a>)
-		 * for the azimuthal angle is r sin phi.
-		 * 
-		 * Since we assume the rings to be scaled for varying radius already 
-		 * and we do not move in between shells, it is sufficient to scale the 
-		 * number of voxels in azimuthal dimension according to a sine. 
-		 * 
-		 * So because shell and ring are given in coordinate space, we have to 
-		 * scale the ring to peak at π / 2 instead of getFactorForShell(shell), 
-		 * where it would peak for a resolution of one. 
-		 * 
-		 * (Actually we let it peak at s(shell) - 0.5 to keep
-		 * things symmetric around the equator).
-		 */
-		double ring_scale = 0.5 * Math.PI / (getFactorForShell(shell) - 0.5);
-		
-		/* Compute the sine of the scaled phi-coordinate */
-		double length = Math.sin(ring * ring_scale);
-		// TODO: check why length can be < 0 here (possibly resolutions ~ 0)
-		length = Math.max(0, length);
-		
-		/* Scale the result to be in coordinate space again:
-		 * Nₒ = number of voxels at r = 0 in θ dimension.
-		 * sin(0) = N₀
-		 * sin(π / 2) = s(shell) * N₀
-		 * sin(π) = N₀
-		 * This is the number of voxels in θ for resolution one.
-		 */
-		 length = N_ZERO_FACTOR * ( 1 + length * ( 2 * shell ) );
-		/* Scale the resolution to account for the additional voxels */
-		return res / length;
+	protected double scaleResolutionForRing(int shell, int ring,
+												double ring_res, double res){
+		/* scale theta resolution to have a volume of one for resolution one */
+		return res * 3.0 / ((1 + 3 * shell * (1 + shell)) 
+			* (Math.cos(ring * ring_res) - Math.cos((1.0 + ring) * ring_res)));
 	}
 }

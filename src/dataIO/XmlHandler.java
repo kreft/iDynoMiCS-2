@@ -8,8 +8,6 @@ import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,7 +20,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import idynomics.Idynomics;
-import idynomics.Param;
 import dataIO.Log.Tier;
 import utility.Helper;
 
@@ -190,13 +187,26 @@ public class XmlHandler
 	 */
 	public static String obtainAttribute(Element xmlElement, String attribute)
 	{
-		if(xmlElement.hasAttribute(attribute))
+		if ( xmlElement.hasAttribute(attribute) )
 			return  xmlElement.getAttribute(attribute);
 		else
 		{
 			return Helper.obtainInput(null, "Required " + attribute +
 					" from missing xml node: " + xmlElement.getLocalName());
 		}
+	}
+	
+	/**
+	 * \brief Gets an attribute from an XML node: if the attribute cannot be
+	 * found, asks the user. 
+	 * 
+	 * @param xmlNode Node from an XML protocol file.
+	 * @param attribute Name of the attribute sought.
+	 * @return String representation of the attribute required.
+	 */
+	public static String obtainAttribute(Node xmlNode, String attribute)
+	{
+		return obtainAttribute((Element) xmlNode, attribute);
 	}
 	
 	/**

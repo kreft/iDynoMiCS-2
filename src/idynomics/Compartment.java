@@ -324,6 +324,17 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @param agent
+	 */
+	public void killAgent(Agent agent)
+	{
+		agent.setCompartment(null);
+		this.agents.registerRemoveAgent(agent);
+	}
+	
+	/**
 	 * \brief Get the {@code SpatialGrid} for the given solute name.
 	 * 
 	 * @param soluteName {@code String} name of the solute required.
@@ -615,6 +626,6 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	@Override
 	public String getXml() 
 	{
-		return getNode().getXML();
+		return this.getNode().getXML();
 	}
 }
