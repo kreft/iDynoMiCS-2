@@ -11,7 +11,7 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.ObjectRef;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -279,10 +279,10 @@ public class AspectReg
 	 * @return
 	 */
 	public ModelNode getModuleNode(NodeConstructor constructor) {
-		ModelNode modelNode = new ModelNode(XmlLabel.speciesModule,constructor);
+		ModelNode modelNode = new ModelNode(XMLRef.speciesModule,constructor);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.nameAttribute, 
 				this._identity, null, true ) );
 		
 		return modelNode;
@@ -395,11 +395,11 @@ public class AspectReg
 		@Override
 		public ModelNode getNode() 
 		{
-			ModelNode modelNode = new ModelNode(XmlLabel.aspect, this);
+			ModelNode modelNode = new ModelNode(XMLRef.aspect, this);
 			modelNode.requirement = Requirements.ZERO_TO_FEW;
 			modelNode.title = this.key;
 			
-			modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+			modelNode.add(new ModelAttribute(XMLRef.nameAttribute, 
 					this.key, null, true ) );
 			
 			String simpleName = this.aspect.getClass().getSimpleName();
@@ -407,10 +407,10 @@ public class AspectReg
 			/* Primaries */
 			if(this.type.equals(AspectReg.AspectClass.PRIMARY) )
 			{
-				modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
+				modelNode.add(new ModelAttribute(XMLRef.typeAttribute, 
 						this.type.toString(), null, false ) );
 				
-				modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+				modelNode.add(new ModelAttribute(XMLRef.classAttribute, 
 						simpleName, null, false ) );
 				
 				
@@ -441,7 +441,7 @@ public class AspectReg
 					}
 					else
 					{
-						modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, 
+						modelNode.add(new ModelAttribute(XMLRef.valueAttribute, 
 								ObjectFactory.stringRepresentation(aspect), 
 								null, true ) );
 					}
@@ -450,15 +450,15 @@ public class AspectReg
 			/* events and calculated */
 			else
 			{
-				modelNode.add(new ModelAttribute(XmlLabel.typeAttribute, 
+				modelNode.add(new ModelAttribute(XMLRef.typeAttribute, 
 						this.type.toString(), null, false ) );
 
-				modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+				modelNode.add(new ModelAttribute(XMLRef.classAttribute, 
 						simpleName, null , false ) );
 				
 				if (simpleName.equals( StateExpression.class.getSimpleName() ) )
 				{
-					modelNode.add(new ModelAttribute(XmlLabel.inputAttribute, 
+					modelNode.add(new ModelAttribute(XMLRef.inputAttribute, 
 							( (Calculated) this.aspect ).getInput()[0], 
 							null, false ) );
 				}
@@ -478,7 +478,7 @@ public class AspectReg
 			ModelNode modelNode = new ModelNode("item", this);
 			modelNode.requirement = Requirements.ZERO_TO_MANY;
 			
-			modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+			modelNode.add(new ModelAttribute(XMLRef.classAttribute, 
 					h.get(key).getClass().getSimpleName(), null, false ) );
 			
 			return modelNode;
@@ -492,12 +492,12 @@ public class AspectReg
 		@Override
 		public void setNode(ModelNode node) 
 		{
-			if(node.getAttribute(XmlLabel.valueAttribute) != null)
+			if(node.getAttribute(XMLRef.valueAttribute) != null)
 			{
 				this.set(ObjectFactory.loadObject(
-						node.getAttribute(XmlLabel.valueAttribute).value, 
-						node.getAttribute(XmlLabel.typeAttribute).value,
-						node.getAttribute(XmlLabel.classAttribute).value), key);
+						node.getAttribute(XMLRef.valueAttribute).value, 
+						node.getAttribute(XMLRef.typeAttribute).value,
+						node.getAttribute(XMLRef.classAttribute).value), key);
 			}
 			
 			for(ModelNode n : node.childNodes)
@@ -552,7 +552,7 @@ public class AspectReg
 		@Override
 		public String defaultXmlTag() {
 			// TODO Auto-generated method stub
-			return XmlLabel.aspect;
+			return XMLRef.aspect;
 		}
 	}
 }

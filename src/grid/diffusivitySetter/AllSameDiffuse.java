@@ -10,7 +10,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 
@@ -41,7 +41,7 @@ public class AllSameDiffuse implements IsDiffusivitySetter
 	public void init(Node xmlNode)
 	{
 		Element e = (Element) xmlNode;
-		String s = XmlHandler.obtainAttribute(e, XmlLabel.defaultDiffusivity);
+		String s = XmlHandler.obtainAttribute(e, XMLRef.defaultDiffusivity);
 		this._diffusivity = Double.valueOf(s);
 	}
 	

@@ -4,7 +4,7 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import dataIO.Log.Tier;
 import utility.Helper;
 
@@ -65,7 +65,7 @@ public class Param
 	// TODO safety: check the root exists, and the name is acceptable
 			Idynomics.global.outputRoot = 
 					Helper.obtainInput(Idynomics.global.outputRoot, 
-							"Required " + XmlLabel.outputFolder, true);
+							"Required " + XMLRef.outputFolder, true);
 			Idynomics.global.simulationName = 
 					Helper.obtainInput(Idynomics.global.simulationName,
 							"Required simulation name", true);
@@ -90,9 +90,9 @@ public class Param
 		 *   
 		 */
 		// TODO safety: check the root exists, and the name is acceptable
-		Idynomics.global.outputRoot = XmlHandler.obtainAttribute(elem, XmlLabel.outputFolder);
+		Idynomics.global.outputRoot = XmlHandler.obtainAttribute(elem, XMLRef.outputFolder);
 		Idynomics.global.simulationName = 
-					XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
+					XmlHandler.obtainAttribute(elem, XMLRef.nameAttribute);
 		Idynomics.global.outputLocation = Idynomics.global.outputRoot + "/" + Idynomics.global.simulationName + "/";
 		/* 
 		 * Set up the log file.
@@ -105,7 +105,7 @@ public class Param
 			try
 			{
 				t = Tier.valueOf(
-						XmlHandler.obtainAttribute(elem, XmlLabel.logLevel));
+						XmlHandler.obtainAttribute(elem, XMLRef.logLevel));
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -119,6 +119,6 @@ public class Param
 		 * 
 		 */
 		Idynomics.global.simulationComment = 
-				XmlHandler.gatherAttribute(elem, XmlLabel.commentAttribute);
+				XmlHandler.gatherAttribute(elem, XMLRef.commentAttribute);
 	}
 }

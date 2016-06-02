@@ -12,7 +12,7 @@ import agent.Species.SpeciesMaker;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import generalInterfaces.XMLable;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
@@ -65,13 +65,13 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 		/* 
 		 * Cycle through all species and add them to the library.
 		 */ 
-		NodeList nodes = xmlElem.getElementsByTagName(XmlLabel.species);
+		NodeList nodes = xmlElem.getElementsByTagName(XMLRef.species);
 		String name;
 		Element speciesElem;
 		for ( int i = 0; i < nodes.getLength(); i++ ) 
 		{
 			speciesElem = (Element) nodes.item(i);
-			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			name = speciesElem.getAttribute(XMLRef.nameAttribute);
 			this.set(name, new Species(speciesElem));
 		}
 		/* 
@@ -81,7 +81,7 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 		for ( int i = 0; i < nodes.getLength(); i++ ) 
 		{
 			speciesElem = (Element) nodes.item(i);
-			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			name = speciesElem.getAttribute(XMLRef.nameAttribute);
 			Species s = (Species) this._species.get(name);
 			Log.out(Tier.EXPRESSIVE,
 					"Species \""+name+"\" loaded into Species Library");
@@ -193,7 +193,7 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 	public ModelNode getNode() {
 
 		/* the species lib node */
-		ModelNode modelNode = new ModelNode(XmlLabel.speciesLibrary, this);
+		ModelNode modelNode = new ModelNode(XMLRef.speciesLibrary, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
 		/* Species constructor */
@@ -245,6 +245,6 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 	 */
 	@Override
 	public String defaultXmlTag() {
-		return XmlLabel.speciesLibrary;
+		return XMLRef.speciesLibrary;
 	}
 }

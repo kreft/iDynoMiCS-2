@@ -14,7 +14,7 @@ import javax.swing.JSpinner; // to be implemented
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -150,34 +150,34 @@ public class GuiEditor
 		component.add(attr);
 		
 		/* placement of this ModelNode in the gui */
-		if(node.tag == XmlLabel.speciesLibrary  )
+		if(node.tag == XMLRef.speciesLibrary  )
 		{
 			/* exception for speciesLib add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
 					node.tag , tabs, "");
 		}
-		else if( node.tag == XmlLabel.compartment )
+		else if( node.tag == XMLRef.compartment )
 		{
 			/* exception for compartments add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
 					node.tag + " " + node.title, tabs, "");
 		} 
-		else if(node.tag == XmlLabel.agents || node.tag == XmlLabel.solutes ||
-				node.tag == XmlLabel.processManagers )
+		else if(node.tag == XMLRef.agents || node.tag == XMLRef.solutes ||
+				node.tag == XMLRef.processManagers )
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
 					node.tag, tabs, "");
 		}
-		else if(node.tag == XmlLabel.aspect || node.tag == XmlLabel.solute )
+		else if(node.tag == XMLRef.aspect || node.tag == XMLRef.solute )
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
 					node.tag + " " + node.title, tabs, "");
 		}
-		else if( node.tag == XmlLabel.shapeDimension || node.tag == XmlLabel.point ||
-				node.tag == XmlLabel.stoichiometry || node.tag == XmlLabel.constant ||
-				node.tag == XmlLabel.speciesModule )
+		else if( node.tag == XMLRef.shapeDimension || node.tag == XMLRef.point ||
+				node.tag == XMLRef.stoichiometry || node.tag == XMLRef.constant ||
+				node.tag == XMLRef.speciesModule )
 		{
 			parent.add(component, null);
 			parent.revalidate();

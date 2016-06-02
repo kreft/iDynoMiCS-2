@@ -8,7 +8,7 @@ import org.w3c.dom.NodeList;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import nodeFactory.ModelAttribute;
@@ -134,7 +134,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		 * TODO check that str is "false" and not a typo of "true" 
 		 * (e.g. "truw")
 		 */
-		str = XmlHandler.gatherAttribute(elem, XmlLabel.IS_CYCLIC);
+		str = XmlHandler.gatherAttribute(elem, XMLRef.IS_CYCLIC);
 		if ( Boolean.valueOf(str) )
 			this.setCyclic();
 		
@@ -143,7 +143,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		
 		/* fetch target resolution (or use length as default) */
 		str = XmlHandler.gatherAttribute(elem,
-				XmlLabel.targetResolutionAttribute);
+				XMLRef.targetResolutionAttribute);
 		this._targetRes = length; 
 		if ( str != "" )
 			this._targetRes = Double.valueOf(str);
@@ -151,20 +151,20 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		/* 
 		 * Boundaries at the extremes.
 		 */
-		str = XmlHandler.gatherAttribute(elem, XmlLabel.min);
+		str = XmlHandler.gatherAttribute(elem, XMLRef.min);
 		if ( str != null && str != "")
 			this.setExtreme(Double.valueOf(str), 0);
 		
-		str = XmlHandler.gatherAttribute(elem, XmlLabel.max);
+		str = XmlHandler.gatherAttribute(elem, XMLRef.max);
 		if ( str != null && str != "")
 			this.setExtreme(Double.valueOf(str), 1);
 
 		/* Set the boundary, if given (not always necessary). */
-		bndNodes = XmlHandler.getAll(elem, XmlLabel.dimensionBoundary);
+		bndNodes = XmlHandler.getAll(elem, XMLRef.dimensionBoundary);
 		for ( int i = 0; i < bndNodes.getLength(); i++ )
 		{
 			bndElem = (Element) bndNodes.item(i);
-			str = XmlHandler.gatherAttribute(elem, XmlLabel.nameAttribute);
+			str = XmlHandler.gatherAttribute(elem, XMLRef.nameAttribute);
 			str = Helper.obtainInput(str, "dimension extreme (min/max)");
 			str = str.toLowerCase();
 			if ( str.equals("min") )
@@ -177,7 +177,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 						"Warning! Dimension extreme must be min or max: "+str);
 			}
 			
-			str = bndElem.getAttribute(XmlLabel.classAttribute);
+			str = bndElem.getAttribute(XMLRef.classAttribute);
 			aBoundary = (Boundary) Boundary.getNewInstance(str);
 			aBoundary.init(bndElem);
 			this.setBoundary(aBoundary, index);	
@@ -540,15 +540,15 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		
 		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.nameAttribute, 
 										this._dimName.name(), null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.IS_CYCLIC, 
+		modelNode.add(new ModelAttribute(XMLRef.IS_CYCLIC, 
 				String.valueOf(this._isCyclic), null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.targetResolutionAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.targetResolutionAttribute, 
 				String.valueOf(this._targetRes), null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.min, 
+		modelNode.add(new ModelAttribute(XMLRef.min, 
 				String.valueOf(this._extreme[0]), null, false ));
-		modelNode.add(new ModelAttribute(XmlLabel.max, 
+		modelNode.add(new ModelAttribute(XMLRef.max, 
 				String.valueOf(this._extreme[1]), null, false ));
 
 
@@ -576,7 +576,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	@Override
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
-		return XmlLabel.shapeDimension;
+		return XMLRef.shapeDimension;
 	}
 
 	@Override

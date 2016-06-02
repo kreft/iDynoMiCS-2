@@ -10,7 +10,7 @@ import agent.Body;
 import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 
 import static dataIO.Log.Tier.*;
 import idynomics.AgentContainer;

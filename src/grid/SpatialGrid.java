@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import dataIO.ObjectFactory;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import nodeFactory.ModelAttribute;
@@ -514,15 +514,15 @@ public class SpatialGrid implements NodeConstructor
 
 	@Override
 	public ModelNode getNode() {
-		ModelNode modelNode = new ModelNode(XmlLabel.solute, this);
+		ModelNode modelNode = new ModelNode(XMLRef.solute, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 		
 		modelNode.title = this._name;
 		
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.nameAttribute, 
 				this._name, null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlLabel.concentration, 
+		modelNode.add(new ModelAttribute(XMLRef.concentration, 
 //				arrayAsText(ArrayType.CONCN), null, true ));
 				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)), null, true ));
 		

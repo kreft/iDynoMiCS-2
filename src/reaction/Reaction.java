@@ -10,7 +10,7 @@ import org.w3c.dom.NodeList;
 
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
@@ -127,21 +127,21 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	
 	public void init(Element xmlElem)
 	{
-		this._name = XmlHandler.obtainAttribute(xmlElem, XmlLabel.nameAttribute);
+		this._name = XmlHandler.obtainAttribute(xmlElem, XMLRef.nameAttribute);
 		/*
 		 * Build the stoichiometric map.
 		 */
-		NodeList stoichs = XmlHandler.getAll(xmlElem, XmlLabel.stoichiometry);
+		NodeList stoichs = XmlHandler.getAll(xmlElem, XMLRef.stoichiometry);
 		String str;
 		double coeff;
 		for ( int i = 0; i < stoichs.getLength(); i++ )
 		{
 			Element temp = (Element) stoichs.item(i);
 			/* Get the coefficient. */
-			str = XmlHandler.obtainAttribute(temp, XmlLabel.coefficient);
+			str = XmlHandler.obtainAttribute(temp, XMLRef.coefficient);
 			coeff = Double.valueOf(str);
 			/* Get the component name. */
-			str = XmlHandler.obtainAttribute(temp, XmlLabel.component);
+			str = XmlHandler.obtainAttribute(temp, XMLRef.component);
 			/* Enter these into the stoichiometry. */
 			this._stoichiometry.put(str, coeff);
 		}
@@ -149,7 +149,7 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 		 * Build the reaction rate expression.
 		 */
 		this._kinetic = new 
-			ExpressionB(XmlHandler.loadUnique(xmlElem, XmlLabel.expression));
+			ExpressionB(XmlHandler.loadUnique(xmlElem, XMLRef.expression));
 		this.variableNames = this._kinetic.getAllVariablesNames();
 	}
 	
@@ -271,9 +271,9 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	 */
 	public static Object getNewInstance(Node xmlNode)
 	{
-		if (XmlHandler.hasNode((Element) xmlNode, XmlLabel.reaction))
+		if (XmlHandler.hasNode((Element) xmlNode, XMLRef.reaction))
 		{
-			xmlNode = XmlHandler.loadUnique((Element) xmlNode, XmlLabel.reaction);
+			xmlNode = XmlHandler.loadUnique((Element) xmlNode, XMLRef.reaction);
 		}
 		return new Reaction(xmlNode);
 	}
@@ -287,11 +287,11 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	// TODO required from xmlable interface.. unfinished
 	public ModelNode getNode()
 	{
-		ModelNode modelNode = new ModelNode(XmlLabel.reaction, this);
+		ModelNode modelNode = new ModelNode(XMLRef.reaction, this);
 		modelNode.requirement = Requirements.ZERO_OR_ONE;
 		modelNode.title = this._name;
 		
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.nameAttribute, 
 				this._name, null, false ));
 		
 		modelNode.add(((ExpressionB) _kinetic).getNode());
@@ -308,13 +308,13 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	public ModelNode getStoNode(NodeConstructor constructor, String component, 
 			Double coefficient) {
 		
-		ModelNode modelNode = new ModelNode(XmlLabel.stoichiometry, constructor);
+		ModelNode modelNode = new ModelNode(XMLRef.stoichiometry, constructor);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		
-		modelNode.add(new ModelAttribute(XmlLabel.component, 
+		modelNode.add(new ModelAttribute(XMLRef.component, 
 				component, null, false ));
 		
-		modelNode.add(new ModelAttribute(XmlLabel.coefficient, 
+		modelNode.add(new ModelAttribute(XMLRef.coefficient, 
 				String.valueOf(coefficient), null, false ));
 		
 		return modelNode;
@@ -342,7 +342,7 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	@Override
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
-		return XmlLabel.reaction;
+		return XMLRef.reaction;
 	}
 	
 	/*************************************************************************

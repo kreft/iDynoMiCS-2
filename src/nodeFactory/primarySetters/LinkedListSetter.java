@@ -1,6 +1,6 @@
 package nodeFactory.primarySetters;
 
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import generalInterfaces.XMLable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -21,7 +21,7 @@ public class LinkedListSetter implements NodeConstructor {
 		ModelNode modelNode = new ModelNode("item", this);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		
-		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.classAttribute, 
 				listObject.getClass().getSimpleName(), null, true ));
 		
 		if (listObject instanceof NodeConstructor)
@@ -30,7 +30,7 @@ public class LinkedListSetter implements NodeConstructor {
 		}
 		else
 		{
-			modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, 
+			modelNode.add(new ModelAttribute(XMLRef.valueAttribute, 
 					String.valueOf(listObject), null, true));
 		}
 		

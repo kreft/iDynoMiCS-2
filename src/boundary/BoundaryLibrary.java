@@ -8,7 +8,7 @@ import java.util.HashMap;
 import boundary.agent.AgentMethodLibrary.*;
 import boundary.grid.GridMethodLibrary.*;
 
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import idynomics.Compartment;
 
 /**
@@ -19,7 +19,7 @@ import idynomics.Compartment;
 public final class BoundaryLibrary
 {
 
-	public final static String PARTNER = XmlLabel.boundaryPartner;
+	public final static String PARTNER = XMLRef.boundaryPartner;
 	
 	/**
 	 * TODO

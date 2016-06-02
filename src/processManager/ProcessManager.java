@@ -9,7 +9,7 @@ import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -65,21 +65,21 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 		 * Read in the process attributes. 
 		 */
 		Element p = (Element) xmlElem;
-		this.setName( p.getAttribute( XmlLabel.nameAttribute ));
+		this.setName( p.getAttribute( XMLRef.nameAttribute ));
 		/* Process priority - default is zero. */
 		int priority = 0;
-		if ( p.hasAttribute(XmlLabel.processPriority) )
-			priority = Integer.valueOf(p.getAttribute(XmlLabel.processPriority));
+		if ( p.hasAttribute(XMLRef.processPriority) )
+			priority = Integer.valueOf(p.getAttribute(XMLRef.processPriority));
 		this.setPriority(priority);
 		/* Initial time to step. */
 		double time = Idynomics.simulator.timer.getCurrentTime();
-		if ( p.hasAttribute(XmlLabel.processFirstStep) )
-			time = Double.valueOf( p.getAttribute(XmlLabel.processFirstStep) );
+		if ( p.hasAttribute(XMLRef.processFirstStep) )
+			time = Double.valueOf( p.getAttribute(XMLRef.processFirstStep) );
 		this.setTimeForNextStep(time);
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
-		if ( p.hasAttribute(XmlLabel.timerStepSize) )
-			time = Double.valueOf( p.getAttribute(XmlLabel.timerStepSize) );
+		if ( p.hasAttribute(XMLRef.timerStepSize) )
+			time = Double.valueOf( p.getAttribute(XMLRef.timerStepSize) );
 		this.setTimeStepSize(time);
 	}
 	
@@ -252,16 +252,16 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		modelNode.title = String.valueOf(this._name);
 		
-		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.nameAttribute, 
 						this._name, null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.classAttribute, 
 				this.getClass().getSimpleName(), null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlLabel.processPriority, 
+		modelNode.add(new ModelAttribute(XMLRef.processPriority, 
 				String.valueOf(this._priority), null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlLabel.processFirstStep, 
+		modelNode.add(new ModelAttribute(XMLRef.processFirstStep, 
 				String.valueOf(this._timeForNextStep), null, true ));
 		
 		/* TODO: add aspects */
@@ -307,7 +307,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	 */
 	public String defaultXmlTag() 
 		{
-		return XmlLabel.process;
+		return XMLRef.process;
 		}
 		
 	/**

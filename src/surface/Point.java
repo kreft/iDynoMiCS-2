@@ -1,6 +1,6 @@
 package surface;
 
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
@@ -275,11 +275,11 @@ public class Point implements Copyable, NodeConstructor
 	public ModelNode getNode()
 	{
 		/* point node */
-		ModelNode modelNode = new ModelNode(XmlLabel.point, this);
+		ModelNode modelNode = new ModelNode(XMLRef.point, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 
 		/* position attribute */
-		modelNode.add(new ModelAttribute(XmlLabel.position, 
+		modelNode.add(new ModelAttribute(XMLRef.position, 
 				Vector.toString(this._p), null, true ));
 
 		return modelNode;

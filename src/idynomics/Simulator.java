@@ -10,7 +10,7 @@ import agent.SpeciesLib;
 import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
@@ -76,7 +76,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	public String getName()
 	{
 		return (Idynomics.global.simulationName == null) ?
-					XmlLabel.simulation : Idynomics.global.simulationName;
+					XMLRef.simulation : Idynomics.global.simulationName;
 	}
 	
 	/**
@@ -105,26 +105,26 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		 * retrieve seed from xml file and initiate random number generator with
 		 * that seed
 		 */
-		String seed =XmlHandler.gatherAttribute(xmlElem, XmlLabel.seed);
+		String seed =XmlHandler.gatherAttribute(xmlElem, XMLRef.seed);
 		if (seed != "")
 			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlLabel.timer ));
+		this.timer.init( XmlHandler.loadUnique( xmlElem, XMLRef.timer ));
 		/*
 		 * Set up the species library.
 		 */
-		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlLabel.speciesLibrary))
+		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XMLRef.speciesLibrary))
 				this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, 
-						XmlLabel.speciesLibrary ));
+						XMLRef.speciesLibrary ));
 		/*
 		 * Set up the compartments.
 		 */
 		Log.out(Tier.NORMAL, "Compartments loading...");
 		NodeList children;
-		children = XmlHandler.getAll( xmlElem, XmlLabel.compartment );
+		children = XmlHandler.getAll( xmlElem, XMLRef.compartment );
 		if ( children.getLength() == 0 )
 		{
 			Log.out(Tier.CRITICAL, 
@@ -135,7 +135,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.gatherAttribute(child, XmlLabel.nameAttribute);
+			str = XmlHandler.gatherAttribute(child, XMLRef.nameAttribute);
 			Log.out(Tier.NORMAL, "Making "+str);
 			str = Helper.obtainInput(str, "compartment name");
 			Compartment aCompartment = this.addCompartment(str);
@@ -368,7 +368,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	@Override
 	public ModelNode getNode() {
 		/* create simulation node */
-		ModelNode modelNode = new ModelNode(XmlLabel.simulation, this);
+		ModelNode modelNode = new ModelNode(XMLRef.simulation, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
 		Param.init();
@@ -377,23 +377,23 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		
 		/* add attributes */
 		/* the current random seed */
-		modelNode.add( new ModelAttribute(XmlLabel.seed,
+		modelNode.add( new ModelAttribute(XMLRef.seed,
 				String.valueOf(seed()), null, true));
 		
 		/* the simulation name */
-		modelNode.add( new ModelAttribute(XmlLabel.nameAttribute, 
+		modelNode.add( new ModelAttribute(XMLRef.nameAttribute, 
 				Idynomics.global.simulationName, null, false ));
 		
 		/* the output folder */
-		modelNode.add(new ModelAttribute(XmlLabel.outputFolder, 
+		modelNode.add(new ModelAttribute(XMLRef.outputFolder, 
 				Idynomics.global.outputRoot, null, false ));
 		
 		/* the log level */
-		modelNode.add(new ModelAttribute(XmlLabel.logLevel, Log.level(), 
+		modelNode.add(new ModelAttribute(XMLRef.logLevel, Log.level(), 
 				Helper.enumToString(Tier.class).split(" "), false ));
 		
 		/* the optional comment */
-		modelNode.add(new ModelAttribute(XmlLabel.commentAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.commentAttribute, 
 				Idynomics.global.simulationComment, null, true ));
 		
 		/* add timer node */
@@ -437,17 +437,17 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		
 		/* update simulation name */
 		Idynomics.global.simulationName = 
-				node.getAttribute(XmlLabel.nameAttribute).value;
+				node.getAttribute(XMLRef.nameAttribute).value;
 		
 		/* update output root folder */
 		Idynomics.global.outputRoot = 
-				node.getAttribute(XmlLabel.outputFolder).value;
+				node.getAttribute(XMLRef.outputFolder).value;
 		
 		/* set output level */
-		Log.set(node.getAttribute(XmlLabel.logLevel).value);
+		Log.set(node.getAttribute(XMLRef.logLevel).value);
 		
 		/* set random seed */
-		seed(Long.valueOf(node.getAttribute(XmlLabel.seed).value));
+		seed(Long.valueOf(node.getAttribute(XMLRef.seed).value));
 		
 		/* set value's for all child nodes */
 		for(ModelNode n : node.childNodes)
@@ -470,7 +470,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	 */
 	@Override
 	public String defaultXmlTag() {
-		return XmlLabel.simulation;
+		return XMLRef.simulation;
 	}
 	
 	/**

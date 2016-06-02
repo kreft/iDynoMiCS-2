@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 import generalInterfaces.HasBoundingBox;
@@ -135,12 +135,12 @@ public class Body implements Copyable, XMLable
 		Element s = (Element) xmlNode;
 		//FIXME: not finished only accounts for simple coccoids
 		List<Point> pointList = new LinkedList<Point>();
-		NodeList pointNodes = s.getElementsByTagName(XmlLabel.point);
+		NodeList pointNodes = s.getElementsByTagName(XMLRef.point);
 		for (int k = 0; k < pointNodes.getLength(); k++) 
 		{
 			Element point = (Element) pointNodes.item(k);
 			pointList.add(new Point(Vector.dblFromString(
-					point.getAttribute(XmlLabel.position))));
+					point.getAttribute(XMLRef.position))));
 		}
 		return new Body(pointList);
 		// Bas [01.02.16] TODO: currently only agents can have a
@@ -168,12 +168,12 @@ public class Body implements Copyable, XMLable
 		//FIXME quick fix: copy/pasted from
 		//"public static Body getNewInstance(Node xmlNode)"
 		//FIXME: not finished only accounts for simple coccoids
-		NodeList pointNodes = xmlElem.getElementsByTagName(XmlLabel.point);
+		NodeList pointNodes = xmlElem.getElementsByTagName(XMLRef.point);
 		for (int k = 0; k < pointNodes.getLength(); k++) 
 		{
 			Element point = (Element) pointNodes.item(k);
 			this._points.add(new Point(Vector.dblFromString(
-					point.getAttribute(XmlLabel.position))));
+					point.getAttribute(XMLRef.position))));
 		}
 
 	}

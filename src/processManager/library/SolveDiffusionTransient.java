@@ -20,7 +20,7 @@ import agent.AgentTools;
 import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import grid.SpatialGrid;
 import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
@@ -309,7 +309,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		HashMap<String,Double> internalProdctn;
 		for ( Agent a : agentList )
 		{
-			reactions = (List<Reaction>) a.getValue(XmlLabel.reactions);
+			reactions = (List<Reaction>) a.getValue(XMLRef.reactions);
 			distributionMap = (CoordinateMap) a.getValue(VOLUME_DISTRIBUTION_MAP);
 			a.set(GROWTH_RATE, 0.0);
 			if ( a.isAspect(INTERNAL_PRODUCTION_RATE) )
@@ -385,7 +385,7 @@ public class SolveDiffusionTransient extends ProcessManager
 									coord, productionRate);
 						}
 						else if ( 
-							a.getString(XmlLabel.species).equals(productName) )
+							a.getString(XMLRef.species).equals(productName) )
 						{
 							double curRate = a.getDouble(GROWTH_RATE);
 							a.set(GROWTH_RATE, curRate + productionRate * 

@@ -5,7 +5,7 @@ import agent.Agent;
 import linearAlgebra.Vector;
 
 /**
- * \brief TODO
+ * \brief TODO class needs a rigorous update
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */

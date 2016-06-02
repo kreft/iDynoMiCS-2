@@ -24,7 +24,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid;
@@ -174,9 +174,9 @@ public abstract class Shape implements
 	public ModelNode getNode()
 	{
 
-		ModelNode modelNode = new ModelNode(XmlLabel.compartmentShape, this);
+		ModelNode modelNode = new ModelNode(XMLRef.compartmentShape, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
-		modelNode.add(new ModelAttribute(XmlLabel.classAttribute, 
+		modelNode.add(new ModelAttribute(XMLRef.classAttribute, 
 										this.getName(), null, false ));
 		
 		for ( Dimension dim : this._dimensions.values() )
@@ -208,7 +208,7 @@ public abstract class Shape implements
 	@Override
 	public String defaultXmlTag()
 	{
-		return XmlLabel.compartmentShape;
+		return XMLRef.compartmentShape;
 	}
 	
 	/**
@@ -228,7 +228,7 @@ public abstract class Shape implements
 		/* Set up the dimensions. */
 		DimName dimName;
 		Dimension dim;
-		childNodes = XmlHandler.getAll(xmlElem, XmlLabel.shapeDimension);
+		childNodes = XmlHandler.getAll(xmlElem, XMLRef.shapeDimension);
 		ResCalc rC;
 		
 		for ( int i = 0; i < childNodes.getLength(); i++ )
@@ -237,7 +237,7 @@ public abstract class Shape implements
 			try
 			{
 				str = XmlHandler.obtainAttribute(childElem,
-												XmlLabel.nameAttribute);
+												XMLRef.nameAttribute);
 				dimName = DimName.valueOf(str);
 				dim = this.getDimension(dimName);
 				dim.init(childElem);
@@ -257,11 +257,11 @@ public abstract class Shape implements
 		
 		/* Set up any other boundaries. */
 		Boundary aBoundary;
-		childNodes = XmlHandler.getAll(xmlElem, XmlLabel.dimensionBoundary);
+		childNodes = XmlHandler.getAll(xmlElem, XMLRef.dimensionBoundary);
 		for ( int i = 0; i < childNodes.getLength(); i++ )
 		{
 			childElem = (Element) childNodes.item(i);
-			str = childElem.getAttribute(XmlLabel.classAttribute);
+			str = childElem.getAttribute(XMLRef.classAttribute);
 			aBoundary = (Boundary) Boundary.getNewInstance(str);
 			aBoundary.init(childElem);
 			this.addOtherBoundary(aBoundary);

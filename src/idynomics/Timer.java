@@ -7,14 +7,9 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import dataIO.Log;
-import dataIO.ObjectRef;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XMLRef;
 import generalInterfaces.XMLable;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -27,7 +22,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class Timer implements IsSubmodel, XMLable, NodeConstructor
+public class Timer implements XMLable, NodeConstructor
 {
 	/**
 	 * TODO
@@ -57,7 +52,7 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 	
 	public String getName()
 	{
-		return XmlLabel.timer;
+		return XMLRef.timer;
 	}
 	
 	public void init(Element xmlNode)
@@ -66,13 +61,13 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 		String s;
 		double d;
 		/* Get the time step. */
-		s = XmlHandler.gatherAttribute(xmlNode, XmlLabel.timerStepSize);
+		s = XmlHandler.gatherAttribute(xmlNode, XMLRef.timerStepSize);
 		s = Helper.obtainInput(s, "Timer time step size");
 		d = Double.valueOf(s);
 		// TODO safety
 		setTimeStepSize(d);
 		/* Get the total time span. */
-		s = XmlHandler.gatherAttribute(xmlNode, XmlLabel.endOfSimulation);
+		s = XmlHandler.gatherAttribute(xmlNode, XMLRef.endOfSimulation);
 		s = Helper.obtainInput(s, "End of simulation");
 		d = Double.valueOf(s);
 		// TODO safety
@@ -159,81 +154,61 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 	}
 	
 	/*************************************************************************
-	 * SUBMODEL BUILDING
+	 * model node
 	 ************************************************************************/
-	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.timerStepSize,this,ObjectRef.DBL));
-		out.add(new ParameterSetter(XmlLabel.endOfSimulation,this,ObjectRef.DBL));
-		return out;
-	}
-	
-	public void acceptInput(String name, Object input)
-	{
-		if ( input instanceof Double )
-		{
-			Double dbl = (Double) input;
-			if ( name.equals(XmlLabel.timerStepSize) )
-				this.setTimeStepSize(dbl);
-			if ( name.equals(XmlLabel.endOfSimulation) )
-				this.setEndOfSimulation(dbl);
-		}
-	}
-	
-	public static class TimerMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = 1486068039985317593L;
-		
-		public TimerMaker(Requirement req, IsSubmodel target)
-		{
-			super(XmlLabel.timer, req, target);
-			
-		}
-		
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			this.addSubmodel(new Timer());
-		}
-	}
-	
+
+	/**
+	 * Get the ModelNode object for this Timer object
+	 * @return ModelNode
+	 */
 	public ModelNode getNode() {
 
-		ModelNode modelNode = new ModelNode(XmlLabel.timer, this);
+		/* the timer node */
+		ModelNode modelNode = new ModelNode(XMLRef.timer, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
-		modelNode.add(new ModelAttribute(XmlLabel.timerStepSize, 
+		/* time step size */
+		modelNode.add(new ModelAttribute(XMLRef.timerStepSize, 
 				String.valueOf(this._timerStepSize), null, true ));
-		modelNode.add(new ModelAttribute(XmlLabel.endOfSimulation, 
+		
+		/* end of simulation */
+		modelNode.add(new ModelAttribute(XMLRef.endOfSimulation, 
 				String.valueOf(this._endOfSimulation), null, true ));
-
 		
 		return modelNode;
 	}
 
+	/**
+	 * Load and interpret the values of the given ModelNode to this 
+	 * NodeConstructor object
+	 * @param node
+	 */
 	public void setNode(ModelNode node)
 	{
+		/* time step size */
 		this.setTimeStepSize( Double.valueOf( 
-				node.getAttribute( XmlLabel.timerStepSize ).value ));
+				node.getAttribute( XMLRef.timerStepSize ).value ));
+		
+		/* end of simulation */
 		this.setEndOfSimulation( Double.valueOf( 
-				node.getAttribute( XmlLabel.endOfSimulation ).value ));
+				node.getAttribute( XMLRef.endOfSimulation ).value ));
 	}
 	
+	/**
+	 * Create a new minimal object of this class and return it
+	 * @return NodeConstructor
+	 */
 	public NodeConstructor newBlank()
 	{
 		return new Timer();
 	}
 
+	/**
+	 * return the default XMLtag for the XML node of this object
+	 * @return String xmlTag
+	 */
 	@Override
 	public String defaultXmlTag() {
-		return XmlLabel.timer;
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject) {
-		// TODO Auto-generated method stub
-		
+		return XMLRef.timer;
 	}
 }
