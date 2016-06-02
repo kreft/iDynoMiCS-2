@@ -60,15 +60,15 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * Aspect name for the {@code coordinateMap} used for establishing which
 	 * voxels a located {@code Agent} covers.
 	 */
-	private static final String VD_TAG = AspectRef.agentVolumeDistributionMap;
+	private static String VOLUME_DISTRIBUTION_MAP = AspectRef.agentVolumeDistributionMap;
 	/**
 	 * Aspect name for the TODO
 	 */
-	private static final String IP_TAG = AspectRef.internalProductionRate;
+	private static String INTERNAL_PRODUCTION_RATE = AspectRef.internalProductionRate;
 	/**
 	 * Aspect name for the TODO
 	 */
-	private static final String GR_TAG = AspectRef.growthRate;
+	private static String GROWTH_RATE = AspectRef.growthRate;
 	/**
 	 * Instance of a subclass of {@code PDEsolver}, e.g. {@code PDEexplicit}.
 	 */
@@ -164,7 +164,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * clear distribution maps, prevent unneeded clutter in xml output
 		 */
 		for ( Agent a : agents.getAllLocatedAgents() )
-			a.reg().remove(VD_TAG);
+			a.reg().remove(VOLUME_DISTRIBUTION_MAP);
 	}
 	
 	/*************************************************************************
@@ -310,11 +310,11 @@ public class SolveDiffusionTransient extends ProcessManager
 		for ( Agent a : agentList )
 		{
 			reactions = (List<Reaction>) a.getValue(XmlLabel.reactions);
-			distributionMap = (CoordinateMap) a.getValue(VD_TAG);
-			a.set(GR_TAG, 0.0);
-			if ( a.isAspect(IP_TAG) )
+			distributionMap = (CoordinateMap) a.getValue(VOLUME_DISTRIBUTION_MAP);
+			a.set(GROWTH_RATE, 0.0);
+			if ( a.isAspect(INTERNAL_PRODUCTION_RATE) )
 			{
-				internalProdctn = (HashMap<String,Double>) a.getValue(IP_TAG);
+				internalProdctn = (HashMap<String,Double>) a.getValue(INTERNAL_PRODUCTION_RATE);
 				for (String key : internalProdctn.keySet())
 					internalProdctn.put(key, 0.0);
 			}
@@ -387,14 +387,14 @@ public class SolveDiffusionTransient extends ProcessManager
 						else if ( 
 							a.getString(XmlLabel.species).equals(productName) )
 						{
-							double curRate = a.getDouble(GR_TAG);
-							a.set(GR_TAG, curRate + productionRate * 
+							double curRate = a.getDouble(GROWTH_RATE);
+							a.set(GROWTH_RATE, curRate + productionRate * 
 									distributionMap.get(coord));
 						}
-						else if ( a.isAspect(IP_TAG) )
+						else if ( a.isAspect(INTERNAL_PRODUCTION_RATE) )
 						{
 							internalProdctn = 
-									(HashMap<String,Double>) a.getValue(IP_TAG);
+									(HashMap<String,Double>) a.getValue(INTERNAL_PRODUCTION_RATE);
 							double curRate = productionRate * 
 													distributionMap.get(coord);
 							if ( internalProdctn.containsKey(productName) )

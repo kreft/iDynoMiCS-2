@@ -19,7 +19,7 @@ public class Rod extends Surface implements HasBoundingBox {
     public double _length;
 	
 	/**
-	 * 
+	 * TODO
 	 */
     public double _radius;
     

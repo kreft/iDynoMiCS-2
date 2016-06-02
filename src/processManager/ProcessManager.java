@@ -48,7 +48,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	/**
      * The aspect registry... TODO
      */
-    public AspectReg aspectRegistry = new AspectReg();
+    private AspectReg _aspectRegistry = new AspectReg();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -78,8 +78,8 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 		this.setTimeForNextStep(time);
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
-		if ( p.hasAttribute("timerStepSize") )
-			time = Double.valueOf( p.getAttribute("timerStepSize") );
+		if ( p.hasAttribute(XmlLabel.timerStepSize) )
+			time = Double.valueOf( p.getAttribute(XmlLabel.timerStepSize) );
 		this.setTimeStepSize(time);
 	}
 	
@@ -113,7 +113,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	 */
 	public AspectReg reg()
 	{
-		return aspectRegistry;
+		return _aspectRegistry;
 	}
 	
 	/**

@@ -25,17 +25,17 @@ public class Point implements Copyable, NodeConstructor
 	/**
 	 * Location vector.
 	 */
-	private double[] p;
+	private double[] _p;
 
 	/**
 	 * Force vector.
 	 */
-	private double[] f;
+	private double[] _f;
 
 	/**
 	 * Used by higher-order ODE solvers.
 	 */
-	private double[][] c;
+	private double[][] _c;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -68,13 +68,13 @@ public class Point implements Copyable, NodeConstructor
 
 	public Point(Point q)
 	{
-		this.setPosition(Vector.copy(q.p));
-		this.setForce(Vector.zeros(p));
+		this.setPosition(Vector.copy(q._p));
+		this.setForce(Vector.zeros(_p));
 	}
 	
 	public Object copy() 
 	{
-		return new Point(this.p);
+		return new Point(this._p);
 	}
 
 	/*************************************************************************
@@ -88,39 +88,39 @@ public class Point implements Copyable, NodeConstructor
 
 	public int nDim()
 	{
-		return this.p.length;
+		return this._p.length;
 	}
 	
 	public double[] getPosition()
 	{
-		return this.p;
+		return this._p;
 	}
 
 	public void setPosition(double[] position)
 	{
 		if ( Double.isNaN(position[0]))
-			System.out.println(p);
-		this.p = position;
+			System.out.println(_p);
+		this._p = position;
 	}
 	
 	public double[] getForce()
 	{
-		return this.f;
+		return this._f;
 	}
 
 	public void setForce(double[] force)
 	{
-		this.f = force;
+		this._f = force;
 	}
 
 	private void resetForce()
 	{
-		Vector.reset(this.f);
+		Vector.reset(this._f);
 	}
 
 	public void addToForce(double[] forceToAdd)
 	{
-		Vector.addEquals(this.f, forceToAdd);
+		Vector.addEquals(this._f, forceToAdd);
 	}
 	
 	/*************************************************************************
@@ -130,7 +130,7 @@ public class Point implements Copyable, NodeConstructor
 	
 	public void initialiseC(int size)
 	{
-		this.c = new double[size][this.p.length];
+		this._c = new double[size][this._p.length];
 	}
 
 	
@@ -155,7 +155,7 @@ public class Point implements Copyable, NodeConstructor
 		// see pdf forces in microbial systems.
 		double[] diff = this.dxdt(radius);
 		Vector.timesEquals(diff, dt);
-		Vector.addEquals(this.p, diff);
+		Vector.addEquals(this._p, diff);
 		this.resetForce();
 	}
 
@@ -169,11 +169,11 @@ public class Point implements Copyable, NodeConstructor
 	{
 		double[] diff = this.dxdt(radius);
 		/* Store the old position and velocity. */
-		this.c[0] = Vector.copy(this.p);
-		this.c[1] = Vector.copy(diff);
+		this._c[0] = Vector.copy(this._p);
+		this._c[1] = Vector.copy(diff);
 		/* Move the location and reset the force. */
 		Vector.timesEquals(diff, dt);
-		Vector.addEquals(this.p, diff);
+		Vector.addEquals(this._p, diff);
 		this.resetForce();
 	}
 
@@ -190,9 +190,9 @@ public class Point implements Copyable, NodeConstructor
 		 * -> c0 is the old position
 		 * -> c1 is the old velocity
 		 */
-		Vector.addTo(this.p, this.dxdt(radius), this.c[1]);
-		Vector.timesEquals(this.p, dt/2.0);
-		Vector.addEquals(this.p, this.c[0]);
+		Vector.addTo(this._p, this.dxdt(radius), this._c[1]);
+		Vector.timesEquals(this._p, dt/2.0);
+		Vector.addEquals(this._p, this._c[0]);
 		this.resetForce();
 	}
 
@@ -261,11 +261,11 @@ public class Point implements Copyable, NodeConstructor
 			/* Anti catapult */
 			scalar *= 0.5;
 		}
-		Vector.times(this.f, scalar);
+		Vector.times(this._f, scalar);
 		/*
 		 * Apply the force and reset it.
 		 */
-		Vector.addEquals(this.p, this.f);
+		Vector.addEquals(this._p, this._f);
 		this.resetForce();
 	}
 
@@ -280,7 +280,7 @@ public class Point implements Copyable, NodeConstructor
 
 		/* position attribute */
 		modelNode.add(new ModelAttribute(XmlLabel.position, 
-				Vector.toString(this.p), null, true ));
+				Vector.toString(this._p), null, true ));
 
 		return modelNode;
 	}

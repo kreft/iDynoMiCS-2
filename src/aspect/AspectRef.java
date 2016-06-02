@@ -241,4 +241,74 @@ public class AspectRef
 	 * TODO
 	 */
 	public static String collisionMaxMOvement = "maxMovement";
+
+	/**
+	 * TODO
+	 */
+	public static String agentStochasticMove = "stochasticMove";
+
+	/**
+	 * TODO
+	 */
+	public static String collisionRelaxationMethod = "relaxationMethod";
+
+	/**
+	 * TODO
+	 */
+	public static String agentExcreteEps = "epsExcretion";
+
+	/**
+	 * Used by RefreshMassGrids, calls event
+	 */
+	public static String massToGrid = "massToGrid";
+
+	/**
+	 * TODO
+	 */
+	public static String biomass = "biomass";
+
+	/**
+	 * TODO
+	 */
+	public static String soluteNames = "soluteNames";
+
+	/**
+	 * TODO
+	 */
+	public static String solver = "solver";
+
+	/**
+	 * TODO
+	 */
+	public static String solverhMax = "hMax";
+
+	/**
+	 * TODO
+	 */
+	public static String solverTolerance = "tolerance";
+	
+	/**
+	 * TODO
+	 */
+	public static String agentPigment = "pigment";
+
+	/**
+	 * TODO
+	 */
+	public static String gridArrayType = "arrayType";
+
+	/**
+	 * TODO
+	 */
+	public static String visualOutMaxValue = "maxConcentration";
+
+	/**
+	 * TODO
+	 */
+	public static String soluteName= "solute";
+
+	/**
+	 * 
+	 */
+	public static String filePrefix = "prefix";
 }
