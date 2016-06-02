@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class primaryTest {
+public class PrimaryTest {
 
 	@Test
 	public void illigalOperations()
