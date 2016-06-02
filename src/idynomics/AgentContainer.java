@@ -383,7 +383,7 @@ public class AgentContainer
 		int i = ExtraMath.getUniRandInt(nAgents);
 		Agent out = (i > this._agentList.size()) ?
 				/* Located agent. */
-				this._agentTree.getRandom() :
+				this._locatedAgentList.get(i - this._agentList.size()) :
 				/* Unlocated agent. */
 				this._agentList.get(i);
 		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
@@ -412,8 +412,7 @@ public class AgentContainer
 		if ( i > this._agentList.size() )
 		{
 			/* Located agent. */
-			out = this._agentTree.getRandom();
-			// TODO remove from this._locatedAgentList?
+			out = this._locatedAgentList.remove(i - this._agentList.size());
 			this._agentTree.delete(out);
 		}
 		else
