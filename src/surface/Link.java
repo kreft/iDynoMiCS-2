@@ -7,11 +7,19 @@ package surface;
  */
 public class Link {
 	
-
+	/**
+	 * TODO
+	 */
 	protected Point[] _points;
 	
+	/**
+	 * TODO
+	 */
 	protected Surface[] _surfaces;
 	
+	/**
+	 * TODO
+	 */
 	protected double _snap;
 	
 	public Link(Point[] points, Surface[] surfaces, double snapDistance)

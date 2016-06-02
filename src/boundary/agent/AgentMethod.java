@@ -11,11 +11,11 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -119,7 +119,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 				newLoc = aShape.getRandomLocationOnBoundary(dimN, extreme);
 				Log.out(Tier.DEBUG, "Placing agent (UID: "+anAgent.identity()+
 						") at random location: "+Vector.toString(newLoc));
-				body = (Body) anAgent.get(NameRef.agentBody);
+				body = (Body) anAgent.get(AspectRef.agentBody);
 				body.relocate(newLoc);
 			}
 			agentCont.addAgent(anAgent);
@@ -199,13 +199,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 	{
 		
 	}
-	
-	@Override
-	public String getXml()
-	{
-		return null;
-	}
-	
+
 	/*************************************************************************
 	 * SUBMODEL BUILDING
 	 ************************************************************************/

@@ -33,6 +33,8 @@ import com.jogamp.opengl.util.FPSAnimator;
 /**
  * TODO clean-up commenting
  * 
+ * TODO culling?
+ * 
  * openGL Render class, manages openGL settings, output frame and it's own
  * key bindings, requires a command mediator to draw up the 3D scene
  * 
@@ -42,29 +44,66 @@ import com.jogamp.opengl.util.FPSAnimator;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Render implements GLEventListener, Runnable {
-	private static GraphicsEnvironment graphicsEnvironment;
-	private static boolean isFullScreen = false;
-	public static DisplayMode dm, dm_old;
-	private static Dimension xgraphic;
-	private static Point point = new  Point(0,0);
+	
+	/**
+	 * screen device
+	 */
+	private static GraphicsEnvironment _graphicsEnvironment;
+	
+	/*
+	 * full screen toggle
+	 */
+	private static boolean _isFullScreen = false;
+	
+	/*
+	 * display modes
+	 */
+	public static DisplayMode _dm, _dm_old;
+	
+	/*
+	 * Display dimensions
+	 */
+	private static Dimension _displayDimensions;
+	
+	/*
+	 * display position
+	 */
+	private static Point _point = new  Point(0,0);
 
+	/*
+	 * frame icon
+	 */
 	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
 	
-	private GLU glu = new GLU();
+	/*
+	 * glu library
+	 */
+	private GLU _glu = new GLU();
 	
-	private boolean light;
-	private boolean blend;
-	private float h;
+	/*
+	 * screen and lighting properties
+	 */
+	private boolean _light;
+	private boolean _blend;
+	private float _aspectRatio;
 	
-	private float tilt = 0.0f, zoom = 0.0f, angle = 0.0f;
-	private float x = 0f, y = 0f /* , z = 0f */;
+	/*
+	 * Camera positioning
+	 */
+	private float _tilt = 0.0f, _zoom = 0.0f, _angle = 0.0f;
+	private float _x = 0f, _y = 0f /* , z = 0f */;
 
 	
-	/* Light sources */
+	/* 
+	 * Light sources 
+	 */
     private float[] lightPosition = {-40.0f, -40.0f, 80.0f, 1f};
     private float[] lightAmbient = {0.25f, 0.25f, 0.25f, 1f};
     private float[] LightDiffuse = {0.25f, 0.25f, 0.25f, 1f};
     
+    /*
+     * mediator
+     */
     private CommandMediator _commandMediator;
 
     /*
@@ -72,21 +111,26 @@ public class Render implements GLEventListener, Runnable {
      */
 	@Override
 	public void display(GLAutoDrawable drawable) {
+		
 		/*
 		 * the open GL2 drawable
 		 */
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
 	
+		/*
+		 * start new identity
+		 */
 		gl.glLoadIdentity();
+		
 		/*
 		 * switch lighting and alpha blending
 		 */
-		if(light)
+		if(_light)
 			gl.glEnable(GL2.GL_LIGHTING);
 		else
 			gl.glDisable(GL2.GL_LIGHTING);
-		if(blend)
+		if(_blend)
 		{
 			gl.glEnable(GL2.GL_BLEND);
 			gl.glDisable(GL2.GL_DEPTH_TEST);
@@ -107,13 +151,15 @@ public class Render implements GLEventListener, Runnable {
 		 * adjust the camera settings to the size of the drawable and the user
 		 * defined camera setting adjustments (zoom, tilt, x, y)
 		 */
-		double dist = _commandMediator.kickback() - zoom;
-		double hDist = Math.sin(tilt+0.0001) * dist;
+		double dist = _commandMediator.kickback() - _zoom;
+		double hDist = Math.sin(_tilt+0.0001) * dist;
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
-		glu.gluPerspective(45.0f, h, 1.0, _commandMediator.kickback()+50.0);
-		glu.gluLookAt(x + hDist* Math.cos(angle) , y + hDist * Math.sin(angle), 
-				Math.cos(tilt+0.0001) * dist, x, y, 0, Math.cos(angle), Math.sin(angle)
+		
+		/* camera perspective */
+		_glu.gluPerspective(45.0f, _aspectRatio, 1.0, _commandMediator.kickback()+50.0);
+		_glu.gluLookAt(_x + hDist* Math.cos(_angle) , _y + hDist * Math.sin(_angle), 
+				Math.cos(_tilt+0.0001) * dist, _x, _y, 0, Math.cos(_angle), Math.sin(_angle)
 				, 0);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		
@@ -140,9 +186,10 @@ public class Render implements GLEventListener, Runnable {
 	public void init(GLAutoDrawable drawable) {
 		final GL2 gl = drawable.getGL().getGL2();
 		
-		/* vsync */
+		/* vertical sync */
 		gl.setSwapInterval(1);
 		
+		/* shading and rendering settings */
 		gl.glShadeModel(GL2.GL_SMOOTH);
 		gl.glClearColor(0.0f, 0.5f, 0.5f, 0.5f);
 		gl.glClearDepth(1.0f);
@@ -157,7 +204,7 @@ public class Render implements GLEventListener, Runnable {
 		gl.glEnable(GL2.GL_LIGHT1);
 		gl.glEnable(GL2.GL_LIGHTING);
 		
-		this.light = true;
+		this._light = true;
 		
 		/* alpha blend */
 		gl.glColor4f(1f, 1f, 1f, 0.5f); // 50% alpha
@@ -165,21 +212,24 @@ public class Render implements GLEventListener, Runnable {
 	}
 
 	/**
-	 * act opon rashaping of the render window
+	 * act upon reshaping of the render window
 	 */
 	@Override
 	public void reshape(GLAutoDrawable drawable , int x, int y, int width, 
 			int height) {
 		final GL2 gl = drawable.getGL().getGL2();
 		
+		/* determine the aspect ratio */
 		if(height <= 0 )
 			height = 1;
-		h = (float) width / (float) height;
+		_aspectRatio = (float) width / (float) height;
 		gl.glViewport(0, 0, width, height);
 		gl.glMatrixMode(GL2.GL_PROJECTION);
 		gl.glLoadIdentity();
-		glu.gluPerspective(45.0f, h, 1.0, 500.0);
-		glu.gluLookAt(0, 0, 0, 0, 0, -80, 0, 1, 0);
+		
+		/* adjust the camera perspective to the screen resizing */
+		_glu.gluPerspective(45.0f, _aspectRatio, 1.0, 500.0);
+		_glu.gluLookAt(0, 0, 0, 0, 0, -80, 0, 1, 0);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
 	}
@@ -197,6 +247,7 @@ public class Render implements GLEventListener, Runnable {
 	 */
 	@Override
 	public void run() {
+		/* openGL profile */
 		final GLProfile profile = GLProfile.get(GLProfile.GL2);
 		GLCapabilities capabilities = new GLCapabilities(profile);
 		
@@ -206,7 +257,7 @@ public class Render implements GLEventListener, Runnable {
 		glcanvas.addGLEventListener(r);
 		
 		/*
-		 * demensions of the initial window
+		 * dimensions of the initial window
 		 */
 		Dimension myDim = new Dimension();
 		myDim.setSize(500, 500);
@@ -231,12 +282,13 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});
 		
+		/* size the window */
 		frame.setSize(frame.getContentPane().getPreferredSize());
 		
 		/* detect and set graphics dephices */
-		graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice[] devices = graphicsEnvironment.getScreenDevices();
-		dm = devices[0].getDisplayMode();
+		_graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice[] devices = _graphicsEnvironment.getScreenDevices();
+		_dm = devices[0].getDisplayMode();
 
 		/* set the frame's initial position and make it visable */
 		frame.setLocationRelativeTo(null);
@@ -248,8 +300,8 @@ public class Render implements GLEventListener, Runnable {
 		frame.add(p, BorderLayout.SOUTH);
 		keyBindings(p, frame, r);
 		
+		/* set the icon */
 		ImageIcon img = new ImageIcon(ICON_PATH);
-
 		frame.setIconImage(img.getImage());
 		
 		/* start the animator */
@@ -260,28 +312,44 @@ public class Render implements GLEventListener, Runnable {
 	 *  switch between fullScreen and windowed 
 	 */
 	protected static void fullScreen(JFrame f) {
-		if(!isFullScreen)
+		/*
+		 * switch to full screen
+		 */
+		if(!_isFullScreen)
 		{
+			/* settings for full screen */
 			f.dispose();
 			f.setUndecorated(true);
 			f.setVisible(true);
 			f.setResizable(false);
-			xgraphic = f.getSize();
-			point = f.getLocation();
+			
+			/* store current window position and size */
+			_displayDimensions = f.getSize();
+			_point = f.getLocation();
+			
+			/* switch to full screen */
 			f.setLocation(0, 0);
 			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 			f.setSize((int) screenSize.getWidth(), (int) screenSize.getHeight());
-			isFullScreen = true;
+			
+			_isFullScreen = true;
 		}
+		/*
+		 * switch to windowed
+		 */
 		else
 		{
+			/* settings for windowed */
 			f.dispose();
 			f.setUndecorated(false);
 			f.setResizable(true);
-			f.setLocation(point);
-			f.setSize(xgraphic);
+			
+			/* restore old window position and dimensions */
+			f.setLocation(_point);
+			f.setSize(_displayDimensions);
 			f.setVisible(true);
-			isFullScreen = false;	
+			
+			_isFullScreen = false;	
 		}
 	}
 	
@@ -290,21 +358,49 @@ public class Render implements GLEventListener, Runnable {
 	 */
 	private static void keyBindings(JPanel p, JFrame frame, Render r) 
 	{
+		/*
+		 * store available actions and keys 
+		 */
 		ActionMap actionMap = p.getActionMap();
 		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
 		
-		/* fullscreen */
-		inputMap.put(KeyStroke.getKeyStroke(
-				KeyEvent.VK_ENTER, ActionEvent.ALT_MASK), "fullscreen");
+		/* 
+		 * full screen 
+		 */
 		actionMap.put("fullscreen", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
 
+			/* toggle */
 			@Override
 			public void actionPerformed(ActionEvent a) {
 				System.out.println("fullscreen");
 				fullScreen(frame);
 			}
 		});
+		
+		/* ALT ENTER full screen */
+		inputMap.put(KeyStroke.getKeyStroke(
+				KeyEvent.VK_ENTER, ActionEvent.ALT_MASK), "fullscreen");
+		
+		/* F11 full screen */
+		inputMap.put(KeyStroke.getKeyStroke(
+				KeyEvent.VK_F11, 0), "fullscreen");
+
+		/* escape full screen */
+		inputMap.put(KeyStroke.getKeyStroke(
+				KeyEvent.VK_ESCAPE, 0), "escapeFullscreen");
+		actionMap.put("escapeFullscreen", new AbstractAction(){
+			private static final long serialVersionUID = 370697371995950359L;
+			
+			/* always go to windowed */
+			@Override
+			public void actionPerformed(ActionEvent a) {
+				System.out.println("escapeFullscreen");
+				_isFullScreen = true;
+				fullScreen(frame);
+			}
+		});
+
 		
 		/* up */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "UP");
@@ -313,7 +409,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent b) {
 				System.out.println("up");
-				r.x -= 1f;
+				r._x -= 1f;
 			}
 		});
 		
@@ -324,7 +420,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent c) {
 				System.out.println("down");
-				r.x += 1f;
+				r._x += 1f;
 			}
 		});
 		
@@ -336,7 +432,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent d) {
 				System.out.println("left");
-				r.y -= 1f;
+				r._y -= 1f;
 			}
 		});
 		
@@ -348,7 +444,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("right");
-				r.y += 1f;
+				r._y += 1f;
 			}
 		});
 		
@@ -372,7 +468,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("lights");
-				r.light = r.light ? false : true;
+				r._light = r._light ? false : true;
 
 			}
 		});
@@ -385,7 +481,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("blend");
-				r.blend = r.blend ? false : true;
+				r._blend = r._blend ? false : true;
 			}
 		});
 		
@@ -397,8 +493,8 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltdown");
-				if(r.tilt > -1.47)
-					r.tilt -= 0.1f;
+				if(r._tilt > -1.47)
+					r._tilt -= 0.1f;
 			}
 		});
 		
@@ -410,8 +506,8 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltup");
-				if(r.tilt < 1.47)
-					r.tilt += 0.1f;
+				if(r._tilt < 1.47)
+					r._tilt += 0.1f;
 			}
 		});
 		
@@ -423,7 +519,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("out");
-				r.zoom -= 0.3f;
+				r._zoom -= 0.3f;
 			}
 		});
 		
@@ -435,7 +531,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("in");
-				r.zoom += 0.3f;
+				r._zoom += 0.3f;
 			}
 		});
 		
@@ -447,7 +543,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("clockwise");
-				r.angle -= 0.1f;
+				r._angle -= 0.1f;
 			}
 		});
 		
@@ -459,9 +555,8 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("counterclockwise");
-				r.angle += 0.1f;
+				r._angle += 0.1f;
 			}
-		});
-		
+		});	
 	}
 }

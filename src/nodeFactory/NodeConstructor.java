@@ -28,10 +28,17 @@ public interface NodeConstructor {
 	public NodeConstructor newBlank();
 	
 	/**
-	 * Add a child object
+	 * Add a child object that is unable to register itself properly via the
+	 * newBlank call.
 	 * @param childObject
 	 */
-	public void addChildObject(NodeConstructor childObject);
+	public default void addChildObject(NodeConstructor childObject)
+	{
+		/* 
+		 * the default is do nothing since if possible the object should
+		 * register itself
+		 */
+	}
 
 	/**
 	 * return the default XMLtag for the XML node of this object
@@ -39,5 +46,15 @@ public interface NodeConstructor {
 	 * @return
 	 */
 	public String defaultXmlTag();
+	
+	
+	/**
+	 * Return self in xml format
+	 * @return
+	 */
+	public default String getXml()
+	{
+		return this.getNode().getXML();
+	}
 
 }

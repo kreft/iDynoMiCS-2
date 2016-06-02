@@ -3,7 +3,7 @@ package aspect.calculated;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Calculated;
-import idynomics.NameRef;
+import aspect.AspectRef;
 
 /**
  * \brief TODO
@@ -12,7 +12,7 @@ import idynomics.NameRef;
  */
 public class AgentSurfaces extends Calculated
 {
-	public String BODY = NameRef.agentBody;
+	public String BODY = AspectRef.agentBody;
 	/**
 	 * Input body.
 	 */

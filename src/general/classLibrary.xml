@@ -9,6 +9,7 @@
 	<classDef package="aspect.calculated." name="VoxelDistributionMap" />
 <!-- agent.event.library -->
 	<classDef package="aspect.event." name="CoccoidDivision" />
+	<classDef package="aspect.event." name="RodDivision" />
 	<classDef package="aspect.event." name="ExcreteEPS" />
 	<classDef package="aspect.event." name="InternalProduction" />
 	<classDef package="aspect.event." name="ResolveInteractionDistance" />

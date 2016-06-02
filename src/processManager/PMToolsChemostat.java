@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import agent.Agent;
+import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.BoundaryLibrary.ChemostatInflow;
 import boundary.BoundaryLibrary.ChemostatOutflow;
@@ -25,6 +26,8 @@ import utility.ExtraMath;
  */
 public final class PMToolsChemostat
 {
+	
+	public static String REACTIONS = AspectRef.agentReactions;
 	
 	
 	/*************************************************************************
@@ -171,7 +174,7 @@ public final class PMToolsChemostat
 		{
 			@SuppressWarnings("unchecked")
 			List<Reaction> reactions = 
-							(List<Reaction>) agent.get("reactions");
+							(List<Reaction>) agent.get(REACTIONS);
 			if ( reactions == null )
 				continue;
 			// TODO get agent biomass concentrations?

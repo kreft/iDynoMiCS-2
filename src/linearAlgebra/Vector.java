@@ -2825,7 +2825,7 @@ public final class Vector
 	{
 		double[] out = new double[a.length];
 		midPointTo(out, a, b);
-		return a;
+		return out;
 	}
 	
 	

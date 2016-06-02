@@ -11,10 +11,13 @@ public class Caller {
 
 	public static void main(String[] args) {
 		
+		/* create the mediator */
 		CommandMediatorExample mediator = new CommandMediatorExample();
-		Render myRender = new Render(mediator);
-		EventQueue.invokeLater(myRender);	
 		
+		/* Assign the mediator to a new Render window */
+		Render myRender = new Render(mediator);
+		
+		/* invoke the renderer (on its own thread) */
+		EventQueue.invokeLater(myRender);	
 	}
-
 }

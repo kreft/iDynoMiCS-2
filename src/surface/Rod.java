@@ -16,12 +16,12 @@ public class Rod extends Surface implements HasBoundingBox {
     /**
      * Rest length of internal springs connecting the points.
      */
-    private double _length;
+    public double _length;
 	
 	/**
-	 * 
+	 * TODO
 	 */
-    private double _radius;
+    public double _radius;
     
     public Rod(Point[] points, double spineLength, double radius)
     {
@@ -52,7 +52,7 @@ public class Rod extends Surface implements HasBoundingBox {
 	public Rod(Rod rod) 
 	{
 		this._points = new Point[] {(Point) rod._points[0].copy(), 
-				(Point) rod._points[0].copy()};
+				(Point) rod._points[1].copy()};
 		this._length = (double) ObjectFactory.copy(rod._length);
 		this._radius = (double) ObjectFactory.copy(rod._radius);
 	}

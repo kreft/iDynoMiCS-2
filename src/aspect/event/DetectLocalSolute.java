@@ -6,12 +6,12 @@ package aspect.event;
 import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import shape.subvoxel.CoordinateMap;
 
@@ -24,7 +24,7 @@ import shape.subvoxel.CoordinateMap;
 public class DetectLocalSolute extends Event
 {
 	
-	private String VD_TAG = NameRef.agentVolumeDistributionMap;
+	private String VD_TAG = AspectRef.agentVolumeDistributionMap;
 	
 	public String SOLUTE_NAME = "glucose";
 	
@@ -44,7 +44,7 @@ public class DetectLocalSolute extends Event
 		/*
 		 * Find the relevant solute grid, if it exists.
 		 */
-		if ( ! comp._environment.isSoluteName(SOLUTE_NAME) )
+		if ( ! comp.environment.isSoluteName(SOLUTE_NAME) )
 		{
 			Log.out(level, "  cannot find concn of a solute "+SOLUTE_NAME+
 					" that is not in the environment! Copmpartment "

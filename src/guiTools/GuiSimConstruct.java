@@ -28,11 +28,11 @@ import shape.Shape;
 public class GuiSimConstruct
 {
 	
-	protected static boolean insidePanel = false;
+	protected static boolean _insidePanel = false;
 	
-	protected static JComponent component = setComponent();
+	protected static JComponent _component = setComponent();
 	
-	protected static JTabbedPane tabbedPane;
+	protected static JTabbedPane _tabbedPane;
 	
 	final static int CONSOLEPANE = 0;
 	
@@ -46,7 +46,7 @@ public class GuiSimConstruct
 
 	public static JComponent getConstructor() 
 	{
-		return component;
+		return _component;
 	}
 	/*
 	 * The JComponent set in the gui
@@ -56,7 +56,7 @@ public class GuiSimConstruct
 		/* The tabs pane */
 		JPanel panel = new JPanel();
 		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		tabbedPane = new JTabbedPane();
+		_tabbedPane = new JTabbedPane();
 
 		/* simulator pane */
 		JPanel simulatorPane = new JPanel();
@@ -70,10 +70,6 @@ public class GuiSimConstruct
 		JPanel compartmentPane = new JPanel();
 		compartmentPane.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
 
-		/* start pane */
-		JPanel startPane = new JPanel();
-		startPane.setLayout(new WrapLayout(FlowLayout.CENTER, 5, 5));
-		
 		
 		/*
 		 *  simulation pane content 
@@ -194,109 +190,44 @@ public class GuiSimConstruct
 		}
 		));
 		
-		/* 
-		 * start pane content 
-		 */
-		
-		startPane.add(textPanel(""));
-		
-		startPane.add(actionButton("Open from file", new JButton("open"), new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				GuiActions.chooseFile();
-				try
-				{
-
-				timestep.setText(String.valueOf(Idynomics.simulator.timer.getTimeStepSize()));
-				timeend.setText(String.valueOf(Idynomics.simulator.timer.getEndOfSimulation()));
-				
-				tabEnabled(tabbedPane, simulatorPane, true);
-				tabEnabled(tabbedPane, speciesPane, true);
-				tabEnabled(tabbedPane, compartmentPane, true);
-				int i = 0;
-				for(String name : Idynomics.simulator.getCompartmentNames())
-					box.insertItemAt(name, i++);
-				box.setSelectedIndex(0);
-				
-				i = 0;
-				for(String name : Idynomics.simulator.speciesLibrary.getAllSpeciesNames())
-					species.insertItemAt(name, i++);
-				species.setSelectedIndex(0);
-				
-				}
-				catch(NullPointerException | IllegalArgumentException e)
-				{
-	
-				}	
-			}
-		}
-		));
-	
-		startPane.add(actionButton("Construct new simulation", new JButton("construct"), new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				Idynomics.simulator = new Simulator();
-				tabEnabled(tabbedPane, simulatorPane, true);
-				tabEnabled(tabbedPane, speciesPane, true);
-				tabEnabled(tabbedPane, compartmentPane, true);
-			}
-		}
-		));
-		
-		startPane.add(textPanel(""));
-
-		startPane.add(textPanel(""));
-		
-		startPane.add(GuiSplash.getSplashScreen());
 
 		/* 
 		 * the tabs 
 		 * TODO: disable tabs while simulation is running
 		 */
 		// TODO alternative to having views hidden in menu bar
-		tabbedPane.addTab("console", null, GuiConsole.getConsole(),
+		_tabbedPane.addTab("console", null, GuiConsole.getConsole(),
               "The Console");
-		
-		tabbedPane.addTab("start", null, startPane,
-                "create new or start from file");
 
-		tabbedPane.addTab("Simulator", null, simulatorPane,
+		_tabbedPane.addTab("Simulator", null, simulatorPane,
 		                  "Simulator settings");
 
-		tabbedPane.addTab("Species Library", null, speciesPane,
+		_tabbedPane.addTab("Species Library", null, speciesPane,
 		                  "Species Library");
 
-		tabbedPane.addTab("Compartments", null, compartmentPane,
+		_tabbedPane.addTab("Compartments", null, compartmentPane,
 		                  "The compartments");
 		
-
+		tabEnabled(_tabbedPane, simulatorPane, false);
+		tabEnabled(_tabbedPane, speciesPane, false);
+		tabEnabled(_tabbedPane, compartmentPane, false);
 		
-		
-		tabbedPane.setSelectedIndex(findComponentIndex(tabbedPane, startPane));
-		tabEnabled(tabbedPane, simulatorPane, false);
-		tabEnabled(tabbedPane, speciesPane, false);
-		tabEnabled(tabbedPane, compartmentPane, false);
-		
-		panel.add(tabbedPane);
-		if ( insidePanel )
+		panel.add(_tabbedPane);
+		if ( _insidePanel )
 			return panel;
 		else
-			return (JComponent) tabbedPane;
+			return (JComponent) _tabbedPane;
 		
 	}
 	
 	public static void togglePane(int paneNumber)
 	{
-		tabbedPane.setSelectedIndex(paneNumber);
+		_tabbedPane.setSelectedIndex(paneNumber);
 	}
 	
 	public static void tabEnabled(int paneNumber, boolean bool)
 	{
-		tabbedPane.setEnabledAt(paneNumber, bool);
+		_tabbedPane.setEnabledAt(paneNumber, bool);
 	}
 	
 	public static void tabEnabled(JTabbedPane tabbedPane, Component component, boolean bool)

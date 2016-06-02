@@ -8,10 +8,8 @@ import org.w3c.dom.Node;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import idynomics.Idynomics;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
 import utility.Helper;
 
 /**
@@ -56,12 +54,6 @@ public interface XMLable
 	{
 		return getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
 	}
-	
-	/**
-	 * Return self in xml format
-	 * @return
-	 */
-	public String getXml();
 
 	/**
 	 * \brief Internal method for creating a new instance.
@@ -116,15 +108,15 @@ public interface XMLable
 	public static Object getNewInstance(Node xmlNode)
 	{
 		Element E = (Element) xmlNode;
-		if ( ! E.hasAttribute(XmlLabel.classAttribute) )
+		if ( ! E.hasAttribute(XmlRef.classAttribute) )
 			Log.out(Tier.CRITICAL, "No className defined in: "+E.getTagName());
-		else if ( ! E.hasAttribute(XmlLabel.packageAttribute) )
+		else if ( ! E.hasAttribute(XmlRef.packageAttribute) )
 		{
 			return getNewInstance(xmlNode, 
-									E.getAttribute(XmlLabel.classAttribute));
+									E.getAttribute(XmlRef.classAttribute));
 		}
-		return getNewInstance(E.getAttribute(XmlLabel.classAttribute) , 
-									E.getAttribute(XmlLabel.packageAttribute));
+		return getNewInstance(E.getAttribute(XmlRef.classAttribute) , 
+									E.getAttribute(XmlRef.packageAttribute));
 	}
 	
 	/**
@@ -139,6 +131,4 @@ public interface XMLable
 		return getNewInstance(className, 
 								Idynomics.xmlPackageLibrary.get(className));
 	}
-
-	public ModelNode getNode();
 }
