@@ -34,7 +34,7 @@ public class AspectReg
 	 * quick fix for xmling
 	 * 
 	 */
-	public String _identity;
+	protected String _identity;
 	
 	/**
 	 * \brief Recognised aspect types.
@@ -70,6 +70,22 @@ public class AspectReg
 	 */
 	protected LinkedList<AspectInterface> _modules = 
 											new LinkedList<AspectInterface>();
+	
+	/**
+	 * get the identity of this aspectReg
+	 * @return
+	 */
+	public String getIdentity() {
+		return _identity;
+	}
+
+	/**
+	 * set the identity of this apspectReg
+	 * @param _identity
+	 */
+	public void setIdentity(String _identity) {
+		this._identity = _identity;
+	}
 		
 	/**
 	 * returns true if the key is found in the aspect tree
@@ -283,7 +299,7 @@ public class AspectReg
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
-				this._identity, null, true ) );
+				this.getIdentity(), null, true ) );
 		
 		return modelNode;
 	}
@@ -299,7 +315,7 @@ public class AspectReg
 		this.remove(key);
 		this.add(newKey, a);
 	}
-	
+
 	/**
 	 * \brief Very general class that acts as a wrapper for other Objects.
 	 * 

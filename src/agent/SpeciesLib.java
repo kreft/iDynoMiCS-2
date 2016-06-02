@@ -101,7 +101,7 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 	{
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
-		species.reg()._identity = name;
+		species.reg().setIdentity(name);
 		this._species.put(name, species);
 	}
 	
@@ -113,10 +113,10 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 	 */
 	public void set(AspectInterface species)
 	{
-		String name = species.reg()._identity;
+		String name = species.reg().getIdentity();
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
-		species.reg()._identity = name;
+		species.reg().setIdentity(name);
 		this._species.put(name, species);
 	}
 

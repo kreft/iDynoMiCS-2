@@ -143,11 +143,11 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		
 		/* use the identity (species name) as title */
-		modelNode.title = this.reg()._identity;
+		modelNode.title = this.reg().getIdentity();
 		
 		/* add the name attribute */
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
-				this.reg()._identity, null, true ));
+				this.reg().getIdentity(), null, true ));
 		
 		/* add any submodules */
 		for ( AspectInterface mod : this.reg().getSubModules() )
@@ -190,7 +190,7 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 		String name = "";
 		name = Helper.obtainInput(name, "Species name");
 		Species newBlank = new Species();
-		newBlank.reg()._identity = name;
+		newBlank.reg().setIdentity(name);
 //		Idynomics.simulator.speciesLibrary.set(newBlank);
 		return newBlank;
 	}

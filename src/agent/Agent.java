@@ -353,7 +353,7 @@ public class Agent implements AspectInterface, NodeConstructor
 	public NodeConstructor newBlank() 
 	{
 		Agent newBlank = new Agent(this._compartment);
-		newBlank.reg()._identity = String.valueOf(newBlank.identity());
+		newBlank.reg().setIdentity(String.valueOf(newBlank.identity()));
 		newBlank.registerBirth();
 		return newBlank;
 	}
