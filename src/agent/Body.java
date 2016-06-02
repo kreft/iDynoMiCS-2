@@ -14,7 +14,6 @@ import generalInterfaces.XMLable;
 import generalInterfaces.HasBoundingBox;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import nodeFactory.ModelNode;
 import surface.*;
 
 /**
@@ -49,7 +48,7 @@ public class Body implements Copyable, XMLable
 	 * NOTE: this list does not contain links with this body owned by an other
 	 * body
 	 */
-	public LinkedList<Link> _links = new LinkedList<Link>();
+	protected LinkedList<Link> _links = new LinkedList<Link>();
 
 
 	/*************************************************************************
