@@ -178,6 +178,31 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 		this._departureLounge.clear();
 	}
 	
+	/**
+	 * \brief Get the number of agents that this boundary wants to remove
+	 * from the compartment and put into its departures lounge.
+	 * 
+	 * @param agentCont The {@code AgentContainer} that contains the 
+	 * {@code Agent}s for selection.
+	 * @param timeStep Length of the time period.
+	 * @return Number of agents this boundary wants to remove.
+	 */
+	public abstract int agentsToGrab(AgentContainer agentCont, double timeStep);
+	
+	/**
+	 * \brief Compile a list of the agents that this boundary wants to remove
+	 * from the compartment and put into its departures lounge.
+	 * 
+	 * @param agentCont The {@code AgentContainer} that contains the 
+	 * {@code Agent}s for selection.
+	 * @param dimN Name of the dimension whose boundary we are on.
+	 * @param extreme Index of the dimension's extremes - must be 0 or 1.
+	 * @param timeStep Length of the time period.
+	 * @return List of agents for removal.
+	 */
+	public abstract List<Agent> agentsToGrab(AgentContainer agentCont,
+			DimName dimN, int extreme, double timeStep);
+	
 	/*************************************************************************
 	 * methods to move into library, here for now
 	 ************************************************************************/

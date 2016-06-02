@@ -146,17 +146,17 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 
 	public Agent(String species, Compartment comp)
 	{
-		set(XmlLabel.species,species);
+		this.set(XmlLabel.species,species);
 		this._compartment = comp;
-		init();
+		this.init();
 	}
 
 	public Agent(String species, Body body, Compartment comp)
 	{
-		set(XmlLabel.species, species);
+		this.set(XmlLabel.species, species);
 		this.set(NameRef.agentBody, body);
 		this._compartment = comp;
-		init();
+		this.init();
 	}
 
 	/**
