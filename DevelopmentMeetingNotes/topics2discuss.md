@@ -8,3 +8,6 @@ How should agents grow? Internal products?
 
 
 Agent radius in 2D, 1D
+
+
+Selecting agents to be removed by a boundary layer
