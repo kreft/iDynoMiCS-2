@@ -44,7 +44,7 @@ public class DetectLocalSolute extends Event
 		/*
 		 * Find the relevant solute grid, if it exists.
 		 */
-		if ( ! comp._environment.isSoluteName(SOLUTE_NAME) )
+		if ( ! comp.environment.isSoluteName(SOLUTE_NAME) )
 		{
 			Log.out(level, "  cannot find concn of a solute "+SOLUTE_NAME+
 					" that is not in the environment! Copmpartment "

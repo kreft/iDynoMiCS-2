@@ -10,6 +10,8 @@ import agent.Body;
 import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import dataIO.XmlLabel;
+
 import static dataIO.Log.Tier.*;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -20,7 +22,6 @@ import surface.Collision;
 import surface.Point;
 import surface.Rod;
 import surface.Surface;
-import utility.ExtraMath;
 import utility.Helper;
 
 
@@ -36,6 +37,19 @@ import utility.Helper;
  */
 public class AgentRelaxation extends ProcessManager
 {
+	public static String SEARCH_DIST = AspectRef.collisionSearchDistance;
+	public static String PULL_EVALUATION = AspectRef.collisionPullEvaluation;
+	public static String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
+	
+	public static String BASE_DT = AspectRef.collisionBaseDT;
+	public static String MAX_MOVEMENT = AspectRef.collisionMaxMOvement;
+	
+	public String BODY = AspectRef.agentBody;
+	public String RADIUS = AspectRef.bodyRadius;
+	public String VOLUME = AspectRef.agentVolume;
+	public String DIVIDE = AspectRef.agentDivision;
+	
+	
 	/**
 	 * Available relaxation methods.
 	 */
@@ -61,39 +75,42 @@ public class AgentRelaxation extends ProcessManager
 	 * TODO
 	 */
 	private double _dtMech;
+	
 	/**
 	 * TODO
 	 */
 	private double _vSquare;
+	
 	/**
 	 * TODO
 	 */
 	private double _tMech;
+	
 	/**
 	 * Relaxation parameters (overwritten by init)
 	 */
-	private double _dtBase;	
+	protected double _dtBase;	
+	
 	/**
 	 * TODO
 	 */
 	private double _maxMovement;
+	
 	/**
 	 * TODO
 	 */
 	private Method _method;
+	
 	/**
 	 * TODO
 	 */
 	private boolean _timeLeap;
+	
 	/**
 	 * TODO
 	 */
-	Collision _iterator;
-	
-	public String BODY = AspectRef.agentBody;
-	public String RADIUS = AspectRef.bodyRadius;
-	public String VOLUME = AspectRef.agentVolume;
-	
+	private Collision _iterator;
+
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -170,8 +187,8 @@ public class AgentRelaxation extends ProcessManager
 				}
 			}
 			
-			double searchDist = (agent.isAspect("searchDist") ?
-					agent.getDouble("searchDist") : 0.0);
+			double searchDist = (agent.isAspect(SEARCH_DIST) ?
+					agent.getDouble(SEARCH_DIST) : 0.0);
 			
 			Log.out(level, "  Agent (ID "+agent.identity()+") has "+
 					agentSurfs.size()+" surfaces, search dist "+searchDist);
@@ -184,11 +201,11 @@ public class AgentRelaxation extends ProcessManager
 			for ( Agent neighbour: nhbs )
 				if ( agent.identity() > neighbour.identity() )
 				{
-					agent.event("evaluatePull", neighbour);
-					Double pull = agent.getDouble("#curPullDist");
+					agent.event(PULL_EVALUATION, neighbour);
+					Double pull = agent.getDouble(CURRENT_PULL_DISTANCE);
 					if ( pull == null || pull.isNaN() )
 						pull = 0.0;
-					body = ((Body) neighbour.get("body"));
+					body = ((Body) neighbour.get(BODY));
 					List<Surface> t = body.getSurfaces();
 					Log.out(level, "   interacting with neighbor (ID "+
 							neighbour.identity()+") , which has "+t.size()+
@@ -210,8 +227,8 @@ public class AgentRelaxation extends ProcessManager
 		/*
 		 * Obtaining relaxation parameters.
 		 */
-		this._dtBase = Helper.setIfNone( getDouble("dtBase"), 0.002 );	
-		this._maxMovement = Helper.setIfNone( getDouble("maxMovement"), 0.01 );	
+		this._dtBase = Helper.setIfNone( getDouble(BASE_DT), 0.002 );	
+		this._maxMovement = Helper.setIfNone( getDouble(MAX_MOVEMENT), 0.01 );	
 		this._method = Method.valueOf( Helper.setIfNone(
 				getString("relaxationMethod"), Method.EULER.toString() ) );
 		this._timeLeap	= true;
@@ -223,7 +240,7 @@ public class AgentRelaxation extends ProcessManager
 		for(Agent agent: agents.getAllLocatedAgents()) 
 		{
 			agent.event(AspectRef.bodyUpdate);
-			agent.event("divide");
+			agent.event(DIVIDE);
 			agent.event("epsExcretion");
 		}
 

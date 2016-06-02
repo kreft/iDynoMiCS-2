@@ -9,7 +9,6 @@ import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.XmlLabel;
 import dataIO.Log.Tier;
-import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
@@ -24,7 +23,7 @@ import surface.Point;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements Quizable, AspectInterface, NodeConstructor
+public class Agent implements AspectInterface, NodeConstructor
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 

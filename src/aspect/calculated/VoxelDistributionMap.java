@@ -39,7 +39,7 @@ public class VoxelDistributionMap extends Calculated
 		 * calculate total volume
 		 */
 		double totalVol = 0.0;
-		for(int[] key : distrib.keySet())
+		for( int[] key : distrib.keySet() )
 			totalVol += distrib.get(key);
 		/*
 		 * Calculate hypothetical density.
@@ -51,7 +51,7 @@ public class VoxelDistributionMap extends Calculated
 		 */
 		HashMap<int[],Double> massDistribution = new HashMap<int[],Double>();
 		for(int[] key : distrib.keySet())
-			massDistribution.put(key, distrib.get(key) * mv);
+			massDistribution.put( key, distrib.get(key) * mv );
 		return massDistribution;
 	}
 }

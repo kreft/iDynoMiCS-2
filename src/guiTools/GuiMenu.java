@@ -25,13 +25,13 @@ import idynomics.Simulator;
  */
 public final class GuiMenu
 {
-	private static JMenuBar menuBar;
+	private static JMenuBar _menuBar;
 	
 	public static JMenuBar getMenuBar()
 	{
-		menuBar = new JMenuBar();
-		menuBar.add(fileMenu());
-		return menuBar;
+		_menuBar = new JMenuBar();
+		_menuBar.add(fileMenu());
+		return _menuBar;
 	}
 	
 	

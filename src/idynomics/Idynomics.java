@@ -31,12 +31,12 @@ public class Idynomics
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.
 	*/
-	public static String version_number = "2.0";
+	public final static String version_number = "2.0";
 	
 	/**
 	 * Version description.
 	 */
-	public static String version_description = "alpha build 2016.05.10";
+	public final static String version_description = "alpha build 2016.05.10";
 	
 	/**
 	 * {@code Simulator} object: there can only be one. 

@@ -56,7 +56,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	/**
 	 * EnvironmentContainer deals with all solutes.
 	 */
-	public EnvironmentContainer _environment;
+	public EnvironmentContainer environment;
 	/**
 	 * ProcessManagers handle the interactions between agents and solutes.
 	 * The order of the list is important.
@@ -106,7 +106,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		Log.out(Tier.EXPRESSIVE, "Compartment \""+this.name+
 				"\" taking shape \""+aShape.getName()+"\"");
 		this._shape = aShape;
-		this._environment = new EnvironmentContainer(this._shape);
+		this.environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
 	}
 	
@@ -190,7 +190,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 				reac = (Reaction) Reaction.getNewInstance(rElem);
 				reac.init(rElem);
 				/* Add it to the environment. */
-				this._environment.addReaction(reac, str);
+				this.environment.addReaction(reac, str);
 			}
 				
 		}
@@ -301,7 +301,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	 */
 	public void addSolute(String soluteName)
 	{
-		this._environment.addSolute(soluteName);
+		this.environment.addSolute(soluteName);
 	}	
 	
 	/**
@@ -310,7 +310,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	 */
 	public void addSolute(String soluteName, double initialConcentration)
 	{
-		this._environment.addSolute(soluteName, initialConcentration);
+		this.environment.addSolute(soluteName, initialConcentration);
 	}
 	
 	/**
@@ -343,7 +343,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	 */
 	public SpatialGrid getSolute(String soluteName)
 	{
-		return this._environment.getSoluteGrid(soluteName);
+		return this.environment.getSoluteGrid(soluteName);
 	}
 	
 	/*************************************************************************
@@ -407,7 +407,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 			 * First process on the list does its thing. This should then
 			 * increase its next step time.
 			 */
-			currentProcess.step(this._environment, this.agents);
+			currentProcess.step(this.environment, this.agents);
 			/*
 			 * Reinsert this process at the appropriate position in the list.
 			 */
@@ -450,12 +450,12 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	
 	public void printSoluteGrid(String soluteName)
 	{
-		this._environment.printSolute(soluteName);
+		this.environment.printSolute(soluteName);
 	}
 	
 	public void printAllSoluteGrids()
 	{
-		this._environment.printAllSolutes();
+		this.environment.printAllSolutes();
 	}
 	
 	
@@ -562,8 +562,8 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		 * add solute nodes, yet only if the environment has been initiated, when
 		 * creating a new compartment solutes can be added later 
 		 */
-		if ( this._environment != null )
-			for ( String sol : this._environment.getSoluteNames() )
+		if ( this.environment != null )
+			for ( String sol : this.environment.getSoluteNames() )
 				modelNode.add(this.getSolute(sol).getNode() );
 		
 		return modelNode;

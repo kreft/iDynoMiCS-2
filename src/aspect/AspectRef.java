@@ -211,4 +211,34 @@ public class AspectRef
 	 * TODO
 	 */
 	public static String agentStochasticDistance = "stochasticDistance";
+
+	/**
+	 * TODO
+	 */
+	public static String agentDivision = "divide";
+
+	/**
+	 * 
+	 */
+	public static String collisionSearchDistance = "searchDist";
+
+	/**
+	 * TODO
+	 */
+	public static String collisionPullEvaluation = "evaluatePull";
+
+	/**
+	 * TODO
+	 */
+	public static String collisionCurrentPullDistance = "#curPullDist";
+
+	/**
+	 * TODO
+	 */
+	public static String collisionBaseDT = "dtBase";
+
+	/**
+	 * TODO
+	 */
+	public static String collisionMaxMOvement = "maxMovement";
 }

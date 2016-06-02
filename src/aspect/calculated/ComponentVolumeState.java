@@ -1,9 +1,9 @@
 package aspect.calculated;
 
+import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Calculated;
 import aspect.AspectRef;
-import generalInterfaces.Quizable;
 import linearAlgebra.Vector;
 
 /**
@@ -25,7 +25,7 @@ public class ComponentVolumeState extends Calculated {
 	
 	public Object get(AspectInterface aspectOwner)
 	{
-		Quizable agent = (Quizable) aspectOwner;
+		Agent agent = (Agent) aspectOwner;
 		return  Vector.dotQuotient((double[]) agent.get(MASS), 
 									(double[]) agent.get(DENSITY));
 	}

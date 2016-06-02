@@ -46,12 +46,7 @@ public class AgentContainer
 	 * Synchronized list, list is cheaper to access than an agent tree
 	 * (iterating over all agents), synchronized for thread safety
 	 */
-	List<Agent> _locatedAgentList = new ArrayList<Agent>();
-	
-	/**
-	 * Synchronized iterator (check whether this wokrs correctly)
-	 */
-	Iterator<Agent> locatedAgentIterator;
+	private List<Agent> _locatedAgentList = new ArrayList<Agent>();
 	
 	/**
 	 * All agents without a spatial location are stored in here.

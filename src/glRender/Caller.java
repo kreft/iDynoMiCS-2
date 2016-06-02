@@ -14,7 +14,5 @@ public class Caller {
 		CommandMediatorExample mediator = new CommandMediatorExample();
 		Render myRender = new Render(mediator);
 		EventQueue.invokeLater(myRender);	
-		
 	}
-
 }

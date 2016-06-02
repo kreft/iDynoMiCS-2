@@ -28,25 +28,25 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * Expression string.
 	 */
-	protected String expression;
+	protected String _expression;
 	
 	/**
 	 * Recognized operators, in order of evaluation TODO: currently hashtagging
 	 * stuff that is likely to be in a variable or constant, discuss consider
 	 * other indicator
 	 */
-	public static String[] operators = new 
+	public static final String[] operators = new 
 			String[]{"#e", "#PI", "EXP", "^", "SQRT", "*", "/", "+", "-"};
 	
 	/**
 	 * Names and values of constants in this expression.
 	 */
-	public Map<String, Double> _constants;
+	private Map<String, Double> _constants;
 	
 	/**
 	 * Names of variables in this expression.
 	 */
-	public List<String> _variables = new LinkedList<String>();
+	private List<String> _variables = new LinkedList<String>();
 	
 	/**
 	 * The component object.
@@ -65,7 +65,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	public ExpressionB(String expression, Map<String, Double> constants)
 	{
 		/* Remove all whitespace. */
-		this.expression = expression.replaceAll("\\s+","");
+		this._expression = expression.replaceAll("\\s+","");
 		/* Create the constants map if it was not given. */
 		if ( constants == null )
 			constants = new HashMap<String, Double>();
@@ -102,10 +102,10 @@ public class ExpressionB extends Component implements NodeConstructor
 					XmlLabel.valueAttribute)));
 		}
 				
-		this.expression = XmlHandler.obtainAttribute(elem, 
+		this._expression = XmlHandler.obtainAttribute(elem, 
 				XmlLabel.valueAttribute).replaceAll("\\s+","");
 		this._constants = constantsMap;
-		this._a = build(expression, constantsMap);
+		this._a = build(_expression, constantsMap);
 	}
 	
 	/*************************************************************************
@@ -154,7 +154,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		int c = -1;
 		while (true)
 		{
-			int index = expression.indexOf("(", c+1);
+			int index = _expression.indexOf("(", c+1);
 			if (index == -1)
 				break;
 			brackets.put(index, 1);
@@ -164,14 +164,14 @@ public class ExpressionB extends Component implements NodeConstructor
 		c = -1;
 		while (true)
 		{
-			int index = expression.indexOf(")", c+1);
+			int index = _expression.indexOf(")", c+1);
 			if ( index == -1 )
 				break;
 			brackets.put(index, -1);
 			c = index;
 		}
 		/* TODO why?. */
-		brackets.put(expression.length(), -1);
+		brackets.put(_expression.length(), -1);
 		
 		c = 0;
 		int o = 0;
@@ -181,7 +181,7 @@ public class ExpressionB extends Component implements NodeConstructor
 			 * what is handled at this level
 			 */
 			if ( c == 0 && key > 0 )
-				setEq(o, String.valueOf(expression.subSequence(o, key)), eval);
+				setEq(o, String.valueOf(_expression.subSequence(o, key)), eval);
 			
 			/*
 			 * what is handled at deeper level (braces)
@@ -347,7 +347,7 @@ public class ExpressionB extends Component implements NodeConstructor
 			TreeMap<Integer,ExpressionB> _subs)
 	{
 		_subs.put(start, new ExpressionB( 
-				expression.substring(start+1, end-1), this._constants));
+				_expression.substring(start+1, end-1), this._constants));
 		_eval.put(start, String.valueOf("$" + start));
 	}
 	
@@ -492,7 +492,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		ModelNode modelNode = new ModelNode(XmlLabel.expression, 
 				this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
-		modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, this.expression, null, true));
+		modelNode.add(new ModelAttribute(XmlLabel.valueAttribute, this._expression, null, true));
 		
 		for (String con : this._constants.keySet() )
 			modelNode.add(getConstantNode(con));
@@ -513,8 +513,8 @@ public class ExpressionB extends Component implements NodeConstructor
 	@Override
 	public void setNode(ModelNode node) 
 	{
-		this.expression = node.getAttribute(XmlLabel.valueAttribute).value;
-		this._a = build(expression, _constants);
+		this._expression = node.getAttribute(XmlLabel.valueAttribute).value;
+		this._a = build(_expression, _constants);
 	}
 
 	@Override

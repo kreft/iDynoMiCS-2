@@ -8,7 +8,6 @@ import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
 import dataIO.Log;
-import dataIO.ObjectRef;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.XmlLabel;
@@ -40,10 +39,22 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
 	
+	/**
+	 * The timer
+	 */
 	public Timer timer;
 	
-	private XmlExport xmlOut;
-	private ModelNode modelNode;
+	/**
+	 * Xml output writer
+	 */
+	private XmlExport _xmlOut;
+	
+	/**
+	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
+	 * within that all child nodes, simulator is the exception to the rule not
+	 * storing ModelNodes
+	 */
+	private ModelNode _modelNode;
 
 	
 	/*************************************************************************
@@ -55,7 +66,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		//TODO fully implement MTRandom (reading in random seed)
 		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
-		this.xmlOut = new XmlExport();
+		this._xmlOut = new XmlExport();
 	}
 
 	/**
@@ -259,7 +270,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 		/*
 		 * write state to new xml file
 		 */
-		xmlOut.writeFile();
+		_xmlOut.writeFile();
 		
 		/* we should say something when an iter step is finished */
 		Log.out(Tier.NORMAL, "iter time: " + this.timer.getCurrentTime());
@@ -401,7 +412,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 
 		/* Safe this modelNode locally for model run without having to have save 
 		 * all button */
-		this.modelNode = modelNode;
+		this._modelNode = modelNode;
 		
 		/* return node */
 		return modelNode;
@@ -413,7 +424,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	 */
 	public void setNode()
 	{
-		setNode(this.modelNode);
+		setNode(this._modelNode);
 	}
 	
 	/**
@@ -422,7 +433,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	public void setNode(ModelNode node)
 	{
 		/* set local node */
-		this.modelNode = node;
+		this._modelNode = node;
 		
 		/* update simulation name */
 		Idynomics.global.simulationName = 
@@ -473,7 +484,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeCons
 	@Override
 	public String getXml() 
 	{
-		return this.modelNode.getXML();
+		return this._modelNode.getXML();
 	}
 }
 

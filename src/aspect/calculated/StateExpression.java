@@ -20,7 +20,7 @@ public class StateExpression extends Calculated {
 	public void setInput(String input)
 	{
 		this._input = new String[]{input};
-		this.expression = new ExpressionB(input.replaceAll("\\s+",""));
+		this.expression = new ExpressionB( input.replaceAll("\\s+","") );
 	}
 	
 	/**
@@ -29,9 +29,9 @@ public class StateExpression extends Calculated {
 	public Object get(AspectInterface aspectOwner)
 	{
 		variables.clear();
-		for(String var : expression._variables)
-			variables.put(var, aspectOwner.getDouble(var));
-		return expression.getValue(variables);
+		for( String var : expression.getAllVariablesNames() )
+			variables.put( var, aspectOwner.getDouble(var) );
+		return expression.getValue( variables );
 	}
 
 }

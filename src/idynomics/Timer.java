@@ -29,25 +29,30 @@ import utility.Helper;
  */
 public class Timer implements IsSubmodel, XMLable, NodeConstructor
 {
-	private int iteration;
+	/**
+	 * TODO
+	 */
+	private int _iteration;
 	
-	private double now;
+	/**
+	 * TODO
+	 */
+	private double _now;
 	
-	protected double timerStepSize;
+	/**
+	 * TODO
+	 */
+	protected double _timerStepSize;
 	
-	protected double endOfSimulation;
-	
-	public ModelNode modelNode;
-	
+	/**
+	 * TODO
+	 */
+	protected double _endOfSimulation;
+		
 	public Timer()
 	{
-		this.iteration = 0;
-		this.now = 0.0;
-	}
-	
-	public NodeConstructor newBlank()
-	{
-		return new Timer();
+		this._iteration = 0;
+		this._now = 0.0;
 	}
 	
 	public String getName()
@@ -78,18 +83,6 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 		if ( Helper.gui )
 			GuiLaunch.resetProgressBar();
 	}
-
-	/**
-	 * 
-	 * 
-	 */
-	public String getXml()
-	{
-		String out = "<" + XmlLabel.timer + " " + XmlLabel.timerStepSize + 
-				" =\"" + this.timerStepSize + "\" " + XmlLabel.endOfSimulation +
-				"=\"" + this.endOfSimulation + "\" />\n";
-		return out;
-	}
 	
 	/*************************************************************************
 	 * BASIC METHODS
@@ -98,51 +91,51 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 	
 	public void reset()
 	{
-		now = 0.0;
-		iteration = 0;
+		_now = 0.0;
+		_iteration = 0;
 	}
 	
 	public void setTimeStepSize(double stepSize)
 	{
-		this.timerStepSize = stepSize;
+		this._timerStepSize = stepSize;
 	}
 	
 	public double getCurrentTime()
 	{
-		return now;
+		return _now;
 	}
 	
 	public int getCurrentIteration()
 	{
-		return iteration;
+		return _iteration;
 	}
 	
 	public double getTimeStepSize()
 	{
-		return this.timerStepSize;
+		return this._timerStepSize;
 	}
 	
 	public double getEndOfCurrentIteration()
 	{
-		return now + getTimeStepSize();
+		return _now + getTimeStepSize();
 	}
 	
 	public void step()
 	{
-		now += getTimeStepSize();
-		iteration++;
+		_now += getTimeStepSize();
+		_iteration++;
 		if ( Helper.gui )
 			GuiLaunch.updateProgressBar();
 	}
 	
 	public double getEndOfSimulation()
 	{
-		return this.endOfSimulation;
+		return this._endOfSimulation;
 	}
 	
 	public void setEndOfSimulation(double timeToStopAt)
 	{
-		this.endOfSimulation = timeToStopAt;
+		this._endOfSimulation = timeToStopAt;
 	}
 	
 	public int estimateLastIteration()
@@ -152,15 +145,15 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 	
 	public boolean isRunning()
 	{
-		Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+now+", end = "+
-				getEndOfSimulation()+", so "+(now<getEndOfSimulation())); 
-		return now < getEndOfSimulation();
+		Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+_now+", end = "+
+				getEndOfSimulation()+", so "+(_now<getEndOfSimulation())); 
+		return _now < getEndOfSimulation();
 	}
 	
 	public void report(Tier outputLevel)
 	{
-		Log.out(outputLevel, "Timer: time is   = "+now);
-		Log.out(outputLevel, "       iteration = "+iteration);
+		Log.out(outputLevel, "Timer: time is   = "+_now);
+		Log.out(outputLevel, "       iteration = "+_iteration);
 		Log.out(outputLevel, "       step size = "+getTimeStepSize());
 		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
 	}
@@ -207,29 +200,30 @@ public class Timer implements IsSubmodel, XMLable, NodeConstructor
 	}
 	
 	public ModelNode getNode() {
+
+		ModelNode modelNode = new ModelNode(XmlLabel.timer, this);
+		modelNode.requirement = Requirements.EXACTLY_ONE;
 		
-		if (modelNode == null)
-		{
-			
-		ModelNode myNode = new ModelNode(XmlLabel.timer, this);
-		myNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.add(new ModelAttribute(XmlLabel.timerStepSize, 
+				String.valueOf(this._timerStepSize), null, true ));
+		modelNode.add(new ModelAttribute(XmlLabel.endOfSimulation, 
+				String.valueOf(this._endOfSimulation), null, true ));
+
 		
-		myNode.add(new ModelAttribute(XmlLabel.timerStepSize, 
-				String.valueOf(this.timerStepSize), null, true ));
-		myNode.add(new ModelAttribute(XmlLabel.endOfSimulation, 
-				String.valueOf(this.endOfSimulation), null, true ));
-		modelNode = myNode;
-		}
 		return modelNode;
 	}
 
 	public void setNode(ModelNode node)
 	{
-		modelNode = node;
 		this.setTimeStepSize( Double.valueOf( 
 				node.getAttribute( XmlLabel.timerStepSize ).value ));
 		this.setEndOfSimulation( Double.valueOf( 
 				node.getAttribute( XmlLabel.endOfSimulation ).value ));
+	}
+	
+	public NodeConstructor newBlank()
+	{
+		return new Timer();
 	}
 
 	@Override

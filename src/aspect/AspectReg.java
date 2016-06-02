@@ -12,7 +12,6 @@ import dataIO.ObjectFactory;
 import dataIO.ObjectRef;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
-import generalInterfaces.Quizable;
 import generalInterfaces.XMLable;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
@@ -135,9 +134,9 @@ public class AspectReg
 	 * 
 	 * @param name
 	 */
-	public void addSubModule(String name, Quizable library)
+	public void addSubModule(String name, AspectInterface library)
 	{
-		addSubModule( (AspectInterface) library.get(name) );
+		addSubModule( (AspectInterface) library.getValue(name) );
 	}
 	
 	public LinkedList<AspectInterface> getSubModules()

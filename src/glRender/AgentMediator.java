@@ -13,10 +13,7 @@ import aspect.AspectRef;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
 import shape.Shape;
-import surface.Ball;
-import surface.Point;
-import surface.Rod;
-import surface.Surface;
+import surface.*;
 
 
 /**
@@ -28,11 +25,11 @@ import surface.Surface;
 public class AgentMediator implements CommandMediator {
 	protected AgentContainer _agents;
 	protected Shape _shape;
-	private String pigment;
-	private float[] rgba;
-	private GLU glu = new GLU();
+	private String _pigment;
+	private float[] _rgba;
+	private GLU _glu = new GLU();
 	public float kickback;
-	private GL2 gl;
+	private GL2 _gl;
 
 	/**
 	 * used to set up the open gl camera
@@ -58,7 +55,7 @@ public class AgentMediator implements CommandMediator {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void draw(GLAutoDrawable drawable) {
-		gl = drawable.getGL().getGL2();
+		_gl = drawable.getGL().getGL2();
 
 		/* get the domain lengths to draw itself and scaling */
 		double[] domainLengths = _agents.getShape().getDimensionLengths();
@@ -78,29 +75,29 @@ public class AgentMediator implements CommandMediator {
 					AspectRef.surfaceList) ? a.get(AspectRef.surfaceList) :
 					new LinkedList<Surface>()))
 			{
-				pigment = a.getString("pigment");
-				switch (pigment)
+				_pigment = a.getString("pigment");
+				switch (_pigment)
 				{
 				case "GREEN" :
-					  rgba = new float[] {0.1f, 1f, 0.1f};
+					  _rgba = new float[] {0.1f, 1f, 0.1f};
 					  break;
 				case "RED" :
-					  rgba = new float[] {1f, 0.1f, 0.1f};
+					  _rgba = new float[] {1f, 0.1f, 0.1f};
 					  break;
 				case "BLUE" :
-					  rgba = new float[] {0.1f, 0.1f, 1f};
+					  _rgba = new float[] {0.1f, 0.1f, 1f};
 					  break;
 				case "PURPLE" :
-					  rgba = new float[] {1.0f, 0.0f, 1.0f};
+					  _rgba = new float[] {1.0f, 0.0f, 1.0f};
 					  break;
 				case "ORANGE" :
-					  rgba = new float[] {1f, 0.6f, 0.1f};
+					  _rgba = new float[] {1f, 0.6f, 0.1f};
 					  break;
 				case "BLACK" :
-					  rgba = new float[] {0.0f, 0.0f, 0.0f};
+					  _rgba = new float[] {0.0f, 0.0f, 0.0f};
 					  break;
 				default :
-					  rgba = new float[] {1f, 1f, 1f};
+					  _rgba = new float[] {1f, 1f, 1f};
 					  break;
 				}
 				
@@ -158,27 +155,27 @@ public class AgentMediator implements CommandMediator {
 	     	double z1 = Math.sin(lat1);
 	     	double zr1 = Math.cos(lat1);
 
-	     	gl.glLoadIdentity();
-			gl.glTranslated(p[0] - domain[0] * 0.5, p[1] - domain[1] * 0.5, 
+	     	_gl.glLoadIdentity();
+			_gl.glTranslated(p[0] - domain[0] * 0.5, p[1] - domain[1] * 0.5, 
 					p[2] - domain[2] * 0.5);
-	     	gl.glScaled(radius, radius, radius);
-			gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
-			gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
-			gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-			gl.glColor3f(rgba[0], rgba[1], rgba[2]);
-			gl.glBegin(GL2.GL_QUAD_STRIP);
+	     	_gl.glScaled(radius, radius, radius);
+			_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, _rgba, 0);
+			_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, _rgba, 0);
+			_gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
+			_gl.glColor3f(_rgba[0], _rgba[1], _rgba[2]);
+			_gl.glBegin(GL2.GL_QUAD_STRIP);
 			for(j = 0; j <= longs; j++) 
 			{
 				double lng = 2 * Math.PI * (double) (j - 1) / longs;
 				double x = Math.cos(lng);
 				double y = Math.sin(lng);
 				
-				gl.glNormal3d(x * zr0, y * zr0, z0);
-				gl.glVertex3d(x * zr0, y * zr0, z0);
-				gl.glNormal3d(x * zr1, y * zr1, z1);
-				gl.glVertex3d(x * zr1, y * zr1, z1);
+				_gl.glNormal3d(x * zr0, y * zr0, z0);
+				_gl.glVertex3d(x * zr0, y * zr0, z0);
+				_gl.glNormal3d(x * zr1, y * zr1, z1);
+				_gl.glVertex3d(x * zr1, y * zr1, z1);
 			}
-			gl.glEnd();
+			_gl.glEnd();
 		}
 	
 	}
@@ -292,8 +289,8 @@ public class AgentMediator implements CommandMediator {
 	 */
 	private void plane(GLAutoDrawable drawable, double[] domain) 
 	{
-		rgba = new float[] {0.3f, 0.3f, 0.3f};
-		plane(drawable, domain, Vector.zeros(domain), Vector.onesDbl(domain.length), rgba, false);
+		_rgba = new float[] {0.3f, 0.3f, 0.3f};
+		plane(drawable, domain, Vector.zeros(domain), Vector.onesDbl(domain.length), _rgba, false);
 	}
 	
 	/**
@@ -308,34 +305,34 @@ public class AgentMediator implements CommandMediator {
 	private void plane(GLAutoDrawable drawable, double[] domain, double[] origin
 			, double[] lengths ,float[] color, boolean lighting)
 	{
-		gl.glLoadIdentity();
-		gl.glTranslated(origin[0], origin[1], origin[2]);
-		gl.glScaled(domain[0]*0.5, domain[1]*0.5, domain[2]*0.5);
-		gl.glScaled(lengths[0], lengths[1], lengths[2]);
+		_gl.glLoadIdentity();
+		_gl.glTranslated(origin[0], origin[1], origin[2]);
+		_gl.glScaled(domain[0]*0.5, domain[1]*0.5, domain[2]*0.5);
+		_gl.glScaled(lengths[0], lengths[1], lengths[2]);
 		if (lighting)
 		{
-	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, color, 0);
-	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, color, 0);
-	        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
+	        _gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, color, 0);
+	        _gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, color, 0);
+	        _gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
 		}
 		else
 		{
-			gl.glDisable(GL2.GL_LIGHTING);
+			_gl.glDisable(GL2.GL_LIGHTING);
 		}
-		gl.glBegin(GL2.GL_QUADS);             
-		gl.glColor3f(color[0],color[1],color[2]);    
-			gl.glVertex3d(-1.0, 1.0, -1.0); 
-		    gl.glVertex3d( 1.0, 1.0, -1.0);
-		    gl.glVertex3d( 1.0, -1.0, -1.0);  
-		    gl.glVertex3d(-1.0, -1.0, -1.0); 
-		gl.glEnd();
+		_gl.glBegin(GL2.GL_QUADS);             
+		_gl.glColor3f(color[0],color[1],color[2]);    
+			_gl.glVertex3d(-1.0, 1.0, -1.0); 
+		    _gl.glVertex3d( 1.0, 1.0, -1.0);
+		    _gl.glVertex3d( 1.0, -1.0, -1.0);  
+		    _gl.glVertex3d(-1.0, -1.0, -1.0); 
+		_gl.glEnd();
 		if (lighting)
 		{
 			
 		}
 		else
 		{
-			gl.glEnable(GL2.GL_LIGHTING);
+			_gl.glEnable(GL2.GL_LIGHTING);
 		}
 	}
 	
@@ -347,51 +344,51 @@ public class AgentMediator implements CommandMediator {
 	private void domainCube(GLAutoDrawable drawable, double[] domain) 
 	{
 		
-		gl.glLoadIdentity();
-		gl.glEnable(GL2.GL_BLEND);
-		gl.glDisable(GL2.GL_DEPTH_TEST);
-		gl.glScaled(0.5f*domain[0], 0.5f*domain[1], 0.5f*domain[2]);
+		_gl.glLoadIdentity();
+		_gl.glEnable(GL2.GL_BLEND);
+		_gl.glDisable(GL2.GL_DEPTH_TEST);
+		_gl.glScaled(0.5f*domain[0], 0.5f*domain[1], 0.5f*domain[2]);
 		
-		rgba = new float[] {0.1f, 0.1f, 1f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
-        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-        gl.glColor3f(rgba[0],rgba[1],rgba[2]);
-		gl.glBegin(GL2.GL_QUADS);                  // Start Drawing The Cube
+		_rgba = new float[] {0.1f, 0.1f, 1f};
+        _gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, _rgba, 0);
+        _gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, _rgba, 0);
+        _gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
+        _gl.glColor3f(_rgba[0],_rgba[1],_rgba[2]);
+		_gl.glBegin(GL2.GL_QUADS);                  // Start Drawing The Cube
 		
-		gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Top)
-		gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Top)
-		gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Bottom Left Of The Quad (Top)
-		gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Bottom Right Of The Quad (Top)
+		_gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Top)
+		_gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Top)
+		_gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Bottom Left Of The Quad (Top)
+		_gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Bottom Right Of The Quad (Top)
 		
-		gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Top Right Of The Quad (Bottom)
-		gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Top Left Of The Quad (Bottom)
-		gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Bottom)
-		gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Bottom)
+		_gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Top Right Of The Quad (Bottom)
+		_gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Top Left Of The Quad (Bottom)
+		_gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Bottom)
+		_gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Bottom)
 
-		gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Front)
-		gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Front)
-		gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Front)
-		gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Front)
+		_gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Front)
+		_gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Front)
+		_gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Front)
+		_gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Front)
 
-		gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Back)
-		gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Back)
-		gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Back)
-		gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Back)
+		_gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Back)
+		_gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Back)
+		_gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Back)
+		_gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Back)
 		
-		gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Left)
-		gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Left)
-		gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Left)
-		gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Left)
+		_gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Left)
+		_gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Left)
+		_gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Left)
+		_gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Left)
 
-        gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Right)
-        gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Right)
-        gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Right)
-        gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Right)
-	    gl.glEnd();                        // Done Drawing The Quad
+        _gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Right)
+        _gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Right)
+        _gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Right)
+        _gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Right)
+	    _gl.glEnd();                        // Done Drawing The Quad
 	    
-	    gl.glEnable(GL2.GL_DEPTH_TEST);
-		gl.glDisable(GL2.GL_BLEND);
+	    _gl.glEnable(GL2.GL_DEPTH_TEST);
+		_gl.glDisable(GL2.GL_BLEND);
 	}
 
 }

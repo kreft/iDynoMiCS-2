@@ -51,6 +51,9 @@ public class Param
 	 */
 	public String simulationComment;
 
+	/**
+	 * Root folder for this simulation
+	 */
 	public String idynomicsRoot = "";
 	
 	/**************************************************************************

@@ -69,8 +69,8 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 			Element s = (Element) nodes.item(i);
 			name = s.getAttribute(XmlLabel.nameAttribute);
 			Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
-			this._aspectRegistry.addSubModule(name, 
-					Idynomics.simulator.speciesLibrary);
+			this._aspectRegistry.addSubModule(
+					Idynomics.simulator.speciesLibrary.get(name) );
 		}
 	}
 
