@@ -104,15 +104,5 @@ public final class ShapeConventions
 			// TODO
 			return 0;
 		}
-		
-		@Override
-		public String getXml()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-	}
-	
-	
+	}	
 }

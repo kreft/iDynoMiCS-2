@@ -71,13 +71,18 @@ public class XmlHandler
 			doc = dBuilder.parse(fXmlFile);
 			doc.getDocumentElement().normalize();
 			return doc.getDocumentElement();
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			System.err.println("Error while loading: " + document + "\n"
-					+ "error message: " + e.getMessage());
+		} catch ( ParserConfigurationException | IOException e) {
+			Log.printToScreen("Error while loading: " + document + "\n"
+					+ "error message: " + e.getMessage(), true);
 			document = Helper.obtainInput("", "Atempt to re-obtain document",
 					true);
 			return loadDocument(document);
-		}
+		} catch ( SAXException e ) {
+			Log.printToScreen("Error while loading: " + document + "\n"
+				+ "error message: " + e.getMessage(), true);
+			return null;
+		}			
+		
 	}
 	
 	/**
@@ -250,8 +255,8 @@ public class XmlHandler
 	{
 		try {
 			Field f = c.getDeclaredField(
-					element.getAttribute(XmlLabel.nameAttribute));
-			f.set(c, element.getAttribute(XmlLabel.valueAttribute));
+					element.getAttribute(XmlRef.nameAttribute));
+			f.set(c, element.getAttribute(XmlRef.valueAttribute));
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -261,7 +266,7 @@ public class XmlHandler
 			// param
 			System.err.println("Warning: attempting to set non existend"
 					+ " general paramater: " + 
-					element.getAttribute(XmlLabel.nameAttribute) );
+					element.getAttribute(XmlRef.nameAttribute) );
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -351,7 +356,7 @@ public class XmlHandler
 	public static void display(String prefix, Element element)
 	{
 		String ln = " " + element.getTagName() + " " 
-				+ element.getAttribute(XmlLabel.nameAttribute);
+				+ element.getAttribute(XmlRef.nameAttribute);
 		if (prefix == null) 
 			System.out.println(ln);
 		else

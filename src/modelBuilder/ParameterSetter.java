@@ -4,7 +4,6 @@ import java.awt.event.ActionEvent;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.ObjectFactory;
 
 /**
  * \brief Action that controls the setting of parameters in model components.

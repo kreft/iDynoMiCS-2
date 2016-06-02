@@ -54,6 +54,15 @@ public class Helper
 		return input;
 	}
 	
+	public static String obtainInput(List<String> options, String description, boolean noLog)
+	{
+		String[] out = new String[options.size()];
+		int i = 0;
+		for (String s : options)
+			out[i++] = s;
+		return obtainInput(out, description, noLog);
+	}
+	
 	public static String obtainInput(String[] options, String description, boolean noLog)
 	{
 		String input;

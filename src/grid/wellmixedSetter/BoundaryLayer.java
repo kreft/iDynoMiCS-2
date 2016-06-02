@@ -11,12 +11,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import agent.Agent;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
-import idynomics.NameRef;
 import shape.Shape;
 import surface.Ball;
 import surface.Collision;
@@ -50,14 +50,14 @@ public class BoundaryLayer implements IsWellmixedSetter
 		// TODO Check this, maybe making use of XMLable interface
 		Element elem = (Element) xmlNode;
 		String temp;
-		if ( elem.hasAttribute(XmlLabel.valueAttribute) )
+		if ( elem.hasAttribute(XmlRef.valueAttribute) )
 		{
-			temp = elem.getAttribute(XmlLabel.valueAttribute);
+			temp = elem.getAttribute(XmlRef.valueAttribute);
 			this._value = Double.parseDouble(temp);
 		}
-		if ( elem.hasAttribute(XmlLabel.layerThickness) )
+		if ( elem.hasAttribute(XmlRef.layerThickness) )
 		{
-			temp = elem.getAttribute(XmlLabel.layerThickness);
+			temp = elem.getAttribute(XmlRef.layerThickness);
 			this._layerThickness = Double.parseDouble(temp);
 		}
 		else
@@ -94,7 +94,7 @@ public class BoundaryLayer implements IsWellmixedSetter
 			neighbors = 
 					agents.treeSearch(gridSphere.boundingBox());
 			for ( Agent a : neighbors )
-				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList) )
+				for ( Surface s : (List<Surface>) a.get(AspectRef.surfaceList) )
 					if ( gridSphere.distanceTo(s) < 0.0 )
 						{
 							aGrid.setValueAt(WELLMIXED, coords, this._value);

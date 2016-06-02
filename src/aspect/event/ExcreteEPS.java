@@ -6,10 +6,10 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import surface.Point;
 import utility.ExtraMath;
@@ -22,14 +22,14 @@ import utility.ExtraMath;
 public class ExcreteEPS extends Event
 {
 	
-	public String INTERNAL_PRODUCTS = NameRef.internalProducts;
-	public String EPS = NameRef.productEPS;
-	public String MAX_INTERNAL_EPS = NameRef.maxInternalEPS;
-	public String EPS_SPECIES = NameRef.epsSpecies;
-	public String MASS = NameRef.agentMass;
-	public String UPDATE_BODY = NameRef.agentUpdateBody;
-	public String BODY = NameRef.agentBody;
-	public String RADIUS = NameRef.bodyRadius;
+	public String INTERNAL_PRODUCTS = AspectRef.internalProducts;
+	public String EPS = AspectRef.productEPS;
+	public String MAX_INTERNAL_EPS = AspectRef.maxInternalEPS;
+	public String EPS_SPECIES = AspectRef.epsSpecies;
+	public String MASS = AspectRef.agentMass;
+	public String UPDATE_BODY = AspectRef.agentUpdateBody;
+	public String BODY = AspectRef.agentBody;
+	public String RADIUS = AspectRef.bodyRadius;
 
 	public void start(AspectInterface initiator, 
 			AspectInterface compliant, Double timeStep)

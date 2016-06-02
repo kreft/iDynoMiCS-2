@@ -5,7 +5,7 @@ import agent.Agent;
 import linearAlgebra.Vector;
 
 /**
- * \brief TODO
+ * \brief TODO class needs a rigorous update
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
@@ -14,7 +14,7 @@ public class PovExport
 	/**
 	 * TODO
 	 */
-	int filewriterfilenr = 0;
+	protected int _filewriterfilenr = 0;
 	
 	/**
 	 * returns file number with appending zeros as string.
@@ -53,9 +53,9 @@ public class PovExport
 		FileHandler povFile = new FileHandler();
 		
 		povFile.fnew("../../Simulations/" + prefix + "/" 
-		+ prefix + DigitFilenr(filewriterfilenr) + ".pov");
+		+ prefix + DigitFilenr(_filewriterfilenr) + ".pov");
 
-		povFile.write("#declare Count = " + filewriterfilenr + ";\n");
+		povFile.write("#declare Count = " + _filewriterfilenr + ";\n");
 		povFile.write("#include \"../sceneheader.inc\"\n");
 		
 		for (Agent a: agents) {	
@@ -78,7 +78,7 @@ public class PovExport
 		}
 		povFile.write("#include \"../scenefooter.inc\"\n");
 		povFile.fclose();
-		filewriterfilenr++;
+		_filewriterfilenr++;
 	}
 	
 }

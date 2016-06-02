@@ -10,9 +10,9 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.NameRef;
 
 /**
  * Simple coccoid division class, divides mother cell in two with a random
@@ -29,47 +29,47 @@ public class CoccoidDivision extends Event
 	/**
 	 * The Agent's mass.
 	 */
-	public String MASS = NameRef.agentMass;
+	public String MASS = AspectRef.agentMass;
 	/**
 	 * If the Agent's mass is above this value, trigger division.
 	 */
-	public String THRESHOLD_MASS = NameRef.divisionMass;
+	public String THRESHOLD_MASS = AspectRef.divisionMass;
 	/**
 	 * The fraction of mass that is kept by the mother Agent: 1 - this value
 	 * will be inherited by the daughter cell. Must be between 0 and 1
 	 * exclusive.
 	 */
-	public String MUM_MASS_FRAC = NameRef.mumMassFrac;
+	public String MUM_MASS_FRAC = AspectRef.mumMassFrac;
 	/**
 	 * Amount of stochastic variation used in {@code mumMassFrac}.
 	 */
-	public String MUM_MASS_FRAC_CV = NameRef.mumMassFracCV;
+	public String MUM_MASS_FRAC_CV = AspectRef.mumMassFracCV;
 	/**
 	 * The Agent's body.
 	 */
-	public String BODY = NameRef.agentBody;
+	public String BODY = AspectRef.agentBody;
 	/**
 	 * The radius of the Agent's body.
 	 */
-	public String RADIUS = NameRef.bodyRadius;
+	public String RADIUS = AspectRef.bodyRadius;
 	/**
 	 * TODO
 	 */
-	public String LINKED = NameRef.agentLinks;
+	public String LINKED = AspectRef.agentLinks;
 	/**
 	 * TODO
 	 */
-	public String LINKER_DIST = NameRef.linkerDistance;
+	public String LINKER_DIST = AspectRef.linkerDistance;
 	/**
 	 * Name of the update body event that both agents should call after
 	 * division. 
 	 */
-	public String UPDATE_BODY = NameRef.agentUpdateBody;
+	public String UPDATE_BODY = AspectRef.agentUpdateBody;
 	/**
 	 * Name of the division event that both agents should call at the end of
 	 * this event, in case agents have grown a lot between time steps.
 	 */
-	public String DIVIDE = NameRef.agentDivide;
+	public String DIVIDE = AspectRef.agentDivide;
 	
 	// TODO delete?
 	public CoccoidDivision()

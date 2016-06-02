@@ -2,7 +2,7 @@ package aspect.calculated;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
-import idynomics.NameRef;
+import aspect.AspectRef;
 
 /**
  * \brief TODO
@@ -16,8 +16,8 @@ import idynomics.NameRef;
  */
 public class SimpleVolumeState extends Calculated {
 	
-	public String MASS = NameRef.agentMass;
-	public String DENSITY = NameRef.agentDensity;
+	public String MASS = AspectRef.agentMass;
+	public String DENSITY = AspectRef.agentDensity;
 	
 	public SimpleVolumeState()
 	{

@@ -39,6 +39,9 @@ public class AgentMethodLibrary
 			return "Solid surface";
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(
 				AgentContainer agentCont, DimName dimN, int extreme)
@@ -47,6 +50,9 @@ public class AgentMethodLibrary
 			this._arrivalsLounge.clear();
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(AgentContainer agentCont)
 		{
@@ -87,6 +93,9 @@ public class AgentMethodLibrary
 			return "Boundary layer";
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(
 				AgentContainer agentCont, DimName dimN, int extreme)
@@ -148,6 +157,9 @@ public class AgentMethodLibrary
 			this._arrivalsLounge.clear();
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(AgentContainer agentCont)
 		{
@@ -180,16 +192,23 @@ public class AgentMethodLibrary
 	 *************************************************************************/
 
 	/**
+	 * TODO
 	 * \brief 
 	 */
 	public static class DilutionIn extends AgentMethod
 	{
+		/**
+		 * TODO
+		 */
 		@Override
 		public String getName()
 		{
 			return "Dilution in";
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(
 				AgentContainer agentCont, DimName dimN, int extreme)
@@ -201,6 +220,9 @@ public class AgentMethodLibrary
 			this.agentsArrive(agentCont);
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(AgentContainer agentCont)
 		{

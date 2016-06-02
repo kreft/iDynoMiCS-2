@@ -9,7 +9,6 @@ import org.w3c.dom.Element;
 import static org.junit.Assert.assertTrue;
 
 import generalInterfaces.XMLable;
-import nodeFactory.ModelNode;
 
 /**
  * 
@@ -40,18 +39,6 @@ public class XMLableTest
 		public static Object getNewInstance(String className)
 		{
 			return XMLable.getNewInstance(className, "testJUnit.XMLableTest$");
-		}
-		
-		@Override
-		public String getXml() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public ModelNode getNode() {
-			// TODO Auto-generated method stub
-			return null;
 		}
 	}
 	

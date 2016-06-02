@@ -30,22 +30,25 @@ public final class GuiConsole
 	/**
 	 * Box in the GUI that displays text like a console would.
 	 */
-	private static JTextPane console;
+	private static JTextPane _console;
+	
 	/**
 	 * Background color of the console pane.
 	 * TODO move this to something like a "GuiStyle" class?
 	 */
-	public static Color consoleBackground = new Color(38, 45, 48);
+	private static Color _consoleBackground = new Color(38, 45, 48);
+	
 	/**
 	 * Text style for normal output messages.
 	 */
-	private static SimpleAttributeSet outStyle = defaultOutStyle();
+	private static SimpleAttributeSet _outStyle = defaultOutStyle();
+	
 	/**
 	 * Text style for error output messages.
 	 */
-	private static SimpleAttributeSet errorStyle = defaultErrorStyle();
+	private static SimpleAttributeSet _errorStyle = defaultErrorStyle();
 	
-	private static boolean autoScroll = true;
+	private static boolean _autoScroll = true;
 	
 
 	
@@ -56,9 +59,9 @@ public final class GuiConsole
 	
 	public static JComponent getConsole()
 	{
-		console = new JTextPane();
-		console.setBackground(consoleBackground);
-		return new JScrollPane(console,
+		_console = new JTextPane();
+		_console.setBackground(_consoleBackground);
+		return new JScrollPane(_console,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
@@ -129,7 +132,7 @@ public final class GuiConsole
 	 */
   	public static void writeOut(String message)
 	{
-  		write(message, outStyle);
+  		write(message, _outStyle);
 	}
   	
   	/**
@@ -140,7 +143,7 @@ public final class GuiConsole
   	 */
   	public static void writeErr(String message)
   	{
-  		write(message, errorStyle);
+  		write(message, _errorStyle);
   	}
   	
   	/**
@@ -151,7 +154,7 @@ public final class GuiConsole
   	 */
   	private static void write(String message, AttributeSet a)
   	{
-  		Document doc =	console.getDocument();
+  		Document doc =	_console.getDocument();
   		try
   		{
   			doc.insertString(doc.getLength(), message, a);
@@ -160,8 +163,8 @@ public final class GuiConsole
   		{
   			// TODO
   		}
-  		if ( autoScroll )
-  			console.setCaretPosition(doc.getLength());
+  		if ( _autoScroll )
+  			_console.setCaretPosition(doc.getLength());
   	}
 	
 	/**
@@ -216,14 +219,14 @@ public final class GuiConsole
 	public static JCheckBox autoScrollCheckBox()
 	{
 		JCheckBox out = new JCheckBox("Autoscroll");
-		out.setSelected(autoScroll);
+		out.setSelected(_autoScroll);
 		out.addItemListener(new ItemListener()
 		{
 			@Override
 			public void itemStateChanged(ItemEvent e)
 			{
 				int state = e.getStateChange();
-				GuiConsole.autoScroll = (state == ItemEvent.SELECTED);
+				GuiConsole._autoScroll = (state == ItemEvent.SELECTED);
 			}
 		});
 		return out;

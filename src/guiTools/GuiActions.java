@@ -45,26 +45,27 @@ public final class GuiActions
 		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
 			f = chooser.getSelectedFile();
 		
-    	/* Don't crash if the user has clicked cancel. */
+    	/* load content if a protocol file has been selected */
     	if ( f == null )
     	{
     		Idynomics.global.protocolFile = null;
-    		GuiConsole.writeOut("Please choose a protocol file\n");
+    		GuiConsole.writeOut("No protocol file selected.\n");
     	}
     	else
     	{
     		Idynomics.global.protocolFile = f.getAbsolutePath();
     		GuiConsole.writeOut(Idynomics.global.protocolFile + " \n");
     		checkProtocol();
-    	}
-    	GuiEditor.addComponent(Idynomics.simulator.getNode(), GuiMain.tabbedPane);
+    		GuiEditor.addComponent(Idynomics.simulator.getNode(), 
+    				GuiMain.tabbedPane);
+    	}    		
 	}
 	
 	public static void checkProtocol()
 	{
 		if ( Idynomics.global.protocolFile == null )
 		{
-			GuiConsole.writeErr("Please open a protocol file to check");
+			GuiConsole.writeErr("No protocol file specified.\n");
 		}
 		else
 		{

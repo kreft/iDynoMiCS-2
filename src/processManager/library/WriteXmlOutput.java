@@ -1,9 +1,8 @@
 package processManager.library;
 
-import java.util.List;
-
 import org.w3c.dom.Element;
 
+import aspect.AspectRef;
 import dataIO.XmlExport;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -16,6 +15,8 @@ import processManager.ProcessManager;
  */
 public class WriteXmlOutput extends ProcessManager
 {
+	
+	public static String FILE_PREFIX = AspectRef.filePrefix;
 
 	/**
 	 * The SVG exporter.
@@ -35,7 +36,7 @@ public class WriteXmlOutput extends ProcessManager
 	public void init(Element xmlElem)
 	{
 		super.init(xmlElem);
-		this._prefix = this.getString("prefix");
+		this._prefix = this.getString(FILE_PREFIX);
 	}
 	
 	/*************************************************************************

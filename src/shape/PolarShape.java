@@ -1,20 +1,16 @@
 package shape;
 
-import static shape.Dimension.DimName.R;
-import static shape.Dimension.DimName.THETA;
-import static shape.Shape.WhereAmI.DEFINED;
-import static shape.Shape.WhereAmI.UNDEFINED;
-import static shape.Shape.WhereAmI.INSIDE;
-
 import java.util.Arrays;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
 
-import static shape.Shape.WhereAmI.CYCLIC;
+import static shape.Dimension.DimName;
+import static shape.Dimension.DimName.*;
+import static shape.Shape.WhereAmI.*;
+
 
 import linearAlgebra.Vector;
-import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 public abstract class PolarShape extends Shape

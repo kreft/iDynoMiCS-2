@@ -23,20 +23,20 @@ public class Complex
 	/**
 	 * 'Real' part of this complex number
 	 */
-	private Double real;
+	private Double _real;
 	
 	/**
 	 * 'Imaginary' part of this complex number
 	 */
-	private Double imag;
+	private Double _imag;
 	
 	/**
 	 * \brief Default constructor. Sets number to 0 + 0i
 	 */
 	public Complex()
 	{
-		this.real = 0.0;
-		this.imag = 0.0;
+		this._real = 0.0;
+		this._imag = 0.0;
 	}
 	
 	/**
@@ -50,8 +50,8 @@ public class Complex
 	 */
 	public Complex(Double realPart, Double imaginaryPart)
 	{
-		this.real = realPart;
-		this.imag = imaginaryPart;
+		this._real = realPart;
+		this._imag = imaginaryPart;
 	}
 	
 	/**
@@ -61,8 +61,8 @@ public class Complex
 	 */
 	public void add(Complex c)
 	{
-		this.real += c.getReal();
-		this.imag += c.getImag();
+		this._real += c.getReal();
+		this._imag += c.getImag();
 	}
 	
 	/**
@@ -72,8 +72,8 @@ public class Complex
 	 */
 	public void sub(Complex c)
 	{
-		this.real -= c.getReal(); 
-		this.imag -= c.getImag();
+		this._real -= c.getReal(); 
+		this._imag -= c.getImag();
 	}
 	
 	/**
@@ -83,10 +83,10 @@ public class Complex
 	 */
 	public void mul(Complex c)
 	{
-		Double re = this.real;
-		Double im = this.imag;
-		this.real = re * c.getReal() - im * c.getImag();
-		this.imag = re * c.getImag() + im * c.getReal();
+		Double re = this._real;
+		Double im = this._imag;
+		this._real = re * c.getReal() - im * c.getImag();
+		this._imag = re * c.getImag() + im * c.getReal();
 	}
 	
 	/**
@@ -96,11 +96,11 @@ public class Complex
 	 */
 	public void div(Complex c)
 	{
-		Double re = this.real;
-		Double im = this.imag;
+		Double re = this._real;
+		Double im = this._imag;
 		Double  d = c.getReal() * c.getReal() + c.getImag() * c.getImag();
-		this.real = (re * c.getReal() + im * c.getImag())/d;
-		this.imag = (im * c.getReal() - re * c.getImag())/d;
+		this._real = (re * c.getReal() + im * c.getImag())/d;
+		this._imag = (im * c.getReal() - re * c.getImag())/d;
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class Complex
 	 */
 	public void add(Double z)
 	{
-		this.real += z;
+		this._real += z;
 	}
 	
 	/**
@@ -120,7 +120,7 @@ public class Complex
 	 */
 	public void sub(Double z)
 	{
-		this.real -= z; 
+		this._real -= z; 
 	}
 	
 	/**
@@ -130,8 +130,8 @@ public class Complex
 	 */
 	public void mul(Double z)
 	{
-		this.real *= z;
-		this.imag *= z;
+		this._real *= z;
+		this._imag *= z;
 	}
 	
 	/**
@@ -141,8 +141,8 @@ public class Complex
 	 */
 	public void div(Double z)
 	{
-		this.real /= z;
-		this.imag /= z;
+		this._real /= z;
+		this._imag /= z;
 	}
 	
 	/**
@@ -152,7 +152,7 @@ public class Complex
 	 */
 	public void setReal(Double realPart)
 	{
-		this.real = realPart;
+		this._real = realPart;
 	}
 
 	/**
@@ -163,7 +163,7 @@ public class Complex
 	 */
 	public void setImag(Double imaginaryPart)
 	{
-		this.imag = imaginaryPart;
+		this._imag = imaginaryPart;
 	}
 	
 	/**
@@ -174,7 +174,7 @@ public class Complex
 	 */
 	public Double getReal()
 	{
-		return this.real;
+		return this._real;
 	}
 	
 	/**
@@ -185,7 +185,7 @@ public class Complex
 	 */
 	public Double getImag()
 	{
-		return this.imag;
+		return this._imag;
 	}
 	
 	/**
@@ -194,6 +194,6 @@ public class Complex
 	 */
 	public Boolean isReal()
 	{
-		return (this.imag == 0.0);
+		return (this._imag == 0.0);
 	}
 }

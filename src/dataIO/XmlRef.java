@@ -7,7 +7,7 @@ package dataIO;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class XmlLabel
+public class XmlRef
 {
 	
 	/* Nodes  */
@@ -328,5 +328,36 @@ public class XmlLabel
 	 * Object identity number
 	 */
 	public static String identity = "identity";
+
+	/**
+	 * TODO
+	 */
+	public static String boundaryPartner = "partner";
+
+	/**
+	 * TODO
+	 */
+	public static String gridMethod = "gridMethod";
+
+	/**
+	 * TODO
+	 */
+	public static String variable = "variable";
+
+	/**
+	 * TODO
+	 */
+	public static String spawnNode = "spawn";
+
+	/**
+	 * TODO
+	 */
+	public static String numberOfAgents = "number";
+
+	/**
+	 * TODO
+	 */
+	public static String spawnDomain = "domain";
+
 
 }
