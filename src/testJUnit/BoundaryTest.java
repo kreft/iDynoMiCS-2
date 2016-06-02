@@ -12,6 +12,8 @@ import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.BoundaryLibrary.BulkBLBoundary;
 import boundary.BoundaryLibrary.SolidBoundary;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import shape.Dimension.DimName;
@@ -58,8 +60,9 @@ public class BoundaryTest
 		/*
 		 * Now make a fixed agent that the insert agent should detect.
 		 */
-		Agent fixedAgent = new Agent();
+		Agent fixedAgent = new Agent(comp);
 		Body fBody = new Body(new double[]{1.0}, 1.0);
+		Log.out(Tier.DEBUG, "Agent (UID: "+fixedAgent.identity()+") at x = 1.0");
 		fixedAgent.set(AspectRef.agentBody, fBody);
 		fixedAgent.set(AspectRef.isLocated, new Boolean(true));
 		comp.addAgent(fixedAgent);
@@ -74,6 +77,7 @@ public class BoundaryTest
 		 * 
 		 */
 		double found = iBody.getPoints().get(0).getPosition()[0];
+		Log.out(Tier.DEBUG, "Agent (UID: "+insertAgent.identity()+") at x = "+found);
 		double expected = compartmentLength - boundaryLayerThickness + 3*agentRadius;
 		assertTrue(ExtraMath.areEqual(found, expected, 0.1*boundaryLayerThickness));
 	}

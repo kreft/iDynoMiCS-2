@@ -36,7 +36,7 @@ public class Agent implements AspectInterface, NodeConstructor
 	 * The compartment the agent is currently in
 	 */
 	protected Compartment _compartment;
-
+	
 	/**
 	 * The aspect registry
 	 */
@@ -143,17 +143,17 @@ public class Agent implements AspectInterface, NodeConstructor
 
 	public Agent(String species, Compartment comp)
 	{
-		set(XmlRef.species,species);
+		this.set(XmlRef.species,species);
 		this._compartment = comp;
-		init();
+		this.init();
 	}
 
 	public Agent(String species, Body body, Compartment comp)
 	{
-		set(XmlRef.species, species);
+		this.set(XmlRef.species, species);
 		this.set(AspectRef.agentBody, body);
 		this._compartment = comp;
-		init();
+		this.init();
 	}
 
 	/**

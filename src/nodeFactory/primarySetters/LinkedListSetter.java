@@ -1,7 +1,6 @@
 package nodeFactory.primarySetters;
 
 import dataIO.XmlRef;
-import generalInterfaces.XMLable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;

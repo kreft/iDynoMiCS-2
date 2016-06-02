@@ -2,7 +2,6 @@ package idynomics;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import org.w3c.dom.NodeList;
@@ -367,14 +366,49 @@ public class AgentContainer
 	}
 	
 	/**
+	 * @return A random {@code Agent}, without removing it from this container.
+	 * @see #extractRandomAgent()
+	 */
+	public Agent chooseRandomAgent()
+	{
+		Tier level = Tier.BULK;
+		int nAgents = this.getNumAllAgents();
+		/* Safety if there are no agents. */
+		if ( nAgents == 0 )
+		{
+			Log.out(level, "No agents in this container, so cannot choose "+
+					"one: returning null");
+			return null;
+		}/* Now find an agent. */
+		int i = ExtraMath.getUniRandInt(nAgents);
+		Agent out = (i > this._agentList.size()) ?
+				/* Located agent. */
+				this._agentTree.getRandom() :
+				/* Unlocated agent. */
+				this._agentList.get(i);
+		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
+				out.identity()+" was chosen randomly");
+		return out; 
+	}
+	
+	/**
 	 * @return A randomly chosen {@code Agent}, who is removed from this
 	 * container.
+	 * @see #chooseRandomAgent()
 	 */
 	public Agent extractRandomAgent()
 	{
-		// TODO safety if there are no agents.
+		Tier level = Tier.BULK;
+		int nAgents = this.getNumAllAgents();
+		/* Safety if there are no agents. */
+		if ( nAgents == 0 )
+		{
+			Log.out(level, "No agents in this container, so cannot extract "+
+					"one: returning null");
+			return null;
+		}/* Now find an agent. */
+		int i = ExtraMath.getUniRandInt(nAgents);
 		Agent out;
-		int i = ExtraMath.getUniRandInt(this.getNumAllAgents());
 		if ( i > this._agentList.size() )
 		{
 			/* Located agent. */
@@ -387,7 +421,9 @@ public class AgentContainer
 			/* Unlocated agent. */
 			out = this._agentList.remove(i);
 		}
-		return out;
+		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
+				out.identity()+" was extracted randomly");
+		return out; 
 	}
 	
 	/**

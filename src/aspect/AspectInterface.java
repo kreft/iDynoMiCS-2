@@ -48,7 +48,7 @@ public abstract interface AspectInterface
 		}
 		
 	}
-
+	
 	
 	/**************************************************************************
 	 * Quick getter methods, making life easy and code readable, expand as new

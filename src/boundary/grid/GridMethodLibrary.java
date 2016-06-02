@@ -3,17 +3,11 @@
  */
 package boundary.grid;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Element;
 
 import boundary.grid.GridMethod;
-import dataIO.ObjectRef;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import modelBuilder.InputSetter;
-import modelBuilder.ParameterSetter;
 
 /**
  * \brief TODO
