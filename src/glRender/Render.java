@@ -33,6 +33,8 @@ import com.jogamp.opengl.util.FPSAnimator;
 /**
  * TODO clean-up commenting
  * 
+ * TODO culling?
+ * 
  * openGL Render class, manages openGL settings, output frame and it's own
  * key bindings, requires a command mediator to draw up the 3D scene
  * 
