@@ -10,7 +10,6 @@ import agent.Body;
 import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
 
 import static dataIO.Log.Tier.*;
 import idynomics.AgentContainer;
@@ -191,7 +190,8 @@ public class AgentRelaxation extends ProcessManager
 					 * apply forces
 					 */
 					Vector.addEquals( b.getForce(), fV ) ;
-					Vector.addEquals( a.getForce(), Vector.reverse( fV ) ) ;
+					Vector.reverseEquals(fV);
+					Vector.addEquals( a.getForce(), fV ) ;
 				}
 			}
 			
