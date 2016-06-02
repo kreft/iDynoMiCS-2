@@ -235,7 +235,7 @@ public class AgentRelaxation extends ProcessManager
 		/*
 		 * Obtaining relaxation parameters.
 		 */
-		this._dtBase = Helper.setIfNone( getDouble(BASE_DT), 0.002 );	
+		this._dtBase = Helper.setIfNone( getDouble(BASE_DT), 0.0005 );	
 		this._maxMovement = Helper.setIfNone( getDouble(MAX_MOVEMENT), 0.01 );	
 		this._method = Method.valueOf( Helper.setIfNone(
 				getString(RELAXATION_METHOD), Method.EULER.toString() ) );
@@ -254,7 +254,7 @@ public class AgentRelaxation extends ProcessManager
 
 		int nstep	= 0;
 		_tMech		= 0.0;
-		_dtMech 		= 0.0005; // TODO (initial) time step.. needs to be build out of protocol file
+		_dtMech 	= this._dtBase; // start with initial base timestep than adjust
 
 		// if higher order ODE solvers are used we need additional space to write.
 		switch (_method)
