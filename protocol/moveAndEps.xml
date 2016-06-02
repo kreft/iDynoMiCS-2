@@ -35,7 +35,7 @@
 					<item type="PRIMARY" class="Reaction">
 						<reaction name="epsReact">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) )">
-								<constant name="k" value="0.01" />
+								<constant name="k" value="0.1" />
 								<constant name="mumax" value="1.0" />
 							</expression>
 							<stoichiometric component="eps" coefficient="0.05" />

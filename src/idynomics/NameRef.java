@@ -10,7 +10,7 @@ public class NameRef
 	/**
 	 * Agent state references
 	 */
-	
+
 	/**
 	 * The time when an agent was born.
 	 */
@@ -136,6 +136,11 @@ public class NameRef
 	 */
 	public static String internalProducts = "internalProducts";
 
+	/**
+	 * TODO
+	 */
+	public static String internalProduction = "produce";
+	
 	/**
 	 * TODO
 	 */
