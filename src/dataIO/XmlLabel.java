@@ -334,5 +334,15 @@ public class XmlLabel
 	 */
 	public static String boundaryPartner = "partner";
 
+	/**
+	 * TODO
+	 */
+	public static String gridMethod = "gridMethod";
+
+	/**
+	 * TODO
+	 */
+	public static String variable = "variable";
+
 
 }

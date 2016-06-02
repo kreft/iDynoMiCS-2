@@ -131,32 +131,46 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 		}
 	}
 
+	/**
+	 * Get the ModelNode object for this Species
+	 * @return ModelNode
+	 */
 	@Override
 	public ModelNode getNode() 
 	{
+		/* the species node */
 		ModelNode modelNode = new ModelNode(XmlLabel.species, this);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		
+		/* use the identity (species name) as title */
 		modelNode.title = this.reg()._identity;
 		
+		/* add the name attribute */
 		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
 				this.reg()._identity, null, true ));
 		
+		/* add any submodules */
 		for ( AspectInterface mod : this.reg().getSubModules() )
-		{
 			modelNode.add(mod.reg().getModuleNode(this));
-		}
 
+		/* allow adding of additional aspects */
 		modelNode.childConstructors.put(_aspectRegistry.new Aspect(_aspectRegistry), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
-		/* TODO: add aspects */
+		/* TODO: removing aspects */
 		
+		/* add already existing aspects */
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
 		return modelNode;
 	}
 
+	/**
+	 * Load and interpret the values of the given ModelNode to this 
+	 * NodeConstructor object
+	 * @param node
+	 */
 	@Override
 	public void setNode(ModelNode node) 
 	{
@@ -164,6 +178,11 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 			n.constructor.setNode(n);
 	}
 
+	/**
+	 * Create a new minimal object of this class and return it, used by the gui
+	 * to add new Species
+	 * @return NodeConstructor
+	 */
 	@Override
 	public NodeConstructor newBlank() 
 	{
@@ -172,9 +191,14 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 		name = Helper.obtainInput(name, "Species name");
 		Species newBlank = new Species();
 		newBlank.reg()._identity = name;
+//		Idynomics.simulator.speciesLibrary.set(newBlank);
 		return newBlank;
 	}
 
+	/**
+	 * return the default XMLtag for the XML node of this object
+	 * @return String xmlTag
+	 */
 	@Override
 	public String defaultXmlTag() 
 	{

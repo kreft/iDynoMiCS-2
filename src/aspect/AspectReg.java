@@ -12,7 +12,6 @@ import dataIO.ObjectFactory;
 import dataIO.ObjectRef;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
-import generalInterfaces.XMLable;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -255,17 +254,30 @@ public class AspectReg
 			ai.reg().appendAllAspectNamesTo(names);
 	}
 	
+	/**
+	 * TODO
+	 * @return
+	 */
 	public Set<String> getLocalAspectNames()
 	{
 		return this._aspects.keySet();
 	}
-		
+	
+	/**
+	 * TODO
+	 * @param key
+	 * @return
+	 */
 	public ModelNode getAspectNode(String key)
 	{
 		return this._aspects.get(key).getNode();
 	}
 	
-
+	/**
+	 * TODO
+	 * @param constructor
+	 * @return
+	 */
 	public ModelNode getModuleNode(NodeConstructor constructor) {
 		ModelNode modelNode = new ModelNode(XmlLabel.speciesModule,constructor);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
@@ -274,6 +286,18 @@ public class AspectReg
 				this._identity, null, true ) );
 		
 		return modelNode;
+	}
+
+	/**
+	 * TODO
+	 * @param key
+	 * @param newKey
+	 */
+	public void rename(String key, String newKey )
+	{
+		Object a = (Object) this.getAspect(key);
+		this.remove(key);
+		this.add(newKey, a);
 	}
 	
 	/**
@@ -363,6 +387,10 @@ public class AspectReg
 			}
 	    }
 
+		/**
+		 * Get the ModelNode object for this Aspect object
+		 * @return ModelNode
+		 */
 		@SuppressWarnings("unchecked")
 		@Override
 		public ModelNode getNode() 
@@ -439,6 +467,10 @@ public class AspectReg
 			return modelNode;
 		}
 		
+		/**
+		 * Get the ModelNode object for a Hashmap TODO to be replaced
+		 * @return ModelNode
+		 */
 		@SuppressWarnings("unchecked")
 		public ModelNode HashMapNode(Object key) 
 		{
@@ -452,7 +484,11 @@ public class AspectReg
 			return modelNode;
 		}
 
-
+		/**
+		 * Load and interpret the values of the given ModelNode to this 
+		 * NodeConstructor object
+		 * @param node
+		 */
 		@Override
 		public void setNode(ModelNode node) 
 		{
@@ -469,6 +505,11 @@ public class AspectReg
 		}
 
 		// TODO build up from general.classLib rather than hard code
+		/**
+		 * Create a new minimal object of this class and return it, used by the gui
+		 * to add new
+		 * @return NodeConstructor
+		 */
 		@Override
 		public NodeConstructor newBlank() {
 			String name = "";
@@ -504,24 +545,14 @@ public class AspectReg
 			return registry.getAspect(name);
 		}
 
-		@Override
-		public void addChildObject(NodeConstructor childObject) {
-			// TODO Auto-generated method stub
-			
-		}
-
+		/**
+		 * return the default XMLtag for the XML node of this object
+		 * @return String xmlTag
+		 */
 		@Override
 		public String defaultXmlTag() {
 			// TODO Auto-generated method stub
 			return XmlLabel.aspect;
 		}
 	}
-
-	public void rename(String key, String newKey )
-	{
-		Object a = (Object) this.getAspect(key);
-		this.remove(key);
-		this.add(newKey, a);
-	}
-
 }

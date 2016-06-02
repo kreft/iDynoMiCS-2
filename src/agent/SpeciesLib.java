@@ -185,31 +185,53 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 		}
 	}
 
+	/**
+	 * Get the ModelNode object for this NodeConstructor object
+	 * @return ModelNode
+	 */
 	@Override
 	public ModelNode getNode() {
 
+		/* the species lib node */
 		ModelNode modelNode = new ModelNode(XmlLabel.speciesLibrary, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
+		
+		/* Species constructor */
 		modelNode.childConstructors.put(new Species(), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
+		/* the already existing species */
 		for ( String s : this._species.keySet() )
 			modelNode.add(((Species) _species.get(s)).getNode());
 	
 		return modelNode;
 	}
 
+	/**
+	 * Load and interpret the values of the given ModelNode to this 
+	 * SpeciesLib object
+	 * @param node
+	 */
 	@Override
 	public void setNode(ModelNode node) {
 		for(ModelNode n : node.childNodes)
 			n.constructor.setNode(n);
 	}
 
+	/**
+	 * Create a new minimal object of this class and return it
+	 * @return NodeConstructor
+	 */
 	@Override
 	public NodeConstructor newBlank() {
 		return Idynomics.simulator.speciesLibrary;
 	}
 
+	/**
+	 * Add a child object that is unable to register itself properly via the
+	 * newBlank call.
+	 * @param childOb
+	 */
 	@Override
 	public void addChildObject(NodeConstructor childObject) 
 	{
@@ -217,14 +239,12 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 			this.set((Species) childObject);
 	}
 
+	/**
+	 * return the default XMLtag for the XML node of this object
+	 * @return String xmlTag
+	 */
 	@Override
 	public String defaultXmlTag() {
 		return XmlLabel.speciesLibrary;
-	}
-
-	@Override
-	public String getXml() 
-	{
-		return getNode().getXML();
 	}
 }

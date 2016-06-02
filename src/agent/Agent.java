@@ -336,7 +336,8 @@ public class Agent implements AspectInterface, NodeConstructor
 	 ************************************************************************/
 	
 	/**
-	 * retrieve the current model node
+	 * Get the ModelNode object for this Agent object
+	 * @return ModelNode
 	 */
 	@Override
 	public ModelNode getNode() 
@@ -380,6 +381,7 @@ public class Agent implements AspectInterface, NodeConstructor
 	/**
 	 * create and return a new agent when the add agent button is hit in the
 	 * gui
+	 * @return NodeConstructor
 	 */
 	@Override
 	public NodeConstructor newBlank() 
@@ -392,6 +394,7 @@ public class Agent implements AspectInterface, NodeConstructor
 
 	/** 
 	 * the default xml label of this class (agent)
+	 * @return String XMLtag
 	 */
 	@Override
 	public String defaultXmlTag() 

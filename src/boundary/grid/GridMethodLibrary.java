@@ -53,18 +53,19 @@ public final class GridMethodLibrary
 			this._value = value;
 		}
 		
-		public List<InputSetter> getRequiredInputs()
-		{
-			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter("value", this, ObjectRef.DBL, this._value));
-			return out;
-		}
-		
-		public void acceptInput(String name, Object input)
-		{
-			if ( name.equals("value") && input instanceof Double )
-				this._value = (Double) input;
-		}
+		//FIXME to be replaced by modelnode paradigm?
+//		public List<InputSetter> getRequiredInputs()
+//		{
+//			List<InputSetter> out = new LinkedList<InputSetter>();
+//			out.add(new ParameterSetter("value", this, ObjectRef.DBL, this._value));
+//			return out;
+//		}
+//		
+//		public void acceptInput(String name, Object input)
+//		{
+//			if ( name.equals("value") && input instanceof Double )
+//				this._value = (Double) input;
+//		}
 	}
 
 	/**
@@ -95,22 +96,27 @@ public final class GridMethodLibrary
 			this._gradient = gradient;
 		}
 		
-		public List<InputSetter> getRequiredInputs()
-		{
-			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter(
-						"gradient", this, ObjectRef.DBL, this._gradient));
-			return out;
-		}
-		
-		public void acceptInput(String name, Object input)
-		{
-			if ( name.equals("gradient") && input instanceof Double )
-				this._gradient = (Double) input;
-		}
+		//FIXME to be replaced by modelnode paradigm?
+//		public List<InputSetter> getRequiredInputs()
+//		{
+//			List<InputSetter> out = new LinkedList<InputSetter>();
+//			out.add(new ParameterSetter(
+//						"gradient", this, ObjectRef.DBL, this._gradient));
+//			return out;
+//		}
+//		
+//		public void acceptInput(String name, Object input)
+//		{
+//			if ( name.equals("gradient") && input instanceof Double )
+//				this._gradient = (Double) input;
+//		}
 	}
 	
-	
+	/**
+	 * TODO
+	 * @author Robert
+	 *
+	 */
 	public static class ZeroFlux extends GridMethod
 	{
 		public void init(Element xmlNode)

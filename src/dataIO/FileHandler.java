@@ -64,6 +64,9 @@ public class FileHandler
 		}
 	}
 	
+	/**
+	 * TODO
+	 */
 	public void flushAll()
 	{
 		this._flushAll = true;
