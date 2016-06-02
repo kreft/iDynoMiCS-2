@@ -8,8 +8,6 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
-import nodeFactory.ModelAttribute;
-
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -49,21 +47,8 @@ public abstract interface AspectInterface
 			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
 		}
 		
-//		reg().getXml();
 	}
-	
-//	/**
-//	 * quick method to load simple aspects from user input
-//	 * @param name
-//	 * @param input
-//	 * @param type
-//	 */
-//	public default void loadAspect(String name, String input, String type)
-//	{
-//		AspectReg<Object> aspectReg = (AspectReg<Object>) reg();
-//		aspectReg.add(name, ObjectFactory.loadObject(input, type));
-//		Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
-//	}
+
 	
 	/**************************************************************************
 	 * Quick getter methods, making life easy and code readable, expand as new

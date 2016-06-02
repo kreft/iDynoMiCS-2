@@ -3,7 +3,7 @@ package aspect.event;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import idynomics.NameRef;
+import aspect.AspectRef;
 import utility.ExtraMath;
 
 /**
@@ -14,9 +14,9 @@ import utility.ExtraMath;
 public class UpdateBody extends Event
 {
 	
-	public String BODY = NameRef.agentBody;
-	public String RADIUS = NameRef.bodyRadius;
-	public String VOLUME = NameRef.agentVolume;
+	public String BODY = AspectRef.agentBody;
+	public String RADIUS = AspectRef.bodyRadius;
+	public String VOLUME = AspectRef.agentVolume;
 	
 	public UpdateBody()
 	{

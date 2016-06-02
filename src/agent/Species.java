@@ -34,9 +34,7 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	 * TODO
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
-	
 
-	private ModelNode modelNode;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -136,28 +134,26 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	@Override
 	public ModelNode getNode() 
 	{
-		if(modelNode == null)
+		ModelNode modelNode = new ModelNode(XmlLabel.species, this);
+		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.title = this.reg()._identity;
+		
+		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
+				this.reg()._identity, null, true ));
+		
+		for ( AspectInterface mod : this.reg().getSubModules() )
 		{
-			modelNode = new ModelNode(XmlLabel.species, this);
-			modelNode.requirement = Requirements.ZERO_TO_MANY;
-			modelNode.title = this.reg().identity;
-			
-			modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-					this.reg().identity, null, true ));
-			
-			for ( AspectInterface mod : this.reg().getSubModules() )
-			{
-				modelNode.add(mod.reg().getModuleNode(this));
-			}
-
-			modelNode.childConstructors.put(_aspectRegistry.new Aspect(_aspectRegistry), 
-					ModelNode.Requirements.ZERO_TO_MANY);
-			
-			/* TODO: add aspects */
-			
-			for ( String key : this.reg().getLocalAspectNames() )
-				modelNode.add(reg().getAspectNode(key));
+			modelNode.add(mod.reg().getModuleNode(this));
 		}
+
+		modelNode.childConstructors.put(_aspectRegistry.new Aspect(_aspectRegistry), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		/* TODO: add aspects */
+		
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
 		return modelNode;
 	}
 
@@ -175,14 +171,8 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 		String name = "";
 		name = Helper.obtainInput(name, "Species name");
 		Species newBlank = new Species();
-		newBlank.reg().identity = name;
+		newBlank.reg()._identity = name;
 		return newBlank;
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject) 
-	{
-		// TODO 
 	}
 
 	@Override

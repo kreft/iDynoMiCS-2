@@ -2,8 +2,8 @@ package aspect.calculated;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
+import aspect.AspectRef;
 import generalInterfaces.Quizable;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 
 /**
@@ -15,8 +15,8 @@ import linearAlgebra.Vector;
  */
 public class ComponentVolumeState extends Calculated {
 	
-	public String MASS = NameRef.agentMass;
-	public String DENSITY = NameRef.agentDensity;
+	public String MASS = AspectRef.agentMass;
+	public String DENSITY = AspectRef.agentDensity;
 	
 	public ComponentVolumeState()
 	{

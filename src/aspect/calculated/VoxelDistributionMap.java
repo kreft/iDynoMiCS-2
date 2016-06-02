@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
-import idynomics.NameRef;
+import aspect.AspectRef;
 
 /**
  * \brief TODO
@@ -16,8 +16,8 @@ import idynomics.NameRef;
 public class VoxelDistributionMap extends Calculated
 {
 	
-	public String MASS = NameRef.agentMass;
-	public String DISTRIBUTIONMAP = NameRef.agentVolumeDistributionMap;
+	public String MASS = AspectRef.agentMass;
+	public String DISTRIBUTIONMAP = AspectRef.agentVolumeDistributionMap;
 	
 	/**
 	 * input mass, volumeDistribution

@@ -12,9 +12,9 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.NameRef;
 
 /**
  * 
@@ -25,13 +25,13 @@ import idynomics.NameRef;
  */
 public class RodDivision extends Event {
 	
-	public String MASS = NameRef.agentMass;
-	public String RADIUS = NameRef.bodyRadius;
-	public String BODY = NameRef.agentBody;
-	public String LINKED = NameRef.agentLinks;
-	public String LINKER_DIST = NameRef.linkerDistance;
-	public String UPDATE_BODY = NameRef.agentUpdateBody;
-	public String DIVIDE = NameRef.agentDivide;
+	public String MASS = AspectRef.agentMass;
+	public String RADIUS = AspectRef.bodyRadius;
+	public String BODY = AspectRef.agentBody;
+	public String LINKED = AspectRef.agentLinks;
+	public String LINKER_DIST = AspectRef.linkerDistance;
+	public String UPDATE_BODY = AspectRef.agentUpdateBody;
+	public String DIVIDE = AspectRef.agentDivide;
 	
 	public RodDivision()
 	{

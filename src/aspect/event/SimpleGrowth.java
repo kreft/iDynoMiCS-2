@@ -4,7 +4,7 @@ package aspect.event;
 import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
-import idynomics.NameRef;
+import aspect.AspectRef;
 import utility.Helper;
 
 /**
@@ -19,8 +19,8 @@ import utility.Helper;
  */
 public class SimpleGrowth extends Event {
 
-	public String MASS = NameRef.agentMass;
-	public String GROWTH_RATE = NameRef.growthRate;
+	public String MASS = AspectRef.agentMass;
+	public String GROWTH_RATE = AspectRef.growthRate;
 	public SimpleGrowth()
 	{
 		setInput("mass,growthRate");

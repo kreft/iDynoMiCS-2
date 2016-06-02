@@ -22,13 +22,13 @@ public class FileHandler
 	 * TODO Intended usage: giving files in a series unique and sequential
 	 * numbers for easy identification.  
 	 */
-	int fileWriterFileNumber;
+	int _fileWriterFileNumber;
 	
 	/**
 	 * Set to true if each line needs to be written to file immediately (for
 	 * instance for the log file).
 	 */
-	public boolean flushAll = false;
+	protected boolean _flushAll = false;
 	
 	/**
 	 * \brief Creates directory if it does not exist.
@@ -62,6 +62,11 @@ public class FileHandler
 		    	return false;
 		    }
 		}
+	}
+	
+	public void flushAll()
+	{
+		this._flushAll = true;
 	}
 	
 	/**
@@ -136,7 +141,7 @@ public class FileHandler
 		try
 		{
 			this._output.write(line);
-			if ( this.flushAll )
+			if ( this._flushAll )
 				this._output.flush();
 		}
 		catch (IOException e)

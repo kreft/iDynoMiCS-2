@@ -36,7 +36,7 @@ public class AspectReg
 	 * quick fix for xmling
 	 * 
 	 */
-	public String identity;
+	public String _identity;
 	
 	/**
 	 * \brief Recognised aspect types.
@@ -272,7 +272,7 @@ public class AspectReg
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		
 		modelNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-				this.identity, null, true ) );
+				this._identity, null, true ) );
 		
 		return modelNode;
 	}

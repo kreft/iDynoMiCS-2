@@ -2,8 +2,6 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
-import nodeFactory.ModelNode;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
@@ -23,7 +21,7 @@ public abstract class Calculated implements Copyable, XMLable
 	/**
 	 * input states
 	 */
-	protected String[] input;
+	protected String[] _input;
 
 	/**
 	 * method that sets the input from a comma separated String.
@@ -32,7 +30,7 @@ public abstract class Calculated implements Copyable, XMLable
 	public void setInput(String input)
 	{
 		input.replaceAll("\\s+","");
-		this.input = input.split(",");
+		this._input = input.split(",");
 	}
 	
 	public void setField(String field, String value)
@@ -51,7 +49,7 @@ public abstract class Calculated implements Copyable, XMLable
 	 */
 	public String[] getInput()
 	{
-		return input;
+		return _input;
 	}
 	
 	/**

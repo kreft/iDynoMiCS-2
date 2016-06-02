@@ -6,12 +6,12 @@ package aspect.event;
 import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import shape.subvoxel.CoordinateMap;
 
@@ -24,7 +24,7 @@ import shape.subvoxel.CoordinateMap;
 public class DetectLocalSolute extends Event
 {
 	
-	private String VD_TAG = NameRef.agentVolumeDistributionMap;
+	private String VD_TAG = AspectRef.agentVolumeDistributionMap;
 	
 	public String SOLUTE_NAME = "glucose";
 	

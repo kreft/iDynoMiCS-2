@@ -32,9 +32,6 @@ import nodeFactory.ModelNode.Requirements;
  */
 public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructor
 {
-	
-	private ModelNode modelNode;
-	
 	/**
 	 * Contains all known species.
 	 */
@@ -105,7 +102,7 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 	{
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
-		species.reg().identity = name;
+		species.reg()._identity = name;
 		this._species.put(name, species);
 	}
 	
@@ -117,10 +114,10 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 	 */
 	public void set(AspectInterface species)
 	{
-		String name = species.reg().identity;
+		String name = species.reg()._identity;
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
-		species.reg().identity = name;
+		species.reg()._identity = name;
 		this._species.put(name, species);
 	}
 
@@ -191,16 +188,15 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 
 	@Override
 	public ModelNode getNode() {
-		if(modelNode == null)
-		{
-			modelNode = new ModelNode(XmlLabel.speciesLibrary, this);
-			modelNode.requirement = Requirements.EXACTLY_ONE;
-			modelNode.childConstructors.put(new Species(), 
-					ModelNode.Requirements.ZERO_TO_MANY);
-			
-			for ( String s : this._species.keySet() )
-				modelNode.add(((Species) _species.get(s)).getNode());
-		}
+
+		ModelNode modelNode = new ModelNode(XmlLabel.speciesLibrary, this);
+		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.childConstructors.put(new Species(), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		for ( String s : this._species.keySet() )
+			modelNode.add(((Species) _species.get(s)).getNode());
+	
 		return modelNode;
 	}
 

@@ -4,6 +4,7 @@ import org.w3c.dom.NodeList;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
+import aspect.AspectRef;
 import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.XmlLabel;
@@ -11,7 +12,6 @@ import dataIO.Log.Tier;
 import generalInterfaces.Quizable;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -145,7 +145,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 					extra.registerBirth();
 				}
 				this.loadAspects(xmlNode);
-				this.set(NameRef.agentBody, randBody(domain));
+				this.set(AspectRef.agentBody, randBody(domain));
 			}
 		}
 		else
@@ -172,7 +172,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	public Agent(Node xmlNode, Body body)
 	{
 		this.loadAspects(xmlNode);
-		this.set(NameRef.agentBody, body);
+		this.set(AspectRef.agentBody, body);
 		this.init();
 	}
 
@@ -186,7 +186,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	public Agent(String species, Body body, Compartment comp)
 	{
 		set(XmlLabel.species, species);
-		this.set(NameRef.agentBody, body);
+		this.set(AspectRef.agentBody, body);
 		this._compartment = comp;
 		init();
 	}
@@ -309,7 +309,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 		Log.out(Tier.DEBUG, "Compartment \""+this._compartment.name+
 				"\" registering agent birth");
 		this._compartment.addAgent(this);
-		this.set(NameRef.birthday, Idynomics.simulator.timer.getCurrentTime());
+		this.set(AspectRef.birthday, Idynomics.simulator.timer.getCurrentTime());
 	}
 
 	/**
@@ -321,7 +321,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	public void registerDeath()
 	{
 		// TODO Rob [1June2016]: This method is not yet finished.
-		this.set(NameRef.deathday, Idynomics.simulator.timer.getCurrentTime());
+		this.set(AspectRef.deathday, Idynomics.simulator.timer.getCurrentTime());
 	}
 	
 	/**
@@ -386,7 +386,7 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	public NodeConstructor newBlank() 
 	{
 		Agent newBlank = new Agent(this._compartment);
-		newBlank.reg().identity = String.valueOf(newBlank.identity());
+		newBlank.reg()._identity = String.valueOf(newBlank.identity());
 		newBlank.registerBirth();
 		return newBlank;
 	}

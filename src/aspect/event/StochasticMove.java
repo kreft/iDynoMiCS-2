@@ -6,7 +6,7 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import idynomics.NameRef;
+import aspect.AspectRef;
 import linearAlgebra.Vector;
 import surface.Point;
 import utility.ExtraMath;
@@ -22,11 +22,11 @@ import utility.ExtraMath;
 // TODO documentation, explanation
 public class StochasticMove extends Event
 {
-	public String BODY = NameRef.agentBody;
-	public String STOCHASTIC_STEP = NameRef.agentStochasticStep;
-	public String STOCHASTIC_DIRECTION = NameRef.agentStochasticDirection;
-	public String STOCHASTIC_PAUSE = NameRef.agentStochasticPause;
-	public String STOCHASTIC_DISTANCE = NameRef.agentStochasticDistance;
+	public String BODY = AspectRef.agentBody;
+	public String STOCHASTIC_STEP = AspectRef.agentStochasticStep;
+	public String STOCHASTIC_DIRECTION = AspectRef.agentStochasticDirection;
+	public String STOCHASTIC_PAUSE = AspectRef.agentStochasticPause;
+	public String STOCHASTIC_DISTANCE = AspectRef.agentStochasticDistance;
 	
 	public StochasticMove()
 	{
@@ -91,7 +91,7 @@ public class StochasticMove extends Event
 			{
 				/* Set random directions. */
 				double [] randDir = Vector.randomPlusMinus(agentBody.nDim(), 
-						(double) agent.getDouble(NameRef.agentStochasticStep));
+						(double) agent.getDouble(AspectRef.agentStochasticStep));
 				agent.set(STOCHASTIC_DIRECTION, randDir);
 				/* Calculate stochasticDistance. */
 				agent.set(STOCHASTIC_DISTANCE, Vector.normEuclid(randDir));

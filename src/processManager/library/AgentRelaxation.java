@@ -7,12 +7,12 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import shape.Shape;
@@ -90,9 +90,9 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	Collision _iterator;
 	
-	public String BODY = NameRef.agentBody;
-	public String RADIUS = NameRef.bodyRadius;
-	public String VOLUME = NameRef.agentVolume;
+	public String BODY = AspectRef.agentBody;
+	public String RADIUS = AspectRef.bodyRadius;
+	public String VOLUME = AspectRef.agentVolume;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -128,7 +128,7 @@ public class AgentRelaxation extends ProcessManager
 		/* Calculate forces. */
 		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
-			Body body = (Body) agent.get(NameRef.agentBody);
+			Body body = (Body) agent.get(AspectRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
 
 			/* surface operations */
@@ -222,7 +222,7 @@ public class AgentRelaxation extends ProcessManager
 		 */
 		for(Agent agent: agents.getAllLocatedAgents()) 
 		{
-			agent.event(NameRef.bodyUpdate);
+			agent.event(AspectRef.bodyUpdate);
 			agent.event("divide");
 			agent.event("epsExcretion");
 		}
@@ -291,7 +291,7 @@ public class AgentRelaxation extends ProcessManager
 				for ( Agent agent: agents.getAllLocatedAgents() )
 				{
 					Body body = ((Body) agent.get("body"));
-					double radius = agent.getDouble(NameRef.bodyRadius);
+					double radius = agent.getDouble(AspectRef.bodyRadius);
 					for ( Point point: body.getPoints() )
 						point.shove(this._dtMech, radius);
 				}
@@ -306,7 +306,7 @@ public class AgentRelaxation extends ProcessManager
 				for ( Agent agent: agents.getAllLocatedAgents() )
 				{
 					Body body = ((Body) agent.get("body"));
-					double radius = agent.getDouble(NameRef.bodyRadius);
+					double radius = agent.getDouble(AspectRef.bodyRadius);
 					for ( Point point: body.getPoints() )
 						point.euStep(this._dtMech, radius);
 				}

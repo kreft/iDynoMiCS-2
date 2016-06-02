@@ -17,6 +17,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.AgentTools;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlLabel;
@@ -25,7 +26,6 @@ import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import idynomics.NameRef;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.subvoxel.CoordinateMap;
@@ -48,27 +48,27 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * include those that have reactions.
 	 */
 	protected final static Predicate<Agent> NO_REAC_FILTER = 
-			(a -> ! a.isAspect(NameRef.agentReactions));
+			(a -> ! a.isAspect(AspectRef.agentReactions));
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have relevant components of a body.
 	 */
 	protected final static Predicate<Agent> NO_BODY_FILTER = 
-			(a -> (! a.isAspect(NameRef.surfaceList)) ||
-					( ! a.isAspect(NameRef.bodyRadius)));
+			(a -> (! a.isAspect(AspectRef.surfaceList)) ||
+					( ! a.isAspect(AspectRef.bodyRadius)));
 	/**
 	 * Aspect name for the {@code coordinateMap} used for establishing which
 	 * voxels a located {@code Agent} covers.
 	 */
-	private static final String VD_TAG = NameRef.agentVolumeDistributionMap;
+	private static final String VD_TAG = AspectRef.agentVolumeDistributionMap;
 	/**
 	 * Aspect name for the TODO
 	 */
-	private static final String IP_TAG = NameRef.internalProductionRate;
+	private static final String IP_TAG = AspectRef.internalProductionRate;
 	/**
 	 * Aspect name for the TODO
 	 */
-	private static final String GR_TAG = NameRef.growthRate;
+	private static final String GR_TAG = AspectRef.growthRate;
 	/**
 	 * Instance of a subclass of {@code PDEsolver}, e.g. {@code PDEexplicit}.
 	 */
@@ -200,8 +200,8 @@ public class SolveDiffusionTransient extends ProcessManager
 				/* Ask all agents to grow. */
 				for ( Agent a : agents.getAllLocatedAgents() )
 				{
-					a.event(NameRef.growth, dt);
-					a.event(NameRef.internalProduction, dt);
+					a.event(AspectRef.growth, dt);
+					a.event(AspectRef.internalProduction, dt);
 				}
 			}
 		};

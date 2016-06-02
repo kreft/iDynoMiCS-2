@@ -329,4 +329,9 @@ public class XmlLabel
 	 */
 	public static String identity = "identity";
 
+	/**
+	 * TODO
+	 */
+	public static String boundaryPartner = "partner";
+
 }

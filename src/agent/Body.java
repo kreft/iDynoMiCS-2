@@ -49,7 +49,7 @@ public class Body implements Copyable, XMLable
 	 * NOTE: this list does not contain links with this body owned by an other
 	 * body
 	 */
-	public LinkedList<Link> links = new LinkedList<Link>();
+	public LinkedList<Link> _links = new LinkedList<Link>();
 
 
 	/*************************************************************************

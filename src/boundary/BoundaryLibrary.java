@@ -13,6 +13,7 @@ import boundary.grid.GridMethodLibrary.*;
 import boundary.agent.AgentMethod;
 import boundary.grid.GridMethod;
 import dataIO.ObjectRef;
+import dataIO.XmlLabel;
 import idynomics.Compartment;
 import modelBuilder.InputSetter;
 import modelBuilder.ParameterSetter;
@@ -25,10 +26,9 @@ import modelBuilder.SubmodelMaker.Requirement;
  */
 public final class BoundaryLibrary
 {
-	// TODO move this to XmlLabel?
-	public final static String PARTNER = "partner";
-	
-	
+
+	public final static String PARTNER = XmlLabel.boundaryPartner;
+		
 	public static class CustomBoundary extends Boundary
 	{
 		public CustomBoundary()

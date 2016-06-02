@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import agent.Body;
+import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.agent.AgentMethod;
 import dataIO.Log;
@@ -222,7 +223,7 @@ public class AgentContainer
 		/*
 		 * Find all nearby agents.
 		 */
-		Body body = (Body) anAgent.get(NameRef.agentBody);
+		Body body = (Body) anAgent.get(AspectRef.agentBody);
 		List<BoundingBox> boxes = body.getBoxes(searchDist);
 		Collection<Agent> out = this.treeSearch(boxes);
 		/* 
@@ -244,7 +245,7 @@ public class AgentContainer
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
 		Collection<Surface> agentSurfs = 
-				((Body) anAgent.get(NameRef.agentBody)).getSurfaces();
+				((Body) anAgent.get(AspectRef.agentBody)).getSurfaces();
 		out.removeIf((s) -> 
 		{
 			for (Surface a : agentSurfs )
@@ -290,8 +291,8 @@ public class AgentContainer
 		 */
 		//FIXME: #isLocated simplified for now, was an over extensive operation
 		// for a simple check.
-		return ( anAgent.get(NameRef.isLocated) != null ) && 
-				( anAgent.getBoolean(NameRef.isLocated) );
+		return ( anAgent.get(AspectRef.isLocated) != null ) && 
+				( anAgent.getBoolean(AspectRef.isLocated) );
 	}
 	
 	/**
@@ -305,7 +306,7 @@ public class AgentContainer
 	{
 		if ( ! isLocated(anAgent) )
 			return;
-		Body body = (Body) anAgent.get(NameRef.agentBody);
+		Body body = (Body) anAgent.get(AspectRef.agentBody);
 		double[] newLoc = body.getPoints().get(0).getPosition();
 		this._shape.moveAlongDimension(newLoc, dimN, dist);
 		body.relocate(newLoc);
@@ -350,9 +351,9 @@ public class AgentContainer
 	 */
 	protected void treeInsert(Agent anAgent)
 	{
-		Body body = ((Body) anAgent.get(NameRef.agentBody));
-		double dist = (anAgent.isAspect(NameRef.agentPulldistance) ?
-				anAgent.getDouble(NameRef.agentPulldistance) :
+		Body body = ((Body) anAgent.get(AspectRef.agentBody));
+		double dist = (anAgent.isAspect(AspectRef.agentPulldistance) ?
+				anAgent.getDouble(AspectRef.agentPulldistance) :
 				0.0);
 		List<BoundingBox> boxes = body.getBoxes(dist);
 		for ( BoundingBox b: boxes )

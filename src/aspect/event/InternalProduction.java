@@ -5,7 +5,7 @@ import java.util.Map;
 
 import aspect.AspectInterface;
 import aspect.Event;
-import idynomics.NameRef;
+import aspect.AspectRef;
 
 /**
  * \brief TODO
@@ -19,11 +19,11 @@ public class InternalProduction  extends Event
 	 * Map of product names to product values. Examples of products include
 	 * lipids, ribosomes, etc.
 	 */
-	public String INTERNAL_PRODUCTS = NameRef.internalProducts;
+	public String INTERNAL_PRODUCTS = AspectRef.internalProducts;
 	/**
 	 * Map of production rates for internal products.
 	 */
-	public String INTERNAL_PRODUCTION = NameRef.internalProductionRate;
+	public String INTERNAL_PRODUCTION = AspectRef.internalProductionRate;
 
 	@SuppressWarnings("unchecked")
 	@Override

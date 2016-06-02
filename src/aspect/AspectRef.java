@@ -1,11 +1,11 @@
-package idynomics;
+package aspect;
 
 /**
  * \brief Aspect name references.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class NameRef
+public class AspectRef
 {
 	/**
 	 * Agent state references

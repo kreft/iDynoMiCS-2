@@ -8,12 +8,12 @@ import static org.junit.Assert.assertTrue;
 
 import agent.Agent;
 import agent.Body;
+import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.BoundaryLibrary.BulkBLBoundary;
 import boundary.BoundaryLibrary.SolidBoundary;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import idynomics.NameRef;
 import shape.Dimension.DimName;
 import utility.ExtraMath;
 
@@ -47,8 +47,8 @@ public class BoundaryTest
 		 */
 		Agent insertAgent = new Agent();
 		Body iBody = new Body(new double[]{-12345.6}, agentRadius);
-		insertAgent.set(NameRef.agentBody, iBody);
-		insertAgent.set(NameRef.isLocated, new Boolean(true));
+		insertAgent.set(AspectRef.agentBody, iBody);
+		insertAgent.set(AspectRef.isLocated, new Boolean(true));
 		/*
 		 * Add the agent to the boundary layer, and this to the compartment.
 		 */
@@ -60,8 +60,8 @@ public class BoundaryTest
 		 */
 		Agent fixedAgent = new Agent();
 		Body fBody = new Body(new double[]{1.0}, 1.0);
-		fixedAgent.set(NameRef.agentBody, fBody);
-		fixedAgent.set(NameRef.isLocated, new Boolean(true));
+		fixedAgent.set(AspectRef.agentBody, fBody);
+		fixedAgent.set(AspectRef.isLocated, new Boolean(true));
 		comp.addAgent(fixedAgent);
 		/*
 		 * The other boundary is unimportant, but needs to be set.

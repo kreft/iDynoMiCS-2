@@ -2,8 +2,6 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
-import nodeFactory.ModelNode;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -22,7 +20,7 @@ public abstract class Event implements Copyable, XMLable
 	/**
 	 * Ordered list of the names of input states.
 	 */
-	protected String[] input;
+	protected String[] _input;
 
 	public void setField(String field, String value)
 	{
@@ -46,7 +44,7 @@ public abstract class Event implements Copyable, XMLable
 		/* Strip all whitespace. */
 		input.replaceAll("\\s+","");
 		/* Read in the inputs. */
-		this.input = input.split(",");
+		this._input = input.split(",");
 	}
 	
 	/**
@@ -55,7 +53,7 @@ public abstract class Event implements Copyable, XMLable
 	 */
 	public String[] getInput()
 	{
-		return this.input;
+		return this._input;
 	}
 	
 	/**

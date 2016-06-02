@@ -9,8 +9,8 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 
 import agent.Agent;
+import aspect.AspectRef;
 import idynomics.AgentContainer;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import shape.Shape;
 import surface.Ball;
@@ -75,7 +75,7 @@ public class AgentMediator implements CommandMediator {
 		{
 
 			for ( Surface s : (List<Surface>) (a.isAspect(
-					NameRef.surfaceList) ? a.get(NameRef.surfaceList) :
+					AspectRef.surfaceList) ? a.get(AspectRef.surfaceList) :
 					new LinkedList<Surface>()))
 			{
 				pigment = a.getString("pigment");
