@@ -23,7 +23,7 @@ public class InternalProduction  extends Event
 	/**
 	 * Map of production rates for internal products.
 	 */
-	public String INTERNAL_PRODUCTION = NameRef.internalProduction;
+	public String INTERNAL_PRODUCTION = NameRef.internalProductionRate;
 
 	@SuppressWarnings("unchecked")
 	@Override

@@ -64,7 +64,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	/**
 	 * Aspect name for the TODO
 	 */
-	private static final String IP_TAG = NameRef.internalProduction;
+	private static final String IP_TAG = NameRef.internalProductionRate;
 	/**
 	 * Aspect name for the TODO
 	 */
@@ -198,11 +198,9 @@ public class SolveDiffusionTransient extends ProcessManager
 				applyEnvReactions(environment);
 				applyAgentReactions(environment, agents);
 				/* Ask all agents to grow. */
-				// TODO clarify what is happening in internal production
 				for ( Agent a : agents.getAllLocatedAgents() )
 				{
 					a.event(NameRef.growth, dt);
-					a.event(NameRef.internalProduction, dt);
 				}
 			}
 		};

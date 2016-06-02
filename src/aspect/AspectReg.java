@@ -158,8 +158,8 @@ public class AspectReg
 		{
 		case PRIMARY: return a.aspect;
 		case CALCULATED: return a.calc.get(rootRegistry);
-		case EVENT: Log.out(Tier.CRITICAL, "Attempt to get event" +
-				key + "as Value!");
+		case EVENT: Log.out(Tier.CRITICAL, "Attempt to get event " +
+				key + " as Value!");
 		}
     	return null;
 	}
@@ -182,7 +182,7 @@ public class AspectReg
 		else if ( a.type != AspectReg.AspectClass.EVENT )
 		{
 			Log.out(Tier.CRITICAL, "Attempt to initiate non event "
-					+ "aspect" + key + "as event!");
+					+ " aspect " + key + " as event!");
 		}
 		else
 			a.event.start(initiator, compliant, timeStep);

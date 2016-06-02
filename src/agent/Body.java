@@ -12,6 +12,7 @@ import dataIO.XmlLabel;
 import generalInterfaces.Copyable;
 import generalInterfaces.XMLable;
 import generalInterfaces.HasBoundingBox;
+import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import nodeFactory.ModelNode;
 import surface.*;

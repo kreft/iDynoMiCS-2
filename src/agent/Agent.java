@@ -78,45 +78,79 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 	 * @param xmlNode
 	 */
 	// TODO this method needs tidying and clarification
+//	public Agent(Node xmlNode, Compartment comp)
+//	{
+//		
+//		NodeList temp = XmlHandler.getAll(xmlNode, "spawn");
+//		if ( temp.getLength() > 0 )
+//		{
+//			/* Initiate all "extra" random agents. */
+//			for ( int i = 0; i < temp.getLength(); i++ )
+//			{
+//				String str;
+//				/*
+//				 * Find the number of Agents to create.
+//				 */
+//				str = XmlHandler.obtainAttribute(temp.item(i), "number");
+//				int n = Integer.valueOf(str);
+//				/*
+//				 * Find the domain, i.e. the physical region of space in which
+//				 * to randomly place new Agents.
+//				 */
+//				str = XmlHandler.obtainAttribute(temp.item(i), "domain");
+//				double[] domain = Vector.dblFromString(str);
+//				/* Create n - 1 agents, as one has already been made. */
+//				// TODO give the agents a body shape specified in the protocol
+//				// file, rather than assuming it to be coccoid.
+//				for ( int j = 0; j < n - 1; j++ )
+//				{
+//					Agent extra = new Agent(xmlNode);
+//					extra.setCompartment(comp);
+//					extra.set(NameRef.agentBody, this.randBody(domain));
+//					extra.registerBirth();
+//				}
+//				this.loadAspects(xmlNode);
+//				this.set(NameRef.agentBody, this.randBody(domain));
+//			}
+//		}
+//		else
+//		{
+//			/* No "extra" agents, just this one. */
+//			this.loadAspects(xmlNode);
+//		}
+//		this.init();
+//	}
+	
+	/**
+	 * Agent xml constructor allowing for multiple randomized initial agents
+	 * @param xmlNode
+	 */
 	public Agent(Node xmlNode, Compartment comp)
 	{
-		
+		/* initiate all random agents */
 		NodeList temp = XmlHandler.getAll(xmlNode, "spawn");
-		if ( temp.getLength() > 0 )
+		if(temp.getLength() > 0)
 		{
-			/* Initiate all "extra" random agents. */
-			for ( int i = 0; i < temp.getLength(); i++ )
+			for(int i = 0; i < temp.getLength(); i++)
 			{
-				String str;
-				/*
-				 * Find the number of Agents to create.
-				 */
-				str = XmlHandler.obtainAttribute(temp.item(i), "number");
-				int n = Integer.valueOf(str);
-				/*
-				 * Find the domain, i.e. the physical region of space in which
-				 * to randomly place new Agents.
-				 */
-				str = XmlHandler.obtainAttribute(temp.item(i), "domain");
-				double[] domain = Vector.dblFromString(str);
-				/* Create n - 1 agents, as one has already been made. */
-				// TODO give the agents a body shape specified in the protocol
-				// file, rather than assuming it to be coccoid.
-				for ( int j = 0; j < n - 1; j++ )
+				/* TODO this is a cheat, make a standard method for this */
+				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute(
+						temp.item(i), "number")));
+				double[] domain = Vector.dblFromString(XmlHandler.
+						obtainAttribute(temp.item(i), "domain"));
+				for(int j = 0; j < n-1; j++)
 				{
-					Agent extra = new Agent(xmlNode);
-					extra.setCompartment(comp);
-					extra.set(NameRef.agentBody, this.randBody(domain));
+					Agent extra = new Agent(xmlNode, randBody(domain));
+					extra._compartment = comp;
 					extra.registerBirth();
 				}
 				this.loadAspects(xmlNode);
-				this.set(NameRef.agentBody, this.randBody(domain));
+				this.set(NameRef.agentBody, randBody(domain));
 			}
 		}
 		else
 		{
-			/* No "extra" agents, just this one. */
-			this.loadAspects(xmlNode);
+			loadAspects(xmlNode);
 		}
 		this.init();
 	}
@@ -324,13 +358,13 @@ public class Agent implements Quizable, AspectInterface, NodeConstructor
 		// TODO:  add removing aspects
 		/* add the agents aspects as childNodes */
 		for ( String key : this.reg().getLocalAspectNames() )
-			this._modelNode.add(reg().getAspectNode(key));
+			modelNode.add(reg().getAspectNode(key));
 		
 		/* allow adding of new aspects */
 		modelNode.childConstructors.put(reg().new Aspect(reg()), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
-		return this._modelNode;
+		return modelNode;
 	}
 
 	/**

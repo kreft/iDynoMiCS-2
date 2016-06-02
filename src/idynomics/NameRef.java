@@ -154,7 +154,7 @@ public class NameRef
 	/**
 	 * TODO
 	 */
-	public static String internalProduction = "internalProduction";
+	public static String internalProductionRate = "internalProduction";
 
 	/**
 	 * Reference tag for the growth event.
