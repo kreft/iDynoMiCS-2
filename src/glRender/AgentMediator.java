@@ -237,14 +237,14 @@ public class AgentMediator implements CommandMediator {
 	
 	/**
 	 * draw gl cylinder... FIXME ok I am lost this class needs additional work
-	 * @param drawable
-	 * @param domain
-	 * @param pos
-	 * @param posb
-	 * @param radius
+	 * @param drawable TODO
+	 * @param domain TODO
+	 * @param posA Position of the one end of the cylinder.
+	 * @param posB Position of the other end of the cylinder.
+	 * @param radius Cylinder radius
 	 */
-	private void cylinder(GLAutoDrawable drawable, double[] domain, double[] pos, 
-			double[] posb, double radius) 
+	private void cylinder(GLAutoDrawable drawable, double[] domain, 
+			double[] posA, double[] posB, double radius) 
 	{
 		/* fineness of the cylinder */
 		double slices = 16;
@@ -253,12 +253,15 @@ public class AgentMediator implements CommandMediator {
 		 * find the closest distance between the two mass points of the rod
 		 * agent and assumes this is the correct length, preventing rods being
 		 * stretched out over the entire domain
+		 * 
+		 * Here we assume that posB will stay fixed, so we are looking for a
+		 * candidate position for the "A" end of the cylinder.
 		 */
-		List<double[]> cyclicPoints = _shape.getCyclicPoints(pos);
+		List<double[]> cyclicPoints = _shape.getCyclicPoints(posA);
 		double[] c = cyclicPoints.get(0);
 		
 		/* distance between the two mass points */
-		double dist = Vector.distanceEuclid(posb, c);
+		double dist = Vector.distanceEuclid(posB, c);
 		double dDist;
 		/* 
 		 * find the closest 'shadow' point, use the original point if all
@@ -266,7 +269,7 @@ public class AgentMediator implements CommandMediator {
 		 */
 		for ( double[] d : cyclicPoints )
 		{
-			dDist = Vector.distanceEuclid( posb, d);
+			dDist = Vector.distanceEuclid( posB, d);
 			if ( dDist < dist)
 			{
 				c = d;
@@ -275,10 +278,10 @@ public class AgentMediator implements CommandMediator {
 		}
 		
 		/* use the middle point to place the cylinder */
-		pos = Vector.midPoint(c, posb);
+		posA = Vector.midPoint(c, posB);
 		
 		// FIXME by lack of a better way for now draw a 3th sphere in the middle
-		sphere(drawable, domain, pos, radius);
+		sphere(drawable, domain, posA, radius);
 		
 		// FIXME the following part is in the good direction but still problems
 		// with proper rotating and scaling
