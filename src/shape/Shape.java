@@ -164,7 +164,7 @@ public abstract class Shape implements
 	 * <ul><li>Set to {@code BULK} for normal simulations</li>
 	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
 	 */
-	protected static final Tier NHB_ITER_LEVEL = BULK;
+	protected static final Tier NHB_ITER_LEVEL = DEBUG;
 	
 	/*************************************************************************
 	 * CONSTRUCTION
@@ -245,7 +245,8 @@ public abstract class Shape implements
 				/* init resolution calculators */
 				rC = new ResolutionCalculator.UniformResolution();
 				rC.init(dim._targetRes, dim.getLength());
-				this.setDimensionResolution(dimName, rC);
+				this.setDimensionResolution(dimName, rC);	
+				this._dimensions.put(dimName, dim);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -1143,9 +1144,8 @@ public abstract class Shape implements
 	protected void nVoxelTo(int[] destination, int[] coords)
 	{
 		Vector.checkLengths(destination, coords);
-		int n = Math.min(coords.length, 3);
 		ResCalc rC;
-		for ( int dim = 0; dim < n; dim++ )
+		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			rC = this.getResolutionCalculator(coords, dim);
 			destination[dim] = rC.getNVoxel();
@@ -1426,7 +1426,7 @@ public abstract class Shape implements
 		{
 			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			int nVoxel = this.getResolutionCalculator(
-					this._currentCoord, dimIdx).getNVoxel();
+					this._currentNeighbor, dimIdx).getNVoxel();
 			if ( this._nbhDirection == 0 )
 			{
 				/* Direction 0: the neighbor wraps below, to the highest. */
@@ -1456,15 +1456,20 @@ public abstract class Shape implements
 			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			if ( this._nbhDirection == 0 )
 			{
-				/* Direction 0: the neighbor should be below. */
-				this._currentNeighbor[dimIdx] = this._currentCoord[dimIdx] - 1;
+				/* Direction 0: the neighbor should reset to minus one. */
+				this._currentNeighbor[dimIdx] = -1;
 			}
 			else
 			{
-				/* Direction 1: the neighbor should be above. */
-				this._currentNeighbor[dimIdx] = this._currentCoord[dimIdx] + 1;
+				int nVoxel = this.getResolutionCalculator(
+						this._currentNeighbor, dimIdx).getNVoxel();
+				/* Direction 1: the neighbor should reset above the highest.*/
+				this._currentNeighbor[dimIdx] = nVoxel;
 			}
 		}
+		Log.out(NHB_ITER_LEVEL, "   un-transformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				": status "+this._whereIsNbh);
 	}
 	
 	/**

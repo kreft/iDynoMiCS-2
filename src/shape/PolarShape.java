@@ -12,9 +12,11 @@ import static shape.Shape.WhereAmI.*;
 
 import linearAlgebra.Vector;
 import shape.resolution.ResolutionCalculator.ResCalc;
+import utility.ExtraMath;
 
 public abstract class PolarShape extends Shape
 {
+	protected final double POLAR_ANGLE_EQUALITY_TOLERANCE = 1e-6;
 	
 	@Override
 	public double nbhCurrDistance()
@@ -156,7 +158,8 @@ public abstract class PolarShape extends Shape
 	 */
 	protected boolean setNbhFirstInNewShell(int shellIndex)
 	{
-		Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new shell "+
+		//TODO this will currently not set onto min boundary?
+		Log.out(NHB_ITER_LEVEL, "trying to set neighbor in new shell "+
 				shellIndex);
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[0] = shellIndex;
@@ -167,14 +170,19 @@ public abstract class PolarShape extends Shape
 		 */
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
 		WhereAmI where = this.whereIsNhb(R);
-		if ( where == UNDEFINED )
+		if ( where == UNDEFINED ){
+			Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
+			this._whereIsNbh = where;
+			this._nbhDimName = R;
 			return false;
+		}
 		if ( where == DEFINED || where == CYCLIC)
 		{
 			this._nbhDimName = R;
 			this._nbhDirection = this._currentCoord[0] 
 									< this._currentNeighbor[0] ? 1 : 0;
 			this._whereIsNbh = where;
+			Log.out(NHB_ITER_LEVEL, "  success on "+ where +" boundary");
 			return true;
 		}
 		/*
@@ -185,13 +193,18 @@ public abstract class PolarShape extends Shape
 		double cur_min = rC.getCumulativeResolution(this._currentCoord[1] - 1);
 		rC = this.getResolutionCalculator(this._currentNeighbor, 1);
 		int new_index = rC.getVoxelIndex(cur_min);
-		/* increase the index if it has exactly the same theta location as the
+		/* increase the index if it has approx. the same theta location as the
 		 * current coordinate */
-		if (rC.getCumulativeResolution(new_index) == cur_min)
+		if (ExtraMath.areEqual(
+				rC.getCumulativeResolution(new_index), cur_min, 
+				this.POLAR_ANGLE_EQUALITY_TOLERANCE))
 			new_index++;
 		/* if we stepped onto the current coord, we went too far*/
-		if (new_index == this._currentCoord[1])
+		if (this._currentNeighbor[0] == this._currentCoord[0] 
+				&& new_index == this._currentCoord[1]){
+			Log.out(NHB_ITER_LEVEL, "  failure, stepped onto current coordinate");
 			return false;
+		}
 		this._currentNeighbor[1] = new_index;
 		/* we are always in the same z-slice as the current coordinate when
 		 * calling this method, so _nbhDimName can not be Z. 
@@ -203,6 +216,7 @@ public abstract class PolarShape extends Shape
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
 		this._whereIsNbh = WhereAmI.INSIDE;
+		Log.out(NHB_ITER_LEVEL, "  success with theta idx "+new_index);
 		return true;
 	}
 	
@@ -219,39 +233,56 @@ public abstract class PolarShape extends Shape
 			  + Arrays.toString(this._currentNeighbor)+" by one polar in "+dim);
 		/* avoid increasing on any boundaries */
 		int index = this.getDimensionIndex(dim);
-		if (whereIsNhb(this._nbhDimName) != INSIDE) 
+//		WhereAmI where = this.whereIsNhb(dim);
+		if ((dim == THETA || this._nbhDimName == R)  && this._whereIsNbh != INSIDE) {
+			Log.out(NHB_ITER_LEVEL, "  failure, already on " +this._nbhDimName
+					+ " boundary, no point increasing");
 			return false;
+		}
 		Dimension dimension = this.getDimension(dim);
 		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, index);
 		/* If we are already on the maximum boundary, we cannot go further. */
-		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 )
+		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 ){
+			Log.out(NHB_ITER_LEVEL, "  failure, already on maximum boundary");
 			return false;
+		}
 		/* Do not allow the neighbor to be on an undefined maximum boundary. */
 		if ( this._currentNeighbor[index] == rC.getNVoxel() - 1 )
 		{
 			if ( dimension.isBoundaryDefined(1) )
 			{
-				this._whereIsNbh = DEFINED;
+				this._currentNeighbor[index]++;
 				this._nbhDirection = 1;
 				this._nbhDimName = dim;
-				this._currentNeighbor[index]++;
+				this._whereIsNbh = this.whereIsNhb(dim);
+				Log.out(NHB_ITER_LEVEL, "  success on "+this._whereIsNbh 
+						+ " boundary");
 				return true;
 			}	
-			else
+			else{
+				Log.out(NHB_ITER_LEVEL, "  failure on "+this._whereIsNbh 
+						+ " boundary");
 				return false;
+			}
 		}
 		/*
 		 * If increasing would mean we no longer overlap, report failure.
 		 */
-		double nbhMax = rC.getCumulativeResolution(this._currentNeighbor[index]);
+		double nbhMin = rC.getCumulativeResolution(this._currentNeighbor[index]);
 		rC = this.getResolutionCalculator(this._currentCoord, index);
 		double curMax = rC.getCumulativeResolution(this._currentCoord[index]);
-		if ( nbhMax >= curMax )
+		if ( nbhMin >= curMax || ExtraMath.areEqual(nbhMin, curMax, 
+				this.POLAR_ANGLE_EQUALITY_TOLERANCE)){
+			Log.out(NHB_ITER_LEVEL, "  failure, nbh min greater or approx. equal"
+					+ " to current max");
 			return false;
+		}
 		/*
 		 * All checks have passed, so increase and report success.
 		 */
 		this._currentNeighbor[index]++;
+		Log.out(NHB_ITER_LEVEL, "  success, new nbh coord is "
+						+ this._currentNeighbor[index]);
 		return true;
 	}
 
@@ -264,22 +295,9 @@ public abstract class PolarShape extends Shape
 	 */
 	protected static double scaleResolutionForShell(int shell, double res)
 	{
-		/*
-		 * The number "2 * (index of the shell) + 1" represents the radius of
-		 * an imaginary arc running along the centre of the shell.
-		 */
-		double factor = ( 2 * shell + 1);
-		/*
-		 * Divide pi/2 by this number, so that the resolution is scaled to a 
-		 * quarter circle. If res is one and shell is zero (i.e. the innermost
-		 * shell), then this method will return pi/2 radians.
-		 */
-		factor = Math.PI * 0.5 / factor;
-		/*
-		 * Multiply res by this factor to convert it from "units of quarter
-		 * circle" to radians.
-		 */
-		return res * factor;
+		/* see Docs/polarShapeScalingDerivation */
+		/* scale resolution to have a voxel volume of one for resolution one */
+		return res * (2.0 / ( 2 * shell + 1));
 	}
 
 	/**	
@@ -293,7 +311,8 @@ public abstract class PolarShape extends Shape
 	 */
 	protected double scaleResolutionForRing(int shell, int ring,
 												double ring_res, double res){
-		/* scale theta resolution to have a volume of one for resolution one */
+		/* see Docs/polarShapeScalingDerivation */
+		/* scale resolution to have a voxel volume of one for resolution one */
 		return res * 3.0 / ((1 + 3 * shell * (1 + shell)) 
 			* (Math.cos(ring * ring_res) - Math.cos((1.0 + ring) * ring_res)));
 	}

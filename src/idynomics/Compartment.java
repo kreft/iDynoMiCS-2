@@ -237,6 +237,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 				this.addProcessManager(ProcessManager.getNewInstance(procElem) );
 			}
 		}
+		temp.PolarGridTest.createGraphics(this._shape, Vector.zerosDbl(3), ArrayType.CONCN, true, Vector.vector(3, 0.5));
 	}
 		
 	

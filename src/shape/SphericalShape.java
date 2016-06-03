@@ -363,7 +363,7 @@ public abstract class SphericalShape extends PolarShape
 				 * ring.
 				 */
 				if ( ! this.nbhJumpOverCurrent(THETA) )
-					if ( ! this.setNbhFirstInNewRing(this._currentCoord[1]+1) )
+					if ( ! this.setNbhFirstInNewRing(this._currentCoord[1] + 1))
 						return this.nbhIteratorNext();
 			}
 			else 
@@ -373,7 +373,7 @@ public abstract class SphericalShape extends PolarShape
 				 * coordinate. 
 				 */
 				int rPlus = this._currentCoord[0] + 1;
-				int nbhPhi = this._currentCoord[1] + 1;
+				int nbhPhi = this._currentCoord[1];
 				/* Try increasing theta by one voxel. */
 				if ( ! this.increaseNbhByOnePolar(THETA) )
 				{
@@ -381,17 +381,7 @@ public abstract class SphericalShape extends PolarShape
 					if (! this.setNbhFirstInNewShell(rPlus) ||
 									! this.setNbhFirstInNewRing(nbhPhi) )
 					{
-						if ( ! this.increaseNbhByOnePolar(PHI) ||
-								! this.setNbhFirstInNewRing(
-										this._currentNeighbor[1]) )
-						{
-							if (!this.increaseNbhByOnePolar(PHI) ||
-									! this.setNbhFirstInNewRing(
-											this._currentNeighbor[1]) )
-							{
-								this._whereIsNbh = UNDEFINED;
-							}
-						}
+						this.nbhIteratorNext();
 					}
 				}
 			}
@@ -403,7 +393,7 @@ public abstract class SphericalShape extends PolarShape
 			 * If we can't increase phi and theta any more, then we've finished.
 			 */
 			if ( ! this.increaseNbhByOnePolar(THETA) )
-				if ( ! this.increaseNbhByOnePolar(PHI) ||
+				if (!this.increaseNbhByOnePolar(PHI) ||
 						! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
 				{
 					this._whereIsNbh = UNDEFINED;
@@ -414,13 +404,15 @@ public abstract class SphericalShape extends PolarShape
 	}
 	
 	/**
-	 * TODO
+	 * this will set the current neighbor's phi coordinate to ringIndex and 
+	 * attempt to set the theta coordinate.
 	 * 
 	 * @param shellIndex
 	 * @return
 	 */
 	protected boolean setNbhFirstInNewRing(int ringIndex)
 	{
+		//TODO this will currently not set onto min boundary?
 		Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new ring "+
 				ringIndex);
 		this._currentNeighbor[1] = ringIndex;
@@ -428,17 +420,23 @@ public abstract class SphericalShape extends PolarShape
 		 * We must be on a ring inside the array: not even a defined boundary
 		 * will do here.
 		 */
-		if ( this.whereIsNhb(R) != INSIDE )
+		if ( this.whereIsNhb(R) != INSIDE ){
+			Log.out(NHB_ITER_LEVEL, "  failure, R on any boundary");
 			return false;
+		}
 		/*
 		 * First check that the new ring is inside the grid. If we're on a
 		 * defined boundary, the theta coordinate is irrelevant.
 		 */
 		if ( (this._whereIsNbh = this.whereIsNhb(PHI)) != INSIDE ){
 			this._nbhDimName = PHI;
-			if (this.whereIsNhb(PHI) != UNDEFINED)
+			if (this.whereIsNhb(PHI) != UNDEFINED){
+				Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNbh 
+						+" boundary");
 				return true;
-			else return false;
+			}
+			Log.out(NHB_ITER_LEVEL, "  failure, PHI on undefined boundary");
+			return false;
 		}
 
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 2);
@@ -452,14 +450,20 @@ public abstract class SphericalShape extends PolarShape
 		
 		int new_index = rC.getVoxelIndex(theta);
 
-		/* increase the index if it has exactly the same theta location as the
+		/* increase the index if it has approx. the same theta location as the
 		 * current coordinate */
-		if (rC.getCumulativeResolution(new_index) == theta)
+		if (ExtraMath.areEqual(
+				rC.getCumulativeResolution(new_index), theta, 
+				this.POLAR_ANGLE_EQUALITY_TOLERANCE))
 			new_index++;
 		
 		/* if we stepped onto the current coord, we went too far*/
-		if (new_index == this._currentCoord[2])
+		if (this._currentNeighbor[0] == this._currentCoord[0] 
+				&& this._currentNeighbor[1] == this._currentCoord[1]
+				&& new_index == this._currentCoord[2]){
+			Log.out(NHB_ITER_LEVEL, "  failure, stepped onto current coordinate");
 			return false;
+		}
 		
 		this._currentNeighbor[2] = new_index;
 		
@@ -470,6 +474,7 @@ public abstract class SphericalShape extends PolarShape
 		this._nbhDirection = 
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
+		Log.out(NHB_ITER_LEVEL, "  success with theta idx "+new_index);
 		return true;
 	}
 }
