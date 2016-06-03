@@ -196,15 +196,16 @@ public abstract class PolarShape extends Shape
 		double cur_min = rC.getCumulativeResolution(this._currentCoord[1] - 1);
 		rC = this.getResolutionCalculator(this._currentNeighbor, 1);
 		int new_index = rC.getVoxelIndex(cur_min);
-		/* increase the index if it has approx. the same theta location as the
+		/* increase the index if it has approx. the same location as the
 		 * current coordinate */
 		if (ExtraMath.areEqual(
 				rC.getCumulativeResolution(new_index), cur_min, 
 				this.POLAR_ANGLE_EQ_TOL))
 			new_index++;
 		/* if we stepped onto the current coord, we went too far*/
-		if (this._currentNeighbor[0] == this._currentCoord[0] 
-				&& new_index == this._currentCoord[1]){
+		if (this._currentNeighbor[0] == this._currentCoord[0]
+				&& new_index == this._currentCoord[1])
+		{
 			Log.out(NHB_ITER_LEVEL, "  failure, stepped onto current coordinate");
 			return false;
 		}
@@ -219,7 +220,7 @@ public abstract class PolarShape extends Shape
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
 		this._whereIsNbh = WhereAmI.INSIDE;
-		Log.out(NHB_ITER_LEVEL, "  success with theta idx "+new_index);
+		Log.out(NHB_ITER_LEVEL, "  success with idx "+new_index);
 		return true;
 	}
 	

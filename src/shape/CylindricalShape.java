@@ -56,7 +56,8 @@ public abstract class CylindricalShape extends PolarShape
 			throw new IllegalArgumentException(
 					"A cylindrical array needs at least 2 dimensions");
 		nr = _resCalc[0][0].getNVoxel();
-		nz = _resCalc[2][0] == null ? 0 : _resCalc[2][0].getNVoxel();
+		/* we need at least one voxel in each dimension */ 
+		nz = _resCalc[2][0] == null ? 1 : _resCalc[2][0].getNVoxel();
 		double[][][] a = new double[nr][][];
 		for ( int i = 0; i < nr; i++ )
 			a[i] = Matrix.matrix(_resCalc[1][i].getNVoxel(), nz, initialValue);

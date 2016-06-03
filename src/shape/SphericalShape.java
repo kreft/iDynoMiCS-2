@@ -48,16 +48,12 @@ public abstract class SphericalShape extends PolarShape
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
 		/*
-		 * Set full angular dimensions by default, can be overwritten later.
 		 * Phi must always be significant and non-cyclic.
 		 */
 		dim = new Dimension(true, PHI);
-		dim.setLength(Math.PI);
 		this._dimensions.put(PHI, dim);
 		
 		dim = new Dimension(false, THETA);
-		dim.setCyclic();
-		dim.setLength(2 * Math.PI);
 		this._dimensions.put(THETA, dim);
 	}
 	
@@ -312,18 +308,20 @@ public abstract class SphericalShape extends PolarShape
 			/* Try increasing theta by one voxel. */
 			if ( ! this.increaseNbhByOnePolar(THETA) )
 			{
-				/* Try moving out to the next ring. This must exist! */
+				/* Try moving out to the next ring and set the first phi nhb */
 				if ( ! this.increaseNbhByOnePolar(PHI) ||
 										! this.setNbhFirstInNewRing(
 												this._currentNeighbor[1]) )
 				{
 					/* 
-					 * The current coordinate must be the only voxel in that 
-					 * ring. If that fails, try the phi-minus ring.
+					 * Try moving to the next shell. This sometimes misses the
+					 * first valid phi coord (limited double accuracy), so lets
+					 * additionally try the phi-minus ring.
 					 */
-					if ( ! this.setNbhFirstInNewShell(curR) || 
-									! this.setNbhFirstInNewRing(
-											this._currentNeighbor[1] ) )
+					if ( ( this.setNbhFirstInNewShell(curR)
+						&& ! this.setNbhFirstInNewRing(this._currentCoord[1]) )
+							|| ! this.setNbhFirstInNewRing(
+												this._currentCoord[1] - 1))
 					{
 						/*
 						 * If this fails, the phi-ring must be invalid, so try
@@ -430,7 +428,7 @@ public abstract class SphericalShape extends PolarShape
 		 */
 		if ( (this._whereIsNbh = this.whereIsNhb(PHI)) != INSIDE ){
 			this._nbhDimName = PHI;
-			if (this.whereIsNhb(PHI) != UNDEFINED){
+			if (this._whereIsNbh != UNDEFINED){
 				Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNbh 
 						+" boundary");
 				return true;
