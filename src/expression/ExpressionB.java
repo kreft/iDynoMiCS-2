@@ -84,7 +84,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * 
 	 */
-	private Tier LOG_LEVEL = Tier.BULK;
+	private Tier LOG_LEVEL = Tier.DEBUG;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -191,6 +191,10 @@ public class ExpressionB extends Component implements NodeConstructor
 			TreeMap<Integer, Component> calc, 
 			TreeMap<Integer, ExpressionB> subs)
 	{
+		Log.out(LOG_LEVEL, "CONSTRUCT TREE MAPS");
+		Log.out(LOG_LEVEL, " eval has size "+eval.size());
+		Log.out(LOG_LEVEL, " calc has size "+calc.size());
+		Log.out(LOG_LEVEL, " subs has size "+subs.size());
 		/*
 		 * Obtain brace location and count depth.
 		 */
@@ -250,6 +254,7 @@ public class ExpressionB extends Component implements NodeConstructor
 				start = key;
 			if ( depth == 0 )
 			{
+				Log.out(LOG_LEVEL, "    setting sub "+start+", "+(key+1));
 				this.setSub(start, key + 1, eval, subs);
 				start = key + 1;
 			}
@@ -258,6 +263,9 @@ public class ExpressionB extends Component implements NodeConstructor
 		 * Build a root expression Component (from tree)
 		 */
 		Log.out(LOG_LEVEL, "   Build a root expression Component (from tree)");
+		Log.out(LOG_LEVEL, "    eval has size "+eval.size());
+		Log.out(LOG_LEVEL, "    calc has size "+calc.size());
+		Log.out(LOG_LEVEL, "    subs has size "+subs.size());
 		String t;
 		for ( Integer i : eval.keySet() )
 		{
@@ -332,22 +340,38 @@ public class ExpressionB extends Component implements NodeConstructor
 	{
 		if ( equation.isEmpty() )
 			return;
-		Log.out(LOG_LEVEL, "   Setting equation \""+equation+"\"");
+		Log.out(LOG_LEVEL,
+				"   Setting equation \""+equation+"\", start at "+start);
 		/* 
 		 * Locate operators.
 		 */
 		TreeMap<Integer,String> operLoc = new TreeMap<Integer,String>();
 		for ( String oper : OPERATORS )
-			operLoc.putAll( identifyStrLoc( equation, oper, start ) );
+		{
+			TreeMap<Integer,String> locations = 
+					this.identifyStrLoc( equation, oper, start );
+			//Log.out(LOG_LEVEL, "    found "+locations.size()+" of "+oper);
+			operLoc.putAll( locations );
+		}
+		/*
+		 * If there are no operators in this expression, then it is a single
+		 * constant or variable so just put this in and return.
+		 */
+		if ( operLoc.isEmpty() )
+		{
+			eval.put(0, equation);
+			return;
+		}
 		/* 
 		 * Load non-operator entries into eval tree.
 		 */
 		int o = 0;
-		for(Integer key : operLoc.keySet())
+		for ( Integer key : operLoc.keySet() )
 		{
+			Log.out(LOG_LEVEL, "    o "+0+", key "+key+", start "+start);
 			//NOTE subtract start for correct identification in substring
 			if ( key-start != 0 )
-				addVar( o+start,equation.substring( o, key-start ), eval);
+				this.addVar( o+start, equation.substring(o, key-start), eval);
 			o = key - start + operLoc.get(key).length();
 		}
 		/*
@@ -357,6 +381,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		if ( o != 0 )
 			addVar( o+start ,equation.substring( o, equation.length() ), eval);
 		eval.putAll(operLoc);
+		Log.out(LOG_LEVEL, "    eq set, eval now has size "+eval.size());
 	}
 	
 	/**
@@ -434,6 +459,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	 */
 	public String stringEval()
 	{
+		Log.out(LOG_LEVEL, "STRING EVAL");
 		/* Evaluation tree (strings). */
 		TreeMap<Integer, String> eval =  new TreeMap<Integer, String>();
 		/* Construction tree (components). */
@@ -443,7 +469,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		/*
 		 * Construct treeMaps for correct Component construction
 		 */
-		constructTreeMaps(eval, calc, subs);
+		this.constructTreeMaps(eval, calc, subs);
 		/*
 		 * Write expression from treeMaps linear in correct order
 		 */
