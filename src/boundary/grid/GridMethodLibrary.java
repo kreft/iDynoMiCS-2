@@ -3,17 +3,11 @@
  */
 package boundary.grid;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Element;
 
 import boundary.grid.GridMethod;
-import dataIO.ObjectRef;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
-import modelBuilder.InputSetter;
-import modelBuilder.ParameterSetter;
 
 /**
  * \brief TODO
@@ -53,25 +47,19 @@ public final class GridMethodLibrary
 			this._value = value;
 		}
 		
-		@Override
-		public String getXml()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		public List<InputSetter> getRequiredInputs()
-		{
-			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter("value", this, ObjectRef.DBL, this._value));
-			return out;
-		}
-		
-		public void acceptInput(String name, Object input)
-		{
-			if ( name.equals("value") && input instanceof Double )
-				this._value = (Double) input;
-		}
+		//FIXME to be replaced by modelnode paradigm?
+//		public List<InputSetter> getRequiredInputs()
+//		{
+//			List<InputSetter> out = new LinkedList<InputSetter>();
+//			out.add(new ParameterSetter("value", this, ObjectRef.DBL, this._value));
+//			return out;
+//		}
+//		
+//		public void acceptInput(String name, Object input)
+//		{
+//			if ( name.equals("value") && input instanceof Double )
+//				this._value = (Double) input;
+//		}
 	}
 
 	/**
@@ -102,29 +90,27 @@ public final class GridMethodLibrary
 			this._gradient = gradient;
 		}
 		
-		@Override
-		public String getXml()
-		{
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		public List<InputSetter> getRequiredInputs()
-		{
-			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter(
-						"gradient", this, ObjectRef.DBL, this._gradient));
-			return out;
-		}
-		
-		public void acceptInput(String name, Object input)
-		{
-			if ( name.equals("gradient") && input instanceof Double )
-				this._gradient = (Double) input;
-		}
+		//FIXME to be replaced by modelnode paradigm?
+//		public List<InputSetter> getRequiredInputs()
+//		{
+//			List<InputSetter> out = new LinkedList<InputSetter>();
+//			out.add(new ParameterSetter(
+//						"gradient", this, ObjectRef.DBL, this._gradient));
+//			return out;
+//		}
+//		
+//		public void acceptInput(String name, Object input)
+//		{
+//			if ( name.equals("gradient") && input instanceof Double )
+//				this._gradient = (Double) input;
+//		}
 	}
 	
-	
+	/**
+	 * TODO
+	 * @author Robert
+	 *
+	 */
 	public static class ZeroFlux extends GridMethod
 	{
 		public void init(Element xmlNode)
@@ -135,13 +121,6 @@ public final class GridMethodLibrary
 		public double getBoundaryFlux(SpatialGrid grid)
 		{
 			return 0.0;
-		}
-		
-		@Override
-		public String getXml()
-		{
-			// TODO Auto-generated method stub
-			return null;
 		}
 	}
 }

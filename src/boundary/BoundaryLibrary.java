@@ -4,19 +4,12 @@
 package boundary;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 import boundary.agent.AgentMethodLibrary.*;
-import boundary.grid.GridMethod.GridMethodMaker;
 import boundary.grid.GridMethodLibrary.*;
-import boundary.agent.AgentMethod;
-import boundary.grid.GridMethod;
-import dataIO.ObjectRef;
+
+import dataIO.XmlRef;
 import idynomics.Compartment;
-import modelBuilder.InputSetter;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker.Requirement;
 
 /**
  * \brief Collection of commonly used {@code Boundary} classes.
@@ -25,46 +18,57 @@ import modelBuilder.SubmodelMaker.Requirement;
  */
 public final class BoundaryLibrary
 {
-	// TODO move this to XmlLabel?
-	public final static String PARTNER = "partner";
+
+	public final static String PARTNER = XmlRef.boundaryPartner;
 	
-	
+	/**
+	 * TODO
+	 * @author Robert
+	 *
+	 */
 	public static class CustomBoundary extends Boundary
 	{
+		/**
+		 * TODO
+		 */
 		public CustomBoundary()
 		{
 			
 		}
 		
-		@Override
-		public List<InputSetter> getRequiredInputs()
-		{
-			List<InputSetter> out = new LinkedList<InputSetter>();
-			// TODO GridMethod, AgentMethod
-			out.add(new GridMethodMaker(
-							Boundary.DEFAULT_GM, Requirement.ZERO_OR_ONE, this));
-			out.add(new GridMethodMaker(
-							"Grid Method", Requirement.ZERO_TO_MANY, this));
-			//out.add(new AgentMethodMaker(Requirement.EXACTLY_ONE));
-			return out;
-		}
+		//FIXME to be replaced by ModelNode Paradigm?
+//		@Override
+//		public List<InputSetter> getRequiredInputs()
+//		{
+//			List<InputSetter> out = new LinkedList<InputSetter>();
+//			// TODO GridMethod, AgentMethod
+//			out.add(new GridMethodMaker(
+//							Boundary.DEFAULT_GM, Requirement.ZERO_OR_ONE, this));
+//			out.add(new GridMethodMaker(
+//							"Grid Method", Requirement.ZERO_TO_MANY, this));
+//			//out.add(new AgentMethodMaker(Requirement.EXACTLY_ONE));
+//			return out;
+//		}
+//		
+//		public void acceptInput(String name, Object input)
+//		{
+//			if ( input instanceof GridMethod )
+//			{
+//				GridMethod gm = (GridMethod) input;
+//				// TODO Need to be very careful about how non-default methods
+//				// are assigned!
+//				if ( name.equals(Boundary.DEFAULT_GM) )
+//					this._defaultGridMethod = gm;
+//				else
+//					this._gridMethods.put(name, gm);
+//			}
+//			if ( input instanceof AgentMethod )
+//				this._agentMethod = (AgentMethod) input;
+//		}
 		
-		public void acceptInput(String name, Object input)
-		{
-			if ( input instanceof GridMethod )
-			{
-				GridMethod gm = (GridMethod) input;
-				// TODO Need to be very careful about how non-default methods
-				// are assigned!
-				if ( name.equals(Boundary.DEFAULT_GM) )
-					this._defaultGridMethod = gm;
-				else
-					this._gridMethods.put(name, gm);
-			}
-			if ( input instanceof AgentMethod )
-				this._agentMethod = (AgentMethod) input;
-		}
-		
+		/**
+		 * TODO
+		 */
 		@Override
 		public Boundary makePartnerBoundary()
 		{
@@ -77,14 +81,25 @@ public final class BoundaryLibrary
 	 * SPATIAL BOUNDARIES
 	 *************************************************************************/
 	
+	/**
+	 * TODO
+	 * @author Robert
+	 *
+	 */
 	public static class SolidBoundary extends Boundary
 	{
+		/**
+		 * TODO
+		 */
 		public SolidBoundary()
 		{
 			this._defaultGridMethod = new ZeroFlux();
 			this._agentMethod = new SolidSurface();
 		}
 		
+		/**
+		 * TODO
+		 */
 		@Override
 		public Boundary makePartnerBoundary()
 		{
@@ -92,14 +107,25 @@ public final class BoundaryLibrary
 		}
 	}
 	
+	/**
+	 * TODO
+	 * @author Robert
+	 *
+	 */
 	public static class BulkBLBoundary extends Boundary
 	{
+		/**
+		 * TODO
+		 */
 		public BulkBLBoundary()
 		{
 			//this._defaultGridMethod = new ZeroFlux();
 			this._agentMethod = new BoundaryLayer();
 		}
 		
+		/**
+		 * TODO
+		 */
 		@Override
 		public Boundary makePartnerBoundary()
 		{
@@ -108,8 +134,16 @@ public final class BoundaryLibrary
 		}
 	}
 	
+	/**
+	 * TODO
+	 * @author Robert
+	 *
+	 */
 	public static class FixedBoundary extends Boundary
 	{
+		/**
+		 * TODO
+		 */
 		public FixedBoundary()
 		{
 			this._defaultGridMethod = new ConstantDirichlet();
@@ -117,17 +151,30 @@ public final class BoundaryLibrary
 			this._agentMethod = new SolidSurface();
 		}
 		
+		/**
+		 * TODO
+		 * @param value
+		 */
 		public FixedBoundary(double value)
 		{
 			this();
 			this.setValue(value);
 		}
 		
+		/**
+		 * TODO
+		 * @param value
+		 */
 		public void setValue(double value)
 		{
 			((ConstantDirichlet) this._defaultGridMethod).setValue(value);
 		}
 		
+		/**
+		 * TODO
+		 * @param soluteName
+		 * @param value
+		 */
 		public void setValue(String soluteName, double value)
 		{
 			if ( soluteName.equals(Boundary.DEFAULT_GM) )
@@ -140,6 +187,9 @@ public final class BoundaryLibrary
 			}
 		}
 		
+		/**
+		 * TODO
+		 */
 		@Override
 		public Boundary makePartnerBoundary()
 		{
@@ -152,18 +202,36 @@ public final class BoundaryLibrary
 	 * CHEMOSTAT BOUNDARIES
 	 *************************************************************************/
 	
-
+	/**
+	 * TODO
+	 * @author Robert
+	 *
+	 */
 	public static class ChemostatOutflow extends Boundary
 	{
+		/**
+		 * TODO
+		 */
 		protected double _flowRate;
 		
+		/**
+		 * TODO
+		 */
 		protected double _agentsToDiluteTally;
 		
+		/**
+		 * TODO
+		 * @param flowRate
+		 */
 		public void setFlowRate(double flowRate)
 		{
 			this._flowRate = flowRate;
 		}
 		
+		/**
+		 * TODO
+		 * @param comp
+		 */
 		public void setPartnerCompartment(Compartment comp)
 		{
 			ChemostatInflow cIn = new ChemostatInflow();
@@ -172,6 +240,9 @@ public final class BoundaryLibrary
 			this.setPartner(cIn);
 		}
 		
+		/**
+		 * TODO
+		 */
 		@Override
 		public Boundary makePartnerBoundary()
 		{
@@ -181,13 +252,17 @@ public final class BoundaryLibrary
 			return cIn;
 		}
 		
+		/**
+		 * TODO
+		 * @return
+		 */
 		public double getFlowRate()
 		{
 			return this._flowRate;
 		}
 		
 		/**
-		 * 
+		 * TODO
 		 * @return
 		 */
 		public double getAgentsToDiluteTally()
@@ -196,7 +271,7 @@ public final class BoundaryLibrary
 		}
 		
 		/**
-		 * 
+		 * TODO
 		 * @param timeStep
 		 */
 		public void updateAgentsToDiluteTally(double timeStep)
@@ -205,13 +280,16 @@ public final class BoundaryLibrary
 			this._agentsToDiluteTally -= this._flowRate * timeStep;
 		}
 		
+		/**
+		 * TODO
+		 */
 		public void knockDownAgentsToDiluteTally()
 		{
 			this._agentsToDiluteTally--;
 		}
 		
 		/**
-		 * 
+		 * TODO
 		 */
 		public void resetAgentsToDiluteTally()
 		{
@@ -219,44 +297,71 @@ public final class BoundaryLibrary
 		}
 	}
 	
-	
+	/**
+	 * TODO
+	 * @author Robert
+	 *
+	 */
 	public static class ChemostatInflow extends Boundary
 	{
+		/**
+		 * TODO
+		 */
 		protected double _flowRate;
 		
+		/**
+		 * TODO
+		 */
 		protected HashMap<String, Double> _concentrations;
+			
+		//FIXME to be replaced by ModelNode Paradigm?
+//		@Override
+//		public List<InputSetter> getRequiredInputs()
+//		{
+//			List<InputSetter> out = new LinkedList<InputSetter>();
+//			out.add(new ParameterSetter("flowRate", this, ObjectRef.DBL));
+//			// TODO concentrations? AspectRegistry?
+//			return out;
+//		}
+//		
+//		@Override
+//		public void acceptInput(String name, Object input)
+//		{
+//			if (name.equals("flowRate") && input instanceof Double)
+//				this._flowRate = (Double) input;
+//		}
 		
-		@Override
-		public List<InputSetter> getRequiredInputs()
-		{
-			List<InputSetter> out = new LinkedList<InputSetter>();
-			out.add(new ParameterSetter("flowRate", this, ObjectRef.DBL));
-			// TODO concentrations? AspectRegistry?
-			return out;
-		}
-		
-		@Override
-		public void acceptInput(String name, Object input)
-		{
-			if (name.equals("flowRate") && input instanceof Double)
-				this._flowRate = (Double) input;
-		}
-		
+		/**
+		 * TODO
+		 * @param flowRate
+		 */
 		public void setFlowRate(double flowRate)
 		{
 			this._flowRate = flowRate;
 		}
 		
+		/**
+		 * TODO
+		 * @return
+		 */
 		public double getFlowRate()
 		{
 			return this._flowRate;
 		}
 		
+		/**
+		 * TODO
+		 * @param soluteName
+		 * @return
+		 */
 		public double getConcentration(String soluteName)
 		{
 			return this._concentrations.get(soluteName);
 		}
 		
+		/**
+		 * TODO
+		 */
 		@Override
 		public Boundary makePartnerBoundary()
 		{

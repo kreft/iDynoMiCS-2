@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
-import idynomics.NameRef;
+import aspect.AspectRef;
 
 /**
  * \brief Event that resolves current interaction distance/pull distance of
@@ -16,24 +16,24 @@ import idynomics.NameRef;
 public class ResolveInteractionDistance extends Event
 {
 	
-	public String PULL_DIST = NameRef.agentPulldistance;
-	public String PREF_DIST = NameRef.agentPreferencedistance;
-	public String PREF_ID = NameRef.agentPreferenceIdentifier;
-	public String PREFERENCE = NameRef.agentAttachmentPreference;
-	public String LINKED = NameRef.agentLinks;
-	public String LINKER_DIST = NameRef.linkerDistance;
-	public String CURRENT_PULL_DIST = NameRef.agentCurrentPulldistance;
+	public String PULL_DIST = AspectRef.agentPulldistance;
+	public String PREF_DIST = AspectRef.agentPreferencedistance;
+	public String PREF_ID = AspectRef.agentPreferenceIdentifier;
+	public String PREFERENCE = AspectRef.agentAttachmentPreference;
+	public String LINKED = AspectRef.agentLinks;
+	public String LINKER_DIST = AspectRef.linkerDistance;
+	public String CURRENT_PULL_DIST = AspectRef.agentCurrentPulldistance;
 	
 	@SuppressWarnings("unchecked")
 	public void start(AspectInterface initiator, 
 								AspectInterface compliant, Double timeStep)
 	{
 		// NOTE currently they are added up not leveled
-		double pullDist = initiator.isAspect(NameRef.agentPulldistance) ?
-				initiator.getDouble(NameRef.agentPulldistance) : 0.0;
+		double pullDist = initiator.isAspect(AspectRef.agentPulldistance) ?
+				initiator.getDouble(AspectRef.agentPulldistance) : 0.0;
 				
-		pullDist += compliant.isAspect(NameRef.agentPulldistance) ?
-				compliant.getDouble(NameRef.agentPulldistance) : 0.0;
+		pullDist += compliant.isAspect(AspectRef.agentPulldistance) ?
+				compliant.getDouble(AspectRef.agentPulldistance) : 0.0;
 		
 		// NOTE they are currently not added up
 		if ( initiator.isAspect(PREF_DIST) )

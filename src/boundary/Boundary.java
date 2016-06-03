@@ -3,9 +3,7 @@
  */
 package boundary;
 
-import java.awt.event.ActionEvent;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -14,13 +12,9 @@ import org.w3c.dom.NodeList;
 import agent.Agent;
 import boundary.agent.AgentMethod;
 import boundary.grid.GridMethod;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelMaker;
-import nodeFactory.ModelNode;
 import utility.Helper;
 
 /**
@@ -28,7 +22,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
+public abstract class Boundary implements CanPrelaunchCheck, XMLable
 {
 	// TODO move this to XmlLabel?
 	public final static String DEFAULT_GM = "defaultGridMethod";
@@ -76,18 +70,18 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		Element xmlGrid;
 		String variableName, className;
 		GridMethod aGridMethod;
-		NodeList gridNodes = xmlElem.getElementsByTagName("gridMethod");
+		NodeList gridNodes = xmlElem.getElementsByTagName(XmlRef.gridMethod);
 		for ( int i = 0; i < gridNodes.getLength(); i++ )
 		{
 			xmlGrid = (Element) gridNodes.item(i);
-			className = xmlGrid.getAttribute(XmlLabel.classAttribute);
+			className = xmlGrid.getAttribute(XmlRef.classAttribute);
 			try
 			{
 				aGridMethod = (GridMethod) Class.forName(className).newInstance();
 				aGridMethod.init(xmlGrid);
-				if ( xmlGrid.hasAttribute("variable") )
+				if ( xmlGrid.hasAttribute(XmlRef.variable) )
 				{
-					variableName = xmlGrid.getAttribute("variable");
+					variableName = xmlGrid.getAttribute(XmlRef.variable);
 					this._gridMethods.put(variableName, aGridMethod);
 				}
 				else
@@ -106,19 +100,17 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		}
 	}
 	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
 	
+	/**
+	 * TODO
+	 * @return
+	 */
 	public String getName()
 	{
-		return XmlLabel.dimensionBoundary;
+		return XmlRef.dimensionBoundary;
 		// TODO return dimension and min/max?
 	}
 	
@@ -152,27 +144,47 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 			return this._defaultGridMethod;
 	}
 	
+	/**
+	 * TODO
+	 * @return
+	 */
 	public AgentMethod getAgentMethod()
 	{
 		return this._agentMethod;
 	}
 	
+	/**
+	 * TODO
+	 * @param partner
+	 */
 	public void setPartner(Boundary partner)
 	{
 		this._partner = partner;
 	}
 	
+	/**
+	 * TODO
+	 * @return
+	 */
 	public boolean needsPartner()
 	{
 		return ( this._partnerCompartmentName != null ) &&
 				( this._partner == null );
 	}
 	
+	/**
+	 * TODO
+	 * @return
+	 */
 	public String getPartnerCompartmentName()
 	{
 		return this._partnerCompartmentName;
 	}
 	
+	/**
+	 * TODO
+	 * @return
+	 */
 	public abstract Boundary makePartnerBoundary();
 	
 	/*************************************************************************
@@ -210,7 +222,7 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 	}
 	
 	/**
-	 * 
+	 * TODO
 	 */
 	public void pushAllOutboundAgents()
 	{
@@ -270,62 +282,67 @@ public abstract class Boundary implements CanPrelaunchCheck, IsSubmodel, XMLable
 		return Helper.getClassNamesSimple(
 								BoundaryLibrary.class.getDeclaredClasses());
 	}
-	
-	@Override
-	public List<InputSetter> getRequiredInputs()
-	{
-		// TODO GridMethod, AgentMethod
-		return new LinkedList<InputSetter>();
-	}
-	
-	
-	public void acceptInput(String name, Object input)
-	{
-		// TODO
-	}
-	
+
+	/**
+	 * TODO
+	 * @param minMax
+	 * @return
+	 */
 	public static String extremeToString(int minMax)
 	{
 		return minMax == 0 ? "minimum" : "maximum";
 	}
 	
+	/**
+	 * TODO
+	 * @param minMax
+	 * @return
+	 */
 	public static int extremeToInt(String minMax)
 	{
 		return ( minMax.equals("minimum") ) ? 0 : 1;
 			
 	}
 	
-	public static class BoundaryMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = 6401917989904415580L;
-		
-		public BoundaryMaker(int minMax, Requirement req, IsSubmodel target)
-		{
-			super(extremeToString(minMax), req, target);
-		}
-		
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			// TODO safety properly
-			String bndryName;
-			if ( e == null )
-				bndryName = "";
-			else
-				bndryName = e.getActionCommand();
-			Boundary bndry = (Boundary) Boundary.getNewInstance(bndryName);
-			this.addSubmodel(bndry);
-		}
-		
-		public Object getOptions()
-		{
-			return Boundary.getAllOptions();
-		}
-	}
-
-	@Override
-	public ModelNode getNode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	// FIXME to be replaced by modelnode paradigm?
+//	@Override
+//	public List<InputSetter> getRequiredInputs()
+//	{
+//		// TODO GridMethod, AgentMethod
+//		return new LinkedList<InputSetter>();
+//	}
+//	
+//	
+//	public void acceptInput(String name, Object input)
+//	{
+//		// TODO
+//	}
+//	
+//	public static class BoundaryMaker extends SubmodelMaker
+//	{
+//		private static final long serialVersionUID = 6401917989904415580L;
+//		
+//		public BoundaryMaker(int minMax, Requirement req, IsSubmodel target)
+//		{
+//			super(extremeToString(minMax), req, target);
+//		}
+//		
+//		@Override
+//		public void doAction(ActionEvent e)
+//		{
+//			// TODO safety properly
+//			String bndryName;
+//			if ( e == null )
+//				bndryName = "";
+//			else
+//				bndryName = e.getActionCommand();
+//			Boundary bndry = (Boundary) Boundary.getNewInstance(bndryName);
+//			this.addSubmodel(bndry);
+//		}
+//		
+//		public Object getOptions()
+//		{
+//			return Boundary.getAllOptions();
+//		}
+//	}
 }

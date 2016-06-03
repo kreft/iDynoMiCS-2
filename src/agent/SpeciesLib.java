@@ -12,8 +12,7 @@ import agent.Species.SpeciesMaker;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
-import generalInterfaces.Quizable;
+import dataIO.XmlRef;
 import generalInterfaces.XMLable;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
@@ -30,11 +29,8 @@ import nodeFactory.ModelNode.Requirements;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructor
+public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 {
-	
-	private ModelNode modelNode;
-	
 	/**
 	 * Contains all known species.
 	 */
@@ -69,13 +65,13 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 		/* 
 		 * Cycle through all species and add them to the library.
 		 */ 
-		NodeList nodes = xmlElem.getElementsByTagName(XmlLabel.species);
+		NodeList nodes = xmlElem.getElementsByTagName(XmlRef.species);
 		String name;
 		Element speciesElem;
 		for ( int i = 0; i < nodes.getLength(); i++ ) 
 		{
 			speciesElem = (Element) nodes.item(i);
-			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			name = speciesElem.getAttribute(XmlRef.nameAttribute);
 			this.set(name, new Species(speciesElem));
 		}
 		/* 
@@ -85,7 +81,7 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 		for ( int i = 0; i < nodes.getLength(); i++ ) 
 		{
 			speciesElem = (Element) nodes.item(i);
-			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			name = speciesElem.getAttribute(XmlRef.nameAttribute);
 			Species s = (Species) this._species.get(name);
 			Log.out(Tier.EXPRESSIVE,
 					"Species \""+name+"\" loaded into Species Library");
@@ -105,7 +101,7 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 	{
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
-		species.reg().identity = name;
+		species.reg().setIdentity(name);
 		this._species.put(name, species);
 	}
 	
@@ -117,10 +113,10 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 	 */
 	public void set(AspectInterface species)
 	{
-		String name = species.reg().identity;
+		String name = species.reg().getIdentity();
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
-		species.reg().identity = name;
+		species.reg().setIdentity(name);
 		this._species.put(name, species);
 	}
 
@@ -189,32 +185,53 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 		}
 	}
 
+	/**
+	 * Get the ModelNode object for this NodeConstructor object
+	 * @return ModelNode
+	 */
 	@Override
 	public ModelNode getNode() {
-		if(modelNode == null)
-		{
-			modelNode = new ModelNode(XmlLabel.speciesLibrary, this);
-			modelNode.requirement = Requirements.EXACTLY_ONE;
-			modelNode.childConstructors.put(new Species(), 
-					ModelNode.Requirements.ZERO_TO_MANY);
-			
-			for ( String s : this._species.keySet() )
-				modelNode.add(((Species) _species.get(s)).getNode());
-		}
+
+		/* the species lib node */
+		ModelNode modelNode = new ModelNode(XmlRef.speciesLibrary, this);
+		modelNode.requirement = Requirements.EXACTLY_ONE;
+		
+		/* Species constructor */
+		modelNode.childConstructors.put(new Species(), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		/* the already existing species */
+		for ( String s : this._species.keySet() )
+			modelNode.add(((Species) _species.get(s)).getNode());
+	
 		return modelNode;
 	}
 
+	/**
+	 * Load and interpret the values of the given ModelNode to this 
+	 * SpeciesLib object
+	 * @param node
+	 */
 	@Override
 	public void setNode(ModelNode node) {
 		for(ModelNode n : node.childNodes)
 			n.constructor.setNode(n);
 	}
 
+	/**
+	 * Create a new minimal object of this class and return it
+	 * @return NodeConstructor
+	 */
 	@Override
 	public NodeConstructor newBlank() {
 		return Idynomics.simulator.speciesLibrary;
 	}
 
+	/**
+	 * Add a child object that is unable to register itself properly via the
+	 * newBlank call.
+	 * @param childOb
+	 */
 	@Override
 	public void addChildObject(NodeConstructor childObject) 
 	{
@@ -222,14 +239,12 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable, NodeConstructo
 			this.set((Species) childObject);
 	}
 
+	/**
+	 * return the default XMLtag for the XML node of this object
+	 * @return String xmlTag
+	 */
 	@Override
 	public String defaultXmlTag() {
-		return XmlLabel.speciesLibrary;
-	}
-
-	@Override
-	public String getXml() 
-	{
-		return getNode().getXML();
+		return XmlRef.speciesLibrary;
 	}
 }

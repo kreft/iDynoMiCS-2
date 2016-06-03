@@ -61,7 +61,7 @@ public class Collision
 			/*
 			 * Pull force scalar.
 			 */
-			// TODO explain choice
+			// TODO implement as aspect
 			return -2.0;
 		}
 		
@@ -69,7 +69,7 @@ public class Collision
 		public double[] interactionForce(double distance, double[] dP)
 		{
 			/* Add a small margin. */
-			// TODO why?
+			// TODO implement as aspect, a negligible distance may be neglected
 			distance -= 0.001;
 			/*
 			 * If distance is in the range (0, pullRange), apply the pull force.
@@ -95,14 +95,14 @@ public class Collision
 			/*
 			 * Push force scalar.
 			 */
-			// TODO explain choice
+			// TODO implement as aspect
 			return 6.0;		// push force scalar
 		}
 		
 		public double[] interactionForce(double distance, double[] dP)
 		{
 			/* Add a small margin. */
-			// TODO why?
+			// TODO implement as aspect, a negligible distance may be neglected
 			distance += 0.001;
 			/*
 			 * If distance is negative, apply the repulsive force.
@@ -283,8 +283,8 @@ public class Collision
 			((Ball) surf)._point.addToForce(force);
 			break;
 		case ROD:
-			((Rod) surf)._points[0].addToForce(Vector.times(force,intersect));
-			((Rod) surf)._points[1].addToForce(Vector.times(force,1.0-intersect));
+			((Rod) surf)._points[0].addToForce(Vector.times(force,1.0-intersect));
+			((Rod) surf)._points[1].addToForce(Vector.times(force,intersect));
 			break;
 		case PLANE:
 			Log.out(Tier.BULK,"WARNING: Surface Plane does not accept force");
@@ -416,6 +416,11 @@ public class Collision
 		this.dP = this._computationalDomain.getMinDifference(a,b);
 	}
 	
+	private double[] minDistance(double[] a, double[] b)
+	{
+		return this._computationalDomain.getMinDifference(a,b);
+	}
+	
 	/**
 	 * \brief Point-point distance.
 	 * 
@@ -482,6 +487,7 @@ public class Collision
 	 */
 	private double planeLineSeg(double[] normal, double d, double[] p0, double[] p1)
 	{
+		dP = Vector.reverse(normal);
 		double a = planePoint(normal, d, p0);
 		double b = planePoint(normal, d, p1);
 		if ( a < b )
@@ -533,7 +539,7 @@ public class Collision
 	public double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
 		// ab = p1 - p0
-		Vector.minusTo(dP, p1, p0);
+		this.setPeriodicDistanceVector(p1, p0);
 		s  = clamp( Vector.dotProduct( Vector.minus(q0, p0), dP) 
 													/ Vector.normSquare(dP) );
 		// dP = (ab*s) + p0 - q0 
@@ -602,9 +608,9 @@ public class Collision
 												double[] q0, double[] q1) 
 	{		
 
-		double[] r      = Vector.minus(p0, q0);
-		double[] d1     = Vector.minus(p1, p0);
-		double[] d2     = Vector.minus(q1, q0);
+		double[] r      = minDistance(p0, q0);
+		double[] d1     = minDistance(p1, p0);
+		double[] d2     = minDistance(q1, q0);
 		double a 		= Vector.normSquare(d1);
 		double e 		= Vector.normSquare(d2);
 		double f 		= Vector.dotProduct(d2, r);
@@ -628,14 +634,17 @@ public class Collision
 			t = 1.0;
 			s = clamp((b-c)/a);
 		}
+		
 		/* c1 = p0 + (d1*s) */
 		double[] c1 = Vector.times(d1, s);
-		Vector.addEquals(p0, c1);
+		Vector.addEquals(c1, p0);
+		
 		/* c2 = q0 + (d2*t) */
 		double[] c2 = Vector.times(d2, t);
-		Vector.addEquals(q0, c1);
+		Vector.addEquals(c2, q0);
+
 		/* dP = c1 - c2 */
-		this.dP = Vector.minus(c1, c2);
+		this.setPeriodicDistanceVector(c1, c2);
 		return Vector.normEuclid(dP);
 	}
 	
@@ -671,6 +680,7 @@ public class Collision
 	 */
 	public double planePoint(Plane plane, double[] point)
 	{
+		this.dP = Vector.reverse(plane.normal);
 		return Vector.dotProduct(plane.normal, point) - plane.d;
 	}
 	

@@ -20,7 +20,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/iDynoMiCS-2/Docs/java3d-1_5-spec.zip!/java3d-1_5-spec"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="src/lib/jogl/gluegen-rt-natives-linux-amd64.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/gluegen-rt-natives-linux-i586.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/gluegen-rt-natives-macosx-universal.jar"/>
@@ -34,5 +33,6 @@
 	<classpathentry kind="lib" path="src/lib/jogl/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/jogl-all-natives-windows-i586.jar"/>
 	<classpathentry kind="lib" path="src/lib/jogl/jogl-all.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

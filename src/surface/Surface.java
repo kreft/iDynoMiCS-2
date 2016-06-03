@@ -31,7 +31,7 @@ public abstract class Surface
 	/**
 	 * TODO
 	 */
-	protected Collision collisionDomain;
+	protected Collision _collisionDomain;
 
 	/**
 	 * Map of surfaces with which collisions need to be ignored.
@@ -53,7 +53,7 @@ public abstract class Surface
 	 */
 	public void init(Collision collisionDomain) 
 	{
-		this.collisionDomain = collisionDomain;
+		this._collisionDomain = collisionDomain;
 	}
 
 	/**
@@ -74,7 +74,7 @@ public abstract class Surface
 	 */
 	public Collision getCollisionDomain()
 	{
-		return this.collisionDomain;
+		return this._collisionDomain;
 	}
 
 	/**
@@ -84,7 +84,7 @@ public abstract class Surface
 	 */
 	public double distanceTo(Surface surface)
 	{
-		return this.collisionDomain.distance(this, surface);
+		return this._collisionDomain.distance(this, surface);
 	}
 
 	/**
@@ -94,7 +94,7 @@ public abstract class Surface
 	 */
 	public void collisionWith(Surface surface)
 	{
-		this.collisionDomain.distance(this, surface);
+		this._collisionDomain.distance(this, surface);
 	}
 
 }

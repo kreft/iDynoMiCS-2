@@ -7,16 +7,19 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
+import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
+
 import static dataIO.Log.Tier.*;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import shape.Shape;
 import surface.Collision;
 import surface.Point;
+import surface.Rod;
 import surface.Surface;
 import utility.Helper;
 
@@ -33,6 +36,27 @@ import utility.Helper;
  */
 public class AgentRelaxation extends ProcessManager
 {
+	public static String SEARCH_DIST = AspectRef.collisionSearchDistance;
+	public static String PULL_EVALUATION = AspectRef.collisionPullEvaluation;
+	public static String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
+	public static String RELAXATION_METHOD = AspectRef.collisionRelaxationMethod;
+	
+	public static String BASE_DT = AspectRef.collisionBaseDT;
+	public static String MAX_MOVEMENT = AspectRef.collisionMaxMOvement;
+	
+	public String BODY = AspectRef.agentBody;
+	public String RADIUS = AspectRef.bodyRadius;
+	public String VOLUME = AspectRef.agentVolume;
+	public String DIVIDE = AspectRef.agentDivision;
+	
+	public String UPDATE_BODY = AspectRef.bodyUpdate;
+	public String EXCRETE_EPS = AspectRef.agentExcreteEps;
+	
+	public String STOCHASTIC_DIRECTION = AspectRef.agentStochasticDirection;
+	public String STOCHASTIC_STEP = AspectRef.agentStochasticStep;
+	public String STOCHASTIC_MOVE = AspectRef.agentStochasticMove;
+	
+	
 	/**
 	 * Available relaxation methods.
 	 */
@@ -58,35 +82,42 @@ public class AgentRelaxation extends ProcessManager
 	 * TODO
 	 */
 	private double _dtMech;
+	
 	/**
 	 * TODO
 	 */
 	private double _vSquare;
+	
 	/**
 	 * TODO
 	 */
 	private double _tMech;
+	
 	/**
 	 * Relaxation parameters (overwritten by init)
 	 */
-	private double _dtBase;	
+	protected double _dtBase;	
+	
 	/**
 	 * TODO
 	 */
 	private double _maxMovement;
+	
 	/**
 	 * TODO
 	 */
 	private Method _method;
+	
 	/**
 	 * TODO
 	 */
 	private boolean _timeLeap;
+	
 	/**
 	 * TODO
 	 */
-	Collision _iterator;
-	
+	private Collision _iterator;
+
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -95,16 +126,6 @@ public class AgentRelaxation extends ProcessManager
 	public void init(Element xmlElem)
 	{
 		super.init(xmlElem);
-		/*
-		 * Obtaining relaxation parameters.
-		 */
-		this._dtBase = Helper.setIfNone(getDouble("dtBase"), 0.002);	
-		this._maxMovement = Helper.setIfNone(getDouble("maxMovement"), 0.01);	
-		this._method = Method.valueOf(
-				Helper.obtainInput(getString("relaxationMethod"),
-				"agent relaxation misses relaxation method (SHOVE,EULER,HEUN)"));
-		this._timeLeap	= true;
-
 	}
 
 	/*************************************************************************
@@ -121,20 +142,61 @@ public class AgentRelaxation extends ProcessManager
 	{
 		Tier level = BULK;
 		Log.out(level, "Updating agent forces");
+		Shape shape = agents.getShape();
 		/*
 		 * Updated bodies will required an updated spatial registry.
 		 */
 		agents.refreshSpatialRegistry();
 		// TODO Move this into internalStep() and make shapeSurfs a class variable?
-		Collection<Surface> shapeSurfs = agents.getShape().getSurfaces();
+		Collection<Surface> shapeSurfs = shape.getSurfaces();
 		/* Calculate forces. */
 		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
-			Body body = (Body) agent.get(NameRef.agentBody);
+			Body body = (Body) agent.get(AspectRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
-			// NOTE: currently missing internal springs for rod cells.
-			double searchDist = (agent.isAspect("searchDist") ?
-					agent.getDouble("searchDist") : 0.0);
+
+			/* surface operations */
+			for ( Surface s : agentSurfs )
+			{
+				/* rod surfs */
+				if ( s instanceof Rod )
+				{
+					/*
+					 * calculate rest length of rod cell spine spring
+					 * total volume - sphere volume = cylinder volume ->
+					 * cylinder length = rest length
+					 */
+					double l = ((Rod) s)._length;
+
+					/*
+					 * calculate current length of spine spring
+					 */
+					Point a 		= ((Rod) s)._points[0];
+					Point b 		= ((Rod) s)._points[1];
+					double[] diff 	= shape.getMinDifference(a.getPosition() , 
+							b.getPosition() );
+					double dn 		= Vector.normEuclid(diff);
+					if (dn > 2.0 )
+						System.out.println(dn);
+					
+					/*
+					 * Hooke's law: spring stiffness * displacement
+					 * TODO implement stiffness properly in xml
+					 */
+					double f 		= 20.0 * ( dn - l );
+					double[] fV		= Vector.times(diff, f);
+				
+					/*
+					 * apply forces
+					 */
+					Vector.addEquals( b.getForce(), fV ) ;
+					Vector.reverseEquals(fV);
+					Vector.addEquals( a.getForce(), fV ) ;
+				}
+			}
+			
+			double searchDist = (agent.isAspect(SEARCH_DIST) ?
+					agent.getDouble(SEARCH_DIST) : 0.0);
 			
 			Log.out(level, "  Agent (ID "+agent.identity()+") has "+
 					agentSurfs.size()+" surfaces, search dist "+searchDist);
@@ -147,11 +209,11 @@ public class AgentRelaxation extends ProcessManager
 			for ( Agent neighbour: nhbs )
 				if ( agent.identity() > neighbour.identity() )
 				{
-					agent.event("evaluatePull", neighbour);
-					Double pull = agent.getDouble("#curPullDist");
+					agent.event(PULL_EVALUATION, neighbour);
+					Double pull = agent.getDouble(CURRENT_PULL_DISTANCE);
 					if ( pull == null || pull.isNaN() )
 						pull = 0.0;
-					body = ((Body) neighbour.get("body"));
+					body = ((Body) neighbour.get(BODY));
 					List<Surface> t = body.getSurfaces();
 					Log.out(level, "   interacting with neighbor (ID "+
 							neighbour.identity()+") , which has "+t.size()+
@@ -170,6 +232,14 @@ public class AgentRelaxation extends ProcessManager
 	protected void internalStep(EnvironmentContainer environment,
 			AgentContainer agents)
 	{
+		/*
+		 * Obtaining relaxation parameters.
+		 */
+		this._dtBase = Helper.setIfNone( getDouble(BASE_DT), 0.0005 );	
+		this._maxMovement = Helper.setIfNone( getDouble(MAX_MOVEMENT), 0.01 );	
+		this._method = Method.valueOf( Helper.setIfNone(
+				getString(RELAXATION_METHOD), Method.EULER.toString() ) );
+		this._timeLeap	= true;
 		
 		this._iterator = new Collision(null, agents.getShape());
 		/**
@@ -177,26 +247,21 @@ public class AgentRelaxation extends ProcessManager
 		 */
 		for(Agent agent: agents.getAllLocatedAgents()) 
 		{
-			agent.event(NameRef.bodyUpdate);
-			agent.event("divide");
-			agent.event("epsExcretion");
+			agent.event(UPDATE_BODY);
+			agent.event(DIVIDE);
+			agent.event(EXCRETE_EPS); //FIXME probably not the best place to make this call
 		}
-
-		/* FIXME This could also be created once if the AgentContainer would be 
-		 * available with the initiation of the processManager
-		 */
-		//		worker.executeTask(new UpdateAgentBody(agents));
 
 		int nstep	= 0;
 		_tMech		= 0.0;
-		_dtMech 		= 0.0005; // TODO (initial) time step.. needs to be build out of protocol file
+		_dtMech 	= this._dtBase; // start with initial base timestep than adjust
 
 		// if higher order ODE solvers are used we need additional space to write.
 		switch (_method)
 		{
 		case HEUN :
 			for(Agent agent: agents.getAllLocatedAgents())
-				for (Point point: ((Body) agent.get("body")).getPoints())
+				for (Point point: ((Body) agent.get(BODY)).getPoints())
 					point.initialiseC(2);
 			break;
 		default:
@@ -212,9 +277,9 @@ public class AgentRelaxation extends ProcessManager
 			_vSquare = 0.0;
 			for(Agent agent: agents.getAllLocatedAgents())
 			{
-				for (Point point: ((Body) agent.get("body")).getPoints())
-					if ( Vector.normSquare(point.dxdt((double) agent.get("radius"))) > _vSquare )
-						_vSquare = Vector.normSquare(point.dxdt((double) agent.get("radius")));			
+				for (Point point: ((Body) agent.get(BODY)).getPoints())
+					if ( Vector.normSquare(point.dxdt((double) agent.get(RADIUS))) > _vSquare )
+						_vSquare = Vector.normSquare(point.dxdt((double) agent.get(RADIUS)));			
 			}
 
 			// FIXME this assumes linear force scaling improve..
@@ -222,9 +287,9 @@ public class AgentRelaxation extends ProcessManager
 
 			for(Agent agent: agents.getAllLocatedAgents())
 			{
-				if (agent.isAspect("stochasticDirection"))
+				if (agent.isAspect(STOCHASTIC_DIRECTION))
 				{
-					double[] move = (double[]) agent.get("stochasticDirection");
+					double[] move = (double[]) agent.get(STOCHASTIC_DIRECTION);
 					_vSquare = Math.max(Vector.dotProduct(move,move), _vSquare);
 				}
 			}
@@ -239,8 +304,8 @@ public class AgentRelaxation extends ProcessManager
 
 			for(Agent agent: agents.getAllLocatedAgents())
 			{
-				if (agent.isAspect("stochasticStep"))
-					agent.event("stochasticMove", _dtMech);
+				if (agent.isAspect(STOCHASTIC_STEP))
+					agent.event(STOCHASTIC_MOVE, _dtMech);
 			}
 
 			// perform the step using (method)
@@ -250,8 +315,8 @@ public class AgentRelaxation extends ProcessManager
 			{
 				for ( Agent agent: agents.getAllLocatedAgents() )
 				{
-					Body body = ((Body) agent.get("body"));
-					double radius = agent.getDouble(NameRef.bodyRadius);
+					Body body = ((Body) agent.get(BODY));
+					double radius = agent.getDouble(RADIUS);
 					for ( Point point: body.getPoints() )
 						point.shove(this._dtMech, radius);
 				}
@@ -265,8 +330,8 @@ public class AgentRelaxation extends ProcessManager
 				/// Euler's method
 				for ( Agent agent: agents.getAllLocatedAgents() )
 				{
-					Body body = ((Body) agent.get("body"));
-					double radius = agent.getDouble(NameRef.bodyRadius);
+					Body body = ((Body) agent.get(BODY));
+					double radius = agent.getDouble(RADIUS);
 					for ( Point point: body.getPoints() )
 						point.euStep(this._dtMech, radius);
 				}
@@ -277,19 +342,19 @@ public class AgentRelaxation extends ProcessManager
 			case HEUN :
 				/// Heun's method
 				for(Agent agent: agents.getAllLocatedAgents())
-					for (Point point: ((Body) agent.get("body")).getPoints())
-						point.heun1(_dtMech, (double) agent.get("radius"));
+					for (Point point: ((Body) agent.get(BODY)).getPoints())
+						point.heun1(_dtMech, (double) agent.get(RADIUS));
 				this.updateForces(agents);
 				for(Agent agent: agents.getAllLocatedAgents())
-					for (Point point: ((Body) agent.get("body")).getPoints())
-						point.heun2(_dtMech, (double) agent.get("radius"));
+					for (Point point: ((Body) agent.get(BODY)).getPoints())
+						point.heun2(_dtMech, (double) agent.get(RADIUS));
 				// Set time step
 				_tMech += _dtMech;
 				break;
 			}
 
 			for(Agent agent: agents.getAllLocatedAgents())
-				for (Point point: ((Body) agent.get("body")).getPoints())
+				for (Point point: ((Body) agent.get(BODY)).getPoints())
 				{
 					agents.getShape().applyBoundaries(point.getPosition());
 				}

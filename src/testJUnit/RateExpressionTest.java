@@ -19,6 +19,8 @@ public class RateExpressionTest
 	@Test
 	public void shouldBuildCorrectExpressionsFromString()
 	{
+		AllTests.setupSimulatorForTest(1.0, 1.0, "ExpressionBtest");
+		
 		ExpressionB expr;
 		String str;
 		HashMap<String,Double> vars = new HashMap<String,Double>();
@@ -70,5 +72,16 @@ public class RateExpressionTest
 		System.out.println("");
 		calculated = expr.getValue(vars);
 		assertTrue(str, ExtraMath.areEqual(calculated, correct, TOLERANCE));
+		/*
+		 * This one should be simple, but causes problems.
+		 */
+//		str = "25.0";
+//		correct = 25.0;
+//		expr = new ExpressionB(str);
+//		expr.printEval();
+//		System.out.println(expr.getName());
+//		System.out.println("");
+//		calculated = expr.getValue(vars);
+//		assertTrue(str, ExtraMath.areEqual(calculated, correct, TOLERANCE));
 	}
 }

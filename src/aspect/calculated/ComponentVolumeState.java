@@ -1,9 +1,9 @@
 package aspect.calculated;
 
+import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Calculated;
-import generalInterfaces.Quizable;
-import idynomics.NameRef;
+import aspect.AspectRef;
 import linearAlgebra.Vector;
 
 /**
@@ -15,8 +15,8 @@ import linearAlgebra.Vector;
  */
 public class ComponentVolumeState extends Calculated {
 	
-	public String MASS = NameRef.agentMass;
-	public String DENSITY = NameRef.agentDensity;
+	public String MASS = AspectRef.agentMass;
+	public String DENSITY = AspectRef.agentDensity;
 	
 	public ComponentVolumeState()
 	{
@@ -25,7 +25,7 @@ public class ComponentVolumeState extends Calculated {
 	
 	public Object get(AspectInterface aspectOwner)
 	{
-		Quizable agent = (Quizable) aspectOwner;
+		Agent agent = (Agent) aspectOwner;
 		return  Vector.dotQuotient((double[]) agent.get(MASS), 
 									(double[]) agent.get(DENSITY));
 	}

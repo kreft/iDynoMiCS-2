@@ -8,11 +8,12 @@ public class XmlExport
 	/**
 	 * TODO
 	 */
-	int filewriterfilenr = 0;
+	protected int _filewriterfilenr = 0;
+	
 	/**
 	 * TODO
 	 */
-	FileHandler xmlFile = new FileHandler();
+	protected FileHandler _xmlFile = new FileHandler();
 	
 	/**
 	 * handles incrementing file numbering
@@ -33,11 +34,11 @@ public class XmlExport
 	public void newXml(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + DigitFilenr(filewriterfilenr) + ".xml";
-		xmlFile.fnew(fileString);
+				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".xml";
+		_xmlFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 
-		xmlFile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<document>\n");
+		_xmlFile.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<document>\n");
 	}
 	
 	/**
@@ -45,9 +46,9 @@ public class XmlExport
 	 */
 	public void closeXml()
 	{
-		xmlFile.write("</document>\n");
-		xmlFile.fclose();
-		filewriterfilenr++;
+		_xmlFile.write("</document>\n");
+		_xmlFile.fclose();
+		_filewriterfilenr++;
 	}
 
 	
@@ -58,7 +59,7 @@ public class XmlExport
 	 */
 	public void writeState()
 	{
-		xmlFile.write(Idynomics.simulator.getNode().getXML(1));
+		_xmlFile.write(Idynomics.simulator.getNode().getXML(1));
 	}
 	
 	public void writeFile()

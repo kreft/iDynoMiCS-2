@@ -4,6 +4,8 @@
 package boundary.agent;
 
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 import agent.Agent;
 import dataIO.Log.Tier;
@@ -21,7 +23,7 @@ public class AgentMethodLibrary
 	/**************************************************************************
 	 * SPATIAL BOUNDARIES
 	 *************************************************************************/
-	
+
 	/**
 	 * \brief Agent boundary method that does not allow agents top cross it.
 	 * 
@@ -37,6 +39,9 @@ public class AgentMethodLibrary
 			return "Solid surface";
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(
 				AgentContainer agentCont, DimName dimN, int extreme)
@@ -45,16 +50,33 @@ public class AgentMethodLibrary
 			this._arrivalsLounge.clear();
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(AgentContainer agentCont)
 		{
 			/* Do nothing! */
 		}
+
+		@Override
+		public List<Agent> agentsToGrab(AgentContainer agentCont,
+				DimName dimN, int extreme, double timeStep)
+		{
+			/* Do nothing! */
+			return new LinkedList<Agent>();
+		}
+
+		@Override
+		public int agentsToGrab(AgentContainer agentCont, double timeStep)
+		{
+			return 0;
+		}
 	}
-	
+
 	/**
-	 * \brief 
-	 * 
+	 * \brief Agent boundary method to use in a biofilm that is connected to
+	 * a chemostat compartment.
 	 */
 	// TODO rename to something more agent-specific?
 	public static class BoundaryLayer extends AgentMethod
@@ -64,33 +86,53 @@ public class AgentMethodLibrary
 		 */
 		// TODO set this!
 		private double _layerTh = 10.0;
-		
+
 		@Override
 		public String getName()
 		{
 			return "Boundary layer";
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(
 				AgentContainer agentCont, DimName dimN, int extreme)
 		{
+			/*
+			 * Unlocated agents can be simply added to the Compartment.
+			 */
+			for ( Agent anAgent : this._arrivalsLounge )
+				if ( ! AgentContainer.isLocated(anAgent) )
+				{
+					agentCont.addAgent(anAgent);
+					this._arrivalsLounge.remove(anAgent);
+				}
+			/*
+			 * Give all (located) agents a random position along this boundary
+			 * surface.
+			 */
 			this.placeAgentsRandom(agentCont, dimN, extreme);
+			/*
+			 * Calculate the step size and direction that agents will use to
+			 * move.
+			 */
+			// NOTE Rob [19/5/2016]: the value of 0.1 is arbitrary.
+			double dist = 0.1 * this._layerTh;
+			if ( extreme == 1 )
+				dist = -dist;
+			/*
+			 * Move each agent away from the boundary surface until it reaches
+			 * the top of the boundary layer.
+			 */
 			Collection<Agent> nbhAgents;
-			Collection<AgentMethod> boundaries;
+			Collection<AgentMethod> bndries;
 			boolean hasCollided = false;
 			for ( Agent anAgent : this._arrivalsLounge )
 			{
 				Log.out(Tier.DEBUG, "Moving agent (UID: "+anAgent.identity()+
 						") to top of boundary layer");
-				
-				
-				
-				if ( ! AgentContainer.isLocated(anAgent) )
-				{
-					agentCont.addAgent(anAgent);
-					continue;
-				}
 				// NOTE Rob [19/5/2016]: this loop is work in progress.
 				while ( ! hasCollided )
 				{
@@ -100,45 +142,73 @@ public class AgentMethodLibrary
 						hasCollided = true;
 						break;
 					}
-					boundaries = 
-							agentCont.boundarySearch(anAgent, this._layerTh);
-					if ( ! boundaries.isEmpty() )
+					bndries = agentCont.boundarySearch(anAgent, this._layerTh);
+					if ( ! bndries.isEmpty() )
 					{
-						// TODO
-						
+						// FIXME stopping is a temporary fix: we need to apply
+						// the boundary here
+						hasCollided = true;
+						break;
 					}
-					// TODO Rob [19/5/2016]: the value of 0.1 is arbitrary.
-					double dist = 0.1*this._layerTh;
-					if ( extreme == 1 )
-						dist = -dist;
 					agentCont.moveAlongDimension(anAgent, dimN, dist);
 				}
+				// TODO ask the agent to move now?
 			}
 			this._arrivalsLounge.clear();
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(AgentContainer agentCont)
 		{
 			/* Do nothing! */
 		}
+
+		@Override
+		public List<Agent> agentsToGrab(AgentContainer agentCont,
+				DimName dimN, int extreme, double timeStep)
+		{
+			List<Agent> out = new LinkedList<Agent>();
+			/*
+			 * Find all agents who are unattached to others or to a boundary,
+			 * and who are on this side of the biofilm (in, e.g., the case of a
+			 * floating granule).
+			 */
+			// TODO
+			return out;
+		}
+
+		@Override
+		public int agentsToGrab(AgentContainer agentCont, double timeStep)
+		{
+			return 0;
+		}
 	}
-	
+
 	/**************************************************************************
 	 * CHEMOSTAT BOUNDARIES
 	 *************************************************************************/
-	
+
 	/**
+	 * TODO
 	 * \brief 
 	 */
 	public static class DilutionIn extends AgentMethod
 	{
+		/**
+		 * TODO
+		 */
 		@Override
 		public String getName()
 		{
 			return "Dilution in";
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(
 				AgentContainer agentCont, DimName dimN, int extreme)
@@ -150,12 +220,86 @@ public class AgentMethodLibrary
 			this.agentsArrive(agentCont);
 		}
 
+		/**
+		 * TODO
+		 */
 		@Override
 		public void agentsArrive(AgentContainer agentCont)
 		{
 			for ( Agent anAgent : this._arrivalsLounge )
 				agentCont.addAgent(anAgent);
 			this._arrivalsLounge.clear();
+		}
+
+		@Override
+		public List<Agent> agentsToGrab(AgentContainer agentCont,
+				DimName dimN, int extreme, double timeStep)
+		{
+			/* Do nothing! */
+			return new LinkedList<Agent>();
+		}
+
+		@Override
+		public int agentsToGrab(AgentContainer agentCont, double timeStep)
+		{
+			return 0;
+		}
+	}
+
+	/**
+	 * \brief 
+	 */
+	public static class DilutionOut extends AgentMethod
+	{
+		protected double _flowRate;
+
+		protected double _agentsToDiluteTally;
+
+		@Override
+		public String getName()
+		{
+			return "Dilution out";
+		}
+
+		public void setFlowRate(double flowRate)
+		{
+			this._flowRate = flowRate;
+		}
+
+		@Override
+		public void agentsArrive(
+				AgentContainer agentCont, DimName dimN, int extreme)
+		{
+			/* Do nothing! */
+		}
+
+		@Override
+		public void agentsArrive(AgentContainer agentCont)
+		{
+			/* Do nothing! */
+		}
+
+		@Override
+		public List<Agent> agentsToGrab(AgentContainer agentCont,
+				DimName dimN, int extreme, double timeStep)
+		{
+			return new LinkedList<Agent>();
+		}
+
+		@Override
+		public int agentsToGrab(AgentContainer agentCont, double timeStep)
+		{
+			// TODO break this into two steps, update and get?
+			/* Remember to subtract, since flow rate out is negative. */
+			this._agentsToDiluteTally -= this._flowRate * timeStep;
+			return (int) this._agentsToDiluteTally;
+		}
+
+		@Override
+		public void addOutboundAgent(Agent anAgent)
+		{
+			super.addOutboundAgent(anAgent);
+			this._agentsToDiluteTally--;
 		}
 	}
 }

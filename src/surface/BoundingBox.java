@@ -15,6 +15,7 @@ public class BoundingBox
 	 * TODO
 	 */
 	protected double[] _dimensions;
+	
 	/**
 	 * TODO
 	 */
