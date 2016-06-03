@@ -45,7 +45,7 @@ public class RateExpressionTest
 		str = "#e^1.0 / 5.0EXP(1.0 + 0.5)";
 		correct = Math.E / (5.0 * Math.pow(10.0,(1.0 + 0.5)));
 		expr = new ExpressionB(str);
-		//expr.printEval();
+		expr.printEval();
 		Log.out(DEBUG, expr.getName());
 		System.out.println("");
 		calculated = expr.getValue(vars);

@@ -68,6 +68,11 @@ public class ExpressionB extends Component implements NodeConstructor
 			String[]{"#e", "#PI", "EXP", "^", "SQRT", "*", "/", "+", "-"};
 	
 	/**
+	 * TODO Work out what this does.
+	 */
+	private static final String INTERNAL_TAG = "$";
+	
+	/**
 	 * Names and values of constants in this expression.
 	 */
 	private Map<String, Double> _constants;
@@ -84,16 +89,20 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * 
 	 */
-	private Tier LOG_LEVEL = Tier.DEBUG;
+	private static Tier LOG_LEVEL = Tier.BULK;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
 	/**
-	 * expression constructor
-	 * @param expression
-	 * @param constants
+	 * \brief Construct from a {@code String} representation of a mathematical
+	 * <b>expression</b> and a dictionary of <b>constants</b>.
+	 * 
+	 * @param expression String expression using variable names, real numbers,
+	 * <b>constants</b>, and recognised operators (+, -, *, /, etc).
+	 * @param constants Dictionary of constant names to their real number
+	 * values.
 	 */
 	public ExpressionB(String expression, Map<String, Double> constants)
 	{
@@ -112,9 +121,11 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Construct from a {@code String} representation of a mathematical
+	 * <b>expression</b>.
 	 * 
-	 * @param expression
+	 * @param expression String expression using variable names, real numbers,
+	 * and recognised operators (+, -, *, /, etc).
 	 */
 	public ExpressionB(String expression)
 	{
@@ -122,8 +133,9 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 	
 	/**
-	 * TODO
-	 * @param xmlNode
+	 * \brief Construct from the XML node of a protocol file.
+	 * 
+	 * @param xmlNode XML node.
 	 */
 	public ExpressionB(Node xmlNode)
 	{
@@ -150,16 +162,14 @@ public class ExpressionB extends Component implements NodeConstructor
 	 ************************************************************************/
 	
 	/**
-	 * 
-	 * @param expression
-	 * @param constants
-	 * @return 
+	 * \brief Builds a {@code Component}, {@link #_a}, from
+	 * {@link #_expression} and {@link #_constants}.
 	 */
-	public void build()
+	private void build()
 	{	
-		/* Evaluation tree (strings) */
+		/* Evaluation tree (strings). */
 		TreeMap<Integer, String> eval =  new TreeMap<Integer, String>();
-		/* Construction tree (components) */
+		/* Construction tree (components). */
 		TreeMap<Integer, Component> calc = new TreeMap<Integer, Component>();
 		/* Subexpressions (braces) embedded in this expression. */
 		TreeMap<Integer, ExpressionB> subs = new TreeMap<Integer, ExpressionB>();
@@ -183,18 +193,14 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * \brief TODO
 	 * 
-	 * @param eval
-	 * @param calc
-	 * @param subs
+	 * @param eval Evaluation tree map (strings).
+	 * @param calc Construction tree map (components).
+	 * @param subs Subexpressions (braces) embedded in {@link #_expression}.
 	 */
-	public void constructTreeMaps(TreeMap<Integer, String> eval, 
+	private void constructTreeMaps(TreeMap<Integer, String> eval, 
 			TreeMap<Integer, Component> calc, 
 			TreeMap<Integer, ExpressionB> subs)
 	{
-		Log.out(LOG_LEVEL, "CONSTRUCT TREE MAPS");
-		Log.out(LOG_LEVEL, " eval has size "+eval.size());
-		Log.out(LOG_LEVEL, " calc has size "+calc.size());
-		Log.out(LOG_LEVEL, " subs has size "+subs.size());
 		/*
 		 * Obtain brace location and count depth.
 		 */
@@ -262,79 +268,79 @@ public class ExpressionB extends Component implements NodeConstructor
 		/*
 		 * Build a root expression Component (from tree)
 		 */
-		Log.out(LOG_LEVEL, "   Build a root expression Component (from tree)");
-		Log.out(LOG_LEVEL, "    eval has size "+eval.size());
-		Log.out(LOG_LEVEL, "    calc has size "+calc.size());
-		Log.out(LOG_LEVEL, "    subs has size "+subs.size());
-		String t;
+		String term;
 		for ( Integer i : eval.keySet() )
 		{
-			Log.out(LOG_LEVEL, "    i "+i+" : "+eval.get(i));
-			t = eval.get(i);
-			boolean isOperator = false;
-			for ( String op : OPERATORS )
-			{
-				if ( t.contains(op) )
-					isOperator = true;
-			}
+			term = eval.get(i);
+			if ( isOperator(term) )
+				continue;
 			/*
 			 * Handle sub expressions (braces)
 			 */
-			if ( t.contains("$") )
+			else if ( term.contains(INTERNAL_TAG) )
 			{
-				int temp = Integer.valueOf( t.replaceAll("\\$", "") );
-				calc.put(i, subs.get( temp )._a);
+				String temp = term.replaceAll("\\"+INTERNAL_TAG, "");
+				calc.put(i, subs.get(Integer.valueOf(temp))._a);
 			}
 			/*
 			 * Add "."-defined constants.
 			 */
-			else if ( t.contains(".") )
+			// NOTE This means that any constants defined as integers (e.g. 0,
+			// 1, 2, 10, etc) will not be recognised.
+			else if ( term.contains(".") )
 			{
-				Log.out(LOG_LEVEL, "      Found a new constant: "+t);
-				calc.put(i, new Constant(t, Double.parseDouble(t)));
+				Log.out(LOG_LEVEL, "      Found a new constant: "+term);
+				calc.put(i, new Constant(term, Double.parseDouble(term)));
 			}
 			/*
 			 * Variables, hashmap-defined constants.
 			 */
-			else if ( ! (isOperator || t.isEmpty()) )
-			{
-				boolean isConstant = false;
-				/* String-defined constants. */
-				for ( String key : this._constants.keySet() )
-					if ( key.equals(t) )
-					{
-						calc.put(i, new Constant(t, this._constants.get(key)));
-						isConstant = true;
-						break;
-					}
-				/* Variables. */
-				if ( ! isConstant )
-					calc.put(i, new Variable(t));
-			}
+			else if ( this._constants.containsKey(term) )
+				calc.put(i, new Constant(term, this._constants.get(term)));
+			else if ( ! term.isEmpty() )
+				calc.put(i, new Variable(term));
 		}
-		/* Do the operator stuff here. */
-		for ( int j = 0; j < OPERATORS.length; j++ )
-		{
+		/* 
+		 * Do the operator stuff here, in the same order that they appear in
+		 * OPERATORS.
+		 */
+		for ( String oper : OPERATORS )
 			for ( Integer i : eval.keySet() )
 			{
-				t = eval.get(i);
-				if ( t.contains(OPERATORS[j]) )
+				term = eval.get(i);
+				if ( term == oper )
 				{
-					int min = (calc.floorKey( i-1 ) != null ? 
-							calc.floorKey( i-1 ) : -1);
-					int plu = (calc.ceilingKey( i+1 ) != null ? 
-							calc.ceilingKey( i+1 ) : -1);
-					calc.put(i, constructComponent( OPERATORS[j], min, plu, calc ));
-					this.postOperatorTruncate(OPERATORS[j], min, plu, calc);
+					int min = (calc.floorKey( i-1 ) == null ? 
+							-1 : calc.floorKey( i-1 ) );
+					int plu = (calc.ceilingKey( i+1 ) == null ? 
+							-1 : calc.ceilingKey( i+1 ) );
+					calc.put(i, constructComponent( term, min, plu, calc ));
+					postOperatorTruncate( term, min, plu, calc);
 				}
 			}
-		}
 	}
-		
+	
 	/**
-	 * load brace free sub sequence into eval tree, start represents starts 
-	 * location of substring in overall expression
-	 * @param equation
+	 * 
+	 * 
+	 * @param str
+	 * @return
+	 */
+	private static boolean isOperator(String str)
+	{
+		for ( String oper : OPERATORS )
+			if ( oper == str )
+				return true;
+		return false;
+	}
+	
+	/**
+	 * \brief Load a brace-free sub-sequence into the given <b>eval</b> tree.
+	 * 
+	 * @param start Index of first character in this sub-sequence within the
+	 * overall expression.
+	 * @param equation 
+	 * @param eval 
 	 */
 	public void setEq(int start, String equation, TreeMap<Integer,String> eval)
 	{
@@ -346,12 +352,20 @@ public class ExpressionB extends Component implements NodeConstructor
 		 * Locate operators.
 		 */
 		TreeMap<Integer,String> operLoc = new TreeMap<Integer,String>();
+		TreeMap<Integer,String> locations;
+		String absents = "";
 		for ( String oper : OPERATORS )
 		{
-			TreeMap<Integer,String> locations = 
-					this.identifyStrLoc( equation, oper, start );
-			//Log.out(LOG_LEVEL, "    found "+locations.size()+" of "+oper);
+			locations = identifyStrLoc( equation, oper, start );
+			if ( locations.isEmpty() )
+				absents += oper + ", ";
+			else
+				Log.out(LOG_LEVEL, "    found "+locations.size()+" of "+oper);
 			operLoc.putAll( locations );
+		}
+		if ( ! absents.isEmpty() )
+		{
+			Log.out(LOG_LEVEL, "    found 0 of "+absents);
 		}
 		/*
 		 * If there are no operators in this expression, then it is a single
@@ -369,8 +383,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		for ( Integer key : operLoc.keySet() )
 		{
 			Log.out(LOG_LEVEL, "    o "+0+", key "+key+", start "+start);
-			//NOTE subtract start for correct identification in substring
-			if ( key-start != 0 )
+			if ( key != start )
 				this.addVar( o+start, equation.substring(o, key-start), eval);
 			o = key - start + operLoc.get(key).length();
 		}
@@ -379,74 +392,86 @@ public class ExpressionB extends Component implements NodeConstructor
 		 * build in a check if we would need to do that)
 		 */
 		if ( o != 0 )
-			addVar( o+start ,equation.substring( o, equation.length() ), eval);
+			this.addVar(o+start, equation.substring(o,equation.length()), eval);
 		eval.putAll(operLoc);
 		Log.out(LOG_LEVEL, "    eq set, eval now has size "+eval.size());
 	}
 	
 	/**
-	 * adding variable encountered in expression string
-	 * @param loc
-	 * @param value
-	 * @param eval
+	 * \brief Register the name of a variable encountered in the 
+	 * {@link #_expression} string.
+	 * 
+	 * @param loc Character index at which this variable name starts.
+	 * @param name Name of the variable.
+	 * @param eval Evaluation map to add this <b>name</b> to.
 	 */
-	private void addVar(int loc, String value, TreeMap<Integer,String> eval)
+	private void addVar(int loc, String name, TreeMap<Integer,String> eval)
 	{
-		eval.put(loc,value);
-		this._variables.add(value);
+		eval.put(loc, name);
+		this._variables.add(name);
 	}
 	
 	/**
-	 * helper method that returns TreeMap that identifies all occurrences of str
-	 * in sequence
-	 * @param sequence
-	 * @param str
-	 * @param start
-	 * @return
+	 * \brief Helper method that find all occurrences of a given string in a 
+	 * given sequence.
+	 * 
+	 * @param sequence The large String that we are interrogating.
+	 * @param str The small String we are looking for in <b>sequence</b>.
+	 * @param offset Offset each character index that becomes a key of the
+	 * TreeMap returned by this integer value.
+	 * @return TreeMap where all the values are <b>str</b>. The keys are the 
+	 * character indices wherever <b>str</b> has been found in <b>sequence</b>.
 	 */
-	public TreeMap<Integer,String> identifyStrLoc(String sequence, String str, 
-			int start)
+	private static TreeMap<Integer,String> identifyStrLoc(
+			String sequence, String str, int offset)
 	{
 		TreeMap<Integer,String> seqMap = new TreeMap<Integer,String>();
 		int c = -1;
 		while (true)
 		{
-			int index = sequence.indexOf(str, c+1 );
-			if (index == -1)
+			int index = sequence.indexOf(str, c + 1);
+			if ( index == -1 )
 				break;
-			seqMap.put(start+index, str);
+			seqMap.put(offset + index, str);
 			c = index;
 		}
 		return seqMap;
 	}
 	
 	/**
-	 * Store substring (braces) in _subExpressions map, also add it to eval,
-	 * prepend $ for later identification
-	 * @param start
-	 * @param end
+	 * \brief Store substring (braces) in _subExpressions map, also add it to
+	 * eval, prepend the {@link #INTERNAL_TAG} for later identification
+	 * 
+	 * @param start Character index of the first character in the substring.
+	 * @param end Character index of the last character in the substring.
+	 * @param eval Evaluation tree
+	 * @param subs Subsequence tree
 	 */
-	public void setSub(int start, int end, TreeMap<Integer,String> eval, 
+	private void setSub(int start, int end, TreeMap<Integer,String> eval, 
 			TreeMap<Integer,ExpressionB> subs)
 	{
-		subs.put(start, new ExpressionB( 
-				this._expression.substring(start+1, end-1), this._constants));
-		eval.put(start, String.valueOf("$" + start));
+		String subString = this._expression.substring(start+1, end-1);
+		subs.put(start, new ExpressionB( subString, this._constants));
+		eval.put(start, String.valueOf(INTERNAL_TAG + start));
 	}
 	
 	/**
-	 * adds a constant (with value), removes it from being a variable.
-	 * @param key
-	 * @param value
+	 * \brief Register a constant (with value), unregisters it from being a
+	 * variable.
+	 * 
+	 * @param name String name of the constant.
+	 * @param value Real number value of this constant.
 	 */
-	public void defineConstant(String key, double value)
+	public void defineConstant(String name, double value)
 	{
-		this._constants.put(key, value);
-		this._variables.remove(this._variables.indexOf(key));
+		this._constants.put(name, value);
+		// TODO Can we use this instead?
+		//this._variables.remove(name);
+		this._variables.remove(this._variables.indexOf(name));
 	}
 
 	/**
-	 * Write full equation from tree on screen
+	 * Write full equation from tree on screen.
 	 */
 	public void printEval()
 	{
@@ -454,12 +479,11 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 	
 	/**
-	 * Return full equation from tree as string (we could do a similar thing for
-	 * tex
+	 * Return full equation from tree as string.
 	 */
+	// NOTE we could do a similar thing for TeX
 	public String stringEval()
 	{
-		Log.out(LOG_LEVEL, "STRING EVAL");
 		/* Evaluation tree (strings). */
 		TreeMap<Integer, String> eval =  new TreeMap<Integer, String>();
 		/* Construction tree (components). */
@@ -478,9 +502,9 @@ public class ExpressionB extends Component implements NodeConstructor
 		for ( Integer e :eval.keySet() )
 		{
 			t = eval.get(e);
-			if ( t.contains("$") )
+			if ( t.contains(INTERNAL_TAG) )
 			{
-				int temp = Integer.valueOf(t.replaceAll("\\$", ""));
+				int temp = Integer.valueOf(t.replaceAll("\\"+INTERNAL_TAG, ""));
 				str = str + "( " + subs.get(temp).stringEval() + ") ";
 			}
 			else
@@ -490,23 +514,28 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 	
 	/**
-	 * Return Component based on operator
-	 * @param operator
-	 * @param prev
-	 * @param next
-	 * @return
+	 * \brief Combine two components into one.
+	 * 
+	 * @param operator String tag for a kind of operator.
+	 * @param prev Index for the first character of the left-hand component in
+	 * the original {@link #_expression} string.
+	 * @param next Index for the first character of the right-hand component in
+	 * the original {@link #_expression} string.
+	 * @return New component combining the previous and next components.
 	 */
-	public Component constructComponent(String operator, int prev, int next, 
-			TreeMap<Integer,Component> calc)
+	private static Component constructComponent(String operator,
+			int prev, int next, TreeMap<Integer,Component> calc)
 	{
+		Log.out(LOG_LEVEL, "operator "+operator+", prev "+prev+", next "+next);
 		switch (operator)
 		{
 		case ("+"): return Expression.add(calc.get(prev),calc.get(next));
 		case ("*"): return Expression.multiply(calc.get(prev),calc.get(next));
 		case ("/"): return Expression.divide(calc.get(prev),calc.get(next));
-		case ("-"): return (prev >= 0 ? new Subtraction( calc.get(prev),
-				calc.get(next)) : new Multiplication( new Constant("-1",-1),
-				calc.get(next)));
+		case ("-"): return (prev >= 0 ? 
+				new Subtraction( calc.get(prev), calc.get(next)) :
+					// TODO here we should really just change the sign of next
+				new Multiplication( new Constant("-1",-1), calc.get(next)));
 		case ("^"): return new Power(calc.get(prev), calc.get(next));
 		case ("SQRT"): return new Power(calc.get(next), new Constant("0.5",0.5));
 		case ("#e"): return Expression.euler();
@@ -515,14 +544,14 @@ public class ExpressionB extends Component implements NodeConstructor
 				new Power(Expression.ten(), calc.get(next)));
 		}
 		System.err.println("ERROR: could not construnct component!");
-		return new Constant("ERROR!!!!!",1.0);
+		return new Constant("ERROR!",1.0);
 	}
 	
 	/**
 	 * Truncate calc tree after the operation has completed.
 	 */
-	public void postOperatorTruncate(String operator, int prev, int next,
-			TreeMap<Integer,Component> calc)
+	private static void postOperatorTruncate(String operator,
+			int prev, int next, TreeMap<Integer,Component> calc)
 	{
 		switch (operator)
 		{
@@ -532,13 +561,13 @@ public class ExpressionB extends Component implements NodeConstructor
 		case ("-"): 
 		case ("^"):
 		case ("EXP"):
-			if(calc.containsKey( prev ))
+			if ( calc.containsKey( prev ) )
 				calc.remove( prev );
-			if(calc.containsKey( next ))
+			if ( calc.containsKey( next ) )
 				calc.remove( next );
 			break;
 		case("SQRT"):
-			if(calc.containsKey( next ))
+			if ( calc.containsKey( next ) )
 				calc.remove( next );
 		case("#e"):
 		case("#PI"):
@@ -547,23 +576,24 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 
 	@Override
-	public String getName() {
-		return _a.getName();
+	public String getName()
+	{
+		return this._a.getName();
 	}
 
 	@Override
 	public String reportEvaluation(Map<String, Double> variables) {
-		return _a.reportEvaluation(variables);
+		return this._a.reportEvaluation(variables);
 	}
 
 	@Override
 	public double getValue(Map<String, Double> variables) {
-		return _a.getValue(variables);
+		return this._a.getValue(variables);
 	}
 
 	@Override
 	public Component differentiate(String withRespectTo) {
-		return _a.differentiate(withRespectTo);
+		return this._a.differentiate(withRespectTo);
 	}
 	
 	public void appendVariablesNames(List<String> names)
@@ -572,7 +602,8 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 
 	@Override
-	public ModelNode getNode() {
+	public ModelNode getNode()
+	{
 		ModelNode modelNode = new ModelNode(XmlRef.expression, 
 				this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
