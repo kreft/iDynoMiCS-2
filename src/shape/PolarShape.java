@@ -16,7 +16,10 @@ import utility.ExtraMath;
 
 public abstract class PolarShape extends Shape
 {
-	protected final double POLAR_ANGLE_EQUALITY_TOLERANCE = 1e-6;
+	/**
+	 * tolerance when comparing polar angles for equality
+	 */
+	public final static double POLAR_ANGLE_EQ_TOL = 1e-6;
 	
 	@Override
 	public double nbhCurrDistance()
@@ -197,7 +200,7 @@ public abstract class PolarShape extends Shape
 		 * current coordinate */
 		if (ExtraMath.areEqual(
 				rC.getCumulativeResolution(new_index), cur_min, 
-				this.POLAR_ANGLE_EQUALITY_TOLERANCE))
+				this.POLAR_ANGLE_EQ_TOL))
 			new_index++;
 		/* if we stepped onto the current coord, we went too far*/
 		if (this._currentNeighbor[0] == this._currentCoord[0] 
@@ -251,6 +254,8 @@ public abstract class PolarShape extends Shape
 		{
 			if ( dimension.isBoundaryDefined(1) )
 			{
+				if (isNoMoreOverlapping(index))
+					return false;
 				this._currentNeighbor[index]++;
 				this._nbhDirection = 1;
 				this._nbhDimName = dim;
@@ -265,18 +270,8 @@ public abstract class PolarShape extends Shape
 				return false;
 			}
 		}
-		/*
-		 * If increasing would mean we no longer overlap, report failure.
-		 */
-		double nbhMin = rC.getCumulativeResolution(this._currentNeighbor[index]);
-		rC = this.getResolutionCalculator(this._currentCoord, index);
-		double curMax = rC.getCumulativeResolution(this._currentCoord[index]);
-		if ( nbhMin >= curMax || ExtraMath.areEqual(nbhMin, curMax, 
-				this.POLAR_ANGLE_EQUALITY_TOLERANCE)){
-			Log.out(NHB_ITER_LEVEL, "  failure, nbh min greater or approx. equal"
-					+ " to current max");
+		if (isNoMoreOverlapping(index))
 			return false;
-		}
 		/*
 		 * All checks have passed, so increase and report success.
 		 */
@@ -284,6 +279,29 @@ public abstract class PolarShape extends Shape
 		Log.out(NHB_ITER_LEVEL, "  success, new nbh coord is "
 						+ this._currentNeighbor[index]);
 		return true;
+	}
+	
+	private boolean isNoMoreOverlapping(int dimIndex){
+		/*
+		 * If increasing would mean we no longer overlap, report failure.
+		 */
+		ResCalc rC = this.getResolutionCalculator(
+											this._currentNeighbor, dimIndex);	
+		double nbhMin = rC.getCumulativeResolution(
+											this._currentNeighbor[dimIndex]);
+		
+		rC = this.getResolutionCalculator(this._currentCoord, dimIndex);
+		double curMax = rC.getCumulativeResolution(
+												this._currentCoord[dimIndex]);
+		
+		if ( nbhMin >= curMax || ExtraMath.areEqual(nbhMin, curMax, 
+				POLAR_ANGLE_EQ_TOL))
+		{
+			Log.out(NHB_ITER_LEVEL, "  failure, nbh min greater or approx. equal"
+					+ " to current max");
+			return true;
+		}
+		return false;
 	}
 
 	/**

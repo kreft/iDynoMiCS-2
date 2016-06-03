@@ -53,8 +53,8 @@
 
 		<compartment name="second">
 			<shape class="Circle" >
-				<dimension name="R" isCyclic="false" targetResolution="1" max="10"/>
-				<dimension name="THETA" targetResolution="1" max="90"/>
+				<dimension name="R" targetResolution="1" max="10"/>
+				<dimension name="THETA" isCyclic="true" targetResolution="1" max="90"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="1.0" />

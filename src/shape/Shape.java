@@ -164,7 +164,7 @@ public abstract class Shape implements
 	 * <ul><li>Set to {@code BULK} for normal simulations</li>
 	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
 	 */
-	protected static final Tier NHB_ITER_LEVEL = DEBUG;
+	protected static final Tier NHB_ITER_LEVEL = BULK;
 	
 	/*************************************************************************
 	 * CONSTRUCTION
@@ -244,9 +244,15 @@ public abstract class Shape implements
 				
 				/* init resolution calculators */
 				rC = new ResolutionCalculator.UniformResolution();
-				rC.init(dim._targetRes, dim.getLength());
+				double length = dim.getLength();
+				/* set theta dimension cyclic for a full circle, no matter what 
+				 * the user specified */
+				if (dimName == DimName.THETA 
+						&& ExtraMath.areEqual(length, 2 * Math.PI,
+								PolarShape.POLAR_ANGLE_EQ_TOL))
+					dim.setCyclic();
+				rC.init(dim._targetRes, length);
 				this.setDimensionResolution(dimName, rC);	
-				this._dimensions.put(dimName, dim);
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -1510,29 +1516,26 @@ public abstract class Shape implements
 	protected boolean nbhJumpOverCurrent(DimName dim)
 	{
 		int index = this.getDimensionIndex(dim);
-		this.updateCurrentNVoxel();
-		this._whereIsNbh = this.whereIsNhb(dim);
 		/* Check we are behind the current coordinate. */
 		if ( this._currentNeighbor[index] < this._currentCoord[index] )
 		{
+			/* try to jump */
+			this._currentNeighbor[index] = this._currentCoord[index] + 1;
 			boolean bMaxDef = this.getDimension(dim).isBoundaryDefined(1);
+			this._whereIsNbh = this.whereIsNhb(dim);
 			/* Check there is space on the other side. */
 			if ( this._whereIsNbh == INSIDE || bMaxDef )
 			{
-				/* Jump and report success. */
+				/* report success. */
 				this._nbhDirection = 1;
-				this._currentNeighbor[index] = this._currentCoord[index] + 1;
-				this._whereIsNbh = this.whereIsNhb(dim);
 				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
 						": result "+Vector.toString(this._currentNeighbor)+
 						" is "+this._whereIsNbh);
 				return true;
 			}
 		}
-		/* Report failure. */
-		// TODO is it appropriate to use a meaningless direction here?
-		this._nbhDirection = -1;
-		this._whereIsNbh = this.whereIsNhb(dim);
+		/* undo jump and Report failure. */
+		this._currentNeighbor[index] = this._currentCoord[index] - 1;
 		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
 				" is "+this._whereIsNbh);

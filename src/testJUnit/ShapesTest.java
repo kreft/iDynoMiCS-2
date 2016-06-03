@@ -1,19 +1,22 @@
 package testJUnit;
 
-import java.util.LinkedList;
-import org.junit.Test;
+import static dataIO.Log.Tier.DEBUG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static testJUnit.AllTests.TOLERANCE;
+
+import java.util.LinkedList;
+
+import org.junit.Test;
 
 import boundary.Boundary;
 import boundary.BoundaryLibrary.SolidBoundary;
 import dataIO.Log;
-import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import static testJUnit.AllTests.TOLERANCE;
-import shape.Shape;
 import shape.Dimension.DimName;
+import shape.Shape;
+import shape.ShapeLibrary.Circle;
 import shape.ShapeLibrary.Rectangle;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 
@@ -121,6 +124,15 @@ public class ShapesTest
 	public void shouldIterateCorrectly()
 	{
 		AllTests.setupSimulatorForTest(1.0, 1.0, "shapesShouldIterateProperly");
+
+		/* check for rectangle */
+		rectangleShoudlIterateCorrectly();
+		
+		/* check for circle */
+		circeShouldIterateCorrectly();
+	}
+	
+	private void rectangleShoudlIterateCorrectly(){
 		int[][] trueNhb = new int[3][3];
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		Shape shp = new Rectangle();
@@ -152,7 +164,59 @@ public class ShapesTest
 		Matrix.setAll(trueNhb, 4);
 		Log.out(DEBUG, "Cyclic dimensions");
 		checkIteration(shp, trueNhb);
+		Log.out(DEBUG, "");	
+	}
+	
+	private void circeShouldIterateCorrectly(){
+		/* solid boundaries */
+		int[][] coords = new int[][]{ {0,0}, {1,0}, {1,1}, {2,3} };
+		int[][][] trueNhb = new int[][][]{
+			{ {1,0}, {1,1}, {1,2} }, 	/* current coord (0, 0) */
+			{ {0,0}, {1,1}, {2,0}, {2,1} }, 	/* current coord (1, 0) */
+			{ {0,0}, {1,0}, {1,2}, {2,1}, {2,2}, {2,3} }, /* coord (1, 1) */
+			{ {1,1}, {1,2}, {2,2}, {2,4} }, 		/* current coord (2, 3) */
+		};
+		DimName[] dims = new DimName[]{DimName.R, DimName.THETA};
+		Shape shp = new Circle();
+		
+		/* r-dimension */
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(3.0);
+		resCalc.setResolution(1.0);
+		shp.setDimensionResolution(dims[0], resCalc);
+		
+		/* theta-dimension */
+		resCalc = new UniformResolution(); 
+		resCalc.setLength(2 * Math.PI / 3);
+		resCalc.setResolution(1.0);
+		shp.setDimensionResolution(dims[1], resCalc);
+		/*
+		 * Try first with solid boundaries.
+		 */
+		Boundary bndry = new SolidBoundary();
+		for ( DimName d : dims )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				shp.setBoundary(d, extreme, bndry);
+
+		/* Check it is correct. */
+		Log.out(DEBUG, "Solid boundaries");
+		/* circle with length 2 * pi / 3 and res 1 has 9 voxels in total */
+		checkIterationPolar(shp, coords, trueNhb, 9);
 		Log.out(DEBUG, "");
+		/*
+		 * Now try with cyclic dimensions.
+		 */
+		shp.makeCyclic(dims[1]); /* only theta can be cyclic in the circle */
+		trueNhb = new int[][][]{
+			{{0,0}, {0,0}, {1,0}, {1,1}, {1,2}}, 		/* current coord (0, 0) */
+			{{0,0}, {1,2}, {1,1}, {2,0}, {2,1}}, 		/* current coord (1, 0) */
+			{{0,0}, {1,0}, {1,2}, {2,1}, {2,2}, {2,3}}, /* current coord (1, 1) */
+			{{1,1}, {1,2}, {2,2}, {2,4}}, 		 		/* current coord (2, 3) */
+		};
+		Log.out(DEBUG, "Cyclic dimensions");
+		/* circle with length 2 * pi / 3 and res 1 has 9 voxels in total */
+		checkIterationPolar(shp, coords, trueNhb, 9);
+		Log.out(DEBUG, "");	
 	}
 	
 	private void checkIteration(Shape shp, int[][] trueNhb)
@@ -175,5 +239,49 @@ public class ShapesTest
 			assertEquals(nhbCount, trueNhb[coord[0]][coord[1]]);
 		}
 		assertEquals(iterCount, 9);
+	}
+	
+	private void checkIterationPolar(Shape shp, int[][] sample_coords,
+			int[][][] trueNhb, int nVoxelTotal)
+	{
+		int[] coord, nhb, coord2d = new int[2], nhb2d = new int[2];
+		int iter_count = 0, sample_count = 0, nhb_count = 0;
+		for ( coord = shp.resetIterator(); shp.isIteratorValid(); 
+									iter_count++, coord = shp.iteratorNext() )
+		{
+			coord2d[0] = coord[0];
+			coord2d[1] = coord[1];
+			if (sample_count < sample_coords.length 
+					&& Vector.areSame(sample_coords[sample_count], coord2d)){
+				nhb_count = 0;
+				for ( nhb = shp.resetNbhIterator();
+						shp.isNbhIteratorValid(); nhb = shp.nbhIteratorNext() )
+				{
+					nhb2d[0] = nhb[0];
+					nhb2d[1] = nhb[1];
+					if ( shp.isNhbIteratorInside() ){
+						/* check equality of neighbor and trueNhb coords */
+						Log.out(DEBUG, "Comparing current nhb " 
+							+ Vector.toString(nhb2d) + " with true nhb "
+							+ Vector.toString(trueNhb[sample_count][nhb_count]));
+						assertTrue(Vector.areSame(
+								trueNhb[sample_count][nhb_count], nhb2d));
+						nhb_count++;
+					}
+					
+				}
+				
+				Log.out(DEBUG, "Coord " + Vector.toString(coord2d) + " has "
+						+ trueNhb[sample_count].length
+						+ " true neighbors, counted " + nhb_count);
+				/* check all neighbors have been visited for the sample coord */
+				assertEquals(nhb_count, trueNhb[sample_count].length);
+				sample_count++;
+			}
+		}
+		/* check all voxels have been visited */
+		Log.out(DEBUG, "Shape has "	+ nVoxelTotal
+				+ " voxels, counted " + iter_count);
+		assertEquals(iter_count, nVoxelTotal);
 	}
 }

@@ -454,7 +454,7 @@ public abstract class SphericalShape extends PolarShape
 		 * current coordinate */
 		if (ExtraMath.areEqual(
 				rC.getCumulativeResolution(new_index), theta, 
-				this.POLAR_ANGLE_EQUALITY_TOLERANCE))
+				this.POLAR_ANGLE_EQ_TOL))
 			new_index++;
 		
 		/* if we stepped onto the current coord, we went too far*/

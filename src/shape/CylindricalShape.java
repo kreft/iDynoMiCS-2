@@ -37,11 +37,9 @@ public abstract class CylindricalShape extends PolarShape
 		this._dimensions.put(R, dim);
 		this._resCalc[getDimensionIndex(R)] = new ResCalc[1];
 		/*
-		 * Set to a full circle by default, let it be overwritten later.
+		 * The theta-dimension is insignificant, unless told otherwise later.
 		 */
 		dim = new Dimension(false, THETA);
-		dim.setCyclic();
-		dim.setLength(2 * Math.PI);
 		this._dimensions.put(THETA, dim);
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
