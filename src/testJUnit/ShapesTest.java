@@ -5,8 +5,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import boundary.Boundary;
-import boundary.BoundaryLibrary.SolidBoundary;
+import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
 import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
@@ -132,10 +131,12 @@ public class ShapesTest
 		/*
 		 * Try first with solid boundaries.
 		 */
-		Boundary bndry = new SolidBoundary();
 		for ( DimName d : dims )
 			for ( int extreme = 0; extreme < 2; extreme++ )
+			{
+				SolidBoundary bndry = new SolidBoundary(d, extreme);
 				shp.setBoundary(d, extreme, bndry);
+			}
 		/* Set up the array of true inside neighbor numbers. */
 		trueNhb[0][0] = 2; trueNhb[0][1] = 3; trueNhb[0][2] = 2;
 		trueNhb[1][0] = 3; trueNhb[1][1] = 4; trueNhb[1][2] = 3;

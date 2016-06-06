@@ -3,11 +3,15 @@
  */
 package shape;
 
+import java.util.List;
+
 import org.w3c.dom.Element;
 
+import agent.Agent;
 import boundary.Boundary;
 import boundary.grid.GridMethod;
 import grid.SpatialGrid;
+import idynomics.AgentContainer;
 import shape.resolution.ResolutionCalculator.SameRes;
 
 /**
@@ -77,16 +81,13 @@ public final class ShapeConventions
 	{
 		public BoundaryCyclic()
 		{
-			this._defaultGridMethod = new CyclicGrid();
+			
 		}
 
 		@Override
-		public Boundary makePartnerBoundary()
+		public void agentsArrive(AgentContainer agentCont)
 		{
-			BoundaryCyclic out = new BoundaryCyclic();
-			out._partner = this;
-			this._partner = out;
-			return out;
+			
 		}
 	}
 	

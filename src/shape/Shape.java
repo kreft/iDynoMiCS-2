@@ -20,6 +20,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
+import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
@@ -108,8 +109,8 @@ public abstract class Shape implements
 	/**
 	 * Surfaces for collision detection methods.
 	 */
-	protected Map<Surface,Boundary> _surfaces = 
-			new HashMap<Surface,Boundary>();
+	protected Map<Surface,SpatialBoundary> _surfaces = 
+			new HashMap<Surface,SpatialBoundary>();
 	
 	/**
 	 * List of boundaries in a dimensionless compartment, or internal
@@ -451,7 +452,7 @@ public abstract class Shape implements
 	 * to: should be 0 or 1. See {@code Boundary} for more information.
 	 * @param bndry The {@code Boundary} to set.
 	 */
-	public void setBoundary(DimName dimension, int index, Boundary bndry)
+	public void setBoundary(DimName dimension, int index, SpatialBoundary bndry)
 	{
 		this.getDimension(dimension).setBoundary(bndry, index);
 	}
@@ -648,7 +649,7 @@ public abstract class Shape implements
 		return this._surfaces.keySet();
 	}
 	
-	public Map<Surface, Boundary> getSurfaceBounds()
+	public Map<Surface, SpatialBoundary> getSurfaceBounds()
 	{
 		return this._surfaces;
 	}
@@ -1377,7 +1378,7 @@ public abstract class Shape implements
 	 * 
 	 * @return The respective boundary or null if the nbh iterator is inside.
 	 */
-	public Boundary nbhIteratorOutside()
+	public SpatialBoundary nbhIteratorOutside()
 	{
 		if ( this._whereIsNbh == DEFINED )
 		{

@@ -9,9 +9,8 @@ import static org.junit.Assert.assertTrue;
 import agent.Agent;
 import agent.Body;
 import aspect.AspectRef;
-import boundary.Boundary;
-import boundary.BoundaryLibrary.BulkBLBoundary;
-import boundary.BoundaryLibrary.SolidBoundary;
+import boundary.spatialLibrary.BiofilmBoundaryLayer;
+import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
@@ -54,7 +53,7 @@ public class BoundaryTest
 		/*
 		 * Add the agent to the boundary layer, and this to the compartment.
 		 */
-		Boundary bL = new BulkBLBoundary();
+		BiofilmBoundaryLayer bL = new BiofilmBoundaryLayer(DimName.X, 1);
 		bL.acceptInboundAgent(insertAgent);
 		comp.addBoundary(DimName.X, 1, bL);
 		/*
@@ -69,7 +68,7 @@ public class BoundaryTest
 		/*
 		 * The other boundary is unimportant, but needs to be set.
 		 */
-		comp.addBoundary(DimName.X, 0, new SolidBoundary());
+		comp.addBoundary(DimName.X, 0, new SolidBoundary(DimName.X, 0));
 		
 		Idynomics.simulator.run();
 		

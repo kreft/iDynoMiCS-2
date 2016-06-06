@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import boundary.Boundary;
+import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
@@ -276,7 +277,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	 * @param index
 	 * @param aBoundary
 	 */
-	public void addBoundary(DimName dim, int index, Boundary aBoundary)
+	public void addBoundary(DimName dim, int index, SpatialBoundary aBoundary)
 	{
 		this._shape.setBoundary(dim, index, aBoundary);
 	}

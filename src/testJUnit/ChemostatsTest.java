@@ -2,7 +2,7 @@ package testJUnit;
 
 import org.junit.Test;
 
-import boundary.BoundaryLibrary.ChemostatOutflow;
+import boundary.library.ChemostatToChemostat;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.SolveChemostat;
@@ -30,7 +30,7 @@ public class ChemostatsTest
 		/* Compartment. */
 		Compartment comp;
 		/* Boundary connections. */
-		ChemostatOutflow cOut;
+		ChemostatToChemostat cOut;
 		/*
 		 * The waste compartment.
 		 */
@@ -40,7 +40,7 @@ public class ChemostatsTest
 		/*
 		 * 
 		 */
-		cOut = new ChemostatOutflow();
+		cOut = new ChemostatToChemostat();
 		cOut.setFlowRate(flowRate);
 		cOut.setPartnerCompartment(comp);
 		comp = Idynomics.simulator.addCompartment("chemostat");
@@ -56,7 +56,7 @@ public class ChemostatsTest
 		/*
 		 * The feed compartment.
 		 */
-		cOut = new ChemostatOutflow();
+		cOut = new ChemostatToChemostat();
 		cOut.setFlowRate(flowRate);
 		comp = Idynomics.simulator.addCompartment("feed");
 		comp.setShape("dimensionless");

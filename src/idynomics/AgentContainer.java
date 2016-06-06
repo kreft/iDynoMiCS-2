@@ -10,7 +10,7 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectRef;
 import boundary.Boundary;
-import boundary.agent.AgentMethod;
+import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
@@ -257,11 +257,11 @@ public class AgentContainer
 	 * @param searchDist
 	 * @return
 	 */
-	public Collection<AgentMethod> boundarySearch(Agent anAgent, double searchDist)
+	public Collection<SpatialBoundary> boundarySearch(Agent anAgent, double searchDist)
 	{
-		Collection<AgentMethod> out = new LinkedList<AgentMethod>();
+		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
 		for ( Surface s : this.surfaceSearch(anAgent, searchDist) )
-			out.add(this._shape.getSurfaceBounds().get(s).getAgentMethod());
+			out.add(this._shape.getSurfaceBounds().get(s));
 		return out;
 	}
 	
@@ -366,6 +366,21 @@ public class AgentContainer
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @param i
+	 * @return
+	 */
+	public Agent chooseAgent(int i)
+	{
+		return (i > this._agentList.size()) ?
+				/* Located agent. */
+				this._locatedAgentList.get(i - this._agentList.size()) :
+				/* Unlocated agent. */
+				this._agentList.get(i);
+	}
+	
+	/**
 	 * @return A random {@code Agent}, without removing it from this container.
 	 * @see #extractRandomAgent()
 	 */
@@ -381,11 +396,7 @@ public class AgentContainer
 			return null;
 		}/* Now find an agent. */
 		int i = ExtraMath.getUniRandInt(nAgents);
-		Agent out = (i > this._agentList.size()) ?
-				/* Located agent. */
-				this._locatedAgentList.get(i - this._agentList.size()) :
-				/* Unlocated agent. */
-				this._agentList.get(i);
+		Agent out = this.chooseAgent(i);
 		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
 				out.identity()+" was chosen randomly");
 		return out; 
@@ -454,7 +465,6 @@ public class AgentContainer
 		Tier level = BULK;
 		Log.out(level, "Agents arriving into compartment...");
 		Dimension dim;
-		AgentMethod method;
 		for ( DimName dimN : this._shape.getDimensionNames() )
 		{
 			dim = this._shape.getDimension(dimN);
@@ -476,16 +486,15 @@ public class AgentContainer
 					Log.out(level, "   boundary not defined");
 					continue;
 				}
-				method = dim.getBoundary(extreme).getAgentMethod();
-				Log.out(level, "   boundary defined, calling agent method");
-				method.agentsArrive(this, dimN, extreme);
+				dim.getBoundary(extreme).agentsArrive(this);
+				Log.out(level, "   boundary defined, agents ariving");
 			}
 		}
 		for ( Boundary bndry : this._shape.getOtherBoundaries() )
 		{
 			Log.out(level,"   other boundary "+bndry.getName()+
 					", calling agent method");
-			bndry.getAgentMethod().agentsArrive(this);
+			bndry.agentsArrive(this);
 		}
 		Log.out(level, " All agents have now arrived");
 	}

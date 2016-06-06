@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import static testJUnit.AllTests.TOLERANCE;
 
-import boundary.BoundaryLibrary.SolidBoundary;
+import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
@@ -42,8 +42,8 @@ public class PdeTest
 		AllTests.setupSimulatorForTest(tStep, tMax, "checkMassBalance");
 		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
 		comp.setShape("line");
-		comp.addBoundary(DimName.X, 0, new SolidBoundary());
-		comp.addBoundary(DimName.X, 1, new SolidBoundary());
+		comp.addBoundary(DimName.X, 0, new SolidBoundary(DimName.X, 0));
+		comp.addBoundary(DimName.X, 1, new SolidBoundary(DimName.X, 1));
 		Shape shape = comp.getShape();
 		UniformResolution resCalc = new UniformResolution();
 		resCalc.setLength(1.0 * nVoxel);
