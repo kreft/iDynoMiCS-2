@@ -2617,6 +2617,24 @@ public final class Vector
 		return out;
 	}
 	
+	/**
+	 * \brief Recast an double[] as a float[].
+	 * 
+	 * <p>Note also that this method makes a copy, so the original state of 
+	 * <b>vector</b> will be unaffected.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles. 
+	 * @return	double[] array where each element is the recast int in the
+	 * corresponding position of <b>vector</b>.
+	 */
+	public static float[] toFloat(double[] vector)
+	{
+		float[] out = new float[vector.length];
+		for ( int i = 0; i < vector.length; i++ )
+			out[i] = (float) vector[i];
+		return out;
+	}
+	
 	
 	/*************************************************************************
 	 * RESCALING VECTORS

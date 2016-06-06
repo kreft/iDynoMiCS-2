@@ -7,6 +7,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
+import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
@@ -21,7 +22,6 @@ import shape.Shape;
 import surface.Ball;
 import surface.Rod;
 import surface.Surface;
-import utility.Helper;
 
 
 /**
@@ -82,6 +82,9 @@ public class AgentMediator implements CommandMediator {
 	 * Default slices / stacks to subdivide polar objects.
 	 */
 	private int _slices = 16, _stacks = 16;
+	
+	private float[] _orthoX = new float[]{1,0,0}, _orthoY = new float[]{0,1,0},
+					_orthoZ = new float[]{0,0,1}, _rotTemp = new float[16];;
 
 	/**
 	 * used to set up the open gl camera
@@ -214,9 +217,31 @@ public class AgentMediator implements CommandMediator {
 	
 	private void draw(Rod rod) 
 	{
-		Tier level = Tier.DEBUG;
+		Tier level = Tier.BULK;
 		double[] posA = GLUtil.make3D(rod._points[0].getPosition()); /* first sphere */
 		double[] posB = GLUtil.make3D(rod._points[1].getPosition()); /* second sphere*/
+		
+//		List<double[]> cyclicPoints = _shape.getCyclicPoints(posA);
+//		double[] c = cyclicPoints.get(0);
+//		
+//		/* distance between the two mass points */
+//		double dist = Vector.distanceEuclid(posB, c);
+//		double dDist;
+//		/* 
+//		 * find the closest 'shadow' point, use the original point if all
+//		 * alternative point are further.
+//		 */
+//		for ( double[] d : cyclicPoints )
+//		{
+//			dDist = Vector.distanceEuclid( posB, d);
+//			if ( dDist < dist)
+//			{
+//				c = d;
+//				dist = dDist;
+//			}
+//		}
+//		/* use the middle point to place the cylinder */
+//		posB = Vector.midPoint(c, posB);
 		
 		/* save the transformation matrix, so we do not disturb other drawings */
 		_gl.glPushMatrix();
@@ -225,25 +250,27 @@ public class AgentMediator implements CommandMediator {
 
 		Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
 					+ _slices + " slices, " + _stacks + " stacks" );
-		_gl.glTranslated(posA[0], posA[1], posA[2]);
 
 		GLUquadric qobj = _glu.gluNewQuadric();
 
 		/* draw first sphere */
+		_gl.glTranslated(posA[0], posA[1], posA[2]);
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
 		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
 
 		/* draw a cylinder in between */
-		double height = Vector.normEuclid(Vector.minus(posA, posB));
+		/* save the matrix to rotate only the cylinder */
+		_gl.glPushMatrix();
+		double[] dp = Vector.minus(posB, posA);
+		double height = Vector.normEuclid(dp);
 		
-		double deg = GLUtil.calcRotationAngleInDegrees(posB[0] - posA[0], posB[1] - posA[1]);
-		_gl.glRotated(deg, 0, 0, 1);
-		
-		deg = GLUtil.calcRotationAngleInDegrees(posB[0] - posA[0], posB[2] - posA[2]);
-		_gl.glRotated(deg, 0, 1, 0);
-		/* Note that rotating around X will have no visible effect in a cylinder */
-		
+		/* NOTE: this assumes agents are rendered one after the other! */
+		Quaternion quat = new Quaternion();
+		quat.setLookAt(Vector.toFloat(dp), _orthoZ, _orthoX, _orthoY, _orthoZ);
+		//TODO: is there a way to make openGL use the quaternion directly?
+		_gl.glMultMatrixf(quat.toMatrix(_rotTemp, 0), 0);
+
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
 		_glu.gluCylinder(qobj,
@@ -251,9 +278,11 @@ public class AgentMediator implements CommandMediator {
 				rod._radius, 		/* top */
 				height, 			/* height */
 				_slices, _stacks);
+		_gl.glPopMatrix();
 
 		/* draw second sphere */
-		_gl.glTranslated(0, 0, height);
+//		Vector.normaliseEuclidEquals(posB, height);
+		_gl.glTranslated(dp[0], dp[1], dp[2]);
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
 		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
