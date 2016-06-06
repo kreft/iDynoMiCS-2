@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="test" outputfolder="../../Simulations" log="DEBUG" randomSeed="22"
+	<simulation name="test" outputfolder="../results" log="DEBUG" randomSeed="22"
 						comment="this is a file for testing purposes only.">
 		
-		<timer stepSize="1.0" endOfSimulation="10.0" />
+		<timer stepSize="1.0" endOfSimulation="50.0" />
 		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -55,16 +55,16 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="4.0" />
+				<solute name="solute1" concentration="1.0" />
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>
-				<reaction name="slowInflow">
+<!-- 				<reaction name="slowInflow">
 					<expression value="1.0 * inflow">
 						<constant name="inflow" value="0.04" />
 					</expression>
 					<stoichiometric component="solute1" coefficient="1.0" />
-				</reaction>
+				</reaction> -->
 			</reactions>
 			<agents>
 				<agent>
