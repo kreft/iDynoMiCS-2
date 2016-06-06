@@ -3,13 +3,17 @@ package dataIO;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import surface.Ball;
+import surface.Rod;
 
 /**
  * \brief TODO
  * 
+ * TODO sort agents in z-axis for topdown view 3d simulations
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class SvgExport
+public class SvgExport implements GraphicalExporter
 {
 	/**
 	 * TODO
@@ -61,7 +65,7 @@ public class SvgExport
 	 * create a new svg file with prefix in appropriate folder
 	 * @param prefix
 	 */
-	public void newSvg(String prefix)
+	public void createFile(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".svg";
@@ -74,7 +78,7 @@ public class SvgExport
 	/**
 	 * close the svg file and increment file number for next file
 	 */
-	public void closeSvg()
+	public void closeFile()
 	{
 		_svgFile.write("</svg>\n");
 		_svgFile.fclose();
@@ -164,7 +168,7 @@ public class SvgExport
 	}
 	
 	/**
-	 * draw a rectangle
+	 * draw a rectangle without rotation
 	 * @param location
 	 * @param dimensions
 	 * @param pigment
@@ -177,6 +181,7 @@ public class SvgExport
 				"\" fill=\"" + pigment + "\" />\n");
 	}
 	
+	
 	/**
 	 * draw a line
 	 * @param File
@@ -185,6 +190,53 @@ public class SvgExport
 	public void line(double[] positionA, double[] positionB, String pigment)
 	{
 		// TODO
+	}
+
+	@Override
+	public void draw(Ball ball, String pigment) 
+	{
+		this.circle(this.to2D(ball.getCenter()), ball.getRadius(), pigment);
+	}
+
+	@Override
+	public void draw(Rod rod, String pigment) 
+	{
+		double[] posA = this.to2D(rod._points[0].getPosition());
+		double[] posB = this.to2D(rod._points[1].getPosition());
+		
+		this.circle(posA, rod.getRadius(), pigment);
+		this.circle(posB, rod.getRadius(), pigment);
+		this.rectangle(posA, posB, rod.getRadius()*2.0, pigment);
+	}
+
+	@Override
+	public void sphere(double[] center, double radius, String pigment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void cylinder(double[] base, double[] top, double radius, 
+			String pigment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void cube(double[] lowerCorner, double[] dimensions, String pigment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rectangle(double[] base, double[] top, 
+			double width, String pigment) 
+	{
+		_svgFile.write("<line x1=\"" + (_spacer + _scalar*base[0]) + "\" y1=\""
+				+ (_spacer + _scalar*base[1]) + "\" x2=\"" + (_spacer + 
+				_scalar*top[0]) + "\" y2=\"" + (_spacer + _scalar*top[1]) + 
+				"\" style=\"stroke:" + pigment + ";stroke-width:" + _scalar*width + 
+				"\" />\n");
 	}
 }
 

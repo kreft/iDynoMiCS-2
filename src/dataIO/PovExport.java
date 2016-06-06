@@ -2,15 +2,24 @@ package dataIO;
 import java.util.List;
 
 import agent.Agent;
+import dataIO.Log.Tier;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import surface.Ball;
+import surface.Rod;
 
 /**
  * \brief TODO class needs a rigorous update
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class PovExport
+public class PovExport implements GraphicalExporter
 {
+	/**
+	 * 
+	 */
+	private FileHandler _povFile = new FileHandler();
+	
 	/**
 	 * TODO
 	 */
@@ -44,7 +53,33 @@ public class PovExport
 	}
 	
 	/**
+	 * 
+	 * @param prefix
+	 */
+	public void createFile(String prefix)
+	{
+		String fileString = Idynomics.global.outputLocation + prefix + "/" 
+				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".pov";
+		_povFile.fnew(fileString);
+
+		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
+		_povFile.write("#declare Count = " + _filewriterfilenr + ";\n");
+		_povFile.write("#include \"../sceneheader.inc\"\n");
+	}
+	
+	/**
+	 * 
+	 */
+	public void closeFile()
+	{
+		_povFile.write("#include \"../scenefooter.inc\"\n");
+		_povFile.fclose();
+		_filewriterfilenr++;
+	}
+	
+	/**
 	 * Writes current scene as .pov file
+	 * @deprecated
 	 * @param prefix
 	 * @param agents
 	 */
@@ -79,6 +114,54 @@ public class PovExport
 		povFile.write("#include \"../scenefooter.inc\"\n");
 		povFile.fclose();
 		_filewriterfilenr++;
+	}
+
+	@Override
+	public void draw(Ball ball, String pigment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void draw(Rod rod, String pigment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void sphere(double[] center, double radius, String pigment) 
+	{
+		_povFile.write("sphere { \n" + toPov(center) + radius + "\n pigment { " 
+				+ pigment + " } }\n" );
+	}
+
+	@Override
+	public void circle(double[] center, double radius, String pigment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void cylinder(double[] base, double[] top, double radius, 
+			String pigment) 
+	{
+		_povFile.write("cylinder { \n" + toPov(base) + ", " + toPov(top) + 
+				radius + "\n pigment { " + pigment + " } }\n" );
+		
+	}
+
+	@Override
+	public void cube(double[] lowerCorner, double[] dimensions, String pigment) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rectangle(double[] base, double[] top, double width, 
+			String pigment) 
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

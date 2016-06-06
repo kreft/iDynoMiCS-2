@@ -19,6 +19,7 @@ import processManager.ProcessManager;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Shape;
+import surface.Surface;
 import utility.ExtraMath;
 
 /**
@@ -100,7 +101,7 @@ public class WriteAgentsSvg extends ProcessManager
 														AgentContainer agents)
 	{
 		/* Initiate new file. */
-		this._svg.newSvg(this._prefix);
+		this._svg.createFile(this._prefix);
 		
 		/* grab shape from agents */
 		Shape shape = agents.getShape();
@@ -168,15 +169,19 @@ public class WriteAgentsSvg extends ProcessManager
 		for ( Agent a: agents.getAllLocatedAgents() )
 			if ( a.isAspect(BODY) )
 			{
-				List<double[]> joints = ((Body) a.get(BODY)).getJoints();
-				for ( int i = 0; joints.size() > i; i++ )
-				{
-					this._svg.circle(joints.get(i), 
-							a.getDouble(RADIUS), 
-							a.getString(PIGMENT));
-				}
+//				List<double[]> joints = ((Body) a.get(BODY)).getJoints();
+//				for ( int i = 0; joints.size() > i; i++ )
+//				{
+//					this._svg.circle(joints.get(i), 
+//							a.getDouble(RADIUS), 
+//							a.getString(PIGMENT));
+//				}
+				
+				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();
+				for( Surface s : surfaces)
+					this._svg.draw(s, a.getString(PIGMENT));
 			}
 		/* Close the SVG file */
-		this._svg.closeSvg();
+		this._svg.closeFile();
 	}
 }
