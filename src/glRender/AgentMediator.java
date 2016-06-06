@@ -1,5 +1,6 @@
 package glRender;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -205,6 +206,7 @@ public class AgentMediator implements CommandMediator {
 	
 	private void draw(Ball ball){
 		_gl.glPushMatrix();
+		applyCurrentColor();
 		double[] loc = GLUtil.make3D(ball._point.getPosition());
 		_gl.glTranslated(loc[0], loc[1], loc[2]);
 		GLUquadric qobj = _glu.gluNewQuadric();
@@ -221,27 +223,7 @@ public class AgentMediator implements CommandMediator {
 		double[] posA = GLUtil.make3D(rod._points[0].getPosition()); /* first sphere */
 		double[] posB = GLUtil.make3D(rod._points[1].getPosition()); /* second sphere*/
 		
-//		List<double[]> cyclicPoints = _shape.getCyclicPoints(posA);
-//		double[] c = cyclicPoints.get(0);
-//		
-//		/* distance between the two mass points */
-//		double dist = Vector.distanceEuclid(posB, c);
-//		double dDist;
-//		/* 
-//		 * find the closest 'shadow' point, use the original point if all
-//		 * alternative point are further.
-//		 */
-//		for ( double[] d : cyclicPoints )
-//		{
-//			dDist = Vector.distanceEuclid( posB, d);
-//			if ( dDist < dist)
-//			{
-//				c = d;
-//				dist = dDist;
-//			}
-//		}
-//		/* use the middle point to place the cylinder */
-//		posB = Vector.midPoint(c, posB);
+		posA = GLUtil.searchClosestCyclicShadowPoint(_shape, posA, posB);
 		
 		/* save the transformation matrix, so we do not disturb other drawings */
 		_gl.glPushMatrix();
@@ -258,19 +240,26 @@ public class AgentMediator implements CommandMediator {
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
 		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
-
-		/* draw a cylinder in between */
-		/* save the matrix to rotate only the cylinder */
-		_gl.glPushMatrix();
+		
+		/* direction from posB to posA */
 		double[] dp = Vector.minus(posB, posA);
 		double height = Vector.normEuclid(dp);
 		
+		/* draw a cylinder in between */
+		/* save the matrix to rotate only the cylinder */
+		_gl.glPushMatrix();
+		
 		/* NOTE: this assumes agents are rendered one after the other! */
 		Quaternion quat = new Quaternion();
+		/* this will create a quaternion, so that we rotate from looking
+		 * along the Z-axis (which is the default orientation of a GLU-cylinder)
+		 * to look from posA to posB */
 		quat.setLookAt(Vector.toFloat(dp), _orthoZ, _orthoX, _orthoY, _orthoZ);
+		/* transform the quaternion into a rotation matrix and apply it */
 		//TODO: is there a way to make openGL use the quaternion directly?
 		_gl.glMultMatrixf(quat.toMatrix(_rotTemp, 0), 0);
 
+		/* create and draw the cylinder */
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
 		_glu.gluCylinder(qobj,
@@ -278,10 +267,10 @@ public class AgentMediator implements CommandMediator {
 				rod._radius, 		/* top */
 				height, 			/* height */
 				_slices, _stacks);
+		/* restore matrix state before rotation (so we are at point A again)*/
 		_gl.glPopMatrix();
 
 		/* draw second sphere */
-//		Vector.normaliseEuclidEquals(posB, height);
 		_gl.glTranslated(dp[0], dp[1], dp[2]);
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
