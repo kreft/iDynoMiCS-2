@@ -23,4 +23,5 @@ public interface CommandMediator
 	 */
 	public abstract void draw(GLAutoDrawable drawable);
 
+	public abstract void init(GLAutoDrawable drawable);
 }

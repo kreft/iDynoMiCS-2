@@ -20,6 +20,13 @@ public class CommandMediatorExample implements CommandMediator
 	public float kickback() {
 		return kickback;
 	}
+	
+	@Override
+	public void init(GLAutoDrawable drawable) {
+		// TODO Auto-generated method stub
+		
+	}
+	
    /**
     * Draws the object (sphere)
     * 

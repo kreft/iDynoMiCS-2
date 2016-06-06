@@ -471,12 +471,14 @@ public abstract class Shape implements
 	 */
 	public double[] getDimensionLengths()
 	{
-		double[] out = new double[this._dimensions.size()];
+		double[] out = new double[getNumberOfDimensions()];
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			out[i] = dim.getLength();
-			i++;
+			if (dim.isSignificant()){
+				out[i] = dim.getLength();
+				i++;
+			}
 		}
 		return out;
 	}
