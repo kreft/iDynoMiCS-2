@@ -214,4 +214,11 @@ public abstract class Boundary
 	{
 		return (Boundary) XMLable.getNewInstance(className, "boundary.library.");
 	}
+	
+	
+	public boolean isReadyForLaunch()
+	{
+		// TODO
+		return true;
+	}
 }

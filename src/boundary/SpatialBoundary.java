@@ -11,6 +11,7 @@ import aspect.AspectRef;
 import boundary.grid.GridMethod;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
 import shape.Shape;
@@ -182,5 +183,19 @@ public abstract class SpatialBoundary extends Boundary
 	
 	// TODO!
 	
+	public static SpatialBoundary getNewInstance(String className)
+	{
+		return (SpatialBoundary) 
+				XMLable.getNewInstance(className, "boundary.spatialLibrary.");
+	}
 	
+	@Override
+	public boolean isReadyForLaunch()
+	{
+		if ( ! super.isReadyForLaunch() )
+			return false;
+		if ( this._defaultGridMethod == null && this._gridMethods.isEmpty() )
+			return false;
+		return true;
+	}
 }
