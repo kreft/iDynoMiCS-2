@@ -32,16 +32,14 @@ public abstract class CylindricalShape extends PolarShape
 		this._resCalc = new ResCalc[3][];
 		Dimension dim;
 		/* There is no need for an r-min boundary. */
-		dim = new Dimension();
+		dim = new Dimension(true, R);
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
 		this._resCalc[getDimensionIndex(R)] = new ResCalc[1];
 		/*
-		 * Set to a full circle by default, let it be overwritten later.
+		 * The theta-dimension is insignificant, unless told otherwise later.
 		 */
-		dim = new Dimension();
-		dim.setCyclic();
-		dim.setLength(2 * Math.PI);
+		dim = new Dimension(false, THETA);
 		this._dimensions.put(THETA, dim);
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
@@ -58,7 +56,8 @@ public abstract class CylindricalShape extends PolarShape
 			throw new IllegalArgumentException(
 					"A cylindrical array needs at least 2 dimensions");
 		nr = _resCalc[0][0].getNVoxel();
-		nz = _resCalc[2][0] == null ? 0 : _resCalc[2][0].getNVoxel();
+		/* we need at least one voxel in each dimension */ 
+		nz = _resCalc[2][0] == null ? 1 : _resCalc[2][0].getNVoxel();
 		double[][][] a = new double[nr][][];
 		for ( int i = 0; i < nr; i++ )
 			a[i] = Matrix.matrix(_resCalc[1][i].getNVoxel(), nz, initialValue);

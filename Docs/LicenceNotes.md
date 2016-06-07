@@ -23,6 +23,20 @@ Copied from iDynoMiCS 1, only minor changes made (tidying).
 
 This library is free software; you can redistribute it and/or modify it under the terms of the **GNU Lesser General Public License** as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
 
+# JOGL
+The JOGL source code is mostly licensed under the 'New BSD 2-Clause License',
+however it contains other licensed material as well.
+Other licensed material is compatible with the 'New BSD 2-Clause License',
+if not stated otherwise.
+see http://jogamp.org/git/?p=jogl.git;a=blob;f=LICENSE.txt for more details
+
+# GLUEGEN
+The GlueGen source code is mostly licensed under the New BSD 2-clause license,
+however it contains other licensed material as well. 
+Other licensed material is compatible with the 'New BSD 2-Clause License',
+if not stated otherwise.
+see http://jogamp.org/git/?p=gluegen.git;a=blob;f=LICENSE.txt for more details.
+
 # Other...?
 - XML import/export packages
 - GUI & rendering packages
