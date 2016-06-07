@@ -23,6 +23,8 @@ import shape.Dimension.DimName;
  */
 public abstract class SpatialBoundary extends Boundary
 {
+	// TODO move this to XmlLabel?
+	public final static String DEFAULT_GM = "defaultGridMethod";
 	/**
 	 * This boundary is at one extreme of a dimension: this is the name of that
 	 * dimension.
@@ -136,14 +138,9 @@ public abstract class SpatialBoundary extends Boundary
 		}
 	}
 	
-	
-	
-	
-	
 	/*************************************************************************
 	 * AGENT TRANSFERS
 	 ************************************************************************/
-	
 	
 	/**
 	 * \brief Helper method for placing agents in the arrivals lounge at random
@@ -178,4 +175,12 @@ public abstract class SpatialBoundary extends Boundary
 			agentCont.addAgent(anAgent);
 		}
 	}
+	
+	/**************************************************************************
+	 * MODEL NODE
+	 *************************************************************************/
+	
+	// TODO!
+	
+	
 }

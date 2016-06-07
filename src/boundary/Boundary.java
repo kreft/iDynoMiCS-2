@@ -9,6 +9,7 @@ import java.util.List;
 import agent.Agent;
 import dataIO.Log;
 import dataIO.XmlRef;
+import generalInterfaces.XMLable;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 
@@ -19,17 +20,16 @@ import idynomics.AgentContainer;
  */
 public abstract class Boundary
 {
-	// TODO move this to XmlLabel?
-	public final static String DEFAULT_GM = "defaultGridMethod";
-	
+	/**
+	 * TODO implement this in node construction
+	 */
 	public final static String PARTNER = XmlRef.boundaryPartner;
-	
 	/**
 	 * The boundary this is connected with - not necessarily set.
 	 */
 	protected Boundary _partner;
 	/**
-	 * TODO
+	 * TODO implement this in node construction
 	 */
 	protected String _partnerCompartmentName;
 	
@@ -60,12 +60,13 @@ public abstract class Boundary
 	public String getName()
 	{
 		return XmlRef.dimensionBoundary;
-		// TODO return dimension and min/max?
+		// TODO return dimension and min/max for SpatialBoundary?
 	}
 	
 	/**
-	 * TODO
-	 * @param partner
+	 * \brief Set the given boundary as this boundary's partner.
+	 * 
+	 * @param partner Boundary to use.
 	 */
 	public void setPartner(Boundary partner)
 	{
@@ -73,8 +74,8 @@ public abstract class Boundary
 	}
 	
 	/**
-	 * TODO
-	 * @return
+	 * @return {@code true} if this boundary still needs a partner boundary to
+	 * be set, {@code false} if it already has one or does not need one at all.
 	 */
 	public boolean needsPartner()
 	{
@@ -83,8 +84,8 @@ public abstract class Boundary
 	}
 	
 	/**
-	 * TODO
-	 * @return
+	 * @return The name of the compartment this boundary should have a partner
+	 * boundary with.
 	 */
 	public String getPartnerCompartmentName()
 	{
@@ -92,7 +93,8 @@ public abstract class Boundary
 	}
 	
 	/**
-	 * TODO
+	 * \brief TODO
+	 * 
 	 * @return
 	 */
 	public Boundary makePartnerBoundary()
@@ -105,9 +107,9 @@ public abstract class Boundary
 	 ************************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief Put the given agent into the departure lounge.
 	 * 
-	 * @param agent
+	 * @param agent Agent to leave the compartment via this boundary.
 	 */
 	public void addOutboundAgent(Agent anAgent)
 	{
@@ -117,9 +119,9 @@ public abstract class Boundary
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Put the given agent into the arrivals lounge.
 	 * 
-	 * @param anAgent
+	 * @param anAgent Agent to enter the compartment via this boundary.
 	 */
 	public void acceptInboundAgent(Agent anAgent)
 	{
@@ -129,9 +131,9 @@ public abstract class Boundary
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Put the given agents into the arrivals lounge.
 	 * 
-	 * @param agents
+	 * @param agents List of agents to enter the compartment via this boundary.
 	 */
 	public void acceptInboundAgents(List<Agent> agents)
 	{
@@ -200,5 +202,16 @@ public abstract class Boundary
 	public List<Agent> agentsToGrab(AgentContainer agentCont, double timeStep)
 	{
 		return new LinkedList<Agent>();
+	}
+	
+	/*************************************************************************
+	 * XML-ABLE
+	 ************************************************************************/
+	
+	// TODO replace with node construction
+	
+	public static Boundary getNewInstance(String className)
+	{
+		return (Boundary) XMLable.getNewInstance(className, "boundary.library.");
 	}
 }

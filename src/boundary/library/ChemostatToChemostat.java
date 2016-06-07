@@ -3,8 +3,10 @@
  */
 package boundary.library;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import agent.Agent;
 import boundary.Boundary;
@@ -23,6 +25,10 @@ public class ChemostatToChemostat extends Boundary
 	 */
 	// TODO set this from protocol
 	protected double _flowRate;
+	/**
+	 * Solute concentrations.
+	 */
+	protected Map<String,Double> _concns = new HashMap<String,Double>();
 	
 	/**
 	 * TODO
@@ -38,6 +44,13 @@ public class ChemostatToChemostat extends Boundary
 		this._flowRate = flowRate;
 	}
 	
+	/**
+	 * @return Flow rate (units of volume per time).
+	 */
+	public double getFlowRate()
+	{
+		return this._flowRate;
+	}
 	
 	/**
 	 * TODO
@@ -62,6 +75,21 @@ public class ChemostatToChemostat extends Boundary
 		cIn.setFlowRate(this._flowRate);
 		this._partner = cIn;
 		return cIn;
+	}
+	
+	/*************************************************************************
+	 * SOLUTE TRANSFERS
+	 ************************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public double getConcentration(String name)
+	{
+		return this._concns.get(name);
 	}
 	
 	/*************************************************************************

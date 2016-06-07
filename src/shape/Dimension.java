@@ -127,7 +127,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		String str;
 		NodeList extNodes, bndNodes;
 		Element extElem, bndElem;
-		Boundary aBoundary;
+		SpatialBoundary aBoundary;
 		int index = -1;
 		/*
 		 * See if this is cyclic. Assume not if unspecified.
@@ -179,7 +179,8 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			}
 			
 			str = bndElem.getAttribute(XmlRef.classAttribute);
-			aBoundary = (Boundary) Boundary.getNewInstance(str);
+			// FIXME
+			aBoundary = (SpatialBoundary) SpatialBoundary.getNewInstance(str);
 			aBoundary.init(bndElem);
 			this.setBoundary(aBoundary, index);	
 		}
@@ -534,6 +535,29 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	{
 		return ( minMax.equals("minimum") ) ? 0 : 1;
 			
+	}
+	
+	/**************************************************************************
+	 * PRE-LAUNCH CHECK
+	 *************************************************************************/
+	
+	public boolean isReadyForLaunch()
+	{
+		for ( int i = 0; i < 2; i++ )
+		{
+			if ( this._boundary[i] == null )
+			{
+				if ( this._required[i] )
+					return false;
+			}
+			else
+			{
+				// TODO
+				//if ( ! this._boundary[i].isReadyForLaunch() )
+				//	return false;
+			}
+		}
+		return true;
 	}
 	
 	/**************************************************************************
