@@ -149,7 +149,7 @@ public class AgentMediator implements CommandMediator {
 		_gl.glTranslated(
 				 - _domainLength[0] * 0.5, 
 				 - _domainLength[1] * 0.5,
-				 _domainLength[2] * 0.5); /* openGL Z coord points towards front */
+				 - _domainLength[2] * 0.5);
         
 		/* get the surfaces from the agents */
 		for ( Agent a : this._agents.getAllLocatedAgents() )
