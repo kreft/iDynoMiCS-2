@@ -192,13 +192,17 @@ public class SvgExport implements GraphicalExporter
 		// TODO
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void draw(Ball ball, String pigment) 
 	{
 		this.circle(this.to2D(ball.getCenter()), ball.getRadius(), pigment);
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void draw(Rod rod, String pigment) 
 	{
 		double[] posA = this.to2D(rod._points[0].getPosition());
@@ -209,33 +213,47 @@ public class SvgExport implements GraphicalExporter
 		this.rectangle(posA, posB, rod.getRadius()*2.0, pigment);
 	}
 
-	@Override
-	public void sphere(double[] center, double radius, String pigment) {
+	/**
+	 * 
+	 */
+	public void sphere(double[] center, double radius, String pigment) 
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void cylinder(double[] base, double[] top, double radius, 
-			String pigment) {
+			String pigment) 
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
-	public void cube(double[] lowerCorner, double[] dimensions, String pigment) {
+	/**
+	 * 
+	 */
+	public void cube(double[] lowerCorner, double[] dimensions, String pigment) 
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void rectangle(double[] base, double[] top, 
 			double width, String pigment) 
 	{
-		_svgFile.write("<line x1=\"" + (_spacer + _scalar*base[0]) + "\" y1=\""
-				+ (_spacer + _scalar*base[1]) + "\" x2=\"" + (_spacer + 
-				_scalar*top[0]) + "\" y2=\"" + (_spacer + _scalar*top[1]) + 
-				"\" style=\"stroke:" + pigment + ";stroke-width:" + _scalar*width + 
+		_svgFile.write("<line " +
+				"x1=\"" + (_spacer + _scalar*base[0]) + 
+				"\" y1=\"" + (_spacer + _scalar*base[1]) + 
+				"\" x2=\"" + (_spacer + _scalar*top[0]) + 
+				"\" y2=\"" + (_spacer + _scalar*top[1]) + 
+				"\" style=\"stroke:" + pigment + 
+				";stroke-width:" + _scalar*width + 
 				"\" />\n");
 	}
 }

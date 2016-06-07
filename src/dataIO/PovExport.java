@@ -116,32 +116,42 @@ public class PovExport implements GraphicalExporter
 		_filewriterfilenr++;
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void draw(Ball ball, String pigment) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void draw(Rod rod, String pigment) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void sphere(double[] center, double radius, String pigment) 
 	{
 		_povFile.write("sphere { \n" + toPov(center) + radius + "\n pigment { " 
 				+ pigment + " } }\n" );
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void circle(double[] center, double radius, String pigment) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void cylinder(double[] base, double[] top, double radius, 
 			String pigment) 
 	{
@@ -150,13 +160,17 @@ public class PovExport implements GraphicalExporter
 		
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void cube(double[] lowerCorner, double[] dimensions, String pigment) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	@Override
+	/**
+	 * 
+	 */
 	public void rectangle(double[] base, double[] top, double width, 
 			String pigment) 
 	{
