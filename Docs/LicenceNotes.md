@@ -18,6 +18,41 @@ Licensed under the **GNU LGPL License** details here: http://www.gnu.org/license
 
 Bas has implemented some additional methods (cyclic boundaries).
 
+# Collision detection *(surface package)*
+
+Distance methods are based on closest point algorithms from originally from:
+Ericson, C. (2005). Real-time collision detection. Computer (Vol. 1).
+
+Implemented in Java for sphere-swept volume collisions by Tomas Storck: 
+https://github.com/tomasstorck/diatomas
+
+The MIT License (MIT)
+
+Copyright (c) 2011-2015 Tomas Storck
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+# gl Render #
+
+classes based on lessons from:
+http://nehe.gamedev.net/tutorial/creating_an_opengl_window_win32/13001/
+
 # Mersenne Twister *(random number generator)*
 Copied from iDynoMiCS 1, only minor changes made (tidying).
 
