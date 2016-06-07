@@ -775,9 +775,10 @@ public abstract class Shape implements
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
+			/* NOTE that the dim should not be cyclic if it is insignificant */ 
 			if ( dim.isCyclic() )
 			{
-				// TODO We don't need these in an angular dimension with 2 * pi
+				/* NOTE that a full-length polar dimension is always cyclic */
 				for ( double[] loc : localPoints )
 				{
 					/* Add the point below. */

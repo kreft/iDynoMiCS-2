@@ -2624,7 +2624,7 @@ public final class Vector
 	 * <b>vector</b> will be unaffected.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles. 
-	 * @return	double[] array where each element is the recast int in the
+	 * @return	float[] array where each element is the recast double in the
 	 * corresponding position of <b>vector</b>.
 	 */
 	public static float[] toFloat(double[] vector)
