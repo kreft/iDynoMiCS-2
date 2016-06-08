@@ -1,7 +1,7 @@
 package dataIO;
 
 import dataIO.Log.Tier;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import linearAlgebra.Vector;
 import shape.Shape;
 import surface.Ball;
@@ -13,7 +13,7 @@ public interface GraphicalExporter {
 	public static GraphicalExporter getNewInstance(String input) 
 	{
 		GraphicalExporter obj = 
-				(GraphicalExporter) XMLable.getNewInstance(input);
+				(GraphicalExporter) Instantiatable.getNewInstance(input);
 		return obj;
 	}
 	

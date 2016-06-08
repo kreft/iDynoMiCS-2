@@ -14,7 +14,7 @@ import boundary.agent.AgentMethod;
 import boundary.grid.GridMethod;
 import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import utility.Helper;
 
 /**
@@ -22,7 +22,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class Boundary implements CanPrelaunchCheck, XMLable
+public abstract class Boundary implements CanPrelaunchCheck, Instantiatable
 {
 	// TODO move this to XmlLabel?
 	public final static String DEFAULT_GM = "defaultGridMethod";
@@ -269,7 +269,7 @@ public abstract class Boundary implements CanPrelaunchCheck, XMLable
 	
 	public static Boundary getNewInstance(String className)
 	{
-		return (Boundary) XMLable.getNewInstance(className,
+		return (Boundary) Instantiatable.getNewInstance(className,
 											"boundary.BoundaryLibrary$");
 	}
 	

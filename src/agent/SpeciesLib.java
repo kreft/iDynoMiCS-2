@@ -13,7 +13,7 @@ import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -29,7 +29,7 @@ import nodeFactory.ModelNode.Requirements;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
+public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 {
 	/**
 	 * Contains all known species.

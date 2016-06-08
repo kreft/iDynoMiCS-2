@@ -19,19 +19,8 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public interface XMLable
+public interface Instantiatable
 {
-	/*************************************************************************
-	 * OBJECT INITIALISATION
-	 ************************************************************************/
-	
-	/**
-	 * \brief Initialise this object from an XML node.
-	 * 
-	 * @param xmlElem XML element from a protocol file.
-	 */
-	public void init(Element xmlElem);
-	
 	/*************************************************************************
 	 * CLASS INSTANCIATION
 	 ************************************************************************/

@@ -36,7 +36,7 @@ public class WriteXmlOutput extends ProcessManager
 	@Override
 	public void init(Element xmlElem, Compartment compartment)
 	{
-		super.init(xmlElem);
+		super.init(xmlElem, compartment);
 		this._prefix = this.getString(FILE_PREFIX);
 	}
 	

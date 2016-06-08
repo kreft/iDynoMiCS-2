@@ -14,7 +14,7 @@ import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import grid.*;
 import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
@@ -36,7 +36,7 @@ import shape.Dimension.DimName;
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
+public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConstructor
 {
 	/**
 	 * This has a name for reporting purposes.

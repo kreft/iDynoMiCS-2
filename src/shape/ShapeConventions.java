@@ -92,7 +92,7 @@ public final class ShapeConventions
 	
 	public static class CyclicGrid extends GridMethod
 	{
-		@Override
+		
 		public void init(Element xmlNode)
 		{
 			/* Do nothing here. */ 

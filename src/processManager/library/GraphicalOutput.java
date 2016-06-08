@@ -96,19 +96,20 @@ public class GraphicalOutput extends ProcessManager
 	 */
 	public void init(Element xmlElem, Compartment compartment)
 	{
-		super.init(xmlElem);
+		super.init(xmlElem, compartment);
 		
-		this._shape = compartment.getShape();
-		this._graphics.sceneFiles(this._prefix, _shape);
-		
-		this._solute = this.getString(SOLUTE_NAME);
-		this._maxConcn = ( this.isAspect(MAX_VALUE) ? 
-									this.getDouble(MAX_VALUE) : 2.0 );
 		this._prefix = this.getString(FILE_PREFIX);
+		this._shape = compartment.getShape();
 		
 		this._graphics = GraphicalExporter.getNewInstance(
 				this.getString(OUTPUT_WRITER) );
 		
+		this._graphics.sceneFiles(this._prefix, this._shape);
+		
+		this._solute = this.getString(SOLUTE_NAME);
+		this._maxConcn = ( this.isAspect(MAX_VALUE) ? 
+									this.getDouble(MAX_VALUE) : 2.0 );
+			
 		this._arrayType = ArrayType.CONCN;
 		if ( this.isAspect(ARRAY_TYPE) ) 
 			this._arrayType = ArrayType.valueOf(this.getString(ARRAY_TYPE));

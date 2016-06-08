@@ -91,42 +91,33 @@ public class SolveChemostat extends ProcessManager
 
 	}
 	
-	@Override
+	/**
+	 * 
+	 */
 	public void init(Element xmlElem, Compartment compartment)
 	{
-		super.init(xmlElem);
+		super.init(xmlElem, compartment);
 		this.init();
 	}
 	
 	/**
-	 * TODO
+	 * \brief TODO
+	 * 
 	 */
 	public void init()
 	{
-		this.init((String[]) reg().getValue(this, SOLUTE_NAMES));
-	}
-
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteNames
-	 */
-	public void init(String[] soluteNames)
-	{
-		this._soluteNames = soluteNames;
+		this._soluteNames = this.getStringA(SOLUTE_NAMES);
 		/*
 		 * Initialise the solver.
 		 */
-		// TODO This should be done better
-		String solverName = this.getString(SOLVER);
-		solverName = Helper.setIfNone(solverName, "rosenbrock");
-		double hMax = Helper.setIfNone(this.getDouble(HMAX), 1.0e-6);
+		String solverName = (String) this.getOr(SOLVER, "rosenbrock");
+		double hMax = (double) this.getOr(HMAX, 1.0e-6);
 		if ( solverName.equals("heun") )
-			this._solver = new ODEheunsmethod(soluteNames, false, hMax);
+			this._solver = new ODEheunsmethod(_soluteNames, false, hMax);
 		else
 		{
-			double tol = Helper.setIfNone(this.getDouble(TOLERANCE), 1.0e-6);
-			this._solver = new ODErosenbrock(soluteNames, false, tol, hMax);
+			double tol = (double) this.getOr(TOLERANCE, 1.0e-6);
+			this._solver = new ODErosenbrock(_soluteNames, false, tol, hMax);
 		}
 		/*
 		 * Initialise vectors that need the number of solutes.

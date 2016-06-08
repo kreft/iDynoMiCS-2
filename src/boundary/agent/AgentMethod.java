@@ -14,7 +14,7 @@ import agent.Body;
 import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
 import modelBuilder.InputSetter;
@@ -31,7 +31,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class AgentMethod implements IsSubmodel, XMLable
+public abstract class AgentMethod implements IsSubmodel, Instantiatable
 {
 	
 	/**
@@ -219,7 +219,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 		/* Do nothing. */
 	}
 	
-	@Override
+	
 	public void init(Element xmlElem)
 	{
 		
@@ -238,7 +238,7 @@ public abstract class AgentMethod implements IsSubmodel, XMLable
 	
 	public static AgentMethod getNewInstance(String className)
 	{
-		return (AgentMethod) XMLable.getNewInstance(className, 
+		return (AgentMethod) Instantiatable.getNewInstance(className, 
 										"boundary.agent.AgentMethodLibrary$");
 	}
 	

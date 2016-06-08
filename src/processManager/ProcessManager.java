@@ -10,7 +10,7 @@ import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.XmlRef;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
@@ -26,7 +26,7 @@ import nodeFactory.ModelNode.Requirements;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ProcessManager implements XMLable, AspectInterface,
+public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		NodeConstructor
 {
 	/**
@@ -96,7 +96,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	 */
 	public static ProcessManager getNewInstance(Node xmlNode, Compartment compartment)
 	{
-		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
+		ProcessManager proc = (ProcessManager) Instantiatable.getNewInstance(xmlNode);
 		proc.init((Element) xmlNode, compartment);
 		return proc;
 	}
@@ -105,7 +105,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	{
 		//return (ProcessManager) XMLable.getNewInstance(className);
 		
-		return (ProcessManager) XMLable.getNewInstance(className, 
+		return (ProcessManager) Instantiatable.getNewInstance(className, 
 				Idynomics.xmlPackageLibrary.get(className));
 	}
 	

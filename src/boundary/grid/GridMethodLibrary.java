@@ -72,7 +72,7 @@ public final class GridMethodLibrary
 	{
 		private double _gradient = 0.0;
 		
-		@Override
+		
 		public void init(Element xmlElem)
 		{
 			//this._gradient = TODO;

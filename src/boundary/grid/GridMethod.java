@@ -3,7 +3,9 @@
  */
 package boundary.grid;
 
-import generalInterfaces.XMLable;
+import org.w3c.dom.Element;
+
+import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
 import utility.Helper;
 
@@ -12,7 +14,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class GridMethod implements XMLable
+public abstract class GridMethod implements Instantiatable
 {
 	/**
 	 * Interface detailing what should be done at a boundary. Typical examples
@@ -48,7 +50,7 @@ public abstract class GridMethod implements XMLable
 	
 	public static GridMethod getNewInstance(String className)
 	{
-		return (GridMethod) XMLable.getNewInstance(className, 
+		return (GridMethod) Instantiatable.getNewInstance(className, 
 									"boundary.grid.GridMethodLibrary$");
 	}
 		
@@ -77,6 +79,12 @@ public abstract class GridMethod implements XMLable
 	{
 		return Helper.getClassNamesSimple(
 				GridMethodLibrary.class.getDeclaredClasses());
+	}
+
+	public void init(Element xmlGrid) 
+	{
+		//TODO
+		// default do nothing?
 	}
 	
 	//FIXME to be replaced by modelnode paradigm?

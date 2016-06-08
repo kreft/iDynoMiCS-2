@@ -14,7 +14,7 @@ import dataIO.XmlRef;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -26,7 +26,7 @@ import nodeFactory.NodeConstructor;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class Reaction implements XMLable, Copyable, NodeConstructor
+public class Reaction implements Instantiatable, Copyable, NodeConstructor
 {
 	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
