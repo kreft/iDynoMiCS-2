@@ -6,6 +6,7 @@ package boundary.spatialLibrary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import shape.Dimension.DimName;
 
@@ -37,5 +38,12 @@ public class BiofilmMembrane extends SpatialBoundary
 		Log.out(Tier.NORMAL,
 				"Unexpected: agents arriving at a membrane!");
 		this.placeAgentsRandom(agentCont);
+	}
+
+	@Override
+	public double getFlux(SpatialGrid grid)
+	{
+		// TODO
+		return 0;
 	}
 }

@@ -6,8 +6,8 @@ package boundary.grid;
 import org.w3c.dom.Element;
 
 import boundary.grid.GridMethod;
+import grid.ArrayType;
 import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
 
 /**
  * \brief TODO

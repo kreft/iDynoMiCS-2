@@ -13,8 +13,8 @@ import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import grid.ArrayType;
 import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
 import reaction.Reaction;
 import shape.Shape;
 

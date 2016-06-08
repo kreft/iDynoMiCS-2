@@ -11,6 +11,7 @@ import agent.Agent;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import shape.Dimension.DimName;
 
@@ -103,5 +104,12 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		 */
 		// TODO
 		return out;
+	}
+
+	@Override
+	public double getFlux(SpatialGrid grid)
+	{
+		// TODO
+		return 0;
 	}
 }

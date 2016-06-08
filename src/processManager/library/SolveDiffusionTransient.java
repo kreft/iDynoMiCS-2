@@ -3,9 +3,9 @@
  */
 package processManager.library;
 
-import static grid.SpatialGrid.ArrayType.CONCN;
-import static grid.SpatialGrid.ArrayType.DIFFUSIVITY;
-import static grid.SpatialGrid.ArrayType.PRODUCTIONRATE;
+import static grid.ArrayType.CONCN;
+import static grid.ArrayType.DIFFUSIVITY;
+import static grid.ArrayType.PRODUCTIONRATE;
 import static dataIO.Log.Tier.*;
 
 import java.util.Collection;

@@ -9,10 +9,10 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 
 import static dataIO.Log.Tier.*;
+import static grid.ArrayType.*;
+
 import grid.SpatialGrid;
 import shape.Shape;
-
-import static grid.SpatialGrid.ArrayType.*;
 
 /**
  * \brief TODO

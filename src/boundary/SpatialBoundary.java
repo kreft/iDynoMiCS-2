@@ -12,6 +12,7 @@ import boundary.grid.GridMethod;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import generalInterfaces.XMLable;
+import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
 import shape.Shape;
@@ -138,6 +139,14 @@ public abstract class SpatialBoundary extends Boundary
 			return this._defaultGridMethod;
 		}
 	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param grid
+	 * @return
+	 */
+	public abstract double getFlux(SpatialGrid grid);
 	
 	/*************************************************************************
 	 * AGENT TRANSFERS

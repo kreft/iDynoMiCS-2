@@ -838,7 +838,7 @@ public abstract class Shape implements
 	 */
 	public int[] getCoords(double[] loc)
 	{
-		return getCoords(loc, null);
+		return this.getCoords(loc, null);
 	}
 	
 	/**
@@ -1133,6 +1133,14 @@ public abstract class Shape implements
 	 */
 	public abstract double getVoxelVolume(int[] coord);
 
+	/**
+	 * @return The volume of the current iterator voxel.
+	 */
+	public double getCurrVoxelVolume()
+	{
+		return this.getVoxelVolume(this._currentCoord);
+	}
+	
 	/**
 	 * \brief Get the number of voxels in each dimension for the given
 	 * coordinates.
@@ -1548,6 +1556,12 @@ public abstract class Shape implements
 	public abstract int[] nbhIteratorNext();
 	
 	/**
+	 * \brief Find the distance between the centre of the current iterator
+	 * voxel and the centre of the current neighbor voxel.
+	 * 
+	 * <p>If the neighbor is on a defined boundary, this instead returns the
+	 * resolution of the current iterator voxel in the relevant dimension.</p>
+	 * 
 	 * @return The centre-centre distance between the current iterator voxel
 	 * and the neighbor voxel.
 	 */

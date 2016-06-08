@@ -7,11 +7,11 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 
 import static dataIO.Log.Tier.*;
+import static grid.ArrayType.*;
+
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
 import shape.Shape;
-
-import static grid.SpatialGrid.ArrayType.*;
 
 /**
  * \brief TODO
@@ -87,7 +87,7 @@ public abstract class PDEsolver extends Solver
 			for ( shape.resetNbhIterator(); 
 						shape.isNbhIteratorValid(); shape.nbhIteratorNext() )
 			{
-				temp = grid.getFluxWithNeighbor(varName);
+				temp = grid.getFluxFromNeighbor();
 				flux += temp;
 				/* to get the value we must be inside, the flux can be obtained
 				 * from boundary.
@@ -129,7 +129,7 @@ public abstract class PDEsolver extends Solver
 			for ( aShape.resetNbhIterator(); 
 					aShape.isNbhIteratorValid(); aShape.nbhIteratorNext() )
 			{
-				flux += grid.getFluxWithNeighbor(varName);
+				flux += grid.getFluxFromNeighbor();
 			}
 			/*
 			 * Finally, apply this to the relevant array.
