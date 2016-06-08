@@ -1,6 +1,8 @@
 # iDynoMiCS 1
 CeCILL
 
+[This](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1002598) article may be useful
+
 # JAMA *(linear algebra)*
 Website link [here](http://math.nist.gov/javanumerics/jama/)
 
