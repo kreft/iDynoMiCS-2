@@ -13,6 +13,7 @@ import dataIO.Log.Tier;
 
 import static dataIO.Log.Tier.*;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
@@ -117,15 +118,32 @@ public class AgentRelaxation extends ProcessManager
 	 * TODO
 	 */
 	private Collision _iterator;
+	
+	/**
+	 * 
+	 */
+	private Shape _shape;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, Compartment compartment)
 	{
-		super.init(xmlElem);
+		super.init(xmlElem, compartment);
+		
+		/*
+		 * Obtaining relaxation parameters.
+		 */
+		this._dtBase = Helper.setIfNone( getDouble(BASE_DT), 0.0003 );	
+		this._maxMovement = Helper.setIfNone( getDouble(MAX_MOVEMENT), 0.01 );	
+		this._method = Method.valueOf( Helper.setIfNone(
+				getString(RELAXATION_METHOD), Method.EULER.toString() ) );
+		this._timeLeap	= true;
+		
+		this._shape = compartment.getShape();
+		this._iterator = new Collision(null, _shape);
 	}
 
 	/*************************************************************************
@@ -142,13 +160,12 @@ public class AgentRelaxation extends ProcessManager
 	{
 		Tier level = BULK;
 		Log.out(level, "Updating agent forces");
-		Shape shape = agents.getShape();
 		/*
 		 * Updated bodies will required an updated spatial registry.
 		 */
 		agents.refreshSpatialRegistry();
 		// TODO Move this into internalStep() and make shapeSurfs a class variable?
-		Collection<Surface> shapeSurfs = shape.getSurfaces();
+		Collection<Surface> shapeSurfs = _shape.getSurfaces();
 		/* Calculate forces. */
 		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
@@ -173,7 +190,7 @@ public class AgentRelaxation extends ProcessManager
 					 */
 					Point a 		= ((Rod) s)._points[0];
 					Point b 		= ((Rod) s)._points[1];
-					double[] diff 	= shape.getMinDifference(a.getPosition() , 
+					double[] diff 	= _shape.getMinDifference(a.getPosition() , 
 							b.getPosition() );
 					double dn 		= Vector.normEuclid(diff);
 					if (dn > 2.0 )
@@ -228,20 +245,12 @@ public class AgentRelaxation extends ProcessManager
 		Log.out(level, " Finished updating agent forces");
 	}
 
-
+	/**
+	 * 
+	 */
 	protected void internalStep(EnvironmentContainer environment,
 			AgentContainer agents)
 	{
-		/*
-		 * Obtaining relaxation parameters.
-		 */
-		this._dtBase = Helper.setIfNone( getDouble(BASE_DT), 0.0005 );	
-		this._maxMovement = Helper.setIfNone( getDouble(MAX_MOVEMENT), 0.01 );	
-		this._method = Method.valueOf( Helper.setIfNone(
-				getString(RELAXATION_METHOD), Method.EULER.toString() ) );
-		this._timeLeap	= true;
-		
-		this._iterator = new Collision(null, agents.getShape());
 		/**
 		 * Update agent body now required
 		 */

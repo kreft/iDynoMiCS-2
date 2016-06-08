@@ -103,7 +103,7 @@
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-0"
 					firstStep="0.0" >	
-					<aspect name="solutes" type="PRIMARY" class="String[]" value="solute1,solute2" /> <!--  init -->
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1,solute2" /> <!--  init -->
 				</process>
 			</processManagers>
 		</compartment>

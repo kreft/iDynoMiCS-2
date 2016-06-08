@@ -14,6 +14,7 @@ import boundary.BoundaryLibrary.ChemostatOutflow;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
@@ -91,7 +92,7 @@ public class SolveChemostat extends ProcessManager
 	}
 	
 	@Override
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, Compartment compartment)
 	{
 		super.init(xmlElem);
 		this.init();

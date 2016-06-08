@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="mySim" outputfolder="../../Simulations" log="DEBUG"
+	<simulation name="test3d" outputfolder="../results" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<general>
@@ -134,7 +134,7 @@
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
 					firstStep="0.0"  timerStepSize="1.0">	
-					<aspect name="solutes" type="PRIMARY" class="String[]" value="solute1,solute2" /> 
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1,solute2" /> 
 				</process>
 			</processManagers>
 		</compartment>

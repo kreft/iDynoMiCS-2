@@ -234,7 +234,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 				str = XmlHandler.gatherAttribute(procElem,
 													XmlRef.nameAttribute);
 				Log.out(Tier.EXPRESSIVE, "\t"+str);
-				this.addProcessManager(ProcessManager.getNewInstance(procElem) );
+				this.addProcessManager(ProcessManager.getNewInstance(procElem, this) );
 			}
 		}
 	}

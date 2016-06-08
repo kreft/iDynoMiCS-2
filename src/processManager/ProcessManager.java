@@ -12,6 +12,7 @@ import dataIO.Log;
 import dataIO.XmlRef;
 import generalInterfaces.XMLable;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
@@ -54,8 +55,12 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	@Override
-	public void init(Element xmlElem)
+    public void init(Element xmlElem)
+	{
+    	this.init(xmlElem, null);
+	}
+    
+	public void init(Element xmlElem, Compartment compartment)
 	{
 		//FIXME quick fix: cut/paste from
 		//"public static ProcessManager getNewInstance(Node xmlNode)"
@@ -89,10 +94,10 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	 * @param xmlNode
 	 * @return
 	 */
-	public static ProcessManager getNewInstance(Node xmlNode)
+	public static ProcessManager getNewInstance(Node xmlNode, Compartment compartment)
 	{
 		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		proc.init((Element) xmlNode);
+		proc.init((Element) xmlNode, compartment);
 		return proc;
 	}
 	

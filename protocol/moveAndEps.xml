@@ -209,7 +209,7 @@
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
 					firstStep="0.0"  timerStepSize="0.1">	
-					<aspect name="solutes" type="PRIMARY" class="String[]" value="solute1,solute2" /> 
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1,solute2" /> 
 				</process>
 			</processManagers>
 		</compartment>

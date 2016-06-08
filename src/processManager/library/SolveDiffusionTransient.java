@@ -25,6 +25,7 @@ import grid.SpatialGrid;
 import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 import reaction.Reaction;
@@ -89,16 +90,18 @@ public class SolveDiffusionTransient extends ProcessManager
 	// TODO replace with diffusivitySetter
 	protected HashMap<String,Double> _diffusivity;
 	
+	public String SOLUTES = AspectRef.soluteNames;
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, Compartment compartment)
 	{
-		super.init(xmlElem);
-		this.init(getStringA("solutes"));
+		super.init(xmlElem, compartment);
+		this.init( getStringA(SOLUTES) );
 	}
 	
 	/**

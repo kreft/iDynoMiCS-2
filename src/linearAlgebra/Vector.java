@@ -1750,7 +1750,7 @@ public final class Vector
 		double[] out = new double[vector.length+1];
 		for (int i = 0; i < vector.length; i++)
 			out[i] = vector[i];
-		out[vector.length+1] = appendable;
+		out[vector.length] = appendable;
 		return out;
 	}
 	

@@ -308,7 +308,12 @@ public class AspectRef
 	public static String soluteName= "solute";
 
 	/**
-	 * 
+	 * TODO
 	 */
 	public static String filePrefix = "prefix";
+
+	/**
+	 * TODO
+	 */
+	public static String graphicalOutputWriter = "outputWriter";
 }

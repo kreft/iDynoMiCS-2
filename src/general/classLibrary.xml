@@ -26,4 +26,8 @@
 	<classDef package="processManager.library." name="StepAllAgents" />
 	<classDef package="processManager.library." name="WriteAgentsSvg" />
 	<classDef package="processManager.library." name="WriteXmlOutput" />
+	<classDef package="processManager.library." name="GraphicalOutput" />
+<!-- graphical output -->
+	<classDef package="dataIO." name="SvgExport" />
+	<classDef package="dataIO." name="PovExport" />
 </document>

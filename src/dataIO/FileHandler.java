@@ -135,6 +135,17 @@ public class FileHandler
 	}
 	
 	/**
+	 * returns true if file exists
+	 * @param file
+	 * @return
+	 */
+	public boolean fexists(String file)
+	{
+		File f = new File(file);
+		return f.exists();
+	}
+	
+	/**
 	 * \brief Write line to file.
 	 * 
 	 * @param line

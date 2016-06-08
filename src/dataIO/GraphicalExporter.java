@@ -1,11 +1,21 @@
 package dataIO;
 
+import dataIO.Log.Tier;
+import generalInterfaces.XMLable;
 import linearAlgebra.Vector;
+import shape.Shape;
 import surface.Ball;
 import surface.Rod;
 import surface.Surface;
 
 public interface GraphicalExporter {
+	
+	public static GraphicalExporter getNewInstance(String input) 
+	{
+		GraphicalExporter obj = 
+				(GraphicalExporter) XMLable.getNewInstance(input);
+		return obj;
+	}
 	
 	/*************************************************************************
 	 * File handling
@@ -73,6 +83,17 @@ public interface GraphicalExporter {
 	
 	/**
 	 * 
+	 * @param circle_center
+	 * @param element_origin
+	 * @param dimension
+	 * @param numPointsOnArc
+	 * @param pigment
+	 */
+	public void circleElement(double[] circle_center, double[] element_origin, 
+			double[] dimension ,double numPointsOnArc, String pigment);
+	
+	/**
+	 * 
 	 * @param base
 	 * @param top
 	 * @param radius
@@ -97,6 +118,15 @@ public interface GraphicalExporter {
 	public void rectangle(double[] base, double[] top, double width, 
 			String pigment);
 	
+	/**
+	 * 
+	 * @param location
+	 * @param dimensions
+	 * @param pigment
+	 */
+	public void rectangle(double[] location, double[] dimensions, 
+			String pigment);
+	
 	/*************************************************************************
 	 * Helper methods
 	 ************************************************************************/
@@ -118,7 +148,26 @@ public interface GraphicalExporter {
 	 */
 	public default double[] to3D(double[] vector)
 	{
-		return Vector.appendDouble(vector, 0.0);
+		if (vector.length < 3)
+			return to3D(Vector.appendDouble(vector, 0.0));
+		else if (vector.length > 3)
+		{
+			Log.out(Tier.QUIET, "Warning 4 dimensional vector in graphical "
+					+ "exporter, returning null");
+			return null;
+		}
+		else
+			return vector;
+	}
+
+	/**
+	 * 
+	 * @param _prefix
+	 * @param shape
+	 */
+	public default void sceneFiles(String _prefix, Shape shape)
+	{
+		
 	}
 	
 }
