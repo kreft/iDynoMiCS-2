@@ -6,19 +6,23 @@ package boundary;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.w3c.dom.Node;
+
 import agent.Agent;
 import dataIO.Log;
 import dataIO.XmlRef;
 import generalInterfaces.XMLable;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class Boundary
+public abstract class Boundary implements NodeConstructor
 {
 	/**
 	 * TODO implement this in node construction
@@ -220,5 +224,51 @@ public abstract class Boundary
 	{
 		// TODO
 		return true;
+	}
+	
+	/*************************************************************************
+	 * NODE CONTRUCTION
+	 ************************************************************************/
+	
+	// TODO delete once nodeFactory has made this redundant
+	public void init(Node xmlNode)
+	{
+		// TODO partner boundary name
+	}
+	
+	@Override
+	public ModelNode getNode()
+	{
+		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
+		
+		// TODO
+		// modelNode.requirement = Requirements.?
+		
+		// TODO
+		
+		return modelNode;
+	}
+	
+	@Override
+	public void setNode(ModelNode node)
+	{
+		// TODO
+	}
+	
+	@Override
+	public NodeConstructor newBlank()
+	{
+		// TODO
+		return null;
+	}
+	
+	// TODO ?
+	//public void addChildObject(NodeConstructor childObject)
+	
+	@Override
+	public String defaultXmlTag()
+	{
+		// FIXME use different tag for spatial/non-spatial boundaries?
+		return XmlRef.dimensionBoundary;
 	}
 }

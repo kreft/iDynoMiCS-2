@@ -5,17 +5,24 @@ package boundary;
 
 import java.util.HashMap;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import agent.Agent;
 import agent.Body;
 import aspect.AspectRef;
 import boundary.grid.GridMethod;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import dataIO.XmlRef;
 import generalInterfaces.XMLable;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
 import shape.Shape;
+import shape.Dimension;
 import shape.Dimension.DimName;
 
 /**
@@ -189,6 +196,31 @@ public abstract class SpatialBoundary extends Boundary
 	/**************************************************************************
 	 * MODEL NODE
 	 *************************************************************************/
+	
+	// TODO delete once nodeFactory has made this redundant
+	public void init(Node xmlNode)
+	{
+		Element xmlElem = (Element) xmlNode;
+		/* Get the minimum or maximum. */
+		String str = xmlElem.getAttribute("extreme");
+		this._extreme = Dimension.extremeToInt(str);
+	}
+	
+	@Override
+	public ModelNode getNode()
+	{
+		ModelNode modelNode = super.getNode();
+		/* Which dimension? */
+		modelNode.add(new ModelAttribute(XmlRef.dimensionNamesAttribute,
+				this._dim.toString(),
+				null, true));
+		/* Minimum or maximum extreme of this dimension? */
+		modelNode.add(new ModelAttribute("extreme", 
+				Dimension.extremeToString(this._extreme),
+				new String[]{XmlRef.min, XmlRef.max}, true));
+		return modelNode;
+	}
+	
 	
 	// TODO!
 	

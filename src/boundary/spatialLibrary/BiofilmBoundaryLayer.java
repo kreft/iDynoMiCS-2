@@ -105,6 +105,10 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		// TODO
 		return out;
 	}
+	
+	/*************************************************************************
+	 * SOLUTE TRANSFERS
+	 ************************************************************************/
 
 	@Override
 	public double getFlux(SpatialGrid grid)
