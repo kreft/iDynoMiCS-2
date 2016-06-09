@@ -72,8 +72,8 @@ public class SvgExport implements GraphicalExporter
 				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".svg";
 		_svgFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
-
-		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
+		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" "
+				+ "version=\"1.1\">\n");
 	}
 	
 	/**
@@ -162,8 +162,8 @@ public class SvgExport implements GraphicalExporter
 		/* finish points list */
 		sb.append("\"");
 		/* transform to 'real' location and end xml tag*/
-		sb.append(" transform=\"translate(" + circle_center[0] + " " + circle_center[1]
-																	+ ")\"/>");
+		sb.append(" transform=\"translate(" + circle_center[0] + " " 
+				+ circle_center[1] + ")\"/>");
 		/* write to file */
 		_svgFile.write(sb.toString());
 	}
@@ -176,8 +176,9 @@ public class SvgExport implements GraphicalExporter
 	 */
 	public void rectangle(double[] location, double[] dimensions, String pigment)
 	{
-		_svgFile.write("<rect " + toSvg( location, RECTANGLE_LABELS ) + "width=\"" + dimensions[0] * 
-				_scalar + "\" height=\"" + dimensions[1] * _scalar + 
+		_svgFile.write("<rect " + toSvg( location, RECTANGLE_LABELS ) + 
+				"width=\"" + dimensions[0] * _scalar + 
+				"\" height=\"" + dimensions[1] * _scalar + 
 				"\" fill=\"" + pigment + "\" />\n");
 	}
 	

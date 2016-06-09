@@ -7,15 +7,12 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import agent.Body;
 import aspect.AspectRef;
-import dataIO.GraphicalExporter;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.PovExport;
 import dataIO.SvgExport;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
-import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
@@ -46,7 +43,7 @@ public class WriteAgentsSvg extends ProcessManager
 	/**
 	 * The SVG exporter.
 	 */
-	protected GraphicalExporter _svg = new PovExport();
+	protected SvgExport _svg = new SvgExport();
 	/**
 	 * Maximum concentration value to use for the color gradient when plotting
 	 * solute concentration.
@@ -81,9 +78,9 @@ public class WriteAgentsSvg extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem, Compartment compartment)
+	public void init(Element xmlElem)
 	{
-		super.init(xmlElem, compartment);
+		super.init(xmlElem);
 		
 		this._solute = this.getString(SOLUTE_NAME);
 		this._maxConcn = ( this.isAspect(MAX_VALUE) ? 
@@ -103,8 +100,6 @@ public class WriteAgentsSvg extends ProcessManager
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
-		((PovExport) this._svg).sceneFiles(this._prefix, agents.getShape());
-		
 		/* Initiate new file. */
 		this._svg.createFile(this._prefix);
 		
@@ -119,8 +114,8 @@ public class WriteAgentsSvg extends ProcessManager
 		//TODO Stefan: Maybe we should use another check?
 		if (shape instanceof CartesianShape)
 		this._svg.rectangle( Vector.zeros(size), size, "GRAY");
-//		else if (shape instanceof CylindricalShape)
-//			this._svg.circle(Vector.zeros(size), size, "GRAY");
+		else if (shape instanceof CylindricalShape)
+			this._svg.circle(Vector.zeros(size), size, "GRAY");
 		else
 			Log.out(Tier.CRITICAL,
 					"Warning! "+this._name+" computational domain neither "
@@ -164,9 +159,9 @@ public class WriteAgentsSvg extends ProcessManager
 				if (shape instanceof CartesianShape)
 				this._svg.rectangle(Vector.subset(origin, nDim), 
 							Vector.subset(dimension, nDim),pigment);
-//				else if (shape instanceof CylindricalShape)
-//					this._svg.circleElement(Vector.zerosDbl(2),	origin, 
-//									dimension, this._pointsOnCurve, pigment);
+				else if (shape instanceof CylindricalShape)
+					this._svg.circleElement(Vector.zerosDbl(2),	origin, 
+									dimension, this._pointsOnCurve, pigment);
 			}
 		}
 		/* Draw all located agents. */

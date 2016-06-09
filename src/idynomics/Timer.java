@@ -45,12 +45,7 @@ public class Timer implements Instantiatable, NodeConstructor
 		this._iteration = 0;
 		this._now = 0.0;
 	}
-	
-	public String getName()
-	{
-		return XmlRef.timer;
-	}
-	
+		
 	public void init(Element xmlNode)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");

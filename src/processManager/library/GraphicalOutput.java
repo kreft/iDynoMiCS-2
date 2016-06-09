@@ -10,8 +10,6 @@ import aspect.AspectRef;
 import dataIO.GraphicalExporter;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.PovExport;
-import dataIO.SvgExport;
 import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
