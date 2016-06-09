@@ -28,8 +28,7 @@ public class Helper
 	{
 		if ( input == null || input == "" )
 		{
-			String msg = "Additional input argument required: " + 
-					description + ", please enter a value: ";
+			String msg = description;
 			
 			if ( gui )
 			{
@@ -67,8 +66,7 @@ public class Helper
 	public static String obtainInput(String[] options, String description, boolean noLog)
 	{
 		String input;
-		String msg = "Additional input argument required: " + 
-				description + ", please select a value: ";
+		String msg = description;
 		
 		if ( gui )
 		{
@@ -97,6 +95,81 @@ public class Helper
 	public static String obtainInput(String input, String description)
 	{
 		return obtainInput(input, description, false);
+	}
+	
+	/**
+	 * obtain yes/no user input
+	 * @param description
+	 * @param noLog
+	 * @return
+	 */
+	public static boolean obtainInput(String description, boolean noLog)
+	{
+		String input = obtainInput(new String[] { "yes", "no" } , description, 
+				noLog);
+		if ( confirmation( input ) )
+			return true;
+		else if ( rejection( input ) )
+			return false;
+		else
+		{
+			Log.out(Tier.QUIET, "User input was not recognised, try:\n"
+					+ "[Confirming] \n" + 
+					Helper.stringAToString(confirmations()) + "\n"
+					+ "[Rejections] \n" +
+					Helper.stringAToString(rejections()));
+			return obtainInput(description, noLog);	
+		}
+	}
+	
+	/**
+	 * list of known confirmations.
+	 * @return
+	 */
+	public static String[] confirmations()
+	{
+		return new String[] {
+				"yes",
+				"y"
+		};
+	}
+	
+	/**
+	 * List of known rejections
+	 * @return
+	 */
+	public static String[] rejections()
+	{
+		return new String[] {
+				"no",
+				"n"
+		};
+	}
+	
+	/**
+	 * check whether user input is a confirmation
+	 * @param input
+	 * @return
+	 */
+	public static boolean confirmation(String input)
+	{
+		for ( String s : confirmations() )
+			if ( s == input )
+				return true;
+		return false;
+	}
+	
+	/**
+	 * Check whether user input is a rejection
+	 * @param input
+	 * @return
+	 */
+	public static boolean rejection(String input)
+	{
+		for ( String s : rejections() )
+			if ( s == input )
+				return true;
+		return false;
 	}
 	
 	/**
