@@ -1,20 +1,24 @@
 package testJUnit;
 
-import java.util.LinkedList;
-import org.junit.Test;
+import static dataIO.Log.Tier.DEBUG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static testJUnit.AllTests.TOLERANCE;
+
+import java.util.LinkedList;
+
+import org.junit.Test;
 
 import boundary.Boundary;
 import boundary.BoundaryLibrary.SolidBoundary;
 import dataIO.Log;
-import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import static testJUnit.AllTests.TOLERANCE;
-import shape.Shape;
 import shape.Dimension.DimName;
+import shape.Shape;
+import shape.ShapeLibrary.Circle;
 import shape.ShapeLibrary.Rectangle;
+import shape.ShapeLibrary.Sphere;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 
 /**
@@ -54,14 +58,15 @@ public class ShapesTest
 										cyclics.size(), correct);
 		}
 		
-		/* circle */
+		/* circle 
+		 * See 'Docs/PolarShapes/Neighbours_Circle' for a drawing of a circle
+		 * with coordinates and neighbors indicated */
 		correct = 3;
 		aShape = (Shape) Shape.getNewInstance("circle");
 		aShape.makeCyclic("THETA");
 		aShape.setDimensionLengths(new double[]{1, Math.PI / 2});
 		/* lets take local coord (0.5, pi/4) ~ (0.3535, 0.3535) global. */
-		cyclics = aShape.getCyclicPoints(
-													Vector.vector(2, 0.3535));
+		cyclics = aShape.getCyclicPoints(Vector.vector(2, 0.3535));
 		assertEquals("#cyclics = "+correct+" ("+2+"D)",
 				cyclics.size(), correct);
 		
@@ -76,7 +81,9 @@ public class ShapesTest
 		assertEquals("#cyclics = "+correct+" ("+3+"D)",
 				cyclics.size(), correct);
 		
-		/* sphere */
+		/* sphere 
+		 * See 'Docs/PolarShapes/Neighbours_Sphere' for a drawing of a 
+		 * sphere with coordinates and neighbors indicated */
 		correct = 3;
 		aShape = (Shape) Shape.getNewInstance("sphere");
 		aShape.makeCyclic("THETA");
@@ -121,6 +128,18 @@ public class ShapesTest
 	public void shouldIterateCorrectly()
 	{
 		AllTests.setupSimulatorForTest(1.0, 1.0, "shapesShouldIterateProperly");
+
+		/* check for rectangle */
+		rectangleShouldIterateCorrectly();
+		
+		/* check for circle */
+		circeShouldIterateCorrectly();
+		
+		/* check for sphere */
+		sphereShouldIterateCorrectly();
+	}
+	
+	private void rectangleShouldIterateCorrectly(){
 		int[][] trueNhb = new int[3][3];
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		Shape shp = new Rectangle();
@@ -152,7 +171,144 @@ public class ShapesTest
 		Matrix.setAll(trueNhb, 4);
 		Log.out(DEBUG, "Cyclic dimensions");
 		checkIteration(shp, trueNhb);
+		Log.out(DEBUG, "");	
+	}
+	
+	/**
+	 * Checks several sample-points of a circle with theta-length 120°.
+	 * See 'Docs/PolarShapes/Neighbours_Circle' for a drawing of a circle
+	 * with coordinates and true neighbors indicated.
+	 */
+	private void circeShouldIterateCorrectly(){
+		/* solid boundaries */
+		int[][] coords = new int[][]{ {0,0,0}, {1,0,0}, {1,1,0}, {2,3,0} };
+		int[][][] trueNhb = new int[][][]{
+			/* current sample (0, 0) */
+			{ {1,0,0}, {1,1,0}, {1,2,0} }, 				
+			/* current sample (1, 0) */
+			{ {0,0,0}, {1,1,0}, {2,0,0}, {2,1,0} }, 		
+			/* current sample (1, 1) */
+			{ {0,0,0}, {1,0,0}, {1,2,0}, {2,1,0}, {2,2,0}, {2,3,0} }, 	
+			/* current sample (2, 3) */
+			{ {1,1,0}, {1,2,0}, {2,2,0}, {2,4,0} }, 		
+		};
+		DimName[] dims = new DimName[]{DimName.R, DimName.THETA};
+		Shape shp = new Circle();
+		
+		/* r-dimension */
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(3.0);
+		resCalc.setResolution(1.0);
+		shp.setDimensionResolution(dims[0], resCalc);
+		
+		/* theta-dimension */
+		resCalc = new UniformResolution(); 
+		resCalc.setLength(2 * Math.PI / 3);
+		resCalc.setResolution(1.0);
+		shp.setDimensionResolution(dims[1], resCalc);
+		/*
+		 * Try first with solid boundaries.
+		 */
+		Boundary bndry = new SolidBoundary();
+		for ( DimName d : dims )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				shp.setBoundary(d, extreme, bndry);
+
+		/* Check it is correct. */
+		Log.out(DEBUG, "Solid boundaries");
+		/* circle with theta length 2 * pi / 3 and res 1 has 9 voxels in total */
+		checkIterationSamples(shp, coords, trueNhb, 9);
 		Log.out(DEBUG, "");
+		/*
+		 * Now try with cyclic dimensions.
+		 */
+		shp.makeCyclic(dims[1]); /* only theta can be cyclic in the circle */
+		trueNhb = new int[][][]{
+			/* current sample (0, 0) */
+			{{0,0,0}, {0,0,0}, {1,0,0}, {1,1,0}, {1,2,0}}, 	 
+			 /* current sample (1, 0) */
+			{{0,0,0}, {1,2,0}, {1,1,0}, {2,0,0}, {2,1,0}}, 	  
+			/* current sample (1, 1) */
+			{{0,0,0}, {1,0,0}, {1,2,0}, {2,1,0}, {2,2,0}, {2,3,0}},
+			/* current sample (2, 3) */
+			{{1,1,0}, {1,2,0}, {2,2,0}, {2,4,0}}, 		 	   
+		};
+		Log.out(DEBUG, "Cyclic dimensions");
+		/* circle with length 2 * pi / 3 and res 1 has 9 voxels in total */
+		checkIterationSamples(shp, coords, trueNhb, 9);
+		Log.out(DEBUG, "");	
+	}
+	
+	/**
+	 * Checks several sample-points of a sphere with theta- and phi-length 90°.
+	 * See 'Docs/PolarShapes/Neighbours_Sphere' for a drawing of a sphere
+	 * with coordinates and true neighbors indicated.
+	 */
+	private void sphereShouldIterateCorrectly(){
+		/* solid boundaries */
+		int[][] coords = new int[][]{ {0,0,0}, {1,0,0}, {1,1,0}, {2,2,1} };
+		int[][][] trueNhb = new int[][][]{
+			/* current sample (0,0,0) */
+			{ {1,0,0}, {1,1,0}, {1,1,1}, {1,2,0}, {1,2,1} }, 
+			/* current sample (1,0,0) */
+			{ {0,0,0}, {1,1,0}, {1,1,1}, {2,0,0}, {2,1,0}, {2,1,1} }, 	
+			/* current sample (1,1,0) */
+			{ {0,0,0}, {1,0,0}, {1,1,1}, {1,2,0}, {2,1,0}, {2,2,0},
+			  {2,2,1}, {2,3,0}, {2,3,1} },
+			/* current sample (2,2,1) */
+			{ {1,1,0}, {1,1,1}, {2,1,0}, {2,1,1}, {2,2,0}, {2,2,2}, {2,3,1},
+			  {2,3,2} }, 		
+		};
+		DimName[] dims = new DimName[]{DimName.R, DimName.PHI, DimName.THETA};
+		Shape shp = new Sphere();
+		
+		/* r-dimension */
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(3.0);
+		resCalc.setResolution(1.0);
+		shp.setDimensionResolution(dims[0], resCalc);
+		
+		/* polar dimensions */
+		for (int i=1; i<3; ++i){
+			resCalc = new UniformResolution(); 
+			resCalc.setLength(Math.PI / 2);
+			resCalc.setResolution(1.0);
+			shp.setDimensionResolution(dims[i], resCalc);
+		}
+		/*
+		 * Try first with solid boundaries.
+		 */
+		Boundary bndry = new SolidBoundary();
+		for ( DimName d : dims )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				shp.setBoundary(d, extreme, bndry);
+
+		/* Check it is correct. */
+		Log.out(DEBUG, "Solid boundaries");
+		/* sphere with polar length pi / 2 and res 1 has 20 voxels in total */
+		checkIterationSamples(shp, coords, trueNhb, 20);
+		Log.out(DEBUG, "");
+		/*
+		 * Now try with cyclic dimensions.
+		 */
+		shp.makeCyclic(dims[2]); /* only theta can be cyclic in the sphere */
+		trueNhb = new int[][][]{
+			/* current sample (0,0,0) */
+			{ {0,0,0}, {0,0,0}, {1,0,0}, {1,1,0}, {1,1,1}, {1,2,0}, {1,2,1} }, 
+			/* current sample (1,0,0) */
+			{ {0,0,0}, {1,0,0}, {1,0,0}, {1,1,0}, {1,1,1}, {2,0,0}, {2,1,0},
+			  {2,1,1} }, 	
+			/* current sample (1,1,0) */
+			{ {0,0,0}, {1,0,0}, {1,1,1}, {1,1,1}, {1,2,0}, {2,1,0}, {2,2,0},
+			  {2,2,1}, {2,3,0}, {2,3,1} },
+			/* current sample (2,2,1) */
+			{ {1,1,0}, {1,1,1}, {2,1,0}, {2,1,1}, {2,2,0}, {2,2,2}, {2,3,1},
+			  {2,3,2} }, 		
+		};
+		Log.out(DEBUG, "Cyclic dimensions");
+		/* sphere with polar length pi / 2 and res 1 has 20 voxels in total */
+		checkIterationSamples(shp, coords, trueNhb, 20);
+		Log.out(DEBUG, "");	
 	}
 	
 	private void checkIteration(Shape shp, int[][] trueNhb)
@@ -175,5 +331,59 @@ public class ShapesTest
 			assertEquals(nhbCount, trueNhb[coord[0]][coord[1]]);
 		}
 		assertEquals(iterCount, 9);
+	}
+	
+	/**
+	 * Evaluates the neighbor iterator at coordinates <b>sample_coords</b>.
+	 * Assures that exactly the neighbors defined in <b>trueNhb</b> are visited
+	 * for each sample coordinate.
+	 * Assures the total number of voxels in the shape is equal to 
+	 * <b>nVoxelTotal</b>.
+	 * 
+	 * @param shp A Shape.
+	 * @param sample_coords Several 3D sample coordinates to be evaluated.
+	 * @param trueNhb Array of true neighbors of the sample coordinates.  
+	 * @param nVoxelTotal The number of voxels in <b>shp</b> in total.
+	 */
+	private void checkIterationSamples(Shape shp, int[][] sample_coords,
+			int[][][] trueNhb, int nVoxelTotal)
+	{
+		int[] coord, nhb;
+		int iter_count = 0, sample_count = 0, nhb_count = 0;
+		for ( coord = shp.resetIterator(); shp.isIteratorValid(); 
+									iter_count++, coord = shp.iteratorNext() )
+		{
+			/* only evaluate sample coordinates */
+			if (sample_count < sample_coords.length 
+					&& Vector.areSame(sample_coords[sample_count], coord)){
+				nhb_count = 0;
+				/* iterate through all neighbors */
+				for ( nhb = shp.resetNbhIterator();
+						shp.isNbhIteratorValid(); nhb = shp.nbhIteratorNext() )
+				{
+					if ( shp.isNhbIteratorInside() ){
+						/* check equality of neighbor and trueNhb coords */
+						Log.out(DEBUG, "Comparing current nhb " 
+							+ Vector.toString(nhb) + " with true nhb "
+							+ Vector.toString(trueNhb[sample_count][nhb_count]));
+						assertTrue(Vector.areSame(
+								trueNhb[sample_count][nhb_count], nhb));
+						nhb_count++;
+					}
+					
+				}
+				
+				Log.out(DEBUG, "Coord " + Vector.toString(coord) + " has "
+						+ trueNhb[sample_count].length
+						+ " true neighbors, counted " + nhb_count);
+				/* check all neighbors have been visited for the sample coord */
+				assertEquals(nhb_count, trueNhb[sample_count].length);
+				sample_count++;
+			}
+		}
+		/* check all voxels have been visited */
+		Log.out(DEBUG, "Shape has "	+ nVoxelTotal
+				+ " voxels, counted " + iter_count);
+		assertEquals(iter_count, nVoxelTotal);
 	}
 }

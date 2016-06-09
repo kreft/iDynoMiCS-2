@@ -244,8 +244,15 @@ public abstract class Shape implements
 				
 				/* init resolution calculators */
 				rC = new ResolutionCalculator.UniformResolution();
-				rC.init(dim._targetRes, dim.getLength());
-				this.setDimensionResolution(dimName, rC);
+				double length = dim.getLength();
+				/* set theta dimension cyclic for a full circle, no matter what 
+				 * the user specified */
+				if (dimName == DimName.THETA 
+						&& ExtraMath.areEqual(length, 2 * Math.PI,
+								PolarShape.POLAR_ANGLE_EQ_TOL))
+					dim.setCyclic();
+				rC.init(dim._targetRes, length);
+				this.setDimensionResolution(dimName, rC);	
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -464,12 +471,14 @@ public abstract class Shape implements
 	 */
 	public double[] getDimensionLengths()
 	{
-		double[] out = new double[this._dimensions.size()];
+		double[] out = new double[getNumberOfDimensions()];
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			out[i] = dim.getLength();
-			i++;
+			if (dim.isSignificant()){
+				out[i] = dim.getLength();
+				i++;
+			}
 		}
 		return out;
 	}
@@ -766,9 +775,10 @@ public abstract class Shape implements
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
+			/* NOTE that the dim should not be cyclic if it is insignificant */ 
 			if ( dim.isCyclic() )
 			{
-				// TODO We don't need these in an angular dimension with 2 * pi
+				/* NOTE that a full-length polar dimension is always cyclic */
 				for ( double[] loc : localPoints )
 				{
 					/* Add the point below. */
@@ -1143,9 +1153,8 @@ public abstract class Shape implements
 	protected void nVoxelTo(int[] destination, int[] coords)
 	{
 		Vector.checkLengths(destination, coords);
-		int n = Math.min(coords.length, 3);
 		ResCalc rC;
-		for ( int dim = 0; dim < n; dim++ )
+		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			rC = this.getResolutionCalculator(coords, dim);
 			destination[dim] = rC.getNVoxel();
@@ -1406,7 +1415,7 @@ public abstract class Shape implements
 		rC = this.getResolutionCalculator(this._currentNeighbor, index);
 		nbhMin = rC.getCumulativeResolution(this._currentNeighbor[index] - 1);
 		nbhMax = rC.getCumulativeResolution(this._currentNeighbor[index]);
-		/* Find the overlap. */
+		/* Find the overlap. */		
 		return ExtraMath.overlap(curMin, curMax, nbhMin, nbhMax);
 	}
 	
@@ -1426,7 +1435,7 @@ public abstract class Shape implements
 		{
 			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			int nVoxel = this.getResolutionCalculator(
-					this._currentCoord, dimIdx).getNVoxel();
+					this._currentNeighbor, dimIdx).getNVoxel();
 			if ( this._nbhDirection == 0 )
 			{
 				/* Direction 0: the neighbor wraps below, to the highest. */
@@ -1456,15 +1465,20 @@ public abstract class Shape implements
 			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			if ( this._nbhDirection == 0 )
 			{
-				/* Direction 0: the neighbor should be below. */
-				this._currentNeighbor[dimIdx] = this._currentCoord[dimIdx] - 1;
+				/* Direction 0: the neighbor should reset to minus one. */
+				this._currentNeighbor[dimIdx] = -1;
 			}
 			else
 			{
-				/* Direction 1: the neighbor should be above. */
-				this._currentNeighbor[dimIdx] = this._currentCoord[dimIdx] + 1;
+				int nVoxel = this.getResolutionCalculator(
+						this._currentNeighbor, dimIdx).getNVoxel();
+				/* Direction 1: the neighbor should reset above the highest.*/
+				this._currentNeighbor[dimIdx] = nVoxel;
 			}
 		}
+		Log.out(NHB_ITER_LEVEL, "   un-transformed neighbor at "+
+				Vector.toString(this._currentNeighbor)+
+				": status "+this._whereIsNbh);
 	}
 	
 	/**
@@ -1505,29 +1519,26 @@ public abstract class Shape implements
 	protected boolean nbhJumpOverCurrent(DimName dim)
 	{
 		int index = this.getDimensionIndex(dim);
-		this.updateCurrentNVoxel();
-		this._whereIsNbh = this.whereIsNhb(dim);
 		/* Check we are behind the current coordinate. */
 		if ( this._currentNeighbor[index] < this._currentCoord[index] )
 		{
+			/* try to jump */
+			this._currentNeighbor[index] = this._currentCoord[index] + 1;
 			boolean bMaxDef = this.getDimension(dim).isBoundaryDefined(1);
+			this._whereIsNbh = this.whereIsNhb(dim);
 			/* Check there is space on the other side. */
 			if ( this._whereIsNbh == INSIDE || bMaxDef )
 			{
-				/* Jump and report success. */
+				/* report success. */
 				this._nbhDirection = 1;
-				this._currentNeighbor[index] = this._currentCoord[index] + 1;
-				this._whereIsNbh = this.whereIsNhb(dim);
 				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
 						": result "+Vector.toString(this._currentNeighbor)+
 						" is "+this._whereIsNbh);
 				return true;
 			}
 		}
-		/* Report failure. */
-		// TODO is it appropriate to use a meaningless direction here?
-		this._nbhDirection = -1;
-		this._whereIsNbh = this.whereIsNhb(dim);
+		/* undo jump and Report failure. */
+		this._currentNeighbor[index] = this._currentCoord[index] - 1;
 		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
 				" is "+this._whereIsNbh);

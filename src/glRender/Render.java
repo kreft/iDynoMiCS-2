@@ -117,12 +117,12 @@ public class Render implements GLEventListener, Runnable {
 		 */
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-	
+			
 		/*
 		 * start new identity
 		 */
 		gl.glLoadIdentity();
-		
+
 		/*
 		 * switch lighting and alpha blending
 		 */
@@ -209,6 +209,8 @@ public class Render implements GLEventListener, Runnable {
 		/* alpha blend */
 		gl.glColor4f(1f, 1f, 1f, 0.5f); // 50% alpha
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);	
+		
+		_commandMediator.init(drawable);
 	}
 
 	/**
