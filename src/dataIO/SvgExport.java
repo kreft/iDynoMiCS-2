@@ -32,6 +32,10 @@ public class SvgExport implements GraphicalExporter
 	 */
 	protected double _spacer = 25.0;
 	
+	
+	private static final String[] CIRCLE_LABELS = new String[] {"cx","cy"};
+
+	private static final String[] RECTANGLE_LABELS = new String[] {"x","y"};
 	/**
 	 * handles incrementing file numbering
 	 * @param filenr
@@ -49,16 +53,13 @@ public class SvgExport implements GraphicalExporter
 	 * @param vector
 	 * @return
 	 */
-	private String toSvg(double[] vector)
+	private String toSvg(double[] vector, String[] labels)
 	{
-		double[] v = Vector.zerosDbl(2);
-		int nDim = Math.min(vector.length, 2);
-		for ( int i = 0; i < nDim; i++ )
-			v[i] = vector[i];
-		/**
-		 * work out how to do scaling and domain properly and consistently
-		 */
-		return " cx=\"" + Double.toString(_spacer+_scalar*v[0]) + "\" cy=\"" + Double.toString(_spacer+_scalar*v[1]) + "\" ";
+		String out = " ";
+		for ( int i = 0; i < labels.length; i++ )
+			out += labels[i] + "=\"" + 
+					Double.toString( _spacer + _scalar * vector[i] ) + "\" ";
+		return out;
 	}
 	
 	/**
@@ -98,7 +99,7 @@ public class SvgExport implements GraphicalExporter
 	 */
 	public void circle(double[] center, double radius, String pigment)
 	{
-		_svgFile.write("<circle " + toSvg(center) + "r=\"" +
+		_svgFile.write("<circle " + toSvg(center, CIRCLE_LABELS) + "r=\"" +
 				_scalar * radius + "\" fill=\"" + pigment
 				+ "\" />\n" );
 	}
@@ -175,8 +176,7 @@ public class SvgExport implements GraphicalExporter
 	 */
 	public void rectangle(double[] location, double[] dimensions, String pigment)
 	{
-		_svgFile.write("<rect x=\"" + (_spacer + _scalar*location[0]) + "\" y=\"" + 
-				(_spacer + _scalar*location[1]) + "\" width=\"" + dimensions[0] * 
+		_svgFile.write("<rect " + toSvg( location, RECTANGLE_LABELS ) + "width=\"" + dimensions[0] * 
 				_scalar + "\" height=\"" + dimensions[1] * _scalar + 
 				"\" fill=\"" + pigment + "\" />\n");
 	}
@@ -247,12 +247,10 @@ public class SvgExport implements GraphicalExporter
 	public void rectangle(double[] base, double[] top, 
 			double width, String pigment) 
 	{
-		_svgFile.write("<line " +
-				"x1=\"" + (_spacer + _scalar*base[0]) + 
-				"\" y1=\"" + (_spacer + _scalar*base[1]) + 
-				"\" x2=\"" + (_spacer + _scalar*top[0]) + 
-				"\" y2=\"" + (_spacer + _scalar*top[1]) + 
-				"\" style=\"stroke:" + pigment + 
+		_svgFile.write("<line " + 
+				toSvg( base, new String[] { "x1", "y1"} ) +
+				toSvg( top,  new String[] { "x2", "y2"} ) +
+				"style=\"stroke:" + pigment + 
 				";stroke-width:" + _scalar*width + 
 				"\" />\n");
 	}

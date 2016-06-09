@@ -98,8 +98,8 @@ public class Render implements GLEventListener, Runnable {
 	 * Light sources 
 	 */
     private float[] lightPosition = {-40.0f, -40.0f, 80.0f, 1f};
-    private float[] lightAmbient = {0.25f, 0.25f, 0.25f, 1f};
-    private float[] LightDiffuse = {0.25f, 0.25f, 0.25f, 1f};
+    private float[] lightAmbient = {0.5f, 0.5f, 0.5f, 1f};
+    private float[] LightDiffuse = {0.5f, 0.5f, 0.5f, 1f};
     
     /*
      * mediator

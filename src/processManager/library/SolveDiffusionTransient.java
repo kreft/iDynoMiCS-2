@@ -34,6 +34,7 @@ import shape.Shape;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEupdater;
+import utility.Helper;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
@@ -90,7 +91,13 @@ public class SolveDiffusionTransient extends ProcessManager
 	// TODO replace with diffusivitySetter
 	protected HashMap<String,Double> _diffusivity;
 	
+	/**
+	 * TODO
+	 */
+	private Compartment _compartment;
+	
 	public String SOLUTES = AspectRef.soluteNames;
+
 	
 	
 	/*************************************************************************
@@ -101,7 +108,8 @@ public class SolveDiffusionTransient extends ProcessManager
 	public void init(Element xmlElem, Compartment compartment)
 	{
 		super.init(xmlElem, compartment);
-		this.init( getStringA(SOLUTES) );
+		this._compartment = compartment;
+		this.init();
 	}
 	
 	/**
@@ -110,9 +118,10 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * 
 	 * @param soluteNames The list of solutes this is responsible for.
 	 */
-	public void init(String[] soluteNames)
+	public void init()
 	{
-		this._soluteNames = soluteNames;
+		this._soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.setToArray(this._compartment.environment.getSoluteNames()));
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
@@ -127,7 +136,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		}
 		// TODO enter a diffusivity other than one!
 		this._diffusivity = new HashMap<String,Double>();
-		for ( String sName : soluteNames )
+		for ( String sName : _soluteNames )
 			this._diffusivity.put(sName, 1.0);
 	}
 	

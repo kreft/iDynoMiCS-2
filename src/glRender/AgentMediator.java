@@ -108,13 +108,13 @@ public class AgentMediator implements CommandMediator {
 				switch (_pigment)
 				{
 				case "GREEN" :
-					  _rgba = new float[] {0.1f, 1f, 0.1f};
+					  _rgba = new float[] {0.0f, 1.0f, 0.0f};
 					  break;
 				case "RED" :
-					  _rgba = new float[] {1f, 0.1f, 0.1f};
+					  _rgba = new float[] {1f, 0.0f, 0.0f};
 					  break;
 				case "BLUE" :
-					  _rgba = new float[] {0.1f, 0.1f, 1f};
+					  _rgba = new float[] {0.01f, 0.0f, 1.0f};
 					  break;
 				case "PURPLE" :
 					  _rgba = new float[] {1.0f, 0.0f, 1.0f};

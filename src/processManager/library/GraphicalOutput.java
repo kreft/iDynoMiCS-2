@@ -96,23 +96,37 @@ public class GraphicalOutput extends ProcessManager
 	 */
 	public void init(Element xmlElem, Compartment compartment)
 	{
+		/*
+		 * Initiate general process manager settings
+		 */
 		super.init(xmlElem, compartment);
+
+		/* set the shape */
+		this._shape = _compartment.getShape();
 		
-		this._prefix = this.getString(FILE_PREFIX);
-		this._shape = compartment.getShape();
+		/* If any, solute to plot */
+		this._solute = this.getString(SOLUTE_NAME);
 		
+		/* ArrayType to plot (CONCN if unspecified_ */
+		this._arrayType = ArrayType.valueOf( (String) this.getOr(ARRAY_TYPE, 
+				ArrayType.CONCN.toString() ) );
+		
+		/* Output naming */
+		if (_solute == null)
+			this._prefix = "agents";
+		else
+			this._prefix = _solute + "_" + _arrayType.toString();
+
+		/* get instance of appropriate output writer */
 		this._graphics = GraphicalExporter.getNewInstance(
 				this.getString(OUTPUT_WRITER) );
 		
-		this._graphics.sceneFiles(this._prefix, this._shape);
+		/* write scene files (used by pov ray) */
+		this._graphics.sceneFiles( this._prefix, this._shape );
 		
-		this._solute = this.getString(SOLUTE_NAME);
-		this._maxConcn = ( this.isAspect(MAX_VALUE) ? 
-									this.getDouble(MAX_VALUE) : 2.0 );
-			
-		this._arrayType = ArrayType.CONCN;
-		if ( this.isAspect(ARRAY_TYPE) ) 
-			this._arrayType = ArrayType.valueOf(this.getString(ARRAY_TYPE));
+		/* set max concentration for solute grid color gradient */
+		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
+
 	}
 	
 	/*************************************************************************
@@ -123,37 +137,40 @@ public class GraphicalOutput extends ProcessManager
 	protected void internalStep(EnvironmentContainer environment,
 														AgentContainer agents)
 	{
-
-		
 		/* Initiate new file. */
 		this._graphics.createFile(this._prefix);
 		
-		/* Draw computational domain rectangle. */
-		// FIXME Safety: this assumes the shape is a rectangle!
+		/* 
+		 * Draw computational domain  
+		 */
 		double[] size = _shape.getDimensionLengths();
 		
 		/* check if this shape is cylindrical or cartesian */
 		//TODO Stefan: Maybe we should use another check?
+		
+		
 		if (_shape instanceof CartesianShape)
-		this._graphics.rectangle( Vector.zeros(size), size, "GRAY");
+			this._graphics.rectangle( Vector.zeros(size), size, "lightblue");
 		else if (_shape instanceof CylindricalShape)
 			this._graphics.circle(Vector.zeros(size), 
-					_shape.getDimension(DimName.R).getLength(), "GRAY");
+					this._shape.getDimension(DimName.R).getLength(), "lightblue");
 		else
-			Log.out(Tier.CRITICAL,
-					"Warning! "+this._name+" computational domain neither "
-							+ "rectangular nor circular");
+			Log.out(Tier.BULK,
+					"Computational domain neither rectangular nor circular, "
+					+ this._name + " will not draw a computational domain.");
+		
 		/* Draw solute grid for specified solute, if any. */
 		if ( ! environment.isSoluteName(this._solute) )
 		{
-			Log.out(Tier.CRITICAL,
-						"Warning! "+this._name+" can't find solute "+
-						this._solute+" in the environment");
+			//TODO Bas [08/06/16] this should not be a critical warning since
+			// this is a sensible option if the user does not want to plot a 
+			// solute (null solute).
+			Log.out(Tier.BULK, this._name+" can't find solute " + this._solute +
+					" in the environment, no solute will be draw");
 		}
 		else
 		{
-			_shape = environment.getShape();
-			
+				
 			SpatialGrid solute = environment.getSoluteGrid(_solute);
 			
 			int nDim = agents.getNumDims();

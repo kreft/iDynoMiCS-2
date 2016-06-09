@@ -2,6 +2,7 @@ package utility;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -180,10 +181,21 @@ public class Helper
 		return out;
 	}
 
-	public static String[] ListToArray(List<String> all) {
+	public static String[] listToArray(List<String> all) {
 		String[] out = new String[all.size()];
 		for (int i = 0; i < all.size(); i++)
 			out[i] = all.get(i);
+		return out;
+	}
+	
+	public static String[] setToArray(Set<String> all) {
+		String[] out = new String[all.size()];
+		int i =0;
+		for (String s : all)
+		{
+			out[i] = s;
+			i++;
+		}
 		return out;
 	}
 }

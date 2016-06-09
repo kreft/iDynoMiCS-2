@@ -50,6 +50,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
      * The aspect registry... TODO
      */
     private AspectReg _aspectRegistry = new AspectReg();
+    
+    protected Compartment _compartment;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -62,8 +64,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
     
 	public void init(Element xmlElem, Compartment compartment)
 	{
-		//FIXME quick fix: cut/paste from
-		//"public static ProcessManager getNewInstance(Node xmlNode)"
+		this._compartment = compartment;
 		
 		this.loadAspects(xmlElem);
 		/*

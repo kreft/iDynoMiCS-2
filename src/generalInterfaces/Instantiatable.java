@@ -32,7 +32,7 @@ public interface Instantiatable
 	 * <p>{@code this.thing = (Thing) Thing.getNewInstance(className);}.</p>
 	 * 
 	 * <p><b>IMPORTANT:</b> This method should only be overwritten in the class
-	 * that implements XMLable if a prefix is necessary.</p>
+	 * that implements Instantiatable if a prefix is necessary.</p>
 	 * 
 	 * @param className {@code String} name of the class to be instanciated.
 	 * This method will ensure that the first letter is in upper case, but only
