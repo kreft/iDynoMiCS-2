@@ -133,8 +133,6 @@ public class FileHandler
 		catch (IOException e)
 		{
 			Log.printToScreen(e.toString(), false);
-			if ( Helper.obtainInput("Failed to create file, retry?", false))
-				this.fnew(file);
 		}
 	}
 	
