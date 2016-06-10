@@ -104,29 +104,10 @@
 				</agent> 
 			</agents>
 			<processManagers>
-				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
-					firstStep="0.0"  timerStepSize="1.0" >
-					<aspect name="prefix" type="PRIMARY" class="String" value="out_solute1" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
-					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
-				</process>
-				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
+				<process name="povWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="prefix" type="PRIMARY" class="String" value="out_solute2" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
-					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
 				</process>
-				<process name="svgWriter" class="WriteAgentsSvg" priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="prefix" type="PRIMARY" class="String" value="rate_solute2" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
-					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
-					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
-				</process>
-				<!-- <process name="agentGrowth" class="AgentGrowth" priority="-0"
-					firstStep="0.0"  />  -->
-				<!-- <process name="agentMove" class="AgentStochasticMove"
-					priority="1" firstStep="0.0"  /> -->
 				<process name="agentRelax" class="AgentRelaxation" priority="-2"
 					firstStep="0.0"  timerStepSize="1.0">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />

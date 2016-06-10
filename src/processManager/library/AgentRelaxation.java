@@ -123,6 +123,11 @@ public class AgentRelaxation extends ProcessManager
 	 * 
 	 */
 	private Shape _shape;
+	
+	/**
+	 * 
+	 */
+	private Collection<Surface> _shapeSurfs;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -143,6 +148,7 @@ public class AgentRelaxation extends ProcessManager
 		this._timeLeap	= true;
 		
 		this._shape = compartment.getShape();
+		this._shapeSurfs  = _shape.getSurfaces();
 		this._iterator = new Collision(null, _shape);
 	}
 
@@ -160,12 +166,7 @@ public class AgentRelaxation extends ProcessManager
 	{
 		Tier level = BULK;
 		Log.out(level, "Updating agent forces");
-		/*
-		 * Updated bodies will required an updated spatial registry.
-		 */
-		agents.refreshSpatialRegistry();
-		// TODO Move this into internalStep() and make shapeSurfs a class variable?
-		Collection<Surface> shapeSurfs = _shape.getSurfaces();
+
 		/* Calculate forces. */
 		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
@@ -240,7 +241,7 @@ public class AgentRelaxation extends ProcessManager
 			/*
 			 * Boundary collisions
 			 */
-			this._iterator.collision(shapeSurfs, agentSurfs, 0.0);
+			this._iterator.collision(_shapeSurfs, agentSurfs, 0.0);
 		}
 		Log.out(level, " Finished updating agent forces");
 	}
@@ -280,6 +281,8 @@ public class AgentRelaxation extends ProcessManager
 		// Mechanical relaxation
 		while(_tMech < _timeStepSize) 
 		{	
+
+			agents.refreshSpatialRegistry();
 			this.updateForces(agents);
 
 			/// obtain current highest particle velocity
@@ -322,6 +325,7 @@ public class AgentRelaxation extends ProcessManager
 			{
 			case SHOVE :
 			{
+				this._timeLeap	= false;
 				for ( Agent agent: agents.getAllLocatedAgents() )
 				{
 					Body body = ((Body) agent.get(BODY));
@@ -330,7 +334,7 @@ public class AgentRelaxation extends ProcessManager
 						point.shove(this._dtMech, radius);
 				}
 				/* Continue until all overlap is resolved. */
-				if ( this._vSquare == 0.0 )
+				if ( this._vSquare < 0.001 )
 					this._tMech = this._timeStepSize;
 				break;
 			}

@@ -90,7 +90,7 @@ public class Render implements GLEventListener, Runnable {
 	/*
 	 * Camera positioning
 	 */
-	private float _tilt = 0.0f, _zoom = 0.0f, _angle = 0.0f;
+	private float _tilt = 0.005f, _zoom = 0.0f, _angle = 0.5f*(float) Math.PI;
 	private float _x = 0f, _y = 0f /* , z = 0f */;
 
 	
@@ -157,10 +157,23 @@ public class Render implements GLEventListener, Runnable {
 		gl.glLoadIdentity();
 		
 		/* camera perspective */
-		_glu.gluPerspective(45.0f, _aspectRatio, 1.0, _commandMediator.kickback()+50.0);
-		_glu.gluLookAt(_x + hDist* Math.cos(_angle) , _y + hDist * Math.sin(_angle), 
-				Math.cos(_tilt+0.0001) * dist, _x, _y, 0, Math.cos(_angle), Math.sin(_angle)
-				, 0);
+		_glu.gluPerspective( 45.0f, _aspectRatio, 
+				1.0, _commandMediator.kickback() + 50.0 );
+		
+		/* 
+		 * camera position, direction and rotation 
+		 */
+		_glu.gluLookAt( 
+				_x + hDist * Math.cos(_angle), 		// eyeX
+				_y + hDist * Math.sin(_angle), 		// eyeY
+				Math.cos(_tilt) * dist, 			// eyeZ
+				_x, 								// centerX
+				_y, 								// centerY
+				0, 									// centerZ
+				Math.cos(_angle), 					// upX
+				Math.sin(_angle),					// upY
+				dist * 10000 * ( Math.sin(_tilt) )	// upZ
+				);	
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		
 		gl.glFlush();
@@ -495,8 +508,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltdown");
-				if(r._tilt > -1.47)
-					r._tilt -= 0.1f;
+					r._tilt -= 0.1f*(float) Math.PI;
 			}
 		});
 		
@@ -508,8 +520,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltup");
-				if(r._tilt < 1.47)
-					r._tilt += 0.1f;
+					r._tilt += 0.1f*(float) Math.PI;
 			}
 		});
 		
@@ -537,7 +548,7 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});
 		
-		/* zoom out */
+		/* clockwise */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0), "clockwise") ;
 		actionMap.put("clockwise", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
@@ -545,11 +556,11 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("clockwise");
-				r._angle -= 0.1f;
+				r._angle -= 0.1f*(float) Math.PI;
 			}
 		});
 		
-		/* zoom in */
+		/* counterclockwise */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0), "counterclockwise") ;
 		actionMap.put("counterclockwise", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
@@ -557,7 +568,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("counterclockwise");
-				r._angle += 0.1f;
+				r._angle += 0.1f*(float) Math.PI;
 			}
 		});	
 	}
