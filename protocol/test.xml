@@ -28,7 +28,6 @@
 				</aspect>
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<speciesModule name="coccoid" />
-				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />

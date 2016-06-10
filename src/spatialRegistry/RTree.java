@@ -191,6 +191,40 @@ public class RTree<T> implements SpatialRegistry<T>
 			}
 		}
 	}
+	
+	public synchronized List<T> findSet(double[] coords, double[] dimensions)
+	{
+		assert (coords.length == numDims);
+		assert (dimensions.length == numDims);
+		LinkedList<T> results = new LinkedList<T>();
+		findSet(coords, dimensions, root, results);
+		return results;
+	}
+
+	private synchronized void findSet(double[] coords, double[] dimensions, Node n,
+			LinkedList<T> results)
+	{
+		if (n.leaf)
+		{
+			for (Node e : n.children)
+			{
+				if (isInSet(coords, dimensions, e.coords))
+				{
+					results.add(((Entry) e).entry);
+				}
+			}
+		}
+		else
+		{
+			for (Node c : n.children)
+			{
+				if (isOverlap(coords, dimensions, c.coords, c.dimensions))
+				{
+					search(coords, dimensions, c, results);
+				}
+			}
+		}
+	}
 
 	//added 15-04-2015 - Bastiaan
 	/**
@@ -878,6 +912,32 @@ public class RTree<T> implements SpatialRegistry<T>
 			else if (scoords[i] > coords[i])
 			{
 				if (coords[i] + FUDGE_FACTOR*dimensions[i] >= scoords[i])
+				{
+					overlapInThisDimension = true;
+				}
+			}
+			if (!overlapInThisDimension)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean isInSet(double[] scoords, double[] sdimensions,
+			double[] coords)
+	{
+		final double FUDGE_FACTOR=1.001f;
+		for (int i = 0; i < scoords.length; i++)
+		{
+			boolean overlapInThisDimension = false;
+			if (scoords[i] == coords[i])
+			{
+				overlapInThisDimension = true;
+			}
+			else if (scoords[i] < coords[i])
+			{
+				if (scoords[i] + FUDGE_FACTOR*sdimensions[i] >= coords[i])
 				{
 					overlapInThisDimension = true;
 				}
