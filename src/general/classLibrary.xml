@@ -11,6 +11,7 @@
 	<classDef package="aspect.event." name="CoccoidDivision" />
 	<classDef package="aspect.event." name="RodDivision" />
 	<classDef package="aspect.event." name="ExcreteEPS" />
+	<classDef package="aspect.event." name="ExcreteEPSCumulative" />
 	<classDef package="aspect.event." name="InternalProduction" />
 	<classDef package="aspect.event." name="ResolveInteractionDistance" />
 	<classDef package="aspect.event." name="SimpleGrowth" />

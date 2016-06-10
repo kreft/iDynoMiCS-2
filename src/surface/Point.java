@@ -254,7 +254,7 @@ public class Point implements Copyable, NodeConstructor
 		if ( Vector.normEuclid(this.getForce()) < 0.2 )
 		{
 			/* Anti deadlock. */
-			scalar *= 1.5;
+			scalar *= 2.0;
 		}
 		else
 		{

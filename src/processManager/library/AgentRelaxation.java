@@ -74,7 +74,11 @@ public class AgentRelaxation extends ProcessManager
 		/**
 		 * Heun's method.
 		 */
-		HEUN
+		HEUN, 
+		/**
+		 * Single pass relaxation
+		 */
+		TENPASS
 	}
 
 	// FIXME work in progress
@@ -308,12 +312,16 @@ public class AgentRelaxation extends ProcessManager
 			// time Leaping set the time step to match a max traveling distance
 			// divined by 'maxMovement', for a 'fast' run.
 			if ( this._timeLeap ) 
-				this._dtMech = this._maxMovement / (Math.sqrt(this._vSquare)+0.001);
+			{
+				this._dtMech = this._maxMovement / 
+						( Math.sqrt( this._vSquare ) + 0.001 );
+			}
 
 			// prevent to relaxing longer than the global _timeStepSize
 			if ( this._dtMech > this._timeStepSize - this._tMech )
 				this._dtMech = this._timeStepSize - this._tMech;
 
+			/* if applicable perform stochastic movement */
 			for(Agent agent: agents.getAllLocatedAgents())
 			{
 				if (agent.isAspect(STOCHASTIC_STEP))
@@ -333,7 +341,7 @@ public class AgentRelaxation extends ProcessManager
 					for ( Point point: body.getPoints() )
 						point.shove(this._dtMech, radius);
 				}
-				/* Continue until all overlap is resolved. */
+				/* Continue until nearly all overlap is resolved. */
 				if ( this._vSquare < 0.001 )
 					this._tMech = this._timeStepSize;
 				break;
@@ -349,6 +357,8 @@ public class AgentRelaxation extends ProcessManager
 						point.euStep(this._dtMech, radius);
 				}
 				this._tMech += this._dtMech;
+				if ( this._vSquare < 0.001 )
+					this._tMech = this._timeStepSize;
 				break;
 			}
 				// NOTE : higher order ODE solvers don't like time Leaping.. be careful.

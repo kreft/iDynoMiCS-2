@@ -185,6 +185,13 @@ public class GraphicalOutput extends ProcessManager
 				 * First, map the concentration to the real interval [0, 1].
 				 */
 				double concn = solute.getValueAtCurrent(this._arrayType);
+				boolean neg = false;
+				if ( concn < 0.0 )
+				{
+					neg = true;
+					concn *= -1.0;
+				}
+					
 				concn /= Math.abs(this._maxConcn);
 				concn = ExtraMath.restrict(concn, 0.0, 1.0);
 				/* Flip this, so that higher concentration is darker. */
@@ -193,7 +200,11 @@ public class GraphicalOutput extends ProcessManager
 				/* Map this to the integer interval [0, 255]. */
 				int c = (int) Math.round(255.0 * concn);
 				/* Write the solute square or circle element. */
-				String pigment = "rgb(" + c + "," + c + "," + c + ")";
+				String pigment;
+				if (neg)
+					pigment = "rgb(" + 255 + "," + c + "," + c + ")";
+				else
+					pigment = "rgb(" + c + "," + c + "," + c + ")";
 				if (_shape instanceof CartesianShape)
 				this._graphics.rectangle(Vector.subset(origin, nDim), 
 							Vector.subset(dimension, nDim),pigment);
