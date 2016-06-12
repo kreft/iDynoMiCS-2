@@ -52,11 +52,12 @@ public class ExcreteEPS extends Event
 		 * Find out how much EPS the agent can hold before it much excrete.
 		 */
 		double maxEPS = (double) initiator.getValue(MAX_INTERNAL_EPS);
+		
+		if (maxEPS > internalProducts.get(EPS))
+			return;
 		/*
 		 * Vary this number randomly by about 10%
 		 */
-		// TODO this should probably be set when the agent has its max EPS
-		// value set, to avoid timestep size artifacts
 		double epsBlob = ExtraMath.deviateFromCV(maxEPS, 0.1);
 		/*
 		 * Find out how much EPS the agent has.

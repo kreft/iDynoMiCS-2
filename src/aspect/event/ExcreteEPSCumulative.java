@@ -62,11 +62,12 @@ public class ExcreteEPSCumulative extends Event
 		 * Find out how much EPS the agent can hold before it much excrete.
 		 */
 		double maxEPS = (double) initiator.getValue(MAX_INTERNAL_EPS);
+		
+		if (maxEPS > internalProducts.get(EPS))
+			return;
 		/*
 		 * Vary this number randomly by about 10%
 		 */
-		// TODO this should probably be set when the agent has its max EPS
-		// value set, to avoid timestep size artifacts
 		double toExcreteEPS = maxEPS * 0.5;
 		/*
 		 * Find out how much EPS the agent has.
@@ -78,7 +79,7 @@ public class ExcreteEPSCumulative extends Event
 		
 		Collision iterator = new Collision(comp.getShape());
 		
-		double searchDist = 0.1;
+		double searchDist = 0.5;
 		
 		Log.out(level, "  Agent (ID "+agent.identity()+") has "+
 				body.getSurfaces().size()+" surfaces, search dist "+searchDist);
