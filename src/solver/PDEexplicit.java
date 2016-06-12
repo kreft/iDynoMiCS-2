@@ -82,8 +82,14 @@ public class PDEexplicit extends PDEsolver
 				Log.out(level, "  Total value of production rate array: "+
 						var.getTotal(PRODUCTIONRATE));
 				var.addArrayToArray(LOPERATOR, PRODUCTIONRATE);
+				Log.out(level, "  Change rates: \n"+
+						var.arrayAsText(LOPERATOR));
 				var.timesAll(LOPERATOR, dt);
+				Log.out(level, "  Changes: \n"+
+						var.arrayAsText(LOPERATOR));
 				var.addArrayToArray(CONCN, LOPERATOR);
+				Log.out(level, "  Concn: \n"+
+						var.arrayAsText(LOPERATOR));
 				if ( ! this._allowNegatives )
 					var.makeNonnegative(CONCN);
 			}

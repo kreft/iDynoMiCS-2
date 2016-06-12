@@ -3,7 +3,6 @@ package shape;
 import static shape.Shape.WhereAmI.*;
 
 import dataIO.Log;
-import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import static shape.Dimension.DimName;
@@ -206,39 +205,9 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	public double nbhCurrDistance()
-	{
-		Tier level = Tier.BULK;
-		Log.out(level, "  calculating distance between voxels "+
-				Vector.toString(this._currentCoord)+" and "+
-				Vector.toString(this._currentNeighbor));
-		int i = this.getDimensionIndex(this._nhbDimName);
-		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
-		double out = rC.getResolution(this._currentCoord[i]);
-		if ( this.isNhbIteratorInside() )
-		{
-			/* If the neighbor is inside the array, use the mean resolution. */
-			out += rC.getResolution(this._currentNeighbor[i]);
-			return 0.5 * out;
-		}
-		if ( this.isNbhIteratorValid() )
-		{
-			/* If the neighbor is on a defined boundary, use the current 
-				coord's resolution. */
-			Log.out(level, "    distance is "+out);
-			return out;
-		}
-		/* If the neighbor is on an undefined boundary, return infinite
-			distance (this should never happen!) */
-		Log.out(level, "    undefined distance!");
-		return Double.POSITIVE_INFINITY;
-	}
-	
-	@Override
 	public double nbhCurrSharedArea()
 	{
 		double area = 1.0;
-		int nDim = this.getNumberOfDimensions();
 		ResCalc rC;
 		int index;
 		for ( DimName dim : this.getDimensionNames() )

@@ -22,62 +22,6 @@ public abstract class PolarShape extends Shape
 	public final static double POLAR_ANGLE_EQ_TOL = 1e-6;
 	
 	@Override
-	public double nbhCurrDistance()
-	{
-		Tier level = Tier.BULK;
-		Log.out(level, "  calculating distance between voxels "+
-				Vector.toString(this._currentCoord)+" and "+
-				Vector.toString(this._currentNeighbor));
-		
-		double distance = 0.0;
-		ResCalc rC;
-		
-		if ( this.isNhbIteratorInside() )
-		{
-			int nDim = this.getNumberOfDimensions();
-			double temp;
-			DimName dim;
-			/*
-			 * Find the average radius, as this will be useful in calculating arc
-			 * lengths of angular differences.
-			 */
-			double meanR = this.meanNbhCurrRadius();
-			/*
-			 * Loop over all dimensions, increasing the distance accordingly.
-			 */
-			for ( int i = 0; i < nDim; i++ )
-			{
-				dim = this.getDimensionName(i);
-				rC = this.getResolutionCalculator(this._currentCoord, i);
-				temp = rC.getPosition(this._currentCoord[i], 0.5);
-				rC = this.getResolutionCalculator(this._currentNeighbor, i);
-				temp -= rC.getPosition(this._currentNeighbor[i], 0.5);
-				/* We need the arc length for angular dimensions. */
-				if ( dim.isAngular() )
-					temp *= meanR;
-				/* Use Pythagoras to update the distance. */
-				distance = Math.hypot(distance, temp);
-			}
-			Log.out(level, "    distance is "+distance);
-			return distance;
-		}
-		if ( this.isNbhIteratorValid() )
-		{
-			/* If the neighbor is on a defined boundary, use the current 
-				coord's resolution along the neighbors direction. */
-			int i = this.getDimensionIndex(this._nhbDimName);
-			rC = this.getResolutionCalculator(this._currentNeighbor, i);
-			distance = rC.getResolution(this._currentCoord[i]);
-			Log.out(level, "    distance is "+distance);
-			return distance;
-		}
-		/* If the neighbor is on an undefined boundary, return infinite
-			distance (this should never happen!) */
-		Log.out(level, "    undefined distance!");
-		return Double.POSITIVE_INFINITY;
-	}
-	
-	@Override
 	public double nbhCurrSharedArea()
 	{
 		Tier level = Tier.BULK;
@@ -88,18 +32,27 @@ public abstract class PolarShape extends Shape
 		Log.out(level, "calculated meanR "+ meanR +" for current coord"
 				+ Arrays.toString(this._currentCoord) + " and nhb "
 				+ Arrays.toString(this._currentNeighbor));
-		for ( int i = 0; i < this.getNumberOfDimensions(); ++i )
+		for ( int i = 0; i < this.getNumberOfDimensions(); i++ )
 		{
-			/* continue if the neighbor is moving along dimension i  */
-			if (Math.abs(this._currentCoord[i] - this._currentNeighbor[i]) == 1)
-				continue;
 			dimName = this.getDimensionName(i);
-			/* we are on a defined boundary, so take the length of the
-			 * current coordinate */
-			if ((this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC)
+			/* 
+			 * We are on a defined boundary, so take the length of the
+			 * current coordinate and don't care for other dimensions.
+			 */
+			if ( (this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC)
 					&& this._nhbDimName == dimName)
-				temp = getResolutionCalculator(this._currentCoord, i)
+			{
+				Log.out(level, "  on boundary for dim "+dimName);
+				/* 
+				 * Take the resolution of the next dimension, i.e. if we move
+				 * to an outer shell in the circle (dim R), the THETA length 
+				 * should be taken!
+				 */
+				temp = this.getResolutionCalculator(this._currentCoord, i + 1)
 							.getResolution(this._currentCoord[i]);
+				/* Move to last dim, so we will break cleanly. */
+				i = this.getNumberOfDimensions();
+			}
 			else
 				//TODO: security if on undefined boundary?
 				temp = this.getNbhSharedLength(i);
@@ -107,13 +60,17 @@ public abstract class PolarShape extends Shape
 			/* We need the arc length for angular dimensions. */
 			if ( dimName.isAngular() )
 				temp *= meanR;
-			/* this can happen in the sphere when we overlap only in one polar
-			 * dimension 
+			/*
+			 * If the area is zero for some reason, skip it (e.g. if the nhb is
+			 * moving along this dimension, or the precision tolerance for 
+			 * comparison was not met).
 			 */
-			if (temp==0) 
+			if ( temp == 0 )
+			{
+				Log.out(level, "  skipping zero area in dim "+dimName);
 				continue;
-			Log.out(level, " Shared length for dim "+this.getDimensionName(i)
-					+" is " + temp);
+			}
+			Log.out(level, "  Shared length for dim "+dimName +" is " + temp);
 			area *= temp;
 		}
 		Log.out(level, " returning area "+area);

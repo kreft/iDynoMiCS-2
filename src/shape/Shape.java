@@ -1610,7 +1610,8 @@ public abstract class Shape implements
 	
 	/**
 	 * \brief Find the distance between the centre of the current iterator
-	 * voxel and the centre of the current neighbor voxel.
+	 * voxel and the centre of the current neighbor voxel, along the current
+	 * neighbor dimension.
 	 * 
 	 * <p>If the neighbor is on a defined boundary, this instead returns the
 	 * resolution of the current iterator voxel in the relevant dimension.</p>
@@ -1618,7 +1619,34 @@ public abstract class Shape implements
 	 * @return The centre-centre distance between the current iterator voxel
 	 * and the neighbor voxel.
 	 */
-	public abstract double nbhCurrDistance();
+	public double nbhCurrDistance()
+	{
+		Tier level = Tier.BULK;
+		Log.out(level, "  calculating distance between voxels "+
+				Vector.toString(this._currentCoord)+" and "+
+				Vector.toString(this._currentNeighbor));
+		int i = this.getDimensionIndex(this._nhbDimName);
+		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
+		double out = rC.getResolution(this._currentCoord[i]);
+		if ( this.isNhbIteratorInside() )
+		{
+			/* If the neighbor is inside the array, use the mean resolution. */
+			out += rC.getResolution(this._currentNeighbor[i]);
+			return 0.5 * out;
+		}
+		if ( this.isNbhIteratorValid() )
+		{
+			/* If the neighbor is on a defined boundary, use the current 
+				coord's resolution. */
+			Log.out(level, "    distance is "+out);
+			return out;
+		}
+		/* If the neighbor is on an undefined boundary, return infinite
+			distance (this should never happen!) */
+		Log.out(level, "    undefined distance!");
+		return Double.POSITIVE_INFINITY;
+	}
+	
 	
 	/**
 	 * @return The shared surface area between the current iterator voxel

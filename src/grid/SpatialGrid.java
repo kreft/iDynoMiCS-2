@@ -596,6 +596,8 @@ public class SpatialGrid implements NodeConstructor
 		for ( int i = 0; i < array.length - 1; i++ )
 		{
 			matrixToBuffer(array[i], out);
+			// NOTE Rob [16June2016]: Consider always appending \n, as this can
+			// be confusing in polar shapes.
 			if ( array[i].length == 1 )
 				out.append(", ");
 			else
