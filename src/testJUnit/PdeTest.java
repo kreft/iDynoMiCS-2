@@ -1,10 +1,13 @@
 package testJUnit;
 
-import org.junit.Test;
 import static org.junit.Assert.assertTrue;
-
 import static testJUnit.AllTests.TOLERANCE;
 
+import java.util.Arrays;
+
+import org.junit.Test;
+
+import boundary.BoundaryLibrary.FixedBoundary;
 import boundary.BoundaryLibrary.SolidBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -12,9 +15,10 @@ import grid.SpatialGrid;
 import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import linearAlgebra.Vector;
 import processManager.library.SolveDiffusionTransient;
-import shape.Shape;
 import shape.Dimension.DimName;
+import shape.Shape;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 import utility.ExtraMath;
 
@@ -89,5 +93,77 @@ public class PdeTest
 		}
 		// FIXME this unit test currently passes when compartmentLength = 2.0,
 		// but fails when compartmentLength = 3.0;
+	}
+	
+	@Test
+	public void checkDiffusionIndifferentForRadiusInCircle(){
+		/*
+		 * Simulation parameters.
+		 */
+		double tStep = 0.1;
+		double tMax = 100.0;
+		int nVoxelR = 3;
+		/*
+		 * Set up the simulation with a single compartment: a circle, with
+		 * solid rmin and fixed rmax boundary, theta cyclic.
+		 */
+		AllTests.setupSimulatorForTest(tStep, tMax,
+				"checkDiffusionIndifferentForRadiusInCircle");
+		Compartment comp = Idynomics.simulator.addCompartment("circle");
+		comp.setShape("circle");
+//		comp.addBoundary(DimName.R, 0, new SolidBoundary());
+		comp.addBoundary(DimName.R, 1, new FixedBoundary(2));
+		Shape shape = comp.getShape();
+//		shape.getDimension(DimName.THETA).setCyclic();
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(nVoxelR);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.R, resCalc);
+		resCalc = new UniformResolution();
+		resCalc.setLength(2 * Math.PI / 3);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.THETA, resCalc);
+		/* Add the solute (will be initialized with zero conc). */
+		String soluteName = "solute";
+		comp.addSolute(soluteName);
+		SpatialGrid sG = comp.getSolute(soluteName);
+		/*
+		 * Set up the diffusion solver.
+		 */
+		SolveDiffusionTransient pm = new SolveDiffusionTransient();
+		pm.setName("DR solver");
+		pm.init(new String[]{soluteName});
+		pm.setTimeForNextStep(0.0);
+		pm.setTimeStepSize(tStep);
+		pm.setPriority(1);
+		comp.addProcessManager(pm);
+		/*
+		 * Run the simulation, checking at each time step that all voxels in a 
+		 * ring have the same concentration.
+		 */
+		
+		double last_conc = Double.NaN, cur_conc;
+		double[] conc_diff = new double[nVoxelR];
+		while ( Idynomics.simulator.timer.isRunning() )
+		{
+			Idynomics.simulator.step();
+			for (int r = -1, c[] = shape.resetIterator();
+					shape.isIteratorValid(); shape.iteratorNext() )
+			{
+				if (shape.iteratorCurrent()[0] != r){
+					r = shape.iteratorCurrent()[0];
+					last_conc = sG.getValueAtCurrent(ArrayType.CONCN);
+				}
+				cur_conc = sG.getValueAtCurrent(ArrayType.CONCN);
+				conc_diff[r] += Math.abs(last_conc - cur_conc);
+				last_conc = cur_conc;
+			}
+			Log.out(Tier.DEBUG, "Differences along radii for step " 
+						+ Idynomics.simulator.timer.getCurrentTime()+": "
+											+ Arrays.toString(conc_diff));
+			System.out.println();
+			assertTrue(ExtraMath.areEqual(Vector.sum(conc_diff),
+					0, TOLERANCE));
+		}
 	}
 }

@@ -90,16 +90,21 @@ public abstract class PolarShape extends Shape
 				+ Arrays.toString(this._currentNeighbor));
 		for ( int i = 0; i < this.getNumberOfDimensions(); ++i )
 		{
-			/* continue if the neighbor is moving along dimension i  */
-			if (Math.abs(this._currentCoord[i] - this._currentNeighbor[i]) == 1)
-				continue;
 			dimName = this.getDimensionName(i);
 			/* we are on a defined boundary, so take the length of the
-			 * current coordinate */
+			 * current coordinate and don't care for other dimensions*/
 			if ((this._whereIsNbh == DEFINED || this._whereIsNbh == CYCLIC)
-					&& this._nbhDimName == dimName)
-				temp = getResolutionCalculator(this._currentCoord, i)
+					&& this._nbhDimName == dimName){
+				Log.out(level, "  on boundary for dim "+dimName);
+				/* take the resolution of the next dimension, i.e. if we move
+				 * to an outer shell in the circle (dim R), the THETA length 
+				 * should be taken!
+				 */
+				temp = getResolutionCalculator(this._currentCoord, i + 1)
 							.getResolution(this._currentCoord[i]);
+				/* move to last dim, so we will break cleanly */
+				i = this.getNumberOfDimensions();
+			}
 			else
 				//TODO: security if on undefined boundary?
 				temp = this.getNbhSharedLength(i);
@@ -107,13 +112,16 @@ public abstract class PolarShape extends Shape
 			/* We need the arc length for angular dimensions. */
 			if ( dimName.isAngular() )
 				temp *= meanR;
-			/* this can happen in the sphere when we overlap only in one polar
-			 * dimension 
+			/*
+			 * if the area is zero for some reason, skip it (e.g. if the nhb is
+			 * moving along this dimension, or the precision tolerance for 
+			 * comparison was not met).
 			 */
-			if (temp==0) 
+			if (temp==0){
+				Log.out(level, "  skipping zero area in dim "+dimName);
 				continue;
-			Log.out(level, " Shared length for dim "+this.getDimensionName(i)
-					+" is " + temp);
+			}
+			Log.out(level, "  Shared length for dim "+dimName +" is " + temp);
 			area *= temp;
 		}
 		Log.out(level, " returning area "+area);
