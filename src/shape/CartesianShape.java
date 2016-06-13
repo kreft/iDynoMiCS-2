@@ -244,13 +244,11 @@ public abstract class CartesianShape extends Shape
 		for ( DimName dim : this.getDimensionNames() )
 		{
 			if ( dim.equals(this._nbhDimName) 
-					|| !this.getDimension(dim).isSignificant() )
+					|| ! this.getDimension(dim).isSignificant() )
 				continue;
 			index = this.getDimensionIndex(dim);
 			rC = this.getResolutionCalculator(this._currentCoord, index);
-			/* Need to be careful about insignificant axes. */
-			area *= ( index >= nDim ) ? rC.getResolution(0) :
-								rC.getResolution(this._currentCoord[index]);
+			area *= rC.getResolution(this._currentCoord[index]);
 		}
 		return area;
 	}

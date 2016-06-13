@@ -1,25 +1,36 @@
 package glRender;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUquadric;
+import com.jogamp.opengl.math.Quaternion;
+import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
 import aspect.AspectRef;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
+import shape.CartesianShape;
+import shape.CylindricalShape;
 import shape.Shape;
-import surface.*;
+import surface.Ball;
+import surface.Rod;
+import surface.Surface;
 
 
 /**
- * Agent mediator, draws agents and plane / cube indication the computational
- * domain
+ * Agent mediator, draws agents and an indication of their computational domain.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ *     Friedrich-Schiller University Jena, Germany 
  */
 public class AgentMediator implements CommandMediator {
 	
@@ -46,19 +57,42 @@ public class AgentMediator implements CommandMediator {
 	/*
 	 * kickback, used to move camera back to see entire render scene
 	 */
-	public float kickback;
+	public float _kickback;
 	
 	/*
 	 * openGL profile
 	 */
 	private GL2 _gl;
+	
+	/**
+	 * OpenGL Utility Toolkit
+	 */
+	private GLUT _glut;
+	
+	/**
+	 * OpenGL Utility Library
+	 */
+	private GLU _glu;
+	
+	/**
+	 * Stores the length of the associated Shape in each dimension
+	 */
+	private double[] _domainLength;
+	
+	/**
+	 * Default slices / stacks to subdivide polar objects.
+	 */
+	private int _slices = 16, _stacks = 16;
+	
+	private float[] _orthoX = new float[]{1,0,0}, _orthoY = new float[]{0,1,0},
+					_orthoZ = new float[]{0,0,1}, _rotTemp = new float[16];;
 
 	/**
 	 * used to set up the open gl camera
 	 */
 	@Override
 	public float kickback() {
-		return 2f * kickback;
+		return 2f * _kickback;
 	}
 	
 	/**
@@ -69,6 +103,25 @@ public class AgentMediator implements CommandMediator {
 	{
 		this._agents = agents;
 		this._shape = agents.getShape();
+		this._domainLength = GLUtil.make3D(_shape.getDimensionLengths());
+		/* determine kickback for camera positioning */
+		_kickback = (float) Math.max(_domainLength[0],
+				Math.max(_domainLength[1], _domainLength[2]));
+	}
+	
+	/**
+	 * Initializes new GLU and GLUT instances and associates the drawable's GL
+	 * context with this CommandMediator.   
+	 * This should be called at the end of the GLEventListener's initialization
+	 * method (glRender.Render in our case). 
+	 * TODO: this assumes that the AgentContainer is always associated to the
+	 * same Compartment / Shape, is this satisfied?
+	 */
+	public void init(GLAutoDrawable drawable){
+		/* set openGL profile */
+		_gl = drawable.getGL().getGL2();
+		_glu = GLU.createGLU(_gl);
+		_glut = new GLUT();
 	}
 
 	/**
@@ -78,22 +131,25 @@ public class AgentMediator implements CommandMediator {
 	@Override
 	public void draw(GLAutoDrawable drawable) {
 		
-		/* set openGL profile */
-		_gl = drawable.getGL().getGL2();
-
-		/* get the domain lengths to draw itself and scaling */
-		double[] domainLengths = _agents.getShape().getDimensionLengths();
-		double[] domain = new double[]{ domainLengths[0], domainLengths[1],
-				(domainLengths.length > 2 ? domainLengths[2] : 0.0)};
-		
-		/* determine kickback for camera positioning */
-		kickback = (float) Math.max(domain[0], Math.max(domain[1], domain[2]));
+		/* load identity matrix */
+		_gl.glLoadIdentity();
 		
 		/*
-		 * draw the domain cube
+		 * draw the domain Shape
+		 *
 		 */
-        if(domain[2] != 0.0f)
-        	domainCube(drawable,domain);
+		if (_shape instanceof CartesianShape){
+			draw((CartesianShape) _shape);
+		}
+		
+		/* 
+     	 * Adjust positioning for the domain (prevent the scene from being
+     	 * rendered in one corner). This applies to all agents.
+     	 */
+		_gl.glTranslated(
+				 - _domainLength[0] * 0.5, 
+				 - _domainLength[1] * 0.5,
+				 - _domainLength[2] * 0.5);
         
 		/* get the surfaces from the agents */
 		for ( Agent a : this._agents.getAllLocatedAgents() )
@@ -135,330 +191,140 @@ public class AgentMediator implements CommandMediator {
 				 */
 				if(s instanceof Ball)
 				{
-					Ball ball = (Ball) s;
-					sphere(drawable, domain, ball._point.getPosition(), 
-	        		ball._radius);
+					draw((Ball) s);
 				} 
 				else if ( s instanceof Rod )
 				{
 					/*
 					 * A rod can be drawn with two spheres and a cylinder
 					 */
-					Rod rod = (Rod) s;
-					sphere(drawable, domain, rod._points[0].getPosition(), rod._radius);
-					sphere(drawable, domain, rod._points[1].getPosition(), rod._radius);
-					
-					// TODO cylinder
-					cylinder(drawable, domain, rod._points[0].getPosition(),
-							rod._points[1].getPosition(), rod._radius);
-
+					draw((Rod) s);
 				}
 			}
-		}
-		
-		/* draw the domain square */
-		plane(drawable,domain);
-		
+		}	
 	}
 	
-	/**
-	 * draw a scaled sphere positioned relative to the domain
-	 * @param drawable
-	 * @param domain
-	 * @param pos
-	 * @param radius
-	 */
-	private void sphere(GLAutoDrawable drawable, double[] domain, double[] pos, 
-			double radius) 
-	{
-		/* 3d position of the sphere (use z = 0 for 2d sims */
-		double[] p = new double[]{ pos[0], pos[1], 
-				(pos.length > 2 ? pos[2] : 0.0)};
-		
-		/* 
-		 * set fineness of the sphere and iterate through the longditunals and 
-		 * laterals 
-		 */
-		int i, j;
-		final int lats = 16;
-		final int longs = 16;
-		for(i = 0; i <= lats; i++) 
-		{
-			/* start new openGL identity */
-	     	_gl.glLoadIdentity();
-	     	
-	     	/* 
-	     	 * Adjust positioning for the domain (prevent the scene from being
-	     	 * rendered in one corner.
-	     	 */
-			_gl.glTranslated(p[0] - domain[0] * 0.5, p[1] - domain[1] * 0.5, 
-					p[2] - domain[2] * 0.5);
-			
-			/* scale the sphere */
-	     	_gl.glScaled(radius, radius, radius);
-	     	
-	     	/* lighting and coloring */
-			_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, _rgba, 0);
-			_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, _rgba, 0);
-			_gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-			_gl.glColor3f(_rgba[0], _rgba[1], _rgba[2]);
-			
-			/* begin a new quad strip */
-			_gl.glBegin(GL2.GL_QUAD_STRIP);
-			
-			/* Z positioning */
-	  		double lat0 = Math.PI * (-0.5 + (double) (i - 1) / lats);
-	  		double z0  = Math.sin(lat0);
-	  		double zr0 =  Math.cos(lat0);
-	
-	  		double lat1 = Math.PI * (-0.5 + (double) i / lats);
-	     	double z1 = Math.sin(lat1);
-	     	double zr1 = Math.cos(lat1);
-			for(j = 0; j <= longs; j++) 
-			{
-				/* X and y positioning */
-				double lng = 2 * Math.PI * (double) (j - 1) / longs;
-				double x = Math.cos(lng);
-				double y = Math.sin(lng);
-				
-				/* 
-				 * draw the quad strip (a sequence of points on two spaced and 
-				 * scaled circles).
-				 */
-				_gl.glNormal3d(x * zr0, y * zr0, z0);
-				_gl.glVertex3d(x * zr0, y * zr0, z0);
-				_gl.glNormal3d(x * zr1, y * zr1, z1);
-				_gl.glVertex3d(x * zr1, y * zr1, z1);
-			}
-			_gl.glEnd();
-		}
-	
+	private void draw(Ball ball){
+		_gl.glPushMatrix();
+		applyCurrentColor();
+		double[] loc = GLUtil.make3D(ball._point.getPosition());
+		_gl.glTranslated(loc[0], loc[1], loc[2]);
+		GLUquadric qobj = _glu.gluNewQuadric();
+		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
+		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
+		_glu.gluSphere(qobj, ball._radius, _slices, _stacks);
+		_glu.gluDeleteQuadric(qobj);
+		_gl.glPopMatrix();
 	}
 	
-	/**
-	 * draw gl cylinder... FIXME ok I am lost this class needs additional work
-	 * @param drawable TODO
-	 * @param domain TODO
-	 * @param posA Position of the one end of the cylinder.
-	 * @param posB Position of the other end of the cylinder.
-	 * @param radius Cylinder radius
-	 */
-	private void cylinder(GLAutoDrawable drawable, double[] domain, 
-			double[] posA, double[] posB, double radius) 
+	private void draw(Rod rod) 
 	{
-		/* fineness of the cylinder */
-		double slices = 16;
-		// FIXME think of something more robust
-		/*
-		 * find the closest distance between the two mass points of the rod
-		 * agent and assumes this is the correct length, preventing rods being
-		 * stretched out over the entire domain
-		 * 
-		 * Here we assume that posB will stay fixed, so we are looking for a
-		 * candidate position for the "A" end of the cylinder.
-		 */
-		List<double[]> cyclicPoints = _shape.getCyclicPoints(posA);
-		double[] c = cyclicPoints.get(0);
+		Tier level = Tier.BULK;
+		double[] posA = GLUtil.make3D(rod._points[0].getPosition()); /* first sphere */
+		double[] posB = GLUtil.make3D(rod._points[1].getPosition()); /* second sphere*/
 		
-		/* distance between the two mass points */
-		double dist = Vector.distanceEuclid(posB, c);
-		double dDist;
-		/* 
-		 * find the closest 'shadow' point, use the original point if all
-		 * alternative point are further.
-		 */
-		for ( double[] d : cyclicPoints )
-		{
-			dDist = Vector.distanceEuclid( posB, d);
-			if ( dDist < dist)
-			{
-				c = d;
-				dist = dDist;
-			}
-		}
+		posA = GLUtil.searchClosestCyclicShadowPoint(_shape, posA, posB);
 		
-		/* use the middle point to place the cylinder */
-		posA = Vector.midPoint(c, posB);
+		/* save the transformation matrix, so we do not disturb other drawings */
+		_gl.glPushMatrix();
+     	
+     	applyCurrentColor();
+
+		Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
+					+ _slices + " slices, " + _stacks + " stacks" );
+
+		GLUquadric qobj = _glu.gluNewQuadric();
+
+		/* draw first sphere */
+		_gl.glTranslated(posA[0], posA[1], posA[2]);
+		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
+		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
+		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
 		
-		// FIXME by lack of a better way for now draw a 3th sphere in the middle
-		sphere(drawable, domain, posA, radius);
+		/* direction from posB to posA */
+		double[] dp = Vector.minus(posB, posA);
+		double height = Vector.normEuclid(dp);
 		
-		// FIXME the following part is in the good direction but still problems
-		// with proper rotating and scaling
-//		
-//		/* distance between the mass points equals the lenght of the cylinder */
-//		double l = Vector.distanceEuclid(pos, posb);
-//		/* set 3th dimension to 0.0 for 2d simulations */
-//		double[] p = new double[]{ pos[0], pos[1], 
-//				(pos.length > 2 ? pos[2] : 0.0)};
-//		
-//		/* start openGL object description */
-//		gl.glLoadIdentity();
-//		
-//		/* correct position for the domain */
-//		gl.glTranslated(p[0] - domain[0] * 0.5, p[1] - domain[1] * 0.5, 
-//				p[2] - domain[2] * 0.5);
-//		
-//		/* scale the cylinder */
-//     	gl.glScaled(l, radius, radius);
-//     	
-//     	/* rotate the cylinder */
-//     	gl.glRotated(Math.toDegrees(Vector.angle(pos, posb)), 0.0, 0.0, 1.0);
-//     	
-//     	/* lighting */
-//		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
-//		gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
-//		gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-//		
-//		/* color */
-//		gl.glColor3f(rgba[0], rgba[1], rgba[2]);
-//		
-//		/* begin quad description: vertexes normals etc */
-//		gl.glBegin(GL2.GL_QUAD_STRIP);
-//
-//		/* iterate through every vertex of the cylinder */
-//		double s0, s1, c0, c1;
-//		for (int i = 0; (i <= slices); i++)
-//        {
-//			s0 = Math.sin(Math.PI / (slices/2) * i);
-//			s1 = Math.sin(Math.PI / (slices/2) * (i + 1));
-//			c0 = Math.cos(Math.PI / (slices/2) * i);
-//			c1 = Math.cos(Math.PI / (slices/2) * (i + 1));
-//
-//			gl.glNormal3d(1, s0, c0);
-//			gl.glVertex3d(1, s0, c0);
-//			gl.glNormal3d(1, s1, c1);
-//			gl.glVertex3d(1, s1, c1);
-//			gl.glNormal3d(-1, s0, c0);
-//			gl.glVertex3d(-1, s0, c0);
-//			gl.glNormal3d(-1, s1, c1);
-//			gl.glVertex3d(-1, s1, c1);
-//        }
-//		
-//		/* finalise object */
-//		gl.glEnd();
+		/* draw a cylinder in between */
+		/* save the matrix to rotate only the cylinder */
+		_gl.glPushMatrix();
 		
+		/* NOTE: this assumes agents are rendered one after the other! */
+		Quaternion quat = new Quaternion();
+		/* this will create a quaternion, so that we rotate from looking
+		 * along the Z-axis (which is the default orientation of a GLU-cylinder)
+		 * to look from posA to posB */
+		quat.setLookAt(Vector.toFloat(dp), _orthoZ, _orthoX, _orthoY, _orthoZ);
+		/* transform the quaternion into a rotation matrix and apply it */
+		//TODO: is there a way to make openGL use the quaternion directly?
+		_gl.glMultMatrixf(quat.toMatrix(_rotTemp, 0), 0);
+
+		/* create and draw the cylinder */
+		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
+		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
+		_glu.gluCylinder(qobj,
+				rod._radius, 		/* base */
+				rod._radius, 		/* top */
+				height, 			/* height */
+				_slices, _stacks);
+		/* restore matrix state before rotation (so we are at point A again)*/
+		_gl.glPopMatrix();
+
+		/* draw second sphere */
+		_gl.glTranslated(dp[0], dp[1], dp[2]);
+		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
+		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
+		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
+		
+		/* clean up */
+		_glu.gluDeleteQuadric(qobj);
+		_gl.glPopMatrix();
 	}
 	
-	/**
-	 * draw a domain plane
-	 * @param drawable
-	 * @param domain
-	 */
-	private void plane(GLAutoDrawable drawable, double[] domain) 
-	{
+	private void draw(CartesianShape shape){
+		/* save the current modelview matrix */
+		_gl.glPushMatrix();
+		
+		double[] length = GLUtil.make3D(shape.getDimensionLengths());
+
+		/* set different color / blending for 3 dimensional Cartesian shapes */
 		_rgba = new float[] {0.3f, 0.3f, 0.3f};
-		plane(drawable, domain, Vector.zeros(domain), 
-				Vector.onesDbl(domain.length), _rgba, false);
+		if (length[2] > 0){
+			_rgba = new float[] {0.1f, 0.1f, 1f};
+			_gl.glEnable(GL2.GL_BLEND);
+			_gl.glDisable(GL2.GL_DEPTH_TEST);
+		}
+		applyCurrentColor();
+		
+		/* scale y and z relative to x (which we will choose as cube-size) */
+		_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
+		
+		/* draw the scaled cube (rectangle).
+		 * Note that a cube with length 0 in one dimension is a plane */
+		_glut.glutSolidCube((float)length[0]);
+		
+		
+		/* clean up */
+		if (length[2] > 0){
+			_gl.glEnable(GL2.GL_DEPTH_TEST);
+			_gl.glDisable(GL2.GL_BLEND);
+		}
+		_gl.glPopMatrix();
+	}
+	
+	private void draw(CylindricalShape shape){
+		
 	}
 	
 	/**
-	 * draw a standard plane positioned and scaled relative to the domain
-	 * @param drawable
-	 * @param domain
-	 * @param origin
-	 * @param lengths
-	 * @param color
-	 * @param lighting
+	 * Sets the current ambient and specular color to <b>this._rgba</b> 
+	 * with a shininess of 0.1.
 	 */
-	private void plane(GLAutoDrawable drawable, double[] domain, double[] origin
-			, double[] lengths ,float[] color, boolean lighting)
-	{
-		/* begin a new openGL identity */
-		_gl.glLoadIdentity();
-		
-		/* positioning and scaling */
-		_gl.glTranslated(origin[0], origin[1], origin[2]);
-		_gl.glScaled(domain[0]*0.5, domain[1]*0.5, domain[2]*0.5);
-		_gl.glScaled(lengths[0], lengths[1], lengths[2]);
-		
-		/* switch lighting */
-		if (lighting)
-		{
-	        _gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, color, 0);
-	        _gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, color, 0);
-	        _gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-		}
-		else
-		{
-			_gl.glDisable(GL2.GL_LIGHTING);
-		}
-		
-		/* draw the quads */
-		_gl.glBegin(GL2.GL_QUADS);             
-		_gl.glColor3f(color[0],color[1],color[2]);    
-			_gl.glVertex3d(-1.0, 1.0, -1.0); 
-		    _gl.glVertex3d( 1.0, 1.0, -1.0);
-		    _gl.glVertex3d( 1.0, -1.0, -1.0);  
-		    _gl.glVertex3d(-1.0, -1.0, -1.0); 
-		    
-		/* finish the openGL identity */
-		_gl.glEnd();
-		
-		/* switch back to original lighting properties */
-		if (lighting)
-		{
-			
-		}
-		else
-		{
-			_gl.glEnable(GL2.GL_LIGHTING);
-		}
+	private void applyCurrentColor(){
+     	/* lighting and coloring */
+		_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, _rgba, 0);
+		_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, _rgba, 0);
+		_gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
+		_gl.glColor3f(_rgba[0], _rgba[1], _rgba[2]);
 	}
-	
-	/**
-	 * draw a alpha blend domain cube (for 3D simulations)
-	 * @param drawable
-	 * @param domain
-	 */
-	private void domainCube(GLAutoDrawable drawable, double[] domain) 
-	{
-		
-		_gl.glLoadIdentity();
-		_gl.glEnable(GL2.GL_BLEND);
-		_gl.glDisable(GL2.GL_DEPTH_TEST);
-		_gl.glScaled(0.5f*domain[0], 0.5f*domain[1], 0.5f*domain[2]);
-		
-		_rgba = new float[] {0.1f, 0.1f, 1f};
-        _gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, _rgba, 0);
-        _gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, _rgba, 0);
-        _gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-        _gl.glColor3f(_rgba[0],_rgba[1],_rgba[2]);
-		_gl.glBegin(GL2.GL_QUADS);                  // Start Drawing The Cube
-		
-		_gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Top)
-		_gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Top)
-		_gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Bottom Left Of The Quad (Top)
-		_gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Bottom Right Of The Quad (Top)
-		
-		_gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Top Right Of The Quad (Bottom)
-		_gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Top Left Of The Quad (Bottom)
-		_gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Bottom)
-		_gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Bottom)
-
-		_gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Front)
-		_gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Front)
-		_gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Front)
-		_gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Front)
-
-		_gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Back)
-		_gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Back)
-		_gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Back)
-		_gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Back)
-		
-		_gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Left)
-		_gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Left)
-		_gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Left)
-		_gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Left)
-
-        _gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Right)
-        _gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Right)
-        _gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Right)
-        _gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Right)
-	    _gl.glEnd();                        // Done Drawing The Quad
-	    
-	    _gl.glEnable(GL2.GL_DEPTH_TEST);
-		_gl.glDisable(GL2.GL_BLEND);
-	}
-
 }

@@ -153,12 +153,22 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		 * Boundaries at the extremes.
 		 */
 		str = XmlHandler.gatherAttribute(elem, XmlRef.min);
-		if ( str != null && str != "")
-			this.setExtreme(Double.valueOf(str), 0);
+		if ( str != null && str != ""){
+			double val = Double.valueOf(str);
+			/* convert degree to radian for angular dimensions */
+			if (this._dimName.isAngular())
+				val = Math.toRadians(val);
+			this.setExtreme(val, 0);
+		}
 		
 		str = XmlHandler.gatherAttribute(elem, XmlRef.max);
-		if ( str != null && str != "")
-			this.setExtreme(Double.valueOf(str), 1);
+		if ( str != null && str != ""){
+			double val = Double.valueOf(str);
+			/* convert degree to radian for angular dimensions */
+			if (this._dimName.isAngular())
+				val = Math.toRadians(val);
+			this.setExtreme(val, 1);
+		}
 
 		/* Set the boundary, if given (not always necessary). */
 		bndNodes = XmlHandler.getAll(elem, XmlRef.dimensionBoundary);

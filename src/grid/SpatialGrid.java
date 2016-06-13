@@ -3,6 +3,8 @@ package grid;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.rmi.CORBA.Tie;
+
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlRef;
@@ -56,9 +58,34 @@ public class SpatialGrid implements NodeConstructor
 	protected Map<ArrayType, double[][][]> _array = 
 			new HashMap<ArrayType, double[][][]>();
 	
-	/* #####################################################################
-	 * 							CONSTRUCTORS
-	 * ##################################################################### */
+	/**
+	 * \brief Log file verbosity level used for debugging the getting of
+	 * values.
+	 * 
+	 * <ul><li>Set to {@code BULK} for normal simulations</li>
+	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
+	 */
+	protected static final Tier GET_VALUE_LEVEL = Tier.BULK;
+	/**
+	 * \brief Log file verbosity level used for debugging the setting of
+	 * values.
+	 * 
+	 * <ul><li>Set to {@code BULK} for normal simulations</li>
+	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
+	 */
+	protected static final Tier SET_VALUE_LEVEL = Tier.BULK;
+	/**
+	 * \brief Log file verbosity level used for debugging the flux from the
+	 * neighbor iterator voxel into the current iterator voxel.
+	 * 
+	 * <ul><li>Set to {@code BULK} for normal simulations</li>
+	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
+	 */
+	protected static final Tier GET_FLUX_WITH_NHB_LEVEL = Tier.BULK;
+	
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
 
 	/**
 	 * \brief Construct a new grid.
@@ -72,9 +99,9 @@ public class SpatialGrid implements NodeConstructor
 		this._name = name;
 	}
 
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							BASIC GETTERS & SETTERS
-	 * ##################################################################### */
+	 * ***********************************************************************/
 	
 	/**
 	 * @return The name of the variable this grid represents.
@@ -92,9 +119,9 @@ public class SpatialGrid implements NodeConstructor
 		return this._shape;
 	}
 	
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							ARRAY INITIALISATION
-	 * ##################################################################### */
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Initialise an array of the given <b>type</b> and fill all voxels
@@ -154,9 +181,9 @@ public class SpatialGrid implements NodeConstructor
 		return Array.copy(this._array.get(type));
 	}
 
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							ARRAY SETTERS
-	 * ##################################################################### */
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Set all values in the array specified to the <b>value</b> given.
@@ -240,9 +267,9 @@ public class SpatialGrid implements NodeConstructor
 		Array.timesEquals(this._array.get(type), value);
 	}
 	
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							ARRAY GETTERS
-	 * ##################################################################### */
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Get the greatest value in the given array.
@@ -290,9 +317,9 @@ public class SpatialGrid implements NodeConstructor
 		return Array.sum(this._array.get(type));
 	}
 	
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							TWO ARRAY METHODS
-	 * ##################################################################### */
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Add all elements of one array to those of another,
@@ -308,20 +335,33 @@ public class SpatialGrid implements NodeConstructor
 		Array.addEquals(this._array.get(destination), this._array.get(source));
 	}
 
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							VOXEL GETTERS & SETTERS
-	 * ##################################################################### */
+	 * ***********************************************************************/
 	
 	/**
-	 * \brief Gets the value of one voxel on the given array type.
+	 * \brief Gets the value of one coordinate on the given array type.
 	 * 
 	 * @param type Type of array to get from.
-	 * @param coord Coordinate of the voxel.
-	 * @return {@code double} value voxel.
+	 * @param coord Coordinate on this array to get.
+	 * @return double value at this coordinate on this array.
 	 */
 	public double getValueAt(ArrayType type, int[] coord)
 	{
-		return this._array.get(type)[coord[0]][coord[1]][coord[2]];
+		Log.out(GET_VALUE_LEVEL, "Trying to get value at coordinate "
+				+ Vector.toString(coord) + " in "+ type);
+		if ( this._array.containsKey(type) )
+		{
+			Log.out(GET_VALUE_LEVEL, "   returning " 
+					+ this._array.get(type)[coord[0]][coord[1]][coord[2]]);
+			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
+		}
+		else
+		{
+			//TODO: safety?
+			Log.out(GET_VALUE_LEVEL, "   returning " + Double.NaN);
+			return Double.NaN;
+		}
 	}
 	
 	/**
@@ -333,6 +373,8 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public void setValueAt(ArrayType type, int[] coord, double value)
 	{
+		Log.out(SET_VALUE_LEVEL, "Trying to set value at coordinate "
+				+ Vector.toString(coord) + " in "+ type + " to "+value);
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
 	}
 	
@@ -345,6 +387,8 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public void addValueAt(ArrayType type, int[] coord, double value)
 	{
+		Log.out(SET_VALUE_LEVEL, "Trying to add " + value + " at coordinate "
+				+ Vector.toString(coord) + " in "+ type);
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
 	}
 	
@@ -357,12 +401,14 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public void timesValueAt(ArrayType type, int[] coord, double value)
 	{
+		Log.out(SET_VALUE_LEVEL, "Trying to multiply with " + value 
+				+ " at coordinate "+ Vector.toString(coord) + " in "+ type);
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
 	}
 	
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							ITERATION
-	 * ##################################################################### */
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Get the value of the given array where the current iterator voxel
@@ -484,9 +530,9 @@ public class SpatialGrid implements NodeConstructor
 		}
 	}
 
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							LOCATION GETTERS
-	 * ##################################################################### */
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief  Gets the value of one voxel on the given array type.
@@ -501,9 +547,9 @@ public class SpatialGrid implements NodeConstructor
 		return this.getValueAt(type, this._shape.getCoords(location));
 	}
 	
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							REPORTING
-	 * ##################################################################### */
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -573,9 +619,9 @@ public class SpatialGrid implements NodeConstructor
 		return this.arrayAsBuffer(type).toString();
 	}
 	
-	/* #####################################################################
+	/* ***********************************************************************
 	 * 							MODEL NODES
-	 * ##################################################################### */
+	 * ***********************************************************************/
 
 	@Override
 	public ModelNode getNode()
