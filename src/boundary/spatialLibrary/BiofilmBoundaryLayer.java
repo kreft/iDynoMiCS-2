@@ -9,10 +9,12 @@ import java.util.List;
 
 import agent.Agent;
 import boundary.SpatialBoundary;
+import boundary.library.ChemostatToBoundaryLayer;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
@@ -27,7 +29,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	 */
 	// TODO set this from protocol file
 	private double _layerTh = 10.0;
-	
+
 	/**\brief TODO
 	 * 
 	 * @param dim
@@ -39,9 +41,36 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	}
 
 	/*************************************************************************
+	 * PARTNER BOUNDARY
+	 ************************************************************************/
+
+	@Override
+	public Class<?> getPartnerClass()
+	{
+		return ChemostatToBoundaryLayer.class;
+	}
+
+	/*************************************************************************
+	 * SOLUTE TRANSFERS
+	 ************************************************************************/
+
+	@Override
+	public void updateConcentrations(EnvironmentContainer environment)
+	{
+		// TODO
+	}
+
+	@Override
+	public double getFlux(SpatialGrid grid)
+	{
+		// TODO
+		return 0;
+	}
+
+	/*************************************************************************
 	 * AGENT TRANSFERS
 	 ************************************************************************/
-	
+
 	@Override
 	public void agentsArrive(AgentContainer agentCont)
 	{
@@ -104,16 +133,5 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		 */
 		// TODO
 		return out;
-	}
-	
-	/*************************************************************************
-	 * SOLUTE TRANSFERS
-	 ************************************************************************/
-
-	@Override
-	public double getFlux(SpatialGrid grid)
-	{
-		// TODO
-		return 0;
 	}
 }

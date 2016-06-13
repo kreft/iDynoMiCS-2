@@ -42,7 +42,7 @@ public class AgentGridTest
 		aCompartment.addBoundary(DimName.Y, 0, new SolidBoundary(DimName.Y, 0));
 		aCompartment.addBoundary(DimName.Y, 1, new SolidBoundary(DimName.Y, 1));
 		FixedBoundary top = new FixedBoundary(DimName.X, 1);
-		top.setConcn("solute", topConcn);
+		top.setConcentration("solute", topConcn);
 		aCompartment.addBoundary(DimName.X, 1, top);
 		/*
 		 * We just have one solute, but need to give it to the process manager

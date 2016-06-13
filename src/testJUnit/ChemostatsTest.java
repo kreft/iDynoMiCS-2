@@ -62,9 +62,6 @@ public class ChemostatsTest
 		comp.setShape("dimensionless");
 		comp.environment.addSolute(soluteName);
 		
+		
 	}
-	
-	
-	
-	
 }

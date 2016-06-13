@@ -4,11 +4,11 @@
 package boundary.spatialLibrary;
 
 import boundary.SpatialBoundary;
-import boundary.grid.GridMethodLibrary.ZeroFlux;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
@@ -26,7 +26,37 @@ public class SolidBoundary extends SpatialBoundary
 	public SolidBoundary(DimName dim, int extreme)
 	{
 		super(dim, extreme);
-		this._defaultGridMethod = new ZeroFlux();
+	}
+	
+	/*************************************************************************
+	 * PARTNER BOUNDARY
+	 ************************************************************************/
+
+	@Override
+	public Class<?> getPartnerClass()
+	{
+		// TODO
+		return null;
+	}
+	
+	/*************************************************************************
+	 * SOLUTE TRANSFERS
+	 ************************************************************************/
+	
+	@Override
+	public void updateConcentrations(EnvironmentContainer environment)
+	{
+		/* Do nothing! */
+	}
+
+	@Override
+	public double getFlux(SpatialGrid grid)
+	{
+		/*
+		 * No matter what the concentration of the grid voxel, there is no
+		 * diffusive flux across this boundary.
+		 */
+		return 0.0;
 	}
 
 	/*************************************************************************
@@ -39,15 +69,5 @@ public class SolidBoundary extends SpatialBoundary
 		Log.out(Tier.NORMAL,
 				"Unexpected: agents arriving at a solid boundary!");
 		this.placeAgentsRandom(agentCont);
-	}
-
-	@Override
-	public double getFlux(SpatialGrid grid)
-	{
-		/*
-		 * No matter what the concentration of the grid voxel, there is no
-		 * diffusive flux across this boundary.
-		 */
-		return 0.0;
 	}
 }

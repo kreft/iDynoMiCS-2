@@ -3,41 +3,42 @@
  */
 package boundary.library;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-
 import agent.Agent;
 import boundary.Boundary;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
+import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 
 /**
+ * \brief Connective boundary linking one dimensionless compartment to another.
  * 
- * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class ChemostatToChemostat extends Boundary
 {
 	/**
-	 * TODO
+	 * Flow rate (units of volume per time).
 	 */
 	// TODO set this from protocol
 	protected double _flowRate;
-	/**
-	 * Solute concentrations.
-	 */
-	protected Map<String,Double> _concns = new HashMap<String,Double>();
 	
 	/**
-	 * TODO
+	 * Tally for the number of agents to be diluted via this boundary (kept at
+	 * zero for inflows).
 	 */
 	protected double _agentsToDiluteTally = 0.0;
 	
+	/*************************************************************************
+	 * BASIC SETTERS & GETTERS
+	 ************************************************************************/
+	
 	/**
-	 * TODO
-	 * @param flowRate
+	 * \brief Set this connective boundary's flow rate.
+	 * 
+	 * @param flowRate Flow rate (units of volume per time).
 	 */
 	public void setFlowRate(double flowRate)
 	{
@@ -52,28 +53,32 @@ public class ChemostatToChemostat extends Boundary
 		return this._flowRate;
 	}
 	
+	/*************************************************************************
+	 * PARTNER BOUNDARY
+	 ************************************************************************/
+	
+	@Override
+	public Class<?> getPartnerClass()
+	{
+		return ChemostatToChemostat.class;
+	}
+	
 	/**
 	 * TODO
 	 * @param comp
 	 */
 	public void setPartnerCompartment(Compartment comp)
 	{
-		ChemostatToChemostat cIn = new ChemostatToChemostat();
-		/* */
-		cIn.setFlowRate( - this._flowRate );
+		Boundary cIn = this.makePartnerBoundary();
 		comp.getShape().addOtherBoundary(cIn);
-		this.setPartner(cIn);
 	}
 	
-	/**
-	 * TODO
-	 */
 	@Override
 	public Boundary makePartnerBoundary()
 	{
-		ChemostatToChemostat cIn = new ChemostatToChemostat();
-		cIn.setFlowRate(this._flowRate);
-		this._partner = cIn;
+		ChemostatToChemostat cIn = 
+				(ChemostatToChemostat) super.makePartnerBoundary();
+		cIn.setFlowRate( - this._flowRate);
 		return cIn;
 	}
 	
@@ -81,15 +86,20 @@ public class ChemostatToChemostat extends Boundary
 	 * SOLUTE TRANSFERS
 	 ************************************************************************/
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param name
-	 * @return
-	 */
-	public double getConcentration(String name)
+	@Override
+	public void updateConcentrations(EnvironmentContainer environment)
 	{
-		return this._concns.get(name);
+		/* Inflows have concentrations set by their partner. */
+		if ( this._flowRate > 0.0 )
+			return;
+		/* This is an outflow. */
+		double concn;
+		for ( String name : environment.getSoluteNames() )
+		{
+			concn = environment.getAverageConcentration(name);
+			this.setConcentration(name, concn);
+			this._partner.setConcentration(name, concn);
+		}
 	}
 	
 	/*************************************************************************
@@ -120,6 +130,8 @@ public class ChemostatToChemostat extends Boundary
 			 */
 			this._agentsToDiluteTally -= this._flowRate * timeStep;
 			int n = (int) this._agentsToDiluteTally;
+			/* Cannot dilute more agents than there are in the compartment. */
+			n = Math.min(n, nAllAgents);
 			int[] nums = Vector.randomInts(n, 0, nAllAgents);
 			for ( int i : nums )
 				out.add(agentCont.chooseAgent(i));

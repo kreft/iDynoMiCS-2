@@ -3,15 +3,12 @@
  */
 package boundary;
 
-import java.util.HashMap;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import agent.Agent;
 import agent.Body;
 import aspect.AspectRef;
-import boundary.grid.GridMethod;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
@@ -44,18 +41,6 @@ public abstract class SpatialBoundary extends Boundary
 	 * that extreme (0 for minimum, 1 for maximum).
 	 */
 	protected int _extreme;
-	/**
-	 * The grid method this boundary should use for any variable that is not
-	 * named in the dictionary {@link #_gridMethods}. 
-	 */
-	protected GridMethod _defaultGridMethod;
-	/**
-	 * Dictionary of grid methods that this boundary should use for each
-	 * variable (e.g. a solute). If a variable is not in this list, use the
-	 * default, {@link #_defaultGridMethod}, instead.
-	 */
-	protected HashMap<String,GridMethod> _gridMethods = 
-										new HashMap<String,GridMethod>();
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -95,57 +80,9 @@ public abstract class SpatialBoundary extends Boundary
 		return this._extreme;
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 * @param aMethod
-	 */
-	public void setGridMethod(String soluteName, GridMethod aMethod)
-	{
-		if ( soluteName.equals(DEFAULT_GM) )
-		{
-			if ( this._defaultGridMethod == null )
-			{
-				Log.out(Tier.EXPRESSIVE,
-						"Boundary setting default grid method");
-			}
-			else
-			{
-				// TODO Change to warning if overwriting the default?
-				Log.out(Tier.EXPRESSIVE,
-						"Boundary overwriting default grid method");
-			}
-			this._defaultGridMethod = aMethod;
-		}
-		else
-		{
-			Log.out(Tier.EXPRESSIVE,
-					"Boundary setting grid method for "+soluteName);
-			this._gridMethods.put(soluteName, aMethod);
-		}
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 * @return
-	 */
-	public GridMethod getGridMethod(String soluteName)
-	{
-		Tier level = Tier.BULK;
-		if ( this._gridMethods.containsKey(soluteName) )
-		{
-			Log.out(level, "Boundary found grid method for "+soluteName);
-			return this._gridMethods.get(soluteName);
-		}
-		else
-		{
-			Log.out(level, "Boundary using default grid method for "+soluteName);
-			return this._defaultGridMethod;
-		}
-	}
+	/*************************************************************************
+	 * SOLUTE TRANSFERS
+	 ************************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -234,8 +171,6 @@ public abstract class SpatialBoundary extends Boundary
 	public boolean isReadyForLaunch()
 	{
 		if ( ! super.isReadyForLaunch() )
-			return false;
-		if ( this._defaultGridMethod == null && this._gridMethods.isEmpty() )
 			return false;
 		return true;
 	}

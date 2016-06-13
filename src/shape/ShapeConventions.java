@@ -3,15 +3,13 @@
  */
 package shape;
 
-import java.util.List;
-
 import org.w3c.dom.Element;
 
-import agent.Agent;
 import boundary.Boundary;
 import boundary.grid.GridMethod;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 import shape.resolution.ResolutionCalculator.SameRes;
 
 /**
@@ -87,7 +85,19 @@ public final class ShapeConventions
 		@Override
 		public void agentsArrive(AgentContainer agentCont)
 		{
-			
+			/* Do nothing! */
+		}
+
+		@Override
+		public Class<?> getPartnerClass()
+		{
+			return BoundaryCyclic.class;
+		}
+
+		@Override
+		public void updateConcentrations(EnvironmentContainer environment)
+		{
+			/* Do nothing! */
 		}
 	}
 	

@@ -3,8 +3,10 @@
  */
 package boundary;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Node;
 
@@ -14,6 +16,7 @@ import dataIO.XmlRef;
 import generalInterfaces.XMLable;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 
@@ -36,7 +39,12 @@ public abstract class Boundary implements NodeConstructor
 	 * TODO implement this in node construction
 	 */
 	protected String _partnerCompartmentName;
-	
+
+	/**
+	 * Solute concentrations.
+	 */
+	protected Map<String,Double> _concns = new HashMap<String,Double>();
+
 	/**
 	 * List of Agents that are leaving this compartment via this boundary, and
 	 * so need to travel to the connected compartment.
@@ -47,16 +55,16 @@ public abstract class Boundary implements NodeConstructor
 	 * and need to be entered into this compartment.
 	 */
 	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
-	
+
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
 	private static final Tier AGENT_LEVEL = Tier.DEBUG;
-	
+
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
+
 	/**
 	 * TODO
 	 * @return
@@ -66,7 +74,18 @@ public abstract class Boundary implements NodeConstructor
 		return XmlRef.dimensionBoundary;
 		// TODO return dimension and min/max for SpatialBoundary?
 	}
-	
+
+	/*************************************************************************
+	 * PARTNER BOUNDARY
+	 ************************************************************************/
+
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public abstract Class<?> getPartnerClass();
+
 	/**
 	 * \brief Set the given boundary as this boundary's partner.
 	 * 
@@ -76,7 +95,7 @@ public abstract class Boundary implements NodeConstructor
 	{
 		this._partner = partner;
 	}
-	
+
 	/**
 	 * @return {@code true} if this boundary still needs a partner boundary to
 	 * be set, {@code false} if it already has one or does not need one at all.
@@ -86,7 +105,7 @@ public abstract class Boundary implements NodeConstructor
 		return ( this._partnerCompartmentName != null ) &&
 				( this._partner == null );
 	}
-	
+
 	/**
 	 * @return The name of the compartment this boundary should have a partner
 	 * boundary with.
@@ -95,7 +114,7 @@ public abstract class Boundary implements NodeConstructor
 	{
 		return this._partnerCompartmentName;
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -103,13 +122,61 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	public Boundary makePartnerBoundary()
 	{
-		return null;
+		Boundary out = null;
+		Class<?> bClass = this.getPartnerClass();
+		if ( bClass != null )
+		{
+			try
+			{
+				out = (Boundary) bClass.newInstance();
+				this.setPartner(out);
+				out.setPartner(this);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return out;
 	}
-	
+
+	/*************************************************************************
+	 * SOLUTE TRANSFERS
+	 ************************************************************************/
+
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public double getConcentration(String name)
+	{
+		return this._concns.get(name);
+	}
+
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @param concn
+	 */
+	public void setConcentration(String name, double concn)
+	{
+		this._concns.put(name, concn);
+	}
+
+	/**
+	 * \brief TODO
+	 * 
+	 * @param environment
+	 */
+	public abstract void updateConcentrations(EnvironmentContainer environment);
+
 	/*************************************************************************
 	 * AGENT TRANSFERS
 	 ************************************************************************/
-	
+
 	/**
 	 * \brief Put the given agent into the departure lounge.
 	 * 
@@ -121,7 +188,7 @@ public abstract class Boundary implements NodeConstructor
 				anAgent.identity()+") to departure lounge");
 		this._departureLounge.add(anAgent);
 	}
-	
+
 	/**
 	 * \brief Put the given agent into the arrivals lounge.
 	 * 
@@ -133,7 +200,7 @@ public abstract class Boundary implements NodeConstructor
 				anAgent.identity()+") to arrivals lounge");
 		this._arrivalsLounge.add(anAgent);
 	}
-	
+
 	/**
 	 * \brief Put the given agents into the arrivals lounge.
 	 * 
@@ -147,7 +214,7 @@ public abstract class Boundary implements NodeConstructor
 			this.acceptInboundAgent(anAgent);
 		Log.out(AGENT_LEVEL, " Done!");
 	}
-	
+
 	/**
 	 * Push all agents in the departure lounge to the partner boundary's
 	 * arrivals lounge.
@@ -167,19 +234,19 @@ public abstract class Boundary implements NodeConstructor
 			this._departureLounge.clear();
 		}
 	}
-	
+
 	// TODO delete once agent method gets full control of agent transfers
 	public List<Agent> getAllInboundAgents()
 	{
 		return this._arrivalsLounge;
 	}
-	
+
 	// TODO delete once agent method gets full control of agent transfers
 	public void clearArrivalsLoungue()
 	{
 		this._arrivalsLounge.clear();
 	}
-	
+
 	/**
 	 * \brief Enter the {@code Agent}s waiting in the arrivals lounge to the
 	 * {@code AgentContainer}.
@@ -193,7 +260,7 @@ public abstract class Boundary implements NodeConstructor
 			agentCont.addAgent(anAgent);
 		this._arrivalsLounge.clear();
 	}
-	
+
 	/**
 	 * \brief Compile a list of the agents that this boundary wants to remove
 	 * from the compartment and put into its departures lounge.
@@ -207,64 +274,64 @@ public abstract class Boundary implements NodeConstructor
 	{
 		return new LinkedList<Agent>();
 	}
-	
+
 	/*************************************************************************
 	 * XML-ABLE
 	 ************************************************************************/
-	
+
 	// TODO replace with node construction
-	
+
 	public static Boundary getNewInstance(String className)
 	{
 		return (Boundary) XMLable.getNewInstance(className, "boundary.library.");
 	}
-	
-	
+
+
 	public boolean isReadyForLaunch()
 	{
 		// TODO
 		return true;
 	}
-	
+
 	/*************************************************************************
 	 * NODE CONTRUCTION
 	 ************************************************************************/
-	
+
 	// TODO delete once nodeFactory has made this redundant
 	public void init(Node xmlNode)
 	{
 		// TODO partner boundary name
 	}
-	
+
 	@Override
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
-		
+
 		// TODO
 		// modelNode.requirement = Requirements.?
-		
+
 		// TODO
-		
+
 		return modelNode;
 	}
-	
+
 	@Override
 	public void setNode(ModelNode node)
 	{
 		// TODO
 	}
-	
+
 	@Override
 	public NodeConstructor newBlank()
 	{
 		// TODO
 		return null;
 	}
-	
+
 	// TODO ?
 	//public void addChildObject(NodeConstructor childObject)
-	
+
 	@Override
 	public String defaultXmlTag()
 	{

@@ -1,11 +1,9 @@
 package boundary.spatialLibrary;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import boundary.SpatialBoundary;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
@@ -17,11 +15,6 @@ import shape.Dimension.DimName;
 public class FixedBoundary extends SpatialBoundary
 {
 	/**
-	 * Solute concentrations.
-	 */
-	private Map<String,Double> _concns = new HashMap<String,Double>();
-	
-	/**
 	 * \brief TODO
 	 * 
 	 * @param dim
@@ -32,15 +25,25 @@ public class FixedBoundary extends SpatialBoundary
 		super(dim, extreme);
 	}
 	
-	/**
-	 * \brief Set the concentration of a solute at this boundary.
-	 * 
-	 * @param name Name of the solute.
-	 * @param value Concentration of the solute.
-	 */
-	public void setConcn(String name, double value)
+	/*************************************************************************
+	 * PARTNER BOUNDARY
+	 ************************************************************************/
+
+	@Override
+	public Class<?> getPartnerClass()
 	{
-		this._concns.put(name, value);
+		// TODO
+		return null;
+	}
+	
+	/*************************************************************************
+	 * SOLUTE TRANSFERS
+	 ************************************************************************/
+	
+	@Override
+	public void updateConcentrations(EnvironmentContainer environment)
+	{
+		/* Do nothing! */
 	}
 	
 	@Override
