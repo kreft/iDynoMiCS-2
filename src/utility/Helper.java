@@ -6,6 +6,7 @@ import java.util.Set;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import expression.ExpressionB;
 import guiTools.GuiConsole;
 
 /**
@@ -22,7 +23,11 @@ public class Helper
 	public static boolean gui = false;
 
 	/**
-	 * Assisting with badly written protocol files.
+	 * Obtain user input as string.
+	 * @param input
+	 * @param description
+	 * @param noLog
+	 * @return
 	 */
 	public static String obtainInput(String input, String description, boolean noLog)
 	{
@@ -54,6 +59,13 @@ public class Helper
 		return input;
 	}
 	
+	/**
+	 * obtain input with a limited set of options
+	 * @param options
+	 * @param description
+	 * @param noLog
+	 * @return
+	 */
 	public static String obtainInput(List<String> options, String description, boolean noLog)
 	{
 		String[] out = new String[options.size()];
@@ -63,6 +75,13 @@ public class Helper
 		return obtainInput(out, description, noLog);
 	}
 	
+	/**
+	 * obtain input with a limited set of options
+	 * @param options
+	 * @param description
+	 * @param noLog
+	 * @return
+	 */
 	public static String obtainInput(String[] options, String description, boolean noLog)
 	{
 		String input;
@@ -92,6 +111,12 @@ public class Helper
 	return input;
 	}
 	
+	/**
+	 * obtain user input as string with logging on.
+	 * @param input
+	 * @param description
+	 * @return
+	 */
 	public static String obtainInput(String input, String description)
 	{
 		return obtainInput(input, description, false);
@@ -130,7 +155,10 @@ public class Helper
 	{
 		return new String[] {
 				"yes",
-				"y"
+				"y",
+				"Y",
+				"true",
+				"TRUE"				
 		};
 	}
 	
@@ -142,7 +170,10 @@ public class Helper
 	{
 		return new String[] {
 				"no",
-				"n"
+				"n",
+				"N",
+				"false",
+				"FALSE"
 		};
 	}
 	
@@ -173,6 +204,17 @@ public class Helper
 	}
 	
 	/**
+	 * return string interpretation of mathematical expression.
+	 * @param expression
+	 * @return
+	 */
+	public static double interpretExpression(String expression)
+	{
+		ExpressionB expres = new ExpressionB(expression);
+		return expres.getValue();
+	}
+	
+	/**
 	 * Returns any input object <T> from input, if not set returns ifNone <T>.
 	 */
 	public static <T> T setIfNone(T input, T ifNone)
@@ -193,6 +235,10 @@ public class Helper
 		System.exit(0);
 	}
 	
+	/**
+	 * pause the current thread by delay
+	 * @param delay
+	 */
 	public static void pause(int delay)
 	{
 		try {
@@ -202,6 +248,11 @@ public class Helper
 		}
 	}
 	
+	/**
+	 * write enum to string space separation
+	 * @param anEnum
+	 * @return
+	 */
 	public static String enumToString(Class<?> anEnum)
 	{
 		Object[] enums = anEnum.getEnumConstants();
@@ -211,6 +262,11 @@ public class Helper
 		return out;	
 	}
 	
+	/**
+	 * Write String array to comma separated string
+	 * @param array
+	 * @return
+	 */
 	public static String stringAToString(String[] array)
 	{
 		String out = "";
@@ -225,6 +281,11 @@ public class Helper
 		
 	}
 	
+	/**
+	 * convert first character of String to uppercase.
+	 * @param string
+	 * @return
+	 */
 	public static String firstToUpper(String string)
 	{
 		String firstLetter = string.substring(0, 1);
@@ -254,6 +315,11 @@ public class Helper
 		return out;
 	}
 
+	/**
+	 * Convert a java List of strings to a String array
+	 * @param all
+	 * @return
+	 */
 	public static String[] listToArray(List<String> all) {
 		String[] out = new String[all.size()];
 		for (int i = 0; i < all.size(); i++)
@@ -261,6 +327,11 @@ public class Helper
 		return out;
 	}
 	
+	/**
+	 * Convert a java Set of strings to a String array
+	 * @param all
+	 * @return
+	 */
 	public static String[] setToArray(Set<String> all) {
 		String[] out = new String[all.size()];
 		int i =0;

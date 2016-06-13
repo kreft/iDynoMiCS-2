@@ -587,8 +587,18 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 
 	@Override
-	public double getValue(Map<String, Double> variables) {
+	public double getValue(Map<String, Double> variables) 
+	{
 		return this._a.getValue(variables);
+	}
+	
+	/**
+	 * get Value for expressions where no variables are used
+	 * @return double
+	 */
+	public double getValue()
+	{
+		return this.getValue(new HashMap<String,Double>());
 	}
 
 	@Override

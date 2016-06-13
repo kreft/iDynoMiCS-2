@@ -429,7 +429,7 @@ public class AspectReg
 				modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
 						simpleName, null, false ) );
 				
-				
+				//FIXME this needs to be finished
 		    	switch (simpleName)
 				{
 				case "HashMap":
