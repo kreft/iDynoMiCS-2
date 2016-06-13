@@ -85,7 +85,7 @@ public final class ShapeConventions
 		}
 
 		@Override
-		public Class<?> getPartnerClass()
+		protected Class<?> getPartnerClass()
 		{
 			return BoundaryCyclic.class;
 		}

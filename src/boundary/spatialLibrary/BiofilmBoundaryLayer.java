@@ -1,6 +1,3 @@
-/**
- * 
- */
 package boundary.spatialLibrary;
 
 import java.util.Collection;
@@ -30,29 +27,33 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	// TODO set this from protocol file
 	private double _layerTh = 10.0;
 
-	/**\brief TODO
+	/**
+	 * \brief Construct a biofilm boundary layer by giving it the information
+	 * it needs about its location.
 	 * 
-	 * @param dim
-	 * @param extreme
+	 * @param dim This boundary is at one extreme of a dimension: this is the
+	 * name of that dimension.
+	 * @param extreme This boundary is at one extreme of a dimension: this is
+	 * the index of that extreme (0 for minimum, 1 for maximum).
 	 */
 	public BiofilmBoundaryLayer(DimName dim, int extreme)
 	{
 		super(dim, extreme);
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * PARTNER BOUNDARY
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	@Override
-	public Class<?> getPartnerClass()
+	protected Class<?> getPartnerClass()
 	{
 		return ChemostatToBoundaryLayer.class;
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	@Override
 	public void updateConcentrations(EnvironmentContainer environment)
@@ -64,12 +65,12 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	public double getFlux(SpatialGrid grid)
 	{
 		// TODO
-		return 0;
+		return 0.0;
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * AGENT TRANSFERS
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	@Override
 	public void agentsArrive(AgentContainer agentCont)
@@ -119,7 +120,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 			}
 			// TODO ask the agent to move now?
 		}
-		this._arrivalsLounge.clear();
+		this.clearArrivalsLoungue();
 	}
 
 	@Override

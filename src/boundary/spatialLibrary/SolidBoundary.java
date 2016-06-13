@@ -1,6 +1,3 @@
-/**
- * 
- */
 package boundary.spatialLibrary;
 
 import boundary.SpatialBoundary;
@@ -12,37 +9,44 @@ import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
- * \brief TODO
+ * \brief Boundary that allows neither agents nor solutes to cross it.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class SolidBoundary extends SpatialBoundary
 {
-	/**\brief TODO
+	/**
+	 * \brief Construct a solid boundary by giving it the information it
+	 * needs about its location.
 	 * 
-	 * @param dim
-	 * @param extreme
+	 * @param dim This boundary is at one extreme of a dimension: this is the
+	 * name of that dimension.
+	 * @param extreme This boundary is at one extreme of a dimension: this is
+	 * the index of that extreme (0 for minimum, 1 for maximum).
 	 */
 	public SolidBoundary(DimName dim, int extreme)
 	{
 		super(dim, extreme);
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * PARTNER BOUNDARY
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	@Override
-	public Class<?> getPartnerClass()
+	protected Class<?> getPartnerClass()
 	{
-		// TODO
-		return null;
+		/* 
+		 * This boundary shouldn't really have a partner, but if one is
+		 * requested then just return another solid boundary.
+		 */
+		return SolidBoundary.class;
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	@Override
 	public void updateConcentrations(EnvironmentContainer environment)
 	{
@@ -59,15 +63,19 @@ public class SolidBoundary extends SpatialBoundary
 		return 0.0;
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * AGENT TRANSFERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	@Override
 	public void agentsArrive(AgentContainer agentCont)
 	{
-		Log.out(Tier.NORMAL,
-				"Unexpected: agents arriving at a solid boundary!");
+		if ( ! this._arrivalsLounge.isEmpty() )
+		{
+			Log.out(Tier.NORMAL,
+					"Unexpected: agents arriving at a solid boundary!");
+		}
 		this.placeAgentsRandom(agentCont);
+		this.clearArrivalsLoungue();
 	}
 }

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package boundary;
 
 import org.w3c.dom.Element;
@@ -23,14 +20,12 @@ import shape.Dimension;
 import shape.Dimension.DimName;
 
 /**
- * \brief TODO
+ * \brief Abstract class of boundary that has a location in space.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class SpatialBoundary extends Boundary
 {
-	// TODO move this to XmlLabel?
-	public final static String DEFAULT_GM = "defaultGridMethod";
 	/**
 	 * This boundary is at one extreme of a dimension: this is the name of that
 	 * dimension.
@@ -42,12 +37,13 @@ public abstract class SpatialBoundary extends Boundary
 	 */
 	protected int _extreme;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief Construct a spatial boundary by giving it the information it
+	 * needs about its location.
 	 * 
 	 * @param dim This boundary is at one extreme of a dimension: this is the
 	 * name of that dimension.
@@ -60,9 +56,9 @@ public abstract class SpatialBoundary extends Boundary
 		this._extreme = extreme;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * @return The name of the dimension this is on an extreme of.
@@ -80,21 +76,26 @@ public abstract class SpatialBoundary extends Boundary
 		return this._extreme;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the diffusive flux across this boundary, into the grid's
+	 * current iterator voxel.
 	 * 
-	 * @param grid
-	 * @return
+	 * <p>Note that we get the name of the variable from the grid itself.</p>
+	 * 
+	 * @param grid Spatial grid representing a variable with a {@code CONCN}
+	 * array, most likely a solute.
+	 * @return The rate of diffusive flux across this boundary, in units of
+	 * concentration per time.
 	 */
 	public abstract double getFlux(SpatialGrid grid);
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * AGENT TRANSFERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Helper method for placing agents in the arrivals lounge at random
@@ -130,9 +131,9 @@ public abstract class SpatialBoundary extends Boundary
 		}
 	}
 	
-	/**************************************************************************
+	/* ************************************************************************
 	 * MODEL NODE
-	 *************************************************************************/
+	 * ***********************************************************************/
 	
 	// TODO delete once nodeFactory has made this redundant
 	public void init(Node xmlNode)

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package boundary;
 
 import java.util.HashMap;
@@ -28,23 +25,23 @@ import nodeFactory.NodeConstructor;
 public abstract class Boundary implements NodeConstructor
 {
 	/**
-	 * TODO implement this in node construction
+	 * XML tag for the name of the partner boundary.
 	 */
+	// TODO implement this in node construction
 	public final static String PARTNER = XmlRef.boundaryPartner;
 	/**
-	 * The boundary this is connected with - not necessarily set.
+	 * The boundary this is connected with (not necessarily set).
 	 */
 	protected Boundary _partner;
 	/**
-	 * TODO implement this in node construction
+	 * 
 	 */
+	// TODO implement this in node construction
 	protected String _partnerCompartmentName;
-
 	/**
 	 * Solute concentrations.
 	 */
 	protected Map<String,Double> _concns = new HashMap<String,Double>();
-
 	/**
 	 * List of Agents that are leaving this compartment via this boundary, and
 	 * so need to travel to the connected compartment.
@@ -55,15 +52,18 @@ public abstract class Boundary implements NodeConstructor
 	 * and need to be entered into this compartment.
 	 */
 	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
-
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
-	private static final Tier AGENT_LEVEL = Tier.DEBUG;
+	protected static final Tier SOLUTE_LEVEL = Tier.DEBUG;
+	/**
+	 * Log verbosity level for debugging purposes (set to BULK when not using).
+	 */
+	protected static final Tier AGENT_LEVEL = Tier.DEBUG;
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	/**
 	 * TODO
@@ -75,16 +75,16 @@ public abstract class Boundary implements NodeConstructor
 		// TODO return dimension and min/max for SpatialBoundary?
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * PARTNER BOUNDARY
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	/**
 	 * \brief TODO
 	 * 
 	 * @return
 	 */
-	public abstract Class<?> getPartnerClass();
+	protected abstract Class<?> getPartnerClass();
 
 	/**
 	 * \brief Set the given boundary as this boundary's partner.
@@ -116,9 +116,9 @@ public abstract class Boundary implements NodeConstructor
 	}
 
 	/**
-	 * \brief TODO
+	 * \brief Make a new {@code Boundary} that is the partner to this one.
 	 * 
-	 * @return
+	 * @return New {@code Boundary} object with partner-partner links set.
 	 */
 	public Boundary makePartnerBoundary()
 	{
@@ -140,15 +140,15 @@ public abstract class Boundary implements NodeConstructor
 		return out;
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	/**
-	 * \brief TODO
+	 * \brief Get the concentration of a solute at this boundary.
 	 * 
-	 * @param name
-	 * @return
+	 * @param name Name of the solute.
+	 * @return Concentration of the solute.
 	 */
 	public double getConcentration(String name)
 	{
@@ -156,10 +156,10 @@ public abstract class Boundary implements NodeConstructor
 	}
 
 	/**
-	 * \brief TODO
+	 * \brief Set the concentration of a solute at this boundary.
 	 * 
-	 * @param name
-	 * @param concn
+	 * @param name Name of the solute.
+	 * @param concn Concentration of the solute.
 	 */
 	public void setConcentration(String name, double concn)
 	{
@@ -173,9 +173,9 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	public abstract void updateConcentrations(EnvironmentContainer environment);
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * AGENT TRANSFERS
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	/**
 	 * \brief Put the given agent into the departure lounge.
@@ -209,7 +209,7 @@ public abstract class Boundary implements NodeConstructor
 	public void acceptInboundAgents(List<Agent> agents)
 	{
 		Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" accepting "+
-				agents.size()+"agents to arrivals lounge");
+				agents.size()+" agents to arrivals lounge");
 		for ( Agent anAgent : agents )
 			this.acceptInboundAgent(anAgent);
 		Log.out(AGENT_LEVEL, " Done!");
@@ -230,18 +230,20 @@ public abstract class Boundary implements NodeConstructor
 		}
 		else
 		{
+			Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
+					this._departureLounge.size()+" agents to partner");
 			this._partner.acceptInboundAgents(this._departureLounge);
 			this._departureLounge.clear();
 		}
 	}
 
-	// TODO delete once agent method gets full control of agent transfers
+	// TODO delete once boundary gets full control of agent transfers
 	public List<Agent> getAllInboundAgents()
 	{
 		return this._arrivalsLounge;
 	}
 
-	// TODO delete once agent method gets full control of agent transfers
+	// TODO make protected once boundary gets full control of agent transfers
 	public void clearArrivalsLoungue()
 	{
 		this._arrivalsLounge.clear();
@@ -293,9 +295,9 @@ public abstract class Boundary implements NodeConstructor
 		return true;
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * NODE CONTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	// TODO delete once nodeFactory has made this redundant
 	public void init(Node xmlNode)

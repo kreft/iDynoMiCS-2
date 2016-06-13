@@ -8,22 +8,27 @@ import boundary.spatialLibrary.BiofilmBoundaryLayer;
 import idynomics.EnvironmentContainer;
 
 /**
- * \brief TODO
+ * \brief Boundary connecting a dimensionless compartment to a compartment
+ * this spatial structure.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class ChemostatToBoundaryLayer extends Boundary
 {
+	/* ************************************************************************
+	 * PARTNER BOUNDARY
+	 * ***********************************************************************/
+
 	@Override
-	public Class<?> getPartnerClass()
+	protected Class<?> getPartnerClass()
 	{
 		return BiofilmBoundaryLayer.class;
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	@Override
 	public void updateConcentrations(EnvironmentContainer environment)
 	{
@@ -38,11 +43,11 @@ public class ChemostatToBoundaryLayer extends Boundary
 			this._partner.setConcentration(name, chemoConcn);
 		}
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * AGENT TRANSFERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	// TODO [Rob 13June2016]: We need to grab agents from the chemostat here,
 	// in a similar way to ChemostatToChemostat, but there is no "flow rate".
 }

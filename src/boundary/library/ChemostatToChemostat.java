@@ -1,6 +1,3 @@
-/**
- * 
- */
 package boundary.library;
 
 import java.util.LinkedList;
@@ -24,17 +21,17 @@ public class ChemostatToChemostat extends Boundary
 	 */
 	// TODO set this from protocol
 	protected double _flowRate;
-	
+
 	/**
 	 * Tally for the number of agents to be diluted via this boundary (kept at
 	 * zero for inflows).
 	 */
 	protected double _agentsToDiluteTally = 0.0;
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	/**
 	 * \brief Set this connective boundary's flow rate.
 	 * 
@@ -44,7 +41,7 @@ public class ChemostatToChemostat extends Boundary
 	{
 		this._flowRate = flowRate;
 	}
-	
+
 	/**
 	 * @return Flow rate (units of volume per time).
 	 */
@@ -52,27 +49,17 @@ public class ChemostatToChemostat extends Boundary
 	{
 		return this._flowRate;
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * PARTNER BOUNDARY
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	@Override
-	public Class<?> getPartnerClass()
+	protected Class<?> getPartnerClass()
 	{
 		return ChemostatToChemostat.class;
 	}
-	
-	/**
-	 * TODO
-	 * @param comp
-	 */
-	public void setPartnerCompartment(Compartment comp)
-	{
-		Boundary cIn = this.makePartnerBoundary();
-		comp.getShape().addOtherBoundary(cIn);
-	}
-	
+
 	@Override
 	public Boundary makePartnerBoundary()
 	{
@@ -81,11 +68,23 @@ public class ChemostatToChemostat extends Boundary
 		cIn.setFlowRate( - this._flowRate);
 		return cIn;
 	}
-	
-	/*************************************************************************
+
+	/**
+	 * \brief Make a partner boundary and set it to the compartment given.
+	 * 
+	 * @param comp
+	 */
+	// TODO consider deletion
+	public void setPartnerCompartment(Compartment comp)
+	{
+		Boundary cIn = this.makePartnerBoundary();
+		comp.getShape().addOtherBoundary(cIn);
+	}
+
+	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	@Override
 	public void updateConcentrations(EnvironmentContainer environment)
 	{
@@ -101,11 +100,11 @@ public class ChemostatToChemostat extends Boundary
 			this._partner.setConcentration(name, concn);
 		}
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * AGENT TRANSFERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	@Override
 	public void addOutboundAgent(Agent anAgent)
 	{
@@ -116,7 +115,7 @@ public class ChemostatToChemostat extends Boundary
 		super.addOutboundAgent(anAgent);
 		this._agentsToDiluteTally--;
 	}
-	
+
 	@Override
 	public List<Agent> agentsToGrab(AgentContainer agentCont, double timeStep)
 	{

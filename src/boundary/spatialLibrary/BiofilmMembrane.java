@@ -4,6 +4,7 @@
 package boundary.spatialLibrary;
 
 import boundary.SpatialBoundary;
+import boundary.library.ChemostatToMembrane;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
@@ -18,32 +19,34 @@ import shape.Dimension.DimName;
  */
 public class BiofilmMembrane extends SpatialBoundary
 {
-
-	/**\brief TODO
+	/**
+	 * \brief Construct a membrane by giving it the information it needs about
+	 * its location.
 	 * 
-	 * @param dim
-	 * @param extreme
+	 * @param dim This boundary is at one extreme of a dimension: this is the
+	 * name of that dimension.
+	 * @param extreme This boundary is at one extreme of a dimension: this is
+	 * the index of that extreme (0 for minimum, 1 for maximum).
 	 */
 	public BiofilmMembrane(DimName dim, int extreme)
 	{
 		super(dim, extreme);
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * PARTNER BOUNDARY
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	@Override
-	public Class<?> getPartnerClass()
+	protected Class<?> getPartnerClass()
 	{
-		// TODO
-		return null;
+		return ChemostatToMembrane.class;
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	@Override
 	public void updateConcentrations(EnvironmentContainer environment)
 	{
@@ -56,16 +59,20 @@ public class BiofilmMembrane extends SpatialBoundary
 		// TODO
 		return 0;
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * AGENT TRANSFERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	@Override
 	public void agentsArrive(AgentContainer agentCont)
 	{
-		Log.out(Tier.NORMAL,
-				"Unexpected: agents arriving at a membrane!");
+		if ( ! this._arrivalsLounge.isEmpty() )
+		{
+			Log.out(Tier.NORMAL,
+					"Unexpected: agents arriving at a membrane!");
+		}
 		this.placeAgentsRandom(agentCont);
+		this.clearArrivalsLoungue();
 	}
 }

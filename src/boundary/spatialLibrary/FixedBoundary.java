@@ -1,8 +1,11 @@
 package boundary.spatialLibrary;
 
 import boundary.SpatialBoundary;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
@@ -15,30 +18,36 @@ import shape.Dimension.DimName;
 public class FixedBoundary extends SpatialBoundary
 {
 	/**
-	 * \brief TODO
+	 * \brief Construct a fixed boundary by giving it the information it
+	 * needs about its location.
 	 * 
-	 * @param dim
-	 * @param extreme
+	 * @param dim This boundary is at one extreme of a dimension: this is the
+	 * name of that dimension.
+	 * @param extreme This boundary is at one extreme of a dimension: this is
+	 * the index of that extreme (0 for minimum, 1 for maximum).
 	 */
 	public FixedBoundary(DimName dim, int extreme)
 	{
 		super(dim, extreme);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * PARTNER BOUNDARY
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	@Override
-	public Class<?> getPartnerClass()
+	protected Class<?> getPartnerClass()
 	{
-		// TODO
-		return null;
+		/* 
+		 * This boundary shouldn't really have a partner, but if one is
+		 * requested then just return another fixed boundary.
+		 */
+		return FixedBoundary.class;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void updateConcentrations(EnvironmentContainer environment)
@@ -62,5 +71,21 @@ public class FixedBoundary extends SpatialBoundary
 		double vol = grid.getShape().getCurrVoxelVolume();
 		double flux = concnDiff * diffusivity * sArea / ( dist * vol );
 		return flux;
+	}
+	
+	/* ***********************************************************************
+	 * AGENT TRANSFERS
+	 * **********************************************************************/
+	
+	@Override
+	public void agentsArrive(AgentContainer agentCont)
+	{
+		if ( ! this._arrivalsLounge.isEmpty() )
+		{
+			Log.out(Tier.NORMAL,
+					"Unexpected: agents arriving at a fixed boundary!");
+		}
+		this.placeAgentsRandom(agentCont);
+		this.clearArrivalsLoungue();
 	}
 }
