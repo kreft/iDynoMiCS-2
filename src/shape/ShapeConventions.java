@@ -3,11 +3,7 @@
  */
 package shape;
 
-import org.w3c.dom.Element;
-
 import boundary.Boundary;
-import boundary.grid.GridMethod;
-import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import shape.resolution.ResolutionCalculator.SameRes;
@@ -100,20 +96,4 @@ public final class ShapeConventions
 			/* Do nothing! */
 		}
 	}
-	
-	public static class CyclicGrid extends GridMethod
-	{
-		@Override
-		public void init(Element xmlNode)
-		{
-			/* Do nothing here. */ 
-		}
-		
-		@Override
-		public double getBoundaryFlux(SpatialGrid grid)
-		{
-			// TODO
-			return 0;
-		}
-	}	
 }
