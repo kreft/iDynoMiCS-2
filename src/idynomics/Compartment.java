@@ -184,13 +184,11 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 			for ( int i = 0; i < reactions.getLength(); i++ )
 			{
 				rElem = (Element) reactions.item(i);
-				/* Name of the solute, e.g. glucose */
-				str = XmlHandler.obtainAttribute(rElem, XmlRef.nameAttribute);
 				/* Construct and intialise the reaction. */
 				reac = (Reaction) Reaction.getNewInstance(rElem);
 				reac.init(rElem);
 				/* Add it to the environment. */
-				this.environment.addReaction(reac, str);
+				this.environment.addReaction(reac);
 			}
 				
 		}

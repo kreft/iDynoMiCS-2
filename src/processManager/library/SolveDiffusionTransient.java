@@ -339,7 +339,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					 * reaction, and not those that are affected by it.
 					 */
 					concns.clear();
-					for ( String varName : r.variableNames )
+					for ( String varName : r.getVariableNames() )
 					{
 						if ( environment.isSoluteName(varName) )
 						{

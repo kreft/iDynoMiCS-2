@@ -33,14 +33,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	/**
 	 * Collection of solutes (each SpatialGrid knows its own name).
 	 */
-	protected Collection<SpatialGrid> _solutes = 
-			new LinkedList<SpatialGrid>();
+	protected Collection<SpatialGrid> _solutes = new LinkedList<SpatialGrid>();
 	/**
-	 * Dictionary of extracellular reactions.
+	 * Collection of extracellular reactions (each Reaction knows its own name).
 	 */
-	// TODO convert to a Collection, since Reaction now has a name variable
-	protected Map<String, Reaction> _reactions = 
-											new HashMap<String, Reaction>();
+	protected Collection<Reaction> _reactions = new LinkedList<Reaction>();
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -119,18 +116,15 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public void readReactions(NodeList reactionNodes)
 	{
 		Element elem;
-		String name;
 		Reaction reac;
 		for ( int i = 0; i < reactionNodes.getLength(); i++)
 		{
 			elem = (Element) reactionNodes.item(i);
-			// TODO does a reaction need to have a name?
-			name = XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute);
 			/* Construct and intialise the reaction. */
 			reac = (Reaction) Reaction.getNewInstance(elem);
 			reac.init(elem);
 			/* Add it to the environment. */
-			this.addReaction(reac, name);
+			this.addReaction(reac);
 		}
 	}
 	
@@ -179,7 +173,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public Collection<Reaction> getReactions()
 	{
-		return this._reactions.values();
+		return this._reactions;
 	}
 	
 	/**
@@ -189,18 +183,20 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public Reaction getReaction(String reaction)
 	{
-		return _reactions.get(reaction);
+		for ( Reaction reac : this._reactions )
+			if ( reac.getName() == reaction )
+				return reac;
+		return null;
 	}
 	
 	/**
 	 * \brief TODO
 	 * 
 	 * @param reaction
-	 * @param name
 	 */
-	public void addReaction(Reaction reaction, String name)
+	public void addReaction(Reaction reaction)
 	{
-		this._reactions.put(name, reaction);
+		this._reactions.add(reaction);
 	}
 	
 	/**

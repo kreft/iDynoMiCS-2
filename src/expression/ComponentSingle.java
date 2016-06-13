@@ -1,7 +1,7 @@
 package expression;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.List;
 
 /**
  * \brief Component of a mathematical expression that is a function of one
@@ -55,7 +55,7 @@ public abstract class ComponentSingle extends Component
 	
 	protected abstract Component getDifferential(String withRespectTo);
 	
-	public void appendVariablesNames(List<String> names)
+	public void appendVariablesNames(Collection<String> names)
 	{
 		this._a.appendVariablesNames(names);
 	}

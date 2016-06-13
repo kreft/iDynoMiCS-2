@@ -1,5 +1,6 @@
 package expression;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.LinkedList;
@@ -596,7 +597,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		return this._a.differentiate(withRespectTo);
 	}
 	
-	public void appendVariablesNames(List<String> names)
+	public void appendVariablesNames(Collection<String> names)
 	{
 		this._a.appendVariablesNames(names);
 	}
