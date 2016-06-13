@@ -40,28 +40,28 @@ public class AgentContainer
 	 * All agents with a spatial location are stored in here (e.g. an RTree).
 	 */
 	private SpatialRegistry<Agent> _agentTree;
-	
+
 	/**
 	 * Synchronized list, list is cheaper to access than an agent tree
 	 * (iterating over all agents), synchronized for thread safety
 	 */
 	private List<Agent> _locatedAgentList = new ArrayList<Agent>();
-	
+
 	/**
 	 * All agents without a spatial location are stored in here.
 	 */
 	protected LinkedList<Agent> _agentList = new LinkedList<Agent>();
-	
+
 	/**
 	 * All dead agents waiting for their death to be recorded as output before
 	 * they can be removed from memory.
 	 */
 	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	/**
 	 * \brief Construct an {@code AgentContainer} from a {@code Shape}.
 	 * 
@@ -73,7 +73,7 @@ public class AgentContainer
 		this.makeAgentTree();
 		this._agentList = new LinkedList<Agent>();
 	}
-	
+
 	/**
 	 * \brief Construct an {@code AgentContainer} from the name of a
 	 * {@code Shape}.
@@ -86,32 +86,43 @@ public class AgentContainer
 	{
 		this((Shape) Shape.getNewInstance(shapeName));
 	}
-	
+
+	/**
+	 * Helper method for (re-)making this container's spatial registry.
+	 */
 	protected void makeAgentTree()
 	{
-		/*
-		 * Bas: I have chosen maxEntries and minEntries by testing what values
-		 * resulted in fast tree creation and agent searches.
-		 * 
-		 * TODO rtree paramaters could follow from the protocol file.
-		 */
-		if ( this._shape.getNumberOfDimensions() == 0 )
+		if ( this.getNumDims() == 0 )
 			this._agentTree = new DummyTree<Agent>();
 		else
+		{
+			/*
+			 * Bas: I have chosen maxEntries and minEntries by testing what
+			 * values resulted in fast tree creation and agent searches.
+			 */
+			// TODO R-tree parameters could follow from the protocol file.
 			this._agentTree = new RTree<Agent>(8, 2, this._shape);
+		}
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Construct agents from a list of XML nodes.
 	 * 
-	 * @param xmlElem
+	 * @param agentNodes List of XML nodes from a protocol file.
+	 * @param comp Compartment that this container belongs to.
 	 */
 	public void readAgents(NodeList agentNodes, Compartment comp)
 	{
 		for ( int i = 0; i < agentNodes.getLength(); i++ ) 
 			this.addAgent(new Agent(agentNodes.item(i), comp));
 	}
-	
+
+	/**
+	 * \brief Helper method setting the compartment reference of every agent
+	 * in this container to that given.
+	 * 
+	 * @param aCompartment {@code Compartment} object to give to every agent.
+	 */
 	public void setAllAgentsCompartment(Compartment aCompartment)
 	{
 		for ( Agent a : this._agentList )
@@ -119,16 +130,22 @@ public class AgentContainer
 		for ( Agent a : this._agentTree.all() )
 			a.setCompartment(aCompartment);
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
+	/**
+	 * @return The number of "true" dimensions in the compartment.
+	 */
 	public int getNumDims()
 	{
 		return this._shape.getNumberOfDimensions();
 	}
-	
+
+	/**
+	 * @return The shape of this compartment.
+	 */
 	public Shape getShape()
 	{
 		return this._shape;
@@ -142,8 +159,7 @@ public class AgentContainer
 	{
 		return this._agentList.size() + this._locatedAgentList.size();
 	}
-	
-	
+
 	/**
 	 * @return A list of all {@code Agent}s which have a location.
 	 */
@@ -153,7 +169,7 @@ public class AgentContainer
 		out.addAll(this._locatedAgentList);
 		return out;
 	}
-	
+
 	/**
 	 * @return A list of all {@code Agent}s which do not have a location.
 	 */
@@ -163,7 +179,7 @@ public class AgentContainer
 		out.addAll(this._agentList);
 		return out;
 	}
-	
+
 	/**
 	 * \brief Get a list of all {@code Agent}s.
 	 * 
@@ -177,37 +193,70 @@ public class AgentContainer
 		out.addAll(this._locatedAgentList);
 		return out;
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * LOCATED SEARCHES
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
+	/**
+	 * \brief Find agents that may overlap with the given bounding box.
+	 * 
+	 * @param boundingBox The {@code BoundingBox} object to search in.
+	 * @return Collection of agents that may be overlap with this box: note
+	 * that there may be some false positives (but no false negatives).
+	 */
 	public List<Agent> treeSearch(BoundingBox boundingBox)
 	{
 		return this._agentTree.cyclicsearch(boundingBox);
 	}
-	
+
+	/**
+	 * \brief Find agents that may overlap with at least one of the given
+	 * bounding boxes.
+	 * 
+	 * @param boundingBoxes The {@code BoundingBox} objects to search in.
+	 * @return Collection of agents that may be overlap with these boxes: note
+	 * that there may be some false positives (but no false negatives).
+	 */
 	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
 	{
 		return this._agentTree.cyclicsearch(boundingBoxes);
 	}
-	
+
+	/**
+	 * \brief Find agents that may overlap with the given search box.
+	 * 
+	 * @param location Vector representing the origin of this search box.
+	 * @param dimensions Vector representing the size of this search box in
+	 * each dimension.
+	 * @return Collection of agents that may be overlap with this box: note
+	 * that there may be some false positives (but no false negatives).
+	 */
 	public List<Agent> treeSearch(double[] location, double[] dimensions)
 	{
 		return this._agentTree.cyclicsearch(location, dimensions);
 	}
-	
+
+	/**
+	 * \brief Find agents that may overlap with the given point location.
+	 * 
+	 * @param pointLocation Vector representing a point in space.
+	 * @return Collection of agents that may be overlap with this point: note
+	 * that there may be some false positives (but no false negatives).
+	 */
 	public List<Agent> treeSearch(double[] pointLocation)
 	{
 		return this.treeSearch(pointLocation, Vector.zeros(pointLocation));
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Find all agents within the given distance of a given focal agent.
 	 * 
-	 * @param anAgent
-	 * @param searchDist
-	 * @return
+	 * @param anAgent Agent at the focus of this search.
+	 * @param searchDist Distance around this agent to search.
+	 * @return Collection of agents that may be within the search space: note
+	 * that there may be some false positives (but no false negatives). The
+	 * focal agent is not in this collection.
 	 */
 	public Collection<Agent> treeSearch(Agent anAgent, double searchDist)
 	{
@@ -226,13 +275,15 @@ public class AgentContainer
 		out.removeIf((a) -> {return a == anAgent;});
 		return out;
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Find all boundary surfaces that the given agent may be close to.
 	 * 
-	 * @param anAgent
-	 * @param searchDist
-	 * @return
+	 * @param anAgent Agent at the focus of this search.
+	 * @param searchDist Distance around this agent to search.
+	 * @return Collection of boundary surfaces that may be within the search
+	 * space: note that there may be some false positives (but no false
+	 * negatives). 
 	 */
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
@@ -249,25 +300,27 @@ public class AgentContainer
 		});
 		return out;
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Find all boundary objects that the given agent may be close to.
 	 * 
-	 * @param anAgent
-	 * @param searchDist
-	 * @return
+	 * @param anAgent Agent at the focus of this search.
+	 * @param searchDist Distance around this agent to search.
+	 * @return Collection of boundaries that may be within the search space:
+	 * note that there may be some false positives (but no false negatives). 
 	 */
-	public Collection<SpatialBoundary> boundarySearch(Agent anAgent, double searchDist)
+	public Collection<SpatialBoundary> boundarySearch(
+			Agent anAgent, double searchDist)
 	{
 		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
 		for ( Surface s : this.surfaceSearch(anAgent, searchDist) )
 			out.add(this._shape.getSurfaceBounds().get(s));
 		return out;
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * AGENT LOCATION
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	/**
 	 * \brief Helper method to check if an {@code Agent} is located.
@@ -288,13 +341,15 @@ public class AgentContainer
 		return ( anAgent.get(AspectRef.isLocated) != null ) && 
 				( anAgent.getBoolean(AspectRef.isLocated) );
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Move the given agent along the given dimension, by the given
+	 * distance.
 	 * 
-	 * @param anAgent
-	 * @param dimN
-	 * @param dist
+	 * @param anAgent Agent to move.
+	 * @param dimN Name of the dimension: must be present to this compartment's
+	 * shape.
+	 * @param dist Distance to move: can be positive or negative.
 	 */
 	public void moveAlongDimension(Agent anAgent, DimName dimN, double dist)
 	{
@@ -307,11 +362,11 @@ public class AgentContainer
 		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+
 				") along dimension "+dimN+" to "+Vector.toString(newLoc));
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * ADDING & REMOVING AGENTS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	/**
 	 * \brief Add the given <b>agent</b> to the appropriate list.
 	 * 
@@ -325,7 +380,7 @@ public class AgentContainer
 		else
 			this._agentList.add(agent);
 	}
-	
+
 	/**
 	 * \brief Add an {@code Agent} that is known to be located into the agent
 	 * tree.
@@ -337,23 +392,26 @@ public class AgentContainer
 		this._locatedAgentList.add(anAgent);
 		this.treeInsert(anAgent);
 	}
-	
+
 	/**
-	 * NOTE the agent bounding box should encapsulate the entire influence
-	 * region of the agent (thus also pull distance)
-	 * @param anAgent
+	 * \brief Insert the given agent into this container's spatial registry.
+	 * 
+	 * <p><b>Important</b>: the agent bounding box should encapsulate the
+	 * entire influence region of the agent (i.e. including pull distance).</p>
+	 * 
+	 * @param anAgent Agent to insert.
 	 */
-	protected void treeInsert(Agent anAgent)
+	private void treeInsert(Agent anAgent)
 	{
 		Body body = ((Body) anAgent.get(AspectRef.agentBody));
-		double dist = (anAgent.isAspect(AspectRef.agentPulldistance) ?
-				anAgent.getDouble(AspectRef.agentPulldistance) :
-				0.0);
+		double dist = 0.0;
+		if ( anAgent.isAspect(AspectRef.agentPulldistance) )
+			dist = anAgent.getDouble(AspectRef.agentPulldistance);
 		List<BoundingBox> boxes = body.getBoxes(dist);
 		for ( BoundingBox b: boxes )
 			this._agentTree.insert(b, anAgent);
 	}
-	
+
 	/**
 	 * \brief Rebuild the spatial registry, by removing and then re-inserting 
 	 * all located agents.
@@ -364,22 +422,25 @@ public class AgentContainer
 		for ( Agent a : this.getAllLocatedAgents() )
 			this.treeInsert(a);
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Choose a single agent by its place in the combined lists
+	 * (located plus unlocated).
 	 * 
-	 * @param i
-	 * @return
+	 * @param i Integer place in this container's lists. Should be less that
+	 * {@link #getNumAllAgents()}
+	 * @return This agent (still contained here).
+	 * @see #chooseRandomAgent()
 	 */
 	public Agent chooseAgent(int i)
 	{
 		return (i > this._agentList.size()) ?
 				/* Located agent. */
 				this._locatedAgentList.get(i - this._agentList.size()) :
-				/* Unlocated agent. */
-				this._agentList.get(i);
+					/* Unlocated agent. */
+					this._agentList.get(i);
 	}
-	
+
 	/**
 	 * @return A random {@code Agent}, without removing it from this container.
 	 * @see #extractRandomAgent()
@@ -401,7 +462,7 @@ public class AgentContainer
 				out.identity()+" was chosen randomly");
 		return out; 
 	}
-	
+
 	/**
 	 * @return A randomly chosen {@code Agent}, who is removed from this
 	 * container.
@@ -435,7 +496,7 @@ public class AgentContainer
 				out.identity()+" was extracted randomly");
 		return out; 
 	}
-	
+
 	/**
 	 * \brief Move the given agent into the list to report and remove.
 	 * 
@@ -454,12 +515,12 @@ public class AgentContainer
 			this._agentList.remove(anAgent);
 		this._agentsToRegisterRemoved.add(anAgent);
 	}
-	
+
 	/**
 	 * \brief Loop over all boundaries, asking any agents waiting in their
 	 * arrivals lounges to enter the compartment.
 	 */
-	 
+
 	public void agentsArrive()
 	{
 		Tier level = BULK;
@@ -498,12 +559,12 @@ public class AgentContainer
 		}
 		Log.out(level, " All agents have now arrived");
 	}
-	
+
 	/**
 	 * \brief Loop over all boundaries, asking any agents waiting in their
 	 * departure lounges to leave the compartment.
 	 */
-	
+
 	public void agentsDepart()
 	{
 		Tier level = BULK;
@@ -543,7 +604,7 @@ public class AgentContainer
 		}
 		Log.out(level, " All agents have now departed");
 	}
-	
+
 	/**
 	 * @return {@code true} is this has any agents to report and destroy.
 	 */
@@ -551,7 +612,7 @@ public class AgentContainer
 	{
 		return ( ! this._agentsToRegisterRemoved.isEmpty());
 	}
-	
+
 	/**
 	 * \brief Report all agents registered for removal as an XML string for
 	 * output, then delete these agents from memory.
@@ -567,9 +628,9 @@ public class AgentContainer
 		this._agentsToRegisterRemoved.clear();
 		return out;
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * REPORTING
-	 ************************************************************************/
+	 * **********************************************************************/
 
 }
