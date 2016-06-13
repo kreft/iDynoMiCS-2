@@ -132,11 +132,17 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
 	
+	/**
+	 * @return The shape of this compartment.
+	 */
 	public Shape getShape()
 	{
 		return this._shape;
 	}
 	
+	/**
+	 * @return The names of all solutes present in this compartment.
+	 */
 	public Collection<String> getSoluteNames()
 	{
 		Collection<String> out = new LinkedList<String>();
@@ -145,6 +151,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return out;
 	}
 	
+	/**
+	 * \brief Get the spatial grid for a solute.
+	 * 
+	 * <p>Returns null if this solute is not present.</p>
+	 * 
+	 * @param soluteName Name of a solute.
+	 * @return The spatial grid object representing this solute.
+	 */
 	public SpatialGrid getSoluteGrid(String soluteName)
 	{
 		for ( SpatialGrid sg : this._solutes )
@@ -153,6 +167,13 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return null;
 	}
 	
+	/**
+	 * \brief Checks if this compartment has a solute with the name given.
+	 * 
+	 * @param name Name of a potential solute.
+	 * @return {@code true} if there is a solute with this name in this
+	 * compartment, {@code false} if there is not.
+	 */
 	public boolean isSoluteName(String name)
 	{
 		for ( SpatialGrid sg : this._solutes )
@@ -161,15 +182,17 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return false;
 	}
 	
+	/**
+	 * @return The SpatialGrid representation for every solute present in this
+	 * compartment.
+	 */
 	public Collection<SpatialGrid> getSolutes()
 	{
 		return this._solutes;
 	}
 	
 	/**
-	 * \brief Get a list of this {@code Compartment}'s extracellular reactions.
-	 * 
-	 * @return
+	 * @return All of this {@code Compartment}'s extracellular reactions.
 	 */
 	public Collection<Reaction> getReactions()
 	{
@@ -177,33 +200,38 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * get specific reaction 
-	 * @param reaction
-	 * @return
+	 * \brief Get a specific reaction by name.
+	 * 
+	 * <p>Returns null if this reaction is unknown here.</p>
+	 * 
+	 * @param name Name of the reaction required.
+	 * @return {@code true} if there is an extracellular reaction with this
+	 * name in this compartment, {@code false} if there is not.
 	 */
-	public Reaction getReaction(String reaction)
+	public Reaction getReaction(String name)
 	{
 		for ( Reaction reac : this._reactions )
-			if ( reac.getName() == reaction )
+			if ( reac.getName() == name )
 				return reac;
 		return null;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Give this compartment an extracellular reaction.
 	 * 
-	 * @param reaction
+	 * @param reaction Reaction to add to this compartment.
 	 */
 	public void addReaction(Reaction reaction)
 	{
+		// TODO Safety: check this reaction is not already present?
 		this._reactions.add(reaction);
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the average concentration of a solute.
 	 * 
-	 * @param soluteName
-	 * @return
+	 * @param soluteName Name of the solute to use.
+	 * @return Average (arithmetic mean) concentration of this solute.
 	 */
 	public double getAverageConcentration(String soluteName)
 	{
@@ -211,9 +239,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @return
+	 * @return Average concentrations of all solutes in this compartment.
 	 */
 	public Map<String,Double> getAverageConcentrations()
 	{
@@ -224,10 +250,12 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the concentration of a solute over the entire compartment.
 	 * 
-	 * @param soluteName
-	 * @param newConcn
+	 * <p>All old concentrations of this solute will be lost.</p>
+	 * 
+	 * @param soluteName Name of the solute to set.
+	 * @param newConcn Set all voxels to this value.
 	 */
 	public void setAllConcentration(String soluteName, double newConcn)
 	{
@@ -251,7 +279,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public void printSolute(String soluteName)
 	{
 		Log.out(Tier.QUIET, soluteName+":");
-		Log.out(Tier.QUIET, this.getSoluteGrid(soluteName).arrayAsText(ArrayType.CONCN));
+		Log.out(Tier.QUIET, 
+				this.getSoluteGrid(soluteName).arrayAsText(ArrayType.CONCN));
 	}
 	
 	public void printAllSolutes()
