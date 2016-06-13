@@ -17,16 +17,26 @@ import shape.ShapeLibrary.Rectangle;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 
 /**
- * \brief TODO
+ * \brief Test class to check that {@code Shape} objects are behaving
+ * themselves.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ * 		Friedrich-Schiller University Jena, Germany 
  */
 public class ShapesTest
 {
+	/**
+	 * Cyclic points are used by an AgentContainer's SpatialRegistry: they
+	 * reproduce the point given as "ghost" points on either side of a cyclic
+	 * dimension. The List of points produced includes the original.
+	 */
 	@Test
 	public void numberOfCyclicPointsShouldBeCorrect()
 	{
-		/* test cartesian */
+		/*
+		 * Cartesian (Line, Rectangle, Cuboid)
+		 */
 		String[] shapeNames = new String[]{"line", "rectangle", "cuboid"};
 		String[] sideNames = new String[] {"X", "Y", "Z"};
 		Shape aShape;
@@ -52,19 +62,20 @@ public class ShapesTest
 			assertEquals("#cyclics = "+correct+" ("+i+"D)",
 										cyclics.size(), correct);
 		}
-		
-		/* circle */
+		/*
+		 * Circle
+		 */
 		correct = 3;
 		aShape = (Shape) Shape.getNewInstance("circle");
 		aShape.makeCyclic("THETA");
 		aShape.setDimensionLengths(new double[]{1, Math.PI / 2});
 		/* lets take local coord (0.5, pi/4) ~ (0.3535, 0.3535) global. */
-		cyclics = aShape.getCyclicPoints(
-													Vector.vector(2, 0.3535));
+		cyclics = aShape.getCyclicPoints(Vector.vector(2, 0.3535));
 		assertEquals("#cyclics = "+correct+" ("+2+"D)",
 				cyclics.size(), correct);
-		
-		/* cylinder */
+		/*
+		 * Cylinder
+		 */
 		correct = 9;
 		aShape = (Shape) Shape.getNewInstance("cylinder");
 		aShape.makeCyclic("THETA");
@@ -74,8 +85,9 @@ public class ShapesTest
 		cyclics = aShape.getCyclicPoints(new double[]{0.3535, 0.3535, 0.5});
 		assertEquals("#cyclics = "+correct+" ("+3+"D)",
 				cyclics.size(), correct);
-		
-		/* sphere */
+		/*
+		 * Sphere
+		 */
 		correct = 3;
 		aShape = (Shape) Shape.getNewInstance("sphere");
 		aShape.makeCyclic("THETA");
