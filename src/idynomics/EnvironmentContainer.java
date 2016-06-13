@@ -2,8 +2,8 @@ package idynomics;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
-import java.util.Set;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -31,29 +31,20 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	protected Shape _shape;
 	/**
-	 * TODO replace with resolution calculator
+	 * Collection of solutes (each SpatialGrid knows its own name).
 	 */
-	protected double _defaultResolution = 1.0;
-	
-	/**
-	 * Dictionary of solutes.
-	 */
-	protected HashMap<String, SpatialGrid> _solutes = 
-										new HashMap<String, SpatialGrid>();
-	/**
-	 * Dictionary of average solute concentrations (useful for chemostat).
-	 */
-	protected HashMap<String, Double> _averageConcns;
+	protected Collection<SpatialGrid> _solutes = 
+			new LinkedList<SpatialGrid>();
 	/**
 	 * Dictionary of extracellular reactions.
 	 */
-	protected HashMap<String, Reaction> _reactions = 
+	// TODO convert to a Collection, since Reaction now has a name variable
+	protected Map<String, Reaction> _reactions = 
 											new HashMap<String, Reaction>();
 	
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Construct an {@code EnvironmentContainer} from a {@code Shape}.
@@ -83,12 +74,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public void addSolute(String soluteName, double initialConcn)
 	{
-		/*
-		 * TODO safety: check if solute already in hashmap
-		 */
+		// TODO safety: check if solute already present
 		SpatialGrid sg = this._shape.getNewGrid(soluteName);
 		sg.newArray(ArrayType.CONCN, initialConcn);
-		this._solutes.put(soluteName, sg);
+		this._solutes.add(sg);
 		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
 	}
 	
@@ -145,31 +134,40 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		}
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public Shape getShape()
 	{
 		return this._shape;
 	}
 	
-	public Set<String> getSoluteNames()
+	public Collection<String> getSoluteNames()
 	{
-		return this._solutes.keySet();
+		Collection<String> out = new LinkedList<String>();
+		for ( SpatialGrid sg : this._solutes )
+			out.add(sg.getName());
+		return out;
 	}
 	
 	public SpatialGrid getSoluteGrid(String soluteName)
 	{
-		return this._solutes.get(soluteName);
+		for ( SpatialGrid sg : this._solutes )
+			if ( sg.getName() == soluteName )
+				return sg;
+		return null;
 	}
 	
 	public boolean isSoluteName(String name)
 	{
-		return this._solutes.containsKey(name);
+		for ( SpatialGrid sg : this._solutes )
+			if ( sg.getName() == name )
+				return true;
+		return false;
 	}
 	
-	public HashMap<String, SpatialGrid> getSolutes()
+	public Collection<SpatialGrid> getSolutes()
 	{
 		return this._solutes;
 	}
@@ -213,7 +211,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public double getAverageConcentration(String soluteName)
 	{
-		return this._solutes.get(soluteName).getAverage(ArrayType.CONCN);
+		return this.getSoluteGrid(soluteName).getAverage(ArrayType.CONCN);
 	}
 	
 	/**
@@ -237,7 +235,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public void setAllConcentration(String soluteName, double newConcn)
 	{
-		this._solutes.get(soluteName).setAllTo(ArrayType.CONCN, newConcn);
+		this.getSoluteGrid(soluteName).setAllTo(ArrayType.CONCN, newConcn);
 	}
 	
 	/**
@@ -250,14 +248,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		return this._shape.getOtherBoundaries();
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * REPORTING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void printSolute(String soluteName)
 	{
 		Log.out(Tier.QUIET, soluteName+":");
-		Log.out(Tier.QUIET, this._solutes.get(soluteName).arrayAsText(ArrayType.CONCN));
+		Log.out(Tier.QUIET, this.getSoluteGrid(soluteName).arrayAsText(ArrayType.CONCN));
 	}
 	
 	public void printAllSolutes()
@@ -266,9 +264,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 			this.printSolute(s);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public boolean isReadyForLaunch()

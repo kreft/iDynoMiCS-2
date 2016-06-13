@@ -386,12 +386,19 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	}
 	
 	/**
-	 * \brief Ask all Agents waiting in boundary arrivals lounges to enter the
-	 * compartment now.
+	 * \brief Do all inbound agent & solute transfers.
 	 */
-	public void agentsArrive()
+	public void preStep()
 	{
+		/*
+		 * Ask all Agents waiting in boundary arrivals lounges to enter the
+		 * compartment now.
+		 */
 		this.agents.agentsArrive();
+		/*
+		 * 
+		 */
+		// TODO 
 	}
 	
 	/**
@@ -430,12 +437,18 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	}
 	
 	/**
-	 * \brief Tell all agents queued to leave the {@code Compartment} to move
-	 * now.
+	 * \brief Do all outbound agent & solute transfers.
 	 */
-	public void pushAllOutboundAgents()
+	public void postStep()
 	{
+		/*
+		 * Tell all agents queued to leave the compartment to move now.
+		 */
 		this.agents.agentsDepart();
+		/*
+		 * 
+		 */
+		// TODO
 	}
 	
 	/*************************************************************************

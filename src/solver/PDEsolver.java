@@ -1,8 +1,6 @@
 package solver;
 
-import java.util.Arrays;
-import java.util.HashMap;
-
+import java.util.Collection;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -35,9 +33,9 @@ public abstract class PDEsolver extends Solver
 		this._updater = updater;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SOLVER METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -45,7 +43,7 @@ public abstract class PDEsolver extends Solver
 	 * @param solutes
 	 * @param tFinal
 	 */
-	public abstract void solve(HashMap<String, SpatialGrid> solutes,
+	public abstract void solve(Collection<SpatialGrid> solutes,
 															double tFinal);
 	
 	/**
@@ -63,7 +61,7 @@ public abstract class PDEsolver extends Solver
 	 * @param grid
 	 * @param destType
 	 */
-	protected void addFluxes(String varName, SpatialGrid grid)
+	protected void addFluxes(SpatialGrid grid)
 	{
 		Tier level = BULK;
 		Shape shape = grid.getShape();
@@ -107,35 +105,6 @@ public abstract class PDEsolver extends Solver
 			 * Finally, apply this to the relevant array.
 			 */
 			Log.out(level, " TOTAL flux = "+flux);
-			grid.addValueAt(LOPERATOR, current, flux);
-		}
-	}
-	
-	protected void addFluxes(Shape aShape, String varName, SpatialGrid grid)
-	{
-		/* Coordinates of the current position. */
-		int[] current;
-		/* Temporary storage. */
-		double flux;
-		/*
-		 * Iterate over all core voxels calculating the Laplace operator. 
-		 */
-		for ( current = aShape.resetIterator(); aShape.isIteratorValid();
-											  current = aShape.iteratorNext())
-		{
-			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
-				continue;
-			flux = 0.0;
-			for ( aShape.resetNbhIterator(); 
-					aShape.isNbhIteratorValid(); aShape.nbhIteratorNext() )
-			{
-				flux += grid.getFluxFromNeighbor();
-			}
-			/*
-			 * Finally, apply this to the relevant array.
-			 */
-			Log.out(BULK, Arrays.toString(current)+": val = "+
-							grid.getValueAtCurrent(CONCN)+", lop = "+flux);
 			grid.addValueAt(LOPERATOR, current, flux);
 		}
 	}
