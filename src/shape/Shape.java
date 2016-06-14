@@ -1,6 +1,3 @@
-/**
- * 
- */
 package shape;
 
 import static shape.Dimension.DimName;
@@ -50,7 +47,9 @@ import utility.Helper;
  * <p>This file is structured like so:<ul>
  * <li>Construction</li>
  * <li>Basic setters & getters</li>
+ * <li>Grid & array construction</li>
  * <li>Dimensions</li>
+ * <li>Point locations</li>
  * <li>Surfaces</li>
  * <li>Boundaries</li>
  * <li>Voxels</li>
@@ -75,7 +74,7 @@ public abstract class Shape implements
 		 */
 		INSIDE,
 		/**
-		 * TODO
+		 * On a cyclic voxel.
 		 */
 		CYCLIC,
 		/**
@@ -132,18 +131,18 @@ public abstract class Shape implements
 	 */
 	protected int[] _currentNeighbor;
 	/**
-	 * the dimension name the current neighbor is moving in
+	 * The dimension name the current neighbor is moving in.
 	 */
-	protected DimName _nbhDimName;
+	protected DimName _nhbDimName;
 	/**
 	 * Integer indicating positive (1) or negative (0) relative position
 	 * to the current coordinate.
 	 */
-	protected int _nbhDirection;
+	protected int _nhbDirection;
 	/**
-	 * TODO
+	 * What kind of voxel the current neighbor iterator is in.
 	 */
-	protected WhereAmI _whereIsNbh;
+	protected WhereAmI _whereIsNhb;
 	
 	/**
 	 * A helper vector for finding the location of the origin of a voxel.
@@ -158,7 +157,6 @@ public abstract class Shape implements
 	 */
 	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3,1.0);
 	
-	
 	/**
 	 * \brief Log file verbosity level used for debugging the neighbor iterator.
 	 * 
@@ -167,9 +165,9 @@ public abstract class Shape implements
 	 */
 	protected static final Tier NHB_ITER_LEVEL = BULK;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public ModelNode getNode()
@@ -243,10 +241,10 @@ public abstract class Shape implements
 				dim = this.getDimension(dimName);
 				dim.init(childElem);
 				
-				/* init resolution calculators */
+				/* Initialise resolution calculators */
 				rC = new ResolutionCalculator.UniformResolution();
 				double length = dim.getLength();
-				/* set theta dimension cyclic for a full circle, no matter what 
+				/* Set theta dimension cyclic for a full circle, no matter what 
 				 * the user specified */
 				if (dimName == DimName.THETA 
 						&& ExtraMath.areEqual(length, 2 * Math.PI,
@@ -285,44 +283,45 @@ public abstract class Shape implements
 		return null;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
+	/**
+	 * @return Name of this shape.
+	 */
 	public String getName()
 	{
 		return this.getClass().getSimpleName();
 	}
 	
+	/* ***********************************************************************
+	 * GRID & ARRAY CONSTRUCTION
+	 * **********************************************************************/
 	
+	/**
+	 * \brief Get a new spatial grid, using this shape's discretisation scheme.
+	 * 
+	 * @param name Name of the variable that this grid will represent.
+	 * @return New spatial grid.
+	 */
 	public SpatialGrid getNewGrid(String name)
 	{
 		return new SpatialGrid(this, name);
 	}
-		
+	
+	/**
+	 * \brief Get a new array with the layout of voxels that follows this
+	 * shape's discretisation scheme.
+	 * 
+	 * @param initialValue Fill every voxel with this value.
+	 * @return New three-dimensional array of real numbers.
+	 */
 	public abstract double[][][] getNewArray(double initialValue);
 	
-	/**
-	 * \brief Convert a spatial position from global (Cartesian) coordinates to
-	 * a new vector in the local coordinate scheme. 
-	 * 
-	 * @param cartesian
-	 * @return
-	 * @see #getGlobalLocation(double[])
-	 */
-	protected abstract double[] getLocalPosition(double[] cartesian);
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param local
-	 * @return
-	 */
-	protected abstract double[] getGlobalLocation(double[] local);
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * DIMENSIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	/**
 	 * \brief Return the number of "true" dimensions this shape has.
@@ -380,6 +379,12 @@ public abstract class Shape implements
 		return -1;
 	}
 	
+	/**
+	 * \brief Finds the index of the dimension given.
+	 * 
+	 * @param dimension Dimension thought to be in this {@code Shape}.
+	 * @return Index of the dimension, if present; {@code -1}, if not.
+	 */
 	protected int getDimensionIndex(Dimension dimension)
 	{
 		int out = 0;
@@ -418,13 +423,24 @@ public abstract class Shape implements
 	 */
 	public void makeCyclic(String dimensionName)
 	{
+		Log.out(Tier.NORMAL, "Making dimension "+dimensionName+" cyclic");
 		this.makeCyclic(DimName.valueOf(dimensionName.toUpperCase()));
+	}
+	
+	/**
+	 * \brief Make the given dimension cyclic.
+	 * 
+	 * @param dimension {@code DimName} enumeration of the dimension.
+	 */
+	public void makeCyclic(DimName dimension)
+	{
+		this.getDimension(dimension).setCyclic();
 	}
 	
 	/**
 	 * \brief Set the first <b>n</b> dimensions as significant.
 	 * 
-	 * <p>This method is safer that setting dimensions directly.</p>
+	 * <p>This method is safer than setting dimensions directly.</p>
 	 * 
 	 * @param n Number of dimensions to make significant.
 	 */
@@ -442,45 +458,20 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief Make the given dimension cyclic.
-	 * 
-	 * @param dimension {@code DimName} enumeration of the dimension.
-	 */
-	public void makeCyclic(DimName dimension)
-	{
-		this.getDimension(dimension).setCyclic();
-	}
-	
-	/**
-	 * \brief Set a boundary of a given dimension.
-	 * 
-	 * @param dimension Name of the dimension to use.
-	 * @param index Index of the extreme of this dimension to set the boundary
-	 * to: should be 0 or 1. See {@code Boundary} for more information.
-	 * @param bndry The {@code Boundary} to set.
-	 */
-	public void setBoundary(DimName dimension, int index, SpatialBoundary bndry)
-	{
-		this.getDimension(dimension).setBoundary(bndry, index);
-	}
-	
-	/**
 	 * \brief Gets the side lengths of only the significant dimensions.
 	 * 
 	 * @param lengths {@code double} array of significant side lengths.
-	 * @see #getSideLengths()
 	 */
 	public double[] getDimensionLengths()
 	{
-		double[] out = new double[getNumberOfDimensions()];
+		double[] out = new double[this.getNumberOfDimensions()];
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
-		{
-			if (dim.isSignificant()){
+			if ( dim.isSignificant() )
+			{
 				out[i] = dim.getLength();
 				i++;
 			}
-		}
 		return out;
 	}
 	
@@ -503,6 +494,25 @@ public abstract class Shape implements
 			dim = this.getDimension(d);
 			dim.setLength(( i < lengths.length ) ? lengths[i] : 0.0);
 			i++;
+		}
+	}
+
+	/**
+	 * \brief Get the number of voxels in each dimension for the given
+	 * coordinates.
+	 * 
+	 * @param destination Integer vector to write the result into.
+	 * @param coords Discrete coordinates of a voxel on this shape.
+	 * @return A 3-vector of the number of voxels in each dimension.
+	 */
+	protected void nVoxelTo(int[] destination, int[] coords)
+	{
+		Vector.checkLengths(destination, coords);
+		ResCalc rC;
+		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
+		{
+			rC = this.getResolutionCalculator(coords, dim);
+			destination[dim] = rC.getNVoxel();
 		}
 	}
 	
@@ -538,181 +548,34 @@ public abstract class Shape implements
 	 */
 	protected abstract ResCalc getResolutionCalculator(int[] coord, int dim);
 	
-	/*************************************************************************
-	 * LOCATIONS
-	 ************************************************************************/
-	
+	/* ***********************************************************************
+	 * POINT LOCATIONS
+	 * **********************************************************************/
+
 	/**
-	 * \brief TODO
+	 * \brief Convert a spatial position from global (Cartesian) coordinates to
+	 * a new vector in the local coordinate scheme. 
 	 * 
-	 * @param pos Current location (overwritten).
-	 * @param dimN Name of the {@code Dimension} along which to move.
-	 * @param dist Distance to move (can be negative).
+	 * @param cartesian A point in space represented by a vector in global
+	 * (Cartesian) coordinates.
+	 * @return The same point in space, converted to a vector in the local
+	 * coordinate scheme.
+	 * @see #getGlobalLocation(double[])
 	 */
-	public void moveAlongDimension(double[] pos, DimName dimN, double dist)
-	{
-		if ( ! this._dimensions.keySet().contains(dimN) )
-		{
-			// TODO safety
-		}
-		double[] local = this.getLocalPosition(pos);
-		if ( dimN.isAngular() )
-		{
-			double radius = local[this.getDimensionIndex(R)];
-			if ( radius == 0.0 )
-				return;
-			double angle = dist/radius;
-			this.moveAlongDim(local, dimN, angle);
-		}
-		else
-			this.moveAlongDim(local, dimN, dist);
-		pos = this.getGlobalLocation(local);
-	}
+	protected abstract double[] getLocalPosition(double[] cartesian);
 	
 	/**
-	 * \brief Internal helper method for the
-	 * {@link #moveAlongDimension(double[], DimName, double)} method.
+	 * \brief Convert a spatial position from the local coordinate scheme to
+	 * a new vector in global (Cartesian) coordinates.
 	 * 
-	 * @param loc Current location (overwritten).
-	 * @param dimN Name of the {@code Dimension} along which to move.
-	 * @param dist Distance to move (can be negative).
+	 * @param local A point in space represented by a vector in local
+	 * coordinate scheme.
+	 * @return The same point in space, converted to a vector in the global
+	 * (Cartesian) coordinates.
+	 * @see #getLocalPosition(double[])
 	 */
-	protected void moveAlongDim(double[] loc, DimName dimN, double dist)
-	{
-		int dimIndex = this.getDimensionIndex(dimN);
-		loc[dimIndex] += dist;
-	}
-	
-	/**
-	 * \brief Get a random location on a boundary of this shape.
-	 * 
-	 * @param dimN Name of the dimension used to find the boundary.
-	 * @param extreme Index of the extreme of this dimension - must be 0 or 1.
-	 * @return 
-	 */
-	public double[] getRandomLocationOnBoundary(DimName dimN, int extreme)
-	{
-		int nDim = this.getNumberOfDimensions();
-		double[] out = new double[nDim];
-		int i = 0;
-		for ( DimName d : this._dimensions.keySet() )
-		{
-			Dimension dim = this.getDimension(d);
-			if ( d.equals(dimN) )
-				out[i] = dim.getExtreme(extreme);
-			else
-				out[i] = dim.getRandomInside();
-			i++;
-			if ( i >= nDim )
-				break;
-		}
-		return this.getGlobalLocation(out);
-	}
-	
-	/*************************************************************************
-	 * SURFACES
-	 ************************************************************************/
-	
-	/**
-	 * \brief Set up this {@code Shape}'s surfaces.
-	 * 
-	 * <p>Surfaces are used by {@code Agent}s in collision detection.</p>
-	 */
-	public abstract void setSurfaces();
-	
-	/**
-	 * \brief Set a flat surface at each extreme of the given dimension.
-	 * 
-	 * @param aDimName The name of the dimension required.
-	 */
-	protected void setPlanarSurfaces(DimName aDimName)
-	{
-		Dimension dim = this.getDimension(aDimName);
-		/* Safety. */
-		if ( dim == null )
-			throw new IllegalArgumentException("Dimension not recognised");
-		/* Cyclic behaviour is handled elsewhere. */
-		if ( dim.isCyclic() )
-			return;
-		/*
-		 * Create planar surfaces at each extreme.
-		 */
-		int index = this.getDimensionIndex(aDimName);
-		double[] normal = Vector.zerosDbl( this.getNumberOfDimensions() );
-		Plane p;
-		/* The minimum extreme. */
-		normal[index] = 1.0;
-		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
-		this._surfaces.put(p, dim.getBoundary(0));
-		/* The maximum extreme. */
-		normal[index] = -1.0;
-		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
-		this._surfaces.put(p, dim.getBoundary(1));
-	}
-	
-	/**
-	 * @return The set of {@code Surface}s for this {@code Shape}.
-	 */
-	public Collection<Surface> getSurfaces()
-	{
-		return this._surfaces.keySet();
-	}
-	
-	public Map<Surface, SpatialBoundary> getSurfaceBounds()
-	{
-		return this._surfaces;
-	}
-	
-	/*************************************************************************
-	 * BOUNDARIES
-	 ************************************************************************/
-	
-	/**
-	 * \brief Add the given {@code Boundary} to this {@code Shape}'s list of
-	 * "other" boundaries, i.e. those not associated with a {@code Dimension}.
-	 * 
-	 * @param aBoundary {@code Boundary} object.
-	 */
-	public void addOtherBoundary(Boundary aBoundary)
-	{
-		this._otherBoundaries.add(aBoundary);
-	}
-	
-	/**
-	 * @return Collection of connected boundaries.
-	 */
-	public Collection<Boundary> getAllBoundaries()
-	{
-		Collection<Boundary> out = new LinkedList<Boundary>();
-		for ( Dimension d : this._dimensions.values() )
-			for ( Boundary b : d.getBoundaries() )
-				if ( b != null )
-					out.add(b);
-		for ( Boundary b : this._otherBoundaries )
-			out.add(b);
-		return out;
-	}
-	
-	
-	/**
-	 * @return List of boundaries that need a partner boundary, but no not have
-	 * one set.
-	 */
-	public Collection<Boundary> getDisconnectedBoundaries()
-	{
-		Collection<Boundary> out = this.getAllBoundaries();
-		out.removeIf(b -> { return ! b.needsPartner();});
-		return out;
-	}
-	
-	/**
-	 * @return Collection of all boundaries that do not belong to a dimension.
-	 */
-	public Collection<Boundary> getOtherBoundaries()
-	{
-		return this._otherBoundaries;
-	}
-	
+	protected abstract double[] getGlobalLocation(double[] local);
+
 	/**
 	 * \brief Check if a given location is inside this shape.
 	 * 
@@ -732,25 +595,6 @@ public abstract class Shape implements
 				break;
 		}
 		return true;
-	}
-	
-	/**
-	 * \brief Force the given location to be inside this shape.
-	 * 
-	 * @param location A spatial location in global coordinates.
-	 */
-	public void applyBoundaries(double[] location)
-	{
-		double[] position = this.getLocalPosition(location);
-		int nDim = location.length;
-		int i = 0;
-		for ( Dimension dim : this._dimensions.values() )
-		{
-			position[i] = dim.getInside(position[i]);
-			if ( ++i >= nDim )
-				break;
-		}
-		Vector.copyTo(location, this.getGlobalLocation(position));
 	}
 	
 	/**
@@ -818,8 +662,6 @@ public abstract class Shape implements
 	 */
 	public double[] getMinDifference(double[] a, double[] b)
 	{
-		// TODO safety with vector length & number of dimensions
-		// TOD check this is the right approach in polar geometries
 		Vector.checkLengths(a, b);
 		double[] aLocal = this.getLocalPosition(a);
 		double[] bLocal = this.getLocalPosition(b);
@@ -828,6 +670,7 @@ public abstract class Shape implements
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
+			// TODO get arc length in angular dimensions?
 			diffLocal[i] = dim.getShortest(aLocal[i], bLocal[i]);
 			if ( ++i >= nDim )
 				break;
@@ -835,9 +678,214 @@ public abstract class Shape implements
 		return this.getGlobalLocation(diffLocal);
 	}
 	
-	/*************************************************************************
+	/**
+	 * \brief Move a point position along a dimension by a distance.
+	 * 
+	 * @param pos Vector representing a point position in space (overwritten).
+	 * @param dimN Name of the {@code Dimension} along which to move.
+	 * @param dist Distance to move (can be negative).
+	 */
+	public void moveAlongDimension(double[] pos, DimName dimN, double dist)
+	{
+		double[] local = this.getLocalPosition(pos);
+		if ( dimN.isAngular() )
+		{
+			double radius = local[this.getDimensionIndex(R)];
+			if ( radius == 0.0 )
+				return;
+			double angle = dist/radius;
+			this.moveAlongDim(local, dimN, angle);
+		}
+		else
+			this.moveAlongDim(local, dimN, dist);
+		pos = this.getGlobalLocation(local);
+	}
+	
+	/**
+	 * \brief Internal helper method for the
+	 * {@link #moveAlongDimension(double[], DimName, double)} method.
+	 * 
+	 * @param loc Current location (overwritten).
+	 * @param dimN Name of the {@code Dimension} along which to move.
+	 * @param dist Distance to move (can be negative).
+	 */
+	protected void moveAlongDim(double[] loc, DimName dimN, double dist)
+	{
+		int dimIndex = this.getDimensionIndex(dimN);
+		loc[dimIndex] += dist;
+	}
+	
+	/**
+	 * \brief Get a random location on a boundary of this shape.
+	 * 
+	 * @param dimN Name of the dimension used to find the boundary.
+	 * @param extreme Index of the extreme of this dimension - must be 0 or 1.
+	 * @return 
+	 */
+	public double[] getRandomLocationOnBoundary(DimName dimN, int extreme)
+	{
+		int nDim = this.getNumberOfDimensions();
+		double[] out = new double[nDim];
+		int i = 0;
+		for ( DimName d : this._dimensions.keySet() )
+		{
+			Dimension dim = this.getDimension(d);
+			if ( d.equals(dimN) )
+				out[i] = dim.getExtreme(extreme);
+			else
+				out[i] = dim.getRandomInside();
+			i++;
+			if ( i >= nDim )
+				break;
+		}
+		return this.getGlobalLocation(out);
+	}
+
+	/**
+	 * \brief Force the given location to be inside this shape.
+	 * 
+	 * @param location A spatial location in global coordinates.
+	 */
+	public void applyBoundaries(double[] location)
+	{
+		double[] position = this.getLocalPosition(location);
+		int nDim = location.length;
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			position[i] = dim.getInside(position[i]);
+			if ( ++i >= nDim )
+				break;
+		}
+		Vector.copyTo(location, this.getGlobalLocation(position));
+	}
+	
+	/* ***********************************************************************
+	 * SURFACES
+	 * **********************************************************************/
+	
+	/**
+	 * \brief Set up this {@code Shape}'s surfaces.
+	 * 
+	 * <p>Surfaces are used by {@code Agent}s in collision detection.</p>
+	 */
+	public abstract void setSurfaces();
+	
+	/**
+	 * \brief Set a flat surface at each extreme of the given dimension.
+	 * 
+	 * @param aDimName The name of the dimension required.
+	 */
+	protected void setPlanarSurfaces(DimName aDimName)
+	{
+		Dimension dim = this.getDimension(aDimName);
+		/* Safety. */
+		if ( dim == null )
+			throw new IllegalArgumentException("Dimension not recognised");
+		/* Cyclic behaviour is handled elsewhere. */
+		if ( dim.isCyclic() )
+			return;
+		/*
+		 * Create planar surfaces at each extreme.
+		 */
+		int index = this.getDimensionIndex(aDimName);
+		double[] normal = Vector.zerosDbl( this.getNumberOfDimensions() );
+		Plane p;
+		/* The minimum extreme. */
+		normal[index] = 1.0;
+		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
+		this._surfaces.put(p, dim.getBoundary(0));
+		/* The maximum extreme. */
+		normal[index] = -1.0;
+		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
+		this._surfaces.put(p, dim.getBoundary(1));
+	}
+	
+	/**
+	 * @return The set of {@code Surface}s for this {@code Shape}.
+	 */
+	public Collection<Surface> getSurfaces()
+	{
+		return this._surfaces.keySet();
+	}
+	
+	/**
+	 * \brief Get the spatial boundary associated with the given surface.
+	 * 
+	 * @param surface Surface object on one of this shape's boundaries.
+	 * @return The {@code SpatialBoundary} object linked to this surface.
+	 */
+	public SpatialBoundary getBoundary(Surface surface)
+	{
+		return this._surfaces.get(surface);
+	}
+	
+	/* ***********************************************************************
+	 * BOUNDARIES
+	 * **********************************************************************/
+
+	/**
+	 * \brief Set a boundary of a given dimension.
+	 * 
+	 * @param dimension Name of the dimension to use.
+	 * @param index Index of the extreme of this dimension to set the boundary
+	 * to: should be 0 or 1. See {@code Boundary} for more information.
+	 * @param bndry The {@code Boundary} to set.
+	 */
+	public void setBoundary(DimName dimension, int index, SpatialBoundary bndry)
+	{
+		this.getDimension(dimension).setBoundary(bndry, index);
+	}
+	
+	/**
+	 * \brief Add the given {@code Boundary} to this {@code Shape}'s list of
+	 * "other" boundaries, i.e. those not associated with a {@code Dimension}.
+	 * 
+	 * @param aBoundary {@code Boundary} object.
+	 */
+	public void addOtherBoundary(Boundary aBoundary)
+	{
+		this._otherBoundaries.add(aBoundary);
+	}
+	
+	/**
+	 * @return Collection of connected boundaries.
+	 */
+	public Collection<Boundary> getAllBoundaries()
+	{
+		Collection<Boundary> out = new LinkedList<Boundary>();
+		for ( Dimension d : this._dimensions.values() )
+			for ( Boundary b : d.getBoundaries() )
+				if ( b != null )
+					out.add(b);
+		for ( Boundary b : this._otherBoundaries )
+			out.add(b);
+		return out;
+	}
+	
+	
+	/**
+	 * @return List of boundaries that need a partner boundary, but no not have
+	 * one set.
+	 */
+	public Collection<Boundary> getDisconnectedBoundaries()
+	{
+		Collection<Boundary> out = this.getAllBoundaries();
+		out.removeIf(b -> { return ! b.needsPartner();});
+		return out;
+	}
+	
+	/**
+	 * @return Collection of all boundaries that do not belong to a dimension.
+	 */
+	public Collection<Boundary> getOtherBoundaries()
+	{
+		return this._otherBoundaries;
+	}
+	
+	/* ***********************************************************************
 	 * VOXELS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Find the coordinates of the voxel that encloses the given
@@ -1011,11 +1059,12 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Find out what kind of voxel is represented by the given
+	 * coordinates, within the reference frame of the given dimension.
 	 * 
-	 * @param coord
-	 * @param dimName
-	 * @return
+	 * @param coord Integer vector representing the coordinates of a voxel.
+	 * @param dimName Name of a dimension in this shape.
+	 * @return What kind of voxel this is.
 	 */
 	protected WhereAmI whereIs(int[] coord, DimName dimName)
 	{
@@ -1040,29 +1089,35 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Find out what kind of voxel the neighbor iterator is at, within
+	 * the reference frame of the given dimension.
 	 * 
-	 * @param dimName
-	 * @return
+	 * @param dimName Name of a dimension in this shape.
+	 * @return What kind of voxel the neighbor iterator is.
 	 */
 	protected WhereAmI whereIsNhb(DimName dimName)
 	{
 		return this.whereIs(this._currentNeighbor, dimName);
 	}
 	
+	/**
+	 * \brief Find out what kind of voxel the neighbor iterator is at.
+	 * 
+	 * @return What kind of voxel the neighbor iterator is.
+	 */
 	protected WhereAmI whereIsNhb()
 	{
-		this._whereIsNbh = INSIDE;
+		this._whereIsNhb = INSIDE;
 		WhereAmI where;
 		for ( DimName dim : this._dimensions.keySet() )
 		{
 			where = this.whereIsNhb(dim);
 			if ( where == UNDEFINED )
-				return (this._whereIsNbh = UNDEFINED);
+				return (this._whereIsNhb = UNDEFINED);
 			if ( this.isNhbIteratorInside() && where == DEFINED )
-				this._whereIsNbh = DEFINED;
+				this._whereIsNhb = DEFINED;
 		}
-		return this._whereIsNbh;
+		return this._whereIsNhb;
 	}
 	
 	/**
@@ -1070,7 +1125,7 @@ public abstract class Shape implements
 	 * 
 	 * <p>This is useful in estimating the timestep of a PDE solver.</p>
 	 * 
-	 * <p>Units: area<sup>-1</sup>.</p>
+	 * <p>Units: area<sup>-1</sup> = length<sup>-2</sup>.</p>
 	 * 
 	 * @return Greatest potential flux between neighboring voxels.
 	 */
@@ -1107,7 +1162,7 @@ public abstract class Shape implements
 		double max;
 		double temp = 0.0;
 		this._maxFluxPotentl = Double.NEGATIVE_INFINITY;
-		for ( this.resetIterator(); this.isIteratorValid(); this.iteratorNext())
+		for (this.resetIterator(); this.isIteratorValid(); this.iteratorNext())
 		{
 			volume = this.getVoxelVolume(this._currentCoord);
 			Log.out(level, "Coord "+Vector.toString(this._currentCoord)+
@@ -1123,7 +1178,6 @@ public abstract class Shape implements
 						" and distance "+this.nbhCurrDistance());
 				max = Math.max(max, temp);
 			}
-			
 			this._maxFluxPotentl = Math.max(this._maxFluxPotentl, max/volume);
 		}
 		Log.out(level, " Maximum flux potential is "+this._maxFluxPotentl);
@@ -1151,45 +1205,135 @@ public abstract class Shape implements
 		return this.getVoxelVolume(this._currentCoord);
 	}
 	
+	/* ***********************************************************************
+	 * COORDINATE ITERATOR
+	 * **********************************************************************/
+	
 	/**
-	 * \brief Get the number of voxels in each dimension for the given
+	 * \brief Return the coordinate iterator to its initial state.
+	 * 
+	 * @return The value of the coordinate iterator.
+	 */
+	public int[] resetIterator()
+	{
+		if ( this._currentCoord == null )
+		{
+			this._currentCoord = Vector.zerosInt(this._dimensions.size());
+			this._currentNVoxel = Vector.zerosInt(this._dimensions.size());
+		}
+		else
+			Vector.reset(this._currentCoord);
+		this.updateCurrentNVoxel();	
+		return this._currentCoord;
+	}
+
+	/**
+	 * \brief Current coordinates of the voxel iterator.
+	 * 
+	 * @return 3-vector of integers.
+	 */
+	public int[] iteratorCurrent()
+	{
+		return this._currentCoord;
+	}
+
+	/**
+	 * \brief Step the coordinate iterator forward once.
+	 * 
+	 * @return The new value of the coordinate iterator.
+	 */
+	public int[] iteratorNext()
+	{
+		/*
+		 * We have to step through last dimension first, because we use jagged 
+		 * arrays in the PolarGrids.
+		 */
+		this._currentCoord[2]++;
+		if ( this.iteratorExceeds(2) )
+		{
+			this._currentCoord[2] = 0;
+			this._currentCoord[1]++;
+			if ( this.iteratorExceeds(1) )
+			{
+				this._currentCoord[1] = 0;
+				this._currentCoord[0]++;
+			}
+		}
+		if ( this.isIteratorValid() )
+			this.updateCurrentNVoxel();
+		return this._currentCoord;
+	}
+	
+	/**
+	 * \brief Determine whether the current coordinate of the iterator is
+	 * outside the grid in the dimension specified.
+	 * 
+	 * @param dim Index of the dimension to look at.
+	 * @return Whether the coordinate iterator is inside (false) or outside
+	 * (true) the grid along this dimension.
+	 */
+	protected boolean iteratorExceeds(int dim)
+	{
+		return this._currentCoord[dim] >= this._currentNVoxel[dim];
+	}
+	
+	/**
+	 * \brief Check if the current coordinate of the internal iterator is
+	 * valid.
+	 * 
+	 * @return True if is valid, false if it is invalid.
+	 */
+	public boolean isIteratorValid()
+	{
+		int nDim = this.getNumberOfDimensions();
+		for ( int dim = 0; dim < nDim; dim++ )
+			if ( this.iteratorExceeds(dim) )
+				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief Get the number of voxels in each dimension for the current
 	 * coordinates.
 	 * 
-	 * @param destination Integer vector to write the result into.
+	 * <p>For Cartesian shapes the value of <b>coords</b> will be
+	 * irrelevant, but it will make a difference in Polar shapes.</p>
+	 * 
 	 * @param coords Discrete coordinates of a voxel on this shape.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
-	protected void nVoxelTo(int[] destination, int[] coords)
+	protected int[] updateCurrentNVoxel()
 	{
-		Vector.checkLengths(destination, coords);
-		ResCalc rC;
-		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
-		{
-			rC = this.getResolutionCalculator(coords, dim);
-			destination[dim] = rC.getNVoxel();
-		}
+		if ( this._currentNVoxel == null )
+			this._currentNVoxel = Vector.zerosInt(3);
+		if ( this._currentCoord == null )
+			this.resetIterator();
+		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
+		return this._currentNVoxel;
 	}
-	
-	/*************************************************************************
+
+	/* ***********************************************************************
 	 * SUBVOXEL POINTS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
-	 * \brief List of sub-voxel points at the current coordinate.
+	 * \brief Compile a collection of sub-voxel points at the current 
+	 * iterator coordinate.
 	 * 
 	 * <p>Useful for distributing agent-mediated reactions over the grid.</p>
 	 * 
-	 * @param targetRes
-	 * @return
+	 * @param targetRes Target resolution for the distance between sub-voxel
+	 * points.
+	 * @return Collection of sub-voxel points.
 	 */
-	public List<SubvoxelPoint> getCurrentSubvoxelPoints(double targetRes)
+	public Collection<SubvoxelPoint> getCurrentSubvoxelPoints(double targetRes)
 	{
 		if ( targetRes <= 0.0 )
 			throw new IllegalArgumentException("Target resolution must be > 0");
 		/* 
 		 * Initialise the list and add a point at the origin.
 		 */
-		ArrayList<SubvoxelPoint> out = new ArrayList<SubvoxelPoint>();
+		List<SubvoxelPoint> out = new ArrayList<SubvoxelPoint>();
 		SubvoxelPoint current = new SubvoxelPoint();
 		out.add(current);
 		/*
@@ -1229,111 +1373,9 @@ public abstract class Shape implements
 		return out;
 	}
 	
-	/*************************************************************************
-	 * COORDINATE ITERATOR
-	 ************************************************************************/
-	
-	/**
-	 * \brief Return the coordinate iterator to its initial state.
-	 * 
-	 * @return The value of the coordinate iterator.
-	 */
-	public int[] resetIterator()
-	{
-		if ( this._currentCoord == null )
-		{
-			this._currentCoord = Vector.zerosInt(this._dimensions.size());
-			this._currentNVoxel = Vector.zerosInt(this._dimensions.size());
-		}
-		else
-			Vector.reset(this._currentCoord);
-		this.updateCurrentNVoxel();	
-		return this._currentCoord;
-	}
-	
-	/**
-	 * \brief Determine whether the current coordinate of the iterator is
-	 * outside the grid in the dimension specified.
-	 * 
-	 * @param dim Index of the dimension to look at.
-	 * @return Whether the coordinate iterator is inside (false) or outside
-	 * (true) the grid along this dimension.
-	 */
-	protected boolean iteratorExceeds(int dim)
-	{
-		return this._currentCoord[dim] >= this._currentNVoxel[dim];
-	}
-	
-	/**
-	 * \brief Check if the current coordinate of the internal iterator is
-	 * valid.
-	 * 
-	 * @return True if is valid, false if it is invalid.
-	 */
-	public boolean isIteratorValid()
-	{
-		int nDim = this.getNumberOfDimensions();
-		for ( int dim = 0; dim < nDim; dim++ )
-			if ( this.iteratorExceeds(dim) )
-				return false;
-		return true;
-	}
-	
-	public int[] iteratorCurrent()
-	{
-		return _currentCoord;
-	}
-	
-	/**
-	 * \brief Step the coordinate iterator forward once.
-	 * 
-	 * @return The new value of the coordinate iterator.
-	 */
-	public int[] iteratorNext()
-	{
-		/*
-		 * We have to step through last dimension first, because we use jagged 
-		 * arrays in the PolarGrids.
-		 */
-		_currentCoord[2]++;
-		if ( this.iteratorExceeds(2) )
-		{
-			_currentCoord[2] = 0;
-			_currentCoord[1]++;
-			if ( this.iteratorExceeds(1) )
-			{
-				_currentCoord[1] = 0;
-				_currentCoord[0]++;
-			}
-		}
-		if ( this.isIteratorValid() )
-			this.updateCurrentNVoxel();
-		return _currentCoord;
-	}
-	
-	/**
-	 * \brief Get the number of voxels in each dimension for the current
-	 * coordinates.
-	 * 
-	 * <p>For Cartesian shapes the value of <b>coords</b> will be
-	 * irrelevant, but it will make a difference in Polar shapes.</p>
-	 * 
-	 * @param coords Discrete coordinates of a voxel on this shape.
-	 * @return A 3-vector of the number of voxels in each dimension.
-	 */
-	public int[] updateCurrentNVoxel()
-	{
-		if ( this._currentNVoxel == null )
-			this._currentNVoxel = Vector.zerosInt(3);
-		if ( this._currentCoord == null )
-			this.resetIterator();
-		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
-		return this._currentNVoxel;
-	}
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * NEIGHBOR ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Reset the neighbor iterator.
@@ -1358,11 +1400,11 @@ public abstract class Shape implements
 	/**
 	 * \brief Current coordinates of the neighbor iterator.
 	 * 
-	 * @return 3-vector of ints.
+	 * @return 3-vector of integers.
 	 */
 	public int[] nbhIteratorCurrent()
 	{
-		return _currentNeighbor;
+		return this._currentNeighbor;
 	}
 	
 	/**
@@ -1375,7 +1417,7 @@ public abstract class Shape implements
 	 */
 	public boolean isNbhIteratorValid()
 	{
-		return this.isNhbIteratorInside() || (this._whereIsNbh == DEFINED);
+		return this.isNhbIteratorInside() || (this._whereIsNhb == DEFINED);
 	}
 	
 	/**
@@ -1387,7 +1429,7 @@ public abstract class Shape implements
 	 */
 	public boolean isNhbIteratorInside()
 	{
-		return (this._whereIsNbh == INSIDE) || (this._whereIsNbh == CYCLIC);
+		return (this._whereIsNhb == INSIDE) || (this._whereIsNhb == CYCLIC);
 	}
 	
 	/**
@@ -1397,10 +1439,10 @@ public abstract class Shape implements
 	 */
 	public SpatialBoundary nbhIteratorOutside()
 	{
-		if ( this._whereIsNbh == DEFINED )
+		if ( this._whereIsNhb == DEFINED )
 		{
-			Dimension dim = this.getDimension(this._nbhDimName);
-			return dim.getBoundary(this._nbhDirection);
+			Dimension dim = this.getDimension(this._nhbDimName);
+			return dim.getBoundary(this._nhbDirection);
 		}
 		return null;
 	}
@@ -1438,14 +1480,14 @@ public abstract class Shape implements
 	{
 		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNbh);
-		Dimension dim = getDimension(this._nbhDimName);
-		if ( (this._whereIsNbh == CYCLIC) && dim.isCyclic() )
+				": status "+this._whereIsNhb);
+		Dimension dim = getDimension(this._nhbDimName);
+		if ( (this._whereIsNhb == CYCLIC) && dim.isCyclic() )
 		{
-			int dimIdx = this.getDimensionIndex(this._nbhDimName);
+			int dimIdx = this.getDimensionIndex(this._nhbDimName);
 			int nVoxel = this.getResolutionCalculator(
 					this._currentNeighbor, dimIdx).getNVoxel();
-			if ( this._nbhDirection == 0 )
+			if ( this._nhbDirection == 0 )
 			{
 				/* Direction 0: the neighbor wraps below, to the highest. */
 				this._currentNeighbor[dimIdx] = nVoxel - 1;
@@ -1458,7 +1500,7 @@ public abstract class Shape implements
 		}
 		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNbh);
+				": status "+this._whereIsNhb);
 	}
 	
 	/**
@@ -1468,11 +1510,11 @@ public abstract class Shape implements
 	 */
 	protected void untransformNbhCyclic()
 	{
-		Dimension dim = this.getDimension(this._nbhDimName);
-		if ( (this._whereIsNbh == CYCLIC) && dim.isCyclic() )
+		Dimension dim = this.getDimension(this._nhbDimName);
+		if ( (this._whereIsNhb == CYCLIC) && dim.isCyclic() )
 		{
-			int dimIdx = this.getDimensionIndex(this._nbhDimName);
-			if ( this._nbhDirection == 0 )
+			int dimIdx = this.getDimensionIndex(this._nhbDimName);
+			if ( this._nhbDirection == 0 )
 			{
 				/* Direction 0: the neighbor should reset to minus one. */
 				this._currentNeighbor[dimIdx] = -1;
@@ -1487,7 +1529,7 @@ public abstract class Shape implements
 		}
 		Log.out(NHB_ITER_LEVEL, "   un-transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNbh);
+				": status "+this._whereIsNhb);
 	}
 	
 	/**
@@ -1506,9 +1548,9 @@ public abstract class Shape implements
 		this._currentNeighbor[index]--;
 		/* Check that this coordinate is acceptable. */
 		WhereAmI where = this.whereIsNhb(dim);
-		this._whereIsNbh = where;
-		this._nbhDirection = 0;
-		this._nbhDimName = dim;
+		this._whereIsNhb = where;
+		this._nhbDirection = 0;
+		this._nhbDimName = dim;
 		Log.out(NHB_ITER_LEVEL,
 				"   tried moving to minus in "+dim+": result "+
 						Vector.toString(this._currentNeighbor)+" is "+where);
@@ -1531,26 +1573,26 @@ public abstract class Shape implements
 		/* Check we are behind the current coordinate. */
 		if ( this._currentNeighbor[index] < this._currentCoord[index] )
 		{
-			/* try to jump */
+			/* Try to jump. */
 			this._currentNeighbor[index] = this._currentCoord[index] + 1;
 			boolean bMaxDef = this.getDimension(dim).isBoundaryDefined(1);
-			this._whereIsNbh = this.whereIsNhb(dim);
+			this._whereIsNhb = this.whereIsNhb(dim);
 			/* Check there is space on the other side. */
-			if ( this._whereIsNbh == INSIDE || bMaxDef )
+			if ( this._whereIsNhb == INSIDE || bMaxDef )
 			{
 				/* report success. */
-				this._nbhDirection = 1;
+				this._nhbDirection = 1;
 				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
 						": result "+Vector.toString(this._currentNeighbor)+
-						" is "+this._whereIsNbh);
+						" is "+this._whereIsNhb);
 				return true;
 			}
 		}
-		/* undo jump and Report failure. */
+		/* Undo jump and report failure. */
 		this._currentNeighbor[index] = this._currentCoord[index] - 1;
 		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
-				" is "+this._whereIsNbh);
+				" is "+this._whereIsNhb);
 		
 		return false;
 	}
@@ -1584,19 +1626,17 @@ public abstract class Shape implements
 	 */
 	public abstract double nbhCurrSharedArea();
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK
-	 ************************************************************************/
+	 * **********************************************************************/
 	
+	@Override
 	public boolean isReadyForLaunch()
 	{
 		/* Check all dimensions are ready. */
 		for ( Dimension dim : this._dimensions.values() )
 			if ( ! dim.isReadyForLaunch() )
-			{
-				// TODO
 				return false;
-			}
 		/* If there are any other boundaries, check these are ready. */
 		for ( Boundary bound : this._otherBoundaries )
 			if ( ! bound.isReadyForLaunch() )
@@ -1605,22 +1645,18 @@ public abstract class Shape implements
 		return true;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * XML-ABLE
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public static Shape getNewInstance(String className)
 	{
 		return (Shape) XMLable.getNewInstance(className, "shape.ShapeLibrary$");
 	}
-		/**
-	 * 
-	 * @return
-	 */
+	
 	public static String[] getAllOptions()
 	{
 		return Helper.getClassNamesSimple(
 									ShapeLibrary.class.getDeclaredClasses());
 	}
-		
 }

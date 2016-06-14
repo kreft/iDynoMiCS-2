@@ -6,6 +6,7 @@ package agent;
 import static dataIO.Log.Tier.BULK;
 import static dataIO.Log.Tier.DEBUG;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -84,7 +85,7 @@ public final class AgentTools
 		double[] location;
 		double[] dimension = new double[3];
 		double[] sides;
-		List<SubvoxelPoint> svPoints;
+		Collection<SubvoxelPoint> svPoints;
 		List<Agent> nhbs;
 		List<Surface> surfaces;
 		double[] pLoc;

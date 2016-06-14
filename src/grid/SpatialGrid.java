@@ -3,8 +3,6 @@ package grid;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.rmi.CORBA.Tie;
-
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlRef;

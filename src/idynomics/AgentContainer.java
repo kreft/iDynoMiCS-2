@@ -314,7 +314,7 @@ public class AgentContainer
 	{
 		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
 		for ( Surface s : this.surfaceSearch(anAgent, searchDist) )
-			out.add(this._shape.getSurfaceBounds().get(s));
+			out.add(this._shape.getBoundary(s));
 		return out;
 	}
 
