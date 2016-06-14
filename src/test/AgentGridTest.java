@@ -38,12 +38,12 @@ public class AgentGridTest
 		/*
 		 * Set the boundary methods.
 		 */
-		aCompartment.addBoundary(DimName.X, 0, new SolidBoundary(DimName.X, 0));
-		aCompartment.addBoundary(DimName.Y, 0, new SolidBoundary(DimName.Y, 0));
-		aCompartment.addBoundary(DimName.Y, 1, new SolidBoundary(DimName.Y, 1));
+		aCompartment.addBoundary(new SolidBoundary(DimName.X, 0));
+		aCompartment.addBoundary(new SolidBoundary(DimName.Y, 0));
+		aCompartment.addBoundary(new SolidBoundary(DimName.Y, 1));
 		FixedBoundary top = new FixedBoundary(DimName.X, 1);
 		top.setConcentration("solute", topConcn);
-		aCompartment.addBoundary(DimName.X, 1, top);
+		aCompartment.addBoundary(top);
 		/*
 		 * We just have one solute, but need to give it to the process manager
 		 * in an array.

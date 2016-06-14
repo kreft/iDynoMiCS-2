@@ -76,9 +76,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	protected double _localTime;
 	
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public Compartment()
 	{
@@ -238,9 +238,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	}
 		
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public String getName()
 	{
@@ -268,15 +268,22 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Add a boundary to this compartment's shape.
 	 * 
-	 * @param dim
-	 * @param index
-	 * @param aBoundary
+	 * @param aBoundary Any boundary, whether spatial or non-spatial.
 	 */
-	public void addBoundary(DimName dim, int index, SpatialBoundary aBoundary)
+	// TODO move this spatial/non-spatial splitting to Shape?
+	public void addBoundary(Boundary aBoundary)
 	{
-		this._shape.setBoundary(dim, index, aBoundary);
+		if ( aBoundary instanceof SpatialBoundary )
+		{
+			SpatialBoundary sB = (SpatialBoundary) aBoundary;
+			DimName dim = sB.getDimName();
+			int extreme = sB.getExtreme();
+			this._shape.setBoundary(dim, extreme, sB);
+		}
+		else
+			this._shape.addOtherBoundary(aBoundary);
 	}
 	
 	/**
@@ -350,9 +357,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		return this.environment.getSoluteGrid(soluteName);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * STEPPING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * 
@@ -394,9 +401,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		 */
 		this.agents.agentsArrive();
 		/*
-		 * 
+		 * Ask all boundaries to update their solute concentrations.
 		 */
-		// TODO 
+		this.environment.updateSoluteBoundaries();
 	}
 	
 	/**
@@ -449,9 +456,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		// TODO
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public boolean isReadyForLaunch()
 	{
@@ -465,9 +472,9 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		return true;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * REPORTING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void printSoluteGrid(String soluteName)
 	{

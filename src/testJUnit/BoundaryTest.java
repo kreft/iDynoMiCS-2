@@ -55,7 +55,7 @@ public class BoundaryTest
 		 */
 		BiofilmBoundaryLayer bL = new BiofilmBoundaryLayer(DimName.X, 1);
 		bL.acceptInboundAgent(insertAgent);
-		comp.addBoundary(DimName.X, 1, bL);
+		comp.addBoundary(bL);
 		/*
 		 * Now make a fixed agent that the insert agent should detect.
 		 */
@@ -68,7 +68,7 @@ public class BoundaryTest
 		/*
 		 * The other boundary is unimportant, but needs to be set.
 		 */
-		comp.addBoundary(DimName.X, 0, new SolidBoundary(DimName.X, 0));
+		comp.addBoundary(new SolidBoundary(DimName.X, 0));
 		
 		Idynomics.simulator.run();
 		

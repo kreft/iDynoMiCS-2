@@ -42,8 +42,8 @@ public class PdeTest
 		AllTests.setupSimulatorForTest(tStep, tMax, "checkMassBalance");
 		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
 		comp.setShape("line");
-		comp.addBoundary(DimName.X, 0, new SolidBoundary(DimName.X, 0));
-		comp.addBoundary(DimName.X, 1, new SolidBoundary(DimName.X, 1));
+		comp.addBoundary(new SolidBoundary(DimName.X, 0));
+		comp.addBoundary(new SolidBoundary(DimName.X, 1));
 		Shape shape = comp.getShape();
 		UniformResolution resCalc = new UniformResolution();
 		resCalc.setLength(1.0 * nVoxel);
