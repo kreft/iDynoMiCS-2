@@ -4,7 +4,7 @@
 package boundary.library;
 
 import boundary.Boundary;
-import boundary.spatialLibrary.BiofilmMembrane;
+import boundary.spatialLibrary.BiofilmMembraneLiquid;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
@@ -24,7 +24,7 @@ public class ChemostatToMembrane extends Boundary
 	@Override
 	protected Class<?> getPartnerClass()
 	{
-		return BiofilmMembrane.class;
+		return BiofilmMembraneLiquid.class;
 	}
 	
 	/* ***********************************************************************

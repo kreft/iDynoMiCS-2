@@ -1,6 +1,3 @@
-/**
- * 
- */
 package boundary.spatialLibrary;
 
 import boundary.SpatialBoundary;
@@ -17,7 +14,7 @@ import shape.Dimension.DimName;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class BiofilmMembrane extends SpatialBoundary
+public class BiofilmMembraneLiquid extends SpatialBoundary
 {
 	/**
 	 * \brief Construct a membrane by giving it the information it needs about
@@ -28,7 +25,7 @@ public class BiofilmMembrane extends SpatialBoundary
 	 * @param extreme This boundary is at one extreme of a dimension: this is
 	 * the index of that extreme (0 for minimum, 1 for maximum).
 	 */
-	public BiofilmMembrane(DimName dim, int extreme)
+	public BiofilmMembraneLiquid(DimName dim, int extreme)
 	{
 		super(dim, extreme);
 	}

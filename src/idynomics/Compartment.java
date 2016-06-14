@@ -453,7 +453,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		/*
 		 * 
 		 */
-		// TODO
+		// TODO update concentrations again?
 	}
 	
 	/* ***********************************************************************
