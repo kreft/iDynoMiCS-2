@@ -17,7 +17,8 @@ import linearAlgebra.Vector;
 public class ChemostatToChemostat extends Boundary
 {
 	/**
-	 * Flow rate (units of volume per time).
+	 * Flow rate (units of volume per time). Positive flow rate signifies
+	 * inflow; negative signifies outflow.
 	 */
 	// TODO set this from protocol
 	protected double _flowRate;
@@ -35,6 +36,8 @@ public class ChemostatToChemostat extends Boundary
 	/**
 	 * \brief Set this connective boundary's flow rate.
 	 * 
+	 * <p>Positive flow rate signifies inflow; negative signifies outflow.</p>
+	 * 
 	 * @param flowRate Flow rate (units of volume per time).
 	 */
 	public void setFlowRate(double flowRate)
@@ -43,6 +46,10 @@ public class ChemostatToChemostat extends Boundary
 	}
 
 	/**
+	 * \brief Get this connective boundary's flow rate.
+	 * 
+	 * <p>Positive flow rate signifies inflow; negative signifies outflow.</p>
+	 * 
 	 * @return Flow rate (units of volume per time).
 	 */
 	public double getFlowRate()

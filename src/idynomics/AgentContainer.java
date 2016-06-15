@@ -344,7 +344,7 @@ public class AgentContainer
 	{
 		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
 		for ( Surface s : this.surfaceSearch(anAgent, searchDist) )
-			out.add(this._shape.getSurfaceBounds().get(s));
+			out.add(this._shape.getBoundary(s));
 		return out;
 	}
 
@@ -691,7 +691,7 @@ public class AgentContainer
 		double[] location;
 		double[] dimension = new double[3];
 		double[] sides;
-		List<SubvoxelPoint> svPoints;
+		Collection<SubvoxelPoint> svPoints;
 		List<Agent> nhbs;
 		List<Surface> surfaces;
 		double[] pLoc;

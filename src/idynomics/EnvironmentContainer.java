@@ -1,5 +1,7 @@
 package idynomics;
 
+import static dataIO.Log.Tier.BULK;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -262,6 +264,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		this.getSoluteGrid(soluteName).setAllTo(ArrayType.CONCN, newConcn);
 	}
 	
+	/* ***********************************************************************
+	 * SOLUTE BOUNDARIES
+	 * **********************************************************************/
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -270,6 +276,19 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public Collection<Boundary> getOtherBoundaries()
 	{
 		return this._shape.getOtherBoundaries();
+	}
+	
+	/**
+	 * \brief TODO
+	 *
+	 */
+	public void updateSoluteBoundaries()
+	{
+		Tier level = BULK;
+		Log.out(level, "Updating solute boundaries...");
+		for ( Boundary b : this._shape.getAllBoundaries() )
+			b.updateConcentrations(this);
+		Log.out(level, " All solute boundaries now updated");
 	}
 	
 	/* ***********************************************************************

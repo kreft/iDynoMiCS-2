@@ -284,7 +284,7 @@ public abstract class SphericalShape extends PolarShape
 					&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) ) ;
 		/* There are no valid neighbors. */
 		else
-			this._whereIsNbh = UNDEFINED;
+			this._whereIsNhb = UNDEFINED;
 		if ( this.isNbhIteratorValid() )
 		{
 			transformNbhCyclic();
@@ -394,7 +394,7 @@ public abstract class SphericalShape extends PolarShape
 				if (!this.increaseNbhByOnePolar(PHI) ||
 						! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
 				{
-					this._whereIsNbh = UNDEFINED;
+					this._whereIsNhb = UNDEFINED;
 				}
 		}
 		this.transformNbhCyclic();
@@ -426,10 +426,10 @@ public abstract class SphericalShape extends PolarShape
 		 * First check that the new ring is inside the grid. If we're on a
 		 * defined boundary, the theta coordinate is irrelevant.
 		 */
-		if ( (this._whereIsNbh = this.whereIsNhb(PHI)) != INSIDE ){
-			this._nbhDimName = PHI;
-			if (this._whereIsNbh != UNDEFINED){
-				Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNbh 
+		if ( (this._whereIsNhb = this.whereIsNhb(PHI)) != INSIDE ){
+			this._nhbDimName = PHI;
+			if (this._whereIsNhb != UNDEFINED){
+				Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNhb 
 						+" boundary");
 				return true;
 			}
@@ -465,11 +465,11 @@ public abstract class SphericalShape extends PolarShape
 		
 		this._currentNeighbor[2] = new_index;
 		
-		this._nbhDimName = this._currentCoord[1] == this._currentNeighbor[1] ?
+		this._nhbDimName = this._currentCoord[1] == this._currentNeighbor[1] ?
 					THETA : PHI;
 		
-		int dimIdx = getDimensionIndex(this._nbhDimName);
-		this._nbhDirection = 
+		int dimIdx = getDimensionIndex(this._nhbDimName);
+		this._nhbDirection = 
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
 		Log.out(NHB_ITER_LEVEL, "  success with theta idx "+new_index);
