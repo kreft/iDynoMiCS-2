@@ -46,6 +46,18 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	public static double MOVE_TSTEP = 1.0;
 	
 	/**
+	 * \brief Log file verbosity level used for debugging agent arrival.
+	 * 
+	 * <ul><li>Set to {@code BULK} for normal simulations</li>
+	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
+	 */
+	private static final Tier AGENT_ARRIVE_LEVEL = Tier.DEBUG;
+	
+	/* ***********************************************************************
+	 * CONSTRUCTOR
+	 * **********************************************************************/
+	
+	/**
 	 * \brief Construct a biofilm boundary layer by giving it the information
 	 * it needs about its location.
 	 * 
@@ -114,9 +126,12 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		Collection<SpatialBoundary> bndries;
 		for ( Agent anAgent : this._arrivalsLounge )
 		{
-			Log.out(Tier.DEBUG, "Moving agent (UID: "+anAgent.identity()+
-					") to top of boundary layer");
-			// NOTE Rob [19/5/2016]: this loop is work in progress.
+			Log.out(AGENT_ARRIVE_LEVEL, "Moving agent (UID: "+
+					anAgent.identity()+") to top of boundary layer");
+			/*
+			 * Move the agent down from the boundary surface to the top of the
+			 * boundary layer.
+			 */
 			insertionLoop: while ( true )
 			{
 				nbhAgents = agentCont.treeSearch(anAgent, this._layerTh);
@@ -132,9 +147,12 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				agentCont.moveAlongDimension(anAgent, this._dim, dist);
 			}
 			/*
-			 * Now 
+			 * Now that the agent is at the top of the boundary layer, perform
+			 * a random walk until it hits a boundary or another agent.
 			 */
 			double pull = anAgent.getDouble(CURRENT_PULL_DISTANCE);
+			Log.out(AGENT_ARRIVE_LEVEL, "Now attemting random walk: using "+
+					pull+" for pull distance");
 			randomLoop: while ( true )
 			{
 				/*
@@ -149,6 +167,8 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				{
 					this._arrivalsLounge.remove(anAgent);
 					this._arrivalsLounge.add(anAgent);
+					Log.out(AGENT_ARRIVE_LEVEL,
+						"Agent has returned to boundary: re-inserting later");
 					break randomLoop;
 				}
 				/*
@@ -158,12 +178,25 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				{
 					// FIXME Assume the boundary is solid for now
 					agentCont.addAgent(anAgent);
+					Log.out(AGENT_ARRIVE_LEVEL,
+							"Agent has hit another boundary");
 					break randomLoop;
 				}
+				/*
+				 * The agent has not collided with any boundaries, so see if it
+				 * has collided with any other agents.
+				 */
 				nbhAgents = agentCont.treeSearch(anAgent, pull);
+				/*
+				 * If the agent has collided with others, add it to the agent
+				 * container and continue to the next agent.
+				 */
 				if ( ! nbhAgents.isEmpty() )
 				{
+					// TODO use the pulling method in Collision?
 					agentCont.addAgent(anAgent);
+					Log.out(AGENT_ARRIVE_LEVEL,
+							"Agent has hit another agent");
 					break randomLoop;
 				}
 				/*
