@@ -658,6 +658,9 @@ public abstract class Shape implements
 		return this._surfaces.keySet();
 	}
 	
+	/**
+	 * @return The pair-wise linked sets of surfaces and spatial boundaries.
+	 */
 	public Map<Surface, SpatialBoundary> getSurfaceBounds()
 	{
 		return this._surfaces;

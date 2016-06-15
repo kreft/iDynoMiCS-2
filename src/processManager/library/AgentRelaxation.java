@@ -223,6 +223,7 @@ public class AgentRelaxation extends ProcessManager
 			/*
 			 * Boundary collisions
 			 */
+			// FIXME here we need to selectively apply surface collision methods
 			this._iterator.collision(shapeSurfs, agentSurfs, 0.0);
 		}
 		Log.out(level, " Finished updating agent forces");
