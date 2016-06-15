@@ -16,7 +16,6 @@ import java.util.function.Predicate;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import agent.AgentTools;
 import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -140,7 +139,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * Set up the agent mass distribution maps, to ensure that agent
 		 * reactions are spread over voxels appropriately.
 		 */
-		AgentTools.setupAgentDistributionMaps(agents);
+		agents.setupAgentDistributionMaps();
 		/*
 		 * Set up the relevant arrays in each of our solute grids: diffusivity 
 		 * & well-mixed need only be done once each process manager time step,
