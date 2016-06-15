@@ -44,12 +44,14 @@ public class BoundaryTest
 		comp.setSideLengths(new double[]{compartmentLength});
 		/*
 		 * The agent to be inserted: give its position as nonsense to check
-		 * that it is inserted correctly.
+		 * that it is inserted correctly. To prevent the random walk, we set
+		 * the agent pull distance to the boundary layer thickness.
 		 */
 		Agent insertAgent = new Agent();
 		Body iBody = new Body(new double[]{-12345.6}, agentRadius);
 		insertAgent.set(AspectRef.agentBody, iBody);
 		insertAgent.set(AspectRef.isLocated, new Boolean(true));
+		insertAgent.set(AspectRef.agentCurrentPulldistance, boundaryLayerThickness);
 		/*
 		 * Add the agent to the boundary layer, and this to the compartment.
 		 */
