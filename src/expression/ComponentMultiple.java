@@ -107,6 +107,7 @@ public abstract class ComponentMultiple extends Component
 	public void appendVariablesNames(List<String> names)
 	{
 		for ( Component c : this._components )
-			c.appendVariablesNames(names);
+			if( c != null )
+				c.appendVariablesNames(names);
 	}
 }

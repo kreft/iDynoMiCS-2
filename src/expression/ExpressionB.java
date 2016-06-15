@@ -63,10 +63,27 @@ public class ExpressionB extends Component implements NodeConstructor
 	 * Recognized operators, in order of evaluation TODO: currently hashtagging
 	 * stuff that is likely to be in a variable or constant, discuss consider
 	 * other indicator
+	 * 
+	 * NOTE: Order of evaluation!
 	 */
 	public static final String[] OPERATORS = new 
-			String[]{"#e", "#PI", "EXP", "^", "SQRT", "*", "/", "+", "-"};
-	
+			String[]{
+					"#e",	// euler
+					"#PI", 	// pi
+					"EXP", 	// ten power
+					"EXP-", // ten power minus
+					"^", 	// power
+					"^-", 	// power minus
+					"SQRT", // square root
+					"SQRT-", // square root minus
+					"*", 	// multiplication
+					"*-", 	// multiplication minus
+					"/", 	// division
+					"/-", 	// division minus
+					"+", 	// addition
+					"-",	// negative or subtraction TODO make sure this does not cause any problems
+					"["		// tailing multiplication for units ( done last )
+					};	
 	/**
 	 * TODO Work out what this does.
 	 */
@@ -275,6 +292,14 @@ public class ExpressionB extends Component implements NodeConstructor
 			if ( isOperator(term) )
 				continue;
 			/*
+			 * handle units
+			 */
+			else if ( term.contains("]"))
+			{
+				Unit unit = new Unit(term);
+				calc.put(i, new Constant(unit.unit(), unit.modifier()));
+			}
+			/*
 			 * Handle sub expressions (braces)
 			 */
 			else if ( term.contains(INTERNAL_TAG) )
@@ -310,12 +335,8 @@ public class ExpressionB extends Component implements NodeConstructor
 				term = eval.get(i);
 				if ( term == oper )
 				{
-					int min = (calc.floorKey( i-1 ) == null ? 
-							-1 : calc.floorKey( i-1 ) );
-					int plu = (calc.ceilingKey( i+1 ) == null ? 
-							-1 : calc.ceilingKey( i+1 ) );
-					calc.put(i, constructComponent( term, min, plu, calc ));
-					postOperatorTruncate( term, min, plu, calc);
+					calc.put(i, constructComponent( term, i, calc ));
+					postOperatorTruncate( term, i, calc);
 				}
 			}
 	}
@@ -524,23 +545,40 @@ public class ExpressionB extends Component implements NodeConstructor
 	 * @return New component combining the previous and next components.
 	 */
 	private static Component constructComponent(String operator,
-			int prev, int next, TreeMap<Integer,Component> calc)
+			int here, TreeMap<Integer,Component> calc)
 	{
+		int prev = (calc.floorKey( here-1 ) == null ? 
+				-1 : calc.floorKey( here-1 ) );
+		int next = (calc.ceilingKey( here+1 ) == null ? 
+				-1 : calc.ceilingKey( here+1 ) );
 		Log.out(LOG_LEVEL, "operator "+operator+", prev "+prev+", next "+next);
 		switch (operator)
 		{
-		case ("+"): return Expression.add(calc.get(prev),calc.get(next));
-		case ("*"): return Expression.multiply(calc.get(prev),calc.get(next));
-		case ("/"): return Expression.divide(calc.get(prev),calc.get(next));
-		case ("-"): return (prev >= 0 ? 
-				new Subtraction( calc.get(prev), calc.get(next)) :
-					// TODO here we should really just change the sign of next
-				new Multiplication( new Constant("-1",-1), calc.get(next)));
-		case ("^"): return new Power(calc.get(prev), calc.get(next));
-		case ("SQRT"): return new Power(calc.get(next), new Constant("0.5",0.5));
-		case ("#e"): return Expression.euler();
-		case ("#PI"): return Expression.pi();
-		case ("EXP"): return new Multiplication(calc.get(prev), 
+		case ("+"): 
+			return Expression.add(calc.get(prev),calc.get(next));
+		case ("*"): 
+		case ("["): 
+			return Expression.multiply(calc.get(prev),calc.get(next));
+		case ("/"): 
+			return Expression.divide(calc.get(prev),calc.get(next));
+		case ("-"): 
+			if (prev >= 0 )
+				return new Subtraction( calc.get(prev), calc.get(next));
+			else
+			{
+				calc.get(next).changeSign();
+				return calc.get(next);
+			}
+		case ("^"): 
+			return new Power(calc.get(prev), calc.get(next));
+		case ("SQRT"): 
+			return new Power(calc.get(next), new Constant("0.5",0.5));
+		case ("#e"): 
+			return Expression.euler();
+		case ("#PI"): 
+			return Expression.pi();
+		case ("EXP"): 
+			return new Multiplication(calc.get(prev), 
 				new Power(Expression.ten(), calc.get(next)));
 		}
 		System.err.println("ERROR: could not construnct component!");
@@ -551,14 +589,18 @@ public class ExpressionB extends Component implements NodeConstructor
 	 * Truncate calc tree after the operation has completed.
 	 */
 	private static void postOperatorTruncate(String operator,
-			int prev, int next, TreeMap<Integer,Component> calc)
+			int here, TreeMap<Integer,Component> calc)
 	{
+		int prev = (calc.floorKey( here-1 ) == null ? 
+				-1 : calc.floorKey( here-1 ) );
+		int next = (calc.ceilingKey( here+1 ) == null ? 
+				-1 : calc.ceilingKey( here+1 ) );
 		switch (operator)
 		{
 		case ("+"): 
 		case ("*"): 
+		case ("["):
 		case ("/"): 
-		case ("-"): 
 		case ("^"):
 		case ("EXP"):
 			if ( calc.containsKey( prev ) )
@@ -569,9 +611,23 @@ public class ExpressionB extends Component implements NodeConstructor
 		case("SQRT"):
 			if ( calc.containsKey( next ) )
 				calc.remove( next );
+			break;
+		case ("-"): 
+			if (prev >= 0 )
+			{
+				if ( calc.containsKey( prev ) )
+					calc.remove( prev );
+				if ( calc.containsKey( next ) )
+					calc.remove( next );
+			}
+			else
+			{
+				if ( calc.containsKey( next ) )
+					calc.remove( next );
+			}
 		case("#e"):
 		case("#PI"):
-			break;
+			break;	
 		}
 	}
 

@@ -126,6 +126,11 @@ public class Unit {
 		return out;
 	}
 	
+	public double modifier()
+	{
+		return this.modifier;
+	}
+	
 	/**
 	 * build the unit map from string
 	 * @param units
@@ -135,7 +140,9 @@ public class Unit {
 		Log.out(Tier.BULK, "Interpretting unit string: " + units);
 		
 		/* replace all unit braces and all white space */
-		units.replaceAll("\\[\\]\\s+", "");
+		units = units.replaceAll("\\[", "");
+		units = units.replaceAll("\\]", "");
+		units = units.replaceAll("\\s+", "");
 		
 		/* split by dot · */
 		String[] unitsArray = units.split("·");
