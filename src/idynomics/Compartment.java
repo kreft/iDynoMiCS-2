@@ -447,6 +447,11 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	public void postStep()
 	{
 		/*
+		 * Boundaries grab the agents they want, settling any conflicts between
+		 * boundaries.
+		 */
+		this.agents.boundariesGrabAgents();
+		/*
 		 * Tell all agents queued to leave the compartment to move now.
 		 */
 		this.agents.agentsDepart();

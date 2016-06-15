@@ -7,6 +7,7 @@ import boundary.Boundary;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
 /**
@@ -124,7 +125,7 @@ public class ChemostatToChemostat extends Boundary
 	}
 
 	@Override
-	public List<Agent> agentsToGrab(AgentContainer agentCont, double timeStep)
+	public List<Agent> agentsToGrab(AgentContainer agentCont)
 	{
 		List<Agent> out = new LinkedList<Agent>();
 		int nAllAgents = agentCont.getNumAllAgents();
@@ -134,7 +135,8 @@ public class ChemostatToChemostat extends Boundary
 			 * This is an outflow: remember to subtract, since flow rate out
 			 * is negative.
 			 */
-			this._agentsToDiluteTally -= this._flowRate * timeStep;
+			this._agentsToDiluteTally -= this._flowRate * 
+					Idynomics.simulator.timer.getTimeStepSize();
 			int n = (int) this._agentsToDiluteTally;
 			/* Cannot dilute more agents than there are in the compartment. */
 			n = Math.min(n, nAllAgents);

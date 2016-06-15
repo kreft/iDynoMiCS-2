@@ -209,7 +209,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	}
 
 	@Override
-	public List<Agent> agentsToGrab(AgentContainer agentCont, double timeStep)
+	public List<Agent> agentsToGrab(AgentContainer agentCont)
 	{
 		List<Agent> out = new LinkedList<Agent>();
 		/*

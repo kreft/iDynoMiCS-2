@@ -269,10 +269,9 @@ public abstract class Boundary implements NodeConstructor
 	 * 
 	 * @param agentCont The {@code AgentContainer} that contains the 
 	 * {@code Agent}s for selection.
-	 * @param timeStep Length of the time period.
 	 * @return List of agents for removal.
 	 */
-	public List<Agent> agentsToGrab(AgentContainer agentCont, double timeStep)
+	public List<Agent> agentsToGrab(AgentContainer agentCont)
 	{
 		return new LinkedList<Agent>();
 	}

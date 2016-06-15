@@ -2,8 +2,10 @@ package idynomics;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 import org.w3c.dom.NodeList;
@@ -591,10 +593,52 @@ public class AgentContainer
 	}
 
 	/**
+	 * \brief Loop through all boundaries on this shape, trying to grab the
+	 * agents each wants.
+	 * 
+	 * <p>If multiple boundaries want the same agent, choose one of these by
+	 * random.</p>
+	 */
+	public void boundariesGrabAgents()
+	{
+		Map<Agent,List<Boundary>> grabs = 
+				new HashMap<Agent,List<Boundary>>();
+		/*
+		 * Ask each boundary which agents it wants to grab. Since more than one
+		 * boundary may want the same agent, compile a list for each agent.
+		 */
+		for ( Boundary b : this._shape.getAllBoundaries() )
+		{
+			List<Agent> wishes = b.agentsToGrab(this);
+			for ( Agent wishAgent : wishes )
+			{
+				if ( ! grabs.containsKey(wishAgent) )
+					grabs.put(wishAgent, new LinkedList<Boundary>());
+				grabs.get(wishAgent).add(b);
+			}
+		}
+		/*
+		 * For each agent to be grabbed, see how many boundaries want it.
+		 * If only one, then simply depart through this boundary.
+		 * If more than one, then pick one at random.
+		 */
+		for ( Agent grabbedAgent : grabs.keySet() )
+		{
+			List<Boundary> destinations = grabs.get(grabbedAgent);
+			if ( destinations.size() == 1 )
+				destinations.get(0).addOutboundAgent(grabbedAgent);
+			else
+			{
+				int i = ExtraMath.getUniRandInt(destinations.size());
+				destinations.get(i).addOutboundAgent(grabbedAgent);
+			}
+		}
+	}
+	
+	/**
 	 * \brief Loop over all boundaries, asking any agents waiting in their
 	 * departure lounges to leave the compartment.
 	 */
-
 	public void agentsDepart()
 	{
 		Tier level = BULK;
