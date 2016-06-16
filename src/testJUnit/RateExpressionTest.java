@@ -1,13 +1,16 @@
 package testJUnit;
 
-import java.util.HashMap;
-import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import org.junit.Test;
+
+import static dataIO.Log.Tier.DEBUG;
+import static testJUnit.AllTests.TOLERANCE;
+
+import dataIO.Log;
 import expression.ExpressionB;
 import utility.ExtraMath;
-
-import static testJUnit.AllTests.TOLERANCE;
 
 /**
  * 
@@ -19,6 +22,8 @@ public class RateExpressionTest
 	@Test
 	public void shouldBuildCorrectExpressionsFromString()
 	{
+		AllTests.setupSimulatorForTest(1.0, 1.0, "ExpressionBtest");
+		
 		ExpressionB expr;
 		String str;
 		HashMap<String,Double> vars = new HashMap<String,Double>();
@@ -29,7 +34,7 @@ public class RateExpressionTest
 		str = "25.0 * 3.0";
 		correct = 25.0 * 3.0;
 		expr = new ExpressionB(str);
-		expr.printEval();
+		//expr.printEval();
 		System.out.println(expr.getName());
 		System.out.println("");
 		calculated = expr.getValue(vars);
@@ -41,7 +46,7 @@ public class RateExpressionTest
 		correct = Math.E / (5.0 * Math.pow(10.0,(1.0 + 0.5)));
 		expr = new ExpressionB(str);
 		expr.printEval();
-		System.out.println(expr.getName());
+		Log.out(DEBUG, expr.getName());
 		System.out.println("");
 		calculated = expr.getValue(vars);
 		assertTrue(str, ExtraMath.areEqual(calculated, correct, TOLERANCE));
@@ -51,7 +56,7 @@ public class RateExpressionTest
 		str = "(-22.0 * (1.0 * (1.0 * 5.5)) - 2.0) + 1.0 / (8.1 * 5.0)";
 		correct = (-22.0 * (1.0 * (1.0 * 5.5)) - 2.0) + 1.0 / (8.1 * 5.0);
 		expr = new ExpressionB(str);
-		expr.printEval();
+		//expr.printEval();
 		System.out.println(expr.getName());
 		System.out.println("");
 		calculated = expr.getValue(vars);
@@ -65,7 +70,28 @@ public class RateExpressionTest
 		str = "mu * S / (K + S)";
 		correct = 0.1 * 3.0 / (1.0 + 3.0);
 		expr = new ExpressionB(str);
-		expr.printEval();
+		//expr.printEval();
+		System.out.println(expr.getName());
+		System.out.println("");
+		calculated = expr.getValue(vars);
+		assertTrue(str, ExtraMath.areEqual(calculated, correct, TOLERANCE));
+		/*
+		 * Single constant, used to cause problems.
+		 */
+		str = "25.0";
+		correct = 25.0;
+		expr = new ExpressionB(str);
+		//expr.printEval();
+		System.out.println(expr.getName());
+		System.out.println("");
+		calculated = expr.getValue(vars);
+		assertTrue(str, ExtraMath.areEqual(calculated, correct, TOLERANCE));
+		/*
+		 * Single variable, used to cause problems.
+		 */
+		str = "mu";
+		correct = vars.get("mu");
+		expr = new ExpressionB(str);
 		System.out.println(expr.getName());
 		System.out.println("");
 		calculated = expr.getValue(vars);

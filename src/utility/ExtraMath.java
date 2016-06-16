@@ -24,14 +24,13 @@ import utility.MTRandom;
 /**
  * \brief Abstract class with some extra useful math functions.
  * 
- * Contents:
- * 		Simple calculations
- * 		Shapes
- * 		Arrays of doubles
- * 		Dealing with signs
- * 		Dealing with strings
- * 		Random number generation
- * 
+ * <p>Contents:<ul>
+ * <li>Simple calculations</li>
+ * <li>Shapes</li>
+ * <li>Dealing with signs</li>
+ * <li>Dealing with strings</li>
+ * <li>Random number generation</li>
+ * </ul></p>
  * @author João Xavier (xavierj@mskcc.org), Memorial Sloan-Kettering Cancer
  * Center (NY, USA)
  * @author Brian Merkey (brim@env.dtu.dk, bvm@northwestern.edu)
@@ -428,6 +427,31 @@ public final class ExtraMath
 		return Math.max(0.0, Math.min(xMax, yMax) - Math.max(xMin, yMin));
 	}
 	
+	/**
+	 * \brief Calculate the harmonic mean of two numbers.
+	 * 
+	 * @param a Any real number (including infinity).
+	 * @param b Any real number (including infinity).
+	 * @return The harmonic mean, i.e. 
+	 * (a<sup>-1</sup> + b<sup>-1</sup>)<sup>-1</sup>
+	 */
+	public static final double harmonicMean(double a, double b)
+	{
+		if ( a == 0.0 || b == 0.0 )
+			return 0.0;
+		if ( a == b )
+			return a;
+		if ( ! Double.isFinite(a) )
+			return b;
+		if ( ! Double.isFinite(b) )
+			return a;
+		/*
+		 * This is a computationally nicer way of getting the harmonic mean:
+		 * 2 / ( (1/a) + (1/b))
+		 */
+		return 2.0 * ( a * b ) / ( a + b );
+	}
+	
 	/*  ----------------------------- Shapes  ----------------------------- */
 	
 	/**
@@ -578,6 +602,8 @@ public final class ExtraMath
 	{
 		return ( sign(a)*sign(b) >= 0 );
 	}
+	
+	/*  ----------------------- Dealing with strings  ---------------------- */
 	
 	/**
 	 * \brief Output a double value as a string, in a particular decimal

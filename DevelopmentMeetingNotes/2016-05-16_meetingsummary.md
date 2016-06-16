@@ -25,9 +25,13 @@ Bas has assigned some roles
  - Case studies (**Bas** & **Stefan**)
   * Need to be careful about word count, maybe merge some
  - Discussion & Conclusion (**Rob** to organise, will need input from all authors)
+
 Sections 4.2, 4.3 and 4.7 are top priorities
+
 "Collectives": what are they?
+
 We should get into the habit of letting others know when we're writing
+
 **Rob** will delete manuscript folder in GitHub repository
 
 # Other notes

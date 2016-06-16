@@ -1,109 +1,70 @@
-/**
- * 
- */
 package boundary;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
 
 import agent.Agent;
-import boundary.agent.AgentMethod;
-import boundary.grid.GridMethod;
+import dataIO.Log;
 import dataIO.XmlRef;
-import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.XMLable;
-import utility.Helper;
+import dataIO.Log.Tier;
+import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-public abstract class Boundary implements CanPrelaunchCheck, XMLable
+public abstract class Boundary implements NodeConstructor
 {
-	// TODO move this to XmlLabel?
-	public final static String DEFAULT_GM = "defaultGridMethod";
-	
 	/**
-	 * The grid method this boundary should use for any variable that is not
-	 * named in the dictionary {@link #_gridMethods}. 
+	 * XML tag for the name of the partner boundary.
 	 */
-	protected GridMethod _defaultGridMethod;
+	// TODO implement this in node construction
+	public final static String PARTNER = XmlRef.boundaryPartner;
 	/**
-	 * Dictionary of grid methods that this boundary should use for each
-	 * variable (e.g. a solute). If a variable is not in this list, use the
-	 * default, {@link #_defaultGridMethod}, instead.
-	 */
-	protected HashMap<String,GridMethod> _gridMethods = 
-										new HashMap<String,GridMethod>();
-	/**
-	 * The agent method this boundary should use for any agent. 
-	 */
-	protected AgentMethod _agentMethod;
-	/**
-	 * The boundary this is connected with - not necessarily set.
+	 * The boundary this is connected with (not necessarily set).
 	 */
 	protected Boundary _partner;
 	/**
 	 * 
 	 */
+	// TODO implement this in node construction
 	protected String _partnerCompartmentName;
-	
-	/*************************************************************************
-	 * CONSTRUCTORS
-	 ************************************************************************/
-	
 	/**
-	 * \brief TODO
-	 * 
+	 * Solute concentrations.
 	 */
-	public Boundary()
-	{
-		
-	}
-	
-	public void init(Element xmlElem)
-	{
-		Element xmlGrid;
-		String variableName, className;
-		GridMethod aGridMethod;
-		NodeList gridNodes = xmlElem.getElementsByTagName(XmlRef.gridMethod);
-		for ( int i = 0; i < gridNodes.getLength(); i++ )
-		{
-			xmlGrid = (Element) gridNodes.item(i);
-			className = xmlGrid.getAttribute(XmlRef.classAttribute);
-			try
-			{
-				aGridMethod = (GridMethod) Class.forName(className).newInstance();
-				aGridMethod.init(xmlGrid);
-				if ( xmlGrid.hasAttribute(XmlRef.variable) )
-				{
-					variableName = xmlGrid.getAttribute(XmlRef.variable);
-					this._gridMethods.put(variableName, aGridMethod);
-				}
-				else
-					this._defaultGridMethod = aGridMethod;
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
-	}
-	
-	/*************************************************************************
+	protected Map<String,Double> _concns = new HashMap<String,Double>();
+	/**
+	 * List of Agents that are leaving this compartment via this boundary, and
+	 * so need to travel to the connected compartment.
+	 */
+	protected LinkedList<Agent> _departureLounge = new LinkedList<Agent>();
+	/**
+	 * List of Agents that have travelled here from the connected compartment
+	 * and need to be entered into this compartment.
+	 */
+	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
+	/**
+	 * Log verbosity level for debugging purposes (set to BULK when not using).
+	 */
+	protected static final Tier SOLUTE_LEVEL = Tier.BULK;
+	/**
+	 * Log verbosity level for debugging purposes (set to BULK when not using).
+	 */
+	protected static final Tier AGENT_LEVEL = Tier.BULK;
+
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
 	/**
 	 * TODO
 	 * @return
@@ -111,238 +72,271 @@ public abstract class Boundary implements CanPrelaunchCheck, XMLable
 	public String getName()
 	{
 		return XmlRef.dimensionBoundary;
-		// TODO return dimension and min/max?
+		// TODO return dimension and min/max for SpatialBoundary?
 	}
-	
+
+	/* ***********************************************************************
+	 * PARTNER BOUNDARY
+	 * **********************************************************************/
+
 	/**
 	 * \brief TODO
 	 * 
-	 * @param soluteName
-	 * @param aMethod
+	 * @return
 	 */
-	public void setGridMethod(String soluteName, GridMethod aMethod)
-	{
-		// TODO safety if overwriting the default?
-		if ( soluteName.equals(DEFAULT_GM) )
-			this._defaultGridMethod = aMethod;
-		else
-			this._gridMethods.put(soluteName, aMethod);
-	}
-	
+	protected abstract Class<?> getPartnerClass();
+
 	/**
-	 * \brief TODO
+	 * \brief Set the given boundary as this boundary's partner.
 	 * 
-	 * @param soluteName
-	 * @return
-	 */
-	public GridMethod getGridMethod(String soluteName)
-	{
-		//System.out.println("Looking for "+soluteName); //bughunt
-		if ( this._gridMethods.containsKey(soluteName) )
-			return this._gridMethods.get(soluteName);
-		else
-			return this._defaultGridMethod;
-	}
-	
-	/**
-	 * TODO
-	 * @return
-	 */
-	public AgentMethod getAgentMethod()
-	{
-		return this._agentMethod;
-	}
-	
-	/**
-	 * TODO
-	 * @param partner
+	 * @param partner Boundary to use.
 	 */
 	public void setPartner(Boundary partner)
 	{
 		this._partner = partner;
 	}
-	
+
 	/**
-	 * TODO
-	 * @return
+	 * @return {@code true} if this boundary still needs a partner boundary to
+	 * be set, {@code false} if it already has one or does not need one at all.
 	 */
 	public boolean needsPartner()
 	{
 		return ( this._partnerCompartmentName != null ) &&
 				( this._partner == null );
 	}
-	
+
 	/**
-	 * TODO
-	 * @return
+	 * @return The name of the compartment this boundary should have a partner
+	 * boundary with.
 	 */
 	public String getPartnerCompartmentName()
 	{
 		return this._partnerCompartmentName;
 	}
-	
+
 	/**
-	 * TODO
-	 * @return
+	 * \brief Make a new {@code Boundary} that is the partner to this one.
+	 * 
+	 * @return New {@code Boundary} object with partner-partner links set.
 	 */
-	public abstract Boundary makePartnerBoundary();
-	
-	/*************************************************************************
-	 * AGENT TRANSFERS
-	 ************************************************************************/
-	
+	public Boundary makePartnerBoundary()
+	{
+		Boundary out = null;
+		Class<?> bClass = this.getPartnerClass();
+		if ( bClass != null )
+		{
+			try
+			{
+				out = (Boundary) bClass.newInstance();
+				this.setPartner(out);
+				out.setPartner(this);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
+		return out;
+	}
+
+	/* ***********************************************************************
+	 * SOLUTE TRANSFERS
+	 * **********************************************************************/
+
+	/**
+	 * \brief Get the concentration of a solute at this boundary.
+	 * 
+	 * @param name Name of the solute.
+	 * @return Concentration of the solute.
+	 */
+	public double getConcentration(String name)
+	{
+		return this._concns.get(name);
+	}
+
+	/**
+	 * \brief Set the concentration of a solute at this boundary.
+	 * 
+	 * @param name Name of the solute.
+	 * @param concn Concentration of the solute.
+	 */
+	public void setConcentration(String name, double concn)
+	{
+		this._concns.put(name, concn);
+	}
+
 	/**
 	 * \brief TODO
 	 * 
-	 * @param agent
+	 * @param environment
+	 */
+	public abstract void updateConcentrations(EnvironmentContainer environment);
+
+	/* ***********************************************************************
+	 * AGENT TRANSFERS
+	 * **********************************************************************/
+
+	/**
+	 * \brief Put the given agent into the departure lounge.
+	 * 
+	 * @param agent Agent to leave the compartment via this boundary.
 	 */
 	public void addOutboundAgent(Agent anAgent)
 	{
-		this._agentMethod.addOutboundAgent(anAgent);
+		Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
+				anAgent.identity()+") to departure lounge");
+		this._departureLounge.add(anAgent);
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Put the given agent into the arrivals lounge.
 	 * 
-	 * @param anAgent
+	 * @param anAgent Agent to enter the compartment via this boundary.
 	 */
 	public void acceptInboundAgent(Agent anAgent)
 	{
-		this._agentMethod.acceptInboundAgent(anAgent);
+		Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
+				anAgent.identity()+") to arrivals lounge");
+		this._arrivalsLounge.add(anAgent);
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Put the given agents into the arrivals lounge.
 	 * 
-	 * @param agents
+	 * @param agents List of agents to enter the compartment via this boundary.
 	 */
 	public void acceptInboundAgents(List<Agent> agents)
 	{
-		this._agentMethod.acceptInboundAgents(agents);
+		Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" accepting "+
+				agents.size()+" agents to arrivals lounge");
+		for ( Agent anAgent : agents )
+			this.acceptInboundAgent(anAgent);
+		Log.out(AGENT_LEVEL, " Done!");
 	}
-	
+
 	/**
-	 * TODO
+	 * Push all agents in the departure lounge to the partner boundary's
+	 * arrivals lounge.
 	 */
 	public void pushAllOutboundAgents()
 	{
 		if ( this._partner == null )
 		{
-			if ( this._agentMethod.hasOutboundAgents() )
+			if ( ! this._departureLounge.isEmpty() )
 			{
 				// TODO throw exception? Error message to log?
 			}
 		}
 		else
 		{
-			AgentMethod partnerMethod = this._partner.getAgentMethod();
-			this._agentMethod.pushOutboundAgents(partnerMethod);
+			Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
+					this._departureLounge.size()+" agents to partner");
+			this._partner.acceptInboundAgents(this._departureLounge);
+			this._departureLounge.clear();
 		}
 	}
-	
-	// TODO delete once agent method gets full control of agent transfers
+
+	// TODO delete once boundary gets full control of agent transfers
 	public List<Agent> getAllInboundAgents()
 	{
-		return this._agentMethod.getAllInboundAgents();
+		return this._arrivalsLounge;
 	}
-	
-	// TODO delete once agent method gets full control of agent transfers
+
+	// TODO make protected once boundary gets full control of agent transfers
 	public void clearArrivalsLoungue()
 	{
-		this._agentMethod.clearArrivalsLoungue();
-	}
-	
-	/*************************************************************************
-	 * PRE-LAUNCH CHECK
-	 ************************************************************************/
-	
-	public boolean isReadyForLaunch()
-	{
-		if ( this._defaultGridMethod == null && this._gridMethods.isEmpty() )
-			return false;
-		return true;
-	}
-	
-	/*************************************************************************
-	 * XML-ABLE
-	 ************************************************************************/
-	
-	public static Boundary getNewInstance(String className)
-	{
-		return (Boundary) XMLable.getNewInstance(className,
-											"boundary.BoundaryLibrary$");
-	}
-	
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
-	
-	public static String[] getAllOptions()
-	{
-		return Helper.getClassNamesSimple(
-								BoundaryLibrary.class.getDeclaredClasses());
+		this._arrivalsLounge.clear();
 	}
 
 	/**
-	 * TODO
-	 * @param minMax
-	 * @return
+	 * \brief Enter the {@code Agent}s waiting in the arrivals lounge to the
+	 * {@code AgentContainer}.
+	 * 
+	 * @param agentCont The {@code AgentContainer} that should accept the 
+	 * {@code Agent}s.
 	 */
-	public static String extremeToString(int minMax)
+	public void agentsArrive(AgentContainer agentCont)
 	{
-		return minMax == 0 ? "minimum" : "maximum";
+		for ( Agent anAgent : this._arrivalsLounge )
+			agentCont.addAgent(anAgent);
+		this._arrivalsLounge.clear();
 	}
-	
+
 	/**
-	 * TODO
-	 * @param minMax
-	 * @return
+	 * \brief Compile a list of the agents that this boundary wants to remove
+	 * from the compartment and put into its departures lounge.
+	 * 
+	 * @param agentCont The {@code AgentContainer} that contains the 
+	 * {@code Agent}s for selection.
+	 * @return List of agents for removal.
 	 */
-	public static int extremeToInt(String minMax)
+	public List<Agent> agentsToGrab(AgentContainer agentCont)
 	{
-		return ( minMax.equals("minimum") ) ? 0 : 1;
-			
+		return new LinkedList<Agent>();
 	}
-	
-	// FIXME to be replaced by modelnode paradigm?
-//	@Override
-//	public List<InputSetter> getRequiredInputs()
-//	{
-//		// TODO GridMethod, AgentMethod
-//		return new LinkedList<InputSetter>();
-//	}
-//	
-//	
-//	public void acceptInput(String name, Object input)
-//	{
-//		// TODO
-//	}
-//	
-//	public static class BoundaryMaker extends SubmodelMaker
-//	{
-//		private static final long serialVersionUID = 6401917989904415580L;
-//		
-//		public BoundaryMaker(int minMax, Requirement req, IsSubmodel target)
-//		{
-//			super(extremeToString(minMax), req, target);
-//		}
-//		
-//		@Override
-//		public void doAction(ActionEvent e)
-//		{
-//			// TODO safety properly
-//			String bndryName;
-//			if ( e == null )
-//				bndryName = "";
-//			else
-//				bndryName = e.getActionCommand();
-//			Boundary bndry = (Boundary) Boundary.getNewInstance(bndryName);
-//			this.addSubmodel(bndry);
-//		}
-//		
-//		public Object getOptions()
-//		{
-//			return Boundary.getAllOptions();
-//		}
-//	}
+
+	/*************************************************************************
+	 * XML-ABLE
+	 ************************************************************************/
+
+	// TODO replace with node construction
+
+	public static Boundary getNewInstance(String className)
+	{
+		return (Boundary) XMLable.getNewInstance(className, "boundary.library.");
+	}
+
+
+	public boolean isReadyForLaunch()
+	{
+		// TODO
+		return true;
+	}
+
+	/* ***********************************************************************
+	 * NODE CONTRUCTION
+	 * **********************************************************************/
+
+	// TODO delete once nodeFactory has made this redundant
+	public void init(Node xmlNode)
+	{
+		// TODO partner boundary name
+	}
+
+	@Override
+	public ModelNode getNode()
+	{
+		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
+
+		// TODO
+		// modelNode.requirement = Requirements.?
+
+		// TODO
+
+		return modelNode;
+	}
+
+	@Override
+	public void setNode(ModelNode node)
+	{
+		// TODO
+	}
+
+	@Override
+	public NodeConstructor newBlank()
+	{
+		// TODO
+		return null;
+	}
+
+	// TODO ?
+	//public void addChildObject(NodeConstructor childObject)
+
+	@Override
+	public String defaultXmlTag()
+	{
+		// FIXME use different tag for spatial/non-spatial boundaries?
+		return XmlRef.dimensionBoundary;
+	}
 }

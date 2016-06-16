@@ -3,8 +3,8 @@
  */
 package test;
 
-import boundary.BoundaryLibrary.FixedBoundary;
-import boundary.BoundaryLibrary.SolidBoundary;
+import boundary.spatialLibrary.FixedBoundary;
+import boundary.spatialLibrary.SolidBoundary;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import idynomics.Simulator;
@@ -38,10 +38,12 @@ public class AgentGridTest
 		/*
 		 * Set the boundary methods.
 		 */
-		aCompartment.addBoundary(DimName.X, 0, new SolidBoundary());
-		aCompartment.addBoundary(DimName.X, 1, new FixedBoundary(topConcn));
-		aCompartment.addBoundary(DimName.Y, 0, new SolidBoundary());
-		aCompartment.addBoundary(DimName.Y, 1, new SolidBoundary());
+		aCompartment.addBoundary(new SolidBoundary(DimName.X, 0));
+		aCompartment.addBoundary(new SolidBoundary(DimName.Y, 0));
+		aCompartment.addBoundary(new SolidBoundary(DimName.Y, 1));
+		FixedBoundary top = new FixedBoundary(DimName.X, 1);
+		top.setConcentration("solute", topConcn);
+		aCompartment.addBoundary(top);
 		/*
 		 * We just have one solute, but need to give it to the process manager
 		 * in an array.

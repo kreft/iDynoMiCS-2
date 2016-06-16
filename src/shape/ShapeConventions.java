@@ -3,11 +3,9 @@
  */
 package shape;
 
-import org.w3c.dom.Element;
-
 import boundary.Boundary;
-import boundary.grid.GridMethod;
-import grid.SpatialGrid;
+import idynomics.AgentContainer;
+import idynomics.EnvironmentContainer;
 import shape.resolution.ResolutionCalculator.SameRes;
 
 /**
@@ -77,32 +75,25 @@ public final class ShapeConventions
 	{
 		public BoundaryCyclic()
 		{
-			this._defaultGridMethod = new CyclicGrid();
+			
 		}
 
 		@Override
-		public Boundary makePartnerBoundary()
+		public void agentsArrive(AgentContainer agentCont)
 		{
-			BoundaryCyclic out = new BoundaryCyclic();
-			out._partner = this;
-			this._partner = out;
-			return out;
+			/* Do nothing! */
+		}
+
+		@Override
+		protected Class<?> getPartnerClass()
+		{
+			return BoundaryCyclic.class;
+		}
+
+		@Override
+		public void updateConcentrations(EnvironmentContainer environment)
+		{
+			/* Do nothing! */
 		}
 	}
-	
-	public static class CyclicGrid extends GridMethod
-	{
-		@Override
-		public void init(Element xmlNode)
-		{
-			/* Do nothing here. */ 
-		}
-		
-		@Override
-		public double getBoundaryFlux(SpatialGrid grid)
-		{
-			// TODO
-			return 0;
-		}
-	}	
 }

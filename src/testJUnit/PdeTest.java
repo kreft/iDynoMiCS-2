@@ -7,12 +7,12 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import boundary.BoundaryLibrary.FixedBoundary;
-import boundary.BoundaryLibrary.SolidBoundary;
+import boundary.spatialLibrary.FixedBoundary;
+import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import grid.ArrayType;
 import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
@@ -46,8 +46,8 @@ public class PdeTest
 		AllTests.setupSimulatorForTest(tStep, tMax, "checkMassBalance");
 		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
 		comp.setShape("line");
-		comp.addBoundary(DimName.X, 0, new SolidBoundary());
-		comp.addBoundary(DimName.X, 1, new SolidBoundary());
+		comp.addBoundary(new SolidBoundary(DimName.X, 0));
+		comp.addBoundary(new SolidBoundary(DimName.X, 1));
 		Shape shape = comp.getShape();
 		UniformResolution resCalc = new UniformResolution();
 		resCalc.setLength(1.0 * nVoxel);
@@ -96,25 +96,28 @@ public class PdeTest
 	}
 	
 	@Test
-	public void checkDiffusionIndifferentForRadiusInCircle(){
+	public void checkDiffusionIndifferentForRadiusInCircle()
+	{
 		/*
 		 * Simulation parameters.
 		 */
 		double tStep = 0.1;
 		double tMax = 100.0;
 		int nVoxelR = 3;
+		String soluteName = "solute";
+		/* Set up the simulator and log output. */
+		AllTests.setupSimulatorForTest(tStep, tMax,
+				"checkDiffusionIndifferentForRadiusInCircle");
 		/*
 		 * Set up the simulation with a single compartment: a circle, with
 		 * solid rmin and fixed rmax boundary, theta cyclic.
 		 */
-		AllTests.setupSimulatorForTest(tStep, tMax,
-				"checkDiffusionIndifferentForRadiusInCircle");
 		Compartment comp = Idynomics.simulator.addCompartment("circle");
 		comp.setShape("circle");
-//		comp.addBoundary(DimName.R, 0, new SolidBoundary());
-		comp.addBoundary(DimName.R, 1, new FixedBoundary(2));
+		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+		rMax.setConcentration("solute", 2.0);
+		comp.addBoundary(rMax);
 		Shape shape = comp.getShape();
-//		shape.getDimension(DimName.THETA).setCyclic();
 		UniformResolution resCalc = new UniformResolution();
 		resCalc.setLength(nVoxelR);
 		resCalc.setResolution(1.0);
@@ -123,8 +126,7 @@ public class PdeTest
 		resCalc.setLength(2 * Math.PI / 3);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.THETA, resCalc);
-		/* Add the solute (will be initialized with zero conc). */
-		String soluteName = "solute";
+		/* Add the solute (will be initialised with zero concn). */
 		comp.addSolute(soluteName);
 		SpatialGrid sG = comp.getSolute(soluteName);
 		/*
@@ -141,27 +143,27 @@ public class PdeTest
 		 * Run the simulation, checking at each time step that all voxels in a 
 		 * ring have the same concentration.
 		 */
-		
-		double last_conc = Double.NaN, cur_conc;
+		double last_concn = Double.NaN, cur_concn;
 		double[] conc_diff = new double[nVoxelR];
 		while ( Idynomics.simulator.timer.isRunning() )
 		{
 			Idynomics.simulator.step();
-			for (int r = -1, c[] = shape.resetIterator();
+			int ringIndex = -1;
+			for ( shape.resetIterator();
 					shape.isIteratorValid(); shape.iteratorNext() )
 			{
-				if (shape.iteratorCurrent()[0] != r){
-					r = shape.iteratorCurrent()[0];
-					last_conc = sG.getValueAtCurrent(ArrayType.CONCN);
+				if ( shape.iteratorCurrent()[0] != ringIndex )
+				{
+					ringIndex = shape.iteratorCurrent()[0];
+					last_concn = sG.getValueAtCurrent(ArrayType.CONCN);
 				}
-				cur_conc = sG.getValueAtCurrent(ArrayType.CONCN);
-				conc_diff[r] += Math.abs(last_conc - cur_conc);
-				last_conc = cur_conc;
+				cur_concn = sG.getValueAtCurrent(ArrayType.CONCN);
+				conc_diff[ringIndex] += Math.abs(last_concn - cur_concn);
+				last_concn = cur_concn;
 			}
 			Log.out(Tier.DEBUG, "Differences along radii for step " 
 						+ Idynomics.simulator.timer.getCurrentTime()+": "
 											+ Arrays.toString(conc_diff));
-			System.out.println();
 			assertTrue(ExtraMath.areEqual(Vector.sum(conc_diff),
 					0, TOLERANCE));
 		}

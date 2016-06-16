@@ -1,11 +1,11 @@
 package processManager.library;
 
-import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 import agent.Agent;
 import aspect.AspectRef;
+import grid.ArrayType;
 
 /**
  * \brief TODO

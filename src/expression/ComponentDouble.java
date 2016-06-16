@@ -1,7 +1,7 @@
 package expression;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.List;
 
 import dataIO.Log;
 import static dataIO.Log.Tier.CRITICAL;
@@ -53,7 +53,7 @@ public abstract class ComponentDouble extends Component
 	}
 	
 	@Override
-	public void appendVariablesNames(List<String> names)
+	public void appendVariablesNames(Collection<String> names)
 	{
 		this._a.appendVariablesNames(names);
 		this._b.appendVariablesNames(names);

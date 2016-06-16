@@ -1,21 +1,21 @@
 package grid;
 
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
-import javax.rmi.CORBA.Tie;
-
-import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlRef;
+import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
+import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
 import shape.Shape;
+import utility.ExtraMath;
 
 /**
  * \brief A SpatialGrid stores information about a variable over space.
@@ -36,68 +36,90 @@ import shape.Shape;
  * <p>On the boundaries of the grid, </p>
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ * 								Friedrich-Schiller University Jena, Germany 
  */
 public class SpatialGrid implements NodeConstructor
-{	
+{
 	/**
-	 * Label for an array. 
+	 * The name of the variable which this grid represents.
 	 */
-	public enum ArrayType
-	{
-		/**
-		 * The concentration of, e.g., a solute.
-		 */
-		CONCN,
-		/**
-		 * The diffusion coefficient of a solute. For example, this may be
-		 * lower inside a biofilm than in the surrounding water.
-		 */
-		DIFFUSIVITY,
-		/**
-		 * A measure of how well-mixed a solute is. A diffusion-reaction should
-		 * ignore where this is above a certain threshold.
-		 */
-		WELLMIXED,
-		/**
-		 * The rate of production of this solute. Consumption is described by
-		 * negative production.
-		 */
-		PRODUCTIONRATE,
-		/**
-		 * The differential of production rate with respect to its
-		 * concentration.
-		 */
-		DIFFPRODUCTIONRATE,
-		/**
-		 * Laplacian operator.
-		 */
-		LOPERATOR;
-	}
-	
+	protected String _name;
+	/**
+	 * 
+	 */
+	protected Shape _shape;
 	/**
 	 * Dictionary of arrays according to their type. Note that not all types
 	 * may be occupied.
 	 */
-	protected HashMap<ArrayType, double[][][]> _array
-									= new HashMap<ArrayType, double[][][]>();
-									
-	protected Shape _shape;
+	protected Map<ArrayType, double[][][]> _array = 
+			new HashMap<ArrayType, double[][][]>();
 	
-	protected String _name;
+	/**
+	 * \brief Log file verbosity level used for debugging the getting of
+	 * values.
+	 * 
+	 * <ul><li>Set to {@code BULK} for normal simulations</li>
+	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
+	 */
+	protected static final Tier GET_VALUE_LEVEL = Tier.BULK;
+	/**
+	 * \brief Log file verbosity level used for debugging the setting of
+	 * values.
+	 * 
+	 * <ul><li>Set to {@code BULK} for normal simulations</li>
+	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
+	 */
+	protected static final Tier SET_VALUE_LEVEL = Tier.BULK;
+	/**
+	 * \brief Log file verbosity level used for debugging the flux from the
+	 * neighbor iterator voxel into the current iterator voxel.
+	 * 
+	 * <ul><li>Set to {@code BULK} for normal simulations</li>
+	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
+	 */
+	protected static final Tier GET_FLUX_WITH_NHB_LEVEL = Tier.BULK;
 	
-	protected final Tier GET_VALUE_LEVEL = Tier.BULK;
-	protected final Tier SET_VALUE_LEVEL = Tier.BULK;
-	protected final Tier GET_FLUX_WITH_NHB_LEVEL = Tier.BULK;
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
+
+	/**
+	 * \brief Construct a new grid.
+	 * 
+	 * @param shape Shape of the grid.
+	 * @param name Name of the variable this represents.
+	 */
 	public SpatialGrid(Shape shape, String name)
 	{
 		this._shape = shape;
 		this._name = name;
 	}
+
+	/* ***********************************************************************
+	 * 							BASIC GETTERS & SETTERS
+	 * ***********************************************************************/
+	
+	/**
+	 * @return The name of the variable this grid represents.
+	 */
+	public String getName()
+	{
+		return this._name;
+	}
+	
+	/**
+	 * @return The shape of this grid.
+	 */
+	public Shape getShape()
+	{
+		return this._shape;
+	}
+	
+	/* ***********************************************************************
+	 * 							ARRAY INITIALISATION
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Initialise an array of the given <b>type</b> and fill all voxels
@@ -137,7 +159,7 @@ public class SpatialGrid implements NodeConstructor
 	/**
 	 * \brief Whether this grid has an array of the type specified.
 	 * 
-	 * @param type Type of array sought (e.g. CONCN).
+	 * @param type Type of array sought.
 	 * @return {@code true} if this array is already initialised in this grid,
 	 * {@code false} otherwise.
 	 */
@@ -146,100 +168,20 @@ public class SpatialGrid implements NodeConstructor
 		return this._array.containsKey(type);
 	}
 
-	public Shape getShape()
-	{
-		return this._shape;
-	}
-
 	/**
-	 * \brief TODO
+	 * \brief Get a copy of an array held in this grid.
 	 * 
-	 * @return
+	 * @param type The type of array required.
+	 * @return Copy of this array.
 	 */
 	public double[][][] getArray(ArrayType type)
 	{
 		return Array.copy(this._array.get(type));
 	}
 
-	
-	/*************************************************************************
-	 * VOXEL GETTERS & SETTERS
-	 ************************************************************************/
-	
-	/**
-	 * \brief Gets the value of one coordinate on the given array type.
-	 * 
-	 * @param type Type of array to get from.
-	 * @param coord Coordinate on this array to get.
-	 * @return double value at this coordinate on this array.
-	 */
-	public double getValueAt(ArrayType type, int[] coord)
-	{
-		Log.out(SET_VALUE_LEVEL, "trying to get value at coordinate "
-				+ Arrays.toString(coord) + " in "+ type);
-		if ( this._array.containsKey(type) ){
-			Log.out(GET_VALUE_LEVEL, "   returning " 
-					+ this._array.get(type)[coord[0]][coord[1]][coord[2]]);
-			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
-		}
-		else{
-			//TODO: safety?
-			Log.out(GET_VALUE_LEVEL, "   returning " + Double.NaN);
-			return Double.NaN;
-		}
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param type
-	 * @param coord
-	 * @param value
-	 */
-	public void setValueAt(ArrayType type, int[] coord, double value)
-	{
-		Log.out(SET_VALUE_LEVEL, "trying to set value at coordinate "
-				+ Arrays.toString(coord) + " in "+ type + " to "+value);
-		if ( this._array.containsKey(type) )
-			this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param type
-	 * @param coord
-	 * @param value
-	 */
-	public void addValueAt(ArrayType type, int[] coord, double value)
-	{
-		Log.out(SET_VALUE_LEVEL, "trying to add " + value + " at coordinate "
-				+ Arrays.toString(coord) + " in "+ type);
-		if ( this._array.containsKey(type) )
-			this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
-		// TODO safety?
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param type
-	 * @param coord
-	 * @param value
-	 */
-	public void timesValueAt(ArrayType type, int[] coord, double value)
-	{
-		Log.out(SET_VALUE_LEVEL, "trying to multiply with " + value 
-				+ " at coordinate "
-				+ Arrays.toString(coord) + " in "+ type);
-		if ( this._array.containsKey(type) )
-			this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
-		// TODO safety?
-	}
-	
-	/*************************************************************************
-	 * ARRAY SETTERS
-	 ************************************************************************/
+	/* ***********************************************************************
+	 * 							ARRAY SETTERS
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Set all values in the array specified to the <b>value</b> given.
@@ -253,10 +195,11 @@ public class SpatialGrid implements NodeConstructor
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Overwrite all values in the array specified to those of the array
+	 * given, discarding all old values.
 	 * 
-	 * @param type
-	 * @param array
+	 * @param type Type of the array to set.
+	 * @param array Array of values to use.
 	 */
 	public void setTo(ArrayType type, double[][][] array)
 	{
@@ -264,22 +207,28 @@ public class SpatialGrid implements NodeConstructor
 	}
 	
 	/**
-	 * \brief set array from string
-	 * FIXME ARRAY, MATRIX, VECTOR?
-	 * @param type
-	 * @param array
+	 * \brief Set an array from a string.
+	 * 
+	 * @param type Type of the array to set.
+	 * @param array String representation of the values in this array: either
+	 * a single value, or conforming to the approach used in the
+	 * {@code linearAlgebra} package.
 	 */
 	public void setTo(ArrayType type, String array)
 	{
-		if (array.contains(Matrix.DELIMITER))
-			setTo( type, Array.dblFromString(array) );
+		if ( array.contains(Vector.DELIMITER) || 
+				array.contains(Matrix.DELIMITER) ||
+				array.contains(Array.DELIMITER) )
+		{
+			this.setTo( type, Array.dblFromString(array) );
+		}
 		else
-			setAllTo( type, Double.valueOf(array) );
+			this.setAllTo( type, Double.valueOf(array) );
 	}
 	/**
-	 * \brief TODO
+	 * \brief Force all values in the given array type to be at least zero.
 	 * 
-	 * @param type
+	 * @param type Type of the array to use.
 	 */
 	public void makeNonnegative(ArrayType type)
 	{
@@ -316,9 +265,9 @@ public class SpatialGrid implements NodeConstructor
 		Array.timesEquals(this._array.get(type), value);
 	}
 	
-	/*************************************************************************
-	 * ARRAY GETTERS
-	 ************************************************************************/
+	/* ***********************************************************************
+	 * 							ARRAY GETTERS
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Get the greatest value in the given array.
@@ -366,135 +315,246 @@ public class SpatialGrid implements NodeConstructor
 		return Array.sum(this._array.get(type));
 	}
 	
-	/*************************************************************************
-	 * TWO-ARRAY METHODS
-	 ************************************************************************/
+	/* ***********************************************************************
+	 * 							TWO ARRAY METHODS
+	 * ***********************************************************************/
 	
+	/**
+	 * \brief Add all elements of one array to those of another,
+	 * element-by-element.
+	 * 
+	 * @param destination Type of array to be overwritten with its own values
+	 * plus those of <b>source</b>.
+	 * @param source Type of array to use in incrementing <b>destination</b>.
+	 * The values of this array are preserved in this method.
+	 */
 	public void addArrayToArray(ArrayType destination, ArrayType source)
 	{
 		Array.addEquals(this._array.get(destination), this._array.get(source));
 	}
-	
-	/*************************************************************************
-	 * LOCATION GETTERS
-	 ************************************************************************/
+
+	/* ***********************************************************************
+	 * 							VOXEL GETTERS & SETTERS
+	 * ***********************************************************************/
 	
 	/**
+	 * \brief Gets the value of one coordinate on the given array type.
 	 * 
-	 * @param name
-	 * @param location
-	 * @return
+	 * @param type Type of array to get from.
+	 * @param coord Coordinate on this array to get.
+	 * @return double value at this coordinate on this array.
 	 */
-	public double getValueAt(ArrayType type, double[] location)
+	public double getValueAt(ArrayType type, int[] coord)
 	{
-		return this.getValueAt(type, this._shape.getCoords(location));
+		Log.out(GET_VALUE_LEVEL, "Trying to get value at coordinate "
+				+ Vector.toString(coord) + " in "+ type);
+		if ( this._array.containsKey(type) )
+		{
+			Log.out(GET_VALUE_LEVEL, "   returning " 
+					+ this._array.get(type)[coord[0]][coord[1]][coord[2]]);
+			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
+		}
+		else
+		{
+			//TODO: safety?
+			Log.out(GET_VALUE_LEVEL, "   returning " + Double.NaN);
+			return Double.NaN;
+		}
 	}
-		
+	
 	/**
-	 * \brief Get the value of the given array in the 
+	 * \brief Sets the value of one voxel on the given array type.
 	 * 
-	 * @param type
-	 * @return
+	 * @param type Type of array to set in.
+	 * @param coord Coordinate of the voxel.
+	 * @param value New value for the voxel.
+	 */
+	public void setValueAt(ArrayType type, int[] coord, double value)
+	{
+		Log.out(SET_VALUE_LEVEL, "Trying to set value at coordinate "
+				+ Vector.toString(coord) + " in "+ type + " to "+value);
+		this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
+	}
+	
+	/**
+	 * \brief Increases the value of one voxel on the given array type.
+	 * 
+	 * @param type Type of array to set in.
+	 * @param coord Coordinate of the voxel.
+	 * @param value Value to increase the voxel's current value by.
+	 */
+	public void addValueAt(ArrayType type, int[] coord, double value)
+	{
+		Log.out(SET_VALUE_LEVEL, "Trying to add " + value + " at coordinate "
+				+ Vector.toString(coord) + " in "+ type);
+		this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
+	}
+	
+	/**
+	 * \brief Multiplies the value of one voxel on the given array type.
+	 * 
+	 * @param type Type of array to set in.
+	 * @param coord Coordinate of the voxel.
+	 * @param value Value to multiply the voxel's current value by.
+	 */
+	public void timesValueAt(ArrayType type, int[] coord, double value)
+	{
+		Log.out(SET_VALUE_LEVEL, "Trying to multiply with " + value 
+				+ " at coordinate "+ Vector.toString(coord) + " in "+ type);
+		this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
+	}
+	
+	/* ***********************************************************************
+	 * 							ITERATION
+	 * ***********************************************************************/
+	
+	/**
+	 * \brief Get the value of the given array where the current iterator voxel
+	 * is.
+	 * 
+	 * @param type Type of array to get from.
+	 * @return {@code double} value voxel.
 	 */
 	public double getValueAtCurrent(ArrayType type)
 	{
 		return this.getValueAt(type, this._shape.iteratorCurrent());
 	}
-	
+
 	/**
-	 * \brief TODO
+	 * \brief Set the value at the voxel where the iterator is currently
+	 * located.
 	 * 
-	 * @param type
-	 * @return
-	 */
-	public double getValueAtNhb(ArrayType type)
-	{
-		if (this._shape.isNhbIteratorInside())
-			return this.getValueAt(type, this._shape.nbhIteratorCurrent());
-		else
-			throw new IndexOutOfBoundsException(
-					"tried to get grid value at neighbour"
-							+ Arrays.toString(this._shape.nbhIteratorCurrent())
-							+ " of current coordinate "
-							+ Arrays.toString(this._shape.iteratorCurrent())
-							+ ". But the neighbour is not inside the grid");
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param type
-	 * @param value
+	 * @param type Type of array to set the value for.
+	 * @param value 
 	 */
 	public void setValueAtCurrent(ArrayType type, double value)
 	{
 		this.setValueAt(type, this._shape.iteratorCurrent(), value);
 	}
-			
+
 	/**
+	 * \brief Get the value of the given array where the neighbor iterator
+	 * voxel is.
 	 * 
-	 * TODO safety if neighbor iterator or arrays are not initialised.
-	 * 
-	 * @return
+	 * @param type Type of array to get from.
+	 * @return {@code double} value voxel.
 	 */
-	public double getFluxWithNeighbor(String soluteName)
+	public double getValueAtNhb(ArrayType type)
 	{
-		Shape shape = this._shape;
-		if ( shape.isNhbIteratorInside() )
+		if ( this._shape.isNhbIteratorInside() )
+			return this.getValueAt(type, this._shape.nbhIteratorCurrent());
+		else
 		{
-			/*
-			 * First find the difference in concentration.
-			 */
-			double out = this.getValueAtNhb(ArrayType.CONCN)
+			throw new IndexOutOfBoundsException(
+					"Tried to get grid value at neighbor"
+							+ Vector.toString(this._shape.nbhIteratorCurrent())
+							+ " of current coordinate "
+							+ Vector.toString(this._shape.iteratorCurrent())
+							+ ", but the neighbour is not inside the grid.");
+		}
+	}
+	
+	/**
+	 * \brief Calculate the flux from the neighbor voxel into the current
+	 * iterator voxel (may be negative).
+	 * 
+	 * <p>The flux from the neighboring voxel into the current one is given by
+	 * the formula <i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
+	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
+	 *  * (SA<sub>nhb,itr</sub>) / (d<sub>nhb,itr</sub> * V<sub>itr</sub>)
+	 * </i>
+	 * where subscript <i>itr</i> denotes the current iterator voxel and
+	 * <i>nhb</i> the current neighbor voxel, and
+	 * <ul>
+	 * <li><i>c</i> is voxel concentration</li>
+	 * <li><i>D</i> is voxel diffusivity</li>
+	 * <li><i>SA</i> is shared surface area of two voxels</li>
+	 * <li><i>d</i> is distance between centres of two voxels</li>
+	 * <li><i>V</i> is voxel volume</li>
+	 * </ul>
+	 * Note that we use the harmonic mean diffusivity, rather than the
+	 * arithmetic or geometric.</p>
+	 * 
+	 * TODO Rob [8June2016]: I need to find the reference for this.
+	 * 
+	 * @return Flux from the neighbor voxel into the current iterator voxel.
+	 */
+	// TODO safety if neighbor iterator or arrays are not initialised.
+	public double getFluxFromNeighbor()
+	{
+		Tier level = Tier.BULK;
+		Log.out(level, " finding flux from nhb "+
+				Vector.toString(this._shape.nbhIteratorCurrent())+" to curr "+
+				Vector.toString(this._shape.iteratorCurrent()));
+		if ( this._shape.isNhbIteratorInside() )
+		{
+			/* Difference in concentration. */
+			double concnDiff = this.getValueAtNhb(ArrayType.CONCN)
 					- this.getValueAtCurrent(ArrayType.CONCN);
-			/*
-			 * Then multiply this by the average diffusivity.
-			 */
-			out *= meanDiffusivity(
-				this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
-				this.getValueAtNhb(ArrayType.DIFFUSIVITY));
-			/*
-			 * Finally, multiply by the surface are the two voxels share (in
-			 * square microns).
-			 */
-			// TODO Rob: I need to change this
-			out /= shape.nbhCurrSharedArea();
-			Log.out(GET_FLUX_WITH_NHB_LEVEL, "flux with nbh " 
-					+ Arrays.toString(this._shape.nbhIteratorCurrent())
-					+ " is "+ out);
-			return out;
+			Log.out(level, "    concnDiff is "+concnDiff);
+			/* Average diffusivity. */
+			double diffusivity = ExtraMath.harmonicMean(
+					this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+					this.getValueAtNhb(ArrayType.DIFFUSIVITY));
+			Log.out(level, "    diffusivity is "+diffusivity);
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nbhCurrSharedArea();
+			Log.out(level, "    surface area is "+sArea);
+			/* Centre-centre distance. */
+			double dist = this._shape.nbhCurrDistance();
+			Log.out(level, "    distance is "+dist);
+			/* Volume of the current voxel. */
+			double vol = this._shape.getCurrVoxelVolume();
+			Log.out(level, "    volume is "+vol);
+			/* Calculate the the flux from these values. */
+			double flux = concnDiff * diffusivity * sArea / ( dist * vol );
+			Log.out(level, "  => flux is "+flux);
+			return flux;
+		}
+		else if ( this._shape.isIteratorValid() )
+		{
+			double flux = this._shape.nbhIteratorOutside().getFlux(this);
+			Log.out(level, "  got flux from boundary: "+flux);
+			return flux;
 		}
 		else
 		{
-			/* throws null pointer if the neighbor is invalid */
-			double flux = shape.nbhIteratorOutside()
-							.getGridMethod(soluteName).getBoundaryFlux(this);
-			Log.out(GET_VALUE_LEVEL, "flux with boundary nbh " 
-							+ Arrays.toString(this._shape.nbhIteratorCurrent())
-							+ " is "+flux);
-			return flux;
+			Log.out(Tier.CRITICAL,
+					"Trying to get flux with an invalid neighbor: current "+
+					Vector.toString(this._shape.iteratorCurrent())+
+					", neighbor "+
+					Vector.toString(this._shape.nbhIteratorCurrent()));
+			return Double.NaN;
 		}
 	}
+
+	/* ***********************************************************************
+	 * 							LOCATION GETTERS
+	 * ***********************************************************************/
 	
-	private static double meanDiffusivity(double a, double b)
+	/**
+	 * \brief  Gets the value of one voxel on the given array type.
+	 * 
+	 * @param type Type of array required.
+	 * @param location Vector of position in continuous space.
+	 * @return Value of the given <b>type</b> in the voxel containing
+	 * <b>location</b>.
+	 */
+	public double getValueAt(ArrayType type, double[] location)
 	{
-		if ( a == 0.0 || b == 0.0 )
-			return 0.0;
-		if ( a == Double.POSITIVE_INFINITY )
-			return b;
-		if ( b == Double.POSITIVE_INFINITY )
-			return a;
-		/*
-		 * This is a computationally nicer way of getting the harmonic mean:
-		 * 2 / ( (1/a) + (1/b))
-		 */
-		return 2.0 * ( a * b ) / ( a + b );
+		return this.getValueAt(type, this._shape.getCoords(location));
 	}
 	
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
+	/* ***********************************************************************
+	 * 							REPORTING
+	 * ***********************************************************************/
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param row
+	 * @param buffer
+	 */
 	public void rowToBuffer(double[] row, StringBuffer buffer)
 	{
 		for ( int i = 0; i < row.length - 1; i++ )
@@ -502,6 +562,12 @@ public class SpatialGrid implements NodeConstructor
 		buffer.append(row[row.length-1]);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param matrix
+	 * @param buffer
+	 */
 	public void matrixToBuffer(double[][] matrix, StringBuffer buffer)
 	{
 		for ( int i = 0; i < matrix.length - 1; i++ )
@@ -517,6 +583,12 @@ public class SpatialGrid implements NodeConstructor
 		rowToBuffer(matrix[matrix.length - 1], buffer);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @return
+	 */
 	public StringBuffer arrayAsBuffer(ArrayType type)
 	{
 		StringBuffer out = new StringBuffer();
@@ -524,6 +596,8 @@ public class SpatialGrid implements NodeConstructor
 		for ( int i = 0; i < array.length - 1; i++ )
 		{
 			matrixToBuffer(array[i], out);
+			// NOTE Rob [16June2016]: Consider always appending \n, as this can
+			// be confusing in polar shapes.
 			if ( array[i].length == 1 )
 				out.append(", ");
 			else
@@ -533,13 +607,25 @@ public class SpatialGrid implements NodeConstructor
 		return out;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param type
+	 * @return
+	 */
+	// TODO explain why this is different to linearAlgebra.Array.toString()
 	public String arrayAsText(ArrayType type)
 	{
 		return this.arrayAsBuffer(type).toString();
 	}
+	
+	/* ***********************************************************************
+	 * 							MODEL NODES
+	 * ***********************************************************************/
 
 	@Override
-	public ModelNode getNode() {
+	public ModelNode getNode()
+	{
 		ModelNode modelNode = new ModelNode(XmlRef.solute, this);
 		modelNode.requirement = Requirements.ZERO_TO_FEW;
 		
@@ -550,31 +636,36 @@ public class SpatialGrid implements NodeConstructor
 		
 		modelNode.add(new ModelAttribute(XmlRef.concentration, 
 //				arrayAsText(ArrayType.CONCN), null, true ));
-				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)), null, true ));
+				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)),
+				null, true));
 		
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node) {
+	public void setNode(ModelNode node)
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public NodeConstructor newBlank() {
+	public NodeConstructor newBlank()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(NodeConstructor childObject)
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public String defaultXmlTag() {
+	public String defaultXmlTag()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}

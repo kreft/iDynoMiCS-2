@@ -4,8 +4,8 @@
 package expression;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
-import java.util.List;
 
 /**
  * \brief A component of a mathematical expression composed of two or more
@@ -104,7 +104,7 @@ public abstract class ComponentMultiple extends Component
 	}
 	
 	@Override
-	public void appendVariablesNames(List<String> names)
+	public void appendVariablesNames(Collection<String> names)
 	{
 		for ( Component c : this._components )
 			c.appendVariablesNames(names);
