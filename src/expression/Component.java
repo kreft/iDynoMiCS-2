@@ -79,6 +79,8 @@ public abstract class Component
 	
 	/**
 	 * \brief Change the sign of this mathematical expression.
+	 * FIXME using this method does not seem to make the component negative
+	 * it only sets this boolean
 	 */
 	public void changeSign()
 	{

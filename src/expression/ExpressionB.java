@@ -60,6 +60,11 @@ public class ExpressionB extends Component implements NodeConstructor
 	protected String _expression;
 	
 	/**
+	 * Unit
+	 */
+	protected Unit _unit;
+	
+	/**
 	 * Recognized operators, in order of evaluation TODO: currently hashtagging
 	 * stuff that is likely to be in a variable or constant, discuss consider
 	 * other indicator
@@ -122,18 +127,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	 */
 	public ExpressionB(String expression, Map<String, Double> constants)
 	{
-		Log.out(LOG_LEVEL, "Making an expression from \""+expression+"\"");
-		/* Remove all whitespace. */
-		this._expression = expression.replaceAll("\\s+","");
-		/* Create the constants map if it was not given. */
-		if ( constants == null )
-			constants = new HashMap<String, Double>();
-		Log.out(LOG_LEVEL, "  Constants defined:");
-		for ( String key : constants.keySet() )
-			Log.out(LOG_LEVEL, "  -> "+key+" = "+constants.get(key));
-		this._constants = constants;
-		/* Build the component. */
-		this.build();
+		init(expression, constants);
 	}
 	
 	/**
@@ -145,7 +139,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	 */
 	public ExpressionB(String expression)
 	{
-		this(expression, null);
+		init(expression, null);
 	}
 	
 	/**
@@ -167,10 +161,45 @@ public class ExpressionB extends Component implements NodeConstructor
 					XmlRef.valueAttribute)));
 		}
 				
-		this._expression = XmlHandler.obtainAttribute(elem, 
-				XmlRef.valueAttribute).replaceAll("\\s+","");
-		this._constants = constantsMap;
+		init( XmlHandler.obtainAttribute(elem, XmlRef.valueAttribute), 
+				constantsMap);
+	}
+	
+	public void init(String expression, Map<String, Double> constants)
+	{
+		Log.out(LOG_LEVEL, "Making an expression from \""+expression+"\"");
+		
+		/* check for units */
+		String[] split = expression.replace("[", "TEMPSPLITMARKER").split("TEMPSPLITMARKER");
+		if ( split.length > 1 )
+		{
+			this._unit = new Unit(split[1]);
+			expression = split[0];
+		}
+		/* Remove all whitespace. */
+		this._expression = expression.replaceAll("\\s+","");
+		/* Create the constants map if it was not given. */
+		if ( constants == null )
+			constants = new HashMap<String, Double>();
+		Log.out(LOG_LEVEL, "  Constants defined:");
+		for ( String key : constants.keySet() )
+			Log.out(LOG_LEVEL, "  -> "+key+" = "+constants.get(key));
+		this._constants = constants;
+		/* Build the component. */
 		this.build();
+
+		
+		if (this._unit != null)
+		{
+			this._a = new Multiplication(
+					new Constant( "unit modifier", this._unit.modifier() ), 
+					_a);
+		}
+	}
+	
+	public Unit getUnit()
+	{
+		return this._unit;
 	}
 	
 	/*************************************************************************
@@ -569,31 +598,29 @@ public class ExpressionB extends Component implements NodeConstructor
 		case ("*"): 
 			return Expression.multiply(calc.get(prev),calc.get(next));
 		case ("*-"): 
-			calc.get(next).changeSign();
-			return Expression.multiply(calc.get(prev),calc.get(next));
+			
+			return Expression.multiply(calc.get(prev),flipSign(calc.get(next)));
 		case ("/"): 
 			return Expression.divide(calc.get(prev),calc.get(next));
 		case ("/-"): 
-			calc.get(next).changeSign();
-			return Expression.divide(calc.get(prev),calc.get(next));
+			return Expression.divide(calc.get(prev),flipSign(calc.get(next)));
 		case ("-"): 
+			// TODO here we should really just change the sign of next
+			// Bas [16.06.16] component.changeSign does not seem to work
 			if (prev >= 0 )
 				return new Subtraction( calc.get(prev), calc.get(next));
 			else
 			{
-				calc.get(next).changeSign();
-				return calc.get(next);
+				return flipSign(calc.get(next));
 			}
 		case ("^"): 
 			return new Power(calc.get(prev), calc.get(next));
 		case ("^-"): 
-			calc.get(next).changeSign();
-			return new Power(calc.get(prev), calc.get(next));
+			return new Power(calc.get(prev), flipSign(calc.get(next)));
 		case ("SQRT"): 
 			return new Power(calc.get(next), new Constant("0.5",0.5));
 		case ("SQRT-"): 
-			calc.get(next).changeSign();
-			return new Power(calc.get(next), new Constant("0.5",0.5));
+			return new Power(flipSign(calc.get(next)), new Constant("0.5",0.5));
 		case ("#e"): 
 			return Expression.euler();
 		case ("#PI"): 
@@ -602,12 +629,16 @@ public class ExpressionB extends Component implements NodeConstructor
 			return new Multiplication(calc.get(prev), 
 				new Power(Expression.ten(), calc.get(next)));
 		case ("EXP-"): 
-			calc.get(next).changeSign();
 			return new Multiplication(calc.get(prev), 
-				new Power(Expression.ten(), calc.get(next)));
+				new Power(Expression.ten(), flipSign(calc.get(next))));
 		}
 		System.err.println("ERROR: could not construnct component!");
 		return new Constant("ERROR!",1.0);
+	}
+	
+	private static Component flipSign(Component component)
+	{
+		return new Multiplication(component, new Constant("-",-1.0));
 	}
 	
 	/**

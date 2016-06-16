@@ -295,9 +295,110 @@ public class Unit {
 		 */
 			case "C" :
 				this.mutation( SI.K, update );
+				break;
 			case "F" :
 				this.mutation( SI.K, update );
 				this.modifier /= Math.pow( 1.8, power );
+				break;
+		
+		///////////////////////////////////////////////////////////////////////
+		// Derived units
+		///////////////////////////////////////////////////////////////////////
+		
+		/*
+		 * Force
+		 */
+			case "N" :
+				this.mutation( SI.kg, update );
+				this.mutation( SI.m, update );
+				this.mutation( SI.s, -(2 * update) );
+				break;
+			case "mN" :
+				this.update("N", update);
+				this.modifier *= Math.pow( 0.001, power );
+				break;
+			case "µN" :
+				this.update("N", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
+			case "nN" :
+				this.update("N", update);
+				this.modifier *= Math.pow( 1.0e-9, power );
+				break;
+			case "pN" :
+				this.update("N", update);
+				this.modifier *= Math.pow( 1.0e-12, power );
+				break;
+			case "fN" :
+				this.update("N", update);
+				this.modifier *= Math.pow( 1.0e-15, power );
+				break;
+			/*
+			 * Energy
+			 */
+			case "J" :
+				this.mutation( SI.kg, update );
+				this.mutation( SI.m, (2 * update ) );
+				this.mutation( SI.s, -(2 * update) );
+				break;
+			case "mJ" :
+				this.update("J", update);
+				this.modifier *= Math.pow( 0.001, power );
+				break;
+			case "µJ" :
+				this.update("J", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
+			case "nJ" :
+				this.update("J", update);
+				this.modifier *= Math.pow( 1.0e-9, power );
+				break;
+			case "pJ" :
+				this.update("J", update);
+				this.modifier *= Math.pow( 1.0e-12, power );
+				break;
+			case "fJ" :
+				this.update("J", update);
+				this.modifier *= Math.pow( 1.0e-15, power );
+				break;
+			case "cal" :
+				this.update("J", update);
+				this.modifier *= 4.184;
+				Log.out(Tier.BULK, "Note: using Thermochemical calorie");
+				break;
+			case "mcal" :
+				this.update("cal", update);
+				this.modifier *= Math.pow( 0.001, power );
+				break;
+			case "µcal" :
+				this.update("cal", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
+			case "ncal" :
+				this.update("cal", update);
+				this.modifier *= Math.pow( 1.0e-9, power );
+				break;
+			case "pcal" :
+				this.update("cal", update);
+				this.modifier *= Math.pow( 1.0e-12, power );
+				break;
+			case "fcal" :
+				this.update("cal", update);
+				this.modifier *= Math.pow( 1.0e-15, power );
+				break;
+			case "eV" :
+				this.update("J", update);
+				this.modifier *= 1.60217656535e-19;
+				break;
+			/*
+			 * Power
+			 */
+			case "W" :
+				this.mutation( SI.kg, update );
+				this.mutation( SI.m, (2 * update ) );
+				this.mutation( SI.s, -(3 * update) );
+				break;
+				
 		}
 	}
 }

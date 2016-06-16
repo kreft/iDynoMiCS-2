@@ -35,11 +35,23 @@ public class UnitUnitTest {
 		System.out.println("d = " + unitB.toString());
 		assertTrue("correct unit conversion", unitB.toString().contains("86400") );
 		
-
-		ExpressionB expressiona = new ExpressionB("35.0 * -2.0");
+		ExpressionB expressiona = new ExpressionB("35.0 *-2.0 ");
 		double a = expressiona.getValue();
 
-		System.out.println(a);
+		ExpressionB expressionb = new ExpressionB("35.0 *-2.0 [g·dm-3]");
+		double b = expressionb.getValue();
+
+		System.out.println("no units no conversion " + a+ 
+				" \nUnits, conversion to SI " + b 
+				+ " [" + expressionb.getUnit().unit() + "]");
+		
+		Unit unitC = new Unit();
+		unitC.fromString("N");
+		System.out.println("N = " + unitC.toString());
+		
+		Unit unitD = new Unit();
+		unitD.fromString("mN");
+		System.out.println("mN = " + unitD.toString());
 	}
 	
 }
