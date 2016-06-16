@@ -1,5 +1,6 @@
 package utility;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -333,6 +334,22 @@ public class Helper
 	 * @return
 	 */
 	public static String[] setToArray(Set<String> all) {
+		String[] out = new String[all.size()];
+		int i =0;
+		for (String s : all)
+		{
+			out[i] = s;
+			i++;
+		}
+		return out;
+	}
+	
+	/**
+	 * Convert a java Set of strings to a String array
+	 * @param all
+	 * @return
+	 */
+	public static String[] collectionToArray(Collection<String> all) {
 		String[] out = new String[all.size()];
 		int i =0;
 		for (String s : all)

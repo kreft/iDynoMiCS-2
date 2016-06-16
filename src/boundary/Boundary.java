@@ -10,6 +10,7 @@ import org.w3c.dom.Node;
 import agent.Agent;
 import dataIO.Log;
 import dataIO.XmlRef;
+import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;

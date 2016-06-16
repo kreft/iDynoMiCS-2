@@ -134,7 +134,7 @@ public class PdeTest
 		 */
 		SolveDiffusionTransient pm = new SolveDiffusionTransient();
 		pm.setName("DR solver");
-		pm.init(new String[]{soluteName});
+		pm.init();
 		pm.setTimeForNextStep(0.0);
 		pm.setTimeStepSize(tStep);
 		pm.setPriority(1);

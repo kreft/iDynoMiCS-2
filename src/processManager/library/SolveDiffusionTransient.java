@@ -120,7 +120,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	public void init()
 	{
 		this._soluteNames = (String[]) this.getOr(SOLUTES, 
-				Helper.setToArray(this._compartment.environment.getSoluteNames()));
+				Helper.collectionToArray(this._compartment.environment.getSoluteNames()));
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
