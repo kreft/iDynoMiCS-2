@@ -639,7 +639,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	
 	private static Component flipSign(Component component)
 	{
-		return new Multiplication(component, new Constant("-",-1.0));
+		return new Multiplication(component, new Constant("-1",-1.0));
 	}
 	
 	/**

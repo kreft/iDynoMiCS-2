@@ -58,6 +58,8 @@ public class ExcreteEPS extends Event
 		/*
 		 * Vary this number randomly by about 10%
 		 */
+		// TODO this should probably be set when the agent has its max EPS		
+		// value set, to avoid timestep size artifacts
 		double epsBlob = ExtraMath.deviateFromCV(maxEPS, 0.1);
 		/*
 		 * Find out how much EPS the agent has.

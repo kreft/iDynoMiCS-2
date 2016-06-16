@@ -4,8 +4,6 @@ import java.util.HashMap;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
-
 /**
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
@@ -221,14 +219,17 @@ public class Unit {
 		 * Time
 		 */
 			case "min" :
+			case "minute" :
 				this.mutation( SI.s, update );
 				this.modifier *= Math.pow( 60.0, power );
 				break;
 			case "h" :
+			case "hour" :
 				this.mutation( SI.s, update );
 				this.modifier *= Math.pow( 3600.0, power );
 				break;
 			case "d" :
+			case "day" :
 				this.mutation( SI.s, update );
 				this.modifier *= Math.pow( 3600.0*24.0, power );
 				break;
@@ -300,10 +301,61 @@ public class Unit {
 				this.mutation( SI.K, update );
 				this.modifier /= Math.pow( 1.8, power );
 				break;
+		/*
+		 * Amount of substance
+		 */
+			case "mmol" :
+				this.mutation( SI.mol, update );
+				this.modifier *= Math.pow( 0.001, power );
+				break;
+			case "µmol" :
+				this.mutation( SI.mol, update );
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
+			case "nmol" :
+				this.mutation( SI.mol, update );
+				this.modifier *= Math.pow( 1.0e-9, power );
+				break;
+			case "pmol" :
+				this.mutation( SI.mol, update );
+				this.modifier *= Math.pow( 1.0e-12, power );
+				break;
+			case "fmol" :
+				this.mutation( SI.mol, update );
+				this.modifier *= Math.pow( 1.0e-15, power );
+				break;
 		
 		///////////////////////////////////////////////////////////////////////
 		// Derived units
 		///////////////////////////////////////////////////////////////////////
+				
+		/*
+		 * Volume
+		 */
+			case "l" :
+				this.mutation( SI.m, (3 * update ));
+				this.modifier *= Math.pow( 0.001, power );
+				break;
+			case "ml" :
+				this.update("l", update);
+				this.modifier *= Math.pow( 0.001, power );
+				break;
+			case "µl" :
+				this.update("l", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
+			case "nl" :
+				this.update("l", update);
+				this.modifier *= Math.pow( 1.0e-9, power );
+				break;
+			case "pl" :
+				this.update("l", update);
+				this.modifier *= Math.pow( 1.0e-12, power );
+				break;
+			case "fl" :
+				this.update("l", update);
+				this.modifier *= Math.pow( 1.0e-15, power );
+				break;	
 		
 		/*
 		 * Force
@@ -397,6 +449,26 @@ public class Unit {
 				this.mutation( SI.kg, update );
 				this.mutation( SI.m, (2 * update ) );
 				this.mutation( SI.s, -(3 * update) );
+				break;
+			case "mW" :
+				this.update("W", update);
+				this.modifier *= Math.pow( 0.001, power );
+				break;
+			case "µW" :
+				this.update("W", update);
+				this.modifier *= Math.pow( 1.0e-6, power );
+				break;
+			case "nW" :
+				this.update("W", update);
+				this.modifier *= Math.pow( 1.0e-9, power );
+				break;
+			case "pW" :
+				this.update("W", update);
+				this.modifier *= Math.pow( 1.0e-12, power );
+				break;
+			case "fW" :
+				this.update("W", update);
+				this.modifier *= Math.pow( 1.0e-15, power );
 				break;
 				
 		}
