@@ -1624,20 +1624,35 @@ public abstract class Shape implements
 		Tier level = Tier.BULK;
 		Log.out(level, "  calculating distance between voxels "+
 				Vector.toString(this._currentCoord)+" and "+
-				Vector.toString(this._currentNeighbor));
+				Vector.toString(this._currentNeighbor)+
+				" along dimension "+this._nhbDimName);
 		int i = this.getDimensionIndex(this._nhbDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
 		double out = rC.getResolution(this._currentCoord[i]);
+		/* 
+		 * If the neighbor is inside the array, use the mean resolution.
+		 * 
+		 * If the neighbor is on a defined boundary, use the current coord's
+		 * resolution.
+		 */
 		if ( this.isNhbIteratorInside() )
 		{
-			/* If the neighbor is inside the array, use the mean resolution. */
+			
 			out += rC.getResolution(this._currentNeighbor[i]);
-			return 0.5 * out;
+			out *= 0.5;
 		}
 		if ( this.isNbhIteratorValid() )
 		{
-			/* If the neighbor is on a defined boundary, use the current 
-				coord's resolution. */
+			/* If the dimension is angular, find the arc length. */
+			if ( this._nhbDimName.isAngular() )
+			{
+				int rIndex = this.getDimensionIndex(R);
+				ResCalc rCA = this.getResolutionCalculator(
+						this._currentCoord, rIndex);
+				double radius = rCA.getPosition(this._currentCoord[rIndex],0.5);
+				Log.out(level, "   radius is "+radius);
+				out *= radius;
+			}
 			Log.out(level, "    distance is "+out);
 			return out;
 		}

@@ -137,6 +137,12 @@ public abstract class CylindricalShape extends PolarShape
 	@Override
 	protected ResCalc getResolutionCalculator(int[] coord, int dim)
 	{
+		/* 
+		 * If this is the radial dimension (0) or the z dimension (2),
+		 * always use the first.
+		 * 
+		 * If it is the theta dimension (1), use the r-index.
+		 */
 		int index = 0;
 		if ( dim == 1 )
 		{

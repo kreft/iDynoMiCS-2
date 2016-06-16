@@ -84,23 +84,26 @@ public abstract class PolarShape extends Shape
 	private double meanNbhCurrRadius()
 	{
 		/* 
-		 * the average radius is the origin radius of the current coordinate if 
+		 * The average radius is the origin radius of the current coordinate if 
 		 * the neighbor's direction is towards negative.
 		 * If the direction is positive, the average radius is the upper
 		 * radius of the current coordinate.
 		 */
 		int i = this.getDimensionIndex(R);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
-		if (this.isNhbIteratorInside()){
+		if ( this.isNhbIteratorInside() )
+		{
 			if (this._currentCoord[i] > this._currentNeighbor[i])
 				return rC.getCumulativeResolution(this._currentCoord[i] - 1);
 			if (this._currentCoord[i] == this._currentNeighbor[i])
 				return rC.getPosition(this._currentCoord[i], 0.5);
 		}
-		if (this.isNbhIteratorValid())
+		if ( this.isNbhIteratorValid() )
+		{
 			/* If the neighbor is inside with same radius as the current coord 
 			 * or on a defined boundary, return the current coordinates radius*/
 			return rC.getCumulativeResolution(this._currentCoord[i]);
+		}
 		/* If the neighbor is on an undefined boundary, return NaN radius
 		(this should never happen!) */
 		return Double.NaN;

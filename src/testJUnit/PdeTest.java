@@ -30,7 +30,7 @@ import utility.ExtraMath;
  */
 public class PdeTest
 {
-	@Test
+	//@Test
 	public void checkMassBalanceWithoutReactions()
 	{
 		/*
