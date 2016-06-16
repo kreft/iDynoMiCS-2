@@ -126,7 +126,6 @@ public class FileHandler
 		try
 		{
 			File f = new File(file);
-			f.delete();
 			FileWriter fstream = new FileWriter(f, true);
 			this._output = new BufferedWriter(fstream);
 		}
@@ -134,6 +133,16 @@ public class FileHandler
 		{
 			Log.printToScreen(e.toString(), false);
 		}
+	}
+	
+	/**
+	 * delete file specified by string
+	 * @param file
+	 */
+	public void fdelete(String file)
+	{
+		File f = new File(file);
+		f.delete();
 	}
 	
 	/**
@@ -163,6 +172,7 @@ public class FileHandler
 		catch (IOException e)
 		{
 			Log.printToScreen(e.toString(), false);
+			Log.printToScreen("skipped line: " + line, false);
 		}
 	}
 	
