@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import agent.Agent;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 
 /**
@@ -26,14 +24,13 @@ public class AgentIntroduction extends ProcessManager
 	// TODO reading in agents
 	
 	@Override
-	protected void internalStep(
-			EnvironmentContainer environment, AgentContainer agents)
+	protected void internalStep()
 	{
 		/*
 		 * Put all the agents into the compartment.
 		 */
 		for ( Agent agent : this._agentsToIntroduce )
-			agents.addAgent(agent);
+			this._agents.addAgent(agent);
 		/*
 		 * Remove them from our list.
 		 */

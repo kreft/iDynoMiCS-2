@@ -33,9 +33,10 @@ public class WriteXmlOutput extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, 
+			EnvironmentContainer environment, AgentContainer agents)
 	{
-		super.init(xmlElem);
+		super.init(xmlElem, environment, agents);
 		this._prefix = this.getString(FILE_PREFIX);
 	}
 	
@@ -44,8 +45,7 @@ public class WriteXmlOutput extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
-														AgentContainer agents)
+	protected void internalStep()
 	{
 		/* Initiate new file. */
 		this._xmlExport.newXml(this._prefix);
