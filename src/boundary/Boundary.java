@@ -55,11 +55,11 @@ public abstract class Boundary implements NodeConstructor
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
-	protected static final Tier SOLUTE_LEVEL = Tier.DEBUG;
+	protected static final Tier SOLUTE_LEVEL = Tier.BULK;
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
-	protected static final Tier AGENT_LEVEL = Tier.DEBUG;
+	protected static final Tier AGENT_LEVEL = Tier.BULK;
 
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS

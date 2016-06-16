@@ -48,6 +48,7 @@ public class ChemostatsTest
 		chemo.setShape(shape);
 		chemo.environment.addSolute(soluteName);
 		SolveChemostat p1 = new SolveChemostat();
+		p1.setName("SolveChemostat");
 		p1.init(new String[]{soluteName});
 		p1.setTimeStepSize(tStep);
 		chemo.addProcessManager(p1);
