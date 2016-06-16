@@ -114,7 +114,7 @@ public class SolveChemostat extends ProcessManager
 	
 	public void init(String [] soluteNames)
 	{
-		this._soluteNames = this.getStringA(SOLUTE_NAMES);
+		this._soluteNames = soluteNames;
 		/*
 		 * Initialise the solver.
 		 */

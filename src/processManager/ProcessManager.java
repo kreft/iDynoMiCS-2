@@ -122,6 +122,14 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		return _aspectRegistry;
 	}
 	
+//	/**
+//	 * Set or update the compartment
+//	 */
+//	public void setCompartment(Compartment compartment)
+//	{
+//		this._compartment = compartment;
+//	}
+	
 	/**
 	 * \brief Get this {@code ProcessManager}'s name.
 	 * 

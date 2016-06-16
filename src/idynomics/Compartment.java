@@ -296,6 +296,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	 */
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
+//		aProcessManager.setCompartment(this);
 		this._processes.add(aProcessManager);
 		// TODO Rob [18Apr2016]: Check if the process's next time step is 
 		// earlier than the current time.
