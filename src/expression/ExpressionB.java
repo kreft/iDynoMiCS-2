@@ -413,7 +413,7 @@ public class ExpressionB extends Component implements NodeConstructor
 				Log.out(LOG_LEVEL, "    found "+locations.size()+" of "+oper);
 			operLoc.putAll( locations );
 			for (int l : locations.keySet())
-				equation = cutString(equation, l, oper.length());
+				equation = cutString(equation, l-start, oper.length());
 		}
 		if ( ! absents.isEmpty() )
 		{

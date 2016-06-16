@@ -43,6 +43,7 @@ public class SolveChemostat extends ProcessManager
 	public static String HMAX = AspectRef.solverhMax;
 	public static String TOLERANCE = AspectRef.solverTolerance;
 	public static String REACTIONS = AspectRef.agentReactions;
+	public String SOLUTES = AspectRef.soluteNames;
 	
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
@@ -103,6 +104,15 @@ public class SolveChemostat extends ProcessManager
 	 * 
 	 */
 	public void init()
+	{
+		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(
+				this._compartment.environment.getSoluteNames()));
+
+		init(soluteNames);
+	}
+	
+	public void init(String [] soluteNames)
 	{
 		this._soluteNames = this.getStringA(SOLUTE_NAMES);
 		/*

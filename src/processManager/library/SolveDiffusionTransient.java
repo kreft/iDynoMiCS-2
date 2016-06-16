@@ -95,6 +95,9 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	private Compartment _compartment;
 	
+	/**
+	 * TODO
+	 */
 	public String SOLUTES = AspectRef.soluteNames;
 
 	
@@ -119,8 +122,16 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	public void init()
 	{
-		this._soluteNames = (String[]) this.getOr(SOLUTES, 
-				Helper.collectionToArray(this._compartment.environment.getSoluteNames()));
+		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(
+				this._compartment.environment.getSoluteNames()));
+
+		init( soluteNames );
+	}
+	
+	public void init( String[] soluteNames )
+	{
+		this._soluteNames = soluteNames;
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
