@@ -3,7 +3,7 @@
  */
 package grid.wellmixedSetter;
 
-import static grid.SpatialGrid.ArrayType.WELLMIXED;
+import static grid.ArrayType.WELLMIXED;
 
 import java.util.List;
 

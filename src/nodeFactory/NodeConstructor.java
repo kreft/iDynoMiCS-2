@@ -1,12 +1,12 @@
 package nodeFactory;
 
 /**
+ * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
- *
  */
-public interface NodeConstructor {
-	
+public interface NodeConstructor
+{
 	/**
 	 * Get the ModelNode object for this NodeConstructor object
 	 * @return
@@ -14,47 +14,51 @@ public interface NodeConstructor {
 	public ModelNode getNode();
 	
 	/**
-	 * Load and interpret the values of the given ModelNode to this 
-	 * NodeConstructor object
+	 * \brief Load and interpret the values of the given ModelNode to this 
+	 * NodeConstructor object.
+	 * 
+	 * <p>Updates any values that are newly set or modified.</p>
+	 * 
 	 * @param node
 	 */
 	public void setNode(ModelNode node);
 	
 	/**
 	 * Create a new minimal object of this class and return it
-	 * TODO: we may want to merge this with the xmlable interface
+	 * 
 	 * @return
 	 */
+	//TODO: we may want to merge this with the xmlable interface
 	public NodeConstructor newBlank();
 	
 	/**
-	 * Add a child object that is unable to register itself properly via the
-	 * newBlank call.
+	 * \brief Add a child object that is unable to register itself properly via
+	 * the newBlank call.
+	 * 
+	 * <p>This is likely called by the GUI.</p>
+	 * 
 	 * @param childObject
 	 */
 	public default void addChildObject(NodeConstructor childObject)
 	{
 		/* 
-		 * the default is do nothing since if possible the object should
-		 * register itself
+		 * The default is do nothing since if possible the object should
+		 * register itself.
 		 */
 	}
 
 	/**
-	 * return the default XMLtag for the XML node of this object
-	 * TODO: we may want to merge this with the xmlable interface
-	 * @return
+	 * @return Default XML tag for the XML node of this object.
 	 */
+	//TODO: we may want to merge this with the xmlable interface
 	public String defaultXmlTag();
 	
 	
 	/**
-	 * Return self in xml format
-	 * @return
+	 * @return Description of this object's current state, in XML format.
 	 */
 	public default String getXml()
 	{
 		return this.getNode().getXML();
 	}
-
 }

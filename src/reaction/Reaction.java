@@ -1,8 +1,7 @@
-
 package reaction;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,7 +20,14 @@ import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 
 /**
- * \brief TODO
+ * \brief The reaction class handles the chemical conversions of various
+ * different molecule types, which may be present in the environment or owned
+ * by agents.
+ * 
+ * <p>The core concepts are <i>rate</i> and <i>stoichiometry</i>. Rate
+ * determines how many reaction events happen per unit time. Stoichiometry
+ * determines how much of each reactant is produced (positive) or consumed
+ * (negative) in each single reaction event.</p>
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
@@ -29,45 +35,37 @@ import nodeFactory.NodeConstructor;
 public class Reaction implements Instantiatable, Copyable, NodeConstructor
 {
 	/**
+	 * The name of this reaction. This is particularly useful for writing
+	 * reaction rate to a grid as output.
+	 */
+	protected String _name;
+	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private HashMap<String,Double> _stoichiometry = 
-												new HashMap<String,Double>();
+	private Map<String,Double> _stoichiometry = new HashMap<String,Double>();
 	/**
 	 * The mathematical expression describing the rate at which this reaction
 	 * proceeds.
 	 */
 	private Component _kinetic;
-	
 	/**
 	 * Dictionary of mathematical expressions describing the differentiation
 	 * of {@code this._kinetic} with respect to variables, whose names are
 	 * stored as {@code Strings}.
 	 */
+	// TODO consider deletion
 	private HashMap<String, Component> _diffKinetics;
 	
-	/**
-	 * reaction name
-	 * NOTE Bas: if you indeed would like agents to write reactions to a grid
-	 * they can only do so if they can refer to it by a name
-	 */
-	public String _name;
-	
-	/**
-	 * TODO
-	 */
-	public List<String> variableNames;
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Construct a reaction from an XML node;
 	 * 
-	 * @param xmlNode
+	 * @param xmlNode XMl node from a protocol file.
 	 */
 	public Reaction(Node xmlNode)
 	{
@@ -84,13 +82,14 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * consumed).
 	 * @param kinetic {@code Component} describing the rate at which this
 	 * reaction proceeds.
+	 * @param name Name of the reaction.
 	 */
-	public Reaction(Map<String, Double> stoichiometry, Component kinetic, String name)
+	public Reaction(
+			Map<String,Double> stoichiometry, Component kinetic, String name)
 	{
 		this._name = name;
 		this._stoichiometry.putAll(stoichiometry);
 		this._kinetic = kinetic;
-		this.variableNames = this._kinetic.getAllVariablesNames();
 	}
 	
 	/**
@@ -102,8 +101,10 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * consumed).
 	 * @param kinetic {@code String} describing the rate at which this reaction
 	 * proceeds.
+	 * @param name Name of the reaction.
 	 */
-	public Reaction(Map<String, Double> stoichiometry, String kinetic, String name)
+	public Reaction(
+			Map<String, Double> stoichiometry, String kinetic, String name)
 	{
 		this(stoichiometry, new ExpressionB(kinetic), name);
 	}
@@ -118,6 +119,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * consumed).
 	 * @param kinetic {@code String} describing the rate at which this reaction
 	 * proceeds.
+	 * @param name Name of the reaction.
 	 */
 	public Reaction(String chemSpecies, double stoichiometry, 
 											String kinetic, String name)
@@ -150,25 +152,40 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		 */
 		this._kinetic = new 
 			ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
-		this.variableNames = this._kinetic.getAllVariablesNames();
 	}
 	
 	/**
 	 * Copyable implementation
 	 */
-	public Object copy() {
-		HashMap<String,Double> sto = 
-				new HashMap<String,Double>();
-		for(String key : _stoichiometry.keySet())
-			sto.put(key, (double) ObjectFactory.copy(_stoichiometry.get(key)));
+	public Object copy()
+	{
+		@SuppressWarnings("unchecked")
+		HashMap<String,Double> stoichiometry = (HashMap<String,Double>)
+				ObjectFactory.copy(this._stoichiometry);
 		// NOTE: _kinetic is not copyable, this will become an issue of you
 		// want to do evo addaptation simulations
-		return new Reaction(sto, _kinetic, _name);
+		return new Reaction(stoichiometry, this._kinetic, this._name);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
+	
+	/**
+	 * @return Name of this reaction.
+	 */
+	public String getName()
+	{
+		return this._name;
+	}
+	
+	/**
+	 * @return Names of all variables in the rate of this reaction.
+	 */
+	public Collection<String> getVariableNames()
+	{
+		return this._kinetic.getAllVariablesNames();
+	}
 	
 	/**
 	 * \brief Calculate the reaction rate depending on concentrations.
@@ -205,6 +222,9 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		return 0.0;
 	}
 	
+	/**
+	 * @return This reaction's whole stoichiometric dictionary.
+	 */
 	public Map<String,Double> getStoichiometry()
 	{
 		return this._stoichiometry;
@@ -237,6 +257,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * @param withRespectTo
 	 * @return
 	 */
+	// TODO consider deletion
 	public double getDiffRate(HashMap<String, Double> concentrations, 
 														String withRespectTo)
 	{
@@ -260,9 +281,9 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		return this._diffKinetics.get(withRespectTo).getValue(concentrations);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * XML-ABLE
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * XMLable interface implementation.
@@ -345,9 +366,9 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		return XmlRef.reaction;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * MISCELLANEOUS METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Get a {@code HashMap<String,Double>} initialised with a single

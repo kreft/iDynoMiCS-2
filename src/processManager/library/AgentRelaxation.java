@@ -245,6 +245,7 @@ public class AgentRelaxation extends ProcessManager
 			/*
 			 * Boundary collisions
 			 */
+			// FIXME here we need to selectively apply surface collision methods
 			this._iterator.collision(_shapeSurfs, agentSurfs, 0.0);
 		}
 		Log.out(level, " Finished updating agent forces");
@@ -312,10 +313,8 @@ public class AgentRelaxation extends ProcessManager
 			// time Leaping set the time step to match a max traveling distance
 			// divined by 'maxMovement', for a 'fast' run.
 			if ( this._timeLeap ) 
-			{
 				this._dtMech = this._maxMovement / 
 						( Math.sqrt( this._vSquare ) + 0.001 );
-			}
 
 			// prevent to relaxing longer than the global _timeStepSize
 			if ( this._dtMech > this._timeStepSize - this._tMech )
@@ -357,8 +356,6 @@ public class AgentRelaxation extends ProcessManager
 						point.euStep(this._dtMech, radius);
 				}
 				this._tMech += this._dtMech;
-				if ( this._vSquare < 0.001 )
-					this._tMech = this._timeStepSize;
 				break;
 			}
 				// NOTE : higher order ODE solvers don't like time Leaping.. be careful.

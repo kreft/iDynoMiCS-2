@@ -247,36 +247,36 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	public void step()
 	{
 		/*
-		 * TODO
+		 * Loop through all compartments, updating solute boundaries and asking
+		 * inbound agents to arrive.
 		 */
 		for ( Compartment c : this._compartments )
-			c.agentsArrive();
+			c.preStep();
 		/*
-		 * Loop through all compartments, calling their internal steps. 
+		 * Loop through all compartments, calling their internal steps.
 		 */
 		for ( Compartment c : this._compartments )
 			c.step();
 		/*
 		 * Once this is done loop through all again, this time exchanging
-		 * cells that have tried to cross connected boundaries. 
+		 * agents and solutes that have tried to cross connected boundaries. 
 		 */
 		for ( Compartment c : this._compartments )
-			c.pushAllOutboundAgents();
+			c.postStep();
 		/*
 		 * 
 		 */
 		this.timer.step();
-		
-		/*
-		 * write state to new xml file
+		/* 
+		 * We let the user know when an global step has finished.
 		 */
-		_xmlOut.writeFile();
-		
-		/* we should say something when an iter step is finished */
-		Log.out(Tier.NORMAL, "iter time: " + this.timer.getCurrentTime());
-		
+		Log.out(Tier.NORMAL, "Global time: " + this.timer.getCurrentTime());
 		/*
-		 * reporting agents
+		 * Write state to new XML file.
+		 */
+		this._xmlOut.writeFile();
+		/*
+		 * Reporting agents.
 		 */
 		for (Compartment c : this._compartments)
 		{

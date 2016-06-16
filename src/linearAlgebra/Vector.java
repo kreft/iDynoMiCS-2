@@ -292,6 +292,8 @@ public final class Vector
 	public static void toString(double[] vector, StringBuffer buffer)
 	{
 		int n = vector.length - 1;
+		if ( n < 0 )
+			return;
 		for ( int i = 0; i < n; i++ )
 		{
 			buffer.append(vector[i]);

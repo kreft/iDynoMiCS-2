@@ -4,7 +4,7 @@
 package expression;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -19,6 +19,11 @@ public abstract class Component
 	 * from zero. 
 	 */
 	private boolean _isNegative;
+	/**
+	 * Names of all the variables used in this expression. Storing the names
+	 * saves re-collection them every time they are needed.
+	 */
+	private Collection<String> _varNames = null;
 	
 	/**
 	 * \brief Get the name of this component.
@@ -93,11 +98,14 @@ public abstract class Component
 	 * 
 	 * @return List of names of variables. Order is irrelevant.
 	 */
-	public List<String> getAllVariablesNames()
+	public Collection<String> getAllVariablesNames()
 	{
-		List<String> names = new ArrayList<String>();
-		this.appendVariablesNames(names);
-		return names;
+		if ( this._varNames == null )
+		{
+			this._varNames = new ArrayList<String>();
+			this.appendVariablesNames(this._varNames);
+		}
+		return this._varNames;
 	}
 	
 	/**
@@ -109,5 +117,5 @@ public abstract class Component
 	 * @param names List of names of variables so far found in this
 	 * {@code Component}.
 	 */
-	protected abstract void appendVariablesNames(List<String> names);
+	protected abstract void appendVariablesNames(Collection<String> names);
 }

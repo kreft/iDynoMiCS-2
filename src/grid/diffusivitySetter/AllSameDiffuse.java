@@ -4,7 +4,7 @@
 package grid.diffusivitySetter;
 
 import grid.SpatialGrid;
-import static grid.SpatialGrid.ArrayType.DIFFUSIVITY;
+import static grid.ArrayType.DIFFUSIVITY;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

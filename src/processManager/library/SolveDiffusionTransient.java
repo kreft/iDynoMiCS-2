@@ -3,9 +3,9 @@
  */
 package processManager.library;
 
-import static grid.SpatialGrid.ArrayType.CONCN;
-import static grid.SpatialGrid.ArrayType.DIFFUSIVITY;
-import static grid.SpatialGrid.ArrayType.PRODUCTIONRATE;
+import static grid.ArrayType.CONCN;
+import static grid.ArrayType.DIFFUSIVITY;
+import static grid.ArrayType.PRODUCTIONRATE;
 import static dataIO.Log.Tier.*;
 
 import java.util.Collection;
@@ -16,7 +16,6 @@ import java.util.function.Predicate;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import agent.AgentTools;
 import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -138,6 +137,10 @@ public class SolveDiffusionTransient extends ProcessManager
 		this._diffusivity = new HashMap<String,Double>();
 		for ( String sName : _soluteNames )
 			this._diffusivity.put(sName, 1.0);
+		String msg = "SolveDiffusionTransient responsible for solutes: ";
+		for ( String s : this._soluteNames )
+			msg += s + ", ";
+		Log.out(Tier.EXPRESSIVE, msg);
 	}
 	
 	/*************************************************************************
@@ -152,7 +155,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * Set up the agent mass distribution maps, to ensure that agent
 		 * reactions are spread over voxels appropriately.
 		 */
-		AgentTools.setupAgentDistributionMaps(agents);
+		agents.setupAgentDistributionMaps();
 		/*
 		 * Set up the relevant arrays in each of our solute grids: diffusivity 
 		 * & well-mixed need only be done once each process manager time step,
@@ -202,11 +205,11 @@ public class SolveDiffusionTransient extends ProcessManager
 			 * each mini-timestep.
 			 */
 			@Override
-			public void prestep(HashMap<String, SpatialGrid> variables, 
+			public void prestep(Collection<SpatialGrid> variables, 
 					double dt)
 			{
-				for ( String solute : variables.keySet() )
-					environment.getSoluteGrid(solute).newArray(PRODUCTIONRATE);
+				for ( SpatialGrid var : variables )
+					var.newArray(PRODUCTIONRATE);
 				applyEnvReactions(environment);
 				applyAgentReactions(environment, agents);
 				/* Ask all agents to grow. */
@@ -239,7 +242,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * Construct the "concns" dictionary once, so that we don't have to
 		 * re-enter the solute names for every voxel coordinate.
 		 */
-		Set<String> soluteNames = environment.getSoluteNames();
+		Collection<String> soluteNames = environment.getSoluteNames();
 		HashMap<String,Double> concns = new HashMap<String,Double>();
 		for ( String soluteName : soluteNames )
 			concns.put(soluteName, 0.0);
@@ -351,7 +354,7 @@ public class SolveDiffusionTransient extends ProcessManager
 					 * reaction, and not those that are affected by it.
 					 */
 					concns.clear();
-					for ( String varName : r.variableNames )
+					for ( String varName : r.getVariableNames() )
 					{
 						if ( environment.isSoluteName(varName) )
 						{

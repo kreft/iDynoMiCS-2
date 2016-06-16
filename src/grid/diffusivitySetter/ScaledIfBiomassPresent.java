@@ -9,7 +9,7 @@ import agent.Agent;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import grid.SpatialGrid;
-import static grid.SpatialGrid.ArrayType.DIFFUSIVITY;
+import static grid.ArrayType.DIFFUSIVITY;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import shape.Shape;

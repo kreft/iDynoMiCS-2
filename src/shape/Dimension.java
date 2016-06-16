@@ -4,8 +4,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
-import boundary.Boundary;
+import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
@@ -15,7 +14,6 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import shape.ShapeConventions.BoundaryCyclic;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -74,7 +72,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	/**
 	 * Boundary objects at the minimum (0) and maximum (1).
 	 */
-	private Boundary[] _boundary = new Boundary[2];
+	private SpatialBoundary[] _boundary = new SpatialBoundary[2];
 	
 	/**
 	 * Whether boundaries are required (true) or optional (false) at the
@@ -126,7 +124,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		String str;
 		NodeList extNodes, bndNodes;
 		Element extElem, bndElem;
-		Boundary aBoundary;
+		SpatialBoundary aBoundary;
 		int index = -1;
 		/*
 		 * See if this is cyclic. Assume not if unspecified.
@@ -188,7 +186,8 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			}
 			
 			str = bndElem.getAttribute(XmlRef.classAttribute);
-			aBoundary = (Boundary) Boundary.getNewInstance(str);
+			// FIXME
+			aBoundary = (SpatialBoundary) SpatialBoundary.getNewInstance(str);
 			aBoundary.init(bndElem);
 			this.setBoundary(aBoundary, index);	
 		}
@@ -276,9 +275,6 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	public void setCyclic()
 	{
 		this._isCyclic = true;
-		Boundary b1 = new BoundaryCyclic();
-		Boundary b2 = b1.makePartnerBoundary();
-		this.setBoundaries(b1, b2);
 	}
 	
 	/**
@@ -386,7 +382,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 * @param minBndry {@code Boundary} to set at the minimum extreme.
 	 * @param maxBndry {@code Boundary} to set at the maximum extreme.
 	 */
-	public void setBoundary(Boundary aBoundary, int index)
+	public void setBoundary(SpatialBoundary aBoundary, int index)
 	{
 		if ( this._isCyclic )
 		{
@@ -403,7 +399,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 * @param minBndry {@code Boundary} to set at the minimum extreme.
 	 * @param maxBndry {@code Boundary} to set at the maximum extreme.
 	 */
-	public void setBoundaries(Boundary minBndry, Boundary maxBndry)
+	public void setBoundaries(SpatialBoundary minBndry, SpatialBoundary maxBndry)
 	{
 		this._boundary[0] = minBndry;
 		this._boundary[1] = maxBndry;
@@ -414,7 +410,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 * 
 	 * @return 2-array of {@code Boundary} objects.
 	 */
-	public Boundary[] getBoundaries()
+	public SpatialBoundary[] getBoundaries()
 	{
 		return this._boundary;
 	}
@@ -425,7 +421,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 * @param extreme Which extreme to check: 0 for minimum, 1 for maximum.
 	 * @return The {@code Boundary} at the required extreme.
 	 */
-	public Boundary getBoundary(int extreme)
+	public SpatialBoundary getBoundary(int extreme)
 	{
 		return this._boundary[extreme];
 	}
@@ -524,6 +520,31 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	}
 	
 	/**************************************************************************
+	 * HELPER METHODS
+	 *************************************************************************/
+	
+	/**
+	 * TODO
+	 * @param minMax
+	 * @return
+	 */
+	public static String extremeToString(int minMax)
+	{
+		return minMax == 0 ? "minimum" : "maximum";
+	}
+	
+	/**
+	 * TODO
+	 * @param minMax
+	 * @return
+	 */
+	public static int extremeToInt(String minMax)
+	{
+		return ( minMax.equals("minimum") ) ? 0 : 1;
+			
+	}
+	
+	/**************************************************************************
 	 * PRE-LAUNCH CHECK
 	 *************************************************************************/
 	
@@ -538,16 +559,21 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			}
 			else
 			{
-				if ( ! this._boundary[i].isReadyForLaunch() )
-					return false;
+				// TODO
+				//if ( ! this._boundary[i].isReadyForLaunch() )
+				//	return false;
 			}
 		}
 		return true;
 	}
+	
+	/**************************************************************************
+	 * MODEL NODE
+	 *************************************************************************/
 
 	@Override
-	public ModelNode getNode() {
-		
+	public ModelNode getNode()
+	{
 		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
 		modelNode.requirement = Requirements.ZERO_TO_MANY;
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
@@ -560,37 +586,39 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				String.valueOf(this._extreme[0]), null, false ));
 		modelNode.add(new ModelAttribute(XmlRef.max, 
 				String.valueOf(this._extreme[1]), null, false ));
-
-
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node) {
+	public void setNode(ModelNode node)
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public NodeConstructor newBlank() {
+	public NodeConstructor newBlank()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(NodeConstructor childObject)
+	{
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public String defaultXmlTag() {
-		// TODO Auto-generated method stub
+	public String defaultXmlTag()
+	{
 		return XmlRef.shapeDimension;
 	}
 
 	@Override
-	public int compareTo(Dimension o) {
+	public int compareTo(Dimension o)
+	{
 		return this._dimName.compareTo(o._dimName);
 	}
 }

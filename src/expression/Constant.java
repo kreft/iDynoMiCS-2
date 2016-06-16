@@ -3,8 +3,8 @@
  */
 package expression;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.List;
 
 /**
  * \brief A component of a mathematical expression whose value is fixed.
@@ -51,7 +51,7 @@ public class Constant extends ComponentSimple
 	}
 	
 	@Override
-	public void appendVariablesNames(List<String> names)
+	public void appendVariablesNames(Collection<String> names)
 	{
 		/* Do nothing! */
 	}
