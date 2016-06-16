@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import expression.ExpressionB;
 import expression.Unit;
 
 /**
@@ -33,5 +34,12 @@ public class UnitUnitTest {
 		unitB.fromString("d");
 		System.out.println("d = " + unitB.toString());
 		assertTrue("correct unit conversion", unitB.toString().contains("86400") );
+		
+
+		ExpressionB expressiona = new ExpressionB("35.0 * -2.0");
+		double a = expressiona.getValue();
+
+		System.out.println(a);
 	}
+	
 }

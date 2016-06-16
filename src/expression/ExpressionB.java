@@ -70,19 +70,18 @@ public class ExpressionB extends Component implements NodeConstructor
 			String[]{
 					"#e",	// euler
 					"#PI", 	// pi
-					"EXP", 	// ten power
 					"EXP-", // ten power minus
-					"^", 	// power
+					"EXP", 	// ten power
 					"^-", 	// power minus
-					"SQRT", // square root
+					"^", 	// power
 					"SQRT-", // square root minus
-					"*", 	// multiplication
+					"SQRT", // square root
 					"*-", 	// multiplication minus
-					"/", 	// division
+					"*", 	// multiplication
 					"/-", 	// division minus
+					"/", 	// division
 					"+", 	// addition
 					"-",	// negative or subtraction TODO make sure this does not cause any problems
-					"["		// tailing multiplication for units ( done last )
 					};	
 	/**
 	 * TODO Work out what this does.
@@ -383,6 +382,8 @@ public class ExpressionB extends Component implements NodeConstructor
 			else
 				Log.out(LOG_LEVEL, "    found "+locations.size()+" of "+oper);
 			operLoc.putAll( locations );
+			for (int l : locations.keySet())
+				equation = cutString(equation, l, oper.length());
 		}
 		if ( ! absents.isEmpty() )
 		{
@@ -416,6 +417,15 @@ public class ExpressionB extends Component implements NodeConstructor
 			this.addVar(o+start, equation.substring(o,equation.length()), eval);
 		eval.putAll(operLoc);
 		Log.out(LOG_LEVEL, "    eq set, eval now has size "+eval.size());
+	}
+	
+	private String cutString(String string, int start , int numberOfCharacters )
+	{
+		String out = string.substring(0,start);
+		for (int l = 0; l < numberOfCharacters; l++)
+			out += " ";
+		out += string.substring(start+numberOfCharacters);
+		return out;
 	}
 	
 	/**
@@ -557,9 +567,14 @@ public class ExpressionB extends Component implements NodeConstructor
 		case ("+"): 
 			return Expression.add(calc.get(prev),calc.get(next));
 		case ("*"): 
-		case ("["): 
+			return Expression.multiply(calc.get(prev),calc.get(next));
+		case ("*-"): 
+			calc.get(next).changeSign();
 			return Expression.multiply(calc.get(prev),calc.get(next));
 		case ("/"): 
+			return Expression.divide(calc.get(prev),calc.get(next));
+		case ("/-"): 
+			calc.get(next).changeSign();
 			return Expression.divide(calc.get(prev),calc.get(next));
 		case ("-"): 
 			if (prev >= 0 )
@@ -571,13 +586,23 @@ public class ExpressionB extends Component implements NodeConstructor
 			}
 		case ("^"): 
 			return new Power(calc.get(prev), calc.get(next));
+		case ("^-"): 
+			calc.get(next).changeSign();
+			return new Power(calc.get(prev), calc.get(next));
 		case ("SQRT"): 
+			return new Power(calc.get(next), new Constant("0.5",0.5));
+		case ("SQRT-"): 
+			calc.get(next).changeSign();
 			return new Power(calc.get(next), new Constant("0.5",0.5));
 		case ("#e"): 
 			return Expression.euler();
 		case ("#PI"): 
 			return Expression.pi();
 		case ("EXP"): 
+			return new Multiplication(calc.get(prev), 
+				new Power(Expression.ten(), calc.get(next)));
+		case ("EXP-"): 
+			calc.get(next).changeSign();
 			return new Multiplication(calc.get(prev), 
 				new Power(Expression.ten(), calc.get(next)));
 		}
@@ -599,16 +624,20 @@ public class ExpressionB extends Component implements NodeConstructor
 		{
 		case ("+"): 
 		case ("*"): 
-		case ("["):
 		case ("/"): 
 		case ("^"):
 		case ("EXP"):
+		case ("*-"): 
+		case ("/-"): 
+		case ("^-"):
+		case ("EXP-"):
 			if ( calc.containsKey( prev ) )
 				calc.remove( prev );
 			if ( calc.containsKey( next ) )
 				calc.remove( next );
 			break;
 		case("SQRT"):
+		case("SQRT-"):
 			if ( calc.containsKey( next ) )
 				calc.remove( next );
 			break;
