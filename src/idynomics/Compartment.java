@@ -128,6 +128,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 	 */
 	public void init(Element xmlElem)
 	{
+		Tier level = Tier.EXPRESSIVE;
 		Element elem;
 		String str = null;
 		/*
@@ -143,8 +144,8 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		 * NOTE: wouldn't we want to pass initial grid values to? It would also
 		 * be possible for the grids to be Xmlable
 		 */
+		Log.out(level, "Compartment reading in solutes");
 		NodeList solutes = XmlHandler.getAll(xmlElem, XmlRef.solute);
-		
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
 			Element soluteE = (Element) solutes.item(i);
@@ -156,7 +157,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 			this.getSolute(soluteName).setTo(ArrayType.CONCN, conc);
 			
 
-			SpatialGrid myGrid = this.getSolute(str);
+			SpatialGrid myGrid = this.getSolute(soluteName);
 			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
 					XmlRef.voxel);
 			for (int j = 0; j < voxelvalues.getLength(); j++)
@@ -175,6 +176,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 		/*
 		 * Give it extracellular reactions.
 		 */
+		Log.out(level, "Compartment reading in (environmental) reactions");
 		elem = XmlHandler.loadUnique(xmlElem, XmlRef.reactions);
 		Element rElem;
 		Reaction reac;
@@ -232,7 +234,7 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 				str = XmlHandler.gatherAttribute(procElem,
 													XmlRef.nameAttribute);
 				Log.out(Tier.EXPRESSIVE, "\t"+str);
-				this.addProcessManager(ProcessManager.getNewInstance(procElem) );
+				this.addProcessManager(ProcessManager.getNewInstance(procElem));
 			}
 		}
 	}

@@ -164,8 +164,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public SpatialGrid getSoluteGrid(String soluteName)
 	{
 		for ( SpatialGrid sg : this._solutes )
-			if ( sg.getName() == soluteName )
+			if ( sg.getName().equals(soluteName) )
 				return sg;
+		Log.out(Tier.CRITICAL,
+				"EnvironmentContainer can't find grid for \""+soluteName+"\"");
 		return null;
 	}
 	
@@ -179,7 +181,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public boolean isSoluteName(String name)
 	{
 		for ( SpatialGrid sg : this._solutes )
-			if ( sg.getName() == name )
+			if ( sg.getName().equals(name) )
 				return true;
 		return false;
 	}
@@ -213,7 +215,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public Reaction getReaction(String name)
 	{
 		for ( Reaction reac : this._reactions )
-			if ( reac.getName() == name )
+			if ( reac.getName().equals(name) )
 				return reac;
 		return null;
 	}

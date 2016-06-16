@@ -125,6 +125,10 @@ public class SolveDiffusionTransient extends ProcessManager
 		this._diffusivity = new HashMap<String,Double>();
 		for ( String sName : soluteNames )
 			this._diffusivity.put(sName, 1.0);
+		String msg = "SolveDiffusionTransient responsible for solutes: ";
+		for ( String s : this._soluteNames )
+			msg += s + ", ";
+		Log.out(Tier.EXPRESSIVE, msg);
 	}
 	
 	/*************************************************************************
