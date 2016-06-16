@@ -137,6 +137,12 @@ public abstract class CylindricalShape extends PolarShape
 	@Override
 	protected ResCalc getResolutionCalculator(int[] coord, int dim)
 	{
+		/* 
+		 * If this is the radial dimension (0) or the z dimension (2),
+		 * always use the first.
+		 * 
+		 * If it is the theta dimension (1), use the r-index.
+		 */
 		int index = 0;
 		if ( dim == 1 )
 		{
@@ -251,7 +257,7 @@ public abstract class CylindricalShape extends PolarShape
 		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) ) ;
 		/* There are no valid neighbors. */
 		else
-			this._whereIsNbh = UNDEFINED;
+			this._whereIsNhb = UNDEFINED;
 		if ( this.isNbhIteratorValid() )
 		{
 			transformNbhCyclic();
@@ -324,7 +330,7 @@ public abstract class CylindricalShape extends PolarShape
 			 * If we can't increase theta any more, then we've finished.
 			 */
 			if ( ! this.increaseNbhByOnePolar(THETA) )
-				this._whereIsNbh = UNDEFINED;
+				this._whereIsNhb = UNDEFINED;
 		}
 		this.transformNbhCyclic();
 		return this._currentNeighbor;
@@ -339,6 +345,6 @@ public abstract class CylindricalShape extends PolarShape
 	protected void moveNbhToOuterShell()
 	{
 		if ( ! this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
-			this._whereIsNbh = UNDEFINED;
+			this._whereIsNhb = UNDEFINED;
 	}
 }

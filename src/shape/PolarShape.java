@@ -22,62 +22,6 @@ public abstract class PolarShape extends Shape
 	public final static double POLAR_ANGLE_EQ_TOL = 1e-6;
 	
 	@Override
-	public double nbhCurrDistance()
-	{
-		Tier level = Tier.BULK;
-		Log.out(level, "  calculating distance between voxels "+
-				Vector.toString(this._currentCoord)+" and "+
-				Vector.toString(this._currentNeighbor));
-		
-		double distance = 0.0;
-		ResCalc rC;
-		
-		if ( this.isNhbIteratorInside() )
-		{
-			int nDim = this.getNumberOfDimensions();
-			double temp;
-			DimName dim;
-			/*
-			 * Find the average radius, as this will be useful in calculating arc
-			 * lengths of angular differences.
-			 */
-			double meanR = this.meanNbhCurrRadius();
-			/*
-			 * Loop over all dimensions, increasing the distance accordingly.
-			 */
-			for ( int i = 0; i < nDim; i++ )
-			{
-				dim = this.getDimensionName(i);
-				rC = this.getResolutionCalculator(this._currentCoord, i);
-				temp = rC.getPosition(this._currentCoord[i], 0.5);
-				rC = this.getResolutionCalculator(this._currentNeighbor, i);
-				temp -= rC.getPosition(this._currentNeighbor[i], 0.5);
-				/* We need the arc length for angular dimensions. */
-				if ( dim.isAngular() )
-					temp *= meanR;
-				/* Use Pythagoras to update the distance. */
-				distance = Math.hypot(distance, temp);
-			}
-			Log.out(level, "    distance is "+distance);
-			return distance;
-		}
-		if ( this.isNbhIteratorValid() )
-		{
-			/* If the neighbor is on a defined boundary, use the current 
-				coord's resolution along the neighbors direction. */
-			int i = this.getDimensionIndex(this._nbhDimName);
-			rC = this.getResolutionCalculator(this._currentNeighbor, i);
-			distance = rC.getResolution(this._currentCoord[i]);
-			Log.out(level, "    distance is "+distance);
-			return distance;
-		}
-		/* If the neighbor is on an undefined boundary, return infinite
-			distance (this should never happen!) */
-		Log.out(level, "    undefined distance!");
-		return Double.POSITIVE_INFINITY;
-	}
-	
-	@Override
 	public double nbhCurrSharedArea()
 	{
 		Tier level = Tier.BULK;
@@ -88,18 +32,27 @@ public abstract class PolarShape extends Shape
 		Log.out(level, "calculated meanR "+ meanR +" for current coord"
 				+ Arrays.toString(this._currentCoord) + " and nhb "
 				+ Arrays.toString(this._currentNeighbor));
-		for ( int i = 0; i < this.getNumberOfDimensions(); ++i )
+		for ( int i = 0; i < this.getNumberOfDimensions(); i++ )
 		{
-			/* continue if the neighbor is moving along dimension i  */
-			if (Math.abs(this._currentCoord[i] - this._currentNeighbor[i]) == 1)
-				continue;
 			dimName = this.getDimensionName(i);
-			/* we are on a defined boundary, so take the length of the
-			 * current coordinate */
-			if ((this._whereIsNbh == DEFINED || this._whereIsNbh == CYCLIC)
-					&& this._nbhDimName == dimName)
-				temp = getResolutionCalculator(this._currentCoord, i)
+			/* 
+			 * We are on a defined boundary, so take the length of the
+			 * current coordinate and don't care for other dimensions.
+			 */
+			if ( (this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC)
+					&& this._nhbDimName == dimName)
+			{
+				Log.out(level, "  on boundary for dim "+dimName);
+				/* 
+				 * Take the resolution of the next dimension, i.e. if we move
+				 * to an outer shell in the circle (dim R), the THETA length 
+				 * should be taken!
+				 */
+				temp = this.getResolutionCalculator(this._currentCoord, i + 1)
 							.getResolution(this._currentCoord[i]);
+				/* Move to last dim, so we will break cleanly. */
+				i = this.getNumberOfDimensions();
+			}
 			else
 				//TODO: security if on undefined boundary?
 				temp = this.getNbhSharedLength(i);
@@ -107,13 +60,17 @@ public abstract class PolarShape extends Shape
 			/* We need the arc length for angular dimensions. */
 			if ( dimName.isAngular() )
 				temp *= meanR;
-			/* this can happen in the sphere when we overlap only in one polar
-			 * dimension 
+			/*
+			 * If the area is zero for some reason, skip it (e.g. if the nhb is
+			 * moving along this dimension, or the precision tolerance for 
+			 * comparison was not met).
 			 */
-			if (temp==0) 
+			if ( temp == 0 )
+			{
+				Log.out(level, "  skipping zero area in dim "+dimName);
 				continue;
-			Log.out(level, " Shared length for dim "+this.getDimensionName(i)
-					+" is " + temp);
+			}
+			Log.out(level, "  Shared length for dim "+dimName +" is " + temp);
 			area *= temp;
 		}
 		Log.out(level, " returning area "+area);
@@ -127,23 +84,26 @@ public abstract class PolarShape extends Shape
 	private double meanNbhCurrRadius()
 	{
 		/* 
-		 * the average radius is the origin radius of the current coordinate if 
+		 * The average radius is the origin radius of the current coordinate if 
 		 * the neighbor's direction is towards negative.
 		 * If the direction is positive, the average radius is the upper
 		 * radius of the current coordinate.
 		 */
 		int i = this.getDimensionIndex(R);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
-		if (this.isNhbIteratorInside()){
+		if ( this.isNhbIteratorInside() )
+		{
 			if (this._currentCoord[i] > this._currentNeighbor[i])
 				return rC.getCumulativeResolution(this._currentCoord[i] - 1);
 			if (this._currentCoord[i] == this._currentNeighbor[i])
 				return rC.getPosition(this._currentCoord[i], 0.5);
 		}
-		if (this.isNbhIteratorValid())
+		if ( this.isNbhIteratorValid() )
+		{
 			/* If the neighbor is inside with same radius as the current coord 
 			 * or on a defined boundary, return the current coordinates radius*/
 			return rC.getCumulativeResolution(this._currentCoord[i]);
+		}
 		/* If the neighbor is on an undefined boundary, return NaN radius
 		(this should never happen!) */
 		return Double.NaN;
@@ -166,7 +126,7 @@ public abstract class PolarShape extends Shape
 				shellIndex);
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[0] = shellIndex;
-		this._nbhDimName = R;
+		this._nhbDimName = R;
 		/*
 		 * First check that the new shell is inside the grid. If we're on a
 		 * defined boundary, the angular coordinate is irrelevant.
@@ -175,16 +135,16 @@ public abstract class PolarShape extends Shape
 		WhereAmI where = this.whereIsNhb(R);
 		if ( where == UNDEFINED ){
 			Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
-			this._whereIsNbh = where;
-			this._nbhDimName = R;
+			this._whereIsNhb = where;
+			this._nhbDimName = R;
 			return false;
 		}
 		if ( where == DEFINED || where == CYCLIC)
 		{
-			this._nbhDimName = R;
-			this._nbhDirection = this._currentCoord[0] 
+			this._nhbDimName = R;
+			this._nhbDirection = this._currentCoord[0] 
 									< this._currentNeighbor[0] ? 1 : 0;
-			this._whereIsNbh = where;
+			this._whereIsNhb = where;
 			Log.out(NHB_ITER_LEVEL, "  success on "+ where +" boundary");
 			return true;
 		}
@@ -196,31 +156,36 @@ public abstract class PolarShape extends Shape
 		double cur_min = rC.getCumulativeResolution(this._currentCoord[1] - 1);
 		rC = this.getResolutionCalculator(this._currentNeighbor, 1);
 		int new_index = rC.getVoxelIndex(cur_min);
-		/* increase the index if it has approx. the same location as the
-		 * current coordinate */
-		if (ExtraMath.areEqual(
-				rC.getCumulativeResolution(new_index), cur_min, 
-				this.POLAR_ANGLE_EQ_TOL))
+		/* 
+		 * Increase the index if it has approx. the same location as the
+		 * current coordinate
+		 */
+		double cur_max = rC.getCumulativeResolution(new_index);
+		if ( ExtraMath.areEqual(cur_max, cur_min, POLAR_ANGLE_EQ_TOL) )
 			new_index++;
-		/* if we stepped onto the current coord, we went too far*/
-		if (this._currentNeighbor[0] == this._currentCoord[0]
-				&& new_index == this._currentCoord[1])
+		/* If we stepped onto the current coord, we went too far. */
+		if ( (this._currentNeighbor[0] == this._currentCoord[0]) &&
+				(new_index == this._currentCoord[1]) )
 		{
-			Log.out(NHB_ITER_LEVEL, "  failure, stepped onto current coordinate");
+			Log.out(NHB_ITER_LEVEL,
+					"  failure, stepped onto current coordinate");
 			return false;
 		}
 		this._currentNeighbor[1] = new_index;
-		/* we are always in the same z-slice as the current coordinate when
+		/* 
+		 * We are always in the same z-slice as the current coordinate when
 		 * calling this method, so _nbhDimName can not be Z. 
 		 */
-		this._nbhDimName = this._currentCoord[0] == this._currentNeighbor[0] ?
-										THETA : R;
-		int dimIdx = getDimensionIndex(this._nbhDimName);
-		this._nbhDirection = 
+		if ( this._currentCoord[0] == this._currentNeighbor[0] )
+			this._nhbDimName = THETA;
+		else
+			this._nhbDimName = R;
+		int dimIdx = getDimensionIndex(this._nhbDimName);
+		this._nhbDirection = 
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
-		this._whereIsNbh = WhereAmI.INSIDE;
-		Log.out(NHB_ITER_LEVEL, "  success with idx "+new_index);
+		this._whereIsNhb = WhereAmI.INSIDE;
+		Log.out(NHB_ITER_LEVEL, "  success with index "+new_index);
 		return true;
 	}
 	
@@ -238,8 +203,8 @@ public abstract class PolarShape extends Shape
 		/* avoid increasing on any boundaries */
 		int index = this.getDimensionIndex(dim);
 //		WhereAmI where = this.whereIsNhb(dim);
-		if ((dim == THETA || this._nbhDimName == R)  && this._whereIsNbh != INSIDE) {
-			Log.out(NHB_ITER_LEVEL, "  failure, already on " +this._nbhDimName
+		if ((dim == THETA || this._nhbDimName == R)  && this._whereIsNhb != INSIDE) {
+			Log.out(NHB_ITER_LEVEL, "  failure, already on " +this._nhbDimName
 					+ " boundary, no point increasing");
 			return false;
 		}
@@ -258,15 +223,15 @@ public abstract class PolarShape extends Shape
 				if (isNoMoreOverlapping(index))
 					return false;
 				this._currentNeighbor[index]++;
-				this._nbhDirection = 1;
-				this._nbhDimName = dim;
-				this._whereIsNbh = this.whereIsNhb(dim);
-				Log.out(NHB_ITER_LEVEL, "  success on "+this._whereIsNbh 
+				this._nhbDirection = 1;
+				this._nhbDimName = dim;
+				this._whereIsNhb = this.whereIsNhb(dim);
+				Log.out(NHB_ITER_LEVEL, "  success on "+this._whereIsNhb 
 						+ " boundary");
 				return true;
 			}	
 			else{
-				Log.out(NHB_ITER_LEVEL, "  failure on "+this._whereIsNbh 
+				Log.out(NHB_ITER_LEVEL, "  failure on "+this._whereIsNhb 
 						+ " boundary");
 				return false;
 			}

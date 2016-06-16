@@ -9,9 +9,8 @@ import static org.junit.Assert.assertTrue;
 import agent.Agent;
 import agent.Body;
 import aspect.AspectRef;
-import boundary.Boundary;
-import boundary.BoundaryLibrary.BulkBLBoundary;
-import boundary.BoundaryLibrary.SolidBoundary;
+import boundary.spatialLibrary.BiofilmBoundaryLayer;
+import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
@@ -45,18 +44,20 @@ public class BoundaryTest
 		comp.setSideLengths(new double[]{compartmentLength});
 		/*
 		 * The agent to be inserted: give its position as nonsense to check
-		 * that it is inserted correctly.
+		 * that it is inserted correctly. To prevent the random walk, we set
+		 * the agent pull distance to the boundary layer thickness.
 		 */
 		Agent insertAgent = new Agent();
 		Body iBody = new Body(new double[]{-12345.6}, agentRadius);
 		insertAgent.set(AspectRef.agentBody, iBody);
 		insertAgent.set(AspectRef.isLocated, new Boolean(true));
+		insertAgent.set(AspectRef.agentCurrentPulldistance, boundaryLayerThickness);
 		/*
 		 * Add the agent to the boundary layer, and this to the compartment.
 		 */
-		Boundary bL = new BulkBLBoundary();
+		BiofilmBoundaryLayer bL = new BiofilmBoundaryLayer(DimName.X, 1);
 		bL.acceptInboundAgent(insertAgent);
-		comp.addBoundary(DimName.X, 1, bL);
+		comp.addBoundary(bL);
 		/*
 		 * Now make a fixed agent that the insert agent should detect.
 		 */
@@ -69,7 +70,7 @@ public class BoundaryTest
 		/*
 		 * The other boundary is unimportant, but needs to be set.
 		 */
-		comp.addBoundary(DimName.X, 0, new SolidBoundary());
+		comp.addBoundary(new SolidBoundary(DimName.X, 0));
 		
 		Idynomics.simulator.run();
 		

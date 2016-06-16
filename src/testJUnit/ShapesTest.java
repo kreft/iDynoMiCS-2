@@ -1,37 +1,44 @@
 package testJUnit;
 
-import static dataIO.Log.Tier.DEBUG;
+import java.util.LinkedList;
+import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static testJUnit.AllTests.TOLERANCE;
 
-import java.util.LinkedList;
-
-import org.junit.Test;
-
-import boundary.Boundary;
-import boundary.BoundaryLibrary.SolidBoundary;
+import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
+import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import shape.Dimension.DimName;
+import static testJUnit.AllTests.TOLERANCE;
 import shape.Shape;
+import shape.Dimension.DimName;
 import shape.ShapeLibrary.Circle;
 import shape.ShapeLibrary.Rectangle;
 import shape.ShapeLibrary.Sphere;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 
 /**
- * \brief TODO
+ * \brief Test class to check that {@code Shape} objects are behaving
+ * themselves.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ * 		Friedrich-Schiller University Jena, Germany 
  */
 public class ShapesTest
 {
+	/**
+	 * Cyclic points are used by an AgentContainer's SpatialRegistry: they
+	 * reproduce the point given as "ghost" points on either side of a cyclic
+	 * dimension. The List of points produced includes the original.
+	 */
 	@Test
 	public void numberOfCyclicPointsShouldBeCorrect()
 	{
-		/* test cartesian */
+		/*
+		 * Cartesian (Line, Rectangle, Cuboid)
+		 */
 		String[] shapeNames = new String[]{"line", "rectangle", "cuboid"};
 		String[] sideNames = new String[] {"X", "Y", "Z"};
 		Shape aShape;
@@ -57,10 +64,9 @@ public class ShapesTest
 			assertEquals("#cyclics = "+correct+" ("+i+"D)",
 										cyclics.size(), correct);
 		}
-		
-		/* circle 
-		 * See 'Docs/PolarShapes/Neighbours_Circle' for a drawing of a circle
-		 * with coordinates and neighbors indicated */
+		/*
+		 * Circle
+		 */
 		correct = 3;
 		aShape = (Shape) Shape.getNewInstance("circle");
 		aShape.makeCyclic("THETA");
@@ -69,8 +75,9 @@ public class ShapesTest
 		cyclics = aShape.getCyclicPoints(Vector.vector(2, 0.3535));
 		assertEquals("#cyclics = "+correct+" ("+2+"D)",
 				cyclics.size(), correct);
-		
-		/* cylinder */
+		/*
+		 * Cylinder
+		 */
 		correct = 9;
 		aShape = (Shape) Shape.getNewInstance("cylinder");
 		aShape.makeCyclic("THETA");
@@ -80,10 +87,9 @@ public class ShapesTest
 		cyclics = aShape.getCyclicPoints(new double[]{0.3535, 0.3535, 0.5});
 		assertEquals("#cyclics = "+correct+" ("+3+"D)",
 				cyclics.size(), correct);
-		
-		/* sphere 
-		 * See 'Docs/PolarShapes/Neighbours_Sphere' for a drawing of a 
-		 * sphere with coordinates and neighbors indicated */
+		/*
+		 * Sphere
+		 */
 		correct = 3;
 		aShape = (Shape) Shape.getNewInstance("sphere");
 		aShape.makeCyclic("THETA");
@@ -128,18 +134,6 @@ public class ShapesTest
 	public void shouldIterateCorrectly()
 	{
 		AllTests.setupSimulatorForTest(1.0, 1.0, "shapesShouldIterateProperly");
-
-		/* check for rectangle */
-		rectangleShouldIterateCorrectly();
-		
-		/* check for circle */
-		circeShouldIterateCorrectly();
-		
-		/* check for sphere */
-		sphereShouldIterateCorrectly();
-	}
-	
-	private void rectangleShouldIterateCorrectly(){
 		int[][] trueNhb = new int[3][3];
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		Shape shp = new Rectangle();
@@ -151,10 +145,12 @@ public class ShapesTest
 		/*
 		 * Try first with solid boundaries.
 		 */
-		Boundary bndry = new SolidBoundary();
 		for ( DimName d : dims )
 			for ( int extreme = 0; extreme < 2; extreme++ )
+			{
+				SolidBoundary bndry = new SolidBoundary(d, extreme);
 				shp.setBoundary(d, extreme, bndry);
+			}
 		/* Set up the array of true inside neighbor numbers. */
 		trueNhb[0][0] = 2; trueNhb[0][1] = 3; trueNhb[0][2] = 2;
 		trueNhb[1][0] = 3; trueNhb[1][1] = 4; trueNhb[1][2] = 3;
@@ -179,7 +175,9 @@ public class ShapesTest
 	 * See 'Docs/PolarShapes/Neighbours_Circle' for a drawing of a circle
 	 * with coordinates and true neighbors indicated.
 	 */
-	private void circeShouldIterateCorrectly(){
+	@Test
+	public void circeShouldIterateCorrectly()
+	{
 		/* solid boundaries */
 		int[][] coords = new int[][]{ {0,0,0}, {1,0,0}, {1,1,0}, {2,3,0} };
 		int[][][] trueNhb = new int[][][]{
@@ -209,10 +207,9 @@ public class ShapesTest
 		/*
 		 * Try first with solid boundaries.
 		 */
-		Boundary bndry = new SolidBoundary();
 		for ( DimName d : dims )
 			for ( int extreme = 0; extreme < 2; extreme++ )
-				shp.setBoundary(d, extreme, bndry);
+				shp.setBoundary(d, extreme, new SolidBoundary(d, extreme));
 
 		/* Check it is correct. */
 		Log.out(DEBUG, "Solid boundaries");
@@ -244,7 +241,9 @@ public class ShapesTest
 	 * See 'Docs/PolarShapes/Neighbours_Sphere' for a drawing of a sphere
 	 * with coordinates and true neighbors indicated.
 	 */
-	private void sphereShouldIterateCorrectly(){
+	@Test
+	public void sphereShouldIterateCorrectly()
+	{
 		/* solid boundaries */
 		int[][] coords = new int[][]{ {0,0,0}, {1,0,0}, {1,1,0}, {2,2,1} };
 		int[][][] trueNhb = new int[][][]{
@@ -278,10 +277,9 @@ public class ShapesTest
 		/*
 		 * Try first with solid boundaries.
 		 */
-		Boundary bndry = new SolidBoundary();
 		for ( DimName d : dims )
 			for ( int extreme = 0; extreme < 2; extreme++ )
-				shp.setBoundary(d, extreme, bndry);
+				shp.setBoundary(d, extreme, new SolidBoundary(d, extreme));
 
 		/* Check it is correct. */
 		Log.out(DEBUG, "Solid boundaries");

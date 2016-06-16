@@ -3,7 +3,6 @@ package shape;
 import static shape.Shape.WhereAmI.*;
 
 import dataIO.Log;
-import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import static shape.Dimension.DimName;
@@ -151,7 +150,7 @@ public abstract class CartesianShape extends Shape
 	{
 		Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
 				Vector.toString(this._currentNeighbor));
-		this._whereIsNbh = UNDEFINED;
+		this._whereIsNhb = UNDEFINED;
 		for ( DimName dim : this._dimensions.keySet() )
 		{
 			/* Skip insignificant dimensions. */
@@ -160,11 +159,11 @@ public abstract class CartesianShape extends Shape
 			/* See if we can take one of the neighbors. */
 			if ( this.moveNbhToMinus(dim) || this.nbhJumpOverCurrent(dim) )
 			{
-				this._nbhDimName = dim;
+				this._nhbDimName = dim;
 				this.transformNbhCyclic();
 				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
 						+Vector.toString(this._currentNeighbor)+
-						": status "+this._whereIsNbh);
+						": status "+this._whereIsNhb);
 				return;
 			}
 		}
@@ -176,11 +175,11 @@ public abstract class CartesianShape extends Shape
 		Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
 				Vector.toString(this._currentCoord));
 		this.untransformNbhCyclic();
-		int nbhIndex = this.getDimensionIndex(this._nbhDimName);
+		int nbhIndex = this.getDimensionIndex(this._nhbDimName);
 		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
-				", trying along "+this._nbhDimName);
-		if ( ! this.nbhJumpOverCurrent(this._nbhDimName))
+				", trying along "+this._nhbDimName);
+		if ( ! this.nbhJumpOverCurrent(this._nhbDimName))
 		{
 			/*
 			 * If we're in X or Y, try to move up one.
@@ -189,15 +188,15 @@ public abstract class CartesianShape extends Shape
 			nbhIndex++;
 			if ( nbhIndex < 3 )
 			{
-				this._nbhDimName = this.getDimensionName(nbhIndex);
+				this._nhbDimName = this.getDimensionName(nbhIndex);
 				Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
-						+this._nbhDimName);
-				if ( ! moveNbhToMinus(this._nbhDimName) )
+						+this._nhbDimName);
+				if ( ! moveNbhToMinus(this._nhbDimName) )
 					return nbhIteratorNext();
 			}
 			else
 			{
-				this._whereIsNbh = UNDEFINED;
+				this._whereIsNhb = UNDEFINED;
 			}
 		}
 		
@@ -206,44 +205,14 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	public double nbhCurrDistance()
-	{
-		Tier level = Tier.BULK;
-		Log.out(level, "  calculating distance between voxels "+
-				Vector.toString(this._currentCoord)+" and "+
-				Vector.toString(this._currentNeighbor));
-		int i = this.getDimensionIndex(this._nbhDimName);
-		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
-		double out = rC.getResolution(this._currentCoord[i]);
-		if ( this.isNhbIteratorInside() )
-		{
-			/* If the neighbor is inside the array, use the mean resolution. */
-			out += rC.getResolution(this._currentNeighbor[i]);
-			return 0.5 * out;
-		}
-		if ( this.isNbhIteratorValid() )
-		{
-			/* If the neighbor is on a defined boundary, use the current 
-				coord's resolution. */
-			Log.out(level, "    distance is "+out);
-			return out;
-		}
-		/* If the neighbor is on an undefined boundary, return infinite
-			distance (this should never happen!) */
-		Log.out(level, "    undefined distance!");
-		return Double.POSITIVE_INFINITY;
-	}
-	
-	@Override
 	public double nbhCurrSharedArea()
 	{
 		double area = 1.0;
-		int nDim = this.getNumberOfDimensions();
 		ResCalc rC;
 		int index;
 		for ( DimName dim : this.getDimensionNames() )
 		{
-			if ( dim.equals(this._nbhDimName) 
+			if ( dim.equals(this._nhbDimName) 
 					|| ! this.getDimension(dim).isSignificant() )
 				continue;
 			index = this.getDimensionIndex(dim);

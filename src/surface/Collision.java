@@ -1,7 +1,9 @@
 package surface;
 
 import java.util.Collection;
+import java.util.Map;
 
+import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;

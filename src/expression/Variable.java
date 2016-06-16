@@ -3,8 +3,8 @@
  */
 package expression;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.List;
 
 /**
  * \brief A component of a mathematical expression whose value varies, and so
@@ -51,7 +51,7 @@ public class Variable extends ComponentSimple
 	}
 	
 	@Override
-	public void appendVariablesNames(List<String> names)
+	public void appendVariablesNames(Collection<String> names)
 	{
 		if ( ! names.contains(this._name) )
 			names.add(this._name);

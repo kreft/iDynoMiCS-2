@@ -7,8 +7,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.XmlRef;
+import grid.ArrayType;
 import grid.SpatialGrid;
-import grid.SpatialGrid.ArrayType;
 import idynomics.AgentContainer;
 
 /**

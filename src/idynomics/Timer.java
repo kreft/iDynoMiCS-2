@@ -82,8 +82,8 @@ public class Timer implements XMLable, NodeConstructor
 	
 	public void reset()
 	{
-		_now = 0.0;
-		_iteration = 0;
+		this._now = 0.0;
+		this._iteration = 0;
 	}
 	
 	public void setTimeStepSize(double stepSize)
@@ -93,12 +93,12 @@ public class Timer implements XMLable, NodeConstructor
 	
 	public double getCurrentTime()
 	{
-		return _now;
+		return this._now;
 	}
 	
 	public int getCurrentIteration()
 	{
-		return _iteration;
+		return this._iteration;
 	}
 	
 	public double getTimeStepSize()
@@ -108,13 +108,13 @@ public class Timer implements XMLable, NodeConstructor
 	
 	public double getEndOfCurrentIteration()
 	{
-		return _now + getTimeStepSize();
+		return this._now + getTimeStepSize();
 	}
 	
 	public void step()
 	{
-		_now += getTimeStepSize();
-		_iteration++;
+		this._now += getTimeStepSize();
+		this._iteration++;
 		if ( Helper.gui )
 			GuiLaunch.updateProgressBar();
 	}
@@ -136,9 +136,10 @@ public class Timer implements XMLable, NodeConstructor
 	
 	public boolean isRunning()
 	{
-		Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+_now+", end = "+
-				getEndOfSimulation()+", so "+(_now<getEndOfSimulation())); 
-		return _now < getEndOfSimulation();
+		Log.out(Tier.DEBUG, "Timer.isRunning()? now = "+this._now+
+				", end = "+this.getEndOfSimulation()+
+				", so "+(this._now<getEndOfSimulation())); 
+		return this._now < this.getEndOfSimulation();
 	}
 	
 	public void report(Tier outputLevel)
@@ -157,8 +158,8 @@ public class Timer implements XMLable, NodeConstructor
 	 * Get the ModelNode object for this Timer object
 	 * @return ModelNode
 	 */
-	public ModelNode getNode() {
-
+	public ModelNode getNode()
+	{
 		/* the timer node */
 		ModelNode modelNode = new ModelNode(XmlRef.timer, this);
 		modelNode.requirement = Requirements.EXACTLY_ONE;
