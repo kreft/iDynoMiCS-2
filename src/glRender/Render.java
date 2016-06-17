@@ -510,7 +510,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltdown");
-					r._tilt -= 0.1f*(float) Math.PI;
+					r._tilt += 0.1f*(float) Math.PI;
 			}
 		});
 		
@@ -522,7 +522,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltup");
-					r._tilt += 0.1f*(float) Math.PI;
+					r._tilt -= 0.1f*(float) Math.PI;
 			}
 		});
 		
