@@ -280,6 +280,7 @@ public class AgentRelaxation extends ProcessManager
 		// Mechanical relaxation
 		while(_tMech < _timeStepSize) 
 		{	
+			this._agents.refreshSpatialRegistry();
 			this.updateForces(this._agents);
 
 			/// obtain current highest particle velocity
