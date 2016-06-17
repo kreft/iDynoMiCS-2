@@ -31,6 +31,26 @@ import shape.Dimension.DimName;
 /**
  * \brief TODO
  * 
+ * <p>A compartment owns<ul>
+ * <li>one shape</li>
+ * <li>one environment container</li>
+ * <li>one agent container</li>
+ * <li>zero to many process managers</li></ul></p>
+ * 
+ * <p>The environment container and the agent container both have a reference
+ * to the shape, but do not know about each other. Agent-environment
+ * interactions must be mediated by a process manager. Each process manager has
+ * a reference to the environment container and the agent container, and 
+ * therefore can ask either of these about the compartment shape. It is
+ * important though, that process managers do not have a reference to the
+ * compartment they belong to: otherwise, a naive developer could have a
+ * process manager call the {@code step()} method in {@code Compartment},
+ * causing such chaos that even the thought of it keeps Rob awake at night.</p>
+ * 
+ * <p>In summary, the hierarchy of ownership is: shape -> agent/environment
+ * containers -> process managers -> compartment. All the arrows point in the
+ * same direction, meaning no entanglement of the kind iDynoMiCS 1 suffered.</p>
+ * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Stefan Lang (stefan.lang@uni-jena.de)
@@ -224,7 +244,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		}
 		else
 		{
-			
+			ProcessManager pm;
 			NodeList processNodes = elem.getElementsByTagName(XmlRef.process);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 									" initialised with process managers:");
@@ -234,7 +254,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 				str = XmlHandler.gatherAttribute(procElem,
 													XmlRef.nameAttribute);
 				Log.out(Tier.EXPRESSIVE, "\t"+str);
-				this.addProcessManager(ProcessManager.getNewInstance(procElem, this) );
+				pm = ProcessManager.getNewInstance(
+						procElem, this.environment, this.agents);
+				this.addProcessManager(pm);
 			}
 		}
 	}
@@ -432,7 +454,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 			 * First process on the list does its thing. This should then
 			 * increase its next step time.
 			 */
-			currentProcess.step(this.environment, this.agents);
+			currentProcess.step();
 			/*
 			 * Reinsert this process at the appropriate position in the list.
 			 */

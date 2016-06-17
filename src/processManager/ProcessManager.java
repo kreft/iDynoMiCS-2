@@ -47,24 +47,42 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	protected double _timeStepSize;
 	/**
-     * The aspect registry... TODO
-     */
-    private AspectReg _aspectRegistry = new AspectReg();
-    
-    protected Compartment _compartment;
+	 * The aspect registry... TODO
+	 */
+	private AspectReg _aspectRegistry = new AspectReg();
+	/**
+	 * Reference to the environment of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected EnvironmentContainer _environment;
+	/**
+	 * Reference to the agents of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected AgentContainer _agents;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-    public void init(Element xmlElem)
+	/**
+	 * \brief Initialise the process from XML protocol file, plus the relevant
+	 * information about the compartment it belongs to.
+	 * 
+	 * @param xmlElem Relevant part of the XML protocol file.
+	 * @param environment The {@code EnvironmentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param agents The {@code AgentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 */
+	public void init(Element xmlElem, 
+			EnvironmentContainer environment, AgentContainer agents)
 	{
-    	this.init(xmlElem, null);
-	}
-    
-	public void init(Element xmlElem, Compartment compartment)
-	{
-		this._compartment = compartment;
+		this._environment = environment;
+		this._agents = agents;
+		
+		//FIXME quick fix: cut/paste from
+		//"public static ProcessManager getNewInstance(Node xmlNode)"
 		
 		this.loadAspects(xmlElem);
 		/*
@@ -92,13 +110,18 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 
-	 * @param xmlNode
-	 * @return
+	 * @param xmlNode Relevant part of the XML protocol file.
+	 * @param environment The {@code EnvironmentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param agents The {@code AgentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @return New process manager.
 	 */
-	public static ProcessManager getNewInstance(Node xmlNode, Compartment compartment)
+	public static ProcessManager getNewInstance(Node xmlNode, 
+			EnvironmentContainer environment, AgentContainer agents)
 	{
-		ProcessManager proc = (ProcessManager) Instantiatable.getNewInstance(xmlNode);
-		proc.init((Element) xmlNode, compartment);
+		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
+		proc.init((Element) xmlNode, environment, agents);
 		return proc;
 	}
 	
@@ -121,14 +144,6 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	{
 		return _aspectRegistry;
 	}
-	
-//	/**
-//	 * Set or update the compartment
-//	 */
-//	public void setCompartment(Compartment compartment)
-//	{
-//		this._compartment = compartment;
-//	}
 	
 	/**
 	 * \brief Get this {@code ProcessManager}'s name.
@@ -224,13 +239,13 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * @param agents The {@code AgentContainer} of the
 	 * {@code Compartment} this process belongs to.
 	 */
-	public void step(EnvironmentContainer environment, AgentContainer agents)
+	public void step()
 	{
 		/*
 		 * This is where subclasses of ProcessManager do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
 		 */
-		this.internalStep(environment, agents);
+		this.internalStep();
 		/*
 		 * Move the time for next step forward by the step size.
 		 */
@@ -242,14 +257,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	/**
 	 * \brief Perform the internal step for this process manager: this will be
 	 * implemented by each sub-class of {@code ProcessManager}.
-	 * 
-	 * @param environment The {@code EnvironmentContainer} of the
-	 * {@code Compartment} this process belongs to.
-	 * @param agents The {@code AgentContainer} of the
-	 * {@code Compartment} this process belongs to.
 	 */
-	protected abstract void internalStep(
-					EnvironmentContainer environment, AgentContainer agents);
+	protected abstract void internalStep();
 	
 	public static List<String> getAllOptions()
 	{

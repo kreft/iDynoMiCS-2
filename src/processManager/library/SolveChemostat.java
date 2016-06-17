@@ -14,7 +14,6 @@ import boundary.library.ChemostatToChemostat;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
-import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
@@ -93,9 +92,10 @@ public class SolveChemostat extends ProcessManager
 	/**
 	 * 
 	 */
-	public void init(Element xmlElem, Compartment compartment)
+	public void init(Element xmlElem, 
+			EnvironmentContainer environment, AgentContainer agents)
 	{
-		super.init(xmlElem, compartment);
+		super.init(xmlElem, environment, agents);
 		this.init();
 	}
 	
@@ -139,8 +139,7 @@ public class SolveChemostat extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
-			AgentContainer agents)
+	protected void internalStep()
 	{
 		Tier level = Tier.DEBUG;
 		Log.out(level, "SolveChemostat internal step starting");
@@ -149,21 +148,22 @@ public class SolveChemostat extends ProcessManager
 		 */
 		// TODO remove? This should be handled by the Compartment at the start
 		// of the global time step
-		for ( Boundary aBoundary : environment.getOtherBoundaries() )
+		for ( Boundary aBoundary : this._environment.getOtherBoundaries() )
 			{
 				for ( Agent anAgent : aBoundary.getAllInboundAgents() )
-					agents.addAgent(anAgent);
+					this._agents.addAgent(anAgent);
 				aBoundary.clearArrivalsLoungue();
 			}
 		/*
 		 * Update information that depends on the environment.
 		 */
-		this.updateDilutionInflow(environment);
-		this.updateConcnsAndY(environment);
+		this.updateDilutionInflow(this._environment);
+		this.updateConcnsAndY(this._environment);
 		/*
 		 * Update the solver's derivative functions (dY/dT, dF/dT, dF/dY).
 		 */
-		this._solver.setDerivatives(this.standardUpdater(environment, agents));
+		this._solver.setDerivatives(
+				this.standardUpdater(this._environment, this._agents));
 		/*
 		 * Solve the system and update the environment.
 		 */
@@ -171,7 +171,7 @@ public class SolveChemostat extends ProcessManager
 		try { this._y = this._solver.solve(this._y, this._timeStepSize); }
 		catch ( Exception e) { e.printStackTrace();}
 		Log.out(level, " Solver finished: y = "+Vector.toString(this._y));
-		updateEnvironment(environment);
+		updateEnvironment(this._environment);
 		/*
 		 * Finally, select Agents to be washed out of the Compartment.
 		 */

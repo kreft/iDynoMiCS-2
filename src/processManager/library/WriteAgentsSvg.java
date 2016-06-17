@@ -78,9 +78,10 @@ public class WriteAgentsSvg extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, 
+			EnvironmentContainer environment, AgentContainer agents)
 	{
-		super.init(xmlElem);
+		super.init(xmlElem, environment, agents);
 		
 		this._solute = this.getString(SOLUTE_NAME);
 		this._maxConcn = ( this.isAspect(MAX_VALUE) ? 
@@ -97,14 +98,13 @@ public class WriteAgentsSvg extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
-														AgentContainer agents)
+	protected void internalStep()
 	{
 		/* Initiate new file. */
 		this._svg.createFile(this._prefix);
 		
 		/* grab shape from agents */
-		Shape shape = agents.getShape();
+		Shape shape = this._agents.getShape();
 		
 		/* Draw computational domain rectangle. */
 		// FIXME Safety: this assumes the shape is a rectangle!
@@ -121,7 +121,7 @@ public class WriteAgentsSvg extends ProcessManager
 					"Warning! "+this._name+" computational domain neither "
 							+ "rectangular nor circular");
 		/* Draw solute grid for specified solute, if any. */
-		if ( ! environment.isSoluteName(this._solute) )
+		if ( ! this._environment.isSoluteName(this._solute) )
 		{
 			Log.out(Tier.CRITICAL,
 						"Warning! "+this._name+" can't find solute "+
@@ -129,11 +129,11 @@ public class WriteAgentsSvg extends ProcessManager
 		}
 		else
 		{
-			shape = environment.getShape();
+			shape = this._environment.getShape();
 			
-			SpatialGrid solute = environment.getSoluteGrid(_solute);
+			SpatialGrid solute = this._environment.getSoluteGrid(_solute);
 			
-			int nDim = agents.getNumDims();
+			int nDim = this._agents.getNumDims();
 			double[] origin;
 			double[] dimension = new double[3];
 			for ( int[] coord = shape.resetIterator(); 
@@ -166,7 +166,7 @@ public class WriteAgentsSvg extends ProcessManager
 		}
 		/* Draw all located agents. */
 		// NOTE currently only coccoid
-		for ( Agent a: agents.getAllLocatedAgents() )
+		for ( Agent a: this._agents.getAllLocatedAgents() )
 			if ( a.isAspect(BODY) )
 			{
 //				List<double[]> joints = ((Body) a.get(BODY)).getJoints();

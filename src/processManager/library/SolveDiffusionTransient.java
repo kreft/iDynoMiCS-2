@@ -24,7 +24,6 @@ import grid.SpatialGrid;
 import grid.wellmixedSetter.AllSameMixing;
 import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
-import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 import reaction.Reaction;
@@ -107,10 +106,10 @@ public class SolveDiffusionTransient extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem, Compartment compartment)
+	public void init(Element xmlElem, 
+			EnvironmentContainer environment, AgentContainer agents)
 	{
-		super.init(xmlElem, compartment);
-		this._compartment = compartment;
+		super.init(xmlElem, environment, agents);
 		this.init();
 	}
 	
@@ -159,14 +158,13 @@ public class SolveDiffusionTransient extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
-														AgentContainer agents)
+	protected void internalStep()
 	{
 		/*
 		 * Set up the agent mass distribution maps, to ensure that agent
 		 * reactions are spread over voxels appropriately.
 		 */
-		agents.setupAgentDistributionMaps();
+		this._agents.setupAgentDistributionMaps();
 		/*
 		 * Set up the relevant arrays in each of our solute grids: diffusivity 
 		 * & well-mixed need only be done once each process manager time step,
@@ -175,21 +173,21 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		for ( String soluteName : this._soluteNames )
 		{
-			SpatialGrid solute = environment.getSoluteGrid(soluteName);
+			SpatialGrid solute = this._environment.getSoluteGrid(soluteName);
 			// TODO use diffusivitySetter
 			solute.newArray(DIFFUSIVITY, this._diffusivity.get(soluteName));
-			this._wellmixed.get(soluteName).updateWellmixed(solute, agents);
+			this._wellmixed.get(soluteName).updateWellmixed(solute, this._agents);
 		}
 		/*
 		 * Set the updater method and solve.
 		 */
-		this._solver.setUpdater(standardUpdater(environment, agents));
-		this._solver.solve(environment.getSolutes(), this._timeStepSize);
+		this._solver.setUpdater(standardUpdater(this._environment, this._agents));
+		this._solver.solve(this._environment.getSolutes(), this._timeStepSize);
 		
 		/*
 		 * clear distribution maps, prevent unneeded clutter in xml output
 		 */
-		for ( Agent a : agents.getAllLocatedAgents() )
+		for ( Agent a : this._agents.getAllLocatedAgents() )
 			a.reg().remove(VOLUME_DISTRIBUTION_MAP);
 	}
 	
