@@ -39,7 +39,8 @@ public class Variable extends ComponentSimple
 	@Override
 	public double getValue(Map<String, Double> variables)
 	{
-		return variables.get(this._name); 
+		double out = variables.get(this._name);
+		return ( this.isNegative() ) ? - out : out; 
 	}
 	
 	@Override
