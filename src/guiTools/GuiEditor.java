@@ -62,24 +62,24 @@ public class GuiEditor
 		
 		JTabbedPane tabs = GuiComponent.newPane();
 		JPanel component = new JPanel();
-		tabs.addTab(node.tag, component);
+		tabs.addTab(node.getTag(), component);
 		component.setLayout(new WrapLayout(FlowLayout.LEFT, 0, 0));
 		JPanel attr = new JPanel();
 		attr.setLayout(new WrapLayout(FlowLayout.LEFT, 5, 5));
 		
 		/* loop trough child constructors */
-		for(NodeConstructor c : node.childConstructors.keySet())
+		for ( NodeConstructor c : node.getAllChildConstructors() )
 		{
 			/* add child to interface if exactly one is required and the node
 			 * is not present yet */
-			if(node.childConstructors.get(c) == Requirements.EXACTLY_ONE && 
+			if ( node.requireExactlyOneChildConstructor(c) && 
 					node.getChildNodes(c.defaultXmlTag()).isEmpty())
 			{
 				NodeConstructor newNode = c.newBlank();
 				node.add(newNode.getNode());
 				node.add(newNode);
 			}
-			else if(node.childConstructors.get(c) == Requirements.EXACTLY_ONE)
+			else if ( node.requireExactlyOneChildConstructor(c) )
 			{
 				// required unique childNode is already present: do nothing
 			}
@@ -103,7 +103,7 @@ public class GuiEditor
 		}
 		
 		/* add textareas for this ModelNode's attributes */
-		for(ModelAttribute a : node.attributes)
+		for ( ModelAttribute a : node.getAttributes() )
 		{
 			if ( a.value == null &&  a.options == null )
 			{
@@ -150,58 +150,58 @@ public class GuiEditor
 		component.add(attr);
 		
 		/* placement of this ModelNode in the gui */
-		if(node.tag == XmlRef.speciesLibrary  )
+		if ( node.isTag(XmlRef.speciesLibrary) )
 		{
 			/* exception for speciesLib add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
-					node.tag , tabs, "");
+					node.getTag() , tabs, "");
 		}
-		else if( node.tag == XmlRef.compartment )
+		else if ( node.isTag(XmlRef.compartment) )
 		{
 			/* exception for compartments add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
-					node.tag + " " + node.title, tabs, "");
+					node.getTag() + " " + node.getTitle(), tabs, "");
 		} 
-		else if(node.tag == XmlRef.agents || node.tag == XmlRef.solutes ||
-				node.tag == XmlRef.processManagers )
+		else if ( node.isTagIn(new String[] 
+				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers}) )
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
-					node.tag, tabs, "");
+					node.getTag(), tabs, "");
 		}
-		else if(node.tag == XmlRef.aspect || node.tag == XmlRef.solute )
+		else if ( node.isTagIn(new String[] {XmlRef.aspect, XmlRef.solute}) )
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
-					node.tag + " " + node.title, tabs, "");
+					node.getTag() + " " + node.getTitle(), tabs, "");
 		}
-		else if( node.tag == XmlRef.shapeDimension || node.tag == XmlRef.point ||
-				node.tag == XmlRef.stoichiometry || node.tag == XmlRef.constant ||
-				node.tag == XmlRef.speciesModule )
+		else if ( node.isTagIn(new String[] 
+				{XmlRef.shapeDimension, XmlRef.point, XmlRef.stoichiometry,
+						XmlRef.constant, XmlRef.speciesModule}) )
 		{
 			parent.add(component, null);
 			parent.revalidate();
 		} 
-		else if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
+		else if( node.requireMaxOne() && parent != GuiMain.tabbedPane )
 		{
 			/* exactly one: append this component to the parent component */
 			parent.add(component, null);
 			parent.revalidate();
 		}
-		else if( node.requirement == Requirements.ZERO_TO_MANY)
+		else if ( node.areRequirements(Requirements.ZERO_TO_MANY) )
 		{
 			/* species, agents, TODO: changes to spinner */
 			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
-					node.tag + " " + node.title, tabs, "");
+					node.getTag() + " " + node.getTitle(), tabs, "");
 		} 
 		else
 		{
 			/* else add component as Child tab of parent */
-			GuiComponent.addTab((JTabbedPane) parent, node.tag, tabs, "");
+			GuiComponent.addTab((JTabbedPane) parent, node.getTag(), tabs, "");
 		}
 		
 		/* add childnodes of this component to the gui */
-		for(ModelNode n : node.childNodes)
+		for ( ModelNode n : node.getAllChildNodes() )
 			addComponent(n, component);
 	}
 }

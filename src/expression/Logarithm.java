@@ -9,7 +9,7 @@ import dataIO.Log.Tier;
  * \brief A component of a mathematical expression composed of the logarithm
  * of one component to the base of another.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Logarithm extends ComponentDouble
 {

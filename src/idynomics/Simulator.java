@@ -22,7 +22,7 @@ import nodeFactory.ModelNode.Requirements;
  * \brief Simulator manages all compartments, making sure they synchronise at
  * the correct times. 
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, NodeConstructor
@@ -369,7 +369,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	public ModelNode getNode() {
 		/* create simulation node */
 		ModelNode modelNode = new ModelNode(XmlRef.simulation, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		Param.init();
 		if(! Log.isSet())
@@ -407,7 +407,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 			modelNode.add(c.getNode());
 		
 		/* add child constructor (adds add compartment button to gui */
-		modelNode.childConstructors.put(new Compartment(), 
+		modelNode.addChildConstructor(new Compartment(), 
 				ModelNode.Requirements.ZERO_TO_FEW);
 
 		/* Safe this modelNode locally for model run without having to have save 
@@ -419,7 +419,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	}
 	
 	/**
-	 * Additional setNode method for simulation, allows for emediate simulation
+	 * Additional setNode method for simulation, allows for immediate simulation
 	 * kick-off
 	 */
 	public void setNode()
@@ -427,9 +427,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		setNode(this._modelNode);
 	}
 	
-	/**
-	 * update current value's with the value's from the modelNode
-	 */
+	@Override
 	public void setNode(ModelNode node)
 	{
 		/* set local node */
@@ -447,11 +445,10 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		Log.set(node.getAttribute(XmlRef.logLevel).value);
 		
 		/* set random seed */
-		seed(Long.valueOf(node.getAttribute(XmlRef.seed).value));
+		this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).value));
 		
-		/* set value's for all child nodes */
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
+		/* Set values for all child nodes. */
+		NodeConstructor.super.setNode(node);
 	}
 
 	/**

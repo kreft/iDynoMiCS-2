@@ -7,7 +7,7 @@ import processManager.ProcessManager;
 /**
  * \brief Test checking that Compartments behave as they should.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class CompartmentTest
 {

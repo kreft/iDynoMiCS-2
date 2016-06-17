@@ -13,7 +13,7 @@ import shape.Dimension.DimName;
  * \brief Spatial boundary where solute concentrations are kept fixed. Solid
  * surface to agents. Intended for testing purposes.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class FixedBoundary extends SpatialBoundary
 {

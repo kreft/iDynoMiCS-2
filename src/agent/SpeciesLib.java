@@ -27,7 +27,7 @@ import nodeFactory.ModelNode.Requirements;
  * \brief Stores information about all species relevant to a simulation.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 {
@@ -194,10 +194,10 @@ public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 
 		/* the species lib node */
 		ModelNode modelNode = new ModelNode(XmlRef.speciesLibrary, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* Species constructor */
-		modelNode.childConstructors.put(new Species(), 
+		modelNode.addChildConstructor(new Species(), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		/* the already existing species */
@@ -205,17 +205,6 @@ public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 			modelNode.add(((Species) _species.get(s)).getNode());
 	
 		return modelNode;
-	}
-
-	/**
-	 * Load and interpret the values of the given ModelNode to this 
-	 * SpeciesLib object
-	 * @param node
-	 */
-	@Override
-	public void setNode(ModelNode node) {
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
 	}
 
 	/**

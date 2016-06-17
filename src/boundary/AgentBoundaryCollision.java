@@ -3,7 +3,7 @@ package boundary;
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 // NOTE Rob [15June2016]: Not sure if we'll end up using this in the end, still
 // just trying to work things out.

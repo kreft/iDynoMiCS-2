@@ -296,7 +296,7 @@ public class AspectReg
 	 */
 	public ModelNode getModuleNode(NodeConstructor constructor) {
 		ModelNode modelNode = new ModelNode(XmlRef.speciesModule,constructor);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 				this.getIdentity(), null, true ) );
@@ -412,8 +412,8 @@ public class AspectReg
 		public ModelNode getNode() 
 		{
 			ModelNode modelNode = new ModelNode(XmlRef.aspect, this);
-			modelNode.requirement = Requirements.ZERO_TO_FEW;
-			modelNode.title = this.key;
+			modelNode.setRequirements(Requirements.ZERO_TO_FEW);
+			modelNode.setTitle(this.key);
 			
 			modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 					this.key, null, true ) );
@@ -492,7 +492,7 @@ public class AspectReg
 		{
 			HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
 			ModelNode modelNode = new ModelNode("item", this);
-			modelNode.requirement = Requirements.ZERO_TO_MANY;
+			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 			
 			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
 					h.get(key).getClass().getSimpleName(), null, false ) );
@@ -508,16 +508,14 @@ public class AspectReg
 		@Override
 		public void setNode(ModelNode node) 
 		{
-			if(node.getAttribute(XmlRef.valueAttribute) != null)
+			if ( node.getAttribute(XmlRef.valueAttribute) != null )
 			{
 				this.set(ObjectFactory.loadObject(
 						node.getAttribute(XmlRef.valueAttribute).value, 
 						node.getAttribute(XmlRef.typeAttribute).value,
 						node.getAttribute(XmlRef.classAttribute).value), key);
 			}
-			
-			for(ModelNode n : node.childNodes)
-				n.constructor.setNode(n);
+			NodeConstructor.super.setNode(node);
 		}
 
 		// TODO build up from general.classLib rather than hard code

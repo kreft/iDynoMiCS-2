@@ -11,7 +11,7 @@ import idynomics.EnvironmentContainer;
  * \brief Boundary connecting a dimensionless compartment to a compartment
  * this spatial structure.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class ChemostatToBoundaryLayer extends Boundary
 {

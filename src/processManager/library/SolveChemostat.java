@@ -79,19 +79,8 @@ public class SolveChemostat extends ProcessManager
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
-
-	/**
-	 * \brief TODO
-	 *
-	 */
-	public SolveChemostat()
-	{
-
-	}
 	
-	/**
-	 * 
-	 */
+	@Override
 	public void init(Element xmlElem, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
@@ -99,10 +88,7 @@ public class SolveChemostat extends ProcessManager
 		this.init(environment, agents, compartmentName);
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 */
+	@Override
 	public void init(EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
@@ -114,11 +100,18 @@ public class SolveChemostat extends ProcessManager
 				agents, compartmentName);
 	}
 	
-	public void init(String [] soluteNames, EnvironmentContainer environment, 
+	/**
+	 * \brief TODO
+	 * 
+	 * @param soluteNames
+	 * @param environment
+	 * @param agents
+	 * @param compartmentName
+	 */
+	public void init(String[] soluteNames, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
-
-		// this super call is only required for the unit tests
+		/* This super call is only required for the unit tests. */
 		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		/*

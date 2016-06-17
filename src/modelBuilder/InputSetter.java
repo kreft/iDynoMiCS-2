@@ -12,7 +12,7 @@ import javax.swing.Action;
  * \brief Abstract action class that controls the setting of input to model
  * components.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class InputSetter extends AbstractAction
 {

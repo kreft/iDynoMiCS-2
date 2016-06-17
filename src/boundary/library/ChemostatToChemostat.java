@@ -13,7 +13,7 @@ import linearAlgebra.Vector;
 /**
  * \brief Connective boundary linking one dimensionless compartment to another.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class ChemostatToChemostat extends Boundary
 {

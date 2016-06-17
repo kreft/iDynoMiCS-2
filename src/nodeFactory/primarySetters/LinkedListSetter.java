@@ -18,7 +18,7 @@ public class LinkedListSetter implements NodeConstructor {
 	public ModelNode getNode() 
 	{
 		ModelNode modelNode = new ModelNode("item", this);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
 				listObject.getClass().getSimpleName(), null, true ));
@@ -34,14 +34,6 @@ public class LinkedListSetter implements NodeConstructor {
 		}
 		
 		return modelNode;
-	}
-
-
-	@Override
-	public void setNode(ModelNode node) 
-	{
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
 	}
 
 	@Override

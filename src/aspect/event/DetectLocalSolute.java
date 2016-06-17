@@ -19,7 +19,7 @@ import shape.subvoxel.CoordinateMap;
  * \brief Testing/template event that detects the local solute concentrations
  * of an agent and writes them to log file.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class DetectLocalSolute extends Event
 {

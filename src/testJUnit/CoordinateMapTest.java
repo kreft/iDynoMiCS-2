@@ -13,7 +13,7 @@ import static testJUnit.AllTests.TOLERANCE;
  * \brief Unit test checking that Coordinate Maps behave as they should,
  * assigning {@code double} values to coordinates that can be updated reliably.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class CoordinateMapTest
 {

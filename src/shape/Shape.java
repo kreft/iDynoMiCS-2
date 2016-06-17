@@ -174,7 +174,7 @@ public abstract class Shape implements
 	{
 
 		ModelNode modelNode = new ModelNode(XmlRef.compartmentShape, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
 										this.getName(), null, false ));
 		
