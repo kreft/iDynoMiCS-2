@@ -429,7 +429,7 @@ public class AspectReg
 				modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
 						simpleName, null, false ) );
 				
-				
+				//FIXME this needs to be finished
 		    	switch (simpleName)
 				{
 				case "HashMap":
@@ -539,14 +539,14 @@ public class AspectReg
 	    	{
 	    	case "CALCULATED":
 	    		pack = "aspect.calculated.";
-	    		classType = Helper.obtainInput( Helper.ListToArray(
+	    		classType = Helper.obtainInput( Helper.listToArray(
 	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
 	    				"aspect class", false);
 				
 	    		break;
 	    	case "EVENT": 
 	    		pack = "aspect.event.";
-	    		classType = Helper.obtainInput( Helper.ListToArray(
+	    		classType = Helper.obtainInput( Helper.listToArray(
 	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
 	    				"aspect class", false);
 				

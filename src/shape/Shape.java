@@ -24,7 +24,7 @@ import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
@@ -65,7 +65,7 @@ import utility.Helper;
  */
 // TODO remove the last three sections by incorporation into Node construction.
 public abstract class Shape implements
-					CanPrelaunchCheck, XMLable, NodeConstructor
+					CanPrelaunchCheck, Instantiatable, NodeConstructor
 {
 	protected enum WhereAmI
 	{
@@ -1694,7 +1694,7 @@ public abstract class Shape implements
 	
 	public static Shape getNewInstance(String className)
 	{
-		return (Shape) XMLable.getNewInstance(className, "shape.ShapeLibrary$");
+		return (Shape) Instantiatable.getNewInstance(className, "shape.ShapeLibrary$");
 	}
 	
 	public static String[] getAllOptions()

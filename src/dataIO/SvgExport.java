@@ -3,13 +3,17 @@ package dataIO;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import surface.Ball;
+import surface.Rod;
 
 /**
  * \brief TODO
  * 
+ * TODO sort agents in z-axis for topdown view 3d simulations
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class SvgExport
+public class SvgExport implements GraphicalExporter
 {
 	/**
 	 * TODO
@@ -28,6 +32,10 @@ public class SvgExport
 	 */
 	protected double _spacer = 25.0;
 	
+	
+	private static final String[] CIRCLE_LABELS = new String[] {"cx","cy"};
+
+	private static final String[] RECTANGLE_LABELS = new String[] {"x","y"};
 	/**
 	 * handles incrementing file numbering
 	 * @param filenr
@@ -45,36 +53,33 @@ public class SvgExport
 	 * @param vector
 	 * @return
 	 */
-	private String toSvg(double[] vector)
+	private String toSvg(double[] vector, String[] labels)
 	{
-		double[] v = Vector.zerosDbl(2);
-		int nDim = Math.min(vector.length, 2);
-		for ( int i = 0; i < nDim; i++ )
-			v[i] = vector[i];
-		/**
-		 * work out how to do scaling and domain properly and consistently
-		 */
-		return " cx=\"" + Double.toString(_spacer+_scalar*v[0]) + "\" cy=\"" + Double.toString(_spacer+_scalar*v[1]) + "\" ";
+		String out = " ";
+		for ( int i = 0; i < labels.length; i++ )
+			out += labels[i] + "=\"" + 
+					Double.toString( _spacer + _scalar * vector[i] ) + "\" ";
+		return out;
 	}
 	
 	/**
 	 * create a new svg file with prefix in appropriate folder
 	 * @param prefix
 	 */
-	public void newSvg(String prefix)
+	public void createFile(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".svg";
 		_svgFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
-
-		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">\n");
+		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" "
+				+ "version=\"1.1\">\n");
 	}
 	
 	/**
 	 * close the svg file and increment file number for next file
 	 */
-	public void closeSvg()
+	public void closeFile()
 	{
 		_svgFile.write("</svg>\n");
 		_svgFile.fclose();
@@ -94,7 +99,7 @@ public class SvgExport
 	 */
 	public void circle(double[] center, double radius, String pigment)
 	{
-		_svgFile.write("<circle " + toSvg(center) + "r=\"" +
+		_svgFile.write("<circle " + toSvg(center, CIRCLE_LABELS) + "r=\"" +
 				_scalar * radius + "\" fill=\"" + pigment
 				+ "\" />\n" );
 	}
@@ -157,25 +162,26 @@ public class SvgExport
 		/* finish points list */
 		sb.append("\"");
 		/* transform to 'real' location and end xml tag*/
-		sb.append(" transform=\"translate(" + circle_center[0] + " " + circle_center[1]
-																	+ ")\"/>");
+		sb.append(" transform=\"translate(" + circle_center[0] + " " 
+				+ circle_center[1] + ")\"/>");
 		/* write to file */
 		_svgFile.write(sb.toString());
 	}
 	
 	/**
-	 * draw a rectangle
+	 * draw a rectangle without rotation
 	 * @param location
 	 * @param dimensions
 	 * @param pigment
 	 */
 	public void rectangle(double[] location, double[] dimensions, String pigment)
 	{
-		_svgFile.write("<rect x=\"" + (_spacer + _scalar*location[0]) + "\" y=\"" + 
-				(_spacer + _scalar*location[1]) + "\" width=\"" + dimensions[0] * 
-				_scalar + "\" height=\"" + dimensions[1] * _scalar + 
+		_svgFile.write("<rect " + toSvg( location, RECTANGLE_LABELS ) + 
+				"width=\"" + dimensions[0] * _scalar + 
+				"\" height=\"" + dimensions[1] * _scalar + 
 				"\" fill=\"" + pigment + "\" />\n");
 	}
+	
 	
 	/**
 	 * draw a line
@@ -185,6 +191,69 @@ public class SvgExport
 	public void line(double[] positionA, double[] positionB, String pigment)
 	{
 		// TODO
+	}
+
+	/**
+	 * 
+	 */
+	public void draw(Ball ball, String pigment) 
+	{
+		this.circle(this.to2D(ball.getCenter()), ball.getRadius(), pigment);
+	}
+
+	/**
+	 * 
+	 */
+	public void draw(Rod rod, String pigment) 
+	{
+		double[] posA = this.to2D(rod._points[0].getPosition());
+		double[] posB = this.to2D(rod._points[1].getPosition());
+		
+		this.circle(posA, rod.getRadius(), pigment);
+		this.circle(posB, rod.getRadius(), pigment);
+		this.rectangle(posA, posB, rod.getRadius()*2.0, pigment);
+	}
+
+	/**
+	 * 
+	 */
+	public void sphere(double[] center, double radius, String pigment) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * 
+	 */
+	public void cylinder(double[] base, double[] top, double radius, 
+			String pigment) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * 
+	 */
+	public void cube(double[] lowerCorner, double[] dimensions, String pigment) 
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	/**
+	 * 
+	 */
+	public void rectangle(double[] base, double[] top, 
+			double width, String pigment) 
+	{
+		_svgFile.write("<line " + 
+				toSvg( base, new String[] { "x1", "y1"} ) +
+				toSvg( top,  new String[] { "x2", "y2"} ) +
+				"style=\"stroke:" + pigment + 
+				";stroke-width:" + _scalar*width + 
+				"\" />\n");
 	}
 }
 

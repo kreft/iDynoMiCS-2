@@ -42,6 +42,7 @@ public class SolveChemostat extends ProcessManager
 	public static String HMAX = AspectRef.solverhMax;
 	public static String TOLERANCE = AspectRef.solverTolerance;
 	public static String REACTIONS = AspectRef.agentReactions;
+	public String SOLUTES = AspectRef.soluteNames;
 	
 	/**
 	 * The ODE solver to use when updating solute concentrations. 
@@ -88,42 +89,49 @@ public class SolveChemostat extends ProcessManager
 
 	}
 	
-	@Override
-	public void init(Element xmlElem)
+	/**
+	 * 
+	 */
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
-		super.init(xmlElem);
-		this.init();
+		super.init(xmlElem, environment, agents, compartmentName);
+		this.init(environment, agents, compartmentName);
 	}
 	
 	/**
-	 * TODO
-	 */
-	public void init()
-	{
-		this.init((String[]) reg().getValue(this, SOLUTE_NAMES));
-	}
-
-	/**
 	 * \brief TODO
 	 * 
-	 * @param soluteNames
 	 */
-	public void init(String[] soluteNames)
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
+		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(
+				environment.getSoluteNames()));
+
+		init(soluteNames, environment, 
+				agents, compartmentName);
+	}
+	
+	public void init(String [] soluteNames, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+
+		// this super call is only required for the unit tests
+		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		/*
 		 * Initialise the solver.
 		 */
-		// TODO This should be done better
-		String solverName = this.getString(SOLVER);
-		solverName = Helper.setIfNone(solverName, "rosenbrock");
-		double hMax = Helper.setIfNone(this.getDouble(HMAX), 1.0e-6);
+		String solverName = (String) this.getOr(SOLVER, "rosenbrock");
+		double hMax = (double) this.getOr(HMAX, 1.0e-6);
 		if ( solverName.equals("heun") )
-			this._solver = new ODEheunsmethod(soluteNames, false, hMax);
+			this._solver = new ODEheunsmethod(_soluteNames, false, hMax);
 		else
 		{
-			double tol = Helper.setIfNone(this.getDouble(TOLERANCE), 1.0e-6);
-			this._solver = new ODErosenbrock(soluteNames, false, tol, hMax);
+			double tol = (double) this.getOr(TOLERANCE, 1.0e-6);
+			this._solver = new ODErosenbrock(_soluteNames, false, tol, hMax);
 		}
 		/*
 		 * Initialise vectors that need the number of solutes.
@@ -137,8 +145,7 @@ public class SolveChemostat extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
-			AgentContainer agents)
+	protected void internalStep()
 	{
 		Tier level = Tier.DEBUG;
 		Log.out(level, "SolveChemostat internal step starting");
@@ -147,21 +154,22 @@ public class SolveChemostat extends ProcessManager
 		 */
 		// TODO remove? This should be handled by the Compartment at the start
 		// of the global time step
-		for ( Boundary aBoundary : environment.getOtherBoundaries() )
+		for ( Boundary aBoundary : this._environment.getOtherBoundaries() )
 			{
 				for ( Agent anAgent : aBoundary.getAllInboundAgents() )
-					agents.addAgent(anAgent);
+					this._agents.addAgent(anAgent);
 				aBoundary.clearArrivalsLoungue();
 			}
 		/*
 		 * Update information that depends on the environment.
 		 */
-		this.updateDilutionInflow(environment);
-		this.updateConcnsAndY(environment);
+		this.updateDilutionInflow(this._environment);
+		this.updateConcnsAndY(this._environment);
 		/*
 		 * Update the solver's derivative functions (dY/dT, dF/dT, dF/dY).
 		 */
-		this._solver.setDerivatives(this.standardUpdater(environment, agents));
+		this._solver.setDerivatives(
+				this.standardUpdater(this._environment, this._agents));
 		/*
 		 * Solve the system and update the environment.
 		 */
@@ -169,7 +177,7 @@ public class SolveChemostat extends ProcessManager
 		try { this._y = this._solver.solve(this._y, this._timeStepSize); }
 		catch ( Exception e) { e.printStackTrace();}
 		Log.out(level, " Solver finished: y = "+Vector.toString(this._y));
-		updateEnvironment(environment);
+		updateEnvironment(this._environment);
 		/*
 		 * Finally, select Agents to be washed out of the Compartment.
 		 */

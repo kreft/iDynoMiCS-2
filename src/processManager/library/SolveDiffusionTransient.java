@@ -32,6 +32,7 @@ import shape.Shape;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEupdater;
+import utility.Helper;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
@@ -88,26 +89,49 @@ public class SolveDiffusionTransient extends ProcessManager
 	// TODO replace with diffusivitySetter
 	protected HashMap<String,Double> _diffusivity;
 	
+	/**
+	 * TODO
+	 */
+	public String SOLUTES = AspectRef.soluteNames;
+
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
-		super.init(xmlElem);
-		this.init(getStringA("solutes"));
+		super.init(xmlElem, environment, agents, compartmentName);
+		this.init(environment, agents, compartmentName);
 	}
 	
 	/**
 	 * \brief Initialise this diffusion-reaction process manager with a list of
 	 * solutes it is responsible for.
 	 * 
+	 * 
+	 * 
 	 * @param soluteNames The list of solutes this is responsible for.
 	 */
-	public void init(String[] soluteNames)
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
+		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(
+				this._environment.getSoluteNames()));
+
+		init( soluteNames, environment, 
+				agents, compartmentName );
+	}
+	
+	public void init( String[] soluteNames, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		// this super call is only required for the unit tests
+		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
@@ -123,7 +147,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		}
 		// TODO enter a diffusivity other than one!
 		this._diffusivity = new HashMap<String,Double>();
-		for ( String sName : soluteNames )
+		for ( String sName : _soluteNames )
 			this._diffusivity.put(sName, 1.0);
 		String msg = "SolveDiffusionTransient responsible for solutes: ";
 		for ( String s : this._soluteNames )
@@ -136,14 +160,13 @@ public class SolveDiffusionTransient extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
-														AgentContainer agents)
+	protected void internalStep()
 	{
 		/*
 		 * Set up the agent mass distribution maps, to ensure that agent
 		 * reactions are spread over voxels appropriately.
 		 */
-		agents.setupAgentDistributionMaps();
+		this._agents.setupAgentDistributionMaps();
 		/*
 		 * Set up the relevant arrays in each of our solute grids: diffusivity 
 		 * & well-mixed need only be done once each process manager time step,
@@ -152,21 +175,21 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		for ( String soluteName : this._soluteNames )
 		{
-			SpatialGrid solute = environment.getSoluteGrid(soluteName);
+			SpatialGrid solute = this._environment.getSoluteGrid(soluteName);
 			// TODO use diffusivitySetter
 			solute.newArray(DIFFUSIVITY, this._diffusivity.get(soluteName));
-			this._wellmixed.get(soluteName).updateWellmixed(solute, agents);
+			this._wellmixed.get(soluteName).updateWellmixed(solute, this._agents);
 		}
 		/*
 		 * Set the updater method and solve.
 		 */
-		this._solver.setUpdater(standardUpdater(environment, agents));
-		this._solver.solve(environment.getSolutes(), this._timeStepSize);
+		this._solver.setUpdater(standardUpdater(this._environment, this._agents));
+		this._solver.solve(this._environment.getSolutes(), this._timeStepSize);
 		
 		/*
 		 * clear distribution maps, prevent unneeded clutter in xml output
 		 */
-		for ( Agent a : agents.getAllLocatedAgents() )
+		for ( Agent a : this._agents.getAllLocatedAgents() )
 			a.reg().remove(VOLUME_DISTRIBUTION_MAP);
 	}
 	

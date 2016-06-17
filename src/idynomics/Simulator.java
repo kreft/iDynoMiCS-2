@@ -13,7 +13,7 @@ import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
@@ -25,7 +25,7 @@ import nodeFactory.ModelNode.Requirements;
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Simulator implements CanPrelaunchCheck, Runnable, XMLable, NodeConstructor
+public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, NodeConstructor
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.

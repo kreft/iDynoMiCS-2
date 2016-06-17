@@ -100,7 +100,11 @@ public class ObjectFactory
 					}
 				case ObjectRef.DBL : 
 					try{
-						return Double.valueOf(input);
+					/*
+					 * Allow for for expressions as input argument
+					 */
+						return Double.valueOf( 
+								Helper.interpretExpression(input) );
 					}
 					catch(NumberFormatException e)
 					{

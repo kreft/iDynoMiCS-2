@@ -10,8 +10,9 @@ import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.XmlRef;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
@@ -25,7 +26,7 @@ import nodeFactory.ModelNode.Requirements;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ProcessManager implements XMLable, AspectInterface,
+public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		NodeConstructor
 {
 	/**
@@ -46,17 +47,46 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	 */
 	protected double _timeStepSize;
 	/**
-     * The aspect registry... TODO
-     */
-    private AspectReg _aspectRegistry = new AspectReg();
+	 * The aspect registry... TODO
+	 */
+	private AspectReg _aspectRegistry = new AspectReg();
+	/**
+	 * Reference to the environment of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected EnvironmentContainer _environment;
+	/**
+	 * Reference to the agents of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected AgentContainer _agents;
+	
+	/**
+	 * 
+	 */
+	protected String _compartmentName;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	@Override
-	public void init(Element xmlElem)
+	/**
+	 * \brief Initialise the process from XML protocol file, plus the relevant
+	 * information about the compartment it belongs to.
+	 * 
+	 * @param xmlElem Relevant part of the XML protocol file.
+	 * @param environment The {@code EnvironmentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param agents The {@code AgentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 */
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
+		
 		//FIXME quick fix: cut/paste from
 		//"public static ProcessManager getNewInstance(Node xmlNode)"
 		
@@ -78,21 +108,41 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 		this.setTimeForNextStep(time);
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
-		if ( p.hasAttribute(XmlRef.timerStepSize) )
-			time = Double.valueOf( p.getAttribute(XmlRef.timerStepSize) );
+		if ( p.hasAttribute(XmlRef.processTimeStepSize) )
+			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
 		this.setTimeStepSize(time);
+	}
+	
+	/**
+	 * stripped down init required for JUnit tests without xml
+	 * @param environment
+	 * @param agents
+	 * @param compartmentName
+	 */
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
 	}
 	
 	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 
-	 * @param xmlNode
-	 * @return
+	 * @param xmlNode Relevant part of the XML protocol file.
+	 * @param environment The {@code EnvironmentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param agents The {@code AgentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @return New process manager.
 	 */
-	public static ProcessManager getNewInstance(Node xmlNode)
+	public static ProcessManager getNewInstance(Node xmlNode, 
+			EnvironmentContainer environment, AgentContainer agents, 
+			String CompartmentName)
 	{
-		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		proc.init((Element) xmlNode);
+		ProcessManager proc = (ProcessManager) Instantiatable.getNewInstance(xmlNode);
+		proc.init((Element) xmlNode, environment, agents, CompartmentName);
 		return proc;
 	}
 	
@@ -100,7 +150,7 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	{
 		//return (ProcessManager) XMLable.getNewInstance(className);
 		
-		return (ProcessManager) XMLable.getNewInstance(className, 
+		return (ProcessManager) Instantiatable.getNewInstance(className, 
 				Idynomics.xmlPackageLibrary.get(className));
 	}
 	
@@ -210,13 +260,13 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	 * @param agents The {@code AgentContainer} of the
 	 * {@code Compartment} this process belongs to.
 	 */
-	public void step(EnvironmentContainer environment, AgentContainer agents)
+	public void step()
 	{
 		/*
 		 * This is where subclasses of ProcessManager do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
 		 */
-		this.internalStep(environment, agents);
+		this.internalStep();
 		/*
 		 * Move the time for next step forward by the step size.
 		 */
@@ -228,14 +278,8 @@ public abstract class ProcessManager implements XMLable, AspectInterface,
 	/**
 	 * \brief Perform the internal step for this process manager: this will be
 	 * implemented by each sub-class of {@code ProcessManager}.
-	 * 
-	 * @param environment The {@code EnvironmentContainer} of the
-	 * {@code Compartment} this process belongs to.
-	 * @param agents The {@code AgentContainer} of the
-	 * {@code Compartment} this process belongs to.
 	 */
-	protected abstract void internalStep(
-					EnvironmentContainer environment, AgentContainer agents);
+	protected abstract void internalStep();
 	
 	public static List<String> getAllOptions()
 	{

@@ -1741,6 +1741,21 @@ public final class Vector
 		return subset(vector, 0, stop);
 	}
 	
+	/**
+	 *  \brief TODO
+	 * @param vector
+	 * @param appendable
+	 * @return
+	 */
+	public static double[] appendDouble(double[] vector, double appendable)
+	{
+		double[] out = new double[vector.length+1];
+		for (int i = 0; i < vector.length; i++)
+			out[i] = vector[i];
+		out[vector.length] = appendable;
+		return out;
+	}
+	
 	/* Flip */
 	
 	/**

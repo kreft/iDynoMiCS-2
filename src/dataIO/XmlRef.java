@@ -359,5 +359,9 @@ public class XmlRef
 	 */
 	public static String spawnDomain = "domain";
 
+	/**
+	 * 
+	 */
+	public static String processTimeStepSize = "timerStepSize";
 
 }
