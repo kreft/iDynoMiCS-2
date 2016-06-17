@@ -309,8 +309,8 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
-		modelNode.requirement = Requirements.ZERO_OR_ONE;
-		modelNode.title = this._name;
+		modelNode.setRequirements(Requirements.ZERO_OR_ONE);
+		modelNode.setTitle(this._name);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 				this._name, null, false ));
@@ -330,7 +330,7 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 			Double coefficient) {
 		
 		ModelNode modelNode = new ModelNode(XmlRef.stoichiometry, constructor);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		modelNode.add(new ModelAttribute(XmlRef.component, 
 				component, null, false ));
@@ -341,13 +341,6 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 		return modelNode;
 	}
 	
-	@Override
-	public void setNode(ModelNode node) 
-	{
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
-	}
-
 	@Override
 	public NodeConstructor newBlank() {
 		// TODO Auto-generated method stub

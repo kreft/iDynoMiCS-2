@@ -194,10 +194,10 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 
 		/* the species lib node */
 		ModelNode modelNode = new ModelNode(XmlRef.speciesLibrary, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* Species constructor */
-		modelNode.childConstructors.put(new Species(), 
+		modelNode.addChildConstructor(new Species(), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		/* the already existing species */
@@ -205,17 +205,6 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 			modelNode.add(((Species) _species.get(s)).getNode());
 	
 		return modelNode;
-	}
-
-	/**
-	 * Load and interpret the values of the given ModelNode to this 
-	 * SpeciesLib object
-	 * @param node
-	 */
-	@Override
-	public void setNode(ModelNode node) {
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
 	}
 
 	/**

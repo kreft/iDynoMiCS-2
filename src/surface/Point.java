@@ -276,7 +276,7 @@ public class Point implements Copyable, NodeConstructor
 	{
 		/* point node */
 		ModelNode modelNode = new ModelNode(XmlRef.point, this);
-		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 
 		/* position attribute */
 		modelNode.add(new ModelAttribute(XmlRef.position, 

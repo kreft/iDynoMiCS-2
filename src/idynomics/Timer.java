@@ -162,7 +162,7 @@ public class Timer implements XMLable, NodeConstructor
 	{
 		/* the timer node */
 		ModelNode modelNode = new ModelNode(XmlRef.timer, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* time step size */
 		modelNode.add(new ModelAttribute(XmlRef.timerStepSize, 

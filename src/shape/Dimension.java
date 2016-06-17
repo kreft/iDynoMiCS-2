@@ -575,7 +575,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 										this._dimName.name(), null, false ));
 		modelNode.add(new ModelAttribute(XmlRef.IS_CYCLIC, 
