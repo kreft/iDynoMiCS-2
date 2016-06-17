@@ -111,16 +111,17 @@ public class GraphicalOutput extends ProcessManager
 		
 		/* Output naming */
 		if (_solute == null)
-			this._prefix = "agents";
+			this._prefix = _compartment.getName() + "_" + "agents";
 		else
-			this._prefix = _solute + "_" + _arrayType.toString();
+			this._prefix = _compartment.getName() + "_" + _solute + "_" +
+					_arrayType.toString();
 
 		/* get instance of appropriate output writer */
 		this._graphics = GraphicalExporter.getNewInstance(
 				this.getString(OUTPUT_WRITER) );
 		
 		/* write scene files (used by pov ray) */
-		this._graphics.sceneFiles( this._prefix, this._shape );
+		this._graphics.init( this._prefix, this._shape );
 		
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );

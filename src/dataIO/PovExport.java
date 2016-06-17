@@ -4,7 +4,6 @@ import java.util.List;
 import agent.Agent;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
-import linearAlgebra.Vector;
 import shape.Shape;
 import surface.Ball;
 import surface.Rod;
@@ -56,7 +55,7 @@ public class PovExport implements GraphicalExporter
 		out += " >\n";
 		return out;
 	}
-	
+
 	/**
 	 * 
 	 * @param prefix
@@ -90,7 +89,8 @@ public class PovExport implements GraphicalExporter
 	 * @param prefix
 	 * @param shape
 	 */
-	public void sceneFiles(String prefix, Shape shape)
+	@Override
+	public void init(String prefix, Shape shape)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ "sceneheader.inc";

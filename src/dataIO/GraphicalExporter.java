@@ -165,7 +165,7 @@ public interface GraphicalExporter {
 	 * @param _prefix
 	 * @param shape
 	 */
-	public default void sceneFiles(String _prefix, Shape shape)
+	public default void init(String _prefix, Shape shape)
 	{
 		
 	}
