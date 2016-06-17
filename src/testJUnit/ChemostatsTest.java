@@ -7,7 +7,9 @@ import org.junit.Test;
 
 import boundary.library.ChemostatToChemostat;
 import grid.ArrayType;
+import idynomics.AgentContainer;
 import idynomics.Compartment;
+import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import processManager.library.SolveChemostat;
 import shape.ShapeLibrary.Dimensionless;
@@ -49,7 +51,8 @@ public class ChemostatsTest
 		chemo.environment.addSolute(soluteName);
 		SolveChemostat p1 = new SolveChemostat();
 		p1.setName("SolveChemostat");
-		p1.init(new String[]{soluteName});
+		p1.init(new String[]{soluteName}, chemo.environment, 
+				chemo.agents, chemo.getName());
 		p1.setTimeStepSize(tStep);
 		chemo.addProcessManager(p1);
 		/*

@@ -13,7 +13,9 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import idynomics.AgentContainer;
 import idynomics.Compartment;
+import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import processManager.library.SolveDiffusionTransient;
@@ -72,7 +74,7 @@ public class PdeTest
 		 */
 		SolveDiffusionTransient pm = new SolveDiffusionTransient();
 		pm.setName("DR solver");
-		pm.init(new String[]{soluteName});
+		pm.init(new String[]{soluteName}, comp.environment, comp.agents, comp.getName());
 		pm.setTimeForNextStep(0.0);
 		pm.setTimeStepSize(tStep);
 		pm.setPriority(1);
@@ -134,7 +136,8 @@ public class PdeTest
 		 */
 		SolveDiffusionTransient pm = new SolveDiffusionTransient();
 		pm.setName("DR solver");
-		pm.init(new String[]{soluteName});
+		pm.init(new String[]{soluteName}, comp.environment, 
+				comp.agents, comp.getName());
 		pm.setTimeForNextStep(0.0);
 		pm.setTimeStepSize(tStep);
 		pm.setPriority(1);

@@ -133,10 +133,9 @@ public class AgentRelaxation extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem, Compartment compartment)
-			EnvironmentContainer environment, AgentContainer agents)
+	public void init(Element xmlElem, EnvironmentContainer environment, AgentContainer agents, String compartmentName)
 	{
-		super.init(xmlElem, environment, agents);
+		super.init(xmlElem, environment, agents, compartmentName);
 		
 		/*
 		 * Obtaining relaxation parameters.
@@ -147,7 +146,7 @@ public class AgentRelaxation extends ProcessManager
 				getString(RELAXATION_METHOD), Method.EULER.toString() ) );
 		this._timeLeap	= true;
 		
-		this._shape = compartment.getShape();
+		this._shape = agents.getShape();
 		this._shapeSurfs  = _shape.getSurfaces();
 		this._iterator = new Collision(null, this._agents.getShape());
 	}

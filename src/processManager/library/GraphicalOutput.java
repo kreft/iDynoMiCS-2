@@ -84,6 +84,7 @@ public class GraphicalOutput extends ProcessManager
 	 * 
 	 */
 	protected Shape _shape;
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -92,15 +93,16 @@ public class GraphicalOutput extends ProcessManager
 	/**
 	 * Initiate the process manager from xml node
 	 */
-	public void init(Element xmlElem, Compartment compartment)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
 		/*
 		 * Initiate general process manager settings
 		 */
-		super.init(xmlElem, compartment);
+		super.init(xmlElem, environment, agents, compartmentName);
 
 		/* set the shape */
-		this._shape = _compartment.getShape();
+		this._shape = agents.getShape();
 		
 		/* If any, solute to plot */
 		this._solute = this.getString(SOLUTE_NAME);
@@ -111,9 +113,9 @@ public class GraphicalOutput extends ProcessManager
 		
 		/* Output naming */
 		if (_solute == null)
-			this._prefix = _compartment.getName() + "_" + "agents";
+			this._prefix = _compartmentName + "_" + "agents";
 		else
-			this._prefix = _compartment.getName() + "_" + _solute + "_" +
+			this._prefix = _compartmentName + "_" + _solute + "_" +
 					_arrayType.toString();
 
 		/* get instance of appropriate output writer */
@@ -133,8 +135,7 @@ public class GraphicalOutput extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	protected void internalStep(EnvironmentContainer environment,
-														AgentContainer agents)
+	protected void internalStep()
 	{
 		/* Initiate new file. */
 		this._graphics.createFile(this._prefix);
@@ -159,7 +160,7 @@ public class GraphicalOutput extends ProcessManager
 					+ this._name + " will not draw a computational domain.");
 		
 		/* Draw solute grid for specified solute, if any. */
-		if ( ! environment.isSoluteName(this._solute) )
+		if ( ! _environment.isSoluteName(this._solute) )
 		{
 			//TODO Bas [08/06/16] this should not be a critical warning since
 			// this is a sensible option if the user does not want to plot a 
@@ -170,9 +171,9 @@ public class GraphicalOutput extends ProcessManager
 		else
 		{
 				
-			SpatialGrid solute = environment.getSoluteGrid(_solute);
+			SpatialGrid solute = _environment.getSoluteGrid(_solute);
 			
-			int nDim = agents.getNumDims();
+			int nDim = _agents.getNumDims();
 			double[] origin;
 			double[] dimension = new double[3];
 			for ( int[] coord = _shape.resetIterator(); 
@@ -215,7 +216,7 @@ public class GraphicalOutput extends ProcessManager
 			}
 		}
 		/* Draw all located agents. */
-		for ( Agent a: agents.getAllLocatedAgents() )
+		for ( Agent a: _agents.getAllLocatedAgents() )
 			if ( a.isAspect(BODY) )
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();

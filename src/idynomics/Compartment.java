@@ -254,8 +254,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 				str = XmlHandler.gatherAttribute(procElem,
 													XmlRef.nameAttribute);
 				Log.out(Tier.EXPRESSIVE, "\t"+str);
-				pm = ProcessManager.getNewInstance(
-						procElem, this.environment, this.agents);
+				pm = ProcessManager.getNewInstance(procElem, this.environment, 
+						this.agents, this.getName());
 				this.addProcessManager(pm);
 			}
 		}

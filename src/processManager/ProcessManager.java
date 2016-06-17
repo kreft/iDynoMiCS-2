@@ -61,6 +61,11 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	protected AgentContainer _agents;
 	
+	/**
+	 * 
+	 */
+	protected String _compartmentName;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -75,11 +80,12 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * @param agents The {@code AgentContainer} of the
 	 * {@code Compartment} this process belongs to.
 	 */
-	public void init(Element xmlElem, 
-			EnvironmentContainer environment, AgentContainer agents)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
 		this._environment = environment;
 		this._agents = agents;
+		this._compartmentName = compartmentName;
 		
 		//FIXME quick fix: cut/paste from
 		//"public static ProcessManager getNewInstance(Node xmlNode)"
@@ -108,6 +114,20 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	}
 	
 	/**
+	 * stripped down init required for JUnit tests without xml
+	 * @param environment
+	 * @param agents
+	 * @param compartmentName
+	 */
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
+	}
+	
+	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 
 	 * @param xmlNode Relevant part of the XML protocol file.
@@ -118,10 +138,11 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * @return New process manager.
 	 */
 	public static ProcessManager getNewInstance(Node xmlNode, 
-			EnvironmentContainer environment, AgentContainer agents)
+			EnvironmentContainer environment, AgentContainer agents, 
+			String CompartmentName)
 	{
-		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		proc.init((Element) xmlNode, environment, agents);
+		ProcessManager proc = (ProcessManager) Instantiatable.getNewInstance(xmlNode);
+		proc.init((Element) xmlNode, environment, agents, CompartmentName);
 		return proc;
 	}
 	

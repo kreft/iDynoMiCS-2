@@ -78,10 +78,10 @@ public class WriteAgentsSvg extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem, 
-			EnvironmentContainer environment, AgentContainer agents)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
-		super.init(xmlElem, environment, agents);
+		super.init(xmlElem, environment, agents, compartmentName);
 		
 		this._solute = this.getString(SOLUTE_NAME);
 		this._maxConcn = ( this.isAspect(MAX_VALUE) ? 

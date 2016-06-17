@@ -92,11 +92,6 @@ public class SolveDiffusionTransient extends ProcessManager
 	/**
 	 * TODO
 	 */
-	private Compartment _compartment;
-	
-	/**
-	 * TODO
-	 */
 	public String SOLUTES = AspectRef.soluteNames;
 
 	
@@ -106,30 +101,37 @@ public class SolveDiffusionTransient extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem, 
-			EnvironmentContainer environment, AgentContainer agents)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
-		super.init(xmlElem, environment, agents);
-		this.init();
+		super.init(xmlElem, environment, agents, compartmentName);
+		this.init(environment, agents, compartmentName);
 	}
 	
 	/**
 	 * \brief Initialise this diffusion-reaction process manager with a list of
 	 * solutes it is responsible for.
 	 * 
+	 * 
+	 * 
 	 * @param soluteNames The list of solutes this is responsible for.
 	 */
-	public void init()
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
 		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
 				Helper.collectionToArray(
-				this._compartment.environment.getSoluteNames()));
+				this._environment.getSoluteNames()));
 
-		init( soluteNames );
+		init( soluteNames, environment, 
+				agents, compartmentName );
 	}
 	
-	public void init( String[] soluteNames )
+	public void init( String[] soluteNames, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
+		// this super call is only required for the unit tests
+		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
