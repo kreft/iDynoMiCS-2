@@ -22,7 +22,7 @@ import nodeFactory.ModelNode.Requirements;
  * \brief Simulator manages all compartments, making sure they synchronise at
  * the correct times. 
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, NodeConstructor

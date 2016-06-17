@@ -12,7 +12,7 @@ import processManager.ProcessManager;
 /**
  * \brief Process that introduces new agents to the compartment.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class AgentIntroduction extends ProcessManager
 {

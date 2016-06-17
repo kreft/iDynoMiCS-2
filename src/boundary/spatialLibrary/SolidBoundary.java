@@ -11,7 +11,7 @@ import shape.Dimension.DimName;
 /**
  * \brief Boundary that allows neither agents nor solutes to cross it.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class SolidBoundary extends SpatialBoundary
 {

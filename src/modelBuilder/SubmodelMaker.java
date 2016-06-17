@@ -11,7 +11,7 @@ import java.util.List;
  * sub-model instances) it has created, so that it can control their numbers by
  * use of {@code Requirement}.</p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class SubmodelMaker extends InputSetter
 {

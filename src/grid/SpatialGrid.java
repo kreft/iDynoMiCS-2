@@ -35,7 +35,7 @@ import utility.ExtraMath;
  * 
  * <p>On the boundaries of the grid, </p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  * 								Friedrich-Schiller University Jena, Germany 
  */

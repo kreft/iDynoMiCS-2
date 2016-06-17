@@ -12,7 +12,7 @@ import nodeFactory.NodeConstructor;
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Point implements Copyable, NodeConstructor
 {

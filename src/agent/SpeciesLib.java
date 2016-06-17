@@ -27,7 +27,7 @@ import nodeFactory.ModelNode.Requirements;
  * \brief Stores information about all species relevant to a simulation.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 {

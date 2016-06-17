@@ -51,7 +51,7 @@ import shape.Dimension.DimName;
  * containers -> process managers -> compartment. All the arrows point in the
  * same direction, meaning no entanglement of the kind iDynoMiCS 1 suffered.</p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany

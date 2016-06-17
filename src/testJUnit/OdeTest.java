@@ -17,7 +17,7 @@ import utility.ExtraMath;
  * \brief Test checking that the Ordinary Differential Equation (ODE) solvers
  * behave as they should.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class OdeTest
 {

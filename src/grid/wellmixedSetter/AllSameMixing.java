@@ -17,7 +17,7 @@ import idynomics.AgentContainer;
  * 
  * <p>By default, this value is one.</p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class AllSameMixing implements IsWellmixedSetter
 {

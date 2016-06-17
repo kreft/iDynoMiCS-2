@@ -23,7 +23,7 @@ import nodeFactory.ModelNode.Requirements;
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		NodeConstructor

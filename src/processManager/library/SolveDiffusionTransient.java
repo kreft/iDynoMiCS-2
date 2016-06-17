@@ -38,7 +38,7 @@ import utility.Helper;
  * \brief Simulate the diffusion of solutes and their production/consumption by
  * reactions in a time-dependent manner, in a spatial {@code Compartment}.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class SolveDiffusionTransient extends ProcessManager
