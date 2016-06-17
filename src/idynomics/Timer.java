@@ -5,7 +5,7 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -18,7 +18,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public class Timer implements XMLable, NodeConstructor
+public class Timer implements Instantiatable, NodeConstructor
 {
 	/**
 	 * TODO
@@ -45,12 +45,7 @@ public class Timer implements XMLable, NodeConstructor
 		this._iteration = 0;
 		this._now = 0.0;
 	}
-	
-	public String getName()
-	{
-		return XmlRef.timer;
-	}
-	
+		
 	public void init(Element xmlNode)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");

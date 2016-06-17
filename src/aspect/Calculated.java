@@ -1,7 +1,7 @@
 package aspect;
 
 import generalInterfaces.Copyable;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
@@ -16,7 +16,7 @@ import dataIO.XmlRef;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Calculated implements Copyable, XMLable
+public abstract class Calculated implements Copyable, Instantiatable
 {
 	/**
 	 * input states
@@ -67,14 +67,14 @@ public abstract class Calculated implements Copyable, XMLable
 	 */
 	public static Object getNewInstance(Node xmlNode)
 	{
-		Calculated obj = (Calculated) XMLable.getNewInstance(xmlNode);
+		Calculated obj = (Calculated) Instantiatable.getNewInstance(xmlNode);
 		obj.init((Element) xmlNode);
 		return obj;
 	}
 	
 
 	public static Object getNewInstance(String input) {
-		Calculated obj = (Calculated) XMLable.getNewInstance(input);
+		Calculated obj = (Calculated) Instantiatable.getNewInstance(input);
 		obj.init(input);
 		return obj;
 	}

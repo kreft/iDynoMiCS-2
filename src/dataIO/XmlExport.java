@@ -47,9 +47,12 @@ public class XmlExport
 	public void closeXml()
 	{
 		_xmlFile.write("</document>\n");
+		_xmlFile.flushAll();
 		_xmlFile.fclose();
 		_filewriterfilenr++;
 	}
+
+	
 
 	
 	/**

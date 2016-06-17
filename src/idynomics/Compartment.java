@@ -15,7 +15,7 @@ import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import grid.*;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
@@ -56,7 +56,7 @@ import shape.Dimension.DimName;
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
+public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConstructor
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -254,8 +254,8 @@ public class Compartment implements CanPrelaunchCheck, XMLable, NodeConstructor
 				str = XmlHandler.gatherAttribute(procElem,
 													XmlRef.nameAttribute);
 				Log.out(Tier.EXPRESSIVE, "\t"+str);
-				pm = ProcessManager.getNewInstance(
-						procElem, this.environment, this.agents);
+				pm = ProcessManager.getNewInstance(procElem, this.environment, 
+						this.agents, this.getName());
 				this.addProcessManager(pm);
 			}
 		}

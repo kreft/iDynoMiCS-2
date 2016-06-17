@@ -73,7 +73,7 @@ public class AgentRelaxation extends ProcessManager
 		/**
 		 * Heun's method.
 		 */
-		HEUN
+		HEUN, 
 	}
 
 	// FIXME work in progress
@@ -117,16 +117,38 @@ public class AgentRelaxation extends ProcessManager
 	 * TODO
 	 */
 	private Collision _iterator;
+	
+	/**
+	 * 
+	 */
+	private Shape _shape;
+	
+	/**
+	 * 
+	 */
+	private Collection<Surface> _shapeSurfs;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem, 
-			EnvironmentContainer environment, AgentContainer agents)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+				AgentContainer agents, String compartmentName)
 	{
-		super.init(xmlElem, environment, agents);
+		super.init(xmlElem, environment, agents, compartmentName);
+		
+		/*
+		 * Obtaining relaxation parameters.
+		 */
+		this._dtBase = Helper.setIfNone( this.getDouble(BASE_DT), 0.0003 );	
+		this._maxMovement = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 0.01 );	
+		this._method = Method.valueOf( Helper.setIfNone(
+				this.getString(RELAXATION_METHOD), Method.EULER.toString() ) );
+		this._timeLeap	= true;
+		
+		this._shape = agents.getShape();
+		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = new Collision(null, this._agents.getShape());
 	}
 
@@ -144,13 +166,7 @@ public class AgentRelaxation extends ProcessManager
 	{
 		Tier level = BULK;
 		Log.out(level, "Updating agent forces");
-		Shape shape = agents.getShape();
-		/*
-		 * Updated bodies will required an updated spatial registry.
-		 */
-		agents.refreshSpatialRegistry();
-		// TODO Move this into internalStep() and make shapeSurfs a class variable?
-		Collection<Surface> shapeSurfs = shape.getSurfaces();
+
 		/* Calculate forces. */
 		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
@@ -175,8 +191,8 @@ public class AgentRelaxation extends ProcessManager
 					 */
 					Point a 		= ((Rod) s)._points[0];
 					Point b 		= ((Rod) s)._points[1];
-					double[] diff 	= shape.getMinDifference(a.getPosition() , 
-							b.getPosition() );
+					double[] diff 	= this._shape.getMinDifference(
+							a.getPosition(), b.getPosition() );
 					double dn 		= Vector.normEuclid(diff);
 					if (dn > 2.0 )
 						System.out.println(dn);
@@ -226,22 +242,15 @@ public class AgentRelaxation extends ProcessManager
 			 * Boundary collisions
 			 */
 			// FIXME here we need to selectively apply surface collision methods
-			this._iterator.collision(shapeSurfs, agentSurfs, 0.0);
+			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
 		}
 		Log.out(level, " Finished updating agent forces");
 	}
 
 
+	@Override
 	protected void internalStep()
 	{
-		/*
-		 * Obtaining relaxation parameters.
-		 */
-		this._dtBase = Helper.setIfNone( getDouble(BASE_DT), 0.0005 );	
-		this._maxMovement = Helper.setIfNone( getDouble(MAX_MOVEMENT), 0.01 );	
-		this._method = Method.valueOf( Helper.setIfNone(
-				getString(RELAXATION_METHOD), Method.EULER.toString() ) );
-		this._timeLeap	= true;
 		/**
 		 * Update agent body now required
 		 */
@@ -296,7 +305,8 @@ public class AgentRelaxation extends ProcessManager
 			// time Leaping set the time step to match a max traveling distance
 			// divined by 'maxMovement', for a 'fast' run.
 			if ( this._timeLeap ) 
-				this._dtMech = this._maxMovement / (Math.sqrt(this._vSquare)+0.001);
+				this._dtMech = this._maxMovement / 
+						( Math.sqrt( this._vSquare ) + 0.001 );
 
 			// prevent to relaxing longer than the global _timeStepSize
 			if ( this._dtMech > this._timeStepSize - this._tMech )
@@ -320,8 +330,8 @@ public class AgentRelaxation extends ProcessManager
 					for ( Point point: body.getPoints() )
 						point.shove(this._dtMech, radius);
 				}
-				/* Continue until all overlap is resolved. */
-				if ( this._vSquare == 0.0 )
+				/* Continue until nearly all overlap is resolved. */
+				if ( this._vSquare < 0.001 )
 					this._tMech = this._timeStepSize;
 				break;
 			}

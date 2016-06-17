@@ -32,6 +32,7 @@ import shape.Shape;
 import solver.PDEexplicit;
 import solver.PDEsolver;
 import solver.PDEupdater;
+import utility.Helper;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
@@ -88,17 +89,23 @@ public class SolveDiffusionTransient extends ProcessManager
 	// TODO replace with diffusivitySetter
 	protected HashMap<String,Double> _diffusivity;
 	
+	/**
+	 * TODO
+	 */
+	public String SOLUTES = AspectRef.soluteNames;
+
+	
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem, 
-			EnvironmentContainer environment, AgentContainer agents)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
-		super.init(xmlElem, environment, agents);
-		this.init(getStringA("solutes"));
+		super.init(xmlElem, environment, agents, compartmentName);
+		this.init(environment, agents, compartmentName);
 	}
 	
 	/**
@@ -107,8 +114,22 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * 
 	 * @param soluteNames The list of solutes this is responsible for.
 	 */
-	public void init(String[] soluteNames)
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
+		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(
+				this._environment.getSoluteNames()));
+
+		init( soluteNames, environment, 
+				agents, compartmentName );
+	}
+	
+	public void init( String[] soluteNames, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		/* This super call is only required for the unit tests. */
+		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
@@ -124,7 +145,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		}
 		// TODO enter a diffusivity other than one!
 		this._diffusivity = new HashMap<String,Double>();
-		for ( String sName : soluteNames )
+		for ( String sName : this._soluteNames )
 			this._diffusivity.put(sName, 1.0);
 		String msg = "SolveDiffusionTransient responsible for solutes: ";
 		for ( String s : this._soluteNames )

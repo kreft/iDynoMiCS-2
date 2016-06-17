@@ -10,7 +10,7 @@ import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.XmlRef;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
@@ -25,7 +25,7 @@ import nodeFactory.ModelNode.Requirements;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ProcessManager implements AspectInterface,
+public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		NodeConstructor
 {
 	/**
@@ -60,6 +60,11 @@ public abstract class ProcessManager implements AspectInterface,
 	 */
 	protected AgentContainer _agents;
 	
+	/**
+	 * 
+	 */
+	protected String _compartmentName;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -73,12 +78,15 @@ public abstract class ProcessManager implements AspectInterface,
 	 * {@code Compartment} this process belongs to.
 	 * @param agents The {@code AgentContainer} of the
 	 * {@code Compartment} this process belongs to.
+	 * @param compartmentName The name of the {@code Compartment} this process
+	 * belongs to.
 	 */
-	public void init(Element xmlElem, 
-			EnvironmentContainer environment, AgentContainer agents)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
 		this._environment = environment;
 		this._agents = agents;
+		this._compartmentName = compartmentName;
 		
 		//FIXME quick fix: cut/paste from
 		//"public static ProcessManager getNewInstance(Node xmlNode)"
@@ -101,9 +109,23 @@ public abstract class ProcessManager implements AspectInterface,
 		this.setTimeForNextStep(time);
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
-		if ( p.hasAttribute(XmlRef.timerStepSize) )
-			time = Double.valueOf( p.getAttribute(XmlRef.timerStepSize) );
+		if ( p.hasAttribute(XmlRef.processTimeStepSize) )
+			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
 		this.setTimeStepSize(time);
+	}
+	
+	/**
+	 * stripped down init required for JUnit tests without xml
+	 * @param environment
+	 * @param agents
+	 * @param compartmentName
+	 */
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
 	}
 	
 	/**
@@ -117,10 +139,11 @@ public abstract class ProcessManager implements AspectInterface,
 	 * @return New process manager.
 	 */
 	public static ProcessManager getNewInstance(Node xmlNode, 
-			EnvironmentContainer environment, AgentContainer agents)
+			EnvironmentContainer environment, AgentContainer agents, 
+			String CompartmentName)
 	{
-		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		proc.init((Element) xmlNode, environment, agents);
+		ProcessManager proc = (ProcessManager) Instantiatable.getNewInstance(xmlNode);
+		proc.init((Element) xmlNode, environment, agents, CompartmentName);
 		return proc;
 	}
 	
@@ -128,7 +151,7 @@ public abstract class ProcessManager implements AspectInterface,
 	{
 		//return (ProcessManager) XMLable.getNewInstance(className);
 		
-		return (ProcessManager) XMLable.getNewInstance(className, 
+		return (ProcessManager) Instantiatable.getNewInstance(className, 
 				Idynomics.xmlPackageLibrary.get(className));
 	}
 	

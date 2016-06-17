@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import utility.Helper;
+
 /**
  * \brief Handles file operations, create folders and files, write output.
  * 
@@ -124,7 +126,6 @@ public class FileHandler
 		try
 		{
 			File f = new File(file);
-			f.delete();
 			FileWriter fstream = new FileWriter(f, true);
 			this._output = new BufferedWriter(fstream);
 		}
@@ -132,6 +133,27 @@ public class FileHandler
 		{
 			Log.printToScreen(e.toString(), false);
 		}
+	}
+	
+	/**
+	 * delete file specified by string
+	 * @param file
+	 */
+	public void fdelete(String file)
+	{
+		File f = new File(file);
+		f.delete();
+	}
+	
+	/**
+	 * returns true if file exists
+	 * @param file
+	 * @return
+	 */
+	public boolean fexists(String file)
+	{
+		File f = new File(file);
+		return f.exists();
 	}
 	
 	/**
@@ -150,6 +172,7 @@ public class FileHandler
 		catch (IOException e)
 		{
 			Log.printToScreen(e.toString(), false);
+			Log.printToScreen("skipped line: " + line, false);
 		}
 	}
 	

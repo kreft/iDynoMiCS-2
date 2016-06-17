@@ -164,13 +164,13 @@ public class AgentMediator implements CommandMediator {
 				switch (_pigment)
 				{
 				case "GREEN" :
-					  _rgba = new float[] {0.1f, 1f, 0.1f};
+					  _rgba = new float[] {0.0f, 1.0f, 0.0f};
 					  break;
 				case "RED" :
-					  _rgba = new float[] {1f, 0.1f, 0.1f};
+					  _rgba = new float[] {1f, 0.0f, 0.0f};
 					  break;
 				case "BLUE" :
-					  _rgba = new float[] {0.1f, 0.1f, 1f};
+					  _rgba = new float[] {0.01f, 0.0f, 1.0f};
 					  break;
 				case "PURPLE" :
 					  _rgba = new float[] {1.0f, 0.0f, 1.0f};
@@ -298,11 +298,24 @@ public class AgentMediator implements CommandMediator {
 		
 		/* scale y and z relative to x (which we will choose as cube-size) */
 		_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
+
 		
 		/* draw the scaled cube (rectangle).
 		 * Note that a cube with length 0 in one dimension is a plane */
 		_glut.glutSolidCube((float)length[0]);
+
+		/* 
+		 * the glut cube seems to have some rendering artifacts, consider quads 
+		 * as alternative
+		 */
 		
+//		_gl.glScaled(length[0], length[1] , length[2] );
+//		_gl.glBegin(GL2.GL_QUADS);  
+//			_gl.glVertex3d(-0.5, 0.5, -0.5); 
+//		    _gl.glVertex3d( 0.5, 0.5, -0.5);
+//		    _gl.glVertex3d( 0.5, -0.5, -0.5);  
+//		    _gl.glVertex3d(-0.5, -0.5, -0.5); 
+//		_gl.glEnd();
 		
 		/* clean up */
 		if (length[2] > 0){

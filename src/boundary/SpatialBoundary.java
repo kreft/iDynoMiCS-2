@@ -9,7 +9,7 @@ import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
@@ -165,7 +165,7 @@ public abstract class SpatialBoundary extends Boundary
 	public static SpatialBoundary getNewInstance(String className)
 	{
 		return (SpatialBoundary) 
-				XMLable.getNewInstance(className, "boundary.spatialLibrary.");
+				Instantiatable.getNewInstance(className, "boundary.spatialLibrary.");
 	}
 	
 	@Override

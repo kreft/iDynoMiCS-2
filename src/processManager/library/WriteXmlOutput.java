@@ -5,6 +5,7 @@ import org.w3c.dom.Element;
 import aspect.AspectRef;
 import dataIO.XmlExport;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 
@@ -33,10 +34,10 @@ public class WriteXmlOutput extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem, 
-			EnvironmentContainer environment, AgentContainer agents)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
-		super.init(xmlElem, environment, agents);
+		super.init(xmlElem, environment, agents, compartmentName);
 		this._prefix = this.getString(FILE_PREFIX);
 	}
 	
