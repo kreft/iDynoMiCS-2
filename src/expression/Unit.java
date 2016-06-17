@@ -71,6 +71,17 @@ public class Unit {
 	}
 	
 	/**
+	 * Copy constructor
+	 * @param unit
+	 */
+	public Unit(Unit unit)
+	{
+		this.modifier = unit.modifier;
+		for ( SI si : unit.unitMap.keySet() )
+			this.unitMap.put( si, unit.unitMap.get(si) );
+	}
+	
+	/**
 	 * initiate empty unitMap and set modifier to 1.
 	 */
 	public void init()
@@ -96,11 +107,56 @@ public class Unit {
 	}
 	
 	/**
+	 * the product of two input units
+	 * @param unitA
+	 * @param unitB
+	 * @return
+	 */
+	public static Unit product(Unit unitA, Unit unitB)
+	{
+		Unit out = new Unit(unitA);
+		out.modifier *= unitB.modifier;
+		for ( SI si : out.unitMap.keySet() )
+			out.unitMap.put( si, out.unitMap.get(si) + unitB.unitMap.get(si) );
+		return out;
+	}
+	
+	/**
+	 * The quotient of two input units (unitA / unitB)
+	 * @param unitA
+	 * @param unitB
+	 * @return
+	 */
+	public static Unit quotient(Unit unitA, Unit unitB)
+	{
+		Unit out = new Unit(unitA);
+		out.modifier /= unitB.modifier;
+		for ( SI si : out.unitMap.keySet() )
+			out.unitMap.put( si, out.unitMap.get(si) - unitB.unitMap.get(si) );
+		return out;
+	}
+	
+	/**
 	 * output the units as string including the modifier
 	 */
 	public String toString()
 	{
 		return this.modifier + " [" + this.unit() + "]";
+	}
+	
+	/**
+	 * get the unit formater for the requested output format
+	 */
+	public double format(String format)
+	{
+		Unit formater = new Unit(format);
+		if ( ! compatible(formater) )
+		{
+			Log.out(Tier.QUIET, formater.unit() + " incompatible with: " 
+					+ this.unit());
+			return 0;
+		}
+		return formater.modifier;
 	}
 	
 	/**

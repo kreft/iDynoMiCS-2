@@ -25,6 +25,8 @@ public class UnitUnitTest {
 		System.out.println(myUnit.toString());
 		assertTrue("correct unit conversion", myUnit.toString().contains("kg·m-1") );
 		
+		System.out.println("\n");
+		
 		Unit unitA = new Unit();
 		unitA.fromString("kg·cm-2");
 		System.out.println("kg·cm-2 = " + unitA.toString());
@@ -34,6 +36,13 @@ public class UnitUnitTest {
 		unitB.fromString("d");
 		System.out.println("d = " + unitB.toString());
 		assertTrue("correct unit conversion", unitB.toString().contains("86400") );
+		
+		
+		Unit unitAB = Unit.product(unitA, unitB);
+		System.out.println("product = " + unitAB.toString());
+		
+		unitAB = Unit.quotient(unitA, unitB);
+		System.out.println("quotient = " + unitAB.toString() + "\n");
 		
 		ExpressionB expressiona = new ExpressionB("35.0 *-2.0 ");
 		double a = expressiona.getValue();
@@ -52,6 +61,7 @@ public class UnitUnitTest {
 		Unit unitD = new Unit();
 		unitD.fromString("mN");
 		System.out.println("mN = " + unitD.toString());
+
 	}
 	
 }
