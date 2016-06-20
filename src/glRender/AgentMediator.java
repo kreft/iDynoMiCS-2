@@ -1,40 +1,98 @@
 package glRender;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
-//import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUquadric;
+import com.jogamp.opengl.math.Quaternion;
+import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
+import aspect.AspectRef;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import idynomics.AgentContainer;
-import idynomics.NameRef;
 import linearAlgebra.Vector;
+import shape.CartesianShape;
+import shape.CylindricalShape;
+import shape.Shape;
 import surface.Ball;
+import surface.Rod;
 import surface.Surface;
 
 
 /**
- * Agent mediator, draws agents and plane / cube indication the computational
- * domain
+ * Agent mediator, draws agents and an indication of their computational domain.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ *     Friedrich-Schiller University Jena, Germany 
  */
 public class AgentMediator implements CommandMediator {
-	protected AgentContainer agents;
-	private String pigment;
-	private float[] rgba;
-//	private GLU glu = new GLU();
-	public float kickback;
-	private GL2 gl;
+	
+	/*
+	 * agent container
+	 */
+	protected AgentContainer _agents;
+	
+	/*
+	 * shape
+	 */
+	protected Shape _shape;
+	
+	/*
+	 * pigment declaration in string format (eg: RED, BLUE etc)
+	 */
+	private String _pigment;
+	
+	/* 
+	 * rgb color code
+	 */
+	private float[] _rgba;
+	
+	/*
+	 * kickback, used to move camera back to see entire render scene
+	 */
+	public float _kickback;
+	
+	/*
+	 * openGL profile
+	 */
+	private GL2 _gl;
+	
+	/**
+	 * OpenGL Utility Toolkit
+	 */
+	private GLUT _glut;
+	
+	/**
+	 * OpenGL Utility Library
+	 */
+	private GLU _glu;
+	
+	/**
+	 * Stores the length of the associated Shape in each dimension
+	 */
+	private double[] _domainLength;
+	
+	/**
+	 * Default slices / stacks to subdivide polar objects.
+	 */
+	private int _slices = 16, _stacks = 16;
+	
+	private float[] _orthoX = new float[]{1,0,0}, _orthoY = new float[]{0,1,0},
+					_orthoZ = new float[]{0,0,1}, _rotTemp = new float[16];;
 
 	/**
 	 * used to set up the open gl camera
 	 */
 	@Override
 	public float kickback() {
-		return 2f * kickback;
+		return 2f * _kickback;
 	}
 	
 	/**
@@ -43,7 +101,27 @@ public class AgentMediator implements CommandMediator {
 	 */
 	public AgentMediator(AgentContainer agents)
 	{
-		this.agents = agents;
+		this._agents = agents;
+		this._shape = agents.getShape();
+		this._domainLength = GLUtil.make3D(_shape.getDimensionLengths());
+		/* determine kickback for camera positioning */
+		_kickback = (float) Math.max(_domainLength[0],
+				Math.max(_domainLength[1], _domainLength[2]));
+	}
+	
+	/**
+	 * Initializes new GLU and GLUT instances and associates the drawable's GL
+	 * context with this CommandMediator.   
+	 * This should be called at the end of the GLEventListener's initialization
+	 * method (glRender.Render in our case). 
+	 * TODO: this assumes that the AgentContainer is always associated to the
+	 * same Compartment / Shape, is this satisfied?
+	 */
+	public void init(GLAutoDrawable drawable){
+		/* set openGL profile */
+		_gl = drawable.getGL().getGL2();
+		_glu = GLU.createGLU(_gl);
+		_glut = new GLUT();
 	}
 
 	/**
@@ -52,215 +130,214 @@ public class AgentMediator implements CommandMediator {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void draw(GLAutoDrawable drawable) {
-		gl = drawable.getGL().getGL2();
-
-		/* get the domain lengths to draw itself and scaling */
-		double[] domainLengths = agents.getShape().getDimensionLengths();
-		double[] domain = new double[]{ domainLengths[0], domainLengths[1],
-				(domainLengths.length > 2 ? domainLengths[2] : 0.0)};
 		
-		kickback = (float) Math.max(domain[0], Math.max(domain[1], domain[2]));
+		/* load identity matrix */
+		_gl.glLoadIdentity();
 		
-        if(domain[2] != 0.0f)
-        	domainCube(drawable,domain);
+		/*
+		 * draw the domain Shape
+		 *
+		 */
+		if (_shape instanceof CartesianShape){
+			draw((CartesianShape) _shape);
+		}
+		
+		/* 
+     	 * Adjust positioning for the domain (prevent the scene from being
+     	 * rendered in one corner). This applies to all agents.
+     	 */
+		_gl.glTranslated(
+				 - _domainLength[0] * 0.5, 
+				 - _domainLength[1] * 0.5,
+				 - _domainLength[2] * 0.5);
         
 		/* get the surfaces from the agents */
-		for ( Agent a : this.agents.getAllLocatedAgents() )
+		for ( Agent a : this._agents.getAllLocatedAgents() )
 		{
 
+			/* cycle through the agent surfaces */
 			for ( Surface s : (List<Surface>) (a.isAspect(
-					NameRef.surfaceList) ? a.get(NameRef.surfaceList) :
+					AspectRef.surfaceList) ? a.get(AspectRef.surfaceList) :
 					new LinkedList<Surface>()))
 			{
-				pigment = a.getString("pigment");
+				_pigment = a.getString("pigment");
+				switch (_pigment)
+				{
+				case "GREEN" :
+					  _rgba = new float[] {0.0f, 1.0f, 0.0f};
+					  break;
+				case "RED" :
+					  _rgba = new float[] {1f, 0.0f, 0.0f};
+					  break;
+				case "BLUE" :
+					  _rgba = new float[] {0.01f, 0.0f, 1.0f};
+					  break;
+				case "PURPLE" :
+					  _rgba = new float[] {1.0f, 0.0f, 1.0f};
+					  break;
+				case "ORANGE" :
+					  _rgba = new float[] {1f, 0.6f, 0.1f};
+					  break;
+				case "BLACK" :
+					  _rgba = new float[] {0.0f, 0.0f, 0.0f};
+					  break;
+				default :
+					  _rgba = new float[] {1f, 1f, 1f};
+					  break;
+				}
+				
+				/*
+				 * Render the appropriate surface
+				 */
 				if(s instanceof Ball)
 				{
-					Ball ball = (Ball) s;
-	
-					switch (pigment)
-					{
-					case "GREEN" :
-						  rgba = new float[] {0.1f, 1f, 0.1f};
-						  break;
-					case "RED" :
-						  rgba = new float[] {1f, 0.1f, 0.1f};
-						  break;
-					case "BLUE" :
-						  rgba = new float[] {0.1f, 0.1f, 1f};
-						  break;
-					default :
-						  rgba = new float[] {1f, 1f, 1f};
-						  break;
-					}
-					sphere(drawable, domain, ball._point.getPosition(), 
-	        		ball._radius);
+					draw((Ball) s);
+				} 
+				else if ( s instanceof Rod )
+				{
+					/*
+					 * A rod can be drawn with two spheres and a cylinder
+					 */
+					draw((Rod) s);
 				}
 			}
-		}
+		}	
+	}
+	
+	private void draw(Ball ball){
+		_gl.glPushMatrix();
+		applyCurrentColor();
+		double[] loc = GLUtil.make3D(ball._point.getPosition());
+		_gl.glTranslated(loc[0], loc[1], loc[2]);
+		GLUquadric qobj = _glu.gluNewQuadric();
+		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
+		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
+		_glu.gluSphere(qobj, ball._radius, _slices, _stacks);
+		_glu.gluDeleteQuadric(qobj);
+		_gl.glPopMatrix();
+	}
+	
+	private void draw(Rod rod) 
+	{
+		Tier level = Tier.BULK;
+		double[] posA = GLUtil.make3D(rod._points[0].getPosition()); /* first sphere */
+		double[] posB = GLUtil.make3D(rod._points[1].getPosition()); /* second sphere*/
 		
-		/* draw the domain square */
-		plane(drawable,domain);
+		posA = GLUtil.searchClosestCyclicShadowPoint(_shape, posA, posB);
+		
+		/* save the transformation matrix, so we do not disturb other drawings */
+		_gl.glPushMatrix();
+     	
+     	applyCurrentColor();
+
+		Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
+					+ _slices + " slices, " + _stacks + " stacks" );
+
+		GLUquadric qobj = _glu.gluNewQuadric();
+
+		/* draw first sphere */
+		_gl.glTranslated(posA[0], posA[1], posA[2]);
+		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
+		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
+		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
+		
+		/* direction from posB to posA */
+		double[] dp = Vector.minus(posB, posA);
+		double height = Vector.normEuclid(dp);
+		
+		/* draw a cylinder in between */
+		/* save the matrix to rotate only the cylinder */
+		_gl.glPushMatrix();
+		
+		/* NOTE: this assumes agents are rendered one after the other! */
+		Quaternion quat = new Quaternion();
+		/* this will create a quaternion, so that we rotate from looking
+		 * along the Z-axis (which is the default orientation of a GLU-cylinder)
+		 * to look from posA to posB */
+		quat.setLookAt(Vector.toFloat(dp), _orthoZ, _orthoX, _orthoY, _orthoZ);
+		/* transform the quaternion into a rotation matrix and apply it */
+		//TODO: is there a way to make openGL use the quaternion directly?
+		_gl.glMultMatrixf(quat.toMatrix(_rotTemp, 0), 0);
+
+		/* create and draw the cylinder */
+		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
+		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
+		_glu.gluCylinder(qobj,
+				rod._radius, 		/* base */
+				rod._radius, 		/* top */
+				height, 			/* height */
+				_slices, _stacks);
+		/* restore matrix state before rotation (so we are at point A again)*/
+		_gl.glPopMatrix();
+
+		/* draw second sphere */
+		_gl.glTranslated(dp[0], dp[1], dp[2]);
+		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
+		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
+		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
+		
+		/* clean up */
+		_glu.gluDeleteQuadric(qobj);
+		_gl.glPopMatrix();
+	}
+	
+	private void draw(CartesianShape shape){
+		/* save the current modelview matrix */
+		_gl.glPushMatrix();
+		
+		double[] length = GLUtil.make3D(shape.getDimensionLengths());
+
+		/* set different color / blending for 3 dimensional Cartesian shapes */
+		_rgba = new float[] {0.3f, 0.3f, 0.3f};
+		if (length[2] > 0){
+			_rgba = new float[] {0.1f, 0.1f, 1f};
+			_gl.glEnable(GL2.GL_BLEND);
+			_gl.glDisable(GL2.GL_DEPTH_TEST);
+		}
+		applyCurrentColor();
+		
+		/* scale y and z relative to x (which we will choose as cube-size) */
+		_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
+
+		
+		/* draw the scaled cube (rectangle).
+		 * Note that a cube with length 0 in one dimension is a plane */
+		_glut.glutSolidCube((float)length[0]);
+
+		/* 
+		 * the glut cube seems to have some rendering artifacts, consider quads 
+		 * as alternative
+		 */
+		
+//		_gl.glScaled(length[0], length[1] , length[2] );
+//		_gl.glBegin(GL2.GL_QUADS);  
+//			_gl.glVertex3d(-0.5, 0.5, -0.5); 
+//		    _gl.glVertex3d( 0.5, 0.5, -0.5);
+//		    _gl.glVertex3d( 0.5, -0.5, -0.5);  
+//		    _gl.glVertex3d(-0.5, -0.5, -0.5); 
+//		_gl.glEnd();
+		
+		/* clean up */
+		if (length[2] > 0){
+			_gl.glEnable(GL2.GL_DEPTH_TEST);
+			_gl.glDisable(GL2.GL_BLEND);
+		}
+		_gl.glPopMatrix();
+	}
+	
+	private void draw(CylindricalShape shape){
 		
 	}
 	
 	/**
-	 * draw a scaled sphere positioned relative to the domain
-	 * @param drawable
-	 * @param domain
-	 * @param pos
-	 * @param radius
+	 * Sets the current ambient and specular color to <b>this._rgba</b> 
+	 * with a shininess of 0.1.
 	 */
-	private void sphere(GLAutoDrawable drawable, double[] domain, double[] pos, 
-			double radius) 
-	{
-		double[] p = new double[]{ pos[0], pos[1], 
-				(pos.length > 2 ? pos[2] : 0.0)};
-		
-		int i, j;
-		final int lats = 16;
-		final int longs = 16;
-		for(i = 0; i <= lats; i++) 
-		{
-	  		double lat0 = Math.PI * (-0.5 + (double) (i - 1) / lats);
-	  		double z0  = Math.sin(lat0);
-	  		double zr0 =  Math.cos(lat0);
-	
-	  		double lat1 = Math.PI * (-0.5 + (double) i / lats);
-	     	double z1 = Math.sin(lat1);
-	     	double zr1 = Math.cos(lat1);
-
-	     	gl.glLoadIdentity();
-			gl.glTranslated(p[0] - domain[0] * 0.5, p[1] - domain[1] * 0.5, 
-					p[2] - domain[2] * 0.5);
-	     	gl.glScaled(radius, radius, radius);
-			gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
-			gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
-			gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-			gl.glColor3f(rgba[0], rgba[1], rgba[2]);
-			gl.glBegin(GL2.GL_QUAD_STRIP);
-			for(j = 0; j <= longs; j++) 
-			{
-				double lng = 2 * Math.PI * (double) (j - 1) / longs;
-				double x = Math.cos(lng);
-				double y = Math.sin(lng);
-				
-				gl.glNormal3d(x * zr0, y * zr0, z0);
-				gl.glVertex3d(x * zr0, y * zr0, z0);
-				gl.glNormal3d(x * zr1, y * zr1, z1);
-				gl.glVertex3d(x * zr1, y * zr1, z1);
-			}
-			gl.glEnd();
-		}
-	
+	private void applyCurrentColor(){
+     	/* lighting and coloring */
+		_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, _rgba, 0);
+		_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, _rgba, 0);
+		_gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
+		_gl.glColor3f(_rgba[0], _rgba[1], _rgba[2]);
 	}
-	
-	/**
-	 * draw a domain plane
-	 * @param drawable
-	 * @param domain
-	 */
-	private void plane(GLAutoDrawable drawable, double[] domain) 
-	{
-		rgba = new float[] {0.3f, 0.3f, 0.3f};
-		plane(drawable, domain, Vector.zeros(domain), Vector.onesDbl(domain.length), rgba, false);
-	}
-	
-	/**
-	 * draw a standard plane positioned and scaled relative to the domain
-	 * @param drawable
-	 * @param domain
-	 * @param origin
-	 * @param lengths
-	 * @param color
-	 * @param lighting
-	 */
-	private void plane(GLAutoDrawable drawable, double[] domain, double[] origin
-			, double[] lengths ,float[] color, boolean lighting)
-	{
-		gl.glLoadIdentity();
-		gl.glTranslated(origin[0], origin[1], origin[2]);
-		gl.glScaled(domain[0]*0.5, domain[1]*0.5, domain[2]*0.5);
-		gl.glScaled(lengths[0], lengths[1], lengths[2]);
-		if (lighting)
-		{
-	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, color, 0);
-	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, color, 0);
-	        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-		}
-		else
-		{
-			gl.glDisable(GL2.GL_LIGHTING);
-		}
-		gl.glBegin(GL2.GL_QUADS);             
-		gl.glColor3f(color[0],color[1],color[2]);    
-			gl.glVertex3d(-1.0, 1.0, -1.0); 
-		    gl.glVertex3d( 1.0, 1.0, -1.0);
-		    gl.glVertex3d( 1.0, -1.0, -1.0);  
-		    gl.glVertex3d(-1.0, -1.0, -1.0); 
-		gl.glEnd();
-		if (lighting)
-		{
-			
-		}
-		else
-		{
-			gl.glEnable(GL2.GL_LIGHTING);
-		}
-	}
-	
-	/**
-	 * draw a alpha blend domain cube (for 3D simulations)
-	 * @param drawable
-	 * @param domain
-	 */
-	private void domainCube(GLAutoDrawable drawable, double[] domain) 
-	{
-		
-		gl.glLoadIdentity();
-		gl.glEnable(GL2.GL_BLEND);
-		gl.glDisable(GL2.GL_DEPTH_TEST);
-		gl.glScaled(0.5f*domain[0], 0.5f*domain[1], 0.5f*domain[2]);
-		
-		rgba = new float[] {0.1f, 0.1f, 1f};
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);
-        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, rgba, 0);
-        gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-        gl.glColor3f(rgba[0],rgba[1],rgba[2]);
-		gl.glBegin(GL2.GL_QUADS);                  // Start Drawing The Cube
-		
-		gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Top)
-		gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Top)
-		gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Bottom Left Of The Quad (Top)
-		gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Bottom Right Of The Quad (Top)
-		
-		gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Top Right Of The Quad (Bottom)
-		gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Top Left Of The Quad (Bottom)
-		gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Bottom)
-		gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Bottom)
-
-		gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Front)
-		gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Front)
-		gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Front)
-		gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Front)
-
-		gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Back)
-		gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Back)
-		gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Back)
-		gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Back)
-		
-		gl.glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Left)
-		gl.glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Left)
-		gl.glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Left)
-		gl.glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Left)
-
-        gl.glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Right)
-        gl.glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Right)
-        gl.glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Right)
-        gl.glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Right)
-	    gl.glEnd();                        // Done Drawing The Quad
-	    
-	    gl.glEnable(GL2.GL_DEPTH_TEST);
-		gl.glDisable(GL2.GL_BLEND);
-	}
-
 }

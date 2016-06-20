@@ -1,8 +1,7 @@
-
 package reaction;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -10,60 +9,63 @@ import org.w3c.dom.NodeList;
 
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.ModelNode.Requirements;
+import nodeFactory.NodeConstructor;
 
 /**
- * \brief TODO
+ * \brief The reaction class handles the chemical conversions of various
+ * different molecule types, which may be present in the environment or owned
+ * by agents.
+ * 
+ * <p>The core concepts are <i>rate</i> and <i>stoichiometry</i>. Rate
+ * determines how many reaction events happen per unit time. Stoichiometry
+ * determines how much of each reactant is produced (positive) or consumed
+ * (negative) in each single reaction event.</p>
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class Reaction implements XMLable, Copyable
+public class Reaction implements Instantiatable, Copyable, NodeConstructor
 {
+	/**
+	 * The name of this reaction. This is particularly useful for writing
+	 * reaction rate to a grid as output.
+	 */
+	protected String _name;
 	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private HashMap<String,Double> _stoichiometry = 
-												new HashMap<String,Double>();
+	private Map<String,Double> _stoichiometry = new HashMap<String,Double>();
 	/**
 	 * The mathematical expression describing the rate at which this reaction
 	 * proceeds.
 	 */
 	private Component _kinetic;
-	
 	/**
 	 * Dictionary of mathematical expressions describing the differentiation
 	 * of {@code this._kinetic} with respect to variables, whose names are
 	 * stored as {@code Strings}.
 	 */
+	// TODO consider deletion
 	private HashMap<String, Component> _diffKinetics;
 	
-	/**
-	 * reaction name
-	 * NOTE Bas: if you indeed would like agents to write reactions to a grid
-	 * they can only do so if they can refer to it by a name
-	 */
-	public String _name;
-	
-	/**
-	 * TODO
-	 */
-	public List<String> variableNames;
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Construct a reaction from an XML node;
 	 * 
-	 * @param xmlNode
+	 * @param xmlNode XMl node from a protocol file.
 	 */
 	public Reaction(Node xmlNode)
 	{
@@ -80,13 +82,14 @@ public class Reaction implements XMLable, Copyable
 	 * consumed).
 	 * @param kinetic {@code Component} describing the rate at which this
 	 * reaction proceeds.
+	 * @param name Name of the reaction.
 	 */
-	public Reaction(Map<String, Double> stoichiometry, Component kinetic, String name)
+	public Reaction(
+			Map<String,Double> stoichiometry, Component kinetic, String name)
 	{
 		this._name = name;
 		this._stoichiometry.putAll(stoichiometry);
 		this._kinetic = kinetic;
-		this.variableNames = this._kinetic.getAllVariablesNames();
 	}
 	
 	/**
@@ -98,8 +101,10 @@ public class Reaction implements XMLable, Copyable
 	 * consumed).
 	 * @param kinetic {@code String} describing the rate at which this reaction
 	 * proceeds.
+	 * @param name Name of the reaction.
 	 */
-	public Reaction(Map<String, Double> stoichiometry, String kinetic, String name)
+	public Reaction(
+			Map<String, Double> stoichiometry, String kinetic, String name)
 	{
 		this(stoichiometry, new ExpressionB(kinetic), name);
 	}
@@ -114,6 +119,7 @@ public class Reaction implements XMLable, Copyable
 	 * consumed).
 	 * @param kinetic {@code String} describing the rate at which this reaction
 	 * proceeds.
+	 * @param name Name of the reaction.
 	 */
 	public Reaction(String chemSpecies, double stoichiometry, 
 											String kinetic, String name)
@@ -123,21 +129,21 @@ public class Reaction implements XMLable, Copyable
 	
 	public void init(Element xmlElem)
 	{
-		this._name = XmlHandler.obtainAttribute(xmlElem, XmlLabel.nameAttribute);
+		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute);
 		/*
 		 * Build the stoichiometric map.
 		 */
-		NodeList stoichs = XmlHandler.getAll(xmlElem, XmlLabel.stoichiometry);
+		NodeList stoichs = XmlHandler.getAll(xmlElem, XmlRef.stoichiometry);
 		String str;
 		double coeff;
 		for ( int i = 0; i < stoichs.getLength(); i++ )
 		{
 			Element temp = (Element) stoichs.item(i);
 			/* Get the coefficient. */
-			str = XmlHandler.obtainAttribute(temp, XmlLabel.coefficient);
+			str = XmlHandler.obtainAttribute(temp, XmlRef.coefficient);
 			coeff = Double.valueOf(str);
 			/* Get the component name. */
-			str = XmlHandler.obtainAttribute(temp, XmlLabel.component);
+			str = XmlHandler.obtainAttribute(temp, XmlRef.component);
 			/* Enter these into the stoichiometry. */
 			this._stoichiometry.put(str, coeff);
 		}
@@ -145,26 +151,41 @@ public class Reaction implements XMLable, Copyable
 		 * Build the reaction rate expression.
 		 */
 		this._kinetic = new 
-			ExpressionB(XmlHandler.loadUnique(xmlElem, XmlLabel.expression));
-		this.variableNames = this._kinetic.getAllVariablesNames();
+			ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
 	}
 	
 	/**
 	 * Copyable implementation
 	 */
-	public Object copy() {
-		HashMap<String,Double> sto = 
-				new HashMap<String,Double>();
-		for(String key : _stoichiometry.keySet())
-			sto.put(key, (double) ObjectFactory.copy(_stoichiometry.get(key)));
+	public Object copy()
+	{
+		@SuppressWarnings("unchecked")
+		HashMap<String,Double> stoichiometry = (HashMap<String,Double>)
+				ObjectFactory.copy(this._stoichiometry);
 		// NOTE: _kinetic is not copyable, this will become an issue of you
 		// want to do evo addaptation simulations
-		return new Reaction(sto, _kinetic, _name);
+		return new Reaction(stoichiometry, this._kinetic, this._name);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
+	
+	/**
+	 * @return Name of this reaction.
+	 */
+	public String getName()
+	{
+		return this._name;
+	}
+	
+	/**
+	 * @return Names of all variables in the rate of this reaction.
+	 */
+	public Collection<String> getVariableNames()
+	{
+		return this._kinetic.getAllVariablesNames();
+	}
 	
 	/**
 	 * \brief Calculate the reaction rate depending on concentrations.
@@ -179,7 +200,12 @@ public class Reaction implements XMLable, Copyable
 	 */
 	public double getRate(Map<String, Double> concentrations)
 	{
-		return this._kinetic.getValue(concentrations);
+		double out = this._kinetic.getValue(concentrations);
+		//String msg = "   reaction \""+this._name+"\" variables: ";
+		//for ( String name : concentrations.keySet() )
+		//	msg += name +"@"+concentrations.get(name)+" ";
+		//Log.out(Tier.DEBUG, msg+"=> rate "+out);
+		return out;
 	}
 	
 	/**
@@ -196,6 +222,9 @@ public class Reaction implements XMLable, Copyable
 		return 0.0;
 	}
 	
+	/**
+	 * @return This reaction's whole stoichiometric dictionary.
+	 */
 	public Map<String,Double> getStoichiometry()
 	{
 		return this._stoichiometry;
@@ -228,6 +257,7 @@ public class Reaction implements XMLable, Copyable
 	 * @param withRespectTo
 	 * @return
 	 */
+	// TODO consider deletion
 	public double getDiffRate(HashMap<String, Double> concentrations, 
 														String withRespectTo)
 	{
@@ -251,9 +281,9 @@ public class Reaction implements XMLable, Copyable
 		return this._diffKinetics.get(withRespectTo).getValue(concentrations);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * XML-ABLE
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * XMLable interface implementation.
@@ -262,9 +292,9 @@ public class Reaction implements XMLable, Copyable
 	 */
 	public static Object getNewInstance(Node xmlNode)
 	{
-		if (XmlHandler.hasNode((Element) xmlNode, XmlLabel.reaction))
+		if (XmlHandler.hasNode((Element) xmlNode, XmlRef.reaction))
 		{
-			xmlNode = XmlHandler.loadUnique((Element) xmlNode, XmlLabel.reaction);
+			xmlNode = XmlHandler.loadUnique((Element) xmlNode, XmlRef.reaction);
 		}
 		return new Reaction(xmlNode);
 	}
@@ -275,9 +305,63 @@ public class Reaction implements XMLable, Copyable
 		return null;
 	}
 	
-	/*************************************************************************
+	// TODO required from xmlable interface.. unfinished
+	public ModelNode getNode()
+	{
+		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
+		modelNode.setRequirements(Requirements.ZERO_OR_ONE);
+		modelNode.setTitle(this._name);
+		
+		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+				this._name, null, false ));
+		
+		modelNode.add(((ExpressionB) _kinetic).getNode());
+		
+		for ( String component : this._stoichiometry.keySet())
+		{
+			modelNode.add(getStoNode(this, component, 
+					getStoichiometry(component)));
+		}
+		
+		return modelNode;
+	}
+	
+	public ModelNode getStoNode(NodeConstructor constructor, String component, 
+			Double coefficient) {
+		
+		ModelNode modelNode = new ModelNode(XmlRef.stoichiometry, constructor);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		
+		modelNode.add(new ModelAttribute(XmlRef.component, 
+				component, null, false ));
+		
+		modelNode.add(new ModelAttribute(XmlRef.coefficient, 
+				String.valueOf(coefficient), null, false ));
+		
+		return modelNode;
+	}
+	
+	@Override
+	public NodeConstructor newBlank() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return XmlRef.reaction;
+	}
+	
+	/* ***********************************************************************
 	 * MISCELLANEOUS METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Get a {@code HashMap<String,Double>} initialised with a single
@@ -297,4 +381,5 @@ public class Reaction implements XMLable, Copyable
 		out.put(key, value);
 		return out;
 	}
+
 }

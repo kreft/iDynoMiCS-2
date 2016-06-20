@@ -1,7 +1,5 @@
 package processManager;
 
-import java.awt.event.ActionEvent;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -9,23 +7,26 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import dataIO.ObjectRef;
-import dataIO.XmlLabel;
-import generalInterfaces.XMLable;
+import dataIO.Log.Tier;
+import dataIO.Log;
+import dataIO.XmlRef;
+import generalInterfaces.Instantiatable;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
 import utility.Helper;
+import nodeFactory.ModelNode.Requirements;
 
 /**
+ * \brief Abstract class for managing a process within a {@code Compartment}.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ProcessManager implements XMLable, AspectInterface, IsSubmodel
+public abstract class ProcessManager implements Instantiatable, AspectInterface,
+		NodeConstructor
 {
 	/**
 	 * The name of this {@code ProcessManager}, for reporting.
@@ -45,25 +46,48 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	 */
 	protected double _timeStepSize;
 	/**
-	 * Set to true for extra system output.
+	 * The aspect registry... TODO
 	 */
-	protected boolean _debugMode = false;
+	private AspectReg _aspectRegistry = new AspectReg();
 	/**
-     * The aspect registry... TODO
-     */
-    public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
+	 * Reference to the environment of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected EnvironmentContainer _environment;
+	/**
+	 * Reference to the agents of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected AgentContainer _agents;
+	
+	/**
+	 * 
+	 */
+	protected String _compartmentName;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
-	public ProcessManager()
+	/**
+	 * \brief Initialise the process from XML protocol file, plus the relevant
+	 * information about the compartment it belongs to.
+	 * 
+	 * @param xmlElem Relevant part of the XML protocol file.
+	 * @param environment The {@code EnvironmentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param agents The {@code AgentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param compartmentName The name of the {@code Compartment} this process
+	 * belongs to.
+	 */
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
 	{
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
 		
-	}
-	
-	public void init(Element xmlElem)
-	{
 		//FIXME quick fix: cut/paste from
 		//"public static ProcessManager getNewInstance(Node xmlNode)"
 		
@@ -72,40 +96,54 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		 * Read in the process attributes. 
 		 */
 		Element p = (Element) xmlElem;
-		this.setName( p.getAttribute( XmlLabel.nameAttribute ));
+		this.setName( p.getAttribute( XmlRef.nameAttribute ));
 		/* Process priority - default is zero. */
 		int priority = 0;
-		if ( p.hasAttribute(XmlLabel.processPriority) )
-			priority = Integer.valueOf(p.getAttribute(XmlLabel.processPriority));
+		if ( p.hasAttribute(XmlRef.processPriority) )
+			priority = Integer.valueOf(p.getAttribute(XmlRef.processPriority));
 		this.setPriority(priority);
 		/* Initial time to step. */
 		double time = Idynomics.simulator.timer.getCurrentTime();
-		if ( p.hasAttribute(XmlLabel.processFirstStep) )
-			time = Double.valueOf( p.getAttribute(XmlLabel.processFirstStep) );
+		if ( p.hasAttribute(XmlRef.processFirstStep) )
+			time = Double.valueOf( p.getAttribute(XmlRef.processFirstStep) );
 		this.setTimeForNextStep(time);
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
-		if ( p.hasAttribute("timerStepSize") )
-			time = Double.valueOf( p.getAttribute("timerStepSize") );
+		if ( p.hasAttribute(XmlRef.processTimeStepSize) )
+			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
 		this.setTimeStepSize(time);
 	}
 	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * stripped down init required for JUnit tests without xml
+	 * @param environment
+	 * @param agents
+	 * @param compartmentName
+	 */
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
 	}
 	
 	/**
 	 * Implements XMLable interface, return new instance from xml Node.
 	 * 
-	 * @param xmlNode
-	 * @return
+	 * @param xmlNode Relevant part of the XML protocol file.
+	 * @param environment The {@code EnvironmentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param agents The {@code AgentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @return New process manager.
 	 */
-	public static ProcessManager getNewInstance(Node xmlNode)
+	public static ProcessManager getNewInstance(Node xmlNode, 
+			EnvironmentContainer environment, AgentContainer agents, 
+			String CompartmentName)
 	{
-		ProcessManager proc = (ProcessManager) XMLable.getNewInstance(xmlNode);
-		proc.init((Element) xmlNode);
+		ProcessManager proc = (ProcessManager) Instantiatable.getNewInstance(xmlNode);
+		proc.init((Element) xmlNode, environment, agents, CompartmentName);
 		return proc;
 	}
 	
@@ -113,8 +151,8 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	{
 		//return (ProcessManager) XMLable.getNewInstance(className);
 		
-		return (ProcessManager) XMLable.getNewInstance(className, 
-				"processManager.ProcessManagerLibrary$");
+		return (ProcessManager) Instantiatable.getNewInstance(className, 
+				Idynomics.xmlPackageLibrary.get(className));
 	}
 	
 	/*************************************************************************
@@ -124,10 +162,9 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	/**
 	 * \brief Return the aspect registry (implementation of aspect interface).
 	 */
-	@SuppressWarnings("unchecked")
-	public AspectReg<?> reg()
+	public AspectReg reg()
 	{
-		return aspectRegistry;
+		return _aspectRegistry;
 	}
 	
 	/**
@@ -137,6 +174,9 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 	 */
 	public String getName()
 	{
+		if (this._name == null)
+			return "";
+		else
 		return this._name;
 	}
 	
@@ -163,132 +203,163 @@ public abstract class ProcessManager implements XMLable, AspectInterface, IsSubm
 		this._priority = priority;
 	}
 	
+	/**
+	 * @return The priority of this {@code ProcessManager}.
+	 */
 	public int getPriority()
 	{
 		return this._priority;
 	}
 	
+	/**]
+	 * \brief Set the time point at which this will next step: useful for
+	 * testing.
+	 * 
+	 * @param newTime The time point at which this should next step.
+	 */
 	public void setTimeForNextStep(double newTime)
 	{
 		this._timeForNextStep = newTime;
 	}
 	
+	/**
+	 * @return The time point at which this will next step.
+	 */
 	public double getTimeForNextStep()
 	{
 		return this._timeForNextStep;
 	}
 	
+	/**
+	 * \brief Set the time step directly: useful for testing.
+	 * 
+	 * @param newStepSize Time step to use.
+	 */
 	public void setTimeStepSize(double newStepSize)
 	{
 		this._timeStepSize = newStepSize;
 	}
 	
+	/**
+	 * @return The local time step.
+	 */
 	public double getTimeStepSize()
 	{
 		return this._timeStepSize;
-	}
-	
-	public void debugMode()
-	{
-		this._debugMode = true;
 	}
 	
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
 	
-	public void step(EnvironmentContainer environment, AgentContainer agents)
+	/**
+	 * \brief Perform the step of this process manager, also updating its local
+	 * time manager.
+	 * 
+	 * @param environment The {@code EnvironmentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 * @param agents The {@code AgentContainer} of the
+	 * {@code Compartment} this process belongs to.
+	 */
+	public void step()
 	{
 		/*
-		 * This is where subclasses of Mechanism do their step. Note that
+		 * This is where subclasses of ProcessManager do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
 		 */
-		this.internalStep(environment, agents);
+		this.internalStep();
 		/*
 		 * Move the time for next step forward by the step size.
 		 */
 		this._timeForNextStep += this._timeStepSize;
-		/*
-		 * Report if in debugging mode.
-		 */
-		if ( this._debugMode )
-		{
-			System.out.println(this.getName() + 
-								" timeForNextStep = "+this._timeForNextStep);
-		}
+		Log.out(Tier.DEBUG,
+				this._name+": timeForNextStep = "+this._timeForNextStep);
 	}
 	
-	protected abstract void internalStep(
-					EnvironmentContainer environment, AgentContainer agents);
+	/**
+	 * \brief Perform the internal step for this process manager: this will be
+	 * implemented by each sub-class of {@code ProcessManager}.
+	 */
+	protected abstract void internalStep();
 	
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
-	
-	public StringBuffer report()
+	public static List<String> getAllOptions()
 	{
-		StringBuffer out = new StringBuffer();
+		return Idynomics.xmlPackageLibrary.getAll("processManager.library.");
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public ModelNode getNode()
+	{
+		ModelNode modelNode = new ModelNode(defaultXmlTag(), this);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		modelNode.setTitle(this._name);
 		
-		return out;
-	}
-	
-	/*************************************************************************
-	 * XML-ABLE
-	 ************************************************************************/
-	
-	/*public static ProcessManager getNewInstance(String className)
-	{
-		return (ProcessManager) XMLable.getNewInstance(className, 
-									"processManager.ProcessManagerLibrary$");
-	}*/
-	
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
-	
-	public static String[] getAllOptions()
-	{
-		return Helper.getClassNamesSimple(
-							ProcessManagerLibrary.class.getDeclaredClasses());
-	}
-	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
-		out.add(new ParameterSetter(XmlLabel.processPriority,this,ObjectRef.INT));
-		return out;
-	}
-	
-	
-	public void acceptInput(String name, Object input)
-	{
-		if ( name.equals(XmlLabel.nameAttribute) )
-			this._name = (String) input;
-		if ( name.equals(XmlLabel.processPriority) )
-			this._priority = (Integer) input;
-	}
-	
-	public static class ProcessMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -126858198160234919L;
+		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+						this._name, null, true ));
 		
-		public ProcessMaker(Requirement req, IsSubmodel target)
-		{
-			super(XmlLabel.process, req, target);
-		}
+		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+				this.getClass().getSimpleName(), null, true ));
 		
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			ProcessManager newProcess =
-					ProcessManager.getNewInstance(e.getActionCommand());
-			this.addSubmodel(newProcess);
-		}
+		modelNode.add(new ModelAttribute(XmlRef.processPriority, 
+				String.valueOf(this._priority), null, true ));
 		
-		public Object getOptions()
-		{
-			return ProcessManager.getAllOptions();
-		}
+		modelNode.add(new ModelAttribute(XmlRef.processFirstStep, 
+				String.valueOf(this._timeForNextStep), null, true ));
+		
+		/* TODO: add aspects */
+		
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
+		modelNode.addChildConstructor(reg().new Aspect(reg()), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		return modelNode;
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public NodeConstructor newBlank() 
+	{
+		String input = Helper.obtainInput(ProcessManager.getAllOptions(), 
+				"process manager", false);
+		return  ProcessManager.getNewInstance(input);
+	}
+	
+	/**
+	 * 
+	 */
+	public void setNode(ModelNode node) 
+	{
+		
+	}
+
+	/**
+	 * 
+	 */
+	public void addChildObject(NodeConstructor childObject) 
+	{
+
+	}
+
+	/**
+	 * 
+	 */
+	public String defaultXmlTag() 
+	{
+		return XmlRef.process;
+	}
+		
+	/**
+	 * 
+	 */
+	public String getXml() 
+	{
+		return this.getNode().getXML();
 	}
 }

@@ -1,10 +1,7 @@
 package aspect;
 
 import generalInterfaces.Copyable;
-import generalInterfaces.XMLable;
-
-import java.util.HashMap;
-
+import generalInterfaces.Instantiatable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -18,12 +15,12 @@ import dataIO.XmlHandler;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Event implements Copyable, XMLable
+public abstract class Event implements Copyable, Instantiatable
 {
 	/**
 	 * Ordered list of the names of input states.
 	 */
-	protected String[] input;
+	protected String[] _input;
 
 	public void setField(String field, String value)
 	{
@@ -47,7 +44,7 @@ public abstract class Event implements Copyable, XMLable
 		/* Strip all whitespace. */
 		input.replaceAll("\\s+","");
 		/* Read in the inputs. */
-		this.input = input.split(",");
+		this._input = input.split(",");
 	}
 	
 	/**
@@ -56,13 +53,7 @@ public abstract class Event implements Copyable, XMLable
 	 */
 	public String[] getInput()
 	{
-		return this.input;
-	}
-	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
+		return this._input;
 	}
 	
 	/**
@@ -72,14 +63,14 @@ public abstract class Event implements Copyable, XMLable
 	 */
 	public static Object getNewInstance(Node xmlNode)
 	{
-		Event obj = (Event) XMLable.getNewInstance(xmlNode);
+		Event obj = (Event) Instantiatable.getNewInstance(xmlNode);
 		obj.init((Element) xmlNode);
 		return obj;
 	}
 	
 
 	public static Object getNewInstance(String input) {
-		Event obj = (Event) XMLable.getNewInstance(input);
+		Event obj = (Event) Instantiatable.getNewInstance(input);
 		obj.init(input);
 		return obj;
 	}

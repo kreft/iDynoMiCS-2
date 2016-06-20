@@ -1,9 +1,18 @@
 package linearAlgebra;
 
 /**
- * \brief TODO
+ * \brief LU Decomposition is a method for breaking a matrix into two.
+ * This is useful for solving systems of linear equations.
  * 
+ * <p>For an m-by-n matrix A with m >= n, the LU decomposition is an m-by-n 
+ * unit lower triangular matrix L, an n-by-n upper triangular matrix U, and a
+ * permutation vector piv of length m so that A(piv,:) = L*U. If m < n, then L
+ * is m-by-m and U is m-by-n.</p>
  * 
+ * <p>The LU decompostion with pivoting always exists, even if the matrix is
+ * singular, so the constructor will never fail.  The primary use of the
+ * LU decomposition is in the solution of square systems of simultaneous
+ * linear equations.  This will fail if isNonsingular() returns false.</p>
  * 
  * <p>This class is largely taken from the JAMA package, and merely modified by
  * Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.</p>
@@ -19,11 +28,11 @@ package linearAlgebra;
 public class LUDecomposition
 {
 	private double[][] lu;
-	
+
 	private int m, n, _pivotSign;
-	
+
 	private int[] _pivot;
-	
+
 	public LUDecomposition(double[][] matrix)
 	{
 		Matrix.checkDimensions(matrix);
@@ -60,8 +69,7 @@ public class LUDecomposition
 				tempRow[j] = tempCol[i] -= sum;
 			}
 			/*
-			 * Find pivot and exchange if necessary. (Parallel assignment, as
-			 * in e.g. Python, would be more elegant when swapping values).
+			 * Find pivot and exchange if necessary.
 			 */
 			int p = j;
 			for ( int i = j+1; i < this.m; i++ )
@@ -89,7 +97,7 @@ public class LUDecomposition
 					this.lu[i][j] /= this.lu[j][j];
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @return
@@ -102,41 +110,36 @@ public class LUDecomposition
 				return false;
 		return true;
 	}
-	
+
 	public boolean isSingular()
 	{
 		return ! isNonsingular();
 	}
-	
+
+	/**
+	 * @return A copy of the lower matrix.
+	 */
 	public double[][] getL()
 	{
-		double[][] out = new double[this.m][this.n];
-		int i;
+		double[][] out = Matrix.identityDbl(this.m, this.n);
 		for ( int j = 0; j < this.n; j++ )
-		{
-			for ( i = 0 ; i < j; i++ )
-				out[i][j] = 0.0;
-			out[j][j] = 1.0;
-			for ( i++ ; i < this.m; i++ )
+			for ( int i = j + 1 ; i < this.m; i++ )
 				out[i][j] = this.lu[i][j];
-		}
 		return out;
 	}
-	
+
+	/**
+	 * @return A copy of the upper matrix.
+	 */
 	public double[][] getU()
 	{
 		double[][] out = Matrix.zerosDbl(this.m, this.n);
-		int i;
 		for ( int j = 0; j < this.n; j++ )
-		{
-			for ( i = 0 ; i <= j; i++ )
+			for ( int i = 0 ; i <= j; i++ )
 				out[i][j] = this.lu[i][j];
-			for ( ; i < this.m; i++ )
-				out[i][j] = 0.0;
-		}
 		return out;
 	}
-	
+
 	/**
 	 * \brief Get a copy of this L-U Decomposition's pivot vector.
 	 * 
@@ -147,19 +150,7 @@ public class LUDecomposition
 	{
 		return Vector.copy(this._pivot);
 	}
-	
-	/**
-	 * \brief Get a copy of this L-U Decomposition's pivot vector, with 
-	 * {@code int} indices recast as {@code double}s.
-	 * 
-	 * @return An {@code double[]} copy of this Lower-Upper Decomposition's
-	 *    pivot vector.
-	 */
-	public double[] getDblPivot()
-	{
-		return Vector.toDbl(this._pivot);
-	}
-	
+
 	/**
 	 * \brief Calculate the determinant.
 	 * 
@@ -174,21 +165,21 @@ public class LUDecomposition
 			out *= this.lu[i][i];
 		return out;
 	}
-	
+
 	/**
 	 * \brief Solve a * x = <b>b</b>, where a is the matrix given originally.
 	 * 
 	 * @param b Two-dimensional array of doubles.
 	 * @return x such that lu * x = <b>b</b>(pivot, :)
 	 * @exception IllegalArgumentException Matrix row dimensions must agree.
-     * @exception RuntimeException Matrix is singular.
+	 * @exception RuntimeException Matrix is singular.
 	 */
 	public double[][] solve(double[][] b)
 	{
 		if ( Matrix.rowDim(b) != this.m )
 		{
 			throw new IllegalArgumentException(
-										"Matrix row dimensions must agree.");
+					"Matrix row dimensions must agree.");
 		}
 		if ( this.isSingular() )
 			throw new RuntimeException("Matrix is singular.");
@@ -209,15 +200,15 @@ public class LUDecomposition
 		 */
 		for (int k = n-1; k >= 0; k--)
 		{
-	         for ( int j = 0; j < nx; j++ )
-	            x[k][j] /= this.lu[k][k];
-	         for ( int i = 0; i < k; i++ )
-	            for ( int j = 0; j < nx; j++ )
-	               x[i][j] -= x[k][j] * this.lu[i][k];
-	    }
+			for ( int j = 0; j < nx; j++ )
+				x[k][j] /= this.lu[k][k];
+			for ( int i = 0; i < k; i++ )
+				for ( int j = 0; j < nx; j++ )
+					x[i][j] -= x[k][j] * this.lu[i][k];
+		}
 		return x;
 	}
-	
+
 	/**
 	 * \brief TODO
 	 * 
@@ -231,7 +222,7 @@ public class LUDecomposition
 		if ( b.length != this.m )
 		{
 			throw new IllegalArgumentException(
-										"Matrix row dimensions must agree.");
+					"Matrix row dimensions must agree.");
 		}
 		if ( this.isSingular() )
 			throw new RuntimeException("Matrix is singular.");
@@ -252,11 +243,11 @@ public class LUDecomposition
 		for (int k = n - 1; k >= 0; k--)
 		{
 			destination[k] /= this.lu[k][k];
-	         for ( int i = 0; i < k; i++ )
-	        	 destination[i] -= destination[k] * this.lu[i][k];
-	    }
+			for ( int i = 0; i < k; i++ )
+				destination[i] -= destination[k] * this.lu[i][k];
+		}
 	}
-	
+
 	/**
 	 * \brief Solve the system of linear equations represented by a
 	 * <b>matrix</b> and two vectors, x and <b>vector</b>, where
@@ -273,7 +264,7 @@ public class LUDecomposition
 		this.solveTo(out, b);
 		return out;
 	}
-	
+
 	/**
 	 * \brief Solve the system of linear equations represented by a
 	 * <b>matrix</b> and two vectors, x and <b>b</b>, where

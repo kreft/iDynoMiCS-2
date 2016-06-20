@@ -1,10 +1,9 @@
 package processManager.library;
 
-import grid.SpatialGrid.ArrayType;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 import agent.Agent;
+import aspect.AspectRef;
+import grid.ArrayType;
 
 /**
  * \brief TODO
@@ -13,14 +12,17 @@ import agent.Agent;
  */
 public class RefreshMassGrids extends ProcessManager
 {
+	
+	public static String MASS_TO_GRID = AspectRef.massToGrid;
+	public static String BIOMASS = AspectRef.biomass;
+	
 	@Override
-	protected void internalStep(
-					EnvironmentContainer environment, AgentContainer agents)
+	protected void internalStep()
 	{
 		//FIXME: reset biomass for testing purpose, needs to be done properly
-		environment.getSoluteGrid("biomass").setAllTo(ArrayType.CONCN, 0.0);
+		this._environment.getSoluteGrid(BIOMASS).setAllTo(ArrayType.CONCN, 0.0);
 		// FIXME: does massToGrid deserve a place in NameRef?
-		for ( Agent agent : agents.getAllAgents() )
-			agent.event("massToGrid");
+		for ( Agent agent : this._agents.getAllAgents() )
+			agent.event(MASS_TO_GRID);
 	}
 }

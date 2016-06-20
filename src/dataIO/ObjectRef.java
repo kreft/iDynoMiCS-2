@@ -3,10 +3,16 @@ package dataIO;
 /**
  * \brief Collection of common object tags.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public final class ObjectRef
 {
+	public static String[] getAllOptions()
+	{
+		return new String[] { BOOL, STR, STR_VECT, INT, INT_VECT, 
+				INT_MATR, INT_ARRY, DBL, DBL_VECT, DBL_MATR, DBL_ARRY };
+		
+	}
 	/**
 	 * Boolean, i.e. true or false.
 	 */

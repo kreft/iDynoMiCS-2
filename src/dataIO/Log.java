@@ -5,7 +5,6 @@ import java.util.Date;
 
 import guiTools.GuiConsole;
 import idynomics.Idynomics;
-import idynomics.Param;
 import utility.Helper;
 
 /**
@@ -14,7 +13,7 @@ import utility.Helper;
  * will also include messages of all lower level settings.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Log
 {
@@ -62,23 +61,23 @@ public class Log
 	/**
 	 * Current output level setting.
 	 */
-	private static Tier outputLevel;
+	private static Tier _outputLevel;
 	
 	/**
 	 * Log file handler.
 	 */
-	private static FileHandler logFile = new FileHandler();
+	private static FileHandler _logFile = new FileHandler();
 	
 	/**
 	 * Full date format.
 	 */
-	private static SimpleDateFormat ft = 
+	private static SimpleDateFormat _ft = 
 						new SimpleDateFormat("[yyyy.MM.dd HH:mm:ss] ");
 	
 	/**
 	 * Short date format.
 	 */
-	private static SimpleDateFormat st = new SimpleDateFormat("[HH:mm] ");
+	private static SimpleDateFormat _st = new SimpleDateFormat("[HH:mm] ");
 	
 	/**
 	 * \brief Check if this log file is ready to start writing.
@@ -87,12 +86,17 @@ public class Log
 	 */
 	public static boolean isSet()
 	{
-		return ( outputLevel != null );
+		return ( _outputLevel != null );
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
 	public static String level()
 	{
-		return String.valueOf(outputLevel);
+		return String.valueOf(_outputLevel);
 	}
 	
 	/**
@@ -107,8 +111,8 @@ public class Log
 	 */
 	public static void set(Tier level)
 	{
-		outputLevel = level;
-		if ( Idynomics.global.outputLocation != null &&  ! logFile.isReady() )
+		_outputLevel = level;
+		if ( Idynomics.global.outputLocation != null &&  ! _logFile.isReady() )
 			setupFile();
 	}
 	
@@ -135,21 +139,21 @@ public class Log
 	public static void out(Tier level, String message)
 	{
 		/* Set up the file if this hasn't been done yet (e.g. GUI launch). */
-		if ( ! logFile.isReady() )
+		if ( ! _logFile.isReady() )
 			setupFile();
 		/* Try writing to screen and to the log file. */
-		if ( outputLevel == null )
+		if ( _outputLevel == null )
 		{
-			 outputLevel = Tier.NORMAL;
+			 _outputLevel = Tier.NORMAL;
 			 printToScreen(
 					 "No output level set, so using NORMAL be default", true);
 			// FIXME this response contradicts the javadoc to set(Tier)
 			//printToScreen("Error: attempt to write log before it is set", true);
 		}
-		else if ( level.compareTo(outputLevel) < 1 )
+		else if ( level.compareTo(_outputLevel) < 1 )
 		{
-			printToScreen(st.format(new Date())+message, level==Tier.CRITICAL);
-			logFile.write(ft.format(new Date()) + message + "\n");
+			printToScreen(_st.format(new Date())+message, level==Tier.CRITICAL);
+			_logFile.write(_ft.format(new Date()) + message + "\n");
 		}
 	}
 	
@@ -157,14 +161,14 @@ public class Log
 	 * \brief TODO
 	 *
 	 */
-	private static void setupFile()
+	public static void setupFile()
 	{
 		//FIXME for some reason this sometimes fails with user provided location
-		logFile.fnew(Idynomics.global.outputLocation + "/log.txt");
-		logFile.flushAll = true;
+		_logFile.fnew(Idynomics.global.outputLocation + "/log.txt");
+		_logFile.flushAll();
 		out(Tier.QUIET, Idynomics.fullDescription() + 
-				"\nOutput level is " + outputLevel +
-				", starting at " + ft.format(new Date()) + 
+				"\nOutput level is " + _outputLevel +
+				", starting at " + _ft.format(new Date()) + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	}

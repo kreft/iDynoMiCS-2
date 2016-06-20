@@ -1,7 +1,7 @@
 package expression;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.List;
 
 import dataIO.Log;
 import static dataIO.Log.Tier.CRITICAL;
@@ -10,7 +10,7 @@ import static dataIO.Log.Tier.CRITICAL;
  * \brief A component of a mathematical expression composed of strictly two
  * sub-components.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ComponentDouble extends Component
 {
@@ -53,7 +53,7 @@ public abstract class ComponentDouble extends Component
 	}
 	
 	@Override
-	public void appendVariablesNames(List<String> names)
+	public void appendVariablesNames(Collection<String> names)
 	{
 		this._a.appendVariablesNames(names);
 		this._b.appendVariablesNames(names);

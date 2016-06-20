@@ -2,10 +2,13 @@ package aspect.calculated;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
-import idynomics.NameRef;
+import aspect.AspectRef;
 
 /**
  * \brief TODO
+ * 
+ * <p>Note that this could be calculated using StateExpression, but this is
+ * quicker.</p>
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * 
@@ -13,8 +16,8 @@ import idynomics.NameRef;
  */
 public class SimpleVolumeState extends Calculated {
 	
-	public String MASS = NameRef.agentMass;
-	public String DENSITY = NameRef.agentDensity;
+	public String MASS = AspectRef.agentMass;
+	public String DENSITY = AspectRef.agentDensity;
 	
 	public SimpleVolumeState()
 	{

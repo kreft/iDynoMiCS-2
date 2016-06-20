@@ -11,8 +11,8 @@ import com.jogamp.opengl.GLAutoDrawable;
  */
 public class CommandMediatorExample implements CommandMediator
 {
-	protected double tic = 0.0;
-	protected double x = 0, y = 0, z = 0;
+	protected double _tic = 0.0;
+	protected double _x = 0, _y = 0, _z = 0;
 	public float kickback;
 	
 
@@ -20,20 +20,27 @@ public class CommandMediatorExample implements CommandMediator
 	public float kickback() {
 		return kickback;
 	}
+	
+	@Override
+	public void init(GLAutoDrawable drawable) {
+		// TODO Auto-generated method stub
+		
+	}
+	
    /**
     * Draws the object (sphere)
     * 
     * @param glDrawable The GLDrawable to draw objects on.
     */
     public void draw(GLAutoDrawable drawable, float zoom) {
-    	if(tic == 0.0)
-    		 tic = System.currentTimeMillis();
-    	else if (System.currentTimeMillis() - tic > 1000)
+    	if(_tic == 0.0)
+    		 _tic = System.currentTimeMillis();
+    	else if (System.currentTimeMillis() - _tic > 1000)
     	{
-    		x= (Math.random() -0.5) * 3;
-    		y= (Math.random() -0.5) * 3;
-    		z= (Math.random() -0.5) * 3;
-    		tic = 0.0;
+    		_x= (Math.random() -0.5) * 3;
+    		_y= (Math.random() -0.5) * 3;
+    		_z= (Math.random() -0.5) * 3;
+    		_tic = 0.0;
     	}
     	final GL2 gl = drawable.getGL().getGL2();
 		 int i, j;
@@ -49,7 +56,7 @@ public class CommandMediatorExample implements CommandMediator
            double zr1 = Math.cos(lat1);
 
            gl.glLoadIdentity();
-           gl.glTranslated(x,y, - 10.0 + z + zoom);
+           gl.glTranslated(_x,_y, - 10.0 + _z + zoom);
            gl.glRotatef(0.0f,1.0f,0.0f,0.0f); 
 	        float[] rgba = {0.3f, 0.5f, 1f};
 	        gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, rgba, 0);

@@ -1,17 +1,20 @@
 package solver;
 
-import java.util.Arrays;
-import java.util.HashMap;
-
+import java.util.Collection;
 import dataIO.Log;
+import dataIO.Log.Tier;
+
 import static dataIO.Log.Tier.*;
+import static grid.ArrayType.*;
+
 import grid.SpatialGrid;
-import static grid.SpatialGrid.ArrayType.*;
+import linearAlgebra.Vector;
+import shape.Shape;
 
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class PDEsolver extends Solver
 {
@@ -30,9 +33,9 @@ public abstract class PDEsolver extends Solver
 		this._updater = updater;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SOLVER METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -40,7 +43,7 @@ public abstract class PDEsolver extends Solver
 	 * @param solutes
 	 * @param tFinal
 	 */
-	public abstract void solve(HashMap<String, SpatialGrid> solutes,
+	public abstract void solve(Collection<SpatialGrid> solutes,
 															double tFinal);
 	
 	/**
@@ -58,31 +61,55 @@ public abstract class PDEsolver extends Solver
 	 * @param grid
 	 * @param destType
 	 */
-	protected void addFluxes(String varName, SpatialGrid grid)
+	protected void addFluxes(SpatialGrid grid)
 	{
+		Tier level = BULK;
+		Shape shape = grid.getShape();
 		/* Coordinates of the current position. */
 		int[] current;
 		/* Temporary storage. */
-		double flux;
+		double flux, temp;
 		/*
 		 * Iterate over all core voxels calculating the Laplace operator. 
 		 */
-		for ( current = grid.resetIterator(); grid.isIteratorValid();
-											  current = grid.iteratorNext())
+		for ( current = shape.resetIterator(); shape.isIteratorValid();
+											  current = shape.iteratorNext())
 		{
 			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
 				continue;
 			flux = 0.0;
-			for ( grid.resetNbhIterator(); 
-						grid.isNbhIteratorValid(); grid.nbhIteratorNext() )
+			Log.out(level, 
+					"Coord "+Vector.toString(shape.iteratorCurrent())+
+					" (curent value "+grid.getValueAtCurrent(CONCN)+
+					"): calculating flux...");
+			for ( shape.resetNbhIterator(); 
+						shape.isNbhIteratorValid(); shape.nbhIteratorNext() )
 			{
-				flux += grid.getFluxWithNeighbor(varName);
+				temp = grid.getFluxFromNeighbor();
+				flux += temp;
+				/* 
+				 * To get the value we must be inside, the flux can be obtained
+				 * from boundary.
+				 */
+				if ( shape.isNhbIteratorInside() )
+				{
+					Log.out(level, 
+						"   nhb "+Vector.toString(shape.nbhIteratorCurrent())+
+						" ("+grid.getValueAtNhb(CONCN)+") "+
+						" contributes flux of "+temp);
+				}
+				else
+				{
+					Log.out(level, 
+							" boundary nhb "+Vector.toString(
+									shape.nbhIteratorCurrent())
+							+ " contributes flux of "+temp);
+				}
 			}
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
-			Log.out(BULK, Arrays.toString(current)+": val = "+
-							grid.getValueAtCurrent(CONCN)+", lop = "+flux);
+			Log.out(level, " TOTAL flux = "+flux);
 			grid.addValueAt(LOPERATOR, current, flux);
 		}
 	}

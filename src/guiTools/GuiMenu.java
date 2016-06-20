@@ -21,17 +21,17 @@ import idynomics.Simulator;
 /**
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public final class GuiMenu
 {
-	private static JMenuBar menuBar;
+	private static JMenuBar _menuBar;
 	
 	public static JMenuBar getMenuBar()
 	{
-		menuBar = new JMenuBar();
-		menuBar.add(fileMenu());
-		return menuBar;
+		_menuBar = new JMenuBar();
+		_menuBar.add(fileMenu());
+		return _menuBar;
 	}
 	
 	

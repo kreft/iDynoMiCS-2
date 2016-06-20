@@ -8,8 +8,6 @@ import java.net.URLDecoder;
 import java.security.CodeSource;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -22,7 +20,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import idynomics.Idynomics;
-import idynomics.Param;
 import dataIO.Log.Tier;
 import utility.Helper;
 
@@ -30,7 +27,7 @@ import utility.Helper;
  * \brief Helper class for working with XML files.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class XmlHandler
 {
@@ -74,13 +71,18 @@ public class XmlHandler
 			doc = dBuilder.parse(fXmlFile);
 			doc.getDocumentElement().normalize();
 			return doc.getDocumentElement();
-		} catch (SAXException | IOException | ParserConfigurationException e) {
-			System.err.println("Error while loading: " + document + "\n"
-					+ "error message: " + e.getMessage());
+		} catch ( ParserConfigurationException | IOException e) {
+			Log.printToScreen("Error while loading: " + document + "\n"
+					+ "error message: " + e.getMessage(), true);
 			document = Helper.obtainInput("", "Atempt to re-obtain document",
 					true);
 			return loadDocument(document);
-		}
+		} catch ( SAXException e ) {
+			Log.printToScreen("Error while loading: " + document + "\n"
+				+ "error message: " + e.getMessage(), true);
+			return null;
+		}			
+		
 	}
 	
 	/**
@@ -185,13 +187,26 @@ public class XmlHandler
 	 */
 	public static String obtainAttribute(Element xmlElement, String attribute)
 	{
-		if(xmlElement.hasAttribute(attribute))
+		if ( xmlElement.hasAttribute(attribute) )
 			return  xmlElement.getAttribute(attribute);
 		else
 		{
 			return Helper.obtainInput(null, "Required " + attribute +
 					" from missing xml node: " + xmlElement.getLocalName());
 		}
+	}
+	
+	/**
+	 * \brief Gets an attribute from an XML node: if the attribute cannot be
+	 * found, asks the user. 
+	 * 
+	 * @param xmlNode Node from an XML protocol file.
+	 * @param attribute Name of the attribute sought.
+	 * @return String representation of the attribute required.
+	 */
+	public static String obtainAttribute(Node xmlNode, String attribute)
+	{
+		return obtainAttribute((Element) xmlNode, attribute);
 	}
 	
 	/**
@@ -240,8 +255,8 @@ public class XmlHandler
 	{
 		try {
 			Field f = c.getDeclaredField(
-					element.getAttribute(XmlLabel.nameAttribute));
-			f.set(c, element.getAttribute(XmlLabel.valueAttribute));
+					element.getAttribute(XmlRef.nameAttribute));
+			f.set(c, element.getAttribute(XmlRef.valueAttribute));
 		} catch (IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -251,7 +266,7 @@ public class XmlHandler
 			// param
 			System.err.println("Warning: attempting to set non existend"
 					+ " general paramater: " + 
-					element.getAttribute(XmlLabel.nameAttribute) );
+					element.getAttribute(XmlRef.nameAttribute) );
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -341,7 +356,7 @@ public class XmlHandler
 	public static void display(String prefix, Element element)
 	{
 		String ln = " " + element.getTagName() + " " 
-				+ element.getAttribute(XmlLabel.nameAttribute);
+				+ element.getAttribute(XmlRef.nameAttribute);
 		if (prefix == null) 
 			System.out.println(ln);
 		else

@@ -1,12 +1,11 @@
 package aspect;
 
 import generalInterfaces.Copyable;
-import generalInterfaces.XMLable;
-
+import generalInterfaces.Instantiatable;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 
 /**
  * Calculated/Secondary states contain a description of how secondary states 
@@ -17,12 +16,12 @@ import dataIO.XmlLabel;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Calculated implements Copyable, XMLable
+public abstract class Calculated implements Copyable, Instantiatable
 {
 	/**
 	 * input states
 	 */
-	protected String[] input;
+	protected String[] _input;
 
 	/**
 	 * method that sets the input from a comma separated String.
@@ -31,7 +30,7 @@ public abstract class Calculated implements Copyable, XMLable
 	public void setInput(String input)
 	{
 		input.replaceAll("\\s+","");
-		this.input = input.split(",");
+		this._input = input.split(",");
 	}
 	
 	public void setField(String field, String value)
@@ -50,7 +49,7 @@ public abstract class Calculated implements Copyable, XMLable
 	 */
 	public String[] getInput()
 	{
-		return input;
+		return _input;
 	}
 	
 	/**
@@ -68,14 +67,14 @@ public abstract class Calculated implements Copyable, XMLable
 	 */
 	public static Object getNewInstance(Node xmlNode)
 	{
-		Calculated obj = (Calculated) XMLable.getNewInstance(xmlNode);
+		Calculated obj = (Calculated) Instantiatable.getNewInstance(xmlNode);
 		obj.init((Element) xmlNode);
 		return obj;
 	}
 	
 
 	public static Object getNewInstance(String input) {
-		Calculated obj = (Calculated) XMLable.getNewInstance(input);
+		Calculated obj = (Calculated) Instantiatable.getNewInstance(input);
 		obj.init(input);
 		return obj;
 	}
@@ -86,7 +85,7 @@ public abstract class Calculated implements Copyable, XMLable
 		if (input != "")
 			this.setInput(input);
 		
-		String fields = XmlHandler.gatherAttribute(xmlElem, XmlLabel.fields);
+		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
 		String[] f = null;
 		if (fields != "")
 		{
@@ -98,12 +97,6 @@ public abstract class Calculated implements Copyable, XMLable
 				this.setField(value[0], value[1]);
 			}
 		}
-	}
-	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 	
 	private void init(String input) {

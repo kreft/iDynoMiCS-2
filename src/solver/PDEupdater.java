@@ -3,7 +3,7 @@
  */
 package solver;
 
-import java.util.HashMap;
+import java.util.Collection;
 
 import grid.SpatialGrid;
 
@@ -27,6 +27,6 @@ public interface PDEupdater
 	 * {@code SpatialGrid} that contains its values over space.
 	 * @param dt Size of the mini-timestep.
 	 */
-	default void prestep(HashMap<String, SpatialGrid> variables, double dt)
+	default void prestep(Collection<SpatialGrid> variables, double dt)
 	{ }
 }

@@ -1,10 +1,13 @@
 package idynomics;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import utility.Helper;
 
@@ -51,6 +54,9 @@ public class Param
 	 */
 	public String simulationComment;
 
+	/**
+	 * Root folder for this simulation
+	 */
 	public String idynomicsRoot = "";
 	
 	/**************************************************************************
@@ -60,11 +66,30 @@ public class Param
 	public static void init()
 	{
 	// TODO safety: check the root exists, and the name is acceptable
-			Idynomics.global.outputRoot = Helper.obtainInput(Idynomics.global.outputRoot, "Required " + 
-					XmlLabel.outputFolder, true);
-			Idynomics.global.simulationName = Helper.obtainInput(Idynomics.global.simulationName, "Required"
-					+ " simulation name", true);
-			Idynomics.global.outputLocation = Idynomics.global.outputRoot + "/" + Idynomics.global.simulationName + "/";
+		if (Idynomics.global.idynomicsRoot == null || 
+				Idynomics.global.simulationName == null)
+		{
+			Idynomics.global.outputRoot = 
+					Helper.obtainInput(Idynomics.global.outputRoot, 
+							"Required " + XmlRef.outputFolder, true);
+			Idynomics.global.simulationName = 
+					Helper.obtainInput(Idynomics.global.simulationName,
+							"Required simulation name", true);
+			setOutputLocation();
+		}
+	}
+	
+	public static void setOutputLocation()
+	{
+		/* set date format for folder naming */
+		SimpleDateFormat dateFormat = 
+				new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss_");
+		
+		/* set output root for this simulation */
+		Idynomics.global.outputLocation = 
+				Idynomics.global.outputRoot + "/" + 
+				dateFormat.format(new Date()) + 
+				Idynomics.global.simulationName + "/";
 	}
 	
 	/**
@@ -75,13 +100,16 @@ public class Param
 	public static void init(Element elem)
 	{
 		/*
-		 *   
+		 *   set output root from xml file
 		 */
-		// TODO safety: check the root exists, and the name is acceptable
-		Idynomics.global.outputRoot = XmlHandler.obtainAttribute(elem, XmlLabel.outputFolder);
+		Idynomics.global.outputRoot = 
+				XmlHandler.obtainAttribute(elem, XmlRef.outputFolder);
+		
+		/* set simulation name from xml file */
 		Idynomics.global.simulationName = 
-					XmlHandler.obtainAttribute(elem, XmlLabel.nameAttribute);
-		Idynomics.global.outputLocation = Idynomics.global.outputRoot + "/" + Idynomics.global.simulationName + "/";
+					XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute);
+		
+		setOutputLocation();
 		/* 
 		 * Set up the log file.
 		 */
@@ -93,7 +121,7 @@ public class Param
 			try
 			{
 				t = Tier.valueOf(
-						XmlHandler.obtainAttribute(elem, XmlLabel.logLevel));
+						XmlHandler.obtainAttribute(elem, XmlRef.logLevel));
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -107,6 +135,6 @@ public class Param
 		 * 
 		 */
 		Idynomics.global.simulationComment = 
-				XmlHandler.gatherAttribute(elem, XmlLabel.commentAttribute);
+				XmlHandler.gatherAttribute(elem, XmlRef.commentAttribute);
 	}
 }

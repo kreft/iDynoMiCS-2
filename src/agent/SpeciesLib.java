@@ -12,21 +12,24 @@ import agent.Species.SpeciesMaker;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlLabel;
-import generalInterfaces.Quizable;
-import generalInterfaces.XMLable;
+import dataIO.XmlRef;
+import generalInterfaces.Instantiatable;
+import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
 import modelBuilder.SubmodelMaker.Requirement;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements IsSubmodel, Quizable, XMLable
+public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 {
 	/**
 	 * Contains all known species.
@@ -62,13 +65,13 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		/* 
 		 * Cycle through all species and add them to the library.
 		 */ 
-		NodeList nodes = xmlElem.getElementsByTagName(XmlLabel.species);
+		NodeList nodes = xmlElem.getElementsByTagName(XmlRef.species);
 		String name;
 		Element speciesElem;
 		for ( int i = 0; i < nodes.getLength(); i++ ) 
 		{
 			speciesElem = (Element) nodes.item(i);
-			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			name = speciesElem.getAttribute(XmlRef.nameAttribute);
 			this.set(name, new Species(speciesElem));
 		}
 		/* 
@@ -78,25 +81,13 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 		for ( int i = 0; i < nodes.getLength(); i++ ) 
 		{
 			speciesElem = (Element) nodes.item(i);
-			name = speciesElem.getAttribute(XmlLabel.nameAttribute);
+			name = speciesElem.getAttribute(XmlRef.nameAttribute);
 			Species s = (Species) this._species.get(name);
 			Log.out(Tier.EXPRESSIVE,
 					"Species \""+name+"\" loaded into Species Library");
 			s.loadSpeciesModules(speciesElem);
 		}
 		Log.out(Tier.NORMAL, "Species Library loaded!\n");
-	}
-
-	public String getXml() {
-		String out = "<" + XmlLabel.speciesLibrary + ">\n";
-		for (String key :_species.keySet())
-		{
-			out = out + "<" + XmlLabel.species + " name=\"" +
-					key + "\">\n" + _species.get(key).getXml() +
-					"</" + XmlLabel.species + ">\n";
-		}
-		out = out + "</" + XmlLabel.speciesLibrary + ">\n";
-		return out;
 	}
 
 	/**
@@ -110,7 +101,22 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 	{
 		if ( this._species.containsKey(name) )
 			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
-		species.reg().identity = name;
+		species.reg().setIdentity(name);
+		this._species.put(name, species);
+	}
+	
+	/**
+	 * \brief Add a new species to the species library using the interface
+	 * (or overwrite if the species already exists).
+	 * 
+	 * @param species Information about the species.
+	 */
+	public void set(AspectInterface species)
+	{
+		String name = species.reg().getIdentity();
+		if ( this._species.containsKey(name) )
+			Log.out(Tier.EXPRESSIVE, "Warning: overwriting species "+name);
+		species.reg().setIdentity(name);
 		this._species.put(name, species);
 	}
 
@@ -177,5 +183,57 @@ public class SpeciesLib implements IsSubmodel, Quizable, XMLable
 			System.out.println("Making speciesLib");
 			this.addSubmodel(new SpeciesLib());
 		}
+	}
+
+	/**
+	 * Get the ModelNode object for this NodeConstructor object
+	 * @return ModelNode
+	 */
+	@Override
+	public ModelNode getNode() {
+
+		/* the species lib node */
+		ModelNode modelNode = new ModelNode(XmlRef.speciesLibrary, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		
+		/* Species constructor */
+		modelNode.addChildConstructor(new Species(), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		/* the already existing species */
+		for ( String s : this._species.keySet() )
+			modelNode.add(((Species) _species.get(s)).getNode());
+	
+		return modelNode;
+	}
+
+	/**
+	 * Create a new minimal object of this class and return it
+	 * @return NodeConstructor
+	 */
+	@Override
+	public NodeConstructor newBlank() {
+		return Idynomics.simulator.speciesLibrary;
+	}
+
+	/**
+	 * Add a child object that is unable to register itself properly via the
+	 * newBlank call.
+	 * @param childOb
+	 */
+	@Override
+	public void addChildObject(NodeConstructor childObject) 
+	{
+		if (childObject instanceof Species)
+			this.set((Species) childObject);
+	}
+
+	/**
+	 * return the default XMLtag for the XML node of this object
+	 * @return String xmlTag
+	 */
+	@Override
+	public String defaultXmlTag() {
+		return XmlRef.speciesLibrary;
 	}
 }

@@ -32,7 +32,7 @@ import idynomics.Compartment;
 ## Line lengths
 Please keep line lengths to a maximum of 80 characters wherever possible. This makes it easier to reading code on small screens, and to compare code side-by-side on one wider screen. To make this easier, you can set up Eclipse to show a margin guide:
 
-![Eclipse editor margin column](https://raw.githubusercontent.com/roughhawkbit/iDynoMiCS-2/master/Docs/EclipseEditorMarginColumn.png?token=ADJGIVtgUNEqXX8-vHyR2xguEIWLl8LRks5Wvg4xwA%3D%3D)
+![Eclipse editor margin column](Docs/EclipseEditorMarginColumn.png)
 
 
 TODO wrapping lines
@@ -90,9 +90,9 @@ Commenting is your friend, whether you're writing code, reading someone else's, 
 ``` java
 /**
  * \brief Short description about what this method does.
- * 
+ *
  * A bit more information about what this method does.
- * 
+ *
  * @param number An integer number required as a parameter.
  * @returns A double number calculated from the input.
  */
@@ -146,33 +146,48 @@ This is a confusing aspect of Java, but worth learning the distinction. All data
 ## Using modulo
 
 We often need to use [modulo](https://en.wikipedia.org/wiki/Modulo_operation), for example when dealing with periodic boundaries or circular geometries. The in-built Java modulus is specified using the `%` sign:
-``` java 
+``` java
 // dividend % divisor = remainder
 1 % 3 ; // = 1
 5 % 3 ; // = 2
 -2 % 3 ; // = -2
 ```
 Note that the sign of the answer is always that of the dividend. If you want it to be the same sign as the divisor (as is often the case), use `Math.floorMod(int dividend, int divisor)`:
-``` java 
+``` java
 // dividend % divisor = remainder
 Math.floorMod(1, 3) ; // = 1
 Math.floorMod(5, 3) ; // = 2
 Math.floorMod(-2, 3) ; // = 1
 ```
 
+The `Math.floorMod(x,y)` method only works for `int`s, so for `double`s use `ExtraMath.floorMod(x,y)` in the `utility` package.
+
+## Using random numbers
+The random number generator (RNG) in iDynoMiCS 2 is initialized with a random seed, meaning that a simulation can be re-run in exactly the same way so long as the same random seed is used. However, this is only possible because we use a defined random number generator, namely the `MTRandom` that is initialized in `ExtraMath`. If a different RNG is used by mistake, it may no longer be possible to reproduce simulations in the way we would like. Furthermore, uses of a different RNG are very hard to locate in the code.
+
+Please, please, please do not use methods like
+``` java
+Math.random()
+```
+or
+``` java
+Random rand = new Random();
+rand.nextInt(bound);
+```
+
 ## Using aspects
 
-### what is an aspect (and why)?
+### What is an aspect (and why)?
 Aspects are introduced to have a flexible way of handling and storing properties
 and behavior of the java object that hosts them, as well as to ensure sub-models
-always work with up-to-date information. An aspect can be any java object, yet 
-when creating an aspect (stored in an Aspect<A> object) a distinction is made 
+always work with up-to-date information. An aspect can be any java object, yet
+when creating an aspect (stored in an Aspect<A> object) a distinction is made
 between three different types: PRIMARY, CALCULATED and EVENT.
 
 
 #### primary
-Primary aspects store information or properties and are preferable the only 
-place this information is stored (such as a double that represents an Agents 
+Primary aspects store information or properties and are preferable the only
+place this information is stored (such as a double that represents an Agent's
 mass or a String that tells an output writer what solute should be displayed).
 The following example shows the creation of a simple primary state in xml:
 
@@ -191,8 +206,8 @@ bellow).
 <aspect name="exampleState" type="double[]" value="2.0, 5.1" />
 ```
 
-when storing arrays (indicated with the appended []) the individual array 
-value's are always comma separated.
+When storing arrays (indicated with the appended []) the individual array
+values are always comma-separated.
 
 More complex objects may also be stored as a primary aspect, when such an object
 is stored no value is indicated but instead the child nodes of the parent node
@@ -205,11 +220,11 @@ handled by the object's XMLable implementation (see paragraph XMLable interface)
 </aspect>
 ```
 
-#### calulated
-Calculated aspects are used to calculate a property that depends on other 
+#### calculated
+Calculated aspects are used to calculate a property that depends on other
 aspects. For example calculated aspect may define an agents volume based on it's
-mass and density. Calculated aspects do not store any information except for on what primary 
-aspects they depend on. There are two way's of defining a calculated aspect: 1) 
+mass and density. Calculated aspects do not store any information except for on what primary
+aspects they depend on. There are two way's of defining a calculated aspect: 1)
 calling a pre-made calculated aspect:
 
 ``` XML
@@ -219,7 +234,7 @@ Here 'name' is the name other aspects use to refer to this aspect. 'type'
 indicates what type of aspect should be created. 'class' indicates what the
 java class name of the calculated object is that should be created. 'input'
 set the required input aspects and 'package' indicate the java package in which
-this java class is stored. When the java class has been added to the 
+this java class is stored. When the java class has been added to the
 general/classLibrary.xml no package specification is required in the protocol
 file.
 
@@ -267,7 +282,7 @@ field and one method to your class
 /* The aspect registry can be used to store any java object: <Object>, but can
 * also be use to store more specific objects types: <Double> */
 public AspectReg<Object> aspectRegistry = new AspectReg<Object>();
-    
+
 /* Allows for direct access to the aspect registry  */
 public AspectReg<?> reg() {
 	return aspectRegistry;
@@ -294,7 +309,7 @@ or in one of it's branches
 ``` java
 Object getValue(String aspect)
 ```
-This method returns any aspect as java object if the aspect exists in the root 
+This method returns any aspect as java object if the aspect exists in the root
 registry or in any of it's branches (see branched aspect registries). If the
 aspect cannot be identified it will return null.
 
@@ -328,10 +343,10 @@ used to allow direct access of species aspect's trough an agent. Any aspect
 registry can have any number of branches with any number of branches out of
 those branches, though agents will always have only a single branch/module
 which is the species aspect registry, this species aspect registry may than
-have any additional species modules which are handy to store specific behavior 
+have any additional species modules which are handy to store specific behavior
 and parameters in a single place.
 
-Typical species modules would be: the behavior of a coccoid cell, the 
+Typical species modules would be: the behavior of a coccoid cell, the
 metabolism of this subgroup, or specific features/changes of a mutant strain.
 
 There is one GOLDEN RULE concerning branched aspect registry, when duplicate
@@ -339,7 +354,7 @@ named aspects exist within the aspect tree the aspect closest to the root will
 override the further branch, but if two separate, independent branches use the
 same aspect name the first one encountered will be used, hence:
 
-You can overrule aspects of submodules, but individual submodules cannot 
+You can overrule aspects of submodules, but individual submodules cannot
 override each other!
 
 This approach can be used for example if an agent wants to vary it's individual
@@ -369,7 +384,7 @@ Some aspect interface implementing objects deliberately have no set method since
 they are not intended to be mutated (for example species).
 
 ### Creating custom aspects
-In order to create a custom calculated state (apart from a direct 
+In order to create a custom calculated state (apart from a direct
 StateExpression calculated state) you need to create a new method extending
 the Calculated class. Any calculated state only needs one method:
 
@@ -381,7 +396,7 @@ public Object get(AspectInterface aspectOwner)
 ```
 
 hence a calculated state has excess to all of the agent's other aspects, but
-only call's the ones that are specifically assigned in the protocol file 
+only call's the ones that are specifically assigned in the protocol file
 (available as String[] input). NOTE: this may be changed to be a hashMap instead
 in the future.
 
@@ -449,7 +464,7 @@ Useful links:
 	-	Check-out branch B (Master) and pull.
 4. Check-out the branch that will receive the merge commit (your branch).
 5. Select the branch you want to merge on top of that (Master) and click merge.
-6. **If there are conflicts**, open all files with the 'conflicts' tag and resolve conflicts (the conflicts 
+6. **If there are conflicts**, open all files with the 'conflicts' tag and resolve conflicts (the conflicts
 resolve tool can be used to view your file on the left, the file from master on
 right and the result in the middle). Per conflict you can pick either the
 changes from your file or from master or write something new all together, you
@@ -462,14 +477,14 @@ staged commit the changes.
 branch and you can create a pull-request in GitHub.
 
 ## Communication
-GitHub enables discussion of issues and aspects of specific code, but there's nothing quite like a face-to-face conversation to resolve these and more general topics. We hold a [Google hangout](https://hangouts.google.com/) roughly every week or two 
+GitHub enables discussion of issues and aspects of specific code, but there's nothing quite like a face-to-face conversation to resolve these and more general topics. We hold a [Google hangout](https://hangouts.google.com/) roughly every week or two
 
 ## Git configuration
 ### Line endings
-Please set the git configuration setting `core.autocrlf` to `false` for contributing to iDynoMiCS 2. It's generally a good idea to do this for your global settings if you are working on projects that are developed in both Windows and in Unix (Mac/Linux) environments. This only needs to be set once. 
+Please set the git configuration setting `core.autocrlf` to `false` for contributing to iDynoMiCS 2. It's generally a good idea to do this for your global settings if you are working on projects that are developed in both Windows and in Unix (Mac/Linux) environments. This only needs to be set once.
 
 To set this in Eclipse with eGit installed, go to *Preferences > Team > Git > Configuration*:
-![eGit line endings](https://raw.githubusercontent.com/roughhawkbit/iDynoMiCS-2/master/Docs/eGit_line_endings.png?token=ADJGISle9ZPOp__NbvEDcHhg7ZJNePxqks5Wvg4WwA%3D%3D)
+![eGit line endings](Docs/eGit_line_endings.png)
 
 In the command line, this is done like so:
 ``` bash

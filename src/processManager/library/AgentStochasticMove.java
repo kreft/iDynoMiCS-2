@@ -2,9 +2,7 @@ package processManager.library;
 
 import agent.Agent;
 import agent.Body;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
-import idynomics.NameRef;
+import aspect.AspectRef;
 import processManager.ProcessManager;
 import surface.Point;
 
@@ -15,17 +13,20 @@ import surface.Point;
  */
 public class AgentStochasticMove extends ProcessManager
 {
-	protected void internalStep(
-					EnvironmentContainer environment, AgentContainer agents)
+	
+	public static String STOCHASTIC_MOVE = AspectRef.agentStochasticMove;
+	public static String BODY = AspectRef.agentBody;
+	
+	protected void internalStep()
 	{
-		for ( Agent agent : agents.getAllLocatedAgents() )
+		for ( Agent agent : this._agents.getAllLocatedAgents() )
 		{
-			agent.event("stochasticMove", this._timeStepSize);
+			agent.event(STOCHASTIC_MOVE, this._timeStepSize);
 			/* Save agents that stochastically move out of the domain. */
 			// FIXME still some agents seem to end up just outside
-			Body body = ((Body) agent.get(NameRef.agentBody));
+			Body body = ((Body) agent.get(BODY));
 			for ( Point point: body.getPoints() )
-				agents.getShape().applyBoundaries( point.getPosition() );
+				this._agents.getShape().applyBoundaries( point.getPosition() );
 		}
 	}
 	

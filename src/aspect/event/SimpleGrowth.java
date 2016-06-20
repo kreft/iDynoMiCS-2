@@ -4,7 +4,8 @@ package aspect.event;
 import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
-import idynomics.NameRef;
+import aspect.AspectRef;
+import utility.Helper;
 
 /**
  * TODO: We are going to do this different (integrate into ODE/PDE), this event
@@ -18,13 +19,14 @@ import idynomics.NameRef;
  */
 public class SimpleGrowth extends Event {
 
-	public String MASS = NameRef.agentMass;
-	public String GROWTH_RATE = NameRef.growthRate;
+	public String MASS = AspectRef.agentMass;
+	public String GROWTH_RATE = AspectRef.growthRate;
 	public SimpleGrowth()
 	{
 		setInput("mass,growthRate");
 	}
 
+	// TODO switch over to the internal production paradigm
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
 		Agent agent = (Agent) initiator;
@@ -32,7 +34,7 @@ public class SimpleGrowth extends Event {
 		// this method is just for testing purposes.
 		// simple ask the agents at what rate they grow, they should than figure
 		// this out from their local conditions
-		double newMass = (double) agent.get(GROWTH_RATE) * timeStep + 
+		double newMass = (double) Helper.setIfNone(agent.get(GROWTH_RATE), 0.0) * timeStep + 
 									(double) agent.get(MASS);
 		agent.set(MASS, newMass);
 	}

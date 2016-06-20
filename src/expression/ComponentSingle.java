@@ -1,13 +1,13 @@
 package expression;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.List;
 
 /**
  * \brief Component of a mathematical expression that is a function of one
  * other component.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ComponentSingle extends Component
 {
@@ -55,7 +55,7 @@ public abstract class ComponentSingle extends Component
 	
 	protected abstract Component getDifferential(String withRespectTo);
 	
-	public void appendVariablesNames(List<String> names)
+	public void appendVariablesNames(Collection<String> names)
 	{
 		this._a.appendVariablesNames(names);
 	}

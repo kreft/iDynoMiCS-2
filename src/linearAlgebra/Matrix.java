@@ -1,7 +1,9 @@
 package linearAlgebra;
 
+import utility.ExtraMath;
+
 /**
- * \brief TODO
+ * \brief Library of useful matrix functions.
  * 
  * <p>By convention:<ul><li>a method <i>function(matrix)</i> returns a new
  * matrix,</li><li>the equivalent <i>functionEquals(matrix)</i> overwrites the
@@ -19,7 +21,7 @@ package linearAlgebra;
  *   <li>checking methods (isZero, etc)</li>
  *   <li>basic arithmetic (+, -, *, /)</li>
  *   <li>submatrices and reordering</li>
- *   <li>scalars from matrices (sum, dot product, etc)</i>
+ *   <li>scalars from matrices (sum, min/max, etc)</i>
  *   <li>new random matrices</li>
  *   <li>converting between integer and double</li>
  *   <li>advanced methods</li>
@@ -214,6 +216,22 @@ public final class Matrix
 	/* Identity */
 	
 	/**
+	 * \brief Overwrite the given <b>matrix</b> with an identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of integers to be filled with 
+	 * the result (overwritten).
+	 */
+	public static void identityTo(int[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[i].length; j++ )
+				matrix[i][j] = ( i == j ) ? 1 : 0;
+	}
+	
+	/**
 	 * \brief A new identity matrix.
 	 * 
 	 * <p>An identity matrix is filled with zeros, except on the main diagonal
@@ -230,9 +248,7 @@ public final class Matrix
 	public static int[][] identityInt(int m, int n)
 	{
 		int[][] out = new int[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1 : 0;
+		identityTo(out);
 		return out;
 	}
 	
@@ -273,6 +289,24 @@ public final class Matrix
 		return identityInt(rowDim(matrix), colDim(matrix));
 	}
 	
+
+	/**
+	 * \brief Overwrite the given <b>matrix</b> with an identity matrix.
+	 * 
+	 * <p>An identity matrix is filled with zeros, except on the main diagonal
+	 * where it has ones instead.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles to be filled with 
+	 * the result (overwritten).
+	 */
+	public static void identityTo(double[][] matrix)
+	{
+		for ( int i = 0; i < matrix.length; i++ )
+			for ( int j = 0; j < matrix[i].length; j++ )
+				matrix[i][j] = ( i == j ) ? 1.0 : 0.0;
+	}
+	
+	
 	/**
 	 * \brief A new identity matrix.
 	 * 
@@ -290,9 +324,7 @@ public final class Matrix
 	public static double[][] identityDbl(int m, int n)
 	{
 		double[][] out = new double[m][n];
-		for ( int i = 0; i < m; i++ )
-			for ( int j = 0; j < n; j++ )
-				out[i][j] = ( i == j ) ? 1.0 : 0.0;
+		identityTo(out);
 		return out;
 	}
 	
@@ -746,6 +778,34 @@ public final class Matrix
 		restrictMinimum(matrix, 0.0);
 	}
 	
+	/**
+	 * \brief Set all elements in the column of a given <b>matrix</b> to a new
+	 * value.
+	 * 
+	 * @param matrix Two-dimensional array of integers (overwritten).
+	 * @param index {@code int} index of the column required.
+	 * @param value Fill the column with this integer value.
+	 */
+	public static void setColumnTo(int[][] matrix, int index, int value)
+	{
+		for ( int[] row : matrix )
+			row[index] = value;
+	}
+	
+	/**
+	 * \brief Set all elements in the column of a given <b>matrix</b> to a new
+	 * value.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (overwritten).
+	 * @param index {@code int} index of the column required.
+	 * @param value Fill the column with this double value.
+	 */
+	public static void setColumnTo(double[][] matrix, int index, double value)
+	{
+		for ( double[] row : matrix )
+			row[index] = value;
+	}
+	
 	/*************************************************************************
 	 * CHECKING METHODS
 	 ************************************************************************/
@@ -1103,6 +1163,72 @@ public final class Matrix
 		for ( int i = 0; i < rowDim(a); i++ )
 			if ( ! Vector.areSame(a[i], b[i], tolerance) )
 				return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code int}s (preserved).
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(int[][] matrix)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( matrix[i][j] != matrix[j][i] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(double[][] matrix)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( matrix[i][j] != matrix[j][i] )
+					return false;
+		return true;
+	}
+	
+	/**
+	 * \brief See if the given matrix is symmetric, i.e. it is equal to its
+	 * transpose.
+	 * 
+	 * @param matrix Two-dimensional array of {@code double}s (preserved).
+	 * @param tolerance {@code double} value for the absolute tolerance, i.e.
+	 * |a<sub>i,j</sub> - a<sub>j,i</sub>| <= tolerance will be accepted
+	 * as close enough to zero (helps avoid numerical issues). 
+	 * @return {@code true} if <b>matrix</b> is symmetric, {@code false} if it
+	 * is asymmetric.
+	 */
+	public static boolean isSymmetric(double[][] matrix, double absTol)
+	{
+		checkDimensions(matrix);
+		if ( ! isSquare(matrix) )
+			return false;
+		int n = rowDim(matrix);
+		for ( int i = 0; i < n - 1; i++ )
+			for ( int j = i + 1; j < n; j++ )
+				if ( ! ExtraMath.areEqual(matrix[i][j], matrix[j][i], absTol) )
+					return false;
 		return true;
 	}
 	
@@ -1892,25 +2018,62 @@ public final class Matrix
 	/* Division */
 	
 	/**
-	 * \brief Divide one matrix by another, element-by-element.
+	 * \brief For each element of a matrix <b>a</b>, divide by the
+	 * corresponding element of matrix <b>b</b>, and write the result into
+	 * the <b>destination</b> matrix.
 	 * 
-	 * <p>Matrices must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemDivide({@link #copy(double[][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Two-dimensional array of doubles.
-	 * @param b Two-dimensional array of doubles.
-	 * @return double[][] array of <b>a</b> divided by <b>b</b> element-wise.
+	 * @param destination Two-dimensional array of doubles (overwritten).
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
 	 */
-	public static double[][] elemDivideEquals(double[][] a, double[][] b)
+	public static void elemDivideTo(
+			double[][] destination, double[][] a, double[][] b)
 	{
-		checkDimensionsSame(a, b);
+		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < rowDim(a); i++ )
-			for ( int j = 0; j < colDim(a); j++ )
-				a[i][j] /= b[i][j];
-		return a;
+			Vector.divideTo(destination[i], a[i], b[i]);
+	}
+	
+	/**
+	 * \brief For each element of a matrix <b>a</b>, divide by the
+	 * corresponding element of matrix <b>b</b>, and write the result into
+	 * a new matrix.
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 * @return New two-dimensional array of doubles.
+	 */
+	public static double[][] elemDivide(double[][] a, double[][] b)
+	{
+		double[][] out = zeros(a);
+		elemDivideTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief For each element of a matrix <b>a</b>, divide by the
+	 * corresponding element of matrix <b>b</b>, overwriting the element of
+	 * <b>a</b> with the result.
+	 * 
+	 * @param a Two-dimensional array of doubles (overwritten).
+	 * @param b Two-dimensional array of doubles (preserved).
+	 */
+	public static void elemDivideEqualsA(double[][] a, double[][] b)
+	{
+		elemDivideTo(a, a, b);
+	}
+
+	/**
+	 * \brief For each element of a matrix <b>a</b>, divide by the
+	 * corresponding element of matrix <b>b</b>, overwriting the element of
+	 * <b>b</b> with the result.
+	 * 
+	 * @param a Two-dimensional array of doubles (preserved).
+	 * @param b Two-dimensional array of doubles (overwritten).
+	 */
+	public static void elemDivideEqualsB(double[][] a, double[][] b)
+	{
+		elemDivideTo(b, a, b);
 	}
 	
 	/*************************************************************************
@@ -2046,6 +2209,46 @@ public final class Matrix
 		return out;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param source
+	 * @param pivot
+	 */
+	public static void reorderRowsTo(
+			int[][] destination, int[][] source, int[] pivot)
+	{
+		checkDimensionsSame(destination, source);
+		if ( source.length != pivot.length )
+		{
+			throw new IllegalArgumentException(
+					"Pivot must have as many elements ar matrix has rows");
+		}
+		for ( int i = 0; i < pivot.length; i++ )
+			Vector.copyTo(destination[pivot[i]], source[i]);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param destination
+	 * @param source
+	 * @param pivot
+	 */
+	public static void reorderRowsTo(
+			double[][] destination, double[][] source, int[] pivot)
+	{
+		checkDimensionsSame(destination, source);
+		if ( source.length != pivot.length )
+		{
+			throw new IllegalArgumentException(
+					"Pivot must have as many elements ar matrix has rows");
+		}
+		for ( int i = 0; i < pivot.length; i++ )
+			Vector.copyTo(destination[pivot[i]], source[i]);
+	}
+	
 	/*************************************************************************
 	 * MATRIX-VECTOR CONVERSIONS
 	 ************************************************************************/
@@ -2100,6 +2303,7 @@ public final class Matrix
 	 */
 	public static int[][] transpose(int[][] matrix)
 	{
+		checkDimensions(matrix);
 		int[][] out = new int[colDim(matrix)][rowDim(matrix)];
 		for ( int i = 0; i < matrix.length; i++ )
 			for ( int j = 0; j < matrix[0].length; j++ )
@@ -2121,6 +2325,7 @@ public final class Matrix
 	 */
 	public static double[][] transpose(double[][] matrix)
 	{
+		checkDimensions(matrix);
 		double[][] out = new double[matrix[0].length][matrix.length];
 		for ( int i = 0; i < matrix.length; i++ )
 			for ( int j = 0; j < matrix[0].length; j++ )
@@ -2645,6 +2850,68 @@ public final class Matrix
 				out = Math.hypot(out, elem);
 		return out;
 	}
+
+	/**
+	 * \brief Calculates the sum of all elements in the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of integers (preserved).
+	 * @return int sum of all elements in the matrix.
+	 * @see #sum(double[][])
+	 */
+	public static int sum(int[][] matrix)
+	{
+		int out = 0;
+		for ( int[] row : matrix )
+			out += Vector.sum(row);
+		return out;
+	}
+	
+	/**
+	 * \brief Calculates the sum of all elements in the given <b>matrix</b>.
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return double sum of all elements in the matrix.
+	 * @see #sum(int[][])
+	 */
+	public static double sum(double[][] matrix)
+	{
+		double out = 0.0;
+		for ( double[] row : matrix )
+			out += Vector.sum(row);
+		return out;
+	}
+	
+	/**
+	 * \brief Calculates the arithmetic mean average element in the given 
+	 * <b>matrix</b>.
+	 * 
+	 * <p>Only includes finite elements of <b>matrix</b>. If there are none,
+	 * returns {@code Vector.UNDEFINED_AVERAGE}.</p>
+	 * 
+	 * @param matrix Two-dimensional array of doubles (preserved).
+	 * @return double value of arithmetic mean of elements in <b>matrix</b>.
+	 * @see #meanGeo(double[][] matrix)
+	 * @see #meanHar(double[][] matrix)
+	 */
+	public static double meanArith(double[][] matrix)
+	{
+		double out = 0.0;
+		double n = 0.0;
+		for ( double[] row : matrix )
+			for ( double elem : row )
+				if ( Double.isFinite(elem) )
+				{
+					out += elem;
+					n++;
+				}
+		/*
+		 * Check the array contains valid entries before trying to divide by
+		 * zero.
+		 */
+		if ( n == 0.0 )
+			return Vector.UNDEFINED_AVERAGE;
+		return out/n;
+	}
 	
 	/*************************************************************************
 	 * NEW RANDOM MATRICES
@@ -2941,8 +3208,6 @@ public final class Matrix
 	 * m<sub>b</sub>). The output matrix, x, will be a new
 	 * n<sub>a</sub>-by-n<sub>b</sub> matrix.</p>
 	 * 
-	 * TODO JAMA code uses QRDecomposition if matrices are non-square.
-	 * 
 	 * @param a Two-dimensional array of {@code double}s (preserved).
 	 * @param b Two-dimensional array of {@code double}s (preserved).
 	 *  @return New two-dimensional array of {@code double}s, x, such that
@@ -2950,7 +3215,10 @@ public final class Matrix
 	 */
 	public static double[][] solve(double[][] a, double[][] b)
 	{
-		return (new LUDecomposition(a)).solve(b);
+		if ( isSquare(a) )
+			return (new LUDecomposition(a)).solve(b);
+		else
+			return (new QRDecomposition(a)).solve(b);
 	}
 	
 	/**

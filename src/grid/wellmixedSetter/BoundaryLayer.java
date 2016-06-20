@@ -3,19 +3,21 @@
  */
 package grid.wellmixedSetter;
 
+import static grid.ArrayType.WELLMIXED;
+
 import java.util.List;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import agent.Agent;
+import aspect.AspectRef;
 import dataIO.Log;
-import dataIO.XmlLabel;
 import dataIO.Log.Tier;
+import dataIO.XmlRef;
 import grid.SpatialGrid;
-import static grid.SpatialGrid.ArrayType.*;
 import idynomics.AgentContainer;
-import idynomics.NameRef;
+import shape.Shape;
 import surface.Ball;
 import surface.Collision;
 import surface.Surface;
@@ -24,7 +26,7 @@ import surface.Surface;
  * \brief A domain setter that includes voxels on the domain array of the given
  * grid that are within a set distance of any agents.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class BoundaryLayer implements IsWellmixedSetter
@@ -48,14 +50,14 @@ public class BoundaryLayer implements IsWellmixedSetter
 		// TODO Check this, maybe making use of XMLable interface
 		Element elem = (Element) xmlNode;
 		String temp;
-		if ( elem.hasAttribute(XmlLabel.valueAttribute) )
+		if ( elem.hasAttribute(XmlRef.valueAttribute) )
 		{
-			temp = elem.getAttribute(XmlLabel.valueAttribute);
+			temp = elem.getAttribute(XmlRef.valueAttribute);
 			this._value = Double.parseDouble(temp);
 		}
-		if ( elem.hasAttribute(XmlLabel.layerThickness) )
+		if ( elem.hasAttribute(XmlRef.layerThickness) )
 		{
-			temp = elem.getAttribute(XmlLabel.layerThickness);
+			temp = elem.getAttribute(XmlRef.layerThickness);
 			this._layerThickness = Double.parseDouble(temp);
 		}
 		else
@@ -69,6 +71,7 @@ public class BoundaryLayer implements IsWellmixedSetter
 	@Override
 	public void updateWellmixed(SpatialGrid aGrid, AgentContainer agents)
 	{
+		Shape aShape = aGrid.getShape();
 		/*
 		 * Reset the domain array.
 		 */
@@ -76,12 +79,12 @@ public class BoundaryLayer implements IsWellmixedSetter
 		/*
 		 * Iterate over all voxels, checking if there are agents nearby.
 		 */
-		int[] coords = aGrid.resetIterator();
+		int[] coords = aShape.resetIterator();
 		List<Agent> neighbors;
 		Collision collision = new Collision(null, agents.getShape());
-		while ( aGrid.isIteratorValid() )
+		while ( aShape.isIteratorValid() )
 		{
-			Ball gridSphere = new Ball(aGrid.getVoxelCentre(coords), 
+			Ball gridSphere = new Ball(aShape.getVoxelCentre(coords), 
 														this._layerThickness);
 			gridSphere.init(collision);
 			/*
@@ -91,13 +94,13 @@ public class BoundaryLayer implements IsWellmixedSetter
 			neighbors = 
 					agents.treeSearch(gridSphere.boundingBox());
 			for ( Agent a : neighbors )
-				for ( Surface s : (List<Surface>) a.get(NameRef.surfaceList) )
+				for ( Surface s : (List<Surface>) a.get(AspectRef.surfaceList) )
 					if ( gridSphere.distanceTo(s) < 0.0 )
 						{
 							aGrid.setValueAt(WELLMIXED, coords, this._value);
 							break;
 						}
-			coords = aGrid.iteratorNext();
+			coords = aShape.iteratorNext();
 		}
 	}
 }

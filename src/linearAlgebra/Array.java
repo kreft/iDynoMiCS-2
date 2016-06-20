@@ -1,7 +1,7 @@
 package linearAlgebra;
 
 /**
- * \brief TODO
+ * \brief Library of useful array functions.
  * 
  * <p>Note on terminology: 
  * <ul><li>Rows are 2D horizontal "slices" through the array, with their
@@ -536,6 +536,36 @@ public final class Array
 	}
 	
 	/**
+	 * \brief Check that the three arrays given have the same dimensions.
+	 * 
+	 * @param a Three-dimensional array of integers (preserved).
+	 * @param b Three-dimensional array of integers (preserved).
+	 * @param c Three-dimensional array of integers (preserved).
+	 * @exception IllegalArgumentException Array dimensions must agree.
+	 */
+	public static void checkDimensionsSame(
+			int[][][] a, int[][][] b, int[][][] c)
+	{
+		checkDimensionsSame(a, b);
+		checkDimensionsSame(a, c);
+	}
+
+	/**
+	 * \brief Check that the three arrays given have the same dimensions.
+	 * 
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 * @param c Three-dimensional array of doubles (preserved).
+	 * @exception IllegalArgumentException Array dimensions must agree.
+	 */
+	public static void checkDimensionsSame(
+			double[][][] a, double[][][] b, double[][][] c)
+	{
+		checkDimensionsSame(a, b);
+		checkDimensionsSame(a, c);
+	}
+	
+	/**
 	 * \brief Number of rows in the given <b>array</b>.
 	 * 
 	 * <p>Note that <b>array</b> will be unaffected by this method.</p>
@@ -775,145 +805,272 @@ public final class Array
 	
 	/**
 	 * \brief Add a given <b>value</b> to all elements in a given
-	 * <b>array</b>.
+	 * <b>array</b>, writing the result into <b>destination</b>.
 	 * 
-	 * <p>Note that <b>array</b> will be overwritten; use
-	 * <i>add(copy(<b>array</b>), <b>value</b>)</i> to preserve the original
-	 * state of <b>array</b>.</p>
-	 * 
-	 * @param array Three-dimensional array of integers.
-	 * @param value Increase every element of the <b>array</b> by this
-	 * integer value.
-	 * @return Given <b>array</b> with all elements increased by
-	 * <b>value</b>.
+	 * @param destination Three-dimensional array of integers (overwritten).
+	 * @param array Three-dimensional array of integers (preserved)
+	 * @param value Increase every element by this value (may be negative).
 	 */
-	public static int[][][] add(int[][][] array, int value)
+	public static void addTo(int[][][] destination, int[][][] array, int value)
 	{
-		for ( int i = 0; i < height(array); i++ )
-			for ( int j = 0; j < width(array); j++ )
-				for ( int k = 0; k < depth(array); k++ )
-					array[i][j][k] += value;
-		return array;
+		checkDimensionsSame(destination, array);
+		for ( int i = 0; i < array.length; i++ )
+			Matrix.addTo(destination[i], array[i], value);
 	}
 	
 	/**
 	 * \brief Add a given <b>value</b> to all elements in a given
-	 * <b>array</b>.
+	 * <b>array</b>, returning the result as a new array.
 	 * 
-	 * <p>Note that <b>array</b> will be overwritten; use
-	 * <i>add(copy(<b>array</b>), <b>value</b>)</i> to preserve the original
-	 * state of <b>array</b>.</p>
-	 * 
-	 * @param array Three-dimensional array of doubles.
-	 * @param value Increase every element of the <b>array</b> by this
-	 * double value.
-	 * @return Given <b>array</b> with all elements increased by
-	 * <b>value</b>.
+	 * @param array Three-dimensional array of integers (preserved).
+	 * @param value Increase every element by this value (may be negative).
+	 * @return New array that is a copy of <b>array</b>, but with all elements
+	 * increased by <b>value</b>.
 	 */
-	public static double[][][] add(double[][][] array, double value)
+	public static int[][][] add(int[][][] array, int value)
 	{
-		for ( int i = 0; i < array.length; i++ )
-			for ( int j = 0; j < array[i].length; j++ )
-				for ( int k = 0; k < array[i][j].length; k++ )
-					array[i][j][k] += value;
-		return array;
-	}
-
-	/**
-	 * \brief Add one array to another, element-by-element.
-	 * 
-	 * <p>Arrays must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>add({@link #copy(int[][][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Three-dimensional array of integers.
-	 * @param b Three-dimensional array of integers.
-	 * @return int[][][] array of <b>a</b>+<b>b</b>.
-	 */
-	public static int[][][] add(int[][][] a, int[][][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < height(a); i++ )
-			for ( int j = 0; j < width(a); j++ )
-				for ( int k = 0; k < depth(a); k++ )
-					a[i][j][k] += b[i][j][k];
-		return a;
+		int[][][] out = zeros(array);
+		addTo(out, array, value);
+		return out;
 	}
 	
 	/**
-	 * \brief Add one array to another, element-by-element.
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>array</b>, overwriting it with the result.
 	 * 
-	 * <p>Arrays must have same dimensions.</p>
+	 * @param array Three-dimensional array of integers (overwritten).
+	 * @param value Increase every element of the <b>array</b> by this
+	 * integer value (may be negative).
+	 */
+	public static void addEquals(int[][][] array, int value)
+	{
+		addTo(array, array, value);
+	}
+	
+	/**
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>array</b>, writing the result doubleo <b>destination</b>.
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>add({@link #copy(double[][][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
+	 * @param destination Three-dimensional array of doubles (overwritten).
+	 * @param array Three-dimensional array of doubles (preserved)
+	 * @param value Increase every element by this value (may be negative).
+	 */
+	public static void addTo(
+			double[][][] destination, double[][][] array, double value)
+	{
+		checkDimensionsSame(destination, array);
+		for ( int i = 0; i < array.length; i++ )
+			Matrix.addTo(destination[i], array[i], value);
+	}
+	
+	/**
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>array</b>, returning the result as a new array.
 	 * 
-	 * @param a Three-dimensional array of doubles.
-	 * @param b Three-dimensional array of doubles.
-	 * @return double[][][] array of <b>a</b>+<b>b</b>.
+	 * @param array Three-dimensional array of doubles (preserved).
+	 * @param value Increase every element by this value (may be negative).
+	 * @return New array that is a copy of <b>array</b>, but with all elements
+	 * increased by <b>value</b>.
+	 */
+	public static double[][][] add(double[][][] array, double value)
+	{
+		double[][][] out = zeros(array);
+		addTo(out, array, value);
+		return out;
+	}
+	
+	/**
+	 * \brief Add a given <b>value</b> to all elements in a given
+	 * <b>array</b>, overwriting it with the result.
+	 * 
+	 * @param array Three-dimensional array of doubles (overwritten).
+	 * @param value Increase every element of the <b>array</b> by this
+	 * double value (may be negative).
+	 */
+	public static void addEquals(double[][][] array, double value)
+	{
+		addTo(array, array, value);
+	}
+	
+	/**
+	 * \brief Add one array to another, element-by-element, writing the result
+	 * into <b>destination</b>.
+	 * 
+	 * <p><b>destination</b> = <b>a</b> + <b>b</b>.</p>
+	 * 
+	 * @param destination Three-dimensional array of integers (overwritten)
+	 * @param a Three-dimensional array of integers (preserved).
+	 * @param b Three-dimensional array of integers (preserved).
+	 */
+	public static void addTo(int[][][] destination, int[][][] a, int[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			Matrix.addTo(destination[i], a[i], b[i]);
+	}
+	
+	/**
+	 * \brief Add one array to another, element-by-element, writing the result
+	 * into a new array.
+	 * 
+	 * @param a Three-dimensional array of integers (preserved).
+	 * @param b Three-dimensional array of integers (preserved).
+	 * @return new int[][][] array of <b>a</b>+<b>b</b>.
+	 */
+	public static int[][][] add(int[][][] a, int[][][] b)
+	{
+		int[][][] out = zeros(a);
+		addTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Add one array to another, element-by-element, writing the result
+	 * into the first array given (<b>a</b>).
+	 * 
+	 * @param a Three-dimensional array of integers (overwritten).
+	 * @param b Three-dimensional array of integers (preserved).
+	 */
+	public static void addEquals(int[][][] a, int[][][] b)
+	{
+		addTo(a, a, b);
+	}
+
+	/**
+	 * \brief Add one array to another, element-by-element, writing the result
+	 * doubleo <b>destination</b>.
+	 * 
+	 * <p><b>destination</b> = <b>a</b> + <b>b</b>.</p>
+	 * 
+	 * @param destination Three-dimensional array of doubles (overwritten)
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 */
+	public static void addTo(
+			double[][][] destination, double[][][] a, double[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			Matrix.addTo(destination[i], a[i], b[i]);
+	}
+	
+	/**
+	 * \brief Add one array to another, element-by-element, writing the result
+	 * doubleo a new array.
+	 * 
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 * @return new double[][][] array of <b>a</b>+<b>b</b>.
 	 */
 	public static double[][][] add(double[][][] a, double[][][] b)
 	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < a.length; i++ )
-			for ( int j = 0; j < a[i].length; j++ )
-				for ( int k = 0; k < a[i][j].length; k++ )
-					a[i][j][k] += b[i][j][k];
-		return a;
+		double[][][] out = zeros(a);
+		addTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Add one array to another, element-by-element, writing the result
+	 * doubleo the first array given (<b>a</b>).
+	 * 
+	 * @param a Three-dimensional array of doubles (overwritten).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 */
+	public static void addEquals(double[][][] a, double[][][] b)
+	{
+		addTo(a, a, b);
 	}
 	
 	/* Subtraction. */
 	
+	/**
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into <b>destination</b>.
+	 * 
+	 * <p><b>destination</b> = <b>a</b> - <b>b</b>.</p>
+	 * 
+	 * @param destination Three-dimensional array of integers (overwritten)
+	 * @param a Three-dimensional array of integers (preserved).
+	 * @param b Three-dimensional array of integers (preserved).
+	 */
+	public static void minusTo(int[][][] destination, int[][][] a, int[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			Matrix.minusTo(destination[i], a[i], b[i]);
+	}
+	
+	/**
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into a new array.
+	 * 
+	 * @param a Three-dimensional array of integers (preserved).
+	 * @param b Three-dimensional array of integers (preserved).
+	 * @return new int[][][] array of <b>a</b> - <b>b</b>.
+	 */
+	public static int[][][] minus(int[][][] a, int[][][] b)
+	{
+		int[][][] out = zeros(a);
+		minusTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into the first array given (<b>a</b>).
+	 * 
+	 * @param a Three-dimensional array of integers (overwritten).
+	 * @param b Three-dimensional array of integers (preserved).
+	 */
+	public static void minusEquals(int[][][] a, int[][][] b)
+	{
+		minusTo(a, a, b);
+	}
 
 	/**
-	 * \brief Subtract one array from another, element-by-element.
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into <b>destination</b>.
 	 * 
-	 * <p>Arrays must have same dimensions.</p>
+	 * <p><b>destination</b> = <b>a</b> - <b>b</b>.</p>
 	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>subtract({@link #copy(int[][][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Three-dimensional array of integers.
-	 * @param b Three-dimensional array of integers.
-	 * @return int[][][] array of <b>a</b>-<b>b</b>.
+	 * @param destination Three-dimensional array of doubles (overwritten)
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
 	 */
-	public static int[][][] subtract(int[][][] a, int[][][] b)
+	public static void minusTo(
+			double[][][] destination, double[][][] a, double[][][] b)
 	{
-		checkDimensionsSame(a, b);
+		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < a.length; i++ )
-			for ( int j = 0; j < a[i].length; j++ )
-				for ( int k = 0; k < a[i][j].length; k++ )
-					a[i][j][k] -= b[i][j][k];
-		return a;
+			Matrix.minusTo(destination[i], a[i], b[i]);
 	}
 	
 	/**
-	 * \brief Subtract one array from another, element-by-element.
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into a new array.
 	 * 
-	 * <p>Arrays must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>subtract({@link #copy(double[][][] a)}, <b>b</b>)</i> to preserve
-	 * the original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Three-dimensional array of doubles.
-	 * @param b Three-dimensional array of doubles.
-	 * @return int[][][] array of <b>a</b>-<b>b</b>.
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 * @return new double[][][] array of <b>a</b> - <b>b</b>.
 	 */
-	public static double[][][] subtract(double[][][] a, double[][][] b)
+	public static double[][][] minus(double[][][] a, double[][][] b)
 	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < a.length; i++ )
-			for ( int j = 0; j < a[i].length; j++ )
-				for ( int k = 0; k < a[i][j].length; k++ )
-					a[i][j][k] -= b[i][j][k];
-		return a;
+		double[][][] out = zeros(a);
+		minusTo(out, a, b);
+		return out;
 	}
 	
+	/**
+	 * \brief Subtract one array from another, element-by-element, writing the
+	 * result into the first array given (<b>a</b>).
+	 * 
+	 * @param a Three-dimensional array of doubles (overwritten).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 */
+	public static void minusEquals(double[][][] a, double[][][] b)
+	{
+		minusTo(a, a, b);
+	}
 	
 	/* Multiplication. */
 	
@@ -1021,87 +1178,147 @@ public final class Array
 	{
 		timesTo(array, array, value);
 	}
+	
+	/**
+	 * \brief Multiply one array by another, element-by-element, writing the
+	 * result into <b>destination</b>.
+	 * 
+	 * @param destination Three-dimensional array of integers (overwritten).
+	 * @param a Three-dimensional array of integers (preserved).
+	 * @param b Three-dimensional array of integers (preserved).
+	 */
+	public static void elemTimesTo(
+			int[][][] destination, int[][][] a, int[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			Matrix.elemTimesTo(destination[i], a[i], b[i]);
+	}
+	
 	/**
 	 * \brief Multiply one array by another, element-by-element.
 	 * 
-	 * <p>Arrays must have same dimensions.</p>
-	 * 
-	 * <p>Note that <b>a</b> will be overwritten; use 
-	 * <i>elemTimes({@link #copy(int[][][] a)}, <b>b</b>)</i> to preserve the
-	 * original state of <b>a</b>. <b>b</b> will be unaffected.</p>
-	 * 
-	 * @param a Three-dimensional array of integers.
-	 * @param b Three-dimensional array of integers.
-	 * @return int[][][] array of <b>a</b> times <b>b</b> element-wise.
+	 * @param a Three-dimensional array of integers (preserved).
+	 * @param b Three-dimensional array of integers (preserved).
+	 * @return New int[][][] array of <b>a</b> times <b>b</b> element-wise.
 	 */
 	public static int[][][] elemTimes(int[][][] a, int[][][] b)
 	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < a.length; i++ )
-			for ( int j = 0; j < a[i].length; j++ )
-				for ( int k = 0; k < a[i][j].length; k++ )
-					a[i][j][k] *= b[i][j][k];
+		int[][][] out = zeros(a);
+		elemTimesTo(out, a, b);
 		return a;
 	}
 	
 	/**
-	 * \brief Multiply one array from another, element-by-element.
-	 * 
-	 * <p>Arrays must have same dimensions.</p>
-	 * 
-	 * @param a Three-dimensional array of doubles (overwritten).
-	 * @param b Three-dimensional array of doubles (preserved).
-	 * @return double[][][] array of <b>a</b> times <b>b</b> element-wise.
-	 */
-	public static double[][][] elemTimes(double[][][] a, double[][][] b)
-	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < a.length; i++ )
-			for ( int j = 0; j < a[i].length; j++ )
-				for ( int k = 0; k < a[i][j].length; k++ )
-					a[i][j][k] *= b[i][j][k];
-		return a;
-	}
-	
-	/* Division. */
-
-	/**
-	 * \brief Multiply one array by another, element-by-element.
-	 * 
-	 * <p>Arrays must have same dimensions.</p>
+	 * \brief Multiply one array by another, element-by-element, writing the
+	 * result into the first array given.
 	 * 
 	 * @param a Three-dimensional array of integers (overwritten).
 	 * @param b Three-dimensional array of integers (preserved).
-	 * @return int[][][] array of <b>a</b> divided by <b>b</b> element-wise.
 	 */
-	public static int[][][] elemDivide(int[][][] a, int[][][] b)
+	public static void elemTimesEquals(int[][][] a, int[][][] b)
 	{
-		checkDimensionsSame(a, b);
+		elemTimesTo(a, a, b);
+	}
+	
+	/**
+	 * \brief Multiply one array by another, element-by-element, writing the
+	 * result into <b>destination</b>.
+	 * 
+	 * @param destination Three-dimensional array of doubles (overwritten).
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 */
+	public static void elemTimesTo(
+			double[][][] destination, double[][][] a, double[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
 		for ( int i = 0; i < a.length; i++ )
-			for ( int j = 0; j < a[i].length; j++ )
-				for ( int k = 0; k < a[i][j].length; k++ )
-					a[i][j][k] /= b[i][j][k];
+			Matrix.elemTimesTo(destination[i], a[i], b[i]);
+	}
+	
+	/**
+	 * \brief Multiply one array by another, element-by-element.
+	 * 
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 * @return New double[][][] array of <b>a</b> times <b>b</b> element-wise.
+	 */
+	public static double[][][] elemTimes(double[][][] a, double[][][] b)
+	{
+		double[][][] out = zeros(a);
+		elemTimesTo(out, a, b);
 		return a;
 	}
 	
 	/**
-	 * \brief Multiply one array from another, element-by-element.
-	 * 
-	 * <p>Arrays must have same dimensions.</p>
+	 * \brief Multiply one array by another, element-by-element, writing the
+	 * result into the first array given.
 	 * 
 	 * @param a Three-dimensional array of doubles (overwritten).
 	 * @param b Three-dimensional array of doubles (preserved).
-	 * @return double[][][] array of <b>a</b> divided by <b>b</b>
-	 * element-wise.
+	 */
+	public static void elemTimesEquals(double[][][] a, double[][][] b)
+	{
+		elemTimesTo(a, a, b);
+	}
+	
+	/* Division. */
+	
+	/* (Note that this is ambiguous in integers, and so left for now!) */
+	
+	/**
+	 * \brief Multiply one array by another, element-by-element, writing the
+	 * result into <b>destination</b>.
+	 * 
+	 * @param destination Three-dimensional array of doubles (overwritten).
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 */
+	public static void elemDivideTo(
+			double[][][] destination, double[][][] a, double[][][] b)
+	{
+		checkDimensionsSame(destination, a, b);
+		for ( int i = 0; i < a.length; i++ )
+			Matrix.elemDivideTo(destination[i], a[i], b[i]);
+	}
+	
+	/**
+	 * \brief Multiply one array by another, element-by-element.
+	 * 
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 * @return New double[][][] array of <b>a</b> divide <b>b</b> element-wise.
 	 */
 	public static double[][][] elemDivide(double[][][] a, double[][][] b)
 	{
-		checkDimensionsSame(a, b);
-		for ( int i = 0; i < a.length; i++ )
-			for ( int j = 0; j < a[i].length; j++ )
-				for ( int k = 0; k < a[i][j].length; k++ )
-					a[i][j][k] /= b[i][j][k];
+		double[][][] out = zeros(a);
+		elemDivideTo(out, a, b);
 		return a;
+	}
+	
+	/**
+	 * \brief Multiply one array by another, element-by-element, writing the
+	 * result into the first array given.
+	 * 
+	 * @param a Three-dimensional array of doubles (overwritten).
+	 * @param b Three-dimensional array of doubles (preserved).
+	 */
+	public static void elemDivideEqualsA(double[][][] a, double[][][] b)
+	{
+		elemDivideTo(a, a, b);
+	}
+	
+	/**
+	 * \brief Multiply one array by another, element-by-element, writing the
+	 * result into the second array given.
+	 * 
+	 * @param a Three-dimensional array of doubles (preserved).
+	 * @param b Three-dimensional array of doubles (overwritten).
+	 */
+	public static void elemDivideEqualsB(double[][][] a, double[][][] b)
+	{
+		elemDivideTo(b, a, b);
 	}
 	
 	/*************************************************************************
@@ -1307,26 +1524,6 @@ public final class Array
 	}
 
 	/**
-	 * \brief TODO
-	 * 
-	 * @param array
-	 * @return
-	 */
-	public static double meanArith(double[][][] array)
-	{
-		double total = 0.0;
-		double n = 0.0;
-		for ( double[][] row : array )
-			for ( double[] colV : row )
-				for ( double elem : colV )
-				{
-					total += elem;
-					n++;
-				}
-		return (n == 0.0) ? 0.0 : total/n;
-	}
-	
-	/**
 	 * \brief Norm of a given <b>array</b>.
 	 * 
 	 * TODO is this a Euclidean norm? Frobenius norm?
@@ -1345,6 +1542,33 @@ public final class Array
 				for ( double elem : colV )
 					out = Math.hypot(out, elem);
 		return out;
+	}
+
+	/**
+	 * \brief Calculates the arithmetic mean average element in the given 
+	 * <b>array</b>.
+	 * 
+	 * <p>Only includes finite elements of <b>array</b>. If there are none,
+	 * returns Double.NaN</p>
+	 * 
+	 * @param matrix Three-dimensional array of doubles (preserved).
+	 * @return double value of arithmetic mean of elements in <b>array</b>.
+	 * @see #meanGeo(double[][][])
+	 * @see #meanHar(double[][][])
+	 */
+	public static double meanArith(double[][][] array)
+	{
+		double total = 0.0;
+		double n = 0.0;
+		for ( double[][] stack : array )
+			for ( double[] row : stack )
+				for ( double elem : row )
+					if ( Double.isFinite(elem) )
+					{
+						total += elem;
+						n++;
+					}
+		return (n == 0.0) ? Vector.UNDEFINED_AVERAGE : total/n;
 	}
 	
 	/**
@@ -1365,6 +1589,36 @@ public final class Array
 			for ( int j = 0; j < a[i].length; j++ )
 				for ( int k = 0; k < a[i][j].length; k++ )
 					out += Math.abs(a[i][j][k] - b[i][j][k]);
+		return out;
+	}
+	
+	/**
+	 * \brief Calculates the sum of all elements in the given <b>array</b>.
+	 * 
+	 * @param array Three-dimensional array of integers (preserved).
+	 * @return int sum of all elements in the array.
+	 * @see #sum(double[][][])
+	 */
+	public static int sum(int[][][] array)
+	{
+		int out = 0;
+		for ( int[][] matrix : array )
+			out += Matrix.sum(matrix);
+		return out;
+	}
+	
+	/**
+	 * \brief Calculates the sum of all elements in the given <b>array</b>.
+	 * 
+	 * @param array Two-dimensional array of doubles (preserved).
+	 * @return double sum of all elements in the array.
+	 * @see #sum(int[][][])
+	 */
+	public static double sum(double[][][] array)
+	{
+		double out = 0.0;
+		for ( double[][] matrix : array )
+			out += Matrix.sum(matrix);
 		return out;
 	}
 	
@@ -1645,7 +1899,7 @@ public final class Array
 	}
 	
 	/*************************************************************************
-	 * RESCALING ARRAYS
+	 * TO/FROM STRING
 	 ************************************************************************/
 	
 	/**

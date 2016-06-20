@@ -3,13 +3,13 @@
  */
 package expression;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.List;
 
 /**
  * \brief A component of a mathematical expression whose value is fixed.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Constant extends ComponentSimple
 {
@@ -40,7 +40,7 @@ public class Constant extends ComponentSimple
 	@Override
 	public double getValue(Map<String, Double> variables)
 	{
-		return this._value;
+		return ( this.isNegative() ) ? -this._value : this._value;
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ public class Constant extends ComponentSimple
 	}
 	
 	@Override
-	public void appendVariablesNames(List<String> names)
+	public void appendVariablesNames(Collection<String> names)
 	{
 		/* Do nothing! */
 	}

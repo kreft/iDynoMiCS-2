@@ -1,22 +1,20 @@
 package guiTools;
 
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.EventListener;
 import java.util.HashMap;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
+import javax.swing.JSpinner; // to be implemented
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
-import idynomics.GuiLaunch;
+import dataIO.XmlRef;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -31,12 +29,30 @@ import nodeFactory.NodeConstructor;
  */
 public class GuiEditor
 {
-	static HashMap<ModelAttribute,JTextArea> attributes = new HashMap<ModelAttribute,JTextArea>();
+	/**
+	 * Hashmap of all gui TextAreas associated with their ModelAttribute
+	 */
+	private static HashMap<ModelAttribute,JTextArea> _attributes = 
+			new HashMap<ModelAttribute,JTextArea>();
 	
+	/**
+	 * Hashmap of all gui TextAreas associated with their ModelAttribute
+	 */
+	@SuppressWarnings("rawtypes")
+	private static HashMap<ModelAttribute,JComboBox> _attributeSelectors = 
+			new HashMap<ModelAttribute,JComboBox>();
+	
+	/**
+	 * Obtain all attribute textarea values and set them in the modelAttribute
+	 * objects.
+	 */
 	public static void setAttributes()
 	{
-		for ( ModelAttribute a : attributes.keySet())
-			a.value = attributes.get(a).getText();
+		for ( ModelAttribute a : _attributes.keySet())
+			a.value = _attributes.get(a).getText();
+		
+		for ( ModelAttribute a : _attributeSelectors.keySet())
+			a.value = (String) _attributeSelectors.get(a).getSelectedItem();
 	}
 	
 	/*
@@ -46,25 +62,32 @@ public class GuiEditor
 		
 		JTabbedPane tabs = GuiComponent.newPane();
 		JPanel component = new JPanel();
-		tabs.addTab(node.tag, component);
+		tabs.addTab(node.getTag(), component);
 		component.setLayout(new WrapLayout(FlowLayout.LEFT, 0, 0));
 		JPanel attr = new JPanel();
 		attr.setLayout(new WrapLayout(FlowLayout.LEFT, 5, 5));
-		for(NodeConstructor c : node.childConstructors.keySet())
+		
+		/* loop trough child constructors */
+		for ( NodeConstructor c : node.getAllChildConstructors() )
 		{
-			if(node.childConstructors.get(c) == Requirements.EXACTLY_ONE && node.getChildNodes(c.defaultXmlTag()).isEmpty())
+			/* add child to interface if exactly one is required and the node
+			 * is not present yet */
+			if ( node.requireExactlyOneChildConstructor(c) && 
+					node.getChildNodes(c.defaultXmlTag()).isEmpty())
 			{
 				NodeConstructor newNode = c.newBlank();
 				node.add(newNode.getNode());
 				node.add(newNode);
 			}
-			else if(node.childConstructors.get(c) == Requirements.EXACTLY_ONE)
+			else if ( node.requireExactlyOneChildConstructor(c) )
 			{
-				// childNode already present
+				// required unique childNode is already present: do nothing
 			}
 			else
 			{
-				attr.add(GuiComponent.actionButton(c.defaultXmlTag(), new JButton("add"), new ActionListener()
+				/* add button for optional childnode(s) */
+				attr.add(GuiComponent.actionButton(c.defaultXmlTag(), 
+						new JButton("add"), new ActionListener()
 				{
 					@Override
 					public void actionPerformed(ActionEvent event)
@@ -79,32 +102,106 @@ public class GuiEditor
 			}
 		}
 		
-		for(ModelAttribute a : node.attributes)
+		/* add textareas for this ModelNode's attributes */
+		for ( ModelAttribute a : node.getAttributes() )
 		{
-			JTextArea input = new JTextArea();
-			input.setText(a.value);
-			input.setEditable(a.editable);
-			attr.add(GuiComponent.inputPanel(a.tag, input));
-			attributes.put(a, input);
+			if ( a.value == null &&  a.options == null )
+			{
+				/* input field */
+				JTextArea input = new JTextArea();
+				input.setEditable(a.editable);
+				if (! a.editable)
+					input.setForeground(Color.gray);
+				attr.add(GuiComponent.inputPanel(a.tag, input));
+				_attributes.put(a, input);
+			}
+			else if ( a.options == null && a.value.length() < 60)
+			{
+				/* input field */
+				JTextArea input = new JTextArea();
+				input.setText(a.value);
+				input.setEditable(a.editable);
+				if (! a.editable)
+					input.setForeground(Color.gray);
+				attr.add(GuiComponent.inputPanel(a.tag, input));
+				_attributes.put(a, input);
+			}
+			else if ( a.options == null )
+			{
+				/* input field */
+				JTextArea input = new JTextArea();
+				input.setText(a.value);
+				input.setEditable(a.editable);
+				if (! a.editable)
+					input.setForeground(Color.gray);
+				attr.add(GuiComponent.inputPanelLarge(a.tag, input));
+				_attributes.put(a, input);
+			}
+			else
+			{
+				/* options box */
+				JComboBox<String> input = new JComboBox<String>(a.options);
+				input.setSelectedItem(a.value);
+				input.setEditable(a.editable);
+				attr.add(GuiComponent.selectPanel(a.tag, input));
+				_attributeSelectors.put(a, input);
+			}
 		}
 		component.add(attr);
 		
-		if( node.requirement.maxOne() && parent != GuiMain.tabbedPane )
+		/* placement of this ModelNode in the gui */
+		if ( node.isTag(XmlRef.speciesLibrary) )
+		{
+			/* exception for speciesLib add component as tab next to the
+			 * parent tab (simulation) */
+			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
+					node.getTag() , tabs, "");
+		}
+		else if ( node.isTag(XmlRef.compartment) )
+		{
+			/* exception for compartments add component as tab next to the
+			 * parent tab (simulation) */
+			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), 
+					node.getTag() + " " + node.getTitle(), tabs, "");
+		} 
+		else if ( node.isTagIn(new String[] 
+				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers}) )
+		{
+			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
+					node.getTag(), tabs, "");
+		}
+		else if ( node.isTagIn(new String[] {XmlRef.aspect, XmlRef.solute}) )
+		{
+			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
+					node.getTag() + " " + node.getTitle(), tabs, "");
+		}
+		else if ( node.isTagIn(new String[] 
+				{XmlRef.shapeDimension, XmlRef.point, XmlRef.stoichiometry,
+						XmlRef.constant, XmlRef.speciesModule}) )
 		{
 			parent.add(component, null);
 			parent.revalidate();
-		}
-		else if( node.requirement == Requirements.ZERO_TO_FEW)
+		} 
+		else if( node.requireMaxOne() && parent != GuiMain.tabbedPane )
 		{
-			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent(), node.tag, tabs, "");
+			/* exactly one: append this component to the parent component */
+			parent.add(component, null);
+			parent.revalidate();
+		}
+		else if ( node.areRequirements(Requirements.ZERO_TO_MANY) )
+		{
+			/* species, agents, TODO: changes to spinner */
+			GuiComponent.addTab((JTabbedPane) parent.getParent(), 
+					node.getTag() + " " + node.getTitle(), tabs, "");
 		} 
 		else
 		{
-			GuiComponent.addTab((JTabbedPane) parent, node.tag, tabs, "");
+			/* else add component as Child tab of parent */
+			GuiComponent.addTab((JTabbedPane) parent, node.getTag(), tabs, "");
 		}
 		
-		
-		for(ModelNode n : node.childNodes)
+		/* add childnodes of this component to the gui */
+		for ( ModelNode n : node.getAllChildNodes() )
 			addComponent(n, component);
 	}
 }

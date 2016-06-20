@@ -1,7 +1,5 @@
 package idynomics;
 
-import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -28,9 +26,7 @@ import guiTools.GuiConsole;
 import guiTools.GuiEditor;
 import guiTools.GuiMain;
 import guiTools.GuiMenu;
-import guiTools.GuiSimConstruct;
 import guiTools.GuiSimControl;
-import guiTools.GuiSimMake;
 import utility.Helper;
 
 /**
@@ -41,58 +37,54 @@ import utility.Helper;
  * simulator.</p>
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class GuiLaunch implements Runnable
 {
 	/**
 	 * 
 	 */
-	private static JFrame masterFrame;
+	private static JFrame _masterFrame;
+	
 	/**
 	 * 
 	 */
 	public static JComponent currentView;
+	
 	/**
 	 * 
 	 */
-	private static GroupLayout layout;
+	private static GroupLayout _layout;
+	
 	/**
 	 * 
 	 */
-	public static SequentialGroup verticalLayoutGroup;
+	private static SequentialGroup _verticalLayoutGroup;
+	
 	/**
 	 * 
 	 */
-	public static ParallelGroup horizontalLayoutGroup;
+	private static ParallelGroup _horizontalLayoutGroup;
+	
 	/**
 	 * 
 	 */
-	private static JProgressBar progressBar;
+	private static JProgressBar _progressBar;
+	
 	/**
 	 * Flag telling this GUI whether to be full screen (true) or not (false).
 	 */
-	private static boolean isFullScreen = false;
-	/**
-	 * 
-	 */
-	//TODO What is this for?
-	private static Dimension xgraphic;
-	/**
-	 * 
-	 */
-	//TODO What is this for?
-	private static Point point = new Point(0,0);
+	private static boolean _isFullScreen = false;
+
 	/**
 	 * System file path to the iDynoMiCS logo.
 	 */
 	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
+	
 	/**
 	 * 
 	 */
 	public static JPanel contentPane;
-	
-	
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -109,10 +101,10 @@ public class GuiLaunch implements Runnable
   	 */
 	public GuiLaunch() 
 	{
-		masterFrame = new JFrame();
+		_masterFrame = new JFrame();
 		contentPane = new JPanel();
-		layout = new GroupLayout(contentPane);
-		contentPane.setLayout(layout);
+		_layout = new GroupLayout(contentPane);
+		contentPane.setLayout(_layout);
 		
 		run();
 	}
@@ -140,77 +132,73 @@ public class GuiLaunch implements Runnable
 		/* 
 		 * Set the window size, position, title and its close operation.
 		 */
-		masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		masterFrame.setTitle(Idynomics.fullDescription());
-		if ( isFullScreen )
-			masterFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		_masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		_masterFrame.setTitle(Idynomics.fullDescription());
+		if ( _isFullScreen )
+			_masterFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		else
-			masterFrame.setSize(800,800);
-		masterFrame.setLocationRelativeTo(null);
+			_masterFrame.setSize(800,800);
+		_masterFrame.setLocationRelativeTo(null);
 		
 		ImageIcon img = new ImageIcon(ICON_PATH);
 
-		masterFrame.setIconImage(img.getImage());
+		_masterFrame.setIconImage(img.getImage());
 		
 		/* 
 		 * Add the menu bar. This is independent of the layout of the rest of
 		 * the GUI.
 		 */
-		masterFrame.setJMenuBar(GuiMenu.getMenuBar());
+		_masterFrame.setJMenuBar(GuiMenu.getMenuBar());
 		/*
 		 * Set up the layout manager and its groups.
 		 */
 		contentPane.removeAll();
-		layout.setAutoCreateGaps(true);
-		layout.setAutoCreateContainerGaps(true);
-		verticalLayoutGroup = layout.createSequentialGroup();
-		horizontalLayoutGroup = layout.createParallelGroup();
+		_layout.setAutoCreateGaps(true);
+		_layout.setAutoCreateContainerGaps(true);
+		_verticalLayoutGroup = _layout.createSequentialGroup();
+		_horizontalLayoutGroup = _layout.createParallelGroup();
 
 		drawButtons();
 		
 		currentView = GuiMain.getConstructor();
 		
-		horizontalLayoutGroup.addComponent(currentView, 
+		_horizontalLayoutGroup.addComponent(currentView, 
 				GroupLayout.DEFAULT_SIZE, 
 				GroupLayout.DEFAULT_SIZE,
 				Short.MAX_VALUE);
 		
-		verticalLayoutGroup.addComponent(currentView, 
+		_verticalLayoutGroup.addComponent(currentView, 
 						GroupLayout.DEFAULT_SIZE, 
 						GroupLayout.DEFAULT_SIZE,
 						Short.MAX_VALUE);
 		/* 
 		* Apply the layout and build the GUI.
 		*/
-		layout.setVerticalGroup(verticalLayoutGroup);
-		layout.setHorizontalGroup(horizontalLayoutGroup);
+		_layout.setVerticalGroup(_verticalLayoutGroup);
+		_layout.setHorizontalGroup(_horizontalLayoutGroup);
 		
 		/* Bas: quick fix, coupled this to contentPane for now since old
 		 * structure is gone.
 		 */
-		keyBindings(contentPane, masterFrame);
+		keyBindings(contentPane);
 		
 		/* 
 		 * Checked this and works correctly, masterFrame stays at one component
 		 * the contentPane
 		 */
-		masterFrame.add(contentPane);
+		_masterFrame.add(contentPane);
 		
-		masterFrame.setVisible(true);
+		_masterFrame.setVisible(true);
 
 	}
 
 	/**
 	 * KeyBindings hosts a collection of actions which are initiate on key press
-	 * 
-	 * TODO What does this do? When I click enter, nothing happens...
- 	 * Bas [09.03.16] after something is broken after changing it please compare
- 	 * with previous version.
-	 * @param p
+	 * @param JComponent p, the component the keybingings will be asociated with
 	 * @param frame
 	 */
 	@SuppressWarnings("serial")
-	public static void keyBindings(JComponent p, JFrame frame) 
+	public static void keyBindings(JComponent p) 
 	{
 		ActionMap actionMap = p.getActionMap();
 		InputMap inputMap = p.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -227,14 +215,16 @@ public class GuiLaunch implements Runnable
 		});
 	}
 	
-	
+	/**
+	 * TODO clean-up and comment
+	 */
 	public static void drawButtons() 
 	{
 		/*
 		 * Just below the menu bar, make the bar of simulation control buttons.
 		 */
-		SequentialGroup buttonHoriz = layout.createSequentialGroup();
-		ParallelGroup buttonVert = layout.createParallelGroup();
+		SequentialGroup buttonHoriz = _layout.createSequentialGroup();
+		ParallelGroup buttonVert = _layout.createParallelGroup();
 		JButton button;
 		
 		/* Check the simulation. */
@@ -274,34 +264,20 @@ public class GuiLaunch implements Runnable
 		button = GuiSimControl.stopButton();
 		buttonHoriz.addComponent(button);
 		buttonVert.addComponent(button);
-		///////////////////////////////////////////////////////////////////////
-		// TODO TESTING ONLY
-	
-		button = new JButton("Make sim (test)");
-		button.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				GuiSimMake gsm = new GuiSimMake();
-				gsm.makeNewSimulation();
-			}
-		});
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
+
 		///////////////////////////////////////////////////////////////////////
 		/* Add a progress bar to the button row. */
-		progressBar  = new JProgressBar();
-		progressBar.setStringPainted(true);
-		buttonHoriz.addComponent(progressBar);
-		buttonVert.addComponent(progressBar);
+		_progressBar  = new JProgressBar();
+		_progressBar.setStringPainted(true);
+		buttonHoriz.addComponent(_progressBar);
+		buttonVert.addComponent(_progressBar);
 		/* Add a checkbox for the GuiConsole autoscrolling. */
 		JCheckBox autoscroll = GuiConsole.autoScrollCheckBox();
 		buttonHoriz.addComponent(autoscroll);
 		buttonVert.addComponent(autoscroll);
 		/* Add these to the layout. */
-		verticalLayoutGroup.addGroup(buttonVert);
-		horizontalLayoutGroup.addGroup(buttonHoriz);
+		_verticalLayoutGroup.addGroup(buttonVert);
+		_horizontalLayoutGroup.addGroup(buttonHoriz);
 	}
 	
 	/**
@@ -309,9 +285,9 @@ public class GuiLaunch implements Runnable
 	 */
 	public static void resetProgressBar()
 	{
-		progressBar.setMinimum(Idynomics.simulator.timer.getCurrentIteration());
-		progressBar.setValue(Idynomics.simulator.timer.getCurrentIteration());
-		progressBar.setMaximum(Idynomics.simulator.timer.estimateLastIteration());
+		_progressBar.setMinimum(Idynomics.simulator.timer.getCurrentIteration());
+		_progressBar.setValue(Idynomics.simulator.timer.getCurrentIteration());
+		_progressBar.setMaximum(Idynomics.simulator.timer.estimateLastIteration());
 	}
 	
 	/**
@@ -319,6 +295,6 @@ public class GuiLaunch implements Runnable
 	 */
 	public static void updateProgressBar()
 	{
-		progressBar.setValue(Idynomics.simulator.timer.getCurrentIteration());
+		_progressBar.setValue(Idynomics.simulator.timer.getCurrentIteration());
 	}
  }

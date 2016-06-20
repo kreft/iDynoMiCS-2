@@ -6,7 +6,7 @@ import java.util.Set;
 import utility.ExtraMath;
 
 /**
- * \brief Abstract class of useful vector functions.
+ * \brief Library of useful vector functions.
  * 
  * <p>By convention:<ul><li>a method <i>function(vector)</i> returns a new
  * vector,</li><li>the equivalent <i>functionEquals(vector)</i> overwrites the
@@ -44,6 +44,12 @@ public final class Vector
 	 * Character that separates elements of a vector in {@code String} format.
 	 */
 	public final static String DELIMITER = ",";
+	
+	/**
+	 * The value that is returned whenever the average value of a vector,
+	 * matrix or array cannot be defined.
+	 */
+	public final static double UNDEFINED_AVERAGE = Double.NaN;
 	
 	/*************************************************************************
 	 * STANDARD NEW VECTORS
@@ -286,6 +292,8 @@ public final class Vector
 	public static void toString(double[] vector, StringBuffer buffer)
 	{
 		int n = vector.length - 1;
+		if ( n < 0 )
+			return;
 		for ( int i = 0; i < n; i++ )
 		{
 			buffer.append(vector[i]);
@@ -373,8 +381,6 @@ public final class Vector
 	 * @return	boolean[] that is a copy of <b>vector</b>.
 	 * @see #copyTo(boolean[] destination, boolean[] source)
 	 */
-	// NOTE Rob[3Mar2016]: Not sure this is the right place for boolean arrays,
-	// but it's not urgent to move them.
 	public static boolean[] copy(boolean[] vector)
 	{
 		boolean[] out = new boolean[vector.length];
@@ -808,11 +814,16 @@ public final class Vector
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Check if the given <b>set</b> of vectors contains the
+	 * <b>vector</b> given.
 	 * 
-	 * @param set
-	 * @param vector
-	 * @return
+	 * <p>Note that this method is necessary because testing equivalence of 
+	 * vectors with {@code ==} is unreliable.</p>
+	 * 
+	 * @param set Unordered collection of integer vectors (preserved).
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @return {@code true} if the set contains vector, {@code false} if it
+	 * does not.
 	 */
 	public static boolean contains(Set<int[]> set, int[] vector)
 	{
@@ -1332,9 +1343,8 @@ public final class Vector
 	 * {@link #reverse(double[] vector, double value)} to write the results into a
 	 * new double[].</li></ul>
 	 * 
-	 * @param vector One-dimensional array of doubles.
-	 * @return	Given <b>vector</b>, where all elements have their sign
-	 * changed.
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param vector One-dimensional array of doubles (preserved).
 	 */
 	public static void reverseTo(double[] destination, double[] source)
 	{
@@ -1439,8 +1449,7 @@ public final class Vector
 	 */
 	public static void timesTo(double[] destination, double[] a, double[] b)
 	{
-		checkLengths(a, b);
-		checkLengths(a, destination);
+		checkLengths(destination, a, b);
 		for ( int i = 0; i < a.length; i++ ) 
 			destination[i] = a[i] * b[i];
 	}
@@ -1476,6 +1485,66 @@ public final class Vector
 	public static void timesEquals(double[] a, double[] b)
 	{
 		timesTo(a, a, b);
+	}
+	
+	/* Division */
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, and write the result into
+	 * the <b>destination</b> vector.
+	 * 
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 */
+	public static void divideTo(double[] destination, double[] a, double[] b)
+	{
+		checkLengths(destination, a, b);
+		for ( int i = 0; i < a.length; i++ ) 
+			destination[i] = a[i] / b[i];
+	}
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, and write the result into
+	 * a new vector.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (preserved).
+	 * @return New one-dimensional array of doubles.
+	 */
+	public static double[] divide(double[] a, double[] b)
+	{
+		double[] out = new double[a.length];
+		divideTo(out, a, b);
+		return out;
+	}
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, overwriting the element of
+	 * <b>a</b> with the result.
+	 * 
+	 * @param a One-dimensional array of doubles (overwritten).
+	 * @param b One-dimensional array of doubles (preserved).
+	 */
+	public static void divideEqualsA(double[]a, double[]b)
+	{
+		divideTo(a, a, b);
+	}
+	
+	/**
+	 * \brief For each element of a vector <b>a</b>, divide by the
+	 * corresponding element of vector <b>b</b>, overwriting the element of
+	 * <b>b</b> with the result.
+	 * 
+	 * @param a One-dimensional array of doubles (preserved).
+	 * @param b One-dimensional array of doubles (overwritten).
+	 */
+	public static void divideEqualsB(double[]a, double[]b)
+	{
+		divideTo(b, a, b);
 	}
 	
 	/*************************************************************************
@@ -1672,6 +1741,21 @@ public final class Vector
 		return subset(vector, 0, stop);
 	}
 	
+	/**
+	 *  \brief TODO
+	 * @param vector
+	 * @param appendable
+	 * @return
+	 */
+	public static double[] appendDouble(double[] vector, double appendable)
+	{
+		double[] out = new double[vector.length+1];
+		for (int i = 0; i < vector.length; i++)
+			out[i] = vector[i];
+		out[vector.length] = appendable;
+		return out;
+	}
+	
 	/* Flip */
 	
 	/**
@@ -1810,6 +1894,24 @@ public final class Vector
 	 * SCALARS FROM VECTORS
 	 * Any input vectors should be unaffected.
 	 ************************************************************************/
+	
+	/**
+	 * \brief Count the number of times a given <b>value</b> appears in a
+	 * <b>vector</b>.
+	 * 
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @param value Integer value to search for.
+	 * @return Number of times this value appears in the vector. This will be
+	 * zero if it does not appear.
+	 */
+	public static int countInstances(int[] vector, int value)
+	{
+		int out = 0;
+		for ( int elem : vector )
+			if ( elem == value )
+				out++;
+		return out;
+	}
 	
 	/* Maximum/minimum */
 	
@@ -1974,8 +2076,8 @@ public final class Vector
 	public static int sum(int[] vector)
 	{
 		int sum = 0;
-		for ( int i = 0; i < vector.length; i++ ) 
-			sum += vector[i];
+		for ( int element : vector )
+			sum += element;
 		return sum;
 	}
 	
@@ -1991,8 +2093,50 @@ public final class Vector
 	public static double sum(double[] vector)
 	{
 		double sum = 0.0;
-		for ( int i = 0; i < vector.length; i++ ) 
-			sum += vector[i];
+		for ( double element : vector )
+			sum += element;
+		return sum;
+	}
+	
+	/**
+	 * \brief Calculates the absolute sum of all elements in the given
+	 * <b>vector</b>.
+	 * 
+	 * <p>E.g. the absolute sum of the vector <i>(a, b)</i> is
+	 * <i>|a| + |b|</i>. Note that this may be different from the absolute of
+	 * the sum, i.e. <i>|a + b|</i>.</p>
+	 * 
+	 * @param vector One-dimensional array of integer (preserved).
+	 * @return integer absolute sum of all elements in the vector.
+	 * @see #sum(int[] vector)
+	 * @see #sumAbs(double[] vector)
+	 */
+	public static int sumAbs(int[] vector)
+	{
+		int sum = 0;
+		for ( int element : vector )
+			sum += Math.abs(element);
+		return sum;
+	}
+	
+	/**
+	 * \brief Calculates the absolute sum of all elements in the given
+	 * <b>vector</b>.
+	 * 
+	 * <p>E.g. the absolute sum of the vector <i>(a, b)</i> is
+	 * <i>|a| + |b|</i>. Note that this may be different from the absolute of
+	 * the sum, i.e. <i>|a + b|</i>.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @return double absolute sum of all elements in the vector.
+	 * @see #sum(double[] vector)
+	 * @see #sumAbs(int[] vector)
+	 */
+	public static double sumAbs(double[] vector)
+	{
+		double sum = 0.0;
+		for ( double element : vector )
+			sum += Math.abs(element);
 		return sum;
 	}
 	
@@ -2001,14 +2145,14 @@ public final class Vector
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
-	 * returns Double.NaN</p>
+	 * returns {@link #UNDEFINED_AVERAGE}.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of arithmetic mean of elements in <b>vector</b>.
-	 * @see #meanGeo(double[] vector)
-	 * @see #meanHar(double[] vector)
+	 * @see #meanGeo(double[])
+	 * @see #meanHar(double[])
 	 */
-	public static double meanAri(double[] vector)
+	public static double meanArith(double[] vector)
 	{
 		double out = 0.0;
 		double n = 0.0;
@@ -2032,12 +2176,12 @@ public final class Vector
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
-	 * returns zero</p>
+	 * returns {@link #UNDEFINED_AVERAGE}.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of geometric mean of elements in <b>vector</b>.
-	 * @see #meanAri(double[] vector)
-	 * @see #meanHar(double[] vector)
+	 * @see #meanArith(double[])
+	 * @see #meanHar(double[])
 	 */
 	public static double meanGeo(double[] vector)
 	{
@@ -2054,7 +2198,7 @@ public final class Vector
 		 * zero.
 		 */
 		if ( n == 0.0 )
-			return 0.0;
+			return UNDEFINED_AVERAGE;
 		return Math.pow(out, 1/n);
 	}
 	
@@ -2063,12 +2207,12 @@ public final class Vector
 	 * <b>vector</b>.
 	 * 
 	 * <p>Only includes finite elements of <b>vector</b>. If there are none,
-	 * returns positive infinity</p>
+	 * returns {@link #UNDEFINED_AVERAGE}.</p>
 	 * 
 	 * @param vector One-dimensional array of doubles (preserved).
 	 * @return double value of harmonic mean of elements in <b>vector</b>.
-	 * @see #meanAri(double[] vector)
-	 * @see #meanGeo(double[] vector)
+	 * @see #meanArith(double[])
+	 * @see #meanGeo(double[])
 	 */
 	public static double meanHar(double[] vector)
 	{
@@ -2085,7 +2229,7 @@ public final class Vector
 		 * zero.
 		 */
 		if ( out == 0.0 )
-			return Double.POSITIVE_INFINITY;
+			return UNDEFINED_AVERAGE;
 		return 1/out;
 	}
 	
@@ -2104,7 +2248,7 @@ public final class Vector
 	 */
 	public static double stdDev(double[] vector, boolean fromSample)
 	{
-		double mean = meanAri(vector);
+		double mean = meanArith(vector);
 		if ( mean == Double.NaN )
 			return mean;
 		double out = 0.0;
@@ -2220,7 +2364,8 @@ public final class Vector
 	
 	/**
 	 * \brief A new {@code int} vector of length <b>n</b>, where each element
-	 * is randomly chosen from a uniform distribution in [min, max).
+	 * is randomly and independently chosen from a uniform distribution in
+	 * [min, max).
 	 * 
 	 * @param n Length of the vector to create.
 	 * @param min Lower bound of random numbers (inclusive).
@@ -2236,6 +2381,47 @@ public final class Vector
 			out[i] = ExtraMath.getUniRandInt(min, max);
 		return out;
 	}
+	
+	/**
+	 * \brief A new {@code int} vector of length <b>n</b>, where each element
+	 * is randomly chosen from chosen from a uniform distribution in [min, max)
+	 * without replacement.
+	 * 
+	 * <p><i>Without replacement</i> means that every element is unique, i.e.
+	 * no number appears twice.</p>
+	 * 
+	 * @param n Length of the vector to create.
+	 * @param min Lower bound of random numbers (inclusive).
+	 * @param max Upper bound of random numbers (exclusive).
+	 * @return {@code int[]} array of length <b>n</b>, with all elements
+	 * randomly chosen from a uniform distribution between <b>min</b>
+	 * (inclusive) and <b>max</b> (exclusive).
+	 * @throws IllegalArgumentException Cannot sample more times than there are
+	 * possibilities.
+	 */
+	public static int[] randomIntsNoReplacement(int n, int min, int max)
+	{
+		if ( n > (max - min) )
+		{
+			throw new IllegalArgumentException(
+					"Cannot sample more times than there are possibilities.");
+		}
+		int[] out = new int[n];
+		boolean resample;
+		for ( int i = 0; i < n; i++ )
+		{
+			do 
+			{
+				out[i] = ExtraMath.getUniRandInt(min, max);
+				resample = false;
+				for ( int j = 0; j < i; j++ )
+					if ( out[i] == out[j] )
+						resample = true;
+			} while ( resample );
+		}
+		return out;
+	}
+	
 	
 	/**
 	 * \brief A new double vector of length <b>n</b>, where each element is
@@ -2448,12 +2634,38 @@ public final class Vector
 		return out;
 	}
 	
+	/**
+	 * \brief Recast an double[] as a float[].
+	 * 
+	 * <p>Note also that this method makes a copy, so the original state of 
+	 * <b>vector</b> will be unaffected.</p>
+	 * 
+	 * @param vector One-dimensional array of doubles. 
+	 * @return	float[] array where each element is the recast double in the
+	 * corresponding position of <b>vector</b>.
+	 */
+	public static float[] toFloat(double[] vector)
+	{
+		float[] out = new float[vector.length];
+		for ( int i = 0; i < vector.length; i++ )
+			out[i] = (float) vector[i];
+		return out;
+	}
+	
 	
 	/*************************************************************************
 	 * RESCALING VECTORS
 	 ************************************************************************/
 	
-	//TODO commenting 
+	/**
+	 * \brief Scale the <b>source</b> vector, so that it has different
+	 * direction but new Euclidean norm, writing the result into
+	 * <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param source One-dimensional array of doubles (preserved).
+	 * @param newNorm Intended Euclidean norm of <b>destination</b>.
+	 */
 	public static void normaliseEuclidTo(double[] destination, double[] source, 
 			double newNorm)
 	{
@@ -2463,11 +2675,27 @@ public final class Vector
 			timesTo(destination, source, newNorm/oldNorm);
 	}
 	
+	/**
+	 * \brief Scale the <b>source</b> vector, so that it has different
+	 * direction but a Euclidean norm of one, writing the result into
+	 * <b>destination</b>.
+	 * 
+	 * @param destination One-dimensional array of doubles (overwritten).
+	 * @param source One-dimensional array of doubles (preserved).
+	 */
 	public static void normaliseEuclidTo(double[] destination, double[] source)
 	{
 		normaliseEuclidTo(destination, source, 1.0);
 	}
 	
+	/**
+	 * \brief Scale the <b>source</b> vector, so that it has different
+	 * direction but new Euclidean norm, writing the result into
+	 * a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param newNorm Intended Euclidean norm of <b>destination</b>.
+	 */
 	public static double[] normaliseEuclid(double[] vector, double newNorm)
 	{
 		double[] destination = new double[vector.length];
@@ -2475,6 +2703,13 @@ public final class Vector
 		return destination;
 	}
 	
+	/**
+	 * \brief Scale the <b>source</b> vector, so that it has different
+	 * direction but a Euclidean norm of one, writing the result into
+	 * a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 */
 	public static double[] normaliseEuclid(double[] vector)
 	{
 		return normaliseEuclid(vector, 1.0);
@@ -2524,7 +2759,7 @@ public final class Vector
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @return Cosine of the angle between the two given vectors.
-	 * @see #cosAngle(double[] a, double[] b)
+	 * @see #angle(double[], double[])
 	 */
 	public static double cosAngle(double[] a, double[] b)
 	{
@@ -2543,7 +2778,7 @@ public final class Vector
 	 * @param a One-dimensional array of doubles (preserved).
 	 * @param b One-dimensional array of doubles (preserved).
 	 * @return The angle between the two given vectors (in radians).
-	 * @see #cosAngle(double[] a, double[] b)
+	 * @see #cosAngle(double[], double[])
 	 */
 	public static double angle(double[] a, double[] b)
 	{
@@ -2643,100 +2878,289 @@ public final class Vector
 	{
 		double[] out = new double[a.length];
 		midPointTo(out, a, b);
-		return a;
+		return out;
 	}
 	
-	// TODO document: handling polar/spherical coordinates
-	/**
-	 *	x = r cos(theta) sin(phi)
-	 *	y = r sin(theta) sin(phi)
-	 *	z = r cos(phi)
-	 *	r = sqrt(x2+y2+z2)
-	 *	theta = atan2(y, x)
-	 *	phi = acos(z/r)
-	 */
+	
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in Cartesian coordinates, to
+	 * spherical coordinates: write the result into <b>destination</b>.
 	 * 
-	 * @param cartesian
-	 * @return
-	 */
-	public static double polarRadius(double[] cartesian)
-	{
-		return normEuclid(cartesian);
-	}
-	
-	/**
-	 * \brief TODO
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
 	 * 
-	 * @param cartesian
-	 * @return
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param cartesian One-dimensional array of doubles, assumed to be in
+	 * Cartesian coordinates (preserved).
 	 */
-	public static double[] toPolar(double[] cartesian)
+	public static void spherifyTo(double[] destination, double[] cartesian)
 	{
-		double[] p = new double[cartesian.length];
 		switch ( cartesian.length ) 
 		{
-			case 3 : p[2] = Math.acos(cartesian[2]/polarRadius(cartesian));
-			case 2 : p[1] = Math.atan2(cartesian[1], cartesian[0]);
-			case 1 : p[0] = polarRadius(cartesian);
+		case 1 :
+		{
+			destination[0] = cartesian[0];
+			return;
 		}
-		return p;
+		case 2 :
+		{
+			double radius = normEuclid(cartesian);
+			double angle = Math.atan2(cartesian[1], cartesian[0]);
+			destination[0] = radius;
+			destination[1] = angle;
+			return;
+		}
+		case 3 : 
+		{
+			double radius = normEuclid(cartesian);
+			double theta = Math.atan2(cartesian[1], cartesian[0]);
+			double phi = Math.acos(cartesian[2]/radius);
+			destination[0] = radius;
+			destination[1] = phi;
+			destination[2] = theta;
+		}
+		}
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in <b>cartesian</b> coordinates, to
+	 * spherical coordinates: write the result into a new vector.
 	 * 
-	 * @param polar
-	 * @return
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>cartesian</b> converted to spherical coordinates.
 	 */
-	public static double[] toCartesian(double[] polar)
+	public static double[] spherify(double[] cartesian)
 	{
-		double[] c = new double[polar.length];
-		double sinPhi = 1.0;
-		switch ( polar.length )
-		{
-			case 1 : return polar;
-			case 3 : c[2] = polar[0] * Math.cos(polar[2]);
-					 sinPhi  = Math.sin(polar[2]);
-		}
-		c[0] = polar[0] * Math.cos(polar[1]) * sinPhi;
-		c[1] = polar[0] * Math.sin(polar[1]) * sinPhi;
-		return c;
+		double[] spherical = new double[cartesian.length];
+		spherifyTo(spherical, cartesian);
+		return spherical;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in <b>cartesian</b> coordinates, to
+	 *  spherical coordinates: write the result into a new vector.
 	 * 
-	 * @param cartesian
-	 * @return
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in Cartesian coordinates but then in
+	 * spherical coordinates.
 	 */
-	public static double[] toCylindrical(double[] cartesian) 
+	public static void spherifyEquals(double[] vector)
 	{
-		if ( cartesian.length == 3 )
-		{
-			double[] p = toPolar(Vector.subset(cartesian, 2));
-			return new double[] {p[0], p[1], cartesian[2]};
-		}
-		System.out.println("ERROR: Vector.toCylindrical only accepts 3D input!"); 
-		return null;
+		spherifyTo(vector, vector);
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Convert the given vector, in <b>spherical</b> coordinates, to
+	 * Cartesian coordinates: write the result into <b>destination</b>.
 	 * 
-	 * @param cylindrical
-	 * @return
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param spherical One-dimensional array of doubles, assumed to be in
+	 * spherical coordinates (preserved).
 	 */
-	public static double[] cylindricalToCartesian(double[] cylindrical)
+	public static void unspherifyTo(double[] destination, double[] spherical)
 	{
-		if ( cylindrical.length == 3 )
+		checkLengths(destination, spherical);
+		/* 
+		 * Store angles & radius first, then set, so we can use
+		 * this method for unspherifyEquals.
+		 */
+		switch ( spherical.length )
 		{
-			double[] p = toCartesian(Vector.subset(cylindrical, 2));
-			return new double[] {p[0], p[1], cylindrical[2]};
+		case 1 :
+		{
+			destination[0] = spherical[0];
+			return;
 		}
-		System.out.println("ERROR: Vector.cylindricalToCartesian only accepts 3D input!"); 
-		return null;
+		case 2 :
+		{
+			double radius = spherical[0];
+			double angle = spherical[1];
+			destination[0] = radius * Math.cos(angle);
+			destination[1] = radius * Math.sin(angle);
+			return;
+		}
+		case 3 :
+		{
+			double radius = spherical[0];
+			double phi = spherical[1];
+			double theta = spherical[2];
+			destination[0] = radius * Math.cos(theta) * Math.sin(phi);
+			destination[1] = radius * Math.sin(theta) * Math.sin(phi);
+			destination[2] = radius * Math.cos(phi);
+		}
+		}
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>spherical</b> coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param spherical One-dimensional array of doubles, assumed to be in
+	 * spherical coordinates (preserved).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>spherical</b> converted to Cartesian coordinates.
+	 */
+	public static double[] unspherify(double[] spherical)
+	{
+		double[] cartesian = new double[spherical.length];
+		unspherifyTo(cartesian, spherical);
+		return cartesian;
+	}
+	
+	/**
+	 * \brief Convert the given vector, in spherical coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * <p><b>Note</b>: the coordinate scheme used here is the same as that in
+	 * {@code SphericalShape}, i.e., (r, phi, theta) rather than the more
+	 * commonly used (r, theta, phi).</p>
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in spherical coordinates but then in
+	 * Cartesian coordinates.
+	 */
+	public static void unspherifyEquals(double[] vector)
+	{
+		unspherifyTo(vector, vector);
+	}
+	
+	/**
+	 * \brief Convert the given vector, in Cartesian coordinates, to
+	 * cylindrical coordinates: write the result into <b>destination</b>.
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param cartesian One-dimensional array of doubles, assumed to be in
+	 * Cartesian coordinates (preserved).
+	 */
+	public static void cylindrifyTo(double[] destination, double[] cartesian)
+	{
+		checkLengths(destination, cartesian);
+		switch ( cartesian.length ) 
+		{
+			case 3 :
+				destination[2] = cartesian[2];
+			case 2 : 
+			{
+				/* 
+				 * Calculate angle & radius first, then set, so we can use
+				 * this method for cylindrfyEquals.
+				 */
+				double angle = Math.atan2(cartesian[1], cartesian[0]);
+				double radius = Math.hypot(cartesian[1], cartesian[0]);
+				destination[1] = angle;
+				destination[0] = radius;
+				break;
+			}
+			case 1 :
+				destination[0] = cartesian[0];
+		}
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cartesian</b> coordinates, to
+	 * cylindrical coordinates: write the result into a new vector.
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>cartesian</b> converted to cylindrical coordinates.
+	 */
+	public static double[] cylindrify(double[] cartesian)
+	{
+		double[] cylindrical = new double[cartesian.length];
+		cylindrifyTo(cylindrical, cartesian);
+		return cylindrical;
+	}
+	
+	/**
+	 * \brief Convert the given vector, in cartesian coordinates, to
+	 *  cylindrical coordinates: write the result into a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in Cartesian coordinates but then in
+	 * cylindrical coordinates.
+	 */
+	public static void cylindrifyEquals(double[] vector)
+	{
+		cylindrifyTo(vector, vector);
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cylindrical</b> coordinates, to
+	 * Cartesian coordinates: write the result into <b>destination</b>.
+	 * 
+	 * @param destination The vector to be filled with the result (overwritten).
+	 * @param cylindrical One-dimensional array of doubles, assumed to be in
+	 * cylindrical coordinates (preserved).
+	 */
+	public static void uncylindrifyTo(double[] destination, double[] cylindrical)
+	{
+		checkLengths(destination, cylindrical);
+		switch ( cylindrical.length ) 
+		{
+			case 3 :
+				destination[2] = cylindrical[2];
+			case 2 : 
+			{
+				/* 
+				 * Calculate angle & radius first, then set, so we can use
+				 * this method for uncylindrfyEquals.
+				 */
+				double angle = cylindrical[1];
+				double radius = cylindrical[0];
+				destination[1] = radius * Math.sin(angle);
+				destination[0] = radius * Math.cos(angle);
+				break;
+			}
+			case 1 :
+				destination[0] = cylindrical[0];
+		}
+	}
+	
+	/**
+	 * \brief Convert the given vector, in <b>cylindrical</b> coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * @param cylindrical One-dimensional array of doubles, assumed to be in
+	 * cylindrical coordinates (preserved).
+	 * @return	New vector of {@code double}s, with the position of
+	 * <b>cylindrical</b> converted to Cartesian coordinates.
+	 */
+	public static double[] uncylindrify(double[] cylindrical)
+	{
+		double[] cartesian = new double[cylindrical.length];
+		uncylindrifyTo(cartesian, cylindrical);
+		return cartesian;
+	}
+	
+	/**
+	 * \brief Convert the given vector, in cylindrical coordinates, to
+	 * Cartesian coordinates: write the result into a new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (overwritten),
+	 * assumed originally to be in cylindrical coordinates but then in
+	 * Cartesian coordinates.
+	 */
+	public static void uncylindrifyEquals(double[] vector)
+	{
+		uncylindrifyTo(vector, vector);
 	}
 }

@@ -11,24 +11,30 @@ import org.w3c.dom.NodeList;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
 import modelBuilder.SubmodelMaker;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
+import utility.Helper;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Species implements AspectInterface, IsSubmodel
+public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 {
 	/**
 	 * TODO
 	 */
-	protected AspectReg<Object> _aspectRegistry = new AspectReg<Object>();
+	protected AspectReg _aspectRegistry = new AspectReg();
+
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -56,15 +62,15 @@ public class Species implements AspectInterface, IsSubmodel
 
 	public void loadSpeciesModules(Element xmlElem)
 	{
-		NodeList nodes = xmlElem.getElementsByTagName(XmlLabel.speciesModule);
+		NodeList nodes = xmlElem.getElementsByTagName(XmlRef.speciesModule);
 		String name;
 		for ( int i = 0; i < nodes.getLength(); i++ ) 
 		{
 			Element s = (Element) nodes.item(i);
-			name = s.getAttribute(XmlLabel.nameAttribute);
+			name = s.getAttribute(XmlRef.nameAttribute);
 			Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
-			this._aspectRegistry.addSubModule(name, 
-					Idynomics.simulator.speciesLibrary);
+			this._aspectRegistry.addSubModule(
+					Idynomics.simulator.speciesLibrary.get(name) );
 		}
 	}
 
@@ -75,7 +81,7 @@ public class Species implements AspectInterface, IsSubmodel
 	/**
 	 * Get this {@code Species}' aspect registry.
 	 */
-	public AspectReg<?> reg()
+	public AspectReg reg()
 	{
 		return this._aspectRegistry;
 	}
@@ -123,6 +129,68 @@ public class Species implements AspectInterface, IsSubmodel
 			System.out.println("Making species");
 			this.addSubmodel(new Species());
 		}
+	}
 
+	/**
+	 * Get the ModelNode object for this Species
+	 * @return ModelNode
+	 */
+	@Override
+	public ModelNode getNode() 
+	{
+		/* the species node */
+		ModelNode modelNode = new ModelNode(XmlRef.species, this);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		
+		/* use the identity (species name) as title */
+		modelNode.setTitle(this.reg().getIdentity());
+		
+		/* add the name attribute */
+		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+				this.reg().getIdentity(), null, true ));
+		
+		/* add any submodules */
+		for ( AspectInterface mod : this.reg().getSubModules() )
+			modelNode.add(mod.reg().getModuleNode(this));
+
+		/* allow adding of additional aspects */
+		modelNode.addChildConstructor(
+				this._aspectRegistry.new Aspect(this._aspectRegistry), 
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
+		/* TODO: removing aspects */
+		
+		/* add already existing aspects */
+		for ( String key : this.reg().getLocalAspectNames() )
+			modelNode.add(reg().getAspectNode(key));
+		
+		return modelNode;
+	}
+
+	/**
+	 * Create a new minimal object of this class and return it, used by the gui
+	 * to add new Species
+	 * @return NodeConstructor
+	 */
+	@Override
+	public NodeConstructor newBlank() 
+	{
+		
+		String name = "";
+		name = Helper.obtainInput(name, "Species name");
+		Species newBlank = new Species();
+		newBlank.reg().setIdentity(name);
+//		Idynomics.simulator.speciesLibrary.set(newBlank);
+		return newBlank;
+	}
+
+	/**
+	 * return the default XMLtag for the XML node of this object
+	 * @return String xmlTag
+	 */
+	@Override
+	public String defaultXmlTag() 
+	{
+		return XmlRef.species;
 	}
 }

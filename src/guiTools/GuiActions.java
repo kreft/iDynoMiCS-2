@@ -12,23 +12,17 @@ import glRender.AgentMediator;
 import glRender.CommandMediator;
 import glRender.Render;
 import idynomics.Compartment;
-import idynomics.GuiLaunch;
 import idynomics.Idynomics;
-import idynomics.Param;
 
 /**
  * 
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public final class GuiActions
 {
-	public static void newSimulation()
-	{
-		ConsoleSimBuilder.makeSimulation();
-	}
-	
+
 	/*************************************************************************
 	 * DEALING WITH FILES
 	 ************************************************************************/
@@ -51,26 +45,27 @@ public final class GuiActions
 		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
 			f = chooser.getSelectedFile();
 		
-    	/* Don't crash if the user has clicked cancel. */
+    	/* load content if a protocol file has been selected */
     	if ( f == null )
     	{
     		Idynomics.global.protocolFile = null;
-    		GuiConsole.writeOut("Please choose a protocol file\n");
+    		GuiConsole.writeOut("No protocol file selected.\n");
     	}
     	else
     	{
     		Idynomics.global.protocolFile = f.getAbsolutePath();
     		GuiConsole.writeOut(Idynomics.global.protocolFile + " \n");
     		checkProtocol();
-    	}
-    	GuiEditor.addComponent(Idynomics.simulator.getNode(), GuiMain.tabbedPane);
+    		GuiEditor.addComponent(Idynomics.simulator.getNode(), 
+    				GuiMain.tabbedPane);
+    	}    		
 	}
 	
 	public static void checkProtocol()
 	{
 		if ( Idynomics.global.protocolFile == null )
 		{
-			GuiConsole.writeErr("Please open a protocol file to check");
+			GuiConsole.writeErr("No protocol file specified.\n");
 		}
 		else
 		{

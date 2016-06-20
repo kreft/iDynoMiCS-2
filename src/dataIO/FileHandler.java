@@ -5,11 +5,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import utility.Helper;
+
 /**
  * \brief Handles file operations, create folders and files, write output.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class FileHandler
 {
@@ -22,13 +24,13 @@ public class FileHandler
 	 * TODO Intended usage: giving files in a series unique and sequential
 	 * numbers for easy identification.  
 	 */
-	int fileWriterFileNumber;
+	int _fileWriterFileNumber;
 	
 	/**
 	 * Set to true if each line needs to be written to file immediately (for
 	 * instance for the log file).
 	 */
-	public boolean flushAll = false;
+	protected boolean _flushAll = false;
 	
 	/**
 	 * \brief Creates directory if it does not exist.
@@ -62,6 +64,14 @@ public class FileHandler
 		    	return false;
 		    }
 		}
+	}
+	
+	/**
+	 * TODO
+	 */
+	public void flushAll()
+	{
+		this._flushAll = true;
 	}
 	
 	/**
@@ -116,7 +126,6 @@ public class FileHandler
 		try
 		{
 			File f = new File(file);
-			f.delete();
 			FileWriter fstream = new FileWriter(f, true);
 			this._output = new BufferedWriter(fstream);
 		}
@@ -124,6 +133,27 @@ public class FileHandler
 		{
 			Log.printToScreen(e.toString(), false);
 		}
+	}
+	
+	/**
+	 * delete file specified by string
+	 * @param file
+	 */
+	public void fdelete(String file)
+	{
+		File f = new File(file);
+		f.delete();
+	}
+	
+	/**
+	 * returns true if file exists
+	 * @param file
+	 * @return
+	 */
+	public boolean fexists(String file)
+	{
+		File f = new File(file);
+		return f.exists();
 	}
 	
 	/**
@@ -136,12 +166,13 @@ public class FileHandler
 		try
 		{
 			this._output.write(line);
-			if ( this.flushAll )
+			if ( this._flushAll )
 				this._output.flush();
 		}
 		catch (IOException e)
 		{
 			Log.printToScreen(e.toString(), false);
+			Log.printToScreen("skipped line: " + line, false);
 		}
 	}
 	

@@ -1,6 +1,5 @@
 package idynomics;
 
-import java.awt.event.ActionEvent;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,22 +9,15 @@ import org.w3c.dom.NodeList;
 
 import agent.Agent;
 import boundary.Boundary;
-import boundary.BoundaryConnected;
+import boundary.SpatialBoundary;
 import dataIO.Log;
-import dataIO.ObjectRef;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import grid.*;
-import grid.SpatialGrid.ArrayType;
 import linearAlgebra.Vector;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelMaker.Requirement;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -34,20 +26,37 @@ import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
-import shape.Shape.ShapeMaker;
-import shape.ShapeConventions.DimName;
-import shape.ShapeLibrary;
-import utility.Helper;
+import shape.Dimension.DimName;
 
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * <p>A compartment owns<ul>
+ * <li>one shape</li>
+ * <li>one environment container</li>
+ * <li>one agent container</li>
+ * <li>zero to many process managers</li></ul></p>
+ * 
+ * <p>The environment container and the agent container both have a reference
+ * to the shape, but do not know about each other. Agent-environment
+ * interactions must be mediated by a process manager. Each process manager has
+ * a reference to the environment container and the agent container, and 
+ * therefore can ask either of these about the compartment shape. It is
+ * important though, that process managers do not have a reference to the
+ * compartment they belong to: otherwise, a naive developer could have a
+ * process manager call the {@code step()} method in {@code Compartment},
+ * causing such chaos that even the thought of it keeps Rob awake at night.</p>
+ * 
+ * <p>In summary, the hierarchy of ownership is: shape -> agent/environment
+ * containers -> process managers -> compartment. All the arrows point in the
+ * same direction, meaning no entanglement of the kind iDynoMiCS 1 suffered.</p>
+ * 
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, NodeConstructor
+public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConstructor
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -67,7 +76,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	/**
 	 * EnvironmentContainer deals with all solutes.
 	 */
-	public EnvironmentContainer _environment;
+	public EnvironmentContainer environment;
 	/**
 	 * ProcessManagers handle the interactions between agents and solutes.
 	 * The order of the list is important.
@@ -86,11 +95,10 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	protected double _localTime;
 	
-	public ModelNode modelNode;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public Compartment()
 	{
@@ -111,16 +119,26 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	/**
 	 * \brief
 	 * 
-	 * TODO This should go back to being private once tests are based on XML
-	 * protocols.
-	 * 
 	 * @param aShape
 	 */
 	public void setShape(Shape aShape)
 	{
+		Log.out(Tier.EXPRESSIVE, "Compartment \""+this.name+
+				"\" taking shape \""+aShape.getName()+"\"");
 		this._shape = aShape;
-		this._environment = new EnvironmentContainer(this._shape);
+		this.environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param shapeName
+	 */
+	public void setShape(String shapeName)
+	{
+		Shape aShape = Shape.getNewInstance(shapeName);
+		this.setShape(aShape);
 	}
 	
 	/**
@@ -130,13 +148,14 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void init(Element xmlElem)
 	{
+		Tier level = Tier.EXPRESSIVE;
 		Element elem;
 		String str = null;
 		/*
 		 * Set up the shape.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.compartmentShape);
-		str = XmlHandler.obtainAttribute(elem, XmlLabel.classAttribute);
+		elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
+		str = XmlHandler.obtainAttribute(elem, XmlRef.classAttribute);
 		this.setShape( (Shape) Shape.getNewInstance(str) );
 		this._shape.init( elem );
 		
@@ -145,28 +164,29 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		 * NOTE: wouldn't we want to pass initial grid values to? It would also
 		 * be possible for the grids to be Xmlable
 		 */
-		NodeList solutes = XmlHandler.getAll(xmlElem, XmlLabel.solute);
-		
+		Log.out(level, "Compartment reading in solutes");
+		NodeList solutes = XmlHandler.getAll(xmlElem, XmlRef.solute);
 		for ( int i = 0; i < solutes.getLength(); i++)
 		{
 			Element soluteE = (Element) solutes.item(i);
-			String soluteName = XmlHandler.obtainAttribute(soluteE, XmlLabel.nameAttribute);
-			double conc = Double.valueOf(
-					XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					XmlLabel.concentration));
-			this.addSolute(soluteName, conc, soluteE);
+			String soluteName = XmlHandler.obtainAttribute(soluteE, 
+					XmlRef.nameAttribute);
+			String conc = XmlHandler.obtainAttribute((Element) solutes.item(i), 
+					XmlRef.concentration);
+			this.addSolute(soluteName);
+			this.getSolute(soluteName).setTo(ArrayType.CONCN, conc);
 			
-			// FIXME please provide standard methods to load entire solute grids
-			SpatialGrid myGrid = this.getSolute(str);
+
+			SpatialGrid myGrid = this.getSolute(soluteName);
 			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
-					XmlLabel.voxel);
+					XmlRef.voxel);
 			for (int j = 0; j < voxelvalues.getLength(); j++)
 			{
 				myGrid.setValueAt(ArrayType.CONCN, Vector.intFromString(
 						XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
-						, XmlLabel.coordinates)) , Double.valueOf( XmlHandler
+						, XmlRef.coordinates) ) , Double.valueOf( XmlHandler
 						.obtainAttribute((Element) voxelvalues.item(j), 
-						XmlLabel.valueAttribute)));
+						XmlRef.valueAttribute) ));
 			}
 		}
 			
@@ -176,29 +196,28 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		/*
 		 * Give it extracellular reactions.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.reactions);
+		Log.out(level, "Compartment reading in (environmental) reactions");
+		elem = XmlHandler.loadUnique(xmlElem, XmlRef.reactions);
 		Element rElem;
 		Reaction reac;
 		if ( elem != null )
 		{
-			NodeList reactions = XmlHandler.getAll(elem, XmlLabel.reaction);
+			NodeList reactions = XmlHandler.getAll(elem, XmlRef.reaction);
 			for ( int i = 0; i < reactions.getLength(); i++ )
 			{
 				rElem = (Element) reactions.item(i);
-				/* Name of the solute, e.g. glucose */
-				str = XmlHandler.obtainAttribute(rElem, XmlLabel.nameAttribute);
 				/* Construct and intialise the reaction. */
 				reac = (Reaction) Reaction.getNewInstance(rElem);
 				reac.init(rElem);
 				/* Add it to the environment. */
-				this._environment.addReaction(reac, str);
+				this.environment.addReaction(reac);
 			}
 				
 		}
 		/*
 		 * Read in agents.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.agents);
+		elem = XmlHandler.loadUnique(xmlElem, XmlRef.agents);
 		if ( elem == null )
 		{
 			Log.out(Tier.EXPRESSIVE,
@@ -206,7 +225,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		}
 		else
 		{
-			NodeList agents = elem.getElementsByTagName(XmlLabel.agent);
+			NodeList agents = elem.getElementsByTagName(XmlRef.agent);
 			this.agents.readAgents(agents, this);
 			this.agents.setAllAgentsCompartment(this);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
@@ -216,7 +235,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		/*
 		 * Read in process managers.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlLabel.processManagers);
+		elem = XmlHandler.loadUnique(xmlElem, XmlRef.processManagers);
 		Element procElem;
 		if ( elem == null )
 		{
@@ -225,60 +244,27 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		}
 		else
 		{
-			NodeList processNodes = elem.getElementsByTagName(XmlLabel.process);
+			ProcessManager pm;
+			NodeList processNodes = elem.getElementsByTagName(XmlRef.process);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 									" initialised with process managers:");
 			for ( int i = 0; i < processNodes.getLength(); i++ )
 			{
 				procElem = (Element) processNodes.item(i);
 				str = XmlHandler.gatherAttribute(procElem,
-													XmlLabel.nameAttribute);
+													XmlRef.nameAttribute);
 				Log.out(Tier.EXPRESSIVE, "\t"+str);
-				this.addProcessManager(ProcessManager.getNewInstance(procElem));
+				pm = ProcessManager.getNewInstance(procElem, this.environment, 
+						this.agents, this.getName());
+				this.addProcessManager(pm);
 			}
 		}
-		/*
-		 * Finally, finish off the initialisation as standard.
-		 */
-		this.init();
 	}
+		
 	
-	@Override
-	public String getXml() {
-		String out = "<" + XmlLabel.compartment + " " + XmlLabel.nameAttribute +
-				"=\"" + this.name + "\">\n";
-		out = out + this._shape.getXml();
-		
-		/* TODO solutes, reactions */
-		out = out + this.agents.getXml();
-		
-		out = out + "<" + XmlLabel.processManagers + ">";
-		for(ProcessManager p : this._processes)
-		{
-			out = out + "<" + XmlLabel.process + " " + XmlLabel.nameAttribute +
-					"=\"" + p.getName() + "\" " + XmlLabel.classAttribute + 
-					"=\"" + p.getClass().getSimpleName() + "\" " +
-					XmlLabel.processPriority + "=\"" + p.getPriority() + "\" " +
-					XmlLabel.processFirstStep + "=\"" + p.getTimeForNextStep() +
-					"\" " + XmlLabel.packageAttribute + "=\"processManager.\"" +
-					">\n"
-					+ p.reg().getXml() + "</" + XmlLabel.process + ">\n";
-		}
-		out = out + "</" + XmlLabel.processManagers + ">\n";
-		
-		out = out + "</" + XmlLabel.compartment + ">\n";
-		return out;
-	}
-	
-	public void init()
-	{
-		
-		this._environment.init();
-	}
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public String getName()
 	{
@@ -306,15 +292,22 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Add a boundary to this compartment's shape.
 	 * 
-	 * @param dim
-	 * @param index
-	 * @param aBoundary
+	 * @param aBoundary Any boundary, whether spatial or non-spatial.
 	 */
-	public void addBoundary(DimName dim, int index, Boundary aBoundary)
+	// TODO move this spatial/non-spatial splitting to Shape?
+	public void addBoundary(Boundary aBoundary)
 	{
-		this._shape.setBoundary(dim, index, aBoundary);
+		if ( aBoundary instanceof SpatialBoundary )
+		{
+			SpatialBoundary sB = (SpatialBoundary) aBoundary;
+			DimName dim = sB.getDimName();
+			int extreme = sB.getExtreme();
+			this._shape.setBoundary(dim, extreme, sB);
+		}
+		else
+			this._shape.addOtherBoundary(aBoundary);
 	}
 	
 	/**
@@ -337,35 +330,43 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public void addSolute(String soluteName)
 	{
-		this._environment.addSolute(soluteName, null);
+		this.environment.addSolute(soluteName);
 	}	
 	
 	/**
 	 * 
 	 * @param soluteName
 	 */
-	public void addSolute(String soluteName, Element resolution)
+	// TODO not used, consider deletion
+	public void addSolute(String soluteName, double initialConcentration)
 	{
-		this._environment.addSolute(soluteName, resolution);
+		this.environment.addSolute(soluteName, initialConcentration);
 	}
 	
 	/**
+	 * \brief Add the given agent to this compartment.
 	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName, double initialConcentration, Element resolution)
-	{
-		this._environment.addSolute(soluteName, initialConcentration, resolution);
-	}
-	
-	/**
-	 * 
-	 * @param Agent
+	 * @param Agent Agent to add.
 	 */
 	public void addAgent(Agent agent)
 	{
 		this.agents.addAgent(agent);
 		agent.setCompartment(this);
+	}
+	
+	/**
+	 * \brief Remove the given agent from this compartment, registering its
+	 * removal.
+	 * 
+	 * <p>This should be used only removal from the entire simulation, and not
+	 * for transfer to another compartment. For example, cell lysis.</p>
+	 * 
+	 * @param agent Agent to remove.
+	 */
+	public void registerRemoveAgent(Agent agent)
+	{
+		agent.setCompartment(null);
+		this.agents.registerRemoveAgent(agent);
 	}
 	
 	/**
@@ -377,12 +378,57 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	 */
 	public SpatialGrid getSolute(String soluteName)
 	{
-		return this._environment.getSoluteGrid(soluteName);
+		return this.environment.getSoluteGrid(soluteName);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * STEPPING
-	 ************************************************************************/
+	 * **********************************************************************/
+	
+	/**
+	 * 
+	 * @param compartments
+	 */
+	// TODO temporary work, still in progress!
+	public void checkBoundaryConnections(List<Compartment> compartments)
+	{
+		for ( Boundary b : this._shape.getDisconnectedBoundaries() )
+		{
+			String name = b.getPartnerCompartmentName();
+			Compartment comp = null;
+			for ( Compartment c : compartments )
+				if ( c.getName().equals(name) )
+				{
+					comp = c;
+					break;
+				}
+			if ( comp == null )
+			{
+				// TODO safety
+			}
+			else
+			{
+				Boundary partner = b.makePartnerBoundary();
+				comp.getShape().addOtherBoundary(partner);
+			}
+		}
+	}
+	
+	/**
+	 * \brief Do all inbound agent & solute transfers.
+	 */
+	public void preStep()
+	{
+		/*
+		 * Ask all Agents waiting in boundary arrivals lounges to enter the
+		 * compartment now.
+		 */
+		this.agents.agentsArrive();
+		/*
+		 * Ask all boundaries to update their solute concentrations.
+		 */
+		this.environment.updateSoluteBoundaries();
+	}
 	
 	/**
 	 * \brief Iterate over the process managers until the local time would
@@ -396,7 +442,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		if ( this._processes.isEmpty() )
 			return;
 		ProcessManager currentProcess = this._processes.getFirst();
-		while ( (this._localTime = currentProcess.getTimeForNextStep()) 
+		while ( (this._localTime = currentProcess.getTimeForNextStep() ) 
 					< Idynomics.simulator.timer.getEndOfCurrentIteration() )
 		{
 			Log.out(Tier.EXPRESSIVE, "");
@@ -407,7 +453,7 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 			 * First process on the list does its thing. This should then
 			 * increase its next step time.
 			 */
-			currentProcess.step(this._environment, this.agents);
+			currentProcess.step();
 			/*
 			 * Reinsert this process at the appropriate position in the list.
 			 */
@@ -420,18 +466,28 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 	}
 	
 	/**
-	 * \brief Tell all agents queued to leave the {@code Compartment} to move
-	 * now.
+	 * \brief Do all outbound agent & solute transfers.
 	 */
-	public void pushAllOutboundAgents()
+	public void postStep()
 	{
-		for ( BoundaryConnected b : this._shape.getConnectedBoundaries() )
-			b.pushAllOutboundAgents();
+		/*
+		 * Boundaries grab the agents they want, settling any conflicts between
+		 * boundaries.
+		 */
+		this.agents.boundariesGrabAgents();
+		/*
+		 * Tell all agents queued to leave the compartment to move now.
+		 */
+		this.agents.agentsDepart();
+		/*
+		 * 
+		 */
+		// TODO update concentrations again?
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public boolean isReadyForLaunch()
 	{
@@ -445,106 +501,150 @@ public class Compartment implements CanPrelaunchCheck, IsSubmodel, XMLable, Node
 		return true;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * REPORTING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void printSoluteGrid(String soluteName)
 	{
-		this._environment.printSolute(soluteName);
+		this.environment.printSolute(soluteName);
 	}
 	
 	public void printAllSoluteGrids()
 	{
-		this._environment.printAllSolutes();
+		this.environment.printAllSolutes();
 	}
 	
 	/*************************************************************************
-	 * SUBMODEL BUILDING
+	 * Model Node factory
 	 ************************************************************************/
 	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
-		/* We must have exactly one Shape. */
-		out.add(new ShapeMaker(Requirement.EXACTLY_ONE, this));
-		/* Any number of process managers is allowed, including none. */
-		// TODO temporarily removed, reinstate
-		//out.add(new ProcessMaker(Requirement.ZERO_TO_MANY, this));
-		// TODO agents, solutes, diffusivity, reactions
-		return out;
-	}
-	
-	public void acceptInput(String name, Object input)
-	{
-		/* Parameters */
-		if ( name.equals(XmlLabel.nameAttribute) )
-			this.name = (String) input;
-		/* Sub-models */
-		if ( input instanceof Shape )
-			this._shape = (Shape) input;
-		if ( input instanceof ProcessManager )
-			this._processes.add((ProcessManager) input);
-	}
-	
-	public static class CompartmentMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -6545954286337098173L;
-		
-		public CompartmentMaker(Requirement req, IsSubmodel target)
-		{
-			super(XmlLabel.compartment, req, target);
-		}
-		
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			this.addSubmodel(new Compartment());
-		}
-		
-		@Override
-		public Object getOptions()
-		{
-			return null;
-		}
-	}
-	
+	@Override
 	public ModelNode getNode()
 	{
-		if (modelNode == null)
-		{
-		ModelNode myNode = new ModelNode(XmlLabel.compartment, this);
-		myNode.requirement = Requirements.ZERO_TO_FEW;
-		
-		myNode.add(new ModelAttribute(XmlLabel.nameAttribute, 
-				this.getName(), null, true ));
-		
-		if ( this._shape !=null )
-			myNode.add(_shape.getNode());
-		
-		// Work around
-		myNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), ModelNode.Requirements.EXACTLY_ONE);
-		
-		modelNode = myNode;
-		}
-		
+		/* The compartment node. */
+		ModelNode modelNode = new ModelNode(XmlRef.compartment, this);
+		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
+		/* Set title for GUI. */
+		if ( this.getName() != null )
+			modelNode.setTitle(this.getName());
+		/* Add the name attribute. */
+		modelNode.add( new ModelAttribute(XmlRef.nameAttribute, 
+				this.getName(), null, true ) );
+		/* Add the shape if it exists. */
+		if ( this._shape != null )
+			modelNode.add( this._shape.getNode() );
+		/* Work around: we need an object in order to call the newBlank method
+		 * from TODO investigate a cleaner way of doing this  */
+		// NOTE Rob [9June2016]: Surely we only need to do this if 
+		// this._shape == null? Or have I completely misunderstood?
+		modelNode.addChildConstructor(Shape.getNewInstance("Dimensionless"), 
+				Requirements.EXACTLY_ONE);
+		/* Add the solutes node. */
+		modelNode.add( this.getSolutesNode() );
+		/* Add the agents node. */
+		modelNode.add( this.getAgentsNode() );
+		/* Add the process managers node. */
+		modelNode.add( this.getProcessNode() );
+		return modelNode;	
+	}
+	
+	/**
+	 * \brief Helper method for {@link #getNode()}.
+	 * 
+	 * @return Model node for the <b>agents</b>.
+	 */
+	private ModelNode getAgentsNode()
+	{
+		/* The agents node. */
+		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* Add the agent childConstrutor for adding of additional agents. */
+		modelNode.addChildConstructor(
+				new Agent(this), Requirements.ZERO_TO_MANY );
+		/* If there are agents, add them as child nodes. */
+		if ( this.agents != null )
+			for ( Agent a : this.agents.getAllAgents() )
+				modelNode.add( a.getNode() );
 		return modelNode;
-		
 	}
-
-	public void setNode(ModelNode node) {
-		this.name = node.getAttribute(XmlLabel.nameAttribute).value;
+	
+	/**
+	 * \brief Helper method for {@link #getNode()}.
+	 * 
+	 * @return Model node for the <b>process managers</b>.
+	 */
+	private ModelNode getProcessNode()
+	{
+		/* The process managers node. */
+		ModelNode modelNode = new ModelNode(XmlRef.processManagers, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* 
+		 * Work around: we need an object in order to call the newBlank method
+		 * from TODO investigate a cleaner way of doing this  
+		 */
+		modelNode.addChildConstructor( ProcessManager.getNewInstance(
+				"AgentGrowth"), Requirements.ZERO_TO_MANY);
+		/* Add existing process managers as child nodes. */
+		for ( ProcessManager p : this._processes )
+			modelNode.add( p.getNode() );
+		return modelNode;
+	}
+	
+	/**
+	 * \brief Helper method for {@link #getNode()}.
+	 * 
+	 * @return Model node for the <b>solutes</b>.
+	 */
+	private ModelNode getSolutesNode()
+	{
+		/* The solutes node. */
+		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
+		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
+		/* 
+		 * add solute nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later 
+		 */
+		if ( this.environment != null )
+			for ( String sol : this.environment.getSoluteNames() )
+				modelNode.add( this.getSolute(sol).getNode() );
+		return modelNode;
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
-		if( childObject instanceof Shape)
-			this.setShape((Shape) childObject); 
+	public void setNode(ModelNode node) 
+	{
+		/* Set the modelNode for compartment. */
+		if ( node.isTag(this.defaultXmlTag()) )
+		{
+			/* Update the name. */
+			this.name = node.getAttribute( XmlRef.nameAttribute ).value;
+		}
+		/* 
+		 * Set the child nodes.
+		 * Agents, process managers and solutes are container nodes: only
+		 * child nodes need to be set here.
+		 */
+		NodeConstructor.super.setNode(node);
+	}
+	
+	@Override
+	public void addChildObject(NodeConstructor childObject) 
+	{
+		/* Set the shape. */
+		if ( childObject instanceof Shape)
+			this.setShape( (Shape) childObject); 
+		/* Add processManagers. */
+		if ( childObject instanceof ProcessManager)
+			this.addProcessManager( (ProcessManager) childObject); 
+		/*
+		 * NOTE Agents register themselves to the compartment (register birth).
+		 */
 	}
 
 	@Override
-	public String defaultXmlTag() {
-		return XmlLabel.compartment;
+	public String defaultXmlTag() 
+	{
+		return XmlRef.compartment;
 	}
 }

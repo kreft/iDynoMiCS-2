@@ -17,13 +17,13 @@ import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Idynomics
 {
@@ -31,12 +31,12 @@ public class Idynomics
 	* Version number of this iteration of iDynoMiCS - required by update
 	* procedure.
 	*/
-	public static String version_number = "2.0";
+	public final static String version_number = "2.0";
 	
 	/**
 	 * Version description.
 	 */
-	public static String version_description = "alpha build 2016.02.19";
+	public final static String version_description = "alpha build 2016.06.02";
 	
 	/**
 	 * {@code Simulator} object: there can only be one. 
@@ -122,7 +122,7 @@ public class Idynomics
 		Idynomics.global.protocolFile = protocolPath;
 		Idynomics.global.xmlDoc = XmlHandler.loadDocument(protocolPath);
 		
-		Element simElem = XmlHandler.loadUnique(Idynomics.global.xmlDoc, XmlLabel.simulation);
+		Element simElem = XmlHandler.loadUnique(Idynomics.global.xmlDoc, XmlRef.simulation);
 		/*
 		 * Initialise the global parameters.
 		 */

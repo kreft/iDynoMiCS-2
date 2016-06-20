@@ -4,12 +4,11 @@ import java.awt.event.ActionEvent;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.ObjectFactory;
 
 /**
  * \brief Action that controls the setting of parameters in model components.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class ParameterSetter extends InputSetter
 {
@@ -71,7 +70,7 @@ public class ParameterSetter extends InputSetter
 		String cmd = e.getActionCommand();
 		Log.out(Tier.DEBUG,
 					"Setting parameter \""+this.getName()+"\" as \""+cmd+"\"");
-		this._currentValue = ObjectFactory.loadObject(cmd, this._classType);
+//		this._currentValue = ObjectFactory.loadObject(cmd, this._classType); FIXME commented out due to incompatability xml restructuring
 		this.acceptInput(this._currentValue);
 	}
 	

@@ -2,24 +2,19 @@ package testJUnit;
 
 import org.junit.Test;
 
-import idynomics.AgentContainer;
 import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
-import idynomics.Idynomics;
-import idynomics.Simulator;
 import processManager.ProcessManager;
 /**
  * \brief Test checking that Compartments behave as they should.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class CompartmentTest
 {
 	public class DummyProcess extends ProcessManager
 	{
 		@Override
-		protected void internalStep(
-				EnvironmentContainer environment, AgentContainer agents)
+		protected void internalStep()
 		{
 			System.out.println("\nTime is: "+this._timeForNextStep);
 			System.out.println(this._name);
@@ -31,15 +26,16 @@ public class CompartmentTest
 	public void processManagersShouldIterateInTurn()
 	{
 		// TODO make this a proper unit test
+		double tStep = 4.5;
+		double tMax = 4.5;
+		
+		AllTests.setupSimulatorForTest(tStep, tMax, "processManagersShouldIterateInTurn");
 		/*
 		 * Put some dummy ProcessManagers into a Compartment, and check they
 		 * are stepped in the correct order.
 		 */
-		Idynomics.simulator = new Simulator();
 		Compartment c = new Compartment();
 		ProcessManager pm;
-		Idynomics.simulator.timer.setTimeStepSize(4.5);
-		Idynomics.simulator.timer.setEndOfSimulation(4.5);
 		/* Frequent, low priority. */
 		pm = new DummyProcess();
 		pm.setTimeForNextStep(0.0);

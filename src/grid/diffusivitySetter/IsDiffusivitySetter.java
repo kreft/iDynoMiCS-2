@@ -9,7 +9,7 @@ import idynomics.EnvironmentContainer;
 
 /**
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public interface IsDiffusivitySetter
 {
@@ -17,10 +17,9 @@ public interface IsDiffusivitySetter
 	 * \brief TODO
 	 * 
 	 * @param diffusivityGrid
-	 * @param concentrationGrids
 	 * @param env
 	 * @param agents
 	 */
-	public void updateDiffusivity(SpatialGrid diffusivityGrid, SpatialGrid[] 
-			concentrationGrids, EnvironmentContainer env, AgentContainer agents);
+	public void updateDiffusivity(SpatialGrid diffusivityGrid, 
+			EnvironmentContainer env, AgentContainer agents);
 }

@@ -119,12 +119,14 @@ public class ODErosenbrock extends ODEsolver
 	 ************************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief Initialise this solver.
 	 * 
-	 * @param names
-	 * @param allowNegatives
-	 * @param absTol
-	 * @param hMax
+	 * @param names List of {@code String} names of the variables this solver
+	 * deals with.
+	 * @param allowNegatives {@code true} to allow negative values of
+	 * variables, {@code false} to force any negative values to zero.
+	 * @param absTol Absolute numerical tolerance of estimated error.
+	 * @param hMax Largest allowed internal time step.
 	 */
 	public void init(String[] names, boolean allowNegatives,
 												double absTol, double hMax)
@@ -134,9 +136,7 @@ public class ODErosenbrock extends ODEsolver
 			return;
 		/* Doubles */
 		this._absTol = absTol;
-		// NOTE Bas [12.02.16] seems ODErosenbrock does not like absTol < hMax
-		// TODO Rob [15Feb2016]: any more info? Website URL?
-		this._hMax = ( absTol > hMax ? hMax : absTol);
+		this._hMax = hMax;
 		/* Vectors */
 		ynext = Vector.zerosDbl(this.nVar());
 		dYdT  = Vector.zerosDbl(this.nVar());

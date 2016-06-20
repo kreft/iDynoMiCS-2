@@ -7,20 +7,13 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import agent.SpeciesLib;
-import agent.SpeciesLib.SpeciesLibMaker;
 import dataIO.Log;
-import dataIO.ObjectRef;
+import dataIO.XmlExport;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.XMLable;
-import idynomics.Compartment.CompartmentMaker;
-import idynomics.Timer.TimerMaker;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.ParameterSetter;
-import modelBuilder.SubmodelMaker.Requirement;
+import generalInterfaces.Instantiatable;
 import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
@@ -29,10 +22,10 @@ import nodeFactory.ModelNode.Requirements;
  * \brief Simulator manages all compartments, making sure they synchronise at
  * the correct times. 
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLable, NodeConstructor
+public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, NodeConstructor
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
@@ -40,15 +33,29 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	 * Order is irrelevant, and each {@code Compartment} knows its own name.
 	 */
 	protected LinkedList<Compartment> _compartments = 
-										   		new LinkedList<Compartment>();
+												new LinkedList<Compartment>();
 	/**
 	 * Contains information about all species for this simulation.
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
 	
+	/**
+	 * The timer
+	 */
 	public Timer timer;
 	
-	public ModelNode modelNode;
+	/**
+	 * Xml output writer
+	 */
+	private XmlExport _xmlOut;
+	
+	/**
+	 * Simulator is the top node in iDynoMiCS and stores its own modelNode and 
+	 * within that all child nodes, simulator is the exception to the rule not
+	 * storing ModelNodes
+	 */
+	private ModelNode _modelNode;
+
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -59,37 +66,65 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		//TODO fully implement MTRandom (reading in random seed)
 		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
+		this._xmlOut = new XmlExport();
 	}
 
-	public NodeConstructor newBlank()
-	{
-		return new Simulator();
-	}
-	
+	/**
+	 * return the name of the current simulation
+	 * @return
+	 */
 	public String getName()
 	{
 		return (Idynomics.global.simulationName == null) ?
-										XmlLabel.simulation : Idynomics.global.simulationName;
+					XmlRef.simulation : Idynomics.global.simulationName;
+	}
+	
+	/**
+	 * get the current seed, used to create intermediate restartable save points
+	 * @return
+	 */
+	public long seed()
+	{
+		long currentSeed = ExtraMath.random.nextLong();
+		ExtraMath.intialiseRandomNumberGenerator(currentSeed);
+		return currentSeed;
+	}
+	
+	/**
+	 * Initiate random number generator with given seed
+	 * @param seed
+	 */
+	public void seed(long seed)
+	{
+		ExtraMath.intialiseRandomNumberGenerator(seed);
 	}
 	
 	public void init(Element xmlElem)
 	{
+		/* 
+		 * retrieve seed from xml file and initiate random number generator with
+		 * that seed
+		 */
+		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
+		if (seed != "")
+			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
+		
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlLabel.timer ));
+		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlRef.timer ));
 		/*
 		 * Set up the species library.
 		 */
-		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlLabel.speciesLibrary))
+		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 				this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, 
-						XmlLabel.speciesLibrary ));
+						XmlRef.speciesLibrary ));
 		/*
 		 * Set up the compartments.
 		 */
 		Log.out(Tier.NORMAL, "Compartments loading...");
 		NodeList children;
-		children = XmlHandler.getAll( xmlElem, XmlLabel.compartment );
+		children = XmlHandler.getAll( xmlElem, XmlRef.compartment );
 		if ( children.getLength() == 0 )
 		{
 			Log.out(Tier.CRITICAL, 
@@ -100,7 +135,7 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.gatherAttribute(child, XmlLabel.nameAttribute);
+			str = XmlHandler.gatherAttribute(child, XmlRef.nameAttribute);
 			Log.out(Tier.NORMAL, "Making "+str);
 			str = Helper.obtainInput(str, "compartment name");
 			Compartment aCompartment = this.addCompartment(str);
@@ -108,28 +143,8 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
 		
-		//FIXME testing
-		System.out.println(getXml());
 	}
 	
-	public String getXml()
-	{
-		String out = "<document> \n <" + XmlLabel.simulation + " " + 
-				XmlLabel.nameAttribute + "=\"" + Idynomics.global.simulationName + "\" " + 
-				XmlLabel.outputFolder + "=\"" + Idynomics.global.outputLocation + "\" " + 
-				XmlLabel.logLevel + "=\"" + Log.level() + "\" " + 
-				XmlLabel.commentAttribute + "=\"" + Idynomics.global.simulationComment + 
-				"\">\n";
-		
-		out = out + this.timer.getXml();
-		out = out + this.speciesLibrary.getXml();
-		/* currently not including general params */
-		for ( Compartment c : this._compartments )
-			out = out + c.getXml();
-		
-		out = out + "  </" + XmlLabel.simulation + ">\n" + "</document>\n";
-		return out;
-	}
 	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -232,28 +247,42 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 	public void step()
 	{
 		/*
-		 * Loop through all compartments, calling their internal steps. 
+		 * Loop through all compartments, updating solute boundaries and asking
+		 * inbound agents to arrive.
+		 */
+		for ( Compartment c : this._compartments )
+			c.preStep();
+		/*
+		 * Loop through all compartments, calling their internal steps.
 		 */
 		for ( Compartment c : this._compartments )
 			c.step();
 		/*
 		 * Once this is done loop through all again, this time exchanging
-		 * cells that have tried to cross connected boundaries. 
+		 * agents and solutes that have tried to cross connected boundaries. 
 		 */
 		for ( Compartment c : this._compartments )
-			c.pushAllOutboundAgents();
+			c.postStep();
 		/*
 		 * 
 		 */
 		this.timer.step();
-		/* we should say something when an iter step is finished */
-		Log.out(Tier.NORMAL, "iter time: " + this.timer.getCurrentTime());
-		// TODO re-implement agent reporting
-//		this._compartments.forEach((s,c) -> 
-//		{
-//			Log.out(tier.QUIET,"COMPARTMENT: " + s);
-//			Log.out(tier.QUIET,c.agents.getAllAgents().size() + " agents");
-//		});
+		/* 
+		 * We let the user know when an global step has finished.
+		 */
+		Log.out(Tier.NORMAL, "Global time: " + this.timer.getCurrentTime());
+		/*
+		 * Write state to new XML file.
+		 */
+		this._xmlOut.writeFile();
+		/*
+		 * Reporting agents.
+		 */
+		for (Compartment c : this._compartments)
+		{
+			Log.out(Tier.QUIET,"COMPARTMENT: " + c.getName());
+			Log.out(Tier.QUIET,c.agents.getAllAgents().size() + " agents");
+		};
 
 	}
 	
@@ -264,6 +293,10 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		 * Start timing just before simulation starts.
 		 */
 		double tic = System.currentTimeMillis();
+		/* Check if any boundary connections need to be made. */
+		for ( Compartment c : this._compartments )
+			c.checkBoundaryConnections(this._compartments);
+		/* Run the simulation. */
 		while ( this.timer.isRunning() )
 			this.step();
 		/*
@@ -292,52 +325,6 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			Log.out(Tier.QUIET, c.agents.getNumAllAgents() + " agents");
 		}
 	}
-	
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
-	
-	public List<InputSetter> getRequiredInputs()
-	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		/* Required parameters */
-		out.add(new ParameterSetter(XmlLabel.nameAttribute,this,ObjectRef.STR));
-		out.add(new ParameterSetter(XmlLabel.outputFolder,this,ObjectRef.STR));
-		// TODO log level?
-		// TODO Random number seed?
-		// TODO comment?
-		/* We must have exactly one Timer. */
-		out.add(new TimerMaker(Requirement.EXACTLY_ONE, this));
-		/* No need for a species library, but maximum of one allowed. */
-		out.add(new SpeciesLibMaker(Requirement.ZERO_OR_ONE, this));
-		/* Must have at least one compartment. */
-		out.add(new CompartmentMaker(Requirement.ONE_TO_MANY, this));
-		return out;
-	}
-	
-	public void acceptInput(String name, Object input)
-	{
-		if ( input instanceof String )
-		{
-			String str = (String) input;
-			// TODO need to be very careful that we're not changing the
-			// settings of a running simulation!
-			if ( str.equals(XmlLabel.nameAttribute) )
-				Idynomics.global.simulationName = str;
-			else if (str.equals(XmlLabel.outputFolder) )
-				Idynomics.global.outputRoot = str;
-		}
-		// TODO Log level?
-		// TODO Random number seed?
-		// TODO comment?
-		// NOTE this is probably overkill, could just use instanceof
-		if ( name.equals(XmlLabel.timer) && (input instanceof Timer) )
-			timer = (Timer) input;
-		if(name.equals(XmlLabel.speciesLibrary) && input instanceof SpeciesLib)
-			this.speciesLibrary = (SpeciesLib) input;
-		if ( name.equals(XmlLabel.compartment) && input instanceof Compartment)
-			this._compartments.add((Compartment) input);
-	}
 
 	/*************************************************************************
 	 * PRE-LAUNCH CHECK
@@ -353,12 +340,14 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 			Log.out(Tier.CRITICAL,"Random number generator not initialised!");
 			return false;
 		}
+		
 		/* Check we have at least one compartment. */
 		if ( this._compartments.isEmpty() )
 		{
 			Log.out(Tier.CRITICAL,"No compartment(s) specified!");
 			return false;
 		}
+		
 		/* If any compartments are not ready, then stop. */
 		for ( Compartment c : this._compartments )
 		{
@@ -372,69 +361,127 @@ public class Simulator implements CanPrelaunchCheck, IsSubmodel, Runnable, XMLab
 		return true;
 	}
 
+	/**
+	 * return the model node with all current, up to date state parameters, used
+	 * for xml output and gui fields.
+	 */
 	@Override
 	public ModelNode getNode() {
-		if (modelNode == null)
-		{
-			/* create simulation node */
-			ModelNode myNode = new ModelNode(XmlLabel.simulation, this);
-			myNode.requirement = Requirements.EXACTLY_ONE;
-			
-			Param.init();
-			if(! Log.isSet())
-				Log.set(Tier.NORMAL);
-			
-			/* add attributes */
-			myNode.add( new ModelAttribute(XmlLabel.nameAttribute, 
-					Idynomics.global.simulationName, null, false ));
-			myNode.add(new ModelAttribute(XmlLabel.outputFolder, 
-					Idynomics.global.outputRoot, null, false ));
-			myNode.add(new ModelAttribute(XmlLabel.logLevel, 
-					Log.level(), Helper.enumToString(Tier.class).split(","), true ));
-			myNode.add(new ModelAttribute(XmlLabel.commentAttribute, 
-					Idynomics.global.simulationComment, null, true ));
-			
-			/* add timer node */
-			myNode.add(timer.getNode());
-	
-			/* add compartment nodes */
-			for ( Compartment c : this._compartments )
-				myNode.add(c.getNode());
-			
-			myNode.childConstructors.put(new Compartment(), ModelNode.Requirements.ZERO_TO_FEW);
-			
-			modelNode = myNode;
-		}
+		/* create simulation node */
+		ModelNode modelNode = new ModelNode(XmlRef.simulation, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		
+		Param.init();
+		if(! Log.isSet())
+			Log.set(Tier.NORMAL);
+		
+		/* add attributes */
+		/* the current random seed */
+		modelNode.add( new ModelAttribute(XmlRef.seed,
+				String.valueOf(seed()), null, true));
+		
+		/* the simulation name */
+		modelNode.add( new ModelAttribute(XmlRef.nameAttribute, 
+				Idynomics.global.simulationName, null, false ));
+		
+		/* the output folder */
+		modelNode.add(new ModelAttribute(XmlRef.outputFolder, 
+				Idynomics.global.outputRoot, null, false ));
+		
+		/* the log level */
+		modelNode.add(new ModelAttribute(XmlRef.logLevel, Log.level(), 
+				Helper.enumToString(Tier.class).split(" "), false ));
+		
+		/* the optional comment */
+		modelNode.add(new ModelAttribute(XmlRef.commentAttribute, 
+				Idynomics.global.simulationComment, null, true ));
+		
+		/* add timer node */
+		modelNode.add(timer.getNode());
+		
+		/* add species lib */
+		modelNode.add(speciesLibrary.getNode());
+
+		/* add compartment nodes */
+		for ( Compartment c : this._compartments )
+			modelNode.add(c.getNode());
+		
+		/* add child constructor (adds add compartment button to gui */
+		modelNode.addChildConstructor(new Compartment(), 
+				ModelNode.Requirements.ZERO_TO_FEW);
+
+		/* Safe this modelNode locally for model run without having to have save 
+		 * all button */
+		this._modelNode = modelNode;
 		
 		/* return node */
 		return modelNode;
 	}
 	
+	/**
+	 * Additional setNode method for simulation, allows for immediate simulation
+	 * kick-off
+	 */
 	public void setNode()
 	{
-		setNode(this.modelNode);
+		setNode(this._modelNode);
 	}
 	
+	@Override
 	public void setNode(ModelNode node)
 	{
-		this.modelNode = node;
-		Idynomics.global.simulationName = node.getAttribute(XmlLabel.nameAttribute).value;
-		Idynomics.global.outputRoot = node.getAttribute(XmlLabel.outputFolder).value;
-		Log.set(node.getAttribute(XmlLabel.logLevel).value);
+		/* set local node */
+		this._modelNode = node;
 		
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
+		/* update simulation name */
+		Idynomics.global.simulationName = 
+				node.getAttribute(XmlRef.nameAttribute).value;
+		
+		/* update output root folder */
+		Idynomics.global.outputRoot = 
+				node.getAttribute(XmlRef.outputFolder).value;
+		
+		/* set output level */
+		Log.set(node.getAttribute(XmlRef.logLevel).value);
+		
+		/* set random seed */
+		this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).value));
+		
+		/* Set values for all child nodes. */
+		NodeConstructor.super.setNode(node);
 	}
 
+	/**
+	 * Method is called when "add" button is hit in gui, options are set in
+	 * child constructor hashMap of model node.
+	 */
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(NodeConstructor childObject) 
+	{
 		if (childObject instanceof Compartment)
 			this._compartments.add((Compartment) childObject);
 	}
 
+	/**
+	 * the default xml tag of this object.
+	 */
 	@Override
 	public String defaultXmlTag() {
-		return XmlLabel.simulation;
+		return XmlRef.simulation;
+	}
+	
+	/**
+	 * returns an "empty" Node constructor object.
+	 */
+	public NodeConstructor newBlank()
+	{
+		return new Simulator();
+	}
+
+	@Override
+	public String getXml() 
+	{
+		return this._modelNode.getXML();
 	}
 }
 

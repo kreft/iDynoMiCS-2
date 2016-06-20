@@ -1,45 +1,58 @@
-/**
- * TODO
- */
 package shape;
-
-import java.awt.event.ActionEvent;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import boundary.Boundary;
-import boundary.Boundary.BoundaryMaker;
+import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlLabel;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelMaker.Requirement;
-import shape.ShapeConventions.BoundaryCyclic;
-import shape.ShapeConventions.DimName;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
+import utility.ExtraMath;
 import utility.Helper;
 
 /**
- * \brief TODO
+ * \brief Dimension of a {@code Shape}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Dimension implements CanPrelaunchCheck, IsSubmodel
+public class Dimension implements CanPrelaunchCheck, NodeConstructor, 
+		Comparable<Dimension>
 {
 	/**
-	 * Tag for the boolean denoting whether this dimension is cyclic (true) or
-	 * not (false).
+	 * 
+	 * 
 	 */
-	// TODO consider moving this to XmlLabel, etc
-	public final static String IS_CYCLIC = "isCyclic";
+	public enum DimName
+	{
+		X(false),
+		Y(false),
+		Z(false),
+		R(false),
+		THETA(true),
+		PHI(true);
+		
+		private boolean _isAngular;
+		
+		DimName(boolean isAngular)
+		{
+			this._isAngular = isAngular;
+		}
+		
+		public boolean isAngular()
+		{
+			return this._isAngular;
+		}
+	}
+	
+
 	/**
 	 * If we need to put a point just inside the maximum extreme, use this
 	 * number multiplied by the dimension length as the small amount less than
@@ -57,10 +70,9 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	protected double[] _extreme = new double[]{0.0, Double.MIN_VALUE};
 	
 	/**
-	 * Boundary objects at the minimum (0) and maximum (1). Meaningless in
-	 * cyclic dimensions.
+	 * Boundary objects at the minimum (0) and maximum (1).
 	 */
-	protected Boundary[] _boundary = new Boundary[2];
+	private SpatialBoundary[] _boundary = new SpatialBoundary[2];
 	
 	/**
 	 * Whether boundaries are required (true) or optional (false) at the
@@ -73,10 +85,38 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 * If this is a cyclic dimension, different rules apply.
 	 */
 	protected boolean _isCyclic = false;
+	/**
+	 * TODO
+	 */
+	protected boolean _isSignificant = true;
+	
+	/**
+	 * 
+	 */
+	protected DimName _dimName;
+
+	/**
+	 * target resolution
+	 */
+	protected Double _targetRes;
 	
 	/**************************************************************************
 	 * CONSTRUCTORS
 	 *************************************************************************/
+	
+	public Dimension()
+	{
+		
+	}
+	
+	public Dimension(boolean isSignificant, DimName dimName)
+	{
+		this._dimName = dimName;
+		if ( isSignificant )
+			this.setSignificant();
+		else
+			this.setInsignificant();
+	}
 	
 	public void init(Node xmlNode)
 	{
@@ -84,7 +124,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		String str;
 		NodeList extNodes, bndNodes;
 		Element extElem, bndElem;
-		Boundary aBoundary;
+		SpatialBoundary aBoundary;
 		int index = -1;
 		/*
 		 * See if this is cyclic. Assume not if unspecified.
@@ -92,17 +132,47 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		 * TODO check that str is "false" and not a typo of "true" 
 		 * (e.g. "truw")
 		 */
-		str = XmlHandler.gatherAttribute(elem, IS_CYCLIC);
+		str = XmlHandler.gatherAttribute(elem, XmlRef.IS_CYCLIC);
 		if ( Boolean.valueOf(str) )
 			this.setCyclic();
+		
+		/* calculate length from dimension extremes */
+		double length = getLength();
+		
+		/* fetch target resolution (or use length as default) */
+		str = XmlHandler.gatherAttribute(elem,
+				XmlRef.targetResolutionAttribute);
+		this._targetRes = length; 
+		if ( str != "" )
+			this._targetRes = Double.valueOf(str);
+		
 		/* 
 		 * Boundaries at the extremes.
 		 */
-		extNodes = XmlHandler.getAll(elem, "extreme");
-		for ( int i = 0; i < extNodes.getLength(); i++ )
+		str = XmlHandler.gatherAttribute(elem, XmlRef.min);
+		if ( str != null && str != ""){
+			double val = Double.valueOf(str);
+			/* convert degree to radian for angular dimensions */
+			if (this._dimName.isAngular())
+				val = Math.toRadians(val);
+			this.setExtreme(val, 0);
+		}
+		
+		str = XmlHandler.gatherAttribute(elem, XmlRef.max);
+		if ( str != null && str != ""){
+			double val = Double.valueOf(str);
+			/* convert degree to radian for angular dimensions */
+			if (this._dimName.isAngular())
+				val = Math.toRadians(val);
+			this.setExtreme(val, 1);
+		}
+
+		/* Set the boundary, if given (not always necessary). */
+		bndNodes = XmlHandler.getAll(elem, XmlRef.dimensionBoundary);
+		for ( int i = 0; i < bndNodes.getLength(); i++ )
 		{
-			extElem = (Element) extNodes.item(i);
-			str = XmlHandler.gatherAttribute(extElem, XmlLabel.nameAttribute);
+			bndElem = (Element) bndNodes.item(i);
+			str = XmlHandler.gatherAttribute(elem, XmlRef.nameAttribute);
 			str = Helper.obtainInput(str, "dimension extreme (min/max)");
 			str = str.toLowerCase();
 			if ( str.equals("min") )
@@ -114,25 +184,12 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 				Log.out(Tier.CRITICAL, 
 						"Warning! Dimension extreme must be min or max: "+str);
 			}
-			/* Set the position, if given (not always necessary). */
-			str = XmlHandler.gatherAttribute(extElem, XmlLabel.position);
-			if ( str != null && str != "")
-				this.setExtreme(Double.valueOf(str), index);
-			/* Set the boundary, if given (not always necessary). */
-			bndNodes = XmlHandler.getAll(extElem, XmlLabel.dimensionBoundary);
-			if ( bndNodes.getLength() > 1 )
-			{
-				Log.out(Tier.CRITICAL, 
-					  "Warning: Dimension extreme must have 0 or 1 boundary!");
-			}
-			else if ( bndNodes.getLength() == 1 )
-			{
-				bndElem = (Element) bndNodes.item(0);
-				str = bndElem.getAttribute(XmlLabel.classAttribute);
-				aBoundary = (Boundary) Boundary.getNewInstance(str);
-				aBoundary.init(bndElem);
-				this.setBoundary(aBoundary, index);
-			}
+			
+			str = bndElem.getAttribute(XmlRef.classAttribute);
+			// FIXME
+			aBoundary = (SpatialBoundary) SpatialBoundary.getNewInstance(str);
+			aBoundary.init(bndElem);
+			this.setBoundary(aBoundary, index);	
 		}
 	}
 	
@@ -155,10 +212,10 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	 */
 	protected void checkExtremes()
 	{
-		if ( this._extreme[1] <= this._extreme[0] )
+		if ( this._extreme[1] < this._extreme[0] )
 		{
 			throw new 
-					IllegalArgumentException("Dimension length must be >= 0");
+					IllegalArgumentException("Dimension length must be > 0");
 		}
 	}
 	
@@ -189,6 +246,10 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		this.checkExtremes();
 	}
 	
+	/**
+	 * @param index Index of the extreme: must be 0 or 1.
+	 * @return Position in space of the required extreme.
+	 */
 	public double getExtreme(int index)
 	{
 		return this._extreme[index];
@@ -206,13 +267,14 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	}
 	
 	/**
-	 * \brief TODO
-	 *
+	 * \brief Set this dimension to be cyclic.
+	 * 
+	 * <p>Anything crossing one extreme of this dimension will re-emerge on the
+	 * other extreme.</p>
 	 */
 	public void setCyclic()
 	{
 		this._isCyclic = true;
-		this.setBoundaries(new BoundaryCyclic(), new BoundaryCyclic());
 	}
 	
 	/**
@@ -226,16 +288,45 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		return this._isCyclic;
 	}
 	
+	/**
+	 * TODO
+	 */
+	public void setSignificant()
+	{
+		this._isSignificant = true;
+	}
+	
+	/**
+	 * TODO
+	 */
+	public void setInsignificant()
+	{
+		this._isSignificant = false;
+		this.setBoundariesOptional();
+	}
+	
+	/**
+	 * TODO
+	 * @return
+	 */
+	public boolean isSignificant()
+	{
+		return this._isSignificant;
+	}
+	
 	/**************************************************************************
 	 * BOUNDARIES
 	 *************************************************************************/
 	
 	/**
-	 * \brief Tell this dimension that the boundary at the minimum extreme may
-	 * not be specified. Meaningless in cyclic dimensions.
+	 * \brief Tell this dimension that the boundary at the given extreme may
+	 * not be specified.
 	 * 
-	 * @param index Which boundary to set: 0 for minimum, 1 for maximum.
-	 * @see #setBoundariesRequired()
+	 * <p>Meaningless in cyclic dimensions.</p>
+	 * 
+	 * @param index Which extreme to set: 0 for minimum, 1 for maximum.
+	 * @see #setBoundariesOptional()
+	 * @see #setBoundaryRequired(int)
 	 */
 	public void setBoundaryOptional(int index)
 	{
@@ -244,28 +335,59 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	
 	/**
 	 * \brief Tell this dimension that both boundaries may not be specified.
-	 * Meaningless in cyclic dimensions.
 	 * 
-	 * @see #setMinBoundaryRequired()
-	 * @see #setMAxBoundaryRequired()
+	 * <p>Meaningless in cyclic dimensions.</p>
+	 * 
+	 * @see #setBoundaryOptional(int)
+	 * @see #setBoundariesRequired()
 	 */
 	public void setBoundariesOptional()
 	{
 		this.setBoundaryOptional(0);
 		this.setBoundaryOptional(1);
 	}
+	
+	/**
+	 * \brief Tell this dimension that the boundary at the given extreme must
+	 * be specified.
+	 * 
+	 * <p>Meaningless in cyclic dimensions.</p>
+	 * 
+	 * @param index Which extreme to set: 0 for minimum, 1 for maximum.
+	 * @see #setBoundariesRequired()
+	 * @see #setBoundaryOptional(int)
+	 */
+	public void setBoundaryRequired(int index)
+	{
+		this._required[index] = true;
+	}
+	
+	/**
+	 * \brief Tell this dimension that both boundaries must be specified.
+	 * 
+	 * <p>Meaningless in cyclic dimensions.</p>
+	 * 
+	 * @see #setBoundaryRequired(int)
+	 * @see #setBoundariesOptional()
+	 */
+	public void setBoundariesRequired()
+	{
+		this.setBoundaryRequired(0);
+		this.setBoundaryRequired(1);
+	}
+	
 	/**
 	 * \brief Set both the minimum and maximum boundaries.
 	 * 
 	 * @param minBndry {@code Boundary} to set at the minimum extreme.
 	 * @param maxBndry {@code Boundary} to set at the maximum extreme.
 	 */
-	public void setBoundary(Boundary aBoundary, int index)
+	public void setBoundary(SpatialBoundary aBoundary, int index)
 	{
 		if ( this._isCyclic )
 		{
-			// TODO
-			//throw new Exception();
+			throw new IllegalArgumentException(
+							"Cannot set the boundary of a cyclic dimension!");
 		}
 		else
 			this._boundary[index] = aBoundary;
@@ -274,12 +396,10 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	/**
 	 * \brief Set both the minimum and maximum boundaries.
 	 * 
-	 * @param minBndry
-	 * @param maxBndry
 	 * @param minBndry {@code Boundary} to set at the minimum extreme.
 	 * @param maxBndry {@code Boundary} to set at the maximum extreme.
 	 */
-	public void setBoundaries(Boundary minBndry, Boundary maxBndry)
+	public void setBoundaries(SpatialBoundary minBndry, SpatialBoundary maxBndry)
 	{
 		this._boundary[0] = minBndry;
 		this._boundary[1] = maxBndry;
@@ -288,17 +408,33 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	/**
 	 * \brief Get an array of boundaries. 
 	 * 
-	 * <p>Note that this will return an empty array if the dimension is cyclic.
-	 * Otherwise, this will be a 2-array with the minimum boundary at position
-	 * 0 and the maximum boundary at position 1 (optional boundaries may be
-	 * {@code null} objects).</p>
-	 * 
-	 * @return Array of {@code Boundary} objects: empty array if this is
-	 * cyclic, a 2-array otherwise.
+	 * @return 2-array of {@code Boundary} objects.
 	 */
-	public Boundary[] getBoundaries()
+	public SpatialBoundary[] getBoundaries()
 	{
 		return this._boundary;
+	}
+	
+	/**
+	 * \brief Get the {@code Boundary} at the required extreme.
+	 * 
+	 * @param extreme Which extreme to check: 0 for minimum, 1 for maximum.
+	 * @return The {@code Boundary} at the required extreme.
+	 */
+	public SpatialBoundary getBoundary(int extreme)
+	{
+		return this._boundary[extreme];
+	}
+	
+	/**
+	 * \brief Report whether the boundary on the given extreme is defined.
+	 * 
+	 * @param extreme Which extreme to check: 0 for minimum, 1 for maximum.
+	 * @return True if the boundary is defined, null if it is not.
+	 */
+	public boolean isBoundaryDefined(int extreme)
+	{
+		return this._boundary[extreme] != null;
 	}
 	
 	/**************************************************************************
@@ -338,15 +474,15 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 		return this._isCyclic ||
 					(( a >= this._extreme[0] ) && ( a < this._extreme[1] ));
 	}
-	
 	/**
-	 * returns the periodic (in Frame) location in this dimension, returns input
-	 * if the location is already in Frame.
+	 * @param a Any point along this dimension, whether inside or outside.
+	 * @return <b>a</b> if it is inside the extremes, or the corresponding 
+	 * point inside the extremes if <b>a</b> is outside.
 	 */
-	public double periodicLocation(double a)
+	private double periodicLocation(double a)
 	{
-		return this._extreme[0] + ( (a - this._extreme[0]) % this.getLength() + 
-				(a < 0 ? this.getLength() : 0) );
+		return this._extreme[0] + 
+				ExtraMath.floorMod(a - this._extreme[0], this.getLength());
 	}
 	
 	/**
@@ -359,9 +495,7 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 	public double getInside(double a)
 	{
 		if ( this._isCyclic )
-		{
-			return periodicLocation(a);
-		}
+			return this.periodicLocation(a);
 		else
 		{
 			/*
@@ -374,6 +508,40 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 				return this._extreme[0];
 			return a;
 		}
+	}
+	
+	/**
+	 * @return Position between the two extremes, chosen with a uniform
+	 * random distribution.
+	 */
+	public double getRandomInside()
+	{
+		return ExtraMath.getUniRand(this._extreme[0], this._extreme[1]);
+	}
+	
+	/**************************************************************************
+	 * HELPER METHODS
+	 *************************************************************************/
+	
+	/**
+	 * TODO
+	 * @param minMax
+	 * @return
+	 */
+	public static String extremeToString(int minMax)
+	{
+		return minMax == 0 ? "minimum" : "maximum";
+	}
+	
+	/**
+	 * TODO
+	 * @param minMax
+	 * @return
+	 */
+	public static int extremeToInt(String minMax)
+	{
+		return ( minMax.equals("minimum") ) ? 0 : 1;
+			
 	}
 	
 	/**************************************************************************
@@ -391,63 +559,66 @@ public class Dimension implements CanPrelaunchCheck, IsSubmodel
 			}
 			else
 			{
-				if ( ! this._boundary[i].isReadyForLaunch() )
-					return false;
+				// TODO
+				//if ( ! this._boundary[i].isReadyForLaunch() )
+				//	return false;
 			}
 		}
 		return true;
 	}
 	
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
-	
-	public String getName()
+	/**************************************************************************
+	 * MODEL NODE
+	 *************************************************************************/
+
+	@Override
+	public ModelNode getNode()
 	{
-		return XmlLabel.shapeDimension;
-		// TODO return DimName?
+		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+										this._dimName.name(), null, false ));
+		modelNode.add(new ModelAttribute(XmlRef.IS_CYCLIC, 
+				String.valueOf(this._isCyclic), null, false ));
+		modelNode.add(new ModelAttribute(XmlRef.targetResolutionAttribute, 
+				String.valueOf(this._targetRes), null, false ));
+		modelNode.add(new ModelAttribute(XmlRef.min, 
+				String.valueOf(this._extreme[0]), null, false ));
+		modelNode.add(new ModelAttribute(XmlRef.max, 
+				String.valueOf(this._extreme[1]), null, false ));
+		return modelNode;
 	}
-	
-	public List<InputSetter> getRequiredInputs()
+
+	@Override
+	public void setNode(ModelNode node)
 	{
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		Requirement req;
-		if ( ! isCyclic() )
-			for ( int i = 0; i < 2; i++ )
-			{
-				req = ( this._required[i] ) ? Requirement.EXACTLY_ONE :
-												Requirement.ZERO_OR_ONE;
-				out.add(new BoundaryMaker(i, req, this));
-			}
-		return out;
-	}
-	
-	public void acceptInput(String name, Object input)
-	{
-		/* Parameters. */
-		if ( name.equals(IS_CYCLIC) && ((Boolean) input) )
-			setCyclic();
-		/* Submodels. */
-		if ( input instanceof Boundary )
-			this.setBoundary((Boundary) input, Boundary.extremeToInt(name));
-	}
-	
-	public static class DimensionMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = 3442712062864593527L;
+		// TODO Auto-generated method stub
 		
-		public DimensionMaker(DimName dimName, Requirement req, IsSubmodel target)
-		{
-			// TODO change name to XmlLabel.dimension?
-			super(dimName.toString(), req, target);
-		}
-		
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			this.addSubmodel(new Dimension());
-		}
 	}
-	
-	
+
+	@Override
+	public NodeConstructor newBlank()
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void addChildObject(NodeConstructor childObject)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String defaultXmlTag()
+	{
+		return XmlRef.shapeDimension;
+	}
+
+	@Override
+	public int compareTo(Dimension o)
+	{
+		return this._dimName.compareTo(o._dimName);
+	}
 }

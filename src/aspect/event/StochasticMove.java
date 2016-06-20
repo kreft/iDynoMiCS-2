@@ -6,7 +6,7 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import idynomics.NameRef;
+import aspect.AspectRef;
 import linearAlgebra.Vector;
 import surface.Point;
 import utility.ExtraMath;
@@ -19,13 +19,14 @@ import utility.ExtraMath;
  * 
  * NOTE: input "body", scale
  */
-public class StochasticMove extends Event {
-	
-	public String BODY = NameRef.agentBody;
-	public String STOCHASTIC_STEP = NameRef.agentStochasticStep;
-	public String STOCHASTIC_DIRECTION = NameRef.agentStochasticDirection;
-	public String STOCHASTIC_PAUSE = NameRef.agentStochasticPause;
-	public String STOCHASTIC_DISTANCE = NameRef.agentStochasticDistance;
+// TODO documentation, explanation
+public class StochasticMove extends Event
+{
+	public String BODY = AspectRef.agentBody;
+	public String STOCHASTIC_STEP = AspectRef.agentStochasticStep;
+	public String STOCHASTIC_DIRECTION = AspectRef.agentStochasticDirection;
+	public String STOCHASTIC_PAUSE = AspectRef.agentStochasticPause;
+	public String STOCHASTIC_DISTANCE = AspectRef.agentStochasticDistance;
 	
 	public StochasticMove()
 	{
@@ -44,61 +45,56 @@ public class StochasticMove extends Event {
 		Body agentBody = (Body) agent.get(BODY);
 		List<Point> points = agentBody.getPoints();
 		
-		/* we are in a stochastic pause */
-		if (agent.isAspect(STOCHASTIC_PAUSE))
+		/* Check if we are in a stochastic pause. */
+		if ( agent.isAspect(STOCHASTIC_PAUSE) )
 		{
 			double pause = agent.getDouble(STOCHASTIC_PAUSE);
-			if(pause > 0.0)
-				agent.set(STOCHASTIC_PAUSE, pause-timeStep);
+			if ( pause > 0.0 )
+				agent.set(STOCHASTIC_PAUSE, pause - timeStep);
 			else
 				agent.reg().remove(STOCHASTIC_PAUSE);
 		}
-		/* we are stochastically moving */
-		else if(agent.isAspect(STOCHASTIC_DIRECTION))
+		/* Check if we are stochastically moving. */
+		else if ( agent.isAspect(STOCHASTIC_DIRECTION) )
 		{
 			/* calculate the move */
 			double[] move = Vector.times((double[]) 
 					agent.get(STOCHASTIC_DIRECTION), timeStep);
-			double dist = agent.getDouble(STOCHASTIC_DISTANCE);
-			
-			/* update to move distance */
-			agent.set(STOCHASTIC_DISTANCE, dist
-					- Math.sqrt(Vector.dotProduct(move, move)));
-			
-			/* clear stochastic move if completed */
-			if(agent.getDouble(STOCHASTIC_DISTANCE) < 0.0)
+			double dist = agent.getDouble(STOCHASTIC_DISTANCE)
+					- Vector.normEuclid(move);
+			if ( dist < 0.0 )
 			{
+				/* Clear stochastic move if completed. */
 				agent.reg().remove(STOCHASTIC_DISTANCE);
 				agent.reg().remove(STOCHASTIC_DIRECTION);
 			}
 			else
 			{
-				/* perform the stochastic move, only for coccoid now */
+				/* Update to move distance. */
+				agent.set(STOCHASTIC_DISTANCE, dist);
+				/* Perform the stochastic move, only for coccoid now */
 				for (Point p : points)
 				{
-					p.setPosition(Vector.add(p.getPosition(), move ));
+					p.setPosition( Vector.add(p.getPosition(), move) );
 				}
 			}
 		}
-		/* either start moving or pause again */
+		/* Either start moving or pause again. */
 		else
 		{
-			/* evaluate a new stochastic move */
-			if(ExtraMath.random.nextDouble() > timeStep*4.0) 
-				// FIXME this assumes a time step to always be 1.0 or lower, improve on this
-			{
+			/* Evaluate a new stochastic move */
+			// FIXME this assumes a time step to always be 1.0 or lower,
+			// improve on this
+			if ( ExtraMath.random.nextDouble() > timeStep*4.0 ) 
 				agent.set(STOCHASTIC_PAUSE, timeStep);
-			}
 			else
 			{
-				/* set random directions */
+				/* Set random directions. */
 				double [] randDir = Vector.randomPlusMinus(agentBody.nDim(), 
-						(double) agent.getDouble(input[1]));
+						(double) agent.getDouble(AspectRef.agentStochasticStep));
 				agent.set(STOCHASTIC_DIRECTION, randDir);
-				
-				/* calculate stochasticDistance */
-				agent.set(STOCHASTIC_DISTANCE, Math.sqrt(Vector.dotProduct(
-						randDir, randDir)));
+				/* Calculate stochasticDistance. */
+				agent.set(STOCHASTIC_DISTANCE, Vector.normEuclid(randDir));
 			}
 		}
 	}
