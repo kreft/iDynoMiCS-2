@@ -148,11 +148,8 @@ public class Point implements Copyable, NodeConstructor
 	 * The velocity is expressed as v = (sum forces) / (3 Pi diameter viscosity)
 	 * Currently the viscosity of water is assumed.
 	 * 
-	 * @param vSquare Highest squared velocity in the system
-	 * @param dt Current timestep of the mechanical relaxat.ion
-	 * @param radius Radius of the Point
-	 * @return vSquare, if the squared velocity of this point is higher vSquare
-	 * is updated.
+	 * @param dt Current timestep of the mechanical relaxation.
+	 * @param radius Radius of a sphere (in units of micrometer).
 	 */
 	public void euStep(double dt, double radius) 
 	{
