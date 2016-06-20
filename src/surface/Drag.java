@@ -12,7 +12,7 @@ package surface;
 public final class Drag
 {
 	/**
-	 * \brief Pre-calculated factor for drag forces, equals <i>1/(3*pi*2)</i>.
+	 * \brief Pre-calculated factor for drag forces, equals <i>3*pi*2</i>.
 	 * 
 	 * <p>Assuming low Reynold's number (i.e. viscous forces dominate), the 
 	 * drag on a spherical particle is <i>3 * pi * diameter * viscosity</i>. 
