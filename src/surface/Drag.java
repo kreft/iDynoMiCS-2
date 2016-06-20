@@ -17,7 +17,7 @@ public final class Drag
 	 * <p>Assuming low Reynold's number (i.e. viscous forces dominate), the 
 	 * drag on a spherical particle is <i>3 * pi * diameter * viscosity</i>. 
 	 * Since we divide by this in {@link #dxdt(double)} and there we use radius
-	 * (rather than) diameter, use of this pre-calculated factor should improve
+	 * (rather than diameter), use of this pre-calculated factor should improve
 	 * efficiency a little.</p>
 	 */
 	private final static double DRAG_FACTOR = 6.0 * Math.PI;
