@@ -3,9 +3,11 @@
  */
 package shape;
 
-import boundary.Boundary;
+import boundary.SpatialBoundary;
+import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.SameRes;
 
 /**
@@ -71,11 +73,11 @@ public final class ShapeConventions
 	 * 
 	 * Should only be initialised by Dimension and never from protocol file.
 	 */
-	public static class BoundaryCyclic extends Boundary
+	public static class BoundaryCyclic extends SpatialBoundary
 	{
-		public BoundaryCyclic()
+		public BoundaryCyclic(DimName dim, int extreme)
 		{
-			
+			super(dim, extreme);
 		}
 
 		@Override
@@ -92,6 +94,25 @@ public final class ShapeConventions
 
 		@Override
 		public void updateConcentrations(EnvironmentContainer environment)
+		{
+			/* Do nothing! */
+		}
+
+		@Override
+		public double getFlux(SpatialGrid grid)
+		{
+			return 0.0;
+		}
+
+		@Override
+		public boolean needsToUpdateWellMixed()
+		{
+			return false;
+		}
+
+		@Override
+		public void updateWellMixedArray(
+				SpatialGrid grid, AgentContainer agents)
 		{
 			/* Do nothing! */
 		}
