@@ -199,8 +199,9 @@ public class Unit {
 		units = units.replaceAll("\\]", "");
 		units = units.replaceAll("\\s+", "");
 		
-		/* split by dot · */
-		String[] unitsArray = units.split("·");
+		/* split by dot · ALT 250 */
+		String[] unitsArray; 
+		unitsArray = units.split("·");
 		String[] unitPower;
 		Integer power;
 		/* analyse the powers */
