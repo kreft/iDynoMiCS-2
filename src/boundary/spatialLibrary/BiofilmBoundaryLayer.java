@@ -34,6 +34,12 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	 */
 	protected Ball _gridSphere;
 	/**
+	 * Flux across this boundary is normally controlled by the well-mixed tally
+	 * in SpatialGrid, but when the biofilm is so large that the non-well-mixed
+	 * region reaches up to this boundary then we need to store it here.
+	 */
+	protected double _directFlux = 0.0;
+	/**
 	 * For the random walk after insertion, we assume that the agent has the
 	 * stochastic move event.
 	 */
@@ -123,6 +129,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	public double getFlux(SpatialGrid grid)
 	{
 		// TODO
+		// this._directFlux += 
 		return 0.0;
 	}
 	
@@ -293,6 +300,10 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	public List<Agent> agentsToGrab(AgentContainer agentCont)
 	{
 		List<Agent> out = new LinkedList<Agent>();
+		/*
+		 * Find all agents who are less than layerThickness away.
+		 */
+		// TODO
 		/*
 		 * Find all agents who are unattached to others or to a boundary,
 		 * and who are on this side of the biofilm (in, e.g., the case of a

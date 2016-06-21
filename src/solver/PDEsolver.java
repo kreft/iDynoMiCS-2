@@ -41,10 +41,11 @@ public abstract class PDEsolver extends Solver
 	 * \brief TODO
 	 * 
 	 * @param solutes
+	 * @param commonGrid TODO
 	 * @param tFinal
 	 */
 	public abstract void solve(Collection<SpatialGrid> solutes,
-															double tFinal);
+			SpatialGrid commonGrid, double tFinal);
 	
 	/**
 	 * \brief Add the Laplacian Operator to the LOPERATOR array of the given
@@ -59,14 +60,15 @@ public abstract class PDEsolver extends Solver
 	 * 
 	 * @param varName
 	 * @param grid
+	 * @param commonGrid
 	 * @param destType
 	 */
-	protected void addFluxes(SpatialGrid grid)
+	protected void addFluxes(SpatialGrid grid, SpatialGrid commonGrid)
 	{
 		Tier level = BULK;
 		Shape shape = grid.getShape();
 		/* Coordinates of the current position. */
-		int[] current;
+		int[] current, nhb;
 		/* Temporary storage. */
 		double flux, temp;
 		/*
@@ -75,7 +77,8 @@ public abstract class PDEsolver extends Solver
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 											  current = shape.iteratorNext())
 		{
-			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
+			// TODO this should really be > some threshold
+			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
 				continue;
 			flux = 0.0;
 			if ( Log.shouldWrite(level) )
@@ -85,10 +88,16 @@ public abstract class PDEsolver extends Solver
 						" (curent value "+grid.getValueAtCurrent(CONCN)+
 						"): calculating flux...");
 			}
-			for ( shape.resetNbhIterator(); 
-						shape.isNbhIteratorValid(); shape.nbhIteratorNext() )
+			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
+					nhb = shape.nbhIteratorNext() )
 			{
 				temp = grid.getFluxFromNeighbor();
+				// TODO this should really be > some threshold
+				/*
+				 * If this flux came from a well-mixed voxel, inform the grid.
+				 */
+				if ( commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
+					grid.increaseWellMixedFlux( - flux );
 				flux += temp;
 				/* 
 				 * To get the value we must be inside, the flux can be obtained
@@ -100,16 +109,14 @@ public abstract class PDEsolver extends Solver
 					{
 
 						Log.out(level, 
-								"   nhb "+Vector.toString(
-										shape.nbhIteratorCurrent())+
+								"   nhb "+Vector.toString(nhb)+
 								" ("+grid.getValueAtNhb(CONCN)+") "+
 								" contributes flux of "+temp);
 					}
 					else
 					{
 						Log.out(level, 
-								" boundary nhb "+Vector.toString(
-										shape.nbhIteratorCurrent())
+								" boundary nhb "+Vector.toString(nhb)
 								+ " contributes flux of "+temp);
 					}
 				}

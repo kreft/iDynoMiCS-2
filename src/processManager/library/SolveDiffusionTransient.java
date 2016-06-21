@@ -21,8 +21,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
 import grid.SpatialGrid;
-import grid.wellmixedSetter.AllSameMixing;
-import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
@@ -78,12 +76,6 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	protected String[] _soluteNames;
 	/**
-	 * Dictionary of well-mixed setters: one for each solute.
-	 */
-	// TODO this is probably the wrong approach: we should have the same setter
-	// for all solutes
-	protected HashMap<String,IsWellmixedSetter> _wellmixed;
-	/**
 	 * TODO 
 	 */
 	// TODO replace with diffusivitySetter
@@ -134,15 +126,6 @@ public class SolveDiffusionTransient extends ProcessManager
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
-		
-		// TODO quick fix for now
-		this._wellmixed = new HashMap<String,IsWellmixedSetter>();
-		for ( String soluteName : this._soluteNames )
-		{
-			AllSameMixing mixer = new AllSameMixing();
-			mixer.setValue(1.0);
-			this._wellmixed.put(soluteName, mixer);
-		}
 		// TODO enter a diffusivity other than one!
 		this._diffusivity = new HashMap<String,Double>();
 		for ( String sName : this._soluteNames )
@@ -181,13 +164,12 @@ public class SolveDiffusionTransient extends ProcessManager
 			SpatialGrid solute = this._environment.getSoluteGrid(soluteName);
 			// TODO use diffusivitySetter
 			solute.newArray(DIFFUSIVITY, this._diffusivity.get(soluteName));
-			this._wellmixed.get(soluteName).updateWellmixed(solute, this._agents);
 		}
 		/*
 		 * Set the updater method and solve.
 		 */
 		this._solver.setUpdater(standardUpdater(this._environment, this._agents));
-		this._solver.solve(this._environment.getSolutes(), this._timeStepSize);
+		this._solver.solve(this._environment.getSolutes(), null, this._timeStepSize);
 		
 		/*
 		 * clear distribution maps, prevent unneeded clutter in xml output

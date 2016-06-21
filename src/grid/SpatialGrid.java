@@ -55,6 +55,10 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	protected Map<ArrayType, double[][][]> _array = 
 			new HashMap<ArrayType, double[][][]>();
+	/**
+	 * TODO
+	 */
+	protected double _wellmixedFlux = 0.0;
 	
 	/**
 	 * \brief Log file verbosity level used for debugging the getting of
@@ -549,6 +553,16 @@ public class SpatialGrid implements NodeConstructor
 					Vector.toString(this._shape.nbhIteratorCurrent()));
 			return Double.NaN;
 		}
+	}
+	
+	/**
+	 * \brief Increase the grid's tally of flux into a well-mixed region.
+	 * 
+	 * @param flux Flux in units of TODO
+	 */
+	public void increaseWellMixedFlux(double flux)
+	{
+		this._wellmixedFlux += flux;
 	}
 
 	/* ***********************************************************************

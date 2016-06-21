@@ -29,7 +29,7 @@ public class PDEexplicit extends PDEsolver
 		
 	}
 	
-	/**
+	/*
 	 * <p>Requires the arrays "diffusivity" and "concentration" to
 	 * be pre-filled in each SpatialGrid.</p>
 	 * 
@@ -41,7 +41,8 @@ public class PDEexplicit extends PDEsolver
 	 * converging and then focus on the variables that are still changing.
 	 */
 	@Override
-	public void solve(Collection<SpatialGrid> variables, double tFinal)
+	public void solve(Collection<SpatialGrid> variables,
+			SpatialGrid commonGrid, double tFinal)
 	{
 		Tier level = BULK;
 		/*
@@ -81,7 +82,7 @@ public class PDEexplicit extends PDEsolver
 				if ( Log.shouldWrite(level) )
 					Log.out(level, " Variable: "+var.getName());
 				var.newArray(LOPERATOR);
-				this.addFluxes(var);
+				this.addFluxes(var, commonGrid);
 				if ( Log.shouldWrite(level) )
 				{
 					Log.out(level, "  Total value of fluxes: "+
