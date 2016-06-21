@@ -9,8 +9,10 @@ import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
+import generalInterfaces.Redirectable;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
@@ -27,7 +29,7 @@ import nodeFactory.ModelNode.Requirements;
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ProcessManager implements Instantiatable, AspectInterface,
-		NodeConstructor
+		NodeConstructor, Redirectable
 {
 	/**
 	 * The name of this {@code ProcessManager}, for reporting.
@@ -111,6 +113,10 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		if ( p.hasAttribute(XmlRef.processTimeStepSize) )
 			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
 		this.setTimeStepSize(time);
+		
+		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
+		if (fields != "")
+			this.redirect(fields);
 	}
 	
 	/**

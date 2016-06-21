@@ -2,6 +2,8 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.Instantiatable;
+import generalInterfaces.Redirectable;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
@@ -16,7 +18,7 @@ import dataIO.XmlRef;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Calculated implements Copyable, Instantiatable
+public abstract class Calculated implements Copyable, Instantiatable, Redirectable
 {
 	/**
 	 * input states
@@ -86,17 +88,8 @@ public abstract class Calculated implements Copyable, Instantiatable
 			this.setInput(input);
 		
 		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		String[] f = null;
 		if (fields != "")
-		{
-			f = fields.split(",");
-			for (String field : f)
-			{
-				String[] value;
-				value = field.split("=");
-				this.setField(value[0], value[1]);
-			}
-		}
+			this.redirect(fields);
 	}
 	
 	private void init(String input) {

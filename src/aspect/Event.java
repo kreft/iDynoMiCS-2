@@ -2,10 +2,15 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.Instantiatable;
+import generalInterfaces.Redirectable;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.XmlHandler;
+import dataIO.XmlRef;
 
 /**
  * An Event is a special agent aspect that performs an "action". This action can
@@ -15,23 +20,12 @@ import dataIO.XmlHandler;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Event implements Copyable, Instantiatable
+public abstract class Event implements Copyable, Instantiatable, Redirectable
 {
 	/**
 	 * Ordered list of the names of input states.
 	 */
 	protected String[] _input;
-
-	public void setField(String field, String value)
-	{
-		try {
-		if (this.getClass().getField(field).getClass().equals(String.class))
-			this.getClass().getField(field).set(this, value);
-		} catch (IllegalArgumentException | IllegalAccessException | 
-				NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-		}
-	}
 
 	/**
 	 * \brief Set the input from a comma separated String.
@@ -81,6 +75,9 @@ public abstract class Event implements Copyable, Instantiatable
 		String input = XmlHandler.gatherAttribute(xmlElem, "input");
 		if (input != "")
 			this.setInput(input);
+		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
+		if (fields != "")
+			this.redirect(fields);
 	}
 	
 	
@@ -96,7 +93,8 @@ public abstract class Event implements Copyable, Instantiatable
 	 * @param compliant
 	 * @param timeStep
 	 */
-	public abstract void start(AspectInterface initiator, AspectInterface compliant, Double timeStep);
+	public abstract void start(AspectInterface initiator, 
+			AspectInterface compliant, Double timeStep);
 
 	/**
 	 * Events are general behavior patterns, copy returns this
