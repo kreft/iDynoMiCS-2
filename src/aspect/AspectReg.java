@@ -475,7 +475,7 @@ public class AspectReg
 				if (simpleName.equals( StateExpression.class.getSimpleName() ) )
 				{
 					modelNode.add(new ModelAttribute(XmlRef.inputAttribute, 
-							( (Calculated) this.aspect ).getInput()[0], 
+							( (Calculated) this.aspect ).getInput(), 
 							null, false ) );
 				}
 			}

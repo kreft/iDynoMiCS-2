@@ -21,10 +21,7 @@ public class SimpleGrowth extends Event {
 
 	public String MASS = AspectRef.agentMass;
 	public String GROWTH_RATE = AspectRef.growthRate;
-	public SimpleGrowth()
-	{
-		setInput("mass,growthRate");
-	}
+
 
 	// TODO switch over to the internal production paradigm
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)

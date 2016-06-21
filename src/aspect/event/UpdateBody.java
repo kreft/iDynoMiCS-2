@@ -17,11 +17,6 @@ public class UpdateBody extends Event
 	public String BODY = AspectRef.agentBody;
 	public String RADIUS = AspectRef.bodyRadius;
 	public String VOLUME = AspectRef.agentVolume;
-	
-	public UpdateBody()
-	{
-		setInput("body,radius,length");
-	}
 
 	public void start(AspectInterface initiator,
 			AspectInterface compliant, Double timeStep)

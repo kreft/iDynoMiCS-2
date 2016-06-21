@@ -21,18 +21,17 @@ import dataIO.XmlRef;
 public abstract class Calculated implements Copyable, Instantiatable, Redirectable
 {
 	/**
-	 * input states
+	 * input string
 	 */
-	protected String[] _input;
+	protected String _input;
 
 	/**
-	 * method that sets the input from a comma separated String.
+	 * StateExpressions require an input string to set the expression
 	 * @param input
 	 */
 	public void setInput(String input)
 	{
-		input.replaceAll("\\s+","");
-		this._input = input.split(",");
+		this._input = input;
 	}
 	
 	public void setField(String field, String value)
@@ -49,7 +48,7 @@ public abstract class Calculated implements Copyable, Instantiatable, Redirectab
 	 * returns the input String array of this state
 	 * @return
 	 */
-	public String[] getInput()
+	public String getInput()
 	{
 		return _input;
 	}
@@ -83,7 +82,7 @@ public abstract class Calculated implements Copyable, Instantiatable, Redirectab
 
 	public void init(Element xmlElem)
 	{
-		String input = XmlHandler.gatherAttribute(xmlElem, "input");
+		String input = XmlHandler.gatherAttribute(xmlElem, XmlRef.inputAttribute);
 		if (input != "")
 			this.setInput(input);
 		

@@ -19,7 +19,7 @@ public class StateExpression extends Calculated {
 	@Override
 	public void setInput(String input)
 	{
-		this._input = new String[]{input};
+		this._input = input;
 		this.expression = new ExpressionB( input.replaceAll("\\s+","") );
 	}
 	

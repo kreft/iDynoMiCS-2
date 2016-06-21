@@ -23,34 +23,6 @@ import dataIO.XmlRef;
 public abstract class Event implements Copyable, Instantiatable, Redirectable
 {
 	/**
-	 * Ordered list of the names of input states.
-	 */
-	protected String[] _input;
-
-	/**
-	 * \brief Set the input from a comma separated String.
-	 * 
-	 * @param input {@code String} ordered list of input names, separated by
-	 * commas.
-	 */
-	public void setInput(String input)
-	{
-		/* Strip all whitespace. */
-		input.replaceAll("\\s+","");
-		/* Read in the inputs. */
-		this._input = input.split(",");
-	}
-	
-	/**
-	 * returns the input String array of this event
-	 * @return
-	 */
-	public String[] getInput()
-	{
-		return this._input;
-	}
-	
-	/**
 	 * General constructor from xmlNodes, returns a new instance directly from
 	 * an xml node. Overwrite this method in implementing class if the class
 	 * needs constructor arguments (they should be stored within the Node).
@@ -65,26 +37,17 @@ public abstract class Event implements Copyable, Instantiatable, Redirectable
 
 	public static Object getNewInstance(String input) {
 		Event obj = (Event) Instantiatable.getNewInstance(input);
-		obj.init(input);
 		return obj;
 	}
 
 
 	public void init(Element xmlElem)
 	{
-		String input = XmlHandler.gatherAttribute(xmlElem, "input");
-		if (input != "")
-			this.setInput(input);
 		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
 		if (fields != "")
 			this.redirect(fields);
 	}
 	
-	
-	private void init(String input) 
-	{
-		this.setInput(input);
-	}
 	
 	/**
 	 * Perform the event, this may include checking whether the event is
