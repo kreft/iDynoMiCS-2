@@ -1,5 +1,7 @@
 package boundary.spatialLibrary;
 
+import static grid.ArrayType.WELLMIXED;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +15,11 @@ import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import shape.Shape;
 import shape.Dimension.DimName;
+import surface.Ball;
+import surface.Collision;
+import surface.Surface;
 
 /**
  * \brief TODO
@@ -22,11 +28,6 @@ import shape.Dimension.DimName;
  */
 public class BiofilmBoundaryLayer extends SpatialBoundary
 {
-	/**
-	 * Boundary layer thickness.
-	 */
-	// TODO set this from protocol file
-	private double _layerTh = 10.0;
 	/**
 	 * For the random walk after insertion, we assume that the agent has the
 	 * stochastic move event.
@@ -97,6 +98,46 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		// TODO
 		return 0.0;
 	}
+	
+	@Override
+	public boolean needsToUpdateWellMixed()
+	{
+		return true;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void updateWellMixedArray(SpatialGrid grid, AgentContainer agents)
+	{
+		Shape aShape = grid.getShape();
+		/*
+		 * Iterate over all voxels, checking if there are agents nearby.
+		 */
+		int[] coords = aShape.resetIterator();
+		double[] voxelCenter = aShape.getVoxelCentre(coords);
+		List<Agent> neighbors;
+		Collision collision = new Collision(null, agents.getShape());
+		Ball gridSphere = new Ball(voxelCenter, this._layerThickness);
+		gridSphere.init(collision);
+		while ( aShape.isIteratorValid() )
+		{
+			aShape.voxelCentreTo(voxelCenter, coords);
+			gridSphere.setCenter(aShape.getVoxelCentre(coords));
+			/*
+			 * Find all nearby agents. Set the grid to zero if an agent is
+			 * within the grid's sphere
+			 */
+			neighbors = agents.treeSearch(gridSphere.boundingBox());
+			for ( Agent a : neighbors )
+				for (Surface s : (List<Surface>) a.get(AspectRef.surfaceList))
+					if ( gridSphere.distanceTo(s) < 0.0 )
+						{
+							grid.setValueAt(WELLMIXED, coords, 0.0);
+							break;
+						}
+			coords = aShape.iteratorNext();
+		}
+	}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
@@ -115,7 +156,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		 * move.
 		 */
 		// NOTE Rob [19/5/2016]: the value of 0.1 is arbitrary.
-		double dist = 0.1 * this._layerTh;
+		double dist = 0.1 * this._layerThickness;
 		if ( this._extreme == 1 )
 			dist = -dist;
 		/*
@@ -134,10 +175,10 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 			 */
 			insertionLoop: while ( true )
 			{
-				nbhAgents = agentCont.treeSearch(anAgent, this._layerTh);
+				nbhAgents = agentCont.treeSearch(anAgent, this._layerThickness);
 				if ( ! nbhAgents.isEmpty() )
 					break insertionLoop;
-				bndries = agentCont.boundarySearch(anAgent, this._layerTh);
+				bndries = agentCont.boundarySearch(anAgent, this._layerThickness);
 				if ( ! bndries.isEmpty() )
 				{
 					// FIXME stopping is a temporary fix: we need to apply

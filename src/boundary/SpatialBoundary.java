@@ -1,5 +1,7 @@
 package boundary;
 
+import static grid.ArrayType.WELLMIXED;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -36,6 +38,11 @@ public abstract class SpatialBoundary extends Boundary
 	 * that extreme (0 for minimum, 1 for maximum).
 	 */
 	protected int _extreme;
+	/**
+	 * Boundary layer thickness.
+	 */
+	// TODO set this from protocol file for the whole compartment
+	protected double _layerThickness;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -92,6 +99,52 @@ public abstract class SpatialBoundary extends Boundary
 	 * concentration per time.
 	 */
 	public abstract double getFlux(SpatialGrid grid);
+	
+	/**
+	 * \brief Ask if this boundary needs to update the well-mixed array of
+	 * the compartment it belong to.
+	 * 
+	 * <p>This method will be called in all spatial boundaries of the
+	 * compartment. If none do, then {@link #updateWellMixedArray(SpatialGrid, AgentContainer)}
+	 * will be skipped. If at least one does, then 
+	 * {@link #updateWellMixedArray(SpatialGrid, AgentContainer)} will be called in all.</p>
+	 * 
+	 * @return Whether this boundary needs to update the well-mixed array of
+	 * the compartment it belong to.
+	 */
+	public abstract boolean needsToUpdateWellMixed();
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param grid
+	 * @param agents TODO
+	 */
+	public abstract void updateWellMixedArray(
+			SpatialGrid grid, AgentContainer agents);
+	
+	/**
+	 * \brief Helper method for {@link #updateWellMixedArray(SpatialGrid, AgentContainer)}.
+	 * 
+	 * <p>Loops over all voxels in the grid, setting the well-mixed value to
+	 * zero if the distance from the centre of the voxel to this boundary is
+	 * less than or equal to the boundary layer thickness.</p>
+	 * 
+	 * @param grid The compartment's default grid.
+	 */
+	protected void setWellMixedByDistance(SpatialGrid grid)
+	{
+		Shape aShape = grid.getShape();
+		aShape.resetIterator();
+		while ( aShape.isIteratorValid() )
+		{
+			double distance = aShape
+					.currentDistanceFromBoundary(this._dim, this._extreme);
+			if ( distance <= this._layerThickness )
+				grid.setValueAt(WELLMIXED, aShape.iteratorCurrent(), 0.0);
+			aShape.iteratorNext();
+		}
+	}
 	
 	/* ***********************************************************************
 	 * AGENT TRANSFERS

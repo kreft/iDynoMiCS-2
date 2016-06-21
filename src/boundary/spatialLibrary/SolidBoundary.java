@@ -62,6 +62,18 @@ public class SolidBoundary extends SpatialBoundary
 		 */
 		return 0.0;
 	}
+	
+	@Override
+	public boolean needsToUpdateWellMixed()
+	{
+		return false;
+	}
+	
+	@Override
+	public void updateWellMixedArray(SpatialGrid grid, AgentContainer agents)
+	{
+		this.setWellMixedByDistance(grid);
+	}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS

@@ -367,7 +367,7 @@ public abstract class Shape implements
 	 * {@code Shape}.
 	 * @return Index of the dimension, if present; {@code -1}, if not.
 	 */
-	protected int getDimensionIndex(DimName dimension)
+	public int getDimensionIndex(DimName dimension)
 	{
 		int out = 0;
 		for ( DimName d : this._dimensions.keySet() )
@@ -385,7 +385,7 @@ public abstract class Shape implements
 	 * @param dimension Dimension thought to be in this {@code Shape}.
 	 * @return Index of the dimension, if present; {@code -1}, if not.
 	 */
-	protected int getDimensionIndex(Dimension dimension)
+	public int getDimensionIndex(Dimension dimension)
 	{
 		int out = 0;
 		for ( Dimension d : this._dimensions.values() )
@@ -1310,6 +1310,34 @@ public abstract class Shape implements
 			this.resetIterator();
 		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
 		return this._currentNVoxel;
+	}
+	
+	public double currentDistanceFromBoundary(DimName dimN, int extreme)
+	{
+		Dimension dim = this.getDimension(dimN);
+		int dimIndex = this.getDimensionIndex(dimN);
+		ResCalc rC = this.getResolutionCalculator(this._currentCoord, dimIndex);
+		/*
+		 * Get the position at the centre of the current voxel.
+		 */
+		double distance = rC.getPosition(this._currentCoord[dimIndex], 0.5);
+		/*
+		 * Correct for the position of the extreme.
+		 */
+		if ( extreme == 0 )
+			distance -= dim.getExtreme(extreme);
+		else
+			distance = dim.getExtreme(extreme) - distance;
+		/*
+		 * If this is an angular dimension, convert from distance in radians to
+		 * distance in length units.
+		 */
+		if ( dimN.isAngular() )
+		{
+			double radius = this._currentCoord[this.getDimensionIndex(R)];
+			distance *= radius;
+		}
+		return distance;
 	}
 
 	/* ***********************************************************************

@@ -81,6 +81,18 @@ public class FixedBoundary extends SpatialBoundary
 		return flux;
 	}
 	
+	@Override
+	public boolean needsToUpdateWellMixed()
+	{
+		return false;
+	}
+	
+	@Override
+	public void updateWellMixedArray(SpatialGrid grid, AgentContainer agents)
+	{
+		this.setWellMixedByDistance(grid);
+	}
+	
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
