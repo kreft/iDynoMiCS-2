@@ -7,7 +7,7 @@ import java.awt.EventQueue;
 import java.io.File;
 import javax.swing.JFileChooser;
 
-
+import dataIO.Log;
 import glRender.AgentMediator;
 import glRender.CommandMediator;
 import glRender.Render;
@@ -84,8 +84,13 @@ public final class GuiActions
 	public static void runSimulation()
 	{
 		GuiEditor.setAttributes();
-		Idynomics.simulator.setNode();
-		Idynomics.launchSimulator();
+		if ( Idynomics.simulator == null )
+			Log.printToScreen( "no simulation set.", true);
+		else
+		{
+			Idynomics.simulator.setNode();
+			Idynomics.launchSimulator();
+		}
 	}
 	
 	public static void pauseSimulation()

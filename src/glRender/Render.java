@@ -160,7 +160,7 @@ public class Render implements GLEventListener, Runnable {
 		
 		/* camera perspective */
 		_glu.gluPerspective( 45.0f, _aspectRatio, 
-				1.0, _commandMediator.kickback() + 50.0 );
+				1.0, _commandMediator.kickback() + 100.0 );
 		
 		/* 
 		 * camera position, direction and rotation 
@@ -245,7 +245,7 @@ public class Render implements GLEventListener, Runnable {
 		gl.glLoadIdentity();
 		
 		/* adjust the camera perspective to the screen resizing */
-		_glu.gluPerspective(45.0f, _aspectRatio, 1.0, 500.0);
+		_glu.gluPerspective(45.0f, _aspectRatio, 1.0,  _commandMediator.kickback() + 100.0);
 		_glu.gluLookAt(0, 0, 0, 0, 0, -80, 0, 1, 0);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
@@ -510,7 +510,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltdown");
-					r._tilt += 0.1f*(float) Math.PI;
+					r._tilt += 0.05f*(float) Math.PI;
 			}
 		});
 		
@@ -522,7 +522,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("tiltup");
-					r._tilt -= 0.1f*(float) Math.PI;
+					r._tilt -= 0.05f*(float) Math.PI;
 			}
 		});
 		
@@ -558,7 +558,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("clockwise");
-				r._angle -= 0.1f*(float) Math.PI;
+				r._angle -= 0.05f*(float) Math.PI;
 			}
 		});
 		
@@ -570,7 +570,7 @@ public class Render implements GLEventListener, Runnable {
 			@Override
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("counterclockwise");
-				r._angle += 0.1f*(float) Math.PI;
+				r._angle += 0.05f*(float) Math.PI;
 			}
 		});	
 	}

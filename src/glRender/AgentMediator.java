@@ -294,7 +294,6 @@ public class AgentMediator implements CommandMediator {
 		{
 			_rgba = new float[] {0.1f, 0.1f, 1f};
 			_gl.glEnable(GL2.GL_BLEND);
-			_gl.glDisable(GL2.GL_DEPTH_TEST);
 		}
 		else
 		{
