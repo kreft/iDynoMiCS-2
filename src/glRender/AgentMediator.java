@@ -220,8 +220,10 @@ public class AgentMediator implements CommandMediator {
 	private void draw(Rod rod) 
 	{
 		Tier level = Tier.BULK;
-		double[] posA = GLUtil.make3D(rod._points[0].getPosition()); /* first sphere */
-		double[] posB = GLUtil.make3D(rod._points[1].getPosition()); /* second sphere*/
+		 /* first sphere */
+		double[] posA = GLUtil.make3D(rod._points[0].getPosition());
+		 /* second sphere*/
+		double[] posB = GLUtil.make3D(rod._points[1].getPosition());
 		
 		posA = GLUtil.searchClosestCyclicShadowPoint(_shape, posA, posB);
 		
@@ -288,11 +290,15 @@ public class AgentMediator implements CommandMediator {
 		double[] length = GLUtil.make3D(shape.getDimensionLengths());
 
 		/* set different color / blending for 3 dimensional Cartesian shapes */
-		_rgba = new float[] {0.3f, 0.3f, 0.3f};
-		if (length[2] > 0){
+		if (length[2] > 0)
+		{
 			_rgba = new float[] {0.1f, 0.1f, 1f};
 			_gl.glEnable(GL2.GL_BLEND);
 			_gl.glDisable(GL2.GL_DEPTH_TEST);
+		}
+		else
+		{
+			_rgba = new float[] {0.3f, 0.3f, 0.3f};
 		}
 		applyCurrentColor();
 		
@@ -301,21 +307,11 @@ public class AgentMediator implements CommandMediator {
 
 		
 		/* draw the scaled cube (rectangle).
-		 * Note that a cube with length 0 in one dimension is a plane */
-		_glut.glutSolidCube((float)length[0]);
-
-		/* 
-		 * the glut cube seems to have some rendering artifacts, consider quads 
-		 * as alternative
+		 * Note that a cube with length 0 in one dimension is a plane 
+		 * NOTE: the glut cube seems to have some rendering artifacts (black
+		 * stripes), investigate, consider quads as alternative
 		 */
-		
-//		_gl.glScaled(length[0], length[1] , length[2] );
-//		_gl.glBegin(GL2.GL_QUADS);  
-//			_gl.glVertex3d(-0.5, 0.5, -0.5); 
-//		    _gl.glVertex3d( 0.5, 0.5, -0.5);
-//		    _gl.glVertex3d( 0.5, -0.5, -0.5);  
-//		    _gl.glVertex3d(-0.5, -0.5, -0.5); 
-//		_gl.glEnd();
+		_glut.glutSolidCube((float)length[0]);
 		
 		/* clean up */
 		if (length[2] > 0){
