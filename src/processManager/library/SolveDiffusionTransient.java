@@ -117,10 +117,10 @@ public class SolveDiffusionTransient extends ProcessManager
 	public void init(EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
+		super.init(environment, agents, compartmentName);
 		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
 				Helper.collectionToArray(
 				this._environment.getSoluteNames()));
-
 		init( soluteNames, environment, 
 				agents, compartmentName );
 	}

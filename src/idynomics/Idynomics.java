@@ -142,7 +142,7 @@ public class Idynomics
 	public static void launchSimulator()
 	{
 		simThread = new Thread(simulator);
-	    simThread.start();
+		simThread.start();
 	}
 	
 	/**
