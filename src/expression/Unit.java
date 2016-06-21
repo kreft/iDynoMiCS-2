@@ -145,18 +145,18 @@ public class Unit {
 	}
 	
 	/**
-	 * get the unit formater for the requested output format
+	 * get the unit formatter for the requested output format
 	 */
 	public double format(String format)
 	{
-		Unit formater = new Unit(format);
-		if ( ! compatible(formater) )
+		Unit formatter = new Unit(format);
+		if ( ! compatible(formatter) )
 		{
-			Log.out(Tier.QUIET, formater.unit() + " incompatible with: " 
+			Log.out(Tier.QUIET, formatter.unit() + " incompatible with: " 
 					+ this.unit());
 			return 0;
 		}
-		return formater.modifier;
+		return 1.0/formatter.modifier;
 	}
 	
 	/**

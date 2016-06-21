@@ -33,7 +33,6 @@ public abstract class Event implements Copyable, Instantiatable, Redirectable
 		obj.init((Element) xmlNode);
 		return obj;
 	}
-	
 
 	public static Object getNewInstance(String input) {
 		Event obj = (Event) Instantiatable.getNewInstance(input);
@@ -47,7 +46,6 @@ public abstract class Event implements Copyable, Instantiatable, Redirectable
 		if (fields != "")
 			this.redirect(fields);
 	}
-	
 	
 	/**
 	 * Perform the event, this may include checking whether the event is

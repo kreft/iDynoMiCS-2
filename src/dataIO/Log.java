@@ -146,7 +146,7 @@ public class Log
 		{
 			 _outputLevel = Tier.NORMAL;
 			 printToScreen(
-					 "No output level set, so using NORMAL be default", true);
+					 "No output level set, using NORMAL by default", true);
 			// FIXME this response contradicts the javadoc to set(Tier)
 			//printToScreen("Error: attempt to write log before it is set", true);
 		}

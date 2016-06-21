@@ -3,9 +3,6 @@ package testJUnit;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-
-import dataIO.Log;
-import dataIO.Log.Tier;
 import expression.ExpressionB;
 import expression.Unit;
 
@@ -18,7 +15,6 @@ public class UnitUnitTest {
 	@Test
 	public void unitInterpretation()
 	{
-		Log.set(Tier.DEBUG);
 		Unit myUnit = new Unit();
 
 		myUnit.fromString("g+1·m-1");
@@ -56,11 +52,11 @@ public class UnitUnitTest {
 		
 		Unit unitC = new Unit();
 		unitC.fromString("N");
-		System.out.println("N = " + unitC.toString());
+		System.out.println("C (newton) = " + unitC.toString());
 		
-		Unit unitD = new Unit();
-		unitD.fromString("mN");
-		System.out.println("mN = " + unitD.toString());
+		String format = " [mN]";
+		System.out.println("C (formatted to mN) = " + unitC.format(format) + format);
+		System.out.println("C (formatted to kg) = " + unitC.format("kg") + format);
 
 	}
 	

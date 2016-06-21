@@ -34,16 +34,6 @@ public abstract class Calculated implements Copyable, Instantiatable, Redirectab
 		this._input = input;
 	}
 	
-	public void setField(String field, String value)
-	{
-		try {
-			this.getClass().getField(field).set(this, value);
-		} catch (IllegalArgumentException | IllegalAccessException | 
-				NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	/**
 	 * returns the input String array of this state
 	 * @return
