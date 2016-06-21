@@ -65,10 +65,10 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	}
 	
 	@Override
-	public void updateWellMixedArray(SpatialGrid grid, AgentContainer agents)
+	public void updateWellMixedArray()
 	{
 		// TODO default method used for now, check this is appropriate
-		this.setWellMixedByDistance(grid);
+		this.setWellMixedByDistance();
 	}
 
 	/* ***********************************************************************

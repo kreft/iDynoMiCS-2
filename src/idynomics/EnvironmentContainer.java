@@ -10,6 +10,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
+import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
@@ -33,6 +34,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	protected Shape _shape;
 	/**
+	 * Grid of common attributes, such as well-mixed.
+	 */
+	protected SpatialGrid _commonGrid;
+	/**
+	 * Name of the common grid.
+	 */
+	public final static String COMMON_GRID_NAME = "common";
+	/**
 	 * Collection of solutes (each SpatialGrid knows its own name).
 	 */
 	protected Collection<SpatialGrid> _solutes = new LinkedList<SpatialGrid>();
@@ -53,6 +62,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public EnvironmentContainer(Shape aShape)
 	{
 		this._shape = aShape;
+		this._commonGrid = this._shape.getNewGrid(COMMON_GRID_NAME);
 	}
 	
 	/**
@@ -291,6 +301,51 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		for ( Boundary b : this._shape.getAllBoundaries() )
 			b.updateConcentrations(this);
 		Log.out(level, " All solute boundaries now updated");
+	}
+	
+	/* ***********************************************************************
+	 * COMMON GRID METHODS
+	 * **********************************************************************/
+
+	/**
+	 * @return
+	 */
+	public SpatialGrid getCommonGrid()
+	{
+		return this._commonGrid;
+	}
+	
+	/**
+	 *\brief TODO
+	 */
+	public void updateWellMixed()
+	{
+		/*
+		 * Reset the well-mixed array for this environment. If none of the
+		 * boundaries need it to be updated, it will be full of zeros (i.e.
+		 * nowhere is well-mixed).
+		 */
+		this._commonGrid.newArray(ArrayType.WELLMIXED);
+		/*
+		 * Check if any of the boundaries need to update the well-mixed array.
+		 * If none do, then there is nothing more to do.
+		 */
+		Collection<SpatialBoundary> bndrs = this._shape.getSpatialBoundaries();
+		boolean shouldUpdate = false;
+		for ( SpatialBoundary b: bndrs )
+			if ( b.needsPartner() )
+			{
+				shouldUpdate = true;
+				break;
+			}
+		if ( ! shouldUpdate )
+			return;
+		/*
+		 * At least one of the boundaries need to update the well-mixed array,
+		 * so loop through all of them.
+		 */
+		for ( SpatialBoundary b: bndrs )
+			b.updateWellMixedArray();
 	}
 	
 	/* ***********************************************************************

@@ -25,6 +25,21 @@ import nodeFactory.NodeConstructor;
 public abstract class Boundary implements NodeConstructor
 {
 	/**
+	 * Reference to the environment of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected EnvironmentContainer _environment;
+	/**
+	 * Reference to the agents of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected AgentContainer _agents;
+	
+	/**
+	 * 
+	 */
+	protected String _compartmentName;
+	/**
 	 * XML tag for the name of the partner boundary.
 	 */
 	// TODO implement this in node construction
@@ -61,6 +76,20 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	protected static final Tier AGENT_LEVEL = Tier.BULK;
 
+	/**
+	 * 
+	 * @param environment
+	 * @param agents
+	 * @param compartmentName
+	 */
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
+	}
+	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/

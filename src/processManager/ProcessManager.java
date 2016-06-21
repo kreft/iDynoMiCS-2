@@ -84,9 +84,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	public void init(Element xmlElem, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
-		this._environment = environment;
-		this._agents = agents;
-		this._compartmentName = compartmentName;
+		this.init(environment, agents, compartmentName);
 		
 		//FIXME quick fix: cut/paste from
 		//"public static ProcessManager getNewInstance(Node xmlNode)"

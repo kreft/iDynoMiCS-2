@@ -111,8 +111,7 @@ public final class ShapeConventions
 		}
 
 		@Override
-		public void updateWellMixedArray(
-				SpatialGrid grid, AgentContainer agents)
+		public void updateWellMixedArray()
 		{
 			/* Do nothing! */
 		}

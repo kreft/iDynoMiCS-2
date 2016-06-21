@@ -83,6 +83,11 @@ public abstract class SpatialBoundary extends Boundary
 		return this._extreme;
 	}
 	
+	public void setLayerThickness(double thickness)
+	{
+		this._layerThickness = thickness;
+	}
+	
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
@@ -105,9 +110,9 @@ public abstract class SpatialBoundary extends Boundary
 	 * the compartment it belong to.
 	 * 
 	 * <p>This method will be called in all spatial boundaries of the
-	 * compartment. If none do, then {@link #updateWellMixedArray(SpatialGrid, AgentContainer)}
+	 * compartment. If none do, then {@link #updateWellMixedArray()}
 	 * will be skipped. If at least one does, then 
-	 * {@link #updateWellMixedArray(SpatialGrid, AgentContainer)} will be called in all.</p>
+	 * {@link #updateWellMixedArray()} will be called in all.</p>
 	 * 
 	 * @return Whether this boundary needs to update the well-mixed array of
 	 * the compartment it belong to.
@@ -116,25 +121,20 @@ public abstract class SpatialBoundary extends Boundary
 	
 	/**
 	 * \brief TODO
-	 * 
-	 * @param grid
-	 * @param agents TODO
 	 */
-	public abstract void updateWellMixedArray(
-			SpatialGrid grid, AgentContainer agents);
+	public abstract void updateWellMixedArray();
 	
 	/**
-	 * \brief Helper method for {@link #updateWellMixedArray(SpatialGrid, AgentContainer)}.
+	 * \brief Helper method for {@link #updateWellMixedArray()}.
 	 * 
 	 * <p>Loops over all voxels in the grid, setting the well-mixed value to
 	 * zero if the distance from the centre of the voxel to this boundary is
 	 * less than or equal to the boundary layer thickness.</p>
-	 * 
-	 * @param grid The compartment's default grid.
 	 */
-	protected void setWellMixedByDistance(SpatialGrid grid)
+	protected void setWellMixedByDistance()
 	{
-		Shape aShape = grid.getShape();
+		Shape aShape = this._environment.getShape();
+		SpatialGrid grid = this._environment.getCommonGrid();
 		aShape.resetIterator();
 		while ( aShape.isIteratorValid() )
 		{

@@ -849,7 +849,7 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * @return Collection of connected boundaries.
+	 * @return Collection of boundaries.
 	 */
 	public Collection<Boundary> getAllBoundaries()
 	{
@@ -863,6 +863,18 @@ public abstract class Shape implements
 		return out;
 	}
 	
+	/**
+	 * @return Collection of all spatial boundaries.
+	 */
+	public Collection<SpatialBoundary> getSpatialBoundaries()
+	{
+		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
+		for ( Dimension d : this._dimensions.values() )
+			for ( SpatialBoundary b : d.getBoundaries() )
+				if ( b != null )
+					out.add(b);
+		return out;
+	}
 	
 	/**
 	 * @return List of boundaries that need a partner boundary, but no not have

@@ -88,9 +88,9 @@ public class FixedBoundary extends SpatialBoundary
 	}
 	
 	@Override
-	public void updateWellMixedArray(SpatialGrid grid, AgentContainer agents)
+	public void updateWellMixedArray()
 	{
-		this.setWellMixedByDistance(grid);
+		this.setWellMixedByDistance();
 	}
 	
 	/* ***********************************************************************

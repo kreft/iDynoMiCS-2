@@ -515,9 +515,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		this.environment.printAllSolutes();
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * Model Node factory
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public ModelNode getNode()

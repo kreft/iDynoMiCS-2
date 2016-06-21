@@ -166,6 +166,11 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		this._agents.setupAgentDistributionMaps();
 		/*
+		 * Get the environment to update its well-mixed array by querying all
+		 * spatial boundaries.
+		 */
+		this._environment.updateWellMixed();
+		/*
 		 * Set up the relevant arrays in each of our solute grids: diffusivity 
 		 * & well-mixed need only be done once each process manager time step,
 		 * but production rate must be reset every time the PDE updater method

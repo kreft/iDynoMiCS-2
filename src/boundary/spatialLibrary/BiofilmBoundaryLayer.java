@@ -15,6 +15,7 @@ import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import linearAlgebra.Vector;
 import shape.Shape;
 import shape.Dimension.DimName;
 import surface.Ball;
@@ -28,6 +29,10 @@ import surface.Surface;
  */
 public class BiofilmBoundaryLayer extends SpatialBoundary
 {
+	/**
+	 * TODO
+	 */
+	protected Ball _gridSphere;
 	/**
 	 * For the random walk after insertion, we assume that the agent has the
 	 * stochastic move event.
@@ -71,6 +76,28 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	{
 		super(dim, extreme);
 	}
+	
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		super.init(environment, agents, compartmentName);
+		Collision collision = new Collision(null, this._agents.getShape());
+		this._gridSphere = new Ball(
+				Vector.zerosDbl(this._agents.getNumDims()),
+				this._layerThickness);
+		this._gridSphere.init(collision);
+	}
+	
+	@Override
+	public void setLayerThickness(double thickness)
+	{
+		/*
+		 * If the boundary layer thickness changes, we also need to change the 
+		 * radius of the ball used in updating the well-mixed array.
+		 */
+		super.setLayerThickness(thickness);
+		this._gridSphere.set(this._layerThickness, 0.0);
+	}
 
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
@@ -107,30 +134,28 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void updateWellMixedArray(SpatialGrid grid, AgentContainer agents)
+	public void updateWellMixedArray()
 	{
-		Shape aShape = grid.getShape();
+		Shape aShape = this._environment.getShape();
+		SpatialGrid grid = this._environment.getCommonGrid();
 		/*
 		 * Iterate over all voxels, checking if there are agents nearby.
 		 */
 		int[] coords = aShape.resetIterator();
 		double[] voxelCenter = aShape.getVoxelCentre(coords);
 		List<Agent> neighbors;
-		Collision collision = new Collision(null, agents.getShape());
-		Ball gridSphere = new Ball(voxelCenter, this._layerThickness);
-		gridSphere.init(collision);
 		while ( aShape.isIteratorValid() )
 		{
 			aShape.voxelCentreTo(voxelCenter, coords);
-			gridSphere.setCenter(aShape.getVoxelCentre(coords));
+			this._gridSphere.setCenter(aShape.getVoxelCentre(coords));
 			/*
 			 * Find all nearby agents. Set the grid to zero if an agent is
 			 * within the grid's sphere
 			 */
-			neighbors = agents.treeSearch(gridSphere.boundingBox());
+			neighbors = this._agents.treeSearch(this._gridSphere.boundingBox());
 			for ( Agent a : neighbors )
 				for (Surface s : (List<Surface>) a.get(AspectRef.surfaceList))
-					if ( gridSphere.distanceTo(s) < 0.0 )
+					if ( this._gridSphere.distanceTo(s) < 0.0 )
 						{
 							grid.setValueAt(WELLMIXED, coords, 0.0);
 							break;
