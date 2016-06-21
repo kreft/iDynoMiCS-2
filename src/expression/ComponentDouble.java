@@ -10,7 +10,7 @@ import static dataIO.Log.Tier.CRITICAL;
  * \brief A component of a mathematical expression composed of strictly two
  * sub-components.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ComponentDouble extends Component
 {

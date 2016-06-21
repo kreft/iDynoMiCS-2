@@ -22,7 +22,7 @@ import shape.Dimension.DimName;
 /**
  * \brief Abstract class of boundary that has a location in space.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class SpatialBoundary extends Boundary
 {

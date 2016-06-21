@@ -140,10 +140,10 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	{
 		/* the species node */
 		ModelNode modelNode = new ModelNode(XmlRef.species, this);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		/* use the identity (species name) as title */
-		modelNode.title = this.reg().getIdentity();
+		modelNode.setTitle(this.reg().getIdentity());
 		
 		/* add the name attribute */
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
@@ -154,7 +154,8 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 			modelNode.add(mod.reg().getModuleNode(this));
 
 		/* allow adding of additional aspects */
-		modelNode.childConstructors.put(_aspectRegistry.new Aspect(_aspectRegistry), 
+		modelNode.addChildConstructor(
+				this._aspectRegistry.new Aspect(this._aspectRegistry), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		/* TODO: removing aspects */
@@ -164,18 +165,6 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 			modelNode.add(reg().getAspectNode(key));
 		
 		return modelNode;
-	}
-
-	/**
-	 * Load and interpret the values of the given ModelNode to this 
-	 * NodeConstructor object
-	 * @param node
-	 */
-	@Override
-	public void setNode(ModelNode node) 
-	{
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
 	}
 
 	/**

@@ -18,7 +18,7 @@ import idynomics.EnvironmentContainer;
  * \brief Basic diffusivity setter that sets the same diffusivity across the
  * entire {@code SpatialGrid}.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class AllSameDiffuse implements IsDiffusivitySetter
 {

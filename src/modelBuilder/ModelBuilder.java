@@ -9,7 +9,7 @@ import dataIO.Log.Tier;
  * \brief Class for building up a model, setting all required inputs as 
  * appropriate.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 // TODO move to IsSubmodel? Separated temporarily for development purposes
 public class ModelBuilder

@@ -11,7 +11,7 @@ import shape.resolution.ResolutionCalculator.SameRes;
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public final class ShapeConventions
 {

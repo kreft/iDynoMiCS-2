@@ -51,7 +51,7 @@ import shape.Dimension.DimName;
  * containers -> process managers -> compartment. All the arrows point in the
  * same direction, meaning no entanglement of the kind iDynoMiCS 1 suffered.</p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
@@ -318,7 +318,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	 */
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
-//		aProcessManager.setCompartment(this);
 		this._processes.add(aProcessManager);
 		// TODO Rob [18Apr2016]: Check if the process's next time step is 
 		// earlier than the current time.
@@ -525,10 +524,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	{
 		/* The compartment node. */
 		ModelNode modelNode = new ModelNode(XmlRef.compartment, this);
-		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 		/* Set title for GUI. */
 		if ( this.getName() != null )
-			modelNode.title = this.getName();
+			modelNode.setTitle(this.getName());
 		/* Add the name attribute. */
 		modelNode.add( new ModelAttribute(XmlRef.nameAttribute, 
 				this.getName(), null, true ) );
@@ -539,7 +538,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * from TODO investigate a cleaner way of doing this  */
 		// NOTE Rob [9June2016]: Surely we only need to do this if 
 		// this._shape == null? Or have I completely misunderstood?
-		modelNode.childConstructors.put(Shape.getNewInstance("Dimensionless"), 
+		modelNode.addChildConstructor(Shape.getNewInstance("Dimensionless"), 
 				Requirements.EXACTLY_ONE);
 		/* Add the solutes node. */
 		modelNode.add( this.getSolutesNode() );
@@ -559,10 +558,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	{
 		/* The agents node. */
 		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* Add the agent childConstrutor for adding of additional agents. */
-		modelNode.childConstructors.put( new Agent(this), 
-				Requirements.ZERO_TO_MANY );
+		modelNode.addChildConstructor(
+				new Agent(this), Requirements.ZERO_TO_MANY );
 		/* If there are agents, add them as child nodes. */
 		if ( this.agents != null )
 			for ( Agent a : this.agents.getAllAgents() )
@@ -579,12 +578,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	{
 		/* The process managers node. */
 		ModelNode modelNode = new ModelNode(XmlRef.processManagers, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* 
 		 * Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  
 		 */
-		modelNode.childConstructors.put( ProcessManager.getNewInstance(
+		modelNode.addChildConstructor( ProcessManager.getNewInstance(
 				"AgentGrowth"), Requirements.ZERO_TO_MANY);
 		/* Add existing process managers as child nodes. */
 		for ( ProcessManager p : this._processes )
@@ -601,7 +600,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	{
 		/* The solutes node. */
 		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
-		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 		/* 
 		 * add solute nodes, yet only if the environment has been initiated, when
 		 * creating a new compartment solutes can be added later 
@@ -616,23 +615,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	public void setNode(ModelNode node) 
 	{
 		/* Set the modelNode for compartment. */
-		if ( node.tag == this.defaultXmlTag() )
+		if ( node.isTag(this.defaultXmlTag()) )
 		{
 			/* Update the name. */
 			this.name = node.getAttribute( XmlRef.nameAttribute ).value;
-			/* Set the child nodes. */
-			for( ModelNode n : node.childNodes )
-				n.constructor.setNode(n);
 		}
-		else
-		{
-			/* 
-			 * Agents, process managers and solutes are container nodes: only
-			 * child nodes need to be set here.
-			 */
-			for ( ModelNode n : node.childNodes )
-				n.constructor.setNode(n);
-		}
+		/* 
+		 * Set the child nodes.
+		 * Agents, process managers and solutes are container nodes: only
+		 * child nodes need to be set here.
+		 */
+		NodeConstructor.super.setNode(node);
 	}
 	
 	@Override

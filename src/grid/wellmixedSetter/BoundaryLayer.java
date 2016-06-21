@@ -26,7 +26,7 @@ import surface.Surface;
  * \brief A domain setter that includes voxels on the domain array of the given
  * grid that are within a set distance of any agents.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class BoundaryLayer implements IsWellmixedSetter

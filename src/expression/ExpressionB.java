@@ -24,7 +24,7 @@ import nodeFactory.ModelNode.Requirements;
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class ExpressionB extends Component implements NodeConstructor
 {
@@ -733,7 +733,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.expression, 
 				this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		modelNode.add(new ModelAttribute(XmlRef.valueAttribute, this._expression, null, true));
 		
 		for (String con : this._constants.keySet() )
@@ -745,7 +745,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.constant, 
 				this);
-		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, constant, null, true));
 		modelNode.add(new ModelAttribute(XmlRef.valueAttribute, String.valueOf(this._constants.get(constant)), null, true));

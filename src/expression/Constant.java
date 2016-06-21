@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * \brief A component of a mathematical expression whose value is fixed.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Constant extends ComponentSimple
 {

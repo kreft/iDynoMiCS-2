@@ -348,10 +348,10 @@ public class Agent implements AspectInterface, NodeConstructor
 	{
 		/* create the agent node */
 		ModelNode modelNode = new ModelNode(XmlRef.agent, this);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		/* use the identifier as agent title in gui */
-		modelNode.title = String.valueOf(this.identity());
+		modelNode.setTitle(String.valueOf(this.identity()));
 		
 		/* 
 		 * store the identity as attribute, note identity cannot be overwritten
@@ -365,21 +365,10 @@ public class Agent implements AspectInterface, NodeConstructor
 			modelNode.add(reg().getAspectNode(key));
 		
 		/* allow adding of new aspects */
-		modelNode.childConstructors.put(reg().new Aspect(reg()), 
+		modelNode.addChildConstructor(reg().new Aspect(reg()), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
-	}
-
-	/**
-	 * update the values of the child nodes (aspects) with the entered values
-	 * from the gui
-	 */
-	@Override
-	public void setNode(ModelNode node) 
-	{
-		for ( ModelNode n : node.childNodes )
-			n.constructor.setNode(n);
 	}
 
 	/**

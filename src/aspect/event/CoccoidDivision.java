@@ -22,7 +22,7 @@ import dataIO.Log.Tier;
  * NOTE: inputs 0 "mass" 1 "radius" 2 "body"
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class CoccoidDivision extends Event
 {

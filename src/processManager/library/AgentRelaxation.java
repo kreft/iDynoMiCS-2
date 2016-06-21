@@ -133,21 +133,22 @@ public class AgentRelaxation extends ProcessManager
 	 ************************************************************************/
 	
 	@Override
-	public void init(Element xmlElem, EnvironmentContainer environment, AgentContainer agents, String compartmentName)
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+				AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 		
 		/*
 		 * Obtaining relaxation parameters.
 		 */
-		this._dtBase = Helper.setIfNone( getDouble(BASE_DT), 0.0003 );	
-		this._maxMovement = Helper.setIfNone( getDouble(MAX_MOVEMENT), 0.01 );	
+		this._dtBase = Helper.setIfNone( this.getDouble(BASE_DT), 0.0003 );	
+		this._maxMovement = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 0.01 );	
 		this._method = Method.valueOf( Helper.setIfNone(
-				getString(RELAXATION_METHOD), Method.EULER.toString() ) );
+				this.getString(RELAXATION_METHOD), Method.EULER.toString() ) );
 		this._timeLeap	= true;
 		
 		this._shape = agents.getShape();
-		this._shapeSurfs  = _shape.getSurfaces();
+		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = new Collision(null, this._agents.getShape());
 	}
 
@@ -190,8 +191,8 @@ public class AgentRelaxation extends ProcessManager
 					 */
 					Point a 		= ((Rod) s)._points[0];
 					Point b 		= ((Rod) s)._points[1];
-					double[] diff 	= _shape.getMinDifference(a.getPosition() , 
-							b.getPosition() );
+					double[] diff 	= this._shape.getMinDifference(
+							a.getPosition(), b.getPosition() );
 					double dn 		= Vector.normEuclid(diff);
 					if (dn > 2.0 )
 						System.out.println(dn);
@@ -241,14 +242,13 @@ public class AgentRelaxation extends ProcessManager
 			 * Boundary collisions
 			 */
 			// FIXME here we need to selectively apply surface collision methods
-			this._iterator.collision(_shapeSurfs, agentSurfs, 0.0);
+			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
 		}
 		Log.out(level, " Finished updating agent forces");
 	}
 
-	/**
-	 * 
-	 */
+
+	@Override
 	protected void internalStep()
 	{
 		/**

@@ -21,7 +21,12 @@ public interface NodeConstructor
 	 * 
 	 * @param node
 	 */
-	public void setNode(ModelNode node);
+	// FIXME every override of this seems to be the same
+	public default void setNode(ModelNode node)
+	{
+		for ( ModelNode n : node.getAllChildNodes() )
+			n.constructor.setNode(n);
+	}
 	
 	/**
 	 * Create a new minimal object of this class and return it

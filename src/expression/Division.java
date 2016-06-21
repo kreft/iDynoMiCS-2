@@ -6,7 +6,7 @@ import java.util.Map;
  * \brief A component of a mathematical expression composed of the division
  * of one component by another.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Division extends ComponentDouble
 {

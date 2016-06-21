@@ -15,7 +15,7 @@ import utility.ExtraMath;
  * numerical priority will happen before one with lower priority if the two are
  * scheduled to happen at the same time.</p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class ProcessComparator implements Comparator<ProcessManager>
 {

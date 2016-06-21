@@ -38,7 +38,7 @@ import utility.Helper;
  * \brief Simulate the diffusion of solutes and their production/consumption by
  * reactions in a time-dependent manner, in a spatial {@code Compartment}.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class SolveDiffusionTransient extends ProcessManager
@@ -112,8 +112,6 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * \brief Initialise this diffusion-reaction process manager with a list of
 	 * solutes it is responsible for.
 	 * 
-	 * 
-	 * 
 	 * @param soluteNames The list of solutes this is responsible for.
 	 */
 	public void init(EnvironmentContainer environment, 
@@ -130,7 +128,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	public void init( String[] soluteNames, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
-		// this super call is only required for the unit tests
+		/* This super call is only required for the unit tests. */
 		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		// TODO Let the user choose which ODEsolver to use.
@@ -147,7 +145,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		}
 		// TODO enter a diffusivity other than one!
 		this._diffusivity = new HashMap<String,Double>();
-		for ( String sName : _soluteNames )
+		for ( String sName : this._soluteNames )
 			this._diffusivity.put(sName, 1.0);
 		String msg = "SolveDiffusionTransient responsible for solutes: ";
 		for ( String s : this._soluteNames )

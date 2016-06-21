@@ -22,7 +22,7 @@ import shape.resolution.ResolutionCalculator.UniformResolution;
  * \brief Test class to check that {@code Shape} objects are behaving
  * themselves.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  * 		Friedrich-Schiller University Jena, Germany 
  */

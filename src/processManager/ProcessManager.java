@@ -14,7 +14,6 @@ import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
 import idynomics.AgentContainer;
-import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
@@ -26,7 +25,7 @@ import nodeFactory.ModelNode.Requirements;
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		NodeConstructor, Redirectable
@@ -81,6 +80,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * {@code Compartment} this process belongs to.
 	 * @param agents The {@code AgentContainer} of the
 	 * {@code Compartment} this process belongs to.
+	 * @param compartmentName The name of the {@code Compartment} this process
+	 * belongs to.
 	 */
 	public void init(Element xmlElem, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
@@ -299,8 +300,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(defaultXmlTag(), this);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
-		modelNode.title = String.valueOf(this._name);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		modelNode.setTitle(this._name);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 						this._name, null, true ));
@@ -319,7 +320,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
-		modelNode.childConstructors.put(reg().new Aspect(reg()), 
+		modelNode.addChildConstructor(reg().new Aspect(reg()), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
@@ -348,23 +349,23 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * 
 	 */
 	public void addChildObject(NodeConstructor childObject) 
-		{
+	{
 
-		}
-		
+	}
+
 	/**
 	 * 
 	 */
 	public String defaultXmlTag() 
-		{
+	{
 		return XmlRef.process;
-		}
+	}
 		
 	/**
 	 * 
 	 */
 	public String getXml() 
-		{
-		return getNode().getXML();
+	{
+		return this.getNode().getXML();
 	}
 }
