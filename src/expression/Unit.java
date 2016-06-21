@@ -154,6 +154,7 @@ public class Unit {
 		{
 			Log.out(Tier.QUIET, formatter.unit() + " incompatible with: " 
 					+ this.unit());
+			///FIXME or should we throw something
 			return 0;
 		}
 		return 1.0/formatter.modifier;
