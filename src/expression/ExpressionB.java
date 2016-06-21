@@ -273,22 +273,26 @@ public class ExpressionB extends Component implements NodeConstructor
 		}
 		brackets.put(this._expression.length(), Bracket.END_OF_EXPRESSION);
 		/* Debugging message. */
-		Log.out(LOG_LEVEL, this._expression);
-		String msg = "";
-		for ( int i = 0; i <= this._expression.length(); i++ )
+		if ( Log.shouldWrite(LOG_LEVEL) )
 		{
-			if ( brackets.containsKey(i) )
-				msg += brackets.get(i).getStr();
-			else
-				msg += " ";
+			Log.out(LOG_LEVEL, this._expression);
+			String msg = "";
+			for ( int i = 0; i <= this._expression.length(); i++ )
+			{
+				if ( brackets.containsKey(i) )
+					msg += brackets.get(i).getStr();
+				else
+					msg += " ";
+			}
+			Log.out(LOG_LEVEL, msg);
 		}
-		Log.out(LOG_LEVEL, msg);
 		/* */
 		int depth = 0;
 		int start = 0;
 		for ( Integer key : brackets.keySet() )
 		{
-			Log.out(LOG_LEVEL, "   "+key+" : "+brackets.get(key));
+			if ( Log.shouldWrite(LOG_LEVEL) )
+				Log.out(LOG_LEVEL, "   "+key+" : "+brackets.get(key));
 			/*
 			 * What is handled at this level.
 			 */
@@ -306,7 +310,8 @@ public class ExpressionB extends Component implements NodeConstructor
 				start = key;
 			if ( depth == 0 )
 			{
-				Log.out(LOG_LEVEL, "    setting sub "+start+", "+(key+1));
+				if ( Log.shouldWrite(LOG_LEVEL) )
+					Log.out(LOG_LEVEL, "    setting sub "+start+", "+(key+1));
 				this.setSub(start, key + 1, eval, subs);
 				start = key + 1;
 			}
@@ -343,7 +348,8 @@ public class ExpressionB extends Component implements NodeConstructor
 			// 1, 2, 10, etc) will not be recognised.
 			else if ( term.contains(".") )
 			{
-				Log.out(LOG_LEVEL, "      Found a new constant: "+term);
+				if ( Log.shouldWrite(LOG_LEVEL) )
+					Log.out(LOG_LEVEL, "      Found a new constant: "+term);
 				calc.put(i, new Constant(term, Double.parseDouble(term)));
 			}
 			/*
@@ -396,8 +402,11 @@ public class ExpressionB extends Component implements NodeConstructor
 	{
 		if ( equation.isEmpty() )
 			return;
-		Log.out(LOG_LEVEL,
-				"   Setting equation \""+equation+"\", start at "+start);
+		if ( Log.shouldWrite(LOG_LEVEL) )
+		{
+			Log.out(LOG_LEVEL,
+					"   Setting equation \""+equation+"\", start at "+start);
+		}
 		/* 
 		 * Locate operators.
 		 */
@@ -409,13 +418,13 @@ public class ExpressionB extends Component implements NodeConstructor
 			locations = identifyStrLoc( equation, oper, start );
 			if ( locations.isEmpty() )
 				absents += oper + ", ";
-			else
+			else if ( Log.shouldWrite(LOG_LEVEL) )
 				Log.out(LOG_LEVEL, "    found "+locations.size()+" of "+oper);
 			operLoc.putAll( locations );
 			for (int l : locations.keySet())
 				equation = cutString(equation, l-start, oper.length());
 		}
-		if ( ! absents.isEmpty() )
+		if ( (! absents.isEmpty()) && Log.shouldWrite(LOG_LEVEL) )
 		{
 			Log.out(LOG_LEVEL, "    found 0 of "+absents);
 		}
@@ -434,7 +443,8 @@ public class ExpressionB extends Component implements NodeConstructor
 		int o = 0;
 		for ( Integer key : operLoc.keySet() )
 		{
-			Log.out(LOG_LEVEL, "    o "+0+", key "+key+", start "+start);
+			if ( Log.shouldWrite(LOG_LEVEL) )
+				Log.out(LOG_LEVEL, "    o "+0+", key "+key+", start "+start);
 			if ( key != start )
 				this.addVar( o+start, equation.substring(o, key-start), eval);
 			o = key - start + operLoc.get(key).length();
@@ -446,7 +456,8 @@ public class ExpressionB extends Component implements NodeConstructor
 		if ( o != 0 )
 			this.addVar(o+start, equation.substring(o,equation.length()), eval);
 		eval.putAll(operLoc);
-		Log.out(LOG_LEVEL, "    eq set, eval now has size "+eval.size());
+		if ( Log.shouldWrite(LOG_LEVEL) )
+			Log.out(LOG_LEVEL, "    eq set, eval now has size "+eval.size());
 	}
 	
 	private String cutString(String string, int start , int numberOfCharacters )
@@ -591,7 +602,11 @@ public class ExpressionB extends Component implements NodeConstructor
 				-1 : calc.floorKey( here-1 ) );
 		int next = (calc.ceilingKey( here+1 ) == null ? 
 				-1 : calc.ceilingKey( here+1 ) );
-		Log.out(LOG_LEVEL, "operator "+operator+", prev "+prev+", next "+next);
+		if ( Log.shouldWrite(LOG_LEVEL) )
+		{
+			Log.out(LOG_LEVEL,
+					"operator "+operator+", prev "+prev+", next "+next);
+		}
 		switch (operator)
 		{
 		case ("+"): 

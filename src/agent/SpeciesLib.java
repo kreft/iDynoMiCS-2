@@ -129,15 +129,22 @@ public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 	 */
 	public AspectInterface get(String name)
 	{
+		Tier level;
 		if ( this._species.containsKey(name) )
 		{
-			Log.out(Tier.BULK, "Species Library found \""+name+"\"");
+			level = Tier.BULK;
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "Species Library found \""+name+"\"");
 			return this._species.get(name);
 		}
 		else
 		{
-			Log.out(Tier.DEBUG, "Species Library could not find \""+name+
-					"\", returning void species");
+			level = Tier.DEBUG;
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "Species Library could not find \""+name+
+						"\", returning void species");
+			}
 			return this._voidSpecies;
 		}
 	}

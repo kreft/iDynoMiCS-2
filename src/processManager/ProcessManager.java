@@ -270,8 +270,12 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		 * Move the time for next step forward by the step size.
 		 */
 		this._timeForNextStep += this._timeStepSize;
-		Log.out(Tier.DEBUG,
-				this._name+": timeForNextStep = "+this._timeForNextStep);
+		Tier level = Tier.DEBUG;
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level,
+					this._name+": timeForNextStep = "+this._timeForNextStep);
+		}
 	}
 	
 	/**

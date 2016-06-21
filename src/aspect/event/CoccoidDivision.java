@@ -81,6 +81,7 @@ public class CoccoidDivision extends Event
 	public void start(AspectInterface initiator,
 			AspectInterface compliant, Double timeStep)
 	{
+		Tier level = Tier.BULK;
 		Agent mother = (Agent) initiator;
 		
 		if ( ! this.shouldDivide(mother) )
@@ -99,20 +100,29 @@ public class CoccoidDivision extends Event
 			this.shiftBodies(mother, daughter);
 		else
 		{
-			Log.out(Tier.BULK, "Agent "+mother.identity()+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "Agent "+mother.identity()+
 					" does not have a body to shift after CoccoidDivision");
+			}
 		}
 		/* Update filial links, if appropriate. */
 		if ( mother.isAspect(LINKER_DIST) )
 			this.updateLinkers(mother, daughter);
 		else
 		{
-			Log.out(Tier.BULK, "Agent "+mother.identity()+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "Agent "+mother.identity()+
 					" does not create fillial links");
+			}
 		}
 		/* Register the daughter's birth in the compartment they belong to. */
 		daughter.registerBirth();
-		Log.out(Tier.BULK, "CoccoidDivision added daughter cell");
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "CoccoidDivision added daughter cell");
+		}
 		/* The bodies of both cells may now need updating. */
 		mother.event(UPDATE_BODY);
 		daughter.event(UPDATE_BODY);

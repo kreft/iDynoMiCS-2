@@ -188,11 +188,16 @@ public class AspectReg
 	public synchronized void doEvent(AspectInterface initiator, 
 			AspectInterface compliant, double timeStep, String key)
 	{
+		Tier level = Tier.BULK;
 		Aspect a = getAspect(key);
 		if ( a == null )
-			Log.out(Tier.BULK, "Warning: aspepct registry does not"
-					+ " contain event:" + key);
-		
+		{
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(Tier.BULK, "Warning: aspect registry does not"
+						+ " contain event:" + key);
+			}
+		}
 		else if ( a.type != AspectReg.AspectClass.EVENT )
 		{
 			Log.out(Tier.CRITICAL, "Attempt to initiate non event "
@@ -209,13 +214,15 @@ public class AspectReg
 	 */
 	private Aspect getAspect(String key)
 	{
+		Tier level = Tier.BULK;
 		if ( this._aspects.containsKey(key) )
 			return this._aspects.get(key);
 		else
 			for ( AspectInterface m : this._modules )
 				if ( m.reg().isGlobalAspect(key) )
 					return (Aspect) m.reg().getAspect(key);
-		Log.out(Tier.BULK, "Warning: could not find aspect \"" + key+"\"");
+		if ( Log.shouldWrite(level) )
+			Log.out(Tier.BULK, "Warning: could not find aspect \"" + key+"\"");
 		return null;
 	}
 	

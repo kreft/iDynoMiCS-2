@@ -192,8 +192,11 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		Collection<SpatialBoundary> bndries;
 		for ( Agent anAgent : this._arrivalsLounge )
 		{
-			Log.out(AGENT_ARRIVE_LEVEL, "Moving agent (UID: "+
-					anAgent.identity()+") to top of boundary layer");
+			if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
+			{
+				Log.out(AGENT_ARRIVE_LEVEL, "Moving agent (UID: "+
+						anAgent.identity()+") to top of boundary layer");
+			}
 			/*
 			 * Move the agent down from the boundary surface to the top of the
 			 * boundary layer.
@@ -217,8 +220,11 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 			 * a random walk until it hits a boundary or another agent.
 			 */
 			double pull = anAgent.getDouble(CURRENT_PULL_DISTANCE);
-			Log.out(AGENT_ARRIVE_LEVEL, "Now attemting random walk: using "+
-					pull+" for pull distance");
+			if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
+			{
+				Log.out(AGENT_ARRIVE_LEVEL, "Now attemting random walk: using "+
+						pull+" for pull distance");
+			}
 			randomLoop: while ( true )
 			{
 				/*
@@ -233,8 +239,11 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				{
 					this._arrivalsLounge.remove(anAgent);
 					this._arrivalsLounge.add(anAgent);
-					Log.out(AGENT_ARRIVE_LEVEL,
-						"Agent has returned to boundary: re-inserting later");
+					if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
+					{
+						Log.out(AGENT_ARRIVE_LEVEL,
+								"Agent has returned to boundary: re-inserting later");
+					}
 					break randomLoop;
 				}
 				/*
@@ -244,8 +253,11 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				{
 					// FIXME Assume the boundary is solid for now
 					agentCont.addAgent(anAgent);
-					Log.out(AGENT_ARRIVE_LEVEL,
-							"Agent has hit another boundary");
+					if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
+					{
+						Log.out(AGENT_ARRIVE_LEVEL,
+								"Agent has hit another boundary");
+					}
 					break randomLoop;
 				}
 				/*
@@ -261,8 +273,11 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				{
 					// TODO use the pulling method in Collision?
 					agentCont.addAgent(anAgent);
+					if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
+					{
 					Log.out(AGENT_ARRIVE_LEVEL,
 							"Agent has hit another agent");
+					}
 					break randomLoop;
 				}
 				/*

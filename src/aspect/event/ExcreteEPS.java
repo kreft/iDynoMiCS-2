@@ -34,6 +34,7 @@ public class ExcreteEPS extends Event
 	public void start(AspectInterface initiator, 
 			AspectInterface compliant, Double timeStep)
 	{
+		Tier level = Tier.BULK;
 		/*
 		 * We can only do EPS excretion if the agent has internal products.
 		 */
@@ -85,8 +86,8 @@ public class ExcreteEPS extends Event
 			((Agent) compliant).registerBirth();
 
 			initiator.set(INTERNAL_PRODUCTS, internalProducts);
-
-			Log.out(Tier.BULK, "EPS particle created");
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "EPS particle created");
 			epsBlob = maxEPS - 0.1*maxEPS*ExtraMath.getNormRand();
 			eps = internalProducts.get(EPS);
 		}

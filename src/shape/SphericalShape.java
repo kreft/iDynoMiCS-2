@@ -411,29 +411,40 @@ public abstract class SphericalShape extends PolarShape
 	protected boolean setNbhFirstInNewRing(int ringIndex)
 	{
 		//TODO this will currently not set onto min boundary?
-		Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new ring "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new ring "+
 				ringIndex);
+		}
 		this._currentNeighbor[1] = ringIndex;
 		/*
 		 * We must be on a ring inside the array: not even a defined boundary
 		 * will do here.
 		 */
-		if ( this.whereIsNhb(R) != INSIDE ){
-			Log.out(NHB_ITER_LEVEL, "  failure, R on any boundary");
+		if ( this.whereIsNhb(R) != INSIDE )
+		{
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				Log.out(NHB_ITER_LEVEL, "  failure, R on any boundary");
 			return false;
 		}
 		/*
 		 * First check that the new ring is inside the grid. If we're on a
 		 * defined boundary, the theta coordinate is irrelevant.
 		 */
-		if ( (this._whereIsNhb = this.whereIsNhb(PHI)) != INSIDE ){
+		if ( (this._whereIsNhb = this.whereIsNhb(PHI)) != INSIDE )
+		{
 			this._nhbDimName = PHI;
-			if (this._whereIsNhb != UNDEFINED){
-				Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNhb 
+			if ( this._whereIsNhb != UNDEFINED )
+			{
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNhb 
 						+" boundary");
+				}
 				return true;
 			}
-			Log.out(NHB_ITER_LEVEL, "  failure, PHI on undefined boundary");
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				Log.out(NHB_ITER_LEVEL, "  failure, PHI on undefined boundary");
 			return false;
 		}
 
@@ -450,16 +461,22 @@ public abstract class SphericalShape extends PolarShape
 
 		/* increase the index if it has approx. the same theta location as the
 		 * current coordinate */
-		if (ExtraMath.areEqual(
+		if ( ExtraMath.areEqual(
 				rC.getCumulativeResolution(new_index), theta, 
-				this.POLAR_ANGLE_EQ_TOL))
+				POLAR_ANGLE_EQ_TOL) )
+		{
 			new_index++;
-		
+		}
 		/* if we stepped onto the current coord, we went too far*/
-		if (this._currentNeighbor[0] == this._currentCoord[0] 
+		if ( this._currentNeighbor[0] == this._currentCoord[0] 
 				&& this._currentNeighbor[1] == this._currentCoord[1]
-				&& new_index == this._currentCoord[2]){
-			Log.out(NHB_ITER_LEVEL, "  failure, stepped onto current coordinate");
+				&& new_index == this._currentCoord[2] )
+		{
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+			{
+				Log.out(NHB_ITER_LEVEL, 
+						"  failure, stepped onto current coordinate");
+			}
 			return false;
 		}
 		
@@ -472,7 +489,8 @@ public abstract class SphericalShape extends PolarShape
 		this._nhbDirection = 
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
-		Log.out(NHB_ITER_LEVEL, "  success with theta idx "+new_index);
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+			Log.out(NHB_ITER_LEVEL, "  success with theta idx "+new_index);
 		return true;
 	}
 }

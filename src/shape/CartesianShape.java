@@ -148,8 +148,11 @@ public abstract class CartesianShape extends Shape
 	@Override
 	protected void resetNbhIter()
 	{
-		Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
 				Vector.toString(this._currentNeighbor));
+		}
 		this._whereIsNhb = UNDEFINED;
 		for ( DimName dim : this._dimensions.keySet() )
 		{
@@ -161,9 +164,12 @@ public abstract class CartesianShape extends Shape
 			{
 				this._nhbDimName = dim;
 				this.transformNbhCyclic();
-				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
-						+Vector.toString(this._currentNeighbor)+
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "   returning transformed "+
+						"neighbor at "+Vector.toString(this._currentNeighbor)+
 						": status "+this._whereIsNhb);
+				}
 				return;
 			}
 		}
@@ -172,13 +178,19 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
 				Vector.toString(this._currentCoord));
+		}
 		this.untransformNbhCyclic();
 		int nbhIndex = this.getDimensionIndex(this._nhbDimName);
-		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				", trying along "+this._nhbDimName);
+		}
 		if ( ! this.nbhJumpOverCurrent(this._nhbDimName))
 		{
 			/*
@@ -189,8 +201,11 @@ public abstract class CartesianShape extends Shape
 			if ( nbhIndex < 3 )
 			{
 				this._nhbDimName = this.getDimensionName(nbhIndex);
-				Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
 						+this._nhbDimName);
+				}
 				if ( ! moveNbhToMinus(this._nhbDimName) )
 					return nbhIteratorNext();
 			}

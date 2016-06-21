@@ -162,6 +162,7 @@ public abstract class SpatialBoundary extends Boundary
 	 */
 	protected void placeAgentsRandom(AgentContainer agentCont)
 	{
+		Tier level = Tier.DEBUG;
 		Shape aShape = agentCont.getShape();
 		double[] newLoc;
 		Body body;
@@ -171,8 +172,11 @@ public abstract class SpatialBoundary extends Boundary
 			{
 				newLoc = aShape.getRandomLocationOnBoundary(
 						this._dim, this._extreme);
-				Log.out(Tier.DEBUG, "Placing agent (UID: "+anAgent.identity()+
-						") at random location: "+Vector.toString(newLoc));
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, "Placing agent (UID: "+anAgent.identity()+
+							") at random location: "+Vector.toString(newLoc));
+				}
 				body = (Body) anAgent.get(AspectRef.agentBody);
 				body.relocate(newLoc);
 			}

@@ -214,8 +214,11 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	public void addOutboundAgent(Agent anAgent)
 	{
-		Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
-				anAgent.identity()+") to departure lounge");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+		{
+			Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
+					anAgent.identity()+") to departure lounge");
+		}
 		this._departureLounge.add(anAgent);
 	}
 
@@ -226,8 +229,11 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	public void acceptInboundAgent(Agent anAgent)
 	{
-		Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
-				anAgent.identity()+") to arrivals lounge");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+		{
+			Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
+					anAgent.identity()+") to arrivals lounge");
+		}
 		this._arrivalsLounge.add(anAgent);
 	}
 
@@ -238,11 +244,15 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	public void acceptInboundAgents(List<Agent> agents)
 	{
-		Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" accepting "+
-				agents.size()+" agents to arrivals lounge");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+		{
+			Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" accepting "+
+					agents.size()+" agents to arrivals lounge");
+		}
 		for ( Agent anAgent : agents )
 			this.acceptInboundAgent(anAgent);
-		Log.out(AGENT_LEVEL, " Done!");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+			Log.out(AGENT_LEVEL, " Done!");
 	}
 
 	/**
@@ -260,8 +270,11 @@ public abstract class Boundary implements NodeConstructor
 		}
 		else
 		{
-			Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
-					this._departureLounge.size()+" agents to partner");
+			if ( Log.shouldWrite(AGENT_LEVEL) )
+			{
+				Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
+						this._departureLounge.size()+" agents to partner");
+			}
 			this._partner.acceptInboundAgents(this._departureLounge);
 			this._departureLounge.clear();
 		}

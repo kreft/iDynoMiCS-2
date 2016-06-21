@@ -135,8 +135,9 @@ public class Unit {
 	 */
 	public void fromString(String units)
 	{
-		Log.out(Tier.BULK, "Interpretting unit string: " + units);
-		
+		Tier level = Tier.BULK;
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Interpretting unit string: " + units);
 		/* replace all unit braces and all white space */
 		units = units.replaceAll("\\[", "");
 		units = units.replaceAll("\\]", "");
@@ -170,7 +171,8 @@ public class Unit {
 			/* update the unit map and modifier */
 			this.update(unitPower[0], power);
 		}
-		Log.out(Tier.BULK, "SI interpretation: " + toString());
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "SI interpretation: " + toString());
 	}
 	
 	/** 

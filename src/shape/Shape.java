@@ -1518,9 +1518,12 @@ public abstract class Shape implements
 	 */
 	protected void transformNbhCyclic()
 	{
-		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				": status "+this._whereIsNhb);
+		}
 		Dimension dim = getDimension(this._nhbDimName);
 		if ( (this._whereIsNhb == CYCLIC) && dim.isCyclic() )
 		{
@@ -1538,9 +1541,12 @@ public abstract class Shape implements
 				this._currentNeighbor[dimIdx] = 0;
 			}
 		}
-		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				": status "+this._whereIsNhb);
+		}
 	}
 	
 	/**
@@ -1567,9 +1573,12 @@ public abstract class Shape implements
 				this._currentNeighbor[dimIdx] = nVoxel;
 			}
 		}
-		Log.out(NHB_ITER_LEVEL, "   un-transformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNhb);
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   un-transformed neighbor at "+
+					Vector.toString(this._currentNeighbor)+
+					": status "+this._whereIsNhb);
+		}
 	}
 	
 	/**
@@ -1591,9 +1600,12 @@ public abstract class Shape implements
 		this._whereIsNhb = where;
 		this._nhbDirection = 0;
 		this._nhbDimName = dim;
-		Log.out(NHB_ITER_LEVEL,
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL,
 				"   tried moving to minus in "+dim+": result "+
 						Vector.toString(this._currentNeighbor)+" is "+where);
+		}
 		return (where != UNDEFINED);
 	}
 	
@@ -1622,18 +1634,23 @@ public abstract class Shape implements
 			{
 				/* report success. */
 				this._nhbDirection = 1;
-				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
-						": result "+Vector.toString(this._currentNeighbor)+
-						" is "+this._whereIsNhb);
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
+							": result "+Vector.toString(this._currentNeighbor)+
+							" is "+this._whereIsNhb);
+				}
 				return true;
 			}
 		}
 		/* Undo jump and report failure. */
 		this._currentNeighbor[index] = this._currentCoord[index] - 1;
-		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
 				" is "+this._whereIsNhb);
-		
+		}
 		return false;
 	}
 	
@@ -1662,10 +1679,13 @@ public abstract class Shape implements
 	public double nbhCurrDistance()
 	{
 		Tier level = Tier.BULK;
-		Log.out(level, "  calculating distance between voxels "+
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "  calculating distance between voxels "+
 				Vector.toString(this._currentCoord)+" and "+
 				Vector.toString(this._currentNeighbor)+
 				" along dimension "+this._nhbDimName);
+		}
 		int i = this.getDimensionIndex(this._nhbDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
 		double out = rC.getResolution(this._currentCoord[i]);
@@ -1693,12 +1713,14 @@ public abstract class Shape implements
 				Log.out(level, "   radius is "+radius);
 				out *= radius;
 			}
-			Log.out(level, "    distance is "+out);
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "    distance is "+out);
 			return out;
 		}
 		/* If the neighbor is on an undefined boundary, return infinite
 			distance (this should never happen!) */
-		Log.out(level, "    undefined distance!");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "    undefined distance!");
 		return Double.POSITIVE_INFINITY;
 	}
 	

@@ -297,10 +297,12 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public void updateSoluteBoundaries()
 	{
 		Tier level = BULK;
-		Log.out(level, "Updating solute boundaries...");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Updating solute boundaries...");
 		for ( Boundary b : this._shape.getAllBoundaries() )
 			b.updateConcentrations(this);
-		Log.out(level, " All solute boundaries now updated");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, " All solute boundaries now updated");
 	}
 	
 	/* ***********************************************************************

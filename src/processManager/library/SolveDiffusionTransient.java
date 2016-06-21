@@ -245,7 +245,8 @@ public class SolveDiffusionTransient extends ProcessManager
 	private static void applyEnvReactions(EnvironmentContainer environment)
 	{
 		Tier level = BULK;
-		Log.out(level, "Applying environmental reactions");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Applying environmental reactions");
 		Collection<Reaction> reactions = environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
@@ -301,9 +302,12 @@ public class SolveDiffusionTransient extends ProcessManager
 					}
 			}
 		}
-		for ( String name : soluteNames )
-			Log.out(level, "  total "+name+" produced: "+totals.get(name));
-		Log.out(level, "Finished applying environmental reactions");
+		if ( Log.shouldWrite(level) )
+		{
+			for ( String name : soluteNames )
+				Log.out(level, "  total "+name+" produced: "+totals.get(name));
+			Log.out(level, "Finished applying environmental reactions");
+		}
 	}
 	
 	/**
@@ -322,7 +326,8 @@ public class SolveDiffusionTransient extends ProcessManager
 			EnvironmentContainer environment, AgentContainer agents)
 	{
 		Tier level = BULK;
-		Log.out(level, "Applying agent reactions");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Applying agent reactions");
 		SpatialGrid solute;
 		HashMap<String,Double> concns = new HashMap<String,Double>();
 		HashMap<String,Double> totals = new HashMap<String,Double>();
@@ -441,8 +446,11 @@ public class SolveDiffusionTransient extends ProcessManager
 			// TODO agent do event "internal production"?
 			}
 		}
-		for ( String name : totals.keySet() )
-			Log.out(level, "   total \""+name+"\" produced: "+totals.get(name));
-		Log.out(level, "Finished applying agent reactions");
+		if ( Log.shouldWrite(level) )
+		{
+			for ( String name : totals.keySet() )
+				Log.out(level, "   total \""+name+"\" produced: "+totals.get(name));
+			Log.out(level, "Finished applying agent reactions");
+		}
 	}
 }

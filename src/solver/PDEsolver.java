@@ -78,10 +78,13 @@ public abstract class PDEsolver extends Solver
 			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
 				continue;
 			flux = 0.0;
-			Log.out(level, 
-					"Coord "+Vector.toString(shape.iteratorCurrent())+
-					" (curent value "+grid.getValueAtCurrent(CONCN)+
-					"): calculating flux...");
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, 
+						"Coord "+Vector.toString(shape.iteratorCurrent())+
+						" (curent value "+grid.getValueAtCurrent(CONCN)+
+						"): calculating flux...");
+			}
 			for ( shape.resetNbhIterator(); 
 						shape.isNbhIteratorValid(); shape.nbhIteratorNext() )
 			{
@@ -91,25 +94,31 @@ public abstract class PDEsolver extends Solver
 				 * To get the value we must be inside, the flux can be obtained
 				 * from boundary.
 				 */
-				if ( shape.isNhbIteratorInside() )
+				if ( Log.shouldWrite(level) )
 				{
-					Log.out(level, 
-						"   nhb "+Vector.toString(shape.nbhIteratorCurrent())+
-						" ("+grid.getValueAtNhb(CONCN)+") "+
-						" contributes flux of "+temp);
-				}
-				else
-				{
-					Log.out(level, 
-							" boundary nhb "+Vector.toString(
-									shape.nbhIteratorCurrent())
-							+ " contributes flux of "+temp);
+					if ( shape.isNhbIteratorInside() )
+					{
+
+						Log.out(level, 
+								"   nhb "+Vector.toString(
+										shape.nbhIteratorCurrent())+
+								" ("+grid.getValueAtNhb(CONCN)+") "+
+								" contributes flux of "+temp);
+					}
+					else
+					{
+						Log.out(level, 
+								" boundary nhb "+Vector.toString(
+										shape.nbhIteratorCurrent())
+								+ " contributes flux of "+temp);
+					}
 				}
 			}
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
-			Log.out(level, " TOTAL flux = "+flux);
+			if ( Log.shouldWrite(level) )
+				Log.out(level, " TOTAL flux = "+flux);
 			grid.addValueAt(LOPERATOR, current, flux);
 		}
 	}
