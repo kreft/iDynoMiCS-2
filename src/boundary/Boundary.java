@@ -82,6 +82,7 @@ public abstract class Boundary implements NodeConstructor
 	 * @param agents
 	 * @param compartmentName
 	 */
+	// TODO this needs to be called by Compartment
 	public void init(EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
