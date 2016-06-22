@@ -67,7 +67,8 @@
 			</reactions>
 			<agents>
 				<agent>
-					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					<aspect name="mapTest" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="Double" value="2.0" key="1.0" keyType="Double" />
 					</aspect>				
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />

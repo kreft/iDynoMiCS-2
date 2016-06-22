@@ -23,6 +23,7 @@ import shape.Shape;
 import surface.Ball;
 import surface.Rod;
 import surface.Surface;
+import utility.Helper;
 
 
 /**
@@ -161,6 +162,7 @@ public class AgentMediator implements CommandMediator {
 					new LinkedList<Surface>()))
 			{
 				_pigment = a.getString("pigment");
+				_pigment = Helper.setIfNone(_pigment, "WHITE");
 				switch (_pigment)
 				{
 				case "GREEN" :

@@ -17,6 +17,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
+import nodeFactory.primarySetters.HashMapSetter;
 import nodeFactory.primarySetters.LinkedListSetter;
 import surface.Point;
 import utility.Helper;
@@ -447,15 +448,15 @@ public class AspectReg
 				{
 				case "HashMap":
 					HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
-//					for (Object k : h.keySet() )
-//						modelNode.add(HashMapNode(k) );
+					for (Object k : h.keySet() )
+						modelNode.add(new HashMapSetter<Object,Object>(
+								h.get(k), k, h).getNode() );
 					break;
 				case "LinkedList":
-//					modelNode.add(ObjectFactory.nodeFactoryInner(aspect) );
-					// TODO work in progress
 					LinkedList<Object> linkedList = (LinkedList<Object>) aspect;
 					for (Object o : linkedList)
-						modelNode.add(new LinkedListSetter(o).getNode() );
+						modelNode.add(new LinkedListSetter<Object>(
+								o, linkedList ).getNode() );
 					break;
 				case "Body":
 					Body myBody = (Body) aspect;

@@ -309,7 +309,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
-		modelNode.setRequirements(Requirements.ZERO_OR_ONE);
+		modelNode.setRequirements(Requirements.IMMUTABLE);
 		modelNode.setTitle(this._name);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
