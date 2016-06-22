@@ -39,7 +39,10 @@ public interface NodeConstructor
 	/**
 	 * remove the node from the simulation (gui delete object)
 	 */
-	public void removeNode();
+	public default void removeNode()
+	{
+		// By default assume the Node cannot be removed
+	}
 	
 	/**
 	 * \brief Add a child object that is unable to register itself properly via
