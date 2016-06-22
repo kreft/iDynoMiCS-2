@@ -10,6 +10,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
 import idynomics.Idynomics;
+import nodeFactory.NodeConstructor;
 import utility.Helper;
 
 /**
@@ -24,6 +25,11 @@ public interface Instantiatable
 	/*************************************************************************
 	 * CLASS INSTANCIATION
 	 ************************************************************************/
+	
+	public default void init(Element xmlElement)
+	{
+		// by default nothing
+	}
 	
 	/**
 	 * \brief External method for creating a new instance.
@@ -42,6 +48,13 @@ public interface Instantiatable
 	public static Object getNewInstance(String className)
 	{
 		return getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
+	}
+	
+	public static Object getNewInstance(String className, Element xmlElem, NodeConstructor parent)
+	{
+		Object out = getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
+		((Instantiatable) out).init(xmlElem);
+		return out;
 	}
 
 	/**

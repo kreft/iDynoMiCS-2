@@ -138,9 +138,9 @@ public class Agent implements AspectInterface, NodeConstructor
 			{
 				/* TODO this is a cheat, make a standard method for this */
 				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute(
-						temp.item(i), XmlRef.numberOfAgents)));
+						temp.item(i), XmlRef.numberOfAgents, this.defaultXmlTag())));
 				double[] domain = Vector.dblFromString(XmlHandler.
-						obtainAttribute(temp.item(i), XmlRef.spawnDomain));
+						obtainAttribute(temp.item(i), XmlRef.spawnDomain, this.defaultXmlTag()));
 				for(int j = 0; j < n-1; j++)
 				{
 					Agent extra = new Agent(xmlNode, randBody(domain));

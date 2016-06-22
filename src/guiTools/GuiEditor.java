@@ -19,7 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import dataIO.XmlRef;
-import idynomics.Idynomics;
+import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -95,14 +95,14 @@ public class GuiEditor
 		{
 			NodeConstructor constructor = node.constructor;
 			/* add button for optional childnode(s) */
-			attr.add(GuiComponent.actionButton(constructor.defaultXmlTag(), 
+			attr.add(GuiComponent.actionButton(constructor.defaultXmlTag() + " " + node.getTitle(), 
 					new JButton("remove"), new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent event)
 				{
 					GuiEditor.setAttributes();
-					node.delete();
+					node.delete(node.getTitle());
 					GuiMain.update();
 				}
 			}
@@ -110,31 +110,29 @@ public class GuiEditor
 		}
 		
 		/* loop trough child constructors */
-		for ( NodeConstructor c : node.getAllChildConstructors() )
+		for ( String c : node._constructables.keySet() )
 		{
 			/* add child to interface if exactly one is required and the node
 			 * is not present yet */
-			if ( node.requireExactlyOneChildConstructor(c) && 
-					node.getChildNodes(c.defaultXmlTag()).isEmpty())
+			if ( node._constructables.get(c) == Requirements.EXACTLY_ONE )
 			{
-				NodeConstructor newNode = c.newBlank();
-				node.add(newNode.getNode());
-				node.add(newNode);
-			}
-			else if ( node.requireExactlyOneChildConstructor(c) )
-			{
-				// required unique childNode is already present: do nothing
+				NodeConstructor newNode = (NodeConstructor) Instantiatable.getNewInstance(c, null, node.constructor);
+				if ( ! node.hasChildNodes(newNode.defaultXmlTag()) )
+				{
+					node.add(newNode.getNode());
+					node.add(newNode);
+				}
 			}
 			else
 			{
 				/* add button for optional childnode(s) */
-				attr.add(GuiComponent.actionButton(c.defaultXmlTag(), 
+				attr.add(GuiComponent.actionButton(c, 
 						new JButton("add"), new ActionListener()
 				{
 					@Override
 					public void actionPerformed(ActionEvent event)
 					{
-						NodeConstructor newNode = c.newBlank();
+						NodeConstructor newNode = (NodeConstructor) Instantiatable.getNewInstance(c, null, node.constructor);
 						if ( newNode != null )
 						{
 							node.add(newNode.getNode());

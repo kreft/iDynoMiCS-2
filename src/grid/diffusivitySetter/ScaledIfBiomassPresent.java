@@ -57,13 +57,13 @@ public class ScaledIfBiomassPresent implements IsDiffusivitySetter
 		Element elem = (Element) xmlNode;
 
 		this._defaultDiffusivity = Double.valueOf(XmlHandler.obtainAttribute(
-				elem, XmlRef.defaultDiffusivity));
+				elem, XmlRef.defaultDiffusivity, "PARENT NODE"));
 		
 		this._biofilmDiffusivity = Double.valueOf(XmlHandler.obtainAttribute(
-				elem, XmlRef.biofilmDiffusivity));
+				elem, XmlRef.biofilmDiffusivity, "PARENT NODE"));
 		
 		this._threshold = Double.valueOf(XmlHandler.obtainAttribute(elem, 
-				XmlRef.threshold));
+				XmlRef.threshold, "PARENT NODE"));
 	}
 	
 	@Override

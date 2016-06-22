@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -24,7 +25,6 @@ public class GuiComponent {
 	public static JTabbedPane setPane(JTabbedPane pane) {
 		
 		pane.removeAll();
-		
 		/* The tabs pane */
 		addTab(pane, "console", GuiConsole.getConsole(),
               "The Console");

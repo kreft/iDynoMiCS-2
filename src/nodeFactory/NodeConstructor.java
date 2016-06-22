@@ -21,7 +21,6 @@ public interface NodeConstructor
 	 * 
 	 * @param node
 	 */
-	// FIXME every override of this seems to be the same
 	public default void setNode(ModelNode node)
 	{
 		for ( ModelNode n : node.getAllChildNodes() )
@@ -37,11 +36,15 @@ public interface NodeConstructor
 	public NodeConstructor newBlank();
 	
 	/**
-	 * remove the node from the simulation (gui delete object)
+	 * remove the node from the simulation (gui delete object), specifier is
+	 * used to identify nested objects for removal
+	 * @param specifier
 	 */
-	public default void removeNode()
+	public default void removeNode(String specifier)
 	{
-		// By default assume the Node cannot be removed
+		/*
+		 * By default assume the Node cannot be removed
+		 */
 	}
 	
 	/**

@@ -162,7 +162,7 @@ public class ExpressionB extends Component implements NodeConstructor
 					XmlRef.valueAttribute)));
 		}
 				
-		init( XmlHandler.obtainAttribute(elem, XmlRef.valueAttribute), 
+		init( XmlHandler.obtainAttribute(elem, XmlRef.valueAttribute, this.defaultXmlTag()), 
 				constantsMap);
 	}
 	

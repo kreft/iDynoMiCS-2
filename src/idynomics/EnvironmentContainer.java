@@ -97,7 +97,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		for ( int i = 0; i < soluteNodes.getLength(); i++)
 		{
 			elem = (Element) soluteNodes.item(i);
-			name = XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute);
+			name = XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute, XmlRef.solute);
 			/* Try to read in the concentration, using zero by default. */
 			concn = XmlHandler.gatherAttribute(elem, XmlRef.concentration);
 			concentration = ( concn.equals("") ) ? 0.0 : Double.valueOf(concn);

@@ -17,7 +17,6 @@ import generalInterfaces.Instantiatable;
 import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
-import processManager.ProcessManager;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at
@@ -132,8 +131,10 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		 * Set up the species library.
 		 */
 		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
-				this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, 
-						XmlRef.speciesLibrary ));
+			this.speciesLibrary = (SpeciesLib) Instantiatable.getNewInstance(
+					"SpeciesLib", XmlHandler.loadUnique(xmlElem, 
+					XmlRef.speciesLibrary ), this);
+
 		/*
 		 * Set up the compartments.
 		 */
@@ -146,15 +147,10 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 				   "Warning: Simulator initialised without any compartments!");
 		}
 		Element child;
-		String str;
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.gatherAttribute(child, XmlRef.nameAttribute);
-			Log.out(Tier.NORMAL, "Making "+str);
-			str = Helper.obtainInput(str, "compartment name");
-			Compartment aCompartment = this.addCompartment(str);
-			aCompartment.init(child);
+			Instantiatable.getNewInstance(XmlRef.compartment, child, this);
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
 		
@@ -183,6 +179,11 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		aCompartment.name = name;
 		this._compartments.add(aCompartment);
 		return aCompartment;
+	}
+	
+	public void addCompartment(Compartment compartment)
+	{
+		this._compartments.add(compartment);
 	}
 	
 	/**
@@ -422,8 +423,9 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 			modelNode.add(c.getNode());
 		
 		/* add child constructor (adds add compartment button to gui */
-		modelNode.addChildConstructor(new Compartment(), 
-				ModelNode.Requirements.ZERO_TO_FEW);
+		modelNode._constructables.put("Compartment", ModelNode.Requirements.ZERO_TO_FEW);
+//		.addChildConstructor(new Compartment(), 
+//				ModelNode.Requirements.ZERO_TO_FEW);
 
 		/* Safe this modelNode locally for model run without having to have save 
 		 * all button */
@@ -464,17 +466,6 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		
 		/* Set values for all child nodes. */
 		NodeConstructor.super.setNode(node);
-	}
-
-	/**
-	 * Method is called when "add" button is hit in gui, options are set in
-	 * child constructor hashMap of model node.
-	 */
-	@Override
-	public void addChildObject(NodeConstructor childObject) 
-	{
-		if (childObject instanceof Compartment)
-			this._compartments.add((Compartment) childObject);
 	}
 
 	/**

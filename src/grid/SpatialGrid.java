@@ -671,7 +671,6 @@ public class SpatialGrid implements NodeConstructor
 	@Override
 	public String defaultXmlTag()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return XmlRef.solute;
 	}
 }

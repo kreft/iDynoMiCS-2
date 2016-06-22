@@ -13,6 +13,7 @@ import aspect.AspectReg;
 import dataIO.Log;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;
@@ -58,20 +59,6 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	{
 		/* Load the primary aspects of this Species. */
 		this.loadAspects(xmlNode);
-	}
-
-	public void loadSpeciesModules(Element xmlElem)
-	{
-		NodeList nodes = xmlElem.getElementsByTagName(XmlRef.speciesModule);
-		String name;
-		for ( int i = 0; i < nodes.getLength(); i++ ) 
-		{
-			Element s = (Element) nodes.item(i);
-			name = s.getAttribute(XmlRef.nameAttribute);
-			Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
-			this._aspectRegistry.addSubModule(
-					Idynomics.simulator.speciesLibrary.get(name) );
-		}
 	}
 
 	/*************************************************************************
@@ -175,7 +162,6 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	@Override
 	public NodeConstructor newBlank() 
 	{
-		
 		String name = "";
 		name = Helper.obtainInput(name, "Species name");
 		Species newBlank = new Species();
@@ -186,9 +172,12 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	
 
 	@Override
-	public void removeNode() 
+	public void removeNode(String specifier) 
 	{
-		Idynomics.simulator.speciesLibrary._species.remove(this.reg().getIdentity());
+		if ( specifier == this.reg().getIdentity() )
+			Idynomics.simulator.speciesLibrary._species.remove(this.reg().getIdentity());
+		else
+			this.reg().removeSubmodule(specifier);
 	}
 
 	/**

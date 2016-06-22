@@ -46,7 +46,11 @@ public class ModelNode
 		ZERO_TO_MANY(0, Integer.MAX_VALUE),
 
 		/* temporary for GUI esthetics (same as zero to many) */
-		ZERO_TO_FEW(0, Integer.MAX_VALUE);
+		ZERO_TO_FEW(0, Integer.MAX_VALUE),
+		/**
+		 * number of elements is not allowed to change
+		 */
+		IMMUTABLE(1, 1);
 
 		public final int min, max;
 
@@ -86,6 +90,9 @@ public class ModelNode
 	 */
 	protected Map<NodeConstructor,Requirements> _childConstructors = 
 			new HashMap<NodeConstructor,Requirements>();
+	
+	public Map<String, Requirements> _constructables = 
+			new HashMap<String, Requirements>();
 
 	/**
 	 * Existing child nodes
@@ -408,15 +415,23 @@ public class ModelNode
 		return out;
 	}
 
-	public void delete() {
+	public void delete(String specifier) {
 		this.isRemoved = true;
-		for ( ModelNode n : this.getAllChildNodes() )
-			n.delete();
-		constructor.removeNode();		
+		constructor.removeNode(specifier);		
 	}
 	
 	public boolean isRemoved()
 	{
 		return this.isRemoved;
+	}
+
+	public boolean hasChildNodes(String tag) 
+	{
+		for ( ModelNode m : _childNodes)
+		{
+			if ( m.constructor.defaultXmlTag() == tag );
+				return true;
+		}
+		return false;
 	}
 }

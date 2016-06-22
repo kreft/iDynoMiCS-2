@@ -154,16 +154,21 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	 */
 	public void init(Element xmlElem)
 	{
+		/*
+		 * Compartment initiation
+		 */
+		this.name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute, XmlRef.compartment);
+		Idynomics.simulator.addCompartment(this);
 		Tier level = Tier.EXPRESSIVE;
 		Element elem;
 		String str = null;
+		
 		/*
 		 * Set up the shape.
 		 */
 		elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
-		str = XmlHandler.obtainAttribute(elem, XmlRef.classAttribute);
-		this.setShape( (Shape) Shape.getNewInstance(str) );
-		this._shape.init( elem );
+		str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
+		this.setShape( (Shape) Shape.getNewInstance(str, elem, (NodeConstructor) this) );
 		
 		/*
 		 * Give it solutes.
@@ -172,27 +177,30 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 */
 		Log.out(level, "Compartment reading in solutes");
 		NodeList solutes = XmlHandler.getAll(xmlElem, XmlRef.solute);
-		for ( int i = 0; i < solutes.getLength(); i++)
+		if ( solutes != null )
 		{
-			Element soluteE = (Element) solutes.item(i);
-			String soluteName = XmlHandler.obtainAttribute(soluteE, 
-					XmlRef.nameAttribute);
-			String conc = XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					XmlRef.concentration);
-			this.addSolute(soluteName);
-			this.getSolute(soluteName).setTo(ArrayType.CONCN, conc);
-			
-
-			SpatialGrid myGrid = this.getSolute(soluteName);
-			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
-					XmlRef.voxel);
-			for (int j = 0; j < voxelvalues.getLength(); j++)
+			for ( int i = 0; i < solutes.getLength(); i++)
 			{
-				myGrid.setValueAt(ArrayType.CONCN, Vector.intFromString(
-						XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
-						, XmlRef.coordinates) ) , Double.valueOf( XmlHandler
-						.obtainAttribute((Element) voxelvalues.item(j), 
-						XmlRef.valueAttribute) ));
+				Element soluteE = (Element) solutes.item(i);
+				String soluteName = XmlHandler.obtainAttribute(soluteE, 
+						XmlRef.nameAttribute, this.defaultXmlTag());
+				String conc = XmlHandler.obtainAttribute((Element) solutes.item(i), 
+						XmlRef.concentration, this.defaultXmlTag());
+				this.addSolute(soluteName);
+				this.getSolute(soluteName).setTo(ArrayType.CONCN, conc);
+				
+	
+				SpatialGrid myGrid = this.getSolute(soluteName);
+				NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
+						XmlRef.voxel);
+				for (int j = 0; j < voxelvalues.getLength(); j++)
+				{
+					myGrid.setValueAt(ArrayType.CONCN, Vector.intFromString(
+							XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
+							, XmlRef.coordinates, this.defaultXmlTag()) ) , Double.valueOf( XmlHandler
+							.obtainAttribute((Element) voxelvalues.item(j), 
+							XmlRef.valueAttribute, this.defaultXmlTag()) ));
+				}
 			}
 		}
 			
@@ -606,7 +614,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	{
 		/* The solutes node. */
 		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
-		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
+		modelNode.setTitle(XmlRef.solutes);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* 
 		 * add solute nodes, yet only if the environment has been initiated, when
 		 * creating a new compartment solutes can be added later 
@@ -634,7 +643,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		NodeConstructor.super.setNode(node);
 	}
 	
-	public void removeNode()
+	public void removeNode(String specifier)
 	{
 		Idynomics.simulator.deleteCompartment(this.name);
 	}

@@ -77,7 +77,7 @@ public abstract class Calculated implements Copyable, Instantiatable, Redirectab
 			this.setInput(input);
 		
 		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		if (fields != "")
+		if (fields != null)
 			this.redirect(fields);
 	}
 	

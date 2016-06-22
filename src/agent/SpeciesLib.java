@@ -6,11 +6,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import agent.Species.SpeciesMaker;
 import aspect.AspectInterface;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
@@ -85,9 +87,23 @@ public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 			Species s = (Species) this._species.get(name);
 			Log.out(Tier.EXPRESSIVE,
 					"Species \""+name+"\" loaded into Species Library");
-			s.loadSpeciesModules(speciesElem);
+			this.loadSpeciesModules(speciesElem, s);
 		}
 		Log.out(Tier.NORMAL, "Species Library loaded!\n");
+	}
+	
+	public void loadSpeciesModules(Node xmlElem, Species species)
+	{
+		NodeList nodes = XmlHandler.getAll(xmlElem, XmlRef.speciesModule);
+		String name;
+		for ( int i = 0; i < nodes.getLength(); i++ ) 
+		{
+			Element s = (Element) nodes.item(i);
+			name = s.getAttribute(XmlRef.nameAttribute);
+			Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
+			species._aspectRegistry.addSubModule(
+					this.get(name) );
+		}
 	}
 
 	/**

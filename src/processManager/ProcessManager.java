@@ -116,7 +116,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		this.setTimeStepSize(time);
 		
 		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		if (fields != "")
+		if (fields != null)
 			this.redirect(fields);
 	}
 	
@@ -307,10 +307,13 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 						this._name, null, true ));
 		
 		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-				this.getClass().getSimpleName(), null, true ));
+				this.getClass().getSimpleName(), null, false ));
 		
 		modelNode.add(new ModelAttribute(XmlRef.processPriority, 
 				String.valueOf(this._priority), null, true ));
+		
+		modelNode.add(new ModelAttribute(XmlRef.processTimeStepSize, 
+				String.valueOf(this._timeStepSize), null, true ));
 		
 		modelNode.add(new ModelAttribute(XmlRef.processFirstStep, 
 				String.valueOf(this._timeForNextStep), null, true ));

@@ -43,7 +43,7 @@ public abstract class Event implements Copyable, Instantiatable, Redirectable
 	public void init(Element xmlElem)
 	{
 		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		if (fields != "")
+		if (fields != null)
 			this.redirect(fields);
 	}
 	

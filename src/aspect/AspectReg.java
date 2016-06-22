@@ -149,6 +149,14 @@ public class AspectReg
 		this._modules.add(module);
 	}
 	
+
+	public void removeSubmodule(String module) 
+	{
+		for ( AspectInterface m : _modules )
+			if ( m.reg()._identity == module )
+				_modules.remove(m);
+	}
+	
 	/**
 	 * Add subModule from quizable Library
 	 * 
@@ -302,7 +310,7 @@ public class AspectReg
 	public ModelNode getModuleNode(NodeConstructor constructor) {
 		ModelNode modelNode = new ModelNode(XmlRef.speciesModule,constructor);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
-		
+		modelNode.setTitle(this.getIdentity());
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 				this.getIdentity(), null, true ) );
 		
@@ -581,7 +589,7 @@ public class AspectReg
 		
 
 		@Override
-		public void removeNode() 
+		public void removeNode(String specifier) 
 		{
 			this.registry.remove(this.key);
 		}
@@ -596,4 +604,5 @@ public class AspectReg
 			return XmlRef.aspect;
 		}
 	}
+
 }

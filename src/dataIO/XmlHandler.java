@@ -163,10 +163,10 @@ public class XmlHandler
 	 */
 	public static String gatherAttribute(Element xmlElement, String attribute)
 	{
-		if ( xmlElement.hasAttribute(attribute) )
+		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
 			return xmlElement.getAttribute(attribute);
 		else
-			return "";
+			return null;
 	}
 	
 	/**
@@ -185,14 +185,14 @@ public class XmlHandler
 	 * \brief This method gets an attribute from an element, if the element does not
 	 * have this attribute it will ask the user.
 	 */
-	public static String obtainAttribute(Element xmlElement, String attribute)
+	public static String obtainAttribute(Element xmlElement, String attribute, String tag)
 	{
-		if ( xmlElement.hasAttribute(attribute) )
+		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
 			return  xmlElement.getAttribute(attribute);
 		else
 		{
 			return Helper.obtainInput(null, "Required " + attribute +
-					" from missing xml node: " + xmlElement.getLocalName());
+					" for node: "  + tag );
 		}
 	}
 	
@@ -204,9 +204,9 @@ public class XmlHandler
 	 * @param attribute Name of the attribute sought.
 	 * @return String representation of the attribute required.
 	 */
-	public static String obtainAttribute(Node xmlNode, String attribute)
+	public static String obtainAttribute(Node xmlNode, String attribute, String tag)
 	{
-		return obtainAttribute((Element) xmlNode, attribute);
+		return obtainAttribute((Element) xmlNode, attribute, tag);
 	}
 	
 	/**
@@ -245,6 +245,8 @@ public class XmlHandler
 	 */
 	public static NodeList getAll(Element parent, String tag)
 	{
+		if (parent == null)
+			return null;
 		return parent.getElementsByTagName(tag);
 	}
 	
@@ -285,6 +287,8 @@ public class XmlHandler
 	 */
 	public static Element loadUnique(Element xmlElement, String tagName)
 	{
+		if (xmlElement == null)
+			return null;
 		NodeList nodes =  xmlElement.getElementsByTagName(tagName);
 		if (nodes.getLength() > 1)
 		{
@@ -330,7 +334,7 @@ public class XmlHandler
 					" from missing xml node: " + tagName);
 		}
 		else
-			return obtainAttribute(e, attribute);
+			return obtainAttribute(e, attribute, tagName);
 	}
 
 	/*************************************************************************

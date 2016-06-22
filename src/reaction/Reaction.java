@@ -129,7 +129,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	
 	public void init(Element xmlElem)
 	{
-		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute);
+		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute, this.defaultXmlTag());
 		/*
 		 * Build the stoichiometric map.
 		 */
@@ -140,10 +140,10 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		{
 			Element temp = (Element) stoichs.item(i);
 			/* Get the coefficient. */
-			str = XmlHandler.obtainAttribute(temp, XmlRef.coefficient);
+			str = XmlHandler.obtainAttribute(temp, XmlRef.coefficient, this.defaultXmlTag());
 			coeff = Double.valueOf(str);
 			/* Get the component name. */
-			str = XmlHandler.obtainAttribute(temp, XmlRef.component);
+			str = XmlHandler.obtainAttribute(temp, XmlRef.component, this.defaultXmlTag());
 			/* Enter these into the stoichiometry. */
 			this._stoichiometry.put(str, coeff);
 		}

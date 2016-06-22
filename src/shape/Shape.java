@@ -169,6 +169,12 @@ public abstract class Shape implements
 	 * CONSTRUCTION
 	 * **********************************************************************/
 	
+	public static Shape newShape()
+	{
+		return (Shape) Shape.getNewInstance(
+				Helper.obtainInput(getAllOptions(), "Shape class", false));
+	}
+	
 	@Override
 	public ModelNode getNode()
 	{
@@ -236,7 +242,7 @@ public abstract class Shape implements
 			try
 			{
 				str = XmlHandler.obtainAttribute(childElem,
-												XmlRef.nameAttribute);
+												XmlRef.nameAttribute, this.defaultXmlTag());
 				dimName = DimName.valueOf(str);
 				dim = this.getDimension(dimName);
 				dim.init(childElem);
@@ -1695,6 +1701,16 @@ public abstract class Shape implements
 	public static Shape getNewInstance(String className)
 	{
 		return (Shape) Instantiatable.getNewInstance(className, "shape.ShapeLibrary$");
+	}
+	
+	public static Shape getNewInstance(String className, Element xmlElem, NodeConstructor parent)
+	{
+		if (xmlElem == null)
+			return (Shape) Shape.getNewInstance(
+					Helper.obtainInput(getAllOptions(), "Shape class", false));
+		Shape out = (Shape) Instantiatable.getNewInstance(className, "shape.ShapeLibrary$");
+		out.init(xmlElem);
+		return out;
 	}
 	
 	public static String[] getAllOptions()
