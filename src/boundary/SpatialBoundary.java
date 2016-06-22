@@ -96,6 +96,10 @@ public abstract class SpatialBoundary extends Boundary
 	 * \brief Get the diffusive flux across this boundary, into the grid's
 	 * current iterator voxel.
 	 * 
+	 * <p>Flux has units of mass or mole per unit time, so divide by the volume
+	 * of the current iterator voxel to calculate the rate of change of
+	 * concentration due to diffusive flux.</p>
+	 * 
 	 * <p>Note that we get the name of the variable from the grid itself.</p>
 	 * 
 	 * @param grid Spatial grid representing a variable with a {@code CONCN}

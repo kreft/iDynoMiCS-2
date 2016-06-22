@@ -82,7 +82,7 @@ public class PDEexplicit extends PDEsolver
 				if ( Log.shouldWrite(level) )
 					Log.out(level, " Variable: "+var.getName());
 				var.newArray(LOPERATOR);
-				this.addFluxes(var, commonGrid);
+				this.addFluxRates(var, commonGrid);
 				if ( Log.shouldWrite(level) )
 				{
 					Log.out(level, "  Total value of fluxes: "+

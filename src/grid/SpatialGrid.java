@@ -481,8 +481,7 @@ public class SpatialGrid implements NodeConstructor
 	 * <p>The flux from the neighboring voxel into the current one is given by
 	 * the formula <i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
 	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
-	 *  * (SA<sub>nhb,itr</sub>) / (d<sub>nhb,itr</sub> * V<sub>itr</sub>)
-	 * </i>
+	 * * SA<sub>nhb,itr</sub> / d<sub>nhb,itr</sub></i>
 	 * where subscript <i>itr</i> denotes the current iterator voxel and
 	 * <i>nhb</i> the current neighbor voxel, and
 	 * <ul>
@@ -490,9 +489,13 @@ public class SpatialGrid implements NodeConstructor
 	 * <li><i>D</i> is voxel diffusivity</li>
 	 * <li><i>SA</i> is shared surface area of two voxels</li>
 	 * <li><i>d</i> is distance between centres of two voxels</li>
-	 * <li><i>V</i> is voxel volume</li>
 	 * </ul>
-	 * Note that we use the harmonic mean diffusivity, rather than the
+	 * The flux therefore has units of mass or mole per unit time, and so
+	 * should be divided by the volume of the current iterator voxel to give
+	 * the rate of change of concentration to this voxel due to diffusive 
+	 * flux.</p>
+	 * 
+	 * <p>Note that we use the harmonic mean diffusivity, rather than the
 	 * arithmetic or geometric.</p>
 	 * 
 	 * TODO Rob [8June2016]: I need to find the reference for this.
@@ -522,17 +525,14 @@ public class SpatialGrid implements NodeConstructor
 			double sArea = this._shape.nbhCurrSharedArea();
 			/* Centre-centre distance. */
 			double dist = this._shape.nbhCurrDistance();
-			/* Volume of the current voxel. */
-			double vol = this._shape.getCurrVoxelVolume();
 			/* Calculate the the flux from these values. */
-			double flux = concnDiff * diffusivity * sArea / ( dist * vol );
+			double flux = concnDiff * diffusivity * sArea / dist ;
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, "    concnDiff is "+concnDiff);
 				Log.out(level, "    diffusivity is "+diffusivity);
 				Log.out(level, "    surface area is "+sArea);
 				Log.out(level, "    distance is "+dist);
-				Log.out(level, "    volume is "+vol);
 				Log.out(level, "  => flux is "+flux);
 			}
 			return flux;

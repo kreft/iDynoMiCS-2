@@ -68,9 +68,7 @@ public class FixedBoundary extends SpatialBoundary
 		double sArea = grid.getShape().nbhCurrSharedArea();
 		/* Shape handles the centre-centre distance on a boundary. */
 		double dist = grid.getShape().nbhCurrDistance();
-		/* The current iterator voxel volume is the same as in SpatialGrid. */
-		double vol = grid.getShape().getCurrVoxelVolume();
-		double flux = concnDiff * diffusivity * sArea / ( dist * vol );
+		double flux = concnDiff * diffusivity * sArea / dist ;
 		if ( Log.shouldWrite(level) )
 		{
 			Log.out(level, "FixedBoundary flux for "+grid.getName()+":");
@@ -78,7 +76,6 @@ public class FixedBoundary extends SpatialBoundary
 			Log.out(level, "  diffusivity is "+diffusivity);
 			Log.out(level, "  surface area is "+sArea);
 			Log.out(level, "  distance is "+dist);
-			Log.out(level, "  volume is "+vol);
 			Log.out(level, "  => flux = "+flux);
 		}
 		return flux;
