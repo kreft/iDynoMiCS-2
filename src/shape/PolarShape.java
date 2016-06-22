@@ -28,6 +28,7 @@ public abstract class PolarShape extends Shape
 		double area = 1.0;
 		double temp;
 		DimName dimName;
+		// TODO 
 		double meanR = this.meanNbhCurrRadius();
 		if ( Log.shouldWrite(level) )
 		{
@@ -88,6 +89,8 @@ public abstract class PolarShape extends Shape
 	 * @return Average radius of the current iterator voxel and of the neighbor
 	 * voxel.
 	 */
+	// TODO To call this a mean wouldn't be quite accurate, were we to use
+	// variable resolutions
 	private double meanNbhCurrRadius()
 	{
 		/* 

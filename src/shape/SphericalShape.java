@@ -7,6 +7,7 @@ import static shape.Shape.WhereAmI.INSIDE;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
 import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -21,9 +22,9 @@ public abstract class SphericalShape extends PolarShape
 	 */
 	protected ResCalc[][][] _resCalc;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public SphericalShape()
 	{
@@ -78,9 +79,9 @@ public abstract class SphericalShape extends PolarShape
 		return a;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public double[] getLocalPosition(double[] location)
@@ -94,9 +95,9 @@ public abstract class SphericalShape extends PolarShape
 		return Vector.unspherify(local);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * DIMENSIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void setDimensionResolution(DimName dName, ResCalc resC)
@@ -193,13 +194,13 @@ public abstract class SphericalShape extends PolarShape
 		}
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * LOCATIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SURFACES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void setSurfaces()
 	{
@@ -222,13 +223,112 @@ public abstract class SphericalShape extends PolarShape
 		this._surfaces.put(outbound, dim.getBoundary(1));
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BOUNDARIES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	@Override
+	public double getBoundarySurfaceArea(DimName dimN, int extreme)
+	{
+		Tier level = Tier.BULK;
+		switch( dimN )
+		{
+		case R:
+		{
+			/* 
+			 * Area is a cross-over between an spherical segment and a
+			 * spherical lune. See
+			 * http://mathworld.wolfram.com/SphericalSegment.html
+			 * equation (15) and 
+			 * http://mathworld.wolfram.com/SphericalWedge.html
+			 * equation (2) for inspiration.
+			 */
+			/* In a full sphere: thetaLength = 2 * pi */
+			double rExt = this.getDimension(R).getExtreme(extreme);
+			double thetaLength = this.getDimension(THETA).getLength();
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getExtreme(0);
+			double phiMax = phi.getExtreme(1);
+			/* In a full sphere: h = 2 * rExt */
+			double h = rExt * ( Math.sin(phiMax) - Math.sin(phiMin) );
+			/* In a full sphere: area = 2 * pi * rExt * 2 * rExt */
+			double area = thetaLength * rExt * h;
+			return area;
+		}
+		case THETA:
+		{
+			/* 
+			 * For theta boundaries, it makes no difference which extreme.
+			 * The area is essentially half that of a circle with circular
+			 * segments above phiMax and below phiMin removed (if appropriate).
+			 * See http://mathworld.wolfram.com/CircularSegment.html for
+			 * inspiration.
+			 */
+			// TODO this section could do with some streamlining!
+			Dimension r = this.getDimension(R);
+			double rMin = r.getExtreme(0);
+			double rMax = r.getExtreme(1);
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getExtreme(0);
+			double phiMax = phi.getExtreme(1);
+			double maxSegment, minSegment;
+			/* */
+			double areaMax = ExtraMath.areaOfACircle(rMax);
+			maxSegment = ExtraMath.areaOfACircleSegment(rMax, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMax, phiMin);
+			if ( phiMax > 0.0 )
+				areaMax -= maxSegment;
+			else
+				areaMax = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMax -= minSegment;
+			else
+				areaMax = minSegment - maxSegment;
+			/* */
+			double areaMin = ExtraMath.areaOfACircle(rMin);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMin);
+			if ( phiMax > 0.0 )
+				areaMin -= maxSegment;
+			else
+				areaMin = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMin -= minSegment;
+			else
+				areaMin = minSegment - maxSegment;
+			return areaMax - areaMin;
+		}
+		case PHI:
+		{
+			/*
+			 * This is the area of a cone
+			 * 
+			 */
+			double phiExt =  this.getDimension(PHI).getExtreme(extreme);
+			Dimension r = this.getDimension(R);
+			double rMin = r.getExtreme(0);
+			double rMax = r.getExtreme(1);
+			double thetaLength = this.getDimension(THETA).getLength();
+			double thetaScalar = thetaLength / (2.0 * Math.PI);
+			
+			double maxCone = ExtraMath.lateralAreaOfACone(rMax, phiExt);
+			double minCone = ExtraMath.lateralAreaOfACone(rMin, phiExt);
+			double area = thetaScalar * (maxCone - minCone);
+			return area;
+		}
+		default:
+		{
+			// TODO safety
+			return Double.NaN;
+		}
+		}
+	}
+	
+	
+	
+	/* ***********************************************************************
 	 * VOXELS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public double getVoxelVolume(int[] coord)
@@ -248,17 +348,17 @@ public abstract class SphericalShape extends PolarShape
 		return out * 2 / 3;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SUBVOXEL POINTS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * COORDINATE ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * NEIGHBOR ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	protected void resetNbhIter()

@@ -895,6 +895,15 @@ public abstract class Shape implements
 		return this._otherBoundaries;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dimN
+	 * @param extreme
+	 * @return
+	 */
+	public abstract double getBoundarySurfaceArea(DimName dimN, int extreme);
+	
 	/* ***********************************************************************
 	 * VOXELS
 	 * **********************************************************************/

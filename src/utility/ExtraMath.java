@@ -469,6 +469,40 @@ public final class ExtraMath
 	}
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * <p>Always returns an answer greater than or equal to zero.</p>
+	 * 
+	 * @param radius
+	 * @param angle
+	 * @return
+	 */
+	public static final double areaOfACircleSegment(double radius,double angle)
+	{
+		double area = 0.5 * sq(radius) * (angle - Math.sin(angle));
+		return Math.abs(area);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * Right-circular cone
+	 * 
+	 * Doens't include base
+	 * 
+	 * <p>Always returns an answer greater than or equal to zero.</p>
+	 * 
+	 * @param lateralH Lateral height of the cone
+	 * @param angle Angle between the vertical and the lateral surface.
+	 * @return
+	 */
+	public static final double lateralAreaOfACone(double lateralH, double angle)
+	{
+		double baseRadius = lateralH * Math.sin(angle);
+		return Math.abs(Math.PI * lateralH * baseRadius);
+	}
+	
+	/**
 	 * \brief Calculate the volume of a cylinder with given <b>radius</b> and
 	 * <b>length</b>.
 	 * 
