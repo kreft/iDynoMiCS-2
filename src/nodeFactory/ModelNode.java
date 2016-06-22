@@ -96,6 +96,11 @@ public class ModelNode
 	 * Attributes
 	 */
 	protected List<ModelAttribute> _attributes;
+	
+	/**
+	 * boolean is true if the object has been removed via the gui
+	 */
+	protected boolean isRemoved = false;
 
 	/* ***********************************************************************
 	 * INSTANCE CONSTRUCTOR
@@ -210,6 +215,11 @@ public class ModelNode
 	public boolean areRequirements(Requirements req)
 	{
 		return this._requirement == req;
+	}
+	
+	public Requirements getRequirment()
+	{
+		return this._requirement;
 	}
 	
 	/* ***********************************************************************
@@ -396,5 +406,17 @@ public class ModelNode
 		for( int i = 1; i < tabs; i++ )
 			out += "\t";
 		return out;
+	}
+
+	public void delete() {
+		this.isRemoved = true;
+		for ( ModelNode n : this.getAllChildNodes() )
+			n.delete();
+		constructor.removeNode();		
+	}
+	
+	public boolean isRemoved()
+	{
+		return this.isRemoved;
 	}
 }

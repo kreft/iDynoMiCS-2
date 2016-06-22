@@ -636,7 +636,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	
 	public void removeNode()
 	{
-		// TODO
+		Idynomics.simulator.deleteCompartment(this.name);
 	}
 	
 	@Override

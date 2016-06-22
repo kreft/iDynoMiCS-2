@@ -19,6 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import dataIO.XmlRef;
+import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -86,6 +87,27 @@ public class GuiEditor
 		JPanel attr = new JPanel();
 		attr.setLayout(new WrapLayout(FlowLayout.LEFT, 5, 5));
 		attr.add(GuiComponent.textPanel(node.getTag() + " " + node.getTitle(), 1));
+		
+		component.add(attr);
+		scrollPane.setViewportView(component);
+		
+		if ( node.getRequirment().max > 1 )
+		{
+			NodeConstructor constructor = node.constructor;
+			/* add button for optional childnode(s) */
+			attr.add(GuiComponent.actionButton(constructor.defaultXmlTag(), 
+					new JButton("remove"), new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent event)
+				{
+					GuiEditor.setAttributes();
+					node.delete();
+					GuiMain.update();
+				}
+			}
+			));
+		}
 		
 		/* loop trough child constructors */
 		for ( NodeConstructor c : node.getAllChildConstructors() )
@@ -170,8 +192,6 @@ public class GuiEditor
 				_attributeSelectors.put(a, input);
 			}
 		}
-		component.add(attr);
-		scrollPane.setViewportView(component);
 		
 		/* placement of this ModelNode in the gui */
 		if ( node.isTag(XmlRef.speciesLibrary) )
