@@ -764,6 +764,11 @@ public class ExpressionB extends Component implements NodeConstructor
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void removeNode()
+	{
+		// TODO
+	}
 
 	@Override
 	public void addChildObject(NodeConstructor childObject) {

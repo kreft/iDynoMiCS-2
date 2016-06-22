@@ -655,6 +655,11 @@ public class SpatialGrid implements NodeConstructor
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void removeNode()
+	{
+		// TODO
+	}
 
 	@Override
 	public void addChildObject(NodeConstructor childObject)

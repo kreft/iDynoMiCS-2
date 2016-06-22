@@ -106,13 +106,18 @@ public class AspectReg
 	 */
 	public void add(String key, Object aspect)
 	{
-		if ( this._aspects.containsKey(key) )
-		{
-			Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
-					" which already exists in this aspect registry");
-		}
+		if ( aspect == null || key == null)
+			Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
 		else
-			this._aspects.put(key, new Aspect(aspect, key, this) );
+		{
+			if ( this._aspects.containsKey(key) )
+			{
+				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
+						" which already exists in this aspect registry");
+			}
+			else
+				this._aspects.put(key, new Aspect(aspect, key, this) );
+		}
 	}
 	
 	/**
@@ -528,9 +533,15 @@ public class AspectReg
 		public NodeConstructor newBlank() {
 			String name = "";
 			name = Helper.obtainInput(name, "aspect name");
+			/* if name is canceled */
+			if ( name == null )
+				return null;
 			String type = Helper.obtainInput( Helper.enumToString(
 					AspectReg.AspectClass.class).split(" "), 
 					"aspect type", false);
+			/* if type is canceled */
+			if ( type == null )
+				return null;
 			String pack = "";
 			String classType = "";
 			switch (type)
@@ -540,23 +551,39 @@ public class AspectReg
 	    		classType = Helper.obtainInput( Helper.listToArray(
 	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
 	    				"aspect class", false);
-				
+	    		if ( classType == "StateExpression" )
+	    			registry.add( name, ObjectFactory.loadObject( 
+	    					Helper.obtainInput( "", "expression" ), 
+	    					type, classType) );
+	    		else
+	    			registry.add( name, ObjectFactory.loadObject( "", 
+	    					type, classType) );
 	    		break;
 	    	case "EVENT": 
 	    		pack = "aspect.event.";
 	    		classType = Helper.obtainInput( Helper.listToArray(
 	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
 	    				"aspect class", false);
-				
+    			registry.add( name, ObjectFactory.loadObject( "", 
+    					type, classType) );
 	    		break;
+	    	case "PRIMARY":
 			default:
 				classType = Helper.obtainInput( ObjectRef.getAllOptions(), 
 						"Primary type", false);
+    			registry.add( name, ObjectFactory.loadObject( 
+    					Helper.obtainInput( "", "Primary value" ), 
+    					type, classType) );
 				break;
 			}
-			registry.add( name, ObjectFactory.loadObject( Helper.obtainInput(
-					"", "Primary value"), type, classType) );
 			return registry.getAspect(name);
+		}
+		
+
+		@Override
+		public void removeNode() 
+		{
+			this.registry.remove(this.key);
 		}
 
 		/**

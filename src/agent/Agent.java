@@ -384,6 +384,11 @@ public class Agent implements AspectInterface, NodeConstructor
 		newBlank.registerBirth();
 		return newBlank;
 	}
+	
+	public void removeNode()
+	{
+		this._compartment.registerRemoveAgent(this);
+	}
 
 	/** 
 	 * the default xml label of this class (agent)

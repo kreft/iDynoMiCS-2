@@ -17,6 +17,7 @@ import generalInterfaces.Instantiatable;
 import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
+import processManager.ProcessManager;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at
@@ -67,6 +68,20 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		ExtraMath.initialiseRandomNumberGenerator();
 		this.timer = new Timer();
 		this._xmlOut = new XmlExport();
+	}
+	
+	public void deleteCompartment(String name)
+	{
+		for ( Compartment c : _compartments)
+			if ( c.name == name )
+				_compartments.remove(c);
+	}
+	
+	public void deleteFromCompartment(String name, Object object)
+	{
+		for ( Compartment c : _compartments)
+			if ( c.name == name )
+				c.remove(object);
 	}
 
 	/**

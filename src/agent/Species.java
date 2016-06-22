@@ -183,6 +183,13 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 //		Idynomics.simulator.speciesLibrary.set(newBlank);
 		return newBlank;
 	}
+	
+
+	@Override
+	public void removeNode() 
+	{
+		Idynomics.simulator.speciesLibrary._species.remove(this.reg().getIdentity());
+	}
 
 	/**
 	 * return the default XMLtag for the XML node of this object
@@ -193,4 +200,5 @@ public class Species implements AspectInterface, IsSubmodel, NodeConstructor
 	{
 		return XmlRef.species;
 	}
+
 }

@@ -110,6 +110,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		this.name = name;
 	}
 	
+	public void remove(Object object)
+	{
+		if ( object instanceof ProcessManager )
+			_processes.remove(object);
+	}
+	
 	public NodeConstructor newBlank()
 	{
 		Compartment newComp = new Compartment();
@@ -626,6 +632,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * child nodes need to be set here.
 		 */
 		NodeConstructor.super.setNode(node);
+	}
+	
+	public void removeNode()
+	{
+		// TODO
 	}
 	
 	@Override

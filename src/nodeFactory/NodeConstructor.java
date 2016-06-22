@@ -37,6 +37,11 @@ public interface NodeConstructor
 	public NodeConstructor newBlank();
 	
 	/**
+	 * remove the node from the simulation (gui delete object)
+	 */
+	public void removeNode();
+	
+	/**
 	 * \brief Add a child object that is unable to register itself properly via
 	 * the newBlank call.
 	 * 
