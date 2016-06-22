@@ -169,7 +169,8 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * Set the updater method and solve.
 		 */
 		this._solver.setUpdater(standardUpdater(this._environment, this._agents));
-		this._solver.solve(this._environment.getSolutes(), null, this._timeStepSize);
+		this._solver.solve(this._environment.getSolutes(),
+				this._environment.getCommonGrid(), this._timeStepSize);
 		
 		/*
 		 * clear distribution maps, prevent unneeded clutter in xml output

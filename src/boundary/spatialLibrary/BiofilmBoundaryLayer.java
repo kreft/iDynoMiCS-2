@@ -189,6 +189,10 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		 */
 		// NOTE Rob [19/5/2016]: the value of 0.1 is arbitrary.
 		double dist = 0.1 * this._layerThickness;
+		if ( dist == 0.0 )
+		{
+			// TODO safety
+		}
 		if ( this._extreme == 1 )
 			dist = -dist;
 		/*

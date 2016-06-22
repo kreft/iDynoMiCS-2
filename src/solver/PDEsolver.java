@@ -96,8 +96,15 @@ public abstract class PDEsolver extends Solver
 				/*
 				 * If this flux came from a well-mixed voxel, inform the grid.
 				 */
-				if ( commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
-					grid.increaseWellMixedFlux( - flux );
+				if ( shape.isNhbIteratorInside() )
+				{
+					if ( commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
+						grid.increaseWellMixedFlux( - flux );
+					else
+					{
+						// TODO find the boundary, and directly increase its flux
+					}
+				}
 				flux += temp;
 				/* 
 				 * To get the value we must be inside, the flux can be obtained
