@@ -3,8 +3,10 @@ package boundary.spatialLibrary;
 import static grid.ArrayType.WELLMIXED;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import agent.Agent;
 import aspect.AspectRef;
@@ -39,7 +41,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	 * in SpatialGrid, but when the biofilm is so large that the non-well-mixed
 	 * region reaches up to this boundary then we need to store it here.
 	 */
-	protected double _directFlux = 0.0;
+	protected Map<String,Double> _directFlux = new HashMap<String,Double>();
 	/**
 	 * For the random walk after insertion, we assume that the agent has the
 	 * stochastic move event.
@@ -130,8 +132,9 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	public double getFlux(SpatialGrid grid)
 	{
 		Tier level = Tier.BULK;
+		String name = grid.getName();
 		/* The difference in concentration is the same as in SpatialGrid. */
-		double concnDiff = this._concns.get(grid.getName()) -
+		double concnDiff = this._concns.get(name) -
 				grid.getValueAtCurrent(ArrayType.CONCN);
 		/* The diffusivity comes only from the current voxel. */
 		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
@@ -142,10 +145,12 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		/* Calculate flux in the same way as in SpatialGrid. */
 		double flux = concnDiff * diffusivity * sArea / dist ;
 		/* Subtract this flux from the running tally. */
-		this._directFlux -= flux;
+		if ( ! this._directFlux.containsKey(name) )
+			this._directFlux.put(name, 0.0);
+		this._directFlux.put(name, this._directFlux.get(name) - flux);
 		if ( Log.shouldWrite(level) )
 		{
-			Log.out(level, "BiofilmBoundary flux for "+grid.getName()+":");
+			Log.out(level, "BiofilmBoundary flux for "+name+":");
 			Log.out(level, "  concn diff is "+concnDiff);
 			Log.out(level, "  diffusivity is "+diffusivity);
 			Log.out(level, "  surface area is "+sArea);

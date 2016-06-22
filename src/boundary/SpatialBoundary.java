@@ -102,6 +102,10 @@ public abstract class SpatialBoundary extends Boundary
 	 * 
 	 * <p>Note that we get the name of the variable from the grid itself.</p>
 	 * 
+	 * <p>Note that we ask the boundary to report the flux, rather than its 
+	 * concentration, as we may wish to introduce some kind of Neumann boundary
+	 * condition in future.</p>
+	 * 
 	 * @param grid Spatial grid representing a variable with a {@code CONCN}
 	 * array, most likely a solute.
 	 * @return The rate of diffusive flux across this boundary, in units of
