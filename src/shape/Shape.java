@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -105,11 +104,6 @@ public abstract class Shape implements
 	 * diffusivity to become actual flux.
 	 */
 	protected Double _maxFluxPotentl = null;
-	/**
-	 * Surfaces for collision detection methods.
-	 */
-	protected Map<Surface,SpatialBoundary> _surfaces = 
-			new HashMap<Surface,SpatialBoundary>();
 	
 	/**
 	 * List of boundaries in a dimensionless compartment, or internal
@@ -778,6 +772,9 @@ public abstract class Shape implements
 	 */
 	protected void setPlanarSurfaces(DimName aDimName)
 	{
+		Tier level = Tier.BULK;
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Setting planar surfaces for min & max of "+aDimName);
 		Dimension dim = this.getDimension(aDimName);
 		/* Safety. */
 		if ( dim == null )
@@ -794,11 +791,13 @@ public abstract class Shape implements
 		/* The minimum extreme. */
 		normal[index] = 1.0;
 		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
-		this._surfaces.put(p, dim.getBoundary(0));
+		//this._surfaces.put(p, dim.getBoundary(0));
+		dim.setSurface(p, 0);
 		/* The maximum extreme. */
 		normal[index] = -1.0;
 		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
-		this._surfaces.put(p, dim.getBoundary(1));
+		//this._surfaces.put(p, dim.getBoundary(1));
+		dim.setSurface(p, 1);
 	}
 	
 	/**
@@ -806,7 +805,12 @@ public abstract class Shape implements
 	 */
 	public Collection<Surface> getSurfaces()
 	{
-		return this._surfaces.keySet();
+		Collection<Surface> out = new LinkedList<Surface>();
+		for ( Dimension dim : this._dimensions.values() )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				if ( dim.isSurfaceDefined(extreme) )
+					out.add(dim.getSurface(extreme));
+		return out;
 	}
 	
 	/**
@@ -817,7 +821,11 @@ public abstract class Shape implements
 	 */
 	public SpatialBoundary getBoundary(Surface surface)
 	{
-		return this._surfaces.get(surface);
+		for ( Dimension dim : this._dimensions.values() )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				if ( dim.getSurface(extreme) == surface )
+					return dim.getBoundary(extreme);
+		return null;
 	}
 	
 	/**
@@ -828,10 +836,17 @@ public abstract class Shape implements
 	 */
 	public Surface getSurface(SpatialBoundary boundary)
 	{
-		for ( Surface surface : this._surfaces.keySet() )
-			if ( this._surfaces.get(surface).equals(boundary) )
-				return surface;
-		return null;
+		Tier level = Tier.BULK;
+		DimName dimName = boundary.getDimName();
+		int extreme = boundary.getExtreme();
+		Dimension dim = this.getDimension(dimName);
+		Surface out = dim.getSurface(extreme);
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Surface for boundary on "+dimName+" "+
+					Dimension.extremeToString(extreme)+" is a "+out.toString());
+		}
+		return out;
 	}
 	
 	/* ***********************************************************************

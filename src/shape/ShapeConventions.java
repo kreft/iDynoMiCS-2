@@ -71,9 +71,9 @@ public final class ShapeConventions
 	 * 
 	 * Should only be initialised by Dimension and never from protocol file.
 	 */
-	public static class BoundaryCyclic extends SpatialBoundary
+	public static class DummyBoundary extends SpatialBoundary
 	{
-		public BoundaryCyclic(DimName dim, int extreme)
+		public DummyBoundary(DimName dim, int extreme)
 		{
 			super(dim, extreme);
 		}
@@ -87,7 +87,7 @@ public final class ShapeConventions
 		@Override
 		protected Class<?> getPartnerClass()
 		{
-			return BoundaryCyclic.class;
+			return DummyBoundary.class;
 		}
 
 		@Override

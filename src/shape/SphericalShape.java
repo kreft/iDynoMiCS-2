@@ -214,13 +214,15 @@ public abstract class SphericalShape extends PolarShape
 		{
 			outbound = new Ball( new Point(centre) , radius);
 			outbound.bounding = false;
-			this._surfaces.put(outbound, dim.getBoundary(0));
+			//this._surfaces.put(outbound, dim.getBoundary(0));
+			dim.setSurface(outbound, 0);
 		}
 		/* Outer radius always exists. */
 		radius = dim.getExtreme(1);
 		outbound = new Ball( new Point(centre) , radius);
 		outbound.bounding = true;
-		this._surfaces.put(outbound, dim.getBoundary(1));
+		//this._surfaces.put(outbound, dim.getBoundary(1));
+		dim.setSurface(outbound, 1);
 	}
 	
 	/* ***********************************************************************

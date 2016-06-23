@@ -74,6 +74,10 @@ public class BoundaryTest
 		 * The other boundary is unimportant, but needs to be set.
 		 */
 		comp.addBoundary(new SolidBoundary(DimName.X, 0));
+		/*
+		 * Make sure that the shape's boundaries have the right surfaces.
+		 */
+		comp.getShape().setSurfaces();
 		
 		Idynomics.simulator.run();
 		

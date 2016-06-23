@@ -301,6 +301,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	// TODO move this spatial/non-spatial splitting to Shape?
 	public void addBoundary(Boundary aBoundary)
 	{
+		aBoundary.init(this.environment, this.agents, this.name);
 		if ( aBoundary instanceof SpatialBoundary )
 		{
 			SpatialBoundary sB = (SpatialBoundary) aBoundary;

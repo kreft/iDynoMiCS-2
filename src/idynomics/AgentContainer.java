@@ -320,7 +320,8 @@ public class AgentContainer
 	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
 	{
 		Collection<Agent> out = new LinkedList<Agent>();
-		Collision collision = aSurface.getCollisionDomain();
+		Collision collision = new Collision(this._shape);
+		//System.out.println("collision = "+collision.toString());
 		Collection<Surface> agentSurfs;
 		// TODO Rob [23June2016]: I suspect there is a better way of doing this
 		// than looping through all located agents, but I'm not sure how!

@@ -85,7 +85,7 @@ public class ChemostatToChemostat extends Boundary
 	public void setPartnerCompartment(Compartment comp)
 	{
 		Boundary cIn = this.makePartnerBoundary();
-		comp.getShape().addOtherBoundary(cIn);
+		comp.addBoundary(cIn);
 	}
 
 	/* ***********************************************************************

@@ -246,6 +246,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				if ( ! nbhAgents.isEmpty() )
 					break insertionLoop;
 				bndries = this._agents.boundarySearch(anAgent, this._layerThickness);
+				bndries.remove(this);
 				if ( ! bndries.isEmpty() )
 				{
 					// FIXME stopping is a temporary fix: we need to apply
@@ -335,6 +336,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		/*
 		 * Find all agents who are less than layerThickness away.
 		 */
+		Log.out(AGENT_LEVEL, "Grabbing all agents within layer thickness");
 		out.addAll(this._agents.treeSearch(this, this._layerThickness));
 		/*
 		 * Find all agents who are unattached to others or to a boundary,
