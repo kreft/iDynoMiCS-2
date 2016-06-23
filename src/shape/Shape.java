@@ -266,15 +266,17 @@ public abstract class Shape implements
 		/* Set up any other boundaries. */
 		Boundary aBoundary;
 		childNodes = XmlHandler.getAll(xmlElem, XmlRef.dimensionBoundary);
-		for ( int i = 0; i < childNodes.getLength(); i++ )
+		if ( childNodes != null )
 		{
-			childElem = (Element) childNodes.item(i);
-			str = childElem.getAttribute(XmlRef.classAttribute);
-			aBoundary = (Boundary) Boundary.getNewInstance(str);
-			aBoundary.init(childElem);
-			this.addOtherBoundary(aBoundary);
+			for ( int i = 0; i < childNodes.getLength(); i++ )
+			{
+				childElem = (Element) childNodes.item(i);
+				str = childElem.getAttribute(XmlRef.classAttribute);
+				aBoundary = (Boundary) Boundary.getNewInstance(str);
+				aBoundary.init(childElem);
+				this.addOtherBoundary(aBoundary);
+			}
 		}
-		
 		this.setSurfaces();
 	}
 	

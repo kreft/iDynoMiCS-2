@@ -135,15 +135,15 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		 */
 
 		if ( XmlHandler.obtainBoolean(elem, XmlRef.IS_CYCLIC, 
-				this.defaultXmlTag()) )
+				this.defaultXmlTag() + " " + this._dimName.name()) )
 			this.setCyclic();
 		
 		/* calculate length from dimension extremes */
 		double length = getLength();
 		
 		/* fetch target resolution (or use length as default) */
-		str = XmlHandler.obtainAttribute(elem,
-				XmlRef.targetResolutionAttribute, this.defaultXmlTag());
+		str = XmlHandler.obtainAttribute(elem, XmlRef.targetResolutionAttribute,
+				this.defaultXmlTag() + " " + this._dimName.name());
 		this._targetRes = length; 
 		if ( str != "" )
 			this._targetRes = Double.valueOf(str);
@@ -161,7 +161,8 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			this.setExtreme(val, 0);
 		}
 		
-		str = XmlHandler.obtainAttribute(elem, XmlRef.max, this.defaultXmlTag());
+		str = XmlHandler.obtainAttribute(elem, XmlRef.max, this.defaultXmlTag()
+				+ " " + this._dimName.name());
 		if ( str != null && str != ""){
 			double val = Double.valueOf(str);
 			/* convert degree to radian for angular dimensions */
