@@ -197,6 +197,24 @@ public class XmlHandler
 	}
 	
 	/**
+	 * obtain boolean input
+	 * @param xmlElement
+	 * @param attribute
+	 * @param tag
+	 * @return
+	 */
+	public static boolean obtainBoolean(Element xmlElement, String attribute, String tag)
+	{
+		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
+			return Boolean.valueOf(xmlElement.getAttribute(attribute));
+		else
+		{
+			return Helper.obtainInput("Required " + attribute +
+					" for node: "  + tag, true );
+		}
+	}
+	
+	/**
 	 * \brief Gets an attribute from an XML node: if the attribute cannot be
 	 * found, asks the user. 
 	 * 
@@ -248,6 +266,21 @@ public class XmlHandler
 		if (parent == null)
 			return null;
 		return parent.getElementsByTagName(tag);
+	}
+	
+	public static Node getSpecific(Element parent, String tag, String attribute, String value)
+	{
+		String v;
+		if (parent == null)
+			return null;
+		NodeList list = parent.getElementsByTagName(tag);
+		for ( int i = 0; i < list.getLength(); i++ )
+		{
+			v = XmlHandler.gatherAttribute(list.item(i), attribute);
+			if (v.equals(value))
+				return list.item(i);
+		}
+		return null;
 	}
 	
 	/**

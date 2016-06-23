@@ -225,40 +225,34 @@ public abstract class Shape implements
 	 * 
 	 * @param xmlNode
 	 */
-	// TODO remove once ModelNode, etc is working
 	public void init(Element xmlElem)
 	{
 		NodeList childNodes;
 		Element childElem;
 		String str;
 		/* Set up the dimensions. */
-		DimName dimName;
 		Dimension dim;
-		childNodes = XmlHandler.getAll(xmlElem, XmlRef.shapeDimension);
 		ResCalc rC;
 		
-		for ( int i = 0; i < childNodes.getLength(); i++ )
+		for ( DimName dimens : this.getDimensionNames() )
 		{
-			childElem = (Element) childNodes.item(i);
+
+			childElem = (Element) XmlHandler.getSpecific(xmlElem, 
+					XmlRef.shapeDimension, XmlRef.nameAttribute, dimens.name());
 			try
 			{
-				str = XmlHandler.obtainAttribute(childElem,
-												XmlRef.nameAttribute, this.defaultXmlTag());
-				dimName = DimName.valueOf(str);
-				dim = this.getDimension(dimName);
-				dim.init(childElem);
-				
-				/* Initialise resolution calculators */
-				rC = new ResolutionCalculator.UniformResolution();
-				double length = dim.getLength();
-				/* Set theta dimension cyclic for a full circle, no matter what 
-				 * the user specified */
-				if (dimName == DimName.THETA 
-						&& ExtraMath.areEqual(length, 2 * Math.PI,
-								PolarShape.POLAR_ANGLE_EQ_TOL))
-					dim.setCyclic();
-				rC.init(dim._targetRes, length);
-				this.setDimensionResolution(dimName, rC);	
+				dim = this.getDimension(dimens);
+				if(dim._isSignificant)
+				{
+					dim.init(childElem);
+					
+					/* Initialise resolution calculators */
+					rC = new ResolutionCalculator.UniformResolution();
+					double length = dim.getLength();
+	
+					rC.init(dim._targetRes, length);
+					this.setDimensionResolution(dimens, rC);	
+				}
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -266,6 +260,7 @@ public abstract class Shape implements
 						+ "recognised by shape " + this.getClass().getName()
 						+ ", use: " + Helper.enumToString(DimName.class));
 			}
+			
 		}
 		
 		/* Set up any other boundaries. */
@@ -1695,10 +1690,13 @@ public abstract class Shape implements
 	
 	public static Shape getNewInstance(String className, Element xmlElem, NodeConstructor parent)
 	{
+		Shape out;
 		if (xmlElem == null)
-			return (Shape) Shape.getNewInstance(
+			out = (Shape) Shape.getNewInstance(
 					Helper.obtainInput(getAllOptions(), "Shape class", false));
-		Shape out = (Shape) Instantiatable.getNewInstance(className, "shape.ShapeLibrary$");
+		else
+			out = (Shape) Instantiatable.getNewInstance(className, 
+					"shape.ShapeLibrary$");
 		out.init(xmlElem);
 		return out;
 	}

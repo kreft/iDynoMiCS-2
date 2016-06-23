@@ -116,10 +116,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	{
 		if ( object instanceof ProcessManager )
 			this._processes.remove(object);
-		if ( object instanceof SpatialGrid )
-			this.environment.deleteSolute(object);
-		if ( object instanceof Reaction )
-			this.environment.deleteReaction(object);
 	}
 	
 	public NodeConstructor newBlank()
@@ -144,7 +140,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	
 	/**
 	 * \brief TODO
-	 * 
+	 * FIXME only used by unit tests
 	 * @param shapeName
 	 */
 	public void setShape(String shapeName)
@@ -163,10 +159,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		/*
 		 * Compartment initiation
 		 */
-		this.name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute, XmlRef.compartment);
+		this.name = XmlHandler.obtainAttribute(
+				xmlElem, XmlRef.nameAttribute, XmlRef.compartment);
 		Idynomics.simulator.addCompartment(this);
 		Tier level = Tier.EXPRESSIVE;
 		Element elem;
+		NodeList nodes;
 		String str = null;
 		
 		/*
@@ -174,21 +172,20 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 */
 		elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
 		str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
-		this.setShape( (Shape) Shape.getNewInstance(str, elem, (NodeConstructor) this) );
+		this.setShape( (Shape) Shape.getNewInstance(
+				str, elem, (NodeConstructor) this) );
 		
 		/*
-		 * Give it solutes.
-		 * NOTE: wouldn't we want to pass initial grid values to? It would also
-		 * be possible for the grids to be Xmlable
+		 * Solutes.
 		 */
 		Log.out(level, "Compartment reading in solutes");
-		NodeList solutes = XmlHandler.getAll(xmlElem, XmlRef.solute);
-		if ( solutes != null )
+		nodes = XmlHandler.getAll(xmlElem, XmlRef.solute);
+		if ( nodes != null )
 		{
-			for ( int i = 0; i < solutes.getLength(); i++)
+			for ( int i = 0; i < nodes.getLength(); i++)
 			{
 				this.environment.addSolute( new SpatialGrid(
-						(Element) solutes.item(i), this.environment) );
+						(Element) nodes.item(i), this.environment) );
 			}
 		}
 			
@@ -196,61 +193,49 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 			// TODO initial value
 		
 		/*
-		 * Give it extracellular reactions.
+		 * Extra-cellular reactions.
 		 */
 		Log.out(level, "Compartment reading in (environmental) reactions");
-		NodeList reactions = XmlHandler.getAll(xmlElem, XmlRef.reaction);
-		if ( reactions != null )
+		nodes = XmlHandler.getAll(xmlElem, XmlRef.reaction);
+		if ( nodes != null )
 		{
-			for ( int i = 0; i < reactions.getLength(); i++)
+			for ( int i = 0; i < nodes.getLength(); i++)
 			{
 				this.environment.addReaction( new Reaction(
-						(Element) reactions.item(i), this.environment) );	
+						(Element) nodes.item(i), this.environment) );	
 			}
 		}
+		
 		/*
 		 * Read in agents.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlRef.agents);
-		if ( elem == null )
+		nodes = XmlHandler.getAll(xmlElem, XmlRef.agent);
+		if ( elem != null )
 		{
-			Log.out(Tier.EXPRESSIVE,
-					"Compartment "+this.name+" initialised without agents");
-		}
-		else
-		{
-			NodeList agents = elem.getElementsByTagName(XmlRef.agent);
-			this.agents.readAgents(agents, this);
+			this.agents.readAgents(nodes, this);
 			this.agents.setAllAgentsCompartment(this);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
-							" initialised with "+agents.getLength()+" agents");
-			
+							" initialised with "+nodes.getLength()+" agents");
 		}
+		
 		/*
 		 * Read in process managers.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlRef.processManagers);
-		Element procElem;
-		if ( elem == null )
-		{
+		nodes = XmlHandler.getAll(xmlElem, XmlRef.process);
+		if ( nodes == null )
 			Log.out(Tier.CRITICAL, "Compartment "+this.name+
 									" initialised without process managers");
-		}
 		else
 		{
-			ProcessManager pm;
-			NodeList processNodes = elem.getElementsByTagName(XmlRef.process);
 			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
 									" initialised with process managers:");
-			for ( int i = 0; i < processNodes.getLength(); i++ )
+			for ( int i = 0; i < nodes.getLength(); i++ )
 			{
-				procElem = (Element) processNodes.item(i);
-				str = XmlHandler.gatherAttribute(procElem,
-													XmlRef.nameAttribute);
-				Log.out(Tier.EXPRESSIVE, "\t"+str);
-				pm = ProcessManager.getNewInstance(procElem, this.environment, 
-						this.agents, this.getName());
+				ProcessManager pm = ProcessManager.getNewInstance(
+						(Element) nodes.item(i), 
+						this.environment, this.agents, this.getName());
 				this.addProcessManager(pm);
+				Log.out(Tier.EXPRESSIVE, "\t"+pm.getName());
 			}
 		}
 	}

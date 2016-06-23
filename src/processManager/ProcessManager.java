@@ -356,6 +356,11 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 
 	}
 	
+	/**
+	 * Remove processManager from the compartment
+	 * NOTE a bit of a work around but this prevents the pm form having to have
+	 * access to the compartment directly
+	 */
 	public void removeNode(String specifier)
 	{
 		Idynomics.simulator.deleteFromCompartment(this._compartmentName, this);

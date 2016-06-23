@@ -674,9 +674,8 @@ public class SpatialGrid implements NodeConstructor
 				this._name, null, true ));
 		
 		modelNode.add(new ModelAttribute(XmlRef.concentration, 
-//				arrayAsText(ArrayType.CONCN), null, true ));
-				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)),
-				null, true));
+				ObjectFactory.stringRepresentation(
+				this.getArray( ArrayType.CONCN )), null, true ));
 		
 		return modelNode;
 	}
@@ -684,8 +683,9 @@ public class SpatialGrid implements NodeConstructor
 	@Override
 	public void setNode(ModelNode node)
 	{
-		// TODO Auto-generated method stub
-		
+		this._name = node.getAttribute( XmlRef.nameAttribute ).value;
+		this.setTo(ArrayType.CONCN, 
+				node.getAttribute(XmlRef.concentration).value);
 	}
 
 	@Override

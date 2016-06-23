@@ -70,7 +70,8 @@ public class GuiEditor
 		tabs.setUI(new BasicTabbedPaneUI() {
 	        private final Insets borderInsets = new Insets(0, 0, 0, 0);
 	        @Override
-	        protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
+	        protected void paintContentBorder(Graphics g, int tabPlacement, 
+	        		int selectedIndex) {
 	        }
 	        @Override
 	        protected Insets getContentBorderInsets(int tabPlacement) {
@@ -116,7 +117,8 @@ public class GuiEditor
 			 * is not present yet */
 			if ( node._constructables.get(c) == Requirements.EXACTLY_ONE )
 			{
-				NodeConstructor newNode = (NodeConstructor) Instantiatable.getNewInstance(c, null, node.constructor);
+				NodeConstructor newNode = (NodeConstructor) Instantiatable.
+						getNewInstance(	c, null, node.constructor );
 				if ( ! node.hasChildNodes(newNode.defaultXmlTag()) )
 				{
 					node.add(newNode.getNode());
@@ -132,7 +134,9 @@ public class GuiEditor
 					@Override
 					public void actionPerformed(ActionEvent event)
 					{
-						NodeConstructor newNode = (NodeConstructor) Instantiatable.getNewInstance(c, null, node.constructor);
+						NodeConstructor newNode = (NodeConstructor) 
+								Instantiatable.getNewInstance( c, null, 
+								node.constructor );
 						if ( newNode != null )
 						{
 							node.add(newNode.getNode());
@@ -196,31 +200,38 @@ public class GuiEditor
 		{
 			/* exception for speciesLib add component as tab next to the
 			 * parent tab (simulation) */
-			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent().getParent().getParent(), 
+			GuiComponent.addTab( (JTabbedPane) 
+					parent.getParent().getParent().getParent().getParent(), 
 					node.getTag() , tabs, "");
 		}
 		else if ( node.isTag(XmlRef.compartment) )
 		{
 			/* exception for compartments add component as tab next to the
 			 * parent tab (simulation) */
-			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent().getParent().getParent(), 
+			GuiComponent.addTab( (JTabbedPane) 
+					parent.getParent().getParent().getParent().getParent(), 
 					node.getTag() + " " + node.getTitle(), tabs, "");
 		} 
 		else if ( node.isTagIn(new String[] 
 				/* compartment container nodes */
-				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers, XmlRef.reactions}) )
+				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers, 
+				XmlRef.reactions}) )
 		{
-			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent().getParent(), 
+			GuiComponent.addTab( (JTabbedPane) 
+					parent.getParent().getParent().getParent(), 
 					node.getTag(), tabs, "");
 		}
 		else if ( node.isTagIn(new String[] {XmlRef.aspect, XmlRef.solute}) )
 		{
-			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent().getParent(), 
-					node.getTag() + " " + node.getTitle(), tabs, "");
+			GuiComponent.addTab( (JTabbedPane) 
+					parent.getParent().getParent().getParent(), 
+					node.getTag() + " " + node.getTitle(), tabs, "" );
 		}
-		else if ( node.isTagIn(new String[] {XmlRef.reaction}) && node.getRequirment() == Requirements.IMMUTABLE)
+		else if ( node.isTagIn(new String[] {XmlRef.reaction}) && 
+				node.getRequirment() == Requirements.IMMUTABLE)
 		{
-			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent().getParent(), 
+			GuiComponent.addTab( (JTabbedPane) 
+					parent.getParent().getParent().getParent(), 
 					node.getTag() + " " + node.getTitle(), tabs, "");
 		}
 		else if ( node.isTagIn(new String[] 
@@ -240,7 +251,8 @@ public class GuiEditor
 		else if ( node.areRequirements(Requirements.ZERO_TO_MANY) )
 		{
 			/* species, agents, TODO: changes to spinner */
-			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent().getParent(), 
+			GuiComponent.addTab( (JTabbedPane) 
+					parent.getParent().getParent().getParent(), 
 					node.getTag() + " " + node.getTitle(), tabs, "");
 		} 
 		else
