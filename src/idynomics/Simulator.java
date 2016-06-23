@@ -120,7 +120,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		 * that seed
 		 */
 		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
-		if (seed != "")
+		if (seed != "" && seed != null)
 			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*

@@ -134,16 +134,6 @@ public class SpatialGrid implements NodeConstructor
 		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
 				XmlRef.concentration, this.defaultXmlTag());
 		this.setTo(ArrayType.CONCN, conc);
-		
-		NodeList voxelvalues = XmlHandler.getAll(xmlElem, XmlRef.voxel);
-		for (int j = 0; j < voxelvalues.getLength(); j++)
-		{
-			this.setValueAt(ArrayType.CONCN, Vector.intFromString(
-					XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
-					, XmlRef.coordinates, this.defaultXmlTag()) ) , Double.valueOf( XmlHandler
-					.obtainAttribute((Element) voxelvalues.item(j), 
-					XmlRef.valueAttribute, this.defaultXmlTag()) ));
-		}
 	}
 
 	/* ***********************************************************************

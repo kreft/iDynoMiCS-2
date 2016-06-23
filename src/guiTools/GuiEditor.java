@@ -207,12 +207,18 @@ public class GuiEditor
 					node.getTag() + " " + node.getTitle(), tabs, "");
 		} 
 		else if ( node.isTagIn(new String[] 
-				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers}) )
+				/* compartment container nodes */
+				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers, XmlRef.reactions}) )
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent().getParent(), 
 					node.getTag(), tabs, "");
 		}
 		else if ( node.isTagIn(new String[] {XmlRef.aspect, XmlRef.solute}) )
+		{
+			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent().getParent(), 
+					node.getTag() + " " + node.getTitle(), tabs, "");
+		}
+		else if ( node.isTagIn(new String[] {XmlRef.reaction}) && node.getRequirment() == Requirements.IMMUTABLE)
 		{
 			GuiComponent.addTab((JTabbedPane) parent.getParent().getParent().getParent(), 
 					node.getTag() + " " + node.getTitle(), tabs, "");

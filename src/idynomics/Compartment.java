@@ -521,9 +521,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		modelNode.add( this.getAgentsNode() );
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
+		/* Add the reactions node. */
+		modelNode.add( this.getReactionNode() );
 		return modelNode;	
 	}
-	
+
 	/**
 	 * \brief Helper method for {@link #getNode()}.
 	 * 
@@ -584,6 +586,22 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		if ( this.environment != null )
 			for ( String sol : this.environment.getSoluteNames() )
 				modelNode.add( this.getSolute(sol).getNode() );
+		return modelNode;
+	}
+	
+	private ModelNode getReactionNode() 
+	{
+		/* The reactions node. */
+		ModelNode modelNode = new ModelNode(XmlRef.reactions, this);
+		modelNode.setTitle(XmlRef.reactions);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* 
+		 * add solute nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later 
+		 */
+		if ( this.environment != null )
+			for ( Reaction react : this.environment.getReactions() )
+				modelNode.add( react.getNode() );
 		return modelNode;
 	}
 
