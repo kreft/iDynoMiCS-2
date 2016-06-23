@@ -8,6 +8,7 @@ import aspect.AspectRef;
 import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.XmlRef;
+import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -23,7 +24,7 @@ import surface.Point;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements AspectInterface, NodeConstructor
+public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
@@ -129,6 +130,11 @@ public class Agent implements AspectInterface, NodeConstructor
 	 * @param xmlNode
 	 */
 	public Agent(Node xmlNode, Compartment comp)
+	{
+		this.init(xmlNode, comp);
+	}
+	
+	public void init(Node xmlNode, Compartment comp)
 	{
 		/* initiate all random agents */
 		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);

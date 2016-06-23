@@ -24,9 +24,10 @@ public interface Instantiatable
 {
 	/*************************************************************************
 	 * CLASS INSTANCIATION
+	 * @param parent 
 	 ************************************************************************/
 	
-	public default void init(Element xmlElement)
+	public default void init(Element xmlElement, NodeConstructor parent)
 	{
 		// by default nothing
 	}
@@ -50,10 +51,17 @@ public interface Instantiatable
 		return getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
 	}
 	
+	/**
+	 * Generic instantiation for objects added trough gui or xml
+	 * @param className
+	 * @param xmlElem
+	 * @param parent
+	 * @return
+	 */
 	public static Object getNewInstance(String className, Element xmlElem, NodeConstructor parent)
 	{
 		Object out = getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
-		((Instantiatable) out).init(xmlElem);
+		((Instantiatable) out).init(xmlElem, parent);
 		return out;
 	}
 

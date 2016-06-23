@@ -127,13 +127,10 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		Element bndElem;
 		SpatialBoundary aBoundary;
 		int index = -1;
+		
 		/*
 		 * See if this is cyclic. Assume not if unspecified.
-		 * 
-		 * TODO check that str is "false" and not a typo of "true" 
-		 * (e.g. "truw")
 		 */
-
 		if ( XmlHandler.obtainBoolean(elem, XmlRef.IS_CYCLIC, 
 				this.defaultXmlTag() + " " + this._dimName.name()) )
 			this.setCyclic();
@@ -151,6 +148,8 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		/* 
 		 * Boundaries at the extremes.
 		 */
+		
+		/* by default minimum is 0.0 */
 		str = (String) Helper.setIfNone(
 				XmlHandler.gatherAttribute(elem, XmlRef.min), "0.0");
 		if ( str != null && str != ""){
@@ -161,6 +160,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			this.setExtreme(val, 0);
 		}
 		
+		/* maximum has to be set */
 		str = XmlHandler.obtainAttribute(elem, XmlRef.max, this.defaultXmlTag()
 				+ " " + this._dimName.name());
 		if ( str != null && str != ""){

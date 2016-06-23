@@ -34,5 +34,6 @@
 <!-- general classes -->
 	<classDef package="idynomics." name="Compartment" />
 	<classDef package="agent." name="SpeciesLib" />
+	<classDef package="agent." name="Agent" />
 
 </document>

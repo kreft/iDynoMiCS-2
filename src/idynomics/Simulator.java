@@ -423,12 +423,13 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 			modelNode.add(c.getNode());
 		
 		/* add child constructor (adds add compartment button to gui */
-		modelNode._constructables.put("Compartment", ModelNode.Requirements.ZERO_TO_FEW);
-//		.addChildConstructor(new Compartment(), 
-//				ModelNode.Requirements.ZERO_TO_FEW);
+		modelNode.addConstructable("Compartment", 
+				ModelNode.Requirements.ZERO_TO_FEW);
 
 		/* Safe this modelNode locally for model run without having to have save 
-		 * all button */
+		 * all button NOTE this is the only exception to the rule never to store
+		 * a modelNode, prevent working with out dated information and always
+		 * create new modelNodes from the current model state */
 		this._modelNode = modelNode;
 		
 		/* return node */

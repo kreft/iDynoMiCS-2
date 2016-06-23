@@ -467,5 +467,12 @@ public class XmlHandler
 			}
 		} 
 	}
+
+	public static boolean hasAttribute(Element p, String attribute) {
+		if (p == null)
+			return false;
+		else
+			return p.hasAttribute(attribute);
+	}
 	
 }

@@ -20,6 +20,7 @@ import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
+import nodeFactory.Constructable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -111,14 +112,14 @@ public class GuiEditor
 		}
 		
 		/* loop trough child constructors */
-		for ( String c : node._constructables.keySet() )
+		for ( String c : node.getConstructables() )
 		{
+			Constructable constructable = node.getConstructable(c);
 			/* add child to interface if exactly one is required and the node
 			 * is not present yet */
-			if ( node._constructables.get(c) == Requirements.EXACTLY_ONE )
+			if ( constructable.requirement() == Requirements.EXACTLY_ONE )
 			{
-				NodeConstructor newNode = (NodeConstructor) Instantiatable.
-						getNewInstance(	c, null, node.constructor );
+				NodeConstructor newNode = node.getConstruct(c);
 				if ( ! node.hasChildNodes(newNode.defaultXmlTag()) )
 				{
 					node.add(newNode.getNode());
@@ -128,15 +129,14 @@ public class GuiEditor
 			else
 			{
 				/* add button for optional childnode(s) */
-				attr.add(GuiComponent.actionButton(c, 
+				attr.add(GuiComponent.actionButton(
+						constructable.classRef(), 
 						new JButton("add"), new ActionListener()
 				{
 					@Override
 					public void actionPerformed(ActionEvent event)
 					{
-						NodeConstructor newNode = (NodeConstructor) 
-								Instantiatable.getNewInstance( c, null, 
-								node.constructor );
+						NodeConstructor newNode = node.getConstruct(c);
 						if ( newNode != null )
 						{
 							node.add(newNode.getNode());

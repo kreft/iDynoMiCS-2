@@ -28,6 +28,7 @@ import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
+import utility.Helper;
 import shape.Dimension.DimName;
 
 /**
@@ -154,7 +155,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	 * 
 	 * @param xmlElem An XML element from a protocol file.
 	 */
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
 		/*
 		 * Compartment initiation
@@ -494,12 +495,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		/* Add the shape if it exists. */
 		if ( this._shape != null )
 			modelNode.add( this._shape.getNode() );
-		/* Work around: we need an object in order to call the newBlank method
-		 * from TODO investigate a cleaner way of doing this  */
-		// NOTE Rob [9June2016]: Surely we only need to do this if 
-		// this._shape == null? Or have I completely misunderstood?
-		modelNode.addChildConstructor(Shape.getNewInstance("Dimensionless"), 
-				Requirements.EXACTLY_ONE);
 		/* Add the solutes node. */
 		modelNode.add( this.getSolutesNode() );
 		/* Add the agents node. */
@@ -522,8 +517,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* Add the agent childConstrutor for adding of additional agents. */
-		modelNode.addChildConstructor(
-				new Agent(this), Requirements.ZERO_TO_MANY );
+		modelNode.addConstructable("Agent", 
+				ModelNode.Requirements.ZERO_TO_MANY);
 		/* If there are agents, add them as child nodes. */
 		if ( this.agents != null )
 			for ( Agent a : this.agents.getAllAgents() )
@@ -545,8 +540,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  
 		 */
-		modelNode.addChildConstructor( ProcessManager.getNewInstance(
-				"AgentGrowth"), Requirements.ZERO_TO_MANY);
+		modelNode.addConstructable("PorcessManager", 
+				Helper.collectionToArray(ProcessManager.getAllOptions()), 
+				ModelNode.Requirements.ZERO_TO_MANY);
 		/* Add existing process managers as child nodes. */
 		for ( ProcessManager p : this._processes )
 			modelNode.add( p.getNode() );

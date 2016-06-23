@@ -33,7 +33,11 @@ public interface NodeConstructor
 	 * @return
 	 */
 	//TODO: we may want to merge this with the xmlable interface
-	public NodeConstructor newBlank();
+	@Deprecated
+	public default NodeConstructor newBlank()
+	{
+		return null;
+	}
 	
 	/**
 	 * remove the node from the simulation (gui delete object), specifier is

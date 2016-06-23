@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import generalInterfaces.Instantiatable;
+import utility.Helper;
+
 /**
  * \brief TODO
  * 
@@ -91,8 +94,11 @@ public class ModelNode
 	protected Map<NodeConstructor,Requirements> _childConstructors = 
 			new HashMap<NodeConstructor,Requirements>();
 	
-	public Map<String, Requirements> _constructables = 
-			new HashMap<String, Requirements>();
+	/**
+	 * Contsructables
+	 */
+	protected List<Constructable> _constructables = 
+			new LinkedList<Constructable>();
 
 	/**
 	 * Existing child nodes
@@ -283,6 +289,53 @@ public class ModelNode
 	 * CHILD NODE CONSTRUCTORS
 	 * **********************************************************************/
 
+	
+	public void addConstructable(String classRef, Requirements requirement)
+	{
+		this._constructables.add(new Constructable(classRef, requirement));
+	}
+	
+	public void addConstructable(String classRef, String[] classRefs, Requirements requirement)
+	{
+		this._constructables.add(new Constructable(classRef, classRefs, requirement));
+	}
+	
+	public NodeConstructor getConstruct(String constructable)
+	{
+		Constructable c = this.getConstructable(constructable);
+		if (c.options() == null)
+			return (NodeConstructor) Instantiatable.
+					getNewInstance(	c.classRef(), null, this.constructor );
+		else
+			return (NodeConstructor) Instantiatable.getNewInstance(	
+					Helper.obtainInput(c.options(), "select class", false), 
+					null, this.constructor );
+	}
+	
+	public Requirements getConRequirement(String classRef)
+	{
+		for (Constructable c : this._constructables)
+			if( c.classRef() == classRef )
+				return c.requirement();
+		return null;
+	}
+	
+	public Constructable getConstructable(String classRef)
+	{
+		for (Constructable c : this._constructables)
+			if( c.classRef() == classRef )
+				return c;
+		return null;
+	}
+	
+	public String[] getConstructables()
+	{
+		int i = 0;
+		String[] out = new String[this._constructables.size()];
+		for (Constructable c : this._constructables)
+			out[i++] = c.classRef();
+		return out;
+	}
 	/**
 	 * \brief Add a child node constructor, together with requirements on how
 	 * many times it may be constructed.
