@@ -3,9 +3,15 @@ package grid;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import dataIO.XmlHandler;
 import dataIO.XmlRef;
+import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
@@ -57,6 +63,11 @@ public class SpatialGrid implements NodeConstructor
 			new HashMap<ArrayType, double[][][]>();
 	
 	/**
+	 * identifies what compartment hosts this grid
+	 */
+	protected EnvironmentContainer _environment;
+	
+	/**
 	 * \brief Log file verbosity level used for debugging the getting of
 	 * values.
 	 * 
@@ -87,14 +98,51 @@ public class SpatialGrid implements NodeConstructor
 
 	/**
 	 * \brief Construct a new grid.
+	 * NOTE only used by dummy grid
 	 * 
 	 * @param shape Shape of the grid.
 	 * @param name Name of the variable this represents.
 	 */
-	public SpatialGrid(Shape shape, String name)
+	public SpatialGrid(Shape shape, String name, EnvironmentContainer environment)
 	{
 		this._shape = shape;
 		this._name = name;
+		this._environment = environment;
+	}
+	
+	/**
+	 * NOTE Only used by unit tests, consider restructuring tests
+	 * @param shape
+	 * @param name
+	 * @param environment
+	 */
+	public SpatialGrid(String name, double concentration, EnvironmentContainer environment)
+	{
+		this._shape = environment.getShape();
+		this._name = name;
+		this._environment = environment;
+		this.setTo(ArrayType.CONCN, String.valueOf(concentration));
+	}
+	
+	public SpatialGrid(Element xmlElem, EnvironmentContainer environment)
+	{
+		this._shape = environment.getShape();
+		this._environment = environment;
+		this._name = XmlHandler.obtainAttribute(xmlElem, 
+				XmlRef.nameAttribute, this.defaultXmlTag());
+		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
+				XmlRef.concentration, this.defaultXmlTag());
+		this.setTo(ArrayType.CONCN, conc);
+		
+		NodeList voxelvalues = XmlHandler.getAll(xmlElem, XmlRef.voxel);
+		for (int j = 0; j < voxelvalues.getLength(); j++)
+		{
+			this.setValueAt(ArrayType.CONCN, Vector.intFromString(
+					XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
+					, XmlRef.coordinates, this.defaultXmlTag()) ) , Double.valueOf( XmlHandler
+					.obtainAttribute((Element) voxelvalues.item(j), 
+					XmlRef.valueAttribute, this.defaultXmlTag()) ));
+		}
 	}
 
 	/* ***********************************************************************
@@ -656,9 +704,9 @@ public class SpatialGrid implements NodeConstructor
 		return null;
 	}
 	
-	public void removeNode()
+	public void removeNode(String specifier) 
 	{
-		// TODO
+		this._environment.deleteSolute(this);
 	}
 
 	@Override

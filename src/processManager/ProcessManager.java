@@ -356,7 +356,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 
 	}
 	
-	public void removeNode()
+	public void removeNode(String specifier)
 	{
 		Idynomics.simulator.deleteFromCompartment(this._compartmentName, this);
 	}

@@ -55,56 +55,22 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		this._shape = aShape;
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName)
+	public void addSolute(SpatialGrid solute)
 	{
-		this.addSolute(soluteName, 0.0);
+		this._solutes.add(solute);
+		Log.out(Tier.DEBUG, "Added solute \""+ solute.getName() +"\" to environment");
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 * @param initialConcn
-	 */
-	public void addSolute(String soluteName, double initialConcn)
+	public void deleteSolute(Object spatialGrid)
 	{
-		// TODO safety: check if solute already present
-		SpatialGrid sg = this._shape.getNewGrid(soluteName);
-		sg.newArray(ArrayType.CONCN, initialConcn);
-		this._solutes.add(sg);
-		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
+		_solutes.remove(spatialGrid);
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * NOTE Rob[26Feb2016]: not yet used, work in progress
-	 * 
-	 * TODO Get general solutes from Param?
-	 * 
-	 * @param soluteNodes
-	 */
-	public void readSolutes(NodeList soluteNodes)
+	public void deleteReaction(Object Reaction)
 	{
-		Element elem;
-		String name, concn;
-		double concentration;
-		for ( int i = 0; i < soluteNodes.getLength(); i++)
-		{
-			elem = (Element) soluteNodes.item(i);
-			name = XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute, XmlRef.solute);
-			/* Try to read in the concentration, using zero by default. */
-			concn = XmlHandler.gatherAttribute(elem, XmlRef.concentration);
-			concentration = ( concn.equals("") ) ? 0.0 : Double.valueOf(concn);
-			/* Finally, add the solute to the list. */
-			this.addSolute(name, concentration);
-		}
+		_reactions.remove(Reaction);
 	}
+	
 	
 	/**
 	 * \brief TODO
@@ -124,6 +90,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 			elem = (Element) reactionNodes.item(i);
 			/* Construct and intialise the reaction. */
 			reac = (Reaction) Reaction.getNewInstance(elem);
+			// reac.setCompartment(compartment.getName());
 			reac.init(elem);
 			/* Add it to the environment. */
 			this.addReaction(reac);
@@ -229,6 +196,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	{
 		// TODO Safety: check this reaction is not already present?
 		this._reactions.add(reaction);
+	}
+	
+	public void setReactions(Collection<Reaction> reactions)
+	{
+		this._reactions = reactions;
 	}
 	
 	/**

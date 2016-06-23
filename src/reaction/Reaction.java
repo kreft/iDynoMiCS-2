@@ -14,6 +14,8 @@ import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
 import generalInterfaces.Instantiatable;
+import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -39,6 +41,12 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * reaction rate to a grid as output.
 	 */
 	protected String _name;
+	
+	/**
+	 * identifies what environment hosts this reaction, null if this reaction
+	 * is not a compartment reaction
+	 */
+	protected EnvironmentContainer _environment;
 	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
@@ -70,6 +78,13 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public Reaction(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
+		this.init(elem);
+	}
+	
+	public Reaction(Node xmlNode, EnvironmentContainer environment)
+	{
+		Element elem = (Element) xmlNode;
+		this._environment = environment;
 		this.init(elem);
 	}
 	
@@ -299,17 +314,14 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		return new Reaction(xmlNode);
 	}
 	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	// TODO required from xmlable interface.. unfinished
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
-		modelNode.setRequirements(Requirements.IMMUTABLE);
+		if ( this._environment == null)
+			modelNode.setRequirements(Requirements.IMMUTABLE);
+		else
+			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this._name);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
@@ -345,6 +357,11 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public NodeConstructor newBlank() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public void removeNode(String specifier)
+	{
+		this._environment.deleteReaction(this);
 	}
 
 	@Override

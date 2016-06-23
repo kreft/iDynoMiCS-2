@@ -1,5 +1,6 @@
 package idynomics;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,6 +15,7 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
+import dataIO.ObjectFactory;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
 import grid.*;
@@ -113,7 +115,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	public void remove(Object object)
 	{
 		if ( object instanceof ProcessManager )
-			_processes.remove(object);
+			this._processes.remove(object);
+		if ( object instanceof SpatialGrid )
+			this.environment.deleteSolute(object);
+		if ( object instanceof Reaction )
+			this.environment.deleteReaction(object);
 	}
 	
 	public NodeConstructor newBlank()
@@ -181,26 +187,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		{
 			for ( int i = 0; i < solutes.getLength(); i++)
 			{
-				Element soluteE = (Element) solutes.item(i);
-				String soluteName = XmlHandler.obtainAttribute(soluteE, 
-						XmlRef.nameAttribute, this.defaultXmlTag());
-				String conc = XmlHandler.obtainAttribute((Element) solutes.item(i), 
-						XmlRef.concentration, this.defaultXmlTag());
-				this.addSolute(soluteName);
-				this.getSolute(soluteName).setTo(ArrayType.CONCN, conc);
-				
-	
-				SpatialGrid myGrid = this.getSolute(soluteName);
-				NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
-						XmlRef.voxel);
-				for (int j = 0; j < voxelvalues.getLength(); j++)
-				{
-					myGrid.setValueAt(ArrayType.CONCN, Vector.intFromString(
-							XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
-							, XmlRef.coordinates, this.defaultXmlTag()) ) , Double.valueOf( XmlHandler
-							.obtainAttribute((Element) voxelvalues.item(j), 
-							XmlRef.valueAttribute, this.defaultXmlTag()) ));
-				}
+				this.environment.addSolute( new SpatialGrid(
+						(Element) solutes.item(i), this.environment) );
 			}
 		}
 			
@@ -211,22 +199,14 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * Give it extracellular reactions.
 		 */
 		Log.out(level, "Compartment reading in (environmental) reactions");
-		elem = XmlHandler.loadUnique(xmlElem, XmlRef.reactions);
-		Element rElem;
-		Reaction reac;
-		if ( elem != null )
+		NodeList reactions = XmlHandler.getAll(xmlElem, XmlRef.reaction);
+		if ( reactions != null )
 		{
-			NodeList reactions = XmlHandler.getAll(elem, XmlRef.reaction);
-			for ( int i = 0; i < reactions.getLength(); i++ )
+			for ( int i = 0; i < reactions.getLength(); i++)
 			{
-				rElem = (Element) reactions.item(i);
-				/* Construct and intialise the reaction. */
-				reac = (Reaction) Reaction.getNewInstance(rElem);
-				reac.init(rElem);
-				/* Add it to the environment. */
-				this.environment.addReaction(reac);
+				this.environment.addReaction( new Reaction(
+						(Element) reactions.item(i), this.environment) );	
 			}
-				
 		}
 		/*
 		 * Read in agents.
@@ -336,25 +316,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		// TODO Rob [18Apr2016]: Check if the process's next time step is 
 		// earlier than the current time.
 		Collections.sort(this._processes, this._procComp);
-	}
-	
-	/**
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName)
-	{
-		this.environment.addSolute(soluteName);
-	}	
-	
-	/**
-	 * 
-	 * @param soluteName
-	 */
-	// TODO not used, consider deletion
-	public void addSolute(String soluteName, double initialConcentration)
-	{
-		this.environment.addSolute(soluteName, initialConcentration);
 	}
 	
 	/**

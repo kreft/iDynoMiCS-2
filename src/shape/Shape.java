@@ -26,6 +26,7 @@ import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
+import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -304,17 +305,6 @@ public abstract class Shape implements
 	/* ***********************************************************************
 	 * GRID & ARRAY CONSTRUCTION
 	 * **********************************************************************/
-	
-	/**
-	 * \brief Get a new spatial grid, using this shape's discretisation scheme.
-	 * 
-	 * @param name Name of the variable that this grid will represent.
-	 * @return New spatial grid.
-	 */
-	public SpatialGrid getNewGrid(String name)
-	{
-		return new SpatialGrid(this, name);
-	}
 	
 	/**
 	 * \brief Get a new array with the layout of voxels that follows this

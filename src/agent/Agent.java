@@ -385,7 +385,7 @@ public class Agent implements AspectInterface, NodeConstructor
 		return newBlank;
 	}
 	
-	public void removeNode()
+	public void removeNode(String specifier)
 	{
 		this._compartment.registerRemoveAgent(this);
 	}

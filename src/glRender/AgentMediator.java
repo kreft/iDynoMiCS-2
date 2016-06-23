@@ -58,7 +58,7 @@ public class AgentMediator implements CommandMediator {
 	/*
 	 * kickback, used to move camera back to see entire render scene
 	 */
-	public float _kickback;
+	private float _kickback;
 	
 	/*
 	 * openGL profile
@@ -169,7 +169,7 @@ public class AgentMediator implements CommandMediator {
 					  _rgba = new float[] {0.0f, 1.0f, 0.0f};
 					  break;
 				case "RED" :
-					  _rgba = new float[] {1f, 0.0f, 0.0f};
+					  _rgba = new float[] {1.0f, 0.0f, 0.0f};
 					  break;
 				case "BLUE" :
 					  _rgba = new float[] {0.01f, 0.0f, 1.0f};
@@ -178,13 +178,14 @@ public class AgentMediator implements CommandMediator {
 					  _rgba = new float[] {1.0f, 0.0f, 1.0f};
 					  break;
 				case "ORANGE" :
-					  _rgba = new float[] {1f, 0.6f, 0.1f};
+					  _rgba = new float[] {1.0f, 0.6f, 0.1f};
 					  break;
 				case "BLACK" :
 					  _rgba = new float[] {0.0f, 0.0f, 0.0f};
 					  break;
+				case "WHITE" :
 				default :
-					  _rgba = new float[] {1f, 1f, 1f};
+					  _rgba = new float[] {1.0f, 1.0f, 1.0f};
 					  break;
 				}
 				
@@ -294,8 +295,9 @@ public class AgentMediator implements CommandMediator {
 		/* set different color / blending for 3 dimensional Cartesian shapes */
 		if (length[2] > 0)
 		{
-			_rgba = new float[] {0.1f, 0.1f, 1f};
+			_rgba = new float[] {0.1f, 0.1f, 1.0f};
 			_gl.glEnable(GL2.GL_BLEND);
+			_gl.glDisable(GL2.GL_DEPTH_TEST);
 		}
 		else
 		{
