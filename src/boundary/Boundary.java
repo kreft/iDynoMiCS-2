@@ -198,10 +198,8 @@ public abstract class Boundary implements NodeConstructor
 
 	/**
 	 * \brief TODO
-	 * 
-	 * @param environment
 	 */
-	public abstract void updateConcentrations(EnvironmentContainer environment);
+	public abstract void updateConcentrations();
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
@@ -299,10 +297,10 @@ public abstract class Boundary implements NodeConstructor
 	 * @param agentCont The {@code AgentContainer} that should accept the 
 	 * {@code Agent}s.
 	 */
-	public void agentsArrive(AgentContainer agentCont)
+	public void agentsArrive()
 	{
 		for ( Agent anAgent : this._arrivalsLounge )
-			agentCont.addAgent(anAgent);
+			this._agents.addAgent(anAgent);
 		this._arrivalsLounge.clear();
 	}
 
@@ -314,14 +312,14 @@ public abstract class Boundary implements NodeConstructor
 	 * {@code Agent}s for selection.
 	 * @return List of agents for removal.
 	 */
-	public List<Agent> agentsToGrab(AgentContainer agentCont)
+	public List<Agent> agentsToGrab()
 	{
 		return new LinkedList<Agent>();
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * XML-ABLE
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	// TODO replace with node construction
 

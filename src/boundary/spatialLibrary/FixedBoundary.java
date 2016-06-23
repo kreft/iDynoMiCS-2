@@ -5,8 +5,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
@@ -50,7 +48,7 @@ public class FixedBoundary extends SpatialBoundary
 	 * **********************************************************************/
 	
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	public void updateConcentrations()
 	{
 		/* Do nothing! */
 	}
@@ -98,14 +96,14 @@ public class FixedBoundary extends SpatialBoundary
 	 * **********************************************************************/
 	
 	@Override
-	public void agentsArrive(AgentContainer agentCont)
+	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
 		{
 			Log.out(Tier.NORMAL,
 					"Unexpected: agents arriving at a fixed boundary!");
 		}
-		this.placeAgentsRandom(agentCont);
+		this.placeAgentsRandom();
 		this.clearArrivalsLoungue();
 	}
 }

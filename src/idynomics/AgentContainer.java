@@ -599,7 +599,7 @@ public class AgentContainer
 						Log.out(level, "   boundary not defined");
 					continue;
 				}
-				dim.getBoundary(extreme).agentsArrive(this);
+				dim.getBoundary(extreme).agentsArrive();
 				if ( Log.shouldWrite(level) )
 					Log.out(level, "   boundary defined, agents ariving");
 			}
@@ -611,7 +611,7 @@ public class AgentContainer
 				Log.out(level,"   other boundary "+bndry.getName()+
 						", calling agent method");
 			}
-			bndry.agentsArrive(this);
+			bndry.agentsArrive();
 		}
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " All agents have now arrived");
@@ -634,7 +634,7 @@ public class AgentContainer
 		 */
 		for ( Boundary b : this._shape.getAllBoundaries() )
 		{
-			List<Agent> wishes = b.agentsToGrab(this);
+			List<Agent> wishes = b.agentsToGrab();
 			for ( Agent wishAgent : wishes )
 			{
 				if ( ! grabs.containsKey(wishAgent) )

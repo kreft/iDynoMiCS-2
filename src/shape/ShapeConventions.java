@@ -5,8 +5,6 @@ package shape;
 
 import boundary.SpatialBoundary;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.SameRes;
 
@@ -81,7 +79,7 @@ public final class ShapeConventions
 		}
 
 		@Override
-		public void agentsArrive(AgentContainer agentCont)
+		public void agentsArrive()
 		{
 			/* Do nothing! */
 		}
@@ -93,7 +91,7 @@ public final class ShapeConventions
 		}
 
 		@Override
-		public void updateConcentrations(EnvironmentContainer environment)
+		public void updateConcentrations()
 		{
 			/* Do nothing! */
 		}

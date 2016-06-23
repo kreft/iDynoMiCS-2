@@ -123,7 +123,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	public void updateConcentrations()
 	{
 		// TODO
 	}
@@ -204,13 +204,13 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void agentsArrive(AgentContainer agentCont)
+	public void agentsArrive()
 	{
 		/*
 		 * Give all (located) agents a random position along this boundary
 		 * surface. Unlocated agents can be simply added to the Compartment.
 		 */
-		this.placeAgentsRandom(agentCont);
+		this.placeAgentsRandom();
 		/*
 		 * Calculate the step size and direction that agents will use to
 		 * move.
@@ -242,17 +242,17 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 			 */
 			insertionLoop: while ( true )
 			{
-				nbhAgents = agentCont.treeSearch(anAgent, this._layerThickness);
+				nbhAgents = this._agents.treeSearch(anAgent, this._layerThickness);
 				if ( ! nbhAgents.isEmpty() )
 					break insertionLoop;
-				bndries = agentCont.boundarySearch(anAgent, this._layerThickness);
+				bndries = this._agents.boundarySearch(anAgent, this._layerThickness);
 				if ( ! bndries.isEmpty() )
 				{
 					// FIXME stopping is a temporary fix: we need to apply
 					// the boundary here
 					break insertionLoop;
 				}
-				agentCont.moveAlongDimension(anAgent, this._dim, dist);
+				this._agents.moveAlongDimension(anAgent, this._dim, dist);
 			}
 			/*
 			 * Now that the agent is at the top of the boundary layer, perform
@@ -269,7 +269,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				/*
 				 * Find all boundaries this agent has collided with.
 				 */
-				bndries = agentCont.boundarySearch(anAgent, pull);
+				bndries = this._agents.boundarySearch(anAgent, pull);
 				/*
 				 * If the agent has wandered up and collided with this
 				 * boundary, re-insert it at the back of the arrivals lounge
@@ -291,7 +291,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				if ( ! bndries.isEmpty() )
 				{
 					// FIXME Assume the boundary is solid for now
-					agentCont.addAgent(anAgent);
+					this._agents.addAgent(anAgent);
 					if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
 					{
 						Log.out(AGENT_ARRIVE_LEVEL,
@@ -303,7 +303,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				 * The agent has not collided with any boundaries, so see if it
 				 * has collided with any other agents.
 				 */
-				nbhAgents = agentCont.treeSearch(anAgent, pull);
+				nbhAgents = this._agents.treeSearch(anAgent, pull);
 				/*
 				 * If the agent has collided with others, add it to the agent
 				 * container and continue to the next agent.
@@ -311,7 +311,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				if ( ! nbhAgents.isEmpty() )
 				{
 					// TODO use the pulling method in Collision?
-					agentCont.addAgent(anAgent);
+					this._agents.addAgent(anAgent);
 					if ( Log.shouldWrite(AGENT_ARRIVE_LEVEL) )
 					{
 					Log.out(AGENT_ARRIVE_LEVEL,
@@ -329,7 +329,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	}
 
 	@Override
-	public List<Agent> agentsToGrab(AgentContainer agentCont)
+	public List<Agent> agentsToGrab()
 	{
 		List<Agent> out = new LinkedList<Agent>();
 		/*

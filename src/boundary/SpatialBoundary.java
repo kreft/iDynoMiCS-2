@@ -168,10 +168,10 @@ public abstract class SpatialBoundary extends Boundary
 	 * @param agentCont The {@code AgentContainer} that should accept the 
 	 * {@code Agent}s.
 	 */
-	protected void placeAgentsRandom(AgentContainer agentCont)
+	protected void placeAgentsRandom()
 	{
 		Tier level = Tier.DEBUG;
-		Shape aShape = agentCont.getShape();
+		Shape aShape = this._agents.getShape();
 		double[] newLoc;
 		Body body;
 		for ( Agent anAgent : this._arrivalsLounge )
@@ -192,7 +192,7 @@ public abstract class SpatialBoundary extends Boundary
 			{
 				this._arrivalsLounge.remove(anAgent);
 			}
-			agentCont.addAgent(anAgent);
+			this._agents.addAgent(anAgent);
 		}
 	}
 	
