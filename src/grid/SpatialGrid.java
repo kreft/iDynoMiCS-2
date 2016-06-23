@@ -121,7 +121,7 @@ public class SpatialGrid implements NodeConstructor
 		this._shape = environment.getShape();
 		this._name = name;
 		this._environment = environment;
-		this.setTo(ArrayType.CONCN, String.valueOf(concentration));
+		this.newArray(ArrayType.CONCN, concentration);
 	}
 	
 	public SpatialGrid(Element xmlElem, EnvironmentContainer environment)
@@ -130,6 +130,7 @@ public class SpatialGrid implements NodeConstructor
 		this._environment = environment;
 		this._name = XmlHandler.obtainAttribute(xmlElem, 
 				XmlRef.nameAttribute, this.defaultXmlTag());
+		this.newArray(ArrayType.CONCN, 0.0);
 		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
 				XmlRef.concentration, this.defaultXmlTag());
 		this.setTo(ArrayType.CONCN, conc);
