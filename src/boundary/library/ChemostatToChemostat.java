@@ -1,5 +1,6 @@
 package boundary.library;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import agent.Agent;
@@ -123,7 +124,7 @@ public class ChemostatToChemostat extends Boundary
 	}
 
 	@Override
-	public List<Agent> agentsToGrab()
+	public Collection<Agent> agentsToGrab()
 	{
 		List<Agent> out = new LinkedList<Agent>();
 		int nAllAgents = this._agents.getNumAllAgents();

@@ -329,13 +329,13 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	}
 
 	@Override
-	public List<Agent> agentsToGrab()
+	public Collection<Agent> agentsToGrab()
 	{
 		List<Agent> out = new LinkedList<Agent>();
 		/*
 		 * Find all agents who are less than layerThickness away.
 		 */
-		// TODO
+		out.addAll(this._agents.treeSearch(this, this._layerThickness));
 		/*
 		 * Find all agents who are unattached to others or to a boundary,
 		 * and who are on this side of the biofilm (in, e.g., the case of a

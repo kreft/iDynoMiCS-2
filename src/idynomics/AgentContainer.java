@@ -309,6 +309,48 @@ public class AgentContainer
 	}
 
 	/**
+	 * \brief Find all agents within the given distance of a surface.
+	 * 
+	 * @param aSurface Surface object belonging to this compartment.
+	 * @param searchDist Find agents within this distance of the surface.
+	 * @return Collection of agents that are within the search distance of the
+	 * surface: there should be no false positives or false negatives in this
+	 * collection.
+	 */
+	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
+	{
+		Collection<Agent> out = new LinkedList<Agent>();
+		Collision collision = aSurface.getCollisionDomain();
+		Collection<Surface> agentSurfs;
+		// TODO Rob [23June2016]: I suspect there is a better way of doing this
+		// than looping through all located agents, but I'm not sure how!
+		for ( Agent agent : this._locatedAgentList )
+		{
+			agentSurfs = ((Body) agent.get(AspectRef.agentBody)).getSurfaces();
+			for ( Surface a : agentSurfs )
+				if ( collision.distance(a, aSurface) < searchDist )
+					out.add(agent);
+		}
+		return out;
+	}
+	
+	/**
+	 * \brief Find all agents within the given distance of a spatial boundary.
+	 * 
+	 * @param aBoundary Spatial boundary object belonging to this compartment.
+	 * @param searchDist Find agents within this distance of the surface.
+	 * @return Collection of agents that are within the search distance of the
+	 * boundary: there should be no false positives or false negatives in this
+	 * collection.
+	 */
+	public Collection<Agent> treeSearch(
+			SpatialBoundary aBoundary, double searchDist)
+	{
+		Surface boundarySurface = this._shape.getSurface(aBoundary);
+		return this.treeSearch(boundarySurface, searchDist);
+	}
+	
+	/**
 	 * \brief Find all boundary surfaces that the given agent may be close to.
 	 * 
 	 * @param anAgent Agent at the focus of this search.
@@ -325,7 +367,7 @@ public class AgentContainer
 				((Body) anAgent.get(AspectRef.agentBody)).getSurfaces();
 		out.removeIf((s) -> 
 		{
-			for (Surface a : agentSurfs )
+			for ( Surface a : agentSurfs )
 				if ( collision.distance(a, s) < searchDist )
 					return false;
 			return true;
@@ -634,7 +676,7 @@ public class AgentContainer
 		 */
 		for ( Boundary b : this._shape.getAllBoundaries() )
 		{
-			List<Agent> wishes = b.agentsToGrab();
+			Collection<Agent> wishes = b.agentsToGrab();
 			for ( Agent wishAgent : wishes )
 			{
 				if ( ! grabs.containsKey(wishAgent) )

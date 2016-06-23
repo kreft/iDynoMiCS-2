@@ -1,8 +1,8 @@
 package boundary;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Node;
@@ -58,15 +58,15 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	protected Map<String,Double> _concns = new HashMap<String,Double>();
 	/**
-	 * List of Agents that are leaving this compartment via this boundary, and
+	 * Agents that are leaving this compartment via this boundary, and
 	 * so need to travel to the connected compartment.
 	 */
-	protected LinkedList<Agent> _departureLounge = new LinkedList<Agent>();
+	protected Collection<Agent> _departureLounge = new LinkedList<Agent>();
 	/**
-	 * List of Agents that have travelled here from the connected compartment
+	 * Agents that have travelled here from the connected compartment
 	 * and need to be entered into this compartment.
 	 */
-	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
+	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
@@ -240,7 +240,7 @@ public abstract class Boundary implements NodeConstructor
 	 * 
 	 * @param agents List of agents to enter the compartment via this boundary.
 	 */
-	public void acceptInboundAgents(List<Agent> agents)
+	public void acceptInboundAgents(Collection<Agent> agents)
 	{
 		if ( Log.shouldWrite(AGENT_LEVEL) )
 		{
@@ -279,7 +279,7 @@ public abstract class Boundary implements NodeConstructor
 	}
 
 	// TODO delete once boundary gets full control of agent transfers
-	public List<Agent> getAllInboundAgents()
+	public Collection<Agent> getAllInboundAgents()
 	{
 		return this._arrivalsLounge;
 	}
@@ -312,7 +312,7 @@ public abstract class Boundary implements NodeConstructor
 	 * {@code Agent}s for selection.
 	 * @return List of agents for removal.
 	 */
-	public List<Agent> agentsToGrab()
+	public Collection<Agent> agentsToGrab()
 	{
 		return new LinkedList<Agent>();
 	}

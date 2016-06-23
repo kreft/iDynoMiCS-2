@@ -820,6 +820,20 @@ public abstract class Shape implements
 		return this._surfaces.get(surface);
 	}
 	
+	/**
+	 * \brief Get the surface associated with the given spatial boundary.
+	 * 
+	 * @param boundary Boundary object on one of this shape's surfaces.
+	 * @return The {@code Surface} object linked to this boundary.
+	 */
+	public Surface getSurface(SpatialBoundary boundary)
+	{
+		for ( Surface surface : this._surfaces.keySet() )
+			if ( this._surfaces.get(surface).equals(boundary) )
+				return surface;
+		return null;
+	}
+	
 	/* ***********************************************************************
 	 * BOUNDARIES
 	 * **********************************************************************/
