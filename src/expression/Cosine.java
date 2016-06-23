@@ -29,7 +29,7 @@ public class Cosine extends ComponentSingle
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		return Math.cos(this._a.getValue(variables));
 	}

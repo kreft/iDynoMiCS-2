@@ -26,7 +26,7 @@ public class Subtraction extends ComponentDouble
 	}
 
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		return this._a.getValue(variables) - this._b.getValue(variables);
 	}

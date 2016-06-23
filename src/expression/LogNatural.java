@@ -26,7 +26,7 @@ public class LogNatural extends ComponentSingle
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		return Math.log(this._a.getValue(variables));
 	}

@@ -39,7 +39,7 @@ public class Power extends ComponentDouble
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		double a = this._a.getValue(variables);
 		double b = this._b.getValue(variables);

@@ -719,7 +719,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 
 	@Override
-	public double getValue(Map<String, Double> variables) 
+	protected double calculateValue(Map<String, Double> variables) 
 	{
 		return this._a.getValue(variables);
 	}
