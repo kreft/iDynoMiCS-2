@@ -17,6 +17,8 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import gereralPredicates.IsSame;
+
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
 import shape.Dimension;
@@ -27,6 +29,7 @@ import shape.subvoxel.SubvoxelPoint;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
+import surface.predicate.Colliding;
 import surface.Surface;
 import utility.ExtraMath;
 
@@ -34,6 +37,7 @@ import utility.ExtraMath;
  * \brief Manages the agents in a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public class AgentContainer
 {
@@ -292,14 +296,14 @@ public class AgentContainer
 		/* 
 		 * Remove the focal agent from this list.
 		 */
-		// FIXME lambda operators are notoriously slow in java
-		out.removeIf((a) -> {return a == anAgent;});
+		IsSame isSame = new IsSame(anAgent);
+		out.removeIf(isSame);
+		// NOTE lambda expressions are notoriously slow in java
 		return out;
 	}
 
 	/**
 	 * \brief Find all agents within the given distance of a surface.
-	 * 
 	 * @param aSurface Surface object belonging to this compartment.
 	 * @param searchDist Find agents within this distance of the surface.
 	 * @return Collection of agents that are within the search distance of the
@@ -308,20 +312,7 @@ public class AgentContainer
 	 */
 	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
 	{
-		Collection<Agent> out = new LinkedList<Agent>();
-		Collision collision = new Collision(this._shape);
-		//System.out.println("collision = "+collision.toString());
-		Collection<Surface> agentSurfs;
-		// TODO Rob [23June2016]: I suspect there is a better way of doing this
-		// than looping through all located agents, but I'm not sure how!
-		for ( Agent agent : this._locatedAgentList )
-		{
-			agentSurfs = ((Body) agent.get(AspectRef.agentBody)).getSurfaces();
-			for ( Surface a : agentSurfs )
-				if ( collision.distance(a, aSurface) < searchDist )
-					out.add(agent);
-		}
-		return out;
+		return treeSearch(aSurface.getBox(searchDist));
 	}
 	
 	/**
@@ -336,9 +327,56 @@ public class AgentContainer
 	public Collection<Agent> treeSearch(
 			SpatialBoundary aBoundary, double searchDist)
 	{
-		Surface boundarySurface = this._shape.getSurface(aBoundary);
-		return this.treeSearch(boundarySurface, searchDist);
+		return this.treeSearch( this._shape.getSurface(aBoundary) , searchDist);
 	}
+	
+	/**
+	 * filter non colliding agents
+	 * @param aSurface
+	 * @param agents
+	 * @param searchDist
+	 */
+	public void filterAgentCollision(Surface aSurface, Collection<Agent> agents, double searchDist)
+	{
+		/* the collision object */
+		Collision collision = new Collision(this._shape);
+		for ( Agent a : agents)
+		{
+			/* by default assume no collision */
+			boolean c = false;
+			/* check each agent surface for collision */
+			for ( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+			{
+				/* on collision set boolean true and exit loop */
+				if ( collision.colliding(aSurface, s, searchDist))
+				{
+					c = true;
+					break;
+				}
+			}
+			/* if not in collision remove the agent */
+			if ( !c )
+				agents.remove(a);
+		}	
+	}
+	
+	/**
+	 * 
+	 * @param aSurface
+	 * @param surfaces
+	 * @param searchDist
+	 */
+	public void filterSurfaceCollision(Surface aSurface, Collection<Surface> surfaces, double searchDist)
+	{
+		/* the collision object */
+		Collision collision = new Collision(this._shape);
+
+		/* check each surface for collision, remove if not */
+		for ( Surface s : surfaces)
+			if ( ! collision.colliding(aSurface, s, searchDist))
+				surfaces.remove(s);
+	}
+	
 	
 	/**
 	 * \brief Find all boundary surfaces that the given agent may be close to.
@@ -351,17 +389,16 @@ public class AgentContainer
 	 */
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
+		// NOTE lambda expressions are known to be slower than alternatives
+		Colliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
-		Collection<Surface> agentSurfs = 
-				((Body) anAgent.get(AspectRef.agentBody)).getSurfaces();
-		out.removeIf((s) -> 
+		for ( Surface a : ((Body) anAgent.get(AspectRef.agentBody))
+				.getSurfaces())
 		{
-			for ( Surface a : agentSurfs )
-				if ( collision.distance(a, s) < searchDist )
-					return false;
-			return true;
-		});
+			filter = new Colliding<Surface>(a, collision, searchDist);
+			out.removeIf(filter);
+		}
 		return out;
 	}
 

@@ -2,6 +2,7 @@ package surface;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.BiPredicate;
 
 import boundary.SpatialBoundary;
 import dataIO.Log;
@@ -122,7 +123,7 @@ public class Collision
 			return Vector.zeros(dP);
 		}
 	};
-	
+			
 	/*************************************************************************
 	 * VARIABLES
 	 ************************************************************************/
@@ -296,7 +297,33 @@ public class Collision
 	/*************************************************************************
 	 * KEY DISTANCE METHODS
 	 ************************************************************************/
+
+	/**
+	 * colliding
+	 * @param a
+	 * @param b
+	 * @param margin
+	 * @return
+	 */
+	public boolean colliding(Surface a, Surface b, double margin)
+	{
+		if ( distance( a, b ) < margin )
+			return true;
+		return false;
+	}
 	
+	
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @param margin
+	 * @return
+	 */
+	public double distance(Surface a, Surface b, double margin)
+	{
+		return distance( a, b ) - margin;
+	}
 	/**
 	 * \brief TODO
 	 * 

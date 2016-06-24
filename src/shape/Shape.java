@@ -34,6 +34,7 @@ import nodeFactory.NodeConstructor;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.subvoxel.SubvoxelPoint;
+import surface.Collision;
 import surface.Plane;
 import surface.Surface;
 import utility.ExtraMath;
@@ -138,7 +139,10 @@ public abstract class Shape implements
 	 * What kind of voxel the current neighbor iterator is in.
 	 */
 	protected WhereAmI _whereIsNhb;
-	
+	/**
+	 * TODO
+	 */
+	protected Collision _defaultCollision = new Collision(this);
 	/**
 	 * A helper vector for finding the location of the origin of a voxel.
 	 */
@@ -784,11 +788,13 @@ public abstract class Shape implements
 		/* The minimum extreme. */
 		normal[index] = 1.0;
 		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
+		p.init(_defaultCollision);
 		//this._surfaces.put(p, dim.getBoundary(0));
 		dim.setSurface(p, 0);
 		/* The maximum extreme. */
 		normal[index] = -1.0;
 		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
+		p.init(_defaultCollision);
 		//this._surfaces.put(p, dim.getBoundary(1));
 		dim.setSurface(p, 1);
 	}
