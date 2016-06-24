@@ -38,7 +38,7 @@ public class AspectReg
 	protected String _identity;
 	
 	/**
-	 * \brief Recognised aspect types.
+	 * \brief Recognized aspect types.
 	 * 
 	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
 	 */

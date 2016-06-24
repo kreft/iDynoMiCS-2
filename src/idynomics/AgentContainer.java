@@ -292,6 +292,7 @@ public class AgentContainer
 		/* 
 		 * Remove the focal agent from this list.
 		 */
+		// FIXME lambda operators are notoriously slow in java
 		out.removeIf((a) -> {return a == anAgent;});
 		return out;
 	}
