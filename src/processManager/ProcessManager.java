@@ -20,7 +20,6 @@ import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
-import utility.Helper;
 import nodeFactory.ModelNode.Requirements;
 
 /**
@@ -117,6 +116,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
 		if (fields != null)
 			this.redirect(fields);
+		
+		Log.out(Tier.EXPRESSIVE, this._name + " loaded");
 	}
 	
 	/**
@@ -146,8 +147,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	}
 	
 	/**
-	 * Implements XMLable interface, return new instance from xml Node.
-	 * 
+	 * get new instance
+	 * TODO this is actually a bypasses  of the interface, consider renaming
 	 * @param xmlNode Relevant part of the XML protocol file.
 	 * @param environment The {@code EnvironmentContainer} of the
 	 * {@code Compartment} this process belongs to.

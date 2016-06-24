@@ -136,6 +136,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	
 	public void init(Node xmlNode, Compartment comp)
 	{
+		this._compartment = comp;
 		/* initiate all random agents */
 		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
 		if(temp.getLength() > 0)

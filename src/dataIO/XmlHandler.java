@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.security.CodeSource;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -266,6 +267,18 @@ public class XmlHandler
 		if (parent == null)
 			return null;
 		return parent.getElementsByTagName(tag);
+	}
+	
+	public static Collection<Element> getElements(Element parent, String tag)
+	{
+		LinkedList<Element> out = new LinkedList<Element>();
+		NodeList list = getAll(parent, tag);
+		if ( list != null )
+		{
+			for ( int i = 0; i < list.getLength(); i++)
+				out.add((Element) list.item(i));
+		}
+		return out;
 	}
 	
 	public static Node getSpecific(Element parent, String tag, String attribute, String value)

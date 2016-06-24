@@ -138,18 +138,6 @@ public class AgentContainer
 	}
 
 	/**
-	 * \brief Construct agents from a list of XML nodes.
-	 * 
-	 * @param agentNodes List of XML nodes from a protocol file.
-	 * @param comp Compartment that this container belongs to.
-	 */
-	public void readAgents(NodeList agentNodes, Compartment comp)
-	{
-		for ( int i = 0; i < agentNodes.getLength(); i++ ) 
-			this.addAgent(new Agent(agentNodes.item(i), comp));
-	}
-
-	/**
 	 * \brief Helper method setting the compartment reference of every agent
 	 * in this container to that given.
 	 * 

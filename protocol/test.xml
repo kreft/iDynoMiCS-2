@@ -57,14 +57,12 @@
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>
-				<item type="PRIMARY" class="Reaction">
-					<reaction name="slowInflow">
-						<expression value="1.0 * inflow">
-							<constant name="inflow" value="0.2" />
-						</expression>
-						<stoichiometric component="solute1" coefficient="1.0" />
-					</reaction>
-				</item>
+				<reaction name="slowInflow">
+					<expression value="1.0 * inflow">
+						<constant name="inflow" value="0.2" />
+					</expression>
+					<stoichiometric component="solute1" coefficient="1.0" />
+				</reaction>
 			</reactions>
 			<agents>
 				<agent>

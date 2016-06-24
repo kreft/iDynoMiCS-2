@@ -164,81 +164,43 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 				xmlElem, XmlRef.nameAttribute, XmlRef.compartment);
 		Idynomics.simulator.addCompartment(this);
 		Tier level = Tier.EXPRESSIVE;
-		Element elem;
-		NodeList nodes;
-		String str = null;
 		
+		// TODO diffusivity
+	
 		/*
 		 * Set up the shape.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
-		str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
+		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
+		String str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
 		this.setShape( (Shape) Shape.getNewInstance(
 				str, elem, (NodeConstructor) this) );
-		
 		/*
 		 * Solutes.
 		 */
 		Log.out(level, "Compartment reading in solutes");
-		nodes = XmlHandler.getAll(xmlElem, XmlRef.solute);
-		if ( nodes != null )
-		{
-			for ( int i = 0; i < nodes.getLength(); i++)
-			{
-				this.environment.addSolute( new SpatialGrid(
-						(Element) nodes.item(i), this.environment) );
-			}
-		}
-			
-			// TODO diffusivity
-			// TODO initial value
-		
+		for ( Element e : XmlHandler.getElements(xmlElem, XmlRef.solute))
+			this.environment.addSolute( new SpatialGrid( e, this.environment) );
 		/*
 		 * Extra-cellular reactions.
 		 */
 		Log.out(level, "Compartment reading in (environmental) reactions");
-		nodes = XmlHandler.getAll(xmlElem, XmlRef.reaction);
-		if ( nodes != null )
-		{
-			for ( int i = 0; i < nodes.getLength(); i++)
-			{
-				this.environment.addReaction( new Reaction(
-						(Element) nodes.item(i), this.environment) );	
-			}
-		}
-		
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
+			this.environment.addReaction( new Reaction(	e, this.environment) );	
 		/*
 		 * Read in agents.
 		 */
-		nodes = XmlHandler.getAll(xmlElem, XmlRef.agent);
-		if ( elem != null )
-		{
-			this.agents.readAgents(nodes, this);
-			this.agents.setAllAgentsCompartment(this);
-			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
-							" initialised with "+nodes.getLength()+" agents");
-		}
-		
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
+			this.addAgent(new Agent( e, this ));
+		Log.out(level, "Compartment "+this.name+
+				" initialised with "+ this.agents.getNumAllAgents()+" agents");
 		/*
 		 * Read in process managers.
 		 */
-		nodes = XmlHandler.getAll(xmlElem, XmlRef.process);
-		if ( nodes == null )
-			Log.out(Tier.CRITICAL, "Compartment "+this.name+
-									" initialised without process managers");
-		else
-		{
-			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
-									" initialised with process managers:");
-			for ( int i = 0; i < nodes.getLength(); i++ )
-			{
-				ProcessManager pm = ProcessManager.getNewInstance(
-						(Element) nodes.item(i), 
-						this.environment, this.agents, this.getName());
-				this.addProcessManager(pm);
-				Log.out(Tier.EXPRESSIVE, "\t"+pm.getName());
-			}
-		}
+		Log.out(level,"Compartment "+this.name+ " loading "+XmlHandler.
+				getElements(xmlElem, XmlRef.process).size()+" processManagers");
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.process) )
+			this.addProcessManager(ProcessManager.getNewInstance(e, 
+					this.environment, this.agents, this.getName()));
 	}
 		
 	
