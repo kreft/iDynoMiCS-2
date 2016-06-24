@@ -437,6 +437,15 @@ mother.set(input[0], initiator.getDouble(input[0])/2.0);
 
 ## using reactions
 
+## Solute dynamics
+Some definitions:
+- *Concentration* is the amount of substance dissolved per volume. There are two ways of quantifying this substance - mass or moles - and the *relative molecular mass* (RMM) of a substance is needed to convert between the two. Examples of units of concentration are kg m<sup>-3</sup> and mol L<sup>-1</sup> (also known as molar, M).
+- *Flow* is the rate of transfer from one spatial region to another, and the term is often used to describe the transfer of dissolved solutes (mass flow) and of the bulk liquid (volume flow).
+  - *Mass flow* is given in units of substance per unit time (e.g. kg h<sup>-1</sup> or mol s<sup>-1</sup>).
+  - *Volume flow* is given in units of volume per unit time (e.g. m<sup>3</sup> h<sup>-1</sup> or L s<sup>-1</sup>).
+- *Dilution* is the rate at which volume of bulk liquid enters/leaves a volume, and is essentially the volume flow normalized by the volume: D = F/V. Dilution rate has units of per time (e.g. h<sup>-1</sup> or s<sup>-1</sup>).
+- *Flux* is the rate of transfer of substance from one spatial region to another across an area, and is given in units of substance per unit area per unit time (e.g. kg m<sup>-2</sup> h<sup>-1</sup>).
+
 # Testing
 
 Useful links:
