@@ -1,5 +1,6 @@
 package idynomics;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -243,15 +244,30 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	}
 	
 	/**
-	 * \brief Get the first {@code Compartment} in this {@code Simulator} that
-	 * has at least one spatial dimension.
+	 * \brief Get the names of the {@code Compartment}s in this 
+	 * {@code Simulator} that have at least one spatial dimension.
 	 * 
 	 * @return A {@code Compartment} if possible, {@code null} if not.
 	 */
-	public Compartment get1stSpatialCompartment()
+	public List<String> spatialCompartments()
 	{
+		LinkedList<String> out = new LinkedList<String>();
 		for ( Compartment c : this._compartments )
 			if ( ! c.isDimensionless() )
+				out.add(c.name);
+		return out;
+	}
+	
+	/**
+	 * \brief Get the compartment with matching name, return null if no
+	 * compartment with that name exists.
+	 * @param name
+	 * @return Compartment
+	 */
+	public Compartment getCompartment(String name)
+	{
+		for ( Compartment c : this._compartments )
+			if ( c.name.equals(name) )
 				return c;
 		return null;
 	}

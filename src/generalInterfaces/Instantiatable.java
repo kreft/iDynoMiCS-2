@@ -26,10 +26,19 @@ public interface Instantiatable
 	 * CLASS INSTANCIATION
 	 * @param parent 
 	 ************************************************************************/
-	
+	/**
+	 * \brief method for Instantiatable object initiation
+	 * 
+	 * Overwrite this method in the implementing class
+	 * 
+	 * @param xmlElement
+	 * @param parent
+	 */
 	public default void init(Element xmlElement, NodeConstructor parent)
 	{
 		// by default nothing
+		Log.out(Tier.CRITICAL, "Warning: Object class has no implementation"
+				+ "of init(Element, NodeConstructor");
 	}
 	
 	/**

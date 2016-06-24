@@ -153,20 +153,18 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	/**
 	 * \brief Initialise this {@code Compartment} from an XML node. 
 	 * 
+	 * TODO diffusivity
 	 * @param xmlElem An XML element from a protocol file.
 	 */
 	public void init(Element xmlElem, NodeConstructor parent)
 	{
+		Tier level = Tier.EXPRESSIVE;
 		/*
 		 * Compartment initiation
 		 */
 		this.name = XmlHandler.obtainAttribute(
 				xmlElem, XmlRef.nameAttribute, XmlRef.compartment);
 		Idynomics.simulator.addCompartment(this);
-		Tier level = Tier.EXPRESSIVE;
-		
-		// TODO diffusivity
-	
 		/*
 		 * Set up the shape.
 		 */
@@ -175,13 +173,13 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		this.setShape( (Shape) Shape.getNewInstance(
 				str, elem, (NodeConstructor) this) );
 		/*
-		 * Solutes.
+		 * Load solutes.
 		 */
 		Log.out(level, "Compartment reading in solutes");
 		for ( Element e : XmlHandler.getElements(xmlElem, XmlRef.solute))
 			this.environment.addSolute( new SpatialGrid( e, this.environment) );
 		/*
-		 * Extra-cellular reactions.
+		 * Load extra-cellular reactions.
 		 */
 		Log.out(level, "Compartment reading in (environmental) reactions");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
@@ -191,8 +189,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 */
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
 			this.addAgent(new Agent( e, this ));
-		Log.out(level, "Compartment "+this.name+
-				" initialised with "+ this.agents.getNumAllAgents()+" agents");
+		Log.out(level, "Compartment "+this.name+" initialised with "+ 
+				this.agents.getNumAllAgents()+" agents");
 		/*
 		 * Read in process managers.
 		 */

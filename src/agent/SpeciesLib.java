@@ -61,7 +61,7 @@ public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 	 * 
 	 * @param xmlElem
 	 */
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
 		Log.out(Tier.NORMAL, "Species Library loading...");
 		/* 
