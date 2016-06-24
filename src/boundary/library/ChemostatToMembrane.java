@@ -29,12 +29,6 @@ public class ChemostatToMembrane extends Boundary
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
 	
-	@Override
-	public void updateConcentrations()
-	{
-		// TODO Auto-generated method stub
-	}
-	
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

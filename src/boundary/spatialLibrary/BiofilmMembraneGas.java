@@ -48,12 +48,6 @@ public class BiofilmMembraneGas extends SpatialBoundary
 		// TODO Auto-generated method stub
 		return 0.0;
 	}
-
-	@Override
-	public void updateConcentrations()
-	{
-
-	}
 	
 	@Override
 	public boolean needsToUpdateWellMixed()

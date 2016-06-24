@@ -1,5 +1,8 @@
 package boundary.spatialLibrary;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -15,6 +18,15 @@ import shape.Dimension.DimName;
  */
 public class FixedBoundary extends SpatialBoundary
 {
+	/**
+	 * Solute concentrations.
+	 */
+	protected Map<String,Double> _concns = new HashMap<String,Double>();
+	
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
+	
 	/**
 	 * \brief Construct a fixed boundary by giving it the information it
 	 * needs about its location.
@@ -47,10 +59,15 @@ public class FixedBoundary extends SpatialBoundary
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
 	
-	@Override
-	public void updateConcentrations()
+	/**
+	 * \brief Set the concentration of a solute at this boundary.
+	 * 
+	 * @param name Name of the solute.
+	 * @param concn Concentration of the solute.
+	 */
+	public void setConcentration(String name, double concn)
 	{
-		/* Do nothing! */
+		this._concns.put(name, concn);
 	}
 	
 	@Override

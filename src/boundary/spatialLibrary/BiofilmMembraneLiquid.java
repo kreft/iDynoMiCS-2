@@ -43,12 +43,6 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations()
-	{
-		// TODO
-	}
-
-	@Override
 	public double getFlow(SpatialGrid grid)
 	{
 		// TODO

@@ -10,7 +10,6 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import aspect.AspectRef;
 import boundary.Boundary;
-import boundary.library.ChemostatToChemostat;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
@@ -156,8 +155,8 @@ public class SolveChemostat extends ProcessManager
 		/*
 		 * Update information that depends on the environment.
 		 */
-		this.updateDilutionInflow(this._environment);
-		this.updateConcnsAndY(this._environment);
+		this.updateFlowRates();
+		this.updateConcnsAndY();
 		/*
 		 * Update the solver's derivative functions (dY/dT, dF/dT, dF/dY).
 		 */
@@ -166,11 +165,16 @@ public class SolveChemostat extends ProcessManager
 		/*
 		 * Solve the system and update the environment.
 		 */
-		Log.out(level, " About to start solver: y = "+Vector.toString(this._y));
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, 
+					" About to start solver: y = "+Vector.toString(this._y));
+		}
 		try { this._y = this._solver.solve(this._y, this._timeStepSize); }
 		catch ( Exception e) { e.printStackTrace();}
-		Log.out(level, " Solver finished: y = "+Vector.toString(this._y));
-		updateEnvironment(this._environment);
+		if ( Log.shouldWrite(level) )
+			Log.out(level, " Solver finished: y = "+Vector.toString(this._y));
+		this.updateEnvironment();
 		/*
 		 * Finally, select Agents to be washed out of the Compartment.
 		 */
@@ -235,14 +239,34 @@ public class SolveChemostat extends ProcessManager
 					// TODO get agent biomass concentrations?
 					for (Reaction aReac : reactions)
 						applyProductionRates(destination, aReac, _concns);
-					// TODO tell the agent about the rates of production of its
-					// biomass types?
+					
 				}
 				/*
 				 * Apply extracellular reactions.
 				 */
 				for ( Reaction aReac : environment.getReactions() )
 					applyProductionRates(destination, aReac, _concns);
+			}
+			
+			@Override
+			public void postMiniStep(double[] y, double dt)
+			{
+				// TODO tell the agent about the rates of production of its
+				// biomass types?
+				String name;
+				double volRate, massRate;
+				for ( Boundary aBoundary : _outflows )
+				{
+					volRate = aBoundary.getVolumeFlowRate();
+					for ( int i = 0; i < n(); i++ )
+					{
+						name = _soluteNames[i];
+						// TODO Check if we need to apply volume-change
+						// conversions here
+						massRate = volRate * y[i];
+						aBoundary.increaseMassFlowRate(name, massRate);
+					}
+				}
 			}
 		};
 	}
@@ -251,7 +275,7 @@ public class SolveChemostat extends ProcessManager
 	 * \brief Ask the compartment's boundaries for information about the
 	 * flow of media in and out.
 	 */
-	private void updateDilutionInflow(EnvironmentContainer environment)
+	private void updateFlowRates()
 	{
 		Tier level = Tier.DEBUG;
 		/* Reset counters */
@@ -259,30 +283,33 @@ public class SolveChemostat extends ProcessManager
 		double inRate = 0.0, outRate = 0.0;
 		this._outflows.clear();
 		/*
-		 * Loop over all chemostat connections.
+		 * Loop over all boundaries, asking for their flow rates.
 		 */
-		for ( Boundary aBoundary : environment.getOtherBoundaries() )
+		for ( Boundary aBoundary : this._environment.getOtherBoundaries() )
 		{
-			if ( aBoundary instanceof ChemostatToChemostat )
+			double volFlowRate = aBoundary.getVolumeFlowRate();
+			if ( volFlowRate < 0.0 )
 			{
-				ChemostatToChemostat c2c = (ChemostatToChemostat) aBoundary;
-				double flow = c2c.getFlowRate();
-				if ( flow > 0.0 )
+				/*
+				 * This is an outflow, so we calculate the mass flow rates as
+				 * the solver runs.
+				 */
+				outRate -= volFlowRate;
+				this._outflows.add(aBoundary);
+			}
+			else
+			{
+				/*
+				 * This is either an inflow or a no-flow. In either case, use
+				 * the mass flow rates given by the boundary.
+				 */
+				inRate += volFlowRate;
+				for ( int i = 0; i < this.n(); i++ )
 				{
-					inRate += flow;
-					for ( int i = 0; i < this.n(); i++ )
-					{
-						this._dYdTinflow[i] += flow * 
-								c2c.getConcentration(this._soluteNames[i]);
-					}
-				}
-				else
-				{
-					outRate -= flow;
-					this._outflows.add(c2c);
+					this._dYdTinflow[i] += 
+							aBoundary.getMassFlowRate(this._soluteNames[i]);
 				}
 			}
-			// TODO ChemostatToBiofilm
 		}
 		/*
 		 * If the in- and out-rates don't match then the volume would change.
@@ -290,11 +317,10 @@ public class SolveChemostat extends ProcessManager
 		 * TODO handle this!
 		 */
 		/*
-		if ( ! ExtraMath.areEqual(inRate, outRate, 1.0e-10) )
+		if ( Math.abs(totalVolRate) > 1.0e-10 )
 		{
 			throw new IllegalArgumentException(
-							"Chemostat inflow and outflow rates must match!"+
-							" Inflow: "+inRate+" | Outflow: "+outRate);
+							"Chemostat inflow and outflow rates must match!");
 		}
 		*/
 		if ( Log.shouldWrite(level) )
@@ -308,17 +334,15 @@ public class SolveChemostat extends ProcessManager
 	/**
 	 * \brief Update the private _concn and _y variables with average solute
 	 * concentrations from the environment.
-	 * 
-	 * @param environment Holder of the current solute concentrations.
 	 */
-	private void updateConcnsAndY(EnvironmentContainer environment)
+	private void updateConcnsAndY()
 	{
 		double concn;
 		String name;
 		for ( int i = 0; i < this.n(); i++ )
 		{
 			name = this._soluteNames[i];
-			concn = environment.getAverageConcentration(name);
+			concn = this._environment.getAverageConcentration(name);
 			this._concns.put(name, concn);
 			this._y[i] = concn;
 		}
@@ -326,14 +350,15 @@ public class SolveChemostat extends ProcessManager
 
 	/**
 	 * \brief Push all new values of solute concentrations to the relevant
-	 * grids in the given {@code EnvironmentContainer}.
-	 * 
-	 * @param environment The destination for the new solute concentrations.
+	 * grids in the environment.
 	 */
-	private void updateEnvironment(EnvironmentContainer environment)
+	private void updateEnvironment()
 	{
 		for ( int i = 0; i < this.n(); i++ )
-			environment.setAllConcentration(this._soluteNames[i], this._y[i]);
+		{
+			this._environment.setAllConcentration(
+					this._soluteNames[i], this._y[i]);
+		}
 	}
 	
 

@@ -17,45 +17,10 @@ import linearAlgebra.Vector;
 public class ChemostatToChemostat extends Boundary
 {
 	/**
-	 * Flow rate (units of volume per time). Positive flow rate signifies
-	 * inflow; negative signifies outflow.
-	 */
-	// TODO set this from protocol
-	protected double _flowRate;
-
-	/**
 	 * Tally for the number of agents to be diluted via this boundary (kept at
 	 * zero for inflows).
 	 */
 	protected double _agentsToDiluteTally = 0.0;
-
-	/* ***********************************************************************
-	 * BASIC SETTERS & GETTERS
-	 * **********************************************************************/
-
-	/**
-	 * \brief Set this connective boundary's flow rate.
-	 * 
-	 * <p>Positive flow rate signifies inflow; negative signifies outflow.</p>
-	 * 
-	 * @param flowRate Flow rate (units of volume per time).
-	 */
-	public void setFlowRate(double flowRate)
-	{
-		this._flowRate = flowRate;
-	}
-
-	/**
-	 * \brief Get this connective boundary's flow rate.
-	 * 
-	 * <p>Positive flow rate signifies inflow; negative signifies outflow.</p>
-	 * 
-	 * @return Flow rate (units of volume per time).
-	 */
-	public double getFlowRate()
-	{
-		return this._flowRate;
-	}
 
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
@@ -72,7 +37,7 @@ public class ChemostatToChemostat extends Boundary
 	{
 		ChemostatToChemostat cIn = 
 				(ChemostatToChemostat) super.makePartnerBoundary();
-		cIn.setFlowRate( - this._flowRate);
+		cIn.setVolumeFlowRate( - this._volumeFlowRate);
 		return cIn;
 	}
 
@@ -91,22 +56,6 @@ public class ChemostatToChemostat extends Boundary
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
-
-	@Override
-	public void updateConcentrations()
-	{
-		/* Inflows have concentrations set by their partner. */
-		if ( this._flowRate > 0.0 )
-			return;
-		/* This is an outflow. */
-		double concn;
-		for ( String name : this._environment.getSoluteNames() )
-		{
-			concn = this._environment.getAverageConcentration(name);
-			this.setConcentration(name, concn);
-			this._partner.setConcentration(name, concn);
-		}
-	}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
@@ -128,13 +77,13 @@ public class ChemostatToChemostat extends Boundary
 	{
 		List<Agent> out = new LinkedList<Agent>();
 		int nAllAgents = this._agents.getNumAllAgents();
-		if ( (nAllAgents > 0) && (this._flowRate < 0.0) )
+		if ( (nAllAgents > 0) && (this._volumeFlowRate < 0.0) )
 		{
 			/* 
-			 * This is an outflow: remember to subtract, since flow rate out
+			 * This is an outflow: remember to subtract, since dilution out
 			 * is negative.
 			 */
-			this._agentsToDiluteTally -= this._flowRate * 
+			this._agentsToDiluteTally -= this.getDilutionRate() * 
 					Idynomics.simulator.timer.getTimeStepSize();
 			int n = (int) this._agentsToDiluteTally;
 			/* Cannot dilute more agents than there are in the compartment. */

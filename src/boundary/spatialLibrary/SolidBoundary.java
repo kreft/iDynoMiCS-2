@@ -46,12 +46,6 @@ public class SolidBoundary extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations()
-	{
-		/* Do nothing! */
-	}
-
-	@Override
 	public double getFlow(SpatialGrid grid)
 	{
 		/*

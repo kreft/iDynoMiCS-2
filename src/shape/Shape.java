@@ -289,6 +289,13 @@ public abstract class Shape implements
 		return this.getClass().getSimpleName();
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public abstract double getTotalVolume();
+	
 	/* ***********************************************************************
 	 * GRID & ARRAY CONSTRUCTION
 	 * **********************************************************************/
@@ -1352,14 +1359,13 @@ public abstract class Shape implements
 	 * @param coords Discrete coordinates of a voxel on this shape.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
-	protected int[] updateCurrentNVoxel()
+	protected void updateCurrentNVoxel()
 	{
 		if ( this._currentNVoxel == null )
 			this._currentNVoxel = Vector.zerosInt(3);
 		if ( this._currentCoord == null )
 			this.resetIterator();
 		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
-		return this._currentNVoxel;
 	}
 	
 	public double currentDistanceFromBoundary(DimName dimN, int extreme)

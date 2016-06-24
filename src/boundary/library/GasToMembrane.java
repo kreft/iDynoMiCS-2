@@ -28,10 +28,4 @@ public class GasToMembrane extends Boundary
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
 	
-	@Override
-	public void updateConcentrations()
-	{
-		
-	}
-
 }

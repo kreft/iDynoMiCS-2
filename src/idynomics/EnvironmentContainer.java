@@ -1,7 +1,5 @@
 package idynomics;
 
-import static dataIO.Log.Tier.BULK;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -296,11 +294,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public void updateSoluteBoundaries()
 	{
-		Tier level = BULK;
+		Tier level = Tier.DEBUG;
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "Updating solute boundaries...");
 		for ( Boundary b : this._shape.getAllBoundaries() )
-			b.updateConcentrations();
+			b.updateMassFlowRates();
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " All solute boundaries now updated");
 	}

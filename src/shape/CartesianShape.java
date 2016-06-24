@@ -55,17 +55,28 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	public double[][][] getNewArray(double initialValue) {
-		int[] nVoxel = this.updateCurrentNVoxel();
-		/* we need at least length 1 in each dimension for the array */
-		return Array.array(nVoxel[0] == 0 ? 1 : nVoxel[0], 
-							nVoxel[1] == 0 ? 1 : nVoxel[1], 
-							nVoxel[2] == 0 ? 1 : nVoxel[2], initialValue);
+	public double[][][] getNewArray(double initialValue)
+	{
+		this.updateCurrentNVoxel();
+		/* We need at least length 1 in each dimension for the array. */
+		int nI = (this._currentNVoxel[0] == 0) ? 1 : this._currentNVoxel[0];
+		int nJ = (this._currentNVoxel[1] == 0) ? 1 : this._currentNVoxel[1];
+		int nK = (this._currentNVoxel[2] == 0) ? 1 : this._currentNVoxel[2];
+		return Array.array(nI, nJ, nK, initialValue);
 	}
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
+	
+	@Override
+	public double getTotalVolume()
+	{
+		double out = 1.0;
+		for ( Dimension dim : this._dimensions.values() )
+			out *= dim.getLength();
+		return out;
+	}
 	
 	@Override
 	public double[] getLocalPosition(double[] location)

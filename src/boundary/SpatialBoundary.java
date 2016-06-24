@@ -93,6 +93,14 @@ public abstract class SpatialBoundary extends Boundary
 		this._layerThickness = thickness;
 	}
 	
+	protected double getTotalSurfaceArea()
+	{
+		// TODO it may be best to store this locally, updating it at each
+		// global timestep
+		return this._agents.getShape()
+				.getBoundarySurfaceArea(this._dim, this._extreme);
+	}
+	
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/

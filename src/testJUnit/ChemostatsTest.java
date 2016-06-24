@@ -5,11 +5,11 @@ import static testJUnit.AllTests.TOLERANCE;
 
 import org.junit.Test;
 
-import boundary.library.ChemostatToChemostat;
+import boundary.library.DummyToChemostat;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import grid.ArrayType;
-import idynomics.AgentContainer;
 import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import processManager.library.SolveChemostat;
 import shape.ShapeLibrary.Dimensionless;
@@ -36,12 +36,6 @@ public class ChemostatsTest
 		 */
 		AllTests.setupSimulatorForTest(tStep, tMax, "singleChemostat");
 		/*
-		 * The feed compartment.
-		 */
-		Compartment feed = Idynomics.simulator.addCompartment("feed");
-		feed.setShape("dimensionless");
-		feed.environment.addSolute(soluteName, feedConcn);
-		/*
 		 * The main compartment.
 		 */
 		Compartment chemo = Idynomics.simulator.addCompartment("chemostat");
@@ -55,27 +49,19 @@ public class ChemostatsTest
 				chemo.agents, chemo.getName());
 		p1.setTimeStepSize(tStep);
 		chemo.addProcessManager(p1);
-		/*
-		 * The waste compartment.
-		 */
-		Compartment waste = Idynomics.simulator.addCompartment("waste");
-		waste.setShape("dimensionless");
-		waste.environment.addSolute(soluteName);
 		/* 
 		 * Boundary connection from feed into chemostat.
 		 */
-		ChemostatToChemostat cIn;
-		cIn = new ChemostatToChemostat();
-		cIn.setFlowRate(flowRate);
-		chemo.addBoundary(cIn);
-		cIn.setPartnerCompartment(feed);
+		DummyToChemostat cInNew = new DummyToChemostat();
+		cInNew.setVolumeFlowRate(flowRate);
+		cInNew.setConcentration(soluteName, feedConcn);
+		chemo.addBoundary(cInNew);
 		/* 
 		 * Boundary connection from chemostat into waste.
 		 */
-		ChemostatToChemostat cOut = new ChemostatToChemostat();
-		cOut.setFlowRate( - flowRate);
-		chemo.addBoundary(cOut);
-		cOut.setPartnerCompartment(waste);
+		DummyToChemostat cOutNew = new DummyToChemostat();
+		cOutNew.setVolumeFlowRate( - flowRate);
+		chemo.addBoundary(cOutNew);
 		/*
 		 * Check for the asymptotic increase of solute in the chemostat.
 		 */
@@ -86,6 +72,7 @@ public class ChemostatsTest
 			s = chemo.getSolute(soluteName).getAverage(ArrayType.CONCN);
 			t = Idynomics.simulator.timer.getCurrentTime();
 			S = (1 - Math.exp(-flowRate*t)) * feedConcn;
+			Log.out(Tier.DEBUG, "solute is "+s+", should be "+S);
 			assertTrue(ExtraMath.areEqual(s, S, TOLERANCE));
 		}
 	}

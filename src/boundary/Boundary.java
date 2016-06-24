@@ -14,6 +14,7 @@ import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 
@@ -53,10 +54,22 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	// TODO implement this in node construction
 	protected String _partnerCompartmentName;
+	
+	protected int _iterLastUpdated = 
+			Idynomics.simulator.timer.getCurrentIteration() - 1;
 	/**
-	 * Solute concentrations.
+	 * \brief Rate of flow of bulk liquid across this boundary: positive for
+	 * flow into the compartment this boundary belongs to, negative for flow
+	 * out. Units of volume per time.
+	 * 
+	 * <p>For most boundaries this will likely be zero, i.e. no volume flow in
+	 * either direction.</p>
 	 */
-	protected Map<String,Double> _concns = new HashMap<String,Double>();
+	protected double _volumeFlowRate = 0.0;
+	/**
+	 * TODO
+	 */
+	protected Map<String,Double> _massFlowRate = new HashMap<String,Double>();
 	/**
 	 * Agents that are leaving this compartment via this boundary, and
 	 * so need to travel to the connected compartment.
@@ -175,31 +188,114 @@ public abstract class Boundary implements NodeConstructor
 	 * **********************************************************************/
 
 	/**
-	 * \brief Get the concentration of a solute at this boundary.
+	 * \brief TODO
 	 * 
-	 * @param name Name of the solute.
-	 * @return Concentration of the solute.
+	 * @return
 	 */
-	public double getConcentration(String name)
+	public double getVolumeFlowRate()
 	{
-		return this._concns.get(name);
+		return this._volumeFlowRate;
 	}
-
-	/**
-	 * \brief Set the concentration of a solute at this boundary.
-	 * 
-	 * @param name Name of the solute.
-	 * @param concn Concentration of the solute.
-	 */
-	public void setConcentration(String name, double concn)
-	{
-		this._concns.put(name, concn);
-	}
-
+	
 	/**
 	 * \brief TODO
+	 * 
+	 * @param rate
 	 */
-	public abstract void updateConcentrations();
+	public void setVolumeFlowRate(double rate)
+	{
+		this._volumeFlowRate = rate;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public double getDilutionRate()
+	{
+		return this._volumeFlowRate / this._agents.getShape().getTotalVolume();
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public double getMassFlowRate(String name)
+	{
+		if ( this._massFlowRate.containsKey(name) )
+			return this._massFlowRate.get(name);
+		return 0.0;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @param rate
+	 */
+	public void setMassFlowRate(String name, double rate)
+	{
+		this._massFlowRate.put(name, rate);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @param rate
+	 */
+	public void increaseMassFlowRate(String name, double rate)
+	{
+		this._massFlowRate.put(name, rate + this._massFlowRate.get(name));
+	}
+	
+	/**
+	 * \brief TODO
+	 *
+	 */
+	public void updateMassFlowRates()
+	{
+		/*
+		 * 
+		 */
+		int currentIter = Idynomics.simulator.timer.getCurrentIteration();
+		if ( this._partner == null )
+		{
+			this._iterLastUpdated = currentIter;
+			// TODO check that we should do nothing here
+			return;
+		}
+		if ( this._iterLastUpdated < currentIter )
+		{
+			double thisRate, partnerRate;
+			for ( String name : this._environment.getSoluteNames() )
+			{
+				/*
+				 * Store both rates prior to the switch.
+				 */
+				thisRate = this.getMassFlowRate(name);
+				partnerRate = this._partner.getMassFlowRate(name);
+				/*
+				 * Apply any volume-change conversions.
+				 */
+				// TODO
+				/*
+				 * Apply the switch.
+				 */
+				this.setMassFlowRate(name, partnerRate);
+				this._partner.setMassFlowRate(name, thisRate);
+			}
+			/*
+			 * Update the iteration numbers so that the partner boundary
+			 * doesn't reverse the changes we just made!
+			 */
+			this._iterLastUpdated = currentIter;
+			this._partner._iterLastUpdated = currentIter;
+		}
+	}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS

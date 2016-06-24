@@ -4,7 +4,6 @@ import static shape.Dimension.DimName;
 import static shape.Dimension.DimName.*;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
-import dataIO.Log.Tier;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -68,7 +67,24 @@ public abstract class CylindricalShape extends PolarShape
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
-	
+
+	@Override
+	public double getTotalVolume()
+	{
+		/*
+		 * Volume of a complete cylinder: pi * r^2 * z
+		 * Half theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^2 - rMin^2
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getExtreme(0);
+		double rMax = r.getExtreme(1);
+		double rFactor = ExtraMath.sq(rMax) - ExtraMath.sq(rMin);
+		double thetaLength = this.getDimension(THETA).getLength();
+		double zLength = this.getDimension(Z).getLength();
+		return 0.5 * thetaLength * rFactor * zLength;
+	}
 
 	@Override
 	public double[] getLocalPosition(double[] location)
@@ -212,7 +228,6 @@ public abstract class CylindricalShape extends PolarShape
 	@Override
 	public double getBoundarySurfaceArea(DimName dimN, int extreme)
 	{
-		Tier level = Tier.BULK;
 		switch( dimN )
 		{
 		case R:
