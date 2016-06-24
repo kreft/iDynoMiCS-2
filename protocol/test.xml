@@ -59,7 +59,7 @@
 			<reactions>
 				<reaction name="slowInflow">
 					<expression value="1.0 * inflow">
-						<constant name="inflow" value="0.2" />
+						<constant name="inflow" value="0.04" />
 					</expression>
 					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>

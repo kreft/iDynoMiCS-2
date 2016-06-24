@@ -136,7 +136,7 @@ public final class GuiActions
 		{
 			/* identify the spatial compartments */
 			List<String> compartments = 
-					Idynomics.simulator.spatialCompartments();
+					Idynomics.simulator.getSpatialCompartmentNames();
 			Compartment c = null;
 			if ( compartments.isEmpty() )
 				/* abort if no compartment is available */

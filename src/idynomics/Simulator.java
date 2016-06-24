@@ -249,7 +249,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	 * 
 	 * @return A {@code Compartment} if possible, {@code null} if not.
 	 */
-	public List<String> spatialCompartments()
+	public List<String> getSpatialCompartmentNames()
 	{
 		LinkedList<String> out = new LinkedList<String>();
 		for ( Compartment c : this._compartments )
