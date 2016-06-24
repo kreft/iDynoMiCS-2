@@ -21,8 +21,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
 import grid.SpatialGrid;
-import grid.wellmixedSetter.AllSameMixing;
-import grid.wellmixedSetter.IsWellmixedSetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
@@ -78,12 +76,6 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	protected String[] _soluteNames;
 	/**
-	 * Dictionary of well-mixed setters: one for each solute.
-	 */
-	// TODO this is probably the wrong approach: we should have the same setter
-	// for all solutes
-	protected HashMap<String,IsWellmixedSetter> _wellmixed;
-	/**
 	 * TODO 
 	 */
 	// TODO replace with diffusivitySetter
@@ -117,10 +109,10 @@ public class SolveDiffusionTransient extends ProcessManager
 	public void init(EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
+		super.init(environment, agents, compartmentName);
 		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
 				Helper.collectionToArray(
 				this._environment.getSoluteNames()));
-
 		init( soluteNames, environment, 
 				agents, compartmentName );
 	}
@@ -134,15 +126,6 @@ public class SolveDiffusionTransient extends ProcessManager
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
-		
-		// TODO quick fix for now
-		this._wellmixed = new HashMap<String,IsWellmixedSetter>();
-		for ( String soluteName : this._soluteNames )
-		{
-			AllSameMixing mixer = new AllSameMixing();
-			mixer.setValue(1.0);
-			this._wellmixed.put(soluteName, mixer);
-		}
 		// TODO enter a diffusivity other than one!
 		this._diffusivity = new HashMap<String,Double>();
 		for ( String sName : this._soluteNames )
@@ -166,6 +149,11 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		this._agents.setupAgentDistributionMaps();
 		/*
+		 * Get the environment to update its well-mixed array by querying all
+		 * spatial boundaries.
+		 */
+		this._environment.updateWellMixed();
+		/*
 		 * Set up the relevant arrays in each of our solute grids: diffusivity 
 		 * & well-mixed need only be done once each process manager time step,
 		 * but production rate must be reset every time the PDE updater method
@@ -176,13 +164,13 @@ public class SolveDiffusionTransient extends ProcessManager
 			SpatialGrid solute = this._environment.getSoluteGrid(soluteName);
 			// TODO use diffusivitySetter
 			solute.newArray(DIFFUSIVITY, this._diffusivity.get(soluteName));
-			this._wellmixed.get(soluteName).updateWellmixed(solute, this._agents);
 		}
 		/*
 		 * Set the updater method and solve.
 		 */
 		this._solver.setUpdater(standardUpdater(this._environment, this._agents));
-		this._solver.solve(this._environment.getSolutes(), this._timeStepSize);
+		this._solver.solve(this._environment.getSolutes(),
+				this._environment.getCommonGrid(), this._timeStepSize);
 		
 		/*
 		 * clear distribution maps, prevent unneeded clutter in xml output
@@ -240,7 +228,8 @@ public class SolveDiffusionTransient extends ProcessManager
 	private static void applyEnvReactions(EnvironmentContainer environment)
 	{
 		Tier level = BULK;
-		Log.out(level, "Applying environmental reactions");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Applying environmental reactions");
 		Collection<Reaction> reactions = environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
@@ -296,9 +285,12 @@ public class SolveDiffusionTransient extends ProcessManager
 					}
 			}
 		}
-		for ( String name : soluteNames )
-			Log.out(level, "  total "+name+" produced: "+totals.get(name));
-		Log.out(level, "Finished applying environmental reactions");
+		if ( Log.shouldWrite(level) )
+		{
+			for ( String name : soluteNames )
+				Log.out(level, "  total "+name+" produced: "+totals.get(name));
+			Log.out(level, "Finished applying environmental reactions");
+		}
 	}
 	
 	/**
@@ -317,7 +309,8 @@ public class SolveDiffusionTransient extends ProcessManager
 			EnvironmentContainer environment, AgentContainer agents)
 	{
 		Tier level = BULK;
-		Log.out(level, "Applying agent reactions");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Applying agent reactions");
 		SpatialGrid solute;
 		HashMap<String,Double> concns = new HashMap<String,Double>();
 		HashMap<String,Double> totals = new HashMap<String,Double>();
@@ -436,8 +429,11 @@ public class SolveDiffusionTransient extends ProcessManager
 			// TODO agent do event "internal production"?
 			}
 		}
-		for ( String name : totals.keySet() )
-			Log.out(level, "   total \""+name+"\" produced: "+totals.get(name));
-		Log.out(level, "Finished applying agent reactions");
+		if ( Log.shouldWrite(level) )
+		{
+			for ( String name : totals.keySet() )
+				Log.out(level, "   total \""+name+"\" produced: "+totals.get(name));
+			Log.out(level, "Finished applying agent reactions");
+		}
 	}
 }

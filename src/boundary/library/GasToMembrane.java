@@ -5,7 +5,6 @@ package boundary.library;
 
 import boundary.Boundary;
 import boundary.spatialLibrary.BiofilmMembraneGas;
-import idynomics.EnvironmentContainer;
 
 /**
  * \brief TODO
@@ -30,7 +29,7 @@ public class GasToMembrane extends Boundary
 	 * **********************************************************************/
 	
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	public void updateConcentrations()
 	{
 		
 	}

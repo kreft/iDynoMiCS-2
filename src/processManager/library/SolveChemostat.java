@@ -253,6 +253,7 @@ public class SolveChemostat extends ProcessManager
 	 */
 	private void updateDilutionInflow(EnvironmentContainer environment)
 	{
+		Tier level = Tier.DEBUG;
 		/* Reset counters */
 		Vector.reset(this._dYdTinflow);
 		double inRate = 0.0, outRate = 0.0;
@@ -296,8 +297,11 @@ public class SolveChemostat extends ProcessManager
 							" Inflow: "+inRate+" | Outflow: "+outRate);
 		}
 		*/
-		Log.out(Tier.DEBUG, "Chemostat: total inflows "+inRate+
-				", total outflows "+outRate);
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Chemostat: total inflows "+inRate+
+					", total outflows "+outRate);
+		}
 		this._dilution = outRate;
 	}
 	

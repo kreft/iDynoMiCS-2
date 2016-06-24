@@ -38,17 +38,23 @@ public class DetectLocalSolute extends Event
 		 */
 		Agent anAgent = (Agent) initiator;
 		Compartment comp = anAgent.getCompartment();
-		Log.out(level, "DetectLocalSolute looking for the \""+this.SOLUTE_NAME+
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "DetectLocalSolute looking for the \""+this.SOLUTE_NAME+
 				"\" concentrations around agent (ID: "+anAgent.identity()+
 				") in compartment \""+comp.getName()+"\"");
+		}
 		/*
 		 * Find the relevant solute grid, if it exists.
 		 */
 		if ( ! comp.environment.isSoluteName(SOLUTE_NAME) )
 		{
-			Log.out(level, "  cannot find concn of a solute "+SOLUTE_NAME+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "  cannot find concn of a solute "+SOLUTE_NAME+
 					" that is not in the environment! Copmpartment "
 					+comp.getName());
+			}
 			return;
 		}
 		SpatialGrid solute = comp.getSolute(SOLUTE_NAME);
@@ -57,8 +63,11 @@ public class DetectLocalSolute extends Event
 		 */
 		if ( ! anAgent.isAspect(VD_TAG) )
 		{
-			Log.out(level, "  cannot find solute concn on an agent that "+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "  cannot find solute concn on an agent that "+
 					" has no "+VD_TAG+" (agent ID: "+anAgent.identity()+")");
+			}
 			return;
 		}
 		CoordinateMap distribMap = (CoordinateMap) anAgent.getValue(VD_TAG);
@@ -69,8 +78,11 @@ public class DetectLocalSolute extends Event
 		 */
 		for ( int[] coord : distribMap.keySet() )
 		{
-			Log.out(level, "  concn at "+Vector.toString(coord)+" is "+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "  concn at "+Vector.toString(coord)+" is "+
 					solute.getValueAt(ArrayType.CONCN, coord));
+			}
 		}
 	}
 }

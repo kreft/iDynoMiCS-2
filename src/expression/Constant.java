@@ -38,9 +38,9 @@ public class Constant extends ComponentSimple
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
-		return ( this.isNegative() ) ? -this._value : this._value;
+		return this._value;
 	}
 	
 	@Override

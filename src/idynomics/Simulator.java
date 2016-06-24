@@ -1,7 +1,9 @@
 package idynomics;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -56,10 +58,9 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	 */
 	private ModelNode _modelNode;
 
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 		
 	public Simulator()
 	{
@@ -142,13 +143,11 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 			aCompartment.init(child);
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
-		
 	}
 	
-	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Add a {@code Compartment} with the given name, checking for
@@ -240,9 +239,9 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		return null;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * STEPPING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void step()
 	{
@@ -310,11 +309,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		Log.out(Tier.QUIET, "Simulation finished in " + tic + " seconds\n"+
 				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
+		this.printProcessManagerRealTimeStats();
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * REPORTING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void printAll()
 	{
@@ -326,9 +326,31 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		}
 	}
 
-	/*************************************************************************
+	public void printProcessManagerRealTimeStats()
+	{
+		Map<String,Long> millis = new HashMap<String,Long>();
+		long total = 0;
+		for ( Compartment c : this._compartments )
+		{
+			Map<String,Long> cStats = c.getRealTimeStats();
+			for ( String pmName : cStats.keySet() )
+			{
+				millis.put(c.getName()+" : "+pmName, cStats.get(pmName));
+				total += cStats.get(pmName);
+			}
+		}
+		double scalar = 100.0 / total;
+		for ( String name : millis.keySet() )
+		{
+			Log.out(Tier.EXPRESSIVE, 
+					name+" took "+(millis.get(name)*0.001)+
+					" seconds ("+(millis.get(name)*scalar)+"%)");
+		}
+	}
+	
+	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public boolean isReadyForLaunch()
 	{

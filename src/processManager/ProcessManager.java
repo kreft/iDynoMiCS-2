@@ -65,6 +65,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	protected String _compartmentName;
 	
+	private long _realTimeTaken = 0;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -84,9 +86,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	public void init(Element xmlElem, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
-		this._environment = environment;
-		this._agents = agents;
-		this._compartmentName = compartmentName;
+		this.init(environment, agents, compartmentName);
 		
 		//FIXME quick fix: cut/paste from
 		//"public static ProcessManager getNewInstance(Node xmlNode)"
@@ -248,9 +248,9 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		return this._timeStepSize;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * STEPPING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Perform the step of this process manager, also updating its local
@@ -263,6 +263,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	public void step()
 	{
+		long tick = System.currentTimeMillis();
 		/*
 		 * This is where subclasses of ProcessManager do their step. Note that
 		 * this._timeStepSize may change if an adaptive timestep is used.
@@ -272,8 +273,20 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		 * Move the time for next step forward by the step size.
 		 */
 		this._timeForNextStep += this._timeStepSize;
-		Log.out(Tier.DEBUG,
-				this._name+": timeForNextStep = "+this._timeForNextStep);
+		/*
+		 * 
+		 */
+		long tock = System.currentTimeMillis();
+		this._realTimeTaken += tock  - tick;
+		Tier level = Tier.DEBUG;
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level,
+					this._name+": timeForNextStep = "+this._timeForNextStep);
+			Log.out(level,
+					"    real time taken = "+((tock - tick)*0.001)+" seconds");
+		}
+		
 	}
 	
 	/**
@@ -281,6 +294,19 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * implemented by each sub-class of {@code ProcessManager}.
 	 */
 	protected abstract void internalStep();
+	
+	/* ***********************************************************************
+	 * REPORTING
+	 * **********************************************************************/
+	
+	public long getRealTimeTaken()
+	{
+		return this._realTimeTaken;
+	}
+	
+	/* ***********************************************************************
+	 * NODE CONSTRUCTION
+	 * **********************************************************************/
 	
 	public static List<String> getAllOptions()
 	{

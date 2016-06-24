@@ -2,8 +2,9 @@ package boundary.spatialLibrary;
 
 import boundary.SpatialBoundary;
 import boundary.library.GasToMembrane;
+import dataIO.Log;
+import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
@@ -42,16 +43,45 @@ public class BiofilmMembraneGas extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public double getFlux(SpatialGrid grid)
+	public double getFlow(SpatialGrid grid)
 	{
 		// TODO Auto-generated method stub
 		return 0.0;
 	}
 
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	public void updateConcentrations()
 	{
 
 	}
+	
+	@Override
+	public boolean needsToUpdateWellMixed()
+	{
+		// TODO check this
+		return false;
+	}
+	
+	@Override
+	public void updateWellMixedArray()
+	{
+		// TODO default method used for now, check this is appropriate
+		this.setWellMixedByDistance();
+	}
 
+	/* ***********************************************************************
+	 * AGENT TRANSFERS
+	 * **********************************************************************/
+
+	@Override
+	public void agentsArrive()
+	{
+		if ( ! this._arrivalsLounge.isEmpty() )
+		{
+			Log.out(Tier.NORMAL,
+					"Unexpected: agents arriving at a membrane!");
+		}
+		this.placeAgentsRandom();
+		this.clearArrivalsLoungue();
+	}
 }

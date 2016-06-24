@@ -1,12 +1,11 @@
 package boundary.library;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import agent.Agent;
 import boundary.Boundary;
-import idynomics.AgentContainer;
 import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
@@ -86,7 +85,7 @@ public class ChemostatToChemostat extends Boundary
 	public void setPartnerCompartment(Compartment comp)
 	{
 		Boundary cIn = this.makePartnerBoundary();
-		comp.getShape().addOtherBoundary(cIn);
+		comp.addBoundary(cIn);
 	}
 
 	/* ***********************************************************************
@@ -94,16 +93,16 @@ public class ChemostatToChemostat extends Boundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	public void updateConcentrations()
 	{
 		/* Inflows have concentrations set by their partner. */
 		if ( this._flowRate > 0.0 )
 			return;
 		/* This is an outflow. */
 		double concn;
-		for ( String name : environment.getSoluteNames() )
+		for ( String name : this._environment.getSoluteNames() )
 		{
-			concn = environment.getAverageConcentration(name);
+			concn = this._environment.getAverageConcentration(name);
 			this.setConcentration(name, concn);
 			this._partner.setConcentration(name, concn);
 		}
@@ -125,10 +124,10 @@ public class ChemostatToChemostat extends Boundary
 	}
 
 	@Override
-	public List<Agent> agentsToGrab(AgentContainer agentCont)
+	public Collection<Agent> agentsToGrab()
 	{
 		List<Agent> out = new LinkedList<Agent>();
-		int nAllAgents = agentCont.getNumAllAgents();
+		int nAllAgents = this._agents.getNumAllAgents();
 		if ( (nAllAgents > 0) && (this._flowRate < 0.0) )
 		{
 			/* 
@@ -142,7 +141,7 @@ public class ChemostatToChemostat extends Boundary
 			n = Math.min(n, nAllAgents);
 			int[] nums = Vector.randomInts(n, 0, nAllAgents);
 			for ( int i : nums )
-				out.add(agentCont.chooseAgent(i));
+				out.add(this._agents.chooseAgent(i));
 		}
 		else
 		{

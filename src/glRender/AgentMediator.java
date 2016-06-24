@@ -227,12 +227,14 @@ public class AgentMediator implements CommandMediator {
 		
 		/* save the transformation matrix, so we do not disturb other drawings */
 		_gl.glPushMatrix();
-     	
-     	applyCurrentColor();
 
-		Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
+		applyCurrentColor();
+
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
 					+ _slices + " slices, " + _stacks + " stacks" );
-
+		}
 		GLUquadric qobj = _glu.gluNewQuadric();
 
 		/* draw first sphere */

@@ -122,4 +122,23 @@ public class ExtraMathTest
 			assertEquals(e.getMessage(), "Minimum > Maximum!");
 		}
 	}
+	
+	@Test
+	public void shapeAreasShouldBeCorrect()
+	{
+		double calculated, answer;
+		/* No segment */
+		calculated = ExtraMath.areaOfACircleSegment(1.0, 0.0);
+		answer = 0.0;
+		assertTrue(ExtraMath.areEqual(answer, calculated, TOLERANCE));
+		/* Semi-circle */
+		calculated = ExtraMath.areaOfACircleSegment(1.0, Math.PI);
+		System.out.println(calculated);
+		answer = 0.5 * Math.PI;
+		assertTrue(ExtraMath.areEqual(answer, calculated, TOLERANCE));
+		/* Semi-circle */
+		calculated = ExtraMath.areaOfACircleSegment(1.0, -Math.PI);
+		answer = 0.5 * Math.PI;
+		assertTrue(ExtraMath.areEqual(answer, calculated, TOLERANCE));
+	}
 }

@@ -5,8 +5,6 @@ import boundary.library.ChemostatToMembrane;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
@@ -45,16 +43,30 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	public void updateConcentrations()
 	{
 		// TODO
 	}
 
 	@Override
-	public double getFlux(SpatialGrid grid)
+	public double getFlow(SpatialGrid grid)
 	{
 		// TODO
 		return 0;
+	}
+	
+	@Override
+	public boolean needsToUpdateWellMixed()
+	{
+		// TODO check this
+		return false;
+	}
+	
+	@Override
+	public void updateWellMixedArray()
+	{
+		// TODO default method used for now, check this is appropriate
+		this.setWellMixedByDistance();
 	}
 
 	/* ***********************************************************************
@@ -62,14 +74,14 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void agentsArrive(AgentContainer agentCont)
+	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
 		{
 			Log.out(Tier.NORMAL,
 					"Unexpected: agents arriving at a membrane!");
 		}
-		this.placeAgentsRandom(agentCont);
+		this.placeAgentsRandom();
 		this.clearArrivalsLoungue();
 	}
 }

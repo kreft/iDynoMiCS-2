@@ -4,8 +4,6 @@ import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
@@ -48,13 +46,13 @@ public class SolidBoundary extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	public void updateConcentrations()
 	{
 		/* Do nothing! */
 	}
 
 	@Override
-	public double getFlux(SpatialGrid grid)
+	public double getFlow(SpatialGrid grid)
 	{
 		/*
 		 * No matter what the concentration of the grid voxel, there is no
@@ -62,20 +60,32 @@ public class SolidBoundary extends SpatialBoundary
 		 */
 		return 0.0;
 	}
+	
+	@Override
+	public boolean needsToUpdateWellMixed()
+	{
+		return false;
+	}
+	
+	@Override
+	public void updateWellMixedArray()
+	{
+		this.setWellMixedByDistance();
+	}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
 
 	@Override
-	public void agentsArrive(AgentContainer agentCont)
+	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
 		{
 			Log.out(Tier.NORMAL,
 					"Unexpected: agents arriving at a solid boundary!");
 		}
-		this.placeAgentsRandom(agentCont);
+		this.placeAgentsRandom();
 		this.clearArrivalsLoungue();
 	}
 }

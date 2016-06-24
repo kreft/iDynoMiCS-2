@@ -26,7 +26,7 @@ public class Division extends ComponentDouble
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		double b = this._b.getValue(variables);
 		if ( b == 0.0 )

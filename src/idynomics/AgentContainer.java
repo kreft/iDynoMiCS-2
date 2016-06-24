@@ -309,6 +309,49 @@ public class AgentContainer
 	}
 
 	/**
+	 * \brief Find all agents within the given distance of a surface.
+	 * 
+	 * @param aSurface Surface object belonging to this compartment.
+	 * @param searchDist Find agents within this distance of the surface.
+	 * @return Collection of agents that are within the search distance of the
+	 * surface: there should be no false positives or false negatives in this
+	 * collection.
+	 */
+	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
+	{
+		Collection<Agent> out = new LinkedList<Agent>();
+		Collision collision = new Collision(this._shape);
+		//System.out.println("collision = "+collision.toString());
+		Collection<Surface> agentSurfs;
+		// TODO Rob [23June2016]: I suspect there is a better way of doing this
+		// than looping through all located agents, but I'm not sure how!
+		for ( Agent agent : this._locatedAgentList )
+		{
+			agentSurfs = ((Body) agent.get(AspectRef.agentBody)).getSurfaces();
+			for ( Surface a : agentSurfs )
+				if ( collision.distance(a, aSurface) < searchDist )
+					out.add(agent);
+		}
+		return out;
+	}
+	
+	/**
+	 * \brief Find all agents within the given distance of a spatial boundary.
+	 * 
+	 * @param aBoundary Spatial boundary object belonging to this compartment.
+	 * @param searchDist Find agents within this distance of the surface.
+	 * @return Collection of agents that are within the search distance of the
+	 * boundary: there should be no false positives or false negatives in this
+	 * collection.
+	 */
+	public Collection<Agent> treeSearch(
+			SpatialBoundary aBoundary, double searchDist)
+	{
+		Surface boundarySurface = this._shape.getSurface(aBoundary);
+		return this.treeSearch(boundarySurface, searchDist);
+	}
+	
+	/**
 	 * \brief Find all boundary surfaces that the given agent may be close to.
 	 * 
 	 * @param anAgent Agent at the focus of this search.
@@ -325,7 +368,7 @@ public class AgentContainer
 				((Body) anAgent.get(AspectRef.agentBody)).getSurfaces();
 		out.removeIf((s) -> 
 		{
-			for (Surface a : agentSurfs )
+			for ( Surface a : agentSurfs )
 				if ( collision.distance(a, s) < searchDist )
 					return false;
 			return true;
@@ -484,14 +527,20 @@ public class AgentContainer
 		/* Safety if there are no agents. */
 		if ( nAgents == 0 )
 		{
-			Log.out(level, "No agents in this container, so cannot choose "+
-					"one: returning null");
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "No agents in this container, so cannot "+
+						"choose one: returning null");
+			}
 			return null;
 		}/* Now find an agent. */
 		int i = ExtraMath.getUniRandInt(nAgents);
 		Agent out = this.chooseAgent(i);
-		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
-				out.identity()+" was chosen randomly");
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
+					out.identity()+" was chosen randomly");
+		}
 		return out; 
 	}
 
@@ -507,8 +556,11 @@ public class AgentContainer
 		/* Safety if there are no agents. */
 		if ( nAgents == 0 )
 		{
-			Log.out(level, "No agents in this container, so cannot extract "+
-					"one: returning null");
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "No agents in this container, so cannot "+
+					"extract one: returning null");
+			}
 			return null;
 		}/* Now find an agent. */
 		int i = ExtraMath.getUniRandInt(nAgents);
@@ -524,8 +576,11 @@ public class AgentContainer
 			/* Unlocated agent. */
 			out = this._agentList.remove(i);
 		}
-		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
-				out.identity()+" was extracted randomly");
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
+					out.identity()+" was extracted randomly");
+		}
 		return out; 
 	}
 
@@ -556,40 +611,53 @@ public class AgentContainer
 	public void agentsArrive()
 	{
 		Tier level = BULK;
-		Log.out(level, "Agents arriving into compartment...");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Agents arriving into compartment...");
 		Dimension dim;
 		for ( DimName dimN : this._shape.getDimensionNames() )
 		{
 			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )
 			{
-				Log.out(level, "   "+dimN+" is cyclic, skipping");
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   "+dimN+" is cyclic, skipping");
 				continue;
 			}
 			if ( ! dim.isSignificant() )
 			{
-				Log.out(level, "   "+dimN+" is insignificant, skipping");
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   "+dimN+" is insignificant, skipping");
 				continue;
 			}
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				Log.out(level, "Looking at "+dimN+" "+((extreme==0)?"min":"max"));
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level,
+							"Looking at "+dimN+" "+((extreme==0)?"min":"max"));
+				}
 				if ( ! dim.isBoundaryDefined(extreme) )
 				{
-					Log.out(level, "   boundary not defined");
+					if ( Log.shouldWrite(level) )
+						Log.out(level, "   boundary not defined");
 					continue;
 				}
-				dim.getBoundary(extreme).agentsArrive(this);
-				Log.out(level, "   boundary defined, agents ariving");
+				dim.getBoundary(extreme).agentsArrive();
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   boundary defined, agents ariving");
 			}
 		}
 		for ( Boundary bndry : this._shape.getOtherBoundaries() )
 		{
-			Log.out(level,"   other boundary "+bndry.getName()+
-					", calling agent method");
-			bndry.agentsArrive(this);
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level,"   other boundary "+bndry.getName()+
+						", calling agent method");
+			}
+			bndry.agentsArrive();
 		}
-		Log.out(level, " All agents have now arrived");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, " All agents have now arrived");
 	}
 
 	/**
@@ -609,7 +677,7 @@ public class AgentContainer
 		 */
 		for ( Boundary b : this._shape.getAllBoundaries() )
 		{
-			List<Agent> wishes = b.agentsToGrab(this);
+			Collection<Agent> wishes = b.agentsToGrab();
 			for ( Agent wishAgent : wishes )
 			{
 				if ( ! grabs.containsKey(wishAgent) )
@@ -642,14 +710,16 @@ public class AgentContainer
 	public void agentsDepart()
 	{
 		Tier level = BULK;
-		Log.out(level, "Pushing all outbound agents...");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Pushing all outbound agents...");
 		Dimension dim;
 		for ( DimName dimN : this._shape.getDimensionNames() )
 		{
 			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )
 			{
-				Log.out(level, "   "+dimN+" is cyclic, skipping");
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   "+dimN+" is cyclic, skipping");
 				continue;
 			}
 			if ( ! dim.isSignificant() )
@@ -659,24 +729,33 @@ public class AgentContainer
 			}
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				Log.out(level, 
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, 
 						"Looking at "+dimN+" "+((extreme==0)?"min":"max"));
+				}
 				if ( ! dim.isBoundaryDefined(extreme) )
 				{
-					Log.out(level, "   boundary not defined");
+					if ( Log.shouldWrite(level) )
+						Log.out(level, "   boundary not defined");
 					continue;
 				}
-				Log.out(level, "   boundary defined, pushing agents");
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   boundary defined, pushing agents");
 				dim.getBoundary(extreme).pushAllOutboundAgents();
 			}
 		}
 		for ( Boundary bndry : this._shape.getOtherBoundaries() )
 		{
-			Log.out(level,"   other boundary "+bndry.getName()+
-					", pushing agents");
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level,"   other boundary "+bndry.getName()+
+						", pushing agents");
+			}
 			bndry.pushAllOutboundAgents();
 		}
-		Log.out(level, " All agents have now departed");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, " All agents have now departed");
 	}
 
 	/**
@@ -756,8 +835,11 @@ public class AgentContainer
 			/* If there are none, move onto the next voxel. */
 			if ( nhbs.isEmpty() )
 				continue;
-			Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
 					Vector.toString(coord));
+			}
 			/* 
 			 * Find the sub-voxel resolution from the smallest agent, and
 			 * get the list of sub-voxel points.
@@ -771,9 +853,12 @@ public class AgentContainer
 				minRad = Math.min(radius, minRad);
 			}
 			minRad *= SUBGRID_FACTOR;
-			Log.out(level, "  using a min radius of "+minRad);
 			svPoints = shape.getCurrentSubvoxelPoints(minRad);
-			Log.out(level, "  gives "+svPoints.size()+" sub-voxel points");
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "  using a min radius of "+minRad);
+				Log.out(level, "  gives "+svPoints.size()+" sub-voxel points");
+			}
 			/* Get the sub-voxel points and query the agents. */
 			for ( Agent a : nhbs )
 			{
@@ -783,8 +868,11 @@ public class AgentContainer
 				if ( ! a.isAspect(AspectRef.surfaceList) )
 					continue;
 				surfaces = (List<Surface>) a.get(AspectRef.surfaceList);
-				Log.out(level, "  "+"   agent "+a.identity()+" has "+
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, "  "+"   agent "+a.identity()+" has "+
 						surfaces.size()+" surfaces");
+				}
 				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
 				sgLoop: for ( SubvoxelPoint p : svPoints )
 				{

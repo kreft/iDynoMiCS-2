@@ -1,8 +1,10 @@
 package idynomics;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -299,6 +301,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	// TODO move this spatial/non-spatial splitting to Shape?
 	public void addBoundary(Boundary aBoundary)
 	{
+		aBoundary.init(this.environment, this.agents, this.name);
 		if ( aBoundary instanceof SpatialBoundary )
 		{
 			SpatialBoundary sB = (SpatialBoundary) aBoundary;
@@ -515,9 +518,20 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		this.environment.printAllSolutes();
 	}
 	
-	/*************************************************************************
+	/**
+	 * @return TODO
+	 */
+	public Map<String,Long> getRealTimeStats()
+	{
+		Map<String,Long> out = new HashMap<String,Long>();
+		for ( ProcessManager pm : this._processes )
+			out.put(pm.getName(), pm.getRealTimeTaken());
+		return out;
+	}
+	
+	/* ***********************************************************************
 	 * Model Node factory
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public ModelNode getNode()

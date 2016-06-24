@@ -13,6 +13,7 @@ import generalInterfaces.CanPrelaunchCheck;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
+import surface.Surface;
 import nodeFactory.ModelNode.Requirements;
 import utility.ExtraMath;
 import utility.Helper;
@@ -75,6 +76,11 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	private SpatialBoundary[] _boundary = new SpatialBoundary[2];
 	
 	/**
+	 * Surface objects at the minimum (0) and maximum (1).
+	 */
+	private Surface[] _surface = new Surface[2];
+	
+	/**
 	 * Whether boundaries are required (true) or optional (false) at the
 	 * minimum (0) and maximum (1) of this dimension. Meaningless in
 	 * cyclic dimensions.
@@ -100,9 +106,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 */
 	protected Double _targetRes;
 	
-	/**************************************************************************
+	/* ************************************************************************
 	 * CONSTRUCTORS
-	 *************************************************************************/
+	 * ***********************************************************************/
 	
 	public Dimension()
 	{
@@ -193,9 +199,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		}
 	}
 	
-	/**************************************************************************
+	/* ************************************************************************
 	 * BASIC SETTERS AND GETTERS
-	 *************************************************************************/
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Get the length of this dimension.
@@ -314,9 +320,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		return this._isSignificant;
 	}
 	
-	/**************************************************************************
+	/* ************************************************************************
 	 * BOUNDARIES
-	 *************************************************************************/
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Tell this dimension that the boundary at the given extreme may
@@ -430,16 +436,53 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 * \brief Report whether the boundary on the given extreme is defined.
 	 * 
 	 * @param extreme Which extreme to check: 0 for minimum, 1 for maximum.
-	 * @return True if the boundary is defined, null if it is not.
+	 * @return True if the boundary is defined, false if it is not.
 	 */
 	public boolean isBoundaryDefined(int extreme)
 	{
 		return this._boundary[extreme] != null;
 	}
 	
-	/**************************************************************************
+	/* ************************************************************************
+	 * SURFACES
+	 * ***********************************************************************/
+	
+	/**
+	 * \brief Set the surface at one extreme.
+	 * 
+	 * @param aSurface Surface object to use.
+	 * @param extreme Which extreme to set: 0 for minimum, 1 for maximum.
+	 */
+	public void setSurface(Surface aSurface, int extreme)
+	{
+		this._surface[extreme] = aSurface;
+	}
+	
+	/**
+	 * \brief Get the {@code Surface} at the required extreme.
+	 * 
+	 * @param extreme Which extreme to check: 0 for minimum, 1 for maximum.
+	 * @return The {@code Surface} at the required extreme.
+	 */
+	public Surface getSurface(int extreme)
+	{
+		return this._surface[extreme];
+	}
+	
+	/**
+	 * \brief Report whether the surface on the given extreme is defined.
+	 * 
+	 * @param extreme Which extreme to check: 0 for minimum, 1 for maximum.
+	 * @return True if the surface is defined, false if it is not.
+	 */
+	public boolean isSurfaceDefined(int extreme)
+	{
+		return this._surface[extreme] != null;
+	}
+	
+	/* ************************************************************************
 	 * USEFUL METHODS
-	 *************************************************************************/
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Get the shortest distance between two positions along this
@@ -519,9 +562,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		return ExtraMath.getUniRand(this._extreme[0], this._extreme[1]);
 	}
 	
-	/**************************************************************************
+	/* ************************************************************************
 	 * HELPER METHODS
-	 *************************************************************************/
+	 * ***********************************************************************/
 	
 	/**
 	 * TODO
@@ -544,9 +587,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			
 	}
 	
-	/**************************************************************************
+	/* ************************************************************************
 	 * PRE-LAUNCH CHECK
-	 *************************************************************************/
+	 * ***********************************************************************/
 	
 	public boolean isReadyForLaunch()
 	{
@@ -567,9 +610,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		return true;
 	}
 	
-	/**************************************************************************
+	/* ************************************************************************
 	 * MODEL NODE
-	 *************************************************************************/
+	 * ***********************************************************************/
 
 	@Override
 	public ModelNode getNode()
