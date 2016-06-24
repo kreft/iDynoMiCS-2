@@ -96,7 +96,7 @@ public abstract class PDEsolver extends Solver
 				 * take a note of the flux (for connections with other
 				 * compartments).
 				 */
-				nbhFlux = grid.getFluxFromNeighbor();
+				nbhFlux = grid.getFlowFromNeighbor();
 				
 				/*
 				 * If this flux came from a well-mixed voxel, inform the grid.

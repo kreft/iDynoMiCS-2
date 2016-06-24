@@ -83,6 +83,11 @@ public abstract class SpatialBoundary extends Boundary
 		return this._extreme;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param thickness
+	 */
 	public void setLayerThickness(double thickness)
 	{
 		this._layerThickness = thickness;
@@ -93,25 +98,27 @@ public abstract class SpatialBoundary extends Boundary
 	 * **********************************************************************/
 	
 	/**
-	 * \brief Get the diffusive flux across this boundary, into the grid's
+	 * \brief Get the diffusive flow across this boundary, into the grid's
 	 * current iterator voxel.
 	 * 
-	 * <p>Flux has units of mass or mole per unit time, so divide by the volume
-	 * of the current iterator voxel to calculate the rate of change of
-	 * concentration due to diffusive flux.</p>
+	 * <p>Flux has units of mass or mole per unit area per unit time, so we
+	 * here multiply by the shared surface area to calculate the mass flow 
+	 * (units of mass/mole per unit time). Divide by the volume of the current
+	 * iterator voxel to calculate the rate of change of concentration due to
+	 * diffusive flow.</p>
 	 * 
 	 * <p>Note that we get the name of the variable from the grid itself.</p>
 	 * 
-	 * <p>Note that we ask the boundary to report the flux, rather than its 
+	 * <p>Note that we ask the boundary to report the flow, rather than its 
 	 * concentration, as we may wish to introduce some kind of Neumann boundary
 	 * condition in future.</p>
 	 * 
 	 * @param grid Spatial grid representing a variable with a {@code CONCN}
-	 * array, most likely a solute.
-	 * @return The rate of diffusive flux across this boundary, in units of
-	 * concentration per time.
+	 * array, typically a solute.
+	 * @return The rate of diffusive flow across this boundary, in units of
+	 * mass or mole per time.
 	 */
-	public abstract double getFlux(SpatialGrid grid);
+	public abstract double getFlow(SpatialGrid grid);
 	
 	/**
 	 * \brief Ask if this boundary needs to update the well-mixed array of

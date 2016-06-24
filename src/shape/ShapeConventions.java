@@ -97,7 +97,7 @@ public final class ShapeConventions
 		}
 
 		@Override
-		public double getFlux(SpatialGrid grid)
+		public double getFlow(SpatialGrid grid)
 		{
 			return 0.0;
 		}

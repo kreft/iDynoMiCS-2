@@ -43,7 +43,7 @@ public class BiofilmMembraneGas extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public double getFlux(SpatialGrid grid)
+	public double getFlow(SpatialGrid grid)
 	{
 		// TODO Auto-generated method stub
 		return 0.0;

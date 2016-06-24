@@ -54,7 +54,7 @@ public class FixedBoundary extends SpatialBoundary
 	}
 	
 	@Override
-	public double getFlux(SpatialGrid grid)
+	public double getFlow(SpatialGrid grid)
 	{
 		Tier level = Tier.BULK;
 		/* The difference in concentration is the same as in SpatialGrid. */
@@ -66,17 +66,20 @@ public class FixedBoundary extends SpatialBoundary
 		double sArea = grid.getShape().nbhCurrSharedArea();
 		/* Shape handles the centre-centre distance on a boundary. */
 		double dist = grid.getShape().nbhCurrDistance();
-		double flux = concnDiff * diffusivity * sArea / dist ;
+		/* Calculate flux and flow in the same way as in SpatialGrid. */
+		double flux = concnDiff * diffusivity / dist ;
+		double flow = flux * sArea;
 		if ( Log.shouldWrite(level) )
 		{
 			Log.out(level, "FixedBoundary flux for "+grid.getName()+":");
 			Log.out(level, "  concn diff is "+concnDiff);
 			Log.out(level, "  diffusivity is "+diffusivity);
-			Log.out(level, "  surface area is "+sArea);
 			Log.out(level, "  distance is "+dist);
 			Log.out(level, "  => flux = "+flux);
+			Log.out(level, "  surface area is "+sArea);
+			Log.out(level, "  => flow = "+flow);
 		}
-		return flux;
+		return flow;
 	}
 	
 	@Override

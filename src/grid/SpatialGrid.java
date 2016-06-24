@@ -481,34 +481,38 @@ public class SpatialGrid implements NodeConstructor
 	 * <p>The flux from the neighboring voxel into the current one is given by
 	 * the formula <i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
 	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
-	 * * SA<sub>nhb,itr</sub> / d<sub>nhb,itr</sub></i>
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
 	 * where subscript <i>itr</i> denotes the current iterator voxel and
 	 * <i>nhb</i> the current neighbor voxel, and
 	 * <ul>
 	 * <li><i>c</i> is voxel concentration</li>
 	 * <li><i>D</i> is voxel diffusivity</li>
-	 * <li><i>SA</i> is shared surface area of two voxels</li>
 	 * <li><i>d</i> is distance between centres of two voxels</li>
 	 * </ul>
-	 * The flux therefore has units of mass or mole per unit time, and so
-	 * should be divided by the volume of the current iterator voxel to give
-	 * the rate of change of concentration to this voxel due to diffusive 
-	 * flux.</p>
+	 * The flux has units of mass or mole per area per unit time.</p>
 	 * 
 	 * <p>Note that we use the harmonic mean diffusivity, rather than the
 	 * arithmetic or geometric.</p>
 	 * 
+	 * <p>The flow from the neighboring voxel into the current one is then
+	 * the flux multiplied by the shared surface area, i.e.
+	 * <i>flux * SA<sub>nhb,itr</sub></i> where <i>SA</i> is shared surface
+	 * area of two voxels. Flow has units of mass/mole per unit time, and so
+	 * should be divided by the volume of the current iterator voxel to give
+	 * the rate of change of concentration to this voxel due to diffusive 
+	 * flow.</p>
+	 * 
 	 * TODO Rob [8June2016]: I need to find the reference for this.
 	 * 
-	 * @return Flux from the neighbor voxel into the current iterator voxel.
+	 * @return Flow from the neighbor voxel into the current iterator voxel.
 	 */
 	// TODO safety if neighbor iterator or arrays are not initialised.
-	public double getFluxFromNeighbor()
+	public double getFlowFromNeighbor()
 	{
 		Tier level = Tier.BULK;
 		if ( Log.shouldWrite(level) )
 		{
-			Log.out(level, " finding flux from nhb "+
+			Log.out(level, " finding flow from nhb "+
 					Vector.toString(this._shape.nbhIteratorCurrent())+
 					" to curr "+Vector.toString(this._shape.iteratorCurrent()));
 		}
@@ -526,23 +530,25 @@ public class SpatialGrid implements NodeConstructor
 			/* Centre-centre distance. */
 			double dist = this._shape.nbhCurrDistance();
 			/* Calculate the the flux from these values. */
-			double flux = concnDiff * diffusivity * sArea / dist ;
+			double flux = concnDiff * diffusivity / dist ;
+			double flow = flux * sArea;
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, "    concnDiff is "+concnDiff);
 				Log.out(level, "    diffusivity is "+diffusivity);
-				Log.out(level, "    surface area is "+sArea);
 				Log.out(level, "    distance is "+dist);
 				Log.out(level, "  => flux is "+flux);
+				Log.out(level, "    surface area is "+sArea);
+				Log.out(level, "  => flow is "+flow);
 			}
-			return flux;
+			return flow;
 		}
 		else if ( this._shape.isIteratorValid() )
 		{
-			double flux = this._shape.nbhIteratorOutside().getFlux(this);
+			double flow = this._shape.nbhIteratorOutside().getFlow(this);
 			if ( Log.shouldWrite(level) )
-				Log.out(level, "  got flux from boundary: "+flux);
-			return flux;
+				Log.out(level, "  got flow from boundary: "+flow);
+			return flow;
 		}
 		else
 		{

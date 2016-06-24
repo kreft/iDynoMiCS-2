@@ -129,7 +129,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	}
 
 	@Override
-	public double getFlux(SpatialGrid grid)
+	public double getFlow(SpatialGrid grid)
 	{
 		Tier level = Tier.BULK;
 		String name = grid.getName();
@@ -142,8 +142,9 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		double sArea = grid.getShape().nbhCurrSharedArea();
 		/* Shape handles the centre-centre distance on a boundary. */
 		double dist = grid.getShape().nbhCurrDistance();
-		/* Calculate flux in the same way as in SpatialGrid. */
-		double flux = concnDiff * diffusivity * sArea / dist ;
+		/* Calculate flux and flow in the same way as in SpatialGrid. */
+		double flux = concnDiff * diffusivity / dist ;
+		double flow = flux * sArea;
 		/* Subtract this flux from the running tally. */
 		if ( ! this._directFlux.containsKey(name) )
 			this._directFlux.put(name, 0.0);
@@ -153,9 +154,10 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 			Log.out(level, "BiofilmBoundary flux for "+name+":");
 			Log.out(level, "  concn diff is "+concnDiff);
 			Log.out(level, "  diffusivity is "+diffusivity);
-			Log.out(level, "  surface area is "+sArea);
 			Log.out(level, "  distance is "+dist);
 			Log.out(level, "  => flux = "+flux);
+			Log.out(level, "  surface area is "+sArea);
+			Log.out(level, "  => flow = "+flow);
 			Log.out(level, "  => boundary flux  is now "+this._directFlux);
 		}
 		return flux;
