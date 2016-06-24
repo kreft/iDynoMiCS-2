@@ -80,16 +80,19 @@ public class ExcreteEPSCumulative extends Event
 		Collision iterator = new Collision(comp.getShape());
 		
 		double searchDist = 0.5;
-		
-		Log.out(level, "  Agent (ID "+agent.identity()+") has "+
-				body.getSurfaces().size()+" surfaces, search dist "+searchDist);
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "  Agent (ID "+agent.identity()+") has "+
+					body.getSurfaces().size()+" surfaces,"+
+					" search dist "+searchDist);
+		}
 		/*
 		 * Perform neighborhood search and perform collision detection and
 		 * response. 
 		 */
 		Collection<Agent> nhbs = comp.agents.treeSearch(agent, searchDist);
-		Log.out(level, "  "+nhbs.size()+" neighbors found");
-		
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "  "+nhbs.size()+" neighbors found");
 		LinkedList<Agent> epsParticles = new LinkedList<Agent>();
 		for ( Agent neighbour: nhbs )
 		{
@@ -111,7 +114,7 @@ public class ExcreteEPSCumulative extends Event
 			
 		}
 		
-		if (epsParticles.isEmpty())
+		if ( epsParticles.isEmpty() )
 		{
 			// TODO Joints state will be removed
 			double[] originalPos = body.getJoints().get(0);
@@ -123,7 +126,8 @@ public class ExcreteEPSCumulative extends Event
 					new Body(new Point(epsPos),0.0),
 					comp); 
 			compliant.set(MASS, 0.0);
-			Log.out(Tier.BULK, "EPS particle created");
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "EPS particle created");
 		}
 		else
 		{

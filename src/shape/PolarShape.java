@@ -28,10 +28,14 @@ public abstract class PolarShape extends Shape
 		double area = 1.0;
 		double temp;
 		DimName dimName;
+		// TODO 
 		double meanR = this.meanNbhCurrRadius();
-		Log.out(level, "calculated meanR "+ meanR +" for current coord"
-				+ Arrays.toString(this._currentCoord) + " and nhb "
-				+ Arrays.toString(this._currentNeighbor));
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "calculated meanR "+ meanR +" for current coord"
+					+ Arrays.toString(this._currentCoord) + " and nhb "
+					+ Arrays.toString(this._currentNeighbor));
+		}
 		for ( int i = 0; i < this.getNumberOfDimensions(); i++ )
 		{
 			dimName = this.getDimensionName(i);
@@ -42,7 +46,8 @@ public abstract class PolarShape extends Shape
 			if ( (this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC)
 					&& this._nhbDimName == dimName)
 			{
-				Log.out(level, "  on boundary for dim "+dimName);
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "  on boundary for dim "+dimName);
 				/* 
 				 * Take the resolution of the next dimension, i.e. if we move
 				 * to an outer shell in the circle (dim R), the THETA length 
@@ -67,13 +72,16 @@ public abstract class PolarShape extends Shape
 			 */
 			if ( temp == 0 )
 			{
-				Log.out(level, "  skipping zero area in dim "+dimName);
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "  skipping zero area in dim "+dimName);
 				continue;
 			}
-			Log.out(level, "  Shared length for dim "+dimName +" is " + temp);
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "  Shared length for dim "+dimName +" is " + temp);
 			area *= temp;
 		}
-		Log.out(level, " returning area "+area);
+		if ( Log.shouldWrite(level) )
+			Log.out(level, " returning area "+area);
 		return area;
 	}
 	
@@ -81,6 +89,8 @@ public abstract class PolarShape extends Shape
 	 * @return Average radius of the current iterator voxel and of the neighbor
 	 * voxel.
 	 */
+	// TODO To call this a mean wouldn't be quite accurate, were we to use
+	// variable resolutions
 	private double meanNbhCurrRadius()
 	{
 		/* 
@@ -122,8 +132,11 @@ public abstract class PolarShape extends Shape
 	protected boolean setNbhFirstInNewShell(int shellIndex)
 	{
 		//TODO this will currently not set onto min boundary?
-		Log.out(NHB_ITER_LEVEL, "trying to set neighbor in new shell "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "trying to set neighbor in new shell "+
 				shellIndex);
+		}
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[0] = shellIndex;
 		this._nhbDimName = R;
@@ -133,8 +146,10 @@ public abstract class PolarShape extends Shape
 		 */
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
 		WhereAmI where = this.whereIsNhb(R);
-		if ( where == UNDEFINED ){
-			Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
+		if ( where == UNDEFINED )
+		{
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
 			this._whereIsNhb = where;
 			this._nhbDimName = R;
 			return false;
@@ -145,7 +160,8 @@ public abstract class PolarShape extends Shape
 			this._nhbDirection = this._currentCoord[0] 
 									< this._currentNeighbor[0] ? 1 : 0;
 			this._whereIsNhb = where;
-			Log.out(NHB_ITER_LEVEL, "  success on "+ where +" boundary");
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				Log.out(NHB_ITER_LEVEL, "  success on "+ where +" boundary");
 			return true;
 		}
 		/*
@@ -167,8 +183,11 @@ public abstract class PolarShape extends Shape
 		if ( (this._currentNeighbor[0] == this._currentCoord[0]) &&
 				(new_index == this._currentCoord[1]) )
 		{
-			Log.out(NHB_ITER_LEVEL,
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+			{
+				Log.out(NHB_ITER_LEVEL,
 					"  failure, stepped onto current coordinate");
+			}
 			return false;
 		}
 		this._currentNeighbor[1] = new_index;
@@ -185,7 +204,8 @@ public abstract class PolarShape extends Shape
 				this._currentCoord[dimIdx]
 						< this._currentNeighbor[dimIdx] ? 1 : 0;
 		this._whereIsNhb = WhereAmI.INSIDE;
-		Log.out(NHB_ITER_LEVEL, "  success with index "+new_index);
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+			Log.out(NHB_ITER_LEVEL, "  success with index "+new_index);
 		return true;
 	}
 	
@@ -198,21 +218,34 @@ public abstract class PolarShape extends Shape
 	 */
 	protected boolean increaseNbhByOnePolar(DimName dim)
 	{
-		Log.out(NHB_ITER_LEVEL, "  trying to increase neighbor "
-			  + Arrays.toString(this._currentNeighbor)+" by one polar in "+dim);
-		/* avoid increasing on any boundaries */
-		int index = this.getDimensionIndex(dim);
-//		WhereAmI where = this.whereIsNhb(dim);
-		if ((dim == THETA || this._nhbDimName == R)  && this._whereIsNhb != INSIDE) {
-			Log.out(NHB_ITER_LEVEL, "  failure, already on " +this._nhbDimName
-					+ " boundary, no point increasing");
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "  trying to increase neighbor "
+					+ Arrays.toString(this._currentNeighbor)+
+					" by one polar in "+dim);
+		}
+		/* Avoid increasing on any boundaries */
+		if ( (dim == THETA || this._nhbDimName == R) && 
+				this._whereIsNhb != INSIDE)
+		{
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+			{
+				Log.out(NHB_ITER_LEVEL, "  failure: already on "+
+						this._nhbDimName+ " boundary, no point increasing");
+			}
 			return false;
 		}
 		Dimension dimension = this.getDimension(dim);
+		int index = this.getDimensionIndex(dim);
 		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, index);
 		/* If we are already on the maximum boundary, we cannot go further. */
-		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 ){
-			Log.out(NHB_ITER_LEVEL, "  failure, already on maximum boundary");
+		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 )
+		{
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+			{
+				Log.out(NHB_ITER_LEVEL,
+						"  failure: already on maximum boundary");
+			}
 			return false;
 		}
 		/* Do not allow the neighbor to be on an undefined maximum boundary. */
@@ -226,13 +259,20 @@ public abstract class PolarShape extends Shape
 				this._nhbDirection = 1;
 				this._nhbDimName = dim;
 				this._whereIsNhb = this.whereIsNhb(dim);
-				Log.out(NHB_ITER_LEVEL, "  success on "+this._whereIsNhb 
-						+ " boundary");
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "  success on "+this._whereIsNhb 
+							+ " boundary");
+				}
 				return true;
 			}	
-			else{
-				Log.out(NHB_ITER_LEVEL, "  failure on "+this._whereIsNhb 
-						+ " boundary");
+			else
+			{
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "  failure on "+this._whereIsNhb 
+							+ " boundary");
+				}
 				return false;
 			}
 		}
@@ -242,29 +282,39 @@ public abstract class PolarShape extends Shape
 		 * All checks have passed, so increase and report success.
 		 */
 		this._currentNeighbor[index]++;
-		Log.out(NHB_ITER_LEVEL, "  success, new nbh coord is "
-						+ this._currentNeighbor[index]);
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "  success, new nbh coord is "
+					+ this._currentNeighbor[index]);
+		}
 		return true;
 	}
 	
-	private boolean isNoMoreOverlapping(int dimIndex){
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dimIndex
+	 * @return
+	 */
+	private boolean isNoMoreOverlapping(int dimIndex)
+	{
+		ResCalc rC;
+		double nbhMin, curMax;
 		/*
 		 * If increasing would mean we no longer overlap, report failure.
 		 */
-		ResCalc rC = this.getResolutionCalculator(
-											this._currentNeighbor, dimIndex);	
-		double nbhMin = rC.getCumulativeResolution(
-											this._currentNeighbor[dimIndex]);
-		
+		rC = this.getResolutionCalculator(this._currentNeighbor, dimIndex);
+		nbhMin = rC.getCumulativeResolution(this._currentNeighbor[dimIndex]);
 		rC = this.getResolutionCalculator(this._currentCoord, dimIndex);
-		double curMax = rC.getCumulativeResolution(
-												this._currentCoord[dimIndex]);
-		
-		if ( nbhMin >= curMax || ExtraMath.areEqual(nbhMin, curMax, 
-				POLAR_ANGLE_EQ_TOL))
+		curMax = rC.getCumulativeResolution(this._currentCoord[dimIndex]);
+		if ( nbhMin >= curMax || 
+				ExtraMath.areEqual(nbhMin, curMax, POLAR_ANGLE_EQ_TOL) )
 		{
-			Log.out(NHB_ITER_LEVEL, "  failure, nbh min greater or approx. equal"
-					+ " to current max");
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+			{
+				Log.out(NHB_ITER_LEVEL, "  failure: nhb min greater or "
+						+ "approximately equal to current max");
+			}
 			return true;
 		}
 		return false;

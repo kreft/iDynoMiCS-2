@@ -126,6 +126,29 @@ public class Log
 	}
 	
 	/**
+	 * \brief Check if the given output level should be written to log.
+	 * 
+	 * <p>Use this for computational efficiency: composing strings is more
+	 * expensive than comparing enums.</p>
+	 * 
+	 * @param level Tier of output level.
+	 * @return {@code true} if this should be written, {@code false} if it
+	 * should not.
+	 */
+	public static boolean shouldWrite(Tier level)
+	{
+		if ( _outputLevel == null )
+		{
+			 _outputLevel = Tier.NORMAL;
+			 printToScreen(
+					 "No output level set, so using NORMAL be default", true);
+			// FIXME this response contradicts the javadoc to set(Tier)
+			//printToScreen("Error: attempt to write log before it is set", true);
+		}
+		return ( level.compareTo(_outputLevel) < 1 );
+	}
+	
+	/**
 	 * \brief Log if the message level is lower or equal level setting to the
 	 * output level.
 	 * 
@@ -150,7 +173,7 @@ public class Log
 			// FIXME this response contradicts the javadoc to set(Tier)
 			//printToScreen("Error: attempt to write log before it is set", true);
 		}
-		else if ( level.compareTo(_outputLevel) < 1 )
+		else if ( shouldWrite(level) )
 		{
 			printToScreen(_st.format(new Date())+message, level==Tier.CRITICAL);
 			_logFile.write(_ft.format(new Date()) + message + "\n");

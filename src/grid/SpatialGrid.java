@@ -61,6 +61,10 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	protected Map<ArrayType, double[][][]> _array = 
 			new HashMap<ArrayType, double[][][]>();
+	/**
+	 * TODO
+	 */
+	protected double _wellmixedFlux = 0.0;
 	
 	/**
 	 * identifies what compartment hosts this grid
@@ -385,18 +389,25 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public double getValueAt(ArrayType type, int[] coord)
 	{
-		Log.out(GET_VALUE_LEVEL, "Trying to get value at coordinate "
-				+ Vector.toString(coord) + " in "+ type);
+		if ( Log.shouldWrite(GET_VALUE_LEVEL) )
+		{
+			Log.out(GET_VALUE_LEVEL, "Trying to get value at coordinate "
+					+ Vector.toString(coord) + " in "+ type);
+		}
 		if ( this._array.containsKey(type) )
 		{
-			Log.out(GET_VALUE_LEVEL, "   returning " 
-					+ this._array.get(type)[coord[0]][coord[1]][coord[2]]);
+			if ( Log.shouldWrite(GET_VALUE_LEVEL) )
+			{
+				Log.out(GET_VALUE_LEVEL, "   returning " 
+						+ this._array.get(type)[coord[0]][coord[1]][coord[2]]);
+			}
 			return this._array.get(type)[coord[0]][coord[1]][coord[2]];
 		}
 		else
 		{
 			//TODO: safety?
-			Log.out(GET_VALUE_LEVEL, "   returning " + Double.NaN);
+			if ( Log.shouldWrite(GET_VALUE_LEVEL) )
+				Log.out(GET_VALUE_LEVEL, "   returning " + Double.NaN);
 			return Double.NaN;
 		}
 	}
@@ -410,8 +421,11 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public void setValueAt(ArrayType type, int[] coord, double value)
 	{
-		Log.out(SET_VALUE_LEVEL, "Trying to set value at coordinate "
-				+ Vector.toString(coord) + " in "+ type + " to "+value);
+		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
+		{
+			Log.out(SET_VALUE_LEVEL, "Trying to set value at coordinate "
+					+ Vector.toString(coord) + " in "+ type + " to "+value);
+		}
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] = value;
 	}
 	
@@ -424,8 +438,11 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public void addValueAt(ArrayType type, int[] coord, double value)
 	{
-		Log.out(SET_VALUE_LEVEL, "Trying to add " + value + " at coordinate "
-				+ Vector.toString(coord) + " in "+ type);
+		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
+		{
+			Log.out(SET_VALUE_LEVEL, "Trying to add "+value+" at coordinate "
+					+Vector.toString(coord)+" in "+type);
+		}
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] += value;
 	}
 	
@@ -438,8 +455,11 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public void timesValueAt(ArrayType type, int[] coord, double value)
 	{
-		Log.out(SET_VALUE_LEVEL, "Trying to multiply with " + value 
-				+ " at coordinate "+ Vector.toString(coord) + " in "+ type);
+		if ( Log.shouldWrite(SET_VALUE_LEVEL) )
+		{
+			Log.out(SET_VALUE_LEVEL, "Trying to multiply with " + value 
+					+ " at coordinate "+ Vector.toString(coord) + " in "+ type);
+		}
 		this._array.get(type)[coord[0]][coord[1]][coord[2]] *= value;
 	}
 	
@@ -500,61 +520,74 @@ public class SpatialGrid implements NodeConstructor
 	 * <p>The flux from the neighboring voxel into the current one is given by
 	 * the formula <i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
 	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
-	 *  * (SA<sub>nhb,itr</sub>) / (d<sub>nhb,itr</sub> * V<sub>itr</sub>)
-	 * </i>
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
 	 * where subscript <i>itr</i> denotes the current iterator voxel and
 	 * <i>nhb</i> the current neighbor voxel, and
 	 * <ul>
 	 * <li><i>c</i> is voxel concentration</li>
 	 * <li><i>D</i> is voxel diffusivity</li>
-	 * <li><i>SA</i> is shared surface area of two voxels</li>
 	 * <li><i>d</i> is distance between centres of two voxels</li>
-	 * <li><i>V</i> is voxel volume</li>
 	 * </ul>
-	 * Note that we use the harmonic mean diffusivity, rather than the
+	 * The flux has units of mass or mole per area per unit time.</p>
+	 * 
+	 * <p>Note that we use the harmonic mean diffusivity, rather than the
 	 * arithmetic or geometric.</p>
+	 * 
+	 * <p>The flow from the neighboring voxel into the current one is then
+	 * the flux multiplied by the shared surface area, i.e.
+	 * <i>flux * SA<sub>nhb,itr</sub></i> where <i>SA</i> is shared surface
+	 * area of two voxels. Flow has units of mass/mole per unit time, and so
+	 * should be divided by the volume of the current iterator voxel to give
+	 * the rate of change of concentration to this voxel due to diffusive 
+	 * flow.</p>
 	 * 
 	 * TODO Rob [8June2016]: I need to find the reference for this.
 	 * 
-	 * @return Flux from the neighbor voxel into the current iterator voxel.
+	 * @return Flow from the neighbor voxel into the current iterator voxel.
 	 */
 	// TODO safety if neighbor iterator or arrays are not initialised.
-	public double getFluxFromNeighbor()
+	public double getFlowFromNeighbor()
 	{
 		Tier level = Tier.BULK;
-		Log.out(level, " finding flux from nhb "+
-				Vector.toString(this._shape.nbhIteratorCurrent())+" to curr "+
-				Vector.toString(this._shape.iteratorCurrent()));
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, " finding flow from nhb "+
+					Vector.toString(this._shape.nbhIteratorCurrent())+
+					" to curr "+Vector.toString(this._shape.iteratorCurrent()));
+		}
 		if ( this._shape.isNhbIteratorInside() )
 		{
 			/* Difference in concentration. */
 			double concnDiff = this.getValueAtNhb(ArrayType.CONCN)
 					- this.getValueAtCurrent(ArrayType.CONCN);
-			Log.out(level, "    concnDiff is "+concnDiff);
 			/* Average diffusivity. */
 			double diffusivity = ExtraMath.harmonicMean(
 					this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
 					this.getValueAtNhb(ArrayType.DIFFUSIVITY));
-			Log.out(level, "    diffusivity is "+diffusivity);
 			/* Surface are the two voxels share (in square microns). */
 			double sArea = this._shape.nbhCurrSharedArea();
-			Log.out(level, "    surface area is "+sArea);
 			/* Centre-centre distance. */
 			double dist = this._shape.nbhCurrDistance();
-			Log.out(level, "    distance is "+dist);
-			/* Volume of the current voxel. */
-			double vol = this._shape.getCurrVoxelVolume();
-			Log.out(level, "    volume is "+vol);
 			/* Calculate the the flux from these values. */
-			double flux = concnDiff * diffusivity * sArea / ( dist * vol );
-			Log.out(level, "  => flux is "+flux);
-			return flux;
+			double flux = concnDiff * diffusivity / dist ;
+			double flow = flux * sArea;
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "    concnDiff is "+concnDiff);
+				Log.out(level, "    diffusivity is "+diffusivity);
+				Log.out(level, "    distance is "+dist);
+				Log.out(level, "  => flux is "+flux);
+				Log.out(level, "    surface area is "+sArea);
+				Log.out(level, "  => flow is "+flow);
+			}
+			return flow;
 		}
 		else if ( this._shape.isIteratorValid() )
 		{
-			double flux = this._shape.nbhIteratorOutside().getFlux(this);
-			Log.out(level, "  got flux from boundary: "+flux);
-			return flux;
+			double flow = this._shape.nbhIteratorOutside().getFlow(this);
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "  got flow from boundary: "+flow);
+			return flow;
 		}
 		else
 		{
@@ -565,6 +598,16 @@ public class SpatialGrid implements NodeConstructor
 					Vector.toString(this._shape.nbhIteratorCurrent()));
 			return Double.NaN;
 		}
+	}
+	
+	/**
+	 * \brief Increase the grid's tally of flux into a well-mixed region.
+	 * 
+	 * @param flux Flux in units of TODO
+	 */
+	public void increaseWellMixedFlux(double flux)
+	{
+		this._wellmixedFlux += flux;
 	}
 
 	/* ***********************************************************************

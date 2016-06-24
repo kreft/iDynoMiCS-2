@@ -41,10 +41,11 @@ public abstract class PDEsolver extends Solver
 	 * \brief TODO
 	 * 
 	 * @param solutes
+	 * @param commonGrid TODO
 	 * @param tFinal
 	 */
 	public abstract void solve(Collection<SpatialGrid> solutes,
-															double tFinal);
+			SpatialGrid commonGrid, double tFinal);
 	
 	/**
 	 * \brief Add the Laplacian Operator to the LOPERATOR array of the given
@@ -59,58 +60,92 @@ public abstract class PDEsolver extends Solver
 	 * 
 	 * @param varName
 	 * @param grid
+	 * @param commonGrid
 	 * @param destType
 	 */
-	protected void addFluxes(SpatialGrid grid)
+	protected void addFluxRates(SpatialGrid grid, SpatialGrid commonGrid)
 	{
 		Tier level = BULK;
 		Shape shape = grid.getShape();
 		/* Coordinates of the current position. */
-		int[] current;
+		int[] current, nhb;
 		/* Temporary storage. */
-		double flux, temp;
+		double totalFlux, nbhFlux;
 		/*
 		 * Iterate over all core voxels calculating the Laplace operator. 
 		 */
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 											  current = shape.iteratorNext())
 		{
-			if ( grid.getValueAt(WELLMIXED, current) == 0.0 )
+			// TODO this should really be > some threshold
+			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
 				continue;
-			flux = 0.0;
-			Log.out(level, 
-					"Coord "+Vector.toString(shape.iteratorCurrent())+
-					" (curent value "+grid.getValueAtCurrent(CONCN)+
-					"): calculating flux...");
-			for ( shape.resetNbhIterator(); 
-						shape.isNbhIteratorValid(); shape.nbhIteratorNext() )
+			totalFlux = 0.0;
+			if ( Log.shouldWrite(level) )
 			{
-				temp = grid.getFluxFromNeighbor();
-				flux += temp;
+				Log.out(level, 
+						"Coord "+Vector.toString(shape.iteratorCurrent())+
+						" (curent value "+grid.getValueAtCurrent(CONCN)+
+						"): calculating flux...");
+			}
+			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
+					nhb = shape.nbhIteratorNext() )
+			{
+				/*
+				 * If the neighbouring voxel is in a boundary, the boundary may
+				 * take a note of the flux (for connections with other
+				 * compartments).
+				 */
+				nbhFlux = grid.getFlowFromNeighbor();
+				
+				/*
+				 * If this flux came from a well-mixed voxel, inform the grid.
+				 */
+				if ( shape.isNhbIteratorInside() && commonGrid != null )
+				{
+					// TODO this should really be > some threshold
+					if ( commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
+						grid.increaseWellMixedFlux( - nbhFlux );
+				}
+				totalFlux += nbhFlux;
 				/* 
 				 * To get the value we must be inside, the flux can be obtained
 				 * from boundary.
 				 */
-				if ( shape.isNhbIteratorInside() )
+				if ( Log.shouldWrite(level) )
 				{
-					Log.out(level, 
-						"   nhb "+Vector.toString(shape.nbhIteratorCurrent())+
-						" ("+grid.getValueAtNhb(CONCN)+") "+
-						" contributes flux of "+temp);
-				}
-				else
-				{
-					Log.out(level, 
-							" boundary nhb "+Vector.toString(
-									shape.nbhIteratorCurrent())
-							+ " contributes flux of "+temp);
+					if ( shape.isNhbIteratorInside() )
+					{
+
+						Log.out(level, 
+								"   nhb "+Vector.toString(nhb)+
+								" ("+grid.getValueAtNhb(CONCN)+") "+
+								" contributes flux of "+nbhFlux);
+					}
+					else
+					{
+						Log.out(level, 
+								" boundary nhb "+Vector.toString(nhb)
+								+ " contributes flux of "+nbhFlux);
+					}
 				}
 			}
 			/*
+			 * Flux is in units of mass/mole per unit time. Divide by the voxel
+			 * volume to convert this to a rate of change in concentration.
+			 */
+			double volume = shape.getCurrVoxelVolume();
+			double changeRate = totalFlux / volume;
+			/*
 			 * Finally, apply this to the relevant array.
 			 */
-			Log.out(level, " TOTAL flux = "+flux);
-			grid.addValueAt(LOPERATOR, current, flux);
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, " Total flux = "+totalFlux);
+				Log.out(level, " Voxel volume = "+volume);
+				Log.out(level, " Total rate of change from flux = "+changeRate);
+			}
+			grid.addValueAt(LOPERATOR, current, changeRate);
 		}
 	}
 }

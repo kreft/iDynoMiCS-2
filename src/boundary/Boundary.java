@@ -1,8 +1,8 @@
 package boundary;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Node;
@@ -25,6 +25,21 @@ import nodeFactory.NodeConstructor;
 public abstract class Boundary implements NodeConstructor
 {
 	/**
+	 * Reference to the environment of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected EnvironmentContainer _environment;
+	/**
+	 * Reference to the agents of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected AgentContainer _agents;
+	
+	/**
+	 * 
+	 */
+	protected String _compartmentName;
+	/**
 	 * XML tag for the name of the partner boundary.
 	 */
 	// TODO implement this in node construction
@@ -43,15 +58,15 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	protected Map<String,Double> _concns = new HashMap<String,Double>();
 	/**
-	 * List of Agents that are leaving this compartment via this boundary, and
+	 * Agents that are leaving this compartment via this boundary, and
 	 * so need to travel to the connected compartment.
 	 */
-	protected LinkedList<Agent> _departureLounge = new LinkedList<Agent>();
+	protected Collection<Agent> _departureLounge = new LinkedList<Agent>();
 	/**
-	 * List of Agents that have travelled here from the connected compartment
+	 * Agents that have travelled here from the connected compartment
 	 * and need to be entered into this compartment.
 	 */
-	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
+	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
@@ -61,6 +76,21 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	protected static final Tier AGENT_LEVEL = Tier.BULK;
 
+	/**
+	 * 
+	 * @param environment
+	 * @param agents
+	 * @param compartmentName
+	 */
+	// TODO this needs to be called by Compartment
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
+	}
+	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
@@ -168,10 +198,8 @@ public abstract class Boundary implements NodeConstructor
 
 	/**
 	 * \brief TODO
-	 * 
-	 * @param environment
 	 */
-	public abstract void updateConcentrations(EnvironmentContainer environment);
+	public abstract void updateConcentrations();
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
@@ -184,8 +212,11 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	public void addOutboundAgent(Agent anAgent)
 	{
-		Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
-				anAgent.identity()+") to departure lounge");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+		{
+			Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
+					anAgent.identity()+") to departure lounge");
+		}
 		this._departureLounge.add(anAgent);
 	}
 
@@ -196,8 +227,11 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	public void acceptInboundAgent(Agent anAgent)
 	{
-		Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
-				anAgent.identity()+") to arrivals lounge");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+		{
+			Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
+					anAgent.identity()+") to arrivals lounge");
+		}
 		this._arrivalsLounge.add(anAgent);
 	}
 
@@ -206,13 +240,17 @@ public abstract class Boundary implements NodeConstructor
 	 * 
 	 * @param agents List of agents to enter the compartment via this boundary.
 	 */
-	public void acceptInboundAgents(List<Agent> agents)
+	public void acceptInboundAgents(Collection<Agent> agents)
 	{
-		Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" accepting "+
-				agents.size()+" agents to arrivals lounge");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+		{
+			Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" accepting "+
+					agents.size()+" agents to arrivals lounge");
+		}
 		for ( Agent anAgent : agents )
 			this.acceptInboundAgent(anAgent);
-		Log.out(AGENT_LEVEL, " Done!");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+			Log.out(AGENT_LEVEL, " Done!");
 	}
 
 	/**
@@ -230,15 +268,18 @@ public abstract class Boundary implements NodeConstructor
 		}
 		else
 		{
-			Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
-					this._departureLounge.size()+" agents to partner");
+			if ( Log.shouldWrite(AGENT_LEVEL) )
+			{
+				Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
+						this._departureLounge.size()+" agents to partner");
+			}
 			this._partner.acceptInboundAgents(this._departureLounge);
 			this._departureLounge.clear();
 		}
 	}
 
 	// TODO delete once boundary gets full control of agent transfers
-	public List<Agent> getAllInboundAgents()
+	public Collection<Agent> getAllInboundAgents()
 	{
 		return this._arrivalsLounge;
 	}
@@ -256,10 +297,10 @@ public abstract class Boundary implements NodeConstructor
 	 * @param agentCont The {@code AgentContainer} that should accept the 
 	 * {@code Agent}s.
 	 */
-	public void agentsArrive(AgentContainer agentCont)
+	public void agentsArrive()
 	{
 		for ( Agent anAgent : this._arrivalsLounge )
-			agentCont.addAgent(anAgent);
+			this._agents.addAgent(anAgent);
 		this._arrivalsLounge.clear();
 	}
 
@@ -271,14 +312,14 @@ public abstract class Boundary implements NodeConstructor
 	 * {@code Agent}s for selection.
 	 * @return List of agents for removal.
 	 */
-	public List<Agent> agentsToGrab(AgentContainer agentCont)
+	public Collection<Agent> agentsToGrab()
 	{
 		return new LinkedList<Agent>();
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * XML-ABLE
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	// TODO replace with node construction
 

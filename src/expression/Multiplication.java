@@ -40,7 +40,7 @@ public class Multiplication extends ComponentMultiple
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	public double calculateValue(Map<String, Double> variables)
 	{
 		double out = 1.0;
 		for ( Component c : this._components )

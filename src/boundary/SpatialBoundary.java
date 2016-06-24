@@ -1,5 +1,7 @@
 package boundary;
 
+import static grid.ArrayType.WELLMIXED;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
@@ -36,6 +38,11 @@ public abstract class SpatialBoundary extends Boundary
 	 * that extreme (0 for minimum, 1 for maximum).
 	 */
 	protected int _extreme;
+	/**
+	 * Boundary layer thickness.
+	 */
+	// TODO set this from protocol file for the whole compartment
+	protected double _layerThickness;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -76,22 +83,83 @@ public abstract class SpatialBoundary extends Boundary
 		return this._extreme;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param thickness
+	 */
+	public void setLayerThickness(double thickness)
+	{
+		this._layerThickness = thickness;
+	}
+	
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
 	
 	/**
-	 * \brief Get the diffusive flux across this boundary, into the grid's
+	 * \brief Get the diffusive flow across this boundary, into the grid's
 	 * current iterator voxel.
+	 * 
+	 * <p>Flux has units of mass or mole per unit area per unit time, so we
+	 * here multiply by the shared surface area to calculate the mass flow 
+	 * (units of mass/mole per unit time). Divide by the volume of the current
+	 * iterator voxel to calculate the rate of change of concentration due to
+	 * diffusive flow.</p>
 	 * 
 	 * <p>Note that we get the name of the variable from the grid itself.</p>
 	 * 
+	 * <p>Note that we ask the boundary to report the flow, rather than its 
+	 * concentration, as we may wish to introduce some kind of Neumann boundary
+	 * condition in future.</p>
+	 * 
 	 * @param grid Spatial grid representing a variable with a {@code CONCN}
-	 * array, most likely a solute.
-	 * @return The rate of diffusive flux across this boundary, in units of
-	 * concentration per time.
+	 * array, typically a solute.
+	 * @return The rate of diffusive flow across this boundary, in units of
+	 * mass or mole per time.
 	 */
-	public abstract double getFlux(SpatialGrid grid);
+	public abstract double getFlow(SpatialGrid grid);
+	
+	/**
+	 * \brief Ask if this boundary needs to update the well-mixed array of
+	 * the compartment it belong to.
+	 * 
+	 * <p>This method will be called in all spatial boundaries of the
+	 * compartment. If none do, then {@link #updateWellMixedArray()}
+	 * will be skipped. If at least one does, then 
+	 * {@link #updateWellMixedArray()} will be called in all.</p>
+	 * 
+	 * @return Whether this boundary needs to update the well-mixed array of
+	 * the compartment it belong to.
+	 */
+	public abstract boolean needsToUpdateWellMixed();
+	
+	/**
+	 * \brief TODO
+	 */
+	public abstract void updateWellMixedArray();
+	
+	/**
+	 * \brief Helper method for {@link #updateWellMixedArray()}.
+	 * 
+	 * <p>Loops over all voxels in the grid, setting the well-mixed value to
+	 * zero if the distance from the centre of the voxel to this boundary is
+	 * less than or equal to the boundary layer thickness.</p>
+	 */
+	protected void setWellMixedByDistance()
+	{
+		Shape aShape = this._environment.getShape();
+		SpatialGrid grid = this._environment.getCommonGrid();
+		aShape.resetIterator();
+		while ( aShape.isIteratorValid() )
+		{
+			double distance = aShape
+					.currentDistanceFromBoundary(this._dim, this._extreme);
+			if ( distance <= this._layerThickness )
+				grid.setValueAt(WELLMIXED, aShape.iteratorCurrent(), 0.0);
+			aShape.iteratorNext();
+		}
+	}
 	
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
@@ -107,9 +175,10 @@ public abstract class SpatialBoundary extends Boundary
 	 * @param agentCont The {@code AgentContainer} that should accept the 
 	 * {@code Agent}s.
 	 */
-	protected void placeAgentsRandom(AgentContainer agentCont)
+	protected void placeAgentsRandom()
 	{
-		Shape aShape = agentCont.getShape();
+		Tier level = Tier.DEBUG;
+		Shape aShape = this._agents.getShape();
 		double[] newLoc;
 		Body body;
 		for ( Agent anAgent : this._arrivalsLounge )
@@ -118,8 +187,11 @@ public abstract class SpatialBoundary extends Boundary
 			{
 				newLoc = aShape.getRandomLocationOnBoundary(
 						this._dim, this._extreme);
-				Log.out(Tier.DEBUG, "Placing agent (UID: "+anAgent.identity()+
-						") at random location: "+Vector.toString(newLoc));
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, "Placing agent (UID: "+anAgent.identity()+
+							") at random location: "+Vector.toString(newLoc));
+				}
 				body = (Body) anAgent.get(AspectRef.agentBody);
 				body.relocate(newLoc);
 			}
@@ -127,7 +199,7 @@ public abstract class SpatialBoundary extends Boundary
 			{
 				this._arrivalsLounge.remove(anAgent);
 			}
-			agentCont.addAgent(anAgent);
+			this._agents.addAgent(anAgent);
 		}
 	}
 	

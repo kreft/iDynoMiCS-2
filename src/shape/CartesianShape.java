@@ -7,6 +7,7 @@ import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import static shape.Dimension.DimName;
 import static shape.Dimension.DimName.*;
+
 import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
@@ -26,9 +27,9 @@ public abstract class CartesianShape extends Shape
 	protected ResCalc[] _resCalc = new ResCalc[3];
 	
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public CartesianShape()
 	{
@@ -62,9 +63,9 @@ public abstract class CartesianShape extends Shape
 							nVoxel[2] == 0 ? 1 : nVoxel[2], initialValue);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public double[] getLocalPosition(double[] location)
@@ -78,9 +79,9 @@ public abstract class CartesianShape extends Shape
 		return local;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * DIMENSIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void setDimensionResolution(DimName dName, ResCalc resC)
@@ -96,13 +97,13 @@ public abstract class CartesianShape extends Shape
 		return this._resCalc[axis];
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * LOCATIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SURFACES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void setSurfaces()
@@ -112,13 +113,26 @@ public abstract class CartesianShape extends Shape
 				this.setPlanarSurfaces(dim);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BOUNDARIES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	@Override
+	public double getBoundarySurfaceArea(DimName dimN, int extreme)
+	{
+		double area = 1.0;
+		for ( DimName iDimN : this._dimensions.keySet() )
+		{
+			if ( iDimN.equals(dimN) )
+				continue;
+			area *= this.getDimension(iDimN).getLength();
+		}
+		return area;
+	}
+	
+	/* ***********************************************************************
 	 * VOXELS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public double getVoxelVolume(int[] coord)
@@ -133,23 +147,26 @@ public abstract class CartesianShape extends Shape
 		return out;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SUBVOXEL POINTS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * COORDINATE ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * NEIGHBOR ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	protected void resetNbhIter()
 	{
-		Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
 				Vector.toString(this._currentNeighbor));
+		}
 		this._whereIsNhb = UNDEFINED;
 		for ( DimName dim : this._dimensions.keySet() )
 		{
@@ -161,9 +178,12 @@ public abstract class CartesianShape extends Shape
 			{
 				this._nhbDimName = dim;
 				this.transformNbhCyclic();
-				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
-						+Vector.toString(this._currentNeighbor)+
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "   returning transformed "+
+						"neighbor at "+Vector.toString(this._currentNeighbor)+
 						": status "+this._whereIsNhb);
+				}
 				return;
 			}
 		}
@@ -172,13 +192,19 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
 				Vector.toString(this._currentCoord));
+		}
 		this.untransformNbhCyclic();
 		int nbhIndex = this.getDimensionIndex(this._nhbDimName);
-		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				", trying along "+this._nhbDimName);
+		}
 		if ( ! this.nbhJumpOverCurrent(this._nhbDimName))
 		{
 			/*
@@ -189,8 +215,11 @@ public abstract class CartesianShape extends Shape
 			if ( nbhIndex < 3 )
 			{
 				this._nhbDimName = this.getDimensionName(nbhIndex);
-				Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
 						+this._nhbDimName);
+				}
 				if ( ! moveNbhToMinus(this._nhbDimName) )
 					return nbhIteratorNext();
 			}
@@ -212,7 +241,9 @@ public abstract class CartesianShape extends Shape
 		int index;
 		for ( DimName dim : this.getDimensionNames() )
 		{
-			if ( dim.equals(this._nhbDimName) 
+			// FIXME here we implicitly assume that insignificant dimensions
+			// have dummy length of one
+			if ( dim.equals(this._nhbDimName)
 					|| ! this.getDimension(dim).isSignificant() )
 				continue;
 			index = this.getDimensionIndex(dim);

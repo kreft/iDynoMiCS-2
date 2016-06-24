@@ -29,7 +29,7 @@ public class PDEexplicit extends PDEsolver
 		
 	}
 	
-	/**
+	/*
 	 * <p>Requires the arrays "diffusivity" and "concentration" to
 	 * be pre-filled in each SpatialGrid.</p>
 	 * 
@@ -41,22 +41,27 @@ public class PDEexplicit extends PDEsolver
 	 * converging and then focus on the variables that are still changing.
 	 */
 	@Override
-	public void solve(Collection<SpatialGrid> variables, double tFinal)
+	public void solve(Collection<SpatialGrid> variables,
+			SpatialGrid commonGrid, double tFinal)
 	{
 		Tier level = BULK;
 		/*
 		 * Find the largest time step that suits all variables.
 		 */
 		double dt = tFinal;
-		Log.out(level, "PDEexplicit starting with ministep size "+dt);
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "PDEexplicit starting with ministep size "+dt);
 		int nIter = 1;
 		for ( SpatialGrid var : variables )
 		{
 			dt = Math.min(dt, 0.1 * var.getShape().getMaxFluxPotential()  /
 					var.getMin(DIFFUSIVITY));
-			Log.out(level, "PDEexplicit: variable \""+var.getName()+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "PDEexplicit: variable \""+var.getName()+
 					"\" has min flux "+var.getShape().getMaxFluxPotential() +
 					" and diffusivity "+var.getMin(DIFFUSIVITY));
+			}
 		}
 		/* If the mini-timestep is less than tFinal, split it up evenly. */
 		if ( dt < tFinal )
@@ -74,22 +79,35 @@ public class PDEexplicit extends PDEsolver
 			this._updater.prestep(variables, dt);
 			for ( SpatialGrid var : variables )
 			{
-				Log.out(level, " Variable: "+var.getName());
+				if ( Log.shouldWrite(level) )
+					Log.out(level, " Variable: "+var.getName());
 				var.newArray(LOPERATOR);
-				this.addFluxes(var);
-				Log.out(level, "  Total value of fluxes: "+
-						var.getTotal(LOPERATOR));
-				Log.out(level, "  Total value of production rate array: "+
-						var.getTotal(PRODUCTIONRATE));
+				this.addFluxRates(var, commonGrid);
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, "  Total value of fluxes: "+
+							var.getTotal(LOPERATOR));
+					Log.out(level, "  Total value of production rate array: "+
+							var.getTotal(PRODUCTIONRATE));
+				}
 				var.addArrayToArray(LOPERATOR, PRODUCTIONRATE);
-				Log.out(level, "  Change rates: \n"+
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, "  Change rates: \n"+
 						var.arrayAsText(LOPERATOR));
+				}
 				var.timesAll(LOPERATOR, dt);
-				Log.out(level, "  Changes: \n"+
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, "  Changes: \n"+
 						var.arrayAsText(LOPERATOR));
+				}
 				var.addArrayToArray(CONCN, LOPERATOR);
-				Log.out(level, "  Concn: \n"+
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, "  Concn: \n"+
 						var.arrayAsText(LOPERATOR));
+				}
 				if ( ! this._allowNegatives )
 					var.makeNonnegative(CONCN);
 			}

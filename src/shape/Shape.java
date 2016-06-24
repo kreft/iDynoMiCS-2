@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -106,11 +105,6 @@ public abstract class Shape implements
 	 * diffusivity to become actual flux.
 	 */
 	protected Double _maxFluxPotentl = null;
-	/**
-	 * Surfaces for collision detection methods.
-	 */
-	protected Map<Surface,SpatialBoundary> _surfaces = 
-			new HashMap<Surface,SpatialBoundary>();
 	
 	/**
 	 * List of boundaries in a dimensionless compartment, or internal
@@ -360,7 +354,7 @@ public abstract class Shape implements
 	 * {@code Shape}.
 	 * @return Index of the dimension, if present; {@code -1}, if not.
 	 */
-	protected int getDimensionIndex(DimName dimension)
+	public int getDimensionIndex(DimName dimension)
 	{
 		int out = 0;
 		for ( DimName d : this._dimensions.keySet() )
@@ -378,7 +372,7 @@ public abstract class Shape implements
 	 * @param dimension Dimension thought to be in this {@code Shape}.
 	 * @return Index of the dimension, if present; {@code -1}, if not.
 	 */
-	protected int getDimensionIndex(Dimension dimension)
+	public int getDimensionIndex(Dimension dimension)
 	{
 		int out = 0;
 		for ( Dimension d : this._dimensions.values() )
@@ -771,6 +765,9 @@ public abstract class Shape implements
 	 */
 	protected void setPlanarSurfaces(DimName aDimName)
 	{
+		Tier level = Tier.BULK;
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Setting planar surfaces for min & max of "+aDimName);
 		Dimension dim = this.getDimension(aDimName);
 		/* Safety. */
 		if ( dim == null )
@@ -787,11 +784,13 @@ public abstract class Shape implements
 		/* The minimum extreme. */
 		normal[index] = 1.0;
 		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
-		this._surfaces.put(p, dim.getBoundary(0));
+		//this._surfaces.put(p, dim.getBoundary(0));
+		dim.setSurface(p, 0);
 		/* The maximum extreme. */
 		normal[index] = -1.0;
 		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
-		this._surfaces.put(p, dim.getBoundary(1));
+		//this._surfaces.put(p, dim.getBoundary(1));
+		dim.setSurface(p, 1);
 	}
 	
 	/**
@@ -799,7 +798,12 @@ public abstract class Shape implements
 	 */
 	public Collection<Surface> getSurfaces()
 	{
-		return this._surfaces.keySet();
+		Collection<Surface> out = new LinkedList<Surface>();
+		for ( Dimension dim : this._dimensions.values() )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				if ( dim.isSurfaceDefined(extreme) )
+					out.add(dim.getSurface(extreme));
+		return out;
 	}
 	
 	/**
@@ -810,7 +814,32 @@ public abstract class Shape implements
 	 */
 	public SpatialBoundary getBoundary(Surface surface)
 	{
-		return this._surfaces.get(surface);
+		for ( Dimension dim : this._dimensions.values() )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				if ( dim.getSurface(extreme) == surface )
+					return dim.getBoundary(extreme);
+		return null;
+	}
+	
+	/**
+	 * \brief Get the surface associated with the given spatial boundary.
+	 * 
+	 * @param boundary Boundary object on one of this shape's surfaces.
+	 * @return The {@code Surface} object linked to this boundary.
+	 */
+	public Surface getSurface(SpatialBoundary boundary)
+	{
+		Tier level = Tier.BULK;
+		DimName dimName = boundary.getDimName();
+		int extreme = boundary.getExtreme();
+		Dimension dim = this.getDimension(dimName);
+		Surface out = dim.getSurface(extreme);
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Surface for boundary on "+dimName+" "+
+					Dimension.extremeToString(extreme)+" is a "+out.toString());
+		}
+		return out;
 	}
 	
 	/* ***********************************************************************
@@ -842,7 +871,7 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * @return Collection of connected boundaries.
+	 * @return Collection of boundaries.
 	 */
 	public Collection<Boundary> getAllBoundaries()
 	{
@@ -856,6 +885,18 @@ public abstract class Shape implements
 		return out;
 	}
 	
+	/**
+	 * @return Collection of all spatial boundaries.
+	 */
+	public Collection<SpatialBoundary> getSpatialBoundaries()
+	{
+		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
+		for ( Dimension d : this._dimensions.values() )
+			for ( SpatialBoundary b : d.getBoundaries() )
+				if ( b != null )
+					out.add(b);
+		return out;
+	}
 	
 	/**
 	 * @return List of boundaries that need a partner boundary, but no not have
@@ -875,6 +916,15 @@ public abstract class Shape implements
 	{
 		return this._otherBoundaries;
 	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dimN
+	 * @param extreme
+	 * @return
+	 */
+	public abstract double getBoundarySurfaceArea(DimName dimN, int extreme);
 	
 	/* ***********************************************************************
 	 * VOXELS
@@ -1304,6 +1354,34 @@ public abstract class Shape implements
 		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
 		return this._currentNVoxel;
 	}
+	
+	public double currentDistanceFromBoundary(DimName dimN, int extreme)
+	{
+		Dimension dim = this.getDimension(dimN);
+		int dimIndex = this.getDimensionIndex(dimN);
+		ResCalc rC = this.getResolutionCalculator(this._currentCoord, dimIndex);
+		/*
+		 * Get the position at the centre of the current voxel.
+		 */
+		double distance = rC.getPosition(this._currentCoord[dimIndex], 0.5);
+		/*
+		 * Correct for the position of the extreme.
+		 */
+		if ( extreme == 0 )
+			distance -= dim.getExtreme(extreme);
+		else
+			distance = dim.getExtreme(extreme) - distance;
+		/*
+		 * If this is an angular dimension, convert from distance in radians to
+		 * distance in length units.
+		 */
+		if ( dimN.isAngular() )
+		{
+			double radius = this._currentCoord[this.getDimensionIndex(R)];
+			distance *= radius;
+		}
+		return distance;
+	}
 
 	/* ***********************************************************************
 	 * SUBVOXEL POINTS
@@ -1471,9 +1549,12 @@ public abstract class Shape implements
 	 */
 	protected void transformNbhCyclic()
 	{
-		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				": status "+this._whereIsNhb);
+		}
 		Dimension dim = getDimension(this._nhbDimName);
 		if ( (this._whereIsNhb == CYCLIC) && dim.isCyclic() )
 		{
@@ -1491,9 +1572,12 @@ public abstract class Shape implements
 				this._currentNeighbor[dimIdx] = 0;
 			}
 		}
-		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				": status "+this._whereIsNhb);
+		}
 	}
 	
 	/**
@@ -1520,9 +1604,12 @@ public abstract class Shape implements
 				this._currentNeighbor[dimIdx] = nVoxel;
 			}
 		}
-		Log.out(NHB_ITER_LEVEL, "   un-transformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNhb);
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   un-transformed neighbor at "+
+					Vector.toString(this._currentNeighbor)+
+					": status "+this._whereIsNhb);
+		}
 	}
 	
 	/**
@@ -1544,9 +1631,12 @@ public abstract class Shape implements
 		this._whereIsNhb = where;
 		this._nhbDirection = 0;
 		this._nhbDimName = dim;
-		Log.out(NHB_ITER_LEVEL,
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL,
 				"   tried moving to minus in "+dim+": result "+
 						Vector.toString(this._currentNeighbor)+" is "+where);
+		}
 		return (where != UNDEFINED);
 	}
 	
@@ -1575,18 +1665,23 @@ public abstract class Shape implements
 			{
 				/* report success. */
 				this._nhbDirection = 1;
-				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
-						": result "+Vector.toString(this._currentNeighbor)+
-						" is "+this._whereIsNhb);
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
+							": result "+Vector.toString(this._currentNeighbor)+
+							" is "+this._whereIsNhb);
+				}
 				return true;
 			}
 		}
 		/* Undo jump and report failure. */
 		this._currentNeighbor[index] = this._currentCoord[index] - 1;
-		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
 				" is "+this._whereIsNhb);
-		
+		}
 		return false;
 	}
 	
@@ -1615,10 +1710,13 @@ public abstract class Shape implements
 	public double nbhCurrDistance()
 	{
 		Tier level = Tier.BULK;
-		Log.out(level, "  calculating distance between voxels "+
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "  calculating distance between voxels "+
 				Vector.toString(this._currentCoord)+" and "+
 				Vector.toString(this._currentNeighbor)+
 				" along dimension "+this._nhbDimName);
+		}
 		int i = this.getDimensionIndex(this._nhbDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
 		double out = rC.getResolution(this._currentCoord[i]);
@@ -1646,12 +1744,14 @@ public abstract class Shape implements
 				Log.out(level, "   radius is "+radius);
 				out *= radius;
 			}
-			Log.out(level, "    distance is "+out);
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "    distance is "+out);
 			return out;
 		}
 		/* If the neighbor is on an undefined boundary, return infinite
 			distance (this should never happen!) */
-		Log.out(level, "    undefined distance!");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "    undefined distance!");
 		return Double.POSITIVE_INFINITY;
 	}
 	

@@ -5,7 +5,6 @@ package boundary.library;
 
 import boundary.Boundary;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
-import idynomics.EnvironmentContainer;
 
 /**
  * \brief Boundary connecting a dimensionless compartment to a compartment
@@ -30,16 +29,16 @@ public class ChemostatToBoundaryLayer extends Boundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	public void updateConcentrations()
 	{
 		double chemoConcn, biofilmConcn;
-		for ( String name : environment.getSoluteNames() )
+		for ( String name : this._environment.getSoluteNames() )
 		{
 			/* */
 			biofilmConcn = this._partner.getConcentration(name);
 			this.setConcentration(name, biofilmConcn);
 			/* */
-			chemoConcn = environment.getAverageConcentration(name);
+			chemoConcn = this._environment.getAverageConcentration(name);
 			this._partner.setConcentration(name, chemoConcn);
 		}
 	}

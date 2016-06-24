@@ -159,6 +159,12 @@ public final class ShapeLibrary
 		{
 			/* Do nothing! */
 		}
+
+		@Override
+		public double getBoundarySurfaceArea(DimName dimN, int extreme)
+		{
+			return 0.0;
+		}
 	}
 	
 	/*************************************************************************

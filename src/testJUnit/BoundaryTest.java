@@ -35,11 +35,12 @@ public class BoundaryTest
 		double agentRadius = 1.0;
 		// TODO set this in the boundary method
 		double boundaryLayerThickness = 10.0;
+		String compName = "oneDim";
 		/*
 		 * Set up the Simulator, Timer, and Compartment
 		 */
 		AllTests.setupSimulatorForTest(tStep, tMax, "agentInsertionBoundaryLayer");
-		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
+		Compartment comp = Idynomics.simulator.addCompartment(compName);
 		comp.setShape("line");
 		comp.setSideLengths(new double[]{compartmentLength});
 		/*
@@ -56,7 +57,9 @@ public class BoundaryTest
 		 * Add the agent to the boundary layer, and this to the compartment.
 		 */
 		BiofilmBoundaryLayer bL = new BiofilmBoundaryLayer(DimName.X, 1);
+		bL.init(comp.environment, comp.agents, compName);
 		bL.acceptInboundAgent(insertAgent);
+		bL.setLayerThickness(boundaryLayerThickness);
 		comp.addBoundary(bL);
 		/*
 		 * Now make a fixed agent that the insert agent should detect.
@@ -71,6 +74,10 @@ public class BoundaryTest
 		 * The other boundary is unimportant, but needs to be set.
 		 */
 		comp.addBoundary(new SolidBoundary(DimName.X, 0));
+		/*
+		 * Make sure that the shape's boundaries have the right surfaces.
+		 */
+		comp.getShape().setSurfaces();
 		
 		Idynomics.simulator.run();
 		

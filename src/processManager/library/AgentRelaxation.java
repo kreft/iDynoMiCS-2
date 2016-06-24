@@ -165,8 +165,8 @@ public class AgentRelaxation extends ProcessManager
 	private void updateForces(AgentContainer agents) 
 	{
 		Tier level = BULK;
-		Log.out(level, "Updating agent forces");
-
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Updating agent forces");
 		/* Calculate forces. */
 		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
@@ -215,15 +215,18 @@ public class AgentRelaxation extends ProcessManager
 			
 			double searchDist = (agent.isAspect(SEARCH_DIST) ?
 					agent.getDouble(SEARCH_DIST) : 0.0);
-			
-			Log.out(level, "  Agent (ID "+agent.identity()+") has "+
-					agentSurfs.size()+" surfaces, search dist "+searchDist);
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "  Agent (ID "+agent.identity()+") has "+
+						agentSurfs.size()+" surfaces, search dist "+searchDist);
+			}
 			/*
 			 * Perform neighborhood search and perform collision detection and
 			 * response. 
 			 */
 			Collection<Agent> nhbs = agents.treeSearch(agent, searchDist);
-			Log.out(level, "  "+nhbs.size()+" neighbors found");
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "  "+nhbs.size()+" neighbors found");
 			for ( Agent neighbour: nhbs )
 				if ( agent.identity() > neighbour.identity() )
 				{
@@ -244,7 +247,8 @@ public class AgentRelaxation extends ProcessManager
 			// FIXME here we need to selectively apply surface collision methods
 			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
 		}
-		Log.out(level, " Finished updating agent forces");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, " Finished updating agent forces");
 	}
 
 

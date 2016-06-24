@@ -7,8 +7,6 @@ import boundary.Boundary;
 import boundary.spatialLibrary.BiofilmMembraneLiquid;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 
 /**
  * \brief TODO
@@ -32,7 +30,7 @@ public class ChemostatToMembrane extends Boundary
 	 * **********************************************************************/
 	
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	public void updateConcentrations()
 	{
 		// TODO Auto-generated method stub
 	}
@@ -42,13 +40,13 @@ public class ChemostatToMembrane extends Boundary
 	 * **********************************************************************/
 	
 	@Override
-	public void agentsArrive(AgentContainer agentCont)
+	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
 		{
 			Log.out(Tier.NORMAL,
 					"Unexpected: agents arriving from a membrane!");
 		}
-		super.agentsArrive(agentCont);
+		super.agentsArrive();
 	}
 }
