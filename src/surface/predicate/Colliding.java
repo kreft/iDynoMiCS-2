@@ -6,7 +6,7 @@ import surface.Collision;
 import surface.Surface;
 
 /**
- * NOTE this predicate only works if the collision domain for a is set.
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  * @param <a>
@@ -31,9 +31,8 @@ public class Colliding<a> implements Predicate<Surface>
 	}
 		
 	@Override
-	public boolean test(Surface a) {
-		if ( _collision.colliding(a, _surf, _margin) )
-			return true;
-		return false;
+	public boolean test(Surface a) 
+	{
+		return _collision.colliding(a, _surf, _margin);
 	}
 }

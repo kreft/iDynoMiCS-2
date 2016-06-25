@@ -298,7 +298,7 @@ public class AgentContainer
 		 */
 		IsSame isSame = new IsSame(anAgent);
 		out.removeIf(isSame);
-		// NOTE lambda expressions are notoriously slow in java
+		// NOTE lambda expressions are known to be slow in java
 		return out;
 	}
 
@@ -393,6 +393,8 @@ public class AgentContainer
 		Colliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
+		/* NOTE if the agent has many surfaces it may be faster the other way
+		 * around  */
 		for ( Surface a : ((Body) anAgent.get(AspectRef.agentBody))
 				.getSurfaces())
 		{

@@ -307,9 +307,7 @@ public class Collision
 	 */
 	public boolean colliding(Surface a, Surface b, double margin)
 	{
-		if ( distance( a, b ) < margin )
-			return true;
-		return false;
+		return ( distance( a, b ) < margin );
 	}
 	
 	

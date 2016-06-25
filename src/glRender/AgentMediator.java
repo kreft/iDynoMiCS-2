@@ -299,12 +299,17 @@ public class AgentMediator implements CommandMediator {
 		{
 			_rgba = new float[] {0.1f, 0.1f, 1.0f};
 			_gl.glEnable(GL2.GL_BLEND);
-			_gl.glDisable(GL2.GL_DEPTH_TEST);
 		}
 		else
 		{
 			_rgba = new float[] {0.3f, 0.3f, 0.3f};
 		}
+		/**
+		 * NOTE moved this here since it seems to resolve black lines in domain 
+		 * square, as long as the domain is drawn first this should not cause
+		 * any problems.
+		 */
+		_gl.glDisable(GL2.GL_DEPTH_TEST); 
 		applyCurrentColor();
 		
 		/* scale y and z relative to x (which we will choose as cube-size) */
@@ -313,16 +318,15 @@ public class AgentMediator implements CommandMediator {
 		
 		/* draw the scaled cube (rectangle).
 		 * Note that a cube with length 0 in one dimension is a plane 
-		 * NOTE: the glut cube seems to have some rendering artifacts (black
-		 * stripes), investigate, consider quads as alternative
 		 */
 		_glut.glutSolidCube((float)length[0]);
 		
-		/* clean up */
-		if (length[2] > 0){
-			_gl.glEnable(GL2.GL_DEPTH_TEST);
-			_gl.glDisable(GL2.GL_BLEND);
-		}
+		/* make sure Depth test is re-enabled and blend is disabled before
+		 * drawing other objects.
+		 */
+		_gl.glEnable(GL2.GL_DEPTH_TEST);
+		_gl.glDisable(GL2.GL_BLEND);
+
 		_gl.glPopMatrix();
 	}
 	
