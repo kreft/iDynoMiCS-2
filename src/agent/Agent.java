@@ -144,8 +144,8 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 			for(int i = 0; i < temp.getLength(); i++)
 			{
 				/* TODO this is a cheat, make a standard method for this */
-				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute(
-						temp.item(i), XmlRef.numberOfAgents, this.defaultXmlTag())));
+				int n = Integer.valueOf(XmlHandler.obtainAttribute(
+						temp.item(i), XmlRef.numberOfAgents, this.defaultXmlTag()));
 				double[] domain = Vector.dblFromString(XmlHandler.
 						obtainAttribute(temp.item(i), XmlRef.spawnDomain, this.defaultXmlTag()));
 				for(int j = 0; j < n-1; j++)

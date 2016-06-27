@@ -165,15 +165,7 @@ public class Log
 		if ( ! _logFile.isReady() )
 			setupFile();
 		/* Try writing to screen and to the log file. */
-		if ( _outputLevel == null )
-		{
-			 _outputLevel = Tier.NORMAL;
-			 printToScreen(
-					 "No output level set, using NORMAL by default", true);
-			// FIXME this response contradicts the javadoc to set(Tier)
-			//printToScreen("Error: attempt to write log before it is set", true);
-		}
-		else if ( shouldWrite(level) )
+		if ( shouldWrite(level) )
 		{
 			printToScreen(_st.format(new Date())+message, level==Tier.CRITICAL);
 			_logFile.write(_ft.format(new Date()) + message + "\n");
