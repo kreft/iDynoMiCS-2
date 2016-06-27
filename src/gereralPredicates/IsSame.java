@@ -14,9 +14,7 @@ public class IsSame implements Predicate<Object>
 	@Override
 	public boolean test(Object t) 
 	{
-		if (_object.equals(t))
-			return true;
-		return false;
+		return (_object.equals(t));
 	}
 
 }
