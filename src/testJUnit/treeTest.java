@@ -25,7 +25,7 @@ public class treeTest {
 		treeTest(100000);
 		rTreeTest(100000);
 	}
-	
+		
 	public void treeTest(int sampleSize)
 	{
 		

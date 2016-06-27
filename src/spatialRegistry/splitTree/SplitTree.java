@@ -69,15 +69,19 @@ public class SplitTree
 	public void split(Node leaf)
 	{
 		leaf.setDim( ( leaf.dim()+1 >= _dimensions ? 0 : leaf.dim()+1 ) );
+		Node newNode;
+		List<Node> childNodes = new LinkedList<Node>();
 		
-		Node upper = new Node(leaf.upperLow(), leaf.high, leaf.dim(), true, this);
-		Node lower = new Node(leaf.low, leaf.lowerHigh(), leaf.dim(), true, this);
-
-		upper.add(leaf.allLocal());
-		lower.add(leaf.allLocal());
+		for ( boolean[] b : leaf.combinations())
+		{
+			newNode = new Node( leaf.corner(leaf.low, leaf.splits(), b), 
+					leaf.corner(leaf.splits(), leaf.high, b), leaf.dim(), true, this);
+			newNode.add(leaf.allLocal());
+			childNodes.add(newNode);
+		}
 
 		/* promote node from leaf to branch */
-		leaf.promote(upper, lower);
+		leaf.promote(childNodes);
 	}	
 
 	public List<Entry> allEntries(LinkedList<Entry> out) 
@@ -258,12 +262,12 @@ public class SplitTree
 			getEntries().removeIf(_outTest);
 		}
 		
-		public void promote(Node a, Node b)
+		public void promote(List<Node> nodes)
 		{
 			this.getEntries().clear();
 			this._leafNode = false;
-			this.add(a);
-			this.add(b);
+			for (Node n : nodes)
+				this.add(n);
 		}
 		
 		public void setDim(int dim)
@@ -275,24 +279,15 @@ public class SplitTree
 		/* ************************************************************************
 		 * Helper methods
 		 */
-		
-		public double[] upperLow()
-		{
-			double[] out = Vector.copy(this.low);
-			out[_dim] = split();
-			return out;
-		}
-		
-		public double[] lowerHigh()
-		{
-			double[] out = Vector.copy(this.high);
-			out[_dim] = split();
-			return out;
-		}
-		
+			
 		private double split()
 		{
-			return this.low[_dim] + ( (this.high[_dim] - this.low[_dim]) / 2.0 );
+			return split(_dim);
+		}
+		
+		private double split(int dim)
+		{
+			return this.low[dim] + ( (this.high[dim] - this.low[dim]) / 2.0 );
 		}
 		
 		private double[] splits()
@@ -303,14 +298,54 @@ public class SplitTree
 			return split;
 		}
 		
+		private double[] corner(double[] lower, double[] higher, boolean[] combination)
+		{
+			double [] out = new double[combination.length];
+			for (int i = 0; i < combination.length; i++)
+				out[i] = (combination[i] ? higher[i] : lower[i]);
+			return out;
+		}
+		
+		private List<boolean[]> combinations()
+		{
+			return this.combinations(low.length);
+		}
+		
+		private List<boolean[]> combinations(int length)
+		{
+			boolean[] a = new boolean[length];
+			Vector.setAll(a, false);
+			List<boolean[]> b = new LinkedList<boolean[]>();
+			b.add(a);
+			for ( int i = 0; i < length; i++)
+				combinations(i, b);
+			return b;
+		}
+		
+		private void combinations(int pos, List<boolean[]> build)
+		{
+			int length = build.size();
+			for ( int i = 0; i < length; i++ )
+			{
+				boolean[] c = Vector.copy(build.get(i));
+				c[pos] = true;
+				build.add(c);
+			}
+		}
+		
 		public class Outside implements Predicate<Area> 
 		{
 
 			@Override
 			public boolean test(Area area) 
 			{
-				return ( area.low()[_dim] > high[_dim] || 
-						area.high()[_dim] < low[_dim] );
+				for (int i = 0; i < _dimensions; i++)
+				{
+					if ( area.low()[i] > high[i] || 
+						area.high()[i] < low[i] )
+						return true;
+				}
+				return false;
 			}
 		}
 
