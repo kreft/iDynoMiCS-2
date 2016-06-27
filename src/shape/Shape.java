@@ -100,6 +100,14 @@ public abstract class Shape implements
 	protected HashMap<DimName,ResCalc> _rcStorage =
 												new HashMap<DimName,ResCalc>();
 	/**
+	 * Name of the common grid.
+	 */
+	public final static String COMMON_GRID_NAME = "common";
+	/**
+	 * Grid of common attributes, such as well-mixed.
+	 */
+	protected SpatialGrid _commonGrid;
+	/**
 	 * The greatest potential flux between neighboring voxels. Multiply by 
 	 * diffusivity to become actual flux.
 	 */
@@ -309,6 +317,17 @@ public abstract class Shape implements
 	public SpatialGrid getNewGrid(String name)
 	{
 		return new SpatialGrid(this, name);
+	}
+	
+	/**
+	 * @return The common grid, which holds information like "well-mixed" and
+	 * "detachability".
+	 */
+	public SpatialGrid getCommonGrid()
+	{
+		if ( this._commonGrid == null )
+			this._commonGrid = this.getNewGrid(COMMON_GRID_NAME);
+		return this._commonGrid;
 	}
 	
 	/**

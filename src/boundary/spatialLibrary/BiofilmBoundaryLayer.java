@@ -194,6 +194,12 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
+	protected double getDetachability()
+	{
+		return 1.0;
+	}
+	
+	@Override
 	public void agentsArrive()
 	{
 		/*

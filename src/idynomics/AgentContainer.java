@@ -17,6 +17,9 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import grid.ArrayType;
+import grid.SpatialGrid;
+
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
 import shape.Dimension;
@@ -660,6 +663,12 @@ public class AgentContainer
 			Log.out(level, " All agents have now arrived");
 	}
 
+	public void refreshDetachabilityArray()
+	{
+		SpatialGrid common = this._shape.getCommonGrid();
+		common.newArray(ArrayType.DETACHABILITY);
+	}
+	
 	/**
 	 * \brief Loop through all boundaries on this shape, trying to grab the
 	 * agents each wants.

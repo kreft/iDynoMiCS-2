@@ -25,6 +25,7 @@ public class SolidBoundary extends SpatialBoundary
 	public SolidBoundary(DimName dim, int extreme)
 	{
 		super(dim, extreme);
+		this._detachability = 0.0;
 	}
 
 	/* ***********************************************************************
@@ -71,6 +72,12 @@ public class SolidBoundary extends SpatialBoundary
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
 
+	@Override
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
 	@Override
 	public void agentsArrive()
 	{

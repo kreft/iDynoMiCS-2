@@ -28,12 +28,11 @@ public enum ArrayType
 	 */
 	PRODUCTIONRATE,
 	/**
-	 * The differential of production rate with respect to its
-	 * concentration.
-	 */
-	DIFFPRODUCTIONRATE,
-	/**
 	 * Laplacian operator.
 	 */
-	LOPERATOR;
+	LOPERATOR,
+	/**
+	 * Dummy array for estimating how exposed agents are to detachment.
+	 */
+	DETACHABILITY,
 }

@@ -26,6 +26,7 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	public BiofilmMembraneLiquid(DimName dim, int extreme)
 	{
 		super(dim, extreme);
+		this._detachability = 0.0;
 	}
 
 	/* ***********************************************************************
@@ -67,6 +68,12 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
 
+	@Override
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
 	@Override
 	public void agentsArrive()
 	{

@@ -32,14 +32,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	protected Shape _shape;
 	/**
-	 * Grid of common attributes, such as well-mixed.
-	 */
-	protected SpatialGrid _commonGrid;
-	/**
-	 * Name of the common grid.
-	 */
-	public final static String COMMON_GRID_NAME = "common";
-	/**
 	 * Collection of solutes (each SpatialGrid knows its own name).
 	 */
 	protected Collection<SpatialGrid> _solutes = new LinkedList<SpatialGrid>();
@@ -60,7 +52,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public EnvironmentContainer(Shape aShape)
 	{
 		this._shape = aShape;
-		this._commonGrid = this._shape.getNewGrid(COMMON_GRID_NAME);
 	}
 	
 	/**
@@ -361,7 +352,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public SpatialGrid getCommonGrid()
 	{
-		return this._commonGrid;
+		return this._shape.getCommonGrid();
 	}
 	
 	/**
@@ -374,7 +365,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		 * boundaries need it to be updated, it will be full of zeros (i.e.
 		 * nowhere is well-mixed).
 		 */
-		this._commonGrid.newArray(ArrayType.WELLMIXED);
+		this.getCommonGrid().newArray(ArrayType.WELLMIXED);
 		/*
 		 * Check if any of the boundaries need to update the well-mixed array.
 		 * If none do, then there is nothing more to do.

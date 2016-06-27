@@ -39,6 +39,7 @@ public class FixedBoundary extends SpatialBoundary
 	public FixedBoundary(DimName dim, int extreme)
 	{
 		super(dim, extreme);
+		this._detachability = 0.0;
 	}
 	
 	/* ***********************************************************************
@@ -114,6 +115,12 @@ public class FixedBoundary extends SpatialBoundary
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
+	
+	@Override
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
 	
 	@Override
 	public void agentsArrive()

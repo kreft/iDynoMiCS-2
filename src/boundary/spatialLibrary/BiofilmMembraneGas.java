@@ -68,6 +68,12 @@ public class BiofilmMembraneGas extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
+	@Override
 	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )

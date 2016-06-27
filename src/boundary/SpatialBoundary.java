@@ -44,6 +44,8 @@ public abstract class SpatialBoundary extends Boundary
 	// TODO set this from protocol file for the whole compartment
 	protected double _layerThickness;
 	
+	protected double _detachability;
+	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
@@ -172,6 +174,12 @@ public abstract class SpatialBoundary extends Boundary
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
+	
+	/**
+	 * 
+	 * @return
+	 */
+	protected abstract double getDetachability();
 	
 	/**
 	 * \brief Helper method for placing agents in the arrivals lounge at random
