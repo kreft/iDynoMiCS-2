@@ -6,6 +6,15 @@ import java.util.function.Predicate;
 
 import linearAlgebra.Vector;
 
+/**
+ * First version of nDimensional tree, behaves like quadtree in 2d and octree in
+ * 3d, named "splitTree"
+ * 
+ * TODO clean-up
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class SplitTree
 {	
 	protected boolean _root = false;
