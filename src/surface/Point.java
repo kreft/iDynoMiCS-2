@@ -39,7 +39,7 @@ public class Point implements Copyable, NodeConstructor
 
 	/**
 	 * Viscosity of the surrounding medium (in units of Pa s).
-	 * Note that 298.15°K = 25°C
+	 * Note that 298.15 K = 25°C
 	 */
 	// TODO make this settable from protocol or, even better, get this value
 	// from a temperature or viscosity array on a grid.

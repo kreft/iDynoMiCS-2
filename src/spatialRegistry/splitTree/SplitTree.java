@@ -2,11 +2,9 @@ package spatialRegistry.splitTree;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.RecursiveTask;
 import java.util.function.Predicate;
 
 import linearAlgebra.Vector;
-import spatialRegistry.splitTree.SplitTree.Area;
 
 public class SplitTree
 {	
@@ -23,22 +21,21 @@ public class SplitTree
 	static boolean[] _periodic; //TODO
 	
 	public SplitTree(int dimensions, int min, int max, 
-			double[] low, double[] high, boolean[] periodic, int cores)
+			double[] low, double[] high, boolean[] periodic)
 	{
 		this._root = true;
 		_dimensions = dimensions;
 		_minEntries = min;
 		_maxEntries = max;
-		this.node = new Node(low, high, 0, true, this);
+		this.node = new Node(low, high, true, this);
 	}
 	
-	public SplitTree(int dimensions, int min, int max, boolean[] periodic, 
-			int cores)
+	public SplitTree(int dimensions, int min, int max, boolean[] periodic)
 	{
 		this(dimensions, min, max, 
 				Vector.setAll(new double[dimensions], -Math.sqrt(Double.MAX_VALUE)), 
 				Vector.setAll(new double[dimensions], Math.sqrt(Double.MAX_VALUE)), 
-				periodic, cores);
+				periodic);
 	}
 
 	public void add(double[] low, double[] high, Object obj)
@@ -68,14 +65,13 @@ public class SplitTree
 	
 	public void split(Node leaf)
 	{
-		leaf.setDim( ( leaf.dim()+1 >= _dimensions ? 0 : leaf.dim()+1 ) );
 		Node newNode;
 		List<Node> childNodes = new LinkedList<Node>();
 		
 		for ( boolean[] b : leaf.combinations())
 		{
 			newNode = new Node( leaf.corner(leaf.low, leaf.splits(), b), 
-					leaf.corner(leaf.splits(), leaf.high, b), leaf.dim(), true, this);
+					leaf.corner(leaf.splits(), leaf.high, b), true, this);
 			newNode.add(leaf.allLocal());
 			childNodes.add(newNode);
 		}
@@ -83,7 +79,7 @@ public class SplitTree
 		/* promote node from leaf to branch */
 		leaf.promote(childNodes);
 	}	
-
+	
 	public List<Entry> allEntries(LinkedList<Entry> out) 
 	{
 		return this.node.allEntries(out);
@@ -116,8 +112,6 @@ public class SplitTree
 		final double[] high;
 		
 		protected boolean _leafNode;
-		
-		protected int _dim;
 
 		private LinkedList<Area> _entries = new LinkedList<Area>();
 		
@@ -125,12 +119,11 @@ public class SplitTree
 		
 		private SplitTree _tree;
 
-		public Node(double[] low, double[] high, int dim, 
+		public Node(double[] low, double[] high, 
 				boolean isLeaf, SplitTree tree)
 		{
 			this.low = low;
 			this.high = high;
-			this._dim = dim;
 			this._leafNode = isLeaf;
 			this._tree = tree;
 		}
@@ -146,6 +139,22 @@ public class SplitTree
 				{
 					for ( Area a : _entries )
 						out.addAll(((Node) a).find(area));
+				}
+			}
+			return out;
+		}
+		
+		public List<Entry> findUnfiltered(Area area) 
+		{
+			LinkedList<Entry> out = new LinkedList<Entry>();
+			if ( ! _outTest.test(area) )
+			{
+				if ( this._leafNode )
+					return this.allUnfiltered(out);
+				else
+				{
+					for ( Area a : _entries )
+						out.addAll(((Node) a).findUnfiltered(area));
 				}
 			}
 			return out;
@@ -204,18 +213,13 @@ public class SplitTree
 		{
 			return getEntries().size();
 		}
-		
-		public int dim()
-		{
-			return _dim;
-		}
-		
+
 		public List<Area> allLocal()
 		{
 			return new LinkedList<Area>(this.getEntries());
 		}
 		
-		public List<Area> allUnfiltered(LinkedList<Area> out)
+		public List<Entry> allUnfiltered(LinkedList<Entry> out)
 		{
 			if ( this._leafNode)
 			{
@@ -234,8 +238,7 @@ public class SplitTree
 		{
 			for (Area a : this.getEntries())
 			{
-				if ( ! (area.low()[_dim] > a.high()[_dim] || 
-						area.high()[_dim] < a.low()[_dim] ) );
+				if ( ! this._outTest.test(area) );
 					out.add( (Entry) a);
 			}
 			return out;
@@ -257,6 +260,20 @@ public class SplitTree
 			return out;
 		}
 		
+		public List<Node> allLeaves(LinkedList<Node> out) 
+		{
+			if ( this._leafNode)
+			{
+				out.add( this );
+			}
+			else
+			{
+				for (Area a : this.getEntries())
+					((Node) a).allLeaves(out);
+			}
+			return out;
+		}
+		
 		public void purge()
 		{
 			getEntries().removeIf(_outTest);
@@ -270,21 +287,10 @@ public class SplitTree
 				this.add(n);
 		}
 		
-		public void setDim(int dim)
-		{
-			this._dim = dim;
-		}
-		
-		
 		/* ************************************************************************
 		 * Helper methods
 		 */
 			
-		private double split()
-		{
-			return split(_dim);
-		}
-		
 		private double split(int dim)
 		{
 			return this.low[dim] + ( (this.high[dim] - this.low[dim]) / 2.0 );

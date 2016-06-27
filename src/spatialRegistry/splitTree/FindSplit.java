@@ -8,7 +8,10 @@ import spatialRegistry.splitTree.SplitTree.Area;
 import spatialRegistry.splitTree.SplitTree.Entry;
 
 /**
+ * Testing potential further speed ups
+ * 
  * NOTE do not use this method, it is not thread safe, just for testing purposes
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
@@ -22,9 +25,9 @@ public class FindSplit extends RecursiveTask<List<List<Entry>>>
 	
 	SplitTree tree;
 	
-	LinkedList<Area> objectives;
+	List<Area> objectives;
 	
-	public FindSplit(SplitTree tree, LinkedList<Area> objectives)
+	public FindSplit(SplitTree tree, List<Area> objectives)
 	{
 		this.tree = tree;
 		this.objectives = objectives;
@@ -33,23 +36,19 @@ public class FindSplit extends RecursiveTask<List<List<Entry>>>
 	@Override
 	protected List<List<Entry>> compute()
 	{
-		List<List<Entry>> listr;
-		FindSplit buddy = null;
-		
-		Area mine = objectives.getFirst();
-		objectives.remove(mine);
-		
-		if (! objectives.isEmpty() )
+		List<List<Entry>> listr = new LinkedList<List<Entry>>();
+		if (objectives.size() > 100)
 		{
-			buddy = new FindSplit(this.tree, this.objectives);
-			buddy.fork();
+			FindSplit p1 = new FindSplit(this.tree, this.objectives.subList(0, objectives.size()/2));
+			p1.fork();
+			listr.addAll(new FindSplit(this.tree, this.objectives.subList(objectives.size()/2+1, objectives.size())).compute());
+			listr.addAll(p1.join());
 		}
-		List<Entry> result = tree.find(mine);
-		if ( objectives.isEmpty() )
-			listr = new LinkedList<List<Entry>>();
 		else
-			listr = buddy.join();
-		listr.add(result);
+		{
+			for ( Area a : objectives )
+				listr.add(tree.find(a));
+		}
 		return listr;
 	}
 }
