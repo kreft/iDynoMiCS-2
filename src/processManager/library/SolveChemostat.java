@@ -29,8 +29,6 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
-//TODO This manager needs to incorporate chemostat-biofilm interactions,
-// i.e. solute flows and agent migrations.
 // TODO this manager may need to update the solute concentrations of 
 // out-flowing connection boundaries.
 public class SolveChemostat extends ProcessManager
@@ -52,7 +50,7 @@ public class SolveChemostat extends ProcessManager
 	 */
 	protected String[] _soluteNames = new String[0];
 	/**
-	 * Vector of inflow rates, in units of concentration per unit time. 
+	 * Vector of inflow rates, in units of concentration per unit time.
 	 */
 	protected double[] _dYdTinflow;
 	/**
@@ -75,9 +73,9 @@ public class SolveChemostat extends ProcessManager
 	 */
 	private double[] _y;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void init(Element xmlElem, EnvironmentContainer environment, 
@@ -132,26 +130,15 @@ public class SolveChemostat extends ProcessManager
 		this._y = new double[this.n()];
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * STEPPING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	protected void internalStep()
 	{
 		Tier level = Tier.DEBUG;
 		Log.out(level, "SolveChemostat internal step starting");
-		/*
-		 * Accept any inbound agents
-		 */
-		// TODO remove? This should be handled by the Compartment at the start
-		// of the global time step
-		for ( Boundary aBoundary : this._environment.getOtherBoundaries() )
-			{
-				for ( Agent anAgent : aBoundary.getAllInboundAgents() )
-					this._agents.addAgent(anAgent);
-				aBoundary.clearArrivalsLoungue();
-			}
 		/*
 		 * Update information that depends on the environment.
 		 */
@@ -181,9 +168,9 @@ public class SolveChemostat extends ProcessManager
 		Log.out(level, "SolveChemostat internal step finished");
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * INTERNAL METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Number of solutes this process manager deals with.

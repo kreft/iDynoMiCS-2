@@ -1,6 +1,7 @@
 package solver;
 
 import java.util.Collection;
+
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -63,7 +64,7 @@ public abstract class PDEsolver extends Solver
 	 * @param commonGrid
 	 * @param destType
 	 */
-	protected void addFluxRates(SpatialGrid grid, SpatialGrid commonGrid)
+	protected void applyDiffusion(SpatialGrid grid, SpatialGrid commonGrid)
 	{
 		Tier level = BULK;
 		Shape shape = grid.getShape();
@@ -96,7 +97,7 @@ public abstract class PDEsolver extends Solver
 				 * take a note of the flux (for connections with other
 				 * compartments).
 				 */
-				nbhFlux = grid.getFlowFromNeighbor();
+				nbhFlux = grid.getDiffusionFromNeighbor();
 				
 				/*
 				 * If this flux came from a well-mixed voxel, inform the grid.
@@ -105,7 +106,7 @@ public abstract class PDEsolver extends Solver
 				{
 					// TODO this should really be > some threshold
 					if ( commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
-						grid.increaseWellMixedFlux( - nbhFlux );
+						this.increaseWellMixedFlow(grid.getName(), - nbhFlux);
 				}
 				totalFlux += nbhFlux;
 				/* 
@@ -148,4 +149,24 @@ public abstract class PDEsolver extends Solver
 			grid.addValueAt(LOPERATOR, current, changeRate);
 		}
 	}
+	
+	/* ***********************************************************************
+	 * WELL-MIXED CHANGES
+	 * **********************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @return
+	 */
+	protected abstract double getWellMixedFlow(String name);
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @param flow
+	 */
+	protected abstract void increaseWellMixedFlow(String name, double flow);
 }

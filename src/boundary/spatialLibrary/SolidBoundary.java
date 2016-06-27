@@ -80,6 +80,6 @@ public class SolidBoundary extends SpatialBoundary
 					"Unexpected: agents arriving at a solid boundary!");
 		}
 		this.placeAgentsRandom();
-		this.clearArrivalsLoungue();
+		this.clearArrivalsLounge();
 	}
 }

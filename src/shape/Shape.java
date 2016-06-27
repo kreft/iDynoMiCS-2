@@ -924,6 +924,17 @@ public abstract class Shape implements
 	}
 	
 	/**
+	 * @return Collection of spatial boundaries that have a well-mixed approach
+	 * to them.
+	 */
+	public Collection<SpatialBoundary> getWellMixedBoundaries()
+	{
+		Collection<SpatialBoundary> out = this.getSpatialBoundaries();
+		out.removeIf(b -> { return ! b.needsToUpdateWellMixed();});
+		return out;
+	}
+	
+	/**
 	 * @return Collection of all boundaries that do not belong to a dimension.
 	 */
 	public Collection<Boundary> getOtherBoundaries()

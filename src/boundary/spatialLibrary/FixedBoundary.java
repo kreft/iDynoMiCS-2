@@ -124,6 +124,6 @@ public class FixedBoundary extends SpatialBoundary
 					"Unexpected: agents arriving at a fixed boundary!");
 		}
 		this.placeAgentsRandom();
-		this.clearArrivalsLoungue();
+		this.clearArrivalsLounge();
 	}
 }

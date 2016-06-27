@@ -67,7 +67,9 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	protected double _volumeFlowRate = 0.0;
 	/**
-	 * TODO
+	 * \brief Rates of flow of mass across this boundary: positive for
+	 * flow into the compartment this boundary belongs to, negative for flow
+	 * out. Map keys are solute names. Units of mass (or mole) per time.
 	 */
 	protected Map<String,Double> _massFlowRate = new HashMap<String,Double>();
 	/**
@@ -90,12 +92,13 @@ public abstract class Boundary implements NodeConstructor
 	protected static final Tier AGENT_LEVEL = Tier.BULK;
 
 	/**
+	 * \brief Tell this boundary what it needs to know about the compartment it
+	 * belongs to.
 	 * 
-	 * @param environment
-	 * @param agents
-	 * @param compartmentName
+	 * @param environment The environment container of the compartment.
+	 * @param agents The agent container of the compartment.
+	 * @param compartmentName The name of the compartment.
 	 */
-	// TODO this needs to be called by Compartment
 	public void init(EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
@@ -109,8 +112,7 @@ public abstract class Boundary implements NodeConstructor
 	 * **********************************************************************/
 
 	/**
-	 * TODO
-	 * @return
+	 * @return The name of this boundary.
 	 */
 	public String getName()
 	{
@@ -123,9 +125,8 @@ public abstract class Boundary implements NodeConstructor
 	 * **********************************************************************/
 
 	/**
-	 * \brief TODO
-	 * 
-	 * @return
+	 * @return The class of boundary that can be a partner of this one, making
+	 * a connection between compartments.
 	 */
 	protected abstract Class<?> getPartnerClass();
 
@@ -188,9 +189,15 @@ public abstract class Boundary implements NodeConstructor
 	 * **********************************************************************/
 
 	/**
-	 * \brief TODO
+	 * \brief Get the volume flow rate for this boundary.
 	 * 
-	 * @return
+	 * <p>This will likely be zero for non-connected boundaries, and also many
+	 * connected boundaries.</p>
+	 * 
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means fluid is flowing out.</p>
+	 * 
+	 * @return Rate of volume flow, in units of volume per time.
 	 */
 	public double getVolumeFlowRate()
 	{
@@ -198,9 +205,14 @@ public abstract class Boundary implements NodeConstructor
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the volume flow rate for this boundary.
 	 * 
-	 * @param rate
+	 * <p>This should be unused for most boundaries.</p>
+	 * 
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means fluid is flowing out.</p>
+	 * 
+	 * @param rate Rate of volume flow, in units of volume per time.
 	 */
 	public void setVolumeFlowRate(double rate)
 	{
@@ -208,9 +220,12 @@ public abstract class Boundary implements NodeConstructor
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the dilution rate for this boundary.
 	 * 
-	 * @return
+	 * <p>The dilution rate is the volume flow rate, normalised by the volume
+	 * of the compartment.</p>
+	 * 
+	 * @return Dilution rate, in units of per time.
 	 */
 	public double getDilutionRate()
 	{
@@ -218,10 +233,13 @@ public abstract class Boundary implements NodeConstructor
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Get the mass flow rate of a given solute across this boundary.
 	 * 
-	 * @param name
-	 * @return
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means the solute is flowing out.</p>
+	 * 
+	 * @param name Name of the solute.
+	 * @return Rate of mass flow, in units of mass (or mole) per time.
 	 */
 	public double getMassFlowRate(String name)
 	{
@@ -231,10 +249,13 @@ public abstract class Boundary implements NodeConstructor
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Set the mass flow rate of a given solute across this boundary.
 	 * 
-	 * @param name
-	 * @param rate
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means the solute is flowing out.</p>
+	 * 
+	 * @param name Name of the solute to set.
+	 * @param rate Rate of mass flow, in units of mass (or mole) per time.
 	 */
 	public void setMassFlowRate(String name, double rate)
 	{
@@ -242,14 +263,28 @@ public abstract class Boundary implements NodeConstructor
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Increase the mass flow rate of a given solute across this
+	 * boundary by a given amount.
 	 * 
-	 * @param name
-	 * @param rate
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means the solute is flowing out.</p>
+	 * 
+	 * @param name Name of the solute to set.
+	 * @param rate Extra rate of mass flow, in units of mass (or mole) per time.
 	 */
 	public void increaseMassFlowRate(String name, double rate)
 	{
 		this._massFlowRate.put(name, rate + this._massFlowRate.get(name));
+	}
+	
+	/**
+	 * Reset all mass flow rates back to zero, for each solute in the
+	 * environment.
+	 */
+	public void resetMassFlowRates()
+	{
+		for ( String name : this._environment.getSoluteNames() )
+			this._massFlowRate.put(name, 0.0);
 	}
 	
 	/**
@@ -380,8 +415,10 @@ public abstract class Boundary implements NodeConstructor
 		return this._arrivalsLounge;
 	}
 
-	// TODO make protected once boundary gets full control of agent transfers
-	public void clearArrivalsLoungue()
+	/**
+	 * Take all agents out from the arrivals lounge.
+	 */
+	protected void clearArrivalsLounge()
 	{
 		this._arrivalsLounge.clear();
 	}
@@ -390,6 +427,9 @@ public abstract class Boundary implements NodeConstructor
 	 * \brief Enter the {@code Agent}s waiting in the arrivals lounge to the
 	 * {@code AgentContainer}.
 	 * 
+	 * <p>This method will be overwritten by many sub-classes of Boundary,
+	 * especially those that are sub-classes of SpatialBoundary.</p>
+	 * 
 	 * @param agentCont The {@code AgentContainer} that should accept the 
 	 * {@code Agent}s.
 	 */
@@ -397,7 +437,7 @@ public abstract class Boundary implements NodeConstructor
 	{
 		for ( Agent anAgent : this._arrivalsLounge )
 			this._agents.addAgent(anAgent);
-		this._arrivalsLounge.clear();
+		this.clearArrivalsLounge();
 	}
 
 	/**
@@ -427,7 +467,8 @@ public abstract class Boundary implements NodeConstructor
 
 	public boolean isReadyForLaunch()
 	{
-		// TODO
+		if ( this._environment == null || this._agents == null )
+			return false;
 		return true;
 	}
 

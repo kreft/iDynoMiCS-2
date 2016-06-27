@@ -303,6 +303,55 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 			Log.out(level, " All solute boundaries now updated");
 	}
 	
+	/**
+	 * \brief Mass flows to/from the well-mixed region (if it exists)
+	 * accumulate during diffusion methods when solving PDEs. Here, we
+	 * distribute these flows among the relevant spatial boundaries.
+	 */
+	public void distributeWellMixedFlows()
+	{
+		/* Find all relevant boundaries. */
+		Collection<SpatialBoundary> boundaries = 
+				this._shape.getWellMixedBoundaries();
+		/* If there are none, then we have nothing more to do. */
+		if ( boundaries.isEmpty() )
+			return;
+		/*
+		 * If there is just one well-mixed boundary, then simply transfer the
+		 * flow over from each grid to the boundary. Once this is done, finish.
+		 */
+		if ( boundaries.size() == 1 )
+		{
+			Boundary b = boundaries.iterator().next();
+			for ( SpatialGrid solute : this._solutes )
+			{
+				b.increaseMassFlowRate(solute.getName(), 
+						solute.getWellMixedMassFlow());
+				solute.resetWellMixedMassFlow();
+			}
+			return;
+		}
+		/*
+		 * If there are multiple well-mixed boundaries, then distribute the
+		 * mass flows according to their share of the total surface area.
+		 */
+		double totalArea = 0.0;
+		for ( SpatialBoundary boundary : boundaries )
+			totalArea += boundary.getTotalSurfaceArea();
+		double scaleFactor;
+		for ( SpatialBoundary boundary : boundaries )
+		{
+			scaleFactor = boundary.getTotalSurfaceArea()/totalArea;
+			for ( SpatialGrid solute : this._solutes )
+			{
+				boundary.increaseMassFlowRate(solute.getName(), 
+						solute.getWellMixedMassFlow() * scaleFactor);
+			}
+		}
+		for ( SpatialGrid solute : this._solutes )
+			solute.resetWellMixedMassFlow();
+	}
+	
 	/* ***********************************************************************
 	 * COMMON GRID METHODS
 	 * **********************************************************************/

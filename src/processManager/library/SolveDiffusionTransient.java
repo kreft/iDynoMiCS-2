@@ -88,9 +88,9 @@ public class SolveDiffusionTransient extends ProcessManager
 
 	
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void init(Element xmlElem, EnvironmentContainer environment, 
@@ -136,9 +136,9 @@ public class SolveDiffusionTransient extends ProcessManager
 		Log.out(Tier.EXPRESSIVE, msg);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * STEPPING
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	protected void internalStep()
@@ -171,17 +171,22 @@ public class SolveDiffusionTransient extends ProcessManager
 		this._solver.setUpdater(standardUpdater(this._environment, this._agents));
 		this._solver.solve(this._environment.getSolutes(),
 				this._environment.getCommonGrid(), this._timeStepSize);
-		
 		/*
-		 * clear distribution maps, prevent unneeded clutter in xml output
+		 * If any mass has flowed in or out of the well-mixed region,
+		 * distribute it among the relevant boundaries.
+		 */
+		this._environment.distributeWellMixedFlows();
+		/*
+		 * Clear agent mass distribution maps: this prevents unneeded clutter
+		 * in XML output.
 		 */
 		for ( Agent a : this._agents.getAllLocatedAgents() )
 			a.reg().remove(VOLUME_DISTRIBUTION_MAP);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * INTERNAL METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief The standard PDE updater method resets the solute

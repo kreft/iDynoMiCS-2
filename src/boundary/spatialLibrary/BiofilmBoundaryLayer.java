@@ -32,7 +32,8 @@ import surface.Surface;
 public class BiofilmBoundaryLayer extends SpatialBoundary
 {
 	/**
-	 * TODO
+	 * Spherical surface object with radius equal to {@link #_layerThickness}.
+	 * Used here for updating the well-mixed array.
 	 */
 	protected Ball _gridSphere;
 	/**
@@ -321,7 +322,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				anAgent.event(STOCHASTIC_MOVE, MOVE_TSTEP);
 			}
 		}
-		this.clearArrivalsLoungue();
+		this.clearArrivalsLounge();
 	}
 
 	@Override

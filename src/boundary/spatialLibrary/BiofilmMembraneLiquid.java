@@ -76,6 +76,6 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 					"Unexpected: agents arriving at a membrane!");
 		}
 		this.placeAgentsRandom();
-		this.clearArrivalsLoungue();
+		this.clearArrivalsLounge();
 	}
 }
