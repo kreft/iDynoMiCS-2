@@ -47,7 +47,7 @@ public class SolidBoundary extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public double getDiffusiveFlow(SpatialGrid grid)
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
 		/*
 		 * No matter what the concentration of the grid voxel, there is no

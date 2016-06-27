@@ -21,12 +21,17 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 
 import static dataIO.Log.Tier.*;
+import static grid.ArrayType.PRODUCTIONRATE;
+
 import linearAlgebra.Vector;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
 import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
+import solver.PDEexplicit;
+import solver.PDEsolver;
+import solver.PDEupdater;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
@@ -67,6 +72,16 @@ public class AgentContainer
 	 */
 	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
 
+	/**
+	 * TODO
+	 */
+	protected SpatialGrid _detachability;
+	/**
+	 * TODO
+	 */
+	public final static String DETACHABILITY = "detachability";
+	
+	protected PDEsolver _detachabilitySolver;
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have reactions.
@@ -663,10 +678,67 @@ public class AgentContainer
 			Log.out(level, " All agents have now arrived");
 	}
 
+	/**
+	 * \brief TODO
+	 */
+	// NOTE Rob [27June2016]: Tried this approach and am not happy with it.
+	@Deprecated
 	public void refreshDetachabilityArray()
 	{
-		SpatialGrid common = this._shape.getCommonGrid();
-		common.newArray(ArrayType.DETACHABILITY);
+		/*
+		 * If this is the first time, we need to set up the 
+		 */
+		if ( this._detachability == null )
+		{
+			this._detachability = this._shape.getNewGrid(DETACHABILITY);
+			/* Diffusivity is simply one everywhere here. */
+			this._detachability.newArray(ArrayType.DIFFUSIVITY, 1.0);
+			/* Initialise the solver. */
+			this._detachabilitySolver = new PDEexplicit();
+			this._detachabilitySolver.setUpdater(new PDEupdater()
+			{
+				@Override
+				public void prestep(Collection<SpatialGrid> variables, 
+						double dt)
+				{
+					SpatialGrid var = variables.iterator().next();
+					var.newArray(PRODUCTIONRATE);
+					CoordinateMap distributionMap;
+					double concn;
+					for ( Agent a : getAllLocatedAgents() )
+					{
+						distributionMap =  (CoordinateMap) a.getValue(VD_TAG);
+						for ( int[] coord : distributionMap.keySet() )
+						{
+							concn = var.getValueAt(ArrayType.CONCN, coord);
+							var.addValueAt(PRODUCTIONRATE, coord, 
+									- concn * distributionMap.get(coord));
+						}
+					}
+				}
+			});
+		}
+		/*
+		 * Refresh/create the dummy concentration array with zeros.
+		 */
+		this._detachability.newArray(ArrayType.CONCN);
+		/*
+		 * Set up the mass distribution maps and refresh the well-mixed 
+		 * boundaries of the shape.
+		 */
+		this.setupAgentDistributionMaps();
+		this.getShape().updateWellMixedBoundaries();
+		/*
+		 * Solve the diffusion-reaction of this dummy solute.
+		 */
+		this._detachabilitySolver.solveToConvergence(
+				this._detachability, this._shape.getCommonGrid());
+		/*
+		 * Clear agent mass distribution maps: this prevents unneeded clutter
+		 * in XML output.
+		 */
+		for ( Agent a : this.getAllLocatedAgents() )
+			a.reg().remove(VD_TAG);
 	}
 	
 	/**
@@ -772,7 +844,7 @@ public class AgentContainer
 	 */
 	public boolean hasAgentsToRegisterRemoved()
 	{
-		return ( ! this._agentsToRegisterRemoved.isEmpty());
+		return ( ! this._agentsToRegisterRemoved.isEmpty() );
 	}
 
 	/**

@@ -6,7 +6,6 @@ import java.util.Map;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import grid.ArrayType;
 import grid.SpatialGrid;
 import shape.Dimension.DimName;
 
@@ -72,32 +71,10 @@ public class FixedBoundary extends SpatialBoundary
 	}
 	
 	@Override
-	public double getDiffusiveFlow(SpatialGrid grid)
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
-		Tier level = Tier.BULK;
-		/* The difference in concentration is the same as in SpatialGrid. */
-		double concnDiff = this._concns.get(grid.getName()) -
-				grid.getValueAtCurrent(ArrayType.CONCN);
-		/* The diffusivity comes only from the current voxel. */
-		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
-		/* Shape handles the shared surface area on a boundary. */
-		double sArea = grid.getShape().nbhCurrSharedArea();
-		/* Shape handles the centre-centre distance on a boundary. */
-		double dist = grid.getShape().nbhCurrDistance();
-		/* Calculate flux and flow in the same way as in SpatialGrid. */
-		double flux = concnDiff * diffusivity / dist ;
-		double flow = flux * sArea;
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "FixedBoundary flux for "+grid.getName()+":");
-			Log.out(level, "  concn diff is "+concnDiff);
-			Log.out(level, "  diffusivity is "+diffusivity);
-			Log.out(level, "  distance is "+dist);
-			Log.out(level, "  => flux = "+flux);
-			Log.out(level, "  surface area is "+sArea);
-			Log.out(level, "  => flow = "+flow);
-		}
-		return flow;
+		double concn = this._concns.get(grid.getName());
+		return this.calcDiffusiveFlowFixed(grid, concn);
 	}
 	
 	@Override

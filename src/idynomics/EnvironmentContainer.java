@@ -360,32 +360,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public void updateWellMixed()
 	{
-		/*
-		 * Reset the well-mixed array for this environment. If none of the
-		 * boundaries need it to be updated, it will be full of zeros (i.e.
-		 * nowhere is well-mixed).
-		 */
-		this.getCommonGrid().newArray(ArrayType.WELLMIXED);
-		/*
-		 * Check if any of the boundaries need to update the well-mixed array.
-		 * If none do, then there is nothing more to do.
-		 */
-		Collection<SpatialBoundary> bndrs = this._shape.getSpatialBoundaries();
-		boolean shouldUpdate = false;
-		for ( SpatialBoundary b: bndrs )
-			if ( b.needsPartner() )
-			{
-				shouldUpdate = true;
-				break;
-			}
-		if ( ! shouldUpdate )
-			return;
-		/*
-		 * At least one of the boundaries need to update the well-mixed array,
-		 * so loop through all of them.
-		 */
-		for ( SpatialBoundary b: bndrs )
-			b.updateWellMixedArray();
+		this.getShape().updateWellMixedBoundaries();
 	}
 	
 	/* ***********************************************************************

@@ -1,6 +1,7 @@
 package solver;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -8,6 +9,7 @@ import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
 import static grid.ArrayType.*;
 
+import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
 import shape.Shape;
@@ -47,6 +49,35 @@ public abstract class PDEsolver extends Solver
 	 */
 	public abstract void solve(Collection<SpatialGrid> solutes,
 			SpatialGrid commonGrid, double tFinal);
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param solute
+	 * @param commonGrid
+	 */
+	public void solveToConvergence(SpatialGrid solute, SpatialGrid commonGrid)
+	{
+		/*
+		 * 
+		 */
+		double tStep = 1.0;
+		double maxAbsDiff = 1.0E-3;
+		int maxIter = 1000;
+		/*
+		 * 
+		 */
+		double[][][] oldArray = solute.getArray(ArrayType.CONCN);
+		double absDiff = Double.MAX_VALUE;
+		/* Package the single variable grid into a collection. */
+		Collection<SpatialGrid> variables = new LinkedList<SpatialGrid>();
+		variables.add(solute);
+		for ( int i = 0; i < maxIter && absDiff > maxAbsDiff; i++ )
+		{
+			this.solve(variables, commonGrid, tStep);
+			absDiff = solute.getTotalAbsDiffWith(oldArray, ArrayType.CONCN);
+		}
+	}
 	
 	/**
 	 * \brief Add the Laplacian Operator to the LOPERATOR array of the given

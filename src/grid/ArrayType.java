@@ -31,8 +31,4 @@ public enum ArrayType
 	 * Laplacian operator.
 	 */
 	LOPERATOR,
-	/**
-	 * Dummy array for estimating how exposed agents are to detachment.
-	 */
-	DETACHABILITY,
 }

@@ -24,6 +24,7 @@ import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
+import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
@@ -948,9 +949,38 @@ public abstract class Shape implements
 	 */
 	public Collection<SpatialBoundary> getWellMixedBoundaries()
 	{
-		Collection<SpatialBoundary> out = this.getSpatialBoundaries();
-		out.removeIf(b -> { return ! b.needsToUpdateWellMixed();});
+		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
+		for ( Dimension d : this._dimensions.values() )
+			for ( SpatialBoundary b : d.getBoundaries() )
+				if ( b != null && b.needsToUpdateWellMixed() )
+					out.add(b);
 		return out;
+	}
+	
+	/**
+	 * \brief TODO
+	 */
+	public void updateWellMixedBoundaries()
+	{
+		/*
+		 * Reset the well-mixed array for this shape. If none of the
+		 * boundaries need it to be updated, it will be full of zeros (i.e.
+		 * nowhere is well-mixed).
+		 */
+		this.getCommonGrid().newArray(ArrayType.WELLMIXED);
+		/*
+		 * Check if any of the boundaries need to update the well-mixed array.
+		 * If none do, then there is nothing more to do.
+		 */
+		Collection<SpatialBoundary> bndrs = this.getWellMixedBoundaries();
+		if ( bndrs.isEmpty() )
+			return;
+		/*
+		 * At least one of the boundaries need to update the well-mixed array,
+		 * so loop through all of them.
+		 */
+		for ( SpatialBoundary b: bndrs )
+			b.updateWellMixedArray();
 	}
 	
 	/**

@@ -318,6 +318,18 @@ public class SpatialGrid implements NodeConstructor
 		return Array.sum(this._array.get(type));
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param array
+	 * @param type
+	 * @return
+	 */
+	public double getTotalAbsDiffWith(double[][][] array, ArrayType type)
+	{
+		return Array.totalAbsDifference(array, this.getArray(type));
+	}
+	
 	/* ***********************************************************************
 	 * 							TWO ARRAY METHODS
 	 * ***********************************************************************/
