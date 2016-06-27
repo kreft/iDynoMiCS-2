@@ -126,7 +126,7 @@ public abstract class SpatialBoundary extends Boundary
 	 * @return The rate of diffusive flow across this boundary, in units of
 	 * mass or mole per time.
 	 */
-	public abstract double getFlow(SpatialGrid grid);
+	public abstract double getDiffusiveFlow(SpatialGrid grid);
 	
 	/**
 	 * \brief Ask if this boundary needs to update the well-mixed array of

@@ -71,7 +71,7 @@ public class FixedBoundary extends SpatialBoundary
 	}
 	
 	@Override
-	public double getFlow(SpatialGrid grid)
+	public double getDiffusiveFlow(SpatialGrid grid)
 	{
 		Tier level = Tier.BULK;
 		/* The difference in concentration is the same as in SpatialGrid. */

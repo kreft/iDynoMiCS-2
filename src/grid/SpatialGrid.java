@@ -545,7 +545,8 @@ public class SpatialGrid implements NodeConstructor
 		}
 		else if ( this._shape.isIteratorValid() )
 		{
-			double flow = this._shape.nbhIteratorOutside().getFlow(this);
+			double flow = 
+					this._shape.nbhIteratorOutside().getDiffusiveFlow(this);
 			if ( Log.shouldWrite(level) )
 				Log.out(level, "  got flow from boundary: "+flow);
 			return flow;

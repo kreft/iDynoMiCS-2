@@ -101,11 +101,21 @@ public abstract class PDEsolver extends Solver
 				
 				/*
 				 * If this flux came from a well-mixed voxel, inform the grid.
+				 * Alternatively, if it came from a well-mixed boundary, inform
+				 * the grid.
 				 */
-				if ( shape.isNhbIteratorInside() && commonGrid != null )
+				if ( shape.isNhbIteratorInside() )
 				{
 					// TODO this should really be > some threshold
-					if ( commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
+					if ( commonGrid != null && 
+							commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
+					{
+						this.increaseWellMixedFlow(grid.getName(), - nbhFlux);
+					}
+				}
+				else if ( shape.isNbhIteratorValid() )
+				{
+					if ( shape.nbhIteratorOutside().needsToUpdateWellMixed() )
 						this.increaseWellMixedFlow(grid.getName(), - nbhFlux);
 				}
 				totalFlux += nbhFlux;
@@ -117,7 +127,6 @@ public abstract class PDEsolver extends Solver
 				{
 					if ( shape.isNhbIteratorInside() )
 					{
-
 						Log.out(level, 
 								"   nhb "+Vector.toString(nhb)+
 								" ("+grid.getValueAtNhb(CONCN)+") "+

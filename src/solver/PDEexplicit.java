@@ -122,6 +122,8 @@ public class PDEexplicit extends PDEsolver
 		}
 		/*
 		 * Now scale the well-mixed flow rates and apply them to the grid.
+		 * Here, we can simply divide by the number of iterations, since they
+		 * were all of equal time length.
 		 */
 		double totalFlow, scaledFlow;
 		for ( SpatialGrid var : variables )
