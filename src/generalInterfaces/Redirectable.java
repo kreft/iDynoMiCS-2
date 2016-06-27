@@ -6,6 +6,9 @@ import dataIO.Log.Tier;
 public interface Redirectable {
 	
 	/**
+	 * FIXME we should still save the redirects somewhere since they should be
+	 * stored in the output files to!
+	 * 
 	 * Redirect allows objects that use direct field assignments of aspects (for
 	 * example using BODY = agent_body) to be redirected. Thus thereby it is
 	 * possible to use an alternative aspect call for a specific object. This
