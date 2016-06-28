@@ -95,7 +95,7 @@ public class PovExport implements GraphicalExporter
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ "sceneheader.inc";
 		
-		if ( ! _povFile.fexists(fileString) )
+		if ( ! _povFile.doesFileExist(fileString) )
 		{
 			_povFile.fnew(fileString);
 			Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
@@ -140,7 +140,7 @@ public class PovExport implements GraphicalExporter
 		fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ "scenefooter.inc";
 		
-		if ( ! _povFile.fexists(fileString) )
+		if ( ! _povFile.doesFileExist(fileString) )
 		{
 			_povFile.fnew(fileString);
 			Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
