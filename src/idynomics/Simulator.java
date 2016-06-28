@@ -70,13 +70,6 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		this._xmlOut = new XmlExport();
 	}
 	
-	public void deleteCompartment(String name)
-	{
-		for ( Compartment c : _compartments)
-			if ( c.name == name )
-				_compartments.remove(c);
-	}
-	
 	public void deleteFromCompartment(String name, Object object)
 	{
 		for ( Compartment c : _compartments)
@@ -504,6 +497,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		
 		/* Set values for all child nodes. */
 		NodeConstructor.super.setNode(node);
+	}
+	
+	public void removeChildNode(NodeConstructor child)
+	{
+		if (child instanceof Compartment)
+			this._compartments.remove((Compartment) child);
 	}
 
 	/**
