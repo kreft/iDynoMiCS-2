@@ -89,7 +89,7 @@ public abstract class Boundary implements NodeConstructor
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
-	protected static final Tier AGENT_LEVEL = Tier.BULK;
+	protected static final Tier AGENT_LEVEL = Tier.DEBUG;
 
 	/**
 	 * \brief Tell this boundary what it needs to know about the compartment it

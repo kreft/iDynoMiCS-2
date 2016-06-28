@@ -308,7 +308,8 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		/*
 		 * Find all agents who are less than layerThickness away.
 		 */
-		Log.out(AGENT_LEVEL, "Grabbing all agents within layer thickness");
+		Log.out(AGENT_LEVEL, "Grabbing all agents within layer thickness "+
+				this._layerThickness);
 		out.addAll(this._agents.treeSearch(this, this._layerThickness));
 		/*
 		 * Find all agents who are unattached to others or to a boundary,

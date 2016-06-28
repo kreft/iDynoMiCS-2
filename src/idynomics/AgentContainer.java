@@ -324,7 +324,13 @@ public class AgentContainer
 	 */
 	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
 	{
-		return treeSearch(aSurface.getBox(searchDist));
+		BoundingBox box = aSurface.getBox(searchDist);
+		if ( box == null )
+		{
+			Log.out(CRITICAL, "Could not find bouding box for surface "+
+					aSurface.toString());
+		}
+		return this.treeSearch(box);
 	}
 	
 	/**
@@ -340,7 +346,13 @@ public class AgentContainer
 	public Collection<Agent> treeSearch(
 			SpatialBoundary aBoundary, double searchDist)
 	{
-		return this.treeSearch( this._shape.getSurface(aBoundary) , searchDist);
+		Surface surface = this._shape.getSurface(aBoundary);
+		if ( surface == null )
+		{
+			Log.out(CRITICAL, "Could not find surface for boundary "+
+					aBoundary.getDimName()+" "+aBoundary.getExtreme());
+		}
+		return this.treeSearch( surface , searchDist);
 	}
 	
 	/**
