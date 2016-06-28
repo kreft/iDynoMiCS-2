@@ -453,19 +453,19 @@ public class AspectReg
 				//FIXME this needs to be finished
 		    	switch (simpleName)
 				{
-				case "HashMap":
+				case "HashMap": //FIXME ClassRef
 					HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
 					for (Object k : h.keySet() )
 						modelNode.add(new HashMapSetter<Object,Object>(
 								h.get(k), k, h).getNode() );
 					break;
-				case "LinkedList":
+				case "LinkedList": //FIXME ClassRef
 					LinkedList<Object> linkedList = (LinkedList<Object>) aspect;
 					for (Object o : linkedList)
 						modelNode.add(new LinkedListSetter<Object>(
 								o, linkedList ).getNode() );
 					break;
-				case "Body":
+				case "Body": //FIXME ClassRef
 					Body myBody = (Body) aspect;
 					for (Point p : myBody.getPoints() )
 						modelNode.add(p.getNode() );
@@ -512,7 +512,7 @@ public class AspectReg
 		public ModelNode HashMapNode(Object key) 
 		{
 			HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
-			ModelNode modelNode = new ModelNode("item", this);
+			ModelNode modelNode = new ModelNode(XmlRef.item, this);
 			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 			
 			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
@@ -567,7 +567,7 @@ public class AspectReg
 	    		classType = Helper.obtainInput( Helper.listToArray(
 	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
 	    				"aspect class", false);
-	    		if ( classType == "StateExpression" )
+	    		if ( classType == "StateExpression" ) //FIXME ClassRef
 	    			registry.add( name, ObjectFactory.loadObject( 
 	    					Helper.obtainInput( "", "expression" ), 
 	    					type, classType) );
