@@ -51,7 +51,8 @@ public class ModelNode
 		/* temporary for GUI esthetics (same as zero to many) */
 		ZERO_TO_FEW(0, Integer.MAX_VALUE),
 		/**
-		 * number of elements is not allowed to change
+		 * FIXME, clean-up and restructure, a way of identifying Nodes that 
+		 * may not change in any way
 		 */
 		IMMUTABLE(1, 1);
 
