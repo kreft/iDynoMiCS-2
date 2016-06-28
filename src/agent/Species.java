@@ -4,16 +4,10 @@ import java.awt.event.ActionEvent;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import dataIO.Log;
 import dataIO.XmlRef;
-import dataIO.Log.Tier;
-import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import modelBuilder.InputSetter;
 import modelBuilder.IsSubmodel;

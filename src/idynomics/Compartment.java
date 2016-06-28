@@ -1,6 +1,5 @@
 package idynomics;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import agent.Agent;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
@@ -17,11 +14,9 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
-import dataIO.ObjectFactory;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
 import grid.*;
-import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;

@@ -5,7 +5,6 @@ import org.w3c.dom.Element;
 import aspect.AspectRef;
 import dataIO.XmlExport;
 import idynomics.AgentContainer;
-import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 
