@@ -27,6 +27,8 @@ import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import spatialRegistry.*;
+import spatialRegistry.splitTree.SplitTree;
+import spatialRegistry.splitTree.SplitTreeT;
 import surface.BoundingBox;
 import surface.Collision;
 import surface.predicate.AreColliding;
@@ -148,7 +150,10 @@ public class AgentContainer
 			 * values resulted in fast tree creation and agent searches.
 			 */
 			// TODO R-tree parameters could follow from the protocol file.
-			this._agentTree = new RTree<Agent>(8, 2, this._shape);
+//			this._agentTree = new RTree<Agent>(8, 2, this._shape);
+			double[] min = Vector.zerosDbl(this.getShape().getNumberOfDimensions());
+			this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 26, 
+					min, Vector.add(min, this.getShape().getDimensionLengths()), null);
 		}
 	}
 
@@ -162,7 +167,7 @@ public class AgentContainer
 	{
 		for ( Agent a : this._agentList )
 			a.setCompartment(aCompartment);
-		for ( Agent a : this._agentTree.all() )
+		for ( Agent a : this._locatedAgentList )
 			a.setCompartment(aCompartment);
 	}
 
@@ -532,6 +537,7 @@ public class AgentContainer
 	 */
 	private void treeInsert(Agent anAgent)
 	{
+		anAgent.event(AspectRef.agentUpdateBody);
 		Body body = ((Body) anAgent.get(AspectRef.agentBody));
 		double dist = 0.0;
 		if ( anAgent.isAspect(AspectRef.agentPulldistance) )
@@ -843,7 +849,7 @@ public class AgentContainer
 	/**
 	 * \brief Loop through all located {@code Agent}s with reactions,
 	 * estimating how much of their body overlaps with nearby grid voxels.
-	 * 
+	 * TODO this methods has a high % of selftime when profiling, investigate
 	 * @param agents The agents of a {@code Compartment}.
 	 */
 	@SuppressWarnings("unchecked")
@@ -873,6 +879,7 @@ public class AgentContainer
 		List<Surface> surfaces;
 		double[] pLoc;
 		Collision collision = new Collision(null, shape);
+
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext())
 		{
@@ -894,6 +901,7 @@ public class AgentContainer
 				Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
 					Vector.toString(coord));
 			}
+			
 			/* 
 			 * Find the sub-voxel resolution from the smallest agent, and
 			 * get the list of sub-voxel points.

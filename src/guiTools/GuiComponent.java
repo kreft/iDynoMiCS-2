@@ -177,7 +177,7 @@ public class GuiComponent {
 		panel.setSize(600, 25);
 		
 		JLabel filler = new JLabel(description);
-        filler.setPreferredSize(new Dimension(480,25));
+        filler.setPreferredSize(new Dimension(478,25));
         panel.add(filler,BorderLayout.WEST);
 
 		actionButton.setPreferredSize(new Dimension(100,25));

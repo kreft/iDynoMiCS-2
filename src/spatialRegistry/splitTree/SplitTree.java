@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import linearAlgebra.Vector;
-import spatialRegistry.splitTree.SplitTree.Area;
+import spatialRegistry.SpatialRegistry;
+import surface.BoundingBox;
 
 /**
  * First version of nDimensional tree, behaves like quadtree in 2d and octree in
@@ -16,19 +17,21 @@ import spatialRegistry.splitTree.SplitTree.Area;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class SplitTree
+public class SplitTree<T> implements SpatialRegistry<T>
 {	
 	protected boolean _root = false;
 	
 	public Node node;
 	
-	static int _dimensions;
+	public int _dimensions;
 	
 	static int _minEntries;
 	
 	static int _maxEntries;
 	
-	boolean[] _periodic; 
+	private boolean[] _periodic; 
+	
+	private double[] _lengths;
 	
 	public SplitTree(int dimensions, int min, int max, 
 			double[] low, double[] high, boolean[] periodic)
@@ -38,6 +41,7 @@ public class SplitTree
 		_minEntries = min;
 		_maxEntries = max;
 		_periodic = periodic;
+		_lengths = Vector.minus(high, low);
 		this.node = new Node(low, high, true, this, periodic);
 	}
 	
@@ -49,7 +53,7 @@ public class SplitTree
 				periodic);
 	}
 
-	public void add(double[] low, double[] high, Object obj)
+	public void add(double[] low, double[] high, T obj)
 	{
 		this.add(new Entry(low, high, obj));
 	}
@@ -67,11 +71,26 @@ public class SplitTree
 			for (Area n : this.node.getEntries())
 				n.add(entries);
 	}
-	
-
+		
 	public List<Entry> find(Area area) 
 	{
-		return node.find(area);
+		if ( _periodic == null )
+			return node.find(area);
+		else
+		{
+			/* also does periodic search */
+			double[] high = area.high();
+			double[] low = area.low();
+			for (int i = 0; i < high.length; i++ )
+			{
+				if ( this._periodic[i] && high[i] > this.node.high()[i] )
+					high[i] -= this._lengths[i];
+				if ( this._periodic[i] && low[i] < this.node.low()[i] )
+					low[i] += this._lengths[i];
+			}
+			return find(new Entry(low, high, null));
+		}
+
 	}
 	
 	public void split(Node leaf)
@@ -96,10 +115,10 @@ public class SplitTree
 		return this.node.allEntries(out);
 	}
 	
-	public List<Object> allObjects()
+	public List<T> allObjects()
 	{
 		LinkedList<Entry> entries = new LinkedList<Entry>();
-		LinkedList<Object> out = new LinkedList<Object>();
+		LinkedList<T> out = new LinkedList<T>();
 			for (Entry e : allEntries(entries))
 				out.add(e.entry);
 		return out;
@@ -115,7 +134,7 @@ public class SplitTree
 
 	}
 	
-	public static class Node implements Area
+	public class Node implements Area
 	{
 		
 		final double[] low;
@@ -128,9 +147,9 @@ public class SplitTree
 		
 		private Predicate<Area> _outTest;
 		
-		private SplitTree _tree;
+		private SplitTree<T> _tree;
 
-		public Node(double[] low, double[] high, boolean isLeaf, SplitTree tree,
+		public Node(double[] low, double[] high, boolean isLeaf, SplitTree<T> tree,
 				boolean[] periodic)
 		{
 			this.low = low;
@@ -151,7 +170,11 @@ public class SplitTree
 				else
 				{
 					for ( Area a : _entries )
-						out.addAll(((Node) a).find(area));
+					{
+						for (Entry e :((Node) a).find(area))
+							if ( ! out.contains(e))
+								out.add(e);
+					}
 				}
 			}
 			return out;
@@ -178,11 +201,11 @@ public class SplitTree
 			
 			if ( ! _outTest.test(entry) )
 			{
-				if ( this._leafNode || entry instanceof Node)
+				if ( this._leafNode || entry instanceof SplitTree.Node)
 				{
-				this.getEntries().add(entry);
-				if( this.size() > SplitTree._maxEntries )
-					_tree.split(this);
+					this.getEntries().add(entry);
+					if( this.size() > SplitTree._maxEntries )
+						_tree.split(this);
 				}
 				else
 				{
@@ -251,10 +274,29 @@ public class SplitTree
 		{
 			for (Area a : this.getEntries())
 			{
-				if ( ! this._outTest.test(area) );
-					out.add( (Entry) a);
+				for (int dim = 0; dim < _dimensions; dim++)
+				{
+					if ( ! test(a, area) )
+					{
+						if ( ! out.contains(a))
+							out.add( (Entry) a);
+						break;
+					}
+				}
 			}
 			return out;
+		}
+		
+		public boolean test(Area a, Area b) 
+		{
+			/* periodic not set is all normal */
+			for (int i = 0; i < _dimensions; i++)
+			{
+				if ( a.low()[i] > b.high()[i] || 
+					a.high()[i] < b.low()[i] )
+					return true;
+			}
+			return false;
 		}
 		
 		public List<Entry> allEntries(LinkedList<Entry> out) 
@@ -441,9 +483,9 @@ public class SplitTree
 		
 		final double[] high;
 		
-		Object entry;
+		T entry;
 		
-		public Entry(double[] low, double[] high, Object entry)
+		public Entry(double[] low, double[] high, T entry)
 		{
 			this.low = low;
 			this.high = high;
@@ -467,6 +509,79 @@ public class SplitTree
 			// Do nothing
 		}
 
+	}
+	
+	/* *************************************************************************
+	 * SpatialRegistry implementation
+	 * *************************************************************************
+	 * FIXME quick and dirty first version for testing.
+	 */
+
+	@Override
+	public List<T> search(double[] coords, double[] dimension) 
+	{
+
+		LinkedList<T> out = new LinkedList<T>();
+		for ( Entry e : find(new Entry(coords, Vector.add(coords, dimension), 
+				null)))
+		{
+			out.add(e.entry);
+		}
+//		System.out.println(Vector.toString(coords) +"\n"+ Vector.toString(dimension)+"\n"+ out.toString());
+		return out;
+	}
+
+	@Override
+	public List<T> cyclicsearch(double[] coords, double[] dimension) 
+	{
+		return this.search(coords, dimension);
+	}
+
+	@Override
+	public List<T> cyclicsearch(BoundingBox boundingBox) 
+	{
+		return this.search(boundingBox.lowerCorner(), boundingBox.ribLengths());
+	}
+
+	@Override
+	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes) 
+	{
+		LinkedList<T> out = new LinkedList<T>();
+		for (BoundingBox b : boundingBoxes )
+			out.addAll(cyclicsearch(b) );
+		return out;
+	}
+
+	@Override
+	public List<T> all() 
+	{
+		return this.allObjects();
+	}
+
+	@Override
+	public void insert(double[] coords, double[] dimensions, T entry) 
+	{
+		this.add(new Entry(coords, Vector.add(coords, dimensions), entry));
+	}
+
+	@Override
+	public void insert(BoundingBox boundingBox, T entry) 
+	{
+		this.add(new Entry(boundingBox.lowerCorner(), Vector.add(boundingBox.lowerCorner(), boundingBox.ribLengths()), 
+				entry));
+	}
+
+	@Override
+	public T getRandom() {
+		System.out.println("unsuported method Split tree getRandom");
+		return null;
+	}
+
+	@Override
+	public boolean delete(T entry) 
+	{
+		System.out.println("unsuported method Split tree DELETE");
+		return false;
 	}
 
 }

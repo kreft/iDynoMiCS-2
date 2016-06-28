@@ -375,6 +375,7 @@ public class AgentRelaxation extends ProcessManager
 				}
 			nstep++;
 		}
+		this._agents.refreshSpatialRegistry();
 		Log.out(Tier.DEBUG,
 				"Relaxed "+this._agents.getNumAllAgents()+" agents after "+
 						nstep+" iterations");

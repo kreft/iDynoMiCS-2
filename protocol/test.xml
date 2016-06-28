@@ -49,7 +49,7 @@
 			<shape class="Rectangle">
 				<dimension name="X" isCyclic="false" targetResolution="1" max="16.0">
 				</dimension> 
-				<dimension name="Y" isCyclic="true" targetResolution="1" max="16.0">
+				<dimension name="Y" isCyclic="false" targetResolution="1" max="16.0">
 				</dimension> 
 			</shape>
 			<solutes>

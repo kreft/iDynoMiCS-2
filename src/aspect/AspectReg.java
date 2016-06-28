@@ -176,7 +176,7 @@ public class AspectReg
 	/**
 	 * get value if the aspect is a primary or calculated state
 	 */
-	public synchronized Object getValue( AspectInterface rootRegistry, 
+	public Object getValue( AspectInterface rootRegistry, 
 			String key )
 	{
 		Aspect a = getAspect(key);
@@ -199,7 +199,7 @@ public class AspectReg
 	 * @param timeStep
 	 * TODO: some proper testing
 	 */
-	public synchronized void doEvent(AspectInterface initiator, 
+	public void doEvent(AspectInterface initiator, 
 			AspectInterface compliant, double timeStep, String key)
 	{
 		Tier level = Tier.BULK;

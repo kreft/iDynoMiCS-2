@@ -32,10 +32,10 @@ public class TreeTest {
 	{
 		System.out.println("Random distributed");
 		System.out.println("------------------------------------");
-		treeTest(50000);
+		treeTest(5000);
 
 		System.out.println("------------------------------------");
-		rTreeTest(50000);
+		rTreeTest(5000);
 
 
 		System.out.println("------------------------------------");
@@ -112,6 +112,7 @@ public class TreeTest {
 		System.out.println("multi find " + listr.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
 		
+		listr = new LinkedList<List<Entry>>();
 		tic = (System.currentTimeMillis());
 		for (int i = 0; i < 10000; i++)
 		{
@@ -158,7 +159,7 @@ public class TreeTest {
 		{
 			if (n.size() == 0)
 				i++;
-			for ( Entry e : n.allEntries(new LinkedList<Entry>()))
+			for ( Object e : n.allEntries(new LinkedList<Entry>()))
 			{
 				ae.remove(e);
 //				if ( ae.contains(e) )
@@ -180,7 +181,7 @@ public class TreeTest {
 	
 	public void rTreeTest(int sampleSize)
 	{
-		RTree<Double> tree = new RTree<Double>(50, 3, 3, SeedPicker.LINEAR);
+		RTree<Double> tree = new RTree<Double>(8, 3, 3, SeedPicker.LINEAR);
 		
 		double tic = System.currentTimeMillis();
 		
@@ -319,7 +320,7 @@ public class TreeTest {
 		int b = 0;
 		for ( Node n : nodes )
 		{
-			for ( Entry e : n.allEntries(new LinkedList<Entry>()))
+			for ( Object e : n.allEntries(new LinkedList<Entry>()))
 			{
 				ae.remove(e);
 //				if ( ae.contains(e) )

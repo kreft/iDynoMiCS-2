@@ -98,9 +98,9 @@ public class Plane extends Surface implements HasBoundingBox
 				upper[i] = Math.sqrt(Double.MAX_VALUE);
 			}
 			/*
-			 * if the infinite plane's normal is perpendicular to two dimensions
-			 * the bounding box of the infinite plane will cover the entire
-			 * domain
+			 * if the infinite plane's normal is not right angled on two 
+			 * dimensions the bounding box of the infinite plane will cover the 
+			 * entire domain
 			 */
 			else if ( n > 0 )
 			{

@@ -160,7 +160,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @return a list of objects whose rectangles overlap with the given
 	 *         rectangle.
 	 */
-	public synchronized List<T> search(double[] coords, double[] dimensions)
+	public List<T> search(double[] coords, double[] dimensions)
 	{
 		assert (coords.length == numDims);
 		assert (dimensions.length == numDims);
@@ -169,7 +169,7 @@ public class RTree<T> implements SpatialRegistry<T>
 		return results;
 	}
 
-	private synchronized void search(double[] coords, double[] dimensions, Node n,
+	private void search(double[] coords, double[] dimensions, Node n,
 			LinkedList<T> results)
 	{
 		if (n.leaf)
@@ -227,13 +227,13 @@ public class RTree<T> implements SpatialRegistry<T>
 	/**
 	 * Cyclic search using bounding box as query
 	 */
-	public synchronized List<T> cyclicsearch(BoundingBox boundingBox)
+	public List<T> cyclicsearch(BoundingBox boundingBox)
 	{
 		return cyclicsearch(boundingBox.lowerCorner(), boundingBox.ribLengths());
 	}
 
 
-	public synchronized List<T> cyclicsearch(List<BoundingBox> boundingBoxes)
+	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes)
 	{
 		List<T> entryList = new LinkedList<T>();
 		for(BoundingBox b : boundingBoxes)
@@ -305,7 +305,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * added for idynomics 1.0 compatability
 	 * @return returns random entry from tree
 	 */
-	public synchronized T getRandom()
+	public T getRandom()
 	{
 		LinkedList<T> results = new LinkedList<T>();
 		all(root, results);
@@ -324,7 +324,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 *          the entry to delete
 	 * @return true iff the entry was deleted from the RTree.
 	 */
-	public synchronized boolean delete(double[] coords, double[] dimensions, T entry)
+	public boolean delete(double[] coords, double[] dimensions, T entry)
 	{
 		assert (coords.length == numDims);
 		assert (dimensions.length == numDims);
@@ -369,7 +369,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 *          the entry to delete
 	 * @return true iff the entry was deleted from the RTree.
 	 */
-	public synchronized boolean delete(T entry)
+	public boolean delete(T entry)
 	{
 		Node l = root;
 		ListIterator<Node> li = l.children.listIterator();
@@ -397,7 +397,7 @@ public class RTree<T> implements SpatialRegistry<T>
 		return (removed != null);
 	}
 
-	public synchronized boolean delete(double[] coords, T entry)
+	public boolean delete(double[] coords, T entry)
 	{
 		return delete(coords, pointDims, entry);
 	}
@@ -491,7 +491,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	/**
 	 * Empties the RTree
 	 */
-	public synchronized void clear()
+	public void clear()
 	{
 		root = buildRoot(true);
 		// let the GC take care of the rest.
@@ -509,7 +509,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @param entry
 	 *          the entry to insert
 	 */
-	public synchronized void insert(double[] coords, double[] dimensions, T entry)
+	public void insert(double[] coords, double[] dimensions, T entry)
 	{
 		assert (coords.length == numDims);
 		assert (dimensions.length == numDims);
@@ -532,7 +532,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	/**
 	 * insert entry with bounding box object
 	 */
-	public synchronized void insert(BoundingBox boundingBox, T entry) {
+	public void insert(BoundingBox boundingBox, T entry) {
 		insert(boundingBox.lowerCorner(), boundingBox.ribLengths(), entry);
 	}
 
@@ -541,7 +541,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @param coords
 	 * @param entry
 	 */
-	public synchronized void insert(double[] coords, T entry)
+	public void insert(double[] coords, T entry)
 	{
 		insert(coords, pointDims, entry);
 	}
