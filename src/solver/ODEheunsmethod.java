@@ -66,6 +66,11 @@ public class ODEheunsmethod extends ODEsolver
 			if ( ! this._allowNegatives )
 				Vector.makeNonnegative(y);
 			timeRemaining -= timeStep;
+			/*
+			 * If the method using this solver has anything it needs to update
+			 * after every mini-timestep, then do this now.
+			 */
+			this._deriv.postMiniStep(y, timeStep);
 		}
 		return y;
 	}

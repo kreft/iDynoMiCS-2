@@ -26,6 +26,7 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	public BiofilmMembraneLiquid(DimName dim, int extreme)
 	{
 		super(dim, extreme);
+		this._detachability = 0.0;
 	}
 
 	/* ***********************************************************************
@@ -43,13 +44,7 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations()
-	{
-		// TODO
-	}
-
-	@Override
-	public double getFlow(SpatialGrid grid)
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
 		// TODO
 		return 0;
@@ -74,6 +69,12 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
+	@Override
 	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
@@ -82,6 +83,6 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 					"Unexpected: agents arriving at a membrane!");
 		}
 		this.placeAgentsRandom();
-		this.clearArrivalsLoungue();
+		this.clearArrivalsLounge();
 	}
 }

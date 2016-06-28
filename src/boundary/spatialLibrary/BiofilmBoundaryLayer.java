@@ -14,7 +14,6 @@ import boundary.SpatialBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -29,19 +28,19 @@ import surface.Surface;
  * \brief TODO
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class BiofilmBoundaryLayer extends SpatialBoundary
 {
 	/**
-	 * TODO
+	 * Solute concentrations.
+	 */
+	protected Map<String,Double> _concns = new HashMap<String,Double>();
+	/**
+	 * Spherical surface object with radius equal to {@link #_layerThickness}.
+	 * Used here for updating the well-mixed array.
 	 */
 	protected Ball _gridSphere;
-	/**
-	 * Flux across this boundary is normally controlled by the well-mixed tally
-	 * in SpatialGrid, but when the biofilm is so large that the non-well-mixed
-	 * region reaches up to this boundary then we need to store it here.
-	 */
-	protected Map<String,Double> _directFlux = new HashMap<String,Double>();
 	/**
 	 * For the random walk after insertion, we assume that the agent has the
 	 * stochastic move event.
@@ -123,44 +122,10 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations()
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
-		// TODO
-	}
-
-	@Override
-	public double getFlow(SpatialGrid grid)
-	{
-		Tier level = Tier.BULK;
-		String name = grid.getName();
-		/* The difference in concentration is the same as in SpatialGrid. */
-		double concnDiff = this._concns.get(name) -
-				grid.getValueAtCurrent(ArrayType.CONCN);
-		/* The diffusivity comes only from the current voxel. */
-		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
-		/* Shape handles the shared surface area on a boundary. */
-		double sArea = grid.getShape().nbhCurrSharedArea();
-		/* Shape handles the centre-centre distance on a boundary. */
-		double dist = grid.getShape().nbhCurrDistance();
-		/* Calculate flux and flow in the same way as in SpatialGrid. */
-		double flux = concnDiff * diffusivity / dist ;
-		double flow = flux * sArea;
-		/* Subtract this flux from the running tally. */
-		if ( ! this._directFlux.containsKey(name) )
-			this._directFlux.put(name, 0.0);
-		this._directFlux.put(name, this._directFlux.get(name) - flux);
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "BiofilmBoundary flux for "+name+":");
-			Log.out(level, "  concn diff is "+concnDiff);
-			Log.out(level, "  diffusivity is "+diffusivity);
-			Log.out(level, "  distance is "+dist);
-			Log.out(level, "  => flux = "+flux);
-			Log.out(level, "  surface area is "+sArea);
-			Log.out(level, "  => flow = "+flow);
-			Log.out(level, "  => boundary flux  is now "+this._directFlux);
-		}
-		return flux;
+		double concn = this._concns.get(grid.getName());
+		return this.calcDiffusiveFlowFixed(grid, concn);
 	}
 	
 	@Override
@@ -205,6 +170,12 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
 
+	@Override
+	protected double getDetachability()
+	{
+		return 1.0;
+	}
+	
 	@Override
 	public void agentsArrive()
 	{
@@ -328,7 +299,7 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 				anAgent.event(STOCHASTIC_MOVE, MOVE_TSTEP);
 			}
 		}
-		this.clearArrivalsLoungue();
+		this.clearArrivalsLounge();
 	}
 
 	@Override
@@ -338,7 +309,8 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		/*
 		 * Find all agents who are less than layerThickness away.
 		 */
-		Log.out(AGENT_LEVEL, "Grabbing all agents within layer thickness");
+		Log.out(AGENT_LEVEL, "Grabbing all agents within layer thickness "+
+				this._layerThickness);
 		out.addAll(this._agents.treeSearch(this, this._layerThickness));
 		/*
 		 * Find all agents who are unattached to others or to a boundary,

@@ -15,6 +15,7 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import grid.SpatialGrid;
 import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
@@ -24,10 +25,11 @@ import shape.Shape;
 import shape.Dimension.DimName;
 import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
+import solver.PDEsolver;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
-import surface.predicate.Colliding;
+import surface.predicate.AreColliding;
 import surface.Surface;
 import utility.ExtraMath;
 
@@ -66,6 +68,16 @@ public class AgentContainer
 	 */
 	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
 
+	/**
+	 * TODO
+	 */
+	protected SpatialGrid _detachability;
+	/**
+	 * TODO
+	 */
+	public final static String DETACHABILITY = "detachability";
+	
+	protected PDEsolver _detachabilitySolver;
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have reactions.
@@ -312,7 +324,13 @@ public class AgentContainer
 	 */
 	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
 	{
-		return treeSearch(aSurface.getBox(searchDist));
+		BoundingBox box = aSurface.getBox(searchDist);
+		if ( box == null )
+		{
+			Log.out(CRITICAL, "Could not find bouding box for surface "+
+					aSurface.toString());
+		}
+		return this.treeSearch(box);
 	}
 	
 	/**
@@ -328,7 +346,13 @@ public class AgentContainer
 	public Collection<Agent> treeSearch(
 			SpatialBoundary aBoundary, double searchDist)
 	{
-		return this.treeSearch( this._shape.getSurface(aBoundary) , searchDist);
+		Surface surface = this._shape.getSurface(aBoundary);
+		if ( surface == null )
+		{
+			Log.out(CRITICAL, "Could not find surface for boundary "+
+					aBoundary.getDimName()+" "+aBoundary.getExtreme());
+		}
+		return this.treeSearch( surface , searchDist);
 	}
 	
 	/**
@@ -349,7 +373,7 @@ public class AgentContainer
 			for ( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
 			{
 				/* on collision set boolean true and exit loop */
-				if ( collision.colliding(aSurface, s, searchDist))
+				if ( collision.areColliding(aSurface, s, searchDist))
 				{
 					c = true;
 					break;
@@ -374,7 +398,7 @@ public class AgentContainer
 
 		/* check each surface for collision, remove if not */
 		for ( Surface s : surfaces)
-			if ( ! collision.colliding(aSurface, s, searchDist))
+			if ( ! collision.areColliding(aSurface, s, searchDist))
 				surfaces.remove(s);
 	}
 	
@@ -391,7 +415,7 @@ public class AgentContainer
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
 		// NOTE lambda expressions are known to be slower than alternatives
-		Colliding<Surface> filter;
+		AreColliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
 		/* NOTE if the agent has many surfaces it may be faster the other way
@@ -399,7 +423,7 @@ public class AgentContainer
 		for ( Surface a : ((Body) anAgent.get(AspectRef.agentBody))
 				.getSurfaces())
 		{
-			filter = new Colliding<Surface>(a, collision, searchDist);
+			filter = new AreColliding<Surface>(a, collision, searchDist);
 			out.removeIf(filter);
 		}
 		return out;
@@ -792,7 +816,7 @@ public class AgentContainer
 	 */
 	public boolean hasAgentsToRegisterRemoved()
 	{
-		return ( ! this._agentsToRegisterRemoved.isEmpty());
+		return ( ! this._agentsToRegisterRemoved.isEmpty() );
 	}
 
 	/**

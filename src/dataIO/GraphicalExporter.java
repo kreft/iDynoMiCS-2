@@ -154,7 +154,7 @@ public interface GraphicalExporter {
 	public default double[] to3D(double[] vector)
 	{
 		if (vector.length < 3)
-			return to3D(Vector.appendDouble(vector, 0.0));
+			return to3D(Vector.append(vector, 0.0));
 		else if (vector.length > 3)
 		{
 			Log.out(Tier.QUIET, "Warning 4 dimensional vector in graphical "

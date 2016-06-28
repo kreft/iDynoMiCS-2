@@ -4,14 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import idynomics.EnvironmentContainer;
-import idynomics.Idynomics;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
@@ -66,7 +64,7 @@ public class SpatialGrid implements NodeConstructor
 	/**
 	 * TODO
 	 */
-	protected double _wellmixedFlux = 0.0;
+	protected double _wellmixedFlow = 0.0;
 	
 	/**
 	 * identifies what compartment hosts this grid
@@ -360,6 +358,18 @@ public class SpatialGrid implements NodeConstructor
 		return Array.sum(this._array.get(type));
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param array
+	 * @param type
+	 * @return
+	 */
+	public double getTotalAbsDiffWith(double[][][] array, ArrayType type)
+	{
+		return Array.totalAbsDifference(array, this.getArray(type));
+	}
+	
 	/* ***********************************************************************
 	 * 							TWO ARRAY METHODS
 	 * ***********************************************************************/
@@ -516,7 +526,7 @@ public class SpatialGrid implements NodeConstructor
 	}
 	
 	/**
-	 * \brief Calculate the flux from the neighbor voxel into the current
+	 * \brief Calculate the mass flow from the neighbor voxel into the current
 	 * iterator voxel (may be negative).
 	 * 
 	 * <p>The flux from the neighboring voxel into the current one is given by
@@ -545,10 +555,11 @@ public class SpatialGrid implements NodeConstructor
 	 * 
 	 * TODO Rob [8June2016]: I need to find the reference for this.
 	 * 
-	 * @return Flow from the neighbor voxel into the current iterator voxel.
+	 * @return Diffusive flow from the neighbor voxel into the current iterator
+	 * voxel, in units of mass (or mole) per time.
 	 */
 	// TODO safety if neighbor iterator or arrays are not initialised.
-	public double getFlowFromNeighbor()
+	public double getDiffusionFromNeighbor()
 	{
 		Tier level = Tier.BULK;
 		if ( Log.shouldWrite(level) )
@@ -586,7 +597,8 @@ public class SpatialGrid implements NodeConstructor
 		}
 		else if ( this._shape.isIteratorValid() )
 		{
-			double flow = this._shape.nbhIteratorOutside().getFlow(this);
+			double flow = 
+					this._shape.nbhIteratorOutside().getDiffusiveFlow(this);
 			if ( Log.shouldWrite(level) )
 				Log.out(level, "  got flow from boundary: "+flow);
 			return flow;
@@ -603,15 +615,32 @@ public class SpatialGrid implements NodeConstructor
 	}
 	
 	/**
-	 * \brief Increase the grid's tally of flux into a well-mixed region.
+	 * \brief Increase the grid's tally of mass flow into a well-mixed region.
 	 * 
-	 * @param flux Flux in units of TODO
+	 * @param flow Flow in units of mass (or moles) per time.
 	 */
-	public void increaseWellMixedFlux(double flux)
+	public void increaseWellMixedMassFlow(double flow)
 	{
-		this._wellmixedFlux += flux;
+		this._wellmixedFlow += flow;
+	}
+	
+	/**
+	 * @return This grid's tally of mass flow into a well-mixed region, in
+	 * units of mass (or moles) per time.
+	 */
+	public double getWellMixedMassFlow()
+	{
+		return this._wellmixedFlow;
 	}
 
+	/**
+	 * Reset this grid's tally of flow into a well-mixed region.
+	 */
+	public void resetWellMixedMassFlow()
+	{
+		this._wellmixedFlow = 0.0;
+	}
+	
 	/* ***********************************************************************
 	 * 							LOCATION GETTERS
 	 * ***********************************************************************/

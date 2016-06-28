@@ -3,9 +3,6 @@
  */
 package shape;
 
-import boundary.SpatialBoundary;
-import grid.SpatialGrid;
-import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.SameRes;
 
 /**
@@ -63,55 +60,6 @@ public final class ShapeConventions
 		public int getVoxelIndex(double location)
 		{
 			return 0;
-		}
-	}
-	
-	/**
-	 * \brief Dummy class for cyclic dimensions.
-	 * 
-	 * Should only be initialised by Dimension and never from protocol file.
-	 */
-	public static class DummyBoundary extends SpatialBoundary
-	{
-		public DummyBoundary(DimName dim, int extreme)
-		{
-			super(dim, extreme);
-		}
-
-		@Override
-		public void agentsArrive()
-		{
-			/* Do nothing! */
-		}
-
-		@Override
-		protected Class<?> getPartnerClass()
-		{
-			return DummyBoundary.class;
-		}
-
-		@Override
-		public void updateConcentrations()
-		{
-			/* Do nothing! */
-		}
-
-		@Override
-		public double getFlow(SpatialGrid grid)
-		{
-			return 0.0;
-		}
-
-		@Override
-		public boolean needsToUpdateWellMixed()
-		{
-			return false;
-		}
-
-		@Override
-		public void updateWellMixedArray()
-		{
-			/* Do nothing! */
 		}
 	}
 }

@@ -25,7 +25,7 @@ import utility.ExtraMath;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public class treeTest {
+public class TreeTest {
 	
 	@Test
 	public void largeCollection()

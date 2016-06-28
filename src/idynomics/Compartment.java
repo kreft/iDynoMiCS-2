@@ -1,6 +1,5 @@
 package idynomics;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import agent.Agent;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
@@ -17,11 +14,9 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
-import dataIO.ObjectFactory;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
 import grid.*;
-import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -262,6 +257,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
 		this._processes.add(aProcessManager);
+		aProcessManager.init(this.environment, this.agents, this.name);
 		// TODO Rob [18Apr2016]: Check if the process's next time step is 
 		// earlier than the current time.
 		Collections.sort(this._processes, this._procComp);

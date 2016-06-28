@@ -9,8 +9,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.ObjectRef;
 import dataIO.XmlHandler;
-import grid.DummyGrid;
-import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
@@ -70,16 +68,21 @@ public final class ShapeLibrary
 			this._volume = volume;
 		}
 		
-		@Override
-		public double[] getLocalPosition(double[] location)
+		public double getTotalVolume()
 		{
-			return location;
+			return this._volume;
 		}
 		
 		@Override
-		public double[] getGlobalLocation(double[] local)
+		public void getLocalPositionTo(double[] destination, double[] location)
 		{
-			return local;
+			/* Do nothing! */
+		}
+		
+		@Override
+		public void getGlobalLocationTo(double[] destination, double[] local)
+		{
+			/* Do nothing! */
 		}
 		
 		@Override

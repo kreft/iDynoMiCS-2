@@ -12,6 +12,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
+import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
@@ -43,6 +44,8 @@ public abstract class SpatialBoundary extends Boundary
 	 */
 	// TODO set this from protocol file for the whole compartment
 	protected double _layerThickness;
+	
+	protected double _detachability;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -93,6 +96,14 @@ public abstract class SpatialBoundary extends Boundary
 		this._layerThickness = thickness;
 	}
 	
+	public double getTotalSurfaceArea()
+	{
+		// TODO it may be best to store this locally, updating it at each
+		// global timestep
+		return this._agents.getShape()
+				.getBoundarySurfaceArea(this._dim, this._extreme);
+	}
+	
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
@@ -118,7 +129,55 @@ public abstract class SpatialBoundary extends Boundary
 	 * @return The rate of diffusive flow across this boundary, in units of
 	 * mass or mole per time.
 	 */
-	public abstract double getFlow(SpatialGrid grid);
+	public double getDiffusiveFlow(SpatialGrid grid)
+	{
+		// NOTE Rob [27June2016]: Tried this approach and am not happy with it.
+		if ( grid.getName().equals(AgentContainer.DETACHABILITY) )
+			return this.calcDiffusiveFlowFixed(grid,  this.getDetachability());
+		return this.calcDiffusiveFlow(grid);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param grid
+	 * @return
+	 */
+	protected abstract double calcDiffusiveFlow(SpatialGrid grid);
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param grid
+	 * @param type
+	 * @param bndrConcn
+	 * @return
+	 */
+	protected double calcDiffusiveFlowFixed(SpatialGrid grid, double bndrConcn)
+	{
+		Tier level = Tier.BULK;
+		double valueDiff = bndrConcn - grid.getValueAtCurrent(ArrayType.CONCN);
+		/* The diffusivity comes only from the current voxel. */
+		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
+		/* Shape handles the shared surface area on a boundary. */
+		double sArea = grid.getShape().nbhCurrSharedArea();
+		/* Shape handles the centre-centre distance on a boundary. */
+		double dist = grid.getShape().nbhCurrDistance();
+		/* Calculate flux and flow in the same way as in SpatialGrid. */
+		double flux = valueDiff * diffusivity / dist ;
+		double flow = flux * sArea;
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, this.getName()+" flow for "+grid.getName()+" :");
+			Log.out(level, "  value diff is "+valueDiff);
+			Log.out(level, "  diffusivity is "+diffusivity);
+			Log.out(level, "  distance is "+dist);
+			Log.out(level, "  => flux = "+flux);
+			Log.out(level, "  surface area is "+sArea);
+			Log.out(level, "  => flow = "+flow);
+		}
+		return flow;
+	}
 	
 	/**
 	 * \brief Ask if this boundary needs to update the well-mixed array of
@@ -164,6 +223,12 @@ public abstract class SpatialBoundary extends Boundary
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
+	
+	/**
+	 * 
+	 * @return
+	 */
+	protected abstract double getDetachability();
 	
 	/**
 	 * \brief Helper method for placing agents in the arrivals lounge at random

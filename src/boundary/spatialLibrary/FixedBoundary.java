@@ -1,9 +1,11 @@
 package boundary.spatialLibrary;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import grid.ArrayType;
 import grid.SpatialGrid;
 import shape.Dimension.DimName;
 
@@ -16,6 +18,15 @@ import shape.Dimension.DimName;
 public class FixedBoundary extends SpatialBoundary
 {
 	/**
+	 * Solute concentrations.
+	 */
+	protected Map<String,Double> _concns = new HashMap<String,Double>();
+	
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
+	
+	/**
 	 * \brief Construct a fixed boundary by giving it the information it
 	 * needs about its location.
 	 * 
@@ -27,6 +38,7 @@ public class FixedBoundary extends SpatialBoundary
 	public FixedBoundary(DimName dim, int extreme)
 	{
 		super(dim, extreme);
+		this._detachability = 0.0;
 	}
 	
 	/* ***********************************************************************
@@ -47,39 +59,22 @@ public class FixedBoundary extends SpatialBoundary
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
 	
-	@Override
-	public void updateConcentrations()
+	/**
+	 * \brief Set the concentration of a solute at this boundary.
+	 * 
+	 * @param name Name of the solute.
+	 * @param concn Concentration of the solute.
+	 */
+	public void setConcentration(String name, double concn)
 	{
-		/* Do nothing! */
+		this._concns.put(name, concn);
 	}
 	
 	@Override
-	public double getFlow(SpatialGrid grid)
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
-		Tier level = Tier.BULK;
-		/* The difference in concentration is the same as in SpatialGrid. */
-		double concnDiff = this._concns.get(grid.getName()) -
-				grid.getValueAtCurrent(ArrayType.CONCN);
-		/* The diffusivity comes only from the current voxel. */
-		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
-		/* Shape handles the shared surface area on a boundary. */
-		double sArea = grid.getShape().nbhCurrSharedArea();
-		/* Shape handles the centre-centre distance on a boundary. */
-		double dist = grid.getShape().nbhCurrDistance();
-		/* Calculate flux and flow in the same way as in SpatialGrid. */
-		double flux = concnDiff * diffusivity / dist ;
-		double flow = flux * sArea;
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "FixedBoundary flux for "+grid.getName()+":");
-			Log.out(level, "  concn diff is "+concnDiff);
-			Log.out(level, "  diffusivity is "+diffusivity);
-			Log.out(level, "  distance is "+dist);
-			Log.out(level, "  => flux = "+flux);
-			Log.out(level, "  surface area is "+sArea);
-			Log.out(level, "  => flow = "+flow);
-		}
-		return flow;
+		double concn = this._concns.get(grid.getName());
+		return this.calcDiffusiveFlowFixed(grid, concn);
 	}
 	
 	@Override
@@ -99,6 +94,12 @@ public class FixedBoundary extends SpatialBoundary
 	 * **********************************************************************/
 	
 	@Override
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
+	@Override
 	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
@@ -107,6 +108,6 @@ public class FixedBoundary extends SpatialBoundary
 					"Unexpected: agents arriving at a fixed boundary!");
 		}
 		this.placeAgentsRandom();
-		this.clearArrivalsLoungue();
+		this.clearArrivalsLounge();
 	}
 }
