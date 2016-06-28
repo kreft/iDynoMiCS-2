@@ -32,11 +32,6 @@ public class RodDivision extends Event {
 	public String LINKER_DIST = AspectRef.linkerDistance;
 	public String UPDATE_BODY = AspectRef.agentUpdateBody;
 	public String DIVIDE = AspectRef.agentDivide;
-	
-	public RodDivision()
-	{
-		setInput("mass,radius,body");
-	}
 
 	/**
 	 * Method that initiates the division

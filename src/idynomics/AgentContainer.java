@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.w3c.dom.NodeList;
-
 import agent.Agent;
 import agent.Body;
 import aspect.AspectRef;
@@ -17,24 +15,21 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import grid.ArrayType;
 import grid.SpatialGrid;
+import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
-import static grid.ArrayType.PRODUCTIONRATE;
-
 import linearAlgebra.Vector;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
 import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
-import solver.PDEexplicit;
 import solver.PDEsolver;
-import solver.PDEupdater;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
+import surface.predicate.Colliding;
 import surface.Surface;
 import utility.ExtraMath;
 
@@ -42,6 +37,7 @@ import utility.ExtraMath;
  * \brief Manages the agents in a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public class AgentContainer
 {
@@ -153,18 +149,6 @@ public class AgentContainer
 			// TODO R-tree parameters could follow from the protocol file.
 			this._agentTree = new RTree<Agent>(8, 2, this._shape);
 		}
-	}
-
-	/**
-	 * \brief Construct agents from a list of XML nodes.
-	 * 
-	 * @param agentNodes List of XML nodes from a protocol file.
-	 * @param comp Compartment that this container belongs to.
-	 */
-	public void readAgents(NodeList agentNodes, Compartment comp)
-	{
-		for ( int i = 0; i < agentNodes.getLength(); i++ ) 
-			this.addAgent(new Agent(agentNodes.item(i), comp));
 	}
 
 	/**
@@ -300,7 +284,8 @@ public class AgentContainer
 	}
 
 	/**
-	 * \brief Find all agents within the given distance of a given focal agent.
+	 * \brief Find all agents that are potentially within the given distance of 
+	 * a given focal agent.
 	 * 
 	 * @param anAgent Agent at the focus of this search.
 	 * @param searchDist Distance around this agent to search.
@@ -322,52 +307,89 @@ public class AgentContainer
 		/* 
 		 * Remove the focal agent from this list.
 		 */
-		out.removeIf((a) -> {return a == anAgent;});
+		IsSame isSame = new IsSame(anAgent);
+		out.removeIf(isSame);
+		// NOTE lambda expressions are known to be slow in java
 		return out;
 	}
 
 	/**
-	 * \brief Find all agents within the given distance of a surface.
-	 * 
+	 * \brief Find all agents that are potentially within the
+	 * given distance of a surface.
 	 * @param aSurface Surface object belonging to this compartment.
 	 * @param searchDist Find agents within this distance of the surface.
-	 * @return Collection of agents that are within the search distance of the
-	 * surface: there should be no false positives or false negatives in this
-	 * collection.
+	 * @return Collection of agents that may be within the search distance of 
+	 * the surface: there may be false positives, but no false negatives in 
+	 * this collection.
 	 */
 	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
 	{
-		Collection<Agent> out = new LinkedList<Agent>();
-		Collision collision = new Collision(this._shape);
-		//System.out.println("collision = "+collision.toString());
-		Collection<Surface> agentSurfs;
-		// TODO Rob [23June2016]: I suspect there is a better way of doing this
-		// than looping through all located agents, but I'm not sure how!
-		for ( Agent agent : this._locatedAgentList )
-		{
-			agentSurfs = ((Body) agent.get(AspectRef.agentBody)).getSurfaces();
-			for ( Surface a : agentSurfs )
-				if ( collision.distance(a, aSurface) < searchDist )
-					out.add(agent);
-		}
-		return out;
+		return treeSearch(aSurface.getBox(searchDist));
 	}
 	
 	/**
-	 * \brief Find all agents within the given distance of a spatial boundary.
+	 * \brief Find all agents that are potentially within the given distance of 
+	 * a spatial boundary.
 	 * 
 	 * @param aBoundary Spatial boundary object belonging to this compartment.
 	 * @param searchDist Find agents within this distance of the surface.
-	 * @return Collection of agents that are within the search distance of the
-	 * boundary: there should be no false positives or false negatives in this
-	 * collection.
+	 * @return Collection of agents that are potentially within the the search 
+	 * distance of the boundary: there may be false positives, but no false 
+	 * negatives in this collection.
 	 */
 	public Collection<Agent> treeSearch(
 			SpatialBoundary aBoundary, double searchDist)
 	{
-		Surface boundarySurface = this._shape.getSurface(aBoundary);
-		return this.treeSearch(boundarySurface, searchDist);
+		return this.treeSearch( this._shape.getSurface(aBoundary) , searchDist);
 	}
+	
+	/**
+	 * filter non colliding agents
+	 * @param aSurface
+	 * @param agents
+	 * @param searchDist
+	 */
+	public void filterAgentCollision(Surface aSurface, Collection<Agent> agents, double searchDist)
+	{
+		/* the collision object */
+		Collision collision = new Collision(this._shape);
+		for ( Agent a : agents)
+		{
+			/* by default assume no collision */
+			boolean c = false;
+			/* check each agent surface for collision */
+			for ( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+			{
+				/* on collision set boolean true and exit loop */
+				if ( collision.colliding(aSurface, s, searchDist))
+				{
+					c = true;
+					break;
+				}
+			}
+			/* if not in collision remove the agent */
+			if ( !c )
+				agents.remove(a);
+		}	
+	}
+	
+	/**
+	 * 
+	 * @param aSurface
+	 * @param surfaces
+	 * @param searchDist
+	 */
+	public void filterSurfaceCollision(Surface aSurface, Collection<Surface> surfaces, double searchDist)
+	{
+		/* the collision object */
+		Collision collision = new Collision(this._shape);
+
+		/* check each surface for collision, remove if not */
+		for ( Surface s : surfaces)
+			if ( ! collision.colliding(aSurface, s, searchDist))
+				surfaces.remove(s);
+	}
+	
 	
 	/**
 	 * \brief Find all boundary surfaces that the given agent may be close to.
@@ -380,17 +402,18 @@ public class AgentContainer
 	 */
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
+		// NOTE lambda expressions are known to be slower than alternatives
+		Colliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
-		Collection<Surface> agentSurfs = 
-				((Body) anAgent.get(AspectRef.agentBody)).getSurfaces();
-		out.removeIf((s) -> 
+		/* NOTE if the agent has many surfaces it may be faster the other way
+		 * around  */
+		for ( Surface a : ((Body) anAgent.get(AspectRef.agentBody))
+				.getSurfaces())
 		{
-			for ( Surface a : agentSurfs )
-				if ( collision.distance(a, s) < searchDist )
-					return false;
-			return true;
-		});
+			filter = new Colliding<Surface>(a, collision, searchDist);
+			out.removeIf(filter);
+		}
 		return out;
 	}
 
@@ -678,69 +701,6 @@ public class AgentContainer
 			Log.out(level, " All agents have now arrived");
 	}
 
-	/**
-	 * \brief TODO
-	 */
-	// NOTE Rob [27June2016]: Tried this approach and am not happy with it.
-	@Deprecated
-	public void refreshDetachabilityArray()
-	{
-		/*
-		 * If this is the first time, we need to set up the 
-		 */
-		if ( this._detachability == null )
-		{
-			this._detachability = this._shape.getNewGrid(DETACHABILITY);
-			/* Diffusivity is simply one everywhere here. */
-			this._detachability.newArray(ArrayType.DIFFUSIVITY, 1.0);
-			/* Initialise the solver. */
-			this._detachabilitySolver = new PDEexplicit();
-			this._detachabilitySolver.setUpdater(new PDEupdater()
-			{
-				@Override
-				public void prestep(Collection<SpatialGrid> variables, 
-						double dt)
-				{
-					SpatialGrid var = variables.iterator().next();
-					var.newArray(PRODUCTIONRATE);
-					CoordinateMap distributionMap;
-					double concn;
-					for ( Agent a : getAllLocatedAgents() )
-					{
-						distributionMap =  (CoordinateMap) a.getValue(VD_TAG);
-						for ( int[] coord : distributionMap.keySet() )
-						{
-							concn = var.getValueAt(ArrayType.CONCN, coord);
-							var.addValueAt(PRODUCTIONRATE, coord, 
-									- concn * distributionMap.get(coord));
-						}
-					}
-				}
-			});
-		}
-		/*
-		 * Refresh/create the dummy concentration array with zeros.
-		 */
-		this._detachability.newArray(ArrayType.CONCN);
-		/*
-		 * Set up the mass distribution maps and refresh the well-mixed 
-		 * boundaries of the shape.
-		 */
-		this.setupAgentDistributionMaps();
-		this.getShape().updateWellMixedBoundaries();
-		/*
-		 * Solve the diffusion-reaction of this dummy solute.
-		 */
-		this._detachabilitySolver.solveToConvergence(
-				this._detachability, this._shape.getCommonGrid());
-		/*
-		 * Clear agent mass distribution maps: this prevents unneeded clutter
-		 * in XML output.
-		 */
-		for ( Agent a : this.getAllLocatedAgents() )
-			a.reg().remove(VD_TAG);
-	}
-	
 	/**
 	 * \brief Loop through all boundaries on this shape, trying to grab the
 	 * agents each wants.

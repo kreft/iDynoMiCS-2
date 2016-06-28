@@ -69,6 +69,13 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		this.timer = new Timer();
 		this._xmlOut = new XmlExport();
 	}
+	
+	public void deleteFromCompartment(String name, Object object)
+	{
+		for ( Compartment c : _compartments)
+			if ( c.name == name )
+				c.remove(object);
+	}
 
 	/**
 	 * return the name of the current simulation
@@ -107,7 +114,7 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		 * that seed
 		 */
 		String seed =XmlHandler.gatherAttribute(xmlElem, XmlRef.seed);
-		if (seed != "")
+		if (seed != "" && seed != null)
 			ExtraMath.intialiseRandomNumberGenerator(Long.valueOf(seed));
 		
 		/*
@@ -118,8 +125,10 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		 * Set up the species library.
 		 */
 		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
-				this.speciesLibrary.init( XmlHandler.loadUnique(xmlElem, 
-						XmlRef.speciesLibrary ));
+			this.speciesLibrary = (SpeciesLib) Instantiatable.getNewInstance(
+					"SpeciesLib", XmlHandler.loadUnique(xmlElem, 
+					XmlRef.speciesLibrary ), this);
+
 		/*
 		 * Set up the compartments.
 		 */
@@ -132,15 +141,10 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 				   "Warning: Simulator initialised without any compartments!");
 		}
 		Element child;
-		String str;
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			str = XmlHandler.gatherAttribute(child, XmlRef.nameAttribute);
-			Log.out(Tier.NORMAL, "Making "+str);
-			str = Helper.obtainInput(str, "compartment name");
-			Compartment aCompartment = this.addCompartment(str);
-			aCompartment.init(child);
+			Instantiatable.getNewInstance(XmlRef.compartment, child, this);
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
 	}
@@ -167,6 +171,11 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		aCompartment.name = name;
 		this._compartments.add(aCompartment);
 		return aCompartment;
+	}
+	
+	public void addCompartment(Compartment compartment)
+	{
+		this._compartments.add(compartment);
 	}
 	
 	/**
@@ -226,15 +235,30 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	}
 	
 	/**
-	 * \brief Get the first {@code Compartment} in this {@code Simulator} that
-	 * has at least one spatial dimension.
+	 * \brief Get the names of the {@code Compartment}s in this 
+	 * {@code Simulator} that have at least one spatial dimension.
 	 * 
 	 * @return A {@code Compartment} if possible, {@code null} if not.
 	 */
-	public Compartment get1stSpatialCompartment()
+	public List<String> getSpatialCompartmentNames()
 	{
+		LinkedList<String> out = new LinkedList<String>();
 		for ( Compartment c : this._compartments )
 			if ( ! c.isDimensionless() )
+				out.add(c.name);
+		return out;
+	}
+	
+	/**
+	 * \brief Get the compartment with matching name, return null if no
+	 * compartment with that name exists.
+	 * @param name
+	 * @return Compartment
+	 */
+	public Compartment getCompartment(String name)
+	{
+		for ( Compartment c : this._compartments )
+			if ( c.name.equals(name) )
 				return c;
 		return null;
 	}
@@ -429,11 +453,13 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 			modelNode.add(c.getNode());
 		
 		/* add child constructor (adds add compartment button to gui */
-		modelNode.addChildConstructor(new Compartment(), 
+		modelNode.addConstructable("Compartment", 
 				ModelNode.Requirements.ZERO_TO_FEW);
 
 		/* Safe this modelNode locally for model run without having to have save 
-		 * all button */
+		 * all button NOTE this is the only exception to the rule never to store
+		 * a modelNode, prevent working with out dated information and always
+		 * create new modelNodes from the current model state */
 		this._modelNode = modelNode;
 		
 		/* return node */
@@ -472,16 +498,11 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		/* Set values for all child nodes. */
 		NodeConstructor.super.setNode(node);
 	}
-
-	/**
-	 * Method is called when "add" button is hit in gui, options are set in
-	 * child constructor hashMap of model node.
-	 */
-	@Override
-	public void addChildObject(NodeConstructor childObject) 
+	
+	public void removeChildNode(NodeConstructor child)
 	{
-		if (childObject instanceof Compartment)
-			this._compartments.add((Compartment) childObject);
+		if (child instanceof Compartment)
+			this._compartments.remove((Compartment) child);
 	}
 
 	/**

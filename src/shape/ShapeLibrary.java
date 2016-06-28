@@ -9,8 +9,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.ObjectRef;
 import dataIO.XmlHandler;
-import grid.DummyGrid;
-import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
@@ -44,11 +42,6 @@ public final class ShapeLibrary
 		public Dimensionless()
 		{
 			super();
-		}
-		
-		@Override
-		public SpatialGrid getNewGrid(String name) {
-			return new DummyGrid(this, this._volume, name);
 		}
 
 		@Override

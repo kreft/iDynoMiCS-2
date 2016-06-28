@@ -21,6 +21,7 @@ import aspect.Calculated;
 import aspect.Event;
 import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
+import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
@@ -48,6 +49,8 @@ public class ObjectFactory
 	 */
 	public static Object loadObject(String input, String type, String classType)
 	{
+		if ( type == null || classType == null)
+			return null;
 		classType = Helper.firstToUpper(classType);
 		switch ( type ) 
 		{

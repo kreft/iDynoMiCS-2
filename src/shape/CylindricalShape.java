@@ -204,11 +204,13 @@ public abstract class CylindricalShape extends PolarShape
 		if ( radius > 0.0 )
 		{
 			Surface rod = new Rod(pointA, pointB, radius);
+			rod.init(_defaultCollision);
 			radiusDim.setSurface(rod, 0);
 		}
 		/* We always use the outer radius. */
 		radius = radiusDim.getExtreme(1);
 		Surface rod = new Rod(pointA, pointB, radius);
+		rod.init(_defaultCollision);
 		radiusDim.setSurface(rod, 1);
 		/*
 		 * If theta is not cyclic, we need to add two planes.

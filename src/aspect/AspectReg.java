@@ -17,6 +17,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
+import nodeFactory.primarySetters.HashMapSetter;
 import nodeFactory.primarySetters.LinkedListSetter;
 import surface.Point;
 import utility.Helper;
@@ -37,7 +38,7 @@ public class AspectReg
 	protected String _identity;
 	
 	/**
-	 * \brief Recognised aspect types.
+	 * \brief Recognized aspect types.
 	 * 
 	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
 	 */
@@ -106,13 +107,18 @@ public class AspectReg
 	 */
 	public void add(String key, Object aspect)
 	{
-		if ( this._aspects.containsKey(key) )
-		{
-			Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
-					" which already exists in this aspect registry");
-		}
+		if ( aspect == null || key == null)
+			Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
 		else
-			this._aspects.put(key, new Aspect(aspect, key, this) );
+		{
+			if ( this._aspects.containsKey(key) )
+			{
+				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
+						" which already exists in this aspect registry");
+			}
+			else
+				this._aspects.put(key, new Aspect(aspect, key, this) );
+		}
 	}
 	
 	/**
@@ -142,6 +148,14 @@ public class AspectReg
 	public void addSubModule(AspectInterface module)
 	{
 		this._modules.add(module);
+	}
+	
+
+	public void removeSubmodule(String module) 
+	{
+		for ( AspectInterface m : _modules )
+			if ( m.reg()._identity == module )
+				_modules.remove(m);
 	}
 	
 	/**
@@ -304,7 +318,7 @@ public class AspectReg
 	public ModelNode getModuleNode(NodeConstructor constructor) {
 		ModelNode modelNode = new ModelNode(XmlRef.speciesModule,constructor);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
-		
+		modelNode.setTitle(this.getIdentity());
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 				this.getIdentity(), null, true ) );
 		
@@ -439,19 +453,19 @@ public class AspectReg
 				//FIXME this needs to be finished
 		    	switch (simpleName)
 				{
-				case "HashMap":
+				case "HashMap": //FIXME ClassRef
 					HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
-//					for (Object k : h.keySet() )
-//						modelNode.add(HashMapNode(k) );
+					for (Object k : h.keySet() )
+						modelNode.add(new HashMapSetter<Object,Object>(
+								h.get(k), k, h).getNode() );
 					break;
-				case "LinkedList":
-//					modelNode.add(ObjectFactory.nodeFactoryInner(aspect) );
-					// TODO work in progress
+				case "LinkedList": //FIXME ClassRef
 					LinkedList<Object> linkedList = (LinkedList<Object>) aspect;
 					for (Object o : linkedList)
-						modelNode.add(new LinkedListSetter(o).getNode() );
+						modelNode.add(new LinkedListSetter<Object>(
+								o, linkedList ).getNode() );
 					break;
-				case "Body":
+				case "Body": //FIXME ClassRef
 					Body myBody = (Body) aspect;
 					for (Point p : myBody.getPoints() )
 						modelNode.add(p.getNode() );
@@ -482,7 +496,7 @@ public class AspectReg
 				if (simpleName.equals( StateExpression.class.getSimpleName() ) )
 				{
 					modelNode.add(new ModelAttribute(XmlRef.inputAttribute, 
-							( (Calculated) this.aspect ).getInput()[0], 
+							( (Calculated) this.aspect ).getInput(), 
 							null, false ) );
 				}
 			}
@@ -498,7 +512,7 @@ public class AspectReg
 		public ModelNode HashMapNode(Object key) 
 		{
 			HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
-			ModelNode modelNode = new ModelNode("item", this);
+			ModelNode modelNode = new ModelNode(XmlRef.item, this);
 			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 			
 			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
@@ -535,9 +549,15 @@ public class AspectReg
 		public NodeConstructor newBlank() {
 			String name = "";
 			name = Helper.obtainInput(name, "aspect name");
+			/* if name is canceled */
+			if ( name == null )
+				return null;
 			String type = Helper.obtainInput( Helper.enumToString(
 					AspectReg.AspectClass.class).split(" "), 
 					"aspect type", false);
+			/* if type is canceled */
+			if ( type == null )
+				return null;
 			String pack = "";
 			String classType = "";
 			switch (type)
@@ -547,23 +567,39 @@ public class AspectReg
 	    		classType = Helper.obtainInput( Helper.listToArray(
 	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
 	    				"aspect class", false);
-				
+	    		if ( classType == "StateExpression" ) //FIXME ClassRef
+	    			registry.add( name, ObjectFactory.loadObject( 
+	    					Helper.obtainInput( "", "expression" ), 
+	    					type, classType) );
+	    		else
+	    			registry.add( name, ObjectFactory.loadObject( "", 
+	    					type, classType) );
 	    		break;
 	    	case "EVENT": 
 	    		pack = "aspect.event.";
 	    		classType = Helper.obtainInput( Helper.listToArray(
 	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
 	    				"aspect class", false);
-				
+    			registry.add( name, ObjectFactory.loadObject( "", 
+    					type, classType) );
 	    		break;
+	    	case "PRIMARY":
 			default:
 				classType = Helper.obtainInput( ObjectRef.getAllOptions(), 
 						"Primary type", false);
+    			registry.add( name, ObjectFactory.loadObject( 
+    					Helper.obtainInput( "", "Primary value" ), 
+    					type, classType) );
 				break;
 			}
-			registry.add( name, ObjectFactory.loadObject( Helper.obtainInput(
-					"", "Primary value"), type, classType) );
 			return registry.getAspect(name);
+		}
+		
+
+		@Override
+		public void removeNode(String specifier) 
+		{
+			this.registry.remove(this.key);
 		}
 
 		/**
@@ -576,4 +612,5 @@ public class AspectReg
 			return XmlRef.aspect;
 		}
 	}
+
 }

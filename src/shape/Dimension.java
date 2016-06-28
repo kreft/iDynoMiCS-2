@@ -128,26 +128,24 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	{
 		Element elem = (Element) xmlNode;
 		String str;
-		NodeList extNodes, bndNodes;
-		Element extElem, bndElem;
+		NodeList bndNodes;
+		Element bndElem;
 		SpatialBoundary aBoundary;
 		int index = -1;
+		
 		/*
 		 * See if this is cyclic. Assume not if unspecified.
-		 * 
-		 * TODO check that str is "false" and not a typo of "true" 
-		 * (e.g. "truw")
 		 */
-		str = XmlHandler.gatherAttribute(elem, XmlRef.IS_CYCLIC);
-		if ( Boolean.valueOf(str) )
+		if ( XmlHandler.obtainBoolean(elem, XmlRef.IS_CYCLIC, 
+				this.defaultXmlTag() + " " + this._dimName.name()) )
 			this.setCyclic();
 		
 		/* calculate length from dimension extremes */
 		double length = getLength();
 		
 		/* fetch target resolution (or use length as default) */
-		str = XmlHandler.gatherAttribute(elem,
-				XmlRef.targetResolutionAttribute);
+		str = XmlHandler.obtainAttribute(elem, XmlRef.targetResolutionAttribute,
+				this.defaultXmlTag() + " " + this._dimName.name());
 		this._targetRes = length; 
 		if ( str != "" )
 			this._targetRes = Double.valueOf(str);
@@ -155,7 +153,10 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		/* 
 		 * Boundaries at the extremes.
 		 */
-		str = XmlHandler.gatherAttribute(elem, XmlRef.min);
+		
+		/* by default minimum is 0.0 */
+		str = (String) Helper.setIfNone(
+				XmlHandler.gatherAttribute(elem, XmlRef.min), "0.0");
 		if ( str != null && str != ""){
 			double val = Double.valueOf(str);
 			/* convert degree to radian for angular dimensions */
@@ -164,7 +165,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			this.setExtreme(val, 0);
 		}
 		
-		str = XmlHandler.gatherAttribute(elem, XmlRef.max);
+		/* maximum has to be set */
+		str = XmlHandler.obtainAttribute(elem, XmlRef.max, this.defaultXmlTag()
+				+ " " + this._dimName.name());
 		if ( str != null && str != ""){
 			double val = Double.valueOf(str);
 			/* convert degree to radian for angular dimensions */
@@ -172,30 +175,40 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				val = Math.toRadians(val);
 			this.setExtreme(val, 1);
 		}
+		
+		/* Set theta dimension cyclic for a full circle, no matter what 
+		 * the user specified */
+		if (this._dimName == DimName.THETA && ExtraMath.areEqual(length, 
+				2 * Math.PI, PolarShape.POLAR_ANGLE_EQ_TOL))
+			this.setCyclic();
 
+		// FIXME investigate and clean
 		/* Set the boundary, if given (not always necessary). */
 		bndNodes = XmlHandler.getAll(elem, XmlRef.dimensionBoundary);
-		for ( int i = 0; i < bndNodes.getLength(); i++ )
+		if (bndNodes != null)
 		{
-			bndElem = (Element) bndNodes.item(i);
-			str = XmlHandler.gatherAttribute(elem, XmlRef.nameAttribute);
-			str = Helper.obtainInput(str, "dimension extreme (min/max)");
-			str = str.toLowerCase();
-			if ( str.equals("min") )
-				index = 0;
-			else if ( str.equals("max") )
-				index = 1;
-			else
+			for ( int i = 0; i < bndNodes.getLength(); i++ )
 			{
-				Log.out(Tier.CRITICAL, 
-						"Warning! Dimension extreme must be min or max: "+str);
+				bndElem = (Element) bndNodes.item(i);
+				str = XmlHandler.gatherAttribute(elem, XmlRef.nameAttribute);
+				str = Helper.obtainInput(str, "dimension extreme (min/max)");
+				str = str.toLowerCase();
+				if ( str.equals("min") )
+					index = 0;
+				else if ( str.equals("max") )
+					index = 1;
+				else
+				{
+					Log.out(Tier.CRITICAL, 
+							"Warning! Dimension extreme must be min or max: "+str);
+				}
+				
+				str = bndElem.getAttribute(XmlRef.classAttribute);
+				// FIXME
+				aBoundary = (SpatialBoundary) SpatialBoundary.getNewInstance(str);
+				aBoundary.init(bndElem);
+				this.setBoundary(aBoundary, index);	
 			}
-			
-			str = bndElem.getAttribute(XmlRef.classAttribute);
-			// FIXME
-			aBoundary = (SpatialBoundary) SpatialBoundary.getNewInstance(str);
-			aBoundary.init(bndElem);
-			this.setBoundary(aBoundary, index);	
 		}
 	}
 	
@@ -618,7 +631,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
-		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		modelNode.setRequirements(Requirements.IMMUTABLE);
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 										this._dimName.name(), null, false ));
 		modelNode.add(new ModelAttribute(XmlRef.IS_CYCLIC, 

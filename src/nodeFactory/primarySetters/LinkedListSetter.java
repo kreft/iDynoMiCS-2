@@ -1,24 +1,30 @@
 package nodeFactory.primarySetters;
 
+import java.util.List;
+
 import dataIO.XmlRef;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 
-public class LinkedListSetter implements NodeConstructor {
+public class LinkedListSetter<T> implements NodeConstructor {
 	
 	public Object listObject;
+	public List<T> list;
 	
-	public LinkedListSetter(Object object)
+	public LinkedListSetter(Object object, List<T> list )
 	{
 		this.listObject = object;
+		this.list = list;
 	}
 
 	public ModelNode getNode() 
 	{
-		ModelNode modelNode = new ModelNode("item", this);
+		ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		
+		modelNode.setTitle(": list");
 		
 		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
 				listObject.getClass().getSimpleName(), null, true ));
@@ -41,6 +47,11 @@ public class LinkedListSetter implements NodeConstructor {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void removeNode(String specifier)
+	{
+		this.list.remove(this.listObject);
+	}
 
 	@Override
 	public void addChildObject(NodeConstructor childObject) {
@@ -49,8 +60,8 @@ public class LinkedListSetter implements NodeConstructor {
 	}
 
 	@Override
-	public String defaultXmlTag() {
-		// TODO Auto-generated method stub
-		return null;
+	public String defaultXmlTag() 
+	{
+		return XmlRef.item;
 	}
 }

@@ -9,6 +9,7 @@ import boundary.library.DummyToChemostat;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
+import grid.SpatialGrid;
 import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.SolveChemostat;
@@ -42,7 +43,7 @@ public class ChemostatsTest
 		Dimensionless shape = new Dimensionless();
 		shape.setVolume(1.0);
 		chemo.setShape(shape);
-		chemo.environment.addSolute(soluteName);
+		chemo.environment.addSolute(new SpatialGrid(soluteName, 0.0, chemo.environment));
 		SolveChemostat p1 = new SolveChemostat();
 		p1.setName("SolveChemostat");
 		p1.init(new String[]{soluteName}, chemo.environment, 

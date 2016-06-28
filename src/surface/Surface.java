@@ -1,6 +1,10 @@
 package surface;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+
+import generalInterfaces.HasBoundingBox;
 
 /**
  * \brief TODO
@@ -92,9 +96,20 @@ public abstract class Surface
 	 * the mass points of thes two involved surface objects
 	 * @param surface
 	 */
-	public void collisionWith(Surface surface)
+	public boolean collisionWith(Surface surface)
 	{
-		this._collisionDomain.distance(this, surface);
+		return (this._collisionDomain.distance(this, surface) < 0.0);
 	}
 
+	/**
+	 * return a bounding box with margin if applicable for surface
+	 * @param margin
+	 * @return
+	 */
+	public BoundingBox getBox(double margin)
+	{
+		if (this instanceof HasBoundingBox)
+			return ((HasBoundingBox) this).boundingBox(margin) ;
+		return null;
+	}
 }

@@ -120,7 +120,7 @@ public class Collision
 			return Vector.zeros(dP);
 		}
 	};
-	
+
 	/* ***********************************************************************
 	 * VARIABLES
 	 * **********************************************************************/
@@ -316,7 +316,30 @@ public class Collision
 	/* ***********************************************************************
 	 * KEY DISTANCE METHODS
 	 * **********************************************************************/
+
+	/**
+	 * colliding
+	 * @param a
+	 * @param b
+	 * @param margin
+	 * @return
+	 */
+	public boolean colliding(Surface a, Surface b, double margin)
+	{
+		return ( distance( a, b ) < margin );
+	}
 	
+	/**
+	 * 
+	 * @param a
+	 * @param b
+	 * @param margin
+	 * @return
+	 */
+	public double distance(Surface a, Surface b, double margin)
+	{
+		return distance( a, b ) - margin;
+	}
 	/**
 	 * \brief TODO
 	 * 

@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import generalInterfaces.Instantiatable;
+import utility.Helper;
+
 /**
  * \brief TODO
  * 
@@ -46,7 +49,12 @@ public class ModelNode
 		ZERO_TO_MANY(0, Integer.MAX_VALUE),
 
 		/* temporary for GUI esthetics (same as zero to many) */
-		ZERO_TO_FEW(0, Integer.MAX_VALUE);
+		ZERO_TO_FEW(0, Integer.MAX_VALUE),
+		/**
+		 * FIXME, clean-up and restructure, a way of identifying Nodes that 
+		 * may not change in any way
+		 */
+		IMMUTABLE(1, 1);
 
 		public final int min, max;
 
@@ -86,6 +94,12 @@ public class ModelNode
 	 */
 	protected Map<NodeConstructor,Requirements> _childConstructors = 
 			new HashMap<NodeConstructor,Requirements>();
+	
+	/**
+	 * Contsructables
+	 */
+	protected List<Constructable> _constructables = 
+			new LinkedList<Constructable>();
 
 	/**
 	 * Existing child nodes
@@ -96,6 +110,11 @@ public class ModelNode
 	 * Attributes
 	 */
 	protected List<ModelAttribute> _attributes;
+	
+	/**
+	 * boolean is true if the object has been removed via the gui
+	 */
+	protected boolean isRemoved = false;
 
 	/* ***********************************************************************
 	 * INSTANCE CONSTRUCTOR
@@ -212,6 +231,11 @@ public class ModelNode
 		return this._requirement == req;
 	}
 	
+	public Requirements getRequirment()
+	{
+		return this._requirement;
+	}
+	
 	/* ***********************************************************************
 	 * THIS CONSTRUCTORS
 	 * **********************************************************************/
@@ -266,6 +290,53 @@ public class ModelNode
 	 * CHILD NODE CONSTRUCTORS
 	 * **********************************************************************/
 
+	
+	public void addConstructable(String classRef, Requirements requirement)
+	{
+		this._constructables.add(new Constructable(classRef, requirement));
+	}
+	
+	public void addConstructable(String classRef, String[] classRefs, Requirements requirement)
+	{
+		this._constructables.add(new Constructable(classRef, classRefs, requirement));
+	}
+	
+	public NodeConstructor getConstruct(String constructable)
+	{
+		Constructable c = this.getConstructable(constructable);
+		if (c.options() == null)
+			return (NodeConstructor) Instantiatable.
+					getNewInstance(	c.classRef(), null, this.constructor );
+		else
+			return (NodeConstructor) Instantiatable.getNewInstance(	
+					Helper.obtainInput(c.options(), "select class", false), 
+					null, this.constructor );
+	}
+	
+	public Requirements getConRequirement(String classRef)
+	{
+		for (Constructable c : this._constructables)
+			if( c.classRef() == classRef )
+				return c.requirement();
+		return null;
+	}
+	
+	public Constructable getConstructable(String classRef)
+	{
+		for (Constructable c : this._constructables)
+			if( c.classRef() == classRef )
+				return c;
+		return null;
+	}
+	
+	public String[] getConstructables()
+	{
+		int i = 0;
+		String[] out = new String[this._constructables.size()];
+		for (Constructable c : this._constructables)
+			out[i++] = c.classRef();
+		return out;
+	}
 	/**
 	 * \brief Add a child node constructor, together with requirements on how
 	 * many times it may be constructed.
@@ -396,5 +467,25 @@ public class ModelNode
 		for( int i = 1; i < tabs; i++ )
 			out += "\t";
 		return out;
+	}
+
+	public void delete(String specifier) {
+		this.isRemoved = true;
+		constructor.removeNode(specifier);		
+	}
+	
+	public boolean isRemoved()
+	{
+		return this.isRemoved;
+	}
+
+	public boolean hasChildNodes(String tag) 
+	{
+		for ( ModelNode m : _childNodes)
+		{
+			if ( m.constructor.defaultXmlTag() == tag );
+				return true;
+		}
+		return false;
 	}
 }

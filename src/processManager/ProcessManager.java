@@ -9,15 +9,17 @@ import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
+import generalInterfaces.Redirectable;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
-import utility.Helper;
 import nodeFactory.ModelNode.Requirements;
 
 /**
@@ -26,7 +28,7 @@ import nodeFactory.ModelNode.Requirements;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ProcessManager implements Instantiatable, AspectInterface,
-		NodeConstructor
+		NodeConstructor, Redirectable
 {
 	/**
 	 * The name of this {@code ProcessManager}, for reporting.
@@ -88,34 +90,39 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	{
 		this.init(environment, agents, compartmentName);
 		
-		//FIXME quick fix: cut/paste from
-		//"public static ProcessManager getNewInstance(Node xmlNode)"
-		
-		this.loadAspects(xmlElem);
+		if (xmlElem != null)
+			this.loadAspects(xmlElem);
 		/*
 		 * Read in the process attributes. 
 		 */
 		Element p = (Element) xmlElem;
-		this.setName( p.getAttribute( XmlRef.nameAttribute ));
+		this.setName( XmlHandler.obtainAttribute(p, XmlRef.nameAttribute, this.defaultXmlTag()));
 		/* Process priority - default is zero. */
 		int priority = 0;
-		if ( p.hasAttribute(XmlRef.processPriority) )
+		if ( XmlHandler.hasAttribute(p, XmlRef.processPriority) )
 			priority = Integer.valueOf(p.getAttribute(XmlRef.processPriority));
 		this.setPriority(priority);
 		/* Initial time to step. */
 		double time = Idynomics.simulator.timer.getCurrentTime();
-		if ( p.hasAttribute(XmlRef.processFirstStep) )
+		if ( XmlHandler.hasAttribute(p, XmlRef.processFirstStep) )
 			time = Double.valueOf( p.getAttribute(XmlRef.processFirstStep) );
 		this.setTimeForNextStep(time);
 		/* Time step size. */
 		time = Idynomics.simulator.timer.getTimeStepSize();
-		if ( p.hasAttribute(XmlRef.processTimeStepSize) )
+		if ( XmlHandler.hasAttribute(p, XmlRef.processTimeStepSize) )
 			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
 		this.setTimeStepSize(time);
+		
+		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
+		if (fields != null)
+			this.redirect(fields);
+		
+		Log.out(Tier.EXPRESSIVE, this._name + " loaded");
 	}
 	
 	/**
 	 * stripped down init required for JUnit tests without xml
+	 * FIXME only used by unit tests consider removing
 	 * @param environment
 	 * @param agents
 	 * @param compartmentName
@@ -129,8 +136,19 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	}
 	
 	/**
-	 * Implements XMLable interface, return new instance from xml Node.
-	 * 
+	 * Generic init for Instantiatable implementation
+	 * @param xmlElem
+	 * @param compartment
+	 */
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		this.init(xmlElem, ((Compartment) parent).environment, 
+				((Compartment) parent).agents, ((Compartment) parent).getName());
+	}
+	
+	/**
+	 * get new instance
+	 * TODO this is actually a bypasses  of the interface, consider renaming
 	 * @param xmlNode Relevant part of the XML protocol file.
 	 * @param environment The {@code EnvironmentContainer} of the
 	 * {@code Compartment} this process belongs to.
@@ -146,14 +164,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		proc.init((Element) xmlNode, environment, agents, CompartmentName);
 		return proc;
 	}
-	
-	public static ProcessManager getNewInstance(String className)
-	{
-		//return (ProcessManager) XMLable.getNewInstance(className);
-		
-		return (ProcessManager) Instantiatable.getNewInstance(className, 
-				Idynomics.xmlPackageLibrary.get(className));
-	}
+
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -327,10 +338,13 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 						this._name, null, true ));
 		
 		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-				this.getClass().getSimpleName(), null, true ));
+				this.getClass().getSimpleName(), null, false ));
 		
 		modelNode.add(new ModelAttribute(XmlRef.processPriority, 
 				String.valueOf(this._priority), null, true ));
+		
+		modelNode.add(new ModelAttribute(XmlRef.processTimeStepSize, 
+				String.valueOf(this._timeStepSize), null, true ));
 		
 		modelNode.add(new ModelAttribute(XmlRef.processFirstStep, 
 				String.valueOf(this._timeForNextStep), null, true ));
@@ -350,16 +364,6 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	/**
 	 * 
 	 */
-	public NodeConstructor newBlank() 
-	{
-		String input = Helper.obtainInput(ProcessManager.getAllOptions(), 
-				"process manager", false);
-		return  ProcessManager.getNewInstance(input);
-	}
-	
-	/**
-	 * 
-	 */
 	public void setNode(ModelNode node) 
 	{
 		
@@ -371,6 +375,16 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	public void addChildObject(NodeConstructor childObject) 
 	{
 
+	}
+	
+	/**
+	 * Remove processManager from the compartment
+	 * NOTE a bit of a work around but this prevents the pm form having to have
+	 * access to the compartment directly
+	 */
+	public void removeNode(String specifier)
+	{
+		Idynomics.simulator.deleteFromCompartment(this._compartmentName, this);
 	}
 
 	/**

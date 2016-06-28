@@ -55,7 +55,7 @@ public class PdeTest
 		shape.setDimensionResolution(DimName.X, resCalc);
 		/* Add the solute and fill it with random values. */
 		String soluteName = "solute";
-		comp.addSolute(soluteName);
+		comp.environment.addSolute(new SpatialGrid(soluteName, 0.0, comp.environment));
 		SpatialGrid sG = comp.getSolute(soluteName);
 		double concn = 0.0;
 		for ( int[] c = shape.resetIterator(); 
@@ -127,7 +127,7 @@ public class PdeTest
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.THETA, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
-		comp.addSolute(soluteName);
+		comp.environment.addSolute(new SpatialGrid(soluteName, 0.0, comp.environment));
 		SpatialGrid sG = comp.getSolute(soluteName);
 		/*
 		 * Set up the diffusion solver.

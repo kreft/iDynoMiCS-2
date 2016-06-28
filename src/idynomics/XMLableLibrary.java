@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
+import utility.Helper;
 
 /**
  * \brief Library used to store packages associated with common classes, allows
@@ -44,6 +45,7 @@ public class XMLableLibrary
 	 */
 	public String get(String key)
 	{
+		key = Helper.firstToUpper(key);
 		if ( this.has(key) )
 			return this._lib.get(key);
 		else
