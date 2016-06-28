@@ -198,6 +198,7 @@ public class GuiEditor
 		/* placement of this ModelNode in the gui */
 		if ( node.isTag(XmlRef.speciesLibrary) )
 		{
+			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
 			/* exception for speciesLib add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab( (JTabbedPane) 
@@ -206,6 +207,7 @@ public class GuiEditor
 		}
 		else if ( node.isTag(XmlRef.compartment) )
 		{
+			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
 			/* exception for compartments add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab( (JTabbedPane) 
@@ -217,16 +219,17 @@ public class GuiEditor
 				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers, 
 				XmlRef.reactions, XmlRef.environment}) )
 		{
+			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
 			GuiComponent.addTab( (JTabbedPane) 
 					parent.getParent().getParent().getParent(), 
 					node.getTag(), tabs, "");
 		}
-		else if ( node.isTagIn(new String[] {XmlRef.aspect, XmlRef.solute}) )
-		{
-			GuiComponent.addTab( (JTabbedPane) 
-					parent.getParent().getParent().getParent(), 
-					node.getTag() + " " + node.getTitle(), tabs, "" );
-		}
+//		else if ( node.isTagIn(new String[] {XmlRef.aspect, XmlRef.solute}) )
+//		{
+//			GuiComponent.addTab( (JTabbedPane) 
+//					parent.getParent().getParent().getParent(), 
+//					node.getTag() + " " + node.getTitle(), tabs, "" );
+//		}
 		else if ( node.isTagIn(new String[] {XmlRef.reaction}) && 
 				node.getRequirment() == Requirements.IMMUTABLE)
 		{
@@ -250,6 +253,7 @@ public class GuiEditor
 		}
 		else if ( node.areRequirements(Requirements.ZERO_TO_MANY) )
 		{
+			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
 			/* species, agents, TODO: changes to spinner */
 			GuiComponent.addTab( (JTabbedPane) 
 					parent.getParent().getParent().getParent(), 

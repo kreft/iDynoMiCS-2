@@ -109,12 +109,7 @@ public final class GuiMenu
 		
 		public void actionPerformed(ActionEvent e)
 		{
-//			GuiActions.newFile();
 			Idynomics.simulator = new Simulator();
-			GuiSimConstruct.togglePane(GuiSimConstruct.SIMULATORPANE);
-			GuiSimConstruct.tabEnabled(GuiSimConstruct.SIMULATORPANE, true);
-			GuiSimConstruct.tabEnabled(GuiSimConstruct.COMPARTMENTPANE, true);
-			GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, true);
 		}
 	}
 	

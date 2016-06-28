@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import linearAlgebra.Vector;
+import spatialRegistry.splitTree.SplitTree.Area;
 
 /**
  * First version of nDimensional tree, behaves like quadtree in 2d and octree in
@@ -27,7 +28,7 @@ public class SplitTree
 	
 	static int _maxEntries;
 	
-	static boolean[] _periodic; //TODO
+	boolean[] _periodic; 
 	
 	public SplitTree(int dimensions, int min, int max, 
 			double[] low, double[] high, boolean[] periodic)
@@ -36,7 +37,8 @@ public class SplitTree
 		_dimensions = dimensions;
 		_minEntries = min;
 		_maxEntries = max;
-		this.node = new Node(low, high, true, this);
+		_periodic = periodic;
+		this.node = new Node(low, high, true, this, periodic);
 	}
 	
 	public SplitTree(int dimensions, int min, int max, boolean[] periodic)
@@ -80,7 +82,7 @@ public class SplitTree
 		for ( boolean[] b : leaf.combinations())
 		{
 			newNode = new Node( leaf.corner(leaf.low, leaf.splits(), b), 
-					leaf.corner(leaf.splits(), leaf.high, b), true, this);
+					leaf.corner(leaf.splits(), leaf.high, b), true, this, this._periodic);
 			newNode.add(leaf.allLocal());
 			childNodes.add(newNode);
 		}
@@ -124,17 +126,19 @@ public class SplitTree
 
 		private LinkedList<Area> _entries = new LinkedList<Area>();
 		
-		private Outside _outTest = this.new Outside();
+		private Predicate<Area> _outTest;
 		
 		private SplitTree _tree;
 
-		public Node(double[] low, double[] high, 
-				boolean isLeaf, SplitTree tree)
+		public Node(double[] low, double[] high, boolean isLeaf, SplitTree tree,
+				boolean[] periodic)
 		{
 			this.low = low;
 			this.high = high;
 			this._leafNode = isLeaf;
 			this._tree = tree;
+			this._outTest = (periodic == null ? this.new OutsideNormal() :
+				this.new OutsidePeriodic(periodic));
 		}
 		
 		public List<Entry> find(Area area) 
@@ -348,12 +352,17 @@ public class SplitTree
 			}
 		}
 		
-		public class Outside implements Predicate<Area> 
+		/**
+		 * 
+		 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+		 *
+		 */
+		public class OutsideNormal implements Predicate<Area> 
 		{
-
 			@Override
 			public boolean test(Area area) 
 			{
+				/* periodic not set is all normal */
 				for (int i = 0; i < _dimensions; i++)
 				{
 					if ( area.low()[i] > high[i] || 
@@ -361,6 +370,55 @@ public class SplitTree
 						return true;
 				}
 				return false;
+			}
+		}
+		
+		/**
+		 * 
+		 * Note Nodes are not allowed to wrap around the periodic boundaries 
+		 * (on the other side of the boundary a new node should start)
+		 * 
+		 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+		 *
+		 */
+		public class OutsidePeriodic implements Predicate<Area> 
+		{
+			private boolean[] _periodic;
+			
+			public OutsidePeriodic(boolean[] periodic)
+			{
+				this._periodic = periodic;
+			}
+			
+			@Override
+			public boolean test(Area area) 
+			{
+				/* periodic set use the more expensive periodic check */
+				for (int i = 0; i < _dimensions; i++)
+					if ( periodic(area, i) )
+						return true;
+				return false;
+						
+			}
+			
+			private boolean normal(Area area, int dim)
+			{
+				return ( area.low()[dim] > high[dim] || 
+						area.high()[dim] < low[dim] );
+			}
+			
+			private boolean periodic(Area area, int dim)
+			{
+				/* if dim is not periodic */
+				if ( !_periodic[dim] ) 
+					return this.normal(area, dim);
+				/* if area does not wrap around boundary */
+				else if ( area.low()[dim] < area.high()[dim] ) 
+					return this.normal(area, dim);
+				/* else periodic evaluation */
+				else
+					return ( area.low()[dim] < high[dim] || 
+							area.high()[dim] > low[dim] );		
 			}
 		}
 

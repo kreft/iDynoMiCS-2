@@ -740,7 +740,7 @@ public class SpatialGrid implements NodeConstructor
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.solute, this);
-		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		modelNode.setTitle(this._name);
 		

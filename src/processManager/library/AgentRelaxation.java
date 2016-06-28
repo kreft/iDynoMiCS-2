@@ -36,13 +36,13 @@ import utility.Helper;
  */
 public class AgentRelaxation extends ProcessManager
 {
-	public static String SEARCH_DIST = AspectRef.collisionSearchDistance;
-	public static String PULL_EVALUATION = AspectRef.collisionPullEvaluation;
-	public static String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
-	public static String RELAXATION_METHOD = AspectRef.collisionRelaxationMethod;
+	public String SEARCH_DIST = AspectRef.collisionSearchDistance;
+	public String PULL_EVALUATION = AspectRef.collisionPullEvaluation;
+	public String CURRENT_PULL_DISTANCE = AspectRef.collisionCurrentPullDistance;
+	public String RELAXATION_METHOD = AspectRef.collisionRelaxationMethod;
 	
-	public static String BASE_DT = AspectRef.collisionBaseDT;
-	public static String MAX_MOVEMENT = AspectRef.collisionMaxMOvement;
+	public String BASE_DT = AspectRef.collisionBaseDT;
+	public String MAX_MOVEMENT = AspectRef.collisionMaxMOvement;
 	
 	public String BODY = AspectRef.agentBody;
 	public String RADIUS = AspectRef.bodyRadius;

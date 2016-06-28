@@ -211,7 +211,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @return a list of objects whose rectangles overlap with the given
 	 *         rectangle.
 	 */
-	public synchronized List<T> cyclicsearch(double[] coords, double[] dimensions)  {
+	public List<T> cyclicsearch(double[] coords, double[] dimensions)  {
 		LinkedList<T> combinedlist = new LinkedList<T>();
 		LinkedList<double[]> boxList = this._shape.getCyclicPoints(coords);
 

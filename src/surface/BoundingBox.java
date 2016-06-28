@@ -19,6 +19,11 @@ public class BoundingBox
 	/**
 	 * TODO
 	 */
+	protected double[] _higher;
+	
+	/**
+	 * TODO
+	 */
 	protected double[] _lower;
 	
 	/*************************************************************************
@@ -36,8 +41,9 @@ public class BoundingBox
 	public BoundingBox(double[][] p, double radius, double margin)
 	{
 		double size = radius + margin;
-		this._dimensions = dimensions(p, size);
+		this._higher = upper(p,size);
 		this._lower = lower(p, size);
+		this._dimensions = dimensions(p, size);
 	}
 	
 	/**
@@ -84,10 +90,23 @@ public class BoundingBox
 		this._lower = lower;
 	}
 	
+	/**
+	 * \ Construct a bounding box directly from lower and upper corner
+	 * @param lower
+	 * @param upper
+	 * @param b
+	 */
+	public BoundingBox(double[] lower, double[] upper, boolean b) 
+	{
+		this._lower = lower;
+		this._higher = upper;
+		this._dimensions = Vector.minus(upper, lower);
+	}
+	
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
 	 ************************************************************************/
-	
+
 	/**
 	 * return the box as report string
 	 * @return
@@ -213,5 +232,15 @@ public class BoundingBox
 		if ( points.length == 1 )
 			return Vector.vector(points[0].length, 2 * radius);
 		return Vector.minus(upper(points, radius), lower(points, radius));
+	}
+	
+	/**
+	 * returns the rib lengths of the bounding box
+	 * @param radius
+	 * @return dimensions of the bounding box
+	 */
+	private static double[] dimensions(double[] lower, double[] upper) 
+	{
+		return Vector.minus(upper, lower);
 	}
 }
