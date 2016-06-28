@@ -170,7 +170,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
-					<spawn number="10.0" domain="50.0,50.0" />
+					<spawn number="1" domain="50.0,50.0" />
 				</agent>   -->
 			</agents>
 			<processManagers>
