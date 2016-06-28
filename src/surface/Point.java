@@ -126,6 +126,11 @@ public class Point implements Copyable, NodeConstructor
 		Vector.reset(this._f);
 	}
 
+	/**
+	 * \brief TODO
+	 * 
+	 * @param forceToAdd
+	 */
 	public void addToForce(double[] forceToAdd)
 	{
 		Vector.addEquals(this._f, forceToAdd);

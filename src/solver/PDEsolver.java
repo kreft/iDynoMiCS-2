@@ -1,12 +1,15 @@
 package solver;
 
 import java.util.Collection;
+import java.util.LinkedList;
+
 import dataIO.Log;
 import dataIO.Log.Tier;
 
 import static dataIO.Log.Tier.*;
 import static grid.ArrayType.*;
 
+import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
 import shape.Shape;
@@ -48,6 +51,35 @@ public abstract class PDEsolver extends Solver
 			SpatialGrid commonGrid, double tFinal);
 	
 	/**
+	 * \brief TODO
+	 * 
+	 * @param solute
+	 * @param commonGrid
+	 */
+	public void solveToConvergence(SpatialGrid solute, SpatialGrid commonGrid)
+	{
+		/*
+		 * 
+		 */
+		double tStep = 1.0;
+		double maxAbsDiff = 1.0E-3;
+		int maxIter = 1000;
+		/*
+		 * 
+		 */
+		double[][][] oldArray = solute.getArray(ArrayType.CONCN);
+		double absDiff = Double.MAX_VALUE;
+		/* Package the single variable grid into a collection. */
+		Collection<SpatialGrid> variables = new LinkedList<SpatialGrid>();
+		variables.add(solute);
+		for ( int i = 0; i < maxIter && absDiff > maxAbsDiff; i++ )
+		{
+			this.solve(variables, commonGrid, tStep);
+			absDiff = solute.getTotalAbsDiffWith(oldArray, ArrayType.CONCN);
+		}
+	}
+	
+	/**
 	 * \brief Add the Laplacian Operator to the LOPERATOR array of the given
 	 * grid.
 	 * 
@@ -63,7 +95,7 @@ public abstract class PDEsolver extends Solver
 	 * @param commonGrid
 	 * @param destType
 	 */
-	protected void addFluxRates(SpatialGrid grid, SpatialGrid commonGrid)
+	protected void applyDiffusion(SpatialGrid grid, SpatialGrid commonGrid)
 	{
 		Tier level = BULK;
 		Shape shape = grid.getShape();
@@ -96,16 +128,26 @@ public abstract class PDEsolver extends Solver
 				 * take a note of the flux (for connections with other
 				 * compartments).
 				 */
-				nbhFlux = grid.getFlowFromNeighbor();
+				nbhFlux = grid.getDiffusionFromNeighbor();
 				
 				/*
 				 * If this flux came from a well-mixed voxel, inform the grid.
+				 * Alternatively, if it came from a well-mixed boundary, inform
+				 * the grid.
 				 */
-				if ( shape.isNhbIteratorInside() && commonGrid != null )
+				if ( shape.isNhbIteratorInside() )
 				{
 					// TODO this should really be > some threshold
-					if ( commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
-						grid.increaseWellMixedFlux( - nbhFlux );
+					if ( commonGrid != null && 
+							commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
+					{
+						this.increaseWellMixedFlow(grid.getName(), - nbhFlux);
+					}
+				}
+				else if ( shape.isNbhIteratorValid() )
+				{
+					if ( shape.nbhIteratorOutside().needsToUpdateWellMixed() )
+						this.increaseWellMixedFlow(grid.getName(), - nbhFlux);
 				}
 				totalFlux += nbhFlux;
 				/* 
@@ -116,7 +158,6 @@ public abstract class PDEsolver extends Solver
 				{
 					if ( shape.isNhbIteratorInside() )
 					{
-
 						Log.out(level, 
 								"   nhb "+Vector.toString(nhb)+
 								" ("+grid.getValueAtNhb(CONCN)+") "+
@@ -148,4 +189,24 @@ public abstract class PDEsolver extends Solver
 			grid.addValueAt(LOPERATOR, current, changeRate);
 		}
 	}
+	
+	/* ***********************************************************************
+	 * WELL-MIXED CHANGES
+	 * **********************************************************************/
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @return
+	 */
+	protected abstract double getWellMixedFlow(String name);
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param name
+	 * @param flow
+	 */
+	protected abstract void increaseWellMixedFlow(String name, double flow);
 }

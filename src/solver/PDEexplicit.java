@@ -4,6 +4,8 @@
 package solver;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -20,6 +22,12 @@ import grid.SpatialGrid;
  */
 public class PDEexplicit extends PDEsolver
 {
+	/**
+	 * 
+	 */
+	protected Map<String,Double> _wellMixedChanges = 
+			new HashMap<String,Double>();
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -82,7 +90,7 @@ public class PDEexplicit extends PDEsolver
 				if ( Log.shouldWrite(level) )
 					Log.out(level, " Variable: "+var.getName());
 				var.newArray(LOPERATOR);
-				this.addFluxRates(var, commonGrid);
+				this.applyDiffusion(var, commonGrid);
 				if ( Log.shouldWrite(level) )
 				{
 					Log.out(level, "  Total value of fluxes: "+
@@ -112,5 +120,46 @@ public class PDEexplicit extends PDEsolver
 					var.makeNonnegative(CONCN);
 			}
 		}
+		/*
+		 * Now scale the well-mixed flow rates and apply them to the grid.
+		 * Here, we can simply divide by the number of iterations, since they
+		 * were all of equal time length.
+		 */
+		double totalFlow, scaledFlow;
+		for ( SpatialGrid var : variables )
+		{
+			totalFlow = this.getWellMixedFlow(var.getName());
+			scaledFlow = totalFlow / nIter;
+			var.increaseWellMixedMassFlow(scaledFlow);
+			this.resetWellMixedFlow(var.getName());
+		}
+	}
+	
+	/* ***********************************************************************
+	 * WELL-MIXED CHANGES
+	 * **********************************************************************/
+	
+	@Override
+	protected double getWellMixedFlow(String name)
+	{
+		if ( this._wellMixedChanges.containsKey(name) )
+			return this._wellMixedChanges.get(name);
+		return 0.0;
+	}
+	
+	@Override
+	protected void increaseWellMixedFlow(String name, double flow)
+	{
+		this._wellMixedChanges.put(name, flow + this.getWellMixedFlow(name));
+	}
+	
+	/**
+	 * \brief Reset the well-mixed flow tally for the given variable.
+	 * 
+	 * @param name Variable name.
+	 */
+	protected void resetWellMixedFlow(String name)
+	{
+		this._wellMixedChanges.put(name, 0.0);
 	}
 }

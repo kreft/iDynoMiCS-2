@@ -43,16 +43,10 @@ public class BiofilmMembraneGas extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public double getFlow(SpatialGrid grid)
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
 		// TODO Auto-generated method stub
 		return 0.0;
-	}
-
-	@Override
-	public void updateConcentrations()
-	{
-
 	}
 	
 	@Override
@@ -74,6 +68,12 @@ public class BiofilmMembraneGas extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
+	@Override
 	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
@@ -82,6 +82,6 @@ public class BiofilmMembraneGas extends SpatialBoundary
 					"Unexpected: agents arriving at a membrane!");
 		}
 		this.placeAgentsRandom();
-		this.clearArrivalsLoungue();
+		this.clearArrivalsLounge();
 	}
 }

@@ -17,7 +17,7 @@ import utility.ExtraMath;
 public abstract class PolarShape extends Shape
 {
 	/**
-	 * tolerance when comparing polar angles for equality
+	 * Tolerance when comparing polar angles for equality (in radians).
 	 */
 	public final static double POLAR_ANGLE_EQ_TOL = 1e-6;
 	

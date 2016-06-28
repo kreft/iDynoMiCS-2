@@ -69,9 +69,9 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	
 	private long _realTimeTaken = 0;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Initialise the process from XML protocol file, plus the relevant
@@ -166,9 +166,9 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	}
 
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * ***********************************************************************/
 	
 	/**
 	 * \brief Return the aspect registry (implementation of aspect interface).

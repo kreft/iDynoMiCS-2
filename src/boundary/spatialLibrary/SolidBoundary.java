@@ -25,6 +25,7 @@ public class SolidBoundary extends SpatialBoundary
 	public SolidBoundary(DimName dim, int extreme)
 	{
 		super(dim, extreme);
+		this._detachability = 0.0;
 	}
 
 	/* ***********************************************************************
@@ -46,13 +47,7 @@ public class SolidBoundary extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations()
-	{
-		/* Do nothing! */
-	}
-
-	@Override
-	public double getFlow(SpatialGrid grid)
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
 		/*
 		 * No matter what the concentration of the grid voxel, there is no
@@ -78,6 +73,12 @@ public class SolidBoundary extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
+	@Override
 	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
@@ -86,6 +87,6 @@ public class SolidBoundary extends SpatialBoundary
 					"Unexpected: agents arriving at a solid boundary!");
 		}
 		this.placeAgentsRandom();
-		this.clearArrivalsLoungue();
+		this.clearArrivalsLounge();
 	}
 }

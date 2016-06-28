@@ -1,15 +1,10 @@
 package agent;
 
-import java.awt.event.ActionEvent;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import agent.Species.SpeciesMaker;
 import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
@@ -17,10 +12,6 @@ import dataIO.Log.Tier;
 import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelMaker.Requirement;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
@@ -31,7 +22,7 @@ import nodeFactory.ModelNode.Requirements;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
+public class SpeciesLib implements Instantiatable, NodeConstructor
 {
 	/**
 	 * Contains all known species.
@@ -173,48 +164,14 @@ public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 	{
 		return "Species Library";
 	}
-
-	public List<InputSetter> getRequiredInputs()
-	{
-		// TODO implement species
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new SpeciesMaker(Requirement.ZERO_TO_MANY, this));
-		return out;
-	}
-
-	public void acceptInput(String name, Object input)
-	{
-		if ( input instanceof Species )
-		{
-			this._species.put(name, (Species) input);
-			// TODO void species?
-		}
-	}
-
-	public static class SpeciesLibMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -6601262340075573910L;
-
-		public SpeciesLibMaker(Requirement req, IsSubmodel target)
-		{
-			super("species library", req, target);
-		}
-
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			System.out.println("Making speciesLib");
-			this.addSubmodel(new SpeciesLib());
-		}
-	}
-
+	
 	/**
 	 * Get the ModelNode object for this NodeConstructor object
 	 * @return ModelNode
 	 */
 	@Override
-	public ModelNode getNode() {
-
+	public ModelNode getNode()
+	{
 		/* the species lib node */
 		ModelNode modelNode = new ModelNode(XmlRef.speciesLibrary, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
@@ -235,7 +192,8 @@ public class SpeciesLib implements IsSubmodel, Instantiatable, NodeConstructor
 	 * @return NodeConstructor
 	 */
 	@Override
-	public NodeConstructor newBlank() {
+	public NodeConstructor newBlank()
+	{
 		return Idynomics.simulator.speciesLibrary;
 	}
 

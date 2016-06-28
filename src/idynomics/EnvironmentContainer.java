@@ -1,7 +1,5 @@
 package idynomics;
 
-import static dataIO.Log.Tier.BULK;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,14 +35,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 */
 	protected Shape _shape;
 	/**
-	 * Grid of common attributes, such as well-mixed.
-	 */
-	protected SpatialGrid _commonGrid;
-	/**
-	 * Name of the common grid.
-	 */
-	public final static String COMMON_GRID_NAME = "common";
-	/**
 	 * Collection of solutes (each SpatialGrid knows its own name).
 	 */
 	protected Collection<SpatialGrid> _solutes = new LinkedList<SpatialGrid>();
@@ -52,6 +42,14 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * Collection of extracellular reactions (each Reaction knows its own name).
 	 */
 	protected Collection<Reaction> _reactions = new LinkedList<Reaction>();
+	/**
+	 * Name of the common grid.
+	 */
+	public final static String COMMON_GRID_NAME = "common";
+	/**
+	 * Grid of common attributes, such as well-mixed.
+	 */
+	protected SpatialGrid _commonGrid;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -65,7 +63,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	public EnvironmentContainer(Shape aShape)
 	{
 		this._shape = aShape;
-		this._commonGrid = new SpatialGrid(this.getShape(), COMMON_GRID_NAME, this);
 	}
 	
 	public void addSolute(SpatialGrid solute)
@@ -271,13 +268,62 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 */
 	public void updateSoluteBoundaries()
 	{
-		Tier level = BULK;
+		Tier level = Tier.DEBUG;
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "Updating solute boundaries...");
 		for ( Boundary b : this._shape.getAllBoundaries() )
-			b.updateConcentrations();
+			b.updateMassFlowRates();
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " All solute boundaries now updated");
+	}
+	
+	/**
+	 * \brief Mass flows to/from the well-mixed region (if it exists)
+	 * accumulate during diffusion methods when solving PDEs. Here, we
+	 * distribute these flows among the relevant spatial boundaries.
+	 */
+	public void distributeWellMixedFlows()
+	{
+		/* Find all relevant boundaries. */
+		Collection<SpatialBoundary> boundaries = 
+				this._shape.getWellMixedBoundaries();
+		/* If there are none, then we have nothing more to do. */
+		if ( boundaries.isEmpty() )
+			return;
+		/*
+		 * If there is just one well-mixed boundary, then simply transfer the
+		 * flow over from each grid to the boundary. Once this is done, finish.
+		 */
+		if ( boundaries.size() == 1 )
+		{
+			Boundary b = boundaries.iterator().next();
+			for ( SpatialGrid solute : this._solutes )
+			{
+				b.increaseMassFlowRate(solute.getName(), 
+						solute.getWellMixedMassFlow());
+				solute.resetWellMixedMassFlow();
+			}
+			return;
+		}
+		/*
+		 * If there are multiple well-mixed boundaries, then distribute the
+		 * mass flows according to their share of the total surface area.
+		 */
+		double totalArea = 0.0;
+		for ( SpatialBoundary boundary : boundaries )
+			totalArea += boundary.getTotalSurfaceArea();
+		double scaleFactor;
+		for ( SpatialBoundary boundary : boundaries )
+		{
+			scaleFactor = boundary.getTotalSurfaceArea()/totalArea;
+			for ( SpatialGrid solute : this._solutes )
+			{
+				boundary.increaseMassFlowRate(solute.getName(), 
+						solute.getWellMixedMassFlow() * scaleFactor);
+			}
+		}
+		for ( SpatialGrid solute : this._solutes )
+			solute.resetWellMixedMassFlow();
 	}
 	
 	/* ***********************************************************************
@@ -289,6 +335,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 */
 	public SpatialGrid getCommonGrid()
 	{
+		if ( this._commonGrid == null )
+		{
+			this._commonGrid = 
+					new SpatialGrid(this._shape, COMMON_GRID_NAME, this);
+		}
 		return this._commonGrid;
 	}
 	
@@ -298,24 +349,18 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	public void updateWellMixed()
 	{
 		/*
-		 * Reset the well-mixed array for this environment. If none of the
+		 * Reset the well-mixed array for this shape. If none of the
 		 * boundaries need it to be updated, it will be full of zeros (i.e.
 		 * nowhere is well-mixed).
 		 */
-		this._commonGrid.newArray(ArrayType.WELLMIXED);
+		this.getCommonGrid().newArray(ArrayType.WELLMIXED);
 		/*
 		 * Check if any of the boundaries need to update the well-mixed array.
 		 * If none do, then there is nothing more to do.
 		 */
-		Collection<SpatialBoundary> bndrs = this._shape.getSpatialBoundaries();
-		boolean shouldUpdate = false;
-		for ( SpatialBoundary b: bndrs )
-			if ( b.needsPartner() )
-			{
-				shouldUpdate = true;
-				break;
-			}
-		if ( ! shouldUpdate )
+		Collection<SpatialBoundary> bndrs = 
+				this.getShape().getWellMixedBoundaries();
+		if ( bndrs.isEmpty() )
 			return;
 		/*
 		 * At least one of the boundaries need to update the well-mixed array,

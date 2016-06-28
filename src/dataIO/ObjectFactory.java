@@ -21,7 +21,6 @@ import aspect.Calculated;
 import aspect.Event;
 import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
-import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;

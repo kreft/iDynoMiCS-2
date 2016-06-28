@@ -439,7 +439,14 @@ public final class Vector
 		return vector;
 	}
 	
-	// TODO
+	/**
+	 * \brief Set all elements of the given <b>vector</b> to the boolean
+	 * <b>value</b> given.
+	 * 
+	 * @param vector One-dimensional array of booleans (overwritten).
+	 * @param value	boolean value to use.
+	 * @return	Given <b>vector</b>, with all elements set to <b>value</b>.
+	 */
 	public static boolean[] setAll(boolean[] vector, boolean value)
 	{
 		for ( int i = 0; i < vector.length; i++ )
@@ -1750,17 +1757,36 @@ public final class Vector
 	}
 	
 	/**
-	 *  \brief TODO
-	 * @param vector
-	 * @param appendable
-	 * @return
+	 * \brief Append a value to the end of a vector, writing the result into a
+	 * new vector.
+	 * 
+	 * @param vector One-dimensional array of integers (preserved).
+	 * @param value New number to append to the end of this vector.
+	 * @return New one-dimensional array of integers.
 	 */
-	public static double[] appendDouble(double[] vector, double appendable)
+	public static int[] append(int[] vector, int value)
+	{
+		int[] out = new int[vector.length+1];
+		for (int i = 0; i < vector.length; i++)
+			out[i] = vector[i];
+		out[vector.length] = value;
+		return out;
+	}
+	
+	/**
+	 * \brief Append a value to the end of a vector, writing the result into a
+	 * new vector.
+	 * 
+	 * @param vector One-dimensional array of doubles (preserved).
+	 * @param value New number to append to the end of this vector.
+	 * @return New one-dimensional array of doubles.
+	 */
+	public static double[] append(double[] vector, double value)
 	{
 		double[] out = new double[vector.length+1];
 		for (int i = 0; i < vector.length; i++)
 			out[i] = vector[i];
-		out[vector.length] = appendable;
+		out[vector.length] = value;
 		return out;
 	}
 	

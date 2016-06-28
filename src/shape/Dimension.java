@@ -15,7 +15,6 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import surface.Surface;
 import nodeFactory.ModelNode.Requirements;
-import shape.Dimension.DimName;
 import utility.ExtraMath;
 import utility.Helper;
 

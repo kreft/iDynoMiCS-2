@@ -27,22 +27,7 @@ public class ChemostatToBoundaryLayer extends Boundary
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
-
-	@Override
-	public void updateConcentrations()
-	{
-		double chemoConcn, biofilmConcn;
-		for ( String name : this._environment.getSoluteNames() )
-		{
-			/* */
-			biofilmConcn = this._partner.getConcentration(name);
-			this.setConcentration(name, biofilmConcn);
-			/* */
-			chemoConcn = this._environment.getAverageConcentration(name);
-			this._partner.setConcentration(name, chemoConcn);
-		}
-	}
-
+	
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/

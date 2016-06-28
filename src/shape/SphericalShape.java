@@ -7,7 +7,6 @@ import static shape.Shape.WhereAmI.INSIDE;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
 import dataIO.Log;
-import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -17,6 +16,12 @@ import utility.ExtraMath;
 
 public abstract class SphericalShape extends PolarShape
 {
+	/**
+	 * The value of 1/3. Division is computationally costly, so calculate this
+	 * once.
+	 */
+	private final static double ONE_THIRD = (1.0/3.0);
+	
 	/**
 	 * Collection of resolution calculators for each dimension.
 	 */
@@ -84,15 +89,90 @@ public abstract class SphericalShape extends PolarShape
 	 * **********************************************************************/
 	
 	@Override
-	public double[] getLocalPosition(double[] location)
+	public double getTotalVolume()
 	{
-		return Vector.spherify(location);
+		/*
+		 * Volume of a complete sphere: (4/3) pi * r^3
+		 * (2/3) * theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^3 - rMin^3
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getExtreme(0);
+		double rMax = r.getExtreme(1);
+		double thetaLength = this.getDimension(THETA).getLength();
+		/*
+		 * 
+		 */
+		double sphereFactor = 2.0 * ONE_THIRD * thetaLength;
+		double volMax = sphereFactor * ExtraMath.cube(rMax);
+		double volMin = sphereFactor * ExtraMath.cube(rMin);
+		/*
+		 * The tricky bit if for non-standard values of phi:
+		 */
+		Dimension phi = this.getDimension(PHI);
+		double phiMin = phi.getExtreme(0);
+		
+		if ( phiMin <= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMin);
+			volMin -= volConeCap(rMin, thetaLength, phiMin);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMin);
+			volMin = volConeCap(rMin, thetaLength, phiMin);
+		}
+		double phiMax = phi.getExtreme(1);
+		if ( phiMax >= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMax);
+			volMin -= volConeCap(rMin, thetaLength, phiMax);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMax) - volMax;
+			volMin = volConeCap(rMin, thetaLength, phiMax) - volMin;
+		}
+		return volMax - volMin;
+	}
+	
+	private static final double volConeCap(double r, double theta, double phi)
+	{
+		/* No point doing the calculation if we know it will be zero. */
+		if ( r == 0.0 )
+			return 0.0;
+		/* If this is a hemisphere, the result is easy to calculate. */
+		if ( phi == 0.0 )
+			return theta * ONE_THIRD * ExtraMath.cube(r);
+		/*
+		 * h is the distance from the center of the sphere, along the axis, to
+		 * where the cone and cap meet.
+		 * 
+		 * The volume of a cone is (pi/3) * r^2 * h
+		 * http://mathworld.wolfram.com/Cone.html
+		 * 
+		 * The volume of a spherical cap is pi * h^2 * ( r - h/3)
+		 * http://mathworld.wolfram.com/SphericalCap.html
+		 */
+		double sinPhi = Math.sin(phi);
+		double h = r * ( 1.0 - sinPhi );
+		double cone = ExtraMath.sq(r) * h * ONE_THIRD;
+		double cap = ExtraMath.sq(h) * (r - (ONE_THIRD * h) );
+		/* If theta is 2 pi (i.e. a full circle), then theta/2 will be pi */
+		return 0.5 * theta * ( cap + cone );
 	}
 	
 	@Override
-	public double[] getGlobalLocation(double[] local)
+	public void getLocalPositionTo(double[] destination, double[] location)
 	{
-		return Vector.unspherify(local);
+		Vector.spherifyTo(destination, location);
+	}
+	
+	@Override
+	public void getGlobalLocationTo(double[] destination, double[] local)
+	{
+		Vector.unspherifyTo(destination, local);
 	}
 	
 	/* ***********************************************************************
@@ -234,7 +314,6 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	public double getBoundarySurfaceArea(DimName dimN, int extreme)
 	{
-		Tier level = Tier.BULK;
 		switch( dimN )
 		{
 		case R:
