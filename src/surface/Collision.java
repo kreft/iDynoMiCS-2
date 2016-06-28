@@ -344,7 +344,7 @@ public class Collision
 	 */
 	public boolean areColliding(Surface a, Surface b, double margin)
 	{
-		return ( this.distance( a, b, margin ) < 0.0 );
+		return ( this.distance( a, b ) < margin );
 	}
 	
 	/**
