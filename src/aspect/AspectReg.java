@@ -433,7 +433,7 @@ public class AspectReg
 		public ModelNode getNode() 
 		{
 			ModelNode modelNode = new ModelNode(XmlRef.aspect, this);
-			modelNode.setRequirements(Requirements.ZERO_TO_FEW);
+			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 			modelNode.setTitle(this.key);
 			
 			modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 

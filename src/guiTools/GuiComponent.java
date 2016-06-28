@@ -28,7 +28,6 @@ public class GuiComponent {
 		/* The tabs pane */
 		addTab(pane, "console", GuiConsole.getConsole(),
               "The Console");
-
 		pane.setTabPlacement(JTabbedPane.LEFT);
 		return pane;
 		
