@@ -50,16 +50,14 @@
 			<species name="coccoid">
 				<aspect name="density" type="PRIMARY" class="Double" value="1" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
-				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
-
-
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
-				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
-				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,specGrowthRate" 	 />
-				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"			input="mass,radius,body" 	 />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth" />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
 
-				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
 				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.0"  />
 			</species>
@@ -74,14 +72,14 @@
 				<aspect name="density" type="PRIMARY" class="Double" value="1" />
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
-				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
 
 
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
-				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
 
-				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
 				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.1"  />
 			</species>
@@ -105,13 +103,13 @@
 					</aspect>
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
 					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
-					<spawn number="5.0" domain="30.0,0.2" />
+					<spawn number="5" domain="30.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species2" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
-					<spawn number="5.0" domain="30.0,0.2" />
+					<spawn number="5" domain="30.0,0.2" />
 				</agent>
 			</agents>
 			<processManagers>

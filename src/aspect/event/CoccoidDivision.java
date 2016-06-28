@@ -70,12 +70,6 @@ public class CoccoidDivision extends Event
 	 * this event, in case agents have grown a lot between time steps.
 	 */
 	public String DIVIDE = AspectRef.agentDivide;
-	
-	// TODO delete?
-	public CoccoidDivision()
-	{
-		setInput("mass,radius,body");
-	}
 
 	@Override
 	public void start(AspectInterface initiator,

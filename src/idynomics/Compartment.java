@@ -1,5 +1,6 @@
 package idynomics;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -16,6 +17,7 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
+import dataIO.ObjectFactory;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
 import grid.*;
@@ -28,6 +30,7 @@ import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import shape.Shape;
+import utility.Helper;
 import shape.Dimension.DimName;
 
 /**
@@ -112,6 +115,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		this.name = name;
 	}
 	
+	public void remove(Object object)
+	{
+		if ( object instanceof ProcessManager )
+			this._processes.remove(object);
+	}
+	
 	public NodeConstructor newBlank()
 	{
 		Compartment newComp = new Compartment();
@@ -134,7 +143,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	
 	/**
 	 * \brief TODO
-	 * 
+	 * FIXME only used by unit tests
 	 * @param shapeName
 	 */
 	public void setShape(String shapeName)
@@ -146,121 +155,52 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	/**
 	 * \brief Initialise this {@code Compartment} from an XML node. 
 	 * 
+	 * TODO diffusivity
 	 * @param xmlElem An XML element from a protocol file.
 	 */
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
 		Tier level = Tier.EXPRESSIVE;
-		Element elem;
-		String str = null;
+		/*
+		 * Compartment initiation
+		 */
+		this.name = XmlHandler.obtainAttribute(
+				xmlElem, XmlRef.nameAttribute, XmlRef.compartment);
+		Idynomics.simulator.addCompartment(this);
 		/*
 		 * Set up the shape.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
-		str = XmlHandler.obtainAttribute(elem, XmlRef.classAttribute);
-		this.setShape( (Shape) Shape.getNewInstance(str) );
-		this._shape.init( elem );
-		
+		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
+		String str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
+		this.setShape( (Shape) Shape.getNewInstance(
+				str, elem, (NodeConstructor) this) );
 		/*
-		 * Give it solutes.
-		 * NOTE: wouldn't we want to pass initial grid values to? It would also
-		 * be possible for the grids to be Xmlable
+		 * Load solutes.
 		 */
 		Log.out(level, "Compartment reading in solutes");
-		NodeList solutes = XmlHandler.getAll(xmlElem, XmlRef.solute);
-		for ( int i = 0; i < solutes.getLength(); i++)
-		{
-			Element soluteE = (Element) solutes.item(i);
-			String soluteName = XmlHandler.obtainAttribute(soluteE, 
-					XmlRef.nameAttribute);
-			String conc = XmlHandler.obtainAttribute((Element) solutes.item(i), 
-					XmlRef.concentration);
-			this.addSolute(soluteName);
-			this.getSolute(soluteName).setTo(ArrayType.CONCN, conc);
-			
-
-			SpatialGrid myGrid = this.getSolute(soluteName);
-			NodeList voxelvalues = XmlHandler.getAll(solutes.item(i), 
-					XmlRef.voxel);
-			for (int j = 0; j < voxelvalues.getLength(); j++)
-			{
-				myGrid.setValueAt(ArrayType.CONCN, Vector.intFromString(
-						XmlHandler.obtainAttribute((Element) voxelvalues.item(j)
-						, XmlRef.coordinates) ) , Double.valueOf( XmlHandler
-						.obtainAttribute((Element) voxelvalues.item(j), 
-						XmlRef.valueAttribute) ));
-			}
-		}
-			
-			// TODO diffusivity
-			// TODO initial value
-		
+		for ( Element e : XmlHandler.getElements(xmlElem, XmlRef.solute))
+			this.environment.addSolute( new SpatialGrid( e, this.environment) );
 		/*
-		 * Give it extracellular reactions.
+		 * Load extra-cellular reactions.
 		 */
 		Log.out(level, "Compartment reading in (environmental) reactions");
-		elem = XmlHandler.loadUnique(xmlElem, XmlRef.reactions);
-		Element rElem;
-		Reaction reac;
-		if ( elem != null )
-		{
-			NodeList reactions = XmlHandler.getAll(elem, XmlRef.reaction);
-			for ( int i = 0; i < reactions.getLength(); i++ )
-			{
-				rElem = (Element) reactions.item(i);
-				/* Construct and intialise the reaction. */
-				reac = (Reaction) Reaction.getNewInstance(rElem);
-				reac.init(rElem);
-				/* Add it to the environment. */
-				this.environment.addReaction(reac);
-			}
-				
-		}
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.reaction) )
+			this.environment.addReaction( new Reaction(	e, this.environment) );	
 		/*
 		 * Read in agents.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlRef.agents);
-		if ( elem == null )
-		{
-			Log.out(Tier.EXPRESSIVE,
-					"Compartment "+this.name+" initialised without agents");
-		}
-		else
-		{
-			NodeList agents = elem.getElementsByTagName(XmlRef.agent);
-			this.agents.readAgents(agents, this);
-			this.agents.setAllAgentsCompartment(this);
-			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
-							" initialised with "+agents.getLength()+" agents");
-			
-		}
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.agent) )
+			this.addAgent(new Agent( e, this ));
+		Log.out(level, "Compartment "+this.name+" initialised with "+ 
+				this.agents.getNumAllAgents()+" agents");
 		/*
 		 * Read in process managers.
 		 */
-		elem = XmlHandler.loadUnique(xmlElem, XmlRef.processManagers);
-		Element procElem;
-		if ( elem == null )
-		{
-			Log.out(Tier.CRITICAL, "Compartment "+this.name+
-									" initialised without process managers");
-		}
-		else
-		{
-			ProcessManager pm;
-			NodeList processNodes = elem.getElementsByTagName(XmlRef.process);
-			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
-									" initialised with process managers:");
-			for ( int i = 0; i < processNodes.getLength(); i++ )
-			{
-				procElem = (Element) processNodes.item(i);
-				str = XmlHandler.gatherAttribute(procElem,
-													XmlRef.nameAttribute);
-				Log.out(Tier.EXPRESSIVE, "\t"+str);
-				pm = ProcessManager.getNewInstance(procElem, this.environment, 
-						this.agents, this.getName());
-				this.addProcessManager(pm);
-			}
-		}
+		Log.out(level,"Compartment "+this.name+ " loading "+XmlHandler.
+				getElements(xmlElem, XmlRef.process).size()+" processManagers");
+		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.process) )
+			this.addProcessManager(ProcessManager.getNewInstance(e, 
+					this.environment, this.agents, this.getName()));
 	}
 		
 	
@@ -325,25 +265,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		// TODO Rob [18Apr2016]: Check if the process's next time step is 
 		// earlier than the current time.
 		Collections.sort(this._processes, this._procComp);
-	}
-	
-	/**
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName)
-	{
-		this.environment.addSolute(soluteName);
-	}	
-	
-	/**
-	 * 
-	 * @param soluteName
-	 */
-	// TODO not used, consider deletion
-	public void addSolute(String soluteName, double initialConcentration)
-	{
-		this.environment.addSolute(soluteName, initialConcentration);
 	}
 	
 	/**
@@ -548,21 +469,16 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		/* Add the shape if it exists. */
 		if ( this._shape != null )
 			modelNode.add( this._shape.getNode() );
-		/* Work around: we need an object in order to call the newBlank method
-		 * from TODO investigate a cleaner way of doing this  */
-		// NOTE Rob [9June2016]: Surely we only need to do this if 
-		// this._shape == null? Or have I completely misunderstood?
-		modelNode.addChildConstructor(Shape.getNewInstance("Dimensionless"), 
-				Requirements.EXACTLY_ONE);
+		/* Add the Environment node. */
+		modelNode.add( this.environment.getNode() );
 		/* Add the solutes node. */
-		modelNode.add( this.getSolutesNode() );
-		/* Add the agents node. */
 		modelNode.add( this.getAgentsNode() );
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
+
 		return modelNode;	
 	}
-	
+
 	/**
 	 * \brief Helper method for {@link #getNode()}.
 	 * 
@@ -574,8 +490,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* Add the agent childConstrutor for adding of additional agents. */
-		modelNode.addChildConstructor(
-				new Agent(this), Requirements.ZERO_TO_MANY );
+		modelNode.addConstructable("Agent", 
+				ModelNode.Requirements.ZERO_TO_MANY);
 		/* If there are agents, add them as child nodes. */
 		if ( this.agents != null )
 			for ( Agent a : this.agents.getAllAgents() )
@@ -597,31 +513,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  
 		 */
-		modelNode.addChildConstructor( ProcessManager.getNewInstance(
-				"AgentGrowth"), Requirements.ZERO_TO_MANY);
+		modelNode.addConstructable("PorcessManager", 
+				Helper.collectionToArray(ProcessManager.getAllOptions()), 
+				ModelNode.Requirements.ZERO_TO_MANY);
 		/* Add existing process managers as child nodes. */
 		for ( ProcessManager p : this._processes )
 			modelNode.add( p.getNode() );
-		return modelNode;
-	}
-	
-	/**
-	 * \brief Helper method for {@link #getNode()}.
-	 * 
-	 * @return Model node for the <b>solutes</b>.
-	 */
-	private ModelNode getSolutesNode()
-	{
-		/* The solutes node. */
-		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
-		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
-		/* 
-		 * add solute nodes, yet only if the environment has been initiated, when
-		 * creating a new compartment solutes can be added later 
-		 */
-		if ( this.environment != null )
-			for ( String sol : this.environment.getSoluteNames() )
-				modelNode.add( this.getSolute(sol).getNode() );
 		return modelNode;
 	}
 
@@ -640,6 +537,24 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * child nodes need to be set here.
 		 */
 		NodeConstructor.super.setNode(node);
+	}
+	
+	public void removeNode(String specifier)
+	{
+		Idynomics.simulator.removeChildNode(this);
+	}
+	
+	public void removeChildNode(NodeConstructor child)
+	{
+		if (child instanceof Shape)
+		{
+			this.setShape( (Shape) Shape.getNewInstance(
+					null, null, (NodeConstructor) this) );
+			// FIXME also remove solutes, spatial grids would be incompatible 
+			// with a new shape
+		}
+		if (child instanceof ProcessManager)
+			this._processes.remove((ProcessManager) child);
 	}
 	
 	@Override

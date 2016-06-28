@@ -36,20 +36,20 @@
 				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
-				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
 
 
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
-				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
-				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,specGrowthRate" 	 />
-				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"			input="mass,radius,body" 	 />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth" />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
 
-				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 			</species>
 			<species name="stochasticMover">
 				<aspect name="stochasticStep" type="PRIMARY" class="Double" value="2.4" />
-				<aspect name="stochasticMove" type="EVENT" class="StochasticMove"  input="body,stochasticStep" />
+				<aspect name="stochasticMove" type="EVENT" class="StochasticMove" />
 			</species>
 		</speciesLib>
 
@@ -80,7 +80,7 @@
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
-					<spawn number="10.0" domain="40.0,40.0" />
+					<spawn number="1" domain="40.0,40.0" />
 				</agent>
 				<agent>
 					<aspect name="pullDistance" type="PRIMARY" class="Double"	value="0.01" />
@@ -89,7 +89,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
-					<spawn number="10.0" domain="40.0,40.0" />
+					<spawn number="1" domain="40.0,40.0" />
 				</agent>
 			<!--	<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species1" />
@@ -97,7 +97,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
-					<spawn number="10.0" domain="50.0,50.0" />
+					<spawn number="1" domain="50.0,50.0" />
 				</agent>   -->
 			</agents>
 			<processManagers>

@@ -31,4 +31,9 @@
 <!-- graphical output -->
 	<classDef package="dataIO." name="SvgExport" />
 	<classDef package="dataIO." name="PovExport" />
+<!-- general classes -->
+	<classDef package="idynomics." name="Compartment" />
+	<classDef package="agent." name="SpeciesLib" />
+	<classDef package="agent." name="Agent" />
+
 </document>

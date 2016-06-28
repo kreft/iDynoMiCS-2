@@ -213,6 +213,7 @@ public abstract class SphericalShape extends PolarShape
 		if ( radius > 0.0 )
 		{
 			outbound = new Ball( new Point(centre) , radius);
+			outbound.init(_defaultCollision);
 			outbound.bounding = false;
 			//this._surfaces.put(outbound, dim.getBoundary(0));
 			dim.setSurface(outbound, 0);
@@ -220,6 +221,7 @@ public abstract class SphericalShape extends PolarShape
 		/* Outer radius always exists. */
 		radius = dim.getExtreme(1);
 		outbound = new Ball( new Point(centre) , radius);
+		outbound.init(_defaultCollision);
 		outbound.bounding = true;
 		//this._surfaces.put(outbound, dim.getBoundary(1));
 		dim.setSurface(outbound, 1);

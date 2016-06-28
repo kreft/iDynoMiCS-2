@@ -10,6 +10,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
 import idynomics.Idynomics;
+import nodeFactory.NodeConstructor;
 import utility.Helper;
 
 /**
@@ -23,7 +24,22 @@ public interface Instantiatable
 {
 	/*************************************************************************
 	 * CLASS INSTANCIATION
+	 * @param parent 
 	 ************************************************************************/
+	/**
+	 * \brief method for Instantiatable object initiation
+	 * 
+	 * Overwrite this method in the implementing class
+	 * 
+	 * @param xmlElement
+	 * @param parent
+	 */
+	public default void init(Element xmlElement, NodeConstructor parent)
+	{
+		// by default nothing
+		Log.out(Tier.CRITICAL, "Warning: Object class has no implementation"
+				+ "of init(Element, NodeConstructor");
+	}
 	
 	/**
 	 * \brief External method for creating a new instance.
@@ -31,8 +47,7 @@ public interface Instantiatable
 	 * <p>Remember to typecast when using this. E.g.,</p>
 	 * <p>{@code this.thing = (Thing) Thing.getNewInstance(className);}.</p>
 	 * 
-	 * <p><b>IMPORTANT:</b> This method should only be overwritten in the class
-	 * that implements Instantiatable if a prefix is necessary.</p>
+	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten</p>
 	 * 
 	 * @param className {@code String} name of the class to be instanciated.
 	 * This method will ensure that the first letter is in upper case, but only
@@ -43,12 +58,28 @@ public interface Instantiatable
 	{
 		return getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
 	}
+	
+	/**
+	 * \brief Generic instantiation for objects added trough gui or xml.
+	 * 
+	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten.</p>
+	 * @param className
+	 * @param xmlElem
+	 * @param parent
+	 * @return
+	 */
+	public static Object getNewInstance(String className, Element xmlElem, NodeConstructor parent)
+	{
+		Object out = getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
+		((Instantiatable) out).init(xmlElem, parent);
+		return out;
+	}
 
 	/**
 	 * \brief Internal method for creating a new instance.
 	 * 
 	 * <p><b>IMPORTANT:</b> This method should only be called by the class that
-	 * implements XMLable.</p>
+	 * implements Instantiatable.</p>
 	 * 
 	 * @param className {@code String} name of the class to be instantiated.
 	 * This method will ensure that the first letter is in upper case, but only
@@ -89,8 +120,7 @@ public interface Instantiatable
 	 * \brief General constructor from xmlNodes, returns a new instance
 	 * directly from an XML node.
 	 * 
-	 * <p>Overwrite this method in implementing class if the class needs
-	 * constructor arguments (they should be stored within the Node).</p>
+	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten.</p>
 	 * 
 	 * @param xmlNode Input from protocol file.
 	 */

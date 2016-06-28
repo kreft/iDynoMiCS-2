@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import boundary.library.ChemostatToChemostat;
 import grid.ArrayType;
+import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
@@ -40,7 +41,7 @@ public class ChemostatsTest
 		 */
 		Compartment feed = Idynomics.simulator.addCompartment("feed");
 		feed.setShape("dimensionless");
-		feed.environment.addSolute(soluteName, feedConcn);
+		feed.environment.addSolute(new SpatialGrid(soluteName, feedConcn, feed.environment));
 		/*
 		 * The main compartment.
 		 */
@@ -48,7 +49,7 @@ public class ChemostatsTest
 		Dimensionless shape = new Dimensionless();
 		shape.setVolume(1.0);
 		chemo.setShape(shape);
-		chemo.environment.addSolute(soluteName);
+		chemo.environment.addSolute(new SpatialGrid(soluteName, 0.0, chemo.environment));
 		SolveChemostat p1 = new SolveChemostat();
 		p1.setName("SolveChemostat");
 		p1.init(new String[]{soluteName}, chemo.environment, 
@@ -60,7 +61,7 @@ public class ChemostatsTest
 		 */
 		Compartment waste = Idynomics.simulator.addCompartment("waste");
 		waste.setShape("dimensionless");
-		waste.environment.addSolute(soluteName);
+		waste.environment.addSolute(new SpatialGrid(soluteName, 0.0, waste.environment));
 		/* 
 		 * Boundary connection from feed into chemostat.
 		 */

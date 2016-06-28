@@ -5,14 +5,19 @@ package guiTools;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.swing.JFileChooser;
 
-
+import dataIO.Log;
 import glRender.AgentMediator;
 import glRender.CommandMediator;
 import glRender.Render;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import utility.Helper;
 
 /**
  * 
@@ -84,8 +89,13 @@ public final class GuiActions
 	public static void runSimulation()
 	{
 		GuiEditor.setAttributes();
-		Idynomics.simulator.setNode();
-		Idynomics.launchSimulator();
+		if ( Idynomics.simulator == null )
+			Log.printToScreen( "no simulation set.", true);
+		else
+		{
+			Idynomics.simulator.setNode();
+			Idynomics.launchSimulator();
+		}
 	}
 	
 	public static void pauseSimulation()
@@ -114,21 +124,35 @@ public final class GuiActions
 	}
 	
 	/*************************************************************************
-	 * RENDERING IMAGES
+	 * RENDERING 3D SCENE
 	 ************************************************************************/
 	
 	public static void render()
 	{
-		if ( Idynomics.simulator == null || 
-				! Idynomics.simulator.hasSpatialCompartments() )
-		{
-			GuiConsole.writeErr("No spatial compartments available!\n");
-		}
+		/* is the simulator set? */
+		if ( Idynomics.simulator == null )
+			GuiConsole.writeErr("No simulator available!\n");
 		else
 		{
-			Compartment c = Idynomics.simulator.get1stSpatialCompartment();
-			CommandMediator cm = new AgentMediator(c.agents);
-			Render myRender = new Render(cm);
+			/* identify the spatial compartments */
+			List<String> compartments = 
+					Idynomics.simulator.getSpatialCompartmentNames();
+			Compartment c = null;
+			if ( compartments.isEmpty() )
+				/* abort if no compartment is available */
+				GuiConsole.writeErr("No spatial compartments available!\n");
+			else if ( compartments.size() == 1 )
+				/* render directly if only 1 compartment is available */
+				c = Idynomics.simulator.getCompartment(compartments.get(0));
+			else
+			{
+				/* otherwise ask for user input */
+				String s = Helper.obtainInput(compartments, 
+						"select compartment for rendering", false);
+				c = Idynomics.simulator.getCompartment(s);
+			}
+			/* create and invoke the renderer */
+			Render myRender = new Render( new AgentMediator(c.agents) );
 			EventQueue.invokeLater(myRender);
 		}
 	}

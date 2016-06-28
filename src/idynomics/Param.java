@@ -103,11 +103,11 @@ public class Param
 		 *   set output root from xml file
 		 */
 		Idynomics.global.outputRoot = 
-				XmlHandler.obtainAttribute(elem, XmlRef.outputFolder);
+				XmlHandler.obtainAttribute(elem, XmlRef.outputFolder, XmlRef.simulation);
 		
 		/* set simulation name from xml file */
 		Idynomics.global.simulationName = 
-					XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute);
+					XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute, XmlRef.simulation);
 		
 		setOutputLocation();
 		/* 
@@ -121,7 +121,7 @@ public class Param
 			try
 			{
 				t = Tier.valueOf(
-						XmlHandler.obtainAttribute(elem, XmlRef.logLevel));
+						XmlHandler.obtainAttribute(elem, XmlRef.logLevel, XmlRef.simulation));
 			}
 			catch (IllegalArgumentException e)
 			{

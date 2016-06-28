@@ -8,6 +8,7 @@ import aspect.AspectRef;
 import dataIO.XmlHandler;
 import dataIO.Log;
 import dataIO.XmlRef;
+import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -23,7 +24,7 @@ import surface.Point;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements AspectInterface, NodeConstructor
+public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
@@ -130,6 +131,12 @@ public class Agent implements AspectInterface, NodeConstructor
 	 */
 	public Agent(Node xmlNode, Compartment comp)
 	{
+		this.init(xmlNode, comp);
+	}
+	
+	public void init(Node xmlNode, Compartment comp)
+	{
+		this._compartment = comp;
 		/* initiate all random agents */
 		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
 		if(temp.getLength() > 0)
@@ -137,10 +144,10 @@ public class Agent implements AspectInterface, NodeConstructor
 			for(int i = 0; i < temp.getLength(); i++)
 			{
 				/* TODO this is a cheat, make a standard method for this */
-				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute(
-						temp.item(i), XmlRef.numberOfAgents)));
+				int n = Integer.valueOf(XmlHandler.obtainAttribute(
+						temp.item(i), XmlRef.numberOfAgents, this.defaultXmlTag()));
 				double[] domain = Vector.dblFromString(XmlHandler.
-						obtainAttribute(temp.item(i), XmlRef.spawnDomain));
+						obtainAttribute(temp.item(i), XmlRef.spawnDomain, this.defaultXmlTag()));
 				for(int j = 0; j < n-1; j++)
 				{
 					Agent extra = new Agent(xmlNode, randBody(domain));
@@ -383,6 +390,11 @@ public class Agent implements AspectInterface, NodeConstructor
 		newBlank.reg().setIdentity(String.valueOf(newBlank.identity()));
 		newBlank.registerBirth();
 		return newBlank;
+	}
+	
+	public void removeNode(String specifier)
+	{
+		this._compartment.registerRemoveAgent(this);
 	}
 
 	/** 

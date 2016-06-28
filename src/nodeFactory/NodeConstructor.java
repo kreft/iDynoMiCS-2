@@ -21,7 +21,6 @@ public interface NodeConstructor
 	 * 
 	 * @param node
 	 */
-	// FIXME every override of this seems to be the same
 	public default void setNode(ModelNode node)
 	{
 		for ( ModelNode n : node.getAllChildNodes() )
@@ -34,7 +33,30 @@ public interface NodeConstructor
 	 * @return
 	 */
 	//TODO: we may want to merge this with the xmlable interface
-	public NodeConstructor newBlank();
+	@Deprecated
+	public default NodeConstructor newBlank()
+	{
+		return null;
+	}
+	
+	/**
+	 * remove the node from the simulation (gui delete object), specifier is
+	 * used to identify nested objects for removal
+	 * @param specifier
+	 */
+	public default void removeNode(String specifier)
+	{
+		/*
+		 * By default assume the Node cannot be removed
+		 */
+	}
+	
+	public default void removeChildNode(NodeConstructor childNode)
+	{
+		/*
+		 * By default do nothing, only applicable for Nodes that have childnodes
+		 */
+	}
 	
 	/**
 	 * \brief Add a child object that is unable to register itself properly via

@@ -8,6 +8,11 @@ import surface.Ball;
 import surface.Rod;
 import surface.Surface;
 
+/**
+ * General interface for graphical output writers such as Svg and Pov export
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public interface GraphicalExporter {
 	
 	public static GraphicalExporter getNewInstance(String input) 

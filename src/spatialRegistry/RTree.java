@@ -1,10 +1,12 @@
 package spatialRegistry;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 
 import shape.Shape;
@@ -257,10 +259,31 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * Returns every entry from the tree
 	 * @return A list with every entry from the tree.
 	 */
-	public synchronized List<T> all()
+	public List<T> all()
 	{
 		LinkedList<T> results = new LinkedList<T>();
 		all(root, results);
+		return results;
+	}
+	
+	public Map<double[],double[]> allBoxes()
+	{
+		HashMap<double[],double[]> results = new HashMap<double[],double[]>();
+		return allBoxes(root, results);
+	}
+	
+	public HashMap<double[],double[]> allBoxes(Node n, HashMap<double[],double[]> results)
+	{
+		if (n.leaf)
+		{
+			for (Node e : n.children)
+				results.put(((Entry) e).coords, ((Entry) e).dimensions);
+		}
+		else
+		{
+			for (Node c : n.children)
+				allBoxes(c, results);
+		}
 		return results;
 	}
 

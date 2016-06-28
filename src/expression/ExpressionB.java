@@ -162,7 +162,7 @@ public class ExpressionB extends Component implements NodeConstructor
 					XmlRef.valueAttribute)));
 		}
 				
-		init( XmlHandler.obtainAttribute(elem, XmlRef.valueAttribute), 
+		init( XmlHandler.obtainAttribute(elem, XmlRef.valueAttribute, this.defaultXmlTag()), 
 				constantsMap);
 	}
 	
@@ -778,6 +778,11 @@ public class ExpressionB extends Component implements NodeConstructor
 	public NodeConstructor newBlank() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public void removeNode()
+	{
+		// TODO
 	}
 
 	@Override

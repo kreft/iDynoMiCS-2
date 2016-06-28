@@ -41,7 +41,7 @@ public class AllSameDiffuse implements IsDiffusivitySetter
 	public void init(Node xmlNode)
 	{
 		Element e = (Element) xmlNode;
-		String s = XmlHandler.obtainAttribute(e, XmlRef.defaultDiffusivity);
+		String s = XmlHandler.obtainAttribute(e, XmlRef.defaultDiffusivity, "PARENT NODE");
 		this._diffusivity = Double.valueOf(s);
 	}
 	

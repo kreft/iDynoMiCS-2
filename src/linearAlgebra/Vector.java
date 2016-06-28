@@ -439,6 +439,14 @@ public final class Vector
 		return vector;
 	}
 	
+	// TODO
+	public static boolean[] setAll(boolean[] vector, boolean value)
+	{
+		for ( int i = 0; i < vector.length; i++ )
+			vector[i] = value;
+		return vector;
+	}
+	
 	/**
 	 * \brief Reset all elements of the given <b>vector</b> to zero.
 	 * 

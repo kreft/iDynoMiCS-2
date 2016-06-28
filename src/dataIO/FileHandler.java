@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import utility.Helper;
-
 /**
  * \brief Handles file operations, create folders and files, write output.
  * 

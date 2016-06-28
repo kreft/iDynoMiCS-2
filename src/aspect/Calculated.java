@@ -2,6 +2,8 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.Instantiatable;
+import generalInterfaces.Redirectable;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
@@ -16,38 +18,27 @@ import dataIO.XmlRef;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Calculated implements Copyable, Instantiatable
+public abstract class Calculated implements Copyable, Instantiatable, Redirectable
 {
 	/**
-	 * input states
+	 * input string
 	 */
-	protected String[] _input;
+	protected String _input;
 
 	/**
-	 * method that sets the input from a comma separated String.
+	 * StateExpressions require an input string to set the expression
 	 * @param input
 	 */
 	public void setInput(String input)
 	{
-		input.replaceAll("\\s+","");
-		this._input = input.split(",");
-	}
-	
-	public void setField(String field, String value)
-	{
-		try {
-			this.getClass().getField(field).set(this, value);
-		} catch (IllegalArgumentException | IllegalAccessException | 
-				NoSuchFieldException | SecurityException e) {
-			e.printStackTrace();
-		}
+		this._input = input;
 	}
 	
 	/**
 	 * returns the input String array of this state
 	 * @return
 	 */
-	public String[] getInput()
+	public String getInput()
 	{
 		return _input;
 	}
@@ -81,22 +72,13 @@ public abstract class Calculated implements Copyable, Instantiatable
 
 	public void init(Element xmlElem)
 	{
-		String input = XmlHandler.gatherAttribute(xmlElem, "input");
+		String input = XmlHandler.gatherAttribute(xmlElem, XmlRef.inputAttribute);
 		if (input != "")
 			this.setInput(input);
 		
 		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		String[] f = null;
-		if (fields != "")
-		{
-			f = fields.split(",");
-			for (String field : f)
-			{
-				String[] value;
-				value = field.split("=");
-				this.setField(value[0], value[1]);
-			}
-		}
+		if (fields != null)
+			this.redirect(fields);
 	}
 	
 	private void init(String input) {

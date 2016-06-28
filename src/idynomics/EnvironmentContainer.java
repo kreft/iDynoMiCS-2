@@ -12,12 +12,14 @@ import org.w3c.dom.NodeList;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 import reaction.Reaction;
 import shape.Shape;
 
@@ -25,8 +27,9 @@ import shape.Shape;
  * \brief Manages the solutes in a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class EnvironmentContainer implements CanPrelaunchCheck
+public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 {
 	/**
 	 * This dictates both geometry and size, and it inherited from the
@@ -62,59 +65,25 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	public EnvironmentContainer(Shape aShape)
 	{
 		this._shape = aShape;
-		this._commonGrid = this._shape.getNewGrid(COMMON_GRID_NAME);
+		this._commonGrid = new SpatialGrid(this.getShape(), COMMON_GRID_NAME, this);
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 */
-	public void addSolute(String soluteName)
+	public void addSolute(SpatialGrid solute)
 	{
-		this.addSolute(soluteName, 0.0);
+		this._solutes.add(solute);
+		Log.out(Tier.DEBUG, "Added solute \""+ solute.getName() +"\" to environment");
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteName
-	 * @param initialConcn
-	 */
-	public void addSolute(String soluteName, double initialConcn)
+	public void deleteSolute(Object spatialGrid)
 	{
-		// TODO safety: check if solute already present
-		SpatialGrid sg = this._shape.getNewGrid(soluteName);
-		sg.newArray(ArrayType.CONCN, initialConcn);
-		this._solutes.add(sg);
-		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
+		_solutes.remove(spatialGrid);
 	}
 	
-	/**
-	 * \brief TODO
-	 * 
-	 * NOTE Rob[26Feb2016]: not yet used, work in progress
-	 * 
-	 * TODO Get general solutes from Param?
-	 * 
-	 * @param soluteNodes
-	 */
-	public void readSolutes(NodeList soluteNodes)
+	public void deleteReaction(Object Reaction)
 	{
-		Element elem;
-		String name, concn;
-		double concentration;
-		for ( int i = 0; i < soluteNodes.getLength(); i++)
-		{
-			elem = (Element) soluteNodes.item(i);
-			name = XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute);
-			/* Try to read in the concentration, using zero by default. */
-			concn = XmlHandler.gatherAttribute(elem, XmlRef.concentration);
-			concentration = ( concn.equals("") ) ? 0.0 : Double.valueOf(concn);
-			/* Finally, add the solute to the list. */
-			this.addSolute(name, concentration);
-		}
+		_reactions.remove(Reaction);
 	}
+	
 	
 	/**
 	 * \brief TODO
@@ -134,6 +103,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 			elem = (Element) reactionNodes.item(i);
 			/* Construct and intialise the reaction. */
 			reac = (Reaction) Reaction.getNewInstance(elem);
+			// reac.setCompartment(compartment.getName());
 			reac.init(elem);
 			/* Add it to the environment. */
 			this.addReaction(reac);
@@ -239,6 +209,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	{
 		// TODO Safety: check this reaction is not already present?
 		this._reactions.add(reaction);
+	}
+	
+	public void setReactions(Collection<Reaction> reactions)
+	{
+		this._reactions = reactions;
 	}
 	
 	/**
@@ -376,5 +351,78 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	{
 		// TODO
 		return true;
+	}
+
+	@Override
+	public ModelNode getNode() {
+		/* The compartment node. */
+		ModelNode modelNode = new ModelNode(XmlRef.environment, this);
+		modelNode.setRequirements(Requirements.IMMUTABLE);
+		/* Set title for GUI. */
+		modelNode.setTitle(XmlRef.environment);
+		/* Add the name attribute. */
+		modelNode.add( this.getSolutesNode() );
+		/* Add the reactions node. */
+		modelNode.add( this.getReactionNode() );
+		return modelNode;	
+	}
+	
+	/**
+	 * \brief Helper method for {@link #getNode()}.
+	 * 
+	 * @return Model node for the <b>solutes</b>.
+	 */
+	private ModelNode getSolutesNode()
+	{
+		/* The solutes node. */
+		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
+		modelNode.setTitle(XmlRef.solutes);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* 
+		 * add solute nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later 
+		 */
+		for ( String sol : this.getSoluteNames() )
+			modelNode.add( this.getSoluteGrid(sol).getNode() );
+		return modelNode;
+	}
+	
+	private ModelNode getReactionNode() 
+	{
+		/* The reactions node. */
+		ModelNode modelNode = new ModelNode(XmlRef.reactions, this);
+		modelNode.setTitle(XmlRef.reactions);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* 
+		 * add solute nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later 
+		 */
+		for ( Reaction react : this.getReactions() )
+			modelNode.add( react.getNode() );
+		return modelNode;
+	}
+	
+	public void setNode(ModelNode node)
+	{
+		/* 
+		 * Set the child nodes.
+		 * Agents, process managers and solutes are container nodes: only
+		 * child nodes need to be set here.
+		 */
+		NodeConstructor.super.setNode(node);
+	}
+	
+	public void removeChildNode(NodeConstructor child)
+	{
+		if (child instanceof SpatialGrid)
+			this._solutes.remove((SpatialGrid) child);
+		if (child instanceof Reaction)
+			this._reactions.remove((Reaction) child);
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return XmlRef.environment;
 	}
 }

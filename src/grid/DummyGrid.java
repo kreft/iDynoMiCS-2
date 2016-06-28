@@ -26,7 +26,7 @@ public class DummyGrid extends SpatialGrid
 	 */
 	public DummyGrid(Shape shape, double volume, String name)
 	{
-		super(shape, name);
+		super(shape, name, null);
 		this._volume = volume;
 	}
 	

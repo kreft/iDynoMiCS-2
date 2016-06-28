@@ -25,6 +25,7 @@ import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
+import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -33,6 +34,7 @@ import nodeFactory.NodeConstructor;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.subvoxel.SubvoxelPoint;
+import surface.Collision;
 import surface.Plane;
 import surface.Surface;
 import utility.ExtraMath;
@@ -137,7 +139,10 @@ public abstract class Shape implements
 	 * What kind of voxel the current neighbor iterator is in.
 	 */
 	protected WhereAmI _whereIsNhb;
-	
+	/**
+	 * TODO
+	 */
+	protected Collision _defaultCollision = new Collision(this);
 	/**
 	 * A helper vector for finding the location of the origin of a voxel.
 	 */
@@ -162,6 +167,12 @@ public abstract class Shape implements
 	/* ***********************************************************************
 	 * CONSTRUCTION
 	 * **********************************************************************/
+	
+	public static Shape newShape()
+	{
+		return (Shape) Shape.getNewInstance(
+				Helper.obtainInput(getAllOptions(), "Shape class", false));
+	}
 	
 	@Override
 	public ModelNode getNode()
@@ -212,40 +223,34 @@ public abstract class Shape implements
 	 * 
 	 * @param xmlNode
 	 */
-	// TODO remove once ModelNode, etc is working
 	public void init(Element xmlElem)
 	{
 		NodeList childNodes;
 		Element childElem;
 		String str;
 		/* Set up the dimensions. */
-		DimName dimName;
 		Dimension dim;
-		childNodes = XmlHandler.getAll(xmlElem, XmlRef.shapeDimension);
 		ResCalc rC;
 		
-		for ( int i = 0; i < childNodes.getLength(); i++ )
+		for ( DimName dimens : this.getDimensionNames() )
 		{
-			childElem = (Element) childNodes.item(i);
+
+			childElem = (Element) XmlHandler.getSpecific(xmlElem, 
+					XmlRef.shapeDimension, XmlRef.nameAttribute, dimens.name());
 			try
 			{
-				str = XmlHandler.obtainAttribute(childElem,
-												XmlRef.nameAttribute);
-				dimName = DimName.valueOf(str);
-				dim = this.getDimension(dimName);
-				dim.init(childElem);
-				
-				/* Initialise resolution calculators */
-				rC = new ResolutionCalculator.UniformResolution();
-				double length = dim.getLength();
-				/* Set theta dimension cyclic for a full circle, no matter what 
-				 * the user specified */
-				if (dimName == DimName.THETA 
-						&& ExtraMath.areEqual(length, 2 * Math.PI,
-								PolarShape.POLAR_ANGLE_EQ_TOL))
-					dim.setCyclic();
-				rC.init(dim._targetRes, length);
-				this.setDimensionResolution(dimName, rC);	
+				dim = this.getDimension(dimens);
+				if(dim._isSignificant)
+				{
+					dim.init(childElem);
+					
+					/* Initialise resolution calculators */
+					rC = new ResolutionCalculator.UniformResolution();
+					double length = dim.getLength();
+	
+					rC.init(dim._targetRes, length);
+					this.setDimensionResolution(dimens, rC);	
+				}
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -253,20 +258,23 @@ public abstract class Shape implements
 						+ "recognised by shape " + this.getClass().getName()
 						+ ", use: " + Helper.enumToString(DimName.class));
 			}
+			
 		}
 		
 		/* Set up any other boundaries. */
 		Boundary aBoundary;
 		childNodes = XmlHandler.getAll(xmlElem, XmlRef.dimensionBoundary);
-		for ( int i = 0; i < childNodes.getLength(); i++ )
+		if ( childNodes != null )
 		{
-			childElem = (Element) childNodes.item(i);
-			str = childElem.getAttribute(XmlRef.classAttribute);
-			aBoundary = (Boundary) Boundary.getNewInstance(str);
-			aBoundary.init(childElem);
-			this.addOtherBoundary(aBoundary);
+			for ( int i = 0; i < childNodes.getLength(); i++ )
+			{
+				childElem = (Element) childNodes.item(i);
+				str = childElem.getAttribute(XmlRef.classAttribute);
+				aBoundary = (Boundary) Boundary.getNewInstance(str);
+				aBoundary.init(childElem);
+				this.addOtherBoundary(aBoundary);
+			}
 		}
-		
 		this.setSurfaces();
 	}
 	
@@ -292,17 +300,6 @@ public abstract class Shape implements
 	/* ***********************************************************************
 	 * GRID & ARRAY CONSTRUCTION
 	 * **********************************************************************/
-	
-	/**
-	 * \brief Get a new spatial grid, using this shape's discretisation scheme.
-	 * 
-	 * @param name Name of the variable that this grid will represent.
-	 * @return New spatial grid.
-	 */
-	public SpatialGrid getNewGrid(String name)
-	{
-		return new SpatialGrid(this, name);
-	}
 	
 	/**
 	 * \brief Get a new array with the layout of voxels that follows this
@@ -791,11 +788,13 @@ public abstract class Shape implements
 		/* The minimum extreme. */
 		normal[index] = 1.0;
 		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
+		p.init(_defaultCollision);
 		//this._surfaces.put(p, dim.getBoundary(0));
 		dim.setSurface(p, 0);
 		/* The maximum extreme. */
 		normal[index] = -1.0;
 		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
+		p.init(_defaultCollision);
 		//this._surfaces.put(p, dim.getBoundary(1));
 		dim.setSurface(p, 1);
 	}
@@ -1795,6 +1794,19 @@ public abstract class Shape implements
 	public static Shape getNewInstance(String className)
 	{
 		return (Shape) Instantiatable.getNewInstance(className, "shape.ShapeLibrary$");
+	}
+	
+	public static Shape getNewInstance(String className, Element xmlElem, NodeConstructor parent)
+	{
+		Shape out;
+		if (xmlElem == null)
+			out = (Shape) Shape.getNewInstance(
+					Helper.obtainInput(getAllOptions(), "Shape class", false));
+		else
+			out = (Shape) Instantiatable.getNewInstance(className, 
+					"shape.ShapeLibrary$");
+		out.init(xmlElem);
+		return out;
 	}
 	
 	public static String[] getAllOptions()

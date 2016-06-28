@@ -3,9 +3,15 @@ package grid;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import dataIO.XmlHandler;
 import dataIO.XmlRef;
+import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
@@ -38,7 +44,9 @@ import utility.ExtraMath;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  * 								Friedrich-Schiller University Jena, Germany 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
+
 public class SpatialGrid implements NodeConstructor
 {
 	/**
@@ -59,6 +67,11 @@ public class SpatialGrid implements NodeConstructor
 	 * TODO
 	 */
 	protected double _wellmixedFlux = 0.0;
+	
+	/**
+	 * identifies what compartment hosts this grid
+	 */
+	protected NodeConstructor _parentNode;
 	
 	/**
 	 * \brief Log file verbosity level used for debugging the getting of
@@ -91,14 +104,42 @@ public class SpatialGrid implements NodeConstructor
 
 	/**
 	 * \brief Construct a new grid.
+	 * NOTE only used by dummy grid
 	 * 
 	 * @param shape Shape of the grid.
 	 * @param name Name of the variable this represents.
 	 */
-	public SpatialGrid(Shape shape, String name)
+	public SpatialGrid(Shape shape, String name, NodeConstructor parent)
 	{
 		this._shape = shape;
 		this._name = name;
+		this._parentNode = parent;
+	}
+	
+	/**
+	 * NOTE Only used by unit tests, consider restructuring tests
+	 * @param shape
+	 * @param name
+	 * @param environment
+	 */
+	public SpatialGrid(String name, double concentration, NodeConstructor parent)
+	{
+		this._shape = ((EnvironmentContainer) parent).getShape();
+		this._name = name;
+		this._parentNode = parent;
+		this.newArray(ArrayType.CONCN, concentration);
+	}
+	
+	public SpatialGrid(Element xmlElem, NodeConstructor parent)
+	{
+		this._shape = ((EnvironmentContainer) parent).getShape();
+		this._parentNode = parent;
+		this._name = XmlHandler.obtainAttribute(xmlElem, 
+				XmlRef.nameAttribute, this.defaultXmlTag());
+		this.newArray(ArrayType.CONCN, 0.0);
+		String conc = XmlHandler.obtainAttribute((Element) xmlElem, 
+				XmlRef.concentration, this.defaultXmlTag());
+		this.setTo(ArrayType.CONCN, conc);
 	}
 
 	/* ***********************************************************************
@@ -678,9 +719,8 @@ public class SpatialGrid implements NodeConstructor
 				this._name, null, true ));
 		
 		modelNode.add(new ModelAttribute(XmlRef.concentration, 
-//				arrayAsText(ArrayType.CONCN), null, true ));
-				ObjectFactory.stringRepresentation(this.getArray(ArrayType.CONCN)),
-				null, true));
+				ObjectFactory.stringRepresentation(
+				this.getArray( ArrayType.CONCN )), null, true ));
 		
 		return modelNode;
 	}
@@ -688,8 +728,9 @@ public class SpatialGrid implements NodeConstructor
 	@Override
 	public void setNode(ModelNode node)
 	{
-		// TODO Auto-generated method stub
-		
+		this._name = node.getAttribute( XmlRef.nameAttribute ).value;
+		this.setTo(ArrayType.CONCN, 
+				node.getAttribute(XmlRef.concentration).value);
 	}
 
 	@Override
@@ -697,6 +738,11 @@ public class SpatialGrid implements NodeConstructor
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public void removeNode(String specifier) 
+	{
+		this._parentNode.removeChildNode(this);
 	}
 
 	@Override
@@ -709,7 +755,6 @@ public class SpatialGrid implements NodeConstructor
 	@Override
 	public String defaultXmlTag()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return XmlRef.solute;
 	}
 }

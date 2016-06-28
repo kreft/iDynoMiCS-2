@@ -370,6 +370,11 @@ public abstract class Boundary implements NodeConstructor
 		// TODO
 		return null;
 	}
+	
+	public void removeNode()
+	{
+		// TODO
+	}
 
 	// TODO ?
 	//public void addChildObject(NodeConstructor childObject)
