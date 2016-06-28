@@ -469,14 +469,13 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		/* Add the shape if it exists. */
 		if ( this._shape != null )
 			modelNode.add( this._shape.getNode() );
+		/* Add the Environment node. */
+		modelNode.add( this.environment.getNode() );
 		/* Add the solutes node. */
-		modelNode.add( this.getSolutesNode() );
-		/* Add the agents node. */
 		modelNode.add( this.getAgentsNode() );
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
-		/* Add the reactions node. */
-		modelNode.add( this.getReactionNode() );
+
 		return modelNode;	
 	}
 
@@ -522,43 +521,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 			modelNode.add( p.getNode() );
 		return modelNode;
 	}
-	
-	/**
-	 * \brief Helper method for {@link #getNode()}.
-	 * 
-	 * @return Model node for the <b>solutes</b>.
-	 */
-	private ModelNode getSolutesNode()
-	{
-		/* The solutes node. */
-		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
-		modelNode.setTitle(XmlRef.solutes);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		/* 
-		 * add solute nodes, yet only if the environment has been initiated, when
-		 * creating a new compartment solutes can be added later 
-		 */
-		if ( this.environment != null )
-			for ( String sol : this.environment.getSoluteNames() )
-				modelNode.add( this.getSolute(sol).getNode() );
-		return modelNode;
-	}
-	
-	private ModelNode getReactionNode() 
-	{
-		/* The reactions node. */
-		ModelNode modelNode = new ModelNode(XmlRef.reactions, this);
-		modelNode.setTitle(XmlRef.reactions);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		/* 
-		 * add solute nodes, yet only if the environment has been initiated, when
-		 * creating a new compartment solutes can be added later 
-		 */
-		if ( this.environment != null )
-			for ( Reaction react : this.environment.getReactions() )
-				modelNode.add( react.getNode() );
-		return modelNode;
-	}
 
 	@Override
 	public void setNode(ModelNode node) 
@@ -580,6 +542,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	public void removeNode(String specifier)
 	{
 		Idynomics.simulator.deleteCompartment(this.name);
+	}
+	
+	public void removeChildNode(NodeConstructor child)
+	{
+		if (child instanceof Shape)
+		{
+			this.setShape( (Shape) Shape.getNewInstance(
+					null, null, (NodeConstructor) this) );
+		}
+		if (child instanceof ProcessManager)
+			this._processes.remove((ProcessManager) child);
 	}
 	
 	@Override

@@ -50,7 +50,7 @@ public class treeTest {
 	public void treeTest(int sampleSize)
 	{
 		
-		SplitTree tree = new SplitTree(3, 3, 100, null);
+		SplitTree tree = new SplitTree(3, 3, 100, new double[]{ -100.0, -100.0, -100.0 }, new double[]{ 100.0, 100.0, 100.0 }, null);
 		
 		double tic = System.currentTimeMillis();
 		List<Entry> ae = new LinkedList<Entry>();
@@ -76,9 +76,9 @@ public class treeTest {
 				tree.node.allUnfiltered(new LinkedList<Entry>()).size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
 		
-//		tic = (System.currentTimeMillis());
-//		System.out.println("return filtered " + tree.allEntries(new LinkedList<Entry>()).size() + 
-//				" in: "+ (System.currentTimeMillis() - tic));
+		tic = (System.currentTimeMillis());
+		System.out.println("return filtered " + tree.allEntries(new LinkedList<Entry>()).size() + 
+				" in: "+ (System.currentTimeMillis() - tic));
 		
 		tic = (System.currentTimeMillis());
 		double[] f = Vector.randomPlusMinus(3, 100.0);
@@ -112,9 +112,30 @@ public class treeTest {
 		System.out.println("multi find " + listr.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
 		
+		tic = (System.currentTimeMillis());
+		for (int i = 0; i < 10000; i++)
+		{
+			double[] a = Vector.randomPlusMinus(3, 100.0);
+			listr.add(tree.find(tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+					Double.valueOf(i) ) ));
+		}
+		System.out.println("multi find " + listr.size() + 
+				" in: "+ (System.currentTimeMillis() - tic));
+		
 		listr = new LinkedList<List<Entry>>();
 		tic = (System.currentTimeMillis());
 		for (int i = 0; i < 1000; i++)
+		{
+			double[] a = Vector.randomPlusMinus(3, 100.0);
+			listr.add(tree.node.findUnfiltered(tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+					Double.valueOf(i) ) ));
+		}
+		System.out.println("multi find unfiltered " + listr.size() + 
+				" in: "+ (System.currentTimeMillis() - tic));
+		
+		listr = new LinkedList<List<Entry>>();
+		tic = (System.currentTimeMillis());
+		for (int i = 0; i < 10000; i++)
 		{
 			double[] a = Vector.randomPlusMinus(3, 100.0);
 			listr.add(tree.node.findUnfiltered(tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
@@ -135,6 +156,8 @@ public class treeTest {
 		int b = 0;
 		for ( Node n : nodes )
 		{
+			if (n.size() == 0)
+				i++;
 			for ( Entry e : n.allEntries(new LinkedList<Entry>()))
 			{
 				ae.remove(e);
@@ -150,8 +173,8 @@ public class treeTest {
 //				}
 			}
 		}
-		System.out.println("assess all " + //i + " duplicate " + b +
-				" in: "+ (System.currentTimeMillis() - tic));
+		System.out.println("assessed all, " + i + //" duplicate " + b +
+				" turned out to be empty, in: "+ (System.currentTimeMillis() - tic));
 
 	}
 	
@@ -187,6 +210,16 @@ public class treeTest {
 		System.out.println("multi find " + listr.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
 		
+		tic = (System.currentTimeMillis());
+		listr = new LinkedList<List<Double>>();
+		for (int i = 0; i < 10000; i++)
+		{
+			double[] b = new double[3];
+			listr.add(tree.search(Vector.randomPlusMinus(3, 100.0), Vector.setAll(b, 0.2)));
+		}
+		System.out.println("multi find " + listr.size() + 
+				" in: "+ (System.currentTimeMillis() - tic));
+		
 		Map<double[],double[]> boxes = tree.allBoxes();
 		tic = (System.currentTimeMillis());
 		for ( double[] d : boxes.keySet())
@@ -201,7 +234,7 @@ public class treeTest {
 	public void treeTestLargeUnpop(int sampleSize)
 	{
 		
-		SplitTree tree = new SplitTree(3, 3, 100, null);
+		SplitTree tree = new SplitTree(3, 3, 100, new double[]{ -100.0, -100.0, -100.0 }, new double[]{ 100.0, 100.0, 100.0 }, null);
 		
 		double tic = System.currentTimeMillis();
 		List<Entry> ae = new LinkedList<Entry>();

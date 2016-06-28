@@ -16,8 +16,13 @@ import dataIO.XmlHandler;
 import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import generalInterfaces.Instantiatable;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import nodeFactory.ModelAttribute;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 import reaction.Reaction;
 import shape.Shape;
 
@@ -25,8 +30,9 @@ import shape.Shape;
  * \brief Manages the solutes in a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class EnvironmentContainer implements CanPrelaunchCheck
+public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 {
 	/**
 	 * This dictates both geometry and size, and it inherited from the
@@ -348,5 +354,78 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	{
 		// TODO
 		return true;
+	}
+
+	@Override
+	public ModelNode getNode() {
+		/* The compartment node. */
+		ModelNode modelNode = new ModelNode(XmlRef.environment, this);
+		modelNode.setRequirements(Requirements.IMMUTABLE);
+		/* Set title for GUI. */
+		modelNode.setTitle(XmlRef.environment);
+		/* Add the name attribute. */
+		modelNode.add( this.getSolutesNode() );
+		/* Add the reactions node. */
+		modelNode.add( this.getReactionNode() );
+		return modelNode;	
+	}
+	
+	/**
+	 * \brief Helper method for {@link #getNode()}.
+	 * 
+	 * @return Model node for the <b>solutes</b>.
+	 */
+	private ModelNode getSolutesNode()
+	{
+		/* The solutes node. */
+		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
+		modelNode.setTitle(XmlRef.solutes);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* 
+		 * add solute nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later 
+		 */
+		for ( String sol : this.getSoluteNames() )
+			modelNode.add( this.getSoluteGrid(sol).getNode() );
+		return modelNode;
+	}
+	
+	private ModelNode getReactionNode() 
+	{
+		/* The reactions node. */
+		ModelNode modelNode = new ModelNode(XmlRef.reactions, this);
+		modelNode.setTitle(XmlRef.reactions);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* 
+		 * add solute nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later 
+		 */
+		for ( Reaction react : this.getReactions() )
+			modelNode.add( react.getNode() );
+		return modelNode;
+	}
+	
+	public void setNode(ModelNode node)
+	{
+		/* 
+		 * Set the child nodes.
+		 * Agents, process managers and solutes are container nodes: only
+		 * child nodes need to be set here.
+		 */
+		NodeConstructor.super.setNode(node);
+	}
+	
+	public void removeChildNode(NodeConstructor child)
+	{
+		if (child instanceof SpatialGrid)
+			this._solutes.remove((SpatialGrid) child);
+		if (child instanceof Reaction)
+			this._reactions.remove((Reaction) child);
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return XmlRef.environment;
 	}
 }

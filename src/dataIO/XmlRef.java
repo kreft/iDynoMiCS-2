@@ -364,4 +364,9 @@ public class XmlRef
 	 */
 	public static String processTimeStepSize = "timerStepSize";
 
+	/**
+	 * TODO
+	 */
+	public static String environment = "environment";
+
 }

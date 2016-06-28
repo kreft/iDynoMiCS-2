@@ -51,6 +51,13 @@ public interface NodeConstructor
 		 */
 	}
 	
+	public default void removeChildNode(NodeConstructor childNode)
+	{
+		/*
+		 * By default do nothing, only applicable for Nodes that have childnodes
+		 */
+	}
+	
 	/**
 	 * \brief Add a child object that is unable to register itself properly via
 	 * the newBlank call.

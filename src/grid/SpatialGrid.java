@@ -44,7 +44,9 @@ import utility.ExtraMath;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  * 								Friedrich-Schiller University Jena, Germany 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
+
 public class SpatialGrid implements NodeConstructor
 {
 	/**
@@ -69,7 +71,7 @@ public class SpatialGrid implements NodeConstructor
 	/**
 	 * identifies what compartment hosts this grid
 	 */
-	protected EnvironmentContainer _environment;
+	protected NodeConstructor _parentNode;
 	
 	/**
 	 * \brief Log file verbosity level used for debugging the getting of
@@ -107,11 +109,11 @@ public class SpatialGrid implements NodeConstructor
 	 * @param shape Shape of the grid.
 	 * @param name Name of the variable this represents.
 	 */
-	public SpatialGrid(Shape shape, String name, EnvironmentContainer environment)
+	public SpatialGrid(Shape shape, String name, NodeConstructor parent)
 	{
 		this._shape = shape;
 		this._name = name;
-		this._environment = environment;
+		this._parentNode = parent;
 	}
 	
 	/**
@@ -120,18 +122,18 @@ public class SpatialGrid implements NodeConstructor
 	 * @param name
 	 * @param environment
 	 */
-	public SpatialGrid(String name, double concentration, EnvironmentContainer environment)
+	public SpatialGrid(String name, double concentration, NodeConstructor parent)
 	{
-		this._shape = environment.getShape();
+		this._shape = ((EnvironmentContainer) parent).getShape();
 		this._name = name;
-		this._environment = environment;
+		this._parentNode = parent;
 		this.newArray(ArrayType.CONCN, concentration);
 	}
 	
-	public SpatialGrid(Element xmlElem, EnvironmentContainer environment)
+	public SpatialGrid(Element xmlElem, NodeConstructor parent)
 	{
-		this._shape = environment.getShape();
-		this._environment = environment;
+		this._shape = ((EnvironmentContainer) parent).getShape();
+		this._parentNode = parent;
 		this._name = XmlHandler.obtainAttribute(xmlElem, 
 				XmlRef.nameAttribute, this.defaultXmlTag());
 		this.newArray(ArrayType.CONCN, 0.0);
@@ -740,7 +742,7 @@ public class SpatialGrid implements NodeConstructor
 	
 	public void removeNode(String specifier) 
 	{
-		this._environment.deleteSolute(this);
+		this._parentNode.removeChildNode(this);
 	}
 
 	@Override

@@ -215,7 +215,7 @@ public class GuiEditor
 		else if ( node.isTagIn(new String[] 
 				/* compartment container nodes */
 				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers, 
-				XmlRef.reactions}) )
+				XmlRef.reactions, XmlRef.environment}) )
 		{
 			GuiComponent.addTab( (JTabbedPane) 
 					parent.getParent().getParent().getParent(), 

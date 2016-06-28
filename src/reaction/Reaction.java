@@ -14,8 +14,6 @@ import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
 import generalInterfaces.Instantiatable;
-import idynomics.EnvironmentContainer;
-import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -46,7 +44,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * identifies what environment hosts this reaction, null if this reaction
 	 * is not a compartment reaction
 	 */
-	protected EnvironmentContainer _environment;
+	protected NodeConstructor _parentNode;
 	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
@@ -81,10 +79,10 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		this.init(elem);
 	}
 	
-	public Reaction(Node xmlNode, EnvironmentContainer environment)
+	public Reaction(Node xmlNode, NodeConstructor parent)
 	{
 		Element elem = (Element) xmlNode;
-		this._environment = environment;
+		this._parentNode = parent;
 		this.init(elem);
 	}
 	
@@ -318,7 +316,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
-		if ( this._environment == null)
+		if ( this._parentNode == null)
 			modelNode.setRequirements(Requirements.IMMUTABLE);
 		else
 			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
@@ -361,7 +359,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	
 	public void removeNode(String specifier)
 	{
-		this._environment.deleteReaction(this);
+		this._parentNode.removeChildNode(this);
 	}
 
 	@Override
