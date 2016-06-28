@@ -318,6 +318,12 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
 		if ( this._parentNode == null)
 			modelNode.setRequirements(Requirements.IMMUTABLE);
+		/*
+		 * Reactions that are an entry of a hashmap, this is the case with agent
+		 * reactions. there you cannot remove the Reaction from the entry, but 
+		 * you can remove the entire entry since the aspect utilizes the 
+		 * HashMapSetter class
+		 */
 		else
 			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this._name);
