@@ -121,6 +121,11 @@ public class XmlRef
 	public static String speciesLibrary = "speciesLib";
 	
 	/**
+	 * Encapsulates all common environmental reactions for a simulation.
+	 */
+	public static String reactionLibrary = "reactionLib";
+	
+	/**
 	 * An agent species.
 	 */
 	public static String species = "species";

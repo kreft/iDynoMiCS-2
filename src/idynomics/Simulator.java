@@ -19,6 +19,7 @@ import generalInterfaces.Instantiatable;
 import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
+import reaction.ReactionLibrary;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at
@@ -40,6 +41,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	 * Contains information about all species for this simulation.
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
+	
+	public ReactionLibrary reactionLibrary = new ReactionLibrary();
 	
 	/**
 	 * The timer
@@ -125,10 +128,22 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		 * Set up the species library.
 		 */
 		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
+		{
 			this.speciesLibrary = (SpeciesLib) Instantiatable.getNewInstance(
 					"SpeciesLib", XmlHandler.loadUnique(xmlElem, 
 					XmlRef.speciesLibrary ), this);
-
+		}
+		/*
+		 * Set up the reaction library.
+		 */
+		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.reactionLibrary))
+		{
+			this.reactionLibrary = (ReactionLibrary)
+					Instantiatable.getNewInstance(
+						"ReationLib",
+						XmlHandler.loadUnique(xmlElem, XmlRef.speciesLibrary ),
+						this);
+		}
 		/*
 		 * Set up the compartments.
 		 */
