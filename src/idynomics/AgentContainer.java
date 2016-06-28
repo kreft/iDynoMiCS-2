@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.w3c.dom.NodeList;
-
 import agent.Agent;
 import agent.Body;
 import aspect.AspectRef;
@@ -274,7 +272,8 @@ public class AgentContainer
 	}
 
 	/**
-	 * \brief Find all agents within the given distance of a given focal agent.
+	 * \brief Find all agents that are potentially within the given distance of 
+	 * a given focal agent.
 	 * 
 	 * @param anAgent Agent at the focus of this search.
 	 * @param searchDist Distance around this agent to search.
@@ -303,12 +302,13 @@ public class AgentContainer
 	}
 
 	/**
-	 * \brief Find all agents within the given distance of a surface.
+	 * \brief Find all agents that are potentially within the
+	 * given distance of a surface.
 	 * @param aSurface Surface object belonging to this compartment.
 	 * @param searchDist Find agents within this distance of the surface.
-	 * @return Collection of agents that are within the search distance of the
-	 * surface: there should be no false positives or false negatives in this
-	 * collection.
+	 * @return Collection of agents that may be within the search distance of 
+	 * the surface: there may be false positives, but no false negatives in 
+	 * this collection.
 	 */
 	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
 	{
@@ -316,13 +316,14 @@ public class AgentContainer
 	}
 	
 	/**
-	 * \brief Find all agents within the given distance of a spatial boundary.
+	 * \brief Find all agents that are potentially within the given distance of 
+	 * a spatial boundary.
 	 * 
 	 * @param aBoundary Spatial boundary object belonging to this compartment.
 	 * @param searchDist Find agents within this distance of the surface.
-	 * @return Collection of agents that are within the search distance of the
-	 * boundary: there should be no false positives or false negatives in this
-	 * collection.
+	 * @return Collection of agents that are potentially within the the search 
+	 * distance of the boundary: there may be false positives, but no false 
+	 * negatives in this collection.
 	 */
 	public Collection<Agent> treeSearch(
 			SpatialBoundary aBoundary, double searchDist)

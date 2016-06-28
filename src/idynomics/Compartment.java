@@ -550,6 +550,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		{
 			this.setShape( (Shape) Shape.getNewInstance(
 					null, null, (NodeConstructor) this) );
+			// FIXME also remove solutes, spatial grids would be incompatible 
+			// with a new shape
 		}
 		if (child instanceof ProcessManager)
 			this._processes.remove((ProcessManager) child);
