@@ -79,15 +79,15 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	public double[] getLocalPosition(double[] location)
+	public void getLocalPositionTo(double[] destination, double[] location)
 	{
-		return location;
+		Vector.copyTo(destination, location);
 	}
 	
 	@Override
-	public double[] getGlobalLocation(double[] local)
+	protected void getGlobalLocationTo(double[] destination, double[] local)
 	{
-		return local;
+		Vector.copyTo(destination, local);
 	}
 	
 	/* ***********************************************************************

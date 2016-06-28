@@ -1,9 +1,7 @@
 package surface;
 
 import java.util.Collection;
-import java.util.Map;
 
-import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
@@ -26,9 +24,9 @@ import shape.Shape;
  */
 public class Collision
 {
-	/*************************************************************************
+	/* ***********************************************************************
 	 * COLLISION FUNCTIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -123,9 +121,9 @@ public class Collision
 		}
 	};
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * VARIABLES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * TODO
@@ -136,13 +134,18 @@ public class Collision
 	 */
 	private CollisionFunction _pullFun;
 	/**
-	 * TODO
+	 * The shape of the computational domain this collision is happening
+	 * inside. Useful for its knowledge of cyclic dimensions and boundary
+	 * surfaces.
 	 */
 	private Shape _computationalDomain;
 	
 	/**
 	 * Vector that represents the shortest distance between: point-point,
 	 * point-line segment and line segment-line segment.
+	 * 
+	 * <p>This vector is set in
+	 * {@link #setPeriodicDistanceVector(double[], double[])}.</p>
 	 */
 	private double[] dP;
 	
@@ -159,25 +162,33 @@ public class Collision
 	private double t = 0;
 	
 	/**
-	 * 
+	 * Internal variable used for passing a distance at with surfaces become
+	 * attractive.
 	 */
 	private double pullRange = 0.0;
 	
 	/**
-	 * flip if the force needs to be added to b and subtracted from a
+	 * Flip if the force needs to be applied in the opposite direction to the
+	 * default.
 	 */
 	private boolean flip = false;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param collisionFunction
+	 * @param compartmentShape
+	 */
 	public Collision(CollisionFunction collisionFunction, Shape compartmentShape)
 	{
-		if (collisionFunction != null)
-			this._collisionFun = collisionFunction;
-		else
+		if ( collisionFunction == null )
 			this._collisionFun = DefaultCollision;
+		else
+			this._collisionFun = collisionFunction;
 		this._computationalDomain = compartmentShape;
 		this.dP = Vector.zerosDbl(compartmentShape.getNumberOfDimensions());
 		
@@ -185,74 +196,83 @@ public class Collision
 		this._pullFun = PullFunction;
 	}
 
+	/**
+	 * \brief TODO
+	 * 
+	 * @param aShape
+	 */
 	public Collision(Shape aShape)
 	{
 		this(null, aShape);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * FORCE METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @return
+	 * @return The greatest possible magnitude of a force in this system.
 	 */
 	public double getMaxForceScalar()
 	{
-		return Math.max(Math.abs(this._collisionFun.forceScalar()), 
+		return Math.max(
+				Math.abs(this._collisionFun.forceScalar()), 
 				Math.abs(this._pullFun.forceScalar()));
 	}
 	
 	/**
 	 * \brief Apply a collision force on two surfaces, if applicable.
 	 * 
-	 * @param a
-	 * @param b
-	 * @param pullDistance
+	 * @param a One surface object.
+	 * @param b Another surface object.
+	 * @param pullDistance The maximum distance between surfaces before they
+	 * become attractive.
 	 */
 	public void collision(Surface a, Surface b, double pullDistance)
 	{
-		pullRange = pullDistance;
-		double dist = distance(a, b);
-		
-		/* Pushing */
+		this.pullRange = pullDistance;
+		double dist = this.distance(a, b);
+		/* 
+		 * If the two surfaces overlap, then they should push each other away.
+		 */
 		if ( dist < 0.0 )
 		{
-			double[] force = _collisionFun.interactionForce(dist, 
+			double[] force = this._collisionFun.interactionForce(dist, 
 					(this.flip ? Vector.reverse(this.dP) : this.dP));
 	
 			if( this.flip )
 			{
-				this.applyForce(b, force, s);
-				this.applyForce(a, Vector.reverse(force), t);
+				this.applyForce(b, force, this.s);
+				this.applyForce(a, Vector.reverse(force), this.t);
 			} 
 			else
 			{
-				this.applyForce(a, force, s);
-				this.applyForce(b, Vector.reverse(force), t);
+				this.applyForce(a, force, this.s);
+				this.applyForce(b, Vector.reverse(force), this.t);
 			}
 		}
-		else if (pullDistance > 0.0)
-		/* Pulling */
+		/*
+		 * If pull distance is greater than zero, then there may be attraction
+		 * between the two surfaces.
+		 */
+		else if ( pullDistance > 0.0 )
 		{
-			double[] force = _pullFun.interactionForce(distance(a,b), 
+			double[] force = this._pullFun.interactionForce(dist, 
 					(this.flip ? Vector.reverse(this.dP) : this.dP));
 
 			if( this.flip )
 			{
-				this.applyForce(a, force, s);
-				this.applyForce(b, Vector.reverse(force), t);
+				this.applyForce(a, force, this.s);
+				this.applyForce(b, Vector.reverse(force), this.t);
 			} 
 			else
 			{
-				this.applyForce(b, force, s);
-				this.applyForce(a, Vector.reverse(force), t);
+				this.applyForce(b, force, this.s);
+				this.applyForce(a, Vector.reverse(force), this.t);
 			}
 		}
-		/* reset pull dist, very important! */
-		pullRange = 0.0;
+		/* Reset pull distance: this is very important! */
+		this.pullRange = 0.0;
 	}
 
 	/**
@@ -293,9 +313,9 @@ public class Collision
 		}
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * KEY DISTANCE METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief TODO
@@ -347,6 +367,13 @@ public class Collision
 		
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param p
+	 * @return
+	 */
 	public double distance(Surface a, double[] p)
 	{
 		switch ( a.type() )
@@ -361,9 +388,9 @@ public class Collision
 		return 0.0;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * PRIVATE ASSESMENT METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Calculate the distance between a Plane and another surface of
@@ -415,9 +442,16 @@ public class Collision
 	// NOTE Work in progress
 	private void setPeriodicDistanceVector(double[] a, double[] b)
 	{
-		this.dP = this._computationalDomain.getMinDifference(a,b);
+		this._computationalDomain.getMinDifferenceTo(this.dP, a, b);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param a
+	 * @param b
+	 * @return
+	 */
 	private double[] minDistance(double[] a, double[] b)
 	{
 		return this._computationalDomain.getMinDifference(a,b);
@@ -621,33 +655,36 @@ public class Collision
 		double denominator 	= (a * e) - (b * b);
 		
 		/* s, t = 0.0 if segments are parallel. */
-		s = ( (denominator != 0.0) ? clamp( (b*f-c*e) / denominator ) : 0.0 );	
-		t = (b*s + f) / e;
+		if ( denominator == 0.0 )
+			this.s = 0.0;
+		else
+			this.s = clamp( (b*f-c*e) / denominator );	
+		this.t = (b*this.s + f) / e;
 		/*
 		 * TODO explain
 		 */
-		if ( t < 0.0 ) 
+		if ( this.t < 0.0 ) 
 		{
-			t = 0.0;
-			s = clamp(-c/a);
+			this.t = 0.0;
+			this.s = clamp(-c/a);
 		} 
-		else if ( t > 1.0 ) 
+		else if ( this.t > 1.0 ) 
 		{
-			t = 1.0;
-			s = clamp((b-c)/a);
+			this.t = 1.0;
+			this.s = clamp((b-c)/a);
 		}
 		
 		/* c1 = p0 + (d1*s) */
-		double[] c1 = Vector.times(d1, s);
+		double[] c1 = Vector.times(d1, this.s);
 		Vector.addEquals(c1, p0);
 		
 		/* c2 = q0 + (d2*t) */
-		double[] c2 = Vector.times(d2, t);
+		double[] c2 = Vector.times(d2, this.t);
 		Vector.addEquals(c2, q0);
 
 		/* dP = c1 - c2 */
 		this.setPeriodicDistanceVector(c1, c2);
-		return Vector.normEuclid(dP);
+		return Vector.normEuclid(this.dP);
 	}
 	
 	/**

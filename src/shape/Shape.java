@@ -575,6 +575,19 @@ public abstract class Shape implements
 
 	/**
 	 * \brief Convert a spatial position from global (Cartesian) coordinates to
+	 * a new vector in the local coordinate scheme, writing the result into the
+	 * destination vector given.
+	 * 
+	 * @param dest The destination vector that will be overwritten with the
+	 * result.
+	 * @param cartesian A point in space represented by a vector in global
+	 * (Cartesian) coordinates.
+	 */
+	protected abstract void getLocalPositionTo(
+			double[] destination, double[] cartesian);
+	
+	/**
+	 * \brief Convert a spatial position from global (Cartesian) coordinates to
 	 * a new vector in the local coordinate scheme. 
 	 * 
 	 * @param cartesian A point in space represented by a vector in global
@@ -583,7 +596,37 @@ public abstract class Shape implements
 	 * coordinate scheme.
 	 * @see #getGlobalLocation(double[])
 	 */
-	protected abstract double[] getLocalPosition(double[] cartesian);
+	protected double[] getLocalPosition(double[] cartesian)
+	{
+		double[] out = new double[cartesian.length];
+		this.getLocalPositionTo(out, cartesian);
+		return out;
+	}
+	
+	/**
+	 * \brief Convert a spatial position from global (Cartesian) coordinates to
+	 * the local coordinate scheme, overwriting the original vector with the
+	 * result. 
+	 * 
+	 * @param cartesian A point in space represented by a vector in global
+	 * (Cartesian) coordinates. Overwritten.
+	 */
+	protected void getLocalPositionEquals(double[] cartesian)
+	{
+		this.getLocalPositionTo(cartesian, cartesian);
+	}
+	
+	/**
+	 * \brief Convert a spatial position from the local coordinate scheme to
+	 * global (Cartesian) coordinates, writing the result into the destination
+	 * vector given.
+	 * 
+	 * @param dest The destination vector that will be overwritten with the
+	 * result.
+	 * @param local A point in space represented by a vector in local
+	 * coordinate scheme.
+	 */
+	protected abstract void getGlobalLocationTo(double[] dest, double[] local);
 	
 	/**
 	 * \brief Convert a spatial position from the local coordinate scheme to
@@ -595,7 +638,24 @@ public abstract class Shape implements
 	 * (Cartesian) coordinates.
 	 * @see #getLocalPosition(double[])
 	 */
-	protected abstract double[] getGlobalLocation(double[] local);
+	protected double[] getGlobalLocation(double[] local)
+	{
+		double[] out = new double[local.length];
+		this.getGlobalLocationTo(out, local);
+		return out;
+	}
+	
+	/**
+	 * \brief Convert a spatial position from the local coordinate scheme to
+	 * global (Cartesian) coordinates, writing the result into the vector given.
+	 * 
+	 * @param local A point in space represented by a vector in local
+	 * coordinate scheme (overwritten).
+	 */
+	protected void getGlobalLocationEquals(double[] local)
+	{
+		this.getGlobalLocationTo(local, local);
+	}
 
 	/**
 	 * \brief Check if a given location is inside this shape.
@@ -673,6 +733,34 @@ public abstract class Shape implements
 	
 	/**
 	 * \brief Get the smallest distance between two points, once cyclic
+	 * dimensions are accounted for. Write the result into the destination
+	 * vector given.
+	 * 
+	 * <p><b>a</b> - <b>b</b>, i.e. the vector from <b>b</b> to <b>a</b>.</p>
+	 * 
+	 * @param a A spatial location in global coordinates.
+	 * @param b A spatial location in global coordinates.
+	 * @return The smallest distance between them.
+	 */
+	public void getMinDifferenceTo(double[] destination, double[] a, double[] b)
+	{
+		Vector.checkLengths(destination, a, b);
+		double[] aLocal = this.getLocalPosition(a);
+		double[] bLocal = this.getLocalPosition(b);
+		int nDim = a.length;
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			// TODO get arc length in angular dimensions?
+			destination[i] = dim.getShortest(aLocal[i], bLocal[i]);
+			if ( ++i >= nDim )
+				break;
+		}
+		this.getGlobalLocationEquals(destination);
+	}
+	
+	/**
+	 * \brief Get the smallest distance between two points, once cyclic
 	 * dimensions are accounted for.
 	 * 
 	 * <p><b>a</b> - <b>b</b>, i.e. the vector from <b>b</b> to <b>a</b>.</p>
@@ -684,19 +772,9 @@ public abstract class Shape implements
 	public double[] getMinDifference(double[] a, double[] b)
 	{
 		Vector.checkLengths(a, b);
-		double[] aLocal = this.getLocalPosition(a);
-		double[] bLocal = this.getLocalPosition(b);
-		int nDim = a.length;
-		double[] diffLocal = new double[nDim];
-		int i = 0;
-		for ( Dimension dim : this._dimensions.values() )
-		{
-			// TODO get arc length in angular dimensions?
-			diffLocal[i] = dim.getShortest(aLocal[i], bLocal[i]);
-			if ( ++i >= nDim )
-				break;
-		}
-		return this.getGlobalLocation(diffLocal);
+		double[] out = new double[a.length];
+		this.getMinDifferenceTo(out, a, b);
+		return out;
 	}
 	
 	/**

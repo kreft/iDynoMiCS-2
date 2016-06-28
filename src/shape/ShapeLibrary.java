@@ -81,15 +81,15 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public double[] getLocalPosition(double[] location)
+		public void getLocalPositionTo(double[] destination, double[] location)
 		{
-			return location;
+			/* Do nothing! */
 		}
 		
 		@Override
-		public double[] getGlobalLocation(double[] local)
+		public void getGlobalLocationTo(double[] destination, double[] local)
 		{
-			return local;
+			/* Do nothing! */
 		}
 		
 		@Override
