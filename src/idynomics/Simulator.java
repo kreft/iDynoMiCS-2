@@ -462,7 +462,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		
 		/* add species lib */
 		modelNode.add(speciesLibrary.getNode());
-
+		/* Add reaction library. */
+		modelNode.add(reactionLibrary.getNode());
 		/* add compartment nodes */
 		for ( Compartment c : this._compartments )
 			modelNode.add(c.getNode());
