@@ -89,8 +89,13 @@ public abstract class Surface
 	}
 
 	/**
-	 * writes the resulting force from this collision to the force vector of
-	 * the mass points of thes two involved surface objects
+	 * \brief Writes the resulting force from this collision to the force vector of
+	 * the mass points of the two involved surface objects
+	 * 
+	 * <p>This method always also sets the internal variables _flip and dP of 
+	 * {@link #_collisionDomain}. It may also set s and t, depending on the
+	 * surface types.</p>
+	 * 
 	 * @param surface
 	 */
 	public boolean collisionWith(Surface surface)

@@ -7,21 +7,22 @@ import linearAlgebra.Vector;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Plane extends Surface {
-
+public class Plane extends Surface
+{
 	/**
-	 * The normal of the plane
+	 * The normal vector of the plane.
 	 */
 	public double[] normal;
 	
 	/**
-	 * The dot product of the plain's normal with a point on the plane
+	 * The dot product of the plane's normal vector with a point on the plane.
 	 */
 	public double d;
 
 	/**
-	 * Construct plane from it's normal and the dot product of the plain's 
-	 * normal with a point on the plane
+	 * \brief Construct plane from its normal and the dot product of the
+	 * plane's normal vector with a point on the plane.
+	 * 
 	 * @param normal
 	 * @param d
 	 */
@@ -32,7 +33,8 @@ public class Plane extends Surface {
 	}
 	
 	/**
-	 * Construct plane from it's normal and a point on the plane
+	 * \brief Construct plane from its normal vector and a point on the plane.
+	 * 
 	 * @param normal
 	 * @param point
 	 */
@@ -43,27 +45,31 @@ public class Plane extends Surface {
 	}
 	
 	/**
-	 * Construct plane from 3 points on the plane
+	 * \brief Construct plane from 3 points on the plane.
+	 * 
 	 * @param pointA
 	 * @param pointB
 	 * @param pointC
 	 */
 	public Plane(double[] pointA, double[] pointB, double[] pointC)
 	{
-		Vector.normaliseEuclidTo(this.normal, Vector.crossProduct(
+		this.normal = Vector.normaliseEuclid(Vector.crossProduct(
 				Vector.minus(pointB, pointA), Vector.minus(pointC, pointA)));
-		this.d = Vector.dotProduct(normal, pointA);
+		this.d = Vector.dotProduct(this.normal, pointA);
 	}
 	
 	/**
 	 * Plane.set allows one to move the plane along its normal
 	 */
+	@Override
 	public void set(double d, double notUsed)
 	{
 		this.d = d;
 	}
 	
-	public Type type() {
+	@Override
+	public Type type()
+	{
 		return Surface.Type.PLANE;
 	}
 }

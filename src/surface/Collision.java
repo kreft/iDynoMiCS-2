@@ -75,7 +75,7 @@ public class Collision
 			 * If distance is in the range (0, pullRange), apply the pull force.
 			 * Otherwise, return a zero vector.
 			 */
-			if ( distance > 0.0 && distance < pullRange ) 
+			if ( distance > 0.0 && distance < _pullRange ) 
 			{
 				/* Linear. */
 				double c = Math.abs(this.forceScalar() * distance);
@@ -126,11 +126,13 @@ public class Collision
 	 * **********************************************************************/
 	
 	/**
-	 * TODO
+	 * The function used to evaluate repulsive forces between surfaces that
+	 * overlap.
 	 */
 	private CollisionFunction _collisionFun;
 	/**
-	 * TODO
+	 * The function used to evaluate attractive forces between surfaces that
+	 * are close.
 	 */
 	private CollisionFunction _pullFun;
 	/**
@@ -145,7 +147,10 @@ public class Collision
 	 * point-line segment and line segment-line segment.
 	 * 
 	 * <p>This vector is set in
-	 * {@link #setPeriodicDistanceVector(double[], double[])}.</p>
+	 * {@link #setPeriodicDistanceVector(double[], double[])}. It is
+	 * overwritten in
+	 * CollisionFunction.interactionForce(double distance, double[] dP), but
+	 * only if flip is false and there is a force to apply.</p>
 	 */
 	private double[] dP;
 	
@@ -153,25 +158,31 @@ public class Collision
 	 * Represents the closest point on the first line segment expressed as a
 	 * fraction of the line segment.
 	 */
-	private double s = 0;
+	private double s = 0.0;
 	
 	/**
 	 * Represents the closest point on the second line segment expressed as a
 	 * fraction of the line segment.
 	 */
-	private double t = 0;
+	private double t = 0.0;
 	
 	/**
 	 * Internal variable used for passing a distance at with surfaces become
 	 * attractive.
+	 * 
+	 * <p>This is set in {@link #collision(Collection, Collection, double)}
+	 * only.</p>
 	 */
-	private double pullRange = 0.0;
+	private double _pullRange = 0.0;
 	
 	/**
 	 * Flip if the force needs to be applied in the opposite direction to the
 	 * default.
+	 * 
+	 * <p>This is set in {@link #distance(Surface, Surface)} and used in
+	 * {@link #collision(Collection, Collection, double)}.</p>
 	 */
-	private boolean flip = false;
+	private boolean _flip = false;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -186,18 +197,18 @@ public class Collision
 	public Collision(CollisionFunction collisionFunction, Shape compartmentShape)
 	{
 		if ( collisionFunction == null )
-			this._collisionFun = DefaultCollision;
+			this._collisionFun = this.DefaultCollision;
 		else
 			this._collisionFun = collisionFunction;
 		this._computationalDomain = compartmentShape;
 		this.dP = Vector.zerosDbl(compartmentShape.getNumberOfDimensions());
 		
 		//FIXME testing purposes
-		this._pullFun = PullFunction;
+		this._pullFun = this.PullFunction;
 	}
 
 	/**
-	 * \brief TODO
+	 * \brief Construct a collision 
 	 * 
 	 * @param aShape
 	 */
@@ -223,6 +234,10 @@ public class Collision
 	/**
 	 * \brief Apply a collision force on two surfaces, if applicable.
 	 * 
+	 * <p>This method always also sets the internal variables {@link #_flip}
+	 * and {@link #dP}. It may also set {@link #s} and {@link #t}, depending on
+	 * the surface types.</p>
+	 * 
 	 * @param a One surface object.
 	 * @param b Another surface object.
 	 * @param pullDistance The maximum distance between surfaces before they
@@ -230,7 +245,7 @@ public class Collision
 	 */
 	public void collision(Surface a, Surface b, double pullDistance)
 	{
-		this.pullRange = pullDistance;
+		this._pullRange = pullDistance;
 		double dist = this.distance(a, b);
 		/* 
 		 * If the two surfaces overlap, then they should push each other away.
@@ -238,9 +253,9 @@ public class Collision
 		if ( dist < 0.0 )
 		{
 			double[] force = this._collisionFun.interactionForce(dist, 
-					(this.flip ? Vector.reverse(this.dP) : this.dP));
+					(this._flip ? Vector.reverse(this.dP) : this.dP));
 	
-			if( this.flip )
+			if( this._flip )
 			{
 				this.applyForce(b, force, this.s);
 				this.applyForce(a, Vector.reverse(force), this.t);
@@ -258,9 +273,9 @@ public class Collision
 		else if ( pullDistance > 0.0 )
 		{
 			double[] force = this._pullFun.interactionForce(dist, 
-					(this.flip ? Vector.reverse(this.dP) : this.dP));
+					(this._flip ? Vector.reverse(this.dP) : this.dP));
 
-			if( this.flip )
+			if( this._flip )
 			{
 				this.applyForce(a, force, this.s);
 				this.applyForce(b, Vector.reverse(force), this.t);
@@ -272,7 +287,7 @@ public class Collision
 			}
 		}
 		/* Reset pull distance: this is very important! */
-		this.pullRange = 0.0;
+		this._pullRange = 0.0;
 	}
 
 	/**
@@ -291,11 +306,11 @@ public class Collision
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Apply a force vector to a surface.
 	 * 
-	 * @param surf
-	 * @param force
-	 * @param intersect
+	 * @param surf Surface object.
+	 * @param force Force vector: both direction and magnitude are important.
+	 * @param intersect Force modifier for more complex surfaces.
 	 */
 	private void applyForce(Surface surf, double[] force, double intersect)
 	{
@@ -318,34 +333,48 @@ public class Collision
 	 * **********************************************************************/
 
 	/**
-	 * colliding
-	 * @param a
-	 * @param b
-	 * @param margin
-	 * @return
+	 * \brief Check if the distance between two surfaces less than a given
+	 * margin.
+	 * 
+	 * @param a One surface, of unknown type.
+	 * @param b Another surface, of unknown type.
+	 * @param margin Minimum distance between the two surfaces.
+	 * @return True if the distance between the two surfaces is less than
+	 * the margin given, otherwise false.
 	 */
-	public boolean colliding(Surface a, Surface b, double margin)
+	public boolean areColliding(Surface a, Surface b, double margin)
 	{
-		return ( distance( a, b ) < margin );
+		return ( this.distance( a, b, margin ) < 0.0 );
 	}
 	
 	/**
+	 * \brief Calculate the distance between two surfaces, subtracting a given
+	 * margin.
 	 * 
-	 * @param a
-	 * @param b
-	 * @param margin
-	 * @return
+	 * <p>This method always also sets the internal variables {@link #_flip}
+	 * and {@link #dP}. It may also set {@link #s} and {@link #t}, depending on
+	 * the surface types.</p>
+	 * 
+	 * @param a One surface, of unknown type.
+	 * @param b Another surface, of unknown type.
+	 * @param margin Distance to exclude.
+	 * @return The minimum distance between the two surfaces.
 	 */
 	public double distance(Surface a, Surface b, double margin)
 	{
-		return distance( a, b ) - margin;
+		return this.distance( a, b ) - margin;
 	}
+	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance between two surfaces.
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * <p>This method always also sets the internal variables {@link #_flip}
+	 * and {@link #dP}. It may also set {@link #s} and {@link #t}, depending on
+	 * the surface types.</p>
+	 * 
+	 * @param a One surface, of unknown type.
+	 * @param b Another surface, of unknown type.
+	 * @return The minimum distance between the two surfaces.
 	 */
 	public double distance(Surface a, Surface b)
 	{
@@ -357,29 +386,29 @@ public class Collision
 		/* Plane interactions. */
 		if ( a.type() == Surface.Type.PLANE )
 		{
-			flip = false;
+			this._flip = false;
 			return this.assessPlane((Plane) a, b);
 		}
 		else if ( b.type() == Surface.Type.PLANE )
 		{
-			flip = true;
+			this._flip = true;
 			return this.assessPlane((Plane) b, a);
 		}
 		/* Sphere-swept-volume interactions. */
 		if ( a.type() == Surface.Type.ROD )
 		{
-			this.flip = false;
+			this._flip = false;
 			return this.assessRod((Rod) a, b); 
 		}
 		else if ( b.type() == Surface.Type.ROD )
 		{
-			this.flip = true;
+			this._flip = true;
 			return this.assessRod((Rod) b, a);
 		}
 		/* Sphere-sphere interactions. */
 		if( a.type() == Surface.Type.SPHERE )
 		{
-			this.flip = false;
+			this._flip = false;
 			return this.sphereSphere((Ball) a, (Ball) b);
 		}
 		else
@@ -391,11 +420,14 @@ public class Collision
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance from a surface to a point.
 	 * 
-	 * @param a
-	 * @param p
-	 * @return
+	 * <p>This method always also sets the internal variable {@link #dP}.
+	 * It may also set {@link #s}, depending on the surface type.</p>
+	 * 
+	 * @param a Surface object, of unknown type.
+	 * @param p A point in space.
+	 * @return The minimum distance from the surface to the point.
 	 */
 	public double distance(Surface a, double[] p)
 	{
@@ -406,7 +438,7 @@ public class Collision
 		case ROD :
 			return this.rodPoint((Rod) a, p);
 		case PLANE:
-			return planePoint((Plane) a, p);
+			return this.planePoint((Plane) a, p);
 		}
 		return 0.0;
 	}
@@ -419,15 +451,18 @@ public class Collision
 	 * \brief Calculate the distance between a Plane and another surface of
 	 * unknown type.
 	 * 
-	 * @param plane
-	 * @param otherSurface
-	 * @return
+	 * <p>This method always also sets the internal variable {@link #dP}.
+	 * It may also set {@link #s}, depending on the other surface type.</p>
+	 * 
+	 * @param plane Surface of an infinite plane.
+	 * @param otherSurface Another surface object, of unknown type.
+	 * @return The minimum distance between the two surfaces.
 	 */
 	private double assessPlane(Plane plane, Surface otherSurface)
 	{
 		// TODO plane-plane 
 		if ( otherSurface.type() == Surface.Type.SPHERE )
-			return planeSphere(plane, (Ball) otherSurface);
+			return this.planeSphere(plane, (Ball) otherSurface);
 		if ( otherSurface.type() == Surface.Type.ROD )
 			return this.planeRod(plane, (Rod) otherSurface);
 		// TODO safety
@@ -438,9 +473,13 @@ public class Collision
 	 * \brief Calculate the distance between a Rod and another surface of
 	 * unknown type.
 	 * 
-	 * @param rod
-	 * @param otherSurface
-	 * @return
+	 * <p>This method always also sets the internal variables {@link #s} and 
+	 * {@link #dP}. It may also set {@link #t}, depending on the other surface
+	 * type.</p>
+	 * 
+	 * @param rod Rod surface.
+	 * @param otherSurface Another surface object, of unknown type.
+	 * @return The minimum distance between the two surfaces.
 	 */
 	private double assessRod(Rod rod, Surface otherSurface)
 	{
@@ -459,8 +498,10 @@ public class Collision
 	 * \brief Stores the vector that points the shortest distance between two
 	 * locations.
 	 * 
-	 * @param a
-	 * @param b
+	 * <p>Neither vector is changed by this method.</p>
+	 * 
+	 * @param a One point in space.
+	 * @param b Another point in space.
 	 */
 	// NOTE Work in progress
 	private void setPeriodicDistanceVector(double[] a, double[] b)
@@ -469,11 +510,13 @@ public class Collision
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the minimum distance between two points in space.
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * <p>Neither vector is changed by this method.</p>
+	 * 
+	 * @param a One point in space.
+	 * @param b Another point in space.
+	 * @return The minmum distance between them.
 	 */
 	private double[] minDistance(double[] a, double[] b)
 	{
@@ -483,6 +526,9 @@ public class Collision
 	/**
 	 * \brief Point-point distance.
 	 * 
+	 * <p>This method also sets the internal variable {@link #dP}.
+	 * It returns the Euclidean norm of {@link #dP}.</p>
+	 * 
 	 * @param p First point.
 	 * @param q Second point.
 	 * @return Distance between the two points.
@@ -490,16 +536,17 @@ public class Collision
 	private double pointPoint(double[] p, double[] q) 
 	{
 		this.setPeriodicDistanceVector(p, q);
-//		Vector.minusTo(dP, p, q);
 		return Vector.normEuclid(dP);
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance from the surface of a sphere to a point.
 	 * 
-	 * @param a
-	 * @param p
-	 * @return
+	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * 
+	 * @param a A ball object.
+	 * @param p A point in space.
+	 * @return The minimum distance from the surface of the sphere to the point.
 	 */
 	private double spherePoint(Ball a, double[] p)
 	{
@@ -507,7 +554,7 @@ public class Collision
 		 * First find the distance between the point and the centre of the
 		 * sphere. 
 		 */
-		double out = pointPoint(a.getCenter(), p);
+		double out = this.pointPoint(a.getCenter(), p);
 		/*
 		 * Subtract the sphere's radius to find the distance between the point
 		 * and the surface of the sphere.
@@ -516,11 +563,13 @@ public class Collision
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance between two spheres.
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * 
+	 * @param a A ball object representing one sphere.
+	 * @param b A ball object representing another sphere.
+	 * @return The minimum distance between the surfaces of the two spheres.
 	 */
 	private double sphereSphere(Ball a, Ball b)
 	{
@@ -536,19 +585,24 @@ public class Collision
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance between an infinite plane and the segment
+	 * of a line.
 	 * 
-	 * @param normal
-	 * @param d
-	 * @param p0
-	 * @param p1
-	 * @return
+	 * <p>This method also sets the internal variables {@link #s} and
+	 * {@link #dP}.</p>
+	 * 
+	 * @param normal Normal vector of the plane.
+	 * @param d 
+	 * @param p0 Point in space at one end of the line segment.
+	 * @param p1 Point in space at the other end of the line segment.
+	 * @return The minimum distance between the plane and the line segment.
 	 */
-	private double planeLineSeg(double[] normal, double d, double[] p0, double[] p1)
+	private double planeLineSeg(
+			double[] normal, double d, double[] p0, double[] p1)
 	{
-		dP = Vector.reverse(normal);
-		double a = planePoint(normal, d, p0);
-		double b = planePoint(normal, d, p1);
+		Vector.reverseTo(this.dP, normal);
+		double a = this.planePoint(normal, d, p0);
+		double b = this.planePoint(normal, d, p1);
 		if ( a < b )
 		{
 			this.s = 0.0;
@@ -565,18 +619,23 @@ public class Collision
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance between an infinite plane and the surface 
+	 * of a rod.
 	 * 
-	 * @param plane
-	 * @param rod
-	 * @return
+	 * <p>This method also sets the internal variables {@link #s} and
+	 * {@link #dP}.</p>
+	 * 
+	 * @param plane Infinite plane.
+	 * @param rod Rod surface.
+	 * @return Minimum distance between the plane and the rod.
 	 */
 	private double planeRod(Plane plane, Rod rod)
 	{
 		/*
 		 * First find the distance between the plane and the axis of the rod. 
 		 */
-		double out = planeLineSeg(plane.normal, plane.d, 
+		double out = this.planeLineSeg(
+				plane.normal, plane.d, 
 				rod._points[0].getPosition(), rod._points[1].getPosition());
 		/*
 		 * Subtract the rod's radius to find the distance between the plane and
@@ -588,53 +647,68 @@ public class Collision
 	/**
 	 * \brief Calculates the distance between a line segment and a point.
 	 * 
+	 * <p>This method also sets the internal variables {@link #s} and
+	 * {@link #dP}. It returns the Euclidean norm of {@link #dP}.</p>
+	 * 
 	 * <p>(Ericson 2005, page 127) closest point on line segment to point.</p>
 	 * 
-	 * @param p0 First point of rod
-	 * @param p1 Second point of rod
-	 * @param q0 Point of sphere
-	 * @return distance between the line segment and the point.
+	 * @param p0 First point of rod.
+	 * @param p1 Second point of rod.
+	 * @param q0 Point of sphere.
+	 * @return Minimum distance between the line segment and the point.
 	 */
 	public double linesegPoint(double[] p0, double[] p1, double[] q0) 
 	{
-		// ab = p1 - p0
+		/* ab = p1 - p0 */
 		this.setPeriodicDistanceVector(p1, p0);
-		s  = clamp( Vector.dotProduct( Vector.minus(q0, p0), dP) 
-													/ Vector.normSquare(dP) );
-		// dP = (ab*s) + p0 - q0 
-		Vector.timesEquals(dP, s);
-		Vector.addEquals(dP, p0);
-		Vector.minusEquals(dP, q0);
-		return Vector.normEuclid(dP);
+		this.s = Vector.dotProduct( Vector.minus(q0, p0), this.dP);
+		this.s /= Vector.normSquare(this.dP);
+		this.s  = clamp( this.s );
+		/* dP = (ab*s) + p0 - q0 */
+		Vector.timesEquals(this.dP, this.s);
+		Vector.addEquals(this.dP, p0);
+		Vector.minusEquals(this.dP, q0);
+		return Vector.normEuclid(this.dP);
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance between the surface of a rod and a point
+	 * in space.
 	 * 
-	 * @param a
-	 * @param p
-	 * @return
+	 * <p>This method also sets the internal variables {@link #s} and
+	 * {@link #dP}.</p>
+	 * 
+	 * @param aRod A rod surface.
+	 * @param p A point in space.
+	 * @return The minimum distance between the surface of the rod and the
+	 * point.
 	 */
-	public double rodPoint(Rod a, double[] p)
+	public double rodPoint(Rod aRod, double[] p)
 	{
 		/*
 		 * First find the distance between the axis of the rod and the point. 
 		 */
-		double out = linesegPoint(a._points[0].getPosition(), 
-				a._points[1].getPosition(), p);
+		double out = this.linesegPoint(
+				aRod._points[0].getPosition(), 
+				aRod._points[1].getPosition(), p);
 		/*
 		 * Subtract the rod's radius to find the distance between the point and
 		 * the rod's surface.
 		 */
-		return out - a.getRadius();
+		return out - aRod.getRadius();
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance between the surfaces of a rod and of a
+	 * sphere.
 	 * 
-	 * @param aRod
-	 * @param aBall
-	 * @return
+	 * <p>This method also sets the internal variables {@link #s} and
+	 * {@link #dP}.</p>
+	 * 
+	 * @param aRod A rod surface.
+	 * @param aBall A sphere surface.
+	 * @return The minimum distance between the surface of the rod and the
+	 * surface of the sphere.
 	 */
 	public double rodSphere(Rod aRod, Ball aBall)
 	{
@@ -642,7 +716,8 @@ public class Collision
 		 * First find the distance between the axis of the rod and the centre
 		 * of the sphere. 
 		 */
-		double out = linesegPoint(aRod._points[0].getPosition(),
+		double out = this.linesegPoint(
+				aRod._points[0].getPosition(),
 				aRod._points[1].getPosition(),
 				aBall.getCenter());
 		/*
@@ -653,7 +728,10 @@ public class Collision
 	}
 	
 	/**
-	 * \brief Distance between two line segments.
+	 * \brief Calculate the distance between two line segments.
+	 * 
+	 * <p>This method also sets the internal variables {@link #s}, {@link #t}, 
+	 * and {@link #dP}. It returns the Euclidean norm of {@link #dP}.</p>
 	 * 
 	 * <p>(Ericson 2005, page 148) closest point on two line segments.</p>
 	 * 
@@ -667,14 +745,14 @@ public class Collision
 												double[] q0, double[] q1) 
 	{		
 
-		double[] r      = minDistance(p0, q0);
-		double[] d1     = minDistance(p1, p0);
-		double[] d2     = minDistance(q1, q0);
-		double a 		= Vector.normSquare(d1);
-		double e 		= Vector.normSquare(d2);
-		double f 		= Vector.dotProduct(d2, r);
-		double c 		= Vector.dotProduct(d1, r);
-		double b 		= Vector.dotProduct(d1, d2);
+		double[] r	= this.minDistance(p0, q0);
+		double[] d1	= this.minDistance(p1, p0);
+		double[] d2	= this.minDistance(q1, q0);
+		double a 	= Vector.normSquare(d1);
+		double e 	= Vector.normSquare(d2);
+		double f 	= Vector.dotProduct(d2, r);
+		double c 	= Vector.dotProduct(d1, r);
+		double b 	= Vector.dotProduct(d1, d2);
 		double denominator 	= (a * e) - (b * b);
 		
 		/* s, t = 0.0 if segments are parallel. */
@@ -696,33 +774,38 @@ public class Collision
 			this.t = 1.0;
 			this.s = clamp((b-c)/a);
 		}
-		
+		/*
+		 * Note that below we overwrite the d1 and d2 vectors with the values
+		 * for c1 and c2 (for efficiency).
+		 */
 		/* c1 = p0 + (d1*s) */
-		double[] c1 = Vector.times(d1, this.s);
-		Vector.addEquals(c1, p0);
-		
+		Vector.timesEquals(d1, this.s);
+		Vector.addEquals(d1, p0);
 		/* c2 = q0 + (d2*t) */
-		double[] c2 = Vector.times(d2, this.t);
-		Vector.addEquals(c2, q0);
-
+		Vector.timesEquals(d2, this.t);
+		Vector.addEquals(d2, q0);
 		/* dP = c1 - c2 */
-		this.setPeriodicDistanceVector(c1, c2);
+		this.setPeriodicDistanceVector(d1, d2);
 		return Vector.normEuclid(this.dP);
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the minimum distance between the surfaces of two rods.
 	 * 
-	 * @param a
-	 * @param b
-	 * @return
+	 * <p>This method also sets the internal variables {@link #s}, {@link #t}, 
+	 * and {@link #dP}.</p>
+	 * 
+	 * @param a One rod.
+	 * @param b Another rod.
+	 * @return The minimum distance between the surfaces of the two rods.
 	 */
 	private double rodRod(Rod a, Rod b)
 	{
 		/*
 		 * First find the distance between the axes of the two rods. 
 		 */
-		double out = linesegLineseg(a._points[0].getPosition(),
+		double out = this.linesegLineseg(
+				a._points[0].getPosition(),
 				a._points[1].getPosition(),
 				b._points[0].getPosition(),
 				b._points[1].getPosition());
@@ -736,13 +819,15 @@ public class Collision
 	/**
 	 * \brief Distance between a plane and a point.
 	 * 
-	 * @param plane
-	 * @param point
-	 * @return
+	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * 
+	 * @param plane An infinite plane.
+	 * @param point A point in space.
+	 * @return The minimum distance between the plane and the point.
 	 */
 	public double planePoint(Plane plane, double[] point)
 	{
-		this.dP = Vector.reverse(plane.normal);
+		Vector.reverseTo(this.dP, plane.normal);
 		return Vector.dotProduct(plane.normal, point) - plane.d;
 	}
 	
@@ -754,22 +839,27 @@ public class Collision
 	 * @param point
 	 * @return
 	 */
-	public double[] closestPointOnPlane(double[] normal, double d, double[] point)
+	public double[] closestPointOnPlane(
+			double[] normal, double d, double[] point)
 	{
 		/*
 		 * TODO explain
 		 */
-		double[] out = Vector.add(point, -planePoint(normal, d, point));
+		double[] out = Vector.add(point, -this.planePoint(normal, d, point));
 		Vector.timesEquals(out, d);
 		return out;
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance between an infinite plane and the surface
+	 * of a sphere.
 	 * 
-	 * @param plane
-	 * @param sphere
-	 * @return
+	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * 
+	 * @param plane An infinite plane.
+	 * @param sphere A sphere.
+	 * @return The minimum distance between the plane and the surface of the
+	 * sphere.
 	 */
 	public double planeSphere(Plane plane, Ball sphere)
 	{
@@ -777,7 +867,7 @@ public class Collision
 		 * First find the distance between the plane and the centre of the
 		 * sphere. 
 		 */
-		double out = planePoint(plane.normal, plane.d, sphere.getCenter());
+		double out = this.planePoint(plane.normal, plane.d, sphere.getCenter());
 		/*
 		 * Subtract the rod's radius to find the distance between the plane and
 		 * the rod's surface.
@@ -786,16 +876,20 @@ public class Collision
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Calculate the distance between an infinite plane and a point in
+	 * space.
 	 * 
-	 * @param normal
-	 * @param d
-	 * @param point
-	 * @return
+	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * 
+	 * @param normal The normal vector of the plane.
+	 * @param d The  dot product of the plane's normal vector with a point on
+	 * the plane.
+	 * @param point The point in space.
+	 * @return The minimum distance between the plane and the point.
 	 */
-	public double planePoint(double[] normal, double d, double[] point)
+	private double planePoint(double[] normal, double d, double[] point)
 	{
-		this.dP = Vector.reverse(normal);
+		Vector.reverseTo(this.dP, normal);
 		return Vector.dotProduct(normal, point) - d;
 	}
 	
@@ -809,9 +903,8 @@ public class Collision
 	 * @param a A double number.
 	 * @return <b>a</b> constrained to the interval [0.0, 1.0].
 	 */
-	public static double clamp(double a) 
+	private static double clamp(double a) 
 	{
 		return Math.max( Math.min(a, 1.0), 0.0 );
 	}
 }
-

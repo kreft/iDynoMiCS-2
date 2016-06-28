@@ -29,7 +29,7 @@ import solver.PDEsolver;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
-import surface.predicate.Colliding;
+import surface.predicate.AreColliding;
 import surface.Surface;
 import utility.ExtraMath;
 
@@ -361,7 +361,7 @@ public class AgentContainer
 			for ( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
 			{
 				/* on collision set boolean true and exit loop */
-				if ( collision.colliding(aSurface, s, searchDist))
+				if ( collision.areColliding(aSurface, s, searchDist))
 				{
 					c = true;
 					break;
@@ -386,7 +386,7 @@ public class AgentContainer
 
 		/* check each surface for collision, remove if not */
 		for ( Surface s : surfaces)
-			if ( ! collision.colliding(aSurface, s, searchDist))
+			if ( ! collision.areColliding(aSurface, s, searchDist))
 				surfaces.remove(s);
 	}
 	
@@ -403,7 +403,7 @@ public class AgentContainer
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
 		// NOTE lambda expressions are known to be slower than alternatives
-		Colliding<Surface> filter;
+		AreColliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
 		/* NOTE if the agent has many surfaces it may be faster the other way
@@ -411,7 +411,7 @@ public class AgentContainer
 		for ( Surface a : ((Body) anAgent.get(AspectRef.agentBody))
 				.getSurfaces())
 		{
-			filter = new Colliding<Surface>(a, collision, searchDist);
+			filter = new AreColliding<Surface>(a, collision, searchDist);
 			out.removeIf(filter);
 		}
 		return out;
