@@ -192,7 +192,8 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 		double dist = 0.1 * this._layerThickness;
 		if ( dist == 0.0 )
 		{
-			// TODO safety
+			Log.out(Tier.CRITICAL, "Error! Layer thickness is zero");
+			return;
 		}
 		if ( this._extreme == 1 )
 			dist = -dist;

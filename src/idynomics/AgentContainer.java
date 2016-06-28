@@ -488,8 +488,8 @@ public class AgentContainer
 		double[] newLoc = body.getPoints().get(0).getPosition();
 		this._shape.moveAlongDimension(newLoc, dimN, dist);
 		body.relocate(newLoc);
-		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+
-				") along dimension "+dimN+" to "+Vector.toString(newLoc));
+		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+") "+dist+
+				" along dimension "+dimN+" to "+Vector.toString(newLoc));
 	}
 
 	/* ***********************************************************************

@@ -762,18 +762,18 @@ public abstract class Shape implements
 	 */
 	public void moveAlongDimension(double[] pos, DimName dimN, double dist)
 	{
-		double[] local = this.getLocalPosition(pos);
+		this.getLocalPositionEquals(pos);
 		if ( dimN.isAngular() )
 		{
-			double radius = local[this.getDimensionIndex(R)];
+			double radius = pos[this.getDimensionIndex(R)];
 			if ( radius == 0.0 )
 				return;
 			double angle = dist/radius;
-			this.moveAlongDim(local, dimN, angle);
+			this.moveAlongDim(pos, dimN, angle);
 		}
 		else
-			this.moveAlongDim(local, dimN, dist);
-		pos = this.getGlobalLocation(local);
+			this.moveAlongDim(pos, dimN, dist);
+		this.getGlobalLocationEquals(pos);
 	}
 	
 	/**
