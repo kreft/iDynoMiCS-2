@@ -4,7 +4,9 @@ import surface.Point;
 import utility.ExtraMath;
 import linearAlgebra.Vector;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import agent.Agent;
 import agent.Body;
@@ -134,6 +136,7 @@ public class CoccoidDivision extends Event
 	 */
 	// TODO generalise this so that the user can set the variable which
 	// triggers division, and the value of this variable it should use.
+	@SuppressWarnings("unchecked")
 	private boolean shouldDivide(Agent anAgent)
 	{
 		/*
@@ -145,6 +148,9 @@ public class CoccoidDivision extends Event
 			variable = (Double) mumMass;
 		else if ( mumMass instanceof double[] )
 			variable = Vector.sum((double[]) mumMass);
+		else if ( mumMass instanceof Map )
+			for ( Object key : ((Map<String,Double>) mumMass).keySet() )
+				variable += (double) ((Map<String,Double>) mumMass).get(key);
 		/*
 		 * Find the threshold that triggers division.
 		 */
@@ -200,7 +206,19 @@ public class CoccoidDivision extends Event
 			mother.set(this.MASS, motherMass);
 			daughter.set(this.MASS, daughterMass);
 		}
-		// TODO handle more potential types of mass aspect, e.g. HashMap
+		else if ( mumMass instanceof Map )
+		{
+			@SuppressWarnings("unchecked")
+			Map<String,Double> mumProducts = (Map<String,Double>) mumMass;
+			Map<String,Double> daughterProducts = new HashMap<String,Double>();
+			double product;
+			for ( String key : mumProducts.keySet() )
+			{
+				product = mumProducts.get(key);
+				daughterProducts.put(key, product * (1-mumMassFrac) );
+				mumProducts.put(key, product * mumMassFrac);
+			}
+		}
 		else
 		{
 			Log.out(Tier.CRITICAL, "Agent "+mother.identity()+

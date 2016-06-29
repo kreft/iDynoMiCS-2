@@ -126,6 +126,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
+		this._solver.setUpdater(this.standardUpdater());
 		// TODO enter a diffusivity other than one!
 		this._diffusivity = new HashMap<String,Double>();
 		for ( String sName : this._soluteNames )
@@ -166,9 +167,8 @@ public class SolveDiffusionTransient extends ProcessManager
 			solute.newArray(DIFFUSIVITY, this._diffusivity.get(soluteName));
 		}
 		/*
-		 * Set the updater method and solve.
+		 * Solve the PDEs of diffusion and reaction.
 		 */
-		this._solver.setUpdater(standardUpdater(this._environment, this._agents));
 		this._solver.solve(this._environment.getSolutes(),
 				this._environment.getCommonGrid(), this._timeStepSize);
 		/*
@@ -193,12 +193,9 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * {@code PRODUCTIONRATE} arrays, applies the reactions, and then tells
 	 * {@code Agent}s to grow.
 	 * 
-	 * @param environment The environment of a {@code Compartment}.
-	 * @param agents The agents of a {@code Compartment}.
 	 * @return PDE updater method.
 	 */
-	private static PDEupdater standardUpdater(
-					EnvironmentContainer environment, AgentContainer agents)
+	private PDEupdater standardUpdater()
 	{
 		return new PDEupdater()
 		{
@@ -212,10 +209,10 @@ public class SolveDiffusionTransient extends ProcessManager
 			{
 				for ( SpatialGrid var : variables )
 					var.newArray(PRODUCTIONRATE);
-				applyEnvReactions(environment);
-				applyAgentReactions(environment, agents);
+				applyEnvReactions();
+				applyAgentReactions();
 				/* Ask all agents to grow. */
-				for ( Agent a : agents.getAllLocatedAgents() )
+				for ( Agent a : _agents.getAllLocatedAgents() )
 				{
 					a.event(AspectRef.growth, dt);
 					a.event(AspectRef.internalProduction, dt);
@@ -230,12 +227,12 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * 
 	 * @param environment The environment container of a {@code Compartment}.
 	 */
-	private static void applyEnvReactions(EnvironmentContainer environment)
+	private void applyEnvReactions()
 	{
 		Tier level = BULK;
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "Applying environmental reactions");
-		Collection<Reaction> reactions = environment.getReactions();
+		Collection<Reaction> reactions = this._environment.getReactions();
 		if ( reactions.isEmpty() )
 		{
 			Log.out(level, "No reactions to apply, skipping");
@@ -245,7 +242,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * Construct the "concns" dictionary once, so that we don't have to
 		 * re-enter the solute names for every voxel coordinate.
 		 */
-		Collection<String> soluteNames = environment.getSoluteNames();
+		Collection<String> soluteNames = this._environment.getSoluteNames();
 		HashMap<String,Double> concns = new HashMap<String,Double>();
 		for ( String soluteName : soluteNames )
 			concns.put(soluteName, 0.0);
@@ -259,7 +256,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * Iterate over the spatial discretization of the environment, applying
 		 * extracellular reactions as required.
 		 */
-		Shape shape = environment.getShape();
+		Shape shape = this._environment.getShape();
 		SpatialGrid solute;
 		Set<String> productNames;
 		double rate, productRate;
@@ -269,7 +266,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			/* Get the solute concentrations in this grid voxel. */
 			for ( String soluteName : soluteNames )
 			{
-				solute = environment.getSoluteGrid(soluteName);
+				solute = this._environment.getSoluteGrid(soluteName);
 				concns.put(soluteName, solute.getValueAt(CONCN, coord));
 			}	
 			/* Iterate over each compartment reactions. */
@@ -281,10 +278,10 @@ public class SolveDiffusionTransient extends ProcessManager
 				// TODO verify that all environmental reactions have
 				// only solute products, so we don't have to check here.
 				for ( String product : productNames )
-					if ( environment.isSoluteName(product) )
+					if ( this._environment.isSoluteName(product) )
 					{
 						productRate = rate * r.getStoichiometry(product);
-						solute = environment.getSoluteGrid(product);
+						solute = this._environment.getSoluteGrid(product);
 						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
 						totals.put(product, totals.get(product) + productRate);
 					}
@@ -305,18 +302,15 @@ public class SolveDiffusionTransient extends ProcessManager
 	 * of all relevant agents have already been calculated. This is typically
 	 * done just once per process manager step, rather than at every PDE solver
 	 * mini-timestep.</p>
-	 * 
-	 * @param environment
-	 * @param agents
 	 */
 	@SuppressWarnings("unchecked")
-	private static void applyAgentReactions(
-			EnvironmentContainer environment, AgentContainer agents)
+	private void applyAgentReactions()
 	{
 		Tier level = BULK;
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "Applying agent reactions");
 		SpatialGrid solute;
+		Shape shape = this._agents.getShape();
 		HashMap<String,Double> concns = new HashMap<String,Double>();
 		HashMap<String,Double> totals = new HashMap<String,Double>();
 		/*
@@ -326,7 +320,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		List<Reaction> reactions;
 		CoordinateMap distributionMap;
-		List<Agent> agentList = agents.getAllLocatedAgents();
+		List<Agent> agentList = this._agents.getAllLocatedAgents();
 		agentList.removeIf(NO_REAC_FILTER);
 		HashMap<String,Double> internalProdctn;
 		for ( Agent a : agentList )
@@ -363,16 +357,16 @@ public class SolveDiffusionTransient extends ProcessManager
 					concns.clear();
 					for ( String varName : r.getVariableNames() )
 					{
-						if ( environment.isSoluteName(varName) )
+						if ( this._environment.isSoluteName(varName) )
 						{
-							solute = environment.getSoluteGrid(varName);
+							solute = this._environment.getSoluteGrid(varName);
 							concn = solute.getValueAt(CONCN, coord);
 						}
 						else if ( a.isAspect(varName) )
 						{
-							// TODO divide by the voxel volume here?
 							concn = a.getDouble(varName); 
 							concn *= distributionMap.get(coord);
+							concn /= shape.getCurrVoxelVolume();
 						}
 						else
 						{
@@ -400,9 +394,9 @@ public class SolveDiffusionTransient extends ProcessManager
 						if ( ! totals.containsKey(productName) )
 							totals.put(productName, 0.0);
 						totals.put(productName, totals.get(productName) + productionRate);
-						if ( environment.isSoluteName(productName) )
+						if ( this._environment.isSoluteName(productName) )
 						{
-							solute = environment.getSoluteGrid(productName);
+							solute = this._environment.getSoluteGrid(productName);
 							solute.addValueAt(PRODUCTIONRATE, 
 									coord, productionRate);
 						}
