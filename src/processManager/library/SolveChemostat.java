@@ -209,27 +209,17 @@ public class SolveChemostat extends ProcessManager
 				 * For the reactions, we will need the concentrations in
 				 * dictionary format.
 				 */
-				_concns = environment.getAverageConcentrations();
-				for ( int i = 0; i < n(); i++ )
-					_concns.put(_soluteNames[i], y[i]);
+				updateConcns(y);
 				/*
-				 * Apply agent reactions. Note that any agents without
-				 * reactions will return null, and so will be skipped.
+				 * Apply agent reactions to the vector of first derivatives.
+				 * Note that any agents without reactions will return null, and
+				 * so will be skipped.
 				 */
 				for ( Agent agent : agents.getAllAgents() )
-				{
-					@SuppressWarnings("unchecked")
-					List<Reaction> reactions = 
-									(List<Reaction>) agent.get(REACTIONS);
-					if ( reactions == null )
-						continue;
-					// TODO get agent biomass concentrations?
-					for (Reaction aReac : reactions)
-						applyProductionRates(destination, aReac, _concns);
-					
-				}
+					applyAgentReactions(destination, agent, _concns);
 				/*
-				 * Apply extracellular reactions.
+				 * Apply extracellular reactions to the vector of first
+				 * derivatives.
 				 */
 				for ( Reaction aReac : environment.getReactions() )
 					applyProductionRates(destination, aReac, _concns);
@@ -238,8 +228,6 @@ public class SolveChemostat extends ProcessManager
 			@Override
 			public void postMiniStep(double[] y, double dt)
 			{
-				// TODO tell the agent about the rates of production of its
-				// biomass types?
 				String name;
 				double volRate, massRate;
 				for ( Boundary aBoundary : _outflows )
@@ -254,8 +242,29 @@ public class SolveChemostat extends ProcessManager
 						aBoundary.increaseMassFlowRate(name, massRate);
 					}
 				}
+				/*
+				 * Loop through all agents, applying their reactions to
+				 * themselves. For the reactions, we will need the
+				 * solute concentrations in dictionary format.
+				 */
+				updateConcns(y);
+				for ( Agent agent : _agents.getAllAgents() )
+					applyAgentReactions(agent, _concns);
 			}
 		};
+	}
+	
+	/**
+	 * \brief Update the private {@link #_concns} dictionary of solute
+	 * concentrations.
+	 * 
+	 * @param y Vector of solute concentrations from the ODE solver.
+	 */
+	private void updateConcns(double[] y)
+	{
+		this._concns = this._environment.getAverageConcentrations();
+		for ( int i = 0; i < n(); i++ )
+			this._concns.put(this._soluteNames[i], y[i]);
 	}
 	
 	/**
@@ -347,8 +356,185 @@ public class SolveChemostat extends ProcessManager
 					this._soluteNames[i], this._y[i]);
 		}
 	}
-	
 
+	/**
+	 * \brief Creates a map of reactant concentrations from a map of solute
+	 * concentrations and an agent.
+	 * 
+	 * @param agent Agent assumed to have biomass of some kind.
+	 * @param soluteConcns Map of solute concentrations in the environment.
+	 * @return New map of concentrations that is the solutes plus the agent
+	 * biomass(es) converted to concentrations.
+	 */
+	@SuppressWarnings("unchecked")
+	private Map<String,Double> appendAgentMassConcns(
+			Agent agent, Map<String,Double> soluteConcns)
+	{
+		/*
+		 * Calculate the effect of dividing mass by volume to get
+		 * concentration. Note that multiplication is computationally cheaper
+		 * than division.
+		 */
+		double perVolume = 1.0 / this._agents.getShape().getTotalVolume();
+		/*
+		 * Copy over the solute concentrations to a new map.
+		 */
+		Map<String,Double> allConcns = new HashMap<String,Double>();
+		allConcns.putAll(soluteConcns);
+		/*
+		 * Check if the agent has the single kind of biomass.
+		 */
+		Double mass = null;
+		if ( agent.isAspect(AspectRef.agentMass) )
+		{
+			mass = agent.getDouble(AspectRef.agentMass);
+			allConcns.put(AspectRef.agentMass, mass * perVolume);
+		}
+		/*
+		 * Check if the agent has multiple biomass types.
+		 */
+		Map<String,Double> internalProducts = null;
+		if ( agent.isAspect(AspectRef.internalProducts) )
+		{
+			internalProducts = (HashMap<String,Double>)
+					agent.getValue(AspectRef.internalProducts);
+			for ( String productName : internalProducts.keySet() )
+			{
+				allConcns.put(productName, 
+						internalProducts.get(productName) * perVolume);
+			}
+		}
+		return allConcns;
+	}
+	
+	/**
+	 * \brief Loop through an agent's reactions, applying the result to a
+	 * destination vector given.
+	 * 
+	 * @param destination Vector describing the production/consumption
+	 * rates of environmental solutes (overwritten).
+	 * @param agent Agent assumed to have reactions (unaffected by this method).
+	 * @param concns Concentrations of solutes in the environment (unaffected
+	 * by this method).
+	 */
+	private void applyAgentReactions(double[] destination, Agent agent,
+			Map<String, Double> concns)
+	{
+		/*
+		 * Get the agent's reactions: if it has none, then there is nothing
+		 * more to do.
+		 */
+		@SuppressWarnings("unchecked")
+		List<Reaction> reactions = (List<Reaction>) agent.get(REACTIONS);
+		if ( reactions == null )
+			return;
+		/*
+		 * Copy the solute concentrations to a new map so that we can add the
+		 * agent's mass without risk of these contaminating other agent-based
+		 * reactions.
+		 */
+		Map<String,Double> allConcns = 
+				this.appendAgentMassConcns(agent, concns);
+		/*
+		 * Loop over all reactions and apply them.
+		 */
+		double rate, stoichiometry;
+		for (Reaction aReac : reactions)
+		{
+			rate = aReac.getRate(allConcns);
+			/*
+			 * Apply the effect of this reaction on the relevant solutes.
+			 */
+			for ( int i = 0; i < this.n(); i++ )
+			{
+				stoichiometry = aReac.getStoichiometry(this._soluteNames[i]);
+				destination[i] += rate * stoichiometry;
+			}
+		}
+	}
+	
+	/**
+	 * \brief Loop through an agent's reactions, applying the result to the
+	 * agent's biomass.
+	 * 
+	 * @param agent Agent assumed to have reactions (biomass will be altered by
+	 * this method).
+	 * @param concns Concentrations of solutes in the environment (unaffected
+	 * by this method).
+	 */
+	@SuppressWarnings("unchecked")
+	private void applyAgentReactions(Agent agent, Map<String, Double> concns)
+	{
+		/*
+		 * Get the agent's reactions: if it has none, then there is nothing
+		 * more to do.
+		 */
+		List<Reaction> reactions = (List<Reaction>) agent.get(REACTIONS);
+		if ( reactions == null )
+			return;
+		/*
+		 * Copy the solute concentrations to a new map so that we can add the
+		 * agent's mass without risk of these contaminating other agent-based
+		 * reactions.
+		 */
+		Map<String,Double> allConcns = 
+				this.appendAgentMassConcns(agent, concns);
+		/*
+		 * We don't know if the agent has one kind of biomass or many, so try
+		 * both approaches. If an aspect does not exist, it will be null and
+		 * so ignored later.
+		 */
+		Double mass = agent.getDouble(AspectRef.agentMass);
+		Map<String,Double> internalProducts = (HashMap<String,Double>)
+					agent.getValue(AspectRef.internalProducts);
+		/*
+		 * Check that the agent has at least one of these.
+		 */
+		if ( mass == null && internalProducts == null )
+		{
+			//TODO safety? return?
+		}
+		/*
+		 * Loop over all reactions and apply them.
+		 */
+		double rate, stoichiometry, productMass;
+		for (Reaction aReac : reactions)
+		{
+			rate = aReac.getRate(allConcns);
+			/*
+			 * If the agent has just one kind of biomass, apply the effect of
+			 * the reaction on this.
+			 */
+			if ( mass != null )
+			{
+				stoichiometry = aReac.getStoichiometry(AspectRef.agentMass);
+				mass += rate * stoichiometry;
+			}
+			/*
+			 * If the agent has multiple kinds of biomass, apply the effect of
+			 * the reaction on all these.
+			 */
+			if ( internalProducts != null )
+			{
+				for ( String productName : internalProducts.keySet() )
+				{
+					stoichiometry = aReac.getStoichiometry(productName);
+					productMass = internalProducts.get(productName) + 
+							rate * stoichiometry;
+					internalProducts.put(productName, productMass);
+				}
+				
+			}
+		}
+		/*
+		 * Finally, update the aspects used.
+		 */
+		if ( mass != null )
+			agent.set(AspectRef.agentMass, mass);
+		if ( internalProducts != null )
+			agent.set(AspectRef.internalProducts, internalProducts);
+	}
+	
 	/**
 	 * \brief Apply the effects of a reaction on the given vector.
 	 * 
