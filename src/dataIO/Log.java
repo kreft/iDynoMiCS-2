@@ -200,7 +200,10 @@ public class Log
 		}
 		else
 		{
-			System.err.println(message);
+			if ( isError )
+				System.err.println(message);
+			else
+				System.out.println(message);
 		}
 	}
 }
