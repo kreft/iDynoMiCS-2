@@ -12,7 +12,7 @@ import surface.BoundingBox;
  * First version of nDimensional tree, behaves like quadtree in 2d and octree in
  * 3d, named "splitTree"
  * 
- * TODO clean-up
+ * TODO clean-up, further optimizations 
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
@@ -33,6 +33,90 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	
 	private double[] _lengths;
 	
+	
+	/**
+	 * 
+	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+	 *
+	 */
+	public class OutsideNormal implements Predicate<Area> 
+	{
+		
+		private Area _area;
+		
+		public OutsideNormal(Area area)
+		{
+			this._area = area;
+		}
+		
+		@Override
+		public boolean test(Area area) 
+		{
+			/* periodic set use the more expensive periodic check */
+			for (int i = 0; i < _dimensions; i++)
+				if ( normal(area, i) )
+					return true;
+			return false;				
+		}
+		
+		private boolean normal(Area area, int dim)
+		{
+			return ( area.low()[dim] > _area.high()[dim] || 
+					area.high()[dim] < _area.low()[dim] );
+		}
+	}
+	
+	/**
+	 * 
+	 * Note Nodes are not allowed to wrap around the periodic boundaries 
+	 * (on the other side of the boundary a new node should start)
+	 * 
+	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+	 *
+	 */
+	public class OutsidePeriodic implements Predicate<Area> 
+	{
+		private boolean[] _periodic;
+		private Area _area;
+		
+		public OutsidePeriodic(Area area, boolean[] periodic)
+		{
+			this._periodic = periodic;
+			this._area = area;
+		}
+		
+		@Override
+		public boolean test(Area area) 
+		{
+			/* periodic set use the more expensive periodic check */
+			for (int i = 0; i < _dimensions; i++)
+				if ( periodic(area, i) )
+					return true;
+			return false;
+					
+		}
+		
+		private boolean normal(Area area, int dim)
+		{
+			return ( area.low()[dim] > _area.high()[dim] || 
+					area.high()[dim] < _area.low()[dim] );
+		}
+		
+		private boolean periodic(Area area, int dim)
+		{
+			/* if dim is not periodic */
+			if ( !_periodic[dim] ) 
+				return this.normal(area, dim);
+			/* if area does not wrap around boundary */
+			else if ( area.low()[dim] < area.high()[dim] ) 
+				return this.normal(area, dim);
+			/* else periodic evaluation */
+			else
+				return ( area.low()[dim] < _area.high()[dim] || 
+						area.high()[dim] > _area.low()[dim] );		
+		}
+	}
+	
 	public SplitTree(int dimensions, int min, int max, 
 			double[] low, double[] high, boolean[] periodic)
 	{
@@ -42,7 +126,10 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		_maxEntries = max;
 		_periodic = periodic;
 		_lengths = Vector.minus(high, low);
-		this.node = new Node(low, high, true, this, periodic);
+		if ( Vector.allOfValue(periodic, false) )
+			this.node = new Node(low, high, true, this, null);
+		else
+			this.node = new Node(low, high, true, this, periodic);
 	}
 	
 	public SplitTree(int dimensions, int min, int max, boolean[] periodic)
@@ -75,7 +162,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	public List<Entry> find(Area area) 
 	{
 		if ( _periodic == null )
-			return node.find(area);
+			return node.find(new OutsideNormal(area));
 		else
 		{
 			/* also does periodic search */
@@ -88,7 +175,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 				if ( this._periodic[i] && low[i] < this.node.low()[i] )
 					low[i] += this._lengths[i];
 			}
-			return find(new Entry(low, high, null));
+			return node.find(new OutsidePeriodic(new Entry(low, high, null),_periodic));
 		}
 
 	}
@@ -156,8 +243,8 @@ public class SplitTree<T> implements SpatialRegistry<T>
 			this.high = high;
 			this._leafNode = isLeaf;
 			this._tree = tree;
-			this._outTest = (periodic == null ? this.new OutsideNormal() :
-				this.new OutsidePeriodic(periodic));
+			this._outTest = (periodic == null ? new OutsideNormal(this) :
+				new OutsidePeriodic(this, periodic));
 		}
 		
 		public List<Entry> find(Area area) 
@@ -172,6 +259,26 @@ public class SplitTree<T> implements SpatialRegistry<T>
 					for ( Area a : _entries )
 					{
 						for (Entry e :((Node) a).find(area))
+							if ( ! out.contains(e))
+								out.add(e);
+					}
+				}
+			}
+			return out;
+		}
+		
+		public List<Entry> find(Predicate<Area> test) 
+		{
+			LinkedList<Entry> out = new LinkedList<Entry>();
+			if ( ! test.test(this) )
+			{
+				if ( this._leafNode )
+					return this.allConc(out, test);
+				else
+				{
+					for ( Area a : _entries )
+					{
+						for (Entry e :((Node) a).find(test))
 							if ( ! out.contains(e))
 								out.add(e);
 					}
@@ -272,19 +379,72 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		
 		public List<Entry> allConc(LinkedList<Entry> out, Area area)
 		{
-			for (Area a : this.getEntries())
+			if (out.isEmpty())
 			{
-				for (int dim = 0; dim < _dimensions; dim++)
+				for (Area a : this.getEntries())
 				{
-					if ( ! test(a, area) )
+					for (int dim = 0; dim < _dimensions; dim++)
 					{
-						if ( ! out.contains(a))
+						if ( ! this.test(a, area) )
+						{
 							out.add( (Entry) a);
-						break;
+							break;
+						}
 					}
 				}
+				return out;
 			}
-			return out;
+			else
+			{
+				for (Area a : this.getEntries())
+				{
+					for (int dim = 0; dim < _dimensions; dim++)
+					{
+						if ( ! this.test(a, area) )
+						{
+							if ( ! out.contains(a))
+								out.add( (Entry) a);
+							break;
+						}
+					}
+				}
+				return out;
+			}
+		}
+		
+		public List<Entry> allConc(LinkedList<Entry> out, Predicate<Area> test)
+		{
+			if (out.isEmpty())
+			{
+				for (Area a : this.getEntries())
+				{
+					for (int dim = 0; dim < _dimensions; dim++)
+					{
+						if ( ! test.test(a) )
+						{
+							out.add( (Entry) a);
+							break;
+						}
+					}
+				}
+				return out;
+			}
+			else
+			{
+				for (Area a : this.getEntries())
+				{
+					for (int dim = 0; dim < _dimensions; dim++)
+					{
+						if ( ! test.test(a) )
+						{
+							if ( ! out.contains(a) )
+								out.add( (Entry) a);
+							break;
+						}
+					}
+				}
+				return out;
+			}
 		}
 		
 		public boolean test(Area a, Area b) 
@@ -391,76 +551,6 @@ public class SplitTree<T> implements SpatialRegistry<T>
 				boolean[] c = Vector.copy(build.get(i));
 				c[pos] = true;
 				build.add(c);
-			}
-		}
-		
-		/**
-		 * 
-		 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
-		 *
-		 */
-		public class OutsideNormal implements Predicate<Area> 
-		{
-			@Override
-			public boolean test(Area area) 
-			{
-				/* periodic not set is all normal */
-				for (int i = 0; i < _dimensions; i++)
-				{
-					if ( area.low()[i] > high[i] || 
-						area.high()[i] < low[i] )
-						return true;
-				}
-				return false;
-			}
-		}
-		
-		/**
-		 * 
-		 * Note Nodes are not allowed to wrap around the periodic boundaries 
-		 * (on the other side of the boundary a new node should start)
-		 * 
-		 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
-		 *
-		 */
-		public class OutsidePeriodic implements Predicate<Area> 
-		{
-			private boolean[] _periodic;
-			
-			public OutsidePeriodic(boolean[] periodic)
-			{
-				this._periodic = periodic;
-			}
-			
-			@Override
-			public boolean test(Area area) 
-			{
-				/* periodic set use the more expensive periodic check */
-				for (int i = 0; i < _dimensions; i++)
-					if ( periodic(area, i) )
-						return true;
-				return false;
-						
-			}
-			
-			private boolean normal(Area area, int dim)
-			{
-				return ( area.low()[dim] > high[dim] || 
-						area.high()[dim] < low[dim] );
-			}
-			
-			private boolean periodic(Area area, int dim)
-			{
-				/* if dim is not periodic */
-				if ( !_periodic[dim] ) 
-					return this.normal(area, dim);
-				/* if area does not wrap around boundary */
-				else if ( area.low()[dim] < area.high()[dim] ) 
-					return this.normal(area, dim);
-				/* else periodic evaluation */
-				else
-					return ( area.low()[dim] < high[dim] || 
-							area.high()[dim] > low[dim] );		
 			}
 		}
 

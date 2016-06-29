@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="cumulativeEPS" outputfolder="../results" log="DEBUG"
+	<simulation name="biofilm3D" outputfolder="../results" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<speciesLib>
@@ -72,9 +72,10 @@
 		</speciesLib>
 
 		<compartment name="noPrefPull">
-			<shape class="Rectangle">
+			<shape class="Cuboid">
 				<dimension name="X" isCyclic="true" targetResolution="1" max="30.0"/>
-				<dimension name="Y" isCyclic="false" targetResolution="1" max="30.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="30.0"/>
+				<dimension name="Z" isCyclic="false" targetResolution="1" max="30.0"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="0.2" />
@@ -89,7 +90,7 @@
 					</aspect>
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
 					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
-					<spawn number="5" domain="30.0,0.2" />
+					<spawn number="15" domain="30.0,30.0,0.05" />
 				</agent>
 			</agents>
 			<processManagers>
@@ -109,7 +110,7 @@
 				<process name="agentRelax" class="AgentRelaxation" priority="-2"
 					firstStep="0.0"  timerStepSize="0.1">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
-					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
 					firstStep="0.0"  timerStepSize="0.1">	

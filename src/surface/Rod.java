@@ -86,6 +86,12 @@ public class Rod extends Surface implements HasBoundingBox {
 		return p;
 	}
 	
+	@Override
+	public int dimensions() 
+	{
+		return this._points[0].nDim();
+	}
+	
 	public BoundingBox boundingBox(double margin)
 	{
 		return new BoundingBox(pointMatrix(),_radius,margin);

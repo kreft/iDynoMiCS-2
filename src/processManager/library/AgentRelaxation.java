@@ -149,7 +149,7 @@ public class AgentRelaxation extends ProcessManager
 		
 		this._shape = agents.getShape();
 		this._shapeSurfs  = this._shape.getSurfaces();
-		this._iterator = new Collision(null, this._agents.getShape());
+		this._iterator = this._shape.getCollision();
 	}
 
 	/*************************************************************************

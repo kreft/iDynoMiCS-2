@@ -56,6 +56,8 @@ public abstract class Surface
 	{
 		this._collisionDomain = collisionDomain;
 	}
+	
+	public abstract int dimensions();
 
 	/**
 	 * 

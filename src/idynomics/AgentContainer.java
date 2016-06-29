@@ -28,7 +28,6 @@ import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import spatialRegistry.*;
 import spatialRegistry.splitTree.SplitTree;
-import spatialRegistry.splitTree.SplitTreeT;
 import surface.BoundingBox;
 import surface.Collision;
 import surface.predicate.AreColliding;
@@ -150,10 +149,10 @@ public class AgentContainer
 			 * values resulted in fast tree creation and agent searches.
 			 */
 			// TODO R-tree parameters could follow from the protocol file.
-//			this._agentTree = new RTree<Agent>(8, 2, this._shape);
+			this._agentTree = new RTree<Agent>(8, 2, this._shape);
 			double[] min = Vector.zerosDbl(this.getShape().getNumberOfDimensions());
-			this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 26, 
-					min, Vector.add(min, this.getShape().getDimensionLengths()), null);
+//			this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 20, 
+//					min, Vector.add(min, this.getShape().getDimensionLengths()), this._shape.getIsCyclicNaturalOrder());
 		}
 	}
 

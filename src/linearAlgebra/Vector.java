@@ -404,6 +404,54 @@ public final class Vector
 	}
 	
 	/**
+	 * returns true if all fields in input are equal to value
+	 * @param input
+	 * @param value
+	 * @return
+	 */
+	public static boolean allOfValue(boolean[] input, boolean value)
+	{
+		if ( input == null )
+			return false;
+		for ( boolean b : input)
+			if ( b != value)
+				return false;
+		return true;
+	}
+	
+	/**
+	 * returns true if all fields in input are equal to value
+	 * @param input
+	 * @param value
+	 * @return
+	 */
+	public static boolean allOfValue(double[] input, double value)
+	{
+		if ( input == null )
+			return false;
+		for ( double b : input)
+			if ( b != value)
+				return false;
+		return true;
+	}
+	
+	/**
+	 * returns true if all fields in input are equal to value
+	 * @param input
+	 * @param value
+	 * @return
+	 */
+	public static boolean allOfValue(int[] input, int value)
+	{
+		if ( input == null )
+			return false;
+		for ( int b : input)
+			if ( b != value)
+				return false;
+		return true;
+	}
+	
+	/**
 	 * \brief Set all elements of the given <b>vector</b> to the integer
 	 * <b>value</b> given.
 	 * 

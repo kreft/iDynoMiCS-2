@@ -74,6 +74,12 @@ public class Plane extends Surface implements HasBoundingBox
 	{
 		return Surface.Type.PLANE;
 	}
+		
+	@Override
+	public int dimensions() 
+	{
+		return this.normal.length;
+	}
 	
 	@Override
 	public BoundingBox boundingBox() {

@@ -338,6 +338,19 @@ public abstract class Shape implements
 	}
 	
 	/**
+	 * \brief returns all dimensions that are significant
+	 * @return
+	 */
+	public List<Dimension> getSignificantDimensions()
+	{
+		LinkedList<Dimension> out = new LinkedList<Dimension>();
+		for ( Dimension dim : this._dimensions.values() )
+			if ( dim.isSignificant() )
+				out.add(dim);
+		return out;
+	}
+	
+	/**
 	 * @param dimension The name of the dimension requested.
 	 * @return The {@code Dimension} object.
 	 */
@@ -410,6 +423,19 @@ public abstract class Shape implements
 			counter++;
 		}
 		return null;
+	}
+	
+	/*
+	 * returns an array of booleans that indicate whether the dimensions are
+	 * periodic in their natural order.
+	 */
+	public boolean[] getIsCyclicNaturalOrder()
+	{
+		boolean[] dims = new boolean[this.getNumberOfDimensions()];
+		int i = 0;
+		for (Dimension d : this.getSignificantDimensions())
+			dims[i++] = d.isCyclic();
+		return dims;
 	}
 	
 	/**
@@ -1910,5 +1936,10 @@ public abstract class Shape implements
 	{
 		return Helper.getClassNamesSimple(
 									ShapeLibrary.class.getDeclaredClasses());
+	}
+
+	public Collision getCollision()
+	{
+		return this._defaultCollision;
 	}
 }
