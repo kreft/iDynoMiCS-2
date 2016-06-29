@@ -61,8 +61,8 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		
 		private boolean normal(Area area, int dim)
 		{
-			return ( area.low()[dim] > _area.high()[dim] || 
-					area.high()[dim] < _area.low()[dim] );
+			return ( _area.low()[dim] > area.high()[dim] || 
+					_area.high()[dim] < area.low()[dim] );
 		}
 	}
 	
@@ -98,8 +98,8 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		
 		private boolean normal(Area area, int dim)
 		{
-			return ( area.low()[dim] > _area.high()[dim] || 
-					area.high()[dim] < _area.low()[dim] );
+			return ( _area.low()[dim] > area.high()[dim] || 
+					_area.high()[dim] < area.low()[dim] );
 		}
 		
 		private boolean periodic(Area area, int dim)
@@ -108,7 +108,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 			if ( !_periodic[dim] ) 
 				return this.normal(area, dim);
 			/* if area does not wrap around boundary */
-			else if ( area.low()[dim] < area.high()[dim] ) 
+			else if ( _area.low()[dim] < _area.high()[dim] ) 
 				return this.normal(area, dim);
 			/* else periodic evaluation */
 			else
@@ -165,17 +165,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 			return node.find(new OutsideNormal(area));
 		else
 		{
-			/* also does periodic search */
-			double[] high = area.high();
-			double[] low = area.low();
-			for (int i = 0; i < high.length; i++ )
-			{
-				if ( this._periodic[i] && high[i] > this.node.high()[i] )
-					high[i] -= this._lengths[i];
-				if ( this._periodic[i] && low[i] < this.node.low()[i] )
-					low[i] += this._lengths[i];
-			}
-			return node.find(new OutsidePeriodic(new Entry(low, high, null),_periodic));
+			return node.find(new OutsidePeriodic(area,_periodic));
 		}
 
 	}
@@ -612,8 +602,17 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	{
 
 		LinkedList<T> out = new LinkedList<T>();
-		for ( Entry e : find(new Entry(coords, Vector.add(coords, dimension), 
-				null)))
+		/* also does periodic search */
+		double[] high = Vector.add(coords, dimension);
+		double[] low = coords;
+		for (int i = 0; i < high.length; i++ )
+		{
+			if ( this._periodic[i] && high[i] > this.node.high()[i] )
+				high[i] -= this._lengths[i];
+			if ( this._periodic[i] && low[i] < this.node.low()[i] )
+				low[i] += this._lengths[i];
+		}
+		for ( Entry e : find(new Entry(low, high, null)))
 		{
 			out.add(e.entry);
 		}

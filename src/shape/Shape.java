@@ -143,6 +143,10 @@ public abstract class Shape implements
 	 */
 	protected Collision _defaultCollision;
 	/**
+	 * 
+	 */
+	protected Integer _numSignificantDimension;
+	/**
 	 * A helper vector for finding the location of the origin of a voxel.
 	 */
 	protected final static double[] VOXEL_ORIGIN_HELPER = Vector.vector(3,0.0);
@@ -331,11 +335,13 @@ public abstract class Shape implements
 	 */
 	public int getNumberOfDimensions()
 	{
-		int out = 0;
+		if ( this._numSignificantDimension != null )
+			return this._numSignificantDimension;
+		this._numSignificantDimension = 0;
 		for ( Dimension dim : this._dimensions.values() )
 			if ( dim.isSignificant() )
-				out++;
-		return out;
+				this._numSignificantDimension++;
+		return this._numSignificantDimension;
 	}
 	
 	/**

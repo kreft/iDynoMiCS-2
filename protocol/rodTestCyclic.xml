@@ -68,8 +68,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="12.2, 12.2" />
-						<point position="12.0, 12.2" />
+						<point position="12.2, 0.0" />
+						<point position="12.0, 0.0" />
 					</aspect>
 				</agent>
 			</agents>

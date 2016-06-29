@@ -44,38 +44,42 @@ public class Collision
 	 * inside. Useful for its knowledge of cyclic dimensions and boundary
 	 * surfaces.
 	 */
-	private final Shape _computationalDomain;
-	
+	private final Shape _shape;
 	/**
 	 * 
 	 */
-	private final CollisionVariables _collisionVariables;
+	private final CollisionVariables _variables;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
 	
 	/**
-	 * \brief TODO
+	 * \brief Construct a collision iterator with default pull function, but
+	 * given push function.
 	 * 
 	 * @param collisionFunction
 	 * @param compartmentShape
 	 */
 	public Collision(CollisionFunction collisionFunction, Shape compartmentShape)
 	{
-		this._computationalDomain = compartmentShape;
+		this._shape = compartmentShape;
+		this._variables = new CollisionVariables(
+				this._shape.getNumberOfDimensions(), 0.0);
+		
 		if ( collisionFunction == null )
 			this._collisionFun = CollisionFunction.DefaultPushFunction;
 		else
 			this._collisionFun = collisionFunction;
-		this._collisionVariables = new CollisionVariables(_computationalDomain.getSignificantDimensions().size(), 0.0);
+		
 		
 		//FIXME testing purposes
 		this._pullFun = CollisionFunction.DefaultPullFunction;
 	}
 
 	/**
-	 * \brief Construct a collision 
+	 * \brief Construct a collision iterator with default push and pull 
+	 * functions
 	 * 
 	 * @param aShape
 	 */
@@ -151,8 +155,6 @@ public class Collision
 				this.applyForce(a, Vector.reverse(force), var.t);
 			}
 		}
-		/* Reset pull distance: TODO check whether still required 
-		var.pullRange = 0.0; */
 	}
 
 	/**
@@ -162,15 +164,15 @@ public class Collision
 	 * @param allB
 	 * @param pullDistance
 	 */
-	public void collision(
-			Collection<Surface> allA, Collection<Surface> allB, double pullDistance)
+	public void collision(Collection<Surface> allA, Collection<Surface> allB, 
+			double pullDistance)
 	{
-		this._collisionVariables.setPullRange(pullDistance);
+		_variables.setPullRange(pullDistance);
 		for ( Surface a : allA )
 		{
 			for ( Surface b : allB )
 			{ 
-				this.collision(a, b, this._collisionVariables);
+				this.collision( a, b, this._variables );
 			}
 		}
 	}
@@ -240,9 +242,8 @@ public class Collision
 	 */
 	public double distance(Surface a, Surface b)
 	{
-		this._collisionVariables.setPullRange(0.0);
-		CollisionVariables var = this.distance(a, b, 
-				this._collisionVariables);
+		_variables.setPullRange(0.0);
+		CollisionVariables var = this.distance(a, b, _variables);
 		return var.distance;
 	}
 	
@@ -298,7 +299,6 @@ public class Collision
 			System.out.println("WARNING: undefined Surface type");
 			return null;
 		}
-		
 	}
 	
 	/**
@@ -313,18 +313,18 @@ public class Collision
 	 */
 	public double distance(Surface a, double[] p)
 	{
-		this._collisionVariables.setPullRange(0.0);
+		_variables.setPullRange(0.0);
 		switch ( a.type() )
 		{
 		case SPHERE :
-			this.spherePoint((Ball) a, p, this._collisionVariables);
-			return this._collisionVariables.distance;
+			this.spherePoint((Ball) a, p, this._variables);
+			return this._variables.distance;
 		case ROD :
-			this.rodPoint((Rod) a, p, this._collisionVariables);
-			return this._collisionVariables.distance;
+			this.rodPoint((Rod) a, p, this._variables);
+			return this._variables.distance;
 		case PLANE:
-			this.planePoint((Plane) a, p, this._collisionVariables);
-			return this._collisionVariables.distance;
+			this.planePoint((Plane) a, p, this._variables);
+			return this._variables.distance;
 		}
 		return 0.0;
 	}
@@ -344,7 +344,8 @@ public class Collision
 	 * @param otherSurface Another surface object, of unknown type.
 	 * @return The minimum distance between the two surfaces.
 	 */
-	private CollisionVariables assessPlane(Plane plane, Surface otherSurface, CollisionVariables var)
+	private CollisionVariables assessPlane(Plane plane, Surface otherSurface, 
+			CollisionVariables var)
 	{
 		if ( otherSurface.type() == Surface.Type.SPHERE )
 			return this.planeSphere(plane, (Ball) otherSurface, var);
@@ -364,7 +365,8 @@ public class Collision
 	 * @param otherSurface Another surface object, of unknown type.
 	 * @return The minimum distance between the two surfaces.
 	 */
-	private CollisionVariables assessRod(Rod rod, Surface otherSurface, CollisionVariables var)
+	private CollisionVariables assessRod(Rod rod, Surface otherSurface, 
+			CollisionVariables var)
 	{
 		if ( otherSurface.type() == Surface.Type.SPHERE )
 			return this.rodSphere(rod, (Ball) otherSurface, var);
@@ -384,10 +386,10 @@ public class Collision
 	 * @param a One point in space.
 	 * @param b Another point in space.
 	 */
-	// NOTE Work in progress
-	private void setPeriodicDistanceVector(double[] a, double[] b, CollisionVariables var)
+	private void setPeriodicDistanceVector(double[] a, double[] b, 
+			CollisionVariables var)
 	{
-		this._computationalDomain.getMinDifferenceTo(var.dP, a, b);
+		this._shape.getMinDifferenceTo(var.dP, a, b);
 	}
 	
 	/**
@@ -401,7 +403,7 @@ public class Collision
 	 */
 	private double[] minDistance(double[] a, double[] b)
 	{
-		return this._computationalDomain.getMinDifference(a,b);
+		return this._shape.getMinDifference(a,b);
 	}
 	
 	/**
@@ -414,7 +416,8 @@ public class Collision
 	 * @param q Second point.
 	 * @return Distance between the two points.
 	 */
-	private CollisionVariables pointPoint(double[] p, double[] q, CollisionVariables var) 
+	private CollisionVariables pointPoint(double[] p, double[] q, 
+			CollisionVariables var) 
 	{
 		this.setPeriodicDistanceVector(p, q, var);
 		var.distance = Vector.normEuclid(var.dP);
@@ -430,7 +433,8 @@ public class Collision
 	 * @param p A point in space.
 	 * @return The minimum distance from the surface of the sphere to the point.
 	 */
-	private CollisionVariables spherePoint(Ball a, double[] p, CollisionVariables var)
+	private CollisionVariables spherePoint(Ball a, double[] p, 
+			CollisionVariables var)
 	{
 		/*
 		 * First find the distance between the point and the centre of the
@@ -454,7 +458,8 @@ public class Collision
 	 * @param b A ball object representing another sphere.
 	 * @return The minimum distance between the surfaces of the two spheres.
 	 */
-	private CollisionVariables sphereSphere(Ball a, Ball b, CollisionVariables var)
+	private CollisionVariables sphereSphere(Ball a, Ball b, 
+			CollisionVariables var)
 	{
 		this.pointPoint(a.getCenter(), b.getCenter(), var);
 		/* a is around b. */
@@ -487,8 +492,8 @@ public class Collision
 	 * @param p1 Point in space at the other end of the line segment.
 	 * @return The minimum distance between the plane and the line segment.
 	 */
-	private CollisionVariables planeLineSeg(double[] normal, double d, double[] p0, 
-			double[] p1, CollisionVariables var)
+	private CollisionVariables planeLineSeg(double[] normal, double d, 
+			double[] p0, double[] p1, CollisionVariables var)
 	{
 		Vector.reverseTo(var.dP, normal);
 		this.planePoint(normal, d, p0, var);
@@ -523,14 +528,16 @@ public class Collision
 	 * @param rod Rod surface.
 	 * @return Minimum distance between the plane and the rod.
 	 */
-	private CollisionVariables planeRod(Plane plane, Rod rod, CollisionVariables var)
+	private CollisionVariables planeRod(Plane plane, Rod rod, 
+			CollisionVariables var)
 	{
 		/*
 		 * First find the distance between the plane and the axis of the rod. 
 		 */
-		this.planeLineSeg(
-				plane.normal, plane.d, 
-				rod._points[0].getPosition(), rod._points[1].getPosition(), var);
+		this.planeLineSeg( plane.normal, plane.d, 
+				rod._points[0].getPosition(), 
+				rod._points[1].getPosition(), 
+				var);
 		/*
 		 * Subtract the rod's radius to find the distance between the plane and
 		 * the rod's surface.
@@ -608,7 +615,8 @@ public class Collision
 	 * @return The minimum distance between the surface of the rod and the
 	 * surface of the sphere.
 	 */
-	public CollisionVariables rodSphere(Rod aRod, Ball aBall, CollisionVariables var)
+	public CollisionVariables rodSphere(Rod aRod, Ball aBall, 
+			CollisionVariables var)
 	{
 		/*
 		 * First find the distance between the axis of the rod and the centre
@@ -735,7 +743,7 @@ public class Collision
 		 * Subtract the radii of both rods to find the distance between their
 		 * surfaces.
 		 */
-		var.distance = - a.getRadius() - b.getRadius();
+		var.distance -= a.getRadius() + b.getRadius();
 		return var;
 	}
 	
