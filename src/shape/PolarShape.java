@@ -37,21 +37,15 @@ public abstract class PolarShape extends Shape
 			dimName = this.getDimensionName(i);
 			/* 
 			 * We are on a defined boundary, so take the length of the
-			 * current coordinate and don't care for other dimensions.
+			 * current coordinate except in the dimension we are currently moving.
 			 */
-			if ( (this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC)
-					&& this._nhbDimName == dimName)
+			if ( (this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC))
 			{
+				if(this._nhbDimName == dimName)
+					continue;
 				Log.out(level, "  on boundary for dim "+dimName);
-				/* 
-				 * Take the resolution of the next dimension, i.e. if we move
-				 * to an outer shell in the circle (dim R), the THETA length 
-				 * should be taken!
-				 */
-				temp = this.getResolutionCalculator(this._currentCoord, i + 1)
+				temp = this.getResolutionCalculator(this._currentCoord, i)
 							.getResolution(this._currentCoord[i]);
-				/* Move to last dim, so we will break cleanly. */
-				i = this.getNumberOfDimensions();
 			}
 			else
 				//TODO: security if on undefined boundary?
