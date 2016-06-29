@@ -126,7 +126,7 @@ public class AspectReg
 	 */
 	public void set(String key, Object aspect)
 	{
-		if(_aspects.containsKey(key) )
+		if ( this._aspects.containsKey(key) )
 			this.getAspect(key).set(aspect, key);
 		else
 			this._aspects.put(key, new Aspect(aspect, key, this) );
@@ -134,6 +134,8 @@ public class AspectReg
 	
 	/**
 	 * Remove aspect from this registry.
+	 * 
+	 * @param Name of the aspect to remove.
 	 */
 	public void remove(String key)
 	{
