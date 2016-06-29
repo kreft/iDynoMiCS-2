@@ -141,7 +141,7 @@ public abstract class Shape implements
 	/**
 	 * TODO
 	 */
-	protected Collision _defaultCollision = new Collision(this);
+	protected Collision _defaultCollision;
 	/**
 	 * A helper vector for finding the location of the origin of a voxel.
 	 */
@@ -257,6 +257,7 @@ public abstract class Shape implements
 						+ "recognised by shape " + this.getClass().getName()
 						+ ", use: " + Helper.enumToString(DimName.class));
 			}
+			this._defaultCollision = new Collision(this);
 			
 		}
 		
