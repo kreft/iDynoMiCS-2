@@ -106,14 +106,26 @@ public class SplitTree<T> implements SpatialRegistry<T>
 		{
 			/* if dim is not periodic */
 			if ( !_periodic[dim] ) 
+			{
 				return this.normal(area, dim);
 			/* if area does not wrap around boundary */
+			}
 			else if ( _area.low()[dim] < _area.high()[dim] ) 
-				return this.normal(area, dim);
-			/* else periodic evaluation */
-			else
-				return ( area.low()[dim] < _area.high()[dim] || 
-						area.high()[dim] > _area.low()[dim] );		
+			{
+				if ( area.low()[dim] < area.high()[dim] )
+					return this.normal(area, dim);
+				else
+					return ( _area.low()[dim] > area.high()[dim] && 
+							_area.high()[dim] < area.low()[dim] );	
+			}
+			else 
+				if ( area.low()[dim] < area.high()[dim] )
+					return ( area.low()[dim] > _area.high()[dim] && 
+							area.high()[dim] < _area.low()[dim] );	
+				else
+					return ( _area.low()[dim] > area.high()[dim] && 
+							_area.high()[dim] < area.low()[dim] );
+						
 		}
 	}
 	
@@ -248,9 +260,17 @@ public class SplitTree<T> implements SpatialRegistry<T>
 				{
 					for ( Area a : _entries )
 					{
-						for (Entry e :((Node) a).find(area))
-							if ( ! out.contains(e))
+						if ( out.isEmpty() )
+						{
+							for (Entry e :((Node) a).find(area))
 								out.add(e);
+						}
+						else
+						{
+							for (Entry e :((Node) a).find(a))
+								if ( ! out.contains(e))
+									out.add(e);
+						}
 					}
 				}
 			}
@@ -268,9 +288,17 @@ public class SplitTree<T> implements SpatialRegistry<T>
 				{
 					for ( Area a : _entries )
 					{
-						for (Entry e :((Node) a).find(test))
-							if ( ! out.contains(e))
+						if ( out.isEmpty() )
+						{
+							for (Entry e :((Node) a).find(test))
 								out.add(e);
+						}
+						else
+						{
+							for (Entry e :((Node) a).find(test))
+								if ( ! out.contains(e))
+									out.add(e);
+						}
 					}
 				}
 			}
@@ -612,7 +640,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 			if ( this._periodic[i] && low[i] < this.node.low()[i] )
 				low[i] += this._lengths[i];
 		}
-		for ( Entry e : find(new Entry(low, high, null)))
+		for ( Entry e : node.find(new OutsidePeriodic(new Entry(low, high, null), _periodic)))
 		{
 			out.add(e.entry);
 		}
