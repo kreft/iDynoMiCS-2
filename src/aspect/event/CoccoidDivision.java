@@ -151,6 +151,10 @@ public class CoccoidDivision extends Event
 		else if ( mumMass instanceof Map )
 			for ( Object key : ((Map<String,Double>) mumMass).keySet() )
 				variable += (double) ((Map<String,Double>) mumMass).get(key);
+		else
+		{
+			// TODO safety?
+		}
 		/*
 		 * Find the threshold that triggers division.
 		 */

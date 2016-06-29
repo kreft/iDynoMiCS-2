@@ -29,7 +29,6 @@ import solver.PDEsolver;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
-import surface.predicate.AreColliding;
 import surface.predicate.AreNotColliding;
 import surface.Surface;
 import utility.ExtraMath;
@@ -448,7 +447,7 @@ public class AgentContainer
 	}
 
 	/* ***********************************************************************
-	 * AGENT LOCATION
+	 * AGENT LOCATION & MASS
 	 * **********************************************************************/
 
 	/**
@@ -490,6 +489,79 @@ public class AgentContainer
 		body.relocate(newLoc);
 		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+") "+dist+
 				" along dimension "+dimN+" to "+Vector.toString(newLoc));
+	}
+	
+	/**
+	 * \brief Compose a dictionary of biomass names and values for the given
+	 * agent.
+	 * 
+	 * <p>this method is the opposite of 
+	 * {@link #updateAgentMass(Agent, HashMap<String,Double>)}.</p>
+	 * 
+	 * @param agent An agent with biomass.
+	 * @return Dictionary of biomass kind names to their values.
+	 */
+	public static Map<String,Double> getAgentMassMap(Agent agent)
+	{
+		Map<String,Double> out = new HashMap<String,Double>();
+		Object mass = agent.get(AspectRef.agentMass);
+		if ( mass == null )
+		{
+			// TODO safety?
+		}
+		else if ( mass instanceof Double )
+		{
+			out.put(AspectRef.agentMass, ((double) mass));
+		}
+		else if ( mass instanceof Double[] )
+		{
+			// TODO Need vector of mass names
+		}
+		else if ( mass instanceof Map )
+		{
+			/* If the mass object is already a map, then just copy it. */
+			@SuppressWarnings("unchecked")
+			Map<String,Double> massMap = (Map<String,Double>) mass;
+			out.putAll(massMap);
+		}
+		else
+		{
+			// TODO safety?
+		}
+		return out;
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * <p>this method is the opposite of {@link #getAgentMassMap(Agent)}.</p>
+	 * 
+	 * @param agent An agent with biomass.
+	 * @param biomass Dictionary of biomass kind names to their values.
+	 */
+	public static void updateAgentMass(Agent agent, Map<String,Double> biomass)
+	{
+		Object mass = agent.get(AspectRef.agentMass);
+		if ( mass == null )
+		{
+			// TODO safety?
+		}
+		else if ( mass instanceof Double )
+		{
+			agent.set(AspectRef.agentMass, biomass.get(AspectRef.agentMass));
+		}
+		else if ( mass instanceof Double[] )
+		{
+			// TODO Need vector of mass names
+		}
+		else if ( mass instanceof Map )
+		{
+			agent.set(AspectRef.agentMass, biomass);
+		}
+		else
+		{
+			// TODO safety?
+		}
 	}
 
 	/* ***********************************************************************

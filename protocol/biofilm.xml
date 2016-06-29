@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="biofilm" outputfolder="../results" log="DEBUG"
+	<simulation name="biofilm" outputfolder="../results" log="QUIET"
 		comment="this is a file for testing purposes only.">
 		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<speciesLib>
@@ -19,11 +19,11 @@
 				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
 					<item type="PRIMARY" class="Reaction">
 						<reaction name="testReact" comment="biomass specific growth rate">
-							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
+							<expression value="biomass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
 								<constant name="mumax" value="1.0" />
 							</expression>
-							<stoichiometric component="species1" coefficient="1.0" />
+							<stoichiometric component="biomass" coefficient="1.0" />
 							<stoichiometric component="eps" coefficient="0.1" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 						</reaction>
@@ -40,7 +40,7 @@
 								<constant name="k" value="0.001" />
 								<constant name="mumax" value="1.0" />
 							</expression>
-							<stoichiometric component="species2" coefficient="1.0" />
+							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 						</reaction>
 					</item>
@@ -52,9 +52,9 @@
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
-				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
+				<aspect name="volume" 			type="CALCULATED" 	class="SimpleVolumeState" />
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
-				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth" />
+				<!--<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth" />-->
 				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
 
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
@@ -68,17 +68,15 @@
 				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="0.003" />
 				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />
 			</species>
+			
 			<species name="particleEPS">
 				<aspect name="density" type="PRIMARY" class="Double" value="1" />
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
-
-
-				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
+				<aspect name="volume" 			type="CALCULATED" 	class="SimpleVolumeState" />
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
-
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
 				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.1"  />
@@ -98,19 +96,19 @@
 			<agents>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species1" />
-					<aspect name="internalProduction" type="PRIMARY" class="HashMap">
+					<aspect name="mass" type="PRIMARY" class="HashMap">
 						<item keyType="String" key="eps"  type="PRIMARY" class="Double" value="0.0" />
+						<item keyType="String" key="biomass"  type="PRIMARY" class="Double" value="0.15" />
 					</aspect>
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
 					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
 					<spawn number="5" domain="30.0,0.2" />
 				</agent>
-				<agent>
+				<!--<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species2" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<spawn number="5" domain="30.0,0.2" />
-				</agent>
+				</agent>-->
 			</agents>
 			<processManagers>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"

@@ -249,7 +249,7 @@ public class SolveChemostat extends ProcessManager
 				 */
 				updateConcns(y);
 				for ( Agent agent : _agents.getAllAgents() )
-					applyAgentReactions(agent, _concns);
+					applyAgentReactions(agent, _concns, dt);
 			}
 		};
 	}
@@ -356,55 +356,14 @@ public class SolveChemostat extends ProcessManager
 					this._soluteNames[i], this._y[i]);
 		}
 	}
-
+	
 	/**
-	 * \brief Creates a map of reactant concentrations from a map of solute
-	 * concentrations and an agent.
-	 * 
-	 * @param agent Agent assumed to have biomass of some kind.
-	 * @param soluteConcns Map of solute concentrations in the environment.
-	 * @return New map of concentrations that is the solutes plus the agent
-	 * biomass(es) converted to concentrations.
+	 * @return One divided by the compartment volume. Note that multiplication
+	 * is computationally cheaper than division.
 	 */
-	@SuppressWarnings("unchecked")
-	private Map<String,Double> appendAgentMassConcns(
-			Agent agent, Map<String,Double> soluteConcns)
+	private double perVolume()
 	{
-		/*
-		 * Calculate the effect of dividing mass by volume to get
-		 * concentration. Note that multiplication is computationally cheaper
-		 * than division.
-		 */
-		double perVolume = 1.0 / this._agents.getShape().getTotalVolume();
-		/*
-		 * Copy over the solute concentrations to a new map.
-		 */
-		Map<String,Double> allConcns = new HashMap<String,Double>();
-		allConcns.putAll(soluteConcns);
-		/*
-		 * Check if the agent has the single kind of biomass.
-		 */
-		Double mass = null;
-		if ( agent.isAspect(AspectRef.agentMass) )
-		{
-			mass = agent.getDouble(AspectRef.agentMass);
-			allConcns.put(AspectRef.agentMass, mass * perVolume);
-		}
-		/*
-		 * Check if the agent has multiple biomass types.
-		 */
-		Map<String,Double> internalProducts = null;
-		if ( agent.isAspect(AspectRef.internalProducts) )
-		{
-			internalProducts = (HashMap<String,Double>)
-					agent.getValue(AspectRef.internalProducts);
-			for ( String productName : internalProducts.keySet() )
-			{
-				allConcns.put(productName, 
-						internalProducts.get(productName) * perVolume);
-			}
-		}
-		return allConcns;
+		return Math.pow(this._agents.getShape().getTotalVolume(), -1.0);
 	}
 	
 	/**
@@ -433,8 +392,15 @@ public class SolveChemostat extends ProcessManager
 		 * agent's mass without risk of these contaminating other agent-based
 		 * reactions.
 		 */
-		Map<String,Double> allConcns = 
-				this.appendAgentMassConcns(agent, concns);
+		double perVolume = this.perVolume();
+		Map<String,Double> allConcns = AgentContainer.getAgentMassMap(agent);
+		for ( String key : allConcns.keySet() )
+			allConcns.put(key, allConcns.get(key) * perVolume);
+		/*
+		 * Copy the solute concentrations to this map so that we do not risk
+		 * contaminating other agent-based reactions.
+		 */
+		allConcns.putAll(concns);
 		/*
 		 * Loop over all reactions and apply them.
 		 */
@@ -461,9 +427,11 @@ public class SolveChemostat extends ProcessManager
 	 * this method).
 	 * @param concns Concentrations of solutes in the environment (unaffected
 	 * by this method).
+	 * @param timeStep Length of the mini time-step to use.
 	 */
 	@SuppressWarnings("unchecked")
-	private void applyAgentReactions(Agent agent, Map<String, Double> concns)
+	private void applyAgentReactions(Agent agent, 
+			Map<String, Double> concns, double timeStep)
 	{
 		/*
 		 * Get the agent's reactions: if it has none, then there is nothing
@@ -473,66 +441,41 @@ public class SolveChemostat extends ProcessManager
 		if ( reactions == null )
 			return;
 		/*
-		 * Copy the solute concentrations to a new map so that we can add the
-		 * agent's mass without risk of these contaminating other agent-based
-		 * reactions.
+		 * Get the agent biomass kinds as a map. This map will be the one
+		 * updated with the results of the reactions.
 		 */
-		Map<String,Double> allConcns = 
-				this.appendAgentMassConcns(agent, concns);
+		Map<String,Double> newBiomass = AgentContainer.getAgentMassMap(agent);
 		/*
-		 * We don't know if the agent has one kind of biomass or many, so try
-		 * both approaches. If an aspect does not exist, it will be null and
-		 * so ignored later.
+		 * Make a new map with these converted to concentrations. Calculate the
+		 * one over volume part once, as multiplication is 
 		 */
-		Double mass = agent.getDouble(AspectRef.agentMass);
-		Map<String,Double> internalProducts = (HashMap<String,Double>)
-					agent.getValue(AspectRef.internalProducts);
+		double perVolume = this.perVolume();
+		Map<String,Double> allConcns = new HashMap<String,Double>();
+		for ( String key : newBiomass.keySet() )
+			allConcns.put(key, newBiomass.get(key) * perVolume);
 		/*
-		 * Check that the agent has at least one of these.
+		 * Copy the solute concentrations to this map so that we do not risk
+		 * contaminating other agent-based reactions.
 		 */
-		if ( mass == null && internalProducts == null )
-		{
-			//TODO safety? return?
-		}
+		allConcns.putAll(concns);
 		/*
 		 * Loop over all reactions and apply them.
 		 */
-		double rate, stoichiometry, productMass;
-		for (Reaction aReac : reactions)
+		double reactionOccurances, biomass;
+		for ( Reaction aReac : reactions )
 		{
-			rate = aReac.getRate(allConcns);
-			/*
-			 * If the agent has just one kind of biomass, apply the effect of
-			 * the reaction on this.
-			 */
-			if ( mass != null )
+			reactionOccurances = aReac.getRate(allConcns) * timeStep;
+			for ( String key : newBiomass.keySet() )
 			{
-				stoichiometry = aReac.getStoichiometry(AspectRef.agentMass);
-				mass += rate * stoichiometry;
-			}
-			/*
-			 * If the agent has multiple kinds of biomass, apply the effect of
-			 * the reaction on all these.
-			 */
-			if ( internalProducts != null )
-			{
-				for ( String productName : internalProducts.keySet() )
-				{
-					stoichiometry = aReac.getStoichiometry(productName);
-					productMass = internalProducts.get(productName) + 
-							rate * stoichiometry;
-					internalProducts.put(productName, productMass);
-				}
-				
+				biomass = newBiomass.get(key) + 
+						(aReac.getStoichiometry(key) * reactionOccurances);
+				newBiomass.put(key, biomass);
 			}
 		}
 		/*
-		 * Finally, update the aspects used.
+		 * Finally, update the biomass for this agent.
 		 */
-		if ( mass != null )
-			agent.set(AspectRef.agentMass, mass);
-		if ( internalProducts != null )
-			agent.set(AspectRef.internalProducts, internalProducts);
+		AgentContainer.updateAgentMass(agent, newBiomass);
 	}
 	
 	/**

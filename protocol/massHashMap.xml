@@ -17,10 +17,10 @@
 				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
 					<item type="PRIMARY" class="Reaction">
 						<reaction name="testReact">
-							<expression value="mass * solute1 * k">
+							<expression value="biomass * solute1 * k">
 								<constant name="k" value="0.25" />
 							</expression>
-							<stoichiometric component="mass" coefficient="1.0" />
+							<stoichiometric component="biomass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-5.0" />
 							<stoichiometric component="solute2" coefficient="0.5" />
 						</reaction>
@@ -66,11 +66,10 @@
 			</reactions>
 			<agents>
 				<agent>
-					<aspect name="mapTest" type="PRIMARY" class="HashMap">
-						<item type="PRIMARY" class="Double" value="2.0" key="1.0" keyType="Double" />
-					</aspect>				
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="mass" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="Double" value="0.2" key="biomass" keyType="String" />
+					</aspect>			
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
@@ -79,7 +78,9 @@
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="mass" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="Double" value="0.2" key="biomass" keyType="String" />
+					</aspect>	
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
@@ -88,7 +89,9 @@
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="mass" type="PRIMARY" class="HashMap">
+						<item type="PRIMARY" class="Double" value="0.2" key="biomass" keyType="String" />
+					</aspect>	
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 					<aspect name="body" type="PRIMARY" class="Body">

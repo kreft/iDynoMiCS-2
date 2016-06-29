@@ -79,6 +79,20 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	}
 	
 	/**
+	 * \brief Add a new solute to the environment. This method is intended only
+	 * for testing.
+	 * 
+	 * @param soluteName Name of the new solute.
+	 * @param initialConcn Initial value for the concentration of this solute.
+	 */
+	public void addSolute(String soluteName, double initialConcn)
+	{
+		SpatialGrid sg = new SpatialGrid(this._shape, soluteName, this);
+		sg.newArray(ArrayType.CONCN, initialConcn);
+		this.addSolute(sg);
+	}
+	
+	/**
 	 * \brief TODO
 	 * 
 	 * @param spatialGrid

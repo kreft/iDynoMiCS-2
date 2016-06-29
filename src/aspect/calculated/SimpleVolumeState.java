@@ -1,5 +1,7 @@
 package aspect.calculated;
 
+import java.util.Map;
+
 import aspect.AspectInterface;
 import aspect.Calculated;
 import aspect.AspectRef;
@@ -26,7 +28,30 @@ public class SimpleVolumeState extends Calculated {
 	
 	public Object get(AspectInterface aspectOwner)
 	{
-		return aspectOwner.getDouble(MASS) / aspectOwner.getDouble(DENSITY);
+		Object massObject = aspectOwner.getValue(this.MASS);
+		double totalMass = 0.0;
+		if ( massObject instanceof Double )
+			totalMass = (double) massObject;
+		else if ( massObject instanceof Double[] )
+		{
+			Double[] massArray = (Double[]) massObject;
+			for ( Double m : massArray )
+				totalMass += m;
+		}
+		else if ( massObject instanceof Map )
+		{
+			@SuppressWarnings("unchecked")
+			Map<String,Double> massMap = (Map<String,Double>) massObject;
+			for ( String key : massMap.keySet() )
+				totalMass += massMap.get(key);
+		}
+		else
+		{
+			// TODO safety?
+		}
+		// TODO could look at what class of object density is, as it may also 
+		// be an array or map.
+		return totalMass / aspectOwner.getDouble(DENSITY);
 	}
 
 }

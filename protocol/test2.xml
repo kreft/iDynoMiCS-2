@@ -23,7 +23,7 @@
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.25" />
 							</expression>
-							<stoichiometric component="AOB" coefficient="1.0" />
+							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 							<stoichiometric component="solute2" coefficient="0.5" />
 						</reaction>

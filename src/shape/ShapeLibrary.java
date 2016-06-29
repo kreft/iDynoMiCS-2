@@ -43,6 +43,12 @@ public final class ShapeLibrary
 		{
 			super();
 		}
+		
+		public Dimensionless(double volume)
+		{
+			super();
+			this.setVolume(volume);
+		}
 
 		@Override
 		public double[][][] getNewArray(double initialValue) {
