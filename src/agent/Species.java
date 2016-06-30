@@ -1,6 +1,8 @@
 package agent;
 
 import org.w3c.dom.Node;
+
+import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.XmlRef;
@@ -94,7 +96,7 @@ public class Species implements AspectInterface, NodeConstructor
 
 		/* allow adding of additional aspects */
 		modelNode.addChildConstructor(
-				this._aspectRegistry.new Aspect(this._aspectRegistry), 
+				new Aspect(this._aspectRegistry), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		/* TODO: removing aspects */

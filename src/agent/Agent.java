@@ -2,6 +2,7 @@ package agent;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import aspect.AspectRef;
@@ -372,7 +373,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 			modelNode.add(reg().getAspectNode(key));
 		
 		/* allow adding of new aspects */
-		modelNode.addChildConstructor(reg().new Aspect(reg()), 
+		modelNode.addChildConstructor(new Aspect(reg()), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		modelNode.addConstructable("Aspect", // FIXME ClassRef

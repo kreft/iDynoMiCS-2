@@ -5,6 +5,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log.Tier;
@@ -354,7 +355,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
-		modelNode.addChildConstructor(reg().new Aspect(reg()), 
+		modelNode.addChildConstructor(new Aspect(reg()), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
