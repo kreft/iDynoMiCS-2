@@ -15,7 +15,8 @@ import idynomics.Param;
 import idynomics.Simulator;
 
 @RunWith(Suite.class)
-@SuiteClasses({ BoundaryTest.class,
+@SuiteClasses({ AgentEventTest.class,
+				BoundaryTest.class,
 				ChemostatsTest.class,
 				CoordinateMapTest.class,
 				ExtraMathTest.class,

@@ -2,6 +2,7 @@ package aspect.event;
 
 import surface.Point;
 import utility.ExtraMath;
+import utility.Helper;
 import linearAlgebra.Vector;
 
 import java.util.HashMap;
@@ -73,6 +74,7 @@ public class CoccoidDivision extends Event
 	 */
 	public String DIVIDE = AspectRef.agentDivide;
 
+	
 	@Override
 	public void start(AspectInterface initiator,
 			AspectInterface compliant, Double timeStep)
@@ -139,6 +141,7 @@ public class CoccoidDivision extends Event
 	@SuppressWarnings("unchecked")
 	private boolean shouldDivide(Agent anAgent)
 	{
+		Tier level = Tier.BULK;
 		/*
 		 * Find the agent-specific variable to test (mass, by default).
 		 */
@@ -149,12 +152,13 @@ public class CoccoidDivision extends Event
 		else if ( mumMass instanceof double[] )
 			variable = Vector.sum((double[]) mumMass);
 		else if ( mumMass instanceof Map )
-			for ( Object key : ((Map<String,Double>) mumMass).keySet() )
-				variable += (double) ((Map<String,Double>) mumMass).get(key);
+			variable = Helper.totalValue((Map<String,Double>) mumMass);
 		else
 		{
 			// TODO safety?
 		}
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Agent total mass is "+variable);
 		/*
 		 * Find the threshold that triggers division.
 		 */
@@ -205,7 +209,7 @@ public class CoccoidDivision extends Event
 		else if ( mumMass instanceof double[] )
 		{
 			double[] motherMass = (double[]) mumMass;
-			double[] daughterMass = Vector.times(motherMass, 1 - mumMassFrac);
+			double[] daughterMass = Vector.times(motherMass, 1.0 - mumMassFrac);
 			Vector.timesEquals(motherMass, mumMassFrac);
 			mother.set(this.MASS, motherMass);
 			daughter.set(this.MASS, daughterMass);
@@ -219,9 +223,11 @@ public class CoccoidDivision extends Event
 			for ( String key : mumProducts.keySet() )
 			{
 				product = mumProducts.get(key);
-				daughterProducts.put(key, product * (1-mumMassFrac) );
+				daughterProducts.put(key, product * (1.0-mumMassFrac) );
 				mumProducts.put(key, product * mumMassFrac);
 			}
+			mother.set(this.MASS, mumProducts);
+			daughter.set(this.MASS, daughterProducts);
 		}
 		else
 		{
