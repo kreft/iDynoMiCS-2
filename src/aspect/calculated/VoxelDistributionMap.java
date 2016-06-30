@@ -35,8 +35,8 @@ public class VoxelDistributionMap extends Calculated
 		@SuppressWarnings("unchecked")
 		HashMap<int[],Double> distrib =
 				(HashMap<int[],Double>) aspectOwner.getValue(DISTRIBUTIONMAP);
-		/**
-		 * calculate total volume
+		/*
+		 * Calculate total volume.
 		 */
 		double totalVol = 0.0;
 		for( int[] key : distrib.keySet() )
@@ -45,9 +45,8 @@ public class VoxelDistributionMap extends Calculated
 		 * Calculate hypothetical density.
 		 */
 		double mv =  aspectOwner.getDouble(MASS) / totalVol;
-		
-		/**
-		 * assign appropriate mass portions to grid cells
+		/*
+		 * Assign appropriate mass portions to grid voxels.
 		 */
 		HashMap<int[],Double> massDistribution = new HashMap<int[],Double>();
 		for(int[] key : distrib.keySet())

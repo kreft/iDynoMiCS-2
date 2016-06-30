@@ -136,7 +136,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		/*
 		 * See if this is cyclic. Assume not if unspecified.
 		 */
-		if ( XmlHandler.obtainBoolean(elem, XmlRef.IS_CYCLIC, 
+		if ( XmlHandler.obtainBoolean(elem, XmlRef.isCyclic, 
 				this.defaultXmlTag() + " " + this._dimName.name()) )
 			this.setCyclic();
 		
@@ -634,7 +634,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		modelNode.setRequirements(Requirements.IMMUTABLE);
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 										this._dimName.name(), null, false ));
-		modelNode.add(new ModelAttribute(XmlRef.IS_CYCLIC, 
+		modelNode.add(new ModelAttribute(XmlRef.isCyclic, 
 				String.valueOf(this._isCyclic), null, false ));
 		modelNode.add(new ModelAttribute(XmlRef.targetResolutionAttribute, 
 				String.valueOf(this._targetRes), null, false ));

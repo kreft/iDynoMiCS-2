@@ -90,9 +90,7 @@ public class Log
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @return
+	 * @return String representation of the log file's output level.
 	 */
 	public static String level()
 	{
@@ -100,14 +98,11 @@ public class Log
 	}
 	
 	/**
-	 * Set the output level and create the log file. This method should be
-	 * called before any output is created. If output is written before set is
-	 * called the level will be set to NORMAL.
+	 * \brief Set the output level and create the log file. This method should
+	 * be called before any output is created. If output is written before set
+	 * is called the level will be set to NORMAL.
 	 * 
-	 * <p>FIXME Rob [1Mar2016]: If NORMAL is the default, then why does
-	 * {@link #out(Tier,String)} have an error statement if it is null?</p>
-	 * 
-	 * @param level
+	 * @param level Output level to set to.
 	 */
 	public static void set(Tier level)
 	{
@@ -173,8 +168,7 @@ public class Log
 	}
 	
 	/**
-	 * \brief TODO
-	 *
+	 * \brief Create the log file and get it ready to write.
 	 */
 	public static void setupFile()
 	{
@@ -189,10 +183,10 @@ public class Log
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Print a message to console screen, ignoring the log file.
 	 * 
-	 * @param message
-	 * @param isError
+	 * @param message String message to display.
+	 * @param isError True if this message should be highlighted to the user.
 	 */
 	// TODO move this method to Helper?
 	public static void printToScreen(String message, boolean isError)

@@ -2,6 +2,7 @@ package utility;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -357,6 +358,20 @@ public class Helper
 			out[i] = s;
 			i++;
 		}
+		return out;
+	}
+	
+	/**
+	 * \brief Calculate the sum of all {@code Double} values in a map.
+	 * 
+	 * @param map Map where the values are real numbers.
+	 * @return The sum of all the values.
+	 */
+	public static double totalValue(Map<String,Double> map)
+	{
+		double out = 0.0;
+		for ( Double x : map.values() )
+			out += x;
 		return out;
 	}
 }

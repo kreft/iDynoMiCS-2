@@ -93,7 +93,7 @@ public class SolveChemostat extends ProcessManager
 				Helper.collectionToArray(
 				environment.getSoluteNames()));
 
-		init(soluteNames, environment, 
+		this.init(soluteNames, environment, 
 				agents, compartmentName);
 	}
 	
@@ -209,27 +209,17 @@ public class SolveChemostat extends ProcessManager
 				 * For the reactions, we will need the concentrations in
 				 * dictionary format.
 				 */
-				_concns = environment.getAverageConcentrations();
-				for ( int i = 0; i < n(); i++ )
-					_concns.put(_soluteNames[i], y[i]);
+				updateConcns(y);
 				/*
-				 * Apply agent reactions. Note that any agents without
-				 * reactions will return null, and so will be skipped.
+				 * Apply agent reactions to the vector of first derivatives.
+				 * Note that any agents without reactions will return null, and
+				 * so will be skipped.
 				 */
 				for ( Agent agent : agents.getAllAgents() )
-				{
-					@SuppressWarnings("unchecked")
-					List<Reaction> reactions = 
-									(List<Reaction>) agent.get(REACTIONS);
-					if ( reactions == null )
-						continue;
-					// TODO get agent biomass concentrations?
-					for (Reaction aReac : reactions)
-						applyProductionRates(destination, aReac, _concns);
-					
-				}
+					applyAgentReactions(destination, agent, _concns);
 				/*
-				 * Apply extracellular reactions.
+				 * Apply extracellular reactions to the vector of first
+				 * derivatives.
 				 */
 				for ( Reaction aReac : environment.getReactions() )
 					applyProductionRates(destination, aReac, _concns);
@@ -238,8 +228,6 @@ public class SolveChemostat extends ProcessManager
 			@Override
 			public void postMiniStep(double[] y, double dt)
 			{
-				// TODO tell the agent about the rates of production of its
-				// biomass types?
 				String name;
 				double volRate, massRate;
 				for ( Boundary aBoundary : _outflows )
@@ -254,8 +242,29 @@ public class SolveChemostat extends ProcessManager
 						aBoundary.increaseMassFlowRate(name, massRate);
 					}
 				}
+				/*
+				 * Loop through all agents, applying their reactions to
+				 * themselves. For the reactions, we will need the
+				 * solute concentrations in dictionary format.
+				 */
+				updateConcns(y);
+				for ( Agent agent : _agents.getAllAgents() )
+					applyAgentReactions(agent, _concns, dt);
 			}
 		};
+	}
+	
+	/**
+	 * \brief Update the private {@link #_concns} dictionary of solute
+	 * concentrations.
+	 * 
+	 * @param y Vector of solute concentrations from the ODE solver.
+	 */
+	private void updateConcns(double[] y)
+	{
+		this._concns = this._environment.getAverageConcentrations();
+		for ( int i = 0; i < n(); i++ )
+			this._concns.put(this._soluteNames[i], y[i]);
 	}
 	
 	/**
@@ -348,7 +357,158 @@ public class SolveChemostat extends ProcessManager
 		}
 	}
 	
-
+	/**
+	 * @return The compartment volume.
+	 */
+	private double volume()
+	{
+		return Math.pow(this._agents.getShape().getTotalVolume(), -1.0);
+	}
+	
+	/**
+	 * \brief Loop through an agent's reactions, applying the result to a
+	 * destination vector given.
+	 * 
+	 * @param destination Vector describing the production/consumption
+	 * rates of environmental solutes (overwritten).
+	 * @param agent Agent assumed to have reactions (unaffected by this method).
+	 * @param concns Concentrations of solutes in the environment (unaffected
+	 * by this method).
+	 */
+	private void applyAgentReactions(double[] destination, Agent agent,
+			Map<String, Double> concns)
+	{
+		/*
+		 * Get the agent's reactions: if it has none, then there is nothing
+		 * more to do.
+		 */
+		@SuppressWarnings("unchecked")
+		List<Reaction> reactions = (List<Reaction>) agent.get(REACTIONS);
+		if ( reactions == null )
+			return;
+		/*
+		 * Copy the solute concentrations to a new map so that we can add the
+		 * agent's mass without risk of these contaminating other agent-based
+		 * reactions. Note that multiplication is computationally cheaper than
+		 * division, so we calculate perVolume just once.
+		 */
+		double perVolume = Math.pow(this.volume(), -1.0);
+		Map<String,Double> allConcns = AgentContainer.getAgentMassMap(agent);
+		for ( String key : allConcns.keySet() )
+			allConcns.put(key, allConcns.get(key) * perVolume);
+		/*
+		 * Copy the solute concentrations to this map so that we do not risk
+		 * contaminating other agent-based reactions.
+		 */
+		allConcns.putAll(concns);
+		/*
+		 * Loop over all reactions and apply them.
+		 */
+		double rate, stoichiometry;
+		for (Reaction aReac : reactions)
+		{
+			/*
+			 * Check first that we have all variables we need. If not, they may
+			 * be stored as other aspects of the agent (e.g. EPS).
+			 */
+			for ( String varName : aReac.getVariableNames() )
+				if ( ! allConcns.containsKey(varName) )
+				{
+					if ( agent.isAspect(varName) )
+					{
+						allConcns.put(varName, 
+								agent.getDouble(varName) * perVolume);
+					}
+					else
+					{
+						// TODO safety?
+						allConcns.put(varName, 0.0);
+					}
+				}
+			rate = aReac.getRate(allConcns);
+			/*
+			 * Apply the effect of this reaction on the relevant solutes.
+			 */
+			for ( int i = 0; i < this.n(); i++ )
+			{
+				stoichiometry = aReac.getStoichiometry(this._soluteNames[i]);
+				destination[i] += rate * stoichiometry;
+			}
+		}
+	}
+	
+	/**
+	 * \brief Loop through an agent's reactions, applying the result to the
+	 * agent's biomass.
+	 * 
+	 * @param agent Agent assumed to have reactions (biomass will be altered by
+	 * this method).
+	 * @param concns Concentrations of solutes in the environment (unaffected
+	 * by this method).
+	 * @param timeStep Length of the mini time-step to use.
+	 */
+	@SuppressWarnings("unchecked")
+	private void applyAgentReactions(Agent agent, 
+			Map<String, Double> concns, double timeStep)
+	{
+		/*
+		 * Get the agent's reactions: if it has none, then there is nothing
+		 * more to do.
+		 */
+		List<Reaction> reactions = (List<Reaction>) agent.get(REACTIONS);
+		if ( reactions == null )
+			return;
+		/*
+		 * Get the agent biomass kinds as a map. This map will be the one
+		 * updated with the results of the reactions.
+		 */
+		Map<String,Double> newBiomass = AgentContainer.getAgentMassMap(agent);
+		/*
+		 * Make a new map with these converted to concentrations. Calculate the
+		 * one over volume part once, as multiplication is 
+		 */
+		double volume = this.volume();
+		double perVolume = Math.pow(volume, -1.0);
+		Map<String,Double> allConcns = new HashMap<String,Double>();
+		for ( String key : newBiomass.keySet() )
+			allConcns.put(key, newBiomass.get(key) * perVolume);
+		/*
+		 * Copy the solute concentrations to this map so that we do not risk
+		 * contaminating other agent-based reactions.
+		 */
+		allConcns.putAll(concns);
+		/*
+		 * Loop over all reactions and apply them.
+		 */
+		double reactionOccurances, biomass;
+		Map<String,Double> stoichiometry;
+		for ( Reaction aReac : reactions )
+		{
+			stoichiometry = aReac.getStoichiometry();
+			reactionOccurances = aReac.getRate(allConcns) * timeStep * volume;
+			for ( String key : stoichiometry.keySet() )
+				if ( this._environment.isSoluteName(key) )
+				{
+					/* Do nothing here. */
+				}
+				else if ( newBiomass.containsKey(key) )
+				{
+					biomass = newBiomass.get(key) + 
+							(stoichiometry.get(key) * reactionOccurances);
+					newBiomass.put(key, biomass);
+				}
+				else
+				{
+					newBiomass.put(key, 
+							stoichiometry.get(key) * reactionOccurances);
+				}
+		}
+		/*
+		 * Finally, update the biomass for this agent.
+		 */
+		AgentContainer.updateAgentMass(agent, newBiomass);
+	}
+	
 	/**
 	 * \brief Apply the effects of a reaction on the given vector.
 	 * 

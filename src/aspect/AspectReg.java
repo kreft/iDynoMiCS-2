@@ -126,7 +126,7 @@ public class AspectReg
 	 */
 	public void set(String key, Object aspect)
 	{
-		if(_aspects.containsKey(key) )
+		if ( this._aspects.containsKey(key) )
 			this.getAspect(key).set(aspect, key);
 		else
 			this._aspects.put(key, new Aspect(aspect, key, this) );
@@ -134,6 +134,8 @@ public class AspectReg
 	
 	/**
 	 * Remove aspect from this registry.
+	 * 
+	 * @param key Name of the aspect to remove.
 	 */
 	public void remove(String key)
 	{
@@ -150,7 +152,11 @@ public class AspectReg
 		this._modules.add(module);
 	}
 	
-
+	/**
+	 * \brief TODO
+	 * 
+	 * @param module
+	 */
 	public void removeSubmodule(String module) 
 	{
 		for ( AspectInterface m : _modules )
@@ -159,9 +165,10 @@ public class AspectReg
 	}
 	
 	/**
-	 * Add subModule from quizable Library
+	 * \brief Add a subModule from an AspectInterface Library
 	 * 
 	 * @param name
+	 * @param library
 	 */
 	public void addSubModule(String name, AspectInterface library)
 	{

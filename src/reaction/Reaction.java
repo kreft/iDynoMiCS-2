@@ -69,6 +69,15 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * **********************************************************************/
 	
 	/**
+	 * \brief Empty reaction for ReactionLibrary construction.
+	 */
+	// TODO check this is the right approach
+	public Reaction()
+	{
+		
+	}
+	
+	/**
 	 * \brief Construct a reaction from an XML node;
 	 * 
 	 * @param xmlNode XMl node from a protocol file.

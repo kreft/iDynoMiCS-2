@@ -29,8 +29,7 @@ import solver.PDEsolver;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
-import surface.predicate.AreColliding;
-import surface.predicate.AreNotColliding;
+import surface.predicate.IsNotColliding;
 import surface.Surface;
 import utility.ExtraMath;
 
@@ -416,17 +415,15 @@ public class AgentContainer
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
 		// NOTE lambda expressions are known to be slower than alternatives
-		AreNotColliding<Surface> filter;
+		IsNotColliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
 		/* NOTE if the agent has many surfaces it may be faster the other way
 		 * around  */
-		for ( Surface a : ((Body) anAgent.get(AspectRef.agentBody))
-				.getSurfaces())
-		{
-			filter = new AreNotColliding<Surface>(a, collision, searchDist);
-			out.removeIf(filter);
-		}
+		Collection<Surface> agentSurfs = 
+				((Body) anAgent.get(AspectRef.agentBody)).getSurfaces();
+		filter = new IsNotColliding<Surface>(agentSurfs, collision, searchDist);
+		out.removeIf(filter);
 		return out;
 	}
 
@@ -448,7 +445,7 @@ public class AgentContainer
 	}
 
 	/* ***********************************************************************
-	 * AGENT LOCATION
+	 * AGENT LOCATION & MASS
 	 * **********************************************************************/
 
 	/**
@@ -490,6 +487,109 @@ public class AgentContainer
 		body.relocate(newLoc);
 		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+") "+dist+
 				" along dimension "+dimN+" to "+Vector.toString(newLoc));
+	}
+	
+	/**
+	 * \brief Compose a dictionary of biomass names and values for the given
+	 * agent.
+	 * 
+	 * <p>this method is the opposite of 
+	 * {@link #updateAgentMass(Agent, HashMap<String,Double>)}.</p>
+	 * 
+	 * @param agent An agent with biomass.
+	 * @return Dictionary of biomass kind names to their values.
+	 */
+	public static Map<String,Double> getAgentMassMap(Agent agent)
+	{
+		Map<String,Double> out = new HashMap<String,Double>();
+		Object mass = agent.get(AspectRef.agentMass);
+		if ( mass == null )
+		{
+			// TODO safety?
+		}
+		else if ( mass instanceof Double )
+		{
+			out.put(AspectRef.agentMass, ((double) mass));
+		}
+		else if ( mass instanceof Double[] )
+		{
+			// TODO Need vector of mass names
+		}
+		else if ( mass instanceof Map )
+		{
+			/* If the mass object is already a map, then just copy it. */
+			@SuppressWarnings("unchecked")
+			Map<String,Double> massMap = (Map<String,Double>) mass;
+			out.putAll(massMap);
+		}
+		else
+		{
+			// TODO safety?
+		}
+		return out;
+	}
+	
+	/**
+	 * \brief Use a dictionary of biomass names and values to update the given
+	 * agent.
+	 * 
+	 * <p>This method is the opposite of {@link #getAgentMassMap(Agent)}. Note
+	 * that extra biomass types may have been added to the map, which should
+	 * be other aspects (e.g. EPS).</p>
+	 * 
+	 * @param agent An agent with biomass.
+	 * @param biomass Dictionary of biomass kind names to their values.
+	 */
+	public static void updateAgentMass(Agent agent, Map<String,Double> biomass)
+	{
+		/*
+		 * First try to copy the new values over to the agent mass aspect.
+		 * Remember to remove the key-value pairs from biomass, so that we can
+		 * see what is left (if anything).
+		 */
+		Object mass = agent.get(AspectRef.agentMass);
+		if ( mass == null )
+		{
+			// TODO safety?
+		}
+		else if ( mass instanceof Double )
+		{
+			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
+		}
+		else if ( mass instanceof Double[] )
+		{
+			// TODO Need vector of mass names
+		}
+		else if ( mass instanceof Map )
+		{
+			@SuppressWarnings("unchecked")
+			Map<String,Double> massMap = (Map<String,Double>) mass;
+			for ( String key : massMap.keySet() )
+			{
+				massMap.put(key, biomass.remove(key));
+			}
+			
+			agent.set(AspectRef.agentMass, biomass);
+		}
+		else
+		{
+			// TODO safety?
+		}
+		/*
+		 * Now check if any other aspects were added to biomass (e.g. EPS).
+		 */
+		for ( String key : biomass.keySet() )
+		{
+			if ( agent.isAspect(key) )
+			{
+				agent.set(key, biomass.get(key));
+				biomass.remove(key);
+			}
+			else
+			{
+				// TODO safety
+			}
+		}
 	}
 
 	/* ***********************************************************************

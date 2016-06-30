@@ -59,12 +59,6 @@ public class XmlRef
 	public static String solute = "solute";
 	
 	/**
-	 * Indicates a resolution element of a solute.
-	 */
-	// TODO change javadoc to "... of a shape."?
-	public static String resolution = "resolution";
-	
-	/**
 	 * Indicates an mathematical expression.
 	 */
 	public static String expression = "expression";
@@ -75,9 +69,8 @@ public class XmlRef
 	public static String voxel = "vox";
 	
 	/**
-	 * Indicates a reaction.
+	 * Indicates a reaction: could be environmental or agent-based.
 	 */
-	// TODO clarify: agent-based reaction, environmental reaction, or either?
 	public static String reaction = "reaction";
 	
 	/**
@@ -121,6 +114,11 @@ public class XmlRef
 	public static String speciesLibrary = "speciesLib";
 	
 	/**
+	 * Encapsulates all common environmental reactions for a simulation.
+	 */
+	public static String reactionLibrary = "reactionLib";
+	
+	/**
 	 * An agent species.
 	 */
 	public static String species = "species";
@@ -141,11 +139,10 @@ public class XmlRef
 	public static String shapeDimension = "dimension";
 	
 	/**
-	 * Tag for the boolean denoting whether this dimension is cyclic (true) or
+	 * Tag for the boolean denoting whether a dimension is cyclic (true) or
 	 * not (false).
 	 */
-
-	public static String IS_CYCLIC = "isCyclic";
+	public static String isCyclic = "isCyclic";
 	
 	/**
 	 * Encapsulates the child node for a dimension boundary.
@@ -162,6 +159,12 @@ public class XmlRef
 	 * Encapsulates all agents for one compartment.
 	 */
 	public static String agents = "agents";
+
+	/**
+	 * Encapsulates the environment (solutes, environmental reactions, etc) for
+	 * one compartment.
+	 */
+	public static String environment = "environment";
 	
 	/**
 	 * Encapsulates all process managers for one compartment.
@@ -283,16 +286,19 @@ public class XmlRef
 	//////////// NOT sorted yet
 	
 	/**
-	 * priority of process manager
+	 * Priority of a process manager.
 	 */
-	// FIXME what is the difference between this and NameRef.processPriority?
 	public static String processPriority = "priority";
 
 	/**
-	 * time for the first following timestep
+	 * Time for the first timestep of a process manager.
 	 */
-	// FIXME what is the difference between this and NameRef.initialStep?
 	public static String processFirstStep = "firstStep";
+
+	/**
+	 * Time step size for a process manager.
+	 */
+	public static String processTimeStepSize = "timerStepSize";
 	
 	/**
 	 * TODO
@@ -300,7 +306,7 @@ public class XmlRef
 	public static String inputAttribute = "input";
 	
 	/**
-	 * setable fields
+	 * Fields that can be set by the user.
 	 */
 	public static String fields = "fields";
 
@@ -320,12 +326,12 @@ public class XmlRef
 	public static String solutes = "solutes";
 
 	/**
-	 * Random seed
+	 * Seed for the random number generator.
 	 */
 	public static String seed = "randomSeed";
 
 	/**
-	 * Object identity number
+	 * Object identity number.
 	 */
 	public static String identity = "identity";
 
@@ -350,23 +356,13 @@ public class XmlRef
 	public static String spawnNode = "spawn";
 
 	/**
-	 * TODO
+	 * Tag for the (integer) number of agents to create new.
 	 */
 	public static String numberOfAgents = "number";
 
 	/**
-	 * TODO
+	 * Tag for the region of space in which to spawn new agents.
 	 */
 	public static String spawnDomain = "domain";
-
-	/**
-	 * 
-	 */
-	public static String processTimeStepSize = "timerStepSize";
-
-	/**
-	 * TODO
-	 */
-	public static String environment = "environment";
 
 }
