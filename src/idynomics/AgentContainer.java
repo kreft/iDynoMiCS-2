@@ -499,6 +499,7 @@ public class AgentContainer
 	 * @param agent An agent with biomass.
 	 * @return Dictionary of biomass kind names to their values.
 	 */
+	// TODO move this, and updateAgentMass(), to somewhere more general?
 	public static Map<String,Double> getAgentMassMap(Agent agent)
 	{
 		Map<String,Double> out = new HashMap<String,Double>();
@@ -510,10 +511,6 @@ public class AgentContainer
 		else if ( mass instanceof Double )
 		{
 			out.put(AspectRef.agentMass, ((double) mass));
-		}
-		else if ( mass instanceof Double[] )
-		{
-			// TODO Need vector of mass names
 		}
 		else if ( mass instanceof Map )
 		{
@@ -555,10 +552,6 @@ public class AgentContainer
 		else if ( mass instanceof Double )
 		{
 			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
-		}
-		else if ( mass instanceof Double[] )
-		{
-			// TODO Need vector of mass names
 		}
 		else if ( mass instanceof Map )
 		{

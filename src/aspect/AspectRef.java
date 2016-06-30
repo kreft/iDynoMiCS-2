@@ -213,6 +213,12 @@ public class AspectRef
 	public static String agentStochasticDistance = "stochasticDistance";
 
 	/**
+	 * List of names of events each agent should perform during a process
+	 * manager step.
+	 */
+	public static String agentEventNames = "eventNames";
+	
+	/**
 	 * TODO
 	 */
 	public static String agentDivision = "divide";

@@ -149,9 +149,8 @@ public class CoccoidDivision extends Event
 		Object mumMass = anAgent.get(this.MASS);
 		if ( mumMass instanceof Double )
 			variable = (Double) mumMass;
-		else if ( mumMass instanceof double[] )
-			variable = Vector.sum((double[]) mumMass);
 		else if ( mumMass instanceof Map )
+			// TODO assume all mass types used unless specified otherwise
 			variable = Helper.totalValue((Map<String,Double>) mumMass);
 		else
 		{
