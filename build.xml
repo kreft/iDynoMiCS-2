@@ -1,0 +1,121 @@
+<project name="iDynoMiCS-2" default="dist" basedir=".">
+  <description>
+    simple example build file
+  </description>
+  <!-- set global properties for this build -->
+  <property name="src.dir"     value="src"/>
+  <property name="build.dir" location="build"/>
+  <property name="dist" location="dist"/>
+
+  <property name="classes.dir" value="${build.dir}/classes"/>
+  <property name="jar.dir" location="${build.dir}/jar"/>
+  <property name="lib.dir" location="./src/lib"/>
+  <property name="general.dir" location="./src/general"/>
+  <property name="jar.file" location="iDynoMiCS.jar"/>
+  <property name="main-class" location="idynomics.GuiLaunch"/>
+	
+	<path id="project-classpath">
+		<fileset dir="web/WEB-INF/lib" includes="*.jar" />
+		<fileset dir="${iDynoMiCS-2}/bin" includes="*.jar" />
+		<fileset dir="${iDynoMiCS-2}/common/lib" includes="*.jar" />
+		<fileset dir="${iDynoMiCS-2}/server/lib" includes="*.jar" />
+	</path>
+	
+	<path id="libraries.path">    
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        	<include name="/jogl/*.jar"/>
+        	<include name="/JUnit/*.jar"/>
+        </fileset>
+    </path>
+	
+	<path id="general.path">    
+        <fileset dir="${general.dir}">
+            <include name="*.xml"/>
+        </fileset>
+    </path>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build.dir}"/>
+  </target>
+
+  <target name="compile" depends="init" description="compile the source">
+    <mkdir dir="${classes.dir}"/>
+  	
+  	<path id="lib.path.ref">
+  	    <fileset dir="lib" includes="*.jar"/>
+  	  </path>
+  	
+  	<path id="gen.path.ref">
+  	    <fileset dir="general" includes="*.xml"/>
+  	  </path>
+  		
+    <!-- Compile the java code from ${src} into ${build} -->
+ <javac includeantruntime="false" srcdir="${src.dir}" destdir="${classes.dir}">
+    <classpath refid="libraries.path"/>
+    <classpath refid="general.path"/>
+  </javac>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution">
+    <!-- Create the distribution directory -->
+    <mkdir dir="${build.dir}/lib"/>
+  	<mkdir dir="${build.dir}/general"/>
+
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${build.dir}/lib/MyProject-${DSTAMP}.jar" basedir="${classes.dir}"/>
+  </target>
+	
+	 <target name="jar" depends="compile">
+	        <mkdir dir="${jar.dir}"/>
+	 	
+	      <!--  <mkdir dir="${build.dir}/lib"/>
+	        <copy todir="${build.dir}/lib" flatten="true">
+	            <path refid="libraries.path"/>
+	        </copy> -->
+
+	 		<mkdir dir="${classes.dir}/general"/>
+	 		<copy todir="${classes.dir}/general" flatten="true">
+	 		   <path refid="general.path"/>
+	 		</copy>
+
+	        <manifestclasspath property="manifest.classpath" jarfile="${classes.dir}">
+	            <classpath refid="libraries.path"/>
+	        	<classpath refid="general.path"/>
+	        </manifestclasspath>
+
+	        <jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+	            <manifest>
+	            	<attribute name="Main-Class" value="idynomics.GuiLaunch"/>
+	                <attribute name="Class-Path" value="${manifest.classpath}"/>
+	            </manifest>
+	        </jar>  
+	    </target>
+
+	    <target name="run" depends="jar">
+	        <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
+	    </target>
+	<!--	
+  <target name="jar">
+        <mkdir dir="build/jar"/>
+        <jar destfile="build/jar/iDynoMiCS.jar" basedir="${build}">
+        	<manifest>
+	        <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
+	        <attribute name="Rsrc-Main-Class" value="idynomics.GuiLauch"/>
+	        <attribute name="Class-Path" value="."/>
+	        <attribute name="Rsrc-Class-Path" value="./ SimulationCoreLibrary_v1.4_incl-libs.jar gluegen-rt-natives-linux-amd64.jar gluegen-rt-natives-linux-i586.jar gluegen-rt-natives-macosx-universal.jar gluegen-rt-natives-windows-amd64.jar gluegen-rt-natives-windows-i586.jar gluegen-rt.jar jogl-all-natives-linux-amd64.jar jogl-all-natives-linux-i586.jar jogl-all-natives-macosx-universal.jar jogl-all-natives-solaris-i586.jar jogl-all-natives-windows-amd64.jar jogl-all-natives-windows-i586.jar jogl-all.jar junit.jar"/>
+            </manifest>
+        </jar>
+    </target> -->
+
+  <target name="clean"
+        description="clean up">
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${classes.dir}"/>
+    <delete dir="${jar.dir}/${ant.project.name}.jar"/>
+  </target>
+</project>

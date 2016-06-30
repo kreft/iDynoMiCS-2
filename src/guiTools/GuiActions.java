@@ -50,6 +50,11 @@ public final class GuiActions
 		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
 			f = chooser.getSelectedFile();
 		
+    	openFile(f);		
+	}
+	
+	public static void openFile(File f) 
+	{
     	/* load content if a protocol file has been selected */
     	if ( f == null )
     	{

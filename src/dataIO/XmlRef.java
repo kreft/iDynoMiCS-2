@@ -368,5 +368,10 @@ public class XmlRef
 	 * TODO
 	 */
 	public static String environment = "environment";
+	/**
+	 * Force scalar used to scale the collision algorithm force distance 
+	 * functions
+	 */
+	public static String forceScalar = "forceScalar";
 
 }

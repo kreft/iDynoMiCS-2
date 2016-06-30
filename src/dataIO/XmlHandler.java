@@ -98,6 +98,8 @@ public class XmlHandler
 			DocumentBuilder dBuilder = dbF.newDocumentBuilder();
 			Document doc;
 			InputStream input = String.class.getResourceAsStream(resource);
+			if (input == null)
+				System.exit(0);
 			doc = dBuilder.parse(input);
 			doc.getDocumentElement().normalize();
 			return doc.getDocumentElement();

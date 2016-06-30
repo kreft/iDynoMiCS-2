@@ -8,8 +8,6 @@ import linearAlgebra.Vector;
 import shape.Shape;
 
 /**
- * NOTE: this class is not thread-safe.
- * 
  * Distance methods are based on closest point algorithms from:
  * Ericson, C. (2005). Real-time collision detection. Computer (Vol. 1).
  * 
@@ -46,7 +44,8 @@ public class Collision
 	 */
 	private final Shape _shape;
 	/**
-	 * 
+	 * Collision variables is an object used to pass variables between the
+	 * collision methods as efficiently, limiting required garbage collection
 	 */
 	private final CollisionVariables _variables;
 	
@@ -61,7 +60,8 @@ public class Collision
 	 * @param collisionFunction
 	 * @param compartmentShape
 	 */
-	public Collision(CollisionFunction collisionFunction, Shape compartmentShape)
+	public Collision(CollisionFunction collisionFunction, 
+			Shape compartmentShape)
 	{
 		this._shape = compartmentShape;
 		this._variables = new CollisionVariables(
@@ -72,9 +72,10 @@ public class Collision
 		else
 			this._collisionFun = collisionFunction;
 		
-		
-		//FIXME testing purposes
 		this._pullFun = CollisionFunction.DefaultPullFunction;
+		
+		this._pullFun.init(null, null);
+		this._collisionFun.init(null, null);
 	}
 
 	/**
@@ -106,7 +107,7 @@ public class Collision
 	 * \brief Apply a collision force on two surfaces, if applicable.
 	 * 
 	 * <p>This method always also sets the internal variables {@link #_flip}
-	 * and {@link #dP}. It may also set {@link #s} and {@link #t}, depending on
+	 * and {@link #interactionVector}. It may also set {@link #s} and {@link #t}, depending on
 	 * the surface types.</p>
 	 * 
 	 * @param a One surface object.
@@ -122,18 +123,19 @@ public class Collision
 		 */
 		if ( var.distance < 0.0 )
 		{
-			double[] force = this._collisionFun.interactionForce(var.distance, 
-					var);
+			this._collisionFun.interactionForce( var );
 	
 			if( var.flip )
 			{
-				this.applyForce(b, force, var.s);
-				this.applyForce(a, Vector.reverse(force), var.t);
+				this.applyForce(b, var.interactionVector, var.s);
+				Vector.reverseEquals(var.interactionVector);
+				this.applyForce(a, var.interactionVector, var.t);
 			} 
 			else
 			{
-				this.applyForce(a, force, var.s);
-				this.applyForce(b, Vector.reverse(force), var.t);
+				this.applyForce(a, var.interactionVector, var.s);
+				Vector.reverseEquals(var.interactionVector);
+				this.applyForce(b, var.interactionVector, var.t);
 			}
 		}
 		/*
@@ -142,17 +144,20 @@ public class Collision
 		 */
 		else if ( var.pullRange > 0.0 )
 		{
-			double[] force = this._pullFun.interactionForce(var.distance, var);
+			if ( var.flip )
+				 Vector.reverseEquals(var.interactionVector);
+			
+			this._pullFun.interactionForce( var );
 
 			if( var.flip )
 			{
-				this.applyForce(a, force, var.s);
-				this.applyForce(b, Vector.reverse(force), var.t);
+				this.applyForce(a, var.interactionVector, var.s);
+				this.applyForce(b, Vector.reverse(var.interactionVector), var.t);
 			} 
 			else
 			{
-				this.applyForce(b, force, var.s);
-				this.applyForce(a, Vector.reverse(force), var.t);
+				this.applyForce(b, var.interactionVector, var.s);
+				this.applyForce(a, Vector.reverse(var.interactionVector), var.t);
 			}
 		}
 	}
@@ -189,11 +194,13 @@ public class Collision
 		switch ( surf.type() )
 		{
 		case SPHERE:
-			((Ball) surf)._point.addToForce(force);
+			((Ball) surf)._point.addToForce( force );
 			break;
 		case ROD:
-			((Rod) surf)._points[0].addToForce(Vector.times(force,1.0-intersect));
-			((Rod) surf)._points[1].addToForce(Vector.times(force,intersect));
+			((Rod) surf)._points[0].addToForce(
+					Vector.times( force , 1.0 - intersect ) );
+			((Rod) surf)._points[1].addToForce(
+					Vector.times( force , intersect ) );
 			break;
 		case PLANE:
 			Log.out(Tier.BULK,"WARNING: Surface Plane does not accept force");
@@ -224,7 +231,7 @@ public class Collision
 	 * margin.
 	 * 
 	 * <p>This method always also sets the internal variables {@link #_flip}
-	 * and {@link #dP}. It may also set {@link #s} and {@link #t}, depending on
+	 * and {@link #interactionVector}. It may also set {@link #s} and {@link #t}, depending on
 	 * the surface types.</p>
 	 * 
 	 * @param a One surface, of unknown type.
@@ -242,8 +249,8 @@ public class Collision
 	 */
 	public double distance(Surface a, Surface b)
 	{
-		_variables.setPullRange(0.0);
-		CollisionVariables var = this.distance(a, b, _variables);
+		_variables.setPullRange( 0.0 );
+		CollisionVariables var = this.distance( a, b, _variables );
 		return var.distance;
 	}
 	
@@ -251,8 +258,8 @@ public class Collision
 	 * \brief Calculate the distance between two surfaces.
 	 * 
 	 * <p>This method always also sets the internal variables {@link #_flip}
-	 * and {@link #dP}. It may also set {@link #s} and {@link #t}, depending on
-	 * the surface types.</p>
+	 * and {@link #interactionVector}. It may also set {@link #s} and {@link #t}
+	 * depending on the surface types.</p>
 	 * 
 	 * @param a One surface, of unknown type.
 	 * @param b Another surface, of unknown type.
@@ -304,8 +311,9 @@ public class Collision
 	/**
 	 * \brief Calculate the distance from a surface to a point.
 	 * 
-	 * <p>This method always also sets the internal variable {@link #dP}.
-	 * It may also set {@link #s}, depending on the surface type.</p>
+	 * <p>This method always also sets the internal variable 
+	 * {@link #interactionVector}. It may also set {@link #s}, depending on the 
+	 * surface type.</p>
 	 * 
 	 * @param a Surface object, of unknown type.
 	 * @param p A point in space.
@@ -337,8 +345,9 @@ public class Collision
 	 * \brief Calculate the distance between a Plane and another surface of
 	 * unknown type.
 	 * 
-	 * <p>This method always also sets the internal variable {@link #dP}.
-	 * It may also set {@link #s}, depending on the other surface type.</p>
+	 * <p>This method always also sets the internal variable 
+	 * {@link #interactionVector}. It may also set {@link #s}, depending on the 
+	 * other surface type.</p>
 	 * 
 	 * @param plane Surface of an infinite plane.
 	 * @param otherSurface Another surface object, of unknown type.
@@ -358,8 +367,8 @@ public class Collision
 	 * unknown type.
 	 * 
 	 * <p>This method always also sets the internal variables {@link #s} and 
-	 * {@link #dP}. It may also set {@link #t}, depending on the other surface
-	 * type.</p>
+	 * {@link #interactionVector}. It may also set {@link #t}, depending on the 
+	 * other surface type.</p>
 	 * 
 	 * @param rod Rod surface.
 	 * @param otherSurface Another surface object, of unknown type.
@@ -389,7 +398,7 @@ public class Collision
 	private void setPeriodicDistanceVector(double[] a, double[] b, 
 			CollisionVariables var)
 	{
-		this._shape.getMinDifferenceTo(var.dP, a, b);
+		this._shape.getMinDifferenceTo(var.interactionVector, a, b);
 	}
 	
 	/**
@@ -409,8 +418,8 @@ public class Collision
 	/**
 	 * \brief Point-point distance.
 	 * 
-	 * <p>This method also sets the internal variable {@link #dP}.
-	 * It returns the Euclidean norm of {@link #dP}.</p>
+	 * <p>This method also sets the internal variable {@link #interactionVector}
+	 * It returns the Euclidean norm of {@link #interactionVector}.</p>
 	 * 
 	 * @param p First point.
 	 * @param q Second point.
@@ -420,14 +429,15 @@ public class Collision
 			CollisionVariables var) 
 	{
 		this.setPeriodicDistanceVector(p, q, var);
-		var.distance = Vector.normEuclid(var.dP);
+		var.distance = Vector.normEuclid(var.interactionVector);
 		return var;
 	}
 	
 	/**
 	 * \brief Calculate the distance from the surface of a sphere to a point.
 	 * 
-	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * <p>This method also sets the internal variable {@link #interactionVector}
+	 * </p>
 	 * 
 	 * @param a A ball object.
 	 * @param p A point in space.
@@ -452,7 +462,8 @@ public class Collision
 	/**
 	 * \brief Calculate the distance between two spheres.
 	 * 
-	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * <p>This method also sets the internal variable {@link #interactionVector}
+	 * </p>
 	 * 
 	 * @param a A ball object representing one sphere.
 	 * @param b A ball object representing another sphere.
@@ -484,7 +495,7 @@ public class Collision
 	 * of a line.
 	 * 
 	 * <p>This method also sets the internal variables {@link #s} and
-	 * {@link #dP}.</p>
+	 * {@link #interactionVector}.</p>
 	 * 
 	 * @param normal Normal vector of the plane.
 	 * @param d 
@@ -495,7 +506,7 @@ public class Collision
 	private CollisionVariables planeLineSeg(double[] normal, double d, 
 			double[] p0, double[] p1, CollisionVariables var)
 	{
-		Vector.reverseTo(var.dP, normal);
+		Vector.reverseTo(var.interactionVector, normal);
 		this.planePoint(normal, d, p0, var);
 		double a = var.distance;
 		this.planePoint(normal, d, p1, var);
@@ -522,7 +533,7 @@ public class Collision
 	 * of a rod.
 	 * 
 	 * <p>This method also sets the internal variables {@link #s} and
-	 * {@link #dP}.</p>
+	 * {@link #interactionVector}.</p>
 	 * 
 	 * @param plane Infinite plane.
 	 * @param rod Rod surface.
@@ -550,7 +561,8 @@ public class Collision
 	 * \brief Calculates the distance between a line segment and a point.
 	 * 
 	 * <p>This method also sets the internal variables {@link #s} and
-	 * {@link #dP}. It returns the Euclidean norm of {@link #dP}.</p>
+	 * {@link #interactionVector}. It returns the Euclidean norm of 
+	 * {@link #interactionVector}.</p>
 	 * 
 	 * <p>(Ericson 2005, page 127) closest point on line segment to point.</p>
 	 * 
@@ -564,14 +576,14 @@ public class Collision
 	{
 		/* ab = p1 - p0 */
 		this.setPeriodicDistanceVector(p1, p0, var);
-		var.s = Vector.dotProduct( Vector.minus(q0, p0), var.dP);
-		var.s /= Vector.normSquare(var.dP);
+		var.s = Vector.dotProduct( Vector.minus(q0, p0), var.interactionVector);
+		var.s /= Vector.normSquare(var.interactionVector);
 		var.s  = clamp( var.s );
 		/* dP = (ab*s) + p0 - q0 */
-		Vector.timesEquals(var.dP, var.s);
-		Vector.addEquals(var.dP, p0);
-		Vector.minusEquals(var.dP, q0);
-		var.distance = Vector.normEuclid(var.dP);
+		Vector.timesEquals(var.interactionVector, var.s);
+		Vector.addEquals(var.interactionVector, p0);
+		Vector.minusEquals(var.interactionVector, q0);
+		var.distance = Vector.normEuclid(var.interactionVector);
 		return var;
 	}
 	
@@ -580,14 +592,15 @@ public class Collision
 	 * in space.
 	 * 
 	 * <p>This method also sets the internal variables {@link #s} and
-	 * {@link #dP}.</p>
+	 * {@link #interactionVector}.</p>
 	 * 
 	 * @param aRod A rod surface.
 	 * @param p A point in space.
 	 * @return The minimum distance between the surface of the rod and the
 	 * point.
 	 */
-	public CollisionVariables rodPoint(Rod aRod, double[] p, CollisionVariables var)
+	public CollisionVariables rodPoint(Rod aRod, double[] p, 
+			CollisionVariables var)
 	{
 		/*
 		 * First find the distance between the axis of the rod and the point. 
@@ -608,7 +621,7 @@ public class Collision
 	 * sphere.
 	 * 
 	 * <p>This method also sets the internal variables {@link #s} and
-	 * {@link #dP}.</p>
+	 * {@link #interactionVector}.</p>
 	 * 
 	 * @param aRod A rod surface.
 	 * @param aBall A sphere surface.
@@ -638,7 +651,8 @@ public class Collision
 	 * \brief Calculate the distance between two line segments.
 	 * 
 	 * <p>This method also sets the internal variables {@link #s}, {@link #t}, 
-	 * and {@link #dP}. It returns the Euclidean norm of {@link #dP}.</p>
+	 * and {@link #interactionVector}. It returns the Euclidean norm of 
+	 * {@link #interactionVector}.</p>
 	 * 
 	 * <p>(Ericson 2005, page 148) closest point on two line segments.</p>
 	 * 
@@ -715,7 +729,7 @@ public class Collision
 
 		/* finally calculate the distance between the two points */
 		this.setPeriodicDistanceVector(d1, d2, var);
-		var.distance = Vector.normEuclid(var.dP);
+		var.distance = Vector.normEuclid(var.interactionVector);
 		return var;
 	}
 	
@@ -723,7 +737,7 @@ public class Collision
 	 * \brief Calculate the minimum distance between the surfaces of two rods.
 	 * 
 	 * <p>This method also sets the internal variables {@link #s}, {@link #t}, 
-	 * and {@link #dP}.</p>
+	 * and {@link #interactionVector}.</p>
 	 * 
 	 * @param a One rod.
 	 * @param b Another rod.
@@ -750,7 +764,8 @@ public class Collision
 	/**
 	 * \brief Distance between a plane and a point.
 	 * 
-	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * <p>This method also sets the internal variable {@link #interactionVector}
+	 * </p>
 	 * 
 	 * @param plane An infinite plane.
 	 * @param point A point in space.
@@ -759,7 +774,7 @@ public class Collision
 	public CollisionVariables planePoint(Plane plane, double[] point, 
 			CollisionVariables var)
 	{
-		Vector.reverseTo(var.dP, plane.normal);
+		Vector.reverseTo(var.interactionVector, plane.normal);
 		var.distance = Vector.dotProduct(plane.normal, point) - plane.d;
 		return var;
 	}
@@ -790,7 +805,8 @@ public class Collision
 	 * \brief Calculate the distance between an infinite plane and the surface
 	 * of a sphere.
 	 * 
-	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * <p>This method also sets the internal variable {@link #interactionVector}
+	 * </p>
 	 * 
 	 * @param plane An infinite plane.
 	 * @param sphere A sphere.
@@ -817,7 +833,8 @@ public class Collision
 	 * \brief Calculate the distance between a normalized infinite plane and a 
 	 * point in space.
 	 * 
-	 * <p>This method also sets the internal variable {@link #dP}.</p>
+	 * <p>This method also sets the internal variable {@link #interactionVector}
+	 * </p>
 	 * 
 	 * @param normal The normal vector of the plane.
 	 * @param d The  dot product of the plane's normal vector with a point on
@@ -829,7 +846,7 @@ public class Collision
 			double[] point, CollisionVariables var)
 	{
 		/* store the direction vector */
-		Vector.reverseTo(var.dP, normal);
+		Vector.reverseTo(var.interactionVector, normal);
 		/* calculate the distance between a point and a normalized plane */
 		var.distance = Vector.dotProduct(normal, point) - d;
 		return var;
