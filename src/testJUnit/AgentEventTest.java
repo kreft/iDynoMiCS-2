@@ -1,8 +1,6 @@
 package testJUnit;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -14,7 +12,6 @@ import aspect.AspectRef;
 import aspect.event.CoccoidDivision;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import reaction.Reaction;
 import shape.Shape;
 import shape.ShapeLibrary.Dimensionless;
 

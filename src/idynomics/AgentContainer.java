@@ -532,15 +532,23 @@ public class AgentContainer
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Use a dictionary of biomass names and values to update the given
+	 * agent.
 	 * 
-	 * <p>this method is the opposite of {@link #getAgentMassMap(Agent)}.</p>
+	 * <p>This method is the opposite of {@link #getAgentMassMap(Agent)}. Note
+	 * that extra biomass types may have been added to the map, which should
+	 * be other aspects (e.g. EPS).</p>
 	 * 
 	 * @param agent An agent with biomass.
 	 * @param biomass Dictionary of biomass kind names to their values.
 	 */
 	public static void updateAgentMass(Agent agent, Map<String,Double> biomass)
 	{
+		/*
+		 * First try to copy the new values over to the agent mass aspect.
+		 * Remember to remove the key-value pairs from biomass, so that we can
+		 * see what is left (if anything).
+		 */
 		Object mass = agent.get(AspectRef.agentMass);
 		if ( mass == null )
 		{
@@ -548,7 +556,7 @@ public class AgentContainer
 		}
 		else if ( mass instanceof Double )
 		{
-			agent.set(AspectRef.agentMass, biomass.get(AspectRef.agentMass));
+			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
 		}
 		else if ( mass instanceof Double[] )
 		{
@@ -556,11 +564,33 @@ public class AgentContainer
 		}
 		else if ( mass instanceof Map )
 		{
+			@SuppressWarnings("unchecked")
+			Map<String,Double> massMap = (Map<String,Double>) mass;
+			for ( String key : massMap.keySet() )
+			{
+				massMap.put(key, biomass.remove(key));
+			}
+			
 			agent.set(AspectRef.agentMass, biomass);
 		}
 		else
 		{
 			// TODO safety?
+		}
+		/*
+		 * Now check if any other aspects were added to biomass (e.g. EPS).
+		 */
+		for ( String key : biomass.keySet() )
+		{
+			if ( agent.isAspect(key) )
+			{
+				agent.set(key, biomass.get(key));
+				biomass.remove(key);
+			}
+			else
+			{
+				// TODO safety
+			}
 		}
 	}
 

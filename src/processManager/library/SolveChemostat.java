@@ -358,10 +358,9 @@ public class SolveChemostat extends ProcessManager
 	}
 	
 	/**
-	 * @return One divided by the compartment volume. Note that multiplication
-	 * is computationally cheaper than division.
+	 * @return The compartment volume.
 	 */
-	private double perVolume()
+	private double volume()
 	{
 		return Math.pow(this._agents.getShape().getTotalVolume(), -1.0);
 	}
@@ -390,9 +389,10 @@ public class SolveChemostat extends ProcessManager
 		/*
 		 * Copy the solute concentrations to a new map so that we can add the
 		 * agent's mass without risk of these contaminating other agent-based
-		 * reactions.
+		 * reactions. Note that multiplication is computationally cheaper than
+		 * division, so we calculate perVolume just once.
 		 */
-		double perVolume = this.perVolume();
+		double perVolume = Math.pow(this.volume(), -1.0);
 		Map<String,Double> allConcns = AgentContainer.getAgentMassMap(agent);
 		for ( String key : allConcns.keySet() )
 			allConcns.put(key, allConcns.get(key) * perVolume);
@@ -407,6 +407,24 @@ public class SolveChemostat extends ProcessManager
 		double rate, stoichiometry;
 		for (Reaction aReac : reactions)
 		{
+			/*
+			 * Check first that we have all variables we need. If not, they may
+			 * be stored as other aspects of the agent (e.g. EPS).
+			 */
+			for ( String varName : aReac.getVariableNames() )
+				if ( ! allConcns.containsKey(varName) )
+				{
+					if ( agent.isAspect(varName) )
+					{
+						allConcns.put(varName, 
+								agent.getDouble(varName) * perVolume);
+					}
+					else
+					{
+						// TODO safety?
+						allConcns.put(varName, 0.0);
+					}
+				}
 			rate = aReac.getRate(allConcns);
 			/*
 			 * Apply the effect of this reaction on the relevant solutes.
@@ -449,7 +467,8 @@ public class SolveChemostat extends ProcessManager
 		 * Make a new map with these converted to concentrations. Calculate the
 		 * one over volume part once, as multiplication is 
 		 */
-		double perVolume = this.perVolume();
+		double volume = this.volume();
+		double perVolume = Math.pow(volume, -1.0);
 		Map<String,Double> allConcns = new HashMap<String,Double>();
 		for ( String key : newBiomass.keySet() )
 			allConcns.put(key, newBiomass.get(key) * perVolume);
@@ -462,15 +481,27 @@ public class SolveChemostat extends ProcessManager
 		 * Loop over all reactions and apply them.
 		 */
 		double reactionOccurances, biomass;
+		Map<String,Double> stoichiometry;
 		for ( Reaction aReac : reactions )
 		{
-			reactionOccurances = aReac.getRate(allConcns) * timeStep;
-			for ( String key : newBiomass.keySet() )
-			{
-				biomass = newBiomass.get(key) + 
-						(aReac.getStoichiometry(key) * reactionOccurances);
-				newBiomass.put(key, biomass);
-			}
+			stoichiometry = aReac.getStoichiometry();
+			reactionOccurances = aReac.getRate(allConcns) * timeStep * volume;
+			for ( String key : stoichiometry.keySet() )
+				if ( this._environment.isSoluteName(key) )
+				{
+					/* Do nothing here. */
+				}
+				else if ( newBiomass.containsKey(key) )
+				{
+					biomass = newBiomass.get(key) + 
+							(stoichiometry.get(key) * reactionOccurances);
+					newBiomass.put(key, biomass);
+				}
+				else
+				{
+					newBiomass.put(key, 
+							stoichiometry.get(key) * reactionOccurances);
+				}
 		}
 		/*
 		 * Finally, update the biomass for this agent.

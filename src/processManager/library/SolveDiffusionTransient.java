@@ -340,13 +340,14 @@ public class SolveDiffusionTransient extends ProcessManager
 		 * Now look at all the voxels this agent covers.
 		 */
 		Map<String,Double> concns = new HashMap<String,Double>();
+		Map<String,Double> stoichiometry;
 		SpatialGrid solute;
 		Shape shape = this._agents.getShape();
-		double concn, rate, productRate, perVolume;
+		double concn, rate, productRate, volume, perVolume;
 		for ( int[] coord : distributionMap.keySet() )
 		{
-			perVolume = shape.getVoxelVolume(coord);
-			perVolume = Math.pow(perVolume, -1.0);
+			volume = shape.getVoxelVolume(coord);
+			perVolume = Math.pow(volume, -1.0);
 			for ( Reaction r : reactions )
 			{
 				/* 
@@ -369,6 +370,15 @@ public class SolveDiffusionTransient extends ProcessManager
 						concn = biomass.get(varName) * 
 								distributionMap.get(coord) * perVolume;
 					}
+					else if ( agent.isAspect(varName) )
+					{
+						/*
+						 * Check if the agent has other mass-like aspects
+						 * (e.g. EPS).
+						 */
+						concn = agent.getDouble(varName) * 
+								distributionMap.get(coord) * perVolume;
+					}
 					else
 					{
 						// TODO safety?
@@ -387,9 +397,10 @@ public class SolveDiffusionTransient extends ProcessManager
 				 * stoichiometry may not be the same as those in the reaction
 				 * variables (although there is likely to be a large overlap).
 				 */
-				for ( String productName : r.getStoichiometry().keySet())
+				stoichiometry = r.getStoichiometry();
+				for ( String productName : stoichiometry.keySet() )
 				{
-					productRate = rate * r.getStoichiometry(productName);
+					productRate = rate * stoichiometry.get(productName);
 					if ( this._environment.isSoluteName(productName) )
 					{
 						solute = this._environment.getSoluteGrid(productName);
@@ -397,9 +408,18 @@ public class SolveDiffusionTransient extends ProcessManager
 					}
 					else if ( newBiomass.containsKey(productName) )
 					{
-						newBiomass.put(productName, 
-								newBiomass.get(productName) + (productRate*dt));
-					} 
+						newBiomass.put(productName, newBiomass.get(productName)
+								+ (productRate * dt * volume));
+					}
+					else if ( agent.isAspect(productName) )
+					{
+						/*
+						 * Check if the agent has other mass-like aspects
+						 * (e.g. EPS).
+						 */
+						newBiomass.put(productName, agent.getDouble(productName)
+								+ (productRate * dt * volume));
+					}
 					else
 					{
 						System.out.println("agent reaction catched " + 
