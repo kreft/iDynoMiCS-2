@@ -93,7 +93,7 @@ public class SolveChemostat extends ProcessManager
 				Helper.collectionToArray(
 				environment.getSoluteNames()));
 
-		init(soluteNames, environment, 
+		this.init(soluteNames, environment, 
 				agents, compartmentName);
 	}
 	

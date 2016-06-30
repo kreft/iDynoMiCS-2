@@ -29,7 +29,7 @@ import solver.PDEsolver;
 import spatialRegistry.*;
 import surface.BoundingBox;
 import surface.Collision;
-import surface.predicate.AreNotColliding;
+import surface.predicate.IsNotColliding;
 import surface.Surface;
 import utility.ExtraMath;
 
@@ -415,17 +415,15 @@ public class AgentContainer
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
 		// NOTE lambda expressions are known to be slower than alternatives
-		AreNotColliding<Surface> filter;
+		IsNotColliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
 		/* NOTE if the agent has many surfaces it may be faster the other way
 		 * around  */
-		for ( Surface a : ((Body) anAgent.get(AspectRef.agentBody))
-				.getSurfaces())
-		{
-			filter = new AreNotColliding<Surface>(a, collision, searchDist);
-			out.removeIf(filter);
-		}
+		Collection<Surface> agentSurfs = 
+				((Body) anAgent.get(AspectRef.agentBody)).getSurfaces();
+		filter = new IsNotColliding<Surface>(agentSurfs, collision, searchDist);
+		out.removeIf(filter);
 		return out;
 	}
 

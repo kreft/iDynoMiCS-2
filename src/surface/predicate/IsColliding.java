@@ -16,32 +16,32 @@ import surface.Surface;
  * 
  * @param <A>
  */
-public class AreNotColliding<A> implements Predicate<Collection<Surface>>
+public class IsColliding<A> implements Predicate<Surface>
 {
 	private Collection<Surface> _surfaces;
 	private Collision _collision;
 	private double _margin = 0.0;
 	
-	public AreNotColliding(Surface surf, Collision collision)
+	public IsColliding(Surface surf, Collision collision)
 	{
 		this._surfaces = new LinkedList<Surface>();
 		this._surfaces.add(surf);
 		this._collision = collision;
 	}
 	
-	public AreNotColliding(Surface surf, Collision collision, double margin)
+	public IsColliding(Surface surf, Collision collision, double margin)
 	{
 		this(surf, collision);
 		this._margin = margin;
 	}
 	
-	public AreNotColliding(Collection<Surface> surfaces, Collision collision)
+	public IsColliding(Collection<Surface> surfaces, Collision collision)
 	{
 		this._surfaces = surfaces;
 		this._collision = collision;
 	}
 	
-	public AreNotColliding(Collection<Surface> surfaces, 
+	public IsColliding(Collection<Surface> surfaces, 
 			Collision collision, double margin)
 	{
 		this(surfaces, collision);
@@ -49,12 +49,11 @@ public class AreNotColliding<A> implements Predicate<Collection<Surface>>
 	}
 	
 	@Override
-	public boolean test(Collection<Surface> a) 
+	public boolean test(Surface a) 
 	{
 		for ( Surface surf : this._surfaces )
-			for ( Surface other : a )
-				if ( this._collision.areColliding(other, surf, this._margin) )
-					return true;
+			if ( this._collision.areColliding(a, surf, this._margin) )
+				return true;
 		return false;
 	}
 }
