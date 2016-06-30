@@ -135,7 +135,7 @@ public class AspectReg
 	/**
 	 * Remove aspect from this registry.
 	 * 
-	 * @param Name of the aspect to remove.
+	 * @param key Name of the aspect to remove.
 	 */
 	public void remove(String key)
 	{
@@ -152,7 +152,11 @@ public class AspectReg
 		this._modules.add(module);
 	}
 	
-
+	/**
+	 * \brief TODO
+	 * 
+	 * @param module
+	 */
 	public void removeSubmodule(String module) 
 	{
 		for ( AspectInterface m : _modules )
@@ -161,9 +165,10 @@ public class AspectReg
 	}
 	
 	/**
-	 * Add subModule from quizable Library
+	 * \brief Add a subModule from an AspectInterface Library
 	 * 
 	 * @param name
+	 * @param library
 	 */
 	public void addSubModule(String name, AspectInterface library)
 	{

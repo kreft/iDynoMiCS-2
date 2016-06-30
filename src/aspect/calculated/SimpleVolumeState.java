@@ -4,6 +4,7 @@ import java.util.Map;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
+import utility.Helper;
 import aspect.AspectRef;
 
 /**
@@ -42,8 +43,7 @@ public class SimpleVolumeState extends Calculated {
 		{
 			@SuppressWarnings("unchecked")
 			Map<String,Double> massMap = (Map<String,Double>) massObject;
-			for ( String key : massMap.keySet() )
-				totalMass += massMap.get(key);
+			totalMass = Helper.totalValue(massMap);
 		}
 		else
 		{

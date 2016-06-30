@@ -14,8 +14,7 @@
 			<species name="species1">
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<speciesModule name="coccoid" />
-				<!-- <speciesModule name="stochasticMover" /> -->
-				<!--<speciesModule name="producer" />-->
+				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
 					<item type="PRIMARY" class="Reaction">
 						<reaction name="testReact" comment="biomass specific growth rate">
@@ -30,7 +29,6 @@
 					</item>
 				</aspect>
 			</species>
-
 			<species name="coccoid">
 				<aspect name="density" type="PRIMARY" class="Double" value="1" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
@@ -43,12 +41,12 @@
 				<aspect name="evaluatePull"		type="EVENT"	class="ResolveInteractionDistance" 	 />
 				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.1"  />
 			</species>
-			
 			<species name="producer">
 				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPSCumulative" 	 />
 				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="0.003" />
 				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />
 			</species>
+			
 			<species name="particleEPS">
 				<aspect name="density" type="PRIMARY" class="Double" value="1" />
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
@@ -61,8 +59,6 @@
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
 				<aspect name="divisionMass"		class="Double" value="0.1" />
 				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.2"  />
-				
-				<speciesModule name="coccoid" />
 			</species>
 		</speciesLib>
 

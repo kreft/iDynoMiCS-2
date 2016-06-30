@@ -23,7 +23,7 @@
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.1" />
 							</expression>
-							<stoichiometric component="species1" coefficient="1.0" />
+							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 						</reaction>
 					</item>
@@ -70,8 +70,6 @@
 			</reactions>
 			<agents>
 				<agent>
-					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
-					</aspect>
 					<aspect name="pullDistance" type="PRIMARY" class="Double"	value="0.03" />
 					<aspect name="species" type="PRIMARY" class="String" value="species1" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />

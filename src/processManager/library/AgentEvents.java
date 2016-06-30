@@ -3,6 +3,8 @@
  */
 package processManager.library;
 
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
@@ -26,13 +28,28 @@ public class AgentEvents extends ProcessManager
 	 */
 	protected String[] _eventNames = new String[0];
 
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
+	
 	@Override
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		super.init(xmlElem, environment, agents, compartmentName);
+		this.init(environment, agents, compartmentName);
+	}
+	
 	public void init(EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
-		this.init(environment, agents, compartmentName);
+		super.init(environment, agents, compartmentName);
 		this._eventNames = this.getStringA(EVENT_NAMES);
 	}
+	
+	/* ***********************************************************************
+	 * STEPPING
+	 * **********************************************************************/
 	
 	@Override
 	protected void internalStep()

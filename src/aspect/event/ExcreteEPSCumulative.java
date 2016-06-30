@@ -27,6 +27,7 @@ import utility.ExtraMath;
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public class ExcreteEPSCumulative extends Event
 {
@@ -49,7 +50,7 @@ public class ExcreteEPSCumulative extends Event
 	public void start(AspectInterface initiator, 
 			AspectInterface compliant, Double timeStep)
 	{
-		Tier level = Tier.DEBUG;
+		Tier level = Tier.BULK;
 		
 		Agent agent = (Agent) initiator;
 		/*

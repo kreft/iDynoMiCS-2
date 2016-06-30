@@ -23,7 +23,7 @@
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.2" />
 							</expression>
-							<stoichiometric component="mySpecies" coefficient="1.0" />
+							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 							<stoichiometric component="solute2" coefficient="0.5" />
 						</reaction>
@@ -39,7 +39,6 @@
 				<aspect name="morphology" 		type="PRIMARY" 		class="String" />
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
-				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth" />
 				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 			</species>
