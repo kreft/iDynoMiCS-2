@@ -35,5 +35,5 @@
 	<classDef package="idynomics." name="Compartment" />
 	<classDef package="agent." name="SpeciesLib" />
 	<classDef package="agent." name="Agent" />
-	<classDef package="aspect.AspectReg." name="Aspect" />
+	<classDef package="aspect.AspectReg$" name="Aspect" />
 </document>

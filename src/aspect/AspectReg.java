@@ -125,28 +125,6 @@ public class AspectReg
 	}
 	
 	/**
-	 * ONLY TO be used by the Aspect.init method as Instantiatable 
-	 * implementation
-	 * @param key
-	 * @param aspect
-	 */
-	public void addAspectInstance(String key, Aspect aspect)
-	{
-		if ( aspect == null || key == null)
-			Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
-		else
-		{
-			if ( this._aspects.containsKey(key) )
-			{
-				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
-						" which already exists in this aspect registry");
-			}
-			else
-				this._aspects.put(key, aspect );
-		}
-	}
-	
-	/**
 	 * same as add but intend is to overwrite
 	 */
 	public void set(String key, Object aspect)
@@ -368,7 +346,7 @@ public class AspectReg
 	 * 
 	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
 	 */
-	public class Aspect implements NodeConstructor, Instantiatable
+	public class Aspect implements Instantiatable, NodeConstructor
 	{
 		/**
 		 * The object this Aspect wraps.
@@ -418,6 +396,11 @@ public class AspectReg
 	    public Aspect(AspectReg registry)
 	    {
 	    	this.registry = registry;
+	    }
+	    
+	    public Aspect()
+	    {
+	    	
 	    }
 	    
 	    /**
@@ -573,25 +556,16 @@ public class AspectReg
 		@Override
 		public void init(Element xmlElem, NodeConstructor parent) {
 			String name = "";
-			boolean abort = false;
-			String type = null;
 			name = Helper.obtainInput(name, "aspect name");
 			/* if name is canceled */
-			if ( name == null )
-			{
-				abort = true;
-			}
-			else
-			{
-				type = Helper.obtainInput( Helper.enumToString(
-						AspectReg.AspectClass.class).split(" "), 
-						"aspect type", false);
-				/* if type is canceled */
-				if ( type == null )
-					abort = true;
-			}
-			if ( abort == false)
-			{
+//			if ( name == null )
+//				return null;
+			String type = Helper.obtainInput( Helper.enumToString(
+					AspectReg.AspectClass.class).split(" "), 
+					"aspect type", false);
+			/* if type is canceled */
+//			if ( type == null )
+//				return null;
 			String pack = "";
 			String classType = "";
 			switch (type)
@@ -621,12 +595,10 @@ public class AspectReg
 			default:
 				classType = Helper.obtainInput( ObjectRef.getAllOptions(), 
 						"Primary type", false);
-    			registry.add( name, ObjectFactory.loadObject( 
+    			((AspectReg) parent).add( name, ObjectFactory.loadObject( 
     					Helper.obtainInput( "", "Primary value" ), 
     					type, classType) );
 				break;
-			}
-			((AspectReg) parent).add(name, this);
 			}
 		}
 		
