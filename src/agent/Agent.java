@@ -375,6 +375,9 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 		modelNode.addChildConstructor(reg().new Aspect(reg()), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
+		modelNode.addConstructable("Aspect", // FIXME ClassRef
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
 		return modelNode;
 	}
 

@@ -467,32 +467,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 			modelNode.add( this._shape.getNode() );
 		/* Add the Environment node. */
 		modelNode.add( this.environment.getNode() );
-		/* Add the solutes node. */
-		modelNode.add( this.getAgentsNode() );
+		/* Add the Agents node. */
+		modelNode.add( this.agents.getNode() );
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
 
 		return modelNode;	
-	}
-
-	/**
-	 * \brief Helper method for {@link #getNode()}.
-	 * 
-	 * @return Model node for the <b>agents</b>.
-	 */
-	private ModelNode getAgentsNode()
-	{
-		/* The agents node. */
-		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		/* Add the agent childConstrutor for adding of additional agents. */
-		modelNode.addConstructable("Agent", 
-				ModelNode.Requirements.ZERO_TO_MANY);
-		/* If there are agents, add them as child nodes. */
-		if ( this.agents != null )
-			for ( Agent a : this.agents.getAllAgents() )
-				modelNode.add( a.getNode() );
-		return modelNode;
 	}
 	
 	/**

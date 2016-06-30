@@ -14,12 +14,16 @@ import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
+import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
@@ -30,7 +34,6 @@ import spatialRegistry.*;
 import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
 import surface.Collision;
-import surface.predicate.AreColliding;
 import surface.predicate.AreNotColliding;
 import surface.Surface;
 import utility.ExtraMath;
@@ -41,7 +44,7 @@ import utility.ExtraMath;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class AgentContainer
+public class AgentContainer implements NodeConstructor
 {
 	/**
 	 * This dictates both geometry and size, and it inherited from the
@@ -953,6 +956,28 @@ public class AgentContainer
 			}
 		}
 		Log.out(DEBUG, "Finished setting up agent distribution maps");
+	}
+
+	@Override
+	public ModelNode getNode() 
+	{
+		/* The agents node. */
+		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* Add the agent childConstrutor for adding of additional agents. */
+		modelNode.addConstructable("Agent", // FIXME ClassRef
+				ModelNode.Requirements.ZERO_TO_MANY);
+		/* If there are agents, add them as child nodes. */
+		for ( Agent a : this.getAllAgents() )
+			modelNode.add( a.getNode() );
+		return modelNode;
+	
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	/* ***********************************************************************

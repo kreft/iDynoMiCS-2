@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.w3c.dom.Element;
+
 import agent.Body;
 import aspect.calculated.StateExpression;
 import dataIO.Log;
@@ -12,6 +14,7 @@ import dataIO.ObjectFactory;
 import dataIO.ObjectRef;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
+import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -118,6 +121,28 @@ public class AspectReg
 			}
 			else
 				this._aspects.put(key, new Aspect(aspect, key, this) );
+		}
+	}
+	
+	/**
+	 * ONLY TO be used by the Aspect.init method as Instantiatable 
+	 * implementation
+	 * @param key
+	 * @param aspect
+	 */
+	public void addAspectInstance(String key, Aspect aspect)
+	{
+		if ( aspect == null || key == null)
+			Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		else
+		{
+			if ( this._aspects.containsKey(key) )
+			{
+				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
+						" which already exists in this aspect registry");
+			}
+			else
+				this._aspects.put(key, aspect );
 		}
 	}
 	
@@ -343,7 +368,7 @@ public class AspectReg
 	 * 
 	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
 	 */
-	public class Aspect implements NodeConstructor
+	public class Aspect implements NodeConstructor, Instantiatable
 	{
 		/**
 		 * The object this Aspect wraps.
@@ -546,18 +571,27 @@ public class AspectReg
 		 * @return NodeConstructor
 		 */
 		@Override
-		public NodeConstructor newBlank() {
+		public void init(Element xmlElem, NodeConstructor parent) {
 			String name = "";
+			boolean abort = false;
+			String type = null;
 			name = Helper.obtainInput(name, "aspect name");
 			/* if name is canceled */
 			if ( name == null )
-				return null;
-			String type = Helper.obtainInput( Helper.enumToString(
-					AspectReg.AspectClass.class).split(" "), 
-					"aspect type", false);
-			/* if type is canceled */
-			if ( type == null )
-				return null;
+			{
+				abort = true;
+			}
+			else
+			{
+				type = Helper.obtainInput( Helper.enumToString(
+						AspectReg.AspectClass.class).split(" "), 
+						"aspect type", false);
+				/* if type is canceled */
+				if ( type == null )
+					abort = true;
+			}
+			if ( abort == false)
+			{
 			String pack = "";
 			String classType = "";
 			switch (type)
@@ -592,7 +626,8 @@ public class AspectReg
     					type, classType) );
 				break;
 			}
-			return registry.getAspect(name);
+			((AspectReg) parent).add(name, this);
+			}
 		}
 		
 
