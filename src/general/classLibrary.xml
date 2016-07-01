@@ -18,6 +18,7 @@
 	<classDef package="aspect.event." name="StochasticMove" />
 	<classDef package="aspect.event." name="UpdateBody" />
 <!-- processManager -->
+	<classDef package="processManager.library." name="AgentEvents" />
 	<classDef package="processManager.library." name="AgentGrowth" />
 	<classDef package="processManager.library." name="AgentRelaxation" />
 	<classDef package="processManager.library." name="AgentStochasticMove" />

@@ -8,7 +8,9 @@ import aspect.Event;
 import aspect.AspectRef;
 
 /**
- * \brief TODO
+ * \brief Agent growth where the agent has multiple kinds of biomass.
+ * 
+ * <p>For simpler growth, consider using the event SimpleGrowth instead.</p>
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
@@ -57,10 +59,10 @@ public class InternalProduction  extends Event
 			internalProducts = new HashMap<String,Double>();
 		}
 		/*
-		 * For each product in the production map, 
+		 * Assume the production rates to be representative of the whole time
+		 * step, and apply the changes in mass. Now that these rates have been
+		 * applied, set them to zero so that they do not get applied again.
 		 */
-		// TODO Rob [24May2016]: check that multiplying by the timeStep here
-		// makes sense.
 		for ( String p : internalProduction.keySet() )
 		{
 			double product = (internalProducts.containsKey(p) ?

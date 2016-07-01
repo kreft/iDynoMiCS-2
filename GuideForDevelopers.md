@@ -117,6 +117,17 @@ This approach may become redundant as we use GitHub's commenting more and more.
 
 The [Java code conventions (Oracle)](http://www.oracle.com/technetwork/java/codeconventions-150003.pdf) gives advice on trailing comments (p. 8), but we strongly discourage their use. They often lead to developers breaking the 80 character line-length rule (see above).
 
+## Comparing strings
+Whenever you want to check if two strings have the same value, use
+``` java
+str.equals(otherStr);
+```
+rather than
+``` java
+str == otherStr
+```
+as the latter will instead check if the two strings are the same object (i.e. if they occupy the same position in memory).
+
 ## Returning booleans
 This is unnecessarily messy
 ``` java

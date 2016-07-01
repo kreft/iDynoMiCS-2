@@ -1,9 +1,10 @@
 package aspect.event;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 import agent.Agent;
 import agent.Body;
@@ -13,22 +14,23 @@ import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlRef;
+import gereralPredicates.IsNotSpecies;
 import idynomics.Compartment;
 import linearAlgebra.Vector;
 import surface.Collision;
 import surface.Point;
 import surface.Surface;
+import surface.predicate.AreColliding;
 import utility.ExtraMath;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  */
 public class ExcreteEPSCumulative extends Event
 {
-	
-	public String INTERNAL_PRODUCTS = AspectRef.internalProducts;
 	public String EPS = AspectRef.productEPS;
 	public String MAX_INTERNAL_EPS = AspectRef.maxInternalEPS;
 	public String EPS_SPECIES = AspectRef.epsSpecies;
@@ -38,6 +40,13 @@ public class ExcreteEPSCumulative extends Event
 	public String RADIUS = AspectRef.bodyRadius;
 	public String SPECIES = XmlRef.species;
 
+	/**
+	 * The distance around the agent that we will search for existing EPS
+	 * particles.
+	 */
+	// TODO make this overwrite-able by agent aspect.
+	private final static double SEARCH_DIST = 0.5;
+	
 	public void start(AspectInterface initiator, 
 			AspectInterface compliant, Double timeStep)
 	{
@@ -45,87 +54,95 @@ public class ExcreteEPSCumulative extends Event
 		
 		Agent agent = (Agent) initiator;
 		/*
-		 * We can only do EPS excretion if the agent has internal products.
+		 * Find out how much EPS the agent has right now. If it has none, there
+		 * is nothing  more to do.
 		 */
-		if ( ! initiator.isAspect(INTERNAL_PRODUCTS) )
+		double currentEPS = this.getCurrentEPS(agent);
+		if ( currentEPS == 0.0 )
+		{
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "Agent "+agent.identity()+" has no EPS");
 			return;
-		/* Read in the internal products. */
-		@SuppressWarnings("unchecked")
-		HashMap<String,Double> internalProducts = (HashMap<String,Double>)
-			initiator.getValue(INTERNAL_PRODUCTS);
+		}
 		/*
-		 * If there is no EPS in the internal products, then we cannot excrete.
+		 * Find out how much EPS the agent can hold before it must excrete.
 		 */
-		if ( ! internalProducts.containsKey(EPS) )
+		double maxEPS = initiator.getDouble(this.MAX_INTERNAL_EPS);
+		if ( maxEPS > currentEPS )
+		{
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "Agent "+agent.identity()+" has too little EPS");
 			return;
-		/*
-		 * Find out how much EPS the agent can hold before it much excrete.
-		 */
-		double maxEPS = (double) initiator.getValue(MAX_INTERNAL_EPS);
-		
-		if (maxEPS > internalProducts.get(EPS))
-			return;
+		}
 		/*
 		 * Vary this number randomly by about 10%
 		 */
-		double toExcreteEPS = maxEPS * 0.5;
+		double toExcreteEPS = ExtraMath.deviateFromCV(maxEPS * 0.5, 0.1);
 		/*
 		 * Find out how much EPS the agent has.
 		 */
-		double eps = internalProducts.get(EPS);
 		Body body = (Body) initiator.getValue(BODY);
+		List<Surface> bodySurfs = body.getSurfaces();
 		String epsSpecies = initiator.getString(EPS_SPECIES);
 		Compartment comp = agent.getCompartment();
 		
 		Collision iterator = new Collision(comp.getShape());
 		
-		double searchDist = 0.5;
 		if ( Log.shouldWrite(level) )
 		{
 			Log.out(level, "  Agent (ID "+agent.identity()+") has "+
-					body.getSurfaces().size()+" surfaces,"+
-					" search dist "+searchDist);
+					bodySurfs.size()+" surfaces,"+
+					" search dist "+SEARCH_DIST);
 		}
 		/*
 		 * Perform neighborhood search and perform collision detection and
 		 * response. 
 		 */
-		Collection<Agent> nhbs = comp.agents.treeSearch(agent, searchDist);
+		Collection<Agent> nhbs = comp.agents.treeSearch(agent, SEARCH_DIST);
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "  "+nhbs.size()+" neighbors found");
+		/*
+		 * Remove all non-EPS neighboring agents.
+		 */
+		nhbs.removeIf(new IsNotSpecies(this.EPS_SPECIES, this.SPECIES));
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "  "+nhbs.size()+" of these are EPS");
+		/*
+		 * Remove any outside the search distance.
+		 */
+		Predicate<Collection<Surface>> filter = new 
+				AreColliding<Collection<Surface>>(
+						bodySurfs, iterator, SEARCH_DIST);
 		LinkedList<Agent> epsParticles = new LinkedList<Agent>();
 		for ( Agent neighbour: nhbs )
 		{
-			if ( neighbour.getString(SPECIES) != epsSpecies )
-				break;
-			
-			Body bodyNeighbour = ((Body) neighbour.get(BODY));
-			List<Surface> t = bodyNeighbour.getSurfaces();
-
-			List<Surface> s = body.getSurfaces();
-			for (Surface a : s)
-			{
-				for (Surface b : t)
-				{
-					if ( iterator.distance(a, b) > searchDist )
-						epsParticles.add(neighbour);
-				}
-			}
-			
+			Body bodyNeighbour = ((Body) neighbour.get(this.BODY));
+			List<Surface> nhbSurfs = bodyNeighbour.getSurfaces();
+			if ( filter.test(nhbSurfs) )
+				epsParticles.add(neighbour);
 		}
-		
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "  "+nhbs.size()+
+					" of these are within the search distance");
+		}
+		/*
+		 * Now work out where the transferred EPS will go. If there is not a
+		 * suitable particle to take it, then create a new one.
+		 */
+		double particleMass = 0.0;
 		if ( epsParticles.isEmpty() )
 		{
 			// TODO Joints state will be removed
 			double[] originalPos = body.getJoints().get(0);
 			double[] shift = Vector.randomPlusMinus(originalPos.length, 
-					0.6 * initiator.getDouble(RADIUS));
+					0.6 * initiator.getDouble(this.RADIUS));
 			double[] epsPos = Vector.minus(originalPos, shift);
 			// FIXME this is not correct, calculate with density
 			compliant = new Agent(epsSpecies, 
 					new Body(new Point(epsPos),0.0),
 					comp); 
-			compliant.set(MASS, 0.0);
+			((Agent) compliant).registerBirth();
 			if ( Log.shouldWrite(level) )
 				Log.out(level, "EPS particle created");
 		}
@@ -133,14 +150,80 @@ public class ExcreteEPSCumulative extends Event
 		{
 			compliant = epsParticles.get(
 					ExtraMath.getUniRandInt( epsParticles.size() ) );
+			particleMass = compliant.getDouble(this.MASS);
 		}
-		
-		compliant.set(MASS, compliant.getDouble(MASS) + toExcreteEPS);
-		compliant.reg().doEvent(compliant, null, 0.0, UPDATE_BODY);
-		internalProducts.put(EPS, eps - toExcreteEPS);
-		if (epsParticles.isEmpty())
-			((Agent) compliant).registerBirth();
-
-		initiator.set(INTERNAL_PRODUCTS, internalProducts);
+		/*
+		 * Whether the EPS particle is new or already present, transfer over
+		 * the EPS mass from the agent to the particle.
+		 */
+		compliant.set(this.MASS, particleMass + toExcreteEPS);
+		compliant.reg().doEvent(compliant, null, 0.0, this.UPDATE_BODY);
+		currentEPS -= toExcreteEPS;
+		this.updateEPS(agent, currentEPS);
+	}
+	
+	/**
+	 * \brief Ask the given agent how much EPS is has right now.
+	 * 
+	 * @param agent Agent.
+	 * @return Mass of EPS this agent owns.
+	 */
+	private double getCurrentEPS(Agent agent)
+	{
+		/*
+		 * Check first if it is just an aspect.
+		 */
+		if ( agent.isAspect(this.EPS) )
+			return agent.getDouble(this.EPS);
+		/*
+		 * Check if it is part of a map of masses.
+		 */
+		if ( agent.isAspect(MASS) )
+		{
+			Object massObject = agent.getValue(this.MASS);
+			if ( massObject instanceof Map )
+			{
+				@SuppressWarnings("unchecked")
+				Map<String,Double> massMap = (Map<String,Double>) massObject;
+				if ( massMap.containsKey(this.EPS) )
+					return massMap.get(this.EPS);
+			}
+		}
+		/*
+		 * Assume there is no EPS.
+		 */
+		return 0.0;
+	}
+	
+	/**
+	 * \brief Tell the given agent to update the mass of EPS it owns.
+	 * 
+	 * @param agent Agent.
+	 * @param newEPS New EPS mass for this agent.
+	 */
+	private void updateEPS(Agent agent, double newEPS)
+	{
+		/*
+		 * Check first if it is just an aspect.
+		 */
+		if ( agent.isAspect(this.EPS) )
+			agent.set(this.EPS, newEPS);
+		/*
+		 * Check if it is part of a map of masses.
+		 */
+		if ( agent.isAspect(this.MASS) )
+		{
+			Object massObject = agent.getValue(this.MASS);
+			if ( massObject instanceof Map )
+			{
+				@SuppressWarnings("unchecked")
+				Map<String,Double> massMap = (Map<String,Double>) massObject;
+				if ( massMap.containsKey(this.EPS) )
+				{
+					massMap.put(this.EPS, newEPS);
+					agent.set(this.MASS, massMap);
+				}
+			}
+		}
 	}
 }

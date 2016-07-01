@@ -2,9 +2,12 @@ package aspect.event;
 
 import surface.Point;
 import utility.ExtraMath;
+import utility.Helper;
 import linearAlgebra.Vector;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import agent.Agent;
 import agent.Body;
@@ -71,6 +74,7 @@ public class CoccoidDivision extends Event
 	 */
 	public String DIVIDE = AspectRef.agentDivide;
 
+	
 	@Override
 	public void start(AspectInterface initiator,
 			AspectInterface compliant, Double timeStep)
@@ -134,8 +138,10 @@ public class CoccoidDivision extends Event
 	 */
 	// TODO generalise this so that the user can set the variable which
 	// triggers division, and the value of this variable it should use.
+	@SuppressWarnings("unchecked")
 	private boolean shouldDivide(Agent anAgent)
 	{
+		Tier level = Tier.BULK;
 		/*
 		 * Find the agent-specific variable to test (mass, by default).
 		 */
@@ -145,6 +151,14 @@ public class CoccoidDivision extends Event
 			variable = (Double) mumMass;
 		else if ( mumMass instanceof double[] )
 			variable = Vector.sum((double[]) mumMass);
+		else if ( mumMass instanceof Map )
+			variable = Helper.totalValue((Map<String,Double>) mumMass);
+		else
+		{
+			// TODO safety?
+		}
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Agent total mass is "+variable);
 		/*
 		 * Find the threshold that triggers division.
 		 */
@@ -195,12 +209,26 @@ public class CoccoidDivision extends Event
 		else if ( mumMass instanceof double[] )
 		{
 			double[] motherMass = (double[]) mumMass;
-			double[] daughterMass = Vector.times(motherMass, 1 - mumMassFrac);
+			double[] daughterMass = Vector.times(motherMass, 1.0 - mumMassFrac);
 			Vector.timesEquals(motherMass, mumMassFrac);
 			mother.set(this.MASS, motherMass);
 			daughter.set(this.MASS, daughterMass);
 		}
-		// TODO handle more potential types of mass aspect, e.g. HashMap
+		else if ( mumMass instanceof Map )
+		{
+			@SuppressWarnings("unchecked")
+			Map<String,Double> mumProducts = (Map<String,Double>) mumMass;
+			Map<String,Double> daughterProducts = new HashMap<String,Double>();
+			double product;
+			for ( String key : mumProducts.keySet() )
+			{
+				product = mumProducts.get(key);
+				daughterProducts.put(key, product * (1.0-mumMassFrac) );
+				mumProducts.put(key, product * mumMassFrac);
+			}
+			mother.set(this.MASS, mumProducts);
+			daughter.set(this.MASS, daughterProducts);
+		}
 		else
 		{
 			Log.out(Tier.CRITICAL, "Agent "+mother.identity()+

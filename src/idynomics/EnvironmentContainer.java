@@ -39,7 +39,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 */
 	protected Collection<SpatialGrid> _solutes = new LinkedList<SpatialGrid>();
 	/**
-	 * Collection of extracellular reactions (each Reaction knows its own name).
+	 * Collection of extracellular reactions specific to this compartment
+	 * (each Reaction knows its own name).
 	 */
 	protected Collection<Reaction> _reactions = new LinkedList<Reaction>();
 	/**
@@ -65,22 +66,51 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		this._shape = aShape;
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param solute
+	 */
 	public void addSolute(SpatialGrid solute)
 	{
 		this._solutes.add(solute);
-		Log.out(Tier.DEBUG, "Added solute \""+ solute.getName() +"\" to environment");
+		Log.out(Tier.DEBUG, 
+				"Added solute \""+ solute.getName() +"\" to environment");
 	}
 	
+	/**
+	 * \brief Add a new solute to the environment. This method is intended only
+	 * for testing.
+	 * 
+	 * @param soluteName Name of the new solute.
+	 * @param initialConcn Initial value for the concentration of this solute.
+	 */
+	public void addSolute(String soluteName, double initialConcn)
+	{
+		SpatialGrid sg = new SpatialGrid(this._shape, soluteName, this);
+		sg.newArray(ArrayType.CONCN, initialConcn);
+		this.addSolute(sg);
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param spatialGrid
+	 */
 	public void deleteSolute(Object spatialGrid)
 	{
-		_solutes.remove(spatialGrid);
+		this._solutes.remove(spatialGrid);
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param Reaction
+	 */
 	public void deleteReaction(Object Reaction)
 	{
-		_reactions.remove(Reaction);
+		this._reactions.remove(Reaction);
 	}
-	
 	
 	/**
 	 * \brief TODO
@@ -177,6 +207,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 */
 	public Collection<Reaction> getReactions()
 	{
+		Collection<Reaction> out = new LinkedList<Reaction>();
+		out.addAll(this._reactions);
+		out.addAll(Idynomics.simulator.reactionLibrary.getAllReactions());
 		return this._reactions;
 	}
 	
@@ -194,7 +227,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		for ( Reaction reac : this._reactions )
 			if ( reac.getName().equals(name) )
 				return reac;
-		return null;
+		/*
+		 * Try getting the reaction from the library - if it's not there, then
+		 * this will be null.
+		 */
+		return Idynomics.simulator.reactionLibrary.getReaction(name);
 	}
 	
 	/**
