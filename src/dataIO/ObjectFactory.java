@@ -255,9 +255,9 @@ public class ObjectFactory
 					printReadError(s.getAttribute(value), ObjectRef.DBL_ARRY);
 						return null;
 					}
-				case "String" : 
+			case ObjectRef.STR : 
 					return s.getAttribute(value);
-				case "String[]" : 
+			case ObjectRef.STR_VECT : 
 					return s.getAttribute(value).split(",");
 				case "Body" :
 					return Body.getNewInstance(s);

@@ -3,6 +3,7 @@ package idynomics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -18,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -94,6 +96,15 @@ public class GuiLaunch implements Runnable
 	public static void main(String[] args) 
 	{
 		new GuiLaunch();
+		
+        SwingUtilities.invokeLater(() -> {
+            if (args.length > 0) {
+                File f = new File(args[0]);
+                if (f.isFile()) {
+                    GuiActions.openFile(f);
+                }
+            }
+        });
 	}
 	
   	/**
@@ -105,7 +116,7 @@ public class GuiLaunch implements Runnable
 		contentPane = new JPanel();
 		_layout = new GroupLayout(contentPane);
 		contentPane.setLayout(_layout);
-		
+		 
 		run();
 	}
 			    	  

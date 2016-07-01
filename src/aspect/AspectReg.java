@@ -113,6 +113,22 @@ public class AspectReg
 		}
 	}
 	
+	public void addInstatiatedAspect(String key, Aspect aspect)
+	{
+		if ( aspect == null || key == null)
+			Log.out(Tier.NORMAL, "Received null input, skipping aspect.");
+		else
+		{
+			if ( this._aspects.containsKey(key) )
+			{
+				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
+						" which already exists in this aspect registry");
+			}
+			else
+				this._aspects.put(key, aspect );
+		}
+	}
+	
 	/**
 	 * same as add but intend is to overwrite
 	 */

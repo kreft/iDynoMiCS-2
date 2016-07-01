@@ -73,10 +73,7 @@
 	 <target name="jar" depends="compile">
 	        <mkdir dir="${jar.dir}"/>
 	 	
-	      <!--  <mkdir dir="${build.dir}/lib"/>
-	        <copy todir="${build.dir}/lib" flatten="true">
-	            <path refid="libraries.path"/>
-	        </copy> -->
+
 
 	 		<mkdir dir="${classes.dir}/general"/>
 	 		<copy todir="${classes.dir}/general" flatten="true">
@@ -99,19 +96,7 @@
 	    <target name="run" depends="jar">
 	        <java jar="${jar.dir}/${ant.project.name}.jar" fork="true"/>
 	    </target>
-	<!--	
-  <target name="jar">
-        <mkdir dir="build/jar"/>
-        <jar destfile="build/jar/iDynoMiCS.jar" basedir="${build}">
-        	<manifest>
-	        <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
-	        <attribute name="Rsrc-Main-Class" value="idynomics.GuiLauch"/>
-	        <attribute name="Class-Path" value="."/>
-	        <attribute name="Rsrc-Class-Path" value="./ SimulationCoreLibrary_v1.4_incl-libs.jar gluegen-rt-natives-linux-amd64.jar gluegen-rt-natives-linux-i586.jar gluegen-rt-natives-macosx-universal.jar gluegen-rt-natives-windows-amd64.jar gluegen-rt-natives-windows-i586.jar gluegen-rt.jar jogl-all-natives-linux-amd64.jar jogl-all-natives-linux-i586.jar jogl-all-natives-macosx-universal.jar jogl-all-natives-solaris-i586.jar jogl-all-natives-windows-amd64.jar jogl-all-natives-windows-i586.jar jogl-all.jar junit.jar"/>
-            </manifest>
-        </jar>
-    </target> -->
-
+	
   <target name="clean"
         description="clean up">
     <!-- Delete the ${build} and ${dist} directory trees -->

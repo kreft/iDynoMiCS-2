@@ -259,29 +259,33 @@ import utility.Helper;
 	    		classType = Helper.obtainInput( Helper.listToArray(
 	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
 	    				"aspect class", false);
-	    		if ( classType == "StateExpression" ) //FIXME ClassRef
-	    			registry.add( name, ObjectFactory.loadObject( 
+	    		if ( classType.equals("StateExpression") ) //FIXME ClassRef
+	    			this.set( ObjectFactory.loadObject( 
 	    					Helper.obtainInput( "", "expression" ), 
-	    					type, classType) );
+	    					type, classType)  , name );
 	    		else
-	    			registry.add( name, ObjectFactory.loadObject( "", 
-	    					type, classType) );
+	    			this.set(  ObjectFactory.loadObject( "", 
+	    					type, classType) , name );
+	    		((AspectInterface) parent).reg().addInstatiatedAspect( name, this );
 	    		break;
 	    	case "EVENT": 
 	    		pack = "aspect.event.";
 	    		classType = Helper.obtainInput( Helper.listToArray(
 	    				Idynomics.xmlPackageLibrary.getAll(pack) ), 
 	    				"aspect class", false);
-    			registry.add( name, ObjectFactory.loadObject( "", 
-    					type, classType) );
+	    		this.set( ObjectFactory.loadObject( "", 
+    					type, classType) , name);
+
+    			((AspectInterface) parent).reg().addInstatiatedAspect( name, this );
 	    		break;
 	    	case "PRIMARY":
 			default:
 				classType = Helper.obtainInput( ObjectRef.getAllOptions(), 
 						"Primary type", false);
-    			((AspectInterface) parent).reg().add( name, ObjectFactory.loadObject( 
+				this.set( ObjectFactory.loadObject( 
     					Helper.obtainInput( "", "Primary value" ), 
-    					type, classType) );
+    					type, classType), name);
+    			((AspectInterface) parent).reg().addInstatiatedAspect( name, this );
 				break;
 			}
 		}

@@ -76,14 +76,14 @@ public final class GuiActions
 		if ( Idynomics.global.protocolFile == null )
 		{
 			GuiConsole.writeErr("No protocol file specified.\n");
-		}
+		} 
 		else
 		{
 			Idynomics.setupSimulator(Idynomics.global.protocolFile);
 			if ( Idynomics.simulator.isReadyForLaunch() )
-				GuiConsole.writeOut("Protocol is ready to launch...");
+				GuiConsole.writeOut("Protocol is ready to launch...\n");
 			else
-				GuiConsole.writeErr("Problem in protocol file!");
+				GuiConsole.writeErr("Problem in protocol file!\n");
 		}
 	}
 	
