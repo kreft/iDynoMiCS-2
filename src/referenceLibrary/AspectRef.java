@@ -1,4 +1,9 @@
-package aspect;
+package referenceLibrary;
+
+import java.lang.reflect.Field;
+
+import dataIO.Log;
+import dataIO.Log.Tier;
 
 /**
  * \brief Aspect name references.
@@ -7,6 +12,23 @@ package aspect;
  */
 public class AspectRef
 {
+	public static String[] getAllOptions()
+	{
+		Field[] fields = AspectRef.class.getFields();
+		String[] options = new String[fields.length];
+		int i = 0;
+
+		for ( Field f : fields )
+			try {
+				options[i++] = (String) f.get(new String());
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				Log.out(Tier.CRITICAL, "problem in ObjectRef field declaretion"
+						+ "\n can not obtain all options");
+				e.printStackTrace();
+			}
+		return options;
+	}
+	
 	/**
 	 * Agent state references
 	 */

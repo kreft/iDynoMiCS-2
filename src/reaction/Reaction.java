@@ -9,7 +9,6 @@ import org.w3c.dom.NodeList;
 
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
@@ -17,6 +16,7 @@ import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 /**

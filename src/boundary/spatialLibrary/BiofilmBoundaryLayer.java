@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import agent.Agent;
-import aspect.AspectRef;
 import boundary.SpatialBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
 import dataIO.Log;
@@ -18,6 +17,7 @@ import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import shape.Shape;
 import shape.Dimension.DimName;
 import surface.Ball;

@@ -9,12 +9,12 @@ import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Stores information about all species relevant to a simulation.

@@ -11,11 +11,11 @@ import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Shape;

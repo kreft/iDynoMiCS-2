@@ -11,7 +11,6 @@ import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
 import idynomics.AgentContainer;
@@ -22,6 +21,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.

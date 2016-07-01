@@ -17,7 +17,7 @@ import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief TODO

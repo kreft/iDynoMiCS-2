@@ -4,11 +4,11 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 import dataIO.Log.Tier;
 import utility.Helper;

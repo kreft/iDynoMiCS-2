@@ -14,11 +14,11 @@ import org.w3c.dom.NodeList;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief TODO

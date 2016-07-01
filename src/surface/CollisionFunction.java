@@ -4,11 +4,11 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.Instantiatable;
 import linearAlgebra.Vector;
 import nodeFactory.NodeConstructor;
+import referenceLibrary.XmlRef;
 import utility.Helper;
 
 /**

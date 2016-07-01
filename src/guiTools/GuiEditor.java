@@ -18,12 +18,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import nodeFactory.Constructable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 

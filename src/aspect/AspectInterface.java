@@ -7,7 +7,7 @@ import org.w3c.dom.NodeList;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
+import referenceLibrary.XmlRef;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,

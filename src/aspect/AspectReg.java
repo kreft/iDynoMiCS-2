@@ -8,10 +8,10 @@ import java.util.Set;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 
@@ -29,28 +29,6 @@ public class AspectReg
 	 */
 	protected String _identity;
 	
-	/**
-	 * \brief Recognized aspect types.
-	 * 
-	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
-	 */
-	public enum AspectClass
-	{
-		/**
-		 * Neither an instance of {@code aspect.Calculated}, nor of
-		 * {@code aspect.Event}.
-		 */
-		PRIMARY,
-		/**
-		 * An instance of {@code aspect.Calculated}.
-		 */
-		CALCULATED,
-		/**
-		 * An instance of {@code aspect.Event}.
-		 */
-		EVENT
-	}
-
 	/**
 	 * The _aspects HashMap stores all aspects (primary, secondary states and 
 	 * events).
@@ -227,7 +205,7 @@ public class AspectReg
 						+ " contain event:" + key);
 			}
 		}
-		else if ( a.type != AspectReg.AspectClass.EVENT )
+		else if ( a.type != Aspect.AspectClass.EVENT )
 		{
 			Log.out(Tier.CRITICAL, "Attempt to initiate non event "
 					+ " aspect " + key + " as event!");

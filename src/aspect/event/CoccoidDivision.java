@@ -4,6 +4,7 @@ import surface.Point;
 import utility.ExtraMath;
 import utility.Helper;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,7 +14,6 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 

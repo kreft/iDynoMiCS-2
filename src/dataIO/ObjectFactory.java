@@ -25,6 +25,8 @@ import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import reaction.Reaction;
+import referenceLibrary.ObjectRef;
+import referenceLibrary.XmlRef;
 import utility.Helper;
 
 /**

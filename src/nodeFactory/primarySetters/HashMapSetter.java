@@ -2,10 +2,10 @@ package nodeFactory.primarySetters;
 
 import java.util.Map;
 
-import dataIO.XmlRef;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 public class HashMapSetter<K,T> implements NodeConstructor {

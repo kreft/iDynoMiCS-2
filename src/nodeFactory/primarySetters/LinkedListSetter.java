@@ -2,10 +2,10 @@ package nodeFactory.primarySetters;
 
 import java.util.List;
 
-import dataIO.XmlRef;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 public class LinkedListSetter<T> implements NodeConstructor {

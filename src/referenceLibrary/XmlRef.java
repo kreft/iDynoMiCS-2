@@ -1,4 +1,9 @@
-package dataIO;
+package referenceLibrary;
+
+import java.lang.reflect.Field;
+
+import dataIO.Log;
+import dataIO.Log.Tier;
 
 /**
  * \brief Single class that holds the naming of all XML tags and attributes,
@@ -9,7 +14,22 @@ package dataIO;
  */
 public class XmlRef
 {
-	
+	public static String[] getAllOptions()
+	{
+		Field[] fields = XmlRef.class.getFields();
+		String[] options = new String[fields.length];
+		int i = 0;
+
+		for ( Field f : fields )
+			try {
+				options[i++] = (String) f.get(new String());
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				Log.out(Tier.CRITICAL, "problem in ObjectRef field declaretion"
+						+ "\n can not obtain all options");
+				e.printStackTrace();
+			}
+		return options;
+	}
 	/* Nodes  */
 	////////////
 	

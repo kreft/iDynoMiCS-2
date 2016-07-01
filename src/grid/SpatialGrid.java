@@ -8,7 +8,6 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import idynomics.EnvironmentContainer;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
@@ -18,6 +17,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import shape.Shape;
 import utility.ExtraMath;
 

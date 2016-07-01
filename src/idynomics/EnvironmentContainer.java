@@ -10,7 +10,6 @@ import org.w3c.dom.NodeList;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
-import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.ArrayType;
@@ -19,6 +18,7 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
 import reaction.Reaction;
+import referenceLibrary.XmlRef;
 import shape.Shape;
 
 /**

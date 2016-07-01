@@ -12,7 +12,6 @@ import agent.SpeciesLib;
 import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
@@ -20,6 +19,7 @@ import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
 import reaction.ReactionLibrary;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at

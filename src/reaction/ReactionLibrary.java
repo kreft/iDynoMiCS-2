@@ -6,11 +6,11 @@ package reaction;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Stores environmental reactions that are used in every compartment.

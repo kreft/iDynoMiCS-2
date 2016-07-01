@@ -2,7 +2,7 @@ package aspect.event;
 
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
+import referenceLibrary.AspectRef;
 
 /**
  * \brief Agent growth where the agent has only one kind of biomass.

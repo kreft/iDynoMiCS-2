@@ -2,8 +2,8 @@ package processManager.library;
 
 //FIXME this class is for testing purposes only!!!
 import agent.Agent;
-import aspect.AspectRef;
 import processManager.ProcessManager;
+import referenceLibrary.AspectRef;
 /**
  * 
  * 

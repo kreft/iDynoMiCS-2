@@ -1,11 +1,11 @@
 package surface;
 
-import dataIO.XmlRef;
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 /**

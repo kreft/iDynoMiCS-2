@@ -5,12 +5,12 @@ import org.w3c.dom.Node;
 import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import dataIO.XmlRef;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import utility.Helper;
 
 /**

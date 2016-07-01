@@ -6,7 +6,7 @@ package gereralPredicates;
 import java.util.function.Predicate;
 
 import agent.Agent;
-import dataIO.XmlRef;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Predicate for filtering lists of Agents according to species.

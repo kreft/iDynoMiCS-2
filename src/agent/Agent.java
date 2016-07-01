@@ -5,10 +5,8 @@ import org.w3c.dom.NodeList;
 import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import aspect.AspectRef;
 import dataIO.XmlHandler;
 import dataIO.Log;
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
@@ -18,6 +16,8 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.AspectRef;
+import referenceLibrary.XmlRef;
 import surface.Point;
 
 /**
