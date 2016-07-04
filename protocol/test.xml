@@ -32,7 +32,8 @@
 			<species name="coccoid">
 				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces" />
 				<aspect name="morphology" 	type="PRIMARY" 		class="String" 		value="coccoid" />
-				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" />
+				<!-- NOTE for testing purposes as stateExpression -->
+				<aspect name="volume" 		type="CALCULATED" 	class="StateExpression" 	input="mass/density" />
 				<aspect name="radius"		type="CALCULATED"	class="CoccoidRadius" 	/>
 				<aspect name="growth" 		type="EVENT" 		class="SimpleGrowth"  		 />
 				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"			 />

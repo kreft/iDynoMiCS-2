@@ -2,6 +2,7 @@ package nodeFactory.primarySetters;
 
 import java.util.Map;
 
+import dataIO.ObjectFactory;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -28,7 +29,7 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 		
 		modelNode.setTitle(": map");
 		
-		modelNode.add(new ModelAttribute(XmlRef.keyTypeAttribute, 
+		modelNode.add(new ModelAttribute(XmlRef.keyClassAttribute, 
 				mapKey.getClass().getSimpleName(), null, true ));
 		
 		if (mapObject instanceof NodeConstructor)
@@ -55,6 +56,19 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 		}
 		
 		return modelNode;
+	}
+	
+	public void setNode(ModelNode node)
+	{
+		Object key = ObjectFactory.loadObject(
+				node.getAttribute( XmlRef.keyAttribute ).value, 
+				node.getAttribute( XmlRef.keyClassAttribute ).value );
+		Object value = ObjectFactory.loadObject(
+				node.getAttribute( XmlRef.valueAttribute ).value, 
+				node.getAttribute( XmlRef.classAttribute ).value );
+		if ( this.map.containsKey( key ) )
+			this.map.remove( key );
+		this.map.put( (K) key, (T) value );
 	}
 
 	@Override

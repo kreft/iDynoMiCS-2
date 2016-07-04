@@ -18,7 +18,9 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -140,6 +142,8 @@ public class ExpressionB extends Component implements NodeConstructor
 	 */
 	public ExpressionB(String expression)
 	{
+		if (expression == null || expression.equals("") )
+			expression = Helper.obtainInput("", XmlRef.expression);
 		init(expression, null);
 	}
 	
@@ -753,6 +757,10 @@ public class ExpressionB extends Component implements NodeConstructor
 		
 		for (String con : this._constants.keySet() )
 			modelNode.add(getConstantNode(con));
+		
+		modelNode.addConstructable(ClassRef.simplify( ClassRef.reaction ), 
+				null, ModelNode.Requirements.ZERO_TO_MANY );
+		
 		return modelNode;
 	}
 	

@@ -36,77 +36,77 @@ public class XmlRef
 	/**
 	 * Aspect loaded by aspect interface.
 	 */
-	public static String aspect = "aspect";
+	public final static String aspect = "aspect";
 	
 	/**
 	 * An item in a list or a hashmap.
 	 */
-	public static String item = "item";
+	public final static String item = "item";
 	
 	/**
 	 * Agent node.
 	 */
-	public static String agent = "agent";
+	public final static String agent = "agent";
 	
 	/**
 	 * Process manager node.
 	 */
-	public static String process = "process";
+	public final static String process = "process";
 	
 	/**
 	 * Assigns species module to be part of species description.
 	 */
-	public static String speciesModule = "speciesModule";
+	public final static String speciesModule = "speciesModule";
 	
 	/**
 	 * Parameter node, used to set general parameters.
 	 */
-	public static String parameter = "param";
+	public final static String parameter = "param";
 	
 	/**
 	 * Indicates {@code surface.Point} object.
 	 */
-	public static String point = "point";
+	public final static String point = "point";
 	
 	/**
 	 * Indicates constant in expression.
 	 */
-	public static String constant = "constant";
+	public final static String constant = "constant";
 	
 	/**
 	 * Indicates a solute.
 	 */
-	public static String solute = "solute";
+	public final static String solute = "solute";
 	
 	/**
 	 * Indicates an mathematical expression.
 	 */
-	public static String expression = "expression";
+	public final static String expression = "expression";
 	
 	/**
 	 * Indicates a grid voxel.
 	 */
-	public static String voxel = "vox";
+	public final static String voxel = "vox";
 	
 	/**
 	 * Indicates a reaction: could be environmental or agent-based.
 	 */
-	public static String reaction = "reaction";
+	public final static String reaction = "reaction";
 	
 	/**
 	 * Tag for the stoichiometry of a reaction.
 	 */
-	public static String stoichiometry = "stoichiometric";
+	public final static String stoichiometry = "stoichiometric";
 	
 	/**
 	 * Tag for a component of a reaction.
 	 */
-	public static String component = "component";
+	public final static String component = "component";
 	
 	/**
 	 * Tag for a stoichiometric constant of a component of a reaction.
 	 */
-	public static String coefficient = "coefficient";
+	public final static String coefficient = "coefficient";
 	
 	/* Container Nodes */
 	/////////////////////
@@ -114,82 +114,82 @@ public class XmlRef
 	/**
 	 * Encapsulates the entire simulation.
 	 */
-	public static String simulation = "simulation";
+	public final static String simulation = "simulation";
 	
 	/**
 	 * Timer node.
 	 */
-	public static String timer = "timer";
+	public final static String timer = "timer";
 	
 	/**
 	 * Encapsulates all simulation-wide parameters.
 	 */
 	// TODO remove?
 	@Deprecated
-	public static String generalParams = "general";
+	public final static String generalParams = "general";
 	
 	/**
 	 * Encapsulates all species definitions for a simulation.
 	 */
-	public static String speciesLibrary = "speciesLib";
+	public final static String speciesLibrary = "speciesLib";
 	
 	/**
 	 * Encapsulates all common environmental reactions for a simulation.
 	 */
-	public static String reactionLibrary = "reactionLib";
+	public final static String reactionLibrary = "reactionLib";
 	
 	/**
 	 * An agent species.
 	 */
-	public static String species = "species";
+	public final static String species = "species";
 	
 	/**
 	 * Encapsulates all content associated with a single compartment.
 	 */
-	public static String compartment = "compartment";
+	public final static String compartment = "compartment";
 	
 	/**
 	 * Encapsulates the child node defining the shape of a compartment.
 	 */
-	public static String compartmentShape = "shape";
+	public final static String compartmentShape = "shape";
 	
 	/**
 	 * Encapsulates the child node for each dimension of a shape.
 	 */
-	public static String shapeDimension = "dimension";
+	public final static String shapeDimension = "dimension";
 	
 	/**
 	 * Tag for the boolean denoting whether a dimension is cyclic (true) or
 	 * not (false).
 	 */
-	public static String isCyclic = "isCyclic";
+	public final static String isCyclic = "isCyclic";
 	
 	/**
 	 * Encapsulates the child node for a dimension boundary.
 	 */
-	public static String dimensionBoundary = "boundary";
+	public final static String dimensionBoundary = "boundary";
 	
 	/**
 	 * Tag for all extra-cellular reactions in the compartment, i.e. those
 	 * that are not controlled by an {@code Agent}.
 	 */
-	public static String reactions = "reactions";
+	public final static String reactions = "reactions";
 
 	/**
 	 * Encapsulates all agents for one compartment.
 	 */
-	public static String agents = "agents";
+	public final static String agents = "agents";
 
 	/**
 	 * Encapsulates the environment (solutes, environmental reactions, etc) for
 	 * one compartment.
 	 */
-	public static String environment = "environment";
+	public final static String environment = "environment";
 	
 	/**
 	 * Encapsulates all process managers for one compartment.
 	 */
-	public static String processManagers = "processManagers";
+	public final static String processManagers = "processManagers";
 	
 	/* Attributes */
 	////////////////
@@ -197,197 +197,197 @@ public class XmlRef
 	/**
 	 * General name attribute.
 	 */
-	public static String nameAttribute = "name";
+	public final static String nameAttribute = "name";
 	
 	/**
 	 * General value attribute.
 	 */
-	public static String valueAttribute = "value";
+	public final static String valueAttribute = "value";
 	
 	/**
 	 * Type indicates object type for aspect nodes.
 	 */
-	public static String typeAttribute = "type";
+	public final static String typeAttribute = "type";
 	
 	/**
 	 * Indicates XMLable java class.
 	 */
-	public static String classAttribute = "class";
+	public final static String classAttribute = "class";
 	
 	/**
 	 * Indicates package of XMLable java class.
 	 */
-	public static String packageAttribute = "package";
+	public final static String packageAttribute = "package";
 	
 	/**
 	 * Indicates key for hashmap.
 	 */
-	public static String keyAttribute = "key";
+	public final static String keyAttribute = "key";
 	
 	/**
 	 * Indicates object type for the hashmap key.
 	 */
-	public static String keyTypeAttribute = "keyType";
+	public final static String keyClassAttribute = "keyType";
 	
 	/**
 	 * Attribute can hold a comment (has no simulation effects).
 	 */
-	public static String commentAttribute = "comment";
+	public final static String commentAttribute = "comment";
 	
 	/**
 	 * Attribute can hold (up to three) dimension names. 
 	 */
 	// TODO check this fits in with current model building practice
-	public static String dimensionNamesAttribute = "dimensions";
+	public final static String dimensionNamesAttribute = "dimensions";
 	
 	/**
 	 * Attribute can hold a target resolution as a {@code double}.
 	 */
-	public static String targetResolutionAttribute = "targetResolution";
+	public final static String targetResolutionAttribute = "targetResolution";
 	
 	/**
 	 * Indicates output folder (set as simulation attribute).
 	 */
 	// TODO change to "outputFolder"?
-	public static String outputFolder = "outputfolder";
+	public final static String outputFolder = "outputfolder";
 	
 	/**
 	 * Verbosity of log messages.
 	 */
-	public static String logLevel = "log";
+	public final static String logLevel = "log";
 	
 	/**
 	 * The size of time step that the global {@code Timer} will take.
 	 */
-	public static String timerStepSize = "stepSize";
+	public final static String timerStepSize = "stepSize";
 	
 	/**
 	 * The time point at which the simulation will end.
 	 */
-	public static String endOfSimulation = "endOfSimulation";
+	public final static String endOfSimulation = "endOfSimulation";
 	
 	/**
 	 * Comma separated string of {@code double}s that indicates a spatial
 	 * point position in the compartment.
 	 */
-	public static String position = "position";
+	public final static String position = "position";
 	
 	/**
 	 * Comma separated string of {@code int}s that indicates a grid voxel in
 	 * the compartment.
 	 */
-	public static String coordinates = "coord";
+	public final static String coordinates = "coord";
 
 	/**
 	 * Indicates film layer thickness for diffusion of chemical species.
 	 */
-	public static String layerThickness = "layerThickness";
+	public final static String layerThickness = "layerThickness";
 	
 	/**
 	 * The "default" diffusivity in the bulk/solute.
 	 */
-	public static String defaultDiffusivity = "defaultDiffusivity";
+	public final static String defaultDiffusivity = "defaultDiffusivity";
 	
 	/**
 	 * Diffusivity in the biofilm.
 	 */
-	public static String biofilmDiffusivity = "biofilmDiffusivity";
+	public final static String biofilmDiffusivity = "biofilmDiffusivity";
 	
 	/**
 	 * Indicates a threshold double value.
 	 */
-	public static String threshold = "threshold";
+	public final static String threshold = "threshold";
 	
 	/**
 	 * Indicates a solute concentration.
 	 */
-	public static String concentration = "concentration";
+	public final static String concentration = "concentration";
 	
 	//////////// NOT sorted yet
 	
 	/**
 	 * Priority of a process manager.
 	 */
-	public static String processPriority = "priority";
+	public final static String processPriority = "priority";
 
 	/**
 	 * Time for the first timestep of a process manager.
 	 */
-	public static String processFirstStep = "firstStep";
+	public final static String processFirstStep = "firstStep";
 
 	/**
 	 * Time step size for a process manager.
 	 */
-	public static String processTimeStepSize = "timerStepSize";
+	public final static String processTimeStepSize = "timerStepSize";
 	
 	/**
 	 * TODO
 	 */
-	public static String inputAttribute = "input";
+	public final static String inputAttribute = "input";
 	
 	/**
 	 * Fields that can be set by the user.
 	 */
-	public static String fields = "fields";
+	public final static String fields = "fields";
 
 	/**
 	 * extreme min
 	 */
-	public static String min = "min";
+	public final static String min = "min";
 	
 	/**
 	 * extreme max
 	 */
-	public static String max = "max";
+	public final static String max = "max";
 
 	/**
 	 * TODO
 	 */
-	public static String solutes = "solutes";
+	public final static String solutes = "solutes";
 
 	/**
 	 * Seed for the random number generator.
 	 */
-	public static String seed = "randomSeed";
+	public final static String seed = "randomSeed";
 
 	/**
 	 * Object identity number.
 	 */
-	public static String identity = "identity";
+	public final static String identity = "identity";
 
 	/**
 	 * TODO
 	 */
-	public static String boundaryPartner = "partner";
+	public final static String boundaryPartner = "partner";
 
 	/**
 	 * TODO
 	 */
-	public static String gridMethod = "gridMethod";
+	public final static String gridMethod = "gridMethod";
 
 	/**
 	 * TODO
 	 */
-	public static String variable = "variable";
+	public final static String variable = "variable";
 
 	/**
 	 * TODO
 	 */
-	public static String spawnNode = "spawn";
+	public final static String spawnNode = "spawn";
 
 	/**
 	 * Tag for the (integer) number of agents to create new.
 	 */
-	public static String numberOfAgents = "number";
+	public final static String numberOfAgents = "number";
 
 	/**
 	 * Tag for the region of space in which to spawn new agents.
 	 */
-	public static String spawnDomain = "domain";
+	public final static String spawnDomain = "domain";
 	/**
 	 * Force scalar used to scale the collision algorithm force distance 
 	 * functions
 	 */
-	public static String forceScalar = "forceScalar";
+	public final static String forceScalar = "forceScalar";
 
 }

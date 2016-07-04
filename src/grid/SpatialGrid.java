@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
+import generalInterfaces.Instantiatable;
 import idynomics.EnvironmentContainer;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
@@ -45,7 +46,7 @@ import utility.ExtraMath;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 
-public class SpatialGrid implements NodeConstructor
+public class SpatialGrid implements NodeConstructor, Instantiatable
 {
 	/**
 	 * The name of the variable which this grid represents.
@@ -129,6 +130,15 @@ public class SpatialGrid implements NodeConstructor
 	}
 	
 	public SpatialGrid(Element xmlElem, NodeConstructor parent)
+	{
+		this.init(xmlElem, parent);
+	}
+	
+	public SpatialGrid() { 
+		//NOTE only used for ClassRef
+	}
+
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
 		this._shape = ((EnvironmentContainer) parent).getShape();
 		this._parentNode = parent;

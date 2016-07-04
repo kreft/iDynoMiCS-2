@@ -4,7 +4,6 @@ import nodeFactory.ModelNode.Requirements;
 
 public class Constructable {
 	
-
 	protected String _classRef;
 	
 	protected String[] _options;

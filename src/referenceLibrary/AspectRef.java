@@ -36,306 +36,306 @@ public class AspectRef
 	/**
 	 * The time when an agent was born.
 	 */
-	public static String birthday = "birthday";
+	public final static String birthday = "birthday";
 	
 	/**
 	 * The time at which an agent died.
 	 */
-	public static String deathday = "deathday";
+	public final static String deathday = "deathday";
 	
 	/**
 	 * TODO
 	 */
-	public static String agentBody = "body";
+	public final static String agentBody = "body";
 
 	/**
 	 * TODO
 	 */
-	public static String agentPulldistance = "pullDistance";
+	public final static String agentPulldistance = "pullDistance";
 	
 	/**
 	 * TODO
 	 */
-	public static String agentPullStrength = "pullStrength";
+	public final static String agentPullStrength = "pullStrength";
 	
 	/**
 	 * TODO
 	 */
-	public static String bodyRadius = "radius";
+	public final static String bodyRadius = "radius";
 
 	/*
 	 * TODO
 	 */
-	public static String bodyLength = "#bodyLength";
+	public final static String bodyLength = "#bodyLength";
 	
 	/**
 	 * TODO
 	 */
-	public static String isLocated = "#isLocated";
+	public final static String isLocated = "#isLocated";
 	
 	/**
 	 * TODO
 	 */
-	public static String bodyUpdate = "updateBody";
+	public final static String bodyUpdate = "updateBody";
 	
 	/**
 	 * NOTE: linker springs will be reworked later, subject to change.
 	 */
-	public static String filialLinker = "filialLinker";
+	public final static String filialLinker = "filialLinker";
 
 	/**
 	 * List with all surface objects associated with the object
 	 */
-	public static String surfaceList = "surfaces";
+	public final static String surfaceList = "surfaces";
 
 	/**
 	 * the solute name for the default BiomassGrid (the grid in which all 
 	 * biomass/biofilm is represented
 	 */
-	public static String defaultBiomassGrid = "biomass";
+	public final static String defaultBiomassGrid = "biomass";
 	
 	/**
 	 * list with reactions owned by the agent
 	 */
 	// FIXME what is the difference between this and XmlLabel.reactions?
-	public static String agentReactions = "reactions";
+	public final static String agentReactions = "reactions";
 
 	/**
 	 * TODO
 	 */
-	public static String agentMass = "mass";
+	public final static String agentMass = "mass";
 	
 	/**
 	 * Agent mass that should trigger division.
 	 */
-	public static String divisionMass = "divisionMass";
+	public final static String divisionMass = "divisionMass";
 	/**
 	 * 
 	 */
-	public static String mumMassFrac = "mumMassFrac";
+	public final static String mumMassFrac = "mumMassFrac";
 	/**
 	 * 
 	 */
-	public static String mumMassFracCV = "mumMassFracCV";
+	public final static String mumMassFracCV = "mumMassFracCV";
 	
 	/**
 	 * TODO
 	 */
-	public static String agentLinks = "linkedAgents";
+	public final static String agentLinks = "linkedAgents";
 
 	/**
 	 * TODO
 	 */
-	public static String linkerDistance = "linkerDist";
+	public final static String linkerDistance = "linkerDist";
 
 	/**
 	 * TODO
 	 */
-	public static String agentUpdateBody = "updateBody";
+	public final static String agentUpdateBody = "updateBody";
 
 	/**
 	 * TODO
 	 */
-	public static String agentDivide = "divide";
+	public final static String agentDivide = "divide";
 
 	/**
 	 * TODO
 	 */
-	public static String agentVolumeDistributionMap = "volumeDistribution";
+	public final static String agentVolumeDistributionMap = "volumeDistribution";
 
 	/**
 	 * TODO
 	 */
-	public static String agentDensity = "density";
+	public final static String agentDensity = "density";
 
 	/**
 	 * TODO
 	 */
-	public static String agentVolume = "volume";
+	public final static String agentVolume = "volume";
 
 	/**
 	 * TODO
 	 */
-	public static String internalProducts = "internalProducts";
+	public final static String internalProducts = "internalProducts";
 
 	/**
 	 * TODO
 	 */
-	public static String internalProduction = "produce";
+	public final static String internalProduction = "produce";
 	
 	/**
 	 * TODO
 	 */
-	public static String productEPS = "eps";
+	public final static String productEPS = "eps";
 
 	/**
 	 * TODO
 	 */
-	public static String maxInternalEPS = "maxInternalEPS";
+	public final static String maxInternalEPS = "maxInternalEPS";
 
 	/**
 	 * TODO
 	 */
-	public static String epsSpecies = "epsSpecies";
+	public final static String epsSpecies = "epsSpecies";
 
 	/**
 	 * TODO
 	 */
-	public static String internalProductionRate = "internalProduction";
+	public final static String internalProductionRate = "internalProduction";
 
 	/**
 	 * Reference tag for the growth event.
 	 */
 	// NOTE This may be merged with internalProduction.
-	public static String growth = "growth";
+	public final static String growth = "growth";
 	
 	/**
 	 * TODO
 	 */
-	public static String growthRate = "specGrowthRate";
+	public final static String growthRate = "specGrowthRate";
 
 	/**
 	 * TODO
 	 */
-	public static String agentPreferencedistance = "prefDist";
+	public final static String agentPreferencedistance = "prefDist";
 
 	/**
 	 * TODO
 	 */
-	public static String agentPreferenceIdentifier = "prefIdentifier";
+	public final static String agentPreferenceIdentifier = "prefIdentifier";
 
 	/**
 	 * TODO
 	 */
-	public static String agentAttachmentPreference = "preference";
+	public final static String agentAttachmentPreference = "preference";
 
 	/**
 	 * TODO
 	 */
-	public static String agentCurrentPulldistance = "#curPullDist";
+	public final static String agentCurrentPulldistance = "#curPullDist";
 
 	/**
 	 * TODO
 	 */
-	public static String agentStochasticStep = "stochasticStep";
+	public final static String agentStochasticStep = "stochasticStep";
 
 	/**
 	 * TODO
 	 */
-	public static String agentStochasticDirection = "stochasticDirection";
+	public final static String agentStochasticDirection = "stochasticDirection";
 
 	/**
 	 * TODO
 	 */
-	public static String agentStochasticPause = "stochasticPause";
+	public final static String agentStochasticPause = "stochasticPause";
 
 	/**
 	 * TODO
 	 */
-	public static String agentStochasticDistance = "stochasticDistance";
+	public final static String agentStochasticDistance = "stochasticDistance";
 
 	/**
 	 * TODO
 	 */
-	public static String agentDivision = "divide";
+	public final static String agentDivision = "divide";
 
 	/**
 	 * 
 	 */
-	public static String collisionSearchDistance = "searchDist";
+	public final static String collisionSearchDistance = "searchDist";
 
 	/**
 	 * TODO
 	 */
-	public static String collisionPullEvaluation = "evaluatePull";
+	public final static String collisionPullEvaluation = "evaluatePull";
 
 	/**
 	 * TODO
 	 */
-	public static String collisionCurrentPullDistance = "#curPullDist";
+	public final static String collisionCurrentPullDistance = "#curPullDist";
 
 	/**
 	 * TODO
 	 */
-	public static String collisionBaseDT = "dtBase";
+	public final static String collisionBaseDT = "dtBase";
 
 	/**
 	 * TODO
 	 */
-	public static String collisionMaxMOvement = "maxMovement";
+	public final static String collisionMaxMOvement = "maxMovement";
 
 	/**
 	 * TODO
 	 */
-	public static String agentStochasticMove = "stochasticMove";
+	public final static String agentStochasticMove = "stochasticMove";
 
 	/**
 	 * TODO
 	 */
-	public static String collisionRelaxationMethod = "relaxationMethod";
+	public final static String collisionRelaxationMethod = "relaxationMethod";
 
 	/**
 	 * TODO
 	 */
-	public static String agentExcreteEps = "epsExcretion";
+	public final static String agentExcreteEps = "epsExcretion";
 
 	/**
 	 * Used by RefreshMassGrids, calls event
 	 */
-	public static String massToGrid = "massToGrid";
+	public final static String massToGrid = "massToGrid";
 
 	/**
 	 * TODO
 	 */
-	public static String biomass = "biomass";
+	public final static String biomass = "biomass";
 
 	/**
 	 * TODO
 	 */
-	public static String soluteNames = "soluteNames";
+	public final static String soluteNames = "soluteNames";
 
 	/**
 	 * TODO
 	 */
-	public static String solver = "solver";
+	public final static String solver = "solver";
 
 	/**
 	 * TODO
 	 */
-	public static String solverhMax = "hMax";
+	public final static String solverhMax = "hMax";
 
 	/**
 	 * TODO
 	 */
-	public static String solverTolerance = "tolerance";
+	public final static String solverTolerance = "tolerance";
 	
 	/**
 	 * TODO
 	 */
-	public static String agentPigment = "pigment";
+	public final static String agentPigment = "pigment";
 
 	/**
 	 * TODO
 	 */
-	public static String gridArrayType = "arrayType";
+	public final static String gridArrayType = "arrayType";
 
 	/**
 	 * TODO
 	 */
-	public static String visualOutMaxValue = "maxConcentration";
+	public final static String visualOutMaxValue = "maxConcentration";
 
 	/**
 	 * TODO
 	 */
-	public static String soluteName= "solute";
+	public final static String soluteName= "solute";
 
 	/**
 	 * TODO
 	 */
-	public static String filePrefix = "prefix";
+	public final static String filePrefix = "prefix";
 
 	/**
 	 * TODO
 	 */
-	public static String graphicalOutputWriter = "outputWriter";
+	public final static String graphicalOutputWriter = "outputWriter";
 }

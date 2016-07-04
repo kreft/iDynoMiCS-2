@@ -5,15 +5,12 @@ package guiTools;
 
 import java.awt.EventQueue;
 import java.io.File;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 
 import dataIO.Log;
 import glRender.AgentMediator;
-import glRender.CommandMediator;
 import glRender.Render;
 import idynomics.Compartment;
 import idynomics.Idynomics;

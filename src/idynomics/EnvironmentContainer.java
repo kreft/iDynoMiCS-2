@@ -12,14 +12,18 @@ import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import generalInterfaces.Instantiatable;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import processManager.ProcessManager;
 import reaction.Reaction;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
+import utility.Helper;
 
 /**
  * \brief Manages the solutes in a {@code Compartment}.
@@ -111,32 +115,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	{
 		this._reactions.remove(Reaction);
 	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * NOTE Rob[26Feb2016]: not yet used, work in progress
-	 * 
-	 * TODO Get general reactions from Param?
-	 * 
-	 * @param reactionNodes
-	 */
-	public void readReactions(NodeList reactionNodes)
-	{
-		Element elem;
-		Reaction reac;
-		for ( int i = 0; i < reactionNodes.getLength(); i++)
-		{
-			elem = (Element) reactionNodes.item(i);
-			/* Construct and intialise the reaction. */
-			reac = (Reaction) Reaction.getNewInstance(elem);
-			// reac.setCompartment(compartment.getName());
-			reac.init(elem);
-			/* Add it to the environment. */
-			this.addReaction(reac);
-		}
-	}
-	
+
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
@@ -466,6 +445,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		 */
 		for ( String sol : this.getSoluteNames() )
 			modelNode.add( this.getSoluteGrid(sol).getNode() );
+		
+		modelNode.addConstructable(ClassRef.simplify( ClassRef.spatialGrid ), 
+				null, ModelNode.Requirements.ZERO_TO_MANY );
+		
 		return modelNode;
 	}
 	
@@ -481,6 +464,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		 */
 		for ( Reaction react : this.getReactions() )
 			modelNode.add( react.getNode() );
+		
+		modelNode.addConstructable(ClassRef.simplify( ClassRef.reaction ), 
+				null, ModelNode.Requirements.ZERO_TO_MANY );
+		
 		return modelNode;
 	}
 	

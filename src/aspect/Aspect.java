@@ -19,6 +19,7 @@ import nodeFactory.primarySetters.HashMapSetter;
 import nodeFactory.primarySetters.LinkedListSetter;
 import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
+import referenceLibrary.PackageRef;
 import referenceLibrary.XmlRef;
 import surface.Point;
 import utility.Helper;
@@ -33,8 +34,6 @@ public class Aspect implements Instantiatable, NodeConstructor
 {
 	/**
 	 * \brief Recognized aspect types.
-	 * 
-	 * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
 	 */
 	public enum AspectClass
 	{
@@ -245,10 +244,22 @@ public class Aspect implements Instantiatable, NodeConstructor
 	{
 		if ( node.getAttribute(XmlRef.valueAttribute) != null )
 		{
-			this.set(ObjectFactory.loadObject(
-					node.getAttribute(XmlRef.valueAttribute).value, 
-					node.getAttribute(XmlRef.typeAttribute).value,
-					node.getAttribute(XmlRef.classAttribute).value), key);
+			switch (AspectClass.valueOf( 
+					node.getAttribute( XmlRef.typeAttribute).value ) )
+	    	{
+	    	case CALCULATED:
+	    		this.set( Calculated.getNewInstance(
+	    				node.getAttribute(XmlRef.classAttribute).value, 
+	    				node.getAttribute(XmlRef.inputAttribute).value), key);
+	    	case EVENT: 
+	    		this.set( Event.getNewInstance( 
+						node.getAttribute(XmlRef.classAttribute).value), key);
+	    	case PRIMARY:
+			default:
+				this.set( ObjectFactory.loadObject(
+						node.getAttribute(XmlRef.valueAttribute).value, 
+						node.getAttribute(XmlRef.classAttribute).value), key);
+			}
 		}
 		NodeConstructor.super.setNode(node);
 	}
@@ -277,25 +288,19 @@ public class Aspect implements Instantiatable, NodeConstructor
     	{
     	case CALCULATED:
     		classType = Helper.obtainInput( Helper.listToArray(
-    				ClassRef.getAllOptions( ClassRef.calculatedPackage ) ), 
+    				ClassRef.getAllOptions( PackageRef.calculatedPackage ) ), 
     				"aspect class", false);
     		if ( classType.equals(ClassRef.simplify( ClassRef.expressionAspect) ) )
-    			this.set( ObjectFactory.loadObject( 
-    					Helper.obtainInput( "", "expression" ), 
-    					type, classType)  , name );
+    			this.set( Calculated.getNewInstance( classType,
+    					Helper.obtainInput( "", "expression" ))  , name );
     		else
-    			this.set(  ObjectFactory.loadObject( "", 
-    					type, classType) , name );
-    		((AspectInterface) parent).reg().addInstatiatedAspect( name, this );
+    			this.set(  Calculated.getNewInstance( classType, "") , name );
     		break;
     	case EVENT: 
     		classType = Helper.obtainInput( Helper.listToArray(
-    				ClassRef.getAllOptions( ClassRef.eventPackage) ), 
+    				ClassRef.getAllOptions( PackageRef.eventPackage) ), 
     				"aspect class", false);
-    		this.set( ObjectFactory.loadObject( "", 
-					type, classType) , name);
-
-			((AspectInterface) parent).reg().addInstatiatedAspect( name, this );
+    		this.set(  Event.getNewInstance( classType ) , name );
     		break;
     	case PRIMARY:
 		default:
@@ -303,12 +308,11 @@ public class Aspect implements Instantiatable, NodeConstructor
 					"Primary type", false);
 			this.set( ObjectFactory.loadObject( 
 					Helper.obtainInput( "", "Primary value" ), 
-					type, classType), name);
-			((AspectInterface) parent).reg().addInstatiatedAspect( name, this );
+					classType), name);
 			break;
 		}
+		((AspectInterface) parent).reg().addInstatiatedAspect( name, this );
 	}
-	
 
 	@Override
 	public void removeNode(String specifier) 

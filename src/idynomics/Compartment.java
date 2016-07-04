@@ -23,6 +23,7 @@ import nodeFactory.NodeConstructor;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import utility.Helper;
@@ -483,15 +484,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	private ModelNode getProcessNode()
 	{
 		/* The process managers node. */
-		ModelNode modelNode = new ModelNode(XmlRef.processManagers, this);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		ModelNode modelNode = new ModelNode( XmlRef.processManagers, this );
+		modelNode.setRequirements( Requirements.EXACTLY_ONE );
 		/* 
 		 * Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  
 		 */
-		modelNode.addConstructable("PorcessManager", 
-				Helper.collectionToArray(ProcessManager.getAllOptions()), 
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addConstructable(ClassRef.simplify( ClassRef.processManager ), 
+				Helper.collectionToArray( ProcessManager.getAllOptions() ), 
+				ModelNode.Requirements.ZERO_TO_MANY );
 		/* Add existing process managers as child nodes. */
 		for ( ProcessManager p : this._processes )
 			modelNode.add( p.getNode() );

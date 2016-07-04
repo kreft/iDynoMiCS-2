@@ -110,11 +110,6 @@ public class ModelNode
 	 * Attributes
 	 */
 	protected List<ModelAttribute> _attributes;
-	
-	/**
-	 * boolean is true if the object has been removed via the gui
-	 */
-	protected boolean isRemoved = false;
 
 	/* ***********************************************************************
 	 * INSTANCE CONSTRUCTOR
@@ -469,14 +464,9 @@ public class ModelNode
 		return out;
 	}
 
-	public void delete(String specifier) {
-		this.isRemoved = true;
-		constructor.removeNode(specifier);		
-	}
-	
-	public boolean isRemoved()
+	public void delete(String specifier) 
 	{
-		return this.isRemoved;
+		constructor.removeNode(specifier);		
 	}
 
 	public boolean hasChildNodes(String tag) 

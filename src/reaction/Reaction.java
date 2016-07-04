@@ -16,6 +16,8 @@ import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import nodeFactory.primarySetters.HashMapSetter;
+import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
@@ -149,31 +151,32 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void init(Element xmlElem)
 	{
 		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute, this.defaultXmlTag());
 		/*
 		 * Build the stoichiometric map.
 		 */
-		NodeList stoichs = XmlHandler.getAll(xmlElem, XmlRef.stoichiometry);
-		String str;
-		double coeff;
-		for ( int i = 0; i < stoichs.getLength(); i++ )
-		{
-			Element temp = (Element) stoichs.item(i);
-			/* Get the coefficient. */
-			str = XmlHandler.obtainAttribute(temp, XmlRef.coefficient, this.defaultXmlTag());
-			coeff = Double.valueOf(str);
-			/* Get the component name. */
-			str = XmlHandler.obtainAttribute(temp, XmlRef.component, this.defaultXmlTag());
-			/* Enter these into the stoichiometry. */
-			this._stoichiometry.put(str, coeff);
-		}
+		this._stoichiometry = (Map<String, Double>) ObjectFactory.xmlHashMap(
+				xmlElem, XmlRef.stoichiometry, 
+				ObjectRef.STR, XmlRef.component, 	
+				ObjectRef.DBL, XmlRef.coefficient );
 		/*
 		 * Build the reaction rate expression.
 		 */
-		this._kinetic = new 
-			ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+		if ( xmlElem == null || !XmlHandler.hasNode(xmlElem, XmlRef.expression))
+			this._kinetic = new ExpressionB("");
+		else
+			this._kinetic = new 
+				ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+	}
+	
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		this.init(xmlElem);
+		this._parentNode = parent;
+		parent.addChildObject(this);
 	}
 	
 	/**
@@ -342,11 +345,15 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		
 		modelNode.add(((ExpressionB) _kinetic).getNode());
 		
-		for ( String component : this._stoichiometry.keySet())
-		{
-			modelNode.add(getStoNode(this, component, 
-					getStoichiometry(component)));
-		}
+		for ( String component : this._stoichiometry.keySet() )
+			modelNode.add(new HashMapSetter<String,Double>(
+					this._stoichiometry.get(component), component, this._stoichiometry).getNode() );
+		
+//		for ( String component : this._stoichiometry.keySet())
+//		{
+//			modelNode.add(getStoNode(this, component, 
+//					getStoichiometry(component)));
+//		}
 		
 		return modelNode;
 	}

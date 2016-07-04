@@ -49,6 +49,11 @@ public class GuiComponent {
 		tabbedPane.setSelectedIndex(paneNumber);
 	}
 	
+	public static void togglePane(JTabbedPane tabbedPane, Component component)
+	{
+		tabbedPane.setSelectedIndex( findComponentIndex(tabbedPane, component));
+	}
+	
 	public static void tabEnabled(JTabbedPane tabbedPane, int paneNumber, boolean bool)
 	{
 		tabbedPane.setEnabledAt(paneNumber, bool);

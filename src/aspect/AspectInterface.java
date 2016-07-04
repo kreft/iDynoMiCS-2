@@ -4,6 +4,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
@@ -35,14 +36,26 @@ public abstract interface AspectInterface
 	{
 		Element e = (Element) xmlNode;
 		AspectReg aspectReg = (AspectReg) reg();
-		String  name;
+		String  key;
 		NodeList stateNodes = e.getElementsByTagName(XmlRef.aspect);
 		for (int j = 0; j < stateNodes.getLength(); j++) 
 		{
 			Element s = (Element) stateNodes.item(j);
-			name = s.getAttribute(XmlRef.nameAttribute);
-			aspectReg.add(name, ObjectFactory.loadObject(s));
-			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
+			key = s.getAttribute(XmlRef.nameAttribute);
+			switch (AspectClass.valueOf( 
+					s.getAttribute( XmlRef.typeAttribute) ) )
+	    	{
+	    	case CALCULATED:
+	    		aspectReg.add( key , Calculated.getNewInstance( s ) );
+	    		break;
+	    	case EVENT: 
+	    		aspectReg.add( key , Event.getNewInstance( s ) );
+	    		break;
+	    	case PRIMARY:
+			default:
+				aspectReg.add( key, ObjectFactory.loadObject(s) );
+			}
+			Log.out(Tier.BULK, "Aspects loaded for \""+key+"\"");
 		}
 		
 	}

@@ -64,8 +64,8 @@ public abstract class Calculated implements Copyable, Instantiatable, Redirectab
 	}
 	
 
-	public static Object getNewInstance(String input) {
-		Calculated obj = (Calculated) Instantiatable.getNewInstance(input);
+	public static Object getNewInstance(String objecClass, String input) {
+		Calculated obj = (Calculated) Instantiatable.getNewInstance(objecClass);
 		obj.init(input);
 		return obj;
 	}

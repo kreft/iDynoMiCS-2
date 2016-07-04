@@ -106,6 +106,7 @@ public class GuiEditor
 					GuiEditor.setAttributes();
 					node.delete(node.getTitle());
 					GuiMain.update();
+					
 				}
 			}
 			));
