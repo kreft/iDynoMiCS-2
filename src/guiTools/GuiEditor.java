@@ -1,6 +1,7 @@
 package guiTools;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -222,11 +223,11 @@ public class GuiEditor
 //					parent.getParent().getParent().getParent(), 
 //					node.getTag() + " " + node.getTitle(), tabs, "" );
 //		}
-		else if ( node.isTagIn(new String[] {XmlRef.reaction}) && 
-				node.getRequirment() == Requirements.IMMUTABLE)
+		else if ( node.isTagIn(new String[] {XmlRef.reaction} ) && 
+				node.getRequirment() == Requirements.IMMUTABLE ) 
 		{
 			GuiComponent.addTab( (JTabbedPane) 
-					parent.getParent().getParent().getParent(), 
+					parent.getParent().getParent().getParent().getParent(), 
 					node.getTag() + " " + node.getTitle(), tabs, "");
 		}
 		else if ( node.isTagIn(new String[] 
@@ -247,9 +248,9 @@ public class GuiEditor
 		{
 			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
 			/* species, agents, TODO: changes to spinner */
-			GuiComponent.addTab( (JTabbedPane) 
-					parent.getParent().getParent().getParent(), 
-					node.getTag() + " " + node.getTitle(), tabs, "");
+			GuiComponent.addTab( getFirstTabParent(parent), 
+					node.getTag() + " " + node.getTitle(), tabs, ""); 
+					
 		} 
 		else
 		{
@@ -260,5 +261,13 @@ public class GuiEditor
 		/* add childnodes of this component to the gui */
 		for ( ModelNode n : node.getAllChildNodes() )
 			addComponent(n, component);
+	}
+	
+	private static JTabbedPane getFirstTabParent(Component component)
+	{
+		if (component instanceof JTabbedPane)
+			return (JTabbedPane) component;
+		else
+			return getFirstTabParent(component.getParent());
 	}
 }

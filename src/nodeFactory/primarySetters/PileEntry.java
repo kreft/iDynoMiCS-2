@@ -29,15 +29,12 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	public PileEntry()
 	{
 		this.pile = null;
-		
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void init(Element xmlElem, NodeConstructor parent)
 	{
 		this.pile = (Pile<T>) parent;
-		this.mapObject = (T) ObjectFactory.loadObject(Helper.obtainInput("", "value"), classDef());
-
 		this.pile.add(this.mapObject);
 	}
 	
@@ -45,8 +42,13 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	{
 		ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
-		modelNode.add(new ModelAttribute( pile.valueLabel, 
-				String.valueOf(mapObject), null, true));
+		
+		if (mapObject == null)
+			modelNode.add(new ModelAttribute( pile.valueLabel, 
+					"", null, true));
+		else
+			modelNode.add(new ModelAttribute( pile.valueLabel, 
+					String.valueOf(mapObject), null, true));
 
 		if ( !this.pile.muteClassDef )
 		{
