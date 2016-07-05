@@ -569,6 +569,10 @@ public class AgentContainer implements NodeConstructor
 		}
 		else if ( mass instanceof Double )
 		{
+			/**
+			 * NOTE map.remove returns the current associated value and removes
+			 * it from the map
+			 */
 			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
 		}
 		else if ( mass instanceof Double[] )

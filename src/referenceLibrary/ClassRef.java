@@ -6,6 +6,7 @@ import java.util.List;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import nodeFactory.primarySetters.PileEntry;
 
 /**
  * 
@@ -344,6 +345,9 @@ public class ClassRef
 	 */
 	public static final String reaction =
 			new reaction.Reaction().getClass().getName();
+	
+	public static final String pileEntry =
+			nodeFactory.primarySetters.PileEntry.class.getName();
 	
 	/* ************************************************************************
 	 * java classes

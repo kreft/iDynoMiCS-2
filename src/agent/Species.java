@@ -110,8 +110,8 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 				this.reg().getIdentity(), null, true ));
 		
 		/* add any submodules */
-		for ( AspectInterface mod : this.reg().getSubModules() )
-			modelNode.add(mod.reg().getModuleNode(this));
+//		for ( AspectInterface mod : this.reg().getSubModules() )
+//			modelNode.add(mod.reg().getModuleNode(this));
 		
 //		for ( AspectInterface mod : this.reg().getSubModules() )
 //			modelNode.add(new LinkedListSetter<String>(
@@ -121,10 +121,11 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		
 //		Pile<String> nodes = new Pile<String>(XmlRef.nameAttribute, "submodules", XmlRef.speciesModule);
 //		nodes.addAll(this.reg().getSubModuleNames());
-//		nodes.requirement = Requirements.IMMUTABLE;
-//		nodes.muteAttributeDef = true;
+		Pile<String> nodes = this.reg().getSubModuleNames();
+		nodes.requirement = Requirements.IMMUTABLE;
+		nodes.muteAttributeDef = true;
 //		nodes.muteClassDef = true;
-//		modelNode.add(nodes.getNode());
+		modelNode.add(nodes.getNode());
 
 		/* allow adding of additional aspects */
 		/* allow adding of new aspects */

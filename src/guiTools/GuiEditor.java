@@ -23,6 +23,7 @@ import nodeFactory.Constructable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
@@ -131,7 +132,7 @@ public class GuiEditor
 			{
 				/* add button for optional childnode(s) */
 				attr.add(GuiComponent.actionButton(
-						constructable.classRef(), 
+						ClassRef.simplify( constructable.classRef() ), 
 						new JButton("add"), new ActionListener()
 				{
 					@Override

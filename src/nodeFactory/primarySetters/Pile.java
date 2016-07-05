@@ -2,11 +2,11 @@ package nodeFactory.primarySetters;
 
 import java.util.LinkedList;
 
-import dataIO.ObjectFactory;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 
 /**
@@ -61,7 +61,11 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 					this.valueLabel, null, true));
 
 		for ( T entry : this) 
-			modelNode.add(new Entry(entry, this ).getNode());
+			modelNode.add(new PileEntry<T>( this, entry ).getNode());
+		
+		modelNode.addConstructable( PileEntry.class.getName(),
+				ModelNode.Requirements.ZERO_TO_MANY);
+		
 		return modelNode;
 	}
 
@@ -69,57 +73,6 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 	public String defaultXmlTag() 
 	{
 		return this.dictionaryLabel;
-	}
-	
-	public class Entry implements NodeConstructor {
-
-		public T mapObject;
-		public Pile<T> list;
-		
-		public Entry(T object, Pile<T> list )
-		{
-			this.mapObject = object;
-			this.list = list;
-		}
-		
-		public ModelNode getNode() 
-		{
-			ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
-			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
-			modelNode.add(new ModelAttribute(list.valueLabel, 
-					String.valueOf(mapObject), null, true));
-
-			if ( !muteClassDef )
-			{
-				modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-						mapObject.getClass().getSimpleName(), null, false ));
-			}
-			
-			return modelNode;
-		}
-		
-		@SuppressWarnings("unchecked")
-		public void setNode(ModelNode node)
-		{
-			this.list.remove( mapObject );
-
-			Object value = ObjectFactory.loadObject(
-					node.getAttribute( list.valueLabel ).value, 
-					mapObject.getClass().getSimpleName() );
-
-			this.list.add( (T) value );
-		}
-
-		public void removeNode(String specifier)
-		{
-			this.list.remove(this.mapObject);
-		}
-
-		@Override
-		public String defaultXmlTag() 
-		{
-			return list.nodeLabel;
-		}
 	}
 
 

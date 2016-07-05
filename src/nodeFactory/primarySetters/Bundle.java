@@ -1,6 +1,5 @@
 package nodeFactory.primarySetters;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 
 import dataIO.ObjectFactory;
