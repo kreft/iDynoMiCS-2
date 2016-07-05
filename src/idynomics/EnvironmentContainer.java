@@ -446,7 +446,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		for ( String sol : this.getSoluteNames() )
 			modelNode.add( this.getSoluteGrid(sol).getNode() );
 		
-		modelNode.addConstructable( ClassRef.spatialGrid, 
+		modelNode.addConstructable(ClassRef.simplify( ClassRef.spatialGrid ), 
 				null, ModelNode.Requirements.ZERO_TO_MANY );
 		
 		return modelNode;
@@ -465,7 +465,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		for ( Reaction react : this.getReactions() )
 			modelNode.add( react.getNode() );
 		
-		modelNode.addConstructable( ClassRef.reaction, 
+		modelNode.addConstructable(ClassRef.simplify( ClassRef.reaction ), 
 				null, ModelNode.Requirements.ZERO_TO_MANY );
 		
 		return modelNode;

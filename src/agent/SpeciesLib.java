@@ -14,7 +14,6 @@ import idynomics.Idynomics;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 
 /**
@@ -178,7 +177,7 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* Species constructor */
-		modelNode.addConstructable( ClassRef.species,
+		modelNode.addChildConstructor(new Species(), 
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		/* the already existing species */

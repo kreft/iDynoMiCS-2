@@ -70,11 +70,7 @@ public interface Instantiatable
 	 */
 	public static Object getNewInstance(String className, Element xmlElem, NodeConstructor parent)
 	{
-		Object out;
-		if (className.contains("."))
-			out = getNewInstance(className, null);
-		else
-			out = getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
+		Object out = getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
 		((Instantiatable) out).init(xmlElem, parent);
 		return out;
 	}
@@ -95,10 +91,9 @@ public interface Instantiatable
 	public static Object getNewInstance(String className, String prefix)
 	{
 		/*
-		 * Check the first letter is upper case if a separate prefix is provided.
+		 * Check the first letter is upper case.
 		 */
-		if ( prefix != null )
-			className = Helper.firstToUpper(className);
+		className = Helper.firstToUpper(className);
 		/*
 		 * Add the prefix, if necessary.
 		 */

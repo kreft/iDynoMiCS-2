@@ -17,7 +17,6 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.primarySetters.HashMapSetter;
-import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
@@ -348,11 +347,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		
 		for ( String component : this._stoichiometry.keySet() )
 			modelNode.add(new HashMapSetter<String,Double>(
-					this._stoichiometry.get(component), component, 
-					this._stoichiometry,
-					ObjectRef.STR, XmlRef.component,
-					ObjectRef.DBL, XmlRef.coefficient,
-					XmlRef.stoichiometry ).getNode());
+					this._stoichiometry.get(component), component, this._stoichiometry).getNode() );
 		
 //		for ( String component : this._stoichiometry.keySet())
 //		{

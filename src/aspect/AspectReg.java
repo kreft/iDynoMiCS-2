@@ -7,14 +7,12 @@ import java.util.Set;
 
 import dataIO.Log;
 import dataIO.ObjectFactory;
-import idynomics.Idynomics;
 import dataIO.Log.Tier;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
-import nodeFactory.primarySetters.Pile;
 
 
 /**
@@ -39,10 +37,10 @@ public class AspectReg
 											new HashMap<String, Aspect>();
 	
 	/**
-	 * all (sub) modules
+	 * Contains all (sub) modules
 	 */
-	protected Pile<String> _subModules = new Pile<String>(
-			XmlRef.nameAttribute, XmlRef.modules, XmlRef.speciesModule );
+	protected LinkedList<AspectInterface> _modules = 
+											new LinkedList<AspectInterface>();
 	
 	/**
 	 * get the identity of this aspectReg
@@ -68,7 +66,7 @@ public class AspectReg
 		if ( this._aspects.containsKey(key) )
 			return true;
 		else
-			for ( AspectInterface m : this.getSubModules() )
+			for ( AspectInterface m : this._modules )
 				if ( m.reg().isGlobalAspect(key) )
 					return true;
 		return false;
@@ -137,7 +135,7 @@ public class AspectReg
 	 */
 	public void addSubModule(AspectInterface module)
 	{
-		this._subModules.add(module.reg().getIdentity());
+		this._modules.add(module);
 	}
 	
 	/**
@@ -147,7 +145,9 @@ public class AspectReg
 	 */
 	public void removeSubmodule(String module) 
 	{
-		this._subModules.remove(module);
+		for ( AspectInterface m : _modules )
+			if ( m.reg()._identity == module )
+				_modules.remove(m);
 	}
 	
 	/**
@@ -163,15 +163,7 @@ public class AspectReg
 	
 	public LinkedList<AspectInterface> getSubModules()
 	{
-		LinkedList<AspectInterface> modules = new LinkedList<AspectInterface>();
-		for (String s : this.getSubModuleNames() )
-			modules.add( Idynomics.simulator.speciesLibrary.get(s) );
-		return modules;
-	}
-	
-	public Pile<String> getSubModuleNames()
-	{
-		return this._subModules;
+		return _modules;
 	}
 	
 	/**
@@ -233,7 +225,7 @@ public class AspectReg
 		if ( this._aspects.containsKey(key) )
 			return this._aspects.get(key);
 		else
-			for ( AspectInterface m : this.getSubModules() )
+			for ( AspectInterface m : this._modules )
 				if ( m.reg().isGlobalAspect(key) )
 					return (Aspect) m.reg().getAspect(key);
 		if ( Log.shouldWrite(level) )
@@ -251,7 +243,7 @@ public class AspectReg
 		for ( String key : donorReg._aspects.keySet() )
 			add( key, (Object) ObjectFactory.copy(
 					donorReg.getAspect(key).aspect ) );
-		for (AspectInterface m : donorReg.getSubModules() )
+		for (AspectInterface m : donorReg._modules)
 			addSubModule(m);
 	}
 
@@ -261,7 +253,7 @@ public class AspectReg
 	public void clear()
 	{
 		this._aspects.clear();
-		this._subModules.clear();
+		this._modules.clear();
 	}
 	
 	/*************************************************************************
@@ -288,7 +280,7 @@ public class AspectReg
 	public void appendAllAspectNamesTo(List<String> names)
 	{
 		names.addAll(this._aspects.keySet() );
-		for ( AspectInterface ai : this.getSubModules() )
+		for ( AspectInterface ai : this._modules )
 			ai.reg().appendAllAspectNamesTo(names);
 	}
 	

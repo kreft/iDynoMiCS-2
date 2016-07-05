@@ -4,9 +4,11 @@ package idynomics;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import dataIO.XmlHandler;
 import referenceLibrary.ClassRef;
 import utility.Helper;
 
@@ -28,9 +30,13 @@ public class XMLableLibrary
 	 */
 	public XMLableLibrary()
 	{
+//		Element classLibrary = 
+//				XmlHandler.loadResource("/general/classLibrary.xml");
+//		List<String[]> tempLib = XmlHandler.gatherAtributesFrom( classLibrary, 
+//				"classDef", new String[]{"name", "package"});
 		String[] tempLib = ClassRef.getAllOptionsFullPath();
 		for ( String c : tempLib )
-			this.set( ClassRef.simplify( c ) , ClassRef.path( c ) );
+			this.set(ClassRef.simplify(c), ClassRef.path(c));
 	}
 
 	/**
