@@ -390,4 +390,14 @@ public class XmlRef
 	 */
 	public final static String forceScalar = "forceScalar";
 
+	/**
+	 * 
+	 */
+	public static final String dictionary = "dictionary";
+
+	/**
+	 * species modules wrapper
+	 */
+	public static final String modules = "modules";
+
 }

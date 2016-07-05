@@ -162,21 +162,21 @@ public class Aspect implements Instantiatable, NodeConstructor
 			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
 					simpleName, null, false ) );
 			
-			if ( simpleName.equals(ClassRef.simplify(ClassRef.hashMap)))
+			if ( simpleName.equals( ClassRef.simplify(ClassRef.hashMap) ))
 			{
 				HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
 				for (Object k : h.keySet() )
 					modelNode.add(new HashMapSetter<Object,Object>(
 							h.get(k), k, h).getNode() );
 			}
-			else if ( simpleName.equals(ClassRef.simplify(ClassRef.linkedList)))
+			else if ( simpleName.equals( ClassRef.simplify(ClassRef.linkedList) ))
 			{
 				LinkedList<Object> linkedList = (LinkedList<Object>) aspect;
 				for (Object o : linkedList)
 					modelNode.add(new LinkedListSetter<Object>(
 							o, linkedList ).getNode() );
 			}
-			else if ( simpleName.equals(ClassRef.simplify(ClassRef.body)))
+			else if ( simpleName.equals( ClassRef.simplify(ClassRef.body) ))
 			{
 				Body myBody = (Body) aspect;
 				for (Point p : myBody.getPoints() )
@@ -283,32 +283,32 @@ public class Aspect implements Instantiatable, NodeConstructor
 		/* if type is canceled */
 //			if ( type == null )
 //				return null;
-		String classType = "";
+		String objectClass = "";
 		switch (AspectClass.valueOf(type))
     	{
     	case CALCULATED:
-    		classType = Helper.obtainInput( Helper.listToArray(
+    		objectClass = Helper.obtainInput( Helper.listToArray(
     				ClassRef.getAllOptions( PackageRef.calculatedPackage ) ), 
     				"aspect class", false);
-    		if ( classType.equals(ClassRef.simplify( ClassRef.expressionAspect) ) )
-    			this.set( Calculated.getNewInstance( classType,
+    		if ( objectClass.equals(ClassRef.simplify( ClassRef.expressionAspect) ) )
+    			this.set( Calculated.getNewInstance( objectClass,
     					Helper.obtainInput( "", "expression" ))  , name );
     		else
-    			this.set(  Calculated.getNewInstance( classType, "") , name );
+    			this.set(  Calculated.getNewInstance( objectClass, "") , name );
     		break;
     	case EVENT: 
-    		classType = Helper.obtainInput( Helper.listToArray(
+    		objectClass = Helper.obtainInput( Helper.listToArray(
     				ClassRef.getAllOptions( PackageRef.eventPackage) ), 
     				"aspect class", false);
-    		this.set(  Event.getNewInstance( classType ) , name );
+    		this.set(  Event.getNewInstance( objectClass ) , name );
     		break;
     	case PRIMARY:
 		default:
-			classType = Helper.obtainInput( ObjectRef.getAllOptions(), 
+			objectClass = Helper.obtainInput( ObjectRef.getAllOptions(), 
 					"Primary type", false);
 			this.set( ObjectFactory.loadObject( 
 					Helper.obtainInput( "", "Primary value" ), 
-					classType), name);
+					objectClass), name);
 			break;
 		}
 		((AspectInterface) parent).reg().addInstatiatedAspect( name, this );

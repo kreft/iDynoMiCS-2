@@ -758,7 +758,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		for (String con : this._constants.keySet() )
 			modelNode.add(getConstantNode(con));
 		
-		modelNode.addConstructable(ClassRef.simplify( ClassRef.reaction ), 
+		modelNode.addConstructable( ClassRef.reaction, 
 				null, ModelNode.Requirements.ZERO_TO_MANY );
 		
 		return modelNode;

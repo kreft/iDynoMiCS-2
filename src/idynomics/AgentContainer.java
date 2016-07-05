@@ -23,6 +23,7 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import shape.Dimension;
 import shape.Shape;
@@ -568,7 +569,8 @@ public class AgentContainer implements NodeConstructor
 		}
 		else if ( mass instanceof Double )
 		{
-			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
+			//NOTE this is an illegal operation, null aspects are ignored by the registry
+//			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
 		}
 		else if ( mass instanceof Double[] )
 		{
@@ -1073,7 +1075,7 @@ public class AgentContainer implements NodeConstructor
 		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* Add the agent childConstrutor for adding of additional agents. */
-		modelNode.addConstructable("Agent", // FIXME ClassRef
+		modelNode.addConstructable( ClassRef.agent,
 				ModelNode.Requirements.ZERO_TO_MANY);
 		/* If there are agents, add them as child nodes. */
 		for ( Agent a : this.getAllAgents() )
