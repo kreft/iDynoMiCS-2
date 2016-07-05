@@ -100,14 +100,14 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 			if ( this.muteClassDef )
 			{
 				key = ObjectFactory.loadObject(
-						node.getAttribute( this.keyLabel ).value , 
+						node.getAttribute( this.keyLabel ).getValue() , 
 						this.keyClassLabel );
 			}
 			else
 			{
 			key = ObjectFactory.loadObject(
-					node.getAttribute( this.keyLabel ).value , 
-					node.getAttribute( this.keyClassLabel ).value );
+					node.getAttribute( this.keyLabel ).getValue() , 
+					node.getAttribute( this.keyClassLabel ).getValue() );
 			}
 		}
 		else
@@ -115,20 +115,20 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 			if ( this.muteClassDef )
 			{
 				key = ObjectFactory.loadObject(
-						node.getAttribute( this.keyLabel ).value , 
+						node.getAttribute( this.keyLabel ).getValue() , 
 						this.keyClassLabel );
 				value = ObjectFactory.loadObject(
-						node.getAttribute( this.valueLabel ).value, 
+						node.getAttribute( this.valueLabel ).getValue(), 
 						this.valueClassLabel );
 			}
 			else
 			{
 			key = ObjectFactory.loadObject(
-					node.getAttribute( this.keyLabel ).value , 
-					node.getAttribute( this.keyClassLabel ).value );
+					node.getAttribute( this.keyLabel ).getValue() , 
+					node.getAttribute( this.keyClassLabel ).getValue() );
 			value = ObjectFactory.loadObject(
-					node.getAttribute( this.valueLabel ).value, 
-					node.getAttribute( this.valueClassLabel ).value  );
+					node.getAttribute( this.valueLabel ).getValue(), 
+					node.getAttribute( this.valueClassLabel ).getValue()  );
 			}
 		}
 		if ( this.map.containsKey( key ) )

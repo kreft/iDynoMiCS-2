@@ -19,6 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import generalInterfaces.Instantiatable;
+import idynomics.Idynomics;
 import nodeFactory.Constructable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -56,10 +57,10 @@ public class GuiEditor
 	public static void setAttributes()
 	{
 		for ( ModelAttribute a : _attributes.keySet())
-			a.value = _attributes.get(a).getText();
+			a.setValue(_attributes.get(a).getText());
 		
 		for ( ModelAttribute a : _attributeSelectors.keySet())
-			a.value = (String) _attributeSelectors.get(a).getSelectedItem();
+			a.setValue((String) _attributeSelectors.get(a).getSelectedItem());
 	}
 	
 	/*
@@ -121,12 +122,7 @@ public class GuiEditor
 			 * is not present yet */
 			if ( constructable.requirement() == Requirements.EXACTLY_ONE )
 			{
-				NodeConstructor newNode = node.getConstruct(c);
-				if ( ! node.hasChildNodes(newNode.defaultXmlTag()) )
-				{
-					node.add(newNode.getNode());
-					node.add(newNode);
-				}
+				node.add(node.getConstruct(c));
 			}
 			else
 			{
@@ -138,13 +134,7 @@ public class GuiEditor
 					@Override
 					public void actionPerformed(ActionEvent event)
 					{
-						NodeConstructor newNode = node.getConstruct(c);
-						if ( newNode != null )
-						{
-							node.add(newNode.getNode());
-							addComponent(newNode.getNode(), component);
-							node.add(newNode);
-						}
+						addComponent(node.getConstruct(c), component);
 					}
 				}
 				));
@@ -154,7 +144,7 @@ public class GuiEditor
 		/* add textareas for this ModelNode's attributes */
 		for ( ModelAttribute a : node.getAttributes() )
 		{
-			if ( a.value == null &&  a.options == null )
+			if ( a.getValue() == null &&  a.options == null )
 			{
 				/* input field */
 				JTextArea input = new JTextArea();
@@ -164,11 +154,11 @@ public class GuiEditor
 				attr.add(GuiComponent.inputPanel(a.tag, input));
 				_attributes.put(a, input);
 			}
-			else if ( a.options == null && a.value.length() < 60)
+			else if ( a.options == null && a.getValue().length() < 60)
 			{
 				/* input field */
 				JTextArea input = new JTextArea();
-				input.setText(a.value);
+				input.setText(a.getValue());
 				input.setEditable(a.editable);
 				if (! a.editable)
 					input.setForeground(Color.gray);
@@ -179,7 +169,7 @@ public class GuiEditor
 			{
 				/* input field */
 				JTextArea input = new JTextArea();
-				input.setText(a.value);
+				input.setText(a.getValue());
 				input.setEditable(a.editable);
 				if (! a.editable)
 					input.setForeground(Color.gray);
@@ -190,7 +180,7 @@ public class GuiEditor
 			{
 				/* options box */
 				JComboBox<String> input = new JComboBox<String>(a.options);
-				input.setSelectedItem(a.value);
+				input.setSelectedItem(a.getValue());
 				input.setEditable(a.editable);
 				attr.add(GuiComponent.selectPanel(a.tag, input));
 				_attributeSelectors.put(a, input);

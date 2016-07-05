@@ -499,17 +499,17 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		
 		/* update simulation name */
 		Idynomics.global.simulationName = 
-				node.getAttribute(XmlRef.nameAttribute).value;
+				node.getAttribute(XmlRef.nameAttribute).getValue();
 		
 		/* update output root folder */
 		Idynomics.global.outputRoot = 
-				node.getAttribute(XmlRef.outputFolder).value;
+				node.getAttribute(XmlRef.outputFolder).getValue();
 		
 		/* set output level */
-		Log.set(node.getAttribute(XmlRef.logLevel).value);
+		Log.set(node.getAttribute(XmlRef.logLevel).getValue());
 		
 		/* set random seed */
-		this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).value));
+		this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).getValue()));
 		
 		/* Set values for all child nodes. */
 		NodeConstructor.super.setNode(node);

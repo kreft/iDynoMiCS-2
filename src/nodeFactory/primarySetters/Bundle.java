@@ -1,5 +1,6 @@
 package nodeFactory.primarySetters;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 
 import dataIO.ObjectFactory;
@@ -122,10 +123,10 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 			Object key, value;
 
 			key = ObjectFactory.loadObject(
-					node.getAttribute( map.keyLabel ).value , 
+					node.getAttribute( map.keyLabel ).getValue(), 
 					mapKey.getClass().getSimpleName() );
 			value = ObjectFactory.loadObject(
-					node.getAttribute( map.valueLabel ).value, 
+					node.getAttribute( map.valueLabel ).getValue(), 
 					mapObject.getClass().getSimpleName() );
 
 			if ( this.map.containsKey( key ) )

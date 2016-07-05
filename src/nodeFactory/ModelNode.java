@@ -296,16 +296,25 @@ public class ModelNode
 		this._constructables.add(new Constructable(classRef, classRefs, requirement));
 	}
 	
-	public NodeConstructor getConstruct(String constructable)
+	public ModelNode getConstruct(String constructable)
 	{
 		Constructable c = this.getConstructable(constructable);
+		NodeConstructor con;
 		if (c.options() == null)
-			return (NodeConstructor) Instantiatable.
+		{
+			con = (NodeConstructor) Instantiatable.
 					getNewInstance(	c.classRef(), null, this.constructor );
+		}
 		else
-			return (NodeConstructor) Instantiatable.getNewInstance(	
+		{
+			con =  (NodeConstructor) Instantiatable.getNewInstance(	
 					Helper.obtainInput(c.options(), "select class", false), 
 					null, this.constructor );
+		}
+		ModelNode node = con.getNode();
+		this.add(node);
+		this.add(con);
+		return node;
 	}
 	
 	public Requirements getConRequirement(String classRef)

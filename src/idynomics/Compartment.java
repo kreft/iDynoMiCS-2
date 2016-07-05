@@ -506,7 +506,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		if ( node.isTag(this.defaultXmlTag()) )
 		{
 			/* Update the name. */
-			this.name = node.getAttribute( XmlRef.nameAttribute ).value;
+			this.name = node.getAttribute( XmlRef.nameAttribute ).getValue();
 		}
 		/* 
 		 * Set the child nodes.

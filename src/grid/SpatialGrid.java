@@ -767,9 +767,9 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	@Override
 	public void setNode(ModelNode node)
 	{
-		this._name = node.getAttribute( XmlRef.nameAttribute ).value;
+		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
 		this.setTo(ArrayType.CONCN, 
-				node.getAttribute(XmlRef.concentration).value);
+				node.getAttribute(XmlRef.concentration).getValue());
 	}
 
 	@Override

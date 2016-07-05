@@ -245,20 +245,20 @@ public class Aspect implements Instantiatable, NodeConstructor
 		if ( node.getAttribute(XmlRef.valueAttribute) != null )
 		{
 			switch (AspectClass.valueOf( 
-					node.getAttribute( XmlRef.typeAttribute).value ) )
+					node.getAttribute( XmlRef.typeAttribute).getValue() ) )
 	    	{
 	    	case CALCULATED:
 	    		this.set( Calculated.getNewInstance(
-	    				node.getAttribute(XmlRef.classAttribute).value, 
-	    				node.getAttribute(XmlRef.inputAttribute).value), key);
+	    				node.getAttribute(XmlRef.classAttribute).getValue(), 
+	    				node.getAttribute(XmlRef.inputAttribute).getValue()), key);
 	    	case EVENT: 
 	    		this.set( Event.getNewInstance( 
-						node.getAttribute(XmlRef.classAttribute).value), key);
+						node.getAttribute(XmlRef.classAttribute).getValue()), key);
 	    	case PRIMARY:
 			default:
 				this.set( ObjectFactory.loadObject(
-						node.getAttribute(XmlRef.valueAttribute).value, 
-						node.getAttribute(XmlRef.classAttribute).value), key);
+						node.getAttribute(XmlRef.valueAttribute).getValue(), 
+						node.getAttribute(XmlRef.classAttribute).getValue()), key);
 			}
 		}
 		NodeConstructor.super.setNode(node);

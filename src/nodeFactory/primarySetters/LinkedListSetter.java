@@ -79,14 +79,14 @@ public class LinkedListSetter<T> implements NodeConstructor {
 			if ( this.muteClassDef )
 			{
 				value = ObjectFactory.loadObject(
-						node.getAttribute( this.valueLabel ).value, 
+						node.getAttribute( this.valueLabel ).getValue(), 
 						this.valueClassLabel );
 			}
 			else
 			{
 				value = ObjectFactory.loadObject(
-						node.getAttribute( this.valueLabel ).value, 
-						node.getAttribute( this.valueClassLabel ).value  );
+						node.getAttribute( this.valueLabel ).getValue(), 
+						node.getAttribute( this.valueClassLabel ).getValue()  );
 			}
 		}
 		if ( this.list.contains( value ) )

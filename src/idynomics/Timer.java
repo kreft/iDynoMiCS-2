@@ -179,11 +179,11 @@ public class Timer implements Instantiatable, NodeConstructor
 	{
 		/* time step size */
 		this.setTimeStepSize( Double.valueOf( 
-				node.getAttribute( XmlRef.timerStepSize ).value ));
+				node.getAttribute( XmlRef.timerStepSize ).getValue() ));
 		
 		/* end of simulation */
 		this.setEndOfSimulation( Double.valueOf( 
-				node.getAttribute( XmlRef.endOfSimulation ).value ));
+				node.getAttribute( XmlRef.endOfSimulation ).getValue() ));
 	}
 	
 	/**

@@ -121,11 +121,10 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		
 //		Pile<String> nodes = new Pile<String>(XmlRef.nameAttribute, "submodules", XmlRef.speciesModule);
 //		nodes.addAll(this.reg().getSubModuleNames());
-		Pile<String> nodes = this.reg().getSubModuleNames();
-		nodes.requirement = Requirements.IMMUTABLE;
-		nodes.muteAttributeDef = true;
+		this.reg().getSubModuleNames().requirement = Requirements.IMMUTABLE;
+		this.reg().getSubModuleNames().muteAttributeDef = true;
 //		nodes.muteClassDef = true;
-		modelNode.add(nodes.getNode());
+		modelNode.add(this.reg().getSubModuleNames().getNode());
 
 		/* allow adding of additional aspects */
 		/* allow adding of new aspects */

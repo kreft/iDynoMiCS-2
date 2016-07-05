@@ -779,7 +779,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	@Override
 	public void setNode(ModelNode node) 
 	{
-		this._expression = node.getAttribute(XmlRef.valueAttribute).value;
+		this._expression = node.getAttribute(XmlRef.valueAttribute).getValue();
 		this.build();
 	}
 

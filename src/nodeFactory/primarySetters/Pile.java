@@ -2,6 +2,7 @@ package nodeFactory.primarySetters;
 
 import java.util.LinkedList;
 
+import agent.Species;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -68,12 +69,11 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 		
 		return modelNode;
 	}
+	
 
 	@Override
 	public String defaultXmlTag() 
 	{
 		return this.dictionaryLabel;
 	}
-
-
 }
