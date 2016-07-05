@@ -490,7 +490,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  
 		 */
-		modelNode.addConstructable(ClassRef.simplify( ClassRef.processManager ), 
+		modelNode.addConstructable( ClassRef.processManager, 
 				Helper.collectionToArray( ProcessManager.getAllOptions() ), 
 				ModelNode.Requirements.ZERO_TO_MANY );
 		/* Add existing process managers as child nodes. */

@@ -270,6 +270,11 @@ public class ClassRef
 			new processManager.library.AgentRelaxation().getClass().getName();
 	
 	/**
+	 * agent stochastiv move manager
+	 */
+	public final static String agentStochasticMove =
+			new processManager.library.AgentStochasticMove().getClass().getName();
+	/**
 	 * graphical output process manager
 	 */
 	public final static String GraphicalOutput =

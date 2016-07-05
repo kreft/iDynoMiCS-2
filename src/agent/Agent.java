@@ -17,6 +17,7 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import surface.Point;
 
@@ -373,10 +374,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 			modelNode.add(reg().getAspectNode(key));
 		
 		/* allow adding of new aspects */
-		modelNode.addChildConstructor(new Aspect(reg()), 
-				ModelNode.Requirements.ZERO_TO_MANY);
-		
-		modelNode.addConstructable("Aspect", // FIXME ClassRef
+		modelNode.addConstructable( ClassRef.aspect,
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
