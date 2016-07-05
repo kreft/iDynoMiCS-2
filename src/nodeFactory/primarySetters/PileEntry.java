@@ -28,7 +28,7 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	
 	public PileEntry()
 	{
-		this.pile = null;
+		//NOTE required for Instantiatable interface
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -49,7 +49,7 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 		else
 			modelNode.add(new ModelAttribute( pile.valueLabel, 
 					String.valueOf(mapObject), null, true));
-
+		
 		if ( !this.pile.muteClassDef )
 		{
 			if ( mapObject == null )

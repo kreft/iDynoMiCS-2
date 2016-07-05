@@ -6,7 +6,6 @@ import java.util.List;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import nodeFactory.primarySetters.PileEntry;
 
 /**
  * 
@@ -115,37 +114,37 @@ public class ClassRef
 	 * agent surfaces aspect
 	 */
 	public final static String agentSurfaces =
-			new aspect.calculated.AgentSurfaces().getClass().getName();
+			aspect.calculated.AgentSurfaces.class.getName();
 	
 	/**
 	 * coccoid radius aspect
 	 */
 	public final static String coccoidRadius =
-			new aspect.calculated.CoccoidRadius().getClass().getName();
+			aspect.calculated.CoccoidRadius.class.getName();
 	
 	/**
 	 * component volume state
 	 */
 	public final static String componentVolumeState =
-			new aspect.calculated.ComponentVolumeState().getClass().getName();
+			aspect.calculated.ComponentVolumeState.class.getName();
 	
 	/**
 	 * simple volume state
 	 */
 	public final static String simpleVolumeState =
-			new aspect.calculated.SimpleVolumeState().getClass().getName();
+			aspect.calculated.SimpleVolumeState.class.getName();
 	
 	/**
 	 * class reference to the StateExpression
 	 */
 	public final static String expressionAspect = 
-			new aspect.calculated.StateExpression().getClass().getName();
+			aspect.calculated.StateExpression.class.getName();
 	
 	/**
 	 * the voxel distribution map
 	 */
 	public final static String voxelDistributionMap =
-			new aspect.calculated.VoxelDistributionMap().getClass().getName();
+			aspect.calculated.VoxelDistributionMap.class.getName();
 	
 	/* ************************************************************************
 	 * Class reference library : Aspects - Event
@@ -155,61 +154,61 @@ public class ClassRef
 	 * the coccoid division event
 	 */
 	public final static String coccoidDivision =
-			new aspect.event.CoccoidDivision().getClass().getName();
+			aspect.event.CoccoidDivision.class.getName();
 	
 	/**
 	 * the detect local solute event
 	 */
 	public final static String detectLocalSolute =
-			new aspect.event.DetectLocalSolute().getClass().getName();
+			aspect.event.DetectLocalSolute.class.getName();
 	
 	/**
 	 * the excrete eps event (non-cumulative)
 	 */
 	public final static String excreteEPS =
-			new aspect.event.ExcreteEPS().getClass().getName();
+			aspect.event.ExcreteEPS.class.getName();
 	
 	/**
 	 * the excrete eps cumulative event
 	 */
 	public final static String excreteEPSCumulative =
-			new aspect.event.ExcreteEPSCumulative().getClass().getName();
+			aspect.event.ExcreteEPSCumulative.class.getName();
 	
 	/**
 	 * the internal production event
 	 */
 	public final static String internalProduction =
-			new aspect.event.InternalProduction().getClass().getName();
+			aspect.event.InternalProduction.class.getName();
 	
 	/**
 	 * the resolve interaction distance event
 	 */
 	public final static String resolveInteractionDistance =
-			new aspect.event.ResolveInteractionDistance().getClass().getName();
+			aspect.event.ResolveInteractionDistance.class.getName();
 	
 	/**
 	 * the rod division event
 	 */
 	public final static String rodDivision =
-			new aspect.event.RodDivision().getClass().getName();
+			aspect.event.RodDivision.class.getName();
 	
 	/**
 	 * the simple growth event
 	 */
 	public final static String simpleGrowth =
-			new aspect.event.SimpleGrowth().getClass().getName();
+			aspect.event.SimpleGrowth.class.getName();
 	
 	/**
 	 * the stochastic move event
 	 */
 	public final static String stochasticMove =
-			new aspect.event.StochasticMove().getClass().getName();
+			aspect.event.StochasticMove.class.getName();
 	
 	/**
 	 * the update body event
 	 */
 	public final static String updateBody =
-			new aspect.event.UpdateBody().getClass().getName();
+			aspect.event.UpdateBody.class.getName();
 	
 	/* ************************************************************************
 	 * Agents, Species and aspect modules
@@ -219,91 +218,94 @@ public class ClassRef
 	 * the agent class
 	 */
 	public final static String agent =
-			new agent.Agent().getClass().getName();
+			agent.Agent.class.getName();
 	
 	/**
 	 * the agent class
 	 */
 	public final static String species =
-			new agent.Species().getClass().getName();
+			agent.Species.class.getName();
 	
 	/**
 	 * the agent class
 	 */
 	public final static String aspect =
-			new aspect.Aspect().getClass().getName();
+			aspect.Aspect.class.getName();
 	
 	/**
 	 * the body class
 	 */
 	public final static String body =
-			new agent.Body(new double[] { 0.0 }, 0.0).getClass().getName();
+			agent.Body.class.getName();
 	
 	/* ************************************************************************
 	 * Process managers
 	 */
 	
+	/**
+	 * the generic processManager class
+	 */
 	public final static String processManager =
-			"processManager.ProcessManager";
+			processManager.ProcessManager.class.getName();
 	
 	/**
 	 * the agent events process manager
 	 */
 	public final static String agentEvents =
-			new processManager.library.AgentEvents().getClass().getName();
+			processManager.library.AgentEvents.class.getName();
 	
 	/**
 	 * basic agent growth process manager
 	 */
 	public final static String agentGrowth =
-			new processManager.library.AgentGrowth().getClass().getName();
+			processManager.library.AgentGrowth.class.getName();
 	
 	/**
 	 * agent introduction process manager
 	 */
 	public final static String agentIntroduction =
-			new processManager.library.AgentIntroduction().getClass().getName();
+			processManager.library.AgentIntroduction.class.getName();
 	
 	/**
 	 * agent mechanical relaxation process manager
 	 */
 	public final static String agentRelaxation =
-			new processManager.library.AgentRelaxation().getClass().getName();
+			processManager.library.AgentRelaxation.class.getName();
 	
 	/**
 	 * agent stochastiv move manager
 	 */
 	public final static String agentStochasticMove =
-			new processManager.library.AgentStochasticMove().getClass().getName();
+			processManager.library.AgentStochasticMove.class.getName();
 	/**
 	 * graphical output process manager
 	 */
 	public final static String GraphicalOutput =
-			new processManager.library.GraphicalOutput().getClass().getName();
+			processManager.library.GraphicalOutput.class.getName();
 	
 	/**
 	 * refresh mass grids process manager
 	 */
 	public final static String refreshMassGrids =
-			new processManager.library.RefreshMassGrids().getClass().getName();
+			processManager.library.RefreshMassGrids.class.getName();
 	
 	/**
 	 * solve chemostat process manager
 	 */
 	public final static String solveChemostat =
-			new processManager.library.SolveChemostat().getClass().getName();
+			processManager.library.SolveChemostat.class.getName();
 	
 	/**
 	 * solve transient diffusion process manager
 	 */
 	public final static String solveDiffusionTransient =
-			new processManager.library.SolveDiffusionTransient().getClass().getName();
+			processManager.library.SolveDiffusionTransient.class.getName();
 	
 	/**
 	 * write xml output process manager
 	 */
 	public final static String writeXmlOutput =
-			new processManager.library.WriteXmlOutput().getClass().getName();
+			processManager.library.WriteXmlOutput.class.getName();
 	
 	/* ************************************************************************
 	 * IdynoMiCS main classes
@@ -313,10 +315,10 @@ public class ClassRef
 	 * the compartment class
 	 */
 	public final static String compartment =
-			new idynomics.Compartment().getClass().getName();
+			idynomics.Compartment.class.getName();
 	
 	public final static String speciesLibrary =
-			new agent.SpeciesLib().getClass().getName();
+			agent.SpeciesLib.class.getName();
 	
 	/* ************************************************************************
 	 * miscellaneous
@@ -326,26 +328,29 @@ public class ClassRef
 	 * the svg exporter class
 	 */
 	public final static String svgExport =
-			new dataIO.SvgExport().getClass().getName();
+			dataIO.SvgExport.class.getName();
 	
 	/**
 	 * the pov ray exporter class
 	 */
 	public final static String povExport =
-			new dataIO.PovExport().getClass().getName();
+			dataIO.PovExport.class.getName();
 	
 	/**
-	 * 
+	 * TODO
 	 */	
 	public final static String spatialGrid =
-			new grid.SpatialGrid().getClass().getName();
+			grid.SpatialGrid.class.getName();
 	
 	/**
-	 * 
+	 * TODO
 	 */
 	public static final String reaction =
-			new reaction.Reaction().getClass().getName();
+			reaction.Reaction.class.getName();
 	
+	/**
+	 * TODO
+	 */
 	public static final String pileEntry =
 			nodeFactory.primarySetters.PileEntry.class.getName();
 	
@@ -357,12 +362,12 @@ public class ClassRef
 	 * the LinkedList class
 	 */
 	public final static String linkedList =
-			new java.util.LinkedList().getClass().getName();
+			java.util.LinkedList.class.getName();
 	
 	/**
 	 * the HashMap class
 	 */
 	public final static String hashMap =
-			new java.util.HashMap().getClass().getName();
+			java.util.HashMap.class.getName();
 
 }

@@ -2,16 +2,14 @@ package nodeFactory.primarySetters;
 
 import java.util.LinkedList;
 
-import agent.Species;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 
 /**
- * 
+ *TODO move item spec up to Pile level
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  * @param <T>
@@ -29,7 +27,7 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 	public boolean muteAttributeDef = false;
 	public boolean muteClassDef = false;
 	
-	public Requirements requirement;
+	public Requirements requirement = Requirements.ZERO_TO_MANY;
 
 	private String dictionaryLabel;
 	
@@ -54,7 +52,6 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 	public ModelNode getNode() {
 		
 		ModelNode modelNode = new ModelNode(dictionaryLabel, this);
-
 		modelNode.setRequirements(requirement);
 
 		if ( !muteAttributeDef )
@@ -62,10 +59,15 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 					this.valueLabel, null, true));
 
 		for ( T entry : this) 
-			modelNode.add(new PileEntry<T>( this, entry ).getNode());
+		{
+			if (entry instanceof NodeConstructor)
+				modelNode.add(((NodeConstructor) entry).getNode());
+			else
+				modelNode.add(new PileEntry<T>( this, entry ).getNode());
+		}
 		
 		modelNode.addConstructable( PileEntry.class.getName(),
-				ModelNode.Requirements.ZERO_TO_MANY);
+				ModelNode.Requirements.ZERO_TO_MANY, this.nodeLabel);
 		
 		return modelNode;
 	}

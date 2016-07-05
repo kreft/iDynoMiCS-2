@@ -291,6 +291,11 @@ public class ModelNode
 		this._constructables.add(new Constructable(classRef, requirement));
 	}
 	
+	public void addConstructable(String classRef, Requirements requirement, String label)
+	{
+		this._constructables.add(new Constructable(classRef, requirement, label));
+	}
+	
 	public void addConstructable(String classRef, String[] classRefs, Requirements requirement)
 	{
 		this._constructables.add(new Constructable(classRef, classRefs, requirement));

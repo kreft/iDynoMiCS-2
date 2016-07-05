@@ -128,8 +128,7 @@ public class GuiEditor
 			else
 			{
 				/* add button for optional childnode(s) */
-				attr.add(GuiComponent.actionButton(
-						ClassRef.simplify( constructable.classRef() ), 
+				attr.add(GuiComponent.actionButton( constructable.label() , 
 						new JButton("add"), new ActionListener()
 				{
 					@Override

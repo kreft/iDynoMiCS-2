@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
 import boundary.SpatialBoundary;
@@ -17,6 +15,7 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
+import nodeFactory.primarySetters.Pile;
 import nodeFactory.ModelNode.Requirements;
 import processManager.ProcessManager;
 import reaction.Reaction;
@@ -46,7 +45,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * Collection of extracellular reactions specific to this compartment
 	 * (each Reaction knows its own name).
 	 */
-	protected Collection<Reaction> _reactions = new LinkedList<Reaction>();
+	protected Pile<Reaction> _reactions = new Pile<Reaction>();
 	/**
 	 * Name of the common grid.
 	 */
@@ -222,11 +221,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	{
 		// TODO Safety: check this reaction is not already present?
 		this._reactions.add(reaction);
-	}
-	
-	public void setReactions(Collection<Reaction> reactions)
-	{
-		this._reactions = reactions;
 	}
 	
 	/**
@@ -424,7 +418,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		/* Add the name attribute. */
 		modelNode.add( this.getSolutesNode() );
 		/* Add the reactions node. */
-		modelNode.add( this.getReactionNode() );
+		modelNode.add( this._reactions.getNode() );
+//		modelNode.add( this.getReactionNode() );
 		return modelNode;	
 	}
 	
