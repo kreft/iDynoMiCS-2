@@ -8,9 +8,6 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import referenceLibrary.ObjectRef;
-import referenceLibrary.XmlRef;
-import utility.Helper;
 
 public class PileEntry<T> implements NodeConstructor, Instantiatable {
 
@@ -28,9 +25,9 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	
 	public PileEntry()
 	{
-		//NOTE required for Instantiatable interface
+		// NOTE for instatniatable interface
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void init(Element xmlElem, NodeConstructor parent)
 	{
@@ -50,36 +47,7 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 			modelNode.add(new ModelAttribute( pile.valueLabel, 
 					String.valueOf(mapObject), null, true));
 		
-		if ( !this.pile.muteClassDef )
-		{
-			if ( mapObject == null )
-			{
-				modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-						this.classDef(), null, false ));
-			}
-			else
-				modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-						mapObject.getClass().getSimpleName(), null, false ));
-		}
-		
 		return modelNode;
-	}
-	
-	private String classDef()
-	{
-		String classDef = null;
-		for (T entry : pile)
-		{
-			if (entry != null)
-			{
-				classDef = entry.getClass().getSimpleName();
-				break;
-			}
-		}
-		if (classDef == null)
-			return Helper.obtainInput(ObjectRef.getAllOptions(), "object type", false);
-		else
-			return classDef;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -89,7 +57,7 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 		
 		mapObject = (T) ObjectFactory.loadObject(
 				node.getAttribute( pile.valueLabel ).getValue(), 
-				node.getAttribute( XmlRef.classAttribute ).getValue() );
+				pile.entryClass.getSimpleName() );
 
 		this.pile.add( mapObject );
 		NodeConstructor.super.setNode(node);

@@ -10,19 +10,16 @@ import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.Instantiatable;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.primarySetters.Pile;
 import nodeFactory.ModelNode.Requirements;
-import processManager.ProcessManager;
 import reaction.Reaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
-import utility.Helper;
 
 /**
  * \brief Manages the solutes in a {@code Compartment}.
@@ -45,7 +42,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * Collection of extracellular reactions specific to this compartment
 	 * (each Reaction knows its own name).
 	 */
-	protected Pile<Reaction> _reactions = new Pile<Reaction>(Reaction.class);
+	protected Pile<Reaction> _reactions = new Pile<Reaction>(Reaction.class, null, XmlRef.reactions, XmlRef.reaction);
 	/**
 	 * Name of the common grid.
 	 */

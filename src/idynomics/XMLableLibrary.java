@@ -52,6 +52,11 @@ public class XMLableLibrary
 		}
 	}
 	
+
+	public String getFull(String key) {
+		return this.get(key) + key;
+	}
+	
 	/**
 	 * List all known classes (from classLibrary.xml) in given package
 	 * @param PackageDefinition

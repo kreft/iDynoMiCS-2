@@ -74,6 +74,11 @@ public class XmlRef
 	public final static String constant = "constant";
 	
 	/**
+	 * Indicates constant in expression.
+	 */
+	public final static String constants = "constants";
+	
+	/**
 	 * Indicates a solute.
 	 */
 	public final static String solute = "solute";
@@ -96,7 +101,12 @@ public class XmlRef
 	/**
 	 * Tag for the stoichiometry of a reaction.
 	 */
-	public final static String stoichiometry = "stoichiometric";
+	public final static String stoichiometric = "stoichiometric";
+	
+	/**
+	 * Tag for the stoichiometry of a reaction.
+	 */
+	public final static String stoichiometry = "stoichiometry";
 	
 	/**
 	 * Tag for a component of a reaction.
@@ -399,5 +409,20 @@ public class XmlRef
 	 * species modules wrapper
 	 */
 	public static final String modules = "modules";
+
+	/**
+	 * Timer current time (Now)
+	 */
+	public static final String currentTime = "currentTime";
+
+	/**
+	 * Pile node label attribute
+	 */
+	public static final String nodeLabel = "nodeLabel";
+
+	/**
+	 * Pile entry class attribute
+	 */
+	public static final String entryClassAttribute = "entryClass";
 
 }

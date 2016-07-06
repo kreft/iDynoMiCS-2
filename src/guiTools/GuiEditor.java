@@ -19,13 +19,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
-import generalInterfaces.Instantiatable;
-import idynomics.Idynomics;
+
 import nodeFactory.Constructable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
-import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
@@ -222,15 +220,14 @@ public class GuiEditor
 //					parent.getParent().getParent().getParent(), 
 //					node.getTag() + " " + node.getTitle(), tabs, "" );
 //		}
-		else if ( node.isTagIn(new String[] {XmlRef.reaction} ) && 
+		else if ( node.isTagIn(new String[] {XmlRef.reaction, XmlRef.constants} ) && 
 				node.getRequirment() == Requirements.IMMUTABLE ) 
 		{
-			GuiComponent.addTab( (JTabbedPane) 
-					parent.getParent().getParent().getParent().getParent(), 
-					node.getTag() + " " + node.getTitle(), tabs, "");
+			parent.add(component, null);
+			parent.revalidate();
 		}
 		else if ( node.isTagIn(new String[] 
-				{XmlRef.shapeDimension, XmlRef.point, XmlRef.stoichiometry,
+				{XmlRef.shapeDimension, XmlRef.point, XmlRef.stoichiometric,
 						XmlRef.constant, XmlRef.speciesModule}) )
 		{
 			

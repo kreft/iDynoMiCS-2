@@ -3,8 +3,6 @@ package testJUnit;
 import org.junit.Test;
 
 import nodeFactory.primarySetters.Bundle;
-import nodeFactory.primarySetters.PileEntry;
-
 
 public class DictionaryTest {
 
@@ -33,6 +31,5 @@ public class DictionaryTest {
 		numbers.muteAttributeDef = true;
 		System.out.println(numbers.getXml());
 		
-		new PileEntry<Object>();
 	}
 }

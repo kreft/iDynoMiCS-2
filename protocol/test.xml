@@ -3,7 +3,7 @@
 	<simulation name="test" outputfolder="../results" log="DEBUG" randomSeed="22"
 						comment="this is a file for testing purposes only.">
 		
-		<timer stepSize="1.0" endOfSimulation="5.0" />
+		<timer stepSize="1.0" endOfSimulation="25.0" />
 		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -14,7 +14,7 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="AOB">
-				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
+				<aspect name="reactions" type="PRIMARY" class="Pile" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 					<item type="PRIMARY" class="Reaction">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
@@ -41,7 +41,7 @@
 				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 		 />
 			</species>
 			<species name="stochasticMover">
-				<aspect name="stochasticStep" type="PRIMARY"	class="Double" value="0.1" />
+				<aspect name="stochasticStep" type="PRIMARY"	class="Double" value="1.0" />
 				<aspect name="stochasticMove" type="EVENT"		class="StochasticMove" />
 			</species>
 		</speciesLib>
@@ -54,13 +54,13 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="4.0" />
+				<solute name="solute1" concentration="1.0" />
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">
 					<expression value="1.0 * inflow">
-						<constant name="inflow" value="0.04" />
+						<constant name="inflow" value="0.004" />
 					</expression>
 					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>

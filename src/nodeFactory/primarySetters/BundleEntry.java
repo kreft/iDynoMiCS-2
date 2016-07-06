@@ -1,13 +1,15 @@
 package nodeFactory.primarySetters;
 
+import org.w3c.dom.Element;
+
 import dataIO.ObjectFactory;
+import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import referenceLibrary.XmlRef;
 
-public class BundleEntry<K, T> implements NodeConstructor {
+public class BundleEntry<K, T> implements NodeConstructor, Instantiatable {
 
 	/**
 	 * 
@@ -23,25 +25,36 @@ public class BundleEntry<K, T> implements NodeConstructor {
 		this.mapKey = key;
 	}
 	
+	public BundleEntry()
+	{
+		// NOTE for instatniatable interface
+	}
+
+	@SuppressWarnings("unchecked")
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		this.map = (Bundle<K,T>) parent;
+		this.map.put(this.mapKey, this.mapObject);
+	}
+	
 	public ModelNode getNode() 
 	{
 		ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 
-		modelNode.add(new ModelAttribute(map.keyLabel, 
-				String.valueOf(mapKey), null, true));
+		if (mapKey == null)
+			modelNode.add(new ModelAttribute(map.keyLabel, 
+					"", null, true));
+		else
+			modelNode.add(new ModelAttribute(map.keyLabel, 
+					String.valueOf(mapKey), null, true));
 
-		modelNode.add(new ModelAttribute(map.valueLabel, 
-				String.valueOf(mapObject), null, true));
-
-		if ( !this.map.muteClassDef )
-		{
-			modelNode.add(new ModelAttribute(XmlRef.keyClassAttribute, 
-					mapKey.getClass().getSimpleName(), null, false ));
-
-			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-					mapObject.getClass().getSimpleName(), null, false ));
-		}
+		if (mapObject == null)
+			modelNode.add(new ModelAttribute(map.valueLabel, 
+					"", null, true));
+		else
+			modelNode.add(new ModelAttribute(map.valueLabel, 
+					String.valueOf(mapObject), null, true));
 		
 		return modelNode;
 	}
@@ -53,14 +66,16 @@ public class BundleEntry<K, T> implements NodeConstructor {
 
 		key = ObjectFactory.loadObject(
 				node.getAttribute( map.keyLabel ).getValue(), 
-				mapKey.getClass().getSimpleName() );
+				map.keyClass.getSimpleName() );
 		value = ObjectFactory.loadObject(
 				node.getAttribute( map.valueLabel ).getValue(), 
-				mapObject.getClass().getSimpleName() );
+				map.entryClass.getSimpleName() );
 
 		if ( this.map.containsKey( key ) )
 			this.map.remove( key );
 		this.map.put( (K) key, (T) value );
+
+		NodeConstructor.super.setNode(node);
 	}
 
 	public void removeNode(String specifier)

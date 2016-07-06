@@ -42,9 +42,9 @@ public abstract interface AspectInterface
 		for (int j = 0; j < stateNodes.getLength(); j++) 
 		{
 			Element s = (Element) stateNodes.item(j);
-			key = s.getAttribute(XmlRef.nameAttribute);
+			key = s.getAttribute( XmlRef.nameAttribute );
 			switch (AspectClass.valueOf( Helper.setIfNone(
-					s.getAttribute( XmlRef.typeAttribute), 
+					s.getAttribute( XmlRef.typeAttribute ), 
 					String.valueOf( AspectClass.PRIMARY ) ) ) )
 	    	{
 	    	case CALCULATED:

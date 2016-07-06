@@ -16,6 +16,7 @@ import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import nodeFactory.primarySetters.Bundle;
 import nodeFactory.primarySetters.HashMapSetter;
 import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
@@ -53,7 +54,9 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private Map<String,Double> _stoichiometry = new HashMap<String,Double>();
+	private Bundle<String,Double> _stoichiometry = new Bundle<String,Double>(
+			String.class, Double.class, XmlRef.component, 
+			XmlRef.coefficient, XmlRef.stoichiometry, XmlRef.stoichiometric);
 	/**
 	 * The mathematical expression describing the rate at which this reaction
 	 * proceeds.
@@ -152,20 +155,14 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void init(Element xmlElem)
 	{
 		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute, this.defaultXmlTag());
 		/*
 		 * Build the stoichiometric map.
 		 */
-		if ( xmlElem == null )
-			this._stoichiometry = new HashMap<String, Double>();
-		else
-			this._stoichiometry = (Map<String, Double>) ObjectFactory.xmlHashMap(
-					xmlElem, XmlRef.stoichiometry, 
-					ObjectRef.STR, XmlRef.component, 	
-					ObjectRef.DBL, XmlRef.coefficient );
+		this._stoichiometry.init(xmlElem, this);
+
 		/*
 		 * Build the reaction rate expression.
 		 */
@@ -355,7 +352,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 					this._stoichiometry,
 					ObjectRef.STR, XmlRef.component,
 					ObjectRef.DBL, XmlRef.coefficient,
-					XmlRef.stoichiometry ).getNode());
+					XmlRef.stoichiometric ).getNode());
 		
 //		for ( String component : this._stoichiometry.keySet())
 //		{
@@ -369,7 +366,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public ModelNode getStoNode(NodeConstructor constructor, String component, 
 			Double coefficient) {
 		
-		ModelNode modelNode = new ModelNode(XmlRef.stoichiometry, constructor);
+		ModelNode modelNode = new ModelNode(XmlRef.stoichiometric, constructor);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		modelNode.add(new ModelAttribute(XmlRef.component, 

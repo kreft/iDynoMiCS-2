@@ -96,15 +96,6 @@ public class GuiLaunch implements Runnable
 	public static void main(String[] args) 
 	{
 		new GuiLaunch();
-		
-        SwingUtilities.invokeLater(() -> {
-            if (args.length > 0) {
-                File f = new File(args[0]);
-                if (f.isFile()) {
-                    GuiActions.openFile(f);
-                }
-            }
-        });
 	}
 	
   	/**
@@ -251,8 +242,6 @@ public class GuiLaunch implements Runnable
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				Idynomics.simulator = new Simulator();
-				Idynomics.global = new Param();
 				GuiMain.getConstructor();
 				GuiEditor.addComponent(Idynomics.simulator.getNode(), GuiMain.tabbedPane);
 			}

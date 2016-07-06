@@ -13,7 +13,10 @@ import dataIO.Log;
 import glRender.AgentMediator;
 import glRender.Render;
 import idynomics.Compartment;
+import idynomics.GuiLaunch;
 import idynomics.Idynomics;
+import idynomics.Param;
+import idynomics.Simulator;
 import utility.Helper;
 
 /**
@@ -36,7 +39,6 @@ public final class GuiActions
 	 */
 	public static void chooseFile() 
 	{
-		GuiMain.getConstructor();
 		/* Open a FileChooser window in the current directory. */
 		JFileChooser chooser = new JFileChooser("" +
 				System.getProperty("user.dir")+"/protocol");
@@ -52,6 +54,9 @@ public final class GuiActions
 	
 	public static void openFile(File f) 
 	{
+		Idynomics.simulator = new Simulator();
+		Idynomics.global = new Param();
+		GuiMain.getConstructor();
     	/* load content if a protocol file has been selected */
     	if ( f == null )
     	{
@@ -65,6 +70,7 @@ public final class GuiActions
     		checkProtocol();
     		GuiEditor.addComponent(Idynomics.simulator.getNode(), 
     				GuiMain.tabbedPane);
+    		GuiLaunch.resetProgressBar();
     	}    		
 	}
 	
@@ -96,6 +102,7 @@ public final class GuiActions
 		else
 		{
 			Idynomics.simulator.setNode();
+			GuiLaunch.resetProgressBar();
 			Idynomics.launchSimulator();
 		}
 	}

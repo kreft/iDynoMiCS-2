@@ -37,7 +37,7 @@ public interface Instantiatable
 	public default void init(Element xmlElement, NodeConstructor parent)
 	{
 		// by default nothing
-		Log.out(Tier.CRITICAL, "Warning: Object class has no implementation"
+		Log.out(Tier.CRITICAL, "Warning: Instantiable Object class has no implementation"
 				+ "of init(Element, NodeConstructor");
 	}
 	

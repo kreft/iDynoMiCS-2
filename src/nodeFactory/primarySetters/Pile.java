@@ -2,6 +2,13 @@ package nodeFactory.primarySetters;
 
 import java.util.LinkedList;
 
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import dataIO.ObjectFactory;
+import dataIO.XmlHandler;
+import generalInterfaces.Instantiatable;
+import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -14,7 +21,7 @@ import referenceLibrary.XmlRef;
  *
  * @param <T>
  */
-public class Pile<T> extends LinkedList<T> implements NodeConstructor
+public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantiatable
 {
 	/**
 	 * 
@@ -28,7 +35,7 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 	public boolean muteClassDef = false;
 	public Class<?> entryClass;
 	
-	public Requirements requirement = Requirements.ZERO_TO_MANY;
+	public Requirements requirement = Requirements.IMMUTABLE;
 
 	private String dictionaryLabel;
 	
@@ -61,9 +68,58 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 	public Pile(Class<?> entryClass, String valueAttribute, String dictionaryLabel, String nodeLabel)
 	{
 		this.valueLabel = valueAttribute;
+		if (this.valueLabel == null)
+			this.muteAttributeDef = true;
 		this.dictionaryLabel = dictionaryLabel;
 		this.nodeLabel = nodeLabel;
 		this.entryClass = entryClass;
+	}
+	
+	public Pile()
+	{
+		// NOTE only for Instantiatable interface
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void init(Element xmlElement, NodeConstructor parent)
+	{
+
+		if (this.dictionaryLabel == null ){
+			if ( XmlHandler.hasAttribute(xmlElement, XmlRef.nameAttribute))
+				this.dictionaryLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nameAttribute);
+			else
+				this.dictionaryLabel = xmlElement.getNodeName();
+		}
+		
+		if (this.valueLabel == null)
+		{
+			this.valueLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.valueAttribute);
+			if (this.valueLabel == null)
+				this.muteAttributeDef = true;
+		}
+		
+		if (this.nodeLabel == null)
+		{
+			this.nodeLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nodeLabel);
+		}
+		
+		if (this.entryClass == null)
+		{
+			try {
+				this.entryClass = Class.forName( Idynomics.xmlPackageLibrary.getFull(
+						XmlHandler.obtainAttribute(	xmlElement, 
+						XmlRef.entryClassAttribute, this.dictionaryLabel ) ) );
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		NodeList nodes = XmlHandler.getAll(xmlElement, this.nodeLabel);
+		for ( int i = 0; i < nodes.getLength(); i++ )
+		{
+			this.add((T) ObjectFactory.loadObject( (Element) nodes.item(i), 
+					null, this.entryClass.getSimpleName() ) );
+		}
 	}
 
 	@Override
@@ -75,6 +131,12 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 		if ( !muteAttributeDef )
 			modelNode.add(new ModelAttribute(XmlRef.valueAttribute, 
 					this.valueLabel, null, true));
+		
+		if ( !this.muteClassDef )
+		{
+			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+					this.entryClass.getSimpleName(), null, false ));
+		}
 
 		if (NodeConstructor.class.isAssignableFrom(entryClass))
 		{
@@ -100,5 +162,10 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor
 	public String defaultXmlTag() 
 	{
 		return this.dictionaryLabel;
+	}
+
+	public static Object getNewInstance(Element s, NodeConstructor parent) 
+	{
+		return Instantiatable.getNewInstance(Pile.class.getName(), s, parent);
 	}
 }

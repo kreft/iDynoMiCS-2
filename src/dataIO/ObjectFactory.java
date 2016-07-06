@@ -22,6 +22,7 @@ import generalInterfaces.Copyable;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import nodeFactory.primarySetters.Pile;
 import reaction.Reaction;
 import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
@@ -252,6 +253,8 @@ public class ObjectFactory
 			return Reaction.getNewInstance(s);
 		case "LinkedList" :
 			return ObjectFactory.xmlList(s);
+		case "Pile" :
+			return Pile.getNewInstance(s, null);
 		case "HashMap" :
 			return ObjectFactory.xmlHashMap(s);
 		}

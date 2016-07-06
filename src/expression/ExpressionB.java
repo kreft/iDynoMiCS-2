@@ -18,6 +18,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import nodeFactory.primarySetters.Bundle;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import utility.Helper;
@@ -99,7 +100,9 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * Names and values of constants in this expression.
 	 */
-	private Map<String, Double> _constants;
+	private Bundle<String, Double> _constants = new Bundle<String,Double>(
+			String.class, Double.class, XmlRef.nameAttribute, 
+			XmlRef.valueAttribute, XmlRef.constants, XmlRef.constant);
 	
 	/**
 	 * Names of variables in this expression.
@@ -189,7 +192,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		Log.out(LOG_LEVEL, "  Constants defined:");
 		for ( String key : constants.keySet() )
 			Log.out(LOG_LEVEL, "  -> "+key+" = "+constants.get(key));
-		this._constants = constants;
+		this._constants.putAll(constants);
 		/* Build the component. */
 		this.build();
 
@@ -755,8 +758,10 @@ public class ExpressionB extends Component implements NodeConstructor
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		modelNode.add(new ModelAttribute(XmlRef.valueAttribute, this._expression, null, true));
 		
-		for (String con : this._constants.keySet() )
-			modelNode.add(getConstantNode(con));
+//		for (String con : this._constants.keySet() )
+//			modelNode.add(getConstantNode(con));
+		
+		modelNode.add(this._constants.getNode());
 		
 		//FIXME huh?
 //		modelNode.addConstructable( ClassRef.reaction, 
@@ -769,6 +774,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.constant, 
 				this);
+		modelNode.setTitle(constant);
 		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, constant, null, true));
@@ -789,9 +795,10 @@ public class ExpressionB extends Component implements NodeConstructor
 		return null;
 	}
 	
-	public void removeNode()
+	public void removeNode(String specifier)
 	{
-		// TODO
+		if (this._constants.containsKey(specifier))
+			this._constants.remove(specifier);
 	}
 
 	@Override

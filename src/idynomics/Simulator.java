@@ -19,6 +19,7 @@ import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
 import reaction.ReactionLibrary;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 
 /**
@@ -130,20 +131,22 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
 			this.speciesLibrary = (SpeciesLib) Instantiatable.getNewInstance(
-					"SpeciesLib", XmlHandler.loadUnique(xmlElem, 
+					ClassRef.speciesLibrary, XmlHandler.loadUnique(xmlElem, 
 					XmlRef.speciesLibrary ), this);
 		}
 		/*
 		 * Set up the reaction library.
+		 * FIXME disabled since reactionLibrary has no implementation of 
+		 * init(Element, parent) and does will always be an empty container
 		 */
-		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.reactionLibrary))
-		{
-			this.reactionLibrary = (ReactionLibrary)
-					Instantiatable.getNewInstance(
-						"ReationLib",
-						XmlHandler.loadUnique(xmlElem, XmlRef.speciesLibrary ),
-						this);
-		}
+//		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.reactionLibrary))
+//		{
+//			this.reactionLibrary = (ReactionLibrary)
+//					Instantiatable.getNewInstance(
+//						ClassRef.reactionLibrary,
+//						XmlHandler.loadUnique(xmlElem, XmlRef.speciesLibrary ),
+//						this);
+//		}
 		/*
 		 * Set up the compartments.
 		 */

@@ -317,8 +317,17 @@ public class ClassRef
 	public final static String compartment =
 			idynomics.Compartment.class.getName();
 	
+	/**
+	 * TODO
+	 */
 	public final static String speciesLibrary =
 			agent.SpeciesLib.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String reactionLibrary = 
+			reaction.ReactionLibrary.class.getName();
 	
 	/* ************************************************************************
 	 * miscellaneous
@@ -353,6 +362,12 @@ public class ClassRef
 	 */
 	public static final String pileEntry =
 			nodeFactory.primarySetters.PileEntry.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public static final String pile =
+			nodeFactory.primarySetters.Pile.class.getName();
 	
 	/* ************************************************************************
 	 * java classes
