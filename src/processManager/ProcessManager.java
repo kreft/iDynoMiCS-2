@@ -21,6 +21,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 
 /**
@@ -350,12 +351,10 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		modelNode.add(new ModelAttribute(XmlRef.processFirstStep, 
 				String.valueOf(this._timeForNextStep), null, true ));
 		
-		/* TODO: add aspects */
-		
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
-		modelNode.addChildConstructor(new Aspect(reg()), 
+		modelNode.addConstructable( ClassRef.aspect,
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
@@ -367,7 +366,20 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	public void setNode(ModelNode node) 
 	{
+
+		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
+
+		this._priority = Integer.valueOf( node.getAttribute( 
+				XmlRef.processPriority ).getValue() );
+
+		this._timeStepSize =  Double.valueOf( node.getAttribute( 
+				XmlRef.processTimeStepSize ).getValue() );
+
+		this._timeForNextStep = Double.valueOf( node.getAttribute( 
+				XmlRef.processFirstStep ).getValue() );
 		
+		NodeConstructor.super.setNode(node);
+
 	}
 
 	/**

@@ -41,7 +41,7 @@ public class AspectReg
 	/**
 	 * all (sub) modules
 	 */
-	protected Pile<String> _subModules = new Pile<String>(
+	protected Pile<String> _subModules = new Pile<String>(String.class,
 			XmlRef.nameAttribute, XmlRef.modules, XmlRef.speciesModule );
 	
 	/**

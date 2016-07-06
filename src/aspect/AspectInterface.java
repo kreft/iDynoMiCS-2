@@ -9,6 +9,7 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import referenceLibrary.XmlRef;
+import utility.Helper;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -37,13 +38,14 @@ public abstract interface AspectInterface
 		Element e = (Element) xmlNode;
 		AspectReg aspectReg = (AspectReg) reg();
 		String  key;
-		NodeList stateNodes = e.getElementsByTagName(XmlRef.aspect);
+		NodeList stateNodes = e.getElementsByTagName( XmlRef.aspect );
 		for (int j = 0; j < stateNodes.getLength(); j++) 
 		{
 			Element s = (Element) stateNodes.item(j);
 			key = s.getAttribute(XmlRef.nameAttribute);
-			switch (AspectClass.valueOf( 
-					s.getAttribute( XmlRef.typeAttribute) ) )
+			switch (AspectClass.valueOf( Helper.setIfNone(
+					s.getAttribute( XmlRef.typeAttribute), 
+					String.valueOf( AspectClass.PRIMARY ) ) ) )
 	    	{
 	    	case CALCULATED:
 	    		aspectReg.add( key , Calculated.getNewInstance( s ) );
@@ -53,7 +55,7 @@ public abstract interface AspectInterface
 	    		break;
 	    	case PRIMARY:
 			default:
-				aspectReg.add( key, ObjectFactory.loadObject(s) );
+				aspectReg.add( key, ObjectFactory.loadObject( s ) );
 			}
 			Log.out(Tier.BULK, "Aspects loaded for \""+key+"\"");
 		}

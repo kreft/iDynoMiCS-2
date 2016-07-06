@@ -1,14 +1,13 @@
 package nodeFactory.primarySetters;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.HashMap;
 
-import dataIO.ObjectFactory;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import nodeFactory.primarySetters.BundleEntry;
 
 /**
  * 
@@ -33,7 +32,10 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 
 	private String dictionaryLabel;
 	
-	public Bundle()
+	public Class<?> keyClass;
+	public Class<?> entryClass;
+	
+	public Bundle(Class<?> keyClass, Class<?> entryClass)
 	{
 		this.keyLabel = XmlRef.keyAttribute;
 		this.valueLabel = XmlRef.valueAttribute;
@@ -41,10 +43,13 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 		this.dictionaryLabel = XmlRef.dictionary;
 		this.nodeLabel = XmlRef.item;
 		this.muteAttributeDef = true;
+		
+		this.keyClass = keyClass;
+		this.entryClass = entryClass;
 	}
 	
 	
-	public Bundle(String keyAttribute, 
+	public Bundle(Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
 			String valueAttribute, String dictionaryLabel, String nodeLabel)
 	{
 		this.keyLabel = keyAttribute;
@@ -52,7 +57,9 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 		
 		this.dictionaryLabel = dictionaryLabel;
 		this.nodeLabel = nodeLabel;
-
+		
+		this.keyClass = keyClass;
+		this.entryClass = entryClass;
 	}
 
 	@Override
@@ -71,7 +78,7 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 					this.valueLabel, null, true));
 
 		for ( K key : this.keySet() )
-			modelNode.add(new Entry(this.get(key), key, this ).getNode());
+			modelNode.add( new BundleEntry<K, T>( this.get(key), key, this ).getNode());
 		return modelNode;
 	}
 
@@ -79,71 +86,6 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 	public String defaultXmlTag() 
 	{
 		return this.dictionaryLabel;
-	}
-	
-	public class Entry implements NodeConstructor {
-
-		public T mapObject;
-		public K mapKey;
-		public Bundle<K,T> map;
-		
-		public Entry(T object, K key, Bundle<K,T> map )
-		{
-			this.mapObject = object;
-			this.map = map;
-			this.mapKey = key;
-		}
-		
-		public ModelNode getNode() 
-		{
-			ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
-			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
-
-			modelNode.add(new ModelAttribute(map.keyLabel, 
-					String.valueOf(mapKey), null, true));
-
-			modelNode.add(new ModelAttribute(map.valueLabel, 
-					String.valueOf(mapObject), null, true));
-
-			if ( !muteClassDef )
-			{
-				modelNode.add(new ModelAttribute(XmlRef.keyClassAttribute, 
-						mapKey.getClass().getSimpleName(), null, false ));
-	
-				modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-						mapObject.getClass().getSimpleName(), null, false ));
-			}
-			
-			return modelNode;
-		}
-		
-		@SuppressWarnings("unchecked")
-		public void setNode(ModelNode node)
-		{
-			Object key, value;
-
-			key = ObjectFactory.loadObject(
-					node.getAttribute( map.keyLabel ).getValue(), 
-					mapKey.getClass().getSimpleName() );
-			value = ObjectFactory.loadObject(
-					node.getAttribute( map.valueLabel ).getValue(), 
-					mapObject.getClass().getSimpleName() );
-
-			if ( this.map.containsKey( key ) )
-				this.map.remove( key );
-			this.map.put( (K) key, (T) value );
-		}
-
-		public void removeNode(String specifier)
-		{
-			this.map.remove(this.mapKey);
-		}
-
-		@Override
-		public String defaultXmlTag() 
-		{
-			return map.nodeLabel;
-		}
 	}
 
 

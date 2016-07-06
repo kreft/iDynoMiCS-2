@@ -45,7 +45,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * Collection of extracellular reactions specific to this compartment
 	 * (each Reaction knows its own name).
 	 */
-	protected Pile<Reaction> _reactions = new Pile<Reaction>();
+	protected Pile<Reaction> _reactions = new Pile<Reaction>(Reaction.class);
 	/**
 	 * Name of the common grid.
 	 */

@@ -92,7 +92,7 @@
 				</agent> 
 			</agents>
 			<processManagers>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+	<!--			<process name="svgWriter" class="GraphicalOutput"  priority="-3"
 					firstStep="0.0"  timerStepSize="1.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
@@ -110,7 +110,7 @@
 					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
+				</process> -->
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
 					<aspect name="maxMovement" class="Double" value="0.05" />

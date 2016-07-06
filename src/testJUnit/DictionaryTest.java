@@ -11,7 +11,7 @@ public class DictionaryTest {
 	@Test
 	public void dictTest()
 	{
-		Bundle<String,String> dict = new Bundle<String,String>();
+		Bundle<String,String> dict = new Bundle<String,String>(String.class,String.class);
 		
 		System.out.println(dict.getXml());
 		
@@ -19,7 +19,10 @@ public class DictionaryTest {
 		
 		System.out.println(dict.getXml());
 		
-		Bundle<String,Integer> numbers = new Bundle<String,Integer>("text", "numeric", "numberLibrary", "number");
+		Bundle<String,Integer> numbers = new Bundle<String,Integer>(
+				String.class, Integer.class, 
+				"text", "numeric", 
+				"numberLibrary", "number");
 		
 		numbers.put("six", 6);
 		numbers.put("four", 4);
@@ -30,6 +33,6 @@ public class DictionaryTest {
 		numbers.muteAttributeDef = true;
 		System.out.println(numbers.getXml());
 		
-		new PileEntry();
+		new PileEntry<Object>();
 	}
 }

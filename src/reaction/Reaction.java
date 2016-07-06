@@ -159,10 +159,13 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		/*
 		 * Build the stoichiometric map.
 		 */
-		this._stoichiometry = (Map<String, Double>) ObjectFactory.xmlHashMap(
-				xmlElem, XmlRef.stoichiometry, 
-				ObjectRef.STR, XmlRef.component, 	
-				ObjectRef.DBL, XmlRef.coefficient );
+		if ( xmlElem == null )
+			this._stoichiometry = new HashMap<String, Double>();
+		else
+			this._stoichiometry = (Map<String, Double>) ObjectFactory.xmlHashMap(
+					xmlElem, XmlRef.stoichiometry, 
+					ObjectRef.STR, XmlRef.component, 	
+					ObjectRef.DBL, XmlRef.coefficient );
 		/*
 		 * Build the reaction rate expression.
 		 */
