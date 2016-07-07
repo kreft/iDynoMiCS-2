@@ -83,6 +83,8 @@ public class Aspect implements Instantiatable, NodeConstructor
 	 * casting).
 	 */
 	protected Event event;
+
+	private NodeConstructor _parentNode;
 	
 	/**
 	 * \brief Construct and Aspect by setting the aspect and declares type
@@ -307,7 +309,7 @@ public class Aspect implements Instantiatable, NodeConstructor
 			objectClass = Helper.obtainInput( ObjectRef.getAllOptions(), 
 					"Primary type", false);
 			this.set( ObjectFactory.loadObject( 
-					Helper.obtainInput( "", "Primary value" ), 
+					null, 
 					objectClass), name);
 			break;
 		}
@@ -328,5 +330,11 @@ public class Aspect implements Instantiatable, NodeConstructor
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
 		return XmlRef.aspect;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

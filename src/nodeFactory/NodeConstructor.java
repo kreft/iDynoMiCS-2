@@ -88,4 +88,6 @@ public interface NodeConstructor
 	{
 		return this.getNode().getXML();
 	}
+
+	public void setParent(NodeConstructor parent);
 }

@@ -27,8 +27,7 @@ public class DictionaryTest {
 		
 		System.out.println(numbers.getXml());
 		
-		numbers.muteClassDef = true;
-		numbers.muteAttributeDef = true;
+		numbers.muteSpecification = true;
 		System.out.println(numbers.getXml());
 		
 	}

@@ -34,32 +34,32 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 	public String valueLabel;
 	
 	public String nodeLabel;
-	public boolean muteAttributeDef = false;
-	public boolean muteClassDef = false;
+	public boolean muteSpecification = false;
 
 	private String dictionaryLabel;
+	
+	protected NodeConstructor _parentNode;
 	
 	public Class<?> keyClass;
 	public Class<?> entryClass;
 	
 	public Requirements requirement = Requirements.IMMUTABLE;
 	
-	public Bundle(Class<?> keyClass, Class<?> entryClass)
+	public Bundle( Class<?> keyClass, Class<?> entryClass )
 	{
 		this.keyLabel = XmlRef.keyAttribute;
 		this.valueLabel = XmlRef.valueAttribute;
 		
 		this.dictionaryLabel = XmlRef.dictionary;
 		this.nodeLabel = XmlRef.item;
-		this.muteAttributeDef = true;
 		
 		this.keyClass = keyClass;
 		this.entryClass = entryClass;
 	}
 	
 	
-	public Bundle(Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
-			String valueAttribute, String dictionaryLabel, String nodeLabel)
+	public Bundle( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
+			String valueAttribute, String dictionaryLabel, String nodeLabel )
 	{
 		this.keyLabel = keyAttribute;
 		this.valueLabel = valueAttribute;
@@ -71,10 +71,18 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 		this.entryClass = entryClass;
 	}
 	
+	public Bundle( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
+			String valueAttribute, String dictionaryLabel, String nodeLabel, 
+			boolean muteSpec )
+	{
+		this( keyClass, entryClass, keyAttribute, valueAttribute, 
+				dictionaryLabel, nodeLabel );
+		muteSpecification = muteSpec;
+	}
+	
 	public Bundle()
 	{
 		// NOTE only for Instantiatable interface
-		System.out.println("Inst");
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -91,14 +99,14 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 		{
 			this.keyLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.keyAttribute);
 			if (this.keyLabel == null)
-				this.muteAttributeDef = true;
+				this.muteSpecification = true;
 		}
 		
 		if (this.valueLabel == null)
 		{
 			this.valueLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.valueAttribute);
 			if (this.valueLabel == null)
-				this.muteAttributeDef = true;
+				this.muteSpecification = true;
 		}
 		
 		if (this.nodeLabel == null)
@@ -133,10 +141,13 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 		{
 			for ( int i = 0; i < nodes.getLength(); i++ )
 			{
+				T object = (T) ObjectFactory.loadObject( (Element) nodes.item(i), 
+						this.valueLabel, this.entryClass.getSimpleName() ); 
+				if( object instanceof NodeConstructor )
+					((NodeConstructor) object).setParent(this);
 				this.put((K) ObjectFactory.loadObject( (Element) nodes.item(i), 
 						this.keyLabel, this.keyClass.getSimpleName() ),
-						(T) ObjectFactory.loadObject( (Element) nodes.item(i), 
-						this.valueLabel, this.entryClass.getSimpleName() ) );
+						object );
 			}
 		}
 	}
@@ -147,22 +158,24 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 		ModelNode modelNode = new ModelNode(dictionaryLabel, this);
 		modelNode.setRequirements(requirement);
 		
-		if ( !muteAttributeDef )
-			modelNode.add(new ModelAttribute(XmlRef.keyAttribute, 
-					this.keyLabel, null, true));
-		
-		if ( !muteAttributeDef )
-			modelNode.add(new ModelAttribute(XmlRef.valueAttribute, 
-					this.valueLabel, null, true));
-		
-
-		if ( !this.muteClassDef )
+		if( !muteSpecification)
 		{
+			modelNode.add(new ModelAttribute(XmlRef.nodeLabel, 
+					this.nodeLabel, null, false ));
+	
+			if ( this.valueLabel != null )
+				modelNode.add(new ModelAttribute(XmlRef.valueAttribute, 
+						this.valueLabel, null, true));
+			
+			modelNode.add(new ModelAttribute(XmlRef.entryClassAttribute, 
+					this.entryClass.getSimpleName(), null, false ));
+	
+			if ( this.keyLabel != null )
+				modelNode.add(new ModelAttribute(XmlRef.keyAttribute, 
+						this.keyLabel, null, true));
+			
 			modelNode.add(new ModelAttribute(XmlRef.keyClassAttribute, 
 					this.keyClass.getSimpleName(), null, false ));
-
-			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-					this.entryClass.getSimpleName(), null, false ));
 		}
 
 		if (NodeConstructor.class.isAssignableFrom(entryClass))
@@ -177,6 +190,9 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 		{
 			for ( K key : this.keySet() )
 				modelNode.add( new BundleEntry<K, T>( this.get(key), key, this ).getNode());
+			
+			modelNode.addConstructable( BundleEntry.class.getName(),
+					ModelNode.Requirements.ZERO_TO_MANY, this.nodeLabel);
 		}
 		return modelNode;
 	}
@@ -190,5 +206,12 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 	public static Object getNewInstance(Element s, NodeConstructor parent) 
 	{
 		return Instantiatable.getNewInstance(Bundle.class.getName(), s, parent);
+	}
+
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

@@ -73,5 +73,11 @@ public final class ObjectRef
 	 */
 	public final static String DBL_ARRY = DBL_MATR+"[]";
 	
-	// TODO HashMap, LinkedList, etc?
+	public static final String PILE = "Pile";
+	public static final String BUNDLE = "Bundle";
+	public static final String LINKEDLIST = "LinkedList";
+	public static final String HASHMAP = "HashMap";
+	public static final String REACTION = "Reaction";
+	public static final String BODY = "Body";
+	
 }

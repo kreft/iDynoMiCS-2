@@ -106,7 +106,9 @@ public class GuiEditor
 				{
 					GuiEditor.setAttributes();
 					node.delete(node.getTitle());
-					GuiMain.update();
+					component.setVisible(false);
+					if (tabs.getParent() != null)
+						tabs.getParent().remove(tabs);
 					
 				}
 			}
@@ -214,13 +216,13 @@ public class GuiEditor
 					parent.getParent().getParent().getParent(), 
 					node.getTag(), tabs, "");
 		}
-//		else if ( node.isTagIn(new String[] {XmlRef.aspect, XmlRef.solute}) )
-//		{
-//			GuiComponent.addTab( (JTabbedPane) 
-//					parent.getParent().getParent().getParent(), 
-//					node.getTag() + " " + node.getTitle(), tabs, "" );
-//		}
-		else if ( node.isTagIn(new String[] {XmlRef.reaction, XmlRef.constants} ) && 
+		else if ( node.isTagIn(new String[] {XmlRef.reaction}) )
+		{
+			GuiComponent.addTab( getFirstTabParent(parent), 
+					node.getTag() + " " + node.getTitle(), tabs, ""); 
+					
+		} 
+		else if ( node.isTagIn(new String[] {XmlRef.constants} ) && 
 				node.getRequirment() == Requirements.IMMUTABLE ) 
 		{
 			parent.add(component, null);

@@ -18,8 +18,8 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="stochasticMover" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
-					<item type="PRIMARY" class="Reaction">
+				<aspect name="reactions" type="PRIMARY"  class="Pile"> 
+ <reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="species1React">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) ) * (kinh / (kinh + solute1)">
 								<constant name="k" value="0.01" />
@@ -28,8 +28,8 @@
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute2" coefficient="-1.0" />
-						</reaction>
-					</item>
+						</reaction> 
+ </reactions>
 					<item type="PRIMARY" class="Reaction">
 						<reaction name="epsReact">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) )">
@@ -38,8 +38,8 @@
 							</expression>
 							<stoichiometric component="eps" coefficient="0.05" />
 							<stoichiometric component="solute2" coefficient="-0.10" />
-						</reaction>
-					</item>
+						</reaction> 
+ </reactions>
 				</aspect>
 			</species>
 			<species name="species3">
@@ -47,8 +47,8 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="ORANGE" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="stochasticMover" />
-				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
-					<item type="PRIMARY" class="Reaction">
+				<aspect name="reactions" type="PRIMARY"  class="Pile"> 
+ <reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="species1React">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) ) * (kinh / (kinh + solute1)">
 								<constant name="k" value="0.01" />
@@ -57,8 +57,8 @@
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute2" coefficient="-1.0" />
-						</reaction>
-					</item>
+						</reaction> 
+ </reactions>
 				</aspect>
 			</species>
 			<species name="species2">
@@ -66,8 +66,8 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="stochasticMover" />
-				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
-					<item type="PRIMARY" class="Reaction">
+				<aspect name="reactions" type="PRIMARY"  class="Pile"> 
+ <reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="species2React">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.01" />
@@ -75,8 +75,8 @@
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
-						</reaction>
-					</item>
+						</reaction> 
+ </reactions>
 				</aspect>
 			</species>
 

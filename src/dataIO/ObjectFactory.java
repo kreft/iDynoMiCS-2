@@ -19,11 +19,12 @@ import org.xml.sax.SAXException;
 import agent.Body;
 import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
+import generalInterfaces.Instantiatable;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import nodeFactory.primarySetters.Pile;
 import reaction.Reaction;
+import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
 import utility.Helper;
@@ -56,8 +57,12 @@ public class ObjectFactory
 		{
 		/* state node with just attributes */
 		case ObjectRef.BOOL : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			return Boolean.valueOf(input);
 		case ObjectRef.INT : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			try{
 				return Integer.valueOf(input);
 			}
@@ -67,6 +72,8 @@ public class ObjectFactory
 				return null;
 			}
 		case ObjectRef.INT_VECT : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			try{
 				return Vector.intFromString(input);
 			}
@@ -76,6 +83,8 @@ public class ObjectFactory
 				return null;
 			}
 		case ObjectRef.INT_MATR :
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			try{
 				return Matrix.intFromString(input);
 			}
@@ -85,6 +94,8 @@ public class ObjectFactory
 				return null;
 			}
 		case ObjectRef.INT_ARRY :
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			try{
 				return Array.intFromString(input);
 			}
@@ -94,6 +105,8 @@ public class ObjectFactory
 				return null;
 			}
 		case ObjectRef.DBL : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			try{
 				/*
 				 * Allow for for expressions as input argument
@@ -107,6 +120,8 @@ public class ObjectFactory
 				return null;
 			}
 		case ObjectRef.DBL_VECT : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			try{
 				return Vector.dblFromString(input);
 			}
@@ -116,6 +131,8 @@ public class ObjectFactory
 				return null;
 			}
 		case ObjectRef.DBL_MATR :
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			try{
 				return Matrix.dblFromString(input);
 			}
@@ -125,6 +142,8 @@ public class ObjectFactory
 				return null;
 			}
 		case ObjectRef.DBL_ARRY :
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			try{
 				return Array.dblFromString(input);
 			}
@@ -134,17 +153,25 @@ public class ObjectFactory
 				return null;
 			}
 		case ObjectRef.STR : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			return input;
 		case ObjectRef.STR_VECT : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
 			return input.split(",");
-		case "Body" :
-			return Body.getNewInstance(input);
-		case "Reaction" :
-			return Reaction.getNewInstance(ObjectFactory.stringToNode(input));
-		case "LinkedList" :
+		case ObjectRef.PILE :
+			return Instantiatable.getNewInstance(ClassRef.pile, null, null);
+		case ObjectRef.BUNDLE :
+			return Instantiatable.getNewInstance(ClassRef.bundle, null, null);
+		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(input);
-		case "HashMap" :
+		case ObjectRef.HASHMAP :
 			return ObjectFactory.xmlHashMap(input);
+		case ObjectRef.REACTION :
+			return Instantiatable.getNewInstance(ClassRef.reaction, null, null);
+		case ObjectRef.BODY :
+			return Body.getNewInstance(input);
 		}
 		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
 				+ "object class " + objectClass);
@@ -247,16 +274,18 @@ public class ObjectFactory
 			return s.getAttribute(value);
 		case ObjectRef.STR_VECT : 
 			return s.getAttribute(value).split(",");
-		case "Body" :
-			return Body.getNewInstance(s);
-		case "Reaction" :
-			return Reaction.getNewInstance(s);
-		case "LinkedList" :
+		case ObjectRef.PILE :
+			return Instantiatable.getNewInstance(ClassRef.pile, s, null);
+		case ObjectRef.BUNDLE :
+			return Instantiatable.getNewInstance(ClassRef.bundle, s, null);
+		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(s);
-		case "Pile" :
-			return Pile.getNewInstance(s, null);
-		case "HashMap" :
+		case ObjectRef.HASHMAP :
 			return ObjectFactory.xmlHashMap(s);
+		case ObjectRef.REACTION :
+			return Reaction.getNewInstance(s);
+		case ObjectRef.BODY :
+			return Body.getNewInstance(s);
 		}
 		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
 				+ "object class: " + objectClass);

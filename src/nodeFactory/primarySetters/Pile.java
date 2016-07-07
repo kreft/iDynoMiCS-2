@@ -13,7 +13,9 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import utility.Helper;
 
 /**
  * 
@@ -38,6 +40,8 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantia
 	public Requirements requirement = Requirements.IMMUTABLE;
 
 	private String dictionaryLabel;
+
+	private NodeConstructor _parentNode;
 	
 	public Pile(Class<?> entryClass)
 	{
@@ -83,42 +87,69 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantia
 	@SuppressWarnings("unchecked")
 	public void init(Element xmlElement, NodeConstructor parent)
 	{
-
-		if (this.dictionaryLabel == null ){
-			if ( XmlHandler.hasAttribute(xmlElement, XmlRef.nameAttribute))
-				this.dictionaryLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nameAttribute);
-			else
-				this.dictionaryLabel = xmlElement.getNodeName();
-		}
-		
-		if (this.valueLabel == null)
-		{
-			this.valueLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.valueAttribute);
-			if (this.valueLabel == null)
-				this.muteAttributeDef = true;
-		}
-		
-		if (this.nodeLabel == null)
-		{
-			this.nodeLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nodeLabel);
-		}
-		
-		if (this.entryClass == null)
+		if( xmlElement == null )
 		{
 			try {
-				this.entryClass = Class.forName( Idynomics.xmlPackageLibrary.getFull(
-						XmlHandler.obtainAttribute(	xmlElement, 
-						XmlRef.entryClassAttribute, this.dictionaryLabel ) ) );
+				this.entryClass = Class.forName( Idynomics.xmlPackageLibrary.
+						getFull( Helper.obtainInput( "" , " pile entry class.") ) );
 			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			this.dictionaryLabel = Helper.obtainInput( "" , ClassRef.pile + " xml node");
+			this.nodeLabel = Helper.obtainInput( "" , "pile entry xml node");
+			
+			if ( ! NodeConstructor.class.isAssignableFrom(entryClass) )
+			{
+				this.valueLabel = Helper.obtainInput( "" , "pile entry value label");
+			}
 		}
-		
-		NodeList nodes = XmlHandler.getAll(xmlElement, this.nodeLabel);
-		for ( int i = 0; i < nodes.getLength(); i++ )
+		else
 		{
-			this.add((T) ObjectFactory.loadObject( (Element) nodes.item(i), 
-					null, this.entryClass.getSimpleName() ) );
+			if (this.dictionaryLabel == null ){
+				if ( XmlHandler.hasAttribute(xmlElement, XmlRef.nameAttribute))
+					this.dictionaryLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nameAttribute);
+				else
+					this.dictionaryLabel = xmlElement.getNodeName();
+			}
+			
+			xmlElement = XmlHandler.loadUnique(xmlElement, this.dictionaryLabel);
+			
+			if (this.valueLabel == null)
+			{
+				this.valueLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.valueAttribute);
+				if (this.valueLabel == null)
+					this.muteAttributeDef = true;
+			}
+			
+			if (this.nodeLabel == null)
+			{
+				this.nodeLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nodeLabel);
+			}
+			
+			if (this.entryClass == null)
+			{
+				try {
+					this.entryClass = Class.forName( Idynomics.xmlPackageLibrary.getFull(
+							XmlHandler.obtainAttribute(	xmlElement, 
+							XmlRef.entryClassAttribute, this.dictionaryLabel ) ) );
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			NodeList nodes = XmlHandler.getAll(xmlElement, this.nodeLabel);
+			if (nodes != null)
+			{
+				for ( int i = 0; i < nodes.getLength(); i++ )
+				{
+					T object = (T) ObjectFactory.loadObject( (Element) nodes.item(i), 
+							null, this.entryClass.getSimpleName() );
+					if( object instanceof NodeConstructor )
+						((NodeConstructor) object).setParent(this);
+					this.add( object );
+				}
+			}
 		}
 	}
 
@@ -127,16 +158,16 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantia
 		
 		ModelNode modelNode = new ModelNode(dictionaryLabel, this);
 		modelNode.setRequirements(requirement);
+		
+		modelNode.add(new ModelAttribute(XmlRef.nodeLabel, 
+				this.nodeLabel, null, false ));
 
-		if ( !muteAttributeDef )
+		if ( this.valueLabel != null )
 			modelNode.add(new ModelAttribute(XmlRef.valueAttribute, 
 					this.valueLabel, null, true));
 		
-		if ( !this.muteClassDef )
-		{
-			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-					this.entryClass.getSimpleName(), null, false ));
-		}
+		modelNode.add(new ModelAttribute(XmlRef.entryClassAttribute, 
+				this.entryClass.getSimpleName(), null, false ));
 
 		if (NodeConstructor.class.isAssignableFrom(entryClass))
 		{
@@ -163,9 +194,27 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantia
 	{
 		return this.dictionaryLabel;
 	}
+	
+	@Override
+	public boolean add(T obj)
+	{
+		return super.add(obj);
+	}
 
 	public static Object getNewInstance(Element s, NodeConstructor parent) 
 	{
 		return Instantiatable.getNewInstance(Pile.class.getName(), s, parent);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void addChildObject(NodeConstructor childObject)
+	{
+		this.add((T) childObject);
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

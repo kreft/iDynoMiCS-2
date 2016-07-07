@@ -51,6 +51,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * Grid of common attributes, such as well-mixed.
 	 */
 	protected SpatialGrid _commonGrid;
+	private NodeConstructor _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -485,5 +486,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
 		return XmlRef.environment;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

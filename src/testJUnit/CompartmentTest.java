@@ -3,6 +3,7 @@ package testJUnit;
 import org.junit.Test;
 
 import idynomics.Compartment;
+import nodeFactory.NodeConstructor;
 import processManager.ProcessManager;
 /**
  * \brief Test checking that Compartments behave as they should.
@@ -18,6 +19,12 @@ public class CompartmentTest
 		{
 			System.out.println("\nTime is: "+this._timeForNextStep);
 			System.out.println(this._name);
+		}
+
+		@Override
+		public void setParent(NodeConstructor parent) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	}

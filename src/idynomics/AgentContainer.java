@@ -84,6 +84,7 @@ public class AgentContainer implements NodeConstructor
 	public final static String DETACHABILITY = "detachability";
 	
 	protected PDEsolver _detachabilitySolver;
+	private NodeConstructor _parentNode;
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have reactions.
@@ -1091,6 +1092,12 @@ public class AgentContainer implements NodeConstructor
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 	
 	/* ***********************************************************************

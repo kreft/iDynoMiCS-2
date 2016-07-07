@@ -15,8 +15,8 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
-					<item type="PRIMARY" class="Reaction">
+				<aspect name="reactions" type="PRIMARY"  class="Pile"> 
+					<reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
@@ -25,8 +25,8 @@
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="eps" coefficient="0.1" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
-						</reaction>
-					</item>
+						</reaction> 
+					</reactions>
 				</aspect>
 			</species>
 			<species name="coccoid">

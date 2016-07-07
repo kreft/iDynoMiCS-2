@@ -17,6 +17,7 @@ public class BundleEntry<K, T> implements NodeConstructor, Instantiatable {
 	public T mapObject;
 	public K mapKey;
 	public Bundle<K,T> map;
+	private NodeConstructor _parentNode;
 	
 	public BundleEntry(T object, K key, Bundle<K,T> map )
 	{
@@ -62,18 +63,16 @@ public class BundleEntry<K, T> implements NodeConstructor, Instantiatable {
 	@SuppressWarnings("unchecked")
 	public void setNode(ModelNode node)
 	{
-		Object key, value;
-
-		key = ObjectFactory.loadObject(
+		this.map.remove( this.mapKey );
+		this.mapKey = (K) ObjectFactory.loadObject(
 				node.getAttribute( map.keyLabel ).getValue(), 
 				map.keyClass.getSimpleName() );
-		value = ObjectFactory.loadObject(
+		this.mapObject = (T) ObjectFactory.loadObject(
 				node.getAttribute( map.valueLabel ).getValue(), 
 				map.entryClass.getSimpleName() );
 
-		if ( this.map.containsKey( key ) )
-			this.map.remove( key );
-		this.map.put( (K) key, (T) value );
+		this.map.remove( this.mapKey );
+		this.map.put( (K) this.mapKey, (T) this.mapObject );
 
 		NodeConstructor.super.setNode(node);
 	}
@@ -87,5 +86,11 @@ public class BundleEntry<K, T> implements NodeConstructor, Instantiatable {
 	public String defaultXmlTag() 
 	{
 		return map.nodeLabel;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

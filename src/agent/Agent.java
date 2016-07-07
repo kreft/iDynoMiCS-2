@@ -44,6 +44,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	 * The aspect registry
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
+	private NodeConstructor _parentNode;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -409,9 +410,9 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 		return XmlRef.agent;
 	}
 
-
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
-
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
 }

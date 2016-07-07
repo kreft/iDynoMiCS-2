@@ -102,7 +102,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	 */
 	private Bundle<String, Double> _constants = new Bundle<String,Double>(
 			String.class, Double.class, XmlRef.nameAttribute, 
-			XmlRef.valueAttribute, XmlRef.constants, XmlRef.constant);
+			XmlRef.valueAttribute, XmlRef.constants, XmlRef.constant, true);
 	
 	/**
 	 * Names of variables in this expression.
@@ -113,6 +113,8 @@ public class ExpressionB extends Component implements NodeConstructor
 	 * The component object.
 	 */
 	protected Component _a;
+
+	private NodeConstructor _parentNode;
 	/**
 	 * 
 	 */
@@ -158,19 +160,11 @@ public class ExpressionB extends Component implements NodeConstructor
 	public ExpressionB(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
-		
-		HashMap<String,Double> constantsMap = new HashMap<String,Double>();
-		NodeList constants = XmlHandler.getAll(elem, XmlRef.constant);
-		for ( int i = 0; i < constants.getLength(); i++ )
-		{
-			constantsMap.put(XmlHandler.gatherAttribute(constants.item(i), 
-					XmlRef.nameAttribute),
-					Double.valueOf(XmlHandler.gatherAttribute(constants.item(i),
-					XmlRef.valueAttribute)));
-		}
+
+		this._constants.init(elem, this);
 				
 		init( XmlHandler.obtainAttribute(elem, XmlRef.valueAttribute, this.defaultXmlTag()), 
-				constantsMap);
+				this._constants);
 	}
 	
 	public void init(String expression, Map<String, Double> constants)
@@ -546,7 +540,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		this._constants.put(name, value);
 		// TODO Can we use this instead?
 		//this._variables.remove(name);
-		this._variables.remove(this._variables.indexOf(name));
+		this._variables.remove(name);
 	}
 
 	/**
@@ -761,11 +755,7 @@ public class ExpressionB extends Component implements NodeConstructor
 //		for (String con : this._constants.keySet() )
 //			modelNode.add(getConstantNode(con));
 		
-		modelNode.add(this._constants.getNode());
-		
-		//FIXME huh?
-//		modelNode.addConstructable( ClassRef.reaction, 
-//				null, ModelNode.Requirements.ZERO_TO_MANY );
+		modelNode.add( this._constants.getNode() );
 		
 		return modelNode;
 	}
@@ -785,6 +775,9 @@ public class ExpressionB extends Component implements NodeConstructor
 	@Override
 	public void setNode(ModelNode node) 
 	{
+		/* Set values for all child nodes. */
+		NodeConstructor.super.setNode(node);
+		
 		this._expression = node.getAttribute(XmlRef.valueAttribute).getValue();
 		this.build();
 	}
@@ -811,5 +804,11 @@ public class ExpressionB extends Component implements NodeConstructor
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
 		return XmlRef.expression;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

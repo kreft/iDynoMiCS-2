@@ -39,6 +39,8 @@ public class Timer implements Instantiatable, NodeConstructor
 	 * TODO
 	 */
 	protected double _endOfSimulation;
+
+	private NodeConstructor _parentNode;
 		
 	public Timer()
 	{
@@ -212,5 +214,11 @@ public class Timer implements Instantiatable, NodeConstructor
 	@Override
 	public String defaultXmlTag() {
 		return XmlRef.timer;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

@@ -796,4 +796,10 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	{
 		return XmlRef.solute;
 	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
 }

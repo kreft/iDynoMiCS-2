@@ -95,6 +95,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	// TODO temporary fix, reassess
 	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	protected double _localTime;
+	private NodeConstructor _parentNode;
 	
 	
 	/* ***********************************************************************
@@ -552,5 +553,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	public String defaultXmlTag() 
 	{
 		return XmlRef.compartment;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

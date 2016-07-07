@@ -55,8 +55,8 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
 	private Bundle<String,Double> _stoichiometry = new Bundle<String,Double>(
-			String.class, Double.class, XmlRef.component, 
-			XmlRef.coefficient, XmlRef.stoichiometry, XmlRef.stoichiometric);
+			String.class, Double.class, XmlRef.component, XmlRef.coefficient, 
+			XmlRef.stoichiometry, XmlRef.stoichiometric, true);
 	/**
 	 * The mathematical expression describing the rate at which this reaction
 	 * proceeds.
@@ -329,16 +329,8 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
-		if ( this._parentNode == null)
-			modelNode.setRequirements(Requirements.IMMUTABLE);
-		/*
-		 * Reactions that are an entry of a hashmap, this is the case with agent
-		 * reactions. there you cannot remove the Reaction from the entry, but 
-		 * you can remove the entire entry since the aspect utilizes the 
-		 * HashMapSetter class
-		 */
-		else
-			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this._name);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
@@ -346,19 +338,8 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		
 		modelNode.add(((ExpressionB) _kinetic).getNode());
 		
-		for ( String component : this._stoichiometry.keySet() )
-			modelNode.add(new HashMapSetter<String,Double>(
-					this._stoichiometry.get(component), component, 
-					this._stoichiometry,
-					ObjectRef.STR, XmlRef.component,
-					ObjectRef.DBL, XmlRef.coefficient,
-					XmlRef.stoichiometric ).getNode());
-		
-//		for ( String component : this._stoichiometry.keySet())
-//		{
-//			modelNode.add(getStoNode(this, component, 
-//					getStoichiometry(component)));
-//		}
+		modelNode.add( this._stoichiometry.getNode() );
+
 		
 		return modelNode;
 	}
@@ -422,6 +403,12 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		HashMap<String,Double> out = new HashMap<String,Double>();
 		out.put(key, value);
 		return out;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 
 }

@@ -16,6 +16,7 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	 */
 	public T mapObject;
 	public Pile<T> pile;
+	private NodeConstructor _parentNode;
 	
 	public PileEntry(Pile<T> pile, T object )
 	{
@@ -53,13 +54,14 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	@SuppressWarnings("unchecked")
 	public void setNode(ModelNode node)
 	{
-		this.pile.remove( mapObject );
+		this.pile.remove( this.mapObject );
 		
-		mapObject = (T) ObjectFactory.loadObject(
+		this.mapObject = (T) ObjectFactory.loadObject(
 				node.getAttribute( pile.valueLabel ).getValue(), 
 				pile.entryClass.getSimpleName() );
 
-		this.pile.add( mapObject );
+		this.pile.add( this.mapObject );
+
 		NodeConstructor.super.setNode(node);
 	}
 
@@ -67,10 +69,19 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	{
 		this.pile.remove(this.mapObject);
 	}
+	
+	
+	
 
 	@Override
 	public String defaultXmlTag() 
 	{
 		return pile.nodeLabel;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

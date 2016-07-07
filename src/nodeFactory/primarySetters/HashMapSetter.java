@@ -22,6 +22,7 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 	
 	public String nodeLabel;
 	public boolean muteClassDef = false;
+	private NodeConstructor _parentNode;
 	
 	public HashMapSetter(Object object, Object key, Map<K,T> map )
 	{
@@ -159,5 +160,11 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 	public String defaultXmlTag() 
 	{
 		return this.nodeLabel;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

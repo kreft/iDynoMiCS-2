@@ -369,6 +369,12 @@ public class ClassRef
 	public static final String pile =
 			nodeFactory.primarySetters.Pile.class.getName();
 	
+	/**
+	 * 
+	 */
+	public static final String bundle = 
+			nodeFactory.primarySetters.Bundle.class.getName();
+	
 	/* ************************************************************************
 	 * java classes
 	 */
@@ -384,5 +390,6 @@ public class ClassRef
 	 */
 	public final static String hashMap =
 			java.util.HashMap.class.getName();
+
 
 }

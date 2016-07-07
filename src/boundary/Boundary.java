@@ -82,6 +82,7 @@ public abstract class Boundary implements NodeConstructor
 	 * and need to be entered into this compartment.
 	 */
 	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
+	private NodeConstructor _parentNode;
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
@@ -521,5 +522,10 @@ public abstract class Boundary implements NodeConstructor
 	{
 		// FIXME use different tag for spatial/non-spatial boundaries?
 		return XmlRef.dimensionBoundary;
+	}
+	
+	public void setParent(NodeConstructor parent)
+	{
+		this._parentNode = parent;
 	}
 }

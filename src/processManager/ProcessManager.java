@@ -5,7 +5,6 @@ import java.util.List;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.Log.Tier;
@@ -69,6 +68,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	protected String _compartmentName;
 	
+	protected NodeConstructor _parentNode;
 	private long _realTimeTaken = 0;
 	
 	/* ***********************************************************************
@@ -407,12 +407,10 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	{
 		return XmlRef.process;
 	}
-		
-	/**
-	 * 
-	 */
-	public String getXml() 
+
+	
+	public void setParent(NodeConstructor parent)
 	{
-		return this.getNode().getXML();
+		this._parentNode = parent;
 	}
 }

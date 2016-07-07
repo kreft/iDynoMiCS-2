@@ -36,6 +36,7 @@ public class Point implements Copyable, NodeConstructor
 	 * Used by higher-order ODE solvers.
 	 */
 	private double[][] _c;
+	private NodeConstructor _parentNode;
 
 	/**
 	 * Viscosity of the surrounding medium (in units of Pa s).
@@ -306,5 +307,11 @@ public class Point implements Copyable, NodeConstructor
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

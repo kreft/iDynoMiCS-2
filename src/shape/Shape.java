@@ -167,6 +167,8 @@ public abstract class Shape implements
 	 */
 	protected static final Tier NHB_ITER_LEVEL = BULK;
 	
+	protected NodeConstructor _parentNode;
+	
 	/* ***********************************************************************
 	 * CONSTRUCTION
 	 * **********************************************************************/
@@ -1948,5 +1950,10 @@ public abstract class Shape implements
 	public Collision getCollision()
 	{
 		return this._defaultCollision;
+	}
+	
+	public void setParent(NodeConstructor parent)
+	{
+		this._parentNode = parent;
 	}
 }

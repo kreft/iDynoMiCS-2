@@ -17,16 +17,16 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="species1">
-				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
-					<item type="PRIMARY" class="Reaction">
+				<aspect name="reactions" type="PRIMARY"  class="Pile"> 
+ <reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.1" />
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
-						</reaction>
-					</item>
+						</reaction> 
+ </reactions>
 				</aspect>
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<!-- this has not been made yet, use a static growthrate for now

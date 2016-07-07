@@ -214,8 +214,9 @@ public class Helper
 	 */
 	public static double interpretExpression(String expression)
 	{
-		ExpressionB expres = new ExpressionB(expression);
-		return expres.getValue();
+		return Double.parseDouble(expression);
+//		ExpressionB expres = new ExpressionB(expression);
+//		return expres.getValue();
 	}
 	
 	/**

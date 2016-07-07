@@ -19,6 +19,7 @@ public class LinkedListSetter<T> implements NodeConstructor {
 	
 	public String nodeLabel;
 	public boolean muteClassDef = false;
+	private NodeConstructor _parentNode;
 	
 	public LinkedListSetter(Object object, List<T> list )
 	{
@@ -117,5 +118,11 @@ public class LinkedListSetter<T> implements NodeConstructor {
 	public String defaultXmlTag() 
 	{
 		return XmlRef.item;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }

@@ -176,4 +176,10 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		return XmlRef.species;
 	}
 
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+
 }

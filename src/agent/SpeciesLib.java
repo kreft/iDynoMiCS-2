@@ -36,6 +36,8 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	 */
 	protected Species _voidSpecies = new Species();
 
+	private NodeConstructor _parentNode;
+
 	public String[] getAllSpeciesNames()
 	{
 		String[] names = new String[_species.size()];
@@ -217,6 +219,12 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	@Override
 	public String defaultXmlTag() {
 		return XmlRef.speciesLibrary;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 
 }

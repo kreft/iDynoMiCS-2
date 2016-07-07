@@ -318,7 +318,7 @@ public class ModelNode
 		}
 		ModelNode node = con.getNode();
 		this.add(node);
-		this.add(con);
+//		this.add(con);
 		return node;
 	}
 	

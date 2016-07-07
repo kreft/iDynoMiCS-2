@@ -105,6 +105,8 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 * target resolution
 	 */
 	protected Double _targetRes;
+
+	private NodeConstructor _parentNode;
 	
 	/* ************************************************************************
 	 * CONSTRUCTORS
@@ -676,5 +678,11 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	public int compareTo(Dimension o)
 	{
 		return this._dimName.compareTo(o._dimName);
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
 }
