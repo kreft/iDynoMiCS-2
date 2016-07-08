@@ -172,7 +172,6 @@ public class Log
 	 */
 	public static void setupFile()
 	{
-		//FIXME for some reason this sometimes fails with user provided location
 		_logFile.fnew(Idynomics.global.outputLocation + "/log.txt");
 		_logFile.flushAll();
 		out(Tier.QUIET, Idynomics.fullDescription() + 

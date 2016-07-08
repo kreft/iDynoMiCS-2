@@ -156,7 +156,11 @@ public class AgentContainer implements NodeConstructor
 			// TODO R-tree parameters could follow from the protocol file.
 //			this._agentTree = new RTree<Agent>(8, 2, this._shape);
 			double[] min = Vector.zerosDbl(this.getShape().getNumberOfDimensions());
-			this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 20, 
+			/* 
+			 * FIXME when more than max_entries agents overlap in on position
+			 *  the split tree will cause a stack overflow exception
+			 */
+			this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 24, 
 					min, Vector.add(min, this.getShape().getDimensionLengths()), this._shape.getIsCyclicNaturalOrder());
 		}
 	}

@@ -3,7 +3,6 @@ package agent;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import generalInterfaces.Instantiatable;
@@ -12,10 +11,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import nodeFactory.primarySetters.LinkedListSetter;
-import nodeFactory.primarySetters.Pile;
 import referenceLibrary.ClassRef;
-import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 
@@ -130,9 +126,7 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		/* allow adding of new aspects */
 		modelNode.addConstructable( ClassRef.aspect,
 				ModelNode.Requirements.ZERO_TO_MANY);
-		
-		/* TODO: removing aspects */
-		
+
 		/* add already existing aspects */
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));

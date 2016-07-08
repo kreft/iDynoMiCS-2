@@ -369,7 +369,6 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 		modelNode.add(new ModelAttribute(XmlRef.identity, 
 				String.valueOf(this.identity()), null, false ));
 		
-		// TODO:  add removing aspects
 		/* add the agents aspects as childNodes */
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));

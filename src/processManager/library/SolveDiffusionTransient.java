@@ -422,6 +422,8 @@ public class SolveDiffusionTransient extends ProcessManager
 					}
 					else
 					{
+						//TODO quick fix If not defined elsewhere add it to the map
+						newBiomass.put(productName, (productRate * dt * volume));
 						System.out.println("agent reaction catched " + 
 								productName);
 						// TODO safety?

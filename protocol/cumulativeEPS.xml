@@ -30,7 +30,7 @@
 				</aspect>
 			</species>
 			<species name="coccoid">
-				<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				<aspect name="density" type="PRIMARY" class="Double" value="1.0" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
@@ -43,12 +43,12 @@
 			</species>
 			<species name="producer">
 				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPSCumulative" 	 />
-				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="0.005" />
+				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="0.02" />
 				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />
 			</species>
 			
 			<species name="particleEPS">
-				<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				<aspect name="density" type="PRIMARY" class="Double" value="1.0" />
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
@@ -64,8 +64,8 @@
 
 		<compartment name="noPrefPull">
 			<shape class="Rectangle">
-				<dimension name="X" isCyclic="true" targetResolution="1" max="30.0"/>
-				<dimension name="Y" isCyclic="false" targetResolution="1" max="30.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="30.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="30.0"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="0.2" />

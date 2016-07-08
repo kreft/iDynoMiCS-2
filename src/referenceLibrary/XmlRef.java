@@ -425,4 +425,6 @@ public class XmlRef
 	 */
 	public static final String entryClassAttribute = "entryClass";
 
+	public static final String epsDist = "epsDist";
+
 }

@@ -39,13 +39,12 @@ public class ExcreteEPSCumulative extends Event
 	public String BODY = AspectRef.agentBody;
 	public String RADIUS = AspectRef.bodyRadius;
 	public String SPECIES = XmlRef.species;
-
+	public String SEARCH_DIST = XmlRef.epsDist;
+	
 	/**
 	 * The distance around the agent that we will search for existing EPS
 	 * particles.
 	 */
-	// TODO make this overwrite-able by agent aspect.
-	private final static double SEARCH_DIST = 0.5;
 	
 	public void start(AspectInterface initiator, 
 			AspectInterface compliant, Double timeStep)
@@ -98,7 +97,7 @@ public class ExcreteEPSCumulative extends Event
 		 * Perform neighborhood search and perform collision detection and
 		 * response. 
 		 */
-		Collection<Agent> nhbs = comp.agents.treeSearch(agent, SEARCH_DIST);
+		Collection<Agent> nhbs = comp.agents.treeSearch(agent, agent.getDouble(SEARCH_DIST) );
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "  "+nhbs.size()+" neighbors found");
 		/*
@@ -112,7 +111,7 @@ public class ExcreteEPSCumulative extends Event
 		 */
 		Predicate<Collection<Surface>> filter = new 
 				AreColliding<Collection<Surface>>(
-						bodySurfs, iterator, SEARCH_DIST);
+						bodySurfs, iterator, agent.getDouble(SEARCH_DIST));
 		LinkedList<Agent> epsParticles = new LinkedList<Agent>();
 		for ( Agent neighbour: nhbs )
 		{
@@ -142,6 +141,8 @@ public class ExcreteEPSCumulative extends Event
 			compliant = new Agent(epsSpecies, 
 					new Body(new Point(epsPos),0.0),
 					comp); 
+			// NOTE register birth will update the body so do not leave it null
+			compliant.set(this.MASS, particleMass);
 			((Agent) compliant).registerBirth();
 			if ( Log.shouldWrite(level) )
 				Log.out(level, "EPS particle created");

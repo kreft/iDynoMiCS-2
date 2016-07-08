@@ -23,8 +23,8 @@
 								<constant name="k" value="0.001" />
 								<constant name="mumax" value="1.0" />
 							</expression>
-							<stoichiometric component="species1" coefficient="1.0" />
-							<stoichiometric component="eps" coefficient="0.05" />
+							<stoichiometric component="mass" coefficient="1.0" />
+							<stoichiometric component="eps" coefficient="0.2" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 						</reaction> 
 					</reactions>
@@ -36,25 +36,23 @@
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
-
-
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
 				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth" />
 				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
-
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
-				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.5"  />
+				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.0"  />
 			</species>
 			
 			<species name="producer">
 				<aspect name="produce" type="EVENT"	class="InternalProduction" 	 />
-				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPSCumulative" 	 />
+				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPS" 	 />
 				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="0.005" />
-				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />
+				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />		
+				<aspect name="epsDist"		type="PRIMARY" class="Double"		value="0.5"  />
 			</species>
-			<species name="particleEPS">
+			<species name="particleEPS">		
 				<aspect name="density" type="PRIMARY" class="Double" value="1" />
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
@@ -64,8 +62,8 @@
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
-				<aspect name="divisionMass"		class="Double" value="0.1" />
-				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.5"  />
+				<aspect name="divisionMass"		class="Double" value="0.2" />
+				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.0"  />
 				
 				<speciesModule name="coccoid" />
 			</species>
@@ -73,8 +71,8 @@
 
 		<compartment name="noPrefPull">
 			<shape class="Cuboid">
-				<dimension name="X" isCyclic="true" targetResolution="1" max="30.0"/>
-				<dimension name="Y" isCyclic="true" targetResolution="1" max="30.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="1" max="15.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="15.0"/>
 				<dimension name="Z" isCyclic="false" targetResolution="1" max="30.0"/>
 			</shape>
 			<solutes>
@@ -85,12 +83,10 @@
 			<agents>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species1" />
-					<aspect name="internalProduction" type="PRIMARY" class="HashMap">
-						<item keyType="String" key="eps"  type="PRIMARY" class="Double" value="0.0" />
-					</aspect>
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
+					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
 					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
-					<spawn number="15" domain="30.0,30.0,0.05" />
+					<spawn number="15" domain="15.0,15.0,0.05" />
 				</agent>
 			</agents>
 			<processManagers>

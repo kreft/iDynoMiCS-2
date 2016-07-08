@@ -272,7 +272,6 @@ public abstract class SpatialBoundary extends Boundary
 	 * MODEL NODE
 	 * ***********************************************************************/
 	
-	// TODO delete once nodeFactory has made this redundant
 	public void init(Node xmlNode)
 	{
 		Element xmlElem = (Element) xmlNode;
