@@ -367,13 +367,13 @@ public class ClassRef
 	 * TODO
 	 */
 	public static final String pile =
-			nodeFactory.primarySetters.Pile.class.getName();
+			nodeFactory.primarySetters.PileList.class.getName();
 	
 	/**
 	 * 
 	 */
 	public static final String bundle = 
-			nodeFactory.primarySetters.Bundle.class.getName();
+			nodeFactory.primarySetters.BundleMap.class.getName();
 	
 	/* ************************************************************************
 	 * java classes

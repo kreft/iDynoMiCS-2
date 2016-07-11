@@ -14,7 +14,7 @@ import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
-import nodeFactory.primarySetters.Pile;
+import nodeFactory.primarySetters.PileList;
 
 
 /**
@@ -41,7 +41,7 @@ public class AspectReg
 	/**
 	 * all (sub) modules
 	 */
-	protected Pile<String> _subModules = new Pile<String>(String.class,
+	protected PileList<String> _subModules = new PileList<String>(String.class,
 			XmlRef.nameAttribute, XmlRef.modules, XmlRef.speciesModule );
 	
 	/**
@@ -89,7 +89,9 @@ public class AspectReg
 						" which already exists in this aspect registry");
 			}
 			else
+			{
 				this._aspects.put(key, new Aspect(aspect, key, this) );
+			}
 		}
 	}
 	
@@ -169,7 +171,7 @@ public class AspectReg
 		return modules;
 	}
 	
-	public Pile<String> getSubModuleNames()
+	public PileList<String> getSubModuleNames()
 	{
 		return this._subModules;
 	}

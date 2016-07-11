@@ -2,14 +2,14 @@ package testJUnit;
 
 import org.junit.Test;
 
-import nodeFactory.primarySetters.Bundle;
+import nodeFactory.primarySetters.BundleMap;
 
 public class DictionaryTest {
 
 	@Test
 	public void dictTest()
 	{
-		Bundle<String,String> dict = new Bundle<String,String>(String.class,String.class);
+		BundleMap<String,String> dict = new BundleMap<String,String>(String.class,String.class);
 		
 		System.out.println(dict.getXml());
 		
@@ -17,7 +17,7 @@ public class DictionaryTest {
 		
 		System.out.println(dict.getXml());
 		
-		Bundle<String,Integer> numbers = new Bundle<String,Integer>(
+		BundleMap<String,Integer> numbers = new BundleMap<String,Integer>(
 				String.class, Integer.class, 
 				"text", "numeric", 
 				"numberLibrary", "number");

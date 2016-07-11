@@ -18,7 +18,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import nodeFactory.primarySetters.Bundle;
+import nodeFactory.primarySetters.BundleMap;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import utility.Helper;
@@ -100,7 +100,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * Names and values of constants in this expression.
 	 */
-	private Bundle<String, Double> _constants = new Bundle<String,Double>(
+	private BundleMap<String, Double> _constants = new BundleMap<String,Double>(
 			String.class, Double.class, XmlRef.nameAttribute, 
 			XmlRef.valueAttribute, XmlRef.constants, XmlRef.constant, true);
 	

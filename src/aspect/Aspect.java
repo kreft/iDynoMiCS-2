@@ -313,7 +313,8 @@ public class Aspect implements Instantiatable, NodeConstructor
 					objectClass), name);
 			break;
 		}
-		((AspectInterface) parent).reg().addInstatiatedAspect( name, this );
+		this.registry = ((AspectInterface) parent).reg();
+		registry.addInstatiatedAspect( name, this );
 	}
 
 	@Override

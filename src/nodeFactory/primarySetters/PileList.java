@@ -23,7 +23,7 @@ import utility.Helper;
  *
  * @param <T>
  */
-public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantiatable
+public class PileList<T> extends LinkedList<T> implements NodeConstructor, Instantiatable
 {
 	/**
 	 * 
@@ -43,7 +43,7 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantia
 
 	private NodeConstructor _parentNode;
 	
-	public Pile(Class<?> entryClass)
+	public PileList(Class<?> entryClass)
 	{
 		this.valueLabel = XmlRef.valueAttribute;
 		
@@ -53,7 +53,7 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantia
 		this.entryClass = entryClass;
 	}
 	
-	public Pile(String entryClass)
+	public PileList(String entryClass)
 	{
 		this.valueLabel = XmlRef.valueAttribute;
 		
@@ -69,7 +69,7 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantia
 	}
 	
 	
-	public Pile(Class<?> entryClass, String valueAttribute, String dictionaryLabel, String nodeLabel)
+	public PileList(Class<?> entryClass, String valueAttribute, String dictionaryLabel, String nodeLabel)
 	{
 		this.valueLabel = valueAttribute;
 		if (this.valueLabel == null)
@@ -79,7 +79,7 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantia
 		this.entryClass = entryClass;
 	}
 	
-	public Pile()
+	public PileList()
 	{
 		// NOTE only for Instantiatable interface
 	}
@@ -203,7 +203,7 @@ public class Pile<T> extends LinkedList<T> implements NodeConstructor, Instantia
 
 	public static Object getNewInstance(Element s, NodeConstructor parent) 
 	{
-		return Instantiatable.getNewInstance(Pile.class.getName(), s, parent);
+		return Instantiatable.getNewInstance(PileList.class.getName(), s, parent);
 	}
 	
 	@SuppressWarnings("unchecked")

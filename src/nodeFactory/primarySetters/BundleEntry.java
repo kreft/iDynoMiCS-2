@@ -16,10 +16,10 @@ public class BundleEntry<K, T> implements NodeConstructor, Instantiatable {
 	 */
 	public T mapObject;
 	public K mapKey;
-	public Bundle<K,T> map;
+	public BundleMap<K,T> map;
 	private NodeConstructor _parentNode;
 	
-	public BundleEntry(T object, K key, Bundle<K,T> map )
+	public BundleEntry(T object, K key, BundleMap<K,T> map )
 	{
 		this.mapObject = object;
 		this.map = map;
@@ -34,7 +34,7 @@ public class BundleEntry<K, T> implements NodeConstructor, Instantiatable {
 	@SuppressWarnings("unchecked")
 	public void init(Element xmlElem, NodeConstructor parent)
 	{
-		this.map = (Bundle<K,T>) parent;
+		this.map = (BundleMap<K,T>) parent;
 		this.map.put(this.mapKey, this.mapObject);
 	}
 	

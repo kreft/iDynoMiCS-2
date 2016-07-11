@@ -23,7 +23,7 @@ import nodeFactory.primarySetters.BundleEntry;
  * @param <K>
  * @param <T>
  */
-public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
+public class BundleMap<K,T> extends HashMap<K,T> implements NodeConstructor, Instantiatable
 {
 	/**
 	 * 
@@ -45,7 +45,7 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 	
 	public Requirements requirement = Requirements.IMMUTABLE;
 	
-	public Bundle( Class<?> keyClass, Class<?> entryClass )
+	public BundleMap( Class<?> keyClass, Class<?> entryClass )
 	{
 		this.keyLabel = XmlRef.keyAttribute;
 		this.valueLabel = XmlRef.valueAttribute;
@@ -58,7 +58,7 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 	}
 	
 	
-	public Bundle( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
+	public BundleMap( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
 			String valueAttribute, String dictionaryLabel, String nodeLabel )
 	{
 		this.keyLabel = keyAttribute;
@@ -71,7 +71,7 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 		this.entryClass = entryClass;
 	}
 	
-	public Bundle( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
+	public BundleMap( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
 			String valueAttribute, String dictionaryLabel, String nodeLabel, 
 			boolean muteSpec )
 	{
@@ -80,7 +80,7 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 		muteSpecification = muteSpec;
 	}
 	
-	public Bundle()
+	public BundleMap()
 	{
 		// NOTE only for Instantiatable interface
 	}
@@ -205,7 +205,7 @@ public class Bundle<K,T> extends HashMap<K,T> implements NodeConstructor
 
 	public static Object getNewInstance(Element s, NodeConstructor parent) 
 	{
-		return Instantiatable.getNewInstance(Bundle.class.getName(), s, parent);
+		return Instantiatable.getNewInstance(BundleMap.class.getName(), s, parent);
 	}
 
 

@@ -16,7 +16,7 @@ import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
-import nodeFactory.primarySetters.Bundle;
+import nodeFactory.primarySetters.BundleMap;
 import nodeFactory.primarySetters.HashMapSetter;
 import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
@@ -54,7 +54,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private Bundle<String,Double> _stoichiometry = new Bundle<String,Double>(
+	private BundleMap<String,Double> _stoichiometry = new BundleMap<String,Double>(
 			String.class, Double.class, XmlRef.component, XmlRef.coefficient, 
 			XmlRef.stoichiometry, XmlRef.stoichiometric, true);
 	/**

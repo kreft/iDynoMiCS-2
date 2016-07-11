@@ -14,7 +14,7 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
-import nodeFactory.primarySetters.Pile;
+import nodeFactory.primarySetters.PileList;
 import nodeFactory.ModelNode.Requirements;
 import reaction.Reaction;
 import referenceLibrary.ClassRef;
@@ -42,7 +42,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * Collection of extracellular reactions specific to this compartment
 	 * (each Reaction knows its own name).
 	 */
-	protected Pile<Reaction> _reactions = new Pile<Reaction>(Reaction.class, null, XmlRef.reactions, XmlRef.reaction);
+	protected PileList<Reaction> _reactions = new PileList<Reaction>(Reaction.class, null, XmlRef.reactions, XmlRef.reaction);
 	/**
 	 * Name of the common grid.
 	 */

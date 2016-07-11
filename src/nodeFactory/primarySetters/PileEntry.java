@@ -15,10 +15,10 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	 * 
 	 */
 	public T mapObject;
-	public Pile<T> pile;
+	public PileList<T> pile;
 	private NodeConstructor _parentNode;
 	
-	public PileEntry(Pile<T> pile, T object )
+	public PileEntry(PileList<T> pile, T object )
 	{
 		this.pile = pile;
 		this.mapObject = object;
@@ -32,7 +32,7 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	@SuppressWarnings("unchecked")
 	public void init(Element xmlElem, NodeConstructor parent)
 	{
-		this.pile = (Pile<T>) parent;
+		this.pile = (PileList<T>) parent;
 		this.pile.add(this.mapObject);
 	}
 	
