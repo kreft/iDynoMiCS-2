@@ -655,13 +655,6 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	}
 
 	@Override
-	public NodeConstructor newBlank()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void addChildObject(NodeConstructor childObject)
 	{
 		// TODO Auto-generated method stub
@@ -684,5 +677,11 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	public void setParent(NodeConstructor parent) 
 	{
 		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

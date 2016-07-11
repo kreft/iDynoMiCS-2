@@ -551,5 +551,12 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	{
 		Log.out(Tier.CRITICAL, "Simulator is root node");
 	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		Log.out(Tier.CRITICAL, "Simulator is root node");
+		return null;
+	}
 }
 

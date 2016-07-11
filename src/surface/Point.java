@@ -291,12 +291,6 @@ public class Point implements Copyable, NodeConstructor
 	}
 
 	@Override
-	public NodeConstructor newBlank()
-	{
-		return null;
-	}
-
-	@Override
 	public void addChildObject(NodeConstructor childObject)
 	{
 		// TODO Auto-generated method stub
@@ -313,5 +307,11 @@ public class Point implements Copyable, NodeConstructor
 	public void setParent(NodeConstructor parent) 
 	{
 		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

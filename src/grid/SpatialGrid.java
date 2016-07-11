@@ -772,13 +772,6 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 				node.getAttribute(XmlRef.concentration).getValue());
 	}
 
-	@Override
-	public NodeConstructor newBlank()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	public void removeNode(String specifier) 
 	{
 		this._parentNode.removeChildNode(this);
@@ -801,5 +794,11 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	public void setParent(NodeConstructor parent) 
 	{
 		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

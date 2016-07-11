@@ -782,12 +782,6 @@ public class ExpressionB extends Component implements NodeConstructor
 		this.build();
 	}
 
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	public void removeNode(String specifier)
 	{
 		if (this._constants.containsKey(specifier))
@@ -810,5 +804,11 @@ public class ExpressionB extends Component implements NodeConstructor
 	public void setParent(NodeConstructor parent) 
 	{
 		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

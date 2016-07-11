@@ -170,7 +170,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
 		String str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
 		this.setShape( (Shape) Shape.getNewInstance(
-				str, elem, (NodeConstructor) this) );
+				str, elem, (NodeConstructor) this) );	
+		/*
+		 * set container parentNodes
+		 */
+		agents.setParent(this);
+		environment.setParent(this);
 		/*
 		 * Load solutes.
 		 */
@@ -559,5 +564,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	public void setParent(NodeConstructor parent) 
 	{
 		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

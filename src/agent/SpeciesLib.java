@@ -191,16 +191,6 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	}
 
 	/**
-	 * Create a new minimal object of this class and return it
-	 * @return NodeConstructor
-	 */
-	@Override
-	public NodeConstructor newBlank()
-	{
-		return Idynomics.simulator.speciesLibrary;
-	}
-
-	/**
 	 * Add a child object that is unable to register itself properly via the
 	 * newBlank call.
 	 * @param childOb
@@ -227,4 +217,9 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 		this._parentNode = parent;
 	}
 
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

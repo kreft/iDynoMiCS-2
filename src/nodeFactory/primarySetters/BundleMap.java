@@ -17,6 +17,9 @@ import referenceLibrary.XmlRef;
 import nodeFactory.primarySetters.BundleEntry;
 
 /**
+ * The Bundle Map extends the Java HashMap and implements the iDynoMiCS
+ * NodeConstructor and Instantiatable class to provide easy management of maps
+ * with the gui and xml output.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
@@ -26,51 +29,109 @@ import nodeFactory.primarySetters.BundleEntry;
 public class BundleMap<K,T> extends HashMap<K,T> implements NodeConstructor, Instantiatable
 {
 	/**
-	 * 
+	 * default serial uid (generated)
 	 */
 	private static final long serialVersionUID = 4490405234387168192L;
 	
+	/**
+	 * the label of the key attribute
+	 */
 	public String keyLabel;
+	
+	/**
+	 * the label of the value attribute
+	 */
 	public String valueLabel;
 	
+	/**
+	 * the label of the (xml) node
+	 */
 	public String nodeLabel;
+	
+	/**
+	 * boolean mutes class and label definition in xml and gui used by classes
+	 * that always implement default labeling ( thus not settable by user )
+	 */
 	public boolean muteSpecification = false;
 
-	private String dictionaryLabel;
+	/**
+	 * The (xml) node label of the Bundle itself.
+	 */
+	private String bundleMapLabel;
 	
+	/**
+	 * the parentNode of this pileList
+	 */
 	protected NodeConstructor _parentNode;
 	
+	/**
+	 * The class of keys associated with the entries stored in the map
+	 */
 	public Class<?> keyClass;
+	
+	/**
+	 * The class of entries stored in the map
+	 */
 	public Class<?> entryClass;
 	
+	/**
+	 * ModelNode requirement definition
+	 */
 	public Requirements requirement = Requirements.IMMUTABLE;
 	
+	/**
+	 * Constructor for bundle with default settings
+	 * 
+	 * @param entryClass
+	 * @param keyClass
+	 */
 	public BundleMap( Class<?> keyClass, Class<?> entryClass )
 	{
 		this.keyLabel = XmlRef.keyAttribute;
 		this.valueLabel = XmlRef.valueAttribute;
 		
-		this.dictionaryLabel = XmlRef.dictionary;
+		this.bundleMapLabel = XmlRef.dictionary;
 		this.nodeLabel = XmlRef.item;
 		
 		this.keyClass = keyClass;
 		this.entryClass = entryClass;
 	}
 	
-	
+	/**
+	 * Constructor, overwriting default (xml) attribute and node labels
+	 *
+	 * @param keyClass
+	 * @param entryClass
+	 * @param keyAttribute
+	 * @param valueAttribute
+	 * @param dictionaryLabel
+	 * @param nodeLabel
+	 */
 	public BundleMap( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
 			String valueAttribute, String dictionaryLabel, String nodeLabel )
 	{
 		this.keyLabel = keyAttribute;
 		this.valueLabel = valueAttribute;
 		
-		this.dictionaryLabel = dictionaryLabel;
+		this.bundleMapLabel = dictionaryLabel;
 		this.nodeLabel = nodeLabel;
 		
 		this.keyClass = keyClass;
 		this.entryClass = entryClass;
 	}
 	
+	/**
+	 * Constructor, overwriting default (xml) attribute and node labels, but
+	 * muting the specifications for xml output and gui
+	 *
+	 * @param keyClass
+	 * @param entryClass
+	 * @param keyAttribute
+	 * @param valueAttribute
+	 * @param dictionaryLabel
+	 * @param nodeLabel
+	 * @param muteSpec
+	 */
 	public BundleMap( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
 			String valueAttribute, String dictionaryLabel, String nodeLabel, 
 			boolean muteSpec )
@@ -80,19 +141,27 @@ public class BundleMap<K,T> extends HashMap<K,T> implements NodeConstructor, Ins
 		muteSpecification = muteSpec;
 	}
 	
+	/**
+	 * BundleMap constructor for Instantiatable interface
+	 */
 	public BundleMap()
 	{
 		// NOTE only for Instantiatable interface
 	}
 	
+	/**
+	 * Implementation of Instantiatable interface
+	 * 
+	 * TODO commenting
+	 */
 	@SuppressWarnings("unchecked")
 	public void init(Element xmlElement, NodeConstructor parent)
 	{
-		if (this.dictionaryLabel == null ){
+		if (this.bundleMapLabel == null ){
 			if ( XmlHandler.hasAttribute(xmlElement, XmlRef.nameAttribute))
-				this.dictionaryLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nameAttribute);
+				this.bundleMapLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nameAttribute);
 			else
-				this.dictionaryLabel = xmlElement.getNodeName();
+				this.bundleMapLabel = xmlElement.getNodeName();
 		}
 		
 		if (this.keyLabel == null)
@@ -119,7 +188,7 @@ public class BundleMap<K,T> extends HashMap<K,T> implements NodeConstructor, Ins
 			try {
 				this.entryClass = Class.forName( Idynomics.xmlPackageLibrary.getFull(
 						XmlHandler.obtainAttribute(	xmlElement, 
-						XmlRef.entryClassAttribute, this.dictionaryLabel ) ) );
+						XmlRef.entryClassAttribute, this.bundleMapLabel ) ) );
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -130,7 +199,7 @@ public class BundleMap<K,T> extends HashMap<K,T> implements NodeConstructor, Ins
 			try {
 				this.keyClass = Class.forName( Idynomics.xmlPackageLibrary.getFull(
 						XmlHandler.obtainAttribute(	xmlElement, 
-						XmlRef.keyClassAttribute, this.dictionaryLabel ) ) );
+						XmlRef.keyClassAttribute, this.bundleMapLabel ) ) );
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();
 			}
@@ -152,10 +221,14 @@ public class BundleMap<K,T> extends HashMap<K,T> implements NodeConstructor, Ins
 		}
 	}
 
+	/**
+	 * returns the model node of this BundleMap
+	 * @return ModelNode
+	 */
 	@Override
 	public ModelNode getNode() {
 		
-		ModelNode modelNode = new ModelNode(dictionaryLabel, this);
+		ModelNode modelNode = new ModelNode(bundleMapLabel, this);
 		modelNode.setRequirements(requirement);
 		
 		if( !muteSpecification)
@@ -197,21 +270,51 @@ public class BundleMap<K,T> extends HashMap<K,T> implements NodeConstructor, Ins
 		return modelNode;
 	}
 
+	/**
+	 * returns the currently set Node label of this bundle list
+	 * 
+	 * @return String xml node label
+	 */
 	@Override
 	public String defaultXmlTag() 
 	{
-		return this.dictionaryLabel;
+		return this.bundleMapLabel;
 	}
 
+	/**
+	 * forward for easy use of the Instantiatable interface
+	 * @param s
+	 * @param parent
+	 * @return
+	 */
 	public static Object getNewInstance(Element s, NodeConstructor parent) 
 	{
 		return Instantiatable.getNewInstance(BundleMap.class.getName(), s, parent);
 	}
+	
+	/**
+	 * add child nodeConstructor (map item)
+	 * 
+	 * FIXME todo
+	 */
+//	@SuppressWarnings("unchecked")
+//	public void addChildObject(NodeConstructor childObject)
+//	{
+//		this.put((T) childObject);
+//	}
 
-
+	/**
+	 * set the parent node constructor of this pile list.
+	 */
 	@Override
 	public void setParent(NodeConstructor parent) 
 	{
 		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

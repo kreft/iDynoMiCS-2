@@ -502,13 +502,6 @@ public abstract class Boundary implements NodeConstructor
 		// TODO
 	}
 
-	@Override
-	public NodeConstructor newBlank()
-	{
-		// TODO
-		return null;
-	}
-	
 	public void removeNode()
 	{
 		// TODO
@@ -527,5 +520,11 @@ public abstract class Boundary implements NodeConstructor
 	public void setParent(NodeConstructor parent)
 	{
 		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

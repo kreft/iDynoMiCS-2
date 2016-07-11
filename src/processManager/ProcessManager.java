@@ -413,4 +413,10 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	{
 		this._parentNode = parent;
 	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

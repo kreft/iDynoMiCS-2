@@ -73,8 +73,8 @@ public final class ObjectRef
 	 */
 	public final static String DBL_ARRY = DBL_MATR+"[]";
 	
-	public static final String PILE = "Pile";
-	public static final String BUNDLE = "Bundle";
+	public static final String PILE = "PileList";
+	public static final String BUNDLE = "BundleMap";
 	public static final String LINKEDLIST = "LinkedList";
 	public static final String HASHMAP = "HashMap";
 	public static final String REACTION = "Reaction";

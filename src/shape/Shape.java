@@ -202,13 +202,6 @@ public abstract class Shape implements
 	}
 
 	@Override
-	public NodeConstructor newBlank()
-	{
-		return (Shape) Shape.getNewInstance(
-				Helper.obtainInput(getAllOptions(), "Shape class", false));
-	}
-
-	@Override
 	public void addChildObject(NodeConstructor childObject)
 	{
 		// TODO Auto-generated method stub
@@ -1955,5 +1948,11 @@ public abstract class Shape implements
 	public void setParent(NodeConstructor parent)
 	{
 		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

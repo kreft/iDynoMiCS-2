@@ -109,4 +109,10 @@ public class ReactionLibrary implements Instantiatable, NodeConstructor
 	{
 		this._parentNode = parent;
 	}
+
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

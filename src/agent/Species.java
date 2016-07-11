@@ -63,6 +63,7 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		String name = "";
 		name = Helper.obtainInput(name, "Species name");
 		this.reg().setIdentity(name);
+		Idynomics.simulator.speciesLibrary.addChildObject(this);
 	}
 
 	/*************************************************************************
@@ -134,23 +135,6 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		return modelNode;
 	}
 
-	/**
-	 * Create a new minimal object of this class and return it, used by the gui
-	 * to add new Species
-	 * @return NodeConstructor
-	 */
-	@Override
-	public NodeConstructor newBlank() 
-	{
-		String name = "";
-		name = Helper.obtainInput(name, "Species name");
-		Species newBlank = new Species();
-		newBlank.reg().setIdentity(name);
-//		Idynomics.simulator.speciesLibrary.set(newBlank);
-		return newBlank;
-	}
-	
-
 	@Override
 	public void removeNode(String specifier) 
 	{
@@ -176,4 +160,9 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		this._parentNode = parent;
 	}
 
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

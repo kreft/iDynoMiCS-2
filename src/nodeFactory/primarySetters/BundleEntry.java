@@ -93,4 +93,10 @@ public class BundleEntry<K, T> implements NodeConstructor, Instantiatable {
 	{
 		this._parentNode = parent;
 	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

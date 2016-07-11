@@ -35,31 +35,33 @@ public abstract interface AspectInterface
 	 */
 	public default void loadAspects(Node xmlNode)
 	{
-		Element e = (Element) xmlNode;
-		AspectReg aspectReg = (AspectReg) reg();
-		String  key;
-		NodeList stateNodes = e.getElementsByTagName( XmlRef.aspect );
-		for (int j = 0; j < stateNodes.getLength(); j++) 
+		if (xmlNode != null)
 		{
-			Element s = (Element) stateNodes.item(j);
-			key = s.getAttribute( XmlRef.nameAttribute );
-			switch (AspectClass.valueOf( Helper.setIfNone(
-					s.getAttribute( XmlRef.typeAttribute ), 
-					String.valueOf( AspectClass.PRIMARY ) ) ) )
-	    	{
-	    	case CALCULATED:
-	    		aspectReg.add( key , Calculated.getNewInstance( s ) );
-	    		break;
-	    	case EVENT: 
-	    		aspectReg.add( key , Event.getNewInstance( s ) );
-	    		break;
-	    	case PRIMARY:
-			default:
-				aspectReg.add( key, ObjectFactory.loadObject( s ) );
+			Element e = (Element) xmlNode;
+			AspectReg aspectReg = (AspectReg) reg();
+			String  key;
+			NodeList stateNodes = e.getElementsByTagName( XmlRef.aspect );
+			for (int j = 0; j < stateNodes.getLength(); j++) 
+			{
+				Element s = (Element) stateNodes.item(j);
+				key = s.getAttribute( XmlRef.nameAttribute );
+				switch (AspectClass.valueOf( Helper.setIfNone(
+						s.getAttribute( XmlRef.typeAttribute ), 
+						String.valueOf( AspectClass.PRIMARY ) ) ) )
+		    	{
+		    	case CALCULATED:
+		    		aspectReg.add( key , Calculated.getNewInstance( s ) );
+		    		break;
+		    	case EVENT: 
+		    		aspectReg.add( key , Event.getNewInstance( s ) );
+		    		break;
+		    	case PRIMARY:
+				default:
+					aspectReg.add( key, ObjectFactory.loadObject( s ) );
+				}
+				Log.out(Tier.BULK, "Aspects loaded for \""+key+"\"");
 			}
-			Log.out(Tier.BULK, "Aspects loaded for \""+key+"\"");
 		}
-		
 	}
 	
 	

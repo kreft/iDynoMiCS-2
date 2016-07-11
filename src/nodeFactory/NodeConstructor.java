@@ -28,18 +28,6 @@ public interface NodeConstructor
 	}
 	
 	/**
-	 * Create a new minimal object of this class and return it
-	 * 
-	 * @return
-	 */
-	//TODO: we may want to merge this with the xmlable interface
-	@Deprecated
-	public default NodeConstructor newBlank()
-	{
-		return null;
-	}
-	
-	/**
 	 * remove the node from the simulation (gui delete object), specifier is
 	 * used to identify nested objects for removal
 	 * @param specifier
@@ -90,4 +78,6 @@ public interface NodeConstructor
 	}
 
 	public void setParent(NodeConstructor parent);
+	
+	public NodeConstructor getParent();
 }

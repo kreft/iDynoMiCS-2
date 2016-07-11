@@ -1104,6 +1104,12 @@ public class AgentContainer implements NodeConstructor
 		this._parentNode = parent;
 	}
 	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
+	
 	/* ***********************************************************************
 	 * REPORTING
 	 * **********************************************************************/

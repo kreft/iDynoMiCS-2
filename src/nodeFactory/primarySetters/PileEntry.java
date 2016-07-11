@@ -84,4 +84,10 @@ public class PileEntry<T> implements NodeConstructor, Instantiatable {
 	{
 		this._parentNode = parent;
 	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

@@ -358,13 +358,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		
 		return modelNode;
 	}
-	
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+
 	public void removeNode(String specifier)
 	{
 		this._parentNode.removeChildNode(this);
@@ -409,6 +403,12 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public void setParent(NodeConstructor parent) 
 	{
 		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 
 }
