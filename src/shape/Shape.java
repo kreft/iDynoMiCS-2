@@ -21,13 +21,13 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -141,7 +141,11 @@ public abstract class Shape implements
 	/**
 	 * TODO
 	 */
-	protected Collision _defaultCollision = new Collision(this);
+	protected Collision _defaultCollision;
+	/**
+	 * 
+	 */
+	protected Integer _numSignificantDimension;
 	/**
 	 * A helper vector for finding the location of the origin of a voxel.
 	 */
@@ -162,6 +166,8 @@ public abstract class Shape implements
 	 * <li>Set to {@code DEBUG} when trying to debug an issue</li></ul>
 	 */
 	protected static final Tier NHB_ITER_LEVEL = BULK;
+	
+	protected NodeConstructor _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTION
@@ -193,13 +199,6 @@ public abstract class Shape implements
 	public void setNode(ModelNode node)
 	{
 
-	}
-
-	@Override
-	public NodeConstructor newBlank()
-	{
-		return (Shape) Shape.getNewInstance(
-				Helper.obtainInput(getAllOptions(), "Shape class", false));
 	}
 
 	@Override
@@ -257,6 +256,7 @@ public abstract class Shape implements
 						+ "recognised by shape " + this.getClass().getName()
 						+ ", use: " + Helper.enumToString(DimName.class));
 			}
+			this._defaultCollision = new Collision(this);
 			
 		}
 		
@@ -330,10 +330,25 @@ public abstract class Shape implements
 	 */
 	public int getNumberOfDimensions()
 	{
-		int out = 0;
+		if ( this._numSignificantDimension != null )
+			return this._numSignificantDimension;
+		this._numSignificantDimension = 0;
 		for ( Dimension dim : this._dimensions.values() )
 			if ( dim.isSignificant() )
-				out++;
+				this._numSignificantDimension++;
+		return this._numSignificantDimension;
+	}
+	
+	/**
+	 * \brief returns all dimensions that are significant
+	 * @return
+	 */
+	public List<Dimension> getSignificantDimensions()
+	{
+		LinkedList<Dimension> out = new LinkedList<Dimension>();
+		for ( Dimension dim : this._dimensions.values() )
+			if ( dim.isSignificant() )
+				out.add(dim);
 		return out;
 	}
 	
@@ -410,6 +425,19 @@ public abstract class Shape implements
 			counter++;
 		}
 		return null;
+	}
+	
+	/*
+	 * returns an array of booleans that indicate whether the dimensions are
+	 * periodic in their natural order.
+	 */
+	public boolean[] getIsCyclicNaturalOrder()
+	{
+		boolean[] dims = new boolean[this.getNumberOfDimensions()];
+		int i = 0;
+		for (Dimension d : this.getSignificantDimensions())
+			dims[i++] = d.isCyclic();
+		return dims;
 	}
 	
 	/**
@@ -1910,5 +1938,21 @@ public abstract class Shape implements
 	{
 		return Helper.getClassNamesSimple(
 									ShapeLibrary.class.getDeclaredClasses());
+	}
+
+	public Collision getCollision()
+	{
+		return this._defaultCollision;
+	}
+	
+	public void setParent(NodeConstructor parent)
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

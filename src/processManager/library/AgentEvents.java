@@ -6,7 +6,7 @@ package processManager.library;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import aspect.AspectRef;
+import referenceLibrary.AspectRef;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;

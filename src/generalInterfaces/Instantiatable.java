@@ -8,9 +8,9 @@ import org.w3c.dom.Node;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
 import idynomics.Idynomics;
 import nodeFactory.NodeConstructor;
+import referenceLibrary.XmlRef;
 import utility.Helper;
 
 /**
@@ -37,7 +37,7 @@ public interface Instantiatable
 	public default void init(Element xmlElement, NodeConstructor parent)
 	{
 		// by default nothing
-		Log.out(Tier.CRITICAL, "Warning: Object class has no implementation"
+		Log.out(Tier.CRITICAL, "Warning: Instantiable Object class has no implementation"
 				+ "of init(Element, NodeConstructor");
 	}
 	
@@ -70,7 +70,11 @@ public interface Instantiatable
 	 */
 	public static Object getNewInstance(String className, Element xmlElem, NodeConstructor parent)
 	{
-		Object out = getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
+		Object out;
+		if (className.contains("."))
+			out = getNewInstance(className, null);
+		else
+			out = getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
 		((Instantiatable) out).init(xmlElem, parent);
 		return out;
 	}
@@ -91,9 +95,10 @@ public interface Instantiatable
 	public static Object getNewInstance(String className, String prefix)
 	{
 		/*
-		 * Check the first letter is upper case.
+		 * Check the first letter is upper case if a separate prefix is provided.
 		 */
-		className = Helper.firstToUpper(className);
+		if ( prefix != null )
+			className = Helper.firstToUpper(className);
 		/*
 		 * Add the prefix, if necessary.
 		 */

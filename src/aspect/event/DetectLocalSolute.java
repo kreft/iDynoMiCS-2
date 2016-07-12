@@ -6,13 +6,13 @@ package aspect.event;
 import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Compartment;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import shape.subvoxel.CoordinateMap;
 
 /**

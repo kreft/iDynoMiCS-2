@@ -8,7 +8,6 @@ import java.util.Map;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import aspect.AspectRef;
 import boundary.Boundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -17,6 +16,7 @@ import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import reaction.Reaction;
+import referenceLibrary.AspectRef;
 import solver.ODEderivatives;
 import solver.ODEheunsmethod;
 import solver.ODErosenbrock;

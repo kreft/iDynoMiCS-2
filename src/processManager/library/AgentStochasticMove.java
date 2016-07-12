@@ -2,8 +2,8 @@ package processManager.library;
 
 import agent.Agent;
 import agent.Body;
-import aspect.AspectRef;
 import processManager.ProcessManager;
+import referenceLibrary.AspectRef;
 import surface.Point;
 
 /**

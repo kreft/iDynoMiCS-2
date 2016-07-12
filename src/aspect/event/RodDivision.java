@@ -3,6 +3,7 @@ package aspect.event;
 import surface.Point;
 import utility.ExtraMath;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import shape.Shape;
 
 import java.util.LinkedList;
@@ -12,7 +13,6 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 

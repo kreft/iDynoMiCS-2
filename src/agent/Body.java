@@ -8,12 +8,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import dataIO.XmlRef;
 import generalInterfaces.Copyable;
 import generalInterfaces.Instantiatable;
 import generalInterfaces.HasBoundingBox;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import referenceLibrary.XmlRef;
 import surface.*;
 
 /**

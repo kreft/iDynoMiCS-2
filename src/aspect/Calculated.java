@@ -3,11 +3,11 @@ package aspect;
 import generalInterfaces.Copyable;
 import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
+import referenceLibrary.XmlRef;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 
 /**
  * Calculated/Secondary states contain a description of how secondary states 
@@ -64,8 +64,8 @@ public abstract class Calculated implements Copyable, Instantiatable, Redirectab
 	}
 	
 
-	public static Object getNewInstance(String input) {
-		Calculated obj = (Calculated) Instantiatable.getNewInstance(input);
+	public static Object getNewInstance(String objecClass, String input) {
+		Calculated obj = (Calculated) Instantiatable.getNewInstance(objecClass);
 		obj.init(input);
 		return obj;
 	}

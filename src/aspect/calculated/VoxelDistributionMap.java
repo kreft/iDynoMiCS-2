@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
-import aspect.AspectRef;
+import referenceLibrary.AspectRef;
 
 /**
  * \brief TODO

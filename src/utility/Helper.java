@@ -101,14 +101,14 @@ public class Helper
 			if ( noLog )
 				System.out.println(msg);
 			else
-				Log.out(Tier.CRITICAL, msg);
+				Log.out(Tier.NORMAL, msg);
 			input = user_input.next( );
 		}
 		msg = "Aquired input: " + input;
 		if ( noLog )
 			System.out.println(msg);
 		else
-			Log.out(Tier.CRITICAL, msg);
+			Log.out(Tier.NORMAL, msg);
 	
 	return input;
 	}
@@ -137,6 +137,8 @@ public class Helper
 		if ( confirmation( input ) )
 			return true;
 		else if ( rejection( input ) )
+			return false;
+		else if ( input == null )
 			return false;
 		else
 		{
@@ -212,8 +214,9 @@ public class Helper
 	 */
 	public static double interpretExpression(String expression)
 	{
-		ExpressionB expres = new ExpressionB(expression);
-		return expres.getValue();
+		return Double.parseDouble(expression);
+//		ExpressionB expres = new ExpressionB(expression);
+//		return expres.getValue();
 	}
 	
 	/**

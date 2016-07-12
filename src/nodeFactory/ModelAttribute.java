@@ -33,7 +33,7 @@ public class ModelAttribute {
 			boolean editable)
 	{
 		this.tag = tag;
-		this.value = value;
+		this.setValue(value);
 		this.options = options;
 		this.editable = editable;
 	}
@@ -44,6 +44,14 @@ public class ModelAttribute {
 	 */
 	public String getXML()
 	{
-		return " " + tag + "=\"" + value + "\"";
+		return " " + tag + "=\"" + getValue() + "\"";
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 }

@@ -2,10 +2,11 @@ package nodeFactory.primarySetters;
 
 import java.util.Map;
 
-import dataIO.XmlRef;
+import dataIO.ObjectFactory;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 public class HashMapSetter<K,T> implements NodeConstructor {
@@ -14,11 +15,44 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 	public Object mapKey;
 	public Map<K,T> map;
 	
+	public String keyClassLabel;
+	public String valueClassLabel;
+	public String keyLabel;
+	public String valueLabel;
+	
+	public String nodeLabel;
+	public boolean muteClassDef = false;
+	private NodeConstructor _parentNode;
+	
 	public HashMapSetter(Object object, Object key, Map<K,T> map )
 	{
 		this.mapObject = object;
 		this.map = map;
 		this.mapKey = key;
+		
+		this.keyClassLabel = XmlRef.keyClassAttribute;
+		this.keyLabel = XmlRef.keyAttribute;
+		this.valueClassLabel = XmlRef.classAttribute;
+		this.valueLabel = XmlRef.valueAttribute;
+		
+		this.nodeLabel = XmlRef.item;
+	}
+	
+	public HashMapSetter(Object object, Object key, Map<K,T> map,
+			String keyClass, String keyAttribute, String valueClass, 
+			String valueAttribute, String nodeLabel)
+	{
+		this.mapObject = object;
+		this.map = map;
+		this.mapKey = key;
+		
+		this.keyClassLabel = keyClass;
+		this.keyLabel = keyAttribute;
+		this.valueClassLabel = valueClass;
+		this.valueLabel = valueAttribute;
+		
+		this.nodeLabel = nodeLabel;
+		this.muteClassDef = true;
 	}
 
 	public ModelNode getNode() 
@@ -26,10 +60,9 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 		ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
-		modelNode.setTitle(": map");
-		
-		modelNode.add(new ModelAttribute(XmlRef.keyTypeAttribute, 
-				mapKey.getClass().getSimpleName(), null, true ));
+		if ( !muteClassDef )
+			modelNode.add(new ModelAttribute(keyClassLabel, 
+					mapKey.getClass().getSimpleName(), null, true ));
 		
 		if (mapObject instanceof NodeConstructor)
 		{
@@ -37,30 +70,73 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 		}
 		else
 		{
-			modelNode.add(new ModelAttribute(XmlRef.keyAttribute, 
+			modelNode.add(new ModelAttribute(keyLabel, 
 					String.valueOf(mapKey), null, true));
 		}
 		
-		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-				mapObject.getClass().getSimpleName(), null, true ));
-		
+		if ( !muteClassDef )
+			modelNode.add(new ModelAttribute(valueClassLabel, 
+					mapObject.getClass().getSimpleName(), null, true ));
+			
 		if (mapObject instanceof NodeConstructor)
 		{
 			modelNode.add(((NodeConstructor) mapObject).getNode()); 
 		}
 		else
 		{
-			modelNode.add(new ModelAttribute(XmlRef.valueAttribute, 
+			modelNode.add(new ModelAttribute(valueLabel, 
 					String.valueOf(mapObject), null, true));
 		}
 		
 		return modelNode;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public void setNode(ModelNode node)
+	{
+		Object key, value;
+		if (this.mapObject instanceof NodeConstructor)
+		{
+			value = node.getAllChildNodes().get(0).constructor;
+			if ( this.muteClassDef )
+			{
+				key = ObjectFactory.loadObject(
+						node.getAttribute( this.keyLabel ).getValue() , 
+						this.keyClassLabel );
+			}
+			else
+			{
+			key = ObjectFactory.loadObject(
+					node.getAttribute( this.keyLabel ).getValue() , 
+					node.getAttribute( this.keyClassLabel ).getValue() );
+			}
+		}
+		else
+		{
+			if ( this.muteClassDef )
+			{
+				key = ObjectFactory.loadObject(
+						node.getAttribute( this.keyLabel ).getValue() , 
+						this.keyClassLabel );
+				value = ObjectFactory.loadObject(
+						node.getAttribute( this.valueLabel ).getValue(), 
+						this.valueClassLabel );
+			}
+			else
+			{
+			key = ObjectFactory.loadObject(
+					node.getAttribute( this.keyLabel ).getValue() , 
+					node.getAttribute( this.keyClassLabel ).getValue() );
+			value = ObjectFactory.loadObject(
+					node.getAttribute( this.valueLabel ).getValue(), 
+					node.getAttribute( this.valueClassLabel ).getValue()  );
+			}
+		}
+		if ( this.map.containsKey( key ) )
+			this.map.remove( key );
+		this.map.put( (K) key, (T) value );
 
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
-		return null;
+		NodeConstructor.super.setNode(node);
 	}
 	
 	public void removeNode(String specifier)
@@ -77,6 +153,18 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 	@Override
 	public String defaultXmlTag() 
 	{
-		return XmlRef.item;
+		return this.nodeLabel;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

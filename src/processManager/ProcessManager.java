@@ -10,7 +10,6 @@ import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
 import idynomics.AgentContainer;
@@ -21,6 +20,8 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.
@@ -67,6 +68,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	protected String _compartmentName;
 	
+	protected NodeConstructor _parentNode;
 	private long _realTimeTaken = 0;
 	
 	/* ***********************************************************************
@@ -349,12 +351,10 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		modelNode.add(new ModelAttribute(XmlRef.processFirstStep, 
 				String.valueOf(this._timeForNextStep), null, true ));
 		
-		/* TODO: add aspects */
-		
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
-		modelNode.addChildConstructor(reg().new Aspect(reg()), 
+		modelNode.addConstructable( ClassRef.aspect,
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
@@ -366,7 +366,20 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	public void setNode(ModelNode node) 
 	{
+
+		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
+
+		this._priority = Integer.valueOf( node.getAttribute( 
+				XmlRef.processPriority ).getValue() );
+
+		this._timeStepSize =  Double.valueOf( node.getAttribute( 
+				XmlRef.processTimeStepSize ).getValue() );
+
+		this._timeForNextStep = Double.valueOf( node.getAttribute( 
+				XmlRef.processFirstStep ).getValue() );
 		
+		NodeConstructor.super.setNode(node);
+
 	}
 
 	/**
@@ -394,12 +407,16 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	{
 		return XmlRef.process;
 	}
-		
-	/**
-	 * 
-	 */
-	public String getXml() 
+
+	
+	public void setParent(NodeConstructor parent)
 	{
-		return this.getNode().getXML();
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

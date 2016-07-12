@@ -49,6 +49,7 @@ public interface SpatialRegistry<T>
 	 * \brief TODO
 	 * 
 	 * @return
+	 * @deprecated
 	 */
 	public abstract List<T> all();
 	

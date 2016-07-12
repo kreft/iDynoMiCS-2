@@ -5,18 +5,18 @@ package guiTools;
 
 import java.awt.EventQueue;
 import java.io.File;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JFileChooser;
 
 import dataIO.Log;
 import glRender.AgentMediator;
-import glRender.CommandMediator;
 import glRender.Render;
 import idynomics.Compartment;
+import idynomics.GuiLaunch;
 import idynomics.Idynomics;
+import idynomics.Param;
+import idynomics.Simulator;
 import utility.Helper;
 
 /**
@@ -39,7 +39,6 @@ public final class GuiActions
 	 */
 	public static void chooseFile() 
 	{
-		GuiMain.getConstructor();
 		/* Open a FileChooser window in the current directory. */
 		JFileChooser chooser = new JFileChooser("" +
 				System.getProperty("user.dir")+"/protocol");
@@ -50,6 +49,14 @@ public final class GuiActions
 		if ( chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION )
 			f = chooser.getSelectedFile();
 		
+    	openFile(f);		
+	}
+	
+	public static void openFile(File f) 
+	{
+		Idynomics.simulator = new Simulator();
+		Idynomics.global = new Param();
+		GuiMain.getConstructor();
     	/* load content if a protocol file has been selected */
     	if ( f == null )
     	{
@@ -63,6 +70,7 @@ public final class GuiActions
     		checkProtocol();
     		GuiEditor.addComponent(Idynomics.simulator.getNode(), 
     				GuiMain.tabbedPane);
+    		GuiLaunch.resetProgressBar();
     	}    		
 	}
 	
@@ -71,14 +79,14 @@ public final class GuiActions
 		if ( Idynomics.global.protocolFile == null )
 		{
 			GuiConsole.writeErr("No protocol file specified.\n");
-		}
+		} 
 		else
 		{
 			Idynomics.setupSimulator(Idynomics.global.protocolFile);
 			if ( Idynomics.simulator.isReadyForLaunch() )
-				GuiConsole.writeOut("Protocol is ready to launch...");
+				GuiConsole.writeOut("Protocol is ready to launch...\n");
 			else
-				GuiConsole.writeErr("Problem in protocol file!");
+				GuiConsole.writeErr("Problem in protocol file!\n");
 		}
 	}
 	
@@ -94,6 +102,7 @@ public final class GuiActions
 		else
 		{
 			Idynomics.simulator.setNode();
+			GuiLaunch.resetProgressBar();
 			Idynomics.launchSimulator();
 		}
 	}

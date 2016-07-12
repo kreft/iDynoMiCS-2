@@ -4,8 +4,8 @@ import java.util.Map;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
+import referenceLibrary.AspectRef;
 import utility.Helper;
-import aspect.AspectRef;
 
 /**
  * \brief TODO

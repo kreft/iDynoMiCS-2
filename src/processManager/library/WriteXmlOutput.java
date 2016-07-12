@@ -2,11 +2,11 @@ package processManager.library;
 
 import org.w3c.dom.Element;
 
-import aspect.AspectRef;
 import dataIO.XmlExport;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
+import referenceLibrary.AspectRef;
 
 /**
  * TODO this should be a general class rather than a process manager

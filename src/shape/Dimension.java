@@ -7,7 +7,6 @@ import org.w3c.dom.NodeList;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import nodeFactory.ModelAttribute;
@@ -15,6 +14,7 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import surface.Surface;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import utility.ExtraMath;
 import utility.Helper;
 
@@ -105,6 +105,8 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 * target resolution
 	 */
 	protected Double _targetRes;
+
+	private NodeConstructor _parentNode;
 	
 	/* ************************************************************************
 	 * CONSTRUCTORS
@@ -653,13 +655,6 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	}
 
 	@Override
-	public NodeConstructor newBlank()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void addChildObject(NodeConstructor childObject)
 	{
 		// TODO Auto-generated method stub
@@ -676,5 +671,17 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	public int compareTo(Dimension o)
 	{
 		return this._dimName.compareTo(o._dimName);
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

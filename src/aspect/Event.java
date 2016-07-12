@@ -3,12 +3,12 @@ package aspect;
 import generalInterfaces.Copyable;
 import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
+import referenceLibrary.XmlRef;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 
 /**
  * An Event is a special agent aspect that performs an "action". This action can

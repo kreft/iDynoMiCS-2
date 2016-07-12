@@ -8,13 +8,13 @@ import static org.junit.Assert.assertTrue;
 
 import agent.Agent;
 import agent.Body;
-import aspect.AspectRef;
 import boundary.spatialLibrary.BiofilmBoundaryLayer;
 import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import referenceLibrary.AspectRef;
 import shape.Dimension.DimName;
 import utility.ExtraMath;
 

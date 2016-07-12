@@ -4,10 +4,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
+import referenceLibrary.XmlRef;
+import utility.Helper;
 
 /**
  * The aspect interface is implemented by classes with an aspect registry,
@@ -33,18 +35,33 @@ public abstract interface AspectInterface
 	 */
 	public default void loadAspects(Node xmlNode)
 	{
-		Element e = (Element) xmlNode;
-		AspectReg aspectReg = (AspectReg) reg();
-		String  name;
-		NodeList stateNodes = e.getElementsByTagName(XmlRef.aspect);
-		for (int j = 0; j < stateNodes.getLength(); j++) 
+		if (xmlNode != null)
 		{
-			Element s = (Element) stateNodes.item(j);
-			name = s.getAttribute(XmlRef.nameAttribute);
-			aspectReg.add(name, ObjectFactory.loadObject(s));
-			Log.out(Tier.BULK, "Aspects loaded for \""+name+"\"");
+			Element e = (Element) xmlNode;
+			AspectReg aspectReg = (AspectReg) reg();
+			String  key;
+			NodeList stateNodes = e.getElementsByTagName( XmlRef.aspect );
+			for (int j = 0; j < stateNodes.getLength(); j++) 
+			{
+				Element s = (Element) stateNodes.item(j);
+				key = s.getAttribute( XmlRef.nameAttribute );
+				switch (AspectClass.valueOf( Helper.setIfNone(
+						s.getAttribute( XmlRef.typeAttribute ), 
+						String.valueOf( AspectClass.PRIMARY ) ) ) )
+		    	{
+		    	case CALCULATED:
+		    		aspectReg.add( key , Calculated.getNewInstance( s ) );
+		    		break;
+		    	case EVENT: 
+		    		aspectReg.add( key , Event.getNewInstance( s ) );
+		    		break;
+		    	case PRIMARY:
+				default:
+					aspectReg.add( key, ObjectFactory.loadObject( s ) );
+				}
+				Log.out(Tier.BULK, "Aspects loaded for \""+key+"\"");
+			}
 		}
-		
 	}
 	
 	

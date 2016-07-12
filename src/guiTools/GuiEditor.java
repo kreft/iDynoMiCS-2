@@ -1,6 +1,7 @@
 package guiTools;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Insets;
@@ -18,12 +19,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
-import dataIO.XmlRef;
-import generalInterfaces.Instantiatable;
+
 import nodeFactory.Constructable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 
@@ -55,10 +56,10 @@ public class GuiEditor
 	public static void setAttributes()
 	{
 		for ( ModelAttribute a : _attributes.keySet())
-			a.value = _attributes.get(a).getText();
+			a.setValue(_attributes.get(a).getText());
 		
 		for ( ModelAttribute a : _attributeSelectors.keySet())
-			a.value = (String) _attributeSelectors.get(a).getSelectedItem();
+			a.setValue((String) _attributeSelectors.get(a).getSelectedItem());
 	}
 	
 	/*
@@ -105,7 +106,10 @@ public class GuiEditor
 				{
 					GuiEditor.setAttributes();
 					node.delete(node.getTitle());
-					GuiMain.update();
+					component.setVisible(false);
+					if (tabs.getParent() != null)
+						tabs.getParent().remove(tabs);
+					
 				}
 			}
 			));
@@ -119,30 +123,18 @@ public class GuiEditor
 			 * is not present yet */
 			if ( constructable.requirement() == Requirements.EXACTLY_ONE )
 			{
-				NodeConstructor newNode = node.getConstruct(c);
-				if ( ! node.hasChildNodes(newNode.defaultXmlTag()) )
-				{
-					node.add(newNode.getNode());
-					node.add(newNode);
-				}
+				node.add(node.getConstruct(c));
 			}
 			else
 			{
 				/* add button for optional childnode(s) */
-				attr.add(GuiComponent.actionButton(
-						constructable.classRef(), 
+				attr.add(GuiComponent.actionButton( constructable.label() , 
 						new JButton("add"), new ActionListener()
 				{
 					@Override
 					public void actionPerformed(ActionEvent event)
 					{
-						NodeConstructor newNode = node.getConstruct(c);
-						if ( newNode != null )
-						{
-							node.add(newNode.getNode());
-							addComponent(newNode.getNode(), component);
-							node.add(newNode);
-						}
+						addComponent(node.getConstruct(c), component);
 					}
 				}
 				));
@@ -152,7 +144,7 @@ public class GuiEditor
 		/* add textareas for this ModelNode's attributes */
 		for ( ModelAttribute a : node.getAttributes() )
 		{
-			if ( a.value == null &&  a.options == null )
+			if ( a.getValue() == null &&  a.options == null )
 			{
 				/* input field */
 				JTextArea input = new JTextArea();
@@ -162,11 +154,11 @@ public class GuiEditor
 				attr.add(GuiComponent.inputPanel(a.tag, input));
 				_attributes.put(a, input);
 			}
-			else if ( a.options == null && a.value.length() < 60)
+			else if ( a.options == null && a.getValue().length() < 60)
 			{
 				/* input field */
 				JTextArea input = new JTextArea();
-				input.setText(a.value);
+				input.setText(a.getValue());
 				input.setEditable(a.editable);
 				if (! a.editable)
 					input.setForeground(Color.gray);
@@ -177,7 +169,7 @@ public class GuiEditor
 			{
 				/* input field */
 				JTextArea input = new JTextArea();
-				input.setText(a.value);
+				input.setText(a.getValue());
 				input.setEditable(a.editable);
 				if (! a.editable)
 					input.setForeground(Color.gray);
@@ -188,7 +180,7 @@ public class GuiEditor
 			{
 				/* options box */
 				JComboBox<String> input = new JComboBox<String>(a.options);
-				input.setSelectedItem(a.value);
+				input.setSelectedItem(a.getValue());
 				input.setEditable(a.editable);
 				attr.add(GuiComponent.selectPanel(a.tag, input));
 				_attributeSelectors.put(a, input);
@@ -224,21 +216,20 @@ public class GuiEditor
 					parent.getParent().getParent().getParent(), 
 					node.getTag(), tabs, "");
 		}
-//		else if ( node.isTagIn(new String[] {XmlRef.aspect, XmlRef.solute}) )
-//		{
-//			GuiComponent.addTab( (JTabbedPane) 
-//					parent.getParent().getParent().getParent(), 
-//					node.getTag() + " " + node.getTitle(), tabs, "" );
-//		}
-		else if ( node.isTagIn(new String[] {XmlRef.reaction}) && 
-				node.getRequirment() == Requirements.IMMUTABLE)
+		else if ( node.isTagIn(new String[] {XmlRef.reaction}) )
 		{
-			GuiComponent.addTab( (JTabbedPane) 
-					parent.getParent().getParent().getParent(), 
-					node.getTag() + " " + node.getTitle(), tabs, "");
+			GuiComponent.addTab( getFirstTabParent(parent), 
+					node.getTag() + " " + node.getTitle(), tabs, ""); 
+					
+		} 
+		else if ( node.isTagIn(new String[] {XmlRef.constants} ) && 
+				node.getRequirment() == Requirements.IMMUTABLE ) 
+		{
+			parent.add(component, null);
+			parent.revalidate();
 		}
 		else if ( node.isTagIn(new String[] 
-				{XmlRef.shapeDimension, XmlRef.point, XmlRef.stoichiometry,
+				{XmlRef.shapeDimension, XmlRef.point, XmlRef.stoichiometric,
 						XmlRef.constant, XmlRef.speciesModule}) )
 		{
 			
@@ -255,9 +246,9 @@ public class GuiEditor
 		{
 			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
 			/* species, agents, TODO: changes to spinner */
-			GuiComponent.addTab( (JTabbedPane) 
-					parent.getParent().getParent().getParent(), 
-					node.getTag() + " " + node.getTitle(), tabs, "");
+			GuiComponent.addTab( getFirstTabParent(parent), 
+					node.getTag() + " " + node.getTitle(), tabs, ""); 
+					
 		} 
 		else
 		{
@@ -268,5 +259,13 @@ public class GuiEditor
 		/* add childnodes of this component to the gui */
 		for ( ModelNode n : node.getAllChildNodes() )
 			addComponent(n, component);
+	}
+	
+	private static JTabbedPane getFirstTabParent(Component component)
+	{
+		if (component instanceof JTabbedPane)
+			return (JTabbedPane) component;
+		else
+			return getFirstTabParent(component.getParent());
 	}
 }

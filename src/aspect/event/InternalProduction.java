@@ -5,7 +5,7 @@ import java.util.Map;
 
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
+import referenceLibrary.AspectRef;
 
 /**
  * \brief Agent growth where the agent has multiple kinds of biomass.

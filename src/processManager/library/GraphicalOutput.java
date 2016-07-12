@@ -6,7 +6,6 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
-import aspect.AspectRef;
 import dataIO.GraphicalExporter;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -16,6 +15,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension.DimName;

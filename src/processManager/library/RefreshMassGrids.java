@@ -1,8 +1,8 @@
 package processManager.library;
 
 import processManager.ProcessManager;
+import referenceLibrary.AspectRef;
 import agent.Agent;
-import aspect.AspectRef;
 import grid.ArrayType;
 
 /**

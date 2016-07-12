@@ -1,13 +1,13 @@
 package agent;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import aspect.AspectRef;
 import dataIO.XmlHandler;
 import dataIO.Log;
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
@@ -17,6 +17,9 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 import surface.Point;
 
 /**
@@ -42,6 +45,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	 * The aspect registry
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
+	private NodeConstructor _parentNode;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -163,6 +167,19 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 			loadAspects(xmlNode);
 		}
 		this.init();
+	}
+	
+	/**
+	 * Instantiatable implementation
+	 */
+	public void init(Element xmlElement, NodeConstructor parent)
+	{
+		//FIXME change entire class to just using parent
+		this._parentNode = parent;
+		this._compartment = (Compartment) parent.getParent();
+		this.loadAspects(xmlElement);
+		this.init();
+		this.registerBirth();
 	}
 	
 	/**
@@ -366,32 +383,17 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 		modelNode.add(new ModelAttribute(XmlRef.identity, 
 				String.valueOf(this.identity()), null, false ));
 		
-		// TODO:  add removing aspects
 		/* add the agents aspects as childNodes */
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
 		/* allow adding of new aspects */
-		modelNode.addChildConstructor(reg().new Aspect(reg()), 
+		modelNode.addConstructable( ClassRef.aspect,
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
 	}
 
-	/**
-	 * create and return a new agent when the add agent button is hit in the
-	 * gui
-	 * @return NodeConstructor
-	 */
-	@Override
-	public NodeConstructor newBlank() 
-	{
-		Agent newBlank = new Agent(this._compartment);
-		newBlank.reg().setIdentity(String.valueOf(newBlank.identity()));
-		newBlank.registerBirth();
-		return newBlank;
-	}
-	
 	public void removeNode(String specifier)
 	{
 		this._compartment.registerRemoveAgent(this);
@@ -407,9 +409,15 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 		return XmlRef.agent;
 	}
 
-
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
-
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

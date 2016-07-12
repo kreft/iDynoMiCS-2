@@ -9,9 +9,9 @@ import org.junit.Test;
 import linearAlgebra.Vector;
 import spatialRegistry.RTree;
 import spatialRegistry.RTree.SeedPicker;
+import spatialRegistry.splitTree.Entry;
+import spatialRegistry.splitTree.Node;
 import spatialRegistry.splitTree.SplitTree;
-import spatialRegistry.splitTree.SplitTree.Entry;
-import spatialRegistry.splitTree.SplitTree.Node;
 import utility.ExtraMath;
 
 /**
@@ -58,7 +58,7 @@ public class TreeTest {
 		for ( int i = 0; i < sampleSize; i++)
 		{
 			double[] a = Vector.randomPlusMinus(3, 100.0);
-			Entry e = tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+			Entry e = new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
 					Double.valueOf(i));
 			tree.add( e );
 			ae.add(e);
@@ -82,7 +82,7 @@ public class TreeTest {
 		
 		tic = (System.currentTimeMillis());
 		double[] f = Vector.randomPlusMinus(3, 100.0);
-		List<Entry> list = tree.find(tree.new Entry(Vector.add(f, -0.1), Vector.add(f, 0.1),
+		List<Entry> list = tree.find(new Entry(Vector.add(f, -0.1), Vector.add(f, 0.1),
 				null));
 		System.out.println("find single " + list.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
@@ -106,17 +106,18 @@ public class TreeTest {
 		for (int i = 0; i < 1000; i++)
 		{
 			double[] a = Vector.randomPlusMinus(3, 100.0);
-			listr.add(tree.find(tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+			listr.add(tree.find(new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
 					Double.valueOf(i) ) ));
 		}
 		System.out.println("multi find " + listr.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
 		
+		listr = new LinkedList<List<Entry>>();
 		tic = (System.currentTimeMillis());
 		for (int i = 0; i < 10000; i++)
 		{
 			double[] a = Vector.randomPlusMinus(3, 100.0);
-			listr.add(tree.find(tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+			listr.add(tree.find(new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
 					Double.valueOf(i) ) ));
 		}
 		System.out.println("multi find " + listr.size() + 
@@ -127,7 +128,7 @@ public class TreeTest {
 		for (int i = 0; i < 1000; i++)
 		{
 			double[] a = Vector.randomPlusMinus(3, 100.0);
-			listr.add(tree.node.findUnfiltered(tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+			listr.add(tree.node.findUnfiltered(new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
 					Double.valueOf(i) ) ));
 		}
 		System.out.println("multi find unfiltered " + listr.size() + 
@@ -138,7 +139,7 @@ public class TreeTest {
 		for (int i = 0; i < 10000; i++)
 		{
 			double[] a = Vector.randomPlusMinus(3, 100.0);
-			listr.add(tree.node.findUnfiltered(tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+			listr.add(tree.node.findUnfiltered(new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
 					Double.valueOf(i) ) ));
 		}
 		System.out.println("multi find unfiltered " + listr.size() + 
@@ -158,7 +159,7 @@ public class TreeTest {
 		{
 			if (n.size() == 0)
 				i++;
-			for ( Entry e : n.allEntries(new LinkedList<Entry>()))
+			for ( Object e : n.allEntries(new LinkedList<Entry>()))
 			{
 				ae.remove(e);
 //				if ( ae.contains(e) )
@@ -180,7 +181,7 @@ public class TreeTest {
 	
 	public void rTreeTest(int sampleSize)
 	{
-		RTree<Double> tree = new RTree<Double>(50, 3, 3, SeedPicker.LINEAR);
+		RTree<Double> tree = new RTree<Double>(8, 3, 3, SeedPicker.LINEAR);
 		
 		double tic = System.currentTimeMillis();
 		
@@ -242,7 +243,7 @@ public class TreeTest {
 		for ( int i = 0; i < sampleSize; i++)
 		{
 			double[] a = Vector.randomPlusMinus(3, 20.0);
-			Entry e = tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+			Entry e = new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
 					Double.valueOf(i));
 			tree.add( e );
 			ae.add(e);
@@ -266,7 +267,7 @@ public class TreeTest {
 		
 		tic = (System.currentTimeMillis());
 		double[] f = Vector.randomPlusMinus(3, 100.0);
-		List<Entry> list = tree.find(tree.new Entry(Vector.add(f, -0.1), Vector.add(f, 0.1),
+		List<Entry> list = tree.find(new Entry(Vector.add(f, -0.1), Vector.add(f, 0.1),
 				null));
 		System.out.println("find single " + list.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
@@ -290,7 +291,7 @@ public class TreeTest {
 		for (int i = 0; i < 1000; i++)
 		{
 			double[] a = Vector.randomPlusMinus(3, 100.0);
-			listr.add(tree.find(tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+			listr.add(tree.find(new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
 					Double.valueOf(i) ) ));
 		}
 		System.out.println("multi find " + listr.size() + 
@@ -301,7 +302,7 @@ public class TreeTest {
 		for (int i = 0; i < 1000; i++)
 		{
 			double[] a = Vector.randomPlusMinus(3, 100.0);
-			listr.add(tree.node.findUnfiltered(tree.new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
+			listr.add(tree.node.findUnfiltered(new Entry(Vector.add(a, -0.1), Vector.add(a, 0.1),
 					Double.valueOf(i) ) ));
 		}
 		System.out.println("multi find unfiltered " + listr.size() + 
@@ -319,7 +320,7 @@ public class TreeTest {
 		int b = 0;
 		for ( Node n : nodes )
 		{
-			for ( Entry e : n.allEntries(new LinkedList<Entry>()))
+			for ( Object e : n.allEntries(new LinkedList<Entry>()))
 			{
 				ae.remove(e);
 //				if ( ae.contains(e) )

@@ -4,6 +4,7 @@ import surface.Point;
 import utility.ExtraMath;
 import utility.Helper;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -13,7 +14,6 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -21,8 +21,6 @@ import dataIO.Log.Tier;
  * Simple coccoid division class, divides mother cell in two with a random
  * moves mother and daughter in a random opposing direction and registers the
  * daughter cell to the compartment
- * 
- * NOTE: inputs 0 "mass" 1 "radius" 2 "body"
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.

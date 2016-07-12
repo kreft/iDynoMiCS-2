@@ -15,8 +15,8 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
-					<item type="PRIMARY" class="Reaction">
+				<aspect name="reactions" type="PRIMARY"  class="PileList"> 
+					<reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
@@ -25,12 +25,12 @@
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="eps" coefficient="0.1" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
-						</reaction>
-					</item>
+						</reaction> 
+					</reactions>
 				</aspect>
 			</species>
 			<species name="coccoid">
-				<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				<aspect name="density" type="PRIMARY" class="Double" value="1.0" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
@@ -43,12 +43,12 @@
 			</species>
 			<species name="producer">
 				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPSCumulative" 	 />
-				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="0.003" />
+				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="0.02" />
 				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />
 			</species>
 			
 			<species name="particleEPS">
-				<aspect name="density" type="PRIMARY" class="Double" value="1" />
+				<aspect name="density" type="PRIMARY" class="Double" value="1.0" />
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
@@ -64,8 +64,8 @@
 
 		<compartment name="noPrefPull">
 			<shape class="Rectangle">
-				<dimension name="X" isCyclic="true" targetResolution="1" max="30.0"/>
-				<dimension name="Y" isCyclic="false" targetResolution="1" max="30.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="30.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="30.0"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="0.2" />
