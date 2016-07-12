@@ -84,6 +84,10 @@ public class AgentContainer implements NodeConstructor
 	public final static String DETACHABILITY = "detachability";
 	
 	protected PDEsolver _detachabilitySolver;
+	
+	/**
+	 * TODO
+	 */
 	private NodeConstructor _parentNode;
 	/**
 	 * Helper method for filtering local agent lists, so that they only
@@ -110,6 +114,12 @@ public class AgentContainer implements NodeConstructor
 	 * voxels a located {@code Agent} covers.
 	 */
 	private static final String VD_TAG = AspectRef.agentVolumeDistributionMap;
+	
+	/**
+	 * the type of spatial registry ( setting default value but can be 
+	 * overwritten).
+	 */
+	private TreeType _spatialTree = TreeType.RTREE;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -139,6 +149,17 @@ public class AgentContainer implements NodeConstructor
 	{
 		this((Shape) Shape.getNewInstance(shapeName));
 	}
+	
+
+	public void setSpatialTree(TreeType type) 
+	{
+		this._spatialTree = type;
+	}
+	
+	public TreeType getSpatialTree() 
+	{
+		return this._spatialTree;
+	}
 
 	/**
 	 * Helper method for (re-)making this container's spatial registry.
@@ -149,19 +170,26 @@ public class AgentContainer implements NodeConstructor
 			this._agentTree = new DummyTree<Agent>();
 		else
 		{
-			/*
-			 * Bas: I have chosen maxEntries and minEntries by testing what
-			 * values resulted in fast tree creation and agent searches.
-			 */
-			// TODO R-tree parameters could follow from the protocol file.
-//			this._agentTree = new RTree<Agent>(8, 2, this._shape);
-			double[] min = Vector.zerosDbl(this.getShape().getNumberOfDimensions());
-			/* 
-			 * FIXME when more than max_entries agents overlap in on position
-			 *  the split tree will cause a stack overflow exception
-			 */
-			this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 24, 
-					min, Vector.add(min, this.getShape().getDimensionLengths()), this._shape.getIsCyclicNaturalOrder());
+			switch (_spatialTree)
+			{
+			case RTREE:
+				this._agentTree = new RTree<Agent>(8, 2, this._shape);
+				break;
+			case SPLITTREE:
+				/* currently domain minimum is always set to zero but this will
+				 * change, min represents domain minima */
+				double[] min = Vector.zerosDbl(
+						this.getShape().getNumberOfDimensions() );
+				/* 
+				 * FIXME when more than max_entries agents overlap in on position
+				 *  the split tree will cause a stack overflow exception
+				 */
+				this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 24, 
+						min, Vector.add( min, 
+						this.getShape().getDimensionLengths() ),
+						this._shape.getIsCyclicNaturalOrder() );
+				break;
+			}
 		}
 	}
 

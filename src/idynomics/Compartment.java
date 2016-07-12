@@ -26,6 +26,7 @@ import reaction.Reaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
+import spatialRegistry.TreeType;
 import utility.Helper;
 import shape.Dimension.DimName;
 
@@ -95,8 +96,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	// TODO temporary fix, reassess
 	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	protected double _localTime;
-	private NodeConstructor _parentNode;
 	
+	/**
+	 * the compartment parent node constructor (simulator)
+	 */
+	private NodeConstructor _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -176,6 +180,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 */
 		agents.setParent(this);
 		environment.setParent(this);
+		/*
+		 * setup tree
+		 */
+		str = XmlHandler.gatherAttribute(xmlElem, XmlRef.tree);
+		str = Helper.setIfNone(str, String.valueOf(TreeType.RTREE));
+		this.agents.setSpatialTree(TreeType.valueOf(str));
 		/*
 		 * Load solutes.
 		 */
@@ -478,6 +488,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		modelNode.add( this.agents.getNode() );
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
+				
+		/* spatial registry NOTE we are handling this here since the agent
+		 * container does not have the proper init infrastructure */
+		modelNode.add( new ModelAttribute(XmlRef.tree, 
+				String.valueOf( this.agents.getSpatialTree() ) , 
+				Helper.enumToStringArray( TreeType.class ), false ) );
 
 		return modelNode;	
 	}
@@ -499,6 +515,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		modelNode.addConstructable( ClassRef.processManager, 
 				Helper.collectionToArray( ProcessManager.getAllOptions() ), 
 				ModelNode.Requirements.ZERO_TO_MANY );
+		
 		/* Add existing process managers as child nodes. */
 		for ( ProcessManager p : this._processes )
 			modelNode.add( p.getNode() );
@@ -513,6 +530,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		{
 			/* Update the name. */
 			this.name = node.getAttribute( XmlRef.nameAttribute ).getValue();
+			
+			/* set the tree type */
+			String tree = node.getAttribute( XmlRef.tree ).getValue();
+			if ( ! Helper.isNone( tree ) )
+				this.agents.setSpatialTree( TreeType.valueOf( tree ) );
 		}
 		/* 
 		 * Set the child nodes.

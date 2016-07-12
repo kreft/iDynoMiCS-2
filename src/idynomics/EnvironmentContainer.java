@@ -20,6 +20,7 @@ import reaction.Reaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
+import spatialRegistry.TreeType;
 
 /**
  * \brief Manages the solutes in a {@code Compartment}.
