@@ -14,11 +14,14 @@ import org.w3c.dom.NodeList;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import nodeFactory.primarySetters.BundleMap;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -97,7 +100,9 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * Names and values of constants in this expression.
 	 */
-	private Map<String, Double> _constants;
+	private BundleMap<String, Double> _constants = new BundleMap<String,Double>(
+			String.class, Double.class, XmlRef.nameAttribute, 
+			XmlRef.valueAttribute, XmlRef.constants, XmlRef.constant, true);
 	
 	/**
 	 * Names of variables in this expression.
@@ -108,6 +113,8 @@ public class ExpressionB extends Component implements NodeConstructor
 	 * The component object.
 	 */
 	protected Component _a;
+
+	private NodeConstructor _parentNode;
 	/**
 	 * 
 	 */
@@ -140,6 +147,8 @@ public class ExpressionB extends Component implements NodeConstructor
 	 */
 	public ExpressionB(String expression)
 	{
+		if (expression == null || expression.equals("") )
+			expression = Helper.obtainInput("", XmlRef.expression);
 		init(expression, null);
 	}
 	
@@ -151,19 +160,11 @@ public class ExpressionB extends Component implements NodeConstructor
 	public ExpressionB(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
-		
-		HashMap<String,Double> constantsMap = new HashMap<String,Double>();
-		NodeList constants = XmlHandler.getAll(elem, XmlRef.constant);
-		for ( int i = 0; i < constants.getLength(); i++ )
-		{
-			constantsMap.put(XmlHandler.gatherAttribute(constants.item(i), 
-					XmlRef.nameAttribute),
-					Double.valueOf(XmlHandler.gatherAttribute(constants.item(i),
-					XmlRef.valueAttribute)));
-		}
+
+		this._constants.init(elem, this);
 				
 		init( XmlHandler.obtainAttribute(elem, XmlRef.valueAttribute, this.defaultXmlTag()), 
-				constantsMap);
+				this._constants);
 	}
 	
 	public void init(String expression, Map<String, Double> constants)
@@ -185,7 +186,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		Log.out(LOG_LEVEL, "  Constants defined:");
 		for ( String key : constants.keySet() )
 			Log.out(LOG_LEVEL, "  -> "+key+" = "+constants.get(key));
-		this._constants = constants;
+		this._constants.putAll(constants);
 		/* Build the component. */
 		this.build();
 
@@ -539,7 +540,7 @@ public class ExpressionB extends Component implements NodeConstructor
 		this._constants.put(name, value);
 		// TODO Can we use this instead?
 		//this._variables.remove(name);
-		this._variables.remove(this._variables.indexOf(name));
+		this._variables.remove(name);
 	}
 
 	/**
@@ -751,8 +752,11 @@ public class ExpressionB extends Component implements NodeConstructor
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		modelNode.add(new ModelAttribute(XmlRef.valueAttribute, this._expression, null, true));
 		
-		for (String con : this._constants.keySet() )
-			modelNode.add(getConstantNode(con));
+//		for (String con : this._constants.keySet() )
+//			modelNode.add(getConstantNode(con));
+		
+		modelNode.add( this._constants.getNode() );
+		
 		return modelNode;
 	}
 	
@@ -760,6 +764,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.constant, 
 				this);
+		modelNode.setTitle(constant);
 		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, constant, null, true));
@@ -770,19 +775,17 @@ public class ExpressionB extends Component implements NodeConstructor
 	@Override
 	public void setNode(ModelNode node) 
 	{
-		this._expression = node.getAttribute(XmlRef.valueAttribute).value;
+		/* Set values for all child nodes. */
+		NodeConstructor.super.setNode(node);
+		
+		this._expression = node.getAttribute(XmlRef.valueAttribute).getValue();
 		this.build();
 	}
 
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	public void removeNode()
+	public void removeNode(String specifier)
 	{
-		// TODO
+		if (this._constants.containsKey(specifier))
+			this._constants.remove(specifier);
 	}
 
 	@Override
@@ -795,5 +798,17 @@ public class ExpressionB extends Component implements NodeConstructor
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
 		return XmlRef.expression;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

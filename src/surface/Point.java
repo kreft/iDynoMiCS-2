@@ -1,11 +1,11 @@
 package surface;
 
-import dataIO.XmlRef;
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 /**
@@ -36,6 +36,7 @@ public class Point implements Copyable, NodeConstructor
 	 * Used by higher-order ODE solvers.
 	 */
 	private double[][] _c;
+	private NodeConstructor _parentNode;
 
 	/**
 	 * Viscosity of the surrounding medium (in units of Pa s).
@@ -290,12 +291,6 @@ public class Point implements Copyable, NodeConstructor
 	}
 
 	@Override
-	public NodeConstructor newBlank()
-	{
-		return null;
-	}
-
-	@Override
 	public void addChildObject(NodeConstructor childObject)
 	{
 		// TODO Auto-generated method stub
@@ -306,5 +301,17 @@ public class Point implements Copyable, NodeConstructor
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

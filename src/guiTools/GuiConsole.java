@@ -4,8 +4,14 @@
 package guiTools;
 
 import java.awt.Color;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
+import java.util.List;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -18,6 +24,11 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+
+import dataIO.Log;
+import dataIO.Log.Tier;
+import idynomics.Idynomics;
+import utility.Helper;
 
 /**
  * 
@@ -61,6 +72,43 @@ public final class GuiConsole
 	{
 		_console = new JTextPane();
 		_console.setBackground(_consoleBackground);
+		
+		/**
+		 * based on
+		 * http://stackoverflow.com/questions/811248/
+		 * how-can-i-use-drag-and-drop-in-swing-to-get-file-path
+		 * 
+		 * TODO check whether this also works on mac and linux.
+		 */
+		_console.setDropTarget(new DropTarget() {
+			private static final long serialVersionUID = -8965667461314634402L;
+
+			@SuppressWarnings("unchecked")
+			public synchronized void drop(DropTargetDropEvent evt) {
+		        try {
+		            evt.acceptDrop(DnDConstants.ACTION_COPY);
+		            List<File> droppedFiles = (List<File>)
+		                evt.getTransferable().getTransferData(
+		                		DataFlavor.javaFileListFlavor);
+		            if ( droppedFiles.size() > 1 )
+		            	Log.out(Tier.QUIET, "Unable to open multiple files at "
+		            			+ "once");
+		            else if ( Idynomics.simulator != null )
+		            {
+		            	if ( Helper.obtainInput("Are you sure you want to"
+		            			+ "replace the current model state with: \n" + 
+		            			droppedFiles.get(0).getName() + "?", false) )
+		            		GuiActions.openFile( droppedFiles.get(0) );
+		            }
+		            else
+	            		GuiActions.openFile( droppedFiles.get(0) );
+
+		        } catch (Exception ex) {
+		            ex.printStackTrace();
+		        }
+		    }
+		});
+		
 		return new JScrollPane(_console,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

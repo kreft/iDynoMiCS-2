@@ -9,12 +9,13 @@ import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -34,6 +35,8 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	 * Void species, returned if no species is set.
 	 */
 	protected Species _voidSpecies = new Species();
+
+	private NodeConstructor _parentNode;
 
 	public String[] getAllSpeciesNames()
 	{
@@ -177,7 +180,7 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* Species constructor */
-		modelNode.addChildConstructor(new Species(), 
+		modelNode.addConstructable( ClassRef.species,
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		/* the already existing species */
@@ -185,16 +188,6 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 			modelNode.add(((Species) _species.get(s)).getNode());
 	
 		return modelNode;
-	}
-
-	/**
-	 * Create a new minimal object of this class and return it
-	 * @return NodeConstructor
-	 */
-	@Override
-	public NodeConstructor newBlank()
-	{
-		return Idynomics.simulator.speciesLibrary;
 	}
 
 	/**
@@ -218,4 +211,15 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 		return XmlRef.speciesLibrary;
 	}
 
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

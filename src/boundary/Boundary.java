@@ -9,7 +9,6 @@ import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.Log;
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
@@ -17,6 +16,7 @@ import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
@@ -82,6 +82,7 @@ public abstract class Boundary implements NodeConstructor
 	 * and need to be entered into this compartment.
 	 */
 	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
+	private NodeConstructor _parentNode;
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
@@ -501,13 +502,6 @@ public abstract class Boundary implements NodeConstructor
 		// TODO
 	}
 
-	@Override
-	public NodeConstructor newBlank()
-	{
-		// TODO
-		return null;
-	}
-	
 	public void removeNode()
 	{
 		// TODO
@@ -521,5 +515,16 @@ public abstract class Boundary implements NodeConstructor
 	{
 		// FIXME use different tag for spatial/non-spatial boundaries?
 		return XmlRef.dimensionBoundary;
+	}
+	
+	public void setParent(NodeConstructor parent)
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

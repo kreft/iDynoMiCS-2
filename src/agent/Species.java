@@ -1,14 +1,18 @@
 package agent;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import dataIO.XmlRef;
+import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 import utility.Helper;
 
 /**
@@ -16,14 +20,17 @@ import utility.Helper;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Species implements AspectInterface, NodeConstructor
+public class Species implements AspectInterface, NodeConstructor, Instantiatable
 {
 	/**
 	 * TODO
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
-
-
+	/**
+	 * 
+	 */
+	protected NodeConstructor _parentNode;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -46,6 +53,17 @@ public class Species implements AspectInterface, NodeConstructor
 	{
 		/* Load the primary aspects of this Species. */
 		this.loadAspects(xmlNode);
+		this._parentNode = Idynomics.simulator.speciesLibrary;
+	}
+	
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		//TODO currently only accounting for gui initiation, use constructor for other.
+		this._parentNode = parent;
+		String name = "";
+		name = Helper.obtainInput(name, "Species name");
+		this.reg().setIdentity(name);
+		Idynomics.simulator.speciesLibrary.addChildObject(this);
 	}
 
 	/*************************************************************************
@@ -89,39 +107,33 @@ public class Species implements AspectInterface, NodeConstructor
 				this.reg().getIdentity(), null, true ));
 		
 		/* add any submodules */
-		for ( AspectInterface mod : this.reg().getSubModules() )
-			modelNode.add(mod.reg().getModuleNode(this));
+//		for ( AspectInterface mod : this.reg().getSubModules() )
+//			modelNode.add(mod.reg().getModuleNode(this));
+		
+//		for ( AspectInterface mod : this.reg().getSubModules() )
+//			modelNode.add(new LinkedListSetter<String>(
+//					mod.reg().getIdentity(), this.reg().getSubModuleNames(),
+//					ObjectRef.STR, XmlRef.nameAttribute,
+//					XmlRef.speciesModule ).getNode() );
+		
+//		Pile<String> nodes = new Pile<String>(XmlRef.nameAttribute, "submodules", XmlRef.speciesModule);
+//		nodes.addAll(this.reg().getSubModuleNames());
+		this.reg().getSubModuleNames().requirement = Requirements.IMMUTABLE;
+		this.reg().getSubModuleNames().muteAttributeDef = true;
+//		nodes.muteClassDef = true;
+		modelNode.add(this.reg().getSubModuleNames().getNode());
 
 		/* allow adding of additional aspects */
-		modelNode.addChildConstructor(
-				this._aspectRegistry.new Aspect(this._aspectRegistry), 
+		/* allow adding of new aspects */
+		modelNode.addConstructable( ClassRef.aspect,
 				ModelNode.Requirements.ZERO_TO_MANY);
-		
-		/* TODO: removing aspects */
-		
+
 		/* add already existing aspects */
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
 		return modelNode;
 	}
-
-	/**
-	 * Create a new minimal object of this class and return it, used by the gui
-	 * to add new Species
-	 * @return NodeConstructor
-	 */
-	@Override
-	public NodeConstructor newBlank() 
-	{
-		String name = "";
-		name = Helper.obtainInput(name, "Species name");
-		Species newBlank = new Species();
-		newBlank.reg().setIdentity(name);
-//		Idynomics.simulator.speciesLibrary.set(newBlank);
-		return newBlank;
-	}
-	
 
 	@Override
 	public void removeNode(String specifier) 
@@ -142,4 +154,15 @@ public class Species implements AspectInterface, NodeConstructor
 		return XmlRef.species;
 	}
 
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

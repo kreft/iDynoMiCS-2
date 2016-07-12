@@ -1,4 +1,9 @@
-package dataIO;
+package referenceLibrary;
+
+import java.lang.reflect.Field;
+
+import dataIO.Log;
+import dataIO.Log.Tier;
 
 /**
  * \brief Collection of common object tags.
@@ -9,9 +14,19 @@ public final class ObjectRef
 {
 	public static String[] getAllOptions()
 	{
-		return new String[] { BOOL, STR, STR_VECT, INT, INT_VECT, 
-				INT_MATR, INT_ARRY, DBL, DBL_VECT, DBL_MATR, DBL_ARRY };
-		
+		Field[] fields = ObjectRef.class.getFields();
+		String[] options = new String[fields.length];
+		int i = 0;
+
+		for ( Field f : fields )
+			try {
+				options[i++] = (String) f.get(new String());
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				Log.out(Tier.CRITICAL, "problem in ObjectRef field declaretion"
+						+ "\n can not obtain all options");
+				e.printStackTrace();
+			}
+		return options;
 	}
 	/**
 	 * Boolean, i.e. true or false.
@@ -58,5 +73,11 @@ public final class ObjectRef
 	 */
 	public final static String DBL_ARRY = DBL_MATR+"[]";
 	
-	// TODO HashMap, LinkedList, etc?
+	public static final String PILE = "PileList";
+	public static final String BUNDLE = "BundleMap";
+	public static final String LINKEDLIST = "LinkedList";
+	public static final String HASHMAP = "HashMap";
+	public static final String REACTION = "Reaction";
+	public static final String BODY = "Body";
+	
 }

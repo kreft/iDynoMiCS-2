@@ -14,8 +14,8 @@
 				both on species level and on agent level, the agent state will be used in 
 				the simulation. small test -->
 			<species name="rAOB">
-				<aspect name="reactions" type="PRIMARY" class="LinkedList" >
-					<item type="PRIMARY" class="Reaction">
+				<aspect name="reactions" type="PRIMARY"  class="PileList"> 
+ <reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.1" />
@@ -23,8 +23,8 @@
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-5.0" />
 							<stoichiometric component="solute2" coefficient="0.5" />
-						</reaction>
-					</item>
+						</reaction> 
+ </reactions>
 				</aspect>
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<speciesModule name="rod" />
@@ -67,8 +67,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="12.2, 12.2" />
-						<point position="12.0, 12.2" />
+						<point position="12.2, 0.0" />
+						<point position="12.0, 0.0" />
 					</aspect>
 				</agent>
 			</agents>

@@ -12,7 +12,6 @@ import agent.SpeciesLib;
 import dataIO.Log;
 import dataIO.XmlExport;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
@@ -20,6 +19,8 @@ import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
 import reaction.ReactionLibrary;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at
@@ -130,20 +131,22 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
 			this.speciesLibrary = (SpeciesLib) Instantiatable.getNewInstance(
-					"SpeciesLib", XmlHandler.loadUnique(xmlElem, 
+					ClassRef.speciesLibrary, XmlHandler.loadUnique(xmlElem, 
 					XmlRef.speciesLibrary ), this);
 		}
 		/*
 		 * Set up the reaction library.
+		 * FIXME disabled since reactionLibrary has no implementation of 
+		 * init(Element, parent) and does will always be an empty container
 		 */
-		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.reactionLibrary))
-		{
-			this.reactionLibrary = (ReactionLibrary)
-					Instantiatable.getNewInstance(
-						"ReationLib",
-						XmlHandler.loadUnique(xmlElem, XmlRef.speciesLibrary ),
-						this);
-		}
+//		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.reactionLibrary))
+//		{
+//			this.reactionLibrary = (ReactionLibrary)
+//					Instantiatable.getNewInstance(
+//						ClassRef.reactionLibrary,
+//						XmlHandler.loadUnique(xmlElem, XmlRef.speciesLibrary ),
+//						this);
+//		}
 		/*
 		 * Set up the compartments.
 		 */
@@ -499,17 +502,17 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		
 		/* update simulation name */
 		Idynomics.global.simulationName = 
-				node.getAttribute(XmlRef.nameAttribute).value;
+				node.getAttribute(XmlRef.nameAttribute).getValue();
 		
 		/* update output root folder */
 		Idynomics.global.outputRoot = 
-				node.getAttribute(XmlRef.outputFolder).value;
+				node.getAttribute(XmlRef.outputFolder).getValue();
 		
 		/* set output level */
-		Log.set(node.getAttribute(XmlRef.logLevel).value);
+		Log.set(node.getAttribute(XmlRef.logLevel).getValue());
 		
 		/* set random seed */
-		this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).value));
+		this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).getValue()));
 		
 		/* Set values for all child nodes. */
 		NodeConstructor.super.setNode(node);
@@ -541,6 +544,19 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 	public String getXml() 
 	{
 		return this._modelNode.getXML();
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		Log.out(Tier.CRITICAL, "Simulator is root node");
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		Log.out(Tier.CRITICAL, "Simulator is root node");
+		return null;
 	}
 }
 

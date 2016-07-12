@@ -7,7 +7,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -47,6 +46,11 @@ public class GuiComponent {
 	public static void togglePane(JTabbedPane tabbedPane, int paneNumber)
 	{
 		tabbedPane.setSelectedIndex(paneNumber);
+	}
+	
+	public static void togglePane(JTabbedPane tabbedPane, Component component)
+	{
+		tabbedPane.setSelectedIndex( findComponentIndex(tabbedPane, component));
 	}
 	
 	public static void tabEnabled(JTabbedPane tabbedPane, int paneNumber, boolean bool)
@@ -177,7 +181,7 @@ public class GuiComponent {
 		panel.setSize(600, 25);
 		
 		JLabel filler = new JLabel(description);
-        filler.setPreferredSize(new Dimension(480,25));
+        filler.setPreferredSize(new Dimension(478,25));
         panel.add(filler,BorderLayout.WEST);
 
 		actionButton.setPreferredSize(new Dimension(100,25));

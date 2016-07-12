@@ -10,7 +10,6 @@ import java.util.function.Predicate;
 
 import agent.Agent;
 import agent.Body;
-import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
@@ -20,6 +19,12 @@ import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
@@ -27,6 +32,7 @@ import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import spatialRegistry.*;
+import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
 import surface.Collision;
 import surface.predicate.IsNotColliding;
@@ -39,7 +45,7 @@ import utility.ExtraMath;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class AgentContainer
+public class AgentContainer implements NodeConstructor
 {
 	/**
 	 * This dictates both geometry and size, and it inherited from the
@@ -78,6 +84,7 @@ public class AgentContainer
 	public final static String DETACHABILITY = "detachability";
 	
 	protected PDEsolver _detachabilitySolver;
+	private NodeConstructor _parentNode;
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have reactions.
@@ -147,7 +154,14 @@ public class AgentContainer
 			 * values resulted in fast tree creation and agent searches.
 			 */
 			// TODO R-tree parameters could follow from the protocol file.
-			this._agentTree = new RTree<Agent>(8, 2, this._shape);
+//			this._agentTree = new RTree<Agent>(8, 2, this._shape);
+			double[] min = Vector.zerosDbl(this.getShape().getNumberOfDimensions());
+			/* 
+			 * FIXME when more than max_entries agents overlap in on position
+			 *  the split tree will cause a stack overflow exception
+			 */
+			this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 24, 
+					min, Vector.add(min, this.getShape().getDimensionLengths()), this._shape.getIsCyclicNaturalOrder());
 		}
 	}
 
@@ -161,7 +175,7 @@ public class AgentContainer
 	{
 		for ( Agent a : this._agentList )
 			a.setCompartment(aCompartment);
-		for ( Agent a : this._agentTree.all() )
+		for ( Agent a : this._locatedAgentList )
 			a.setCompartment(aCompartment);
 	}
 
@@ -283,6 +297,7 @@ public class AgentContainer
 		return this.treeSearch(pointLocation, Vector.zeros(pointLocation));
 	}
 
+		// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Find all agents that are potentially within the given distance of 
 	 * a given focal agent.
@@ -354,7 +369,8 @@ public class AgentContainer
 		}
 		return this.treeSearch( surface , searchDist);
 	}
-	
+
+		// FIXME move all aspect related methods out of general classes
 	/**
 	 * filter non colliding agents
 	 * @param aSurface
@@ -402,7 +418,7 @@ public class AgentContainer
 				surfaces.remove(s);
 	}
 	
-	
+		// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Find all boundary surfaces that the given agent may be close to.
 	 * 
@@ -448,6 +464,7 @@ public class AgentContainer
 	 * AGENT LOCATION & MASS
 	 * **********************************************************************/
 
+	 // FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Helper method to check if an {@code Agent} is located.
 	 * 
@@ -468,6 +485,7 @@ public class AgentContainer
 				( anAgent.getBoolean(AspectRef.isLocated) );
 	}
 
+	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Move the given agent along the given dimension, by the given
 	 * distance.
@@ -488,7 +506,8 @@ public class AgentContainer
 		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+") "+dist+
 				" along dimension "+dimN+" to "+Vector.toString(newLoc));
 	}
-	
+
+	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Compose a dictionary of biomass names and values for the given
 	 * agent.
@@ -528,7 +547,8 @@ public class AgentContainer
 		}
 		return out;
 	}
-	
+
+	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Use a dictionary of biomass names and values to update the given
 	 * agent.
@@ -554,6 +574,10 @@ public class AgentContainer
 		}
 		else if ( mass instanceof Double )
 		{
+			/**
+			 * NOTE map.remove returns the current associated value and removes
+			 * it from the map
+			 */
 			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
 		}
 		else if ( mass instanceof Double[] )
@@ -622,6 +646,7 @@ public class AgentContainer
 		this.treeInsert(anAgent);
 	}
 
+		// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Insert the given agent into this container's spatial registry.
 	 * 
@@ -632,6 +657,7 @@ public class AgentContainer
 	 */
 	private void treeInsert(Agent anAgent)
 	{
+		anAgent.event(AspectRef.agentUpdateBody);
 		Body body = ((Body) anAgent.get(AspectRef.agentBody));
 		double dist = 0.0;
 		if ( anAgent.isAspect(AspectRef.agentPulldistance) )
@@ -939,11 +965,11 @@ public class AgentContainer
 	/* ***********************************************************************
 	 * AGENT MASS DISTRIBUTION
 	 * **********************************************************************/
-	
+
+	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Loop through all located {@code Agent}s with reactions,
 	 * estimating how much of their body overlaps with nearby grid voxels.
-	 * 
 	 * @param agents The agents of a {@code Compartment}.
 	 */
 	@SuppressWarnings("unchecked")
@@ -973,6 +999,7 @@ public class AgentContainer
 		List<Surface> surfaces;
 		double[] pLoc;
 		Collision collision = new Collision(null, shape);
+
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext())
 		{
@@ -994,6 +1021,7 @@ public class AgentContainer
 				Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
 					Vector.toString(coord));
 			}
+			
 			/* 
 			 * Find the sub-voxel resolution from the smallest agent, and
 			 * get the list of sub-voxel points.
@@ -1046,6 +1074,40 @@ public class AgentContainer
 			}
 		}
 		Log.out(DEBUG, "Finished setting up agent distribution maps");
+	}
+
+	@Override
+	public ModelNode getNode() 
+	{
+		/* The agents node. */
+		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* Add the agent childConstrutor for adding of additional agents. */
+		modelNode.addConstructable( ClassRef.agent,
+				ModelNode.Requirements.ZERO_TO_MANY);
+		/* If there are agents, add them as child nodes. */
+		for ( Agent a : this.getAllAgents() )
+			modelNode.add( a.getNode() );
+		return modelNode;
+	
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 	
 	/* ***********************************************************************

@@ -7,11 +7,11 @@ import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import grid.SpatialGrid;
 import static grid.ArrayType.DIFFUSIVITY;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import referenceLibrary.XmlRef;
 import shape.Shape;
 
 /**

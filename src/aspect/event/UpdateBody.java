@@ -3,7 +3,7 @@ package aspect.event;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
+import referenceLibrary.AspectRef;
 import utility.ExtraMath;
 
 /**

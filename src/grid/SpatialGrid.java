@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
+import generalInterfaces.Instantiatable;
 import idynomics.EnvironmentContainer;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
@@ -18,6 +18,7 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import shape.Shape;
 import utility.ExtraMath;
 
@@ -45,7 +46,7 @@ import utility.ExtraMath;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 
-public class SpatialGrid implements NodeConstructor
+public class SpatialGrid implements NodeConstructor, Instantiatable
 {
 	/**
 	 * The name of the variable which this grid represents.
@@ -129,6 +130,15 @@ public class SpatialGrid implements NodeConstructor
 	}
 	
 	public SpatialGrid(Element xmlElem, NodeConstructor parent)
+	{
+		this.init(xmlElem, parent);
+	}
+	
+	public SpatialGrid() { 
+		//NOTE only used for ClassRef
+	}
+
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
 		this._shape = ((EnvironmentContainer) parent).getShape();
 		this._parentNode = parent;
@@ -757,18 +767,11 @@ public class SpatialGrid implements NodeConstructor
 	@Override
 	public void setNode(ModelNode node)
 	{
-		this._name = node.getAttribute( XmlRef.nameAttribute ).value;
+		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
 		this.setTo(ArrayType.CONCN, 
-				node.getAttribute(XmlRef.concentration).value);
+				node.getAttribute(XmlRef.concentration).getValue());
 	}
 
-	@Override
-	public NodeConstructor newBlank()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	public void removeNode(String specifier) 
 	{
 		this._parentNode.removeChildNode(this);
@@ -785,5 +788,17 @@ public class SpatialGrid implements NodeConstructor
 	public String defaultXmlTag()
 	{
 		return XmlRef.solute;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

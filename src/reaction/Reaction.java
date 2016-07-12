@@ -9,7 +9,6 @@ import org.w3c.dom.NodeList;
 
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
@@ -17,6 +16,11 @@ import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import nodeFactory.primarySetters.BundleMap;
+import nodeFactory.primarySetters.HashMapSetter;
+import referenceLibrary.ClassRef;
+import referenceLibrary.ObjectRef;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 /**
@@ -50,7 +54,9 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private Map<String,Double> _stoichiometry = new HashMap<String,Double>();
+	private BundleMap<String,Double> _stoichiometry = new BundleMap<String,Double>(
+			String.class, Double.class, XmlRef.component, XmlRef.coefficient, 
+			XmlRef.stoichiometry, XmlRef.stoichiometric, true);
 	/**
 	 * The mathematical expression describing the rate at which this reaction
 	 * proceeds.
@@ -155,25 +161,23 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		/*
 		 * Build the stoichiometric map.
 		 */
-		NodeList stoichs = XmlHandler.getAll(xmlElem, XmlRef.stoichiometry);
-		String str;
-		double coeff;
-		for ( int i = 0; i < stoichs.getLength(); i++ )
-		{
-			Element temp = (Element) stoichs.item(i);
-			/* Get the coefficient. */
-			str = XmlHandler.obtainAttribute(temp, XmlRef.coefficient, this.defaultXmlTag());
-			coeff = Double.valueOf(str);
-			/* Get the component name. */
-			str = XmlHandler.obtainAttribute(temp, XmlRef.component, this.defaultXmlTag());
-			/* Enter these into the stoichiometry. */
-			this._stoichiometry.put(str, coeff);
-		}
+		this._stoichiometry.init(xmlElem, this);
+
 		/*
 		 * Build the reaction rate expression.
 		 */
-		this._kinetic = new 
-			ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+		if ( xmlElem == null || !XmlHandler.hasNode(xmlElem, XmlRef.expression))
+			this._kinetic = new ExpressionB("");
+		else
+			this._kinetic = new 
+				ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+	}
+	
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		this.init(xmlElem);
+		this._parentNode = parent;
+		parent.addChildObject(this);
 	}
 	
 	/**
@@ -325,16 +329,8 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
-		if ( this._parentNode == null)
-			modelNode.setRequirements(Requirements.IMMUTABLE);
-		/*
-		 * Reactions that are an entry of a hashmap, this is the case with agent
-		 * reactions. there you cannot remove the Reaction from the entry, but 
-		 * you can remove the entire entry since the aspect utilizes the 
-		 * HashMapSetter class
-		 */
-		else
-			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this._name);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
@@ -342,11 +338,8 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		
 		modelNode.add(((ExpressionB) _kinetic).getNode());
 		
-		for ( String component : this._stoichiometry.keySet())
-		{
-			modelNode.add(getStoNode(this, component, 
-					getStoichiometry(component)));
-		}
+		modelNode.add( this._stoichiometry.getNode() );
+
 		
 		return modelNode;
 	}
@@ -354,7 +347,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public ModelNode getStoNode(NodeConstructor constructor, String component, 
 			Double coefficient) {
 		
-		ModelNode modelNode = new ModelNode(XmlRef.stoichiometry, constructor);
+		ModelNode modelNode = new ModelNode(XmlRef.stoichiometric, constructor);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		modelNode.add(new ModelAttribute(XmlRef.component, 
@@ -365,13 +358,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		
 		return modelNode;
 	}
-	
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
+
 	public void removeNode(String specifier)
 	{
 		this._parentNode.removeChildNode(this);
@@ -410,6 +397,18 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		HashMap<String,Double> out = new HashMap<String,Double>();
 		out.put(key, value);
 		return out;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 
 }

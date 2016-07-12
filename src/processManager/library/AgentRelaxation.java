@@ -7,7 +7,6 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import agent.Body;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -16,6 +15,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import referenceLibrary.AspectRef;
 import shape.Shape;
 import surface.Collision;
 import surface.Point;
@@ -149,7 +149,7 @@ public class AgentRelaxation extends ProcessManager
 		
 		this._shape = agents.getShape();
 		this._shapeSurfs  = this._shape.getSurfaces();
-		this._iterator = new Collision(null, this._agents.getShape());
+		this._iterator = this._shape.getCollision();
 	}
 
 	/*************************************************************************
@@ -375,6 +375,7 @@ public class AgentRelaxation extends ProcessManager
 				}
 			nstep++;
 		}
+		this._agents.refreshSpatialRegistry();
 		Log.out(Tier.DEBUG,
 				"Relaxed "+this._agents.getNumAllAgents()+" agents after "+
 						nstep+" iterations");

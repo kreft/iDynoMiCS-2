@@ -7,10 +7,10 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.ObjectRef;
 import dataIO.XmlHandler;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import referenceLibrary.ObjectRef;
 import shape.Dimension.DimName;
 
 import shape.resolution.ResolutionCalculator.ResCalc;

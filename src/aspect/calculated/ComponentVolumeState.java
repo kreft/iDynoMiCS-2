@@ -3,8 +3,8 @@ package aspect.calculated;
 import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Calculated;
-import aspect.AspectRef;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 
 /**
  * \brief TODO

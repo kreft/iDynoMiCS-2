@@ -17,16 +17,16 @@ import java.util.function.Predicate;
 import org.w3c.dom.Element;
 
 import agent.Agent;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 import reaction.Reaction;
+import referenceLibrary.AspectRef;
+import referenceLibrary.XmlRef;
 import shape.subvoxel.CoordinateMap;
 import shape.Shape;
 import solver.PDEexplicit;
@@ -422,6 +422,8 @@ public class SolveDiffusionTransient extends ProcessManager
 					}
 					else
 					{
+						//TODO quick fix If not defined elsewhere add it to the map
+						newBiomass.put(productName, (productRate * dt * volume));
 						System.out.println("agent reaction catched " + 
 								productName);
 						// TODO safety?

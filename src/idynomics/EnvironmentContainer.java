@@ -4,21 +4,21 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
-import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
+import nodeFactory.primarySetters.PileList;
 import nodeFactory.ModelNode.Requirements;
 import reaction.Reaction;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 import shape.Shape;
 
 /**
@@ -42,7 +42,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * Collection of extracellular reactions specific to this compartment
 	 * (each Reaction knows its own name).
 	 */
-	protected Collection<Reaction> _reactions = new LinkedList<Reaction>();
+	protected PileList<Reaction> _reactions = new PileList<Reaction>(Reaction.class, null, XmlRef.reactions, XmlRef.reaction);
 	/**
 	 * Name of the common grid.
 	 */
@@ -51,6 +51,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * Grid of common attributes, such as well-mixed.
 	 */
 	protected SpatialGrid _commonGrid;
+	private NodeConstructor _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -111,32 +112,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	{
 		this._reactions.remove(Reaction);
 	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * NOTE Rob[26Feb2016]: not yet used, work in progress
-	 * 
-	 * TODO Get general reactions from Param?
-	 * 
-	 * @param reactionNodes
-	 */
-	public void readReactions(NodeList reactionNodes)
-	{
-		Element elem;
-		Reaction reac;
-		for ( int i = 0; i < reactionNodes.getLength(); i++)
-		{
-			elem = (Element) reactionNodes.item(i);
-			/* Construct and intialise the reaction. */
-			reac = (Reaction) Reaction.getNewInstance(elem);
-			// reac.setCompartment(compartment.getName());
-			reac.init(elem);
-			/* Add it to the environment. */
-			this.addReaction(reac);
-		}
-	}
-	
+
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
@@ -243,11 +219,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	{
 		// TODO Safety: check this reaction is not already present?
 		this._reactions.add(reaction);
-	}
-	
-	public void setReactions(Collection<Reaction> reactions)
-	{
-		this._reactions = reactions;
 	}
 	
 	/**
@@ -445,7 +416,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		/* Add the name attribute. */
 		modelNode.add( this.getSolutesNode() );
 		/* Add the reactions node. */
-		modelNode.add( this.getReactionNode() );
+		modelNode.add( this._reactions.getNode() );
+//		modelNode.add( this.getReactionNode() );
 		return modelNode;	
 	}
 	
@@ -466,6 +438,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		 */
 		for ( String sol : this.getSoluteNames() )
 			modelNode.add( this.getSoluteGrid(sol).getNode() );
+		
+		modelNode.addConstructable( ClassRef.spatialGrid, 
+				null, ModelNode.Requirements.ZERO_TO_MANY );
+		
 		return modelNode;
 	}
 	
@@ -481,6 +457,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		 */
 		for ( Reaction react : this.getReactions() )
 			modelNode.add( react.getNode() );
+		
+		modelNode.addConstructable( ClassRef.reaction, 
+				null, ModelNode.Requirements.ZERO_TO_MANY );
+		
 		return modelNode;
 	}
 	
@@ -506,5 +486,17 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
 		return XmlRef.environment;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+
 /**
  * \brief Helper class of buttons for the GUI.
  * 
@@ -43,7 +44,7 @@ public final class GuiSimControl
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				GuiActions.runSimulation();
+				GuiActions.runSimulation();	
 			}
 		});
 		return launchSim;

@@ -12,7 +12,7 @@ import expression.ExpressionB;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class StateExpression extends Calculated {
-	
+		
 	private ExpressionB expression;
 	private HashMap<String, Double> variables = new HashMap<String, Double>();
 

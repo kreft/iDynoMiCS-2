@@ -6,8 +6,8 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import surface.Point;
 import utility.ExtraMath;
 

@@ -6,11 +6,11 @@ package reaction;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import dataIO.XmlRef;
 import generalInterfaces.Instantiatable;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Stores environmental reactions that are used in every compartment.
@@ -23,6 +23,7 @@ public class ReactionLibrary implements Instantiatable, NodeConstructor
 	 * Contains all common environmental reactions.
 	 */
 	Collection<Reaction> _reactions = new LinkedList<Reaction>();
+	private NodeConstructor _parentNode;
 	
 	/* ***********************************************************************
 	 * BASIC GETTERS
@@ -101,5 +102,17 @@ public class ReactionLibrary implements Instantiatable, NodeConstructor
 	public String defaultXmlTag()
 	{
 		return XmlRef.reactionLibrary;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

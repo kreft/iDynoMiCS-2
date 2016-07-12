@@ -8,10 +8,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 import agent.Agent;
-import aspect.AspectRef;
 import aspect.event.CoccoidDivision;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import referenceLibrary.AspectRef;
 import shape.Shape;
 import shape.ShapeLibrary.Dimensionless;
 

@@ -120,4 +120,10 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 	{
 		return new BoundingBox(this.getCenter(), this._radius);
 	}
+
+	@Override
+	public int dimensions() 
+	{
+		return this._point.nDim();
+	}
 }

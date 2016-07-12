@@ -4,9 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
-import spatialRegistry.splitTree.SplitTree.Area;
-import spatialRegistry.splitTree.SplitTree.Entry;
-
 /**
  * Testing potential further speed ups
  * 

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
+import referenceLibrary.AspectRef;
 
 /**
  * \brief Event that resolves current interaction distance/pull distance of

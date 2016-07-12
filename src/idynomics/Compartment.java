@@ -12,7 +12,6 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
@@ -24,6 +23,8 @@ import nodeFactory.NodeConstructor;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 import shape.Shape;
 import utility.Helper;
 import shape.Dimension.DimName;
@@ -94,6 +95,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	// TODO temporary fix, reassess
 	//protected double _localTime = Idynomics.simulator.timer.getCurrentTime();
 	protected double _localTime;
+	private NodeConstructor _parentNode;
 	
 	
 	/* ***********************************************************************
@@ -168,7 +170,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
 		String str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
 		this.setShape( (Shape) Shape.getNewInstance(
-				str, elem, (NodeConstructor) this) );
+				str, elem, (NodeConstructor) this) );	
+		/*
+		 * set container parentNodes
+		 */
+		agents.setParent(this);
+		environment.setParent(this);
 		/*
 		 * Load solutes.
 		 */
@@ -467,32 +474,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 			modelNode.add( this._shape.getNode() );
 		/* Add the Environment node. */
 		modelNode.add( this.environment.getNode() );
-		/* Add the solutes node. */
-		modelNode.add( this.getAgentsNode() );
+		/* Add the Agents node. */
+		modelNode.add( this.agents.getNode() );
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
 
 		return modelNode;	
-	}
-
-	/**
-	 * \brief Helper method for {@link #getNode()}.
-	 * 
-	 * @return Model node for the <b>agents</b>.
-	 */
-	private ModelNode getAgentsNode()
-	{
-		/* The agents node. */
-		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		/* Add the agent childConstrutor for adding of additional agents. */
-		modelNode.addConstructable("Agent", 
-				ModelNode.Requirements.ZERO_TO_MANY);
-		/* If there are agents, add them as child nodes. */
-		if ( this.agents != null )
-			for ( Agent a : this.agents.getAllAgents() )
-				modelNode.add( a.getNode() );
-		return modelNode;
 	}
 	
 	/**
@@ -503,15 +490,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	private ModelNode getProcessNode()
 	{
 		/* The process managers node. */
-		ModelNode modelNode = new ModelNode(XmlRef.processManagers, this);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		ModelNode modelNode = new ModelNode( XmlRef.processManagers, this );
+		modelNode.setRequirements( Requirements.EXACTLY_ONE );
 		/* 
 		 * Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  
 		 */
-		modelNode.addConstructable("PorcessManager", 
-				Helper.collectionToArray(ProcessManager.getAllOptions()), 
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addConstructable( ClassRef.processManager, 
+				Helper.collectionToArray( ProcessManager.getAllOptions() ), 
+				ModelNode.Requirements.ZERO_TO_MANY );
 		/* Add existing process managers as child nodes. */
 		for ( ProcessManager p : this._processes )
 			modelNode.add( p.getNode() );
@@ -525,7 +512,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		if ( node.isTag(this.defaultXmlTag()) )
 		{
 			/* Update the name. */
-			this.name = node.getAttribute( XmlRef.nameAttribute ).value;
+			this.name = node.getAttribute( XmlRef.nameAttribute ).getValue();
 		}
 		/* 
 		 * Set the child nodes.
@@ -571,5 +558,17 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	public String defaultXmlTag() 
 	{
 		return XmlRef.compartment;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

@@ -10,9 +10,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Basic diffusivity setter that sets the same diffusivity across the

@@ -6,11 +6,11 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import surface.Point;
 import utility.ExtraMath;
 
