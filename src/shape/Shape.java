@@ -17,6 +17,7 @@ import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
 import boundary.SpatialBoundary;
+import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
@@ -1031,13 +1032,13 @@ public abstract class Shape implements
 	 * @return Collection of spatial boundaries that have a well-mixed approach
 	 * to them.
 	 */
-	public Collection<SpatialBoundary> getWellMixedBoundaries()
+	public Collection<WellMixedBoundary> getWellMixedBoundaries()
 	{
-		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
+		Collection<WellMixedBoundary> out = new LinkedList<WellMixedBoundary>();
 		for ( Dimension d : this._dimensions.values() )
 			for ( SpatialBoundary b : d.getBoundaries() )
 				if ( b != null && b.needsToUpdateWellMixed() )
-					out.add(b);
+					out.add((WellMixedBoundary) b);
 		return out;
 	}
 	

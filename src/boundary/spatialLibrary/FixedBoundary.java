@@ -78,12 +78,6 @@ public class FixedBoundary extends SpatialBoundary
 	}
 	
 	@Override
-	public boolean needsToUpdateWellMixed()
-	{
-		return false;
-	}
-	
-	@Override
 	public void updateWellMixedArray()
 	{
 		this.setWellMixedByDistance();
