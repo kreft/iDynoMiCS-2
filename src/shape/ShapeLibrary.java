@@ -7,12 +7,10 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import dataIO.ObjectRef;
 import dataIO.XmlHandler;
-import grid.DummyGrid;
-import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import referenceLibrary.ObjectRef;
 import shape.Dimension.DimName;
 
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -46,9 +44,10 @@ public final class ShapeLibrary
 			super();
 		}
 		
-		@Override
-		public SpatialGrid getNewGrid(String name) {
-			return new DummyGrid(this, this._volume, name);
+		public Dimensionless(double volume)
+		{
+			super();
+			this.setVolume(volume);
 		}
 
 		@Override
@@ -75,16 +74,21 @@ public final class ShapeLibrary
 			this._volume = volume;
 		}
 		
-		@Override
-		public double[] getLocalPosition(double[] location)
+		public double getTotalVolume()
 		{
-			return location;
+			return this._volume;
 		}
 		
 		@Override
-		public double[] getGlobalLocation(double[] local)
+		public void getLocalPositionTo(double[] destination, double[] location)
 		{
-			return local;
+			/* Do nothing! */
+		}
+		
+		@Override
+		public void getGlobalLocationTo(double[] destination, double[] local)
+		{
+			/* Do nothing! */
 		}
 		
 		@Override
@@ -158,6 +162,12 @@ public final class ShapeLibrary
 		public void moveAlongDimension(double[] loc, DimName dimN, double dist)
 		{
 			/* Do nothing! */
+		}
+
+		@Override
+		public double getBoundarySurfaceArea(DimName dimN, int extreme)
+		{
+			return 0.0;
 		}
 	}
 	

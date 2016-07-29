@@ -1,35 +1,29 @@
 package agent;
 
-import java.awt.event.ActionEvent;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import agent.Species.SpeciesMaker;
 import aspect.AspectInterface;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import dataIO.XmlRef;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
-import modelBuilder.InputSetter;
-import modelBuilder.IsSubmodel;
-import modelBuilder.SubmodelMaker;
-import modelBuilder.SubmodelMaker.Requirement;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
+public class SpeciesLib implements Instantiatable, NodeConstructor
 {
 	/**
 	 * Contains all known species.
@@ -41,6 +35,8 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 	 * Void species, returned if no species is set.
 	 */
 	protected Species _voidSpecies = new Species();
+
+	private NodeConstructor _parentNode;
 
 	public String[] getAllSpeciesNames()
 	{
@@ -59,7 +55,7 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 	 * 
 	 * @param xmlElem
 	 */
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
 		Log.out(Tier.NORMAL, "Species Library loading...");
 		/* 
@@ -85,9 +81,23 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 			Species s = (Species) this._species.get(name);
 			Log.out(Tier.EXPRESSIVE,
 					"Species \""+name+"\" loaded into Species Library");
-			s.loadSpeciesModules(speciesElem);
+			this.loadSpeciesModules(speciesElem, s);
 		}
 		Log.out(Tier.NORMAL, "Species Library loaded!\n");
+	}
+	
+	public void loadSpeciesModules(Node xmlElem, Species species)
+	{
+		NodeList nodes = XmlHandler.getAll(xmlElem, XmlRef.speciesModule);
+		String name;
+		for ( int i = 0; i < nodes.getLength(); i++ ) 
+		{
+			Element s = (Element) nodes.item(i);
+			name = s.getAttribute(XmlRef.nameAttribute);
+			Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
+			species._aspectRegistry.addSubModule(
+					this.get(name) );
+		}
 	}
 
 	/**
@@ -129,75 +139,48 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 	 */
 	public AspectInterface get(String name)
 	{
+		Tier level;
 		if ( this._species.containsKey(name) )
 		{
-			Log.out(Tier.BULK, "Species Library found \""+name+"\"");
+			level = Tier.BULK;
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "Species Library found \""+name+"\"");
 			return this._species.get(name);
 		}
 		else
 		{
-			Log.out(Tier.DEBUG, "Species Library could not find \""+name+
-					"\", returning void species");
+			level = Tier.DEBUG;
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "Species Library could not find \""+name+
+						"\", returning void species");
+			}
 			return this._voidSpecies;
 		}
 	}
 
-	/*************************************************************************
-	 * SUBMODEL BUILDING
-	 ************************************************************************/
+	/* ***********************************************************************
+	 * NODE CONSTRUCTION
+	 * **********************************************************************/
 
 	public String getName()
 	{
 		return "Species Library";
 	}
-
-	public List<InputSetter> getRequiredInputs()
-	{
-		// TODO implement species
-		List<InputSetter> out = new LinkedList<InputSetter>();
-		out.add(new SpeciesMaker(Requirement.ZERO_TO_MANY, this));
-		return out;
-	}
-
-	public void acceptInput(String name, Object input)
-	{
-		if ( input instanceof Species )
-		{
-			this._species.put(name, (Species) input);
-			// TODO void species?
-		}
-	}
-
-	public static class SpeciesLibMaker extends SubmodelMaker
-	{
-		private static final long serialVersionUID = -6601262340075573910L;
-
-		public SpeciesLibMaker(Requirement req, IsSubmodel target)
-		{
-			super("species library", req, target);
-		}
-
-		@Override
-		public void doAction(ActionEvent e)
-		{
-			System.out.println("Making speciesLib");
-			this.addSubmodel(new SpeciesLib());
-		}
-	}
-
+	
 	/**
 	 * Get the ModelNode object for this NodeConstructor object
 	 * @return ModelNode
 	 */
 	@Override
-	public ModelNode getNode() {
-
+	public ModelNode getNode()
+	{
 		/* the species lib node */
 		ModelNode modelNode = new ModelNode(XmlRef.speciesLibrary, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* Species constructor */
-		modelNode.childConstructors.put(new Species(), 
+		modelNode.addConstructable( ClassRef.species,
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		/* the already existing species */
@@ -205,26 +188,6 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 			modelNode.add(((Species) _species.get(s)).getNode());
 	
 		return modelNode;
-	}
-
-	/**
-	 * Load and interpret the values of the given ModelNode to this 
-	 * SpeciesLib object
-	 * @param node
-	 */
-	@Override
-	public void setNode(ModelNode node) {
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
-	}
-
-	/**
-	 * Create a new minimal object of this class and return it
-	 * @return NodeConstructor
-	 */
-	@Override
-	public NodeConstructor newBlank() {
-		return Idynomics.simulator.speciesLibrary;
 	}
 
 	/**
@@ -246,5 +209,17 @@ public class SpeciesLib implements IsSubmodel, XMLable, NodeConstructor
 	@Override
 	public String defaultXmlTag() {
 		return XmlRef.speciesLibrary;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

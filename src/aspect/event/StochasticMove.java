@@ -6,8 +6,8 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import surface.Point;
 import utility.ExtraMath;
 
@@ -27,11 +27,6 @@ public class StochasticMove extends Event
 	public String STOCHASTIC_DIRECTION = AspectRef.agentStochasticDirection;
 	public String STOCHASTIC_PAUSE = AspectRef.agentStochasticPause;
 	public String STOCHASTIC_DISTANCE = AspectRef.agentStochasticDistance;
-	
-	public StochasticMove()
-	{
-		setInput("body,stochasticStep");
-	}
 	
 	/**
 	 * Perform one stochastic move (uniRand) scaled by the time step) NOTE: for

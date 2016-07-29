@@ -1,6 +1,7 @@
 package surface;
 
 import java.util.HashMap;
+import generalInterfaces.HasBoundingBox;
 
 /**
  * \brief TODO
@@ -55,6 +56,8 @@ public abstract class Surface
 	{
 		this._collisionDomain = collisionDomain;
 	}
+	
+	public abstract int dimensions();
 
 	/**
 	 * 
@@ -88,13 +91,29 @@ public abstract class Surface
 	}
 
 	/**
-	 * writes the resulting force from this collision to the force vector of
-	 * the mass points of thes two involved surface objects
+	 * \brief Writes the resulting force from this collision to the force vector of
+	 * the mass points of the two involved surface objects
+	 * 
+	 * <p>This method always also sets the internal variables _flip and dP of 
+	 * {@link #_collisionDomain}. It may also set s and t, depending on the
+	 * surface types.</p>
+	 * 
 	 * @param surface
 	 */
-	public void collisionWith(Surface surface)
+	public boolean collisionWith(Surface surface)
 	{
-		this._collisionDomain.distance(this, surface);
+		return (this._collisionDomain.distance(this, surface) < 0.0);
 	}
 
+	/**
+	 * return a bounding box with margin if applicable for surface
+	 * @param margin
+	 * @return
+	 */
+	public BoundingBox getBox(double margin)
+	{
+		if (this instanceof HasBoundingBox)
+			return ((HasBoundingBox) this).boundingBox(margin) ;
+		return null;
+	}
 }

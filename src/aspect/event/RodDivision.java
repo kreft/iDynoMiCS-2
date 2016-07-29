@@ -3,6 +3,7 @@ package aspect.event;
 import surface.Point;
 import utility.ExtraMath;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import shape.Shape;
 
 import java.util.LinkedList;
@@ -12,7 +13,6 @@ import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -32,11 +32,6 @@ public class RodDivision extends Event {
 	public String LINKER_DIST = AspectRef.linkerDistance;
 	public String UPDATE_BODY = AspectRef.agentUpdateBody;
 	public String DIVIDE = AspectRef.agentDivide;
-	
-	public RodDivision()
-	{
-		setInput("mass,radius,body");
-	}
 
 	/**
 	 * Method that initiates the division
@@ -44,6 +39,7 @@ public class RodDivision extends Event {
 	@SuppressWarnings("unchecked")
 	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
 	{
+		Tier level = Tier.BULK;
 		Agent mother = (Agent) initiator;
 
 		Shape shape = mother.getCompartment().getShape();
@@ -97,10 +93,10 @@ public class RodDivision extends Event {
 
 
 			//TODO work in progress, currently testing fillial links
-			if (! mother.isAspect(LINKER_DIST))
+			if ( ! mother.isAspect(LINKER_DIST))
 			{
-				Log.out(Tier.BULK, "Agent does not create fillial "
-						+ "links");
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "Agent does not create fillial links");
 			}
 			else
 			{
@@ -119,8 +115,8 @@ public class RodDivision extends Event {
 			// again
 			mother.event(DIVIDE);
 			daughter.event(DIVIDE);
-			
-			Log.out(Tier.BULK, "RodDivision added daughter cell");
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "RodDivision added daughter cell");
 		}
 	}
 }

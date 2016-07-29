@@ -3,7 +3,7 @@ package aspect.calculated;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Calculated;
-import aspect.AspectRef;
+import referenceLibrary.AspectRef;
 
 /**
  * \brief TODO

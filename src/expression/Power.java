@@ -6,7 +6,7 @@ import java.util.Map;
  * \brief A component of a mathematical expression composed of one component 
  * raised to the power of another.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Power extends ComponentDouble
 {
@@ -39,7 +39,7 @@ public class Power extends ComponentDouble
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		double a = this._a.getValue(variables);
 		double b = this._b.getValue(variables);

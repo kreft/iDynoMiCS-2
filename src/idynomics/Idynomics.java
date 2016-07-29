@@ -17,13 +17,13 @@ import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Idynomics
 {
@@ -142,7 +142,7 @@ public class Idynomics
 	public static void launchSimulator()
 	{
 		simThread = new Thread(simulator);
-	    simThread.start();
+		simThread.start();
 	}
 	
 	/**

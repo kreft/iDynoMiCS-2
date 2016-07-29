@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+<simulation randomSeed="-8776335803784457236" name="checkDiffusionReachesEquilibriumInSphere" outputfolder="./unitTests" log="DEBUG" comment="null" >
+	<timer stepSize="0.1" endOfSimulation="10.0" />
+ 	<speciesLib />
+ 	<compartment name="sphere" >
+		<shape class="Sphere" >
+			<dimension name="R" isCyclic="false" targetResolution="null" min="0.0" max="4.0" />
+ 			<dimension name="PHI" isCyclic="false" targetResolution="null" min="0.0" max="4.9E-324" />
+ 			<dimension name="THETA" isCyclic="false" targetResolution="null" min="0.0" max="4.9E-324" />
+ 		</shape>
+		<solutes >
+			<solute name="solute" concentration="11.498588348172074%16.835098501052258;21.598495498486287,21.603838535113557;25.02812525675121,25.03490335280076%28.67413964745476;40.53196025511915,40.54466282586829;46.26166686265774,78.21154451372584,46.28243899625757;85.0733732861807,74.60493602242117,74.58547537882511,85.13045973840383;69.52681419775988,85.34850970213336,85.39080479558208,69.55488190680651%2.9280274121428675;87.9555640249159,88.00044680437445;0.0,180.6514120609089,0.0;322.19948626880887,66.07706877965688,65.90630107244507,322.4397509869546;0.0,727.230249680704,0.0,727.5721140848402,0.0;551.1873587156449,0.0,810.2425106722394,0.0,551.5385757544348;0.0,511.05148201854126,102.46485275337574,102.44344251432892,511.2949653682402,0.0" />
+ 		</solutes>
+		<agents />
+ 		<processManagers >
+			<process name="DR solver" class="SolveDiffusionTransient" priority="1" firstStep="7.999999999999988" />
+ 		</processManagers>
+	</compartment>
+</simulation>
+</document>

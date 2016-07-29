@@ -21,15 +21,30 @@ public interface NodeConstructor
 	 * 
 	 * @param node
 	 */
-	public void setNode(ModelNode node);
+	public default void setNode(ModelNode node)
+	{
+		for ( ModelNode n : node.getAllChildNodes() )
+			n.constructor.setNode(n);
+	}
 	
 	/**
-	 * Create a new minimal object of this class and return it
-	 * 
-	 * @return
+	 * remove the node from the simulation (gui delete object), specifier is
+	 * used to identify nested objects for removal
+	 * @param specifier
 	 */
-	//TODO: we may want to merge this with the xmlable interface
-	public NodeConstructor newBlank();
+	public default void removeNode(String specifier)
+	{
+		/*
+		 * By default assume the Node cannot be removed
+		 */
+	}
+	
+	public default void removeChildNode(NodeConstructor childNode)
+	{
+		/*
+		 * By default do nothing, only applicable for Nodes that have childnodes
+		 */
+	}
 	
 	/**
 	 * \brief Add a child object that is unable to register itself properly via
@@ -61,4 +76,8 @@ public interface NodeConstructor
 	{
 		return this.getNode().getXML();
 	}
+
+	public void setParent(NodeConstructor parent);
+	
+	public NodeConstructor getParent();
 }

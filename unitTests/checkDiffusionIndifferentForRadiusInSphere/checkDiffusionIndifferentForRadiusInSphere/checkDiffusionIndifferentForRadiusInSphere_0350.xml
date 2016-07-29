@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+<simulation randomSeed="-3552935736507588992" name="checkDiffusionIndifferentForRadiusInSphere" outputfolder="./unitTests" log="DEBUG" comment="null" >
+	<timer stepSize="0.1" endOfSimulation="100.0" />
+ 	<speciesLib />
+ 	<compartment name="sphere" >
+		<shape class="Sphere" >
+			<dimension name="R" isCyclic="false" targetResolution="null" min="0.0" max="3.0" />
+ 			<dimension name="PHI" isCyclic="false" targetResolution="null" min="0.0" max="4.9E-324" />
+ 			<dimension name="THETA" isCyclic="false" targetResolution="null" min="0.0" max="4.9E-324" />
+ 		</shape>
+		<solutes >
+			<solute name="solute" concentration="1.9999730308949386%1.9999766063152622;1.9999766063152622,1.9999766063152622;1.9999766063152622,1.9999766063152622%1.999982927634645;1.999982927634645,1.999982927634645;1.999982927634645,1.999982927634645,1.999982927634645;1.999982927634645,1.999982927634645,1.999982927634645,1.999982927634645;1.999982927634645,1.999982927634645,1.999982927634645,1.999982927634645" />
+ 		</solutes>
+		<agents />
+ 		<processManagers >
+			<process name="DR solver" class="SolveDiffusionTransient" priority="1" firstStep="35.10000000000023" />
+ 		</processManagers>
+	</compartment>
+</simulation>
+</document>

@@ -3,6 +3,11 @@ package dataIO;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 
+/**
+ * Writes the model state to xml files, automatic number increment
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class XmlExport 
 {
 	/**
@@ -47,9 +52,12 @@ public class XmlExport
 	public void closeXml()
 	{
 		_xmlFile.write("</document>\n");
+		_xmlFile.flushAll();
 		_xmlFile.fclose();
 		_filewriterfilenr++;
 	}
+
+	
 
 	
 	/**

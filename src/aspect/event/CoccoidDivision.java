@@ -2,15 +2,18 @@ package aspect.event;
 
 import surface.Point;
 import utility.ExtraMath;
+import utility.Helper;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import agent.Agent;
 import agent.Body;
 import aspect.AspectInterface;
 import aspect.Event;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -19,10 +22,8 @@ import dataIO.Log.Tier;
  * moves mother and daughter in a random opposing direction and registers the
  * daughter cell to the compartment
  * 
- * NOTE: inputs 0 "mass" 1 "radius" 2 "body"
- * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class CoccoidDivision extends Event
 {
@@ -70,17 +71,13 @@ public class CoccoidDivision extends Event
 	 * this event, in case agents have grown a lot between time steps.
 	 */
 	public String DIVIDE = AspectRef.agentDivide;
-	
-	// TODO delete?
-	public CoccoidDivision()
-	{
-		setInput("mass,radius,body");
-	}
 
+	
 	@Override
 	public void start(AspectInterface initiator,
 			AspectInterface compliant, Double timeStep)
 	{
+		Tier level = Tier.BULK;
 		Agent mother = (Agent) initiator;
 		
 		if ( ! this.shouldDivide(mother) )
@@ -99,20 +96,29 @@ public class CoccoidDivision extends Event
 			this.shiftBodies(mother, daughter);
 		else
 		{
-			Log.out(Tier.BULK, "Agent "+mother.identity()+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "Agent "+mother.identity()+
 					" does not have a body to shift after CoccoidDivision");
+			}
 		}
 		/* Update filial links, if appropriate. */
 		if ( mother.isAspect(LINKER_DIST) )
 			this.updateLinkers(mother, daughter);
 		else
 		{
-			Log.out(Tier.BULK, "Agent "+mother.identity()+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "Agent "+mother.identity()+
 					" does not create fillial links");
+			}
 		}
 		/* Register the daughter's birth in the compartment they belong to. */
 		daughter.registerBirth();
-		Log.out(Tier.BULK, "CoccoidDivision added daughter cell");
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "CoccoidDivision added daughter cell");
+		}
 		/* The bodies of both cells may now need updating. */
 		mother.event(UPDATE_BODY);
 		daughter.event(UPDATE_BODY);
@@ -130,8 +136,10 @@ public class CoccoidDivision extends Event
 	 */
 	// TODO generalise this so that the user can set the variable which
 	// triggers division, and the value of this variable it should use.
+	@SuppressWarnings("unchecked")
 	private boolean shouldDivide(Agent anAgent)
 	{
+		Tier level = Tier.BULK;
 		/*
 		 * Find the agent-specific variable to test (mass, by default).
 		 */
@@ -141,6 +149,14 @@ public class CoccoidDivision extends Event
 			variable = (Double) mumMass;
 		else if ( mumMass instanceof double[] )
 			variable = Vector.sum((double[]) mumMass);
+		else if ( mumMass instanceof Map )
+			variable = Helper.totalValue((Map<String,Double>) mumMass);
+		else
+		{
+			// TODO safety?
+		}
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Agent total mass is "+variable);
 		/*
 		 * Find the threshold that triggers division.
 		 */
@@ -191,12 +207,26 @@ public class CoccoidDivision extends Event
 		else if ( mumMass instanceof double[] )
 		{
 			double[] motherMass = (double[]) mumMass;
-			double[] daughterMass = Vector.times(motherMass, 1 - mumMassFrac);
+			double[] daughterMass = Vector.times(motherMass, 1.0 - mumMassFrac);
 			Vector.timesEquals(motherMass, mumMassFrac);
 			mother.set(this.MASS, motherMass);
 			daughter.set(this.MASS, daughterMass);
 		}
-		// TODO handle more potential types of mass aspect, e.g. HashMap
+		else if ( mumMass instanceof Map )
+		{
+			@SuppressWarnings("unchecked")
+			Map<String,Double> mumProducts = (Map<String,Double>) mumMass;
+			Map<String,Double> daughterProducts = new HashMap<String,Double>();
+			double product;
+			for ( String key : mumProducts.keySet() )
+			{
+				product = mumProducts.get(key);
+				daughterProducts.put(key, product * (1.0-mumMassFrac) );
+				mumProducts.put(key, product * mumMassFrac);
+			}
+			mother.set(this.MASS, mumProducts);
+			daughter.set(this.MASS, daughterProducts);
+		}
 		else
 		{
 			Log.out(Tier.CRITICAL, "Agent "+mother.identity()+

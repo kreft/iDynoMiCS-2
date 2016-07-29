@@ -11,7 +11,7 @@ import java.util.Map;
  * \brief A component of a mathematical expression composed of two or more
  * sub-components.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ComponentMultiple extends Component
 {
@@ -107,6 +107,7 @@ public abstract class ComponentMultiple extends Component
 	public void appendVariablesNames(Collection<String> names)
 	{
 		for ( Component c : this._components )
-			c.appendVariablesNames(names);
+			if( c != null )
+				c.appendVariablesNames(names);
 	}
 }

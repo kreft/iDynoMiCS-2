@@ -3,17 +3,28 @@ package nodeFactory;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import generalInterfaces.Instantiatable;
+import utility.Helper;
 
 /**
+ * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ModelNode {
-	
+public class ModelNode
+{
 	/**
 	 * \brief Clear way of specifying exactly how many sub-model instances may
 	 * be made.
+	 * 
+	 * <p>Note that the use of Integer.MAX_VALUE is due to the lack of an
+	 * "infinity" in Integers (as exists in Double). However, at a value of 
+	 * (2^31 - 1) > 2 billion, Integer.MAX_VALUE is should survive most
+	 * usages.</p>
 	 */
 	public static enum Requirements
 	{
@@ -36,68 +47,74 @@ public class ModelNode {
 		 * all.
 		 */
 		ZERO_TO_MANY(0, Integer.MAX_VALUE),
-		
-		/* temporary for gui esthetics (same as zero to many) */
-		ZERO_TO_FEW(0, Integer.MAX_VALUE);
-		
-		
-		/*
-		 * Note that the use of Integer.MAX_VALUE is due to the lack of an
-		 * "infinity" in Integers (as exists in Double). However, at a value of 
-		 * (2^31 - 1) > 2 billion, Integer.MAX_VALUE is should survive most
-		 * usages.
+
+		/* temporary for GUI esthetics (same as zero to many) */
+		ZERO_TO_FEW(0, Integer.MAX_VALUE),
+		/**
+		 * FIXME, clean-up and restructure, a way of identifying Nodes that 
+		 * may not change in any way
 		 */
-		
-		private final int _min, _max;
-		
+		IMMUTABLE(1, 1);
+
+		public final int min, max;
+
 		Requirements(int min, int max)
 		{
-			_min = min;
-			_max = max;
-		}
-		
-		public boolean maxOne()
-		{
-			return (_max == 1);
+			this.min = min;
+			this.max = max;
 		}
 	}
-	
+
+	/* ***********************************************************************
+	 * VARIABLES
+	 * **********************************************************************/
+
 	/**
-	 * Associated xml tag
+	 * Associated XML tag.
 	 */
-	public String tag;
-	
+	protected String _tag;
+
 	/**
-	 * Title (if applicable)
+	 * Title (if applicable).
 	 */
-	public String title = "";
-	
+	protected String _title = "";
+
 	/**
-	 * Requirement of node one, many etc
+	 * A measure of how many of this node is required (one, many, etc).
 	 */
-	public Requirements requirement;
-	
+	protected Requirements _requirement;
+
 	/**
-	 * Object associated with node
+	 * Object associated with node.
 	 */
 	public NodeConstructor constructor;
-	
+
 	/**
-	 * Allowed childnodes
+	 * Allowed child nodes
 	 */
-	public HashMap<NodeConstructor,Requirements> childConstructors = 
+	protected Map<NodeConstructor,Requirements> _childConstructors = 
 			new HashMap<NodeConstructor,Requirements>();
 	
 	/**
-	 * Existing childnodes
+	 * Contsructables
 	 */
-	public List<ModelNode> childNodes;
-	
+	protected List<Constructable> _constructables = 
+			new LinkedList<Constructable>();
+
+	/**
+	 * Existing child nodes
+	 */
+	protected List<ModelNode> _childNodes;
+
 	/**
 	 * Attributes
 	 */
-	public List<ModelAttribute> attributes;
-	
+	protected List<ModelAttribute> _attributes;
+
+	/* ***********************************************************************
+	 * INSTANCE CONSTRUCTOR
+	 * **********************************************************************/
+
 	/**
 	 * General constructor
 	 * @param tag
@@ -105,110 +122,374 @@ public class ModelNode {
 	 */
 	public ModelNode(String tag, NodeConstructor constructor)
 	{
-		this.tag = tag;
+		this._tag = tag;
 		this.constructor = constructor;
-		this.childNodes = new LinkedList<ModelNode>();
-		this.attributes = new LinkedList<ModelAttribute>();
+		this._childNodes = new LinkedList<ModelNode>();
+		this._attributes = new LinkedList<ModelAttribute>();
+	}
+
+	/* ***********************************************************************
+	 * TAG METHODS
+	 * **********************************************************************/
+
+	/**
+	 * @return The XML tag for this node.
+	 */
+	public String getTag()
+	{
+		return this._tag;
+	}
+
+	/**
+	 * \brief Check if the given tag is the same as this model node's tag.
+	 * 
+	 * @param tag String tag to check.
+	 * @return {@code true} if they are equal, {@code false} if they are
+	 * different.
+	 */
+	public boolean isTag(String tag)
+	{
+		return this._tag.equals(tag);
+	}
+
+	/**
+	 * \brief Check if any of the given tags are the same as this model node's
+	 * tag.
+	 * 
+	 * @param tags List of String tags to check.
+	 * @return {@code true} if any are equal to this node's tag, {@code false}
+	 * if they are all different.
+	 */
+	public boolean isTagIn(String[] tags)
+	{
+		for ( String tag : tags )
+			if ( this.isTag(tag) )
+				return true;
+		return false;
+	}
+	
+	/* ***********************************************************************
+	 * TITLE METHODS
+	 * **********************************************************************/
+	
+	/**
+	 * @return The title for this node.
+	 */
+	public String getTitle()
+	{
+		return this._title;
 	}
 	
 	/**
-	 * Add attribute to ModelNode object
-	 * @param attribute
+	 * \brief Set the title for this node.
+	 * 
+	 * @param title String title.
 	 */
-	public void add(ModelAttribute attribute)
+	public void setTitle(String title)
 	{
-		this.attributes.add(attribute);
+		this._title = title;
+	}
+	
+	/* ***********************************************************************
+	 * REQUIREMENT METHODS
+	 * **********************************************************************/
+	
+	/**
+	 * \brief Set the construction requirements for this node.
+	 * 
+	 * @param req A measure of how many of this node is required (one, many,
+	 * etc).
+	 */
+	public void setRequirements(Requirements req)
+	{
+		this._requirement = req;
 	}
 	
 	/**
-	 * Add childnode to ModelNode object
-	 * @param childNode
+	 * @return {@code true} if no more than one of this model node may be made.
 	 */
-	public void add(ModelNode childNode)
+	public boolean requireMaxOne()
 	{
-		this.childNodes.add(childNode);
+		return this._requirement.max == 1;
 	}
 	
+	/**
+	 * \brief Check if the given node requirements are equal to those set for
+	 * this model node.
+	 * 
+	 * @param req A measure of how many of a node may be required 
+	 * (one, many, etc).
+	 * @return True if this is the same as the requirements set for this node.
+	 */
+	public boolean areRequirements(Requirements req)
+	{
+		return this._requirement == req;
+	}
+	
+	public Requirements getRequirment()
+	{
+		return this._requirement;
+	}
+	
+	/* ***********************************************************************
+	 * THIS CONSTRUCTORS
+	 * **********************************************************************/
+
 	/**
 	 * Adding a child object, action performed on clicking add button in gui
 	 * @param childObject
 	 */
 	public void add(NodeConstructor childObject)
 	{
-		constructor.addChildObject(childObject);
+		this.constructor.addChildObject(childObject);
 	}
-	
-	
+
+	/* ***********************************************************************
+	 * CHILD NODES
+	 * **********************************************************************/
+
 	/**
-	 * Get attribute identified by String
-	 * @param attribute
-	 * @return
+	 * \brief Add the given child node to this ModelNode object.
+	 * 
+	 * @param childNode Child model node to add.
 	 */
-	public ModelAttribute getAttribute(String attribute)
+	public void add(ModelNode childNode)
 	{
-		for( ModelAttribute a : attributes )
-			if (a.tag.equals(attribute))
-				return a;
-		return null;
+		this._childNodes.add(childNode);
 	}
 
 	/**
-	 * Get ChildNodes identified by String tag
-	 * @param tag
-	 * @return
+	 * \brief Get all child nodes which have the given tag.
+	 * 
+	 * @param tag Node tag to look for.
+	 * @return All child nodes belonging to this node that have the same tag.
 	 */
 	public List<ModelNode> getChildNodes(String tag)
 	{
 		List<ModelNode> out = new LinkedList<ModelNode>();
-		for( ModelNode c : childNodes )
-			if (c.tag.equals(tag))
+		for ( ModelNode c : this._childNodes )
+			if ( c.isTag(tag) )
 				out.add(c);
 		return out;
 	}
 	
 	/**
-	 * returns xml String from this ModelNode
-	 * @return
+	 * @return All child nodes.
+	 */
+	public List<ModelNode> getAllChildNodes()
+	{
+		return this._childNodes;
+	}
+	
+	/* ***********************************************************************
+	 * CHILD NODE CONSTRUCTORS
+	 * **********************************************************************/
+
+	
+	public void addConstructable(String classRef, Requirements requirement)
+	{
+		this._constructables.add(new Constructable(classRef, requirement));
+	}
+	
+	public void addConstructable(String classRef, Requirements requirement, String label)
+	{
+		this._constructables.add(new Constructable(classRef, requirement, label));
+	}
+	
+	public void addConstructable(String classRef, String[] classRefs, Requirements requirement)
+	{
+		this._constructables.add(new Constructable(classRef, classRefs, requirement));
+	}
+	
+	public ModelNode getConstruct(String constructable)
+	{
+		Constructable c = this.getConstructable(constructable);
+		NodeConstructor con;
+		if (c.options() == null)
+		{
+			con = (NodeConstructor) Instantiatable.
+					getNewInstance(	c.classRef(), null, this.constructor );
+		}
+		else
+		{
+			con =  (NodeConstructor) Instantiatable.getNewInstance(	
+					Helper.obtainInput(c.options(), "select class", false), 
+					null, this.constructor );
+		}
+		ModelNode node = con.getNode();
+		this.add(node);
+//		this.add(con);
+		return node;
+	}
+	
+	public Requirements getConRequirement(String classRef)
+	{
+		for (Constructable c : this._constructables)
+			if( c.classRef() == classRef )
+				return c.requirement();
+		return null;
+	}
+	
+	public Constructable getConstructable(String classRef)
+	{
+		for (Constructable c : this._constructables)
+			if( c.classRef() == classRef )
+				return c;
+		return null;
+	}
+	
+	public String[] getConstructables()
+	{
+		int i = 0;
+		String[] out = new String[this._constructables.size()];
+		for (Constructable c : this._constructables)
+			out[i++] = c.classRef();
+		return out;
+	}
+	/**
+	 * \brief Add a child node constructor, together with requirements on how
+	 * many times it may be constructed.
+	 * 
+	 * @param cnstr Child node constructor for this ModelNode.
+	 * @param req A measure of how many of this child constructor node is
+	 * required (one, many, etc).
+	 */
+	public void addChildConstructor(NodeConstructor cnstr, Requirements req)
+	{
+		this._childConstructors.put(cnstr, req);
+	}
+	
+	/**
+	 * @return All child node constructors.
+	 */
+	public Set<NodeConstructor> getAllChildConstructors()
+	{
+		return this._childConstructors.keySet();
+	}
+	
+	/**
+	 * \brief Check if the given child node constructor should be made exactly
+	 * once.
+	 * 
+	 * @param cnstr Child node constructor belonging to this ModelNode.
+	 * @return {@code true} if it must be made exactly once, {@code false} if
+	 * it may be omitted or made more than once.
+	 */
+	public boolean requireExactlyOneChildConstructor(NodeConstructor cnstr)
+	{
+		return this._childConstructors.get(cnstr) == Requirements.EXACTLY_ONE;
+	}
+	
+	/* ***********************************************************************
+	 * NODE ATTRIBUTES
+	 * **********************************************************************/
+
+	/**
+	 * \brief Add attribute to this ModelNode object
+	 * 
+	 * @param attribute ModelAttribute to add.
+	 */
+	public void add(ModelAttribute attribute)
+	{
+		this._attributes.add(attribute);
+	}
+
+	/**
+	 * \brief Get a single attribute identified by String.
+	 * 
+	 * @param attribute Tag for the attribute required.
+	 * @return The ModelAttribute with this tag, or null if it cannot be found.
+	 */
+	// TODO what if there is more that one attribute with the same name?
+	public ModelAttribute getAttribute(String attribute)
+	{
+		for ( ModelAttribute a : this._attributes )
+			if ( a.tag.equals(attribute) )
+				return a;
+		return null;
+	}
+	
+	/**
+	 * @return List of all this ModelNode's attributes.
+	 */
+	public List<ModelAttribute> getAttributes()
+	{
+		return this._attributes;
+	}
+
+	/* ***********************************************************************
+	 * WRITING XML
+	 * **********************************************************************/
+
+	/**
+	 * \brief Write a description of this ModelNode in XML format, off-setting
+	 * every line by the required number of tabs.
+	 * 
+	 * @param tabs Number of tabs to offset by.
+	 * @return String description of this ModelNode in XML format.
 	 */
 	public String getXML(int tabs)
 	{
 		String out = "";
-		out += appendTabs(tabs) + "<" + tag;
-		
-		/* attributes */
-		for ( ModelAttribute a : attributes )
-		{
+		out += appendTabs(tabs) + "<" + this._tag;
+
+		/* 
+		 * Attributes
+		 */
+		for ( ModelAttribute a : this._attributes )
 			out += a.getXML();
-		}
-		
-		/* child nodes */
-		if ( childNodes.isEmpty() )
-		{
+		/*
+		 * Child nodes
+		 */
+		if ( this._childNodes.isEmpty() )
 			out += " />\n ";
-		}
 		else
 		{
 			out += " >\n";
-			for( ModelNode n : childNodes )
-			{
+			for ( ModelNode n : this._childNodes )
 				out += n.getXML(tabs+1);
-			}
-			out += appendTabs(tabs) + "</" + tag + ">\n";
+			out += appendTabs(tabs) + "</" + this._tag + ">\n";
 		}
-		
 		return out;
 	}
-	
+
+	/**
+	 * \brief Write a description of this ModelNode in XML format, off-setting
+	 * every line by an appropriate number of tabs.
+	 * 
+	 * @return String description of this ModelNode in XML format.
+	 */
 	public String getXML()
 	{
-		return getXML(0);
+		return this.getXML(0);
 	}
 
-	private String appendTabs(int tabs)
+	/**
+	 * \brief Helper method for creating line offsets.
+	 * 
+	 * @param tabs Number of tabs.
+	 * @return String for that many tabs.
+	 */
+	private static String appendTabs(int tabs)
 	{
 		String out = "";
 		for( int i = 1; i < tabs; i++ )
 			out += "\t";
 		return out;
+	}
+
+	public void delete(String specifier) 
+	{
+		constructor.removeNode(specifier);		
+	}
+
+	public boolean hasChildNodes(String tag) 
+	{
+		for ( ModelNode m : _childNodes)
+		{
+			if ( m.constructor.defaultXmlTag() == tag );
+				return true;
+		}
+		return false;
 	}
 }

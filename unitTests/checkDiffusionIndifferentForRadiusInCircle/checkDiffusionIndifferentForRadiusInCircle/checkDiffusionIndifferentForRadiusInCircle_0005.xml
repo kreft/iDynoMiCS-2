@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+<simulation randomSeed="5470936464311173860" name="checkDiffusionIndifferentForRadiusInCircle" outputfolder="./unitTests" log="DEBUG" comment="null" >
+	<timer stepSize="0.1" endOfSimulation="1.0" />
+ 	<speciesLib />
+ 	<compartment name="circle" >
+		<shape class="Circle" >
+			<dimension name="R" isCyclic="false" targetResolution="null" min="0.0" max="4.9E-324" />
+ 			<dimension name="THETA" isCyclic="false" targetResolution="null" min="0.0" max="4.9E-324" />
+ 		</shape>
+		<solutes >
+			<solute name="solute" concentration="0.07987200000000003%0.2838712320000001;0.2838712320000001;0.2838712320000001%0.9173760000000001;0.9173760000000001;0.9173760000000001;0.9173760000000002;0.9173760000000002" />
+ 		</solutes>
+		<agents />
+ 		<processManagers >
+			<process name="DR solver" class="SolveDiffusionTransient" priority="1" firstStep="0.6" />
+ 		</processManagers>
+	</compartment>
+</simulation>
+</document>

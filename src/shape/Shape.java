@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.w3c.dom.Element;
@@ -22,18 +21,18 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.XMLable;
-import grid.SpatialGrid;
+import generalInterfaces.Instantiatable;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.subvoxel.SubvoxelPoint;
+import surface.Collision;
 import surface.Plane;
 import surface.Surface;
 import utility.ExtraMath;
@@ -65,7 +64,7 @@ import utility.Helper;
  */
 // TODO remove the last three sections by incorporation into Node construction.
 public abstract class Shape implements
-					CanPrelaunchCheck, XMLable, NodeConstructor
+					CanPrelaunchCheck, Instantiatable, NodeConstructor
 {
 	protected enum WhereAmI
 	{
@@ -100,16 +99,12 @@ public abstract class Shape implements
 	 */
 	protected HashMap<DimName,ResCalc> _rcStorage =
 												new HashMap<DimName,ResCalc>();
+	
 	/**
 	 * The greatest potential flux between neighboring voxels. Multiply by 
 	 * diffusivity to become actual flux.
 	 */
 	protected Double _maxFluxPotentl = null;
-	/**
-	 * Surfaces for collision detection methods.
-	 */
-	protected Map<Surface,SpatialBoundary> _surfaces = 
-			new HashMap<Surface,SpatialBoundary>();
 	
 	/**
 	 * List of boundaries in a dimensionless compartment, or internal
@@ -143,7 +138,14 @@ public abstract class Shape implements
 	 * What kind of voxel the current neighbor iterator is in.
 	 */
 	protected WhereAmI _whereIsNhb;
-	
+	/**
+	 * TODO
+	 */
+	protected Collision _defaultCollision;
+	/**
+	 * 
+	 */
+	protected Integer _numSignificantDimension;
 	/**
 	 * A helper vector for finding the location of the origin of a voxel.
 	 */
@@ -165,16 +167,24 @@ public abstract class Shape implements
 	 */
 	protected static final Tier NHB_ITER_LEVEL = BULK;
 	
+	protected NodeConstructor _parentNode;
+	
 	/* ***********************************************************************
 	 * CONSTRUCTION
 	 * **********************************************************************/
+	
+	public static Shape newShape()
+	{
+		return (Shape) Shape.getNewInstance(
+				Helper.obtainInput(getAllOptions(), "Shape class", false));
+	}
 	
 	@Override
 	public ModelNode getNode()
 	{
 
 		ModelNode modelNode = new ModelNode(XmlRef.compartmentShape, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
 										this.getName(), null, false ));
 		
@@ -189,13 +199,6 @@ public abstract class Shape implements
 	public void setNode(ModelNode node)
 	{
 
-	}
-
-	@Override
-	public NodeConstructor newBlank()
-	{
-		return (Shape) Shape.getNewInstance(
-				Helper.obtainInput(getAllOptions(), "Shape class", false));
 	}
 
 	@Override
@@ -218,40 +221,34 @@ public abstract class Shape implements
 	 * 
 	 * @param xmlNode
 	 */
-	// TODO remove once ModelNode, etc is working
 	public void init(Element xmlElem)
 	{
 		NodeList childNodes;
 		Element childElem;
 		String str;
 		/* Set up the dimensions. */
-		DimName dimName;
 		Dimension dim;
-		childNodes = XmlHandler.getAll(xmlElem, XmlRef.shapeDimension);
 		ResCalc rC;
 		
-		for ( int i = 0; i < childNodes.getLength(); i++ )
+		for ( DimName dimens : this.getDimensionNames() )
 		{
-			childElem = (Element) childNodes.item(i);
+
+			childElem = (Element) XmlHandler.getSpecific(xmlElem, 
+					XmlRef.shapeDimension, XmlRef.nameAttribute, dimens.name());
 			try
 			{
-				str = XmlHandler.obtainAttribute(childElem,
-												XmlRef.nameAttribute);
-				dimName = DimName.valueOf(str);
-				dim = this.getDimension(dimName);
-				dim.init(childElem);
-				
-				/* Initialise resolution calculators */
-				rC = new ResolutionCalculator.UniformResolution();
-				double length = dim.getLength();
-				/* Set theta dimension cyclic for a full circle, no matter what 
-				 * the user specified */
-				if (dimName == DimName.THETA 
-						&& ExtraMath.areEqual(length, 2 * Math.PI,
-								PolarShape.POLAR_ANGLE_EQ_TOL))
-					dim.setCyclic();
-				rC.init(dim._targetRes, length);
-				this.setDimensionResolution(dimName, rC);	
+				dim = this.getDimension(dimens);
+				if(dim._isSignificant)
+				{
+					dim.init(childElem);
+					
+					/* Initialise resolution calculators */
+					rC = new ResolutionCalculator.UniformResolution();
+					double length = dim.getLength();
+	
+					rC.init(dim._targetRes, length);
+					this.setDimensionResolution(dimens, rC);	
+				}
 			}
 			catch (IllegalArgumentException e)
 			{
@@ -259,20 +256,24 @@ public abstract class Shape implements
 						+ "recognised by shape " + this.getClass().getName()
 						+ ", use: " + Helper.enumToString(DimName.class));
 			}
+			this._defaultCollision = new Collision(this);
+			
 		}
 		
 		/* Set up any other boundaries. */
 		Boundary aBoundary;
 		childNodes = XmlHandler.getAll(xmlElem, XmlRef.dimensionBoundary);
-		for ( int i = 0; i < childNodes.getLength(); i++ )
+		if ( childNodes != null )
 		{
-			childElem = (Element) childNodes.item(i);
-			str = childElem.getAttribute(XmlRef.classAttribute);
-			aBoundary = (Boundary) Boundary.getNewInstance(str);
-			aBoundary.init(childElem);
-			this.addOtherBoundary(aBoundary);
+			for ( int i = 0; i < childNodes.getLength(); i++ )
+			{
+				childElem = (Element) childNodes.item(i);
+				str = childElem.getAttribute(XmlRef.classAttribute);
+				aBoundary = (Boundary) Boundary.getNewInstance(str);
+				aBoundary.init(childElem);
+				this.addOtherBoundary(aBoundary);
+			}
 		}
-		
 		this.setSurfaces();
 	}
 	
@@ -295,20 +296,16 @@ public abstract class Shape implements
 		return this.getClass().getSimpleName();
 	}
 	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public abstract double getTotalVolume();
+	
 	/* ***********************************************************************
 	 * GRID & ARRAY CONSTRUCTION
 	 * **********************************************************************/
-	
-	/**
-	 * \brief Get a new spatial grid, using this shape's discretisation scheme.
-	 * 
-	 * @param name Name of the variable that this grid will represent.
-	 * @return New spatial grid.
-	 */
-	public SpatialGrid getNewGrid(String name)
-	{
-		return new SpatialGrid(this, name);
-	}
 	
 	/**
 	 * \brief Get a new array with the layout of voxels that follows this
@@ -333,10 +330,25 @@ public abstract class Shape implements
 	 */
 	public int getNumberOfDimensions()
 	{
-		int out = 0;
+		if ( this._numSignificantDimension != null )
+			return this._numSignificantDimension;
+		this._numSignificantDimension = 0;
 		for ( Dimension dim : this._dimensions.values() )
 			if ( dim.isSignificant() )
-				out++;
+				this._numSignificantDimension++;
+		return this._numSignificantDimension;
+	}
+	
+	/**
+	 * \brief returns all dimensions that are significant
+	 * @return
+	 */
+	public List<Dimension> getSignificantDimensions()
+	{
+		LinkedList<Dimension> out = new LinkedList<Dimension>();
+		for ( Dimension dim : this._dimensions.values() )
+			if ( dim.isSignificant() )
+				out.add(dim);
 		return out;
 	}
 	
@@ -367,7 +379,7 @@ public abstract class Shape implements
 	 * {@code Shape}.
 	 * @return Index of the dimension, if present; {@code -1}, if not.
 	 */
-	protected int getDimensionIndex(DimName dimension)
+	public int getDimensionIndex(DimName dimension)
 	{
 		int out = 0;
 		for ( DimName d : this._dimensions.keySet() )
@@ -385,7 +397,7 @@ public abstract class Shape implements
 	 * @param dimension Dimension thought to be in this {@code Shape}.
 	 * @return Index of the dimension, if present; {@code -1}, if not.
 	 */
-	protected int getDimensionIndex(Dimension dimension)
+	public int getDimensionIndex(Dimension dimension)
 	{
 		int out = 0;
 		for ( Dimension d : this._dimensions.values() )
@@ -413,6 +425,19 @@ public abstract class Shape implements
 			counter++;
 		}
 		return null;
+	}
+	
+	/*
+	 * returns an array of booleans that indicate whether the dimensions are
+	 * periodic in their natural order.
+	 */
+	public boolean[] getIsCyclicNaturalOrder()
+	{
+		boolean[] dims = new boolean[this.getNumberOfDimensions()];
+		int i = 0;
+		for (Dimension d : this.getSignificantDimensions())
+			dims[i++] = d.isCyclic();
+		return dims;
 	}
 	
 	/**
@@ -554,6 +579,19 @@ public abstract class Shape implements
 
 	/**
 	 * \brief Convert a spatial position from global (Cartesian) coordinates to
+	 * a new vector in the local coordinate scheme, writing the result into the
+	 * destination vector given.
+	 * 
+	 * @param dest The destination vector that will be overwritten with the
+	 * result.
+	 * @param cartesian A point in space represented by a vector in global
+	 * (Cartesian) coordinates.
+	 */
+	protected abstract void getLocalPositionTo(
+			double[] destination, double[] cartesian);
+	
+	/**
+	 * \brief Convert a spatial position from global (Cartesian) coordinates to
 	 * a new vector in the local coordinate scheme. 
 	 * 
 	 * @param cartesian A point in space represented by a vector in global
@@ -562,7 +600,37 @@ public abstract class Shape implements
 	 * coordinate scheme.
 	 * @see #getGlobalLocation(double[])
 	 */
-	protected abstract double[] getLocalPosition(double[] cartesian);
+	protected double[] getLocalPosition(double[] cartesian)
+	{
+		double[] out = new double[cartesian.length];
+		this.getLocalPositionTo(out, cartesian);
+		return out;
+	}
+	
+	/**
+	 * \brief Convert a spatial position from global (Cartesian) coordinates to
+	 * the local coordinate scheme, overwriting the original vector with the
+	 * result. 
+	 * 
+	 * @param cartesian A point in space represented by a vector in global
+	 * (Cartesian) coordinates. Overwritten.
+	 */
+	protected void getLocalPositionEquals(double[] cartesian)
+	{
+		this.getLocalPositionTo(cartesian, cartesian);
+	}
+	
+	/**
+	 * \brief Convert a spatial position from the local coordinate scheme to
+	 * global (Cartesian) coordinates, writing the result into the destination
+	 * vector given.
+	 * 
+	 * @param dest The destination vector that will be overwritten with the
+	 * result.
+	 * @param local A point in space represented by a vector in local
+	 * coordinate scheme.
+	 */
+	protected abstract void getGlobalLocationTo(double[] dest, double[] local);
 	
 	/**
 	 * \brief Convert a spatial position from the local coordinate scheme to
@@ -574,7 +642,24 @@ public abstract class Shape implements
 	 * (Cartesian) coordinates.
 	 * @see #getLocalPosition(double[])
 	 */
-	protected abstract double[] getGlobalLocation(double[] local);
+	protected double[] getGlobalLocation(double[] local)
+	{
+		double[] out = new double[local.length];
+		this.getGlobalLocationTo(out, local);
+		return out;
+	}
+	
+	/**
+	 * \brief Convert a spatial position from the local coordinate scheme to
+	 * global (Cartesian) coordinates, writing the result into the vector given.
+	 * 
+	 * @param local A point in space represented by a vector in local
+	 * coordinate scheme (overwritten).
+	 */
+	protected void getGlobalLocationEquals(double[] local)
+	{
+		this.getGlobalLocationTo(local, local);
+	}
 
 	/**
 	 * \brief Check if a given location is inside this shape.
@@ -652,6 +737,34 @@ public abstract class Shape implements
 	
 	/**
 	 * \brief Get the smallest distance between two points, once cyclic
+	 * dimensions are accounted for. Write the result into the destination
+	 * vector given.
+	 * 
+	 * <p><b>a</b> - <b>b</b>, i.e. the vector from <b>b</b> to <b>a</b>.</p>
+	 * 
+	 * @param a A spatial location in global coordinates.
+	 * @param b A spatial location in global coordinates.
+	 * @return The smallest distance between them.
+	 */
+	public void getMinDifferenceTo(double[] destination, double[] a, double[] b)
+	{
+		Vector.checkLengths(destination, a, b);
+		double[] aLocal = this.getLocalPosition(a);
+		double[] bLocal = this.getLocalPosition(b);
+		int nDim = a.length;
+		int i = 0;
+		for ( Dimension dim : this._dimensions.values() )
+		{
+			// TODO get arc length in angular dimensions?
+			destination[i] = dim.getShortest(aLocal[i], bLocal[i]);
+			if ( ++i >= nDim )
+				break;
+		}
+		this.getGlobalLocationEquals(destination);
+	}
+	
+	/**
+	 * \brief Get the smallest distance between two points, once cyclic
 	 * dimensions are accounted for.
 	 * 
 	 * <p><b>a</b> - <b>b</b>, i.e. the vector from <b>b</b> to <b>a</b>.</p>
@@ -663,19 +776,9 @@ public abstract class Shape implements
 	public double[] getMinDifference(double[] a, double[] b)
 	{
 		Vector.checkLengths(a, b);
-		double[] aLocal = this.getLocalPosition(a);
-		double[] bLocal = this.getLocalPosition(b);
-		int nDim = a.length;
-		double[] diffLocal = new double[nDim];
-		int i = 0;
-		for ( Dimension dim : this._dimensions.values() )
-		{
-			// TODO get arc length in angular dimensions?
-			diffLocal[i] = dim.getShortest(aLocal[i], bLocal[i]);
-			if ( ++i >= nDim )
-				break;
-		}
-		return this.getGlobalLocation(diffLocal);
+		double[] out = new double[a.length];
+		this.getMinDifferenceTo(out, a, b);
+		return out;
 	}
 	
 	/**
@@ -687,18 +790,18 @@ public abstract class Shape implements
 	 */
 	public void moveAlongDimension(double[] pos, DimName dimN, double dist)
 	{
-		double[] local = this.getLocalPosition(pos);
+		this.getLocalPositionEquals(pos);
 		if ( dimN.isAngular() )
 		{
-			double radius = local[this.getDimensionIndex(R)];
+			double radius = pos[this.getDimensionIndex(R)];
 			if ( radius == 0.0 )
 				return;
 			double angle = dist/radius;
-			this.moveAlongDim(local, dimN, angle);
+			this.moveAlongDim(pos, dimN, angle);
 		}
 		else
-			this.moveAlongDim(local, dimN, dist);
-		pos = this.getGlobalLocation(local);
+			this.moveAlongDim(pos, dimN, dist);
+		this.getGlobalLocationEquals(pos);
 	}
 	
 	/**
@@ -778,6 +881,9 @@ public abstract class Shape implements
 	 */
 	protected void setPlanarSurfaces(DimName aDimName)
 	{
+		Tier level = Tier.BULK;
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Setting planar surfaces for min & max of "+aDimName);
 		Dimension dim = this.getDimension(aDimName);
 		/* Safety. */
 		if ( dim == null )
@@ -794,11 +900,15 @@ public abstract class Shape implements
 		/* The minimum extreme. */
 		normal[index] = 1.0;
 		p = new Plane( Vector.copy(normal), dim.getExtreme(0) );
-		this._surfaces.put(p, dim.getBoundary(0));
+		p.init(_defaultCollision);
+		//this._surfaces.put(p, dim.getBoundary(0));
+		dim.setSurface(p, 0);
 		/* The maximum extreme. */
 		normal[index] = -1.0;
 		p = new Plane( Vector.copy(normal), - dim.getExtreme(1) );
-		this._surfaces.put(p, dim.getBoundary(1));
+		p.init(_defaultCollision);
+		//this._surfaces.put(p, dim.getBoundary(1));
+		dim.setSurface(p, 1);
 	}
 	
 	/**
@@ -806,7 +916,12 @@ public abstract class Shape implements
 	 */
 	public Collection<Surface> getSurfaces()
 	{
-		return this._surfaces.keySet();
+		Collection<Surface> out = new LinkedList<Surface>();
+		for ( Dimension dim : this._dimensions.values() )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				if ( dim.isSurfaceDefined(extreme) )
+					out.add(dim.getSurface(extreme));
+		return out;
 	}
 	
 	/**
@@ -817,7 +932,32 @@ public abstract class Shape implements
 	 */
 	public SpatialBoundary getBoundary(Surface surface)
 	{
-		return this._surfaces.get(surface);
+		for ( Dimension dim : this._dimensions.values() )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+				if ( dim.getSurface(extreme) == surface )
+					return dim.getBoundary(extreme);
+		return null;
+	}
+	
+	/**
+	 * \brief Get the surface associated with the given spatial boundary.
+	 * 
+	 * @param boundary Boundary object on one of this shape's surfaces.
+	 * @return The {@code Surface} object linked to this boundary.
+	 */
+	public Surface getSurface(SpatialBoundary boundary)
+	{
+		Tier level = Tier.BULK;
+		DimName dimName = boundary.getDimName();
+		int extreme = boundary.getExtreme();
+		Dimension dim = this.getDimension(dimName);
+		Surface out = dim.getSurface(extreme);
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Surface for boundary on "+dimName+" "+
+					Dimension.extremeToString(extreme)+" is a "+out.toString());
+		}
+		return out;
 	}
 	
 	/* ***********************************************************************
@@ -849,7 +989,7 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * @return Collection of connected boundaries.
+	 * @return Collection of boundaries.
 	 */
 	public Collection<Boundary> getAllBoundaries()
 	{
@@ -863,6 +1003,18 @@ public abstract class Shape implements
 		return out;
 	}
 	
+	/**
+	 * @return Collection of all spatial boundaries.
+	 */
+	public Collection<SpatialBoundary> getSpatialBoundaries()
+	{
+		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
+		for ( Dimension d : this._dimensions.values() )
+			for ( SpatialBoundary b : d.getBoundaries() )
+				if ( b != null )
+					out.add(b);
+		return out;
+	}
 	
 	/**
 	 * @return List of boundaries that need a partner boundary, but no not have
@@ -876,12 +1028,35 @@ public abstract class Shape implements
 	}
 	
 	/**
+	 * @return Collection of spatial boundaries that have a well-mixed approach
+	 * to them.
+	 */
+	public Collection<SpatialBoundary> getWellMixedBoundaries()
+	{
+		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
+		for ( Dimension d : this._dimensions.values() )
+			for ( SpatialBoundary b : d.getBoundaries() )
+				if ( b != null && b.needsToUpdateWellMixed() )
+					out.add(b);
+		return out;
+	}
+	
+	/**
 	 * @return Collection of all boundaries that do not belong to a dimension.
 	 */
 	public Collection<Boundary> getOtherBoundaries()
 	{
 		return this._otherBoundaries;
 	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @param dimN
+	 * @param extreme
+	 * @return
+	 */
+	public abstract double getBoundarySurfaceArea(DimName dimN, int extreme);
 	
 	/* ***********************************************************************
 	 * VOXELS
@@ -1302,14 +1477,41 @@ public abstract class Shape implements
 	 * @param coords Discrete coordinates of a voxel on this shape.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
-	protected int[] updateCurrentNVoxel()
+	protected void updateCurrentNVoxel()
 	{
 		if ( this._currentNVoxel == null )
 			this._currentNVoxel = Vector.zerosInt(3);
 		if ( this._currentCoord == null )
 			this.resetIterator();
 		this.nVoxelTo(this._currentNVoxel, this._currentCoord);
-		return this._currentNVoxel;
+	}
+	
+	public double currentDistanceFromBoundary(DimName dimN, int extreme)
+	{
+		Dimension dim = this.getDimension(dimN);
+		int dimIndex = this.getDimensionIndex(dimN);
+		ResCalc rC = this.getResolutionCalculator(this._currentCoord, dimIndex);
+		/*
+		 * Get the position at the centre of the current voxel.
+		 */
+		double distance = rC.getPosition(this._currentCoord[dimIndex], 0.5);
+		/*
+		 * Correct for the position of the extreme.
+		 */
+		if ( extreme == 0 )
+			distance -= dim.getExtreme(extreme);
+		else
+			distance = dim.getExtreme(extreme) - distance;
+		/*
+		 * If this is an angular dimension, convert from distance in radians to
+		 * distance in length units.
+		 */
+		if ( dimN.isAngular() )
+		{
+			double radius = this._currentCoord[this.getDimensionIndex(R)];
+			distance *= radius;
+		}
+		return distance;
 	}
 
 	/* ***********************************************************************
@@ -1534,7 +1736,9 @@ public abstract class Shape implements
 	 */
 	protected void transformNhbCyclic()
 	{
-		Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				": status "+this._whereIsNhb);
 		Dimension dim = getDimension(this._nbhDimName);
@@ -1554,9 +1758,12 @@ public abstract class Shape implements
 				this._currentNeighbor[dimIdx] = 0;
 			}
 		}
-		Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				": status "+this._whereIsNhb);
+		}
 	}
 	
 	/**
@@ -1583,9 +1790,12 @@ public abstract class Shape implements
 				this._currentNeighbor[dimIdx] = nVoxel;
 			}
 		}
-		Log.out(NHB_ITER_LEVEL, "   un-transformed neighbor at "+
-				Vector.toString(this._currentNeighbor)+
-				": status "+this._whereIsNhb);
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   un-transformed neighbor at "+
+					Vector.toString(this._currentNeighbor)+
+					": status "+this._whereIsNhb);
+		}
 	}
 	
 	/**
@@ -1605,11 +1815,14 @@ public abstract class Shape implements
 		/* Check that this coordinate is acceptable. */
 		WhereAmI where = this.whereIsNhb(dim);
 		this._whereIsNhb = where;
-//		this._nhbDirection = 0;
-//		this._nhbDimName = dim;
-		Log.out(NHB_ITER_LEVEL,
+		this._nhbDirection = 0;
+		this._nhbDimName = dim;
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL,
 				"   tried moving to minus in "+dim+": result "+
 						Vector.toString(this._currentNeighbor)+" is "+where);
+		}
 		return (where != UNDEFINED);
 	}
 	
@@ -1637,19 +1850,23 @@ public abstract class Shape implements
 			if ( this._whereIsNhb == INSIDE || bMaxDef )
 			{
 				/* report success. */
-//				this._nhbDirection = 1;
-				Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
-						": result "+Vector.toString(this._currentNeighbor)+
-						" is "+this._whereIsNhb);
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
+							": result "+Vector.toString(this._currentNeighbor)+
+							" is "+this._whereIsNhb);
+				}
 				return true;
 			}
 		}
 		/* Undo jump and report failure. */
 		this._currentNeighbor[index] = this._currentCoord[index] - 1;
-		Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   failure jumping over in "+dim+
 				": result "+Vector.toString(this._currentNeighbor)+
 				" is "+this._whereIsNhb);
-		
+		}
 		return false;
 	}
 	
@@ -1678,10 +1895,13 @@ public abstract class Shape implements
 	public double nhbCurrDistance()
 	{
 		Tier level = Tier.BULK;
-		Log.out(level, "  calculating distance between voxels "+
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "  calculating distance between voxels "+
 				Vector.toString(this._currentCoord)+" and "+
 				Vector.toString(this._currentNeighbor)+
 				" along dimension "+this._nbhDimName);
+		}
 		int i = this.getDimensionIndex(this._nbhDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
 		double out = rC.getResolution(this._currentCoord[i]);
@@ -1709,12 +1929,14 @@ public abstract class Shape implements
 				Log.out(level, "   radius is "+radius);
 				out *= radius;
 			}
-			Log.out(level, "    distance is "+out);
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "    distance is "+out);
 			return out;
 		}
 		/* If the neighbor is on an undefined boundary, return infinite
 			distance (this should never happen!) */
-		Log.out(level, "    undefined distance!");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "    undefined distance!");
 		return Double.POSITIVE_INFINITY;
 	}
 	
@@ -1750,12 +1972,41 @@ public abstract class Shape implements
 	
 	public static Shape getNewInstance(String className)
 	{
-		return (Shape) XMLable.getNewInstance(className, "shape.ShapeLibrary$");
+		return (Shape) Instantiatable.getNewInstance(className, "shape.ShapeLibrary$");
+	}
+	
+	public static Shape getNewInstance(String className, Element xmlElem, NodeConstructor parent)
+	{
+		Shape out;
+		if (xmlElem == null)
+			out = (Shape) Shape.getNewInstance(
+					Helper.obtainInput(getAllOptions(), "Shape class", false));
+		else
+			out = (Shape) Instantiatable.getNewInstance(className, 
+					"shape.ShapeLibrary$");
+		out.init(xmlElem);
+		return out;
 	}
 	
 	public static String[] getAllOptions()
 	{
 		return Helper.getClassNamesSimple(
 									ShapeLibrary.class.getDeclaredClasses());
+	}
+
+	public Collision getCollision()
+	{
+		return this._defaultCollision;
+	}
+	
+	public void setParent(NodeConstructor parent)
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

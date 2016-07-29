@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+<simulation randomSeed="967501132779634149" name="checkMassBalance" outputfolder="./unitTests" log="DEBUG" comment="null" >
+	<timer stepSize="0.1" endOfSimulation="1.0" />
+ 	<speciesLib />
+ 	<compartment name="oneDim" >
+		<shape class="Line" >
+			<dimension name="X" isCyclic="false" targetResolution="null" min="0.0" max="4.9E-324" />
+ 		</shape>
+		<solutes >
+			<solute name="solute" concentration="0.1158594219966086%0.35358800936832935%0.6242765799086387" />
+ 		</solutes>
+		<agents />
+ 		<processManagers >
+			<process name="DR solver" class="SolveDiffusionTransient" priority="1" firstStep="0.4" />
+ 		</processManagers>
+	</compartment>
+</simulation>
+</document>

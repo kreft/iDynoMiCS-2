@@ -2,25 +2,29 @@ package testJUnit;
 
 import org.junit.Test;
 
-import idynomics.AgentContainer;
 import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
+import nodeFactory.NodeConstructor;
 import processManager.ProcessManager;
 /**
  * \brief Test checking that Compartments behave as they should.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class CompartmentTest
 {
 	public class DummyProcess extends ProcessManager
 	{
 		@Override
-		protected void internalStep(
-				EnvironmentContainer environment, AgentContainer agents)
+		protected void internalStep()
 		{
 			System.out.println("\nTime is: "+this._timeForNextStep);
 			System.out.println(this._name);
+		}
+
+		@Override
+		public void setParent(NodeConstructor parent) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	}

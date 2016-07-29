@@ -8,12 +8,12 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import dataIO.XmlRef;
 import generalInterfaces.Copyable;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import generalInterfaces.HasBoundingBox;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import referenceLibrary.XmlRef;
 import surface.*;
 
 /**
@@ -23,9 +23,9 @@ import surface.*;
  * by multiple points.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Body implements Copyable, XMLable
+public class Body implements Copyable, Instantiatable
 {
 	/**
 	 * Ordered list of the points that describe the body.

@@ -1,6 +1,7 @@
 package guiTools;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -23,11 +24,9 @@ public class GuiComponent {
 	public static JTabbedPane setPane(JTabbedPane pane) {
 		
 		pane.removeAll();
-		
 		/* The tabs pane */
 		addTab(pane, "console", GuiConsole.getConsole(),
               "The Console");
-
 		pane.setTabPlacement(JTabbedPane.LEFT);
 		return pane;
 		
@@ -47,6 +46,11 @@ public class GuiComponent {
 	public static void togglePane(JTabbedPane tabbedPane, int paneNumber)
 	{
 		tabbedPane.setSelectedIndex(paneNumber);
+	}
+	
+	public static void togglePane(JTabbedPane tabbedPane, Component component)
+	{
+		tabbedPane.setSelectedIndex( findComponentIndex(tabbedPane, component));
 	}
 	
 	public static void tabEnabled(JTabbedPane tabbedPane, int paneNumber, boolean bool)
@@ -78,7 +82,7 @@ public class GuiComponent {
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.setSize(600, 30);
+		panel.setSize(600, 25);
 		
 		JLabel descriptionLabel = new JLabel(description);
 		descriptionLabel.setPreferredSize(new Dimension(180,25));
@@ -94,7 +98,7 @@ public class GuiComponent {
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.setSize(600, 30);
+		panel.setSize(600, 25);
 		
 		JLabel descriptionLabel = new JLabel(description);
 		descriptionLabel.setPreferredSize(new Dimension(200,25));
@@ -125,9 +129,27 @@ public class GuiComponent {
 	public static JComponent textPanel(String text) {
         JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.setSize(600, 30);
+		panel.setSize(600, 25);
         JLabel filler = new JLabel(text);
-        filler.setPreferredSize(new Dimension(580,30));
+        filler.setPreferredSize(new Dimension(580,25));
+        panel.add(filler,BorderLayout.CENTER);
+        return panel;
+    }
+	
+	/*
+	 * return a formated JPanel with JLabel
+	 */
+	public static JComponent textPanel(String text, int option) {
+        JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.setSize(600, 25);
+        JLabel filler = new JLabel(text);
+        if ( option == 1)
+        {
+	        filler.setFont(new Font(null, Font.BOLD, 14));
+	        filler.setForeground(new Color(0f, 0f, 0.5f));
+        }
+        filler.setPreferredSize(new Dimension(580,25));
         panel.add(filler,BorderLayout.CENTER);
         return panel;
     }
@@ -138,13 +160,13 @@ public class GuiComponent {
 	public static JComponent selectPanel(String description, JComboBox box) {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.setSize(600, 30);
+		panel.setSize(600, 25);
 		
 		JLabel descriptionLabel = new JLabel(description);
-		descriptionLabel.setPreferredSize(new Dimension(180,30));
+		descriptionLabel.setPreferredSize(new Dimension(180,25));
 		panel.add(descriptionLabel,BorderLayout.WEST);
 		
-		box.setPreferredSize(new Dimension(400,30));
+		box.setPreferredSize(new Dimension(400,25));
 		panel.add(box,BorderLayout.EAST);
 		return panel;
     }
@@ -156,13 +178,13 @@ public class GuiComponent {
 	{
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		panel.setSize(600, 30);
+		panel.setSize(600, 25);
 		
 		JLabel filler = new JLabel(description);
-        filler.setPreferredSize(new Dimension(480,30));
+        filler.setPreferredSize(new Dimension(478,25));
         panel.add(filler,BorderLayout.WEST);
 
-		actionButton.setPreferredSize(new Dimension(100,30));
+		actionButton.setPreferredSize(new Dimension(100,25));
 		actionButton.addActionListener(actionListner);
 		panel.add(actionButton,BorderLayout.EAST);
 		return panel;

@@ -1,31 +1,33 @@
 package idynomics;
 
-import static dataIO.Log.Tier.BULK;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
+import boundary.SpatialBoundary;
 import dataIO.Log;
-import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.ArrayType;
 import grid.SpatialGrid;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.primarySetters.PileList;
+import nodeFactory.ModelNode.Requirements;
 import reaction.Reaction;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 import shape.Shape;
 
 /**
  * \brief Manages the solutes in a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class EnvironmentContainer implements CanPrelaunchCheck
+public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 {
 	/**
 	 * This dictates both geometry and size, and it inherited from the
@@ -37,9 +39,19 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	protected Collection<SpatialGrid> _solutes = new LinkedList<SpatialGrid>();
 	/**
-	 * Collection of extracellular reactions (each Reaction knows its own name).
+	 * Collection of extracellular reactions specific to this compartment
+	 * (each Reaction knows its own name).
 	 */
-	protected Collection<Reaction> _reactions = new LinkedList<Reaction>();
+	protected PileList<Reaction> _reactions = new PileList<Reaction>(Reaction.class, null, XmlRef.reactions, XmlRef.reaction);
+	/**
+	 * Name of the common grid.
+	 */
+	public final static String COMMON_GRID_NAME = "common";
+	/**
+	 * Grid of common attributes, such as well-mixed.
+	 */
+	protected SpatialGrid _commonGrid;
+	private NodeConstructor _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -58,78 +70,49 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	/**
 	 * \brief TODO
 	 * 
-	 * @param soluteName
+	 * @param solute
 	 */
-	public void addSolute(String soluteName)
+	public void addSolute(SpatialGrid solute)
 	{
-		this.addSolute(soluteName, 0.0);
+		this._solutes.add(solute);
+		Log.out(Tier.DEBUG, 
+				"Added solute \""+ solute.getName() +"\" to environment");
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Add a new solute to the environment. This method is intended only
+	 * for testing.
 	 * 
-	 * @param soluteName
-	 * @param initialConcn
+	 * @param soluteName Name of the new solute.
+	 * @param initialConcn Initial value for the concentration of this solute.
 	 */
 	public void addSolute(String soluteName, double initialConcn)
 	{
-		// TODO safety: check if solute already present
-		SpatialGrid sg = this._shape.getNewGrid(soluteName);
+		SpatialGrid sg = new SpatialGrid(this._shape, soluteName, this);
 		sg.newArray(ArrayType.CONCN, initialConcn);
-		this._solutes.add(sg);
-		Log.out(Tier.DEBUG, "Added solute \""+soluteName+"\" to environment");
+		this.addSolute(sg);
 	}
 	
 	/**
 	 * \brief TODO
 	 * 
-	 * NOTE Rob[26Feb2016]: not yet used, work in progress
-	 * 
-	 * TODO Get general solutes from Param?
-	 * 
-	 * @param soluteNodes
+	 * @param spatialGrid
 	 */
-	public void readSolutes(NodeList soluteNodes)
+	public void deleteSolute(Object spatialGrid)
 	{
-		Element elem;
-		String name, concn;
-		double concentration;
-		for ( int i = 0; i < soluteNodes.getLength(); i++)
-		{
-			elem = (Element) soluteNodes.item(i);
-			name = XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute);
-			/* Try to read in the concentration, using zero by default. */
-			concn = XmlHandler.gatherAttribute(elem, XmlRef.concentration);
-			concentration = ( concn.equals("") ) ? 0.0 : Double.valueOf(concn);
-			/* Finally, add the solute to the list. */
-			this.addSolute(name, concentration);
-		}
+		this._solutes.remove(spatialGrid);
 	}
 	
 	/**
 	 * \brief TODO
 	 * 
-	 * NOTE Rob[26Feb2016]: not yet used, work in progress
-	 * 
-	 * TODO Get general reactions from Param?
-	 * 
-	 * @param reactionNodes
+	 * @param Reaction
 	 */
-	public void readReactions(NodeList reactionNodes)
+	public void deleteReaction(Object Reaction)
 	{
-		Element elem;
-		Reaction reac;
-		for ( int i = 0; i < reactionNodes.getLength(); i++)
-		{
-			elem = (Element) reactionNodes.item(i);
-			/* Construct and intialise the reaction. */
-			reac = (Reaction) Reaction.getNewInstance(elem);
-			reac.init(elem);
-			/* Add it to the environment. */
-			this.addReaction(reac);
-		}
+		this._reactions.remove(Reaction);
 	}
-	
+
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
@@ -200,6 +183,9 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public Collection<Reaction> getReactions()
 	{
+		Collection<Reaction> out = new LinkedList<Reaction>();
+		out.addAll(this._reactions);
+		out.addAll(Idynomics.simulator.reactionLibrary.getAllReactions());
 		return this._reactions;
 	}
 	
@@ -217,7 +203,11 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 		for ( Reaction reac : this._reactions )
 			if ( reac.getName().equals(name) )
 				return reac;
-		return null;
+		/*
+		 * Try getting the reaction from the library - if it's not there, then
+		 * this will be null.
+		 */
+		return Idynomics.simulator.reactionLibrary.getReaction(name);
 	}
 	
 	/**
@@ -286,11 +276,106 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	 */
 	public void updateSoluteBoundaries()
 	{
-		Tier level = BULK;
-		Log.out(level, "Updating solute boundaries...");
+		Tier level = Tier.DEBUG;
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Updating solute boundaries...");
 		for ( Boundary b : this._shape.getAllBoundaries() )
-			b.updateConcentrations(this);
-		Log.out(level, " All solute boundaries now updated");
+			b.updateMassFlowRates();
+		if ( Log.shouldWrite(level) )
+			Log.out(level, " All solute boundaries now updated");
+	}
+	
+	/**
+	 * \brief Mass flows to/from the well-mixed region (if it exists)
+	 * accumulate during diffusion methods when solving PDEs. Here, we
+	 * distribute these flows among the relevant spatial boundaries.
+	 */
+	public void distributeWellMixedFlows()
+	{
+		/* Find all relevant boundaries. */
+		Collection<SpatialBoundary> boundaries = 
+				this._shape.getWellMixedBoundaries();
+		/* If there are none, then we have nothing more to do. */
+		if ( boundaries.isEmpty() )
+			return;
+		/*
+		 * If there is just one well-mixed boundary, then simply transfer the
+		 * flow over from each grid to the boundary. Once this is done, finish.
+		 */
+		if ( boundaries.size() == 1 )
+		{
+			Boundary b = boundaries.iterator().next();
+			for ( SpatialGrid solute : this._solutes )
+			{
+				b.increaseMassFlowRate(solute.getName(), 
+						solute.getWellMixedMassFlow());
+				solute.resetWellMixedMassFlow();
+			}
+			return;
+		}
+		/*
+		 * If there are multiple well-mixed boundaries, then distribute the
+		 * mass flows according to their share of the total surface area.
+		 */
+		double totalArea = 0.0;
+		for ( SpatialBoundary boundary : boundaries )
+			totalArea += boundary.getTotalSurfaceArea();
+		double scaleFactor;
+		for ( SpatialBoundary boundary : boundaries )
+		{
+			scaleFactor = boundary.getTotalSurfaceArea()/totalArea;
+			for ( SpatialGrid solute : this._solutes )
+			{
+				boundary.increaseMassFlowRate(solute.getName(), 
+						solute.getWellMixedMassFlow() * scaleFactor);
+			}
+		}
+		for ( SpatialGrid solute : this._solutes )
+			solute.resetWellMixedMassFlow();
+	}
+	
+	/* ***********************************************************************
+	 * COMMON GRID METHODS
+	 * **********************************************************************/
+
+	/**
+	 * @return
+	 */
+	public SpatialGrid getCommonGrid()
+	{
+		if ( this._commonGrid == null )
+		{
+			this._commonGrid = 
+					new SpatialGrid(this._shape, COMMON_GRID_NAME, this);
+		}
+		return this._commonGrid;
+	}
+	
+	/**
+	 *\brief TODO
+	 */
+	public void updateWellMixed()
+	{
+		/*
+		 * Reset the well-mixed array for this shape. If none of the
+		 * boundaries need it to be updated, it will be full of zeros (i.e.
+		 * nowhere is well-mixed).
+		 */
+		this.getCommonGrid().newArray(ArrayType.WELLMIXED);
+		/*
+		 * Check if any of the boundaries need to update the well-mixed array.
+		 * If none do, then there is nothing more to do.
+		 */
+		Collection<SpatialBoundary> bndrs = 
+				this.getShape().getWellMixedBoundaries();
+		if ( bndrs.isEmpty() )
+			return;
+		/*
+		 * At least one of the boundaries need to update the well-mixed array,
+		 * so loop through all of them.
+		 */
+		for ( SpatialBoundary b: bndrs )
+			b.updateWellMixedArray();
 	}
 	
 	/* ***********************************************************************
@@ -319,5 +404,99 @@ public class EnvironmentContainer implements CanPrelaunchCheck
 	{
 		// TODO
 		return true;
+	}
+
+	@Override
+	public ModelNode getNode() {
+		/* The compartment node. */
+		ModelNode modelNode = new ModelNode(XmlRef.environment, this);
+		modelNode.setRequirements(Requirements.IMMUTABLE);
+		/* Set title for GUI. */
+		modelNode.setTitle(XmlRef.environment);
+		/* Add the name attribute. */
+		modelNode.add( this.getSolutesNode() );
+		/* Add the reactions node. */
+		modelNode.add( this._reactions.getNode() );
+//		modelNode.add( this.getReactionNode() );
+		return modelNode;	
+	}
+	
+	/**
+	 * \brief Helper method for {@link #getNode()}.
+	 * 
+	 * @return Model node for the <b>solutes</b>.
+	 */
+	private ModelNode getSolutesNode()
+	{
+		/* The solutes node. */
+		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
+		modelNode.setTitle(XmlRef.solutes);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* 
+		 * add solute nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later 
+		 */
+		for ( String sol : this.getSoluteNames() )
+			modelNode.add( this.getSoluteGrid(sol).getNode() );
+		
+		modelNode.addConstructable( ClassRef.spatialGrid, 
+				null, ModelNode.Requirements.ZERO_TO_MANY );
+		
+		return modelNode;
+	}
+	
+	private ModelNode getReactionNode() 
+	{
+		/* The reactions node. */
+		ModelNode modelNode = new ModelNode(XmlRef.reactions, this);
+		modelNode.setTitle(XmlRef.reactions);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* 
+		 * add solute nodes, yet only if the environment has been initiated, when
+		 * creating a new compartment solutes can be added later 
+		 */
+		for ( Reaction react : this.getReactions() )
+			modelNode.add( react.getNode() );
+		
+		modelNode.addConstructable( ClassRef.reaction, 
+				null, ModelNode.Requirements.ZERO_TO_MANY );
+		
+		return modelNode;
+	}
+	
+	public void setNode(ModelNode node)
+	{
+		/* 
+		 * Set the child nodes.
+		 * Agents, process managers and solutes are container nodes: only
+		 * child nodes need to be set here.
+		 */
+		NodeConstructor.super.setNode(node);
+	}
+	
+	public void removeChildNode(NodeConstructor child)
+	{
+		if (child instanceof SpatialGrid)
+			this._solutes.remove((SpatialGrid) child);
+		if (child instanceof Reaction)
+			this._reactions.remove((Reaction) child);
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return XmlRef.environment;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

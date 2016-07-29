@@ -1,21 +1,22 @@
 package boundary;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.Log;
-import dataIO.XmlRef;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
@@ -24,6 +25,21 @@ import nodeFactory.NodeConstructor;
  */
 public abstract class Boundary implements NodeConstructor
 {
+	/**
+	 * Reference to the environment of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected EnvironmentContainer _environment;
+	/**
+	 * Reference to the agents of the compartment this process belongs to.
+	 * Contains a reference to the compartment shape.
+	 */
+	protected AgentContainer _agents;
+	
+	/**
+	 * 
+	 */
+	protected String _compartmentName;
 	/**
 	 * XML tag for the name of the partner boundary.
 	 */
@@ -38,20 +54,35 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	// TODO implement this in node construction
 	protected String _partnerCompartmentName;
+	
+	protected int _iterLastUpdated = 
+			Idynomics.simulator.timer.getCurrentIteration() - 1;
 	/**
-	 * Solute concentrations.
+	 * \brief Rate of flow of bulk liquid across this boundary: positive for
+	 * flow into the compartment this boundary belongs to, negative for flow
+	 * out. Units of volume per time.
+	 * 
+	 * <p>For most boundaries this will likely be zero, i.e. no volume flow in
+	 * either direction.</p>
 	 */
-	protected Map<String,Double> _concns = new HashMap<String,Double>();
+	protected double _volumeFlowRate = 0.0;
 	/**
-	 * List of Agents that are leaving this compartment via this boundary, and
+	 * \brief Rates of flow of mass across this boundary: positive for
+	 * flow into the compartment this boundary belongs to, negative for flow
+	 * out. Map keys are solute names. Units of mass (or mole) per time.
+	 */
+	protected Map<String,Double> _massFlowRate = new HashMap<String,Double>();
+	/**
+	 * Agents that are leaving this compartment via this boundary, and
 	 * so need to travel to the connected compartment.
 	 */
-	protected LinkedList<Agent> _departureLounge = new LinkedList<Agent>();
+	protected Collection<Agent> _departureLounge = new LinkedList<Agent>();
 	/**
-	 * List of Agents that have travelled here from the connected compartment
+	 * Agents that have travelled here from the connected compartment
 	 * and need to be entered into this compartment.
 	 */
-	protected LinkedList<Agent> _arrivalsLounge = new LinkedList<Agent>();
+	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
+	private NodeConstructor _parentNode;
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
@@ -59,15 +90,30 @@ public abstract class Boundary implements NodeConstructor
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
-	protected static final Tier AGENT_LEVEL = Tier.BULK;
+	protected static final Tier AGENT_LEVEL = Tier.DEBUG;
 
+	/**
+	 * \brief Tell this boundary what it needs to know about the compartment it
+	 * belongs to.
+	 * 
+	 * @param environment The environment container of the compartment.
+	 * @param agents The agent container of the compartment.
+	 * @param compartmentName The name of the compartment.
+	 */
+	public void init(EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
+	}
+	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
 
 	/**
-	 * TODO
-	 * @return
+	 * @return The name of this boundary.
 	 */
 	public String getName()
 	{
@@ -80,9 +126,8 @@ public abstract class Boundary implements NodeConstructor
 	 * **********************************************************************/
 
 	/**
-	 * \brief TODO
-	 * 
-	 * @return
+	 * @return The class of boundary that can be a partner of this one, making
+	 * a connection between compartments.
 	 */
 	protected abstract Class<?> getPartnerClass();
 
@@ -145,33 +190,148 @@ public abstract class Boundary implements NodeConstructor
 	 * **********************************************************************/
 
 	/**
-	 * \brief Get the concentration of a solute at this boundary.
+	 * \brief Get the volume flow rate for this boundary.
 	 * 
-	 * @param name Name of the solute.
-	 * @return Concentration of the solute.
+	 * <p>This will likely be zero for non-connected boundaries, and also many
+	 * connected boundaries.</p>
+	 * 
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means fluid is flowing out.</p>
+	 * 
+	 * @return Rate of volume flow, in units of volume per time.
 	 */
-	public double getConcentration(String name)
+	public double getVolumeFlowRate()
 	{
-		return this._concns.get(name);
+		return this._volumeFlowRate;
 	}
-
+	
 	/**
-	 * \brief Set the concentration of a solute at this boundary.
+	 * \brief Set the volume flow rate for this boundary.
+	 * 
+	 * <p>This should be unused for most boundaries.</p>
+	 * 
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means fluid is flowing out.</p>
+	 * 
+	 * @param rate Rate of volume flow, in units of volume per time.
+	 */
+	public void setVolumeFlowRate(double rate)
+	{
+		this._volumeFlowRate = rate;
+	}
+	
+	/**
+	 * \brief Get the dilution rate for this boundary.
+	 * 
+	 * <p>The dilution rate is the volume flow rate, normalised by the volume
+	 * of the compartment.</p>
+	 * 
+	 * @return Dilution rate, in units of per time.
+	 */
+	public double getDilutionRate()
+	{
+		return this._volumeFlowRate / this._agents.getShape().getTotalVolume();
+	}
+	
+	/**
+	 * \brief Get the mass flow rate of a given solute across this boundary.
+	 * 
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means the solute is flowing out.</p>
 	 * 
 	 * @param name Name of the solute.
-	 * @param concn Concentration of the solute.
+	 * @return Rate of mass flow, in units of mass (or mole) per time.
 	 */
-	public void setConcentration(String name, double concn)
+	public double getMassFlowRate(String name)
 	{
-		this._concns.put(name, concn);
+		if ( this._massFlowRate.containsKey(name) )
+			return this._massFlowRate.get(name);
+		return 0.0;
 	}
-
+	
+	/**
+	 * \brief Set the mass flow rate of a given solute across this boundary.
+	 * 
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means the solute is flowing out.</p>
+	 * 
+	 * @param name Name of the solute to set.
+	 * @param rate Rate of mass flow, in units of mass (or mole) per time.
+	 */
+	public void setMassFlowRate(String name, double rate)
+	{
+		this._massFlowRate.put(name, rate);
+	}
+	
+	/**
+	 * \brief Increase the mass flow rate of a given solute across this
+	 * boundary by a given amount.
+	 * 
+	 * <p>A positive rate means flow into the compartment this boundary belongs
+	 * to; a negative rate means the solute is flowing out.</p>
+	 * 
+	 * @param name Name of the solute to set.
+	 * @param rate Extra rate of mass flow, in units of mass (or mole) per time.
+	 */
+	public void increaseMassFlowRate(String name, double rate)
+	{
+		this._massFlowRate.put(name, rate + this._massFlowRate.get(name));
+	}
+	
+	/**
+	 * Reset all mass flow rates back to zero, for each solute in the
+	 * environment.
+	 */
+	public void resetMassFlowRates()
+	{
+		for ( String name : this._environment.getSoluteNames() )
+			this._massFlowRate.put(name, 0.0);
+	}
+	
 	/**
 	 * \brief TODO
-	 * 
-	 * @param environment
+	 *
 	 */
-	public abstract void updateConcentrations(EnvironmentContainer environment);
+	public void updateMassFlowRates()
+	{
+		/*
+		 * 
+		 */
+		int currentIter = Idynomics.simulator.timer.getCurrentIteration();
+		if ( this._partner == null )
+		{
+			this._iterLastUpdated = currentIter;
+			// TODO check that we should do nothing here
+			return;
+		}
+		if ( this._iterLastUpdated < currentIter )
+		{
+			double thisRate, partnerRate;
+			for ( String name : this._environment.getSoluteNames() )
+			{
+				/*
+				 * Store both rates prior to the switch.
+				 */
+				thisRate = this.getMassFlowRate(name);
+				partnerRate = this._partner.getMassFlowRate(name);
+				/*
+				 * Apply any volume-change conversions.
+				 */
+				// TODO
+				/*
+				 * Apply the switch.
+				 */
+				this.setMassFlowRate(name, partnerRate);
+				this._partner.setMassFlowRate(name, thisRate);
+			}
+			/*
+			 * Update the iteration numbers so that the partner boundary
+			 * doesn't reverse the changes we just made!
+			 */
+			this._iterLastUpdated = currentIter;
+			this._partner._iterLastUpdated = currentIter;
+		}
+	}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
@@ -184,8 +344,11 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	public void addOutboundAgent(Agent anAgent)
 	{
-		Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
-				anAgent.identity()+") to departure lounge");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+		{
+			Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
+					anAgent.identity()+") to departure lounge");
+		}
 		this._departureLounge.add(anAgent);
 	}
 
@@ -196,8 +359,11 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	public void acceptInboundAgent(Agent anAgent)
 	{
-		Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
-				anAgent.identity()+") to arrivals lounge");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+		{
+			Log.out(AGENT_LEVEL, " - Accepting agent (ID: "+
+					anAgent.identity()+") to arrivals lounge");
+		}
 		this._arrivalsLounge.add(anAgent);
 	}
 
@@ -206,13 +372,17 @@ public abstract class Boundary implements NodeConstructor
 	 * 
 	 * @param agents List of agents to enter the compartment via this boundary.
 	 */
-	public void acceptInboundAgents(List<Agent> agents)
+	public void acceptInboundAgents(Collection<Agent> agents)
 	{
-		Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" accepting "+
-				agents.size()+" agents to arrivals lounge");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+		{
+			Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" accepting "+
+					agents.size()+" agents to arrivals lounge");
+		}
 		for ( Agent anAgent : agents )
 			this.acceptInboundAgent(anAgent);
-		Log.out(AGENT_LEVEL, " Done!");
+		if ( Log.shouldWrite(AGENT_LEVEL) )
+			Log.out(AGENT_LEVEL, " Done!");
 	}
 
 	/**
@@ -230,21 +400,26 @@ public abstract class Boundary implements NodeConstructor
 		}
 		else
 		{
-			Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
-					this._departureLounge.size()+" agents to partner");
+			if ( Log.shouldWrite(AGENT_LEVEL) )
+			{
+				Log.out(AGENT_LEVEL, "Boundary "+this.getName()+" pushing "+
+						this._departureLounge.size()+" agents to partner");
+			}
 			this._partner.acceptInboundAgents(this._departureLounge);
 			this._departureLounge.clear();
 		}
 	}
 
 	// TODO delete once boundary gets full control of agent transfers
-	public List<Agent> getAllInboundAgents()
+	public Collection<Agent> getAllInboundAgents()
 	{
 		return this._arrivalsLounge;
 	}
 
-	// TODO make protected once boundary gets full control of agent transfers
-	public void clearArrivalsLoungue()
+	/**
+	 * Take all agents out from the arrivals lounge.
+	 */
+	protected void clearArrivalsLounge()
 	{
 		this._arrivalsLounge.clear();
 	}
@@ -253,14 +428,17 @@ public abstract class Boundary implements NodeConstructor
 	 * \brief Enter the {@code Agent}s waiting in the arrivals lounge to the
 	 * {@code AgentContainer}.
 	 * 
+	 * <p>This method will be overwritten by many sub-classes of Boundary,
+	 * especially those that are sub-classes of SpatialBoundary.</p>
+	 * 
 	 * @param agentCont The {@code AgentContainer} that should accept the 
 	 * {@code Agent}s.
 	 */
-	public void agentsArrive(AgentContainer agentCont)
+	public void agentsArrive()
 	{
 		for ( Agent anAgent : this._arrivalsLounge )
-			agentCont.addAgent(anAgent);
-		this._arrivalsLounge.clear();
+			this._agents.addAgent(anAgent);
+		this.clearArrivalsLounge();
 	}
 
 	/**
@@ -271,26 +449,27 @@ public abstract class Boundary implements NodeConstructor
 	 * {@code Agent}s for selection.
 	 * @return List of agents for removal.
 	 */
-	public List<Agent> agentsToGrab(AgentContainer agentCont)
+	public Collection<Agent> agentsToGrab()
 	{
 		return new LinkedList<Agent>();
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * XML-ABLE
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	// TODO replace with node construction
 
 	public static Boundary getNewInstance(String className)
 	{
-		return (Boundary) XMLable.getNewInstance(className, "boundary.library.");
+		return (Boundary) Instantiatable.getNewInstance(className, "boundary.library.");
 	}
 
 
 	public boolean isReadyForLaunch()
 	{
-		// TODO
+		if ( this._environment == null || this._agents == null )
+			return false;
 		return true;
 	}
 
@@ -323,11 +502,9 @@ public abstract class Boundary implements NodeConstructor
 		// TODO
 	}
 
-	@Override
-	public NodeConstructor newBlank()
+	public void removeNode()
 	{
 		// TODO
-		return null;
 	}
 
 	// TODO ?
@@ -338,5 +515,16 @@ public abstract class Boundary implements NodeConstructor
 	{
 		// FIXME use different tag for spatial/non-spatial boundaries?
 		return XmlRef.dimensionBoundary;
+	}
+	
+	public void setParent(NodeConstructor parent)
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

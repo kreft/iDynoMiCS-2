@@ -21,13 +21,19 @@ import utility.ExtraMath;
 public abstract class SphericalShape extends PolarShape
 {
 	/**
+	 * The value of 1/3. Division is computationally costly, so calculate this
+	 * once.
+	 */
+	private final static double ONE_THIRD = (1.0/3.0);
+	
+	/**
 	 * Collection of resolution calculators for each dimension.
 	 */
 	protected ResCalc[][][] _resCalc;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public SphericalShape()
 	{
@@ -82,25 +88,100 @@ public abstract class SphericalShape extends PolarShape
 		return a;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public double[] getLocalPosition(double[] location)
+	public double getTotalVolume()
 	{
-		return Vector.spherify(location);
+		/*
+		 * Volume of a complete sphere: (4/3) pi * r^3
+		 * (2/3) * theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^3 - rMin^3
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getExtreme(0);
+		double rMax = r.getExtreme(1);
+		double thetaLength = this.getDimension(THETA).getLength();
+		/*
+		 * 
+		 */
+		double sphereFactor = 2.0 * ONE_THIRD * thetaLength;
+		double volMax = sphereFactor * ExtraMath.cube(rMax);
+		double volMin = sphereFactor * ExtraMath.cube(rMin);
+		/*
+		 * The tricky bit if for non-standard values of phi:
+		 */
+		Dimension phi = this.getDimension(PHI);
+		double phiMin = phi.getExtreme(0);
+		
+		if ( phiMin <= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMin);
+			volMin -= volConeCap(rMin, thetaLength, phiMin);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMin);
+			volMin = volConeCap(rMin, thetaLength, phiMin);
+		}
+		double phiMax = phi.getExtreme(1);
+		if ( phiMax >= 0.0 )
+		{
+			volMax -= volConeCap(rMax, thetaLength, phiMax);
+			volMin -= volConeCap(rMin, thetaLength, phiMax);
+		}
+		else
+		{
+			volMax = volConeCap(rMax, thetaLength, phiMax) - volMax;
+			volMin = volConeCap(rMin, thetaLength, phiMax) - volMin;
+		}
+		return volMax - volMin;
+	}
+	
+	private static final double volConeCap(double r, double theta, double phi)
+	{
+		/* No point doing the calculation if we know it will be zero. */
+		if ( r == 0.0 )
+			return 0.0;
+		/* If this is a hemisphere, the result is easy to calculate. */
+		if ( phi == 0.0 )
+			return theta * ONE_THIRD * ExtraMath.cube(r);
+		/*
+		 * h is the distance from the center of the sphere, along the axis, to
+		 * where the cone and cap meet.
+		 * 
+		 * The volume of a cone is (pi/3) * r^2 * h
+		 * http://mathworld.wolfram.com/Cone.html
+		 * 
+		 * The volume of a spherical cap is pi * h^2 * ( r - h/3)
+		 * http://mathworld.wolfram.com/SphericalCap.html
+		 */
+		double sinPhi = Math.sin(phi);
+		double h = r * ( 1.0 - sinPhi );
+		double cone = ExtraMath.sq(r) * h * ONE_THIRD;
+		double cap = ExtraMath.sq(h) * (r - (ONE_THIRD * h) );
+		/* If theta is 2 pi (i.e. a full circle), then theta/2 will be pi */
+		return 0.5 * theta * ( cap + cone );
 	}
 	
 	@Override
-	public double[] getGlobalLocation(double[] local)
+	public void getLocalPositionTo(double[] destination, double[] location)
 	{
-		return Vector.unspherify(local);
+		Vector.spherifyTo(destination, location);
 	}
 	
-	/*************************************************************************
+	@Override
+	public void getGlobalLocationTo(double[] destination, double[] local)
+	{
+		Vector.unspherifyTo(destination, local);
+	}
+	
+	/* ***********************************************************************
 	 * DIMENSIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void setDimensionResolution(DimName dName, ResCalc resC)
@@ -197,13 +278,13 @@ public abstract class SphericalShape extends PolarShape
 		}
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * LOCATIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SURFACES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void setSurfaces()
 	{
@@ -216,23 +297,125 @@ public abstract class SphericalShape extends PolarShape
 		if ( radius > 0.0 )
 		{
 			outbound = new Ball( new Point(centre) , radius);
+			outbound.init(_defaultCollision);
 			outbound.bounding = false;
-			this._surfaces.put(outbound, dim.getBoundary(0));
+			//this._surfaces.put(outbound, dim.getBoundary(0));
+			dim.setSurface(outbound, 0);
 		}
 		/* Outer radius always exists. */
 		radius = dim.getExtreme(1);
 		outbound = new Ball( new Point(centre) , radius);
+		outbound.init(_defaultCollision);
 		outbound.bounding = true;
-		this._surfaces.put(outbound, dim.getBoundary(1));
+		//this._surfaces.put(outbound, dim.getBoundary(1));
+		dim.setSurface(outbound, 1);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BOUNDARIES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	@Override
+	public double getBoundarySurfaceArea(DimName dimN, int extreme)
+	{
+		switch( dimN )
+		{
+		case R:
+		{
+			/* 
+			 * Area is a cross-over between an spherical segment and a
+			 * spherical lune. See
+			 * http://mathworld.wolfram.com/SphericalSegment.html
+			 * equation (15) and 
+			 * http://mathworld.wolfram.com/SphericalWedge.html
+			 * equation (2) for inspiration.
+			 */
+			/* In a full sphere: thetaLength = 2 * pi */
+			double rExt = this.getDimension(R).getExtreme(extreme);
+			double thetaLength = this.getDimension(THETA).getLength();
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getExtreme(0);
+			double phiMax = phi.getExtreme(1);
+			/* In a full sphere: h = 2 * rExt */
+			double h = rExt * ( Math.sin(phiMax) - Math.sin(phiMin) );
+			/* In a full sphere: area = 2 * pi * rExt * 2 * rExt */
+			double area = thetaLength * rExt * h;
+			return area;
+		}
+		case THETA:
+		{
+			/* 
+			 * For theta boundaries, it makes no difference which extreme.
+			 * The area is essentially half that of a circle with circular
+			 * segments above phiMax and below phiMin removed (if appropriate).
+			 * See http://mathworld.wolfram.com/CircularSegment.html for
+			 * inspiration.
+			 */
+			// TODO this section could do with some streamlining!
+			Dimension r = this.getDimension(R);
+			double rMin = r.getExtreme(0);
+			double rMax = r.getExtreme(1);
+			Dimension phi = this.getDimension(PHI);
+			double phiMin = phi.getExtreme(0);
+			double phiMax = phi.getExtreme(1);
+			double maxSegment, minSegment;
+			/* */
+			double areaMax = ExtraMath.areaOfACircle(rMax);
+			maxSegment = ExtraMath.areaOfACircleSegment(rMax, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMax, phiMin);
+			if ( phiMax > 0.0 )
+				areaMax -= maxSegment;
+			else
+				areaMax = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMax -= minSegment;
+			else
+				areaMax = minSegment - maxSegment;
+			/* */
+			double areaMin = ExtraMath.areaOfACircle(rMin);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMax);
+			minSegment = ExtraMath.areaOfACircleSegment(rMin, phiMin);
+			if ( phiMax > 0.0 )
+				areaMin -= maxSegment;
+			else
+				areaMin = maxSegment;
+			if ( phiMin < 0.0 )
+				areaMin -= minSegment;
+			else
+				areaMin = minSegment - maxSegment;
+			return areaMax - areaMin;
+		}
+		case PHI:
+		{
+			/*
+			 * This is the area of a cone
+			 * 
+			 */
+			double phiExt =  this.getDimension(PHI).getExtreme(extreme);
+			Dimension r = this.getDimension(R);
+			double rMin = r.getExtreme(0);
+			double rMax = r.getExtreme(1);
+			double thetaLength = this.getDimension(THETA).getLength();
+			double thetaScalar = thetaLength / (2.0 * Math.PI);
+			
+			double maxCone = ExtraMath.lateralAreaOfACone(rMax, phiExt);
+			double minCone = ExtraMath.lateralAreaOfACone(rMin, phiExt);
+			double area = thetaScalar * (maxCone - minCone);
+			return area;
+		}
+		default:
+		{
+			// TODO safety
+			return Double.NaN;
+		}
+		}
+	}
+	
+	
+	
+	/* ***********************************************************************
 	 * VOXELS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public double getVoxelVolume(int[] coord)
@@ -248,17 +431,17 @@ public abstract class SphericalShape extends PolarShape
 		return vol / 3;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SUBVOXEL POINTS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * COORDINATE ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * NEIGHBOR ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	protected void resetNbhIter()
@@ -458,8 +641,11 @@ public abstract class SphericalShape extends PolarShape
 	protected boolean setNbhFirstInNewRing(int ringIndex)
 	{
 		//TODO this will currently not set onto min boundary?
-		Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new ring "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new ring "+
 				ringIndex);
+		}
 		this._currentNeighbor[1] = ringIndex;
 		/*
 		 * We must be on a shell inside the array or on a defined R boundary.
@@ -470,7 +656,8 @@ public abstract class SphericalShape extends PolarShape
 				Log.out(NHB_ITER_LEVEL, "  success on "+ whereIsR +" boundary");
 				return true;
 			}
-			Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
 			return false;
 		}
 		/*
@@ -478,12 +665,17 @@ public abstract class SphericalShape extends PolarShape
 		 * defined boundary, the theta coordinate is irrelevant.
 		 */
 		if ( (this._whereIsNhb = this.whereIsNhb(PHI)) != INSIDE ){
-			if (this._whereIsNhb != UNDEFINED){
-				Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNhb 
+			if (this._whereIsNhb != UNDEFINED)
+			{
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNhb 
 						+" boundary");
+				}
 				return true;
 			}
-			Log.out(NHB_ITER_LEVEL, "  failure, PHI on undefined boundary");
+			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				Log.out(NHB_ITER_LEVEL, "  failure, PHI on undefined boundary");
 			return false;
 		}
 
@@ -509,7 +701,11 @@ public abstract class SphericalShape extends PolarShape
 //		if (this._currentNeighbor[0] == this._currentCoord[0] 
 //				&& this._currentNeighbor[1] == this._currentCoord[1]
 //				&& new_index == this._currentCoord[2]){
-//			Log.out(NHB_ITER_LEVEL, "  failure, stepped onto current coordinate");
+//			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+//			{
+//				Log.out(NHB_ITER_LEVEL, 
+//						"  failure, stepped onto current coordinate");
+//			}
 //			return false;
 //		}
 		

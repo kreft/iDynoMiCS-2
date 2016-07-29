@@ -5,14 +5,12 @@ import boundary.library.ChemostatToMembrane;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class BiofilmMembraneLiquid extends SpatialBoundary
 {
@@ -28,6 +26,7 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	public BiofilmMembraneLiquid(DimName dim, int extreme)
 	{
 		super(dim, extreme);
+		this._detachability = 0.0;
 	}
 
 	/* ***********************************************************************
@@ -45,16 +44,24 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
-	{
-		// TODO
-	}
-
-	@Override
-	public double getFlux(SpatialGrid grid)
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
 		// TODO
 		return 0;
+	}
+	
+	@Override
+	public boolean needsToUpdateWellMixed()
+	{
+		// TODO check this
+		return false;
+	}
+	
+	@Override
+	public void updateWellMixedArray()
+	{
+		// TODO default method used for now, check this is appropriate
+		this.setWellMixedByDistance();
 	}
 
 	/* ***********************************************************************
@@ -62,14 +69,20 @@ public class BiofilmMembraneLiquid extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void agentsArrive(AgentContainer agentCont)
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
+	@Override
+	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
 		{
 			Log.out(Tier.NORMAL,
 					"Unexpected: agents arriving at a membrane!");
 		}
-		this.placeAgentsRandom(agentCont);
-		this.clearArrivalsLoungue();
+		this.placeAgentsRandom();
+		this.clearArrivalsLounge();
 	}
 }

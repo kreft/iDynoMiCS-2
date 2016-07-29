@@ -88,6 +88,15 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 		return this._point.getPosition();
 	}
 
+	/**
+	 * 
+	 * @param position
+	 */
+	public void setCenter(double[] position)
+	{
+		this._point.setPosition(position);
+	}
+
 	public double getRadius()
 	{
 		return this._radius;
@@ -110,5 +119,11 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 	public BoundingBox boundingBox()
 	{
 		return new BoundingBox(this.getCenter(), this._radius);
+	}
+
+	@Override
+	public int dimensions() 
+	{
+		return this._point.nDim();
 	}
 }

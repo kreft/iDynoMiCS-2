@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+
 /**
  * \brief Helper class of buttons for the GUI.
  * 
@@ -16,7 +17,7 @@ import javax.swing.JButton;
  * can have identical actions in buttons and in the menu bar.</p>
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public final class GuiSimControl
 {
@@ -43,7 +44,7 @@ public final class GuiSimControl
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				GuiActions.runSimulation();
+				GuiActions.runSimulation();	
 			}
 		});
 		return launchSim;

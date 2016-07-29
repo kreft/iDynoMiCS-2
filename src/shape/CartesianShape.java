@@ -7,6 +7,7 @@ import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import static shape.Dimension.DimName;
 import static shape.Dimension.DimName.*;
+
 import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
@@ -26,9 +27,9 @@ public abstract class CartesianShape extends Shape
 	protected ResCalc[] _resCalc = new ResCalc[3];
 	
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public CartesianShape()
 	{
@@ -54,33 +55,44 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	public double[][][] getNewArray(double initialValue) {
-		int[] nVoxel = this.updateCurrentNVoxel();
-		/* we need at least length 1 in each dimension for the array */
-		return Array.array(nVoxel[0] == 0 ? 1 : nVoxel[0], 
-							nVoxel[1] == 0 ? 1 : nVoxel[1], 
-							nVoxel[2] == 0 ? 1 : nVoxel[2], initialValue);
+	public double[][][] getNewArray(double initialValue)
+	{
+		this.updateCurrentNVoxel();
+		/* We need at least length 1 in each dimension for the array. */
+		int nI = (this._currentNVoxel[0] == 0) ? 1 : this._currentNVoxel[0];
+		int nJ = (this._currentNVoxel[1] == 0) ? 1 : this._currentNVoxel[1];
+		int nK = (this._currentNVoxel[2] == 0) ? 1 : this._currentNVoxel[2];
+		return Array.array(nI, nJ, nK, initialValue);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
-	public double[] getLocalPosition(double[] location)
+	public double getTotalVolume()
 	{
-		return location;
+		double out = 1.0;
+		for ( Dimension dim : this._dimensions.values() )
+			out *= dim.getLength();
+		return out;
 	}
 	
 	@Override
-	public double[] getGlobalLocation(double[] local)
+	public void getLocalPositionTo(double[] destination, double[] location)
 	{
-		return local;
+		Vector.copyTo(destination, location);
 	}
 	
-	/*************************************************************************
+	@Override
+	protected void getGlobalLocationTo(double[] destination, double[] local)
+	{
+		Vector.copyTo(destination, local);
+	}
+	
+	/* ***********************************************************************
 	 * DIMENSIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void setDimensionResolution(DimName dName, ResCalc resC)
@@ -96,13 +108,13 @@ public abstract class CartesianShape extends Shape
 		return this._resCalc[axis];
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * LOCATIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SURFACES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void setSurfaces()
@@ -112,13 +124,26 @@ public abstract class CartesianShape extends Shape
 				this.setPlanarSurfaces(dim);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BOUNDARIES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	@Override
+	public double getBoundarySurfaceArea(DimName dimN, int extreme)
+	{
+		double area = 1.0;
+		for ( DimName iDimN : this._dimensions.keySet() )
+		{
+			if ( iDimN.equals(dimN) )
+				continue;
+			area *= this.getDimension(iDimN).getLength();
+		}
+		return area;
+	}
+	
+	/* ***********************************************************************
 	 * VOXELS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public double getVoxelVolume(int[] coord)
@@ -133,23 +158,26 @@ public abstract class CartesianShape extends Shape
 		return out;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SUBVOXEL POINTS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * COORDINATE ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * NEIGHBOR ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	protected void resetNbhIter()
 	{
-		Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, " Resetting nhb iter: current coord is "+
 				Vector.toString(this._currentNeighbor));
+		}
 		this._whereIsNhb = UNDEFINED;
 		for ( DimName dim : this._dimensions.keySet() )
 		{
@@ -172,9 +200,12 @@ public abstract class CartesianShape extends Shape
 				this._nbhDirection = 1;
 				this._nbhDimName = dim;
 				this.transformNhbCyclic();
-				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
-						+Vector.toString(this._currentNeighbor)+
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "   returning transformed "+
+						"neighbor at "+Vector.toString(this._currentNeighbor)+
 						": status "+this._whereIsNhb);
+				}
 				return;
 			}
 		}
@@ -183,13 +214,18 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
 				Vector.toString(this._currentCoord));
 		this.untransformNhbCyclic();
 		int nhbIndex = this.getDimensionIndex(this._nbhDimName);
-		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
+		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+		{
+			Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				", trying along "+this._nbhDimName);
+		}
 		this._nbhDirection = 1;
 		if ( ! this.nhbJumpOverCurrent(this._nbhDimName))
 		{
@@ -202,8 +238,11 @@ public abstract class CartesianShape extends Shape
 			{
 				this._nbhDimName = this.getDimensionName(nhbIndex);
 				this._nbhDirection = 0;
-				Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
+				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
+				{
+					Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
 						+this._nbhDimName);
+				}
 				if ( ! moveNhbToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
 			}
@@ -225,7 +264,9 @@ public abstract class CartesianShape extends Shape
 		int index;
 		for ( DimName dim : this.getDimensionNames() )
 		{
-			if ( dim.equals(this._nbhDimName) 
+			// FIXME here we implicitly assume that insignificant dimensions
+			// have dummy length of one
+			if ( dim.equals(this._nbhDimName)
 					|| ! this.getDimension(dim).isSignificant() )
 				continue;
 			index = this.getDimensionIndex(dim);

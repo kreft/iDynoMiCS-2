@@ -1,18 +1,18 @@
 package surface;
 
-import dataIO.XmlRef;
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 /**
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Point implements Copyable, NodeConstructor
 {
@@ -36,10 +36,19 @@ public class Point implements Copyable, NodeConstructor
 	 * Used by higher-order ODE solvers.
 	 */
 	private double[][] _c;
+	private NodeConstructor _parentNode;
 
-	/*************************************************************************
+	/**
+	 * Viscosity of the surrounding medium (in units of Pa s).
+	 * Note that 298.15 K = 25°C
+	 */
+	// TODO make this settable from protocol or, even better, get this value
+	// from a temperature or viscosity array on a grid.
+	private final static double VISCOSITY = Drag.viscosityWater(298.15);
+	
+	/* ***********************************************************************
 	 * CONSTRUCTORS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public Point(double[] p) 
 	{
@@ -69,7 +78,7 @@ public class Point implements Copyable, NodeConstructor
 	public Point(Point q)
 	{
 		this.setPosition(Vector.copy(q._p));
-		this.setForce(Vector.zeros(_p));
+		this.setForce(Vector.zeros(q._p));
 	}
 	
 	public Object copy() 
@@ -77,9 +86,9 @@ public class Point implements Copyable, NodeConstructor
 		return new Point(this._p);
 	}
 
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC GETTERS & SETTERS
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	public int identifier() 
 	{
@@ -118,18 +127,24 @@ public class Point implements Copyable, NodeConstructor
 		Vector.reset(this._f);
 	}
 
+	/**
+	 * \brief TODO
+	 * 
+	 * @param forceToAdd
+	 */
 	public void addToForce(double[] forceToAdd)
 	{
 		Vector.addEquals(this._f, forceToAdd);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * ODE METHODS
-	 ************************************************************************/
+	 * **********************************************************************/
 
 	
 	public void initialiseC(int size)
 	{
+		// TODO consider using lineraAlgebra.Matrix.zerosDbl(size, length) here
 		this._c = new double[size][this._p.length];
 	}
 
@@ -139,11 +154,8 @@ public class Point implements Copyable, NodeConstructor
 	 * The velocity is expressed as v = (sum forces) / (3 Pi diameter viscosity)
 	 * Currently the viscosity of water is assumed.
 	 * 
-	 * @param vSquare Highest squared velocity in the system
-	 * @param dt Current timestep of the mechanical relaxation
-	 * @param radius Radius of the Point
-	 * @return vSquare, if the squared velocity of this point is higher vSquare
-	 * is updated.
+	 * @param dt Current timestep of the mechanical relaxation.
+	 * @param radius Radius of a sphere (in units of micrometer).
 	 */
 	public void euStep(double dt, double radius) 
 	{
@@ -162,13 +174,14 @@ public class Point implements Copyable, NodeConstructor
 	/**
 	 * \brief First stage of Heun's method.
 	 * 
-	 * @param dt
-	 * @param radius
+	 * @param dt Time step to use (in units of second).
+	 * @param radius Radius of a sphere (in units of micrometer).
 	 */
 	public void heun1(double dt, double radius)
 	{
 		double[] diff = this.dxdt(radius);
 		/* Store the old position and velocity. */
+		// TODO consider using copyTo for setting c[0] and c[1]
 		this._c[0] = Vector.copy(this._p);
 		this._c[1] = Vector.copy(diff);
 		/* Move the location and reset the force. */
@@ -180,8 +193,8 @@ public class Point implements Copyable, NodeConstructor
 	/**
 	 * \brief Second stage of Heun's method.
 	 * 
-	 * @param dt
-	 * @param radius
+	 * @param dt Time step to use (in units of second).
+	 * @param radius Radius of a sphere (in units of micrometer).
 	 */
 	public void heun2(double dt, double radius)
 	{
@@ -191,7 +204,7 @@ public class Point implements Copyable, NodeConstructor
 		 * -> c1 is the old velocity
 		 */
 		Vector.addTo(this._p, this.dxdt(radius), this._c[1]);
-		Vector.timesEquals(this._p, dt/2.0);
+		Vector.timesEquals(this._p, dt * 0.5);
 		Vector.addEquals(this._p, this._c[0]);
 		this.resetForce();
 	}
@@ -199,34 +212,18 @@ public class Point implements Copyable, NodeConstructor
 	/**
 	 * \brief Find the velocity of this point.
 	 * 
-	 * <p>The drag on this point from the surrounding fluid is calculated using
-	 * Stoke's Law for the drag on a sphere:</p>
-	 * <p><i>v = sum(forces) / ( 3 * pi * diameter * viscosity)</i></p>
-	 * 
-	 * <p>See<ul>
-	 * <li>Berg HC. Random walks in biology (Expanded edition). Princeton
-	 * University Press; 1993. Pages 75-77</li>
-	 * <li>Purcell EM. Life at low Reynolds number. <i>American Journal of
-	 * Physics</i>. 1977;45: 3–11.</li>
-	 * </ul></p>
-	 * 
-	 * <p>For the purposes of the viscosity constant, we currently assume
-	 * the surrounding fluid to be water at 25 C (298.15 K). This gives us a
-	 * viscosity of FIXME Rob [28May2016]: Bas, please give value and units</p>
-	 * 
 	 * @param radius The radius of the sphere-swept volume this point belongs
-	 * to will affect the drag on it by the surrounding fluid.
-	 * @return Vector describing the velocity of this point in FIXME units?
+	 * to will affect the drag on it by the surrounding fluid. Assumed in units
+	 * of micrometer.
+	 * @return Vector describing the velocity of this point in units of
+	 * micrometer per second.
 	 */
+	// TODO consider making a _dxdt variable that is updated by this method,
+	// rather than creating a new vector every time.
 	public double[] dxdt(double radius)
 	{
-		
-		/*
-		 * 53.05 = 1/0.01885
-		 * 0.01885 = 3 * pi * (viscosity of water)
-		 */
-		// TODO calculate from user divined viscosity
-		return Vector.times(this.getForce(), 53.05/radius);
+		return Vector.times(this.getForce(), 
+				1.0/Drag.dragOnSphere(radius, VISCOSITY));
 	}
 
 	/**
@@ -235,8 +232,8 @@ public class Point implements Copyable, NodeConstructor
 	 * <p>Legacy support: not identical but shoves like there is no
 	 * tomorrow.</p>
 	 * 
-	 * @param dt
-	 * @param radius
+	 * @param dt Time step to use (in units of second).
+	 * @param radius Radius of a sphere (in units of micrometer).
 	 */
 	public void shove(double dt, double radius) 
 	{
@@ -254,29 +251,31 @@ public class Point implements Copyable, NodeConstructor
 		if ( Vector.normEuclid(this.getForce()) < 0.2 )
 		{
 			/* Anti deadlock. */
-			scalar *= 3.0;
+			scalar *= 2.0;
 		}
 		else
 		{
 			/* Anti catapult */
-			scalar *= 0.5;
+			scalar *= 0.2;
 		}
-		Vector.times(this._f, scalar);
+		Vector.timesEquals(this._f, scalar);
 		/*
 		 * Apply the force and reset it.
 		 */
 		Vector.addEquals(this._p, this._f);
 		this.resetForce();
 	}
+	
+	/* ***********************************************************************
+	 * NODE CONSTRUCTION
+	 * **********************************************************************/
 
-	/**
-	 * Retrieve the up to date model node
-	 */
+	@Override
 	public ModelNode getNode()
 	{
 		/* point node */
 		ModelNode modelNode = new ModelNode(XmlRef.point, this);
-		modelNode.requirement = Requirements.ZERO_TO_FEW;
+		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 
 		/* position attribute */
 		modelNode.add(new ModelAttribute(XmlRef.position, 
@@ -286,26 +285,33 @@ public class Point implements Copyable, NodeConstructor
 	}
 
 	@Override
-	public void setNode(ModelNode node) {
+	public void setNode(ModelNode node)
+	{
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	public NodeConstructor newBlank() {
+	public void addChildObject(NodeConstructor childObject)
+	{
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public String defaultXmlTag()
+	{
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
-		// TODO Auto-generated method stub
-		
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
 	}
-
+	
 	@Override
-	public String defaultXmlTag() {
-		// TODO Auto-generated method stub
-		return null;
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

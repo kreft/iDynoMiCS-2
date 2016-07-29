@@ -9,14 +9,18 @@ import org.w3c.dom.NodeList;
 
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import nodeFactory.primarySetters.BundleMap;
+import nodeFactory.primarySetters.HashMapSetter;
+import referenceLibrary.ClassRef;
+import referenceLibrary.ObjectRef;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 
 /**
@@ -32,19 +36,27 @@ import nodeFactory.NodeConstructor;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class Reaction implements XMLable, Copyable, NodeConstructor
+public class Reaction implements Instantiatable, Copyable, NodeConstructor
 {
 	/**
 	 * The name of this reaction. This is particularly useful for writing
 	 * reaction rate to a grid as output.
 	 */
 	protected String _name;
+	
+	/**
+	 * identifies what environment hosts this reaction, null if this reaction
+	 * is not a compartment reaction
+	 */
+	protected NodeConstructor _parentNode;
 	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private Map<String,Double> _stoichiometry = new HashMap<String,Double>();
+	private BundleMap<String,Double> _stoichiometry = new BundleMap<String,Double>(
+			String.class, Double.class, XmlRef.component, XmlRef.coefficient, 
+			XmlRef.stoichiometry, XmlRef.stoichiometric, true);
 	/**
 	 * The mathematical expression describing the rate at which this reaction
 	 * proceeds.
@@ -63,6 +75,15 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	 * **********************************************************************/
 	
 	/**
+	 * \brief Empty reaction for ReactionLibrary construction.
+	 */
+	// TODO check this is the right approach
+	public Reaction()
+	{
+		
+	}
+	
+	/**
 	 * \brief Construct a reaction from an XML node;
 	 * 
 	 * @param xmlNode XMl node from a protocol file.
@@ -70,6 +91,13 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	public Reaction(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
+		this.init(elem);
+	}
+	
+	public Reaction(Node xmlNode, NodeConstructor parent)
+	{
+		Element elem = (Element) xmlNode;
+		this._parentNode = parent;
 		this.init(elem);
 	}
 	
@@ -129,29 +157,27 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	
 	public void init(Element xmlElem)
 	{
-		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute);
+		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute, this.defaultXmlTag());
 		/*
 		 * Build the stoichiometric map.
 		 */
-		NodeList stoichs = XmlHandler.getAll(xmlElem, XmlRef.stoichiometry);
-		String str;
-		double coeff;
-		for ( int i = 0; i < stoichs.getLength(); i++ )
-		{
-			Element temp = (Element) stoichs.item(i);
-			/* Get the coefficient. */
-			str = XmlHandler.obtainAttribute(temp, XmlRef.coefficient);
-			coeff = Double.valueOf(str);
-			/* Get the component name. */
-			str = XmlHandler.obtainAttribute(temp, XmlRef.component);
-			/* Enter these into the stoichiometry. */
-			this._stoichiometry.put(str, coeff);
-		}
+		this._stoichiometry.init(xmlElem, this);
+
 		/*
 		 * Build the reaction rate expression.
 		 */
-		this._kinetic = new 
-			ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+		if ( xmlElem == null || !XmlHandler.hasNode(xmlElem, XmlRef.expression))
+			this._kinetic = new ExpressionB("");
+		else
+			this._kinetic = new 
+				ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+	}
+	
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		this.init(xmlElem);
+		this._parentNode = parent;
+		parent.addChildObject(this);
 	}
 	
 	/**
@@ -299,29 +325,21 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 		return new Reaction(xmlNode);
 	}
 	
-	@Override
-	public String getXml() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	// TODO required from xmlable interface.. unfinished
 	public ModelNode getNode()
 	{
 		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
-		modelNode.requirement = Requirements.ZERO_OR_ONE;
-		modelNode.title = this._name;
+
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
+		modelNode.setTitle(this._name);
 		
 		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
 				this._name, null, false ));
 		
 		modelNode.add(((ExpressionB) _kinetic).getNode());
 		
-		for ( String component : this._stoichiometry.keySet())
-		{
-			modelNode.add(getStoNode(this, component, 
-					getStoichiometry(component)));
-		}
+		modelNode.add( this._stoichiometry.getNode() );
+
 		
 		return modelNode;
 	}
@@ -329,8 +347,8 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 	public ModelNode getStoNode(NodeConstructor constructor, String component, 
 			Double coefficient) {
 		
-		ModelNode modelNode = new ModelNode(XmlRef.stoichiometry, constructor);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		ModelNode modelNode = new ModelNode(XmlRef.stoichiometric, constructor);
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		modelNode.add(new ModelAttribute(XmlRef.component, 
 				component, null, false ));
@@ -340,18 +358,10 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 		
 		return modelNode;
 	}
-	
-	@Override
-	public void setNode(ModelNode node) 
-	{
-		for(ModelNode n : node.childNodes)
-			n.constructor.setNode(n);
-	}
 
-	@Override
-	public NodeConstructor newBlank() {
-		// TODO Auto-generated method stub
-		return null;
+	public void removeNode(String specifier)
+	{
+		this._parentNode.removeChildNode(this);
 	}
 
 	@Override
@@ -387,6 +397,18 @@ public class Reaction implements XMLable, Copyable, NodeConstructor
 		HashMap<String,Double> out = new HashMap<String,Double>();
 		out.put(key, value);
 		return out;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 
 }

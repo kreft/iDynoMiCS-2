@@ -7,7 +7,7 @@ import java.util.Map;
  * \brief Component of a mathematical expression that is a function of one
  * other component.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ComponentSingle extends Component
 {

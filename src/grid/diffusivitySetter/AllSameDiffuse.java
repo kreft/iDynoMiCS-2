@@ -10,15 +10,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import referenceLibrary.XmlRef;
 
 /**
  * \brief Basic diffusivity setter that sets the same diffusivity across the
  * entire {@code SpatialGrid}.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class AllSameDiffuse implements IsDiffusivitySetter
 {
@@ -41,7 +41,7 @@ public class AllSameDiffuse implements IsDiffusivitySetter
 	public void init(Node xmlNode)
 	{
 		Element e = (Element) xmlNode;
-		String s = XmlHandler.obtainAttribute(e, XmlRef.defaultDiffusivity);
+		String s = XmlHandler.obtainAttribute(e, XmlRef.defaultDiffusivity, "PARENT NODE");
 		this._diffusivity = Double.valueOf(s);
 	}
 	

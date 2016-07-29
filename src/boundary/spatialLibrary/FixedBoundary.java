@@ -1,22 +1,31 @@
 package boundary.spatialLibrary;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import grid.ArrayType;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
  * \brief Spatial boundary where solute concentrations are kept fixed. Solid
  * surface to agents. Intended for testing purposes.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class FixedBoundary extends SpatialBoundary
 {
+	/**
+	 * Solute concentrations.
+	 */
+	protected Map<String,Double> _concns = new HashMap<String,Double>();
+	
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
+	
 	/**
 	 * \brief Construct a fixed boundary by giving it the information it
 	 * needs about its location.
@@ -29,6 +38,7 @@ public class FixedBoundary extends SpatialBoundary
 	public FixedBoundary(DimName dim, int extreme)
 	{
 		super(dim, extreme);
+		this._detachability = 0.0;
 	}
 	
 	/* ***********************************************************************
@@ -49,36 +59,34 @@ public class FixedBoundary extends SpatialBoundary
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
 	
-	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
+	/**
+	 * \brief Set the concentration of a solute at this boundary.
+	 * 
+	 * @param name Name of the solute.
+	 * @param concn Concentration of the solute.
+	 */
+	public void setConcentration(String name, double concn)
 	{
-		/* Do nothing! */
+		this._concns.put(name, concn);
 	}
 	
 	@Override
-	public double getFlux(SpatialGrid grid)
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
-		Tier level = Tier.BULK;
-		Log.out(level, "FixedBoundary getting flux for "+grid.getName()+":");
-		/* The difference in concentration is the same as in SpatialGrid. */
-		double concnDiff = this._concns.get(grid.getName()) -
-				grid.getValueAtCurrent(ArrayType.CONCN);
-		Log.out(level, "  concn diff is "+concnDiff);
-		/* The diffusivity comes only from the current voxel. */
-		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
-		Log.out(level, "  diffusivity is "+diffusivity);
-		/* Shape handles the shared surface area on a boundary. */
-		double sArea = grid.getShape().nhbCurrSharedArea();
-		Log.out(level, "  surface area is "+sArea);
-		/* Shape handles the centre-centre distance on a boundary. */
-		double dist = grid.getShape().nhbCurrDistance();
-		Log.out(level, "  distance is "+dist);
-		/* The current iterator voxel volume is the same as in SpatialGrid. */
-		double vol = grid.getShape().getCurrVoxelVolume();
-		Log.out(level, "  volume is "+vol);
-		double flux = concnDiff * diffusivity * sArea / ( dist * vol );
-		Log.out(level, "  => flux = "+flux);
-		return flux;
+		double concn = this._concns.get(grid.getName());
+		return this.calcDiffusiveFlowFixed(grid, concn);
+	}
+	
+	@Override
+	public boolean needsToUpdateWellMixed()
+	{
+		return false;
+	}
+	
+	@Override
+	public void updateWellMixedArray()
+	{
+		this.setWellMixedByDistance();
 	}
 	
 	/* ***********************************************************************
@@ -86,14 +94,20 @@ public class FixedBoundary extends SpatialBoundary
 	 * **********************************************************************/
 	
 	@Override
-	public void agentsArrive(AgentContainer agentCont)
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
+	@Override
+	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
 		{
 			Log.out(Tier.NORMAL,
 					"Unexpected: agents arriving at a fixed boundary!");
 		}
-		this.placeAgentsRandom(agentCont);
-		this.clearArrivalsLoungue();
+		this.placeAgentsRandom();
+		this.clearArrivalsLounge();
 	}
 }

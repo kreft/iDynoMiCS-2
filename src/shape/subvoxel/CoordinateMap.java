@@ -17,7 +17,7 @@ import generalInterfaces.Copyable;
  * However, it also serves as an opportunity to introduce some new, useful
  * methods.</p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class CoordinateMap implements Copyable
 {

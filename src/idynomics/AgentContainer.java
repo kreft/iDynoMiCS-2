@@ -8,25 +8,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.w3c.dom.NodeList;
-
 import agent.Agent;
 import agent.Body;
-import aspect.AspectRef;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import grid.SpatialGrid;
+import gereralPredicates.IsSame;
+
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
+import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
+import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
 import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
+import solver.PDEsolver;
 import spatialRegistry.*;
+import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
 import surface.Collision;
+import surface.predicate.IsNotColliding;
 import surface.Surface;
 import utility.ExtraMath;
 
@@ -34,8 +43,9 @@ import utility.ExtraMath;
  * \brief Manages the agents in a {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class AgentContainer
+public class AgentContainer implements NodeConstructor
 {
 	/**
 	 * This dictates both geometry and size, and it inherited from the
@@ -64,6 +74,17 @@ public class AgentContainer
 	 */
 	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
 
+	/**
+	 * TODO
+	 */
+	protected SpatialGrid _detachability;
+	/**
+	 * TODO
+	 */
+	public final static String DETACHABILITY = "detachability";
+	
+	protected PDEsolver _detachabilitySolver;
+	private NodeConstructor _parentNode;
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have reactions.
@@ -133,20 +154,15 @@ public class AgentContainer
 			 * values resulted in fast tree creation and agent searches.
 			 */
 			// TODO R-tree parameters could follow from the protocol file.
-			this._agentTree = new RTree<Agent>(8, 2, this._shape);
+//			this._agentTree = new RTree<Agent>(8, 2, this._shape);
+			double[] min = Vector.zerosDbl(this.getShape().getNumberOfDimensions());
+			/* 
+			 * FIXME when more than max_entries agents overlap in on position
+			 *  the split tree will cause a stack overflow exception
+			 */
+			this._agentTree = new SplitTree<Agent>(this.getNumDims(), 3, 24, 
+					min, Vector.add(min, this.getShape().getDimensionLengths()), this._shape.getIsCyclicNaturalOrder());
 		}
-	}
-
-	/**
-	 * \brief Construct agents from a list of XML nodes.
-	 * 
-	 * @param agentNodes List of XML nodes from a protocol file.
-	 * @param comp Compartment that this container belongs to.
-	 */
-	public void readAgents(NodeList agentNodes, Compartment comp)
-	{
-		for ( int i = 0; i < agentNodes.getLength(); i++ ) 
-			this.addAgent(new Agent(agentNodes.item(i), comp));
 	}
 
 	/**
@@ -159,7 +175,7 @@ public class AgentContainer
 	{
 		for ( Agent a : this._agentList )
 			a.setCompartment(aCompartment);
-		for ( Agent a : this._agentTree.all() )
+		for ( Agent a : this._locatedAgentList )
 			a.setCompartment(aCompartment);
 	}
 
@@ -281,8 +297,10 @@ public class AgentContainer
 		return this.treeSearch(pointLocation, Vector.zeros(pointLocation));
 	}
 
+		// FIXME move all aspect related methods out of general classes
 	/**
-	 * \brief Find all agents within the given distance of a given focal agent.
+	 * \brief Find all agents that are potentially within the given distance of 
+	 * a given focal agent.
 	 * 
 	 * @param anAgent Agent at the focus of this search.
 	 * @param searchDist Distance around this agent to search.
@@ -304,10 +322,103 @@ public class AgentContainer
 		/* 
 		 * Remove the focal agent from this list.
 		 */
-		out.removeIf((a) -> {return a == anAgent;});
+		IsSame isSame = new IsSame(anAgent);
+		out.removeIf(isSame);
+		// NOTE lambda expressions are known to be slow in java
 		return out;
 	}
 
+	/**
+	 * \brief Find all agents that are potentially within the
+	 * given distance of a surface.
+	 * @param aSurface Surface object belonging to this compartment.
+	 * @param searchDist Find agents within this distance of the surface.
+	 * @return Collection of agents that may be within the search distance of 
+	 * the surface: there may be false positives, but no false negatives in 
+	 * this collection.
+	 */
+	public Collection<Agent> treeSearch(Surface aSurface, double searchDist)
+	{
+		BoundingBox box = aSurface.getBox(searchDist);
+		if ( box == null )
+		{
+			Log.out(CRITICAL, "Could not find bouding box for surface "+
+					aSurface.toString());
+		}
+		return this.treeSearch(box);
+	}
+	
+	/**
+	 * \brief Find all agents that are potentially within the given distance of 
+	 * a spatial boundary.
+	 * 
+	 * @param aBoundary Spatial boundary object belonging to this compartment.
+	 * @param searchDist Find agents within this distance of the surface.
+	 * @return Collection of agents that are potentially within the the search 
+	 * distance of the boundary: there may be false positives, but no false 
+	 * negatives in this collection.
+	 */
+	public Collection<Agent> treeSearch(
+			SpatialBoundary aBoundary, double searchDist)
+	{
+		Surface surface = this._shape.getSurface(aBoundary);
+		if ( surface == null )
+		{
+			Log.out(CRITICAL, "Could not find surface for boundary "+
+					aBoundary.getDimName()+" "+aBoundary.getExtreme());
+		}
+		return this.treeSearch( surface , searchDist);
+	}
+
+		// FIXME move all aspect related methods out of general classes
+	/**
+	 * filter non colliding agents
+	 * @param aSurface
+	 * @param agents
+	 * @param searchDist
+	 */
+	public void filterAgentCollision(Surface aSurface, Collection<Agent> agents, double searchDist)
+	{
+		/* the collision object */
+		Collision collision = new Collision(this._shape);
+		for ( Agent a : agents)
+		{
+			/* by default assume no collision */
+			boolean c = false;
+			/* check each agent surface for collision */
+			for ( Surface s : ((Body) a.get(AspectRef.agentBody)).getSurfaces())
+			{
+				/* on collision set boolean true and exit loop */
+				if ( collision.areColliding(aSurface, s, searchDist))
+				{
+					c = true;
+					break;
+				}
+			}
+			/* if not in collision remove the agent */
+			if ( !c )
+				agents.remove(a);
+		}	
+	}
+	
+	/**
+	 * 
+	 * @param aSurface
+	 * @param surfaces
+	 * @param searchDist
+	 */
+	public void filterSurfaceCollision(Surface aSurface, Collection<Surface> surfaces, double searchDist)
+	{
+		/* the collision object */
+		Collision collision = new Collision(this._shape);
+
+		/* check each surface for collision, remove if not */
+		for ( Surface s : surfaces)
+			if ( ! collision.areColliding(aSurface, s, searchDist))
+				surfaces.remove(s);
+	}
+	
+		// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Find all boundary surfaces that the given agent may be close to.
 	 * 
@@ -319,17 +430,16 @@ public class AgentContainer
 	 */
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
+		// NOTE lambda expressions are known to be slower than alternatives
+		IsNotColliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
+		/* NOTE if the agent has many surfaces it may be faster the other way
+		 * around  */
 		Collection<Surface> agentSurfs = 
 				((Body) anAgent.get(AspectRef.agentBody)).getSurfaces();
-		out.removeIf((s) -> 
-		{
-			for (Surface a : agentSurfs )
-				if ( collision.distance(a, s) < searchDist )
-					return false;
-			return true;
-		});
+		filter = new IsNotColliding<Surface>(agentSurfs, collision, searchDist);
+		out.removeIf(filter);
 		return out;
 	}
 
@@ -351,9 +461,10 @@ public class AgentContainer
 	}
 
 	/* ***********************************************************************
-	 * AGENT LOCATION
+	 * AGENT LOCATION & MASS
 	 * **********************************************************************/
 
+	 // FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Helper method to check if an {@code Agent} is located.
 	 * 
@@ -374,6 +485,7 @@ public class AgentContainer
 				( anAgent.getBoolean(AspectRef.isLocated) );
 	}
 
+	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Move the given agent along the given dimension, by the given
 	 * distance.
@@ -391,8 +503,117 @@ public class AgentContainer
 		double[] newLoc = body.getPoints().get(0).getPosition();
 		this._shape.moveAlongDimension(newLoc, dimN, dist);
 		body.relocate(newLoc);
-		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+
-				") along dimension "+dimN+" to "+Vector.toString(newLoc));
+		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+") "+dist+
+				" along dimension "+dimN+" to "+Vector.toString(newLoc));
+	}
+
+	// FIXME move all aspect related methods out of general classes
+	/**
+	 * \brief Compose a dictionary of biomass names and values for the given
+	 * agent.
+	 * 
+	 * <p>this method is the opposite of 
+	 * {@link #updateAgentMass(Agent, HashMap<String,Double>)}.</p>
+	 * 
+	 * @param agent An agent with biomass.
+	 * @return Dictionary of biomass kind names to their values.
+	 */
+	public static Map<String,Double> getAgentMassMap(Agent agent)
+	{
+		Map<String,Double> out = new HashMap<String,Double>();
+		Object mass = agent.get(AspectRef.agentMass);
+		if ( mass == null )
+		{
+			// TODO safety?
+		}
+		else if ( mass instanceof Double )
+		{
+			out.put(AspectRef.agentMass, ((double) mass));
+		}
+		else if ( mass instanceof Double[] )
+		{
+			// TODO Need vector of mass names
+		}
+		else if ( mass instanceof Map )
+		{
+			/* If the mass object is already a map, then just copy it. */
+			@SuppressWarnings("unchecked")
+			Map<String,Double> massMap = (Map<String,Double>) mass;
+			out.putAll(massMap);
+		}
+		else
+		{
+			// TODO safety?
+		}
+		return out;
+	}
+
+	// FIXME move all aspect related methods out of general classes
+	/**
+	 * \brief Use a dictionary of biomass names and values to update the given
+	 * agent.
+	 * 
+	 * <p>This method is the opposite of {@link #getAgentMassMap(Agent)}. Note
+	 * that extra biomass types may have been added to the map, which should
+	 * be other aspects (e.g. EPS).</p>
+	 * 
+	 * @param agent An agent with biomass.
+	 * @param biomass Dictionary of biomass kind names to their values.
+	 */
+	public static void updateAgentMass(Agent agent, Map<String,Double> biomass)
+	{
+		/*
+		 * First try to copy the new values over to the agent mass aspect.
+		 * Remember to remove the key-value pairs from biomass, so that we can
+		 * see what is left (if anything).
+		 */
+		Object mass = agent.get(AspectRef.agentMass);
+		if ( mass == null )
+		{
+			// TODO safety?
+		}
+		else if ( mass instanceof Double )
+		{
+			/**
+			 * NOTE map.remove returns the current associated value and removes
+			 * it from the map
+			 */
+			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
+		}
+		else if ( mass instanceof Double[] )
+		{
+			// TODO Need vector of mass names
+		}
+		else if ( mass instanceof Map )
+		{
+			@SuppressWarnings("unchecked")
+			Map<String,Double> massMap = (Map<String,Double>) mass;
+			for ( String key : massMap.keySet() )
+			{
+				massMap.put(key, biomass.remove(key));
+			}
+			
+			agent.set(AspectRef.agentMass, biomass);
+		}
+		else
+		{
+			// TODO safety?
+		}
+		/*
+		 * Now check if any other aspects were added to biomass (e.g. EPS).
+		 */
+		for ( String key : biomass.keySet() )
+		{
+			if ( agent.isAspect(key) )
+			{
+				agent.set(key, biomass.get(key));
+				biomass.remove(key);
+			}
+			else
+			{
+				// TODO safety
+			}
+		}
 	}
 
 	/* ***********************************************************************
@@ -425,6 +646,7 @@ public class AgentContainer
 		this.treeInsert(anAgent);
 	}
 
+		// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Insert the given agent into this container's spatial registry.
 	 * 
@@ -435,6 +657,7 @@ public class AgentContainer
 	 */
 	private void treeInsert(Agent anAgent)
 	{
+		anAgent.event(AspectRef.agentUpdateBody);
 		Body body = ((Body) anAgent.get(AspectRef.agentBody));
 		double dist = 0.0;
 		if ( anAgent.isAspect(AspectRef.agentPulldistance) )
@@ -484,14 +707,20 @@ public class AgentContainer
 		/* Safety if there are no agents. */
 		if ( nAgents == 0 )
 		{
-			Log.out(level, "No agents in this container, so cannot choose "+
-					"one: returning null");
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "No agents in this container, so cannot "+
+						"choose one: returning null");
+			}
 			return null;
 		}/* Now find an agent. */
 		int i = ExtraMath.getUniRandInt(nAgents);
 		Agent out = this.chooseAgent(i);
-		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
-				out.identity()+" was chosen randomly");
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
+					out.identity()+" was chosen randomly");
+		}
 		return out; 
 	}
 
@@ -507,8 +736,11 @@ public class AgentContainer
 		/* Safety if there are no agents. */
 		if ( nAgents == 0 )
 		{
-			Log.out(level, "No agents in this container, so cannot extract "+
-					"one: returning null");
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "No agents in this container, so cannot "+
+					"extract one: returning null");
+			}
 			return null;
 		}/* Now find an agent. */
 		int i = ExtraMath.getUniRandInt(nAgents);
@@ -524,8 +756,11 @@ public class AgentContainer
 			/* Unlocated agent. */
 			out = this._agentList.remove(i);
 		}
-		Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
-				out.identity()+" was extracted randomly");
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
+					out.identity()+" was extracted randomly");
+		}
 		return out; 
 	}
 
@@ -556,40 +791,53 @@ public class AgentContainer
 	public void agentsArrive()
 	{
 		Tier level = BULK;
-		Log.out(level, "Agents arriving into compartment...");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Agents arriving into compartment...");
 		Dimension dim;
 		for ( DimName dimN : this._shape.getDimensionNames() )
 		{
 			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )
 			{
-				Log.out(level, "   "+dimN+" is cyclic, skipping");
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   "+dimN+" is cyclic, skipping");
 				continue;
 			}
 			if ( ! dim.isSignificant() )
 			{
-				Log.out(level, "   "+dimN+" is insignificant, skipping");
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   "+dimN+" is insignificant, skipping");
 				continue;
 			}
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				Log.out(level, "Looking at "+dimN+" "+((extreme==0)?"min":"max"));
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level,
+							"Looking at "+dimN+" "+((extreme==0)?"min":"max"));
+				}
 				if ( ! dim.isBoundaryDefined(extreme) )
 				{
-					Log.out(level, "   boundary not defined");
+					if ( Log.shouldWrite(level) )
+						Log.out(level, "   boundary not defined");
 					continue;
 				}
-				dim.getBoundary(extreme).agentsArrive(this);
-				Log.out(level, "   boundary defined, agents ariving");
+				dim.getBoundary(extreme).agentsArrive();
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   boundary defined, agents ariving");
 			}
 		}
 		for ( Boundary bndry : this._shape.getOtherBoundaries() )
 		{
-			Log.out(level,"   other boundary "+bndry.getName()+
-					", calling agent method");
-			bndry.agentsArrive(this);
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level,"   other boundary "+bndry.getName()+
+						", calling agent method");
+			}
+			bndry.agentsArrive();
 		}
-		Log.out(level, " All agents have now arrived");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, " All agents have now arrived");
 	}
 
 	/**
@@ -609,7 +857,7 @@ public class AgentContainer
 		 */
 		for ( Boundary b : this._shape.getAllBoundaries() )
 		{
-			List<Agent> wishes = b.agentsToGrab(this);
+			Collection<Agent> wishes = b.agentsToGrab();
 			for ( Agent wishAgent : wishes )
 			{
 				if ( ! grabs.containsKey(wishAgent) )
@@ -642,14 +890,16 @@ public class AgentContainer
 	public void agentsDepart()
 	{
 		Tier level = BULK;
-		Log.out(level, "Pushing all outbound agents...");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "Pushing all outbound agents...");
 		Dimension dim;
 		for ( DimName dimN : this._shape.getDimensionNames() )
 		{
 			dim = this._shape.getDimension(dimN);
 			if ( dim.isCyclic() )
 			{
-				Log.out(level, "   "+dimN+" is cyclic, skipping");
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   "+dimN+" is cyclic, skipping");
 				continue;
 			}
 			if ( ! dim.isSignificant() )
@@ -659,24 +909,33 @@ public class AgentContainer
 			}
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				Log.out(level, 
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, 
 						"Looking at "+dimN+" "+((extreme==0)?"min":"max"));
+				}
 				if ( ! dim.isBoundaryDefined(extreme) )
 				{
-					Log.out(level, "   boundary not defined");
+					if ( Log.shouldWrite(level) )
+						Log.out(level, "   boundary not defined");
 					continue;
 				}
-				Log.out(level, "   boundary defined, pushing agents");
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   boundary defined, pushing agents");
 				dim.getBoundary(extreme).pushAllOutboundAgents();
 			}
 		}
 		for ( Boundary bndry : this._shape.getOtherBoundaries() )
 		{
-			Log.out(level,"   other boundary "+bndry.getName()+
-					", pushing agents");
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level,"   other boundary "+bndry.getName()+
+						", pushing agents");
+			}
 			bndry.pushAllOutboundAgents();
 		}
-		Log.out(level, " All agents have now departed");
+		if ( Log.shouldWrite(level) )
+			Log.out(level, " All agents have now departed");
 	}
 
 	/**
@@ -684,7 +943,7 @@ public class AgentContainer
 	 */
 	public boolean hasAgentsToRegisterRemoved()
 	{
-		return ( ! this._agentsToRegisterRemoved.isEmpty());
+		return ( ! this._agentsToRegisterRemoved.isEmpty() );
 	}
 
 	/**
@@ -706,11 +965,11 @@ public class AgentContainer
 	/* ***********************************************************************
 	 * AGENT MASS DISTRIBUTION
 	 * **********************************************************************/
-	
+
+	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Loop through all located {@code Agent}s with reactions,
 	 * estimating how much of their body overlaps with nearby grid voxels.
-	 * 
 	 * @param agents The agents of a {@code Compartment}.
 	 */
 	@SuppressWarnings("unchecked")
@@ -740,6 +999,7 @@ public class AgentContainer
 		List<Surface> surfaces;
 		double[] pLoc;
 		Collision collision = new Collision(null, shape);
+
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext())
 		{
@@ -756,8 +1016,12 @@ public class AgentContainer
 			/* If there are none, move onto the next voxel. */
 			if ( nhbs.isEmpty() )
 				continue;
-			Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "  "+nhbs.size()+" agents overlap with coord "+
 					Vector.toString(coord));
+			}
+			
 			/* 
 			 * Find the sub-voxel resolution from the smallest agent, and
 			 * get the list of sub-voxel points.
@@ -771,9 +1035,12 @@ public class AgentContainer
 				minRad = Math.min(radius, minRad);
 			}
 			minRad *= SUBGRID_FACTOR;
-			Log.out(level, "  using a min radius of "+minRad);
 			svPoints = shape.getCurrentSubvoxelPoints(minRad);
-			Log.out(level, "  gives "+svPoints.size()+" sub-voxel points");
+			if ( Log.shouldWrite(level) )
+			{
+				Log.out(level, "  using a min radius of "+minRad);
+				Log.out(level, "  gives "+svPoints.size()+" sub-voxel points");
+			}
 			/* Get the sub-voxel points and query the agents. */
 			for ( Agent a : nhbs )
 			{
@@ -783,8 +1050,11 @@ public class AgentContainer
 				if ( ! a.isAspect(AspectRef.surfaceList) )
 					continue;
 				surfaces = (List<Surface>) a.get(AspectRef.surfaceList);
-				Log.out(level, "  "+"   agent "+a.identity()+" has "+
+				if ( Log.shouldWrite(level) )
+				{
+					Log.out(level, "  "+"   agent "+a.identity()+" has "+
 						surfaces.size()+" surfaces");
+				}
 				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
 				sgLoop: for ( SubvoxelPoint p : svPoints )
 				{
@@ -804,6 +1074,40 @@ public class AgentContainer
 			}
 		}
 		Log.out(DEBUG, "Finished setting up agent distribution maps");
+	}
+
+	@Override
+	public ModelNode getNode() 
+	{
+		/* The agents node. */
+		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		/* Add the agent childConstrutor for adding of additional agents. */
+		modelNode.addConstructable( ClassRef.agent,
+				ModelNode.Requirements.ZERO_TO_MANY);
+		/* If there are agents, add them as child nodes. */
+		for ( Agent a : this.getAllAgents() )
+			modelNode.add( a.getNode() );
+		return modelNode;
+	
+	}
+
+	@Override
+	public String defaultXmlTag() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 	
 	/* ***********************************************************************

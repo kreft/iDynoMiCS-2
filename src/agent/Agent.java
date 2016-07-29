@@ -1,13 +1,14 @@
 package agent;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect;
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import aspect.AspectRef;
 import dataIO.XmlHandler;
 import dataIO.Log;
-import dataIO.XmlRef;
+import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
@@ -16,6 +17,9 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
+import referenceLibrary.XmlRef;
 import surface.Point;
 
 /**
@@ -23,7 +27,7 @@ import surface.Point;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements AspectInterface, NodeConstructor
+public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
@@ -41,6 +45,7 @@ public class Agent implements AspectInterface, NodeConstructor
 	 * The aspect registry
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
+	private NodeConstructor _parentNode;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -130,6 +135,12 @@ public class Agent implements AspectInterface, NodeConstructor
 	 */
 	public Agent(Node xmlNode, Compartment comp)
 	{
+		this.init(xmlNode, comp);
+	}
+	
+	public void init(Node xmlNode, Compartment comp)
+	{
+		this._compartment = comp;
 		/* initiate all random agents */
 		NodeList temp = XmlHandler.getAll(xmlNode, XmlRef.spawnNode);
 		if(temp.getLength() > 0)
@@ -137,10 +148,10 @@ public class Agent implements AspectInterface, NodeConstructor
 			for(int i = 0; i < temp.getLength(); i++)
 			{
 				/* TODO this is a cheat, make a standard method for this */
-				int n = Math.round(Float.valueOf(XmlHandler.obtainAttribute(
-						temp.item(i), XmlRef.numberOfAgents)));
+				int n = Integer.valueOf(XmlHandler.obtainAttribute(
+						temp.item(i), XmlRef.numberOfAgents, this.defaultXmlTag()));
 				double[] domain = Vector.dblFromString(XmlHandler.
-						obtainAttribute(temp.item(i), XmlRef.spawnDomain));
+						obtainAttribute(temp.item(i), XmlRef.spawnDomain, this.defaultXmlTag()));
 				for(int j = 0; j < n-1; j++)
 				{
 					Agent extra = new Agent(xmlNode, randBody(domain));
@@ -156,6 +167,19 @@ public class Agent implements AspectInterface, NodeConstructor
 			loadAspects(xmlNode);
 		}
 		this.init();
+	}
+	
+	/**
+	 * Instantiatable implementation
+	 */
+	public void init(Element xmlElement, NodeConstructor parent)
+	{
+		//FIXME change entire class to just using parent
+		this._parentNode = parent;
+		this._compartment = (Compartment) parent.getParent();
+		this.loadAspects(xmlElement);
+		this.init();
+		this.registerBirth();
 	}
 	
 	/**
@@ -348,10 +372,10 @@ public class Agent implements AspectInterface, NodeConstructor
 	{
 		/* create the agent node */
 		ModelNode modelNode = new ModelNode(XmlRef.agent, this);
-		modelNode.requirement = Requirements.ZERO_TO_MANY;
+		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		/* use the identifier as agent title in gui */
-		modelNode.title = String.valueOf(this.identity());
+		modelNode.setTitle(String.valueOf(this.identity()));
 		
 		/* 
 		 * store the identity as attribute, note identity cannot be overwritten
@@ -359,41 +383,20 @@ public class Agent implements AspectInterface, NodeConstructor
 		modelNode.add(new ModelAttribute(XmlRef.identity, 
 				String.valueOf(this.identity()), null, false ));
 		
-		// TODO:  add removing aspects
 		/* add the agents aspects as childNodes */
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
 		/* allow adding of new aspects */
-		modelNode.childConstructors.put(reg().new Aspect(reg()), 
+		modelNode.addConstructable( ClassRef.aspect,
 				ModelNode.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
 	}
 
-	/**
-	 * update the values of the child nodes (aspects) with the entered values
-	 * from the gui
-	 */
-	@Override
-	public void setNode(ModelNode node) 
+	public void removeNode(String specifier)
 	{
-		for ( ModelNode n : node.childNodes )
-			n.constructor.setNode(n);
-	}
-
-	/**
-	 * create and return a new agent when the add agent button is hit in the
-	 * gui
-	 * @return NodeConstructor
-	 */
-	@Override
-	public NodeConstructor newBlank() 
-	{
-		Agent newBlank = new Agent(this._compartment);
-		newBlank.reg().setIdentity(String.valueOf(newBlank.identity()));
-		newBlank.registerBirth();
-		return newBlank;
+		this._compartment.registerRemoveAgent(this);
 	}
 
 	/** 
@@ -406,9 +409,15 @@ public class Agent implements AspectInterface, NodeConstructor
 		return XmlRef.agent;
 	}
 
-
-	/*************************************************************************
-	 * REPORTING
-	 ************************************************************************/
-
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
+	}
 }

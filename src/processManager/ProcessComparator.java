@@ -15,10 +15,12 @@ import utility.ExtraMath;
  * numerical priority will happen before one with lower priority if the two are
  * scheduled to happen at the same time.</p>
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class ProcessComparator implements Comparator<ProcessManager>
 {
+	private final static Tier LEVEL = Tier.BULK;
+	
 	@Override
 	public int compare(ProcessManager pm1, ProcessManager pm2) 
 	{
@@ -28,8 +30,11 @@ public class ProcessComparator implements Comparator<ProcessManager>
 			out = pm2.getPriority() - pm1.getPriority();
 		else
 			out = (int) Math.signum(temp);
-		Log.out(Tier.BULK, "ProcessComparator: "+pm1._name+" vs "+pm2._name+
-				" has tDiff "+temp+", so out = "+out);
+		if ( Log.shouldWrite(LEVEL) )
+		{
+			Log.out(LEVEL, "ProcessComparator: "+pm1._name+" vs "+pm2._name+
+					" has tDiff "+temp+", so out = "+out);
+		}
 		return out;
 	}
 }

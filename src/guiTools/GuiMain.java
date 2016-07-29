@@ -3,6 +3,8 @@ package guiTools;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 
+import idynomics.Idynomics;
+
 
 /**
  * tabbed interface that allows the user to change parameters of a simulator
@@ -19,6 +21,13 @@ public class GuiMain
 	public static JComponent getConstructor() 
 	{
 		return (JComponent) GuiComponent.setPane(tabbedPane);
+	}
+	
+	public static void update()
+	{
+		GuiMain.getConstructor();
+		GuiEditor.addComponent(Idynomics.simulator.getNode(), 
+				GuiMain.tabbedPane);
 	}
 
 }

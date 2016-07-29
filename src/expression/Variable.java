@@ -37,7 +37,7 @@ public class Variable extends ComponentSimple
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		return variables.get(this._name); 
 	}

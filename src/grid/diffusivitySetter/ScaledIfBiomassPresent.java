@@ -7,11 +7,11 @@ import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
 import grid.SpatialGrid;
 import static grid.ArrayType.DIFFUSIVITY;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import referenceLibrary.XmlRef;
 import shape.Shape;
 
 /**
@@ -26,7 +26,7 @@ import shape.Shape;
  *  </p>
  *  
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
 
  */
 public class ScaledIfBiomassPresent implements IsDiffusivitySetter
@@ -57,13 +57,13 @@ public class ScaledIfBiomassPresent implements IsDiffusivitySetter
 		Element elem = (Element) xmlNode;
 
 		this._defaultDiffusivity = Double.valueOf(XmlHandler.obtainAttribute(
-				elem, XmlRef.defaultDiffusivity));
+				elem, XmlRef.defaultDiffusivity, "PARENT NODE"));
 		
 		this._biofilmDiffusivity = Double.valueOf(XmlHandler.obtainAttribute(
-				elem, XmlRef.biofilmDiffusivity));
+				elem, XmlRef.biofilmDiffusivity, "PARENT NODE"));
 		
 		this._threshold = Double.valueOf(XmlHandler.obtainAttribute(elem, 
-				XmlRef.threshold));
+				XmlRef.threshold, "PARENT NODE"));
 	}
 	
 	@Override

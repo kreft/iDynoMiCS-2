@@ -24,9 +24,9 @@ public abstract class CylindricalShape extends PolarShape
 	 */
 	protected ResCalc[][] _resCalc;
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * CONSTRUCTION
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public CylindricalShape()
 	{
@@ -66,26 +66,43 @@ public abstract class CylindricalShape extends PolarShape
 		return a;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
-	 ************************************************************************/
-	
+	 * **********************************************************************/
 
 	@Override
-	public double[] getLocalPosition(double[] location)
+	public double getTotalVolume()
 	{
-		return Vector.cylindrify(location);
+		/*
+		 * Volume of a complete cylinder: pi * r^2 * z
+		 * Half theta gives the angle (pi in complete cylinder).
+		 * Need to subtract the inner cylinder from the outer one, hence
+		 * rFactor = rMax^2 - rMin^2
+		 */
+		Dimension r = this.getDimension(R);
+		double rMin = r.getExtreme(0);
+		double rMax = r.getExtreme(1);
+		double rFactor = ExtraMath.sq(rMax) - ExtraMath.sq(rMin);
+		double thetaLength = this.getDimension(THETA).getLength();
+		double zLength = this.getDimension(Z).getLength();
+		return 0.5 * thetaLength * rFactor * zLength;
+	}
+
+	@Override
+	public void getLocalPositionTo(double[] destination, double[] location)
+	{
+		Vector.cylindrifyTo(destination, location);
 	}
 	
 	@Override
-	public double[] getGlobalLocation(double[] local)
+	public void getGlobalLocationTo(double[] destination, double[] local)
 	{
-		return Vector.uncylindrify(local);
+		Vector.uncylindrifyTo(destination, local);
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * DIMENSIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public void setDimensionResolution(DimName dName, ResCalc resC)
@@ -154,13 +171,13 @@ public abstract class CylindricalShape extends PolarShape
 		return this._resCalc[dim][index];
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * LOCATIONS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SURFACES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	public void setSurfaces()
 	{
@@ -189,12 +206,14 @@ public abstract class CylindricalShape extends PolarShape
 		if ( radius > 0.0 )
 		{
 			Surface rod = new Rod(pointA, pointB, radius);
-			this._surfaces.put(rod, radiusDim.getBoundary(0));
+			rod.init(_defaultCollision);
+			radiusDim.setSurface(rod, 0);
 		}
 		/* We always use the outer radius. */
 		radius = radiusDim.getExtreme(1);
 		Surface rod = new Rod(pointA, pointB, radius);
-		this._surfaces.put(rod, radiusDim.getBoundary(1));
+		rod.init(_defaultCollision);
+		radiusDim.setSurface(rod, 1);
 		/*
 		 * If theta is not cyclic, we need to add two planes.
 		 */
@@ -206,13 +225,63 @@ public abstract class CylindricalShape extends PolarShape
 		}
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * BOUNDARIES
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	@Override
+	public double getBoundarySurfaceArea(DimName dimN, int extreme)
+	{
+		switch( dimN )
+		{
+		case R:
+		{
+			/* 
+			 * Area is a curved rectangle (cylinder if theta length is 2 pi).
+			 */
+			double rExt = this.getDimension(R).getExtreme(extreme);
+			double thetaLength = this.getDimension(THETA).getLength();
+			double arcLength = rExt * thetaLength;
+			double zLength = this.getDimension(Z).getLength();
+			double area = arcLength * zLength;
+			return area;
+		}
+		case THETA:
+		{
+			/* 
+			 * For theta boundaries, it makes no difference which extreme.
+			 * Area is simply a rectangle of area (r * z).
+			 */
+			double rLength = this.getDimension(R).getLength();
+			double zLength = this.getDimension(Z).getLength();
+			double area = rLength * zLength;
+			return area;
+		}
+		case Z:
+		{
+			/* 
+			 * For z boundaries, it makes no difference which extreme.
+			 * Area is simply the area of the rMax circle, minus the area of
+			 * the rMin circle (this may be zero). Assumes rMax > rMin > 0
+			 */
+			double thetaLength = this.getDimension(THETA).getLength();
+			Dimension r = this.getDimension(R);
+			double rMin = r.getExtreme(0);
+			double rMax = r.getExtreme(1);
+			double area = thetaLength*(ExtraMath.sq(rMax)-ExtraMath.sq(rMin));
+			return area;
+		}
+		default:
+		{
+			// TODO safety
+			return Double.NaN;
+		}
+		}
+	}
+	
+	/* ***********************************************************************
 	 * VOXELS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	public double getVoxelVolume(int[] coord)
@@ -234,17 +303,17 @@ public abstract class CylindricalShape extends PolarShape
 		return volume;
 	}
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * SUBVOXEL POINTS
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * COORDINATE ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
-	/*************************************************************************
+	/* ***********************************************************************
 	 * NEIGHBOR ITERATOR
-	 ************************************************************************/
+	 * **********************************************************************/
 	
 	@Override
 	protected void resetNbhIter()

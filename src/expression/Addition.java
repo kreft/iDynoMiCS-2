@@ -10,7 +10,7 @@ import java.util.Map;
  * \brief A component of a mathematical expression composed of the addition of
  * two or more sub-components.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Addition extends ComponentMultiple
 {
@@ -40,7 +40,7 @@ public class Addition extends ComponentMultiple
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		double out = 0.0;
 		for ( Component c : this._components )

@@ -4,14 +4,12 @@ import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import idynomics.AgentContainer;
-import idynomics.EnvironmentContainer;
 import shape.Dimension.DimName;
 
 /**
  * \brief Boundary that allows neither agents nor solutes to cross it.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class SolidBoundary extends SpatialBoundary
 {
@@ -27,6 +25,7 @@ public class SolidBoundary extends SpatialBoundary
 	public SolidBoundary(DimName dim, int extreme)
 	{
 		super(dim, extreme);
+		this._detachability = 0.0;
 	}
 
 	/* ***********************************************************************
@@ -48,13 +47,7 @@ public class SolidBoundary extends SpatialBoundary
 	 * **********************************************************************/
 
 	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
-	{
-		/* Do nothing! */
-	}
-
-	@Override
-	public double getFlux(SpatialGrid grid)
+	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
 		/*
 		 * No matter what the concentration of the grid voxel, there is no
@@ -62,20 +55,38 @@ public class SolidBoundary extends SpatialBoundary
 		 */
 		return 0.0;
 	}
+	
+	@Override
+	public boolean needsToUpdateWellMixed()
+	{
+		return false;
+	}
+	
+	@Override
+	public void updateWellMixedArray()
+	{
+		this.setWellMixedByDistance();
+	}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
 	 * **********************************************************************/
 
 	@Override
-	public void agentsArrive(AgentContainer agentCont)
+	protected double getDetachability()
+	{
+		return 0.0;
+	}
+	
+	@Override
+	public void agentsArrive()
 	{
 		if ( ! this._arrivalsLounge.isEmpty() )
 		{
 			Log.out(Tier.NORMAL,
 					"Unexpected: agents arriving at a solid boundary!");
 		}
-		this.placeAgentsRandom(agentCont);
-		this.clearArrivalsLoungue();
+		this.placeAgentsRandom();
+		this.clearArrivalsLounge();
 	}
 }

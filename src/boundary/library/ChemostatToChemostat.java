@@ -1,62 +1,26 @@
 package boundary.library;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import agent.Agent;
 import boundary.Boundary;
-import idynomics.AgentContainer;
 import idynomics.Compartment;
-import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
 
 /**
  * \brief Connective boundary linking one dimensionless compartment to another.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class ChemostatToChemostat extends Boundary
 {
-	/**
-	 * Flow rate (units of volume per time). Positive flow rate signifies
-	 * inflow; negative signifies outflow.
-	 */
-	// TODO set this from protocol
-	protected double _flowRate;
-
 	/**
 	 * Tally for the number of agents to be diluted via this boundary (kept at
 	 * zero for inflows).
 	 */
 	protected double _agentsToDiluteTally = 0.0;
-
-	/* ***********************************************************************
-	 * BASIC SETTERS & GETTERS
-	 * **********************************************************************/
-
-	/**
-	 * \brief Set this connective boundary's flow rate.
-	 * 
-	 * <p>Positive flow rate signifies inflow; negative signifies outflow.</p>
-	 * 
-	 * @param flowRate Flow rate (units of volume per time).
-	 */
-	public void setFlowRate(double flowRate)
-	{
-		this._flowRate = flowRate;
-	}
-
-	/**
-	 * \brief Get this connective boundary's flow rate.
-	 * 
-	 * <p>Positive flow rate signifies inflow; negative signifies outflow.</p>
-	 * 
-	 * @return Flow rate (units of volume per time).
-	 */
-	public double getFlowRate()
-	{
-		return this._flowRate;
-	}
 
 	/* ***********************************************************************
 	 * PARTNER BOUNDARY
@@ -73,7 +37,7 @@ public class ChemostatToChemostat extends Boundary
 	{
 		ChemostatToChemostat cIn = 
 				(ChemostatToChemostat) super.makePartnerBoundary();
-		cIn.setFlowRate( - this._flowRate);
+		cIn.setVolumeFlowRate( - this._volumeFlowRate);
 		return cIn;
 	}
 
@@ -86,28 +50,12 @@ public class ChemostatToChemostat extends Boundary
 	public void setPartnerCompartment(Compartment comp)
 	{
 		Boundary cIn = this.makePartnerBoundary();
-		comp.getShape().addOtherBoundary(cIn);
+		comp.addBoundary(cIn);
 	}
 
 	/* ***********************************************************************
 	 * SOLUTE TRANSFERS
 	 * **********************************************************************/
-
-	@Override
-	public void updateConcentrations(EnvironmentContainer environment)
-	{
-		/* Inflows have concentrations set by their partner. */
-		if ( this._flowRate > 0.0 )
-			return;
-		/* This is an outflow. */
-		double concn;
-		for ( String name : environment.getSoluteNames() )
-		{
-			concn = environment.getAverageConcentration(name);
-			this.setConcentration(name, concn);
-			this._partner.setConcentration(name, concn);
-		}
-	}
 
 	/* ***********************************************************************
 	 * AGENT TRANSFERS
@@ -125,24 +73,24 @@ public class ChemostatToChemostat extends Boundary
 	}
 
 	@Override
-	public List<Agent> agentsToGrab(AgentContainer agentCont)
+	public Collection<Agent> agentsToGrab()
 	{
 		List<Agent> out = new LinkedList<Agent>();
-		int nAllAgents = agentCont.getNumAllAgents();
-		if ( (nAllAgents > 0) && (this._flowRate < 0.0) )
+		int nAllAgents = this._agents.getNumAllAgents();
+		if ( (nAllAgents > 0) && (this._volumeFlowRate < 0.0) )
 		{
 			/* 
-			 * This is an outflow: remember to subtract, since flow rate out
+			 * This is an outflow: remember to subtract, since dilution out
 			 * is negative.
 			 */
-			this._agentsToDiluteTally -= this._flowRate * 
+			this._agentsToDiluteTally -= this.getDilutionRate() * 
 					Idynomics.simulator.timer.getTimeStepSize();
 			int n = (int) this._agentsToDiluteTally;
 			/* Cannot dilute more agents than there are in the compartment. */
 			n = Math.min(n, nAllAgents);
 			int[] nums = Vector.randomInts(n, 0, nAllAgents);
 			for ( int i : nums )
-				out.add(agentCont.chooseAgent(i));
+				out.add(this._agents.chooseAgent(i));
 		}
 		else
 		{

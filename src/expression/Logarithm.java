@@ -9,7 +9,7 @@ import dataIO.Log.Tier;
  * \brief A component of a mathematical expression composed of the logarithm
  * of one component to the base of another.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Logarithm extends ComponentDouble
 {
@@ -49,11 +49,11 @@ public class Logarithm extends ComponentDouble
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		double a = this._a.getValue(variables);
 		double b = this._b.getValue(variables);
-		if ( b == 1.0 || b == 0.0 )
+		if ( b == 1.0 || b <= 0.0 )
 			this.infiniteValueWarning(variables);
 		return Math.log(a)/Math.log(b);
 	}

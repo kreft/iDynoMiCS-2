@@ -4,11 +4,11 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
-import dataIO.XmlRef;
-import generalInterfaces.XMLable;
+import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 import dataIO.Log.Tier;
 import utility.Helper;
@@ -16,9 +16,9 @@ import utility.Helper;
 /**
  * \brief TODO
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Timer implements XMLable, NodeConstructor
+public class Timer implements Instantiatable, NodeConstructor
 {
 	/**
 	 * TODO
@@ -39,40 +39,35 @@ public class Timer implements XMLable, NodeConstructor
 	 * TODO
 	 */
 	protected double _endOfSimulation;
+
+	private NodeConstructor _parentNode;
 		
 	public Timer()
 	{
 		this._iteration = 0;
 		this._now = 0.0;
 	}
-	
-	public String getName()
-	{
-		return XmlRef.timer;
-	}
-	
+		
 	public void init(Element xmlNode)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");
-		String s;
-		double d;
+
+		/* Get starting time step */
+		seteCurrentTime( Double.valueOf( Helper.setIfNone( 
+				XmlHandler.gatherAttribute(
+				xmlNode, XmlRef.currentTime ), "0.0" ) ) );
+		
 		/* Get the time step. */
-		s = XmlHandler.gatherAttribute(xmlNode, XmlRef.timerStepSize);
-		s = Helper.obtainInput(s, "Timer time step size");
-		d = Double.valueOf(s);
-		// TODO safety
-		setTimeStepSize(d);
+		setTimeStepSize( Double.valueOf( XmlHandler.obtainAttribute(
+				xmlNode, XmlRef.timerStepSize, this.defaultXmlTag() ) ) );
+
 		/* Get the total time span. */
-		s = XmlHandler.gatherAttribute(xmlNode, XmlRef.endOfSimulation);
-		s = Helper.obtainInput(s, "End of simulation");
-		d = Double.valueOf(s);
-		// TODO safety
-		setEndOfSimulation(d);
+		setEndOfSimulation( Double.valueOf( XmlHandler.obtainAttribute(
+				xmlNode, XmlRef.endOfSimulation, this.defaultXmlTag() ) ) );
+
+		
 		report(Tier.NORMAL);
 		Log.out(Tier.NORMAL, "Timer loaded!\n");
-		
-		if ( Helper.gui )
-			GuiLaunch.resetProgressBar();
 	}
 	
 	/*************************************************************************
@@ -89,6 +84,11 @@ public class Timer implements XMLable, NodeConstructor
 	public void setTimeStepSize(double stepSize)
 	{
 		this._timerStepSize = stepSize;
+	}
+	
+	public void seteCurrentTime(double time)
+	{
+		this._now = time;
 	}
 	
 	public double getCurrentTime()
@@ -131,7 +131,7 @@ public class Timer implements XMLable, NodeConstructor
 	
 	public int estimateLastIteration()
 	{
-		return (int) (getEndOfSimulation() / getTimeStepSize());
+		return (int) (getEndOfSimulation() - this.getCurrentTime() / getTimeStepSize());
 	}
 	
 	public boolean isRunning()
@@ -162,7 +162,11 @@ public class Timer implements XMLable, NodeConstructor
 	{
 		/* the timer node */
 		ModelNode modelNode = new ModelNode(XmlRef.timer, this);
-		modelNode.requirement = Requirements.EXACTLY_ONE;
+		modelNode.setRequirements(Requirements.EXACTLY_ONE);
+		
+		/* now */
+		modelNode.add(new ModelAttribute(XmlRef.currentTime, 
+				String.valueOf(this._now), null, true ));
 		
 		/* time step size */
 		modelNode.add(new ModelAttribute(XmlRef.timerStepSize, 
@@ -182,13 +186,16 @@ public class Timer implements XMLable, NodeConstructor
 	 */
 	public void setNode(ModelNode node)
 	{
+		this.setTimeStepSize( Double.valueOf( 
+				node.getAttribute( XmlRef.currentTime ).getValue() ));
+		
 		/* time step size */
 		this.setTimeStepSize( Double.valueOf( 
-				node.getAttribute( XmlRef.timerStepSize ).value ));
+				node.getAttribute( XmlRef.timerStepSize ).getValue() ));
 		
 		/* end of simulation */
 		this.setEndOfSimulation( Double.valueOf( 
-				node.getAttribute( XmlRef.endOfSimulation ).value ));
+				node.getAttribute( XmlRef.endOfSimulation ).getValue() ));
 	}
 	
 	/**
@@ -207,5 +214,17 @@ public class Timer implements XMLable, NodeConstructor
 	@Override
 	public String defaultXmlTag() {
 		return XmlRef.timer;
+	}
+
+	@Override
+	public void setParent(NodeConstructor parent) 
+	{
+		this._parentNode = parent;
+	}
+	
+	@Override
+	public NodeConstructor getParent() 
+	{
+		return this._parentNode;
 	}
 }

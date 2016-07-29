@@ -2,7 +2,7 @@ package aspect.calculated;
 
 import aspect.AspectInterface;
 import aspect.Calculated;
-import aspect.AspectRef;
+import referenceLibrary.AspectRef;
 import utility.ExtraMath;
 
 /**

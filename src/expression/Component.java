@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * \brief Abstract class for any component of a mathematical expression.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class Component
 {
@@ -57,7 +57,21 @@ public abstract class Component
 	 * @return Real number value of the evaluation of this mathematical
 	 * expression.
 	 */
-	public abstract double getValue(Map<String, Double> variables);
+	public double getValue(Map<String, Double> variables)
+	{
+		double out = this.calculateValue(variables);
+		return ( this._isNegative ) ? -out : out;
+	}
+	
+	/**
+	 * \brief Internal helper method for {@link #getValue(Map)}: that deals
+	 * with {@link #_isNegative}, so this doesn't have to.
+	 * 
+	 * @param variables Dictionary of variable names with associated values.
+	 * @return Real number value of the evaluation of this mathematical
+	 * expression, when assumed positive.
+	 */
+	protected abstract double calculateValue(Map<String, Double> variables);
 	
 	/**
 	 * \brief Differentiate this mathematical expression with respect to the

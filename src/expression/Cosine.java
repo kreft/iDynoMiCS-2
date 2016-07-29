@@ -9,7 +9,7 @@ import java.util.Map;
  * \brief Component of a mathematical expression that is the cosine of another
  * component.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Cosine extends ComponentSingle
 {
@@ -29,7 +29,7 @@ public class Cosine extends ComponentSingle
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		return Math.cos(this._a.getValue(variables));
 	}

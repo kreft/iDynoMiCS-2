@@ -1,0 +1,12 @@
+[2016.07.06 13:19:36] Making dimension X cyclic
+[2016.07.06 13:19:36] Making dimension X cyclic
+[2016.07.06 13:19:36] Making dimension Y cyclic
+[2016.07.06 13:19:36] Making dimension X cyclic
+[2016.07.06 13:19:36] Making dimension Y cyclic
+[2016.07.06 13:19:36] Making dimension Z cyclic
+[2016.07.06 13:19:36] Making dimension THETA cyclic
+[2016.07.06 13:19:36] Making dimension THETA cyclic
+[2016.07.06 13:19:36] Making dimension Z cyclic
+[2016.07.06 13:19:36] Making dimension THETA cyclic
+[2016.07.06 13:19:36] Making dimension X cyclic
+[2016.07.06 13:19:36] Making dimension theta cyclic

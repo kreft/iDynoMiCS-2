@@ -1,0 +1,89 @@
+[2016.07.29 09:21:37] iDynoMiCS 2.0 (alpha build 2016.06.02)
+Output level is DEBUG, starting at [2016.07.29 09:21:37] 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[2016.07.29 09:21:37] Solid boundaries
+[2016.07.29 09:21:37] Coord 0,0,0 has 2 neighbors
+[2016.07.29 09:21:37] Coord 0,1,0 has 3 neighbors
+[2016.07.29 09:21:37] Coord 0,2,0 has 2 neighbors
+[2016.07.29 09:21:37] Coord 1,0,0 has 3 neighbors
+[2016.07.29 09:21:37] Coord 1,1,0 has 4 neighbors
+[2016.07.29 09:21:37] Coord 1,2,0 has 3 neighbors
+[2016.07.29 09:21:37] Coord 2,0,0 has 2 neighbors
+[2016.07.29 09:21:37] Coord 2,1,0 has 3 neighbors
+[2016.07.29 09:21:37] Coord 2,2,0 has 2 neighbors
+[2016.07.29 09:21:37] 
+[2016.07.29 09:21:37] Cyclic dimensions
+[2016.07.29 09:21:37] Coord 0,0,0 has 4 neighbors
+[2016.07.29 09:21:37] Coord 0,1,0 has 4 neighbors
+[2016.07.29 09:21:37] Coord 0,2,0 has 4 neighbors
+[2016.07.29 09:21:37] Coord 1,0,0 has 4 neighbors
+[2016.07.29 09:21:37] Coord 1,1,0 has 4 neighbors
+[2016.07.29 09:21:37] Coord 1,2,0 has 4 neighbors
+[2016.07.29 09:21:37] Coord 2,0,0 has 4 neighbors
+[2016.07.29 09:21:37] Coord 2,1,0 has 4 neighbors
+[2016.07.29 09:21:37] Coord 2,2,0 has 4 neighbors
+[2016.07.29 09:21:37] 
+[2016.07.29 09:21:37] Making dimension X cyclic
+[2016.07.29 09:21:37] Making dimension X cyclic
+[2016.07.29 09:21:37] Making dimension Y cyclic
+[2016.07.29 09:21:37] Making dimension X cyclic
+[2016.07.29 09:21:37] Making dimension Y cyclic
+[2016.07.29 09:21:37] Making dimension Z cyclic
+[2016.07.29 09:21:37] Making dimension THETA cyclic
+[2016.07.29 09:21:37] Making dimension THETA cyclic
+[2016.07.29 09:21:37] Making dimension Z cyclic
+[2016.07.29 09:21:37] Making dimension THETA cyclic
+[2016.07.29 09:21:37] Making dimension X cyclic
+[2016.07.29 09:21:37] Making dimension theta cyclic
+[2016.07.29 09:21:37] Solid boundaries
+[2016.07.29 09:21:37] Comparing current nhb 1,0,0 with true nhb 1,0,0
+[2016.07.29 09:21:37] Comparing current nhb 1,1,0 with true nhb 1,1,0
+[2016.07.29 09:21:37] Comparing current nhb 1,2,0 with true nhb 1,2,0
+[2016.07.29 09:21:37] Coord 0,0,0 has 3 true neighbors, counted 3
+[2016.07.29 09:21:37] Comparing current nhb 0,0,0 with true nhb 0,0,0
+[2016.07.29 09:21:37] Comparing current nhb 1,1,0 with true nhb 1,1,0
+[2016.07.29 09:21:37] Comparing current nhb 2,0,0 with true nhb 2,0,0
+[2016.07.29 09:21:37] Comparing current nhb 2,1,0 with true nhb 2,1,0
+[2016.07.29 09:21:37] Coord 1,0,0 has 4 true neighbors, counted 4
+[2016.07.29 09:21:37] Comparing current nhb 0,0,0 with true nhb 0,0,0
+[2016.07.29 09:21:37] Comparing current nhb 1,0,0 with true nhb 1,0,0
+[2016.07.29 09:21:37] Comparing current nhb 1,2,0 with true nhb 1,2,0
+[2016.07.29 09:21:37] Comparing current nhb 2,1,0 with true nhb 2,1,0
+[2016.07.29 09:21:37] Comparing current nhb 2,2,0 with true nhb 2,2,0
+[2016.07.29 09:21:37] Comparing current nhb 2,3,0 with true nhb 2,3,0
+[2016.07.29 09:21:37] Coord 1,1,0 has 6 true neighbors, counted 6
+[2016.07.29 09:21:37] Comparing current nhb 1,1,0 with true nhb 1,1,0
+[2016.07.29 09:21:37] Comparing current nhb 1,2,0 with true nhb 1,2,0
+[2016.07.29 09:21:37] Comparing current nhb 2,2,0 with true nhb 2,2,0
+[2016.07.29 09:21:37] Comparing current nhb 2,4,0 with true nhb 2,4,0
+[2016.07.29 09:21:37] Coord 2,3,0 has 4 true neighbors, counted 4
+[2016.07.29 09:21:37] Shape has 9 voxels, counted 9
+[2016.07.29 09:21:37] 
+[2016.07.29 09:21:37] Cyclic dimensions
+[2016.07.29 09:21:37] Comparing current nhb 0,0,0 with true nhb 0,0,0
+[2016.07.29 09:21:37] Comparing current nhb 0,0,0 with true nhb 0,0,0
+[2016.07.29 09:21:37] Comparing current nhb 1,0,0 with true nhb 1,0,0
+[2016.07.29 09:21:37] Comparing current nhb 1,1,0 with true nhb 1,1,0
+[2016.07.29 09:21:37] Comparing current nhb 1,2,0 with true nhb 1,2,0
+[2016.07.29 09:21:37] Coord 0,0,0 has 5 true neighbors, counted 5
+[2016.07.29 09:21:37] Comparing current nhb 0,0,0 with true nhb 0,0,0
+[2016.07.29 09:21:37] Comparing current nhb 1,2,0 with true nhb 1,2,0
+[2016.07.29 09:21:37] Comparing current nhb 1,1,0 with true nhb 1,1,0
+[2016.07.29 09:21:37] Comparing current nhb 2,0,0 with true nhb 2,0,0
+[2016.07.29 09:21:37] Comparing current nhb 2,1,0 with true nhb 2,1,0
+[2016.07.29 09:21:37] Coord 1,0,0 has 5 true neighbors, counted 5
+[2016.07.29 09:21:37] Comparing current nhb 0,0,0 with true nhb 0,0,0
+[2016.07.29 09:21:37] Comparing current nhb 1,0,0 with true nhb 1,0,0
+[2016.07.29 09:21:37] Comparing current nhb 1,2,0 with true nhb 1,2,0
+[2016.07.29 09:21:37] Comparing current nhb 2,1,0 with true nhb 2,1,0
+[2016.07.29 09:21:37] Comparing current nhb 2,2,0 with true nhb 2,2,0
+[2016.07.29 09:21:37] Comparing current nhb 2,3,0 with true nhb 2,3,0
+[2016.07.29 09:21:37] Coord 1,1,0 has 6 true neighbors, counted 6
+[2016.07.29 09:21:37] Comparing current nhb 1,1,0 with true nhb 1,1,0
+[2016.07.29 09:21:37] Comparing current nhb 1,2,0 with true nhb 1,2,0
+[2016.07.29 09:21:37] Comparing current nhb 2,2,0 with true nhb 2,2,0
+[2016.07.29 09:21:37] Comparing current nhb 2,4,0 with true nhb 2,4,0
+[2016.07.29 09:21:37] Coord 2,3,0 has 4 true neighbors, counted 4
+[2016.07.29 09:21:37] Shape has 9 voxels, counted 9
+[2016.07.29 09:21:37] 

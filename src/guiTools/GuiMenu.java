@@ -21,7 +21,7 @@ import idynomics.Simulator;
 /**
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public final class GuiMenu
 {
@@ -109,12 +109,7 @@ public final class GuiMenu
 		
 		public void actionPerformed(ActionEvent e)
 		{
-//			GuiActions.newFile();
 			Idynomics.simulator = new Simulator();
-			GuiSimConstruct.togglePane(GuiSimConstruct.SIMULATORPANE);
-			GuiSimConstruct.tabEnabled(GuiSimConstruct.SIMULATORPANE, true);
-			GuiSimConstruct.tabEnabled(GuiSimConstruct.COMPARTMENTPANE, true);
-			GuiSimConstruct.tabEnabled(GuiSimConstruct.SPECIESPANE, true);
 		}
 	}
 	

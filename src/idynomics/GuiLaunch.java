@@ -3,6 +3,7 @@ package idynomics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -18,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -37,7 +39,7 @@ import utility.Helper;
  * simulator.</p>
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class GuiLaunch implements Runnable
 {
@@ -105,7 +107,7 @@ public class GuiLaunch implements Runnable
 		contentPane = new JPanel();
 		_layout = new GroupLayout(contentPane);
 		contentPane.setLayout(_layout);
-		
+		 
 		run();
 	}
 			    	  
@@ -240,8 +242,6 @@ public class GuiLaunch implements Runnable
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
-				Idynomics.simulator = new Simulator();
-				Idynomics.global = new Param();
 				GuiMain.getConstructor();
 				GuiEditor.addComponent(Idynomics.simulator.getNode(), GuiMain.tabbedPane);
 			}

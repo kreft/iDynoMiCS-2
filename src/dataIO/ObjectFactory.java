@@ -17,14 +17,16 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import agent.Body;
-import aspect.Calculated;
-import aspect.Event;
 import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
+import generalInterfaces.Instantiatable;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import reaction.Reaction;
+import referenceLibrary.ClassRef;
+import referenceLibrary.ObjectRef;
+import referenceLibrary.XmlRef;
 import utility.Helper;
 
 /**
@@ -43,114 +45,137 @@ public class ObjectFactory
 	 * method to return a new object of the appropriate type, uses String as
 	 * input
 	 * @param input
-	 * @param classType
+	 * @param objectClass
 	 * @return
 	 */
-	public static Object loadObject(String input, String type, String classType)
+	public static Object loadObject(String input, String objectClass )
 	{
-		classType = Helper.firstToUpper(classType);
-		switch ( type ) 
-		{
-
-		case "CALCULATED" : 
-			return Calculated.getNewInstance(classType);
-		case "EVENT" :
-			return Event.getNewInstance(classType);
-		default:
-			switch ( classType ) 
-			{
-			/* state node with just attributes */
-				case ObjectRef.BOOL : 
-					return Boolean.valueOf(input);
-				case ObjectRef.INT : 
-					try{
-						return Integer.valueOf(input);
-					}
-					catch(NumberFormatException e)
-					{
-						printReadError(input, ObjectRef.INT);
-						return null;
-					}
-				case ObjectRef.INT_VECT : 
-					try{
-						return Vector.intFromString(input);
-					}
-					catch(NumberFormatException e)
-					{
-						printReadError(input, ObjectRef.INT_VECT);
-					return null;
-				}
-			case ObjectRef.INT_MATR :
-				try{
-					return Matrix.intFromString(input);
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(input, ObjectRef.INT_MATR);
-					return null;
-				}
-			case ObjectRef.INT_ARRY :
-				try{
-					return Array.intFromString(input);
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(input, ObjectRef.INT_ARRY);
-						return null;
-					}
-				case ObjectRef.DBL : 
-					try{
-						return Double.valueOf(input);
-					}
-					catch(NumberFormatException e)
-					{
-						printReadError(input, ObjectRef.DBL);
-						return null;
-					}
-				case ObjectRef.DBL_VECT : 
-					try{
-						return Vector.dblFromString(input);
-					}
-					catch(NumberFormatException e)
-					{
-						printReadError(input, ObjectRef.DBL_VECT);
-					return null;
-				}
-			case ObjectRef.DBL_MATR :
-				try{
-					return Matrix.dblFromString(input);
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(input, ObjectRef.DBL_MATR);
-					return null;
-				}
-			case ObjectRef.DBL_ARRY :
-				try{
-					return Array.dblFromString(input);
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(input, ObjectRef.DBL_ARRY);
-						return null;
-					}
-				case ObjectRef.STR : 
-					return input;
-				case ObjectRef.STR_VECT : 
-					return input.split(",");
-				case "Body" :
-					return Body.getNewInstance(input);
-				case "Reaction" :
-					return Reaction.getNewInstance(ObjectFactory.stringToNode(input));
-				case "LinkedList" :
-					return ObjectFactory.xmlList(input);
-				case "HashMap" :
-					return ObjectFactory.xmlHashMap(input);
-			}
-			Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
-					+ "object type: " + type + " class " + classType);
+		if ( objectClass == null )
 			return null;
+		objectClass = Helper.firstToUpper(objectClass);
+		switch ( objectClass ) 
+		{
+		/* state node with just attributes */
+		case ObjectRef.BOOL : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			return Boolean.valueOf(input);
+		case ObjectRef.INT : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			try{
+				return Integer.valueOf(input);
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(input, ObjectRef.INT);
+				return null;
+			}
+		case ObjectRef.INT_VECT : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			try{
+				return Vector.intFromString(input);
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(input, ObjectRef.INT_VECT);
+				return null;
+			}
+		case ObjectRef.INT_MATR :
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			try{
+				return Matrix.intFromString(input);
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(input, ObjectRef.INT_MATR);
+				return null;
+			}
+		case ObjectRef.INT_ARRY :
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			try{
+				return Array.intFromString(input);
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(input, ObjectRef.INT_ARRY);
+				return null;
+			}
+		case ObjectRef.DBL : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			try{
+				/*
+				 * Allow for for expressions as input argument
+				 */
+				return Double.valueOf( 
+						Helper.interpretExpression(input) );
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(input, ObjectRef.DBL);
+				return null;
+			}
+		case ObjectRef.DBL_VECT : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			try{
+				return Vector.dblFromString(input);
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(input, ObjectRef.DBL_VECT);
+				return null;
+			}
+		case ObjectRef.DBL_MATR :
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			try{
+				return Matrix.dblFromString(input);
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(input, ObjectRef.DBL_MATR);
+				return null;
+			}
+		case ObjectRef.DBL_ARRY :
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			try{
+				return Array.dblFromString(input);
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(input, ObjectRef.DBL_ARRY);
+				return null;
+			}
+		case ObjectRef.STR : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			return input;
+		case ObjectRef.STR_VECT : 
+			if ( input == null)
+				input = Helper.obtainInput( "", "Primary value" );
+			return input.split(",");
+		case ObjectRef.PILE :
+			return Instantiatable.getNewInstance(ClassRef.pile, null, null);
+		case ObjectRef.BUNDLE :
+			return Instantiatable.getNewInstance(ClassRef.bundle, null, null);
+		case ObjectRef.LINKEDLIST :
+			return ObjectFactory.xmlList(input);
+		case ObjectRef.HASHMAP :
+			return ObjectFactory.xmlHashMap(input);
+		case ObjectRef.REACTION :
+			return Instantiatable.getNewInstance(ClassRef.reaction, null, null);
+		case ObjectRef.BODY :
+			return Body.getNewInstance(input);
 		}
+		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
+				+ "object class " + objectClass);
+		return null;
 	}
 
 	/**
@@ -160,114 +185,113 @@ public class ObjectFactory
 	 * @param s
 	 * @return
 	 */
-	public static Object loadObject(Element s, String value, String classType)
+	public static Object loadObject( Element s, String value, 
+			String objectClassLabel )
 	{
-		String sType = s.getAttribute(classType);
-		String aType = s.getAttribute(XmlRef.typeAttribute);
-		sType = Helper.firstToUpper(sType);
-		switch ( aType )
+		String objectClass = s.getAttribute(objectClassLabel);
+		if ( objectClass == null || objectClass.equals("") )
+			objectClass = objectClassLabel;
+		else
+			objectClass = Helper.firstToUpper(objectClass);
+		switch ( objectClass )
 		{
-		case "CALCULATED" : 
-			return Calculated.getNewInstance(s);
-		case "EVENT" :
-			return Event.getNewInstance(s);
-		default:
-			switch ( sType )
-			{
-			/* state node with just attributes */
-				case ObjectRef.BOOL : 
-					return Boolean.valueOf(s.getAttribute(value));
-				case ObjectRef.INT : 
-					try{
-						return Integer.valueOf(s.getAttribute(value));
-					}
-					catch(NumberFormatException e)
-					{
-						printReadError(s.getAttribute(value), ObjectRef.INT);
-						return null;
-					}
-				case ObjectRef.INT_VECT : 
-					try{
-						return Vector.intFromString(s.getAttribute(value));
-					}
-					catch(NumberFormatException e)
-					{
-						printReadError(s.getAttribute(value), ObjectRef.INT_VECT);
-					return null;
-				}
-			case ObjectRef.INT_MATR :
-				try{
-					return Matrix.intFromString(s.getAttribute(value));
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(s.getAttribute(value), ObjectRef.INT_MATR);
-					return null;
-				}
-			case ObjectRef.INT_ARRY :
-				try{
-					return Array.intFromString(s.getAttribute(value));
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(s.getAttribute(value), ObjectRef.INT_ARRY);
-						return null;
-					}
-				case ObjectRef.DBL : 
-					try{
-						return Double.valueOf(s.getAttribute(value));
-					}
-					catch(NumberFormatException e)
-					{
-						printReadError(s.getAttribute(value), ObjectRef.DBL);
-						return null;
-					}
-				case ObjectRef.DBL_VECT : 
-					try{
-						return Vector.dblFromString(s.getAttribute(value));
-					}
-					catch(NumberFormatException e)
-					{
-						printReadError(s.getAttribute(value), ObjectRef.DBL_VECT);
-					return null;
-				}
-			case ObjectRef.DBL_MATR :
-				try{
-					return Matrix.dblFromString(s.getAttribute(value));
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(s.getAttribute(value), ObjectRef.DBL_MATR);
-					return null;
-				}
-			case ObjectRef.DBL_ARRY :
-				try{
-					return Array.dblFromString(s.getAttribute(value));
-				}
-				catch(NumberFormatException e)
-				{
-					printReadError(s.getAttribute(value), ObjectRef.DBL_ARRY);
-						return null;
-					}
-				case "String" : 
-					return s.getAttribute(value);
-				case "String[]" : 
-					return s.getAttribute(value).split(",");
-				case "Body" :
-					return Body.getNewInstance(s);
-				case "Reaction" :
-					return Reaction.getNewInstance(s);
-				case "LinkedList" :
-					return ObjectFactory.xmlList(s);
-				case "HashMap" :
-					return ObjectFactory.xmlHashMap(s);
+		/* state node with just attributes */
+		case ObjectRef.BOOL : 
+			return Boolean.valueOf(s.getAttribute(value));
+		case ObjectRef.INT : 
+			try{
+				return Integer.valueOf(s.getAttribute(value));
 			}
-			Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
-					+ "object type: " + aType + " class " + sType);
-			return null;
+			catch(NumberFormatException e)
+			{
+				printReadError(s.getAttribute(value), ObjectRef.INT);
+				return null;
+			}
+		case ObjectRef.INT_VECT : 
+			try{
+				return Vector.intFromString(s.getAttribute(value));
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(s.getAttribute(value), ObjectRef.INT_VECT);
+				return null;
+			}
+		case ObjectRef.INT_MATR :
+			try{
+				return Matrix.intFromString(s.getAttribute(value));
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(s.getAttribute(value), ObjectRef.INT_MATR);
+				return null;
+			}
+		case ObjectRef.INT_ARRY :
+			try{
+				return Array.intFromString(s.getAttribute(value));
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(s.getAttribute(value), ObjectRef.INT_ARRY);
+				return null;
+			}
+		case ObjectRef.DBL : 
+			try{
+				return Double.valueOf(s.getAttribute(value));
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(s.getAttribute(value), ObjectRef.DBL);
+				return null;
+			}
+		case ObjectRef.DBL_VECT : 
+			try{
+				return Vector.dblFromString(s.getAttribute(value));
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(s.getAttribute(value), ObjectRef.DBL_VECT);
+				return null;
+			}
+		case ObjectRef.DBL_MATR :
+			try{
+				return Matrix.dblFromString(s.getAttribute(value));
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(s.getAttribute(value), ObjectRef.DBL_MATR);
+				return null;
+			}
+		case ObjectRef.DBL_ARRY :
+			try{
+				return Array.dblFromString(s.getAttribute(value));
+			}
+			catch(NumberFormatException e)
+			{
+				printReadError(s.getAttribute(value), ObjectRef.DBL_ARRY);
+				return null;
+			}
+		case ObjectRef.STR : 
+			return s.getAttribute(value);
+		case ObjectRef.STR_VECT : 
+			return s.getAttribute(value).split(",");
+		case ObjectRef.PILE :
+			return Instantiatable.getNewInstance(ClassRef.pile, s, null);
+		case ObjectRef.BUNDLE :
+			return Instantiatable.getNewInstance(ClassRef.bundle, s, null);
+		case ObjectRef.LINKEDLIST :
+			return ObjectFactory.xmlList(s);
+		case ObjectRef.HASHMAP :
+			return ObjectFactory.xmlHashMap(s);
+		case ObjectRef.REACTION :
+			return Reaction.getNewInstance(s);
+		case ObjectRef.BODY :
+			return Body.getNewInstance(s);
 		}
+		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
+				+ "object class: " + objectClass);
+		return null;
 	}
-	
+
 	/**
 	 * load standard aspect object (use labeling as defined by XmlLabel class).
 	 * @param s
@@ -278,7 +302,6 @@ public class ObjectFactory
 		return loadObject(s, XmlRef.valueAttribute, XmlRef.classAttribute);
 	}
 
-	
 	/**
 	 * \brief TODO
 	 * 
@@ -290,7 +313,7 @@ public class ObjectFactory
 		Log.out(Tier.CRITICAL, "Error could not load input as "
 				+type+": "+input);
 	}
-	
+
 
 	/**
 	 * Helper method that converts string to xml node for complex objects
@@ -303,15 +326,15 @@ public class ObjectFactory
 		Node node = null;
 		try {
 			node = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-				    .parse(new ByteArrayInputStream(input.getBytes()))
-				    .getDocumentElement();
+					.parse(new ByteArrayInputStream(input.getBytes()))
+					.getDocumentElement();
 		} catch (SAXException | IOException | ParserConfigurationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return node;
 	}
-	
+
 	/**
 	 * Construct a LinkedList from an xml element
 	 * @param s
@@ -334,13 +357,7 @@ public class ObjectFactory
 	 */
 	public static LinkedList<?> xmlList(String s)
 	{
-		NodeList items;
-		LinkedList<Object> temp = new LinkedList<Object>();
-		items = XmlHandler.getAll(ObjectFactory.stringToNode(s), 
-				XmlRef.item);
-		for ( int i = 0; i < items.getLength(); i++ )
-			temp.add((Object) loadObject((Element) items.item(i)));
-		return temp;
+		return xmlList((Element) ObjectFactory.stringToNode(s));
 	}
 
 	/**
@@ -350,15 +367,37 @@ public class ObjectFactory
 	 */
 	public static HashMap<?,?> xmlHashMap(Element s)
 	{
+		return xmlHashMap(s, XmlRef.item);
+	}
+	
+	public static HashMap<?,?> xmlHashMap(Element s, String itemNodeLabel)
+	{
 		NodeList items;
 		HashMap<Object,Object> hMap = new HashMap<Object,Object>();
-		items = XmlHandler.getAll(s, XmlRef.item);
+		items = XmlHandler.getAll(s, itemNodeLabel);
 		for ( int i = 0; i < items.getLength(); i++ )
 		{
 			hMap.put((Object) loadObject((Element) items.item(i), 
-					XmlRef.keyAttribute , XmlRef.keyTypeAttribute ), 
+					XmlRef.keyAttribute , XmlRef.keyClassAttribute ), 
 					(Object) loadObject((Element) items.item(i), 
-					XmlRef.valueAttribute, XmlRef.classAttribute ));
+							XmlRef.valueAttribute, XmlRef.classAttribute ));
+		}
+		return hMap;
+	}
+	
+	public static HashMap<?,?> xmlHashMap(Element s, String itemNodeLabel, 
+			String keyClass, String keyAttribute, String valueClass,
+			String valueAttribute)
+	{
+		NodeList items;
+		HashMap<Object,Object> hMap = new HashMap<Object,Object>();
+		items = XmlHandler.getAll(s, itemNodeLabel);
+		for ( int i = 0; i < items.getLength(); i++ )
+		{
+			hMap.put( (Object) loadObject( (Element) items.item(i),  keyAttribute , 
+					keyClass ), 
+					(Object) loadObject( (Element) items.item(i), valueAttribute , 
+					valueClass ) );
 		}
 		return hMap;
 	}
@@ -370,37 +409,28 @@ public class ObjectFactory
 	 */
 	public static HashMap<?,?> xmlHashMap(String s)
 	{
-		NodeList items;
-		HashMap<Object,Object> hMap = new HashMap<Object,Object>();
-		items = XmlHandler.getAll(ObjectFactory.stringToNode(s), XmlRef.item);
-		for ( int i = 0; i < items.getLength(); i++ )
-		{
-			hMap.put((Object) loadObject((Element) items.item(i), 
-					XmlRef.keyAttribute , XmlRef.keyTypeAttribute ), 
-					(Object) loadObject((Element) items.item(i)));
-		}
-		return hMap;
+		return xmlHashMap( (Element) ObjectFactory.stringToNode(s) );
 	}
-	
-//	///////////////////////////////////
-//	// Xml writing
-//	///////////////////////////////////
-    
-    /**
-     * TODO work in progress
-     * return partial xml specification of the input object, XMLables are
-     * included as child node, simple objects are include in the value
-     * attribute.
-     * @param obj
-     * @param classLabel
-     * @param valLabel
-     * @return
-     */
-    public static String stringRepresentation(Object obj)
-    {
-    	String simpleName = Helper.firstToUpper(obj.getClass().getSimpleName());
-    	String out = "";
-    	switch (simpleName)
+
+	//	///////////////////////////////////
+	//	// Xml writing
+	//	///////////////////////////////////
+
+	/**
+	 * TODO work in progress
+	 * return partial xml specification of the input object, XMLables are
+	 * included as child node, simple objects are include in the value
+	 * attribute.
+	 * @param obj
+	 * @param classLabel
+	 * @param valLabel
+	 * @return
+	 */
+	public static String stringRepresentation(Object obj)
+	{
+		String simpleName = Helper.firstToUpper(obj.getClass().getSimpleName());
+		String out = "";
+		switch (simpleName)
 		{
 		case ObjectRef.STR_VECT:
 			out = Helper.stringAToString( (String[]) obj );
@@ -426,9 +456,9 @@ public class ObjectFactory
 		default:
 			out =  obj.toString();
 		}
-		
-    	return out;
-    }
+
+		return out;
+	}
 
 	/**
 	 * Attempts to create a deep copy of any input object

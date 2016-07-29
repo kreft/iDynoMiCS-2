@@ -16,26 +16,20 @@
 				the simulation. small test -->
 			<species name="AOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
-				<!-- this has not been made yet, use a static growthrate for now -->
-				<aspect name="specGrowthRate" type="PRIMARY" class="Double" value="0.08" />
 				<speciesModule name="coccoid" />
 				<speciesModule name="stochasticMover" />
 			</species>
 			<species name="coccoid">
-				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"			input="body"		  />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
-
-
 				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
-				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" 			input="volume" />
-				<aspect name="growth" 			type="EVENT" 		class="SimpleGrowth"  	 		input="mass,specGrowthRate" 	 />
-				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"			input="mass,radius,body" 	 />
-
-				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 				input="body,radius,length" 	 />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 			</species>
 			<species name="stochasticMover">
 				<aspect name="stochasticStep" type="PRIMARY" class="Double" value="0.1" />
-				<aspect name="stochasticMove" type="EVENT" class="StochasticMove"  input="body,stochasticStep" />
+				<aspect name="stochasticMove" type="EVENT" class="StochasticMove" />
 			</species>
 		</speciesLib>
 		<compartment name="second">
@@ -103,7 +97,7 @@
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-0"
 					firstStep="0.0" >	
-					<aspect name="solutes" type="PRIMARY" class="String[]" value="solute1,solute2" /> <!--  init -->
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="solute1,solute2" /> <!--  init -->
 				</process>
 			</processManagers>
 		</compartment>

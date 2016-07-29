@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.security.CodeSource;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
@@ -20,6 +21,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import idynomics.Idynomics;
+import referenceLibrary.XmlRef;
 import dataIO.Log.Tier;
 import utility.Helper;
 
@@ -27,7 +29,7 @@ import utility.Helper;
  * \brief Helper class for working with XML files.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class XmlHandler
 {
@@ -163,10 +165,10 @@ public class XmlHandler
 	 */
 	public static String gatherAttribute(Element xmlElement, String attribute)
 	{
-		if ( xmlElement.hasAttribute(attribute) )
+		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
 			return xmlElement.getAttribute(attribute);
 		else
-			return "";
+			return null;
 	}
 	
 	/**
@@ -185,14 +187,32 @@ public class XmlHandler
 	 * \brief This method gets an attribute from an element, if the element does not
 	 * have this attribute it will ask the user.
 	 */
-	public static String obtainAttribute(Element xmlElement, String attribute)
+	public static String obtainAttribute(Element xmlElement, String attribute, String tag)
 	{
-		if ( xmlElement.hasAttribute(attribute) )
+		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
 			return  xmlElement.getAttribute(attribute);
 		else
 		{
 			return Helper.obtainInput(null, "Required " + attribute +
-					" from missing xml node: " + xmlElement.getLocalName());
+					" for node: "  + tag );
+		}
+	}
+	
+	/**
+	 * obtain boolean input
+	 * @param xmlElement
+	 * @param attribute
+	 * @param tag
+	 * @return
+	 */
+	public static boolean obtainBoolean(Element xmlElement, String attribute, String tag)
+	{
+		if ( xmlElement != null && xmlElement.hasAttribute(attribute) )
+			return Boolean.valueOf(xmlElement.getAttribute(attribute));
+		else
+		{
+			return Helper.obtainInput("Required " + attribute +
+					" for node: "  + tag, true );
 		}
 	}
 	
@@ -204,9 +224,9 @@ public class XmlHandler
 	 * @param attribute Name of the attribute sought.
 	 * @return String representation of the attribute required.
 	 */
-	public static String obtainAttribute(Node xmlNode, String attribute)
+	public static String obtainAttribute(Node xmlNode, String attribute, String tag)
 	{
-		return obtainAttribute((Element) xmlNode, attribute);
+		return obtainAttribute((Element) xmlNode, attribute, tag);
 	}
 	
 	/**
@@ -245,7 +265,36 @@ public class XmlHandler
 	 */
 	public static NodeList getAll(Element parent, String tag)
 	{
+		if (parent == null)
+			return null;
 		return parent.getElementsByTagName(tag);
+	}
+	
+	public static Collection<Element> getElements(Element parent, String tag)
+	{
+		LinkedList<Element> out = new LinkedList<Element>();
+		NodeList list = getAll(parent, tag);
+		if ( list != null )
+		{
+			for ( int i = 0; i < list.getLength(); i++)
+				out.add((Element) list.item(i));
+		}
+		return out;
+	}
+	
+	public static Node getSpecific(Element parent, String tag, String attribute, String value)
+	{
+		String v;
+		if (parent == null)
+			return null;
+		NodeList list = parent.getElementsByTagName(tag);
+		for ( int i = 0; i < list.getLength(); i++ )
+		{
+			v = XmlHandler.gatherAttribute(list.item(i), attribute);
+			if (v.equals(value))
+				return list.item(i);
+		}
+		return null;
 	}
 	
 	/**
@@ -285,6 +334,8 @@ public class XmlHandler
 	 */
 	public static Element loadUnique(Element xmlElement, String tagName)
 	{
+		if (xmlElement == null)
+			return null;
 		NodeList nodes =  xmlElement.getElementsByTagName(tagName);
 		if (nodes.getLength() > 1)
 		{
@@ -330,7 +381,7 @@ public class XmlHandler
 					" from missing xml node: " + tagName);
 		}
 		else
-			return obtainAttribute(e, attribute);
+			return obtainAttribute(e, attribute, tagName);
 	}
 
 	/*************************************************************************
@@ -429,6 +480,13 @@ public class XmlHandler
 				}
 			}
 		} 
+	}
+
+	public static boolean hasAttribute(Element p, String attribute) {
+		if (p == null)
+			return false;
+		else
+			return p.hasAttribute(attribute);
 	}
 	
 }

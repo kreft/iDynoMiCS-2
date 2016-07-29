@@ -13,7 +13,7 @@ import utility.Helper;
  * will also include messages of all lower level settings.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class Log
 {
@@ -90,9 +90,7 @@ public class Log
 	}
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @return
+	 * @return String representation of the log file's output level.
 	 */
 	public static String level()
 	{
@@ -100,14 +98,11 @@ public class Log
 	}
 	
 	/**
-	 * Set the output level and create the log file. This method should be
-	 * called before any output is created. If output is written before set is
-	 * called the level will be set to NORMAL.
+	 * \brief Set the output level and create the log file. This method should
+	 * be called before any output is created. If output is written before set
+	 * is called the level will be set to NORMAL.
 	 * 
-	 * <p>FIXME Rob [1Mar2016]: If NORMAL is the default, then why does
-	 * {@link #out(Tier,String)} have an error statement if it is null?</p>
-	 * 
-	 * @param level
+	 * @param level Output level to set to.
 	 */
 	public static void set(Tier level)
 	{
@@ -123,6 +118,29 @@ public class Log
 	public static void set(String level)
 	{
 		set(Tier.valueOf(level));
+	}
+	
+	/**
+	 * \brief Check if the given output level should be written to log.
+	 * 
+	 * <p>Use this for computational efficiency: composing strings is more
+	 * expensive than comparing enums.</p>
+	 * 
+	 * @param level Tier of output level.
+	 * @return {@code true} if this should be written, {@code false} if it
+	 * should not.
+	 */
+	public static boolean shouldWrite(Tier level)
+	{
+		if ( _outputLevel == null )
+		{
+			 _outputLevel = Tier.NORMAL;
+			 printToScreen(
+					 "No output level set, so using NORMAL be default", true);
+			// FIXME this response contradicts the javadoc to set(Tier)
+			//printToScreen("Error: attempt to write log before it is set", true);
+		}
+		return ( level.compareTo(_outputLevel) < 1 );
 	}
 	
 	/**
@@ -142,15 +160,7 @@ public class Log
 		if ( ! _logFile.isReady() )
 			setupFile();
 		/* Try writing to screen and to the log file. */
-		if ( _outputLevel == null )
-		{
-			 _outputLevel = Tier.NORMAL;
-			 printToScreen(
-					 "No output level set, so using NORMAL be default", true);
-			// FIXME this response contradicts the javadoc to set(Tier)
-			//printToScreen("Error: attempt to write log before it is set", true);
-		}
-		else if ( level.compareTo(_outputLevel) < 1 )
+		if ( shouldWrite(level) )
 		{
 			printToScreen(_st.format(new Date())+message, level==Tier.CRITICAL);
 			_logFile.write(_ft.format(new Date()) + message + "\n");
@@ -158,12 +168,10 @@ public class Log
 	}
 	
 	/**
-	 * \brief TODO
-	 *
+	 * \brief Create the log file and get it ready to write.
 	 */
 	public static void setupFile()
 	{
-		//FIXME for some reason this sometimes fails with user provided location
 		_logFile.fnew(Idynomics.global.outputLocation + "/log.txt");
 		_logFile.flushAll();
 		out(Tier.QUIET, Idynomics.fullDescription() + 
@@ -174,10 +182,10 @@ public class Log
 	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Print a message to console screen, ignoring the log file.
 	 * 
-	 * @param message
-	 * @param isError
+	 * @param message String message to display.
+	 * @param isError True if this message should be highlighted to the user.
 	 */
 	// TODO move this method to Helper?
 	public static void printToScreen(String message, boolean isError)

@@ -9,7 +9,7 @@ import java.util.Map;
  * \brief Component of a mathematical expression that is the natural logartihm
  * of another component.
  * 
- * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class LogNatural extends ComponentSingle
 {
@@ -26,7 +26,7 @@ public class LogNatural extends ComponentSingle
 	}
 	
 	@Override
-	public double getValue(Map<String, Double> variables)
+	protected double calculateValue(Map<String, Double> variables)
 	{
 		return Math.log(this._a.getValue(variables));
 	}

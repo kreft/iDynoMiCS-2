@@ -1,6 +1,5 @@
 package glRender;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,17 +11,18 @@ import com.jogamp.opengl.math.Quaternion;
 import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
-import aspect.AspectRef;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Shape;
 import surface.Ball;
 import surface.Rod;
 import surface.Surface;
+import utility.Helper;
 
 
 /**
@@ -57,7 +57,7 @@ public class AgentMediator implements CommandMediator {
 	/*
 	 * kickback, used to move camera back to see entire render scene
 	 */
-	public float _kickback;
+	private float _kickback;
 	
 	/*
 	 * openGL profile
@@ -161,28 +161,30 @@ public class AgentMediator implements CommandMediator {
 					new LinkedList<Surface>()))
 			{
 				_pigment = a.getString("pigment");
+				_pigment = Helper.setIfNone(_pigment, "WHITE");
 				switch (_pigment)
 				{
 				case "GREEN" :
-					  _rgba = new float[] {0.1f, 1f, 0.1f};
+					  _rgba = new float[] {0.0f, 1.0f, 0.0f};
 					  break;
 				case "RED" :
-					  _rgba = new float[] {1f, 0.1f, 0.1f};
+					  _rgba = new float[] {1.0f, 0.0f, 0.0f};
 					  break;
 				case "BLUE" :
-					  _rgba = new float[] {0.1f, 0.1f, 1f};
+					  _rgba = new float[] {0.01f, 0.0f, 1.0f};
 					  break;
 				case "PURPLE" :
 					  _rgba = new float[] {1.0f, 0.0f, 1.0f};
 					  break;
 				case "ORANGE" :
-					  _rgba = new float[] {1f, 0.6f, 0.1f};
+					  _rgba = new float[] {1.0f, 0.6f, 0.1f};
 					  break;
 				case "BLACK" :
 					  _rgba = new float[] {0.0f, 0.0f, 0.0f};
 					  break;
+				case "WHITE" :
 				default :
-					  _rgba = new float[] {1f, 1f, 1f};
+					  _rgba = new float[] {1.0f, 1.0f, 1.0f};
 					  break;
 				}
 				
@@ -220,19 +222,23 @@ public class AgentMediator implements CommandMediator {
 	private void draw(Rod rod) 
 	{
 		Tier level = Tier.BULK;
-		double[] posA = GLUtil.make3D(rod._points[0].getPosition()); /* first sphere */
-		double[] posB = GLUtil.make3D(rod._points[1].getPosition()); /* second sphere*/
+		 /* first sphere */
+		double[] posA = GLUtil.make3D(rod._points[0].getPosition());
+		 /* second sphere*/
+		double[] posB = GLUtil.make3D(rod._points[1].getPosition());
 		
 		posA = GLUtil.searchClosestCyclicShadowPoint(_shape, posA, posB);
 		
 		/* save the transformation matrix, so we do not disturb other drawings */
 		_gl.glPushMatrix();
-     	
-     	applyCurrentColor();
 
-		Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
+		applyCurrentColor();
+
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
 					+ _slices + " slices, " + _stacks + " stacks" );
-
+		}
 		GLUquadric qobj = _glu.gluNewQuadric();
 
 		/* draw first sphere */
@@ -288,27 +294,38 @@ public class AgentMediator implements CommandMediator {
 		double[] length = GLUtil.make3D(shape.getDimensionLengths());
 
 		/* set different color / blending for 3 dimensional Cartesian shapes */
-		_rgba = new float[] {0.3f, 0.3f, 0.3f};
-		if (length[2] > 0){
-			_rgba = new float[] {0.1f, 0.1f, 1f};
+		if (length[2] > 0)
+		{
+			_rgba = new float[] {0.1f, 0.1f, 1.0f};
 			_gl.glEnable(GL2.GL_BLEND);
-			_gl.glDisable(GL2.GL_DEPTH_TEST);
 		}
+		else
+		{
+			_rgba = new float[] {0.3f, 0.3f, 0.3f};
+		}
+		/**
+		 * NOTE moved this here since it seems to resolve black lines in domain 
+		 * square, as long as the domain is drawn first this should not cause
+		 * any problems.
+		 */
+		_gl.glDisable(GL2.GL_DEPTH_TEST); 
 		applyCurrentColor();
 		
 		/* scale y and z relative to x (which we will choose as cube-size) */
 		_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
+
 		
 		/* draw the scaled cube (rectangle).
-		 * Note that a cube with length 0 in one dimension is a plane */
+		 * Note that a cube with length 0 in one dimension is a plane 
+		 */
 		_glut.glutSolidCube((float)length[0]);
 		
-		
-		/* clean up */
-		if (length[2] > 0){
-			_gl.glEnable(GL2.GL_DEPTH_TEST);
-			_gl.glDisable(GL2.GL_BLEND);
-		}
+		/* make sure Depth test is re-enabled and blend is disabled before
+		 * drawing other objects.
+		 */
+		_gl.glEnable(GL2.GL_DEPTH_TEST);
+		_gl.glDisable(GL2.GL_BLEND);
+
 		_gl.glPopMatrix();
 	}
 	
