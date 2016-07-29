@@ -22,7 +22,7 @@ public abstract class PolarShape extends Shape
 	public final static double POLAR_ANGLE_EQ_TOL = 1e-6;
 	
 	@Override
-	public double nbhCurrSharedArea()
+	public double nhbCurrSharedArea()
 	{
 		Tier level = Tier.BULK;
 		double area = 1.0;
@@ -39,9 +39,9 @@ public abstract class PolarShape extends Shape
 			 * We are on a defined boundary, so take the length of the
 			 * current coordinate except in the dimension we are currently moving.
 			 */
-			if ( (this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC))
+			if (this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC)
 			{
-				if(this._nhbDimName == dimName)
+				if(this._nbhDimName == dimName)
 					continue;
 				Log.out(level, "  on boundary for dim "+dimName);
 				temp = this.getResolutionCalculator(this._currentCoord, i)
@@ -85,7 +85,7 @@ public abstract class PolarShape extends Shape
 		 */
 		int i = this.getDimensionIndex(R);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
-		if ( this.isNhbIteratorInside() )
+		if ( this.isNbhIteratorInside() )
 		{
 			if (this._currentCoord[i] > this._currentNeighbor[i])
 				return rC.getCumulativeResolution(this._currentCoord[i] - 1);
@@ -106,8 +106,8 @@ public abstract class PolarShape extends Shape
 	/**
 	 * \brief Used to move neighbor iterator into a new shell.
 	 * 
-	 * <p>May change first and second coordinates, while moving the third to 
-	 * the current coordinate.</p>
+	 * <p>Sets the R coordinate to <b>shellIndex</b>, the PHI - coordinate to  
+	 * first valid index and the THETA coordinate to the current coordinate.</p>
 	 * 
 	 * @param shellIndex Index of the shell you want to move the neighbor
 	 * iterator into.
@@ -115,12 +115,10 @@ public abstract class PolarShape extends Shape
 	 */
 	protected boolean setNbhFirstInNewShell(int shellIndex)
 	{
-		//TODO this will currently not set onto min boundary?
 		Log.out(NHB_ITER_LEVEL, "trying to set neighbor in new shell "+
 				shellIndex);
 		Vector.copyTo(this._currentNeighbor, this._currentCoord);
 		this._currentNeighbor[0] = shellIndex;
-		this._nhbDimName = R;
 		/*
 		 * First check that the new shell is inside the grid. If we're on a
 		 * defined boundary, the angular coordinate is irrelevant.
@@ -130,14 +128,10 @@ public abstract class PolarShape extends Shape
 		if ( where == UNDEFINED ){
 			Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
 			this._whereIsNhb = where;
-			this._nhbDimName = R;
 			return false;
 		}
 		if ( where == DEFINED || where == CYCLIC)
 		{
-			this._nhbDimName = R;
-			this._nhbDirection = this._currentCoord[0] 
-									< this._currentNeighbor[0] ? 1 : 0;
 			this._whereIsNhb = where;
 			Log.out(NHB_ITER_LEVEL, "  success on "+ where +" boundary");
 			return true;
@@ -149,35 +143,26 @@ public abstract class PolarShape extends Shape
 		rC = this.getResolutionCalculator(this._currentCoord, 1);
 		double cur_min = rC.getCumulativeResolution(this._currentCoord[1] - 1);
 		rC = this.getResolutionCalculator(this._currentNeighbor, 1);
+
 		int new_index = rC.getVoxelIndex(cur_min);
+		
 		/* 
 		 * Increase the index if it has approx. the same location as the
 		 * current coordinate
 		 */
-		double cur_max = rC.getCumulativeResolution(new_index);
-		if ( ExtraMath.areEqual(cur_max, cur_min, POLAR_ANGLE_EQ_TOL) )
-			new_index++;
+//		double cur_max = rC.getCumulativeResolution(new_index);
+//		if ( ExtraMath.areEqual(cur_max, cur_min, POLAR_ANGLE_EQ_TOL) )
+//			new_index++;
 		/* If we stepped onto the current coord, we went too far. */
-		if ( (this._currentNeighbor[0] == this._currentCoord[0]) &&
-				(new_index == this._currentCoord[1]) )
-		{
-			Log.out(NHB_ITER_LEVEL,
-					"  failure, stepped onto current coordinate");
-			return false;
-		}
+//		if ( (this._currentNeighbor[0] == this._currentCoord[0]) &&
+//				(new_index == this._currentCoord[1]) )
+//		{
+//			Log.out(NHB_ITER_LEVEL,
+//					"  failure, stepped onto current coordinate");
+//			return false;
+//		}
 		this._currentNeighbor[1] = new_index;
-		/* 
-		 * We are always in the same z-slice as the current coordinate when
-		 * calling this method, so _nbhDimName can not be Z. 
-		 */
-		if ( this._currentCoord[0] == this._currentNeighbor[0] )
-			this._nhbDimName = THETA;
-		else
-			this._nhbDimName = R;
-		int dimIdx = getDimensionIndex(this._nhbDimName);
-		this._nhbDirection = 
-				this._currentCoord[dimIdx]
-						< this._currentNeighbor[dimIdx] ? 1 : 0;
+
 		this._whereIsNhb = WhereAmI.INSIDE;
 		Log.out(NHB_ITER_LEVEL, "  success with index "+new_index);
 		return true;
@@ -196,9 +181,8 @@ public abstract class PolarShape extends Shape
 			  + Arrays.toString(this._currentNeighbor)+" by one polar in "+dim);
 		/* avoid increasing on any boundaries */
 		int index = this.getDimensionIndex(dim);
-//		WhereAmI where = this.whereIsNhb(dim);
-		if ((dim == THETA || this._nhbDimName == R)  && this._whereIsNhb != INSIDE) {
-			Log.out(NHB_ITER_LEVEL, "  failure, already on " +this._nhbDimName
+		if ((dim == THETA || this._nbhDimName == R)  && this._whereIsNhb != INSIDE) {
+			Log.out(NHB_ITER_LEVEL, "  failure, already on " +this._nbhDimName
 					+ " boundary, no point increasing");
 			return false;
 		}
@@ -217,8 +201,6 @@ public abstract class PolarShape extends Shape
 				if (isNoMoreOverlapping(index))
 					return false;
 				this._currentNeighbor[index]++;
-				this._nhbDirection = 1;
-				this._nhbDimName = dim;
 				this._whereIsNhb = this.whereIsNhb(dim);
 				Log.out(NHB_ITER_LEVEL, "  success on "+this._whereIsNhb 
 						+ " boundary");

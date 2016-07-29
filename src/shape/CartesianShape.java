@@ -157,10 +157,21 @@ public abstract class CartesianShape extends Shape
 			if ( ! this.getDimension(dim).isSignificant() )
 				continue;
 			/* See if we can take one of the neighbors. */
-			if ( this.moveNbhToMinus(dim) || this.nbhJumpOverCurrent(dim) )
+			if ( this.moveNhbToMinus(dim) )
 			{
-				this._nhbDimName = dim;
-				this.transformNbhCyclic();
+				this._nbhDirection = 0;
+				this._nbhDimName = dim;
+				this.transformNhbCyclic();
+				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
+						+Vector.toString(this._currentNeighbor)+
+						": status "+this._whereIsNhb);
+				return;
+			}
+			else if ( this.nhbJumpOverCurrent(dim) )
+			{
+				this._nbhDirection = 1;
+				this._nbhDimName = dim;
+				this.transformNhbCyclic();
 				Log.out(NHB_ITER_LEVEL, "   returning transformed neighbor at "
 						+Vector.toString(this._currentNeighbor)+
 						": status "+this._whereIsNhb);
@@ -174,24 +185,26 @@ public abstract class CartesianShape extends Shape
 	{
 		Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
 				Vector.toString(this._currentCoord));
-		this.untransformNbhCyclic();
-		int nbhIndex = this.getDimensionIndex(this._nhbDimName);
+		this.untransformNhbCyclic();
+		int nhbIndex = this.getDimensionIndex(this._nbhDimName);
 		Log.out(NHB_ITER_LEVEL, "   untransformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
-				", trying along "+this._nhbDimName);
-		if ( ! this.nbhJumpOverCurrent(this._nhbDimName))
+				", trying along "+this._nbhDimName);
+		this._nbhDirection = 1;
+		if ( ! this.nhbJumpOverCurrent(this._nbhDimName))
 		{
 			/*
 			 * If we're in X or Y, try to move up one.
 			 * If we're already in Z, then stop.
 			 */
-			nbhIndex++;
-			if ( nbhIndex < 3 )
+			nhbIndex++;
+			if ( nhbIndex < 3 )
 			{
-				this._nhbDimName = this.getDimensionName(nbhIndex);
+				this._nbhDimName = this.getDimensionName(nhbIndex);
+				this._nbhDirection = 0;
 				Log.out(NHB_ITER_LEVEL, "   jumped into dimension "
-						+this._nhbDimName);
-				if ( ! moveNbhToMinus(this._nhbDimName) )
+						+this._nbhDimName);
+				if ( ! moveNhbToMinus(this._nbhDimName) )
 					return nbhIteratorNext();
 			}
 			else
@@ -200,19 +213,19 @@ public abstract class CartesianShape extends Shape
 			}
 		}
 		
-		this.transformNbhCyclic();
+		this.transformNhbCyclic();
 		return this._currentNeighbor;
 	}
 	
 	@Override
-	public double nbhCurrSharedArea()
+	public double nhbCurrSharedArea()
 	{
 		double area = 1.0;
 		ResCalc rC;
 		int index;
 		for ( DimName dim : this.getDimensionNames() )
 		{
-			if ( dim.equals(this._nhbDimName) 
+			if ( dim.equals(this._nbhDimName) 
 					|| ! this.getDimension(dim).isSignificant() )
 				continue;
 			index = this.getDimensionIndex(dim);

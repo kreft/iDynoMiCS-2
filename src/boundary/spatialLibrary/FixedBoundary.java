@@ -68,10 +68,10 @@ public class FixedBoundary extends SpatialBoundary
 		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
 		Log.out(level, "  diffusivity is "+diffusivity);
 		/* Shape handles the shared surface area on a boundary. */
-		double sArea = grid.getShape().nbhCurrSharedArea();
+		double sArea = grid.getShape().nhbCurrSharedArea();
 		Log.out(level, "  surface area is "+sArea);
 		/* Shape handles the centre-centre distance on a boundary. */
-		double dist = grid.getShape().nbhCurrDistance();
+		double dist = grid.getShape().nhbCurrDistance();
 		Log.out(level, "  distance is "+dist);
 		/* The current iterator voxel volume is the same as in SpatialGrid. */
 		double vol = grid.getShape().getCurrVoxelVolume();

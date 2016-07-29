@@ -1,11 +1,13 @@
 package shape;
 
-import static shape.Dimension.DimName;
-import static shape.Dimension.DimName.*;
+import static shape.Dimension.DimName.R;
+import static shape.Dimension.DimName.THETA;
+import static shape.Dimension.DimName.Z;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
+import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Rod;
 import surface.Surface;
@@ -248,40 +250,55 @@ public abstract class CylindricalShape extends PolarShape
 	protected void resetNbhIter()
 	{
 		/* See if we can use the inside r-shell. */
-		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) ) ;
-		/* See if we can take one of the theta-neighbors. */
-		else if (this.moveNbhToMinus(THETA)||this.nbhJumpOverCurrent(THETA)) ;
-		/* See if we can take one of the z-neighbors. */
-		else if (this.moveNbhToMinus(Z)||this.nbhJumpOverCurrent(Z)) ;
+		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) )
+		{ 
+			this._nbhDimName = R;
+			this._nbhDirection = 0;	
+		}
+		/* See if we can take the theta-minus-neighbor. */
+		else if (this.moveNhbToMinus(THETA)) 
+		{
+			this._nbhDimName = THETA;
+			this._nbhDirection = 0;	
+		}
+		/* See if we can take the theta-plus-neighbor. */
+		else if(this.nhbJumpOverCurrent(THETA))
+		{
+			this._nbhDimName = THETA;
+			this._nbhDirection = 1;	
+		}
+		/* See if we can take the z-minus-neighbor. */
+		else if (this.moveNhbToMinus(Z))
+		{
+			this._nbhDimName = Z;
+			this._nbhDirection = 0;	
+		}
+		/* See if we can take the z-plus-neighbor. */
+		else if (this.nhbJumpOverCurrent(Z))
+		{
+			this._nbhDimName = Z;
+			this._nbhDirection = 1;	
+		}
 		/* See if we can use the outside r-shell. */
-		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) ) ;
+		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
+		{
+			this._nbhDimName = R;
+			this._nbhDirection = 1;	
+		}
 		/* There are no valid neighbors. */
 		else
 			this._whereIsNhb = UNDEFINED;
 		if ( this.isNbhIteratorValid() )
 		{
-			transformNbhCyclic();
+			transformNhbCyclic();
 			return;
 		}
 	}
 	
-	//TODO: does it even make sense to cross the r boundary ? 
-	// Or should we just forbid cyclic r (and phi in the sphere) dimensions? 
-//	@Override
-//	protected void transformNbhCyclic() {
-//		super.transformNbhCyclic();
-//		/* lets (additionally) choose a random location on the other side of 
-//		 * the shape when crossing the radial boundary.
-//		 * This will be always zero when moving from max to min */
-//		if (this._nbhDimName == R)
-//			this._currentNeighbor[1] = ExtraMath.random.nextInt(
-//				this._resCalc[1][this._currentNeighbor[0]].getNVoxel());
-//	}
-	
 	@Override
 	public int[] nbhIteratorNext()
 	{
-		this.untransformNbhCyclic();
+		this.untransformNhbCyclic();
 		/*
 		 * In the cylindrical grid, we start the TODO
 		 */
@@ -292,9 +309,15 @@ public abstract class CylindricalShape extends PolarShape
 			 * Try increasing theta by one voxel. If this fails, move out to
 			 * the next shell. If this fails, call this method again.
 			 */
+			this._nbhDimName = R;
+			this._nbhDirection = 0;
 			if ( ! this.increaseNbhByOnePolar(THETA) )
-				if ( ! this.moveNbhToMinus(THETA) )
+			{
+				this._nbhDimName = THETA;
+				this._nbhDirection = 0;
+				if ( ! this.moveNhbToMinus(THETA) )
 					return this.nbhIteratorNext();
+			}
 					
 		}
 		else if ( this._currentNeighbor[0] == this._currentCoord[0] )
@@ -310,17 +333,30 @@ public abstract class CylindricalShape extends PolarShape
 				 * coordinate. If you can't, try switching to the z-minus
 				 * voxel.
 				 */
-				if ( ! this.nbhJumpOverCurrent(THETA) )
-					if ( ! this.moveNbhToMinus(Z) )
+				this._nbhDimName = THETA;
+				this._nbhDirection = 1;
+				if ( ! this.nhbJumpOverCurrent(THETA) )
+				{
+					this._nbhDimName = Z;
+					this._nbhDirection = 0;
+					if ( ! this.moveNhbToMinus(Z) )
 						return this.nbhIteratorNext();
+				}
 			}
-			else if ( ! this.nbhJumpOverCurrent(Z) )
+			else if (this.nhbJumpOverCurrent(Z) )
 			{
+				this._nbhDimName = Z;
+				this._nbhDirection = 1;
+			}
+			else{
 				/*
 				 * We tried to move to the z-plus side of the current
 				 * coordinate, but since we failed we must be finished.
 				 */
-				this.moveNbhToOuterShell();
+				this._nbhDimName = R;
+				this._nbhDirection = 1;
+				if ( ! this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
+					this._whereIsNhb = UNDEFINED;
 			}
 		}
 		else 
@@ -332,19 +368,7 @@ public abstract class CylindricalShape extends PolarShape
 			if ( ! this.increaseNbhByOnePolar(THETA) )
 				this._whereIsNhb = UNDEFINED;
 		}
-		this.transformNbhCyclic();
+		this.transformNhbCyclic();
 		return this._currentNeighbor;
-	}
-	
-	/**
-	 * \brief Try moving the neighbor iterator to the r-shell just outside that
-	 * of the current coordinate.
-	 * 
-	 * <p>Set the neighbor iterator valid flag to false if this fails.</p>
-	 */
-	protected void moveNbhToOuterShell()
-	{
-		if ( ! this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
-			this._whereIsNhb = UNDEFINED;
 	}
 }

@@ -441,7 +441,7 @@ public class SpatialGrid implements NodeConstructor
 	 */
 	public double getValueAtNhb(ArrayType type)
 	{
-		if ( this._shape.isNhbIteratorInside() )
+		if ( this._shape.isNbhIteratorInside() )
 			return this.getValueAt(type, this._shape.nbhIteratorCurrent());
 		else
 		{
@@ -482,11 +482,11 @@ public class SpatialGrid implements NodeConstructor
 	// TODO safety if neighbor iterator or arrays are not initialised.
 	public double getFluxFromNeighbor()
 	{
-		Tier level = Tier.BULK;
+		Tier level = Tier.DEBUG;
 		Log.out(level, " finding flux from nhb "+
 				Vector.toString(this._shape.nbhIteratorCurrent())+" to curr "+
 				Vector.toString(this._shape.iteratorCurrent()));
-		if ( this._shape.isNhbIteratorInside() )
+		if ( this._shape.isNbhIteratorInside() )
 		{
 			/* Difference in concentration. */
 			double concnDiff = this.getValueAtNhb(ArrayType.CONCN)
@@ -498,10 +498,10 @@ public class SpatialGrid implements NodeConstructor
 					this.getValueAtNhb(ArrayType.DIFFUSIVITY));
 			Log.out(level, "    diffusivity is "+diffusivity);
 			/* Surface are the two voxels share (in square microns). */
-			double sArea = this._shape.nbhCurrSharedArea();
+			double sArea = this._shape.nhbCurrSharedArea();
 			Log.out(level, "    surface area is "+sArea);
 			/* Centre-centre distance. */
-			double dist = this._shape.nbhCurrDistance();
+			double dist = this._shape.nhbCurrDistance();
 			Log.out(level, "    distance is "+dist);
 			/* Volume of the current voxel. */
 			double vol = this._shape.getCurrVoxelVolume();

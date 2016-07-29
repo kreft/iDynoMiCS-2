@@ -143,13 +143,13 @@ public final class ShapeLibrary
 		}
 
 		@Override
-		public double nbhCurrDistance()
+		public double nhbCurrDistance()
 		{
 			return 0.0;
 		}
 
 		@Override
-		public double nbhCurrSharedArea()
+		public double nhbCurrSharedArea()
 		{
 			return 0.0;
 		}

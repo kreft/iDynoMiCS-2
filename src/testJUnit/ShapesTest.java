@@ -17,6 +17,7 @@ import shape.ShapeLibrary.Circle;
 import shape.ShapeLibrary.Rectangle;
 import shape.ShapeLibrary.Sphere;
 import shape.resolution.ResolutionCalculator.UniformResolution;
+import utility.ExtraMath;
 
 /**
  * \brief Test class to check that {@code Shape} objects are behaving
@@ -244,6 +245,7 @@ public class ShapesTest
 	@Test
 	public void sphereShouldIterateCorrectly()
 	{
+		AllTests.setupSimulatorForTest(1.0, 1.0, "sphereShouldIterateCorrectly");
 		/* solid boundaries */
 		int[][] coords = new int[][]{ {0,0,0}, {1,0,0}, {1,1,0}, {2,2,1} };
 		int[][][] trueNhb = new int[][][]{
@@ -257,6 +259,18 @@ public class ShapesTest
 			/* current sample (2,2,1) */
 			{ {1,1,0}, {1,1,1}, {2,1,0}, {2,1,1}, {2,2,0}, {2,2,2}, {2,3,1},
 			  {2,3,2} }, 		
+		};
+		double[][] trueArea = new double[][]{
+			/* current sample (0,0,0) */
+			{ 0.210447, 0.287476, 0.287476, 0.392699, 0.392699 }, 
+			/* current sample (1,0,0) */
+			{ 0.210447, 0.916298, 0.916298, 0.307521, 0.267133, 0.267133 }, 	
+			/* current sample (1,1,0) */
+			{ 0.287476, 0.916298, 0.854059, 1.58707, 0.179097, 0.463347,
+			  0.231673, 0.137893, 0.137893 },
+			/* current sample (2,2,1) */
+			{ 0.231673, 0.231673, 0.974585, 0.974585, 1.40113, 1.40113, 1.3414,
+			  1.3414 }, 		
 		};
 		DimName[] dims = new DimName[]{DimName.R, DimName.PHI, DimName.THETA};
 		Shape shp = new Sphere();
@@ -284,7 +298,7 @@ public class ShapesTest
 		/* Check it is correct. */
 		Log.out(DEBUG, "Solid boundaries");
 		/* sphere with polar length pi / 2 and res 1 has 20 voxels in total */
-		checkIterationSamples(shp, coords, trueNhb, 20);
+		checkIterationSamples(shp, coords, trueNhb, trueArea, 20);
 		Log.out(DEBUG, "");
 		/*
 		 * Now try with cyclic dimensions.
@@ -321,7 +335,7 @@ public class ShapesTest
 			for ( shp.resetNbhIterator();
 					shp.isNbhIteratorValid(); shp.nbhIteratorNext() )
 			{
-				if ( shp.isNhbIteratorInside() )
+				if ( shp.isNbhIteratorInside() )
 					nhbCount++;
 			}
 			coord = shp.iteratorCurrent();
@@ -346,6 +360,26 @@ public class ShapesTest
 	private void checkIterationSamples(Shape shp, int[][] sample_coords,
 			int[][][] trueNhb, int nVoxelTotal)
 	{
+		checkIterationSamples(shp, sample_coords, trueNhb, null, nVoxelTotal);
+	}
+	
+	/**
+	 * Evaluates the neighbor iterator at coordinates <b>sample_coords</b>.
+	 * Assures that exactly the neighbors defined in <b>trueNhb</b> are visited
+	 * for each sample coordinate.
+	 * Assures the total number of voxels in the shape is equal to 
+	 * <b>nVoxelTotal</b>.
+	 * Assures that the shared surface area between the neighbors and the
+	 * current coord are equal to <b>trueAreas</b>, if not null.
+	 * 
+	 * @param shp A Shape.
+	 * @param sample_coords Several 3D sample coordinates to be evaluated.
+	 * @param trueNhb Array of true neighbors of the sample coordinates.  
+	 * @param nVoxelTotal The number of voxels in <b>shp</b> in total.
+	 */
+	private void checkIterationSamples(Shape shp, int[][] sample_coords,
+			int[][][] trueNhb, double[][] trueAreas, int nVoxelTotal)
+	{
 		int[] coord, nhb;
 		int iter_count = 0, sample_count = 0, nhb_count = 0;
 		for ( coord = shp.resetIterator(); shp.isIteratorValid(); 
@@ -359,13 +393,23 @@ public class ShapesTest
 				for ( nhb = shp.resetNbhIterator();
 						shp.isNbhIteratorValid(); nhb = shp.nbhIteratorNext() )
 				{
-					if ( shp.isNhbIteratorInside() ){
+					if ( shp.isNbhIteratorInside() ){
 						/* check equality of neighbor and trueNhb coords */
 						Log.out(DEBUG, "Comparing current nhb " 
 							+ Vector.toString(nhb) + " with true nhb "
 							+ Vector.toString(trueNhb[sample_count][nhb_count]));
 						assertTrue(Vector.areSame(
 								trueNhb[sample_count][nhb_count], nhb));
+						if (trueAreas != null){
+							Log.out(DEBUG, "Comparing current nhb area " 
+									+ shp.nhbCurrSharedArea() 
+									+ " with true nhb area "
+									+ trueAreas[sample_count][nhb_count]);
+							assertTrue(ExtraMath.areEqual(
+									shp.nhbCurrSharedArea(), 
+									trueAreas[sample_count][nhb_count],
+									1e-5));
+						}
 						nhb_count++;
 					}
 					

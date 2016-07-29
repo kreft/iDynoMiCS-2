@@ -21,6 +21,7 @@ import processManager.library.SolveDiffusionTransient;
 import shape.Dimension.DimName;
 import shape.Shape;
 import shape.resolution.ResolutionCalculator.UniformResolution;
+import temp.ShapePlot3D;
 import utility.ExtraMath;
 
 /**
@@ -178,7 +179,7 @@ public class PdeTest
 		 */
 		double tStep = 0.1;
 		double tMax = 100.0;
-		int nVoxelR = 3;
+		int nVoxelR = 7;
 		String soluteName = "solute";
 		/* Set up the simulator and log output. */
 		AllTests.setupSimulatorForTest(tStep, tMax,
@@ -259,8 +260,8 @@ public class PdeTest
 		 * Simulation parameters.
 		 */
 		double tStep = 0.1;
-		double tMax = 0.1;
-		int nVoxelR = 3;
+		double tMax = 10;
+		int nVoxelR = 4;
 		String soluteName = "solute";
 		/* Set up the simulator and log output. */
 		AllTests.setupSimulatorForTest(tStep, tMax,
@@ -275,16 +276,17 @@ public class PdeTest
 		rMax.setConcentration("solute", 2.0);
 		comp.addBoundary(rMax);
 		Shape shape = comp.getShape();
+		shape.getDimension(DimName.R).setLength(nVoxelR);
 		UniformResolution resCalc = new UniformResolution();
 		resCalc.setLength(nVoxelR);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.R, resCalc);
 		resCalc = new UniformResolution();
-		resCalc.setLength(2 * Math.PI / 2);
+		resCalc.setLength(Math.PI / 2);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.THETA, resCalc);
 		resCalc = new UniformResolution();
-		resCalc.setLength(2 * Math.PI / 2);
+		resCalc.setLength(Math.PI / 2);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.PHI, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
@@ -303,8 +305,10 @@ public class PdeTest
 		/*
 		 * Run the simulation, computing the mean concentration for
 		 * each time step, stop if mean concentration is equal for  
-		 * two time steps or after 100 time steps. 
+		 * two time steps or max time step reached. 
 		 */
+		ShapePlot3D plot = temp.PolarGridTest.createConcPlot(shape);
+//		ShapePlot3D plot = temp.PolarGridTest.createNbhPlot(shape);
 		double mean_conc = 0, conc_diff = 0, last_conc = 0;
 		while ( Idynomics.simulator.timer.isRunning() )
 		{
@@ -330,7 +334,88 @@ public class PdeTest
 						+" with mean concentration " + mean_conc);
 				break;
 			}
+			plot.plotCurrentConcentrations(sG);
 		}
 		assertTrue(mean_conc > 0 && ExtraMath.areEqual(conc_diff, 0, TOLERANCE));
+	}
+	
+	@Test
+	public void checkDiffusionIndifferentForRadiusInSphere()
+	{
+		/*
+		 * Simulation parameters.
+		 */
+		double tStep = 0.1;
+		double tMax = 1.0;
+		int nVoxelR = 10;
+		String soluteName = "solute";
+		/* Set up the simulator and log output. */
+		AllTests.setupSimulatorForTest(tStep, tMax,
+				"checkDiffusionIndifferentForRadiusInSphere");
+		/*
+		 * Set up the simulation with a single compartment: a cylinder, with
+		 * solid rmin and z and fixed rmax boundary, theta cyclic.
+		 */
+		Compartment comp = Idynomics.simulator.addCompartment("sphere");
+		comp.setShape("sphere");
+		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+		rMax.setConcentration("solute", 2.0);
+		comp.addBoundary(rMax);
+		Shape shape = comp.getShape();
+		shape.getDimension(DimName.R).setLength(nVoxelR);
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(nVoxelR);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.R, resCalc);
+		resCalc = new UniformResolution();
+		resCalc.setLength(Math.PI / 2);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.PHI, resCalc);
+		resCalc = new UniformResolution();
+		resCalc.setLength(Math.PI / 2);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.THETA, resCalc);
+		/* Add the solute (will be initialised with zero concn). */
+		comp.addSolute(soluteName);
+		SpatialGrid sG = comp.getSolute(soluteName);
+		/*
+		 * Set up the diffusion solver.
+		 */
+		SolveDiffusionTransient pm = new SolveDiffusionTransient();
+		pm.setName("DR solver");
+		pm.init(new String[]{soluteName});
+		pm.setTimeForNextStep(0.0);
+		pm.setTimeStepSize(tStep);
+		pm.setPriority(1);
+		comp.addProcessManager(pm);
+		/*
+		 * Run the simulation, checking at each time step that all voxels in a 
+		 * ring have the same concentration.
+		 */
+//		ShapePlot3D plot = temp.PolarGridTest.createNbhPlot(shape);
+		double last_concn = Double.NaN, cur_concn;
+		double[] conc_diff = new double[nVoxelR];
+		while ( Idynomics.simulator.timer.isRunning() )
+		{
+			Idynomics.simulator.step();
+			int ringIndex = -1;
+			for ( shape.resetIterator();
+					shape.isIteratorValid(); shape.iteratorNext() )
+			{
+				if ( shape.iteratorCurrent()[0] != ringIndex )
+				{
+					ringIndex = shape.iteratorCurrent()[0];
+					last_concn = sG.getValueAtCurrent(ArrayType.CONCN);
+				}
+				cur_concn = sG.getValueAtCurrent(ArrayType.CONCN);
+				conc_diff[ringIndex] += Math.abs(last_concn - cur_concn);
+				last_concn = cur_concn;
+			}
+			Log.out(Tier.DEBUG, "Differences along radii for step " 
+						+ Idynomics.simulator.timer.getCurrentTime()+": "
+											+ Arrays.toString(conc_diff));
+			assertTrue(ExtraMath.areEqual(Vector.sum(conc_diff),
+					0, TOLERANCE));
+		}
 	}
 }

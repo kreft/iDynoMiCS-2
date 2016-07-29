@@ -91,7 +91,7 @@ public abstract class PDEsolver extends Solver
 				 * To get the value we must be inside, the flux can be obtained
 				 * from boundary.
 				 */
-				if ( shape.isNhbIteratorInside() )
+				if ( shape.isNbhIteratorInside() )
 				{
 					Log.out(level, 
 						"   nhb "+Vector.toString(shape.nbhIteratorCurrent())+
