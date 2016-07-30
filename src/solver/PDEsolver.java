@@ -156,7 +156,7 @@ public abstract class PDEsolver extends Solver
 				 */
 				if ( Log.shouldWrite(level) )
 				{
-					if ( shape.isNhbIteratorInside() )
+					if ( shape.isNbhIteratorInside() )
 					{
 						Log.out(level, 
 								"   nhb "+Vector.toString(nhb)+

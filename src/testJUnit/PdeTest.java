@@ -5,7 +5,6 @@ import static testJUnit.AllTests.TOLERANCE;
 
 import java.util.Arrays;
 
-import org.apache.log4j.Level;
 import org.junit.Test;
 
 import boundary.spatialLibrary.FixedBoundary;
@@ -21,7 +20,6 @@ import processManager.library.SolveDiffusionTransient;
 import shape.Dimension.DimName;
 import shape.Shape;
 import shape.resolution.ResolutionCalculator.UniformResolution;
-import temp.ShapePlot3D;
 import utility.ExtraMath;
 
 /**
@@ -208,14 +206,15 @@ public class PdeTest
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.Z, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
-		comp.addSolute(soluteName);
+		comp.environment.addSolute(new SpatialGrid(soluteName, 0.0, comp.environment));
 		SpatialGrid sG = comp.getSolute(soluteName);
 		/*
 		 * Set up the diffusion solver.
 		 */
 		SolveDiffusionTransient pm = new SolveDiffusionTransient();
 		pm.setName("DR solver");
-		pm.init(new String[]{soluteName});
+		pm.init(new String[]{soluteName}, comp.environment, 
+				comp.agents, comp.getName());
 		pm.setTimeForNextStep(0.0);
 		pm.setTimeStepSize(tStep);
 		pm.setPriority(1);
@@ -261,8 +260,8 @@ public class PdeTest
 		 * Simulation parameters.
 		 */
 		double tStep = 0.1;
-		double tMax = 10;
-		int nVoxelR = 4;
+		double tMax = 100;
+		int nVoxelR = 7;
 		String soluteName = "solute";
 		/* Set up the simulator and log output. */
 		AllTests.setupSimulatorForTest(tStep, tMax,
@@ -291,14 +290,15 @@ public class PdeTest
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.PHI, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
-		comp.addSolute(soluteName);
+		comp.environment.addSolute(new SpatialGrid(soluteName, 0.0, comp.environment));
 		SpatialGrid sG = comp.getSolute(soluteName);
 		/*
 		 * Set up the diffusion solver.
 		 */
 		SolveDiffusionTransient pm = new SolveDiffusionTransient();
 		pm.setName("DR solver");
-		pm.init(new String[]{soluteName});
+		pm.init(new String[]{soluteName}, comp.environment, 
+				comp.agents, comp.getName());
 		pm.setTimeForNextStep(0.0);
 		pm.setTimeStepSize(tStep);
 		pm.setPriority(1);
@@ -308,8 +308,6 @@ public class PdeTest
 		 * each time step, stop if mean concentration is equal for  
 		 * two time steps or max time step reached. 
 		 */
-		ShapePlot3D plot = temp.PolarGridTest.createConcPlot(shape);
-//		ShapePlot3D plot = temp.PolarGridTest.createNbhPlot(shape);
 		double mean_conc = 0, conc_diff = 0, last_conc = 0;
 		while ( Idynomics.simulator.timer.isRunning() )
 		{
@@ -335,7 +333,6 @@ public class PdeTest
 						+" with mean concentration " + mean_conc);
 				break;
 			}
-			plot.plotCurrentConcentrations(sG);
 		}
 		assertTrue(mean_conc > 0 && ExtraMath.areEqual(conc_diff, 0, TOLERANCE));
 	}
@@ -377,14 +374,15 @@ public class PdeTest
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.THETA, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
-		comp.addSolute(soluteName);
+		comp.environment.addSolute(new SpatialGrid(soluteName, 0.0, comp.environment));
 		SpatialGrid sG = comp.getSolute(soluteName);
 		/*
 		 * Set up the diffusion solver.
 		 */
 		SolveDiffusionTransient pm = new SolveDiffusionTransient();
 		pm.setName("DR solver");
-		pm.init(new String[]{soluteName});
+		pm.init(new String[]{soluteName}, comp.environment, 
+				comp.agents, comp.getName());
 		pm.setTimeForNextStep(0.0);
 		pm.setTimeStepSize(tStep);
 		pm.setPriority(1);

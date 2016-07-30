@@ -62,15 +62,17 @@ public class PDEexplicit extends PDEsolver
 		int nIter = 1;
 		for ( SpatialGrid var : variables )
 		{
-			dt = Math.min(dt, 0.1 * var.getShape().getMaxFluxPotential()  /
-					var.getMin(DIFFUSIVITY));
+			dt = Math.min(dt, var.getMin(DIFFUSIVITY) 
+					/ (var.getShape().getMaxFluxPotential() * 3));
 			if ( Log.shouldWrite(level) )
 			{
-				Log.out(level, "PDEexplicit: variable \""+var.getName()+
-					"\" has min flux "+var.getShape().getMaxFluxPotential() +
+				Log.out(level, "PDEexplicit: variable \""+var.getName()+ "\" has"
+					+ " max flux potential "+var.getShape().getMaxFluxPotential() +
 					" and diffusivity "+var.getMin(DIFFUSIVITY));
 			}
 		}
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "PDEexplicit adjusted ministep size to "+dt);
 		/* If the mini-timestep is less than tFinal, split it up evenly. */
 		if ( dt < tFinal )
 		{

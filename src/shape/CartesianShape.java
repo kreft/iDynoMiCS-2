@@ -218,6 +218,7 @@ public abstract class CartesianShape extends Shape
 		{
 			Log.out(NHB_ITER_LEVEL, " Looking for next nhb of "+
 				Vector.toString(this._currentCoord));
+		}
 		this.untransformNhbCyclic();
 		int nhbIndex = this.getDimensionIndex(this._nbhDimName);
 		if ( Log.shouldWrite(NHB_ITER_LEVEL) )

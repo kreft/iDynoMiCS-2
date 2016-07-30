@@ -1363,6 +1363,33 @@ public abstract class Shape implements
 		this._currentNeighbor = (storeNbh==null) ? null:Vector.copy(storeNbh);
 	}
 	
+	public double getMinVoxelDistance(){
+		int[] storeIter = null;
+		int[] storeNbh = null;
+		if ( this._currentCoord != null )
+			storeIter = Vector.copy(this._currentCoord);
+		if ( this._currentNeighbor != null )
+			storeNbh = Vector.copy(this._currentNeighbor);
+		/*
+		 * Loop over all voxels, finding the greatest flux potential.
+		 */
+		double min = Double.POSITIVE_INFINITY;
+		this._maxFluxPotentl = Double.NEGATIVE_INFINITY;
+		for (this.resetIterator(); this.isIteratorValid(); this.iteratorNext())
+		{
+			for ( this.resetNbhIterator();
+						this.isNbhIteratorValid(); this.nbhIteratorNext() )
+				min = Math.min(min, this.nhbCurrDistance());
+		}
+		/*
+		 * Put the iterators back to their stored values.
+		 */
+		this._currentCoord = (storeIter == null) ? null:Vector.copy(storeIter);
+		this._currentNeighbor = (storeNbh==null) ? null:Vector.copy(storeNbh);
+		
+		return min;
+	}
+	
 	/**
 	 * \brief Calculate the volume of the voxel specified by the given
 	 * coordinates.
@@ -1741,6 +1768,7 @@ public abstract class Shape implements
 			Log.out(NHB_ITER_LEVEL, "   pre-transformed neighbor at "+
 				Vector.toString(this._currentNeighbor)+
 				": status "+this._whereIsNhb);
+		}
 		Dimension dim = getDimension(this._nbhDimName);
 		if ( (this._whereIsNhb == CYCLIC) && dim.isCyclic() )
 		{
@@ -1815,8 +1843,6 @@ public abstract class Shape implements
 		/* Check that this coordinate is acceptable. */
 		WhereAmI where = this.whereIsNhb(dim);
 		this._whereIsNhb = where;
-		this._nhbDirection = 0;
-		this._nhbDimName = dim;
 		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
 		{
 			Log.out(NHB_ITER_LEVEL,
@@ -1913,7 +1939,7 @@ public abstract class Shape implements
 		 */
 		if ( this.isNbhIteratorInside() )
 		{
-			
+			rC = this.getResolutionCalculator(this._currentNeighbor, i);
 			out += rC.getResolution(this._currentNeighbor[i]);
 			out *= 0.5;
 		}

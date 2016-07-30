@@ -747,7 +747,6 @@ public abstract class SphericalShape extends PolarShape
 			area *= ExtraMath.cube(r1) - ExtraMath.cube(r2);
 			area *= theta1 - theta2;
 			area /= 3;
-			area *= (phi2 / phi1);
 			break;
 		case THETA: /* phi-r plane */
 			area *= ExtraMath.cube(r2) - ExtraMath.cube(r1);

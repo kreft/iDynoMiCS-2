@@ -210,7 +210,6 @@ public abstract class PolarShape extends Shape
 			return false;
 		}
 		Dimension dimension = this.getDimension(dim);
-		int index = this.getDimensionIndex(dim);
 		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, index);
 		/* If we are already on the maximum boundary, we cannot go further. */
 		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 )
