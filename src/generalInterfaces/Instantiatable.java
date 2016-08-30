@@ -60,7 +60,7 @@ public interface Instantiatable
 	}
 	
 	/**
-	 * \brief Generic instantiation for objects added trough gui or xml.
+	 * \brief Generic instantiation for objects added through GUI or xml.
 	 * 
 	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten.</p>
 	 * @param className

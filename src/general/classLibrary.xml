@@ -37,4 +37,7 @@
 	<classDef package="agent." name="SpeciesLib" />
 	<classDef package="agent." name="Agent" />
 	<classDef package="aspect." name="Aspect" />
+<!-- diffusivity setter classes -->
+	<classDef package="grid.diffusivitySetter." name="AllSameDiffuse" />
+	<classDef package="grid.diffusivitySetter." name="ScaledIfBiomassPresent" />
 </document>

@@ -18,6 +18,8 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import dataIO.XmlHandler;
+import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.diffusivitySetter.AllSameDiffuse;
@@ -92,6 +94,26 @@ public class SolveDiffusionTransient extends ProcessManager
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 		this.init(environment, agents, compartmentName);
+		/*
+		 * Now look for diffusivity setters.
+		 */
+		this._diffusivity = new HashMap<String,IsDiffusivitySetter>();
+		Collection<Element> diffusivityElements =
+				XmlHandler.getElements(xmlElem, XmlRef.diffusivitySetter);
+		for ( Element dElem : diffusivityElements )
+		{
+			String soluteName = dElem.getAttribute(XmlRef.solute);
+			String className = dElem.getAttribute(XmlRef.classAttribute);
+			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
+					Instantiatable.getNewInstance(className, dElem, this);
+			this._diffusivity.put(soluteName, diffusivity);
+		}
+		/* Plug any gaps (FIXME temporary measure). */
+		for ( String sName : this._soluteNames )
+			if ( ! this._diffusivity.containsKey(sName) )
+			{
+				this._diffusivity.put(sName, new AllSameDiffuse(1.0));
+			}
 	}
 	
 	/**
@@ -107,8 +129,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
 				Helper.collectionToArray(
 				this._environment.getSoluteNames()));
-		init( soluteNames, environment, 
-				agents, compartmentName );
+		this.init( soluteNames, environment, agents, compartmentName );
 	}
 	
 	public void init( String[] soluteNames, EnvironmentContainer environment, 
@@ -121,12 +142,6 @@ public class SolveDiffusionTransient extends ProcessManager
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
 		this._solver.setUpdater(this.standardUpdater());
-		// TODO enter a diffusivity other than one!
-		this._diffusivity = new HashMap<String,IsDiffusivitySetter>();
-		for ( String sName : this._soluteNames )
-		{
-			this._diffusivity.put(sName, new AllSameDiffuse(1.0));
-		}
 		String msg = "SolveDiffusionTransient responsible for solutes: ";
 		for ( String s : this._soluteNames )
 			msg += s + ", ";

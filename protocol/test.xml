@@ -132,6 +132,7 @@
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
 					firstStep="0.0" timerStepSize="0.5">
+					<diffusivitySetter solute="solute1" class="AllSameDiffuse" defaultDiffusivity="1.0" />
 				</process>
 			</processManagers>
 		</compartment>
