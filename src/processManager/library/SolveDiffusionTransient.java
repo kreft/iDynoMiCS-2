@@ -4,7 +4,6 @@
 package processManager.library;
 
 import static grid.ArrayType.CONCN;
-import static grid.ArrayType.DIFFUSIVITY;
 import static grid.ArrayType.PRODUCTIONRATE;
 import static dataIO.Log.Tier.*;
 
@@ -21,6 +20,8 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
+import grid.diffusivitySetter.AllSameDiffuse;
+import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
@@ -62,14 +63,6 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	private static String VOLUME_DISTRIBUTION_MAP = AspectRef.agentVolumeDistributionMap;
 	/**
-	 * Aspect name for the TODO
-	 */
-	private static String INTERNAL_PRODUCTION_RATE = AspectRef.internalProductionRate;
-	/**
-	 * Aspect name for the TODO
-	 */
-	private static String GROWTH_RATE = AspectRef.growthRate;
-	/**
 	 * Instance of a subclass of {@code PDEsolver}, e.g. {@code PDEexplicit}.
 	 */
 	protected PDEsolver _solver;
@@ -78,10 +71,9 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	protected String[] _soluteNames;
 	/**
-	 * TODO 
+	 * Diffusivity setter for each solute present.
 	 */
-	// TODO replace with diffusivitySetter
-	protected HashMap<String,Double> _diffusivity;
+	protected Map<String,IsDiffusivitySetter> _diffusivity;
 	
 	/**
 	 * TODO
@@ -130,9 +122,11 @@ public class SolveDiffusionTransient extends ProcessManager
 		this._solver.init(this._soluteNames, false);
 		this._solver.setUpdater(this.standardUpdater());
 		// TODO enter a diffusivity other than one!
-		this._diffusivity = new HashMap<String,Double>();
+		this._diffusivity = new HashMap<String,IsDiffusivitySetter>();
 		for ( String sName : this._soluteNames )
-			this._diffusivity.put(sName, 1.0);
+		{
+			this._diffusivity.put(sName, new AllSameDiffuse(1.0));
+		}
 		String msg = "SolveDiffusionTransient responsible for solutes: ";
 		for ( String s : this._soluteNames )
 			msg += s + ", ";
@@ -165,8 +159,8 @@ public class SolveDiffusionTransient extends ProcessManager
 		for ( String soluteName : this._soluteNames )
 		{
 			SpatialGrid solute = this._environment.getSoluteGrid(soluteName);
-			// TODO use diffusivitySetter
-			solute.newArray(DIFFUSIVITY, this._diffusivity.get(soluteName));
+			IsDiffusivitySetter setter = this._diffusivity.get(soluteName);
+			setter.updateDiffusivity(solute, this._environment, this._agents);
 		}
 		/*
 		 * Solve the PDEs of diffusion and reaction.
