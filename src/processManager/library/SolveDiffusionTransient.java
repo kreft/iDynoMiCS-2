@@ -132,7 +132,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		// TODO enter a diffusivity other than one!
 		this._diffusivity = new HashMap<String,Double>();
 		for ( String sName : this._soluteNames )
-			this._diffusivity.put(sName, 1.0);
+			this._diffusivity.put(sName, 1.0); //FIXME this should really be fixed
 		String msg = "SolveDiffusionTransient responsible for solutes: ";
 		for ( String s : this._soluteNames )
 			msg += s + ", ";

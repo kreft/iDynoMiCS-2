@@ -69,7 +69,7 @@
 			</species>
 		</speciesLib>
 
-		<compartment name="noPrefPull">
+		<compartment name="myCompartment">
 			<shape class="Cuboid">
 				<dimension name="X" isCyclic="true" targetResolution="1.0" max="15.0"/>
 				<dimension name="Y" isCyclic="true" targetResolution="1.0" max="15.0"/>
