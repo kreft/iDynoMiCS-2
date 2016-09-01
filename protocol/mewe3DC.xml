@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="mewe3DA" outputfolder="../../mewe" log="DEBUG"
+	<simulation name="mewe3DC" outputfolder="../../mewe" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<speciesLib>
@@ -41,7 +41,7 @@
 						<reaction name="testReact2" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) ) * (kinh / (kinh + solute1)">
 								<constant name="k" value="0.001" />		
-								<constant name="kinh" value="0.02" />
+								<constant name="kinh" value="0.002" />
 								<constant name="mumax" value="1.0" />
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
@@ -54,7 +54,7 @@
 			
 			
 			<species name="tube">
-				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="WHITE" />
 				<speciesModule name="rod" />
 			</species>
 			
@@ -62,8 +62,8 @@
 			
 				<aspect name="pullDistance" type="PRIMARY" class="Double"	value="0.05" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	  />
-				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="mass/density" />
-				<aspect name="radius" 			type="PRIMARY" 		class="Double" 					value="1.0" />
+				<aspect name="volume" 			type="CALCULATED" 	class="StateExpression" 		input="42.0" />
+				<aspect name="radius" 			type="PRIMARY" 		class="Double" 					value="0.8" />
 				<aspect name="#isLocated" 		type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" 	 />
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
@@ -112,9 +112,9 @@
 
 		<compartment name="myCompartment">
 			<shape class="Cuboid">
-				<dimension name="X" isCyclic="true" targetResolution="1.0" max="20.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="40.0"/>
 				<dimension name="Y" isCyclic="true" targetResolution="1.0" max="3.0"/>
-				<dimension name="Z" isCyclic="false" targetResolution="1.0" max="10.0"/>
+				<dimension name="Z" isCyclic="false" targetResolution="1.0" max="15.0"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="1.0" />
@@ -124,35 +124,26 @@
 			</reactions>
 			<agents>
 				<agent>
-					<aspect name="species" type="PRIMARY" class="String" value="species1" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
-					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
-					<spawn number="20" domain="20.0,3.0,0.05" />
-				</agent>
-				<agent>
-					<aspect name="species" type="PRIMARY" class="String" value="species2" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
-					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
-					<spawn number="20" domain="20.0,3.0,0.05" />
-				</agent>
-				<!-- <agent>
-					<aspect name="species" type="PRIMARY" class="String" value="species1" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
-					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
-					<spawn number="12" domain="15.0,6.0,20.0" />
-				</agent> -->
-				
-				<!--  <agent>
 					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
 					</aspect>				
 					<aspect name="species" type="PRIMARY" class="String" value="tube" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="30.0" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="200.0" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="4.0, 3.0, 8.0" />
-						<point position="11.0, 3.0, 16.0" />
+						<point position="0.0, 1.5, 9.0" />
+						<point position="18.0, 1.5, 9.0" />
 					</aspect>
-				</agent> -->
+				</agent>
+				<agent>
+					<aspect name="volumeDistribution" type="PRIMARY" class="HashMap">
+					</aspect>				
+					<aspect name="species" type="PRIMARY" class="String" value="species1" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="1.0" />
+					<aspect name="density" type="PRIMARY" class="Double" value="1" />
+					<aspect name="body" type="PRIMARY" class="Body">
+						<point position="17.0, 0.5, 9.0" />
+					</aspect>
+				</agent>
 			</agents>
 			<processManagers>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
@@ -169,7 +160,7 @@
 					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
 				</process>
 				<process name="povWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="0.1">
+					firstStep="0.0"  timerStepSize="1.0">
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
 				</process>
 				<process name="agentRelax" class="AgentRelaxation" priority="-2"
