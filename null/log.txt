@@ -1,0 +1,21 @@
+[2016.08.31 16:55:17] iDynoMiCS 2.0 (alpha build 2016.06.02)
+Output level is null, starting at [2016.08.31 16:55:17] 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[2016.08.31 16:55:17] Aquired input: null
+[2016.08.31 16:55:18] Aquired input: null
+[2016.08.31 16:55:19] Aquired input: null
+[2016.09.01 11:37:32] iDynoMiCS 2.0 (alpha build 2016.06.02)
+Output level is null, starting at [2016.09.01 11:37:32] 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[2016.09.01 11:37:32] Aquired input: null
+[2016.09.01 11:37:34] Aquired input: null
+[2016.09.01 11:37:36] Aquired input: null
+[2016.09.01 11:37:57] iDynoMiCS 2.0 (alpha build 2016.06.02)
+Output level is null, starting at [2016.09.01 11:37:57] 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+[2016.09.01 11:37:57] Aquired input: null
+[2016.09.01 11:37:58] Aquired input: null
+[2016.09.01 11:37:58] Aquired input: null
