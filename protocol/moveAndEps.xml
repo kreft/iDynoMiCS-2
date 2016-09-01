@@ -29,8 +29,7 @@
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute2" coefficient="-1.0" />
 						</reaction> 
-					</reactions>
-					<item type="PRIMARY" class="Reaction">
+					
 						<reaction name="epsReact">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) )">
 								<constant name="k" value="0.1" />

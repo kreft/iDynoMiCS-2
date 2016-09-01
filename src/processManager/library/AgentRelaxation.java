@@ -194,8 +194,8 @@ public class AgentRelaxation extends ProcessManager
 					double[] diff 	= this._shape.getMinDifference(
 							a.getPosition(), b.getPosition() );
 					double dn 		= Vector.normEuclid(diff);
-					if (dn > 2.0 )
-						System.out.println(dn);
+//					if (dn > 2.0 )
+//						System.out.println(dn);
 					
 					/*
 					 * Hooke's law: spring stiffness * displacement
