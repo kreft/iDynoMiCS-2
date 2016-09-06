@@ -112,6 +112,8 @@ public class SolveDiffusionTransient extends ProcessManager
 		for ( String sName : this._soluteNames )
 			if ( ! this._diffusivity.containsKey(sName) )
 			{
+				Log.out(Tier.CRITICAL, 
+						"WARNING: Using default diffusivity for solute "+sName);
 				this._diffusivity.put(sName, new AllSameDiffuse(1.0));
 			}
 	}

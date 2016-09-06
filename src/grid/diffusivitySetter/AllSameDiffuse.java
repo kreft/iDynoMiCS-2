@@ -7,7 +7,6 @@ import grid.SpatialGrid;
 import static grid.ArrayType.DIFFUSIVITY;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
 import idynomics.AgentContainer;
