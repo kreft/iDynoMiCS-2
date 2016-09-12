@@ -391,7 +391,6 @@ public class PdeTest
 		 * Run the simulation, checking at each time step that all voxels in a 
 		 * ring have the same concentration.
 		 */
-//		ShapePlot3D plot = temp.PolarGridTest.createNbhPlot(shape);
 		double last_concn = Double.NaN, cur_concn;
 		double[] conc_diff = new double[nVoxelR];
 		while ( Idynomics.simulator.timer.isRunning() )
