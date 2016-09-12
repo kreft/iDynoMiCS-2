@@ -8,6 +8,7 @@ import static shape.Shape.WhereAmI.UNDEFINED;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
+import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Rod;
 import surface.Surface;
@@ -39,16 +40,24 @@ public abstract class CylindricalShape extends PolarShape
 		this._dimensions.put(R, dim);
 		this._resCalc[getDimensionIndex(R)] = new ResCalc[1];
 		/*
-		 * The theta-dimension is insignificant, unless told otherwise later.
+		 * The theta-dimension must be significant.
 		 */
-		dim = new Dimension(false, THETA);
+		dim = new Dimension(true, THETA);
 		this._dimensions.put(THETA, dim);
+		this._resCalc[getDimensionIndex(THETA)] = new ResCalc[1];
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
 		dim = new Dimension(false, Z);
 		this._dimensions.put(Z, dim);
 		this._resCalc[getDimensionIndex(Z)] = new ResCalc[1];
+		
+		for ( int i = 0; i < 3; i++ )
+		{
+			SingleVoxel sV = new SingleVoxel();
+			sV.init(1.0, 1.0);
+			this._resCalc[i][0] = sV;
+		}
 	}
 	
 	@Override
@@ -166,7 +175,6 @@ public abstract class CylindricalShape extends PolarShape
 		if ( dim == 1 )
 		{
 			index = coord[0];
-			// TODO check if valid?
 		}
 		return this._resCalc[dim][index];
 	}

@@ -1,5 +1,6 @@
 package glRender;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
+import shape.Dimension.DimName;
 import shape.Shape;
 import surface.Ball;
 import surface.Rod;
@@ -85,7 +87,9 @@ public class AgentMediator implements CommandMediator {
 	private int _slices = 16, _stacks = 16;
 	
 	private float[] _orthoX = new float[]{1,0,0}, _orthoY = new float[]{0,1,0},
-					_orthoZ = new float[]{0,0,1}, _rotTemp = new float[16];;
+					_orthoZ = new float[]{0,0,1}, _rotTemp = new float[16];
+	
+	int[][] voxel_coords;
 
 	/**
 	 * used to set up the open gl camera
@@ -107,6 +111,17 @@ public class AgentMediator implements CommandMediator {
 		/* determine kickback for camera positioning */
 		_kickback = (float) Math.max(_domainLength[0],
 				Math.max(_domainLength[1], _domainLength[2]));
+		
+		ArrayList<int[]> temp = new ArrayList<>();
+		for (int[] cur = _shape.resetIterator();
+				_shape.isIteratorValid(); cur = _shape.iteratorNext() )		
+			temp.add(cur);
+		
+		voxel_coords = new int[temp.size()][3];
+		for (int i=0; i<temp.size(); ++i){
+			System.out.println(Vector.toString(temp.get(i)));
+			voxel_coords[i] = temp.get(i);
+		}
 	}
 	
 	/**
@@ -114,8 +129,6 @@ public class AgentMediator implements CommandMediator {
 	 * context with this CommandMediator.   
 	 * This should be called at the end of the GLEventListener's initialization
 	 * method (glRender.Render in our case). 
-	 * TODO: this assumes that the AgentContainer is always associated to the
-	 * same Compartment / Shape, is this satisfied?
 	 */
 	public void init(GLAutoDrawable drawable){
 		/* set openGL profile */
@@ -141,6 +154,7 @@ public class AgentMediator implements CommandMediator {
 		if (_shape instanceof CartesianShape){
 			draw((CartesianShape) _shape);
 		}
+//		draw(_shape);
 		
 		/* 
      	 * Adjust positioning for the domain (prevent the scene from being
@@ -255,15 +269,8 @@ public class AgentMediator implements CommandMediator {
 		/* save the matrix to rotate only the cylinder */
 		_gl.glPushMatrix();
 		
-		/* NOTE: this assumes agents are rendered one after the other! */
-		Quaternion quat = new Quaternion();
-		/* this will create a quaternion, so that we rotate from looking
-		 * along the Z-axis (which is the default orientation of a GLU-cylinder)
-		 * to look from posA to posB */
-		quat.setLookAt(Vector.toFloat(dp), _orthoZ, _orthoX, _orthoY, _orthoZ);
-		/* transform the quaternion into a rotation matrix and apply it */
-		//TODO: is there a way to make openGL use the quaternion directly?
-		_gl.glMultMatrixf(quat.toMatrix(_rotTemp, 0), 0);
+		/* set rotation to look from posA to posB */
+		glRotated(dp);
 
 		/* create and draw the cylinder */
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
@@ -329,9 +336,65 @@ public class AgentMediator implements CommandMediator {
 		_gl.glPopMatrix();
 	}
 	
-	private void draw(CylindricalShape shape){
-		
-	}
+//	private void draw(Shape shape){
+//		/* save the current modelview matrix */
+//		_gl.glPushMatrix();
+//		
+//		double[] length = GLUtil.make3D(shape.getDimensionLengths());
+//
+//		/* set different color / blending for 3 dimensional Cartesian shapes */
+//		if (length[2] > 0)
+//		{
+//			_rgba = new float[] {0.1f, 0.1f, 1.0f};
+//			_gl.glEnable(GL2.GL_BLEND);
+//		}
+//		else
+//		{
+//			_rgba = new float[] {0.3f, 0.3f, 0.3f};
+//		}
+//		/**
+//		 * NOTE moved this here since it seems to resolve black lines in domain 
+//		 * square, as long as the domain is drawn first this should not cause
+//		 * any problems.
+//		 */
+//		_gl.glDisable(GL2.GL_DEPTH_TEST); 
+//		applyCurrentColor();
+//		
+//		int[] cur;
+//		double[] centre = new double[3], orig = new double[3],
+//				 pz = new double[3], pz_inside = new double[]{0, 0, 1};
+//		
+//		for (int i = 0; i < voxel_coords.length; ++i)
+//		{			
+//			_gl.glPushMatrix();
+//			
+//			/* update voxel properties */
+//			cur = voxel_coords[i];
+//			shape.voxelCentreTo(centre, cur);
+//			shape.voxelOriginTo(orig, cur);
+//			shape.getVoxelSideLengthsTo(length, cur);
+//			shape.locationTo(pz, cur, pz_inside);
+//			
+//			/* scale second and third dim relative to first dim */
+//			_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
+//			
+////			glRotated(Vector.minus(pz, orig));
+//			
+//			_gl.glTranslated(centre[0], centre[1], centre[2]);
+//
+//			_glut.glutSolidCube((float)length[0]);
+//			
+//			_gl.glPopMatrix();
+//		}
+//		
+//		/* make sure Depth test is re-enabled and blend is disabled before
+//		 * drawing other objects.
+//		 */
+//		_gl.glEnable(GL2.GL_DEPTH_TEST);
+//		_gl.glDisable(GL2.GL_BLEND);
+//
+//		_gl.glPopMatrix();
+//	}
 	
 	/**
 	 * Sets the current ambient and specular color to <b>this._rgba</b> 
@@ -343,5 +406,22 @@ public class AgentMediator implements CommandMediator {
 		_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, _rgba, 0);
 		_gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
 		_gl.glColor3f(_rgba[0], _rgba[1], _rgba[2]);
+	}
+	
+	/**
+	 * The default orientation of the rotated objects is assumed to look at the 
+	 * positive Z axis. 
+	 * 
+	 * @param direc
+	 */
+	private void glRotated(double[] direc){
+		/* NOTE: this assumes agents are rendered one after the other! */
+		Quaternion quat = new Quaternion();
+		/* this will create a quaternion, so that we rotate from looking
+		 * along the Z-axis (which is the default orientation) */
+		quat.setLookAt(Vector.toFloat(direc), _orthoZ, _orthoX, _orthoY, _orthoZ);
+		/* transform the quaternion into a rotation matrix and apply it */
+		//TODO: is there a way to make openGL use the quaternion directly?
+		_gl.glMultMatrixf(quat.toMatrix(_rotTemp, 0), 0);
 	}
 }

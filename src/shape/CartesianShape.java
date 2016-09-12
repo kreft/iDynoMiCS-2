@@ -37,8 +37,6 @@ public abstract class CartesianShape extends Shape
 		 * Fill the resolution calculators with dummies for now: they should
 		 * be overwritten later.
 		 */
-		//TODO Stefan: Why do we need this?
-		// 			   Shouldn't ResCalc be null if no dimension is specified?
 		for ( int i = 0; i < 3; i++ )
 		{
 			SingleVoxel sV = new SingleVoxel();

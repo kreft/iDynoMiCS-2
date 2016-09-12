@@ -52,7 +52,7 @@ public class PDEexplicit extends PDEsolver
 	public void solve(Collection<SpatialGrid> variables,
 			SpatialGrid commonGrid, double tFinal)
 	{
-		Tier level = BULK;
+		Tier level = DEBUG;
 		/*
 		 * Find the largest time step that suits all variables.
 		 */
@@ -62,8 +62,8 @@ public class PDEexplicit extends PDEsolver
 		int nIter = 1;
 		for ( SpatialGrid var : variables )
 		{
-			dt = Math.min(dt, var.getMin(DIFFUSIVITY) 
-					/ (var.getShape().getMaxFluxPotential() * 3));
+			dt = Math.min(dt, 1
+					/  (var.getMax(DIFFUSIVITY) * (var.getShape().getMaxFluxPotential() * var.getShape().getNumberOfDimensions())));
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, "PDEexplicit: variable \""+var.getName()+ "\" has"

@@ -63,6 +63,10 @@ import utility.Helper;
  * 								Friedrich-Schiller University Jena, Germany 
  */
 // TODO remove the last three sections by incorporation into Node construction.
+/**
+ * @author qwer
+ *
+ */
 public abstract class Shape implements
 					CanPrelaunchCheck, Instantiatable, NodeConstructor
 {
@@ -112,6 +116,14 @@ public abstract class Shape implements
 	 */
 	protected Collection<Boundary> _otherBoundaries = 
 													new LinkedList<Boundary>();
+	/**
+	 * An array to store the current iterator state.
+	 */
+	protected int[] storeIter;
+	/**
+	 * An array to store the current neighborhood iterator state.
+	 */
+	protected int[] storeNbh;
 	/**
 	 * Current coordinate considered by the internal iterator.
 	 */
@@ -1320,16 +1332,8 @@ public abstract class Shape implements
 	{
 		Tier level = BULK;
 		Log.out(level, "Calculating maximum flux potential");
-		/*
-		 * Store the two iterators, in case we're in the middle of an
-		 * iteration.
-		 */
-		int[] storeIter = null;
-		int[] storeNbh = null;
-		if ( this._currentCoord != null )
-			storeIter = Vector.copy(this._currentCoord);
-		if ( this._currentNeighbor != null )
-			storeNbh = Vector.copy(this._currentNeighbor);
+		
+		this.saveCurrentIteratorState();
 		/*
 		 * Loop over all voxels, finding the greatest flux potential.
 		 */
@@ -1356,11 +1360,8 @@ public abstract class Shape implements
 			this._maxFluxPotentl = Math.max(this._maxFluxPotentl, max/volume);
 		}
 		Log.out(level, " Maximum flux potential is "+this._maxFluxPotentl);
-		/*
-		 * Put the iterators back to their stored values.
-		 */
-		this._currentCoord = (storeIter == null) ? null:Vector.copy(storeIter);
-		this._currentNeighbor = (storeNbh==null) ? null:Vector.copy(storeNbh);
+		
+		this.loadSavedIteratorState();
 	}
 	
 	public double getMinVoxelDistance(){
@@ -1427,6 +1428,25 @@ public abstract class Shape implements
 			Vector.reset(this._currentCoord);
 		this.updateCurrentNVoxel();	
 		return this._currentCoord;
+	}
+	
+	public void saveCurrentIteratorState(){
+		/*
+		 * Store the two iterators, in case we're in the middle of an
+		 * iteration and want to start a new iteration.
+		 */
+		if ( this._currentCoord != null )
+			storeIter = Vector.copy(this._currentCoord);
+		if ( this._currentNeighbor != null )
+			storeNbh = Vector.copy(this._currentNeighbor);
+	}
+	
+	public void loadSavedIteratorState(){
+		/*
+		 * Put the iterators back to their stored values.
+		 */
+		this._currentCoord = (storeIter == null) ? null:Vector.copy(storeIter);
+		this._currentNeighbor = (storeNbh==null) ? null:Vector.copy(storeNbh);
 	}
 
 	/**
