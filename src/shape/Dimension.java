@@ -192,7 +192,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			for ( int i = 0; i < bndNodes.getLength(); i++ )
 			{
 				bndElem = (Element) bndNodes.item(i);
-				str = XmlHandler.gatherAttribute(elem, XmlRef.nameAttribute);
+				str = XmlHandler.gatherAttribute(bndElem, XmlRef.nameAttribute);
 				str = Helper.obtainInput(str, "dimension extreme (min/max)");
 				str = str.toLowerCase();
 				if ( str.equals("min") )
@@ -206,7 +206,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				}
 				
 				str = bndElem.getAttribute(XmlRef.classAttribute);
-				// FIXME
+				// FIXME this does not work since boundaries are not instantiatable
 				aBoundary = (SpatialBoundary) SpatialBoundary.getNewInstance(str);
 				aBoundary.init(bndElem);
 				this.setBoundary(aBoundary, index);	

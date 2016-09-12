@@ -47,8 +47,8 @@
 
 		<compartment name="second">
 			<shape class="Circle" >
-				<dimension name="R" targetResolution="1" max="10"/>
-				<dimension name="THETA" isCyclic="true" targetResolution="1" max="120"/>
+				<dimension name="R" targetResolution="1.0" max="10.0"/>
+				<dimension name="THETA" isCyclic="true" targetResolution="1.0" max="120.0"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="4.0" />
@@ -94,25 +94,6 @@
 				</agent> 
 			</agents>
 			<processManagers>
-				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="prefix" type="PRIMARY" class="String" value="out_solute1" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
-					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
-				</process>
-				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="prefix" type="PRIMARY" class="String" value="out_solute2" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
-					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
-				</process>
-				<process name="svgWriter" class="WriteAgentsSvg"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="prefix" type="PRIMARY" class="String" value="rate_solute2" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
-					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
-					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
-				</process>
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
