@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="mewe3DC" outputfolder="../../mewe" log="DEBUG"
+	<simulation name="mewe3DE" outputfolder="../../mewe" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<speciesLib>
@@ -21,7 +21,7 @@
 						<reaction name="testReact" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
-								<constant name="mumax" value="1.0" />
+								<constant name="mumax" value="5.0" />
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="eps" coefficient="0.2" />
@@ -117,8 +117,8 @@
 				<dimension name="Z" isCyclic="false" targetResolution="1.0" max="10.0"/>
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="1.0" />
-				<solute name="solute2" concentration="0.5" />
+				<solute name="solute1" concentration="8.0" />
+				<solute name="solute2" concentration="2.0" />
 			</solutes>
 			<reactions>
 			</reactions>

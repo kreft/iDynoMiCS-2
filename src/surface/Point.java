@@ -122,7 +122,7 @@ public class Point implements Copyable, NodeConstructor
 		this._f = force;
 	}
 
-	private void resetForce()
+	public void resetForce()
 	{
 		Vector.reset(this._f);
 	}
@@ -211,6 +211,9 @@ public class Point implements Copyable, NodeConstructor
 
 	/**
 	 * \brief Find the velocity of this point.
+	 * 
+	 * FIXME for non spherical objects the representative sphere radius should
+	 * be used rather than the actual radius of the object
 	 * 
 	 * @param radius The radius of the sphere-swept volume this point belongs
 	 * to will affect the drag on it by the surrounding fluid. Assumed in units

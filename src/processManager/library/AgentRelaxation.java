@@ -56,6 +56,8 @@ public class AgentRelaxation extends ProcessManager
 	public String STOCHASTIC_STEP = AspectRef.agentStochasticStep;
 	public String STOCHASTIC_MOVE = AspectRef.agentStochasticMove;
 	
+	public String STATIC_AGENT = AspectRef.staticAgent;
+	
 	
 	/**
 	 * Available relaxation methods.

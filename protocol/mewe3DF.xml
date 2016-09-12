@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="mewe3DC" outputfolder="../../mewe" log="DEBUG"
+	<simulation name="mewe3DF" outputfolder="../../mewe" log="DEBUG"
 		comment="this is a file for testing purposes only.">
 		<timer stepSize="1.0" endOfSimulation="50.0" />
 		<speciesLib>
@@ -21,7 +21,7 @@
 						<reaction name="testReact" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
-								<constant name="mumax" value="1.0" />
+								<constant name="mumax" value="5.0" />
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="eps" coefficient="0.2" />
@@ -41,8 +41,8 @@
 						<reaction name="testReact2" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute2 / (solute2 + k) ) * (kinh / (kinh + solute1)">
 								<constant name="k" value="0.001" />		
-								<constant name="kinh" value="0.01" />
-								<constant name="mumax" value="1.0" />
+								<constant name="kinh" value="0.05" />
+								<constant name="mumax" value="5.0" />
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="eps" coefficient="0.2" />
@@ -117,8 +117,8 @@
 				<dimension name="Z" isCyclic="false" targetResolution="1.0" max="10.0"/>
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="1.0" />
-				<solute name="solute2" concentration="0.5" />
+				<solute name="solute1" concentration="4.0" />
+				<solute name="solute2" concentration="1.0" />
 			</solutes>
 			<reactions>
 			</reactions>
@@ -127,13 +127,13 @@
 					<aspect name="species" type="PRIMARY" class="String" value="species1" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
 					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
-					<spawn number="60" domain="20.0,4.0,0.05" />
+					<spawn number="60" domain="20.0,4.0,1.5" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species2" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
 					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
-					<spawn number="60" domain="20.0,4.0,0.05" />
+					<spawn number="200" domain="20.0,4.0,0.05" />
 				</agent>
 				<!-- <agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species1" />
