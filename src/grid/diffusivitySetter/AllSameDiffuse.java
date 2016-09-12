@@ -7,11 +7,11 @@ import grid.SpatialGrid;
 import static grid.ArrayType.DIFFUSIVITY;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
 
 /**
@@ -27,6 +27,14 @@ public class AllSameDiffuse implements IsDiffusivitySetter
 	 */
 	protected double _diffusivity;
 	
+	public AllSameDiffuse()
+	{
+		/* NOTE empty constructor to become Instantiatable, 
+		 * Class.forName(className).newInstance(); has to work otherwise we
+		 * cannot create a new instance.
+		 */
+	}
+	
 	// NOTE temporary constructor
 	public AllSameDiffuse(double diffusivity)
 	{
@@ -38,10 +46,9 @@ public class AllSameDiffuse implements IsDiffusivitySetter
 	 * 
 	 * @param xmlNode
 	 */
-	public void init(Node xmlNode)
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
-		Element e = (Element) xmlNode;
-		String s = XmlHandler.obtainAttribute(e, XmlRef.defaultDiffusivity, "PARENT NODE");
+		String s = XmlHandler.obtainAttribute(xmlElem, XmlRef.defaultDiffusivity, "PARENT NODE");
 		this._diffusivity = Double.valueOf(s);
 	}
 	
