@@ -692,25 +692,6 @@ public abstract class SphericalShape extends PolarShape
 		
 		int new_index = rC.getVoxelIndex(theta);
 
-		/* increase the index if it has approx. the same theta location as the
-		 * current coordinate */
-//		if (ExtraMath.areEqual(
-//				rC.getCumulativeResolution(new_index), theta, 
-//				POLAR_ANGLE_EQ_TOL))
-//			new_index++;
-		
-		/* if we stepped onto the current coord, we went too far*/
-//		if (this._currentNeighbor[0] == this._currentCoord[0] 
-//				&& this._currentNeighbor[1] == this._currentCoord[1]
-//				&& new_index == this._currentCoord[2]){
-//			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-//			{
-//				Log.out(NHB_ITER_LEVEL, 
-//						"  failure, stepped onto current coordinate");
-//			}
-//			return false;
-//		}
-		
 		this._currentNeighbor[2] = new_index;
 		
 		Log.out(NHB_ITER_LEVEL, "  success with theta idx "+new_index);
