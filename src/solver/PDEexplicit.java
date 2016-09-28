@@ -62,8 +62,10 @@ public class PDEexplicit extends PDEsolver
 		int nIter = 1;
 		for ( SpatialGrid var : variables )
 		{
-			dt = Math.min(dt, 1
-					/  (var.getMax(DIFFUSIVITY) * (var.getShape().getMaxFluxPotential() * var.getShape().getNumberOfDimensions())));
+			double inverseMaxT = var.getMax(DIFFUSIVITY);
+			inverseMaxT *= var.getShape().getMaxFluxPotential();
+			inverseMaxT *= var.getShape().getNumberOfDimensions();
+			dt =  Math.min(dt, 1 / inverseMaxT);
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, "PDEexplicit: variable \""+var.getName()+ "\" has"
