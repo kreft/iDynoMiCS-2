@@ -420,7 +420,9 @@ public abstract class SphericalShape extends PolarShape
 	@Override
 	public double getVoxelVolume(int[] coord)
 	{
-		// mathematica: Integrate[r^2 sin p,{p,p1,p2},{t,t1,t2},{r,r1,r2}] 
+		/* mathematica:
+			Integrate[r^2 sin p,{phi,phi1,phi2},{theta,theta1,theta2},{r,r1,r2}]
+		 */ 
 		double[] loc1 = getVoxelOrigin(coord), loc2 = getVoxelUpperCorner(coord);
 		/* R */
 		double vol = ExtraMath.cube(loc1[0]) - ExtraMath.cube(loc2[0]);	
@@ -723,8 +725,12 @@ public abstract class SphericalShape extends PolarShape
 		Log.out(level, "  current coord is "+Arrays.toString(cc)
 			+", current nhb is "+Arrays.toString(nhb));
 		
+		/* moving towards positive in the current dim? */
 		boolean pos_direc = this._nbhDirection == 1;
 		
+		/* Integration minima and maxima, these are the lower and upper 
+		 * locations of the intersections between the current voxel and the 
+		 * neighbor voxel for each dimension. */
 		double r1 = getIntegrationMin(0), r2 = getIntegrationMax(0),
 				phi1 = getIntegrationMin(1), phi2 = getIntegrationMax(1),
 				theta1 = getIntegrationMin(2), theta2 = getIntegrationMax(2);
@@ -732,17 +738,17 @@ public abstract class SphericalShape extends PolarShape
 		double area = 1;
 		Log.out(level, "    Dimension name is "+this._nbhDimName+", direction is "
 														+this._nbhDirection);
+		/* compute the area element, depending along which dimension we are 
+		 * currently moving. This is 
+		 * Integrate[r^2 sin p,{phi,phi1,phi2},{theta,theta1,theta2},{r,r1,r2}] 
+		 * with integration length zero for the current dimension*/
 		switch (this._nbhDimName){
 		case R: /* phi-theta plane */
-			/* minimum must be greater than maximum for R in this case */
-			assert (r1 > r2); 
 			area *= ExtraMath.sq(pos_direc ? r1 : r2);
 			area *= theta2 - theta1;
 			area *= Math.cos(phi1) - Math.cos(phi2);
 			break;
 		case PHI: /* r-theta plane */
-			/* minimum must be greater than maximum for PHI in this case */
-			assert (phi1 > phi2);
 			area *= Math.sin(pos_direc ? phi1 : phi2);
 			area *= ExtraMath.cube(r1) - ExtraMath.cube(r2);
 			area *= theta1 - theta2;

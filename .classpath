@@ -25,12 +25,5 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="D:/Studium/Master/Masterarbeit/CD/Modell/lib/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dcore.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="D:/Studium/Master/Masterarbeit/CD/Modell/lib/j3d-1_5_2-windows-amd64/j3d-jre/bin"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="D:/Studium/Master/Masterarbeit/CD/Modell/lib/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/j3dutils.jar"/>
-	<classpathentry kind="lib" path="D:/Studium/Master/Masterarbeit/CD/Modell/lib/j3d-1_5_2-windows-amd64/j3d-jre/lib/ext/vecmath.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

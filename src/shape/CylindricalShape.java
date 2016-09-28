@@ -5,6 +5,10 @@ import static shape.Dimension.DimName.THETA;
 import static shape.Dimension.DimName.Z;
 import static shape.Shape.WhereAmI.UNDEFINED;
 
+import java.util.Arrays;
+
+import dataIO.Log;
+import dataIO.Log.Tier;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
@@ -294,6 +298,7 @@ public abstract class CylindricalShape extends PolarShape
 	@Override
 	public double getVoxelVolume(int[] coord)
 	{
+		// mathematica: Integrate[r,{z,z1,z2},{theta,theta1,theta2},{r,r1,r2}] 
 		double[] origin = this.getVoxelOrigin(coord);
 		double[] upper = this.getVoxelUpperCorner(coord);
 		/* 
@@ -447,5 +452,54 @@ public abstract class CylindricalShape extends PolarShape
 		}
 		this.transformNhbCyclic();
 		return this._currentNeighbor;
+	}
+	
+	@Override
+	public double nhbCurrSharedArea()
+	{
+		Tier level = Tier.BULK;
+		int[] cc = this._currentCoord, nhb = this._currentNeighbor;
+		Log.out(level, "  current coord is "+Arrays.toString(cc)
+			+", current nhb is "+Arrays.toString(nhb));
+		
+		/* moving towards positive in the current dim? */
+		boolean pos_direc = this._nbhDirection == 1;
+		
+		/* Integration minima and maxima, these are the lower and upper 
+		 * locations of the intersections between the current voxel and the 
+		 * neighbor voxel for each dimension. */
+		double r1 = getIntegrationMin(0), r2 = getIntegrationMax(0),
+				theta1 = getIntegrationMin(1), theta2 = getIntegrationMax(1),
+				z1 = getIntegrationMin(2), z2 = getIntegrationMax(2);
+	
+		double area = 1;
+		Log.out(level, "    Dimension name is "+this._nbhDimName+", direction is "
+														+this._nbhDirection);
+		/* compute the area element, depending along which dimension we are 
+		 * currently moving. This is 
+		 * Integrate[r,{z,z1,z2},{theta,theta1,theta2},{r,r1,r2}]  
+		 * with integration length zero for the current dimension*/
+		switch (this._nbhDimName){
+		case R: /* theta-z plane */
+			area *= pos_direc ? r1 : r2;
+			area *= theta2 - theta1;
+			area *= z2 - z1;
+			break;
+		case THETA: /* r-z plane */
+			area *= ExtraMath.sq(r2) - ExtraMath.sq(r1);
+			area *= z2 - z1;
+			area /= 2;
+			break;
+		case Z: /* r-theta plane */
+			area *= ExtraMath.sq(r2) - ExtraMath.sq(r1);
+			area *= theta2 - theta1;
+			area /= 2;
+			break;
+		default: throw new IllegalArgumentException("unknown dimension " 
+											+ this._nbhDimName + " for sphere");
+		}
+		Log.out(level, "    r1 is "+r1+", theta1 is "+theta1+ ", z1 is "+z1
+				+ ", r2 is "+r2+", theta2 is "+theta2+ ", z2 is "+z2);
+		return area;
 	}
 }
