@@ -41,6 +41,7 @@ public class SimpleVolumeState extends Calculated {
 		}
 		else if ( massObject instanceof Map )
 		{
+			// TODO assume all mass types used unless specified otherwise
 			@SuppressWarnings("unchecked")
 			Map<String,Double> massMap = (Map<String,Double>) massObject;
 			totalMass = Helper.totalValue(massMap);

@@ -95,6 +95,12 @@ public class AspectRef
 	public final static String defaultBiomassGrid = "biomass";
 	
 	/**
+	 * List of names of events each agent should perform during a process
+	 * manager step.
+	 */
+	public static String agentEventNames = "eventNames";
+	
+	/**
 	 * list with reactions owned by the agent
 	 */
 	// FIXME what is the difference between this and XmlLabel.reactions?

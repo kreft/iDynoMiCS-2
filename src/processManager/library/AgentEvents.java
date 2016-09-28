@@ -6,6 +6,7 @@ package processManager.library;
 import org.w3c.dom.Element;
 
 import agent.Agent;
+import referenceLibrary.AspectRef;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
@@ -20,8 +21,7 @@ public class AgentEvents extends ProcessManager
 	/**
 	 * XML tag for the list of names this is responsible for.
 	 */
-	// TODO move this to XmlRef or AspectRef?
-	public static String EVENT_NAMES = "eventNames";
+	public static String EVENT_NAMES = AspectRef.agentEventNames;
 	
 	/**
 	 * The names of all agent events this is responsible for.

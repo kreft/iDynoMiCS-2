@@ -3,6 +3,8 @@ package solver;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import boundary.SpatialBoundary;
+import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 

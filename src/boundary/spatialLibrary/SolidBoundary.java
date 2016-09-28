@@ -57,12 +57,6 @@ public class SolidBoundary extends SpatialBoundary
 	}
 	
 	@Override
-	public boolean needsToUpdateWellMixed()
-	{
-		return false;
-	}
-	
-	@Override
 	public void updateWellMixedArray()
 	{
 		this.setWellMixedByDistance();

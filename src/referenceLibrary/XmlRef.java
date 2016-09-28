@@ -24,8 +24,8 @@ public class XmlRef
 			try {
 				options[i++] = (String) f.get(new String());
 			} catch (IllegalArgumentException | IllegalAccessException e) {
-				Log.out(Tier.CRITICAL, "problem in ObjectRef field declaretion"
-						+ "\n can not obtain all options");
+				Log.out(Tier.CRITICAL, "problem in ObjectRef field declaration"
+						+ "\n cannot obtain all options");
 				e.printStackTrace();
 			}
 		return options;
@@ -82,6 +82,11 @@ public class XmlRef
 	 * Indicates a solute.
 	 */
 	public final static String solute = "solute";
+	
+	/**
+	 * Method for setting the diffusivity array of a solute's spatial grid.
+	 */
+	public final static String diffusivitySetter = "diffusivitySetter";
 	
 	/**
 	 * Indicates an mathematical expression.

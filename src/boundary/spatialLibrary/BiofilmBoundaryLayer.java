@@ -10,6 +10,7 @@ import java.util.Map;
 
 import agent.Agent;
 import boundary.SpatialBoundary;
+import boundary.WellMixedBoundary;
 import boundary.library.ChemostatToBoundaryLayer;
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -30,12 +31,8 @@ import surface.Surface;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class BiofilmBoundaryLayer extends SpatialBoundary
+public class BiofilmBoundaryLayer extends WellMixedBoundary
 {
-	/**
-	 * Solute concentrations.
-	 */
-	protected Map<String,Double> _concns = new HashMap<String,Double>();
 	/**
 	 * Spherical surface object with radius equal to {@link #_layerThickness}.
 	 * Used here for updating the well-mixed array.
@@ -126,12 +123,6 @@ public class BiofilmBoundaryLayer extends SpatialBoundary
 	{
 		double concn = this._concns.get(grid.getName());
 		return this.calcDiffusiveFlowFixed(grid, concn);
-	}
-	
-	@Override
-	public boolean needsToUpdateWellMixed()
-	{
-		return true;
 	}
 	
 	@SuppressWarnings("unchecked")
