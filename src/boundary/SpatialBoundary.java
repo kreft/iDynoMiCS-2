@@ -160,9 +160,9 @@ public abstract class SpatialBoundary extends Boundary
 		/* The diffusivity comes only from the current voxel. */
 		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
 		/* Shape handles the shared surface area on a boundary. */
-		double sArea = grid.getShape().nbhCurrSharedArea();
+		double sArea = grid.getShape().nhbCurrSharedArea();
 		/* Shape handles the centre-centre distance on a boundary. */
-		double dist = grid.getShape().nbhCurrDistance();
+		double dist = grid.getShape().nhbCurrDistance();
 		/* Calculate flux and flow in the same way as in SpatialGrid. */
 		double flux = valueDiff * diffusivity / dist ;
 		double flow = flux * sArea;

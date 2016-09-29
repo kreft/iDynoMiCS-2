@@ -2588,7 +2588,7 @@ public final class Matrix
 	{
 		int out = Integer.MAX_VALUE;
 		for ( int[] row : matrix )
-			out = Math.max(out, Vector.min(row));
+			out = Math.min(out, Vector.min(row));
 		return out;
 	}
 	
@@ -2611,7 +2611,7 @@ public final class Matrix
 	{
 		double out = Double.MAX_VALUE;
 		for ( double[] row : matrix )
-			out = Math.max(out, Vector.min(row));
+			out = Math.min(out, Vector.min(row));
 		return out;
 	}
 	
