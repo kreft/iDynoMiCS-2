@@ -75,7 +75,7 @@ public class SolveDiffusionTransient extends ProcessManager
 	/**
 	 * Diffusivity setter for each solute present.
 	 */
-	protected Map<String,IsDiffusivitySetter> _diffusivity;
+	protected Map<String,IsDiffusivitySetter> _diffusivity= new HashMap<>();
 	
 	/**
 	 * TODO
@@ -97,7 +97,6 @@ public class SolveDiffusionTransient extends ProcessManager
 		/*
 		 * Now look for diffusivity setters.
 		 */
-		this._diffusivity = new HashMap<String,IsDiffusivitySetter>();
 		Collection<Element> diffusivityElements =
 				XmlHandler.getElements(xmlElem, XmlRef.diffusivitySetter);
 		for ( Element dElem : diffusivityElements )
@@ -108,14 +107,6 @@ public class SolveDiffusionTransient extends ProcessManager
 					Instantiatable.getNewInstance(className, dElem, this);
 			this._diffusivity.put(soluteName, diffusivity);
 		}
-		/* Plug any gaps (FIXME temporary measure). */
-		for ( String sName : this._soluteNames )
-			if ( ! this._diffusivity.containsKey(sName) )
-			{
-				Log.out(Tier.CRITICAL, 
-						"WARNING: Using default diffusivity for solute "+sName);
-				this._diffusivity.put(sName, new AllSameDiffuse(1.0));
-			}
 	}
 	
 	/**
@@ -144,6 +135,16 @@ public class SolveDiffusionTransient extends ProcessManager
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
 		this._solver.setUpdater(this.standardUpdater());
+		
+		/* Plug any gaps (FIXME temporary measure). */
+		for ( String sName : this._soluteNames )
+			if ( ! this._diffusivity.containsKey(sName) )
+			{
+				Log.out(Tier.CRITICAL, 
+						"WARNING: Using default diffusivity for solute "+sName);
+				this._diffusivity.put(sName, new AllSameDiffuse(1.0));
+			}
+		
 		String msg = "SolveDiffusionTransient responsible for solutes: ";
 		for ( String s : this._soluteNames )
 			msg += s + ", ";

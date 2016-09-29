@@ -80,13 +80,15 @@ public class PDEexplicit extends PDEsolver
 			nIter = (int) Math.ceil(tFinal/dt);
 			dt = tFinal/nIter;
 		}
-		Log.out(level, "PDEexplicit using ministep size "+dt);
+		if ( Log.shouldWrite(level) )
+			Log.out(level, "PDEexplicit using ministep size "+dt);
 		/*
 		 * Iterate over all mini-timesteps.
 		 */
 		for ( int iter = 0; iter < nIter; iter++ )
 		{
-			Log.out(level, "Ministep "+iter+": "+(iter+1)*dt);
+			if ( Log.shouldWrite(level) )
+				Log.out(level, "Ministep "+iter+": "+(iter+1)*dt);
 			this._updater.prestep(variables, dt);
 			for ( SpatialGrid var : variables )
 			{
