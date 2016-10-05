@@ -238,9 +238,10 @@ public class AgentRelaxation extends ProcessManager
 						pull = 0.0;
 					body = ((Body) neighbour.get(BODY));
 					List<Surface> t = body.getSurfaces();
-					Log.out(level, "   interacting with neighbor (ID "+
-							neighbour.identity()+") , which has "+t.size()+
-							" surfaces, with pull distance "+pull);
+					if ( Log.shouldWrite(level) )
+						Log.out(level, "   interacting with neighbor (ID "+
+								neighbour.identity()+") , which has "+t.size()+
+								" surfaces, with pull distance "+pull);
 					this._iterator.collision(agentSurfs, t, pull);
 				}
 			/*
