@@ -12,7 +12,11 @@ hs_err_pid*
 
 # Binaries
 bin/
+build/
 
 # Mac files
 .DS_Store
 */.DS_Store
+
+# unit test output
+unitTests
