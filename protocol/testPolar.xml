@@ -46,7 +46,7 @@
 			</species>
 		</speciesLib>
 
-		<compartment name="second">
+		<compartment name="second" tree="SPLITTREE">
 			<shape class="Circle" >
 				<dimension name="R" targetResolution="1" max="10.0" isCyclic="false" />
 				<dimension name="THETA" isCyclic="true" targetResolution="1" max="120.0"/>
