@@ -3,6 +3,8 @@ package solver;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import boundary.SpatialBoundary;
+import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -135,7 +137,7 @@ public abstract class PDEsolver extends Solver
 				 * Alternatively, if it came from a well-mixed boundary, inform
 				 * the grid.
 				 */
-				if ( shape.isNhbIteratorInside() )
+				if ( shape.isNbhIteratorInside() )
 				{
 					// TODO this should really be > some threshold
 					if ( commonGrid != null && 
@@ -156,7 +158,7 @@ public abstract class PDEsolver extends Solver
 				 */
 				if ( Log.shouldWrite(level) )
 				{
-					if ( shape.isNhbIteratorInside() )
+					if ( shape.isNbhIteratorInside() )
 					{
 						Log.out(level, 
 								"   nhb "+Vector.toString(nhb)+

@@ -330,6 +330,23 @@ public class ClassRef
 			reaction.ReactionLibrary.class.getName();
 	
 	/* ************************************************************************
+	 * Grid classes
+	 */
+	
+	/**
+	 * TODO
+	 */
+	public final static String allSameDiffuse =
+			grid.diffusivitySetter.AllSameDiffuse.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String scaledIfBiomassPresent =
+			grid.diffusivitySetter.ScaledIfBiomassPresent.class.getName();
+	
+	
+	/* ************************************************************************
 	 * miscellaneous
 	 */
 	

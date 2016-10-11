@@ -50,13 +50,6 @@ public class BiofilmMembraneGas extends SpatialBoundary
 	}
 	
 	@Override
-	public boolean needsToUpdateWellMixed()
-	{
-		// TODO check this
-		return false;
-	}
-	
-	@Override
 	public void updateWellMixedArray()
 	{
 		// TODO default method used for now, check this is appropriate

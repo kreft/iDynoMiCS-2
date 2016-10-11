@@ -7,10 +7,12 @@ import java.util.Map;
 
 import boundary.Boundary;
 import boundary.SpatialBoundary;
+import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import grid.ArrayType;
+import static grid.ArrayType.CONCN;
+import static grid.ArrayType.WELLMIXED;
 import grid.SpatialGrid;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -90,7 +92,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	public void addSolute(String soluteName, double initialConcn)
 	{
 		SpatialGrid sg = new SpatialGrid(this._shape, soluteName, this);
-		sg.newArray(ArrayType.CONCN, initialConcn);
+		sg.newArray(CONCN, initialConcn);
 		this.addSolute(sg);
 	}
 	
@@ -230,7 +232,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 */
 	public double getAverageConcentration(String soluteName)
 	{
-		return this.getSoluteGrid(soluteName).getAverage(ArrayType.CONCN);
+		return this.getSoluteGrid(soluteName).getAverage(CONCN);
 	}
 	
 	/**
@@ -254,7 +256,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 */
 	public void setAllConcentration(String soluteName, double newConcn)
 	{
-		this.getSoluteGrid(soluteName).setAllTo(ArrayType.CONCN, newConcn);
+		this.getSoluteGrid(soluteName).setAllTo(CONCN, newConcn);
 	}
 	
 	/* ***********************************************************************
@@ -294,7 +296,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	public void distributeWellMixedFlows()
 	{
 		/* Find all relevant boundaries. */
-		Collection<SpatialBoundary> boundaries = 
+		Collection<WellMixedBoundary> boundaries = 
 				this._shape.getWellMixedBoundaries();
 		/* If there are none, then we have nothing more to do. */
 		if ( boundaries.isEmpty() )
@@ -340,7 +342,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * **********************************************************************/
 
 	/**
-	 * @return
+	 * @return The unique spatial grid that is common to all solutes in this
+	 * compartment's shape. Hold information like well-mixed.
 	 */
 	public SpatialGrid getCommonGrid()
 	{
@@ -353,30 +356,86 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	}
 	
 	/**
-	 *\brief TODO
+	 *\brief Calculate which region of the compartment shape is assumed to be
+	 * well-mixed, using the boundaries.
 	 */
 	public void updateWellMixed()
 	{
+		String name;
 		/*
 		 * Reset the well-mixed array for this shape. If none of the
 		 * boundaries need it to be updated, it will be full of zeros (i.e.
 		 * nowhere is well-mixed).
 		 */
-		this.getCommonGrid().newArray(ArrayType.WELLMIXED);
+		SpatialGrid commonGrid = this.getCommonGrid();
+		commonGrid.newArray(WELLMIXED);
 		/*
 		 * Check if any of the boundaries need to update the well-mixed array.
 		 * If none do, then there is nothing more to do.
 		 */
-		Collection<SpatialBoundary> bndrs = 
+		Collection<WellMixedBoundary> bndrs = 
 				this.getShape().getWellMixedBoundaries();
 		if ( bndrs.isEmpty() )
 			return;
+		/*
+		 * We will eventually need to set the concentration of each solute in 
+		 * the well-mixed region, so prepare to collect the appropriate values.
+		 */
+		Map<String,Double> wellMixedConcns = new HashMap<String,Double>();
+		for ( SpatialGrid solute : this._solutes )
+			wellMixedConcns.put(solute.getName(), 0.0);
+		/*
+		 * The weighting of each well-mixed boundary is given by its surface
+		 * area: find the total surface area of all well-mixed boundaries.
+		 * 
+		 * Note that multiplication is computationally cheaper than division,
+		 * so divide one by this number now. We then multiply each well-mixed
+		 * boundary's surface area by this scale factor to calculate the weight
+		 * of its influence over the concentration.
+		 */
+		double scaleFactor = 0.0;
+		for ( SpatialBoundary b : bndrs )
+			scaleFactor += b.getTotalSurfaceArea();
+		scaleFactor = 1.0 / scaleFactor;
 		/*
 		 * At least one of the boundaries need to update the well-mixed array,
 		 * so loop through all of them.
 		 */
 		for ( SpatialBoundary b: bndrs )
+		{
 			b.updateWellMixedArray();
+			/*
+			 * Only need to gather concentrations from well-mixed boundaries.
+			 */
+			if ( b.needsToUpdateWellMixed() )
+			{
+				WellMixedBoundary wmb = (WellMixedBoundary) b;
+				double sAreaFactor = b.getTotalSurfaceArea() * scaleFactor;
+				for ( SpatialGrid solute : this._solutes )
+				{
+					name = solute.getName();
+					double concn = wellMixedConcns.get(name);
+					concn += wmb.getConcentration(name) * sAreaFactor;
+					wellMixedConcns.put(name, concn);
+				}
+			}
+		}
+		/*
+		 * Now apply the well-mixed boundary concentrations to the voxels of 
+		 * the well-mixed region.
+		 */
+		for ( int[] coord = this._shape.resetIterator();
+				this._shape.isIteratorValid();
+				coord = this._shape.iteratorNext() )
+		{
+			// TODO this should really be > some threshold
+			if ( commonGrid.getValueAt(WELLMIXED, coord) == 1.0 )
+				for ( SpatialGrid solute : this._solutes )
+				{
+					name = solute.getName();
+					solute.setValueAt(CONCN, coord, wellMixedConcns.get(name));
+				}
+		}
 	}
 	
 	/* ***********************************************************************
@@ -387,7 +446,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	{
 		Log.out(Tier.QUIET, soluteName+":");
 		Log.out(Tier.QUIET, 
-				this.getSoluteGrid(soluteName).arrayAsText(ArrayType.CONCN));
+				this.getSoluteGrid(soluteName).arrayAsText(CONCN));
 	}
 	
 	public void printAllSolutes()

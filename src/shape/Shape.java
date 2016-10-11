@@ -17,6 +17,7 @@ import org.w3c.dom.NodeList;
 
 import boundary.Boundary;
 import boundary.SpatialBoundary;
+import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import static dataIO.Log.Tier.*;
@@ -63,6 +64,10 @@ import utility.Helper;
  * 								Friedrich-Schiller University Jena, Germany 
  */
 // TODO remove the last three sections by incorporation into Node construction.
+/**
+ * @author qwer
+ *
+ */
 public abstract class Shape implements
 					CanPrelaunchCheck, Instantiatable, NodeConstructor
 {
@@ -113,6 +118,14 @@ public abstract class Shape implements
 	protected Collection<Boundary> _otherBoundaries = 
 													new LinkedList<Boundary>();
 	/**
+	 * An array to store the current iterator state.
+	 */
+	protected int[] storeIter;
+	/**
+	 * An array to store the current neighborhood iterator state.
+	 */
+	protected int[] storeNbh;
+	/**
 	 * Current coordinate considered by the internal iterator.
 	 */
 	protected int[] _currentCoord;
@@ -128,12 +141,12 @@ public abstract class Shape implements
 	/**
 	 * The dimension name the current neighbor is moving in.
 	 */
-	protected DimName _nhbDimName;
+	protected DimName _nbhDimName;
 	/**
 	 * Integer indicating positive (1) or negative (0) relative position
 	 * to the current coordinate.
 	 */
-	protected int _nhbDirection;
+	protected int _nbhDirection;
 	/**
 	 * What kind of voxel the current neighbor iterator is in.
 	 */
@@ -1031,13 +1044,13 @@ public abstract class Shape implements
 	 * @return Collection of spatial boundaries that have a well-mixed approach
 	 * to them.
 	 */
-	public Collection<SpatialBoundary> getWellMixedBoundaries()
+	public Collection<WellMixedBoundary> getWellMixedBoundaries()
 	{
-		Collection<SpatialBoundary> out = new LinkedList<SpatialBoundary>();
+		Collection<WellMixedBoundary> out = new LinkedList<WellMixedBoundary>();
 		for ( Dimension d : this._dimensions.values() )
 			for ( SpatialBoundary b : d.getBoundaries() )
 				if ( b != null && b.needsToUpdateWellMixed() )
-					out.add(b);
+					out.add((WellMixedBoundary) b);
 		return out;
 	}
 	
@@ -1289,7 +1302,7 @@ public abstract class Shape implements
 			where = this.whereIsNhb(dim);
 			if ( where == UNDEFINED )
 				return (this._whereIsNhb = UNDEFINED);
-			if ( this.isNhbIteratorInside() && where == DEFINED )
+			if ( this.isNbhIteratorInside() && where == DEFINED )
 				this._whereIsNhb = DEFINED;
 		}
 		return this._whereIsNhb;
@@ -1320,16 +1333,8 @@ public abstract class Shape implements
 	{
 		Tier level = BULK;
 		Log.out(level, "Calculating maximum flux potential");
-		/*
-		 * Store the two iterators, in case we're in the middle of an
-		 * iteration.
-		 */
-		int[] storeIter = null;
-		int[] storeNbh = null;
-		if ( this._currentCoord != null )
-			storeIter = Vector.copy(this._currentCoord);
-		if ( this._currentNeighbor != null )
-			storeNbh = Vector.copy(this._currentNeighbor);
+		
+		this.saveCurrentIteratorState();
 		/*
 		 * Loop over all voxels, finding the greatest flux potential.
 		 */
@@ -1346,21 +1351,45 @@ public abstract class Shape implements
 			for ( this.resetNbhIterator();
 						this.isNbhIteratorValid(); this.nbhIteratorNext() )
 			{
-				temp = this.nbhCurrSharedArea() / this.nbhCurrDistance();
+				temp = this.nhbCurrSharedArea() / this.nhbCurrDistance();
 				Log.out(level, "   nbh "+
 						Vector.toString(this._currentNeighbor)+
-						" has shared area "+this.nbhCurrSharedArea()+
-						" and distance "+this.nbhCurrDistance());
+						" has shared area "+this.nhbCurrSharedArea()+
+						" and distance "+this.nhbCurrDistance());
 				max = Math.max(max, temp);
 			}
 			this._maxFluxPotentl = Math.max(this._maxFluxPotentl, max/volume);
 		}
 		Log.out(level, " Maximum flux potential is "+this._maxFluxPotentl);
+		
+		this.loadSavedIteratorState();
+	}
+	
+	public double getMinVoxelDistance(){
+		int[] storeIter = null;
+		int[] storeNbh = null;
+		if ( this._currentCoord != null )
+			storeIter = Vector.copy(this._currentCoord);
+		if ( this._currentNeighbor != null )
+			storeNbh = Vector.copy(this._currentNeighbor);
+		/*
+		 * Loop over all voxels, finding the greatest flux potential.
+		 */
+		double min = Double.POSITIVE_INFINITY;
+		this._maxFluxPotentl = Double.NEGATIVE_INFINITY;
+		for (this.resetIterator(); this.isIteratorValid(); this.iteratorNext())
+		{
+			for ( this.resetNbhIterator();
+						this.isNbhIteratorValid(); this.nbhIteratorNext() )
+				min = Math.min(min, this.nhbCurrDistance());
+		}
 		/*
 		 * Put the iterators back to their stored values.
 		 */
 		this._currentCoord = (storeIter == null) ? null:Vector.copy(storeIter);
 		this._currentNeighbor = (storeNbh==null) ? null:Vector.copy(storeNbh);
+		
+		return min;
 	}
 	
 	/**
@@ -1400,6 +1429,25 @@ public abstract class Shape implements
 			Vector.reset(this._currentCoord);
 		this.updateCurrentNVoxel();	
 		return this._currentCoord;
+	}
+	
+	public void saveCurrentIteratorState(){
+		/*
+		 * Store the two iterators, in case we're in the middle of an
+		 * iteration and want to start a new iteration.
+		 */
+		if ( this._currentCoord != null )
+			storeIter = Vector.copy(this._currentCoord);
+		if ( this._currentNeighbor != null )
+			storeNbh = Vector.copy(this._currentNeighbor);
+	}
+	
+	public void loadSavedIteratorState(){
+		/*
+		 * Put the iterators back to their stored values.
+		 */
+		this._currentCoord = (storeIter == null) ? null:Vector.copy(storeIter);
+		this._currentNeighbor = (storeNbh==null) ? null:Vector.copy(storeNbh);
 	}
 
 	/**
@@ -1619,7 +1667,7 @@ public abstract class Shape implements
 	 */
 	public boolean isNbhIteratorValid()
 	{
-		return this.isNhbIteratorInside() || (this._whereIsNhb == DEFINED);
+		return this.isNbhIteratorInside() || (this._whereIsNhb == DEFINED);
 	}
 	
 	/**
@@ -1629,7 +1677,7 @@ public abstract class Shape implements
 	 * @return {@code boolean true} if it is inside, {@code false} if it is
 	 * on a boundary (defined or undefined).
 	 */
-	public boolean isNhbIteratorInside()
+	public boolean isNbhIteratorInside()
 	{
 		return (this._whereIsNhb == INSIDE) || (this._whereIsNhb == CYCLIC);
 	}
@@ -1643,8 +1691,8 @@ public abstract class Shape implements
 	{
 		if ( this._whereIsNhb == DEFINED )
 		{
-			Dimension dim = this.getDimension(this._nhbDimName);
-			return dim.getBoundary(this._nhbDirection);
+			Dimension dim = this.getDimension(this._nbhDimName);
+			return dim.getBoundary(this._nbhDirection);
 		}
 		return null;
 	}
@@ -1673,12 +1721,68 @@ public abstract class Shape implements
 	}
 	
 	/**
+	 * \brief Calculates the starting point for integration between the current 
+	 * iterator voxel and the neighbor voxel, in the dimension given by 
+	 * <b>index</b>.
+	 * This is the maximum of the minima of both locations.
+	 * 
+	 * @param index Index of the required dimension.
+	 * @return The starting point for integration.
+	 */
+	protected double getIntegrationMin(int index)
+	{
+		ResCalc rC;
+		double curMin, nhbMin;
+		/* Current voxel of the main iterator. */
+		rC = this.getResolutionCalculator(this._currentCoord, index);
+		curMin = rC.getCumulativeResolution(this._currentCoord[index] - 1);
+		
+		/* on defined boundary */
+		if (this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC)
+			return curMin;
+		
+		/* Current voxel of the neighbor iterator. */
+		rC = this.getResolutionCalculator(this._currentNeighbor, index);
+		nhbMin = rC.getCumulativeResolution(this._currentNeighbor[index] - 1);
+		/* Find integration minimum. */		
+		return Math.max(curMin, nhbMin);
+	}
+	
+	/**
+	 * \brief Calculates the end point for integration between the current 
+	 * iterator voxel and the neighbor voxel, in the dimension given by 
+	 * <b>index</b>.
+	 * This is the minimum of the maxima of both locations.
+	 * 
+	 * @param index Index of the required dimension.
+	 * @return The end point for integration.
+	 */
+	protected double getIntegrationMax(int index)
+	{
+		ResCalc rC;
+		double curMax, nhbMax;
+		/* Current voxel of the main iterator. */
+		rC = this.getResolutionCalculator(this._currentCoord, index);
+		curMax = rC.getCumulativeResolution(this._currentCoord[index]);
+		
+		/* on defined boundary */
+		if (this._whereIsNhb == DEFINED || this._whereIsNhb == CYCLIC)
+			return curMax;
+		
+		/* Current voxel of the neighbor iterator. */
+		rC = this.getResolutionCalculator(this._currentNeighbor, index);
+		nhbMax = rC.getCumulativeResolution(this._currentNeighbor[index]);
+		/* Find integration minimum. */		
+		return Math.min(curMax, nhbMax);
+	}
+	
+	/**
 	 * \brief Transform the coordinates of the neighbor iterator, in the
 	 * current neighbor direction, so that that they lie within the array.
 	 * 
-	 * <p>This should be reversed using {@link #untransformNbhCyclic()}.</p>
+	 * <p>This should be reversed using {@link #untransformNhbCyclic()}.</p>
 	 */
-	protected void transformNbhCyclic()
+	protected void transformNhbCyclic()
 	{
 		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
 		{
@@ -1686,13 +1790,13 @@ public abstract class Shape implements
 				Vector.toString(this._currentNeighbor)+
 				": status "+this._whereIsNhb);
 		}
-		Dimension dim = getDimension(this._nhbDimName);
+		Dimension dim = getDimension(this._nbhDimName);
 		if ( (this._whereIsNhb == CYCLIC) && dim.isCyclic() )
 		{
-			int dimIdx = this.getDimensionIndex(this._nhbDimName);
+			int dimIdx = this.getDimensionIndex(this._nbhDimName);
 			int nVoxel = this.getResolutionCalculator(
 					this._currentNeighbor, dimIdx).getNVoxel();
-			if ( this._nhbDirection == 0 )
+			if ( this._nbhDirection == 0 )
 			{
 				/* Direction 0: the neighbor wraps below, to the highest. */
 				this._currentNeighbor[dimIdx] = nVoxel - 1;
@@ -1712,17 +1816,17 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief Reverses the transformation of {@link #transformNbhCyclic()},
+	 * \brief Reverses the transformation of {@link #transformNhbCyclic()},
 	 * putting the coordinates of the neighbor iterator that wrap around a
 	 * cyclic dimension back where they were.
 	 */
-	protected void untransformNbhCyclic()
+	protected void untransformNhbCyclic()
 	{
-		Dimension dim = this.getDimension(this._nhbDimName);
+		Dimension dim = this.getDimension(this._nbhDimName);
 		if ( (this._whereIsNhb == CYCLIC) && dim.isCyclic() )
 		{
-			int dimIdx = this.getDimensionIndex(this._nhbDimName);
-			if ( this._nhbDirection == 0 )
+			int dimIdx = this.getDimensionIndex(this._nbhDimName);
+			if ( this._nbhDirection == 0 )
 			{
 				/* Direction 0: the neighbor should reset to minus one. */
 				this._currentNeighbor[dimIdx] = -1;
@@ -1751,7 +1855,7 @@ public abstract class Shape implements
 	 * 
 	 * @return {@code boolean} reporting whether this is valid.
 	 */
-	protected boolean moveNbhToMinus(DimName dim)
+	protected boolean moveNhbToMinus(DimName dim)
 	{
 		int index = this.getDimensionIndex(dim);
 		/* Move to the coordinate just belong the current one. */
@@ -1760,8 +1864,6 @@ public abstract class Shape implements
 		/* Check that this coordinate is acceptable. */
 		WhereAmI where = this.whereIsNhb(dim);
 		this._whereIsNhb = where;
-		this._nhbDirection = 0;
-		this._nhbDimName = dim;
 		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
 		{
 			Log.out(NHB_ITER_LEVEL,
@@ -1781,7 +1883,7 @@ public abstract class Shape implements
 	 * @param dim Index of the dimension to move in.
 	 * @return Whether the increase was successful (true) or a failure (false).
 	 */
-	protected boolean nbhJumpOverCurrent(DimName dim)
+	protected boolean nhbJumpOverCurrent(DimName dim)
 	{
 		int index = this.getDimensionIndex(dim);
 		/* Check we are behind the current coordinate. */
@@ -1795,7 +1897,6 @@ public abstract class Shape implements
 			if ( this._whereIsNhb == INSIDE || bMaxDef )
 			{
 				/* report success. */
-				this._nhbDirection = 1;
 				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
 				{
 					Log.out(NHB_ITER_LEVEL, "   success jumping over in "+dim+
@@ -1838,7 +1939,7 @@ public abstract class Shape implements
 	 * @return The centre-centre distance between the current iterator voxel
 	 * and the neighbor voxel.
 	 */
-	public double nbhCurrDistance()
+	public double nhbCurrDistance()
 	{
 		Tier level = Tier.BULK;
 		if ( Log.shouldWrite(level) )
@@ -1846,9 +1947,9 @@ public abstract class Shape implements
 			Log.out(level, "  calculating distance between voxels "+
 				Vector.toString(this._currentCoord)+" and "+
 				Vector.toString(this._currentNeighbor)+
-				" along dimension "+this._nhbDimName);
+				" along dimension "+this._nbhDimName);
 		}
-		int i = this.getDimensionIndex(this._nhbDimName);
+		int i = this.getDimensionIndex(this._nbhDimName);
 		ResCalc rC = this.getResolutionCalculator(this._currentCoord, i);
 		double out = rC.getResolution(this._currentCoord[i]);
 		/* 
@@ -1857,16 +1958,16 @@ public abstract class Shape implements
 		 * If the neighbor is on a defined boundary, use the current coord's
 		 * resolution.
 		 */
-		if ( this.isNhbIteratorInside() )
+		if ( this.isNbhIteratorInside() )
 		{
-			
+			rC = this.getResolutionCalculator(this._currentNeighbor, i);
 			out += rC.getResolution(this._currentNeighbor[i]);
 			out *= 0.5;
 		}
 		if ( this.isNbhIteratorValid() )
 		{
 			/* If the dimension is angular, find the arc length. */
-			if ( this._nhbDimName.isAngular() )
+			if ( this._nbhDimName.isAngular() )
 			{
 				int rIndex = this.getDimensionIndex(R);
 				ResCalc rCA = this.getResolutionCalculator(
@@ -1891,7 +1992,7 @@ public abstract class Shape implements
 	 * @return The shared surface area between the current iterator voxel
 	 * and the neighbor voxel.
 	 */
-	public abstract double nbhCurrSharedArea();
+	public abstract double nhbCurrSharedArea();
 	
 	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK

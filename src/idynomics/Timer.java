@@ -53,20 +53,20 @@ public class Timer implements Instantiatable, NodeConstructor
 		Log.out(Tier.NORMAL, "Timer loading...");
 
 		/* Get starting time step */
-		seteCurrentTime( Double.valueOf( Helper.setIfNone( 
+		this.setCurrentTime( Double.valueOf( Helper.setIfNone( 
 				XmlHandler.gatherAttribute(
 				xmlNode, XmlRef.currentTime ), "0.0" ) ) );
 		
 		/* Get the time step. */
-		setTimeStepSize( Double.valueOf( XmlHandler.obtainAttribute(
+		this.setTimeStepSize( Double.valueOf( XmlHandler.obtainAttribute(
 				xmlNode, XmlRef.timerStepSize, this.defaultXmlTag() ) ) );
 
 		/* Get the total time span. */
-		setEndOfSimulation( Double.valueOf( XmlHandler.obtainAttribute(
+		this.setEndOfSimulation( Double.valueOf( XmlHandler.obtainAttribute(
 				xmlNode, XmlRef.endOfSimulation, this.defaultXmlTag() ) ) );
 
 		
-		report(Tier.NORMAL);
+		this.report(Tier.NORMAL);
 		Log.out(Tier.NORMAL, "Timer loaded!\n");
 	}
 	
@@ -86,7 +86,7 @@ public class Timer implements Instantiatable, NodeConstructor
 		this._timerStepSize = stepSize;
 	}
 	
-	public void seteCurrentTime(double time)
+	public void setCurrentTime(double time)
 	{
 		this._now = time;
 	}

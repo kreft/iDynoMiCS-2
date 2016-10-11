@@ -522,7 +522,7 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	 */
 	public double getValueAtNhb(ArrayType type)
 	{
-		if ( this._shape.isNhbIteratorInside() )
+		if ( this._shape.isNbhIteratorInside() )
 			return this.getValueAt(type, this._shape.nbhIteratorCurrent());
 		else
 		{
@@ -578,7 +578,7 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 					Vector.toString(this._shape.nbhIteratorCurrent())+
 					" to curr "+Vector.toString(this._shape.iteratorCurrent()));
 		}
-		if ( this._shape.isNhbIteratorInside() )
+		if ( this._shape.isNbhIteratorInside() )
 		{
 			/* Difference in concentration. */
 			double concnDiff = this.getValueAtNhb(ArrayType.CONCN)
@@ -588,9 +588,9 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 					this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
 					this.getValueAtNhb(ArrayType.DIFFUSIVITY));
 			/* Surface are the two voxels share (in square microns). */
-			double sArea = this._shape.nbhCurrSharedArea();
+			double sArea = this._shape.nhbCurrSharedArea();
 			/* Centre-centre distance. */
-			double dist = this._shape.nbhCurrDistance();
+			double dist = this._shape.nhbCurrDistance();
 			/* Calculate the the flux from these values. */
 			double flux = concnDiff * diffusivity / dist ;
 			double flow = flux * sArea;

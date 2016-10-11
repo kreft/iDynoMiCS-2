@@ -3,7 +3,6 @@ package grid.diffusivitySetter;
 import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.XmlHandler;
@@ -11,6 +10,7 @@ import grid.SpatialGrid;
 import static grid.ArrayType.DIFFUSIVITY;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 
@@ -47,23 +47,25 @@ public class ScaledIfBiomassPresent implements IsDiffusivitySetter
 	// TODO this is not currently used
 	protected double _threshold;
 	
-	/**
-	 * \brief Initiation from XML node.
-	 * 
-	 * @param xmlNode
-	 */
-	public void init(Node xmlNode)
+	public ScaledIfBiomassPresent()
 	{
-		Element elem = (Element) xmlNode;
-
-		this._defaultDiffusivity = Double.valueOf(XmlHandler.obtainAttribute(
-				elem, XmlRef.defaultDiffusivity, "PARENT NODE"));
 		
-		this._biofilmDiffusivity = Double.valueOf(XmlHandler.obtainAttribute(
-				elem, XmlRef.biofilmDiffusivity, "PARENT NODE"));
+	}
+	
+	@Override
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		String s;
 		
-		this._threshold = Double.valueOf(XmlHandler.obtainAttribute(elem, 
-				XmlRef.threshold, "PARENT NODE"));
+		s = XmlHandler.obtainAttribute(xmlElem,
+				XmlRef.defaultDiffusivity, "PARENT NODE");
+		this._defaultDiffusivity = Double.valueOf(s);
+		
+		s = XmlHandler.obtainAttribute(xmlElem,
+				XmlRef.biofilmDiffusivity, "PARENT NODE");
+		this._biofilmDiffusivity = Double.valueOf(s);
+		
+		// TODO threshold
 	}
 	
 	@Override

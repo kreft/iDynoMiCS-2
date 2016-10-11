@@ -160,9 +160,9 @@ public abstract class SpatialBoundary extends Boundary
 		/* The diffusivity comes only from the current voxel. */
 		double diffusivity = grid.getValueAtCurrent(ArrayType.DIFFUSIVITY);
 		/* Shape handles the shared surface area on a boundary. */
-		double sArea = grid.getShape().nbhCurrSharedArea();
+		double sArea = grid.getShape().nhbCurrSharedArea();
 		/* Shape handles the centre-centre distance on a boundary. */
-		double dist = grid.getShape().nbhCurrDistance();
+		double dist = grid.getShape().nhbCurrDistance();
 		/* Calculate flux and flow in the same way as in SpatialGrid. */
 		double flux = valueDiff * diffusivity / dist ;
 		double flow = flux * sArea;
@@ -188,13 +188,25 @@ public abstract class SpatialBoundary extends Boundary
 	 * will be skipped. If at least one does, then 
 	 * {@link #updateWellMixedArray()} will be called in all.</p>
 	 * 
+	 * <p>If you want to create a new class of boundary that is well-mixed,
+	 * do not override this method but instead have your new class extend
+	 * WellMixedBoundary. We have used this approach instead of
+	 * {@code instanceof} as it each much easier to search for uses through
+	 * Eclipse's search hierarchy feature.</p>
+	 * 
 	 * @return Whether this boundary needs to update the well-mixed array of
 	 * the compartment it belong to.
 	 */
-	public abstract boolean needsToUpdateWellMixed();
+	public boolean needsToUpdateWellMixed()
+	{
+		return false;
+	}
 	
 	/**
-	 * \brief TODO
+	 * \brief Update the common grid's well-mixed array.
+	 * 
+	 * <p>All spatial grids must be able to this, even if they do not need a
+	 * well-mixed region by themselves.</p>
 	 */
 	public abstract void updateWellMixedArray();
 	

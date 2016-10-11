@@ -485,6 +485,7 @@ public class SolveChemostat extends ProcessManager
 		for ( Reaction aReac : reactions )
 		{
 			stoichiometry = aReac.getStoichiometry();
+			// TODO store the reaction rate for XML output
 			reactionOccurances = aReac.getRate(allConcns) * timeStep * volume;
 			for ( String key : stoichiometry.keySet() )
 				if ( this._environment.isSoluteName(key) )

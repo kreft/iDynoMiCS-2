@@ -102,7 +102,7 @@ public class PdeTest
 		 * Simulation parameters.
 		 */
 		double tStep = 0.1;
-		double tMax = 100.0;
+		double tMax = 1.0;
 		int nVoxelR = 3;
 		String soluteName = "solute";
 		/* Set up the simulator and log output. */
@@ -124,6 +124,253 @@ public class PdeTest
 		shape.setDimensionResolution(DimName.R, resCalc);
 		resCalc = new UniformResolution();
 		resCalc.setLength(2 * Math.PI / 3);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.THETA, resCalc);
+		/* Add the solute (will be initialised with zero concn). */
+		comp.environment.addSolute(new SpatialGrid(soluteName, 0.0, comp.environment));
+		SpatialGrid sG = comp.getSolute(soluteName);
+		/*
+		 * Set up the diffusion solver.
+		 */
+		SolveDiffusionTransient pm = new SolveDiffusionTransient();
+		pm.setName("DR solver");
+		pm.init(new String[]{soluteName}, comp.environment, 
+				comp.agents, comp.getName());
+		pm.setTimeForNextStep(0.0);
+		pm.setTimeStepSize(tStep);
+		pm.setPriority(1);
+		comp.addProcessManager(pm);
+		/*
+		 * Run the simulation, checking at each time step that all voxels in a 
+		 * ring have the same concentration.
+		 */
+		double last_concn = Double.NaN, cur_concn;
+		double[] conc_diff = new double[nVoxelR];
+		while ( Idynomics.simulator.timer.isRunning() )
+		{
+			Idynomics.simulator.step();
+			int ringIndex = -1;
+			for ( shape.resetIterator();
+					shape.isIteratorValid(); shape.iteratorNext() )
+			{
+				if ( shape.iteratorCurrent()[0] != ringIndex )
+				{
+					ringIndex = shape.iteratorCurrent()[0];
+					last_concn = sG.getValueAtCurrent(ArrayType.CONCN);
+				}
+				cur_concn = sG.getValueAtCurrent(ArrayType.CONCN);
+				conc_diff[ringIndex] += Math.abs(last_concn - cur_concn);
+				last_concn = cur_concn;
+			}
+			Log.out(Tier.DEBUG, "Differences along radii for step " 
+						+ Idynomics.simulator.timer.getCurrentTime()+": "
+											+ Arrays.toString(conc_diff));
+			assertTrue(ExtraMath.areEqual(Vector.sum(conc_diff),
+					0, TOLERANCE));
+		}
+	}
+	
+	@Test
+	public void checkDiffusionReachesEquilibriumInCylinder()
+	{
+		/*
+		 * Simulation parameters.
+		 */
+		double tStep = 0.1;
+		double tMax = 100.0;
+		int nVoxelR = 7;
+		String soluteName = "solute";
+		/* Set up the simulator and log output. */
+		AllTests.setupSimulatorForTest(tStep, tMax,
+				"checkDiffusionReachesEquilibriumInCylinder");
+		/*
+		 * Set up the simulation with a single compartment: a cylinder, with
+		 * solid rmin and z and fixed rmax boundary, theta cyclic.
+		 */
+		Compartment comp = Idynomics.simulator.addCompartment("cylinder");
+		comp.setShape("cylinder");
+		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+		rMax.setConcentration("solute", 2.0);
+		comp.addBoundary(rMax);
+		Shape shape = comp.getShape();
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(nVoxelR);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.R, resCalc);
+		resCalc = new UniformResolution();
+		resCalc.setLength(2 * Math.PI / 3);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.THETA, resCalc);
+		resCalc = new UniformResolution();
+		resCalc.setLength(3);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.Z, resCalc);
+		/* Add the solute (will be initialised with zero concn). */
+		comp.environment.addSolute(new SpatialGrid(soluteName, 0.0, comp.environment));
+		SpatialGrid sG = comp.getSolute(soluteName);
+		/*
+		 * Set up the diffusion solver.
+		 */
+		SolveDiffusionTransient pm = new SolveDiffusionTransient();
+		pm.setName("DR solver");
+		pm.init(new String[]{soluteName}, comp.environment, 
+				comp.agents, comp.getName());
+		pm.setTimeForNextStep(0.0);
+		pm.setTimeStepSize(tStep);
+		pm.setPriority(1);
+		comp.addProcessManager(pm);
+		/*
+		 * Run the simulation, computing the mean concentration for
+		 * each time step, stop if mean concentration is equal for  
+		 * two time steps or after 100 time steps. 
+		 */
+		double mean_conc = 0, conc_diff = 0, last_conc = 0;
+		while ( Idynomics.simulator.timer.isRunning() )
+		{
+			Idynomics.simulator.step();
+			int voxel_counter = 0;
+			mean_conc = 0;
+			for ( shape.resetIterator();
+					shape.isIteratorValid(); shape.iteratorNext() )
+			{
+				mean_conc += sG.getValueAtCurrent(ArrayType.CONCN);
+				voxel_counter++;
+			}
+			mean_conc /= voxel_counter - 1;
+			conc_diff = Math.abs(last_conc - mean_conc);
+			last_conc = mean_conc;
+			Log.out(Tier.DEBUG, "Mean concentration for time step " 
+					+ Idynomics.simulator.timer.getCurrentTime()+": "
+					+ mean_conc + " has difference "+conc_diff
+					+" to last mean concentration");
+			if (ExtraMath.areEqual(conc_diff, 0, TOLERANCE)){
+				Log.out(Tier.DEBUG, "reached equilibrium at time step "
+						+ Idynomics.simulator.timer.getCurrentTime()
+						+" with mean concentration " + mean_conc);
+				break;
+			}
+		}
+		assertTrue(mean_conc > 0 && ExtraMath.areEqual(conc_diff, 0, TOLERANCE));
+	}
+	
+	@Test
+	public void checkDiffusionReachesEquilibriumInSphere()
+	{
+		/*
+		 * Simulation parameters.
+		 */
+		double tStep = 0.1;
+		double tMax = 100;
+		int nVoxelR = 7;
+		String soluteName = "solute";
+		/* Set up the simulator and log output. */
+		AllTests.setupSimulatorForTest(tStep, tMax,
+				"checkDiffusionReachesEquilibriumInSphere");
+		/*
+		 * Set up the simulation with a single compartment: a cylinder, with
+		 * solid rmin and z and fixed rmax boundary, theta cyclic.
+		 */
+		Compartment comp = Idynomics.simulator.addCompartment("sphere");
+		comp.setShape("sphere");
+		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+		rMax.setConcentration("solute", 2.0);
+		comp.addBoundary(rMax);
+		Shape shape = comp.getShape();
+		shape.getDimension(DimName.R).setLength(nVoxelR);
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(nVoxelR);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.R, resCalc);
+		resCalc = new UniformResolution();
+		resCalc.setLength(Math.PI / 2);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.THETA, resCalc);
+		resCalc = new UniformResolution();
+		resCalc.setLength(Math.PI / 2);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.PHI, resCalc);
+		/* Add the solute (will be initialised with zero concn). */
+		comp.environment.addSolute(new SpatialGrid(soluteName, 0.0, comp.environment));
+		SpatialGrid sG = comp.getSolute(soluteName);
+		/*
+		 * Set up the diffusion solver.
+		 */
+		SolveDiffusionTransient pm = new SolveDiffusionTransient();
+		pm.setName("DR solver");
+		pm.init(new String[]{soluteName}, comp.environment, 
+				comp.agents, comp.getName());
+		pm.setTimeForNextStep(0.0);
+		pm.setTimeStepSize(tStep);
+		pm.setPriority(1);
+		comp.addProcessManager(pm);
+		/*
+		 * Run the simulation, computing the mean concentration for
+		 * each time step, stop if mean concentration is equal for  
+		 * two time steps or max time step reached. 
+		 */
+		double mean_conc = 0, conc_diff = 0, last_conc = 0;
+		while ( Idynomics.simulator.timer.isRunning() )
+		{
+			Idynomics.simulator.step();
+			int voxel_counter = 0;
+			mean_conc = 0;
+			for ( shape.resetIterator();
+					shape.isIteratorValid(); shape.iteratorNext() )
+			{
+				mean_conc += sG.getValueAtCurrent(ArrayType.CONCN);
+				voxel_counter++;
+			}
+			mean_conc /= voxel_counter - 1;
+			conc_diff = Math.abs(last_conc - mean_conc);
+			last_conc = mean_conc;
+			Log.out(Tier.DEBUG, "Mean concentration for time step " 
+					+ Idynomics.simulator.timer.getCurrentTime()+": "
+					+ mean_conc + " has difference "+conc_diff
+					+" to last mean concentration");
+			if (ExtraMath.areEqual(conc_diff, 0, TOLERANCE)){
+				Log.out(Tier.DEBUG, "reached equilibrium at time step "
+						+ Idynomics.simulator.timer.getCurrentTime()
+						+" with mean concentration " + mean_conc);
+				break;
+			}
+		}
+		assertTrue(mean_conc > 0 && ExtraMath.areEqual(conc_diff, 0, TOLERANCE));
+	}
+	
+	@Test
+	public void checkDiffusionIndifferentForRadiusInSphere()
+	{
+		/*
+		 * Simulation parameters.
+		 */
+		double tStep = 0.1;
+		double tMax = 1.0;
+		int nVoxelR = 10;
+		String soluteName = "solute";
+		/* Set up the simulator and log output. */
+		AllTests.setupSimulatorForTest(tStep, tMax,
+				"checkDiffusionIndifferentForRadiusInSphere");
+		/*
+		 * Set up the simulation with a single compartment: a cylinder, with
+		 * solid rmin and z and fixed rmax boundary, theta cyclic.
+		 */
+		Compartment comp = Idynomics.simulator.addCompartment("sphere");
+		comp.setShape("sphere");
+		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+		rMax.setConcentration("solute", 2.0);
+		comp.addBoundary(rMax);
+		Shape shape = comp.getShape();
+		shape.getDimension(DimName.R).setLength(nVoxelR);
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setLength(nVoxelR);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.R, resCalc);
+		resCalc = new UniformResolution();
+		resCalc.setLength(Math.PI / 2);
+		resCalc.setResolution(1.0);
+		shape.setDimensionResolution(DimName.PHI, resCalc);
+		resCalc = new UniformResolution();
+		resCalc.setLength(Math.PI / 2);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.THETA, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
