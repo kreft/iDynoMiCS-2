@@ -18,6 +18,9 @@ import grid.SpatialGrid;
 /**
  * \brief TODO
  * 
+ * FIXME: please include a small description, what kind of pde solver is used
+ * here? Is it a known and documented algorithm?
+ * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class PDEexplicit extends PDEsolver
