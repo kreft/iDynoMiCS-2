@@ -59,7 +59,7 @@ public abstract class CylindricalShape extends PolarShape
 		for ( int i = 0; i < 3; i++ )
 		{
 			SingleVoxel sV = new SingleVoxel();
-			sV.init(1.0, 1.0);
+			sV.init(1.0, 0.0, 1.0);
 			this._resCalc[i][0] = sV;
 		}
 	}
@@ -137,6 +137,9 @@ public abstract class CylindricalShape extends PolarShape
 			else
 			{
 				int nShell = radiusC.getNVoxel();
+				int rMin = radiusC.getVoxelIndex(
+						this.getDimension(R).getExtreme(0));
+				
 				this._resCalc[index] = new ResCalc[nShell];
 				ResCalc shellResCalc;
 				for ( int i = 0; i < nShell; i++ )
@@ -146,8 +149,8 @@ public abstract class CylindricalShape extends PolarShape
 					 * resolutions, resC.getResolution(x) should all be the 
 					 * same at this point. 
 					 */
-					shellResCalc.setResolution(scaleResolutionForShell(i,
-							resC.getResolution(0)));
+					shellResCalc.setResolution(scaleResolutionForShell(
+							rMin + i, resC.getResolution(0)));
 					this._resCalc[index][i] = shellResCalc;
 				}
 			}

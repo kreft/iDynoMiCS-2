@@ -40,7 +40,7 @@ public abstract class CartesianShape extends Shape
 		for ( int i = 0; i < 3; i++ )
 		{
 			SingleVoxel sV = new SingleVoxel();
-			sV.init(1.0, 1.0);
+			sV.init(1.0, 0.0, 1.0);
 			this._resCalc[i] = sV;
 		}
 		/*

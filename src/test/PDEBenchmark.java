@@ -68,15 +68,15 @@ public class PDEBenchmark {
 			comp.addBoundary(xMax);
 			Shape shape = comp.getShape();
 			UniformResolution resCalc = new UniformResolution();
-			resCalc.setLength(nVoxelX);
+			resCalc.setExtremes(0.0, nVoxelX);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.X, resCalc);
 			resCalc = new UniformResolution();
-			resCalc.setLength(10);
+			resCalc.setExtremes(0.0, 10);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.Y, resCalc);
 			resCalc = new UniformResolution();
-			resCalc.setLength(10);
+			resCalc.setExtremes(0.0, 10);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.Z, resCalc);
 			/* Add the solute (will be initialised with zero concn). */
@@ -165,15 +165,15 @@ public class PDEBenchmark {
 			comp.addBoundary(rMax);
 			Shape shape = comp.getShape();
 			UniformResolution resCalc = new UniformResolution();
-			resCalc.setLength(nVoxelR);
+			resCalc.setExtremes(0.0, nVoxelR);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.R, resCalc);
 			resCalc = new UniformResolution();
-			resCalc.setLength(2 * Math.PI);
+			resCalc.setExtremes(0.0, 2 * Math.PI);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.THETA, resCalc);
 			resCalc = new UniformResolution();
-			resCalc.setLength(10);
+			resCalc.setExtremes(0.0, 10);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.Z, resCalc);
 			/* Add the solute (will be initialised with zero concn). */
@@ -261,15 +261,15 @@ public class PDEBenchmark {
 			comp.addBoundary(rMax);
 			Shape shape = comp.getShape();
 			UniformResolution resCalc = new UniformResolution();
-			resCalc.setLength(nVoxelR);
+			resCalc.setExtremes(0.0, nVoxelR);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.R, resCalc);
 			resCalc = new UniformResolution();
-			resCalc.setLength(Math.PI);
+			resCalc.setExtremes(0.0, Math.PI);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.PHI, resCalc);
 			resCalc = new UniformResolution();
-			resCalc.setLength(2 * Math.PI);
+			resCalc.setExtremes(0.0, 2 * Math.PI);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.THETA, resCalc);
 			/* Add the solute (will be initialised with zero concn). */

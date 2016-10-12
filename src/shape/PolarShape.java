@@ -70,24 +70,6 @@ public abstract class PolarShape extends Shape
 
 		int new_index = rC.getVoxelIndex(cur_min);
 		
-		/* 
-		 * Increase the index if it has approx. the same location as the
-		 * current coordinate
-		 */
-//		double cur_max = rC.getCumulativeResolution(new_index);
-//		if ( ExtraMath.areEqual(cur_max, cur_min, POLAR_ANGLE_EQ_TOL) )
-//			new_index++;
-		/* If we stepped onto the current coord, we went too far. */
-//		if ( (this._currentNeighbor[0] == this._currentCoord[0]) &&
-//				(new_index == this._currentCoord[1]) )
-//		{
-//			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-//			{
-//				Log.out(NHB_ITER_LEVEL,
-//					"  failure, stepped onto current coordinate");
-//			}
-//			return false;
-//		}
 		this._currentNeighbor[1] = new_index;
 
 		this._whereIsNhb = WhereAmI.INSIDE;

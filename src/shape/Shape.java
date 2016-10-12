@@ -1,8 +1,11 @@
 package shape;
 
-import static shape.Dimension.DimName;
-import static shape.Dimension.DimName.*;
-import static shape.Shape.WhereAmI.*;
+import static dataIO.Log.Tier.BULK;
+import static shape.Dimension.DimName.R;
+import static shape.Shape.WhereAmI.CYCLIC;
+import static shape.Shape.WhereAmI.DEFINED;
+import static shape.Shape.WhereAmI.INSIDE;
+import static shape.Shape.WhereAmI.UNDEFINED;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +23,6 @@ import boundary.SpatialBoundary;
 import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import static dataIO.Log.Tier.*;
 import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
 import generalInterfaces.Instantiatable;
@@ -28,8 +30,9 @@ import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
-import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
+import referenceLibrary.XmlRef;
+import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.subvoxel.SubvoxelPoint;
@@ -257,14 +260,14 @@ public abstract class Shape implements
 					
 					/* Initialise resolution calculators */
 					rC = new ResolutionCalculator.UniformResolution();
-					double length = dim.getLength();
 	
-					rC.init(dim._targetRes, length);
+					rC.init(dim._targetRes, dim._extreme[0], dim._extreme[1]);
 					this.setDimensionResolution(dimens, rC);	
 				}
 			}
 			catch (IllegalArgumentException e)
 			{
+				e.printStackTrace();
 				Log.out(Tier.CRITICAL, "Warning: input Dimension not "
 						+ "recognised by shape " + this.getClass().getName()
 						+ ", use: " + Helper.enumToString(DimName.class));
