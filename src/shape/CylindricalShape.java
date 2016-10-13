@@ -3,7 +3,6 @@ package shape;
 import static shape.Dimension.DimName.R;
 import static shape.Dimension.DimName.THETA;
 import static shape.Dimension.DimName.Z;
-import static shape.Shape.WhereAmI.UNDEFINED;
 
 import java.util.Arrays;
 
@@ -22,7 +21,7 @@ import utility.ExtraMath;
  * 
  * 
  */
-public abstract class CylindricalShape extends PolarShape
+public abstract class CylindricalShape extends Shape
 {
 	/**
 	 * Collection of resolution calculators for each dimension.
@@ -62,6 +61,8 @@ public abstract class CylindricalShape extends PolarShape
 			sV.init(1.0, 0.0, 1.0);
 			this._resCalc[i][0] = sV;
 		}
+		
+		this._it = this.getNewIterator();
 	}
 	
 	@Override
@@ -149,8 +150,9 @@ public abstract class CylindricalShape extends PolarShape
 					 * resolutions, resC.getResolution(x) should all be the 
 					 * same at this point. 
 					 */
-					shellResCalc.setResolution(scaleResolutionForShell(
-							rMin + i, resC.getResolution(0)));
+					double res = PolarShapeIterator.scaleResolutionForShell(
+							rMin + i, resC.getResolution(0));
+					shellResCalc.setResolution(res);
 					this._resCalc[index][i] = shellResCalc;
 				}
 			}
@@ -331,158 +333,34 @@ public abstract class CylindricalShape extends PolarShape
 	 * NEIGHBOR ITERATOR
 	 * **********************************************************************/
 	
-	@Override
-	protected void resetNbhIter()
-	{
-		/* See if we can use the inside r-shell. */
-		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) )
-		{ 
-			this._nbhDimName = R;
-			this._nbhDirection = 0;	
-		}
-		/* See if we can take the theta-minus-neighbor. */
-		else if (this.moveNhbToMinus(THETA)) 
-		{
-			this._nbhDimName = THETA;
-			this._nbhDirection = 0;	
-		}
-		/* See if we can take the theta-plus-neighbor. */
-		else if(this.nhbJumpOverCurrent(THETA))
-		{
-			this._nbhDimName = THETA;
-			this._nbhDirection = 1;	
-		}
-		/* See if we can take the z-minus-neighbor. */
-		else if (this.moveNhbToMinus(Z))
-		{
-			this._nbhDimName = Z;
-			this._nbhDirection = 0;	
-		}
-		/* See if we can take the z-plus-neighbor. */
-		else if (this.nhbJumpOverCurrent(Z))
-		{
-			this._nbhDimName = Z;
-			this._nbhDirection = 1;	
-		}
-		/* See if we can use the outside r-shell. */
-		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
-		{
-			this._nbhDimName = R;
-			this._nbhDirection = 1;	
-		}
-		/* There are no valid neighbors. */
-		else
-			this._whereIsNhb = UNDEFINED;
-		if ( this.isNbhIteratorValid() )
-		{
-			transformNhbCyclic();
-			return;
-		}
-	}
 	
-	@Override
-	public int[] nbhIteratorNext()
-	{
-		this.untransformNhbCyclic();
-		/*
-		 * In the cylindrical grid, we start the TODO
-		 */
-		if ( this._currentNeighbor[0] == this._currentCoord[0] - 1 )
-		{
-			/* 
-			 * We're in the r-shell just inside that of the current coordinate.
-			 * Try increasing theta by one voxel. If this fails, move out to
-			 * the next shell. If this fails, call this method again.
-			 */
-			this._nbhDimName = R;
-			this._nbhDirection = 0;
-			if ( ! this.increaseNbhByOnePolar(THETA) )
-			{
-				this._nbhDimName = THETA;
-				this._nbhDirection = 0;
-				if ( ! this.moveNhbToMinus(THETA) )
-					return this.nbhIteratorNext();
-			}
-					
-		}
-		else if ( this._currentNeighbor[0] == this._currentCoord[0] )
-		{
-			/* 
-			 * We're in the same r-shell as the current coordinate.
-			 */
-			if ( this._currentNeighbor[2] == this._currentCoord[2] )
-			{
-				/*
-				 * We're in the same z-slice as the current coordinate.
-				 * Try to move to the theta-plus side of the current
-				 * coordinate. If you can't, try switching to the z-minus
-				 * voxel.
-				 */
-				this._nbhDimName = THETA;
-				this._nbhDirection = 1;
-				if ( ! this.nhbJumpOverCurrent(THETA) )
-				{
-					this._nbhDimName = Z;
-					this._nbhDirection = 0;
-					if ( ! this.moveNhbToMinus(Z) )
-						return this.nbhIteratorNext();
-				}
-			}
-			else if (this.nhbJumpOverCurrent(Z) )
-			{
-				this._nbhDimName = Z;
-				this._nbhDirection = 1;
-			}
-			else{
-				/*
-				 * We tried to move to the z-plus side of the current
-				 * coordinate, but since we failed we must be finished.
-				 */
-				this._nbhDimName = R;
-				this._nbhDirection = 1;
-				if ( ! this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
-					this._whereIsNhb = UNDEFINED;
-			}
-		}
-		else 
-		{
-			/* 
-			 * We're in the r-shell just outside that of the current coordinate.
-			 * If we can't increase theta any more, then we've finished.
-			 */
-			if ( ! this.increaseNbhByOnePolar(THETA) )
-				this._whereIsNhb = UNDEFINED;
-		}
-		this.transformNhbCyclic();
-		return this._currentNeighbor;
-	}
 	
 	@Override
 	public double nhbCurrSharedArea()
 	{
 		Tier level = Tier.BULK;
-		int[] cc = this._currentCoord, nhb = this._currentNeighbor;
+		int[] cc = this._it._currentCoord, nhb = this._it._currentNeighbor;
 		Log.out(level, "  current coord is "+Arrays.toString(cc)
 			+", current nhb is "+Arrays.toString(nhb));
 		
 		/* moving towards positive in the current dim? */
-		boolean pos_direc = this._nbhDirection == 1;
+		boolean pos_direc = this._it._nbhDirection == 1;
 		
 		/* Integration minima and maxima, these are the lower and upper 
 		 * locations of the intersections between the current voxel and the 
 		 * neighbor voxel for each dimension. */
-		double r1 = getIntegrationMin(0), r2 = getIntegrationMax(0),
-				theta1 = getIntegrationMin(1), theta2 = getIntegrationMax(1),
-				z1 = getIntegrationMin(2), z2 = getIntegrationMax(2);
+		double r1 = this._it.getIntegrationMin(0), r2 = this._it.getIntegrationMax(0),
+				theta1 = this._it.getIntegrationMin(1), theta2 = this._it.getIntegrationMax(1),
+				z1 = this._it.getIntegrationMin(2), z2 = this._it.getIntegrationMax(2);
 	
 		double area = 1;
-		Log.out(level, "    Dimension name is "+this._nbhDimName+", direction is "
-														+this._nbhDirection);
+		Log.out(level, "    Dimension name is "+this._it._nbhDimName+", direction is "
+														+this._it._nbhDirection);
 		/* compute the area element, depending along which dimension we are 
 		 * currently moving. This is 
 		 * Integrate[r,{z,z1,z2},{theta,theta1,theta2},{r,r1,r2}]  
 		 * with integration length zero for the current dimension*/
-		switch (this._nbhDimName){
+		switch (this._it._nbhDimName){
 		case R: /* theta-z plane */
 			area *= pos_direc ? r1 : r2;
 			area *= theta2 - theta1;
@@ -499,10 +377,15 @@ public abstract class CylindricalShape extends PolarShape
 			area /= 2;
 			break;
 		default: throw new IllegalArgumentException("unknown dimension " 
-											+ this._nbhDimName + " for sphere");
+											+ this._it._nbhDimName + " for sphere");
 		}
 		Log.out(level, "    r1 is "+r1+", theta1 is "+theta1+ ", z1 is "+z1
 				+ ", r2 is "+r2+", theta2 is "+theta2+ ", z2 is "+z2);
 		return area;
+	}
+	
+	@Override
+	public ShapeIterator getNewIterator() {
+		return new CylindricalShapeIterator(this);
 	}
 }

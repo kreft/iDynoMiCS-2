@@ -122,12 +122,6 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		protected void resetNbhIter()
-		{
-			/* Do nothing! */
-		}
-		
-		@Override
 		public int[] nbhIteratorNext()
 		{
 			return null;
@@ -168,6 +162,12 @@ public final class ShapeLibrary
 		public double getBoundarySurfaceArea(DimName dimN, int extreme)
 		{
 			return 0.0;
+		}
+
+		@Override
+		public ShapeIterator getNewIterator() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 	

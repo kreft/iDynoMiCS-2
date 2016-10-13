@@ -4,8 +4,6 @@ package shape;
 import static shape.Dimension.DimName.PHI;
 import static shape.Dimension.DimName.R;
 import static shape.Dimension.DimName.THETA;
-import static shape.Shape.WhereAmI.INSIDE;
-import static shape.Shape.WhereAmI.UNDEFINED;
 
 import java.util.Arrays;
 
@@ -18,7 +16,7 @@ import surface.Ball;
 import surface.Point;
 import utility.ExtraMath;
 
-public abstract class SphericalShape extends PolarShape
+public abstract class SphericalShape extends Shape
 {
 	/**
 	 * The value of 1/3. Division is computationally costly, so calculate this
@@ -65,6 +63,8 @@ public abstract class SphericalShape extends PolarShape
 		
 		dim = new Dimension(false, THETA);
 		this._dimensions.put(THETA, dim);
+		
+		this._it = this.getNewIterator();
 	}
 	
 	@Override
@@ -215,7 +215,9 @@ public abstract class SphericalShape extends PolarShape
 			for ( int i = 0; i < nShell; i++ )
 			{
 				focalResCalc = (ResCalc) resC.copy();
-				focalResCalc.setResolution(scaleResolutionForShell(i, resC.getResolution(0)));
+				double res = PolarShapeIterator.scaleResolutionForShell(
+						i, resC.getResolution(0));
+				focalResCalc.setResolution(res);
 				this._resCalc[1][0][i] = focalResCalc;
 			}
 			/* Check if theta is waiting for phi before returning. */
@@ -248,9 +250,10 @@ public abstract class SphericalShape extends PolarShape
 				{
 					focalResCalc = (ResCalc) resC.copy();
 					/* NOTE For varying resolution this will not work anymore */
-					focalResCalc.setResolution(scaleResolutionForRing(shell,
+					double res = PolarShapeIterator.scaleResolutionForRing(shell,
 							ring, phiC[shell].getResolution(0),
-							resC.getResolution(0)));
+							resC.getResolution(0));
+					focalResCalc.setResolution(res);
 					this._resCalc[2][shell][ring] = focalResCalc;
 				}
 			}
@@ -411,8 +414,6 @@ public abstract class SphericalShape extends PolarShape
 		}
 	}
 	
-	
-	
 	/* ***********************************************************************
 	 * VOXELS
 	 * **********************************************************************/
@@ -433,297 +434,32 @@ public abstract class SphericalShape extends PolarShape
 		return vol / 3;
 	}
 	
-	/* ***********************************************************************
-	 * SUBVOXEL POINTS
-	 * **********************************************************************/
-	
-	/* ***********************************************************************
-	 * COORDINATE ITERATOR
-	 * **********************************************************************/
-	
-	/* ***********************************************************************
-	 * NEIGHBOR ITERATOR
-	 * **********************************************************************/
-	
-	@Override
-	protected void resetNbhIter()
-	{
-		/* See if we can use the inside r-shell. */
-		if ( this.setNbhFirstInNewShell( this._currentCoord[0] - 1 ) 
-			&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) )
-		{
-			this._nbhDimName = R;
-			this._nbhDirection = 0;	
-		}
-		/* 
-		 * See if we can take one of the phi-minus-neighbors of the current 
-		 * r-shell. 
-		 */
-		else if ( this.setNbhFirstInNewShell( this._currentCoord[0]) 
-					&& this.setNbhFirstInNewRing( this._currentCoord[1] - 1) )
-		{
-			this._nbhDimName = PHI;
-			this._nbhDirection = 0;	
-		}
-		/* 
-		 * See if we can take one of the theta-neighbors in the current r-shell.
-		 */
-		else if ( this.moveNhbToMinus(THETA))
-		{
-			this._nbhDimName = THETA;
-			this._nbhDirection = 0;	
-		}
-		else if (this.nhbJumpOverCurrent(THETA))
-		{
-			this._nbhDimName = THETA;
-			this._nbhDirection = 1;	
-		}
-		/* See if we can take one of the phi-plus-neighbors. */
-		else if ( this.setNbhFirstInNewRing( this._currentCoord[1] + 1) )
-		{
-			this._nbhDimName = PHI;
-			this._nbhDirection = 1;	
-		}
-		
-		/* See if we can use the outside r-shell. */
-		else if ( this.setNbhFirstInNewShell( this._currentCoord[0] + 1 ) 
-					&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) )
-		{
-			this._nbhDimName = R;
-			this._nbhDirection = 1;		
-		}
-		/* There are no valid neighbors. */
-		else
-			this._whereIsNhb = UNDEFINED;
-		if ( this.isNbhIteratorValid() )
-		{
-			transformNhbCyclic();
-			return;
-		}
-	}
-	
-	@Override
-	public int[] nbhIteratorNext()
-	{
-		this.untransformNhbCyclic();
-		/*
-		 * In the spherical shape, we start the TODO
-		 */
-		if ( this._currentNeighbor[0] == this._currentCoord[0] - 1 )
-		{
-			/*
-			 * We're in the r-shell just inside that of the current coordinate.
-			 */
-			this._nbhDimName = R;
-			this._nbhDirection = 0;
-			/* Try increasing theta by one voxel. */
-			if ( ! this.increaseNbhByOnePolar(THETA) )
-			{
-				/* Try moving out to the next ring and set the first phi nhb */
-				if ( ! this.increaseNbhByOnePolar(PHI) ||
-										! this.setNbhFirstInNewRing(
-												this._currentNeighbor[1]) )
-				{
-					/* 
-					 * Try moving to the next shell. This sometimes misses the
-					 * first valid phi coord (limited double accuracy), so lets
-					 * additionally try the phi-minus ring.
-					 */
-					this._nbhDimName = PHI;
-					this._nbhDirection = 0;
-					if ( ! this.moveNhbToMinus(PHI)
-						|| ! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
-					{
-						/*
-						 * If this fails, the phi-ring must be invalid, so try
-						 * to move to the theta-minus neighbor in the current
-						 * phi-ring.
-						 * If this fails call this method again.
-						 */
-						this._nbhDimName = THETA;
-						this._nbhDirection = 0;
-						if ( ! this.moveNhbToMinus(THETA) )
-							return this.nbhIteratorNext();
-					}
-				}
-			}
-		}
-		else if ( this._currentNeighbor[0] == this._currentCoord[0] )
-		{
-			/* 
-			 * We're in the same r-shell as the current coordinate.
-			 */
-			if ( this._currentNeighbor[1] == this._currentCoord[1] - 1 )
-			{
-				/*
-				 * We're in the phi-ring just inside that of the 
-				 * current coordinate.
-				 * Try increasing theta by one voxel. If this fails, move out
-				 * to the next ring. If this fails, call this method again.
-				 */
-				this._nbhDimName = PHI;
-				this._nbhDirection = 0;
-				if ( ! this.increaseNbhByOnePolar(THETA) ){
-					this._nbhDimName = THETA;
-					this._nbhDirection = 0;
-					if ( ! this.moveNhbToMinus(THETA) )
-						return this.nbhIteratorNext();
-				}
-			}
-			else if ( this._currentNeighbor[1] == this._currentCoord[1] )
-			{
-				/*
-				 * We're in the same phi-ring as the current coordinate.
-				 * Try to jump to the theta-plus side of the current
-				 * coordinate. If you can't, try switching to the phi-plus
-				 * ring.
-				 */
-				this._nbhDimName = THETA;
-				this._nbhDirection = 1;
-				if (! this.nhbJumpOverCurrent(THETA) ) {
-					this._nbhDimName = PHI;
-					this._nbhDirection = 1;
-					if ( ! this.setNbhFirstInNewRing(this._currentCoord[1] + 1))
-						return this.nbhIteratorNext();
-				}
-			}
-			else 
-			{
-				/* 
-				 * We're in the phi-ring just above that of the current
-				 * coordinate. 
-				 */
-				int rPlus = this._currentCoord[0] + 1;
-				this._nbhDimName = PHI;
-				this._nbhDirection = 1;
-				/* Try increasing theta by one voxel. */
-				if ( ! this.increaseNbhByOnePolar(THETA) )
-				{
-					/* Move out to the next shell or the next rings. */
-					this._nbhDimName = R;
-					this._nbhDirection = 1;
-					if (! this.setNbhFirstInNewShell(rPlus) ||
-									! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
-					{
-						this.nbhIteratorNext();
-					}
-				}
-			}
-		}
-		else 
-		{
-			/* 
-			 * We're in the r-shell just outside that of the current coordinate.
-			 * If we can't increase phi and theta any more, then we've finished.
-			 */
-			this._nbhDimName = R;
-			this._nbhDirection = 1;
-			if ( ! this.increaseNbhByOnePolar(THETA) )
-				if (!this.increaseNbhByOnePolar(PHI) ||
-						! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
-				{
-					this._whereIsNhb = UNDEFINED;
-				}
-		}
-		this.transformNhbCyclic();
-		Log.out(NHB_ITER_LEVEL, "Current coord is " 
-				+ Arrays.toString(this._currentCoord) 
-				+ " ,dimension name is "+this._nbhDimName
-				+", direction is "+this._nbhDirection);
-		return this._currentNeighbor;
-	}
-	
-	/**
-	 * this will set the current neighbor's phi coordinate to ringIndex and 
-	 * attempt to set the theta coordinate.
-	 * 
-	 * @param shellIndex
-	 * @return
-	 */
-	protected boolean setNbhFirstInNewRing(int ringIndex)
-	{
-		//TODO this will currently not set onto min boundary?
-		if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-		{
-			Log.out(NHB_ITER_LEVEL, "  trying to set neighbor in new ring "+
-				ringIndex);
-		}
-		this._currentNeighbor[1] = ringIndex;
-		/*
-		 * We must be on a shell inside the array or on a defined R boundary.
-		 */
-		WhereAmI whereIsR = this.whereIsNhb(R);
-		if ( whereIsR != INSIDE ){
-			if (whereIsR != UNDEFINED){
-				Log.out(NHB_ITER_LEVEL, "  success on "+ whereIsR +" boundary");
-				return true;
-			}
-			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				Log.out(NHB_ITER_LEVEL, "  failure, R on undefined boundary");
-			return false;
-		}
-		/*
-		 * First check that the new ring is inside the grid. If we're on a
-		 * defined boundary, the theta coordinate is irrelevant.
-		 */
-		if ( (this._whereIsNhb = this.whereIsNhb(PHI)) != INSIDE ){
-			if (this._whereIsNhb != UNDEFINED)
-			{
-				if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				{
-					Log.out(NHB_ITER_LEVEL, "  success on "+ this._whereIsNhb 
-						+" boundary");
-				}
-				return true;
-			}
-			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-				Log.out(NHB_ITER_LEVEL, "  failure, PHI on undefined boundary");
-			return false;
-		}
-
-		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 2);
-		/*
-		 * We're on an intermediate ring, so find the voxel which has the
-		 * current coordinate's minimum theta angle inside it.
-		 */
-		double theta = rC.getCumulativeResolution(this._currentCoord[2] - 1);
-		
-		rC = this.getResolutionCalculator(this._currentNeighbor, 2);
-		
-		int new_index = rC.getVoxelIndex(theta);
-
-		this._currentNeighbor[2] = new_index;
-		
-		Log.out(NHB_ITER_LEVEL, "  success with theta idx "+new_index);
-		return true;
-	}
-	
 	@Override
 	public double nhbCurrSharedArea()
 	{
 		Tier level = Tier.BULK;
-		int[] cc = this._currentCoord, nhb = this._currentNeighbor;
+		int[] cc = this._it._currentCoord, nhb = this._it._currentNeighbor;
 		Log.out(level, "  current coord is "+Arrays.toString(cc)
 			+", current nhb is "+Arrays.toString(nhb));
 		
 		/* moving towards positive in the current dim? */
-		boolean pos_direc = this._nbhDirection == 1;
+		boolean pos_direc = this._it._nbhDirection == 1;
 		
 		/* Integration minima and maxima, these are the lower and upper 
 		 * locations of the intersections between the current voxel and the 
 		 * neighbor voxel for each dimension. */
-		double r1 = getIntegrationMin(0), r2 = getIntegrationMax(0),
-				phi1 = getIntegrationMin(1), phi2 = getIntegrationMax(1),
-				theta1 = getIntegrationMin(2), theta2 = getIntegrationMax(2);
+		double r1 = this._it.getIntegrationMin(0), r2 = this._it.getIntegrationMax(0),
+				phi1 = this._it.getIntegrationMin(1), phi2 = this._it.getIntegrationMax(1),
+				theta1 = this._it.getIntegrationMin(2), theta2 = this._it.getIntegrationMax(2);
 	
 		double area = 1;
-		Log.out(level, "    Dimension name is "+this._nbhDimName+", direction is "
-														+this._nbhDirection);
+		Log.out(level, "    Dimension name is "+this._it._nbhDimName+", direction is "
+														+this._it._nbhDirection);
 		/* compute the area element, depending along which dimension we are 
 		 * currently moving. This is 
 		 * Integrate[r^2 sin p,{phi,phi1,phi2},{theta,theta1,theta2},{r,r1,r2}] 
 		 * with integration length zero for the current dimension*/
-		switch (this._nbhDimName){
+		switch (this._it._nbhDimName){
 		case R: /* phi-theta plane */
 			area *= ExtraMath.sq(pos_direc ? r1 : r2);
 			area *= theta2 - theta1;
@@ -741,10 +477,15 @@ public abstract class SphericalShape extends PolarShape
 			area /= 3;
 			break;
 		default: throw new IllegalArgumentException("unknown dimension " 
-											+ this._nbhDimName + " for sphere");
+											+ this._it._nbhDimName + " for sphere");
 		}
 		Log.out(level, "    r1 is "+r1+", phi1 is "+phi1+ ", theta1 is "+theta1
 				+ ", r2 is "+r2+", phi2 is "+phi2+ ", theta2 is "+theta2);
 		return area;
+	}
+	
+	@Override
+	public ShapeIterator getNewIterator() {
+		return new SphericalShapeIterator(this);
 	}
 }
