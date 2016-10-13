@@ -1,6 +1,5 @@
 package glRender;
 
-import java.nio.FloatBuffer;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.jogamp.opengl.math.Quaternion;
-import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
 import dataIO.Log;
@@ -17,9 +15,11 @@ import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
+import shape.CylindricalShape;
 import shape.Dimension.DimName;
 import shape.Shape;
 import shape.ShapeIterator;
+import shape.SphericalShape;
 import surface.Ball;
 import surface.Rod;
 import surface.Surface;
@@ -278,6 +278,14 @@ public class AgentMediator implements CommandMediator {
 	private void draw(Shape shape){
 		/* save the current modelview matrix */
 		_gl.glPushMatrix();
+		
+		/* polar shapes are already centered around the origin after calling 
+		 * getGlobalLocation() , so undo global translation */
+		if (shape instanceof CylindricalShape || shape instanceof SphericalShape)
+			_gl.glTranslated(
+					 _domainMaxima[0] * 0.5, 
+					 _domainMaxima[1] * 0.5,
+					 _domainMaxima[2] * 0.5);
 		
 		double[] length = GLUtil.make3D(shape.getDimensionLengths());
 

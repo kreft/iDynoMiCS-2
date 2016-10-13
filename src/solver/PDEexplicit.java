@@ -63,8 +63,9 @@ public class PDEexplicit extends PDEsolver
 		{
 			double inverseMaxT = var.getMax(DIFFUSIVITY);
 			inverseMaxT *= var.getShape().getMaxFluxPotential();
-			inverseMaxT *= var.getShape().getNumberOfDimensions();
-			dt =  Math.min(dt, 1 / inverseMaxT);
+			/* Assume always 3 dimensions since we solve in (pseudo) 3D space*/
+			inverseMaxT *= 3;  
+			dt =  Math.min(dt, 1.0 / inverseMaxT);
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, "PDEexplicit: variable \""+var.getName()+ "\" has"
