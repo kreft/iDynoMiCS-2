@@ -85,6 +85,7 @@ public class Render implements GLEventListener, Runnable {
 	 */
 	private boolean _light;
 	private boolean _blend;
+	private boolean _msaa;
 	private float _aspectRatio;
 	
 	/*
@@ -142,7 +143,7 @@ public class Render implements GLEventListener, Runnable {
 			gl.glEnable(GL2.GL_DEPTH_TEST);
 			gl.glDisable(GL2.GL_BLEND);
 		}
-		
+
 		/*
 		 * ask commandMediator to draw what it draws, tilt and zoom only work
 		 * if implemented by commandMediator
@@ -267,6 +268,10 @@ public class Render implements GLEventListener, Runnable {
 		/* openGL profile */
 		final GLProfile profile = GLProfile.get(GLProfile.GL2);
 		GLCapabilities capabilities = new GLCapabilities(profile);
+		
+		/* multi-sampling anti aliasing */
+		capabilities.setSampleBuffers(true);
+		capabilities.setNumSamples(8);
 		
 		/* Canvas */
 		final GLCanvas glcanvas = new GLCanvas(capabilities);
@@ -489,6 +494,20 @@ public class Render implements GLEventListener, Runnable {
 
 			}
 		});
+		
+		/* multi sampling anti aliasing */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0), "msaa") ;
+		actionMap.put("msaa", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("msaa");
+				r._msaa = r._msaa ? false : true;
+
+			}
+		});
+		
 		
 		/* alpha */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "blend") ;

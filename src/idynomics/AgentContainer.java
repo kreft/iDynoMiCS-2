@@ -1027,7 +1027,8 @@ public class AgentContainer implements NodeConstructor
 			/* Find all agents that overlap with this voxel. */
 			// TODO a method for getting a voxel's bounding box directly?
 			location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
-			shape.getVoxelSideLengthsTo(dimension, coord);
+			shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
+			// FIXME create a bounding box that always captures at least the complete voxel
 			sides = Vector.subset(dimension, nDim);
 			/* NOTE the agent tree is always the amount of actual dimension */
 			nhbs = this.treeSearch(location, sides);

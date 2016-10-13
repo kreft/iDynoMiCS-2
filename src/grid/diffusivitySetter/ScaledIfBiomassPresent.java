@@ -88,6 +88,8 @@ public class ScaledIfBiomassPresent implements IsDiffusivitySetter
 		{
 			/* Find all agents that overlap with this voxel. */
 			shape.voxelOriginTo(location, coord);
+			//FIXME this assumes Cartesian grids
+			//FIXME maybe easier to convert agents to polar coords and then sample?
 			shape.getVoxelSideLengthsTo(dimension, coord);
 			List<Agent> neighbors = agents.treeSearch(location, dimension);
 			/* If there are any agents in this voxel, update the diffusivity. */
