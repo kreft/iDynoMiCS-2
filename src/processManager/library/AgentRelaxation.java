@@ -17,6 +17,8 @@ import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
+import spatialRegistry.SpatialRegistry;
+import spatialRegistry.splitTree.SplitTree;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;
@@ -129,6 +131,8 @@ public class AgentRelaxation extends ProcessManager
 	 * 
 	 */
 	private Collection<Surface> _shapeSurfs;
+	
+	private SpatialRegistry _agentTree;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -150,6 +154,7 @@ public class AgentRelaxation extends ProcessManager
 		this._timeLeap	= true;
 		
 		this._shape = agents.getShape();
+		// FIXME discovered circle returns a rod type shape (2 points) instead of circle (2d sphere, 1 point)
 		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = this._shape.getCollision();
 	}

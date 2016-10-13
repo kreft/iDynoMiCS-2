@@ -104,12 +104,24 @@ public class Point implements Copyable, NodeConstructor
 	{
 		return this._p;
 	}
+	
+	public double[] getPolarPosition()
+	{
+		return Vector.spherify(this._p);
+	}
 
 	public void setPosition(double[] position)
 	{
 		if ( Double.isNaN(position[0]))
 			System.out.println(_p);
 		this._p = position;
+	}
+	
+	public void setPolarPosition(double[] position)
+	{
+		if ( Double.isNaN(position[0]))
+			System.out.println(_p);
+		this._p = Vector.spherify(position);
 	}
 	
 	public double[] getForce()

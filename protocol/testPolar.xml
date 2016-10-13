@@ -122,7 +122,7 @@
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.01" />
-					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
 					firstStep="0.0" timerStepSize="0.5">
