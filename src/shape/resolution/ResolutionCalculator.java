@@ -5,6 +5,7 @@ package shape.resolution;
 
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
+import shape.Dimension;
 import utility.ExtraMath;
 
 /**
@@ -21,29 +22,30 @@ public class ResolutionCalculator
 		 */
 		protected int _nVoxel;
 		/**
-		 * Total length along this dimension.
+		 * Total extremes of this dimension.
 		 */
-		protected double _length;
+		protected double _min, _max;
 
 		// TODO void init(Node xmlNode);
-		public abstract void init(double targetResolution, double totalLength);
+		public abstract void init(double resolution, double min, double max);
 
 		public int getNVoxel()
 		{
 			return this._nVoxel;
 		}
 
-		public void setLength(double length)
+		public void setExtremes(double min, double max)
 		{
-			this._length = length;
+			this._min = min;
+			this._max = max;
 		}
 		
 		public double getTotalLength()
 		{
-			return _length;
+			return _max - _min;
 		}
 		
-		public abstract void setResolution(double length);
+		public abstract void setResolution(double res);
 
 		public abstract double getMinResolution();
 
@@ -90,7 +92,8 @@ public class ResolutionCalculator
 			{
 				out = this.getClass().newInstance();
 				out._nVoxel = this._nVoxel;
-				out._length = this._length;
+				out._min = this._min;
+				out._max = this._max;
 			}
 			catch (InstantiationException | IllegalAccessException e)
 			{
@@ -125,15 +128,15 @@ public class ResolutionCalculator
 			if ( voxelIndex >= this._nVoxel )
 				throw new IllegalArgumentException("Voxel index out of range");
 			if ( voxelIndex < 0 )
-				return 0.0;
-			return this._resolution * (voxelIndex + 1);
+				return this._min;
+			return this._min + this._resolution * (voxelIndex + 1);
 		}
 
 		@Override
 		public int getVoxelIndex(double location)
 		{
-			if ( location < 0.0 || location >= this._length )
-				throw new IllegalArgumentException("Voxel index out of range");
+			if ( location < this._min || location >= this._max )
+				throw new IllegalArgumentException("Location out of range");
 			return (int) (location / this._resolution);
 		}
 		
@@ -185,7 +188,7 @@ public class ResolutionCalculator
 		@Override
 		public int getVoxelIndex(double location)
 		{
-			if ( location < 0.0 || location >= this._length )
+			if ( location < this._min || location >= this._max )
 				throw new IllegalArgumentException("Location out of range");
 			int out = 0;
 			while ( location > this.getCumulativeResolution(out) )
@@ -233,25 +236,26 @@ public class ResolutionCalculator
 		protected double _targetRes;
 		
 		@Override
-		public void init(double targetResolution, double totalLength)
+		public void init(double targetResolution, double min, double max)
 		{
+			this._min = min;
+			this._max = max;
 			this._targetRes = targetResolution;
-			this._nVoxel = (int) (totalLength / targetResolution);
-			this._resolution = totalLength / this._nVoxel;
-			double altRes = totalLength / (this._nVoxel + 1);
+			this._nVoxel = (int) (getTotalLength() / targetResolution);
+			this._resolution = getTotalLength() / this._nVoxel;
+			double altRes = getTotalLength() / (this._nVoxel + 1);
 			if ( isAltResBetter(
 					this._resolution, altRes, targetResolution) )
 			{
 				this._nVoxel++;
 				this._resolution = altRes;
 			}
-			this._length = this.getCumulativeResolution(this._nVoxel - 1);
 		}
 		
 		@Override
 		public void setResolution(double targetResolution)
 		{
-			this.init(targetResolution, this._length);
+			this.init(targetResolution, this._min, this._max);
 		}
 		
 		public Object copy()
@@ -271,33 +275,34 @@ public class ResolutionCalculator
 		protected double _targetRes;
 		
 		@Override
-		public void init(double targetResolution, double totalLength)
+		public void init(double res, double min, double max)
 		{
-			this._targetRes = targetResolution;
+			this._min = min; 
+			this._max = max;
+			this._targetRes = res;
 			/* Single-voxel test to start with. */
 			this._nVoxel = 1;
-			this._resolution = totalLength;
+			this._resolution = res;
 			/* Variables to test splitting the grid into more voxels. */
 			int exponent = 0;
 			int altNVoxel = 2;
-			double altRes = totalLength / altNVoxel;
+			double altRes = getTotalLength() / altNVoxel;
 			/* Testing loop. */
 			while( isAltResBetter(
-					this._resolution, altRes, targetResolution) )
+					this._resolution, altRes, res) )
 			{
 				this._nVoxel = altNVoxel;
 				exponent++;
 				altNVoxel = ExtraMath.exp2(exponent) + 1;
 				this._resolution = altRes;
-				altRes = totalLength / altNVoxel;
+				altRes = getTotalLength() / altNVoxel;
 			}
-			this._length = this.getCumulativeResolution(this._nVoxel - 1);
 		}
 		
 		@Override
 		public void setResolution(double targetResolution)
 		{
-			this.init(targetResolution, this._length);
+			this.init(targetResolution, this._min, this._max);
 		}
 		
 		public Object copy()

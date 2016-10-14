@@ -1,6 +1,5 @@
 package glRender;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +8,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.jogamp.opengl.math.Quaternion;
-import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
 import dataIO.Log;
@@ -17,11 +15,10 @@ import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
-import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension.DimName;
-import shape.PolarShape;
 import shape.Shape;
+import shape.ShapeIterator;
 import shape.SphericalShape;
 import surface.Ball;
 import surface.Rod;
@@ -69,11 +66,6 @@ public class AgentMediator implements CommandMediator {
 	private GL2 _gl;
 	
 	/**
-	 * OpenGL Utility Toolkit
-	 */
-	private GLUT _glut;
-	
-	/**
 	 * OpenGL Utility Library
 	 */
 	private GLU _glu;
@@ -81,7 +73,7 @@ public class AgentMediator implements CommandMediator {
 	/**
 	 * Stores the length of the associated Shape in each dimension
 	 */
-	private double[] _domainLength;
+	private float[] _domainMaxima;
 	
 	/**
 	 * Default slices / stacks to subdivide polar objects.
@@ -107,13 +99,14 @@ public class AgentMediator implements CommandMediator {
 	{
 		this._agents = agents;
 		this._shape = agents.getShape();
-		this._domainLength = GLUtil.make3D(_shape.getDimensionLengths());
+		this._domainMaxima = new float[3];
 		/* determine kickback for camera positioning */
-		_kickback = (float) Math.max(_domainLength[0],
-				Math.max(_domainLength[1], _domainLength[2]));
-		/* The domain length is equal to the radius for polar shapes */
-		if (_shape instanceof PolarShape)
-			_kickback *= 2f;
+		_kickback = 0;
+		for (DimName dn : _shape.getDimensionNames()){
+			float max = (float)_shape.getDimension(dn).getExtreme(1);
+			_kickback  = Math.max(_kickback, max);
+			_domainMaxima[_shape.getDimensionIndex(dn)] = max;
+		}
 	}
 	
 	/**
@@ -126,7 +119,6 @@ public class AgentMediator implements CommandMediator {
 		/* set openGL profile */
 		_gl = drawable.getGL().getGL2();
 		_glu = GLU.createGLU(_gl);
-		_glut = new GLUT();
 	}
 
 	/**
@@ -139,20 +131,20 @@ public class AgentMediator implements CommandMediator {
 		/* load identity matrix */
 		_gl.glLoadIdentity();
 		
+		/* 
+     	 * Adjust positioning for the domain (prevent the scene from being
+     	 * rendered in one corner). This applies to all agents and shapes.
+     	 */
+		_gl.glTranslated(
+				 - _domainMaxima[0] * 0.5, 
+				 - _domainMaxima[1] * 0.5,
+				 - _domainMaxima[2] * 0.5);
+		
 		/*
 		 * draw the domain Shape
 		 *
 		 */
 		draw(_shape);
-		
-		/* 
-     	 * Adjust positioning for the domain (prevent the scene from being
-     	 * rendered in one corner). This applies to all agents.
-     	 */
-		_gl.glTranslated(
-				 - _domainLength[0] * 0.5, 
-				 - _domainLength[1] * 0.5,
-				 - _domainLength[2] * 0.5);
         
 		/* get the surfaces from the agents */
 		for ( Agent a : this._agents.getAllLocatedAgents() )
@@ -210,9 +202,6 @@ public class AgentMediator implements CommandMediator {
 	}
 	
 	private void draw(Ball ball){
-		/* scale number of slices / stacks proportional to the radius */
-		int stacks = (int)Math.ceil(ball._radius) * _stacks;
-		int slices = (int)Math.ceil(ball._radius) * _slices;
 		_gl.glPushMatrix();
 		applyCurrentColor();
 		double[] loc = GLUtil.make3D(ball._point.getPosition());
@@ -220,7 +209,7 @@ public class AgentMediator implements CommandMediator {
 		GLUquadric qobj = _glu.gluNewQuadric();
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
-		_glu.gluSphere(qobj, ball._radius, slices, stacks);
+		_glu.gluSphere(qobj, ball._radius, _slices, _stacks);
 		_glu.gluDeleteQuadric(qobj);
 		_gl.glPopMatrix();
 	}
@@ -228,11 +217,6 @@ public class AgentMediator implements CommandMediator {
 	private void draw(Rod rod) 
 	{
 		Tier level = Tier.BULK;
-		
-		/* scale number of slices / stacks proportional to the radius */
-		int stacks = (int)Math.ceil(rod._radius) * _stacks;
-		int slices = (int)Math.ceil(rod._radius) * _slices;
-		
 		 /* first sphere */
 		double[] posA = GLUtil.make3D(rod._points[0].getPosition());
 		 /* second sphere*/
@@ -248,7 +232,7 @@ public class AgentMediator implements CommandMediator {
 		if ( Log.shouldWrite(level) )
 		{
 			Log.out(level, "Constructing Rod with radius " + rod._radius + " and " 
-					+ slices + " slices, " + stacks + " stacks" );
+					+ _slices + " slices, " + _stacks + " stacks" );
 		}
 		GLUquadric qobj = _glu.gluNewQuadric();
 
@@ -256,7 +240,7 @@ public class AgentMediator implements CommandMediator {
 		_gl.glTranslated(posA[0], posA[1], posA[2]);
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
-		_glu.gluSphere(qobj, rod._radius, slices, stacks);
+		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
 		
 		/* direction from posB to posA */
 		double[] dp = Vector.minus(posB, posA);
@@ -276,7 +260,7 @@ public class AgentMediator implements CommandMediator {
 				rod._radius, 		/* base */
 				rod._radius, 		/* top */
 				height, 			/* height */
-				slices, stacks);
+				_slices, _stacks);
 		/* restore matrix state before rotation (so we are at point A again)*/
 		_gl.glPopMatrix();
 
@@ -284,7 +268,7 @@ public class AgentMediator implements CommandMediator {
 		_gl.glTranslated(dp[0], dp[1], dp[2]);
 		_glu.gluQuadricDrawStyle(qobj, GLU.GLU_FILL);
 		_glu.gluQuadricNormals(qobj, GLU.GLU_SMOOTH);
-		_glu.gluSphere(qobj, rod._radius, slices, stacks);
+		_glu.gluSphere(qobj, rod._radius, _slices, _stacks);
 		
 		/* clean up */
 		_glu.gluDeleteQuadric(qobj);
@@ -295,12 +279,17 @@ public class AgentMediator implements CommandMediator {
 		/* save the current modelview matrix */
 		_gl.glPushMatrix();
 		
+		/* polar shapes are already centered around the origin after calling 
+		 * getGlobalLocation() , so undo global translation */
+		if (shape instanceof CylindricalShape || shape instanceof SphericalShape)
+			_gl.glTranslated(
+					 _domainMaxima[0] * 0.5, 
+					 _domainMaxima[1] * 0.5,
+					 _domainMaxima[2] * 0.5);
+		
 		double[] length = GLUtil.make3D(shape.getDimensionLengths());
-		/* scale number of slices / stacks proportional to the radius */
-		int stacks = (int)Math.ceil(length[0]) * _stacks;
-		int slices = (int)Math.ceil(length[0]) * _slices;
 
-		/* set different color / blending for 3 dimensional Shapes */
+		/* set different color / blending for 3 dimensional Cartesian shapes */
 		if (length[2] > 0)
 		{
 			_rgba = new float[] {0.1f, 0.1f, 1.0f};
@@ -317,34 +306,13 @@ public class AgentMediator implements CommandMediator {
 		 */
 		_gl.glDisable(GL2.GL_DEPTH_TEST); 
 		applyCurrentColor();
-		
-		/* apply different functions for different types */
-		if (shape instanceof CartesianShape){
-			
-			/* scale y and z relative to x (which we will choose as cube-size)*/
-			_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
-
-			/* draw the scaled cube (rectangle).
-			 * Note that a cube with length 0 in one dimension is a plane 
-			 */
-			_glut.glutSolidCube((float)length[0]);
-			
-		}else if (shape instanceof CylindricalShape){
-
-			/* draw the cylinder.
-			 * Note that a cylinder with height 0 is a circle and only full 
-			 * circles can be drawn at the moment. 
-			 */
-			_glut.glutSolidCylinder(length[0], length[2], slices, 
-					(int)Math.ceil(length[2])); 
-			
-		}else if (shape instanceof SphericalShape){
-			
-			/* draw the sphere.
-			 * Note that only full spheres can be drawn at the moment. 
-			 */
-			_glut.glutSolidSphere(length[0], slices, stacks);
-			
+				
+		ShapeIterator it = _shape.getNewIterator();
+		for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
+		{			
+			_gl.glPushMatrix();
+			drawVoxel(_shape, cur);
+			_gl.glPopMatrix();
 		}
 		
 		/* make sure Depth test is re-enabled and blend is disabled before
@@ -383,5 +351,60 @@ public class AgentMediator implements CommandMediator {
 		/* transform the quaternion into a rotation matrix and apply it */
 		//TODO: is there a way to make openGL use the quaternion directly?
 		_gl.glMultMatrixf(quat.toMatrix(_rotTemp, 0), 0);
+	}
+	
+	private void drawVoxel(Shape shape, int[] coord)
+	{
+//		Vector3f norm = new Vector3f(0f,0f,1f);
+		double[] in = new double[]{0,0,0};
+		
+		double[] p1 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [0 0 0]
+		double[] p2 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[2]++;			 // [0 1 0]
+		double[] p3 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [0 1 1]
+		double[] p4 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[0]++; in[1]++; 	 // [0 0 1]
+		double[] p5 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]--;			 // [1 1 1]
+		double[] p6 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[2]--;			 // [1 0 1]
+		double[] p7 = shape.getGlobalLocation(shape.getLocation(coord, in)); in[1]++;			 // [1 0 0]
+		double[] p8 = shape.getGlobalLocation(shape.getLocation(coord, in)); 					 // [1 1 0]
+		
+		_gl.glBegin(GL2.GL_QUADS);
+		// r==0
+		_gl.glVertex3fv(Vector.toFloat(p1), 0);
+		_gl.glVertex3fv(Vector.toFloat(p2), 0);
+		_gl.glVertex3fv(Vector.toFloat(p3), 0);
+		_gl.glVertex3fv(Vector.toFloat(p4), 0);
+		
+		// r==1
+		_gl.glVertex3fv(Vector.toFloat(p5), 0);
+		_gl.glVertex3fv(Vector.toFloat(p6), 0);
+		_gl.glVertex3fv(Vector.toFloat(p7), 0);
+		_gl.glVertex3fv(Vector.toFloat(p8), 0);
+		
+		// p==0
+		_gl.glVertex3fv(Vector.toFloat(p1), 0);
+		_gl.glVertex3fv(Vector.toFloat(p2), 0);
+		_gl.glVertex3fv(Vector.toFloat(p8), 0);
+		_gl.glVertex3fv(Vector.toFloat(p7), 0);
+		
+		// p==1
+		_gl.glVertex3fv(Vector.toFloat(p3), 0);
+		_gl.glVertex3fv(Vector.toFloat(p4), 0);
+		_gl.glVertex3fv(Vector.toFloat(p6), 0);
+		_gl.glVertex3fv(Vector.toFloat(p5), 0);
+		
+		// t==0
+		_gl.glVertex3fv(Vector.toFloat(p1), 0);
+		_gl.glVertex3fv(Vector.toFloat(p4), 0);
+		_gl.glVertex3fv(Vector.toFloat(p6), 0);
+		_gl.glVertex3fv(Vector.toFloat(p7), 0);
+
+		//t==1
+		_gl.glVertex3fv(Vector.toFloat(p2), 0);
+		_gl.glVertex3fv(Vector.toFloat(p3), 0);
+		_gl.glVertex3fv(Vector.toFloat(p5), 0);
+		_gl.glVertex3fv(Vector.toFloat(p8), 0);
+		
+		_gl.glEnd();
+
 	}
 }

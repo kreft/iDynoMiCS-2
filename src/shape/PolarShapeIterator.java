@@ -1,25 +1,30 @@
 package shape;
 
+import static shape.Dimension.DimName.R;
+import static shape.Dimension.DimName.THETA;
+import static shape.ShapeIterator.WhereAmI.CYCLIC;
+import static shape.ShapeIterator.WhereAmI.DEFINED;
+import static shape.ShapeIterator.WhereAmI.INSIDE;
+import static shape.ShapeIterator.WhereAmI.UNDEFINED;
+
 import java.util.Arrays;
 
 import dataIO.Log;
-import dataIO.Log.Tier;
-
-import static shape.Dimension.DimName;
-import static shape.Dimension.DimName.*;
-import static shape.Shape.WhereAmI.*;
-
-
 import linearAlgebra.Vector;
+import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import utility.ExtraMath;
 
-public abstract class PolarShape extends Shape
+public abstract class PolarShapeIterator extends ShapeIterator
 {
 	/**
 	 * Tolerance when comparing polar angles for equality (in radians).
 	 */
 	public final static double POLAR_ANGLE_EQ_TOL = 1e-6;
+	
+	public PolarShapeIterator(Shape shape) {
+		super(shape);
+	}
 	
 	/**
 	 * \brief Used to move neighbor iterator into a new shell.
@@ -44,7 +49,7 @@ public abstract class PolarShape extends Shape
 		 * First check that the new shell is inside the grid. If we're on a
 		 * defined boundary, the angular coordinate is irrelevant.
 		 */
-		ResCalc rC = this.getResolutionCalculator(this._currentCoord, 0);
+		ResCalc rC = this._shape.getResolutionCalculator(this._currentCoord, 0);
 		WhereAmI where = this.whereIsNhb(R);
 		if ( where == UNDEFINED )
 		{
@@ -64,30 +69,12 @@ public abstract class PolarShape extends Shape
 		 * We're on an intermediate shell, so find the voxel which has the
 		 * current coordinate's minimum angle inside it (which must exist!).
 		 */
-		rC = this.getResolutionCalculator(this._currentCoord, 1);
+		rC = this._shape.getResolutionCalculator(this._currentCoord, 1);
 		double cur_min = rC.getCumulativeResolution(this._currentCoord[1] - 1);
-		rC = this.getResolutionCalculator(this._currentNeighbor, 1);
+		rC = this._shape.getResolutionCalculator(this._currentNeighbor, 1);
 
 		int new_index = rC.getVoxelIndex(cur_min);
 		
-		/* 
-		 * Increase the index if it has approx. the same location as the
-		 * current coordinate
-		 */
-//		double cur_max = rC.getCumulativeResolution(new_index);
-//		if ( ExtraMath.areEqual(cur_max, cur_min, POLAR_ANGLE_EQ_TOL) )
-//			new_index++;
-		/* If we stepped onto the current coord, we went too far. */
-//		if ( (this._currentNeighbor[0] == this._currentCoord[0]) &&
-//				(new_index == this._currentCoord[1]) )
-//		{
-//			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
-//			{
-//				Log.out(NHB_ITER_LEVEL,
-//					"  failure, stepped onto current coordinate");
-//			}
-//			return false;
-//		}
 		this._currentNeighbor[1] = new_index;
 
 		this._whereIsNhb = WhereAmI.INSIDE;
@@ -108,7 +95,7 @@ public abstract class PolarShape extends Shape
 		Log.out(NHB_ITER_LEVEL, "  trying to increase neighbor "
 			  + Arrays.toString(this._currentNeighbor)+" by one polar in "+dim);
 		/* avoid increasing on any boundaries */
-		int index = this.getDimensionIndex(dim);
+		int index = this._shape.getDimensionIndex(dim);
 		if ((dim == THETA || this._nbhDimName == R)  && this._whereIsNhb != INSIDE) {
 			if ( Log.shouldWrite(NHB_ITER_LEVEL) )
 			{
@@ -117,8 +104,8 @@ public abstract class PolarShape extends Shape
 			}
 			return false;
 		}
-		Dimension dimension = this.getDimension(dim);
-		ResCalc rC = this.getResolutionCalculator(this._currentNeighbor, index);
+		Dimension dimension = this._shape.getDimension(dim);
+		ResCalc rC = this._shape.getResolutionCalculator(this._currentNeighbor, index);
 		/* If we are already on the maximum boundary, we cannot go further. */
 		if ( this._currentNeighbor[index] > rC.getNVoxel() - 1 )
 		{
@@ -182,9 +169,9 @@ public abstract class PolarShape extends Shape
 		/*
 		 * If increasing would mean we no longer overlap, report failure.
 		 */
-		rC = this.getResolutionCalculator(this._currentNeighbor, dimIndex);
+		rC = this._shape.getResolutionCalculator(this._currentNeighbor, dimIndex);
 		nbhMin = rC.getCumulativeResolution(this._currentNeighbor[dimIndex]);
-		rC = this.getResolutionCalculator(this._currentCoord, dimIndex);
+		rC = this._shape.getResolutionCalculator(this._currentCoord, dimIndex);
 		curMax = rC.getCumulativeResolution(this._currentCoord[dimIndex]);
 		if ( nbhMin >= curMax || 
 				ExtraMath.areEqual(nbhMin, curMax, POLAR_ANGLE_EQ_TOL) )
@@ -222,7 +209,7 @@ public abstract class PolarShape extends Shape
 	 * @param res Target resolution, in units of "quarter circles"
 	 * @return Target resolution, in radians.
 	 */
-	protected double scaleResolutionForRing(int shell, int ring,
+	protected static double scaleResolutionForRing(int shell, int ring,
 												double ring_res, double res){
 		/* see Docs/polarShapeScalingDerivation */
 		/* scale resolution to have a voxel volume of one for resolution one */
