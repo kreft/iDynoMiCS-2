@@ -701,6 +701,18 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});	
 		
+		/* decrease definition */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "grid") ;
+		actionMap.put("grid", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("grid");
+				((AgentMediator) r._commandMediator).grid ^= true;
+			}
+		});	
+		
 		/* screendump */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0), "screendump") ;
 		actionMap.put("screendump", new AbstractAction(){

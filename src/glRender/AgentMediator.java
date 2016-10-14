@@ -73,6 +73,11 @@ public class AgentMediator implements CommandMediator {
 	private GLUT _glut;
 	
 	/**
+	 * toggle grid view or domain view
+	 */
+	public boolean grid = false;
+	
+	/**
 	 * OpenGL Utility Library
 	 */
 	private GLU _glu;
@@ -299,7 +304,7 @@ public class AgentMediator implements CommandMediator {
 		
 		/* polar shapes are already centered around the origin after calling 
 		 * getGlobalLocation() , so undo global translation */
-		if (shape instanceof CylindricalShape || shape instanceof SphericalShape)
+		if (shape instanceof CylindricalShape || shape instanceof SphericalShape || !this.grid )
 			_gl.glTranslated(
 					 _domainMaxima[0] * 0.5, 
 					 _domainMaxima[1] * 0.5,
@@ -330,49 +335,53 @@ public class AgentMediator implements CommandMediator {
 		_gl.glEnable(GL2.GL_BLEND); 
 		_gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 		_gl.glColor4f(0.9f,0.9f,1.0f,0.1f);
+		
+		if (this.grid)
+		{
+			ShapeIterator it = _shape.getNewIterator();
+			for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
+			{			
+				_gl.glPushMatrix();
+				drawVoxel(_shape, cur);
+				_gl.glPopMatrix();
+			}
+		}
+		else
+		{
+			/* apply different functions for different types */
+			if (shape instanceof CartesianShape){
 				
-		ShapeIterator it = _shape.getNewIterator();
-		for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
-		{			
-			_gl.glPushMatrix();
-			drawVoxel(_shape, cur);
-			_gl.glPopMatrix();
+				/* scale y and z relative to x (which we will choose as cube-size)*/
+				_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
+	
+				/* draw the scaled cube (rectangle).
+				 * Note that a cube with length 0 in one dimension is a plane 
+				 */
+				_glut.glutSolidCube((float)length[0]);
+				
+			}else if (shape instanceof CylindricalShape){
+	
+				/* draw the cylinder.
+				 * Note that a cylinder with height 0 is a circle and only full 
+				 * circles can be drawn at the moment. 
+				 */
+				_glut.glutSolidCylinder(length[0], length[2], _slices, 
+						(int)Math.ceil(length[2])); 
+				
+			}else if (shape instanceof SphericalShape){
+				
+				/* draw the sphere.
+				 * Note that only full spheres can be drawn at the moment. 
+				 */
+				_glut.glutSolidSphere(length[0], _slices, _stacks);
+				
+			}
 		}
 
-//		
-//		/* apply different functions for different types */
-//		if (shape instanceof CartesianShape){
-//			
-//			/* scale y and z relative to x (which we will choose as cube-size)*/
-//			_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
-//
-//			/* draw the scaled cube (rectangle).
-//			 * Note that a cube with length 0 in one dimension is a plane 
-//			 */
-//			_glut.glutSolidCube((float)length[0]);
-//			
-//		}else if (shape instanceof CylindricalShape){
-//
-//			/* draw the cylinder.
-//			 * Note that a cylinder with height 0 is a circle and only full 
-//			 * circles can be drawn at the moment. 
-//			 */
-//			_glut.glutSolidCylinder(length[0], length[2], _slices, 
-//					(int)Math.ceil(length[2])); 
-//			
-//		}else if (shape instanceof SphericalShape){
-//			
-//			/* draw the sphere.
-//			 * Note that only full spheres can be drawn at the moment. 
-//			 */
-//			_glut.glutSolidSphere(length[0], _slices, _stacks);
-//			
-//		}
-//		_gl.glEnable(GL2.GL_LIGHTING);
-//		
 		/* make sure Depth test is re-enabled and blend is disabled before
 		 * drawing other objects.
 		 */
+		_gl.glEnable(GL2.GL_LIGHTING);
 		_gl.glEnable(GL2.GL_DEPTH_TEST);
 		_gl.glDisable(GL2.GL_BLEND);
 
