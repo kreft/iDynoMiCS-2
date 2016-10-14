@@ -83,10 +83,14 @@ public class AgentMediator implements CommandMediator {
 	 */
 	private double[] _domainLength;
 	
+
+	public int definition = 8;
+	
 	/**
 	 * Default slices / stacks to subdivide polar objects.
 	 */
-	private int _slices = 16, _stacks = 16;
+	private int _slices = definition*2, _stacks = definition;
+	
 	
 	private float[] _orthoX = new float[]{1,0,0}, _orthoY = new float[]{0,1,0},
 					_orthoZ = new float[]{0,0,1}, _rotTemp = new float[16];
@@ -135,6 +139,9 @@ public class AgentMediator implements CommandMediator {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void draw(GLAutoDrawable drawable) {
+		
+		_slices = definition*2;
+		_stacks = definition;
 		
 		/* load identity matrix */
 		_gl.glLoadIdentity();
@@ -305,18 +312,21 @@ public class AgentMediator implements CommandMediator {
 		{
 			_rgba = new float[] {0.1f, 0.1f, 1.0f};
 			_gl.glEnable(GL2.GL_BLEND);
+			_gl.glDisable(GL2.GL_DEPTH_TEST); 
+			
 		}
 		else
 		{
-			_rgba = new float[] {0.3f, 0.3f, 0.3f};
+			length[2] = 0.01f;
+			_rgba = new float[] {0.6f, 0.6f, 0.6f};
 		}
 		/**
 		 * NOTE moved this here since it seems to resolve black lines in domain 
 		 * square, as long as the domain is drawn first this should not cause
 		 * any problems.
 		 */
-		_gl.glDisable(GL2.GL_DEPTH_TEST); 
-		applyCurrentColor();
+		_gl.glDisable(GL2.GL_LIGHTING);
+		_gl.glColor3f(_rgba[0], _rgba[1], _rgba[2]);
 		
 		/* apply different functions for different types */
 		if (shape instanceof CartesianShape){
@@ -352,7 +362,7 @@ public class AgentMediator implements CommandMediator {
 		 */
 		_gl.glEnable(GL2.GL_DEPTH_TEST);
 		_gl.glDisable(GL2.GL_BLEND);
-
+		_gl.glEnable(GL2.GL_LIGHTING);
 		_gl.glPopMatrix();
 	}
 	
