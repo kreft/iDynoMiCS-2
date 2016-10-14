@@ -37,6 +37,8 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
 
+import idynomics.Idynomics;
+
 /**
  * TODO clean-up commenting
  * 
@@ -122,6 +124,10 @@ public class Render implements GLEventListener, Runnable {
     private double lastTime = System.currentTimeMillis();
     private int nbFrames = 0;
     /*
+     * screendump
+     */
+    public boolean screenDump = false;
+    /*
      * this is what refreshes what is rendered on the screen
      */
 	@Override
@@ -141,16 +147,6 @@ public class Render implements GLEventListener, Runnable {
 	         System.out.println((double) nbFrames + " fps");
 	         nbFrames = 0;
 	         lastTime = currentTime;
-	         
-	 		
-	 		try {
-
-	             BufferedImage screenshot = makeScreenshot(drawable);
-
-	             ImageIO.write(screenshot, "png", new File("screen.png"));
-	         } catch (IOException ex) {
-	              // You know ... what to do here :P
-	         }
 	     }
 			
 		/*
@@ -211,14 +207,14 @@ public class Render implements GLEventListener, Runnable {
 				);	
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		
-	     if ( nbFrames < 1 )
+	     if ( this.screenDump )
 	     { 	 		
 	 		try {
 	             BufferedImage screenshot = makeScreenshot(drawable);
-	             ImageIO.write(screenshot, "png", new File("screen.png"));
+	             ImageIO.write(screenshot, "png", new File(Idynomics.global.outputLocation +"/screen_" + System.currentTimeMillis() + ".png"));
 	         } catch (IOException ex) {
-	              // You know ... what to do here :P
 	         }
+	 		this.screenDump = false;
 	     }
 		
 		gl.glFlush();
@@ -439,8 +435,9 @@ public class Render implements GLEventListener, Runnable {
 	public BufferedImage makeScreenshot(GLAutoDrawable drawable) {
 		final GL2 gl = drawable.getGL().getGL2();
 		
-		int width = 800;
-		int height = 800;
+		
+		int width = drawable.getSurfaceWidth();
+		int height = drawable.getSurfaceHeight();
 	    BufferedImage screenshot = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 	    Graphics graphics = screenshot.getGraphics();
 
@@ -681,7 +678,7 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});	
 		
-		/* clockwise */
+		/* increase definition */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0), "def_add") ;
 		actionMap.put("def_add", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
@@ -693,7 +690,7 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});
 		
-		/* counterclockwise */
+		/* decrease definition */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, 0), "def_sub") ;
 		actionMap.put("def_sub", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;
@@ -702,6 +699,18 @@ public class Render implements GLEventListener, Runnable {
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("def_sub");
 				((AgentMediator) r._commandMediator).definition--;
+			}
+		});	
+		
+		/* screendump */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0), "screendump") ;
+		actionMap.put("screendump", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("screendump");
+				r.screenDump = true;
 			}
 		});	
 		
