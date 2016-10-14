@@ -139,7 +139,7 @@ public class ShapesTest
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		Shape shp = new Rectangle();
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setLength(3.0);
+		resCalc.setExtremes(0.0, 3.0);
 		resCalc.setResolution(1.0);
 		for ( DimName d : dims )
 			shp.setDimensionResolution(d, resCalc);
@@ -196,13 +196,13 @@ public class ShapesTest
 		
 		/* r-dimension */
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setLength(3.0);
+		resCalc.setExtremes(0.0, 3.0);
 		resCalc.setResolution(1.0);
 		shp.setDimensionResolution(dims[0], resCalc);
 		
 		/* theta-dimension */
 		resCalc = new UniformResolution(); 
-		resCalc.setLength(2 * Math.PI / 3);
+		resCalc.setExtremes(0.0, 2 * Math.PI / 3);
 		resCalc.setResolution(1.0);
 		shp.setDimensionResolution(dims[1], resCalc);
 		/*
@@ -277,14 +277,14 @@ public class ShapesTest
 		
 		/* r-dimension */
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setLength(3.0);
+		resCalc.setExtremes(0.0, 3.0);
 		resCalc.setResolution(1.0);
 		shp.setDimensionResolution(dims[0], resCalc);
 		
 		/* polar dimensions */
 		for (int i=1; i<3; ++i){
 			resCalc = new UniformResolution(); 
-			resCalc.setLength(Math.PI / 2);
+			resCalc.setExtremes(0.0, Math.PI / 2);
 			resCalc.setResolution(1.0);
 			shp.setDimensionResolution(dims[i], resCalc);
 		}

@@ -429,7 +429,8 @@ public class Render implements GLEventListener, Runnable {
 		}
 	}
 	
-	/* TODO finish 
+	/* 
+	 * based on:
 	 * http://gamedev.stackexchange.com/questions/72911/how-to-save-am-image-of-a-screen-using-jogl
 	 * */
 	public BufferedImage makeScreenshot(GLAutoDrawable drawable) {
@@ -446,8 +447,6 @@ public class Render implements GLEventListener, Runnable {
 
 	    gl.glReadPixels(0, 0, width, height, GL2.GL_RGB, GL2.GL_BYTE, buffer);
 	    
-
-
 	    for (int h = 0; h < height; h++) {
 	        for (int w = 0; w < width; w++) {
 	            // The color are the three consecutive bytes, it's like referencing

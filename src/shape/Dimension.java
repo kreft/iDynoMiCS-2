@@ -142,30 +142,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				this.defaultXmlTag() + " " + this._dimName.name()) )
 			this.setCyclic();
 		
-		/* calculate length from dimension extremes */
-		double length = getLength();
-		
-		/* fetch target resolution (or use length as default) */
-		str = XmlHandler.obtainAttribute(elem, XmlRef.targetResolutionAttribute,
-				this.defaultXmlTag() + " " + this._dimName.name());
-		this._targetRes = length; 
-		if ( str != "" )
-			this._targetRes = Double.valueOf(str);
-		
 		/* 
 		 * Boundaries at the extremes.
 		 */
-		
-		/* by default minimum is 0.0 */
-		str = (String) Helper.setIfNone(
-				XmlHandler.gatherAttribute(elem, XmlRef.min), "0.0");
-		if ( str != null && str != ""){
-			double val = Double.valueOf(str);
-			/* convert degree to radian for angular dimensions */
-			if (this._dimName.isAngular())
-				val = Math.toRadians(val);
-			this.setExtreme(val, 0);
-		}
 		
 		/* maximum has to be set */
 		str = XmlHandler.obtainAttribute(elem, XmlRef.max, this.defaultXmlTag()
@@ -178,10 +157,33 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			this.setExtreme(val, 1);
 		}
 		
-		/* Set theta dimension cyclic for a full circle, no matter what 
+		/* by default minimum is 0.0 */
+		str = (String) Helper.setIfNone(
+				XmlHandler.gatherAttribute(elem, XmlRef.min), "0.0");
+		if ( str != null && str != ""){
+			double val = Double.valueOf(str);
+			/* convert degree to radian for angular dimensions */
+			if (this._dimName.isAngular())
+				val = Math.toRadians(val);
+			this.setExtreme(val, 0);
+		}
+		
+		/* calculate length from dimension extremes */
+		double length = getLength();
+		
+		/* fetch target resolution (or use length as default) */
+		str = XmlHandler.obtainAttribute(elem, XmlRef.targetResolutionAttribute,
+				this.defaultXmlTag() + " " + this._dimName.name());
+		this._targetRes = length; 
+		if ( str != "" )
+			this._targetRes = Double.valueOf(str);
+		
+		/* Set theta and phi dimensions cyclic for a full circle, no matter what 
 		 * the user specified */
 		if (this._dimName == DimName.THETA && ExtraMath.areEqual(length, 
-				2 * Math.PI, PolarShape.POLAR_ANGLE_EQ_TOL))
+				2 * Math.PI, PolarShapeIterator.POLAR_ANGLE_EQ_TOL)
+				|| this._dimName == DimName.PHI && ExtraMath.areEqual(length, 
+						Math.PI, PolarShapeIterator.POLAR_ANGLE_EQ_TOL))
 			this.setCyclic();
 
 		// FIXME investigate and clean

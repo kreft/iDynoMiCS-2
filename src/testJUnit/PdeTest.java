@@ -50,7 +50,7 @@ public class PdeTest
 		comp.addBoundary(new SolidBoundary(DimName.X, 1));
 		Shape shape = comp.getShape();
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setLength(1.0 * nVoxel);
+		resCalc.setExtremes(0, 1.0 * nVoxel);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
 		/* Add the solute and fill it with random values. */
@@ -119,11 +119,11 @@ public class PdeTest
 		comp.addBoundary(rMax);
 		Shape shape = comp.getShape();
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setLength(nVoxelR);
+		resCalc.setExtremes(0, nVoxelR);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.R, resCalc);
 		resCalc = new UniformResolution();
-		resCalc.setLength(2 * Math.PI / 3);
+		resCalc.setExtremes(0, 2 * Math.PI / 3);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.THETA, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
@@ -194,15 +194,15 @@ public class PdeTest
 		comp.addBoundary(rMax);
 		Shape shape = comp.getShape();
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setLength(nVoxelR);
+		resCalc.setExtremes(0, nVoxelR);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.R, resCalc);
 		resCalc = new UniformResolution();
-		resCalc.setLength(2 * Math.PI / 3);
+		resCalc.setExtremes(0, 2 * Math.PI / 3);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.THETA, resCalc);
 		resCalc = new UniformResolution();
-		resCalc.setLength(3);
+		resCalc.setExtremes(0, 3);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.Z, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
@@ -278,15 +278,15 @@ public class PdeTest
 		Shape shape = comp.getShape();
 		shape.getDimension(DimName.R).setLength(nVoxelR);
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setLength(nVoxelR);
+		resCalc.setExtremes(0, nVoxelR);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.R, resCalc);
 		resCalc = new UniformResolution();
-		resCalc.setLength(Math.PI / 2);
+		resCalc.setExtremes(0, Math.PI / 2);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.THETA, resCalc);
 		resCalc = new UniformResolution();
-		resCalc.setLength(Math.PI / 2);
+		resCalc.setExtremes(0, Math.PI / 2);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.PHI, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
@@ -362,15 +362,15 @@ public class PdeTest
 		Shape shape = comp.getShape();
 		shape.getDimension(DimName.R).setLength(nVoxelR);
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setLength(nVoxelR);
+		resCalc.setExtremes(0, nVoxelR);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.R, resCalc);
 		resCalc = new UniformResolution();
-		resCalc.setLength(Math.PI / 2);
+		resCalc.setExtremes(0, Math.PI / 2);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.PHI, resCalc);
 		resCalc = new UniformResolution();
-		resCalc.setLength(Math.PI / 2);
+		resCalc.setExtremes(0, Math.PI / 2);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.THETA, resCalc);
 		/* Add the solute (will be initialised with zero concn). */
