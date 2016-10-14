@@ -8,6 +8,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.jogamp.opengl.math.Quaternion;
+import com.jogamp.opengl.util.gl2.GLUT;
 
 import agent.Agent;
 import dataIO.Log;
@@ -15,6 +16,7 @@ import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
+import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension.DimName;
 import shape.Shape;
@@ -66,6 +68,11 @@ public class AgentMediator implements CommandMediator {
 	private GL2 _gl;
 	
 	/**
+	 * OpenGL Utility Toolkit
+	 */
+	private GLUT _glut;
+	
+	/**
 	 * OpenGL Utility Library
 	 */
 	private GLU _glu;
@@ -75,11 +82,13 @@ public class AgentMediator implements CommandMediator {
 	 */
 	private float[] _domainMaxima;
 	
-
+	/**
+	 * 
+	 */
 	public int definition = 8;
-	
 	/**
 	 * Default slices / stacks to subdivide polar objects.
+	 * TODO we really want to have this separate for small and large objects
 	 */
 	private int _slices = definition*2, _stacks = definition;
 	
@@ -105,10 +114,10 @@ public class AgentMediator implements CommandMediator {
 		this._shape = agents.getShape();
 		this._domainMaxima = new float[3];
 		/* determine kickback for camera positioning */
-		_kickback = 0;
+		_kickback = 0.0f;
 		for (DimName dn : _shape.getDimensionNames()){
 			float max = (float)_shape.getDimension(dn).getExtreme(1);
-			_kickback  = Math.max(_kickback, max);
+			_kickback  = (float) Math.max(_kickback, max);
 			_domainMaxima[_shape.getDimensionIndex(dn)] = max;
 		}
 	}
@@ -123,6 +132,7 @@ public class AgentMediator implements CommandMediator {
 		/* set openGL profile */
 		_gl = drawable.getGL().getGL2();
 		_glu = GLU.createGLU(_gl);
+		_glut = new GLUT();
 	}
 
 	/**
@@ -131,9 +141,6 @@ public class AgentMediator implements CommandMediator {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void draw(GLAutoDrawable drawable) {
-		
-		_slices = definition*2;
-		_stacks = definition;
 		
 		/* load identity matrix */
 		_gl.glLoadIdentity();
@@ -148,10 +155,9 @@ public class AgentMediator implements CommandMediator {
 				 - _domainMaxima[2] * 0.5);
 		
 		/*
-		 * draw the domain Shape
-		 *
+		 * when we want to disable depth test we draw the domain here
 		 */
-		draw(_shape);
+//		draw(_shape);
         
 		/* get the surfaces from the agents */
 		for ( Agent a : this._agents.getAllLocatedAgents() )
@@ -206,6 +212,11 @@ public class AgentMediator implements CommandMediator {
 				}
 			}
 		}	
+		
+		/*
+		 * when we want to blend we draw the domain here
+		 */
+		draw(_shape);
 	}
 	
 	private void draw(Ball ball){
@@ -301,64 +312,70 @@ public class AgentMediator implements CommandMediator {
 		{
 			_rgba = new float[] {0.1f, 0.1f, 1.0f};
 			_gl.glEnable(GL2.GL_BLEND);
-			_gl.glDisable(GL2.GL_DEPTH_TEST); 
-			
 		}
 		else
 		{
-			length[2] = 0.01f;
-			_rgba = new float[] {0.6f, 0.6f, 0.6f};
+			_rgba = new float[] {0.3f, 0.3f, 0.3f};
 		}
 		/**
 		 * NOTE moved this here since it seems to resolve black lines in domain 
 		 * square, as long as the domain is drawn first this should not cause
 		 * any problems.
 		 */
+//		_gl.glDisable(GL2.GL_DEPTH_TEST); 
+		applyCurrentColor();
+		
 		_gl.glDisable(GL2.GL_LIGHTING);
 		_gl.glColor3f(_rgba[0], _rgba[1], _rgba[2]);
-		//ShapeIterator it = _shape.getNewIterator();
-		//for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
-		//{			
-		//	_gl.glPushMatrix();
-		//	drawVoxel(_shape, cur);
-		//	_gl.glPopMatrix();
-		//}
-		
-		/* apply different functions for different types */
-		if (shape instanceof CartesianShape){
-			
-			/* scale y and z relative to x (which we will choose as cube-size)*/
-			_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
-
-			/* draw the scaled cube (rectangle).
-			 * Note that a cube with length 0 in one dimension is a plane 
-			 */
-			_glut.glutSolidCube((float)length[0]);
-			
-		}else if (shape instanceof CylindricalShape){
-
-			/* draw the cylinder.
-			 * Note that a cylinder with height 0 is a circle and only full 
-			 * circles can be drawn at the moment. 
-			 */
-			_glut.glutSolidCylinder(length[0], length[2], slices, 
-					(int)Math.ceil(length[2])); 
-			
-		}else if (shape instanceof SphericalShape){
-			
-			/* draw the sphere.
-			 * Note that only full spheres can be drawn at the moment. 
-			 */
-			_glut.glutSolidSphere(length[0], slices, stacks);
-			
+		_gl.glEnable(GL2.GL_BLEND); 
+		_gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+		_gl.glColor4f(0.9f,0.9f,1.0f,0.1f);
+				
+		ShapeIterator it = _shape.getNewIterator();
+		for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
+		{			
+			_gl.glPushMatrix();
+			drawVoxel(_shape, cur);
+			_gl.glPopMatrix();
 		}
-		
+
+//		
+//		/* apply different functions for different types */
+//		if (shape instanceof CartesianShape){
+//			
+//			/* scale y and z relative to x (which we will choose as cube-size)*/
+//			_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
+//
+//			/* draw the scaled cube (rectangle).
+//			 * Note that a cube with length 0 in one dimension is a plane 
+//			 */
+//			_glut.glutSolidCube((float)length[0]);
+//			
+//		}else if (shape instanceof CylindricalShape){
+//
+//			/* draw the cylinder.
+//			 * Note that a cylinder with height 0 is a circle and only full 
+//			 * circles can be drawn at the moment. 
+//			 */
+//			_glut.glutSolidCylinder(length[0], length[2], _slices, 
+//					(int)Math.ceil(length[2])); 
+//			
+//		}else if (shape instanceof SphericalShape){
+//			
+//			/* draw the sphere.
+//			 * Note that only full spheres can be drawn at the moment. 
+//			 */
+//			_glut.glutSolidSphere(length[0], _slices, _stacks);
+//			
+//		}
+//		_gl.glEnable(GL2.GL_LIGHTING);
+//		
 		/* make sure Depth test is re-enabled and blend is disabled before
 		 * drawing other objects.
 		 */
 		_gl.glEnable(GL2.GL_DEPTH_TEST);
 		_gl.glDisable(GL2.GL_BLEND);
-		_gl.glEnable(GL2.GL_LIGHTING);
+
 		_gl.glPopMatrix();
 	}
 	
