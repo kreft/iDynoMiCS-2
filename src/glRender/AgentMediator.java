@@ -85,7 +85,7 @@ public class AgentMediator implements CommandMediator {
 	/**
 	 * Stores the length of the associated Shape in each dimension
 	 */
-	private float[] _domainMaxima;
+	private double[] _domainMaxima;
 	
 	/**
 	 * 
@@ -106,7 +106,15 @@ public class AgentMediator implements CommandMediator {
 	 */
 	@Override
 	public float kickback() {
-		return 2f * _kickback;
+		return _kickback;
+	}
+	
+	public double[] orientation() 
+	{
+		if (this._shape instanceof CartesianShape)
+			return Vector.times( this._domainMaxima, 0.5);
+		else
+			return new double[] { 0.0, 0.0 };
 	}
 	
 	/**
@@ -117,7 +125,7 @@ public class AgentMediator implements CommandMediator {
 	{
 		this._agents = agents;
 		this._shape = agents.getShape();
-		this._domainMaxima = new float[3];
+		this._domainMaxima = new double[3];
 		/* determine kickback for camera positioning */
 		_kickback = 0.0f;
 		for (DimName dn : _shape.getDimensionNames()){
@@ -125,6 +133,10 @@ public class AgentMediator implements CommandMediator {
 			_kickback  = (float) Math.max(_kickback, max);
 			_domainMaxima[_shape.getDimensionIndex(dn)] = max;
 		}
+		if (this._shape instanceof CartesianShape)
+			this._kickback = 1.5f * this._kickback;
+		else
+			this._kickback = 3.0f * this._kickback;		
 	}
 	
 	/**
@@ -147,17 +159,13 @@ public class AgentMediator implements CommandMediator {
 	@Override
 	public void draw(GLAutoDrawable drawable) {
 		
+		_slices = definition*2;
+		_stacks = definition;
+		
 		/* load identity matrix */
 		_gl.glLoadIdentity();
 		
-		/* 
-     	 * Adjust positioning for the domain (prevent the scene from being
-     	 * rendered in one corner). This applies to all agents and shapes.
-     	 */
-		_gl.glTranslated(
-				 - _domainMaxima[0] * 0.5, 
-				 - _domainMaxima[1] * 0.5,
-				 - _domainMaxima[2] * 0.5);
+
 		
 		/*
 		 * when we want to disable depth test we draw the domain here
@@ -217,6 +225,14 @@ public class AgentMediator implements CommandMediator {
 				}
 			}
 		}	
+		/* 
+     	 * Adjust positioning for the domain (prevent the scene from being
+     	 * rendered in one corner). This applies to all agents and shapes.
+     	 */
+//		_gl.glTranslated(
+//				 - _domainMaxima[0] * 0.5, 
+//				 - _domainMaxima[1] * 0.5,
+//				 - _domainMaxima[2] * 0.5);
 		
 		/*
 		 * when we want to blend we draw the domain here
@@ -301,15 +317,6 @@ public class AgentMediator implements CommandMediator {
 	private void draw(Shape shape){
 		/* save the current modelview matrix */
 		_gl.glPushMatrix();
-		
-		/* polar shapes are already centered around the origin after calling 
-		 * getGlobalLocation() , so undo global translation */
-		if (shape instanceof CylindricalShape || shape instanceof SphericalShape || !this.grid )
-			_gl.glTranslated(
-					 _domainMaxima[0] * 0.5, 
-					 _domainMaxima[1] * 0.5,
-					 _domainMaxima[2] * 0.5);
-		
 		double[] length = GLUtil.make3D(shape.getDimensionLengths());
 
 		/* set different color / blending for 3 dimensional Cartesian shapes */
@@ -351,6 +358,14 @@ public class AgentMediator implements CommandMediator {
 			/* apply different functions for different types */
 			if (shape instanceof CartesianShape){
 				
+				
+				/* polar shapes are already centered around the origin after calling 
+				 * getGlobalLocation() , so undo global translation */
+				_gl.glTranslated(
+						 _domainMaxima[0] * 0.5, 
+						 _domainMaxima[1] * 0.5,
+						 _domainMaxima[2] * 0.5);
+				
 				/* scale y and z relative to x (which we will choose as cube-size)*/
 				_gl.glScaled(1, length[1] / length[0], length[2] / length[0]);
 	
@@ -372,8 +387,9 @@ public class AgentMediator implements CommandMediator {
 				
 				/* draw the sphere.
 				 * Note that only full spheres can be drawn at the moment. 
+				 * NOTE we can allow the domain to have a bit better definition than the agents
 				 */
-				_glut.glutSolidSphere(length[0], _slices, _stacks);
+				_glut.glutSolidSphere(length[0], _slices*8, _stacks*8);
 				
 			}
 		}

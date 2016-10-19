@@ -203,7 +203,7 @@ public class Render implements GLEventListener, Runnable {
 				0, 									// centerZ
 				Math.cos(_angle), 					// upX
 				Math.sin(_angle),					// upY
-				dist * 10000 * ( Math.sin(_tilt) )	// upZ
+				- dist * 10000 * ( Math.sin(_tilt) )	// upZ
 				);	
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		
@@ -279,6 +279,9 @@ public class Render implements GLEventListener, Runnable {
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);	
 		
 		_commandMediator.init(drawable);
+		
+		this._x = (float) this._commandMediator.orientation()[0];
+		this._y = (float) this._commandMediator.orientation()[1];
 	}
 
 	/**
@@ -299,7 +302,7 @@ public class Render implements GLEventListener, Runnable {
 		
 		/* adjust the camera perspective to the screen resizing */
 		_glu.gluPerspective(45.0f, _aspectRatio, 1.0,  _commandMediator.kickback() + 100.0);
-		_glu.gluLookAt(0, 0, 0, 0, 0, -80, 0, 1, 0);
+		_glu.gluLookAt(0, 0, -80, 0, 0, 0, 0, 1, 0);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
 	}

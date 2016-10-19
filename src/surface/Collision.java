@@ -399,6 +399,7 @@ public class Collision
 			CollisionVariables var)
 	{
 		var.interactionVector = Vector.minus(a,b);
+		//FIXME testing
 //		this._shape.getMinDifferenceTo(var.interactionVector, a, b);
 	}
 	

@@ -110,7 +110,7 @@
 			</species>
 		</speciesLib>
 
-		<compartment name="myCompartment">
+		<compartment name="myCompartment" tree="SPLITTREE">
 			<shape class="Cuboid">
 				<dimension name="X" isCyclic="true" targetResolution="1.0" max="20.0"/>
 				<dimension name="Y" isCyclic="true" targetResolution="1.0" max="3.0"/>

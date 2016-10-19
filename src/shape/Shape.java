@@ -799,6 +799,7 @@ public abstract class Shape implements
 
 	/**
 	 * \brief Force the given location to be inside this shape.
+	 * FIXME broken for polar shapes
 	 * 
 	 * @param location A spatial location in global coordinates.
 	 */
@@ -866,6 +867,7 @@ public abstract class Shape implements
 	
 	/**
 	 * @return The set of {@code Surface}s for this {@code Shape}.
+	 * FIXME this method does not work for polar shapes
 	 */
 	public Collection<Surface> getSurfaces()
 	{
