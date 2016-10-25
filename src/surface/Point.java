@@ -260,9 +260,13 @@ public class Point implements Copyable, NodeConstructor
 		/*
 		 * Scale the force.
 		 */
-		// TODO note that force is currently scaled may need to revise later
-		//TODO explain why!
-		double scalar = radius;
+		double scalar = 0.2;
+		/* the following dynamic scaling is a slight deviation from the original
+		 * iDynoMiCS where instead of dynamic scaling the overlap was simply
+		 * considered resolved at small when the difference vector (and thus
+		 * the force was sufficiently small) 
+		 * TODO, make these things settable from xml.
+		 */
 		if ( Vector.normEuclid(this.getForce()) < 0.2 )
 		{
 			/* Anti deadlock. */

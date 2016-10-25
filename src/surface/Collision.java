@@ -398,9 +398,9 @@ public class Collision
 	private void setPeriodicDistanceVector(double[] a, double[] b, 
 			CollisionVariables var)
 	{
-		var.interactionVector = Vector.minus(a,b);
+//		var.interactionVector = Vector.minus(a,b);
 		//FIXME testing
-//		this._shape.getMinDifferenceTo(var.interactionVector, a, b);
+		var.interactionVector = this._shape.getMinDifferenceVector(a, b);
 	}
 	
 	/**
@@ -414,7 +414,7 @@ public class Collision
 	 */
 	private double[] minDistance(double[] a, double[] b)
 	{
-		return this._shape.getMinDifference(a,b);
+		return this._shape.getMinDifferenceVector(a,b);
 	}
 	
 	/**

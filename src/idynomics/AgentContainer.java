@@ -25,6 +25,7 @@ import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import shape.CartesianShape;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
@@ -996,8 +997,10 @@ public class AgentContainer implements NodeConstructor
 	@SuppressWarnings("unchecked")
 	public void setupAgentDistributionMaps()
 	{
-		Log.out(DEBUG, "Setting up agent distribution maps");
 		Tier level = BULK;
+		if (Log.shouldWrite(level))
+			Log.out(level, "Setting up agent distribution maps");
+		
 		/*
 		 * Reset the agent biomass distribution maps.
 		 */
@@ -1024,14 +1027,36 @@ public class AgentContainer implements NodeConstructor
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext())
 		{
-			/* Find all agents that overlap with this voxel. */
-			// TODO a method for getting a voxel's bounding box directly?
-			location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
-			shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
-			// FIXME create a bounding box that always captures at least the complete voxel
-			sides = Vector.subset(dimension, nDim);
-			/* NOTE the agent tree is always the amount of actual dimension */
-			nhbs = this.treeSearch(location, sides);
+			double minRad;
+			
+			if( shape instanceof CartesianShape)
+			{
+				/* Find all agents that overlap with this voxel. */
+				// TODO a method for getting a voxel's bounding box directly?
+				location = Vector.subset(shape.getVoxelOrigin(coord), nDim);
+				shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
+				// FIXME create a bounding box that always captures at least the complete voxel
+				sides = Vector.subset(dimension, nDim);
+				/* NOTE the agent tree is always the amount of actual dimension */
+				nhbs = this.treeSearch(location, sides);
+				
+				/* used later to find subgridpoint scale */
+				minRad = Vector.min(sides);
+			}
+			else
+			{
+				/* TODO since the previous does not work at all for polar */
+				nhbs = this.getAllLocatedAgents();
+				
+				/* FIXME total mess, trying to get towards something that at
+				 * least makes some sence
+				 */
+				shape.getVoxelSideLengthsTo(dimension, coord); //FIXME returns arc lengths with polar coords
+				// FIXME create a bounding box that always captures at least the complete voxel
+				sides = Vector.subset(dimension, nDim);
+				// FIXME because it does not make any sence to use the ark, try the biggest (probably the R dimension) and half that to be safe.
+				minRad = Vector.max(sides) / 2.0; 
+			}
 			/* Filter the agents for those with reactions, radius & surface. */
 			nhbs.removeIf(NO_REAC_FILTER);
 			nhbs.removeIf(NO_BODY_FILTER);
@@ -1048,7 +1073,7 @@ public class AgentContainer implements NodeConstructor
 			 * Find the sub-voxel resolution from the smallest agent, and
 			 * get the list of sub-voxel points.
 			 */
-			double minRad = Vector.min(sides);
+			
 			double radius;
 			for ( Agent a : nhbs )
 			{

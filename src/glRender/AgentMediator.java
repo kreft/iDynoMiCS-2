@@ -380,7 +380,7 @@ public class AgentMediator implements CommandMediator {
 				 * Note that a cylinder with height 0 is a circle and only full 
 				 * circles can be drawn at the moment. 
 				 */
-				_glut.glutSolidCylinder(length[0], length[2], _slices, 
+				_glut.glutSolidCylinder(length[0], length[2], _slices*8, 
 						(int)Math.ceil(length[2])); 
 				
 			}else if (shape instanceof SphericalShape){
