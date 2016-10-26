@@ -32,6 +32,7 @@ import shape.Dimension.DimName;
 import shape.ShapeIterator.WhereAmI;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator.UniformResolution;
 import shape.subvoxel.SubvoxelPoint;
 import surface.Collision;
 import surface.Plane;
@@ -1255,7 +1256,14 @@ public abstract class Shape implements
 	 * @param coord Discrete coordinates of a voxel on this grid.
 	 * @return Volume of this voxel.
 	 */
-	public abstract double getVoxelVolume(int[] coord);
+	public double getVoxelVolume(int[] coord)
+	{
+		double[] origin = this.getVoxelOrigin(coord);
+		double[] upper = this.getVoxelUpperCorner(coord);
+		return getVoxelVolume(origin, upper);
+	}
+	
+	public abstract double getVoxelVolume(double[] origin, double[] uppers);
 
 	/**
 	 * @return The volume of the current iterator voxel.
@@ -1458,45 +1466,44 @@ public abstract class Shape implements
 		if ( targetRes <= 0.0 )
 			throw new IllegalArgumentException("Target resolution must be > 0");
 		/* 
-		 * Initialise the list and add a point at the origin.
+		 * Initialise the list and get voxel extremes.
 		 */
 		List<SubvoxelPoint> out = new ArrayList<SubvoxelPoint>();
-		SubvoxelPoint current = new SubvoxelPoint();
-		out.add(current);
-		/*
-		 * For each dimension, work out how many new points are needed and get
-		 * these for each point already in the list.
-		 */
-		int nP, nCurrent;
-		ResCalc rC;
+		double[] orig = getVoxelOrigin(this._it._currentCoord);
+		double[] upper = getVoxelUpperCorner(this._it._currentCoord);
+		
+		/* Create a shape of the same runtime type as the current shape */
+		Shape sub = null;
+		try {
+			sub = (Shape) this.getClass().newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		/* set the dimension resolutions */
 		for ( int dim = 0; dim < 3; dim++ )
 		{
-			// TODO Rob[17Feb2016]: This will need improving for polar grids...
-			// I think maybe would should introduce a subclass of Dimension for
-			// angular dimensions.
-			rC = this.getResolutionCalculator(this._it._currentCoord, dim);
-			nP = (int) (rC.getResolution(this._it._currentCoord[dim])/targetRes);
-			nCurrent = out.size();
-			for ( int j = 0; j < nCurrent; j++ )
-			{
-				current = out.get(j);
-				/* Shift this point up by half a sub-resolution. */
-				current.internalLocation[dim] += (0.5/nP);
-				/* Now add extra points at sub-resolution distances. */
-				for ( double i = 1.0; i < nP; i++ )
-					out.add(current.getNeighbor(dim, i/nP));
-			}
+			UniformResolution resCalc = new UniformResolution();
+			resCalc.setExtremes(orig[dim], upper[dim]);
+			resCalc.setResolution(targetRes);
+			sub.setDimensionResolution(sub.getDimensionName(dim), resCalc);
 		}
-		/* Now find the real locations and scale the volumes. */
-		// TODO this probably needs to be slightly different in polar grids
-		// to be completely accurate
-		double volume = this.getVoxelVolume(this._it._currentCoord) / out.size();
-		for ( SubvoxelPoint aSgP : out )
+		
+		/* Loop over the shape and create new subvoxel points with 
+		 * internal location, real location and volume set */
+		for (int[] cur = sub.resetIterator(); sub.isIteratorValid(); 
+				cur = sub.iteratorNext())
 		{
-			aSgP.realLocation = this.getLocation(this._it._currentCoord,
-													aSgP.internalLocation);
-			aSgP.volume = volume;
+			SubvoxelPoint sp = new SubvoxelPoint();
+			sp.realLocation = sub.getVoxelCentre(cur);
+			/* this will compute the internal location and write it into 
+			 * sp.internalLocation */
+			this.getCoords(sp.realLocation, sp.internalLocation);
+			sp.volume = sub.getCurrVoxelVolume();
+			out.add(sp);
 		}
+		
 		return out;
 	}
 	

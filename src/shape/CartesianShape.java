@@ -144,15 +144,11 @@ public abstract class CartesianShape extends Shape
 	 * **********************************************************************/
 	
 	@Override
-	public double getVoxelVolume(int[] coord)
+	public double getVoxelVolume(double[] origin, double[] upper)
 	{
 		double out = 1.0;
-		ResCalc rC;
 		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
-		{
-			rC = this.getResolutionCalculator(coord, dim);
-			out *= rC.getResolution(coord[dim]);
-		}
+			out *= upper[dim] - origin[dim];
 		return out;
 	}
 	

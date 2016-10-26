@@ -109,7 +109,7 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public double getVoxelVolume(int[] coord)
+		public double getVoxelVolume(double[] origin, double[] upper)
 		{
 			return this._volume;
 		}

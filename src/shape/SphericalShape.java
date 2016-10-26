@@ -419,18 +419,17 @@ public abstract class SphericalShape extends Shape
 	 * **********************************************************************/
 	
 	@Override
-	public double getVoxelVolume(int[] coord)
+	public double getVoxelVolume(double[] origin, double[] upper)
 	{
 		/* mathematica:
 			Integrate[r^2 sin p,{phi,phi1,phi2},{theta,theta1,theta2},{r,r1,r2}]
 		 */ 
-		double[] loc1 = getVoxelOrigin(coord), loc2 = getVoxelUpperCorner(coord);
 		/* R */
-		double vol = ExtraMath.cube(loc1[0]) - ExtraMath.cube(loc2[0]);	
+		double vol = ExtraMath.cube(upper[0]) - ExtraMath.cube(origin[0]);	
 		/* PHI */
-		vol *= Math.cos(loc1[1]) - Math.cos(loc2[1]);
+		vol *= Math.cos(upper[1]) - Math.cos(origin[1]);
 		/* THETA */
-		vol *= loc1[2] - loc2[2];
+		vol *= upper[2] - origin[2];
 		return vol / 3;
 	}
 	

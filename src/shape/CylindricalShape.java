@@ -300,12 +300,7 @@ public abstract class CylindricalShape extends Shape
 	 * VOXELS
 	 * **********************************************************************/
 	
-	@Override
-	public double getVoxelVolume(int[] coord)
-	{
-		// mathematica: Integrate[r,{z,z1,z2},{theta,theta1,theta2},{r,r1,r2}] 
-		double[] origin = this.getVoxelOrigin(coord);
-		double[] upper = this.getVoxelUpperCorner(coord);
+	public double getVoxelVolume(double[] origin, double[] upper){
 		/* 
 		 * r: pi times this number would be the area of a ring. 
 		 */
