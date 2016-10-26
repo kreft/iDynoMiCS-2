@@ -103,7 +103,7 @@ public class ExcreteEPSCumulative extends Event
 		/*
 		 * Remove all non-EPS neighboring agents.
 		 */
-		nhbs.removeIf(new IsNotSpecies(this.EPS_SPECIES, this.SPECIES));
+		nhbs.removeIf(new IsNotSpecies(epsSpecies, this.SPECIES));
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "  "+nhbs.size()+" of these are EPS");
 		/*
