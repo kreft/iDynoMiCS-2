@@ -1484,10 +1484,14 @@ public abstract class Shape implements
 		/* set the dimension resolutions */
 		for ( int dim = 0; dim < 3; dim++ )
 		{
+			DimName dimName = sub.getDimensionName(dim);
+			/* convert arc length to angle for angular dimensions */
+			if (dimName.isAngular()) 
+				targetRes = targetRes / orig[getDimensionIndex(DimName.R)];
 			UniformResolution resCalc = new UniformResolution();
 			resCalc.setExtremes(orig[dim], upper[dim]);
 			resCalc.setResolution(targetRes);
-			sub.setDimensionResolution(sub.getDimensionName(dim), resCalc);
+			sub.setDimensionResolution(dimName, resCalc);
 		}
 		
 		/* Loop over the shape and create new subvoxel points with 
