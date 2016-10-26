@@ -1495,15 +1495,16 @@ public abstract class Shape implements
 		/* set the dimension resolutions */
 		for ( int dim = 0; dim < 3; dim++ )
 		{
-			DimName dimName = sub.getDimensionName(dim);
-			/* convert arc length to angle for angular dimensions */
-			if (dimName.isAngular()) 
-				targetRes = targetRes / orig[getDimensionIndex(DimName.R)];
+			DimName dimName = this.getDimensionName(dim);
 			UniformResolution resCalc = new UniformResolution();
+			sub.getDimension(dimName).setExtremes(orig[dim], upper[dim]);
 			resCalc.setExtremes(orig[dim], upper[dim]);
-			resCalc.setResolution(targetRes);
+			/* convert arc length to angle for angular dimensions */
+			resCalc.setResolution(dimName.isAngular() ? 
+					targetRes / orig[getDimensionIndex(DimName.R)] : targetRes);
 			sub.setDimensionResolution(dimName, resCalc);
 		}
+		
 		
 		/* Loop over the shape and create new subvoxel points with 
 		 * internal location, real location and volume set */
@@ -1511,10 +1512,11 @@ public abstract class Shape implements
 				cur = sub.iteratorNext())
 		{
 			SubvoxelPoint sp = new SubvoxelPoint();
-			sp.realLocation = sub.getVoxelCentre(cur);
+			double[] local = sub.getVoxelCentre(cur);
+			sp.realLocation = sub.getGlobalLocation(local);
 			/* this will compute the internal location and write it into 
 			 * sp.internalLocation */
-			this.getCoords(sp.realLocation, sp.internalLocation);
+			this.getCoords(local, sp.internalLocation);
 			sp.volume = sub.getCurrVoxelVolume();
 			out.add(sp);
 		}
