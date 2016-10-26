@@ -84,6 +84,7 @@ public class PDEexplicit extends PDEsolver
 			nIter = (int) Math.ceil(tFinal/dt);
 			dt = tFinal/nIter;
 		}
+		level = BULK;
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "PDEexplicit using ministep size "+dt);
 		/*

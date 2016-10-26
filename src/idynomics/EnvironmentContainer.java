@@ -444,8 +444,8 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	
 	public void printSolute(String soluteName)
 	{
-		Log.out(Tier.QUIET, soluteName+":");
-		Log.out(Tier.QUIET, 
+		Log.out(Tier.DEBUG, soluteName+":");
+		Log.out(Tier.DEBUG, 
 				this.getSoluteGrid(soluteName).arrayAsText(CONCN));
 	}
 	
