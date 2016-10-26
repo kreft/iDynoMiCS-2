@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="caseStudy" outputfolder="../results" log="NORMAL"
+	<simulation name="caseStudy" outputfolder="../results" log="DEBUG"
 		comment="this is a file for testing purposes only.">
-		<timer stepSize="60.0" endOfSimulation="3600.0" />
+		<!-- minutes -->
+		<timer stepSize="1.0" endOfSimulation="5.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -20,9 +21,9 @@
 				<aspect name="reactions" type="PRIMARY"  class="PileList"> 
 					<reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact" comment="biomass specific growth rate">
-							<expression value="mass * mumax *(ammonium / (ammonium + Kam) * (oxygen / (oxygen + Kox) )">
-								<constant name="Kam" value="1.5e-12" /> <!-- µg/µm3 --> 
-								<constant name="Kox" value="0.5e-12" /> <!-- µg/µm3 --> 
+							<expression value="mass * mumax *( (ammonium / (ammonium + Kam) ) * ( (oxygen / (oxygen + Kox) ) )">
+								<constant name="Kam" value="1.5e-6" /> <!-- pg/µm3 --> 
+								<constant name="Kox" value="0.5e-6" /> <!-- pg/µm3 --> 
 								<constant name="mumax" value="0.000695" />  <!-- per minute -->
 							</expression>
 							<stoichiometric component="mass" coefficient="0.9" />
@@ -36,16 +37,16 @@
 			</species>
 
 			<species name="coccoid">
-				<!-- µg / µm-->
-				<aspect name="density" type="PRIMARY" class="Double" value="1.5e-10" />
+				<!-- pg / µm-->
+				<aspect name="density" type="PRIMARY" class="Double" value="1.5e-4" />
 				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
 				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
 				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
 				<aspect name="volume" 			type="CALCULATED" 	class="SimpleVolumeState" />
 				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
 				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
-				<!-- µg -->
-				<aspect name="divisionMass"		class="Double" value="1e-9" />
+				<!-- pg -->
+				<aspect name="divisionMass"		class="Double" value="1e-3" />
 
 				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
@@ -58,8 +59,8 @@
 				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPSCumulative" 	 />
 				<!-- µm -->
 				<aspect name="epsDist" type="PRIMARY" class="Double" value="0.1" />
-				<!-- µg -->
-				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="1e-10" />
+				<!-- pg -->
+				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="1e-4" />
 				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />
 			</species>
 			
@@ -68,33 +69,33 @@
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<!-- µm -->
 				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.05"  />
-				<!-- µg -->
-				<aspect name="divisionMass"		class="Double" value="1e-10" />
+				<!-- pg -->
+				<aspect name="divisionMass"		class="Double" value="1e-4" />
 			</species>
 		</speciesLib>
 
 		<compartment name="first">
 			<shape class="Rectangle">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="1.0" max="20.0"/>
-				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="20.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="3.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="3.0"/>
 			</shape>
 			<solutes>
-				<!-- µg / µm2 -->
-				<solute name="ammonium" concentration="6e-12" />
-				<solute name="oxygen" concentration="6e-12" />
-				<solute name="nitrate" concentration="0.0" />
+				<!-- pg / µm2 -->
+				<solute name="ammonium" concentration="6e-6" />
+				<solute name="oxygen" concentration="6e-6" />
+				<solute name="nitrate" concentration="6e-7" />
 			</solutes>
 			<reactions>
 			</reactions>
 			<agents>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species1" />
-					<!-- µg -->
-					<aspect name="mass" type="PRIMARY" class="Double" value="1e-9" />
+					<!-- pg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="1e-3" />
 					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="6" domain="20.0,0.2" />
+					<spawn number="1" domain="2.0,0.2" />
 				</agent>
 			</agents>
 			<processManagers>
