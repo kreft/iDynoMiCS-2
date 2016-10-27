@@ -59,6 +59,8 @@ public final class ExtraMath
 	 */
 	public static Random random;
 	
+	public static long calls = 0;
+	
 	/* ----------------------- Initialising random ------------------------ */
 	
 	/**
@@ -606,6 +608,8 @@ public final class ExtraMath
 	 * http://stackoverflow.com/questions/3994531/how-to-determine-if-a-number-is-positive-or-negative-in-java
 	 * on 7 August 2013.</p>
 	 * 
+	 * TODO Bas: wouldn't it be cheaper to simply check > and <?
+	 * 
 	 * @param value double to be inspected.
 	 * @return integer with the sign of <b>value</b>: -1, 0, or +1
 	 */
@@ -720,6 +724,7 @@ public final class ExtraMath
 	 */
 	public static boolean getRandBool()
 	{
+		calls++;
 		return random.nextBoolean();
 	}
 	
@@ -733,6 +738,7 @@ public final class ExtraMath
 	// TODO rename getUniRand()? Should be unambiguous
 	public static double getUniRandDbl()
 	{
+		calls++;
 		return random.nextDouble();
 	}
 	

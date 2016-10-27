@@ -331,9 +331,6 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 			Log.out(Tier.QUIET,c.agents.getAllAgents().size() + " agents");
 		};
 		
-		System.out.println(String.valueOf(ExtraMath.getNormRand()));
-		
-
 	}
 	
 	public void run()
@@ -361,6 +358,10 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		this.printProcessManagerRealTimeStats();
+		
+		
+		System.out.println(ExtraMath.calls + " " + ExtraMath.getNormRand());
+		
 	}
 	
 	/* ***********************************************************************

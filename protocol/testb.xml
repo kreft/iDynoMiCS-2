@@ -3,7 +3,7 @@
 	<simulation name="test" outputfolder="../results" log="DEBUG" randomSeed="22432423"
 						comment="this is a file for testing purposes only.">
 		
-		<timer stepSize="1.0" endOfSimulation="15.0" />
+		<timer stepSize="1.0" endOfSimulation="60.0" />
 		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -18,7 +18,7 @@
 					<reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
-								<constant name="k" value="0.25" />
+								<constant name="k" value="0.08" />
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-5.0" />
@@ -48,9 +48,9 @@
 
 		<compartment name="second" tree="SPLITTREE">
 			<shape class="Rectangle">
-				<dimension name="X" isCyclic="false" targetResolution="1.0" max="16.0">
+				<dimension name="X" isCyclic="false" targetResolution="1.0" max="25.0">
 				</dimension> 
-				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="16.0">
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="25.0">
 				</dimension> 
 			</shape>
 			<solutes>
