@@ -68,7 +68,7 @@ public class PDEexplicit extends PDEsolver
 			inverseMaxT *= var.getShape().getMaxFluxPotential();
 			inverseMaxT *= 3.0;
 			/* divide by 3 since all simulations are pseudo 3D */
-			dt =  Math.min(dt, 1.0 / inverseMaxT) ;
+			dt =  Math.min(dt, 1.0 / inverseMaxT);
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, "PDEexplicit: variable \""+var.getName()+ "\" has"

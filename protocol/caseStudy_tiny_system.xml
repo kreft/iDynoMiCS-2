@@ -19,72 +19,76 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="PileList"> 
-					<reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
-						<reaction name="testReact" comment="biomass specific growth rate">
-							<expression value="mass * mumax *( (ammonium / (ammonium + Kam) ) * ( (oxygen / (oxygen + Kox) ) )">
-								<constant name="Kam" value="1.5e-6" /> <!-- pg/µm3 --> 
-								<constant name="Kox" value="0.5e-6" /> <!-- pg/µm3 --> 
-								<constant name="mumax" value="0.000695" />  <!-- per minute -->
+					<reactions class="Reaction" nodeLabel="reaction" 
+					entryClass="Reaction" keyClass="String" keyLabel="name">
+						<reaction name="growth">
+							<expression value="mass * mumax * 
+									( ammonium / ( ammonium + Kam ) ) * 
+									( ( oxygen / ( oxygen + Kox ) )">
+								<!-- pg/µm3 --> 
+								<constant name="Kam" 	value="1.5e-6" /> 
+								<constant name="Kox" 	value="0.5e-6" />
+								<!-- per minute -->
+								<constant name="mumax" 	value="0.000695" />  
 							</expression>
-							<stoichiometric component="mass" coefficient="0.9" />
-							<stoichiometric component="eps" coefficient="0.1" />
-							<stoichiometric component="ammonium" coefficient="-1.587" />
-							<stoichiometric component="nitrate" coefficient="1.587" />
-							<stoichiometric component="oxygen" coefficient="-6.25" />
+							<stoichiometric component="mass" 		coefficient="0.9" />
+							<stoichiometric component="eps" 		coefficient="0.1" />
+							<stoichiometric component="ammonium" 	coefficient="-1.587" />
+							<stoichiometric component="nitrate" 	coefficient="1.587" />
+							<stoichiometric component="oxygen" 		coefficient="-6.25" />
 						</reaction> 
 					</reactions>
 				</aspect>
 			</species>
 
 			<species name="coccoid">
-				<!-- pg / µm-->
-				<aspect name="density" type="PRIMARY" class="Double" value="1.5e-4" />
-				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
-				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
-				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
-				<aspect name="volume" 			type="CALCULATED" 	class="SimpleVolumeState" />
-				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
-				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
+				<!-- pg / µm^3-->
+				<aspect name="density" 		type="PRIMARY" 		class="Double" 				value="1.5e-4" />
+				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" 			value="true" />
+				<aspect name="surfaces"		type="CALCULATED"	class="AgentSurfaces"		/>
+				<aspect name="morphology" 	type="PRIMARY" 		class="String" 				value="coccoid" />
+				<aspect name="volume" 		type="CALCULATED" 	class="SimpleVolumeState" 	/>
+				<aspect name="radius" 		type="CALCULATED" 	class="CoccoidRadius" 		/>
+				<aspect name="divide" 		type="EVENT" 		class="CoccoidDivision"		/>
 				<!-- pg -->
-				<aspect name="divisionMass"		class="Double" value="1e-3" />
-
-				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
-				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
+				<aspect name="divisionMass"	class="Double"		value="1e-3" 				/>
+				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 			/>
+				<aspect name="evaluatePull"	type="EVENT"		class="ResolveInteractionDistance" 	 />
 				<!-- µm -->
-				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.0"  />
+				<aspect name="searchDist"	type="PRIMARY"		class="Double"				value="0.0"  />
 			</species>
 			
 			<species name="producer">
-				<aspect name="produce" type="EVENT"	class="InternalProduction" 	 />
-				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPSCumulative" 	 />
+				<aspect name="produce" 			type="EVENT"	class="InternalProduction" 	 />
+				<aspect name="epsExcretion" 	type="EVENT"	class="ExcreteEPSCumulative" 	 />
 				<!-- µm -->
-				<aspect name="epsDist" type="PRIMARY" class="Double" value="0.1" />
+				<aspect name="epsDist" 			type="PRIMARY" class="Double" value="0.1" />
 				<!-- pg -->
-				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="1e-4" />
-				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />
+				<aspect  name="maxInternalEPS" 	type="PRIMARY" class="Double" value="1e-4" />
+				<aspect  name="epsSpecies" 		type="PRIMARY" class="String" value="particleEPS" />
 			</species>
 			
 			<species name="particleEPS">
 				<speciesModule name="coccoid" />
-				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+				<aspect name="pigment" 		type="PRIMARY" class="String"	value="GREEN" />
 				<!-- µm -->
-				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.05"  />
+				<aspect name="searchDist"	type="PRIMARY" class="Double"	value="0.05"  />
 				<!-- pg -->
-				<aspect name="divisionMass"		class="Double" value="1e-4" />
+				<aspect name="divisionMass"	class="Double" value="1e-4" />
 			</species>
 		</speciesLib>
 
 		<compartment name="first">
 			<shape class="Rectangle">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" targetResolution="1.0" max="3.0"/>
-				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="3.0"/>
+				<dimension name="X" isCyclic="true" 	targetResolution="1.0" max="3.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="1.0" max="3.0"/>
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->
 				<solute name="ammonium" concentration="6e-6" />
-				<solute name="oxygen" concentration="6e-6" />
-				<solute name="nitrate" concentration="6e-7" />
+				<solute name="oxygen" 	concentration="6e-6" />
+				<solute name="nitrate" 	concentration="6e-7" />
 			</solutes>
 			<reactions>
 			</reactions>
@@ -93,26 +97,29 @@
 					<aspect name="species" type="PRIMARY" class="String" value="species1" />
 					<!-- pg -->
 					<aspect name="mass" type="PRIMARY" class="Double" value="1e-3" />
-					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
+					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
 					<spawn number="1" domain="2.0,0.2" />
 				</agent>
 			</agents>
 			<processManagers>
 				<!-- minute -->
-				<process name="agentRelax" class="AgentRelaxation" priority="-2"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+				<process name="agentRelax"	class="AgentRelaxation" priority="-2"
+					firstStep="0.0"  		timerStepSize="1.0">
+					<!-- µm -->
+					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 				<!-- minute -->
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
 					firstStep="0.0"  timerStepSize="1.0">	
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,nitrate,oxygen" /> 
-					<!--  based on iDyno 1 ~ 2.0e-4 m2.day-1 values here in µm^2/ minute-->
-					<diffusivitySetter solute="ammonium" class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
-					<diffusivitySetter solute="nitrate" class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
-					<diffusivitySetter solute="oxygen" class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
+					<!-- In principle they are not all the same but all in the 
+					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
+					µm^2/ minute-->
+					<diffusivitySetter solute="ammonium" 	class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
+					<diffusivitySetter solute="nitrate" 	class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
+					<diffusivitySetter solute="oxygen" 		class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
 				</process>
 			</processManagers>
 		</compartment>
