@@ -98,47 +98,13 @@
 				</agent> 
 			</agents>
 			<processManagers>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="povWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="PovExport" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
-					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
-					<aspect name="solute" type="PRIMARY" class="String" value="solute2" />
-					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="1.0">
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.0" />
-					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
-					<aspect name="arrayType" type="PRIMARY" class="String" value="DIFFUSIVITY" />
-					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
-				</process>
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
-					firstStep="0.0"  timerStepSize="0.5">
+					firstStep="0.0"  timerStepSize="0.50001">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
-					firstStep="0.0" timerStepSize="0.5">
+					firstStep="0.0" timerStepSize="0.50002">
 					<diffusivitySetter solute="solute1" class="ScaledIfBiomassPresent" defaultDiffusivity="1.0" biofilmDiffusivity="0.5" />
 					<diffusivitySetter solute="solute2" class="AllSameDiffuse" defaultDiffusivity="0.8"/>
 				</process>

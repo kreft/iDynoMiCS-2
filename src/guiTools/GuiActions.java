@@ -17,6 +17,7 @@ import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Simulator;
+import utility.ExtraMath;
 import utility.Helper;
 
 /**

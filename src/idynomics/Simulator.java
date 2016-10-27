@@ -293,21 +293,25 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		 */
 		for ( Compartment c : this._compartments )
 			c.preStep();
+
 		/*
 		 * Loop through all compartments, calling their internal steps.
 		 */
 		for ( Compartment c : this._compartments )
 			c.step();
+
 		/*
 		 * Once this is done loop through all again, this time exchanging
 		 * agents and solutes that have tried to cross connected boundaries. 
 		 */
 		for ( Compartment c : this._compartments )
 			c.postStep();
+
 		/*
 		 * 
 		 */
 		this.timer.step();
+		
 		/* 
 		 * We let the user know when an global step has finished.
 		 */
@@ -316,6 +320,8 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 		 * Write state to new XML file.
 		 */
 		this._xmlOut.writeFile();
+	
+
 		/*
 		 * Reporting agents.
 		 */
@@ -324,6 +330,9 @@ public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, N
 			Log.out(Tier.QUIET,"COMPARTMENT: " + c.getName());
 			Log.out(Tier.QUIET,c.agents.getAllAgents().size() + " agents");
 		};
+		
+		System.out.println(String.valueOf(ExtraMath.getNormRand()));
+		
 
 	}
 	
