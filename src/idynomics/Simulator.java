@@ -29,7 +29,7 @@ import referenceLibrary.XmlRef;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, NodeConstructor
+public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, NodeConstructor
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
