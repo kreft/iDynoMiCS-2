@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -36,6 +37,7 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.awt.TextRenderer;
 
 import idynomics.Idynomics;
 
@@ -123,6 +125,8 @@ public class Render implements GLEventListener, Runnable {
      */
     private double lastTime = System.currentTimeMillis();
     private int nbFrames = 0;
+    private int _fps = 0;
+    private boolean _dispFps = false;
     /*
      * screendump
      */
@@ -144,9 +148,25 @@ public class Render implements GLEventListener, Runnable {
 	     nbFrames++;
 	     if ( currentTime - lastTime >= 1000.0 )
 	     { 
-	         System.out.println((double) nbFrames + " fps");
+	         this._fps = nbFrames;
 	         nbFrames = 0;
 	         lastTime = currentTime;
+	     }
+	     if ( this._dispFps )
+	     {
+	         Font font = new Font("consolas", Font.PLAIN, 10);
+	         TextRenderer textRenderer = new TextRenderer(font);
+	         textRenderer.setColor(Color.YELLOW);
+	         textRenderer.setSmoothing(true);
+	
+	         gl.glLoadIdentity();
+	         gl.glTranslatef(0f, 0f, -5.0f);
+	         int y = 10;
+	         y = drawable.getSurfaceHeight() - y;
+	         textRenderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
+	  
+	         textRenderer.draw( _fps + " fps", 10, y - font.getSize());
+	         textRenderer.endRendering();
 	     }
 			
 		/*
@@ -725,6 +745,18 @@ public class Render implements GLEventListener, Runnable {
 			public void actionPerformed(ActionEvent g) {
 				System.out.println("screendump");
 				r.screenDump = true;
+			}
+		});	
+		
+		/* screendump */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, 0), "fps") ;
+		actionMap.put("fps", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("fps");
+				r._dispFps = !r._dispFps;
 			}
 		});	
 		
