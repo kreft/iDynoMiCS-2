@@ -80,6 +80,8 @@ public class Rod extends Surface implements HasBoundingBox {
 
 	public double[][] pointMatrix()
 	{
+		// FIXME was: double[][] p = new double[_points[0].nDim()][_points.length];
+		// rods work fine in 2d but seem to behave weird in 3d investigate
 		double[][] p = new double[_points.length][_points[0].nDim()];
 		for(int i = 0; i < _points.length; i++)
 			p[i] = _points[i].getPosition();

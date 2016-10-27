@@ -232,7 +232,7 @@ public final class ShapeLibrary
 	 * \brief Three-dimensional, round {@code Shape} class with a linear third
 	 * dimension.
 	 */
-	public static class Cylinder extends CylindricalShape
+	public static class Cylinder extends Circle
 	{
 		public Cylinder()
 		{
