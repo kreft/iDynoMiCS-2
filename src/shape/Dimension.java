@@ -9,11 +9,13 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import surface.Surface;
 import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import utility.ExtraMath;
 import utility.Helper;
@@ -209,7 +211,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				
 				str = bndElem.getAttribute(XmlRef.classAttribute);
 				// FIXME this does not work since boundaries are not instantiatable
-				aBoundary = (SpatialBoundary) SpatialBoundary.getNewInstance(str);
+				aBoundary = (SpatialBoundary) Instantiatable.getNewInstance(str, bndElem, this);
 				aBoundary.init(bndElem);
 				this.setBoundary(aBoundary, index);	
 			}

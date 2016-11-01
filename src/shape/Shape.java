@@ -222,7 +222,7 @@ public abstract class Shape implements
 			{
 				childElem = (Element) childNodes.item(i);
 				str = childElem.getAttribute(XmlRef.classAttribute);
-				aBoundary = (Boundary) Boundary.getNewInstance(str);
+				aBoundary = (Boundary) Instantiatable.getNewInstance(str, childElem, this);
 				aBoundary.init(childElem);
 				this.addOtherBoundary(aBoundary);
 			}

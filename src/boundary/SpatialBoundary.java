@@ -9,13 +9,13 @@ import agent.Agent;
 import agent.Body;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
+import nodeFactory.NodeConstructor;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
@@ -50,6 +50,23 @@ public abstract class SpatialBoundary extends Boundary
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
+	
+	/**
+	 * FIXME essential for instantiation
+	 */
+	public SpatialBoundary()
+	{
+		
+	}
+	
+	/**
+	 * FIXME essential for instantiation
+	 */
+	public void init(Element xmlElement, NodeConstructor parent) 
+	{
+		// TODO set dim from Element
+		// TODO set extreme from Element
+	}
 	
 	/**
 	 * \brief Construct a spatial boundary by giving it the information it
@@ -330,4 +347,5 @@ public abstract class SpatialBoundary extends Boundary
 			return false;
 		return true;
 	}
+
 }

@@ -3,10 +3,14 @@ package boundary.spatialLibrary;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
+import nodeFactory.NodeConstructor;
 import shape.Dimension.DimName;
 
 /**
@@ -15,7 +19,7 @@ import shape.Dimension.DimName;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class FixedBoundary extends SpatialBoundary
+public class FixedBoundary extends SpatialBoundary implements Instantiatable
 {
 	/**
 	 * Solute concentrations.
@@ -25,6 +29,22 @@ public class FixedBoundary extends SpatialBoundary
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
+	
+	/**
+	 * FIXME essential for instantiation
+	 */
+	public FixedBoundary()
+	{
+		super();
+	}
+	
+	/**
+	 * FIXME essential for instantiation
+	 */
+	public void init(Element xmlElement, NodeConstructor parent)
+	{
+		super.init(xmlElement,parent);
+	}
 	
 	/**
 	 * \brief Construct a fixed boundary by giving it the information it

@@ -458,12 +458,16 @@ public abstract class Boundary implements NodeConstructor
 	 * XML-ABLE
 	 * **********************************************************************/
 
-	// TODO replace with node construction
+	/* FIXME FIXME Please implement instantiatable interface instead of giving
+	 * every single object a getNewInstance method. You cannot overwrite static 
+	 * methods if you try your object will behave different depending on how you
+	 * refer to it!!!!!
+	 */
 
-	public static Boundary getNewInstance(String className)
-	{
-		return (Boundary) Instantiatable.getNewInstance(className, "boundary.library.");
-	}
+//	public static Boundary getNewInstance(String className)
+//	{
+//		return (Boundary) Instantiatable.getNewInstance(className, "boundary.spatialLibrary.");
+//	}
 
 
 	public boolean isReadyForLaunch()
@@ -477,7 +481,12 @@ public abstract class Boundary implements NodeConstructor
 	 * NODE CONTRUCTION
 	 * **********************************************************************/
 
-	// TODO delete once nodeFactory has made this redundant
+	/* NOTE Bas: I found this note here: "delete once nodeFactory has made this 
+	 * redundant" To be clear: do not delete this, in order for the node factory
+	 * to work this needs to be implemented properly! Make sure your object
+	 * implements the instantiatable interface and STOP bypassing its get newNewInstance metod.
+	 */
+	
 	public void init(Node xmlNode)
 	{
 		// TODO partner boundary name

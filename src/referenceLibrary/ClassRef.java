@@ -345,6 +345,15 @@ public class ClassRef
 	public final static String scaledIfBiomassPresent =
 			grid.diffusivitySetter.ScaledIfBiomassPresent.class.getName();
 	
+	/* ************************************************************************
+	 * boundaries
+	 */
+	
+	/**
+	 * TODO
+	 */
+	public final static String fixedBoundary =
+			boundary.spatialLibrary.FixedBoundary.class.getName();
 	
 	/* ************************************************************************
 	 * miscellaneous

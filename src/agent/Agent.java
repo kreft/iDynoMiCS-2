@@ -185,16 +185,20 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	public void init()
 	{
 		String species;
+		
 		if ( this.isAspect(XmlRef.species) )
 		{
 			species = this.getString(XmlRef.species);
-			Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
+			if (Log.shouldWrite(Tier.DEBUG))
+				Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
 		}
 		else
 		{
 			species = "";
-			Log.out(Tier.DEBUG, "Agent belongs to void species");
+			if (Log.shouldWrite(Tier.DEBUG))
+				Log.out(Tier.DEBUG, "Agent belongs to void species");
 		}
+		
 		this._aspectRegistry.addSubModule( (Species) 
 				Idynomics.simulator.speciesLibrary.get(species));
 	}
@@ -282,8 +286,9 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	 */
 	public void registerBirth()
 	{
-		Log.out(Tier.DEBUG, "Compartment \""+this._compartment.name+
-				"\" registering agent birth");
+		if (Log.shouldWrite(Tier.DEBUG))
+			Log.out(Tier.DEBUG, "Compartment \""+this._compartment.name+
+					"\" registering agent birth");
 		this._compartment.addAgent(this);
 		this.set(AspectRef.birthday, Idynomics.simulator.timer.getCurrentTime());
 	}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="caseStudy_min_diff" outputfolder="../results" log="DEBUG"
+	<simulation name="caseStudy_min_diff" outputfolder="../results" log="NORMAL"
 		comment="this is a file for testing purposes only." randomSeed="12345">
 		<!-- minutes -->
 		<timer stepSize="60.0" endOfSimulation="14400.0" />
@@ -137,7 +137,9 @@
 			<shape class="Rectangle">
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="200.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="200.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="200.0">
+					<boundary name="max" class="FixedBoundary" />
+				</dimension>
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->
