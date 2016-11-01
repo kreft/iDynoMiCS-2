@@ -358,10 +358,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		this.printProcessManagerRealTimeStats();
-		
-		
-		System.out.println(ExtraMath.calls + " " + ExtraMath.getNormRand());
-		
 	}
 	
 	/* ***********************************************************************

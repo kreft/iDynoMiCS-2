@@ -59,8 +59,6 @@ public final class ExtraMath
 	 */
 	public static Random random;
 	
-	public static long calls = 0;
-	
 	/* ----------------------- Initialising random ------------------------ */
 	
 	/**
@@ -724,7 +722,6 @@ public final class ExtraMath
 	 */
 	public static boolean getRandBool()
 	{
-		calls++;
 		return random.nextBoolean();
 	}
 	
@@ -738,7 +735,6 @@ public final class ExtraMath
 	// TODO rename getUniRand()? Should be unambiguous
 	public static double getUniRandDbl()
 	{
-		calls++;
 		return random.nextDouble();
 	}
 	

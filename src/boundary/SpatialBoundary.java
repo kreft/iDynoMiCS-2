@@ -308,13 +308,20 @@ public abstract class SpatialBoundary extends Boundary
 	}
 	
 	
-	// TODO!
 	
-	public static SpatialBoundary getNewInstance(String className)
-	{
-		return (SpatialBoundary) 
-				Instantiatable.getNewInstance(className, "boundary.spatialLibrary.");
-	}
+	/* FIXME Bas: always avoid doing this!!! if you bypass getNewInstance from 
+	 * the instantiatable interface this will create unpredictable behavior for 
+	 * objects depending on the reference to an object by it's class or by 
+	 * revering to it by the interface, simply implement the interface.
+	 */
+	
+	// TODO!
+
+//	public static SpatialBoundary getNewInstance(String className)
+//	{
+//		return (SpatialBoundary) 
+//				Instantiatable.getNewInstance(className, "boundary.spatialLibrary.");
+//	}
 	
 	@Override
 	public boolean isReadyForLaunch()
