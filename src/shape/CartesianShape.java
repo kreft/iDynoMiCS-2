@@ -119,7 +119,7 @@ public abstract class CartesianShape extends Shape
 	{
 		for ( DimName dim : this._dimensions.keySet() )
 			if ( this._dimensions.get(dim).isSignificant() )
-				this.setPlanarSurfaces(dim);
+				this.setPlanarSurface(dim);
 	}
 	
 	/* ***********************************************************************

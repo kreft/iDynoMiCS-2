@@ -59,6 +59,8 @@ public final class ExtraMath
 	 */
 	public static Random random;
 	
+	public static long calls = 0;
+	
 	/* ----------------------- Initialising random ------------------------ */
 	
 	/**
@@ -138,7 +140,7 @@ public final class ExtraMath
 	{
 		if ( absTol < 0.0 )
 			throw new IllegalArgumentException("Negative tolerance: "+absTol);
-		return Math.abs(x - y) < absTol;
+		return StrictMath.abs(x - y) < absTol;
 	}
 	
 	/**
@@ -179,7 +181,7 @@ public final class ExtraMath
 	 * as the <b>dividend</b>. Where the two arguments have the same sign, the
 	 * result will be identical.</p>
 	 * 
-	 * <p>This is the equivalent of {@code Math.floorMod(int, int)} for real
+	 * <p>This is the equivalent of {@code StrictMath.floorMod(int, int)} for real
 	 * numbers.</b>
 	 * 
 	 * @param dividend The dividend.
@@ -205,7 +207,7 @@ public final class ExtraMath
 	 */
 	public static final double log2(double x)
 	{
-		return Math.log(x) / Math.log(2.0);
+		return StrictMath.log(x) / StrictMath.log(2.0);
 	}
 	
 	/**
@@ -260,7 +262,7 @@ public final class ExtraMath
 	 */
 	public static final double cubeRoot(double x)
 	{
-		return Math.pow( x, (1.0/3.0) );
+		return StrictMath.pow( x, (1.0/3.0) );
 	}
 	
 	/**
@@ -287,7 +289,7 @@ public final class ExtraMath
 	 */
 	public static final double exp2(double x)
 	{
-		return Math.pow(2, x);
+		return StrictMath.pow(2, x);
 	}
 	
 	/**
@@ -299,7 +301,7 @@ public final class ExtraMath
 	 * 
 	 * <p>Formula: sqrt( a*a + b*b + c*c )</p>
 	 * 
-	 * <p>Note: for a 2D hypotenuse, use Math.hypot(a, b)</p>
+	 * <p>Note: for a 2D hypotenuse, use StrictMath.hypot(a, b)</p>
 	 * 
 	 * @param a double value of the length of the first side of the triangle.
 	 * @param b double value of the length of the second side of the triangle.
@@ -308,7 +310,7 @@ public final class ExtraMath
 	 */
 	public static final double hypotenuse(double a, double b, double c)
 	{
-		return Math.sqrt( sq(a) + sq(b) + sq(c) );
+		return StrictMath.sqrt( sq(a) + sq(b) + sq(c) );
 	}
 	
 	/**
@@ -327,7 +329,7 @@ public final class ExtraMath
 	 */
 	public static final double hypotenuse(int a, int b, int c)
 	{
-		return Math.sqrt( sq(a) + sq(b) + sq(c) );
+		return StrictMath.sqrt( sq(a) + sq(b) + sq(c) );
 	}
 	
 	/**
@@ -344,7 +346,7 @@ public final class ExtraMath
 	 */
 	public static final double triangleSide(double hypotenuse, double side)
 	{
-		return Math.sqrt( sq(hypotenuse) - sq(side) );
+		return StrictMath.sqrt( sq(hypotenuse) - sq(side) );
 	}
 	
 	/**
@@ -367,7 +369,7 @@ public final class ExtraMath
 	public static final double triangleSide(double hypotenuse, double sideA,
 																double sideB)
 	{
-		return Math.sqrt( sq(hypotenuse) - sq(sideA) - sq(sideB) );
+		return StrictMath.sqrt( sq(hypotenuse) - sq(sideA) - sq(sideB) );
 	}
 	
 	/**
@@ -388,13 +390,13 @@ public final class ExtraMath
 		Complex[] out = new Complex[2];
 		if ( discriminant < 0.0 )
 		{
-			discriminant = Math.sqrt(-discriminant);
+			discriminant = StrictMath.sqrt(-discriminant);
 			for ( Complex num : out )
 				num.setImag(discriminant);
 		}
 		else
 		{
-			discriminant = Math.sqrt(discriminant);
+			discriminant = StrictMath.sqrt(discriminant);
 			for ( Complex num : out )
 				num.setReal(discriminant);
 		}
@@ -424,7 +426,7 @@ public final class ExtraMath
 	{
 		if ( xMin > xMax || yMin > yMax )
 			throw new IllegalArgumentException("Minimum > Maximum!");
-		return Math.max(0.0, Math.min(xMax, yMax) - Math.max(xMin, yMin));
+		return StrictMath.max(0.0, StrictMath.min(xMax, yMax) - StrictMath.max(xMin, yMin));
 	}
 	
 	/**
@@ -465,7 +467,7 @@ public final class ExtraMath
 	 */
 	public static final double areaOfACircle(double radius)
 	{
-		return Math.PI * sq(radius);
+		return StrictMath.PI * sq(radius);
 	}
 	
 	/**
@@ -479,8 +481,8 @@ public final class ExtraMath
 	 */
 	public static final double areaOfACircleSegment(double radius,double angle)
 	{
-		double area = 0.5 * sq(radius) * (angle - Math.sin(angle));
-		return Math.abs(area);
+		double area = 0.5 * sq(radius) * (angle - StrictMath.sin(angle));
+		return StrictMath.abs(area);
 	}
 	
 	/**
@@ -498,8 +500,8 @@ public final class ExtraMath
 	 */
 	public static final double lateralAreaOfACone(double lateralH, double angle)
 	{
-		double baseRadius = lateralH * Math.sin(angle);
-		return Math.abs(Math.PI * lateralH * baseRadius);
+		double baseRadius = lateralH * StrictMath.sin(angle);
+		return StrictMath.abs(StrictMath.PI * lateralH * baseRadius);
 	}
 	
 	/**
@@ -528,7 +530,7 @@ public final class ExtraMath
 	 */
 	public static final double radiusOfACircle(double area)
 	{
-		return Math.sqrt(area / Math.PI);
+		return StrictMath.sqrt(area / StrictMath.PI);
 	}
 	
 	/**
@@ -576,7 +578,7 @@ public final class ExtraMath
 	 */
 	public static final double volumeOfASphere(double radius)
 	{
-		return (4.0/3.0) * Math.PI * cube(radius);
+		return (4.0/3.0) * StrictMath.PI * cube(radius);
 	}
 	
 	/**
@@ -605,6 +607,8 @@ public final class ExtraMath
 	 * <p>Copied from 
 	 * http://stackoverflow.com/questions/3994531/how-to-determine-if-a-number-is-positive-or-negative-in-java
 	 * on 7 August 2013.</p>
+	 * 
+	 * TODO Bas: wouldn't it be cheaper to simply check > and <?
 	 * 
 	 * @param value double to be inspected.
 	 * @return integer with the sign of <b>value</b>: -1, 0, or +1
@@ -720,6 +724,7 @@ public final class ExtraMath
 	 */
 	public static boolean getRandBool()
 	{
+		calls++;
 		return random.nextBoolean();
 	}
 	
@@ -733,6 +738,7 @@ public final class ExtraMath
 	// TODO rename getUniRand()? Should be unambiguous
 	public static double getUniRandDbl()
 	{
+		calls++;
 		return random.nextDouble();
 	}
 	
@@ -758,7 +764,7 @@ public final class ExtraMath
 	 */
 	public static double getUniRandAngle()
 	{
-		return 2 * Math.PI * getUniRandDbl();
+		return 2 * StrictMath.PI * getUniRandDbl();
 	}
 	
 	/**
@@ -822,7 +828,7 @@ public final class ExtraMath
 		double phi;
 		do {
 			phi = random.nextGaussian();
-		} while ( Math.abs(phi) > 2 );
+		} while ( StrictMath.abs(phi) > 2 );
 		return phi;
 	}
 	

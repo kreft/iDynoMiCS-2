@@ -242,6 +242,8 @@ public class GuiLaunch implements Runnable
 			@Override
 			public void actionPerformed(ActionEvent event)
 			{
+				Idynomics.simulator = new Simulator();
+				Idynomics.global = new Param();
 				GuiMain.getConstructor();
 				GuiEditor.addComponent(Idynomics.simulator.getNode(), GuiMain.tabbedPane);
 			}

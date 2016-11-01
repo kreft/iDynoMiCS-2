@@ -114,7 +114,7 @@ public class ShapesTest
 		aShape.setDimensionLengths(Vector.onesDbl(2));
 		a = Vector.vector(2, 0.9);
 		b = Vector.vector(2, 0.1);
-		diff = aShape.getMinDifference(a, b);
+		diff = aShape.getMinDifferenceVector(a, b);
 		correct = new double[]{-0.2, 0.8};
 		assertTrue("rectangle, 1 cyclic",
 									Vector.areSame(correct, diff, TOLERANCE));
@@ -126,7 +126,7 @@ public class ShapesTest
 		aShape.setDimensionLengths(new double[]{2.0, 2*Math.PI, 0.0});
 		a[0] = 1.0; a[1] = 1.0;
 		b[0] = -1.0; b[1] = 1.0;
-		diff = aShape.getMinDifference(a, b);
+		diff = aShape.getMinDifferenceVector(a, b);
 		//System.out.println("diff: "+Vector.toString(diff));
 		// FIXME
 	}

@@ -699,21 +699,29 @@ public abstract class Shape implements
 	 * @param b A spatial location in global coordinates.
 	 * @return The smallest distance between them.
 	 */
-	public void getMinDifferenceTo(double[] destination, double[] a, double[] b)
+	public void getMinDifferenceVectorTo(double[] destination, double[] a, double[] b)
 	{
 		Vector.checkLengths(destination, a, b);
-		double[] aLocal = this.getLocalPosition(a);
-		double[] bLocal = this.getLocalPosition(b);
 		int nDim = a.length;
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			// TODO get arc length in angular dimensions?
-			destination[i] = dim.getShortest(aLocal[i], bLocal[i]);
+			if (dim._dimName == DimName.PHI || dim._dimName == DimName.THETA )
+			{
+				// FIXME If we want to use periodic boundaries in polar
+				// coordinates the collision algorithm needs to be overhauled
+				// to work with direction vector conversion since the angle
+				// applied to the different cells is no longer identical
+				destination[i] = a[i]-b[i];
+			}
+			else
+			{
+				destination[i] = dim.getShortest(a[i], b[i]);
+			}
 			if ( ++i >= nDim )
 				break;
 		}
-		this.getGlobalLocationEquals(destination);
+
 	}
 	
 	/**
@@ -726,11 +734,12 @@ public abstract class Shape implements
 	 * @param b A spatial location in global coordinates.
 	 * @return The smallest distance between them.
 	 */
-	public double[] getMinDifference(double[] a, double[] b)
+	public double[] getMinDifferenceVector(double[] a, double[] b)
 	{
-		Vector.checkLengths(a, b);
+		/* NOTE getMinDifferenceTo checks length, we do not have to do that 
+		 * twice. */
 		double[] out = new double[a.length];
-		this.getMinDifferenceTo(out, a, b);
+		this.getMinDifferenceVectorTo(out, a, b);
 		return out;
 	}
 	
@@ -799,6 +808,7 @@ public abstract class Shape implements
 
 	/**
 	 * \brief Force the given location to be inside this shape.
+	 * FIXME broken for polar shapes
 	 * 
 	 * @param location A spatial location in global coordinates.
 	 */
@@ -832,7 +842,7 @@ public abstract class Shape implements
 	 * 
 	 * @param aDimName The name of the dimension required.
 	 */
-	protected void setPlanarSurfaces(DimName aDimName)
+	protected void setPlanarSurface(DimName aDimName)
 	{
 		Tier level = Tier.BULK;
 		if ( Log.shouldWrite(level) )
@@ -866,6 +876,7 @@ public abstract class Shape implements
 	
 	/**
 	 * @return The set of {@code Surface}s for this {@code Shape}.
+	 * FIXME this method does not work for polar shapes
 	 */
 	public Collection<Surface> getSurfaces()
 	{

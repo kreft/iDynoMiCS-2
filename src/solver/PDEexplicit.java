@@ -18,6 +18,9 @@ import grid.SpatialGrid;
 /**
  * \brief TODO
  * 
+ * FIXME: please include a small description, what kind of pde solver is used
+ * here? Is it a known and documented algorithm?
+ * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public class PDEexplicit extends PDEsolver
@@ -63,8 +66,8 @@ public class PDEexplicit extends PDEsolver
 		{
 			double inverseMaxT = var.getMax(DIFFUSIVITY);
 			inverseMaxT *= var.getShape().getMaxFluxPotential();
-			/* Assume always 3 dimensions since we solve in (pseudo) 3D space*/
-			inverseMaxT *= 3;  
+			inverseMaxT *= 3.0;
+			/* divide by 3 since all simulations are pseudo 3D */
 			dt =  Math.min(dt, 1.0 / inverseMaxT);
 			if ( Log.shouldWrite(level) )
 			{
@@ -81,6 +84,7 @@ public class PDEexplicit extends PDEsolver
 			nIter = (int) Math.ceil(tFinal/dt);
 			dt = tFinal/nIter;
 		}
+		level = BULK;
 		if ( Log.shouldWrite(level) )
 			Log.out(level, "PDEexplicit using ministep size "+dt);
 		/*

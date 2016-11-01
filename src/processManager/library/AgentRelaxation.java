@@ -17,6 +17,8 @@ import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
+import spatialRegistry.SpatialRegistry;
+import spatialRegistry.splitTree.SplitTree;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;
@@ -55,6 +57,8 @@ public class AgentRelaxation extends ProcessManager
 	public String STOCHASTIC_DIRECTION = AspectRef.agentStochasticDirection;
 	public String STOCHASTIC_STEP = AspectRef.agentStochasticStep;
 	public String STOCHASTIC_MOVE = AspectRef.agentStochasticMove;
+	
+	public String STATIC_AGENT = AspectRef.staticAgent;
 	
 	
 	/**
@@ -127,6 +131,8 @@ public class AgentRelaxation extends ProcessManager
 	 * 
 	 */
 	private Collection<Surface> _shapeSurfs;
+	
+	private SpatialRegistry _agentTree;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -148,6 +154,7 @@ public class AgentRelaxation extends ProcessManager
 		this._timeLeap	= true;
 		
 		this._shape = agents.getShape();
+		// FIXME discovered circle returns a rod type shape (2 points) instead of circle (2d sphere, 1 point)
 		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = this._shape.getCollision();
 	}
@@ -191,11 +198,9 @@ public class AgentRelaxation extends ProcessManager
 					 */
 					Point a 		= ((Rod) s)._points[0];
 					Point b 		= ((Rod) s)._points[1];
-					double[] diff 	= this._shape.getMinDifference(
+					double[] diff 	= this._shape.getMinDifferenceVector(
 							a.getPosition(), b.getPosition() );
 					double dn 		= Vector.normEuclid(diff);
-					if (dn > 2.0 )
-						System.out.println(dn);
 					
 					/*
 					 * Hooke's law: spring stiffness * displacement
@@ -236,9 +241,10 @@ public class AgentRelaxation extends ProcessManager
 						pull = 0.0;
 					body = ((Body) neighbour.get(BODY));
 					List<Surface> t = body.getSurfaces();
-					Log.out(level, "   interacting with neighbor (ID "+
-							neighbour.identity()+") , which has "+t.size()+
-							" surfaces, with pull distance "+pull);
+					if ( Log.shouldWrite(level) )
+						Log.out(level, "   interacting with neighbor (ID "+
+								neighbour.identity()+") , which has "+t.size()+
+								" surfaces, with pull distance "+pull);
 					this._iterator.collision(agentSurfs, t, pull);
 				}
 			/*

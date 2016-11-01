@@ -230,6 +230,15 @@ public class Helper
 			return input;
 	}
 	
+	public static <T> boolean isNone( T input )
+	{
+		if (input == null || input == "")
+			return true;
+		else
+			return false;
+	}
+	
+	
 	/**
 	 * Delayed abort allows user to read abort statement before shutdown
 	 * @param delay
@@ -264,6 +273,16 @@ public class Helper
 		String out = "";
 		for ( Object o : enums )
 			out += o.toString()+" ";
+		return out;	
+	}
+	
+	public static String[] enumToStringArray(Class<?> anEnum)
+	{
+		Object[] enums = anEnum.getEnumConstants();
+		String[] out = new String[enums.length];
+		int i = 0;
+		for ( Object o : enums )
+			out[i++] = o.toString();
 		return out;	
 	}
 	

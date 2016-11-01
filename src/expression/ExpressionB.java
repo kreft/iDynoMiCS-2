@@ -554,7 +554,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * Return full equation from tree as string.
 	 */
-	// NOTE we could do a similar thing for TeX
+	// NOTE we could do a similar thing for TeX TODO tex for reporting?
 	public String stringEval()
 	{
 		/* Evaluation tree (strings). */

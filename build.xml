@@ -1,3 +1,4 @@
+<!-- Does not seem to work if jogl files are not in /lib check what is missing -->
 <project name="iDynoMiCS-2" default="dist" basedir=".">
   <description>
     simple example build file
