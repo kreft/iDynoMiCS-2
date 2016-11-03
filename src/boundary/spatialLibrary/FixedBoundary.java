@@ -7,10 +7,12 @@ import org.w3c.dom.Element;
 
 import boundary.SpatialBoundary;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
 import nodeFactory.NodeConstructor;
+import referenceLibrary.XmlRef;
 import shape.Dimension.DimName;
 
 /**
@@ -18,6 +20,7 @@ import shape.Dimension.DimName;
  * surface to agents. Intended for testing purposes.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public class FixedBoundary extends SpatialBoundary implements Instantiatable
 {
@@ -44,6 +47,14 @@ public class FixedBoundary extends SpatialBoundary implements Instantiatable
 	public void init(Element xmlElement, NodeConstructor parent)
 	{
 		super.init(xmlElement,parent);
+		this._detachability = 0.0;
+		
+		for ( Element e : XmlHandler.getElements(xmlElement, XmlRef.concentration))
+		{
+			setConcentration(XmlHandler.obtainAttribute(e, XmlRef.nameAttribute,
+					XmlRef.concentration), Double.valueOf(XmlHandler.obtainAttribute(e, 
+					XmlRef.valueAttribute, XmlRef.concentration)));
+		}
 	}
 	
 	/**
@@ -93,7 +104,13 @@ public class FixedBoundary extends SpatialBoundary implements Instantiatable
 	@Override
 	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
-		double concn = this._concns.get(grid.getName());
+		Tier level = Tier.DEBUG;
+		Double concn = this._concns.get(grid.getName());
+		if (concn == null)
+		{	if (Log.shouldWrite(level))
+				Log.out(level, "WARNING: unset fixed boundary concn");
+			concn = 0.0;
+		}
 		return this.calcDiffusiveFlowFixed(grid, concn);
 	}
 	

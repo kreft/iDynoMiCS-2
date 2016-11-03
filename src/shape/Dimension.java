@@ -128,13 +128,15 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			this.setInsignificant();
 	}
 	
-	public void init(Node xmlNode)
+	public void init(Node xmlNode, NodeConstructor parent)
 	{
 		Element elem = (Element) xmlNode;
 		String str;
 		NodeList bndNodes;
 		Element bndElem;
 		SpatialBoundary aBoundary;
+
+		this._parentNode = parent;
 		int index = -1;
 		
 		/*
@@ -212,7 +214,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				str = bndElem.getAttribute(XmlRef.classAttribute);
 				// FIXME this does not work since boundaries are not instantiatable
 				aBoundary = (SpatialBoundary) Instantiatable.getNewInstance(str, bndElem, this);
-				aBoundary.init(bndElem);
+//				aBoundary.init(bndElem); // FIXME nope
 				this.setBoundary(aBoundary, index);	
 			}
 		}

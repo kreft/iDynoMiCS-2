@@ -174,7 +174,7 @@ public abstract class Shape implements
 	 * 
 	 * @param xmlNode
 	 */
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, NodeConstructor parent )
 	{
 		NodeList childNodes;
 		Element childElem;
@@ -182,6 +182,7 @@ public abstract class Shape implements
 		/* Set up the dimensions. */
 		Dimension dim;
 		ResCalc rC;
+		this._parentNode = parent;
 		
 		for ( DimName dimens : this.getDimensionNames() )
 		{
@@ -193,7 +194,7 @@ public abstract class Shape implements
 				dim = this.getDimension(dimens);
 				if(dim._isSignificant)
 				{
-					dim.init(childElem);
+					dim.init(childElem, this);
 					
 					/* Initialise resolution calculators */
 					rC = new ResolutionCalculator.UniformResolution();
@@ -223,7 +224,7 @@ public abstract class Shape implements
 				childElem = (Element) childNodes.item(i);
 				str = childElem.getAttribute(XmlRef.classAttribute);
 				aBoundary = (Boundary) Instantiatable.getNewInstance(str, childElem, this);
-				aBoundary.init(childElem);
+//				aBoundary.init(childElem);
 				this.addOtherBoundary(aBoundary);
 			}
 		}
@@ -1536,6 +1537,7 @@ public abstract class Shape implements
 	 * XML-ABLE
 	 * **********************************************************************/
 	
+	// FIXME Bas: this is bypassing the instantiatable interface again
 	public static Shape getNewInstance(String className)
 	{
 		return (Shape) Instantiatable.getNewInstance(className, "shape.ShapeLibrary$");
@@ -1550,7 +1552,7 @@ public abstract class Shape implements
 		else
 			out = (Shape) Instantiatable.getNewInstance(className, 
 					"shape.ShapeLibrary$");
-		out.init(xmlElem);
+		out.init(xmlElem, parent);
 		return out;
 	}
 	

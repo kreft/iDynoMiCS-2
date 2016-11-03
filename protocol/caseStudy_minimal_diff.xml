@@ -133,18 +133,20 @@
 			</species>
 		</speciesLib>
 
-		<compartment name="first" tree="RTREE">
+		<compartment name="first" tree="RTREE" layerThickness="20.0">
 			<shape class="Rectangle">
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="200.0"/>
 				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="200.0">
-					<boundary name="max" class="FixedBoundary" />
+					<boundary name="max" class="FixedBoundary" dimension="Y" extreme="1">
+						<concentration name="oxygen" value="6e-4" /> 
+					</boundary>
 				</dimension>
 			</shape>
 			<solutes>
 				<!-- pg / µm2 -->
 				<solute name="ammonium" concentration="6e-4" />
-				<solute name="oxygen" 	concentration="6e-4" />
+				<solute name="oxygen" 	concentration="4e-4" />
 				<solute name="nitrite" 	concentration="6e-8" />
 				<solute name="nitrate" 	concentration="6e-8" />
 			</solutes>
@@ -183,6 +185,12 @@
 					<!-- µm -->
 					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+				</process>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="60.0">
+					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<!-- minute -->
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"

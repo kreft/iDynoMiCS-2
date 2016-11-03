@@ -10,6 +10,7 @@ import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import nodeFactory.NodeConstructor;
 import referenceLibrary.ObjectRef;
 import shape.Dimension.DimName;
 
@@ -56,7 +57,7 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void init(Element xmlElem)
+		public void init(Element xmlElem, NodeConstructor parent)
 		{
 			// TODO read in as a Double
 			String str = XmlHandler.attributeFromUniqueNode(

@@ -175,6 +175,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		String str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
 		this.setShape( (Shape) Shape.getNewInstance(
 				str, elem, (NodeConstructor) this) );	
+		
+		for( Boundary b : this._shape.getAllBoundaries())
+		{
+			b.init(environment, agents, name);
+			if (b instanceof SpatialBoundary)
+				((SpatialBoundary) b).setLayerThickness(Double.valueOf(
+						XmlHandler.obtainAttribute(xmlElem, 
+						XmlRef.layerThickness, XmlRef.compartment)));
+		}
 		/*
 		 * set container parentNodes
 		 */

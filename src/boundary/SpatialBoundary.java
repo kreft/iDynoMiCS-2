@@ -8,6 +8,7 @@ import org.w3c.dom.Node;
 import agent.Agent;
 import agent.Body;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
@@ -26,6 +27,7 @@ import shape.Dimension.DimName;
  * \brief Abstract class of boundary that has a location in space.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public abstract class SpatialBoundary extends Boundary
 {
@@ -64,8 +66,10 @@ public abstract class SpatialBoundary extends Boundary
 	 */
 	public void init(Element xmlElement, NodeConstructor parent) 
 	{
-		// TODO set dim from Element
-		// TODO set extreme from Element
+		this._dim = DimName.valueOf(XmlHandler.obtainAttribute(
+				xmlElement, XmlRef.shapeDimension, XmlRef.dimensionBoundary));
+		this._extreme = Integer.valueOf(XmlHandler.obtainAttribute(
+				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary)); // shape and this are inconsistent
 	}
 	
 	/**

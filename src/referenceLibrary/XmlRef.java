@@ -440,4 +440,9 @@ public class XmlRef
 	 */
 	public static final String tree = "tree";
 
+	/**
+	 * 0 or 1 refering to min or max boundary
+	 */
+	public static final String extreme = "extreme";
+
 }

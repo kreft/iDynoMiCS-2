@@ -748,7 +748,7 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});	
 		
-		/* screendump */
+		/* fps */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, 0), "fps") ;
 		actionMap.put("fps", new AbstractAction(){
 			private static final long serialVersionUID = 346448974654345823L;

@@ -5,23 +5,30 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import shape.Dimension.DimName;
+import shape.Shape;
+import shape.Dimension;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public abstract class Boundary implements NodeConstructor
 {
@@ -487,11 +494,6 @@ public abstract class Boundary implements NodeConstructor
 	 * implements the instantiatable interface and STOP bypassing its get newNewInstance metod.
 	 */
 	
-	public void init(Node xmlNode)
-	{
-		// TODO partner boundary name
-	}
-
 	@Override
 	public ModelNode getNode()
 	{
