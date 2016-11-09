@@ -138,8 +138,7 @@ public abstract class CylindricalShape extends Shape
 			else
 			{
 				int nShell = radiusC.getNVoxel();
-				int rMin = radiusC.getVoxelIndex(
-						this.getDimension(R).getExtreme(0));
+				int rMin = (int)this.getDimension(R).getExtreme(0);
 				
 				this._resCalc[index] = new ResCalc[nShell];
 				ResCalc shellResCalc;

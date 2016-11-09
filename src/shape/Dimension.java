@@ -178,12 +178,10 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		if ( str != "" )
 			this._targetRes = Double.valueOf(str);
 		
-		/* Set theta and phi dimensions cyclic for a full circle, no matter what 
+		/* Set theta dimension cyclic for a full circle, no matter what 
 		 * the user specified */
 		if (this._dimName == DimName.THETA && ExtraMath.areEqual(length, 
-				2 * Math.PI, PolarShapeIterator.POLAR_ANGLE_EQ_TOL)
-				|| this._dimName == DimName.PHI && ExtraMath.areEqual(length, 
-						Math.PI, PolarShapeIterator.POLAR_ANGLE_EQ_TOL))
+				2 * Math.PI, PolarShapeIterator.POLAR_ANGLE_EQ_TOL))
 			this.setCyclic();
 
 		// FIXME investigate and clean

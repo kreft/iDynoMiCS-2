@@ -4,6 +4,7 @@ import static dataIO.Log.Tier.BULK;
 import static shape.Dimension.DimName.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -1501,7 +1502,7 @@ public abstract class Shape implements
 			resCalc.setExtremes(orig[dim], upper[dim]);
 			/* convert arc length to angle for angular dimensions */
 			resCalc.setResolution(dimName.isAngular() ? 
-					targetRes / orig[getDimensionIndex(DimName.R)] : targetRes);
+					targetRes / upper[getDimensionIndex(DimName.R)] : targetRes);
 			sub.setDimensionResolution(dimName, resCalc);
 		}
 		

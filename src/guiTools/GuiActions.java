@@ -5,6 +5,7 @@ package guiTools;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -161,7 +162,7 @@ public final class GuiActions
 				c = Idynomics.simulator.getCompartment(s);
 			}
 			/* create and invoke the renderer */
-			Render myRender = new Render( new AgentMediator(c.agents) );
+			Render myRender = new Render( new AgentMediator(c) );
 			EventQueue.invokeLater(myRender);
 		}
 	}
