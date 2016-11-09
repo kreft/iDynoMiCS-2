@@ -84,7 +84,6 @@ public class ResolutionCalculator
 		 * @throws IllegalArgumentException if location is outside [0, length)
 		 */
 		public abstract int getVoxelIndex(double location);
-		public abstract int getVoxelIndexNoMin(double location);
 		
 		public Object copy()
 		{
@@ -141,14 +140,6 @@ public class ResolutionCalculator
 			return (int) ((location - this._min) / this._resolution);
 		}
 		
-		@Override
-		public int getVoxelIndexNoMin(double location)
-		{
-			if ( location < this._min || location >= this._max )
-				throw new IllegalArgumentException("Location out of range");
-			return (int) (location / this._resolution);
-		}
-		
 		public Object copy()
 		{
 			SameRes out = (SameRes) super.copy();
@@ -157,6 +148,7 @@ public class ResolutionCalculator
 		}
 	}
 
+	@Deprecated
 	public static abstract class VariableRes extends ResCalc
 	{
 		/**
@@ -192,12 +184,6 @@ public class ResolutionCalculator
 					this._cumulativeRes[i] += this._cumulativeRes[i-1];
 			}
 			return this._cumulativeRes[voxelIndex];
-		}
-
-		@Override
-		public int getVoxelIndexNoMin(double location)
-		{
-			return 0;
 		}
 		
 		@Override

@@ -246,7 +246,10 @@ public abstract class SphericalShape extends Shape
 			 * resolution calculators.
 			 */
 			nShell = radiusC.getNVoxel();
-			int rMin = radiusC.getVoxelIndexNoMin(this.getDimension(R).getExtreme(0));
+			
+			/* NOTE For varying resolution this has to be adjusted */
+			int rMin = (int) (this.getDimension(R).getExtreme(0) 
+					/ radiusC.getResolution(0));
 			this._resCalc[2] = new ResCalc[nShell][];
 			/* Iterate over the shells. */
 			int nRing;
@@ -254,7 +257,9 @@ public abstract class SphericalShape extends Shape
 			{
 				/* Prepare the array of ResCalcs for this shell. */
 				nRing = phiC[shell].getNVoxel();
-				int phiMin = phiC[shell].getVoxelIndexNoMin(this.getDimension(PHI).getExtreme(0));
+				/* NOTE For varying resolution this has to be adjusted */
+				int phiMin = (int)(this.getDimension(PHI).getExtreme(0) 
+						/ phiC[shell].getResolution(0));
 				this._resCalc[2][shell] = new ResCalc[nRing];
 				/* Iterate over the rings in this shell. */
 				for ( int ring = 0; ring < nRing; ring++ )

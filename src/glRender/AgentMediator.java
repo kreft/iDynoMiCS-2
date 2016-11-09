@@ -356,6 +356,10 @@ public class AgentMediator implements CommandMediator {
 		
 		if (this.grid)
 		{
+			/* In grid view, solutes are assigned a random color and
+			 *  concentrations are indicated using a mixture of those colors
+			 *  scaled to the next highest decimal of the current maximum conc. 
+			 */
 			ShapeIterator it = _shape.getNewIterator();
 			float max = -1;
 			if (soluteColors.values().size() > 0){
