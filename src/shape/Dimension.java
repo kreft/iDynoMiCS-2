@@ -178,12 +178,10 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 		if ( str != "" )
 			this._targetRes = Double.valueOf(str);
 		
-		/* Set theta and phi dimensions cyclic for a full circle, no matter what 
+		/* Set theta dimension cyclic for a full circle, no matter what 
 		 * the user specified */
 		if (this._dimName == DimName.THETA && ExtraMath.areEqual(length, 
-				2 * Math.PI, PolarShapeIterator.POLAR_ANGLE_EQ_TOL)
-				|| this._dimName == DimName.PHI && ExtraMath.areEqual(length, 
-						Math.PI, PolarShapeIterator.POLAR_ANGLE_EQ_TOL))
+				2 * Math.PI, PolarShapeIterator.POLAR_ANGLE_EQ_TOL))
 			this.setCyclic();
 
 		// FIXME investigate and clean
@@ -194,7 +192,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			for ( int i = 0; i < bndNodes.getLength(); i++ )
 			{
 				bndElem = (Element) bndNodes.item(i);
-				str = XmlHandler.gatherAttribute(elem, XmlRef.nameAttribute);
+				str = XmlHandler.gatherAttribute(bndElem, XmlRef.nameAttribute);
 				str = Helper.obtainInput(str, "dimension extreme (min/max)");
 				str = str.toLowerCase();
 				if ( str.equals("min") )
@@ -208,7 +206,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				}
 				
 				str = bndElem.getAttribute(XmlRef.classAttribute);
-				// FIXME
+				// FIXME this does not work since boundaries are not instantiatable
 				aBoundary = (SpatialBoundary) SpatialBoundary.getNewInstance(str);
 				aBoundary.init(bndElem);
 				this.setBoundary(aBoundary, index);	

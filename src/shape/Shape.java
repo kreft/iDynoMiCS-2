@@ -4,6 +4,7 @@ import static dataIO.Log.Tier.BULK;
 import static shape.Dimension.DimName.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -700,21 +701,29 @@ public abstract class Shape implements
 	 * @param b A spatial location in global coordinates.
 	 * @return The smallest distance between them.
 	 */
-	public void getMinDifferenceTo(double[] destination, double[] a, double[] b)
+	public void getMinDifferenceVectorTo(double[] destination, double[] a, double[] b)
 	{
 		Vector.checkLengths(destination, a, b);
-		double[] aLocal = this.getLocalPosition(a);
-		double[] bLocal = this.getLocalPosition(b);
 		int nDim = a.length;
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			// TODO get arc length in angular dimensions?
-			destination[i] = dim.getShortest(aLocal[i], bLocal[i]);
+			if (dim._dimName == DimName.PHI || dim._dimName == DimName.THETA )
+			{
+				// FIXME If we want to use periodic boundaries in polar
+				// coordinates the collision algorithm needs to be overhauled
+				// to work with direction vector conversion since the angle
+				// applied to the different cells is no longer identical
+				destination[i] = a[i]-b[i];
+			}
+			else
+			{
+				destination[i] = dim.getShortest(a[i], b[i]);
+			}
 			if ( ++i >= nDim )
 				break;
 		}
-		this.getGlobalLocationEquals(destination);
+
 	}
 	
 	/**
@@ -727,11 +736,12 @@ public abstract class Shape implements
 	 * @param b A spatial location in global coordinates.
 	 * @return The smallest distance between them.
 	 */
-	public double[] getMinDifference(double[] a, double[] b)
+	public double[] getMinDifferenceVector(double[] a, double[] b)
 	{
-		Vector.checkLengths(a, b);
+		/* NOTE getMinDifferenceTo checks length, we do not have to do that 
+		 * twice. */
 		double[] out = new double[a.length];
-		this.getMinDifferenceTo(out, a, b);
+		this.getMinDifferenceVectorTo(out, a, b);
 		return out;
 	}
 	
@@ -800,6 +810,7 @@ public abstract class Shape implements
 
 	/**
 	 * \brief Force the given location to be inside this shape.
+	 * FIXME broken for polar shapes
 	 * 
 	 * @param location A spatial location in global coordinates.
 	 */
@@ -833,7 +844,7 @@ public abstract class Shape implements
 	 * 
 	 * @param aDimName The name of the dimension required.
 	 */
-	protected void setPlanarSurfaces(DimName aDimName)
+	protected void setPlanarSurface(DimName aDimName)
 	{
 		Tier level = Tier.BULK;
 		if ( Log.shouldWrite(level) )
@@ -867,6 +878,7 @@ public abstract class Shape implements
 	
 	/**
 	 * @return The set of {@code Surface}s for this {@code Shape}.
+	 * FIXME this method does not work for polar shapes
 	 */
 	public Collection<Surface> getSurfaces()
 	{
@@ -1484,15 +1496,16 @@ public abstract class Shape implements
 		/* set the dimension resolutions */
 		for ( int dim = 0; dim < 3; dim++ )
 		{
-			DimName dimName = sub.getDimensionName(dim);
-			/* convert arc length to angle for angular dimensions */
-			if (dimName.isAngular()) 
-				targetRes = targetRes / orig[getDimensionIndex(DimName.R)];
+			DimName dimName = this.getDimensionName(dim);
 			UniformResolution resCalc = new UniformResolution();
+			sub.getDimension(dimName).setExtremes(orig[dim], upper[dim]);
 			resCalc.setExtremes(orig[dim], upper[dim]);
-			resCalc.setResolution(targetRes);
+			/* convert arc length to angle for angular dimensions */
+			resCalc.setResolution(dimName.isAngular() ? 
+					targetRes / upper[getDimensionIndex(DimName.R)] : targetRes);
 			sub.setDimensionResolution(dimName, resCalc);
 		}
+		
 		
 		/* Loop over the shape and create new subvoxel points with 
 		 * internal location, real location and volume set */
@@ -1500,10 +1513,11 @@ public abstract class Shape implements
 				cur = sub.iteratorNext())
 		{
 			SubvoxelPoint sp = new SubvoxelPoint();
-			sp.realLocation = sub.getVoxelCentre(cur);
+			double[] local = sub.getVoxelCentre(cur);
+			sp.realLocation = sub.getGlobalLocation(local);
 			/* this will compute the internal location and write it into 
 			 * sp.internalLocation */
-			this.getCoords(sp.realLocation, sp.internalLocation);
+			this.getCoords(local, sp.internalLocation);
 			sp.volume = sub.getCurrVoxelVolume();
 			out.add(sp);
 		}

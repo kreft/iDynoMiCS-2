@@ -104,12 +104,24 @@ public class Point implements Copyable, NodeConstructor
 	{
 		return this._p;
 	}
+	
+	public double[] getPolarPosition()
+	{
+		return Vector.spherify(this._p);
+	}
 
 	public void setPosition(double[] position)
 	{
 		if ( Double.isNaN(position[0]))
 			System.out.println(_p);
 		this._p = position;
+	}
+	
+	public void setPolarPosition(double[] position)
+	{
+		if ( Double.isNaN(position[0]))
+			System.out.println(_p);
+		this._p = Vector.spherify(position);
 	}
 	
 	public double[] getForce()
@@ -122,7 +134,7 @@ public class Point implements Copyable, NodeConstructor
 		this._f = force;
 	}
 
-	private void resetForce()
+	public void resetForce()
 	{
 		Vector.reset(this._f);
 	}
@@ -212,6 +224,9 @@ public class Point implements Copyable, NodeConstructor
 	/**
 	 * \brief Find the velocity of this point.
 	 * 
+	 * FIXME for non spherical objects the representative sphere radius should
+	 * be used rather than the actual radius of the object
+	 * 
 	 * @param radius The radius of the sphere-swept volume this point belongs
 	 * to will affect the drag on it by the surrounding fluid. Assumed in units
 	 * of micrometer.
@@ -245,9 +260,13 @@ public class Point implements Copyable, NodeConstructor
 		/*
 		 * Scale the force.
 		 */
-		// TODO note that force is currently scaled may need to revise later
-		//TODO explain why!
-		double scalar = radius;
+		double scalar = 0.2;
+		/* the following dynamic scaling is a slight deviation from the original
+		 * iDynoMiCS where instead of dynamic scaling the overlap was simply
+		 * considered resolved at small when the difference vector (and thus
+		 * the force was sufficiently small) 
+		 * TODO, make these things settable from xml.
+		 */
 		if ( Vector.normEuclid(this.getForce()) < 0.2 )
 		{
 			/* Anti deadlock. */

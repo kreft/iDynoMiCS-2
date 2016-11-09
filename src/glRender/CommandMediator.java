@@ -15,6 +15,16 @@ public interface CommandMediator
 	 * @return
 	 */
 	public abstract float kickback();
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	public default double[] orientation() 
+	{
+			return new double[] { 0.0, 0.0 };
+	}
 
 	/**
 	 * \brief Simple drawing without zoom and tilt options.

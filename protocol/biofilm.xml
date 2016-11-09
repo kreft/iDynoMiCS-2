@@ -82,7 +82,7 @@
 			</species>
 		</speciesLib>
 
-		<compartment name="noPrefPull">
+		<compartment name="first">
 			<shape class="Rectangle">
 				<dimension name="X" isCyclic="true" targetResolution="1.0" max="40.0"/>
 				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="40.0"/>
@@ -98,13 +98,13 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
 					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
 					<!--<state name="filialLinker" type="PRIMARY" class="Boolean" value="true" /> -->
-					<spawn number="3" domain="40.0,0.2" />
+					<spawn number="6" domain="40.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="species2" />
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.15" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
-					<spawn number="3" domain="40.0,0.2" />
+					<spawn number="6" domain="40.0,0.2" />
 				</agent>
 			</agents>
 			<processManagers>

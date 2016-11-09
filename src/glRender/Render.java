@@ -1,8 +1,10 @@
 package glRender;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
+import java.awt.Graphics;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
@@ -11,7 +13,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
@@ -29,6 +36,8 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.util.FPSAnimator;
+
+import idynomics.Idynomics;
 
 /**
  * TODO clean-up commenting
@@ -85,6 +94,7 @@ public class Render implements GLEventListener, Runnable {
 	 */
 	private boolean _light;
 	private boolean _blend;
+	private boolean _msaa;
 	private float _aspectRatio;
 	
 	/*
@@ -109,6 +119,15 @@ public class Render implements GLEventListener, Runnable {
     private CommandMediator _commandMediator;
 
     /*
+     * fps counter
+     */
+    private double lastTime = System.currentTimeMillis();
+    private int nbFrames = 0;
+    /*
+     * screendump
+     */
+    public boolean screenDump = false;
+    /*
      * this is what refreshes what is rendered on the screen
      */
 	@Override
@@ -119,6 +138,16 @@ public class Render implements GLEventListener, Runnable {
 		 */
 		final GL2 gl = drawable.getGL().getGL2();
 		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+		
+	     // fps
+	     double currentTime = System.currentTimeMillis();
+	     nbFrames++;
+	     if ( currentTime - lastTime >= 1000.0 )
+	     { 
+	         System.out.println((double) nbFrames + " fps");
+	         nbFrames = 0;
+	         lastTime = currentTime;
+	     }
 			
 		/*
 		 * start new identity
@@ -142,7 +171,7 @@ public class Render implements GLEventListener, Runnable {
 			gl.glEnable(GL2.GL_DEPTH_TEST);
 			gl.glDisable(GL2.GL_BLEND);
 		}
-		
+
 		/*
 		 * ask commandMediator to draw what it draws, tilt and zoom only work
 		 * if implemented by commandMediator
@@ -174,9 +203,19 @@ public class Render implements GLEventListener, Runnable {
 				0, 									// centerZ
 				Math.cos(_angle), 					// upX
 				Math.sin(_angle),					// upY
-				dist * 10000 * ( Math.sin(_tilt) )	// upZ
+				- dist * 10000 * ( Math.sin(_tilt) )	// upZ
 				);	
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
+		
+	     if ( this.screenDump )
+	     { 	 		
+	 		try {
+	             BufferedImage screenshot = makeScreenshot(drawable);
+	             ImageIO.write(screenshot, "png", new File(Idynomics.global.outputLocation +"/screen_" + System.currentTimeMillis() + ".png"));
+	         } catch (IOException ex) {
+	         }
+	 		this.screenDump = false;
+	     }
 		
 		gl.glFlush();
 		
@@ -212,6 +251,20 @@ public class Render implements GLEventListener, Runnable {
 		gl.glDepthFunc(GL2.GL_LEQUAL);
 		gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
 		
+//		gl.glEnable(GL2.GL_AUTO_NORMAL);
+//	    gl.glEnable(GL2.GL_NORMALIZE);
+//	    gl.glEnable(GL2.GL_FOG);
+//	    gl.glFogf(GL2.GL_FOG_DENSITY, 5.0f);
+//	    float fogColor[] = { 0.0f, 0.5f, 0.5f, 1.0f };
+//	    gl.glFogfv(GL2.GL_FOG_COLOR, fogColor, 0);
+//	    gl.glHint(GL2.GL_FOG_HINT, GL2.GL_DONT_CARE);
+//		gl.glFogf(GL2.GL_FOG_START, 2.0f);
+//	    gl.glFogf(GL2.GL_FOG_END, 5.0f);
+//
+//	    gl.glFogi(GL2.GL_FOG_MODE, GL2.GL_EXP);
+
+//		gl.glFogi(GL2.GL_FOG_COORDINATE_SOURCE, GL2.GL_FOG_COORDINATE);
+		
 		/* light */
 		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, this.lightAmbient, 0);
 		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, this.LightDiffuse, 0);
@@ -226,6 +279,9 @@ public class Render implements GLEventListener, Runnable {
 		gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);	
 		
 		_commandMediator.init(drawable);
+		
+		this._x = (float) this._commandMediator.orientation()[0];
+		this._y = (float) this._commandMediator.orientation()[1];
 	}
 
 	/**
@@ -246,7 +302,7 @@ public class Render implements GLEventListener, Runnable {
 		
 		/* adjust the camera perspective to the screen resizing */
 		_glu.gluPerspective(45.0f, _aspectRatio, 1.0,  _commandMediator.kickback() + 100.0);
-		_glu.gluLookAt(0, 0, 0, 0, 0, -80, 0, 1, 0);
+		_glu.gluLookAt(0, 0, -80, 0, 0, 0, 0, 1, 0);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
 	}
@@ -267,6 +323,12 @@ public class Render implements GLEventListener, Runnable {
 		/* openGL profile */
 		final GLProfile profile = GLProfile.get(GLProfile.GL2);
 		GLCapabilities capabilities = new GLCapabilities(profile);
+		
+		/* multi-sampling anti aliasing */
+		capabilities.setSampleBuffers(true);
+		capabilities.setNumSamples(8);
+		
+		capabilities.setHardwareAccelerated(true);
 		
 		/* Canvas */
 		final GLCanvas glcanvas = new GLCanvas(capabilities);
@@ -368,6 +430,36 @@ public class Render implements GLEventListener, Runnable {
 			
 			_isFullScreen = false;	
 		}
+	}
+	
+	/* 
+	 * based on:
+	 * http://gamedev.stackexchange.com/questions/72911/how-to-save-am-image-of-a-screen-using-jogl
+	 * */
+	public BufferedImage makeScreenshot(GLAutoDrawable drawable) {
+		final GL2 gl = drawable.getGL().getGL2();
+		
+		
+		int width = drawable.getSurfaceWidth();
+		int height = drawable.getSurfaceHeight();
+	    BufferedImage screenshot = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	    Graphics graphics = screenshot.getGraphics();
+
+	    byte[] bytes = new byte[width * height * 3];
+	    ByteBuffer buffer = ByteBuffer.wrap(bytes);
+
+	    gl.glReadPixels(0, 0, width, height, GL2.GL_RGB, GL2.GL_BYTE, buffer);
+	    
+	    for (int h = 0; h < height; h++) {
+	        for (int w = 0; w < width; w++) {
+	            // The color are the three consecutive bytes, it's like referencing
+	            // to the next consecutive array elements, so we got red, green, blue..
+	            // red, green, blue, and so on..
+	            graphics.setColor(new Color( buffer.get()*2, buffer.get()*2, buffer.get()*2 ));
+	            graphics.drawRect(w,height - h, 1, 1);
+	        }
+	    }
+	    return screenshot;
 	}
 	
 	/*
@@ -490,6 +582,20 @@ public class Render implements GLEventListener, Runnable {
 			}
 		});
 		
+		/* multi sampling anti aliasing */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0), "msaa") ;
+		actionMap.put("msaa", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("msaa");
+				r._msaa = r._msaa ? false : true;
+
+			}
+		});
+		
+		
 		/* alpha */
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "blend") ;
 		actionMap.put("blend", new AbstractAction(){
@@ -573,5 +679,54 @@ public class Render implements GLEventListener, Runnable {
 				r._angle += 0.05f*(float) Math.PI;
 			}
 		});	
+		
+		/* increase definition */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, 0), "def_add") ;
+		actionMap.put("def_add", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("def_add");
+				((AgentMediator) r._commandMediator).definition++;
+			}
+		});
+		
+		/* decrease definition */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, 0), "def_sub") ;
+		actionMap.put("def_sub", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("def_sub");
+				((AgentMediator) r._commandMediator).definition--;
+			}
+		});	
+		
+		/* decrease definition */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "grid") ;
+		actionMap.put("grid", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("grid");
+				((AgentMediator) r._commandMediator).grid ^= true;
+			}
+		});	
+		
+		/* screendump */
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F12, 0), "screendump") ;
+		actionMap.put("screendump", new AbstractAction(){
+			private static final long serialVersionUID = 346448974654345823L;
+			
+			@Override
+			public void actionPerformed(ActionEvent g) {
+				System.out.println("screendump");
+				r.screenDump = true;
+			}
+		});	
+		
 	}
 }

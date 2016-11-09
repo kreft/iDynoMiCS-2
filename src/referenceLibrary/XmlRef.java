@@ -430,6 +430,14 @@ public class XmlRef
 	 */
 	public static final String entryClassAttribute = "entryClass";
 
+	/**
+	 * search distance for nearby eps particles
+	 */
 	public static final String epsDist = "epsDist";
+
+	/**
+	 * agent tree type
+	 */
+	public static final String tree = "tree";
 
 }

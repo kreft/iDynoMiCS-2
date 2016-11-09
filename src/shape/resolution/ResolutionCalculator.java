@@ -137,7 +137,7 @@ public class ResolutionCalculator
 		{
 			if ( location < this._min || location >= this._max )
 				throw new IllegalArgumentException("Location out of range");
-			return (int) (location / this._resolution);
+			return (int) (location / this._resolution - this._min);
 		}
 		
 		public Object copy()

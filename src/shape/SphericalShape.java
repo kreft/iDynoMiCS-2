@@ -211,12 +211,13 @@ public abstract class SphericalShape extends Shape
 				return;
 			}
 			nShell = radiusC.getNVoxel();
+			int rMin = (int)this.getDimension(R).getExtreme(0);
 			this._resCalc[1][0] = new ResCalc[nShell];
 			for ( int i = 0; i < nShell; i++ )
 			{
 				focalResCalc = (ResCalc) resC.copy();
 				double res = PolarShapeIterator.scaleResolutionForShell(
-						i, resC.getResolution(0));
+						rMin+i, resC.getResolution(0));
 				focalResCalc.setResolution(res);
 				this._resCalc[1][0][i] = focalResCalc;
 			}
@@ -237,6 +238,7 @@ public abstract class SphericalShape extends Shape
 			 * resolution calculators.
 			 */
 			nShell = radiusC.getNVoxel();
+			int rMin = (int)this.getDimension(R).getExtreme(0);
 			this._resCalc[2] = new ResCalc[nShell][];
 			/* Iterate over the shells. */
 			int nRing;
@@ -244,14 +246,15 @@ public abstract class SphericalShape extends Shape
 			{
 				/* Prepare the array of ResCalcs for this shell. */
 				nRing = phiC[shell].getNVoxel();
+				int phiMin = (int)this.getDimension(PHI).getExtreme(0);
 				this._resCalc[2][shell] = new ResCalc[nRing];
 				/* Iterate over the rings in this shell. */
 				for ( int ring = 0; ring < nRing; ring++ )
 				{
 					focalResCalc = (ResCalc) resC.copy();
 					/* NOTE For varying resolution this will not work anymore */
-					double res = PolarShapeIterator.scaleResolutionForRing(shell,
-							ring, phiC[shell].getResolution(0),
+					double res = PolarShapeIterator.scaleResolutionForRing(rMin+shell,
+							phiMin+ring, phiC[shell].getResolution(0),
 							resC.getResolution(0));
 					focalResCalc.setResolution(res);
 					this._resCalc[2][shell][ring] = focalResCalc;
@@ -418,19 +421,15 @@ public abstract class SphericalShape extends Shape
 	 * VOXELS
 	 * **********************************************************************/
 	
-	@Override
 	public double getVoxelVolume(double[] origin, double[] upper)
 	{
-		/* mathematica:
-			Integrate[r^2 sin p,{phi,phi1,phi2},{theta,theta1,theta2},{r,r1,r2}]
-		 */ 
 		/* R */
-		double vol = ExtraMath.cube(upper[0]) - ExtraMath.cube(origin[0]);	
+		double vol = ExtraMath.cube(origin[0]) - ExtraMath.cube(upper[0]);	
 		/* PHI */
-		vol *= Math.cos(upper[1]) - Math.cos(origin[1]);
+		vol *= Math.cos(origin[1]) - Math.cos(upper[1]);
 		/* THETA */
-		vol *= upper[2] - origin[2];
-		return vol / 3;
+		vol *= origin[2] - upper[2];
+		return vol / 3.0;
 	}
 	
 	@Override

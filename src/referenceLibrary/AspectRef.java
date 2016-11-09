@@ -344,4 +344,9 @@ public class AspectRef
 	 * TODO
 	 */
 	public final static String graphicalOutputWriter = "outputWriter";
+	
+	/**
+	 * Agent can't move
+	 */
+	public final static String staticAgent = "staticAgent";
 }

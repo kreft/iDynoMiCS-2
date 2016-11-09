@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<simulation name="caseStudy" outputfolder="../results" log="NORMAL"
+		comment="this is a file for testing purposes only.">
+		<timer stepSize="60.0" endOfSimulation="3600.0" />
+		<speciesLib>
+			<!-- species/species library The species library contains all agent species 
+				in the simulations. This may include microbial species, plasmid and vector 
+				species, particle species etc. Species states are states that are in principal 
+				identical for all agents of that species. However note that iDynoMiCS 2.0 
+				does allow you to overwrite states on agent level. Thus if a state is defined 
+				both on species level and on agent level, the agent state will be used in 
+				the simulation. small test 
+
+				-->
+			<species name="species1">
+				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+				<speciesModule name="coccoid" />
+				<speciesModule name="producer" />
+				<aspect name="reactions" type="PRIMARY"  class="PileList"> 
+					<reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+						<reaction name="testReact" comment="biomass specific growth rate">
+							<expression value="mass * mumax *(ammonium / (ammonium + Kam) * (oxygen / (oxygen + Kox) )">
+								<constant name="Kam" value="1.5e-12" /> <!-- µg/µm3 --> 
+								<constant name="Kox" value="0.5e-12" /> <!-- µg/µm3 --> 
+								<constant name="mumax" value="0.000695" />  <!-- per minute -->
+							</expression>
+							<stoichiometric component="mass" coefficient="0.9" />
+							<stoichiometric component="eps" coefficient="0.1" />
+							<stoichiometric component="ammonium" coefficient="-1.587" />
+							<stoichiometric component="nitrate" coefficient="1.587" />
+							<stoichiometric component="oxygen" coefficient="-6.25" />
+						</reaction> 
+					</reactions>
+				</aspect>
+			</species>
+
+			<species name="coccoid">
+				<!-- µg / µm-->
+				<aspect name="density" type="PRIMARY" class="Double" value="1.5e-10" />
+				<aspect name="#isLocated" type="PRIMARY" class="Boolean" value="true" />
+				<aspect name="surfaces"			type="CALCULATED"	class="AgentSurfaces"	/>
+				<aspect name="morphology" 		type="PRIMARY" class="String" 		value="coccoid" />
+				<aspect name="volume" 			type="CALCULATED" 	class="SimpleVolumeState" />
+				<aspect name="radius" 			type="CALCULATED" 	class="CoccoidRadius" />
+				<aspect name="divide" 			type="EVENT" 		class="CoccoidDivision"	/>
+				<!-- µg -->
+				<aspect name="divisionMass"		class="Double" value="1e-9" />
+
+				<aspect name="updateBody" 		type="EVENT" 		class="UpdateBody" />
+				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
+				<!-- µm -->
+				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.0"  />
+			</species>
+			
+			<species name="producer">
+				<aspect name="produce" type="EVENT"	class="InternalProduction" 	 />
+				<aspect name="epsExcretion" type="EVENT"	class="ExcreteEPSCumulative" 	 />
+				<!-- µm -->
+				<aspect name="epsDist" type="PRIMARY" class="Double" value="0.1" />
+				<!-- µg -->
+				<aspect  name="maxInternalEPS" type="PRIMARY" class="Double" value="1e-10" />
+				<aspect  name="epsSpecies" type="PRIMARY" class="String" value="particleEPS" />
+			</species>
+			
+			<species name="particleEPS">
+				<speciesModule name="coccoid" />
+				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
+				<!-- µm -->
+				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.05"  />
+				<!-- µg -->
+				<aspect name="divisionMass"		class="Double" value="1e-10" />
+			</species>
+		</speciesLib>
+
+		<compartment name="first">
+			<shape class="Rectangle">
+				<!-- µm -->
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="20.0"/>
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="20.0"/>
+			</shape>
+			<solutes>
+				<!-- µg / µm2 -->
+				<solute name="ammonium" concentration="6e-12" />
+				<solute name="oxygen" concentration="6e-12" />
+				<solute name="nitrate" concentration="0.0" />
+			</solutes>
+			<reactions>
+			</reactions>
+			<agents>
+				<agent>
+					<aspect name="species" type="PRIMARY" class="String" value="species1" />
+					<!-- µg -->
+					<aspect name="mass" type="PRIMARY" class="Double" value="1e-9" />
+					<aspect name="eps" type="PRIMARY" class="Double" value="0.0" />
+					<!-- µm -->
+					<spawn number="6" domain="20.0,0.2" />
+				</agent>
+			</agents>
+			<processManagers>
+				<!-- minute -->
+				<process name="agentRelax" class="AgentRelaxation" priority="-2"
+					firstStep="0.0"  timerStepSize="1.0">
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+				</process>
+				<!-- minute -->
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
+					firstStep="0.0"  timerStepSize="1.0">	
+					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,nitrate,oxygen" /> 
+					<!--  based on iDyno 1 ~ 2.0e-4 m2.day-1 values here in µm^2/ minute-->
+					<diffusivitySetter solute="ammonium" class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
+					<diffusivitySetter solute="nitrate" class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
+					<diffusivitySetter solute="oxygen" class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
+				</process>
+			</processManagers>
+		</compartment>
+	</simulation>
+</document>

@@ -80,7 +80,7 @@ public class Rod extends Surface implements HasBoundingBox {
 
 	public double[][] pointMatrix()
 	{
-		double[][] p = new double[_points[0].nDim()][_points.length];
+		double[][] p = new double[_points.length][_points[0].nDim()];
 		for(int i = 0; i < _points.length; i++)
 			p[i] = _points[i].getPosition();
 		return p;

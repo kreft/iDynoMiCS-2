@@ -138,8 +138,7 @@ public abstract class CylindricalShape extends Shape
 			else
 			{
 				int nShell = radiusC.getNVoxel();
-				int rMin = radiusC.getVoxelIndex(
-						this.getDimension(R).getExtreme(0));
+				int rMin = (int)this.getDimension(R).getExtreme(0);
 				
 				this._resCalc[index] = new ResCalc[nShell];
 				ResCalc shellResCalc;
@@ -237,6 +236,9 @@ public abstract class CylindricalShape extends Shape
 		Dimension thetaDim = this.getDimension(THETA);
 		if ( ! thetaDim.isCyclic() )
 		{
+			// FIXME replace with non-infinite plane starting from orient
+			// REMEMBER Surfaces are always expressed in Cartesian coordinates
+			//	thetaDim.setSurface(THETA, adjust normal);
 			// TODO can we use Shape.setPlanarSurfaces() here?
 			// Probably depends on which coordinate system we use.
 		}

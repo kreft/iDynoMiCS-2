@@ -3,7 +3,7 @@
 	<simulation name="test" outputfolder="../results" log="DEBUG" randomSeed="22"
 						comment="this is a file for testing purposes only.">
 		
-		<timer stepSize="1.0" endOfSimulation="25.0" />
+		<timer stepSize="1.0" endOfSimulation="15.0" />
 		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -46,7 +46,7 @@
 			</species>
 		</speciesLib>
 
-		<compartment name="second">
+		<compartment name="second" tree="SPLITTREE">
 			<shape class="Rectangle">
 				<dimension name="X" isCyclic="false" targetResolution="1.0" max="16.0">
 				</dimension> 
@@ -54,7 +54,7 @@
 				</dimension> 
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="1.0" />
+				<solute name="solute1" concentration="2.0" />
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>

@@ -3,7 +3,7 @@
 	<simulation name="test" outputfolder="../results" log="DEBUG" randomSeed="22"
 						comment="this is a file for testing purposes only.">
 		
-		<timer stepSize="1.0" endOfSimulation="25.0" />
+		<timer stepSize="1.0" endOfSimulation="125.0" />
 		
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
@@ -20,9 +20,9 @@
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.25" />
 							</expression>
-							<stoichiometric component="mass" coefficient="1.0" />
-							<stoichiometric component="solute1" coefficient="-5.0" />
-							<stoichiometric component="solute2" coefficient="0.5" />
+							<stoichiometric component="mass" coefficient="0.5" />
+							<stoichiometric component="solute1" coefficient="-5" />
+							<stoichiometric component="solute2" coefficient="1" />
 						</reaction>
 					</reactions>
 				</aspect>
@@ -40,25 +40,21 @@
 				<aspect name="#isLocated" 	type="PRIMARY" 		class="Boolean" value="true" />
 				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 		 />
 			</species>
-			<species name="stochasticMover">
-				<aspect name="stochasticStep" type="PRIMARY"	class="Double" value="1.0" />
-				<aspect name="stochasticMove" type="EVENT"		class="StochasticMove" />
-			</species>
 		</speciesLib>
 
-		<compartment name="second">
+		<compartment name="second" tree="RTREE">
 			<shape class="Circle" >
-				<dimension name="R" targetResolution="1" max="10"/>
-				<dimension name="THETA" isCyclic="true" targetResolution="1" max="120"/>
+				<dimension name="R" targetResolution="1" min="5" max="10.0" isCyclic="false" />
+				<dimension name="THETA" isCyclic="true" targetResolution="1" max="360.0"/>
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="1.0" />
+				<solute name="solute1" concentration="0.0" />
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">
 					<expression value="1.0 * inflow">
-						<constant name="inflow" value="0.004" />
+						<constant name="inflow" value="0.1" />
 					</expression>
 					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>
@@ -73,7 +69,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="12.2, 12.2" />
+						<point position="-5.0, -5.0" />
 					</aspect>
 				</agent>
 				<agent>
@@ -82,7 +78,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="12.0, 5.3" />
+						<point position="-5.0, 5.0" />
 					</aspect>
 				</agent>
 				<agent>
@@ -91,7 +87,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="5.3, 12.2" />
+						<point position="5.0, 5.0" />
 					</aspect>
 				</agent> 
 			</agents>
@@ -125,7 +121,7 @@
 				</process>
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
-					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.01" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 				<process name="solveDiffusionTransient" class="SolveDiffusionTransient"  priority="-1"
