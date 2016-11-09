@@ -11,6 +11,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
+import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Ball;
 import surface.Point;
@@ -40,12 +41,6 @@ public abstract class SphericalShape extends Shape
 		 * Set up the array of resolution calculators.
 		 */
 		this._resCalc = new ResCalc[3][][];
-		/* radius */
-		this._resCalc[0] = new ResCalc[1][];
-		this._resCalc[0][0] = new ResCalc[1];
-		/* phi */
-		this._resCalc[1] = new ResCalc[1][];
-		/* theta will depend on phi, so leave for now. */
 		/*
 		 * Set up the dimensions.
 		 */
@@ -55,14 +50,27 @@ public abstract class SphericalShape extends Shape
 		dim = new Dimension(true, R); 
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
+		this._resCalc[getDimensionIndex(R)] = new ResCalc[1][1];
 		/*
 		 * Phi must always be significant and non-cyclic.
 		 */
 		dim = new Dimension(true, PHI);
 		this._dimensions.put(PHI, dim);
+		this._resCalc[getDimensionIndex(PHI)] = new ResCalc[1][1];
 		
+		/*
+		 * The phi-dimension is insignificant, unless told otherwise later.
+		 */
 		dim = new Dimension(false, THETA);
 		this._dimensions.put(THETA, dim);
+		this._resCalc[getDimensionIndex(THETA)] = new ResCalc[1][1];
+		
+		for ( int i = 0; i < 3; i++ )
+		{
+			SingleVoxel sV = new SingleVoxel();
+			sV.init(1.0, 0.0, 1.0);
+			this._resCalc[i][0][0] = sV;
+		}
 		
 		this._it = this.getNewIterator();
 	}
@@ -238,7 +246,7 @@ public abstract class SphericalShape extends Shape
 			 * resolution calculators.
 			 */
 			nShell = radiusC.getNVoxel();
-			int rMin = (int)this.getDimension(R).getExtreme(0);
+			int rMin = radiusC.getVoxelIndexNoMin(this.getDimension(R).getExtreme(0));
 			this._resCalc[2] = new ResCalc[nShell][];
 			/* Iterate over the shells. */
 			int nRing;
@@ -246,7 +254,7 @@ public abstract class SphericalShape extends Shape
 			{
 				/* Prepare the array of ResCalcs for this shell. */
 				nRing = phiC[shell].getNVoxel();
-				int phiMin = (int)this.getDimension(PHI).getExtreme(0);
+				int phiMin = phiC[shell].getVoxelIndexNoMin(this.getDimension(PHI).getExtreme(0));
 				this._resCalc[2][shell] = new ResCalc[nRing];
 				/* Iterate over the rings in this shell. */
 				for ( int ring = 0; ring < nRing; ring++ )
