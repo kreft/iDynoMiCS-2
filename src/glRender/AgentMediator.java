@@ -1,5 +1,9 @@
 package glRender;
 
+import java.awt.Color;
+import java.awt.color.ColorSpace;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +17,10 @@ import com.jogamp.opengl.util.gl2.GLUT;
 import agent.Agent;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import grid.ArrayType;
+import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import shape.CartesianShape;
@@ -25,6 +32,7 @@ import shape.SphericalShape;
 import surface.Ball;
 import surface.Rod;
 import surface.Surface;
+import utility.ExtraMath;
 import utility.Helper;
 
 
@@ -41,6 +49,10 @@ public class AgentMediator implements CommandMediator {
 	 * agent container
 	 */
 	protected AgentContainer _agents;
+	
+	protected Compartment _compartment;
+	
+	HashMap<String, Color> soluteColors;
 	
 	/*
 	 * shape
@@ -121,10 +133,19 @@ public class AgentMediator implements CommandMediator {
 	 * assign agent container via the constructor
 	 * @param agents
 	 */
-	public AgentMediator(AgentContainer agents)
+	public AgentMediator(Compartment c)
 	{
-		this._agents = agents;
-		this._shape = agents.getShape();
+		this._agents = c.agents;
+		this._shape = c.agents.getShape();
+		Collection<String> solutes = c.environment.getSoluteNames();
+		soluteColors = new HashMap<>();
+		for (String s : solutes){
+			soluteColors.put(s, new Color(
+					ExtraMath.random.nextFloat(),
+					ExtraMath.random.nextFloat(),
+					ExtraMath.random.nextFloat()));
+		}
+		this._compartment = c;
 		this._domainMaxima = new double[3];
 		/* determine kickback for camera positioning */
 		_kickback = 0.0f;
@@ -318,37 +339,64 @@ public class AgentMediator implements CommandMediator {
 		/* save the current modelview matrix */
 		_gl.glPushMatrix();
 		double[] length = GLUtil.make3D(shape.getDimensionLengths());
-
-		/* set different color / blending for 3 dimensional Cartesian shapes */
-		if (length[2] > 0)
-		{
-			_rgba = new float[] {0.1f, 0.1f, 1.0f};
-			_gl.glEnable(GL2.GL_BLEND);
-		}
-		else
-		{
-			_rgba = new float[] {0.3f, 0.3f, 0.3f};
-		}
 		/**
 		 * NOTE moved this here since it seems to resolve black lines in domain 
 		 * square, as long as the domain is drawn first this should not cause
 		 * any problems.
 		 */
-//		_gl.glDisable(GL2.GL_DEPTH_TEST); 
 		applyCurrentColor();
 		
+//		_gl.glDisable(GL2.GL_DEPTH_TEST); 
 		_gl.glDisable(GL2.GL_LIGHTING);
 		_gl.glColor3f(_rgba[0], _rgba[1], _rgba[2]);
 		_gl.glEnable(GL2.GL_BLEND); 
 		_gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
+//		_gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
 		_gl.glColor4f(0.9f,0.9f,1.0f,0.1f);
 		
 		if (this.grid)
 		{
+			/* In grid view, solutes are assigned a random color and
+			 *  concentrations are indicated using a mixture of those colors
+			 *  scaled to the next highest decimal of the current maximum conc. 
+			 */
 			ShapeIterator it = _shape.getNewIterator();
+			float max = -1;
+			if (soluteColors.values().size() > 0){
+				/* get the current maximum concentration */
+				for (String s : soluteColors.keySet()){
+					SpatialGrid grid = _compartment.getSolute(s);
+					max += (float)grid.getMax(ArrayType.CONCN);
+				}
+				/* Scale the maximum to the next highest decimal */
+				max = (int)(max / 10) * 10f + 10f;
+			}
+			
 			for (int[] cur = it.resetIterator(); it.isIteratorValid(); cur = it.iteratorNext())
 			{			
 				_gl.glPushMatrix();
+				/* print solutes */ 
+				if (soluteColors.values().size() > 0){
+					/* Transparent white as base color*/
+					Color c0 = new Color(1f,1f,1f,0f);
+					/* blend concentrations w.r.t. their conc. ratio */
+					float sumConc = 0f;
+					for (String s : soluteColors.keySet()){
+						SpatialGrid grid = _compartment.getSolute(s);
+						Color c = soluteColors.get(s);
+						float conc = (float)grid.getValueAt(ArrayType.CONCN, it.iteratorCurrent());
+						c0 = blend(c0, c, sumConc / (sumConc + conc));
+						sumConc += conc;
+						c0 = new Color(
+								c0.getRed() / 255f,
+								c0.getGreen() / 255f,
+								c0.getBlue() / 255f,
+								Math.min(1f, Math.max(0f, sumConc / max)));
+					}
+					_rgba = c0.getColorComponents(_rgba);
+					/* apply current color with transparency of max. 0.5 */
+					applyCurrentColor(c0.getAlpha() / 255f * 0.5f);
+				}
 				drawVoxel(_shape, cur);
 				_gl.glPopMatrix();
 			}
@@ -357,7 +405,6 @@ public class AgentMediator implements CommandMediator {
 		{
 			/* apply different functions for different types */
 			if (shape instanceof CartesianShape){
-				
 				
 				/* polar shapes are already centered around the origin after calling 
 				 * getGlobalLocation() , so undo global translation */
@@ -390,7 +437,6 @@ public class AgentMediator implements CommandMediator {
 				 * NOTE we can allow the domain to have a bit better definition than the agents
 				 */
 				_glut.glutSolidSphere(length[0], _slices*8, _stacks*8);
-				
 			}
 		}
 
@@ -409,11 +455,19 @@ public class AgentMediator implements CommandMediator {
 	 * with a shininess of 0.1.
 	 */
 	private void applyCurrentColor(){
+     	applyCurrentColor(1f);
+	}
+	
+	/**
+	 * Sets the current ambient and specular color to <b>this._rgba</b> 
+	 * with a shininess of 0.1 and alpha value of alpha.
+	 */
+	private void applyCurrentColor(float alpha){
      	/* lighting and coloring */
 		_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT, _rgba, 0);
 		_gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_SPECULAR, _rgba, 0);
 		_gl.glMaterialf(GL2.GL_FRONT, GL2.GL_SHININESS, 0.1f);
-		_gl.glColor3f(_rgba[0], _rgba[1], _rgba[2]);
+		_gl.glColor4f(_rgba[0], _rgba[1], _rgba[2], alpha);
 	}
 	
 	/**
@@ -485,6 +539,31 @@ public class AgentMediator implements CommandMediator {
 		_gl.glVertex3fv(Vector.toFloat(p8), 0);
 		
 		_gl.glEnd();
+	}
+	
+	Color blend( Color c1, Color c2, float ratio ) {
+	    if ( ratio > 1f ) ratio = 1f;
+	    else if ( ratio < 0f ) ratio = 0f;
+	    float iRatio = 1.0f - ratio;
 
+	    int i1 = c1.getRGB();
+	    int i2 = c2.getRGB();
+
+	    int a1 = (i1 >> 24 & 0xff);
+	    int r1 = ((i1 & 0xff0000) >> 16);
+	    int g1 = ((i1 & 0xff00) >> 8);
+	    int b1 = (i1 & 0xff);
+
+	    int a2 = (i2 >> 24 & 0xff);
+	    int r2 = ((i2 & 0xff0000) >> 16);
+	    int g2 = ((i2 & 0xff00) >> 8);
+	    int b2 = (i2 & 0xff);
+
+	    int a = (int)((a1 * iRatio) + (a2 * ratio));
+	    int r = (int)((r1 * iRatio) + (r2 * ratio));
+	    int g = (int)((g1 * iRatio) + (g2 * ratio));
+	    int b = (int)((b1 * iRatio) + (b2 * ratio));
+
+	    return new Color( a << 24 | r << 16 | g << 8 | b );
 	}
 }

@@ -21,7 +21,7 @@
 								<constant name="k" value="0.25" />
 							</expression>
 							<stoichiometric component="mass" coefficient="1.0" />
-							<stoichiometric component="solute1" coefficient="-5.0" />
+							<stoichiometric component="solute1" coefficient="-1.0" />
 							<stoichiometric component="solute2" coefficient="0.5" />
 						</reaction>
 					</reactions>
@@ -44,9 +44,9 @@
 
 		<compartment name="second" tree="RTREE">
 			<shape class="Sphere" >
-				<dimension name="R" targetResolution="1" max="10.0" isCyclic="false" />
-				<dimension name="THETA" isCyclic="true" targetResolution="1" max="360.0"/>
-				<dimension name="PHI" isCyclic="false" targetResolution="1" max="179.99"/>
+				<dimension name="R" targetResolution="1" min="5" max="10.0" isCyclic="false" />
+				<dimension name="THETA" isCyclic="true" targetResolution="1" max="90.0"/>
+				<dimension name="PHI" isCyclic="false" targetResolution="1" max="90.0"/>
 				
 			</shape>
 			<solutes>
@@ -71,7 +71,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="-3.0, 3.0,6.0" />
+						<point position="9.0, 1.0, 1.0" />
 					</aspect>
 				</agent>
 				<agent>
@@ -80,7 +80,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="5.0,3.0,3.0" />
+						<point position="8.0, 1.0, 1.0" />
 					</aspect>
 				</agent>
 				<agent>
@@ -89,7 +89,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="5.0, -5.0,5.0" />
+						<point position="7.0, 1.0, 1.0" />
 					</aspect>
 				</agent> 
 			</agents>

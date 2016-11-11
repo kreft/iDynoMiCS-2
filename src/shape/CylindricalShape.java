@@ -138,9 +138,9 @@ public abstract class CylindricalShape extends Shape
 			else
 			{
 				int nShell = radiusC.getNVoxel();
-				int rMin = radiusC.getVoxelIndex(
-						this.getDimension(R).getExtreme(0));
-				
+				/* NOTE For varying resolution this has to be adjusted */
+				int rMin = (int)(this.getDimension(R).getExtreme(0)
+						/ radiusC.getResolution(0));
 				this._resCalc[index] = new ResCalc[nShell];
 				ResCalc shellResCalc;
 				for ( int i = 0; i < nShell; i++ )
@@ -303,12 +303,7 @@ public abstract class CylindricalShape extends Shape
 	 * VOXELS
 	 * **********************************************************************/
 	
-	@Override
-	public double getVoxelVolume(int[] coord)
-	{
-		// mathematica: Integrate[r,{z,z1,z2},{theta,theta1,theta2},{r,r1,r2}] 
-		double[] origin = this.getVoxelOrigin(coord);
-		double[] upper = this.getVoxelUpperCorner(coord);
+	public double getVoxelVolume(double[] origin, double[] upper){
 		/* 
 		 * r: pi times this number would be the area of a ring. 
 		 */
