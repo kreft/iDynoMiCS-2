@@ -314,6 +314,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		
 		/* 
 		 * We let the user know when an global step has finished.
+		 * TODO: iteration number
 		 */
 		Log.out(Tier.NORMAL, "Global time: " + this.timer.getCurrentTime());
 		/*

@@ -41,7 +41,7 @@ public final class GuiConsole
 	/**
 	 * Box in the GUI that displays text like a console would.
 	 */
-	private static JTextPane _console;
+	private static JTextPane _console = new JTextPane();
 	
 	/**
 	 * Background color of the console pane.
@@ -70,7 +70,6 @@ public final class GuiConsole
 	
 	public static JComponent getConsole()
 	{
-		_console = new JTextPane();
 		_console.setBackground(_consoleBackground);
 		
 		/**
@@ -112,6 +111,19 @@ public final class GuiConsole
 		return new JScrollPane(_console,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	}
+	
+	public static void displayConsole()
+	{
+		final JFrame frame = new JFrame ("console");
+		frame.add(GuiConsole.getConsole());
+		
+		/* size the window */
+		frame.setSize(300, 300);
+
+		/* set the frame's initial position and make it visable */
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
 	}
 	
 	/*************************************************************************

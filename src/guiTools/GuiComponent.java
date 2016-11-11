@@ -4,20 +4,33 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
+
+import nodeFactory.ModelNode;
 
 public class GuiComponent {
+	
+
+	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
 	/*
 	 * The JComponent set in the gui
 	 */
@@ -189,5 +202,76 @@ public class GuiComponent {
 		panel.add(actionButton,BorderLayout.EAST);
 		return panel;
 	}
+	
+	public static JComponent frameOnClick(ModelNode node, String titel)
+	{
+		JButton button = new JButton(titel);
+		ActionListener actionListner = new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent event)
+			{
 
+				JFrame frame = new JFrame ("descr");
+				
+				/* set the frame's initial position and make it visable */
+				frame.setLocationRelativeTo(null);
+				frame.setVisible(true);
+				
+				/* add aditional 0 by 0 JPanel with key bindings */
+				JPanel p = new JPanel();
+				p.setPreferredSize(new Dimension(0,0));
+				frame.add(p, BorderLayout.SOUTH);
+				
+				/* set the icon */
+				ImageIcon img = new ImageIcon(ICON_PATH);
+				frame.setIconImage(img.getImage());
+				
+				JTabbedPane tabs = GuiComponent.newPane();
+				
+				tabs.setUI(new BasicTabbedPaneUI() {
+			        private final Insets borderInsets = new Insets(0, 0, 0, 0);
+			        @Override
+			        protected void paintContentBorder(Graphics g, int tabPlacement, 
+			        		int selectedIndex) {
+			        }
+			        @Override
+			        protected Insets getContentBorderInsets(int tabPlacement) {
+			            return borderInsets;
+			        }
+			    });
+				
+				JScrollPane scrollPane = new JScrollPane();
+				
+				JPanel component = new JPanel();
+				component.setLayout(new WrapLayout(FlowLayout.LEFT, 0, 0));
+				scrollPane.add(component);
+				tabs.addTab(node.getTag(), scrollPane);
+				JPanel attr = new JPanel();
+				attr.setLayout(new WrapLayout(FlowLayout.LEFT, 5, 5));
+				attr.add(GuiComponent.textPanel(node.getTag() + " " + node.getTitle(), 1));
+				
+				component.add(attr);
+				scrollPane.setViewportView(component);
+				
+				frame.add(tabs);
+				
+			}
+		};
+
+
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.setSize(600, 25);
+		
+		JLabel filler = new JLabel(titel);
+        filler.setPreferredSize(new Dimension(478,25));
+        panel.add(filler,BorderLayout.WEST);
+
+		button.setPreferredSize(new Dimension(100,25));
+		button.addActionListener(actionListner);
+		panel.add(button,BorderLayout.EAST);
+		
+		return panel;
+	}
 }

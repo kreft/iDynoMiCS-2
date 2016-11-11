@@ -109,7 +109,7 @@ public class FixedBoundary extends SpatialBoundary implements Instantiatable
 		if (concn == null)
 		{	if (Log.shouldWrite(level))
 				Log.out(level, "WARNING: unset fixed boundary concn");
-			concn = 0.0;
+			return 0.0;
 		}
 		return this.calcDiffusiveFlowFixed(grid, concn);
 	}

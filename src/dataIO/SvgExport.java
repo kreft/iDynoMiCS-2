@@ -26,7 +26,7 @@ public class SvgExport implements GraphicalExporter
 	/**
 	 * TODO
 	 */
-	protected double _scalar = 25.0;
+	protected double _scalar = 10.0;
 	/**
 	 * TODO
 	 */
