@@ -70,8 +70,6 @@ public final class GuiActions
     		Idynomics.global.protocolFile = f.getAbsolutePath();
     		GuiConsole.writeOut(Idynomics.global.protocolFile + " \n");
     		checkProtocol();
-    		GuiEditor.addComponent(Idynomics.simulator.getNode(), 
-    				GuiMain.tabbedPane);
     		GuiLaunch.resetProgressBar();
     	}    		
 	}
@@ -90,6 +88,11 @@ public final class GuiActions
 			else
 				GuiConsole.writeErr("Problem in protocol file!\n");
 		}
+	}
+	
+	public static void loadCurrentState()
+	{	
+		GuiMain.update();
 	}
 	
 	/*************************************************************************

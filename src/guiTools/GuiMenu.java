@@ -74,13 +74,22 @@ public final class GuiMenu
 		menu.add(menuItem);
 		
 		/*
-		 * Add the option of rendering a compartment.
+		 * Query some agents
 		 */
 		menuItem = new JMenuItem(new GuiMenu.Query());
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_T, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Request agent information");
+		menu.add(menuItem);
+		/*
+		 * Add the option of rendering a compartment.
+		 */
+		menuItem = new JMenuItem(new GuiMenu.Current());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_L, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Load current state");
 		menu.add(menuItem);
 		/*
 		 * Output level.
@@ -197,8 +206,29 @@ public final class GuiMenu
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String table = GuiConsole.requestInput("Table logic");
+			table = table.replaceAll("\\s+","");
 			FilteredTable tab = new FilteredTable(table);
 			Log.printToScreen(tab.display(), false);
+		}
+		
+	}
+	
+	public static class Current extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public Current()
+		{
+	        super("Current state");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			GuiActions.loadCurrentState();
 		}
 		
 	}

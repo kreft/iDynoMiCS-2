@@ -18,7 +18,7 @@ public class ValueFilter implements Filter
 	public String stringValue(AspectInterface subject) 
 	{
 		Object obj = subject.getValue(this.property);
-		return ( Helper.isNone(obj) ? "\t" : String.valueOf(obj) );
+		return ( Helper.isNone(obj) ? " " : String.valueOf(obj) );
 	}
 
 	@Override

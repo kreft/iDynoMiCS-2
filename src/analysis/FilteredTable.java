@@ -18,12 +18,12 @@ public class FilteredTable {
 	{
 		String t = logic.split("~")[0];
 		String c = logic.split("~")[1];
-		for ( String s : c.split("-") ) //FIXME maybe not the best operator
+		for ( String s : c.split("\\|") ) //FIXME maybe not the best operator
 			this.columns.add( FilterLogic.filterFromString( s ) );
 		if ( t.contains("?"))
 		{
-			this.filter = FilterLogic.filterFromString( t.split("?")[1] );
-			t = t.split("?")[0];
+			this.filter = FilterLogic.filterFromString( t.split("\\?")[1] );
+			t = t.split("\\?")[0];
 		}
 		else
 			this.filter = null;
@@ -43,7 +43,7 @@ public class FilteredTable {
 		String out = "";
 		for (int i = 0; i < columns.size(); i++)
 			out += columns.get(i).header() 
-					+ (i < columns.size()-1 ? " ," : "\n" );
+					+ (i < columns.size()-1 ? "\t, " : "\n" );
 		
 		for (Agent a : compartment.agents.getAllAgents())
 		{
@@ -51,7 +51,7 @@ public class FilteredTable {
 			{
 				for (int i = 0; i < columns.size(); i++)
 					out += columns.get(i).stringValue(a) 
-							+ (i < columns.size()-1 ? " ," : "\n" );
+							+ (i < columns.size()-1 ? "\t, " : "\n" );
 			}
 		}
 		return out;
