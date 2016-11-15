@@ -13,6 +13,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
+import analysis.FilteredTable;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
@@ -70,6 +71,16 @@ public final class GuiMenu
 				KeyEvent.VK_R, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Render a spatial compartment");
+		menu.add(menuItem);
+		
+		/*
+		 * Add the option of rendering a compartment.
+		 */
+		menuItem = new JMenuItem(new GuiMenu.Query());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_T, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Request agent information");
 		menu.add(menuItem);
 		/*
 		 * Output level.
@@ -168,6 +179,28 @@ public final class GuiMenu
 	    {
 	    	GuiActions.render();
 	    }
+	}
+	
+	public static class Query extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public Query()
+		{
+	        super("Query");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String table = GuiConsole.requestInput("Table logic");
+			FilteredTable tab = new FilteredTable(table);
+			Log.printToScreen(tab.display(), false);
+		}
+		
 	}
 	
 	public static class LogTier extends AbstractAction

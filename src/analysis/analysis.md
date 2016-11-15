@@ -74,6 +74,14 @@ The analyzer receives a collection of agents and can perform basic analysis on a
 specific characteristic of the agents. (for example an analyzer could return the
 distribution of the mass of the agents)
 
+#### FilterLogic
+
+Create filters from string
+
+0 					? a > 1.0 	+ b == mySpecies 	~ mass 			, glucose > 1e-2
+first Compartment	? filter a 	+ filter b  		~ filter column , filter column 2
+	(match filter a and b, leave blank for all )
+
 ### Use cases
 
 Raw data output can be quite difficult/time consuming to interpret. The analysis
