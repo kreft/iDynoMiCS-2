@@ -5,6 +5,7 @@ import java.util.List;
 import agent.Agent;
 import agent.Body;
 import dataIO.Log.Tier;
+import generalInterfaces.Instantiatable;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
@@ -22,6 +23,11 @@ import surface.Surface;
 import utility.ExtraMath;
 import utility.Helper;
 
+/**
+ * TODO merge with GraphicalOutput process manager
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class DrawMediator {
 	
 	public static String BODY = AspectRef.agentBody;
@@ -47,9 +53,13 @@ public class DrawMediator {
 		if (Helper.compartmentAvailable())
 		{
 			DrawMediator drawy = new DrawMediator();
-			drawy.drawState( Idynomics.simulator.getCompartment( Helper.
-					obtainInput( Idynomics.simulator.getCompartmentNames(), 
-					"Select compartment", false ) ) );
+			if ( Idynomics.simulator.getCompartmentNames().size() == 1)
+				drawy.drawState( Idynomics.simulator.getCompartment( 
+						Idynomics.simulator.getCompartmentNames().get(0) ) );
+			else
+				drawy.drawState( Idynomics.simulator.getCompartment( Helper.
+						obtainInput( Idynomics.simulator.getCompartmentNames(), 
+						"Select compartment", false ) ) );
 			return drawy;
 		}
 		else
@@ -62,6 +72,8 @@ public class DrawMediator {
 		AgentContainer _agents = compartment.agents;
 		Shape _shape = compartment.getShape();
 		
+		if ( _environment.getSoluteNames().size() == 1)
+			this._solute = _environment.getSoluteNames().iterator().next(); // not to happy about having to get an iterator to get the only item in the collection.
 		if ( Helper.isNone( _solute) )
 			this._solute = Helper.obtainInput( _environment.getSoluteNames(), 
 					"solute to plot", false);
@@ -77,7 +89,7 @@ public class DrawMediator {
 
 		/* get instance of appropriate output writer */
 		if ( Helper.isNone(_graphics))
-			this._graphics = GraphicalExporter.getNewInstance(
+			this._graphics = (GraphicalExporter) Instantiatable.getNewInstance(
 					Helper.obtainInput( new String[] { ClassRef.svgExport,
 							ClassRef.povExport }, "output writer", false) );
 		
@@ -88,13 +100,21 @@ public class DrawMediator {
 		this._maxConcn = Double.valueOf( Helper.obtainInput(
 				String.valueOf( _maxConcn ), "Max concentration value" ) );
 		
-		this.drawState(_environment, _agents, _shape);
+		this.drawState(_environment, _agents, _shape, Helper.obtainInput("", "fileName"));
 	}
 	
 	public void drawState(EnvironmentContainer _environment, AgentContainer _agents, Shape _shape)
 	{
+		this.drawState(_environment, _agents, _shape, null);
+	}
+	
+	public void drawState(EnvironmentContainer _environment, AgentContainer _agents, Shape _shape, String fileName)
+	{
 		/* Initiate new file. */
-		_graphics.createFile(_prefix);
+		if (fileName == null)
+			_graphics.createFile(_prefix);
+		else
+			_graphics.createCustomFile(fileName);
 		
 		/* 
 		 * Draw computational domain  

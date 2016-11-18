@@ -26,4 +26,13 @@ public class IsEquals implements Predicate<Object>
 	{
 		return ( this._object.equals( Double.valueOf( String.valueOf( t ) ) ) );
 	}
+	
+	/**
+	 * \brief return minimal description of the predicate
+	 */
+	@Override
+	public String toString()
+	{
+		return " = " + _object;
+	}
 }

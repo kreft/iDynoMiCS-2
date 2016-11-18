@@ -76,6 +76,16 @@ public class SvgExport implements GraphicalExporter
 				+ "version=\"1.1\">\n");
 	}
 	
+	public void createCustomFile(String fileName)
+	{
+		String fileString = Idynomics.global.outputLocation + "/" 
+				+ fileName + ".svg";
+		_svgFile.fnew(fileString);
+		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
+		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" "
+				+ "version=\"1.1\">\n");
+	}
+	
 	/**
 	 * close the svg file and increment file number for next file
 	 */

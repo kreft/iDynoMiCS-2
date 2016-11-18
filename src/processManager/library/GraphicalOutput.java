@@ -9,6 +9,7 @@ import agent.Body;
 import dataIO.GraphicalExporter;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import generalInterfaces.Instantiatable;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
@@ -118,7 +119,7 @@ public class GraphicalOutput extends ProcessManager
 					_arrayType.toString();
 
 		/* get instance of appropriate output writer */
-		this._graphics = GraphicalExporter.getNewInstance(
+		this._graphics = (GraphicalExporter) Instantiatable.getNewInstance(
 				this.getString(OUTPUT_WRITER) );
 		
 		/* write scene files (used by pov ray) */

@@ -8,13 +8,19 @@ import aspect.AspectInterface;
 public class MultiFilter implements Filter
 {
 
-	private String header;
+	private String header = "";
 	private LinkedList<Filter> filters = new LinkedList<Filter>();
 	
 	public MultiFilter(String[] filters) 
 	{
 		for ( String s : filters)
-			this.filters.add( FilterLogic.filterFromString(s) );
+		{
+			Filter filt = FilterLogic.filterFromString(s);
+			this.filters.add( filt );
+			this.header += filt.header() + " + ";
+		}
+		this.header = String.valueOf( this.header.subSequence( 0, 
+				this.header.length() - 2 ) );
 	}
 
 	@Override

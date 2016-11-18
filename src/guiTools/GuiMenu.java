@@ -118,7 +118,7 @@ public final class GuiMenu
 				"Edit simulation state");
 		menu.add(menuItem);
 		/*
-		 * Add the option of making a new simulation.
+		 * Draw to graphics file
 		 */
 		menuItem = new JMenuItem(new GuiMenu.Draw());
 		menuItem.setAccelerator(KeyStroke.getKeyStroke(
@@ -134,6 +134,15 @@ public final class GuiMenu
 				KeyEvent.VK_T, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Request agent information");
+		menu.add(menuItem);
+		/*
+		 * Query some agents
+		 */
+		menuItem = new JMenuItem(new GuiMenu.QueryToFile());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Request agent information and store in output folder");
 		menu.add(menuItem);
 		/*
 		 * Finally, return the File menu.
@@ -223,6 +232,32 @@ public final class GuiMenu
 				table = table.replaceAll("\\s+","");
 				FilteredTable tab = new FilteredTable(table);
 				Log.printToScreen(tab.display(), false);
+			}
+		}
+		
+	}
+	
+	public static class QueryToFile extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public QueryToFile()
+		{
+	        super("QueryToFile");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (Helper.compartmentAvailable())
+			{
+				String table = GuiConsole.requestInput("Table logic");
+				table = table.replaceAll("\\s+","");
+				FilteredTable tab = new FilteredTable(table);
+				tab.toFile();
 			}
 		}
 		

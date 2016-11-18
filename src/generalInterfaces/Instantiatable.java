@@ -37,8 +37,8 @@ public interface Instantiatable
 	public default void init(Element xmlElement, NodeConstructor parent)
 	{
 		// by default nothing
-		Log.out(Tier.CRITICAL, "Warning: Instantiable Object class has no implementation"
-				+ "of init(Element, NodeConstructor");
+		Log.out(Tier.CRITICAL, "Warning: Instantiable Object class has no "
+				+ "implementation of init( Element, NodeConstructor )");
 	}
 	
 	/**
@@ -56,7 +56,10 @@ public interface Instantiatable
 	 */
 	public static Object getNewInstance(String className)
 	{
-		return getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
+		if ( className.contains( "." ) )
+			return getNewInstance( className, null );
+		return getNewInstance( className, 
+				Idynomics.xmlPackageLibrary.get( className ) );
 	}
 	
 	/**
@@ -68,7 +71,8 @@ public interface Instantiatable
 	 * @param parent
 	 * @return
 	 */
-	public static Object getNewInstance(String className, Element xmlElem, NodeConstructor parent)
+	public static Object getNewInstance(String className, Element xmlElem, 
+			NodeConstructor parent)
 	{
 		Object out;
 		if (className.contains("."))

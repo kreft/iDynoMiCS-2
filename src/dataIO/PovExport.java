@@ -72,6 +72,20 @@ public class PovExport implements GraphicalExporter
 		
 	}
 	
+	public void createCustomFile(String fileName)
+	{
+		String fileString = Idynomics.global.outputLocation + "/" 
+				+ fileName + ".pov";
+		_povFile.fnew(fileString);
+
+		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
+		_povFile.write("#declare Count = " + _filewriterfilenr + ";\n");
+		_povFile.write("#include \"sceneheader.inc\"\n");
+		
+	}
+	
+	
+	
 	/**
 	 * 
 	 */

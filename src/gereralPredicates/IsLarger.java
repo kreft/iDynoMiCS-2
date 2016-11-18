@@ -25,4 +25,13 @@ public class IsLarger implements Predicate<Object>
 	{
 		return (this._object < Double.valueOf( String.valueOf( t ) ) );
 	}
+	
+	/**
+	 * \brief return minimal description of the predicate
+	 */
+	@Override
+	public String toString()
+	{
+		return " > " + _object;
+	}
 }

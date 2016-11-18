@@ -12,6 +12,7 @@ import referenceLibrary.XmlRef;
  * \brief Predicate for filtering lists of Agents according to species.
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public class IsNotSpecies implements Predicate<Agent>
 {
@@ -49,4 +50,14 @@ public class IsNotSpecies implements Predicate<Agent>
 		String agentSpecies = agent.getString(this._speciesTag);
 		return ! agentSpecies.equals(this._speciesName);
 	}
+	
+	/**
+	 * \brief return minimal description of the predicate
+	 */
+	@Override
+	public String toString()
+	{
+		return "Species is not " + _speciesName;
+	}
+	
 }

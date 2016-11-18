@@ -12,15 +12,22 @@ public class CategoryFilter implements Filter
 	private LinkedList<Filter> filters = new LinkedList<Filter>();
 	
 	public CategoryFilter(String[] filters) {
+		int i = 0;
+		this.header = "[" + i++ + "]: Other";
 		for ( String s : filters)
-			this.filters.add( FilterLogic.filterFromString(s) );
+		{
+			Filter filt = FilterLogic.filterFromString(s);
+			this.filters.add( filt );
+			this.header += " [" + i++ + "]: " + filt.header();
+		}
+
 	}
 
 	public String stringValue(AspectInterface subject)
 	{
-		for ( int i = 1; i <= filters.size(); i++)
+		for ( int i = 0; i < filters.size(); i++)
 			if (this.filters.get(i).match(subject) )
-				return String.valueOf(i);
+				return String.valueOf(i+1);
 		return String.valueOf(0);
 			
 	}

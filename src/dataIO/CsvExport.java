@@ -34,7 +34,7 @@ public class CsvExport
 	/**
 	 * @return
 	 */
-	private String toCsv(String[] rowElements)
+	private String toCsv(String... rowElements)
 	{
 		String out = "";
 		for ( int i = 0; i < rowElements.length; i++ )
@@ -50,6 +50,15 @@ public class CsvExport
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".csv";
+		_csvFile.fnew(fileString);
+		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
+	}
+	
+
+	public void createCustomFile(String fileName) 
+	{
+		String fileString = Idynomics.global.outputLocation + "/" 
+				+ fileName + ".csv";
 		_csvFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 	}
@@ -75,6 +84,7 @@ public class CsvExport
 	{
 		writeLine( toCsv(rowElements) );
 	}
+
 }
 
 

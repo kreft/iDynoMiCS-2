@@ -5,14 +5,18 @@ import java.util.List;
 
 import agent.Agent;
 import analysis.filter.Filter;
+import dataIO.CsvExport;
+import dataIO.Log;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import utility.Helper;
 
 public class FilteredTable {
 	
 	private Compartment compartment;
 	private Filter filter;
 	private LinkedList<Filter> columns = new LinkedList<Filter>();
+	CsvExport _csv = new CsvExport();
 
 	public FilteredTable(String logic)
 	{
@@ -55,5 +59,14 @@ public class FilteredTable {
 			}
 		}
 		return out;
+	}
+	
+	public void toFile()
+	{
+		_csv.createCustomFile(Helper.obtainInput("", "file name"));
+		_csv.writeLine(this.display());
+		_csv.closeFile();
+		
+		Log.printToScreen(Helper.head(this.display()), false);
 	}
 }

@@ -11,7 +11,7 @@ public class SpecificationFilter implements Filter
 	private String property;
 	
 	public SpecificationFilter(String property, Predicate<Object> predicate) {
-		this.header = property;
+		this.header =  property + predicate.toString();
 		this.property = property;
 		this.test = predicate;
 	}

@@ -409,4 +409,13 @@ public class Helper
 		else
 			return true;
 	}
+	
+	public static String head(String string)
+	{
+		String[] lines = string.split("\n");
+		String out = "[ lines: " + lines.length + " ]\n";
+		for ( int i = 0; i < 5 && i < lines.length; i++)
+			out += lines[i] + "\n";
+		return out;
+	}
 }

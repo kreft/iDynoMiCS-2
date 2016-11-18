@@ -18,7 +18,7 @@ public class FilterLogic {
 		}
 		else if ( filter.contains( "+" ) )
 		{
-			String[] f = filter.split( "+" );
+			String[] f = filter.split( "\\+" );
 			return new MultiFilter( f );
 		}
 		else if ( filter.contains( "==" ) )
@@ -43,7 +43,7 @@ public class FilterLogic {
 		{
 			String[] f = filter.split( "<" );
 			return new SpecificationFilter( f[0], 
-					new IsLarger( Double.valueOf( f[1] ) ) );
+					new IsSmaller( Double.valueOf( f[1] ) ) );
 		}
 		else
 			return new ValueFilter( filter );

@@ -187,7 +187,8 @@ public class CoccoidDivision extends Event
 		 * truncated Gaussian distribution about.
 		 */
 		double mumMassFrac = 0.5;
-		double mumMassFracCV = 0.01;
+		/* 5% seems like an appropriate default for cv */
+		double mumMassFracCV = 0.05; 
 		if ( mother.isAspect(this.MUM_MASS_FRAC) )
 			mumMassFrac = mother.getDouble(this.MUM_MASS_FRAC);
 		if ( mother.isAspect(this.MUM_MASS_FRAC_CV) )

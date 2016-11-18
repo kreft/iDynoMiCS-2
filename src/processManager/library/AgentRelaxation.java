@@ -18,7 +18,6 @@ import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
 import spatialRegistry.SpatialRegistry;
-import spatialRegistry.splitTree.SplitTree;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;
@@ -132,8 +131,6 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private Collection<Surface> _shapeSurfs;
 	
-	private SpatialRegistry _agentTree;
-
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
