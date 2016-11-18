@@ -14,10 +14,12 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
 import analysis.FilteredTable;
+import dataIO.DrawMediator;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import idynomics.Simulator;
+import utility.Helper;
 
 /**
  * 
@@ -32,13 +34,14 @@ public final class GuiMenu
 	{
 		_menuBar = new JMenuBar();
 		_menuBar.add(fileMenu());
+		_menuBar.add(interactionMenu());
 		return _menuBar;
 	}
 	
 	
 	private static JMenu fileMenu()
 	{
-		JMenu menu, submenu;
+		JMenu menu, levelMenu;
 		JMenuItem menuItem;
 		JRadioButtonMenuItem rbMenuItem;
 		/* 
@@ -50,7 +53,9 @@ public final class GuiMenu
 		/*
 		 * Add the option of making a new simulation.
 		 */
-		menuItem = new JMenuItem(new GuiMenu.NewSimulation());
+		menuItem = new JMenuItem(new GuiMenu.NewFile());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_N, ActionEvent.CTRL_MASK));
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Make a new simulation");
 		menu.add(menuItem);
@@ -72,7 +77,55 @@ public final class GuiMenu
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Render a spatial compartment");
 		menu.add(menuItem);
-		
+		/*
+		 * Output level.
+		 */
+		menu.addSeparator();
+		levelMenu = new JMenu("OutputLevel");
+		levelMenu.setMnemonic(KeyEvent.VK_L);
+		ButtonGroup group = new ButtonGroup();
+		for ( Log.Tier t : Log.Tier.values() )
+		{
+			rbMenuItem = new JRadioButtonMenuItem(new GuiMenu.LogTier(t));
+			group.add(rbMenuItem);
+			levelMenu.add(rbMenuItem);
+		}
+		menu.add(levelMenu);
+		/*
+		 * Finally, return the File menu.
+		 */
+		return menu;
+	}
+	
+	
+	private static JMenu interactionMenu()
+	{
+		JMenu menu;
+		JMenuItem menuItem;
+		/* 
+		 * Set up the File menu.
+		 */
+		menu = new JMenu("Interact");
+		menu.setMnemonic(KeyEvent.VK_G);
+		menu.getAccessibleContext().setAccessibleDescription("Interactive");
+		/*
+		 * Add the option of rendering a compartment.
+		 */
+		menuItem = new JMenuItem(new GuiMenu.Current());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_L, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Edit simulation state");
+		menu.add(menuItem);
+		/*
+		 * Add the option of making a new simulation.
+		 */
+		menuItem = new JMenuItem(new GuiMenu.Draw());
+		menuItem.setAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+		menuItem.getAccessibleContext().setAccessibleDescription(
+				"Draw to file");
+		menu.add(menuItem);
 		/*
 		 * Query some agents
 		 */
@@ -82,29 +135,6 @@ public final class GuiMenu
 		menuItem.getAccessibleContext().setAccessibleDescription(
 				"Request agent information");
 		menu.add(menuItem);
-		/*
-		 * Add the option of rendering a compartment.
-		 */
-		menuItem = new JMenuItem(new GuiMenu.Current());
-		menuItem.setAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_L, ActionEvent.CTRL_MASK));
-		menuItem.getAccessibleContext().setAccessibleDescription(
-				"Load current state");
-		menu.add(menuItem);
-		/*
-		 * Output level.
-		 */
-		menu.addSeparator();
-		submenu = new JMenu("OutputLevel");
-		submenu.setMnemonic(KeyEvent.VK_L);
-		ButtonGroup group = new ButtonGroup();
-		for ( Log.Tier t : Log.Tier.values() )
-		{
-			rbMenuItem = new JRadioButtonMenuItem(new GuiMenu.LogTier(t));
-			group.add(rbMenuItem);
-			submenu.add(rbMenuItem);
-		}
-		menu.add(submenu);
 		/*
 		 * Finally, return the File menu.
 		 */
@@ -130,25 +160,7 @@ public final class GuiMenu
 		public void actionPerformed(ActionEvent e)
 		{
 			Idynomics.simulator = new Simulator();
-		}
-	}
-	
-	public static class NewSimulation extends AbstractAction
-	{
-		private static final long serialVersionUID = 8401347291057616616L;
-		
-		/**
-		 * Action for the file open sub-menu.
-		 */
-		public NewSimulation()
-		{
-			super("New simulation");
-		}
-		
-		public void actionPerformed(ActionEvent e)
-		{
-			// TODO 
-			//GuiActions.newSimulation();
+			GuiActions.loadCurrentState();
 		}
 	}
 	
@@ -205,10 +217,33 @@ public final class GuiMenu
 	
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String table = GuiConsole.requestInput("Table logic");
-			table = table.replaceAll("\\s+","");
-			FilteredTable tab = new FilteredTable(table);
-			Log.printToScreen(tab.display(), false);
+			if (Helper.compartmentAvailable())
+			{
+				String table = GuiConsole.requestInput("Table logic");
+				table = table.replaceAll("\\s+","");
+				FilteredTable tab = new FilteredTable(table);
+				Log.printToScreen(tab.display(), false);
+			}
+		}
+		
+	}
+	
+	public static class Draw extends AbstractAction
+	{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3011117385035501302L;
+
+		public Draw()
+		{
+	        super("Draw to file");
+		}
+	
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			DrawMediator.drawState();
 		}
 		
 	}
@@ -223,12 +258,13 @@ public final class GuiMenu
 
 		public Current()
 		{
-	        super("Current state");
+	        super("Edit simulation");
 		}
 	
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			GuiActions.loadCurrentState();
+			if (Helper.compartmentAvailable())
+				GuiActions.loadCurrentState();
 		}
 		
 	}

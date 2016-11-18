@@ -145,7 +145,7 @@ public final class GuiActions
 	{
 		/* is the simulator set? */
 		if ( Idynomics.simulator == null )
-			GuiConsole.writeErr("No simulator available!\n");
+			Log.printToScreen("No simulator available.", false);
 		else
 		{
 			/* identify the spatial compartments */
@@ -154,7 +154,7 @@ public final class GuiActions
 			Compartment c = null;
 			if ( compartments.isEmpty() )
 				/* abort if no compartment is available */
-				GuiConsole.writeErr("No spatial compartments available!\n");
+				Log.printToScreen("No spatial compartments available.", false);
 			else if ( compartments.size() == 1 )
 				/* render directly if only 1 compartment is available */
 				c = Idynomics.simulator.getCompartment(compartments.get(0));

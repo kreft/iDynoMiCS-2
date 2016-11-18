@@ -271,20 +271,6 @@ public class Render implements GLEventListener, Runnable {
 		gl.glDepthFunc(GL2.GL_LEQUAL);
 		gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
 		
-//		gl.glEnable(GL2.GL_AUTO_NORMAL);
-//	    gl.glEnable(GL2.GL_NORMALIZE);
-//	    gl.glEnable(GL2.GL_FOG);
-//	    gl.glFogf(GL2.GL_FOG_DENSITY, 5.0f);
-//	    float fogColor[] = { 0.0f, 0.5f, 0.5f, 1.0f };
-//	    gl.glFogfv(GL2.GL_FOG_COLOR, fogColor, 0);
-//	    gl.glHint(GL2.GL_FOG_HINT, GL2.GL_DONT_CARE);
-//		gl.glFogf(GL2.GL_FOG_START, 2.0f);
-//	    gl.glFogf(GL2.GL_FOG_END, 5.0f);
-//
-//	    gl.glFogi(GL2.GL_FOG_MODE, GL2.GL_EXP);
-
-//		gl.glFogi(GL2.GL_FOG_COORDINATE_SOURCE, GL2.GL_FOG_COORDINATE);
-		
 		/* light */
 		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, this.lightAmbient, 0);
 		gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, this.LightDiffuse, 0);

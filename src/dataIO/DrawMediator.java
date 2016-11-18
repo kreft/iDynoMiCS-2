@@ -1,36 +1,28 @@
-package processManager.library;
+package dataIO;
 
 import java.util.List;
 
-import org.w3c.dom.Element;
-
 import agent.Agent;
 import agent.Body;
-import dataIO.GraphicalExporter;
-import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
+import idynomics.Idynomics;
 import linearAlgebra.Vector;
-import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension.DimName;
 import shape.Shape;
 import surface.Surface;
 import utility.ExtraMath;
+import utility.Helper;
 
-/**
- * \brief TODO
- * 
- * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
- * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
- */
-public class GraphicalOutput extends ProcessManager
-{
+public class DrawMediator {
 	
 	public static String BODY = AspectRef.agentBody;
 	public static String RADIUS = AspectRef.bodyRadius;
@@ -42,102 +34,67 @@ public class GraphicalOutput extends ProcessManager
 	public static String FILE_PREFIX = AspectRef.filePrefix;
 	public static String OUTPUT_WRITER = AspectRef.graphicalOutputWriter;
 	
-	/**
-	 * The exporter.
-	 */
-	protected GraphicalExporter _graphics;
+	private GraphicalExporter _graphics;
+	private String _prefix;
+	private ArrayType _arrayType;
+	private String _solute;
+	private Double _maxConcn;
+	private Boolean _higherIsDarker = true;
+	private Double _pointsOnCurve = 8.0;
 	
-	/**
-	 * Maximum concentration value to use for the color gradient when plotting
-	 * solute concentration.
-	 */
-	protected double _maxConcn = 2.0;
-	
-	/**
-	 * Name of the solute that is used to draw the solute gradient, if any.
-	 */
-	protected String _solute;
-	
-	/**
-	 * The prefix for the SVG file output path.
-	 */
-	protected String _prefix;
-	
-	/**
-	 * TODO
-	 */
-	protected ArrayType _arrayType;
-	
-	/**
-	 * TODO
-	 * TODO make this set-able from xml.
-	 */
-	protected boolean _higherIsDarker = true;
-	
-	/**
-	 * 
-	 */
-	protected int _pointsOnCurve = 10;
-	
-	/**
-	 * 
-	 */
-	protected Shape _shape;
-
-	
-	/*************************************************************************
-	 * CONSTRUCTORS
-	 ************************************************************************/
-	
-	/**
-	 * Initiate the process manager from xml node
-	 */
-	public void init(Element xmlElem, EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
+	public static DrawMediator drawState()
 	{
-		/*
-		 * Initiate general process manager settings
-		 */
-		super.init(xmlElem, environment, agents, compartmentName);
-
-		/* set the shape */
-		this._shape = agents.getShape();
-		
-		/* If any, solute to plot */
-		this._solute = this.getString(SOLUTE_NAME);
-		
-		/* ArrayType to plot (CONCN if unspecified_ */
-		this._arrayType = ArrayType.valueOf( (String) this.getOr(ARRAY_TYPE, 
-				ArrayType.CONCN.toString() ) );
-		
-		/* Output naming */
-		if (_solute == null)
-			this._prefix = _compartmentName + "_" + "agents";
+		if (Helper.compartmentAvailable())
+		{
+			DrawMediator drawy = new DrawMediator();
+			drawy.drawState( Idynomics.simulator.getCompartment( Helper.
+					obtainInput( Idynomics.simulator.getCompartmentNames(), 
+					"Select compartment", false ) ) );
+			return drawy;
+		}
 		else
-			this._prefix = _compartmentName + "_" + _solute + "_" +
-					_arrayType.toString();
-
-		/* get instance of appropriate output writer */
-		this._graphics = GraphicalExporter.getNewInstance(
-				this.getString(OUTPUT_WRITER) );
-		
-		/* write scene files (used by pov ray) */
-		this._graphics.init( this._prefix, this._shape );
-		
-		/* set max concentration for solute grid color gradient */
-		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
-
+			return null;
 	}
 	
-	/*************************************************************************
-	 * STEPPING
-	 ************************************************************************/
+	public void drawState(Compartment compartment)
+	{
+		EnvironmentContainer _environment = compartment.environment;
+		AgentContainer _agents = compartment.agents;
+		Shape _shape = compartment.getShape();
+		
+		if ( Helper.isNone( _solute) )
+			this._solute = Helper.obtainInput( _environment.getSoluteNames(), 
+					"solute to plot", false);
+		
+		/* ArrayType to plot (CONCN if unspecified_ */
+		if ( Helper.isNone( _arrayType) )
+			this._arrayType = ArrayType.valueOf( Helper.obtainInput(
+					Helper.enumToStringArray( ArrayType.class ), "array type", false ) );
+
+		
+		this._prefix = compartment.name + "_" + _solute + "_" + 
+				_arrayType.toString();
+
+		/* get instance of appropriate output writer */
+		if ( Helper.isNone(_graphics))
+			this._graphics = GraphicalExporter.getNewInstance(
+					Helper.obtainInput( new String[] { ClassRef.svgExport,
+							ClassRef.povExport }, "output writer", false) );
+		
+		/* write scene files (used by pov ray) */
+		this._graphics.init( this._prefix, _shape );
+		
+		/* set max concentration for solute grid color gradient */
+		this._maxConcn = Double.valueOf( Helper.obtainInput(
+				String.valueOf( _maxConcn ), "Max concentration value" ) );
+		
+		this.drawState(_environment, _agents, _shape);
+	}
 	
-	@Override
-	protected void internalStep()
+	public void drawState(EnvironmentContainer _environment, AgentContainer _agents, Shape _shape)
 	{
 		/* Initiate new file. */
-		this._graphics.createFile(this._prefix);
+		_graphics.createFile(_prefix);
 		
 		/* 
 		 * Draw computational domain  
@@ -149,22 +106,22 @@ public class GraphicalOutput extends ProcessManager
 		
 		
 		if (_shape instanceof CartesianShape)
-			this._graphics.rectangle( Vector.zeros(size), size, "lightblue");
+			_graphics.rectangle( Vector.zeros(size), size, "lightblue");
 		else if (_shape instanceof CylindricalShape)
-			this._graphics.circle(Vector.zeros(size), 
-					this._shape.getDimension(DimName.R).getLength(), "lightblue");
+			_graphics.circle(Vector.zeros(size), 
+					_shape.getDimension(DimName.R).getLength(), "lightblue");
 		else
 			Log.out(Tier.BULK,
 					"Computational domain neither rectangular nor circular, "
-					+ this._name + " will not draw a computational domain.");
+					+ " will not draw a computational domain.");
 		
 		/* Draw solute grid for specified solute, if any. */
-		if ( ! _environment.isSoluteName(this._solute) )
+		if ( ! _environment.isSoluteName(_solute) )
 		{
 			//NOTE Bas [08/06/16] this should not be a critical warning since
 			// this is a sensible option if the user does not want to plot a 
 			// solute (null solute).
-			Log.out(Tier.BULK, this._name+" can't find solute " + this._solute +
+			Log.out(Tier.BULK, " can't find solute " + _solute +
 					" in the environment, no solute will be draw");
 		}
 		else
@@ -185,7 +142,7 @@ public class GraphicalOutput extends ProcessManager
 				 * Scale the solute concentration for coloring.
 				 * First, map the concentration to the real interval [0, 1].
 				 */
-				double concn = solute.getValueAtCurrent(this._arrayType);
+				double concn = solute.getValueAtCurrent(_arrayType);
 				boolean neg = false;
 				if ( concn < 0.0 )
 				{
@@ -193,10 +150,10 @@ public class GraphicalOutput extends ProcessManager
 					concn *= -1.0;
 				}
 					
-				concn /= Math.abs(this._maxConcn);
+				concn /= Math.abs(_maxConcn);
 				concn = ExtraMath.restrict(concn, 0.0, 1.0);
 				/* Flip this, so that higher concentration is darker. */
-				if ( this._higherIsDarker )
+				if ( _higherIsDarker )
 					concn = 1.0 - concn;
 				/* Map this to the integer interval [0, 255]. */
 				int c = (int) Math.round(255.0 * concn);
@@ -207,11 +164,11 @@ public class GraphicalOutput extends ProcessManager
 				else
 					pigment = "rgb(" + c + "," + c + "," + c + ")";
 				if (_shape instanceof CartesianShape)
-				this._graphics.rectangle(Vector.subset(origin, nDim), 
+				_graphics.rectangle(Vector.subset(origin, nDim), 
 							Vector.subset(dimension, nDim),pigment);
 				else if (_shape instanceof CylindricalShape)
-					this._graphics.circleElement(Vector.zerosDbl(2), origin, 
-									dimension, this._pointsOnCurve, pigment);
+					_graphics.circleElement(Vector.zerosDbl(2), origin, 
+									dimension, _pointsOnCurve, pigment);
 			}
 		}
 		/* Draw all located agents. */
@@ -220,9 +177,10 @@ public class GraphicalOutput extends ProcessManager
 			{
 				List<Surface> surfaces = ((Body) a.getValue(BODY)).getSurfaces();
 				for( Surface s : surfaces)
-					this._graphics.draw(s, a.getString(PIGMENT));
+					_graphics.draw(s, a.getString(PIGMENT));
 			}
 		/* Close the file */
-		this._graphics.closeFile();
+		_graphics.closeFile();
 	}
+
 }

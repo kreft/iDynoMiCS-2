@@ -504,25 +504,29 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	@Override
 	public void setNode(ModelNode node)
 	{
-		/* set local node */
-		this._modelNode = node;
-		
-		/* update simulation name */
-		Idynomics.global.simulationName = 
-				node.getAttribute(XmlRef.nameAttribute).getValue();
-		
-		/* update output root folder */
-		Idynomics.global.outputRoot = 
-				node.getAttribute(XmlRef.outputFolder).getValue();
-		
-		/* set output level */
-		Log.set(node.getAttribute(XmlRef.logLevel).getValue());
-		
-		/* set random seed */
-		this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).getValue()));
-		
-		/* Set values for all child nodes. */
-		NodeConstructor.super.setNode(node);
+		/* skip if no gui elements have been loaded */
+		if (this._modelNode != null)
+		{
+			/* set local node */
+			this._modelNode = node;
+			
+			/* update simulation name */
+			Idynomics.global.simulationName = 
+					node.getAttribute(XmlRef.nameAttribute).getValue();
+			
+			/* update output root folder */
+			Idynomics.global.outputRoot = 
+					node.getAttribute(XmlRef.outputFolder).getValue();
+			
+			/* set output level */
+			Log.set(node.getAttribute(XmlRef.logLevel).getValue());
+			
+			/* set random seed */
+			this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).getValue()));
+			
+			/* Set values for all child nodes. */
+			NodeConstructor.super.setNode(node);
+		}
 	}
 	
 	public void removeChildNode(NodeConstructor child)

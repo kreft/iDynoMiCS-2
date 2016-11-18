@@ -110,14 +110,15 @@
 				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 			/>
 				<aspect name="evaluatePull"	type="EVENT"		class="ResolveInteractionDistance" 	 />
 				<!-- µm -->
-				<aspect name="searchDist"	type="PRIMARY"		class="Double"				value="0.0"  />
+				<aspect name="searchDist"	type="PRIMARY"		class="Double"	value="0.0"  />
+				<aspect name="mumMassFracCV" type="PRIMARY"		class="Double"	value="0.1" />
 			</species>
 			
 			<species name="producer">
 				<aspect name="produce" 			type="EVENT"	class="InternalProduction" 	 />
 				<aspect name="epsExcretion" 	type="EVENT"	class="ExcreteEPSCumulative" 	 />
 				<!-- µm -->
-				<aspect name="epsDist" 			type="PRIMARY" class="Double" value="0.1" />
+				<aspect name="epsDist" 			type="PRIMARY" class="Double" value="0.05" />
 				<!-- pg -->
 				<aspect  name="maxInternalEPS" 	type="PRIMARY" class="Double" value="1e-4" />
 				<aspect  name="epsSpecies" 		type="PRIMARY" class="String" value="particleEPS" />

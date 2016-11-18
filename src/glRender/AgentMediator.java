@@ -180,6 +180,8 @@ public class AgentMediator implements CommandMediator {
 	@Override
 	public void draw(GLAutoDrawable drawable) {
 		
+		/* default color */
+		_rgba = new float[] {1.0f, 1.0f, 1.0f};
 		_slices = definition*2;
 		_stacks = definition;
 		

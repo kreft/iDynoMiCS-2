@@ -349,4 +349,5 @@ public class AspectRef
 	 * Agent can't move
 	 */
 	public final static String staticAgent = "staticAgent";
+
 }
