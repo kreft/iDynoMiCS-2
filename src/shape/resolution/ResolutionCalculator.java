@@ -137,7 +137,7 @@ public class ResolutionCalculator
 		{
 			if ( location < this._min || location >= this._max )
 				throw new IllegalArgumentException("Location out of range");
-			return (int) (location / this._resolution);
+			return (int) ((location - this._min) / this._resolution);
 		}
 		
 		public Object copy()
@@ -148,6 +148,7 @@ public class ResolutionCalculator
 		}
 	}
 
+	@Deprecated
 	public static abstract class VariableRes extends ResCalc
 	{
 		/**
@@ -184,7 +185,7 @@ public class ResolutionCalculator
 			}
 			return this._cumulativeRes[voxelIndex];
 		}
-
+		
 		@Override
 		public int getVoxelIndex(double location)
 		{

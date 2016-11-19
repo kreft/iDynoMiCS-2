@@ -20,9 +20,9 @@
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.25" />
 							</expression>
-							<stoichiometric component="mass" coefficient="1.0" />
-							<stoichiometric component="solute1" coefficient="-5.0" />
-							<stoichiometric component="solute2" coefficient="0.5" />
+							<stoichiometric component="mass" coefficient="0.5" />
+							<stoichiometric component="solute1" coefficient="-5" />
+							<stoichiometric component="solute2" coefficient="1" />
 						</reaction>
 					</reactions>
 				</aspect>
@@ -44,17 +44,17 @@
 
 		<compartment name="second" tree="RTREE">
 			<shape class="Circle" >
-				<dimension name="R" targetResolution="1" max="10.0" isCyclic="false" />
+				<dimension name="R" targetResolution="1" min="5" max="10.0" isCyclic="false" />
 				<dimension name="THETA" isCyclic="true" targetResolution="1" max="360.0"/>
 			</shape>
 			<solutes>
-				<solute name="solute1" concentration="2.0" />
+				<solute name="solute1" concentration="0.0" />
 				<solute name="solute2" concentration="0.0" />
 			</solutes>
 			<reactions>
 				<reaction name="slowInflow">
 					<expression value="1.0 * inflow">
-						<constant name="inflow" value="1.0" />
+						<constant name="inflow" value="0.1" />
 					</expression>
 					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>
@@ -69,7 +69,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="-1.0, -1.0" />
+						<point position="-5.0, -5.0" />
 					</aspect>
 				</agent>
 				<agent>
@@ -78,7 +78,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="-2.0, -2.0" />
+						<point position="-5.0, 5.0" />
 					</aspect>
 				</agent>
 				<agent>
@@ -87,7 +87,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="3.0, 3.0" />
+						<point position="5.0, 5.0" />
 					</aspect>
 				</agent> 
 			</agents>
