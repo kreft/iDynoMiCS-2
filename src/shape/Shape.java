@@ -29,14 +29,12 @@ import nodeFactory.ModelNode.Requirements;
 import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
 import shape.Dimension.DimName;
-import shape.ShapeIterator.WhereAmI;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.subvoxel.SubvoxelPoint;
 import surface.Collision;
 import surface.Plane;
 import surface.Surface;
-import utility.ExtraMath;
 import utility.Helper;
 /**
  * \brief Abstract class for all shape objects.
@@ -64,10 +62,6 @@ import utility.Helper;
  * 								Friedrich-Schiller University Jena, Germany 
  */
 // TODO remove the last three sections by incorporation into Node construction.
-/**
- * @author qwer
- *
- */
 public abstract class Shape implements
 					CanPrelaunchCheck, Instantiatable, NodeConstructor
 {

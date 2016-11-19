@@ -33,6 +33,7 @@ import referenceLibrary.XmlRef;
 import shape.subvoxel.CoordinateMap;
 import shape.Shape;
 import solver.PDEexplicit;
+import solver.PDEgaussseidel;
 import solver.PDEsolver;
 import solver.PDEupdater;
 import utility.Helper;
@@ -133,6 +134,7 @@ public class SolveDiffusionTransient extends ProcessManager
 		this._soluteNames = soluteNames;
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
+		//this._solver = new PDEgaussseidel();
 		this._solver.init(this._soluteNames, false);
 		this._solver.setUpdater(this.standardUpdater());
 		
@@ -218,8 +220,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			 * each mini-timestep.
 			 */
 			@Override
-			public void prestep(Collection<SpatialGrid> variables, 
-					double dt)
+			public void prestep(Collection<SpatialGrid> variables, double dt)
 			{
 				for ( SpatialGrid var : variables )
 					var.newArray(PRODUCTIONRATE);
