@@ -2,6 +2,7 @@ package solver;
 
 import static dataIO.Log.Tier.DEBUG;
 import static grid.ArrayType.CONCN;
+import static grid.ArrayType.DIFFUSIVITY;
 import static grid.ArrayType.PRODUCTIONRATE;
 import static grid.ArrayType.WELLMIXED;
 
@@ -12,6 +13,7 @@ import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
 import shape.Shape;
+import utility.ExtraMath;
 
 public class PDEgaussseidel extends PDEsolver
 {
@@ -60,16 +62,24 @@ public class PDEgaussseidel extends PDEsolver
 		/* Coordinates of the current position. */
 		int[] current, nhb;
 		/* Temporary storage. */
-		double tallyTotal, nhbMass, nhbSArea, totalSArea;
-		
+		double currDiffusivity, nhbMass, tally, norm, weight;
+		/*
+		 * The mass of each voxel's concentration is replaced with a weighted
+		 * average of its neighbours' masses (convert from concn to mass and
+		 * then back to concn). The weight of each neighbour is proportional to
+		 * the surface area shared (more area => more weight) and to the mean
+		 * diffusivity (more diffusivity => more weight). The weights must be
+		 * normalised before the concentration is replaced!
+		 */
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
 			// TODO this should really be > some threshold
 			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
 				continue;
-			tallyTotal = 0.0;
-			totalSArea = 0.0;
+			tally = 0.0;
+			norm = 0.0;
+			currDiffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, 
@@ -77,20 +87,23 @@ public class PDEgaussseidel extends PDEsolver
 						" (curent value "+variable.getValueAtCurrent(CONCN)+
 						"): calculating flux...");
 			}
+			
 			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
 					nhb = shape.nbhIteratorNext() )
 			{
 				nhbMass = variable.getValueAtNhb(CONCN) *
 						shape.getVoxelVolume(nhb);
-				nhbSArea = shape.nhbCurrSharedArea();
-				tallyTotal += nhbMass * nhbSArea;
-				totalSArea += nhbSArea;
+				weight = shape.nhbCurrSharedArea() *
+						ExtraMath.harmonicMean(currDiffusivity, 
+						variable.getValueAt(DIFFUSIVITY, nhb));
+				tally += nhbMass * weight;
+				norm += weight;
 			}
 			/*
 			 * Flux is in units of mass/mole per unit time. Divide by the voxel
 			 * volume to convert this to a rate of change in concentration.
 			 */
-			double massFromDiffusion = tallyTotal / totalSArea;
+			double massFromDiffusion = tally / norm;
 			double volume = shape.getCurrVoxelVolume();
 			double concnFromDiffusion = massFromDiffusion / volume;
 			double concnFromReactions = tFinal *
