@@ -25,7 +25,7 @@ public interface PDEupdater
 	 * 
 	 * @param variables Dictionary of variables, each given by its name and the
 	 * {@code SpatialGrid} that contains its values over space.
-	 * @param dt Size of the mini-timestep.
+	 * @param dt Size of the mini-timestep. Not used by steady-state solvers.
 	 */
 	default void prestep(Collection<SpatialGrid> variables, double dt)
 	{ }

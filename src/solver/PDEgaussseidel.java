@@ -99,10 +99,6 @@ public class PDEgaussseidel extends PDEsolver
 				tally += nhbMass * weight;
 				norm += weight;
 			}
-			/*
-			 * Flux is in units of mass/mole per unit time. Divide by the voxel
-			 * volume to convert this to a rate of change in concentration.
-			 */
 			double massFromDiffusion = tally / norm;
 			double volume = shape.getCurrVoxelVolume();
 			double concnFromDiffusion = massFromDiffusion / volume;

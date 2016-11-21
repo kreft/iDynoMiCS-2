@@ -1,17 +1,15 @@
-/**
- * 
- */
 package processManager.library;
 
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.PRODUCTIONRATE;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import agent.Agent;
 import dataIO.Log;
-import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.diffusivitySetter.AllSameDiffuse;
@@ -20,19 +18,18 @@ import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
-import shape.subvoxel.CoordinateMap;
 import shape.Shape;
-import solver.PDEexplicit;
+import shape.subvoxel.CoordinateMap;
+import solver.PDEgaussseidel;
 import solver.PDEupdater;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
- * reactions in a time-dependent manner, in a spatial {@code Compartment}.
+ * reactions in a steady-state manner, in a spatial {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
- * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class SolveDiffusionTransient extends ProcessDiffusion
+public class SolveDiffusionSteadyState extends ProcessDiffusion
 {
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -46,7 +43,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		// TODO Let the user choose which ODEsolver to use.
-		this._solver = new PDEexplicit();
+		this._solver = new PDEgaussseidel();
 		this._solver.init(this._soluteNames, false);
 		this._solver.setUpdater(this.standardUpdater());
 		
@@ -77,10 +74,15 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 */
 		super.internalStep();
 		/*
-		 * If any mass has flowed in or out of the well-mixed region,
-		 * distribute it among the relevant boundaries.
+		 * Estimate the steady-state mass flows in or out of the well-mixed
+		 * region, and distribute it among the relevant boundaries.
 		 */
-		this._environment.distributeWellMixedFlows();
+		//TODO
+		/*
+		 * Estimate agent growth based on the steady-state solute 
+		 * concentrations.
+		 */
+		
 		/*
 		 * Clear agent mass distribution maps.
 		 */
@@ -113,7 +115,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 					var.newArray(PRODUCTIONRATE);
 				applyEnvReactions();
 				for ( Agent agent : _agents.getAllLocatedAgents() )
-					applyAgentReactions(agent, dt);
+					applyAgentReactions(agent);
 			}
 		};
 	}
@@ -124,19 +126,12 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 	 * <p><b>Note</b>: this method assumes that the volume distribution map
 	 * of this agent has already been calculated. This is typically done just
 	 * once per process manager step, rather than at every PDE solver
-	 * mini-timestep.</p>
-	 * 
-	 * <p>Note also that here the solute grids PRODUCTIONRATE arrays are 
-	 * updated, and the agent's biomass is updated immediately after all
-	 * relevant voxels have been visited. This is a different approach to the
-	 * one taken in SolveChemostat, where applyAgentReactions is split into two
-	 * methods.</p>
+	 * relaxation.</p>
 	 * 
 	 * @param agent Agent assumed to have reactions (biomass will be altered by
 	 * this method).
-	 * @param dt Length of the mini time-step to use.
 	 */
-	private void applyAgentReactions(Agent agent, double dt)
+	private void applyAgentReactions(Agent agent)
 	{
 		/*
 		 * Get the agent's reactions: if it has none, then there is nothing
@@ -159,9 +154,6 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * use this copy to store the changes.
 		 */
 		Map<String,Double> biomass = AgentContainer.getAgentMassMap(agent);
-		@SuppressWarnings("unchecked")
-		Map<String,Double> newBiomass = (HashMap<String,Double>)
-				ObjectFactory.copy(biomass);
 		/*
 		 * Now look at all the voxels this agent covers.
 		 */
@@ -232,31 +224,12 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 						solute = this._environment.getSoluteGrid(productName);
 						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
 					}
-					else if ( newBiomass.containsKey(productName) )
-					{
-						newBiomass.put(productName, newBiomass.get(productName)
-								+ (productRate * dt * volume));
-					}
-					else if ( agent.isAspect(productName) )
-					{
-						/*
-						 * Check if the agent has other mass-like aspects
-						 * (e.g. EPS).
-						 */
-						newBiomass.put(productName, agent.getDouble(productName)
-								+ (productRate * dt * volume));
-					}
-					else
-					{
-						//TODO quick fix If not defined elsewhere add it to the map
-						newBiomass.put(productName, (productRate * dt * volume));
-						System.out.println("agent reaction catched " + 
-								productName);
-						// TODO safety?
-					}
+					/* 
+					 * Unlike in a transient solver, we do not update the agent
+					 * mass here.
+					 */
 				}
 			}
-			AgentContainer.updateAgentMass(agent, newBiomass);
 		}
 	}
 }

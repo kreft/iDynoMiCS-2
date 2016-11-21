@@ -6,7 +6,7 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import processManager.library.SolveDiffusionTransient;
+import processManager.library.SolveDiffusionSteadyState;
 import shape.Shape;
 import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.UniformResolution;
@@ -49,7 +49,7 @@ public class PDEgaussseidelTests
 		/*
 		 * Set up the diffusion solver.
 		 */
-		SolveDiffusionTransient pm = new SolveDiffusionTransient();
+		SolveDiffusionSteadyState pm = new SolveDiffusionSteadyState();
 		pm.setName("DR solver");
 		pm.init(new String[]{soluteName}, comp.environment, 
 				comp.agents, comp.getName());
