@@ -17,6 +17,10 @@ import utility.ExtraMath;
 
 public class PDEgaussseidel extends PDEsolver
 {
+	public int maxIter = 100;
+	
+	public double residualTolerance = 0.01;
+	
 	public PDEgaussseidel()
 	{
 		
@@ -26,13 +30,17 @@ public class PDEgaussseidel extends PDEsolver
 	public void solve(Collection<SpatialGrid> variables,
 			SpatialGrid commonGrid, double tFinal)
 	{
-		for ( int i = 0; i < 1; i++ )
+		double residual, maxResidual = 0.0;
+		for ( int i = 0; i < this.maxIter; i++ )
 		{
 			this._updater.prestep(variables, tFinal);
 			for ( SpatialGrid variable : variables )
 			{
-				this.relax(variable, commonGrid, tFinal);
+				residual = this.relax(variable, commonGrid, tFinal);
+				maxResidual = Math.max(residual, maxResidual);
 			}
+			if ( maxResidual < this.residualTolerance )
+				break;
 		}
 		
 	}
@@ -53,7 +61,7 @@ public class PDEgaussseidel extends PDEsolver
 	 * PRIVATE METHODS
 	 * **********************************************************************/
 	
-	private void relax(SpatialGrid variable,
+	private double relax(SpatialGrid variable,
 			SpatialGrid commonGrid, double tFinal)
 	{
 		/* Logging verbosity. */
@@ -62,7 +70,11 @@ public class PDEgaussseidel extends PDEsolver
 		/* Coordinates of the current position. */
 		int[] current, nhb;
 		/* Temporary storage. */
-		double currDiffusivity, nhbMass, tally, norm, weight;
+		double currConcn, currDiffusivity, nhbMass, tally, norm, weight;
+		/* 
+		 * The residual gives an estimation of how close to stead-state we are.
+		 */
+		double residual, totalResidual = 0.0, numVoxels = 0.0;
 		/*
 		 * The mass of each voxel's concentration is replaced with a weighted
 		 * average of its neighbours' masses (convert from concn to mass and
@@ -79,6 +91,7 @@ public class PDEgaussseidel extends PDEsolver
 				continue;
 			tally = 0.0;
 			norm = 0.0;
+			currConcn = variable.getValueAtCurrent(CONCN);
 			currDiffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
 			if ( Log.shouldWrite(level) )
 			{
@@ -114,7 +127,26 @@ public class PDEgaussseidel extends PDEsolver
 						", change from reactions = "+concnFromReactions+
 						": new value "+newConcn);
 			}
+			if ( ! this._allowNegatives )
+			{
+				newConcn = 0.0;
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "\t\t\tTruncating to zero.");
+			}
 			variable.setValueAt(CONCN, current, newConcn);
+			/* Calculate the residual. */
+			currConcn = Math.abs(currConcn);
+			newConcn = Math.abs(newConcn);
+			if ( Math.max(currConcn, newConcn) > 0.0)
+			{
+				residual = Math.abs((currConcn - newConcn) /
+									Math.max(currConcn, newConcn));
+			}
+			else
+				residual = 0.0;
+			totalResidual += residual;
+			numVoxels++;
 		}
+		return (numVoxels > 0.0) ? (totalResidual/numVoxels) : 0.0;
 	}
 }

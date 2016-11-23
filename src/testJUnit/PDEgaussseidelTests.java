@@ -20,7 +20,7 @@ public class PDEgaussseidelTests
 		 * Simulation parameters.
 		 */
 		double tStep = 1.0;
-		double tMax = 5.0;
+		double tMax = 1.0;
 		int nVoxel = 4;
 		String soluteName = "solute";
 		/* Set up the simulator and log output. */
