@@ -43,6 +43,8 @@ public class PDEgaussseidel extends PDEsolver
 				break;
 		}
 		
+		// TODO relax one more time, and use only this relaxation to update the
+		// flow in/out of the well-mixed region
 	}
 
 	@Override
