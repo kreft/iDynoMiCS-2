@@ -23,15 +23,26 @@ public class FilterLogic {
 		}
 		else if ( filter.contains( "==" ) )
 		{
+			/* character comparison (same text) even for numeric values */
 			String[] f = filter.split( "==" );
 			return new SpecificationFilter( f[0], 
 					new IsSame( String.valueOf( f[1] ) ) );
 		}
-		else if ( filter.contains( "=" ) ) // FIXME maybe not most robust for numeric comparison
+		else if ( filter.contains( "=" ) )
 		{
 			String[] f = filter.split( "=" );
-			return new SpecificationFilter( f[0], 
-					new IsEquals( Double.valueOf( f[1] ) ) );
+			try
+			{
+				/* numeric comparison (same value eg. 0 = 0.0 = 0L = 0.0f ) */
+				return new SpecificationFilter( f[0], 
+						new IsEquals( Double.valueOf( f[1] ) ) );
+			}
+			catch ( NumberFormatException e)
+			{
+				/* character comparison (same text) */
+				return new SpecificationFilter( f[0], 
+						new IsSame( String.valueOf( f[1] ) ) );
+			}
 		}
 		else if ( filter.contains( ">" ) )
 		{
