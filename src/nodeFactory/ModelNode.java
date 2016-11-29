@@ -308,13 +308,12 @@ public class ModelNode
 		if (c.options() == null)
 		{
 			con = (NodeConstructor) Instantiatable.
-					getNewInstance(	c.classRef(), null, this.constructor );
+					getNewInstance(	null, this.constructor, c.classRef() );
 		}
 		else
 		{
 			con =  (NodeConstructor) Instantiatable.getNewInstance(	
-					Helper.obtainInput(c.options(), "select class", false), 
-					null, this.constructor );
+					null, this.constructor, c.options() );
 		}
 		ModelNode node = con.getNode();
 		this.add(node);

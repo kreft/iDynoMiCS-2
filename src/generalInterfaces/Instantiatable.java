@@ -56,10 +56,7 @@ public interface Instantiatable
 	 */
 	public static Object getNewInstance(String className)
 	{
-		if ( className.contains( "." ) )
-			return getNewInstance( className, null );
-		return getNewInstance( className, 
-				Idynomics.xmlPackageLibrary.get( className ) );
+		return getNewInstance(null, null, className);
 	}
 	
 	/**
@@ -80,6 +77,50 @@ public interface Instantiatable
 		else
 			out = getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
 		((Instantiatable) out).init(xmlElem, parent);
+		return out;
+	}
+	
+	/**
+	 * \brief Generic instantiation for objects added through GUI or xml.
+	 * 
+	 * By default supply the XML element, the parent and the class name.
+	 * 
+	 * The method also allows user dependent class definition (provide valid 
+	 * options). This is the way to go when dealing with an abstract class (such
+	 * as shape) where only child classes can be initiated and thus they have to
+	 * be chosen immediately. 
+	 * 
+	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten.</p>
+	 * @param className
+	 * @param xmlElem
+	 * @param parent
+	 * @return
+	 */
+	public static Object getNewInstance(Element xmlElem, NodeConstructor parent, 
+			String... className)
+	{
+		Object out = null;
+		/* If one class name is provided continue instantiating.  */
+		if (className.length == 1)
+		{
+			/* if also the path is provided instantiate immediately. */
+			if ( className[0].contains(".") )
+				out = getNewInstance( className[0], null );
+			/* if not lookup the path from the package library. */
+			else
+				out = getNewInstance( className[0], 
+						Idynomics.xmlPackageLibrary.get( className[0] ) );
+		}
+		/* If multiple options are given let the user choose what class to
+		 * instantiate. */
+		else
+			out = getNewInstance( xmlElem, parent, Helper.obtainInput( 
+					className, "select class", false ) );	
+		if (parent == null && Log.shouldWrite(Tier.DEBUG))
+			Log.out(Tier.DEBUG, "Warning initiating without parent");
+		else if (xmlElem == null && Log.shouldWrite(Tier.DEBUG))
+			Log.out(Tier.DEBUG, "Warning initiating without xml element");
+		( (Instantiatable) out).init( xmlElem, parent );
 		return out;
 	}
 

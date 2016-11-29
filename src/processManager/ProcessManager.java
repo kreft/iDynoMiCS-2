@@ -115,9 +115,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
 		this.setTimeStepSize(time);
 		
-		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		if (fields != null)
-			this.redirect(fields);
+		if (xmlElem != null && xmlElem.hasAttribute(XmlRef.fields))
+			this.redirect(XmlHandler.obtainAttribute(xmlElem, XmlRef.fields, "redirect fields"));
 		
 		Log.out(Tier.EXPRESSIVE, this._name + " loaded");
 	}
@@ -139,8 +138,17 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	
 	/**
 	 * Generic init for Instantiatable implementation
+	 * 
+	 * 
+	 * NOTE this implementation is a bit 'hacky' to deal with
+	 * 1) The layered structure of process managers.
+	 * 2) The fact that process managers are initiated with environment, agents
+	 * and compartment name, something the instantiatable interface can only
+	 * Provide by supplying parent.
+	 * 
+	 * 
 	 * @param xmlElem
-	 * @param compartment
+	 * @param parent (in this case the compartment).
 	 */
 	public void init(Element xmlElem, NodeConstructor parent)
 	{
@@ -148,25 +156,6 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 				((Compartment) parent).agents, ((Compartment) parent).getName());
 	}
 	
-	/**
-	 * get new instance
-	 * TODO this is actually a bypasses  of the interface, consider renaming
-	 * @param xmlNode Relevant part of the XML protocol file.
-	 * @param environment The {@code EnvironmentContainer} of the
-	 * {@code Compartment} this process belongs to.
-	 * @param agents The {@code AgentContainer} of the
-	 * {@code Compartment} this process belongs to.
-	 * @return New process manager.
-	 */
-	public static ProcessManager getNewInstance(Node xmlNode, 
-			EnvironmentContainer environment, AgentContainer agents, 
-			String CompartmentName)
-	{
-		ProcessManager proc = (ProcessManager) Instantiatable.getNewInstance(xmlNode);
-		proc.init((Element) xmlNode, environment, agents, CompartmentName);
-		return proc;
-	}
-
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS

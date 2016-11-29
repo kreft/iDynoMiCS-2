@@ -103,6 +103,8 @@ public abstract class Boundary implements NodeConstructor
 	 * \brief Tell this boundary what it needs to know about the compartment it
 	 * belongs to.
 	 * 
+	 * FIXME this is not a valid from xml init
+	 * 
 	 * @param environment The environment container of the compartment.
 	 * @param agents The agent container of the compartment.
 	 * @param compartmentName The name of the compartment.

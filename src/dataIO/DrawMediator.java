@@ -90,8 +90,7 @@ public class DrawMediator {
 		/* get instance of appropriate output writer */
 		if ( Helper.isNone(_graphics))
 			this._graphics = (GraphicalExporter) Instantiatable.getNewInstance(
-					Helper.obtainInput( new String[] { ClassRef.svgExport,
-							ClassRef.povExport }, "output writer", false) );
+					null, null, ClassRef.svgExport,	ClassRef.povExport );
 		
 		/* write scene files (used by pov ray) */
 		this._graphics.init( this._prefix, _shape );

@@ -356,6 +356,53 @@ public class ClassRef
 			boundary.spatialLibrary.FixedBoundary.class.getName();
 	
 	/* ************************************************************************
+	 * shape classes
+	 */
+	
+	/**
+	 * TODO
+	 */
+	public final static String dimensionless =
+			shape.ShapeLibrary.Dimensionless.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String circle =
+			shape.ShapeLibrary.Circle.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String cuboid =
+			shape.ShapeLibrary.Cuboid.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String cylinder =
+			shape.ShapeLibrary.Cylinder.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String line =
+			shape.ShapeLibrary.Line.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String rectangle =
+			shape.ShapeLibrary.Rectangle.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String sphere =
+			shape.ShapeLibrary.Sphere.class.getName();
+	
+	
+	/* ************************************************************************
 	 * miscellaneous
 	 */
 	

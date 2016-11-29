@@ -1,5 +1,7 @@
 package processManager.library;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -17,12 +19,14 @@ import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension.DimName;
 import shape.Shape;
 import surface.Surface;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -120,7 +124,8 @@ public class GraphicalOutput extends ProcessManager
 
 		/* get instance of appropriate output writer */
 		this._graphics = (GraphicalExporter) Instantiatable.getNewInstance(
-				this.getString(OUTPUT_WRITER) );
+				Helper.setIfNone( this.getString( OUTPUT_WRITER ), 
+				Helper.obtainInput(options(), "output writer", false ) ) );
 		
 		/* write scene files (used by pov ray) */
 		this._graphics.init( this._prefix, this._shape );
@@ -128,6 +133,14 @@ public class GraphicalOutput extends ProcessManager
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
 
+	}
+	
+	private Collection<String> options()
+	{
+		LinkedList<String> out = new LinkedList<String>();	
+		out.add(ClassRef.svgExport);
+		out.add(ClassRef.povExport);
+		return out;
 	}
 	
 	/*************************************************************************
