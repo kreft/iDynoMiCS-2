@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 import static testJUnit.AllTests.TOLERANCE;
 
 import org.junit.Test;
+import org.w3c.dom.Element;
 
 import boundary.library.DummyToChemostat;
 import dataIO.Log;
@@ -46,7 +47,7 @@ public class ChemostatsTest
 		chemo.environment.addSolute(new SpatialGrid(soluteName, 0.0, chemo.environment));
 		SolveChemostat p1 = new SolveChemostat();
 		p1.setName("SolveChemostat");
-		p1.init(new String[]{soluteName}, chemo.environment, 
+		p1.init(null, chemo.environment, 
 				chemo.agents, chemo.getName());
 		p1.setTimeStepSize(tStep);
 		chemo.addProcessManager(p1);

@@ -1,5 +1,6 @@
 package dataIO;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -382,6 +383,32 @@ public class XmlHandler
 		}
 		else
 			return obtainAttribute(e, attribute, tagName);
+	}
+	
+	/**
+	 * Construct xml element from string
+	 * based on: http://stackoverflow.com/questions/729621/convert-string-xml-fragment-to-document-node-in-java
+	 */
+	public static Element elementFromString(String xmlSnippet)
+	{
+		Element node = null;
+		try {
+			node =  DocumentBuilderFactory
+				    .newInstance()
+				    .newDocumentBuilder()
+				    .parse(new ByteArrayInputStream(xmlSnippet.getBytes()))
+				    .getDocumentElement();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return node;
 	}
 
 	/*************************************************************************

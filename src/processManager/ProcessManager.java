@@ -22,6 +22,7 @@ import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import utility.Helper;
 
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.
@@ -98,7 +99,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		 * Read in the process attributes. 
 		 */
 		Element p = (Element) xmlElem;
-		this.setName( XmlHandler.obtainAttribute(p, XmlRef.nameAttribute, this.defaultXmlTag()));
+		if (Helper.isNone(this._name))
+			this.setName( XmlHandler.obtainAttribute(p, XmlRef.nameAttribute, this.defaultXmlTag()));
 		/* Process priority - default is zero. */
 		int priority = 0;
 		if ( XmlHandler.hasAttribute(p, XmlRef.processPriority) )

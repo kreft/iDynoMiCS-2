@@ -82,34 +82,10 @@ public class SolveChemostat extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		this.init(environment, agents, compartmentName);
-	}
-	
-	@Override
-	public void init(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
 		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
 				Helper.collectionToArray(
 				environment.getSoluteNames()));
 
-		this.init(soluteNames, environment, 
-				agents, compartmentName);
-	}
-	
-	/**
-	 * \brief TODO
-	 * 
-	 * @param soluteNames
-	 * @param environment
-	 * @param agents
-	 * @param compartmentName
-	 */
-	public void init(String[] soluteNames, EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		/* This super call is only required for the unit tests. */
-		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		/*
 		 * Initialise the solver.
@@ -129,6 +105,8 @@ public class SolveChemostat extends ProcessManager
 		this._dYdTinflow = new double[this.n()];
 		this._y = new double[this.n()];
 	}
+	
+
 	
 	/* ***********************************************************************
 	 * STEPPING

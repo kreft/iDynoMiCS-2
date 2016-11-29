@@ -240,6 +240,14 @@ public class Helper
 	}
 	
 	
+	public static String obtainIfNone(String input, String description, boolean noLog, Collection<String> options)
+	{
+		if( isNone(input) )
+			return obtainInput(options,description, noLog);
+		else 
+			return input;
+	}
+	
 	/**
 	 * Delayed abort allows user to read abort statement before shutdown
 	 * @param delay

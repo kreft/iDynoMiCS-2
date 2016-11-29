@@ -93,43 +93,9 @@ public class SolveDiffusionTransient extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		this.init(environment, agents, compartmentName);
-		/*
-		 * Now look for diffusivity setters.
-		 */
-		Collection<Element> diffusivityElements =
-				XmlHandler.getElements(xmlElem, XmlRef.diffusivitySetter);
-		for ( Element dElem : diffusivityElements )
-		{
-			String soluteName = dElem.getAttribute(XmlRef.solute);
-			String className = dElem.getAttribute(XmlRef.classAttribute);
-			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
-					Instantiatable.getNewInstance(className, dElem, this);
-			this._diffusivity.put(soluteName, diffusivity);
-		}
-	}
-	
-	/**
-	 * \brief Initialise this diffusion-reaction process manager with a list of
-	 * solutes it is responsible for.
-	 * 
-	 * @param soluteNames The list of solutes this is responsible for.
-	 */
-	public void init(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		super.init(environment, agents, compartmentName);
 		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
 				Helper.collectionToArray(
 				this._environment.getSoluteNames()));
-		this.init( soluteNames, environment, agents, compartmentName );
-	}
-	
-	public void init( String[] soluteNames, EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		/* This super call is only required for the unit tests. */
-		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
@@ -149,8 +115,21 @@ public class SolveDiffusionTransient extends ProcessManager
 		for ( String s : this._soluteNames )
 			msg += s + ", ";
 		Log.out(Tier.EXPRESSIVE, msg);
+		/*
+		 * Now look for diffusivity setters.
+		 */
+		Collection<Element> diffusivityElements =
+				XmlHandler.getElements(xmlElem, XmlRef.diffusivitySetter);
+		for ( Element dElem : diffusivityElements )
+		{
+			String soluteName = dElem.getAttribute(XmlRef.solute);
+			String className = dElem.getAttribute(XmlRef.classAttribute);
+			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
+					Instantiatable.getNewInstance(className, dElem, this);
+			this._diffusivity.put(soluteName, diffusivity);
+		}
 	}
-	
+		
 	/* ***********************************************************************
 	 * STEPPING
 	 * **********************************************************************/

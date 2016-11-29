@@ -87,7 +87,7 @@ public class PDEBenchmark {
 			 */
 			SolveDiffusionTransient pm = new SolveDiffusionTransient();
 			pm.setName("DR solver");
-			pm.init(new String[]{soluteName}, comp.environment, 
+			pm.init(null, comp.environment, 
 					comp.agents, comp.getName());
 			pm.setTimeForNextStep(0.0);
 			pm.setTimeStepSize(tStep);
@@ -184,7 +184,7 @@ public class PDEBenchmark {
 			 */
 			SolveDiffusionTransient pm = new SolveDiffusionTransient();
 			pm.setName("DR solver");
-			pm.init(new String[]{soluteName}, comp.environment, 
+			pm.init(null, comp.environment, 
 					comp.agents, comp.getName());
 			pm.setTimeForNextStep(0.0);
 			pm.setTimeStepSize(tStep);
@@ -280,7 +280,7 @@ public class PDEBenchmark {
 			 */
 			SolveDiffusionTransient pm = new SolveDiffusionTransient();
 			pm.setName("DR solver");
-			pm.init(new String[]{soluteName}, comp.environment, 
+			pm.init(null, comp.environment, 
 					comp.agents, comp.getName());
 			pm.setTimeForNextStep(0.0);
 			pm.setTimeStepSize(tStep);
