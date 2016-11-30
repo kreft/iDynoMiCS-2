@@ -282,17 +282,6 @@ public class BundleMap<K,T> extends HashMap<K,T> implements NodeConstructor, Ins
 	}
 
 	/**
-	 * forward for easy use of the Instantiatable interface
-	 * @param s
-	 * @param parent
-	 * @return
-	 */
-	public static Object getNewInstance(Element s, NodeConstructor parent) 
-	{
-		return Instantiatable.getNewInstance(BundleMap.class.getName(), s, parent);
-	}
-	
-	/**
 	 * add child nodeConstructor (map item)
 	 * 
 	 * FIXME todo

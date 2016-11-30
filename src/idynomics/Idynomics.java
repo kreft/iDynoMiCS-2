@@ -133,7 +133,7 @@ public class Idynomics
 		 * Create a new Simulator object and intialise it.
 		 */
 		simulator = new Simulator();
-		simulator.init(simElem);
+		simulator.init(simElem, null);
 	}
 	
 	/**

@@ -14,6 +14,7 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
 import gereralPredicates.IsSame;
 
@@ -137,20 +138,6 @@ public class AgentContainer implements NodeConstructor
 		this.makeAgentTree();
 		this._agentList = new LinkedList<Agent>();
 	}
-
-	/**
-	 * \brief Construct an {@code AgentContainer} from the name of a
-	 * {@code Shape}.
-	 * 
-	 * <p>Used by test classes.</p>
-	 * 
-	 * @param shapeName {@code String} name of a shape.
-	 */
-	public AgentContainer(String shapeName)
-	{
-		this((Shape) Shape.getNewInstance(shapeName));
-	}
-	
 
 	public void setSpatialTree(TreeType type) 
 	{

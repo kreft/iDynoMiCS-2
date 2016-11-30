@@ -128,12 +128,6 @@ public abstract class Shape implements
 	 * CONSTRUCTION
 	 * **********************************************************************/
 	
-	public static Shape newShape()
-	{
-		return (Shape) Shape.getNewInstance(
-				Helper.obtainInput(getAllOptions(), "Shape class", false));
-	}
-	
 	@Override
 	public ModelNode getNode()
 	{
@@ -225,7 +219,8 @@ public abstract class Shape implements
 			{
 				childElem = (Element) childNodes.item(i);
 				str = childElem.getAttribute(XmlRef.classAttribute);
-				aBoundary = (Boundary) Instantiatable.getNewInstance(str, childElem, this);
+				aBoundary = (Boundary) Instantiatable.getNewInstance(childElem, 
+						this, str );
 //				aBoundary.init(childElem);
 				this.addOtherBoundary(aBoundary);
 			}
@@ -1545,29 +1540,6 @@ public abstract class Shape implements
 				return false;
 		/* All checks passed: ready to launch. */
 		return true;
-	}
-	
-	/* ***********************************************************************
-	 * XML-ABLE
-	 * **********************************************************************/
-	
-	// FIXME Bas: this is bypassing the instantiatable interface again
-	public static Shape getNewInstance(String className)
-	{
-		return (Shape) Instantiatable.getNewInstance(className, "shape.ShapeLibrary$");
-	}
-	
-	public static Shape getNewInstance(String className, Element xmlElem, NodeConstructor parent)
-	{
-		Shape out;
-		if (xmlElem == null)
-			out = (Shape) Shape.getNewInstance(
-					Helper.obtainInput(getAllOptions(), "Shape class", false));
-		else
-			out = (Shape) Instantiatable.getNewInstance(className, 
-					"shape.ShapeLibrary$");
-		out.init(xmlElem, parent);
-		return out;
 	}
 	
 	public static String[] getAllOptions()

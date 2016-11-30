@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import static org.junit.Assert.assertTrue;
 
 import generalInterfaces.Instantiatable;
+import nodeFactory.NodeConstructor;
 
 /**
  * 
@@ -21,7 +22,7 @@ public class XMLableTest
 	{
 		private int x = 1;
 		
-		public void init(Element xmlElem)
+		public void init(Element xmlElem, NodeConstructor parent)
 		{
 			// TODO
 		}
@@ -35,18 +36,13 @@ public class XMLableTest
 		{
 			return this.x == y;
 		}
-		
-		public static Object getNewInstance(String className)
-		{
-			return Instantiatable.getNewInstance(className, "testJUnit.XMLableTest$");
-		}
 	}
 	
 	@Test
 	public void dummyClassIsInstanciable()
 	{
 		/* This should crash if the method is wrong. */
-		TestXMLable t = (TestXMLable)TestXMLable.getNewInstance("testXMLable");
+		TestXMLable t = (TestXMLable) Instantiatable.getNewInstance(null, null, "testJUnit.XMLableTest$testXMLable");
 		/* Dummy test to check that t in an instance. */
 		assertTrue( t.isX(1) );
 		t.setX(3);

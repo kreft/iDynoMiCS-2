@@ -250,12 +250,12 @@ public class Aspect implements Instantiatable, NodeConstructor
 					node.getAttribute( XmlRef.typeAttribute).getValue() ) )
 	    	{
 	    	case CALCULATED:
-	    		this.set( Calculated.getNewInstance(
+	    		this.set( Calculated.instanceFromString(
 	    				node.getAttribute(XmlRef.classAttribute).getValue(), 
 	    				node.getAttribute(XmlRef.inputAttribute).getValue()), key);
 	    	case EVENT: 
-	    		this.set( Event.getNewInstance( 
-						node.getAttribute(XmlRef.classAttribute).getValue()), key);
+	    		this.set( Instantiatable.getNewInstance(null, null, 
+	    				node.getAttribute(XmlRef.classAttribute).getValue()), key);
 	    	case PRIMARY:
 			default:
 				this.set( ObjectFactory.loadObject(
@@ -292,17 +292,13 @@ public class Aspect implements Instantiatable, NodeConstructor
     		objectClass = Helper.obtainInput( Helper.listToArray(
     				ClassRef.getAllOptions( PackageRef.calculatedPackage ) ), 
     				"aspect class", false);
-    		if ( objectClass.equals(ClassRef.simplify( ClassRef.expressionAspect) ) )
-    			this.set( Calculated.getNewInstance( objectClass,
-    					Helper.obtainInput( "", "expression" ))  , name );
-    		else
-    			this.set(  Calculated.getNewInstance( objectClass, "") , name );
+    		this.set(  Instantiatable.getNewInstance(xmlElem, null, objectClass) , name );
     		break;
     	case EVENT: 
     		objectClass = Helper.obtainInput( Helper.listToArray(
     				ClassRef.getAllOptions( PackageRef.eventPackage) ), 
     				"aspect class", false);
-    		this.set(  Event.getNewInstance( objectClass ) , name );
+    		this.set(  Instantiatable.getNewInstance(xmlElem, null, objectClass) , name );
     		break;
     	case PRIMARY:
 		default:

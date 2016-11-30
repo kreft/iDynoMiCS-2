@@ -3,7 +3,9 @@ package aspect;
 import generalInterfaces.Copyable;
 import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
+import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import utility.Helper;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,26 +53,14 @@ public abstract class Calculated implements Copyable, Instantiatable, Redirectab
 		return this;
 	}
 	
-	/**
-	 * General constructor from xmlNodes, returns a new instance directly from
-	 * an xml node. Overwrite this method in implementing class if the class
-	 * needs constructor arguments (they should be stored within the Node).
-	 */
-	public static Object getNewInstance(Node xmlNode)
-	{
-		Calculated obj = (Calculated) Instantiatable.getNewInstance(xmlNode);
-		obj.init((Element) xmlNode);
-		return obj;
-	}
-	
-
-	public static Object getNewInstance(String objecClass, String input) {
-		Calculated obj = (Calculated) Instantiatable.getNewInstance(objecClass);
+	public static Object instanceFromString(String objecClass, String input) {
+		Calculated obj = (Calculated) Instantiatable.getNewInstance(null, null, 
+				objecClass );
 		obj.init(input);
 		return obj;
 	}
 
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
 		String input = XmlHandler.gatherAttribute(xmlElem, XmlRef.inputAttribute);
 		if (input != "")

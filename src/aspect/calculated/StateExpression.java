@@ -2,9 +2,15 @@ package aspect.calculated;
 
 import java.util.HashMap;
 
+import org.w3c.dom.Element;
+
 import aspect.AspectInterface;
 import aspect.Calculated;
+import dataIO.XmlHandler;
 import expression.ExpressionB;
+import nodeFactory.NodeConstructor;
+import referenceLibrary.XmlRef;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -22,6 +28,21 @@ public class StateExpression extends Calculated {
 		this._input = input;
 		this.expression = new ExpressionB( input.replaceAll("\\s+","") );
 	}
+	
+	@Override
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		String input = XmlHandler.gatherAttribute(xmlElem, XmlRef.inputAttribute);
+		if (input != "")
+			this.setInput(input);
+		else
+			this.setInput(Helper.obtainInput( "", "expression" ));
+		
+		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
+		if (fields != null)
+			this.redirect(fields);
+	}
+
 	
 	/**
 	 * input[0] expression

@@ -125,7 +125,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			String soluteName = dElem.getAttribute(XmlRef.solute);
 			String className = dElem.getAttribute(XmlRef.classAttribute);
 			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
-					Instantiatable.getNewInstance(className, dElem, this);
+					Instantiatable.getNewInstance(dElem, this, className);
 			this._diffusivity.put(soluteName, diffusivity);
 		}
 	}

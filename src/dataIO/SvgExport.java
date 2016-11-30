@@ -1,8 +1,11 @@
 package dataIO;
 
+import org.w3c.dom.Element;
+
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import nodeFactory.NodeConstructor;
 import surface.Ball;
 import surface.Rod;
 
@@ -36,6 +39,12 @@ public class SvgExport implements GraphicalExporter
 	private static final String[] CIRCLE_LABELS = new String[] {"cx","cy"};
 
 	private static final String[] RECTANGLE_LABELS = new String[] {"x","y"};
+	
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		/* init something from xml? */
+	}
+	
 	/**
 	 * handles incrementing file numbering
 	 * @param filenr

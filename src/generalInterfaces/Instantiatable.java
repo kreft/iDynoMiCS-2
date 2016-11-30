@@ -34,51 +34,7 @@ public interface Instantiatable
 	 * @param xmlElement
 	 * @param parent
 	 */
-	public default void init(Element xmlElement, NodeConstructor parent)
-	{
-		// by default nothing
-		Log.out(Tier.CRITICAL, "Warning: Instantiable Object class has no "
-				+ "implementation of init( Element, NodeConstructor )");
-	}
-	
-	/**
-	 * \brief External method for creating a new instance.
-	 * 
-	 * <p>Remember to typecast when using this. E.g.,</p>
-	 * <p>{@code this.thing = (Thing) Thing.getNewInstance(className);}.</p>
-	 * 
-	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten</p>
-	 * 
-	 * @param className {@code String} name of the class to be instanciated.
-	 * This method will ensure that the first letter is in upper case, but only
-	 * the first!
-	 * @return A new instance of the class required.
-	 */
-	public static Object getNewInstance(String className)
-	{
-		return getNewInstance(null, null, className);
-	}
-	
-	/**
-	 * \brief Generic instantiation for objects added through GUI or xml.
-	 * 
-	 * <p><b>IMPORTANT:</b> Static methods cannot be overwritten.</p>
-	 * @param className
-	 * @param xmlElem
-	 * @param parent
-	 * @return
-	 */
-	public static Object getNewInstance(String className, Element xmlElem, 
-			NodeConstructor parent)
-	{
-		Object out;
-		if (className.contains("."))
-			out = getNewInstance(className, null);
-		else
-			out = getNewInstance(className, Idynomics.xmlPackageLibrary.get(className));
-		((Instantiatable) out).init(xmlElem, parent);
-		return out;
-	}
+	public void init(Element xmlElement, NodeConstructor parent);
 	
 	/**
 	 * \brief Generic instantiation for objects added through GUI or xml.
@@ -100,8 +56,21 @@ public interface Instantiatable
 			String... className)
 	{
 		Object out = null;
+		/* If no class name is provided continue try to obtain from xml.  */
+		if (className == null || className.length == 0)
+		{
+			if ( ! xmlElem.hasAttribute(XmlRef.classAttribute) )
+				Log.out(Tier.CRITICAL, "No className defined in: " +
+						xmlElem.getTagName());
+			else if ( ! xmlElem.hasAttribute(XmlRef.packageAttribute) )
+			{
+				return getNewInstance(xmlElem, parent,
+						xmlElem.getAttribute(XmlRef.classAttribute));
+			}
+			//FIXME option for if package name is specified
+		}
 		/* If one class name is provided continue instantiating.  */
-		if (className.length == 1)
+		else if (className.length == 1)
 		{
 			/* if also the path is provided instantiate immediately. */
 			if ( className[0].contains(".") )
@@ -110,7 +79,8 @@ public interface Instantiatable
 			else
 				out = getNewInstance( className[0], 
 						Idynomics.xmlPackageLibrary.get( className[0] ) );
-		}
+		} 
+		
 		/* If multiple options are given let the user choose what class to
 		 * instantiate. */
 		else
@@ -176,16 +146,7 @@ public interface Instantiatable
 	 */
 	public static Object getNewInstance(Node xmlNode)
 	{
-		Element E = (Element) xmlNode;
-		if ( ! E.hasAttribute(XmlRef.classAttribute) )
-			Log.out(Tier.CRITICAL, "No className defined in: "+E.getTagName());
-		else if ( ! E.hasAttribute(XmlRef.packageAttribute) )
-		{
-			return getNewInstance(xmlNode, 
-									E.getAttribute(XmlRef.classAttribute));
-		}
-		return getNewInstance(E.getAttribute(XmlRef.classAttribute) , 
-									E.getAttribute(XmlRef.packageAttribute));
+		return getNewInstance((Element) xmlNode, null, (String[]) null);
 	}
 	
 	/**

@@ -48,7 +48,7 @@ public class Timer implements Instantiatable, NodeConstructor
 		this._now = 0.0;
 	}
 		
-	public void init(Element xmlNode)
+	public void init(Element xmlNode, NodeConstructor parent)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");
 

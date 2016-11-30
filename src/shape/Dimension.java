@@ -211,7 +211,8 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				
 				str = bndElem.getAttribute(XmlRef.classAttribute);
 				// FIXME this does not work since boundaries are not instantiatable
-				aBoundary = (SpatialBoundary) Instantiatable.getNewInstance(str, bndElem, this);
+				aBoundary = (SpatialBoundary) Instantiatable.getNewInstance(
+						bndElem, this, str );
 //				aBoundary.init(bndElem); // FIXME nope
 				this.setBoundary(aBoundary, index);	
 			}

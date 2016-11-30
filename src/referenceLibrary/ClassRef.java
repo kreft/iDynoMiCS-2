@@ -94,12 +94,20 @@ public class ClassRef
 	 */
 	public static String simplify(String name)
 	{
+		if (name.contains("$"))
+		{
+			return name.split("\\$")[1];
+		}
 		String[] parts = name.split("\\.");
 		return parts[parts.length-1];
 	}
 	
 	public static String path(String name)
 	{
+		if (name.contains("$"))
+		{
+			return name.split("\\$")[0] + "$";
+		}
 		String[] parts = name.split("\\.");
 		String[] path = name.split(parts[parts.length-1]);
 		return path[0];

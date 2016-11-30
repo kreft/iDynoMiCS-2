@@ -141,18 +141,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		this.environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
 	}
-	
-	/**
-	 * \brief TODO
-	 * FIXME only used by unit tests
-	 * @param shapeName
-	 */
-	public void setShape(String shapeName)
-	{
-		Shape aShape = Shape.getNewInstance(shapeName);
-		this.setShape(aShape);
-	}
-	
 	/**
 	 * \brief Initialise this {@code Compartment} from an XML node. 
 	 * 
@@ -173,8 +161,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 */
 		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
 		String str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
-		this.setShape( (Shape) Shape.getNewInstance(
-				str, elem, (NodeConstructor) this) );	
+		this.setShape( (Shape) Instantiatable.getNewInstance(
+				elem, this, str) );	
 
 
 		for( Boundary b : this._shape.getAllBoundaries())
@@ -223,9 +211,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		Log.out(level,"Compartment "+this.name+ " loading "+XmlHandler.
 				getElements(xmlElem, XmlRef.process).size()+" processManagers");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.process) )
-			this.addProcessManager( (ProcessManager) 
-					Instantiatable.getNewInstance( XmlHandler.obtainAttribute(
-					e, XmlRef.classAttribute, XmlRef.classAttribute), e, this));
+			this.addProcessManager( (ProcessManager) Instantiatable.
+					getNewInstance( e, this, XmlHandler.obtainAttribute(
+					e, XmlRef.classAttribute, XmlRef.classAttribute ) ) );
 	}
 		
 	
@@ -287,7 +275,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
 		this._processes.add(aProcessManager);
-		aProcessManager.init(this.environment, this.agents, this.name);
 		// TODO Rob [18Apr2016]: Check if the process's next time step is 
 		// earlier than the current time.
 		Collections.sort(this._processes, this._procComp);
@@ -566,8 +553,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	{
 		if (child instanceof Shape)
 		{
-			this.setShape( (Shape) Shape.getNewInstance(
-					null, null, (NodeConstructor) this) );
+			this.setShape( (Shape) Instantiatable.getNewInstance(
+					null, this, Shape.getAllOptions()) );
 			// FIXME also remove solutes, spatial grids would be incompatible 
 			// with a new shape
 		}

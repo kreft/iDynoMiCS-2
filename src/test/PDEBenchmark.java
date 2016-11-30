@@ -62,7 +62,13 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("cuboid");
-			comp.setShape("cuboid");
+			try {
+				comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Cuboid").newInstance());
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
+			
 			FixedBoundary xMax = new FixedBoundary(DimName.X, 1);
 			xMax.setConcentration("solute", 2.0);
 			comp.addBoundary(xMax);
@@ -159,7 +165,13 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("cylinder");
-			comp.setShape("cylinder");
+			try {
+				comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Cylinder").newInstance());
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
+			
 			FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);
@@ -255,7 +267,13 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("sphere");
-			comp.setShape("sphere");
+			try {
+				comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Sphere").newInstance());
+			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}		
+			
 			FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);

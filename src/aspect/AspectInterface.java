@@ -7,6 +7,7 @@ import org.w3c.dom.NodeList;
 import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import referenceLibrary.XmlRef;
 import utility.Helper;
@@ -50,10 +51,10 @@ public abstract interface AspectInterface
 						String.valueOf( AspectClass.PRIMARY ) ) ) )
 		    	{
 		    	case CALCULATED:
-		    		aspectReg.add( key , Calculated.getNewInstance( s ) );
+		    		aspectReg.add( key , Instantiatable.getNewInstance( s ) );
 		    		break;
 		    	case EVENT: 
-		    		aspectReg.add( key , Event.getNewInstance( s ) );
+		    		aspectReg.add( key , Instantiatable.getNewInstance( s ) );
 		    		break;
 		    	case PRIMARY:
 				default:

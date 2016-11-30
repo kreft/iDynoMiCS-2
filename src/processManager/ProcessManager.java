@@ -77,6 +77,26 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * **********************************************************************/
 	
 	/**
+	 * Generic init for Instantiatable implementation
+	 * 
+	 * 
+	 * NOTE this implementation is a bit 'hacky' to deal with
+	 * 1) The layered structure of process managers.
+	 * 2) The fact that process managers are initiated with environment, agents
+	 * and compartment name, something the instantiatable interface can only
+	 * Provide by supplying parent.
+	 * 
+	 * 
+	 * @param xmlElem
+	 * @param parent (in this case the compartment).
+	 */
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		this.init(xmlElem, ((Compartment) parent).environment, 
+				((Compartment) parent).agents, ((Compartment) parent).getName());
+	}
+	
+	/**
 	 * \brief Initialise the process from XML protocol file, plus the relevant
 	 * information about the compartment it belongs to.
 	 * 
@@ -91,7 +111,9 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	public void init(Element xmlElem, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
-		this.init(environment, agents, compartmentName);
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
 		
 		if (xmlElem != null)
 			this.loadAspects(xmlElem);
@@ -122,42 +144,6 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		
 		Log.out(Tier.EXPRESSIVE, this._name + " loaded");
 	}
-	
-	/**
-	 * stripped down init required for JUnit tests without xml
-	 * FIXME only used by unit tests consider removing
-	 * @param environment
-	 * @param agents
-	 * @param compartmentName
-	 */
-	public void init(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		this._environment = environment;
-		this._agents = agents;
-		this._compartmentName = compartmentName;
-	}
-	
-	/**
-	 * Generic init for Instantiatable implementation
-	 * 
-	 * 
-	 * NOTE this implementation is a bit 'hacky' to deal with
-	 * 1) The layered structure of process managers.
-	 * 2) The fact that process managers are initiated with environment, agents
-	 * and compartment name, something the instantiatable interface can only
-	 * Provide by supplying parent.
-	 * 
-	 * 
-	 * @param xmlElem
-	 * @param parent (in this case the compartment).
-	 */
-	public void init(Element xmlElem, NodeConstructor parent)
-	{
-		this.init(xmlElem, ((Compartment) parent).environment, 
-				((Compartment) parent).agents, ((Compartment) parent).getName());
-	}
-	
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS

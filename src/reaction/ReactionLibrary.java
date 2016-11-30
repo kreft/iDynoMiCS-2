@@ -6,6 +6,8 @@ package reaction;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import org.w3c.dom.Element;
+
 import generalInterfaces.Instantiatable;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -19,6 +21,12 @@ import referenceLibrary.XmlRef;
  */
 public class ReactionLibrary implements Instantiatable, NodeConstructor
 {
+	
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		/* init something from xml? */
+	}
+	
 	/**
 	 * Contains all common environmental reactions.
 	 */

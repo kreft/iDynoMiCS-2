@@ -111,7 +111,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		ExtraMath.intialiseRandomNumberGenerator(seed);
 	}
 	
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
 		/* 
 		 * retrieve seed from xml file and initiate random number generator with
@@ -124,15 +124,15 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlRef.timer ));
+		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlRef.timer ), this);
 		/*
 		 * Set up the species library.
 		 */
 		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
 			this.speciesLibrary = (SpeciesLib) Instantiatable.getNewInstance(
-					ClassRef.speciesLibrary, XmlHandler.loadUnique(xmlElem, 
-					XmlRef.speciesLibrary ), this);
+					XmlHandler.loadUnique( xmlElem, XmlRef.speciesLibrary ), 
+					this, ClassRef.speciesLibrary );
 		}
 		/*
 		 * Set up the reaction library.
@@ -162,7 +162,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			Instantiatable.getNewInstance(XmlRef.compartment, child, this);
+			Instantiatable.getNewInstance( child, this, XmlRef.compartment );
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
 	}

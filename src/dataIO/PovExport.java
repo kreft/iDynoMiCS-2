@@ -1,9 +1,12 @@
 package dataIO;
 import java.util.List;
 
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
+import nodeFactory.NodeConstructor;
 import shape.Shape;
 import surface.Ball;
 import surface.Rod;
@@ -94,6 +97,11 @@ public class PovExport implements GraphicalExporter
 		_povFile.write("#include \"scenefooter.inc\"\n");
 		_povFile.fclose();
 		_filewriterfilenr++;
+	}
+	
+	public void init(Element xmlElem, NodeConstructor parent)
+	{
+		/* init something from xml? */
 	}
 	
 	/**

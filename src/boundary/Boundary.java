@@ -463,22 +463,6 @@ public abstract class Boundary implements NodeConstructor
 		return new LinkedList<Agent>();
 	}
 
-	/* ***********************************************************************
-	 * XML-ABLE
-	 * **********************************************************************/
-
-	/* FIXME FIXME Please implement instantiatable interface instead of giving
-	 * every single object a getNewInstance method. You cannot overwrite static 
-	 * methods if you try your object will behave different depending on how you
-	 * refer to it!!!!!
-	 */
-
-//	public static Boundary getNewInstance(String className)
-//	{
-//		return (Boundary) Instantiatable.getNewInstance(className, "boundary.spatialLibrary.");
-//	}
-
-
 	public boolean isReadyForLaunch()
 	{
 		if ( this._environment == null || this._agents == null )

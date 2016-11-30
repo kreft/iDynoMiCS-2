@@ -273,18 +273,6 @@ public class PileList<T> extends LinkedList<T> implements NodeConstructor,
 	}
 
 	/**
-	 * forward for easy use of the Instantiatable interface
-	 * @param s
-	 * @param parent
-	 * @return
-	 */
-	public static Object getNewInstance(Element s, NodeConstructor parent) 
-	{
-		return Instantiatable.getNewInstance( PileList.class.getName(), s, 
-				parent );
-	}
-	
-	/**
 	 * add child nodeConstructor (list item)
 	 */
 	@SuppressWarnings("unchecked")

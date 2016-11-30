@@ -91,14 +91,13 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public Reaction(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
-		this.init(elem);
+		this.init(elem, null);
 	}
 	
 	public Reaction(Node xmlNode, NodeConstructor parent)
 	{
 		Element elem = (Element) xmlNode;
-		this._parentNode = parent;
-		this.init(elem);
+		this.init(elem, parent);
 	}
 	
 	/**
@@ -155,8 +154,17 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
 	}
 	
-	public void init(Element xmlElem)
+	public void init(Element xmlElem, NodeConstructor parent)
 	{
+		this._parentNode = parent;
+		if ( parent != null )
+			parent.addChildObject(this);
+		
+		if (XmlHandler.hasNode(xmlElem, XmlRef.reaction))
+		{
+			xmlElem = XmlHandler.loadUnique(xmlElem, XmlRef.reaction);
+		}
+		
 		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute, this.defaultXmlTag());
 		/*
 		 * Build the stoichiometric map.
@@ -171,13 +179,6 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		else
 			this._kinetic = new 
 				ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
-	}
-	
-	public void init(Element xmlElem, NodeConstructor parent)
-	{
-		this.init(xmlElem);
-		this._parentNode = parent;
-		parent.addChildObject(this);
 	}
 	
 	/**
@@ -307,23 +308,6 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		return this._diffKinetics.get(withRespectTo).getValue(concentrations);
 	}
 	
-	/* ***********************************************************************
-	 * XML-ABLE
-	 * **********************************************************************/
-	
-	/**
-	 * XMLable interface implementation.
-	 * @param xmlNode
-	 * @return
-	 */
-	public static Object getNewInstance(Node xmlNode)
-	{
-		if (XmlHandler.hasNode((Element) xmlNode, XmlRef.reaction))
-		{
-			xmlNode = XmlHandler.loadUnique((Element) xmlNode, XmlRef.reaction);
-		}
-		return new Reaction(xmlNode);
-	}
 	
 	// TODO required from xmlable interface.. unfinished
 	public ModelNode getNode()

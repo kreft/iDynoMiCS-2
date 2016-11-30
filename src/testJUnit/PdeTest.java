@@ -45,7 +45,13 @@ public class PdeTest
 		 */
 		AllTests.setupSimulatorForTest(tStep, tMax, "checkMassBalance");
 		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
-		comp.setShape("line");
+		try {
+			comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Line").newInstance());
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
 		comp.addBoundary(new SolidBoundary(DimName.X, 0));
 		comp.addBoundary(new SolidBoundary(DimName.X, 1));
 		Shape shape = comp.getShape();
@@ -113,7 +119,12 @@ public class PdeTest
 		 * solid rmin and fixed rmax boundary, theta cyclic.
 		 */
 		Compartment comp = Idynomics.simulator.addCompartment("circle");
-		comp.setShape("circle");
+		try {
+			comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Circle").newInstance());
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
 		rMax.setConcentration("solute", 2.0);
 		comp.addBoundary(rMax);
@@ -188,7 +199,13 @@ public class PdeTest
 		 * solid rmin and z and fixed rmax boundary, theta cyclic.
 		 */
 		Compartment comp = Idynomics.simulator.addCompartment("cylinder");
-		comp.setShape("cylinder");
+		try {
+			comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Cylinder").newInstance());
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
 		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
 		rMax.setConcentration("solute", 2.0);
 		comp.addBoundary(rMax);
@@ -271,7 +288,13 @@ public class PdeTest
 		 * solid rmin and z and fixed rmax boundary, theta cyclic.
 		 */
 		Compartment comp = Idynomics.simulator.addCompartment("sphere");
-		comp.setShape("sphere");
+		try {
+			comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Sphere").newInstance());
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
 		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
 		rMax.setConcentration("solute", 2.0);
 		comp.addBoundary(rMax);
@@ -355,7 +378,13 @@ public class PdeTest
 		 * solid rmin and z and fixed rmax boundary, theta cyclic.
 		 */
 		Compartment comp = Idynomics.simulator.addCompartment("sphere");
-		comp.setShape("sphere");
+		try {
+			comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Sphere").newInstance());
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+		
 		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
 		rMax.setConcentration("solute", 2.0);
 		comp.addBoundary(rMax);
