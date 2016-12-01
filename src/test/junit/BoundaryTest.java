@@ -16,6 +16,7 @@ import idynomics.Compartment;
 import idynomics.Idynomics;
 import referenceLibrary.AspectRef;
 import shape.Dimension.DimName;
+import test.AllTests;
 import shape.Shape;
 import utility.ExtraMath;
 

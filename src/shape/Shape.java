@@ -24,11 +24,11 @@ import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
 import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.Dimension.DimName;
 import shape.ShapeIterator.WhereAmI;
 import shape.resolution.ResolutionCalculator;
@@ -71,7 +71,7 @@ import utility.Helper;
  *
  */
 public abstract class Shape implements
-					CanPrelaunchCheck, Instantiatable, NodeConstructor
+					CanPrelaunchCheck, Instantiatable, Settable
 {
 	/**
 	 * Ordered dictionary of dimensions for this shape.
@@ -122,36 +122,36 @@ public abstract class Shape implements
 	 */
 	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3,1.0);
 	
-	protected NodeConstructor _parentNode;
+	protected Settable _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTION
 	 * **********************************************************************/
 	
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
 
-		ModelNode modelNode = new ModelNode(XmlRef.compartmentShape, this);
+		Module modelNode = new Module(XmlRef.compartmentShape, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+		modelNode.add(new Attribute(XmlRef.classAttribute, 
 										this.getName(), null, false ));
 		
 		for ( Dimension dim : this._dimensions.values() )
 			if(dim._isSignificant)
-				modelNode.add(dim.getNode());
+				modelNode.add(dim.getModule());
 		
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node)
+	public void setModule(Module node)
 	{
 
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject)
+	public void addChildObject(Settable childObject)
 	{
 		// TODO Auto-generated method stub
 	}
@@ -170,7 +170,7 @@ public abstract class Shape implements
 	 * 
 	 * @param xmlNode
 	 */
-	public void instantiate(Element xmlElem, NodeConstructor parent )
+	public void instantiate(Element xmlElem, Settable parent )
 	{
 		NodeList childNodes;
 		Element childElem;
@@ -1553,13 +1553,13 @@ public abstract class Shape implements
 		return this._defaultCollision;
 	}
 	
-	public void setParent(NodeConstructor parent)
+	public void setParent(Settable parent)
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

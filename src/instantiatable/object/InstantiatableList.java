@@ -9,12 +9,12 @@ import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import instantiatable.Instantiatable;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import utility.Helper;
 
 /**
@@ -27,7 +27,7 @@ import utility.Helper;
  *
  * @param <T>
  */
-public class InstantiatableList<T> extends LinkedList<T> implements NodeConstructor, 
+public class InstantiatableList<T> extends LinkedList<T> implements Settable, 
 		Instantiatable
 {
 	/**
@@ -74,7 +74,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 	/**
 	 * the parentNode of this pileList
 	 */
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	
 	/**
 	 * Constructor for pile with default settings
@@ -144,7 +144,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 	 * TODO commenting
 	 */
 	@SuppressWarnings("unchecked")
-	public void instantiate(Element xmlElement, NodeConstructor parent)
+	public void instantiate(Element xmlElement, Settable parent)
 	{
 		if( xmlElement == null )
 		{
@@ -160,7 +160,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 					" xml node");
 			this.nodeLabel = Helper.obtainInput( "" , "pile entry xml node");
 			
-			if ( ! NodeConstructor.class.isAssignableFrom(entryClass) )
+			if ( ! Settable.class.isAssignableFrom(entryClass) )
 			{
 				this.valueLabel = Helper.obtainInput( "" , " entry value "
 						+ "label");
@@ -214,8 +214,8 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 							(Element) nodes.item(i), 
 							null, this.entryClass.getSimpleName() );
 					
-					if( object instanceof NodeConstructor )
-						((NodeConstructor) object).setParent(this);
+					if( object instanceof Settable )
+						((Settable) object).setParent(this);
 					this.add( object );
 				}
 			}
@@ -227,36 +227,36 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 	 * @return ModelNode
 	 */
 	@Override
-	public ModelNode getNode() {
+	public Module getModule() {
 		
-		ModelNode modelNode = new ModelNode(pileListLabel, this);
+		Module modelNode = new Module(pileListLabel, this);
 		modelNode.setRequirements(requirement);
 		
-		modelNode.add(new ModelAttribute(XmlRef.nodeLabel, 
+		modelNode.add(new Attribute(XmlRef.nodeLabel, 
 				this.nodeLabel, null, false ));
 
 		if ( this.valueLabel != null )
-			modelNode.add(new ModelAttribute(XmlRef.valueAttribute, 
+			modelNode.add(new Attribute(XmlRef.valueAttribute, 
 					this.valueLabel, null, true));
 		
-		modelNode.add(new ModelAttribute(XmlRef.entryClassAttribute, 
+		modelNode.add(new Attribute(XmlRef.entryClassAttribute, 
 				this.entryClass.getSimpleName(), null, false ));
 
-		if (NodeConstructor.class.isAssignableFrom(entryClass))
+		if (Settable.class.isAssignableFrom(entryClass))
 		{
 			for ( T entry : this) 
-				modelNode.add(((NodeConstructor) entry).getNode());
+				modelNode.add(((Settable) entry).getModule());
 
-			modelNode.addConstructable( entryClass.getName(),
-					ModelNode.Requirements.ZERO_TO_MANY, this.nodeLabel);
+			modelNode.addChildSpec( entryClass.getName(),
+					Module.Requirements.ZERO_TO_MANY, this.nodeLabel);
 		}
 		else
 		{
 			for ( T entry : this) 
-				modelNode.add(new Entry<T>( this, entry ).getNode());
+				modelNode.add(new Entry<T>( this, entry ).getModule());
 			
-			modelNode.addConstructable( Entry.class.getName(),
-					ModelNode.Requirements.ZERO_TO_MANY, this.nodeLabel);
+			modelNode.addChildSpec( Entry.class.getName(),
+					Module.Requirements.ZERO_TO_MANY, this.nodeLabel);
 		}
 		return modelNode;
 	}
@@ -276,7 +276,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 	 * add child nodeConstructor (list item)
 	 */
 	@SuppressWarnings("unchecked")
-	public void addChildObject(NodeConstructor childObject)
+	public void addChildObject(Settable childObject)
 	{
 		this.add((T) childObject);
 	}
@@ -285,26 +285,26 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 	 * set the parent node constructor of this pile list.
 	 */
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}
 	
 
-	public class Entry<T> implements NodeConstructor, Instantiatable {
+	public class Entry<T> implements Settable, Instantiatable {
 	
 		/**
 		 * 
 		 */
 		public T mapObject;
 		public InstantiatableList<T> pile;
-		private NodeConstructor _parentNode;
+		private Settable _parentNode;
 		
 		public Entry(InstantiatableList<T> pile, T object )
 		{
@@ -318,29 +318,29 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 		}
 	
 		@SuppressWarnings("unchecked")
-		public void instantiate(Element xmlElem, NodeConstructor parent)
+		public void instantiate(Element xmlElem, Settable parent)
 		{
 			this.pile = (InstantiatableList<T>) parent;
 			this.pile.add(this.mapObject);
 		}
 		
-		public ModelNode getNode() 
+		public Module getModule() 
 		{
-			ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
+			Module modelNode = new Module(this.defaultXmlTag() , this);
 			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 			
 			if (mapObject == null)
-				modelNode.add(new ModelAttribute( pile.valueLabel, 
+				modelNode.add(new Attribute( pile.valueLabel, 
 						"", null, true));
 			else
-				modelNode.add(new ModelAttribute( pile.valueLabel, 
+				modelNode.add(new Attribute( pile.valueLabel, 
 						String.valueOf(mapObject), null, true));
 			
 			return modelNode;
 		}
 		
 		@SuppressWarnings("unchecked")
-		public void setNode(ModelNode node)
+		public void setModule(Module node)
 		{
 			this.pile.remove( this.mapObject );
 			
@@ -350,10 +350,10 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 	
 			this.pile.add( this.mapObject );
 	
-			NodeConstructor.super.setNode(node);
+			Settable.super.setModule(node);
 		}
 	
-		public void removeNode(String specifier)
+		public void removeModule(String specifier)
 		{
 			this.pile.remove(this.mapObject);
 		}
@@ -368,13 +368,13 @@ public class InstantiatableList<T> extends LinkedList<T> implements NodeConstruc
 		}
 	
 		@Override
-		public void setParent(NodeConstructor parent) 
+		public void setParent(Settable parent) 
 		{
 			this._parentNode = parent;
 		}
 		
 		@Override
-		public NodeConstructor getParent() 
+		public Settable getParent() 
 		{
 			return this._parentNode;
 		}

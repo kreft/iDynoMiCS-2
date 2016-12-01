@@ -13,13 +13,13 @@ import idynomics.Compartment;
 import idynomics.Idynomics;
 import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import surface.Point;
 
 /**
@@ -27,7 +27,7 @@ import surface.Point;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements AspectInterface, NodeConstructor, Instantiatable
+public class Agent implements AspectInterface, Settable, Instantiatable
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
@@ -45,7 +45,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	 * The aspect registry
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -121,7 +121,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	/**
 	 * Instantiatable implementation
 	 */
-	public void instantiate(Element xmlElement, NodeConstructor parent)
+	public void instantiate(Element xmlElement, Settable parent)
 	{
 		//FIXME change entire class to just using parent
 		this._parentNode = parent;
@@ -322,10 +322,10 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	 * @return ModelNode
 	 */
 	@Override
-	public ModelNode getNode() 
+	public Module getModule() 
 	{
 		/* create the agent node */
-		ModelNode modelNode = new ModelNode(XmlRef.agent, this);
+		Module modelNode = new Module(XmlRef.agent, this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		/* use the identifier as agent title in gui */
@@ -334,7 +334,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 		/* 
 		 * store the identity as attribute, note identity cannot be overwritten
 		*/
-		modelNode.add(new ModelAttribute(XmlRef.identity, 
+		modelNode.add(new Attribute(XmlRef.identity, 
 				String.valueOf(this.identity()), null, false ));
 		
 		/* add the agents aspects as childNodes */
@@ -342,13 +342,13 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 			modelNode.add(reg().getAspectNode(key));
 		
 		/* allow adding of new aspects */
-		modelNode.addConstructable( ClassRef.aspect,
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addChildSpec( ClassRef.aspect,
+				Module.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
 	}
 
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
 		this._compartment.registerRemoveAgent(this);
 	}
@@ -364,13 +364,13 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

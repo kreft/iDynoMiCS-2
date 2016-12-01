@@ -10,8 +10,8 @@ import grid.SpatialGrid;
 import static grid.ArrayType.DIFFUSIVITY;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Settable;
 import shape.Shape;
 
 /**
@@ -53,7 +53,7 @@ public class ScaledIfBiomassPresent implements IsDiffusivitySetter
 	}
 	
 	@Override
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		String s;
 		

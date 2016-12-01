@@ -6,7 +6,7 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
-import nodeFactory.NodeConstructor;
+import settable.Settable;
 import shape.Shape;
 import surface.Ball;
 import surface.Rod;
@@ -99,7 +99,7 @@ public class PovExport implements GraphicalExporter
 		_filewriterfilenr++;
 	}
 	
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* init something from xml? */
 	}

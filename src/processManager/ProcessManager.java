@@ -16,12 +16,12 @@ import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import instantiatable.Instantiatable;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import utility.Helper;
 
 /**
@@ -30,7 +30,7 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ProcessManager implements Instantiatable, AspectInterface,
-		NodeConstructor, Redirectable
+		Settable, Redirectable
 {
 	/**
 	 * The name of this {@code ProcessManager}, for reporting.
@@ -50,7 +50,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	protected double _timeStepSize;
 	/**
-	 * The aspect registry... TODO
+	 * The aspect registry.
 	 */
 	private AspectReg _aspectRegistry = new AspectReg();
 	/**
@@ -69,7 +69,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	protected String _compartmentName;
 	
-	protected NodeConstructor _parentNode;
+	protected Settable _parentNode;
 	private long _realTimeTaken = 0;
 	
 	/* ***********************************************************************
@@ -90,7 +90,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * @param xmlElem
 	 * @param parent (in this case the compartment).
 	 */
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		this.init(xmlElem, ((Compartment) parent).environment, 
 				((Compartment) parent).agents, ((Compartment) parent).getName());
@@ -307,32 +307,32 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	/**
 	 * 
 	 */
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = new ModelNode(defaultXmlTag(), this);
+		Module modelNode = new Module(defaultXmlTag(), this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this._name);
 		
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 						this._name, null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+		modelNode.add(new Attribute(XmlRef.classAttribute, 
 				this.getClass().getSimpleName(), null, false ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.processPriority, 
+		modelNode.add(new Attribute(XmlRef.processPriority, 
 				String.valueOf(this._priority), null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.processTimeStepSize, 
+		modelNode.add(new Attribute(XmlRef.processTimeStepSize, 
 				String.valueOf(this._timeStepSize), null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.processFirstStep, 
+		modelNode.add(new Attribute(XmlRef.processFirstStep, 
 				String.valueOf(this._timeForNextStep), null, true ));
 		
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
-		modelNode.addConstructable( ClassRef.aspect,
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addChildSpec( ClassRef.aspect,
+				Module.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
 	}
@@ -341,7 +341,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	/**
 	 * 
 	 */
-	public void setNode(ModelNode node) 
+	public void setModule(Module node) 
 	{
 
 		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
@@ -355,14 +355,14 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		this._timeForNextStep = Double.valueOf( node.getAttribute( 
 				XmlRef.processFirstStep ).getValue() );
 		
-		NodeConstructor.super.setNode(node);
+		Settable.super.setModule(node);
 
 	}
 
 	/**
 	 * 
 	 */
-	public void addChildObject(NodeConstructor childObject) 
+	public void addChildObject(Settable childObject) 
 	{
 
 	}
@@ -372,7 +372,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * NOTE a bit of a work around but this prevents the pm form having to have
 	 * access to the compartment directly
 	 */
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
 		Idynomics.simulator.deleteFromCompartment(this._compartmentName, this);
 	}
@@ -386,13 +386,13 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	}
 
 	
-	public void setParent(NodeConstructor parent)
+	public void setParent(Settable parent)
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

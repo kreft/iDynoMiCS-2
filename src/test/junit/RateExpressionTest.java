@@ -1,7 +1,7 @@
 package test.junit;
 
 import static org.junit.Assert.assertTrue;
-import static test.junit.AllTests.TOLERANCE;
+import static test.AllTests.TOLERANCE;
 
 import java.util.HashMap;
 import org.junit.Test;
@@ -10,6 +10,7 @@ import static dataIO.Log.Tier.DEBUG;
 
 import dataIO.Log;
 import expression.ExpressionB;
+import test.AllTests;
 import utility.ExtraMath;
 
 /**

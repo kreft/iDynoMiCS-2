@@ -6,7 +6,7 @@ import shape.subvoxel.CoordinateMap;
 import utility.ExtraMath;
 
 import static org.junit.Assert.assertTrue;
-import static test.junit.AllTests.TOLERANCE;
+import static test.AllTests.TOLERANCE;
 
 /**
  * \brief Unit test checking that Coordinate Maps behave as they should,

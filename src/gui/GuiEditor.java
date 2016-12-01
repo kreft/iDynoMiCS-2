@@ -19,13 +19,12 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
-
-import nodeFactory.Constructable;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
-import nodeFactory.NodeConstructor;
+import settable.ModuleSpec;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 
 
 /**
@@ -39,15 +38,15 @@ public class GuiEditor
 	/**
 	 * Hashmap of all gui TextAreas associated with their ModelAttribute
 	 */
-	private static HashMap<ModelAttribute,JTextArea> _attributes = 
-			new HashMap<ModelAttribute,JTextArea>();
+	private static HashMap<Attribute,JTextArea> _attributes = 
+			new HashMap<Attribute,JTextArea>();
 	
 	/**
 	 * Hashmap of all gui TextAreas associated with their ModelAttribute
 	 */
 	@SuppressWarnings("rawtypes")
-	private static HashMap<ModelAttribute,JComboBox> _attributeSelectors = 
-			new HashMap<ModelAttribute,JComboBox>();
+	private static HashMap<Attribute,JComboBox> _attributeSelectors = 
+			new HashMap<Attribute,JComboBox>();
 	
 	/**
 	 * Obtain all attribute textarea values and set them in the modelAttribute
@@ -55,17 +54,17 @@ public class GuiEditor
 	 */
 	public static void setAttributes()
 	{
-		for ( ModelAttribute a : _attributes.keySet())
+		for ( Attribute a : _attributes.keySet())
 			a.setValue(_attributes.get(a).getText());
 		
-		for ( ModelAttribute a : _attributeSelectors.keySet())
+		for ( Attribute a : _attributeSelectors.keySet())
 			a.setValue((String) _attributeSelectors.get(a).getSelectedItem());
 	}
 	
 	/*
 	 * The JComponent set in the gui
 	 */
-	public static void addComponent(ModelNode node, JComponent parent) {
+	public static void addComponent(Module node, JComponent parent) {
 		
 		JTabbedPane tabs = GuiComponent.newPane();
 		
@@ -96,7 +95,7 @@ public class GuiEditor
 		
 		if ( node.getRequirment().max > 1 )
 		{
-			NodeConstructor constructor = node.constructor;
+			Settable constructor = node.settableObject;
 			/* add button for optional childnode(s) */
 			attr.add(GuiComponent.actionButton(constructor.defaultXmlTag() + " " + node.getTitle(), 
 					new JButton("remove"), new ActionListener()
@@ -116,14 +115,14 @@ public class GuiEditor
 		}
 		
 		/* loop trough child constructors */
-		for ( String c : node.getConstructables() )
+		for ( String c : node.getAllChildSpec() )
 		{
-			Constructable constructable = node.getConstructable(c);
+			ModuleSpec constructable = node.getChildSpec(c);
 			/* add child to interface if exactly one is required and the node
 			 * is not present yet */
 			if ( constructable.requirement() == Requirements.EXACTLY_ONE )
 			{
-				node.add(node.getConstruct(c));
+				node.add(node.constructChild(c));
 			}
 			else
 			{
@@ -134,7 +133,7 @@ public class GuiEditor
 					@Override
 					public void actionPerformed(ActionEvent event)
 					{
-						addComponent(node.getConstruct(c), component);
+						addComponent(node.constructChild(c), component);
 					}
 				}
 				));
@@ -142,7 +141,7 @@ public class GuiEditor
 		}
 		
 		/* add textareas for this ModelNode's attributes */
-		for ( ModelAttribute a : node.getAttributes() )
+		for ( Attribute a : node.getAttributes() )
 		{
 			if ( a.getValue() == null &&  a.options == null )
 			{
@@ -188,7 +187,7 @@ public class GuiEditor
 		}
 		
 		/* placement of this ModelNode in the gui */
-		if ( node.isTag(XmlRef.speciesLibrary) )
+		if ( XmlRef.speciesLibrary.equals(node.getTag()) )
 		{
 			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
 			/* exception for speciesLib add component as tab next to the
@@ -197,7 +196,7 @@ public class GuiEditor
 					parent.getParent().getParent().getParent().getParent(), 
 					node.getTag() , tabs, "");
 		}
-		else if ( node.isTag(XmlRef.compartment) )
+		else if ( XmlRef.compartment.equals(node.getTag()) )
 		{
 			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
 			/* exception for compartments add component as tab next to the
@@ -257,7 +256,7 @@ public class GuiEditor
 		}
 		
 		/* add childnodes of this component to the gui */
-		for ( ModelNode n : node.getAllChildNodes() )
+		for ( Module n : node.getAllChildModules() )
 			addComponent(n, component);
 	}
 	

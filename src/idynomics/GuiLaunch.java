@@ -247,7 +247,7 @@ public class GuiLaunch implements Runnable
 				Idynomics.simulator = new Simulator();
 				Idynomics.global = new Param();
 				GuiMain.getConstructor();
-				GuiEditor.addComponent(Idynomics.simulator.getNode(), GuiMain.tabbedPane);
+				GuiEditor.addComponent(Idynomics.simulator.getModule(), GuiMain.tabbedPane);
 			}
 		}
 		);

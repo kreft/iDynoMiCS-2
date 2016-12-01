@@ -3,8 +3,8 @@ package aspect;
 import generalInterfaces.Copyable;
 import generalInterfaces.Redirectable;
 import instantiatable.Instantiatable;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Settable;
 import utility.Helper;
 
 import org.w3c.dom.Element;
@@ -60,7 +60,7 @@ public abstract class Calculated implements Copyable, Instantiatable, Redirectab
 		return obj;
 	}
 
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		String input = XmlHandler.gatherAttribute(xmlElem, XmlRef.inputAttribute);
 		if (input != "")

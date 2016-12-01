@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import test.AllTests;
 
 /**
  * \brief Test for checking speed performance of writing to Log.

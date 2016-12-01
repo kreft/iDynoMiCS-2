@@ -3,8 +3,9 @@ package test.junit;
 import org.junit.Test;
 
 import idynomics.Compartment;
-import nodeFactory.NodeConstructor;
 import processManager.ProcessManager;
+import settable.Settable;
+import test.AllTests;
 /**
  * \brief Test checking that Compartments behave as they should.
  * 
@@ -22,7 +23,7 @@ public class CompartmentTest
 		}
 
 		@Override
-		public void setParent(NodeConstructor parent) {
+		public void setParent(Settable parent) {
 			// TODO Auto-generated method stub
 			
 		}

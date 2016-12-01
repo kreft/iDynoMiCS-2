@@ -26,7 +26,7 @@ public class GuiMain
 	public static void update()
 	{
 		GuiMain.getConstructor();
-		GuiEditor.addComponent(Idynomics.simulator.getNode(), 
+		GuiEditor.addComponent(Idynomics.simulator.getModule(), 
 				GuiMain.tabbedPane);
 	}
 

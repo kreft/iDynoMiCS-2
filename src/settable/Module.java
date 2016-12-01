@@ -1,13 +1,8 @@
-package nodeFactory;
+package settable;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import instantiatable.Instantiatable;
-import utility.Helper;
 
 /**
  * \brief TODO
@@ -15,7 +10,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ModelNode
+public class Module
 {
 	/**
 	 * \brief Clear way of specifying exactly how many sub-model instances may
@@ -87,29 +82,24 @@ public class ModelNode
 	/**
 	 * Object associated with node.
 	 */
-	public NodeConstructor constructor;
+	public Settable settableObject;
 
 	/**
-	 * Allowed child nodes
+	 * List of child module specifications. Add the specification to this list
+	 * if the object should be constructable as child of this module in the gui
 	 */
-	protected Map<NodeConstructor,Requirements> _childConstructors = 
-			new HashMap<NodeConstructor,Requirements>();
-	
-	/**
-	 * Contsructables
-	 */
-	protected List<Constructable> _constructables = 
-			new LinkedList<Constructable>();
+	protected List<ModuleSpec> _constructables = 
+			new LinkedList<ModuleSpec>();
 
 	/**
-	 * Existing child nodes
+	 * Existing child modules
 	 */
-	protected List<ModelNode> _childNodes;
+	protected List<Module> _childModules;
 
 	/**
-	 * Attributes
+	 * Attributes of this module
 	 */
-	protected List<ModelAttribute> _attributes;
+	protected List<Attribute> _attributes;
 
 	/* ***********************************************************************
 	 * INSTANCE CONSTRUCTOR
@@ -120,12 +110,12 @@ public class ModelNode
 	 * @param tag
 	 * @param constructor
 	 */
-	public ModelNode(String tag, NodeConstructor constructor)
+	public Module(String tag, Settable constructor)
 	{
 		this._tag = tag;
-		this.constructor = constructor;
-		this._childNodes = new LinkedList<ModelNode>();
-		this._attributes = new LinkedList<ModelAttribute>();
+		this.settableObject = constructor;
+		this._childModules = new LinkedList<Module>();
+		this._attributes = new LinkedList<Attribute>();
 	}
 
 	/* ***********************************************************************
@@ -140,18 +130,8 @@ public class ModelNode
 		return this._tag;
 	}
 
-	/**
-	 * \brief Check if the given tag is the same as this model node's tag.
-	 * 
-	 * @param tag String tag to check.
-	 * @return {@code true} if they are equal, {@code false} if they are
-	 * different.
-	 */
-	public boolean isTag(String tag)
-	{
-		return this._tag.equals(tag);
-	}
-
+	/* FIXME the following method seem a bit silly to put here, rather convert
+		generic helper method, does String match any of String[] (Helper class) */
 	/**
 	 * \brief Check if any of the given tags are the same as this model node's
 	 * tag.
@@ -163,7 +143,7 @@ public class ModelNode
 	public boolean isTagIn(String[] tags)
 	{
 		for ( String tag : tags )
-			if ( this.isTag(tag) )
+			if ( this._tag.equals(tag) )
 				return true;
 		return false;
 	}
@@ -192,6 +172,7 @@ public class ModelNode
 	
 	/* ***********************************************************************
 	 * REQUIREMENT METHODS
+	 * TODO migrate to ModuleSpec?
 	 * **********************************************************************/
 	
 	/**
@@ -232,30 +213,26 @@ public class ModelNode
 	}
 	
 	/* ***********************************************************************
-	 * THIS CONSTRUCTORS
+	 * ADD and GET Children
 	 * **********************************************************************/
 
 	/**
 	 * Adding a child object, action performed on clicking add button in gui
 	 * @param childObject
 	 */
-	public void add(NodeConstructor childObject)
+	public void add(Settable childObject)
 	{
-		this.constructor.addChildObject(childObject);
+		this.settableObject.addChildObject(childObject);
 	}
-
-	/* ***********************************************************************
-	 * CHILD NODES
-	 * **********************************************************************/
-
+	
 	/**
 	 * \brief Add the given child node to this ModelNode object.
 	 * 
 	 * @param childNode Child model node to add.
 	 */
-	public void add(ModelNode childNode)
+	public void add(Module childModule)
 	{
-		this._childNodes.add(childNode);
+		this._childModules.add(childModule);
 	}
 
 	/**
@@ -264,11 +241,11 @@ public class ModelNode
 	 * @param tag Node tag to look for.
 	 * @return All child nodes belonging to this node that have the same tag.
 	 */
-	public List<ModelNode> getChildNodes(String tag)
+	public List<Module> getChildModules(String tag)
 	{
-		List<ModelNode> out = new LinkedList<ModelNode>();
-		for ( ModelNode c : this._childNodes )
-			if ( c.isTag(tag) )
+		List<Module> out = new LinkedList<Module>();
+		for ( Module c : this._childModules )
+			if ( tag.equals(c.getTag()) )
 				out.add(c);
 		return out;
 	}
@@ -276,111 +253,78 @@ public class ModelNode
 	/**
 	 * @return All child nodes.
 	 */
-	public List<ModelNode> getAllChildNodes()
+	public List<Module> getAllChildModules()
 	{
-		return this._childNodes;
+		return this._childModules;
 	}
 	
 	/* ***********************************************************************
-	 * CHILD NODE CONSTRUCTORS
+	 * Child node specifications (specifies what object could be added as child)
 	 * **********************************************************************/
 
 	
-	public void addConstructable(String classRef, Requirements requirement)
+	public void addChildSpec(String classRef, Requirements requirement)
 	{
-		this._constructables.add(new Constructable(classRef, requirement));
+		this._constructables.add(new ModuleSpec(classRef, requirement));
 	}
 	
-	public void addConstructable(String classRef, Requirements requirement, String label)
+	public void addChildSpec(String classRef, Requirements requirement, String label)
 	{
-		this._constructables.add(new Constructable(classRef, requirement, label));
+		this._constructables.add(new ModuleSpec(classRef, requirement, label));
 	}
 	
-	public void addConstructable(String classRef, String[] classRefs, Requirements requirement)
+	public void addChildSpec(String classRef, String[] classRefs, Requirements requirement)
 	{
-		this._constructables.add(new Constructable(classRef, classRefs, requirement));
+		this._constructables.add(new ModuleSpec(classRef, classRefs, requirement));
 	}
 	
-	public ModelNode getConstruct(String constructable)
+	public Module constructChild(String childReference)
 	{
-		Constructable c = this.getConstructable(constructable);
-		NodeConstructor con;
+		ModuleSpec c = this.getChildSpec(childReference);
+		Settable con;
 		if (c.options() == null)
 		{
-			con = (NodeConstructor) Instantiatable.
-					getNewInstance(	null, this.constructor, c.classRef() );
+			con = (Settable) Instantiatable.
+					getNewInstance(	null, this.settableObject, c.classRef() );
 		}
 		else
 		{
-			con =  (NodeConstructor) Instantiatable.getNewInstance(	
-					null, this.constructor, c.options() );
+			con =  (Settable) Instantiatable.getNewInstance(	
+					null, this.settableObject, c.options() );
 		}
-		ModelNode node = con.getNode();
+		Module node = con.getModule();
 		this.add(node);
 //		this.add(con);
 		return node;
 	}
 	
-	public Requirements getConRequirement(String classRef)
+	public Requirements getChildRequirement(String classRef)
 	{
-		for (Constructable c : this._constructables)
+		for (ModuleSpec c : this._constructables)
 			if( c.classRef() == classRef )
 				return c.requirement();
 		return null;
 	}
 	
-	public Constructable getConstructable(String classRef)
+	public ModuleSpec getChildSpec(String classRef)
 	{
-		for (Constructable c : this._constructables)
+		for (ModuleSpec c : this._constructables)
 			if( c.classRef() == classRef )
 				return c;
 		return null;
 	}
 	
-	public String[] getConstructables()
+	public String[] getAllChildSpec()
 	{
 		int i = 0;
 		String[] out = new String[this._constructables.size()];
-		for (Constructable c : this._constructables)
+		for (ModuleSpec c : this._constructables)
 			out[i++] = c.classRef();
 		return out;
 	}
-	/**
-	 * \brief Add a child node constructor, together with requirements on how
-	 * many times it may be constructed.
-	 * 
-	 * @param cnstr Child node constructor for this ModelNode.
-	 * @param req A measure of how many of this child constructor node is
-	 * required (one, many, etc).
-	 */
-	public void addChildConstructor(NodeConstructor cnstr, Requirements req)
-	{
-		this._childConstructors.put(cnstr, req);
-	}
-	
-	/**
-	 * @return All child node constructors.
-	 */
-	public Set<NodeConstructor> getAllChildConstructors()
-	{
-		return this._childConstructors.keySet();
-	}
-	
-	/**
-	 * \brief Check if the given child node constructor should be made exactly
-	 * once.
-	 * 
-	 * @param cnstr Child node constructor belonging to this ModelNode.
-	 * @return {@code true} if it must be made exactly once, {@code false} if
-	 * it may be omitted or made more than once.
-	 */
-	public boolean requireExactlyOneChildConstructor(NodeConstructor cnstr)
-	{
-		return this._childConstructors.get(cnstr) == Requirements.EXACTLY_ONE;
-	}
 	
 	/* ***********************************************************************
-	 * NODE ATTRIBUTES
+	 * MODULE ATTRIBUTES
 	 * **********************************************************************/
 
 	/**
@@ -388,7 +332,7 @@ public class ModelNode
 	 * 
 	 * @param attribute ModelAttribute to add.
 	 */
-	public void add(ModelAttribute attribute)
+	public void add(Attribute attribute)
 	{
 		this._attributes.add(attribute);
 	}
@@ -400,9 +344,9 @@ public class ModelNode
 	 * @return The ModelAttribute with this tag, or null if it cannot be found.
 	 */
 	// TODO what if there is more that one attribute with the same name?
-	public ModelAttribute getAttribute(String attribute)
+	public Attribute getAttribute(String attribute)
 	{
-		for ( ModelAttribute a : this._attributes )
+		for ( Attribute a : this._attributes )
 			if ( a.tag.equals(attribute) )
 				return a;
 		return null;
@@ -411,7 +355,7 @@ public class ModelNode
 	/**
 	 * @return List of all this ModelNode's attributes.
 	 */
-	public List<ModelAttribute> getAttributes()
+	public List<Attribute> getAttributes()
 	{
 		return this._attributes;
 	}
@@ -435,17 +379,17 @@ public class ModelNode
 		/* 
 		 * Attributes
 		 */
-		for ( ModelAttribute a : this._attributes )
+		for ( Attribute a : this._attributes )
 			out += a.getXML();
 		/*
 		 * Child nodes
 		 */
-		if ( this._childNodes.isEmpty() )
+		if ( this._childModules.isEmpty() )
 			out += " />\n ";
 		else
 		{
 			out += " >\n";
-			for ( ModelNode n : this._childNodes )
+			for ( Module n : this._childModules )
 				out += n.getXML(tabs+1);
 			out += appendTabs(tabs) + "</" + this._tag + ">\n";
 		}
@@ -479,14 +423,14 @@ public class ModelNode
 
 	public void delete(String specifier) 
 	{
-		constructor.removeNode(specifier);		
+		settableObject.removeModule(specifier);		
 	}
 
 	public boolean hasChildNodes(String tag) 
 	{
-		for ( ModelNode m : _childNodes)
+		for ( Module m : _childModules)
 		{
-			if ( m.constructor.defaultXmlTag() == tag );
+			if ( m.settableObject.defaultXmlTag() == tag );
 				return true;
 		}
 		return false;

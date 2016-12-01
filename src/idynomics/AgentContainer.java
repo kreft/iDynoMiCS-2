@@ -20,12 +20,12 @@ import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.CartesianShape;
 import shape.Dimension;
 import shape.Shape;
@@ -47,7 +47,7 @@ import utility.ExtraMath;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class AgentContainer implements NodeConstructor
+public class AgentContainer implements Settable
 {
 	/**
 	 * This dictates both geometry and size, and it inherited from the
@@ -90,7 +90,7 @@ public class AgentContainer implements NodeConstructor
 	/**
 	 * TODO
 	 */
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have reactions.
@@ -1111,17 +1111,17 @@ public class AgentContainer implements NodeConstructor
 	}
 
 	@Override
-	public ModelNode getNode() 
+	public Module getModule() 
 	{
 		/* The agents node. */
-		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
+		Module modelNode = new Module( XmlRef.agents, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* Add the agent childConstrutor for adding of additional agents. */
-		modelNode.addConstructable( ClassRef.agent,
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addChildSpec( ClassRef.agent,
+				Module.Requirements.ZERO_TO_MANY);
 		/* If there are agents, add them as child nodes. */
 		for ( Agent a : this.getAllAgents() )
-			modelNode.add( a.getNode() );
+			modelNode.add( a.getModule() );
 		return modelNode;
 	
 	}
@@ -1133,13 +1133,13 @@ public class AgentContainer implements NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

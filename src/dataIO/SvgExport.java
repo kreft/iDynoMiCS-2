@@ -5,7 +5,7 @@ import org.w3c.dom.Element;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
-import nodeFactory.NodeConstructor;
+import settable.Settable;
 import surface.Ball;
 import surface.Rod;
 
@@ -40,7 +40,7 @@ public class SvgExport implements GraphicalExporter
 
 	private static final String[] RECTANGLE_LABELS = new String[] {"x","y"};
 	
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* init something from xml? */
 	}

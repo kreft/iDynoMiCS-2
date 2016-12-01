@@ -1,6 +1,6 @@
-package nodeFactory;
+package settable;
 
-public class ModelAttribute {
+public class Attribute {
 	
 	/**
 	 * Associated Xml tag of attribute
@@ -29,7 +29,7 @@ public class ModelAttribute {
 	 * @param options
 	 * @param editable
 	 */
-	public ModelAttribute(String tag, String value, String[] options, 
+	public Attribute(String tag, String value, String[] options, 
 			boolean editable)
 	{
 		this.tag = tag;

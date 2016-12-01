@@ -11,8 +11,8 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import instantiatable.Instantiatable;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Settable;
 import shape.Dimension.DimName;
 
 /**
@@ -44,7 +44,7 @@ public class FixedBoundary extends SpatialBoundary implements Instantiatable
 	/**
 	 * FIXME essential for instantiation
 	 */
-	public void instantiate(Element xmlElement, NodeConstructor parent)
+	public void instantiate(Element xmlElement, Settable parent)
 	{
 		super.instantiate(xmlElement,parent);
 		this._detachability = 0.0;

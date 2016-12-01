@@ -15,12 +15,12 @@ import dataIO.Log.Tier;
 import instantiatable.object.InstantiatableMap;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import utility.Helper;
 
 /**
@@ -29,7 +29,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ExpressionB extends Component implements NodeConstructor
+public class ExpressionB extends Component implements Settable
 {
 	private enum Bracket
 	{
@@ -114,7 +114,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	 */
 	protected Component _a;
 
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	/**
 	 * 
 	 */
@@ -745,51 +745,51 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = new ModelNode(XmlRef.expression, 
+		Module modelNode = new Module(XmlRef.expression, 
 				this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		modelNode.add(new ModelAttribute(XmlRef.valueAttribute, this._expression, null, true));
+		modelNode.add(new Attribute(XmlRef.valueAttribute, this._expression, null, true));
 		
 //		for (String con : this._constants.keySet() )
 //			modelNode.add(getConstantNode(con));
 		
-		modelNode.add( this._constants.getNode() );
+		modelNode.add( this._constants.getModule() );
 		
 		return modelNode;
 	}
 	
-	public ModelNode getConstantNode(String constant)
+	public Module getConstantNode(String constant)
 	{
-		ModelNode modelNode = new ModelNode(XmlRef.constant, 
+		Module modelNode = new Module(XmlRef.constant, 
 				this);
 		modelNode.setTitle(constant);
 		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 		
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, constant, null, true));
-		modelNode.add(new ModelAttribute(XmlRef.valueAttribute, String.valueOf(this._constants.get(constant)), null, true));
+		modelNode.add(new Attribute(XmlRef.nameAttribute, constant, null, true));
+		modelNode.add(new Attribute(XmlRef.valueAttribute, String.valueOf(this._constants.get(constant)), null, true));
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node) 
+	public void setModule(Module node) 
 	{
 		/* Set values for all child nodes. */
-		NodeConstructor.super.setNode(node);
+		Settable.super.setModule(node);
 		
 		this._expression = node.getAttribute(XmlRef.valueAttribute).getValue();
 		this.build();
 	}
 
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
 		if (this._constants.containsKey(specifier))
 			this._constants.remove(specifier);
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(Settable childObject) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -801,13 +801,13 @@ public class ExpressionB extends Component implements NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

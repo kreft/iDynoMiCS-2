@@ -7,10 +7,9 @@ import org.junit.Test;
 import org.w3c.dom.Element;
 
 import instantiatable.Instantiatable;
+import settable.Settable;
 
 import static org.junit.Assert.assertTrue;
-
-import nodeFactory.NodeConstructor;
 
 /**
  * 
@@ -23,7 +22,7 @@ public class XMLableTest
 	{
 		private int x = 1;
 		
-		public void instantiate(Element xmlElem, NodeConstructor parent)
+		public void instantiate(Element xmlElem, Settable parent)
 		{
 			// TODO
 		}

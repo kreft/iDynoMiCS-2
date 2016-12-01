@@ -8,8 +8,8 @@ import aspect.AspectInterface;
 import aspect.Calculated;
 import dataIO.XmlHandler;
 import expression.ExpressionB;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Settable;
 import utility.Helper;
 
 /**
@@ -30,7 +30,7 @@ public class StateExpression extends Calculated {
 	}
 	
 	@Override
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		String input = XmlHandler.gatherAttribute(xmlElem, XmlRef.inputAttribute);
 		if (input != "")

@@ -13,8 +13,8 @@ import generalInterfaces.HasBoundingBox;
 import instantiatable.Instantiatable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Settable;
 import surface.*;
 
 /**
@@ -144,7 +144,7 @@ public class Body implements Copyable, Instantiatable
 		return new Body(pointList);
 	}
 
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		//FIXME: not finished only accounts for simple coccoids
 		List<Point> pointList = new LinkedList<Point>();

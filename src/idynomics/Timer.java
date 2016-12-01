@@ -4,11 +4,11 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
-import nodeFactory.NodeConstructor;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import dataIO.Log.Tier;
 import instantiatable.Instantiatable;
 import utility.Helper;
@@ -18,7 +18,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Timer implements Instantiatable, NodeConstructor
+public class Timer implements Instantiatable, Settable
 {
 	/**
 	 * TODO
@@ -40,7 +40,7 @@ public class Timer implements Instantiatable, NodeConstructor
 	 */
 	protected double _endOfSimulation;
 
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 		
 	public Timer()
 	{
@@ -48,7 +48,7 @@ public class Timer implements Instantiatable, NodeConstructor
 		this._now = 0.0;
 	}
 		
-	public void instantiate(Element xmlNode, NodeConstructor parent)
+	public void instantiate(Element xmlNode, Settable parent)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");
 
@@ -158,22 +158,22 @@ public class Timer implements Instantiatable, NodeConstructor
 	 * Get the ModelNode object for this Timer object
 	 * @return ModelNode
 	 */
-	public ModelNode getNode()
+	public Module getModule()
 	{
 		/* the timer node */
-		ModelNode modelNode = new ModelNode(XmlRef.timer, this);
+		Module modelNode = new Module(XmlRef.timer, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* now */
-		modelNode.add(new ModelAttribute(XmlRef.currentTime, 
+		modelNode.add(new Attribute(XmlRef.currentTime, 
 				String.valueOf(this._now), null, true ));
 		
 		/* time step size */
-		modelNode.add(new ModelAttribute(XmlRef.timerStepSize, 
+		modelNode.add(new Attribute(XmlRef.timerStepSize, 
 				String.valueOf(this._timerStepSize), null, true ));
 		
 		/* end of simulation */
-		modelNode.add(new ModelAttribute(XmlRef.endOfSimulation, 
+		modelNode.add(new Attribute(XmlRef.endOfSimulation, 
 				String.valueOf(this._endOfSimulation), null, true ));
 		
 		return modelNode;
@@ -184,7 +184,7 @@ public class Timer implements Instantiatable, NodeConstructor
 	 * NodeConstructor object
 	 * @param node
 	 */
-	public void setNode(ModelNode node)
+	public void setModule(Module node)
 	{
 		this.setTimeStepSize( Double.valueOf( 
 				node.getAttribute( XmlRef.currentTime ).getValue() ));
@@ -202,7 +202,7 @@ public class Timer implements Instantiatable, NodeConstructor
 	 * Create a new minimal object of this class and return it
 	 * @return NodeConstructor
 	 */
-	public NodeConstructor newBlank()
+	public Settable newBlank()
 	{
 		return new Timer();
 	}
@@ -217,13 +217,13 @@ public class Timer implements Instantiatable, NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

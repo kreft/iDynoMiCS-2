@@ -67,7 +67,7 @@ public class XmlExport
 	 */
 	public void writeState()
 	{
-		_xmlFile.write(Idynomics.simulator.getNode().getXML(1));
+		_xmlFile.write(Idynomics.simulator.getModule().getXML(1));
 	}
 	
 	public void writeFile()

@@ -14,6 +14,7 @@ import idynomics.Idynomics;
 import referenceLibrary.AspectRef;
 import shape.Shape;
 import shape.ShapeLibrary.Dimensionless;
+import test.AllTests;
 
 public class AgentEventTest
 {

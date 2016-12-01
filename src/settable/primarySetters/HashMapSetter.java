@@ -1,15 +1,15 @@
-package nodeFactory.primarySetters;
+package settable.primarySetters;
 
 import java.util.Map;
 
 import dataIO.ObjectFactory;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
-import nodeFactory.NodeConstructor;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 
-public class HashMapSetter<K,T> implements NodeConstructor {
+public class HashMapSetter<K,T> implements Settable {
 
 	public Object mapObject;
 	public Object mapKey;
@@ -22,7 +22,7 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 	
 	public String nodeLabel;
 	public boolean muteClassDef = false;
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	
 	public HashMapSetter(Object object, Object key, Map<K,T> map )
 	{
@@ -55,36 +55,36 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 		this.muteClassDef = true;
 	}
 
-	public ModelNode getNode() 
+	public Module getModule() 
 	{
-		ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
+		Module modelNode = new Module(this.defaultXmlTag() , this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		if ( !muteClassDef )
-			modelNode.add(new ModelAttribute(keyClassLabel, 
+			modelNode.add(new Attribute(keyClassLabel, 
 					mapKey.getClass().getSimpleName(), null, true ));
 		
-		if (mapObject instanceof NodeConstructor)
+		if (mapObject instanceof Settable)
 		{
-			modelNode.add(((NodeConstructor) mapKey).getNode()); 
+			modelNode.add(((Settable) mapKey).getModule()); 
 		}
 		else
 		{
-			modelNode.add(new ModelAttribute(keyLabel, 
+			modelNode.add(new Attribute(keyLabel, 
 					String.valueOf(mapKey), null, true));
 		}
 		
 		if ( !muteClassDef )
-			modelNode.add(new ModelAttribute(valueClassLabel, 
+			modelNode.add(new Attribute(valueClassLabel, 
 					mapObject.getClass().getSimpleName(), null, true ));
 			
-		if (mapObject instanceof NodeConstructor)
+		if (mapObject instanceof Settable)
 		{
-			modelNode.add(((NodeConstructor) mapObject).getNode()); 
+			modelNode.add(((Settable) mapObject).getModule()); 
 		}
 		else
 		{
-			modelNode.add(new ModelAttribute(valueLabel, 
+			modelNode.add(new Attribute(valueLabel, 
 					String.valueOf(mapObject), null, true));
 		}
 		
@@ -92,12 +92,12 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void setNode(ModelNode node)
+	public void setModule(Module node)
 	{
 		Object key, value;
-		if (this.mapObject instanceof NodeConstructor)
+		if (this.mapObject instanceof Settable)
 		{
-			value = node.getAllChildNodes().get(0).constructor;
+			value = node.getAllChildModules().get(0).settableObject;
 			if ( this.muteClassDef )
 			{
 				key = ObjectFactory.loadObject(
@@ -136,16 +136,16 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 			this.map.remove( key );
 		this.map.put( (K) key, (T) value );
 
-		NodeConstructor.super.setNode(node);
+		Settable.super.setModule(node);
 	}
 	
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
 		this.map.remove(this.mapKey);
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(Settable childObject) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -157,13 +157,13 @@ public class HashMapSetter<K,T> implements NodeConstructor {
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

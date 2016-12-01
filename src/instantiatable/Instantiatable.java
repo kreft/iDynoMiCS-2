@@ -9,8 +9,8 @@ import org.w3c.dom.Node;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Settable;
 import utility.Helper;
 
 /**
@@ -39,7 +39,7 @@ public interface Instantiatable
 	 * @param xmlElement
 	 * @param parent
 	 */
-	public void instantiate(Element xmlElement, NodeConstructor parent);
+	public void instantiate(Element xmlElement, Settable parent);
 	
 	/**
 	 * \brief Generic instantiation for objects added through GUI or xml.
@@ -57,7 +57,7 @@ public interface Instantiatable
 	 * @param parent
 	 * @return
 	 */
-	public static Object getNewInstance(Element xmlElem, NodeConstructor parent, 
+	public static Object getNewInstance(Element xmlElem, Settable parent, 
 			String... className)
 	{
 		Object out = null;

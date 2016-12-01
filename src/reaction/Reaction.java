@@ -14,14 +14,14 @@ import expression.ExpressionB;
 import generalInterfaces.Copyable;
 import instantiatable.Instantiatable;
 import instantiatable.object.InstantiatableMap;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
-import nodeFactory.primarySetters.HashMapSetter;
 import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
-import nodeFactory.NodeConstructor;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
+import settable.primarySetters.HashMapSetter;
 
 /**
  * \brief The reaction class handles the chemical conversions of various
@@ -36,7 +36,7 @@ import nodeFactory.NodeConstructor;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class Reaction implements Instantiatable, Copyable, NodeConstructor
+public class Reaction implements Instantiatable, Copyable, Settable
 {
 	/**
 	 * The name of this reaction. This is particularly useful for writing
@@ -48,7 +48,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * identifies what environment hosts this reaction, null if this reaction
 	 * is not a compartment reaction
 	 */
-	protected NodeConstructor _parentNode;
+	protected Settable _parentNode;
 	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
@@ -94,7 +94,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		this.instantiate(elem, null);
 	}
 	
-	public Reaction(Node xmlNode, NodeConstructor parent)
+	public Reaction(Node xmlNode, Settable parent)
 	{
 		Element elem = (Element) xmlNode;
 		this.instantiate(elem, parent);
@@ -154,7 +154,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
 	}
 	
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		this._parentNode = parent;
 		if ( parent != null )
@@ -310,46 +310,46 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	
 	
 	// TODO required from xmlable interface.. unfinished
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
+		Module modelNode = new Module(XmlRef.reaction, this);
 
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this._name);
 		
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 				this._name, null, false ));
 		
-		modelNode.add(((ExpressionB) _kinetic).getNode());
+		modelNode.add(((ExpressionB) _kinetic).getModule());
 		
-		modelNode.add( this._stoichiometry.getNode() );
+		modelNode.add( this._stoichiometry.getModule() );
 
 		
 		return modelNode;
 	}
 	
-	public ModelNode getStoNode(NodeConstructor constructor, String component, 
+	public Module getStoNode(Settable constructor, String component, 
 			Double coefficient) {
 		
-		ModelNode modelNode = new ModelNode(XmlRef.stoichiometric, constructor);
+		Module modelNode = new Module(XmlRef.stoichiometric, constructor);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
-		modelNode.add(new ModelAttribute(XmlRef.component, 
+		modelNode.add(new Attribute(XmlRef.component, 
 				component, null, false ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.coefficient, 
+		modelNode.add(new Attribute(XmlRef.coefficient, 
 				String.valueOf(coefficient), null, false ));
 		
 		return modelNode;
 	}
 
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
-		this._parentNode.removeChildNode(this);
+		this._parentNode.removeChildModule(this);
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(Settable childObject) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -384,13 +384,13 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

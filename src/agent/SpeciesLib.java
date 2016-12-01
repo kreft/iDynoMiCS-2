@@ -11,11 +11,11 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import instantiatable.Instantiatable;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 
 /**
  * \brief Stores information about all species relevant to a simulation.
@@ -23,7 +23,7 @@ import referenceLibrary.XmlRef;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements Instantiatable, NodeConstructor
+public class SpeciesLib implements Instantiatable, Settable
 {
 	/**
 	 * Contains all known species.
@@ -36,7 +36,7 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	 */
 	protected Species _voidSpecies = new Species();
 
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 
 	public String[] getAllSpeciesNames()
 	{
@@ -55,7 +55,7 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	 * 
 	 * @param xmlElem
 	 */
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		Log.out(Tier.NORMAL, "Species Library loading...");
 		/* 
@@ -173,19 +173,19 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	 * @return ModelNode
 	 */
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
 		/* the species lib node */
-		ModelNode modelNode = new ModelNode(XmlRef.speciesLibrary, this);
+		Module modelNode = new Module(XmlRef.speciesLibrary, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		/* Species constructor */
-		modelNode.addConstructable( ClassRef.species,
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addChildSpec( ClassRef.species,
+				Module.Requirements.ZERO_TO_MANY);
 		
 		/* the already existing species */
 		for ( String s : this._species.keySet() )
-			modelNode.add(((Species) _species.get(s)).getNode());
+			modelNode.add(((Species) _species.get(s)).getModule());
 	
 		return modelNode;
 	}
@@ -196,7 +196,7 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	 * @param childOb
 	 */
 	@Override
-	public void addChildObject(NodeConstructor childObject) 
+	public void addChildObject(Settable childObject) 
 	{
 		if (childObject instanceof Species)
 			this.set((Species) childObject);
@@ -212,13 +212,13 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

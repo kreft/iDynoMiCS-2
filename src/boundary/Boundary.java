@@ -17,9 +17,9 @@ import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
 import instantiatable.Instantiatable;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Module;
+import settable.Settable;
 import shape.Dimension.DimName;
 import shape.Shape;
 import shape.Dimension;
@@ -30,7 +30,7 @@ import shape.Dimension;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public abstract class Boundary implements NodeConstructor
+public abstract class Boundary implements Settable
 {
 	/**
 	 * Reference to the environment of the compartment this process belongs to.
@@ -89,7 +89,7 @@ public abstract class Boundary implements NodeConstructor
 	 * and need to be entered into this compartment.
 	 */
 	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
@@ -482,9 +482,9 @@ public abstract class Boundary implements NodeConstructor
 	 */
 	
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
+		Module modelNode = new Module(this.defaultXmlTag(), this);
 
 		// TODO
 		// modelNode.requirement = Requirements.?
@@ -495,7 +495,7 @@ public abstract class Boundary implements NodeConstructor
 	}
 
 	@Override
-	public void setNode(ModelNode node)
+	public void setModule(Module node)
 	{
 		// TODO
 	}
@@ -515,13 +515,13 @@ public abstract class Boundary implements NodeConstructor
 		return XmlRef.dimensionBoundary;
 	}
 	
-	public void setParent(NodeConstructor parent)
+	public void setParent(Settable parent)
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

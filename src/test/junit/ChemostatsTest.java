@@ -1,7 +1,7 @@
 package test.junit;
 
 import static org.junit.Assert.assertTrue;
-import static test.junit.AllTests.TOLERANCE;
+import static test.AllTests.TOLERANCE;
 
 import org.junit.Test;
 import org.w3c.dom.Element;
@@ -15,6 +15,7 @@ import idynomics.Compartment;
 import idynomics.Idynomics;
 import processManager.library.SolveChemostat;
 import shape.ShapeLibrary.Dimensionless;
+import test.AllTests;
 import utility.ExtraMath;
 
 /**

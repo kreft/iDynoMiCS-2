@@ -1,7 +1,7 @@
 /**
  * 
  */
-package test.junit;
+package test;
 
 
 import org.junit.runner.RunWith;
@@ -13,6 +13,16 @@ import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Simulator;
+import test.junit.AgentEventTest;
+import test.junit.BoundaryTest;
+import test.junit.ChemostatsTest;
+import test.junit.CoordinateMapTest;
+import test.junit.ExtraMathTest;
+import test.junit.LinearAlgebraTest;
+import test.junit.PdeTest;
+import test.junit.RateExpressionTest;
+import test.junit.ShapesTest;
+import test.junit.XMLableTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({ AgentEventTest.class,

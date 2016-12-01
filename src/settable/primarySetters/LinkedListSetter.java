@@ -1,15 +1,15 @@
-package nodeFactory.primarySetters;
+package settable.primarySetters;
 
 import java.util.List;
 
 import dataIO.ObjectFactory;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
-import nodeFactory.NodeConstructor;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 
-public class LinkedListSetter<T> implements NodeConstructor {
+public class LinkedListSetter<T> implements Settable {
 	
 	public Object listObject;
 	public List<T> list;
@@ -19,7 +19,7 @@ public class LinkedListSetter<T> implements NodeConstructor {
 	
 	public String nodeLabel;
 	public boolean muteClassDef = false;
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	
 	public LinkedListSetter(Object object, List<T> list )
 	{
@@ -45,22 +45,22 @@ public class LinkedListSetter<T> implements NodeConstructor {
 		this.muteClassDef = true;
 	}
 
-	public ModelNode getNode() 
+	public Module getModule() 
 	{
-		ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
+		Module modelNode = new Module(this.defaultXmlTag() , this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		if ( !muteClassDef )
-			modelNode.add(new ModelAttribute( this.valueClassLabel , 
+			modelNode.add(new Attribute( this.valueClassLabel , 
 					listObject.getClass().getSimpleName(), null, true ));
 		
-		if (listObject instanceof NodeConstructor)
+		if (listObject instanceof Settable)
 		{
-			modelNode.add(((NodeConstructor) listObject).getNode()); 
+			modelNode.add(((Settable) listObject).getModule()); 
 		}
 		else
 		{
-			modelNode.add(new ModelAttribute( this.valueLabel, 
+			modelNode.add(new Attribute( this.valueLabel, 
 					String.valueOf(listObject), null, true));
 		}
 		
@@ -68,12 +68,12 @@ public class LinkedListSetter<T> implements NodeConstructor {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void setNode(ModelNode node)
+	public void setModule(Module node)
 	{
 		Object  value;
-		if (this.listObject instanceof NodeConstructor)
+		if (this.listObject instanceof Settable)
 		{
-			value = node.getAllChildNodes().get(0).constructor;
+			value = node.getAllChildModules().get(0).settableObject;
 		}
 		else
 		{
@@ -94,16 +94,16 @@ public class LinkedListSetter<T> implements NodeConstructor {
 			this.list.remove( value );
 		this.list.add((T) value );
 
-		NodeConstructor.super.setNode(node);
+		Settable.super.setModule(node);
 	}
 	
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
 		this.list.remove(this.listObject);
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) {
+	public void addChildObject(Settable childObject) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -115,13 +115,13 @@ public class LinkedListSetter<T> implements NodeConstructor {
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

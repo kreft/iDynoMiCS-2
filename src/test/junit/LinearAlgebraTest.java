@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
-import static test.junit.AllTests.TOLERANCE;
+import static test.AllTests.TOLERANCE;
 
 import linearAlgebra.Array;
 import linearAlgebra.CholeskyDecomposition;

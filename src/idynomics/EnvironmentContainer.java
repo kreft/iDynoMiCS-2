@@ -15,12 +15,12 @@ import static grid.ArrayType.CONCN;
 import static grid.ArrayType.WELLMIXED;
 import grid.SpatialGrid;
 import instantiatable.object.InstantiatableList;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import reaction.Reaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.Shape;
 import spatialRegistry.TreeType;
 
@@ -30,7 +30,7 @@ import spatialRegistry.TreeType;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
+public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 {
 	/**
 	 * This dictates both geometry and size, and it inherited from the
@@ -54,7 +54,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	 * Grid of common attributes, such as well-mixed.
 	 */
 	protected SpatialGrid _commonGrid;
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -467,29 +467,29 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	}
 
 	@Override
-	public ModelNode getNode() {
+	public Module getModule() {
 		/* The compartment node. */
-		ModelNode modelNode = new ModelNode(XmlRef.environment, this);
+		Module modelNode = new Module(XmlRef.environment, this);
 		modelNode.setRequirements(Requirements.IMMUTABLE);
 		/* Set title for GUI. */
 		modelNode.setTitle(XmlRef.environment);
 		/* Add the name attribute. */
 		modelNode.add( this.getSolutesNode() );
 		/* Add the reactions node. */
-		modelNode.add( this._reactions.getNode() );
+		modelNode.add( this._reactions.getModule() );
 //		modelNode.add( this.getReactionNode() );
 		return modelNode;	
 	}
 	
 	/**
-	 * \brief Helper method for {@link #getNode()}.
+	 * \brief Helper method for {@link #getModule()}.
 	 * 
 	 * @return Model node for the <b>solutes</b>.
 	 */
-	private ModelNode getSolutesNode()
+	private Module getSolutesNode()
 	{
 		/* The solutes node. */
-		ModelNode modelNode = new ModelNode(XmlRef.solutes, this);
+		Module modelNode = new Module(XmlRef.solutes, this);
 		modelNode.setTitle(XmlRef.solutes);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* 
@@ -497,18 +497,18 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		 * creating a new compartment solutes can be added later 
 		 */
 		for ( String sol : this.getSoluteNames() )
-			modelNode.add( this.getSoluteGrid(sol).getNode() );
+			modelNode.add( this.getSoluteGrid(sol).getModule() );
 		
-		modelNode.addConstructable( ClassRef.spatialGrid, 
-				null, ModelNode.Requirements.ZERO_TO_MANY );
+		modelNode.addChildSpec( ClassRef.spatialGrid, 
+				null, Module.Requirements.ZERO_TO_MANY );
 		
 		return modelNode;
 	}
 	
-	private ModelNode getReactionNode() 
+	private Module getReactionNode() 
 	{
 		/* The reactions node. */
-		ModelNode modelNode = new ModelNode(XmlRef.reactions, this);
+		Module modelNode = new Module(XmlRef.reactions, this);
 		modelNode.setTitle(XmlRef.reactions);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* 
@@ -516,25 +516,25 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 		 * creating a new compartment solutes can be added later 
 		 */
 		for ( Reaction react : this.getReactions() )
-			modelNode.add( react.getNode() );
+			modelNode.add( react.getModule() );
 		
-		modelNode.addConstructable( ClassRef.reaction, 
-				null, ModelNode.Requirements.ZERO_TO_MANY );
+		modelNode.addChildSpec( ClassRef.reaction, 
+				null, Module.Requirements.ZERO_TO_MANY );
 		
 		return modelNode;
 	}
 	
-	public void setNode(ModelNode node)
+	public void setModule(Module node)
 	{
 		/* 
 		 * Set the child nodes.
 		 * Agents, process managers and solutes are container nodes: only
 		 * child nodes need to be set here.
 		 */
-		NodeConstructor.super.setNode(node);
+		Settable.super.setModule(node);
 	}
 	
-	public void removeChildNode(NodeConstructor child)
+	public void removeChildModule(Settable child)
 	{
 		if (child instanceof SpatialGrid)
 			this._solutes.remove((SpatialGrid) child);
@@ -549,13 +549,13 @@ public class EnvironmentContainer implements CanPrelaunchCheck, NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

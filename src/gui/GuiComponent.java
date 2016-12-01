@@ -25,7 +25,7 @@ import javax.swing.JTextArea;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
-import nodeFactory.ModelNode;
+import settable.Module;
 
 public class GuiComponent {
 	
@@ -203,7 +203,7 @@ public class GuiComponent {
 		return panel;
 	}
 	
-	public static JComponent frameOnClick(ModelNode node, String titel)
+	public static JComponent frameOnClick(Module node, String titel)
 	{
 		JButton button = new JButton(titel);
 		ActionListener actionListner = new ActionListener()

@@ -1,7 +1,7 @@
 package test.junit;
 
 import static org.junit.Assert.assertTrue;
-import static test.junit.AllTests.TOLERANCE;
+import static test.AllTests.TOLERANCE;
 
 import java.util.Arrays;
 
@@ -20,6 +20,7 @@ import processManager.library.SolveDiffusionTransient;
 import shape.Dimension.DimName;
 import shape.Shape;
 import shape.resolution.ResolutionCalculator.UniformResolution;
+import test.AllTests;
 import utility.ExtraMath;
 
 /**

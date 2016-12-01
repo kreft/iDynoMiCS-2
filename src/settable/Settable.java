@@ -1,17 +1,20 @@
-package nodeFactory;
+package settable;
+
+import dataIO.Log;
+import dataIO.Log.Tier;
 
 /**
  * \brief TODO
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public interface NodeConstructor
+public interface Settable
 {
 	/**
 	 * Get the ModelNode object for this NodeConstructor object
 	 * @return
 	 */
-	public ModelNode getNode();
+	public Module getModule();
 	
 	/**
 	 * \brief Load and interpret the values of the given ModelNode to this 
@@ -21,10 +24,10 @@ public interface NodeConstructor
 	 * 
 	 * @param node
 	 */
-	public default void setNode(ModelNode node)
+	public default void setModule(Module node)
 	{
-		for ( ModelNode n : node.getAllChildNodes() )
-			n.constructor.setNode(n);
+		for ( Module n : node.getAllChildModules() )
+			n.settableObject.setModule(n);
 	}
 	
 	/**
@@ -32,18 +35,20 @@ public interface NodeConstructor
 	 * used to identify nested objects for removal
 	 * @param specifier
 	 */
-	public default void removeNode(String specifier)
+	public default void removeModule(String specifier)
 	{
 		/*
 		 * By default assume the Node cannot be removed
 		 */
+		Log.out(Tier.NORMAL, "Module cannot be removed");
 	}
 	
-	public default void removeChildNode(NodeConstructor childNode)
+	public default void removeChildModule(Settable childNode)
 	{
 		/*
 		 * By default do nothing, only applicable for Nodes that have childnodes
 		 */
+		Log.out(Tier.NORMAL, "Module cannot remove child module");
 	}
 	
 	/**
@@ -54,7 +59,7 @@ public interface NodeConstructor
 	 * 
 	 * @param childObject
 	 */
-	public default void addChildObject(NodeConstructor childObject)
+	public default void addChildObject(Settable childObject)
 	{
 		/* 
 		 * The default is do nothing since if possible the object should
@@ -74,10 +79,10 @@ public interface NodeConstructor
 	 */
 	public default String getXml()
 	{
-		return this.getNode().getXML();
+		return this.getModule().getXML();
 	}
 
-	public void setParent(NodeConstructor parent);
+	public void setParent(Settable parent);
 	
-	public NodeConstructor getParent();
+	public Settable getParent();
 }

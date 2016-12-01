@@ -9,20 +9,20 @@ import java.util.LinkedList;
 import org.w3c.dom.Element;
 
 import instantiatable.Instantiatable;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 
 /**
  * \brief Stores environmental reactions that are used in every compartment.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class ReactionLibrary implements Instantiatable, NodeConstructor
+public class ReactionLibrary implements Instantiatable, Settable
 {
 	
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* init something from xml? */
 	}
@@ -31,7 +31,7 @@ public class ReactionLibrary implements Instantiatable, NodeConstructor
 	 * Contains all common environmental reactions.
 	 */
 	Collection<Reaction> _reactions = new LinkedList<Reaction>();
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	
 	/* ***********************************************************************
 	 * BASIC GETTERS
@@ -85,22 +85,23 @@ public class ReactionLibrary implements Instantiatable, NodeConstructor
 	}
 	
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
 		/* The reaction library node. */
-		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
+		Module modelNode = new Module(this.defaultXmlTag(), this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* Reaction constructor. */
-		modelNode.addChildConstructor(new Reaction(), 
-				ModelNode.Requirements.ZERO_TO_MANY);
+//FIXME incorrect implementation, follow example or wiki instructions
+//		modelNode.addChild(new Reaction(), 
+//				Module.Requirements.ZERO_TO_MANY);
 		/* The already-existing reactions. */
 		for ( Reaction r : this._reactions )
-			modelNode.add(r.getNode());
+			modelNode.add(r.getModule());
 		return modelNode;
 	}
 
 	@Override
-	public void addChildObject(NodeConstructor childObject) 
+	public void addChildObject(Settable childObject) 
 	{
 		if ( childObject instanceof Reaction )
 			this._reactions.add((Reaction) childObject);
@@ -113,13 +114,13 @@ public class ReactionLibrary implements Instantiatable, NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

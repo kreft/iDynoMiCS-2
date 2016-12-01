@@ -9,11 +9,11 @@ import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
 import instantiatable.Instantiatable;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 
 /**
  * The Bundle Map extends the Java HashMap and implements the iDynoMiCS
@@ -25,7 +25,7 @@ import referenceLibrary.XmlRef;
  * @param <K>
  * @param <T>
  */
-public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstructor, Instantiatable
+public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, Instantiatable
 {
 	/**
 	 * default serial uid (generated)
@@ -61,7 +61,7 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstruc
 	/**
 	 * the parentNode of this pileList
 	 */
-	protected NodeConstructor _parentNode;
+	protected Settable _parentNode;
 	
 	/**
 	 * The class of keys associated with the entries stored in the map
@@ -154,7 +154,7 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstruc
 	 * TODO commenting
 	 */
 	@SuppressWarnings("unchecked")
-	public void instantiate(Element xmlElement, NodeConstructor parent)
+	public void instantiate(Element xmlElement, Settable parent)
 	{
 		if (this.bundleMapLabel == null ){
 			if ( XmlHandler.hasAttribute(xmlElement, XmlRef.nameAttribute))
@@ -211,8 +211,8 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstruc
 			{
 				T object = (T) ObjectFactory.loadObject( (Element) nodes.item(i), 
 						this.valueLabel, this.entryClass.getSimpleName() ); 
-				if( object instanceof NodeConstructor )
-					((NodeConstructor) object).setParent(this);
+				if( object instanceof Settable )
+					((Settable) object).setParent(this);
 				this.put((K) ObjectFactory.loadObject( (Element) nodes.item(i), 
 						this.keyLabel, this.keyClass.getSimpleName() ),
 						object );
@@ -225,46 +225,46 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstruc
 	 * @return ModelNode
 	 */
 	@Override
-	public ModelNode getNode() {
+	public Module getModule() {
 		
-		ModelNode modelNode = new ModelNode(bundleMapLabel, this);
+		Module modelNode = new Module(bundleMapLabel, this);
 		modelNode.setRequirements(requirement);
 		
 		if( !muteSpecification)
 		{
-			modelNode.add(new ModelAttribute(XmlRef.nodeLabel, 
+			modelNode.add(new Attribute(XmlRef.nodeLabel, 
 					this.nodeLabel, null, false ));
 	
 			if ( this.valueLabel != null )
-				modelNode.add(new ModelAttribute(XmlRef.valueAttribute, 
+				modelNode.add(new Attribute(XmlRef.valueAttribute, 
 						this.valueLabel, null, true));
 			
-			modelNode.add(new ModelAttribute(XmlRef.entryClassAttribute, 
+			modelNode.add(new Attribute(XmlRef.entryClassAttribute, 
 					this.entryClass.getSimpleName(), null, false ));
 	
 			if ( this.keyLabel != null )
-				modelNode.add(new ModelAttribute(XmlRef.keyAttribute, 
+				modelNode.add(new Attribute(XmlRef.keyAttribute, 
 						this.keyLabel, null, true));
 			
-			modelNode.add(new ModelAttribute(XmlRef.keyClassAttribute, 
+			modelNode.add(new Attribute(XmlRef.keyClassAttribute, 
 					this.keyClass.getSimpleName(), null, false ));
 		}
 
-		if (NodeConstructor.class.isAssignableFrom(entryClass))
+		if (Settable.class.isAssignableFrom(entryClass))
 		{
 			for ( K key : this.keySet() )
-				modelNode.add(((NodeConstructor) this.get(key)).getNode());
+				modelNode.add(((Settable) this.get(key)).getModule());
 
-			modelNode.addConstructable( entryClass.getName(),
-					ModelNode.Requirements.ZERO_TO_MANY, this.nodeLabel);
+			modelNode.addChildSpec( entryClass.getName(),
+					Module.Requirements.ZERO_TO_MANY, this.nodeLabel);
 		}
 		else
 		{
 			for ( K key : this.keySet() )
-				modelNode.add( new Entry<K, T>( this.get(key), key, this ).getNode());
+				modelNode.add( new Entry<K, T>( this.get(key), key, this ).getModule());
 			
-			modelNode.addConstructable( Entry.class.getName(),
-					ModelNode.Requirements.ZERO_TO_MANY, this.nodeLabel);
+			modelNode.addChildSpec( Entry.class.getName(),
+					Module.Requirements.ZERO_TO_MANY, this.nodeLabel);
 		}
 		return modelNode;
 	}
@@ -295,18 +295,18 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstruc
 	 * set the parent node constructor of this pile list.
 	 */
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}
 	
-	public class Entry<K, T> implements NodeConstructor, Instantiatable {
+	public class Entry<K, T> implements Settable, Instantiatable {
 
 		/**
 		 * 
@@ -314,7 +314,7 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstruc
 		public T mapObject;
 		public K mapKey;
 		public InstantiatableMap<K,T> map;
-		private NodeConstructor _parentNode;
+		private Settable _parentNode;
 		
 		public Entry(T object, K key, InstantiatableMap<K,T> map )
 		{
@@ -329,36 +329,36 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstruc
 		}
 
 		@SuppressWarnings("unchecked")
-		public void instantiate(Element xmlElem, NodeConstructor parent)
+		public void instantiate(Element xmlElem, Settable parent)
 		{
 			this.map = (InstantiatableMap<K,T>) parent;
 			this.map.put(this.mapKey, this.mapObject);
 		}
 		
-		public ModelNode getNode() 
+		public Module getModule() 
 		{
-			ModelNode modelNode = new ModelNode(this.defaultXmlTag() , this);
+			Module modelNode = new Module(this.defaultXmlTag() , this);
 			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 
 			if (mapKey == null)
-				modelNode.add(new ModelAttribute(map.keyLabel, 
+				modelNode.add(new Attribute(map.keyLabel, 
 						"", null, true));
 			else
-				modelNode.add(new ModelAttribute(map.keyLabel, 
+				modelNode.add(new Attribute(map.keyLabel, 
 						String.valueOf(mapKey), null, true));
 
 			if (mapObject == null)
-				modelNode.add(new ModelAttribute(map.valueLabel, 
+				modelNode.add(new Attribute(map.valueLabel, 
 						"", null, true));
 			else
-				modelNode.add(new ModelAttribute(map.valueLabel, 
+				modelNode.add(new Attribute(map.valueLabel, 
 						String.valueOf(mapObject), null, true));
 			
 			return modelNode;
 		}
 		
 		@SuppressWarnings("unchecked")
-		public void setNode(ModelNode node)
+		public void setModule(Module node)
 		{
 			this.map.remove( this.mapKey );
 			this.mapKey = (K) ObjectFactory.loadObject(
@@ -371,10 +371,10 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstruc
 			this.map.remove( this.mapKey );
 			this.map.put( (K) this.mapKey, (T) this.mapObject );
 
-			NodeConstructor.super.setNode(node);
+			Settable.super.setModule(node);
 		}
 
-		public void removeNode(String specifier)
+		public void removeModule(String specifier)
 		{
 			this.map.remove(this.mapKey);
 		}
@@ -386,13 +386,13 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements NodeConstruc
 		}
 
 		@Override
-		public void setParent(NodeConstructor parent) 
+		public void setParent(Settable parent) 
 		{
 			this._parentNode = parent;
 		}
 		
 		@Override
-		public NodeConstructor getParent() 
+		public Settable getParent() 
 		{
 			return this._parentNode;
 		}

@@ -10,11 +10,11 @@ import dataIO.ObjectFactory;
 import idynomics.Idynomics;
 import instantiatable.object.InstantiatableList;
 import dataIO.Log.Tier;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
-import nodeFactory.NodeConstructor;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 
 
 /**
@@ -308,9 +308,9 @@ public class AspectReg
 	 * @param key
 	 * @return
 	 */
-	public ModelNode getAspectNode(String key)
+	public Module getAspectNode(String key)
 	{
-		return this._aspects.get(key).getNode();
+		return this._aspects.get(key).getModule();
 	}
 	
 	/**
@@ -318,11 +318,11 @@ public class AspectReg
 	 * @param constructor
 	 * @return
 	 */
-	public ModelNode getModuleNode(NodeConstructor constructor) {
-		ModelNode modelNode = new ModelNode(XmlRef.speciesModule,constructor);
+	public Module getModuleNode(Settable constructor) {
+		Module modelNode = new Module(XmlRef.speciesModule,constructor);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this.getIdentity());
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 				this.getIdentity(), null, true ) );
 		
 		return modelNode;

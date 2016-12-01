@@ -16,15 +16,15 @@ import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
 import instantiatable.Instantiatable;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
-import nodeFactory.NodeConstructor;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.Shape;
 import spatialRegistry.TreeType;
 import utility.Helper;
@@ -58,7 +58,7 @@ import shape.Dimension.DimName;
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConstructor
+public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -100,7 +100,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	/**
 	 * the compartment parent node constructor (simulator)
 	 */
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -122,7 +122,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 			this._processes.remove(object);
 	}
 	
-	public NodeConstructor newBlank()
+	public Settable newBlank()
 	{
 		Compartment newComp = new Compartment();
 		return newComp;
@@ -147,7 +147,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	 * TODO diffusivity
 	 * @param xmlElem An XML element from a protocol file.
 	 */
-	public void instantiate(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		Tier level = Tier.EXPRESSIVE;
 		/*
@@ -468,30 +468,30 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	 * **********************************************************************/
 	
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
 		/* The compartment node. */
-		ModelNode modelNode = new ModelNode(XmlRef.compartment, this);
+		Module modelNode = new Module(XmlRef.compartment, this);
 		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 		/* Set title for GUI. */
 		if ( this.getName() != null )
 			modelNode.setTitle(this.getName());
 		/* Add the name attribute. */
-		modelNode.add( new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add( new Attribute(XmlRef.nameAttribute, 
 				this.getName(), null, true ) );
 		/* Add the shape if it exists. */
 		if ( this._shape != null )
-			modelNode.add( this._shape.getNode() );
+			modelNode.add( this._shape.getModule() );
 		/* Add the Environment node. */
-		modelNode.add( this.environment.getNode() );
+		modelNode.add( this.environment.getModule() );
 		/* Add the Agents node. */
-		modelNode.add( this.agents.getNode() );
+		modelNode.add( this.agents.getModule() );
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
 				
 		/* spatial registry NOTE we are handling this here since the agent
 		 * container does not have the proper init infrastructure */
-		modelNode.add( new ModelAttribute(XmlRef.tree, 
+		modelNode.add( new Attribute(XmlRef.tree, 
 				String.valueOf( this.agents.getSpatialTree() ) , 
 				Helper.enumToStringArray( TreeType.class ), false ) );
 
@@ -499,34 +499,34 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	}
 	
 	/**
-	 * \brief Helper method for {@link #getNode()}.
+	 * \brief Helper method for {@link #getModule()}.
 	 * 
 	 * @return Model node for the <b>process managers</b>.
 	 */
-	private ModelNode getProcessNode()
+	private Module getProcessNode()
 	{
 		/* The process managers node. */
-		ModelNode modelNode = new ModelNode( XmlRef.processManagers, this );
+		Module modelNode = new Module( XmlRef.processManagers, this );
 		modelNode.setRequirements( Requirements.EXACTLY_ONE );
 		/* 
 		 * Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  
 		 */
-		modelNode.addConstructable( ClassRef.processManager, 
+		modelNode.addChildSpec( ClassRef.processManager, 
 				Helper.collectionToArray( ProcessManager.getAllOptions() ), 
-				ModelNode.Requirements.ZERO_TO_MANY );
+				Module.Requirements.ZERO_TO_MANY );
 		
 		/* Add existing process managers as child nodes. */
 		for ( ProcessManager p : this._processes )
-			modelNode.add( p.getNode() );
+			modelNode.add( p.getModule() );
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node) 
+	public void setModule(Module node) 
 	{
 		/* Set the modelNode for compartment. */
-		if ( node.isTag(this.defaultXmlTag()) )
+		if ( node.getTag().equals(this.defaultXmlTag()) )
 		{
 			/* Update the name. */
 			this.name = node.getAttribute( XmlRef.nameAttribute ).getValue();
@@ -541,15 +541,15 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * Agents, process managers and solutes are container nodes: only
 		 * child nodes need to be set here.
 		 */
-		NodeConstructor.super.setNode(node);
+		Settable.super.setModule(node);
 	}
 	
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
-		Idynomics.simulator.removeChildNode(this);
+		Idynomics.simulator.removeChildModule(this);
 	}
 	
-	public void removeChildNode(NodeConstructor child)
+	public void removeChildModule(Settable child)
 	{
 		if (child instanceof Shape)
 		{
@@ -563,7 +563,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	}
 	
 	@Override
-	public void addChildObject(NodeConstructor childObject) 
+	public void addChildObject(Settable childObject) 
 	{
 		/* Set the shape. */
 		if ( childObject instanceof Shape)
@@ -583,13 +583,13 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

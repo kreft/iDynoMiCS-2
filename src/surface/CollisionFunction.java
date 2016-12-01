@@ -7,8 +7,8 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Settable;
 import utility.Helper;
 
 /**
@@ -44,7 +44,7 @@ public interface CollisionFunction extends Instantiatable
 		/**
 		 * Implementation of the Instantiatable interface
 		 */
-		public void instantiate(Element xmlElement, NodeConstructor parent)
+		public void instantiate(Element xmlElement, Settable parent)
 		{
 			this._forceScalar = Double.valueOf((String) Helper.setIfNone(
 					XmlHandler.gatherAttribute(xmlElement, XmlRef.forceScalar), 
@@ -101,7 +101,7 @@ public interface CollisionFunction extends Instantiatable
 		/**
 		 * Implementation of the Instantiatable interface
 		 */
-		public void instantiate(Element xmlElement, NodeConstructor parent)
+		public void instantiate(Element xmlElement, Settable parent)
 		{
 			this._forceScalar = Double.valueOf((String) Helper.setIfNone(
 					XmlHandler.gatherAttribute(xmlElement, XmlRef.forceScalar), 

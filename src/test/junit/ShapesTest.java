@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static test.junit.AllTests.TOLERANCE;
+import static test.AllTests.TOLERANCE;
 
 import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
@@ -19,6 +19,7 @@ import shape.ShapeLibrary.Circle;
 import shape.ShapeLibrary.Rectangle;
 import shape.ShapeLibrary.Sphere;
 import shape.resolution.ResolutionCalculator.UniformResolution;
+import test.AllTests;
 import utility.ExtraMath;
 import utility.Helper;
 

@@ -5,11 +5,12 @@ package test.junit;
 
 import org.junit.Test;
 import static org.junit.Assert.assertTrue;
-import static test.junit.AllTests.TOLERANCE;
+import static test.AllTests.TOLERANCE;
 
 import linearAlgebra.Vector;
 import solver.ODEderivatives;
 import solver.ODErosenbrock;
+import test.AllTests;
 import utility.ExtraMath;
 
 /**

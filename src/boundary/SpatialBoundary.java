@@ -14,11 +14,11 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
 import shape.Shape;
 import shape.Dimension;
 import shape.Dimension.DimName;
@@ -64,7 +64,7 @@ public abstract class SpatialBoundary extends Boundary
 	/**
 	 * FIXME essential for instantiation
 	 */
-	public void instantiate(Element xmlElement, NodeConstructor parent) 
+	public void instantiate(Element xmlElement, Settable parent) 
 	{
 		this._dim = DimName.valueOf(XmlHandler.obtainAttribute(
 				xmlElement, XmlRef.shapeDimension, XmlRef.dimensionBoundary));
@@ -314,15 +314,15 @@ public abstract class SpatialBoundary extends Boundary
 	}
 	
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = super.getNode();
+		Module modelNode = super.getModule();
 		/* Which dimension? */
-		modelNode.add(new ModelAttribute(XmlRef.dimensionNamesAttribute,
+		modelNode.add(new Attribute(XmlRef.dimensionNamesAttribute,
 				this._dim.toString(),
 				null, true));
 		/* Minimum or maximum extreme of this dimension? */
-		modelNode.add(new ModelAttribute("extreme", 
+		modelNode.add(new Attribute("extreme", 
 				Dimension.extremeToString(this._extreme),
 				new String[]{XmlRef.min, XmlRef.max}, true));
 		return modelNode;

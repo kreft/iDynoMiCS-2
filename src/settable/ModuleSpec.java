@@ -1,9 +1,9 @@
-package nodeFactory;
+package settable;
 
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.ClassRef;
+import settable.Module.Requirements;
 
-public class Constructable {
+public class ModuleSpec {
 	
 	protected String _classRef;
 	
@@ -13,23 +13,23 @@ public class Constructable {
 	
 	protected Requirements _requirement;
 
-	public Constructable(String classRef, Requirements requirement) 
+	public ModuleSpec(String classRef, Requirements requirement) 
 	{
-		init(classRef, null, requirement, ClassRef.simplify( classRef ) );
+		set(classRef, null, requirement, ClassRef.simplify( classRef ) );
 	}
 	
-	public Constructable(String classRef, Requirements requirement, String label) 
+	public ModuleSpec(String classRef, Requirements requirement, String label) 
 	{
-		init(classRef, null, requirement, label);
+		set(classRef, null, requirement, label);
 	}
 
-	public Constructable(String classRef, String[] classRefs, 
+	public ModuleSpec(String classRef, String[] classRefs, 
 			Requirements requirement) 
 	{
-		init(classRef, classRefs, requirement, ClassRef.simplify( classRef ) );
+		set(classRef, classRefs, requirement, ClassRef.simplify( classRef ) );
 	}
 	
-	private void init(String classRef, String[] classRefs, 
+	private void set(String classRef, String[] classRefs, 
 			Requirements requirement, String label)
 	{
 		this._classRef = classRef;
