@@ -9,8 +9,8 @@ import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
+import instantiatable.Instantiatable;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
@@ -55,7 +55,7 @@ public class SpeciesLib implements Instantiatable, NodeConstructor
 	 * 
 	 * @param xmlElem
 	 */
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		Log.out(Tier.NORMAL, "Species Library loading...");
 		/* 

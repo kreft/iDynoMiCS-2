@@ -10,12 +10,12 @@ import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
+import instantiatable.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -90,7 +90,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 * @param xmlElem
 	 * @param parent (in this case the compartment).
 	 */
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		this.init(xmlElem, ((Compartment) parent).environment, 
 				((Compartment) parent).agents, ((Compartment) parent).getName());

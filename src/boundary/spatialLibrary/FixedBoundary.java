@@ -9,8 +9,8 @@ import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
+import instantiatable.Instantiatable;
 import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
 import shape.Dimension.DimName;
@@ -44,9 +44,9 @@ public class FixedBoundary extends SpatialBoundary implements Instantiatable
 	/**
 	 * FIXME essential for instantiation
 	 */
-	public void init(Element xmlElement, NodeConstructor parent)
+	public void instantiate(Element xmlElement, NodeConstructor parent)
 	{
-		super.init(xmlElement,parent);
+		super.instantiate(xmlElement,parent);
 		this._detachability = 0.0;
 		
 		for ( Element e : XmlHandler.getElements(xmlElement, XmlRef.concentration))

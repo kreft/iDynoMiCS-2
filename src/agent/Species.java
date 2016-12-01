@@ -5,8 +5,8 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
+import instantiatable.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -56,7 +56,7 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		this._parentNode = Idynomics.simulator.speciesLibrary;
 	}
 	
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		//TODO currently only accounting for gui initiation, use constructor for other.
 		this._parentNode = parent;

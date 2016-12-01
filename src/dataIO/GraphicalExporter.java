@@ -1,7 +1,7 @@
 package dataIO;
 
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
 import shape.Shape;
 import surface.Ball;

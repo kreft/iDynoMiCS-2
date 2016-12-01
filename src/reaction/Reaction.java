@@ -12,11 +12,11 @@ import dataIO.XmlHandler;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instantiatable;
+import instantiatable.object.InstantiatableMap;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
-import nodeFactory.primarySetters.BundleMap;
 import nodeFactory.primarySetters.HashMapSetter;
 import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
@@ -54,7 +54,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private BundleMap<String,Double> _stoichiometry = new BundleMap<String,Double>(
+	private InstantiatableMap<String,Double> _stoichiometry = new InstantiatableMap<String,Double>(
 			String.class, Double.class, XmlRef.component, XmlRef.coefficient, 
 			XmlRef.stoichiometry, XmlRef.stoichiometric, true);
 	/**
@@ -91,13 +91,13 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public Reaction(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
-		this.init(elem, null);
+		this.instantiate(elem, null);
 	}
 	
 	public Reaction(Node xmlNode, NodeConstructor parent)
 	{
 		Element elem = (Element) xmlNode;
-		this.init(elem, parent);
+		this.instantiate(elem, parent);
 	}
 	
 	/**
@@ -154,7 +154,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
 	}
 	
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		this._parentNode = parent;
 		if ( parent != null )
@@ -169,7 +169,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		/*
 		 * Build the stoichiometric map.
 		 */
-		this._stoichiometry.init(xmlElem, this);
+		this._stoichiometry.instantiate(xmlElem, this);
 
 		/*
 		 * Build the reaction rate expression.

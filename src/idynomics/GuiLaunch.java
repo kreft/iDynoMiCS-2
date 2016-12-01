@@ -11,6 +11,14 @@ import javax.swing.GroupLayout;
 import javax.swing.InputMap;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+
+import gui.GuiActions;
+import gui.GuiConsole;
+import gui.GuiEditor;
+import gui.GuiMain;
+import gui.GuiMenu;
+import gui.GuiSimControl;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -23,12 +31,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import guiTools.GuiActions;
-import guiTools.GuiConsole;
-import guiTools.GuiEditor;
-import guiTools.GuiMain;
-import guiTools.GuiMenu;
-import guiTools.GuiSimControl;
 import utility.Helper;
 
 /**

@@ -22,7 +22,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -170,7 +170,7 @@ public abstract class Shape implements
 	 * 
 	 * @param xmlNode
 	 */
-	public void init(Element xmlElem, NodeConstructor parent )
+	public void instantiate(Element xmlElem, NodeConstructor parent )
 	{
 		NodeList childNodes;
 		Element childElem;

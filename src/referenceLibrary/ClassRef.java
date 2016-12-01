@@ -442,19 +442,19 @@ public class ClassRef
 	 * TODO
 	 */
 	public static final String pileEntry =
-			nodeFactory.primarySetters.PileEntry.class.getName();
+			instantiatable.object.InstantiatableList.Entry.class.getName();
 	
 	/**
 	 * TODO
 	 */
 	public static final String pile =
-			nodeFactory.primarySetters.PileList.class.getName();
+			instantiatable.object.InstantiatableList.class.getName();
 	
 	/**
 	 * 
 	 */
 	public static final String bundle = 
-			nodeFactory.primarySetters.BundleMap.class.getName();
+			instantiatable.object.InstantiatableMap.class.getName();
 	
 	/* ************************************************************************
 	 * java classes

@@ -64,7 +64,7 @@ public abstract class SpatialBoundary extends Boundary
 	/**
 	 * FIXME essential for instantiation
 	 */
-	public void init(Element xmlElement, NodeConstructor parent) 
+	public void instantiate(Element xmlElement, NodeConstructor parent) 
 	{
 		this._dim = DimName.valueOf(XmlHandler.obtainAttribute(
 				xmlElement, XmlRef.shapeDimension, XmlRef.dimensionBoundary));

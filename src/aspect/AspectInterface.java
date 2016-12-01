@@ -7,8 +7,8 @@ import org.w3c.dom.NodeList;
 import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.ObjectFactory;
-import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
+import instantiatable.Instantiatable;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 

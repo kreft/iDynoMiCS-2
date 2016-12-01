@@ -3,7 +3,7 @@ package dataIO;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import guiTools.GuiConsole;
+import gui.GuiConsole;
 import idynomics.Idynomics;
 import utility.Helper;
 

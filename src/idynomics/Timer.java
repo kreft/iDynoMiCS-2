@@ -4,13 +4,13 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
-import generalInterfaces.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 import dataIO.Log.Tier;
+import instantiatable.Instantiatable;
 import utility.Helper;
 
 /**
@@ -48,7 +48,7 @@ public class Timer implements Instantiatable, NodeConstructor
 		this._now = 0.0;
 	}
 		
-	public void init(Element xmlNode, NodeConstructor parent)
+	public void instantiate(Element xmlNode, NodeConstructor parent)
 	{
 		Log.out(Tier.NORMAL, "Timer loading...");
 

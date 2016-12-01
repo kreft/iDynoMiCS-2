@@ -9,8 +9,8 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import generalInterfaces.Instantiatable;
 import idynomics.EnvironmentContainer;
+import instantiatable.Instantiatable;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
@@ -132,14 +132,14 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	
 	public SpatialGrid(Element xmlElem, NodeConstructor parent)
 	{
-		this.init(xmlElem, parent);
+		this.instantiate(xmlElem, parent);
 	}
 	
 	public SpatialGrid() { 
 		//NOTE only used for ClassRef
 	}
 
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		this._shape = ((EnvironmentContainer) parent).getShape();
 		this._parentNode = parent;

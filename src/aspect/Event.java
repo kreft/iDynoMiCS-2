@@ -1,8 +1,8 @@
 package aspect;
 
 import generalInterfaces.Copyable;
-import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
+import instantiatable.Instantiatable;
 import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
 
@@ -21,7 +21,7 @@ import dataIO.XmlHandler;
 public abstract class Event implements Copyable, Instantiatable, Redirectable
 {
 
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
 		if (fields != null)

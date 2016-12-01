@@ -40,7 +40,7 @@ public class SvgExport implements GraphicalExporter
 
 	private static final String[] RECTANGLE_LABELS = new String[] {"x","y"};
 	
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		/* init something from xml? */
 	}

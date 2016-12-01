@@ -8,13 +8,13 @@ import java.util.Set;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import idynomics.Idynomics;
+import instantiatable.object.InstantiatableList;
 import dataIO.Log.Tier;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
-import nodeFactory.primarySetters.PileList;
 
 
 /**
@@ -41,7 +41,7 @@ public class AspectReg
 	/**
 	 * all (sub) modules
 	 */
-	protected PileList<String> _subModules = new PileList<String>(String.class,
+	protected InstantiatableList<String> _subModules = new InstantiatableList<String>(String.class,
 			XmlRef.nameAttribute, XmlRef.modules, XmlRef.speciesModule );
 	
 	/**
@@ -171,7 +171,7 @@ public class AspectReg
 		return modules;
 	}
 	
-	public PileList<String> getSubModuleNames()
+	public InstantiatableList<String> getSubModuleNames()
 	{
 		return this._subModules;
 	}

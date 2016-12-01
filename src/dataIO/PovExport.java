@@ -99,7 +99,7 @@ public class PovExport implements GraphicalExporter
 		_filewriterfilenr++;
 	}
 	
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		/* init something from xml? */
 	}

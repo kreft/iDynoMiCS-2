@@ -11,12 +11,12 @@ import org.w3c.dom.Node;
 import agent.Agent;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
+import instantiatable.Instantiatable;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
@@ -103,7 +103,7 @@ public abstract class Boundary implements NodeConstructor
 	 * \brief Tell this boundary what it needs to know about the compartment it
 	 * belongs to.
 	 * 
-	 * FIXME this is not a valid from xml init
+	 * FIXME this is not a valid from Instantiatable init
 	 * 
 	 * @param environment The environment container of the compartment.
 	 * @param agents The agent container of the compartment.
@@ -477,7 +477,8 @@ public abstract class Boundary implements NodeConstructor
 	/* NOTE Bas: I found this note here: "delete once nodeFactory has made this 
 	 * redundant" To be clear: do not delete this, in order for the node factory
 	 * to work this needs to be implemented properly! Make sure your object
-	 * implements the instantiatable interface and STOP bypassing its get newNewInstance metod.
+	 * implements the instantiatable interface and DO NOT bypass its 
+	 * newNewInstance method.
 	 */
 	
 	@Override

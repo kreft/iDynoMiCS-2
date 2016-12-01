@@ -9,8 +9,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import generalInterfaces.Copyable;
-import generalInterfaces.Instantiatable;
 import generalInterfaces.HasBoundingBox;
+import instantiatable.Instantiatable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import nodeFactory.NodeConstructor;
@@ -144,7 +144,7 @@ public class Body implements Copyable, Instantiatable
 		return new Body(pointList);
 	}
 
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		//FIXME: not finished only accounts for simple coccoids
 		List<Point> pointList = new LinkedList<Point>();

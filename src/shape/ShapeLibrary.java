@@ -57,7 +57,7 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void init(Element xmlElem, NodeConstructor parent)
+		public void instantiate(Element xmlElem, NodeConstructor parent)
 		{
 			// TODO read in as a Double
 			String str = XmlHandler.attributeFromUniqueNode(

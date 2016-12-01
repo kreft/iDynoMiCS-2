@@ -5,7 +5,7 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
 import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
@@ -44,7 +44,7 @@ public interface CollisionFunction extends Instantiatable
 		/**
 		 * Implementation of the Instantiatable interface
 		 */
-		public void init(Element xmlElement, NodeConstructor parent)
+		public void instantiate(Element xmlElement, NodeConstructor parent)
 		{
 			this._forceScalar = Double.valueOf((String) Helper.setIfNone(
 					XmlHandler.gatherAttribute(xmlElement, XmlRef.forceScalar), 
@@ -101,7 +101,7 @@ public interface CollisionFunction extends Instantiatable
 		/**
 		 * Implementation of the Instantiatable interface
 		 */
-		public void init(Element xmlElement, NodeConstructor parent)
+		public void instantiate(Element xmlElement, NodeConstructor parent)
 		{
 			this._forceScalar = Double.valueOf((String) Helper.setIfNone(
 					XmlHandler.gatherAttribute(xmlElement, XmlRef.forceScalar), 

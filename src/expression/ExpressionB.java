@@ -12,13 +12,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dataIO.Log.Tier;
+import instantiatable.object.InstantiatableMap;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
-import nodeFactory.primarySetters.BundleMap;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import utility.Helper;
@@ -100,7 +100,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	/**
 	 * Names and values of constants in this expression.
 	 */
-	private BundleMap<String, Double> _constants = new BundleMap<String,Double>(
+	private InstantiatableMap<String, Double> _constants = new InstantiatableMap<String,Double>(
 			String.class, Double.class, XmlRef.nameAttribute, 
 			XmlRef.valueAttribute, XmlRef.constants, XmlRef.constant, true);
 	
@@ -161,7 +161,7 @@ public class ExpressionB extends Component implements NodeConstructor
 	{
 		Element elem = (Element) xmlNode;
 
-		this._constants.init(elem, this);
+		this._constants.instantiate(elem, this);
 				
 		init( XmlHandler.obtainAttribute(elem, XmlRef.valueAttribute, this.defaultXmlTag()), 
 				this._constants);

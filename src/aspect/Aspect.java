@@ -9,8 +9,8 @@ import aspect.calculated.StateExpression;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
+import instantiatable.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
@@ -273,7 +273,7 @@ public class Aspect implements Instantiatable, NodeConstructor
 	 * @return NodeConstructor
 	 */
 	@Override
-	public void init(Element xmlElem, NodeConstructor parent) {
+	public void instantiate(Element xmlElem, NodeConstructor parent) {
 		String name = "";
 		name = Helper.obtainInput(name, "aspect name");
 		/* if name is canceled */

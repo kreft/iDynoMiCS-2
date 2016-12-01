@@ -53,7 +53,7 @@ public class ScaledIfBiomassPresent implements IsDiffusivitySetter
 	}
 	
 	@Override
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		String s;
 		

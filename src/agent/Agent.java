@@ -8,10 +8,10 @@ import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.XmlHandler;
 import dataIO.Log;
-import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
@@ -121,7 +121,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	/**
 	 * Instantiatable implementation
 	 */
-	public void init(Element xmlElement, NodeConstructor parent)
+	public void instantiate(Element xmlElement, NodeConstructor parent)
 	{
 		//FIXME change entire class to just using parent
 		this._parentNode = parent;

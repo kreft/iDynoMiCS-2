@@ -14,7 +14,7 @@ import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instantiatable;
 import utility.*;
 import nodeFactory.*;
 import nodeFactory.ModelNode.Requirements;
@@ -111,7 +111,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		ExtraMath.intialiseRandomNumberGenerator(seed);
 	}
 	
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		/* 
 		 * retrieve seed from xml file and initiate random number generator with
@@ -124,7 +124,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlRef.timer ), this);
+		this.timer.instantiate( XmlHandler.loadUnique( xmlElem, XmlRef.timer ), this);
 		/*
 		 * Set up the species library.
 		 */

@@ -14,8 +14,8 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.Instantiatable;
 import grid.*;
+import instantiatable.Instantiatable;
 import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
@@ -147,7 +147,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	 * TODO diffusivity
 	 * @param xmlElem An XML element from a protocol file.
 	 */
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, NodeConstructor parent)
 	{
 		Tier level = Tier.EXPRESSIVE;
 		/*
