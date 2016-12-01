@@ -11,9 +11,10 @@ import java.util.Arrays;
 import dataIO.Log;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
-public class SphericalShapeIterator extends PolarShapeIterator{
-	
-	public SphericalShapeIterator(SphericalShape shape) {
+public class SphericalShapeIterator extends PolarShapeIterator
+{
+	public SphericalShapeIterator(SphericalShape shape)
+	{
 		super(shape);
 	}
 	

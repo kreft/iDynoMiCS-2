@@ -176,4 +176,10 @@ public abstract class CartesianShape extends Shape
 	public ShapeIterator getNewIterator() {
 		return new CartesianShapeIterator(this);
 	}
+	
+	public ShapeIterator setAndGetNewRedBlackIterator()
+	{
+		this._it = new CartesianShapeRedBlackIterator(this);
+		return this._it;
+	}
 }

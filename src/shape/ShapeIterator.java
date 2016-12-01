@@ -13,8 +13,8 @@ import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
-public abstract class ShapeIterator{
-	
+public abstract class ShapeIterator
+{
 	protected enum WhereAmI
 	{
 		/**
