@@ -4,22 +4,25 @@ import static shape.Dimension.DimName.R;
 import static shape.Dimension.DimName.THETA;
 import static shape.Dimension.DimName.Z;
 
-import java.util.Arrays;
-
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
+import shape.iterator.CylindricalShapeIterator;
+import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Rod;
 import surface.Surface;
 import utility.ExtraMath;
 
 /**
+ * \brief Abstract shape that is in some way cylindrical.
  * 
- * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ *     Friedrich-Schiller University Jena, Germany 
  */
 public abstract class CylindricalShape extends Shape
 {
@@ -150,7 +153,7 @@ public abstract class CylindricalShape extends Shape
 					 * resolutions, resC.getResolution(x) should all be the 
 					 * same at this point. 
 					 */
-					double res = PolarShapeIterator.scaleResolutionForShell(
+					double res = ShapeHelper.scaleResolutionForShell(
 							rMin + i, resC.getResolution(0));
 					shellResCalc.setResolution(res);
 					this._resCalc[index][i] = shellResCalc;
@@ -172,7 +175,7 @@ public abstract class CylindricalShape extends Shape
 	}
 	
 	@Override
-	protected ResCalc getResolutionCalculator(int[] coord, int dim)
+	public ResCalc getResolutionCalculator(int[] coord, int dim)
 	{
 		/* 
 		 * If this is the radial dimension (0) or the z dimension (2),
@@ -331,36 +334,45 @@ public abstract class CylindricalShape extends Shape
 	 * NEIGHBOR ITERATOR
 	 * **********************************************************************/
 	
-	
-	
 	@Override
 	public double nhbCurrSharedArea()
 	{
 		Tier level = Tier.BULK;
-		int[] cc = this._it._currentCoord, nhb = this._it._currentNeighbor;
-		Log.out(level, "  current coord is "+Arrays.toString(cc)
-			+", current nhb is "+Arrays.toString(nhb));
-		
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "  current coord is "+
+					Vector.toString(this._it.iteratorCurrent())
+					+", current nhb is "+
+					Vector.toString(this._it.nbhIteratorCurrent()));
+		}
+		DimName nhbDimName = this._it.currentNhbDimName();
 		/* moving towards positive in the current dim? */
-		boolean pos_direc = this._it._nbhDirection == 1;
-		
+		boolean isNhbAhead = this._it.isCurrentNhbAhead();
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "    Dimension name is "+nhbDimName
+					+", direction is "+(isNhbAhead ? "ahead" : "behind"));
+		}
 		/* Integration minima and maxima, these are the lower and upper 
 		 * locations of the intersections between the current voxel and the 
 		 * neighbor voxel for each dimension. */
-		double r1 = this._it.getIntegrationMin(0), r2 = this._it.getIntegrationMax(0),
-				theta1 = this._it.getIntegrationMin(1), theta2 = this._it.getIntegrationMax(1),
-				z1 = this._it.getIntegrationMin(2), z2 = this._it.getIntegrationMax(2);
-	
-		double area = 1;
-		Log.out(level, "    Dimension name is "+this._it._nbhDimName+", direction is "
-														+this._it._nbhDirection);
-		/* compute the area element, depending along which dimension we are 
+		double r1 = this._it.getIntegrationMin(0),
+				r2 = this._it.getIntegrationMax(0),
+				theta1 = this._it.getIntegrationMin(1),
+				theta2 = this._it.getIntegrationMax(1),
+				z1 = this._it.getIntegrationMin(2),
+				z2 = this._it.getIntegrationMax(2);
+		/* 
+		 * Compute the area element, depending along which dimension we are 
 		 * currently moving. This is 
-		 * Integrate[r,{z,z1,z2},{theta,theta1,theta2},{r,r1,r2}]  
-		 * with integration length zero for the current dimension*/
-		switch (this._it._nbhDimName){
+		 * Integrate[r,{z,z1,z2},{theta,theta1,theta2},{r,r1,r2}]
+		 * with integration length zero for the current dimension.
+		 */
+		double area = 1.0;
+		switch (nhbDimName)
+		{
 		case R: /* theta-z plane */
-			area *= pos_direc ? r1 : r2;
+			area *= isNhbAhead ? r1 : r2;
 			area *= theta2 - theta1;
 			area *= z2 - z1;
 			break;
@@ -375,15 +387,19 @@ public abstract class CylindricalShape extends Shape
 			area /= 2;
 			break;
 		default: throw new IllegalArgumentException("unknown dimension " 
-											+ this._it._nbhDimName + " for sphere");
+											+ nhbDimName + " for cylinder");
 		}
-		Log.out(level, "    r1 is "+r1+", theta1 is "+theta1+ ", z1 is "+z1
-				+ ", r2 is "+r2+", theta2 is "+theta2+ ", z2 is "+z2);
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "    r1 is "+r1+", theta1 is "+theta1+ ", z1 is "+z1
+					+ ", r2 is "+r2+", theta2 is "+theta2+ ", z2 is "+z2);
+		}
 		return area;
 	}
 	
 	@Override
-	public ShapeIterator getNewIterator() {
+	public ShapeIterator getNewIterator()
+	{
 		return new CylindricalShapeIterator(this);
 	}
 }

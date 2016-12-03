@@ -1,6 +1,7 @@
-package shape;
+package shape.iterator;
 
 import linearAlgebra.Vector;
+import shape.CartesianShape;
 
 public class CartesianShapeRedBlackIterator extends CartesianShapeIterator
 {

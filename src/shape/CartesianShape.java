@@ -8,6 +8,9 @@ import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
+import shape.iterator.CartesianShapeIterator;
+import shape.iterator.CartesianShapeRedBlackIterator;
+import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
@@ -55,12 +58,11 @@ public abstract class CartesianShape extends Shape
 	@Override
 	public double[][][] getNewArray(double initialValue)
 	{
-		this._it.updateCurrentNVoxel();
+		int[] nVoxel = new int[3];
 		/* We need at least length 1 in each dimension for the array. */
-		int nI = (this._it._currentNVoxel[0] == 0) ? 1 : this._it._currentNVoxel[0];
-		int nJ = (this._it._currentNVoxel[1] == 0) ? 1 : this._it._currentNVoxel[1];
-		int nK = (this._it._currentNVoxel[2] == 0) ? 1 : this._it._currentNVoxel[2];
-		return Array.array(nI, nJ, nK, initialValue);
+		for ( int dim = 0; dim < 3; dim ++ )
+			nVoxel[dim] = Math.max(this._resCalc[dim].getNVoxel(), 1);
+		return Array.array(nVoxel, initialValue);
 	}
 	
 	/* ***********************************************************************
@@ -100,7 +102,7 @@ public abstract class CartesianShape extends Shape
 	}
 	
 	@Override
-	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	public ResCalc getResolutionCalculator(int[] coord, int axis)
 	{
 		/* Coordinate is irrelevant here. */
 		return this._resCalc[axis];
@@ -158,16 +160,17 @@ public abstract class CartesianShape extends Shape
 		double area = 1.0;
 		ResCalc rC;
 		int index;
+		int[] currentCoord = this._it.iteratorCurrent();
 		for ( DimName dim : this.getDimensionNames() )
 		{
 			// FIXME here we implicitly assume that insignificant dimensions
 			// have dummy length of one
-			if ( dim.equals(this._it._nbhDimName)
+			if ( dim.equals(this._it.currentNhbDimName())
 					|| ! this.getDimension(dim).isSignificant() )
 				continue;
 			index = this.getDimensionIndex(dim);
-			rC = this.getResolutionCalculator(this._it._currentCoord, index);
-			area *= rC.getResolution(this._it._currentCoord[index]);
+			rC = this.getResolutionCalculator(currentCoord, index);
+			area *= rC.getResolution(currentCoord[index]);
 		}
 		return area;
 	}

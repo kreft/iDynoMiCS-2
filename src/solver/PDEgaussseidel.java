@@ -12,6 +12,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
+import shape.CartesianShape;
 import shape.Shape;
 import utility.ExtraMath;
 
@@ -30,6 +31,12 @@ public class PDEgaussseidel extends PDEsolver
 	public void solve(Collection<SpatialGrid> variables,
 			SpatialGrid commonGrid, double tFinal)
 	{
+		Shape shape = commonGrid.getShape();
+		if (shape instanceof CartesianShape)
+		{
+			
+		}
+		
 		double residual, maxResidual = 0.0;
 		for ( int i = 0; i < this.maxIter; i++ )
 		{
@@ -95,14 +102,6 @@ public class PDEgaussseidel extends PDEsolver
 			norm = 0.0;
 			currConcn = variable.getValueAtCurrent(CONCN);
 			currDiffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, 
-						"Coord "+Vector.toString(shape.iteratorCurrent())+
-						" (curent value "+variable.getValueAtCurrent(CONCN)+
-						"): calculating flux...");
-			}
-			
 			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
 					nhb = shape.nbhIteratorNext() )
 			{

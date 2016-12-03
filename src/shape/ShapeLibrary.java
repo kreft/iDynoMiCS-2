@@ -9,10 +9,9 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import linearAlgebra.Array;
-import linearAlgebra.Vector;
 import referenceLibrary.ObjectRef;
 import shape.Dimension.DimName;
-
+import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
 /**
@@ -92,7 +91,7 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		protected ResCalc getResolutionCalculator(int[] coord, int axis)
+		public ResCalc getResolutionCalculator(int[] coord, int axis)
 		{
 			return null;
 		}
@@ -112,13 +111,6 @@ public final class ShapeLibrary
 		public double getVoxelVolume(double[] origin, double[] upper)
 		{
 			return this._volume;
-		}
-		
-		@Override
-		protected void nVoxelTo(int[] destination, int[] coords)
-		{
-			/* Dimensionless shapes have no voxels. */
-			Vector.reset(destination);
 		}
 		
 		@Override

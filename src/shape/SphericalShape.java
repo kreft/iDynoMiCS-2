@@ -5,13 +5,13 @@ import static shape.Dimension.DimName.PHI;
 import static shape.Dimension.DimName.R;
 import static shape.Dimension.DimName.THETA;
 
-import java.util.Arrays;
-
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
+import shape.iterator.ShapeIterator;
+import shape.iterator.SphericalShapeIterator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import surface.Ball;
 import surface.Point;
@@ -224,7 +224,7 @@ public abstract class SphericalShape extends Shape
 			for ( int i = 0; i < nShell; i++ )
 			{
 				focalResCalc = (ResCalc) resC.copy();
-				double res = PolarShapeIterator.scaleResolutionForShell(
+				double res = ShapeHelper.scaleResolutionForShell(
 						rMin+i, resC.getResolution(0));
 				focalResCalc.setResolution(res);
 				this._resCalc[1][0][i] = focalResCalc;
@@ -266,7 +266,7 @@ public abstract class SphericalShape extends Shape
 				{
 					focalResCalc = (ResCalc) resC.copy();
 					/* NOTE For varying resolution this will not work anymore */
-					double res = PolarShapeIterator.scaleResolutionForRing(rMin+shell,
+					double res = ShapeHelper.scaleResolutionForRing(rMin+shell,
 							phiMin+ring, phiC[shell].getResolution(0),
 							resC.getResolution(0));
 					focalResCalc.setResolution(res);
@@ -282,7 +282,7 @@ public abstract class SphericalShape extends Shape
 	}
 	
 	@Override
-	protected ResCalc getResolutionCalculator(int[] coord, int axis)
+	public ResCalc getResolutionCalculator(int[] coord, int axis)
 	{
 		switch ( axis )
 		{
@@ -449,35 +449,46 @@ public abstract class SphericalShape extends Shape
 	public double nhbCurrSharedArea()
 	{
 		Tier level = Tier.BULK;
-		int[] cc = this._it._currentCoord, nhb = this._it._currentNeighbor;
-		Log.out(level, "  current coord is "+Arrays.toString(cc)
-			+", current nhb is "+Arrays.toString(nhb));
-		
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "  current coord is "+
+					Vector.toString(this._it.iteratorCurrent())
+					+", current nhb is "+
+					Vector.toString(this._it.nbhIteratorCurrent()));
+		}
+		DimName nhbDimName = this._it.currentNhbDimName();
 		/* moving towards positive in the current dim? */
-		boolean pos_direc = this._it._nbhDirection == 1;
-		
+		boolean isNhbAhead = this._it.isCurrentNhbAhead();
+		if ( Log.shouldWrite(level) )
+		{
+			Log.out(level, "    Dimension name is "+nhbDimName
+					+", direction is "+(isNhbAhead ? "ahead" : "behind"));
+		}
 		/* Integration minima and maxima, these are the lower and upper 
 		 * locations of the intersections between the current voxel and the 
 		 * neighbor voxel for each dimension. */
-		double r1 = this._it.getIntegrationMin(0), r2 = this._it.getIntegrationMax(0),
-				phi1 = this._it.getIntegrationMin(1), phi2 = this._it.getIntegrationMax(1),
-				theta1 = this._it.getIntegrationMin(2), theta2 = this._it.getIntegrationMax(2);
-	
-		double area = 1;
-		Log.out(level, "    Dimension name is "+this._it._nbhDimName+", direction is "
-														+this._it._nbhDirection);
-		/* compute the area element, depending along which dimension we are 
+		double r1 = this._it.getIntegrationMin(0),
+				r2 = this._it.getIntegrationMax(0),
+				phi1 = this._it.getIntegrationMin(1),
+				phi2 = this._it.getIntegrationMax(1),
+				theta1 = this._it.getIntegrationMin(2),
+				theta2 = this._it.getIntegrationMax(2);
+		/* 
+		 * Compute the area element, depending along which dimension we are 
 		 * currently moving. This is 
 		 * Integrate[r^2 sin p,{phi,phi1,phi2},{theta,theta1,theta2},{r,r1,r2}] 
-		 * with integration length zero for the current dimension*/
-		switch (this._it._nbhDimName){
+		 * with integration length zero for the current dimension.
+		 */
+		double area = 1.0;
+		switch (nhbDimName)
+		{
 		case R: /* phi-theta plane */
-			area *= ExtraMath.sq(pos_direc ? r1 : r2);
+			area *= ExtraMath.sq(isNhbAhead ? r1 : r2);
 			area *= theta2 - theta1;
 			area *= Math.cos(phi1) - Math.cos(phi2);
 			break;
 		case PHI: /* r-theta plane */
-			area *= Math.sin(pos_direc ? phi1 : phi2);
+			area *= Math.sin(isNhbAhead ? phi1 : phi2);
 			area *= ExtraMath.cube(r1) - ExtraMath.cube(r2);
 			area *= theta1 - theta2;
 			area /= 3;
@@ -488,7 +499,7 @@ public abstract class SphericalShape extends Shape
 			area /= 3;
 			break;
 		default: throw new IllegalArgumentException("unknown dimension " 
-											+ this._it._nbhDimName + " for sphere");
+											+ nhbDimName + " for sphere");
 		}
 		Log.out(level, "    r1 is "+r1+", phi1 is "+phi1+ ", theta1 is "+theta1
 				+ ", r2 is "+r2+", phi2 is "+phi2+ ", theta2 is "+theta2);
