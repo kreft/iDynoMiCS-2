@@ -8,11 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
 import grid.diffusivitySetter.AllSameDiffuse;
+import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
@@ -22,12 +27,14 @@ import shape.Shape;
 import shape.subvoxel.CoordinateMap;
 import solver.PDEgaussseidel;
 import solver.PDEupdater;
+import utility.Helper;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
  * reactions in a steady-state manner, in a spatial {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
 public class SolveDiffusionSteadyState extends ProcessDiffusion
 {
@@ -35,7 +42,36 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 	 * CONSTRUCTORS
 	 * **********************************************************************/
 	
-	@Override
+	/**
+	 * 
+	 * Initiation from protocol file: 
+	 * 
+	 * TODO verify and finalise
+	 */
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		super.init(xmlElem, environment, agents, compartmentName);
+
+		// TODO Do you need to get anything else from xml?
+
+		/* gets specific solutes from process manager aspect registry if they
+		 * are defined, if not, solve for all solutes.
+		 */
+		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(
+				this._environment.getSoluteNames()));
+		this.init( soluteNames, environment, 
+				agents, compartmentName );
+		
+	}
+	
+	/**
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
 	public void init( String[] soluteNames, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{

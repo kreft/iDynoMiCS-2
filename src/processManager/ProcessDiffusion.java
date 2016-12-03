@@ -83,7 +83,7 @@ public abstract class ProcessDiffusion extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		this.init(environment, agents, compartmentName);
+		
 		/*
 		 * Now look for diffusivity setters.
 		 */
@@ -109,10 +109,8 @@ public abstract class ProcessDiffusion extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(environment, agents, compartmentName);
-		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
-				Helper.collectionToArray(
-				this._environment.getSoluteNames()));
-		this.init( soluteNames, environment, agents, compartmentName );
+		// FIXED infinite loop
+//		this.init( soluteNames, environment, agents, compartmentName );
 	}
 	
 	public abstract void init( String[] soluteNames,

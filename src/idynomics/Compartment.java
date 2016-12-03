@@ -211,8 +211,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		Log.out(level,"Compartment "+this.name+ " loading "+XmlHandler.
 				getElements(xmlElem, XmlRef.process).size()+" processManagers");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.process) )
-			this.addProcessManager(ProcessManager.getNewInstance(e, 
-					this.environment, this.agents, this.getName()));
+			this.addProcessManager( (ProcessManager) 
+					Instantiatable.getNewInstance( XmlHandler.obtainAttribute(
+					e, XmlRef.classAttribute, XmlRef.classAttribute), e, this));
 	}
 		
 	

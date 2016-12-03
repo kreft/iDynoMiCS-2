@@ -9,12 +9,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
+import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
 import grid.diffusivitySetter.AllSameDiffuse;
+import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessDiffusion;
@@ -24,6 +30,7 @@ import shape.subvoxel.CoordinateMap;
 import shape.Shape;
 import solver.PDEexplicit;
 import solver.PDEupdater;
+import utility.Helper;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
@@ -37,6 +44,21 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
+	
+	public void init(Element xmlElem, EnvironmentContainer environment, 
+			AgentContainer agents, String compartmentName)
+	{
+		super.init(xmlElem, environment, agents, compartmentName);
+		
+		/* gets specific solutes from process manager aspect registry if they
+		 * are defined, if not, solve for all solutes.
+		 */
+		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(
+				this._environment.getSoluteNames()));
+		this.init( soluteNames, environment, 
+				agents, compartmentName );
+	}
 	
 	@Override
 	public void init( String[] soluteNames, EnvironmentContainer environment, 
