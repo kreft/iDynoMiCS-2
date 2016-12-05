@@ -437,7 +437,7 @@ public class ClassRef
 	 * TODO
 	 */
 	public static final String pileEntry =
-			instantiatable.object.InstantiatableList.Entry.class.getName();
+			instantiatable.object.ListEntry.class.getName();
 	
 	/**
 	 * TODO

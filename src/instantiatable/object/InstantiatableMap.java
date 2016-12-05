@@ -173,19 +173,29 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, In
 		{
 			this.keyLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.keyAttribute);
 			if (this.keyLabel == null)
-				this.muteSpecification = true;
+			{
+//				this.muteSpecification = true;
+				this.keyLabel = XmlRef.keyAttribute;
+			}
 		}
 		
 		if (this.valueLabel == null)
 		{
 			this.valueLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.valueAttribute);
 			if (this.valueLabel == null)
-				this.muteSpecification = true;
+			{
+//				this.muteSpecification = true;
+				this.valueLabel = XmlRef.valueAttribute;
+			}
 		}
 		
 		if (this.nodeLabel == null)
 		{
 			this.nodeLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nodeLabel);
+		}
+		if (this.nodeLabel == null)
+		{
+			this.nodeLabel = XmlRef.item;
 		}
 		
 		if (this.entryClass == null)
@@ -267,9 +277,9 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, In
 		else
 		{
 			for ( K key : this.keySet() )
-				modelNode.add( new Entry<K, T>( this.get(key), key, this ).getModule());
+				modelNode.add( new MapEntry<K, T>( this.get(key), key, this ).getModule());
 			
-			modelNode.addChildSpec( Entry.class.getName(),
+			modelNode.addChildSpec( MapEntry.class.getName(),
 					Module.Requirements.ZERO_TO_MANY, this.nodeLabel);
 		}
 		return modelNode;
@@ -287,17 +297,6 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, In
 	}
 
 	/**
-	 * add child nodeConstructor (map item)
-	 * 
-	 * FIXME todo
-	 */
-//	@SuppressWarnings("unchecked")
-//	public void addChildObject(NodeConstructor childObject)
-//	{
-//		this.put((T) childObject);
-//	}
-
-	/**
 	 * set the parent node constructor of this pile list.
 	 */
 	@Override
@@ -312,95 +311,5 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, In
 		return this._parentNode;
 	}
 	
-	public class Entry<K, T> implements Settable, Instantiatable {
 
-		/**
-		 * 
-		 */
-		public T mapObject;
-		public K mapKey;
-		public InstantiatableMap<K,T> map;
-		private Settable _parentNode;
-		
-		public Entry(T object, K key, InstantiatableMap<K,T> map )
-		{
-			this.mapObject = object;
-			this.map = map;
-			this.mapKey = key;
-		}
-		
-		public Entry()
-		{
-			// NOTE for instantiatable interface
-		}
-
-		@SuppressWarnings("unchecked")
-		public void instantiate(Element xmlElem, Settable parent)
-		{
-			this.map = (InstantiatableMap<K,T>) parent;
-			this.map.put(this.mapKey, this.mapObject);
-		}
-		
-		public Module getModule() 
-		{
-			Module modelNode = new Module(this.defaultXmlTag() , this);
-			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
-
-			if (mapKey == null)
-				modelNode.add(new Attribute(map.keyLabel, 
-						"", null, true));
-			else
-				modelNode.add(new Attribute(map.keyLabel, 
-						String.valueOf(mapKey), null, true));
-
-			if (mapObject == null)
-				modelNode.add(new Attribute(map.valueLabel, 
-						"", null, true));
-			else
-				modelNode.add(new Attribute(map.valueLabel, 
-						String.valueOf(mapObject), null, true));
-			
-			return modelNode;
-		}
-		
-		@SuppressWarnings("unchecked")
-		public void setModule(Module node)
-		{
-			this.map.remove( this.mapKey );
-			this.mapKey = (K) ObjectFactory.loadObject(
-					node.getAttribute( map.keyLabel ).getValue(), 
-					map.keyClass.getSimpleName() );
-			this.mapObject = (T) ObjectFactory.loadObject(
-					node.getAttribute( map.valueLabel ).getValue(), 
-					map.entryClass.getSimpleName() );
-
-			this.map.remove( this.mapKey );
-			this.map.put( (K) this.mapKey, (T) this.mapObject );
-
-			Settable.super.setModule(node);
-		}
-
-		public void removeModule(String specifier)
-		{
-			this.map.remove(this.mapKey);
-		}
-
-		@Override
-		public String defaultXmlTag() 
-		{
-			return map.nodeLabel;
-		}
-
-		@Override
-		public void setParent(Settable parent) 
-		{
-			this._parentNode = parent;
-		}
-		
-		@Override
-		public Settable getParent() 
-		{
-			return this._parentNode;
-		}
-	}
 }

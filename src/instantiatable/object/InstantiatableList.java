@@ -184,13 +184,20 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 				this.valueLabel = XmlHandler.gatherAttribute( xmlElement, 
 						XmlRef.valueAttribute );
 				if (this.valueLabel == null)
-					this.muteAttributeDef = true;
+				{
+//					this.muteAttributeDef = true;
+					this.valueLabel = XmlRef.valueAttribute;
+				}
 			}
 			
 			if (this.nodeLabel == null)
 			{
 				this.nodeLabel = XmlHandler.gatherAttribute( xmlElement, 
 						XmlRef.nodeLabel );
+			}
+			if (this.nodeLabel == null)
+			{
+				this.nodeLabel = XmlRef.item;
 			}
 			
 			if (this.entryClass == null)
@@ -254,9 +261,9 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 		else
 		{
 			for ( T entry : this) 
-				modelNode.add(new Entry<T>( this, entry ).getModule());
+				modelNode.add(new ListEntry<T>( this, entry ).getModule());
 			
-			modelNode.addChildSpec( Entry.class.getName(),
+			modelNode.addChildSpec( ListEntry.class.getName(),
 					Module.Requirements.ZERO_TO_MANY, this.nodeLabel);
 		}
 		return modelNode;
@@ -298,86 +305,5 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 	}
 	
 
-	public class Entry<T> implements Settable, Instantiatable {
-	
-		/**
-		 * 
-		 */
-		public T mapObject;
-		public InstantiatableList<T> pile;
-		private Settable _parentNode;
-		
-		public Entry(InstantiatableList<T> pile, T object )
-		{
-			this.pile = pile;
-			this.mapObject = object;
-		}
-		
-		public Entry()
-		{
-			// NOTE for instatniatable interface
-		}
-	
-		@SuppressWarnings("unchecked")
-		public void instantiate(Element xmlElem, Settable parent)
-		{
-			this.pile = (InstantiatableList<T>) parent;
-			this.pile.add(this.mapObject);
-		}
-		
-		public Module getModule() 
-		{
-			Module modelNode = new Module(this.defaultXmlTag() , this);
-			modelNode.setRequirements(Requirements.ZERO_TO_MANY);
-			
-			if (mapObject == null)
-				modelNode.add(new Attribute( pile.valueLabel, 
-						"", null, true));
-			else
-				modelNode.add(new Attribute( pile.valueLabel, 
-						String.valueOf(mapObject), null, true));
-			
-			return modelNode;
-		}
-		
-		@SuppressWarnings("unchecked")
-		public void setModule(Module node)
-		{
-			this.pile.remove( this.mapObject );
-			
-			this.mapObject = (T) ObjectFactory.loadObject(
-					node.getAttribute( pile.valueLabel ).getValue(), 
-					pile.entryClass.getSimpleName() );
-	
-			this.pile.add( this.mapObject );
-	
-			Settable.super.setModule(node);
-		}
-	
-		public void removeModule(String specifier)
-		{
-			this.pile.remove(this.mapObject);
-		}
-		
-		
-		
-	
-		@Override
-		public String defaultXmlTag() 
-		{
-			return pile.nodeLabel;
-		}
-	
-		@Override
-		public void setParent(Settable parent) 
-		{
-			this._parentNode = parent;
-		}
-		
-		@Override
-		public Settable getParent() 
-		{
-			return this._parentNode;
-		}
-	}
+
 }
