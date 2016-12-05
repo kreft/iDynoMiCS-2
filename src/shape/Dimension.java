@@ -9,7 +9,7 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 import surface.Surface;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -128,9 +128,10 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 			this.setInsignificant();
 	}
 	
-	public void init(Node xmlNode, Settable parent)
+
+	public void instantiate(Element xmlElement, Settable parent)
 	{
-		Element elem = (Element) xmlNode;
+		Element elem = (Element) xmlElement;
 		String str;
 		NodeList bndNodes;
 		Element bndElem;
@@ -211,7 +212,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 				
 				str = bndElem.getAttribute(XmlRef.classAttribute);
 				// FIXME this does not work since boundaries are not instantiatable
-				aBoundary = (SpatialBoundary) Instantiatable.getNewInstance(
+				aBoundary = (SpatialBoundary) Instance.getNew(
 						bndElem, this, str );
 //				aBoundary.init(bndElem); // FIXME nope
 				this.setBoundary(aBoundary, index);	
@@ -660,13 +661,6 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	}
 
 	@Override
-	public void addChildObject(Settable childObject)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public String defaultXmlTag()
 	{
 		return XmlRef.shapeDimension;
@@ -689,4 +683,5 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	{
 		return this._parentNode;
 	}
+
 }

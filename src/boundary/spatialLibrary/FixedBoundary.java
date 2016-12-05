@@ -10,6 +10,7 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.XmlRef;
 import settable.Settable;

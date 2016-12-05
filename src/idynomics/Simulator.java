@@ -14,9 +14,9 @@ import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import utility.*;
-import reaction.ReactionLibrary;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.*;
@@ -42,9 +42,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * Contains information about all species for this simulation.
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
-	
-	public ReactionLibrary reactionLibrary = new ReactionLibrary();
-	
+
 	/**
 	 * The timer
 	 */
@@ -130,7 +128,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		 */
 		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
-			this.speciesLibrary = (SpeciesLib) Instantiatable.getNewInstance(
+			this.speciesLibrary = (SpeciesLib) Instance.getNew(
 					XmlHandler.loadUnique( xmlElem, XmlRef.speciesLibrary ), 
 					this, ClassRef.speciesLibrary );
 		}
@@ -162,7 +160,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			Instantiatable.getNewInstance( child, this, XmlRef.compartment );
+			Instance.getNew( child, this, XmlRef.compartment );
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
 	}
@@ -472,8 +470,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		
 		/* add species lib */
 		modelNode.add(speciesLibrary.getModule());
-		/* Add reaction library. */
-		modelNode.add(reactionLibrary.getModule());
 		/* add compartment nodes */
 		for ( Compartment c : this._compartments )
 			modelNode.add(c.getModule());
@@ -529,10 +525,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		}
 	}
 	
-	public void removeChildModule(Settable child)
+	public void removeCompartment(Compartment compartment)
 	{
-		if (child instanceof Compartment)
-			this._compartments.remove((Compartment) child);
+		this._compartments.remove(compartment);
 	}
 
 	/**

@@ -10,6 +10,7 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import idynomics.EnvironmentContainer;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
@@ -775,14 +776,7 @@ public class SpatialGrid implements Settable, Instantiatable
 
 	public void removeModule(String specifier) 
 	{
-		this._parentNode.removeChildModule(this);
-	}
-
-	@Override
-	public void addChildObject(Settable childObject)
-	{
-		// TODO Auto-generated method stub
-		
+		((EnvironmentContainer) this._parentNode).removeSolute(this);
 	}
 
 	@Override

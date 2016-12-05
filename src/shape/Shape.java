@@ -22,6 +22,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
@@ -151,12 +152,6 @@ public abstract class Shape implements
 	}
 
 	@Override
-	public void addChildObject(Settable childObject)
-	{
-		// TODO Auto-generated method stub
-	}
-	
-	@Override
 	public String defaultXmlTag()
 	{
 		return XmlRef.compartmentShape;
@@ -190,7 +185,7 @@ public abstract class Shape implements
 				dim = this.getDimension(dimens);
 				if(dim._isSignificant)
 				{
-					dim.init(childElem, this);
+					dim.instantiate(childElem, this);
 					
 					/* Initialise resolution calculators */
 					rC = new ResolutionCalculator.UniformResolution();
@@ -219,7 +214,7 @@ public abstract class Shape implements
 			{
 				childElem = (Element) childNodes.item(i);
 				str = childElem.getAttribute(XmlRef.classAttribute);
-				aBoundary = (Boundary) Instantiatable.getNewInstance(childElem, 
+				aBoundary = (Boundary) Instance.getNew(childElem, 
 						this, str );
 //				aBoundary.init(childElem);
 				this.addOtherBoundary(aBoundary);

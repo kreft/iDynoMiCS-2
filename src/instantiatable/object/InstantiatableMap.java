@@ -8,11 +8,13 @@ import org.w3c.dom.NodeList;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
+import utility.Helper;
 import settable.Module.Requirements;
 
 /**
@@ -159,8 +161,12 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, In
 		if (this.bundleMapLabel == null ){
 			if ( XmlHandler.hasAttribute(xmlElement, XmlRef.nameAttribute))
 				this.bundleMapLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nameAttribute);
+			else if ( xmlElement != null )
+				this.bundleMapLabel = Helper.obtainInput(
+						xmlElement.getNodeName(), "Map label", false);
 			else
-				this.bundleMapLabel = xmlElement.getNodeName();
+				this.bundleMapLabel = Helper.obtainInput("","Map label", false);
+			
 		}
 		
 		if (this.keyLabel == null)

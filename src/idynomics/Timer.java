@@ -10,6 +10,7 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import dataIO.Log.Tier;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import utility.Helper;
 

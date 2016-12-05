@@ -331,11 +331,6 @@ public class ClassRef
 	public final static String speciesLibrary =
 			agent.SpeciesLib.class.getName();
 	
-	/**
-	 * TODO
-	 */
-	public final static String reactionLibrary = 
-			reaction.ReactionLibrary.class.getName();
 	
 	/* ************************************************************************
 	 * Grid classes
@@ -472,5 +467,9 @@ public class ClassRef
 	public final static String hashMap =
 			java.util.HashMap.class.getName();
 
-
+	/**
+	 * String
+	 */
+	public final static String string =
+			String.class.getName();
 }

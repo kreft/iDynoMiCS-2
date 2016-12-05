@@ -15,6 +15,7 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
@@ -160,8 +161,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 		 * Set up the shape.
 		 */
 		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
-		String str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
-		this.setShape( (Shape) Instantiatable.getNewInstance(
+		String[] str = new String[] { XmlHandler.gatherAttribute(elem, XmlRef.classAttribute) };
+		if ( str[0] == null )
+			str = Shape.getAllOptions();
+		this.setShape( (Shape) Instance.getNew(
 				elem, this, str) );	
 
 
@@ -183,9 +186,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 		/*
 		 * setup tree
 		 */
-		str = XmlHandler.gatherAttribute(xmlElem, XmlRef.tree);
-		str = Helper.setIfNone(str, String.valueOf(TreeType.RTREE));
-		this.agents.setSpatialTree(TreeType.valueOf(str));
+		
+		String type = XmlHandler.gatherAttribute(xmlElem, XmlRef.tree);
+		type = Helper.setIfNone(type, String.valueOf(TreeType.RTREE));
+		this.agents.setSpatialTree(TreeType.valueOf(type));
 		/*
 		 * Load solutes.
 		 */
@@ -211,8 +215,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 		Log.out(level,"Compartment "+this.name+ " loading "+XmlHandler.
 				getElements(xmlElem, XmlRef.process).size()+" processManagers");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.process) )
-			this.addProcessManager( (ProcessManager) Instantiatable.
-					getNewInstance( e, this, XmlHandler.obtainAttribute(
+			this.addProcessManager( (ProcessManager) Instance.
+					getNew( e, this, XmlHandler.obtainAttribute(
 					e, XmlRef.classAttribute, XmlRef.classAttribute ) ) );
 	}
 		
@@ -546,14 +550,14 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 	
 	public void removeModule(String specifier)
 	{
-		Idynomics.simulator.removeChildModule(this);
+		Idynomics.simulator.removeCompartment(this);
 	}
 	
 	public void removeChildModule(Settable child)
 	{
 		if (child instanceof Shape)
 		{
-			this.setShape( (Shape) Instantiatable.getNewInstance(
+			this.setShape( (Shape) Instance.getNew(
 					null, this, Shape.getAllOptions()) );
 			// FIXME also remove solutes, spatial grids would be incompatible 
 			// with a new shape
@@ -562,19 +566,19 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 			this._processes.remove((ProcessManager) child);
 	}
 	
-	@Override
-	public void addChildObject(Settable childObject) 
-	{
-		/* Set the shape. */
-		if ( childObject instanceof Shape)
-			this.setShape( (Shape) childObject); 
-		/* Add processManagers. */
-		if ( childObject instanceof ProcessManager)
-			this.addProcessManager( (ProcessManager) childObject); 
-		/*
-		 * NOTE Agents register themselves to the compartment (register birth).
-		 */
-	}
+//	@Override
+//	public void addChildObject(Settable childObject) 
+//	{
+//		/* Set the shape. */
+//		if ( childObject instanceof Shape)
+//			this.setShape( (Shape) childObject); 
+//		/* Add processManagers. */
+//		if ( childObject instanceof ProcessManager)
+//			this.addProcessManager( (ProcessManager) childObject); 
+//		/*
+//		 * NOTE Agents register themselves to the compartment (register birth).
+//		 */
+//	}
 
 	@Override
 	public String defaultXmlTag() 

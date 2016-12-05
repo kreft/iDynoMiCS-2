@@ -19,7 +19,7 @@ import org.xml.sax.SAXException;
 import agent.Body;
 import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
@@ -161,15 +161,15 @@ public class ObjectFactory
 				input = Helper.obtainInput( "", "Primary value" );
 			return input.split(",");
 		case ObjectRef.PILE :
-			return Instantiatable.getNewInstance( null, null, ClassRef.pile );
+			return Instance.getNew( null, null, ClassRef.pile );
 		case ObjectRef.BUNDLE :
-			return Instantiatable.getNewInstance( null, null, ClassRef.bundle );
+			return Instance.getNew( null, null, ClassRef.bundle );
 		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(input);
 		case ObjectRef.HASHMAP :
 			return ObjectFactory.xmlHashMap(input);
 		case ObjectRef.REACTION :
-			return Instantiatable.getNewInstance( null, null, ClassRef.reaction );
+			return Instance.getNew( null, null, ClassRef.reaction );
 		case ObjectRef.BODY :
 			return Body.instanceFromString(input);
 		}
@@ -275,17 +275,17 @@ public class ObjectFactory
 		case ObjectRef.STR_VECT : 
 			return s.getAttribute(value).split(",");
 		case ObjectRef.PILE :
-			return Instantiatable.getNewInstance(s, null, ClassRef.pile);
+			return Instance.getNew(s, null, ClassRef.pile);
 		case ObjectRef.BUNDLE :
-			return Instantiatable.getNewInstance(s, null, ClassRef.bundle);
+			return Instance.getNew(s, null, ClassRef.bundle);
 		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(s);
 		case ObjectRef.HASHMAP :
 			return ObjectFactory.xmlHashMap(s);
 		case ObjectRef.REACTION :
-			return Instantiatable.getNewInstance(s,null,ClassRef.reaction);
+			return Instance.getNew(s,null,ClassRef.reaction);
 		case ObjectRef.BODY :
-			return Instantiatable.getNewInstance(s,null,ClassRef.body);
+			return Instance.getNew(s,null,ClassRef.body);
 		}
 		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
 				+ "object class: " + objectClass);

@@ -10,6 +10,7 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
@@ -254,7 +255,7 @@ public class Aspect implements Instantiatable, Settable
 	    				node.getAttribute(XmlRef.classAttribute).getValue(), 
 	    				node.getAttribute(XmlRef.inputAttribute).getValue()), key);
 	    	case EVENT: 
-	    		this.set( Instantiatable.getNewInstance(null, null, 
+	    		this.set( Instance.getNew(null, null, 
 	    				node.getAttribute(XmlRef.classAttribute).getValue()), key);
 	    	case PRIMARY:
 			default:
@@ -292,13 +293,13 @@ public class Aspect implements Instantiatable, Settable
     		objectClass = Helper.obtainInput( Helper.listToArray(
     				ClassRef.getAllOptions( PackageRef.calculatedPackage ) ), 
     				"aspect class", false);
-    		this.set(  Instantiatable.getNewInstance(xmlElem, null, objectClass) , name );
+    		this.set(  Instance.getNew(xmlElem, null, objectClass) , name );
     		break;
     	case EVENT: 
     		objectClass = Helper.obtainInput( Helper.listToArray(
     				ClassRef.getAllOptions( PackageRef.eventPackage) ), 
     				"aspect class", false);
-    		this.set(  Instantiatable.getNewInstance(xmlElem, null, objectClass) , name );
+    		this.set(  Instance.getNew(xmlElem, null, objectClass) , name );
     		break;
     	case PRIMARY:
 		default:

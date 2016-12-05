@@ -8,7 +8,7 @@ import static test.AllTests.TOLERANCE;
 
 import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 
 import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;

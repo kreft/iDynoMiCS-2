@@ -7,11 +7,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import expression.Component;
 import expression.ExpressionB;
 import generalInterfaces.Copyable;
+import idynomics.EnvironmentContainer;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import instantiatable.object.InstantiatableMap;
 import referenceLibrary.ClassRef;
@@ -157,8 +161,8 @@ public class Reaction implements Instantiatable, Copyable, Settable
 	public void instantiate(Element xmlElem, Settable parent)
 	{
 		this._parentNode = parent;
-		if ( parent != null )
-			parent.addChildObject(this);
+		if ( parent instanceof EnvironmentContainer )
+			((EnvironmentContainer) parent).addReaction(this);
 		
 		if (XmlHandler.hasNode(xmlElem, XmlRef.reaction))
 		{
@@ -345,13 +349,8 @@ public class Reaction implements Instantiatable, Copyable, Settable
 
 	public void removeModule(String specifier)
 	{
-		this._parentNode.removeChildModule(this);
-	}
-
-	@Override
-	public void addChildObject(Settable childObject) {
-		// TODO Auto-generated method stub
-		
+		if (this._parentNode instanceof EnvironmentContainer)
+			((EnvironmentContainer) this._parentNode).deleteReaction(this);
 	}
 
 	@Override

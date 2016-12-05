@@ -15,6 +15,7 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -359,14 +360,6 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 
 	}
 
-	/**
-	 * 
-	 */
-	public void addChildObject(Settable childObject) 
-	{
-
-	}
-	
 	/**
 	 * Remove processManager from the compartment
 	 * NOTE a bit of a work around but this prevents the pm form having to have

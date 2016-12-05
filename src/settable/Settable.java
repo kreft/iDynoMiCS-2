@@ -2,7 +2,6 @@ package settable;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-
 /**
  * \brief TODO
  * 
@@ -26,6 +25,8 @@ public interface Settable
 	 */
 	public default void setModule(Module node)
 	{
+		/* By default if the module has no attributes to be set continue and
+		 * set the attributes of all child modules */
 		for ( Module n : node.getAllChildModules() )
 			n.settableObject.setModule(n);
 	}
@@ -38,41 +39,16 @@ public interface Settable
 	public default void removeModule(String specifier)
 	{
 		/*
-		 * By default assume the Node cannot be removed
+		 * By default assume the module cannot be removed, override if the
+		 * module can be removed
 		 */
 		Log.out(Tier.NORMAL, "Module cannot be removed");
 	}
-	
-	public default void removeChildModule(Settable childNode)
-	{
-		/*
-		 * By default do nothing, only applicable for Nodes that have childnodes
-		 */
-		Log.out(Tier.NORMAL, "Module cannot remove child module");
-	}
-	
-	/**
-	 * \brief Add a child object that is unable to register itself properly via
-	 * the newBlank call.
-	 * 
-	 * <p>This is likely called by the GUI.</p>
-	 * 
-	 * @param childObject
-	 */
-	public default void addChildObject(Settable childObject)
-	{
-		/* 
-		 * The default is do nothing since if possible the object should
-		 * register itself.
-		 */
-	}
-
+		
 	/**
 	 * @return Default XML tag for the XML node of this object.
 	 */
-	//TODO: we may want to merge this with the xmlable interface
 	public String defaultXmlTag();
-	
 	
 	/**
 	 * @return Description of this object's current state, in XML format.
@@ -82,7 +58,15 @@ public interface Settable
 		return this.getModule().getXML();
 	}
 
+	/**
+	 * Set the parent Object
+	 * @param parent
+	 */
 	public void setParent(Settable parent);
 	
+	/**
+	 * Get the parent Object
+	 * @return
+	 */
 	public Settable getParent();
 }

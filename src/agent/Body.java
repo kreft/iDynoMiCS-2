@@ -10,12 +10,14 @@ import org.w3c.dom.NodeList;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Settable;
 import surface.*;
+import utility.Helper;
 
 /**
  * \brief The 'body' of an agent is represented by sphere-swept volumes of a 
@@ -136,6 +138,8 @@ public class Body implements Copyable, Instantiatable
 	 */
 	public static Object instanceFromString(String input)
 	{
+		if (Helper.isNone(input))
+			input = Helper.obtainInput(input,"position vector", false);
 		List<Point> pointList = new LinkedList<Point>();
 		String[] points = input.split(Matrix.DELIMITER);
 		for (String s : points)

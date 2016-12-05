@@ -16,7 +16,7 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 import referenceLibrary.XmlRef;
 import settable.Module;
 import settable.Settable;
@@ -496,11 +496,6 @@ public abstract class Boundary implements Settable
 
 	@Override
 	public void setModule(Module node)
-	{
-		// TODO
-	}
-
-	public void removeNode()
 	{
 		// TODO
 	}

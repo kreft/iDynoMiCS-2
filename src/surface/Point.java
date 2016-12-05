@@ -1,5 +1,7 @@
 package surface;
 
+import org.w3c.dom.Element;
+
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
@@ -310,12 +312,6 @@ public class Point implements Copyable, Settable
 	}
 
 	@Override
-	public void addChildObject(Settable childObject)
-	{
-		// TODO Auto-generated method stub
-	}
-
-	@Override
 	public String defaultXmlTag()
 	{
 		// TODO Auto-generated method stub
@@ -333,4 +329,5 @@ public class Point implements Copyable, Settable
 	{
 		return this._parentNode;
 	}
+
 }

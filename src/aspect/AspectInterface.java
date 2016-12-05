@@ -8,7 +8,7 @@ import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 
@@ -51,10 +51,10 @@ public abstract interface AspectInterface
 						String.valueOf( AspectClass.PRIMARY ) ) ) )
 		    	{
 		    	case CALCULATED:
-		    		aspectReg.add( key , Instantiatable.getNewInstance( s ) );
+		    		aspectReg.add( key , Instance.getNew( s ) );
 		    		break;
 		    	case EVENT: 
-		    		aspectReg.add( key , Instantiatable.getNewInstance( s ) );
+		    		aspectReg.add( key , Instance.getNew( s ) );
 		    		break;
 		    	case PRIMARY:
 				default:

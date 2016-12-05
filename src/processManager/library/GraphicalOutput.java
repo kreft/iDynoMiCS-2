@@ -15,7 +15,7 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
@@ -123,7 +123,7 @@ public class GraphicalOutput extends ProcessManager
 					_arrayType.toString();
 
 		/* get instance of appropriate output writer */
-		this._graphics = (GraphicalExporter) Instantiatable.getNewInstance(
+		this._graphics = (GraphicalExporter) Instance.getNew(
 				null, null, Helper.obtainIfNone( this.getString(OUTPUT_WRITER ), 
 				"output writer", false, options() ) );
 		

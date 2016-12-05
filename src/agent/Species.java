@@ -6,6 +6,7 @@ import org.w3c.dom.Node;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import idynomics.Idynomics;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -63,7 +64,7 @@ public class Species implements AspectInterface, Settable, Instantiatable
 		String name = "";
 		name = Helper.obtainInput(name, "Species name");
 		this.reg().setIdentity(name);
-		Idynomics.simulator.speciesLibrary.addChildObject(this);
+		Idynomics.simulator.speciesLibrary.addSpecies(this);
 	}
 
 	/*************************************************************************

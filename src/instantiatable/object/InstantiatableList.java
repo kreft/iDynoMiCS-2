@@ -8,6 +8,7 @@ import org.w3c.dom.NodeList;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import idynomics.Idynomics;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;

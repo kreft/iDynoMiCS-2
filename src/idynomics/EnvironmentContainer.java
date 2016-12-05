@@ -188,7 +188,6 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	{
 		Collection<Reaction> out = new LinkedList<Reaction>();
 		out.addAll(this._reactions);
-		out.addAll(Idynomics.simulator.reactionLibrary.getAllReactions());
 		return this._reactions;
 	}
 	
@@ -206,11 +205,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		for ( Reaction reac : this._reactions )
 			if ( reac.getName().equals(name) )
 				return reac;
-		/*
-		 * Try getting the reaction from the library - if it's not there, then
-		 * this will be null.
-		 */
-		return Idynomics.simulator.reactionLibrary.getReaction(name);
+		return null;
 	}
 	
 	/**
@@ -534,12 +529,10 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 		Settable.super.setModule(node);
 	}
 	
-	public void removeChildModule(Settable child)
+	public void removeSolute(SpatialGrid solute)
 	{
-		if (child instanceof SpatialGrid)
-			this._solutes.remove((SpatialGrid) child);
-		if (child instanceof Reaction)
-			this._reactions.remove((Reaction) child);
+
+		this._solutes.remove(solute);
 	}
 
 	@Override

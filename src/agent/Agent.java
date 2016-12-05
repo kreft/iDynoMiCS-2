@@ -11,6 +11,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
@@ -55,28 +56,7 @@ public class Agent implements AspectInterface, Settable, Instantiatable
 	{
 
 	}
-	
-	/**
-	 * Used by GUI, dummy agent.
-	 */
-	public Agent(Compartment comp)
-	{
-		this._compartment = comp;
-	}
 
-	/**
-	 * \brief Construct an {@code Agent} with unknown {@code Compartment}.
-	 * 
-	 * <p>This is useful for agent introduction by a {@code ProcessManager}.
-	 * </p>
-	 * 
-	 * @param xmlNode
-	 */
-	public Agent(Node xmlNode)
-	{
-		this.loadAspects(xmlNode);
-	}
-	
 	/**
 	 * NOTE Bit of a hack allows initiation of multiple random agents
 	 * Agent xml constructor allowing for multiple randomized initial agents
@@ -347,7 +327,20 @@ public class Agent implements AspectInterface, Settable, Instantiatable
 		
 		return modelNode;
 	}
+	
+	/**
+	 * Update this module and all child modules with updated information from
+	 * the gui (init if the agent is newly created in the gui).
+	 */
+	public void setModule(Module node)
+	{
+		Settable.super.setModule(node);
+		this.init(); // Updates species module if changed
+	}
 
+	/**
+	 * respond to gui command to remove the agent
+	 */
 	public void removeModule(String specifier)
 	{
 		this._compartment.registerRemoveAgent(this);

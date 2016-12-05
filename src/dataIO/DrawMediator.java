@@ -11,7 +11,7 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
@@ -89,7 +89,7 @@ public class DrawMediator {
 
 		/* get instance of appropriate output writer */
 		if ( Helper.isNone(_graphics))
-			this._graphics = (GraphicalExporter) Instantiatable.getNewInstance(
+			this._graphics = (GraphicalExporter) Instance.getNew(
 					null, null, ClassRef.svgExport,	ClassRef.povExport );
 		
 		/* write scene files (used by pov ray) */

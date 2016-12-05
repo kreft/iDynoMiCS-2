@@ -25,7 +25,7 @@ import grid.diffusivitySetter.AllSameDiffuse;
 import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
@@ -125,7 +125,7 @@ public class SolveDiffusionTransient extends ProcessManager
 			String soluteName = dElem.getAttribute(XmlRef.solute);
 			String className = dElem.getAttribute(XmlRef.classAttribute);
 			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
-					Instantiatable.getNewInstance(dElem, this, className);
+					Instance.getNew(dElem, this, className);
 			this._diffusivity.put(soluteName, diffusivity);
 		}
 	}

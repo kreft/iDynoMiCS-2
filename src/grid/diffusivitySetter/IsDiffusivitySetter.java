@@ -6,6 +6,7 @@ package grid.diffusivitySetter;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 
 /**

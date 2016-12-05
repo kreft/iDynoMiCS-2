@@ -15,7 +15,7 @@ import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;

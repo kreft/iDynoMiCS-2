@@ -2,6 +2,8 @@ package settable.primarySetters;
 
 import java.util.List;
 
+import org.w3c.dom.Element;
+
 import dataIO.ObjectFactory;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -73,7 +75,7 @@ public class LinkedListSetter<T> implements Settable {
 		Object  value;
 		if (this.listObject instanceof Settable)
 		{
-			value = node.getAllChildModules().get(0).settableObject;
+			value = node.getAllChildModules().get(0).getMyObject();
 		}
 		else
 		{
@@ -103,12 +105,6 @@ public class LinkedListSetter<T> implements Settable {
 	}
 
 	@Override
-	public void addChildObject(Settable childObject) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public String defaultXmlTag() 
 	{
 		return XmlRef.item;
@@ -125,4 +121,5 @@ public class LinkedListSetter<T> implements Settable {
 	{
 		return this._parentNode;
 	}
+
 }

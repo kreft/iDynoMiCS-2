@@ -2,6 +2,7 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.Redirectable;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.XmlRef;
 import settable.Settable;
@@ -54,7 +55,7 @@ public abstract class Calculated implements Copyable, Instantiatable, Redirectab
 	}
 	
 	public static Object instanceFromString(String objecClass, String input) {
-		Calculated obj = (Calculated) Instantiatable.getNewInstance(null, null, 
+		Calculated obj = (Calculated) Instance.getNew(null, null, 
 				objecClass );
 		obj.init(input);
 		return obj;

@@ -2,7 +2,7 @@ package settable;
 
 import java.util.LinkedList;
 import java.util.List;
-import instantiatable.Instantiatable;
+import instantiatable.Instance;
 
 /**
  * \brief TODO
@@ -82,7 +82,7 @@ public class Module
 	/**
 	 * Object associated with node.
 	 */
-	public Settable settableObject;
+	protected Settable settableObject;
 
 	/**
 	 * List of child module specifications. Add the specification to this list
@@ -116,6 +116,15 @@ public class Module
 		this.settableObject = constructor;
 		this._childModules = new LinkedList<Module>();
 		this._attributes = new LinkedList<Attribute>();
+	}
+	
+	/* ***********************************************************************
+	 * Object associated with this module
+	 * **********************************************************************/
+	
+	public Object getMyObject()
+	{
+		return settableObject;
 	}
 
 	/* ***********************************************************************
@@ -217,15 +226,6 @@ public class Module
 	 * **********************************************************************/
 
 	/**
-	 * Adding a child object, action performed on clicking add button in gui
-	 * @param childObject
-	 */
-	public void add(Settable childObject)
-	{
-		this.settableObject.addChildObject(childObject);
-	}
-	
-	/**
 	 * \brief Add the given child node to this ModelNode object.
 	 * 
 	 * @param childNode Child model node to add.
@@ -284,13 +284,13 @@ public class Module
 		Settable con;
 		if (c.options() == null)
 		{
-			con = (Settable) Instantiatable.
-					getNewInstance(	null, this.settableObject, c.classRef() );
+			con = (Settable) Instance.getNew( null, this.settableObject, 
+					c.classRef() );
 		}
 		else
 		{
-			con =  (Settable) Instantiatable.getNewInstance(	
-					null, this.settableObject, c.options() );
+			con =  (Settable) Instance.getNew( null, this.settableObject, 
+					c.options() );
 		}
 		Module node = con.getModule();
 		this.add(node);

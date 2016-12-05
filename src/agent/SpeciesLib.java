@@ -10,6 +10,7 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -195,11 +196,10 @@ public class SpeciesLib implements Instantiatable, Settable
 	 * newBlank call.
 	 * @param childOb
 	 */
-	@Override
-	public void addChildObject(Settable childObject) 
+
+	public void addSpecies(Species species) 
 	{
-		if (childObject instanceof Species)
-			this.set((Species) childObject);
+		this.set(species);
 	}
 
 	/**

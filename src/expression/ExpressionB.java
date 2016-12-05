@@ -789,12 +789,6 @@ public class ExpressionB extends Component implements Settable
 	}
 
 	@Override
-	public void addChildObject(Settable childObject) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public String defaultXmlTag() {
 		// TODO Auto-generated method stub
 		return XmlRef.expression;

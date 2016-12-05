@@ -71,7 +71,8 @@ public class BoundaryTest
 		/*
 		 * Now make a fixed agent that the insert agent should detect.
 		 */
-		Agent fixedAgent = new Agent(comp);
+		Agent fixedAgent = new Agent();
+		fixedAgent.setCompartment(comp);
 		Body fBody = new Body(new double[]{1.0}, 1.0);
 		Log.out(Tier.DEBUG, "Agent (UID: "+fixedAgent.identity()+") at x = 1.0");
 		fixedAgent.set(AspectRef.agentBody, fBody);

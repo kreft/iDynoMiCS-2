@@ -97,7 +97,7 @@ public class HashMapSetter<K,T> implements Settable {
 		Object key, value;
 		if (this.mapObject instanceof Settable)
 		{
-			value = node.getAllChildModules().get(0).settableObject;
+			value = node.getAllChildModules().get(0).getMyObject();
 			if ( this.muteClassDef )
 			{
 				key = ObjectFactory.loadObject(
@@ -144,11 +144,6 @@ public class HashMapSetter<K,T> implements Settable {
 		this.map.remove(this.mapKey);
 	}
 
-	@Override
-	public void addChildObject(Settable childObject) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public String defaultXmlTag() 

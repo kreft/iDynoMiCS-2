@@ -1,6 +1,7 @@
 package dataIO;
 
 import dataIO.Log.Tier;
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
 import shape.Shape;

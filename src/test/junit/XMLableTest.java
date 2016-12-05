@@ -6,6 +6,7 @@ package test.junit;
 import org.junit.Test;
 import org.w3c.dom.Element;
 
+import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import settable.Settable;
 
@@ -42,7 +43,8 @@ public class XMLableTest
 	public void dummyClassIsInstanciable()
 	{
 		/* This should crash if the method is wrong. */
-		TestXMLable t = (TestXMLable) Instantiatable.getNewInstance(null, null, "testJUnit.XMLableTest$testXMLable");
+		TestXMLable t = (TestXMLable) Instance.getNew(null, null, 
+				"testJUnit.XMLableTest$testXMLable");
 		/* Dummy test to check that t in an instance. */
 		assertTrue( t.isX(1) );
 		t.setX(3);
