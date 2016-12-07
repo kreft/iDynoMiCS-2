@@ -139,8 +139,9 @@ public class AspectReg
 	 */
 	public void addSubModule(AspectInterface module)
 	{
-		if(module != null)
-			this._subModules.add(module.reg().getIdentity());
+
+		if( module != null && !this._subModules.contains(module) )
+			this._subModules.add( module.reg().getIdentity() );
 	}
 	
 	/**

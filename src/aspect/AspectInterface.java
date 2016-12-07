@@ -84,16 +84,10 @@ public abstract interface AspectInterface
 			if ( this.reg().getValue(this, aspect) != null )
 				return true;
 			else
-			{
-				Log.out(Tier.BULK, "Aspect \""+aspect+"\" found but null");
 				return false;
-			}
 		}
 		else
-		{
-			Log.out(Tier.BULK, "Aspect \""+aspect+"\" not found");
 			return false;
-		}
 	}
 	
 	/**

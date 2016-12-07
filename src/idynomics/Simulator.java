@@ -133,19 +133,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 					this, ClassRef.speciesLibrary );
 		}
 		/*
-		 * Set up the reaction library.
-		 * FIXME disabled since reactionLibrary has no implementation of 
-		 * init(Element, parent) and does will always be an empty container
-		 */
-//		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.reactionLibrary))
-//		{
-//			this.reactionLibrary = (ReactionLibrary)
-//					Instantiatable.getNewInstance(
-//						ClassRef.reactionLibrary,
-//						XmlHandler.loadUnique(xmlElem, XmlRef.speciesLibrary ),
-//						this);
-//		}
-		/*
 		 * Set up the compartments.
 		 */
 		Log.out(Tier.NORMAL, "Compartments loading...");
