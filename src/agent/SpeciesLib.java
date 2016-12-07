@@ -1,6 +1,8 @@
 package agent;
 
 import java.util.HashMap;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -43,7 +45,7 @@ public class SpeciesLib implements Instantiatable, Settable
 		}
 		return names;
 	}
-
+	
 	/**
 	 * \brief TODO
 	 * 
@@ -90,7 +92,7 @@ public class SpeciesLib implements Instantiatable, Settable
 			name = s.getAttribute(XmlRef.nameAttribute);
 			Log.out(Tier.DEBUG, "Loading SpeciesModule \""+name+"\"");
 			species._aspectRegistry.addSubModule(
-					this.get(name) );
+					this.get(name), name );
 		}
 	}
 

@@ -3,10 +3,13 @@ package aspect;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import gereralPredicates.IsSame;
 import idynomics.Idynomics;
 import instantiatable.object.InstantiatableList;
 import dataIO.Log.Tier;
@@ -38,17 +41,21 @@ public class AspectReg
 	protected HashMap<String, Aspect> _aspects = 
 											new HashMap<String, Aspect>();
 	
-	/**
-	 * all (sub) modules
-	 */
-	protected InstantiatableList<String> _subModules = new InstantiatableList<String>(String.class,
-			XmlRef.nameAttribute, XmlRef.modules, XmlRef.speciesModule );
+//	/**
+//	 * all (sub) modules
+//	 */
+//	protected InstantiatableList<String> _subModules = 
+//			new InstantiatableList<String>( String.class, XmlRef.nameAttribute, 
+//			XmlRef.modules, XmlRef.speciesModule );
+	
+	protected HashMap<String,AspectInterface> modules = new HashMap<String,AspectInterface>();
 	
 	/**
 	 * get the identity of this aspectReg
 	 * @return
 	 */
-	public String getIdentity() {
+	public String getIdentity() 
+	{
 		return _identity;
 	}
 
@@ -56,7 +63,8 @@ public class AspectReg
 	 * set the identity of this apspectReg
 	 * @param _identity
 	 */
-	public void setIdentity(String _identity) {
+	public void setIdentity(String _identity) 
+	{
 		this._identity = _identity;
 	}
 		
@@ -74,6 +82,11 @@ public class AspectReg
 		return false;
 	}
 	
+	public boolean isLocalAspect(String key)
+	{
+		return this._aspects.containsKey(key);
+	}
+	
 	/**
 	 * add an aspect to this registry
 	 */
@@ -84,10 +97,8 @@ public class AspectReg
 		else
 		{
 			if ( this._aspects.containsKey(key) )
-			{
 				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
 						" which already exists in this aspect registry");
-			}
 			else
 			{
 				this._aspects.put(key, new Aspect(aspect, key, this) );
@@ -102,24 +113,22 @@ public class AspectReg
 		else
 		{
 			if ( this._aspects.containsKey(key) )
-			{
 				Log.out(Tier.DEBUG, "Attempt to add aspect " + key + 
 						" which already exists in this aspect registry");
-			}
 			else
-				this._aspects.put(key, aspect );
+				this._aspects.put( key, aspect );
 		}
 	}
 	
 	/**
 	 * same as add but intend is to overwrite
 	 */
-	public void set(String key, Object aspect)
+	public void set( String key, Object aspect )
 	{
 		if ( this._aspects.containsKey(key) )
-			this.getAspect(key).set(aspect, key);
+			this.getAspect(key).set( aspect, key );
 		else
-			this._aspects.put(key, new Aspect(aspect, key, this) );
+			this._aspects.put( key, new Aspect( aspect, key, this ) );
 	}
 	
 	/**
@@ -137,11 +146,11 @@ public class AspectReg
 	 * 
 	 * @param module
 	 */
-	public void addSubModule(AspectInterface module)
+	public void addSubModule(  AspectInterface module, String name)
 	{
 
-		if( module != null && !this._subModules.contains(module) )
-			this._subModules.add( module.reg().getIdentity() );
+		if( module != null && !this.modules.entrySet().contains(module) )
+			this.modules.put( name, module );
 	}
 	
 	/**
@@ -151,7 +160,7 @@ public class AspectReg
 	 */
 	public void removeSubmodule(String module) 
 	{
-		this._subModules.remove(module);
+        modules.remove( Idynomics.simulator.speciesLibrary.get( module ) );
 	}
 	
 	/**
@@ -162,7 +171,7 @@ public class AspectReg
 	 */
 	public void addSubModule(String name, AspectInterface library)
 	{
-		addSubModule( (AspectInterface) library.getValue(name) );
+		addSubModule( (AspectInterface) library.getValue(name), name );
 	}
 	
 	public LinkedList<AspectInterface> getSubModules()
@@ -175,14 +184,23 @@ public class AspectReg
 	
 	public InstantiatableList<String> getSubModuleNames()
 	{
-		return this._subModules;
+		InstantiatableList<String> _subModules = 
+				new InstantiatableList<String>( String.class, XmlRef.nameAttribute, 
+				XmlRef.modules, XmlRef.speciesModule );
+		for (String a : modules.keySet() )
+			_subModules.add(a);
+		return _subModules;
+	}
+	
+	public Map<String, AspectInterface> getSubModuleMap()
+	{
+		return this.modules;
 	}
 	
 	/**
 	 * get value if the aspect is a primary or calculated state
 	 */
-	public Object getValue( AspectInterface rootRegistry, 
-			String key )
+	public Object getValue( AspectInterface rootRegistry, String key )
 	{
 		Aspect a = getAspect(key);
 		if ( a == null )
@@ -212,10 +230,8 @@ public class AspectReg
 		if ( a == null )
 		{
 			if ( Log.shouldWrite(level) )
-			{
 				Log.out(Tier.BULK, "Warning: aspect registry does not"
 						+ " contain event:" + key);
-			}
 		}
 		else if ( a.type != Aspect.AspectClass.EVENT )
 		{
@@ -233,16 +249,15 @@ public class AspectReg
 	 */
 	private Aspect getAspect(String key)
 	{
-		Tier level = Tier.BULK;
-		if ( this._aspects.containsKey(key) )
-			return this._aspects.get(key);
-		else
+		Aspect out = this._aspects.get(key);
+		if (out == null)
 			for ( AspectInterface m : this.getSubModules() )
-				if ( m.reg().isGlobalAspect(key) )
-					return (Aspect) m.reg().getAspect(key);
-		if ( Log.shouldWrite(level) )
-			Log.out(Tier.BULK, "Warning: could not find aspect \"" + key+"\"");
-		return null;
+			{
+				out = m.reg().getAspect(key);
+				if (out != null)
+					return out;
+			}
+		return out;
 	}
 	
 	/**
@@ -255,8 +270,8 @@ public class AspectReg
 		for ( String key : donorReg._aspects.keySet() )
 			add( key, (Object) ObjectFactory.copy(
 					donorReg.getAspect(key).aspect ) );
-		for (AspectInterface m : donorReg.getSubModules() )
-			addSubModule(m);
+		for (String s : donorReg.getSubModuleMap().keySet() )
+			addSubModule(donorReg.getSubModuleMap().get(s), s );
 	}
 
 	/**
@@ -265,7 +280,7 @@ public class AspectReg
 	public void clear()
 	{
 		this._aspects.clear();
-		this._subModules.clear();
+		this.modules.clear();
 	}
 	
 	/*************************************************************************
@@ -320,7 +335,8 @@ public class AspectReg
 	 * @param constructor
 	 * @return
 	 */
-	public Module getModuleNode(Settable constructor) {
+	public Module getModuleNode(Settable constructor) 
+	{
 		Module modelNode = new Module(XmlRef.speciesModule,constructor);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this.getIdentity());

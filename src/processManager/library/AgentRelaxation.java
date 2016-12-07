@@ -258,15 +258,6 @@ public class AgentRelaxation extends ProcessManager
 	@Override
 	protected void internalStep()
 	{
-		/**
-		 * Update agent body now required
-		 */
-		for(Agent agent: this._agents.getAllLocatedAgents()) 
-		{
-			agent.event(UPDATE_BODY);
-			agent.event(DIVIDE);
-			agent.event(EXCRETE_EPS); //FIXME probably not the best place to make this call
-		}
 
 		int nstep	= 0;
 		_tMech		= 0.0;

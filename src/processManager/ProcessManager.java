@@ -272,10 +272,9 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		Tier level = Tier.DEBUG;
 		if ( Log.shouldWrite(level) )
 		{
-			Log.out(level,
-					this._name+": timeForNextStep = "+this._timeForNextStep);
-			Log.out(level,
-					"    real time taken = "+((tock - tick)*0.001)+" seconds");
+			Log.out( level, this._name + " next: " + 
+					this._timeForNextStep + ", duration: " + 
+					( (tock - tick ) * 0.001 ) + " s");
 		}
 		
 	}

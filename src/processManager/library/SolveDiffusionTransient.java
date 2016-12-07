@@ -82,6 +82,10 @@ public class SolveDiffusionTransient extends ProcessManager
 	 */
 	public String SOLUTES = AspectRef.soluteNames;
 
+	public String DIVIDE = AspectRef.agentDivision;
+	
+	public String UPDATE_BODY = AspectRef.bodyUpdate;
+	public String EXCRETE_EPS = AspectRef.agentExcreteEps;
 	
 	
 	/* ***********************************************************************
@@ -175,6 +179,17 @@ public class SolveDiffusionTransient extends ProcessManager
 		 */
 		for ( Agent a : this._agents.getAllLocatedAgents() )
 			a.reg().remove(VOLUME_DISTRIBUTION_MAP);
+		
+		/**
+		 * act upon new agent situations
+		 */
+		for(Agent agent: this._agents.getAllAgents()) 
+		{
+			agent.event(DIVIDE);
+			agent.event(EXCRETE_EPS);
+			agent.event(UPDATE_BODY);
+		}
+
 	}
 	
 	/* ***********************************************************************

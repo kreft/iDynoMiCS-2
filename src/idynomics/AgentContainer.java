@@ -40,6 +40,7 @@ import surface.Collision;
 import surface.predicate.IsNotColliding;
 import surface.Surface;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Manages the agents in a {@code Compartment}.
@@ -651,6 +652,7 @@ public class AgentContainer implements Settable
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
+//		anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
 		this._locatedAgentList.add(anAgent);
 		this.treeInsert(anAgent);
 	}
@@ -666,11 +668,9 @@ public class AgentContainer implements Settable
 	 */
 	private void treeInsert(Agent anAgent)
 	{
-		anAgent.event(AspectRef.agentUpdateBody);
 		Body body = ((Body) anAgent.get(AspectRef.agentBody));
-		double dist = 0.0;
-		if ( anAgent.isAspect(AspectRef.agentPulldistance) )
-			dist = anAgent.getDouble(AspectRef.agentPulldistance);
+		Double dist = anAgent.getDouble(AspectRef.agentPulldistance);
+		dist = Helper.setIfNone(dist, 0.0);
 		List<BoundingBox> boxes = body.getBoxes(dist);
 		for ( BoundingBox b: boxes )
 			this._agentTree.insert(b, anAgent);

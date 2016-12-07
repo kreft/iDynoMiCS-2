@@ -15,7 +15,7 @@
 				the simulation. small test -->
 			<species name="rAOB">
 				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
- <reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+ <list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
@@ -24,7 +24,7 @@
 							<stoichiometric component="mass" coefficient="0.1" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 						</reaction> 
- </reactions>
+ </list>
 				</aspect>
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<speciesModule name="rod" />

@@ -2,7 +2,6 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.Redirectable;
-import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.XmlRef;
 import settable.Settable;

@@ -381,6 +381,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 	{
 		// TODO temporary fix, reassess
 		this._localTime = Idynomics.simulator.timer.getCurrentTime();
+		Log.out(Tier.NORMAL, "");
+		Log.out(Tier.NORMAL, "Compartment "+this.name+
+				" at local time "+this._localTime);
 		
 		if ( this._processes.isEmpty() )
 			return;
@@ -388,8 +391,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 		while ( (this._localTime = currentProcess.getTimeForNextStep() ) 
 					< Idynomics.simulator.timer.getEndOfCurrentIteration() )
 		{
-			Log.out(Tier.EXPRESSIVE, "");
-			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
+			Log.out(Tier.BULK, "Compartment "+this.name+
 								" running process "+currentProcess.getName()+
 								" at local time "+this._localTime);
 			/*
@@ -567,20 +569,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 		if (child instanceof ProcessManager)
 			this._processes.remove((ProcessManager) child);
 	}
-	
-//	@Override
-//	public void addChildObject(Settable childObject) 
-//	{
-//		/* Set the shape. */
-//		if ( childObject instanceof Shape)
-//			this.setShape( (Shape) childObject); 
-//		/* Add processManagers. */
-//		if ( childObject instanceof ProcessManager)
-//			this.addProcessManager( (ProcessManager) childObject); 
-//		/*
-//		 * NOTE Agents register themselves to the compartment (register birth).
-//		 */
-//	}
 
 	@Override
 	public String defaultXmlTag() 

@@ -15,8 +15,8 @@
 				the simulation. small test -->
 			<species name="AOB">
 				<aspect name="reactions" type="PRIMARY" class="InstantiatableList">
-					<reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
-					</reactions>
+					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+					</list>
 				</aspect>
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<speciesModule name="coccoid" />

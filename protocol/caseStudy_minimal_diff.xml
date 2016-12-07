@@ -19,7 +19,7 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
-					<reactions class="Reaction" nodeLabel="reaction" 
+					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
@@ -37,7 +37,7 @@
 							<stoichiometric component="nitrite" 	coefficient="10.0" />
 							<stoichiometric component="oxygen" 		coefficient="-33.3" />
 						</reaction> 
-					</reactions>
+					</list>
 				</aspect>
 			</species>
 			
@@ -46,7 +46,7 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
-					<reactions class="Reaction" nodeLabel="reaction" 
+					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
@@ -65,7 +65,7 @@
 							<stoichiometric component="nitrate" 	coefficient="25.0" />
 							<stoichiometric component="oxygen" 		coefficient="-27.5" />
 						</reaction> 
-					</reactions>
+					</list>
 				</aspect>
 			</species>
 			
@@ -74,7 +74,7 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
-					<reactions class="Reaction" nodeLabel="reaction" 
+					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
@@ -92,7 +92,7 @@
 							<stoichiometric component="nitrate" 	coefficient="7.1429" />
 							<stoichiometric component="oxygen" 		coefficient="-23.5" />
 						</reaction> 
-					</reactions>
+					</list>
 				</aspect>
 			</species>
 

@@ -593,7 +593,9 @@ public final class ExtraMath
 	 */
 	public static final double radiusOfASphere(double volume)
 	{
+		/* alternatively Math.pow((volume*0.23873241463),0.333333333333) */
 		return cubeRoot(volume*0.75/Math.PI);
+//		return Math.pow((volume*0.23873241463),0.333333333333);
 	}
 	
 	

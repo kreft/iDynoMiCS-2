@@ -19,7 +19,7 @@
 				<speciesModule name="coccoid" />
 				<speciesModule name="producer" />
 				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
-					<reactions class="Reaction" nodeLabel="reaction" 
+					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
 							<expression value="mass * mumax * 
@@ -37,7 +37,7 @@
 							<stoichiometric component="nitrate" 	coefficient="1.587" />
 							<stoichiometric component="oxygen" 		coefficient="-6.25" />
 						</reaction> 
-					</reactions>
+					</list>
 				</aspect>
 			</species>
 
