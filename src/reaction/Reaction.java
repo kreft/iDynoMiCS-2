@@ -26,6 +26,7 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import settable.primarySetters.HashMapSetter;
+import utility.Helper;
 
 /**
  * \brief The reaction class handles the chemical conversions of various
@@ -163,8 +164,8 @@ public class Reaction implements Instantiatable, Copyable, Settable
 		this._parentNode = parent;
 		if ( parent instanceof EnvironmentContainer )
 			((EnvironmentContainer) parent).addReaction(this);
-		
-		if (XmlHandler.hasNode(xmlElem, XmlRef.reaction))
+
+		if ( !Helper.isNone(xmlElem) && XmlHandler.hasNode(xmlElem, XmlRef.reaction))
 		{
 			xmlElem = XmlHandler.loadUnique(xmlElem, XmlRef.reaction);
 		}
@@ -178,11 +179,12 @@ public class Reaction implements Instantiatable, Copyable, Settable
 		/*
 		 * Build the reaction rate expression.
 		 */
-		if ( xmlElem == null || !XmlHandler.hasNode(xmlElem, XmlRef.expression))
+		if ( Helper.isNone(xmlElem) || !XmlHandler.hasNode(xmlElem, XmlRef.expression))
 			this._kinetic = new ExpressionB("");
 		else
 			this._kinetic = new 
 				ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+		
 	}
 	
 	/**

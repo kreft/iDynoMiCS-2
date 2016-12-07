@@ -507,6 +507,10 @@ public class ObjectFactory
 			// Strings are immutable
 			return String.valueOf((String) copyable);
 		}
+		if (copyable instanceof Copyable)
+		{
+			return ((Copyable) copyable).copy();
+		} 
 		if (copyable instanceof List<?>)
 		{
 			List<T> spawn = new LinkedList<T>();
@@ -521,10 +525,6 @@ public class ObjectFactory
 				spawn.put((K) key, (T) ObjectFactory.copy(((Map<?,?>) copyable).get((K) key)));	
 			return spawn;
 		}
-		if (copyable instanceof Copyable)
-		{
-			return ((Copyable) copyable).copy();
-		} 
 		else 
 		{
 			Log.out(Tier.DEBUG,"WARNING: Attempting to deep copy unkown object"

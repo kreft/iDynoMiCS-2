@@ -9,8 +9,6 @@ import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import idynomics.Idynomics;
-import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -31,11 +29,6 @@ public class SpeciesLib implements Instantiatable, Settable
 	 */
 	protected HashMap<String, AspectInterface> _species = 
 			new HashMap<String, AspectInterface>();
-
-	/**
-	 * Void species, returned if no species is set.
-	 */
-	protected Species _voidSpecies = new Species();
 
 	private Settable _parentNode;
 
@@ -156,7 +149,7 @@ public class SpeciesLib implements Instantiatable, Settable
 				Log.out(level, "Species Library could not find \""+name+
 						"\", returning void species");
 			}
-			return this._voidSpecies;
+			return null;
 		}
 	}
 

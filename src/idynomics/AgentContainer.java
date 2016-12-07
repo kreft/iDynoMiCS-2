@@ -1143,6 +1143,16 @@ public class AgentContainer implements Settable
 	{
 		return this._parentNode;
 	}
+
+	public void sortLocatedAgents() 
+	{
+		for(Agent a : this.getAllUnlocatedAgents())
+			if( isLocated(a))
+			{
+				this._agentList.remove(a);
+				this._locatedAgentList.add(a);
+			}
+	}
 	
 	/* ***********************************************************************
 	 * REPORTING

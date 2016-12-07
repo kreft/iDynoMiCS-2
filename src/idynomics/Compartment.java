@@ -365,6 +365,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 		 * compartment now.
 		 */
 		this.agents.agentsArrive();
+		
+		this.agents.sortLocatedAgents();
 		/*
 		 * Ask all boundaries to update their solute concentrations.
 		 */

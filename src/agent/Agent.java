@@ -99,16 +99,44 @@ public class Agent implements AspectInterface, Settable, Instantiatable
 	}
 	
 	/**
+	 * Assign the correct species from the species library
+	 */
+	public void init()
+	{
+		String species;
+		
+		if ( this.isAspect(XmlRef.species) )
+		{
+			species = this.getString(XmlRef.species);
+			if (Log.shouldWrite(Tier.DEBUG))
+				Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
+		}
+		else
+		{
+			species = "";
+			if (Log.shouldWrite(Tier.DEBUG))
+				Log.out(Tier.DEBUG, "Agent belongs to void species");
+		}
+		this._aspectRegistry.addSubModule( (Species) 
+				Idynomics.simulator.speciesLibrary.get(species));
+	}
+
+	
+	/**
 	 * Instantiatable implementation
 	 */
 	public void instantiate(Element xmlElement, Settable parent)
 	{
-		//FIXME change entire class to just using parent
-		this._parentNode = parent;
+		((Compartment) parent.getParent()).addAgent(this);
 		this._compartment = (Compartment) parent.getParent();
-		this.loadAspects(xmlElement);
+		loadAspects(xmlElement);
 		this.init();
-		this.registerBirth();
+//		this._parentNode = parent;
+//		this._compartment = (Compartment) parent.getParent();
+//		this.loadAspects(xmlElement);
+//		this.init();
+//		this._compartment.addAgent(this);
+//		this.registerBirth();
 	}
 	
 	/**
@@ -158,31 +186,6 @@ public class Agent implements AspectInterface, Settable, Instantiatable
 		this.init();
 		this._compartment = agent.getCompartment();
 	}
-
-	/**
-	 * Assign the correct species from the species library
-	 */
-	public void init()
-	{
-		String species;
-		
-		if ( this.isAspect(XmlRef.species) )
-		{
-			species = this.getString(XmlRef.species);
-			if (Log.shouldWrite(Tier.DEBUG))
-				Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
-		}
-		else
-		{
-			species = "";
-			if (Log.shouldWrite(Tier.DEBUG))
-				Log.out(Tier.DEBUG, "Agent belongs to void species");
-		}
-		
-		this._aspectRegistry.addSubModule( (Species) 
-				Idynomics.simulator.speciesLibrary.get(species));
-	}
-
 
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS

@@ -1,12 +1,14 @@
 package instantiatable.object;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
+import generalInterfaces.Copyable;
 import idynomics.Idynomics;
 import instantiatable.Instance;
 import instantiatable.Instantiatable;
@@ -27,7 +29,8 @@ import settable.Module.Requirements;
  * @param <K>
  * @param <T>
  */
-public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, Instantiatable
+public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, 
+		Instantiatable, Copyable
 {
 	/**
 	 * default serial uid (generated)
@@ -150,6 +153,19 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, In
 		// NOTE only for Instantiatable interface
 	}
 	
+
+	@SuppressWarnings("unchecked")
+	public Object copy() 
+	{
+		InstantiatableMap<K,T> out = new InstantiatableMap<K,T>( this.keyClass,
+				this.entryClass, this.keyLabel,
+				this.valueLabel, this.bundleMapLabel, this.nodeLabel );
+		for(Object key : this.keySet())
+			out.put((K) key, (T) ObjectFactory.copy(this.get((K) key)));
+		return out;
+	}
+	
+	
 	/**
 	 * Implementation of Instantiatable interface
 	 * 
@@ -158,80 +174,116 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, In
 	@SuppressWarnings("unchecked")
 	public void instantiate(Element xmlElement, Settable parent)
 	{
-		if (this.bundleMapLabel == null ){
-			if ( XmlHandler.hasAttribute(xmlElement, XmlRef.nameAttribute))
-				this.bundleMapLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nameAttribute);
-			else if ( xmlElement != null )
-				this.bundleMapLabel = Helper.obtainInput(
-						xmlElement.getNodeName(), "Map label", false);
-			else
-				this.bundleMapLabel = Helper.obtainInput("","Map label", false);
-			
-		}
-		
-		if (this.keyLabel == null)
+		if( xmlElement == null )
 		{
-			this.keyLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.keyAttribute);
-			if (this.keyLabel == null)
+			try {
+				this.keyClass = Class.forName( Idynomics.xmlPackageLibrary.
+						getFull( Helper.obtainInput( "" , " object class of "
+								+ "key") ) );
+				this.entryClass = Class.forName( Idynomics.xmlPackageLibrary.
+						getFull( Helper.obtainInput( "" , " object class of "
+								+ "entries") ) );
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			this.bundleMapLabel = XmlRef.map;
+			
+			this.nodeLabel = Helper.obtainInput( "" , "entry node label");
+			
+			if ( ! Settable.class.isAssignableFrom(entryClass) )
 			{
-//				this.muteSpecification = true;
+				this.valueLabel = XmlRef.valueAttribute;
+			}
+			if ( ! Settable.class.isAssignableFrom(keyClass) )
+			{
 				this.keyLabel = XmlRef.keyAttribute;
 			}
 		}
-		
-		if (this.valueLabel == null)
+		else
 		{
-			this.valueLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.valueAttribute);
+			if (this.bundleMapLabel == null ){
+				if ( XmlHandler.hasAttribute(xmlElement, XmlRef.nameAttribute))
+					this.bundleMapLabel = XmlRef.map;
+				else
+					this.bundleMapLabel = xmlElement.getNodeName();
+				
+			}
+			
+			if (XmlHandler.hasNode(xmlElement, this.bundleMapLabel))
+				xmlElement = XmlHandler.loadUnique(xmlElement, this.bundleMapLabel);
+			
+			if (this.keyLabel == null)
+			{
+				this.keyLabel = XmlHandler.gatherAttribute(xmlElement, 
+						XmlRef.keyAttribute);
+				if (this.keyLabel == null)
+				{
+					this.muteSpecification = true;
+					this.keyLabel = XmlRef.keyAttribute;
+				}
+			}
+			
 			if (this.valueLabel == null)
 			{
-//				this.muteSpecification = true;
-				this.valueLabel = XmlRef.valueAttribute;
+				this.valueLabel = XmlHandler.gatherAttribute( xmlElement, 
+						XmlRef.valueAttribute );
+				if (this.valueLabel == null)
+				{
+					this.muteSpecification = true;
+					this.valueLabel = XmlRef.valueAttribute;
+				}
 			}
-		}
-		
-		if (this.nodeLabel == null)
-		{
-			this.nodeLabel = XmlHandler.gatherAttribute(xmlElement, XmlRef.nodeLabel);
-		}
-		if (this.nodeLabel == null)
-		{
-			this.nodeLabel = XmlRef.item;
-		}
-		
-		if (this.entryClass == null)
-		{
-			try {
-				this.entryClass = Class.forName( Idynomics.xmlPackageLibrary.getFull(
-						XmlHandler.obtainAttribute(	xmlElement, 
-						XmlRef.entryClassAttribute, this.bundleMapLabel ) ) );
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		if (this.keyClass == null)
-		{
-			try {
-				this.keyClass = Class.forName( Idynomics.xmlPackageLibrary.getFull(
-						XmlHandler.obtainAttribute(	xmlElement, 
-						XmlRef.keyClassAttribute, this.bundleMapLabel ) ) );
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		NodeList nodes = XmlHandler.getAll(xmlElement, this.nodeLabel);
-		if (nodes != null)
-		{
-			for ( int i = 0; i < nodes.getLength(); i++ )
+			
+			if (this.nodeLabel == null)
 			{
-				T object = (T) ObjectFactory.loadObject( (Element) nodes.item(i), 
-						this.valueLabel, this.entryClass.getSimpleName() ); 
-				if( object instanceof Settable )
-					((Settable) object).setParent(this);
-				this.put((K) ObjectFactory.loadObject( (Element) nodes.item(i), 
-						this.keyLabel, this.keyClass.getSimpleName() ),
-						object );
+				this.nodeLabel = XmlHandler.gatherAttribute(xmlElement, 
+						XmlRef.nodeLabel);
+			}
+			if (this.nodeLabel == null)
+			{
+				this.nodeLabel = XmlRef.item;
+			}
+			
+			if (this.entryClass == null)
+			{
+				try {
+					this.entryClass = Class.forName( 
+							Idynomics.xmlPackageLibrary.getFull(
+							XmlHandler.obtainAttribute(	xmlElement, 
+							XmlRef.entryClassAttribute, 
+							this.bundleMapLabel ) ) );
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			if (this.keyClass == null)
+			{
+				try {
+					this.keyClass = Class.forName( 
+							Idynomics.xmlPackageLibrary.getFull(
+							XmlHandler.obtainAttribute(	xmlElement, 
+							XmlRef.keyClassAttribute, 
+							this.bundleMapLabel ) ) );
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			NodeList nodes = XmlHandler.getAll(xmlElement, this.nodeLabel);
+			if (nodes != null)
+			{
+				for ( int i = 0; i < nodes.getLength(); i++ )
+				{
+					T object = (T) ObjectFactory.loadObject( (Element) nodes.item(i), 
+							this.valueLabel, this.entryClass.getSimpleName() ); 
+					if( object instanceof Settable )
+						((Settable) object).setParent(this);
+					this.put((K) ObjectFactory.loadObject( (Element) nodes.item(i), 
+							this.keyLabel, this.keyClass.getSimpleName() ),
+							object );
+				}
 			}
 		}
 	}
@@ -310,6 +362,6 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, In
 	{
 		return this._parentNode;
 	}
-	
+
 
 }

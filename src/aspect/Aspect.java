@@ -138,6 +138,13 @@ public class Aspect implements Instantiatable, Settable
 			  this.type = Aspect.AspectClass.PRIMARY;
 		}
     }
+	
+	
+	public String getKey() 
+	{
+		return this.key;
+	}
+
 
 	/**
 	 * Get the ModelNode object for this Aspect object
@@ -217,23 +224,6 @@ public class Aspect implements Instantiatable, Settable
 			}
 		}
 
-		return modelNode;
-	}
-	
-	/**
-	 * Get the ModelNode object for a HashMap TODO to be replaced
-	 * @return ModelNode
-	 */
-	@SuppressWarnings("unchecked")
-	public Module HashMapNode(Object key) 
-	{
-		HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
-		Module modelNode = new Module(XmlRef.item, this);
-		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
-		
-		modelNode.add(new Attribute(XmlRef.classAttribute, 
-				h.get(key).getClass().getSimpleName(), null, false ) );
-		
 		return modelNode;
 	}
 

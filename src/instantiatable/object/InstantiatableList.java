@@ -1,16 +1,20 @@
 package instantiatable.object;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import aspect.Aspect;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
+import generalInterfaces.Copyable;
 import idynomics.Idynomics;
 import instantiatable.Instance;
 import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
+import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -29,7 +33,7 @@ import utility.Helper;
  * @param <T>
  */
 public class InstantiatableList<T> extends LinkedList<T> implements Settable, 
-		Instantiatable
+		Instantiatable, Copyable
 {
 	/**
 	 * default serial uid (generated)
@@ -139,6 +143,16 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 		// NOTE only for Instantiatable interface
 	}
 	
+	@SuppressWarnings("unchecked")
+	public Object copy() 
+	{
+		InstantiatableList<T> out = new InstantiatableList<T>(this.entryClass,
+				this.valueLabel, this.pileListLabel, this.nodeLabel );
+		for(int i = 0; i < this.size(); i++)
+			out.add((T) ObjectFactory.copy((this.get(i))));	
+		return out;
+	}
+		
 	/**
 	 * Implementation of Instantiatable interface
 	 * 
@@ -157,27 +171,26 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			this.pileListLabel = Helper.obtainInput( "" , ClassRef.pile + 
-					" xml node");
-			this.nodeLabel = Helper.obtainInput( "" , "pile entry xml node");
+			this.pileListLabel = XmlRef.list;
+			
+			this.nodeLabel = Helper.obtainInput( "" , "entry node label");
 			
 			if ( ! Settable.class.isAssignableFrom(entryClass) )
 			{
-				this.valueLabel = Helper.obtainInput( "" , " entry value "
-						+ "label");
+				this.valueLabel = XmlRef.valueAttribute;
 			}
 		}
 		else
 		{
 			if (this.pileListLabel == null ){
 				if ( XmlHandler.hasAttribute(xmlElement, XmlRef.nameAttribute) )
-					this.pileListLabel = XmlHandler.gatherAttribute( xmlElement, 
-							XmlRef.nameAttribute );
+					this.pileListLabel = XmlRef.list;
 				else
 					this.pileListLabel = xmlElement.getNodeName();
 			}
 			
-			xmlElement = XmlHandler.loadUnique(xmlElement, this.pileListLabel);
+			if (XmlHandler.hasNode(xmlElement, this.pileListLabel))
+				xmlElement = XmlHandler.loadUnique(xmlElement, this.pileListLabel);
 			
 			if (this.valueLabel == null)
 			{
@@ -185,7 +198,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 						XmlRef.valueAttribute );
 				if (this.valueLabel == null)
 				{
-//					this.muteAttributeDef = true;
+					this.muteAttributeDef = true;
 					this.valueLabel = XmlRef.valueAttribute;
 				}
 			}
@@ -220,7 +233,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 				{
 					T object = (T) ObjectFactory.loadObject( 
 							(Element) nodes.item(i), 
-							null, this.entryClass.getSimpleName() );
+							this.valueLabel, this.entryClass.getSimpleName() );
 					
 					if( object instanceof Settable )
 						((Settable) object).setParent(this);
@@ -303,7 +316,5 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 	{
 		return this._parentNode;
 	}
-	
-
 
 }

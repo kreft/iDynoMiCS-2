@@ -8,6 +8,8 @@ import dataIO.Log.Tier;
 /**
  * \brief Collection of common object tags.
  * 
+ * FIXME: structure this the same way as class ref
+ * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public final class ObjectRef
@@ -73,11 +75,16 @@ public final class ObjectRef
 	 */
 	public final static String DBL_ARRY = DBL_MATR+"[]";
 	
-	public static final String PILE = "PileList";
-	public static final String BUNDLE = "BundleMap";
+	public static final String PILE = "InstantiatableList";
+	
+	public static final String BUNDLE = "InstantiatableMap";
+	
 	public static final String LINKEDLIST = "LinkedList";
+	
 	public static final String HASHMAP = "HashMap";
+	
 	public static final String REACTION = "Reaction";
+	
 	public static final String BODY = "Body";
 	
 }

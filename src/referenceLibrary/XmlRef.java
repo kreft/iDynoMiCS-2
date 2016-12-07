@@ -445,4 +445,14 @@ public class XmlRef
 	 */
 	public static final String extreme = "extreme";
 
+	/**
+	 * Referring to instantiatable list node
+	 */
+	public static final String list = "list";
+
+	/**
+	 * Referring to instantiatable map node
+	 */
+	public static final String map = "map";
+
 }
