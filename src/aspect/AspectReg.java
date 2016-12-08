@@ -39,16 +39,13 @@ public class AspectReg
 	 * events).
 	 */
 	protected HashMap<String, Aspect> _aspects = 
-											new HashMap<String, Aspect>();
+			new HashMap<String, Aspect>();
 	
-//	/**
-//	 * all (sub) modules
-//	 */
-//	protected InstantiatableList<String> _subModules = 
-//			new InstantiatableList<String>( String.class, XmlRef.nameAttribute, 
-//			XmlRef.modules, XmlRef.speciesModule );
-	
-	protected HashMap<String,AspectInterface> modules = new HashMap<String,AspectInterface>();
+	/**
+	 * all (sub) modules
+	 */
+	protected HashMap<String, AspectInterface> _speciesModules = 
+			new HashMap<String, AspectInterface>();
 	
 	/**
 	 * get the identity of this aspectReg
@@ -82,6 +79,9 @@ public class AspectReg
 		return false;
 	}
 	
+	/**
+	 * returns true if the key is found in this registry
+	 */
 	public boolean isLocalAspect(String key)
 	{
 		return this._aspects.containsKey(key);
@@ -149,8 +149,8 @@ public class AspectReg
 	public void addSubModule(  AspectInterface module, String name)
 	{
 
-		if( module != null && !this.modules.entrySet().contains(module) )
-			this.modules.put( name, module );
+		if( module != null && !this._speciesModules.entrySet().contains(module) )
+			this._speciesModules.put( name, module );
 	}
 	
 	/**
@@ -160,7 +160,7 @@ public class AspectReg
 	 */
 	public void removeSubmodule(String module) 
 	{
-        modules.remove( Idynomics.simulator.speciesLibrary.get( module ) );
+        _speciesModules.remove( Idynomics.simulator.speciesLibrary.get( module ) );
 	}
 	
 	/**
@@ -187,14 +187,14 @@ public class AspectReg
 		InstantiatableList<String> _subModules = 
 				new InstantiatableList<String>( String.class, XmlRef.nameAttribute, 
 				XmlRef.modules, XmlRef.speciesModule );
-		for (String a : modules.keySet() )
+		for (String a : _speciesModules.keySet() )
 			_subModules.add(a);
 		return _subModules;
 	}
 	
 	public Map<String, AspectInterface> getSubModuleMap()
 	{
-		return this.modules;
+		return this._speciesModules;
 	}
 	
 	/**
@@ -280,7 +280,7 @@ public class AspectReg
 	public void clear()
 	{
 		this._aspects.clear();
-		this.modules.clear();
+		this._speciesModules.clear();
 	}
 	
 	/*************************************************************************
