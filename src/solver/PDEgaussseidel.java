@@ -12,7 +12,6 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
-import shape.CartesianShape;
 import shape.Shape;
 import utility.ExtraMath;
 
@@ -32,10 +31,13 @@ public class PDEgaussseidel extends PDEsolver
 			SpatialGrid commonGrid, double tFinal)
 	{
 		Shape shape = commonGrid.getShape();
-		if (shape instanceof CartesianShape)
-		{
-			
-		}
+		
+		/*
+		 * TODO
+		 * The choice of strideLength should come from various dimensions of
+		 * the shape. Until then, 3 should work in most cases.
+		 */
+		shape.setNewIterator(3);
 		
 		double residual, maxResidual = 0.0;
 		for ( int i = 0; i < this.maxIter; i++ )
