@@ -291,6 +291,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 	 */
 	public void addAgent(Agent agent)
 	{
+		
 		this.agents.addAgent(agent);
 		agent.setCompartment(this);
 	}

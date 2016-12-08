@@ -111,6 +111,7 @@ public class Agent implements AspectInterface, Settable, Instantiatable
 
 		this._aspectRegistry.addSubModule( (Species) 
 				Idynomics.simulator.speciesLibrary.get(species), species);
+
 	}
 
 	

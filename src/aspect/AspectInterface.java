@@ -141,7 +141,6 @@ public abstract interface AspectInterface
 	 * @param aspect
 	 * @return
 	 */
-	// TODO Rob [24May2016]: change this from Double[] to double[]?
 	public default Double[] getDoubleA(String aspect)
 	{
 		return (Double[]) this.reg().getValue(this, aspect);

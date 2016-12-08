@@ -112,8 +112,8 @@ public class RodDivision extends Event {
 			mother.set(LINKED, linkers);
 		}
 		daughter.registerBirth();
-		mother.event(UPDATE_BODY);
-		daughter.event(UPDATE_BODY);
+//		mother.event(UPDATE_BODY);
+//		daughter.event(UPDATE_BODY);
 		
 		// if either is still larger than the div size they need to devide
 		// again

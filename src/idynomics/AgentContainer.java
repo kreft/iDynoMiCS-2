@@ -652,7 +652,7 @@ public class AgentContainer implements Settable
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
-//		anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
+		anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
 		this._locatedAgentList.add(anAgent);
 		this.treeInsert(anAgent);
 	}
