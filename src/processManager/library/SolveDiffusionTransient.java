@@ -275,7 +275,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 					}
 				}
 			}
-			AgentContainer.updateAgentMass(agent, newBiomass);
 		}
+		AgentContainer.updateAgentMass(agent, newBiomass);
 	}
 }

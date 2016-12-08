@@ -26,7 +26,6 @@ import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import solver.PDEsolver;
-import utility.Helper;
 
 /**
  * \brief Abstract superclass for process managers solving diffusion-reaction

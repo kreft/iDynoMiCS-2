@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 
 import agent.Agent;
 import dataIO.Log;
+import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.diffusivitySetter.AllSameDiffuse;
@@ -115,7 +116,8 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 * Estimate agent growth based on the steady-state solute 
 		 * concentrations.
 		 */
-		
+		for ( Agent agent : this._agents.getAllLocatedAgents() )
+			this.applyAgentGrowth(agent);
 		/*
 		 * Clear agent mass distribution maps.
 		 */
@@ -264,5 +266,111 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				}
 			}
 		}
+	}
+	
+	private void applyAgentGrowth(Agent agent)
+	{
+		/*
+		 * Get the agent's reactions: if it has none, then there is nothing
+		 * more to do.
+		 */
+		@SuppressWarnings("unchecked")
+		List<Reaction> reactions = 
+				(List<Reaction>) agent.getValue(XmlRef.reactions);
+		if ( reactions == null )
+			return;
+		/*
+		 * Get the distribution map and scale it so that its contents sum up to
+		 * one.
+		 */
+		CoordinateMap distributionMap = 
+				(CoordinateMap) agent.getValue(VOLUME_DISTRIBUTION_MAP);
+		distributionMap.scale();
+		/*
+		 * Get the agent biomass kinds as a map. Copy it now so that we can
+		 * use this copy to store the changes.
+		 */
+		Map<String,Double> biomass = AgentContainer.getAgentMassMap(agent);
+		@SuppressWarnings("unchecked")
+		Map<String,Double> newBiomass = (HashMap<String,Double>)
+				ObjectFactory.copy(biomass);
+		/*
+		 * Now look at all the voxels this agent covers.
+		 */
+		Map<String,Double> concns = new HashMap<String,Double>();
+		Map<String,Double> stoichiometry;
+		SpatialGrid solute;
+		Shape shape = this._agents.getShape();
+		double concn, rate, productRate, volume, perVolume;
+		for ( int[] coord : distributionMap.keySet() )
+		{
+			volume = shape.getVoxelVolume(coord);
+			perVolume = Math.pow(volume, -1.0);
+			for ( Reaction r : reactions )
+			{
+				/* 
+				 * Build the dictionary of variable values. Note that these 
+				 * will likely overlap with the names in the reaction 
+				 * stoichiometry (handled after the reaction rate), but will 
+				 * not always be the same. Here we are interested in those that
+				 * affect the reaction, and not those that are affected by it.
+				 */
+				concns.clear();
+				for ( String varName : r.getVariableNames() )
+				{
+					if ( this._environment.isSoluteName(varName) )
+					{
+						solute = this._environment.getSoluteGrid(varName);
+						concn = solute.getValueAt(CONCN, coord);
+					}
+					else if ( biomass.containsKey(varName) )
+					{
+						concn = biomass.get(varName) * 
+								distributionMap.get(coord) * perVolume;
+					}
+					else if ( agent.isAspect(varName) )
+					{
+						/*
+						 * Check if the agent has other mass-like aspects
+						 * (e.g. EPS).
+						 */
+						concn = agent.getDouble(varName) * 
+								distributionMap.get(coord) * perVolume;
+					}
+					else
+					{
+						// TODO safety?
+						concn = 0.0;
+					}
+					concns.put(varName, concn);
+				}
+				/*
+				 * Calculate the reaction rate based on the variables just 
+				 * retrieved.
+				 */
+				rate = r.getRate(concns);
+				/* 
+				 * Now that we have the reaction rate, we can distribute the 
+				 * effects of the reaction. Note again that the names in the 
+				 * stoichiometry may not be the same as those in the reaction
+				 * variables (although there is likely to be a large overlap).
+				 */
+				stoichiometry = r.getStoichiometry();
+				for ( String productName : stoichiometry.keySet() )
+				{
+					productRate = rate * stoichiometry.get(productName);
+					if ( agent.isAspect(productName) )
+					{
+						/*
+						 * Check if the agent has other mass-like aspects
+						 * (e.g. EPS).
+						 */
+						newBiomass.put(productName, agent.getDouble(productName)
+								+ (productRate * this._timeStepSize * volume));
+					}
+				}
+			}
+		}
+		AgentContainer.updateAgentMass(agent, newBiomass);
 	}
 }
