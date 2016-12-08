@@ -3,7 +3,7 @@ package test.junit;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import expression.ExpressionB;
+import expression.Expression;
 import expression.Unit;
 
 /**
@@ -40,10 +40,10 @@ public class UnitUnitTest {
 		unitAB = Unit.quotient(unitA, unitB);
 		System.out.println("quotient = " + unitAB.toString() + "\n");
 		
-		ExpressionB expressiona = new ExpressionB("35.0 *-2.0 ");
+		Expression expressiona = new Expression("35.0 *-2.0 ");
 		double a = expressiona.getValue();
 
-		ExpressionB expressionb = new ExpressionB("35.0 *-2.0 [g·dm-3]");
+		Expression expressionb = new Expression("35.0 *-2.0 [g·dm-3]");
 		double b = expressionb.getValue();
 
 		System.out.println("no units no conversion " + a+ 

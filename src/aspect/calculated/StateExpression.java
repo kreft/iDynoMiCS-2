@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 import aspect.AspectInterface;
 import aspect.Calculated;
 import dataIO.XmlHandler;
-import expression.ExpressionB;
+import expression.Expression;
 import referenceLibrary.XmlRef;
 import settable.Settable;
 import utility.Helper;
@@ -19,14 +19,14 @@ import utility.Helper;
  */
 public class StateExpression extends Calculated {
 		
-	private ExpressionB expression;
+	private Expression expression;
 	private HashMap<String, Double> variables = new HashMap<String, Double>();
 
 	@Override
 	public void setInput(String input)
 	{
 		this._input = input;
-		this.expression = new ExpressionB( input.replaceAll("\\s+","") );
+		this.expression = new Expression( input.replaceAll("\\s+","") );
 	}
 	
 	@Override

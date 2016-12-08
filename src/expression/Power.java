@@ -59,7 +59,7 @@ public class Power extends ComponentDouble
 			if ( this._b.getValue(null) == 0.0 )
 				return new Constant("0", 0.0);
 		}
-		Component newIndex = new Subtraction(this._b, Expression.one());
-		return Expression.multiply(this._b, new Power(this._a, newIndex));
+		Component newIndex = new Subtraction(this._b, Arithmetic.one());
+		return Arithmetic.multiply(this._b, new Power(this._a, newIndex));
 	}
 }

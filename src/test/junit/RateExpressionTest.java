@@ -9,7 +9,7 @@ import org.junit.Test;
 import static dataIO.Log.Tier.DEBUG;
 
 import dataIO.Log;
-import expression.ExpressionB;
+import expression.Expression;
 import test.AllTests;
 import utility.ExtraMath;
 
@@ -25,7 +25,7 @@ public class RateExpressionTest
 	{
 		AllTests.setupSimulatorForTest(1.0, 1.0, "ExpressionBtest");
 		
-		ExpressionB expr;
+		Expression expr;
 		String str;
 		HashMap<String,Double> vars = new HashMap<String,Double>();
 		double calculated, correct;
@@ -34,7 +34,7 @@ public class RateExpressionTest
 		 */
 		str = "25.0 * 3.0";
 		correct = 25.0 * 3.0;
-		expr = new ExpressionB(str);
+		expr = new Expression(str);
 		//expr.printEval();
 		System.out.println(expr.getName());
 		System.out.println("");
@@ -45,7 +45,7 @@ public class RateExpressionTest
 		 */
 		str = "#e^1.0 / 5.0EXP(1.0 + 0.5)";
 		correct = Math.E / (5.0 * Math.pow(10.0,(1.0 + 0.5)));
-		expr = new ExpressionB(str);
+		expr = new Expression(str);
 		expr.printEval();
 		Log.out(DEBUG, expr.getName());
 		System.out.println("");
@@ -56,7 +56,7 @@ public class RateExpressionTest
 		 */
 		str = "(-22.0 * (1.0 * (1.0 * 5.5)) - 2.0) + 1.0 / (8.1 * 5.0)";
 		correct = (-22.0 * (1.0 * (1.0 * 5.5)) - 2.0) + 1.0 / (8.1 * 5.0);
-		expr = new ExpressionB(str);
+		expr = new Expression(str);
 		//expr.printEval();
 		System.out.println(expr.getName());
 		System.out.println("");
@@ -70,7 +70,7 @@ public class RateExpressionTest
 		vars.put("K", 1.0);
 		str = "mu * S / (K + S)";
 		correct = 0.1 * 3.0 / (1.0 + 3.0);
-		expr = new ExpressionB(str);
+		expr = new Expression(str);
 		//expr.printEval();
 		System.out.println(expr.getName());
 		System.out.println("");
@@ -81,7 +81,7 @@ public class RateExpressionTest
 		 */
 		str = "25.0";
 		correct = 25.0;
-		expr = new ExpressionB(str);
+		expr = new Expression(str);
 		//expr.printEval();
 		System.out.println(expr.getName());
 		System.out.println("");
@@ -92,7 +92,7 @@ public class RateExpressionTest
 		 */
 		str = "mu";
 		correct = vars.get("mu");
-		expr = new ExpressionB(str);
+		expr = new Expression(str);
 		System.out.println(expr.getName());
 		System.out.println("");
 		calculated = expr.getValue(vars);

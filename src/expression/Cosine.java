@@ -38,11 +38,11 @@ public class Cosine extends ComponentSingle
 	protected Component getDifferential(String withRespectTo)
 	{
 		Component dV = this._a.differentiate(withRespectTo);
-		if ( Expression.isConstantWithValue(dV, 0.0) )
+		if ( Arithmetic.isConstantWithValue(dV, 0.0) )
 			return dV;
 		Sine dU = new Sine(this._a);
 		dU.changeSign();
-		return Expression.multiply(dU, dV);
+		return Arithmetic.multiply(dU, dV);
 	}
 
 }

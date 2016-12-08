@@ -12,7 +12,7 @@ import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import expression.Component;
-import expression.ExpressionB;
+import expression.Expression;
 import generalInterfaces.Copyable;
 import idynomics.EnvironmentContainer;
 import instantiatable.Instance;
@@ -138,7 +138,7 @@ public class Reaction implements Instantiatable, Copyable, Settable
 	public Reaction(
 			Map<String, Double> stoichiometry, String kinetic, String name)
 	{
-		this(stoichiometry, new ExpressionB(kinetic), name);
+		this(stoichiometry, new Expression(kinetic), name);
 	}
 	
 	/**
@@ -156,7 +156,7 @@ public class Reaction implements Instantiatable, Copyable, Settable
 	public Reaction(String chemSpecies, double stoichiometry, 
 											String kinetic, String name)
 	{
-		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
+		this(getHM(chemSpecies, stoichiometry), new Expression(kinetic), name);
 	}
 	
 	public void instantiate(Element xmlElem, Settable parent)
@@ -180,10 +180,10 @@ public class Reaction implements Instantiatable, Copyable, Settable
 		 * Build the reaction rate expression.
 		 */
 		if ( Helper.isNone(xmlElem) || !XmlHandler.hasNode(xmlElem, XmlRef.expression))
-			this._kinetic = new ExpressionB("");
+			this._kinetic = new Expression("");
 		else
 			this._kinetic = new 
-				ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+				Expression(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
 		
 	}
 	
@@ -326,7 +326,7 @@ public class Reaction implements Instantiatable, Copyable, Settable
 		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 				this._name, null, false ));
 		
-		modelNode.add(((ExpressionB) _kinetic).getModule());
+		modelNode.add(((Expression) _kinetic).getModule());
 		
 		modelNode.add( this._stoichiometry.getModule() );
 
