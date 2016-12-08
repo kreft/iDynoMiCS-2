@@ -438,7 +438,7 @@ public class ShapesTest
 				"redBlackIteratorShouldIterateCorrectly");
 		CartesianShape shp = new Rectangle();
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setExtremes(0.0, 3.0);
+		resCalc.setExtremes(0.0, 5.0);
 		resCalc.setResolution(1.0);
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		for ( DimName d : dims )
@@ -468,7 +468,7 @@ public class ShapesTest
 	private void checkRedBlackIteration(CartesianShape shape)
 	{
 		/* Reset the iterator. */
-		shape.setAndGetNewRedBlackIterator();
+		shape.setNewIterator(3);
 		int[] coord = shape.resetIterator();
 		int[] oldCoord = coord.clone();
 		int[] nhb;

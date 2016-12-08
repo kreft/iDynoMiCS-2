@@ -157,8 +157,8 @@ public final class ShapeLibrary
 		}
 
 		@Override
-		public ShapeIterator getNewIterator() {
-			// TODO Auto-generated method stub
+		public ShapeIterator getNewIterator(int strideLength)
+		{
 			return null;
 		}
 	}

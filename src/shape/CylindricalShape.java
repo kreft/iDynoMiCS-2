@@ -83,6 +83,12 @@ public abstract class CylindricalShape extends Shape
 		return a;
 	}
 	
+	@Override
+	public ShapeIterator getNewIterator(int strideLength)
+	{
+		return new CylindricalShapeIterator(this, strideLength);
+	}
+	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
@@ -395,11 +401,5 @@ public abstract class CylindricalShape extends Shape
 					+ ", r2 is "+r2+", theta2 is "+theta2+ ", z2 is "+z2);
 		}
 		return area;
-	}
-	
-	@Override
-	public ShapeIterator getNewIterator()
-	{
-		return new CylindricalShapeIterator(this);
 	}
 }

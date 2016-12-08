@@ -19,6 +19,11 @@ import shape.CylindricalShape;
  */
 public class CylindricalShapeIterator extends PolarShapeIterator
 {
+	public CylindricalShapeIterator(CylindricalShape shape, int strideLength)
+	{
+		super(shape, strideLength);
+	}
+	
 	public CylindricalShapeIterator(CylindricalShape shape)
 	{
 		super(shape);

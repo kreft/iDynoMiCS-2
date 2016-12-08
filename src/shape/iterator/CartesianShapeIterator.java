@@ -7,12 +7,18 @@ import linearAlgebra.Vector;
 import shape.CartesianShape;
 import shape.Dimension.DimName;
 
-public class CartesianShapeIterator extends ShapeIterator{
-
-	public CartesianShapeIterator(CartesianShape shape) {
-		super(shape);
+public class CartesianShapeIterator extends ShapeIterator
+{
+	public CartesianShapeIterator(CartesianShape shape, int strideLength)
+	{
+		super(shape, strideLength);
 	}
 	
+	public CartesianShapeIterator(CartesianShape shape)
+	{
+		super(shape);
+	}
+
 	@Override
 	protected void resetNbhIter()
 	{

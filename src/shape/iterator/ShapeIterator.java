@@ -55,14 +55,6 @@ public abstract class ShapeIterator
 	 */
 	protected Shape _shape;
 	/**
-	 * An array to store the current iterator state.
-	 */
-	protected int[] _storeIter;
-	/**
-	 * An array to store the current neighborhood iterator state.
-	 */
-	protected int[] _storeNbh;
-	/**
 	 * Current coordinate considered by the internal iterator.
 	 */
 	protected int[] _currentCoord;
@@ -88,6 +80,21 @@ public abstract class ShapeIterator
 	 * What kind of voxel the current neighbor iterator is in.
 	 */
 	protected WhereAmI _whereIsNhb;
+	/**
+	 * If stride length is one, each voxel is visited in turn and the iterator
+	 * makes a single sweep over the shape before declaring itself to be 
+	 * invalid (the default case). If stride length is two, the iterator skips
+	 * every other voxel on its first sweep of the shape, and then visits the
+	 * remaining voxels on its second (red-black iteration). This logic is
+	 * extended for higher values of stride length, but it must always be
+	 * greater than zero.
+	 */
+	protected int _strideLength;
+	/**
+	 * Placeholder variable for the current sweep. Will always be greater than
+	 * or equal to zero, and less than the stride length.
+	 */
+	protected int _sweepNumber;
 	
 	/**
 	 * \brief Log file verbosity level used for debugging the neighbor iterator.
@@ -97,10 +104,33 @@ public abstract class ShapeIterator
 	 */
 	protected static final Tier NHB_ITER_LEVEL = BULK;
 	
-	public ShapeIterator(Shape shape)
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
+	
+	/**
+	 * 
+	 * @param shape
+	 * @param strideLength
+	 */
+	public ShapeIterator(Shape shape, int strideLength)
 	{
 		this._shape = shape;
+		this._strideLength = strideLength;
 	}
+	
+	/**
+	 * 
+	 * @param shape
+	 */
+	public ShapeIterator(Shape shape)
+	{
+		this(shape, 1);
+	}
+	
+	/* ***********************************************************************
+	 * 
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Find out what kind of voxel is represented by the given
@@ -164,7 +194,6 @@ public abstract class ShapeIterator
 		return this._whereIsNhb;
 	}
 	
-	
 	/* ***********************************************************************
 	 * COORDINATE ITERATOR
 	 * **********************************************************************/
@@ -211,39 +240,9 @@ public abstract class ShapeIterator
 		}
 		else
 			Vector.reset(this._currentCoord);
-		this.updateCurrentNVoxel();	
+		this._sweepNumber = 0;
+		this.updateCurrentNVoxel();
 		return this._currentCoord;
-	}
-	
-	/**
-	 * Store the two iterators, in case we're in the middle of an
-	 * iteration and want to start a new iteration.
-	 */
-	public void saveCurrentIteratorState()
-	{
-		if ( this._currentCoord != null )
-		{
-			if ( this._storeIter == null )
-				this._storeIter = Vector.zeros(this._currentCoord);
-			Vector.copyTo(this._storeIter, this._currentCoord);
-		}
-		if ( this._currentNeighbor != null )
-		{
-			if ( this._storeNbh == null )
-				this._storeNbh = Vector.zeros(this._currentNeighbor);
-			Vector.copyTo(this._storeNbh, this._currentNeighbor);
-		}
-	}
-	
-	/**
-	 * Put the iterators back to their stored values.
-	 */
-	public void loadSavedIteratorState()
-	{
-		if ( this._storeIter != null )
-			Vector.copyTo(this._currentCoord, this._storeIter);
-		if ( this._storeNbh != null )
-			Vector.copyTo(this._currentNeighbor, this._storeNbh);
 	}
 
 	/**
@@ -263,6 +262,25 @@ public abstract class ShapeIterator
 	 */
 	public int[] iteratorNext()
 	{
+		for ( int i = 0; i < this._strideLength; i++ )
+		{
+			this.stepNext();
+			if ( ! this.isIteratorValid() )
+			{
+				this._sweepNumber++;
+				if ( this._sweepNumber < this._strideLength )
+					this.resetSweep();
+				else
+					break;
+			}
+		}
+		if ( this.isIteratorValid() )
+			this.updateCurrentNVoxel();
+		return this._currentCoord;
+	}
+	
+	private void stepNext()
+	{
 		/*
 		 * We have to step through last dimension first, because we use jagged 
 		 * arrays in the PolarGrids.
@@ -278,9 +296,13 @@ public abstract class ShapeIterator
 				this._currentCoord[0]++;
 			}
 		}
-		if ( this.isIteratorValid() )
-			this.updateCurrentNVoxel();
-		return this._currentCoord;
+	}
+	
+	private void resetSweep()
+	{
+		Vector.reset(this._currentCoord);
+		for (int i = 1; i < this._sweepNumber; i++)
+			this.stepNext();
 	}
 	
 	/**

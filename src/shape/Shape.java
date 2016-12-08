@@ -1204,7 +1204,12 @@ public abstract class Shape implements
 		Tier level = BULK;
 		Log.out(level, "Calculating maximum flux potential");
 		
-		this._it.saveCurrentIteratorState();
+		/*
+		 * Store the current iterator and use a temporary one for this method.
+		 */
+		ShapeIterator storedIterator = this._it;
+		this._it = this.getNewIterator();
+		
 		/*
 		 * Loop over all voxels, finding the greatest flux potential.
 		 */
@@ -1212,7 +1217,8 @@ public abstract class Shape implements
 		double max;
 		double temp = 0.0;
 		this._maxFluxPotentl = Double.NEGATIVE_INFINITY;
-		for (this._it.resetIterator(); this._it.isIteratorValid(); this._it.iteratorNext())
+		for ( this._it.resetIterator(); 
+				this._it.isIteratorValid(); this._it.iteratorNext() )
 		{
 			volume = this.getVoxelVolume(this._it.iteratorCurrent());
 			Log.out(level, "Coord "+Vector.toString(this._it.iteratorCurrent())+
@@ -1232,7 +1238,10 @@ public abstract class Shape implements
 		}
 		Log.out(level, " Maximum flux potential is "+this._maxFluxPotentl);
 		
-		this._it.loadSavedIteratorState();
+		/*
+		 * Replace the temporary iterator with the stored one.
+		 */
+		this._it = storedIterator;
 	}
 	
 	
@@ -1363,10 +1372,43 @@ public abstract class Shape implements
 	/* ***********************************************************************
 	 * ITERATORS
 	 * **********************************************************************/
+
+	/**
+	 * \brief Get a new iterator for this shape. The type of iterator will
+	 * depend on the type of shape.
+	 * 
+	 * @param strideLength The stride length of the iterator: 1 for normal, 2
+	 * for red-black, etc. Must be greater than zero.
+	 * @return New shape iterator object.
+	 * @see #getNewIterator()
+	 */
+	protected abstract ShapeIterator getNewIterator(int strideLength);
+
+	/**
+	 * \brief Get a new iterator for this shape. The type of iterator will
+	 * depend on the type of shape.
+	 * 
+	 * @return New shape iterator object.
+	 * @see #getNewIterator(int)
+	 */
+	public ShapeIterator getNewIterator()
+	{
+		return this.getNewIterator(1);
+	}
+
+	/**
+	 * \brief Replace this shape's iterator with a new one.
+	 * 
+	 * @param strideLength The stride length of the iterator: 1 for normal, 2
+	 * for red-black, etc. Must be greater than zero.
+	 */
+	public void setNewIterator(int strideLength)
+	{
+		this._it = this.getNewIterator(strideLength);
+	}
 	
-	public abstract ShapeIterator getNewIterator();
-	
-	public int[] resetIterator(){
+	public int[] resetIterator()
+	{
 		return this._it.resetIterator();
 	}
 	
@@ -1380,11 +1422,13 @@ public abstract class Shape implements
 		return this._it.iteratorNext();
 	}
 	
-	public boolean isIteratorValid(){
+	public boolean isIteratorValid()
+	{
 		return this._it.isIteratorValid();
 	}
 	
-	public int[] resetNbhIterator(){
+	public int[] resetNbhIterator()
+	{
 		return this._it.resetNbhIterator();
 	}
 	

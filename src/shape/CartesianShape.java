@@ -9,7 +9,6 @@ import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
 import shape.iterator.CartesianShapeIterator;
-import shape.iterator.CartesianShapeRedBlackIterator;
 import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
@@ -51,8 +50,10 @@ public abstract class CartesianShape extends Shape
 		 */
 		for ( DimName d : new DimName[]{X, Y, Z} )
 			this._dimensions.put(d, new Dimension(false, d));
-		
-		this._it = this.getNewIterator();
+		/*
+		 * By default assume that we should use an iterator with step length 1.
+		 */
+		this.setNewIterator(1);
 	}
 	
 	@Override
@@ -63,6 +64,12 @@ public abstract class CartesianShape extends Shape
 		for ( int dim = 0; dim < 3; dim ++ )
 			nVoxel[dim] = Math.max(this._resCalc[dim].getNVoxel(), 1);
 		return Array.array(nVoxel, initialValue);
+	}
+	
+	@Override
+	public ShapeIterator getNewIterator(int strideLength)
+	{
+		return new CartesianShapeIterator(this, strideLength);
 	}
 	
 	/* ***********************************************************************
@@ -173,16 +180,5 @@ public abstract class CartesianShape extends Shape
 			area *= rC.getResolution(currentCoord[index]);
 		}
 		return area;
-	}
-	
-	@Override
-	public ShapeIterator getNewIterator() {
-		return new CartesianShapeIterator(this);
-	}
-	
-	public ShapeIterator setAndGetNewRedBlackIterator()
-	{
-		this._it = new CartesianShapeRedBlackIterator(this);
-		return this._it;
 	}
 }

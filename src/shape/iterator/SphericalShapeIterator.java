@@ -16,10 +16,23 @@ import shape.resolution.ResolutionCalculator.ResCalc;
 
 public class SphericalShapeIterator extends PolarShapeIterator
 {
+	/* ***********************************************************************
+	 * CONSTRUCTION
+	 * **********************************************************************/
+	
+	public SphericalShapeIterator(SphericalShape shape, int strideLength)
+	{
+		super(shape, strideLength);
+	}
+	
 	public SphericalShapeIterator(SphericalShape shape)
 	{
 		super(shape);
 	}
+	
+	/* ***********************************************************************
+	 * NEIGHBOR ITERATOR
+	 * **********************************************************************/
 	
 	@Override
 	protected void resetNbhIter()

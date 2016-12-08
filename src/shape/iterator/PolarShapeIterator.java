@@ -24,7 +24,13 @@ public abstract class PolarShapeIterator extends ShapeIterator
 	 */
 	public final static double POLAR_ANGLE_EQ_TOL = 1e-6;
 	
-	public PolarShapeIterator(Shape shape) {
+	public PolarShapeIterator(Shape shape, int strideLength)
+	{
+		super(shape, strideLength);
+	}
+	
+	public PolarShapeIterator(Shape shape)
+	{
 		super(shape);
 	}
 	

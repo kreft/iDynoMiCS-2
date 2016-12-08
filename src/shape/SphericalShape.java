@@ -96,6 +96,12 @@ public abstract class SphericalShape extends Shape
 		return a;
 	}
 	
+	@Override
+	public ShapeIterator getNewIterator(int strideLength)
+	{
+		return new SphericalShapeIterator(this, strideLength);
+	}
+	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
 	 * **********************************************************************/
@@ -504,10 +510,5 @@ public abstract class SphericalShape extends Shape
 		Log.out(level, "    r1 is "+r1+", phi1 is "+phi1+ ", theta1 is "+theta1
 				+ ", r2 is "+r2+", phi2 is "+phi2+ ", theta2 is "+theta2);
 		return area;
-	}
-	
-	@Override
-	public ShapeIterator getNewIterator() {
-		return new SphericalShapeIterator(this);
 	}
 }
