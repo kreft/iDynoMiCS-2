@@ -39,14 +39,14 @@ public abstract class ShapeIterator
 	
 	protected static enum NhbDirection
 	{
-		AHEAD(1),
-		BEHIND(0);
+		BEHIND(0),
+		AHEAD(1);
 		
-		private int i;
+		private int minMaxBoundaryIndex;
 		
-		NhbDirection(int i)
+		NhbDirection(int minMaxBoundaryIndex)
 		{
-			this.i = i;
+			this.minMaxBoundaryIndex = minMaxBoundaryIndex;
 		}
 	}
 	
@@ -262,9 +262,13 @@ public abstract class ShapeIterator
 	 */
 	public int[] iteratorNext()
 	{
-		for ( int i = 0; i < this._strideLength; i++ )
+		while ( true )
 		{
 			this.stepNext();
+			/*
+			 * Check if we need to go back to the start, offset and sweep
+			 * again.
+			 */
 			if ( ! this.isIteratorValid() )
 			{
 				this._sweepNumber++;
@@ -272,6 +276,16 @@ public abstract class ShapeIterator
 					this.resetSweep();
 				else
 					break;
+			}
+			/*
+			 * If we have done enough steps in this stride, break. This
+			 * condition handles the offset needed when starting a new row if
+			 * the row length is a multiple of the stride length.
+			 */
+			if ( this._sweepNumber ==
+					Vector.sum(this._currentCoord) % this._strideLength )
+			{
+				break;
 			}
 		}
 		if ( this.isIteratorValid() )
@@ -458,7 +472,7 @@ public abstract class ShapeIterator
 		if ( this._whereIsNhb == DEFINED )
 		{
 			Dimension dim = this._shape.getDimension(this._nbhDimName);
-			return dim.getBoundary(this._nbhDirection.i);
+			return dim.getBoundary(this._nbhDirection.minMaxBoundaryIndex);
 		}
 		return null;
 	}

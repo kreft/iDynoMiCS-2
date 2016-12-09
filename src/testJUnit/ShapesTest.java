@@ -438,7 +438,7 @@ public class ShapesTest
 				"redBlackIteratorShouldIterateCorrectly");
 		CartesianShape shp = new Rectangle();
 		UniformResolution resCalc = new UniformResolution();
-		resCalc.setExtremes(0.0, 5.0);
+		resCalc.setExtremes(0.0, 4.0);
 		resCalc.setResolution(1.0);
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		for ( DimName d : dims )
@@ -468,15 +468,14 @@ public class ShapesTest
 	private void checkRedBlackIteration(CartesianShape shape)
 	{
 		/* Reset the iterator. */
-		shape.setNewIterator(3);
+		shape.setNewIterator(2);
 		int[] coord = shape.resetIterator();
 		int[] oldCoord = coord.clone();
+		coord = shape.iteratorNext();
 		int[] nhb;
 		/* Check that no coordinate has the previous one as its neighbour. */
 		while ( shape.isIteratorValid() )
 		{
-			Vector.copyTo(oldCoord, coord);
-			coord = shape.iteratorNext();
 			Log.out(DEBUG, "coord: "+Vector.toString(coord)+
 					", oldCoord: "+Vector.toString(oldCoord));
 			for ( nhb = shape.resetNbhIterator(); 
@@ -486,6 +485,8 @@ public class ShapesTest
 				Log.out(DEBUG, "   nhb: "+Vector.toString(nhb));
 				assertFalse(Vector.areSame(nhb, oldCoord));
 			}
+			Vector.copyTo(oldCoord, coord);
+			coord = shape.iteratorNext();
 		}
 	}
 }
