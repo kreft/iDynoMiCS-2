@@ -90,7 +90,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				this._diffusivity.put(sName, new AllSameDiffuse(1.0));
 			}
 		
-		String msg = "SolveDiffusionTransient responsible for solutes: ";
+		String msg = "SolveDiffusionSteadyState responsible for solutes: ";
 		for ( String s : this._soluteNames )
 			msg += s + ", ";
 		Log.out(Tier.EXPRESSIVE, msg);

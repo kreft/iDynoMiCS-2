@@ -35,9 +35,9 @@ public class PDEgaussseidel extends PDEsolver
 		/*
 		 * TODO
 		 * The choice of strideLength should come from various dimensions of
-		 * the shape. Until then, 3 should work in most cases.
+		 * the shape. Until then, 2 (red-black) should work in most cases.
 		 */
-		shape.setNewIterator(3);
+		shape.setNewIterator(2);
 		
 		double residual, maxResidual = 0.0;
 		for ( int i = 0; i < this.maxIter; i++ )
