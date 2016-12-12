@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
@@ -17,9 +16,6 @@ import nodeFactory.ModelAttribute;
 import nodeFactory.ModelNode;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.primarySetters.BundleMap;
-import nodeFactory.primarySetters.HashMapSetter;
-import referenceLibrary.ClassRef;
-import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
 import nodeFactory.NodeConstructor;
 

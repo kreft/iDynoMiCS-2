@@ -44,8 +44,8 @@ public class PDEexplicit extends PDEsolver
 	 * <p>Requires the arrays "diffusivity" and "concentration" to
 	 * be pre-filled in each SpatialGrid.</p>
 	 * 
-	 * Maximal time step is the inverse of the maximal diffusivity times the maximal
-	 * flux potential times the number of dimensions.
+	 * Maximal time step is the inverse of the maximal diffusivity times the
+	 * maximal flux potential times the number of dimensions.
 	 * 
 	 * TODO Rob[23Feb2016]: Jan has suggested that we check for variables
 	 * converging and then focus on the variables that are still changing.
@@ -94,6 +94,7 @@ public class PDEexplicit extends PDEsolver
 		{
 			if ( Log.shouldWrite(level) )
 				Log.out(level, "Ministep "+iter+": "+(iter+1)*dt);
+			/* Update reaction rates, etc. */
 			this._updater.prestep(variables, dt);
 			for ( SpatialGrid var : variables )
 			{

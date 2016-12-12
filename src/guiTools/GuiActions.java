@@ -5,7 +5,6 @@ package guiTools;
 
 import java.awt.EventQueue;
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JFileChooser;
@@ -18,7 +17,6 @@ import idynomics.GuiLaunch;
 import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Simulator;
-import utility.ExtraMath;
 import utility.Helper;
 
 /**

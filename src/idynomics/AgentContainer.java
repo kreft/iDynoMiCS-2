@@ -992,7 +992,8 @@ public class AgentContainer implements NodeConstructor
 	/**
 	 * \brief Loop through all located {@code Agent}s with reactions,
 	 * estimating how much of their body overlaps with nearby grid voxels.
-	 * @param agents The agents of a {@code Compartment}.
+	 * 
+	 * @see #removeAgentDistibutionMaps()
 	 */
 	@SuppressWarnings("unchecked")
 	public void setupAgentDistributionMaps()
@@ -1121,6 +1122,20 @@ public class AgentContainer implements NodeConstructor
 			}
 		}
 		Log.out(DEBUG, "Finished setting up agent distribution maps");
+	}
+	
+	/**
+	 * \brief Loop through all located {@code Agents}, removing their mass
+	 * distribution maps.
+	 * 
+	 * <p>This prevents unneeded clutter in XML output.</p>
+	 * 
+	 * @see #setupAgentDistributionMaps()
+	 */
+	public void removeAgentDistibutionMaps()
+	{
+		for ( Agent a : this.getAllLocatedAgents() )
+			a.reg().remove(VD_TAG);
 	}
 
 	@Override

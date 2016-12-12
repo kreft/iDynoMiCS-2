@@ -10,7 +10,6 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.Instantiatable;
-import idynomics.Idynomics;
 import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;

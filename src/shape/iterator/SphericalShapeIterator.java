@@ -1,21 +1,38 @@
-package shape;
+package shape.iterator;
 
 import static shape.Dimension.DimName.PHI;
 import static shape.Dimension.DimName.R;
 import static shape.Dimension.DimName.THETA;
-import static shape.ShapeIterator.WhereAmI.INSIDE;
-import static shape.ShapeIterator.WhereAmI.UNDEFINED;
+import static shape.iterator.ShapeIterator.WhereAmI.INSIDE;
+import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
+import static shape.iterator.ShapeIterator.NhbDirection.AHEAD;
+import static shape.iterator.ShapeIterator.NhbDirection.BEHIND;
 
 import java.util.Arrays;
 
 import dataIO.Log;
+import shape.SphericalShape;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
-public class SphericalShapeIterator extends PolarShapeIterator{
+public class SphericalShapeIterator extends PolarShapeIterator
+{
+	/* ***********************************************************************
+	 * CONSTRUCTION
+	 * **********************************************************************/
 	
-	public SphericalShapeIterator(SphericalShape shape) {
+	public SphericalShapeIterator(SphericalShape shape, int strideLength)
+	{
+		super(shape, strideLength);
+	}
+	
+	public SphericalShapeIterator(SphericalShape shape)
+	{
 		super(shape);
 	}
+	
+	/* ***********************************************************************
+	 * NEIGHBOR ITERATOR
+	 * **********************************************************************/
 	
 	@Override
 	protected void resetNbhIter()
@@ -25,7 +42,7 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 			&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) )
 		{
 			this._nbhDimName = R;
-			this._nbhDirection = 0;	
+			this._nbhDirection = BEHIND;
 		}
 		/* 
 		 * See if we can take one of the phi-minus-neighbors of the current 
@@ -35,7 +52,7 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 					&& this.setNbhFirstInNewRing( this._currentCoord[1] - 1) )
 		{
 			this._nbhDimName = PHI;
-			this._nbhDirection = 0;	
+			this._nbhDirection = BEHIND;
 		}
 		/* 
 		 * See if we can take one of the theta-neighbors in the current r-shell.
@@ -43,18 +60,18 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 		else if ( this.moveNhbToMinus(THETA))
 		{
 			this._nbhDimName = THETA;
-			this._nbhDirection = 0;	
+			this._nbhDirection = BEHIND;
 		}
 		else if (this.nhbJumpOverCurrent(THETA))
 		{
 			this._nbhDimName = THETA;
-			this._nbhDirection = 1;	
+			this._nbhDirection = AHEAD;
 		}
 		/* See if we can take one of the phi-plus-neighbors. */
 		else if ( this.setNbhFirstInNewRing( this._currentCoord[1] + 1) )
 		{
 			this._nbhDimName = PHI;
-			this._nbhDirection = 1;	
+			this._nbhDirection = AHEAD;
 		}
 		
 		/* See if we can use the outside r-shell. */
@@ -62,7 +79,7 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 					&& this.setNbhFirstInNewRing( this._currentNeighbor[1] ) )
 		{
 			this._nbhDimName = R;
-			this._nbhDirection = 1;		
+			this._nbhDirection = AHEAD;
 		}
 		/* There are no valid neighbors. */
 		else
@@ -87,7 +104,7 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 			 * We're in the r-shell just inside that of the current coordinate.
 			 */
 			this._nbhDimName = R;
-			this._nbhDirection = 0;
+			this._nbhDirection = BEHIND;
 			/* Try increasing theta by one voxel. */
 			if ( ! this.increaseNbhByOnePolar(THETA) )
 			{
@@ -102,7 +119,7 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 					 * additionally try the phi-minus ring.
 					 */
 					this._nbhDimName = PHI;
-					this._nbhDirection = 0;
+					this._nbhDirection = BEHIND;
 					if ( ! this.moveNhbToMinus(PHI)
 						|| ! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
 					{
@@ -113,7 +130,7 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 						 * If this fails call this method again.
 						 */
 						this._nbhDimName = THETA;
-						this._nbhDirection = 0;
+						this._nbhDirection = BEHIND;
 						if ( ! this.moveNhbToMinus(THETA) )
 							return this.nbhIteratorNext();
 					}
@@ -134,10 +151,10 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 				 * to the next ring. If this fails, call this method again.
 				 */
 				this._nbhDimName = PHI;
-				this._nbhDirection = 0;
+				this._nbhDirection = BEHIND;
 				if ( ! this.increaseNbhByOnePolar(THETA) ){
 					this._nbhDimName = THETA;
-					this._nbhDirection = 0;
+					this._nbhDirection = BEHIND;
 					if ( ! this.moveNhbToMinus(THETA) )
 						return this.nbhIteratorNext();
 				}
@@ -151,11 +168,12 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 				 * ring.
 				 */
 				this._nbhDimName = THETA;
-				this._nbhDirection = 1;
-				if (! this.nhbJumpOverCurrent(THETA) ) {
+				this._nbhDirection = AHEAD;
+				if ( ! this.nhbJumpOverCurrent(THETA) )
+				{
 					this._nbhDimName = PHI;
-					this._nbhDirection = 1;
-					if ( ! this.setNbhFirstInNewRing(this._currentCoord[1] + 1))
+					this._nbhDirection = AHEAD;
+					if ( ! this.setNbhFirstInNewRing(this._currentCoord[1]+1) )
 						return this.nbhIteratorNext();
 				}
 			}
@@ -167,15 +185,15 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 				 */
 				int rPlus = this._currentCoord[0] + 1;
 				this._nbhDimName = PHI;
-				this._nbhDirection = 1;
+				this._nbhDirection = AHEAD;
 				/* Try increasing theta by one voxel. */
 				if ( ! this.increaseNbhByOnePolar(THETA) )
 				{
 					/* Move out to the next shell or the next rings. */
 					this._nbhDimName = R;
-					this._nbhDirection = 1;
+					this._nbhDirection = AHEAD;
 					if (! this.setNbhFirstInNewShell(rPlus) ||
-									! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
+						! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
 					{
 						this.nbhIteratorNext();
 					}
@@ -189,7 +207,7 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 			 * If we can't increase phi and theta any more, then we've finished.
 			 */
 			this._nbhDimName = R;
-			this._nbhDirection = 1;
+			this._nbhDirection = AHEAD;
 			if ( ! this.increaseNbhByOnePolar(THETA) )
 				if (!this.increaseNbhByOnePolar(PHI) ||
 						! this.setNbhFirstInNewRing(this._currentNeighbor[1]) )
@@ -225,8 +243,10 @@ public class SphericalShapeIterator extends PolarShapeIterator{
 		 * We must be on a shell inside the array or on a defined R boundary.
 		 */
 		WhereAmI whereIsR = this.whereIsNhb(R);
-		if ( whereIsR != INSIDE ){
-			if (whereIsR != UNDEFINED){
+		if ( whereIsR != INSIDE )
+		{
+			if (whereIsR != UNDEFINED)
+			{
 				Log.out(NHB_ITER_LEVEL, "  success on "+ whereIsR +" boundary");
 				return true;
 			}

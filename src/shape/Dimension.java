@@ -15,6 +15,7 @@ import nodeFactory.NodeConstructor;
 import surface.Surface;
 import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
+import shape.iterator.PolarShapeIterator;
 import utility.ExtraMath;
 import utility.Helper;
 

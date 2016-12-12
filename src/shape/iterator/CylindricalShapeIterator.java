@@ -1,13 +1,31 @@
-package shape;
+package shape.iterator;
 
 import static shape.Dimension.DimName.R;
 import static shape.Dimension.DimName.THETA;
 import static shape.Dimension.DimName.Z;
-import static shape.ShapeIterator.WhereAmI.UNDEFINED;
+import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
 
-public class CylindricalShapeIterator extends PolarShapeIterator{
+import static shape.iterator.ShapeIterator.NhbDirection.AHEAD;
+import static shape.iterator.ShapeIterator.NhbDirection.BEHIND;
+
+import shape.CylindricalShape;
+
+/**
+ * \brief Voxel iterator for cylindrical shapes.
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ * @author Stefan Lang (stefan.lang@uni-jena.de)
+ *     Friedrich-Schiller University Jena, Germany 
+ */
+public class CylindricalShapeIterator extends PolarShapeIterator
+{
+	public CylindricalShapeIterator(CylindricalShape shape, int strideLength)
+	{
+		super(shape, strideLength);
+	}
 	
-	public CylindricalShapeIterator(CylindricalShape shape) {
+	public CylindricalShapeIterator(CylindricalShape shape)
+	{
 		super(shape);
 	}
 	
@@ -18,37 +36,37 @@ public class CylindricalShapeIterator extends PolarShapeIterator{
 		if ( this.setNbhFirstInNewShell(this._currentCoord[0] - 1) )
 		{ 
 			this._nbhDimName = R;
-			this._nbhDirection = 0;	
+			this._nbhDirection = BEHIND;	
 		}
 		/* See if we can take the theta-minus-neighbor. */
 		else if (this.moveNhbToMinus(THETA)) 
 		{
 			this._nbhDimName = THETA;
-			this._nbhDirection = 0;	
+			this._nbhDirection = BEHIND;	
 		}
 		/* See if we can take the theta-plus-neighbor. */
 		else if(this.nhbJumpOverCurrent(THETA))
 		{
 			this._nbhDimName = THETA;
-			this._nbhDirection = 1;	
+			this._nbhDirection = AHEAD;	
 		}
 		/* See if we can take the z-minus-neighbor. */
 		else if (this.moveNhbToMinus(Z))
 		{
 			this._nbhDimName = Z;
-			this._nbhDirection = 0;	
+			this._nbhDirection = BEHIND;	
 		}
 		/* See if we can take the z-plus-neighbor. */
 		else if (this.nhbJumpOverCurrent(Z))
 		{
 			this._nbhDimName = Z;
-			this._nbhDirection = 1;	
+			this._nbhDirection = AHEAD;	
 		}
 		/* See if we can use the outside r-shell. */
 		else if ( this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
 		{
 			this._nbhDimName = R;
-			this._nbhDirection = 1;	
+			this._nbhDirection = AHEAD;	
 		}
 		/* There are no valid neighbors. */
 		else
@@ -75,11 +93,11 @@ public class CylindricalShapeIterator extends PolarShapeIterator{
 			 * the next shell. If this fails, call this method again.
 			 */
 			this._nbhDimName = R;
-			this._nbhDirection = 0;
+			this._nbhDirection = BEHIND;
 			if ( ! this.increaseNbhByOnePolar(THETA) )
 			{
 				this._nbhDimName = THETA;
-				this._nbhDirection = 0;
+				this._nbhDirection = BEHIND;
 				if ( ! this.moveNhbToMinus(THETA) )
 					return this.nbhIteratorNext();
 			}
@@ -99,11 +117,11 @@ public class CylindricalShapeIterator extends PolarShapeIterator{
 				 * voxel.
 				 */
 				this._nbhDimName = THETA;
-				this._nbhDirection = 1;
+				this._nbhDirection = AHEAD;
 				if ( ! this.nhbJumpOverCurrent(THETA) )
 				{
 					this._nbhDimName = Z;
-					this._nbhDirection = 0;
+					this._nbhDirection = BEHIND;
 					if ( ! this.moveNhbToMinus(Z) )
 						return this.nbhIteratorNext();
 				}
@@ -111,15 +129,16 @@ public class CylindricalShapeIterator extends PolarShapeIterator{
 			else if (this.nhbJumpOverCurrent(Z) )
 			{
 				this._nbhDimName = Z;
-				this._nbhDirection = 1;
+				this._nbhDirection = AHEAD;
 			}
-			else{
+			else
+			{
 				/*
 				 * We tried to move to the z-plus side of the current
 				 * coordinate, but since we failed we must be finished.
 				 */
 				this._nbhDimName = R;
-				this._nbhDirection = 1;
+				this._nbhDirection = AHEAD;
 				if ( ! this.setNbhFirstInNewShell(this._currentCoord[0] + 1) )
 					this._whereIsNhb = UNDEFINED;
 			}

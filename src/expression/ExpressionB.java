@@ -9,7 +9,6 @@ import java.util.TreeMap;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import dataIO.Log.Tier;
 import dataIO.Log;
@@ -19,7 +18,6 @@ import nodeFactory.ModelNode;
 import nodeFactory.NodeConstructor;
 import nodeFactory.ModelNode.Requirements;
 import nodeFactory.primarySetters.BundleMap;
-import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 

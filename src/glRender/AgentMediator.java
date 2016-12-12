@@ -1,7 +1,6 @@
 package glRender;
 
 import java.awt.Color;
-import java.awt.color.ColorSpace;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,8 +25,8 @@ import referenceLibrary.AspectRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension.DimName;
+import shape.iterator.ShapeIterator;
 import shape.Shape;
-import shape.ShapeIterator;
 import shape.SphericalShape;
 import surface.Ball;
 import surface.Rod;

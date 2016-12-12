@@ -71,6 +71,8 @@ public interface Instantiatable
 	public static Object getNewInstance(String className, Element xmlElem, NodeConstructor parent)
 	{
 		Object out;
+		if (className == null)
+			className = getClass(xmlElem);
 		if (className.contains("."))
 			out = getNewInstance(className, null);
 		else
@@ -154,5 +156,17 @@ public interface Instantiatable
 	{
 		return getNewInstance(className, 
 								Idynomics.xmlPackageLibrary.get(className));
+	}
+	
+	public static String getClass(Element xml)
+	{
+		if ( ! xml.hasAttribute(XmlRef.classAttribute) )
+			Log.out(Tier.CRITICAL, "No className defined in: "+ xml.getTagName());
+		else if ( ! xml.hasAttribute(XmlRef.packageAttribute) )
+			return xml.getAttribute(XmlRef.classAttribute);
+		else
+			return xml.getAttribute(XmlRef.packageAttribute) + "." + 
+			xml.getAttribute(XmlRef.classAttribute);
+		return null;
 	}
 }

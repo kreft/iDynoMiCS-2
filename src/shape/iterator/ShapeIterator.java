@@ -1,20 +1,22 @@
-package shape;
+package shape.iterator;
 
 import static dataIO.Log.Tier.BULK;
-import static shape.ShapeIterator.WhereAmI.CYCLIC;
-import static shape.ShapeIterator.WhereAmI.DEFINED;
-import static shape.ShapeIterator.WhereAmI.INSIDE;
-import static shape.ShapeIterator.WhereAmI.UNDEFINED;
+import static shape.iterator.ShapeIterator.WhereAmI.CYCLIC;
+import static shape.iterator.ShapeIterator.WhereAmI.DEFINED;
+import static shape.iterator.ShapeIterator.WhereAmI.INSIDE;
+import static shape.iterator.ShapeIterator.WhereAmI.UNDEFINED;
 
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
+import shape.Dimension;
+import shape.Shape;
 import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.ResCalc;
 
-public abstract class ShapeIterator{
-	
+public abstract class ShapeIterator
+{
 	protected enum WhereAmI
 	{
 		/**
@@ -35,16 +37,23 @@ public abstract class ShapeIterator{
 		UNDEFINED;
 	}
 	
-	protected Shape _shape;
+	protected static enum NhbDirection
+	{
+		BEHIND(0),
+		AHEAD(1);
+		
+		private int minMaxBoundaryIndex;
+		
+		NhbDirection(int minMaxBoundaryIndex)
+		{
+			this.minMaxBoundaryIndex = minMaxBoundaryIndex;
+		}
+	}
 	
 	/**
-	 * An array to store the current iterator state.
+	 * The shape this iterator is for.
 	 */
-	protected int[] storeIter;
-	/**
-	 * An array to store the current neighborhood iterator state.
-	 */
-	protected int[] storeNbh;
+	protected Shape _shape;
 	/**
 	 * Current coordinate considered by the internal iterator.
 	 */
@@ -63,14 +72,29 @@ public abstract class ShapeIterator{
 	 */
 	protected DimName _nbhDimName;
 	/**
-	 * Integer indicating positive (1) or negative (0) relative position
+	 * Integer indicating positive (+1) or negative (-1) relative position
 	 * to the current coordinate.
 	 */
-	protected int _nbhDirection;
+	protected NhbDirection _nbhDirection;
 	/**
 	 * What kind of voxel the current neighbor iterator is in.
 	 */
 	protected WhereAmI _whereIsNhb;
+	/**
+	 * If stride length is one, each voxel is visited in turn and the iterator
+	 * makes a single sweep over the shape before declaring itself to be 
+	 * invalid (the default case). If stride length is two, the iterator skips
+	 * every other voxel on its first sweep of the shape, and then visits the
+	 * remaining voxels on its second (red-black iteration). This logic is
+	 * extended for higher values of stride length, but it must always be
+	 * greater than zero.
+	 */
+	protected int _strideLength;
+	/**
+	 * Placeholder variable for the current sweep. Will always be greater than
+	 * or equal to zero, and less than the stride length.
+	 */
+	protected int _sweepNumber;
 	
 	/**
 	 * \brief Log file verbosity level used for debugging the neighbor iterator.
@@ -80,9 +104,33 @@ public abstract class ShapeIterator{
 	 */
 	protected static final Tier NHB_ITER_LEVEL = BULK;
 	
-	public ShapeIterator(Shape shape) {
+	/* ***********************************************************************
+	 * CONSTRUCTORS
+	 * **********************************************************************/
+	
+	/**
+	 * 
+	 * @param shape
+	 * @param strideLength
+	 */
+	public ShapeIterator(Shape shape, int strideLength)
+	{
 		this._shape = shape;
+		this._strideLength = strideLength;
 	}
+	
+	/**
+	 * 
+	 * @param shape
+	 */
+	public ShapeIterator(Shape shape)
+	{
+		this(shape, 1);
+	}
+	
+	/* ***********************************************************************
+	 * 
+	 * **********************************************************************/
 	
 	/**
 	 * \brief Find out what kind of voxel is represented by the given
@@ -135,7 +183,7 @@ public abstract class ShapeIterator{
 	{
 		this._whereIsNhb = INSIDE;
 		WhereAmI where;
-		for ( DimName dim : this._shape._dimensions.keySet() )
+		for ( DimName dim : this._shape.getDimensionNames() )
 		{
 			where = this.whereIsNhb(dim);
 			if ( where == UNDEFINED )
@@ -145,7 +193,6 @@ public abstract class ShapeIterator{
 		}
 		return this._whereIsNhb;
 	}
-	
 	
 	/* ***********************************************************************
 	 * COORDINATE ITERATOR
@@ -161,13 +208,21 @@ public abstract class ShapeIterator{
 	 * @param coords Discrete coordinates of a voxel on this shape.
 	 * @return A 3-vector of the number of voxels in each dimension.
 	 */
-	protected void updateCurrentNVoxel()
+	private void updateCurrentNVoxel()
 	{
+		/* Check that both vectors are initialised. */
 		if ( this._currentNVoxel == null )
 			this._currentNVoxel = Vector.zerosInt(3);
 		if ( this._currentCoord == null )
 			this.resetIterator();
-		this._shape.nVoxelTo(this._currentNVoxel, this._currentCoord);
+		/* Loop over the dimensions, finding the number of voxels for each. */
+		ResCalc rC;
+		int nDim = this._shape.getDimensionNames().size();
+		for ( int dim = 0; dim < nDim; dim++ )
+		{
+			rC = this._shape.getResolutionCalculator(this._currentCoord, dim);
+			this._currentNVoxel[dim] = rC.getNVoxel();
+		}
 	}
 	
 	/**
@@ -177,34 +232,17 @@ public abstract class ShapeIterator{
 	 */
 	public int[] resetIterator()
 	{
+		int nDim = this._shape.getDimensionNames().size();
 		if ( this._currentCoord == null )
 		{
-			this._currentCoord = Vector.zerosInt(this._shape._dimensions.size());
-			this._currentNVoxel = Vector.zerosInt(this._shape._dimensions.size());
+			this._currentCoord = Vector.zerosInt(nDim);
+			this._currentNVoxel = Vector.zerosInt(nDim);
 		}
 		else
 			Vector.reset(this._currentCoord);
-		this.updateCurrentNVoxel();	
+		this._sweepNumber = 0;
+		this.updateCurrentNVoxel();
 		return this._currentCoord;
-	}
-	
-	public void saveCurrentIteratorState(){
-		/*
-		 * Store the two iterators, in case we're in the middle of an
-		 * iteration and want to start a new iteration.
-		 */
-		if ( this._currentCoord != null )
-			storeIter = Vector.copy(this._currentCoord);
-		if ( this._currentNeighbor != null )
-			storeNbh = Vector.copy(this._currentNeighbor);
-	}
-	
-	public void loadSavedIteratorState(){
-		/*
-		 * Put the iterators back to their stored values.
-		 */
-		this._currentCoord = (storeIter == null) ? null:Vector.copy(storeIter);
-		this._currentNeighbor = (storeNbh==null) ? null:Vector.copy(storeNbh);
 	}
 
 	/**
@@ -224,6 +262,39 @@ public abstract class ShapeIterator{
 	 */
 	public int[] iteratorNext()
 	{
+		while ( true )
+		{
+			this.stepNext();
+			/*
+			 * Check if we need to go back to the start, offset and sweep
+			 * again.
+			 */
+			if ( ! this.isIteratorValid() )
+			{
+				this._sweepNumber++;
+				if ( this._sweepNumber < this._strideLength )
+					this.resetSweep();
+				else
+					break;
+			}
+			/*
+			 * If we have done enough steps in this stride, break. This
+			 * condition handles the offset needed when starting a new row if
+			 * the row length is a multiple of the stride length.
+			 */
+			if ( this._sweepNumber ==
+					Vector.sum(this._currentCoord) % this._strideLength )
+			{
+				break;
+			}
+		}
+		if ( this.isIteratorValid() )
+			this.updateCurrentNVoxel();
+		return this._currentCoord;
+	}
+	
+	private void stepNext()
+	{
 		/*
 		 * We have to step through last dimension first, because we use jagged 
 		 * arrays in the PolarGrids.
@@ -239,9 +310,13 @@ public abstract class ShapeIterator{
 				this._currentCoord[0]++;
 			}
 		}
-		if ( this.isIteratorValid() )
-			this.updateCurrentNVoxel();
-		return this._currentCoord;
+	}
+	
+	private void resetSweep()
+	{
+		Vector.reset(this._currentCoord);
+		for (int i = 1; i < this._sweepNumber; i++)
+			this.stepNext();
 	}
 	
 	/**
@@ -281,7 +356,7 @@ public abstract class ShapeIterator{
 	 * @param index Index of the required dimension.
 	 * @return The starting point for integration.
 	 */
-	protected double getIntegrationMin(int index)
+	public double getIntegrationMin(int index)
 	{
 		ResCalc rC;
 		double curMin, nhbMin;
@@ -309,7 +384,7 @@ public abstract class ShapeIterator{
 	 * @param index Index of the required dimension.
 	 * @return The end point for integration.
 	 */
-	protected double getIntegrationMax(int index)
+	public double getIntegrationMax(int index)
 	{
 		ResCalc rC;
 		double curMax, nhbMax;
@@ -397,11 +472,24 @@ public abstract class ShapeIterator{
 		if ( this._whereIsNhb == DEFINED )
 		{
 			Dimension dim = this._shape.getDimension(this._nbhDimName);
-			return dim.getBoundary(this._nbhDirection);
+			return dim.getBoundary(this._nbhDirection.minMaxBoundaryIndex);
 		}
 		return null;
 	}
 	
+	/**
+	 * The dimension name the current neighbour is moving in.
+	 */
+	public DimName currentNhbDimName()
+	{
+		return this._nbhDimName;
+	}
+	
+	
+	public boolean isCurrentNhbAhead()
+	{
+		return this._nbhDirection == NhbDirection.AHEAD;
+	}
 	
 	/**
 	 * \brief Transform the coordinates of the neighbor iterator, in the
@@ -423,7 +511,7 @@ public abstract class ShapeIterator{
 			int dimIdx = this._shape.getDimensionIndex(this._nbhDimName);
 			int nVoxel = this._shape.getResolutionCalculator(
 					this._currentNeighbor, dimIdx).getNVoxel();
-			if ( this._nbhDirection == 0 )
+			if ( this._nbhDirection == NhbDirection.BEHIND )
 			{
 				/* Direction 0: the neighbor wraps below, to the highest. */
 				this._currentNeighbor[dimIdx] = nVoxel - 1;
@@ -453,7 +541,7 @@ public abstract class ShapeIterator{
 		if ( (this._whereIsNhb == CYCLIC) && dim.isCyclic() )
 		{
 			int dimIdx = this._shape.getDimensionIndex(this._nbhDimName);
-			if ( this._nbhDirection == 0 )
+			if ( this._nbhDirection == NhbDirection.BEHIND )
 			{
 				/* Direction 0: the neighbor should reset to minus one. */
 				this._currentNeighbor[dimIdx] = -1;
