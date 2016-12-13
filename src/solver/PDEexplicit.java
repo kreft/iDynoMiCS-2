@@ -66,7 +66,7 @@ public class PDEexplicit extends PDEsolver
 		{
 			double inverseMaxT = var.getMax(DIFFUSIVITY);
 			inverseMaxT *= var.getShape().getMaxFluxPotential();
-			inverseMaxT *= 3.5;
+			inverseMaxT *= 4.0;
 			// FIXME testing why solute concentrations explode sometimes
 			// FIXME decreasing time step  a bit further seems to fix exploding solute concentrations
 			/* divide by 3 since all simulations are pseudo 3D */

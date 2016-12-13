@@ -681,25 +681,30 @@ public abstract class Shape implements
 		return out;
 	}
 	
+	/**
+	 * Considering periodic boundaries return the mid-point on the shortest
+	 * distance between two points, even if the shortest distance passes trough
+	 * a periodic boundary.
+	 * @param a position vector
+	 * @param b position vector
+	 * @return mid-point position vector considering the periodic boundaries of
+	 * this shape.
+	 */
 	public double[] periodicMidPoint(double[] a, double[] b)
 	{
-		List<double[]> cyclicPoints = 
-				getCyclicPoints(a);
+		List<double[]> cyclicPoints = getCyclicPoints(a);
 		double[] c = cyclicPoints.get(0);
-		
 		double dist = Vector.distanceEuclid(b, c);
 		double dDist;
 		for ( double[] d : cyclicPoints )
 		{
 			dDist = Vector.distanceEuclid( b, d);
-		
 			if ( dDist < dist)
 			{
 				c = d;
 				dist = dDist;
 			}
 		}
-		
 		double[] midPos = Vector.midPoint(c, b);
 		return this.getGlobalLocation(midPos);
 	}

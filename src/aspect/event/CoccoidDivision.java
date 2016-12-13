@@ -120,8 +120,9 @@ public class CoccoidDivision extends Event
 			Log.out(level, "CoccoidDivision added daughter cell");
 		}
 		/* The bodies of both cells may now need updating. */
-//		mother.event(UPDATE_BODY);
-//		daughter.event(UPDATE_BODY);
+
+		mother.event(UPDATE_BODY);
+		daughter.event(UPDATE_BODY);
 		/* Check if either agent should divide again. */
 		mother.event(DIVIDE);
 		daughter.event(DIVIDE);

@@ -20,8 +20,7 @@ import dataIO.Log.Tier;
 
 /**
  * 
- * FIXME VERY DIRTY port of coccoid division class, take some time to think
- * trough and make a beautiful new class
+ * rod division, taking into account periodic boundaries
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
@@ -103,6 +102,8 @@ public class RodDivision extends Event {
 		
 		/* if either is still larger than the division size they need to divide 
 		 * again */
+		mother.event(UPDATE_BODY);
+		daughter.event(UPDATE_BODY);
 		mother.event(DIVIDE);
 		daughter.event(DIVIDE);
 		if ( Log.shouldWrite(level) )
