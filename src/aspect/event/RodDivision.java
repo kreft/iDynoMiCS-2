@@ -40,7 +40,8 @@ public class RodDivision extends Event {
 	 * Method that initiates the division
 	 */
 	@SuppressWarnings("unchecked")
-	public void start(AspectInterface initiator, AspectInterface compliant, Double timeStep)
+	public void start(AspectInterface initiator, AspectInterface compliant, 
+			Double timeStep)
 	{
 		Tier level = Tier.BULK;
 		Agent mother = (Agent) initiator;
@@ -59,41 +60,28 @@ public class RodDivision extends Event {
 		mother.set(MASS, momMass-randM);
 		daughter.set(MASS, randM);
 		
-		// FIXME think of something more robust
-		// Does this create artifacts when passing two cyclic boundaries?
 		/*
 		 * find the closest distance between the two mass points of the rod
 		 * agent and assumes this is the correct length, preventing rods being
 		 * stretched out over the entire domain
 		 */
-		List<double[]> cyclicPoints = 
-				shape.getCyclicPoints(momBody.getJoints().get(0));
+		double[] midPos = shape.periodicMidPoint(
+				momBody.getJoints().get(0), 
+				momBody.getJoints().get(1) );
 		
-		double[] c = cyclicPoints.get(0);
-		double dist = Vector.distanceEuclid(momBody.getJoints().get(1), c);
-		double dDist;
-		for ( double[] d : cyclicPoints )
-		{
-			dDist = Vector.distanceEuclid( momBody.getJoints().get(1), d);
-		
-			if ( dDist < dist)
-			{
-				c = d;
-				dist = dDist;
-			}
-		}
-		
-		double[] midPos = Vector.midPoint(c, momBody.getJoints().get(1));
-		
-		double[] shift = Vector.randomPlusMinus(midPos.length, 
-				0.5*(double) mother.get(RADIUS));
+		double[] shift = Vector.randomPlusMinus( midPos.length, 
+				0.05*(double) mother.get(RADIUS) );
 		
 		Point p = momBody.getPoints().get(1);
-		p.setPosition(Vector.add(midPos, shift));
+		p.setPosition( shape.periodicMidPoint( 
+				momBody.getJoints().get(0),
+				Vector.add(midPos, shift) ) );
 		
 		Body daughterBody = (Body) daughter.get(BODY);
 		Point q = daughterBody.getPoints().get(0);
-		q.setPosition(Vector.minus(midPos, shift));
+		q.setPosition( shape.periodicMidPoint(
+				daughterBody.getJoints().get(1),
+				Vector.minus( midPos, shift ) ) );
 
 
 		//TODO work in progress, currently testing fillial links
@@ -112,11 +100,9 @@ public class RodDivision extends Event {
 			mother.set(LINKED, linkers);
 		}
 		daughter.registerBirth();
-//		mother.event(UPDATE_BODY);
-//		daughter.event(UPDATE_BODY);
 		
-		// if either is still larger than the div size they need to devide
-		// again
+		/* if either is still larger than the division size they need to divide 
+		 * again */
 		mother.event(DIVIDE);
 		daughter.event(DIVIDE);
 		if ( Log.shouldWrite(level) )

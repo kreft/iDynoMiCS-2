@@ -681,6 +681,29 @@ public abstract class Shape implements
 		return out;
 	}
 	
+	public double[] periodicMidPoint(double[] a, double[] b)
+	{
+		List<double[]> cyclicPoints = 
+				getCyclicPoints(a);
+		double[] c = cyclicPoints.get(0);
+		
+		double dist = Vector.distanceEuclid(b, c);
+		double dDist;
+		for ( double[] d : cyclicPoints )
+		{
+			dDist = Vector.distanceEuclid( b, d);
+		
+			if ( dDist < dist)
+			{
+				c = d;
+				dist = dDist;
+			}
+		}
+		
+		double[] midPos = Vector.midPoint(c, b);
+		return this.getGlobalLocation(midPos);
+	}
+	
 	/**
 	 * \brief Get the smallest distance between two points, once cyclic
 	 * dimensions are accounted for. Write the result into the destination
