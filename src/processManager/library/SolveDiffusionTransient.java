@@ -97,10 +97,9 @@ public class SolveDiffusionTransient extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
-				Helper.collectionToArray(
-				this._environment.getSoluteNames()));
-		this._soluteNames = soluteNames;
+
+		this._soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(this._environment.getSoluteNames()));
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
