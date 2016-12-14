@@ -71,6 +71,8 @@ public final class GuiConsole
 	public static JComponent getConsole()
 	{
 		_console.setBackground(_consoleBackground);
+		_console.setEditable(false);
+
 		
 		/**
 		 * based on
@@ -146,7 +148,7 @@ public final class GuiConsole
 		/* Background not set here: see GuiLaunch.consoleBackground. */
 		/* Bold not set here. */
 		StyleConstants.setFontFamily(a, "consolas");
-		StyleConstants.setFontSize(a, 15);
+		StyleConstants.setFontSize(a, 10);
 		/* Foreground not set here. */
 		StyleConstants.setItalic(a, false);
 		return a;
