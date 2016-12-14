@@ -453,6 +453,9 @@ public class SolveChemostat extends ProcessManager
 		/*
 		 * Copy the solute concentrations to this map so that we do not risk
 		 * contaminating other agent-based reactions.
+		 * 
+		 * FIXME: this would break if we use separate internal and external
+		 * concentrations, make sure to call your internals solute_internal
 		 */
 		allConcns.putAll(concns);
 		/*
