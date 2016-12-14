@@ -1,4 +1,4 @@
-package testJUnit;
+package test.junit;
 
 import org.junit.Test;
 
@@ -10,6 +10,7 @@ import processManager.library.SolveDiffusionSteadyState;
 import shape.Shape;
 import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator.UniformResolution;
+import test.AllTests;
 
 public class PDEgaussseidelTests
 {
@@ -31,7 +32,12 @@ public class PDEgaussseidelTests
 		 * periodic boundaries.
 		 */
 		Compartment comp = Idynomics.simulator.addCompartment("line");
-		comp.setShape("line");
+		try {
+			comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Line").newInstance());
+		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 		Shape shape = comp.getShape();
 		shape.getDimension(DimName.X).setLength(nVoxel);
 		UniformResolution resCalc = new UniformResolution();
@@ -51,8 +57,7 @@ public class PDEgaussseidelTests
 		 */
 		SolveDiffusionSteadyState pm = new SolveDiffusionSteadyState();
 		pm.setName("DR solver");
-		pm.init(new String[]{soluteName}, comp.environment, 
-				comp.agents, comp.getName());
+		pm.init(null, comp.environment, comp.agents, comp.getName());
 		pm.setTimeForNextStep(0.0);
 		pm.setTimeStepSize(tStep);
 		pm.setPriority(1);

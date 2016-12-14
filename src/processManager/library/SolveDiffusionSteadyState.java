@@ -56,26 +56,9 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		/* gets specific solutes from process manager aspect registry if they
 		 * are defined, if not, solve for all solutes.
 		 */
-		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
-				Helper.collectionToArray(
-				this._environment.getSoluteNames()));
-		this.init( soluteNames, environment, 
-				agents, compartmentName );
-		
-	}
-	
-	/**
-	 * 
-	 * 
-	 * 
-	 * 
-	 */
-	public void init( String[] soluteNames, EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		/* This super call is only required for the unit tests. */
-		super.init(environment, agents, compartmentName);
-		this._soluteNames = soluteNames;
+		this._soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(this._environment.getSoluteNames()));
+
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEgaussseidel();
 		this._solver.init(this._soluteNames, false);

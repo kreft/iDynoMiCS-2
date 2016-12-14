@@ -90,7 +90,11 @@ public class Instance
 			return getNew( xmlElem, parent, Helper.obtainInput( 
 					className, "select class", false ) );	
 		}
-
+	}
+	
+	public static Object getNew(Element xmlElem, Settable parent)
+	{
+		return getNew(xmlElem, parent, getClass(xmlElem));
 	}
 
 	/**
@@ -159,5 +163,17 @@ public class Instance
 	{
 		return getNew(className, 
 								Idynomics.xmlPackageLibrary.get(className));
+	}
+	
+	private static String getClass(Element xml)
+	{
+		if ( ! xml.hasAttribute(XmlRef.classAttribute) )
+			Log.out(Tier.CRITICAL, "No className defined in: "+ xml.getTagName());
+		else if ( ! xml.hasAttribute(XmlRef.packageAttribute) )
+			return xml.getAttribute(XmlRef.classAttribute);
+		else
+			return xml.getAttribute(XmlRef.packageAttribute) + "." + 
+			xml.getAttribute(XmlRef.classAttribute);
+		return null;
 	}
 }

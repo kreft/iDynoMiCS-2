@@ -19,10 +19,11 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.diffusivitySetter.AllSameDiffuse;
+import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import instantiatable.Instance;
-import processManager.PorcessDiffusion;
+import processManager.ProcessDiffusion;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
@@ -53,19 +54,9 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		/* gets specific solutes from process manager aspect registry if they
 		 * are defined, if not, solve for all solutes.
 		 */
-		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
+		this._soluteNames = (String[]) this.getOr(SOLUTES, 
 				Helper.collectionToArray(this._environment.getSoluteNames()));
-		this.init( soluteNames, environment, 
-				agents, compartmentName );
-	}
-	
-	@Override
-	public void init( String[] soluteNames, EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		/* This super call is only required for the unit tests. */
-		super.init(environment, agents, compartmentName);
-		this._soluteNames = soluteNames;
+
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
@@ -119,15 +110,6 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * Clear agent mass distribution maps.
 		 */
 		this._agents.removeAgentDistibutionMaps();
-		/**
-		 * act upon new agent situations
-		 */
-		for(Agent agent: this._agents.getAllAgents()) 
-		{
-			agent.event(DIVIDE);
-			agent.event(EXCRETE_EPS);
-			agent.event(UPDATE_BODY);
-		}
 
 	}
 	
