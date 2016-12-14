@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static test.AllTests.TOLERANCE;
+import static org.junit.Assert.assertFalse;
 
 import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
@@ -14,6 +14,7 @@ import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import shape.Shape;
+import shape.CartesianShape;
 import shape.Dimension.DimName;
 import shape.ShapeLibrary.Circle;
 import shape.ShapeLibrary.Rectangle;
@@ -462,5 +463,64 @@ public class ShapesTest
 		Log.out(DEBUG, "Shape has "	+ nVoxelTotal
 				+ " voxels, counted " + iter_count);
 		assertEquals(iter_count, nVoxelTotal);
+	}
+	
+	@Test
+	public void redBlackIteratorShouldIterateCorrectly()
+	{
+		AllTests.setupSimulatorForTest(1.0, 1.0,
+				"redBlackIteratorShouldIterateCorrectly");
+		CartesianShape shp = new Rectangle();
+		UniformResolution resCalc = new UniformResolution();
+		resCalc.setExtremes(0.0, 4.0);
+		resCalc.setResolution(1.0);
+		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
+		for ( DimName d : dims )
+			shp.setDimensionResolution(d, resCalc);
+		/*
+		 * Try first with solid boundaries.
+		 */
+		for ( DimName d : dims )
+			for ( int extreme = 0; extreme < 2; extreme++ )
+			{
+				SolidBoundary bndry = new SolidBoundary(d, extreme);
+				shp.setBoundary(d, extreme, bndry);
+			}
+		Log.out(DEBUG, "Solid boundaries");
+		checkRedBlackIteration(shp);
+		Log.out(DEBUG, "");
+		/*
+		 * Now try with cyclic dimensions.
+		 */
+		for ( DimName d : dims )
+			shp.makeCyclic(d);
+		Log.out(DEBUG, "Cyclic dimensions");
+		checkRedBlackIteration(shp);
+		Log.out(DEBUG, "");	
+	}
+	
+	private void checkRedBlackIteration(CartesianShape shape)
+	{
+		/* Reset the iterator. */
+		shape.setNewIterator(2);
+		int[] coord = shape.resetIterator();
+		int[] oldCoord = coord.clone();
+		coord = shape.iteratorNext();
+		int[] nhb;
+		/* Check that no coordinate has the previous one as its neighbour. */
+		while ( shape.isIteratorValid() )
+		{
+			Log.out(DEBUG, "coord: "+Vector.toString(coord)+
+					", oldCoord: "+Vector.toString(oldCoord));
+			for ( nhb = shape.resetNbhIterator(); 
+					shape.isNbhIteratorValid();
+					nhb = shape.nbhIteratorNext())
+			{
+				Log.out(DEBUG, "   nhb: "+Vector.toString(nhb));
+				assertFalse(Vector.areSame(nhb, oldCoord));
+			}
+			Vector.copyTo(oldCoord, coord);
+			coord = shape.iteratorNext();
+		}
 	}
 }

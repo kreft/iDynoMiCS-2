@@ -5,7 +5,6 @@ package shape.resolution;
 
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
-import shape.Dimension;
 import utility.ExtraMath;
 
 /**

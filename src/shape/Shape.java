@@ -4,7 +4,6 @@ import static dataIO.Log.Tier.BULK;
 import static shape.Dimension.DimName.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -31,7 +30,7 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import shape.Dimension.DimName;
-import shape.ShapeIterator.WhereAmI;
+import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.resolution.ResolutionCalculator.UniformResolution;
@@ -39,7 +38,6 @@ import shape.subvoxel.SubvoxelPoint;
 import surface.Collision;
 import surface.Plane;
 import surface.Surface;
-import utility.ExtraMath;
 import utility.Helper;
 /**
  * \brief Abstract class for all shape objects.
@@ -67,10 +65,6 @@ import utility.Helper;
  * 								Friedrich-Schiller University Jena, Germany 
  */
 // TODO remove the last three sections by incorporation into Node construction.
-/**
- * @author qwer
- *
- */
 public abstract class Shape implements
 					CanPrelaunchCheck, Instantiatable, Settable
 {
@@ -361,7 +355,7 @@ public abstract class Shape implements
 	 * @param index Index of the dimension required.
 	 * @return Name of the dimension required.
 	 */
-	protected DimName getDimensionName(int index)
+	public DimName getDimensionName(int index)
 	{
 		int counter = 0;
 		for ( DimName d : this._dimensions.keySet() )
@@ -469,25 +463,6 @@ public abstract class Shape implements
 	}
 
 	/**
-	 * \brief Get the number of voxels in each dimension for the given
-	 * coordinates.
-	 * 
-	 * @param destination Integer vector to write the result into.
-	 * @param coords Discrete coordinates of a voxel on this shape.
-	 * @return A 3-vector of the number of voxels in each dimension.
-	 */
-	protected void nVoxelTo(int[] destination, int[] coords)
-	{
-		Vector.checkLengths(destination, coords);
-		ResCalc rC;
-		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
-		{
-			rC = this.getResolutionCalculator(coords, dim);
-			destination[dim] = rC.getNVoxel();
-		}
-	}
-	
-	/**
 	 * \brief Try to initialise a resolution calculator from storage, for a
 	 * dimension that is dependent on another.
 	 * 
@@ -517,7 +492,7 @@ public abstract class Shape implements
 	 * @param dim Dimension index (e.g., for a cuboid: X = 0, Y = 1, Z = 2).
 	 * @return The relevant Resolution Calculator.
 	 */
-	protected abstract ResCalc getResolutionCalculator(int[] coord, int dim);
+	public abstract ResCalc getResolutionCalculator(int[] coord, int dim);
 	
 	/* ***********************************************************************
 	 * POINT LOCATIONS
@@ -1248,7 +1223,12 @@ public abstract class Shape implements
 		Tier level = BULK;
 		Log.out(level, "Calculating maximum flux potential");
 		
-		this._it.saveCurrentIteratorState();
+		/*
+		 * Store the current iterator and use a temporary one for this method.
+		 */
+		ShapeIterator storedIterator = this._it;
+		this._it = this.getNewIterator();
+		
 		/*
 		 * Loop over all voxels, finding the greatest flux potential.
 		 */
@@ -1256,10 +1236,11 @@ public abstract class Shape implements
 		double max;
 		double temp = 0.0;
 		this._maxFluxPotentl = Double.NEGATIVE_INFINITY;
-		for (this._it.resetIterator(); this._it.isIteratorValid(); this._it.iteratorNext())
+		for ( this._it.resetIterator(); 
+				this._it.isIteratorValid(); this._it.iteratorNext() )
 		{
-			volume = this.getVoxelVolume(this._it._currentCoord);
-			Log.out(level, "Coord "+Vector.toString(this._it._currentCoord)+
+			volume = this.getVoxelVolume(this._it.iteratorCurrent());
+			Log.out(level, "Coord "+Vector.toString(this._it.iteratorCurrent())+
 					" has volume "+volume);
 			max = 0.0;
 			for ( this._it.resetNbhIterator();
@@ -1267,7 +1248,7 @@ public abstract class Shape implements
 			{
 				temp = this.nhbCurrSharedArea() / this.nhbCurrDistance();
 				Log.out(level, "   nbh "+
-						Vector.toString(this._it._currentNeighbor)+
+						Vector.toString(this._it.nbhIteratorCurrent())+
 						" has shared area "+this.nhbCurrSharedArea()+
 						" and distance "+this.nhbCurrDistance());
 				max = Math.max(max, temp);
@@ -1276,7 +1257,10 @@ public abstract class Shape implements
 		}
 		Log.out(level, " Maximum flux potential is "+this._maxFluxPotentl);
 		
-		this._it.loadSavedIteratorState();
+		/*
+		 * Replace the temporary iterator with the stored one.
+		 */
+		this._it = storedIterator;
 	}
 	
 	
@@ -1301,19 +1285,19 @@ public abstract class Shape implements
 	 */
 	public double getCurrVoxelVolume()
 	{
-		return this.getVoxelVolume(this._it._currentCoord);
+		return this.getVoxelVolume(this._it.iteratorCurrent());
 	}
 	
 	public double currentDistanceFromBoundary(DimName dimN, int extreme)
 	{
 		Dimension dim = this.getDimension(dimN);
 		int dimIndex = this.getDimensionIndex(dimN);
-		ResCalc rC = this.getResolutionCalculator(
-				this._it._currentCoord, dimIndex);
+		int[] currentCoord = this._it.iteratorCurrent();
+		ResCalc rC = this.getResolutionCalculator(currentCoord, dimIndex);
 		/*
 		 * Get the position at the centre of the current voxel.
 		 */
-		double distance = rC.getPosition(this._it._currentCoord[dimIndex], 0.5);
+		double distance = rC.getPosition(currentCoord[dimIndex], 0.5);
 		/*
 		 * Correct for the position of the extreme.
 		 */
@@ -1323,42 +1307,16 @@ public abstract class Shape implements
 			distance = dim.getExtreme(extreme) - distance;
 		/*
 		 * If this is an angular dimension, convert from distance in radians to
-		 * distance in length units.
+		 * distance in length units. To do this conversion, multiply by the
+		 * radius.
 		 */
 		if ( dimN.isAngular() )
 		{
-			double radius = this._it._currentCoord[this.getDimensionIndex(R)];
-			distance *= radius;
+			dimIndex = this.getDimensionIndex(R);
+			rC = this.getResolutionCalculator(currentCoord, dimIndex);
+			distance *= rC.getPosition(currentCoord[dimIndex], 0.5);
 		}
 		return distance;
-	}
-	
-	public double getMinVoxelDistance(){
-		int[] storeIter = null;
-		int[] storeNbh = null;
-		if ( this._it._currentCoord != null )
-			storeIter = Vector.copy(this._it._currentCoord);
-		if ( this._it._currentNeighbor != null )
-			storeNbh = Vector.copy(this._it._currentNeighbor);
-		/*
-		 * Loop over all voxels, finding the greatest flux potential.
-		 */
-		double min = Double.POSITIVE_INFINITY;
-		this._maxFluxPotentl = Double.NEGATIVE_INFINITY;
-		for (this._it.resetIterator(); this._it.isIteratorValid(); 
-				this._it.iteratorNext())
-		{
-			for ( this._it.resetNbhIterator();
-					this._it.isNbhIteratorValid(); this._it.nbhIteratorNext() )
-				min = Math.min(min, this.nhbCurrDistance());
-		}
-		/*
-		 * Put the iterators back to their stored values.
-		 */
-		this._it._currentCoord = (storeIter == null) ? null:Vector.copy(storeIter);
-		this._it._currentNeighbor = (storeNbh==null) ? null:Vector.copy(storeNbh);
-		
-		return min;
 	}
 	
 	/**
@@ -1375,16 +1333,19 @@ public abstract class Shape implements
 	public double nhbCurrDistance()
 	{
 		Tier level = Tier.BULK;
+		int[] currentCoord = this._it.iteratorCurrent();
+		int[] currentNeighbor = this._it.nbhIteratorCurrent();
+		DimName nhbDimName = this._it.currentNhbDimName();
 		if ( Log.shouldWrite(level) )
 		{
 			Log.out(level, "  calculating distance between voxels "+
-				Vector.toString(this._it._currentCoord)+" and "+
-				Vector.toString(this._it._currentNeighbor)+
-				" along dimension "+this._it._nbhDimName);
+				Vector.toString(currentCoord)+" and "+
+				Vector.toString(currentNeighbor)+
+				" along dimension "+nhbDimName);
 		}
-		int i = this.getDimensionIndex(this._it._nbhDimName);
-		ResCalc rC = this.getResolutionCalculator(this._it._currentCoord, i);
-		double out = rC.getResolution(this._it._currentCoord[i]);
+		int i = this.getDimensionIndex(nhbDimName);
+		ResCalc rC = this.getResolutionCalculator(currentCoord, i);
+		double out = rC.getResolution(currentCoord[i]);
 		/* 
 		 * If the neighbor is inside the array, use the mean resolution.
 		 * 
@@ -1393,22 +1354,21 @@ public abstract class Shape implements
 		 */
 		if ( this._it.isNbhIteratorInside() )
 		{
-			rC = this._it._shape.getResolutionCalculator(
-					this._it._currentNeighbor, i);
-			out += rC.getResolution(this._it._currentNeighbor[i]);
+			rC = this.getResolutionCalculator(currentNeighbor, i);
+			out += rC.getResolution(currentNeighbor[i]);
 			out *= 0.5;
 		}
 		if ( this._it.isNbhIteratorValid() )
 		{
 			/* If the dimension is angular, find the arc length. */
-			if ( this._it._nbhDimName.isAngular() )
+			if ( nhbDimName.isAngular() )
 			{
-				int rIndex = this.getDimensionIndex(R);
-				ResCalc rCA = this.getResolutionCalculator(
-						this._it._currentCoord, rIndex);
-				double radius = rCA.getPosition(this._it._currentCoord[rIndex],0.5);
-				Log.out(level, "   radius is "+radius);
+				i = this.getDimensionIndex(R);
+				rC = this.getResolutionCalculator(currentCoord, i);
+				double radius = rC.getPosition(currentCoord[i],0.5);
 				out *= radius;
+				if ( Log.shouldWrite(level) )
+					Log.out(level, "   radius is "+radius);
 			}
 			if ( Log.shouldWrite(level) )
 				Log.out(level, "    distance is "+out);
@@ -1431,10 +1391,43 @@ public abstract class Shape implements
 	/* ***********************************************************************
 	 * ITERATORS
 	 * **********************************************************************/
+
+	/**
+	 * \brief Get a new iterator for this shape. The type of iterator will
+	 * depend on the type of shape.
+	 * 
+	 * @param strideLength The stride length of the iterator: 1 for normal, 2
+	 * for red-black, etc. Must be greater than zero.
+	 * @return New shape iterator object.
+	 * @see #getNewIterator()
+	 */
+	protected abstract ShapeIterator getNewIterator(int strideLength);
+
+	/**
+	 * \brief Get a new iterator for this shape. The type of iterator will
+	 * depend on the type of shape.
+	 * 
+	 * @return New shape iterator object.
+	 * @see #getNewIterator(int)
+	 */
+	public ShapeIterator getNewIterator()
+	{
+		return this.getNewIterator(1);
+	}
+
+	/**
+	 * \brief Replace this shape's iterator with a new one.
+	 * 
+	 * @param strideLength The stride length of the iterator: 1 for normal, 2
+	 * for red-black, etc. Must be greater than zero.
+	 */
+	public void setNewIterator(int strideLength)
+	{
+		this._it = this.getNewIterator(strideLength);
+	}
 	
-	public abstract ShapeIterator getNewIterator();
-	
-	public int[] resetIterator(){
+	public int[] resetIterator()
+	{
 		return this._it.resetIterator();
 	}
 	
@@ -1448,11 +1441,13 @@ public abstract class Shape implements
 		return this._it.iteratorNext();
 	}
 	
-	public boolean isIteratorValid(){
+	public boolean isIteratorValid()
+	{
 		return this._it.isIteratorValid();
 	}
 	
-	public int[] resetNbhIterator(){
+	public int[] resetNbhIterator()
+	{
 		return this._it.resetNbhIterator();
 	}
 	
@@ -1500,8 +1495,8 @@ public abstract class Shape implements
 		 * Initialise the list and get voxel extremes.
 		 */
 		List<SubvoxelPoint> out = new ArrayList<SubvoxelPoint>();
-		double[] orig = getVoxelOrigin(this._it._currentCoord);
-		double[] upper = getVoxelUpperCorner(this._it._currentCoord);
+		double[] orig = getVoxelOrigin(this._it.iteratorCurrent());
+		double[] upper = getVoxelUpperCorner(this._it.iteratorCurrent());
 		
 		/* Create a shape of the same runtime type as the current shape */
 		Shape sub = null;

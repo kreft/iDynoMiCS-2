@@ -111,7 +111,7 @@
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 				<!-- minute -->
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
+				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="-1"
 					firstStep="0.0"  timerStepSize="1.0">	
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,nitrate,oxygen" /> 
 					<!-- In principle they are not all the same but all in the 

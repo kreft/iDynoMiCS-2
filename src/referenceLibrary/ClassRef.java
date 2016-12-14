@@ -309,6 +309,8 @@ public class ClassRef
 	public final static String solveDiffusionTransient =
 			processManager.library.SolveDiffusionTransient.class.getName();
 	
+	public final static String solveDiffusionSteadyState =
+			processManager.library.SolveDiffusionSteadyState.class.getName();
 	/**
 	 * write xml output process manager
 	 */

@@ -5,7 +5,6 @@ package gui;
 
 import java.awt.EventQueue;
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
 import javax.swing.JFileChooser;

@@ -1,10 +1,8 @@
-/**
- * 
- */
 package processManager.library;
 
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.PRODUCTIONRATE;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -15,51 +13,63 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import dataIO.Log;
 import dataIO.ObjectFactory;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.diffusivitySetter.AllSameDiffuse;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import instantiatable.Instance;
-import processManager.PorcessDiffusion;
-import processManager.ProcessManager;
+import processManager.ProcessDiffusion;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
-import shape.subvoxel.CoordinateMap;
 import shape.Shape;
-import solver.PDEexplicit;
+import shape.subvoxel.CoordinateMap;
+import solver.PDEgaussseidel;
 import solver.PDEupdater;
 import utility.Helper;
 
 /**
  * \brief Simulate the diffusion of solutes and their production/consumption by
- * reactions in a time-dependent manner, in a spatial {@code Compartment}.
+ * reactions in a steady-state manner, in a spatial {@code Compartment}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class SolveDiffusionTransient extends ProcessDiffusion
+public class SolveDiffusionSteadyState extends ProcessDiffusion
 {
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
 	
+	/**
+	 * 
+	 * Initiation from protocol file: 
+	 * 
+	 * TODO verify and finalise
+	 */
 	public void init(Element xmlElem, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		
+
+		// TODO Do you need to get anything else from xml?
+
 		/* gets specific solutes from process manager aspect registry if they
 		 * are defined, if not, solve for all solutes.
 		 */
 		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
-				Helper.collectionToArray(this._environment.getSoluteNames()));
+				Helper.collectionToArray(
+				this._environment.getSoluteNames()));
 		this.init( soluteNames, environment, 
 				agents, compartmentName );
+		
 	}
 	
-	@Override
+	/**
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
 	public void init( String[] soluteNames, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
@@ -67,7 +77,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		super.init(environment, agents, compartmentName);
 		this._soluteNames = soluteNames;
 		// TODO Let the user choose which ODEsolver to use.
-		this._solver = new PDEexplicit();
+		this._solver = new PDEgaussseidel();
 		this._solver.init(this._soluteNames, false);
 		this._solver.setUpdater(this.standardUpdater());
 		
@@ -80,25 +90,12 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 				this._diffusivity.put(sName, new AllSameDiffuse(1.0));
 			}
 		
-		String msg = "SolveDiffusionTransient responsible for solutes: ";
+		String msg = "SolveDiffusionSteadyState responsible for solutes: ";
 		for ( String s : this._soluteNames )
 			msg += s + ", ";
 		Log.out(Tier.EXPRESSIVE, msg);
-		/*
-		 * Now look for diffusivity setters.
-		 */
-		Collection<Element> diffusivityElements =
-				XmlHandler.getElements(xmlElem, XmlRef.diffusivitySetter);
-		for ( Element dElem : diffusivityElements )
-		{
-			String soluteName = dElem.getAttribute(XmlRef.solute);
-			String className = dElem.getAttribute(XmlRef.classAttribute);
-			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
-					Instance.getNew(dElem, this, className);
-			this._diffusivity.put(soluteName, diffusivity);
-		}
 	}
-		
+	
 	/* ***********************************************************************
 	 * STEPPING
 	 * **********************************************************************/
@@ -111,24 +108,20 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 */
 		super.internalStep();
 		/*
-		 * If any mass has flowed in or out of the well-mixed region,
-		 * distribute it among the relevant boundaries.
+		 * Estimate the steady-state mass flows in or out of the well-mixed
+		 * region, and distribute it among the relevant boundaries.
 		 */
-		this._environment.distributeWellMixedFlows();
+		//TODO
+		/*
+		 * Estimate agent growth based on the steady-state solute 
+		 * concentrations.
+		 */
+		for ( Agent agent : this._agents.getAllLocatedAgents() )
+			this.applyAgentGrowth(agent);
 		/*
 		 * Clear agent mass distribution maps.
 		 */
 		this._agents.removeAgentDistibutionMaps();
-		/**
-		 * act upon new agent situations
-		 */
-		for(Agent agent: this._agents.getAllAgents()) 
-		{
-			agent.event(DIVIDE);
-			agent.event(EXCRETE_EPS);
-			agent.event(UPDATE_BODY);
-		}
-
 	}
 	
 	/* ***********************************************************************
@@ -157,7 +150,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 					var.newArray(PRODUCTIONRATE);
 				applyEnvReactions();
 				for ( Agent agent : _agents.getAllLocatedAgents() )
-					applyAgentReactions(agent, dt);
+					applyAgentReactions(agent);
 			}
 		};
 	}
@@ -168,19 +161,114 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 	 * <p><b>Note</b>: this method assumes that the volume distribution map
 	 * of this agent has already been calculated. This is typically done just
 	 * once per process manager step, rather than at every PDE solver
-	 * mini-timestep.</p>
-	 * 
-	 * <p>Note also that here the solute grids PRODUCTIONRATE arrays are 
-	 * updated, and the agent's biomass is updated immediately after all
-	 * relevant voxels have been visited. This is a different approach to the
-	 * one taken in SolveChemostat, where applyAgentReactions is split into two
-	 * methods.</p>
+	 * relaxation.</p>
 	 * 
 	 * @param agent Agent assumed to have reactions (biomass will be altered by
 	 * this method).
-	 * @param dt Length of the mini time-step to use.
 	 */
-	private void applyAgentReactions(Agent agent, double dt)
+	private void applyAgentReactions(Agent agent)
+	{
+		/*
+		 * Get the agent's reactions: if it has none, then there is nothing
+		 * more to do.
+		 */
+		@SuppressWarnings("unchecked")
+		List<Reaction> reactions = 
+				(List<Reaction>) agent.getValue(XmlRef.reactions);
+		if ( reactions == null )
+			return;
+		/*
+		 * Get the distribution map and scale it so that its contents sum up to
+		 * one.
+		 */
+		CoordinateMap distributionMap = 
+				(CoordinateMap) agent.getValue(VOLUME_DISTRIBUTION_MAP);
+		distributionMap.scale();
+		/*
+		 * Get the agent biomass kinds as a map. Copy it now so that we can
+		 * use this copy to store the changes.
+		 */
+		Map<String,Double> biomass = AgentContainer.getAgentMassMap(agent);
+		/*
+		 * Now look at all the voxels this agent covers.
+		 */
+		Map<String,Double> concns = new HashMap<String,Double>();
+		Map<String,Double> stoichiometry;
+		SpatialGrid solute;
+		Shape shape = this._agents.getShape();
+		double concn, rate, productRate, volume, perVolume;
+		for ( int[] coord : distributionMap.keySet() )
+		{
+			volume = shape.getVoxelVolume(coord);
+			perVolume = Math.pow(volume, -1.0);
+			for ( Reaction r : reactions )
+			{
+				/* 
+				 * Build the dictionary of variable values. Note that these 
+				 * will likely overlap with the names in the reaction 
+				 * stoichiometry (handled after the reaction rate), but will 
+				 * not always be the same. Here we are interested in those that
+				 * affect the reaction, and not those that are affected by it.
+				 */
+				concns.clear();
+				for ( String varName : r.getVariableNames() )
+				{
+					if ( this._environment.isSoluteName(varName) )
+					{
+						solute = this._environment.getSoluteGrid(varName);
+						concn = solute.getValueAt(CONCN, coord);
+					}
+					else if ( biomass.containsKey(varName) )
+					{
+						concn = biomass.get(varName) * 
+								distributionMap.get(coord) * perVolume;
+					}
+					else if ( agent.isAspect(varName) )
+					{
+						/*
+						 * Check if the agent has other mass-like aspects
+						 * (e.g. EPS).
+						 */
+						concn = agent.getDouble(varName) * 
+								distributionMap.get(coord) * perVolume;
+					}
+					else
+					{
+						// TODO safety?
+						concn = 0.0;
+					}
+					concns.put(varName, concn);
+				}
+				/*
+				 * Calculate the reaction rate based on the variables just 
+				 * retrieved.
+				 */
+				rate = r.getRate(concns);
+				/* 
+				 * Now that we have the reaction rate, we can distribute the 
+				 * effects of the reaction. Note again that the names in the 
+				 * stoichiometry may not be the same as those in the reaction
+				 * variables (although there is likely to be a large overlap).
+				 */
+				stoichiometry = r.getStoichiometry();
+				for ( String productName : stoichiometry.keySet() )
+				{
+					productRate = rate * stoichiometry.get(productName);
+					if ( this._environment.isSoluteName(productName) )
+					{
+						solute = this._environment.getSoluteGrid(productName);
+						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
+					}
+					/* 
+					 * Unlike in a transient solver, we do not update the agent
+					 * mass here.
+					 */
+				}
+			}
+		}
+	}
+	
+	private void applyAgentGrowth(Agent agent)
 	{
 		/*
 		 * Get the agent's reactions: if it has none, then there is nothing
@@ -271,32 +359,14 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 				for ( String productName : stoichiometry.keySet() )
 				{
 					productRate = rate * stoichiometry.get(productName);
-					if ( this._environment.isSoluteName(productName) )
-					{
-						solute = this._environment.getSoluteGrid(productName);
-						solute.addValueAt(PRODUCTIONRATE, coord, productRate);
-					}
-					else if ( newBiomass.containsKey(productName) )
-					{
-						newBiomass.put(productName, newBiomass.get(productName)
-								+ (productRate * dt * volume));
-					}
-					else if ( agent.isAspect(productName) )
+					if ( agent.isAspect(productName) )
 					{
 						/*
 						 * Check if the agent has other mass-like aspects
 						 * (e.g. EPS).
 						 */
 						newBiomass.put(productName, agent.getDouble(productName)
-								+ (productRate * dt * volume));
-					}
-					else
-					{
-						//TODO quick fix If not defined elsewhere add it to the map
-						newBiomass.put(productName, (productRate * dt * volume));
-						System.out.println("agent reaction catched " + 
-								productName);
-						// TODO safety?
+								+ (productRate * this._timeStepSize * volume));
 					}
 				}
 			}

@@ -17,6 +17,7 @@ import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
+import shape.iterator.PolarShapeIterator;
 import utility.ExtraMath;
 import utility.Helper;
 

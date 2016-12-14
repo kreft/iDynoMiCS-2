@@ -3,8 +3,6 @@ package solver;
 import java.util.Collection;
 import java.util.LinkedList;
 
-import boundary.SpatialBoundary;
-import boundary.WellMixedBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 
@@ -104,7 +102,7 @@ public abstract class PDEsolver extends Solver
 		/* Coordinates of the current position. */
 		int[] current, nhb;
 		/* Temporary storage. */
-		double totalFlux, nbhFlux;
+		double totalFlux, nhbFlux;
 		/*
 		 * Iterate over all core voxels calculating the Laplace operator. 
 		 */
@@ -130,7 +128,7 @@ public abstract class PDEsolver extends Solver
 				 * take a note of the flux (for connections with other
 				 * compartments).
 				 */
-				nbhFlux = grid.getDiffusionFromNeighbor();
+				nhbFlux = grid.getDiffusionFromNeighbor();
 				
 				/*
 				 * If this flux came from a well-mixed voxel, inform the grid.
@@ -143,15 +141,15 @@ public abstract class PDEsolver extends Solver
 					if ( commonGrid != null && 
 							commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
 					{
-						this.increaseWellMixedFlow(grid.getName(), - nbhFlux);
+						this.increaseWellMixedFlow(grid.getName(), - nhbFlux);
 					}
 				}
 				else if ( shape.isNbhIteratorValid() )
 				{
 					if ( shape.nbhIteratorOutside().needsToUpdateWellMixed() )
-						this.increaseWellMixedFlow(grid.getName(), - nbhFlux);
+						this.increaseWellMixedFlow(grid.getName(), - nhbFlux);
 				}
-				totalFlux += nbhFlux;
+				totalFlux += nhbFlux;
 				/* 
 				 * To get the value we must be inside, the flux can be obtained
 				 * from boundary.
@@ -163,13 +161,13 @@ public abstract class PDEsolver extends Solver
 						Log.out(level, 
 								"   nhb "+Vector.toString(nhb)+
 								" ("+grid.getValueAtNhb(CONCN)+") "+
-								" contributes flux of "+nbhFlux);
+								" contributes flux of "+nhbFlux);
 					}
 					else
 					{
 						Log.out(level, 
 								" boundary nhb "+Vector.toString(nhb)
-								+ " contributes flux of "+nbhFlux);
+								+ " contributes flux of "+nhbFlux);
 					}
 				}
 			}
