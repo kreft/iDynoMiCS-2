@@ -18,6 +18,7 @@ import processManager.library.SolveDiffusionTransient;
 import shape.Dimension.DimName;
 import shape.Shape;
 import shape.resolution.ResolutionCalculator.UniformResolution;
+import test.AllTests;
 
 public class PDEBenchmark {
 
@@ -62,17 +63,11 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("cuboid");
-			try {
-				comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Cuboid").newInstance());
-			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}		
-			
+			Shape shape = AllTests.GetShape("Cuboid");
+			comp.setShape(shape);
 			FixedBoundary xMax = new FixedBoundary(DimName.X, 1);
 			xMax.setConcentration("solute", 2.0);
 			comp.addBoundary(xMax);
-			Shape shape = comp.getShape();
 			UniformResolution resCalc = new UniformResolution();
 			resCalc.setExtremes(0.0, nVoxelX);
 			resCalc.setResolution(1.0);
@@ -165,17 +160,11 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("cylinder");
-			try {
-				comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Cylinder").newInstance());
-			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}		
-			
+			Shape shape = AllTests.GetShape("Cylinder");
+			comp.setShape(shape);
 			FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);
-			Shape shape = comp.getShape();
 			UniformResolution resCalc = new UniformResolution();
 			resCalc.setExtremes(0.0, nVoxelR);
 			resCalc.setResolution(1.0);
@@ -267,17 +256,11 @@ public class PDEBenchmark {
 			 * solid rmin and z and fixed rmax boundary, theta cyclic.
 			 */
 			Compartment comp = Idynomics.simulator.addCompartment("sphere");
-			try {
-				comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Sphere").newInstance());
-			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}		
-			
+			Shape shape = AllTests.GetShape("Sphere");
+			comp.setShape(shape);
 			FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);
-			Shape shape = comp.getShape();
 			UniformResolution resCalc = new UniformResolution();
 			resCalc.setExtremes(0.0, nVoxelR);
 			resCalc.setResolution(1.0);

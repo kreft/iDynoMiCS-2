@@ -43,12 +43,8 @@ public class BoundaryTest
 		 */
 		AllTests.setupSimulatorForTest(tStep, tMax, "agentInsertionBoundaryLayer");
 		Compartment comp = Idynomics.simulator.addCompartment(compName);
-		try {
-			comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Line").newInstance());
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Shape shape = AllTests.GetShape("Line");
+		comp.setShape(shape);
 		comp.setSideLengths(new double[]{compartmentLength});
 		/*
 		 * The agent to be inserted: give its position as nonsense to check
