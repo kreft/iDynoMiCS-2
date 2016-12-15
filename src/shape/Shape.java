@@ -35,6 +35,7 @@ import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 import shape.subvoxel.SubvoxelPoint;
+import spatialRegistry.TreeType;
 import surface.Collision;
 import surface.Plane;
 import surface.Surface;
@@ -126,24 +127,23 @@ public abstract class Shape implements
 	@Override
 	public Module getModule()
 	{
-
-		Module modelNode = new Module(XmlRef.compartmentShape, this);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		modelNode.add(new Attribute(XmlRef.classAttribute, 
-										this.getName(), null, false ));
-		
+		/* Create a new Module */
+		Module modelNode = new Module( XmlRef.compartmentShape, this );
+		/* Set the requirement */
+		modelNode.setRequirements( Requirements.EXACTLY_ONE );
+		/* Add the attributes, note the Shape class is not editable thus set
+		 * editable to false */
+		modelNode.add( new Attribute(XmlRef.classAttribute, 
+										this.getName(), null, false ) );
+		/* Add the child modules */
 		for ( Dimension dim : this._dimensions.values() )
 			if(dim._isSignificant)
-				modelNode.add(dim.getModule());
-		
+				modelNode.add( dim.getModule() );
+		/* NOTE: no constructible child modules for this class thus no 
+		 * addChildSpec */
 		return modelNode;
 	}
 
-	@Override
-	public void setModule(Module node)
-	{
-
-	}
 
 	@Override
 	public String defaultXmlTag()
@@ -210,7 +210,6 @@ public abstract class Shape implements
 				str = childElem.getAttribute(XmlRef.classAttribute);
 				aBoundary = (Boundary) Instance.getNew(childElem, 
 						this, str );
-//				aBoundary.init(childElem);
 				this.addOtherBoundary(aBoundary);
 			}
 		}

@@ -342,20 +342,23 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	public void setModule(Module node) 
 	{
-
+		/* Set the name */
 		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
 
+		/* Set the priority */
 		this._priority = Integer.valueOf( node.getAttribute( 
 				XmlRef.processPriority ).getValue() );
 
+		/* Set the timestep */
 		this._timeStepSize =  Double.valueOf( node.getAttribute( 
 				XmlRef.processTimeStepSize ).getValue() );
 
+		/* Set the time for the first step from now */
 		this._timeForNextStep = Double.valueOf( node.getAttribute( 
 				XmlRef.processFirstStep ).getValue() );
 		
+		/* Set any potential child modules */
 		Settable.super.setModule(node);
-
 	}
 
 	/**

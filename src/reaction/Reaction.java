@@ -350,8 +350,8 @@ public class Reaction implements Instantiatable, Copyable, Settable
 
 	public void removeModule(String specifier)
 	{
-		if (this._parentNode instanceof EnvironmentContainer)
-			((EnvironmentContainer) this._parentNode).deleteReaction(this);
+		if (this.getParent() instanceof EnvironmentContainer)
+			((EnvironmentContainer) this.getParent()).deleteReaction(this);
 	}
 
 	@Override

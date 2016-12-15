@@ -123,12 +123,7 @@ public class Agent implements AspectInterface, Settable, Instantiatable
 		this._compartment = (Compartment) parent.getParent();
 		loadAspects(xmlElement);
 		this.init();
-//		this._parentNode = parent;
-//		this._compartment = (Compartment) parent.getParent();
-//		this.loadAspects(xmlElement);
-//		this.init();
-//		this._compartment.addAgent(this);
-//		this.registerBirth();
+		this._parentNode = parent;
 	}
 	
 	/**

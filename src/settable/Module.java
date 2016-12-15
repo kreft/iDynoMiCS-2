@@ -294,7 +294,6 @@ public class Module
 		}
 		Module node = con.getModule();
 		this.add(node);
-//		this.add(con);
 		return node;
 	}
 	

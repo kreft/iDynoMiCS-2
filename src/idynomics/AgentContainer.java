@@ -785,7 +785,6 @@ public class AgentContainer implements Settable
 		if ( isLocated(anAgent) )
 		{
 			this._locatedAgentList.remove(anAgent);
-			this._agentTree.delete(anAgent);
 		}
 		else
 			this._agentList.remove(anAgent);

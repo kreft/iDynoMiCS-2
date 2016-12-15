@@ -62,7 +62,7 @@ agent does not match the filter.
 
 #### Counter
 
-The counter creates a map and adds up the amount of agents belonging to all the
+The counter creates a map and adds up the number of agents belonging to all the
 available categories, in case of a specification filter the categories will be
 true (match) and false. Alternatively the counter can add up the value of a
 specific field to a category, for example the total mass of the agent, or the

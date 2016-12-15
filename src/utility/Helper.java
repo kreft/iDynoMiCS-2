@@ -409,7 +409,7 @@ public class Helper
 	public static boolean compartmentAvailable()
 	{
 		if (Idynomics.simulator == null || 
-				Idynomics.simulator.hasCompartments() == false)
+				! Idynomics.simulator.hasCompartments() )
 		{
 			Log.printToScreen("No compartment available", false);
 			return false;
