@@ -11,7 +11,7 @@ import aspect.AspectInterface;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import instantiatable.Instantiatable;
+import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Module;
@@ -24,7 +24,7 @@ import settable.Module.Requirements;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class SpeciesLib implements Instantiatable, Settable
+public class SpeciesLib implements Instantiable, Settable
 {
 	/**
 	 * Contains all known species.

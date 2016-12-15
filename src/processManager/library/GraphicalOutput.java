@@ -15,7 +15,7 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import instantiatable.Instance;
+import instantiable.Instance;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;

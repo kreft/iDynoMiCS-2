@@ -14,8 +14,8 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -29,7 +29,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ProcessManager implements Instantiatable, AspectInterface,
+public abstract class ProcessManager implements Instantiable, AspectInterface,
 		Settable, Redirectable
 {
 	/**

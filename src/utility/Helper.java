@@ -8,7 +8,6 @@ import java.util.Set;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import expression.Expression;
 import gui.GuiConsole;
 import idynomics.Idynomics;
 

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 import static test.AllTests.TOLERANCE;
 
 import org.junit.Test;
-import org.w3c.dom.Element;
 
 import boundary.library.DummyToChemostat;
 import dataIO.Log;

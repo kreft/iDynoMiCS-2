@@ -11,7 +11,7 @@ import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import instantiatable.Instance;
+import instantiable.Instance;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;

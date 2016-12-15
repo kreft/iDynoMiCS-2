@@ -1,7 +1,7 @@
 /**
  * 
  */
-package instantiatable;
+package instantiable;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -14,12 +14,11 @@ import settable.Settable;
 import utility.Helper;
 
 /**
- * \brief Implementations of this interface will be able to instanciate and
+ * \brief Implementations of this interface will be able to instantiate and
  * initialise from a XML protocol file.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
- * 
  */
 public class Instance
 {
@@ -75,11 +74,11 @@ public class Instance
 			else
 				out = getNew( className[0], 
 						Idynomics.xmlPackageLibrary.get( className[0] ) );
-			if (parent == null && Log.shouldWrite(Tier.DEBUG))
+			if ( parent == null && Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "Warning initiating without parent");
-			else if (xmlElem == null && Log.shouldWrite(Tier.DEBUG))
+			else if ( xmlElem == null && Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "Warning initiating without xml element");
-			( (Instantiatable) out).instantiate( xmlElem, parent );
+			((Instantiable) out).instantiate( xmlElem, parent );
 			return out;
 		} 
 		

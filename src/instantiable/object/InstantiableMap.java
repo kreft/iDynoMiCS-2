@@ -1,8 +1,6 @@
-package instantiatable.object;
+package instantiable.object;
 
 import java.util.HashMap;
-import java.util.Map;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -10,8 +8,7 @@ import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import idynomics.Idynomics;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -21,16 +18,16 @@ import settable.Module.Requirements;
 
 /**
  * The Bundle Map extends the Java HashMap and implements the iDynoMiCS
- * NodeConstructor and Instantiatable class to provide easy management of maps
- * with the gui and xml output.
+ * NodeConstructor and Instantiable class to provide easy management of maps
+ * with the GUI and XML output.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  * @param <K>
  * @param <T>
  */
-public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable, 
-		Instantiatable, Copyable
+public class InstantiableMap<K,T> extends HashMap<K,T> implements Settable, 
+		Instantiable, Copyable
 {
 	/**
 	 * default serial uid (generated)
@@ -89,7 +86,7 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable,
 	 * @param entryClass
 	 * @param keyClass
 	 */
-	public InstantiatableMap( Class<?> keyClass, Class<?> entryClass )
+	public InstantiableMap( Class<?> keyClass, Class<?> entryClass )
 	{
 		this.keyLabel = XmlRef.keyAttribute;
 		this.valueLabel = XmlRef.valueAttribute;
@@ -111,7 +108,7 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable,
 	 * @param dictionaryLabel
 	 * @param nodeLabel
 	 */
-	public InstantiatableMap( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
+	public InstantiableMap( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
 			String valueAttribute, String dictionaryLabel, String nodeLabel )
 	{
 		this.keyLabel = keyAttribute;
@@ -136,7 +133,7 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable,
 	 * @param nodeLabel
 	 * @param muteSpec
 	 */
-	public InstantiatableMap( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
+	public InstantiableMap( Class<?> keyClass, Class<?> entryClass, String keyAttribute, 
 			String valueAttribute, String dictionaryLabel, String nodeLabel, 
 			boolean muteSpec )
 	{
@@ -146,18 +143,18 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable,
 	}
 	
 	/**
-	 * BundleMap constructor for Instantiatable interface
+	 * BundleMap constructor for Instantiable interface
 	 */
-	public InstantiatableMap()
+	public InstantiableMap()
 	{
-		// NOTE only for Instantiatable interface
+		// NOTE only for Instantiable interface
 	}
 	
 
 	@SuppressWarnings("unchecked")
 	public Object copy() 
 	{
-		InstantiatableMap<K,T> out = new InstantiatableMap<K,T>( this.keyClass,
+		InstantiableMap<K,T> out = new InstantiableMap<K,T>( this.keyClass,
 				this.entryClass, this.keyLabel,
 				this.valueLabel, this.bundleMapLabel, this.nodeLabel );
 		for(Object key : this.keySet())
@@ -167,7 +164,7 @@ public class InstantiatableMap<K,T> extends HashMap<K,T> implements Settable,
 	
 	
 	/**
-	 * Implementation of Instantiatable interface
+	 * Implementation of Instantiable interface
 	 * 
 	 * TODO commenting
 	 */

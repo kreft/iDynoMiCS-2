@@ -14,8 +14,8 @@ import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import utility.*;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -29,7 +29,7 @@ import settable.Module.Requirements;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, Settable
+public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instantiable, Settable
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.

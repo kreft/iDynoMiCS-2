@@ -15,8 +15,8 @@ import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
 import grid.*;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
@@ -59,7 +59,7 @@ import shape.Dimension.DimName;
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
+public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -215,8 +215,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 		Log.out(level,"Compartment "+this.name+ " loading "+XmlHandler.
 				getElements(xmlElem, XmlRef.process).size()+" processManagers");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.process) )
-			this.addProcessManager( (ProcessManager) 
-					Instance.getNew( e, this, null ));
+		{
+			this.addProcessManager(
+					(ProcessManager) Instance.getNew(e, this, (String[])null));
+		}
 		/* NOTE: we fetch the class from the xml node */
 	}
 		

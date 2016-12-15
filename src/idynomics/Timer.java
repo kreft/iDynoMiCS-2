@@ -10,8 +10,8 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import dataIO.Log.Tier;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import utility.Helper;
 
 /**
@@ -19,7 +19,7 @@ import utility.Helper;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Timer implements Instantiatable, Settable
+public class Timer implements Instantiable, Settable
 {
 	/**
 	 * TODO

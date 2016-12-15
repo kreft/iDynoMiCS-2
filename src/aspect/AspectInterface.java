@@ -8,7 +8,7 @@ import aspect.Aspect.AspectClass;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import instantiatable.Instance;
+import instantiable.Instance;
 import referenceLibrary.XmlRef;
 import utility.Helper;
 

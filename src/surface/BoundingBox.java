@@ -233,14 +233,4 @@ public class BoundingBox
 			return Vector.vector(points[0].length, 2 * radius);
 		return Vector.minus(upper(points, radius), lower(points, radius));
 	}
-	
-	/**
-	 * returns the rib lengths of the bounding box
-	 * @param radius
-	 * @return dimensions of the bounding box
-	 */
-	private static double[] dimensions(double[] lower, double[] upper) 
-	{
-		return Vector.minus(upper, lower);
-	}
 }

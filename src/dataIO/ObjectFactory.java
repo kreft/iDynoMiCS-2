@@ -19,7 +19,7 @@ import org.xml.sax.SAXException;
 import agent.Body;
 import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
-import instantiatable.Instance;
+import instantiable.Instance;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
