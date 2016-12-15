@@ -59,8 +59,6 @@ public final class ExtraMath
 	 */
 	public static Random random;
 	
-	public static long calls = 0;
-	
 	/* ----------------------- Initialising random ------------------------ */
 	
 	/**
@@ -595,7 +593,9 @@ public final class ExtraMath
 	 */
 	public static final double radiusOfASphere(double volume)
 	{
+		/* alternatively Math.pow((volume*0.23873241463),0.333333333333) */
 		return cubeRoot(volume*0.75/Math.PI);
+//		return Math.pow((volume*0.23873241463),0.333333333333);
 	}
 	
 	
@@ -724,7 +724,6 @@ public final class ExtraMath
 	 */
 	public static boolean getRandBool()
 	{
-		calls++;
 		return random.nextBoolean();
 	}
 	
@@ -738,7 +737,6 @@ public final class ExtraMath
 	// TODO rename getUniRand()? Should be unambiguous
 	public static double getUniRandDbl()
 	{
-		calls++;
 		return random.nextDouble();
 	}
 	

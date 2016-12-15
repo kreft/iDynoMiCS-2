@@ -76,19 +76,19 @@ public class Logarithm extends ComponentDouble
 			else
 			{
 				out = new Constant("ln("+this._b.getName()+")", Math.log(b));
-				out = Expression.multiply(this._a, out);
+				out = Arithmetic.multiply(this._a, out);
 				out = new Division(this._a.differentiate(withRespectTo),out);
 			}
 		}
 		else
 		{
 			out = new LogNatural(this._b);
-			Component da = Expression.multiply(this._a, out);
+			Component da = Arithmetic.multiply(this._a, out);
 			da = new Division(this._a.differentiate(withRespectTo), da);
 			Component db = new LogNatural(this._a);
-			db = Expression.multiply(db, this._b.differentiate(withRespectTo));
-			db = new Division(db, Expression.multiply(this._b, 
-											new Power(out, Expression.two())));
+			db = Arithmetic.multiply(db, this._b.differentiate(withRespectTo));
+			db = new Division(db, Arithmetic.multiply(this._b, 
+											new Power(out, Arithmetic.two())));
 			out = new Subtraction(da, db);
 		}
 		return out;

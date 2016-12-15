@@ -3,10 +3,11 @@
  */
 package grid.diffusivitySetter;
 
-import generalInterfaces.Instantiatable;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 
 /**
  * 

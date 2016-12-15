@@ -14,13 +14,13 @@ import dataIO.XmlExport;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import utility.*;
-import nodeFactory.*;
-import nodeFactory.ModelNode.Requirements;
-import reaction.ReactionLibrary;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.*;
+import settable.Module.Requirements;
 
 /**
  * \brief Simulator manages all compartments, making sure they synchronise at
@@ -29,7 +29,7 @@ import referenceLibrary.XmlRef;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, NodeConstructor
+public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instantiatable, Settable
 {
 	/**
 	 * \brief List of {@code Compartment}s in this {@code Simulator}.
@@ -42,9 +42,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * Contains information about all species for this simulation.
 	 */
 	public SpeciesLib speciesLibrary = new SpeciesLib();
-	
-	public ReactionLibrary reactionLibrary = new ReactionLibrary();
-	
+
 	/**
 	 * The timer
 	 */
@@ -60,7 +58,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * within that all child nodes, simulator is the exception to the rule not
 	 * storing ModelNodes
 	 */
-	private ModelNode _modelNode;
+	private Module _modelNode;
 
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -111,7 +109,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		ExtraMath.intialiseRandomNumberGenerator(seed);
 	}
 	
-	public void init(Element xmlElem)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		/* 
 		 * retrieve seed from xml file and initiate random number generator with
@@ -124,29 +122,16 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.init( XmlHandler.loadUnique( xmlElem, XmlRef.timer ));
+		this.timer.instantiate( XmlHandler.loadUnique( xmlElem, XmlRef.timer ), this);
 		/*
 		 * Set up the species library.
 		 */
 		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
-			this.speciesLibrary = (SpeciesLib) Instantiatable.getNewInstance(
-					ClassRef.speciesLibrary, XmlHandler.loadUnique(xmlElem, 
-					XmlRef.speciesLibrary ), this);
+			this.speciesLibrary = (SpeciesLib) Instance.getNew(
+					XmlHandler.loadUnique( xmlElem, XmlRef.speciesLibrary ), 
+					this, ClassRef.speciesLibrary );
 		}
-		/*
-		 * Set up the reaction library.
-		 * FIXME disabled since reactionLibrary has no implementation of 
-		 * init(Element, parent) and does will always be an empty container
-		 */
-//		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.reactionLibrary))
-//		{
-//			this.reactionLibrary = (ReactionLibrary)
-//					Instantiatable.getNewInstance(
-//						ClassRef.reactionLibrary,
-//						XmlHandler.loadUnique(xmlElem, XmlRef.speciesLibrary ),
-//						this);
-//		}
 		/*
 		 * Set up the compartments.
 		 */
@@ -162,7 +147,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		for ( int i = 0; i < children.getLength(); i++ )
 		{
 			child = (Element) children.item(i);
-			Instantiatable.getNewInstance(XmlRef.compartment, child, this);
+			Instance.getNew( child, this, XmlRef.compartment );
 		}
 		Log.out(Tier.NORMAL, "Compartments loaded!\n");
 	}
@@ -314,6 +299,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		
 		/* 
 		 * We let the user know when an global step has finished.
+		 * TODO: iteration number
 		 */
 		Log.out(Tier.NORMAL, "Global time: " + this.timer.getCurrentTime());
 		/*
@@ -358,10 +344,6 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n");
 		this.printProcessManagerRealTimeStats();
-		
-		
-		System.out.println(ExtraMath.calls + " " + ExtraMath.getNormRand());
-		
 	}
 	
 	/* ***********************************************************************
@@ -440,9 +422,9 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 * for xml output and gui fields.
 	 */
 	@Override
-	public ModelNode getNode() {
+	public Module getModule() {
 		/* create simulation node */
-		ModelNode modelNode = new ModelNode(XmlRef.simulation, this);
+		Module modelNode = new Module(XmlRef.simulation, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
 		Param.init();
@@ -451,39 +433,37 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		
 		/* add attributes */
 		/* the current random seed */
-		modelNode.add( new ModelAttribute(XmlRef.seed,
+		modelNode.add( new Attribute(XmlRef.seed,
 				String.valueOf(seed()), null, true));
 		
 		/* the simulation name */
-		modelNode.add( new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add( new Attribute(XmlRef.nameAttribute, 
 				Idynomics.global.simulationName, null, false ));
 		
 		/* the output folder */
-		modelNode.add(new ModelAttribute(XmlRef.outputFolder, 
+		modelNode.add(new Attribute(XmlRef.outputFolder, 
 				Idynomics.global.outputRoot, null, false ));
 		
 		/* the log level */
-		modelNode.add(new ModelAttribute(XmlRef.logLevel, Log.level(), 
+		modelNode.add(new Attribute(XmlRef.logLevel, Log.level(), 
 				Helper.enumToString(Tier.class).split(" "), false ));
 		
 		/* the optional comment */
-		modelNode.add(new ModelAttribute(XmlRef.commentAttribute, 
+		modelNode.add(new Attribute(XmlRef.commentAttribute, 
 				Idynomics.global.simulationComment, null, true ));
 		
 		/* add timer node */
-		modelNode.add(timer.getNode());
+		modelNode.add(timer.getModule());
 		
 		/* add species lib */
-		modelNode.add(speciesLibrary.getNode());
-		/* Add reaction library. */
-		modelNode.add(reactionLibrary.getNode());
+		modelNode.add(speciesLibrary.getModule());
 		/* add compartment nodes */
 		for ( Compartment c : this._compartments )
-			modelNode.add(c.getNode());
+			modelNode.add(c.getModule());
 		
 		/* add child constructor (adds add compartment button to gui */
-		modelNode.addConstructable("Compartment", 
-				ModelNode.Requirements.ZERO_TO_FEW);
+		modelNode.addChildSpec("Compartment", 
+				Module.Requirements.ZERO_TO_FEW);
 
 		/* Safe this modelNode locally for model run without having to have save 
 		 * all button NOTE this is the only exception to the rule never to store
@@ -501,37 +481,40 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	 */
 	public void setNode()
 	{
-		setNode(this._modelNode);
+		setModule(this._modelNode);
 	}
 	
 	@Override
-	public void setNode(ModelNode node)
+	public void setModule(Module node)
 	{
-		/* set local node */
-		this._modelNode = node;
-		
-		/* update simulation name */
-		Idynomics.global.simulationName = 
-				node.getAttribute(XmlRef.nameAttribute).getValue();
-		
-		/* update output root folder */
-		Idynomics.global.outputRoot = 
-				node.getAttribute(XmlRef.outputFolder).getValue();
-		
-		/* set output level */
-		Log.set(node.getAttribute(XmlRef.logLevel).getValue());
-		
-		/* set random seed */
-		this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).getValue()));
-		
-		/* Set values for all child nodes. */
-		NodeConstructor.super.setNode(node);
+		/* skip if no gui elements have been loaded */
+		if (this._modelNode != null)
+		{
+			/* set local node */
+			this._modelNode = node;
+			
+			/* update simulation name */
+			Idynomics.global.simulationName = 
+					node.getAttribute(XmlRef.nameAttribute).getValue();
+			
+			/* update output root folder */
+			Idynomics.global.outputRoot = 
+					node.getAttribute(XmlRef.outputFolder).getValue();
+			
+			/* set output level */
+			Log.set(node.getAttribute(XmlRef.logLevel).getValue());
+			
+			/* set random seed */
+			this.seed(Long.valueOf(node.getAttribute(XmlRef.seed).getValue()));
+			
+			/* Set values for all child nodes. */
+			Settable.super.setModule(node);
+		}
 	}
 	
-	public void removeChildNode(NodeConstructor child)
+	public void removeCompartment(Compartment compartment)
 	{
-		if (child instanceof Compartment)
-			this._compartments.remove((Compartment) child);
+		this._compartments.remove(compartment);
 	}
 
 	/**
@@ -545,7 +528,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	/**
 	 * returns an "empty" Node constructor object.
 	 */
-	public NodeConstructor newBlank()
+	public Settable newBlank()
 	{
 		return new Simulator();
 	}
@@ -557,13 +540,13 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		Log.out(Tier.CRITICAL, "Simulator is root node");
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		Log.out(Tier.CRITICAL, "Simulator is root node");
 		return null;

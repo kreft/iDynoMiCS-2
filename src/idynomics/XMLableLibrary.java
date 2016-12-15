@@ -30,7 +30,9 @@ public class XMLableLibrary
 	{
 		String[] tempLib = ClassRef.getAllOptionsFullPath();
 		for ( String c : tempLib )
+		{
 			this.set( ClassRef.simplify( c ) , ClassRef.path( c ) );
+		}
 	}
 
 	/**
@@ -41,15 +43,19 @@ public class XMLableLibrary
 	 */
 	public String get(String key)
 	{
-		key = Helper.firstToUpper(key);
 		if ( this.has(key) )
+		{
 			return this._lib.get(key);
+		}
 		else
 		{
-			Log.out(Tier.CRITICAL, 
-						"Could not obtain " + key + " from XMLableLibrary");
-			return null;
+			key = Helper.firstToUpper(key);
+			if ( this.has(key) )
+				return this._lib.get(key);
 		}
+		Log.out(Tier.CRITICAL, 
+				"Could not obtain " + key + " from XMLableLibrary");
+		return null;
 	}
 	
 

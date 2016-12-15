@@ -1,5 +1,7 @@
 package processManager.library;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -13,15 +15,18 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import instantiatable.Instance;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
+import referenceLibrary.ClassRef;
 import shape.CartesianShape;
 import shape.CylindricalShape;
 import shape.Dimension.DimName;
 import shape.Shape;
 import surface.Surface;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief TODO
@@ -118,8 +123,9 @@ public class GraphicalOutput extends ProcessManager
 					_arrayType.toString();
 
 		/* get instance of appropriate output writer */
-		this._graphics = GraphicalExporter.getNewInstance(
-				this.getString(OUTPUT_WRITER) );
+		this._graphics = (GraphicalExporter) Instance.getNew(
+				null, null, Helper.obtainIfNone( this.getString(OUTPUT_WRITER ), 
+				"output writer", false, options() ) );
 		
 		/* write scene files (used by pov ray) */
 		this._graphics.init( this._prefix, this._shape );
@@ -127,6 +133,14 @@ public class GraphicalOutput extends ProcessManager
 		/* set max concentration for solute grid color gradient */
 		this._maxConcn = (double) this.getOr( MAX_VALUE, 2.0 );
 
+	}
+	
+	private Collection<String> options()
+	{
+		LinkedList<String> out = new LinkedList<String>();	
+		out.add(ClassRef.svgExport);
+		out.add(ClassRef.povExport);
+		return out;
 	}
 	
 	/*************************************************************************
@@ -161,7 +175,7 @@ public class GraphicalOutput extends ProcessManager
 		/* Draw solute grid for specified solute, if any. */
 		if ( ! _environment.isSoluteName(this._solute) )
 		{
-			//TODO Bas [08/06/16] this should not be a critical warning since
+			//NOTE Bas [08/06/16] this should not be a critical warning since
 			// this is a sensible option if the user does not want to plot a 
 			// solute (null solute).
 			Log.out(Tier.BULK, this._name+" can't find solute " + this._solute +

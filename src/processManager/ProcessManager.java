@@ -9,18 +9,20 @@ import aspect.AspectReg;
 import dataIO.Log.Tier;
 import dataIO.Log;
 import dataIO.XmlHandler;
-import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
 import idynomics.AgentContainer;
 import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
+import utility.Helper;
 
 /**
  * \brief Abstract class for managing a process within a {@code Compartment}.
@@ -28,7 +30,7 @@ import referenceLibrary.XmlRef;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
 public abstract class ProcessManager implements Instantiatable, AspectInterface,
-		NodeConstructor, Redirectable
+		Settable, Redirectable
 {
 	/**
 	 * The name of this {@code ProcessManager}, for reporting.
@@ -48,7 +50,7 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	protected double _timeStepSize;
 	/**
-	 * The aspect registry... TODO
+	 * The aspect registry.
 	 */
 	private AspectReg _aspectRegistry = new AspectReg();
 	/**
@@ -67,12 +69,32 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	 */
 	protected String _compartmentName;
 	
-	protected NodeConstructor _parentNode;
+	protected Settable _parentNode;
 	private long _realTimeTaken = 0;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
+	
+	/**
+	 * Generic init for Instantiatable implementation
+	 * 
+	 * 
+	 * NOTE this implementation is a bit 'hacky' to deal with
+	 * 1) The layered structure of process managers.
+	 * 2) The fact that process managers are initiated with environment, agents
+	 * and compartment name, something the instantiatable interface can only
+	 * Provide by supplying parent.
+	 * 
+	 * 
+	 * @param xmlElem
+	 * @param parent (in this case the compartment).
+	 */
+	public void instantiate(Element xmlElem, Settable parent)
+	{
+		this.init(xmlElem, ((Compartment) parent).environment, 
+				((Compartment) parent).agents, ((Compartment) parent).getName());
+	}
 	
 	/**
 	 * \brief Initialise the process from XML protocol file, plus the relevant
@@ -89,7 +111,9 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	public void init(Element xmlElem, EnvironmentContainer environment, 
 			AgentContainer agents, String compartmentName)
 	{
-		this.init(environment, agents, compartmentName);
+		this._environment = environment;
+		this._agents = agents;
+		this._compartmentName = compartmentName;
 		
 		if (xmlElem != null)
 			this.loadAspects(xmlElem);
@@ -97,7 +121,8 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		 * Read in the process attributes. 
 		 */
 		Element p = (Element) xmlElem;
-		this.setName( XmlHandler.obtainAttribute(p, XmlRef.nameAttribute, this.defaultXmlTag()));
+		if (Helper.isNone(this._name))
+			this.setName( XmlHandler.obtainAttribute(p, XmlRef.nameAttribute, this.defaultXmlTag()));
 		/* Process priority - default is zero. */
 		int priority = 0;
 		if ( XmlHandler.hasAttribute(p, XmlRef.processPriority) )
@@ -114,48 +139,11 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 			time = Double.valueOf( p.getAttribute(XmlRef.processTimeStepSize) );
 		this.setTimeStepSize(time);
 		
-		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
-		if (fields != null)
-			this.redirect(fields);
+		if (xmlElem != null && xmlElem.hasAttribute(XmlRef.fields))
+			this.redirect(XmlHandler.obtainAttribute(xmlElem, XmlRef.fields, "redirect fields"));
 		
 		Log.out(Tier.EXPRESSIVE, this._name + " loaded");
 	}
-	
-	/**
-	 * stripped down init required for JUnit tests without xml
-	 * FIXME only used by unit tests consider removing
-	 * @param environment
-	 * @param agents
-	 * @param compartmentName
-	 */
-	public void init(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		this._environment = environment;
-		this._agents = agents;
-		this._compartmentName = compartmentName;
-	}
-	
-	/**
-	 * Generic init for Instantiatable implementation
-	 * 
-	 * 
-	 * NOTE this implementation is a bit 'hacky' to deal with
-	 * 1) The layered structure of process managers.
-	 * 2) The fact that process managers are initiated with environment, agents
-	 * and compartment name, something the instantiatable interface can only
-	 * Provide by supplying parent.
-	 * 
-	 * 
-	 * @param xmlElem
-	 * @param parent (in this case the compartment).
-	 */
-	public void init(Element xmlElem, NodeConstructor parent)
-	{
-		this.init(xmlElem, ((Compartment) parent).environment, 
-				((Compartment) parent).agents, ((Compartment) parent).getName());
-	}
-	
 	
 	/* ***********************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -280,13 +268,12 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 		 */
 		long tock = System.currentTimeMillis();
 		this._realTimeTaken += tock  - tick;
-		Tier level = Tier.DEBUG;
+		Tier level = Tier.EXPRESSIVE;
 		if ( Log.shouldWrite(level) )
 		{
-			Log.out(level,
-					this._name+": timeForNextStep = "+this._timeForNextStep);
-			Log.out(level,
-					"    real time taken = "+((tock - tick)*0.001)+" seconds");
+			Log.out( level, this._name + " next: " + 
+					this._timeForNextStep + ", duration: " + 
+					( (tock - tick ) * 0.001 ) + " s");
 		}
 		
 	}
@@ -319,32 +306,32 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	/**
 	 * 
 	 */
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = new ModelNode(defaultXmlTag(), this);
+		Module modelNode = new Module(defaultXmlTag(), this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this._name);
 		
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 						this._name, null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+		modelNode.add(new Attribute(XmlRef.classAttribute, 
 				this.getClass().getSimpleName(), null, false ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.processPriority, 
+		modelNode.add(new Attribute(XmlRef.processPriority, 
 				String.valueOf(this._priority), null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.processTimeStepSize, 
+		modelNode.add(new Attribute(XmlRef.processTimeStepSize, 
 				String.valueOf(this._timeStepSize), null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.processFirstStep, 
+		modelNode.add(new Attribute(XmlRef.processFirstStep, 
 				String.valueOf(this._timeForNextStep), null, true ));
 		
 		for ( String key : this.reg().getLocalAspectNames() )
 			modelNode.add(reg().getAspectNode(key));
 		
-		modelNode.addConstructable( ClassRef.aspect,
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addChildSpec( ClassRef.aspect,
+				Module.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
 	}
@@ -353,38 +340,33 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	/**
 	 * 
 	 */
-	public void setNode(ModelNode node) 
+	public void setModule(Module node) 
 	{
-
+		/* Set the name */
 		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
 
+		/* Set the priority */
 		this._priority = Integer.valueOf( node.getAttribute( 
 				XmlRef.processPriority ).getValue() );
 
+		/* Set the timestep */
 		this._timeStepSize =  Double.valueOf( node.getAttribute( 
 				XmlRef.processTimeStepSize ).getValue() );
 
+		/* Set the time for the first step from now */
 		this._timeForNextStep = Double.valueOf( node.getAttribute( 
 				XmlRef.processFirstStep ).getValue() );
 		
-		NodeConstructor.super.setNode(node);
-
+		/* Set any potential child modules */
+		Settable.super.setModule(node);
 	}
 
-	/**
-	 * 
-	 */
-	public void addChildObject(NodeConstructor childObject) 
-	{
-
-	}
-	
 	/**
 	 * Remove processManager from the compartment
 	 * NOTE a bit of a work around but this prevents the pm form having to have
 	 * access to the compartment directly
 	 */
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
 		Idynomics.simulator.deleteFromCompartment(this._compartmentName, this);
 	}
@@ -398,13 +380,13 @@ public abstract class ProcessManager implements Instantiatable, AspectInterface,
 	}
 
 	
-	public void setParent(NodeConstructor parent)
+	public void setParent(Settable parent)
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

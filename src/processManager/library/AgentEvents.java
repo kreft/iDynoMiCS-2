@@ -37,15 +37,9 @@ public class AgentEvents extends ProcessManager
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		this.init(environment, agents, compartmentName);
-	}
-	
-	public void init(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		super.init(environment, agents, compartmentName);
 		this._eventNames = this.getStringA(EVENT_NAMES);
 	}
+
 	
 	/* ***********************************************************************
 	 * STEPPING

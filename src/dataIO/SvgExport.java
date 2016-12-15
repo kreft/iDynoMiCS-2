@@ -1,8 +1,11 @@
 package dataIO;
 
+import org.w3c.dom.Element;
+
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import linearAlgebra.Vector;
+import settable.Settable;
 import surface.Ball;
 import surface.Rod;
 
@@ -26,7 +29,7 @@ public class SvgExport implements GraphicalExporter
 	/**
 	 * TODO
 	 */
-	protected double _scalar = 25.0;
+	protected double _scalar = 10.0;
 	/**
 	 * TODO
 	 */
@@ -36,6 +39,12 @@ public class SvgExport implements GraphicalExporter
 	private static final String[] CIRCLE_LABELS = new String[] {"cx","cy"};
 
 	private static final String[] RECTANGLE_LABELS = new String[] {"x","y"};
+	
+	public void instantiate(Element xmlElem, Settable parent)
+	{
+		/* init something from xml? */
+	}
+	
 	/**
 	 * handles incrementing file numbering
 	 * @param filenr
@@ -70,6 +79,16 @@ public class SvgExport implements GraphicalExporter
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
 				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".svg";
+		_svgFile.fnew(fileString);
+		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
+		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" "
+				+ "version=\"1.1\">\n");
+	}
+	
+	public void createCustomFile(String fileName)
+	{
+		String fileString = Idynomics.global.outputLocation + "/" 
+				+ fileName + ".svg";
 		_svgFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 		_svgFile.write("<svg xmlns=\"http://www.w3.org/2000/svg\" "

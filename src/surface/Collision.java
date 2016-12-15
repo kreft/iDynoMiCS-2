@@ -74,8 +74,8 @@ public class Collision
 		
 		this._pullFun = CollisionFunction.DefaultPullFunction;
 		
-		this._pullFun.init(null, null);
-		this._collisionFun.init(null, null);
+		this._pullFun.instantiate(null, null);
+		this._collisionFun.instantiate(null, null);
 	}
 
 	/**

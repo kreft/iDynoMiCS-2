@@ -9,17 +9,19 @@ import aspect.calculated.StateExpression;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
-import nodeFactory.primarySetters.HashMapSetter;
-import nodeFactory.primarySetters.LinkedListSetter;
+import idynomics.Idynomics;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
 import referenceLibrary.PackageRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
+import settable.primarySetters.HashMapSetter;
+import settable.primarySetters.LinkedListSetter;
 import surface.Point;
 import utility.Helper;
 
@@ -29,7 +31,7 @@ import utility.Helper;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Aspect implements Instantiatable, NodeConstructor
+public class Aspect implements Instantiatable, Settable
 {
 	/**
 	 * \brief Recognized aspect types.
@@ -83,7 +85,7 @@ public class Aspect implements Instantiatable, NodeConstructor
 	 */
 	protected Event event;
 
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	
 	/**
 	 * \brief Construct and Aspect by setting the aspect and declares type
@@ -136,6 +138,13 @@ public class Aspect implements Instantiatable, NodeConstructor
 			  this.type = Aspect.AspectClass.PRIMARY;
 		}
     }
+	
+	
+	public String getKey() 
+	{
+		return this.key;
+	}
+
 
 	/**
 	 * Get the ModelNode object for this Aspect object
@@ -143,13 +152,13 @@ public class Aspect implements Instantiatable, NodeConstructor
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public ModelNode getNode() 
+	public Module getModule() 
 	{
-		ModelNode modelNode = new ModelNode(XmlRef.aspect, this);
+		Module modelNode = new Module(XmlRef.aspect, this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this.key);
 		
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 				this.key, null, true ) );
 		
 		String simpleName = this.aspect.getClass().getSimpleName();
@@ -157,10 +166,10 @@ public class Aspect implements Instantiatable, NodeConstructor
 		/* Primaries */
 		if(this.type.equals(Aspect.AspectClass.PRIMARY) )
 		{
-			modelNode.add(new ModelAttribute(XmlRef.typeAttribute, 
+			modelNode.add(new Attribute(XmlRef.typeAttribute, 
 					this.type.toString(), null, false ) );
 			
-			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+			modelNode.add(new Attribute(XmlRef.classAttribute, 
 					simpleName, null, false ) );
 			
 			if ( simpleName.equals( ClassRef.simplify(ClassRef.hashMap) ))
@@ -168,31 +177,31 @@ public class Aspect implements Instantiatable, NodeConstructor
 				HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
 				for (Object k : h.keySet() )
 					modelNode.add(new HashMapSetter<Object,Object>(
-							h.get(k), k, h).getNode() );
+							h.get(k), k, h).getModule() );
 			}
 			else if ( simpleName.equals( ClassRef.simplify(ClassRef.linkedList) ))
 			{
 				LinkedList<Object> linkedList = (LinkedList<Object>) aspect;
 				for (Object o : linkedList)
 					modelNode.add(new LinkedListSetter<Object>(
-							o, linkedList ).getNode() );
+							o, linkedList ).getModule() );
 			}
 			else if ( simpleName.equals( ClassRef.simplify(ClassRef.body) ))
 			{
 				Body myBody = (Body) aspect;
 				for (Point p : myBody.getPoints() )
-					modelNode.add(p.getNode() );
+					modelNode.add(p.getModule() );
 			}
 			else
 			{
-				if (aspect instanceof NodeConstructor)
+				if (aspect instanceof Settable)
 				{
-					NodeConstructor x = (NodeConstructor) aspect;
-					modelNode.add(x.getNode() ); 
+					Settable x = (Settable) aspect;
+					modelNode.add(x.getModule() ); 
 				}
 				else
 				{
-					modelNode.add(new ModelAttribute(XmlRef.valueAttribute, 
+					modelNode.add(new Attribute(XmlRef.valueAttribute, 
 							ObjectFactory.stringRepresentation(aspect), 
 							null, true ) );
 				}
@@ -201,37 +210,20 @@ public class Aspect implements Instantiatable, NodeConstructor
 		/* events and calculated */
 		else
 		{
-			modelNode.add(new ModelAttribute(XmlRef.typeAttribute, 
+			modelNode.add(new Attribute(XmlRef.typeAttribute, 
 					this.type.toString(), null, false ) );
 
-			modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
+			modelNode.add(new Attribute(XmlRef.classAttribute, 
 					simpleName, null , false ) );
 			
 			if (simpleName.equals( StateExpression.class.getSimpleName() ) )
 			{
-				modelNode.add(new ModelAttribute(XmlRef.inputAttribute, 
+				modelNode.add(new Attribute(XmlRef.inputAttribute, 
 						( (Calculated) this.aspect ).getInput(), 
 						null, false ) );
 			}
 		}
 
-		return modelNode;
-	}
-	
-	/**
-	 * Get the ModelNode object for a HashMap TODO to be replaced
-	 * @return ModelNode
-	 */
-	@SuppressWarnings("unchecked")
-	public ModelNode HashMapNode(Object key) 
-	{
-		HashMap<Object,Object> h = (HashMap<Object,Object>) aspect;
-		ModelNode modelNode = new ModelNode(XmlRef.item, this);
-		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
-		
-		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-				h.get(key).getClass().getSimpleName(), null, false ) );
-		
 		return modelNode;
 	}
 
@@ -241,7 +233,7 @@ public class Aspect implements Instantiatable, NodeConstructor
 	 * @param node
 	 */
 	@Override
-	public void setNode(ModelNode node) 
+	public void setModule(Module node) 
 	{
 		if ( node.getAttribute(XmlRef.valueAttribute) != null )
 		{
@@ -249,12 +241,12 @@ public class Aspect implements Instantiatable, NodeConstructor
 					node.getAttribute( XmlRef.typeAttribute).getValue() ) )
 	    	{
 	    	case CALCULATED:
-	    		this.set( Calculated.getNewInstance(
+	    		this.set( Calculated.instanceFromString(
 	    				node.getAttribute(XmlRef.classAttribute).getValue(), 
 	    				node.getAttribute(XmlRef.inputAttribute).getValue()), key);
 	    	case EVENT: 
-	    		this.set( Event.getNewInstance( 
-						node.getAttribute(XmlRef.classAttribute).getValue()), key);
+	    		this.set( Instance.getNew(null, null, 
+	    				node.getAttribute(XmlRef.classAttribute).getValue()), key);
 	    	case PRIMARY:
 			default:
 				this.set( ObjectFactory.loadObject(
@@ -262,7 +254,7 @@ public class Aspect implements Instantiatable, NodeConstructor
 						node.getAttribute(XmlRef.classAttribute).getValue()), key);
 			}
 		}
-		NodeConstructor.super.setNode(node);
+		Settable.super.setModule(node);
 	}
 
 	// TODO build up from general.classLib rather than hard code
@@ -272,7 +264,7 @@ public class Aspect implements Instantiatable, NodeConstructor
 	 * @return NodeConstructor
 	 */
 	@Override
-	public void init(Element xmlElem, NodeConstructor parent) {
+	public void instantiate(Element xmlElem, Settable parent) {
 		String name = "";
 		name = Helper.obtainInput(name, "aspect name");
 		/* if name is canceled */
@@ -291,17 +283,13 @@ public class Aspect implements Instantiatable, NodeConstructor
     		objectClass = Helper.obtainInput( Helper.listToArray(
     				ClassRef.getAllOptions( PackageRef.calculatedPackage ) ), 
     				"aspect class", false);
-    		if ( objectClass.equals(ClassRef.simplify( ClassRef.expressionAspect) ) )
-    			this.set( Calculated.getNewInstance( objectClass,
-    					Helper.obtainInput( "", "expression" ))  , name );
-    		else
-    			this.set(  Calculated.getNewInstance( objectClass, "") , name );
+    		this.set(  Instance.getNew(xmlElem, null, objectClass) , name );
     		break;
     	case EVENT: 
     		objectClass = Helper.obtainInput( Helper.listToArray(
     				ClassRef.getAllOptions( PackageRef.eventPackage) ), 
     				"aspect class", false);
-    		this.set(  Event.getNewInstance( objectClass ) , name );
+    		this.set(  Instance.getNew(xmlElem, null, objectClass) , name );
     		break;
     	case PRIMARY:
 		default:
@@ -317,7 +305,7 @@ public class Aspect implements Instantiatable, NodeConstructor
 	}
 
 	@Override
-	public void removeNode(String specifier) 
+	public void removeModule(String specifier) 
 	{
 		this.registry.remove(this.key);
 	}
@@ -333,13 +321,13 @@ public class Aspect implements Instantiatable, NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

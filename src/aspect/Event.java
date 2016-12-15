@@ -1,12 +1,12 @@
 package aspect;
 
 import generalInterfaces.Copyable;
-import generalInterfaces.Instantiatable;
 import generalInterfaces.Redirectable;
+import instantiatable.Instantiatable;
 import referenceLibrary.XmlRef;
+import settable.Settable;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 import dataIO.XmlHandler;
 
@@ -20,25 +20,8 @@ import dataIO.XmlHandler;
  */
 public abstract class Event implements Copyable, Instantiatable, Redirectable
 {
-	/**
-	 * General constructor from xmlNodes, returns a new instance directly from
-	 * an xml node. Overwrite this method in implementing class if the class
-	 * needs constructor arguments (they should be stored within the Node).
-	 */
-	public static Object getNewInstance(Node xmlNode)
-	{
-		Event obj = (Event) Instantiatable.getNewInstance(xmlNode);
-		obj.init((Element) xmlNode);
-		return obj;
-	}
 
-	public static Object getNewInstance(String input) {
-		Event obj = (Event) Instantiatable.getNewInstance(input);
-		return obj;
-	}
-
-
-	public void init(Element xmlElem)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		String fields = XmlHandler.gatherAttribute(xmlElem, XmlRef.fields);
 		if (fields != null)

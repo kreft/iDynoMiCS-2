@@ -15,16 +15,17 @@ import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
+import instantiatable.Instance;
 import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
 import linearAlgebra.Vector;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.CartesianShape;
 import shape.Dimension;
 import shape.Shape;
@@ -39,6 +40,7 @@ import surface.Collision;
 import surface.predicate.IsNotColliding;
 import surface.Surface;
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Manages the agents in a {@code Compartment}.
@@ -46,7 +48,7 @@ import utility.ExtraMath;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class AgentContainer implements NodeConstructor
+public class AgentContainer implements Settable
 {
 	/**
 	 * This dictates both geometry and size, and it inherited from the
@@ -89,7 +91,7 @@ public class AgentContainer implements NodeConstructor
 	/**
 	 * TODO
 	 */
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	/**
 	 * Helper method for filtering local agent lists, so that they only
 	 * include those that have reactions.
@@ -137,20 +139,6 @@ public class AgentContainer implements NodeConstructor
 		this.makeAgentTree();
 		this._agentList = new LinkedList<Agent>();
 	}
-
-	/**
-	 * \brief Construct an {@code AgentContainer} from the name of a
-	 * {@code Shape}.
-	 * 
-	 * <p>Used by test classes.</p>
-	 * 
-	 * @param shapeName {@code String} name of a shape.
-	 */
-	public AgentContainer(String shapeName)
-	{
-		this((Shape) Shape.getNewInstance(shapeName));
-	}
-	
 
 	public void setSpatialTree(TreeType type) 
 	{
@@ -664,6 +652,7 @@ public class AgentContainer implements NodeConstructor
 	 */
 	protected void addLocatedAgent(Agent anAgent)
 	{
+		anAgent.event(AspectRef.agentUpdateBody); /* hard coded should not be here */
 		this._locatedAgentList.add(anAgent);
 		this.treeInsert(anAgent);
 	}
@@ -679,11 +668,9 @@ public class AgentContainer implements NodeConstructor
 	 */
 	private void treeInsert(Agent anAgent)
 	{
-		anAgent.event(AspectRef.agentUpdateBody);
 		Body body = ((Body) anAgent.get(AspectRef.agentBody));
-		double dist = 0.0;
-		if ( anAgent.isAspect(AspectRef.agentPulldistance) )
-			dist = anAgent.getDouble(AspectRef.agentPulldistance);
+		Double dist = anAgent.getDouble(AspectRef.agentPulldistance);
+		dist = Helper.setIfNone(dist, 0.0);
 		List<BoundingBox> boxes = body.getBoxes(dist);
 		for ( BoundingBox b: boxes )
 			this._agentTree.insert(b, anAgent);
@@ -798,7 +785,6 @@ public class AgentContainer implements NodeConstructor
 		if ( isLocated(anAgent) )
 		{
 			this._locatedAgentList.remove(anAgent);
-			this._agentTree.delete(anAgent);
 		}
 		else
 			this._agentList.remove(anAgent);
@@ -1139,17 +1125,17 @@ public class AgentContainer implements NodeConstructor
 	}
 
 	@Override
-	public ModelNode getNode() 
+	public Module getModule() 
 	{
 		/* The agents node. */
-		ModelNode modelNode = new ModelNode( XmlRef.agents, this);
+		Module modelNode = new Module( XmlRef.agents, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		/* Add the agent childConstrutor for adding of additional agents. */
-		modelNode.addConstructable( ClassRef.agent,
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addChildSpec( ClassRef.agent,
+				Module.Requirements.ZERO_TO_MANY);
 		/* If there are agents, add them as child nodes. */
 		for ( Agent a : this.getAllAgents() )
-			modelNode.add( a.getNode() );
+			modelNode.add( a.getModule() );
 		return modelNode;
 	
 	}
@@ -1161,15 +1147,25 @@ public class AgentContainer implements NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
+	}
+
+	public void sortLocatedAgents() 
+	{
+		for(Agent a : this.getAllUnlocatedAgents())
+			if( isLocated(a))
+			{
+				this._agentList.remove(a);
+				this._locatedAgentList.add(a);
+			}
 	}
 	
 	/* ***********************************************************************

@@ -8,16 +8,17 @@ import org.w3c.dom.Node;
 import agent.Agent;
 import agent.Body;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import linearAlgebra.Vector;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
 import shape.Shape;
 import shape.Dimension;
 import shape.Dimension.DimName;
@@ -26,6 +27,7 @@ import shape.Dimension.DimName;
  * \brief Abstract class of boundary that has a location in space.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 public abstract class SpatialBoundary extends Boundary
 {
@@ -50,6 +52,25 @@ public abstract class SpatialBoundary extends Boundary
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
+	
+	/**
+	 * FIXME essential for instantiation
+	 */
+	public SpatialBoundary()
+	{
+		
+	}
+	
+	/**
+	 * FIXME essential for instantiation
+	 */
+	public void instantiate(Element xmlElement, Settable parent) 
+	{
+		this._dim = DimName.valueOf(XmlHandler.obtainAttribute(
+				xmlElement, XmlRef.shapeDimension, XmlRef.dimensionBoundary));
+		this._extreme = Integer.valueOf(XmlHandler.obtainAttribute(
+				xmlElement, XmlRef.extreme, XmlRef.dimensionBoundary)); // shape and this are inconsistent
+	}
 	
 	/**
 	 * \brief Construct a spatial boundary by giving it the information it
@@ -293,27 +314,18 @@ public abstract class SpatialBoundary extends Boundary
 	}
 	
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = super.getNode();
+		Module modelNode = super.getModule();
 		/* Which dimension? */
-		modelNode.add(new ModelAttribute(XmlRef.dimensionNamesAttribute,
+		modelNode.add(new Attribute(XmlRef.dimensionNamesAttribute,
 				this._dim.toString(),
 				null, true));
 		/* Minimum or maximum extreme of this dimension? */
-		modelNode.add(new ModelAttribute("extreme", 
+		modelNode.add(new Attribute("extreme", 
 				Dimension.extremeToString(this._extreme),
 				new String[]{XmlRef.min, XmlRef.max}, true));
 		return modelNode;
-	}
-	
-	
-	// TODO!
-	
-	public static SpatialBoundary getNewInstance(String className)
-	{
-		return (SpatialBoundary) 
-				Instantiatable.getNewInstance(className, "boundary.spatialLibrary.");
 	}
 	
 	@Override
@@ -323,4 +335,5 @@ public abstract class SpatialBoundary extends Boundary
 			return false;
 		return true;
 	}
+
 }

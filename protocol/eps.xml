@@ -17,8 +17,8 @@
 				<speciesModule name="coccoid" />
 				<!-- <speciesModule name="stochasticMover" /> -->
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY"  class="PileList"> 
- <reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+ <list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
@@ -28,14 +28,14 @@
 							<stoichiometric component="eps" coefficient="0.1" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 						</reaction> 
- </reactions>
+ </list>
 				</aspect>
 			</species>
 			<species name="species2">
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<speciesModule name="coccoid" />
-				<aspect name="reactions" type="PRIMARY"  class="PileList"> 
- <reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+ <list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
 								<constant name="k" value="0.001" />
@@ -44,7 +44,7 @@
 							<stoichiometric component="mass" coefficient="1.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
 						</reaction> 
- </reactions>
+ </list>
 				</aspect>
 			</species>
 

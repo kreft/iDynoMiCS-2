@@ -1,7 +1,8 @@
 package dataIO;
 
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
 import shape.Shape;
 import surface.Ball;
@@ -13,14 +14,9 @@ import surface.Surface;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public interface GraphicalExporter {
+public interface GraphicalExporter extends Instantiatable {
 	
-	public static GraphicalExporter getNewInstance(String input) 
-	{
-		GraphicalExporter obj = 
-				(GraphicalExporter) Instantiatable.getNewInstance(input);
-		return obj;
-	}
+
 	
 	/*************************************************************************
 	 * File handling
@@ -174,5 +170,7 @@ public interface GraphicalExporter {
 	{
 		
 	}
+
+	public void createCustomFile(String fileName);
 	
 }

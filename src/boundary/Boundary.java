@@ -5,25 +5,32 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import agent.Agent;
 import dataIO.Log;
-import generalInterfaces.Instantiatable;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
+import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
+import instantiatable.Instance;
 import referenceLibrary.XmlRef;
+import settable.Module;
+import settable.Settable;
+import shape.Dimension.DimName;
+import shape.Shape;
+import shape.Dimension;
 
 /**
  * \brief General class of boundary for a {@code Shape}.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public abstract class Boundary implements NodeConstructor
+public abstract class Boundary implements Settable
 {
 	/**
 	 * Reference to the environment of the compartment this process belongs to.
@@ -82,7 +89,7 @@ public abstract class Boundary implements NodeConstructor
 	 * and need to be entered into this compartment.
 	 */
 	protected Collection<Agent> _arrivalsLounge = new LinkedList<Agent>();
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	/**
 	 * Log verbosity level for debugging purposes (set to BULK when not using).
 	 */
@@ -95,6 +102,8 @@ public abstract class Boundary implements NodeConstructor
 	/**
 	 * \brief Tell this boundary what it needs to know about the compartment it
 	 * belongs to.
+	 * 
+	 * FIXME this is not a valid from Instantiatable init
 	 * 
 	 * @param environment The environment container of the compartment.
 	 * @param agents The agent container of the compartment.
@@ -454,18 +463,6 @@ public abstract class Boundary implements NodeConstructor
 		return new LinkedList<Agent>();
 	}
 
-	/* ***********************************************************************
-	 * XML-ABLE
-	 * **********************************************************************/
-
-	// TODO replace with node construction
-
-	public static Boundary getNewInstance(String className)
-	{
-		return (Boundary) Instantiatable.getNewInstance(className, "boundary.library.");
-	}
-
-
 	public boolean isReadyForLaunch()
 	{
 		if ( this._environment == null || this._agents == null )
@@ -477,16 +474,17 @@ public abstract class Boundary implements NodeConstructor
 	 * NODE CONTRUCTION
 	 * **********************************************************************/
 
-	// TODO delete once nodeFactory has made this redundant
-	public void init(Node xmlNode)
-	{
-		// TODO partner boundary name
-	}
-
+	/* NOTE Bas: I found this note here: "delete once nodeFactory has made this 
+	 * redundant" To be clear: do not delete this, in order for the node factory
+	 * to work this needs to be implemented properly! Make sure your object
+	 * implements the instantiatable interface and DO NOT bypass its 
+	 * newNewInstance method.
+	 */
+	
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
+		Module modelNode = new Module(this.defaultXmlTag(), this);
 
 		// TODO
 		// modelNode.requirement = Requirements.?
@@ -497,12 +495,7 @@ public abstract class Boundary implements NodeConstructor
 	}
 
 	@Override
-	public void setNode(ModelNode node)
-	{
-		// TODO
-	}
-
-	public void removeNode()
+	public void setModule(Module node)
 	{
 		// TODO
 	}
@@ -517,13 +510,13 @@ public abstract class Boundary implements NodeConstructor
 		return XmlRef.dimensionBoundary;
 	}
 	
-	public void setParent(NodeConstructor parent)
+	public void setParent(Settable parent)
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

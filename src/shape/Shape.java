@@ -21,19 +21,21 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 import shape.subvoxel.SubvoxelPoint;
+import spatialRegistry.TreeType;
 import surface.Collision;
 import surface.Plane;
 import surface.Surface;
@@ -65,7 +67,7 @@ import utility.Helper;
  */
 // TODO remove the last three sections by incorporation into Node construction.
 public abstract class Shape implements
-					CanPrelaunchCheck, Instantiatable, NodeConstructor
+					CanPrelaunchCheck, Instantiatable, Settable
 {
 	/**
 	 * Ordered dictionary of dimensions for this shape.
@@ -116,46 +118,33 @@ public abstract class Shape implements
 	 */
 	protected final static double[] VOXEL_All_ONE_HELPER = Vector.vector(3,1.0);
 	
-	protected NodeConstructor _parentNode;
+	protected Settable _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTION
 	 * **********************************************************************/
 	
-	public static Shape newShape()
-	{
-		return (Shape) Shape.getNewInstance(
-				Helper.obtainInput(getAllOptions(), "Shape class", false));
-	}
-	
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
-
-		ModelNode modelNode = new ModelNode(XmlRef.compartmentShape, this);
-		modelNode.setRequirements(Requirements.EXACTLY_ONE);
-		modelNode.add(new ModelAttribute(XmlRef.classAttribute, 
-										this.getName(), null, false ));
-		
+		/* Create a new Module */
+		Module modelNode = new Module( XmlRef.compartmentShape, this );
+		/* Set the requirement */
+		modelNode.setRequirements( Requirements.EXACTLY_ONE );
+		/* Add the attributes, note the Shape class is not editable thus set
+		 * editable to false */
+		modelNode.add( new Attribute(XmlRef.classAttribute, 
+										this.getName(), null, false ) );
+		/* Add the child modules */
 		for ( Dimension dim : this._dimensions.values() )
 			if(dim._isSignificant)
-				modelNode.add(dim.getNode());
-		
+				modelNode.add( dim.getModule() );
+		/* NOTE: no constructible child modules for this class thus no 
+		 * addChildSpec */
 		return modelNode;
 	}
 
-	@Override
-	public void setNode(ModelNode node)
-	{
 
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject)
-	{
-		// TODO Auto-generated method stub
-	}
-	
 	@Override
 	public String defaultXmlTag()
 	{
@@ -170,7 +159,7 @@ public abstract class Shape implements
 	 * 
 	 * @param xmlNode
 	 */
-	public void init(Element xmlElem)
+	public void instantiate(Element xmlElem, Settable parent )
 	{
 		NodeList childNodes;
 		Element childElem;
@@ -178,6 +167,7 @@ public abstract class Shape implements
 		/* Set up the dimensions. */
 		Dimension dim;
 		ResCalc rC;
+		this._parentNode = parent;
 		
 		for ( DimName dimens : this.getDimensionNames() )
 		{
@@ -189,7 +179,7 @@ public abstract class Shape implements
 				dim = this.getDimension(dimens);
 				if(dim._isSignificant)
 				{
-					dim.init(childElem);
+					dim.instantiate(childElem, this);
 					
 					/* Initialise resolution calculators */
 					rC = new ResolutionCalculator.UniformResolution();
@@ -218,8 +208,8 @@ public abstract class Shape implements
 			{
 				childElem = (Element) childNodes.item(i);
 				str = childElem.getAttribute(XmlRef.classAttribute);
-				aBoundary = (Boundary) Boundary.getNewInstance(str);
-				aBoundary.init(childElem);
+				aBoundary = (Boundary) Instance.getNew(childElem, 
+						this, str );
 				this.addOtherBoundary(aBoundary);
 			}
 		}
@@ -663,6 +653,34 @@ public abstract class Shape implements
 		for ( double[] p : localPoints )
 			out.add(this.getGlobalLocation(p));
 		return out;
+	}
+	
+	/**
+	 * Considering periodic boundaries return the mid-point on the shortest
+	 * distance between two points, even if the shortest distance passes trough
+	 * a periodic boundary.
+	 * @param a position vector
+	 * @param b position vector
+	 * @return mid-point position vector considering the periodic boundaries of
+	 * this shape.
+	 */
+	public double[] periodicMidPoint(double[] a, double[] b)
+	{
+		List<double[]> cyclicPoints = getCyclicPoints(a);
+		double[] c = cyclicPoints.get(0);
+		double dist = Vector.distanceEuclid(b, c);
+		double dDist;
+		for ( double[] d : cyclicPoints )
+		{
+			dDist = Vector.distanceEuclid( b, d);
+			if ( dDist < dist)
+			{
+				c = d;
+				dist = dDist;
+			}
+		}
+		double[] midPos = Vector.midPoint(c, b);
+		return this.getGlobalLocation(midPos);
 	}
 	
 	/**
@@ -1541,28 +1559,6 @@ public abstract class Shape implements
 		return true;
 	}
 	
-	/* ***********************************************************************
-	 * XML-ABLE
-	 * **********************************************************************/
-	
-	public static Shape getNewInstance(String className)
-	{
-		return (Shape) Instantiatable.getNewInstance(className, "shape.ShapeLibrary$");
-	}
-	
-	public static Shape getNewInstance(String className, Element xmlElem, NodeConstructor parent)
-	{
-		Shape out;
-		if (xmlElem == null)
-			out = (Shape) Shape.getNewInstance(
-					Helper.obtainInput(getAllOptions(), "Shape class", false));
-		else
-			out = (Shape) Instantiatable.getNewInstance(className, 
-					"shape.ShapeLibrary$");
-		out.init(xmlElem);
-		return out;
-	}
-	
 	public static String[] getAllOptions()
 	{
 		return Helper.getClassNamesSimple(
@@ -1574,13 +1570,13 @@ public abstract class Shape implements
 		return this._defaultCollision;
 	}
 	
-	public void setParent(NodeConstructor parent)
+	public void setParent(Settable parent)
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

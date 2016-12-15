@@ -1,9 +1,12 @@
 package dataIO;
 import java.util.List;
 
+import org.w3c.dom.Element;
+
 import agent.Agent;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
+import settable.Settable;
 import shape.Shape;
 import surface.Ball;
 import surface.Rod;
@@ -72,6 +75,20 @@ public class PovExport implements GraphicalExporter
 		
 	}
 	
+	public void createCustomFile(String fileName)
+	{
+		String fileString = Idynomics.global.outputLocation + "/" 
+				+ fileName + ".pov";
+		_povFile.fnew(fileString);
+
+		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
+		_povFile.write("#declare Count = " + _filewriterfilenr + ";\n");
+		_povFile.write("#include \"sceneheader.inc\"\n");
+		
+	}
+	
+	
+	
 	/**
 	 * 
 	 */
@@ -80,6 +97,11 @@ public class PovExport implements GraphicalExporter
 		_povFile.write("#include \"scenefooter.inc\"\n");
 		_povFile.fclose();
 		_filewriterfilenr++;
+	}
+	
+	public void instantiate(Element xmlElem, Settable parent)
+	{
+		/* init something from xml? */
 	}
 	
 	/**

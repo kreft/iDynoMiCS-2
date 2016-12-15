@@ -11,8 +11,8 @@ import org.w3c.dom.Element;
 import dataIO.XmlHandler;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import nodeFactory.NodeConstructor;
 import referenceLibrary.XmlRef;
+import settable.Settable;
 
 /**
  * \brief Basic diffusivity setter that sets the same diffusivity across the
@@ -46,7 +46,7 @@ public class AllSameDiffuse implements IsDiffusivitySetter
 	 * 
 	 * @param xmlNode
 	 */
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		String s = XmlHandler.obtainAttribute(xmlElem, XmlRef.defaultDiffusivity, "PARENT NODE");
 		this._diffusivity = Double.valueOf(s);

@@ -6,18 +6,26 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import expression.Component;
-import expression.ExpressionB;
+import expression.Expression;
 import generalInterfaces.Copyable;
-import generalInterfaces.Instantiatable;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
-import nodeFactory.primarySetters.BundleMap;
+import idynomics.EnvironmentContainer;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
+import instantiatable.object.InstantiatableMap;
+import referenceLibrary.ClassRef;
+import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
-import nodeFactory.NodeConstructor;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
+import settable.primarySetters.HashMapSetter;
+import utility.Helper;
 
 /**
  * \brief The reaction class handles the chemical conversions of various
@@ -32,7 +40,7 @@ import nodeFactory.NodeConstructor;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class Reaction implements Instantiatable, Copyable, NodeConstructor
+public class Reaction implements Instantiatable, Copyable, Settable
 {
 	/**
 	 * The name of this reaction. This is particularly useful for writing
@@ -44,13 +52,13 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	 * identifies what environment hosts this reaction, null if this reaction
 	 * is not a compartment reaction
 	 */
-	protected NodeConstructor _parentNode;
+	protected Settable _parentNode;
 	/**
 	 * Dictionary of reaction stoichiometries. Each chemical species involved
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private BundleMap<String,Double> _stoichiometry = new BundleMap<String,Double>(
+	private InstantiatableMap<String,Double> _stoichiometry = new InstantiatableMap<String,Double>(
 			String.class, Double.class, XmlRef.component, XmlRef.coefficient, 
 			XmlRef.stoichiometry, XmlRef.stoichiometric, true);
 	/**
@@ -87,14 +95,13 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public Reaction(Node xmlNode)
 	{
 		Element elem = (Element) xmlNode;
-		this.init(elem);
+		this.instantiate(elem, null);
 	}
 	
-	public Reaction(Node xmlNode, NodeConstructor parent)
+	public Reaction(Node xmlNode, Settable parent)
 	{
 		Element elem = (Element) xmlNode;
-		this._parentNode = parent;
-		this.init(elem);
+		this.instantiate(elem, parent);
 	}
 	
 	/**
@@ -130,7 +137,7 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public Reaction(
 			Map<String, Double> stoichiometry, String kinetic, String name)
 	{
-		this(stoichiometry, new ExpressionB(kinetic), name);
+		this(stoichiometry, new Expression(kinetic), name);
 	}
 	
 	/**
@@ -148,32 +155,35 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	public Reaction(String chemSpecies, double stoichiometry, 
 											String kinetic, String name)
 	{
-		this(getHM(chemSpecies, stoichiometry), new ExpressionB(kinetic), name);
+		this(getHM(chemSpecies, stoichiometry), new Expression(kinetic), name);
 	}
 	
-	public void init(Element xmlElem)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
+		this._parentNode = parent;
+		if ( parent instanceof EnvironmentContainer )
+			((EnvironmentContainer) parent).addReaction(this);
+
+		if ( !Helper.isNone(xmlElem) && XmlHandler.hasNode(xmlElem, XmlRef.reaction))
+		{
+			xmlElem = XmlHandler.loadUnique(xmlElem, XmlRef.reaction);
+		}
+		
 		this._name = XmlHandler.obtainAttribute(xmlElem, XmlRef.nameAttribute, this.defaultXmlTag());
 		/*
 		 * Build the stoichiometric map.
 		 */
-		this._stoichiometry.init(xmlElem, this);
+		this._stoichiometry.instantiate(xmlElem, this);
 
 		/*
 		 * Build the reaction rate expression.
 		 */
-		if ( xmlElem == null || !XmlHandler.hasNode(xmlElem, XmlRef.expression))
-			this._kinetic = new ExpressionB("");
+		if ( Helper.isNone(xmlElem) || !XmlHandler.hasNode(xmlElem, XmlRef.expression))
+			this._kinetic = new Expression("");
 		else
 			this._kinetic = new 
-				ExpressionB(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
-	}
-	
-	public void init(Element xmlElem, NodeConstructor parent)
-	{
-		this.init(xmlElem);
-		this._parentNode = parent;
-		parent.addChildObject(this);
+				Expression(XmlHandler.loadUnique(xmlElem, XmlRef.expression));
+		
 	}
 	
 	/**
@@ -303,67 +313,45 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 		return this._diffKinetics.get(withRespectTo).getValue(concentrations);
 	}
 	
-	/* ***********************************************************************
-	 * XML-ABLE
-	 * **********************************************************************/
-	
-	/**
-	 * XMLable interface implementation.
-	 * @param xmlNode
-	 * @return
-	 */
-	public static Object getNewInstance(Node xmlNode)
-	{
-		if (XmlHandler.hasNode((Element) xmlNode, XmlRef.reaction))
-		{
-			xmlNode = XmlHandler.loadUnique((Element) xmlNode, XmlRef.reaction);
-		}
-		return new Reaction(xmlNode);
-	}
 	
 	// TODO required from xmlable interface.. unfinished
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = new ModelNode(XmlRef.reaction, this);
+		Module modelNode = new Module(XmlRef.reaction, this);
 
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		modelNode.setTitle(this._name);
 		
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 				this._name, null, false ));
 		
-		modelNode.add(((ExpressionB) _kinetic).getNode());
+		modelNode.add(((Expression) _kinetic).getModule());
 		
-		modelNode.add( this._stoichiometry.getNode() );
+		modelNode.add( this._stoichiometry.getModule() );
 
 		
 		return modelNode;
 	}
 	
-	public ModelNode getStoNode(NodeConstructor constructor, String component, 
+	public Module getStoNode(Settable constructor, String component, 
 			Double coefficient) {
 		
-		ModelNode modelNode = new ModelNode(XmlRef.stoichiometric, constructor);
+		Module modelNode = new Module(XmlRef.stoichiometric, constructor);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
-		modelNode.add(new ModelAttribute(XmlRef.component, 
+		modelNode.add(new Attribute(XmlRef.component, 
 				component, null, false ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.coefficient, 
+		modelNode.add(new Attribute(XmlRef.coefficient, 
 				String.valueOf(coefficient), null, false ));
 		
 		return modelNode;
 	}
 
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
-		this._parentNode.removeChildNode(this);
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject) {
-		// TODO Auto-generated method stub
-		
+		if (this.getParent() instanceof EnvironmentContainer)
+			((EnvironmentContainer) this.getParent()).deleteReaction(this);
 	}
 
 	@Override
@@ -396,13 +384,13 @@ public class Reaction implements Instantiatable, Copyable, NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

@@ -47,7 +47,7 @@ public class Constant extends ComponentSimple
 	public Component differentiate(String withRespectTo)
 	{
 		return ( this._name.equals(withRespectTo) ) ? 
-								Expression.one() : Expression.zero();
+								Arithmetic.one() : Arithmetic.zero();
 	}
 	
 	@Override

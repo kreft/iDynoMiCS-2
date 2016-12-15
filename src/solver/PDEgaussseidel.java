@@ -130,12 +130,9 @@ public class PDEgaussseidel extends PDEsolver
 						", change from reactions = "+concnFromReactions+
 						": new value "+newConcn);
 			}
+
 			if ( ! this._allowNegatives )
-			{
-				newConcn = 0.0;
-				if ( Log.shouldWrite(level) )
-					Log.out(level, "\t\t\tTruncating to zero.");
-			}
+				variable.makeNonnegative(CONCN);
 			variable.setValueAt(CONCN, current, newConcn);
 			/* Calculate the residual. */
 			currConcn = Math.abs(currConcn);

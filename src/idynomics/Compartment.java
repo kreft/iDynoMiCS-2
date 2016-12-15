@@ -14,17 +14,18 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import generalInterfaces.Instantiatable;
 import grid.*;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
-import nodeFactory.NodeConstructor;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import processManager.ProcessComparator;
 import processManager.ProcessManager;
 import reaction.Reaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.Shape;
 import spatialRegistry.TreeType;
 import utility.Helper;
@@ -58,7 +59,7 @@ import shape.Dimension.DimName;
  * @author Stefan Lang (stefan.lang@uni-jena.de)
  *     Friedrich-Schiller University Jena, Germany
  */
-public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConstructor
+public class Compartment implements CanPrelaunchCheck, Instantiatable, Settable
 {
 	/**
 	 * This has a name for reporting purposes.
@@ -100,7 +101,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	/**
 	 * the compartment parent node constructor (simulator)
 	 */
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -122,7 +123,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 			this._processes.remove(object);
 	}
 	
-	public NodeConstructor newBlank()
+	public Settable newBlank()
 	{
 		Compartment newComp = new Compartment();
 		return newComp;
@@ -141,25 +142,13 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		this.environment = new EnvironmentContainer(this._shape);
 		this.agents = new AgentContainer(this._shape);
 	}
-	
-	/**
-	 * \brief TODO
-	 * FIXME only used by unit tests
-	 * @param shapeName
-	 */
-	public void setShape(String shapeName)
-	{
-		Shape aShape = Shape.getNewInstance(shapeName);
-		this.setShape(aShape);
-	}
-	
 	/**
 	 * \brief Initialise this {@code Compartment} from an XML node. 
 	 * 
 	 * TODO diffusivity
 	 * @param xmlElem An XML element from a protocol file.
 	 */
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		Tier level = Tier.EXPRESSIVE;
 		/*
@@ -172,9 +161,23 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * Set up the shape.
 		 */
 		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
-		String str = XmlHandler.gatherAttribute(elem, XmlRef.classAttribute);
-		this.setShape( (Shape) Shape.getNewInstance(
-				str, elem, (NodeConstructor) this) );	
+		String[] str = new String[] { XmlHandler.gatherAttribute(elem, XmlRef.classAttribute) };
+		if ( str[0] == null )
+			str = Shape.getAllOptions();
+		this.setShape( (Shape) Instance.getNew(
+				elem, this, str) );	
+
+
+		for( Boundary b : this._shape.getAllBoundaries())
+		{
+			b.init(environment, agents, name);
+			// FIXME trying to figure out how to get the well mixed region working,
+			// quite funky investigate
+//			if (b instanceof SpatialBoundary)
+//				((SpatialBoundary) b).setLayerThickness(Double.valueOf(
+//						XmlHandler.obtainAttribute(xmlElem, 
+//						XmlRef.layerThickness, XmlRef.compartment)));
+		}
 		/*
 		 * set container parentNodes
 		 */
@@ -183,9 +186,10 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		/*
 		 * setup tree
 		 */
-		str = XmlHandler.gatherAttribute(xmlElem, XmlRef.tree);
-		str = Helper.setIfNone(str, String.valueOf(TreeType.RTREE));
-		this.agents.setSpatialTree(TreeType.valueOf(str));
+		
+		String type = XmlHandler.gatherAttribute(xmlElem, XmlRef.tree);
+		type = Helper.setIfNone(type, String.valueOf(TreeType.RTREE));
+		this.agents.setSpatialTree(TreeType.valueOf(type));
 		/*
 		 * Load solutes.
 		 */
@@ -212,7 +216,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 				getElements(xmlElem, XmlRef.process).size()+" processManagers");
 		for ( Element e : XmlHandler.getElements( xmlElem, XmlRef.process) )
 			this.addProcessManager( (ProcessManager) 
-					Instantiatable.getNewInstance( null, e, this));
+					Instance.getNew( e, this, null ));
 		/* NOTE: we fetch the class from the xml node */
 	}
 		
@@ -275,7 +279,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	public void addProcessManager(ProcessManager aProcessManager)
 	{
 		this._processes.add(aProcessManager);
-		aProcessManager.init(this.environment, this.agents, this.name);
 		// TODO Rob [18Apr2016]: Check if the process's next time step is 
 		// earlier than the current time.
 		Collections.sort(this._processes, this._procComp);
@@ -288,6 +291,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	 */
 	public void addAgent(Agent agent)
 	{
+		
 		this.agents.addAgent(agent);
 		agent.setCompartment(this);
 	}
@@ -362,6 +366,8 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * compartment now.
 		 */
 		this.agents.agentsArrive();
+		
+		this.agents.sortLocatedAgents();
 		/*
 		 * Ask all boundaries to update their solute concentrations.
 		 */
@@ -376,6 +382,9 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	{
 		// TODO temporary fix, reassess
 		this._localTime = Idynomics.simulator.timer.getCurrentTime();
+		Log.out(Tier.NORMAL, "");
+		Log.out(Tier.NORMAL, "Compartment "+this.name+
+				" at local time "+this._localTime);
 		
 		if ( this._processes.isEmpty() )
 			return;
@@ -383,8 +392,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		while ( (this._localTime = currentProcess.getTimeForNextStep() ) 
 					< Idynomics.simulator.timer.getEndOfCurrentIteration() )
 		{
-			Log.out(Tier.EXPRESSIVE, "");
-			Log.out(Tier.EXPRESSIVE, "Compartment "+this.name+
+			Log.out(Tier.BULK, "Compartment "+this.name+
 								" running process "+currentProcess.getName()+
 								" at local time "+this._localTime);
 			/*
@@ -469,30 +477,30 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	 * **********************************************************************/
 	
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
 		/* The compartment node. */
-		ModelNode modelNode = new ModelNode(XmlRef.compartment, this);
+		Module modelNode = new Module(XmlRef.compartment, this);
 		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 		/* Set title for GUI. */
 		if ( this.getName() != null )
 			modelNode.setTitle(this.getName());
 		/* Add the name attribute. */
-		modelNode.add( new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add( new Attribute(XmlRef.nameAttribute, 
 				this.getName(), null, true ) );
 		/* Add the shape if it exists. */
 		if ( this._shape != null )
-			modelNode.add( this._shape.getNode() );
+			modelNode.add( this._shape.getModule() );
 		/* Add the Environment node. */
-		modelNode.add( this.environment.getNode() );
+		modelNode.add( this.environment.getModule() );
 		/* Add the Agents node. */
-		modelNode.add( this.agents.getNode() );
+		modelNode.add( this.agents.getModule() );
 		/* Add the process managers node. */
 		modelNode.add( this.getProcessNode() );
 				
 		/* spatial registry NOTE we are handling this here since the agent
 		 * container does not have the proper init infrastructure */
-		modelNode.add( new ModelAttribute(XmlRef.tree, 
+		modelNode.add( new Attribute(XmlRef.tree, 
 				String.valueOf( this.agents.getSpatialTree() ) , 
 				Helper.enumToStringArray( TreeType.class ), false ) );
 
@@ -500,34 +508,34 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	}
 	
 	/**
-	 * \brief Helper method for {@link #getNode()}.
+	 * \brief Helper method for {@link #getModule()}.
 	 * 
 	 * @return Model node for the <b>process managers</b>.
 	 */
-	private ModelNode getProcessNode()
+	private Module getProcessNode()
 	{
 		/* The process managers node. */
-		ModelNode modelNode = new ModelNode( XmlRef.processManagers, this );
+		Module modelNode = new Module( XmlRef.processManagers, this );
 		modelNode.setRequirements( Requirements.EXACTLY_ONE );
 		/* 
 		 * Work around: we need an object in order to call the newBlank method
 		 * from TODO investigate a cleaner way of doing this  
 		 */
-		modelNode.addConstructable( ClassRef.processManager, 
+		modelNode.addChildSpec( ClassRef.processManager, 
 				Helper.collectionToArray( ProcessManager.getAllOptions() ), 
-				ModelNode.Requirements.ZERO_TO_MANY );
+				Module.Requirements.ZERO_TO_MANY );
 		
 		/* Add existing process managers as child nodes. */
 		for ( ProcessManager p : this._processes )
-			modelNode.add( p.getNode() );
+			modelNode.add( p.getModule() );
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node) 
+	public void setModule(Module node) 
 	{
 		/* Set the modelNode for compartment. */
-		if ( node.isTag(this.defaultXmlTag()) )
+		if ( node.getTag().equals(this.defaultXmlTag()) )
 		{
 			/* Update the name. */
 			this.name = node.getAttribute( XmlRef.nameAttribute ).getValue();
@@ -542,39 +550,25 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 		 * Agents, process managers and solutes are container nodes: only
 		 * child nodes need to be set here.
 		 */
-		NodeConstructor.super.setNode(node);
+		Settable.super.setModule(node);
 	}
 	
-	public void removeNode(String specifier)
+	public void removeModule(String specifier)
 	{
-		Idynomics.simulator.removeChildNode(this);
+		Idynomics.simulator.removeCompartment(this);
 	}
 	
-	public void removeChildNode(NodeConstructor child)
+	public void removeChildModule(Settable child)
 	{
 		if (child instanceof Shape)
 		{
-			this.setShape( (Shape) Shape.getNewInstance(
-					null, null, (NodeConstructor) this) );
+			this.setShape( (Shape) Instance.getNew(
+					null, this, Shape.getAllOptions()) );
 			// FIXME also remove solutes, spatial grids would be incompatible 
 			// with a new shape
 		}
 		if (child instanceof ProcessManager)
 			this._processes.remove((ProcessManager) child);
-	}
-	
-	@Override
-	public void addChildObject(NodeConstructor childObject) 
-	{
-		/* Set the shape. */
-		if ( childObject instanceof Shape)
-			this.setShape( (Shape) childObject); 
-		/* Add processManagers. */
-		if ( childObject instanceof ProcessManager)
-			this.addProcessManager( (ProcessManager) childObject); 
-		/*
-		 * NOTE Agents register themselves to the compartment (register birth).
-		 */
 	}
 
 	@Override
@@ -584,13 +578,13 @@ public class Compartment implements CanPrelaunchCheck, Instantiatable, NodeConst
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

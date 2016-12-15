@@ -15,12 +15,16 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import dataIO.Log;
 import dataIO.ObjectFactory;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import grid.diffusivitySetter.AllSameDiffuse;
+import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import instantiatable.Instance;
 import processManager.ProcessDiffusion;
+import processManager.ProcessManager;
 import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.subvoxel.CoordinateMap;
@@ -50,20 +54,9 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		/* gets specific solutes from process manager aspect registry if they
 		 * are defined, if not, solve for all solutes.
 		 */
-		String[] soluteNames = (String[]) this.getOr(SOLUTES, 
-				Helper.collectionToArray(
-				this._environment.getSoluteNames()));
-		this.init( soluteNames, environment, 
-				agents, compartmentName );
-	}
-	
-	@Override
-	public void init( String[] soluteNames, EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		/* This super call is only required for the unit tests. */
-		super.init(environment, agents, compartmentName);
-		this._soluteNames = soluteNames;
+		this._soluteNames = (String[]) this.getOr(SOLUTES, 
+				Helper.collectionToArray(this._environment.getSoluteNames()));
+
 		// TODO Let the user choose which ODEsolver to use.
 		this._solver = new PDEexplicit();
 		this._solver.init(this._soluteNames, false);
@@ -82,8 +75,21 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		for ( String s : this._soluteNames )
 			msg += s + ", ";
 		Log.out(Tier.EXPRESSIVE, msg);
+		/*
+		 * Now look for diffusivity setters.
+		 */
+		Collection<Element> diffusivityElements =
+				XmlHandler.getElements(xmlElem, XmlRef.diffusivitySetter);
+		for ( Element dElem : diffusivityElements )
+		{
+			String soluteName = dElem.getAttribute(XmlRef.solute);
+			String className = dElem.getAttribute(XmlRef.classAttribute);
+			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
+					Instance.getNew(dElem, this, className);
+			this._diffusivity.put(soluteName, diffusivity);
+		}
 	}
-	
+		
 	/* ***********************************************************************
 	 * STEPPING
 	 * **********************************************************************/
@@ -104,6 +110,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * Clear agent mass distribution maps.
 		 */
 		this._agents.removeAgentDistibutionMaps();
+
 	}
 	
 	/* ***********************************************************************

@@ -97,9 +97,10 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		/*
 		 * If the boundary layer thickness changes, we also need to change the 
 		 * radius of the ball used in updating the well-mixed array.
+		 * NOTE: One sets a Ball's radius, not diameter
 		 */
 		super.setLayerThickness(thickness);
-		this._gridSphere.set(this._layerThickness, 0.0);
+		this._gridSphere.set(this._layerThickness / 2.0, 0.0);
 	}
 
 	/* ***********************************************************************

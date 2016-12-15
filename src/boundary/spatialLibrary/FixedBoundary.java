@@ -3,10 +3,17 @@ package boundary.spatialLibrary;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import boundary.SpatialBoundary;
 import dataIO.Log;
+import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
+import referenceLibrary.XmlRef;
+import settable.Settable;
 import shape.Dimension.DimName;
 
 /**
@@ -14,8 +21,9 @@ import shape.Dimension.DimName;
  * surface to agents. Intended for testing purposes.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class FixedBoundary extends SpatialBoundary
+public class FixedBoundary extends SpatialBoundary implements Instantiatable
 {
 	/**
 	 * Solute concentrations.
@@ -25,6 +33,30 @@ public class FixedBoundary extends SpatialBoundary
 	/* ***********************************************************************
 	 * CONSTRUCTORS
 	 * **********************************************************************/
+	
+	/**
+	 * FIXME essential for instantiation
+	 */
+	public FixedBoundary()
+	{
+		super();
+	}
+	
+	/**
+	 * FIXME essential for instantiation
+	 */
+	public void instantiate(Element xmlElement, Settable parent)
+	{
+		super.instantiate(xmlElement,parent);
+		this._detachability = 0.0;
+		
+		for ( Element e : XmlHandler.getElements(xmlElement, XmlRef.concentration))
+		{
+			setConcentration(XmlHandler.obtainAttribute(e, XmlRef.nameAttribute,
+					XmlRef.concentration), Double.valueOf(XmlHandler.obtainAttribute(e, 
+					XmlRef.valueAttribute, XmlRef.concentration)));
+		}
+	}
 	
 	/**
 	 * \brief Construct a fixed boundary by giving it the information it
@@ -73,7 +105,13 @@ public class FixedBoundary extends SpatialBoundary
 	@Override
 	protected double calcDiffusiveFlow(SpatialGrid grid)
 	{
-		double concn = this._concns.get(grid.getName());
+		Tier level = Tier.DEBUG;
+		Double concn = this._concns.get(grid.getName());
+		if (concn == null)
+		{	if (Log.shouldWrite(level))
+				Log.out(level, "WARNING: unset fixed boundary concn");
+			return 0.0;
+		}
 		return this.calcDiffusiveFlowFixed(grid, concn);
 	}
 	

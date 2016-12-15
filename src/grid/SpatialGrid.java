@@ -8,17 +8,18 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
-import generalInterfaces.Instantiatable;
 import idynomics.EnvironmentContainer;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.Shape;
 import utility.ExtraMath;
 
@@ -46,7 +47,7 @@ import utility.ExtraMath;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 
-public class SpatialGrid implements NodeConstructor, Instantiatable
+public class SpatialGrid implements Settable, Instantiatable
 {
 	/**
 	 * The name of the variable which this grid represents.
@@ -70,7 +71,7 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	/**
 	 * identifies what compartment hosts this grid
 	 */
-	protected NodeConstructor _parentNode;
+	protected Settable _parentNode;
 	
 	/**
 	 * \brief Log file verbosity level used for debugging the getting of
@@ -108,7 +109,7 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	 * @param shape Shape of the grid.
 	 * @param name Name of the variable this represents.
 	 */
-	public SpatialGrid(Shape shape, String name, NodeConstructor parent)
+	public SpatialGrid(Shape shape, String name, Settable parent)
 	{
 		this._shape = shape;
 		this._name = name;
@@ -121,7 +122,7 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	 * @param name
 	 * @param environment
 	 */
-	public SpatialGrid(String name, double concentration, NodeConstructor parent)
+	public SpatialGrid(String name, double concentration, Settable parent)
 	{
 		this._shape = ((EnvironmentContainer) parent).getShape();
 		this._name = name;
@@ -129,16 +130,16 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 		this.newArray(ArrayType.CONCN, concentration);
 	}
 	
-	public SpatialGrid(Element xmlElem, NodeConstructor parent)
+	public SpatialGrid(Element xmlElem, Settable parent)
 	{
-		this.init(xmlElem, parent);
+		this.instantiate(xmlElem, parent);
 	}
 	
 	public SpatialGrid() { 
 		//NOTE only used for ClassRef
 	}
 
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		this._shape = ((EnvironmentContainer) parent).getShape();
 		this._parentNode = parent;
@@ -747,17 +748,17 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	 * ***********************************************************************/
 
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = new ModelNode(XmlRef.solute, this);
+		Module modelNode = new Module(XmlRef.solute, this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		modelNode.setTitle(this._name);
 		
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 				this._name, null, true ));
 		
-		modelNode.add(new ModelAttribute(XmlRef.concentration, 
+		modelNode.add(new Attribute(XmlRef.concentration, 
 				ObjectFactory.stringRepresentation(
 				this.getArray( ArrayType.CONCN )), null, true ));
 		
@@ -765,23 +766,16 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	}
 
 	@Override
-	public void setNode(ModelNode node)
+	public void setModule(Module node)
 	{
 		this._name = node.getAttribute( XmlRef.nameAttribute ).getValue();
 		this.setTo(ArrayType.CONCN, 
 				node.getAttribute(XmlRef.concentration).getValue());
 	}
 
-	public void removeNode(String specifier) 
+	public void removeModule(String specifier) 
 	{
-		this._parentNode.removeChildNode(this);
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject)
-	{
-		// TODO Auto-generated method stub
-		
+		((EnvironmentContainer) this._parentNode).removeSolute(this);
 	}
 
 	@Override
@@ -791,13 +785,13 @@ public class SpatialGrid implements NodeConstructor, Instantiatable
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

@@ -7,7 +7,7 @@ import java.util.Scanner;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class ConsoleLaunch
+public strictfp class ConsoleLaunch
 {
 	/**
 	 * \brief Launch a simulation from the Eclipse console.

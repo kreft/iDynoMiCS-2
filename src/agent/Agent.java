@@ -7,18 +7,19 @@ import aspect.AspectInterface;
 import aspect.AspectReg;
 import dataIO.XmlHandler;
 import dataIO.Log;
-import generalInterfaces.Instantiatable;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import linearAlgebra.Vector;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import surface.Point;
 
 /**
@@ -26,7 +27,7 @@ import surface.Point;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements AspectInterface, NodeConstructor, Instantiatable
+public class Agent implements AspectInterface, Settable, Instantiatable
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 
@@ -44,7 +45,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	 * The aspect registry
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -54,28 +55,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	{
 
 	}
-	
-	/**
-	 * Used by GUI, dummy agent.
-	 */
-	public Agent(Compartment comp)
-	{
-		this._compartment = comp;
-	}
 
-	/**
-	 * \brief Construct an {@code Agent} with unknown {@code Compartment}.
-	 * 
-	 * <p>This is useful for agent introduction by a {@code ProcessManager}.
-	 * </p>
-	 * 
-	 * @param xmlNode
-	 */
-	public Agent(Node xmlNode)
-	{
-		this.loadAspects(xmlNode);
-	}
-	
 	/**
 	 * NOTE Bit of a hack allows initiation of multiple random agents
 	 * Agent xml constructor allowing for multiple randomized initial agents
@@ -118,16 +98,32 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	}
 	
 	/**
+	 * Assign the correct species from the species library
+	 */
+	public void init()
+	{
+		String species;
+		
+		species = this.getString(XmlRef.species);
+		if (Log.shouldWrite(Tier.BULK))
+			Log.out(Tier.BULK, "Agent belongs to species \""+species+"\"");
+
+		this._aspectRegistry.addSubModule( (Species) 
+				Idynomics.simulator.speciesLibrary.get(species), species);
+
+	}
+
+	
+	/**
 	 * Instantiatable implementation
 	 */
-	public void init(Element xmlElement, NodeConstructor parent)
+	public void instantiate(Element xmlElement, Settable parent)
 	{
-		//FIXME change entire class to just using parent
-		this._parentNode = parent;
+		((Compartment) parent.getParent()).addAgent(this);
 		this._compartment = (Compartment) parent.getParent();
-		this.loadAspects(xmlElement);
+		loadAspects(xmlElement);
 		this.init();
-		this.registerBirth();
+		this._parentNode = parent;
 	}
 	
 	/**
@@ -177,27 +173,6 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 		this.init();
 		this._compartment = agent.getCompartment();
 	}
-
-	/**
-	 * Assign the correct species from the species library
-	 */
-	public void init()
-	{
-		String species;
-		if ( this.isAspect(XmlRef.species) )
-		{
-			species = this.getString(XmlRef.species);
-			Log.out(Tier.DEBUG, "Agent belongs to species \""+species+"\"");
-		}
-		else
-		{
-			species = "";
-			Log.out(Tier.DEBUG, "Agent belongs to void species");
-		}
-		this._aspectRegistry.addSubModule( (Species) 
-				Idynomics.simulator.speciesLibrary.get(species));
-	}
-
 
 	/*************************************************************************
 	 * BASIC SETTERS & GETTERS
@@ -281,8 +256,9 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	 */
 	public void registerBirth()
 	{
-		Log.out(Tier.DEBUG, "Compartment \""+this._compartment.name+
-				"\" registering agent birth");
+		if (Log.shouldWrite(Tier.BULK))
+			Log.out(Tier.BULK, "Compartment \""+this._compartment.name+
+					"\" registering agent birth");
 		this._compartment.addAgent(this);
 		this.set(AspectRef.birthday, Idynomics.simulator.timer.getCurrentTime());
 	}
@@ -316,10 +292,10 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	 * @return ModelNode
 	 */
 	@Override
-	public ModelNode getNode() 
+	public Module getModule() 
 	{
 		/* create the agent node */
-		ModelNode modelNode = new ModelNode(XmlRef.agent, this);
+		Module modelNode = new Module(XmlRef.agent, this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		/* use the identifier as agent title in gui */
@@ -328,7 +304,7 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 		/* 
 		 * store the identity as attribute, note identity cannot be overwritten
 		*/
-		modelNode.add(new ModelAttribute(XmlRef.identity, 
+		modelNode.add(new Attribute(XmlRef.identity, 
 				String.valueOf(this.identity()), null, false ));
 		
 		/* add the agents aspects as childNodes */
@@ -336,13 +312,26 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 			modelNode.add(reg().getAspectNode(key));
 		
 		/* allow adding of new aspects */
-		modelNode.addConstructable( ClassRef.aspect,
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addChildSpec( ClassRef.aspect,
+				Module.Requirements.ZERO_TO_MANY);
 		
 		return modelNode;
 	}
+	
+	/**
+	 * Update this module and all child modules with updated information from
+	 * the gui (init if the agent is newly created in the gui).
+	 */
+	public void setModule(Module node)
+	{
+		Settable.super.setModule(node);
+		this.init(); // Updates species module if changed
+	}
 
-	public void removeNode(String specifier)
+	/**
+	 * respond to gui command to remove the agent
+	 */
+	public void removeModule(String specifier)
 	{
 		this._compartment.registerRemoveAgent(this);
 	}
@@ -358,13 +347,13 @@ public class Agent implements AspectInterface, NodeConstructor, Instantiatable
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

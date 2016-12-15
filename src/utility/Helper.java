@@ -8,7 +8,9 @@ import java.util.Set;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
-import guiTools.GuiConsole;
+import expression.Expression;
+import gui.GuiConsole;
+import idynomics.Idynomics;
 
 /**
  * \brief TODO
@@ -32,7 +34,7 @@ public class Helper
 	 */
 	public static String obtainInput(String input, String description, boolean noLog)
 	{
-		if ( input == null || input == "" )
+		if ( input == null || input == "" || input == "null" )
 		{
 			String msg = description;
 			
@@ -67,7 +69,7 @@ public class Helper
 	 * @param noLog
 	 * @return
 	 */
-	public static String obtainInput(List<String> options, String description, boolean noLog)
+	public static String obtainInput(Collection<String> options, String description, boolean noLog)
 	{
 		String[] out = new String[options.size()];
 		int i = 0;
@@ -238,6 +240,14 @@ public class Helper
 	}
 	
 	
+	public static String obtainIfNone(String input, String description, boolean noLog, Collection<String> options)
+	{
+		if( isNone(input) )
+			return obtainInput(options,description, noLog);
+		else 
+			return input;
+	}
+	
 	/**
 	 * Delayed abort allows user to read abort statement before shutdown
 	 * @param delay
@@ -393,6 +403,27 @@ public class Helper
 		double out = 0.0;
 		for ( Double x : map.values() )
 			out += x;
+		return out;
+	}
+	
+	public static boolean compartmentAvailable()
+	{
+		if (Idynomics.simulator == null || 
+				! Idynomics.simulator.hasCompartments() )
+		{
+			Log.printToScreen("No compartment available", false);
+			return false;
+		}
+		else
+			return true;
+	}
+	
+	public static String head(String string)
+	{
+		String[] lines = string.split("\n");
+		String out = "[ lines: " + lines.length + " ]\n";
+		for ( int i = 0; i < 5 && i < lines.length; i++)
+			out += lines[i] + "\n";
 		return out;
 	}
 }

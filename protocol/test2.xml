@@ -17,8 +17,8 @@
 				the simulation. small test -->
 			<species name="AOB">
 				<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
-				<aspect name="reactions" type="PRIMARY"  class="PileList"> 
- <reactions class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
+				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+ <list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
 							<expression value="mass * solute1 * k">
 								<constant name="k" value="0.25" />
@@ -27,7 +27,7 @@
 							<stoichiometric component="solute1" coefficient="-1.0" />
 							<stoichiometric component="solute2" coefficient="0.5" />
 						</reaction> 
- </reactions>
+ </list>
 				</aspect>
 				<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
 				<speciesModule name="coccoid" />

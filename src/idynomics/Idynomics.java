@@ -25,7 +25,7 @@ import referenceLibrary.XmlRef;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Idynomics
+public strictfp class Idynomics
 {
 	/**
 	* Version number of this iteration of iDynoMiCS - required by update
@@ -133,7 +133,7 @@ public class Idynomics
 		 * Create a new Simulator object and intialise it.
 		 */
 		simulator = new Simulator();
-		simulator.init(simElem);
+		simulator.instantiate(simElem, null);
 	}
 	
 	/**

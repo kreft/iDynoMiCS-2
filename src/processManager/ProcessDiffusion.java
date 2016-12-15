@@ -16,7 +16,8 @@ import agent.Agent;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import grid.SpatialGrid;
 import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
@@ -71,6 +72,11 @@ public abstract class ProcessDiffusion extends ProcessManager
 	 * TODO
 	 */
 	public String SOLUTES = AspectRef.soluteNames;
+
+	public String DIVIDE = AspectRef.agentDivision;
+	
+	public String UPDATE_BODY = AspectRef.bodyUpdate;
+	public String EXCRETE_EPS = AspectRef.agentExcreteEps;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -93,30 +99,11 @@ public abstract class ProcessDiffusion extends ProcessManager
 			String soluteName = dElem.getAttribute(XmlRef.solute);
 			String className = dElem.getAttribute(XmlRef.classAttribute);
 			IsDiffusivitySetter diffusivity = (IsDiffusivitySetter)
-					Instantiatable.getNewInstance(className, dElem, this);
+					Instance.getNew(dElem, this, className);
 			this._diffusivity.put(soluteName, diffusivity);
 		}
 	}
 	
-	/**
-	 * \brief Initialise this diffusion-reaction process manager with a list of
-	 * solutes it is responsible for.
-	 * 
-	 * @param soluteNames The list of solutes this is responsible for.
-	 */
-	public void init(EnvironmentContainer environment, 
-			AgentContainer agents, String compartmentName)
-	{
-		super.init(environment, agents, compartmentName);
-		// FIXED infinite loop
-//		this.init( soluteNames, environment, agents, compartmentName );
-	}
-	
-	public abstract void init( String[] soluteNames,
-			EnvironmentContainer environment, 
-			AgentContainer agents,
-			String compartmentName);
-
 	/* ***********************************************************************
 	 * STEPPING
 	 * **********************************************************************/
@@ -155,6 +142,17 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * Note that sub-classes may have methods after to allocate mass and
 		 * tidy up 
 		 */
+		
+		/**
+		 * act upon new agent situations
+		 */
+		for(Agent agent: this._agents.getAllAgents()) 
+		{
+			agent.event(DIVIDE);
+			agent.event(EXCRETE_EPS);
+			agent.event(UPDATE_BODY);
+		}
+
 	}
 	
 	/* ***********************************************************************

@@ -19,7 +19,7 @@ import org.xml.sax.SAXException;
 import agent.Body;
 import dataIO.Log.Tier;
 import generalInterfaces.Copyable;
-import generalInterfaces.Instantiatable;
+import instantiatable.Instance;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
@@ -161,17 +161,17 @@ public class ObjectFactory
 				input = Helper.obtainInput( "", "Primary value" );
 			return input.split(",");
 		case ObjectRef.PILE :
-			return Instantiatable.getNewInstance(ClassRef.pile, null, null);
+			return Instance.getNew( null, null, ClassRef.pile );
 		case ObjectRef.BUNDLE :
-			return Instantiatable.getNewInstance(ClassRef.bundle, null, null);
+			return Instance.getNew( null, null, ClassRef.bundle );
 		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(input);
 		case ObjectRef.HASHMAP :
 			return ObjectFactory.xmlHashMap(input);
 		case ObjectRef.REACTION :
-			return Instantiatable.getNewInstance(ClassRef.reaction, null, null);
+			return Instance.getNew( null, null, ClassRef.reaction );
 		case ObjectRef.BODY :
-			return Body.getNewInstance(input);
+			return Body.instanceFromString(input);
 		}
 		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
 				+ "object class " + objectClass);
@@ -275,17 +275,17 @@ public class ObjectFactory
 		case ObjectRef.STR_VECT : 
 			return s.getAttribute(value).split(",");
 		case ObjectRef.PILE :
-			return Instantiatable.getNewInstance(ClassRef.pile, s, null);
+			return Instance.getNew(s, null, ClassRef.pile);
 		case ObjectRef.BUNDLE :
-			return Instantiatable.getNewInstance(ClassRef.bundle, s, null);
+			return Instance.getNew(s, null, ClassRef.bundle);
 		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(s);
 		case ObjectRef.HASHMAP :
 			return ObjectFactory.xmlHashMap(s);
 		case ObjectRef.REACTION :
-			return Reaction.getNewInstance(s);
+			return Instance.getNew(s,null,ClassRef.reaction);
 		case ObjectRef.BODY :
-			return Body.getNewInstance(s);
+			return Instance.getNew(s,null,ClassRef.body);
 		}
 		Log.out(Tier.CRITICAL, "Object factory encountered unidentified "
 				+ "object class: " + objectClass);
@@ -507,6 +507,10 @@ public class ObjectFactory
 			// Strings are immutable
 			return String.valueOf((String) copyable);
 		}
+		if (copyable instanceof Copyable)
+		{
+			return ((Copyable) copyable).copy();
+		} 
 		if (copyable instanceof List<?>)
 		{
 			List<T> spawn = new LinkedList<T>();
@@ -521,10 +525,6 @@ public class ObjectFactory
 				spawn.put((K) key, (T) ObjectFactory.copy(((Map<?,?>) copyable).get((K) key)));	
 			return spawn;
 		}
-		if (copyable instanceof Copyable)
-		{
-			return ((Copyable) copyable).copy();
-		} 
 		else 
 		{
 			Log.out(Tier.DEBUG,"WARNING: Attempting to deep copy unkown object"

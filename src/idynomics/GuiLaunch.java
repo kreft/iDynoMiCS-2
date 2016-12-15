@@ -10,6 +10,14 @@ import javax.swing.GroupLayout;
 import javax.swing.InputMap;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+
+import gui.GuiActions;
+import gui.GuiConsole;
+import gui.GuiEditor;
+import gui.GuiMain;
+import gui.GuiMenu;
+import gui.GuiSimControl;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -21,12 +29,6 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import guiTools.GuiActions;
-import guiTools.GuiConsole;
-import guiTools.GuiEditor;
-import guiTools.GuiMain;
-import guiTools.GuiMenu;
-import guiTools.GuiSimControl;
 import utility.Helper;
 
 /**
@@ -39,7 +41,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class GuiLaunch implements Runnable
+public strictfp class GuiLaunch implements Runnable
 {
 	/**
 	 * 
@@ -243,7 +245,7 @@ public class GuiLaunch implements Runnable
 				Idynomics.simulator = new Simulator();
 				Idynomics.global = new Param();
 				GuiMain.getConstructor();
-				GuiEditor.addComponent(Idynomics.simulator.getNode(), GuiMain.tabbedPane);
+				GuiEditor.addComponent(Idynomics.simulator.getModule(), GuiMain.tabbedPane);
 			}
 		}
 		);

@@ -6,6 +6,8 @@ import idynomics.Idynomics;
 /**
  * Writes the model state to xml files, automatic number increment
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ * 
+ * NOTE for compression look into Fast Infoset
  *
  */
 public class XmlExport 
@@ -67,7 +69,7 @@ public class XmlExport
 	 */
 	public void writeState()
 	{
-		_xmlFile.write(Idynomics.simulator.getNode().getXML(1));
+		_xmlFile.write(Idynomics.simulator.getModule().getXML(1));
 	}
 	
 	public void writeFile()

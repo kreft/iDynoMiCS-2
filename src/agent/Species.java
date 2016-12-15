@@ -5,14 +5,15 @@ import org.w3c.dom.Node;
 
 import aspect.AspectInterface;
 import aspect.AspectReg;
-import generalInterfaces.Instantiatable;
 import idynomics.Idynomics;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
-import nodeFactory.ModelNode.Requirements;
+import instantiatable.Instance;
+import instantiatable.Instantiatable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import utility.Helper;
 
 /**
@@ -20,7 +21,7 @@ import utility.Helper;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Species implements AspectInterface, NodeConstructor, Instantiatable
+public class Species implements AspectInterface, Settable, Instantiatable
 {
 	/**
 	 * TODO
@@ -29,7 +30,7 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 	/**
 	 * 
 	 */
-	protected NodeConstructor _parentNode;
+	protected Settable _parentNode;
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -56,14 +57,14 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		this._parentNode = Idynomics.simulator.speciesLibrary;
 	}
 	
-	public void init(Element xmlElem, NodeConstructor parent)
+	public void instantiate(Element xmlElem, Settable parent)
 	{
 		//TODO currently only accounting for gui initiation, use constructor for other.
 		this._parentNode = parent;
 		String name = "";
 		name = Helper.obtainInput(name, "Species name");
 		this.reg().setIdentity(name);
-		Idynomics.simulator.speciesLibrary.addChildObject(this);
+		Idynomics.simulator.speciesLibrary.addSpecies(this);
 	}
 
 	/*************************************************************************
@@ -93,17 +94,17 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 	 * @return ModelNode
 	 */
 	@Override
-	public ModelNode getNode() 
+	public Module getModule() 
 	{
 		/* the species node */
-		ModelNode modelNode = new ModelNode(XmlRef.species, this);
+		Module modelNode = new Module(XmlRef.species, this);
 		modelNode.setRequirements(Requirements.ZERO_TO_MANY);
 		
 		/* use the identity (species name) as title */
 		modelNode.setTitle(this.reg().getIdentity());
 		
 		/* add the name attribute */
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 				this.reg().getIdentity(), null, true ));
 		
 		/* add any submodules */
@@ -121,12 +122,12 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 		this.reg().getSubModuleNames().requirement = Requirements.IMMUTABLE;
 		this.reg().getSubModuleNames().muteAttributeDef = true;
 //		nodes.muteClassDef = true;
-		modelNode.add(this.reg().getSubModuleNames().getNode());
+		modelNode.add(this.reg().getSubModuleNames().getModule());
 
 		/* allow adding of additional aspects */
 		/* allow adding of new aspects */
-		modelNode.addConstructable( ClassRef.aspect,
-				ModelNode.Requirements.ZERO_TO_MANY);
+		modelNode.addChildSpec( ClassRef.aspect,
+				Module.Requirements.ZERO_TO_MANY);
 
 		/* add already existing aspects */
 		for ( String key : this.reg().getLocalAspectNames() )
@@ -136,7 +137,7 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 	}
 
 	@Override
-	public void removeNode(String specifier) 
+	public void removeModule(String specifier) 
 	{
 		if ( specifier == this.reg().getIdentity() )
 			Idynomics.simulator.speciesLibrary._species.remove(this.reg().getIdentity());
@@ -155,13 +156,13 @@ public class Species implements AspectInterface, NodeConstructor, Instantiatable
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}

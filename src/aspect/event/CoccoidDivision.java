@@ -120,6 +120,7 @@ public class CoccoidDivision extends Event
 			Log.out(level, "CoccoidDivision added daughter cell");
 		}
 		/* The bodies of both cells may now need updating. */
+
 		mother.event(UPDATE_BODY);
 		daughter.event(UPDATE_BODY);
 		/* Check if either agent should divide again. */
@@ -187,11 +188,12 @@ public class CoccoidDivision extends Event
 		 * truncated Gaussian distribution about.
 		 */
 		double mumMassFrac = 0.5;
-		double mumMassFracCV = 0.01; //FIXME allow to be set
+		/* 5% seems like an appropriate default for cv */
+		double mumMassFracCV = 0.05; 
 		if ( mother.isAspect(this.MUM_MASS_FRAC) )
 			mumMassFrac = mother.getDouble(this.MUM_MASS_FRAC);
 		if ( mother.isAspect(this.MUM_MASS_FRAC_CV) )
-			mumMassFrac = mother.getDouble(this.MUM_MASS_FRAC_CV);
+			mumMassFracCV = mother.getDouble(this.MUM_MASS_FRAC_CV);
 		mumMassFrac = ExtraMath.deviateFromCV(mumMassFrac, mumMassFracCV);
 		/*
 		 * Transfer the mass from mother to daughter, using mumMassFrac.

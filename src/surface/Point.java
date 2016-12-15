@@ -1,12 +1,14 @@
 package surface;
 
+import org.w3c.dom.Element;
+
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.ModelNode.Requirements;
 import referenceLibrary.XmlRef;
-import nodeFactory.NodeConstructor;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 
 /**
  * \brief TODO needs spring cleaning.. keep Point as a minimal object
@@ -14,7 +16,7 @@ import nodeFactory.NodeConstructor;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Point implements Copyable, NodeConstructor
+public class Point implements Copyable, Settable
 {
 	/**
 	 * Unique identifier for each point.
@@ -36,7 +38,7 @@ public class Point implements Copyable, NodeConstructor
 	 * Used by higher-order ODE solvers.
 	 */
 	private double[][] _c;
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 
 	/**
 	 * Viscosity of the surrounding medium (in units of Pa s).
@@ -290,27 +292,21 @@ public class Point implements Copyable, NodeConstructor
 	 * **********************************************************************/
 
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
 		/* point node */
-		ModelNode modelNode = new ModelNode(XmlRef.point, this);
+		Module modelNode = new Module(XmlRef.point, this);
 		modelNode.setRequirements(Requirements.ZERO_TO_FEW);
 
 		/* position attribute */
-		modelNode.add(new ModelAttribute(XmlRef.position, 
+		modelNode.add(new Attribute(XmlRef.position, 
 				Vector.toString(this._p), null, true ));
 
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node)
-	{
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject)
+	public void setModule(Module node)
 	{
 		// TODO Auto-generated method stub
 	}
@@ -323,14 +319,15 @@ public class Point implements Copyable, NodeConstructor
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}
+
 }

@@ -18,7 +18,6 @@ import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
 import spatialRegistry.SpatialRegistry;
-import spatialRegistry.splitTree.SplitTree;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;
@@ -132,8 +131,6 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private Collection<Surface> _shapeSurfs;
 	
-	private SpatialRegistry _agentTree;
-
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -261,15 +258,6 @@ public class AgentRelaxation extends ProcessManager
 	@Override
 	protected void internalStep()
 	{
-		/**
-		 * Update agent body now required
-		 */
-		for(Agent agent: this._agents.getAllLocatedAgents()) 
-		{
-			agent.event(UPDATE_BODY);
-			agent.event(DIVIDE);
-			agent.event(EXCRETE_EPS); //FIXME probably not the best place to make this call
-		}
 
 		int nstep	= 0;
 		_tMech		= 0.0;

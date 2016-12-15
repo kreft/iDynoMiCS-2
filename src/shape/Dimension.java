@@ -9,12 +9,14 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import nodeFactory.ModelAttribute;
-import nodeFactory.ModelNode;
-import nodeFactory.NodeConstructor;
+import instantiatable.Instance;
 import surface.Surface;
-import nodeFactory.ModelNode.Requirements;
+import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
+import settable.Attribute;
+import settable.Module;
+import settable.Settable;
+import settable.Module.Requirements;
 import shape.iterator.PolarShapeIterator;
 import utility.ExtraMath;
 import utility.Helper;
@@ -25,7 +27,7 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Dimension implements CanPrelaunchCheck, NodeConstructor, 
+public class Dimension implements CanPrelaunchCheck, Settable, 
 		Comparable<Dimension>
 {
 	/**
@@ -107,7 +109,7 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 */
 	protected Double _targetRes;
 
-	private NodeConstructor _parentNode;
+	private Settable _parentNode;
 	
 	/* ************************************************************************
 	 * CONSTRUCTORS
@@ -127,13 +129,16 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 			this.setInsignificant();
 	}
 	
-	public void init(Node xmlNode)
+
+	public void instantiate(Element xmlElement, Settable parent)
 	{
-		Element elem = (Element) xmlNode;
+		Element elem = (Element) xmlElement;
 		String str;
 		NodeList bndNodes;
 		Element bndElem;
 		SpatialBoundary aBoundary;
+
+		this._parentNode = parent;
 		int index = -1;
 		
 		/*
@@ -208,8 +213,9 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 				
 				str = bndElem.getAttribute(XmlRef.classAttribute);
 				// FIXME this does not work since boundaries are not instantiatable
-				aBoundary = (SpatialBoundary) SpatialBoundary.getNewInstance(str);
-				aBoundary.init(bndElem);
+				aBoundary = (SpatialBoundary) Instance.getNew(
+						bndElem, this, str );
+//				aBoundary.init(bndElem); // FIXME nope
 				this.setBoundary(aBoundary, index);	
 			}
 		}
@@ -631,32 +637,25 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	 * ***********************************************************************/
 
 	@Override
-	public ModelNode getNode()
+	public Module getModule()
 	{
-		ModelNode modelNode = new ModelNode(this.defaultXmlTag(), this);
+		Module modelNode = new Module(this.defaultXmlTag(), this);
 		modelNode.setRequirements(Requirements.IMMUTABLE);
-		modelNode.add(new ModelAttribute(XmlRef.nameAttribute, 
+		modelNode.add(new Attribute(XmlRef.nameAttribute, 
 										this._dimName.name(), null, false ));
-		modelNode.add(new ModelAttribute(XmlRef.isCyclic, 
+		modelNode.add(new Attribute(XmlRef.isCyclic, 
 				String.valueOf(this._isCyclic), null, false ));
-		modelNode.add(new ModelAttribute(XmlRef.targetResolutionAttribute, 
+		modelNode.add(new Attribute(XmlRef.targetResolutionAttribute, 
 				String.valueOf(this._targetRes), null, false ));
-		modelNode.add(new ModelAttribute(XmlRef.min, 
+		modelNode.add(new Attribute(XmlRef.min, 
 				String.valueOf(this._extreme[0]), null, false ));
-		modelNode.add(new ModelAttribute(XmlRef.max, 
+		modelNode.add(new Attribute(XmlRef.max, 
 				String.valueOf(this._extreme[1]), null, false ));
 		return modelNode;
 	}
 
 	@Override
-	public void setNode(ModelNode node)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void addChildObject(NodeConstructor childObject)
+	public void setModule(Module node)
 	{
 		// TODO Auto-generated method stub
 		
@@ -675,14 +674,15 @@ public class Dimension implements CanPrelaunchCheck, NodeConstructor,
 	}
 
 	@Override
-	public void setParent(NodeConstructor parent) 
+	public void setParent(Settable parent) 
 	{
 		this._parentNode = parent;
 	}
 	
 	@Override
-	public NodeConstructor getParent() 
+	public Settable getParent() 
 	{
 		return this._parentNode;
 	}
+
 }

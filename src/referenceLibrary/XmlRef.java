@@ -440,4 +440,19 @@ public class XmlRef
 	 */
 	public static final String tree = "tree";
 
+	/**
+	 * 0 or 1 refering to min or max boundary
+	 */
+	public static final String extreme = "extreme";
+
+	/**
+	 * Referring to instantiatable list node
+	 */
+	public static final String list = "list";
+
+	/**
+	 * Referring to instantiatable map node
+	 */
+	public static final String map = "map";
+
 }

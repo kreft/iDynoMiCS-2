@@ -94,12 +94,20 @@ public class ClassRef
 	 */
 	public static String simplify(String name)
 	{
+		if (name.contains("$"))
+		{
+			return name.split("\\$")[1];
+		}
 		String[] parts = name.split("\\.");
 		return parts[parts.length-1];
 	}
 	
 	public static String path(String name)
 	{
+		if (name.contains("$"))
+		{
+			return name.split("\\$")[0] + "$";
+		}
 		String[] parts = name.split("\\.");
 		String[] path = name.split(parts[parts.length-1]);
 		return path[0];
@@ -325,11 +333,6 @@ public class ClassRef
 	public final static String speciesLibrary =
 			agent.SpeciesLib.class.getName();
 	
-	/**
-	 * TODO
-	 */
-	public final static String reactionLibrary = 
-			reaction.ReactionLibrary.class.getName();
 	
 	/* ************************************************************************
 	 * Grid classes
@@ -346,6 +349,62 @@ public class ClassRef
 	 */
 	public final static String scaledIfBiomassPresent =
 			grid.diffusivitySetter.ScaledIfBiomassPresent.class.getName();
+	
+	/* ************************************************************************
+	 * boundaries
+	 */
+	
+	/**
+	 * TODO
+	 */
+	public final static String fixedBoundary =
+			boundary.spatialLibrary.FixedBoundary.class.getName();
+	
+	/* ************************************************************************
+	 * shape classes
+	 */
+	
+	/**
+	 * TODO
+	 */
+	public final static String dimensionless =
+			shape.ShapeLibrary.Dimensionless.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String circle =
+			shape.ShapeLibrary.Circle.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String cuboid =
+			shape.ShapeLibrary.Cuboid.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String cylinder =
+			shape.ShapeLibrary.Cylinder.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String line =
+			shape.ShapeLibrary.Line.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String rectangle =
+			shape.ShapeLibrary.Rectangle.class.getName();
+	
+	/**
+	 * TODO
+	 */
+	public final static String sphere =
+			shape.ShapeLibrary.Sphere.class.getName();
 	
 	
 	/* ************************************************************************
@@ -380,19 +439,19 @@ public class ClassRef
 	 * TODO
 	 */
 	public static final String pileEntry =
-			nodeFactory.primarySetters.PileEntry.class.getName();
+			instantiatable.object.ListEntry.class.getName();
 	
 	/**
 	 * TODO
 	 */
 	public static final String pile =
-			nodeFactory.primarySetters.PileList.class.getName();
+			instantiatable.object.InstantiatableList.class.getName();
 	
 	/**
 	 * 
 	 */
 	public static final String bundle = 
-			nodeFactory.primarySetters.BundleMap.class.getName();
+			instantiatable.object.InstantiatableMap.class.getName();
 	
 	/* ************************************************************************
 	 * java classes
@@ -410,5 +469,9 @@ public class ClassRef
 	public final static String hashMap =
 			java.util.HashMap.class.getName();
 
-
+	/**
+	 * String
+	 */
+	public final static String string =
+			String.class.getName();
 }

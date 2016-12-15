@@ -10,6 +10,7 @@ import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import linearAlgebra.Array;
 import referenceLibrary.ObjectRef;
+import settable.Settable;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator.ResCalc;
@@ -55,7 +56,7 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public void init(Element xmlElem)
+		public void instantiate(Element xmlElem, Settable parent)
 		{
 			// TODO read in as a Double
 			String str = XmlHandler.attributeFromUniqueNode(
