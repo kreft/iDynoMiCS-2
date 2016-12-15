@@ -32,13 +32,8 @@ public class PDEgaussseidelTests
 		 * periodic boundaries.
 		 */
 		Compartment comp = Idynomics.simulator.addCompartment("line");
-		try {
-			comp.setShape((Shape) Class.forName("shape.ShapeLibrary$Line").newInstance());
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
-		Shape shape = comp.getShape();
+		Shape shape = AllTests.GetShape("Line");
+		comp.setShape(shape);
 		shape.getDimension(DimName.X).setLength(nVoxel);
 		UniformResolution resCalc = new UniformResolution();
 		resCalc.setExtremes(0, nVoxel);

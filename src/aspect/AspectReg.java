@@ -11,7 +11,7 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import gereralPredicates.IsSame;
 import idynomics.Idynomics;
-import instantiatable.object.InstantiatableList;
+import instantiable.object.InstantiableList;
 import dataIO.Log.Tier;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -182,10 +182,10 @@ public class AspectReg
 		return modules;
 	}
 	
-	public InstantiatableList<String> getSubModuleNames()
+	public InstantiableList<String> getSubModuleNames()
 	{
-		InstantiatableList<String> _subModules = 
-				new InstantiatableList<String>( String.class, XmlRef.nameAttribute, 
+		InstantiableList<String> _subModules = 
+				new InstantiableList<String>( String.class, XmlRef.nameAttribute, 
 				XmlRef.modules, XmlRef.speciesModule );
 		for (String a : _speciesModules.keySet() )
 			_subModules.add(a);

@@ -13,6 +13,7 @@ import dataIO.Log.Tier;
 import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Simulator;
+import shape.Shape;
 import test.junit.AgentEventTest;
 import test.junit.BoundaryTest;
 import test.junit.ChemostatsTest;
@@ -60,5 +61,27 @@ public class AllTests
 		Idynomics.simulator.timer.setEndOfSimulation(tMax);
 		Log.set(Tier.DEBUG);
 		Log.setupFile();
+	}
+	
+	/**
+	 * \brief Helper method for shape instantiation.
+	 * 
+	 * @param name Name of the shape (must begin with a capital letter).
+	 * @return Object of the corresponding shape class.
+	 */
+	public static Shape GetShape(String name)
+	{
+		Shape shape = null;
+		String fullName = "shape.ShapeLibrary$" + name;
+		try
+		{
+			shape = (Shape) Class.forName(fullName).newInstance();
+		}
+		catch (InstantiationException | IllegalAccessException |
+				ClassNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		return shape;
 	}
 }

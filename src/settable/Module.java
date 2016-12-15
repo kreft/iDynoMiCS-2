@@ -2,7 +2,8 @@ package settable;
 
 import java.util.LinkedList;
 import java.util.List;
-import instantiatable.Instance;
+
+import instantiable.Instance;
 
 /**
  * \brief TODO

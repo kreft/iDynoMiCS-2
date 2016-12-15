@@ -2,8 +2,8 @@ package aspect;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.Redirectable;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Settable;
 import utility.Helper;
@@ -21,7 +21,7 @@ import dataIO.XmlHandler;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public abstract class Calculated implements Copyable, Instantiatable, Redirectable
+public abstract class Calculated implements Copyable, Instantiable, Redirectable
 {
 	/**
 	 * input string

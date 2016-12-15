@@ -10,8 +10,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instantiable;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
 import referenceLibrary.ClassRef;
@@ -27,7 +26,7 @@ import surface.Point;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Agent implements AspectInterface, Settable, Instantiatable
+public class Agent implements AspectInterface, Settable, Instantiable
 {
 	/**
 	 * The uid is a unique identifier created when a new Agent is created via 

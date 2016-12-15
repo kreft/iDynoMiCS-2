@@ -1,24 +1,24 @@
-package instantiatable.object;
+package instantiable.object;
 
 import org.w3c.dom.Element;
 
 import dataIO.ObjectFactory;
-import instantiatable.Instantiatable;
+import instantiable.Instantiable;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 
-public class ListEntry<T> implements Settable, Instantiatable {
+public class ListEntry<T> implements Settable, Instantiable {
 	
 	/**
 	 * 
 	 */
 	public T mapObject;
-	public InstantiatableList<T> pile;
+	public InstantiableList<T> pile;
 	private Settable _parentNode;
 	
-	public ListEntry(InstantiatableList<T> pile, T object )
+	public ListEntry(InstantiableList<T> pile, T object )
 	{
 		this.pile = pile;
 		this.mapObject = object;
@@ -32,7 +32,7 @@ public class ListEntry<T> implements Settable, Instantiatable {
 	@SuppressWarnings("unchecked")
 	public void instantiate(Element xmlElem, Settable parent)
 	{
-		this.pile = (InstantiatableList<T>) parent;
+		this.pile = (InstantiableList<T>) parent;
 		this.pile.add(this.mapObject);
 	}
 	

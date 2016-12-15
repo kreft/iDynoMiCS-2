@@ -1,20 +1,14 @@
-package instantiatable.object;
+package instantiable.object;
 
 import java.util.LinkedList;
-import java.util.List;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import aspect.Aspect;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import generalInterfaces.Copyable;
 import idynomics.Idynomics;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
-import referenceLibrary.ClassRef;
-import referenceLibrary.ObjectRef;
+import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -25,15 +19,15 @@ import utility.Helper;
 /**
  * 
  * The Pile list extends the Java LinkedList and implements the iDynoMiCS
- * NodeConstructor and Instantiatable class to provide easy management of lists
- * with the gui and xml output.
+ * NodeConstructor and Instantiable class to provide easy management of lists
+ * with the GUI and xml output.
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  * @param <T>
  */
-public class InstantiatableList<T> extends LinkedList<T> implements Settable, 
-		Instantiatable, Copyable
+public class InstantiableList<T> extends LinkedList<T> implements Settable, 
+		Instantiable, Copyable
 {
 	/**
 	 * default serial uid (generated)
@@ -86,7 +80,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 	 * 
 	 * @param entryClass
 	 */
-	public InstantiatableList(Class<?> entryClass)
+	public InstantiableList(Class<?> entryClass)
 	{
 		this.valueLabel = XmlRef.valueAttribute;
 		this.pileListLabel = XmlRef.dictionary;
@@ -101,7 +95,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 	 * 
 	 * @param entryClass
 	 */
-	public InstantiatableList(String entryClass)
+	public InstantiableList(String entryClass)
 	{
 		this.valueLabel = XmlRef.valueAttribute;
 		
@@ -124,7 +118,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 	 * @param dictionaryLabel
 	 * @param nodeLabel
 	 */
-	public InstantiatableList(Class<?> entryClass, String valueAttribute, 
+	public InstantiableList(Class<?> entryClass, String valueAttribute, 
 			String dictionaryLabel, String nodeLabel)
 	{
 		this.valueLabel = valueAttribute;
@@ -138,7 +132,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 	/**
 	 * PileList constructor for Instantiatable interface
 	 */
-	public InstantiatableList()
+	public InstantiableList()
 	{
 		// NOTE only for Instantiatable interface
 	}
@@ -146,7 +140,7 @@ public class InstantiatableList<T> extends LinkedList<T> implements Settable,
 	@SuppressWarnings("unchecked")
 	public Object copy() 
 	{
-		InstantiatableList<T> out = new InstantiatableList<T>(this.entryClass,
+		InstantiableList<T> out = new InstantiableList<T>(this.entryClass,
 				this.valueLabel, this.pileListLabel, this.nodeLabel );
 		for(int i = 0; i < this.size(); i++)
 			out.add((T) ObjectFactory.copy((this.get(i))));	

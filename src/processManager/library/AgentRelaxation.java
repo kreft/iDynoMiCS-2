@@ -17,7 +17,6 @@ import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import spatialRegistry.SpatialRegistry;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;

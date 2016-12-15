@@ -6,25 +6,19 @@ import java.util.Map;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import expression.Component;
 import expression.Expression;
 import generalInterfaces.Copyable;
 import idynomics.EnvironmentContainer;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
-import instantiatable.object.InstantiatableMap;
-import referenceLibrary.ClassRef;
-import referenceLibrary.ObjectRef;
+import instantiable.Instantiable;
+import instantiable.object.InstantiableMap;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
-import settable.primarySetters.HashMapSetter;
 import utility.Helper;
 
 /**
@@ -40,7 +34,7 @@ import utility.Helper;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk), University of Birmingham, UK.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU.
  */
-public class Reaction implements Instantiatable, Copyable, Settable
+public class Reaction implements Instantiable, Copyable, Settable
 {
 	/**
 	 * The name of this reaction. This is particularly useful for writing
@@ -58,7 +52,7 @@ public class Reaction implements Instantiatable, Copyable, Settable
 	 * in this reaction may be produced (stoichiometry > 0), consumed (< 0), or
 	 * unaffected (stoichiometry = 0, or unlisted) by the reaction.
 	 */
-	private InstantiatableMap<String,Double> _stoichiometry = new InstantiatableMap<String,Double>(
+	private InstantiableMap<String,Double> _stoichiometry = new InstantiableMap<String,Double>(
 			String.class, Double.class, XmlRef.component, XmlRef.coefficient, 
 			XmlRef.stoichiometry, XmlRef.stoichiometric, true);
 	/**

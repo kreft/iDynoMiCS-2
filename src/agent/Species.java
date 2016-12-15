@@ -6,8 +6,8 @@ import org.w3c.dom.Node;
 import aspect.AspectInterface;
 import aspect.AspectReg;
 import idynomics.Idynomics;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -21,7 +21,7 @@ import utility.Helper;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Species implements AspectInterface, Settable, Instantiatable
+public class Species implements AspectInterface, Settable, Instantiable
 {
 	/**
 	 * TODO

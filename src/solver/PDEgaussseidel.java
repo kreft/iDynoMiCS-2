@@ -130,9 +130,17 @@ public class PDEgaussseidel extends PDEsolver
 						", change from reactions = "+concnFromReactions+
 						": new value "+newConcn);
 			}
-
-			if ( ! this._allowNegatives )
-				variable.makeNonnegative(CONCN);
+			// TODO could start to under-relax if we detect this happening
+			if ( (! this._allowNegatives) && newConcn < 0.0 )
+			{
+				Log.out(Tier.CRITICAL, "Truncating concentration of "+
+						variable.getName()+" to zero\n"+
+						"\tPrevious concn "+currConcn+"\n"+
+						"\tConcn from diffusion "+concnFromDiffusion+"\n"+
+						"\tConcn from reactions "+concnFromReactions);
+				newConcn = 0.0;
+			}
+				
 			variable.setValueAt(CONCN, current, newConcn);
 			/* Calculate the residual. */
 			currConcn = Math.abs(currConcn);

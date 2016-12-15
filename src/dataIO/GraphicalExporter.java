@@ -1,8 +1,8 @@
 package dataIO;
 
 import dataIO.Log.Tier;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import linearAlgebra.Vector;
 import shape.Shape;
 import surface.Ball;
@@ -14,7 +14,7 @@ import surface.Surface;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
-public interface GraphicalExporter extends Instantiatable {
+public interface GraphicalExporter extends Instantiable {
 	
 
 	

@@ -9,7 +9,6 @@ import static test.AllTests.TOLERANCE;
 
 import boundary.spatialLibrary.SolidBoundary;
 import dataIO.Log;
-import instantiatable.Instance;
 
 import static dataIO.Log.Tier.DEBUG;
 import linearAlgebra.Matrix;
@@ -23,7 +22,6 @@ import shape.ShapeLibrary.Sphere;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 import test.AllTests;
 import utility.ExtraMath;
-import utility.Helper;
 
 /**
  * \brief Test class to check that {@code Shape} objects are behaving
@@ -46,7 +44,7 @@ public class ShapesTest
 		/*
 		 * Cartesian (Line, Rectangle, Cuboid)
 		 */
-		String[] shapeNames = new String[]{"line", "rectangle", "cuboid"};
+		String[] shapeNames = new String[]{"Line", "Rectangle", "Cuboid"};
 		String[] sideNames = new String[] {"X", "Y", "Z"};
 		Shape aShape = null;
 		LinkedList<double[]> cyclics;
@@ -54,13 +52,7 @@ public class ShapesTest
 		for ( int i = 1; i < 4; i++ )
 		{
 			/* Make the shape. */
-			try {
-				aShape = (Shape) Class.forName("shape.ShapeLibrary$" + Helper.firstToUpper(shapeNames[i-1])).newInstance();
-			} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}		
-			
+			aShape = AllTests.GetShape(shapeNames[i-1]);
 			/* Set up the cyclic dimensions. */
 			for ( int dim = 0; dim < i; dim++ )
 				aShape.makeCyclic(sideNames[dim]);
@@ -81,12 +73,7 @@ public class ShapesTest
 		 * Circle
 		 */
 		correct = 3;
-		try {
-			aShape = (Shape) Class.forName("shape.ShapeLibrary$Circle").newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+		aShape = AllTests.GetShape("Circle");
 		aShape.makeCyclic("THETA");
 		aShape.setDimensionLengths(new double[]{1, Math.PI / 2});
 		/* lets take local coord (0.5, pi/4) ~ (0.3535, 0.3535) global. */
@@ -97,12 +84,7 @@ public class ShapesTest
 		 * Cylinder
 		 */
 		correct = 9;
-		try {
-			aShape = (Shape) Class.forName("shape.ShapeLibrary$Cylinder").newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+		aShape = AllTests.GetShape("Cylinder");
 		aShape.makeCyclic("THETA");
 		aShape.makeCyclic("Z");
 		aShape.setDimensionLengths(new double[]{1, Math.PI / 2, 1});
@@ -114,12 +96,7 @@ public class ShapesTest
 		 * Sphere
 		 */
 		correct = 3;
-		try {
-			aShape = (Shape) Class.forName("shape.ShapeLibrary$Sphere").newInstance();
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+		aShape = AllTests.GetShape("Sphere");
 		aShape.makeCyclic("THETA");
 		aShape.setDimensionLengths(new double[]{1, Math.PI / 2, Math.PI / 2});
 		/* local coord (0.5, pi/4, pi/4) ~ (0.25, 0.25, 0.3535) global. */
