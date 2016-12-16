@@ -36,7 +36,7 @@ public class PovExport implements GraphicalExporter
 	 */
 	private String DigitFilenr(int filenr) {
 		String apzero = String.valueOf(filenr);
-		for(int i = 0; i < 4-String.valueOf(filenr).length(); i++)
+		for(int i = 0; i < 6-String.valueOf(filenr).length(); i++)
 			apzero = "0" + apzero;
 		return apzero;
 	}
