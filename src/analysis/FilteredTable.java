@@ -13,6 +13,27 @@ import idynomics.Idynomics;
 import linearAlgebra.Vector;
 import utility.Helper;
 
+/**
+ * FilteredTable is the top level object for data retrieval following *table 
+ * logics*
+ * 
+ * example:
+ * 
+ * 0 ? a > 1.0 + b == mySpecies ~ mass | glucose > 1e-2 , glucose > 0.5e-2 
+ * 
+ * represents:
+ * first Compartment ? 
+ * filter specification for what needs to be included in the table (leave blank for all) ~
+ * filter column (value filter) | 
+ * filter column (Category filter)
+ * 
+ * Thus: ? ~ and | are operators that split the different aspects of the table
+ * 
+ * See FilterLogic for the other operators
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class FilteredTable {
 	
 	private Compartment compartment;

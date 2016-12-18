@@ -7,6 +7,23 @@ import analysis.filter.SpecificationFilter;
 import analysis.filter.ValueFilter;
 import gereralPredicates.*;
 
+/**
+ * Identify and create Filters based on their operators.
+ * 
+ * , splits the individual filters captured in a CategoryFilter
+ * + splits the individual filters captured in a MultiFilter
+ * 
+ * specification filters:
+ * == isSame (always)
+ * = isEquals (if numeric) otherwise isSame
+ * > isLarger
+ * < isSmaller
+ * 
+ * NO operator results in a ValueFilter.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class FilterLogic {
 
 	public static Filter filterFromString(String filter)
