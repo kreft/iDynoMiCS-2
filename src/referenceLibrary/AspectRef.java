@@ -350,4 +350,9 @@ public class AspectRef
 	 */
 	public final static String staticAgent = "staticAgent";
 
+	/**
+	 * 
+	 */
+	public static final String tableSpecification = "tableSpecification";
+
 }

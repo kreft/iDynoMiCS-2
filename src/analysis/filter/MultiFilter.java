@@ -5,6 +5,13 @@ import java.util.LinkedList;
 import analysis.FilterLogic;
 import aspect.AspectInterface;
 
+/**
+ * The multi-filter returns true if all nested filters return true, returns
+ * false otherwise, use in combination with the specification filter.
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
+ *
+ */
 public class MultiFilter implements Filter
 {
 

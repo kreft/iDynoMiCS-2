@@ -142,6 +142,11 @@
 					<diffusivitySetter solute="solute1" class="ScaledIfBiomassPresent" defaultDiffusivity="1.0" biofilmDiffusivity="0.5" />
 					<diffusivitySetter solute="solute2" class="AllSameDiffuse" defaultDiffusivity="0.8"/>
 				</process>
+				<process name="summary" class="processManager.library.Summary"  priority="2"
+					firstStep="0.0" timerStepSize="0.5">
+					<aspect name="tableSpecification" type="PRIMARY" class="String" 
+					value="0 ~ mass | mass > 0.2, mass > 0.15, mass > 0.1, mass > 0.0 | species = AOB | pigment = RED, pigment = BLUE, pigment = GREEN" />
+				</process>
 			</processManagers>
 		</compartment>
 	</simulation>
