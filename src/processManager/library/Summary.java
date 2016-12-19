@@ -21,7 +21,7 @@ import processManager.ProcessManager;
 public class Summary extends ProcessManager
 {
 	/**
-	 * XML tag for the table logic expresion.
+	 * XML tag for the table logic expression.
 	 */
 	public static String TABLE_SPEC = AspectRef.tableSpecification;
 	
@@ -53,7 +53,7 @@ public class Summary extends ProcessManager
 	{
 		/* output table summary to log/console */
 		Log.out(Tier.NORMAL, "Summary for table:\n"
-				+ "[" + table.toString() + "]\n\t" + 
-				table.summary().replaceAll("\\n+","\n\t") );
+				+ "[" + table.toString() + "]\n|" + 
+				table.summary().replaceAll("\\n+","\n|") );
 	}
 }

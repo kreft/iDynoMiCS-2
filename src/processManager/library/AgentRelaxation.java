@@ -58,6 +58,8 @@ public class AgentRelaxation extends ProcessManager
 	
 	public String STATIC_AGENT = AspectRef.staticAgent;
 	
+	public String LOW_STRESS_SKIP = AspectRef.stressThreshold;
+	
 	
 	/**
 	 * Available relaxation methods.
@@ -130,6 +132,11 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private Collection<Surface> _shapeSurfs;
 	
+	/**
+	 * value under which the relaxation may be considered completed
+	 */
+	private double _stressThreshold;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -153,6 +160,7 @@ public class AgentRelaxation extends ProcessManager
 		// FIXME discovered circle returns a rod type shape (2 points) instead of circle (2d sphere, 1 point)
 		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = this._shape.getCollision();
+		this._stressThreshold = Helper.setIfNone( this.getDouble(LOW_STRESS_SKIP), 0.0 );	
 	}
 
 	/*************************************************************************
@@ -291,6 +299,11 @@ public class AgentRelaxation extends ProcessManager
 
 			// FIXME this assumes linear force scaling improve..
 			_vSquare = _vSquare * Math.pow(_iterator.getMaxForceScalar(), 2.0);
+			
+			if (_vSquare < _stressThreshold )
+			{
+				break;
+			}
 
 			for(Agent agent: this._agents.getAllLocatedAgents())
 			{

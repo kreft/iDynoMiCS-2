@@ -355,4 +355,9 @@ public class AspectRef
 	 */
 	public static final String tableSpecification = "tableSpecification";
 
+	/**
+	 * Threshold on which the system may be considered fully relaxed
+	 */
+	public static final String stressThreshold = "stressThreshold";
+
 }
