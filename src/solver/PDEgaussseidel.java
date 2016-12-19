@@ -139,6 +139,17 @@ public class PDEgaussseidel extends PDEsolver
 				Log.out(level, "Coord "+Vector.toString(current)+
 						": curent value "+currConcn+", new value "+newConcn);
 			}
+			
+			// FIXME This if clause is for debugging only, remove after
+			if ( rateFromReactions != 0.0 )
+			{
+				Log.out(Tier.CRITICAL, "Coord "+Vector.toString(current)+
+						" variable "+variable.getName()+
+						": curent value "+currConcn+", new value "+newConcn+"\n"
+						+"\t Diffuse "+diffusiveFlow+" -> "+(diffusiveFlow/norm)+"\n"
+						+"\t React "+variable.getValueAt(PRODUCTIONRATE, current)+" -> "+(rateFromReactions/norm));
+			}
+			
 			if ( (! this._allowNegatives) && newConcn < 0.0 )
 			{
 				Log.out(Tier.CRITICAL, "Truncating concentration of "+
