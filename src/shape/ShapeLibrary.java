@@ -13,7 +13,7 @@ import referenceLibrary.ObjectRef;
 import settable.Settable;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
 
 /**
  * \brief Collection of instanciable {@code Shape} classes.
@@ -92,13 +92,13 @@ public final class ShapeLibrary
 		}
 		
 		@Override
-		public ResCalc getResolutionCalculator(int[] coord, int axis)
+		public ResolutionCalculator getResolutionCalculator(int[] coord, int axis)
 		{
 			return null;
 		}
 		
 		@Override
-		public void setDimensionResolution(DimName dName, ResCalc resC)
+		public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 		{
 			/* Do nothing! */
 		}

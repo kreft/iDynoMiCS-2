@@ -10,7 +10,7 @@ import shape.Dimension.DimName;
 import shape.ShapeConventions.SingleVoxel;
 import shape.iterator.CartesianShapeIterator;
 import shape.iterator.ShapeIterator;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
 
 /**
  * \brief Abstract subclass of {@code Shape} that handles the important methods
@@ -25,7 +25,7 @@ public abstract class CartesianShape extends Shape
 	/**
 	 * Array of resolution calculators used by all linear {@code Shape}s.
 	 */
-	protected ResCalc[] _resCalc = new ResCalc[3];
+	protected ResolutionCalculator[] _resCalc = new ResolutionCalculator[3];
 	
 	
 	/* ***********************************************************************
@@ -102,14 +102,14 @@ public abstract class CartesianShape extends Shape
 	 * **********************************************************************/
 	
 	@Override
-	public void setDimensionResolution(DimName dName, ResCalc resC)
+	public void setDimensionResolution(DimName dName, ResolutionCalculator resC)
 	{
 		int index = this.getDimensionIndex(dName);
 		this._resCalc[index] = resC;
 	}
 	
 	@Override
-	public ResCalc getResolutionCalculator(int[] coord, int axis)
+	public ResolutionCalculator getResolutionCalculator(int[] coord, int axis)
 	{
 		/* Coordinate is irrelevant here. */
 		return this._resCalc[axis];
@@ -165,7 +165,7 @@ public abstract class CartesianShape extends Shape
 	public double nhbCurrSharedArea()
 	{
 		double area = 1.0;
-		ResCalc rC;
+		ResolutionCalculator rC;
 		int index;
 		int[] currentCoord = this._it.iteratorCurrent();
 		for ( DimName dim : this.getDimensionNames() )
@@ -177,7 +177,7 @@ public abstract class CartesianShape extends Shape
 				continue;
 			index = this.getDimensionIndex(dim);
 			rC = this.getResolutionCalculator(currentCoord, index);
-			area *= rC.getResolution(currentCoord[index]);
+			area *= rC.getResolution();
 		}
 		return area;
 	}

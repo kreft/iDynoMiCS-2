@@ -19,7 +19,7 @@ import linearAlgebra.Vector;
 import processManager.library.SolveDiffusionTransient;
 import shape.Dimension.DimName;
 import shape.Shape;
-import shape.resolution.ResolutionCalculator.UniformResolution;
+import shape.resolution.UniformResolution;
 import test.AllTests;
 import utility.ExtraMath;
 

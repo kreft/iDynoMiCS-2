@@ -13,7 +13,7 @@ import linearAlgebra.Vector;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
-import shape.resolution.ResolutionCalculator.ResCalc;
+import shape.resolution.ResolutionCalculator;
 
 public abstract class ShapeIterator
 {
@@ -216,7 +216,7 @@ public abstract class ShapeIterator
 		if ( this._currentCoord == null )
 			this.resetIterator();
 		/* Loop over the dimensions, finding the number of voxels for each. */
-		ResCalc rC;
+		ResolutionCalculator rC;
 		int nDim = this._shape.getDimensionNames().size();
 		for ( int dim = 0; dim < nDim; dim++ )
 		{
@@ -358,7 +358,7 @@ public abstract class ShapeIterator
 	 */
 	public double getIntegrationMin(int index)
 	{
-		ResCalc rC;
+		ResolutionCalculator rC;
 		double curMin, nhbMin;
 		/* Current voxel of the main iterator. */
 		rC = this._shape.getResolutionCalculator(this._currentCoord, index);
@@ -386,7 +386,7 @@ public abstract class ShapeIterator
 	 */
 	public double getIntegrationMax(int index)
 	{
-		ResCalc rC;
+		ResolutionCalculator rC;
 		double curMax, nhbMax;
 		/* Current voxel of the main iterator. */
 		rC = this._shape.getResolutionCalculator(this._currentCoord, index);

@@ -406,6 +406,15 @@ public class ClassRef
 	public final static String sphere =
 			shape.ShapeLibrary.Sphere.class.getName();
 	
+	/* ************************************************************************
+	 * Shapes - resolution calculators
+	 */
+	
+	public final static String uniformResolution =
+			shape.resolution.UniformResolution.class.getName();
+	
+	public final static String multigridResolution =
+			shape.resolution.MultigridResolution.class.getName();
 	
 	/* ************************************************************************
 	 * miscellaneous

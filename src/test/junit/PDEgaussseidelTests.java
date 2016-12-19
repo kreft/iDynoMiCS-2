@@ -9,7 +9,7 @@ import idynomics.Idynomics;
 import processManager.library.SolveDiffusionSteadyState;
 import shape.Shape;
 import shape.Dimension.DimName;
-import shape.resolution.ResolutionCalculator.UniformResolution;
+import shape.resolution.UniformResolution;
 import test.AllTests;
 
 public class PDEgaussseidelTests

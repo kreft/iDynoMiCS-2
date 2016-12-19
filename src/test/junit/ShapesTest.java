@@ -19,7 +19,7 @@ import shape.Dimension.DimName;
 import shape.ShapeLibrary.Circle;
 import shape.ShapeLibrary.Rectangle;
 import shape.ShapeLibrary.Sphere;
-import shape.resolution.ResolutionCalculator.UniformResolution;
+import shape.resolution.UniformResolution;
 import test.AllTests;
 import utility.ExtraMath;
 

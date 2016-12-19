@@ -32,8 +32,7 @@ import settable.Module.Requirements;
 import shape.Dimension.DimName;
 import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator;
-import shape.resolution.ResolutionCalculator.ResCalc;
-import shape.resolution.ResolutionCalculator.UniformResolution;
+import shape.resolution.UniformResolution;
 import shape.subvoxel.SubvoxelPoint;
 import surface.Collision;
 import surface.Plane;
@@ -78,8 +77,8 @@ public abstract class Shape implements
 	 * Storage container for dimensions that this {@code Shape} is not yet
 	 * ready to initialise.
 	 */
-	protected HashMap<DimName,ResCalc> _rcStorage =
-												new HashMap<DimName,ResCalc>();
+	protected HashMap<DimName,ResolutionCalculator> _rcStorage =
+												new HashMap<DimName,ResolutionCalculator>();
 	
 	/**
 	 * The greatest potential flux between neighboring voxels. Multiply by 
@@ -165,7 +164,7 @@ public abstract class Shape implements
 		String str;
 		/* Set up the dimensions. */
 		Dimension dim;
-		ResCalc rC;
+		ResolutionCalculator rC;
 		this._parentNode = parent;
 		
 		for ( DimName dimens : this.getDimensionNames() )
@@ -181,7 +180,7 @@ public abstract class Shape implements
 					dim.instantiate(childElem, this);
 					
 					/* Initialise resolution calculators */
-					rC = new ResolutionCalculator.UniformResolution();
+					rC = new UniformResolution();
 	
 					rC.init(dim._targetRes, dim._extreme[0], dim._extreme[1]);
 					this.setDimensionResolution(dimens, rC);	
@@ -468,7 +467,7 @@ public abstract class Shape implements
 	 */
 	protected void trySetDimRes(DimName dName)
 	{
-		ResCalc rC = this._rcStorage.get(dName);
+		ResolutionCalculator rC = this._rcStorage.get(dName);
 		if ( rC != null )
 			this.setDimensionResolution(dName, rC);
 	}
@@ -480,7 +479,7 @@ public abstract class Shape implements
 	 * @param dName The name of the dimension to set for.
 	 * @param resC A resolution calculator.
 	 */
-	public abstract void setDimensionResolution(DimName dName, ResCalc resC);
+	public abstract void setDimensionResolution(DimName dName, ResolutionCalculator resC);
 	
 	/**
 	 * \brief Get the Resolution Calculator for the given dimension, at the
@@ -490,7 +489,7 @@ public abstract class Shape implements
 	 * @param dim Dimension index (e.g., for a cuboid: X = 0, Y = 1, Z = 2).
 	 * @return The relevant Resolution Calculator.
 	 */
-	public abstract ResCalc getResolutionCalculator(int[] coord, int dim);
+	public abstract ResolutionCalculator getResolutionCalculator(int[] coord, int dim);
 	
 	/* ***********************************************************************
 	 * POINT LOCATIONS
@@ -1043,7 +1042,7 @@ public abstract class Shape implements
 	public int[] getCoords(double[] loc, double[] inside)
 	{
 		int[] coord = new int[3];
-		ResCalc rC;
+		ResolutionCalculator rC;
 		for ( int dim = 0; dim < 3; dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
@@ -1074,11 +1073,11 @@ public abstract class Shape implements
 		Vector.checkLengths(inside, coord);
 		Vector.copyTo(destination, inside);
 		int nDim = getNumberOfDimensions();
-		ResCalc rC;
+		ResolutionCalculator rC;
 		for ( int dim = 0; dim < nDim; dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
-			destination[dim] *= rC.getResolution(coord[dim]);
+			destination[dim] *= rC.getResolution();
 			destination[dim] += rC.getCumulativeResolution(coord[dim] - 1);
 		}
 	}
@@ -1183,11 +1182,11 @@ public abstract class Shape implements
 	 */
 	public void getVoxelSideLengthsTo(double[] destination, int[] coord)
 	{
-		ResCalc rC;
+		ResolutionCalculator rC;
 		for ( int dim = 0; dim < getNumberOfDimensions(); dim++ )
 		{
 			rC = this.getResolutionCalculator(coord, dim);
-			destination[dim] = rC.getResolution(coord[dim]);
+			destination[dim] = rC.getResolution();
 		}
 	}
 	
@@ -1291,7 +1290,7 @@ public abstract class Shape implements
 		Dimension dim = this.getDimension(dimN);
 		int dimIndex = this.getDimensionIndex(dimN);
 		int[] currentCoord = this._it.iteratorCurrent();
-		ResCalc rC = this.getResolutionCalculator(currentCoord, dimIndex);
+		ResolutionCalculator rC = this.getResolutionCalculator(currentCoord, dimIndex);
 		/*
 		 * Get the position at the centre of the current voxel.
 		 */
@@ -1342,8 +1341,8 @@ public abstract class Shape implements
 				" along dimension "+nhbDimName);
 		}
 		int i = this.getDimensionIndex(nhbDimName);
-		ResCalc rC = this.getResolutionCalculator(currentCoord, i);
-		double out = rC.getResolution(currentCoord[i]);
+		ResolutionCalculator rC = this.getResolutionCalculator(currentCoord, i);
+		double out = rC.getResolution();
 		/* 
 		 * If the neighbor is inside the array, use the mean resolution.
 		 * 
@@ -1353,7 +1352,7 @@ public abstract class Shape implements
 		if ( this._it.isNbhIteratorInside() )
 		{
 			rC = this.getResolutionCalculator(currentNeighbor, i);
-			out += rC.getResolution(currentNeighbor[i]);
+			out += rC.getResolution();
 			out *= 0.5;
 		}
 		if ( this._it.isNbhIteratorValid() )
