@@ -119,15 +119,18 @@ public class PDEgaussseidel extends PDEsolver
 			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
 					nhb = shape.nbhIteratorNext() )
 			{
+				/* Diffusivity: area per time */
 				meanDiffusivity = ExtraMath.harmonicMean(currDiffusivity, 
 						variable.getValueAt(DIFFUSIVITY, nhb));
+				/* nhbWeight: per time */
 				nhbWeight = meanDiffusivity * shape.nhbCurrSharedArea() /
 						(shape.nhbCurrDistance() * currVolume);
 				norm += nhbWeight;
 				diffusiveFlow += nhbWeight * 
 						(variable.getValueAtNhb(CONCN) - currConcn);
 			}
-			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current);
+			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current)
+					/ currVolume;
 			// TODO norm += variable.getValueAt(DIFFPRODUCTIONRATE, current);
 			residual = (diffusiveFlow + rateFromReactions) / norm;
 			newConcn = currConcn + residual;
