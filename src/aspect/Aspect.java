@@ -10,8 +10,8 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
 import referenceLibrary.PackageRef;
@@ -31,7 +31,7 @@ import utility.Helper;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class Aspect implements Instantiatable, Settable
+public class Aspect implements Instantiable, Settable
 {
 	/**
 	 * \brief Recognized aspect types.

@@ -15,6 +15,13 @@ import linearAlgebra.Vector;
 import shape.Shape;
 import utility.ExtraMath;
 
+/**
+ * \brief Partial Differential Equation (PDE) solver that uses the Gauss-Seidel
+ * iteration approach. This PDE solver can only solve to steady-state, and 
+ * should not be used where a time-dependent solution is appropriate.
+ * 
+ * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
+ */
 public class PDEgaussseidel extends PDEsolver
 {
 	public int maxIter = 100;
@@ -81,17 +88,21 @@ public class PDEgaussseidel extends PDEsolver
 		/* Coordinates of the current position. */
 		int[] current, nhb;
 		/* Temporary storage. */
-		double currConcn, currDiffusivity, nhbMass, tally, norm, weight;
+		double currConcn, currVolume, currDiffusivity, meanDiffusivity;
+		double norm, nhbWeight, diffusiveFlow, rateFromReactions, newConcn;
 		/* 
 		 * The residual gives an estimation of how close to stead-state we are.
 		 */
 		double residual, totalResidual = 0.0, numVoxels = 0.0;
 		/*
-		 * The mass of each voxel's concentration is replaced with a weighted
-		 * average of its neighbours' masses (convert from concn to mass and
-		 * then back to concn). The weight of each neighbour is proportional to
-		 * the surface area shared (more area => more weight) and to the mean
-		 * diffusivity (more diffusivity => more weight). The weights must be
+		 * Each voxel's concentration is replaced with a weighted average of 
+		 * its neighbours' concentrations and the local reaction rate. 
+		 * The weight of each neighbour is proportional to the surface area 
+		 * shared (more area => more weight) and to the mean diffusivity (more 
+		 * diffusivity => more weight), and is inversely proportional to the
+		 * distance between the two voxels (more distance => less weight).
+		 * 
+		 * The weights must be
 		 * normalised before the concentration is replaced!
 		 */
 		for ( current = shape.resetIterator(); shape.isIteratorValid();
@@ -100,51 +111,48 @@ public class PDEgaussseidel extends PDEsolver
 			// TODO this should really be > some threshold
 			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
 				continue;
-			tally = 0.0;
-			norm = 0.0;
 			currConcn = variable.getValueAtCurrent(CONCN);
 			currDiffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
+			currVolume = shape.getCurrVoxelVolume();
+			diffusiveFlow = 0.0;
+			norm = 0.0;
 			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
 					nhb = shape.nbhIteratorNext() )
 			{
-				nhbMass = variable.getValueAtNhb(CONCN) *
-						shape.getVoxelVolume(nhb);
-				weight = shape.nhbCurrSharedArea() *
-						ExtraMath.harmonicMean(currDiffusivity, 
+				meanDiffusivity = ExtraMath.harmonicMean(currDiffusivity, 
 						variable.getValueAt(DIFFUSIVITY, nhb));
-				tally += nhbMass * weight;
-				norm += weight;
+				nhbWeight = meanDiffusivity * shape.nhbCurrSharedArea() /
+						(shape.nhbCurrDistance() * currVolume);
+				norm += nhbWeight;
+				diffusiveFlow += nhbWeight * 
+						(variable.getValueAtNhb(CONCN) - currConcn);
 			}
-			double massFromDiffusion = tally / norm;
-			double volume = shape.getCurrVoxelVolume();
-			double concnFromDiffusion = massFromDiffusion / volume;
-			double concnFromReactions = tFinal *
-					variable.getValueAt(PRODUCTIONRATE, current);
-			double newConcn = concnFromDiffusion + concnFromReactions;
+			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current);
+			// TODO norm += variable.getValueAt(DIFFPRODUCTIONRATE, current);
+			residual = (diffusiveFlow + rateFromReactions) / norm;
+			newConcn = currConcn + residual;
 			if ( Log.shouldWrite(level) )
 			{
-				Log.out(level, 
-						"Coord "+Vector.toString(shape.iteratorCurrent())+
-						" (curent value "+variable.getValueAtCurrent(CONCN)+
-						"): change from diffusion = "+concnFromDiffusion+
-						", change from reactions = "+concnFromReactions+
-						": new value "+newConcn);
+				Log.out(level, "Coord "+Vector.toString(current)+
+						": curent value "+currConcn+", new value "+newConcn);
 			}
-
-			if ( ! this._allowNegatives )
-				variable.makeNonnegative(CONCN);
+			if ( (! this._allowNegatives) && newConcn < 0.0 )
+			{
+				Log.out(Tier.CRITICAL, "Truncating concentration of "+
+						variable.getName()+" to zero\n"+
+						"\tVoxel at "+Vector.toString(current)+"\n"+
+						"\tPrevious concn "+currConcn);
+				newConcn = 0.0;
+			}
 			variable.setValueAt(CONCN, current, newConcn);
 			/* Calculate the residual. */
 			currConcn = Math.abs(currConcn);
 			newConcn = Math.abs(newConcn);
-			if ( Math.max(currConcn, newConcn) > 0.0)
+			if ( Math.min(currConcn, newConcn) > 0.0)
 			{
-				residual = Math.abs((currConcn - newConcn) /
-									Math.max(currConcn, newConcn));
+				totalResidual = Math.abs(
+						residual / Math.min(currConcn, newConcn));
 			}
-			else
-				residual = 0.0;
-			totalResidual += residual;
 			numVoxels++;
 		}
 		return (numVoxels > 0.0) ? (totalResidual/numVoxels) : 0.0;

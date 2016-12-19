@@ -10,8 +10,8 @@ import org.w3c.dom.NodeList;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
@@ -28,7 +28,7 @@ import utility.Helper;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public class Body implements Copyable, Instantiatable
+public class Body implements Copyable, Instantiable
 {
 	/**
 	 * Ordered list of the points that describe the body.

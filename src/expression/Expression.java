@@ -12,7 +12,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dataIO.Log.Tier;
-import instantiatable.object.InstantiatableMap;
+import instantiable.object.InstantiableMap;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import referenceLibrary.ClassRef;
@@ -100,7 +100,7 @@ public class Expression extends Component implements Settable
 	/**
 	 * Names and values of constants in this expression.
 	 */
-	private InstantiatableMap<String, Double> _constants = new InstantiatableMap<String,Double>(
+	private InstantiableMap<String, Double> _constants = new InstantiableMap<String,Double>(
 			String.class, Double.class, XmlRef.nameAttribute, 
 			XmlRef.valueAttribute, XmlRef.constants, XmlRef.constant, true);
 	

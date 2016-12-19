@@ -6,8 +6,8 @@ package test.junit;
 import org.junit.Test;
 import org.w3c.dom.Element;
 
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import settable.Settable;
 
 import static org.junit.Assert.assertTrue;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class XMLableTest
 {
-	public static class TestXMLable implements Instantiatable
+	public static class TestXMLable implements Instantiable
 	{
 		private int x = 1;
 		

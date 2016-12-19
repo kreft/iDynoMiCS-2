@@ -9,8 +9,7 @@ import dataIO.Log;
 import dataIO.ObjectFactory;
 import dataIO.XmlHandler;
 import idynomics.EnvironmentContainer;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instantiable;
 import dataIO.Log.Tier;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
@@ -47,7 +46,7 @@ import utility.ExtraMath;
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
 
-public class SpatialGrid implements Settable, Instantiatable
+public class SpatialGrid implements Settable, Instantiable
 {
 	/**
 	 * The name of the variable which this grid represents.

@@ -10,8 +10,7 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import grid.SpatialGrid;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instantiable;
 import referenceLibrary.XmlRef;
 import settable.Settable;
 import shape.Dimension.DimName;
@@ -23,7 +22,7 @@ import shape.Dimension.DimName;
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  */
-public class FixedBoundary extends SpatialBoundary implements Instantiatable
+public class FixedBoundary extends SpatialBoundary implements Instantiable
 {
 	/**
 	 * Solute concentrations.

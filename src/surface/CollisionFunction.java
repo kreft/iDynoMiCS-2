@@ -5,8 +5,7 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instantiable;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Settable;
@@ -16,7 +15,7 @@ import utility.Helper;
  * \brief CollisionFunctions are used to shape and scale the physical
  * interactions between two objects
  */
-public interface CollisionFunction extends Instantiatable
+public interface CollisionFunction extends Instantiable
 {
 	/**
 	 * \brief return the currently set force scalar for this CollisionFunction

@@ -2,8 +2,6 @@ package settable.primarySetters;
 
 import java.util.List;
 
-import org.w3c.dom.Element;
-
 import dataIO.ObjectFactory;
 import referenceLibrary.XmlRef;
 import settable.Attribute;

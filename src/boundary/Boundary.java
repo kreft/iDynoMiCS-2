@@ -5,24 +5,15 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-
 import agent.Agent;
 import dataIO.Log;
-import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
-import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import idynomics.Idynomics;
-import instantiatable.Instance;
 import referenceLibrary.XmlRef;
 import settable.Module;
 import settable.Settable;
-import shape.Dimension.DimName;
-import shape.Shape;
-import shape.Dimension;
 
 /**
  * \brief General class of boundary for a {@code Shape}.

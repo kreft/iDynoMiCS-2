@@ -1,7 +1,6 @@
 package shape;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import boundary.SpatialBoundary;
@@ -9,9 +8,8 @@ import dataIO.Log;
 import dataIO.XmlHandler;
 import dataIO.Log.Tier;
 import generalInterfaces.CanPrelaunchCheck;
-import instantiatable.Instance;
+import instantiable.Instance;
 import surface.Surface;
-import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -213,9 +211,8 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 				
 				str = bndElem.getAttribute(XmlRef.classAttribute);
 				// FIXME this does not work since boundaries are not instantiatable
-				aBoundary = (SpatialBoundary) Instance.getNew(
-						bndElem, this, str );
-//				aBoundary.init(bndElem); // FIXME nope
+				aBoundary =
+						(SpatialBoundary) Instance.getNew(bndElem, this, str);
 				this.setBoundary(aBoundary, index);	
 			}
 		}

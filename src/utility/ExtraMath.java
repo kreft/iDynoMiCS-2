@@ -604,26 +604,21 @@ public final class ExtraMath
 	/**
 	 * \brief Unequivocally determine the sign of a double <b>value</b>. 
 	 * 
-	 * <p>Copied from 
-	 * http://stackoverflow.com/questions/3994531/how-to-determine-if-a-number-is-positive-or-negative-in-java
-	 * on 7 August 2013.</p>
-	 * 
-	 * TODO Bas: wouldn't it be cheaper to simply check > and <?
-	 * 
 	 * @param value double to be inspected.
 	 * @return integer with the sign of <b>value</b>: -1, 0, or +1
 	 */
 	public static int sign(double value)
 	{
+		if (Double.isNaN(value))
+			throw new IllegalArgumentException("NaN");
 		// Not sure if checking -0.0 is necessary, but better safe than sorry!
-	    if ( value == 0.0 || value == -0.0 )
-	    	return 0;
-	    value *= Double.POSITIVE_INFINITY;
-	    if ( value == Double.POSITIVE_INFINITY )
-	    	return +1;
-	    if ( value == Double.NEGATIVE_INFINITY )
-	    	return -1;
-	    throw new IllegalArgumentException("Unfathomed double");
+		if ( value == 0.0 || value == -0.0 )
+			return 0;
+		if ( value > 0.0 )
+			return +1;
+		if ( value < 0.0 )
+			return -1;
+		throw new IllegalArgumentException("Unfathomed double");
 	}
 	
 	/**

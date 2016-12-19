@@ -1,25 +1,25 @@
-package instantiatable.object;
+package instantiable.object;
 
 import org.w3c.dom.Element;
 
 import dataIO.ObjectFactory;
-import instantiatable.Instantiatable;
+import instantiable.Instantiable;
 import settable.Attribute;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 
-public class MapEntry<K, T> implements Settable, Instantiatable {
+public class MapEntry<K, T> implements Settable, Instantiable {
 
 	/**
 	 * 
 	 */
 	public T mapObject;
 	public K mapKey;
-	public InstantiatableMap<K,T> map;
+	public InstantiableMap<K,T> map;
 	private Settable _parentNode;
 	
-	public MapEntry(T object, K key, InstantiatableMap<K,T> map )
+	public MapEntry(T object, K key, InstantiableMap<K,T> map )
 	{
 		this.mapObject = object;
 		this.map = map;
@@ -34,7 +34,7 @@ public class MapEntry<K, T> implements Settable, Instantiatable {
 	@SuppressWarnings("unchecked")
 	public void instantiate(Element xmlElem, Settable parent)
 	{
-		this.map = (InstantiatableMap<K,T>) parent;
+		this.map = (InstantiableMap<K,T>) parent;
 		this.map.put(this.mapKey, this.mapObject);
 	}
 	

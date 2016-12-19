@@ -14,7 +14,7 @@ import generalInterfaces.CanPrelaunchCheck;
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.WELLMIXED;
 import grid.SpatialGrid;
-import instantiatable.object.InstantiatableList;
+import instantiable.object.InstantiableList;
 import reaction.Reaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.XmlRef;
@@ -22,7 +22,6 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import shape.Shape;
-import spatialRegistry.TreeType;
 
 /**
  * \brief Manages the solutes in a {@code Compartment}.
@@ -45,7 +44,7 @@ public class EnvironmentContainer implements CanPrelaunchCheck, Settable
 	 * Collection of extracellular reactions specific to this compartment
 	 * (each Reaction knows its own name).
 	 */
-	protected InstantiatableList<Reaction> _reactions = new InstantiatableList<Reaction>(Reaction.class, null, XmlRef.reactions, XmlRef.reaction);
+	protected InstantiableList<Reaction> _reactions = new InstantiableList<Reaction>(Reaction.class, null, XmlRef.reactions, XmlRef.reaction);
 	/**
 	 * Name of the common grid.
 	 */

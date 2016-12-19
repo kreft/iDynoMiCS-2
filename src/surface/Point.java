@@ -1,7 +1,5 @@
 package surface;
 
-import org.w3c.dom.Element;
-
 import generalInterfaces.Copyable;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;

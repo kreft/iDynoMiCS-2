@@ -6,14 +6,13 @@ package grid.diffusivitySetter;
 import grid.SpatialGrid;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instantiable;
 
 /**
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public interface IsDiffusivitySetter extends Instantiatable
+public interface IsDiffusivitySetter extends Instantiable
 {
 	/**
 	 * \brief TODO

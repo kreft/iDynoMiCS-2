@@ -102,7 +102,7 @@ public abstract class PDEsolver extends Solver
 		/* Coordinates of the current position. */
 		int[] current, nhb;
 		/* Temporary storage. */
-		double totalFlux, nhbFlux;
+		double totalFlow, nhbFlow;
 		/*
 		 * Iterate over all core voxels calculating the Laplace operator. 
 		 */
@@ -112,7 +112,7 @@ public abstract class PDEsolver extends Solver
 			// TODO this should really be > some threshold
 			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
 				continue;
-			totalFlux = 0.0;
+			totalFlow = 0.0;
 			if ( Log.shouldWrite(level) )
 			{
 				Log.out(level, 
@@ -128,7 +128,7 @@ public abstract class PDEsolver extends Solver
 				 * take a note of the flux (for connections with other
 				 * compartments).
 				 */
-				nhbFlux = grid.getDiffusionFromNeighbor();
+				nhbFlow = grid.getDiffusionFromNeighbor();
 				
 				/*
 				 * If this flux came from a well-mixed voxel, inform the grid.
@@ -141,15 +141,15 @@ public abstract class PDEsolver extends Solver
 					if ( commonGrid != null && 
 							commonGrid.getValueAt(WELLMIXED, nhb) == 1.0 )
 					{
-						this.increaseWellMixedFlow(grid.getName(), - nhbFlux);
+						this.increaseWellMixedFlow(grid.getName(), - nhbFlow);
 					}
 				}
 				else if ( shape.isNbhIteratorValid() )
 				{
 					if ( shape.nbhIteratorOutside().needsToUpdateWellMixed() )
-						this.increaseWellMixedFlow(grid.getName(), - nhbFlux);
+						this.increaseWellMixedFlow(grid.getName(), - nhbFlow);
 				}
-				totalFlux += nhbFlux;
+				totalFlow += nhbFlow;
 				/* 
 				 * To get the value we must be inside, the flux can be obtained
 				 * from boundary.
@@ -161,28 +161,28 @@ public abstract class PDEsolver extends Solver
 						Log.out(level, 
 								"   nhb "+Vector.toString(nhb)+
 								" ("+grid.getValueAtNhb(CONCN)+") "+
-								" contributes flux of "+nhbFlux);
+								" contributes flow of "+nhbFlow);
 					}
 					else
 					{
 						Log.out(level, 
 								" boundary nhb "+Vector.toString(nhb)
-								+ " contributes flux of "+nhbFlux);
+								+ " contributes flow of "+nhbFlow);
 					}
 				}
 			}
 			/*
-			 * Flux is in units of mass/mole per unit time. Divide by the voxel
+			 * Flow is in units of mass/mole per unit time. Divide by the voxel
 			 * volume to convert this to a rate of change in concentration.
 			 */
 			double volume = shape.getCurrVoxelVolume();
-			double changeRate = totalFlux / volume;
+			double changeRate = totalFlow / volume;
 			/*
 			 * Finally, apply this to the relevant array.
 			 */
 			if ( Log.shouldWrite(level) )
 			{
-				Log.out(level, " Total flux = "+totalFlux);
+				Log.out(level, " Total flux = "+totalFlow);
 				Log.out(level, " Voxel volume = "+volume);
 				Log.out(level, " Total rate of change from flux = "+changeRate);
 			}

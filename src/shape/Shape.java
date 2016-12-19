@@ -21,8 +21,8 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import dataIO.XmlHandler;
 import generalInterfaces.CanPrelaunchCheck;
-import instantiatable.Instance;
-import instantiatable.Instantiatable;
+import instantiable.Instance;
+import instantiable.Instantiable;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
@@ -35,7 +35,6 @@ import shape.resolution.ResolutionCalculator;
 import shape.resolution.ResolutionCalculator.ResCalc;
 import shape.resolution.ResolutionCalculator.UniformResolution;
 import shape.subvoxel.SubvoxelPoint;
-import spatialRegistry.TreeType;
 import surface.Collision;
 import surface.Plane;
 import surface.Surface;
@@ -67,7 +66,7 @@ import utility.Helper;
  */
 // TODO remove the last three sections by incorporation into Node construction.
 public abstract class Shape implements
-					CanPrelaunchCheck, Instantiatable, Settable
+					CanPrelaunchCheck, Instantiable, Settable
 {
 	/**
 	 * Ordered dictionary of dimensions for this shape.

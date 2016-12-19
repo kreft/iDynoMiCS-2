@@ -2,14 +2,14 @@ package test.junit;
 
 import org.junit.Test;
 
-import instantiatable.object.InstantiatableMap;
+import instantiable.object.InstantiableMap;
 
 public class DictionaryTest {
 
 	@Test
 	public void dictTest()
 	{
-		InstantiatableMap<String,String> dict = new InstantiatableMap<String,String>(String.class,String.class);
+		InstantiableMap<String,String> dict = new InstantiableMap<String,String>(String.class,String.class);
 		
 		System.out.println(dict.getXml());
 		
@@ -17,7 +17,7 @@ public class DictionaryTest {
 		
 		System.out.println(dict.getXml());
 		
-		InstantiatableMap<String,Integer> numbers = new InstantiatableMap<String,Integer>(
+		InstantiableMap<String,Integer> numbers = new InstantiableMap<String,Integer>(
 				String.class, Integer.class, 
 				"text", "numeric", 
 				"numberLibrary", "number");
