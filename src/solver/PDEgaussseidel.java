@@ -24,7 +24,7 @@ import utility.ExtraMath;
  */
 public class PDEgaussseidel extends PDEsolver
 {
-	public int maxIter = 100;
+	public int maxIter = 10001;
 	
 	public double residualTolerance = 0.01;
 	
@@ -55,8 +55,15 @@ public class PDEgaussseidel extends PDEsolver
 				residual = this.relax(variable, commonGrid, tFinal);
 				maxResidual = Math.max(residual, maxResidual);
 			}
-			if ( maxResidual < this.residualTolerance )
-				break;
+			//if ( maxResidual < this.residualTolerance )
+			//	break;
+			// FIXME This if clause is for debugging only, remove after
+			if (i%1000==0)
+			{
+				Log.out(Tier.CRITICAL, "Iteration: "+i+" Max residual: "+maxResidual);
+				for (SpatialGrid var : variables)
+					Log.out(Tier.CRITICAL, "\t"+var.getName()+" ("+var.getMin(CONCN)+", "+var.getMax(CONCN)+")");
+			}
 		}
 		
 		// TODO relax one more time, and use only this relaxation to update the
@@ -141,13 +148,13 @@ public class PDEgaussseidel extends PDEsolver
 			}
 			
 			// FIXME This if clause is for debugging only, remove after
-			if ( rateFromReactions != 0.0 )
+			if (false)//( rateFromReactions != 0.0 )
 			{
-				Log.out(Tier.CRITICAL, "Coord "+Vector.toString(current)+
+				Log.out(Tier.BULK, "Coord "+Vector.toString(current)+
 						" variable "+variable.getName()+
 						": curent value "+currConcn+", new value "+newConcn+"\n"
 						+"\t Diffuse "+diffusiveFlow+" -> "+(diffusiveFlow/norm)+"\n"
-						+"\t React "+variable.getValueAt(PRODUCTIONRATE, current)+" -> "+(rateFromReactions/norm));
+						+"\t React "+variable.getValueAt(PRODUCTIONRATE, current)+" -> "+(rateFromReactions/(currVolume*norm)));
 			}
 			
 			if ( (! this._allowNegatives) && newConcn < 0.0 )
