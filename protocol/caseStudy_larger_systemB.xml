@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="caseStudy" outputfolder="../results" log="EXPRESSIVE"
-		comment="this is a file for testing purposes only.">
+	<simulation name="caseStudy" outputfolder="../results" log="NORMAL"
+		comment="this is a file for testing purposes only." randomSeed="1">
 		<!-- minutes -->
-		<timer stepSize="120.0" endOfSimulation="20160.0" />
+		<timer stepSize="60.0" endOfSimulation="20160.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -178,14 +178,15 @@
 			<processManagers>
 				<!-- minute -->
 				<process name="agentRelax"	class="AgentRelaxation" priority="-2"
-					firstStep="0.0"  		timerStepSize="120">
+					firstStep="0.0"  		timerStepSize="30">
 					<!-- µm -->
 					<aspect name="maxMovement" 		type="PRIMARY" class="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
+					<aspect name="stressThreshold" type="PRIMARY" class="Double" value="100.0" />
 				</process>
 				<!-- minute -->
 				<process name="SolveDiffusionSteadyState" class="SolveDiffusionSteadyState" priority="-1"
-					firstStep="0.0"  timerStepSize="120.0">	
+					firstStep="0.0"  timerStepSize="30.0">	
 					<!-- In principle they are not all the same but all in the 
 					same order of magnitude ~ 2.0e-4 m2.day-1 values here in 
 					µm^2/ minute-->
@@ -195,29 +196,34 @@
 					<diffusivitySetter solute="oxygen" 		class="ScaledIfBiomassPresent" defaultDiffusivity="138888.889" biofilmDiffusivity="111111.111" />
 				</process>
 				
-								<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="120.0">
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="oxygen" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="120.0">
+					firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="ammonium" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="120.0">
+					firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="nitrite" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
-					firstStep="0.0"  timerStepSize="120.0">
+					firstStep="0.0"  timerStepSize="60.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="nitrate" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
+				<process name="summary" class="processManager.library.Summary"  priority="2"
+					firstStep="0.0" timerStepSize="60.0">
+					<aspect name="tableSpecification" type="PRIMARY" class="String" 
+					value="0 ? mass > 1.1E-4 ~ mass | species = CanonicalNOB, species = CanonicalAOB, species = CommamoxAOB" />
 				</process>
 				
 			</processManagers>
