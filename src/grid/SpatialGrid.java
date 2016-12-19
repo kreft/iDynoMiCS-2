@@ -625,6 +625,62 @@ public class SpatialGrid implements Settable, Instantiable
 	}
 	
 	/**
+	 * \brief Calculate the time-scale of the diffusion from the neighbor voxel
+	 * into the current iterator voxel (always positive).
+	 * 
+	 * <p>The time-scale from the neighboring voxel into the current one is 
+	 * given by the formula <i>SA<sub>nhb,itr</sub> * V<sub>itr</sub> *
+	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
+	 * where subscript <i>itr</i> denotes the current iterator voxel and
+	 * <i>nhb</i> the current neighbor voxel, and
+	 * <ul>
+	 * <li><i>SA</i> is shared surface area of two voxels</li>
+	 * <li><i>V</i> is voxel volume</li>
+	 * <li><i>D</i> is voxel diffusivity</li>
+	 * <li><i>d</i> is distance between centres of two voxels</li>
+	 * </ul>
+	 * 
+	 * @return Time-scale of the diffusive flow from the neighbor voxel into
+	 * the current iterator voxel, in units of time.
+	 */
+	public double GetDiffusiveTimeScaleWithNeighbor()
+	{
+		if ( this._shape.isNbhIteratorInside() )
+		{
+			/* Average diffusivity. */
+			double diffusivity = ExtraMath.harmonicMean(
+					this.getValueAtCurrent(ArrayType.DIFFUSIVITY),
+					this.getValueAtNhb(ArrayType.DIFFUSIVITY));
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nhbCurrSharedArea();
+			/* Centre-centre distance. */
+			double dist = this._shape.nhbCurrDistance();
+			/* Current voxel volume. */
+			double volume = this._shape.getCurrVoxelVolume();
+			/* Calculate the the timescale from these values. */
+			return dist * volume / (diffusivity * sArea);
+		}
+		else if ( this._shape.isIteratorValid() )
+		{
+			/* Average diffusivity. */
+			double diffusivity = this.getValueAtCurrent(ArrayType.DIFFUSIVITY);
+			/* Surface are the two voxels share (in square microns). */
+			double sArea = this._shape.nhbCurrSharedArea();
+			/* Centre-centre distance. */
+			double dist = this._shape.nhbCurrDistance();
+			/* Current voxel volume. */
+			double volume = this._shape.getCurrVoxelVolume();
+			/* Calculate the the timescale from these values. */
+			return dist * volume / (diffusivity * sArea);
+		}
+		else
+		{
+			return Double.NaN;
+		}
+	}
+	
+	/**
 	 * \brief Increase the grid's tally of mass flow into a well-mixed region.
 	 * 
 	 * @param flow Flow in units of mass (or moles) per time.

@@ -21,7 +21,6 @@ import grid.diffusivitySetter.IsDiffusivitySetter;
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import instantiable.Instance;
-import instantiable.Instantiable;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
 import referenceLibrary.XmlRef;

@@ -93,10 +93,10 @@ public class PDEgaussseidel extends PDEsolver
 		Tier level = DEBUG;
 		Shape shape = variable.getShape();
 		/* Coordinates of the current position. */
-		int[] current, nhb;
+		int[] current;
 		/* Temporary storage. */
-		double currConcn, currVolume, currDiffusivity, meanDiffusivity;
-		double norm, nhbWeight, diffusiveFlow, rateFromReactions, newConcn;
+		double currConcn, currVolume;
+		double timeScale, diffusiveFlow, rateFromReactions, newConcn;
 		/* 
 		 * The residual gives an estimation of how close to stead-state we are.
 		 */
@@ -119,27 +119,19 @@ public class PDEgaussseidel extends PDEsolver
 			if ( commonGrid.getValueAt(WELLMIXED, current) == 1.0 )
 				continue;
 			currConcn = variable.getValueAtCurrent(CONCN);
-			currDiffusivity = variable.getValueAtCurrent(DIFFUSIVITY);
 			currVolume = shape.getCurrVoxelVolume();
 			diffusiveFlow = 0.0;
-			norm = 0.0;
-			for ( nhb = shape.resetNbhIterator(); shape.isNbhIteratorValid();
-					nhb = shape.nbhIteratorNext() )
+			timeScale = 0.0;
+			for ( shape.resetNbhIterator(); shape.isNbhIteratorValid();
+					shape.nbhIteratorNext() )
 			{
-				/* Diffusivity: area per time */
-				meanDiffusivity = ExtraMath.harmonicMean(currDiffusivity, 
-						variable.getValueAt(DIFFUSIVITY, nhb));
-				/* nhbWeight: per time */
-				nhbWeight = meanDiffusivity * shape.nhbCurrSharedArea() /
-						(shape.nhbCurrDistance() * currVolume);
-				norm += nhbWeight;
-				diffusiveFlow += nhbWeight * 
-						(variable.getValueAtNhb(CONCN) - currConcn);
+				timeScale += variable.GetDiffusiveTimeScaleWithNeighbor();
+				diffusiveFlow += variable.getDiffusionFromNeighbor();
 			}
-			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current)
-					/ currVolume;
-			// TODO norm += variable.getValueAt(DIFFPRODUCTIONRATE, current);
-			residual = (diffusiveFlow + rateFromReactions) / norm;
+			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current);
+			// TODO norm += 1.0 / variable.getValueAt(DIFFPRODUCTIONRATE, current);
+			residual = (diffusiveFlow + rateFromReactions) * 
+					timeScale / currVolume;
 			newConcn = currConcn + residual;
 			if ( Log.shouldWrite(level) )
 			{
@@ -153,8 +145,8 @@ public class PDEgaussseidel extends PDEsolver
 				Log.out(Tier.BULK, "Coord "+Vector.toString(current)+
 						" variable "+variable.getName()+
 						": curent value "+currConcn+", new value "+newConcn+"\n"
-						+"\t Diffuse "+diffusiveFlow+" -> "+(diffusiveFlow/norm)+"\n"
-						+"\t React "+variable.getValueAt(PRODUCTIONRATE, current)+" -> "+(rateFromReactions/(currVolume*norm)));
+						+"\t Diffuse "+diffusiveFlow+" -> "+(diffusiveFlow*timeScale/currVolume)+"\n"
+						+"\t React "+variable.getValueAt(PRODUCTIONRATE, current)+" -> "+(rateFromReactions*timeScale/currVolume));
 			}
 			
 			if ( (! this._allowNegatives) && newConcn < 0.0 )
