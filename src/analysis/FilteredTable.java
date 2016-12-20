@@ -14,6 +14,16 @@ import linearAlgebra.Vector;
 import utility.Helper;
 
 /**
+ * FilteredTable objects can be used to output data tables of 
+ * agent/aspectInterface properties. The table can contain all agents of a
+ * compartment or a select set based on a filter with boolean representation.
+ * 
+ * Each column of the table is governed by it's own filter. The filter may
+ * filter specific properties of the agent (value filter). The filter may
+ * return a boolean based on whether a statement or statements is/are true 
+ * (specification or multi-filter). Or the filter may assign a category for the
+ * agent (category filter).
+ * 
  * FilteredTable is the top level object for data retrieval following *table 
  * logics*
  * 
