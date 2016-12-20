@@ -277,8 +277,7 @@ public abstract class Shape implements
 	}
 	
 	/**
-	 * \brief returns all dimensions that are significant
-	 * @return
+	 * @return List of all significant dimensions.
 	 */
 	public List<Dimension> getSignificantDimensions()
 	{
@@ -286,6 +285,18 @@ public abstract class Shape implements
 		for ( Dimension dim : this._dimensions.values() )
 			if ( dim.isSignificant() )
 				out.add(dim);
+		return out;
+	}
+	
+	/**
+	 * @return List of the indices for each significant dimension.
+	 */
+	public List<Integer> getSignificantDimensionsIndices()
+	{
+		LinkedList<Integer> out = new LinkedList<Integer>();
+		for ( Dimension dim : this._dimensions.values() )
+			if ( dim.isSignificant() )
+				out.add(this.getDimensionIndex(dim));
 		return out;
 	}
 	
