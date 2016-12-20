@@ -22,16 +22,20 @@ public final class ShapeConventions
 		public SingleVoxel()
 		{
 			this._nVoxel = 1;
+			this._resolution = 1.0;
+			this._targetRes = 1.0;
 			this._min = 0.0;
 			this._max = 1.0;
 		}
 		
 		@Override
-		public void init(double targetResolution, double _min, double _max)
+		public void init(double targetResolution, double min, double max)
 		{
 			this._nVoxel = 1;
-			this._min = 0.0;
-			this._max = 1.0;
+			this._targetRes = targetResolution;
+			this._resolution = targetResolution;
+			this._min = min;
+			this._max = max;
 		}
 		
 		@Override
@@ -41,15 +45,11 @@ public final class ShapeConventions
 		}
 
 		@Override
-		public double getResolution()
-		{
-			return 1.0;
-		}
-
-		@Override
 		public double getCumulativeResolution(int voxelIndex)
 		{
-			return 1.0;
+			if (voxelIndex <= 0)
+				return this._min;
+			return this._max;
 		}
 
 		@Override

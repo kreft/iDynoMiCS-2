@@ -125,7 +125,7 @@ public class PDEgaussseidel extends PDEsolver
 			for ( shape.resetNbhIterator(); shape.isNbhIteratorValid();
 					shape.nbhIteratorNext() )
 			{
-				timeScale += variable.GetDiffusiveTimeScaleWithNeighbor();
+				timeScale += variable.getDiffusiveTimeScaleWithNeighbor();
 				diffusiveFlow += variable.getDiffusionFromNeighbor();
 			}
 			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current);

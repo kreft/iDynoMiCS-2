@@ -644,7 +644,7 @@ public class SpatialGrid implements Settable, Instantiable
 	 * @return Time-scale of the diffusive flow from the neighbor voxel into
 	 * the current iterator voxel, in units of time.
 	 */
-	public double GetDiffusiveTimeScaleWithNeighbor()
+	public double getDiffusiveTimeScaleWithNeighbor()
 	{
 		if ( this._shape.isNbhIteratorInside() )
 		{

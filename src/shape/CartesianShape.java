@@ -11,6 +11,7 @@ import shape.ShapeConventions.SingleVoxel;
 import shape.iterator.CartesianShapeIterator;
 import shape.iterator.ShapeIterator;
 import shape.resolution.ResolutionCalculator;
+import shape.resolution.MultigridResolution;
 
 /**
  * \brief Abstract subclass of {@code Shape} that handles the important methods
@@ -39,11 +40,7 @@ public abstract class CartesianShape extends Shape
 		 * be overwritten later.
 		 */
 		for ( int i = 0; i < 3; i++ )
-		{
-			SingleVoxel sV = new SingleVoxel();
-			sV.init(1.0, 0.0, 1.0);
-			this._resCalc[i] = sV;
-		}
+			this._resCalc[i] = new SingleVoxel();
 		/*
 		 * These are the dimension names for any Cartesian shape. Assume they
 		 * are all insignificant to begin with.
@@ -180,5 +177,65 @@ public abstract class CartesianShape extends Shape
 			area *= rC.getResolution();
 		}
 		return area;
+	}
+	
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
+	
+	@Override
+	public boolean canGenerateCoarserMultigridLayer()
+	{
+		/*
+		 * Acceptable resolution calculators are MultigridResolution and
+		 * SingleVoxel. There must be at least one MultigridResolution with
+		 * more than 2 voxels to be worth generating a multigrid.
+		 */
+		int multigridCount = 0;
+		for (ResolutionCalculator resCalc : this._resCalc)
+		{
+			if ( resCalc instanceof MultigridResolution)
+			{
+				if ( resCalc.getNVoxel() > 2 )
+					multigridCount++;
+				continue;
+			}
+			if ( resCalc instanceof SingleVoxel )
+				continue;
+			return false;
+		}
+		return multigridCount > 0;
+	}
+	
+	@Override
+	public Shape generateCoarserMultigridLayer()
+	{
+		Shape out;
+		try
+		{
+			out = this.getClass().newInstance();
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
+		
+		ResolutionCalculator newResCalc;
+		for ( int i = 0; i < 3; i++ )
+		{
+			DimName dimName = this.getDimensionName(i);
+			if ( this._resCalc[i] instanceof SingleVoxel )
+				out.setDimensionResolution(dimName, this._resCalc[i]);
+			else if ( this._resCalc[i] instanceof MultigridResolution )
+			{
+				newResCalc = ((MultigridResolution)this._resCalc[i])
+						.getCoarserResolution();
+				out.setDimensionResolution(dimName, newResCalc);
+			}
+			else
+				return null;
+		}
+		
+		return out;
 	}
 }

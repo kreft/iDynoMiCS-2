@@ -1536,7 +1536,13 @@ public abstract class Shape implements
 		return out;
 	}
 	
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
 	
+	public abstract boolean canGenerateCoarserMultigridLayer();
+	
+	public abstract Shape generateCoarserMultigridLayer();
 	
 	/* ***********************************************************************
 	 * PRE-LAUNCH CHECK

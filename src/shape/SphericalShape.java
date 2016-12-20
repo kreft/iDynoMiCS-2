@@ -66,11 +66,7 @@ public abstract class SphericalShape extends Shape
 		this._resCalc[getDimensionIndex(THETA)] = new ResolutionCalculator[1][1];
 		
 		for ( int i = 0; i < 3; i++ )
-		{
-			SingleVoxel sV = new SingleVoxel();
-			sV.init(1.0, 0.0, 1.0);
-			this._resCalc[i][0][0] = sV;
-		}
+			this._resCalc[i][0][0] = new SingleVoxel();
 		
 		this._it = this.getNewIterator();
 	}
@@ -510,5 +506,21 @@ public abstract class SphericalShape extends Shape
 		Log.out(level, "    r1 is "+r1+", phi1 is "+phi1+ ", theta1 is "+theta1
 				+ ", r2 is "+r2+", phi2 is "+phi2+ ", theta2 is "+theta2);
 		return area;
+	}
+	
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
+	
+	@Override
+	public boolean canGenerateCoarserMultigridLayer()
+	{
+		return false;
+	}
+	
+	@Override
+	public Shape generateCoarserMultigridLayer()
+	{
+		return null;
 	}
 }

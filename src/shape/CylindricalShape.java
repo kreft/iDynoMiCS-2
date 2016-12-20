@@ -59,11 +59,7 @@ public abstract class CylindricalShape extends Shape
 		this._resCalc[getDimensionIndex(Z)] = new ResolutionCalculator[1];
 		
 		for ( int i = 0; i < 3; i++ )
-		{
-			SingleVoxel sV = new SingleVoxel();
-			sV.init(1.0, 0.0, 1.0);
-			this._resCalc[i][0] = sV;
-		}
+			this._resCalc[i][0] = new SingleVoxel();
 		
 		this._it = this.getNewIterator();
 	}
@@ -401,5 +397,21 @@ public abstract class CylindricalShape extends Shape
 					+ ", r2 is "+r2+", theta2 is "+theta2+ ", z2 is "+z2);
 		}
 		return area;
+	}
+	
+	/* ***********************************************************************
+	 * MULTIGRID CONSTRUCTION
+	 * **********************************************************************/
+	
+	@Override
+	public boolean canGenerateCoarserMultigridLayer()
+	{
+		return false;
+	}
+	
+	@Override
+	public Shape generateCoarserMultigridLayer()
+	{
+		return null;
 	}
 }

@@ -162,6 +162,18 @@ public final class ShapeLibrary
 		{
 			return null;
 		}
+		
+		@Override
+		public boolean canGenerateCoarserMultigridLayer()
+		{
+			return false;
+		}
+		
+		@Override
+		public Shape generateCoarserMultigridLayer()
+		{
+			return null;
+		}
 	}
 	
 	/*************************************************************************
