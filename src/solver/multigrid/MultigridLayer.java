@@ -87,9 +87,52 @@ public class MultigridLayer
 	 * ARRAY VALUES
 	 * **********************************************************************/
 	
-	public void fillArrayFromCoarser()
+	public void fillArrayFromCoarser(ArrayType type)
 	{
-		
+		/* Safety */
+		if ( this._coarser == null )
+			return;
+		/* Temporary variables. */
+		Shape thisShape = this._grid.getShape();
+		SpatialGrid coarserGrid = this._coarser._grid;
+		double newValue;
+		/*
+		 * Mimic red-black iteration: on the first sweep (red) take values
+		 * straight from the coarser grid; on the second sweep (black)
+		 * interpolate between neighbouring voxels (i.e. red voxels that
+		 * already took values from the coarser grid).
+		 */
+		int[] current = thisShape.resetIterator();
+		int[] coarserVoxel = Vector.zeros(current);
+		for (; thisShape.isIteratorValid(); current = thisShape.iteratorNext())
+		{
+			if (Vector.sum(current)%2 == 1)
+				continue;
+			Vector.copyTo(coarserVoxel, current);
+			for (int i = 0; i < coarserVoxel.length; i++)
+				coarserVoxel[i] = (int)(coarserVoxel[i]*0.5);
+			newValue = coarserGrid.getValueAt(type, coarserVoxel);
+			this._grid.setValueAtCurrent(type, newValue);
+		}
+		current = thisShape.resetIterator();
+		int[] nhb;
+		double volume, totalVolume;
+		for (; thisShape.isIteratorValid(); current = thisShape.iteratorNext())
+		{
+			if (Vector.sum(current)%2 == 0)
+				continue;
+			newValue = 0.0;
+			totalVolume = 0.0;
+			for ( nhb = thisShape.resetNbhIterator(); 
+					thisShape.isNbhIteratorValid();
+					nhb = thisShape.nbhIteratorNext())
+			{
+				volume = thisShape.getVoxelVolume(nhb);
+				newValue += this._grid.getValueAtNhb(type) * volume;
+				totalVolume += volume;
+			}
+			this._grid.setValueAtCurrent(type, newValue/totalVolume);
+		}
 	}
 	
 	public void fillArrayFromFiner(ArrayType type, double fracOfOldValueKept)
