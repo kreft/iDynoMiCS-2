@@ -14,17 +14,7 @@ import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Simulator;
 import shape.Shape;
-import test.junit.AgentEventTest;
-import test.junit.BoundaryTest;
-import test.junit.ChemostatsTest;
-import test.junit.CoordinateMapTest;
-import test.junit.ExtraMathTest;
-import test.junit.LinearAlgebraTest;
-import test.junit.MultigridResolutionTests;
-import test.junit.PdeTest;
-import test.junit.RateExpressionTest;
-import test.junit.ShapesTest;
-import test.junit.XMLableTest;
+import test.junit.*;
 
 @RunWith(Suite.class)
 @SuiteClasses({ AgentEventTest.class,
@@ -33,6 +23,9 @@ import test.junit.XMLableTest;
 				CoordinateMapTest.class,
 				ExtraMathTest.class,
 				LinearAlgebraTest.class,
+				MultigridLayerForLineTests.class,
+				MultigridLayerForRectangleTests.class,
+				MultigridLayerForSquareTests.class,
 				MultigridResolutionTests.class,
 				PdeTest.class,
 				RateExpressionTest.class,
