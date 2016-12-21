@@ -2,6 +2,7 @@ package grid;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Element;
 
@@ -168,6 +169,14 @@ public class SpatialGrid implements Settable, Instantiable
 	public Shape getShape()
 	{
 		return this._shape;
+	}
+	
+	/**
+	 * @return Types of all arrays present in this grid.
+	 */
+	public Set<ArrayType> getAllArrayTypes()
+	{
+		return this._array.keySet();
 	}
 	
 	/* ***********************************************************************

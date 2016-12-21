@@ -29,6 +29,8 @@ public class MultigridLayerForLineTests
 {
 	private MultigridLayer _finer, _coarser, _coarsest;
 	
+	private final static double concn = 1.47;
+	
 	@Before
 	public void setup()
 	{
@@ -37,7 +39,7 @@ public class MultigridLayerForLineTests
 		resCalc.init(1.0, 0.0, 8.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
 		SpatialGrid grid = new SpatialGrid(shape, "grid", null);
-		grid.newArray(ArrayType.CONCN, 1.0);
+		grid.newArray(ArrayType.CONCN, concn);
 		this._finer = new MultigridLayer(grid);
 		this._coarser = this._finer.constructCoarser();
 		this._coarsest = this._coarser.constructCoarser();
@@ -71,5 +73,45 @@ public class MultigridLayerForLineTests
 	public void coarsestLayerCannotBeMadeCoarser()
 	{
 		assertFalse(this._coarsest.hasCoarser());
+	}
+	
+	@Test
+	public void finerGridHasCorrectConcnValues()
+	{
+		// TODO this really ought to go into a GridTests class
+		SpatialGrid grid = this._finer.getGrid();
+		Shape shape = grid.getShape();
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext())
+		{
+			assertEquals(concn, 
+					grid.getValueAtCurrent(ArrayType.CONCN), TOLERANCE);
+		}
+	}
+	
+	@Test
+	public void coarserGridHasConcnValuesOfFiner()
+	{
+		SpatialGrid grid = this._coarser.getGrid();
+		Shape shape = grid.getShape();
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext())
+		{
+			assertEquals(concn, 
+					grid.getValueAtCurrent(ArrayType.CONCN), TOLERANCE);
+		}
+	}
+	
+	@Test
+	public void coarsestGridHasConcnValuesOfFiner()
+	{
+		SpatialGrid grid = this._coarsest.getGrid();
+		Shape shape = grid.getShape();
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext())
+		{
+			assertEquals(concn, 
+					grid.getValueAtCurrent(ArrayType.CONCN), TOLERANCE);
+		}
 	}
 }

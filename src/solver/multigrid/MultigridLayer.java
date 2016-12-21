@@ -46,7 +46,11 @@ public class MultigridLayer
 		SpatialGrid coarserGrid = new SpatialGrid(coarserShape, name, parent);
 		this._coarser = new MultigridLayer(coarserGrid);
 		this._coarser._finer = this;
-		//this._coarser.fillArrayFromFiner();
+		for ( ArrayType type : this._grid.getAllArrayTypes() )
+		{
+			this._coarser._grid.newArray(type);
+			this._coarser.fillArrayFromFiner(type, 0.0);
+		}
 		return this._coarser;
 	}
 	
@@ -88,8 +92,9 @@ public class MultigridLayer
 		
 	}
 	
-	public void fillArrayFromFiner(ArrayType type)
+	public void fillArrayFromFiner(ArrayType type, double fracOfOldValueKept)
 	{
+		double fracOfNewValueUsed = 1.0 - fracOfOldValueKept;
 		/* Safety */
 		if ( this._finer == null )
 			return;
@@ -130,7 +135,8 @@ public class MultigridLayer
 			 * Use a new value that is half the coarser voxel's current, half
 			 * the average of the finer voxels.
 			 */
-			newValue = 0.5 * (newValue + this._grid.getValueAt(type, current));
+			newValue = (fracOfNewValueUsed * newValue) +
+					(fracOfOldValueKept * this._grid.getValueAtCurrent(type));
 			this._grid.setValueAt(type, current, newValue);
 		}
 	}
@@ -139,6 +145,7 @@ public class MultigridLayer
 	{
 		Shape shape = this._finer.getGrid().getShape();
 		ResolutionCalculator resCalc;
+		List<int[]> newVoxels = new LinkedList<int[]>();
 		for (int[] voxel : voxels)
 		{
 			int[] newVoxel = Vector.copy(voxel);
@@ -146,9 +153,10 @@ public class MultigridLayer
 			if ( resCalc.getNVoxel() > voxel[dim] + 1)
 			{
 				newVoxel[dim]++;
-				voxels.add(newVoxel);
+				newVoxels.add(newVoxel);
 			}
 		}
+		voxels.addAll(newVoxels);
 		if ( dim < 2 )
 			this.appendFinerVoxels(voxels, dim+1);
 		return voxels;
