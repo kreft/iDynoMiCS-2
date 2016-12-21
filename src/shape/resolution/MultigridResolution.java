@@ -13,7 +13,7 @@ public class MultigridResolution extends ResolutionCalculator
 		this._targetRes = targetResolution;
 		/* Single-voxel test to start with. */
 		this._nVoxel = 1;
-		this._resolution = targetResolution;
+		this._resolution = this.getTotalLength();
 		/* Variables to test splitting the grid into more voxels. */
 		int exponent = 1;
 		int altNVoxel = 2;
