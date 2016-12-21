@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import grid.ArrayType;
 import grid.SpatialGrid;
+import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
 import shape.Shape;
@@ -39,7 +40,14 @@ public class MultigridLayerForLineTests
 		resCalc.init(1.0, 0.0, 8.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
 		SpatialGrid grid = new SpatialGrid(shape, "grid", null);
+		// Use a constant value in the concentration array
 		grid.newArray(ArrayType.CONCN, concn);
+		// Use a variable value in the prodution array
+		grid.newArray(ArrayType.PRODUCTIONRATE);
+		double[][][] prodRate = Array.zerosDbl(8, 1, 1);
+		for ( int i = 0; i < 8; i++ )
+			prodRate[i][0][0] = i;
+		grid.setTo(ArrayType.PRODUCTIONRATE, prodRate);
 		this._finer = new MultigridLayer(grid);
 		this._coarser = this._finer.constructCoarser();
 		this._coarsest = this._coarser.constructCoarser();
@@ -90,7 +98,7 @@ public class MultigridLayerForLineTests
 	}
 	
 	@Test
-	public void coarserGridHasConcnValuesOfFiner()
+	public void coarserGridHasConstantValuesCopiedFromFiner()
 	{
 		SpatialGrid grid = this._coarser.getGrid();
 		Shape shape = grid.getShape();
@@ -103,7 +111,7 @@ public class MultigridLayerForLineTests
 	}
 	
 	@Test
-	public void coarsestGridHasConcnValuesOfFiner()
+	public void coarsestGridHasConcstantValuesCopiedFromFiner()
 	{
 		SpatialGrid grid = this._coarsest.getGrid();
 		Shape shape = grid.getShape();
@@ -112,6 +120,32 @@ public class MultigridLayerForLineTests
 		{
 			assertEquals(concn, 
 					grid.getValueAtCurrent(ArrayType.CONCN), TOLERANCE);
+		}
+	}
+	
+	@Test
+	public void coarserGridHasVariableValuesInterpolatedFromFiner()
+	{
+		SpatialGrid grid = this._coarser.getGrid();
+		Shape shape = grid.getShape();
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext())
+		{
+			assertEquals((2 * shape.iteratorCurrent()[0]) + 0.5,
+					grid.getValueAtCurrent(ArrayType.PRODUCTIONRATE), TOLERANCE);
+		}
+	}
+	
+	@Test
+	public void coarsestGridHasVariableValuesInterpolatedFromFiner()
+	{
+		SpatialGrid grid = this._coarsest.getGrid();
+		Shape shape = grid.getShape();
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext())
+		{
+			assertEquals((4 * shape.iteratorCurrent()[0]) + 1.5,
+					grid.getValueAtCurrent(ArrayType.PRODUCTIONRATE), TOLERANCE);
 		}
 	}
 }

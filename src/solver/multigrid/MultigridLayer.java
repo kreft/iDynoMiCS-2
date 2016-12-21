@@ -116,7 +116,7 @@ public class MultigridLayer
 			 */
 			finerVoxels.clear();
 			for ( int dim = 0; dim < 3; dim++ )
-				candidate[dim] = (int)(current[dim]*0.5);
+				candidate[dim] = current[dim]*2;
 			finerVoxels.add(candidate);
 			this.appendFinerVoxels(finerVoxels, 0);
 			/* 
