@@ -42,7 +42,7 @@ public class MultigridLayerForLineTests
 		SpatialGrid grid = new SpatialGrid(shape, "grid", null);
 		// Use a constant value in the concentration array
 		grid.newArray(ArrayType.CONCN, concn);
-		// Use a variable value in the prodution array
+		// Use a variable value in the production array
 		grid.newArray(ArrayType.PRODUCTIONRATE);
 		double[][][] prodRate = Array.zerosDbl(8, 1, 1);
 		for ( int i = 0; i < 8; i++ )

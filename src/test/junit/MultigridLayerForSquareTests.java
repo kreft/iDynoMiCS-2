@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import grid.ArrayType;
 import grid.SpatialGrid;
+import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.Shape;
 import shape.Dimension.DimName;
@@ -41,7 +42,15 @@ public class MultigridLayerForSquareTests
 		resCalc.init(1.0, 0.0, 8.0);
 		shape.setDimensionResolution(DimName.Y, resCalc);
 		SpatialGrid grid = new SpatialGrid(shape, "grid", null);
+		// Use a constant value in the concentration array
 		grid.newArray(ArrayType.CONCN, concn);
+		// Use a variable value in the production array
+		grid.newArray(ArrayType.PRODUCTIONRATE);
+		double[][][] prodRate = Array.zerosDbl(8, 8, 1);
+		for ( int i = 0; i < 8; i++ )
+			for (int j = 0; j < 8; j++ )
+				prodRate[i][j][0] = (i*8) + j;
+		grid.setTo(ArrayType.PRODUCTIONRATE, prodRate);
 		this._finer = new MultigridLayer(grid);
 		this._coarser = this._finer.constructCoarser();
 		this._coarsest = this._coarser.constructCoarser();
@@ -108,6 +117,37 @@ public class MultigridLayerForSquareTests
 		{
 			assertEquals(concn, 
 					grid.getValueAtCurrent(ArrayType.CONCN), TOLERANCE);
+		}
+	}
+	
+	@Test
+	public void coarserGridHasVariableValuesInterpolatedFromFiner()
+	{
+		SpatialGrid grid = this._coarser.getGrid();
+		Shape shape = grid.getShape();
+		double trueValue;
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext())
+		{
+			trueValue = (16 * shape.iteratorCurrent()[0]) +
+					(2 * shape.iteratorCurrent()[1]) + 4.5;
+			assertEquals(trueValue,
+					grid.getValueAtCurrent(ArrayType.PRODUCTIONRATE), TOLERANCE);
+		}
+	}
+	
+	@Test
+	public void coarsestGridHasVariableValuesInterpolatedFromFiner()
+	{
+		SpatialGrid grid = this._coarsest.getGrid();
+		Shape shape = grid.getShape();
+		double trueValue;
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext())
+		{
+			trueValue = (32 * shape.iteratorCurrent()[0]) +
+					(4 * shape.iteratorCurrent()[1]) + 13.5;
+			assertEquals(trueValue, grid.getValueAtCurrent(ArrayType.PRODUCTIONRATE), TOLERANCE);
 		}
 	}
 }
