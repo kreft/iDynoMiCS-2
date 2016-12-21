@@ -36,9 +36,9 @@ public class MultigridResolution extends ResolutionCalculator
 			MultigridResolution out = new MultigridResolution();
 			out._min = this._min;
 			out._max = this._max;
-			out._targetRes = 0.5 * this._targetRes;
+			out._targetRes = 2.0 * this._targetRes;
 			out._nVoxel = (int)(0.5 * this._nVoxel);
-			out._resolution = 0.5 * this._resolution;
+			out._resolution = 2.0 * this._resolution;
 			return out;
 		}
 		else
