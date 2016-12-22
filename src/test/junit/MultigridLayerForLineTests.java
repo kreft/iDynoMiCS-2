@@ -185,12 +185,15 @@ public class MultigridLayerForLineTests
 		/* Assert */
 		SpatialGrid grid = this._finer.getGrid();
 		Shape shape = grid.getShape();
-		double[] trueValues = new double[] 
-				{1.0, 2.0, 3.0, 2.0, 1.0, 2.0, 3.0, 2.0};
-		for ( shape.resetIterator();
-				shape.isIteratorValid(); shape.iteratorNext())
+		int[] current;
+		double trueValue;
+		for ( current = shape.resetIterator();
+				shape.isIteratorValid(); current = shape.iteratorNext())
 		{
-			assertEquals(trueValues[shape.iteratorCurrent()[0]],
+			trueValue = 1.0 + (current[0]%2);
+			if (current[0]%2 == 0)
+				trueValue += current[0]%4;
+			assertEquals(trueValue,
 					grid.getValueAtCurrent(ArrayType.DIFFUSIVITY), TOLERANCE);
 		}
 	}

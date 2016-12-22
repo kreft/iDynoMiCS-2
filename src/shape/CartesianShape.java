@@ -221,9 +221,11 @@ public abstract class CartesianShape extends Shape
 		}
 		
 		ResolutionCalculator newResCalc;
+		DimName dimName;
+		Dimension dimension;
 		for ( int i = 0; i < 3; i++ )
 		{
-			DimName dimName = this.getDimensionName(i);
+			dimName = this.getDimensionName(i);
 			if ( this._resCalc[i] instanceof SingleVoxel )
 				out.setDimensionResolution(dimName, this._resCalc[i]);
 			else if ( this._resCalc[i] instanceof MultigridResolution )
@@ -231,6 +233,9 @@ public abstract class CartesianShape extends Shape
 				newResCalc = ((MultigridResolution)this._resCalc[i])
 						.getCoarserResolution();
 				out.setDimensionResolution(dimName, newResCalc);
+				dimension = this.getDimension(dimName);
+				if ( dimension.isCyclic() )
+					out.makeCyclic(dimName);
 			}
 			else
 				return null;
