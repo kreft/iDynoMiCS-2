@@ -106,7 +106,12 @@ public class MultigridLayer
 		int[] coarserVoxel = Vector.zeros(current);
 		for (; thisShape.isIteratorValid(); current = thisShape.iteratorNext())
 		{
-			if (Vector.sum(current)%2 == 1)
+			/*
+			 * (i & 1) == 1 is a slightly quicker way of determining evenness
+			 * that (i % 2) == 0. (The modulo operation also deals with the
+			 * positive/negative, which is irrelevant here).
+			 */
+			if ((Vector.sum(current) & 1) == 1)
 				continue;
 			Vector.copyTo(coarserVoxel, current);
 			for (int i = 0; i < coarserVoxel.length; i++)
@@ -119,7 +124,12 @@ public class MultigridLayer
 		double volume, totalVolume;
 		for (; thisShape.isIteratorValid(); current = thisShape.iteratorNext())
 		{
-			if (Vector.sum(current)%2 == 0)
+			/*
+			 * (i & 1) == 0 is a slightly quicker way of determining evenness
+			 * that (i % 2) == 0. (The modulo operation also deals with the
+			 * positive/negative, which is irrelevant here).
+			 */
+			if ((Vector.sum(current) & 1) == 0)
 				continue;
 			newValue = 0.0;
 			totalVolume = 0.0;

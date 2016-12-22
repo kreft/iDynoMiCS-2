@@ -609,7 +609,9 @@ public abstract class ShapeIterator
 			boolean bMaxDef = this._shape.getDimension(dim).isBoundaryDefined(1);
 			this._whereIsNhb = this.whereIsNhb(dim);
 			/* Check there is space on the other side. */
-			if ( this._whereIsNhb == INSIDE || bMaxDef )
+			if ( this._whereIsNhb == INSIDE || 
+					this._whereIsNhb == CYCLIC || 
+					bMaxDef )
 			{
 				/* report success. */
 				if ( Log.shouldWrite(NHB_ITER_LEVEL) )

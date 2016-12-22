@@ -31,6 +31,7 @@ public class MultigridLayerForLineTests
 	private MultigridLayer _finer, _coarser, _coarsest;
 	
 	private final static double concn = 1.47;
+	private final static double wellMixed = 0.5;
 	
 	@Before
 	public void setup()
@@ -39,6 +40,7 @@ public class MultigridLayerForLineTests
 		ResolutionCalculator resCalc = new MultigridResolution();
 		resCalc.init(1.0, 0.0, 8.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
+		shape.makeCyclic(DimName.X);
 		SpatialGrid grid = new SpatialGrid(shape, "grid", null);
 		// Use a constant value in the concentration array
 		grid.newArray(ArrayType.CONCN, concn);
@@ -137,7 +139,7 @@ public class MultigridLayerForLineTests
 	}
 	
 	@Test
-	public void coarsestGridHasVariableValuesInterpolatedFromFiner()
+	public void coarsestGridHasVariableValuesCopiedFromFiner()
 	{
 		SpatialGrid grid = this._coarsest.getGrid();
 		Shape shape = grid.getShape();
@@ -146,6 +148,50 @@ public class MultigridLayerForLineTests
 		{
 			assertEquals((4 * shape.iteratorCurrent()[0]) + 1.5,
 					grid.getValueAtCurrent(ArrayType.PRODUCTIONRATE), TOLERANCE);
+		}
+	}
+	
+	@Test
+	public void finerGridHasConstantValuesCopiedFromCoarser()
+	{
+		/* Arrange */
+		this._coarser.getGrid().newArray(ArrayType.WELLMIXED, wellMixed);
+		/* Act */
+		this._finer.getGrid().newArray(ArrayType.WELLMIXED, wellMixed - 1.0);
+		this._finer.fillArrayFromCoarser(ArrayType.WELLMIXED);
+		/* Assert */
+		SpatialGrid grid = this._finer.getGrid();
+		Shape shape = grid.getShape();
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext())
+		{
+			assertEquals(wellMixed,
+					grid.getValueAtCurrent(ArrayType.WELLMIXED), TOLERANCE);
+		}
+	}
+	
+	@Test
+	public void finestGridHasConstantValuesInterpolatedFromCoarser()
+	{
+		/* Arrange */
+		this._coarser.getGrid().newArray(ArrayType.DIFFUSIVITY);
+		double[][][] diffusivity = Array.zerosDbl(4, 1, 1);
+		for ( int i = 0; i < 4; i++ )
+			diffusivity[i][0][0] = 1.0 + (i%2==0 ? 0.0 : 2.0);
+		this._coarser.getGrid().setTo(ArrayType.DIFFUSIVITY, diffusivity);
+		/* Act */
+		this._finer.getGrid().newArray(ArrayType.DIFFUSIVITY);
+		this._finer.fillArrayFromCoarser(ArrayType.DIFFUSIVITY);
+		/* Assert */
+		SpatialGrid grid = this._finer.getGrid();
+		Shape shape = grid.getShape();
+		double[] trueValues = new double[] 
+				{1.0, 2.0, 3.0, 2.0, 1.0, 2.0, 3.0, 2.0};
+		for ( shape.resetIterator();
+				shape.isIteratorValid(); shape.iteratorNext())
+		{
+			assertEquals(trueValues[shape.iteratorCurrent()[0]],
+					grid.getValueAtCurrent(ArrayType.DIFFUSIVITY), TOLERANCE);
 		}
 	}
 }
