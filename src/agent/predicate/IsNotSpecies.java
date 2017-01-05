@@ -1,7 +1,7 @@
 /**
  * 
  */
-package gereralPredicates;
+package agent.predicate;
 
 import java.util.function.Predicate;
 
@@ -13,9 +13,8 @@ import referenceLibrary.XmlRef;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
- * 
  */
-public class IsSpecies implements Predicate<Agent>
+public class IsNotSpecies implements Predicate<Agent>
 {
 	private String _speciesTag = XmlRef.species;
 	
@@ -27,7 +26,7 @@ public class IsSpecies implements Predicate<Agent>
 	 * 
 	 * @param speciesName Name of the species to filter for.
 	 */
-	public IsSpecies(String speciesName)
+	public IsNotSpecies(String speciesName)
 	{
 		this._speciesName = speciesName;
 	}
@@ -39,7 +38,7 @@ public class IsSpecies implements Predicate<Agent>
 	 * @param speciesName Name of the species to filter for.
 	 * @param speciesTag Aspect tag for species.
 	 */
-	public IsSpecies(String speciesName, String speciesTag)
+	public IsNotSpecies(String speciesName, String speciesTag)
 	{
 		this(speciesName);
 		this._speciesTag = speciesTag;
@@ -49,7 +48,7 @@ public class IsSpecies implements Predicate<Agent>
 	public boolean test(Agent agent)
 	{
 		String agentSpecies = agent.getString(this._speciesTag);
-		return agentSpecies.equals(this._speciesName);
+		return ! agentSpecies.equals(this._speciesName);
 	}
 	
 	/**
@@ -58,6 +57,7 @@ public class IsSpecies implements Predicate<Agent>
 	@Override
 	public String toString()
 	{
-		return "Species is " + _speciesName;
+		return "Species is not " + _speciesName;
 	}
+	
 }

@@ -45,7 +45,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	 */
 	protected AspectReg _aspectRegistry = new AspectReg();
 	private Settable _parentNode;
-
+		
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -109,9 +109,7 @@ public class Agent implements AspectInterface, Settable, Instantiable
 
 		this._aspectRegistry.addSubModule( (Species) 
 				Idynomics.simulator.speciesLibrary.get(species), species);
-
 	}
-
 	
 	/**
 	 * Instantiatable implementation

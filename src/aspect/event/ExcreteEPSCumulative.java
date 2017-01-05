@@ -8,11 +8,11 @@ import java.util.function.Predicate;
 
 import agent.Agent;
 import agent.Body;
+import agent.predicate.IsNotSpecies;
 import aspect.AspectInterface;
 import aspect.Event;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import gereralPredicates.IsNotSpecies;
 import idynomics.Compartment;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;

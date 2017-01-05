@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 import agent.Agent;
 import agent.Body;
+import agent.predicate.IsLocated;
 import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
@@ -25,12 +26,9 @@ import referenceLibrary.XmlRef;
 import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
-import shape.CartesianShape;
 import shape.Dimension;
 import shape.Shape;
 import shape.Dimension.DimName;
-import shape.subvoxel.CoordinateMap;
-import shape.subvoxel.SubvoxelPoint;
 import solver.PDEsolver;
 import spatialRegistry.*;
 import spatialRegistry.splitTree.SplitTree;
@@ -77,33 +75,24 @@ public class AgentContainer implements Settable
 	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
 
 	/**
-	 * TODO
+	 * FIXME not used, remove?
 	 */
 	protected SpatialGrid _detachability;
 	/**
-	 * TODO
+	 * FIXME what is the exact purpose of this and why is it here as a final 
+	 * static?
 	 */
 	public final static String DETACHABILITY = "detachability";
 	
+	/** FIXME not used, remove? */
 	protected PDEsolver _detachabilitySolver;
 	
 	/**
 	 * TODO
 	 */
 	private Settable _parentNode;
-	/**
-	 * Helper method for filtering local agent lists, so that they only
-	 * include those that have reactions.
-	 */
-	protected final static Predicate<Agent> NO_REAC_FILTER = 
-			(a -> ! a.isAspect(AspectRef.agentReactions));
-	/**
-	 * Helper method for filtering local agent lists, so that they only
-	 * include those that have relevant components of a body.
-	 */
-	protected final static Predicate<Agent> NO_BODY_FILTER = 
-			(a -> (! a.isAspect(AspectRef.surfaceList)) ||
-					( ! a.isAspect(AspectRef.bodyRadius)));
+	
+	/* NOTE removed predicates, use agent.predicate.HasAspect instad.
 
 
 	/**
@@ -316,7 +305,7 @@ public class AgentContainer implements Settable
 	public Collection<Agent> treeSearch(Agent anAgent, double searchDist)
 	{
 		// TODO not sure if this is the best response
-		if ( ! isLocated(anAgent) )
+		if ( ! IsLocated.isLocated(anAgent) )
 			return new LinkedList<Agent>();
 		/*
 		 * Find all nearby agents.
@@ -469,27 +458,6 @@ public class AgentContainer implements Settable
 	 * AGENT LOCATION & MASS
 	 * **********************************************************************/
 
-	 // FIXME move all aspect related methods out of general classes
-	/**
-	 * \brief Helper method to check if an {@code Agent} is located.
-	 * 
-	 * @param anAgent {@code Agent} to check.
-	 * @return Whether it is located (true) or not located (false).
-	 */
-	public static boolean isLocated(Agent anAgent)
-	{
-		/*
-		 * If there is no flag saying this agent is located, assume it is not.
-		 * 
-		 * Note of terminology: this is known as the closed-world assumption.
-		 * https://en.wikipedia.org/wiki/Closed-world_assumption
-		 */
-		//FIXME: #isLocated simplified for now, was an over extensive operation
-		// for a simple check.
-		return ( anAgent.get(AspectRef.isLocated) != null ) && 
-				( anAgent.getBoolean(AspectRef.isLocated) );
-	}
-
 	// FIXME move all aspect related methods out of general classes
 	/**
 	 * \brief Move the given agent along the given dimension, by the given
@@ -502,7 +470,7 @@ public class AgentContainer implements Settable
 	 */
 	public void moveAlongDimension(Agent anAgent, DimName dimN, double dist)
 	{
-		if ( ! isLocated(anAgent) )
+		if ( ! IsLocated.isLocated(anAgent) )
 			return;
 		Body body = (Body) anAgent.get(AspectRef.agentBody);
 		double[] newLoc = body.getPoints().get(0).getPosition();
@@ -626,7 +594,7 @@ public class AgentContainer implements Settable
 	 */
 	public void addAgent(Agent agent)
 	{
-		if ( isLocated(agent) )
+		if ( IsLocated.isLocated(agent) )
 			this.addLocatedAgent(agent);
 		else
 			this._agentList.add(agent);
@@ -759,7 +727,7 @@ public class AgentContainer implements Settable
 	// above
 	public void registerRemoveAgent(Agent anAgent)
 	{
-		if ( isLocated(anAgent) )
+		if ( IsLocated.isLocated(anAgent) )
 		{
 			this._locatedAgentList.remove(anAgent);
 		}
@@ -985,7 +953,7 @@ public class AgentContainer implements Settable
 	public void sortLocatedAgents() 
 	{
 		for(Agent a : this.getAllUnlocatedAgents())
-			if( isLocated(a))
+			if( IsLocated.isLocated(a) )
 			{
 				this._agentList.remove(a);
 				this._locatedAgentList.add(a);
