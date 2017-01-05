@@ -132,8 +132,7 @@ public class ExcreteEPSCumulative extends Event
 		double particleMass = 0.0;
 		if ( epsParticles.isEmpty() )
 		{
-			// TODO Joints state will be removed
-			double[] originalPos = body.getJoints().get(0);
+			double[] originalPos = body.getPosition(0);
 			double[] shift = Vector.randomPlusMinus(originalPos.length, 
 					0.6 * initiator.getDouble(this.RADIUS));
 			double[] epsPos = Vector.minus(originalPos, shift);

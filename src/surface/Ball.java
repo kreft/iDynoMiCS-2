@@ -102,7 +102,7 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 		return this._radius;
 	}
 
-	public void set(double radius, double notUsed)
+	public void setRadius(double radius)
 	{
 		this._radius = radius;
 	}

@@ -20,7 +20,7 @@ public abstract class Surface
 		SPHERE,
 		ROD,
 		PLANE,
-		// INFINITECYLINDER
+		// CYLINDER NOTE for cylindrical domains
 	}
 	
 	/**
@@ -35,10 +35,12 @@ public abstract class Surface
 	protected Collision _collisionDomain;
 
 	/**
-	 * Map of surfaces with which collisions need to be ignored.
+	 * Map of surfaces with which collisions need to be ignored. Neighboring
+	 * surfaces in the same body (like a bendable rod) would need to be ignored
+	 * since otherwise the intentionally overlapping segments would repel each
+	 * other.
 	 */
 	// TODO implement
-	// TODO Rob [17/5/2016]: Please give some explanation of the purpose.
 	public HashMap<Integer, Surface> _collisionIgnored = new HashMap<Integer, Surface>();
 
 	/**
@@ -58,14 +60,6 @@ public abstract class Surface
 	}
 	
 	public abstract int dimensions();
-
-	/**
-	 * 
-	 * @param a
-	 * @param b
-	 */
-	// FIXME Rob [17/5/2016]: This is a very vague method, consider replacing.
-	public abstract void set(double a, double b);
 
 	/**
 	 * @return the surface type

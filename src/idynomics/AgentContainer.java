@@ -697,11 +697,18 @@ public class AgentContainer implements Settable
 	 */
 	public Agent chooseAgent(int i)
 	{
-		return (i > this._agentList.size()) ?
-				/* Located agent. */
-				this._locatedAgentList.get(i - this._agentList.size()) :
-					/* Unlocated agent. */
-					this._agentList.get(i);
+		Tier level = Tier.NORMAL;
+		if ( i > this.getNumAllAgents()-1 && Log.shouldWrite(level) )
+		{
+			Log.out(level, "AgentContainer chooseAgent out of bounds");
+			return null;
+		}
+		else
+			return (i > this._agentList.size()) ?
+					/* Located agent. */
+					this._locatedAgentList.get(i - this._agentList.size()) :
+						/* non-located agent. */
+						this._agentList.get(i);
 	}
 
 	/**
@@ -710,26 +717,8 @@ public class AgentContainer implements Settable
 	 */
 	public Agent chooseRandomAgent()
 	{
-		Tier level = Tier.BULK;
-		int nAgents = this.getNumAllAgents();
-		/* Safety if there are no agents. */
-		if ( nAgents == 0 )
-		{
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "No agents in this container, so cannot "+
-						"choose one: returning null");
-			}
-			return null;
-		}/* Now find an agent. */
-		int i = ExtraMath.getUniRandInt(nAgents);
-		Agent out = this.chooseAgent(i);
-		if ( Log.shouldWrite(level) )
-		{
-			Log.out(level, "Out of "+nAgents+" agents, agent with UID "+
-					out.identity()+" was chosen randomly");
-		}
-		return out; 
+		return this.chooseAgent( ExtraMath.getUniRandInt(
+				this.getNumAllAgents() ) );
 	}
 
 	/**

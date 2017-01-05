@@ -101,10 +101,10 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		 */
 		for ( Agent agent : this._agents.getAllLocatedAgents() )
 			this.applyAgentGrowth(agent);
-		/*
-		 * Clear agent mass distribution maps.
-		 */
-		this._agents.removeAgentDistibutionMaps();
+
+		/* perform final clean-up and update agents to represent updated 
+		 * situation. */
+		this.postStep();
 	}
 	
 	/* ***********************************************************************

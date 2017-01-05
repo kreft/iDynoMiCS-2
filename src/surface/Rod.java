@@ -72,9 +72,13 @@ public class Rod extends Surface implements HasBoundingBox {
 		return _length;
 	}
 	
-	public void set(double radius, double spineLength)
+	public void setRadius(double radius)
 	{
 		this._radius = radius;
+	}
+	
+	public void setLength(double spineLength)
+	{
 		this._length = spineLength;
 	}
 

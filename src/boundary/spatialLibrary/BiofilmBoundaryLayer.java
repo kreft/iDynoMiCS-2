@@ -100,7 +100,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 		 * NOTE: One sets a Ball's radius, not diameter
 		 */
 		super.setLayerThickness(thickness);
-		this._gridSphere.set(this._layerThickness / 2.0, 0.0);
+		this._gridSphere.setRadius(this._layerThickness / 2.0);
 	}
 
 	/* ***********************************************************************

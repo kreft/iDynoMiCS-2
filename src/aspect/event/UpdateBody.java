@@ -25,7 +25,7 @@ public class UpdateBody extends Event
 		Body body = (Body) initiator.getValue(BODY);
 		
 		// TODO cleanup
-		if ( body.getJoints().size() > 1 )
+		if ( body.getNumberOfPoints() > 1 )
 		{
 			double r = initiator.getDouble(RADIUS);
 			double v = initiator.getDouble(VOLUME) - ExtraMath.volumeOfASphere( r );

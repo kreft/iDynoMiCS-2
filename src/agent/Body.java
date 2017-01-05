@@ -205,21 +205,28 @@ public class Body implements Copyable, Instantiable
 	public void update(double radius, double spineLength)
 	{
 		for ( Surface s: this._surfaces )
-			s.set(radius, spineLength);
+		{
+			if (s instanceof Rod)
+			{
+				((Rod) s).setLength(spineLength);
+				((Rod) s).setRadius(radius);
+			}
+			else if (s instanceof Ball)
+			{
+				((Ball) s).setRadius(radius);
+			}
+		}
 	}
-
-	//TODO: method will be replaced
-	public List<double[]> getJoints()
+	
+	/**
+	 * Returns the position vector of a given joint. Ball has only one joint
+	 * (the first point) rods have 2 joints etc.
+	 * @param joint numbered starting with 0
+	 * @return position vector
+	 */
+	public double[] getPosition(int joint)
 	{
-		List<double[]> joints = new LinkedList<double[]>();
-		this._points.forEach( (p) -> joints.add(p.getPosition()) );
-		return joints;
-	}
-
-	//FIXME only for testing purposes
-	public Surface getSurface()
-	{
-		return this._surfaces.get(0);
+		return this._points.get(joint).getPosition();
 	}
 
 	public List<Surface> getSurfaces()

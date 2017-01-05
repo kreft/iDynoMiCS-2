@@ -60,15 +60,6 @@ public class Plane extends Surface implements HasBoundingBox
 		this.d = Vector.dotProduct(this.normal, pointA);
 	}
 	
-	/**
-	 * Plane.set allows one to move the plane along its normal
-	 */
-	@Override
-	public void set(double d, double notUsed)
-	{
-		this.d = d;
-	}
-	
 		@Override
 	public Type type()
 	{

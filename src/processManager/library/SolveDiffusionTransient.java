@@ -105,11 +105,10 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 		 * distribute it among the relevant boundaries.
 		 */
 		this._environment.distributeWellMixedFlows();
-		/*
-		 * Clear agent mass distribution maps.
-		 */
-		this._agents.removeAgentDistibutionMaps();
 
+		/* perform final clean-up and update agents to represent updated 
+		 * situation. */
+		this.postStep();
 	}
 	
 	/* ***********************************************************************

@@ -142,7 +142,17 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * Note that sub-classes may have methods after to allocate mass and
 		 * tidy up 
 		 */
-		
+	}
+	
+	/**
+	 * perform final clean-up and update agents to represent updated situation.
+	 */
+	protected void postStep()
+	{
+		/*
+		 * Clear agent mass distribution maps.
+		 */
+		this._agents.removeAgentDistibutionMaps();
 		/**
 		 * act upon new agent situations
 		 */
@@ -152,7 +162,6 @@ public abstract class ProcessDiffusion extends ProcessManager
 			agent.event(EXCRETE_EPS);
 			agent.event(UPDATE_BODY);
 		}
-
 	}
 	
 	/* ***********************************************************************
