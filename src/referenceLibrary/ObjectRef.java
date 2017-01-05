@@ -75,9 +75,9 @@ public final class ObjectRef
 	 */
 	public final static String DBL_ARRY = DBL_MATR+"[]";
 	
-	public static final String PILE = "InstantiableList";
+	public static final String INSTANTIABLELIST = "InstantiableList";
 	
-	public static final String BUNDLE = "InstantiableMap";
+	public static final String INSTANTIABLEMAP = "InstantiableMap";
 	
 	public static final String LINKEDLIST = "LinkedList";
 	

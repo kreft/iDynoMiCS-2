@@ -159,9 +159,9 @@ public class ObjectFactory
 			if ( input == null)
 				input = Helper.obtainInput( "", "Primary value" );
 			return input.split(",");
-		case ObjectRef.PILE :
+		case ObjectRef.INSTANTIABLELIST :
 			return Instance.getNew( null, null, ClassRef.instantiableList );
-		case ObjectRef.BUNDLE :
+		case ObjectRef.INSTANTIABLEMAP :
 			return Instance.getNew( null, null, ClassRef.instantiableMap );
 		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(input);
@@ -273,9 +273,9 @@ public class ObjectFactory
 			return s.getAttribute(value);
 		case ObjectRef.STR_VECT : 
 			return s.getAttribute(value).split(",");
-		case ObjectRef.PILE :
+		case ObjectRef.INSTANTIABLELIST :
 			return Instance.getNew(s, null, ClassRef.instantiableList);
-		case ObjectRef.BUNDLE :
+		case ObjectRef.INSTANTIABLEMAP :
 			return Instance.getNew(s, null, ClassRef.instantiableMap);
 		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(s);
