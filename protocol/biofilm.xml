@@ -16,7 +16,7 @@
 				<speciesModule name="coccoid" />
 				<!-- <speciesModule name="stochasticMover" /> -->
 				<speciesModule name="producer" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact" comment="biomass specific growth rate">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">
@@ -33,7 +33,7 @@
 			<species name="species2">
 				<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 				<speciesModule name="coccoid" />
-				<aspect name="reactions" type="PRIMARY"  class="InstantiatableList"> 
+				<aspect name="reactions" type="PRIMARY"  class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="testReact">
 							<expression value="mass * mumax *(solute1 / (solute1 + k) )">

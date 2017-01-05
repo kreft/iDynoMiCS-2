@@ -23,7 +23,6 @@ import instantiable.Instance;
 import linearAlgebra.Array;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
-import reaction.Reaction;
 import referenceLibrary.ClassRef;
 import referenceLibrary.ObjectRef;
 import referenceLibrary.XmlRef;
@@ -161,9 +160,9 @@ public class ObjectFactory
 				input = Helper.obtainInput( "", "Primary value" );
 			return input.split(",");
 		case ObjectRef.PILE :
-			return Instance.getNew( null, null, ClassRef.pile );
+			return Instance.getNew( null, null, ClassRef.instantiableList );
 		case ObjectRef.BUNDLE :
-			return Instance.getNew( null, null, ClassRef.bundle );
+			return Instance.getNew( null, null, ClassRef.instantiableMap );
 		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(input);
 		case ObjectRef.HASHMAP :
@@ -275,9 +274,9 @@ public class ObjectFactory
 		case ObjectRef.STR_VECT : 
 			return s.getAttribute(value).split(",");
 		case ObjectRef.PILE :
-			return Instance.getNew(s, null, ClassRef.pile);
+			return Instance.getNew(s, null, ClassRef.instantiableList);
 		case ObjectRef.BUNDLE :
-			return Instance.getNew(s, null, ClassRef.bundle);
+			return Instance.getNew(s, null, ClassRef.instantiableMap);
 		case ObjectRef.LINKEDLIST :
 			return ObjectFactory.xmlList(s);
 		case ObjectRef.HASHMAP :
