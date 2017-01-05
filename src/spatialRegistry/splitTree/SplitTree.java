@@ -130,7 +130,7 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	 */
 
 	@Override
-	public List<T> search(double[] coords, double[] dimensions) 
+	public List<T> localSearch(double[] coords, double[] dimensions) 
 	{
 
 		LinkedList<T> out = new LinkedList<T>();
@@ -152,23 +152,26 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	}
 
 	@Override
-	public List<T> cyclicsearch(double[] coords, double[] dimensions) 
+	public List<T> search(double[] coords, double[] dimensions) 
 	{
-		return this.search(coords, dimensions);
+		return this.localSearch(coords, dimensions);
 	}
 
 	@Override
-	public List<T> cyclicsearch(BoundingBox boundingBox) 
-	{
-		return this.search(boundingBox.lowerCorner(), boundingBox.ribLengths());
-	}
-
-	@Override
-	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes) 
+	public List<T> search(BoundingBox... boundingBoxes) 
 	{
 		LinkedList<T> out = new LinkedList<T>();
 		for (BoundingBox b : boundingBoxes )
-			out.addAll(cyclicsearch(b) );
+			out.addAll(search(b) );
+		return out;
+	}
+	
+	@Override
+	public List<T> search(List<BoundingBox> boundingBoxes) 
+	{
+		LinkedList<T> out = new LinkedList<T>();
+		for (BoundingBox b : boundingBoxes )
+			out.addAll(search(b) );
 		return out;
 	}
 

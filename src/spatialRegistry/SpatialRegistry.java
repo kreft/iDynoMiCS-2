@@ -1,7 +1,14 @@
 package spatialRegistry;
 
+import java.util.LinkedList;
 import java.util.List;
 
+import agent.Agent;
+import agent.Body;
+import agent.predicate.IsLocated;
+import gereralPredicates.IsSame;
+import linearAlgebra.Vector;
+import referenceLibrary.AspectRef;
 import surface.BoundingBox;
 
 /**
@@ -14,6 +21,15 @@ import surface.BoundingBox;
 public interface SpatialRegistry<T>
 {	
 	/**
+	 * \brief perform local search, ignore periodic boundaries.
+	 * 
+	 * @param coords
+	 * @param dimension
+	 * @return
+	 */
+	public abstract List<T> localSearch(double[] coords, double[] dimension);
+	
+	/**
 	 * \brief TODO
 	 * 
 	 * @param coords
@@ -23,28 +39,18 @@ public interface SpatialRegistry<T>
 	public abstract List<T> search(double[] coords, double[] dimension);
 	
 	/**
-	 * \brief TODO
-	 * 
-	 * @param coords
-	 * @param dimension
-	 * @return
-	 */
-	public abstract List<T> cyclicsearch(double[] coords, double[] dimension);
-	
-	/**
 	 * 
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract List<T> cyclicsearch(BoundingBox boundingBox);
+	public abstract List<T> search(BoundingBox... boundingBox);
+	public abstract List<T> search(List<BoundingBox> boundingBox);
 	
-	/**
-	 * 
-	 * @param boundingBox
-	 * @return
-	 */
-	public abstract List<T> cyclicsearch(List<BoundingBox> boundingBoxes);
-	
+	public default List<T> search(double[] pointLocation)
+	{
+		return this.search(pointLocation, Vector.zeros(pointLocation));
+	}
+
 	/**
 	 * \brief TODO
 	 * 

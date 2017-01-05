@@ -20,13 +20,13 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	}
 	
 	@Override
-	public List<T> search(double[] coords, double[] dimension)
+	public List<T> localSearch(double[] coords, double[] dimension)
 	{
 		return this._emptyList;
 	}
 
 	@Override
-	public List<T> cyclicsearch(double[] coords, double[] dimension)
+	public List<T> search(double[] coords, double[] dimension)
 	{
 		return this._emptyList;
 	}
@@ -50,13 +50,13 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	}
 
 	@Override
-	public List<T> cyclicsearch(BoundingBox boundingBox) {
+	public List<T> search(BoundingBox... boundingBoxes) {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 	@Override
-	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes) {
+	public List<T> search(List<BoundingBox> boundingBoxes) {
 		// TODO Auto-generated method stub
 		return null;
 	}

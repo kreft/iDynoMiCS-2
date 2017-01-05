@@ -247,9 +247,9 @@ public class AgentContainer implements Settable
 	 * @return Collection of agents that may be overlap with this box: note
 	 * that there may be some false positives (but no false negatives).
 	 */
-	public List<Agent> treeSearch(BoundingBox boundingBox)
+	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
 	{
-		return this._agentTree.cyclicsearch(boundingBox);
+		return this._agentTree.search(boundingBoxes);
 	}
 
 	/**
@@ -260,9 +260,9 @@ public class AgentContainer implements Settable
 	 * @return Collection of agents that may be overlap with these boxes: note
 	 * that there may be some false positives (but no false negatives).
 	 */
-	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
+	public List<Agent> treeSearch(BoundingBox... boundingBoxes)
 	{
-		return this._agentTree.cyclicsearch(boundingBoxes);
+		return this._agentTree.search(boundingBoxes);
 	}
 
 	/**
@@ -276,7 +276,7 @@ public class AgentContainer implements Settable
 	 */
 	public List<Agent> treeSearch(double[] location, double[] dimensions)
 	{
-		return this._agentTree.cyclicsearch(location, dimensions);
+		return this._agentTree.search(location, dimensions);
 	}
 
 	/**
@@ -302,7 +302,7 @@ public class AgentContainer implements Settable
 	 * that there may be some false positives (but no false negatives). The
 	 * focal agent is not in this collection.
 	 */
-	public Collection<Agent> treeSearch(Agent anAgent, double searchDist)
+	public List<Agent> treeSearch(Agent anAgent, double searchDist)
 	{
 		// TODO not sure if this is the best response
 		if ( ! IsLocated.isLocated(anAgent) )
@@ -312,7 +312,7 @@ public class AgentContainer implements Settable
 		 */
 		Body body = (Body) anAgent.get(AspectRef.agentBody);
 		List<BoundingBox> boxes = body.getBoxes(searchDist);
-		Collection<Agent> out = this.treeSearch(boxes);
+		List<Agent> out = this.treeSearch(boxes);
 		/* 
 		 * Remove the focal agent from this list.
 		 */

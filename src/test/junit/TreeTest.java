@@ -206,7 +206,7 @@ public class TreeTest {
 		for (int i = 0; i < 1000; i++)
 		{
 			double[] b = new double[3];
-			listr.add(tree.search(Vector.randomPlusMinus(3, 100.0), Vector.setAll(b, 0.2)));
+			listr.add(tree.localSearch(Vector.randomPlusMinus(3, 100.0), Vector.setAll(b, 0.2)));
 		}
 		System.out.println("multi find " + listr.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
@@ -216,7 +216,7 @@ public class TreeTest {
 		for (int i = 0; i < 10000; i++)
 		{
 			double[] b = new double[3];
-			listr.add(tree.search(Vector.randomPlusMinus(3, 100.0), Vector.setAll(b, 0.2)));
+			listr.add(tree.localSearch(Vector.randomPlusMinus(3, 100.0), Vector.setAll(b, 0.2)));
 		}
 		System.out.println("multi find " + listr.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
@@ -225,7 +225,7 @@ public class TreeTest {
 		tic = (System.currentTimeMillis());
 		for ( double[] d : boxes.keySet())
 		{
-			tree.search(d, boxes.get(d));
+			tree.localSearch(d, boxes.get(d));
 		}
 		System.out.println("assess all " + boxes.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
@@ -367,7 +367,7 @@ public class TreeTest {
 		for (int i = 0; i < 1000; i++)
 		{
 			double[] b = new double[3];
-			listr.add(tree.search(Vector.randomPlusMinus(3, 100.0), Vector.setAll(b, 0.2)));
+			listr.add(tree.localSearch(Vector.randomPlusMinus(3, 100.0), Vector.setAll(b, 0.2)));
 		}
 		System.out.println("multi find " + listr.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));
@@ -376,7 +376,7 @@ public class TreeTest {
 		tic = (System.currentTimeMillis());
 		for ( double[] d : boxes.keySet())
 		{
-			tree.search(d, boxes.get(d));
+			tree.localSearch(d, boxes.get(d));
 		}
 		System.out.println("assess all " + boxes.size() + 
 				" in: "+ (System.currentTimeMillis() - tic));

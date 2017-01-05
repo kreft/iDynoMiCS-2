@@ -160,7 +160,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @return a list of objects whose rectangles overlap with the given
 	 *         rectangle.
 	 */
-	public List<T> search(double[] coords, double[] dimensions)
+	public List<T> localSearch(double[] coords, double[] dimensions)
 	{
 		assert (coords.length == numDims);
 		assert (dimensions.length == numDims);
@@ -211,7 +211,7 @@ public class RTree<T> implements SpatialRegistry<T>
 	 * @return a list of objects whose rectangles overlap with the given
 	 *         rectangle.
 	 */
-	public List<T> cyclicsearch(double[] coords, double[] dimensions)  {
+	public List<T> search(double[] coords, double[] dimensions)  {
 		LinkedList<T> combinedlist = new LinkedList<T>();
 		LinkedList<double[]> boxList = this._shape.getCyclicPoints(coords);
 
@@ -227,17 +227,25 @@ public class RTree<T> implements SpatialRegistry<T>
 	/**
 	 * Cyclic search using bounding box as query
 	 */
-	public List<T> cyclicsearch(BoundingBox boundingBox)
+	public List<T> search(BoundingBox boundingBox)
 	{
-		return cyclicsearch(boundingBox.lowerCorner(), boundingBox.ribLengths());
+		return search(boundingBox.lowerCorner(), boundingBox.ribLengths());
 	}
 
 
-	public List<T> cyclicsearch(List<BoundingBox> boundingBoxes)
+	public List<T> search(BoundingBox... boundingBoxes)
 	{
 		List<T> entryList = new LinkedList<T>();
 		for(BoundingBox b : boundingBoxes)
-			entryList.addAll(cyclicsearch(b));
+			entryList.addAll(search(b));
+		return entryList;
+	}
+	
+	public List<T> search(List<BoundingBox> boundingBoxes)
+	{
+		List<T> entryList = new LinkedList<T>();
+		for(BoundingBox b : boundingBoxes)
+			entryList.addAll(search(b));
 		return entryList;
 	}
 
