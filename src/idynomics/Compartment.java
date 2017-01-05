@@ -559,19 +559,6 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	{
 		Idynomics.simulator.removeCompartment(this);
 	}
-	
-	public void removeChildModule(Settable child)
-	{
-		if (child instanceof Shape)
-		{
-			this.setShape( (Shape) Instance.getNew(
-					null, this, Shape.getAllOptions()) );
-			// FIXME also remove solutes, spatial grids would be incompatible 
-			// with a new shape
-		}
-		if (child instanceof ProcessManager)
-			this._processes.remove((ProcessManager) child);
-	}
 
 	@Override
 	public String defaultXmlTag() 
