@@ -129,7 +129,7 @@ public class PDEgaussseidel extends PDEsolver
 			}
 			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current);
 			// TODO norm += variable.getValueAt(DIFFPRODUCTIONRATE, current);
-			residual = (diffusiveFlow  / norm) + rateFromReactions;
+			residual = (diffusiveFlow + rateFromReactions) / norm;
 			newConcn = currConcn + residual;
 			if ( Log.shouldWrite(level) )
 			{
