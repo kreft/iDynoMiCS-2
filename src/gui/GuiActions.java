@@ -13,7 +13,7 @@ import dataIO.Log;
 import idynomics.Compartment;
 import idynomics.GuiLaunch;
 import idynomics.Idynomics;
-import idynomics.Param;
+import idynomics.Settings;
 import idynomics.Simulator;
 import render.AgentMediator;
 import render.Render;
@@ -56,7 +56,7 @@ public final class GuiActions
 	public static void openFile(File f) 
 	{
 		Idynomics.simulator = new Simulator();
-		Idynomics.global = new Param();
+		Idynomics.global = new Settings();
 		GuiMain.getConstructor();
     	/* load content if a protocol file has been selected */
     	if ( f == null )

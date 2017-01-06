@@ -16,12 +16,6 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Properties;
-
 import dataIO.XmlHandler;
 import referenceLibrary.XmlRef;
 
@@ -34,17 +28,6 @@ import referenceLibrary.XmlRef;
 public strictfp class Idynomics
 {
 	/**
-	* Version number of this iteration of iDynoMiCS - required by update
-	* procedure.
-	*/
-	public final static String version_number = "2.0";
-	
-	/**
-	 * Version description.
-	 */
-	public final static String version_description = "alpha build 2017.01.06";
-	
-	/**
 	 * {@code Simulator} object: there can only be one. 
 	 */
 	public static Simulator simulator;
@@ -52,7 +35,7 @@ public strictfp class Idynomics
 	/**
 	 * global parameters
 	 */
-	public static Param global = new Param();
+	public static Settings global = new Settings();
 	
 	/**
 	 * Simulator thread
@@ -134,7 +117,7 @@ public strictfp class Idynomics
 		/*
 		 * Initialise the global parameters.
 		 */
-		Param.init(simElem);
+		Settings.init(simElem);
 		Log.out(NORMAL, Idynomics.global.simulationComment);
 		Log.out(NORMAL, "Storing results in " + Idynomics.global.outputLocation+"\n");
 		/*
@@ -160,7 +143,7 @@ public strictfp class Idynomics
 	 */
 	public static String fullDescription()
 	{
-		return "iDynoMiCS "+Idynomics.version_number+
-				" ("+Idynomics.version_description+")";
+		return "iDynoMiCS "+Settings.version_number+
+				" ("+Settings.version_description+")";
 	}
 }

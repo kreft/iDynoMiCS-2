@@ -12,7 +12,7 @@ import dataIO.Log.Tier;
 import grid.SpatialGrid;
 import idynomics.Compartment;
 import idynomics.Idynomics;
-import idynomics.Param;
+import idynomics.Settings;
 import idynomics.Simulator;
 import processManager.library.SolveDiffusionTransient;
 import shape.Dimension.DimName;
@@ -39,7 +39,7 @@ public class PDEBenchmark {
 		 */
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkCartesianShape";
-		Param.setOutputLocation();
+		Settings.updateSettings();
 		Log.set(Tier.QUIET);
 		Log.setupFile();
 		BufferedWriter bw = null;
@@ -135,7 +135,7 @@ public class PDEBenchmark {
 		 */
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkCylindricalShape";
-		Param.setOutputLocation();
+		Settings.updateSettings();
 		Log.set(Tier.QUIET);
 		Log.setupFile();
 		BufferedWriter bw = null;
@@ -231,7 +231,7 @@ public class PDEBenchmark {
 		 */
 		Idynomics.global.outputRoot = "./Benchmarks";
 		Idynomics.global.simulationName = "BenchmarkSphericalShape";
-		Param.setOutputLocation();
+		Settings.updateSettings();
 		Log.set(Tier.QUIET);
 		Log.setupFile();
 		BufferedWriter bw = null;

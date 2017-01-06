@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import utility.ExtraMath;
+import utility.Helper;
 
 /**
  * \brief Library of useful vector functions.
@@ -215,6 +216,7 @@ public final class Vector
 	 */
 	public static int[] intFromString(String vectorString)
 	{
+		vectorString = Helper.removeWhitespace(vectorString);
 		String[] fields = vectorString.split(DELIMITER);
 		int[] vector = new int[fields.length];
 		for ( int i = 0; i < fields.length; i++ )		
@@ -231,6 +233,7 @@ public final class Vector
 	 */
 	public static double[] dblFromString(String vectorString)
 	{
+		vectorString = Helper.removeWhitespace(vectorString);
 		String[] fields = vectorString.split(DELIMITER);
 		double[] vector = new double[fields.length];
 		for ( int i = 0; i < fields.length; i++ )		

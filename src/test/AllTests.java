@@ -11,7 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.Idynomics;
-import idynomics.Param;
+import idynomics.Settings;
 import idynomics.Simulator;
 import shape.Shape;
 import test.junit.AgentEventTest;
@@ -56,7 +56,7 @@ public class AllTests
 		Idynomics.simulator = new Simulator();
 		Idynomics.global.outputRoot = "./unitTests";
 		Idynomics.global.simulationName = name;
-		Param.setOutputLocation();
+		Settings.updateSettings();
 		Idynomics.simulator.timer.setTimeStepSize(tStep);
 		Idynomics.simulator.timer.setEndOfSimulation(tMax);
 		Log.set(Tier.DEBUG);

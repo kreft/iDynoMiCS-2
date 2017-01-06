@@ -243,7 +243,7 @@ public strictfp class GuiLaunch implements Runnable
 			public void actionPerformed(ActionEvent event)
 			{
 				Idynomics.simulator = new Simulator();
-				Idynomics.global = new Param();
+				Idynomics.global = new Settings();
 				GuiMain.getConstructor();
 				GuiEditor.addComponent(Idynomics.simulator.getModule(), GuiMain.tabbedPane);
 			}

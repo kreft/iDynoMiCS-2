@@ -16,7 +16,7 @@ public strictfp class ConsoleLaunch
 	 */
 	public static void main(String[] args)
 	{
-		System.out.print("Starting iDynoMiCS " +Idynomics.version_number+ "\n");
+		System.out.print("Starting iDynoMiCS " +Settings.version_number+ "\n");
 		/* Acquire a protocol file. */
 		String protocolPath;
 		if(args == null || args.length == 0 || args[0] == null)

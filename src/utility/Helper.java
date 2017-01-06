@@ -1,8 +1,10 @@
 package utility;
 
+import java.awt.Color;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -10,6 +12,7 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 import gui.GuiConsole;
 import idynomics.Idynomics;
+import linearAlgebra.Vector;
 
 /**
  * \brief TODO
@@ -424,5 +427,21 @@ public class Helper
 		for ( int i = 0; i < 5 && i < lines.length; i++)
 			out += lines[i] + "\n";
 		return out;
+	}
+	
+	public static Color obtainColor(String settingName, Properties properties, String defaultCol)
+	{
+		/* color vector, get color from config file, use default if not 
+		 * specified */
+		int[] color = Vector.intFromString( Helper.setIfNone( 
+				properties.getProperty( settingName ) , defaultCol) );
+		
+		/* return as color */
+		return new Color( color[0], color[1], color[2] );
+	}
+	
+	public static String removeWhitespace(String input)
+	{
+		return input.replaceAll("\\s+","");
 	}
 }
