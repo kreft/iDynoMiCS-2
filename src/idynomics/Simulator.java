@@ -427,6 +427,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		Module modelNode = new Module(XmlRef.simulation, this);
 		modelNode.setRequirements(Requirements.EXACTLY_ONE);
 		
+		/* required if we start without a protocol file */
 		Settings.updateSettings();
 		if(! Log.isSet())
 			Log.set(Tier.NORMAL);

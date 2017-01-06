@@ -66,7 +66,8 @@ public class PovExport implements GraphicalExporter
 	public void createFile(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".pov";
+				+ prefix + "_" + Idynomics.simulator.timer.getCurrentIteration()
+				+ "_" + DigitFilenr(_filewriterfilenr) + ".pov";
 		_povFile.fnew(fileString);
 
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);

@@ -455,4 +455,6 @@ public class XmlRef
 	 */
 	public static final String map = "map";
 
+	public static final String currentIter = "currentIter";
+
 }

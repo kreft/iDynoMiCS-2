@@ -41,7 +41,8 @@ public class XmlExport
 	public void newXml(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".xml";
+				+ prefix + "_" + DigitFilenr(_filewriterfilenr)  
+				+ "_" + Idynomics.simulator.timer.getCurrentIteration() + ".xml";
 		_xmlFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 

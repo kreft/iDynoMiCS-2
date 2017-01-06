@@ -17,6 +17,7 @@ import gui.GuiEditor;
 import gui.GuiMain;
 import gui.GuiMenu;
 import gui.GuiSimControl;
+import referenceLibrary.XmlRef;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -124,7 +125,8 @@ public strictfp class GuiLaunch implements Runnable
 		catch (UnsupportedLookAndFeelException | ClassNotFoundException 
 			  | InstantiationException  | IllegalAccessException e)
 		{
-			// TODO? Or do nothing?
+			/* do nothing, if we cannot set the system look and feel we should 
+			 * get the java default look and feel which should still work.  */
 		}
 		/* 
 		 * When running in GUI we want dialog input instead of command line 
@@ -245,7 +247,14 @@ public strictfp class GuiLaunch implements Runnable
 				Idynomics.simulator = new Simulator();
 				Idynomics.global = new Settings();
 				GuiMain.getConstructor();
-				GuiEditor.addComponent(Idynomics.simulator.getModule(), GuiMain.tabbedPane);
+				if ( ! Idynomics.global.ignore_protocol_out )
+				{
+					Idynomics.global.outputRoot = Helper.obtainInput(
+							Idynomics.global.outputRoot, "Required " + 
+							XmlRef.outputFolder, true);
+				}
+				GuiEditor.addComponent( Idynomics.simulator.getModule(), 
+						GuiMain.tabbedPane);
 			}
 		}
 		);
@@ -257,11 +266,7 @@ public strictfp class GuiLaunch implements Runnable
 		button = GuiSimControl.runButton();
 		buttonHoriz.addComponent(button);
 		buttonVert.addComponent(button);
-		/* Pause the simulation. */
-		// TODO This doesn't work yet...
-		//button = GuiSimControl.pauseButton();
-		//buttonHoriz.addComponent(button);
-		//buttonVert.addComponent(button);
+
 		/* Stop the simulation. */
 		button = GuiSimControl.stopButton();
 		buttonHoriz.addComponent(button);
@@ -287,9 +292,9 @@ public strictfp class GuiLaunch implements Runnable
 	 */
 	public static void resetProgressBar()
 	{
-		_progressBar.setMinimum(Idynomics.simulator.timer.getCurrentIteration());
-		_progressBar.setValue(Idynomics.simulator.timer.getCurrentIteration());
-		_progressBar.setMaximum(Idynomics.simulator.timer.estimateLastIteration());
+		_progressBar.setMinimum(0);
+		_progressBar.setValue((int) Idynomics.simulator.timer.getCurrentTime());
+		_progressBar.setMaximum((int) Idynomics.simulator.timer.getEndOfSimulation());
 	}
 	
 	/**
@@ -297,6 +302,6 @@ public strictfp class GuiLaunch implements Runnable
 	 */
 	public static void updateProgressBar()
 	{
-		_progressBar.setValue(Idynomics.simulator.timer.getCurrentIteration());
+		_progressBar.setValue((int) Idynomics.simulator.timer.getCurrentTime());
 	}
  }

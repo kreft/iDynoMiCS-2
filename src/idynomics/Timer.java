@@ -58,6 +58,10 @@ public class Timer implements Instantiable, Settable
 				XmlHandler.gatherAttribute(
 				xmlNode, XmlRef.currentTime ), "0.0" ) ) );
 		
+		this.setCurrentIteration( Integer.valueOf( Helper.setIfNone( 
+				XmlHandler.gatherAttribute(
+				xmlNode, XmlRef.currentIter ), "0" ) ) );
+		
 		/* Get the time step. */
 		this.setTimeStepSize( Double.valueOf( XmlHandler.obtainAttribute(
 				xmlNode, XmlRef.timerStepSize, this.defaultXmlTag() ) ) );
@@ -95,6 +99,11 @@ public class Timer implements Instantiable, Settable
 	public double getCurrentTime()
 	{
 		return this._now;
+	}
+	
+	private void setCurrentIteration(int iteration) 
+	{
+		this._iteration = iteration;
 	}
 	
 	public int getCurrentIteration()
@@ -146,7 +155,7 @@ public class Timer implements Instantiable, Settable
 	public void report(Tier outputLevel)
 	{
 		Log.out(outputLevel, "Timer: time is   = "+_now);
-		Log.out(outputLevel, "       iteration = "+_iteration);
+		Log.out(outputLevel, "       iteration = "+getCurrentIteration());
 		Log.out(outputLevel, "       step size = "+getTimeStepSize());
 		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
 	}
@@ -168,6 +177,10 @@ public class Timer implements Instantiable, Settable
 		/* now */
 		modelNode.add(new Attribute(XmlRef.currentTime, 
 				String.valueOf(this._now), null, true ));
+		
+		/* current iteration */
+		modelNode.add(new Attribute(XmlRef.currentIter, 
+				String.valueOf(this.getCurrentIteration()), null, true ));
 		
 		/* time step size */
 		modelNode.add(new Attribute(XmlRef.timerStepSize, 

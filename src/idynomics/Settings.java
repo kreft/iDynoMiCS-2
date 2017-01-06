@@ -11,7 +11,6 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
-import linearAlgebra.Vector;
 import dataIO.Log.Tier;
 import referenceLibrary.SettingsRef;
 import referenceLibrary.XmlRef;
@@ -73,6 +72,12 @@ public class Settings
 	 * Root folder for this simulation
 	 */
 	public String idynomicsRoot = "";
+	
+	/**
+	 * 
+	 */
+	public Boolean ignore_protocol_out =  Boolean.valueOf( 
+			settings.getProperty( SettingsRef.ignore_protocol_out ) );
 
 	/**
 	* Version number of this iteration of iDynoMiCS - required by update
@@ -90,6 +95,7 @@ public class Settings
 
 	/**************************************************************************
 	 * Appearance
+	 * Still also suplying default value's for if the cfg file is corrupted.
 	 *************************************************************************/
 	
 	public static Color console_color = Helper.obtainColor( 
@@ -121,12 +127,12 @@ public class Settings
 		/*
 		 *   set output root from xml file
 		 */
-		Idynomics.global.outputRoot = 
-				XmlHandler.obtainAttribute(elem, XmlRef.outputFolder, XmlRef.simulation);
+		Idynomics.global.outputRoot = XmlHandler.obtainAttribute( elem, 
+				XmlRef.outputFolder, XmlRef.simulation);
 		
 		/* set simulation name from xml file */
-		Idynomics.global.simulationName = 
-					XmlHandler.obtainAttribute(elem, XmlRef.nameAttribute, XmlRef.simulation);
+		Idynomics.global.simulationName = XmlHandler.obtainAttribute( elem, 
+				XmlRef.nameAttribute, XmlRef.simulation);
 		
 		updateSettings();
 		/* 
@@ -175,8 +181,7 @@ public class Settings
 		/* if no Root location is set use the default out.
 		 * TODO safety: check the root exists, and the name is acceptable
 		 */
-		if (Idynomics.global.idynomicsRoot == null || Boolean.valueOf( 
-				settings.getProperty( SettingsRef.ignore_protocol_out ) ) )
+		if (Idynomics.global.idynomicsRoot == null || Idynomics.global.ignore_protocol_out )
 		{
 			Idynomics.global.outputRoot = 
 					settings.getProperty( SettingsRef.default_out );
@@ -189,14 +194,18 @@ public class Settings
 					Helper.obtainInput(Idynomics.global.simulationName,
 							"Required simulation name", true);
 		}
-		/* set date format for folder naming */
-		SimpleDateFormat dateFormat = 
-				new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss_");
 		
-		/* set output root for this simulation */
-		Idynomics.global.outputLocation = 
-				Idynomics.global.outputRoot + "/" + 
-				dateFormat.format(new Date()) + 
-				Idynomics.global.simulationName + "/";
+		if ( Idynomics.global.outputLocation == null )
+		{
+			/* set date format for folder naming */
+			SimpleDateFormat dateFormat = 
+					new SimpleDateFormat("yyyy.MM.dd_HH.mm.ss_SSS_");
+			
+			/* set output root for this simulation */
+			Idynomics.global.outputLocation = 
+					Idynomics.global.outputRoot + "/" + 
+					dateFormat.format(new Date()) + 
+					Idynomics.global.simulationName + "/";
+		}
 	}
 }

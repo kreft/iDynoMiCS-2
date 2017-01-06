@@ -49,7 +49,8 @@ public class CsvExport
 	public void createFile(String prefix)
 	{
 		String fileString = Idynomics.global.outputLocation + prefix + "/" 
-				+ prefix + "_" + DigitFilenr(_filewriterfilenr) + ".csv";
+				+ prefix + "_" + DigitFilenr(_filewriterfilenr)  
+				+ "_" + Idynomics.simulator.timer.getCurrentIteration() + ".csv";
 		_csvFile.fnew(fileString);
 		Log.out(Tier.EXPRESSIVE, "Writing new file: " + fileString);
 	}
