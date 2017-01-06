@@ -43,8 +43,14 @@ public interface SpatialRegistry<T>
 	 * @param boundingBox
 	 * @return
 	 */
-	public abstract List<T> search(BoundingBox... boundingBox);
-	public abstract List<T> search(List<BoundingBox> boundingBox);
+	public abstract List<T> search(BoundingBox boundingBox);
+	
+	/**
+	 * 
+	 * @param boundingBox
+	 * @return
+	 */
+	public abstract List<T> search(List<BoundingBox> boundingBoxes);
 	
 	public default List<T> search(double[] pointLocation)
 	{

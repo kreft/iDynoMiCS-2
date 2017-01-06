@@ -50,7 +50,7 @@ public class DummyTree<T> implements SpatialRegistry<T>
 	}
 
 	@Override
-	public List<T> search(BoundingBox... boundingBoxes) {
+	public List<T> search(BoundingBox boundingBoxe) {
 		// TODO Auto-generated method stub
 		return null;
 	}

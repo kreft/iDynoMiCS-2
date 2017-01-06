@@ -133,8 +133,8 @@
 			</species>
 		</speciesLib>
 
-		<compartment name="first">
-	<shape class="Cuboid">
+		<compartment name="first" tree="SPLITTREE">
+		<shape class="Rectangle">
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="100.0"/>
 				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="100.0">

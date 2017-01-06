@@ -247,9 +247,9 @@ public class AgentContainer implements Settable
 	 * @return Collection of agents that may be overlap with this box: note
 	 * that there may be some false positives (but no false negatives).
 	 */
-	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
+	public List<Agent> treeSearch(BoundingBox boundingBox)
 	{
-		return this._agentTree.search(boundingBoxes);
+		return this._agentTree.search(boundingBox);
 	}
 
 	/**
@@ -260,7 +260,7 @@ public class AgentContainer implements Settable
 	 * @return Collection of agents that may be overlap with these boxes: note
 	 * that there may be some false positives (but no false negatives).
 	 */
-	public List<Agent> treeSearch(BoundingBox... boundingBoxes)
+	public List<Agent> treeSearch(List<BoundingBox> boundingBoxes)
 	{
 		return this._agentTree.search(boundingBoxes);
 	}

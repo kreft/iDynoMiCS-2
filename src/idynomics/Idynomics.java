@@ -16,6 +16,12 @@ import org.w3c.dom.Element;
 import dataIO.Log;
 
 import static dataIO.Log.Tier.*;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
 import dataIO.XmlHandler;
 import referenceLibrary.XmlRef;
 
@@ -36,7 +42,7 @@ public strictfp class Idynomics
 	/**
 	 * Version description.
 	 */
-	public final static String version_description = "alpha build 2016.06.02";
+	public final static String version_description = "alpha build 2017.01.06";
 	
 	/**
 	 * {@code Simulator} object: there can only be one. 
@@ -116,6 +122,8 @@ public strictfp class Idynomics
 			Log.printToScreen("Initiating from: " + protocolPath + 
 				"\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 				+ "~~~~~~~~~~~~~~~~~~~~~~~~\n", false);
+			
+
 		/* 
 		 * Load the protocol file and find the elements we need
 		 */

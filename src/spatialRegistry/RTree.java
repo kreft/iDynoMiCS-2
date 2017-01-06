@@ -231,15 +231,6 @@ public class RTree<T> implements SpatialRegistry<T>
 	{
 		return search(boundingBox.lowerCorner(), boundingBox.ribLengths());
 	}
-
-
-	public List<T> search(BoundingBox... boundingBoxes)
-	{
-		List<T> entryList = new LinkedList<T>();
-		for(BoundingBox b : boundingBoxes)
-			entryList.addAll(search(b));
-		return entryList;
-	}
 	
 	public List<T> search(List<BoundingBox> boundingBoxes)
 	{

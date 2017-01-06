@@ -1,7 +1,10 @@
 package idynomics;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Properties;
 
 import org.w3c.dom.Element;
 
@@ -59,19 +62,38 @@ public class Param
 	 */
 	public String idynomicsRoot = "";
 	
+	/**
+	 * default settings from cfg file
+	 */
+	public static Properties settings = new Properties();
+	
 	/**************************************************************************
 	 * LOADING
 	 *************************************************************************/
 	
+	
+	public static void settings()
+	{
+		try {
+			settings.load(new FileInputStream("default.cfg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void init()
 	{
+		
+		Param.settings();
 	// TODO safety: check the root exists, and the name is acceptable
 		if (Idynomics.global.idynomicsRoot == null || 
 				Idynomics.global.simulationName == null)
 		{
-			Idynomics.global.outputRoot = 
-					Helper.obtainInput(Idynomics.global.outputRoot, 
-							"Required " + XmlRef.outputFolder, true);
+//			Idynomics.global.outputRoot = 
+//					Helper.obtainInput(Idynomics.global.outputRoot, 
+//							"Required " + XmlRef.outputFolder, true);
+			Idynomics.global.outputRoot = settings.getProperty("defaultOut");
+			
 			Idynomics.global.simulationName = 
 					Helper.obtainInput(Idynomics.global.simulationName,
 							"Required simulation name", true);

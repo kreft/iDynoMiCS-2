@@ -3,6 +3,8 @@ package spatialRegistry.splitTree;
 import java.util.LinkedList;
 import java.util.List;
 
+import dataIO.Log.Tier;
+import dataIO.Log;
 import linearAlgebra.Vector;
 import spatialRegistry.SpatialRegistry;
 import surface.BoundingBox;
@@ -132,7 +134,14 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	@Override
 	public List<T> localSearch(double[] coords, double[] dimensions) 
 	{
+		Log.out(Tier.CRITICAL, "warning local search not implemented in "
+				+ "splittree");
+		return search(coords, dimensions);
+	}
 
+	@Override
+	public List<T> search(double[] coords, double[] dimensions) 
+	{
 		LinkedList<T> out = new LinkedList<T>();
 		/* also does periodic search */
 		double[] high = Vector.add(coords, dimensions);
@@ -152,18 +161,9 @@ public class SplitTree<T> implements SpatialRegistry<T>
 	}
 
 	@Override
-	public List<T> search(double[] coords, double[] dimensions) 
+	public List<T> search(BoundingBox boundingBox) 
 	{
-		return this.localSearch(coords, dimensions);
-	}
-
-	@Override
-	public List<T> search(BoundingBox... boundingBoxes) 
-	{
-		LinkedList<T> out = new LinkedList<T>();
-		for (BoundingBox b : boundingBoxes )
-			out.addAll(search(b) );
-		return out;
+		return this.search(boundingBox.lowerCorner(), boundingBox.ribLengths());
 	}
 	
 	@Override
