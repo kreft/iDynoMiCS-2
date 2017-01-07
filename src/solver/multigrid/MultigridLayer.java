@@ -1,5 +1,6 @@
 package solver.multigrid;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,6 +38,11 @@ public class MultigridLayer
 		this._grid = grid;
 	}
 	
+	public boolean canConstructCoarser()
+	{
+		return this._grid.getShape().canGenerateCoarserMultigridLayer();
+	}
+	
 	public MultigridLayer constructCoarser()
 	{
 		Shape shape = this._grid.getShape();
@@ -52,6 +58,15 @@ public class MultigridLayer
 			this._coarser.fillArrayFromFiner(type, 0.0);
 		}
 		return this._coarser;
+	}
+	
+	public static MultigridLayer generateCompleteMultigrid(SpatialGrid grid)
+	{
+		MultigridLayer newMultigrid = new MultigridLayer(grid);
+		MultigridLayer currentLayer = newMultigrid;
+		while (currentLayer.canConstructCoarser() )
+			currentLayer = currentLayer.constructCoarser();
+		return newMultigrid;
 	}
 	
 	/* ***********************************************************************
@@ -86,6 +101,24 @@ public class MultigridLayer
 	/* ***********************************************************************
 	 * ARRAY VALUES
 	 * **********************************************************************/
+	
+	/**
+	 * \brief For every layer coarser than the one given, replaces the array
+	 * values with those from the layer given, for every ArrayType present in
+	 * the layer given.
+	 * 
+	 * @param layer A MultigridLayer (assumed to be the finest).
+	 */
+	public static void replaceAllLayersFromFinest(MultigridLayer layer)
+	{
+		Collection<ArrayType> types = layer.getGrid().getAllArrayTypes();
+		while ( layer.hasCoarser() )
+		{
+			layer = layer.getCoarser();
+			for ( ArrayType type : types )
+				layer.fillArrayFromFiner(type, 0.0);
+		}
+	}
 	
 	public void fillArrayFromCoarser(ArrayType type)
 	{

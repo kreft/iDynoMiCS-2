@@ -86,7 +86,7 @@ public class PDEgaussseidel extends PDEsolver
 	 * PRIVATE METHODS
 	 * **********************************************************************/
 	
-	private double relax(SpatialGrid variable,
+	public double relax(SpatialGrid variable,
 			SpatialGrid commonGrid, double tFinal)
 	{
 		/* Logging verbosity. */
