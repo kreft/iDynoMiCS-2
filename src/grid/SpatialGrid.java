@@ -549,9 +549,9 @@ public class SpatialGrid implements Settable, Instantiable
 	 * iterator voxel (may be negative).
 	 * 
 	 * <p>The flux from the neighboring voxel into the current one is given by
-	 * the formula <i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
+	 * the formula <br><i>(c<sub>nhb</sub> - c<sub>itr</sub>) *
 	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
-	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
+	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i><br>
 	 * where subscript <i>itr</i> denotes the current iterator voxel and
 	 * <i>nhb</i> the current neighbor voxel, and
 	 * <ul>

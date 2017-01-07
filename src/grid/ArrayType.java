@@ -32,7 +32,19 @@ public enum ArrayType
 	 */
 	PRODUCTIONRATE,
 	/**
-	 * Laplacian operator.
+	 * Linear operator. Generally used internally within a PDE solver and not
+	 * elsewhere.
 	 */
-	LOPERATOR,
+	LINEAR_OP,
+	/**
+	 * The right-hand side of an equation. Generally used internally within a
+	 * PDE solver and not elsewhere.
+	 */
+	R_H_S,
+	/**
+	 * The <i>residual</i> (otherwise known as the <i>defect</i>) is a measure
+	 * of the error remaining in a numerical approximation to a solution.
+	 * Generally used internally within a PDE solver and not elsewhere.
+	 */
+	RESIDUAL,
 }

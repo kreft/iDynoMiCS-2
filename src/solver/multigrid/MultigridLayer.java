@@ -14,6 +14,11 @@ import shape.resolution.ResolutionCalculator;
 /**
  * \brief Single layer of a multi-grid collection of spatial grids.
  * 
+ * <p>For reference, see <i>Numerical Recipes in C</i> (Press, Teukolsky,
+ * Vetterling & Flannery, 1997), Chapter 19.6: Multigrid Methods for Boundary
+ * Value Problems. Equation numbers used in this chapter will be referenced
+ * throughout the class source code.</p>
+ * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
 public class MultigridLayer
@@ -120,6 +125,16 @@ public class MultigridLayer
 		}
 	}
 	
+	/**
+	 * \brief Use array values from the layer that is coarser than this one to
+	 * update the array values in this layer.
+	 * 
+	 * <p>This approach is also known as <i>interpolation</i> or
+	 * <i>prolongation</p>. This method corresponds to Equation (19.6.10) in
+	 * <i>Numerical Recipes in C</i>.</p>
+	 * 
+	 * @param type The type of array to update.
+	 */
 	public void fillArrayFromCoarser(ArrayType type)
 	{
 		/* Safety */
@@ -178,6 +193,19 @@ public class MultigridLayer
 		}
 	}
 	
+	/**
+	 * \brief Use array values from the layer that is finer than this one to
+	 * update the array values in this layer.
+	 * 
+	 * <p>This approach is also known as <i>restriction</i> or
+	 * <i>injection</i>. This method corresponds to Equation (19.6.9) in
+	 * <i>Numerical Recipes in C</i>.</p>
+	 * 
+	 * @param type The type of array to update.
+	 * @param fracOfOldValueKept Weighting to give the old values when
+	 * updating: 0 to completely replace them, 1 to leave them unchanged, any
+	 * value between 0 and 1 as a compromise.
+	 */
 	public void fillArrayFromFiner(ArrayType type, double fracOfOldValueKept)
 	{
 		double fracOfNewValueUsed = 1.0 - fracOfOldValueKept;

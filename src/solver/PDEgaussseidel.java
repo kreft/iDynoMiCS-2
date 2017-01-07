@@ -52,7 +52,7 @@ public class PDEgaussseidel extends PDEsolver
 			this._updater.prestep(variables, tFinal);
 			for ( SpatialGrid variable : variables )
 			{
-				residual = this.relax(variable, commonGrid, tFinal);
+				residual = this.relax(variable, commonGrid);
 				maxResidual = Math.max(residual, maxResidual);
 			}
 			//if ( maxResidual < this.residualTolerance )
@@ -86,8 +86,7 @@ public class PDEgaussseidel extends PDEsolver
 	 * PRIVATE METHODS
 	 * **********************************************************************/
 	
-	public double relax(SpatialGrid variable,
-			SpatialGrid commonGrid, double tFinal)
+	public double relax(SpatialGrid variable, SpatialGrid commonGrid)
 	{
 		/* Logging verbosity. */
 		Tier level = DEBUG;
