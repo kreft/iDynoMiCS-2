@@ -102,32 +102,32 @@ public class PDEexplicit extends PDEsolver
 			{
 				if ( Log.shouldWrite(level) )
 					Log.out(level, " Variable: "+var.getName());
-				var.newArray(LINEAR_OP);
+				var.newArray(CHANGERATE);
 				this.applyDiffusion(var, commonGrid);
 				if ( Log.shouldWrite(level) )
 				{
 					Log.out(level, "  Total value of fluxes: "+
-							var.getTotal(LINEAR_OP));
+							var.getTotal(CHANGERATE));
 					Log.out(level, "  Total value of production rate array: "+
 							var.getTotal(PRODUCTIONRATE));
 				}
-				var.addArrayToArray(LINEAR_OP, PRODUCTIONRATE);
+				var.addArrayToArray(CHANGERATE, PRODUCTIONRATE);
 				if ( Log.shouldWrite(level) )
 				{
 					Log.out(level, "  Change rates: \n"+
-						var.arrayAsText(LINEAR_OP));
+						var.arrayAsText(CHANGERATE));
 				}
-				var.timesAll(LINEAR_OP, dt);
+				var.timesAll(CHANGERATE, dt);
 				if ( Log.shouldWrite(level) )
 				{
 					Log.out(level, "  Changes: \n"+
-						var.arrayAsText(LINEAR_OP));
+						var.arrayAsText(CHANGERATE));
 				}
-				var.addArrayToArray(CONCN, LINEAR_OP);
+				var.addArrayToArray(CONCN, CHANGERATE);
 				if ( Log.shouldWrite(level) )
 				{
 					Log.out(level, "  Concn: \n"+
-						var.arrayAsText(LINEAR_OP));
+						var.arrayAsText(CHANGERATE));
 				}
 				if ( ! this._allowNegatives )
 					var.makeNonnegative(CONCN);

@@ -186,7 +186,7 @@ public abstract class PDEsolver extends Solver
 				Log.out(level, " Voxel volume = "+volume);
 				Log.out(level, " Total rate of change from flux = "+changeRate);
 			}
-			grid.addValueAt(LINEAR_OP, current, changeRate);
+			grid.addValueAt(CHANGERATE, current, changeRate);
 		}
 	}
 	

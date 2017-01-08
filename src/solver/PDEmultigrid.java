@@ -1,9 +1,10 @@
 package solver;
 
 import static grid.ArrayType.CONCN;
+import static grid.ArrayType.CUMULATIVEERROR;
+import static grid.ArrayType.LOCALERROR;
 import static grid.ArrayType.PRODUCTIONRATE;
-import static grid.ArrayType.R_H_S;
-import static grid.ArrayType.RESIDUAL;
+import static grid.ArrayType.RELATIVEERROR;
 import static grid.ArrayType.WELLMIXED;
 
 import java.util.Collection;
@@ -36,6 +37,9 @@ public class PDEmultigrid extends PDEsolver
 	
 	private MultigridLayer _commonMultigrid;
 	
+	private Map<String, Double> _truncationErrors =
+			new HashMap<String, Double>();
+	
 	private int _numVCycles;
 	
 	private int _numPreSteps;
@@ -58,21 +62,68 @@ public class PDEmultigrid extends PDEsolver
 		
 		MultigridLayer variableMultigrid;
 		SpatialGrid currentLayer, currentCommon;
+		double truncationError;
+		
+		
+		
 		/* Downward stroke of V. */
-		for ( ; this._commonMultigrid.hasCoarser();
-				this._commonMultigrid = this._commonMultigrid.getCoarser() )
+		while ( this._commonMultigrid.hasCoarser() )
 		{
+			/* 
+			 * Smooth the current layer for a set number of iterations and then
+			 * update the local truncation error using current CONCN values.
+			 * In Numerical Recipes in C, this is is τ (tau) as defined in
+			 * Equation (19.6.30).
+			 */
+			currentCommon = this._commonMultigrid.getGrid();
+			for ( SpatialGrid variable : variables )
+			{
+				currentLayer = this.getMultigrid(variable).getGrid();
+				/*  */
+				for ( int i = 0; i < this._numPreSteps; i++ )
+					this.relax(currentLayer, currentCommon);
+				this.calculateResidual(currentLayer, currentCommon, LOCALERROR);
+			}
+			/*
+			 * Find the coarser layer for the common grid and all variables.
+			 */
+			this._commonMultigrid = this._commonMultigrid.getCoarser();
 			currentCommon = this._commonMultigrid.getGrid();
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable).getCoarser();
-				currentLayer = variableMultigrid.getGrid();
-				// NOTE in iDyno 1 this is done in stages
-				for (ArrayType type : currentLayer.getAllArrayTypes())
-					variableMultigrid.fillArrayFromFiner(type, 0.5);
-				for ( int i = 0; i < this._numPreSteps; i++ )
-					this.relax(currentLayer, currentCommon);
 				this._multigrids.put(variable.getName(), variableMultigrid);
+			}
+			/*
+			 * Restrict the concentration and local truncation errors from the
+			 * finer layer to the coarser.
+			 */
+			for ( SpatialGrid variable : variables )
+			{
+				variableMultigrid = this.getMultigrid(variable);
+				variableMultigrid.fillArrayFromFiner(CONCN, 0.5);
+				variableMultigrid.fillArrayFromFiner(LOCALERROR, 0.5);
+				variableMultigrid.fillArrayFromFiner(CUMULATIVEERROR, 0.5);
+			}
+			/* Update the PRODUCTIONRATE arrays using updated CONCN values. */
+			// TODO
+			
+			/*
+			 * TODO
+			 * The relative truncation error is the difference between the
+			 * restricted local truncation error and
+			 * Equation 19.6.32/34/35???
+			 */
+			for ( SpatialGrid variable : variables )
+			{
+				currentLayer = this.getMultigrid(variable).getGrid();
+				this.calculateResidual(currentLayer, currentCommon, RELATIVEERROR);
+				currentLayer.subtractArrayFromArray(RELATIVEERROR, LOCALERROR);
+				// TODO work out what this is for!!!
+				currentLayer.addArrayToArray(CUMULATIVEERROR, RELATIVEERROR);
+				// TODO only do this if "order+1 == outer"
+				truncationError = currentLayer.getNorm(RELATIVEERROR);
+				this._truncationErrors.put(variable.getName(), truncationError);
 			}
 		}
 		
@@ -136,7 +187,6 @@ public class PDEmultigrid extends PDEsolver
 				continue;
 			}
 			
-			rhs = variable.getValueAt(R_H_S, current);
 			
 		}
 	}
@@ -150,8 +200,10 @@ public class PDEmultigrid extends PDEsolver
 	 * 
 	 * @param variable Spatial grid representation of a solute field.
 	 * @param commonGrid Common store of the well-mixed array for all variables.
+	 * @param destinationType Type of array to overwrite with the new values.
 	 */
-	private void computeResidual(SpatialGrid variable, SpatialGrid commonGrid)
+	private void calculateResidual(SpatialGrid variable,
+			SpatialGrid commonGrid, ArrayType destinationType)
 	{
 		Shape shape = variable.getShape();
 		double diffusiveFlow, rateFromReactions, residual;
@@ -161,6 +213,9 @@ public class PDEmultigrid extends PDEsolver
 			if ( commonGrid.getValueAt(WELLMIXED, current) >= 
 					this._boundaryThreshold )
 			{
+				/* Reset the value here in case it used to be inside the
+				 * boundary layer and move on to the next voxel. */
+				variable.setValueAt(destinationType, current, 0.0);
 				continue;
 			} 
 			diffusiveFlow = 0.0;
@@ -172,7 +227,7 @@ public class PDEmultigrid extends PDEsolver
 			rateFromReactions = variable.getValueAt(PRODUCTIONRATE, current);
 			residual = (diffusiveFlow + rateFromReactions) /
 					shape.getCurrVoxelVolume();
-			variable.setValueAt(RESIDUAL, current, residual);
+			variable.setValueAt(destinationType, current, residual);
 		}
 	}
 

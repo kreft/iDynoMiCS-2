@@ -32,19 +32,26 @@ public enum ArrayType
 	 */
 	PRODUCTIONRATE,
 	/**
-	 * Linear operator. Generally used internally within a PDE solver and not
-	 * elsewhere.
+	 * Overall rate of change. Generally used internally within a PDE solver
+	 * and not elsewhere.
 	 */
-	LINEAR_OP,
+	CHANGERATE,
 	/**
-	 * The right-hand side of an equation. Generally used internally within a
-	 * PDE solver and not elsewhere.
+	 * The local truncation error is a measure of the error remaining in a 
+	 * numerical approximation to a solution. Generally used only internally
+	 * within a PDE solver.
 	 */
-	R_H_S,
+	LOCALERROR,
 	/**
-	 * The <i>residual</i> (otherwise known as the <i>defect</i>) is a measure
-	 * of the error remaining in a numerical approximation to a solution.
-	 * Generally used internally within a PDE solver and not elsewhere.
+	 * The relative truncation error is a measure of the error remaining in a 
+	 * numerical approximation to a solution. Generally used only internally
+	 * within a PDE solver.
 	 */
-	RESIDUAL,
+	RELATIVEERROR,
+	/**
+	 * The cumulative truncation error is a measure of the error remaining in a 
+	 * numerical approximation to a solution. Generally used only internally
+	 * within a PDE solver.
+	 */
+	CUMULATIVEERROR,
 }

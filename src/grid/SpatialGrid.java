@@ -257,6 +257,16 @@ public class SpatialGrid implements Settable, Instantiable
 	}
 	
 	/**
+	 * \brief Reset all values in the array specified to zero.
+	 * 
+	 * @param type Type of the array to reset.
+	 */
+	public void reset(ArrayType type)
+	{
+		this.setAllTo(type, 0.0);
+	}
+	
+	/**
 	 * \brief Overwrite all values in the array specified to those of the array
 	 * given, discarding all old values.
 	 * 
@@ -378,6 +388,17 @@ public class SpatialGrid implements Settable, Instantiable
 	}
 	
 	/**
+	 * \brief Get the norm of the values in the array of given <b>type</b>.
+	 * 
+	 * @param type Type of the array to use.
+	 * @return Norm of all the elements of the array <b>type</b>.
+	 */
+	public double getNorm(ArrayType type)
+	{
+		return Array.norm(this._array.get(type));
+	}
+	
+	/**
 	 * \brief TODO
 	 * 
 	 * @param array
@@ -405,6 +426,20 @@ public class SpatialGrid implements Settable, Instantiable
 	public void addArrayToArray(ArrayType destination, ArrayType source)
 	{
 		Array.addEquals(this._array.get(destination), this._array.get(source));
+	}
+	
+	/**
+	 * \brief Subtract all elements of one array from those of another,
+	 * element-by-element.
+	 * 
+	 * @param destination Type of array to be overwritten with its own values
+	 * minus those of <b>source</b>.
+	 * @param source Type of array to use in decreasing <b>destination</b>.
+	 * The values of this array are preserved in this method.
+	 */
+	public void subtractArrayFromArray(ArrayType destination, ArrayType source)
+	{
+		Array.minusEquals(this._array.get(destination), this._array.get(source));
 	}
 
 	/* ***********************************************************************
