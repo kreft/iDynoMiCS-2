@@ -123,9 +123,7 @@ public class MultigridLayer
 			for ( ArrayType type : types )
 				layer.fillArrayFromFiner(type, 0.0);
 		}
-	}
-	
-	/**
+	}/**
 	 * \brief Use array values from the layer that is coarser than this one to
 	 * update the array values in this layer.
 	 * 
@@ -136,6 +134,22 @@ public class MultigridLayer
 	 * @param type The type of array to update.
 	 */
 	public void fillArrayFromCoarser(ArrayType type)
+	{
+		this.fillArrayFromCoarser(type, type);
+	}
+	
+	/**
+	 * \brief Use array values from the layer that is coarser than this one to
+	 * update the array values in this layer.
+	 * 
+	 * <p>This approach is also known as <i>interpolation</i> or
+	 * <i>prolongation</p>. This method corresponds to Equation (19.6.10) in
+	 * <i>Numerical Recipes in C</i>.</p>
+	 * 
+	 * @param finerType The type of array to update in this layer (overwritten).
+	 * @param coarserType The type of array to get values from (unaffected).
+	 */
+	public void fillArrayFromCoarser(ArrayType finerType, ArrayType coarserType)
 	{
 		/* Safety */
 		if ( this._coarser == null )
@@ -164,8 +178,8 @@ public class MultigridLayer
 			Vector.copyTo(coarserVoxel, current);
 			for (int i = 0; i < coarserVoxel.length; i++)
 				coarserVoxel[i] = (int)(coarserVoxel[i]*0.5);
-			newValue = coarserGrid.getValueAt(type, coarserVoxel);
-			this._grid.setValueAtCurrent(type, newValue);
+			newValue = coarserGrid.getValueAt(coarserType, coarserVoxel);
+			this._grid.setValueAtCurrent(finerType, newValue);
 		}
 		current = thisShape.resetIterator();
 		int[] nhb;
@@ -186,10 +200,10 @@ public class MultigridLayer
 					nhb = thisShape.nbhIteratorNext())
 			{
 				volume = thisShape.getVoxelVolume(nhb);
-				newValue += this._grid.getValueAtNhb(type) * volume;
+				newValue += this._grid.getValueAtNhb(finerType) * volume;
 				totalVolume += volume;
 			}
-			this._grid.setValueAtCurrent(type, newValue/totalVolume);
+			this._grid.setValueAtCurrent(finerType, newValue/totalVolume);
 		}
 	}
 	
@@ -207,6 +221,26 @@ public class MultigridLayer
 	 * value between 0 and 1 as a compromise.
 	 */
 	public void fillArrayFromFiner(ArrayType type, double fracOfOldValueKept)
+	{
+		this.fillArrayFromFiner(type, type, fracOfOldValueKept);
+	}
+	
+	/**
+	 * \brief Use array values from the layer that is finer than this one to
+	 * update the array values in this layer.
+	 * 
+	 * <p>This approach is also known as <i>restriction</i> or
+	 * <i>injection</i>. This method corresponds to Equation (19.6.9) in
+	 * <i>Numerical Recipes in C</i>.</p>
+	 * 
+	 * @param coarserType The type of array to update in this layer (overwritten).
+	 * @param finerType The type of array to get values from (unaffected).
+	 * @param fracOfOldValueKept Weighting to give the old values when
+	 * updating: 0 to completely replace them, 1 to leave them unchanged, any
+	 * value between 0 and 1 as a compromise.
+	 */
+	public void fillArrayFromFiner(ArrayType coarserType, 
+			ArrayType finerType, double fracOfOldValueKept)
 	{
 		double fracOfNewValueUsed = 1.0 - fracOfOldValueKept;
 		/* Safety */
@@ -241,7 +275,8 @@ public class MultigridLayer
 			for ( int[] finerVoxel : finerVoxels )
 			{
 				voxelVol = finerGrid.getShape().getVoxelVolume(finerVoxel);
-				newValue += voxelVol * finerGrid.getValueAt(type, finerVoxel);
+				newValue += voxelVol * 
+						finerGrid.getValueAt(finerType, finerVoxel);
 				totalVolume += voxelVol;
 			}
 			newValue /= totalVolume;
@@ -250,8 +285,8 @@ public class MultigridLayer
 			 * the average of the finer voxels.
 			 */
 			newValue = (fracOfNewValueUsed * newValue) +
-					(fracOfOldValueKept * this._grid.getValueAtCurrent(type));
-			this._grid.setValueAt(type, current, newValue);
+					(fracOfOldValueKept * this._grid.getValueAtCurrent(coarserType));
+			this._grid.setValueAt(coarserType, current, newValue);
 		}
 	}
 	

@@ -25,7 +25,9 @@ import solver.multigrid.MultigridLayer;
  * <p>For reference, see <i>Numerical Recipes in C</i> (Press, Teukolsky,
  * Vetterling & Flannery, 1997), Chapter 19.6: Multigrid Methods for Boundary
  * Value Problems. Equation numbers used in this chapter will be referenced
- * throughout the class source code.</p>
+ * throughout the class source code. Due to the non-linear nature of many
+ * reaction kinetics, this solver implements the Full Approximation Storage
+ * (FAS) Algorithm discussed towards the end of the chapter.</p>
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
@@ -39,10 +41,18 @@ public class PDEmultigrid extends PDEsolver
 	
 	private Map<String, Double> _truncationErrors =
 			new HashMap<String, Double>();
+	/**
+	 * Number of layers in the multigrid being used. Calculated when
+	 * {@link #_commonMultigrid} is constructed and must never be changed
+	 * afterwards.
+	 */
+	private int _numLayers;
 	
 	private int _numVCycles;
 	
 	private int _numPreSteps;
+	
+	private int _numCoarseStep;
 	
 	private int _numPostSteps;
 	/**
@@ -60,15 +70,57 @@ public class PDEmultigrid extends PDEsolver
 	{
 		this.refreshCommonGrid(commonGrid);
 		
+		for ( int outer = 1; outer < this._numLayers; outer++ )
+		{
+			for ( int v = 0; v < this._numVCycles; v++ )
+				this.DoVCycle(variables, outer);
+		}
+	}
+
+	private void refreshCommonGrid(SpatialGrid commonGrid)
+	{
+		/* Make the common multigrid if this is the first time. */
+		if ( this._commonMultigrid == null )
+		{
+			this._commonMultigrid = 
+					MultigridLayer.generateCompleteMultigrid(commonGrid);
+			/* Count the layers. */
+			this._numLayers = 0;
+			for ( MultigridLayer temp = this._commonMultigrid;
+					temp.hasCoarser(); temp = temp.getCoarser() )
+			{
+				this._numLayers++;
+			}
+		}
+		/* 
+		 * Wipe all old values in the coarser layers, replacing them with the
+		 * finest values.
+		 */
+		MultigridLayer.replaceAllLayersFromFinest(this._commonMultigrid);
+	}
+	
+	private MultigridLayer getMultigrid(SpatialGrid variable)
+	{
+		String name = variable.getName();
+		if ( this._multigrids.containsKey(name) )
+			return this._multigrids.get(name);
+		/* New variable, so we need to make the MultigridLayer. */
+		MultigridLayer newMultigrid = 
+				MultigridLayer.generateCompleteMultigrid(variable);
+		this._multigrids.put(name, newMultigrid);
+		return newMultigrid;
+	}
+	
+	private boolean DoVCycle(Collection<SpatialGrid> variables, int numLayers)
+	{
 		MultigridLayer variableMultigrid;
 		SpatialGrid currentLayer, currentCommon;
 		double truncationError;
-		
-		
-		
+		int layerCounter = 0;
 		/* Downward stroke of V. */
-		while ( this._commonMultigrid.hasCoarser() )
+		while ( this._commonMultigrid.hasCoarser() && layerCounter < numLayers )
 		{
+			layerCounter++;
 			/* 
 			 * Smooth the current layer for a set number of iterations and then
 			 * update the local truncation error using current CONCN values.
@@ -126,35 +178,73 @@ public class PDEmultigrid extends PDEsolver
 				this._truncationErrors.put(variable.getName(), truncationError);
 			}
 		}
-		
-		
-	}
-
-	private void refreshCommonGrid(SpatialGrid commonGrid)
-	{
-		/* Make the common multigrid if this is the first time. */
-		if ( this._commonMultigrid == null )
+		/* 
+		 * At the bottom of the V: solve the coarsest layer.
+		 */
+		currentCommon = this._commonMultigrid.getGrid();
+		for ( SpatialGrid variable : variables )
 		{
-			this._commonMultigrid = 
-					MultigridLayer.generateCompleteMultigrid(commonGrid);
+			currentLayer = this.getMultigrid(variable).getGrid();
+			for ( int i = 0; i < this._numCoarseStep; i++ )
+				this.relax(currentLayer, currentCommon);
 		}
 		/* 
-		 * Wipe all old values in the coarser layers, replacing them with the
-		 * finest values.
+		 * Upward stroke of V. The overall effect of this is:
+		 * 
+		 * Coarser.LocalError = Restricted(Finer.Concn)
+		 * Coarser.Concn -= Restricted(Finer.Concn)
+		 * Finer.RelativeError = Interpolated(Coarser.Concn - Restricted(Finer.Concn))
+		 * Finer.Concn += Interpolated(Coarser.Concn - Restricted(Finer.Concn))
+		 * 
+		 * Followed by making values non-negative (if required) and
+		 * post-relaxation.
 		 */
-		MultigridLayer.replaceAllLayersFromFinest(this._commonMultigrid);
-	}
-	
-	private MultigridLayer getMultigrid(SpatialGrid variable)
-	{
-		String name = variable.getName();
-		if ( this._multigrids.containsKey(name) )
-			return this._multigrids.get(name);
-		/* New variable, so we need to make the MultigridLayer. */
-		MultigridLayer newMultigrid = 
-				MultigridLayer.generateCompleteMultigrid(variable);
-		this._multigrids.put(name, newMultigrid);
-		return newMultigrid;
+		// TODO find corresponding parts in Numerical Recipes
+		while ( this._commonMultigrid.hasFiner() )
+		{
+			for ( SpatialGrid variable : variables )
+			{
+				variableMultigrid = this.getMultigrid(variable);
+				currentLayer = variableMultigrid.getGrid();
+				variableMultigrid.fillArrayFromFiner(CONCN, LOCALERROR, 0.5);
+				currentLayer.subtractArrayFromArray(CONCN, LOCALERROR);
+			}
+			this._commonMultigrid = this._commonMultigrid.getFiner();
+			currentCommon = this._commonMultigrid.getGrid();
+			for ( SpatialGrid variable : variables )
+			{
+				variableMultigrid = this.getMultigrid(variable).getFiner();
+				this._multigrids.put(variable.getName(), variableMultigrid);
+				currentLayer = variableMultigrid.getGrid();
+				variableMultigrid.fillArrayFromCoarser(RELATIVEERROR, CONCN);
+				currentLayer.addArrayToArray(CONCN, RELATIVEERROR);
+				if ( ! this._allowNegatives )
+					currentLayer.makeNonnegative(CONCN);
+				for ( int i = 0; i < this._numPostSteps; i++ )
+					this.relax(currentLayer, currentCommon);
+				
+				
+			}
+		}
+		/*
+		 * Finally, we calculate the residual of the local truncation error and
+		 * compare this with the residual of the relative truncation error
+		 * calculated earlier. If the local truncation error of all variables
+		 * dominates, then we can break the V-cycle.
+		 * See p. 884 of Numerical Recipes in C for more details.
+		 */
+		boolean breakVCycle = true;
+		for ( SpatialGrid variable : variables )
+		{
+			currentLayer = this.getMultigrid(variable).getGrid();
+			this.calculateResidual(currentLayer, currentCommon, LOCALERROR);
+			// TODO LOCALERROR -= RHS ???
+			truncationError = currentLayer.getNorm(LOCALERROR);
+			breakVCycle = truncationError <= this._truncationErrors.get(variable);
+			if ( ! breakVCycle )
+				break;
+		}
+		return breakVCycle;
 	}
 	
 	/**
