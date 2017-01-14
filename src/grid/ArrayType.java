@@ -40,12 +40,18 @@ public enum ArrayType
 	 * The local truncation error is a measure of the error remaining in a 
 	 * numerical approximation to a solution. Generally used only internally
 	 * within a PDE solver.
+	 * 
+	 * <p>In <i>Numerical Recipes in C</i> Chapter 19.6, this is referred to by
+	 * the symbol <b>τ</b>.</p>
 	 */
 	LOCALERROR,
 	/**
-	 * The relative truncation error is a measure of the error remaining in a 
-	 * numerical approximation to a solution. Generally used only internally
-	 * within a PDE solver.
+	 * The relative error is the correction needed to counteract errors caused
+	 * by nonlinear source terms (e.g. nonlinear reaction kinetics).Generally
+	 * used only internally within a PDE solver.
+	 * 
+	 * <p>In <i>Numerical Recipes in C</i> Chapter 19.6, this is referred to by
+	 * the symbol <b>τ<sub>h</sub></b>.</p>
 	 */
 	RELATIVEERROR,
 	/**
@@ -54,4 +60,8 @@ public enum ArrayType
 	 * within a PDE solver.
 	 */
 	CUMULATIVEERROR,
+	/**
+	 * TODO
+	 */
+	NONLINEARITY,
 }

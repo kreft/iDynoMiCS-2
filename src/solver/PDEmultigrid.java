@@ -3,6 +3,7 @@ package solver;
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.CUMULATIVEERROR;
 import static grid.ArrayType.LOCALERROR;
+import static grid.ArrayType.NONLINEARITY;
 import static grid.ArrayType.PRODUCTIONRATE;
 import static grid.ArrayType.RELATIVEERROR;
 import static grid.ArrayType.WELLMIXED;
@@ -28,6 +29,13 @@ import solver.multigrid.MultigridLayer;
  * throughout the class source code. Due to the non-linear nature of many
  * reaction kinetics, this solver implements the Full Approximation Storage
  * (FAS) Algorithm discussed towards the end of the chapter.</p>
+ * 
+ * <p>Here are the meanings of the various symbols used in that chapter,
+ * within the context of iDynoMiCS 2:<ul>
+ * <li><i>u</i>, the variable, is concentration</li>
+ * <li><i>L</i>, the linear elliptic operator, is diffusion</li>
+ * <li><i>f</i>, the source term, is production/consumption from reactions</li>
+ * </ul></p>
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  */
@@ -192,8 +200,13 @@ public class PDEmultigrid extends PDEsolver
 		 * Upward stroke of V. The overall effect of this is:
 		 * 
 		 * Coarser.LocalError = Restricted(Finer.Concn)
+		 * 
 		 * Coarser.Concn -= Restricted(Finer.Concn)
+		 * 
+		 * [Eq (19.6.28)]
 		 * Finer.RelativeError = Interpolated(Coarser.Concn - Restricted(Finer.Concn))
+		 * 
+		 * [Eq (19.6.29)]
 		 * Finer.Concn += Interpolated(Coarser.Concn - Restricted(Finer.Concn))
 		 * 
 		 * Followed by making values non-negative (if required) and
@@ -266,8 +279,7 @@ public class PDEmultigrid extends PDEsolver
 	{
 		Shape shape = variable.getShape();
 		/* Temporary storage. */
-		double rhs;
-		
+		double concn, invVol, lop, dlop, rhs, f, res;
 		for ( int[] current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
@@ -276,8 +288,38 @@ public class PDEmultigrid extends PDEsolver
 			{
 				continue;
 			}
-			
-			
+			concn = variable.getValueAtCurrent(CONCN);
+			invVol = 1.0 / shape.getCurrVoxelVolume();
+			/* Reset both lop and dlop. */
+			lop = 0.0;
+			dlop = 0.0;
+			/* Sum up over all neighbours. */
+			for ( shape.resetNbhIterator(); shape.isNbhIteratorValid();
+					shape.nbhIteratorNext() )
+			{
+				dlop += variable.getDiffusiveTimeScaleWithNeighbor();
+				lop += variable.getDiffusionFromNeighbor();
+			}
+			/* Convert lop and dlop from mass/time to concentration/time. */
+			lop *= invVol;
+			dlop *= invVol;
+			/*
+			 * For the FAS, the source term is implicit in the L-operator
+			 * (see Equations 19.6.21-22).
+			 */
+			lop -= variable.getValueAtCurrent(PRODUCTIONRATE);
+			/* The right-hand side of Equation 19.6.23. */
+			// TODO need to set NONLINEARITY
+			rhs = variable.getValueAtCurrent(NONLINEARITY);
+			/* TODO */
+			res = (lop - rhs)/dlop;
+			/* TODO */
+			concn -= res;
+			/* Check if we need to remain non-negative. */
+			if ( (!this._allowNegatives) && (concn < 0.0) )
+				concn = 0.0;
+			/* Update the value and continue to the next voxel. */
+			variable.setValueAtCurrent(CONCN, concn);
 		}
 	}
 	
