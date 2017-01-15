@@ -102,6 +102,18 @@ public class PDEmultigrid extends PDEsolver
 			for ( int v = 0; v < this._numVCycles && continueVCycle; v++ )
 				continueVCycle = this.DoVCycle(variables, outer);
 		}
+		
+		/* Apply all computations. */
+		// TODO Rob [15Jan2017]: Not sure this is necessary, try removing once
+		// everything is working.
+		MultigridLayer currentLayer;
+		for ( SpatialGrid var : variables )
+		{
+			currentLayer = this.getMultigrid(var);
+			while ( currentLayer.hasFiner() )
+				currentLayer = currentLayer.getFiner();
+			var.setTo(CONCN, currentLayer.getGrid().getArray(CONCN));
+		}
 	}
 
 	private void refreshCommonGrid(SpatialGrid commonGrid)
@@ -126,7 +138,7 @@ public class PDEmultigrid extends PDEsolver
 		MultigridLayer.replaceAllLayersFromFinest(this._commonMultigrid);
 	}
 	
-	private MultigridLayer getMultigrid(SpatialGrid variable)
+	public MultigridLayer getMultigrid(SpatialGrid variable)
 	{
 		String name = variable.getName();
 		if ( this._multigrids.containsKey(name) )
@@ -360,7 +372,7 @@ public class PDEmultigrid extends PDEsolver
 	{
 		Shape shape = variable.getShape();
 		/* Temporary storage. */
-		double concn, invVol, lop, dlop, rhs, f, res;
+		double concn, invVol, lop, dlop, rhs, res;
 		for ( int[] current = shape.resetIterator(); shape.isIteratorValid();
 				current = shape.iteratorNext() )
 		{
@@ -389,8 +401,7 @@ public class PDEmultigrid extends PDEsolver
 			 * (see Equations 19.6.21-22).
 			 */
 			lop -= variable.getValueAtCurrent(PRODUCTIONRATE);
-			/* The right-hand side of Equation 19.6.23. */
-			// TODO need to set NONLINEARITY
+			/* The right-hand side of Equation 19.6.23. */                          
 			rhs = variable.getValueAtCurrent(NONLINEARITY);
 			/* TODO */
 			res = (lop - rhs)/dlop;

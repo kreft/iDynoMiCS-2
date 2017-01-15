@@ -131,9 +131,29 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 			{
 				for ( SpatialGrid var : variables )
 					var.newArray(PRODUCTIONRATE);
-				applyEnvReactions();
+				applyEnvReactions(variables);
 				for ( Agent agent : _agents.getAllLocatedAgents() )
 					applyAgentReactions(agent);
+			}
+		};
+	}
+	
+	/**
+	 * \brief TODO
+	 * 
+	 * @return
+	 */
+	private PDEupdater multigridUpdater()
+	{
+		return new PDEupdater()
+		{
+			@Override
+			public void prestep(Collection<SpatialGrid> currentGrids, double dt)
+			{
+				for ( SpatialGrid grid : currentGrids )
+					grid.newArray(PRODUCTIONRATE);
+				applyEnvReactions(currentGrids);
+				// TODO agent reactions
 			}
 		};
 	}

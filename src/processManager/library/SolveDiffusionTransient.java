@@ -136,7 +136,7 @@ public class SolveDiffusionTransient extends ProcessDiffusion
 			{
 				for ( SpatialGrid var : variables )
 					var.newArray(PRODUCTIONRATE);
-				applyEnvReactions();
+				applyEnvReactions(variables);
 				for ( Agent agent : _agents.getAllLocatedAgents() )
 					applyAgentReactions(agent, dt);
 			}
