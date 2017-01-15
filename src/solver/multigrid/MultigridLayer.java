@@ -128,7 +128,7 @@ public class MultigridLayer
 	 * update the array values in this layer.
 	 * 
 	 * <p>This approach is also known as <i>interpolation</i> or
-	 * <i>prolongation</p>. This method corresponds to Equation (19.6.10) in
+	 * <i>prolongation</i>. This method corresponds to Equation (19.6.10) in
 	 * <i>Numerical Recipes in C</i>.</p>
 	 * 
 	 * @param type The type of array to update.

@@ -1,7 +1,6 @@
 package solver;
 
 import static grid.ArrayType.CONCN;
-import static grid.ArrayType.CUMULATIVEERROR;
 import static grid.ArrayType.LOCALERROR;
 import static grid.ArrayType.NONLINEARITY;
 import static grid.ArrayType.PRODUCTIONRATE;
@@ -77,11 +76,31 @@ public class PDEmultigrid extends PDEsolver
 			SpatialGrid commonGrid, double tFinal)
 	{
 		this.refreshCommonGrid(commonGrid);
+		for ( SpatialGrid var : variables )
+			this.refreshVariable(var);
 		
-		for ( int outer = 1; outer < this._numLayers; outer++ )
+		this.solveCoarsest(variables);
+		
+		/* See Figure 19.6.2 */
+		for ( int outer = 1; outer <= this._numLayers; outer++ )
 		{
-			for ( int v = 0; v < this._numVCycles; v++ )
-				this.DoVCycle(variables, outer);
+			this.setOrderOfAllMultigrids(variables, outer);
+			
+			/* TODO */
+			MultigridLayer currentLayer;
+			for ( SpatialGrid var : variables )
+			{
+				currentLayer = this.getMultigrid(var);
+				currentLayer.fillArrayFromCoarser(CONCN);
+				currentLayer.getGrid().reset(NONLINEARITY);
+			}
+			/* 
+			 * Do V-cycles at this order until the limit is reached or the
+			 * error is small enough.
+			 */
+			boolean continueVCycle = true;
+			for ( int v = 0; v < this._numVCycles && continueVCycle; v++ )
+				continueVCycle = this.DoVCycle(variables, outer);
 		}
 	}
 
@@ -117,6 +136,68 @@ public class PDEmultigrid extends PDEsolver
 				MultigridLayer.generateCompleteMultigrid(variable);
 		this._multigrids.put(name, newMultigrid);
 		return newMultigrid;
+	}
+	
+	private void refreshVariable(SpatialGrid variable)
+	{
+		MultigridLayer currentLayer = this.getMultigrid(variable);
+		// TODO Rob [15Jan2017]: Not sure this is necessary, try removing once
+		// everything is working.
+		for ( ArrayType type : variable.getAllArrayTypes() )
+			currentLayer.getGrid().setTo(type, variable.getArray(type));
+		while ( currentLayer.hasCoarser() )
+		{
+			currentLayer = currentLayer.getCoarser();
+			// NOTE iDynoMiCS 1 uses fracOfOldValueKept of 0.5
+			for ( ArrayType type : variable.getAllArrayTypes() )
+				currentLayer.fillArrayFromFiner(type, 0.0);
+		}
+	}
+	
+	/**
+	 * \brief Set the current multigrid layer for all variables to the order
+	 * given.
+	 * 
+	 * <p>An order of zero is the coarsest (i.e. fewest grid voxels), so
+	 * calling this method with an order ≤ 0 will set all multigrids to the
+	 * coarsest layer.</p>
+	 * 
+	 * @param variables Collection of variables to set for.
+	 * @param order The greater this number, the finer the grid layers.
+	 */
+	private void setOrderOfAllMultigrids(
+			Collection<SpatialGrid> variables, int order)
+	{
+		MultigridLayer currentLayer;
+		for ( SpatialGrid var : variables )
+		{
+			currentLayer = this.getMultigrid(var);
+			/* Find the coarsest layer. */
+			while ( currentLayer.hasCoarser() )
+				currentLayer = currentLayer.getCoarser();
+			/* Go finer for "order" number of layers. */
+			for ( int i = 0; i < order; i++ )
+				currentLayer = currentLayer.getFiner();
+			this._multigrids.put(var.getName(), currentLayer);
+		}
+	}
+	
+	private void solveCoarsest(Collection<SpatialGrid> variables)
+	{
+		/* Find the coarsest layer of the common grid. */
+		MultigridLayer common = this._commonMultigrid;
+		while ( common.hasCoarser() )
+			common = common.getCoarser();
+		/* For each variable, find the coarsest layer and relax. */
+		MultigridLayer currentLayer;
+		for ( SpatialGrid var : variables )
+		{
+			currentLayer = this.getMultigrid(var);
+			while ( currentLayer.hasCoarser() )
+				currentLayer = currentLayer.getCoarser();
+			for ( int i = 0; i < this._numCoarseStep; i++ )
+				this.relax(currentLayer.getGrid(), common.getGrid());
+		}
 	}
 	
 	private boolean DoVCycle(Collection<SpatialGrid> variables, int numLayers)
@@ -163,7 +244,7 @@ public class PDEmultigrid extends PDEsolver
 				variableMultigrid = this.getMultigrid(variable);
 				variableMultigrid.fillArrayFromFiner(CONCN, 0.5);
 				variableMultigrid.fillArrayFromFiner(LOCALERROR, 0.5);
-				variableMultigrid.fillArrayFromFiner(CUMULATIVEERROR, 0.5);
+				variableMultigrid.fillArrayFromFiner(NONLINEARITY, 0.5);
 			}
 			/* Update the PRODUCTIONRATE arrays using updated CONCN values. */
 			// TODO
@@ -180,7 +261,7 @@ public class PDEmultigrid extends PDEsolver
 				this.calculateResidual(currentLayer, currentCommon, RELATIVEERROR);
 				currentLayer.subtractArrayFromArray(RELATIVEERROR, LOCALERROR);
 				// TODO work out what this is for!!!
-				currentLayer.addArrayToArray(CUMULATIVEERROR, RELATIVEERROR);
+				currentLayer.addArrayToArray(NONLINEARITY, RELATIVEERROR);
 				// TODO only do this if "order+1 == outer"
 				truncationError = currentLayer.getNorm(RELATIVEERROR);
 				this._truncationErrors.put(variable.getName(), truncationError);
@@ -246,18 +327,18 @@ public class PDEmultigrid extends PDEsolver
 		 * dominates, then we can break the V-cycle.
 		 * See p. 884 of Numerical Recipes in C for more details.
 		 */
-		boolean breakVCycle = true;
+		boolean continueVCycle = false;
 		for ( SpatialGrid variable : variables )
 		{
 			currentLayer = this.getMultigrid(variable).getGrid();
 			this.calculateResidual(currentLayer, currentCommon, LOCALERROR);
 			// TODO LOCALERROR -= RHS ???
 			truncationError = currentLayer.getNorm(LOCALERROR);
-			breakVCycle = truncationError <= this._truncationErrors.get(variable);
-			if ( ! breakVCycle )
+			continueVCycle = truncationError > this._truncationErrors.get(variable);
+			if ( continueVCycle )
 				break;
 		}
-		return breakVCycle;
+		return continueVCycle;
 	}
 	
 	/**

@@ -47,7 +47,7 @@ public enum ArrayType
 	LOCALERROR,
 	/**
 	 * The relative error is the correction needed to counteract errors caused
-	 * by nonlinear source terms (e.g. nonlinear reaction kinetics).Generally
+	 * by nonlinear source terms (e.g. nonlinear reaction kinetics). Generally
 	 * used only internally within a PDE solver.
 	 * 
 	 * <p>In <i>Numerical Recipes in C</i> Chapter 19.6, this is referred to by
@@ -55,13 +55,11 @@ public enum ArrayType
 	 */
 	RELATIVEERROR,
 	/**
-	 * The cumulative truncation error is a measure of the error remaining in a 
-	 * numerical approximation to a solution. Generally used only internally
-	 * within a PDE solver.
-	 */
-	CUMULATIVEERROR,
-	/**
-	 * TODO
+	 * The extra error caused by a non-linear source term: typically non-linear
+	 * reaction kinetics. Generally used only internally within a PDE solver.
+	 * 
+	 * <p>In <i>Numerical Recipes in C</i> Chapter 19.6, this is referred to by
+	 * the symbol <b>f</b> and the variable {@code rhs}.</p>
 	 */
 	NONLINEARITY,
 }
