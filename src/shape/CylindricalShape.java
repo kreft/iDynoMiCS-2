@@ -142,8 +142,13 @@ public abstract class CylindricalShape extends Shape
 		case THETA:
 		{
 			ResCalc radiusC = this._resCalc[0][0];
-			if ( radiusC == null )
+			/* If R only stores a single voxel, it is most 
+			 * probably not set already -> check again later */
+			if ( radiusC.getNVoxel() == 1 )
+			{
 				this._rcStorage.put(dName, resC);
+				return;
+			}
 			else
 			{
 				int nShell = radiusC.getNVoxel();
