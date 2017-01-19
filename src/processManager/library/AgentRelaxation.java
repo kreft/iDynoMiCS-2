@@ -59,6 +59,7 @@ public class AgentRelaxation extends ProcessManager
 	public String STATIC_AGENT = AspectRef.staticAgent;
 	
 	public String LOW_STRESS_SKIP = AspectRef.stressThreshold;
+	public String STIFFNESS = AspectRef.spineStiffness;
 	
 	
 	/**
@@ -196,6 +197,7 @@ public class AgentRelaxation extends ProcessManager
 					 * cylinder length = rest length
 					 */
 					double l = ((Rod) s)._length;
+					double stiffness = Helper.setIfNone(agent.getDouble(STIFFNESS), 10.0);
 
 					/*
 					 * calculate current length of spine spring
@@ -210,7 +212,7 @@ public class AgentRelaxation extends ProcessManager
 					 * Hooke's law: spring stiffness * displacement
 					 * TODO implement stiffness properly in xml
 					 */
-					double f 		= 20.0 * ( dn - l );
+					double f 		= stiffness * ( dn - l );
 					double[] fV		= Vector.times(diff, f);
 				
 					/*

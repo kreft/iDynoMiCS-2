@@ -5,6 +5,11 @@ import java.util.function.Predicate;
 import agent.Agent;
 import referenceLibrary.AspectRef;
 
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
 public class IsLocated  implements Predicate<Agent> {
 
 	@Override

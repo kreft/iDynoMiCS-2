@@ -1,5 +1,10 @@
 package referenceLibrary;
 
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
 public class SettingsRef {
 	
 	/**

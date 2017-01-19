@@ -4,6 +4,11 @@ import java.util.function.Predicate;
 
 import agent.Agent;
 
+/**
+ * \brief TODO
+ * 
+ * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
+ */
 public class HasAspect implements Predicate<Agent> {
 
 	private String _aspectName;

@@ -15,7 +15,9 @@ public class GLUtil {
 	public static double[] make3D(double[] pos){
 		if (pos.length == 3)
 			return pos;
-		return new double[]{ pos[0], pos[1], 0.0 };
+		if (pos.length == 2)
+			return new double[]{ pos[0], pos[1], 0.0 };
+		return new double[]{ pos[0], 0.0, 0.0 };
 	}
 	
 	public static double[] searchClosestCyclicShadowPoint(Shape shape,

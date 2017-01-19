@@ -360,4 +360,9 @@ public class AspectRef
 	 */
 	public static final String stressThreshold = "stressThreshold";
 
+	/**
+	 * Rod agent spine stiffness
+	 */
+	public static final String spineStiffness = "spineStiffness";
+
 }
