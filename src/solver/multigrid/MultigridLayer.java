@@ -246,6 +246,8 @@ public class MultigridLayer
 		/* Safety */
 		if ( this._finer == null )
 			return;
+		if ( ! this._grid.hasArray(coarserType) )
+			this._grid.newArray(coarserType);
 		/* Temporary variables. */
 		Shape thisShape = this._grid.getShape();
 		SpatialGrid finerGrid = this._finer._grid;

@@ -55,13 +55,13 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private int _numLayers;
 	
-	private int _numVCycles;
+	private int _numVCycles = 100;
 	
-	private int _numPreSteps;
+	private int _numPreSteps = 100;
 	
-	private int _numCoarseStep;
+	private int _numCoarseStep = 100;
 	
-	private int _numPostSteps;
+	private int _numPostSteps = 100;
 	/**
 	 * TODO this should be settable by the user.
 	 */
@@ -157,6 +157,9 @@ public class PDEmultigrid extends PDEsolver
 		// everything is working.
 		for ( ArrayType type : variable.getAllArrayTypes() )
 			currentLayer.getGrid().setTo(type, variable.getArray(type));
+		currentLayer.getGrid().newArray(NONLINEARITY);
+		currentLayer.getGrid().newArray(LOCALERROR);
+		currentLayer.getGrid().newArray(RELATIVEERROR);
 		while ( currentLayer.hasCoarser() )
 		{
 			currentLayer = currentLayer.getCoarser();
@@ -401,7 +404,7 @@ public class PDEmultigrid extends PDEsolver
 			 * (see Equations 19.6.21-22).
 			 */
 			lop -= variable.getValueAtCurrent(PRODUCTIONRATE);
-			/* The right-hand side of Equation 19.6.23. */                          
+			/* The right-hand side of Equation 19.6.23. */
 			rhs = variable.getValueAtCurrent(NONLINEARITY);
 			/* TODO */
 			res = (lop - rhs)/dlop;
