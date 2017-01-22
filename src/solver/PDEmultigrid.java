@@ -9,6 +9,7 @@ import static grid.ArrayType.WELLMIXED;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import grid.ArrayType;
@@ -195,6 +196,12 @@ public class PDEmultigrid extends PDEsolver
 				currentLayer = currentLayer.getFiner();
 			this._multigrids.put(var.getName(), currentLayer);
 		}
+		
+		while ( this._commonMultigrid.hasCoarser() )
+			this._commonMultigrid = this._commonMultigrid.getCoarser();
+		/* Go finer for "order" number of layers. */
+		for ( int i = 0; i < order; i++ )
+			this._commonMultigrid = this._commonMultigrid.getFiner();
 	}
 	
 	private void solveCoarsest(Collection<SpatialGrid> variables)
@@ -205,13 +212,21 @@ public class PDEmultigrid extends PDEsolver
 			common = common.getCoarser();
 		/* For each variable, find the coarsest layer and relax. */
 		MultigridLayer currentLayer;
+		Collection<SpatialGrid> currentGrids = new LinkedList<SpatialGrid>();
 		for ( SpatialGrid var : variables )
 		{
 			currentLayer = this.getMultigrid(var);
 			while ( currentLayer.hasCoarser() )
 				currentLayer = currentLayer.getCoarser();
+			currentGrids.add(currentLayer.getGrid());
+		}
+		
+		this._updater.prestep(currentGrids, 0.0);
+		
+		for ( SpatialGrid currentGrid : currentGrids )
+		{
 			for ( int i = 0; i < this._numCoarseStep; i++ )
-				this.relax(currentLayer.getGrid(), common.getGrid());
+				this.relax(currentGrid, common.getGrid());
 		}
 	}
 	
@@ -254,15 +269,17 @@ public class PDEmultigrid extends PDEsolver
 			 * Restrict the concentration and local truncation errors from the
 			 * finer layer to the coarser.
 			 */
+			Collection<SpatialGrid> currentGrids = new LinkedList<SpatialGrid>();
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable);
 				variableMultigrid.fillArrayFromFiner(CONCN, 0.5);
 				variableMultigrid.fillArrayFromFiner(LOCALERROR, 0.5);
 				variableMultigrid.fillArrayFromFiner(NONLINEARITY, 0.5);
+				currentGrids.add(variableMultigrid.getGrid());
 			}
 			/* Update the PRODUCTIONRATE arrays using updated CONCN values. */
-			// TODO
+			this._updater.prestep(currentGrids, 0.0);
 			
 			/*
 			 * TODO

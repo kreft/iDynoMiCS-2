@@ -8,10 +8,14 @@ import static grid.ArrayType.PRODUCTIONRATE;
 import static grid.ArrayType.WELLMIXED;
 import static test.AllTests.TOLERANCE;
 
+import java.util.Collection;
+
 import org.junit.Before;
 import org.junit.Test;
 
+import agent.Agent;
 import grid.SpatialGrid;
+import linearAlgebra.Array;
 import shape.Dimension.DimName;
 import shape.Shape;
 import shape.resolution.MultigridResolution;
@@ -52,10 +56,7 @@ public class PDEmultigridTestsForLine
 		this._shape.setDimensionResolution(DimName.X, resCalc);
 		
 		/* Set up the grids */
-		this._solute1 = new SpatialGrid(this._shape, "solute", null);
-		this._solute1.newArray(CONCN);
-		this._solute1.newArray(DIFFUSIVITY, 1.0);
-		this._solute1.newArray(PRODUCTIONRATE, 0.0);
+		this._solute1 = this.getSoluteGrid("solute1");
 		this._common = new SpatialGrid(this._shape, "common", null);
 		this._common.newArray(WELLMIXED, 0.0);
 		
@@ -72,7 +73,7 @@ public class PDEmultigridTestsForLine
 		/* Set up a concentration gradient to be smoothed out. */
 		this.setUnevenConcn(this._solute1);
 		/* The PDE multigrid solver. */
-		this._solver.init(new String[] { "solute" }, false);
+		this._solver.init(new String[] { "solute1" }, false);
 		this._solver.setUpdater(new PDEupdater() { } );
 		/* Solve the diffusion. */
 		this._solver.solve(AllTests.gridsAsCollection(this._solute1),
@@ -88,7 +89,7 @@ public class PDEmultigridTestsForLine
 		/* Set up a concentration gradient to be smoothed out. */
 		this.setUnevenConcn(this._solute1);
 		/* The PDE multigrid solver. */
-		this._solver.init(new String[] { "solute" }, false);
+		this._solver.init(new String[] { "solute1" }, false);
 		this._solver.setUpdater(new PDEupdater() { } );
 		/* Solve the diffusion. */
 		this._solver.solve(AllTests.gridsAsCollection(this._solute1),
@@ -100,6 +101,15 @@ public class PDEmultigridTestsForLine
 	/* ***********************************************************************
 	 * HELPERS
 	 * **********************************************************************/
+	
+	private SpatialGrid getSoluteGrid(String name)
+	{
+		SpatialGrid grid = new SpatialGrid(this._shape, name, null);
+		grid.newArray(CONCN);
+		grid.newArray(DIFFUSIVITY, 1.0);
+		grid.newArray(PRODUCTIONRATE, 0.0);
+		return grid;
+	}
 	
 	private void setUnevenConcn(SpatialGrid grid)
 	{
