@@ -349,7 +349,7 @@ public class PDEmultigrid extends PDEsolver
 			this.calculateResidual(currentLayer, currentCommon, LOCALERROR);
 			// TODO LOCALERROR -= RHS ???
 			truncationError = currentLayer.getNorm(LOCALERROR);
-			continueVCycle = truncationError > this._truncationErrors.get(variable);
+			continueVCycle = truncationError > this._truncationErrors.get(variable.getName());
 			if ( continueVCycle )
 				break;
 		}
@@ -403,13 +403,13 @@ public class PDEmultigrid extends PDEsolver
 			 * For the FAS, the source term is implicit in the L-operator
 			 * (see Equations 19.6.21-22).
 			 */
-			lop -= variable.getValueAtCurrent(PRODUCTIONRATE);
+			lop += variable.getValueAtCurrent(PRODUCTIONRATE);
 			/* The right-hand side of Equation 19.6.23. */
 			rhs = variable.getValueAtCurrent(NONLINEARITY);
 			/* TODO */
 			res = (lop - rhs)/dlop;
 			/* TODO */
-			concn -= res;
+			concn += res;
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )
 				concn = 0.0;

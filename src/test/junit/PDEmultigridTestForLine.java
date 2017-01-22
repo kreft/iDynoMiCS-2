@@ -1,13 +1,12 @@
 package test.junit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 
 import static grid.ArrayType.CONCN;
 import static grid.ArrayType.DIFFUSIVITY;
-import static grid.ArrayType.NONLINEARITY;
 import static grid.ArrayType.PRODUCTIONRATE;
+import static grid.ArrayType.WELLMIXED;
 import static test.AllTests.TOLERANCE;
 
 import java.util.Collection;
@@ -16,7 +15,6 @@ import java.util.LinkedList;
 import org.junit.Test;
 
 import grid.SpatialGrid;
-import linearAlgebra.Array;
 import shape.Dimension.DimName;
 import shape.Shape;
 import shape.resolution.MultigridResolution;
@@ -35,7 +33,7 @@ public class PDEmultigridTestForLine
 	@Test
 	public void multigridPdeConvergesForSimpleLine()
 	{
-		double numVoxels = Math.pow(2.0, 2.0);
+		double numVoxels = Math.pow(2.0, 3.0);
 		
 		/* Set up the shape. */
 		Shape shape = AllTests.GetShape("Line");
@@ -47,8 +45,10 @@ public class PDEmultigridTestForLine
 		/* Set up the grids */
 		SpatialGrid solute = new SpatialGrid(shape, "solute", null);
 		solute.newArray(CONCN);
-		SpatialGrid common = new SpatialGrid(shape, "solute", null);
-		common.newArray(DIFFUSIVITY, 1.0);
+		solute.newArray(DIFFUSIVITY, 1.0);
+		solute.newArray(PRODUCTIONRATE, 0.0);
+		SpatialGrid common = new SpatialGrid(shape, "common", null);
+		common.newArray(WELLMIXED, 0.0);
 		/* Set up a concentration gradient to be smoothed out. */
 		double[][][] concn = solute.getArray(CONCN);
 		for ( int i = 0; i < numVoxels; i++ )
@@ -64,6 +64,7 @@ public class PDEmultigridTestForLine
 		solver.solve(grids, common, 1.0);
 		/* Confirm that diffusion has smoothed out the concentration. */
 		concn = solute.getArray(CONCN);
+		assertTrue(Double.isFinite(concn[0][0][0]));
 		for ( int i = 1; i < numVoxels; i++ )
 			assertEquals(concn[0][0][0], concn[i][0][0], TOLERANCE);
 	}
