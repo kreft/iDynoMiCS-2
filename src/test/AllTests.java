@@ -4,12 +4,16 @@
 package test;
 
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
+import grid.SpatialGrid;
 import idynomics.Idynomics;
 import idynomics.Param;
 import idynomics.Simulator;
@@ -27,6 +31,8 @@ import test.junit.*;
 				MultigridLayerForRectangleTests.class,
 				MultigridLayerForSquareTests.class,
 				MultigridResolutionTests.class,
+				PDEmultigridTestsForLine.class,
+				PDEmultigridTestsForSquare.class,
 				PdeTest.class,
 				RateExpressionTest.class,
 				ShapesTest.class,
@@ -78,5 +84,20 @@ public class AllTests
 			e.printStackTrace();
 		}
 		return shape;
+	}
+	
+	/**
+	 * \brief Helper method for tests on solvers.
+	 * 
+	 * @param grids A number of SpatialGrids (1 to many)
+	 * @return The given grids wrapped up in a collection.
+	 */
+	public static Collection<SpatialGrid> gridsAsCollection(
+			SpatialGrid... grids)
+	{
+		Collection<SpatialGrid> gridList = new LinkedList<SpatialGrid>();
+		for (SpatialGrid grid : grids)
+			gridList.add(grid);
+		return gridList;
 	}
 }
