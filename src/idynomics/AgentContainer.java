@@ -981,7 +981,7 @@ public class AgentContainer implements Settable
 	 * @see #removeAgentDistibutionMaps()
 	 */
 	@SuppressWarnings("unchecked")
-	public void setupAgentDistributionMaps()
+	public void setupAgentDistributionMaps(Shape shape)
 	{
 		Tier level = BULK;
 		if (Log.shouldWrite(level))
@@ -990,16 +990,19 @@ public class AgentContainer implements Settable
 		/*
 		 * Reset the agent biomass distribution maps.
 		 */
-		CoordinateMap distributionMap;
+		Map<Shape, CoordinateMap> mapOfMaps;
 		for ( Agent a : this.getAllLocatedAgents() )
 		{
-			distributionMap = new CoordinateMap();
-			a.set(VD_TAG, distributionMap);
+			if ( a.isAspect(VD_TAG) )
+				mapOfMaps = (Map<Shape, CoordinateMap>)a.get(VD_TAG);
+			else
+				mapOfMaps = new HashMap<Shape, CoordinateMap>();
+			mapOfMaps.put(shape, new CoordinateMap());
+			a.set(VD_TAG, mapOfMaps);
 		}
 		/*
 		 * Now fill these agent biomass distribution maps.
 		 */
-		Shape shape = this.getShape();
 		int nDim = this.getNumDims();
 		double[] location;
 		double[] dimension = new double[3];
@@ -1009,6 +1012,7 @@ public class AgentContainer implements Settable
 		List<Surface> surfaces;
 		double[] pLoc;
 		Collision collision = new Collision(null, shape);
+		CoordinateMap distributionMap;
 
 		for ( int[] coord = shape.resetIterator(); 
 				shape.isIteratorValid(); coord = shape.iteratorNext())
@@ -1088,7 +1092,8 @@ public class AgentContainer implements Settable
 					Log.out(level, "  "+"   agent "+a.identity()+" has "+
 						surfaces.size()+" surfaces");
 				}
-				distributionMap = (CoordinateMap) a.getValue(VD_TAG);
+				mapOfMaps = (Map<Shape, CoordinateMap>) a.getValue(VD_TAG);
+				distributionMap = mapOfMaps.get(shape);
 				sgLoop: for ( SubvoxelPoint p : svPoints )
 				{
 					/* Only give location in significant dimensions. */

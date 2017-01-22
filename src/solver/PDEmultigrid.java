@@ -73,6 +73,23 @@ public class PDEmultigrid extends PDEsolver
 	 * **********************************************************************/
 	
 	@Override
+	public Collection<Shape> getShapesForAgentMassDistributionMaps(SpatialGrid commonGrid)
+	{
+		this.refreshCommonGrid(commonGrid);
+		MultigridLayer layer = this._commonMultigrid;
+		while ( layer.hasFiner() )
+			layer = layer.getFiner();
+		
+		Collection<Shape> shapes = new LinkedList<Shape>();
+		while ( layer.hasCoarser() )
+		{
+			shapes.add(layer.getGrid().getShape());
+			layer = layer.getCoarser();
+		}
+		return shapes;
+	}
+	
+	@Override
 	public void solve(Collection<SpatialGrid> variables,
 			SpatialGrid commonGrid, double tFinal)
 	{

@@ -79,6 +79,14 @@ public abstract class PDEsolver extends Solver
 		}
 	}
 	
+	public Collection<Shape> getShapesForAgentMassDistributionMaps(
+			SpatialGrid commonGrid)
+	{
+		Collection<Shape> shapes = new LinkedList<Shape>();
+		shapes.add(commonGrid.getShape());
+		return shapes;
+	}
+	
 	/**
 	 * \brief Add the Laplacian Operator to the LOPERATOR array of the given
 	 * grid.

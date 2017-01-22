@@ -114,7 +114,11 @@ public abstract class ProcessDiffusion extends ProcessManager
 		 * Set up the agent mass distribution maps, to ensure that agent
 		 * reactions are spread over voxels appropriately.
 		 */
-		this._agents.setupAgentDistributionMaps();
+		Collection<Shape> shapes = 
+				this._solver.getShapesForAgentMassDistributionMaps(
+						this._environment.getCommonGrid());
+		for ( Shape shape : shapes )
+			this._agents.setupAgentDistributionMaps(shape);
 		/*
 		 * Get the environment to update its well-mixed array by querying all
 		 * spatial boundaries.

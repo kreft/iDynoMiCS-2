@@ -3,6 +3,8 @@
  */
 package aspect.event;
 
+import java.util.Map;
+
 import agent.Agent;
 import aspect.AspectInterface;
 import aspect.Event;
@@ -13,6 +15,7 @@ import grid.SpatialGrid;
 import idynomics.Compartment;
 import linearAlgebra.Vector;
 import referenceLibrary.AspectRef;
+import shape.Shape;
 import shape.subvoxel.CoordinateMap;
 
 /**
@@ -70,7 +73,12 @@ public class DetectLocalSolute extends Event
 			}
 			return;
 		}
-		CoordinateMap distribMap = (CoordinateMap) anAgent.getValue(VD_TAG);
+		
+		@SuppressWarnings("unchecked")
+		Map<Shape, CoordinateMap> mapOfMaps = 
+				(Map<Shape, CoordinateMap>) anAgent.getValue(VD_TAG);
+		CoordinateMap distribMap = 
+				mapOfMaps.get(anAgent.getCompartment().getShape());
 		/*
 		 * Loop over the coordinates, printing out the solute concentrations.
 		 * This is the part that would be changed in any event using this as a
