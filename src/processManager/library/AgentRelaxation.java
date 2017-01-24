@@ -59,6 +59,7 @@ public class AgentRelaxation extends ProcessManager
 	public String STATIC_AGENT = AspectRef.staticAgent;
 	
 	public String LOW_STRESS_SKIP = AspectRef.stressThreshold;
+	public String GRAVITY = AspectRef.gravity_testing;
 	public String STIFFNESS = AspectRef.spineStiffness;
 	
 	
@@ -138,6 +139,11 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private double _stressThreshold;
 	
+	/**
+	 * testing gravity buoyancy implementation
+	 */
+	private Boolean _gravity;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -162,6 +168,7 @@ public class AgentRelaxation extends ProcessManager
 		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = this._shape.getCollision();
 		this._stressThreshold = Helper.setIfNone( this.getDouble(LOW_STRESS_SKIP), 0.0 );	
+		this._gravity = Helper.setIfNone( this.getBoolean(GRAVITY), false);
 	}
 
 	/*************************************************************************
@@ -184,6 +191,16 @@ public class AgentRelaxation extends ProcessManager
 		{
 			Body body = (Body) agent.get(AspectRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
+			
+			if (_gravity)
+			{
+				/* FIXME optional gravity/ buoncy (testing) */
+				double[] grav = Vector.zerosDbl(body.nDim());
+				grav[body.nDim()-1] = -0.1* (agent.getDouble("mass") / (double) body.getNumberOfPoints());
+				List<Point> points = body.getPoints();
+				for (Point p : points)
+					p.setForce(Vector.add( p.getForce(), grav )); ;
+			}
 
 			/* surface operations */
 			for ( Surface s : agentSurfs )

@@ -1,4 +1,7 @@
 package agent;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -135,6 +138,18 @@ public class Agent implements AspectInterface, Settable, Instantiable
 		double[] v = Vector.randomZeroOne(domain);
 		Vector.timesEquals(v, domain);
 		return new Body(new Point(v), 0.0);
+	}
+	
+	/* FIXME work in progress */
+	public Body randBody(double[] domain, int p)
+	{
+		double[] v = Vector.randomZeroOne(domain);
+		Vector.timesEquals(v, domain);
+		List<Point> points = new LinkedList<Point>();
+		points.add(new Point(v));
+		for ( int i = 1; i < p; i++ )
+			points.add(new Point(Vector.add(v,Vector.randomZeroOne(domain))));
+		return new Body(points, 0, 0);
 	}
 
 	public Agent(Node xmlNode, Body body)

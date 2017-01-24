@@ -365,4 +365,9 @@ public class AspectRef
 	 */
 	public static final String spineStiffness = "spineStiffness";
 
+	/**
+	 * testing some gravity buoyancy implementation
+	 */
+	public static final String gravity_testing = "gravity_testing";
+
 }

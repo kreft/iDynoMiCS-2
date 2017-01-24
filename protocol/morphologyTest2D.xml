@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document>
-	<simulation name="rodTest" outputfolder="../results" log="DEBUG" randomSeed="22"
+	<simulation name="rodTest2D" outputfolder="../results" log="DEBUG" randomSeed="22"
 						comment="this is a file for testing purposes only.">
 		
 		<timer stepSize="1.0" endOfSimulation="30.0" />
@@ -30,12 +30,10 @@
 			</species>
 		</speciesLib>
 		<compartment name="second">
-			<shape class="Cuboid">
-				<dimension name="X" isCyclic="true" targetResolution="1" max="14.0">
+			<shape class="Rectangle">
+				<dimension name="X" isCyclic="true" targetResolution="1" max="15.0">
 				</dimension> 
-				<dimension name="Y" isCyclic="true" targetResolution="1" max="14.0">
-				</dimension> 
-				<dimension name="Z" isCyclic="false" targetResolution="1" max="14.0">
+				<dimension name="Y" isCyclic="true" targetResolution="1" max="15.0">
 				</dimension> 
 			</shape>
 			<solutes>
@@ -49,8 +47,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="2,2,0" />
-						<point position="2,4,0"  />
+						<point position="2,2" />
+						<point position="2,4"  />
 					</aspect>
 				</agent>
 				<agent>
@@ -61,8 +59,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="5,2,0" />
-						<point position="5,4,0"  />
+						<point position="5,2" />
+						<point position="5,4"  />
 					</aspect>
 				</agent>
 				
@@ -74,8 +72,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="12,10,0" />
-						<point position="11,9,0"  />
+						<point position="12,10" />
+						<point position="11,9"  />
 					</aspect>
 				</agent>
 				<agent>
@@ -86,8 +84,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="9,7,0" />
-						<point position="10,6,0"  />
+						<point position="9,7" />
+						<point position="10,6"  />
 					</aspect>
 				</agent>
 				
@@ -99,8 +97,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="3,12,0" />
-						<point position="4,13,0"  />
+						<point position="3,12" />
+						<point position="4,13"  />
 					</aspect>
 				</agent>
 				<agent>
@@ -111,8 +109,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="13,12,0" />
-						<point position="12,13,0"  />
+						<point position="13,12," />
+						<point position="12,13"  />
 					</aspect>
 				</agent>
 				
@@ -124,8 +122,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="13,12,0" />
-						<point position="14,11,0"  />
+						<point position="13,12" />
+						<point position="14,11"  />
 					</aspect>
 				</agent>
 				<agent>
@@ -136,8 +134,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="3,7,0" />
-						<point position="2,6,0"  />
+						<point position="3,7" />
+						<point position="2,6"  />
 					</aspect>
 				</agent>
 								
@@ -149,8 +147,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="8,4,0" />
-						<point position="9,5,0"  />
+						<point position="8,4" />
+						<point position="9,5"  />
 					</aspect>
 				</agent>
 				<agent>
@@ -161,8 +159,8 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="13,5,0" />
-						<point position="12,6,0"  />
+						<point position="13,5" />
+						<point position="12,6"  />
 					</aspect>
 				</agent>
 			</agents>
