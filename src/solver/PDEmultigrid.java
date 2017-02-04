@@ -81,9 +81,13 @@ public class PDEmultigrid extends PDEsolver
 			layer = layer.getFiner();
 		
 		Collection<Shape> shapes = new LinkedList<Shape>();
+		Shape layerShape;
 		while ( layer.hasCoarser() )
 		{
-			shapes.add(layer.getGrid().getShape());
+			layerShape = layer.getGrid().getShape();
+			// Set all shapes to use a Red-Black iterator.
+			layerShape.setNewIterator(2);
+			shapes.add(layerShape);
 			layer = layer.getCoarser();
 		}
 		return shapes;
