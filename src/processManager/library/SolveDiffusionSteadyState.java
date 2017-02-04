@@ -23,7 +23,7 @@ import reaction.Reaction;
 import referenceLibrary.XmlRef;
 import shape.Shape;
 import shape.subvoxel.CoordinateMap;
-import solver.PDEgaussseidel;
+import solver.PDEmultigrid;
 import solver.PDEupdater;
 import utility.Helper;
 
@@ -60,7 +60,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 				Helper.collectionToArray(this._environment.getSoluteNames()));
 
 		// TODO Let the user choose which ODEsolver to use.
-		this._solver = new PDEgaussseidel();
+		this._solver = new PDEmultigrid();
 		this._solver.init(this._soluteNames, false);
 		this._solver.setUpdater(this.standardUpdater());
 		

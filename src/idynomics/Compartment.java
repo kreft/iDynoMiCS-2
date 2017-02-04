@@ -160,7 +160,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		/*
 		 * Set up the shape.
 		 */
-		Element elem = XmlHandler.loadUnique(xmlElem, XmlRef.compartmentShape);
+		Element elem = XmlHandler.findUniqueChild(xmlElem, XmlRef.compartmentShape);
 		String[] str = new String[] { XmlHandler.gatherAttribute(elem, XmlRef.classAttribute) };
 		if ( str[0] == null )
 			str = Shape.getAllOptions();
@@ -544,7 +544,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 			
 			/* set the tree type */
 			String tree = node.getAttribute( XmlRef.tree ).getValue();
-			if ( ! Helper.isNone( tree ) )
+			if ( ! Helper.isNullOrEmpty( tree ) )
 				this.agents.setSpatialTree( TreeType.valueOf( tree ) );
 		}
 		/* 

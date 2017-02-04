@@ -122,14 +122,14 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		/*
 		 * Set up the Timer.
 		 */
-		this.timer.instantiate( XmlHandler.loadUnique( xmlElem, XmlRef.timer ), this);
+		this.timer.instantiate( XmlHandler.findUniqueChild( xmlElem, XmlRef.timer ), this);
 		/*
 		 * Set up the species library.
 		 */
-		if (XmlHandler.hasNode(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
+		if (XmlHandler.hasChild(Idynomics.global.xmlDoc, XmlRef.speciesLibrary))
 		{
 			this.speciesLibrary = (SpeciesLib) Instance.getNew(
-					XmlHandler.loadUnique( xmlElem, XmlRef.speciesLibrary ), 
+					XmlHandler.findUniqueChild( xmlElem, XmlRef.speciesLibrary ), 
 					this, ClassRef.speciesLibrary );
 		}
 		/*

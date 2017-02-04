@@ -132,6 +132,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	{
 		Element elem = (Element) xmlElement;
 		String str;
+		double val;
 		NodeList bndNodes;
 		Element bndElem;
 		SpatialBoundary aBoundary;
@@ -150,32 +151,27 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		 * Boundaries at the extremes.
 		 */
 		
-		/* maximum has to be set */
-		str = XmlHandler.obtainAttribute(elem, XmlRef.max, this.defaultXmlTag()
-				+ " " + this._dimName.name());
-		if ( str != null && str != ""){
-			double val = Double.valueOf(str);
-			/* convert degree to radian for angular dimensions */
-			if (this._dimName.isAngular())
-				val = Math.toRadians(val);
-			this.setExtreme(val, 1);
-		}
+		/* The maximum has to be set. */
+		str = this.defaultXmlTag() + " " + this._dimName.name();
+		str = XmlHandler.obtainAttribute(elem, XmlRef.max, str);
+		val = Double.valueOf(str);
+		/* Convert from degrees to radians for angular dimensions */
+		if ( this._dimName.isAngular()) ;
+		val = Math.toRadians(val);
+		this.setExtreme(val, 1);
 		
-		/* by default minimum is 0.0 */
-		str = (String) Helper.setIfNone(
-				XmlHandler.gatherAttribute(elem, XmlRef.min), "0.0");
-		if ( str != null && str != ""){
-			double val = Double.valueOf(str);
-			/* convert degree to radian for angular dimensions */
-			if (this._dimName.isAngular())
-				val = Math.toRadians(val);
-			this.setExtreme(val, 0);
-		}
+		/* By default the minimum is 0.0 */
+		str = XmlHandler.gatherAttribute(elem, XmlRef.min);
+		val = Helper.isNullOrEmpty(str) ? 0.0 : Double.valueOf(str);
+		/* Convert from degrees to radians for angular dimensions */
+		if ( this._dimName.isAngular() )
+			val = Math.toRadians(val);
+		this.setExtreme(val, 0);
 		
-		/* calculate length from dimension extremes */
-		double length = getLength();
+		/* Calculate length from dimension extremes. */
+		double length = this.getLength();
 		
-		/* fetch target resolution (or use length as default) */
+		/* Fetch target resolution (or use length as default). */
 		str = XmlHandler.obtainAttribute(elem, XmlRef.targetResolutionAttribute,
 				this.defaultXmlTag() + " " + this._dimName.name());
 		this._targetRes = length; 
@@ -191,7 +187,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		// FIXME investigate and clean
 		/* Set the boundary, if given (not always necessary). */
 		bndNodes = XmlHandler.getAll(elem, XmlRef.dimensionBoundary);
-		if (bndNodes != null)
+		if ( ! Helper.isNullOrEmpty(bndNodes) )
 		{
 			for ( int i = 0; i < bndNodes.getLength(); i++ )
 			{

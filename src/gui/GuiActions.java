@@ -17,7 +17,6 @@ import idynomics.Param;
 import idynomics.Simulator;
 import render.AgentMediator;
 import render.Render;
-import utility.ExtraMath;
 import utility.Helper;
 
 /**
@@ -161,7 +160,7 @@ public final class GuiActions
 			{
 				/* otherwise ask for user input */
 				String s = Helper.obtainInput(compartments, 
-						"select compartment for rendering", false);
+						"select compartment for rendering", true);
 				c = Idynomics.simulator.getCompartment(s);
 			}
 			/* create and invoke the renderer */

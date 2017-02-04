@@ -125,7 +125,7 @@ public class GraphicalOutput extends ProcessManager
 		/* get instance of appropriate output writer */
 		this._graphics = (GraphicalExporter) Instance.getNew(
 				null, null, Helper.obtainIfNone( this.getString(OUTPUT_WRITER ), 
-				"output writer", false, options() ) );
+				"output writer", true, options() ) );
 		
 		/* write scene files (used by pov ray) */
 		this._graphics.init( this._prefix, this._shape );

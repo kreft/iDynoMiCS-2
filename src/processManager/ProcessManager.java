@@ -121,7 +121,7 @@ public abstract class ProcessManager implements Instantiable, AspectInterface,
 		 * Read in the process attributes. 
 		 */
 		Element p = (Element) xmlElem;
-		if (Helper.isNone(this._name))
+		if (Helper.isNullOrEmpty(this._name))
 			this.setName( XmlHandler.obtainAttribute(p, XmlRef.nameAttribute, this.defaultXmlTag()));
 		/* Process priority - default is zero. */
 		int priority = 0;

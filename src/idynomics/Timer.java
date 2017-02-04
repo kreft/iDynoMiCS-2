@@ -10,7 +10,6 @@ import settable.Module;
 import settable.Settable;
 import settable.Module.Requirements;
 import dataIO.Log.Tier;
-import instantiable.Instance;
 import instantiable.Instantiable;
 import utility.Helper;
 
@@ -116,7 +115,7 @@ public class Timer implements Instantiable, Settable
 	{
 		this._now += getTimeStepSize();
 		this._iteration++;
-		if ( Helper.gui )
+		if ( Helper.isSystemRunningInGUI )
 			GuiLaunch.updateProgressBar();
 	}
 	

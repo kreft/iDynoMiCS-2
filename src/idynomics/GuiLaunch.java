@@ -110,11 +110,11 @@ public strictfp class GuiLaunch implements Runnable
 		 
 		run();
 	}
-			    	  
-   /**
-    * \brief The GUI is runnable otherwise it will become unresponsive until
-    * the simulation finishes.
-    */
+
+	/**
+	 * \brief The GUI is runnable otherwise it will become unresponsive until
+	 * the simulation finishes.
+	 */
 	public void run()
 	{
 		try 
@@ -130,7 +130,7 @@ public strictfp class GuiLaunch implements Runnable
 		 * When running in GUI we want dialog input instead of command line 
 		 * input.
 		 */
-		Helper.gui = true;
+		Helper.isSystemRunningInGUI = true;
 		/* 
 		 * Set the window size, position, title and its close operation.
 		 */

@@ -3,14 +3,18 @@
  */
 package shape.resolution;
 
+import org.w3c.dom.Element;
+
 import generalInterfaces.Copyable;
+import instantiable.Instantiable;
+import settable.Settable;
 
 /**
  * \brief Abstract class for calculating grid resolutions.
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ResolutionCalculator implements Copyable //TODO Instanciable
+public abstract class ResolutionCalculator implements Copyable, Instantiable
 {
 	/**
 	 * Total number of voxels along this dimension.
@@ -29,7 +33,10 @@ public abstract class ResolutionCalculator implements Copyable //TODO Instanciab
 	 */
 	protected double _targetRes;
 
-	// TODO void instantiate(Element xmlElement, Settable parent);
+	public void instantiate(Element xmlElement, Settable parent)
+	{
+		
+	}
 	
 	public abstract void init(double resolution, double min, double max);
 
