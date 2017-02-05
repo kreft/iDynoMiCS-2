@@ -8,15 +8,12 @@ import static grid.ArrayType.PRODUCTIONRATE;
 import static grid.ArrayType.WELLMIXED;
 import static test.AllTests.TOLERANCE;
 
-import java.util.Collection;
-
 import org.junit.Before;
 import org.junit.Test;
 
-import agent.Agent;
 import grid.SpatialGrid;
-import linearAlgebra.Array;
 import shape.Dimension.DimName;
+import shape.Dimension;
 import shape.Shape;
 import shape.resolution.MultigridResolution;
 import shape.resolution.ResolutionCalculator;
@@ -51,8 +48,10 @@ public class PDEmultigridTestsForLine
 	{
 		/* Set up the shape. */
 		this._shape = AllTests.GetShape("Line");
-		ResolutionCalculator resCalc = new MultigridResolution();
-		resCalc.init(1.0, 0.0, this._numVoxels);
+		Dimension x = this._shape.getDimension(DimName.X);
+		x.setLength(this._numVoxels);
+		ResolutionCalculator resCalc = new MultigridResolution(x);
+		resCalc.setResolution(1.0);
 		this._shape.setDimensionResolution(DimName.X, resCalc);
 		
 		/* Set up the grids */

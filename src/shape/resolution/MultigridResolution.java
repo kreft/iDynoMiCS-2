@@ -1,15 +1,24 @@
 package shape.resolution;
 
+import shape.Dimension;
 import shape.ShapeConventions.SingleVoxel;
 import utility.ExtraMath;
 
 public class MultigridResolution extends ResolutionCalculator
 {
-	@Override
-	public void init(double targetResolution, double min, double max)
+	public MultigridResolution()
 	{
-		this._min = min; 
-		this._max = max;
+		super();
+	}
+	
+	public MultigridResolution(Dimension dimension)
+	{
+		super(dimension);
+	}
+	
+	@Override
+	protected void init(double targetResolution, double min, double max)
+	{
 		this._targetRes = targetResolution;
 		/* Single-voxel test to start with. */
 		this._nVoxel = 1;
@@ -33,9 +42,7 @@ public class MultigridResolution extends ResolutionCalculator
 	{
 		if ( this._nVoxel > 2 )
 		{
-			MultigridResolution out = new MultigridResolution();
-			out._min = this._min;
-			out._max = this._max;
+			MultigridResolution out = new MultigridResolution(this._dimension);
 			out._targetRes = 2.0 * this._targetRes;
 			out._nVoxel = (int)(0.5 * this._nVoxel);
 			out._resolution = 2.0 * this._resolution;
@@ -43,8 +50,8 @@ public class MultigridResolution extends ResolutionCalculator
 		}
 		else
 		{
-			SingleVoxel sV = new SingleVoxel();
-			sV.init(this.getTotalLength(), this._min, this._max);
+			SingleVoxel sV = new SingleVoxel(this._dimension);
+			sV.setResolution(this.getTotalLength());
 			return sV;
 		}
 	}

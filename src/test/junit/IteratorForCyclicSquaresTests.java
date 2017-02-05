@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import linearAlgebra.Vector;
 import shape.Shape;
+import shape.Dimension;
 import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.UniformResolution;
@@ -29,14 +30,15 @@ public class IteratorForCyclicSquaresTests
 	public void createTestObjects()
 	{
 		this._shape = AllTests.GetShape("Rectangle");
-		ResolutionCalculator resCalc = new UniformResolution();
-		resCalc.init(1.0, 0.0, sideLength);
-		this._shape.setDimensionResolution(DimName.X, resCalc);
-		this._shape.makeCyclic(DimName.X);
-		resCalc = new UniformResolution();
-		resCalc.init(1.0, 0.0, sideLength);
-		this._shape.setDimensionResolution(DimName.Y, resCalc);
-		this._shape.makeCyclic(DimName.Y);
+		for ( DimName dimName : new DimName[] { DimName.X, DimName.Y })
+		{
+			Dimension dimension = this._shape.getDimension(dimName);
+			dimension.setLength(sideLength);
+			ResolutionCalculator resCalc = new UniformResolution(dimension);
+			resCalc.setResolution(1.0);
+			this._shape.setDimensionResolution(dimName, resCalc);
+			this._shape.makeCyclic(dimName);
+		}
 	}
 	
 	@Test

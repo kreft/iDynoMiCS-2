@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import linearAlgebra.Vector;
+import shape.Dimension;
 import shape.Dimension.DimName;
 import shape.resolution.ResolutionCalculator;
 import shape.resolution.UniformResolution;
@@ -27,8 +28,10 @@ public class IteratorForCyclicLineTests
 	public void createTestObjects()
 	{
 		this._shape = AllTests.GetShape("Line");
-		ResolutionCalculator resCalc = new UniformResolution();
-		resCalc.init(1.0, 0.0, 4.0);
+		Dimension x = this._shape.getDimension(DimName.X);
+		x.setLength(4.0);
+		ResolutionCalculator resCalc = new UniformResolution(x);
+		resCalc.setResolution(1.0);
 		this._shape.setDimensionResolution(DimName.X, resCalc);
 		this._shape.makeCyclic(DimName.X);
 	}

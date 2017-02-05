@@ -12,6 +12,7 @@ import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
+import shape.Dimension;
 import shape.Shape;
 import shape.ShapeConventions.SingleVoxel;
 import shape.Dimension.DimName;
@@ -36,18 +37,22 @@ public class MultigridLayerForRectangleTests
 	public void setup()
 	{
 		Shape shape = AllTests.GetShape("Rectangle");
-		// 8 voxels in x-dimension
-		ResolutionCalculator resCalc = new MultigridResolution();
-		resCalc.init(1.0, 0.0, 8.0);
+		/* 8 voxels in x-dimension */
+		Dimension x = shape.getDimension(DimName.X);
+		x.setLength(8.0);
+		ResolutionCalculator resCalc = new MultigridResolution(x);
+		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
-		// 4 voxels in y-dimension
-		resCalc = new MultigridResolution();
-		resCalc.init(1.0, 0.0, 4.0);
+		/* 4 voxels in y-dimension */
+		Dimension y = shape.getDimension(DimName.X);
+		y.setLength(4.0);
+		resCalc = new MultigridResolution(y);
+		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.Y, resCalc);
 		SpatialGrid grid = new SpatialGrid(shape, "grid", null);
-		// Use a constant value in the concentration array
+		/* Use a constant value in the concentration array. */
 		grid.newArray(ArrayType.CONCN, concn);
-		// Use a variable value in the production array
+		/* Use a variable value in the production array. */
 		grid.newArray(ArrayType.PRODUCTIONRATE);
 		double[][][] prodRate = Array.zerosDbl(8, 4, 1);
 		for ( int i = 0; i < 8; i++ )

@@ -180,9 +180,8 @@ public abstract class Shape implements
 					dim.instantiate(childElem, this);
 					
 					/* Initialise resolution calculators */
-					rC = new UniformResolution();
-	
-					rC.init(dim._targetRes, dim._extreme[0], dim._extreme[1]);
+					rC = new UniformResolution(dim);
+					rC.setResolution(dim._targetRes);
 					this.setDimensionResolution(dimens, rC);	
 				}
 			}
@@ -1516,18 +1515,17 @@ public abstract class Shape implements
 		}
 		
 		/* set the dimension resolutions */
-		for ( int dim = 0; dim < 3; dim++ )
+		for ( int dimIndex = 0; dimIndex < 3; dimIndex++ )
 		{
-			DimName dimName = this.getDimensionName(dim);
-			UniformResolution resCalc = new UniformResolution();
-			sub.getDimension(dimName).setExtremes(orig[dim], upper[dim]);
-			resCalc.setExtremes(orig[dim], upper[dim]);
+			DimName dimName = this.getDimensionName(dimIndex);
+			Dimension dimension = sub.getDimension(dimName);
+			dimension.setExtremes(orig[dimIndex], upper[dimIndex]);
+			UniformResolution resCalc = new UniformResolution(dimension);
 			/* convert arc length to angle for angular dimensions */
 			resCalc.setResolution(dimName.isAngular() ? 
 					targetRes / upper[getDimensionIndex(DimName.R)] : targetRes);
 			sub.setDimensionResolution(dimName, resCalc);
 		}
-		
 		
 		/* Loop over the shape and create new subvoxel points with 
 		 * internal location, real location and volume set */

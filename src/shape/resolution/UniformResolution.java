@@ -1,12 +1,22 @@
 package shape.resolution;
 
+import shape.Dimension;
+
 public class UniformResolution extends ResolutionCalculator
 {
+	public UniformResolution()
+	{
+		super();
+	}
+	
+	public UniformResolution(Dimension dimension)
+	{
+		super(dimension);
+	}
+	
 	@Override
 	public void init(double targetResolution, double min, double max)
 	{
-		this._min = min;
-		this._max = max;
 		this._targetRes = targetResolution;
 		this._nVoxel = (int) (getTotalLength() / targetResolution);
 		this._resolution = getTotalLength() / this._nVoxel;

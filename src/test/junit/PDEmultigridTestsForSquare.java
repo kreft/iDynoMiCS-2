@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import grid.SpatialGrid;
+import shape.Dimension;
 import shape.Dimension.DimName;
 import shape.Shape;
 import shape.resolution.MultigridResolution;
@@ -47,10 +48,14 @@ public class PDEmultigridTestsForSquare
 	{
 		/* Set up the shape. */
 		this._shape = AllTests.GetShape("Rectangle");
-		ResolutionCalculator resCalc = new MultigridResolution();
-		resCalc.init(1.0, 0.0, this._numVoxels);
-		this._shape.setDimensionResolution(DimName.X, resCalc);
-		this._shape.setDimensionResolution(DimName.Y, resCalc);
+		for (DimName dimName : new DimName[] {DimName.X, DimName.Y})
+		{
+			Dimension dimension = this._shape.getDimension(dimName);
+			dimension.setLength(this._numVoxels);
+			ResolutionCalculator resCalc = new MultigridResolution(dimension);
+			resCalc.setResolution(1.0);
+			this._shape.setDimensionResolution(dimName, resCalc);
+		}
 		
 		/* Set up the grids */
 		this._solute1 = new SpatialGrid(this._shape, "solute", null);

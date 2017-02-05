@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 import generalInterfaces.Copyable;
 import instantiable.Instantiable;
 import settable.Settable;
+import shape.Dimension;
 
 /**
  * \brief Abstract class for calculating grid resolutions.
@@ -17,13 +18,13 @@ import settable.Settable;
 public abstract class ResolutionCalculator implements Copyable, Instantiable
 {
 	/**
+	 * 
+	 */
+	protected Dimension _dimension;
+	/**
 	 * Total number of voxels along this dimension.
 	 */
 	protected int _nVoxel;
-	/**
-	 * Total extremes of this dimension.
-	 */
-	protected double _min, _max;
 	/**
 	 * The resolution for every voxel.
 	 */
@@ -33,32 +34,55 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	 */
 	protected double _targetRes;
 
+	/* ***********************************************************************
+	 * CONSTRUCTION
+	 * **********************************************************************/
+
+	/**
+	 * Basic constructor for a ResolutionCalculator. The parent dimension will
+	 * be set during {@link #instantiate(Element, Settable)}.
+	 */
+	public ResolutionCalculator()
+	{ }
+	
+	/**
+	 * Constructor where the parent Dimension is set directly. Used only in
+	 * tests.
+	 * 
+	 * @param dimension Parent Dimension.
+	 */
+	public ResolutionCalculator(Dimension dimension)
+	{
+		this._dimension = dimension;
+	}
+	
+	@Override
 	public void instantiate(Element xmlElement, Settable parent)
 	{
+		this._dimension = (Dimension) parent;
 		
 	}
 	
-	public abstract void init(double resolution, double min, double max);
+	protected abstract void init(double resolution, double min, double max);
 
+	/* ***********************************************************************
+	 * BASIC GETTERS & SETTERS
+	 * **********************************************************************/
+	
 	public int getNVoxel()
 	{
 		return this._nVoxel;
 	}
-
-	public void setExtremes(double min, double max)
-	{
-		this._min = min;
-		this._max = max;
-	}
 	
 	public double getTotalLength()
 	{
-		return this._max - this._min;
+		return this._dimension.getLength();
 	}
 	
 	public void setResolution(double targetResolution)
 	{
-		this.init(targetResolution, this._min, this._max);
+		this.init(targetResolution,
+				this._dimension.getExtreme(0), this._dimension.getExtreme(1));
 	}
 	
 	public double getResolution()
@@ -78,9 +102,10 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	{
 		if ( voxelIndex >= this._nVoxel )
 			throw new IllegalArgumentException("Voxel index out of range");
+		double min = this._dimension.getExtreme(0);
 		if ( voxelIndex < 0 )
-			return this._min;
-		return this._min + this._resolution * (voxelIndex + 1);
+			return min;
+		return min + this._resolution * (voxelIndex + 1);
 	}
 	
 	/**
@@ -107,9 +132,13 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	 */
 	public int getVoxelIndex(double location)
 	{
-		if ( location < this._min || location >= this._max )
+		if ( location < this._dimension.getExtreme(0) ||
+				location >= this._dimension.getExtreme(1) )
+		{
 			throw new IllegalArgumentException("Location out of range");
-		return (int) ((location - this._min) / this._resolution);
+		}
+		return (int) ((location - this._dimension.getExtreme(0))
+						/ this._resolution);
 	}
 	
 	public Object copy()
@@ -119,8 +148,7 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 		{
 			out = this.getClass().newInstance();
 			out._nVoxel = this._nVoxel;
-			out._min = this._min;
-			out._max = this._max;
+			out._dimension = this._dimension;
 			out._resolution = this._resolution;
 		}
 		catch (InstantiationException | IllegalAccessException e)

@@ -7,6 +7,7 @@ import static test.AllTests.TOLERANCE;
 
 import org.junit.Test;
 
+import shape.Dimension;
 import shape.ShapeConventions.SingleVoxel;
 import shape.resolution.MultigridResolution;
 import shape.resolution.ResolutionCalculator;
@@ -22,8 +23,10 @@ public class MultigridResolutionTests
 	@Test
 	public void initChoosesCorrectNumberOfVoxels()
 	{
-		ResolutionCalculator resCalc = new MultigridResolution();
-		resCalc.init(1.0, 0.0, 4.0);
+		Dimension dimension = new Dimension();
+		dimension.setLength(4.0);
+		ResolutionCalculator resCalc = new MultigridResolution(dimension);
+		resCalc.setResolution(1.0);
 		assertEquals(4, resCalc.getNVoxel());
 		assertEquals(1.0, resCalc.getResolution(), TOLERANCE);
 	}
@@ -31,8 +34,10 @@ public class MultigridResolutionTests
 	@Test
 	public void getsCoarserMultigridResolutionWhenShould()
 	{
-		MultigridResolution resCalc = new MultigridResolution();
-		resCalc.init(1.0, 0.0, 4.0);
+		Dimension dimension = new Dimension();
+		dimension.setLength(4.0);
+		MultigridResolution resCalc = new MultigridResolution(dimension);
+		resCalc.setResolution(1.0);
 		ResolutionCalculator coarser = resCalc.getCoarserResolution();
 		assertTrue(coarser instanceof MultigridResolution);
 		assertEquals(2, coarser.getNVoxel());
@@ -42,8 +47,10 @@ public class MultigridResolutionTests
 	@Test
 	public void getsSingleVoxelWhenShould()
 	{
-		MultigridResolution resCalc = new MultigridResolution();
-		resCalc.init(1.0, 0.0, 2.0);
+		Dimension dimension = new Dimension();
+		dimension.setLength(2.0);
+		MultigridResolution resCalc = new MultigridResolution(dimension);
+		resCalc.setResolution(1.0);
 		ResolutionCalculator coarser = resCalc.getCoarserResolution();
 		assertTrue(coarser instanceof SingleVoxel);
 		assertEquals(1, coarser.getNVoxel());

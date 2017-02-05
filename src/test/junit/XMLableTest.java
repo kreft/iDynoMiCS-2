@@ -8,6 +8,7 @@ import org.w3c.dom.Element;
 
 import instantiable.Instance;
 import instantiable.Instantiable;
+import settable.Module;
 import settable.Settable;
 
 import static org.junit.Assert.assertTrue;
@@ -19,6 +20,35 @@ import static org.junit.Assert.assertTrue;
  */
 public class XMLableTest
 {
+	public static class TestSettable implements Settable
+	{
+
+		@Override
+		public Module getModule() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String defaultXmlTag() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public void setParent(Settable parent) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public Settable getParent() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		
+	}
+	
 	public static class TestXMLable implements Instantiable
 	{
 		private int x = 1;
@@ -44,7 +74,7 @@ public class XMLableTest
 	{
 		/* This should crash if the method is wrong. */
 		TestXMLable t = (TestXMLable) Instance.getNew(null, null, 
-				"testJUnit.XMLableTest$testXMLable");
+				"test.junit.XMLableTest$TestXMLable");
 		/* Dummy test to check that t in an instance. */
 		assertTrue( t.isX(1) );
 		t.setX(3);

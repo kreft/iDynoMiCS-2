@@ -14,6 +14,7 @@ import grid.SpatialGrid;
 import linearAlgebra.Array;
 import linearAlgebra.Vector;
 import shape.Dimension.DimName;
+import shape.Dimension;
 import shape.Shape;
 import shape.resolution.MultigridResolution;
 import shape.resolution.ResolutionCalculator;
@@ -37,14 +38,16 @@ public class MultigridLayerForLineTests
 	public void setup()
 	{
 		Shape shape = AllTests.GetShape("Line");
-		ResolutionCalculator resCalc = new MultigridResolution();
-		resCalc.init(1.0, 0.0, 8.0);
+		Dimension x = shape.getDimension(DimName.X);
+		x.setLength(8.0);
+		ResolutionCalculator resCalc = new MultigridResolution(x);
+		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
 		shape.makeCyclic(DimName.X);
 		SpatialGrid grid = new SpatialGrid(shape, "grid", null);
-		// Use a constant value in the concentration array
+		/* Use a constant value in the concentration array. */
 		grid.newArray(ArrayType.CONCN, concn);
-		// Use a variable value in the production array
+		/* Use a variable value in the production array. */
 		grid.newArray(ArrayType.PRODUCTIONRATE);
 		double[][][] prodRate = Array.zerosDbl(8, 1, 1);
 		for ( int i = 0; i < 8; i++ )

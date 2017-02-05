@@ -26,6 +26,8 @@ import test.junit.*;
 				ChemostatsTest.class,
 				CoordinateMapTest.class,
 				ExtraMathTest.class,
+				IteratorForCyclicLineTests.class,
+				IteratorForCyclicSquaresTests.class,
 				LinearAlgebraTest.class,
 				MultigridLayerForLineTests.class,
 				MultigridLayerForRectangleTests.class,
