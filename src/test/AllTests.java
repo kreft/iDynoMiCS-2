@@ -105,11 +105,4 @@ public class AllTests
 			gridList.add(grid);
 		return gridList;
 	}
-	
-	public static Element getDummyElement(String tagName)
-	{
-		Document document = XmlHandler.newDocument();
-		Element element = document.createElement(tagName);
-		return element;
-	}
 }

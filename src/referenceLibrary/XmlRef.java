@@ -362,6 +362,11 @@ public class XmlRef
 	public final static String max = "max";
 
 	/**
+	 * The class of ResolutionCalculator that a Shape should use.
+	 */
+	public final static String resCalcClass = "resolutionCalculator";
+	
+	/**
 	 * TODO
 	 */
 	public final static String solutes = "solutes";

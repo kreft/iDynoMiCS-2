@@ -156,8 +156,8 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		str = XmlHandler.obtainAttribute(elem, XmlRef.max, str);
 		val = Double.valueOf(str);
 		/* Convert from degrees to radians for angular dimensions */
-		if ( this._dimName.isAngular()) ;
-		val = Math.toRadians(val);
+		if ( this._dimName.isAngular() )
+			val = Math.toRadians(val);
 		this.setExtreme(val, 1);
 		
 		/* By default the minimum is 0.0 */

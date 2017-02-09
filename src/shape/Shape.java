@@ -159,30 +159,37 @@ public abstract class Shape implements
 	 */
 	public void instantiate(Element xmlElem, Settable parent )
 	{
+		this._parentNode = parent;
+		
 		NodeList childNodes;
 		Element childElem;
 		String str;
 		/* Set up the dimensions. */
 		Dimension dim;
 		ResolutionCalculator rC;
-		this._parentNode = parent;
+		String resolutionCalculatorClass = "UniformResolution";
+		if ( xmlElem.hasAttribute(XmlRef.resCalcClass) )
+			resolutionCalculatorClass = xmlElem.getAttribute(XmlRef.resCalcClass);
 		
-		for ( DimName dimens : this.getDimensionNames() )
+		for ( DimName dimName : this.getDimensionNames() )
 		{
 
 			childElem = (Element) XmlHandler.getSpecific(xmlElem, 
-					XmlRef.shapeDimension, XmlRef.nameAttribute, dimens.name());
+					XmlRef.shapeDimension, XmlRef.nameAttribute, dimName.name());
 			try
 			{
-				dim = this.getDimension(dimens);
-				if(dim._isSignificant)
+				dim = this.getDimension(dimName);
+				if ( dim._isSignificant )
 				{
 					dim.instantiate(childElem, this);
 					
 					/* Initialise resolution calculators */
-					rC = new UniformResolution(dim);
+					// FIXME This is wrong, but I don't know what's right!
+					rC = (ResolutionCalculator)Instance.getNew(childElem, dim,
+							resolutionCalculatorClass);
+					//rC = new UniformResolution(dim);
 					rC.setResolution(dim._targetRes);
-					this.setDimensionResolution(dimens, rC);	
+					this.setDimensionResolution(dimName, rC);	
 				}
 			}
 			catch (IllegalArgumentException e)
