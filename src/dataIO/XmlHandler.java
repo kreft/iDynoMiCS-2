@@ -36,7 +36,7 @@ public class XmlHandler
 	/**
 	 * \brief Make a new {@code Document}.
 	 * 
-	 * @return
+	 * @return A new empty document.
 	 */
 	public static Document newDocument()
 	{
@@ -142,22 +142,27 @@ public class XmlHandler
 	 * @return
 	 * @throws Exception
 	 */
-	public static String getJarContainingFolder() throws Exception {
-		  CodeSource codeSource = Idynomics.class.getProtectionDomain().getCodeSource();
-
-		  File jarFile;
-
-		  if (codeSource.getLocation() != null) {
-		    jarFile = new File(codeSource.getLocation().toURI());
-		  }
-		  else {
-		    String path = Idynomics.class.getResource(Idynomics.class.getSimpleName() + ".class").getPath();
-		    String jarFilePath = path.substring(path.indexOf(":") + 1, path.indexOf("!"));
-		    jarFilePath = URLDecoder.decode(jarFilePath, "UTF-8");
-		    jarFile = new File(jarFilePath);
-		  }
-		  return jarFile.getParentFile().getAbsolutePath();
+	public static String getJarContainingFolder() throws Exception
+	{
+		CodeSource codeSource =
+				Idynomics.class.getProtectionDomain().getCodeSource();
+		File jarFile;
+		if (codeSource.getLocation() == null)
+		{
+			String name = Idynomics.class.getSimpleName() + ".class";
+			String path = Idynomics.class.getResource(name).getPath();
+			int start = path.indexOf(":") + 1;
+			int end = path.indexOf("!");
+			String jarFilePath = path.substring(start, end);
+			jarFilePath = URLDecoder.decode(jarFilePath, "UTF-8");
+			jarFile = new File(jarFilePath);
 		}
+		else
+		{
+			jarFile = new File(codeSource.getLocation().toURI());
+		}
+		return jarFile.getParentFile().getAbsolutePath();
+	}
 
 	/**
 	 * \brief Gathers non critical attributes, returns "" if the attribute is not
