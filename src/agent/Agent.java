@@ -331,6 +331,15 @@ public class Agent implements AspectInterface, Settable, Instantiable
 	}
 	
 	/**
+	 * Set the value of the pilus length
+	 * @param length
+	 */
+	public void setPilusLength(double length)
+	{
+		this.set(AspectRef.pilusLength, length);
+	}
+	
+	/**
 	 * Update this module and all child modules with updated information from
 	 * the gui (init if the agent is newly created in the gui).
 	 */

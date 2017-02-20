@@ -369,5 +369,21 @@ public class AspectRef
 	 * testing some gravity buoyancy implementation
 	 */
 	public static final String gravity_testing = "gravity_testing";
+	
+	/**
+	 * List of plasmids for which the conjugation and segregation loss are
+	 * applicable.
+	 */
+	public static final String plasmidList= "plasmids";
+	
+	/**
+	 * Pili length for the agent containing the plasmids.
+	 */
+	public static final String pilusLength= "pili_length";
+	
+	/**
+	 * Fitness cost to the growth rate of the agent with plasmids.
+	 */
+	public static final String agentFitnessCost = "fitness_cost";
 
 }
