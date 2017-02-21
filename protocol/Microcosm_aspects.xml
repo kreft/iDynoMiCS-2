@@ -11,7 +11,7 @@
 				<aspect name="reactions" type="PRIMARY" class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
-							<expression value="e*(1.0-fitnesscost)*mumax*mass*solute1/(Ks+solute1)">
+							<expression value="(1.0-(emax*(antibiotic^hillcoef)/((mic^hillcoef)+(antibiotic^hillcoef))))*(1.0-fitnesscost)*mumax*mass*solute1/(Ks+solute1)">
 								<constant name="Ks" value="3.2707e-005" />
 								<constant name="mumax" value="0.5" />
 								<constant name="epsilon" value="0.000144" />
@@ -56,7 +56,6 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.7" />
 					<aspect name="mic" type="PRIMARY" class="Double" value="8.0" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
-					<aspect name="e" type="CALCULATED" class="StateExpression" input="1.0-(emax*(antibiotic^hillcoef)/((mic^hillcoef)+(antibiotic^hillcoef)))" />
 					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="10.2, 12.2" />
 					</aspect>
@@ -74,7 +73,6 @@
 					<aspect name="pili_length" type="PRIMARY" class="Double" value="5.6" />
 					<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.1" />
 					<aspect name="mic" type="PRIMARY" class="Double" value="2000.0" />
-					<aspect name="e" type="CALCULATED" class="StateExpression" input="1.0-(emax*(antibiotic^hillcoef)/((mic^hillcoef)+(antibiotic^hillcoef)))" />
 					<aspect name="body" type="PRIMARY" class="Body">
 						<point position="12.2, 12.0" />
 					</aspect>
@@ -100,6 +98,10 @@
 				<process name="agentRelax" class="AgentRelaxation"  priority="-3" firstStep="0.0" >
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
+				</process>
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
+					firstStep="0.0"  timerStepSize="0.1">	
+					<diffusivitySetter solute="solute1" class="ScaledIfBiomassPresent" defaultDiffusivity="0.1" biofilmDiffusivity="0.08" />
 				</process>
 			</processManagers>
 		</compartment>
