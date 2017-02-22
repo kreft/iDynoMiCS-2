@@ -82,8 +82,6 @@ public class AgentRelaxation extends ProcessManager
 		HEUN, 
 	}
 
-	// FIXME work in progress
-	// set Mechanical stepper
 	/**
 	 * TODO
 	 */
@@ -140,7 +138,7 @@ public class AgentRelaxation extends ProcessManager
 	private double _stressThreshold;
 	
 	/**
-	 * testing gravity buoyancy implementation
+	 * TODO gravity buoyancy implementation
 	 */
 	private Boolean _gravity;
 	
@@ -191,16 +189,6 @@ public class AgentRelaxation extends ProcessManager
 		{
 			Body body = (Body) agent.get(AspectRef.agentBody);
 			List<Surface> agentSurfs = body.getSurfaces();
-			
-			if (_gravity)
-			{
-				/* FIXME optional gravity/ buoncy (testing) */
-				double[] grav = Vector.zerosDbl(body.nDim());
-				grav[body.nDim()-1] = -0.1* (agent.getDouble("mass") / (double) body.getNumberOfPoints());
-				List<Point> points = body.getPoints();
-				for (Point p : points)
-					p.setForce(Vector.add( p.getForce(), grav )); ;
-			}
 
 			/* surface operations */
 			for ( Surface s : agentSurfs )
@@ -227,7 +215,6 @@ public class AgentRelaxation extends ProcessManager
 					
 					/*
 					 * Hooke's law: spring stiffness * displacement
-					 * TODO implement stiffness properly in xml
 					 */
 					double f 		= stiffness * ( dn - l );
 					double[] fV		= Vector.times(diff, f);
