@@ -187,6 +187,7 @@ public class PDEmultigrid extends PDEsolver
 		currentLayer.getGrid().newArray(NONLINEARITY);
 		currentLayer.getGrid().newArray(LOCALERROR);
 		currentLayer.getGrid().newArray(RELATIVEERROR);
+		currentLayer.getGrid().newArray(PRODUCTIONRATE);
 		while ( currentLayer.hasCoarser() )
 		{
 			currentLayer = currentLayer.getCoarser();
