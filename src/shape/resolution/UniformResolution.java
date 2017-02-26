@@ -15,7 +15,7 @@ public class UniformResolution extends ResolutionCalculator
 	}
 	
 	@Override
-	public void init(double targetResolution, double min, double max)
+	protected void init(double targetResolution, double min, double max)
 	{
 		this._targetRes = targetResolution;
 		this._nVoxel = (int) (getTotalLength() / targetResolution);

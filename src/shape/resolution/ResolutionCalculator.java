@@ -3,11 +3,7 @@
  */
 package shape.resolution;
 
-import org.w3c.dom.Element;
-
 import generalInterfaces.Copyable;
-import instantiable.Instantiable;
-import settable.Settable;
 import shape.Dimension;
 
 /**
@@ -15,7 +11,7 @@ import shape.Dimension;
  * 
  * @author Robert Clegg (r.j.clegg@bham.ac.uk) University of Birmingham, U.K.
  */
-public abstract class ResolutionCalculator implements Copyable, Instantiable
+public abstract class ResolutionCalculator implements Copyable
 {
 	/**
 	 * 
@@ -40,7 +36,7 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 
 	/**
 	 * Basic constructor for a ResolutionCalculator. The parent dimension will
-	 * be set during {@link #instantiate(Element, Settable)}.
+	 * be set during {@link #setDimension(Dimension)}.
 	 */
 	public ResolutionCalculator()
 	{ }
@@ -53,14 +49,12 @@ public abstract class ResolutionCalculator implements Copyable, Instantiable
 	 */
 	public ResolutionCalculator(Dimension dimension)
 	{
-		this._dimension = dimension;
+		this.setDimension(dimension);
 	}
 	
-	@Override
-	public void instantiate(Element xmlElement, Settable parent)
+	public void setDimension(Dimension dimension)
 	{
-		this._dimension = (Dimension) parent;
-		
+		this._dimension = dimension;
 	}
 	
 	protected abstract void init(double resolution, double min, double max);
