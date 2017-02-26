@@ -10,6 +10,7 @@ import static grid.ArrayType.WELLMIXED;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import grid.ArrayType;
@@ -47,6 +48,8 @@ public class PDEmultigrid extends PDEsolver
 	
 	private MultigridLayer _commonMultigrid;
 	
+	private List<Shape> _multigridShapes;
+	
 	private Map<String, Double> _truncationErrors =
 			new HashMap<String, Double>();
 	/**
@@ -77,25 +80,7 @@ public class PDEmultigrid extends PDEsolver
 			SpatialGrid commonGrid)
 	{
 		this.refreshCommonGrid(commonGrid);
-		MultigridLayer layer = this._commonMultigrid;
-		while ( layer.hasFiner() )
-			layer = layer.getFiner();
-		
-		Collection<Shape> shapes = new LinkedList<Shape>();
-		
-		Shape layerShape = layer.getGrid().getShape();
-		layerShape.setNewIterator(2);
-		shapes.add(layerShape);
-		
-		while ( layer.hasCoarser() )
-		{
-			layer = layer.getCoarser();
-			layerShape = layer.getGrid().getShape();
-			// Set all shapes to use a Red-Black iterator.
-			layerShape.setNewIterator(2);
-			shapes.add(layerShape);
-		}
-		return shapes;
+		return this._multigridShapes;
 	}
 	
 	@Override
@@ -152,9 +137,11 @@ public class PDEmultigrid extends PDEsolver
 					MultigridLayer.generateCompleteMultigrid(commonGrid);
 			/* Count the layers. */
 			this._numLayers = 0;
+			this._multigridShapes = new LinkedList<Shape>();
 			for ( MultigridLayer temp = this._commonMultigrid;
 					temp.hasCoarser(); temp = temp.getCoarser() )
 			{
+				this._multigridShapes.add(temp.getGrid().getShape());
 				this._numLayers++;
 			}
 		}
@@ -171,8 +158,8 @@ public class PDEmultigrid extends PDEsolver
 		if ( this._multigrids.containsKey(name) )
 			return this._multigrids.get(name);
 		/* New variable, so we need to make the MultigridLayer. */
-		MultigridLayer newMultigrid = 
-				MultigridLayer.generateCompleteMultigrid(variable);
+		MultigridLayer newMultigrid = MultigridLayer.generateCompleteMultigrid(
+				variable, this._multigridShapes);
 		this._multigrids.put(name, newMultigrid);
 		return newMultigrid;
 	}

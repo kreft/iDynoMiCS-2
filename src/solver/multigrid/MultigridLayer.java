@@ -1,6 +1,7 @@
 package solver.multigrid;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,6 +53,11 @@ public class MultigridLayer
 	{
 		Shape shape = this._grid.getShape();
 		Shape coarserShape = shape.generateCoarserMultigridLayer();
+		return this.constructCoarser(coarserShape);
+	}
+	
+	public MultigridLayer constructCoarser(Shape coarserShape)
+	{
 		String name = this._grid.getName();
 		Settable parent = this._grid.getParent();
 		SpatialGrid coarserGrid = new SpatialGrid(coarserShape, name, parent);
@@ -71,6 +77,17 @@ public class MultigridLayer
 		MultigridLayer currentLayer = newMultigrid;
 		while (currentLayer.canConstructCoarser() )
 			currentLayer = currentLayer.constructCoarser();
+		return newMultigrid;
+	}
+	
+	public static MultigridLayer generateCompleteMultigrid(
+			SpatialGrid grid, Collection<Shape> shapes)
+	{
+		MultigridLayer newMultigrid = new MultigridLayer(grid);
+		MultigridLayer currentLayer = newMultigrid;
+		Iterator<Shape> iterator = shapes.iterator();
+		while (iterator.hasNext())
+			currentLayer = currentLayer.constructCoarser(iterator.next());
 		return newMultigrid;
 	}
 	
