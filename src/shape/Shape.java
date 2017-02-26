@@ -167,9 +167,9 @@ public abstract class Shape implements
 		/* Set up the dimensions. */
 		Dimension dim;
 		ResolutionCalculator rC;
-		String resolutionCalculatorClass = "UniformResolution";
+		String resCalculatorClass = "UniformResolution";
 		if ( xmlElem.hasAttribute(XmlRef.resCalcClass) )
-			resolutionCalculatorClass = xmlElem.getAttribute(XmlRef.resCalcClass);
+			resCalculatorClass = xmlElem.getAttribute(XmlRef.resCalcClass);
 		
 		for ( DimName dimName : this.getDimensionNames() )
 		{
@@ -184,10 +184,8 @@ public abstract class Shape implements
 					dim.instantiate(childElem, this);
 					
 					/* Initialise resolution calculators */
-					// FIXME This is wrong, but I don't know what's right!
-					rC = (ResolutionCalculator)Instance.getNew(childElem, dim,
-							resolutionCalculatorClass);
-					//rC = new UniformResolution(dim);
+					rC = ResolutionCalculator.getNew(resCalculatorClass);
+					rC.setDimension(dim);
 					rC.setResolution(dim._targetRes);
 					this.setDimensionResolution(dimName, rC);	
 				}
