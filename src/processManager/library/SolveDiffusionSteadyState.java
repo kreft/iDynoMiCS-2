@@ -168,8 +168,7 @@ public class SolveDiffusionSteadyState extends ProcessDiffusion
 		@SuppressWarnings("unchecked")
 		Map<Shape, CoordinateMap> mapOfMaps = (Map<Shape, CoordinateMap>)
 						agent.getValue(VOLUME_DISTRIBUTION_MAP);
-		CoordinateMap distributionMap = 
-				mapOfMaps.get(agent.getCompartment().getShape());
+		CoordinateMap distributionMap = mapOfMaps.get(shape);
 		distributionMap.scale();
 		/*
 		 * Get the agent biomass kinds as a map. Copy it now so that we can
