@@ -35,18 +35,22 @@ public abstract class CartesianShape extends Shape
 	
 	public CartesianShape()
 	{
-		/*
-		 * Fill the resolution calculators with dummies for now: they should
-		 * be overwritten later.
-		 */
-		for ( int i = 0; i < 3; i++ )
-			this._resCalc[i] = new SingleVoxel();
-		/*
-		 * These are the dimension names for any Cartesian shape. Assume they
-		 * are all insignificant to begin with.
-		 */
+		int i = 0;
 		for ( DimName d : new DimName[]{X, Y, Z} )
-			this._dimensions.put(d, new Dimension(false, d));
+		{
+			/*
+			 * These are the dimension names for any Cartesian shape. Assume
+			 * they are all insignificant to begin with.
+			 */
+			Dimension dimension = new Dimension(false, d);
+			this._dimensions.put(d, dimension);
+			/*
+			 * Fill the resolution calculators with dummies for now: they
+			 * should be overwritten later.
+			 */
+			this._resCalc[i] = new SingleVoxel(dimension);
+			i++;
+		}
 		/*
 		 * By default assume that we should use an iterator with step length 1.
 		 */

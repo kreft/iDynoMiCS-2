@@ -16,16 +16,8 @@ public final class ShapeConventions
 	/**
 	 * \brief Dummy resolution calculator that always has exactly one voxel.
 	 */
-	// NOTE exploratory work, may not be used
 	public static class SingleVoxel extends ResolutionCalculator
 	{
-		public SingleVoxel()
-		{
-			this._nVoxel = 1;
-			this._resolution = 1.0;
-			this._targetRes = 1.0;
-		}
-		
 		public SingleVoxel(Dimension dimension)
 		{
 			super(dimension);

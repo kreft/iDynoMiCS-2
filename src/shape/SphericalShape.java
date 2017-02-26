@@ -51,22 +51,21 @@ public abstract class SphericalShape extends Shape
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
 		this._resCalc[getDimensionIndex(R)] = new ResolutionCalculator[1][1];
+		this._resCalc[getDimensionIndex(R)][0][0] = new SingleVoxel(dim);
 		/*
 		 * Phi must always be significant and non-cyclic.
 		 */
 		dim = new Dimension(true, PHI);
 		this._dimensions.put(PHI, dim);
 		this._resCalc[getDimensionIndex(PHI)] = new ResolutionCalculator[1][1];
-		
+		this._resCalc[getDimensionIndex(PHI)][0][0] = new SingleVoxel(dim);
 		/*
 		 * The phi-dimension is insignificant, unless told otherwise later.
 		 */
 		dim = new Dimension(false, THETA);
 		this._dimensions.put(THETA, dim);
 		this._resCalc[getDimensionIndex(THETA)] = new ResolutionCalculator[1][1];
-		
-		for ( int i = 0; i < 3; i++ )
-			this._resCalc[i][0][0] = new SingleVoxel();
+		this._resCalc[getDimensionIndex(THETA)][0][0] = new SingleVoxel(dim);
 		
 		this._it = this.getNewIterator();
 	}
