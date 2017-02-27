@@ -25,10 +25,6 @@
 package lb;
 
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import lb.collision.*;
 
 /** D2Q9 regular lattice. This class is implemented in terms of
