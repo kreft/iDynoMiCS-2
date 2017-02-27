@@ -31,8 +31,6 @@ public abstract class ResolutionCalculator implements Copyable
 	 * Target resolution for every voxel.
 	 */
 	protected double _targetRes;
-	
-	private static final String PATH = "shape.resolution.";
 
 	/* ***********************************************************************
 	 * CONSTRUCTION
@@ -62,21 +60,6 @@ public abstract class ResolutionCalculator implements Copyable
 	}
 	
 	protected abstract void init(double resolution, double min, double max);
-
-	public static ResolutionCalculator getNew(String className)
-	{
-		try
-		{
-			return (ResolutionCalculator) 
-					Class.forName(PATH + className).newInstance();
-		}
-		catch (Exception e)
-		{
-			Log.out(Tier.CRITICAL, "ERROR! Could not construct "+
-					"ResolutionCalculator of class \""+className+"\"");
-			return null;
-		}
-	}
 	
 	/* ***********************************************************************
 	 * BASIC GETTERS & SETTERS

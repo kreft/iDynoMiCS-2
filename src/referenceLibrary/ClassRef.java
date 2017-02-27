@@ -410,9 +410,17 @@ public class ClassRef
 	 * Shapes - resolution calculators
 	 */
 	
+	/**
+	 * Uniform resolution class, used in combination with {@link 
+	 * shape.resolution.ResolutionCalculator}
+	 */
 	public final static String uniformResolution =
 			shape.resolution.UniformResolution.class.getName();
 	
+	/**
+	 * Multigrid resolution class, used in combination with {@link 
+	 * shape.resolution.ResolutionCalculator}
+	 */
 	public final static String multigridResolution =
 			shape.resolution.MultigridResolution.class.getName();
 	

@@ -184,7 +184,7 @@ public abstract class Shape implements
 					dim.instantiate(childElem, this);
 					
 					/* Initialise resolution calculators */
-					rC = ResolutionCalculator.getNew(resCalculatorClass);
+					rC = (ResolutionCalculator) Instance.getNew(resCalculatorClass);
 					rC.setDimension(dim);
 					rC.setResolution(dim._targetRes);
 					this.setDimensionResolution(dimName, rC);	
