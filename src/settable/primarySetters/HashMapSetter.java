@@ -97,7 +97,7 @@ public class HashMapSetter<K,T> implements Settable {
 		Object key, value;
 		if (this.mapObject instanceof Settable)
 		{
-			value = node.getAllChildModules().get(0).getMyObject();
+			value = node.getAllChildModules().get(0).getAssociatedObject();
 			if ( this.muteClassDef )
 			{
 				key = ObjectFactory.loadObject(

@@ -88,18 +88,17 @@ public class AgentContainer implements Settable
 	protected PDEsolver _detachabilitySolver;
 	
 	/**
-	 * TODO
+	 * Parent node (required for settable interface)
 	 */
 	private Settable _parentNode;
 	
 	/* NOTE removed predicates, use agent.predicate.HasAspect instad.
 
-
 	/**
 	 * the type of spatial registry ( setting default value but can be 
 	 * overwritten).
 	 */
-	private TreeType _spatialTree = TreeType.RTREE;
+	private TreeType _spatialTreeType = TreeType.RTREE;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTORS
@@ -117,15 +116,28 @@ public class AgentContainer implements Settable
 		this._agentList = new LinkedList<Agent>();
 	}
 
-	public void setSpatialTree(TreeType type) 
+	/**
+	 * \brief set the spatial tree type used for neighborhood searches
+	 * 
+	 * @param type
+	 */
+	public void setSpatialTreeType(TreeType type) 
 	{
-		this._spatialTree = type;
+		this._spatialTreeType = type;
 	}
 	
-	public TreeType getSpatialTree() 
+	/**
+	 * \brief Get the TreeType of the spatial tree used by this AgentContainer
+	 * @return
+	 */
+	public TreeType getSpatialTreeType() 
 	{
-		return this._spatialTree;
+		return this._spatialTreeType;
 	}
+	
+	/**
+	 * TODO get spatial registry paradigm (like get shape)
+	 */
 
 	/**
 	 * Helper method for (re-)making this container's spatial registry.
@@ -133,10 +145,12 @@ public class AgentContainer implements Settable
 	protected void makeAgentTree()
 	{
 		if ( this.getNumDims() == 0 )
+			/* FIXME is this required? nothing should be stored in a tree if the
+			 * compartment is not spatial explicit */
 			this._agentTree = new DummyTree<Agent>();
 		else
 		{
-			switch (_spatialTree)
+			switch (_spatialTreeType)
 			{
 			case RTREE:
 				this._agentTree = new RTree<Agent>(8, 2, this._shape);
@@ -367,6 +381,9 @@ public class AgentContainer implements Settable
 		// FIXME move all aspect related methods out of general classes
 	/**
 	 * filter non colliding agents
+	 * 
+	 * FIXME not used -> remove?
+	 * 
 	 * @param aSurface
 	 * @param agents
 	 * @param searchDist
@@ -397,6 +414,8 @@ public class AgentContainer implements Settable
 	
 	/**
 	 * 
+	 * FIXME not used -> remove?
+	 * 
 	 * @param aSurface
 	 * @param surfaces
 	 * @param searchDist
@@ -424,7 +443,6 @@ public class AgentContainer implements Settable
 	 */
 	public Collection<Surface> surfaceSearch(Agent anAgent, double searchDist)
 	{
-		// NOTE lambda expressions are known to be slower than alternatives
 		IsNotColliding<Surface> filter;
 		Collection<Surface> out = this._shape.getSurfaces();
 		Collision collision = new Collision(this._shape);
@@ -479,108 +497,7 @@ public class AgentContainer implements Settable
 		Log.out(DEBUG, "Moving agent (UID: "+anAgent.identity()+") "+dist+
 				" along dimension "+dimN+" to "+Vector.toString(newLoc));
 	}
-
-	// FIXME move all aspect related methods out of general classes
-	/**
-	 * \brief Compose a dictionary of biomass names and values for the given
-	 * agent.
-	 * 
-	 * <p>this method is the opposite of 
-	 * {@link #updateAgentMass(Agent, HashMap<String,Double>)}.</p>
-	 * 
-	 * @param agent An agent with biomass.
-	 * @return Dictionary of biomass kind names to their values.
-	 */
-	// TODO move this, and updateAgentMass(), to somewhere more general?
-	public static Map<String,Double> getAgentMassMap(Agent agent)
-	{
-		Map<String,Double> out = new HashMap<String,Double>();
-		Object mass = agent.get(AspectRef.agentMass);
-		if ( mass == null )
-		{
-			// TODO safety?
-		}
-		else if ( mass instanceof Double )
-		{
-			out.put(AspectRef.agentMass, ((double) mass));
-		}
-		else if ( mass instanceof Map )
-		{
-			/* If the mass object is already a map, then just copy it. */
-			@SuppressWarnings("unchecked")
-			Map<String,Double> massMap = (Map<String,Double>) mass;
-			out.putAll(massMap);
-		}
-		else
-		{
-			// TODO safety?
-		}
-		return out;
-	}
-
-	// FIXME move all aspect related methods out of general classes
-	/**
-	 * \brief Use a dictionary of biomass names and values to update the given
-	 * agent.
-	 * 
-	 * <p>This method is the opposite of {@link #getAgentMassMap(Agent)}. Note
-	 * that extra biomass types may have been added to the map, which should
-	 * be other aspects (e.g. EPS).</p>
-	 * 
-	 * @param agent An agent with biomass.
-	 * @param biomass Dictionary of biomass kind names to their values.
-	 */
-	public static void updateAgentMass(Agent agent, Map<String,Double> biomass)
-	{
-		/*
-		 * First try to copy the new values over to the agent mass aspect.
-		 * Remember to remove the key-value pairs from biomass, so that we can
-		 * see what is left (if anything).
-		 */
-		Object mass = agent.get(AspectRef.agentMass);
-		if ( mass == null )
-		{
-			// TODO safety?
-		}
-		else if ( mass instanceof Double )
-		{
-			/**
-			 * NOTE map.remove returns the current associated value and removes
-			 * it from the map
-			 */
-			agent.set(AspectRef.agentMass, biomass.remove(AspectRef.agentMass));
-		}
-		else if ( mass instanceof Map )
-		{
-			@SuppressWarnings("unchecked")
-			Map<String,Double> massMap = (Map<String,Double>) mass;
-			for ( String key : massMap.keySet() )
-			{
-				massMap.put(key, biomass.remove(key));
-			}
-			
-			agent.set(AspectRef.agentMass, biomass);
-		}
-		else
-		{
-			// TODO safety?
-		}
-		/*
-		 * Now check if any other aspects were added to biomass (e.g. EPS).
-		 */
-		for ( String key : biomass.keySet() )
-		{
-			if ( agent.isAspect(key) )
-			{
-				agent.set(key, biomass.get(key));
-				biomass.remove(key);
-			}
-			else
-			{
-				// TODO safety
-			}
-		}
-	}
+	
 
 	/* ***********************************************************************
 	 * ADDING & REMOVING AGENTS
@@ -914,7 +831,6 @@ public class AgentContainer implements Settable
 		this._agentsToRegisterRemoved.clear();
 		return out;
 	}
-
 
 	@Override
 	public Module getModule() 

@@ -15,6 +15,7 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
+import processManager.ProcessMethods;
 import reaction.Reaction;
 import referenceLibrary.AspectRef;
 import solver.ODEderivatives;
@@ -371,7 +372,7 @@ public class SolveChemostat extends ProcessManager
 		 * division, so we calculate perVolume just once.
 		 */
 		double perVolume = Math.pow(this.volume(), -1.0);
-		Map<String,Double> allConcns = AgentContainer.getAgentMassMap(agent);
+		Map<String,Double> allConcns = ProcessMethods.getAgentMassMap(agent);
 		for ( String key : allConcns.keySet() )
 			allConcns.put(key, allConcns.get(key) * perVolume);
 		/*
@@ -440,7 +441,7 @@ public class SolveChemostat extends ProcessManager
 		 * Get the agent biomass kinds as a map. This map will be the one
 		 * updated with the results of the reactions.
 		 */
-		Map<String,Double> newBiomass = AgentContainer.getAgentMassMap(agent);
+		Map<String,Double> newBiomass = ProcessMethods.getAgentMassMap(agent);
 		/*
 		 * Make a new map with these converted to concentrations. Calculate the
 		 * one over volume part once, as multiplication is 
@@ -488,7 +489,7 @@ public class SolveChemostat extends ProcessManager
 		/*
 		 * Finally, update the biomass for this agent.
 		 */
-		AgentContainer.updateAgentMass(agent, newBiomass);
+		ProcessMethods.updateAgentMass(agent, newBiomass);
 	}
 	
 	/**
