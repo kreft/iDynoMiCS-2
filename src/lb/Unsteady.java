@@ -38,14 +38,14 @@ import static lb.tools.FileIO.save;
  */
 public class Unsteady {
 	
-	public static final int XX = 40; // number of cells in x-direction
-	public static final int YY = 40; // number of cells in y-direction
+	public static final int XX = 250; // number of cells in x-direction
+	public static final int YY = 90; // number of cells in y-direction
 	public static final int OBST_R = YY/10 + 1; // radius of the cylinder
 	public static final int OBST_X = XX/5; // position of the cylinder
 	public static final int OBST_Y = YY/2; // exact y-symmetry is avoided
 	
 	public static final double U_MAX = 0.02; // maximum velocity of Poiseuille inflow
-	public static final double RE = 100; // Reynolds number
+	public static final double RE = 40; // Reynolds number
 	public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
 	public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
 	
@@ -88,6 +88,19 @@ public class Unsteady {
 		}	
 	}
 	
+	public static void setSmoothVelocity(D2Q9Lattice lattice, LBGK lbgk, int xp, int yp, double a, double b, int size) 
+	{
+		for ( int x = -size; x < size; x++ )
+		{
+			for ( int y = -size; y < size; y++)
+			{
+				setVelocity(lattice,lbgk,x+xp,y+yp, new double[] { 
+						( size-Math.abs(x) ) * a, 
+						( size-Math.abs(y) ) * b});
+			}
+		}
+	}
+	
 	public static void addEastBoundary(D2Q9Lattice lattice) {
 		for (int y=2; y<=YY-1; y++) {
 			double[] u = {computePoiseuille(y),0};
@@ -108,38 +121,36 @@ public class Unsteady {
 		
 		D2Q9Lattice lattice = new D2Q9Lattice(XX, YY, lbgk);
 		
-//		CollisionOperator northRegul = 
-//			D2Q9RegularizedBoundary.getNorthVelocityBoundary(new double[] {0,0}, OMEGA);
-//		CollisionOperator southRegul =
-//			D2Q9RegularizedBoundary.getSouthVelocityBoundary(new double[] {0,0}, OMEGA);
-//	
-//		lattice.addRectangularBoundary(1,XX,1,1,southRegul);
-//		lattice.addRectangularBoundary(1,XX,YY,YY,northRegul);
-//			
-//		initializeVelocity(lattice,lbgk);
-//		addObstacle(lattice);
-		double scale = 0.1;
-		for ( int x = -5; x < 5; x++ )
-		{
-			for ( int y = -5; y < 5; y++)
-			{
-				setVelocity(lattice,lbgk,x+5,y+5, new double[] { 
-						( 0.6-Math.abs(x*0.1) ) * scale, 
-						( 0.6-Math.abs(y*0.1) ) * scale});
-			}
-		}
+		CollisionOperator northRegul = 
+			D2Q9RegularizedBoundary.getNorthVelocityBoundary(new double[] {0,0}, OMEGA);
+		CollisionOperator southRegul =
+			D2Q9RegularizedBoundary.getSouthVelocityBoundary(new double[] {0,0}, OMEGA);
+	
+		lattice.addRectangularBoundary(1,XX,1,1,southRegul);
+		lattice.addRectangularBoundary(1,XX,YY,YY,northRegul);
+			
+		initializeVelocity(lattice,lbgk);
+		addObstacle(lattice);
+//		setSmoothVelocity(lattice,lbgk,8,8,0.1,0.1,6);
+//		setSmoothVelocity(lattice,lbgk,24,26,-0.1,-0.05,4);
+//		for ( int x = -5; x < 5; x++ )
+//		{
+//			for ( int y = -5; y < 5; y++)
+//			{
+//				setVelocity(lattice,lbgk,x+5,y+5, new double[] { 
+//						( 0.6-Math.abs(x*0.1) ) * scale, 
+//						( 0.6-Math.abs(y*0.1) ) * scale});
+//			}
+//		}
 		
 		
 
-		for(int t=0; t<1000; t++) {
+		for(int t=0; t<15000; t++) {
 			lattice.step();
 			if (t % 51 == 50) {
 				save("PeriodicTest",lattice);
 				System.out.println(t);
 			}
 		}
-		
-	
 	}
-	
 }

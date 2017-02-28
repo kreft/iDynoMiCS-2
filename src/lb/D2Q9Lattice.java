@@ -134,6 +134,7 @@ public class D2Q9Lattice{
 		return normU;
 	}
 	
+	// added
 	public double[] getU(int x, int y)
 	{
 		return lattice[x+1][y+1].u();
