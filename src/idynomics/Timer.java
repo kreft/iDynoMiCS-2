@@ -108,12 +108,12 @@ public class Timer implements Instantiable, Settable
 	
 	public double getEndOfCurrentIteration()
 	{
-		return this._now + getTimeStepSize();
+		return this._now + this.getTimeStepSize();
 	}
 	
 	public void step()
 	{
-		this._now += getTimeStepSize();
+		this._now += this.getTimeStepSize();
 		this._iteration++;
 		if ( Helper.isSystemRunningInGUI )
 			GuiLaunch.updateProgressBar();
@@ -147,8 +147,8 @@ public class Timer implements Instantiable, Settable
 	{
 		Log.out(outputLevel, "Timer: time is   = "+_now);
 		Log.out(outputLevel, "       iteration = "+_iteration);
-		Log.out(outputLevel, "       step size = "+getTimeStepSize());
-		Log.out(outputLevel, "       end time  = "+getEndOfSimulation());
+		Log.out(outputLevel, "       step size = "+this.getTimeStepSize());
+		Log.out(outputLevel, "       end time  = "+this.getEndOfSimulation());
 	}
 	
 	/*************************************************************************

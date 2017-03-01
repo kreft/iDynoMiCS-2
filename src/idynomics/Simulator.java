@@ -376,7 +376,7 @@ public strictfp class Simulator implements CanPrelaunchCheck, Runnable, Instanti
 		double scalar = 100.0 / total;
 		for ( String name : millis.keySet() )
 		{
-			Log.out(Tier.EXPRESSIVE, 
+			Log.out(Tier.NORMAL, 
 					name+" took "+(millis.get(name)*0.001)+
 					" seconds ("+(millis.get(name)*scalar)+"%)");
 		}
