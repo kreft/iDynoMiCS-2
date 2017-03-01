@@ -94,7 +94,7 @@ public class PDEmultigrid extends PDEsolver
 		this.solveCoarsest(variables);
 		
 		/* See Figure 19.6.2 */
-		for ( int outer = 1; outer <= this._numLayers; outer++ )
+		for ( int outer = 1; outer < this._numLayers; outer++ )
 		{
 			this.setOrderOfAllMultigrids(variables, outer);
 			
