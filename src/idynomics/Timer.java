@@ -129,9 +129,10 @@ public class Timer implements Instantiable, Settable
 		this._endOfSimulation = timeToStopAt;
 	}
 	
-	public int estimateLastIteration()
+	public int estimateIterationsRemaining()
 	{
-		return (int) (getEndOfSimulation() - this.getCurrentTime() / getTimeStepSize());
+		double timeLeft = this.getEndOfSimulation() - this.getCurrentTime();
+		return (int) (timeLeft / this.getTimeStepSize());
 	}
 	
 	public boolean isRunning()

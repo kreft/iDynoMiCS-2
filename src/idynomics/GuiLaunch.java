@@ -289,7 +289,7 @@ public strictfp class GuiLaunch implements Runnable
 	{
 		_progressBar.setMinimum(Idynomics.simulator.timer.getCurrentIteration());
 		_progressBar.setValue(Idynomics.simulator.timer.getCurrentIteration());
-		_progressBar.setMaximum(Idynomics.simulator.timer.estimateLastIteration());
+		_progressBar.setMaximum(Idynomics.simulator.timer.estimateIterationsRemaining());
 	}
 	
 	/**
