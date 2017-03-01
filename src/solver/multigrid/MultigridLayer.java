@@ -86,6 +86,7 @@ public class MultigridLayer
 		MultigridLayer newMultigrid = new MultigridLayer(grid);
 		MultigridLayer currentLayer = newMultigrid;
 		Iterator<Shape> iterator = shapes.iterator();
+		iterator.next();
 		while (iterator.hasNext())
 			currentLayer = currentLayer.constructCoarser(iterator.next());
 		return newMultigrid;

@@ -135,12 +135,17 @@ public class PDEmultigrid extends PDEsolver
 		{
 			this._commonMultigrid = 
 					MultigridLayer.generateCompleteMultigrid(commonGrid);
+			/* Make sure we have the finest grid to start with. */
+			while ( this._commonMultigrid.hasFiner() )
+				this._commonMultigrid = this._commonMultigrid.getFiner();
 			/* Count the layers. */
-			this._numLayers = 0;
 			this._multigridShapes = new LinkedList<Shape>();
-			for ( MultigridLayer temp = this._commonMultigrid;
-					temp.hasCoarser(); temp = temp.getCoarser() )
+			MultigridLayer temp = this._commonMultigrid;
+			this._multigridShapes.add(temp.getGrid().getShape());
+			this._numLayers = 1;
+			while ( temp.hasCoarser() )
 			{
+				temp = temp.getCoarser();
 				this._multigridShapes.add(temp.getGrid().getShape());
 				this._numLayers++;
 			}
