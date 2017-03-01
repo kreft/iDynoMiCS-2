@@ -134,10 +134,10 @@
 		</speciesLib>
 
 		<compartment name="first" tree="RTREE">
-			<shape class="Rectangle">
+			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
-				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="200.0"/>
-				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="200.0">
+				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="256.0"/>
+				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="256.0">
 				</dimension>
 			</shape>
 			<solutes>
@@ -156,7 +156,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="10" domain="200.0,0.2" />
+					<spawn number="10" domain="256.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CanonicalNOB" />
@@ -164,7 +164,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="10" domain="200.0,0.2" />
+					<spawn number="10" domain="256.0,0.2" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="CommamoxAOB" />
@@ -172,10 +172,16 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.8e-3" />
 					<aspect name="eps" 	type="PRIMARY" class="Double" value="0.0" />
 					<!-- µm -->
-					<spawn number="10" domain="200.0,0.2" />
+					<spawn number="10" domain="256.0,0.2" />
 				</agent>
 			</agents>
 			<processManagers>
+				<process name="svgWriter" class="GraphicalOutput"  priority="-3"
+					firstStep="0.0"  timerStepSize="60.0">
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="6e-4" />
+					<aspect name="solute" type="PRIMARY" class="String" value="ammonium" />
+					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
+				</process>
 				<!-- minute -->
 				<process name="agentRelax"	class="AgentRelaxation" priority="-2"
 					firstStep="0.0"  		timerStepSize="60.0">
