@@ -17,7 +17,7 @@ import org.w3c.dom.Element;
 import agent.Agent;
 import agent.Body;
 import agent.predicate.HasAspect;
-import aspect.AspectReg;
+import agent.predicate.IsLocated;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import idynomics.AgentContainer;
@@ -25,6 +25,7 @@ import idynomics.Compartment;
 import idynomics.EnvironmentContainer;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
+import shape.Shape;
 import surface.Collision;
 import surface.Surface;
 import surface.predicate.AreColliding;
@@ -40,9 +41,10 @@ public class PlasmidDynamics extends ProcessManager {
 	
 	public String PLASMID = AspectRef.plasmidList;
 	public String FITNESS_COST = AspectRef.agentFitnessCost;
-	public String PILUS_LENGTH = AspectRef.pilusLength;
+//	public String PILUS_LENGTH = AspectRef.pilusLength;
 	public String BODY = AspectRef.agentBody;
 	public String PIGMENT = AspectRef.agentPigment;
+	public String COOL_DOWN_PERIOD = AspectRef.coolDownTime;
 	/**
 	 * Map of production rates for internal products.
 	 */
@@ -55,7 +57,8 @@ public class PlasmidDynamics extends ProcessManager {
 	public final static String TRANS_PROB = "transfer_probability";
 	public final static String LOSS_PROB = "loss_probability";
 	public final static String COPY_NUM = "copy";
-	public final static String PLASMID_PIGMENT = "pigment";
+	public final static String LOSS_PIGMENT = "loss_pigment";
+	public final static String PILUS_LENGTH = "pili_length";
 	
 	/**
 	 * List of plasmids for which conjugation and segregation functions are called.
@@ -66,8 +69,11 @@ public class PlasmidDynamics extends ProcessManager {
 	 * Hashmap of all agents with plasmids it contains.
 	 */
 	private HashMap<Agent, List<String>> _plasmidAgents = new HashMap<Agent, List<String>>();
-	
-	private String _noPlasmidPigment = "BLUE";
+
+	/**
+	 * Hashmap of agents and the time at which have undergone conjugation
+	 */
+	private HashMap<Agent, Double> _previousConjugated = new HashMap<Agent, Double>();
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -87,8 +93,8 @@ public class PlasmidDynamics extends ProcessManager {
 						this._plasmidAgents.get(agent).add(plsmd);
 					else
 						this._plasmidAgents.put(agent, Arrays.asList(plsmd));
-					if (!agent.isAspect(PILUS_LENGTH))
-						agent.setPilusLength(6.0);
+//					if (!agent.isAspect(PILUS_LENGTH))
+//						agent.set(this.PILUS_LENGTH, 6.0);
 					Double simple_growth = agent.getDouble(this.GROWTH_RATE);
 					Map<String,Double> internal_production = (HashMap<String,Double>)
 							agent.getOr(this.PRODUCTION_RATE, null);
@@ -113,99 +119,112 @@ public class PlasmidDynamics extends ProcessManager {
 	/**
 	 * \brief Plasmid transfer via conjugation.
 	 * 
-	 * @param agents
+	 * @param agent a: Donor agent
+	 * @param Collection<Agent>: neighbours of the donor
+	 * @param plasmid: plasmid undergoing conjugation
 	 */
 	@SuppressWarnings("unchecked")
-	protected boolean conjugate(Agent a, Agent b, String plasmid) {
+	protected boolean conjugate(Agent a, Collection<Agent> neighbours, String plasmid) {
+		if (neighbours.isEmpty())
+			return false;
 		HashMap<Object, Object> newPlasmid = (HashMap<Object, Object>) a.get(plasmid);
 		double transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
-		double copy_number = (Double) newPlasmid.get(COPY_NUM);
+		double pilusLength = (Double) newPlasmid.get(PILUS_LENGTH);
+//		double copy_number = (Double) newPlasmid.get(COPY_NUM);
 		Body aBody = (Body) a.getValue(this.BODY);
 		List<Surface> aBodSurfaces = aBody.getSurfaces();
 		
-		Collision iter = new Collision(a.getCompartment().getShape());
+		Shape compartmentShape = a.getCompartment().getShape();
 		
-		Predicate<Collection<Surface>> collisionCheck = new AreColliding<Collection<Surface>>(
-				aBodSurfaces, iter, a.getDouble(this.PILUS_LENGTH));
-		
-		double rndNum = ExtraMath.getUniRandDbl();
-		rndNum = (rndNum * copy_number)/(copy_number + rndNum);
-		
-		Body bBody = (Body) b.getValue(this.BODY);
-		List<Surface> bBodSurfaces = bBody.getSurfaces();
-		
-		if (collisionCheck.test(bBodSurfaces) && rndNum < transfer_probability) {
-			this._noPlasmidPigment = b.getString(PIGMENT);
-			b.reg().duplicate(a);
-			Log.out(Tier.DEBUG, "Conjugated agent: "+b.getXml());
+		if (IsLocated.isLocated(a)) {
+			//biofilm
+			Collision iter = new Collision(compartmentShape);
+			for (int n = 0; n <= pilusLength/0.25; n++) {
+				double minDist = n*0.25;
+				Predicate<Collection<Surface>> collisionCheck = new AreColliding<Collection<Surface>>(aBodSurfaces, iter, minDist);
+				for (Agent nbr: neighbours) {
+					Body nbrBody = (Body) nbr.getValue(this.BODY);
+					List<Surface> bBodSurfaces = nbrBody.getSurfaces();
+					if (collisionCheck.test(bBodSurfaces)) {
+						boolean conjTest = sendPlasmid(transfer_probability, nbr, a, plasmid);
+						if (conjTest)
+							return true;
+					}
+				}
+			}
+		}
+		else {
+			//chemostat
+			
+		}
+		return false;
+	}
+	
+	/**
+	 * Function to send plasmid to neighbour.
+	 * 
+	 * @param transfer_probability: Proabability that the donor plasmid will undrgo conjugation
+	 * @param nbr: Neighbour agent who will receive the plasmid
+	 * @param dnr: Donor agent with plasmid
+	 * @param plasmid: The plasmid to be transferred
+	 * @return
+	 */
+	private boolean sendPlasmid(double transfer_probability, Agent nbr, Agent dnr, String plasmid) {
+		double probCheck = ExtraMath.getUniRandDbl();
+		if (probCheck < transfer_probability) {
+			nbr.set(plasmid, dnr.get(plasmid));
+			nbr.set(this.PIGMENT, dnr.get(this.PIGMENT));
+			nbr.set(this.FITNESS_COST, dnr.get(this.FITNESS_COST));
+			nbr.set(this.COOL_DOWN_PERIOD, dnr.get(this.COOL_DOWN_PERIOD));
+//			nbr.set(this.PILUS_LENGTH, a.get(this.PILUS_LENGTH));
+			if (this._plasmidAgents.containsKey(nbr))
+				this._plasmidAgents.get(nbr).add(plasmid);
+			else
+				this._plasmidAgents.put(nbr, Arrays.asList(plasmid));
 			return true;
 		}
 		return false;
 	}
 	
-	protected boolean checkPlasmids(AspectReg aspects) {
-		if (this._plasmidList.isEmpty())
-			return false;
-		else {
-			Iterator<Object> itrtr = this._plasmidList.iterator();
-			while (itrtr.hasNext()) {
-				String plasmidName = itrtr.next().toString();
-				if (aspects.isLocalAspect(plasmidName))
-					return true;
-			}
-			return false;
-		}
-	}
-	
-	public void segregationLoss(Agent lAgent, AspectReg lAspects) {
-		if (checkPlasmids(lAspects)) {
-			segregationLoss(lAgent);
-		}
-	}
-	
-	protected void segregationLoss(Agent lAgent) {
-		Iterator<Object> itr = this._plasmidList.iterator();
-		while (itr.hasNext()) {
-			String plsmdName = itr.next().toString();
-			if (lAgent.isAspect(plsmdName)) {
-				@SuppressWarnings("unchecked")
-				HashMap<Object, Object> lPlasmid = (HashMap<Object, Object>) lAgent.get(plsmdName);
-				double loss_probability = (Double) lPlasmid.get(LOSS_PROB);
-				
-				double lRndNum = ExtraMath.getUniRandDbl();
-				
-				if (lRndNum < loss_probability) {
-					lAgent.reg().remove(plsmdName);
-					lAgent.reg().remove(PILUS_LENGTH);
-					lAgent.reg().remove(FITNESS_COST);
-					lAgent.set(PIGMENT, this._noPlasmidPigment);
-					return;
-				}
-			}
-			else {
-				return;
-			}
-		}
+	/**
+	 * \brief Get hashmap of agents with plasmids
+	 * 
+	 */
+	public HashMap<Agent, List<String>> getAllAgentsWithPlasmids() {
+		return _plasmidAgents;
 	}
 
 	@Override
 	protected void internalStep() {
 		// TODO Auto-generated method stub
-		for (Map.Entry<Agent, List<String>> plasmidAgent : this._plasmidAgents.entrySet()) {
-			Agent a = plasmidAgent.getKey();
+		double currentTime = _timeForNextStep - _timeStepSize;
+		HashMap<Agent, List<String>> currentPlasmidAgents = new HashMap<Agent, List<String>>(); 
+		this._plasmidAgents.forEach(currentPlasmidAgents::putIfAbsent);
+		for (Map.Entry<Agent, List<String>> plasmidAgent : currentPlasmidAgents.entrySet()) {
+			Agent donor = plasmidAgent.getKey();
+			Compartment c = donor.getCompartment();
 			
-			Compartment c = a.getCompartment();
-			
-			Collection<Agent> neighbours = c.agents.treeSearch(a, a.getDouble(this.PILUS_LENGTH));
-			
+			Collection<Agent> neighbours = new LinkedList<Agent>();
+			if (IsLocated.isLocated(donor)) {
+				neighbours = c.agents.getAllLocatedAgents();
+			}
+			else {
+				neighbours = c.agents.getAllUnlocatedAgents();
+			}
 			for (String plsmd : plasmidAgent.getValue()) {
-				neighbours.removeIf(new HasAspect(plsmd));
-				for (Agent nbr : neighbours) {
-					boolean conjugation = this.conjugate(a, nbr, plsmd);
-					if (conjugation)
-						break;
+				Predicate<Agent> hasPlasmid = new HasAspect(plsmd);
+				neighbours.removeIf(hasPlasmid);
+				boolean conjugation = false;
+				if (this._previousConjugated.isEmpty() || !this._previousConjugated.containsKey(donor)) {
+					Log.out(Tier.DEBUG, "Conjugate Function called.");
+					conjugation = this.conjugate(donor, neighbours, plsmd);
 				}
-				neighbours = c.agents.treeSearch(a, a.getDouble(this.PILUS_LENGTH));
+				else if(currentTime >= (this._previousConjugated.get(donor)+donor.getDouble(this.COOL_DOWN_PERIOD))) {
+					this._previousConjugated.remove(donor);
+				}
+				if (conjugation) {
+					this._previousConjugated.put(donor, currentTime);
+				}
 			}
 		}
 	}

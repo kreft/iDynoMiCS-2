@@ -385,5 +385,10 @@ public class AspectRef
 	 * Fitness cost to the growth rate of the agent with plasmids.
 	 */
 	public static final String agentFitnessCost = "fitness_cost";
+	
+	/**
+	 * Cool down period of the agent after it undergoes conjugation.
+	 */
+	public static final String coolDownTime = "cool_down";
 
 }

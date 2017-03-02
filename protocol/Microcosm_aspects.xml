@@ -11,10 +11,9 @@
 				<aspect name="reactions" type="PRIMARY" class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
-							<expression value="(1.0-(emax*(antibiotic^hillcoef)/((mic^hillcoef)+(antibiotic^hillcoef))))*(1.0-fitnesscost)*mumax*mass*solute1/(Ks+solute1)">
+							<expression value="(1.0-(emax*(antibiotic^hillcoef)/((mic^hillcoef)+(antibiotic^hillcoef))))*(1.0-fitness_cost)*mumax*mass*solute1/(Ks+solute1)">
 								<constant name="Ks" value="3.2707e-005" />
 								<constant name="mumax" value="0.5" />
-								<constant name="epsilon" value="0.000144" />
 							</expression>
 							<stoichiometric component="mass" coefficient="3.0" />
 							<stoichiometric component="solute1" coefficient="-1.0" />
@@ -43,8 +42,8 @@
 		</speciesLib>
 		<compartment name="microcosm">
 			<shape class="Rectangle">
-				<dimension name="X" isCyclic="true" targetResolution="1" max="40.0"/>
-				<dimension name="Y" isCyclic="true" targetResolution="1" max="40.0"/>
+				<dimension name="X" isCyclic="true" targetResolution="1.0" max="300.0"/>
+				<dimension name="Y" isCyclic="true" targetResolution="1.0" max="300.0"/>
 			</shape>
 			<solutes>
 				<solute name="solute1" concentration="0.03271" />
@@ -53,56 +52,50 @@
 			<agents>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="Ecoli" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.7" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.5" />
 					<aspect name="mic" type="PRIMARY" class="Double" value="8.0" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="GREEN" />
-					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="10.2, 12.2" />
-					</aspect>
+					<spawn number="800" domain="300.0,300.0" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="Ecoli" />
-					<aspect name="mass" type="PRIMARY" class="Double" value="0.4" />
-					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
+					<aspect name="mass" type="PRIMARY" class="Double" value="0.1" />
+					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="betaLacRes" type="PRIMARY" class="HashMap">
 						<item type="PRIMARY" class="Double" value="0.75" key="transfer_probability" keyType="String" />
 						<item type="PRIMARY" class="Double" value="0.10" key="loss_probability" keyType="String" />
 						<item type="PRIMARY" class="Double" value="1.0" key="copy" keyType="String" />
-						<item type="PRIMARY" class="String" value="RED" key="pigment" keyType="String" />
+						<item type="PRIMARY" class="Double" value="5.6" key="pili_length" keyType="String" />
+						<item type="PRIMARY" class="String" value="BLUE" key="loss_pigment" keyType="String" />
 					</aspect>
-					<aspect name="pili_length" type="PRIMARY" class="Double" value="5.6" />
 					<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.1" />
 					<aspect name="mic" type="PRIMARY" class="Double" value="2000.0" />
-					<aspect name="body" type="PRIMARY" class="Body">
-						<point position="12.2, 12.0" />
-					</aspect>
+					<aspect name="cool_down" type="PRIMARY" class="Double" value="0.2" />
+					<spawn number="10" domain="300.0,300.0" />
 				</agent>
 			</agents>
 			<processManagers>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-4" firstStep="0.0"  timerStepSize="1.0">
+				<process name="svgWriter" class="GraphicalOutput"  priority="-4" firstStep="0.0"  timerStepSize="0.2">
 					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="2.0" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
-				<process name="svgWriter" class="GraphicalOutput"  priority="-4" firstStep="0.0"  timerStepSize="1.0">
+				<process name="svgWriter" class="GraphicalOutput"  priority="-4" firstStep="0.0"  timerStepSize="0.2">
 					<aspect name="solute" type="PRIMARY" class="String" value="solute1" />
 					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.0" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
 				</process>
-				<process name="plasmidDynamics" class="PlasmidDynamics"  priority="-2" firstStep="0.0">
+				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="0.1">
+					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
+					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
+				</process>
+				<process name="plasmidDynamics" class="PlasmidDynamics"  priority="-3" firstStep="0.0" timerStepSize="0.1">
 					<aspect name="plasmids" type="PRIMARY" class="LinkedList">
 						<item type="PRIMARY" class="String" value="betaLacRes" />
 					</aspect>
 				</process>
-				<process name="agentRelax" class="AgentRelaxation"  priority="-3" firstStep="0.0" >
-					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
-					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="SHOVE" />
-				</process>
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
-					firstStep="0.0"  timerStepSize="0.1">	
-					<diffusivitySetter solute="solute1" class="ScaledIfBiomassPresent" defaultDiffusivity="0.1" biofilmDiffusivity="0.08" />
-				</process>
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1" firstStep="0.0"  timerStepSize="0.1" />
 			</processManagers>
 		</compartment>
 	</simulation>
