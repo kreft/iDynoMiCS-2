@@ -102,28 +102,24 @@ public class Module
 	 */
 	protected List<Attribute> _attributes;
 
-	/* ***********************************************************************
-	 * INSTANCE CONSTRUCTOR
-	 * **********************************************************************/
-
 	/**
 	 * General constructor
 	 * @param tag
-	 * @param constructor
+	 * @param settable
 	 */
-	public Module(String tag, Settable constructor)
+	public Module(String tag, Settable settable)
 	{
 		this._tag = tag;
-		this.settableObject = constructor;
+		this.settableObject = settable;
 		this._childModules = new LinkedList<Module>();
 		this._attributes = new LinkedList<Attribute>();
 	}
 	
-	/* ***********************************************************************
-	 * Object associated with this module
-	 * **********************************************************************/
-	
-	public Object getMyObject()
+	/**
+	 * \brief returns the Object associated with this module
+	 * @return
+	 */
+	public Object getAssociatedObject()
 	{
 		return settableObject;
 	}
@@ -217,6 +213,11 @@ public class Module
 		return this._requirement == req;
 	}
 	
+	/**
+	 * \brief return the requirement specification for the object associated to
+	 * this module.
+	 * @return
+	 */
 	public Requirements getRequirment()
 	{
 		return this._requirement;

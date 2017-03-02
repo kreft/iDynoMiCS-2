@@ -73,7 +73,7 @@ public class LinkedListSetter<T> implements Settable {
 		Object  value;
 		if (this.listObject instanceof Settable)
 		{
-			value = node.getAllChildModules().get(0).getMyObject();
+			value = node.getAllChildModules().get(0).getAssociatedObject();
 		}
 		else
 		{

@@ -95,7 +95,7 @@ public class GuiEditor
 		
 		if ( node.getRequirment().max > 1 )
 		{
-			Settable constructor = (Settable) node.getMyObject();
+			Settable constructor = (Settable) node.getAssociatedObject();
 			/* add button for optional childnode(s) */
 			attr.add(GuiComponent.actionButton(constructor.defaultXmlTag() + " " + node.getTitle(), 
 					new JButton("remove"), new ActionListener()
