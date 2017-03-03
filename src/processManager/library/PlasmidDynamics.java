@@ -138,7 +138,7 @@ public class PlasmidDynamics extends ProcessManager {
 		List<Surface> aBodSurfaces = aBody.getSurfaces();
 		Compartment comp = a.getCompartment();
 		
-		if (IsLocated.isLocated(a) && comp.isDimensionless()) {
+		if (IsLocated.isLocated(a) && !comp.isDimensionless()) {
 			//biofilm
 			Shape compartmentShape = comp.getShape();
 			Collision iter = new Collision(compartmentShape);
