@@ -63,6 +63,7 @@
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
 					<aspect name="betaLacRes" type="PRIMARY" class="HashMap">
 						<item type="PRIMARY" class="Double" value="0.75" key="transfer_probability" keyType="String" />
+						<item type="PRIMARY" class="Double" value="0.001" key="transfer_frequency" keyType="String" />
 						<item type="PRIMARY" class="Double" value="0.10" key="loss_probability" keyType="String" />
 						<item type="PRIMARY" class="Double" value="1.0" key="copy" keyType="String" />
 						<item type="PRIMARY" class="Double" value="5.6" key="pili_length" keyType="String" />
@@ -86,7 +87,7 @@
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 					<aspect name="arrayType" type="PRIMARY" class="String" value="PRODUCTIONRATE" />
 				</process>
-				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="0.1">
+				<process name="agentRelax" class="AgentRelaxation" priority="-2" firstStep="0.0"  timerStepSize="1.0">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
@@ -95,7 +96,7 @@
 						<item type="PRIMARY" class="String" value="betaLacRes" />
 					</aspect>
 				</process>
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1" firstStep="0.0"  timerStepSize="0.1" />
+				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1" firstStep="0.0" timerStepSize="0.1" />
 			</processManagers>
 		</compartment>
 	</simulation>

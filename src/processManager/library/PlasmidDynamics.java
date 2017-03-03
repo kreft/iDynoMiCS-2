@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.Predicate;
 
 import org.w3c.dom.Element;
@@ -59,6 +60,7 @@ public class PlasmidDynamics extends ProcessManager {
 	public final static String COPY_NUM = "copy";
 	public final static String LOSS_PIGMENT = "loss_pigment";
 	public final static String PILUS_LENGTH = "pili_length";
+	public final static String TRANS_FREQ = "transfer_frequency";
 	
 	/**
 	 * List of plasmids for which conjugation and segregation functions are called.
@@ -85,7 +87,7 @@ public class PlasmidDynamics extends ProcessManager {
 		Iterator<Object> itr = this._plasmidList.iterator();
 		while (itr.hasNext()) {
 			String plsmd = itr.next().toString();
-			for (Agent agent: this._agents.getAllLocatedAgents())
+			for (Agent agent: this._agents.getAllAgents())
 			{
 				if (agent.isAspect(plsmd))
 				{
@@ -124,20 +126,21 @@ public class PlasmidDynamics extends ProcessManager {
 	 * @param plasmid: plasmid undergoing conjugation
 	 */
 	@SuppressWarnings("unchecked")
-	protected boolean conjugate(Agent a, Collection<Agent> neighbours, String plasmid) {
+	protected boolean conjugate(Agent a, List<Agent> neighbours, String plasmid) {
 		if (neighbours.isEmpty())
 			return false;
 		HashMap<Object, Object> newPlasmid = (HashMap<Object, Object>) a.get(plasmid);
 		double transfer_probability = (Double) newPlasmid.get(TRANS_PROB);
 		double pilusLength = (Double) newPlasmid.get(PILUS_LENGTH);
+		double transfer_frequency = (Double) newPlasmid.get(TRANS_FREQ);
 //		double copy_number = (Double) newPlasmid.get(COPY_NUM);
 		Body aBody = (Body) a.getValue(this.BODY);
 		List<Surface> aBodSurfaces = aBody.getSurfaces();
+		Compartment comp = a.getCompartment();
 		
-		Shape compartmentShape = a.getCompartment().getShape();
-		
-		if (IsLocated.isLocated(a)) {
+		if (IsLocated.isLocated(a) && comp.isDimensionless()) {
 			//biofilm
+			Shape compartmentShape = comp.getShape();
 			Collision iter = new Collision(compartmentShape);
 			for (int n = 0; n <= pilusLength/0.25; n++) {
 				double minDist = n*0.25;
@@ -145,17 +148,36 @@ public class PlasmidDynamics extends ProcessManager {
 				for (Agent nbr: neighbours) {
 					Body nbrBody = (Body) nbr.getValue(this.BODY);
 					List<Surface> bBodSurfaces = nbrBody.getSurfaces();
-					if (collisionCheck.test(bBodSurfaces)) {
-						boolean conjTest = sendPlasmid(transfer_probability, nbr, a, plasmid);
-						if (conjTest)
-							return true;
+					double probCheck = ExtraMath.getUniRandDbl();
+					if (collisionCheck.test(bBodSurfaces) && probCheck < transfer_probability) {
+						sendPlasmid(a, nbr, plasmid);
+						return true;
 					}
 				}
 			}
 		}
 		else {
 			//chemostat
-			
+			double probToScreen = transfer_frequency * _timeStepSize;
+			int numCellsScreen = (int) Math.floor(probToScreen);
+			double remainder = probToScreen - numCellsScreen;
+			double rndDbl = ExtraMath.getUniRandDbl();
+			if (rndDbl < remainder) {
+				numCellsScreen++;
+			}
+			if (numCellsScreen < neighbours.size()) {
+				Random randomSelector = new Random();
+				for (int i = 0; i < numCellsScreen; i++) {
+					Agent nbr = neighbours.get(randomSelector.nextInt(neighbours.size()));
+					sendPlasmid(a, nbr, plasmid);
+					neighbours.remove(nbr);
+				}
+			}
+			else {
+				for (Agent nbr : neighbours) {
+					sendPlasmid(a, nbr, plasmid);
+				}
+			}
 		}
 		return false;
 	}
@@ -167,23 +189,19 @@ public class PlasmidDynamics extends ProcessManager {
 	 * @param nbr: Neighbour agent who will receive the plasmid
 	 * @param dnr: Donor agent with plasmid
 	 * @param plasmid: The plasmid to be transferred
-	 * @return
+	 * @return 
+	 * @return true or false indicating whether the transfer was successful or not
 	 */
-	private boolean sendPlasmid(double transfer_probability, Agent nbr, Agent dnr, String plasmid) {
-		double probCheck = ExtraMath.getUniRandDbl();
-		if (probCheck < transfer_probability) {
-			nbr.set(plasmid, dnr.get(plasmid));
-			nbr.set(this.PIGMENT, dnr.get(this.PIGMENT));
-			nbr.set(this.FITNESS_COST, dnr.get(this.FITNESS_COST));
-			nbr.set(this.COOL_DOWN_PERIOD, dnr.get(this.COOL_DOWN_PERIOD));
-//			nbr.set(this.PILUS_LENGTH, a.get(this.PILUS_LENGTH));
-			if (this._plasmidAgents.containsKey(nbr))
-				this._plasmidAgents.get(nbr).add(plasmid);
-			else
-				this._plasmidAgents.put(nbr, Arrays.asList(plasmid));
-			return true;
-		}
-		return false;
+	private void sendPlasmid(Agent dnr, Agent nbr, String plasmid) {
+		nbr.set(plasmid, dnr.get(plasmid));
+		nbr.set(this.PIGMENT, dnr.get(this.PIGMENT));
+		nbr.set(this.FITNESS_COST, dnr.get(this.FITNESS_COST));
+		nbr.set(this.COOL_DOWN_PERIOD, dnr.get(this.COOL_DOWN_PERIOD));
+//		nbr.set(this.PILUS_LENGTH, a.get(this.PILUS_LENGTH));
+		if (this._plasmidAgents.containsKey(nbr))
+			this._plasmidAgents.get(nbr).add(plasmid);
+		else
+			this._plasmidAgents.put(nbr, Arrays.asList(plasmid));
 	}
 	
 	/**
@@ -204,7 +222,7 @@ public class PlasmidDynamics extends ProcessManager {
 			Agent donor = plasmidAgent.getKey();
 			Compartment c = donor.getCompartment();
 			
-			Collection<Agent> neighbours = new LinkedList<Agent>();
+			List<Agent> neighbours = new LinkedList<Agent>();
 			if (IsLocated.isLocated(donor)) {
 				neighbours = c.agents.getAllLocatedAgents();
 			}
