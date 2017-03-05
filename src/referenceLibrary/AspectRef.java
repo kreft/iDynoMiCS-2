@@ -390,5 +390,10 @@ public class AspectRef
 	 * Cool down period of the agent after it undergoes conjugation.
 	 */
 	public static final String coolDownTime = "cool_down";
+	
+	/**
+	 * Plasmid loss due to segregation event name.
+	 */
+	public static final String agentPlasmidLoss = "plasmidLoss";
 
 }

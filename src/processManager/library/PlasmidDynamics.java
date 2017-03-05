@@ -65,7 +65,7 @@ public class PlasmidDynamics extends ProcessManager {
 	/**
 	 * List of plasmids for which conjugation and segregation functions are called.
 	 */
-	private List<Object> _plasmidList;
+	public static List<Object> _plasmidList;
 	
 	/**
 	 * Hashmap of all agents with plasmids it contains.
@@ -83,8 +83,8 @@ public class PlasmidDynamics extends ProcessManager {
 			AgentContainer agents, String compartmentName)
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
-		this._plasmidList = (LinkedList<Object>) this.getOr(PLASMID, null);
-		Iterator<Object> itr = this._plasmidList.iterator();
+		PlasmidDynamics._plasmidList = (LinkedList<Object>) this.getOr(PLASMID, null);
+		Iterator<Object> itr = PlasmidDynamics._plasmidList.iterator();
 		while (itr.hasNext()) {
 			String plsmd = itr.next().toString();
 			for (Agent agent: this._agents.getAllAgents())
@@ -102,11 +102,9 @@ public class PlasmidDynamics extends ProcessManager {
 							agent.getOr(this.PRODUCTION_RATE, null);
 					Double fitness_cost = agent.getDouble(this.FITNESS_COST);
 					if (simple_growth != null && !(simple_growth.isNaN()))
-						agent.set(this.GROWTH_RATE, 
-								simple_growth*(1.0-fitness_cost));
+						agent.set(this.GROWTH_RATE, simple_growth*(1.0-fitness_cost));
 					if (internal_production != null) {
-						internal_production.replaceAll(
-								(k,v) -> v*(1.0-fitness_cost));
+						internal_production.replaceAll((k,v) -> v*(1.0-fitness_cost));
 						agent.set(this.PRODUCTION_RATE, internal_production);
 					}
 				}

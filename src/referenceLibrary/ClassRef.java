@@ -218,6 +218,12 @@ public class ClassRef
 	public final static String updateBody =
 			aspect.event.UpdateBody.class.getName();
 	
+	/**
+	 * the plasmid loss event
+	 */
+	public final static String plasmidLoss =
+			aspect.event.PlasmidLoss.class.getName();
+	
 	/* ************************************************************************
 	 * Agents, Species and aspect modules
 	 */

@@ -8,6 +8,7 @@
 				<aspect name="emax" type="PRIMARY" class="Double" value="2.0" />
 				<aspect name="hillcoef" type="PRIMARY" class="Double" value="2.0" />
 				<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.0" />
+				<aspect name="divisionMass" type="PRIMARY" class="Double" value="0.6" />
 				<aspect name="reactions" type="PRIMARY" class="InstantiableList"> 
 					<list class="Reaction" nodeLabel="reaction" entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="growth">
@@ -72,6 +73,7 @@
 					<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.1" />
 					<aspect name="mic" type="PRIMARY" class="Double" value="2000.0" />
 					<aspect name="cool_down" type="PRIMARY" class="Double" value="0.2" />
+					<aspect name="plasmidLoss" type="EVENT" class="PlasmidLoss" />
 					<spawn number="10" domain="300.0,300.0" />
 				</agent>
 			</agents>

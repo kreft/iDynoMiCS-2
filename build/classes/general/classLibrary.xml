@@ -13,6 +13,7 @@
 	<classDef package="aspect.event." name="ExcreteEPS" />
 	<classDef package="aspect.event." name="ExcreteEPSCumulative" />
 	<classDef package="aspect.event." name="InternalProduction" />
+	<classDef package="aspect.event." name="PlasmidLoss" />
 	<classDef package="aspect.event." name="ResolveInteractionDistance" />
 	<classDef package="aspect.event." name="SimpleGrowth" />
 	<classDef package="aspect.event." name="StochasticMove" />
