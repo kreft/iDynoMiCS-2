@@ -67,7 +67,8 @@
 						<item type="PRIMARY" class="Double" value="0.90" key="loss_probability" keyType="String" />
 						<item type="PRIMARY" class="Double" value="1.0" key="copy" keyType="String" />
 						<item type="PRIMARY" class="Double" value="4.0" key="pili_length" keyType="String" />
-						<item type="PRIMARY" class="String" value="BLUE" key="loss_pigment" keyType="String" />
+						<item type="PRIMARY" class="String" value="BLUE" key="pigment_on_loss" keyType="String" />
+						<item type="PRIMARY" class="String[]" value="pigment" key="aspects_change" keyType="String" />
 					</aspect>
 					<aspect name="fitness_cost" type="PRIMARY" class="Double" value="0.5" />
 					<aspect name="cool_down" type="PRIMARY" class="Double" value="0.8" />
