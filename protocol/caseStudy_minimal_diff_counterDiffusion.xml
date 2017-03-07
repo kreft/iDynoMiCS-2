@@ -3,7 +3,7 @@
 	<simulation name="caseStudy_min_diff" outputfolder="../results" log="NORMAL"
 		comment="this is a file for testing purposes only." randomSeed="12345">
 		<!-- minutes -->
-		<timer stepSize="60.0" endOfSimulation="576000.0" />
+		<timer stepSize="60.0" endOfSimulation="14400.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -215,7 +215,7 @@
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				<!-- minute -->
-				<process name="solveDiffusionTransient" class="SolveDiffusionTransient" priority="-1"
+				<process name="solveDiffusionTransient" class="SolveDiffusionSteadyState" priority="-1"
 					firstStep="0.0"  timerStepSize="60.0">	
 					<aspect name="soluteNames" type="PRIMARY" class="String[]" value="ammonium,nitrite,nitrate,oxygen" /> 
 					<!-- In principle they are not all the same but all in the 
