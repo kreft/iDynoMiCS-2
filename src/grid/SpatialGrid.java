@@ -571,7 +571,7 @@ public class SpatialGrid implements Settable, Instantiable
 		else
 		{
 			throw new IndexOutOfBoundsException(
-					"Tried to get grid value at neighbor"
+					"Tried to get grid value at neighbor "
 							+ Vector.toString(this._shape.nbhIteratorCurrent())
 							+ " of current coordinate "
 							+ Vector.toString(this._shape.iteratorCurrent())
