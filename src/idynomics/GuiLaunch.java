@@ -1,7 +1,6 @@
 package idynomics;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
@@ -12,20 +11,16 @@ import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
 
 import gui.GuiActions;
-import gui.GuiConsole;
-import gui.GuiEditor;
+import gui.GuiButtons;
 import gui.GuiMain;
 import gui.GuiMenu;
-import gui.GuiSimControl;
-import referenceLibrary.XmlRef;
 
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -68,11 +63,6 @@ public strictfp class GuiLaunch implements Runnable
 	 * 
 	 */
 	private static ParallelGroup _horizontalLayoutGroup;
-	
-	/**
-	 * 
-	 */
-	private static JProgressBar _progressBar;
 	
 	/**
 	 * Flag telling this GUI whether to be full screen (true) or not (false).
@@ -161,8 +151,6 @@ public strictfp class GuiLaunch implements Runnable
 		_layout.setAutoCreateContainerGaps(true);
 		_verticalLayoutGroup = _layout.createSequentialGroup();
 		_horizontalLayoutGroup = _layout.createParallelGroup();
-
-		drawButtons();
 		
 		currentView = GuiMain.getConstructor();
 		
@@ -190,7 +178,14 @@ public strictfp class GuiLaunch implements Runnable
 		 * Checked this and works correctly, masterFrame stays at one component
 		 * the contentPane
 		 */
-		_masterFrame.add(contentPane);
+        //Add the scroll panes to a split pane.
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setTopComponent(GuiButtons.getButtons());
+        splitPane.setBottomComponent(contentPane);
+        splitPane.setDividerLocation(28); 
+        splitPane.setDividerSize(0);
+        splitPane.setEnabled( false );
+		_masterFrame.add(splitPane);
 		
 		_masterFrame.setVisible(true);
 
@@ -217,91 +212,5 @@ public strictfp class GuiLaunch implements Runnable
 				GuiActions.runSimulation();
 			}
 		});
-	}
-	
-	/**
-	 * TODO clean-up and comment
-	 */
-	public static void drawButtons() 
-	{
-		/*
-		 * Just below the menu bar, make the bar of simulation control buttons.
-		 */
-		SequentialGroup buttonHoriz = _layout.createSequentialGroup();
-		ParallelGroup buttonVert = _layout.createParallelGroup();
-		JButton button;
-		
-		/* Check the simulation. */
-		button = GuiSimControl.openButton();
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
-		
-		/* new simulation */
-		button = new JButton("new");
-		{
-			button.addActionListener(new ActionListener()
-			{
-			@Override
-			public void actionPerformed(ActionEvent event)
-			{
-				Idynomics.simulator = new Simulator();
-				Idynomics.global = new Settings();
-				GuiMain.getConstructor();
-				if ( ! Idynomics.global.ignore_protocol_out )
-				{
-					Idynomics.global.outputRoot = Helper.obtainInput(
-							Idynomics.global.outputRoot, "Required " + 
-							XmlRef.outputFolder, true);
-				}
-				GuiEditor.addComponent( Idynomics.simulator.getModule(), 
-						GuiMain.tabbedPane);
-			}
-		}
-		);
-		}
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
-		
-		/* Run the simulation. */
-		button = GuiSimControl.runButton();
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
-
-		/* Stop the simulation. */
-		button = GuiSimControl.stopButton();
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
-
-		///////////////////////////////////////////////////////////////////////
-		/* Add a progress bar to the button row. */
-		_progressBar  = new JProgressBar();
-		_progressBar.setStringPainted(true);
-		buttonHoriz.addComponent(_progressBar);
-		buttonVert.addComponent(_progressBar);
-		/* Add a checkbox for the GuiConsole autoscrolling. */
-		JCheckBox autoscroll = GuiConsole.autoScrollCheckBox();
-		buttonHoriz.addComponent(autoscroll);
-		buttonVert.addComponent(autoscroll);
-		/* Add these to the layout. */
-		_verticalLayoutGroup.addGroup(buttonVert);
-		_horizontalLayoutGroup.addGroup(buttonHoriz);
-	}
-	
-	/**
-	 * \brief Reset the simulation progress bar to 0%.
-	 */
-	public static void resetProgressBar()
-	{
-		_progressBar.setMinimum(0);
-		_progressBar.setValue((int) Idynomics.simulator.timer.getCurrentTime());
-		_progressBar.setMaximum((int) Idynomics.simulator.timer.getEndOfSimulation());
-	}
-	
-	/**
-	 * \brief Move the simulation progress bar along with the Timer. 
-	 */
-	public static void updateProgressBar()
-	{
-		_progressBar.setValue((int) Idynomics.simulator.timer.getCurrentTime());
 	}
  }

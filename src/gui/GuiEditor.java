@@ -189,7 +189,7 @@ public class GuiEditor
 		}
 		
 		JTabbedPane hostPane = getFirstTabParent(parent);
-		
+		node.getTag();
 		/* placement of this ModelNode in the gui */
 		if ( XmlRef.speciesLibrary.equals(node.getTag()) )
 		{
@@ -215,9 +215,10 @@ public class GuiEditor
 				{XmlRef.agents, XmlRef.solutes, XmlRef.processManagers, 
 				XmlRef.reactions, XmlRef.environment}) )
 		{
+			hostPane = (JTabbedPane) 
+					parent.getParent().getParent().getParent();
 			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
-			GuiComponent.addTab( (JTabbedPane) 
-					parent.getParent().getParent().getParent(), 
+			GuiComponent.addTab( hostPane, 
 					node.getTag(), tabs, "");
 		}
 		else if ( node.isTagIn(new String[] {XmlRef.reaction}) )
@@ -245,19 +246,22 @@ public class GuiEditor
 			/* exactly one: append this component to the parent component */
 			parent.add(component, null);
 			parent.revalidate();
+			/* NOTE quick fix since parent is already loaded here */
+			for ( Module n : node.getAllChildModules() )
+				addComponent(n, component);
 		}
 		else if ( node.areRequirements(Requirements.ZERO_TO_MANY) )
 		{
 			tabs.setBackgroundAt(0,new Color(1f,1f,0f));
 			/* species, agents, TODO: changes to spinner */
-			GuiComponent.addTab( getFirstTabParent(parent), 
-					node.getTag() + " " + node.getTitle(), tabs, ""); 
-					
+			GuiComponent.addTab( hostPane, 
+					node.getTag() + " " + node.getTitle(), tabs, ""); 					
 		} 
 		else
 		{
+			hostPane = (JTabbedPane) parent;
 			/* else add component as Child tab of parent */
-			GuiComponent.addTab((JTabbedPane) parent, node.getTag(), tabs, "");
+			GuiComponent.addTab(hostPane, node.getTag(), tabs, "");
 		}
 		
 		if (parent == GuiMain.tabbedPane)
@@ -279,13 +283,12 @@ public class GuiEditor
 	    	private boolean _triggered = false;
 	        public void stateChanged(ChangeEvent changeEvent) {
 	          JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent.getSource();
-	          int index = sourceTabbedPane.getSelectedIndex();
+	          int index = sourceTabbedPane.getSelectedIndex();	      	
 	          if( !_triggered && GuiComponent.findComponentIndex(sourceTabbedPane,tabs) == index)
 	          {
 	        	  _triggered =!_triggered;
-		          System.out.println( GuiComponent.findComponentIndex(sourceTabbedPane,tabs) + " " + index);
+		          System.out.println( GuiComponent.findComponentIndex(sourceTabbedPane,tabs) + " " + index + node.getTag());
 	
-		          System.out.println("Tab changed to: " + sourceTabbedPane.getTitleAt(index));
 		          for ( Module n : node.getAllChildModules() )
 		  			addComponent(n, component);
 	          }

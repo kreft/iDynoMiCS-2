@@ -57,7 +57,7 @@ public final class GuiActions
 	{
 		Idynomics.simulator = new Simulator();
 		Idynomics.global = new Settings();
-		GuiMain.getConstructor();
+//		GuiMain.getConstructor();
     	/* load content if a protocol file has been selected */
     	if ( f == null )
     	{
@@ -69,7 +69,7 @@ public final class GuiActions
     		Idynomics.global.protocolFile = f.getAbsolutePath();
     		GuiConsole.writeOut(Idynomics.global.protocolFile + " \n");
     		checkProtocol();
-    		GuiLaunch.resetProgressBar();
+    		GuiButtons.resetProgressBar();
     		GuiActions.loadCurrentState();
     	}    		
 	}
@@ -107,7 +107,7 @@ public final class GuiActions
 		else
 		{
 			Idynomics.simulator.setNode();
-			GuiLaunch.resetProgressBar();
+			GuiButtons.resetProgressBar();
 			Idynomics.launchSimulator();
 		}
 	}

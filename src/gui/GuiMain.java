@@ -1,6 +1,8 @@
 package gui;
 
+
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import idynomics.Idynomics;
@@ -15,6 +17,7 @@ import idynomics.Idynomics;
 public class GuiMain
 {
 	public static JTabbedPane tabbedPane = GuiComponent.newPane();
+	public static JPanel coPanel = new JPanel();
 		
 	final static int CONSOLEPANE = 0;
 	
@@ -22,7 +25,7 @@ public class GuiMain
 	{
 		return (JComponent) GuiComponent.setPane(tabbedPane);
 	}
-	
+		
 	public static void update()
 	{
 		GuiMain.getConstructor();
