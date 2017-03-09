@@ -70,6 +70,7 @@ public final class GuiActions
     		GuiConsole.writeOut(Idynomics.global.protocolFile + " \n");
     		checkProtocol();
     		GuiLaunch.resetProgressBar();
+    		GuiActions.loadCurrentState();
     	}    		
 	}
 	
