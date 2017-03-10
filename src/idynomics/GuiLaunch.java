@@ -1,5 +1,8 @@
 package idynomics;
 
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -14,6 +17,7 @@ import gui.GuiActions;
 import gui.GuiButtons;
 import gui.GuiMain;
 import gui.GuiMenu;
+import gui.navigator.NavigatorGui;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -43,41 +47,11 @@ public strictfp class GuiLaunch implements Runnable
 	 * 
 	 */
 	private static JFrame _masterFrame;
-	
-	/**
-	 * 
-	 */
-	public static JComponent currentView;
-	
-	/**
-	 * 
-	 */
-	private static GroupLayout _layout;
-	
-	/**
-	 * 
-	 */
-	private static SequentialGroup _verticalLayoutGroup;
-	
-	/**
-	 * 
-	 */
-	private static ParallelGroup _horizontalLayoutGroup;
-	
-	/**
-	 * Flag telling this GUI whether to be full screen (true) or not (false).
-	 */
-	private static boolean _isFullScreen = false;
 
 	/**
 	 * System file path to the iDynoMiCS logo.
 	 */
 	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
-	
-	/**
-	 * 
-	 */
-	public static JPanel contentPane;
 	
 	/**
 	 * \brief Launch with a Graphical User Interface (GUI).
@@ -95,10 +69,6 @@ public strictfp class GuiLaunch implements Runnable
 	public GuiLaunch() 
 	{
 		_masterFrame = new JFrame();
-		contentPane = new JPanel();
-		_layout = new GroupLayout(contentPane);
-		contentPane.setLayout(_layout);
-		 
 		run();
 	}
 			    	  
@@ -123,70 +93,40 @@ public strictfp class GuiLaunch implements Runnable
 		 * input.
 		 */
 		Helper.gui = true;
-		/* 
-		 * Set the window size, position, title and its close operation.
-		 */
-		_masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		_masterFrame.setTitle(Idynomics.fullDescription());
-		if ( _isFullScreen )
-			_masterFrame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
-		else
-			_masterFrame.setSize(800,800);
-		_masterFrame.setLocationRelativeTo(null);
-		
-		ImageIcon img = new ImageIcon(ICON_PATH);
 
+		/* Set the window size, position, title and its close operation. */
+		_masterFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		ImageIcon img = new ImageIcon(ICON_PATH);
 		_masterFrame.setIconImage(img.getImage());
+		_masterFrame.setTitle(Idynomics.fullDescription());
+		_masterFrame.setMinimumSize(new Dimension(520,60));
+		_masterFrame.setPreferredSize(new Dimension(800,800));
+		_masterFrame.setLocationByPlatform(true);
 		
-		/* 
-		 * Add the menu bar. This is independent of the layout of the rest of
-		 * the GUI.
-		 */
+		/* set layout and menubar */
+		_masterFrame.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
 		_masterFrame.setJMenuBar(GuiMenu.getMenuBar());
-		/*
-		 * Set up the layout manager and its groups.
-		 */
-		contentPane.removeAll();
-		_layout.setAutoCreateGaps(true);
-		_layout.setAutoCreateContainerGaps(true);
-		_verticalLayoutGroup = _layout.createSequentialGroup();
-		_horizontalLayoutGroup = _layout.createParallelGroup();
 		
-		currentView = GuiMain.getConstructor();
+	    /* Set, size and scale upper part part */
+		c.fill = GridBagConstraints.BOTH;
+	    c.gridx = 0;
+	    c.gridy = 0;
+	    c.weightx = 1.0;
+	    _masterFrame.add(GuiButtons.getButtons(),c);
 		
-		_horizontalLayoutGroup.addComponent(currentView, 
-				GroupLayout.DEFAULT_SIZE, 
-				GroupLayout.DEFAULT_SIZE,
-				Short.MAX_VALUE);
+	    /* Set, size and scale lower part part */
+        c.fill = GridBagConstraints.BOTH;
+        c.weighty = 1.0;
+        c.weightx = 1.0;
+        c.anchor = GridBagConstraints.PAGE_END; 
+        c.gridx = 0;
+        c.gridy = 1;
+        _masterFrame.add(GuiMain.getConstructor(),c);
 		
-		_verticalLayoutGroup.addComponent(currentView, 
-						GroupLayout.DEFAULT_SIZE, 
-						GroupLayout.DEFAULT_SIZE,
-						Short.MAX_VALUE);
-		/* 
-		* Apply the layout and build the GUI.
-		*/
-		_layout.setVerticalGroup(_verticalLayoutGroup);
-		_layout.setHorizontalGroup(_horizontalLayoutGroup);
-		
-		/* Bas: quick fix, coupled this to contentPane for now since old
-		 * structure is gone.
-		 */
-		keyBindings(contentPane);
-		
-		/* 
-		 * Checked this and works correctly, masterFrame stays at one component
-		 * the contentPane
-		 */
-        //Add the scroll panes to a split pane.
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setTopComponent(GuiButtons.getButtons());
-        splitPane.setBottomComponent(contentPane);
-        splitPane.setDividerLocation(28); 
-        splitPane.setDividerSize(0);
-        splitPane.setEnabled( false );
-		_masterFrame.add(splitPane);
-		
+		/* Bind keys and display window */
+		keyBindings(_masterFrame.getRootPane());
+        _masterFrame.pack();		
 		_masterFrame.setVisible(true);
 
 	}

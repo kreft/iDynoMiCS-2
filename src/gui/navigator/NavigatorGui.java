@@ -1,6 +1,9 @@
 package gui.navigator;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
 import javax.swing.ImageIcon;
@@ -141,15 +144,25 @@ public class NavigatorGui extends JPanel implements TreeSelectionListener {
 		 */
 		frame.setJMenuBar(GuiMenu.getMenuBar());
 
-		 //Add the scroll panes to a split pane.
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setTopComponent(GuiButtons.getButtons());
+		frame.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		
+		frame.setMinimumSize(new Dimension(520,60));
+
+		c.fill = GridBagConstraints.BOTH;
+	    c.gridx = 0;
+	    c.gridy = 0;
+	    c.weightx = 1.0;
+		frame.add(GuiButtons.getButtons(),c);
+		
         activeGui = new NavigatorGui();
-        splitPane.setBottomComponent(activeGui);
-        splitPane.setDividerLocation(30); 
-        splitPane.setDividerSize(0);
-        splitPane.setEnabled( false );
-        frame.add(splitPane);
+        c.fill = GridBagConstraints.BOTH;
+        c.weighty = 1.0;   //request any extra vertical space
+        c.weightx = 1.0;
+        c.anchor = GridBagConstraints.PAGE_END; 
+        c.gridx = 0;
+        c.gridy = 1;
+        frame.add(activeGui,c);
 
         //Display the window.
         frame.pack();

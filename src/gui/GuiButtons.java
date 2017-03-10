@@ -1,6 +1,7 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -35,23 +36,10 @@ public class GuiButtons {
 	 */
 	public static void drawButtons() 
 	{
-		GroupLayout _layout = new GroupLayout(buttonPane);
-		_layout.setAutoCreateGaps(true);
-		_layout.setAutoCreateContainerGaps(true);
-		SequentialGroup _verticalLayoutGroup = _layout.createSequentialGroup();
-		ParallelGroup _horizontalLayoutGroup = _layout.createParallelGroup();
-
-		/*
-		 * Just below the menu bar, make the bar of simulation control buttons.
-		 */
-		SequentialGroup buttonHoriz = _layout.createSequentialGroup();
-		ParallelGroup buttonVert = _layout.createParallelGroup();
 		JButton button;
-		
 		/* Check the simulation. */
 		button = GuiSimControl.openButton();
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
+		buttonPane.add(button);
 		
 		/* new simulation */
 		button = new JButton("new");
@@ -76,32 +64,27 @@ public class GuiButtons {
 		}
 		);
 		}
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
+		buttonPane.add(button);
 		
 		/* Run the simulation. */
 		button = GuiSimControl.runButton();
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
+		buttonPane.add(button);
 
 		/* Stop the simulation. */
 		button = GuiSimControl.stopButton();
-		buttonHoriz.addComponent(button);
-		buttonVert.addComponent(button);
+
+		buttonPane.add(button);
 
 		///////////////////////////////////////////////////////////////////////
 		/* Add a progress bar to the button row. */
 		_progressBar  = new JProgressBar();
 		_progressBar.setStringPainted(true);
-		buttonHoriz.addComponent(_progressBar);
-		buttonVert.addComponent(_progressBar);
+		buttonPane.add(_progressBar);
+		
 		/* Add a checkbox for the GuiConsole autoscrolling. */
 		JCheckBox autoscroll = GuiConsole.autoScrollCheckBox();
-		buttonHoriz.addComponent(autoscroll);
-		buttonVert.addComponent(autoscroll);
-		/* Add these to the layout. */
-		_verticalLayoutGroup.addGroup(buttonVert);
-		_horizontalLayoutGroup.addGroup(buttonHoriz);
+		buttonPane.add(autoscroll);
+
 	}
 	
 	/**
