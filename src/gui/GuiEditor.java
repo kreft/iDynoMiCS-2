@@ -21,6 +21,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
+import gui.navigator.NavigatorGui;
+import gui.navigator.PageObject;
 import referenceLibrary.XmlRef;
 import settable.ModuleSpec;
 import settable.Attribute;
@@ -199,6 +201,8 @@ public class GuiEditor
 			/* exception for speciesLib add component as tab next to the
 			 * parent tab (simulation) */
 			GuiComponent.addTab( hostPane, node.getTag() , tabs, "");
+			if (NavigatorGui.newGui())
+				NavigatorGui.activeGui.addPage(new PageObject(node.getTag(),scrollPane,node), null);
 		}
 		else if ( XmlRef.compartment.equals(node.getTag()) )
 		{
@@ -292,11 +296,6 @@ public class GuiEditor
 		          for ( Module n : node.getAllChildModules() )
 		  			addComponent(n, component);
 	          }
-	          
-//	  		/* add childnodes of this component to the gui */
-//	  		for ( Module n : node.getAllChildModules() )
-//	  			addComponent(n, component);
-	  	      
 	        }
 	      };
 	      return changeListener;

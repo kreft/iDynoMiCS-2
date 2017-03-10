@@ -45,15 +45,6 @@ public class GuiComponent {
 		
 	}
 	
-	public static JPanel setCoPane(JPanel pane) {
-		
-		pane.removeAll();
-		/* The tabs pane */
-		pane.add( GuiConsole.getConsole());
-		return pane;
-		
-	}
-	
 	public static JTabbedPane newPane() {
 		/* a tabs pane */
 		JTabbedPane tabbedPane = new JTabbedPane();

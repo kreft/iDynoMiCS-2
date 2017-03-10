@@ -1,11 +1,11 @@
 package gui.navigator;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -17,6 +17,8 @@ import javax.swing.UIManager;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import gui.GuiButtons;
@@ -41,25 +43,34 @@ public class NavigatorGui extends JPanel implements TreeSelectionListener {
 	 */
 	private final static String ICON_PATH = "icons/iDynoMiCS_logo_icon.png";
 	
+	private final static ImageIcon _icon = new ImageIcon("icons/icon_micro.png");
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2532237635946835720L;
 	private JTree tree;
 	private JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-	protected PageObject consolePage = new PageObject("console", null, null);
+	protected PageObject consolePage = new PageObject("iDynoMiCS", null, null);
 	protected DefaultMutableTreeNode root = new DefaultMutableTreeNode(consolePage);
 	public static NavigatorGui activeGui = null;
 
 	public NavigatorGui()
 	{
         super(new GridLayout(1,0));
-	    addPage(consolePage,root);
 	    //Create a tree that allows one selection at a time.
 	    tree = new JTree(root);
 	    tree.getSelectionModel().setSelectionMode
 	            (TreeSelectionModel.SINGLE_TREE_SELECTION);
-	
+	    addPage(new PageObject("console", null, null),root);
+
+	        DefaultTreeCellRenderer renderer = 
+	            new DefaultTreeCellRenderer();
+	        renderer.setLeafIcon(_icon);
+	        renderer.setClosedIcon(_icon);
+	        renderer.setOpenIcon(_icon);
+	        tree.setCellRenderer(renderer);
+	    
 	    //Listen for when the selection changes.
 	    tree.addTreeSelectionListener(this);
 	
@@ -80,11 +91,22 @@ public class NavigatorGui extends JPanel implements TreeSelectionListener {
 	    add(splitPane);
 	}
 	
+	public static boolean newGui()
+	{
+		return (activeGui != null);
+	}
+	
 	public void addPage(PageObject page, DefaultMutableTreeNode parent)
 	{
+		DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
 		DefaultMutableTreeNode pageNode = new DefaultMutableTreeNode(page);
 		page.pageNode = pageNode;
-		parent.add(pageNode);
+		if (parent == null)
+			root.add(pageNode);
+		else
+			parent.add(pageNode);
+		model.reload();
+
 	}
 	
     public void displayComponent(JComponent component) {
@@ -148,6 +170,8 @@ public class NavigatorGui extends JPanel implements TreeSelectionListener {
 		GridBagConstraints c = new GridBagConstraints();
 		
 		frame.setMinimumSize(new Dimension(520,60));
+		frame.setPreferredSize(new Dimension(800,800));
+		frame.setLocationByPlatform(true);
 
 		c.fill = GridBagConstraints.BOTH;
 	    c.gridx = 0;

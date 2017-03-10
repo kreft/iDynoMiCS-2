@@ -8,23 +8,16 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
-import javax.swing.GroupLayout;
 import javax.swing.InputMap;
-import javax.swing.GroupLayout.ParallelGroup;
-import javax.swing.GroupLayout.SequentialGroup;
 
 import gui.GuiActions;
 import gui.GuiButtons;
 import gui.GuiMain;
 import gui.GuiMenu;
-import gui.navigator.NavigatorGui;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JSplitPane;
 import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -70,6 +63,11 @@ public strictfp class GuiLaunch implements Runnable
 	{
 		_masterFrame = new JFrame();
 		run();
+	}
+	
+	public static boolean classicGui()
+	{
+		return (_masterFrame != null);
 	}
 			    	  
    /**
