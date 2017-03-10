@@ -733,6 +733,7 @@ public abstract class Shape implements
 		/* NOTE getMinDifferenceTo checks length, we do not have to do that 
 		 * twice. */
 		double[] out = new double[a.length];
+		// FIXME use collision var to prevent millions of double[] creation
 		this.getMinDifferenceVectorTo(out, a, b);
 		return out;
 	}

@@ -4,6 +4,7 @@ import org.w3c.dom.Element;
 
 import dataIO.Log;
 import dataIO.XmlHandler;
+import gui.GuiButtons;
 import referenceLibrary.XmlRef;
 import settable.Attribute;
 import settable.Module;
@@ -126,7 +127,7 @@ public class Timer implements Instantiable, Settable
 		this._now += getTimeStepSize();
 		this._iteration++;
 		if ( Helper.gui )
-			GuiLaunch.updateProgressBar();
+			GuiButtons.updateProgressBar();
 	}
 	
 	public double getEndOfSimulation()

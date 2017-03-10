@@ -24,6 +24,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 
 import dataIO.Log;
 import dataIO.Log.Tier;
@@ -42,7 +43,9 @@ public final class GuiConsole
 	/**
 	 * Box in the GUI that displays text like a console would.
 	 */
-	private static JTextPane _console = new JTextPane();
+	private static JTextPane _console = null;
+	
+	private static JScrollPane _scrollsole = null;
 	
 	/**
 	 * Text style for normal output messages.
@@ -65,11 +68,12 @@ public final class GuiConsole
 	
 	public static JComponent getConsole()
 	{
+		if (_scrollsole != null)
+			return _scrollsole;
+		
+		_console = new JTextPane();
 		_console.setBackground( Settings.console_color );
 		_console.setEditable(false);
-		
-		
-
 		
 		/**
 		 * based on
@@ -107,9 +111,10 @@ public final class GuiConsole
 		    }
 		});
 		
-		return new JScrollPane(_console,
+		_scrollsole = new JScrollPane(_console,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		return _scrollsole;
 	}
 	
 	public static void displayConsole()
@@ -224,6 +229,7 @@ public final class GuiConsole
   		}
   		if ( _autoScroll )
   			_console.setCaretPosition(doc.getLength());
+
   	}
 	
 	/**
