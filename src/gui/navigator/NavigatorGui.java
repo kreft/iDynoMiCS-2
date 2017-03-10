@@ -26,6 +26,8 @@ import utility.Helper;
  * agents (eg. scenario's rather than initial states) has potential, will pick
  * this up again when we have more time.
  * 
+ * http://docs.oracle.com/javase/tutorial/uiswing/examples/components/TreeDemoProject/src/components/TreeDemo.java
+ * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark.
  *
  */
