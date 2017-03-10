@@ -48,7 +48,7 @@ public class Random {
 		public static final int OBST_Y = YY/2; // exact y-symmetry is avoided
 		
 		public static final double U_MAX = 0.02; // maximum velocity of Poiseuille inflow
-		public static final double RE = 100; // Reynolds number
+		public static final double RE = 10000; // Reynolds number
 		public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
 		public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
 		
@@ -134,8 +134,8 @@ public class Random {
 //				
 //			initializeVelocity(lattice,lbgk);
 //			addObstacle(lattice);
-			setSmoothVelocity(lattice,lbgk,8,8,0.1,0.1,6);
-			setSmoothVelocity(lattice,lbgk,24,26,-0.1,-0.05,4);
+			setSmoothVelocity(lattice,lbgk,8,8,0.001,0.001,6);
+			setSmoothVelocity(lattice,lbgk,24,26,-0.001,-0.0005,4);
 //			for ( int x = -5; x < 5; x++ )
 //			{
 //				for ( int y = -5; y < 5; y++)
@@ -145,10 +145,9 @@ public class Random {
 //							( 0.6-Math.abs(y*0.1) ) * scale});
 //				}
 //			}
-			
-			
+	
 
-			for(int t=0; t<4000; t++) {
+			for(int t=0; t<8000; t++) {
 				lattice.step();
 				if (t % 51 == 50) {
 					save("PeriodicTest",lattice);

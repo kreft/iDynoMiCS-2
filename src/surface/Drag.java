@@ -14,7 +14,7 @@ public final class Drag
 	/**
 	 * \brief Pre-calculated factor for drag forces, equals <i>3*pi*2</i>.
 	 * 
-	 * <p>Assuming low Reynold's number (i.e. viscous forces dominate), the 
+	 * <p>Assuming low particle Reynold's number (i.e. viscous forces dominate), the 
 	 * drag on a spherical particle is <i>3 * pi * diameter * viscosity</i>. 
 	 * Since we divide by this in {@link #dxdt(double)} and there we use radius
 	 * (rather than diameter), use of this pre-calculated factor should improve

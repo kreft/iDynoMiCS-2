@@ -45,7 +45,7 @@ public class Unsteady {
 	public static final int OBST_Y = YY/2; // exact y-symmetry is avoided
 	
 	public static final double U_MAX = 0.02; // maximum velocity of Poiseuille inflow
-	public static final double RE = 40; // Reynolds number
+	public static final double RE = 150; // Reynolds number
 	public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
 	public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
 	
@@ -145,7 +145,7 @@ public class Unsteady {
 		
 		
 
-		for(int t=0; t<15000; t++) {
+		for(int t=0; t<35000; t++) {
 			lattice.step();
 			if (t % 51 == 50) {
 				save("PeriodicTest",lattice);

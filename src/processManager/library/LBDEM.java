@@ -11,8 +11,13 @@ import dataIO.Log;
 import dataIO.Log.Tier;
 
 import static dataIO.Log.Tier.*;
+import static lb.tools.FileIO.save;
+
 import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
+import lb.D2Q9;
+import lb.D2Q9Lattice;
+import lb.collision.LBGK;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
@@ -34,7 +39,7 @@ import utility.Helper;
  * 
  * @author Bastiaan Cockx @BastiaanCockx (baco@env.dtu.dk), DTU, Denmark
  */
-public class AgentRelaxation extends ProcessManager
+public class LBDEM extends ProcessManager
 {
 	public String SEARCH_DIST = AspectRef.collisionSearchDistance;
 	public String PULL_EVALUATION = AspectRef.collisionPullEvaluation;
@@ -62,6 +67,23 @@ public class AgentRelaxation extends ProcessManager
 	public String GRAVITY = AspectRef.gravity_testing;
 	public String STIFFNESS = AspectRef.spineStiffness;
 	
+	
+	public static final int XX = 40; // number of cells in x-direction
+	public static final int YY = 40; // number of cells in y-direction
+	public static final int OBST_R = YY/10 + 1; // radius of the cylinder
+	public static final int OBST_X = XX/5; // position of the cylinder
+	public static final int OBST_Y = YY/2; // exact y-symmetry is avoided
+	
+	public static final double U_MAX = 0.02; // maximum velocity of Poiseuille inflow
+	public static final double RE = 10000; // Reynolds number
+	public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
+	public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
+	
+	public static LBGK lbgk = null;
+	
+	public static D2Q9Lattice lattice = null;
+	
+	public static double latticeMultiplier = 2.0;
 	
 	/**
 	 * Available relaxation methods.
@@ -136,12 +158,9 @@ public class AgentRelaxation extends ProcessManager
 	 * value under which the relaxation may be considered completed
 	 */
 	private double _stressThreshold;
+		
 	
-	/**
-	 * TODO gravity buoyancy implementation
-	 */
-	private Boolean _gravity;
-	
+	private int[] slices;
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -166,7 +185,12 @@ public class AgentRelaxation extends ProcessManager
 		this._shapeSurfs  = this._shape.getSurfaces();
 		this._iterator = this._shape.getCollision();
 		this._stressThreshold = Helper.setIfNone( this.getDouble(LOW_STRESS_SKIP), 0.0 );	
-		this._gravity = Helper.setIfNone( this.getBoolean(GRAVITY), false);
+		
+		// TODO super dirty for testintg
+
+		slices = Vector.floor(Vector.times(agents.getShape().getDimensionLengths(),latticeMultiplier));
+		this.lbgk = new LBGK(D2Q9.getInstance(), OMEGA);
+		this.lattice = new D2Q9Lattice(slices[0], slices[1], lbgk);
 	}
 
 	/*************************************************************************
@@ -266,7 +290,27 @@ public class AgentRelaxation extends ProcessManager
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " Finished updating agent forces");
 	}
+	
+	public static void setVelocity(D2Q9Lattice lattice, LBGK lbgk, int x, int y, double[] u) {
+		double rho = 1;
+				double normU = u[0]*u[0];
+				for (int i=0; i<9; i++) {
+					lattice.setF( x, y, lbgk.fEq( i,rho,u,normU ), i );
+		}	
+	}
 
+	public static void setSmoothVelocity(D2Q9Lattice lattice, LBGK lbgk, int xp, int yp, double a, double b, int size) 
+	{
+		for ( int x = -size; x < size; x++ )
+		{
+			for ( int y = -size; y < size; y++)
+			{
+				setVelocity(lattice,lbgk,x+xp,y+yp, new double[] { 
+						( size-Math.abs(x) ) * a, 
+						( size-Math.abs(y) ) * b});
+			}
+		}
+	}
 
 	@Override
 	protected void internalStep()
@@ -276,21 +320,12 @@ public class AgentRelaxation extends ProcessManager
 		_tMech		= 0.0;
 		_dtMech 	= this._dtBase; // start with initial base timestep than adjust
 
-		// if higher order ODE solvers are used we need additional space to write.
-		switch (_method)
-		{
-		case HEUN :
-			for(Agent agent: this._agents.getAllLocatedAgents())
-				for (Point point: ((Body) agent.get(BODY)).getPoints())
-					point.initialiseC(2);
-			break;
-		default:
-			break;
-		}
-
 		// Mechanical relaxation
 		while(_tMech < _timeStepSize) 
 		{	
+			setSmoothVelocity(lattice,lbgk,slices[0]/2,slices[1]/2,0.0001,0.0001,3);
+			lattice.step();
+			
 			this._agents.refreshSpatialRegistry();
 			this.updateForces(this._agents);
 
@@ -319,11 +354,6 @@ public class AgentRelaxation extends ProcessManager
 					_vSquare = Math.max(Vector.dotProduct(move,move), _vSquare);
 				}
 			}
-			// time Leaping set the time step to match a max traveling distance
-			// divined by 'maxMovement', for a 'fast' run.
-			if ( this._timeLeap ) 
-				this._dtMech = this._maxMovement / 
-						( Math.sqrt( this._vSquare ) + 0.001 );
 
 			// prevent to relaxing longer than the global _timeStepSize
 			if ( this._dtMech > this._timeStepSize - this._tMech )
@@ -335,51 +365,20 @@ public class AgentRelaxation extends ProcessManager
 					agent.event(STOCHASTIC_MOVE, _dtMech);
 			}
 
-			// perform the step using (method)
-			switch ( this._method )
+			/// Euler's method
+			for ( Agent agent: this._agents.getAllLocatedAgents() )
 			{
-			case SHOVE :
-			{
-				for ( Agent agent: this._agents.getAllLocatedAgents() )
+				Body body = ((Body) agent.get(BODY));
+				double radius = agent.getDouble(RADIUS);
+				for ( Point point: body.getPoints() )
 				{
-					Body body = ((Body) agent.get(BODY));
-					double radius = agent.getDouble(RADIUS);
-					for ( Point point: body.getPoints() )
-						point.shove(this._dtMech, radius);
+					int[] posi = Vector.floor(Vector.times(point.getPosition(),latticeMultiplier));
+					point.euStep(this._dtMech, radius, lattice.getU(posi[0], posi[1]));
 				}
-				/* Continue until nearly all overlap is resolved. */
-				if ( this._vSquare < 0.001 )
-					this._tMech = this._timeStepSize;
-				break;
 			}
-			case EULER :
-			{
-				/// Euler's method
-				for ( Agent agent: this._agents.getAllLocatedAgents() )
-				{
-					Body body = ((Body) agent.get(BODY));
-					double radius = agent.getDouble(RADIUS);
-					for ( Point point: body.getPoints() )
-						point.euStep(this._dtMech, radius, null);
-				}
-				this._tMech += this._dtMech;
-				break;
-			}
-				// NOTE : higher order ODE solvers don't like time Leaping.. be careful.
-			case HEUN :
-				/// Heun's method
-				for(Agent agent: this._agents.getAllLocatedAgents())
-					for (Point point: ((Body) agent.get(BODY)).getPoints())
-						point.heun1(_dtMech, (double) agent.get(RADIUS));
-				this.updateForces(this._agents);
-				for(Agent agent: this._agents.getAllLocatedAgents())
-					for (Point point: ((Body) agent.get(BODY)).getPoints())
-						point.heun2(_dtMech, (double) agent.get(RADIUS));
-				// Set time step
-				_tMech += _dtMech;
-				break;
-			}
+			this._tMech += this._dtMech;
 
+	
 			for(Agent agent: this._agents.getAllLocatedAgents())
 				for (Point point: ((Body) agent.get(BODY)).getPoints())
 				{
@@ -388,6 +387,7 @@ public class AgentRelaxation extends ProcessManager
 			nstep++;
 		}
 		this._agents.refreshSpatialRegistry();
+		save("LBDEM/dump_" + this._timeForNextStep,lattice);
 		Log.out(Tier.DEBUG,
 				"Relaxed "+this._agents.getNumAllAgents()+" agents after "+
 						nstep+" iterations");
