@@ -154,25 +154,35 @@ public class PlasmidDynamics extends ProcessManager {
 		
 		if (IsLocated.isLocated(a) && !comp.isDimensionless()) {
 			//biofilm
+			boolean nbrFound = false;
 			Shape compartmentShape = comp.getShape();
 			Collision iter = new Collision(compartmentShape);
-			for (int n = 0; n <= pilusLength/0.25; n++) {
+			double numLoops = pilusLength/0.25;
+			for (int n = 0; n <= numLoops; n++) {
 				double minDist = n*0.25;
+				if (numLoops - n < 1.0)
+					minDist = minDist+(numLoops-n);
 				Predicate<Collection<Surface>> collisionCheck = new AreColliding<Collection<Surface>>(aBodSurfaces, iter, minDist);
 				for (Agent nbr: neighbours) {
 					Body nbrBody = (Body) nbr.getValue(this.BODY);
 					List<Surface> bBodSurfaces = nbrBody.getSurfaces();
 					double probCheck = ExtraMath.getUniRandDbl();
-					if (collisionCheck.test(bBodSurfaces) && probCheck < transfer_probability) {
-						sendPlasmid(a, nbr, plasmid);
-						return true;
+					if (collisionCheck.test(bBodSurfaces)) {
+						nbrFound = true;
+						if (probCheck < transfer_probability) {
+							sendPlasmid(a, nbr, plasmid);
+							return true;
+						}
 					}
 				}
+				if (nbrFound)
+					return false;
 			}
 		}
 		else {
 			//chemostat
-			double probToScreen = transfer_frequency * _timeStepSize;
+			int numNeighbours = neighbours.size();
+			double probToScreen = transfer_frequency * numNeighbours * _timeStepSize / (numNeighbours + 1);
 			int numCellsScreen = (int) Math.floor(probToScreen);
 			double remainder = probToScreen - numCellsScreen;
 			double rndDbl = ExtraMath.getUniRandDbl();
@@ -186,11 +196,13 @@ public class PlasmidDynamics extends ProcessManager {
 					sendPlasmid(a, nbr, plasmid);
 					neighbours.remove(nbr);
 				}
+				return true;
 			}
 			else {
 				for (Agent nbr : neighbours) {
 					sendPlasmid(a, nbr, plasmid);
 				}
+				return true;
 			}
 		}
 		return false;
