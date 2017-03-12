@@ -217,6 +217,9 @@ public class MultigridLayer
 					thisShape.isNbhIteratorValid();
 					nhb = thisShape.nbhIteratorNext())
 			{
+				/* We do not want to interact with boundaries here. */
+				if ( ! thisShape.isNbhIteratorInside() )
+					continue;
 				volume = thisShape.getVoxelVolume(nhb);
 				newValue += this._grid.getValueAtNhb(finerType) * volume;
 				totalVolume += volume;
