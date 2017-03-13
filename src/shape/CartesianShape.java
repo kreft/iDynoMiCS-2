@@ -154,6 +154,15 @@ public abstract class CartesianShape extends Shape
 	 * **********************************************************************/
 	
 	@Override
+	public int getTotalNumberOfVoxels()
+	{
+		int n = 1;
+		for ( int i = 0; i < 3; i++ )
+			n *= this._resCalc[i].getNVoxel();
+		return n;
+	}
+	
+	@Override
 	public double getVoxelVolume(double[] origin, double[] upper)
 	{
 		double out = 1.0;

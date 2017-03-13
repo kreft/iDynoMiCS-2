@@ -435,6 +435,23 @@ public abstract class SphericalShape extends Shape
 	 * VOXELS
 	 * **********************************************************************/
 	
+	@Override
+	public int getTotalNumberOfVoxels()
+	{
+		int n = 1;
+		int dimTheta = this.getDimensionIndex(THETA);
+		int dimPhi = this.getDimensionIndex(PHI);
+		int nR = this._resCalc[this.getDimensionIndex(R)][0][0].getNVoxel();
+		for ( int i = 0; i < nR; i++ )
+		{
+			int nPhi = this._resCalc[dimPhi][i][0].getNVoxel();
+			for ( int j = 0; j < nPhi; j++ )
+				n += this._resCalc[dimTheta][i][j].getNVoxel();
+		}
+		return n;
+	}
+	
+	@Override
 	public double getVoxelVolume(double[] origin, double[] upper)
 	{
 		/* R */

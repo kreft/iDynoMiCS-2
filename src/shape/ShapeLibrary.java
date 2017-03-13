@@ -109,6 +109,12 @@ public final class ShapeLibrary
 		}
 		
 		@Override
+		public int getTotalNumberOfVoxels()
+		{
+			return 1;
+		}
+		
+		@Override
 		public double getVoxelVolume(double[] origin, double[] upper)
 		{
 			return this._volume;

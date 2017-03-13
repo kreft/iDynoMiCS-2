@@ -22,7 +22,7 @@ import utility.ExtraMath;
  * 
  * @author Robert Clegg (r.j.clegg.bham.ac.uk) University of Birmingham, U.K.
  * @author Stefan Lang (stefan.lang@uni-jena.de)
- *     Friedrich-Schiller University Jena, Germany 
+ * 		Friedrich-Schiller University Jena, Germany 
  */
 public abstract class CylindricalShape extends Shape
 {
@@ -44,45 +44,45 @@ public abstract class CylindricalShape extends Shape
 		dim = new Dimension(true, R);
 		dim.setBoundaryOptional(0);
 		this._dimensions.put(R, dim);
-		this._resCalc[getDimensionIndex(R)] = new ResolutionCalculator[1];
-		this._resCalc[getDimensionIndex(R)][0] = new SingleVoxel(dim);
+		this._resCalc[this.getDimensionIndex(R)] = new ResolutionCalculator[1];
+		this._resCalc[this.getDimensionIndex(R)][0] = new SingleVoxel(dim);
 		/*
 		 * The theta-dimension must be significant.
 		 */
 		dim = new Dimension(true, THETA);
 		this._dimensions.put(THETA, dim);
-		this._resCalc[getDimensionIndex(THETA)] = new ResolutionCalculator[1];
-		this._resCalc[getDimensionIndex(THETA)][0] = new SingleVoxel(dim);
+		this._resCalc[this.getDimensionIndex(THETA)] = new ResolutionCalculator[1];
+		this._resCalc[this.getDimensionIndex(THETA)][0] = new SingleVoxel(dim);
 		/*
 		 * The z-dimension is insignificant, unless told otherwise later.
 		 */
 		dim = new Dimension(false, Z);
 		this._dimensions.put(Z, dim);
-		this._resCalc[getDimensionIndex(Z)] = new ResolutionCalculator[1];
-		this._resCalc[getDimensionIndex(Z)][0] = new SingleVoxel(dim);
+		this._resCalc[this.getDimensionIndex(Z)] = new ResolutionCalculator[1];
+		this._resCalc[this.getDimensionIndex(Z)][0] = new SingleVoxel(dim);
 		
 		this._it = this.getNewIterator();
 	}
 	
 	@Override
-	public double[][][] getNewArray(double initialValue) {
-		int nr, nz;
-		if (getNumberOfDimensions() < 2)
+	public double[][][] getNewArray(double initialValue)
+	{
+		if ( this.getNumberOfDimensions() < 2 )
+		{
 			throw new IllegalArgumentException(
 					"A cylindrical array needs at least 2 dimensions");
-		nr = _resCalc[0][0].getNVoxel();
-		/* we need at least one voxel in each dimension */ 
-		nz = _resCalc[2][0] == null ? 1 : _resCalc[2][0].getNVoxel();
-		double[][][] a = new double[nr][][];
-		for ( int i = 0; i < nr; i++ )
-			a[i] = Matrix.matrix(_resCalc[1][i].getNVoxel(), nz, initialValue);
+		}
+		/* We need at least one voxel in each dimension. */
+		int nR, nTheta, nZ;
+		nR = this._resCalc[0][0].getNVoxel();
+		nZ = this._resCalc[2][0] == null ? 1 : this._resCalc[2][0].getNVoxel();
+		double[][][] a = new double[nR][][];
+		for ( int i = 0; i < nR; i++ )
+		{
+			nTheta = this._resCalc[1][i].getNVoxel();
+			a[i] = Matrix.matrix(nTheta, nZ, initialValue);
+		}
 		return a;
-	}
-	
-	@Override
-	public ShapeIterator getNewIterator(int strideLength)
-	{
-		return new CylindricalShapeIterator(this, strideLength);
 	}
 	
 	/* ***********************************************************************
@@ -308,6 +308,18 @@ public abstract class CylindricalShape extends Shape
 	 * VOXELS
 	 * **********************************************************************/
 	
+	@Override
+	public int getTotalNumberOfVoxels()
+	{
+		int n = 1;
+		int dimTheta = this.getDimensionIndex(THETA);
+		int nR = this._resCalc[this.getDimensionIndex(R)][0].getNVoxel();
+		for ( int i = 0; i < nR; i++ )
+			n += this._resCalc[dimTheta][i].getNVoxel();
+		return n * this._resCalc[this.getDimensionIndex(Z)][0].getNVoxel();
+	}
+	
+	@Override
 	public double getVoxelVolume(double[] origin, double[] upper){
 		/* 
 		 * r: pi times this number would be the area of a ring. 
@@ -331,6 +343,12 @@ public abstract class CylindricalShape extends Shape
 	/* ***********************************************************************
 	 * COORDINATE ITERATOR
 	 * **********************************************************************/
+
+	@Override
+	public ShapeIterator getNewIterator(int strideLength)
+	{
+		return new CylindricalShapeIterator(this, strideLength);
+	}
 	
 	/* ***********************************************************************
 	 * NEIGHBOR ITERATOR

@@ -1034,6 +1034,8 @@ public abstract class Shape implements
 	 * VOXELS
 	 * **********************************************************************/
 	
+	public abstract int getTotalNumberOfVoxels();
+	
 	/**
 	 * \brief Find the coordinates of the voxel that encloses the given
 	 * <b>location</b>.
