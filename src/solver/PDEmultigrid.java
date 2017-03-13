@@ -61,13 +61,13 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private int _numLayers;
 	
-	private int _numVCycles = 100;
+	private int _numVCycles = 5;
 	
-	private int _numPreSteps = 100;
+	private int _numPreSteps = 150;
 	
-	private int _numCoarseStep = 100;
+	private int _numCoarseStep = 150;
 	
-	private int _numPostSteps = 100;
+	private int _numPostSteps = 1500;
 	/**
 	 * TODO this should be settable by the user.
 	 */
@@ -242,13 +242,7 @@ public class PDEmultigrid extends PDEsolver
 			currentGrids.add(currentLayer.getGrid());
 		}
 		
-		this._updater.prestep(currentGrids, 0.0);
-		
-		for ( SpatialGrid currentGrid : currentGrids )
-		{
-			for ( int i = 0; i < this._numCoarseStep; i++ )
-				this.relax(currentGrid, common.getGrid());
-		}
+		this.relaxAll(this._numCoarseStep);
 	}
 	
 	private boolean doVCycle(Collection<SpatialGrid> variables, int numLayers)
@@ -262,10 +256,19 @@ public class PDEmultigrid extends PDEsolver
 		/* Downward stroke of V. */
 		while ( this._commonMultigrid.hasCoarser() && layerCounter < numLayers )
 		{
+			if ( Log.shouldWrite(tickTockTierLevel) )
+				Log.out(tickTockTierLevel, "DOWNWARD "+layerCounter);
 			layerCounter++;
 			/* 
-			 * Smooth the current layer for a set number of iterations and then
-			 * update the local truncation error using current CONCN values.
+			 * Smooth the current layer for a set number of iterations.
+			 */
+			tick = System.currentTimeMillis();
+			this.relaxAll(this._numPreSteps);
+			tock = System.currentTimeMillis();
+			if ( Log.shouldWrite(tickTockTierLevel) )
+				Log.out(tickTockTierLevel, (tock - tick)+" mS to pre-smooth");
+			/*
+			 * Update the local truncation error using current CONCN values.
 			 * In Numerical Recipes in C, this is is τ (tau) as defined in
 			 * Equation (19.6.30).
 			 */
@@ -274,14 +277,11 @@ public class PDEmultigrid extends PDEsolver
 			for ( SpatialGrid variable : variables )
 			{
 				currentLayer = this.getMultigrid(variable).getGrid();
-				/*  */
-				for ( int i = 0; i < this._numPreSteps; i++ )
-					this.relax(currentLayer, currentCommon);
 				this.calculateResidual(currentLayer, currentCommon, LOCALERROR);
 			}
 			tock = System.currentTimeMillis();
 			if ( Log.shouldWrite(tickTockTierLevel) )
-				Log.out(tickTockTierLevel, (tock - tick)+" mS to pre-smooth");
+				Log.out(tickTockTierLevel, (tock - tick)+" mS for residuals");
 			/*
 			 * Find the coarser layer for the common grid and all variables.
 			 */
@@ -310,10 +310,11 @@ public class PDEmultigrid extends PDEsolver
 			if ( Log.shouldWrite(tickTockTierLevel) )
 				Log.out(tickTockTierLevel, (tock - tick)+" mS to restrict");
 			/* Update the PRODUCTIONRATE arrays using updated CONCN values. */
-			long preStepTick = System.currentTimeMillis();
+			tick = System.currentTimeMillis();
 			this._updater.prestep(currentGrids, 0.0);
-			long preStepTock = System.currentTimeMillis();
-			Log.out(Tier.NORMAL, (preStepTock - preStepTick)+" mS on preStep");
+			tock = System.currentTimeMillis();
+			if ( Log.shouldWrite(tickTockTierLevel) )
+				Log.out(tickTockTierLevel, (tock - tick)+" mS on preStep");
 			/*
 			 * TODO
 			 * The relative truncation error is the difference between the
@@ -339,13 +340,13 @@ public class PDEmultigrid extends PDEsolver
 		/* 
 		 * At the bottom of the V: solve the coarsest layer.
 		 */
-		currentCommon = this._commonMultigrid.getGrid();
-		for ( SpatialGrid variable : variables )
-		{
-			currentLayer = this.getMultigrid(variable).getGrid();
-			for ( int i = 0; i < this._numCoarseStep; i++ )
-				this.relax(currentLayer, currentCommon);
-		}
+		if ( Log.shouldWrite(tickTockTierLevel) )
+			Log.out(tickTockTierLevel, "COARSEST "+layerCounter);
+		tick = System.currentTimeMillis();
+		this.relaxAll(this._numCoarseStep);
+		tock = System.currentTimeMillis();
+		if ( Log.shouldWrite(tickTockTierLevel) )
+			Log.out(tickTockTierLevel, (tock - tick)+" mS for solving coarsest");
 		/* 
 		 * Upward stroke of V. The overall effect of this is:
 		 * 
@@ -363,8 +364,13 @@ public class PDEmultigrid extends PDEsolver
 		 * post-relaxation.
 		 */
 		// TODO find corresponding parts in Numerical Recipes
-		while ( this._commonMultigrid.hasFiner() )
+		
+		while ( this._commonMultigrid.hasFiner() && layerCounter > 0 )
 		{
+			layerCounter--;
+			if ( Log.shouldWrite(tickTockTierLevel) )
+				Log.out(tickTockTierLevel, "UPWARD "+layerCounter);
+			tick = System.currentTimeMillis();
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable);
@@ -383,8 +389,20 @@ public class PDEmultigrid extends PDEsolver
 				currentLayer.addArrayToArray(CONCN, RELATIVEERROR);
 				if ( ! this._allowNegatives )
 					currentLayer.makeNonnegative(CONCN);
-				for ( int i = 0; i < this._numPostSteps; i++ )
-					this.relax(currentLayer, currentCommon);
+			}
+			tock = System.currentTimeMillis();
+			if ( Log.shouldWrite(tickTockTierLevel) )
+			{
+				Log.out(tickTockTierLevel,
+						(tock - tick)+" mS for interpolation");
+			}
+			tick = System.currentTimeMillis();
+			this.relaxAll(this._numPostSteps);
+			tock = System.currentTimeMillis();
+			if ( Log.shouldWrite(tickTockTierLevel) )
+			{
+				Log.out(tickTockTierLevel,
+						(tock - tick)+" mS for post-relaxation");
 			}
 		}
 		/*
@@ -395,6 +413,7 @@ public class PDEmultigrid extends PDEsolver
 		 * See p. 884 of Numerical Recipes in C for more details.
 		 */
 		boolean continueVCycle = false;
+		currentCommon = this._commonMultigrid.getGrid();
 		for ( SpatialGrid variable : variables )
 		{
 			currentLayer = this.getMultigrid(variable).getGrid();
@@ -406,6 +425,20 @@ public class PDEmultigrid extends PDEsolver
 				break;
 		}
 		return continueVCycle;
+	}
+	
+	private void relaxAll(int numRepetitions)
+	{
+		Collection<SpatialGrid> currentGrids = new LinkedList<SpatialGrid>();
+		for ( MultigridLayer layer : this._multigrids.values() )
+			currentGrids.add(layer.getGrid());
+		SpatialGrid currentCommon = this._commonMultigrid.getGrid();
+		for ( int i = 0; i < numRepetitions; i++ )
+		{
+			this._updater.prestep(currentGrids, 0.0);
+			for ( SpatialGrid grid : currentGrids )
+				this.relax(grid, currentCommon);
+		}
 	}
 	
 	/**
@@ -425,6 +458,9 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private void relax(SpatialGrid variable, SpatialGrid commonGrid)
 	{
+		Tier level = Tier.DEBUG;
+		long tick, tock;
+		tick = System.currentTimeMillis();
 		Shape shape = variable.getShape();
 		/* Temporary storage. */
 		double concn, invVol, lop, dlop, rhs, res;
@@ -467,6 +503,13 @@ public class PDEmultigrid extends PDEsolver
 				concn = 0.0;
 			/* Update the value and continue to the next voxel. */
 			variable.setValueAtCurrent(CONCN, concn);
+		}
+		if ( Log.shouldWrite(level) )
+		{
+			tock = System.currentTimeMillis();
+			Log.out(level, "relax step for "+variable.getName()+" with "+
+					shape.getTotalNumberOfVoxels()+" voxels took "+
+					(tock - tick)+" mS");
 		}
 	}
 	

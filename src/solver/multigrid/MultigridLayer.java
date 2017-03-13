@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import dataIO.Log;
+import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import linearAlgebra.Vector;
@@ -34,6 +36,10 @@ public class MultigridLayer
 	 * in extreme cases, both) of these may be null.
 	 */
 	private MultigridLayer _coarser, _finer;
+	/**
+	 * Private internal logging level.
+	 */
+	private final static Tier LEVEL = Tier.DEBUG;
 	
 	/* ***********************************************************************
 	 * CONSTRUCTION
@@ -172,6 +178,9 @@ public class MultigridLayer
 		/* Safety */
 		if ( this._coarser == null )
 			return;
+		/* Start timer */
+		long tick, tock;
+		tick = System.currentTimeMillis();
 		/* Temporary variables. */
 		Shape thisShape = this._grid.getShape();
 		SpatialGrid coarserGrid = this._coarser._grid;
@@ -225,6 +234,12 @@ public class MultigridLayer
 				totalVolume += volume;
 			}
 			this._grid.setValueAtCurrent(finerType, newValue/totalVolume);
+		}
+		/* Logging */
+		if ( Log.shouldWrite(LEVEL) )
+		{
+			tock = System.currentTimeMillis();
+			Log.out(LEVEL, "fillArrayFromCoarser took "+(tock - tick)+" mS");
 		}
 	}
 	

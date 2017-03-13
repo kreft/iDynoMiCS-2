@@ -19,13 +19,13 @@ public strictfp class ConsoleLaunch
 		System.out.print("Starting iDynoMiCS " +Idynomics.version_number+ "\n");
 		/* Acquire a protocol file. */
 		String protocolPath;
-		if(args == null || args.length == 0 || args[0] == null)
+		if ( args == null || args.length == 0 || args[0] == null )
 		{
-		@SuppressWarnings("resource")
-		// TODO Rob[24Fec2016]: Is is a problem that we don't close this?
-		Scanner user_input = new Scanner( System.in );
-		System.out.print("Enter protocol file path: ");
-		protocolPath = user_input.next();
+			@SuppressWarnings("resource")
+			// TODO Rob[24Feb2016]: Is it a problem that we don't close this?
+			Scanner user_input = new Scanner( System.in );
+			System.out.print("Enter protocol file path: ");
+			protocolPath = user_input.next();
 		}
 		else
 		{
