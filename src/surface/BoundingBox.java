@@ -30,6 +30,11 @@ public class BoundingBox
 	 * CONSTRUCTORS
 	 ************************************************************************/
 	
+	public BoundingBox()
+	{
+		
+	}
+	
 	/**
 	 * construct from a matrix of locations, a sphere radius for the sphere-
 	 * swept volume and an optional margin.
@@ -38,12 +43,13 @@ public class BoundingBox
 	 * @param radius
 	 * @param margin
 	 */
-	public BoundingBox(double[][] p, double radius, double margin)
+	public BoundingBox get(double[][] p, double radius, double margin)
 	{
 		double size = radius + margin;
 		this._higher = upper(p,size);
 		this._lower = lower(p, size);
 		this._dimensions = dimensions(p, size);
+		return this;
 	}
 	
 	/**
@@ -51,9 +57,9 @@ public class BoundingBox
 	 * @param p
 	 * @param radius
 	 */
-	public BoundingBox(double[][] p, double radius)
+	public BoundingBox get(double[][] p, double radius)
 	{
-		this(p, radius, 0.0);
+		return this.get(p, radius, 0.0);
 	}
 	
 	/**
@@ -62,9 +68,9 @@ public class BoundingBox
 	 * @param radius
 	 * @param margin
 	 */
-	public BoundingBox(double[] p, double radius, double margin)
+	public BoundingBox get(double[] p, double radius, double margin)
 	{
-		this(new double[][]{ p }, radius, margin);
+		return this.get(new double[][]{ p }, radius, margin);
 	}
 	
 	/**
@@ -72,9 +78,9 @@ public class BoundingBox
 	 * @param p
 	 * @param radius
 	 */
-	public BoundingBox(double[] p, double radius)
+	public BoundingBox get(double[] p, double radius)
 	{
-		this(p, radius, 0.0);
+		return this.get(p, radius, 0.0);
 	}
 	
 	/**
@@ -83,11 +89,12 @@ public class BoundingBox
 	 * @param dimensions
 	 * @param lower
 	 */
-	public BoundingBox(double[] dimensions, double[] lower)
+	public BoundingBox get(double[] dimensions, double[] lower)
 	{
 		Vector.checkLengths(dimensions, lower);
 		this._dimensions = dimensions;
 		this._lower = lower;
+		return this;
 	}
 	
 	/**
@@ -96,11 +103,12 @@ public class BoundingBox
 	 * @param upper
 	 * @param b
 	 */
-	public BoundingBox(double[] lower, double[] upper, boolean b) 
+	public BoundingBox get(double[] lower, double[] upper, boolean b) 
 	{
 		this._lower = lower;
 		this._higher = upper;
 		this._dimensions = Vector.minus(upper, lower);
+		return this;
 	}
 	
 	/*************************************************************************
@@ -172,6 +180,10 @@ public class BoundingBox
 	 * STATIC HELPER METHODS
 	 ************************************************************************/
 	
+	/* static calculation vectors, reduce garbage for calculations */
+	protected static double[] sOut = null;
+	protected static double[] sPoint = null;
+	
 	/**
 	 * returns the lower corner of the bounding box
 	 * @param radius
@@ -182,19 +194,18 @@ public class BoundingBox
 		/*
 		 * First find the lowest position in each dimension.
 		 */
-		double[] out = Vector.copy(points[0]);
-		double[] point;
+		sOut = points[0].clone();
 		for ( int pointIndex = 1; pointIndex < points.length; pointIndex++ )
 		{
-			point = points[pointIndex];
-			for ( int dim = 0; dim < out.length; dim++ )
-				out[dim] = Math.min(out[dim], point[dim]);
+			sPoint = points[pointIndex];
+			for ( int dim = 0; dim < sOut.length; dim++ )
+				sOut[dim] = Math.min(sOut[dim], sPoint[dim]);
 		}
 		/*
 		 * Subtract the radius from this in each dimension.
 		 */
-		Vector.addEquals(out, - radius);
-		return out;
+		Vector.addEquals(sOut, - radius);
+		return sOut;
 	}
 	
 	/**
@@ -207,19 +218,18 @@ public class BoundingBox
 		/*
 		 * First find the greatest position in each dimension.
 		 */
-		double[] out = Vector.copy(points[0]);
-		double[] point;
+		sOut = points[0].clone();
 		for ( int pointIndex = 1; pointIndex < points.length; pointIndex++ )
 		{
-			point = points[pointIndex];
-			for ( int dim = 0; dim < out.length; dim++ )
-				out[dim] = Math.max(out[dim], point[dim]);
+			sPoint = points[pointIndex];
+			for ( int dim = 0; dim < sOut.length; dim++ )
+				sOut[dim] = Math.max(sOut[dim], sPoint[dim]);
 		}
 		/*
 		 * Add the radius to this in each dimension.
 		 */
-		Vector.addEquals(out, radius);
-		return out;
+		Vector.addEquals(sOut, radius);
+		return sOut;
 	}
 	
 	/**

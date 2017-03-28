@@ -72,6 +72,8 @@ public class Plane extends Surface implements HasBoundingBox
 		return this.normal.length;
 	}
 	
+	protected BoundingBox boundingBox = new BoundingBox();
+	
 	@Override
 	public BoundingBox boundingBox() {
 
@@ -101,7 +103,7 @@ public class Plane extends Surface implements HasBoundingBox
 			 */
 			else if ( n > 0 )
 			{
-				return new BoundingBox(
+				return boundingBox.get(
 						Vector.setAll(lower, -Math.sqrt(Double.MAX_VALUE)),
 						Vector.setAll(upper, Math.sqrt(Double.MAX_VALUE)), 
 						true);
@@ -117,6 +119,6 @@ public class Plane extends Surface implements HasBoundingBox
 				upper[i] = normal[i] * d + margin;
 			}
 		}
-		return new BoundingBox(lower,upper, true);
+		return boundingBox.get(lower,upper, true);
 	}
 }

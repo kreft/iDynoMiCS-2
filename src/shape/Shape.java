@@ -696,7 +696,6 @@ public abstract class Shape implements
 	public void getMinDifferenceVectorTo(double[] destination, double[] a, double[] b)
 	{
 		Vector.checkLengths(destination, a, b);
-		int nDim = a.length;
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
@@ -712,7 +711,7 @@ public abstract class Shape implements
 			{
 				destination[i] = dim.getShortest(a[i], b[i]);
 			}
-			if ( ++i >= nDim )
+			if ( ++i >= a.length )
 				break;
 		}
 
@@ -733,7 +732,6 @@ public abstract class Shape implements
 		/* NOTE getMinDifferenceTo checks length, we do not have to do that 
 		 * twice. */
 		double[] out = new double[a.length];
-		// FIXME use collision var to prevent millions of double[] creation
 		this.getMinDifferenceVectorTo(out, a, b);
 		return out;
 	}
