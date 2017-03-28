@@ -5,12 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
-import instantiable.Instance;
 import instantiable.Instantiable;
 import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
@@ -228,7 +226,7 @@ public class Body implements Copyable, Instantiable
 	{
 		return this._points.get(joint).getPosition();
 	}
-
+	
 	public List<Surface> getSurfaces()
 	{
 		return this._surfaces;
