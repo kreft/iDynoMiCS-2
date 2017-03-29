@@ -68,15 +68,16 @@ public class LBDEM extends ProcessManager
 	public String STIFFNESS = AspectRef.spineStiffness;
 	
 	
-	public static final int XX = 40; // number of cells in x-direction
-	public static final int YY = 40; // number of cells in y-direction
-	public static final int OBST_R = YY/10 + 1; // radius of the cylinder
-	public static final int OBST_X = XX/5; // position of the cylinder
-	public static final int OBST_Y = YY/2; // exact y-symmetry is avoided
+//	public static final int XX = 40; // number of cells in x-direction
+//	public static final int YY = 40; // number of cells in y-direction
+//	public static final int OBST_R = YY/10 + 1; // radius of the cylinder
+//	public static final int OBST_X = XX/5; // position of the cylinder
+//	public static final int OBST_Y = YY/2; // exact y-symmetry is avoided
 	
-	public static final double U_MAX = 0.02; // maximum velocity of Poiseuille inflow
-	public static final double RE = 10000; // Reynolds number
-	public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
+//	public static final double U_MAX = 0.02; // maximum velocity of Poiseuille inflow
+	public static final double RE = 1000.0; // Reynolds number
+//	public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
+	public static final double NU = 1e-6 * 1e4;
 	public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
 	
 	/* 
