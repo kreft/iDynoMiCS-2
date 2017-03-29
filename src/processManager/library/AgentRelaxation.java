@@ -255,13 +255,13 @@ public class AgentRelaxation extends ProcessManager
 						Log.out(level, "   interacting with neighbor (ID "+
 								neighbour.identity()+") , which has "+t.size()+
 								" surfaces, with pull distance "+pull);
-					this._iterator.collision(agentSurfs, t, pull);
+					this._iterator.collision(agentSurfs, t, pull, agent, neighbour);
 				}
 			/*
 			 * Boundary collisions
 			 */
 			// FIXME here we need to selectively apply surface collision methods
-			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
+			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0, agent, null);
 		}
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " Finished updating agent forces");

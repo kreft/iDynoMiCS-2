@@ -2,6 +2,7 @@ package surface;
 
 import java.util.Collection;
 
+import agent.Agent;
 import dataIO.Log;
 import dataIO.Log.Tier;
 import linearAlgebra.Vector;
@@ -112,10 +113,13 @@ public class Collision
 	 * 
 	 * @param a One surface object.
 	 * @param b Another surface object.
+	 * @param neighbour 
+	 * @param agent 
 	 * @param pullDistance The maximum distance between surfaces before they
 	 * become attractive.
 	 */
-	public void collision(Surface a, Surface b, CollisionVariables var)
+	public void collision(Surface a, Surface b, CollisionVariables var, 
+			Agent agent, Agent neighbour)
 	{
 		this.distance(a, b, var);
 		/* 
@@ -123,7 +127,7 @@ public class Collision
 		 */
 		if ( var.distance < 0.0 )
 		{
-			this._collisionFun.interactionForce( var );
+			this._collisionFun.interactionForce( var , agent , neighbour);
 	
 			if( var.flip )
 			{
@@ -147,7 +151,7 @@ public class Collision
 			if ( var.flip )
 				 Vector.reverseEquals(var.interactionVector);
 			
-			this._pullFun.interactionForce( var );
+			this._pullFun.interactionForce( var  , agent , neighbour);
 
 			if( var.flip )
 			{
@@ -168,16 +172,18 @@ public class Collision
 	 * @param allA
 	 * @param allB
 	 * @param pullDistance
+	 * @param neighbour 
+	 * @param agent 
 	 */
 	public void collision(Collection<Surface> allA, Collection<Surface> allB, 
-			double pullDistance)
+			double pullDistance, Agent agent, Agent neighbour)
 	{
 		_variables.setPullRange(pullDistance);
 		for ( Surface a : allA )
 		{
 			for ( Surface b : allB )
 			{ 
-				this.collision( a, b, this._variables );
+				this.collision( a, b, this._variables, agent, neighbour );
 			}
 		}
 	}

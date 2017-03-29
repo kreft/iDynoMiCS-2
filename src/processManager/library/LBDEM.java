@@ -79,6 +79,24 @@ public class LBDEM extends ProcessManager
 	public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
 	public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
 	
+	/* 
+	 * Lattice units conversion (wikipedia)
+	 * 
+	 * \delta_x is the basic unit for lattice spacing, so if the domain of
+	 * length L has N lattice units along its entire length, the space unit is
+	 * simply defined as \delta_x = L/N. Speeds in the Lattice Botltzmann
+	 * simulations are typically given in terms of the speed of sound. The
+	 * discrete time unit can therefore be fiven as \delta_t = \delta_x / C_s,
+	 * where the denominator C_s is the physical speed of sound (340.29 m/s).
+	 * 
+	 * For small-scale flows (such as those seen in porous media mechanics), 
+	 * operating with the true speed of sound can lead to unacceptably short 
+	 * time steps. It is therefore common to raise the lattice Mach number to 
+	 * something much larger than the real Mach number, and compensating for 
+	 * this by raising the viscosity as well in order to preserve the Reynolds 
+	 * number.
+	 */
+	
 	public static LBGK lbgk = null;
 	
 	public static D2Q9Lattice lattice = null;
@@ -279,13 +297,13 @@ public class LBDEM extends ProcessManager
 						Log.out(level, "   interacting with neighbor (ID "+
 								neighbour.identity()+") , which has "+t.size()+
 								" surfaces, with pull distance "+pull);
-					this._iterator.collision(agentSurfs, t, pull);
+					this._iterator.collision(agentSurfs, t, pull, agent, neighbour);
 				}
 			/*
 			 * Boundary collisions
 			 */
 			// FIXME here we need to selectively apply surface collision methods
-			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
+			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0, agent, null);
 		}
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " Finished updating agent forces");
@@ -317,14 +335,21 @@ public class LBDEM extends ProcessManager
 	{
 
 		int nstep	= 0;
+		int rLat	= 20;
+		int uLat	= rLat;
 		_tMech		= 0.0;
 		_dtMech 	= this._dtBase; // start with initial base timestep than adjust
 
 		// Mechanical relaxation
 		while(_tMech < _timeStepSize) 
 		{	
-			setSmoothVelocity(lattice,lbgk,slices[0]/2,slices[1]/2,0.0001,0.0001,3);
-			lattice.step();
+			if (uLat == rLat)
+			{
+				setSmoothVelocity(lattice,lbgk,slices[0]/2,slices[1]/2,0.0001,0.0001,3);
+				lattice.step();
+				uLat = 0;
+			}
+			uLat++;
 			
 			this._agents.refreshSpatialRegistry();
 			this.updateForces(this._agents);
@@ -373,7 +398,8 @@ public class LBDEM extends ProcessManager
 				for ( Point point: body.getPoints() )
 				{
 					int[] posi = Vector.floor(Vector.times(point.getPosition(),latticeMultiplier));
-					point.euStep(this._dtMech, radius, lattice.getU(posi[0], posi[1]));
+					/* Note unit conversion with lattice vector field */
+					point.euStep(this._dtMech, radius, Vector.times(lattice.getU(posi[0], posi[1]),1e3));
 				}
 			}
 			this._tMech += this._dtMech;

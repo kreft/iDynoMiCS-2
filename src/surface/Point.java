@@ -177,7 +177,7 @@ public class Point implements Copyable, Settable
 		// particle is equal to a diameter of a spherical particle that exhibits 
 		// identical properties (in this case hydrodynamic).
 		// see pdf forces in microbial systems.
-		double[] diff = Vector.add(this.dxdt(radius),Vector.times(baseU,1000.0));
+		double[] diff = Vector.add(this.dxdt(radius),baseU);
 		Vector.timesEquals(diff, dt);
 		Vector.addEquals(this._p, diff);
 		this.resetForce();
