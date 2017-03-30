@@ -44,7 +44,7 @@
 			<shape class="Rectangle">
 				<dimension name="X" isCyclic="true" targetResolution="1.0" max="32.0">
 				</dimension> 
-				<dimension name="Y" isCyclic="true" targetResolution="1.0" max="32.0">
+				<dimension name="Y" isCyclic="false" targetResolution="1.0" max="32.0">
 				</dimension> 
 			</shape>
 			<solutes>
@@ -60,7 +60,7 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
-					<spawn number="20" domain="32.0,32.0" />
+					<spawn number="40" domain="32.0,32.0" />
 				</agent>
 				<agent>
 					<aspect name="species" type="PRIMARY" class="String" value="AOB" />
@@ -68,7 +68,7 @@
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
 					<aspect name="gammaLW" 	type="PRIMARY" 		class="Double" value="17.97" />
-					<spawn number="20" domain="32.0,32.0" />
+					<spawn number="40" domain="32.0,32.0" />
 				</agent>
 			</agents>
 			<processManagers>
@@ -78,7 +78,7 @@
 				</process>
 				<process name="agentRelax" class="processManager.library.LBDEM"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.5">
-					<aspect name="dtBase" type="PRIMARY" class="Double" value="0.002" />
+					<aspect name="dtBase" type="PRIMARY" class="Double" value="0.0002" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 				</process>
 			</processManagers>

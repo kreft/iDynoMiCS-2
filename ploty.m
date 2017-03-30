@@ -1,4 +1,4 @@
-filebase = 'LBDEM/dump_130.0_';
+filebase = 'LBDEM/dump_7.0_';
 
 % Load in data
 uData = load( strcat(filebase,'u.dat'));

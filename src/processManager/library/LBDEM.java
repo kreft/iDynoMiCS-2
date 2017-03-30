@@ -2,6 +2,7 @@ package processManager.library;
 
 import java.util.List;
 import java.util.Collection;
+import java.util.LinkedList;
 
 import org.w3c.dom.Element;
 
@@ -17,11 +18,15 @@ import idynomics.AgentContainer;
 import idynomics.EnvironmentContainer;
 import lb.D2Q9;
 import lb.D2Q9Lattice;
+import lb.collision.BounceBack;
+import lb.collision.CollisionOperator;
+import lb.collision.D2Q9RegularizedBoundary;
 import lb.collision.LBGK;
 import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
+import surface.Ball;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;
@@ -67,21 +72,20 @@ public class LBDEM extends ProcessManager
 	public String GRAVITY = AspectRef.gravity_testing;
 	public String STIFFNESS = AspectRef.spineStiffness;
 	
+	public static int ox = 2;
+	public static int oy = 10;
+	public static int ry = 6;
 	
-//	public static final int XX = 40; // number of cells in x-direction
-//	public static final int YY = 40; // number of cells in y-direction
-//	public static final int OBST_R = YY/10 + 1; // radius of the cylinder
-//	public static final int OBST_X = XX/5; // position of the cylinder
-//	public static final int OBST_Y = YY/2; // exact y-symmetry is avoided
+	public static int XX = 40; // number of cells in x-direction
+	public static int YY = 40; // number of cells in y-direction
 	
-//	public static final double U_MAX = 0.02; // maximum velocity of Poiseuille inflow
-	public static final double RE = 1000.0; // Reynolds number
-//	public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
-	public static final double NU = 1e-6 * 1e4;
+	public static final double U_MAX = 1e-6; // maximum velocity of Poiseuille inflow
+	public static final double RE = 10000; // Reynolds number
+	public static final double NU = 1e-6; // 1e-6 m2/s at room temperature U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
 	public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
 	
 	/* 
-	 * Lattice units conversion (wikipedia)
+	 * Lattice units conversion (wiki)
 	 * 
 	 * \delta_x is the basic unit for lattice spacing, so if the domain of
 	 * length L has N lattice units along its entire length, the space unit is
@@ -208,14 +212,60 @@ public class LBDEM extends ProcessManager
 		// TODO super dirty for testintg
 
 		slices = Vector.floor(Vector.times(agents.getShape().getDimensionLengths(),latticeMultiplier));
+		XX = slices[0];
+		YY = slices[1];
+		
 		this.lbgk = new LBGK(D2Q9.getInstance(), OMEGA);
 		this.lattice = new D2Q9Lattice(slices[0], slices[1], lbgk);
+		
+		CollisionOperator northRegul = 
+		D2Q9RegularizedBoundary.getNorthVelocityBoundary(new double[] {0,0}, OMEGA);
+		CollisionOperator southRegul =
+			D2Q9RegularizedBoundary.getSouthVelocityBoundary(new double[] {0,0}, OMEGA);
+	
+		lattice.addRectangularBoundary(1,XX,1,1,southRegul);
+		lattice.addRectangularBoundary(1,XX,YY,YY,northRegul);
+			
+		initializeVelocity(lattice,lbgk);
+		addObstacle(lattice);
+	}
+	
+	public static void initializeVelocity(D2Q9Lattice lattice, LBGK lbgk) {
+		double rho = 1;
+		for (int x=1; x<=XX; x++) {
+			for (int y=1; y<=YY; y++) {
+				double u[] = {computePoiseuille(y), 0};
+				double normU = u[0]*u[0];
+				for (int i=0; i<9; i++) {
+					lattice.setF( x, y, lbgk.fEq( i,rho,u,normU ), i );
+				}
+			}
+		}	
+	}
+	
+	public static double computePoiseuille(int y) {
+		double realY = y-2;
+		double realYY = YY-2;
+		return 4 * U_MAX / ( realYY*realYY ) * ( realYY*realY - realY*realY );
+	}
+	
+	public static void addObstacle(D2Q9Lattice lattice) {
+		CollisionOperator bounceBack = new BounceBack(D2Q9.getInstance());
+		for (int x=1; x<=XX; x++) {
+			for (int y=1; y<=YY; y++) {
+				if ( ( x-XX/ox )*( x-XX/ox ) + ( y-YY/oy )*( y-YY/oy ) <= (YY/ry)*(YY/ry) ) {
+					lattice.setCollision(x,y,bounceBack);
+				}
+			}
+		}
 	}
 
 	/*************************************************************************
 	 * STEPPING
 	 ************************************************************************/
 	
+
+
 	/**
 	 * \brief Update forces on all agent mass points.
 	 * 
@@ -305,6 +355,17 @@ public class LBDEM extends ProcessManager
 			 */
 			// FIXME here we need to selectively apply surface collision methods
 			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0, agent, null);
+			
+			Ball object = new Ball(	new double[] {
+					((double) XX/ox) / (double) latticeMultiplier, 
+					((double) YY/oy) / (double) latticeMultiplier }, 
+					(YY/ry) / (double) latticeMultiplier);
+			
+			LinkedList<Surface> statics = new LinkedList<Surface>();
+			statics.addAll(this._shapeSurfs);
+			statics.add(object);
+			
+			this._iterator.collision(statics, agentSurfs, 0.0, agent, null);
 		}
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " Finished updating agent forces");
@@ -336,7 +397,7 @@ public class LBDEM extends ProcessManager
 	{
 
 		int nstep	= 0;
-		int rLat	= 20;
+		int rLat	= 1;
 		int uLat	= rLat;
 		_tMech		= 0.0;
 		_dtMech 	= this._dtBase; // start with initial base timestep than adjust
@@ -346,7 +407,7 @@ public class LBDEM extends ProcessManager
 		{	
 			if (uLat == rLat)
 			{
-				setSmoothVelocity(lattice,lbgk,slices[0]/2,slices[1]/2,0.0001,0.0001,3);
+//				setSmoothVelocity(lattice,lbgk,slices[0]/2,slices[1]/2,U_MAX,U_MAX,3);
 				lattice.step();
 				uLat = 0;
 			}
@@ -400,7 +461,7 @@ public class LBDEM extends ProcessManager
 				{
 					int[] posi = Vector.floor(Vector.times(point.getPosition(),latticeMultiplier));
 					/* Note unit conversion with lattice vector field */
-					point.euStep(this._dtMech, radius, Vector.times(lattice.getU(posi[0], posi[1]),1e3));
+					point.euStep(this._dtMech, radius, Vector.times(lattice.getU(posi[0], posi[1]),6e7)); // convert to µm/min
 				}
 			}
 			this._tMech += this._dtMech;
