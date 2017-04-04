@@ -21,7 +21,8 @@ public class GLUtil {
 	}
 	
 	public static double[] searchClosestCyclicShadowPoint(Shape shape,
-			double[] posA, double[] posB){
+			double[] posA, double[] posB)
+	{
 		// FIXME think of something more robust
 		/*
 		 * find the closest distance between the two mass points of the rod

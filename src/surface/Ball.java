@@ -3,6 +3,7 @@ package surface;
 import dataIO.ObjectFactory;
 import generalInterfaces.Copyable;
 import generalInterfaces.HasBoundingBox;
+import shape.Shape;
 
 /**
  * \brief TODO
@@ -113,12 +114,12 @@ public class Ball extends Surface implements HasBoundingBox, Copyable
 	
 	protected BoundingBox boundingBox = new BoundingBox();
 	
-	public BoundingBox boundingBox(double margin)
+	public BoundingBox boundingBox(double margin, Shape shape)
 	{
 		return boundingBox.get(this.getCenter(), this._radius, margin);
 	}
 
-	public BoundingBox boundingBox()
+	public BoundingBox boundingBox(Shape shape)
 	{
 		return boundingBox.get(this.getCenter(), this._radius);
 	}

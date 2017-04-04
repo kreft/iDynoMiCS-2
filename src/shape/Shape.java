@@ -654,6 +654,40 @@ public abstract class Shape implements
 		return out;
 	}
 	
+	public double[] getNearestShadowPoint(double[] dynamicPos, double[] staticPos)
+	{
+		// FIXME think of something more robust
+		/*
+		 * find the closest distance between the two mass points of the rod
+		 * agent and assumes this is the correct length, preventing rods being
+		 * stretched out over the entire domain
+		 * 
+		 * Here we assume that posB will stay fixed, so we are looking for a
+		 * candidate position for the "A" end of the cylinder.
+		 */
+		List<double[]> cyclicPoints = this.getCyclicPoints(dynamicPos);
+		double[] c = cyclicPoints.get(0);
+
+		/* distance between the two mass points */
+		double dist = Vector.distanceEuclid(staticPos, c);
+		double dDist;
+		/* 
+		 * find the closest 'shadow' point, use the original point if all
+		 * alternative point are further.
+		 */
+		for ( double[] d : cyclicPoints )
+		{
+			dDist = Vector.distanceEuclid( staticPos, d);
+			if ( dDist < dist)
+			{
+				c = d;
+				dist = dDist;
+			}
+		}
+
+		return c;
+	}
+	
 	/**
 	 * Considering periodic boundaries return the mid-point on the shortest
 	 * distance between two points, even if the shortest distance passes trough

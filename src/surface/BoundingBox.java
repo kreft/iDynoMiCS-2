@@ -46,7 +46,7 @@ public class BoundingBox
 	public BoundingBox get(double[][] p, double radius, double margin)
 	{
 		double size = radius + margin;
-		this._higher = upper(p,size);
+		this._higher = upper(p, size);
 		this._lower = lower(p, size);
 		this._dimensions = dimensions(p, size);
 		return this;

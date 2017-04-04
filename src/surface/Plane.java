@@ -2,6 +2,7 @@ package surface;
 
 import generalInterfaces.HasBoundingBox;
 import linearAlgebra.Vector;
+import shape.Shape;
 
 /**
  * The constant-normal form of the (infinite) plane
@@ -75,13 +76,13 @@ public class Plane extends Surface implements HasBoundingBox
 	protected BoundingBox boundingBox = new BoundingBox();
 	
 	@Override
-	public BoundingBox boundingBox() {
+	public BoundingBox boundingBox(Shape shape) {
 
-		return this.boundingBox(0.0);
+		return this.boundingBox(0.0, shape);
 	}
 
 	@Override
-	public BoundingBox boundingBox(double margin) {
+	public BoundingBox boundingBox(double margin, Shape shape) {
 		double[] lower = new double[normal.length];
 		double[] upper = new double[normal.length];
 		int n = 0;
