@@ -404,9 +404,7 @@ public class Collision
 	private void setPeriodicDistanceVector(double[] a, double[] b, 
 			CollisionVariables var)
 	{
-//		var.interactionVector = Vector.minus(a,b);
-		//FIXME testing
-		var.interactionVector = this._shape.getMinDifferenceVector(a, b);
+		this._shape.getMinDifferenceVectorTo(var.interactionVector, a, b);
 	}
 	
 	/**
@@ -418,9 +416,26 @@ public class Collision
 	 * @param b Another point in space.
 	 * @return The minmum distance between them.
 	 */
+	@Deprecated 
 	private double[] minDistance(double[] a, double[] b)
 	{
 		return this._shape.getMinDifferenceVector(a,b);
+	}
+	
+	/**
+	 * \brief Calculate the minimum distance between two points in space and
+	 * assign it to the var.interactionVector (reduce memory usage)
+	 * 
+	 * <p>Neither vector is changed by this method.</p>
+	 * 
+	 * @param a One point in space.
+	 * @param b Another point in space.
+	 * @return The minmum distance between them.
+	 */
+	private double[] minDistance(double[] a, double[] b, CollisionVariables var)
+	{
+		this._shape.getMinDifferenceVectorTo(var.interactionVector, a,b);
+		return var.interactionVector;
 	}
 	
 	/**
@@ -678,11 +693,11 @@ public class Collision
 			double[] q0, double[] q1, CollisionVariables var) 
 	{		
 		/* direction vector between segment tips */
-		double[] r	= this.minDistance(p0, q0);
+		double[] r	= this.minDistance(p0, q0, var).clone();
 		/* direction vector of first segment */
-		double[] d1	= this.minDistance(p1, p0);
+		double[] d1	= this.minDistance(p1, p0, var).clone();
 		/* direction vector of second segement */
-		double[] d2	= this.minDistance(q1, q0);
+		double[] d2	= this.minDistance(q1, q0, var).clone();
 		/* squared length of first segment */
 		double a 	= Vector.normSquare(d1);
 		/* squared length of second segment */

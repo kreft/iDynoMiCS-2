@@ -216,7 +216,13 @@ public class AgentRelaxation extends ProcessManager
 					/*
 					 * Hooke's law: spring stiffness * displacement
 					 */
-					double f 		= stiffness * ( dn - l );
+//					double f 		= stiffness * ( dn - l );
+//					double[] fV		= Vector.times(diff, f);
+					
+					/*
+					 * two component scaling
+					 */
+					double f 		= stiffness * ( (dn - l) + Math.signum(dn - l) * (dn - l) * (dn - l) * 1e2 );
 					double[] fV		= Vector.times(diff, f);
 				
 					/*

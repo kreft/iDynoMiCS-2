@@ -14,6 +14,7 @@ import linearAlgebra.Matrix;
 import linearAlgebra.Vector;
 import referenceLibrary.XmlRef;
 import settable.Settable;
+import shape.Shape;
 import surface.*;
 import utility.Helper;
 
@@ -232,11 +233,11 @@ public class Body implements Copyable, Instantiable
 		return this._surfaces;
 	}
 
-	public List<BoundingBox> getBoxes(double margin)
+	public List<BoundingBox> getBoxes(double margin, Shape shape)
 	{
 		List<BoundingBox> boxes = new LinkedList<BoundingBox>();
 		for ( Surface s : this._surfaces )
-			boxes.add( ((HasBoundingBox) s).boundingBox(margin) );
+			boxes.add( ((HasBoundingBox) s).boundingBox(margin, shape) );
 		return boxes;
 	}
 

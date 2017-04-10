@@ -144,7 +144,7 @@ public class BiofilmBoundaryLayer extends WellMixedBoundary
 			 * Find all nearby agents. Set the grid to zero if an agent is
 			 * within the grid's sphere
 			 */
-			neighbors = this._agents.treeSearch(this._gridSphere.boundingBox());
+			neighbors = this._agents.treeSearch(this._gridSphere.boundingBox(this._agents.getShape()));
 			for ( Agent a : neighbors )
 				for (Surface s : (List<Surface>) a.get(AspectRef.surfaceList))
 					if ( this._gridSphere.distanceTo(s) < 0.0 )

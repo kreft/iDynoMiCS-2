@@ -2,6 +2,7 @@ package surface;
 
 import java.util.HashMap;
 import generalInterfaces.HasBoundingBox;
+import shape.Shape;
 
 /**
  * \brief TODO
@@ -104,10 +105,10 @@ public abstract class Surface
 	 * @param margin
 	 * @return
 	 */
-	public BoundingBox getBox(double margin)
+	public BoundingBox getBox(double margin, Shape shape)
 	{
 		if (this instanceof HasBoundingBox)
-			return ((HasBoundingBox) this).boundingBox(margin) ;
+			return ((HasBoundingBox) this).boundingBox(margin, shape) ;
 		return null;
 	}
 }
