@@ -167,6 +167,7 @@ public class Point implements Copyable, Settable
 	 * Currently the viscosity of water is assumed.
 	 * 
 	 * @param dt Current timestep of the mechanical relaxation.
+	 * @Param baseU background velocity of susspension
 	 * @param radius Radius of a sphere (in units of micrometer).
 	 */
 	public void euStep(double dt, double radius, double[] baseU) 
@@ -177,7 +178,8 @@ public class Point implements Copyable, Settable
 		// particle is equal to a diameter of a spherical particle that exhibits 
 		// identical properties (in this case hydrodynamic).
 		// see pdf forces in microbial systems.
-		double[] diff = Vector.add(this.dxdt(radius),baseU);
+		double[] diff = (baseU != null ? Vector.add(this.dxdt(radius),baseU) : 
+			this.dxdt(radius));
 		Vector.timesEquals(diff, dt);
 		Vector.addEquals(this._p, diff);
 		this.resetForce();

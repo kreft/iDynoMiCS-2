@@ -1,12 +1,9 @@
-filebase = 'LBDEM/dump_7.0_';
-
 % Load in data
-uData = load( strcat(filebase,'u.dat'));
-rData = load( strcat(filebase,'rho.dat'));
-xData = load( strcat(filebase,'x.dat'));
-yData = load( strcat(filebase,'y.dat'));
+uData = load('PeriodicTest_u.dat');
+rData = load('PeriodicTest_rho.dat');
+xData = load('PeriodicTest_x.dat');
+yData = load('PeriodicTest_y.dat');
 
-%%speed
 figure
 hm = HeatMap(uData,'colormap',jet);
 % close anoying premature heatmap (and all other figures)
@@ -18,12 +15,6 @@ colorbar('Peer', ax);
 % Adjust the color limits
 caxis(ax, [0 max(max(uData))]); 
 
-%%direction
-bm = HeatMap(xData,'colormap',jet);
-bx = bm.plot;
-colorbar('Peer', bx); 
-caxis(bx, [min(min(xData)) max(max(xData))]); 
- 
 figure
 A = size(yData);
 for s = 1:2:A(1)
@@ -31,6 +22,7 @@ for s = 1:2:A(1)
         streamline(yData,xData,s,t)
     end
 end
- 
+
 figure
 quiver(yData,xData)
+

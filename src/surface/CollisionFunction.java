@@ -101,7 +101,7 @@ public interface CollisionFunction extends Instantiable
 				 * Otherwise, return a zero vector. A small distance is allowed
 				 * to prevent objects bouncing in equilibrium 
 				 */
-				if ( var.distance > 0.001 && var.distance < var.pullRange ) 
+				if ( var.distance > .157e-3 && var.distance < var.pullRange ) 
 				{
 					/* note converting from µm to si */
 					agent.set("currentDistance", var.distance * 1e-6);
@@ -132,7 +132,7 @@ public interface CollisionFunction extends Instantiable
 		{
 			this._forceScalar = Double.valueOf((String) Helper.setIfNone(
 					XmlHandler.gatherAttribute(xmlElement, XmlRef.forceScalar), 
-					"0.06" ) );
+					"0.1" ) );
 			Log.out(Tier.BULK, "initiating DefaultPullFunction");
 		}
 		

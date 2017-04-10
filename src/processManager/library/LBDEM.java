@@ -79,8 +79,8 @@ public class LBDEM extends ProcessManager
 	public static int XX = 40; // number of cells in x-direction
 	public static int YY = 40; // number of cells in y-direction
 	
-	public static final double U_MAX = 1e-6; // maximum velocity of Poiseuille inflow
-	public static final double RE = 10000; // Reynolds number
+	public static final double U_MAX = 0.1e-6; // maximum velocity of Poiseuille inflow = 1 µm/s
+	public static final double RE = 100; // Reynolds number
 	public static final double NU = 1e-6; // 1e-6 m2/s at room temperature U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
 	public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
 	
