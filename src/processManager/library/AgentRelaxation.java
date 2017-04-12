@@ -2,6 +2,7 @@ package processManager.library;
 
 import java.util.List;
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.w3c.dom.Element;
 
@@ -9,6 +10,7 @@ import agent.Agent;
 import agent.Body;
 import dataIO.Log;
 import dataIO.Log.Tier;
+import expression.Expression;
 
 import static dataIO.Log.Tier.*;
 import idynomics.AgentContainer;
@@ -61,6 +63,8 @@ public class AgentRelaxation extends ProcessManager
 	public String LOW_STRESS_SKIP = AspectRef.stressThreshold;
 	public String GRAVITY = AspectRef.gravity_testing;
 	public String STIFFNESS = AspectRef.spineStiffness;
+	
+	public String SPINE_FUNCTION = AspectRef.genreicSpineFunction;
 	
 	
 	/**
@@ -142,6 +146,11 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private Boolean _gravity;
 	
+	/**
+	 * 
+	 */
+	private Expression _genericSpineFunction = null;
+	
 	/*************************************************************************
 	 * CONSTRUCTORS
 	 ************************************************************************/
@@ -167,6 +176,9 @@ public class AgentRelaxation extends ProcessManager
 		this._iterator = this._shape.getCollision();
 		this._stressThreshold = Helper.setIfNone( this.getDouble(LOW_STRESS_SKIP), 0.0 );	
 		this._gravity = Helper.setIfNone( this.getBoolean(GRAVITY), false);
+		this._genericSpineFunction = (Expression) Helper.setIfNone(
+				this.getValue(SPINE_FUNCTION), 
+				new Expression("stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )"));
 	}
 
 	/*************************************************************************
@@ -219,11 +231,17 @@ public class AgentRelaxation extends ProcessManager
 //					double f 		= stiffness * ( dn - l );
 //					double[] fV		= Vector.times(diff, f);
 					
+					
+					
 					/*
 					 * two component scaling
 					 */
-					double f 		= stiffness * ( (dn - l) + Math.signum(dn - l) * (dn - l) * (dn - l) * 1e2 );
-					double[] fV		= Vector.times(diff, f);
+					HashMap<String, Double> springVars = new HashMap<String,Double>();
+					springVars.put("stiffness", stiffness);
+					springVars.put("dh", dn-l);
+					double fs		= this._genericSpineFunction.getValue(springVars);
+//					double f 		= stiffness * ( (dn - l) + Math.signum(dn - l) * (dn - l) * (dn - l) * 1e2 );
+					double[] fV		= Vector.times(diff, fs);
 				
 					/*
 					 * apply forces
@@ -265,9 +283,30 @@ public class AgentRelaxation extends ProcessManager
 				}
 			/*
 			 * Boundary collisions
+			 * 
+			 * TODO friction
 			 */
 			// FIXME here we need to selectively apply surface collision methods
 			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
+			
+			/*
+			 * NOTE: testing purposes only
+			 * graf 9.81 m/s2 ~ 35e9 µm/min2
+			 * 
+			 * density difference 1 - ( ρ solute / ρ microbe )
+			 * 
+			 * TODO sort out forces
+			 */
+			if (this._gravity)
+			{
+				/* note should be mass per point */
+				double fg = agent.getDouble("mass") * 1e-12 * 35.316e9;
+				double[] fgV		= Vector.times(new double[]{ 0, 0, -1 }, fg);
+				
+				body = (Body) agent.get(AspectRef.agentBody);
+				for ( Point p : body.getPoints() )
+					Vector.addEquals( p.getForce(), fgV ) ;
+			}
 		}
 		if ( Log.shouldWrite(level) )
 			Log.out(level, " Finished updating agent forces");

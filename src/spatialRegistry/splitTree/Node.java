@@ -160,7 +160,7 @@ public class Node<T> extends Area
 			{
 				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
 				{
-					if ( ! a.test(test) )  //FIXME for some reason this test fails some times but only with rods??
+					if ( ! a.test(test) )
 					{
 						out.add( (Entry) a);
 						break;
@@ -175,7 +175,7 @@ public class Node<T> extends Area
 			{
 				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
 				{
-					if ( ! a.test(test) ) //FIXME for some reason this test fails some times but only with rods??
+					if ( ! a.test(test) )
 					{
 						if ( ! out.contains(a) )
 							out.add( (Entry) a);

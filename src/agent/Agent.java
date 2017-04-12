@@ -82,14 +82,15 @@ public class Agent implements AspectInterface, Settable, Instantiable
 						temp.item(i), XmlRef.numberOfAgents, this.defaultXmlTag()));
 				double[] domain = Vector.dblFromString(XmlHandler.
 						obtainAttribute(temp.item(i), XmlRef.spawnDomain, this.defaultXmlTag()));
+				int points = Integer.valueOf(XmlHandler.obtainAttribute(temp.item(i), XmlRef.points, this.defaultXmlTag()));
 				for(int j = 0; j < n-1; j++)
 				{
-					Agent extra = new Agent(xmlNode, randBody(domain));
+					Agent extra = new Agent(xmlNode, randBody(domain, points));
 					extra._compartment = comp;
 					extra.registerBirth();
 				}
 				this.loadAspects(xmlNode);
-				this.set(AspectRef.agentBody, randBody(domain));
+				this.set(AspectRef.agentBody, randBody(domain, points));
 			}
 		}
 		else
