@@ -19,6 +19,8 @@ import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
+import spatialRegistry.splitTree.Node;
+import spatialRegistry.splitTree.SplitTree;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;
@@ -254,18 +256,18 @@ public class AgentRelaxation extends ProcessManager
 			
 			double searchDist = (agent.isAspect(SEARCH_DIST) ?
 					agent.getDouble(SEARCH_DIST) : 0.0);
-			if ( Log.shouldWrite(level) )
-			{
-				Log.out(level, "  Agent (ID "+agent.identity()+") has "+
-						agentSurfs.size()+" surfaces, search dist "+searchDist);
-			}
+			
+//			SplitTree tree = (SplitTree) agents.getSpatialTree();
+//			if (tree.node.leafless())
+//			{
+//				// TODO do your thing
+//			}
+			
 			/*
 			 * Perform neighborhood search and perform collision detection and
 			 * response. 
 			 */
 			Collection<Agent> nhbs = agents.treeSearch(agent, searchDist);
-			if ( Log.shouldWrite(level) )
-				Log.out(level, "  "+nhbs.size()+" neighbors found");
 			for ( Agent neighbour: nhbs )
 				if ( agent.identity() > neighbour.identity() )
 				{
@@ -275,10 +277,6 @@ public class AgentRelaxation extends ProcessManager
 						pull = 0.0;
 					body = ((Body) neighbour.get(BODY));
 					List<Surface> t = body.getSurfaces();
-					if ( Log.shouldWrite(level) )
-						Log.out(level, "   interacting with neighbor (ID "+
-								neighbour.identity()+") , which has "+t.size()+
-								" surfaces, with pull distance "+pull);
 					this._iterator.collision(agentSurfs, t, pull);
 				}
 			/*
@@ -308,8 +306,6 @@ public class AgentRelaxation extends ProcessManager
 					Vector.addEquals( p.getForce(), fgV ) ;
 			}
 		}
-		if ( Log.shouldWrite(level) )
-			Log.out(level, " Finished updating agent forces");
 	}
 
 

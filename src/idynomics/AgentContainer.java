@@ -136,6 +136,15 @@ public class AgentContainer implements Settable
 	}
 	
 	/**
+	 * testing
+	 * @return
+	 */
+	public SplitTree getSpatialTree() 
+	{
+		return (SplitTree) this._agentTree;
+	}
+	
+	/**
 	 * TODO get spatial registry paradigm (like get shape)
 	 */
 

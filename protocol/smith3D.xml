@@ -56,7 +56,7 @@
 			<reactions>
 				<reaction name="slowInflow">
 					<expression value="1.0 * inflow">
-						<constant name="inflow" value="0.04" />
+						<constant name="inflow" value="4.0" />
 					</expression>
 					<stoichiometric component="solute1" coefficient="1.0" />
 				</reaction>
@@ -113,7 +113,7 @@
 				<process name="agentRelax" class="AgentRelaxation"  priority="-2"
 					firstStep="0.0"  timerStepSize="0.1">
 					<aspect name="maxMovement" type="PRIMARY" class="Double" value="0.05" />
-					<aapwxr name="stressThreshold" type="PRIMARY" class="Double" value="1000.0" />
+					<aapwxr name="stressThreshold" type="PRIMARY" class="Double" value="10000.0" />
 					<aspect name="relaxationMethod" type="PRIMARY" class="String" value="EULER" />
 					<aspect name="gravity_testing" class="Boolean" value="true" />
 				</process>
