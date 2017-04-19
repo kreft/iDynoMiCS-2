@@ -87,22 +87,6 @@ public class AgentRelaxation extends ProcessManager
 		 */
 		HEUN, 
 	}
-
-	/**
-	 * TODO
-	 */
-	private double _dtMech;
-	
-	/**
-	 * TODO
-	 */
-	private double _vSquare;
-	
-	/**
-	 * TODO
-	 */
-	private double _tMech;
-	
 	/**
 	 * Relaxation parameters (overwritten by init)
 	 */
@@ -111,7 +95,7 @@ public class AgentRelaxation extends ProcessManager
 	/**
 	 * TODO
 	 */
-	private double _maxMovement;
+	private double _maxMove;
 	
 	/**
 	 * TODO
@@ -151,7 +135,8 @@ public class AgentRelaxation extends ProcessManager
 	/**
 	 * 
 	 */
-	private Expression _genericSpineFunction = null;
+	private Expression _spineFunction = 
+			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
 	
 	/*************************************************************************
 	 * CONSTRUCTORS
@@ -163,24 +148,33 @@ public class AgentRelaxation extends ProcessManager
 	{
 		super.init(xmlElem, environment, agents, compartmentName);
 		
-		/*
-		 * Obtaining relaxation parameters.
-		 */
+		/* Obtaining relaxation parameters. 
+		 * Base time step */
 		this._dtBase = Helper.setIfNone( this.getDouble(BASE_DT), 0.0003 );	
-		this._maxMovement = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 0.01 );	
+		/* Maximum displacement per step, set default if none */
+		this._maxMove = Helper.setIfNone( this.getDouble(MAX_MOVEMENT), 0.01 );	
+		/* Set relaxation method, set default if none */
 		this._method = Method.valueOf( Helper.setIfNone(
 				this.getString(RELAXATION_METHOD), Method.EULER.toString() ) );
+		/* Time leaping */
 		this._timeLeap	= true;
-		
+		/* Shape of associated compartment */
 		this._shape = agents.getShape();
-		// FIXME discovered circle returns a rod type shape (2 points) instead of circle (2d sphere, 1 point)
+		/* Surface objects of compartment, FIXME discovered circle returns a 
+		 * rod type shape (2 points) instead of circle (2d sphere, 1 point). */
 		this._shapeSurfs  = this._shape.getSurfaces();
+		/* Collision iterator */
 		this._iterator = this._shape.getCollision();
-		this._stressThreshold = Helper.setIfNone( this.getDouble(LOW_STRESS_SKIP), 0.0 );	
+		/* Stress threshold, used to skip remaining steps on very low stress,
+		 * 0.0 by default */
+		this._stressThreshold = Helper.setIfNone( 
+				this.getDouble(LOW_STRESS_SKIP), 0.0 );
+		/* Include gravity / buoyancy ( experimental ) */
 		this._gravity = Helper.setIfNone( this.getBoolean(GRAVITY), false);
-		this._genericSpineFunction = (Expression) Helper.setIfNone(
-				this.getValue(SPINE_FUNCTION), 
-				new Expression("stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )"));
+		/* Set default spine function for rod type agents, this function is
+		 * used if it is not overwritten by the agent */
+		if ( ! Helper.isNone( this.getValue(SPINE_FUNCTION) ) )
+			this._spineFunction = (Expression) this.getValue(SPINE_FUNCTION);
 	}
 
 	/*************************************************************************
@@ -195,9 +189,6 @@ public class AgentRelaxation extends ProcessManager
 	 */
 	private void updateForces(AgentContainer agents) 
 	{
-		Tier level = BULK;
-		if ( Log.shouldWrite(level) )
-			Log.out(level, "Updating agent forces");
 		/* Calculate forces. */
 		for ( Agent agent: agents.getAllLocatedAgents() ) 
 		{
@@ -216,16 +207,17 @@ public class AgentRelaxation extends ProcessManager
 					 * cylinder length = rest length
 					 */
 					double l = ((Rod) s)._length;
-					double stiffness = Helper.setIfNone(agent.getDouble(STIFFNESS), 10.0);
+					double stiffness = Helper.setIfNone(
+							agent.getDouble(STIFFNESS), 10.0);
 
 					/*
 					 * calculate current length of spine spring
 					 */
-					Point a 		= ((Rod) s)._points[0];
-					Point b 		= ((Rod) s)._points[1];
-					double[] diff 	= this._shape.getMinDifferenceVector(
+					Point a = ((Rod) s)._points[0];
+					Point b = ((Rod) s)._points[1];
+					double[] diff = this._shape.getMinDifferenceVector(
 							a.getPosition(), b.getPosition() );
-					double dn 		= Vector.normEuclid(diff);
+					double dn = Vector.normEuclid(diff);
 					
 					/*
 					 * Hooke's law: spring stiffness * displacement
@@ -241,7 +233,7 @@ public class AgentRelaxation extends ProcessManager
 					HashMap<String, Double> springVars = new HashMap<String,Double>();
 					springVars.put("stiffness", stiffness);
 					springVars.put("dh", dn-l);
-					double fs		= this._genericSpineFunction.getValue(springVars);
+					double fs		= this._spineFunction.getValue(springVars);
 //					double f 		= stiffness * ( (dn - l) + Math.signum(dn - l) * (dn - l) * (dn - l) * 1e2 );
 					double[] fV		= Vector.times(diff, fs);
 				
@@ -256,12 +248,6 @@ public class AgentRelaxation extends ProcessManager
 			
 			double searchDist = (agent.isAspect(SEARCH_DIST) ?
 					agent.getDouble(SEARCH_DIST) : 0.0);
-			
-//			SplitTree tree = (SplitTree) agents.getSpatialTree();
-//			if (tree.node.leafless())
-//			{
-//				// TODO do your thing
-//			}
 			
 			/*
 			 * Perform neighborhood search and perform collision detection and
@@ -293,7 +279,7 @@ public class AgentRelaxation extends ProcessManager
 			 * 
 			 * density difference 1 - ( ρ solute / ρ microbe )
 			 * 
-			 * TODO sort out forces
+			 * TODO sort out the forces for RC
 			 */
 			if (this._gravity)
 			{
@@ -312,125 +298,130 @@ public class AgentRelaxation extends ProcessManager
 	@Override
 	protected void internalStep()
 	{
+		/* current step of mechanical relaxation */
+		int nstep = 0;
+		/* current time in mechanical relaxation. */
+		double tMech = 0.0;
+		/* start with initial base time step than adjust */
+		double dtMech = this._dtBase; 
+		/* agent radius */
+		double radius;
+		/* highest velocity in the system squared */
+		double vs;
+		/* All located agents in this compartment */
+		Collection<Agent> allAgents = this._agents.getAllLocatedAgents();
 
-		int nstep	= 0;
-		_tMech		= 0.0;
-		_dtMech 	= this._dtBase; // start with initial base timestep than adjust
-
-		// if higher order ODE solvers are used we need additional space to write.
-		switch (_method)
+		/* if higher order ODE solvers are used we need additional space to 
+		 * write. */
+		switch ( _method )
 		{
 		case HEUN :
-			for(Agent agent: this._agents.getAllLocatedAgents())
-				for (Point point: ((Body) agent.get(BODY)).getPoints())
+			for( Agent agent : allAgents )
+				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
 					point.initialiseC(2);
-			break;
 		default:
-			break;
 		}
 
-		// Mechanical relaxation
-		while(_tMech < _timeStepSize) 
+		/* Mechanical relaxation */
+		while( tMech < _timeStepSize ) 
 		{	
 			this._agents.refreshSpatialRegistry();
-			this.updateForces(this._agents);
+			this.updateForces( this._agents );
 
-			/// obtain current highest particle velocity
-			_vSquare = 0.0;
-			for(Agent agent: this._agents.getAllLocatedAgents())
+			/* obtain current highest particle velocity */
+			vs = 0.0;
+			for(Agent agent : allAgents )
 			{
-				for (Point point: ((Body) agent.get(BODY)).getPoints())
-					if ( Vector.normSquare(point.dxdt((double) agent.get(RADIUS))) > _vSquare )
-						_vSquare = Vector.normSquare(point.dxdt((double) agent.get(RADIUS)));			
+				radius = agent.getDouble(RADIUS);
+				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+					if ( Vector.normSquare( point.dxdt( radius ) ) > vs )
+						vs = Vector.normSquare( point.dxdt( radius ) );		
 			}
 
-			// FIXME this assumes linear force scaling improve..
-			_vSquare = _vSquare * Math.pow(_iterator.getMaxForceScalar(), 2.0);
+			/* FIXME this assumes linear force scaling improve.. */
+			vs = vs * Math.pow( _iterator.getMaxForceScalar(), 2.0 );
 			
-			if (_vSquare < _stressThreshold )
-			{
+			/* Stress Threshold allows finishing relaxation early if the
+			 * mechanical stress is low. Default value is 0.0 -> only skip if
+			 * there is no mechanical stress in the system at all. */
+			if ( vs < _stressThreshold )
 				break;
-			}
 
-			for(Agent agent: this._agents.getAllLocatedAgents())
-			{
-				if (agent.isAspect(STOCHASTIC_DIRECTION))
+			/* When stochastic movement is enabled update vs to represent the
+			 * highest velocity object in the system accounting for stochastic
+			 * movement to. */
+			for( Agent agent : allAgents )
+				if ( agent.isAspect(STOCHASTIC_DIRECTION) )
 				{
 					double[] move = (double[]) agent.get(STOCHASTIC_DIRECTION);
-					_vSquare = Math.max(Vector.dotProduct(move,move), _vSquare);
+					vs = Math.max( Vector.dotProduct( move, move ), vs );
 				}
-			}
-			// time Leaping set the time step to match a max traveling distance
-			// divined by 'maxMovement', for a 'fast' run.
+			
+			/* time Leaping set the time step to match a max traveling distance
+			/ divined by 'maxMovement', for a 'fast' run. */
 			if ( this._timeLeap ) 
-				this._dtMech = this._maxMovement / 
-						( Math.sqrt( this._vSquare ) + 0.001 );
+				dtMech = this._maxMove / ( Math.sqrt( vs ) + 0.001 );
 
-			// prevent to relaxing longer than the global _timeStepSize
-			if ( this._dtMech > this._timeStepSize - this._tMech )
-				this._dtMech = this._timeStepSize - this._tMech;
+			/* prevent to relaxing longer than the global _timeStepSize */
+			if (dtMech > this._timeStepSize - tMech )
+				dtMech = this._timeStepSize - tMech;
 
-			for(Agent agent: this._agents.getAllLocatedAgents())
-			{
-				if (agent.isAspect(STOCHASTIC_STEP))
-					agent.event(STOCHASTIC_MOVE, _dtMech);
-			}
+			/* If stochastic movement is enabled for the agent, update the agent
+			 * perform the stochastic movement.  */
+			for(Agent agent : allAgents )
+				if ( agent.isAspect(STOCHASTIC_STEP) )
+					agent.event(STOCHASTIC_MOVE, dtMech);
 
-			// perform the step using (method)
+			/* perform the step using (method) */
 			switch ( this._method )
 			{
 			case SHOVE :
 			{
-				for ( Agent agent: this._agents.getAllLocatedAgents() )
-				{
-					Body body = ((Body) agent.get(BODY));
-					double radius = agent.getDouble(RADIUS);
-					for ( Point point: body.getPoints() )
-						point.shove(this._dtMech, radius);
-				}
+				for ( Agent agent : allAgents )
+					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+						point.shove( dtMech, agent.getDouble(RADIUS) );
 				/* Continue until nearly all overlap is resolved. */
-				if ( this._vSquare < 0.001 )
-					this._tMech = this._timeStepSize;
+				if ( vs < 0.001 )
+					tMech = this._timeStepSize;
 				break;
 			}
 			case EULER :
 			{
-				/// Euler's method
-				for ( Agent agent: this._agents.getAllLocatedAgents() )
-				{
-					Body body = ((Body) agent.get(BODY));
-					double radius = agent.getDouble(RADIUS);
-					for ( Point point: body.getPoints() )
-						point.euStep(this._dtMech, radius);
-				}
-				this._tMech += this._dtMech;
+				for ( Agent agent : allAgents )
+					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+						point.euStep( dtMech, agent.getDouble(RADIUS) );
+				tMech += dtMech;
 				break;
 			}
-				// NOTE : higher order ODE solvers don't like time Leaping.. be careful.
+				/* NOTE : higher order ODE solvers don't like time Leaping.. 
+				 * be careful.  */
 			case HEUN :
-				/// Heun's method
-				for(Agent agent: this._agents.getAllLocatedAgents())
-					for (Point point: ((Body) agent.get(BODY)).getPoints())
-						point.heun1(_dtMech, (double) agent.get(RADIUS));
-				this.updateForces(this._agents);
-				for(Agent agent: this._agents.getAllLocatedAgents())
-					for (Point point: ((Body) agent.get(BODY)).getPoints())
-						point.heun2(_dtMech, (double) agent.get(RADIUS));
-				// Set time step
-				_tMech += _dtMech;
+				for(Agent agent : allAgents )
+					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+						point.heun1( dtMech, agent.getDouble(RADIUS) );
+				this.updateForces( this._agents );
+				for(Agent agent : allAgents )
+					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+						point.heun2( dtMech, agent.getDouble(RADIUS) );
+				tMech += dtMech;
 				break;
 			}
 
-			for(Agent agent: this._agents.getAllLocatedAgents())
-				for (Point point: ((Body) agent.get(BODY)).getPoints())
-				{
-					this._agents.getShape().applyBoundaries(point.getPosition());
-				}
+			/* Note that with proper boundary surfaces for any compartment
+			 * shape this should never yield any difference, it is here as a
+			 * fail safe */
+			for(Agent agent : allAgents)
+				for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
+					this._shape.applyBoundaries( point.getPosition() );
+			
 			nstep++;
 		}
+		
+		/* Leave with a clean spatial tree. */
 		this._agents.refreshSpatialRegistry();
-		Log.out(Tier.DEBUG,
-				"Relaxed "+this._agents.getNumAllAgents()+" agents after "+
-						nstep+" iterations");
+		
+		/* Notify user */
+		Log.out( Tier.DEBUG, "Relaxed " + this._agents.getNumAllAgents() + 
+				" agents after " + nstep + " iterations" );
 	}
 }
