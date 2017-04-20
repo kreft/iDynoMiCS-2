@@ -13,6 +13,11 @@ import shape.Dimension.DimName;
  */
 public class SolidBoundary extends SpatialBoundary
 {
+	public SolidBoundary()
+	{
+		super();
+	}
+	
 	/**
 	 * \brief Construct a solid boundary by giving it the information it
 	 * needs about its location.
