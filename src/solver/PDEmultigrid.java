@@ -247,8 +247,6 @@ public class PDEmultigrid extends PDEsolver
 	
 	private boolean doVCycle(Collection<SpatialGrid> variables, int numLayers)
 	{
-		Tier tickTockTierLevel = Tier.NORMAL;
-		long tick, tock;
 		MultigridLayer variableMultigrid;
 		SpatialGrid currentLayer, currentCommon;
 		double truncationError;
@@ -256,32 +254,22 @@ public class PDEmultigrid extends PDEsolver
 		/* Downward stroke of V. */
 		while ( this._commonMultigrid.hasCoarser() && layerCounter < numLayers )
 		{
-			if ( Log.shouldWrite(tickTockTierLevel) )
-				Log.out(tickTockTierLevel, "DOWNWARD "+layerCounter);
 			layerCounter++;
 			/* 
 			 * Smooth the current layer for a set number of iterations.
 			 */
-			tick = System.currentTimeMillis();
 			this.relaxAll(this._numPreSteps);
-			tock = System.currentTimeMillis();
-			if ( Log.shouldWrite(tickTockTierLevel) )
-				Log.out(tickTockTierLevel, (tock - tick)+" mS to pre-smooth");
 			/*
 			 * Update the local truncation error using current CONCN values.
 			 * In Numerical Recipes in C, this is is τ (tau) as defined in
 			 * Equation (19.6.30).
 			 */
-			tick = System.currentTimeMillis();
 			currentCommon = this._commonMultigrid.getGrid();
 			for ( SpatialGrid variable : variables )
 			{
 				currentLayer = this.getMultigrid(variable).getGrid();
 				this.calculateResidual(currentLayer, currentCommon, LOCALERROR);
 			}
-			tock = System.currentTimeMillis();
-			if ( Log.shouldWrite(tickTockTierLevel) )
-				Log.out(tickTockTierLevel, (tock - tick)+" mS for residuals");
 			/*
 			 * Find the coarser layer for the common grid and all variables.
 			 */
@@ -296,7 +284,6 @@ public class PDEmultigrid extends PDEsolver
 			 * Restrict the concentration and local truncation errors from the
 			 * finer layer to the coarser.
 			 */
-			tick = System.currentTimeMillis();
 			Collection<SpatialGrid> currentGrids = new LinkedList<SpatialGrid>();
 			for ( SpatialGrid variable : variables )
 			{
@@ -306,22 +293,14 @@ public class PDEmultigrid extends PDEsolver
 				variableMultigrid.fillArrayFromFiner(NONLINEARITY, 0.5);
 				currentGrids.add(variableMultigrid.getGrid());
 			}
-			tock = System.currentTimeMillis();
-			if ( Log.shouldWrite(tickTockTierLevel) )
-				Log.out(tickTockTierLevel, (tock - tick)+" mS to restrict");
 			/* Update the PRODUCTIONRATE arrays using updated CONCN values. */
-			tick = System.currentTimeMillis();
 			this._updater.prestep(currentGrids, 0.0);
-			tock = System.currentTimeMillis();
-			if ( Log.shouldWrite(tickTockTierLevel) )
-				Log.out(tickTockTierLevel, (tock - tick)+" mS on preStep");
 			/*
 			 * TODO
 			 * The relative truncation error is the difference between the
 			 * restricted local truncation error and
 			 * Equation 19.6.32/34/35???
 			 */
-			tick = System.currentTimeMillis();
 			for ( SpatialGrid variable : variables )
 			{
 				currentLayer = this.getMultigrid(variable).getGrid();
@@ -333,20 +312,11 @@ public class PDEmultigrid extends PDEsolver
 				truncationError = currentLayer.getNorm(RELATIVEERROR);
 				this._truncationErrors.put(variable.getName(), truncationError);
 			}
-			tock = System.currentTimeMillis();
-			if ( Log.shouldWrite(tickTockTierLevel) )
-				Log.out(tickTockTierLevel, (tock - tick)+" mS for residuals");
 		}
 		/* 
 		 * At the bottom of the V: solve the coarsest layer.
 		 */
-		if ( Log.shouldWrite(tickTockTierLevel) )
-			Log.out(tickTockTierLevel, "COARSEST "+layerCounter);
-		tick = System.currentTimeMillis();
 		this.relaxAll(this._numCoarseStep);
-		tock = System.currentTimeMillis();
-		if ( Log.shouldWrite(tickTockTierLevel) )
-			Log.out(tickTockTierLevel, (tock - tick)+" mS for solving coarsest");
 		/* 
 		 * Upward stroke of V. The overall effect of this is:
 		 * 
@@ -368,9 +338,6 @@ public class PDEmultigrid extends PDEsolver
 		while ( this._commonMultigrid.hasFiner() && layerCounter > 0 )
 		{
 			layerCounter--;
-			if ( Log.shouldWrite(tickTockTierLevel) )
-				Log.out(tickTockTierLevel, "UPWARD "+layerCounter);
-			tick = System.currentTimeMillis();
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable);
@@ -390,20 +357,7 @@ public class PDEmultigrid extends PDEsolver
 				if ( ! this._allowNegatives )
 					currentLayer.makeNonnegative(CONCN);
 			}
-			tock = System.currentTimeMillis();
-			if ( Log.shouldWrite(tickTockTierLevel) )
-			{
-				Log.out(tickTockTierLevel,
-						(tock - tick)+" mS for interpolation");
-			}
-			tick = System.currentTimeMillis();
 			this.relaxAll(this._numPostSteps);
-			tock = System.currentTimeMillis();
-			if ( Log.shouldWrite(tickTockTierLevel) )
-			{
-				Log.out(tickTockTierLevel,
-						(tock - tick)+" mS for post-relaxation");
-			}
 		}
 		/*
 		 * Finally, we calculate the residual of the local truncation error and
@@ -458,9 +412,6 @@ public class PDEmultigrid extends PDEsolver
 	 */
 	private void relax(SpatialGrid variable, SpatialGrid commonGrid)
 	{
-		Tier level = Tier.DEBUG;
-		long tick, tock;
-		tick = System.currentTimeMillis();
 		Shape shape = variable.getShape();
 		/* Temporary storage. */
 		double concn, invVol, lop, dlop, rhs, res;
@@ -503,13 +454,6 @@ public class PDEmultigrid extends PDEsolver
 				concn = 0.0;
 			/* Update the value and continue to the next voxel. */
 			variable.setValueAtCurrent(CONCN, concn);
-		}
-		if ( Log.shouldWrite(level) )
-		{
-			tock = System.currentTimeMillis();
-			Log.out(level, "relax step for "+variable.getName()+" with "+
-					shape.getTotalNumberOfVoxels()+" voxels took "+
-					(tock - tick)+" mS");
 		}
 	}
 	
