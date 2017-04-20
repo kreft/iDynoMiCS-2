@@ -49,10 +49,15 @@ public class PdeTest
 		Compartment comp = Idynomics.simulator.addCompartment("oneDim");
 		Shape shape = AllTests.GetShape("Line");
 		comp.setShape(shape);
-		comp.addBoundary(new SolidBoundary(DimName.X, 0));
-		comp.addBoundary(new SolidBoundary(DimName.X, 1));
 		Dimension x = shape.getDimension(DimName.X);
 		x.setLength(nVoxel);
+		for ( int extreme = 0; extreme < 2; extreme++ )
+		{
+			SolidBoundary sB = new SolidBoundary();
+			sB.setParent(x);
+			sB.setExtreme(extreme);
+			comp.addBoundary(sB);
+		}
 		UniformResolution resCalc = new UniformResolution(x);
 		resCalc.setResolution(1.0);
 		shape.setDimensionResolution(DimName.X, resCalc);
@@ -118,7 +123,9 @@ public class PdeTest
 		Compartment comp = Idynomics.simulator.addCompartment("circle");
 		Shape shape = AllTests.GetShape("Circle");
 		comp.setShape(shape);
-		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+		Dimension r = shape.getDimension(DimName.R);
+		FixedBoundary rMax = new FixedBoundary();
+		rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
 		rMax.setConcentration("solute", 2.0);
 		comp.addBoundary(rMax);
 		Dimension radial = shape.getDimension(DimName.R);
@@ -195,7 +202,9 @@ public class PdeTest
 		Compartment comp = Idynomics.simulator.addCompartment("cylinder");
 		Shape shape = AllTests.GetShape("Cylinder");
 		comp.setShape(shape);
-		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+		Dimension r = shape.getDimension(DimName.R);
+		FixedBoundary rMax = new FixedBoundary();
+		rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
 		rMax.setConcentration("solute", 2.0);
 		comp.addBoundary(rMax);
 		Dimension radial = shape.getDimension(DimName.R);
@@ -281,7 +290,9 @@ public class PdeTest
 		Compartment comp = Idynomics.simulator.addCompartment("sphere");
 		Shape shape = AllTests.GetShape("Sphere");
 		comp.setShape(shape);
-		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+		Dimension r = shape.getDimension(DimName.R);
+		FixedBoundary rMax = new FixedBoundary();
+		rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
 		rMax.setConcentration("solute", 2.0);
 		comp.addBoundary(rMax);
 		Dimension radial = shape.getDimension(DimName.R);
@@ -367,7 +378,9 @@ public class PdeTest
 		Compartment comp = Idynomics.simulator.addCompartment("sphere");
 		Shape shape = AllTests.GetShape("Sphere");
 		comp.setShape(shape);
-		FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+		Dimension r = shape.getDimension(DimName.R);
+		FixedBoundary rMax = new FixedBoundary();
+		rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
 		rMax.setConcentration("solute", 2.0);
 		comp.addBoundary(rMax);
 		Dimension radial = shape.getDimension(DimName.R);

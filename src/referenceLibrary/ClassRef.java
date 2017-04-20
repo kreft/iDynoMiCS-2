@@ -335,7 +335,7 @@ public class ClassRef
 	
 	
 	/* ************************************************************************
-	 * Grid classes
+	 * Diffusivity setters
 	 */
 	
 	/**
@@ -351,14 +351,42 @@ public class ClassRef
 			grid.diffusivitySetter.ScaledIfBiomassPresent.class.getName();
 	
 	/* ************************************************************************
-	 * boundaries
+	 * Boundaries (non-spatial)
 	 */
 	
-	/**
-	 * TODO
+	public final static String chemostatToBoundaryLayer =
+			boundary.library.ChemostatToBoundaryLayer.class.getName();
+	
+	public final static String chemostatToChemostat =
+			boundary.library.ChemostatToChemostat.class.getName();
+	
+	public final static String chemostatToMembrane =
+			boundary.library.ChemostatToMembrane.class.getName();
+	
+	public final static String dummyToChemostat =
+			boundary.library.DummyToChemostat.class.getName();
+	
+	public final static String gasToMembrane =
+			boundary.library.GasToMembrane.class.getName();
+	
+	/* ************************************************************************
+	 * Boundaries (spatial)
 	 */
+	
+	public final static String biofilmBoundaryLayer =
+			boundary.spatialLibrary.BiofilmBoundaryLayer.class.getName();
+	
+	public final static String biofilmMembraneGas =
+			boundary.spatialLibrary.BiofilmMembraneGas.class.getName();
+	
+	public final static String biofilmMembraneLiquid =
+			boundary.spatialLibrary.BiofilmMembraneLiquid.class.getName();
+	
 	public final static String fixedBoundary =
 			boundary.spatialLibrary.FixedBoundary.class.getName();
+	
+	public final static String solidBoundary =
+			boundary.spatialLibrary.SolidBoundary.class.getName();
 	
 	/* ************************************************************************
 	 * shape classes

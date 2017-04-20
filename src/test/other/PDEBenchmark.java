@@ -66,11 +66,12 @@ public class PDEBenchmark {
 			Compartment comp = Idynomics.simulator.addCompartment("cuboid");
 			Shape shape = AllTests.GetShape("Cuboid");
 			comp.setShape(shape);
-			FixedBoundary xMax = new FixedBoundary(DimName.X, 1);
-			xMax.setConcentration("solute", 2.0);
-			comp.addBoundary(xMax);
 			Dimension x = shape.getDimension(DimName.X);
 			x.setLength(nVoxelX);
+			FixedBoundary xMax = new FixedBoundary();
+			xMax.instantiate(AllTests.getSpatialBoundaryElement(1), x);
+			xMax.setConcentration("solute", 2.0);
+			comp.addBoundary(xMax);
 			UniformResolution resCalc = new UniformResolution(x);
 			resCalc.setResolution(1.0);
 			shape.setDimensionResolution(DimName.X, resCalc);
@@ -166,7 +167,9 @@ public class PDEBenchmark {
 			Compartment comp = Idynomics.simulator.addCompartment("cylinder");
 			Shape shape = AllTests.GetShape("Cylinder");
 			comp.setShape(shape);
-			FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+			Dimension r = shape.getDimension(DimName.R);
+			FixedBoundary rMax = new FixedBoundary();
+			rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);
 			Dimension radial = shape.getDimension(DimName.R);
@@ -265,7 +268,9 @@ public class PDEBenchmark {
 			Compartment comp = Idynomics.simulator.addCompartment("sphere");
 			Shape shape = AllTests.GetShape("Sphere");
 			comp.setShape(shape);
-			FixedBoundary rMax = new FixedBoundary(DimName.R, 1);
+			Dimension r = shape.getDimension(DimName.R);
+			FixedBoundary rMax = new FixedBoundary();
+			rMax.instantiate(AllTests.getSpatialBoundaryElement(1), r);
 			rMax.setConcentration("solute", 2.0);
 			comp.addBoundary(rMax);
 			Dimension radial = shape.getDimension(DimName.R);

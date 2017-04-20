@@ -2,6 +2,8 @@ package test.junit;
 
 import java.util.LinkedList;
 import org.junit.Test;
+import org.w3c.dom.Element;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -153,11 +155,16 @@ public class ShapesTest
 		 * Try first with solid boundaries.
 		 */
 		for ( DimName d : dims )
+		{
+			Dimension dimension = shape.getDimension(d);
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				SolidBoundary bndry = new SolidBoundary(d, extreme);
+				SolidBoundary bndry = new SolidBoundary();
+				Element e = AllTests.getSpatialBoundaryElement(extreme);
+				bndry.instantiate(e, dimension);
 				shape.setBoundary(d, extreme, bndry);
 			}
+		}
 		/* Set up the array of true inside neighbor numbers. */
 		trueNhb[0][0] = 2; trueNhb[0][1] = 3; trueNhb[0][2] = 2;
 		trueNhb[1][0] = 3; trueNhb[1][1] = 4; trueNhb[1][2] = 3;
@@ -217,9 +224,16 @@ public class ShapesTest
 		 * Try first with solid boundaries.
 		 */
 		for ( DimName d : dims )
+		{
+			Dimension dimension = shape.getDimension(d);
 			for ( int extreme = 0; extreme < 2; extreme++ )
-				shape.setBoundary(d, extreme, new SolidBoundary(d, extreme));
-
+			{
+				SolidBoundary bndry = new SolidBoundary();
+				Element e = AllTests.getSpatialBoundaryElement(extreme);
+				bndry.instantiate(e, dimension);
+				shape.setBoundary(d, extreme, bndry);
+			}
+		}
 		/* Check it is correct. */
 		Log.out(DEBUG, "Solid boundaries");
 		/* circle with theta length 2 * pi / 3 and res 1 has 9 voxels in total */
@@ -303,9 +317,16 @@ public class ShapesTest
 		 * Try first with solid boundaries.
 		 */
 		for ( DimName d : dims )
+		{
+			Dimension dimension = shape.getDimension(d);
 			for ( int extreme = 0; extreme < 2; extreme++ )
-				shape.setBoundary(d, extreme, new SolidBoundary(d, extreme));
-
+			{
+				SolidBoundary bndry = new SolidBoundary();
+				Element e = AllTests.getSpatialBoundaryElement(extreme);
+				bndry.instantiate(e, dimension);
+				shape.setBoundary(d, extreme, bndry);
+			}
+		}
 		/* Check it is correct. */
 		Log.out(DEBUG, "Solid boundaries");
 		/* sphere with polar length pi / 2 and res 1 has 20 voxels in total */
@@ -447,35 +468,40 @@ public class ShapesTest
 	{
 		AllTests.setupSimulatorForTest(1.0, 1.0,
 				"redBlackIteratorShouldIterateCorrectly");
-		Shape shp = AllTests.GetShape("Rectangle");
+		Shape shape = AllTests.GetShape("Rectangle");
 		DimName[] dims = new DimName[]{DimName.X, DimName.Y};
 		for ( DimName d : dims )
 		{
-			Dimension dimension = shp.getDimension(d);
+			Dimension dimension = shape.getDimension(d);
 			dimension.setLength(4.0);
 			UniformResolution resCalc = new UniformResolution(dimension);
 			resCalc.setResolution(1.0);
-			shp.setDimensionResolution(d, resCalc);
+			shape.setDimensionResolution(d, resCalc);
 		}
 		/*
 		 * Try first with solid boundaries.
 		 */
 		for ( DimName d : dims )
+		{
+			Dimension dimension = shape.getDimension(d);
 			for ( int extreme = 0; extreme < 2; extreme++ )
 			{
-				SolidBoundary bndry = new SolidBoundary(d, extreme);
-				shp.setBoundary(d, extreme, bndry);
+				SolidBoundary bndry = new SolidBoundary();
+				Element e = AllTests.getSpatialBoundaryElement(extreme);
+				bndry.instantiate(e, dimension);
+				shape.setBoundary(d, extreme, bndry);
 			}
+		}
 		Log.out(DEBUG, "Solid boundaries");
-		checkRedBlackIteration(shp);
+		checkRedBlackIteration(shape);
 		Log.out(DEBUG, "");
 		/*
 		 * Now try with cyclic dimensions.
 		 */
 		for ( DimName d : dims )
-			shp.makeCyclic(d);
+			shape.makeCyclic(d);
 		Log.out(DEBUG, "Cyclic dimensions");
-		checkRedBlackIteration(shp);
+		checkRedBlackIteration(shape);
 		Log.out(DEBUG, "");	
 	}
 	

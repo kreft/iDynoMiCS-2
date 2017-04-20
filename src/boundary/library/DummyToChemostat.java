@@ -6,7 +6,10 @@ package boundary.library;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.w3c.dom.Element;
+
 import boundary.Boundary;
+import settable.Settable;
 
 /**
  * \brief 
@@ -20,6 +23,17 @@ public class DummyToChemostat extends Boundary
 	 */
 	protected Map<String,Double> _concns = new HashMap<String,Double>();
 
+	public DummyToChemostat()
+	{
+		super();
+	}
+
+	@Override
+	public void instantiate(Element xmlElement, Settable parent) {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	@Override
 	protected Class<?> getPartnerClass()
 	{

@@ -13,8 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import dataIO.Log;
-import dataIO.Log.Tier;
 import grid.ArrayType;
 import grid.SpatialGrid;
 import shape.Shape;
@@ -428,11 +426,22 @@ public class PDEmultigrid extends PDEsolver
 			/* Reset both lop and dlop. */
 			lop = 0.0;
 			dlop = 0.0;
+			
+			double prod = variable.getValueAtCurrent(PRODUCTIONRATE);
+			
 			/* Sum up over all neighbours. */
 			for ( shape.resetNbhIterator(); shape.isNbhIteratorValid();
 					shape.nbhIteratorNext() )
 			{
 				dlop += variable.getDiffusiveTimeScaleWithNeighbor();
+				
+				double l = variable.getDiffusionFromNeighbor();
+				
+				if (!Double.isFinite(l))
+				{
+					int x = 1;
+				}
+				
 				lop += variable.getDiffusionFromNeighbor();
 			}
 			/* Convert lop and dlop from mass/time to concentration/time. */
@@ -449,6 +458,12 @@ public class PDEmultigrid extends PDEsolver
 			res = (lop - rhs)/dlop;
 			/* TODO */
 			concn += res;
+			
+			if (!Double.isFinite(concn))
+			{
+				int x = 1;
+			}
+			
 			/* Check if we need to remain non-negative. */
 			if ( (!this._allowNegatives) && (concn < 0.0) )
 				concn = 0.0;

@@ -88,8 +88,10 @@ public class Instance
 				out = getNew( className[0], null );
 			/* if not lookup the path from the package library. */
 			else
+			{
 				out = getNew( className[0], 
 						Idynomics.xmlPackageLibrary.get( className[0] ) );
+			}
 			if ( parent == null && Log.shouldWrite(Tier.DEBUG) )
 				Log.out(Tier.DEBUG, "Warning initiating without parent");
 			else if ( xmlElem == null && Log.shouldWrite(Tier.DEBUG) )

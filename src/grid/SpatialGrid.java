@@ -615,7 +615,7 @@ public class SpatialGrid implements Settable, Instantiable
 	// TODO safety if neighbor iterator or arrays are not initialised.
 	public double getDiffusionFromNeighbor()
 	{
-		Tier level = Tier.BULK;
+		Tier level = Tier.NORMAL;
 		if ( Log.shouldWrite(level) )
 		{
 			Log.out(level, " finding flow from nhb "+

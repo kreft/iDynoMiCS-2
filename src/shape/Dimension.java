@@ -156,7 +156,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		str = XmlHandler.obtainAttribute(elem, XmlRef.max, str);
 		val = Double.valueOf(str);
 		/* Convert from degrees to radians for angular dimensions */
-		if ( this._dimName.isAngular() )
+		if ( this.isAngular() )
 			val = Math.toRadians(val);
 		this.setExtreme(val, 1);
 		
@@ -164,7 +164,7 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		str = XmlHandler.gatherAttribute(elem, XmlRef.min);
 		val = Helper.isNullOrEmpty(str) ? 0.0 : Double.valueOf(str);
 		/* Convert from degrees to radians for angular dimensions */
-		if ( this._dimName.isAngular() )
+		if ( this.isAngular() )
 			val = Math.toRadians(val);
 		this.setExtreme(val, 0);
 		
@@ -180,10 +180,12 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 		
 		/* Set theta dimension cyclic for a full circle, no matter what 
 		 * the user specified */
-		if (this._dimName == DimName.THETA && ExtraMath.areEqual(length, 
+		if ( this._dimName == DimName.THETA && ExtraMath.areEqual(length, 
 				2 * Math.PI, PolarShapeIterator.POLAR_ANGLE_EQ_TOL))
+		{
 			this.setCyclic();
-
+		}
+		
 		// FIXME investigate and clean
 		/* Set the boundary, if given (not always necessary). */
 		bndNodes = XmlHandler.getAll(elem, XmlRef.dimensionBoundary);
@@ -192,23 +194,8 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 			for ( int i = 0; i < bndNodes.getLength(); i++ )
 			{
 				bndElem = (Element) bndNodes.item(i);
-				str = XmlHandler.gatherAttribute(bndElem, XmlRef.nameAttribute);
-				str = Helper.obtainInput(str, "dimension extreme (min/max)");
-				str = str.toLowerCase();
-				if ( str.equals("min") )
-					index = 0;
-				else if ( str.equals("max") )
-					index = 1;
-				else
-				{
-					Log.out(Tier.CRITICAL, 
-							"Warning! Dimension extreme must be min or max: "+str);
-				}
-				
-				str = bndElem.getAttribute(XmlRef.classAttribute);
-				// FIXME this does not work since boundaries are not instantiatable
-				aBoundary =
-						(SpatialBoundary) Instance.getNew(bndElem, this, str);
+				aBoundary = (SpatialBoundary)Instance.getNew(bndElem, this);
+				index = aBoundary.getExtreme();
 				this.setBoundary(aBoundary, index);	
 			}
 		}
@@ -217,6 +204,16 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 	/* ************************************************************************
 	 * BASIC SETTERS AND GETTERS
 	 * ***********************************************************************/
+	
+	public DimName getName()
+	{
+		return this._dimName;
+	}
+	
+	public boolean isAngular()
+	{
+		return this._dimName.isAngular();
+	}
 	
 	/**
 	 * \brief Get the length of this dimension.

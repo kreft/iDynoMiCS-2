@@ -209,6 +209,13 @@ public abstract class Shape implements
 			for ( int i = 0; i < childNodes.getLength(); i++ )
 			{
 				childElem = (Element) childNodes.item(i);
+				/* 
+				 * Skip boundaries that are not direct children of the shape
+				 * node (e.g. those wrapped in a dimension).
+				 */
+				if ( childElem.getParentNode() != xmlElem )
+					continue;
+				
 				str = childElem.getAttribute(XmlRef.classAttribute);
 				aBoundary = (Boundary) Instance.getNew(childElem, 
 						this, str );
@@ -714,7 +721,7 @@ public abstract class Shape implements
 		int i = 0;
 		for ( Dimension dim : this._dimensions.values() )
 		{
-			if (dim._dimName == DimName.PHI || dim._dimName == DimName.THETA )
+			if ( dim.isAngular() )
 			{
 				// FIXME If we want to use periodic boundaries in polar
 				// coordinates the collision algorithm needs to be overhauled

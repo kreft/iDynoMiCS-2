@@ -14,7 +14,6 @@ import boundary.Boundary;
 import boundary.SpatialBoundary;
 import dataIO.Log;
 import dataIO.Log.Tier;
-import grid.SpatialGrid;
 import gereralPredicates.IsSame;
 
 import static dataIO.Log.Tier.*;
@@ -31,7 +30,6 @@ import shape.Shape;
 import shape.Dimension.DimName;
 import shape.subvoxel.CoordinateMap;
 import shape.subvoxel.SubvoxelPoint;
-import solver.PDEsolver;
 import spatialRegistry.*;
 import spatialRegistry.splitTree.SplitTree;
 import surface.BoundingBox;
@@ -75,17 +73,6 @@ public class AgentContainer implements Settable
 	 * they can be removed from memory.
 	 */
 	protected List<Agent> _agentsToRegisterRemoved = new LinkedList<Agent>();
-
-	/**
-	 * TODO
-	 */
-	protected SpatialGrid _detachability;
-	/**
-	 * TODO
-	 */
-	public final static String DETACHABILITY = "detachability";
-	
-	protected PDEsolver _detachabilitySolver;
 	
 	/**
 	 * TODO

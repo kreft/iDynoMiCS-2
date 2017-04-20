@@ -164,13 +164,12 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		String[] str = new String[] { XmlHandler.gatherAttribute(elem, XmlRef.classAttribute) };
 		if ( str[0] == null )
 			str = Shape.getAllOptions();
-		this.setShape( (Shape) Instance.getNew(
-				elem, this, str) );	
+		this.setShape( (Shape) Instance.getNew(elem, this, str) );	
 
 
 		for( Boundary b : this._shape.getAllBoundaries())
 		{
-			b.init(environment, agents, name);
+			b.setContainers(environment, agents);
 			// FIXME trying to figure out how to get the well mixed region working,
 			// quite funky investigate
 //			if (b instanceof SpatialBoundary)
@@ -260,7 +259,7 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 	// TODO move this spatial/non-spatial splitting to Shape?
 	public void addBoundary(Boundary aBoundary)
 	{
-		aBoundary.init(this.environment, this.agents, this.name);
+		aBoundary.setContainers(this.environment, this.agents);
 		if ( aBoundary instanceof SpatialBoundary )
 		{
 			SpatialBoundary sB = (SpatialBoundary) aBoundary;
