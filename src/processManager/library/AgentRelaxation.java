@@ -128,12 +128,12 @@ public class AgentRelaxation extends ProcessManager
 	private double _stressThreshold;
 	
 	/**
-	 * TODO gravity buoyancy implementation
+	 * enable gravity/buoyancy forces
 	 */
 	private Boolean _gravity;
 	
 	/**
-	 * 
+	 * Default spine function, fall back for if none is defined by the agent.
 	 */
 	private Expression _spineFunction = 
 			new Expression( "stiffness * ( dh + SIGN(dh) * dh * dh * 100.0 )" );
@@ -172,7 +172,9 @@ public class AgentRelaxation extends ProcessManager
 		/* Include gravity / buoyancy ( experimental ) */
 		this._gravity = Helper.setIfNone( this.getBoolean(GRAVITY), false);
 		/* Set default spine function for rod type agents, this function is
-		 * used if it is not overwritten by the agent */
+		 * used if it is not overwritten by the agent, obtain
+		 * ComponentExpression from process manager otherwise fall back default
+		 * is used. */
 		if ( ! Helper.isNone( this.getValue(SPINE_FUNCTION) ) )
 			this._spineFunction = (Expression) this.getValue(SPINE_FUNCTION);
 	}
@@ -220,21 +222,22 @@ public class AgentRelaxation extends ProcessManager
 					double dn = Vector.normEuclid(diff);
 					
 					/*
-					 * Hooke's law: spring stiffness * displacement
+					 * rod type agent spine function, replacing hard coded
+					 * Hooke's law
+					 * double[] fV	= Vector.times(diff, stiffness * (dn - l));
 					 */
-//					double f 		= stiffness * ( dn - l );
-//					double[] fV		= Vector.times(diff, f);
-					
-					
-					
-					/*
-					 * two component scaling
-					 */
-					HashMap<String, Double> springVars = new HashMap<String,Double>();
+					HashMap<String, Double> springVars = 
+							new HashMap<String,Double>();
 					springVars.put("stiffness", stiffness);
 					springVars.put("dh", dn-l);
-					double fs		= this._spineFunction.getValue(springVars);
-//					double f 		= stiffness * ( (dn - l) + Math.signum(dn - l) * (dn - l) * (dn - l) * 1e2 );
+					Expression spine;
+					/* Obtain ComponentExpression from agent otherwise use the
+					 * default expression */
+					if (agent.isAspect(SPINE_FUNCTION))
+						spine = (Expression) this.getValue(SPINE_FUNCTION);
+					else
+						spine = this._spineFunction;
+					double fs		= spine.getValue(springVars);
 					double[] fV		= Vector.times(diff, fs);
 				
 					/*
