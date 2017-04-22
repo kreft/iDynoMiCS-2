@@ -264,7 +264,11 @@ public class AgentRelaxation extends ProcessManager
 						pull = 0.0;
 					body = ((Body) neighbour.get(BODY));
 					List<Surface> t = body.getSurfaces();
-					this._iterator.collision(agentSurfs, t, pull);
+					if ( Log.shouldWrite(level) )
+						Log.out(level, "   interacting with neighbor (ID "+
+								neighbour.identity()+") , which has "+t.size()+
+								" surfaces, with pull distance "+pull);
+					this._iterator.collision(agentSurfs, t, pull, agent, neighbour);
 				}
 			/*
 			 * Boundary collisions
@@ -272,7 +276,7 @@ public class AgentRelaxation extends ProcessManager
 			 * TODO friction
 			 */
 			// FIXME here we need to selectively apply surface collision methods
-			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0);
+			this._iterator.collision(this._shapeSurfs, agentSurfs, 0.0, agent, null);
 			
 			/*
 			 * NOTE: testing purposes only
@@ -391,7 +395,7 @@ public class AgentRelaxation extends ProcessManager
 			{
 				for ( Agent agent : allAgents )
 					for ( Point point: ( (Body) agent.get(BODY) ).getPoints() )
-						point.euStep( dtMech, agent.getDouble(RADIUS) );
+						point.euStep( dtMech, agent.getDouble(RADIUS) , null);
 				tMech += dtMech;
 				break;
 			}

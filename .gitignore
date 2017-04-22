@@ -1,4 +1,6 @@
 *.class
+*.dat
+LBDEM/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -20,3 +22,7 @@ build/
 
 # unit test output
 unitTests
+/PeriodicTest_rho.dat
+/PeriodicTest_u.dat
+/PeriodicTest_x.dat
+/PeriodicTest_y.dat
