@@ -29,12 +29,7 @@
 				<aspect name="updateBody" 	type="EVENT" 		class="UpdateBody" 		 />
 				
 				<aspect name="resolveForce" 	type="EVENT" 		class="aspect.event.ResolveInteractionForce"  		 />
-				<aspect name="gammaLW" 	type="PRIMARY" 		class="Double" value="7.97" />
-				<aspect name="gammaAcid" 	type="PRIMARY" 		class="Double" value="0.81" />
-				<aspect name="gammaBase" 	type="PRIMARY" 		class="Double" value="0.70" />
-				<aspect name="psi" 	type="PRIMARY" 		class="Double" value="-0.0198" />
-				
-				<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.1"  />
+					<aspect name="searchDist"		type="PRIMARY" class="Double"		value="0.1"  />
 				<aspect name="pullDistance"		type="PRIMARY" class="Double"		value="0.01"  />
 				<aspect name="evaluatePull"		type="EVENT"			class="ResolveInteractionDistance" 	 />
 			</species>
@@ -60,6 +55,12 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="RED" />
+					
+					<aspect name="gammaLW" 	type="PRIMARY" 		class="Double" value="30" />
+					<aspect name="gammaAcid" 	type="PRIMARY" 		class="Double" value="0.56" />
+					<aspect name="gammaBase" 	type="PRIMARY" 		class="Double" value="12" />
+					<aspect name="psi" 	type="PRIMARY" 		class="Double" value="-0.023" />
+					
 					<spawn number="40" domain="32.0,32.0" />
 				</agent>
 				<agent>
@@ -67,7 +68,12 @@
 					<aspect name="mass" type="PRIMARY" class="Double" value="0.2" />
 					<aspect name="density" type="PRIMARY" class="Double" value="1" />
 					<aspect name="pigment" type="PRIMARY" class="String" value="BLUE" />
-					<aspect name="gammaLW" 	type="PRIMARY" 		class="Double" value="17.97" />
+					
+					<aspect name="gammaLW" 	type="PRIMARY" 		class="Double" value="22.6" />
+					<aspect name="gammaAcid" 	type="PRIMARY" 		class="Double" value="1.26" />
+					<aspect name="gammaBase" 	type="PRIMARY" 		class="Double" value="24" />
+					<aspect name="psi" 	type="PRIMARY" 		class="Double" value="-0.023" />
+				
 					<spawn number="40" domain="32.0,32.0" />
 				</agent>
 			</agents>

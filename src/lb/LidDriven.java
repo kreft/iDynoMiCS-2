@@ -47,9 +47,16 @@ public class LidDriven {
 		public static final int OBST_X = XX/5; // position of the cylinder
 		public static final int OBST_Y = YY/2; // exact y-symmetry is avoided
 		
-		public static final double U_MAX = 0.02; // maximum velocity of Poiseuille inflow
+//		public static final double U_MAX = 0.02; // maximum velocity of Poiseuille inflow
+//		public static final double RE = 100; // Reynolds number
+//		public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
+//		public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
+		
+		public static final double LX = 0.001; // length of cavity [m]
 		public static final double RE = 100; // Reynolds number
-		public static final double NU = U_MAX * 2.0 * OBST_R / RE; // kinematic viscosity
+		public static final double NU = 0.000001; // kinematic viscosity water, 20 deg C [m^2/s]
+		public static final double U_MAX = RE*NU/LX; // velocity in [m/s] is independent of resolution XX
+		
 		public static final double OMEGA = 1.0 / ( 3.0 * NU + 0.5 ); // relaxation parameter
 		
 		public static double computePoiseuille(int y) {
