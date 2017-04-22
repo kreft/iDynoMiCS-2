@@ -33,9 +33,24 @@ public class Area implements Predicate<Area> {
 		return false;		
 	}
 	
+	public boolean sectorTest(Area area) 
+	{
+		/* periodic set use the more expensive periodic check */
+		for (int i = 0; i < low.length; i++)
+			if ( sector(area, i) )
+				return true;
+		return false;		
+	}
+	
 	private boolean normal(Area area, int dim)
 	{
 		return ( low[dim] > area.high[dim] || 
+				high[dim] < area.low[dim] );
+	}
+	
+	private boolean sector(Area area, int dim)
+	{
+		return ( low[dim] > area.low[dim] || 
 				high[dim] < area.low[dim] );
 	}
 	

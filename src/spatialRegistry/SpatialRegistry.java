@@ -1,14 +1,8 @@
 package spatialRegistry;
 
-import java.util.LinkedList;
 import java.util.List;
 
-import agent.Agent;
-import agent.Body;
-import agent.predicate.IsLocated;
-import gereralPredicates.IsSame;
 import linearAlgebra.Vector;
-import referenceLibrary.AspectRef;
 import surface.BoundingBox;
 
 /**

@@ -462,4 +462,9 @@ public class XmlRef
 	 */
 	public static final String numberOfJoints = "numberOfJoints";
 
+	/**
+	 * number of points to spawn
+	 */
+	public static final String points = "points";
+
 }

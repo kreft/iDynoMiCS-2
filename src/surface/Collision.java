@@ -529,25 +529,24 @@ public class Collision
 	private CollisionVariables planeLineSeg(double[] normal, double d, 
 			double[] p0, double[] p1, CollisionVariables var)
 	{
-		Vector.reverseTo(var.interactionVector, normal);
 		this.planePoint(normal, d, p0, var);
-		double a = var.distance;
+		double a = Double.valueOf(var.distance);
 		this.planePoint(normal, d, p1, var);
-		double b = var.distance;
+		double b = Double.valueOf(var.distance);
 		if ( a < b )
 		{
-			var.s = 0.0;
+			var.t = 0.0;
 			var.distance = a;
 			return var;
 		}
 		if ( a > b ) 
 		{
-			var.s = 1.0;
+			var.t = 1.0;
 			var.distance = b;
 			return var;
 		}
 		/* a = b */
-		var.s = 0.5;
+		var.t = 0.5;
 		return var;
 	}
 	

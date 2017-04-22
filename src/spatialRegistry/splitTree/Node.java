@@ -76,7 +76,6 @@ public class Node<T> extends Area
 
 	public void add(Area entry)
 	{
-		
 		if ( ! this.test(entry) )
 		{
 			if ( this._leafNode || entry instanceof Node)
@@ -101,23 +100,31 @@ public class Node<T> extends Area
 	public void add(List<Area> entries) 
 	{
 		entries.removeIf(this);
-		if ( this._leafNode)
-		{
-			getEntries().addAll(entries);
-			if( this.size() > SplitTree._maxEntries )
-				_tree.split(this);
-		}
-		else
-		{
-			for ( Area a : this.getEntries() )
-				((Node<T>) a).add(entries);
-		}
+		for (Area entry : entries) 
+			this.add(entry);
 	}
 	
 	protected LinkedList<Area> getEntries() {
 		return _entries;
 	}
+	
+	protected LinkedList<Area> getSectorEntries() {
+		LinkedList<Area> out = new LinkedList<Area>();
+		for (Area a : getEntries())
+			if( this.sectorTest(a))
+				out.add(a);
+		return out;
+	}
 
+	public boolean leafless()
+	{
+		if (this._leafNode)
+			return false;
+		for ( Area entry : this.getEntries() )
+			if( ((Node) entry)._leafNode )
+				return false;
+		return true;
+	}
 	protected void setEntries(LinkedList<Area> _entries) {
 		this._entries = _entries;
 	}
@@ -160,7 +167,7 @@ public class Node<T> extends Area
 			{
 				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
 				{
-					if ( ! a.test(test) )  //FIXME for some reason this test fails some times but only with rods??
+					if ( ! a.test(test) )
 					{
 						out.add( (Entry) a);
 						break;
@@ -175,7 +182,7 @@ public class Node<T> extends Area
 			{
 				for (int dim = 0; dim < this.splitTree._dimensions; dim++)
 				{
-					if ( ! a.test(test) ) //FIXME for some reason this test fails some times but only with rods??
+					if ( ! a.test(test) )
 					{
 						if ( ! out.contains(a) )
 							out.add( (Entry) a);

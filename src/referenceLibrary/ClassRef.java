@@ -149,6 +149,12 @@ public class ClassRef
 			aspect.calculated.StateExpression.class.getName();
 	
 	/**
+	 * class reference to the ComponentExpression
+	 */
+	public final static String componentExpressionAspect = 
+			aspect.calculated.ComponentExpression.class.getName();
+	
+	/**
 	 * the voxel distribution map
 	 */
 	public final static String voxelDistributionMap =
