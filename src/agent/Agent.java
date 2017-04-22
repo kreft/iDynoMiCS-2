@@ -85,9 +85,9 @@ public class Agent implements AspectInterface, Settable, Instantiable
 				double[] domain = Vector.dblFromString(
 						XmlHandler.obtainAttribute(temp.item(i), 
 						XmlRef.spawnDomain, this.defaultXmlTag() ) );
-				int points = Integer.valueOf( Helper.setIfNone( Integer.valueOf( 
+				int points = Integer.valueOf( Helper.setIfNone( 
 						XmlHandler.gatherAttribute(temp.item(i), XmlRef.points) 
-						), 1 ) );
+						, "1" ) );
 				for(int j = 0; j < n-1; j++)
 				{
 					Agent extra = new Agent(xmlNode, randBody(domain, points));
