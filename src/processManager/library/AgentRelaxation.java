@@ -19,8 +19,6 @@ import linearAlgebra.Vector;
 import processManager.ProcessManager;
 import referenceLibrary.AspectRef;
 import shape.Shape;
-import spatialRegistry.splitTree.Node;
-import spatialRegistry.splitTree.SplitTree;
 import surface.Collision;
 import surface.Point;
 import surface.Rod;
@@ -282,13 +280,14 @@ public class AgentRelaxation extends ProcessManager
 			 * 
 			 * density difference 1 - ( ρ solute / ρ microbe )
 			 * 
-			 * TODO sort out the forces for RC
+			 * TODO sort out the forces for RC, this needs to become fully
+			 * settable from protocol file in final version.
 			 */
 			if (this._gravity)
 			{
 				/* note should be mass per point */
 				double fg = agent.getDouble("mass") * 1e-12 * 35.316e9;
-				double[] fgV		= Vector.times(new double[]{ 0, 0, -1 }, fg);
+				double[] fgV = Vector.times(new double[]{ 0, 0, -1 }, fg );
 				
 				body = (Body) agent.get(AspectRef.agentBody);
 				for ( Point p : body.getPoints() )
