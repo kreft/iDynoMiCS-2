@@ -3,7 +3,7 @@
 	<simulation name="caseStudy_1e6" outputfolder="../results" log="EXPRESSIVE"
 		comment="this is a file for testing purposes only.">
 		<!-- minutes -->
-		<timer stepSize="60.0" endOfSimulation="20160.0" />
+		<timer stepSize="60.0" endOfSimulation="600.0" />
 		<speciesLib>
 			<!-- species/species library The species library contains all agent species 
 				in the simulations. This may include microbial species, plasmid and vector 
@@ -134,12 +134,17 @@
 		</speciesLib>
 
 		<compartment name="first">
-			<shape class="Rectangle">
+			<shape class="Rectangle" resolutionCalculator="MultigridResolution">
 				<!-- µm -->
 				<dimension name="X" isCyclic="true" 	targetResolution="2.0" max="100.0"/>
 				<dimension name="Y" isCyclic="false" 	targetResolution="2.0" max="100.0">
 					<boundary extreme="0" class="SolidBoundary" />
-					<boundary extreme="1" class="SolidBoundary" />
+					<boundary extreme="1" class="FixedBoundary">
+						<solute name="ammonium" concentration="6e-4" />
+						<solute name="oxygen" concentration="6e-4" />
+						<solute name="nitrate" concentration="6e-8" />
+						<solute name="nitrite" concentration="0.0" />
+					</boundary>
 				</dimension>
 			</shape>
 			<solutes>
@@ -147,7 +152,7 @@
 				<solute name="ammonium" concentration="6e-4" />
 				<solute name="oxygen" 	concentration="6e-4" />
 				<solute name="nitrite" 	concentration="6e-8" />
-				<solute name="nitrate" 	concentration="6e-8" />
+				<solute name="nitrate" 	concentration="0.0" />
 			</solutes>
 			<reactions>
 			</reactions>

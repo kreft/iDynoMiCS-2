@@ -41,7 +41,7 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 		super.instantiate(xmlElement,parent);
 		
 		Collection<Element> elements = 
-				XmlHandler.getElements(xmlElement, XmlRef.concentration);
+				XmlHandler.getElements(xmlElement, XmlRef.solute);
 		String name, concn;
 		
 		for ( Element e : elements )
@@ -49,7 +49,7 @@ public class FixedBoundary extends SpatialBoundary implements Instantiable
 			name = XmlHandler.obtainAttribute(e,
 					XmlRef.nameAttribute, XmlRef.concentration);
 			concn = XmlHandler.obtainAttribute(e, 
-					XmlRef.valueAttribute, XmlRef.concentration);
+					XmlRef.concentration, XmlRef.concentration);
 			this.setConcentration(name, Double.valueOf(concn));
 		}
 	}

@@ -174,6 +174,11 @@ public class PDEmultigrid extends PDEsolver
 		return newMultigrid;
 	}
 	
+	private void setMultigrid(MultigridLayer layer)
+	{
+		this._multigrids.put(layer.getGrid().getName(), layer);
+	}
+	
 	private void refreshVariable(SpatialGrid variable)
 	{
 		MultigridLayer currentLayer = this.getMultigrid(variable);
@@ -281,7 +286,7 @@ public class PDEmultigrid extends PDEsolver
 			for ( SpatialGrid variable : variables )
 			{
 				variableMultigrid = this.getMultigrid(variable).getCoarser();
-				this._multigrids.put(variable.getName(), variableMultigrid);
+				this.setMultigrid(variableMultigrid);
 			}
 			/*
 			 * Restrict the concentration and local truncation errors from the

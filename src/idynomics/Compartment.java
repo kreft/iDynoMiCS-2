@@ -193,8 +193,11 @@ public class Compartment implements CanPrelaunchCheck, Instantiable, Settable
 		 * Load solutes.
 		 */
 		Log.out(level, "Compartment reading in solutes");
-		for ( Element e : XmlHandler.getElements(xmlElem, XmlRef.solute))
+		Element solutes = XmlHandler.findUniqueChild(xmlElem, XmlRef.solutes);
+		for ( Element e : XmlHandler.getElements(solutes, XmlRef.solute))
+		{
 			this.environment.addSolute( new SpatialGrid( e, this.environment) );
+		}
 		/*
 		 * Load extra-cellular reactions.
 		 */
