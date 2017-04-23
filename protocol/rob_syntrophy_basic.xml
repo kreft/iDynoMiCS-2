@@ -12,7 +12,7 @@
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="production">
-							<expression value="mass * qMaxA * 
+							<expression value="qMaxA * 
 									( hMax - hydrogen ) / ( kA + hMax + hydrogen )">
 								<!-- zmol/µg/ms -->
 								<constant name="qMaxA" 	value="1.0" />  
@@ -33,7 +33,7 @@
 					<list class="Reaction" nodeLabel="reaction" 
 					entryClass="Reaction" keyClass="String" keyLabel="name">
 						<reaction name="consumption">
-							<expression value="mass * qMaxB * 
+							<expression value="qMaxB * 
 									( hydrogen - hMin ) / ( kB + hydrogen + hMin )">
 								<!-- zmol/µg/ms -->
 								<constant name="qMaxB" 	value="5.0" />  
@@ -98,7 +98,7 @@
 					firstStep="0.0"  timerStepSize="1.0">
 					<aspect name="solute" type="PRIMARY" class="String" value="hydrogen" />
 					<!-- µM --> 
-					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="10.0" />
+					<aspect name="maxConcentration" type="PRIMARY" class="Double" value="1.0" />
 					<aspect name="outputWriter" type="PRIMARY" class="String" value="SvgExport" />
 				</process>
 				

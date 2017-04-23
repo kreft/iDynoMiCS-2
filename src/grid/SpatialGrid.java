@@ -615,7 +615,7 @@ public class SpatialGrid implements Settable, Instantiable
 	// TODO safety if neighbor iterator or arrays are not initialised.
 	public double getDiffusionFromNeighbor()
 	{
-		Tier level = Tier.NORMAL;
+		Tier level = Tier.BULK;
 		if ( Log.shouldWrite(level) )
 		{
 			Log.out(level, " finding flow from nhb "+
@@ -674,7 +674,7 @@ public class SpatialGrid implements Settable, Instantiable
 	 * 
 	 * <p>The time-scale from the neighboring voxel into the current one is 
 	 * given by the formula <i>SA<sub>nhb,itr</sub> * V<sub>itr</sub> *
-	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)
+	 * (D<sub>nhb</sub><sup>-1</sup> + D<sub>itr</sub><sup>-1</sup>)<sup>-1</sup>
 	 *  * d<sub>nhb,itr</sub><sup>-1</sup></i>
 	 * where subscript <i>itr</i> denotes the current iterator voxel and
 	 * <i>nhb</i> the current neighbor voxel, and
@@ -703,7 +703,7 @@ public class SpatialGrid implements Settable, Instantiable
 			/* Current voxel volume. */
 			double volume = this._shape.getCurrVoxelVolume();
 			/* Calculate the the timescale from these values. */
-			return dist * volume / (diffusivity * sArea);
+			return dist * volume * diffusivity / sArea;
 		}
 		else if ( this._shape.isIteratorValid() )
 		{
@@ -716,7 +716,7 @@ public class SpatialGrid implements Settable, Instantiable
 			/* Current voxel volume. */
 			double volume = this._shape.getCurrVoxelVolume();
 			/* Calculate the the timescale from these values. */
-			return dist * volume / (diffusivity * sArea);
+			return dist * volume * diffusivity / sArea;
 		}
 		else
 		{
