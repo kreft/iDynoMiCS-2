@@ -1098,7 +1098,7 @@ public class AgentContainer implements Settable
 				}
 			}
 		}
-		Log.out(DEBUG, "Finished setting up agent distribution maps");
+		Log.out(level, "Finished setting up agent distribution maps");
 	}
 	
 	/**

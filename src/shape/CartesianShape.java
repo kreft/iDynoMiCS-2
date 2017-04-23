@@ -253,8 +253,11 @@ public abstract class CartesianShape extends Shape
 			else
 				return null;
 			
-			out.setBoundary(dimName, 0, dimension.getBoundary(0));
-			out.setBoundary(dimName, 1, dimension.getBoundary(1));
+			if ( ! dimension.isCyclic() )
+			{
+				out.setBoundary(dimName, 0, dimension.getBoundary(0));
+				out.setBoundary(dimName, 1, dimension.getBoundary(1));
+			}
 		}
 		
 		return out;

@@ -155,6 +155,11 @@ public class PDEmultigrid extends PDEsolver
 		 * finest values.
 		 */
 		MultigridLayer.replaceAllLayersFromFinest(this._commonMultigrid);
+		/*
+		 * Tell all shapes to use red-black iteration.
+		 */
+		for ( Shape shape : this._multigridShapes )
+			shape.setNewIterator(2);
 	}
 	
 	public MultigridLayer getMultigrid(SpatialGrid variable)
