@@ -135,7 +135,7 @@ public abstract class Shape implements
 										this.getName(), null, false ) );
 		/* Add the child modules */
 		for ( Dimension dim : this._dimensions.values() )
-			if(dim._isSignificant)
+			if ( dim._isSignificant )
 				modelNode.add( dim.getModule() );
 		/* NOTE: no constructible child modules for this class thus no 
 		 * addChildSpec */

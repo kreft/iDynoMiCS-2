@@ -293,9 +293,8 @@ public abstract class SpatialBoundary extends Boundary
 				this._dim.toString(),
 				null, true));
 		/* Minimum or maximum extreme of this dimension? */
-		modelNode.add(new Attribute("extreme", 
-				Dimension.extremeToString(this._extreme),
-				new String[]{XmlRef.min, XmlRef.max}, true));
+		modelNode.add(new Attribute(XmlRef.extreme, 
+				String.valueOf(this._extreme), new String[]{"0", "1"}, true));
 		return modelNode;
 	}
 	

@@ -637,10 +637,19 @@ public class Dimension implements CanPrelaunchCheck, Settable,
 				String.valueOf(this._isCyclic), null, false ));
 		modelNode.add(new Attribute(XmlRef.targetResolutionAttribute, 
 				String.valueOf(this._targetRes), null, false ));
+		/* Extremes */
 		modelNode.add(new Attribute(XmlRef.min, 
 				String.valueOf(this._extreme[0]), null, false ));
 		modelNode.add(new Attribute(XmlRef.max, 
 				String.valueOf(this._extreme[1]), null, false ));
+		/* Boundaries */
+		if ( ! this._isCyclic )
+		{
+			if ( this.isBoundaryDefined(0) )
+				modelNode.add(this._boundary[0].getModule());
+			if ( this.isBoundaryDefined(1) )
+				modelNode.add(this._boundary[1].getModule());
+		}
 		return modelNode;
 	}
 
