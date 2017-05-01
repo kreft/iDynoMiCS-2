@@ -24,8 +24,6 @@ public class PlasmidLoss extends Event {
 	public String PIGMENT = AspectRef.agentPigment;
 	
 	public String FITNESS_COST = AspectRef.agentFitnessCost;
-	
-	public String COOL_DOWN_PERIOD = AspectRef.coolDownTime;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -43,7 +41,6 @@ public class PlasmidLoss extends Event {
 				if (rndDbl < loss_probability) {
 					Log.out(Tier.DEBUG, "Agent "+justBorn.identity()+" lost plasmid "+plasmidAspect);
 					justBorn.reg().remove(plasmidAspect);
-					justBorn.reg().remove(this.COOL_DOWN_PERIOD);
 					justBorn.set(this.FITNESS_COST, 0.0);
 					for (int i = 0; i < aspects_change.length; i++) {
 						String aspectName = aspects_change[i];
